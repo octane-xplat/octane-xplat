@@ -8,5 +8,4 @@ test('GTK bottom sheets dock, snap and dismiss on real input', (t) =>
 		marker: 'GTK_SHEET',
 		input: true,
 		minChecks: { properties: 8, os: 60 },
-	}),
-)
+	}))

@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -18,6 +19,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 140) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +28,7 @@ const pause = (ms = 140) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -34,6 +37,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
 let props: Parameters<typeof NumberScene>[0] = {
@@ -45,21 +49,26 @@ let props: Parameters<typeof NumberScene>[0] = {
 	max: 10,
 	step: 0.5,
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(NumberScene, props)
 	await pause()
 }
+
 const entry = () => [...container.nodes.values()].find((n) => n.type === 'textfield')!.view! as any
 let native: any
 const named = (view: any, name: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, name) === null
+
 const state = (key: number, value: number) =>
 	native.test_accessible_state(entry(), key, value) === null
+
 const text = (name: string) =>
 	nodes(name)
 		.map((n) => (n.view as any).get_text?.() ?? '')
 		.join('|')
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -70,6 +79,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_NUMBER_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
@@ -89,6 +99,7 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -284,19 +295,23 @@ async function run() {
 			'OS decimal typing preserves decimal point',
 			original.text === '3.5' && changes.at(-1) === 3.5,
 		)
+
 		order.length = 0
 		const clear = nodes('vx-inputnumber-clear')[0]?.view
 		if (clear) {
 			await input(clear, { click: true })
 		}
+
 		check(
 			'OS clear reports null before clear callback',
 			order.join('|') === 'change:null|clear' && original.text === '',
 		)
+
 		check(
 			'clear focuses retained editor',
 			window.get_focus() === original || window.get_focus()?.is_ancestor(original),
 		)
+
 		const plus = nodes('vx-inputnumber-step')[1].view!
 		plus.grab_focus()
 		await input(plus, { key: 'space' })
@@ -304,6 +319,7 @@ async function run() {
 			'keyboard step starts empty number from zero',
 			original.text === '0.5' && changes.at(-1) === 0.5,
 		)
+
 		await render({ min: -10 })
 		original.grab_focus()
 		await input(original, { key: 'ctrl+a' })
@@ -334,6 +350,7 @@ async function run() {
 			'formatted numeric input accepts signed edits',
 			original.text === '-1.25' && changes.at(-1) === -1.25,
 		)
+
 		nodes('vx-inputnumber-step')[1].view!.grab_focus()
 		await pause()
 		check('formatted numeric input commits display on blur', original.text === 'USD -1.25')
@@ -346,6 +363,7 @@ async function run() {
 				root.render(NumberScene, props)
 			},
 		})
+
 		original.grab_focus()
 		await input(original, { key: 'ctrl+a' })
 		await input(original, { type: '8' })
@@ -356,6 +374,7 @@ async function run() {
 			'controlled decimal owner accepts numeric draft',
 			original.text === '6.25' && props.value === 6.25,
 		)
+
 		await render({ value: 8, onValueChange: (value) => changes.push(value) })
 
 		await input(original, { key: 'ctrl+a' })
@@ -367,6 +386,7 @@ async function run() {
 			'controlled rejected clear reports null',
 			original.text === '8' && changes.at(-1) === null,
 		)
+
 		await render({ value: null })
 		await input(nodes('vx-inputnumber-step')[1].view!, { click: true })
 		check(
@@ -433,6 +453,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -443,6 +464,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

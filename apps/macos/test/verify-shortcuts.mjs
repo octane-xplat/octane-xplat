@@ -17,6 +17,7 @@ const ssh = (command) =>
 		timeout: 25_000,
 		maxBuffer: 1024 * 1024,
 	})
+
 const directory = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-macos-'))
 let remote
 try {
@@ -25,6 +26,7 @@ try {
 		bamboo: false,
 		rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 	})({ mode: 'production' })
+
 	await build({
 		...config,
 		configFile: false,
@@ -40,6 +42,7 @@ try {
 			},
 		},
 	})
+
 	remote = ssh('mktemp -d /tmp/xplat-shortcuts-XXXXXX').trim()
 	assert.match(remote, /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/)
 	execFileSync(
@@ -53,11 +56,13 @@ try {
 		],
 		{ timeout: 60_000 },
 	)
+
 	const arch = ssh('uname -m').trim()
 	assert.ok(['arm64', 'x86_64'].includes(arch), arch)
 	const output = ssh(
 		`cd ${quote(remote)} && chmod u+x macos/host && OCTANE_MACOS_AUTOMATION=1 /usr/bin/perl -e 'alarm 15; exec @ARGV' macos/host macos/NativeScript.framework/Versions/A/NativeScript fixture.cjs macos/metadata.macos.${arch}.nsmd shim.js`,
 	)
+
 	assert.match(output, /SHORTCUTS_APPKIT_OK/, output)
 	assert.doesNotMatch(output, /SHORTCUTS_APPKIT_FAIL|uncaught render error/)
 	console.log(output.split('\n').find((line) => line.startsWith('SHORTCUTS_APPKIT_OK')))
@@ -65,5 +70,6 @@ try {
 	if (remote && /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/.test(remote)) {
 		ssh(`rm -rf ${quote(remote)}`)
 	}
+
 	rmSync(directory, { recursive: true, force: true })
 }

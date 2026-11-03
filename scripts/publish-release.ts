@@ -51,15 +51,18 @@ export function publishRelease({
 				if (JSON.parse(String(existing.stdout)) !== pkg.version) {
 					throw new Error(`Unexpected registry response for ${identity}`)
 				}
+
 				console.log(`Already published: ${identity}`)
 				continue
 			}
+
 			let code: string | undefined
 			try {
 				code = JSON.parse(String(existing.stdout)).error?.code
 			} catch {
 				/* Check npm's structured stderr too. */
 			}
+
 			if (!code) {
 				try {
 					code = JSON.parse(String(existing.stderr)).error?.code
@@ -67,20 +70,25 @@ export function publishRelease({
 					/* Report below. */
 				}
 			}
+
 			if (code !== 'E404') {
 				throw new Error(`Registry lookup failed for ${identity}: ${existing.stderr}`)
 			}
+
 			const before = new Set(readdirSync(work))
 			const packed = execute('bun', ['pm', 'pack', '--destination', work], join(root, pkg.dir))
 			if (packed.status !== 0) {
 				throw new Error(`Bun pack failed for ${identity}: ${packed.stderr}`)
 			}
+
 			const files = readdirSync(work).filter((name) => name.endsWith('.tgz') && !before.has(name))
 			if (files.length !== 1) {
 				throw new Error(`Expected one tarball for ${identity}, found ${files.length}`)
 			}
+
 			pending.push({ ...pkg, tarball: join(work, files[0]) })
 		}
+
 		for (const pkg of pending) {
 			const args = [
 				'publish',
@@ -92,12 +100,15 @@ export function publishRelease({
 				tag,
 				...(dryRun ? ['--dry-run'] : []),
 			]
+
 			const result = execute('npm', args)
 			if (result.status !== 0) {
 				throw new Error(`npm publish failed for ${pkg.name}@${pkg.version}: ${result.stderr}`)
 			}
+
 			console.log(String(result.stdout).trim())
 		}
+
 		return pending.map(({ name, version }) => `${name}@${version}`)
 	} finally {
 		rmSync(work, { recursive: true, force: true })
@@ -120,5 +131,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 			throw new Error(`Unknown or incomplete argument: ${args[index]}`)
 		}
 	}
+
 	publishRelease({ tag, packageName, dryRun })
 }

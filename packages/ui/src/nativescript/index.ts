@@ -13,4 +13,7 @@ export type {
 } from '../routing/native-route-transition'
 
 // Native-view outline discovery — the DOM form lives under `@octane-xplat/ui/web`.
-export { useOutlineFromView, getOutlineFromViewCapabilities } from '../components/collections/outline-view.tsrx'
+export {
+	useOutlineFromView,
+	getOutlineFromViewCapabilities,
+} from '../components/collections/outline-view.tsrx'

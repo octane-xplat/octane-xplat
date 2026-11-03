@@ -9,6 +9,7 @@ import {
 	diffFingerprints,
 	diffFingerprintChangesAsync,
 } from '../src/index.ts'
+
 async function fixture(t) {
 	const root = await mkdtemp(join(tmpdir(), 'xplat-fingerprint-'))
 	t.after(() => rm(root, { recursive: true, force: true }))
@@ -48,6 +49,7 @@ async function fixture(t) {
 	)
 	return { root, write }
 }
+
 test('stable across checkout roots, input ordering and JS-only edits', async (t) => {
 	const a = await fixture(t),
 		b = await fixture(t)
@@ -67,6 +69,7 @@ test('stable across checkout roots, input ordering and JS-only edits', async (t)
 	assert.equal(await createProjectHashAsync(a.root), one.hash)
 	assert.equal(/^[0-9a-f]{64}$/.test(one.hash), true)
 })
+
 test('native files, resources, metadata, bootstrap and toolchain invalidate; per-platform selection is explicit', async (t) => {
 	const f = await fixture(t),
 		base = await createFingerprintAsync(f.root, { platforms: ['ios'] })
@@ -94,6 +97,7 @@ test('native files, resources, metadata, bootstrap and toolchain invalidate; per
 		await createProjectHashAsync(f.root, { toolchain: { sdk: '2' } }),
 	)
 })
+
 test('contents are hashed without exposing values; configured extras and ignores have concrete records', async (t) => {
 	const f = await fixture(t),
 		extra = {
@@ -119,6 +123,7 @@ test('contents are hashed without exposing values; configured extras and ignores
 		/Cannot ignore automatic native input/,
 	)
 })
+
 test('missing native metadata, malformed options and escaping symlinks fail closed', async (t) => {
 	const f = await fixture(t)
 	await assert.rejects(createFingerprintAsync(f.root, { platforms: [] }), /platforms/)

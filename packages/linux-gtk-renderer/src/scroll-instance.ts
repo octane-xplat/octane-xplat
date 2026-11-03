@@ -82,6 +82,7 @@ export function bindScrolling(view: GtkView, notify: Notify): () => void {
 				notify('scroll', detail())
 			}),
 		})
+
 		connections.push({
 			adjustment,
 			id: adjustment.connect('changed', () => notify('layoutChanged')),

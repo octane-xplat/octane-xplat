@@ -7,17 +7,21 @@ import type { ProbeContext } from '../../tools/probe/context'
 export default function OpenSettingsProbe() {
 	const [status, setStatus] = useState('Not requested')
 	const open = async () => {
-		if (!openSettings.supported || !await openSettings.isAvailable()) {
+		if (!openSettings.supported || !(await openSettings.isAvailable())) {
 			setStatus('Unavailable')
 			return
 		}
+
 		setStatus(openSettings.open() ? 'Launch request accepted' : 'Launch request failed')
 	}
-	return <VStack gap={2}>
-		<Text>Open System Settings, then navigate to the permission you need.</Text>
-		<Button id="open-system-settings" label="Open settings" clickAction={open} />
-		<Text id="settings-status">{status}</Text>
-	</VStack>
+
+	return (
+		<VStack gap={2}>
+			<Text>Open System Settings, then navigate to the permission you need.</Text>
+			<Button id="open-system-settings" label="Open settings" clickAction={open} />
+			<Text id="settings-status">{status}</Text>
+		</VStack>
+	)
 }
 
 // Availability lookup only; this deliberately does not launch another app.

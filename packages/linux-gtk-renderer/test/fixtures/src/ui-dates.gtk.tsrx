@@ -37,12 +37,9 @@ function CalHookProbe() @{
 	state.hookDays = grid.weeks.reduce((n, w) => n + w.length, 0)
 	state.hookDisabledOut = cons.isDateDisabled({ year: 2025, month: 7, day: 4 })
 	state.hookDisabledIn = cons.isDateDisabled({ year: 2025, month: 6, day: 15 })
+
 	<View style={{ display: 'flex', flexDirection: 'column' }}>
-		<Pressable
-			id="hook-next"
-			accessibilityRole="button"
-			onPress={() => nav.navigateMonths(1)}
-		>
+		<Pressable id="hook-next" accessibilityRole="button" onPress={() => nav.navigateMonths(1)}>
 			<Text>HOOK NEXT MONTH</Text>
 		</Pressable>
 	</View>

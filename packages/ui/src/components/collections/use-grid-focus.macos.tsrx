@@ -9,11 +9,31 @@ export type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
 export function useGridFocus<T extends NSView = NSView>(
 	options: GridFocusOptions,
 ): GridFocusResult<T> {
-	const ref = useRef<T | null>(null), live = useRef(options); live.current = options
+	const ref = useRef<T | null>(null),
+		live = useRef(options)
+
+	live.current = options
 	const [focusIndex, setFocusIndex] = useState(0)
-	const owner = useMemo(() => createAppKitGridCellFocus({ root: () => ref.current, options: () => live.current, changed: setFocusIndex }), [])
+	const owner = useMemo(
+		() =>
+			createAppKitGridCellFocus({
+				root: () => ref.current,
+				options: () => live.current,
+				changed: setFocusIndex,
+			}),
+		[],
+	)
+
 	useLayoutEffect(() => owner.start(), [])
 	useLayoutEffect(() => owner.synchronize(), null)
-	return { ref, focusIndex, onKeyDown: owner.onKeyDown,
-		onFocusCell: owner.available() ? (index: number) => { owner.focusCell(index) } : undefined }
+	return {
+		ref,
+		focusIndex,
+		onKeyDown: owner.onKeyDown,
+		onFocusCell: owner.available()
+			? (index: number) => {
+					owner.focusCell(index)
+				}
+			: undefined,
+	}
 }

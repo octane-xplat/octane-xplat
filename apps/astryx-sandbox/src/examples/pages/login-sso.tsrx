@@ -6,8 +6,19 @@
 // Button `onClick` → `clickAction`; Link `size`/`type` props unported.
 import { useState } from 'octane'
 import {
-	Avatar, Button, Card, Center, Divider, Heading, HStack, Icon, Link, Section,
-	Text, TextInput, VStack,
+	Avatar,
+	Button,
+	Card,
+	Center,
+	Divider,
+	Heading,
+	HStack,
+	Icon,
+	Link,
+	Section,
+	Text,
+	TextInput,
+	VStack,
 } from '@octane-xplat/ui'
 
 const BG_URL = '/template-assets/building.png'
@@ -23,6 +34,7 @@ type SSOProvider = {
 	name: string
 	abbr: string
 }
+
 const SSO_PROVIDERS: Record<string, SSOProvider> = {
 	'google.com': { name: 'Google Workspace', abbr: 'G' },
 	'microsoft.com': { name: 'Microsoft Entra ID', abbr: 'M' },
@@ -56,6 +68,7 @@ export function LoginSsoTemplate() @{
 		if (!emailValid) {
 			return
 		}
+
 		if (provider) {
 			setStep('sso-confirm')
 		} else {
@@ -74,6 +87,7 @@ export function LoginSsoTemplate() @{
 			setLoginFailed(true)
 			return
 		}
+
 		setIsLoading(true)
 		setLoginFailed(false)
 		setTimeout(() => {

@@ -1,18 +1,45 @@
-import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from '../src/text-value.ts'
+import {
+	disposeTextValue,
+	isWritingTextValue,
+	notifyTextValueCommit,
+	setTextValue,
+} from '../src/text-value.ts'
+
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { enforceTextLimit, excessTextRange, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange, type TextRange } from '../src/text-limit.ts'
+import {
+	enforceTextLimit,
+	excessTextRange,
+	isNormalizingTextLimit,
+	recordTextLimitEdit,
+	rememberTextLimitValue,
+	reportTextLimitChange,
+	type TextRange,
+} from '../src/text-limit.ts'
+
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const remove = (text: string, range: TextRange | null) => range ? text.slice(0, range.location) + text.slice(range.location + range.length) : text
+const remove = (text: string, range: TextRange | null) =>
+	range ? text.slice(0, range.location) + text.slice(range.location + range.length) : text
 
 test('length caps bound the insertion and retain original text around a paste/replacement', () => {
-	assert.equal(remove('abcXYZdef', excessTextRange('abcdef', 'abcXYZdef', 8, { location: 3, length: 0 })), 'abcXYdef')
-	assert.equal(remove('abXYZef', excessTextRange('abcdef', 'abXYZef', 6, { location: 2, length: 2 })), 'abXYef')
+	assert.equal(
+		remove('abcXYZdef', excessTextRange('abcdef', 'abcXYZdef', 8, { location: 3, length: 0 })),
+		'abcXYdef',
+	)
+	assert.equal(
+		remove('abXYZef', excessTextRange('abcdef', 'abXYZef', 6, { location: 2, length: 2 })),
+		'abXYef',
+	)
 	assert.equal(remove('aaaa', excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 })), 'aaa')
-	assert.deepEqual(excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 }), { location: 1, length: 1 })
+	assert.deepEqual(excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 }), {
+		location: 1,
+		length: 1,
+	})
 	assert.equal(excessTextRange('long value', 'long valu', 3, { location: 9, length: 1 }), null)
-	for (const cap of [undefined, null, NaN, Infinity, -1, 2.5, '3']) {assert.equal(excessTextRange('', 'long', cap), null)}
+	for (const cap of [undefined, null, NaN, Infinity, -1, 2.5, '3']) {
+		assert.equal(excessTextRange('', 'long', cap), null)
+	}
 	assert.equal(remove('value', excessTextRange('', 'value', 0)), '')
 	assert.equal(remove('A😀B', excessTextRange('', 'A😀B', 2)), 'A')
 	assert.equal(remove('😁x', excessTextRange('😀', '😁x', 1)), '')
@@ -25,14 +52,27 @@ function fixture(before = 'abcd') {
 		string: before,
 		selectedRange: { location: before.length, length: 0 },
 		hasMarkedText: () => composing,
-		textStorage: { replaceCharactersInRangeWithString(range: TextRange, text: string) {
-			view.string = view.string.slice(0, range.location) + text + view.string.slice(range.location + range.length)
-		} },
+		textStorage: {
+			replaceCharactersInRangeWithString(range: TextRange, text: string) {
+				view.string =
+					view.string.slice(0, range.location) +
+					text +
+					view.string.slice(range.location + range.length)
+			},
+		},
 		shouldChangeTextInRangeReplacementString: () => true,
-		didChangeText() { notifications.push(isNormalizingTextLimit(view)) },
+		didChangeText() {
+			notifications.push(isNormalizingTextLimit(view))
+		},
 	}
 	rememberTextLimitValue(view)
-	return { view, notifications, compose: (value: boolean) => { composing = value } }
+	return {
+		view,
+		notifications,
+		compose: (value: boolean) => {
+			composing = value
+		},
+	}
 }
 
 test('committed edits preserve their selection and guard the correction notification', () => {
@@ -76,22 +116,40 @@ test('programmatic values may exceed the cap; native vetoes/failures release the
 	assert.equal(isNormalizingTextLimit(view), false)
 	recordTextLimitEdit(view, { location: 0, length: view.string.length })
 	view.string = 'another value'
-	view.shouldChangeTextInRangeReplacementString = () => { throw new Error('native error') }
+	view.shouldChangeTextInRangeReplacementString = () => {
+		throw new Error('native error')
+	}
 	assert.throws(() => enforceTextLimit(view, 3), /native error/)
 	assert.equal(isNormalizingTextLimit(view), false)
 })
 
 test('native subclass unmark applies a deferred cap once', () => {
 	const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
-	const body = source.slice(source.indexOf('class InteractionTextView'), source.indexOf('class InteractionTextFieldCell'))
+	const body = source.slice(
+		source.indexOf('class InteractionTextView'),
+		source.indexOf('class InteractionTextFieldCell'),
+	)
 	const textNodesByView = new WeakMap()
-	let unmarks = 0, normalizations = 0, changes = 0
+	let unmarks = 0,
+		normalizations = 0,
+		changes = 0
 	const { InteractionTextView } = runSlice(body + '\n({ InteractionTextView })', {
 		notifyTextValueCommit,
-		NSTextView: class { unmarkText() { unmarks++ } }, NativeClass() {}, textNodesByView,
-		enforceTextLimit: () => ++normalizations === 1, reportTextLimitChange: () => true,
-		syncTextViewPlaceholder() {}, fitTextView() {},
-		invokeAction: () => { changes++ }, actionIdsByView: new WeakMap(),
+		NSTextView: class {
+			unmarkText() {
+				unmarks++
+			}
+		},
+		NativeClass() {},
+		textNodesByView,
+		enforceTextLimit: () => ++normalizations === 1,
+		reportTextLimitChange: () => true,
+		syncTextViewPlaceholder() {},
+		fitTextView() {},
+		invokeAction: () => {
+			changes++
+		},
+		actionIdsByView: new WeakMap(),
 	})
 	const view = new InteractionTextView()
 	textNodesByView.set(view, { props: { maxLength: 5 }, actionId: 7 })
@@ -103,18 +161,33 @@ test('native subclass unmark applies a deferred cap once', () => {
 
 test('delegate normalization exposes the corrected text once despite a nested native change notification', () => {
 	const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
-	const body = source.slice(source.indexOf('class ButtonActionTarget'), source.indexOf('const buttonActionTarget'))
+	const body = source.slice(
+		source.indexOf('class ButtonActionTarget'),
+		source.indexOf('const buttonActionTarget'),
+	)
 	const { view } = fixture()
-	const nodes = new WeakMap(), actions = new WeakMap()
+	const nodes = new WeakMap(),
+		actions = new WeakMap()
 	const values: string[] = []
 	const { ButtonActionTarget } = runSlice(body + '\n({ ButtonActionTarget })', {
-		NSObject: class {}, NSButton: class {}, NSPanGestureRecognizer: class {}, NSNotification: class {},
-		NSTextViewDelegate: {}, NSTextFieldDelegate: {},
-		interop: { types: { void: 'void' } }, registerGestureClass() {},
-		textNodesByView: nodes, actionIdsByView: actions,
-		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, reportTextLimitChange,
-		isWritingTextValue, notifyTextValueCommit,
-		syncTextViewPlaceholder() {}, fitTextView() {},
+		NSObject: class {},
+		NSButton: class {},
+		NSPanGestureRecognizer: class {},
+		NSNotification: class {},
+		NSTextViewDelegate: {},
+		NSTextFieldDelegate: {},
+		interop: { types: { void: 'void' } },
+		registerGestureClass() {},
+		textNodesByView: nodes,
+		actionIdsByView: actions,
+		enforceTextLimit,
+		isNormalizingTextLimit,
+		recordTextLimitEdit,
+		reportTextLimitChange,
+		isWritingTextValue,
+		notifyTextValueCommit,
+		syncTextViewPlaceholder() {},
+		fitTextView() {},
 		invokeAction: () => values.push(view.string),
 	})
 	const target = new ButtonActionTarget()
@@ -126,7 +199,6 @@ test('delegate normalization exposes the corrected text once despite a nested na
 	target.textDidChange({ object: view })
 	assert.deepEqual(values, ['abXcd'])
 })
-
 
 test('a wholly rejected insertion emits no duplicate value but composition restoration does', () => {
 	const { view, compose } = fixture('full')

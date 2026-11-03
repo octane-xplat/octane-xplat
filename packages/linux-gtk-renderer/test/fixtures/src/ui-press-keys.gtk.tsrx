@@ -16,7 +16,7 @@ export function PressKeys(props: {
 			<Pressable
 				id="key-button"
 				ref={buttonRef}
-				accessibilityRole={props.role === undefined ? 'button' : props.role ?? undefined}
+				accessibilityRole={props.role === undefined ? 'button' : (props.role ?? undefined)}
 				accessibilityLabel="Action"
 				disabled={props.disabled}
 				onPress={() => events.push('press:' + props.version)}

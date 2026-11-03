@@ -8,7 +8,12 @@ it('attaches after native layout and clips in untransformed local coordinates', 
 	const mask = { frame: null as any, cornerRadius: 0, backgroundColor: null }
 	vi.stubGlobal('CALayer', { layer: () => mask })
 	vi.stubGlobal('UIColor', { whiteColor: { CGColor: 'white' } })
-	vi.stubGlobal('CGRectMake', (x: number, y: number, width: number, height: number) => ({ x, y, width, height }))
+	vi.stubGlobal('CGRectMake', (x: number, y: number, width: number, height: number) => ({
+		x,
+		y,
+		width,
+		height,
+	}))
 	const transaction = { begin: vi.fn(), setDisableActions: vi.fn(), commit: vi.fn() }
 	vi.stubGlobal('CATransaction', transaction)
 
@@ -37,18 +42,30 @@ it('attaches after native layout and clips in untransformed local coordinates', 
 })
 
 it('converts Android insets to pixels and restores the previous outline on close', () => {
-	vi.stubGlobal('android', { view: { ViewOutlineProvider: {
-		extend: (methods: object) => function (this: object) { Object.assign(this, methods) },
-	} } })
+	vi.stubGlobal('android', {
+		view: {
+			ViewOutlineProvider: {
+				extend: (methods: object) =>
+					function (this: object) {
+						Object.assign(this, methods)
+					},
+			},
+		},
+	})
 	const previous = {}
 	let provider: any = previous
 	let clipped = false
 	const native = {
-		getWidth: () => 800, getHeight: () => 600,
+		getWidth: () => 800,
+		getHeight: () => 600,
 		getOutlineProvider: () => provider,
-		setOutlineProvider: (value: any) => { provider = value },
+		setOutlineProvider: (value: any) => {
+			provider = value
+		},
 		getClipToOutline: () => clipped,
-		setClipToOutline: (value: boolean) => { clipped = value },
+		setClipToOutline: (value: boolean) => {
+			clipped = value
+		},
 		invalidateOutline: vi.fn(),
 	}
 	const view: any = {}

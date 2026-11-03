@@ -13,6 +13,7 @@ async function compile(path, dependencies) {
 	vm.runInNewContext(code, { exports, require: (name) => dependencies[name] ?? {} })
 	return exports
 }
+
 const helpers = await compile('../src/hosted.ts', {})
 const { createAuth0Flow } = await compile('../examples/auth0-flow.ts', {
 	'@octane-xplat/auth': helpers,
@@ -20,12 +21,14 @@ const { createAuth0Flow } = await compile('../examples/auth0-flow.ts', {
 		random: { bytes: (n) => Uint8Array.from({ length: n }, (_, i) => i) },
 	},
 })
+
 const config = {
 	issuer: 'https://login.example.test',
 	clientId: 'native-client',
 	audience: 'https://api.example.test',
 	redirectUri: 'packing://auth/callback',
 }
+
 const pkce = { verifier: 'secret-verifier', challenge: 'public-challenge' }
 const valid = {
 	access_token: 'access',
@@ -33,6 +36,7 @@ const valid = {
 	token_type: 'Bearer',
 	expires_in: 3600,
 }
+
 function transport(body = valid, status = 200) {
 	const requests = []
 	return {

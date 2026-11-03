@@ -63,7 +63,7 @@ export function isPercentSize(v: unknown): v is ResizablePercentSize {
 	// counts as absent so `min?: never`/`max?: never` variants still hold.
 	const min = 'min' in v ? v.min : undefined
 	const max = 'max' in v ? v.max : undefined
-	if (min != null === (max != null)) {
+	if ((min != null) === (max != null)) {
 		return false
 	}
 

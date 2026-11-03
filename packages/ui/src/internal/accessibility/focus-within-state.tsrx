@@ -53,7 +53,8 @@ export function useFocusWithinState(options: UseFocusWithinOptions = {}): UseFoc
 
 	return {
 		focusWithinProps: {
-			onFocus: (event?: FocusWithinEvent) => update(true, normalizeFocusWithinEvent(event, 'focus')),
+			onFocus: (event?: FocusWithinEvent) =>
+				update(true, normalizeFocusWithinEvent(event, 'focus')),
 			onBlur: (event?: FocusWithinEvent) => update(false, normalizeFocusWithinEvent(event, 'blur')),
 		},
 		isSubtreeTrackingSupported: false,

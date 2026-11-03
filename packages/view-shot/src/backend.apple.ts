@@ -17,19 +17,23 @@ declare const NSFileManager: {
 		removeItemAtURLError(url: NativeURL): boolean
 	}
 }
+
 interface NativeURL {
 	readonly absoluteString: string
 	readonly path: string
 	URLByAppendingPathComponent(component: string): NativeURL
 }
+
 interface NativeArray<T> {
 	readonly count: number
 	objectAtIndex(index: number): T
 }
+
 export interface NativeLayer {
 	readonly sublayers: NativeArray<NativeLayer> | null
 	isKindOfClass(type: unknown): boolean
 }
+
 export interface NativeView {
 	readonly window: object | null
 	readonly bounds: {
@@ -40,6 +44,7 @@ export interface NativeView {
 	readonly layer: NativeLayer | null
 	isKindOfClass(type: unknown): boolean
 }
+
 export interface NativeData {
 	base64EncodedStringWithOptions(options: number): string
 	writeToURLAtomically(url: unknown, atomically: boolean): boolean
@@ -114,12 +119,7 @@ export function createAppleBackend(policy: {
 			throw new Error('View is detached')
 		}
 		const { width, height } = view.bounds.size
-		if (
-			!Number.isFinite(width) ||
-			!Number.isFinite(height) ||
-			width <= 0 ||
-			height <= 0
-		) {
+		if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
 			throw new Error('View has no laid-out area')
 		}
 		if (protectedSurface(view)) {
@@ -172,9 +172,11 @@ export function createAppleBackend(policy: {
 			const file = NSFileManager.defaultManager.temporaryDirectory.URLByAppendingPathComponent(
 				`octane-view-shot-${NSUUID.UUID().UUIDString}.${options.format}`,
 			)
+
 			if (!data.writeToURLAtomically(file, true)) {
 				throw new Error('Could not write the temporary capture')
 			}
+
 			const uri = String(file.absoluteString)
 			owned.set(uri, file)
 			return uri
@@ -196,6 +198,7 @@ export function createAppleBackend(policy: {
 			if (NSFileManager.defaultManager.fileExistsAtPath(String(file.path))) {
 				NSFileManager.defaultManager.removeItemAtURLError(file)
 			}
+
 			owned.delete(uri)
 			return true
 		} catch {
@@ -239,6 +242,7 @@ export function createAppleBackend(policy: {
 						throw error
 					}
 				}
+
 				await new Promise<void>((resolve) => setTimeout(resolve, 16))
 			}
 			throw new Error('ViewShot unmounted while waiting for layout')

@@ -52,8 +52,10 @@ export function gifBytes({
 			0,
 			2,
 		)
+
 		let bits = 0,
 			used = 0
+
 		const compressed = []
 		const code = (value) => {
 			bits |= value << used
@@ -64,18 +66,22 @@ export function gifBytes({
 				used -= 8
 			}
 		}
+
 		for (let pixel = 0; pixel < width * height; pixel++) {
 			code(4)
 			code(color)
 		}
+
 		code(5)
 		if (used) {
 			compressed.push(bits & 255)
 		}
+
 		for (let offset = 0; offset < compressed.length; offset += 255) {
 			const block = compressed.slice(offset, offset + 255)
 			bytes.push(block.length, ...block)
 		}
+
 		bytes.push(0)
 	}
 	bytes.push(0x3b)

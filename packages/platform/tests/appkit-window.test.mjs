@@ -6,24 +6,40 @@ import { readFile } from 'node:fs/promises'
 import ts from 'typescript-classic'
 
 const eventContext = { exports: {} }
-vm.runInNewContext(ts.transpile(
-	await readFile(new URL('../../../apps/macos/src/platform-events.ts', import.meta.url), 'utf8'),
-	{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-), eventContext)
+vm.runInNewContext(
+	ts.transpile(
+		await readFile(new URL('../../../apps/macos/src/platform-events.ts', import.meta.url), 'utf8'),
+		{ module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+	),
+	eventContext,
+)
 
 async function installedHost() {
 	const source = ts.transpile(
 		await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),
 		{ module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
 	)
-	const parsed = ts.createSourceFile('appkit.js', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
-	const install = parsed.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === 'installPlatformServices')
+	const parsed = ts.createSourceFile(
+		'appkit.js',
+		source,
+		ts.ScriptTarget.Latest,
+		true,
+		ts.ScriptKind.JS,
+	)
+	const install = parsed.statements.find(
+		(node) => ts.isFunctionDeclaration(node) && node.name?.text === 'installPlatformServices',
+	)
 	assert.ok(install)
 	const window = {
 		frame: { size: { width: 900, height: 650 } },
 		contentView: { bounds: { size: { width: 900, height: 600 } } },
 	}
-	const services = { appState: 'active', primaryWindow: window, windowResizeListeners: new Set(), appStateListeners: new Set() }
+	const services = {
+		appState: 'active',
+		primaryWindow: window,
+		windowResizeListeners: new Set(),
+		appStateListeners: new Set(),
+	}
 	const hover = () => {}
 	const context = {
 		...eventContext.exports,
@@ -68,7 +84,9 @@ test('AppKit resize subscriptions read new dimensions and clean up', async () =>
 	const observed = []
 	const off = host.onWindowResize(() => observed.push(host.windowSize.width))
 	window.contentView.bounds.size.width = 500
-	for (const notify of services.windowResizeListeners) {notify(window)}
+	for (const notify of services.windowResizeListeners) {
+		notify(window)
+	}
 	assert.deepEqual(observed, [500])
 	off()
 	assert.equal(services.windowResizeListeners.size, 0)

@@ -11,6 +11,7 @@ export {
 	addListener,
 	removeAllListeners,
 } from './core'
+
 export { MediaType, AlbumType, AssetUriVersion, PermissionStatus, AssetField } from './types'
 export type {
 	AssetUriOptions,

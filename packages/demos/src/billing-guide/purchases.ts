@@ -9,6 +9,7 @@ interface PurchaseState {
 	pending: boolean
 	message: string
 }
+
 interface Options {
 	store: Billing
 	request: HostedAuth['fetch']
@@ -31,11 +32,15 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 	let unsubscribe: (() => void)[] = []
 	const finished = new Set<string>()
 	const update = (patch: Partial<PurchaseState>) => {
-		if (!closed) {state.update((previous) => ({ ...previous, ...patch }))}
+		if (!closed) {
+			state.update((previous) => ({ ...previous, ...patch }))
+		}
 	}
 	async function refreshEntitlement() {
 		const response = await request('/api/entitlements')
-		if (!response.ok) {throw new Error('Entitlement check unavailable')}
+		if (!response.ok) {
+			throw new Error('Entitlement check unavailable')
+		}
 		const result: unknown = await response.json()
 		if (
 			!result ||
@@ -48,14 +53,19 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		update({ unlocked: result.premium })
 	}
 	async function reconcileOne(purchase: Purchase) {
-		if (closed) {return}
-		if (purchase.productId !== productId) {return}
+		if (closed) {
+			return
+		}
+		if (purchase.productId !== productId) {
+			return
+		}
 		if (purchase.state === 'pending') {
 			update({
 				busy: false,
 				pending: true,
 				message: 'Payment is pending. Access has not been granted.',
 			})
+
 			return
 		}
 		if (purchase.state !== 'purchased' || !purchase.transactionId || !purchase.receiptToken) {
@@ -71,7 +81,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 				receiptToken: purchase.receiptToken,
 			}),
 		})
-		if (!response.ok) {throw new Error('Purchase verification unavailable')}
+		if (!response.ok) {
+			throw new Error('Purchase verification unavailable')
+		}
 		const result: unknown = await response.json()
 		if (
 			!result ||
@@ -85,13 +97,18 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		) {
 			throw new Error('Purchase was not verified and recorded')
 		}
-		if (closed) {return}
+		if (closed) {
+			return
+		}
 		await refreshEntitlement()
-		if (closed) {return}
+		if (closed) {
+			return
+		}
 		if (!finished.has(purchase.transactionId)) {
 			if (platform !== 'android' || !purchase.isAcknowledged) {
 				await store.finishTransaction(purchase, { consume: false })
 			}
+
 			finished.add(purchase.transactionId)
 		}
 		update({
@@ -115,8 +132,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		}
 	}
 	function enqueue(purchases: Purchase[]) {
-		if (purchases.some((p) => p.productId === productId && p.state === 'purchased'))
-			{update({ busy: true })}
+		if (purchases.some((p) => p.productId === productId && p.state === 'purchased')) {
+			update({ busy: true })
+		}
 		queue = queue
 			.then(() => reconcile(purchases))
 			.catch(() => {
@@ -128,7 +146,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		return queue
 	}
 	async function restore() {
-		if (closed || !started || !store.supported) {return}
+		if (closed || !started || !store.supported) {
+			return
+		}
 		update({ busy: true, message: 'Checking purchases…' })
 		try {
 			await refreshEntitlement()
@@ -142,6 +162,7 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 						: 'No purchase found. Choose Buy when the product is loaded.',
 				})
 			}
+
 			update({ busy: false })
 		} catch {
 			update({
@@ -151,7 +172,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		}
 	}
 	async function start() {
-		if (started || closed) {return}
+		if (started || closed) {
+			return
+		}
 		started = true
 		if (!store.supported) {
 			update({ message: 'Purchases are unavailable on this target.' })
@@ -166,7 +189,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		await reload()
 	}
 	async function reload() {
-		if (closed || !started || !store.supported) {return}
+		if (closed || !started || !store.supported) {
+			return
+		}
 		update({ busy: true })
 		try {
 			await store.connect()
@@ -177,15 +202,21 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 					message:
 						'Store setup failed or payments are restricted. Check the store account, then tap Reload store.',
 				})
+
 				return
 			}
+
 			const products = await store.fetchProducts([productId], 'inapp')
-			if (closed) {return}
+			if (closed) {
+				return
+			}
+
 			const product = products.find((entry) => entry.id === productId) ?? null
 			update({ product })
 			await restore()
-			if (!product)
-				{update({ message: 'Product unavailable. Check its ID and store setup, then Reload store.' })}
+			if (!product) {
+				update({ message: 'Product unavailable. Check its ID and store setup, then Reload store.' })
+			}
 		} catch {
 			update({
 				busy: false,
@@ -203,8 +234,9 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 			current.busy ||
 			current.pending ||
 			current.unlocked
-		)
-			{return}
+		) {
+			return
+		}
 		update({ busy: true, message: 'Complete the purchase in the store.' })
 		try {
 			await store.requestPurchase(productId)
@@ -228,10 +260,16 @@ export function createPurchaseSession({ store, request, platform, productId }: O
 		})
 	}
 	function close() {
-		if (closed) {return}
+		if (closed) {
+			return
+		}
 		closed = true
-		for (const off of unsubscribe) {off()}
-		if (started && store.supported) {store.disconnect()}
+		for (const off of unsubscribe) {
+			off()
+		}
+		if (started && store.supported) {
+			store.disconnect()
+		}
 	}
 	return { state, start, reload, buy, restore, close }
 }

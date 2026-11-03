@@ -15,6 +15,7 @@ try {
 		entry,
 		"export { startReporting, stopReporting, reportDeliveryCheck } from '../examples/reporting.web.ts'\n",
 	)
+
 	const output = join(fixture, 'dist')
 	await build({
 		configFile: false,
@@ -27,10 +28,12 @@ try {
 			lib: { entry, name: 'ReportingGuide', formats: ['iife'], fileName: () => 'reporting.js' },
 		},
 	})
+
 	const injected = spawnSync('bun', ['run', 'sentry-cli', 'sourcemaps', 'inject', output], {
 		cwd: root,
 		encoding: 'utf8',
 	})
+
 	assert.equal(injected.status, 0, injected.stderr)
 	const script = await readFile(join(output, 'reporting.js'), 'utf8')
 	const map = JSON.parse(await readFile(join(output, 'reporting.js.map'), 'utf8'))
@@ -49,15 +52,18 @@ try {
 			.split('\n')
 			[original.originalLine].includes('Xplat reporting check'),
 	)
+
 	const help = spawnSync('bun', ['run', 'sentry-cli', 'sourcemaps', 'upload', '--help'], {
 		cwd: root,
 		encoding: 'utf8',
 	})
+
 	assert.equal(help.status, 0, help.stderr)
 	assert.ok(help.stdout.includes('--release') && help.stdout.includes('--dist'))
 	console.log(
 		`Built browser reporting example and matched Debug ID ${map.debugId}; maps retain original TS. No upload or runtime delivery executed.`,
 	)
+
 	assert.equal((await readdir(output)).length >= 2, true)
 } finally {
 	await rm(fixture, { recursive: true, force: true })

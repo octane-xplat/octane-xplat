@@ -9,6 +9,7 @@ const source = await readFile(
 	new URL('../../demos/src/billing-guide/purchases.ts', import.meta.url),
 	'utf8',
 )
+
 const exports = {}
 vm.runInNewContext(
 	ts.transpile(source, { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }),
@@ -17,6 +18,7 @@ vm.runInNewContext(
 		require: () => ({ createStore }),
 	},
 )
+
 const { createPurchaseSession } = exports
 const product = { id: 'premium', title: 'Premium', displayPrice: '$4.99', type: 'inapp' }
 const purchase = {
@@ -27,6 +29,7 @@ const purchase = {
 	isAcknowledged: false,
 	native: {},
 }
+
 const reply = (body, status = 200) => ({ ok: status === 200, status, json: async () => body })
 function fixture({ ready = true, supported = true, verify, finish, available = [] } = {}) {
 	let listener,
@@ -68,9 +71,13 @@ function fixture({ ready = true, supported = true, verify, finish, available = [
 	}
 	const request = async (path, init) => {
 		calls.push(path)
-		if (path === '/api/entitlements') {return reply({ premium: entitled })}
+		if (path === '/api/entitlements') {
+			return reply({ premium: entitled })
+		}
 		const body = JSON.parse(init.body)
-		if (verify) {return verify(body)}
+		if (verify) {
+			return verify(body)
+		}
 		entitled = true
 		return reply({ granted: true, transactionId: body.transactionId, productId: body.productId })
 	}
@@ -88,6 +95,7 @@ function fixture({ ready = true, supported = true, verify, finish, available = [
 		disconnected: () => disconnected,
 	}
 }
+
 const settled = () => new Promise((resolve) => setImmediate(resolve))
 
 test('localized product loads, while an opened purchase sheet never grants access', async () => {
@@ -150,7 +158,9 @@ test('restoration retries failed completion using the same store transaction', a
 	const f = fixture({
 		available: [purchase],
 		finish: () => {
-			if (++attempts === 1) {throw new Error('offline')}
+			if (++attempts === 1) {
+				throw new Error('offline')
+			}
 		},
 	})
 	await f.owner.start()

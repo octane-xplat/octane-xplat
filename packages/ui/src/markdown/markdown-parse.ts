@@ -15,6 +15,7 @@ import {
 	isAsciiPunctuation,
 	matchCharacterReference,
 } from './markdown-character-references.ts'
+
 import { mdInlineText } from './markdown-ast.ts'
 import { isSafeMdParserUrl } from './markdown-url.ts'
 import {
@@ -27,6 +28,7 @@ import {
 	type PreparedMarkdownPlugins,
 	type PreparedSyntaxContribution,
 } from './markdown-plugins.ts'
+
 import type {
 	MdExtension,
 	MdInline,
@@ -191,9 +193,7 @@ function resolveOptions(
 		return incremental ? EMPTY_INCREMENTAL_OPTS : EMPTY_OPTS
 	}
 	const plugins =
-		arg.plugins != null && arg.plugins.length > 0
-			? prepareMarkdownPlugins(arg.plugins)
-			: undefined
+		arg.plugins != null && arg.plugins.length > 0 ? prepareMarkdownPlugins(arg.plugins) : undefined
 	return makeResolvedOptions({
 		sourceIds: arg.sourceIds,
 		autolink: arg.autolink,
@@ -254,6 +254,7 @@ function stripBlockquoteMarkers(line: string): {
 		if (marker == null) {
 			return { content, quoteDepth }
 		}
+
 		content = content.slice(marker[0].length)
 		quoteDepth++
 	}
@@ -266,6 +267,7 @@ function stripExactBlockquoteDepth(line: string, quoteDepth: number): string | n
 		if (marker == null) {
 			return null
 		}
+
 		content = content.slice(marker[0].length)
 	}
 	return content
@@ -313,6 +315,7 @@ function displayMathLineState(line: string, container: DisplayMathContainer): Di
 		if (/^ {0,3}> ?/.test(outerContent)) {
 			return 'outside'
 		}
+
 		return outerContent.trim() === '$$' ? 'close' : 'inside'
 	}
 
@@ -463,6 +466,7 @@ function topLevelFences(): {
 			if (closesFence(text, itemFence)) {
 				itemFence = ''
 			}
+
 			itemEndsInParagraph = false
 			return
 		}
@@ -486,6 +490,7 @@ function topLevelFences(): {
 					fence = ''
 					return 'close'
 				}
+
 				return 'inside'
 			}
 			if (line.trim() === '') {
@@ -576,6 +581,7 @@ function extractLinkDefinitions(
 			atBoundary = fences.read(lines, index) === 'close'
 			continue
 		}
+
 		if (math) {
 			const displayMath = matchDisplayMathBlock(lines, index)
 			if (displayMath != null) {
@@ -586,20 +592,24 @@ function extractLinkDefinitions(
 				continue
 			}
 		}
+
 		if (fences.read(lines, index) === 'open') {
 			atBoundary = false
 			continue
 		}
+
 		if (line.trim() === '') {
 			atBoundary = true
 			continue
 		}
+
 		if (atBoundary) {
 			const def = matchLinkDefinition(line)
 			if (def != null) {
 				if (!defs.has(def.label)) {
 					defs.set(def.label, def.destination)
 				}
+
 				keep[index] = false
 				// A title-less definition absorbs a title on the following line
 				// (CommonMark), which then also produces no output.
@@ -611,10 +621,12 @@ function extractLinkDefinitions(
 					keep[index + 1] = false
 					index++
 				}
+
 				// Consecutive definitions stay at a block boundary.
 				continue
 			}
 		}
+
 		// A heading or thematic break is a self-contained single-line block, so
 		// the next line begins a new block where a definition may appear.
 		atBoundary = /^ {0,3}#{1,6}(?: |\t|$)/.test(line) || isHorizontalRule(line)
@@ -876,6 +888,7 @@ function angleDestinationClose(text: string, open: number): number | 'refused' |
 				return 'refused'
 			}
 		}
+
 		index++
 		while (/\s/.test(text[index] ?? '')) {
 			index++
@@ -913,6 +926,7 @@ function decodeLinkDestination(raw: string): string {
 			index += 2
 			continue
 		}
+
 		if (character === '&') {
 			const reference = matchCharacterReference(raw, index)
 			if (reference != null) {
@@ -921,6 +935,7 @@ function decodeLinkDestination(raw: string): string {
 				continue
 			}
 		}
+
 		decoded += character
 		index++
 	}
@@ -976,12 +991,14 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
 				while (text[end] === '`') {
 					end++
 				}
+
 				const sameLength = backtickStarts.get(end - start)
 				if (sameLength == null) {
 					backtickStarts.set(end - start, [start])
 				} else {
 					sameLength.push(start)
 				}
+
 				start = text.indexOf('`', end)
 			}
 		}
@@ -1016,12 +1033,14 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
 					while (text[runEnd] === '`') {
 						runEnd++
 					}
+
 					const closer = backtickCloser(runEnd, runEnd - index)
 					index = (closer === -1 ? runEnd : closer + (runEnd - index)) - 1
 				} else if (character === ']') {
 					closes[index] = 1
 				}
 			}
+
 			nextClosingBracket = new Int32Array(text.length + 1).fill(-1)
 			for (let index = text.length - 1; index >= 0; index--) {
 				nextClosingBracket[index] = closes[index] === 1 ? index : nextClosingBracket[index + 1]
@@ -1103,6 +1122,7 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
 					while (text[runEnd] === '`') {
 						runEnd++
 					}
+
 					const closer = backtickCloser(runEnd, runEnd - index)
 					index = (closer === -1 ? runEnd : closer + (runEnd - index)) - 1
 				} else if (character === '!' && text[index + 1] === '[') {
@@ -1119,14 +1139,17 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
 					if (!active) {
 						continue
 					}
+
 					const end = linkEnd(opener.index, index)
 					if (end === -1) {
 						continue
 					}
+
 					openerCloses.set(opener.index, index)
 					if (!opener.image) {
 						inactiveBelow = openers.length
 					}
+
 					// The destination or label is no part of any bracket pairing.
 					index = end - 1
 				}
@@ -1341,6 +1364,7 @@ function resolveEmphasis(
 			closerItem = closerItem.next
 			continue
 		}
+
 		const key = `${closer.character}${closer.canOpen ? 1 : 0}${closer.originalLength % 3}`
 		const bottom = openersBottom.get(key) ?? -1
 		let openerItem: StackRun | null = closerItem.previous
@@ -1352,6 +1376,7 @@ function resolveEmphasis(
 				(closer.canOpen || candidate.canClose) &&
 				(candidate.originalLength + closer.originalLength) % 3 === 0 &&
 				!(candidate.originalLength % 3 === 0 && closer.originalLength % 3 === 0)
+
 			if (
 				candidate.character === closer.character &&
 				candidate.canOpen &&
@@ -1360,17 +1385,21 @@ function resolveEmphasis(
 			) {
 				break
 			}
+
 			openerItem = openerItem.previous
 		}
+
 		if (openerItem == null || openerItem.index <= bottom) {
 			openersBottom.set(key, closerItem.index - 1)
 			const next: StackRun | null = closerItem.next
 			if (!closer.canOpen) {
 				leave(closerItem)
 			}
+
 			closerItem = next
 			continue
 		}
+
 		const opener = openerItem.run
 		// Runs between the pair can no longer pair: take them off the stack, and
 		// note the deepest emphasis among the nodes between.
@@ -1382,6 +1411,7 @@ function resolveEmphasis(
 		) {
 			innerDepth = Math.max(innerDepth, between.depthAfter)
 		}
+
 		openerItem.next = closerItem
 		closerItem.previous = openerItem
 		openerItem.depthAfter = innerDepth
@@ -1394,19 +1424,23 @@ function resolveEmphasis(
 			if (!closer.canOpen) {
 				leave(closerItem)
 			}
+
 			closerItem = next
 			continue
 		}
+
 		const openerEntry = entryOf.get(opener.node)
 		const closerEntry = entryOf.get(closer.node)
 		if (openerEntry == null || closerEntry == null) {
 			break
 		}
+
 		const use = opener.length >= 2 && closer.length >= 2 ? 2 : 1
 		const children: PhrasingNode[] = []
 		for (let entry = openerEntry.next; entry != null && entry !== closerEntry; entry = entry.next) {
 			children.push(entry.node)
 		}
+
 		let wrapper: PhrasingNode
 		if (use === 2) {
 			wrapper = { type: 'strong', children }
@@ -1425,11 +1459,13 @@ function resolveEmphasis(
 						}
 					: { type: 'emphasis', children }
 		}
+
 		const wrapperEntry: Entry = {
 			node: wrapper,
 			previous: openerEntry,
 			next: closerEntry,
 		}
+
 		openerEntry.next = wrapperEntry
 		closerEntry.previous = wrapperEntry
 		openerItem.depthAfter = innerDepth + 1
@@ -1441,6 +1477,7 @@ function resolveEmphasis(
 			unlink(openerEntry)
 			leave(openerItem)
 		}
+
 		if (closer.length === 0) {
 			unlink(closerEntry)
 			const next: StackRun | null = closerItem.next
@@ -1463,6 +1500,7 @@ function resolveEmphasis(
 			previousIsLeftover = true
 			continue
 		}
+
 		result.push(isLeftover ? { type: 'text', value: (node as { value: string }).value } : node)
 		previousIsLeftover = isLeftover
 	}
@@ -1508,9 +1546,11 @@ function findInlineMathEnd(text: string, start: number): number {
 		if (text[index] === '\n') {
 			return -1
 		}
+
 		if (text[index] !== '$' || isEscaped(text, index)) {
 			continue
 		}
+
 		// An unescaped dollar ends this candidate: it either forms a valid closer
 		// or makes the whole span literal. Never skip over one and pair with a
 		// later dollar, which would swallow currency or another expression.
@@ -1522,6 +1562,7 @@ function findInlineMathEnd(text: string, start: number): number {
 		) {
 			return -1
 		}
+
 		return index
 	}
 	return -1
@@ -1616,6 +1657,7 @@ function matchExtensionSyntax(
 		if (seen.has(candidate)) {
 			continue
 		}
+
 		seen.add(candidate)
 		let fullPrefix = false
 		for (const prefix of candidate.contribution.startsWith) {
@@ -1623,6 +1665,7 @@ function matchExtensionSyntax(
 				fullPrefix = true
 				break
 			}
+
 			if (!opts.isFinal) {
 				const remaining = source.slice(offset)
 				if (remaining.length < prefix.length && prefix.startsWith(remaining)) {
@@ -1630,6 +1673,7 @@ function matchExtensionSyntax(
 				}
 			}
 		}
+
 		if (!fullPrefix) {
 			continue
 		}
@@ -1650,6 +1694,7 @@ function matchExtensionSyntax(
 			reportMarkdownPluginFailure(candidate.pluginName, 'syntax', error)
 			continue
 		}
+
 		if (
 			result == null ||
 			typeof result !== 'object' ||
@@ -1660,11 +1705,14 @@ function matchExtensionSyntax(
 				'syntax',
 				new TypeError('Tokenizer returned an invalid result'),
 			)
+
 			continue
 		}
+
 		if (result.status === 'no-match') {
 			continue
 		}
+
 		if (result.status === 'defer') {
 			return !opts.isFinal &&
 				end === source.length &&
@@ -1672,6 +1720,7 @@ function matchExtensionSyntax(
 				? { status: 'defer' }
 				: { status: 'none' }
 		}
+
 		if (
 			result.status !== 'match' ||
 			!Number.isInteger(result.end) ||
@@ -1689,12 +1738,15 @@ function matchExtensionSyntax(
 				'syntax',
 				new TypeError('Tokenizer returned an invalid extension node'),
 			)
+
 			continue
 		}
+
 		const rawNode = result.node as typeof result.node & {
 			readonly source?: unknown
 			readonly position?: unknown
 		}
+
 		const { source: _ignoredSource, position: _ignoredPosition, ...safeNode } = rawNode
 		const absoluteStart = (opts.baseOffset ?? 0) + offset
 		const absoluteEnd = (opts.baseOffset ?? 0) + result.end
@@ -1796,6 +1848,7 @@ function parseInlineImpl(
 				i += 1 + lineEnding
 				continue
 			}
+
 			if (isAsciiPunctuation(text[i + 1])) {
 				nodes.push({ type: 'text', value: text[i + 1] })
 				i += 2
@@ -1811,6 +1864,7 @@ function parseInlineImpl(
 			while (text[openIndex] === '`') {
 				openIndex++
 			}
+
 			const tickCount = openIndex - i
 			const closeIndex = inlineIndex.backtickCloser(openIndex, tickCount)
 			if (closeIndex === -1) {
@@ -1818,6 +1872,7 @@ function parseInlineImpl(
 				i = openIndex
 				continue
 			}
+
 			nodes.push({
 				type: 'inlineCode',
 				value:
@@ -1825,6 +1880,7 @@ function parseInlineImpl(
 						? text.slice(openIndex, closeIndex).replace(/\\\|/g, '|')
 						: text.slice(openIndex, closeIndex),
 			})
+
 			i = closeIndex + tickCount
 			continue
 		}
@@ -1837,6 +1893,7 @@ function parseInlineImpl(
 					type: 'inlineMath',
 					value: text.slice(i + 1, closeIndex),
 				})
+
 				i = closeIndex + 1
 				continue
 			}
@@ -1859,6 +1916,7 @@ function parseInlineImpl(
 				const angleClose = angleDestinationClose(text, altClose + 1)
 				const srcClose =
 					angleClose === 'refused' ? -1 : (angleClose ?? inlineIndex.closingParen(altClose + 1))
+
 				if (srcClose !== -1) {
 					const src = decodeLinkDestination(inlineDestination(text.slice(altClose + 2, srcClose)))
 					if (!isSafeMdParserUrl(src)) {
@@ -1871,6 +1929,7 @@ function parseInlineImpl(
 							alt: imageAlt(text.slice(i + 2, altClose), opts, context),
 						})
 					}
+
 					i = srcClose + 1
 					continue
 				}
@@ -1904,6 +1963,7 @@ function parseInlineImpl(
 				const angleClose = angleDestinationClose(text, textClose + 1)
 				const urlClose =
 					angleClose === 'refused' ? -1 : (angleClose ?? inlineIndex.closingParen(textClose + 1))
+
 				if (urlClose !== -1) {
 					const href = decodeLinkDestination(inlineDestination(text.slice(textClose + 2, urlClose)))
 					if (!isSafeMdParserUrl(href)) {
@@ -1916,6 +1976,7 @@ function parseInlineImpl(
 							children: parseInlineImpl(text.slice(i + 1, textClose), opts, context),
 						})
 					}
+
 					i = urlClose + 1
 					continue
 				}
@@ -1941,14 +2002,18 @@ function parseInlineImpl(
 			while (text[runEnd] === character) {
 				runEnd++
 			}
+
 			const run = delimiterRun(character, text, i, runEnd)
 			if (run.canOpen || run.canClose) {
 				nodes.push(run.node)
+
 				;(delimiters ??= []).push(run)
+
 				;(delimiterNodes ??= new Set()).add(run.node)
 				i = runEnd
 				continue
 			}
+
 			// A run that can neither open nor close is text unless plugin syntax
 			// can start on the character — then fall through to the extension
 			// check below.
@@ -1967,6 +2032,7 @@ function parseInlineImpl(
 					type: 'delete',
 					children: parseInlineImpl(text.slice(i + 2, closeIndex), opts, context),
 				})
+
 				i = closeIndex + 2
 				continue
 			}
@@ -1981,6 +2047,7 @@ function parseInlineImpl(
 				i = extension.end
 				continue
 			}
+
 			if (extension.status === 'defer') {
 				// The rest of the text may still complete plugin syntax; leave it
 				// for the next snapshot rather than committing it as plain text.
@@ -2023,11 +2090,13 @@ function parseInlineImpl(
 			while (line[line.length - 1 - spaces] === ' ') {
 				spaces++
 			}
+
 			const trimmed = line.slice(0, line.length - spaces)
 			if (spaces >= 2) {
 				if (trimmed.length > 0) {
 					appendInlineText(nodes, delimiterNodes, trimmed)
 				}
+
 				nodes.push({ type: 'break' })
 				i = end + 1
 				continue
@@ -2099,9 +2168,11 @@ function peelTrailingPunctAndParens(url: string): string {
 			while (end > 0 && TRAILING_PUNCT_CHARS.has(s[end - 1])) {
 				end--
 			}
+
 			s = s.slice(0, end)
 			continue
 		}
+
 		if (s.endsWith(')')) {
 			let open = 0
 			let close = 0
@@ -2112,11 +2183,13 @@ function peelTrailingPunctAndParens(url: string): string {
 					close++
 				}
 			}
+
 			if (close > open) {
 				s = s.slice(0, -1)
 				continue
 			}
 		}
+
 		break
 	}
 	return s
@@ -2152,6 +2225,7 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
 			if (!isSafeMdParserUrl(url)) {
 				continue
 			}
+
 			matches.push({
 				start: m.index,
 				end: m.index + m[0].length,
@@ -2185,13 +2259,16 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
 			if (!isUrlBoundaryChar(prev)) {
 				continue
 			}
+
 			if (text.slice(m.index - 2, m.index) === '](') {
 				continue
 			}
+
 			const cleaned = peelTrailingPunctAndParens(m[0])
 			if (cleaned.length === 0) {
 				continue
 			}
+
 			matches.push({
 				start: m.index,
 				end: m.index + cleaned.length,
@@ -2210,14 +2287,17 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
 			if (!isUrlBoundaryChar(prev)) {
 				continue
 			}
+
 			// Don't match inside an https://www… capture from the previous pattern
 			if (text.slice(m.index - 3, m.index) === '://') {
 				continue
 			}
+
 			const cleaned = peelTrailingPunctAndParens(m[0])
 			if (cleaned.length === 0) {
 				continue
 			}
+
 			matches.push({
 				start: m.index,
 				end: m.index + cleaned.length,
@@ -2239,9 +2319,11 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
 			if (prev != null && EMAIL_LOCAL_CHARS.has(prev)) {
 				continue
 			}
+
 			if (text.slice(Math.max(0, m.index - 7), m.index) === 'mailto:') {
 				continue
 			}
+
 			matches.push({
 				start: m.index,
 				end: m.index + m[0].length,
@@ -2280,11 +2362,13 @@ function splitTextOnAutolinks(content: string): MdInline[] {
 		if (m.start > cursor) {
 			out.push({ type: 'text', value: content.slice(cursor, m.start) })
 		}
+
 		out.push({
 			type: 'link',
 			url: m.href,
 			children: [{ type: 'text', value: m.display }],
 		})
+
 		cursor = m.end
 	}
 	if (cursor < content.length) {
@@ -2373,6 +2457,7 @@ function hasUnescapedPipe(line: string): boolean {
 			index++
 			continue
 		}
+
 		if (line[index] === '|') {
 			return true
 		}
@@ -2600,6 +2685,7 @@ function parseTable(
 				children: parseInlineEntry(cell, opts, 'tableCell'),
 			})),
 		})
+
 		rowIndex++
 	}
 	const header: MdTableRow = {
@@ -2672,6 +2758,7 @@ function parseList(
 		const content = ordered
 			? lines[index].replace(new RegExp(`^ *\\d+${escDelim} `), '')
 			: lines[index].replace(/^ *[-*+] /, '')
+
 		// Where the item's content starts: past the marker and the spaces after
 		// it (one to four; more makes the content indented by one space).
 		const markerEnd = lines[index].length - content.length
@@ -2699,6 +2786,7 @@ function parseList(
 		let lazyParagraphOpen: boolean | undefined = canContinueParagraphLazily([itemText], 0, true)
 			? true
 			: undefined
+
 		while (index < lines.length && lines[index].trim() !== '') {
 			if (getIndent(lines[index]) > baseIndent) {
 				subLines.push(lines[index])
@@ -2708,6 +2796,7 @@ function parseList(
 				) {
 					lazyParagraphOpen = undefined
 				}
+
 				index++
 				continue
 			}
@@ -2715,15 +2804,18 @@ function parseList(
 			if (interruptsLazyContinuation(index) || !canContinueParagraphLazily(lines, index, true)) {
 				break
 			}
+
 			if (lazyParagraphOpen === undefined) {
 				lazyParagraphOpen = sourceEndsInParagraph(
 					listItemSource(itemText, subLines, lazyLineIndexes),
 					opts,
 				)
 			}
+
 			if (!lazyParagraphOpen) {
 				break
 			}
+
 			lazyLineIndexes.add(subLines.length)
 			subLines.push(lines[index])
 			index++
@@ -2737,12 +2829,15 @@ function parseList(
 			while (next < lines.length && lines[next].trim() === '') {
 				next++
 			}
+
 			if (next === index || next >= lines.length || getIndent(lines[next]) < contentColumn) {
 				break
 			}
+
 			for (; index < next; index++) {
 				subLines.push('')
 			}
+
 			while (
 				index < lines.length &&
 				lines[index].trim() !== '' &&
@@ -2751,6 +2846,7 @@ function parseList(
 				subLines.push(lines[index])
 				index++
 			}
+
 			loose = true
 		}
 
@@ -2780,6 +2876,7 @@ function parseList(
 		while (lookahead < lines.length && lines[lookahead].trim() === '') {
 			lookahead++
 		}
+
 		if (lookahead > index && lookahead < lines.length && startsItem(lines[lookahead])) {
 			loose = true
 			index = lookahead
@@ -2961,6 +3058,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				codeLines.push(lines[index].replace(fenceIndentation, ''))
 				index++
 			}
+
 			const closed = index < lines.length
 			// A fence left open in the document runs to its end, whose final line
 			// ending starts no line of code (CommonMark 0.31 §4.5) — as a closed
@@ -2975,6 +3073,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 			) {
 				codeLines.pop()
 			}
+
 			index++ // skip closing fence
 			// A fence owns its blank lines, and an unterminated one (mid-stream)
 			// can end on them, so it states its own end rather than letting the
@@ -2988,6 +3087,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				},
 				Math.min(index, lines.length) - 1,
 			)
+
 			continue
 		}
 
@@ -3010,6 +3110,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				depth: headingMatch[1].length as 1 | 2 | 3 | 4 | 5 | 6,
 				children: parseInlineEntry(headingMatch[2], opts),
 			})
+
 			index++
 			continue
 		}
@@ -3032,6 +3133,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				alt: imageAlt(imageMatch[1], opts, 'default'),
 				url: imageSrc,
 			})
+
 			index++
 			continue
 		}
@@ -3057,6 +3159,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 					if (documentLineOf != null) {
 						quoteOrigin.push(documentLineOf(index))
 					}
+
 					if (content.trim() === '') {
 						lazyParagraphOpen = false
 					} else if (
@@ -3065,9 +3168,11 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 					) {
 						lazyParagraphOpen = undefined
 					}
+
 					index++
 					continue
 				}
+
 				if (
 					quoteLines[quoteLines.length - 1]?.trim() === '' ||
 					interruptsWithBlockExtension(index) ||
@@ -3075,18 +3180,23 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				) {
 					break
 				}
+
 				if (lazyParagraphOpen === undefined) {
 					lazyParagraphOpen = sourceEndsInParagraph(quoteLines.join('\n'), opts)
 				}
+
 				if (!lazyParagraphOpen) {
 					break
 				}
+
 				quoteLines.push(quoteLine)
 				if (documentLineOf != null) {
 					quoteOrigin.push(documentLineOf(index))
 				}
+
 				index++
 			}
+
 			pushBlock({
 				type: 'blockquote',
 				children: parseMarkdownImpl(
@@ -3094,6 +3204,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 					nestedAt(opts, documentLineOf != null ? quoteOrigin : null),
 				),
 			})
+
 			continue
 		}
 
@@ -3107,6 +3218,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				interruptsWithBlockExtension,
 				documentLineOf,
 			)
+
 			pushBlock(listResult.node)
 			index = listResult.nextIndex
 			continue
@@ -3122,6 +3234,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				interruptsWithBlockExtension,
 				documentLineOf,
 			)
+
 			pushBlock(listResult.node)
 			index = listResult.nextIndex
 			continue
@@ -3161,9 +3274,11 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 			) {
 				break
 			}
+
 			paraLines.push(nextLine)
 			index++
 		}
+
 		pushBlock({
 			type: 'paragraph',
 			children: parseInlineEntry(paraLines.join('\n'), opts),
@@ -3233,6 +3348,7 @@ function stampSourceRanges(
 				endLine--
 			}
 		}
+
 		// Exactly the block's own lines, verbatim — a CRLF document's trailing
 		// `\r` included, since the parser reads it as part of the line too and a
 		// range that dropped it would slice to something that re-parses
@@ -3251,6 +3367,7 @@ function stampSourceRanges(
 				...(endDocLine != null ? { line: endDocLine + 1 } : null),
 			},
 		}
+
 		blocks[i] = withMarkerShapeOf(blocks[i], { ...blocks[i], position })
 	}
 }
@@ -3415,9 +3532,11 @@ function findSettledBoundary(
 				mathContainer = null
 				continue
 			}
+
 			if (state === 'inside') {
 				continue
 			}
+
 			// The list item or blockquote ended before a closer arrived. The parser
 			// treats that unmatched opener literally, so resume ordinary boundary
 			// detection on this first line outside the container.
@@ -3492,14 +3611,17 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 				tail = tail.slice(0, index)
 				break
 			}
+
 			if (!isInlineMathStart(tail, index)) {
 				continue
 			}
+
 			const close = findInlineMathEnd(tail, index)
 			if (close !== -1) {
 				index = close
 				continue
 			}
+
 			let laterDollar = -1
 			for (let next = index + 1; next < tail.length; next++) {
 				if (tail[next] === '$' && !isEscaped(tail, next)) {
@@ -3507,10 +3629,12 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 					break
 				}
 			}
+
 			if (laterDollar === -1) {
 				tail = tail.slice(0, index)
 				break
 			}
+
 			index = laterDollar
 		}
 	}
@@ -3526,6 +3650,7 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 			// Also trim a preceding `!` for images
 			const trimTo =
 				lastBracket > 0 && tail[lastBracket - 1] === '!' ? lastBracket - 1 : lastBracket
+
 			tail = tail.slice(0, trimTo)
 		}
 	}
@@ -3572,29 +3697,35 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 			if (idx === -1) {
 				break
 			}
+
 			// Determine marker length (* or ** or ***)
 			let markerLen = 1
 			while (idx + markerLen < tail.length && tail[idx + markerLen] === '*') {
 				markerLen++
 			}
+
 			if (markerLen > 3) {
 				// 4+ stars — not standard markdown emphasis, skip
 				searchFrom = idx + markerLen
 				continue
 			}
+
 			markers.push({ pos: idx, len: markerLen })
 			searchFrom = idx + markerLen
 		}
+
 		// Pair markers greedily. Unpaired openers get auto-closed.
 		const paired = new Set<number>()
 		for (let i = 0; i < markers.length; i++) {
 			if (paired.has(i)) {
 				continue
 			}
+
 			for (let j = i + 1; j < markers.length; j++) {
 				if (paired.has(j)) {
 					continue
 				}
+
 				if (markers[j].len === markers[i].len) {
 					paired.add(i)
 					paired.add(j)
@@ -3602,6 +3733,7 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 				}
 			}
 		}
+
 		// Append closing markers for each unpaired opener (in reverse order),
 		// before any trailing whitespace: a closer must follow content to close
 		// (CommonMark's flanking rules), so `**bold ` closes as `**bold** `.
@@ -3650,10 +3782,12 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 			if (idx === -1) {
 				break
 			}
+
 			positions.push(idx)
 			count++
 			searchFrom = idx + 2
 		}
+
 		if (count % 2 === 1) {
 			// Odd number of ~~ — the last one is unclosed, trim from it
 			tail = tail.slice(0, positions[positions.length - 1])
@@ -3689,6 +3823,7 @@ function trimOpenDisplayMath(text: string): string {
 			fences.read(lines, index)
 			continue
 		}
+
 		if (mathContainer != null) {
 			const state = displayMathLineState(line, mathContainer)
 			if (state === 'close') {
@@ -3696,9 +3831,11 @@ function trimOpenDisplayMath(text: string): string {
 				mathStartLine = -1
 				continue
 			}
+
 			if (state === 'inside') {
 				continue
 			}
+
 			mathContainer = null
 			mathStartLine = -1
 			suppressMathUntilBoundary = true
@@ -3711,6 +3848,7 @@ function trimOpenDisplayMath(text: string): string {
 		if (fences.read(lines, index) === 'open') {
 			continue
 		}
+
 		const container = suppressMathUntilBoundary ? null : displayMathContainer(line)
 		if (container != null) {
 			mathContainer = container
@@ -3761,6 +3899,7 @@ function trimUnsettledStructural(text: string): string {
 					break
 				}
 			}
+
 			if (!tableEstablished) {
 				// Lone pipe line — could be a table header waiting for separator
 				lines.pop()
@@ -3860,6 +3999,7 @@ function mergeSettledBlocks(prev: MdNode[], delta: MdNode[]): MdNode[] {
 					}
 				: null),
 		}
+
 		return [...prev.slice(0, -1), withMarkerShapeOf(prevLast, merged), ...delta.slice(1)]
 	}
 	return [...prev, ...delta]
@@ -3897,6 +4037,7 @@ function appendSettledBlocks(prev: MdNode[], delta: MdNode[]): boolean {
 					}
 				: null),
 		})
+
 		prev.push(...delta.slice(1))
 		return true
 	}
@@ -4068,6 +4209,7 @@ export function parseMarkdownIncremental(
 		if (oldSettledEnd === 0) {
 			state.settledUpTo++
 		}
+
 		cache.settledEnd = nextSettledEnd
 		if (opts.sourceLines === true && settledDelta !== '') {
 			cache.settledEndLine = (deltaBaseLine ?? 0) + countNewlines(settledDelta)
@@ -4103,6 +4245,7 @@ export function parseMarkdownIncremental(
 			settledDelta,
 			atLine(atOffset(parseOpts, oldSettledEnd), deltaBaseLine ?? 0),
 		)
+
 		appendSettledBlocks(state.settledBlocks, deltaBlocks)
 		parsedSettledBlocks = deltaBlocks.length
 	}
@@ -4117,8 +4260,7 @@ export function parseMarkdownIncremental(
 			: -1
 	const unsettledBaseLine =
 		unsettledStart >= 0 && opts.sourceLines === true
-			? (cache.settledEndLine ?? 0) +
-				countNewlines(input.slice(cache.settledEnd, unsettledStart))
+			? (cache.settledEndLine ?? 0) + countNewlines(input.slice(cache.settledEnd, unsettledStart))
 			: 0
 	const unsettledBlocks = unsettledText
 		? parseMarkdownImpl(

@@ -79,10 +79,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
 		ref={forwardedRef}
 		{...layoutChildProps(
 			props,
-			mergeStyle(
-				{ flexWrap: isGrid ? 'wrap' : 'nowrap', display: 'flex' },
-				props.style,
-			),
+			mergeStyle({ flexWrap: isGrid ? 'wrap' : 'nowrap', display: 'flex' }, props.style),
 		)}
 		className={cx('vx-gridlist', isGrid ? undefined : 'vx-gridlist--stack', props.className)}
 		accessible={props.accessible}

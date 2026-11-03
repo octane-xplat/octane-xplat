@@ -46,7 +46,11 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 		)}
 		style={props.style}
 		accessibilityRole="checkbox"
-		accessibilityLabel={props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value) ?? 'Checkbox'}
+		accessibilityLabel={
+			props.accessibilityLabel ??
+			(typeof props.label === 'string' ? props.label : props.value) ??
+			'Checkbox'
+		}
 		accessibilityHint={props.description}
 		accessibilityState={{
 			checked: state === 'indeterminate' ? 'mixed' : state === 'checked',

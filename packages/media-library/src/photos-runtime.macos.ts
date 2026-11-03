@@ -17,6 +17,7 @@ function runtime(): PhotoRuntime | null {
 	return (cached =
 		typeof value.PHPhotoLibrary?.authorizationStatusForAccessLevel === 'function' ? value : null)
 }
+
 let subscribe: ReturnType<typeof observerFactory> | undefined
 export const appleHost: AppleHost = {
 	runtime,
@@ -28,7 +29,9 @@ export const appleHost: AppleHost = {
 		if (!subscribe) {
 			subscribe = observerFactory(
 				NSObject,
-				'PHPhotoLibraryChangeObserver' in globalThis ? globalThis.PHPhotoLibraryChangeObserver : undefined,
+				'PHPhotoLibraryChangeObserver' in globalThis
+					? globalThis.PHPhotoLibraryChangeObserver
+					: undefined,
 				`XplatLibraryObserver${NSUUID.UUID().UUIDString.replace(/-/g, '')}`,
 				(callback) => NSOperationQueue.mainQueue.addOperationWithBlock(callback),
 				(observer) =>

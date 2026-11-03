@@ -5,19 +5,44 @@
 // back to the Personal info pane upstream-style (they render no detail).
 import { useState } from 'octane'
 import {
-	Badge, Button, Card, Center, Divider, Heading, HStack, Icon, Layout,
-	LayoutContent, LayoutHeader, LayoutPanel, Link, List, ListItem, Selector, StackItem,
-	Switch, Tab, TabList, Text, TextInput, useMediaQuery, VStack,
+	Badge,
+	Button,
+	Card,
+	Center,
+	Divider,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	Link,
+	List,
+	ListItem,
+	Selector,
+	StackItem,
+	Switch,
+	Tab,
+	TabList,
+	Text,
+	TextInput,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
 
 const sideNavPadding = {
 	paddingBlock: 'var(--spacing-4)',
 	paddingInline: 'var(--spacing-3)',
 } as const
+
 const sideNavHeading = { marginInline: 'var(--spacing-4)' } as const
 const rowPadding = { paddingBlock: 'var(--spacing-3)' } as const
 const fillViewport = { height: '100dvh' } as const
-const iconBox = { borderRadius: 'var(--radius-element)', backgroundColor: 'var(--color-background-muted)' } as const
+const iconBox = {
+	borderRadius: 'var(--radius-element)',
+	backgroundColor: 'var(--color-background-muted)',
+} as const
 
 const NAV_ITEMS = [
 	{ label: 'Personal information', icon: 'sandbox-user' },
@@ -36,18 +61,29 @@ interface InfoRow {
 	action: string
 }
 
-const LOGIN_ROWS: InfoRow[] = [
-	{ label: 'Password', value: 'Not created', action: 'Create' },
-]
+const LOGIN_ROWS: InfoRow[] = [{ label: 'Password', value: 'Not created', action: 'Create' }]
 
-const SOCIAL_ROWS: InfoRow[] = [
-	{ label: 'Google', value: 'Connected', action: 'Disconnect' },
-]
+const SOCIAL_ROWS: InfoRow[] = [{ label: 'Google', value: 'Connected', action: 'Disconnect' }]
 
 const DEVICE_ROWS = [
-	{ label: 'OS X 10.15.7 · Chrome', badge: 'CURRENT SESSION', location: 'McKinney, Texas · March 30, 2026 at 19:31', action: undefined },
-	{ label: 'Windows 11 · Edge', badge: undefined, location: 'Austin, Texas · March 28, 2026 at 08:12', action: 'Log out' },
-	{ label: 'iPhone 15 · Safari', badge: undefined, location: 'McKinney, Texas · March 27, 2026 at 21:44', action: 'Log out' },
+	{
+		label: 'OS X 10.15.7 · Chrome',
+		badge: 'CURRENT SESSION',
+		location: 'McKinney, Texas · March 30, 2026 at 19:31',
+		action: undefined,
+	},
+	{
+		label: 'Windows 11 · Edge',
+		badge: undefined,
+		location: 'Austin, Texas · March 28, 2026 at 08:12',
+		action: 'Log out',
+	},
+	{
+		label: 'iPhone 15 · Safari',
+		badge: undefined,
+		location: 'McKinney, Texas · March 27, 2026 at 21:44',
+		action: 'Log out',
+	},
 ]
 
 const LANGUAGES = [
@@ -167,7 +203,11 @@ export function SettingsSidebarTemplate() @{
 						key={item.label}
 						label={item.label}
 						startContent={<Icon name={item.icon} />}
-						endContent={isNarrow ? <Icon name="sandbox-chevron-right" size={16} color="secondary" /> : undefined}
+						endContent={
+							isNarrow ? (
+								<Icon name="sandbox-chevron-right" size={16} color="secondary" />
+							) : undefined
+						}
 						isSelected={!isNarrow && activeNav === item.label}
 						onPress={() => selectNav(item.label)}
 					/>
@@ -194,12 +234,7 @@ export function SettingsSidebarTemplate() @{
 		)
 	}
 
-	const expandable = (
-		label: string,
-		value: string,
-		key: string,
-		field: any,
-	) => (
+	const expandable = (label: string, value: string, key: string, field: any) => (
 		<ExpandableRow
 			label={label}
 			value={value}
@@ -228,7 +263,8 @@ export function SettingsSidebarTemplate() @{
 					<HStack gap={2} vAlign="center">
 						<Button
 							label="Back"
-							variant="ghost" size="sm"
+							variant="ghost"
+							size="sm"
 							icon={<Icon name="sandbox-chevron-left" size={16} />}
 							clickAction={() => setMobileView('nav')}
 						/>
@@ -240,7 +276,6 @@ export function SettingsSidebarTemplate() @{
 		content={
 			<LayoutContent padding={isNarrow ? 4 : 8}>
 				<VStack gap={6}>
-
 					{activeNav === 'Login & security' ? (
 						<VStack gap={6}>
 							{!isNarrow ? <Heading level={2}>Login &amp; security</Heading> : null}
@@ -274,7 +309,9 @@ export function SettingsSidebarTemplate() @{
 												<StackItem size="fill">
 													<VStack gap={0}>
 														<HStack gap={2} vAlign="center">
-															<Text type="body" weight="semibold">{device.label}</Text>
+															<Text type="body" weight="semibold">
+																{device.label}
+															</Text>
 															{device.badge ? <Badge label={device.badge} /> : null}
 														</HStack>
 														<Text type="supporting" color="secondary">
@@ -312,10 +349,9 @@ export function SettingsSidebarTemplate() @{
 										<Heading level={3}>Shared access</Heading>
 										<Divider />
 										<Text type="body" color="secondary">
-											Review each request carefully before approving access.
-											We&apos;ll email your employee or co-worker a 4-digit
-											code that lets them log into your account with their
-											trusted device.
+											Review each request carefully before approving access. We&apos;ll email your
+											employee or co-worker a 4-digit code that lets them log into your account with
+											their trusted device.
 										</Text>
 									</VStack>
 									<Card variant="muted">
@@ -328,9 +364,8 @@ export function SettingsSidebarTemplate() @{
 													Adding devices from people you trust
 												</Text>
 												<Text type="body" color="secondary">
-													When you approve a request, you grant someone full
-													access to your account. They&apos;ll be able to
-													change reservations and send messages on your
+													When you approve a request, you grant someone full access to your account.
+													They&apos;ll be able to change reservations and send messages on your
 													behalf.
 												</Text>
 											</VStack>
@@ -346,16 +381,40 @@ export function SettingsSidebarTemplate() @{
 							{!isNarrow ? <Heading level={2}>Languages &amp; currency</Heading> : null}
 							<VStack gap={0}>
 								{expandable(
-									'Language', 'English (Canada)', 'language',
-									<Selector label="Language" isLabelHidden options={LANGUAGES} value={language} onValueChange={(v) => setLanguage(v ?? '')} />,
+									'Language',
+									'English (Canada)',
+									'language',
+									<Selector
+										label="Language"
+										isLabelHidden
+										options={LANGUAGES}
+										value={language}
+										onValueChange={(v) => setLanguage(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Currency', 'Canadian dollar (CAD)', 'currency',
-									<Selector label="Currency" isLabelHidden options={CURRENCIES} value={currency} onValueChange={(v) => setCurrency(v ?? '')} />,
+									'Currency',
+									'Canadian dollar (CAD)',
+									'currency',
+									<Selector
+										label="Currency"
+										isLabelHidden
+										options={CURRENCIES}
+										value={currency}
+										onValueChange={(v) => setCurrency(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Time zone', 'Eastern Time (ET)', 'timezone',
-									<Selector label="Time zone" isLabelHidden options={TIMEZONES} value={timezone} onValueChange={(v) => setTimezone(v ?? '')} />,
+									'Time zone',
+									'Eastern Time (ET)',
+									'timezone',
+									<Selector
+										label="Time zone"
+										isLabelHidden
+										options={TIMEZONES}
+										value={timezone}
+										onValueChange={(v) => setTimezone(v ?? '')}
+									/>,
 								)}
 							</VStack>
 						</VStack>
@@ -366,33 +425,82 @@ export function SettingsSidebarTemplate() @{
 							{!isNarrow ? <Heading level={2}>Personal info</Heading> : null}
 							<VStack gap={0}>
 								{expandable(
-									'Legal name', legalName, 'legalName',
-									<TextInput label="Legal name" isLabelHidden value={legalName} onChange={(v) => setLegalName(v ?? '')} />,
+									'Legal name',
+									legalName,
+									'legalName',
+									<TextInput
+										label="Legal name"
+										isLabelHidden
+										value={legalName}
+										onChange={(v) => setLegalName(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Preferred name', preferredName || 'Not provided', 'preferredName',
-									<TextInput label="Preferred name" isLabelHidden value={preferredName} onChange={(v) => setPreferredName(v ?? '')} />,
+									'Preferred name',
+									preferredName || 'Not provided',
+									'preferredName',
+									<TextInput
+										label="Preferred name"
+										isLabelHidden
+										value={preferredName}
+										onChange={(v) => setPreferredName(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Email address', email, 'email',
-									<TextInput label="Email address" isLabelHidden value={email} onChange={(v) => setEmail(v ?? '')} />,
+									'Email address',
+									email,
+									'email',
+									<TextInput
+										label="Email address"
+										isLabelHidden
+										value={email}
+										onChange={(v) => setEmail(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Phone number', phone, 'phone',
-									<TextInput label="Phone number" isLabelHidden value={phone} onChange={(v) => setPhone(v ?? '')} />,
+									'Phone number',
+									phone,
+									'phone',
+									<TextInput
+										label="Phone number"
+										isLabelHidden
+										value={phone}
+										onChange={(v) => setPhone(v ?? '')}
+									/>,
 								)}
 								<InfoRowItem label="Government ID" value="Provided" action="Edit" />
 								{expandable(
-									'Address', address || 'Not provided', 'address',
-									<TextInput label="Address" isLabelHidden value={address} onChange={(v) => setAddress(v ?? '')} />,
+									'Address',
+									address || 'Not provided',
+									'address',
+									<TextInput
+										label="Address"
+										isLabelHidden
+										value={address}
+										onChange={(v) => setAddress(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Mailing address', mailingAddress || 'Not provided', 'mailingAddress',
-									<TextInput label="Mailing address" isLabelHidden value={mailingAddress} onChange={(v) => setMailingAddress(v ?? '')} />,
+									'Mailing address',
+									mailingAddress || 'Not provided',
+									'mailingAddress',
+									<TextInput
+										label="Mailing address"
+										isLabelHidden
+										value={mailingAddress}
+										onChange={(v) => setMailingAddress(v ?? '')}
+									/>,
 								)}
 								{expandable(
-									'Emergency contact', emergencyContact, 'emergencyContact',
-									<TextInput label="Emergency contact" isLabelHidden value={emergencyContact} onChange={(v) => setEmergencyContact(v ?? '')} />,
+									'Emergency contact',
+									emergencyContact,
+									'emergencyContact',
+									<TextInput
+										label="Emergency contact"
+										isLabelHidden
+										value={emergencyContact}
+										onChange={(v) => setEmergencyContact(v ?? '')}
+									/>,
 								)}
 							</VStack>
 						</VStack>
@@ -409,11 +517,14 @@ export function SettingsSidebarTemplate() @{
 											label="Show people when I've read their messages."
 											value={readReceipts}
 											onChange={(v) => setReadReceipts(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 									</VStack>
 									<HStack hAlign="between" vAlign="center" style={rowPadding}>
-										<Text type="body" weight="semibold">Blocked people</Text>
+										<Text type="body" weight="semibold">
+											Blocked people
+										</Text>
 										<Link href="#">View</Link>
 									</HStack>
 									<Divider />
@@ -427,7 +538,8 @@ export function SettingsSidebarTemplate() @{
 											description="Turning this on means search engines, like Google, will display your listing page(s) in search results."
 											value={searchEngines}
 											onChange={(v) => setSearchEngines(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 									</VStack>
 									<Divider />
@@ -443,26 +555,34 @@ export function SettingsSidebarTemplate() @{
 										<Switch
 											label="Show my home city and country"
 											description="Ex: City and country"
-											value={showCity} onChange={(v) => setShowCity(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											value={showCity}
+											onChange={(v) => setShowCity(v ?? '')}
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 										<Switch
 											label="Show my trip type"
 											description="Ex: Stayed with kids or pets"
-											value={showTripType} onChange={(v) => setShowTripType(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											value={showTripType}
+											onChange={(v) => setShowTripType(v ?? '')}
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 										<Switch
 											label="Show my length of stay"
 											description="Ex: A few nights, about a week, etc."
-											value={showStayLength} onChange={(v) => setShowStayLength(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											value={showStayLength}
+											onChange={(v) => setShowStayLength(v ?? '')}
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 										<Switch
 											label="Show my booked services"
 											description="Ex: Gourmet brunch or tasting menu"
-											value={showServices} onChange={(v) => setShowServices(v ?? '')}
-											labelPosition="start" labelSpacing="spread"
+											value={showServices}
+											onChange={(v) => setShowServices(v ?? '')}
+											labelPosition="start"
+											labelSpacing="spread"
 										/>
 									</VStack>
 								</VStack>
@@ -478,8 +598,10 @@ export function SettingsSidebarTemplate() @{
 									<Switch
 										label="Help improve AI-powered features"
 										description="When this is on, we use your data to develop and improve AI models."
-										value={aiFeatures} onChange={(v) => setAiFeatures(v ?? '')}
-										labelPosition="start" labelSpacing="spread"
+										value={aiFeatures}
+										onChange={(v) => setAiFeatures(v ?? '')}
+										labelPosition="start"
+										labelSpacing="spread"
 									/>
 									<Card>
 										<HStack hAlign="between" vAlign="center">
@@ -493,10 +615,12 @@ export function SettingsSidebarTemplate() @{
 												<Icon name="sandbox-shield-check" />
 											</Center>
 											<VStack gap={1}>
-												<Text type="body" weight="bold">Committed to privacy</Text>
+												<Text type="body" weight="bold">
+													Committed to privacy
+												</Text>
 												<Text type="supporting" color="secondary">
-													We&apos;re committed to keeping your data protected.
-													See details in our <Link href="#">Privacy Policy</Link>.
+													We&apos;re committed to keeping your data protected. See details in our{' '}
+													<Link href="#">Privacy Policy</Link>.
 												</Text>
 											</VStack>
 										</HStack>

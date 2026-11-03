@@ -2,7 +2,18 @@
 // route /templates/classic-gallery/.
 // GAPS: Grid `gap` is not a prop — it moves into style.
 import { useState } from 'octane'
-import { Center, Grid, Heading, Layout, LayoutContent, Section, Tab, TabList, Text, VStack } from '@octane-xplat/ui'
+import {
+	Center,
+	Grid,
+	Heading,
+	Layout,
+	LayoutContent,
+	Section,
+	Tab,
+	TabList,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 const outer = {
 	maxWidth: 1200,
@@ -10,15 +21,18 @@ const outer = {
 	paddingInline: 'var(--spacing-6)',
 	paddingBlock: 'var(--spacing-8)',
 }
+
 const imageWrapper = {
 	position: 'relative' as const,
 	aspectRatio: '3/2',
 	borderRadius: 'var(--radius-container)',
 	overflow: 'clip' as const,
 }
+
 const textCenter = {
 	textAlign: 'center' as const,
 }
+
 const imgFill = {
 	position: 'absolute' as const,
 	inset: 0,
@@ -36,16 +50,56 @@ interface GalleryImage {
 }
 
 const GALLERY_IMAGES: GalleryImage[] = [
-	{ src: '/template-assets/moody-scene-horizontal-1.png', alt: 'Moody scene landscape', category: 'scene' },
-	{ src: '/template-assets/moody-lifestyle-vertical-1.png', alt: 'Moody lifestyle portrait', category: 'lifestyle' },
-	{ src: '/template-assets/moody-home-vertical-1.png', alt: 'Moody home interior', category: 'home' },
-	{ src: '/template-assets/moody-scene-horizontal-2.png', alt: 'Moody scene vista', category: 'scene' },
-	{ src: '/template-assets/moody-lifestyle-vertical-2.png', alt: 'Moody lifestyle scene', category: 'lifestyle' },
-	{ src: '/template-assets/moody-lifestyle-horizontal-1.png', alt: 'Moody lifestyle horizontal', category: 'lifestyle' },
-	{ src: '/template-assets/moody-scene-vertical-1.png', alt: 'Moody scene vertical', category: 'scene' },
-	{ src: '/template-assets/moody-home-vertical-2.png', alt: 'Moody home vertical', category: 'home' },
-	{ src: '/template-assets/moody-home-horizontal-1.png', alt: 'Moody home horizontal', category: 'home' },
-	{ src: '/template-assets/moody-scene-vertical-2.png', alt: 'Moody scene vertical', category: 'scene' },
+	{
+		src: '/template-assets/moody-scene-horizontal-1.png',
+		alt: 'Moody scene landscape',
+		category: 'scene',
+	},
+	{
+		src: '/template-assets/moody-lifestyle-vertical-1.png',
+		alt: 'Moody lifestyle portrait',
+		category: 'lifestyle',
+	},
+	{
+		src: '/template-assets/moody-home-vertical-1.png',
+		alt: 'Moody home interior',
+		category: 'home',
+	},
+	{
+		src: '/template-assets/moody-scene-horizontal-2.png',
+		alt: 'Moody scene vista',
+		category: 'scene',
+	},
+	{
+		src: '/template-assets/moody-lifestyle-vertical-2.png',
+		alt: 'Moody lifestyle scene',
+		category: 'lifestyle',
+	},
+	{
+		src: '/template-assets/moody-lifestyle-horizontal-1.png',
+		alt: 'Moody lifestyle horizontal',
+		category: 'lifestyle',
+	},
+	{
+		src: '/template-assets/moody-scene-vertical-1.png',
+		alt: 'Moody scene vertical',
+		category: 'scene',
+	},
+	{
+		src: '/template-assets/moody-home-vertical-2.png',
+		alt: 'Moody home vertical',
+		category: 'home',
+	},
+	{
+		src: '/template-assets/moody-home-horizontal-1.png',
+		alt: 'Moody home horizontal',
+		category: 'home',
+	},
+	{
+		src: '/template-assets/moody-scene-vertical-2.png',
+		alt: 'Moody scene vertical',
+		category: 'scene',
+	},
 ]
 
 export function ClassicGalleryTemplate() @{

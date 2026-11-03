@@ -4,7 +4,11 @@
 import { act, createRoot } from 'octane'
 import { expect, it, vi } from 'vitest'
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
-import { NavigationChrome, type NavigationChromeKind } from '../../../tests/navigation-item-cases.tsrx'
+import {
+	NavigationChrome,
+	type NavigationChromeKind,
+} from '../../../tests/navigation-item-cases.tsrx'
+
 import { checkedLinkFixture } from '../../../tests/validated-destination-cases.tsrx'
 import { SideNavItem } from './SideNav.web.tsrx'
 import { TopNavItem } from './TopNav.web.tsrx'

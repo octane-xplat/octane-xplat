@@ -9,9 +9,11 @@ declare global {
 	class TextEncoder {
 		encode(value: string): Uint8Array
 	}
+
 	class TextDecoder {
 		decode(value: Uint8Array): string
 	}
+
 	function setTimeout(callback: () => void, ms?: number): number
 	function clearTimeout(id: number): void
 	function setInterval(callback: () => void, ms?: number): number
@@ -35,4 +37,8 @@ declare global {
 export {}
 
 /** GJS exposes the current module URL through import.meta. */
-declare global { interface ImportMeta { readonly url: string } }
+declare global {
+	interface ImportMeta {
+		readonly url: string
+	}
+}

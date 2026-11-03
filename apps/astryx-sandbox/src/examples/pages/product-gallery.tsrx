@@ -1,7 +1,18 @@
 // Port of upstream templates/pages/product-gallery/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/product-gallery/.
 // GAPS: Grid `gap`/`align` are not props — they move into style.
-import { AspectRatio, Button, Card, Grid, Heading, Icon, Layout, LayoutContent, Text, VStack } from '@octane-xplat/ui'
+import {
+	AspectRatio,
+	Button,
+	Card,
+	Grid,
+	Heading,
+	Icon,
+	Layout,
+	LayoutContent,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 // The only custom CSS is the image fill — there is no Image primitive to
 // fill the AspectRatio box with `object-fit` (#2582).

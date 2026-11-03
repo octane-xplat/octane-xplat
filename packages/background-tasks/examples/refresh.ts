@@ -15,11 +15,13 @@ async function recordRun(kind: 'foreground' | 'background'): Promise<TaskResult>
 			kind === 'background' ? backgroundKey : foregroundKey,
 			new Date().toISOString(),
 		)
+
 		return storage.flush() ? 'success' : 'failed'
 	} catch {
 		return 'failed'
 	}
 }
+
 backgroundTasks.defineTask(taskName, () => recordRun('background'))
 
 /** Call once during a fresh process launch, before Application.run(). */
@@ -28,8 +30,9 @@ export function requestAtNativeStartup(): void {
 		requestedInThisModule ||
 		!backgroundTasks.supported ||
 		storage.getString(enabledKey) !== 'yes'
-	)
-		{return}
+	) {
+		return
+	}
 	requestedInThisModule = true
 	// The native registration runs synchronously inside the current adapter's
 	// async method. Do not await getStatus() before registering the iOS handler.
@@ -38,6 +41,7 @@ export function requestAtNativeStartup(): void {
 		() => recordRequest('registration failed'),
 	)
 }
+
 function recordRequest(message: string): void {
 	// Diagnostic persistence is best-effort; it must not reject startup work.
 	try {
@@ -57,8 +61,12 @@ export async function disableRefresh(): Promise<void> {
 		storage.remove(enabledKey)
 		saved = storage.flush()
 	} catch {}
-	if (backgroundTasks.supported) {await backgroundTasks.unregister(taskName)}
-	if (!saved) {throw new Error('Could not save disabled preference')}
+	if (backgroundTasks.supported) {
+		await backgroundTasks.unregister(taskName)
+	}
+	if (!saved) {
+		throw new Error('Could not save disabled preference')
+	}
 }
 
 export async function refreshNow(): Promise<TaskResult> {

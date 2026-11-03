@@ -10,6 +10,7 @@ vi.mock('@nativescript/core', () => ({
 		return !platform.ios
 	},
 }))
+
 afterEach(() => vi.useRealTimers())
 
 function setup(ios: boolean) {

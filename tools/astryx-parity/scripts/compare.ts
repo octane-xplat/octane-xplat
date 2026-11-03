@@ -95,6 +95,7 @@ async function main() {
 			'status' in sameframe.result
 				? sameframe.result.status
 				: undefined
+
 		if (status !== 'pass' || behavior.diffs.length > 0) {
 			console.error(
 				`parity findings: sameframe status=${status ?? 'unknown'}, ` +

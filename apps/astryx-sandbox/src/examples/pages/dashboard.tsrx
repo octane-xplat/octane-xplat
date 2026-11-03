@@ -6,9 +6,22 @@
 // axis/gridline chrome are not re-created.
 import { useState } from 'octane'
 import {
-	Button, Card, Divider, Grid, Heading, HStack, Icon, Layout,
-	LayoutContent, Link, ProgressBar, Table, Text, VStack,
+	Button,
+	Card,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	Link,
+	ProgressBar,
+	Table,
+	Text,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartLines, ChartSparkline, ChartStackedBar } from './charts.tsrx'
 
@@ -20,9 +33,16 @@ const chartColors = {
 
 // Decimated from upstream's 96-point 15-min series — same 24h shape.
 const ACTIVE_USERS = {
-	all: [116, 110, 100, 93, 85, 75, 69, 60, 56, 55, 52, 49, 48, 50, 54, 58, 63, 69, 78, 89, 102, 110, 114, 116],
-	desktop: [79, 72, 57, 41, 34, 26, 21, 14, 14, 17, 16, 15, 15, 19, 23, 28, 34, 41, 49, 58, 67, 74, 78, 79],
-	mobile: [37, 38, 43, 52, 51, 49, 48, 46, 42, 38, 36, 34, 33, 31, 31, 30, 29, 28, 29, 31, 35, 36, 36, 37],
+	all: [
+		116, 110, 100, 93, 85, 75, 69, 60, 56, 55, 52, 49, 48, 50, 54, 58, 63, 69, 78, 89, 102, 110,
+		114, 116,
+	],
+	desktop: [
+		79, 72, 57, 41, 34, 26, 21, 14, 14, 17, 16, 15, 15, 19, 23, 28, 34, 41, 49, 58, 67, 74, 78, 79,
+	],
+	mobile: [
+		37, 38, 43, 52, 51, 49, 48, 46, 42, 38, 36, 34, 33, 31, 31, 30, 29, 28, 29, 31, 35, 36, 36, 37,
+	],
 }
 
 const SPARKLINES = {
@@ -64,7 +84,11 @@ const campaignColumns: TableColumn<Campaign>[] = [
 		key: 'status',
 		header: 'Status',
 		renderCell: (item: Campaign) => (
-			<span className={item.status === 'active' ? 'sb-badge sb-badge--green' : 'sb-badge sb-badge--neutral'}>
+			<span
+				className={
+					item.status === 'active' ? 'sb-badge sb-badge--green' : 'sb-badge sb-badge--neutral'
+				}
+			>
 				{item.status}
 			</span>
 		),
@@ -145,15 +169,21 @@ export function DashboardTemplate() @{
 								<HStack gap={6} vAlign="center">
 									<HStack gap={2} vAlign="center">
 										<Icon name="sandbox-stop" size={12} color={chartColors.allUsers} />
-										<Text type="supporting" color="secondary">All Users</Text>
+										<Text type="supporting" color="secondary">
+											All Users
+										</Text>
 									</HStack>
 									<HStack gap={2} vAlign="center">
 										<Icon name="sandbox-stop" size={12} color={chartColors.desktop} />
-										<Text type="supporting" color="secondary">Desktop</Text>
+										<Text type="supporting" color="secondary">
+											Desktop
+										</Text>
 									</HStack>
 									<HStack gap={2} vAlign="center">
 										<Icon name="sandbox-stop" size={12} color={chartColors.mobile} />
-										<Text type="supporting" color="secondary">Mobile</Text>
+										<Text type="supporting" color="secondary">
+											Mobile
+										</Text>
 									</HStack>
 								</HStack>
 							</VStack>
@@ -218,10 +248,7 @@ export function DashboardTemplate() @{
 										<Heading level={4}>Campaigns</Heading>
 										<Link href="#">View all</Link>
 									</HStack>
-									<Table<Campaign>
-										data={CAMPAIGNS}
-										columns={campaignColumns}
-									/>
+									<Table<Campaign> data={CAMPAIGNS} columns={campaignColumns} />
 								</VStack>
 							</Card>
 						</Grid>
@@ -232,14 +259,18 @@ export function DashboardTemplate() @{
 								<VStack gap={2}>
 									<HStack hAlign="between">
 										<Text type="body">Deploy pipeline migration</Text>
-										<Text type="body" color="secondary">72%</Text>
+										<Text type="body" color="secondary">
+											72%
+										</Text>
 									</HStack>
 									<ProgressBar label="Deploy pipeline migration" isLabelHidden value={72} />
 								</VStack>
 								<VStack gap={2}>
 									<HStack hAlign="between">
 										<Text type="body">Template coverage</Text>
-										<Text type="body" color="secondary">48%</Text>
+										<Text type="body" color="secondary">
+											48%
+										</Text>
 									</HStack>
 									<ProgressBar label="Template coverage" isLabelHidden value={48} />
 								</VStack>

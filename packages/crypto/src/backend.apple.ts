@@ -4,6 +4,7 @@ import { base64, decodeBase64 } from './bytes'
 interface Engine {
 	perform(request: string): string
 }
+
 const engine = () => lookupGlobal(['XplatCryptoEngine']) as Engine | undefined
 function invoke(value: Record<string, string>): Uint8Array<ArrayBuffer> {
 	const host = engine()
@@ -14,13 +15,13 @@ function invoke(value: Record<string, string>): Uint8Array<ArrayBuffer> {
 	const reply: unknown = JSON.parse(host.perform(JSON.stringify(value)))
 	const result = typeof reply === 'object' && reply !== null ? reply : undefined
 	const ok = result !== undefined && 'ok' in result && result.ok === true
-	const data =
-		ok && 'data' in result && typeof result.data === 'string' ? result.data : undefined
+	const data = ok && 'data' in result && typeof result.data === 'string' ? result.data : undefined
 	if (data === undefined) {
 		throw new Error('Native cryptographic operation failed')
 	}
 	return decodeBase64(data)
 }
+
 export const backend: CryptoBackend = {
 	capabilities: () =>
 		engine()

@@ -10,6 +10,7 @@ const window = new Gtk.Window({
 	default_height: 300,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -17,6 +18,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 80) =>
 	new Promise<void>((resolve) =>
@@ -25,6 +27,7 @@ const pause = (ms = 80) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -32,6 +35,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const controller = (view: any) => {
 	const all = view.observe_controllers()
@@ -42,8 +46,10 @@ const controller = (view: any) => {
 	}
 	throw new Error('no keyboard controller')
 }
+
 const down = (view: any, key: number, mods = 0) =>
 	controller(view).emit('key-pressed', key, 0, mods)
+
 const up = (view: any, key: number, mods = 0) => controller(view).emit('key-released', key, 0, mods)
 let props: Parameters<typeof PressKeys>[0] = { version: 1 }
 const render = () => root.render(PressKeys, props)
@@ -57,6 +63,7 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 async function phase(phase: string) {
 	const next = ack + 1
@@ -67,6 +74,7 @@ async function phase(phase: string) {
 	check('OS phase completed ' + phase, ack >= next)
 	await pause()
 }
+
 let osInput = false
 async function run() {
 	render()
@@ -173,6 +181,7 @@ async function run() {
 			'actual Space edits nested entry without ancestor activation',
 			node('key-child').view!.get_text().includes(' ') && events.length === 0,
 		)
+
 		osInput = true
 	}
 	const childEntry = node('key-child').view!
@@ -264,6 +273,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -275,6 +285,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

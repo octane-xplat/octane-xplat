@@ -22,10 +22,12 @@ try {
 			module: ts.ModuleKind.CommonJS,
 			target: ts.ScriptTarget.ES2022,
 		})
+
 		modules.push(
 			`registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
 		)
 	}
+
 	const script = join(directory, 'case.cjs')
 	await writeFile(
 		script,
@@ -54,12 +56,10 @@ setTimeout(async () => {
 }, 0);
 })();`,
 	)
+
 	const bytes = await readFile(join(bundle, 'host'))
 	const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
-	assert.equal(
-		createHash('sha256').update(bytes).digest('hex'),
-		manifest.sha256['macos/host'],
-	)
+	assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
 	const executable = join(directory, 'host')
 	await writeFile(executable, bytes, { mode: 0o755 })
 	const bootstrap = join(directory, 'bootstrap.js')
@@ -74,10 +74,12 @@ setTimeout(async () => {
 		],
 		{ encoding: 'utf8', timeout: 15000 },
 	)
+
 	assert.equal(run.status, 0, `${run.stdout}${run.stderr}`)
 	const line = `${run.stdout}${run.stderr}`
 		.split('\n')
 		.find((line) => line.startsWith('PHOTOS_FEASIBILITY '))
+
 	assert.ok(line, `${run.stdout}${run.stderr}`)
 	const result = JSON.parse(line.slice('PHOTOS_FEASIBILITY '.length))
 	assert.ok(result.available, 'PhotoKit metadata/runtime unavailable')

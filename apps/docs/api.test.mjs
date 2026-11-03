@@ -14,10 +14,12 @@ test('API task prepares declarations and builds for every published package', ()
 		if (!entry.isDirectory()) {
 			continue
 		}
+
 		const manifest = JSON.parse(readFileSync(`../../packages/${entry.name}/package.json`, 'utf8'))
 		if (manifest.private) {
 			continue
 		}
+
 		for (const task of ['typegen', 'build']) {
 			if (manifest.scripts?.[task]) {
 				assert.ok(

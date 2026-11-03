@@ -17,9 +17,11 @@ function fixture(t) {
 	}
 	return root
 }
+
 function registry(code = 'E404') {
 	return { status: 1, stdout: JSON.stringify({ error: { code } }), stderr: '' }
 }
+
 test('packs all pending packages before npm publication and skips existing versions', (t) => {
 	const root = fixture(t)
 	const calls = []
@@ -61,6 +63,7 @@ test('packs all pending packages before npm publication and skips existing versi
 	)
 	assert.equal(skipped.length, 2)
 })
+
 test('registry/auth failures and pack failures stop before publication', (t) => {
 	const root = fixture(t)
 	assert.throws(
@@ -81,6 +84,7 @@ test('registry/auth failures and pack failures stop before publication', (t) => 
 	)
 	assert.deepEqual(calls, ['npm', 'bun'])
 })
+
 test('independent typegen release only selects its package; unknown names fail', (t) => {
 	const root = fixture(t)
 	const calls = []

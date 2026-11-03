@@ -165,10 +165,7 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
 
 test('a rejected prop fails creation before factories allocate', () => {
 	const fx = fixture()
-	assert.throws(
-		() => fx.makeNode(fx.container, 1, 'button', { style: 'solid' }),
-		/inline style/i,
-	)
+	assert.throws(() => fx.makeNode(fx.container, 1, 'button', { style: 'solid' }), /inline style/i)
 
 	assert.deepEqual(fx.factoryCalls, [])
 	assert.equal(fx.actionHandlers.size, 0)
@@ -548,10 +545,22 @@ test('failed contentview creation releases its geometry observer', () => {
 
 // Actual destroy path with a partial node; no Objective-C operations run here.
 test('textview destruction retires sizing before hooks even after partial construction', () => {
-	const fx = fixture(), node = fx.makeNode(fx.container, 99, 'label', {}), events: string[] = []
-	node.type = 'textview'; node.view = null
-	node.textLayoutDetach = () => { assert.equal(node.textLayoutRetired, true); events.push('observer') }
-	node.destroyHooks = [() => { assert.equal(node.textLayoutRetired, true); assert.equal(node.textLayoutDetach, undefined); events.push('hook') }]
+	const fx = fixture(),
+		node = fx.makeNode(fx.container, 99, 'label', {}),
+		events: string[] = []
+	node.type = 'textview'
+	node.view = null
+	node.textLayoutDetach = () => {
+		assert.equal(node.textLayoutRetired, true)
+		events.push('observer')
+	}
+	node.destroyHooks = [
+		() => {
+			assert.equal(node.textLayoutRetired, true)
+			assert.equal(node.textLayoutDetach, undefined)
+			events.push('hook')
+		},
+	]
 	fx.destroy(node)
 	assert.deepEqual(events, ['observer', 'hook'])
 })

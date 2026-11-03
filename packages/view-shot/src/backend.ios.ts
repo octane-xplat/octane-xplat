@@ -21,17 +21,11 @@ export const backend: CaptureBackend = createAppleBackend({
 	// UIWindow.window is nil for the window itself; attachment there means a
 	// scene association. The Swift engine's detached check never runtime-ran on
 	// a window target, so captureScreen was refused until this hook.
-	attached: (view) =>
-		view instanceof UIWindow
-			? view.windowScene !== null
-			: view.window !== null,
+	attached: (view) => (view instanceof UIWindow ? view.windowScene !== null : view.window !== null),
 	protectedView: ['WKWebView', 'UIWebView', 'MTKView', 'GLKView'],
 	protectedLayer: ['AVPlayerLayer', 'CAMetalLayer', 'CAEAGLLayer'],
 	scale: (view) =>
-		(view instanceof UIWindow
-			? view.screen
-			: (view.window as UIWindow | null)?.screen
-		)?.scale ?? 1,
+		(view instanceof UIWindow ? view.screen : (view.window as UIWindow | null)?.screen)?.scale ?? 1,
 	checkSourceDimensions: false,
 	render(value, width, height, options) {
 		const view = value as unknown as UIView

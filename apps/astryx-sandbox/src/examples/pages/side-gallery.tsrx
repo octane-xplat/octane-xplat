@@ -1,7 +1,18 @@
 // Port of upstream templates/pages/side-gallery/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/side-gallery/.
 // GAPS: Grid `gap`/`align` are not props — they move into style.
-import { AspectRatio, Button, Divider, Grid, Heading, HStack, Layout, LayoutContent, Text, VStack } from '@octane-xplat/ui'
+import {
+	AspectRatio,
+	Button,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Layout,
+	LayoutContent,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 const imageStyle = {
 	width: '100%',
@@ -15,7 +26,10 @@ const imageClip = {
 
 const IMAGES = [
 	{ src: '/template-assets/colorful-lifestyle-vertical-3.png', alt: 'Colorful lifestyle scene' },
-	{ src: '/template-assets/colorful-lifestyle-horizontal-1.png', alt: 'Colorful lifestyle horizontal' },
+	{
+		src: '/template-assets/colorful-lifestyle-horizontal-1.png',
+		alt: 'Colorful lifestyle horizontal',
+	},
 	{ src: '/template-assets/colorful-lifestyle-vertical-1.png', alt: 'Colorful lifestyle vertical' },
 	{ src: '/template-assets/colorful-home-vertical-2.png', alt: 'Colorful home interior' },
 	{ src: '/template-assets/colorful-home-vertical-3.png', alt: 'Colorful home scene' },

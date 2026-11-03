@@ -33,6 +33,7 @@ const fruits = [
 	{ id: 'banana', label: 'Banana' },
 	{ id: 'cherry', label: 'Cherry' },
 ]
+
 const fruitSource = createStaticSource(fruits)
 
 const CS_OPTIONS = ['CS-OPTION-A', 'CS-OPTION-B', 'CS-OPTION-C']

@@ -23,20 +23,36 @@ function setup() {
 }
 
 function LeadingInput(props: { inputRef: any; showLeading?: boolean }) @{
-	<TextInput ref={props.inputRef} defaultValue="seed"
-		startIcon={props.showLeading ? <label text="Prefix" /> : undefined} />
+	<TextInput
+		ref={props.inputRef}
+		defaultValue="seed"
+		startIcon={props.showLeading ? <label text="Prefix" /> : undefined}
+	/>
 }
 
-function findNative(node: any, type: string, label?: string, role?: string, className?: string): any {
-	if (node.type === type && (label === undefined || node.props?.accessibilityLabel === label) &&
+function findNative(
+	node: any,
+	type: string,
+	label?: string,
+	role?: string,
+	className?: string,
+): any {
+	if (
+		node.type === type &&
+		(label === undefined || node.props?.accessibilityLabel === label) &&
 		(role === undefined || node.props?.accessibilityRole === role) &&
-		(className === undefined || String(node.props?.className).split(' ').includes(className))) {
+		(className === undefined || String(node.props?.className).split(' ').includes(className))
+	) {
 		return node
 	}
+
 	for (const child of node.children ?? []) {
 		const found = findNative(child, type, label, role, className)
-		if (found) return found
+		if (found) {
+			return found
+		}
 	}
+
 	return null
 }
 
@@ -65,6 +81,7 @@ describe('native text input', () => {
 			expect(change).toHaveBeenLastCalledWith('edited')
 			await vi.waitFor(() => expect(field.text).toBe('owned'))
 		}
+
 		expect(change).toHaveBeenCalledTimes(2)
 		root.unmount()
 	})
@@ -114,6 +131,7 @@ describe('native text input', () => {
 		root.unmount()
 		expect(inputRef.current).toBeNull()
 	})
+
 	it('retains the editor and handle when leading content changes', async () => {
 		const { container, root } = setup()
 		const inputRef = { current: null as any }

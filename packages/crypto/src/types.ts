@@ -8,8 +8,10 @@ export const CryptoDigestAlgorithm = {
 	MD4: 'MD4',
 	MD5: 'MD5',
 } as const
+
 export type CryptoDigestAlgorithm =
 	(typeof CryptoDigestAlgorithm)[keyof typeof CryptoDigestAlgorithm]
+
 export const CryptoEncoding = { HEX: 'hex', BASE64: 'base64' } as const
 export type CryptoEncoding = (typeof CryptoEncoding)[keyof typeof CryptoEncoding]
 export type CryptoDigestOptions = { encoding: CryptoEncoding }
@@ -25,6 +27,7 @@ export type IntegerTypedArray =
 	| Uint32Array
 	| BigInt64Array
 	| BigUint64Array
+
 /** Strings passed to AES are base64, never plaintext text. */
 export type BinaryInput = string | Uint8Array | ArrayBuffer
 export const AESKeySize = { AES128: 128, AES192: 192, AES256: 256 } as const
@@ -35,22 +38,27 @@ export interface AESSealedDataConfig {
 	ivLength: number
 	tagLength: GCMTagByteLength
 }
+
 export type GCMNonceParam = { length: number } | { bytes: BinaryInput }
 export interface AESEncryptOptions {
 	nonce?: GCMNonceParam
 	tagLength?: GCMTagByteLength
 	additionalData?: BinaryInput
 }
+
 export interface AESDecryptOptions {
 	output?: 'bytes' | 'base64'
 	additionalData?: BinaryInput
 }
+
 export interface Base64DecryptOptions extends AESDecryptOptions {
 	output: 'base64'
 }
+
 export interface ArrayBufferDecryptOptions extends AESDecryptOptions {
 	output?: 'bytes'
 }
+
 export interface CryptoCapabilities {
 	random: boolean
 	digestAlgorithms: readonly CryptoDigestAlgorithm[]

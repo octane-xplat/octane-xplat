@@ -7,6 +7,7 @@ interface Engine {
 	available(context: android.content.Context): boolean
 	readAdvertisingId(context: android.content.Context, callback: object): void
 }
+
 /** The bridge's advertising-identifier reply envelope. */
 interface IdentifierReply {
 	identifier?: unknown
@@ -16,6 +17,7 @@ interface IdentifierReply {
 function engine(): Engine | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'tracking', 'TrackingBridge']) as Engine | undefined
 }
+
 function context(): android.content.Context {
 	const context = Application.android.context as android.content.Context | undefined
 	if (!context) {
@@ -23,6 +25,7 @@ function context(): android.content.Context {
 	}
 	return context
 }
+
 function identifierAvailable(): boolean {
 	try {
 		return Boolean(engine()?.available(context()))
@@ -30,6 +33,7 @@ function identifierAvailable(): boolean {
 		return false
 	}
 }
+
 export const backend: TrackingBackend = {
 	capabilities: () => ({
 		prompt: false,
@@ -62,13 +66,16 @@ export const backend: TrackingBackend = {
 							if (!value || typeof value !== 'object') {
 								throw new Error('Malformed advertising identifier reply')
 							}
+
 							const reply = value as IdentifierReply
 							if (typeof reply.error === 'string') {
 								throw new Error(reply.error)
 							}
+
 							if (reply.identifier !== null && typeof reply.identifier !== 'string') {
 								throw new Error('Malformed advertising identifier value')
 							}
+
 							resolve(reply.identifier)
 						} catch (error) {
 							reject(

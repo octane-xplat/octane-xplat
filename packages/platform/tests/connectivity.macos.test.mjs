@@ -153,12 +153,13 @@ test('a throwing initial listener does not leak a monitor', () => {
 	stop()
 })
 
-
 test('a live monitor reuses its latest sample and isolates listener errors and mutations', () => {
 	const h = load()
 	let initial = true
 	const first = h.api.subscribe((state) => {
-		if (initial) {return}
+		if (initial) {
+			return
+		}
 		state.online = true
 		throw new Error('consumer failed')
 	})
@@ -172,16 +173,19 @@ test('a live monitor reuses its latest sample and isolates listener errors and m
 	read.online = true
 	assert.deepEqual(plain(h.api.getState()), sample(false, 'none'))
 	assert.equal(h.reads(), 1)
-	first(); second()
+	first()
+	second()
 	h.api.getState()
 	assert.equal(h.reads(), 2) // An unobserved read is still a fresh bounded native probe.
 })
 
 test('throwing native stop retires once and cannot poison later subscriptions', () => {
-	const h = load({ onStop(monitor) {
-		monitor.callback(JSON.stringify(sample(false, 'none')))
-		throw new Error('stop failed')
-	} })
+	const h = load({
+		onStop(monitor) {
+			monitor.callback(JSON.stringify(sample(false, 'none')))
+			throw new Error('stop failed')
+		},
+	})
 	const received = []
 	const stop = h.api.subscribe((state) => received.push(plain(state)))
 	assert.doesNotThrow(stop)
@@ -197,7 +201,12 @@ test('throwing native stop retires once and cannot poison later subscriptions', 
 })
 
 test('failed start with throwing cleanup stays unsupported and can retry', () => {
-	const h = load({ start: false, onStop() { throw new Error('stop failed') } })
+	const h = load({
+		start: false,
+		onStop() {
+			throw new Error('stop failed')
+		},
+	})
 	const received = []
 	const stop = h.api.subscribe((state) => received.push(plain(state)))
 	assert.deepEqual(received, [unavailable])
@@ -209,7 +218,13 @@ test('failed start with throwing cleanup stays unsupported and can retry', () =>
 
 test('synchronous start samples emit once after acquisition and failed start never publishes them', () => {
 	for (const started of [true, false]) {
-		const h = load({ start: started, onStart(callback) { callback(JSON.stringify(sample(false, 'none'))) } })
+		const h = load({
+			start: started,
+			onStart(callback) {
+				callback(JSON.stringify(sample(false, 'none')))
+			},
+		})
+
 		const received = []
 		const stop = h.api.subscribe((state) => received.push(plain(state)))
 		assert.deepEqual(received, [started ? sample(false, 'none') : unavailable])

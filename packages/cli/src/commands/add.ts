@@ -38,6 +38,7 @@ export const add = command({
 			p.log.error(
 				'Platform additions require a Bun project. Configure Bun before running xplat add; xplat patches remains available for pnpm.',
 			)
+
 			process.exit(1)
 		}
 

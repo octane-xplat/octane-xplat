@@ -106,12 +106,14 @@ export async function verifyMacOS(packed, temporary) {
 			await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
 			await symlink(root, join(app, 'node_modules', name))
 		}
+
 		await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
 		await link('@octane-xplat/jsx', fileURLToPath(new URL('../../jsx', import.meta.url)))
 		await link(
 			'@nstudio/nativescript-exoplayer',
 			resolve(here, '../node_modules/@nstudio/nativescript-exoplayer'),
 		)
+
 		const script = await consumer(
 			packed,
 			app,
@@ -193,6 +195,7 @@ async function main() {
 main().then(() => __xplatStopHost(), error => { console.error(error); __xplatStopHost() })
 `,
 		)
+
 		const artifact = await buildMacOSNative(app)
 		const bootstrap = join(app, 'bootstrap.js')
 		await writeNativeBootstrap(artifact, bootstrap)
@@ -224,8 +227,15 @@ main().then(() => __xplatStopHost(), error => { console.error(error); __xplatSto
 				}
 			})
 		})
+
 		assert.match(output, /MACOS_VIDEO_TARGET_OK/, output)
-		console.log(output.trim().split('\n').filter((line) => line.includes('MACOS_VIDEO')).join('\n'))
+		console.log(
+			output
+				.trim()
+				.split('\n')
+				.filter((line) => line.includes('MACOS_VIDEO'))
+				.join('\n'),
+		)
 	} finally {
 		server.closeAllConnections()
 		await new Promise((resolveClose) => server.close(resolveClose))

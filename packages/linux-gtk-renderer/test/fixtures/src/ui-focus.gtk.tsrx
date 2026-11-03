@@ -23,26 +23,33 @@ const mods = (e: any) =>
 
 export function FocusProbe() {
 	const focus = useFocus({
-		onFocus: (e) => events.push('focus:on:' + ((e as any)?.eventName ?? 'none') + ':' + ((e as any)?.type ?? 'none')),
+		onFocus: (e) =>
+			events.push(
+				'focus:on:' + ((e as any)?.eventName ?? 'none') + ':' + ((e as any)?.type ?? 'none'),
+			),
 		onBlur: () => events.push('focus:off'),
 		onFocusChange: (focused) => events.push('focus:change:' + focused),
 	})
+
 	const within = useFocusWithin({
 		onFocusWithin: () => events.push('within:on'),
 		onBlurWithin: () => events.push('within:off'),
 		onFocusWithinChange: (value: boolean) => events.push('within:change:' + value),
 	})
+
 	const ring = useFocusRing()
 	const visible = useFocusVisible()
 	const keyboard = useKeyboard({
 		onKeyDown: (event) => events.push('kb:down:' + event.key + ':' + event.ctrlKey),
 		onKeyUp: (event) => events.push('kb:up:' + event.key),
 	})
+
 	const grid = useGridFocus({
 		rows: 2,
 		columns: 3,
 		onFocusChange: (index: number) => events.push('grid:index:' + index),
 	})
+
 	const main = useLandmark({ role: 'main', label: 'Main region' })
 	const nav = useLandmark({ role: 'navigation', label: 'Side nav' })
 
@@ -74,14 +81,22 @@ export function FocusProbe() {
 						e.preventDefault()
 						events.push('tf:claim:x')
 					}
+
 					if (e.key === 'z') {
 						e.stopPropagation()
 						events.push('tf:claim:z')
 					}
 				}}
-				onKeyUp={(e) => events.push('tf:up:' + e.key + ':' + e.eventName + ':' + (e.object != null))}
+				onKeyUp={(e) =>
+					events.push('tf:up:' + e.key + ':' + e.eventName + ':' + (e.object != null))
+				}
 			/>
-			<textfield id="tf-focus" text="" style={{ width: 320, height: 30 }} {...(focus.focusProps as any)} />
+			<textfield
+				id="tf-focus"
+				text=""
+				style={{ width: 320, height: 30 }}
+				{...(focus.focusProps as any)}
+			/>
 			<masonview
 				id="fw-box"
 				style={{ flexDirection: 'column', gap: 4 }}
@@ -91,7 +106,11 @@ export function FocusProbe() {
 				<textfield id="fw-b" text="" style={{ width: 320, height: 30 }} />
 			</masonview>
 			<textfield id="tf-ring" text="" style={{ width: 320, height: 30 }} {...ring.focusProps} />
-			<masonview id="kb-box" style={{ flexDirection: 'column' }} {...(keyboard.keyboardProps as any)}>
+			<masonview
+				id="kb-box"
+				style={{ flexDirection: 'column' }}
+				{...(keyboard.keyboardProps as any)}
+			>
 				<textfield id="kb-field" text="" style={{ width: 320, height: 30 }} />
 			</masonview>
 			<masonview

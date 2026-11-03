@@ -7,6 +7,7 @@ export interface CaptureLifecycleProps {
 	onCapture?(uri: string): void
 	onCaptureFailure?(error: Error): void
 }
+
 export interface ViewShotProps extends CaptureLifecycleProps {
 	ref?: Octane.Ref<ViewShotRef>
 	children?: unknown

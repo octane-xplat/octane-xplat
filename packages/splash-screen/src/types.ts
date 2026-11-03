@@ -5,6 +5,7 @@ export interface SplashScreenOptions {
 	/** Fade the iOS launch storyboard out. Defaults to false. */
 	fade?: boolean
 }
+
 /** Per-platform feature flags — a false flag means the matching option is
  *  accepted but ignored on that platform. */
 export interface SplashScreenCapabilities {

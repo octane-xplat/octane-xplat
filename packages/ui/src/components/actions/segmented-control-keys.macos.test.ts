@@ -16,10 +16,16 @@ function fixture() {
 	})
 	const selected: string[] = []
 	const owner: any = { firstResponder: null }
-	owner.makeFirstResponder = vi.fn((view) => { owner.firstResponder = view; return true })
+	owner.makeFirstResponder = vi.fn((view) => {
+		owner.firstResponder = view
+		return true
+	})
 	const rows = ['a', 'b', 'c'].map((value) => ({ value, subviews: { count: 0 }, window: owner }))
 	let children = rows.slice()
-	const root = { window: owner, subviews: { count: 3, objectAtIndex: (index: number) => children[index] } }
+	const root = {
+		window: owner,
+		subviews: { count: 3, objectAtIndex: (index: number) => children[index] },
+	}
 	const segments = new Map<NSView, () => AppKitSegment>()
 	const disabled = new Set(['b'])
 	for (const row of rows) {
@@ -32,9 +38,28 @@ function fixture() {
 	}
 	owner.firstResponder = rows[0]
 	let direction: 'ltr' | 'rtl' = 'ltr'
-	const off = bindSegmentedControlKeys(() => root as unknown as NSView, segments, () => direction)
-	const key = (keyCode: number, window = owner, modifierFlags = 0) => monitor({ keyCode, window, modifierFlags })
-	return { rows, owner, off, key, selected, removeMonitor, disabled, rtl: () => { direction = 'rtl' }, reorder: () => { children = [rows[2], rows[1], rows[0]] } }
+	const off = bindSegmentedControlKeys(
+		() => root as unknown as NSView,
+		segments,
+		() => direction,
+	)
+	const key = (keyCode: number, window = owner, modifierFlags = 0) =>
+		monitor({ keyCode, window, modifierFlags })
+	return {
+		rows,
+		owner,
+		off,
+		key,
+		selected,
+		removeMonitor,
+		disabled,
+		rtl: () => {
+			direction = 'rtl'
+		},
+		reorder: () => {
+			children = [rows[2], rows[1], rows[0]]
+		},
+	}
 }
 
 describe('AppKit segmented key adapter', () => {

@@ -20,10 +20,7 @@ import {
 	interop,
 } from '@octane-xplat/platform/macos'
 
-const avfoundation = dlopen(
-	'/System/Library/Frameworks/AVFoundation.framework/AVFoundation',
-	2,
-)
+const avfoundation = dlopen('/System/Library/Frameworks/AVFoundation.framework/AVFoundation', 2)
 if (!avfoundation) {
 	throw new Error('Unable to load the system AVFoundation framework')
 }
@@ -73,7 +70,9 @@ const StatusObserver = NSObject.extend(
 						state.player.play()
 					}
 				} else if (status === 2) {
-					state.emit('onError', { error: String(object.error?.localizedDescription ?? 'playback failed') })
+					state.emit('onError', {
+						error: String(object.error?.localizedDescription ?? 'playback failed'),
+					})
 				}
 			} else if (keyPath === 'timeControlStatus' && object === state.player) {
 				if (Number(object.timeControlStatus) === 2 && !state.started) {
@@ -86,7 +85,7 @@ const StatusObserver = NSObject.extend(
 	{
 		name: 'XplatVideoStatusObserver',
 		exposedMethods: {
-			'observeValueForKeyPathOfObjectChangeContext': {
+			observeValueForKeyPathOfObjectChangeContext: {
 				params: [NSObject, NSObject, NSObject, NSObject],
 				returns: interop.types.void,
 			},
@@ -173,6 +172,7 @@ function attachItem(state: VideoState, view: any) {
 						state.player.play()
 					}
 				})
+
 				return
 			}
 
@@ -206,10 +206,7 @@ export function makeVideoView(): AVPlayerView {
 	return view
 }
 
-export function updateVideoView(
-	node: import('./index').ElementNode,
-	props: Record<string, any>,
-) {
+export function updateVideoView(node: import('./index').ElementNode, props: Record<string, any>) {
 	const view = node.view as any
 	let state = states.get(view)
 	if (!state) {
@@ -236,6 +233,7 @@ export function updateVideoView(
 		}
 
 		states.set(view, created)
+
 		// The status observer reads state through the view it was registered
 		// on; tag the view so the KVO callback can find its state.
 		;(view as any).xplatOwner = view
@@ -245,6 +243,7 @@ export function updateVideoView(
 			0,
 			null,
 		)
+
 		state = created
 	}
 

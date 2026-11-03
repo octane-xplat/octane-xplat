@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 500,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const errors: unknown[] = []
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		errors.push(error)
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 200) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 200) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -34,6 +37,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const bounds = (id: string) => node(id).view!.getBounds()
@@ -43,6 +47,7 @@ const render = async (next: Partial<typeof props> = {}) => {
 	root.render(FormScene, props)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -174,6 +179,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -185,6 +191,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

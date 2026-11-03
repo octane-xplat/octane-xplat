@@ -9,6 +9,7 @@ const compiled = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
 })
+
 function fixture({ supported = true, flush = true, registerError = false } = {}) {
 	const values = new Map(),
 		definitions = new Map(),
@@ -19,7 +20,9 @@ function fixture({ supported = true, flush = true, registerError = false } = {})
 		defineTask: (name, callback) => definitions.set(name, callback),
 		register: async (name, options) => {
 			requests.push({ name, options })
-			if (registerError) {throw new Error('provider details')}
+			if (registerError) {
+				throw new Error('provider details')
+			}
 		},
 		unregister: async (name) => {
 			removals.push(name)

@@ -39,14 +39,17 @@ try {
 		await mkdir(dirname(target), { recursive: true })
 		await symlink(join(packageRoot, 'node_modules', dependency), target, 'dir')
 	}
+
 	for (const value of Object.values(manifest.exports['.'])) {
 		assert.equal(typeof value, 'string')
 		await readFile(join(unpacked, value))
 	}
+
 	await writeFile(
 		join(temporary, 'package.json'),
 		JSON.stringify({ private: true, type: 'module' }),
 	)
+
 	await writeFile(
 		join(temporary, 'consumer.ts'),
 		`
@@ -65,12 +68,14 @@ export { Print, releasePrintFile, capabilities, select }
 printAsync({ html: 'Document', orientation: 'sideways' })
 `,
 	)
+
 	await readFile(join(unpacked, 'platforms/android/java/com/octanexplat/print/PrintEngine.java'))
 	await readFile(join(unpacked, 'platforms/android/AndroidManifest.xml'))
 	assert.deepEqual(manifest.xplat.macos.frameworks, ['AppKit', 'WebKit', 'PDFKit'])
 	await readFile(
 		join(unpacked, 'platforms/android/java/android/print/XplatPrintLayoutCallback.java'),
 	)
+
 	await readFile(join(unpacked, 'platforms/macos/src/XplatPrintEngine.swift'))
 	await readFile(join(unpacked, 'platforms/android/UPSTREAM.md'))
 	for (const [name, conditions, lib] of [
@@ -95,12 +100,14 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 				files: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repoRoot, 'node_modules/typescript/bin/tsc'), '-p', config],
 			temporary,
 		)
 	}
+
 	const browser = await build({
 		root: temporary,
 		configFile: false,
@@ -112,9 +119,11 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 			minify: false,
 		},
 	})
+
 	assert.ok(
 		chunks(browser).some((chunk) => chunk.type === 'chunk' && chunk.exports.includes('exportPDF')),
 	)
+
 	const native = await build({
 		root: temporary,
 		configFile: false,
@@ -135,6 +144,7 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 			resolve: { conditions: ['native'] },
 		},
 	})
+
 	// A packed iOS graph must reach its real platform backend, not the unsupported fallback.
 	assert.ok(
 		chunks(native).some(
@@ -144,6 +154,7 @@ printAsync({ html: 'Document', orientation: 'sideways' })
 				chunk.code.includes('printToPrinterCompletionHandler'),
 		),
 	)
+
 	console.log(
 		'Packed consumer: ambient-free public types, web production bundle, and iOS print bridge resolution, and packaged native bridges/config passed.',
 	)

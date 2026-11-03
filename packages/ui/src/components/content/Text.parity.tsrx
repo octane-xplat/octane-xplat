@@ -28,7 +28,10 @@ function TextFixture(props: {
 	</Text>
 }
 
-function TextWrapFixture(props: { direction: 'row' | 'column'; align: 'start' | 'center' }) @{
+function TextWrapFixture(props: {
+	direction: 'row' | 'column'
+	align: 'start' | 'center'
+}) @{
 	<View
 		className="parity-text-wrap-root"
 		alignItems={props.align}

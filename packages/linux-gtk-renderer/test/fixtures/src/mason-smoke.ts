@@ -298,6 +298,7 @@ const borderStyle = {
 	borderBottomWidth: 4,
 	borderLeftWidth: 5,
 }
+
 apply(container, [
 	{
 		op: 'create',
@@ -329,6 +330,7 @@ apply(container, [
 	{ op: 'insert', id: 31, parent: 30, before: null } as UniversalHostCommand,
 	{ op: 'insert', id: 32, parent: 31, before: null } as UniversalHostCommand,
 ])
+
 const borderParent = container.nodes.get(30)!.view!
 const borderBox = container.nodes.get(31)!.view!
 const borderContent = container.nodes.get(32)!.view!
@@ -349,10 +351,12 @@ const borderSample = () => {
 		natH,
 	}
 }
+
 out.borderAuto = borderSample()
 apply(container, [
 	{ op: 'update', id: 31, props: { style: { display: 'flex' } } } as UniversalHostCommand,
 ])
+
 out.borderDropped = borderSample()
 apply(container, [
 	{
@@ -361,6 +365,7 @@ apply(container, [
 		props: { style: { ...borderStyle, width: 70, height: 50 } },
 	} as UniversalHostCommand,
 ])
+
 out.borderFixed = borderSample()
 apply(container, [
 	{ op: 'remove', id: 32 } as UniversalHostCommand,

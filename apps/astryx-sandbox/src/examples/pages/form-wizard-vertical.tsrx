@@ -7,40 +7,92 @@
 // (Stepper error tint + FieldStatus carry the same feedback).
 import { useMemo, useState } from 'octane'
 import {
-	Banner, Button, Card, CheckboxInput, CheckboxList, CheckboxListItem,
-	DateInput, Divider, Field, FieldStatus, FormLayout, Heading, HStack,
-	Icon, Layout, LayoutContent, LayoutFooter, LayoutHeader, LayoutPanel,
-	MetadataList, MetadataListItem, MultiSelector, NumberInput, RadioList,
-	RadioListItem, SegmentedControl, SegmentedControlItem, Selector,
-	StackItem, StatusDot, Step, Stepper, Switch, Text, TextArea, TextInput,
-	Thumbnail, useMediaQuery, VStack,
+	Banner,
+	Button,
+	Card,
+	CheckboxInput,
+	CheckboxList,
+	CheckboxListItem,
+	DateInput,
+	Divider,
+	Field,
+	FieldStatus,
+	FormLayout,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutFooter,
+	LayoutHeader,
+	LayoutPanel,
+	MetadataList,
+	MetadataListItem,
+	MultiSelector,
+	NumberInput,
+	RadioList,
+	RadioListItem,
+	SegmentedControl,
+	SegmentedControlItem,
+	Selector,
+	StackItem,
+	StatusDot,
+	Step,
+	Stepper,
+	Switch,
+	Text,
+	TextArea,
+	TextInput,
+	Thumbnail,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
 
 const STEPS = [
 	{
 		label: 'Author profile',
 		description: 'Create the profile readers see on your books.',
-		help: ['Shared across every book you publish.', 'Edits here reach titles already on sale.', 'Readers see this before they see the book.'],
+		help: [
+			'Shared across every book you publish.',
+			'Edits here reach titles already on sale.',
+			'Readers see this before they see the book.',
+		],
 	},
 	{
 		label: 'Book details',
 		description: 'Add the metadata that helps readers discover the book.',
-		help: ['Everything here feeds search and the store page.', 'The cover and title are judged first.', 'All of it stays editable after publishing.'],
+		help: [
+			'Everything here feeds search and the store page.',
+			'The cover and title are judged first.',
+			'All of it stays editable after publishing.',
+		],
 	},
 	{
 		label: 'Distribution',
 		description: 'Choose where, when, and at what price the book goes on sale.',
-		help: ['Territory and price take effect at release.', 'Moving a date earlier needs a fresh review.', 'Pre-orders open once the book clears review.'],
+		help: [
+			'Territory and price take effect at release.',
+			'Moving a date earlier needs a fresh review.',
+			'Pre-orders open once the book clears review.',
+		],
 	},
 	{
 		label: 'Payouts and agreements',
 		description: 'Link a payout account and accept the publishing terms.',
-		help: ['Royalties accrue from the release date.', 'They pay out only once an account is linked.', 'Linking late delays the money, never loses it.'],
+		help: [
+			'Royalties accrue from the release date.',
+			'They pay out only once an account is linked.',
+			'Linking late delays the money, never loses it.',
+		],
 	},
 	{
 		label: 'Finalize and submit',
 		description: 'Confirm the audio is ready and send the book for review.',
-		help: ['Nothing is final until you submit.', 'Metadata stays editable during review.', 'Replacing the audio restarts the queue.'],
+		help: [
+			'Nothing is final until you submit.',
+			'Metadata stays editable during review.',
+			'Replacing the audio restarts the queue.',
+		],
 	},
 ]
 
@@ -80,9 +132,21 @@ const CURRENCIES = [
 ]
 
 const AGREEMENTS = [
-	{ value: 'distribution', label: 'Distribution Agreement', description: 'Grants non-exclusive rights to distribute in the territories you selected.' },
-	{ value: 'content', label: 'Content Policy', description: 'Confirms the recording is yours to publish and meets the content guidelines.' },
-	{ value: 'tax', label: 'Tax certification (W-9 / W-8BEN)', description: 'Required before the first payout can be released.' },
+	{
+		value: 'distribution',
+		label: 'Distribution Agreement',
+		description: 'Grants non-exclusive rights to distribute in the territories you selected.',
+	},
+	{
+		value: 'content',
+		label: 'Content Policy',
+		description: 'Confirms the recording is yours to publish and meets the content guidelines.',
+	},
+	{
+		value: 'tax',
+		label: 'Tax certification (W-9 / W-8BEN)',
+		description: 'Required before the first payout can be released.',
+	},
 ]
 
 const COVER_SRC = '/template-assets/illustrative-vertical-1.png'
@@ -112,6 +176,7 @@ export function FormWizardVerticalTemplate() @{
 	const [bio, setBio] = useState(
 		'Imogen Hale writes the Aldergate Files, a series of quiet mysteries set in the Welsh borders.',
 	)
+
 	const [authorSite, setAuthorSite] = useState('imogenhale.co.uk')
 
 	// Step 2 — book details
@@ -126,6 +191,7 @@ export function FormWizardVerticalTemplate() @{
 	const [blurb, setBlurb] = useState(
 		'When a letter arrives twenty years after it was posted, Margot Aldergate has to decide whether some words are better left unread — or whether silence was the real mistake all along.',
 	)
+
 	const [language, setLanguage] = useState('en')
 	const [categories, setCategories] = useState<string[]>(['mystery', 'literary'])
 
@@ -154,6 +220,7 @@ export function FormWizardVerticalTemplate() @{
 		if (!authorName.trim()) {
 			profile.authorName = 'Enter the name readers should see.'
 		}
+
 		if (bio.trim().length < 40) {
 			profile.bio = 'Write at least a sentence or two — 40 characters minimum.'
 		}
@@ -162,19 +229,23 @@ export function FormWizardVerticalTemplate() @{
 		if (!title.trim()) {
 			details.title = 'Enter the title as it should appear in the store.'
 		}
+
 		if (!hasCover) {
 			details.cover = 'A book cannot go on sale without cover art.'
 		}
+
 		if (blurb.trim().length < MIN_DESCRIPTION) {
 			details.blurb = `Descriptions need at least ${MIN_DESCRIPTION} characters. ${
 				MIN_DESCRIPTION - blurb.trim().length
 			} to go.`
 		}
+
 		if (categories.length === 0) {
 			details.categories = 'Pick at least one category.'
 		} else if (categories.length > MAX_CATEGORIES) {
 			details.categories = `Pick at most ${MAX_CATEGORIES} categories.`
 		}
+
 		if (series.trim() && (seriesNumber ?? 0) < 1) {
 			details.seriesNumber = 'Books in a series are numbered from 1.'
 		}
@@ -183,9 +254,11 @@ export function FormWizardVerticalTemplate() @{
 		if (scope === 'selected' && territories.length === 0) {
 			distribution.territories = 'Choose at least one territory.'
 		}
+
 		if (!releaseDate) {
 			distribution.releaseDate = 'Pick a release date.'
 		}
+
 		if ((price ?? 0) < 0.99 || (price ?? 0) > 99) {
 			distribution.price = 'List price must be between $0.99 and $99.00.'
 		}
@@ -194,6 +267,7 @@ export function FormWizardVerticalTemplate() @{
 		if (!isStripeLinked) {
 			payouts.stripe = 'Link a Stripe account to receive payouts.'
 		}
+
 		const missing = AGREEMENTS.filter((a) => !accepted.includes(a.value))
 		if (missing.length > 0) {
 			payouts.agreements = `Accept the ${missing.map((a) => a.label).join(', ')} to continue.`
@@ -206,9 +280,21 @@ export function FormWizardVerticalTemplate() @{
 
 		return [profile, details, distribution, payouts, finalize]
 	}, [
-		authorName, bio, title, hasCover, blurb, categories, series,
-		seriesNumber, scope, territories, releaseDate, price, isStripeLinked,
-		accepted, isConfirmed,
+		authorName,
+		bio,
+		title,
+		hasCover,
+		blurb,
+		categories,
+		series,
+		seriesNumber,
+		scope,
+		territories,
+		releaseDate,
+		price,
+		isStripeLinked,
+		accepted,
+		isConfirmed,
 	])
 
 	const shownErrors = (index: number) => (attempted.has(index) ? errorsByStep[index] : {})
@@ -223,6 +309,7 @@ export function FormWizardVerticalTemplate() @{
 		if (Object.keys(errorsByStep[step]).length === 0 && !isLastStep) {
 			setStep((s) => Math.min(STEPS.length - 1, s + 1))
 		}
+
 		if (isLastStep && Object.keys(errorsByStep[step]).length === 0) {
 			setIsSubmitted(true)
 		}
@@ -233,11 +320,13 @@ export function FormWizardVerticalTemplate() @{
 			activeStep={step}
 			orientation={hasDescriptions ? 'vertical' : 'horizontal'}
 			onStepClick={(index) => {
-				if (index > step) {markAttempted(step)}
+				if (index > step) {
+					markAttempted(step)
+				}
+
 				setStep(index)
 			}}
 			accessibilityLabel="Publishing progress"
-
 		>
 			{STEPS.map((s, i) => (
 				<Step
@@ -277,9 +366,7 @@ export function FormWizardVerticalTemplate() @{
 						{stepper(true)}
 						<Card variant="muted" padding={4}>
 							<VStack gap={2}>
-								<Heading level={5}>
-									{STEPS[step].label}
-								</Heading>
+								<Heading level={5}>{STEPS[step].label}</Heading>
 								{STEPS[step].help.map((line) => (
 									<HStack key={line} gap={2} vAlign="start">
 										<Icon name="sandbox-information-circle" size={16} color="secondary" />
@@ -307,20 +394,37 @@ export function FormWizardVerticalTemplate() @{
 					{step === 0 ? (
 						<FormLayout defaultOptionality="optional">
 							<TextInput
-								label="Display name" isRequired value={authorName} onChange={(v) => setAuthorName(v ?? '')}
+								label="Display name"
+								isRequired
+								value={authorName}
+								onChange={(v) => setAuthorName(v ?? '')}
 								placeholder="Imogen Hale"
-								status={currentErrors.authorName ? { type: 'error', message: currentErrors.authorName } : undefined}
+								status={
+									currentErrors.authorName
+										? { type: 'error', message: currentErrors.authorName }
+										: undefined
+								}
 							/>
 							<TextInput
-								label="Pen name" value={penName} onChange={(v) => setPenName(v ?? '')}
+								label="Pen name"
+								value={penName}
+								onChange={(v) => setPenName(v ?? '')}
 								description="Overrides your display name on this and future books."
 							/>
 							<TextArea
-								label="Author bio" isRequired rows={4} value={bio} onChange={(v) => setBio(v ?? '')}
-								status={currentErrors.bio ? { type: 'error', message: currentErrors.bio } : undefined}
+								label="Author bio"
+								isRequired
+								rows={4}
+								value={bio}
+								onChange={(v) => setBio(v ?? '')}
+								status={
+									currentErrors.bio ? { type: 'error', message: currentErrors.bio } : undefined
+								}
 							/>
 							<TextInput
-								label="Website" value={authorSite} onChange={(v) => setAuthorSite(v ?? '')}
+								label="Website"
+								value={authorSite}
+								onChange={(v) => setAuthorSite(v ?? '')}
 								placeholder="you.com"
 							/>
 						</FormLayout>
@@ -329,8 +433,13 @@ export function FormWizardVerticalTemplate() @{
 					{step === 1 ? (
 						<FormLayout defaultOptionality="optional">
 							<TextInput
-								label="Book title" isRequired value={title} onChange={(v) => setTitle(v ?? '')}
-								status={currentErrors.title ? { type: 'error', message: currentErrors.title } : undefined}
+								label="Book title"
+								isRequired
+								value={title}
+								onChange={(v) => setTitle(v ?? '')}
+								status={
+									currentErrors.title ? { type: 'error', message: currentErrors.title } : undefined
+								}
 							/>
 							<VStack gap={2}>
 								<Field
@@ -346,9 +455,24 @@ export function FormWizardVerticalTemplate() @{
 													cover-final-v3.png · replaced art uploads in place
 												</Text>
 												<HStack gap={2}>
-													<Button label="Crop image" variant="secondary" size="sm" clickAction={() => {}} />
-													<Button label="Preview on device" variant="secondary" size="sm" clickAction={() => {}} />
-													<Button label="Remove cover" variant="ghost" size="sm" clickAction={() => setHasCover(false)} />
+													<Button
+														label="Crop image"
+														variant="secondary"
+														size="sm"
+														clickAction={() => {}}
+													/>
+													<Button
+														label="Preview on device"
+														variant="secondary"
+														size="sm"
+														clickAction={() => {}}
+													/>
+													<Button
+														label="Remove cover"
+														variant="ghost"
+														size="sm"
+														clickAction={() => setHasCover(false)}
+													/>
 												</HStack>
 											</VStack>
 										</HStack>
@@ -371,65 +495,137 @@ export function FormWizardVerticalTemplate() @{
 								) : null}
 							</VStack>
 							<TextInput
-								label="Subtitle" value={subtitle} onChange={(v) => setSubtitle(v ?? '')}
+								label="Subtitle"
+								value={subtitle}
+								onChange={(v) => setSubtitle(v ?? '')}
 								description="Shown beneath the title on the store page."
 							/>
 							<FormLayout direction="horizontal" defaultOptionality="optional">
 								<TextInput
-									label="Edition" value={edition} onChange={(v) => setEdition(v ?? '')}
+									label="Edition"
+									value={edition}
+									onChange={(v) => setEdition(v ?? '')}
 									placeholder="2nd"
 								/>
 								<Selector
-									label="Language" options={LANGUAGES} value={language} onValueChange={(v) => setLanguage(v ?? '')}
+									label="Language"
+									options={LANGUAGES}
+									value={language}
+									onValueChange={(v) => setLanguage(v ?? '')}
 								/>
 							</FormLayout>
 							<FormLayout direction="horizontal" defaultOptionality="optional">
 								<TextInput
-									label="Series" value={series} onChange={(v) => setSeries(v ?? '')}
+									label="Series"
+									value={series}
+									onChange={(v) => setSeries(v ?? '')}
 									description="Leave blank for a standalone book."
 								/>
 								<NumberInput
-									label="Number in series" value={seriesNumber} onValueChange={(v) => setSeriesNumber(v ?? 0)}
-									min={1} step={1}
-									status={currentErrors.seriesNumber ? { type: 'error', message: currentErrors.seriesNumber } : undefined}
+									label="Number in series"
+									value={seriesNumber}
+									onValueChange={(v) => setSeriesNumber(v ?? 0)}
+									min={1}
+									step={1}
+									status={
+										currentErrors.seriesNumber
+											? { type: 'error', message: currentErrors.seriesNumber }
+											: undefined
+									}
 								/>
 							</FormLayout>
 							<TextArea
-								label="Description" isRequired rows={5} maxLength={4000} value={blurb} onChange={(v) => setBlurb(v ?? '')}
-								status={currentErrors.blurb ? { type: 'error', message: currentErrors.blurb } : undefined}
+								label="Description"
+								isRequired
+								rows={5}
+								maxLength={4000}
+								value={blurb}
+								onChange={(v) => setBlurb(v ?? '')}
+								status={
+									currentErrors.blurb ? { type: 'error', message: currentErrors.blurb } : undefined
+								}
 							/>
 							<MultiSelector
-								label="Categories" isRequired options={CATEGORIES} value={categories} onValueChange={(v) => setCategories(v ?? [])} triggerDisplay="badges"
+								label="Categories"
+								isRequired
+								options={CATEGORIES}
+								value={categories}
+								onValueChange={(v) => setCategories(v ?? [])}
+								triggerDisplay="badges"
 								description={`Choose up to ${MAX_CATEGORIES}. The first one decides which charts the book appears in.`}
-								status={currentErrors.categories ? { type: 'error', message: currentErrors.categories } : undefined}
+								status={
+									currentErrors.categories
+										? { type: 'error', message: currentErrors.categories }
+										: undefined
+								}
 							/>
 						</FormLayout>
 					) : null}
 
 					{step === 2 ? (
 						<FormLayout defaultOptionality="optional">
-							<RadioList label="Where the book is sold" value={scope} onValueChange={(v) => setScope(v ?? '')}>
-								<RadioListItem value="worldwide" label="Worldwide" description="Every territory the store sells in — recommended." />
-								<RadioListItem value="selected" label="Selected territories" description="Pick the markets where you hold distribution rights." />
-								<RadioListItem value="exclusive" label="Exclusive to this store" description="Higher royalty share for 12 months of exclusivity." />
+							<RadioList
+								label="Where the book is sold"
+								value={scope}
+								onValueChange={(v) => setScope(v ?? '')}
+							>
+								<RadioListItem
+									value="worldwide"
+									label="Worldwide"
+									description="Every territory the store sells in — recommended."
+								/>
+								<RadioListItem
+									value="selected"
+									label="Selected territories"
+									description="Pick the markets where you hold distribution rights."
+								/>
+								<RadioListItem
+									value="exclusive"
+									label="Exclusive to this store"
+									description="Higher royalty share for 12 months of exclusivity."
+								/>
 							</RadioList>
 							{scope === 'selected' ? (
 								<MultiSelector
-									label="Territories" options={TERRITORIES} value={territories} onValueChange={(v) => setTerritories(v ?? [])}
+									label="Territories"
+									options={TERRITORIES}
+									value={territories}
+									onValueChange={(v) => setTerritories(v ?? [])}
 									triggerDisplay="badges"
-									status={currentErrors.territories ? { type: 'error', message: currentErrors.territories } : undefined}
+									status={
+										currentErrors.territories
+											? { type: 'error', message: currentErrors.territories }
+											: undefined
+									}
 								/>
 							) : null}
 							<FormLayout direction="horizontal" defaultOptionality="optional">
 								<DateInput
-									label="Release date" isRequired value={releaseDate as never} onChange={(v) => setReleaseDate(v ?? '')}
-									status={currentErrors.releaseDate ? { type: 'error', message: currentErrors.releaseDate } : undefined}
+									label="Release date"
+									isRequired
+									value={releaseDate as never}
+									onChange={(v) => setReleaseDate(v ?? '')}
+									status={
+										currentErrors.releaseDate
+											? { type: 'error', message: currentErrors.releaseDate }
+											: undefined
+									}
 								/>
 								<NumberInput
-									label="List price" isRequired value={price} onValueChange={(v) => setPrice(v ?? 0)}
-									min={0.99} max={99} step={0.01} units="$"
+									label="List price"
+									isRequired
+									value={price}
+									onValueChange={(v) => setPrice(v ?? 0)}
+									min={0.99}
+									max={99}
+									step={0.01}
+									units="$"
 									description="Before local tax and store adjustments."
-									status={currentErrors.price ? { type: 'error', message: currentErrors.price } : undefined}
+									status={
+										currentErrors.price
+											? { type: 'error', message: currentErrors.price }
+											: undefined
+									}
 								/>
 							</FormLayout>
 							<Field
@@ -443,7 +639,12 @@ export function FormWizardVerticalTemplate() @{
 											: 'Available to buy and included in the subscription catalog.'
 								}
 							>
-								<SegmentedControl label="Sales model" value={salesModel} onValueChange={(v) => setSalesModel(v ?? '')} layout="fill">
+								<SegmentedControl
+									label="Sales model"
+									value={salesModel}
+									onValueChange={(v) => setSalesModel(v ?? '')}
+									layout="fill"
+								>
 									<SegmentedControlItem value="purchase" label="Purchase" />
 									<SegmentedControlItem value="subscription" label="Subscription" />
 									<SegmentedControlItem value="both" label="Both" />
@@ -453,14 +654,18 @@ export function FormWizardVerticalTemplate() @{
 							<Switch
 								label="Contains explicit content"
 								description="Adds an advisory label and excludes the book from all-ages recommendations."
-								value={isExplicit} onChange={(v) => setIsExplicit(v ?? '')}
-								labelPosition="start" labelSpacing="spread"
+								value={isExplicit}
+								onChange={(v) => setIsExplicit(v ?? '')}
+								labelPosition="start"
+								labelSpacing="spread"
 							/>
 							<Switch
 								label="Allow library lending"
 								description="Libraries can license the audiobook for time-limited loans."
-								value={allowsLending} onChange={(v) => setAllowsLending(v ?? '')}
-								labelPosition="start" labelSpacing="spread"
+								value={allowsLending}
+								onChange={(v) => setAllowsLending(v ?? '')}
+								labelPosition="start"
+								labelSpacing="spread"
 							/>
 						</FormLayout>
 					) : null}
@@ -496,15 +701,31 @@ export function FormWizardVerticalTemplate() @{
 								<FieldStatus type="error" variant="detached" message={currentErrors.stripe} />
 							) : null}
 							<Selector
-								label="Payout currency" options={CURRENCIES} value={currency} onValueChange={(v) => setCurrency(v ?? '')}
+								label="Payout currency"
+								options={CURRENCIES}
+								value={currency}
+								onValueChange={(v) => setCurrency(v ?? '')}
 								description="Converted at payout; the list price stays in the store currency."
 							/>
 							<CheckboxList
-								label="Agreements" isRequired value={accepted} onValueChange={(v) => setAccepted(v ?? '')} density="compact"
-								status={currentErrors.agreements ? { type: 'error', message: currentErrors.agreements } : undefined}
+								label="Agreements"
+								isRequired
+								value={accepted}
+								onValueChange={(v) => setAccepted(v ?? '')}
+								density="compact"
+								status={
+									currentErrors.agreements
+										? { type: 'error', message: currentErrors.agreements }
+										: undefined
+								}
 							>
 								{AGREEMENTS.map((a) => (
-									<CheckboxListItem key={a.value} value={a.value} label={a.label} description={a.description} />
+									<CheckboxListItem
+										key={a.value}
+										value={a.value}
+										label={a.label}
+										description={a.description}
+									/>
 								))}
 							</CheckboxList>
 						</FormLayout>
@@ -528,36 +749,66 @@ export function FormWizardVerticalTemplate() @{
 								</VStack>
 								<Divider />
 								<MetadataList columns="multi">
-									<MetadataListItem label="Title" icon={<Icon name="sandbox-book-open" size={16} />}>
+									<MetadataListItem
+										label="Title"
+										icon={<Icon name="sandbox-book-open" size={16} />}
+									>
 										{title.trim() || '—'}
 									</MetadataListItem>
 									<MetadataListItem label="Author" icon={<Icon name="sandbox-user" size={16} />}>
 										{penName.trim() || authorName.trim() || '—'}
 									</MetadataListItem>
-									<MetadataListItem label="Series" icon={<Icon name="sandbox-rectangle-stack" size={16} />}>
+									<MetadataListItem
+										label="Series"
+										icon={<Icon name="sandbox-rectangle-stack" size={16} />}
+									>
 										{series.trim() ? `${series.trim()}, book ${seriesNumber}` : 'Standalone'}
 									</MetadataListItem>
-									<MetadataListItem label="Language" icon={<Icon name="sandbox-language" size={16} />}>
+									<MetadataListItem
+										label="Language"
+										icon={<Icon name="sandbox-language" size={16} />}
+									>
 										{LANGUAGES.find((l) => l.value === language)?.label ?? language}
 									</MetadataListItem>
 									<MetadataListItem label="Categories" icon={<Icon name="sandbox-tag" size={16} />}>
 										{categories.length === 0
 											? '—'
-											: CATEGORIES.filter((c) => categories.includes(c.value)).map((c) => c.label).join(', ')}
+											: CATEGORIES.filter((c) => categories.includes(c.value))
+													.map((c) => c.label)
+													.join(', ')}
 									</MetadataListItem>
-									<MetadataListItem label="Availability" icon={<Icon name="sandbox-globe-alt" size={16} />}>
-										{scope === 'worldwide' ? 'Worldwide' : scope === 'exclusive' ? 'Exclusive, 12 months' : `${territories.length} territories`}
+									<MetadataListItem
+										label="Availability"
+										icon={<Icon name="sandbox-globe-alt" size={16} />}
+									>
+										{scope === 'worldwide'
+											? 'Worldwide'
+											: scope === 'exclusive'
+												? 'Exclusive, 12 months'
+												: `${territories.length} territories`}
 									</MetadataListItem>
-									<MetadataListItem label="Release date" icon={<Icon name="sandbox-calendar" size={16} />}>
+									<MetadataListItem
+										label="Release date"
+										icon={<Icon name="sandbox-calendar" size={16} />}
+									>
 										{releaseDate ?? '—'}
 									</MetadataListItem>
-									<MetadataListItem label="List price" icon={<Icon name="sandbox-currency-dollar" size={16} />}>
+									<MetadataListItem
+										label="List price"
+										icon={<Icon name="sandbox-currency-dollar" size={16} />}
+									>
 										{usd(price ?? 0)}
 									</MetadataListItem>
-									<MetadataListItem label="Advisory" icon={<Icon name="sandbox-exclamation-triangle" size={16} />}>
+									<MetadataListItem
+										label="Advisory"
+										icon={<Icon name="sandbox-exclamation-triangle" size={16} />}
+									>
 										{isExplicit ? 'Explicit content' : 'None'}
 									</MetadataListItem>
-									<MetadataListItem label="Library lending" icon={<Icon name="sandbox-building-library" size={16} />}>
+									<MetadataListItem
+										label="Library lending"
+										icon={<Icon name="sandbox-building-library" size={16} />}
+									>
 										{allowsLending ? 'Allowed' : 'Not allowed'}
 									</MetadataListItem>
 								</MetadataList>
@@ -597,7 +848,9 @@ export function FormWizardVerticalTemplate() @{
 					</Text>
 					<HStack gap={3}>
 						<Button
-							label="Back" variant="secondary" isDisabled={step === 0}
+							label="Back"
+							variant="secondary"
+							isDisabled={step === 0}
 							clickAction={() => {
 								markAttempted(step)
 								setStep((s) => Math.max(0, s - 1))

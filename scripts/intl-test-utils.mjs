@@ -68,6 +68,7 @@ export async function checkIntlBundle(
 			],
 			{ encoding: 'utf8', timeout: 60000 },
 		)
+
 		assert.equal(child.status, 0, child.stdout + child.stderr)
 	} finally {
 		await rm(directory, { recursive: true, force: true })

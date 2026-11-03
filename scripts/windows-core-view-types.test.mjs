@@ -32,6 +32,7 @@ const key: symbol = Symbol();
 view[key]();
 `,
 		)
+
 		const check = (repair) => {
 			const options = {
 				noEmit: true,
@@ -65,11 +66,13 @@ view[key]();
 				message: ts.flattenDiagnosticMessageText(d.messageText, '\n'),
 			}))
 		}
+
 		const baseline = check(false)
 		assert.ok(
 			baseline.some((d) => d.code === 2345 || d.code === 2322),
 			JSON.stringify(baseline),
 		)
+
 		assert.deepEqual(check(true), [])
 	} finally {
 		rmSync(directory, { recursive: true, force: true })

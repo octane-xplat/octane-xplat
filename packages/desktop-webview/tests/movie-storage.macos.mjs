@@ -5,7 +5,16 @@
 // multi-owner isolation. Nonvisual: storage/bytes only, no capture.
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
-import { cpSync, mkdtempSync, mkdirSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import {
+	cpSync,
+	mkdtempSync,
+	mkdirSync,
+	readdirSync,
+	rmSync,
+	symlinkSync,
+	writeFileSync,
+} from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -34,8 +43,19 @@ try {
 	// A playable generated movie fixture qualifies bytes/storage, not capture.
 	const fixture = join(directory, 'fixture.mp4')
 	run('ffmpeg', [
-		'-v', 'error', '-f', 'lavfi', '-i', 'color=black:s=64x48:r=10', '-t', '0.3',
-		'-c:v', 'libx264', '-pix_fmt', 'yuv420p', fixture,
+		'-v',
+		'error',
+		'-f',
+		'lavfi',
+		'-i',
+		'color=black:s=64x48:r=10',
+		'-t',
+		'0.3',
+		'-c:v',
+		'libx264',
+		'-pix_fmt',
+		'yuv420p',
+		fixture,
 	])
 
 	// Bundle a consumer that imports the packed entry.
@@ -46,12 +66,14 @@ try {
 		fileURLToPath(new URL('../../platform', import.meta.url)),
 		join(app, 'node_modules/@octane-xplat/platform'),
 	)
+
 	// Native-leaf discovery resolves each dependency through node_modules.
 	mkdirSync(join(app, 'node_modules/@nativescript'), { recursive: true })
 	symlinkSync(
 		dirname(fileURLToPath(import.meta.resolve('@nativescript/macos-node-api/package.json'))),
 		join(app, 'node_modules/@nativescript/macos-node-api'),
 	)
+
 	writeFileSync(
 		join(app, 'package.json'),
 		JSON.stringify({
@@ -64,6 +86,7 @@ try {
 			},
 		}),
 	)
+
 	writeFileSync(
 		join(app, 'fixture.mjs'),
 		`import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'
@@ -154,6 +177,7 @@ try { __xplatStopHost() } catch {}
 try { NSApplication.sharedApplication.terminate(null) } catch {}
 `,
 	)
+
 	run('bun', [
 		'build',
 		join(app, 'fixture.mjs'),
@@ -196,6 +220,7 @@ try { NSApplication.sharedApplication.terminate(null) } catch {}
 				: reject(new Error(`host exited ${code} ${signal}: ${text.slice(-4000)}`))
 		})
 	})
+
 	assert.match(output, /MOVIE_STORAGE_OK/, output)
 	console.log(output.match(/MOVIE_STORAGE_OK[^\n]*/)[0])
 } finally {

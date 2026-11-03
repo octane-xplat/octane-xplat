@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url'
 const hostBundle =
 	process.env.XPLAT_JSC_HOST_BUNDLE ??
 	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
 // The host's libjs env loop carries every foreign-queue JS callback: the napi

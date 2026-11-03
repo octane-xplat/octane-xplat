@@ -304,7 +304,6 @@ test('applyProps commits native focus handler updates and clears', () => {
 	assert.equal(Reflect.get(node.props, 'onBlur'), undefined)
 })
 
-
 test('testID maps to the native accessibility identifier independently of CSS id and labels', () => {
 	for (const type of ['masonview', 'textfield']) {
 		const { node, applyProps } = applyPropsFixture(type)

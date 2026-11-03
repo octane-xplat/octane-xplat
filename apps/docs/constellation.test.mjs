@@ -10,10 +10,7 @@ test('constellation layers partition every polygon across interleaved markups', 
 	const layers = constellationLayers(svg, 16)
 	assert.equal(layers.length, 16)
 
-	const total = layers.reduce(
-		(sum, layer) => sum + (layer.match(/<polygon\b/g)?.length ?? 0),
-		0,
-	)
+	const total = layers.reduce((sum, layer) => sum + (layer.match(/<polygon\b/g)?.length ?? 0), 0)
 	assert.equal(total, polygons.length, 'every polygon lands in exactly one layer')
 
 	// Index interleave: a layer never holds two consecutive source polygons,

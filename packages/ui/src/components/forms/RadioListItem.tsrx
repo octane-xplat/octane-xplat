@@ -2,7 +2,12 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { RadioListItemProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { RadioListContext } from './option-list-contexts'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
@@ -33,7 +38,11 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
 		accessibilityRole={ctx ? nativeAccessibilityRole('radio') : undefined}
 		accessibilityLabel={props.label ?? props.value}
 		accessibilityHint={props.description}
-		accessibilityState={ctx ? nativeAccessibilityState({ checked: selected, disabled, readOnly: ctx.isReadOnly }) : undefined}
+		accessibilityState={
+			ctx
+				? nativeAccessibilityState({ checked: selected, disabled, readOnly: ctx.isReadOnly })
+				: undefined
+		}
 		onTap={!ctx || blocked ? undefined : () => ctx.select?.(props.value)}
 	>
 		<Ind
@@ -42,7 +51,9 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
 			isDisabled={disabled}
 		/>
 		<masonview className="vx-radio-label-col" style={{ display: 'flex' }}>
-			{props.label != null ? <label className="vx-radio-label" text={props.label} textWrap /> : null}
+			{props.label != null ? (
+				<label className="vx-radio-label" text={props.label} textWrap />
+			) : null}
 			{props.description != null ? (
 				<label className="vx-radio-description" text={props.description} textWrap />
 			) : null}

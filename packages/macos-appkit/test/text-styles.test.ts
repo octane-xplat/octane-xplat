@@ -57,10 +57,8 @@ test('padded label cell insets drawing and grows the measured size', () => {
 
 const cellPaddings = new WeakMap()
 const writers = runSlice(
-	source.slice(
-		source.indexOf('function syncNodeFont'),
-		source.indexOf('const BORDER_SIDES'),
-	) + '\n({ syncNodeFont, syncLabelPadding, syncVisibility, isCollapsed })',
+	source.slice(source.indexOf('function syncNodeFont'), source.indexOf('const BORDER_SIDES')) +
+		'\n({ syncNodeFont, syncLabelPadding, syncVisibility, isCollapsed })',
 	{
 		labelPaddings: cellPaddings,
 		effectiveStyle: (node: any) => node.style ?? {},
@@ -195,10 +193,8 @@ const cursorRecords = new WeakMap()
 const cursorLog: string[] = []
 const cursorWarnings: string[] = []
 const cursorSlice = runSlice(
-	source.slice(
-		source.indexOf('// CSS cursor keywords'),
-		source.indexOf('const BORDER_SIDES'),
-	) + '\n({ syncCursor, syncUserSelect, CSS_CURSORS })',
+	source.slice(source.indexOf('// CSS cursor keywords'), source.indexOf('const BORDER_SIDES')) +
+		'\n({ syncCursor, syncUserSelect, CSS_CURSORS })',
 	{
 		console: { warn: (m: string) => cursorWarnings.push(m) },
 		NSCursor: {

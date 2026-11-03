@@ -136,6 +136,7 @@ export const host: ShortcutHost = {
 				callbacks.key(event)
 				return prevented || stopped
 			})
+
 			releases.push(() => controller.disconnect(id))
 			const focusController = new Gtk.EventControllerFocus()
 			widget.add_controller(focusController)
@@ -148,6 +149,7 @@ export const host: ShortcutHost = {
 					reset()
 				}
 			})
+
 			releases.push(() => root.disconnect(inactive))
 		} catch (error) {
 			active = false

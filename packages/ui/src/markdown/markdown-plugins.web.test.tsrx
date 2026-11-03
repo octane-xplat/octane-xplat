@@ -15,6 +15,7 @@ import {
 	markdownSoftBreaksPlugin,
 	markdownSourceLinesPlugin,
 } from './markdown-plugin-helpers'
+
 import type { MdDoc } from './markdown-ast'
 import type { MarkdownTokenizerInput } from './markdown-plugins'
 
@@ -38,6 +39,7 @@ function driveFrames() {
 		rafCallbacks.push(cb)
 		return rafCallbacks.length
 	})
+
 	vi.stubGlobal('cancelAnimationFrame', () => {})
 }
 
@@ -47,7 +49,12 @@ function mount(plugins?: any) {
 	const root = createRoot(el)
 	roots.push(root)
 	const render = (props: any) =>
-		act(() => root.render(plugins == null ? <Markdown {...props} /> : <Markdown plugins={plugins} {...props} />))
+		act(() =>
+			root.render(
+				plugins == null ? <Markdown {...props} /> : <Markdown plugins={plugins} {...props} />,
+			),
+		)
+
 	return { el, render }
 }
 
@@ -107,9 +114,7 @@ const inlineAngle = (render: (node: MarkdownExtensionNode) => unknown) =>
 	})
 
 it('renders a matched inline extension through its plugin renderer', () => {
-	const { el, render } = mount([
-		inlineAngle((node) => <b className="rx">{String(node.data)}</b>),
-	])
+	const { el, render } = mount([inlineAngle((node) => <b className="rx">{String(node.data)}</b>)])
 	render({ children: 'go <<mark>> now' })
 	expect(el.querySelector('b.rx')?.textContent).toBe('mark')
 })
@@ -144,13 +149,12 @@ it('renders a block extension through its plugin renderer', () => {
 		},
 		renderers: {
 			callout: {
-				render: ({ node }) => (
-					<div className="callout">{(node.data as { text: string }).text}</div>
-				),
+				render: ({ node }) => <div className="callout">{(node.data as { text: string }).text}</div>,
 				toText: () => 'callout',
 			},
 		},
 	})
+
 	const { el, render } = mount([plugin])
 	render({ children: '!!! warning' })
 	expect(el.querySelector('.callout')?.textContent).toBe('warning')
@@ -168,6 +172,7 @@ it('a renderer throwing inside the boundary resolves to the fallback text', () =
 	const plugin = inlineAngle(() => {
 		throw new Error('render boom')
 	})
+
 	const { el, render } = mount([plugin])
 	render({ children: 'go <<mark>> now' })
 	// The readable fallback is the node's source, as in the reference
@@ -181,6 +186,7 @@ it('a suspending renderer shows the fallback until the promise resolves', async 
 	const pending = new Promise<unknown>((resolve) => {
 		resolveRender = resolve
 	})
+
 	const plugin = inlineAngle(() => <AsyncNode promise={pending.then(() => 'loaded')} />)
 	const { el, render } = mount([plugin])
 	render({ children: 'go <<mark>> now' })
@@ -217,6 +223,7 @@ it('a semantic-fence proposal renders through the fence renderer', () => {
 			},
 		},
 	})
+
 	const { el, render } = mount([chart])
 	render({ children: '```chart\nplot me\n```' })
 	expect(el.querySelector('figure.chart')?.textContent).toBe('plot me')
@@ -243,6 +250,7 @@ it('a declining fence renderer keeps the ordinary code block', () => {
 			},
 		},
 	})
+
 	const { el, render } = mount([chart])
 	render({ children: '```chart\nplot me\n```' })
 	expect(el.querySelector('figure')).toBeNull()
@@ -269,7 +277,10 @@ it('source lines stamp data-source-line attributes only with the plugin', () => 
 })
 
 it('heading links allocate ids and render the copy control', () => {
-	const { el, render } = mount([createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })])
+	const { el, render } = mount([
+		createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' }),
+	])
+
 	render({ children: '# Title\n\n## Title' })
 	const headings = el.querySelectorAll('h1, h2')
 	expect(headings[0].id).toBe('title')
@@ -292,6 +303,7 @@ it('MarkdownPluginNodeRenderer renders a baked node through its renderer', () =>
 			},
 		}),
 	]
+
 	const node: MarkdownExtensionNode = {
 		type: 'extension',
 		plugin: 'solo',
@@ -300,6 +312,7 @@ it('MarkdownPluginNodeRenderer renders a baked node through its renderer', () =>
 		data: 'payload',
 		source: 'x',
 	}
+
 	const el = renderNode(plugins, node)
 	expect(el.querySelector('strong.solo')?.textContent).toBe('payload')
 })

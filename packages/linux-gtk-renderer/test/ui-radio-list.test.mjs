@@ -46,6 +46,7 @@ for (const fallback of [false, true]) {
 						.filter((path) => path !== nativeDir)
 						.join(':')
 				}
+
 				const installed = spawnSync(
 					'gjs',
 					[
@@ -54,10 +55,12 @@ for (const fallback of [false, true]) {
 					],
 					{ env },
 				)
+
 				if (installed.status === 0) {
 					t.skip(
 						'System Mason is available; an unavailable-Mason environment is required for fallback proof',
 					)
+
 					return
 				}
 			}
@@ -86,6 +89,7 @@ for (const fallback of [false, true]) {
 					)
 						.trim()
 						.split('\n')[0]
+
 					const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 					send('windowfocus', id)
 					if (phase.point) {
@@ -94,6 +98,7 @@ for (const fallback of [false, true]) {
 					} else {
 						send('key', phase.key)
 					}
+
 					send('key', 'F12')
 				} catch (error) {
 					inputError = error

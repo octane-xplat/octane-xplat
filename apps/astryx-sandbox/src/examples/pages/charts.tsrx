@@ -40,12 +40,19 @@ export function ChartLines(props: {
 		let hi = -Infinity
 		for (const s of props.series) {
 			for (const v of s.data) {
-				if (v < lo) {lo = v}
-				if (v > hi) {hi = v}
+				if (v < lo) {
+					lo = v
+				}
+
+				if (v > hi) {
+					hi = v
+				}
 			}
 		}
+
 		return { min: lo, max: hi }
 	}, [props.series])
+
 	const range = max - min || 1
 	const pad = 4
 
@@ -65,6 +72,7 @@ export function ChartLines(props: {
 						return `${(Number(x) + pad).toFixed(1)},${(Number(y) + pad).toFixed(1)}`
 					})
 					.join(' ')
+
 				return (
 					<g key={si}>
 						{s.area ? (
@@ -108,7 +116,11 @@ export function ChartLines(props: {
 }
 
 /** Single-series sparkline (recharts `height={24|40}` micro charts). */
-export function ChartSparkline(props: { data: readonly number[]; color: string; height: number }) @{
+export function ChartSparkline(props: {
+	data: readonly number[]
+	color: string
+	height: number
+}) @{
 	<ChartLines series={[{ data: props.data, color: props.color }]} height={props.height} />
 }
 
@@ -118,6 +130,7 @@ export function ChartStackedBar(props: {
 	height?: number
 }) @{
 	const total = props.segments.reduce((sum, s) => sum + s.value, 0) || 1
+
 	<div
 		style={{
 			display: 'flex',
@@ -147,6 +160,7 @@ export function ChartBars(props: {
 	height: number
 }) @{
 	const max = Math.max(...props.bars.map((b) => b.value), 1)
+
 	<div
 		style={{
 			display: 'flex',

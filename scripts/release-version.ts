@@ -155,8 +155,11 @@ export function pendingRelease(
 	{ ref, releaseExists }: { ref?: string; releaseExists?: (tag: string) => boolean } = {},
 ) {
 	const git = (...args: string[]) =>
-		execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-			.trim()
+		execFileSync('git', args, {
+			cwd: root,
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		}).trim()
 	const path =
 		release === 'lockstep'
 			? 'packages/create/compatibility.json'

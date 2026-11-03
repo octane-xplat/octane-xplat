@@ -43,6 +43,7 @@ async function requestProbe(): Promise<PermissionResponse> {
 	} catch (error) {
 		const code =
 			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
+
 		if (code === 1) {
 			return respond('denied')
 		}

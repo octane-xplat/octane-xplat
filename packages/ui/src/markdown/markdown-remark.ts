@@ -17,6 +17,7 @@ import {
 	type MarkdownTransform,
 	type MarkdownTransformContext,
 } from './markdown-plugins.ts'
+
 import { MD_DOC_KIND, MD_DOC_VERSION, type MdDataValue, type MdDoc } from './markdown-ast.ts'
 
 /* ------------------------------------------------------------------ *
@@ -250,9 +251,8 @@ export type MarkdownRemarkPlugin<Settings extends ReadonlyArray<unknown> = reado
  */
 export type MarkdownRemarkCompatibleTransformer = (...args: never[]) => unknown
 
-export type MarkdownRemarkCompatiblePlugin<
-	Settings extends ReadonlyArray<unknown> = readonly [],
-> = (...settings: Settings) => Returned<MarkdownRemarkCompatibleTransformer>
+export type MarkdownRemarkCompatiblePlugin<Settings extends ReadonlyArray<unknown> = readonly []> =
+	(...settings: Settings) => Returned<MarkdownRemarkCompatibleTransformer>
 
 /* ------------------------------------------------------------------ *
  * Internal helpers
@@ -590,6 +590,7 @@ function copyData<Value>(value: Value): Value {
 		for (const entry of value) {
 			copy.push(copyData(entry))
 		}
+
 		return copy as Value
 	}
 	if (isPlainObject(value)) {
@@ -597,6 +598,7 @@ function copyData<Value>(value: Value): Value {
 		for (const [key, nested] of Object.entries(value)) {
 			copy[key] = copyData(nested)
 		}
+
 		return copy as Value
 	}
 	return value
@@ -659,6 +661,7 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
 			if (node.type === 'listItem' && typeof node.checked === 'boolean') {
 				copy.checked = node.checked
 			}
+
 			copy.children = toRemarkChildren(node.children, index)
 			break
 		case 'heading':
@@ -694,12 +697,15 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
 			if (node.start !== undefined) {
 				copy.start = node.start
 			}
+
 			if (node.spread !== undefined) {
 				copy.spread = node.spread
 			}
+
 			if (node.delimiter !== undefined) {
 				copy.delimiter = node.delimiter
 			}
+
 			copy.children = toRemarkChildren(node.children, index)
 			break
 		case 'table':
@@ -716,6 +722,7 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
 			if (node.source !== undefined) {
 				copy.source = node.source
 			}
+
 			break
 		default:
 			break
@@ -841,7 +848,9 @@ function requireString(type: string, field: string, value: unknown): string {
 
 function requireAbsentText(type: string, field: string, value: unknown): void {
 	if (value !== undefined && value !== null && value !== '') {
-		reject(`a "${knownType(type)}" node's "${knownField(type, field)}" has no Octane representation`)
+		reject(
+			`a "${knownType(type)}" node's "${knownField(type, field)}" has no Octane representation`,
+		)
 	}
 }
 
@@ -892,6 +901,7 @@ function sameCanonicalFields(origin: UnknownRecord, fields: UnknownRecord): bool
 		if (next === previous) {
 			continue
 		}
+
 		if (Array.isArray(next) && Array.isArray(previous)) {
 			if (
 				next.length !== previous.length ||
@@ -899,8 +909,10 @@ function sameCanonicalFields(origin: UnknownRecord, fields: UnknownRecord): bool
 			) {
 				return false
 			}
+
 			continue
 		}
+
 		if (!sameJsonValue(next, previous)) {
 			return false
 		}
@@ -917,9 +929,7 @@ function buildCanonicalNode(
 		return origin
 	}
 	const built: UnknownRecord =
-		type === 'root'
-			? { kind: MD_DOC_KIND, v: MD_DOC_VERSION, ...fields }
-			: { type, ...fields }
+		type === 'root' ? { kind: MD_DOC_KIND, v: MD_DOC_VERSION, ...fields } : { type, ...fields }
 	if (origin != null) {
 		// Carries Core's own enumerable symbol markers (source-heading identity)
 		// onto the replacement so Core still recognizes the node it authored.
@@ -946,7 +956,9 @@ function fromRemarkChildren(
 	if (!Array.isArray(children)) {
 		reject(`a "${knownType(type)}" node requires a children array`)
 	}
-	return children.map((child) => fromRemarkNode(child, type, insideLink || type === 'link', context))
+	return children.map((child) =>
+		fromRemarkNode(child, type, insideLink || type === 'link', context),
+	)
 }
 
 function fromRemarkNode(
@@ -999,9 +1011,11 @@ function fromRemarkNode(
 			if (typeof depth !== 'number' || !Number.isInteger(depth) || depth < 1 || depth > 6) {
 				reject('a heading requires a depth between 1 and 6')
 			}
+
 			if (origin != null && origin.depth !== depth) {
 				reject("a source heading's depth cannot change")
 			}
+
 			fields.depth = depth
 			fields.children = fromRemarkChildren(value.children, type, insideLink, context)
 			break
@@ -1012,11 +1026,14 @@ function fromRemarkNode(
 				if (typeof checked !== 'boolean') {
 					reject('a list item requires a boolean "checked" value')
 				}
+
 				fields.checked = checked
 			}
+
 			if (value.spread === true) {
 				reject('a loose list item has no Octane representation')
 			}
+
 			fields.children = fromRemarkChildren(value.children, type, insideLink, context)
 			break
 		}
@@ -1031,14 +1048,17 @@ function fromRemarkNode(
 			if (lang !== undefined && lang !== null && typeof lang !== 'string') {
 				reject('a code node requires a string or null "lang"')
 			}
+
 			const meta = value.meta
 			if (meta !== undefined && meta !== null && typeof meta !== 'string') {
 				reject('a code node requires a string or null "meta"')
 			}
+
 			fields.lang = lang ?? null
 			if (meta != null && meta !== '') {
 				fields.meta = meta
 			}
+
 			fields.value = requireString(type, 'value', value.value)
 			break
 		}
@@ -1047,6 +1067,7 @@ function fromRemarkNode(
 			if (!isSafeMdParserUrl(url)) {
 				reject('a link destination was rejected by the navigation owner')
 			}
+
 			requireAbsentText(type, 'title', value.title)
 			fields.url = url
 			fields.children = fromRemarkChildren(value.children, type, insideLink, context)
@@ -1057,10 +1078,12 @@ function fromRemarkNode(
 			if (!isSafeMdParserUrl(url)) {
 				reject('an image source was rejected by the resource owner')
 			}
+
 			requireAbsentText(type, 'title', value.title)
 			if (typeof value.alt !== 'string') {
 				reject('an image requires its text alternative')
 			}
+
 			fields.url = url
 			fields.alt = value.alt
 			break
@@ -1069,24 +1092,30 @@ function fromRemarkNode(
 			if (typeof value.ordered !== 'boolean') {
 				reject('a list requires a boolean "ordered" value')
 			}
+
 			fields.ordered = value.ordered
 			const start = value.start
 			if (start !== undefined && start !== null) {
 				if (typeof start !== 'number' || !Number.isFinite(start)) {
 					reject('a list requires a finite "start" value')
 				}
+
 				fields.start = start
 			}
+
 			if (typeof value.spread === 'boolean') {
 				fields.spread = value.spread
 			}
+
 			const delimiter = value.delimiter
 			if (delimiter !== undefined) {
 				if (delimiter !== '.' && delimiter !== ')') {
 					reject('a list requires a "." or ")" delimiter')
 				}
+
 				fields.delimiter = delimiter
 			}
+
 			fields.children = fromRemarkChildren(value.children, type, insideLink, context)
 			break
 		}
@@ -1100,6 +1129,7 @@ function fromRemarkNode(
 			) {
 				reject('a table requires normalized alignment values')
 			}
+
 			fields.align = [...align]
 			fields.children = fromRemarkChildren(value.children, type, insideLink, context)
 			break
@@ -1121,9 +1151,11 @@ function fromRemarkNode(
 						value.name === origin.name &&
 						value.display === origin.display &&
 						value.source === origin.source)
+
 			if (!unchanged) {
 				reject(`an Octane "${knownType(type)}" node cannot be authored or changed here`)
 			}
+
 			// Equality across every owned field proves the node round-tripped,
 			// so the canonical node itself stays in place.
 			return origin
@@ -1323,8 +1355,7 @@ const processorGuard: unknown = new Proxy(Object.freeze({}), {
  * only the plugin sees.
  */
 function describeFailure(error: unknown): string {
-	const reason =
-		error instanceof RemarkAdapterRejection ? adapterReasons.get(error) : undefined
+	const reason = error instanceof RemarkAdapterRejection ? adapterReasons.get(error) : undefined
 	return reason ?? 'the plugin threw an error'
 }
 
@@ -1354,16 +1385,12 @@ function describeFailure(error: unknown): string {
  */
 export function createMarkdownRemarkTransform<
 	Settings extends ReadonlyArray<unknown> = readonly [],
->(
-	plugin: MarkdownRemarkPlugin<Settings>,
-	...settings: Settings
-): MarkdownTransform<never>
+>(plugin: MarkdownRemarkPlugin<Settings>, ...settings: Settings): MarkdownTransform<never>
+
 export function createMarkdownRemarkTransform<
 	Settings extends ReadonlyArray<unknown> = readonly [],
->(
-	plugin: MarkdownRemarkCompatiblePlugin<Settings>,
-	...settings: Settings
-): MarkdownTransform<never>
+>(plugin: MarkdownRemarkCompatiblePlugin<Settings>, ...settings: Settings): MarkdownTransform<never>
+
 export function createMarkdownRemarkTransform(
 	plugin: MarkdownRemarkCompatiblePlugin<ReadonlyArray<unknown>>,
 	...settings: ReadonlyArray<unknown>
@@ -1387,6 +1414,7 @@ export function createMarkdownRemarkTransform(
 				const created = (
 					plugin as (this: unknown, ...args: ReadonlyArray<unknown>) => unknown
 				).apply(processorGuard, settings as unknown as unknown[])
+
 				// Defuse before any verdict: an attacher that both tripped a
 				// guard and returned a rejected promise must not leave that
 				// promise unhandled just because the guard is reported instead.
@@ -1394,18 +1422,23 @@ export function createMarkdownRemarkTransform(
 				if (attachState.failed) {
 					reject(attachState.reason ?? FAILED_BY_PLUGIN)
 				}
+
 				if (attacherIsAsync) {
 					reject('an asynchronous plugin is outside the adapter')
 				}
+
 				if (typeof created !== 'function') {
 					attachFailure =
 						'only a transform-only plugin returning one synchronous transformer is supported'
+
 					return
 				}
+
 				if (created.length >= 3) {
 					attachFailure = 'a callback-style (asynchronous) transformer is outside the adapter'
 					return
 				}
+
 				transformer = created as MarkdownRemarkTransformer
 			} catch (error) {
 				attachFailure = describeFailure(error)
@@ -1447,9 +1480,11 @@ export function createMarkdownRemarkTransform(
 					// the one reported.
 					reject(run.reason ?? FAILED_BY_PLUGIN)
 				}
+
 				if (returnedIsAsync) {
 					reject('an asynchronous transformer is outside the adapter')
 				}
+
 				const output = returned ?? tree
 				if (!isMarkdownPluginData(state.data)) {
 					reject('file data must be finite JSON-like values')
@@ -1460,6 +1495,7 @@ export function createMarkdownRemarkTransform(
 				if (root.type !== 'root' && root.kind !== MD_DOC_KIND) {
 					reject('a transformer must return the document root')
 				}
+
 				const children = root.children as UnknownRecord[]
 				if (
 					context.display === 'inline' &&
@@ -1467,6 +1503,7 @@ export function createMarkdownRemarkTransform(
 				) {
 					reject('an inline document must stay one paragraph of phrasing content')
 				}
+
 				if (run.failed) {
 					// Last word before the output becomes observable. A guard can
 					// fire after the earlier check — a hostile `then` accessor, a
@@ -1474,6 +1511,7 @@ export function createMarkdownRemarkTransform(
 					// must never end with its output accepted.
 					reject(run.reason ?? FAILED_BY_PLUGIN)
 				}
+
 				return root as unknown as MdDoc
 			} catch (error) {
 				// Exactly one report per failed run, and never a second for the

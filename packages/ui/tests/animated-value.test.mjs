@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createAnimatedValue } from '../src/internal/platform/animated-value.ts'
-import { writeAnimatedProperty, readReducedMotion } from '../src/internal/platform/animation-host.macos.ts'
+import {
+	writeAnimatedProperty,
+	readReducedMotion,
+} from '../src/internal/platform/animation-host.macos.ts'
 
 function fixture(initial = 0) {
 	let now = 0,
@@ -224,11 +227,28 @@ test('host write and scheduling failures settle the run without unhandled reject
 test('AppKit reduced motion reads live property and receiver-bound getter forms instead of function truthiness', () => {
 	const original = globalThis.NSWorkspace
 	try {
-		const workspace = { reduced: false, accessibilityDisplayShouldReduceMotion() { return this.reduced } }
+		const workspace = {
+			reduced: false,
+			accessibilityDisplayShouldReduceMotion() {
+				return this.reduced
+			},
+		}
+
 		globalThis.NSWorkspace = { sharedWorkspace: workspace }
-		assert.equal(readReducedMotion(), false); workspace.reduced = true; assert.equal(readReducedMotion(), true)
-		workspace.accessibilityDisplayShouldReduceMotion = false; assert.equal(readReducedMotion(), false)
-		workspace.accessibilityDisplayShouldReduceMotion = true; assert.equal(readReducedMotion(), true)
-		globalThis.NSWorkspace = undefined; assert.equal(readReducedMotion(), false)
-	} finally { if (original === undefined) {delete globalThis.NSWorkspace;} else {globalThis.NSWorkspace = original} }
+		assert.equal(readReducedMotion(), false)
+		workspace.reduced = true
+		assert.equal(readReducedMotion(), true)
+		workspace.accessibilityDisplayShouldReduceMotion = false
+		assert.equal(readReducedMotion(), false)
+		workspace.accessibilityDisplayShouldReduceMotion = true
+		assert.equal(readReducedMotion(), true)
+		globalThis.NSWorkspace = undefined
+		assert.equal(readReducedMotion(), false)
+	} finally {
+		if (original === undefined) {
+			delete globalThis.NSWorkspace
+		} else {
+			globalThis.NSWorkspace = original
+		}
+	}
 })

@@ -8,6 +8,7 @@ function required() {
 	}
 	return value
 }
+
 export const backend: CryptoBackend = {
 	capabilities: () =>
 		subtle()

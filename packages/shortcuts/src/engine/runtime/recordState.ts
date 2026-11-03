@@ -5,6 +5,7 @@ import type {
 	RecordingSession,
 	ShortcutRecording,
 } from '../types/public.js'
+
 import type { NormalizedKeyEvent, ErrorInfo } from '../types/public.js'
 import type { RecordingState } from '../types/internal.js'
 import { parseBindingToken } from '../bindings/canonicalizeStep.js'

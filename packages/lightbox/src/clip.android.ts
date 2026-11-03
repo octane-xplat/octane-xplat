@@ -14,24 +14,34 @@ export function createClipWriter(view: any): ClipWriter {
 		mechanism: 'outline',
 		setClip(inset, radius) {
 			const native = view?.nativeViewProtected as android.view.View | undefined
-			if (!native) {return}
+			if (!native) {
+				return
+			}
 			Object.assign(current, inset, { radius })
 			if (!provider) {
 				// NativeScript exposes Java subclassing at runtime; the generated
 				// Android declarations do not include this bridge method.
-				const OutlineBase = android.view.ViewOutlineProvider as typeof android.view.ViewOutlineProvider & {
-					extend(methods: { getOutline(view: android.view.View, outline: android.graphics.Outline): void }): new () => android.view.ViewOutlineProvider
+				const OutlineBase = android.view
+					.ViewOutlineProvider as typeof android.view.ViewOutlineProvider & {
+					extend(methods: {
+						getOutline(view: android.view.View, outline: android.graphics.Outline): void
+					}): new () => android.view.ViewOutlineProvider
 				}
+
 				const Outline = OutlineBase.extend({
 					getOutline(target: android.view.View, outline: android.graphics.Outline) {
 						const left = px(current.left)
 						const top = px(current.top)
-						outline.setRoundRect(left, top,
+						outline.setRoundRect(
+							left,
+							top,
 							Math.max(left, target.getWidth() - px(current.right)),
 							Math.max(top, target.getHeight() - px(current.bottom)),
-							Utils.layout.toDevicePixels(current.radius))
+							Utils.layout.toDevicePixels(current.radius),
+						)
 					},
 				})
+
 				provider = new Outline()
 			}
 			if (host !== native) {
@@ -39,7 +49,9 @@ export function createClipWriter(view: any): ClipWriter {
 				previous = host.getOutlineProvider()
 				wasClipped = host.getClipToOutline()
 			}
-			if (host.getOutlineProvider() !== provider) {host.setOutlineProvider(provider)}
+			if (host.getOutlineProvider() !== provider) {
+				host.setOutlineProvider(provider)
+			}
 			host.setClipToOutline(true)
 			host.invalidateOutline()
 		},

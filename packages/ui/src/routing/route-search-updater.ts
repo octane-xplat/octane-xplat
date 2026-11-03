@@ -49,12 +49,7 @@ export function createSearchUpdater(
 				return { status: 'cancelled', reason: 'superseded' } as const
 			}
 
-			if (
-				next === null ||
-				typeof next !== 'object' ||
-				Array.isArray(next) ||
-				isThenable(next)
-			) {
+			if (next === null || typeof next !== 'object' || Array.isArray(next) || isThenable(next)) {
 				throw new TypeError('Search updates must return a search input object synchronously')
 			}
 

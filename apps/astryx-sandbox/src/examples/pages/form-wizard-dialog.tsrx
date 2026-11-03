@@ -6,12 +6,40 @@
 // Toast `showToast` → `useToast` (ToastProvider exists upstream too).
 import { useState } from 'octane'
 import {
-	Banner, Button, Center, CheckboxList, CheckboxListItem, DateInput,
-	Dialog, DialogHeader, Divider, Field, FieldStatus, FormLayout, HStack,
-	Layout, LayoutContent, LayoutFooter, LayoutHeader, MetadataList,
-	MetadataListItem, MultiSelector, RadioList, RadioListItem,
-	SegmentedControl, SegmentedControlItem, Selector, StackItem, Step,
-	Stepper, Switch, TextArea, TextInput, TimeInput, useToast, VStack,
+	Banner,
+	Button,
+	Center,
+	CheckboxList,
+	CheckboxListItem,
+	DateInput,
+	Dialog,
+	DialogHeader,
+	Divider,
+	Field,
+	FieldStatus,
+	FormLayout,
+	HStack,
+	Layout,
+	LayoutContent,
+	LayoutFooter,
+	LayoutHeader,
+	MetadataList,
+	MetadataListItem,
+	MultiSelector,
+	RadioList,
+	RadioListItem,
+	SegmentedControl,
+	SegmentedControlItem,
+	Selector,
+	StackItem,
+	Step,
+	Stepper,
+	Switch,
+	TextArea,
+	TextInput,
+	TimeInput,
+	useToast,
+	VStack,
 } from '@octane-xplat/ui'
 
 const STEPS = ['Report', 'Schedule', 'Delivery']
@@ -25,10 +53,26 @@ const DATASETS = [
 ]
 
 const SECTIONS = [
-	{ value: 'summary', label: 'Executive summary', description: 'Headline numbers and week-over-week change.' },
-	{ value: 'charts', label: 'Trend charts', description: 'Twelve-week series for each headline metric.' },
-	{ value: 'breakdown', label: 'Segment breakdown', description: 'Split by region, plan, and account size.' },
-	{ value: 'anomalies', label: 'Anomaly callouts', description: 'Metrics more than two standard deviations off trend.' },
+	{
+		value: 'summary',
+		label: 'Executive summary',
+		description: 'Headline numbers and week-over-week change.',
+	},
+	{
+		value: 'charts',
+		label: 'Trend charts',
+		description: 'Twelve-week series for each headline metric.',
+	},
+	{
+		value: 'breakdown',
+		label: 'Segment breakdown',
+		description: 'Split by region, plan, and account size.',
+	},
+	{
+		value: 'anomalies',
+		label: 'Anomaly callouts',
+		description: 'Metrics more than two standard deviations off trend.',
+	},
 ]
 
 const RECIPIENTS = [
@@ -112,9 +156,7 @@ export function FormWizardDialogTemplate() @{
 			...(time ? {} : { time: 'Pick a send time.' }),
 			...(startDate ? {} : { startDate: 'Pick a start date.' }),
 		},
-		{
-			...(recipients.length === 0 ? { recipients: 'Add at least one recipient.' } : {}),
-		},
+		recipients.length === 0 ? { recipients: 'Add at least one recipient.' } : {},
 	]
 
 	const shownErrors = (index: number) => (attempted.has(index) ? errorsByStep[index] : {})
@@ -133,24 +175,22 @@ export function FormWizardDialogTemplate() @{
 		if (Object.keys(errorsByStep[step]).length !== 0) {
 			return
 		}
+
 		if (!isLastStep) {
 			setStep((s) => s + 1)
 			return
 		}
+
 		showToast({
 			body: `${name.trim()} is scheduled · ${cadenceSummary}`,
 			uniqueID: 'report-scheduled',
 		})
+
 		resetDraft()
 	}
 
 	<Center height="100dvh">
-		<Dialog
-			isOpen
-			onOpenChange={handleOpenChange}
-			width={620}
-			purpose="form"
-		>
+		<Dialog isOpen onOpenChange={handleOpenChange} width={620} purpose="form">
 			<Layout
 				height="fill"
 				header={
@@ -163,7 +203,8 @@ export function FormWizardDialogTemplate() @{
 						<LayoutHeader hasDivider={false}>
 							<Stepper
 								activeStep={step}
-								orientation="horizontal" accessibilityLabel="Report setup progress"
+								orientation="horizontal"
+								accessibilityLabel="Report setup progress"
 							>
 								{STEPS.map((label, i) => (
 									<Step
@@ -188,7 +229,9 @@ export function FormWizardDialogTemplate() @{
 									onChange={(v) => setName(v ?? '')}
 									placeholder="Weekly pipeline review"
 									description="Used as the email subject line."
-									status={currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined}
+									status={
+										currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined
+									}
 								/>
 								<Selector
 									label="Dataset"
@@ -201,7 +244,11 @@ export function FormWizardDialogTemplate() @{
 									value={sections}
 									onValueChange={(v) => setSections(v ?? '')}
 
-									status={currentErrors.sections ? { type: 'error', message: currentErrors.sections } : undefined}
+									status={
+										currentErrors.sections
+											? { type: 'error', message: currentErrors.sections }
+											: undefined
+									}
 								>
 									{SECTIONS.map((section) => (
 										<CheckboxListItem
@@ -243,7 +290,11 @@ export function FormWizardDialogTemplate() @{
 										isRequired
 										value={time as never}
 										onChange={(v) => setTime(v ?? '')}
-										status={currentErrors.time ? { type: 'error', message: currentErrors.time } : undefined}
+										status={
+											currentErrors.time
+												? { type: 'error', message: currentErrors.time }
+												: undefined
+										}
 									/>
 									<Selector
 										label="Time zone"
@@ -257,7 +308,11 @@ export function FormWizardDialogTemplate() @{
 									isRequired
 									value={startDate as never}
 									onChange={(v) => setStartDate(v ?? '')}
-									status={currentErrors.startDate ? { type: 'error', message: currentErrors.startDate } : undefined}
+									status={
+										currentErrors.startDate
+											? { type: 'error', message: currentErrors.startDate }
+											: undefined
+									}
 								/>
 								<Banner
 									status="info"
@@ -277,12 +332,33 @@ export function FormWizardDialogTemplate() @{
 									onValueChange={(v) => setRecipients(v ?? [])}
 									triggerDisplay="badges"
 									description="Groups resolve at send time, so new members are included automatically."
-									status={currentErrors.recipients ? { type: 'error', message: currentErrors.recipients } : undefined}
+									status={
+										currentErrors.recipients
+											? { type: 'error', message: currentErrors.recipients }
+											: undefined
+									}
 								/>
-								<RadioList label="Attachment format" value={format} onValueChange={(v) => setFormat(v ?? '')} size="sm">
-									<RadioListItem value="pdf" label="PDF" description="Best for reading. Charts render as images." />
-									<RadioListItem value="csv" label="CSV" description="Raw rows, no charts or summary." />
-									<RadioListItem value="both" label="Both" description="PDF in the body, CSV attached." />
+								<RadioList
+									label="Attachment format"
+									value={format}
+									onValueChange={(v) => setFormat(v ?? '')}
+									size="sm"
+								>
+									<RadioListItem
+										value="pdf"
+										label="PDF"
+										description="Best for reading. Charts render as images."
+									/>
+									<RadioListItem
+										value="csv"
+										label="CSV"
+										description="Raw rows, no charts or summary."
+									/>
+									<RadioListItem
+										value="both"
+										label="Both"
+										description="PDF in the body, CSV attached."
+									/>
 								</RadioList>
 								<Switch
 									label="Skip the send when there is no new data"
@@ -301,12 +377,11 @@ export function FormWizardDialogTemplate() @{
 								/>
 								<Divider />
 								<MetadataList columns="single">
-									<MetadataListItem label="Report">
-										{name.trim() || 'Untitled'}
-									</MetadataListItem>
+									<MetadataListItem label="Report">{name.trim() || 'Untitled'}</MetadataListItem>
 									<MetadataListItem label="Runs">
 										{cadenceSummary}{' '}
-										{TIMEZONES.find((t) => t.value === timezone)?.label.match(/\(([^)]+)\)/)?.[1] ?? ''}
+										{TIMEZONES.find((t) => t.value === timezone)?.label.match(/\(([^)]+)\)/)?.[1] ??
+											''}
 									</MetadataListItem>
 									<MetadataListItem label="Sent to">
 										{recipients.length === 0

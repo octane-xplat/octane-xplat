@@ -4,9 +4,25 @@
 // (upstream string[] + onChange); Button `onClick` → `clickAction`.
 import { useState } from 'octane'
 import {
-	Banner, Button, Card, Center, CheckboxInput, Divider, Grid, HStack, Icon,
-	Link, RadioList, RadioListItem, Section, Selector, Text, TextArea,
-	TextInput, Token, VStack,
+	Banner,
+	Button,
+	Card,
+	Center,
+	CheckboxInput,
+	Divider,
+	Grid,
+	HStack,
+	Icon,
+	Link,
+	RadioList,
+	RadioListItem,
+	Section,
+	Selector,
+	Text,
+	TextArea,
+	TextInput,
+	Token,
+	VStack,
 } from '@octane-xplat/ui'
 
 const CAMPAIGN_GOALS = [
@@ -100,7 +116,7 @@ export function ContactFormTemplate() @{
 
 					{/* Why work with us */}
 					<VStack gap={5}>
-						<Grid style={{gap: 'var(--spacing-4)'}} columns={{ minWidth: 200 }} >
+						<Grid style={{ gap: 'var(--spacing-4)' }} columns={{ minWidth: 200 }}>
 							{WHY_US.map((item) => (
 								<Card key={item.title}>
 									<VStack gap={3}>
@@ -121,7 +137,7 @@ export function ContactFormTemplate() @{
 
 					{/* Your details */}
 					<VStack gap={5}>
-						<Grid style={{gap: 'var(--spacing-4)'}} columns={{ minWidth: 260 }} >
+						<Grid style={{ gap: 'var(--spacing-4)' }} columns={{ minWidth: 260 }}>
 							<TextInput
 								label="Full Name"
 								placeholder="Full Name"
@@ -137,7 +153,7 @@ export function ContactFormTemplate() @{
 								status={errors.email ? { type: 'error', message: errors.email } : undefined}
 							/>
 						</Grid>
-						<Grid style={{gap: 'var(--spacing-4)'}} columns={{ minWidth: 260 }} >
+						<Grid style={{ gap: 'var(--spacing-4)' }} columns={{ minWidth: 260 }}>
 							<TextInput
 								label="Company"
 								placeholder="Company"
@@ -230,11 +246,7 @@ export function ContactFormTemplate() @{
 						/>
 						<HStack gap={1} hAlign="center">
 							<Text type="supporting" color="secondary">
-								By submitting you agree to our{' '}
-								<Link href="#">
-									Privacy Policy
-								</Link>
-								.
+								By submitting you agree to our <Link href="#">Privacy Policy</Link>.
 							</Text>
 						</HStack>
 					</VStack>

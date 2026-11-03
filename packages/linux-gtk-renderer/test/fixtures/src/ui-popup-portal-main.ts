@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 650,
 	decorated: false,
 })
+
 const fixed = new Gtk.Fixed()
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 host.set_size_request(500, 400)
@@ -21,6 +22,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const target = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const nestedTarget = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const nestedAnchor = new Gtk.Button({ label: 'Nested anchor' })
@@ -39,6 +41,7 @@ const pause = (ms = 180) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -47,12 +50,14 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const near = (a: number, b: number) => Math.abs(a - b) <= 1
 let props: Parameters<typeof Portals>[0] = { target, value: 'first', order: ['a'] }
 const render = async () => {
 	root.render(Portals, props)
 	await pause()
 }
+
 const text = () => refs['label-a'].get_text()
 let ack = 0
 const controllers: Array<[any, any]> = []
@@ -66,9 +71,11 @@ for (const widget of [window, popover, nested]) {
 		ack++
 		return true
 	})
+
 	widget.add_controller(keys)
 	controllers.push([widget, keys])
 }
+
 // Derive an independent expected point from native allocations and Gdk.Popup
 // positions. The root host is deliberately offset within its top-level.
 const expected = (widget: any) => {
@@ -100,6 +107,7 @@ const expected = (widget: any) => {
 		height: rect.size.height,
 	}
 }
+
 const measure = (name: string, widget: any) => {
 	const actual = widget.getBounds(),
 		wanted = expected(widget)
@@ -114,6 +122,7 @@ const measure = (name: string, widget: any) => {
 	)
 	return wanted
 }
+
 async function input(widget: any, key?: string) {
 	const r = expected(widget)
 	const [ok, origin] = host.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
@@ -129,10 +138,12 @@ async function input(widget: any, key?: string) {
 		for (let i = 0; i < 200 && ack < next; i++) {
 			await pause(25)
 		}
+
 		check('actual OS action acknowledged', ack >= next)
 		await pause()
 	}
 }
+
 async function run() {
 	await render()
 	popover.set_parent(refs.owned)
@@ -156,11 +167,13 @@ async function run() {
 		for (const [name, value] of Object.entries(style)) {
 			action.style[name] = value
 		}
+
 		await pause()
 		measure('transformed popup action ' + JSON.stringify(style), action)
 		for (const name of Object.keys(style)) {
 			delete action.style[name]
 		}
+
 		await pause()
 	}
 	fixed.move(host, 60, 45)
@@ -264,6 +277,7 @@ async function run() {
 		throw new Error(failures.join('; '))
 	}
 }
+
 let failed = false
 run()
 	.catch((error) => {
@@ -287,6 +301,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failed) {
 	imports.system.exit(1)

@@ -80,6 +80,7 @@ export const host: ShortcutHost = {
 			if (node === target) {
 				return depth
 			}
+
 			depth++
 		}
 		return undefined
@@ -94,6 +95,7 @@ export const host: ShortcutHost = {
 			) {
 				return true
 			}
+
 			if (node.getAttribute?.('contenteditable') === 'false') {
 				return false
 			}

@@ -13,10 +13,12 @@ function run(command, args) {
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	return result.stdout
 }
+
 try {
 	const response = await fetch(
 		'https://repo.maven.apache.org/maven2/com/github/bumptech/glide/gifdecoder/4.16.0/gifdecoder-4.16.0.jar',
 	)
+
 	assert.ok(response.ok)
 	const jar = join(directory, 'gifdecoder.jar')
 	await writeFile(jar, Buffer.from(await response.arrayBuffer()))
@@ -37,6 +39,7 @@ public final class Timing {
  }
 }`,
 	)
+
 	await writeFile(
 		join(directory, 'timing.gif'),
 		gifBytes({
@@ -47,6 +50,7 @@ public final class Timing {
 			],
 		}),
 	)
+
 	run('javac', [
 		'-cp',
 		classpath,
@@ -55,6 +59,7 @@ public final class Timing {
 		join(root, 'platforms/android/java/com/octanexplat/converter/Converter.java'),
 		join(directory, 'Timing.java'),
 	])
+
 	console.log(run('java', ['-cp', classpath, 'Timing', join(directory, 'timing.gif')]).trim())
 	console.log(
 		'Android SDK compilation and original GIF delay parsing passed; MediaCodec/device runtime remains unverified.',

@@ -18,14 +18,17 @@ const publicSource = ts.createSourceFile(
 	ts.ScriptTarget.Latest,
 	true,
 )
+
 const exported = (node) =>
 	node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
+
 const names = publicSource.statements
 	.filter(
 		(node) =>
 			(ts.isTypeAliasDeclaration(node) || ts.isInterfaceDeclaration(node)) && exported(node),
 	)
 	.map((node) => node.name.text)
+
 for (const file of ['src/shared.ts', 'src/index.web.ts']) {
 	const source = ts.createSourceFile(
 		file,
@@ -33,6 +36,7 @@ for (const file of ['src/shared.ts', 'src/index.web.ts']) {
 		ts.ScriptTarget.Latest,
 		true,
 	)
+
 	for (const node of source.statements) {
 		if (ts.isExportDeclaration(node) && node.exportClause && ts.isNamedExports(node.exportClause)) {
 			names.push(...node.exportClause.elements.map((element) => element.name.text))
@@ -41,6 +45,7 @@ for (const file of ['src/shared.ts', 'src/index.web.ts']) {
 		}
 	}
 }
+
 const prose = markdown.replace(/^```[^\n]*\n[\s\S]*?^```/gm, '')
 for (const name of names) {
 	assert.match(prose, new RegExp(`\\b${name}\\b`), `Missing API reference for ${name}`)
@@ -61,6 +66,7 @@ export declare const shortcuts: ShortcutRuntime
 export declare const editor: HTMLDivElement
 `,
 	)
+
 	const files = examples.map((match, index) => {
 		const code = match[1]
 		const source = ts.createSourceFile(`example-${index}.ts`, code, ts.ScriptTarget.Latest, true)
@@ -81,6 +87,7 @@ export declare const editor: HTMLDivElement
 		writeFileSync(file, `// keyboard-shortcuts-api.md:${line}\n${prelude}${code}\nexport {}\n`)
 		return file
 	})
+
 	const program = ts.createProgram(files, {
 		noEmit: true,
 		strict: true,
@@ -91,6 +98,7 @@ export declare const editor: HTMLDivElement
 		types: [],
 		skipLibCheck: false,
 	})
+
 	const diagnostics = ts.getPreEmitDiagnostics(program)
 	if (diagnostics.length) {
 		throw new Error(
@@ -101,6 +109,7 @@ export declare const editor: HTMLDivElement
 			}),
 		)
 	}
+
 	console.log(
 		`API reference: ${names.length} exports covered; ${examples.length} TypeScript examples typechecked.`,
 	)

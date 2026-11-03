@@ -80,10 +80,7 @@ test('nightlyDecision skips when the candidate is already published', (t) => {
 	// An older candidate than the published nightly is also skipped.
 	const candidate = published
 	const newer = commit(root, 'fix: newer', 'packages/ui/src/newer.ts')
-	assert.equal(
-		nightlyDecision({ root, candidate, published: nightly(newer) }).publish,
-		false,
-	)
+	assert.equal(nightlyDecision({ root, candidate, published: nightly(newer) }).publish, false)
 })
 
 test('nightlyDecision ignores changes outside the publishable surface', (t) => {
@@ -110,6 +107,7 @@ test('nightlyDecision publishes for lockstep paths and workspace wiring', (t) =>
 			candidate: git(root, 'rev-parse', 'HEAD'),
 			published: nightly(published),
 		})
+
 		assert.equal(decision.publish, true, `${message} (${path})`)
 		assert.match(decision.reason, /publishable changes/)
 	}

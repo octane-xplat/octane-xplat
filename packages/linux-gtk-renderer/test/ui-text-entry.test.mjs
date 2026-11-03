@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => {
 					try {
 						execFileSync('xdotool', args, { env, timeout: 7000 })
@@ -68,16 +69,19 @@ test(
 						throw new Error('xdotool ' + args.join(' ') + ': ' + error.message)
 					}
 				}
+
 				if (phase.phase === 'controlled-middle') {
 					send('type', '--clearmodifiers', '--delay', '30', 'X')
 					send('key', 'F12')
 					return
 				}
+
 				if (phase.phase === 'cursor') {
 					send('key', 'Left')
 					send('key', 'F12')
 					return
 				}
+
 				send(
 					'windowfocus',
 					id,
@@ -89,6 +93,7 @@ test(
 					'click',
 					'1',
 				)
+
 				send('key', '--clearmodifiers', 'ctrl+a')
 				send(
 					'type',
@@ -103,6 +108,7 @@ test(
 								? 'Accepted'
 								: 'BLOCKED',
 				)
+
 				send('key', 'Return')
 				send('key', 'F12')
 			} catch (error) {

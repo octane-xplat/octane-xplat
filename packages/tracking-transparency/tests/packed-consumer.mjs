@@ -11,6 +11,7 @@ const run = (cmd, args, cwd) => {
 	const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 }
+
 try {
 	const pack = join(temporary, 'pack')
 	await mkdir(pack)
@@ -25,12 +26,14 @@ try {
 		await cp(packed, join(app, 'node_modules/@octane-xplat/tracking-transparency'), {
 			recursive: true,
 		})
+
 		await symlink(join(root, 'node_modules/octane'), join(app, 'node_modules/octane'), 'dir')
 		await symlink(
 			join(root, 'node_modules/@octane-xplat/lib'),
 			join(app, 'node_modules/@octane-xplat/lib'),
 			'dir',
 		)
+
 		await writeFile(join(app, 'package.json'), '{"type":"module"}')
 		await writeFile(
 			join(app, 'consumer.ts'),
@@ -47,6 +50,7 @@ const status: PermissionResponse['status'] = PermissionStatus.GRANTED
 void Consumer; void read; void request; void available; void identifier; void asynchronous; void prompt; void status
 `,
 		)
+
 		await writeFile(
 			join(app, 'tsconfig.json'),
 			JSON.stringify({
@@ -63,12 +67,14 @@ void Consumer; void read; void request; void available; void identifier; void as
 				include: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(app, 'tsconfig.json')],
 			app,
 		)
 	}
+
 	console.log(
 		'Packed tracking-transparency consumer: seven target declarations without native ambient types pass. Runtime qualification is a separate check.',
 	)

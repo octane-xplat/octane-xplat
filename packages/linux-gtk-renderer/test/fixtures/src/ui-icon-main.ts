@@ -15,6 +15,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -23,6 +24,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -30,6 +32,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const picture = (id: string) => node(id).view!
 const loaded = async (id: string) => {
@@ -41,6 +44,7 @@ const loaded = async (id: string) => {
 		!picture(id).isLoading && !!picture(id).get_paintable(),
 	)
 }
+
 const svg = (width: number, height: number) =>
 	'<svg xmlns="http://www.w3.org/2000/svg" width="' +
 	width +
@@ -51,6 +55,7 @@ const svg = (width: number, height: number) =>
 	'v' +
 	height +
 	'H0z"/></svg>'
+
 const remote = GLib.getenv('GTK_ICON_HTTP')!
 let version = 1
 let source: any = svg(12, 8)
@@ -235,6 +240,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -246,6 +252,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

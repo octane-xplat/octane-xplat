@@ -110,11 +110,18 @@ function fixture() {
 }
 
 test('retains and clears data-grid-cell metadata without applying it as an unknown native prop', () => {
-	const f = fixture(), root = { subviews: [f.view] }
+	const f = fixture(),
+		root = { subviews: [f.view] }
 	f.update({ 'data-grid-cell': true })
-	assert.deepEqual(readGridCells(root, (view) => view === f.view ? f.node : undefined), [f.view])
+	assert.deepEqual(
+		readGridCells(root, (view) => (view === f.view ? f.node : undefined)),
+		[f.view],
+	)
 	f.update({ items: [] })
-	assert.deepEqual(readGridCells(root, (view) => view === f.view ? f.node : undefined), [])
+	assert.deepEqual(
+		readGridCells(root, (view) => (view === f.view ? f.node : undefined)),
+		[],
+	)
 })
 
 test('ListPicker preserves duplicate/empty labels, renders nulls as indices and clamps selection', () => {

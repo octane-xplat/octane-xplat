@@ -375,9 +375,9 @@ test('JSC gesture registration makes native callbacks enumerable before registra
 	assert.deepEqual(Object.keys(Callback.prototype), ['delivered:'])
 })
 
-
 test('pan locations use local top-down bounds independently of translation', () => {
-	const f = panFixture(), target = new f.ButtonActionTarget()
+	const f = panFixture(),
+		target = new f.ButtonActionTarget()
 	const points: unknown[] = []
 	f.node.props.onPan = (event) => points.push([event.x, event.y, event.deltaX, event.deltaY])
 	f.setPanAction(f.node)
@@ -385,13 +385,20 @@ test('pan locations use local top-down bounds independently of translation', () 
 	target.viewPanned(f.sender)
 	f.node.view.flipped = true
 	target.viewPanned(f.sender)
-	assert.deepEqual(points, [[20, 70, 10, -40], [20, 30, 10, 40]])
+	assert.deepEqual(points, [
+		[20, 70, 10, -40],
+		[20, 30, 10, 40],
+	])
 })
 
-
 test('optional attempt gates apply only to configured recognizers and can be removed', () => {
-	const f = fixture(), event = { type: 1 }, calls: unknown[] = []
-	const recognizer = f.configureGesture({ view: {} }, (received) => { calls.push(received); return false })
+	const f = fixture(),
+		event = { type: 1 },
+		calls: unknown[] = []
+	const recognizer = f.configureGesture({ view: {} }, (received) => {
+		calls.push(received)
+		return false
+	})
 	const attempt = (r) => f.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(r, event)
 	assert.equal(attempt(recognizer), false)
 	assert.deepEqual(calls, [event])

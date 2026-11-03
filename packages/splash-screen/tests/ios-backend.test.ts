@@ -58,11 +58,7 @@ function stubHost(options: HostOptions = {}) {
 
 	const info: Record<string, unknown> = {
 		UILaunchStoryboardName:
-			storyboard === null
-				? undefined
-				: storyboardSuffix
-					? `${storyboard}.storyboard`
-					: storyboard,
+			storyboard === null ? undefined : storyboardSuffix ? `${storyboard}.storyboard` : storyboard,
 	}
 	if ('maxHold' in options) {
 		info.XplatSplashScreenMaxHoldMilliseconds = options.maxHold
@@ -150,8 +146,7 @@ function stubHost(options: HostOptions = {}) {
 	const controllerView = makeView()
 	vi.stubGlobal('UIStoryboard', {
 		storyboardWithNameBundle: () => ({
-			instantiateInitialViewController: () =>
-				initialController ? { view: controllerView } : null,
+			instantiateInitialViewController: () => (initialController ? { view: controllerView } : null),
 		}),
 	})
 	class UIWindowStub {
@@ -198,6 +193,7 @@ function fireVisible(window: unknown) {
 		}
 	}
 }
+
 function fireHidden(window: unknown) {
 	for (const observer of [...stubs.observers]) {
 		if (observer.name === 'UIWindowDidBecomeHiddenNotification' && observer.object === window) {

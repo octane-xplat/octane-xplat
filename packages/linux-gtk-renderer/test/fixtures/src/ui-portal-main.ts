@@ -6,6 +6,7 @@ import {
 	registerStylesheet,
 	gtkDriver,
 } from '@octane-xplat/linux-gtk'
+
 import { Portals, refs, lifetime } from './ui-portal.gtk.tsrx'
 Gtk.init()
 const window = new Gtk.Window({
@@ -13,6 +14,7 @@ const window = new Gtk.Window({
 	default_width: 400,
 	default_height: 480,
 })
+
 const outer = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const a = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
@@ -30,6 +32,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const state = container as any
 const loop = GLib.MainLoop.new(null, false)
 const pause = () =>
@@ -39,6 +42,7 @@ const pause = () =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -46,6 +50,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const children = (widget: any) => {
 	const result: any[] = []
 	for (let child = widget.get_first_child(); child; child = child.get_next_sibling()) {
@@ -53,6 +58,7 @@ const children = (widget: any) => {
 	}
 	return result
 }
+
 const text = (name: string) => refs['label-' + name].get_text()
 let props: Parameters<typeof Portals>[0] = { target: a, value: 'one', order: ['a', 'b'] }
 const render = () => root.render(Portals, props)
@@ -273,6 +279,7 @@ async function run() {
 		} else {
 			;(target as any).attach(foreign, 0, 0, 1, 1)
 		}
+
 		const registration = gtkDriver.portals!.prepareTarget({
 			container: probe,
 			target,
@@ -284,8 +291,10 @@ async function run() {
 				id,
 			}),
 		} as any)
+
 		const apply = (commands: any[]) =>
 			gtkDriver.prepareBatch(probe, { renderer: 'gtk', commands } as any).apply()
+
 		apply([
 			{ op: 'create', id: 9000, type: 'proxyviewcontainer', props: {} },
 			{
@@ -297,6 +306,7 @@ async function run() {
 			{ op: 'insert', id: 9001, parent: 9000, before: null },
 			{ op: 'insert', id: 9000, parent: registration.handle, before: null },
 		])
+
 		outer.append(target)
 		await pause()
 		const placed = probe.nodes.get(9001).view
@@ -304,6 +314,7 @@ async function run() {
 			type + ' target parents only top-level range widget',
 			placed.get_parent() === target && foreign.get_parent() === target,
 		)
+
 		if (type === 'fixed') {
 			const [x, y] = (target as any).get_child_position(placed)
 			check(
@@ -320,6 +331,7 @@ async function run() {
 			const [col, row] = (target as any).query_child(placed)
 			check('grid target uses descendant placement props', col === 3 && row === 2)
 		}
+
 		apply([{ op: 'update', id: 9001, props: { text: 'Moved', x: 24, y: 36, row: 4, col: 5 } }])
 		await pause()
 		if (type === 'fixed') {
@@ -329,6 +341,7 @@ async function run() {
 			const [col, row] = (target as any).query_child(placed)
 			check('grid position updates through viewless parent', col === 5 && row === 4)
 		}
+
 		let foreignHandle = false
 		try {
 			apply([
@@ -342,12 +355,14 @@ async function run() {
 		} catch (error) {
 			foreignHandle = String(error).includes('foreign')
 		}
+
 		check(type + ' target rejects foreign root handle', foreignHandle)
 		apply([
 			{ op: 'remove', id: 9000 },
 			{ op: 'destroy', id: 9001 },
 			{ op: 'destroy', id: 9000 },
 		])
+
 		registration.release()
 		registration.release()
 		check(
@@ -365,6 +380,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -376,6 +392,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

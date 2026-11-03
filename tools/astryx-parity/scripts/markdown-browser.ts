@@ -31,9 +31,20 @@ async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 800
 	const start = Date.now()
 	let last = ''
 	for (;;) {
-		const cur = (await page.locator(sel).textContent().catch(() => '')) ?? ''
-		if (cur === last && Date.now() - start > idleMs) return cur
-		if (Date.now() - start > timeoutMs) return cur
+		const cur =
+			(await page
+				.locator(sel)
+				.textContent()
+				.catch(() => '')) ?? ''
+
+		if (cur === last && Date.now() - start > idleMs) {
+			return cur
+		}
+
+		if (Date.now() - start > timeoutMs) {
+			return cur
+		}
+
 		last = cur
 		await page.waitForTimeout(60)
 	}
@@ -44,9 +55,7 @@ async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 800
  *  full line width, so clicking its center lands on unrelated content —
  *  observed on WebKit), else the action element itself. */
 async function actionLocator(page: Page, key: string) {
-	const inner = page.locator(
-		`[data-parity-action="${key}"] :is(button, a, [role="button"], input)`,
-	)
+	const inner = page.locator(`[data-parity-action="${key}"] :is(button, a, [role="button"], input)`)
 	return (await inner.count()) > 0
 		? inner.first()
 		: page.locator(`[data-parity-action="${key}"]`).first()
@@ -77,6 +86,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 				record(`${key}/missing`, true)
 				continue
 			}
+
 			record(`${key}/snapshot`, await page.locator(sel).ariaSnapshot())
 			record(
 				`${key}/dom`,
@@ -108,6 +118,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 				await page.locator(sel).first().click()
 				await settle(page)
 			}
+
 			record(`${key}/events`, await page.evaluate(() => [...window.__parity.events]))
 			record(`${key}/hash`, await page.evaluate(() => window.location.hash))
 			void count
@@ -130,6 +141,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 				record(`${key}/missing`, true)
 				continue
 			}
+
 			record(
 				`${key}/dom`,
 				await page.locator(sel).evaluate((el) => {
@@ -142,11 +154,15 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 							level: h.getAttribute('aria-level'),
 						})),
 						links: [...el.querySelectorAll('a')].map((a) => a.getAttribute('href')),
-						customs: [...el.querySelectorAll('[data-custom]')].map((n) => n.getAttribute('data-custom')),
+						customs: [...el.querySelectorAll('[data-custom]')].map((n) =>
+							n.getAttribute('data-custom'),
+						),
 						img: img
 							? { alt: img.getAttribute('alt'), complete: img.complete, w: img.naturalWidth }
 							: null,
-						citeLinks: [...el.querySelectorAll('a[href^="#cite"]')].map((a) => a.getAttribute('href')),
+						citeLinks: [...el.querySelectorAll('a[href^="#cite"]')].map((a) =>
+							a.getAttribute('href'),
+						),
 					}
 				}),
 			)
@@ -165,10 +181,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		// Source/document changes through component state.
 		await (await actionLocator(page, 'source-swap')).click()
 		await settle(page)
-		record(
-			'source-swap/text',
-			await page.locator('[data-parity-key="source-swap"]').textContent(),
-		)
+		record('source-swap/text', await page.locator('[data-parity-key="source-swap"]').textContent())
 		await (await actionLocator(page, 'source-id-change')).click()
 		await settle(page)
 		record(
@@ -185,6 +198,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		for (let i = 0; i < 4; i++) {
 			await (await actionLocator(page, 'stream-pump/next')).click()
 		}
+
 		await waitStable(page, '[data-parity-key="stream-pump"]')
 		record(
 			'stream-pump/drained',
@@ -199,7 +213,10 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 					return (
 						s.className.includes('fade') ||
 						cs.animationName !== 'none' ||
-						cs.transitionProperty.split(',').map((v) => v.trim()).includes('opacity')
+						cs.transitionProperty
+							.split(',')
+							.map((v) => v.trim())
+							.includes('opacity')
 					)
 				})
 				const cs = fades[0] ? getComputedStyle(fades[0]) : null
@@ -232,10 +249,12 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 			'stream-pump/unmounted',
 			await page.locator('[data-parity-key="stream-pump"]').textContent(),
 		)
+
 		await (await actionLocator(page, 'stream-pump/mount')).click()
 		for (let i = 0; i < 4; i++) {
 			await (await actionLocator(page, 'stream-pump/next')).click()
 		}
+
 		await waitStable(page, '[data-parity-key="stream-pump"]')
 		record(
 			'stream-pump/remounted',
@@ -247,6 +266,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 		for (let i = 0; i < 4; i++) {
 			await (await actionLocator(page, 'stream-a/next')).click()
 		}
+
 		await (await actionLocator(page, 'stream-b/next')).click()
 		await waitStable(page, '[data-parity-key="stream-a"]')
 		await waitStable(page, '[data-parity-key="stream-b"]')
@@ -297,7 +317,8 @@ export async function markdownLayoutProbes(browser: Browser, baseUrl: string) {
 						cellWidth: (el as HTMLElement).getBoundingClientRect().width,
 						blocks,
 						tableScrollWidth: table?.scrollWidth ?? null,
-						tableClientWidth: (table?.closest('[class]') as HTMLElement | null)?.clientWidth ?? null,
+						tableClientWidth:
+							(table?.closest('[class]') as HTMLElement | null)?.clientWidth ?? null,
 						scrollerOverflow: scroller
 							? (scroller as HTMLElement).scrollWidth - (scroller as HTMLElement).clientWidth
 							: null,

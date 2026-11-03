@@ -114,9 +114,11 @@ if (!PACKAGE_ONLY) {
 			const pin = managedPackage(patch.specifier.slice(0, at))
 			return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
 		})
+
 		pkg.patchedDependencies = Object.fromEntries(
 			patches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
 		)
+
 		const after = JSON.stringify(pkg, null, '\t') + '\n'
 		if (after !== readFileSync(file, 'utf8')) {
 			failures.push(`${relative(file)} — patch registrations are stale`)
@@ -124,10 +126,12 @@ if (!PACKAGE_ONLY) {
 				writeFileSync(file, after)
 			}
 		}
+
 		const destination = join(base, 'patches')
 		if (!CHECK) {
 			mkdirSync(destination, { recursive: true })
 		}
+
 		const wanted = new Set(patches.map((patch) => patch.file))
 		for (const name of existsSync(destination) ? readdirSync(destination) : []) {
 			if (!wanted.has(name)) {
@@ -137,6 +141,7 @@ if (!PACKAGE_ONLY) {
 				}
 			}
 		}
+
 		for (const patch of patches) {
 			const src = join(CLI_PATCHES, patch.file)
 			const dst = join(destination, patch.file)

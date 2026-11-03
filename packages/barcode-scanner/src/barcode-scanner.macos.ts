@@ -9,6 +9,7 @@ import {
 	VNDetectBarcodesRequest,
 	VNImageRequestHandler,
 } from '@octane-xplat/platform/macos'
+
 import type { BarcodeFormat, BarcodeScannerService, PermissionResult, ScannedCode } from './types'
 
 // String literals, not the bound constants — the generated metadata targets
@@ -34,7 +35,9 @@ const SYMBOLOGIES: Record<BarcodeFormat, readonly string[]> = {
 // a leading 0 and is rewritten on the payload (see below).
 const FORMATS: Record<string, string> = {}
 for (const [format, names] of Object.entries(SYMBOLOGIES)) {
-	for (const name of names) {FORMATS[VISION_PREFIX + name] ??= format}
+	for (const name of names) {
+		FORMATS[VISION_PREFIX + name] ??= format
+	}
 }
 
 /** The deduplicated, prefixed union for the requested formats — every entry
@@ -43,15 +46,21 @@ function symbologiesFor(formats?: BarcodeFormat[]): string[] {
 	const wanted = formats?.length ? formats : (Object.keys(SYMBOLOGIES) as BarcodeFormat[])
 	const out = new Set<string>()
 	for (const format of wanted) {
-		for (const name of SYMBOLOGIES[format] ?? []) {out.add(VISION_PREFIX + name)}
+		for (const name of SYMBOLOGIES[format] ?? []) {
+			out.add(VISION_PREFIX + name)
+		}
 	}
 	return [...out]
 }
 
 /** request.results may be a JS array or an NSArray — count/objectAtIndex. */
 function observations(results: any): any[] {
-	if (!results) {return []}
-	if (Array.isArray(results)) {return results}
+	if (!results) {
+		return []
+	}
+	if (Array.isArray(results)) {
+		return results
+	}
 	const out: any[] = []
 	for (let i = 0, count = Number(results.count ?? 0); i < count; i++) {
 		out.push(results.objectAtIndex(i))
@@ -70,14 +79,21 @@ export const barcodeScanner: BarcodeScannerService = {
 			if (/^file:/i.test(input)) {
 				source = NSImage.alloc().initWithContentsOfURL(NSURL.URLWithString(input))
 			} else if (/^[a-z][a-z0-9+.-]*:/i.test(input)) {
-				throw new Error('barcodeScanner.scanImage: macOS decodes local files; download remote images first')
+				throw new Error(
+					'barcodeScanner.scanImage: macOS decodes local files; download remote images first',
+				)
 			} else {
 				source = NSImage.alloc().initWithContentsOfURL(NSURL.fileURLWithPath(input))
 			}
-		} else if (image != null && typeof (image as any).CGImageForProposedRectContextHints === 'function') {
+		} else if (
+			image != null &&
+			typeof (image as any).CGImageForProposedRectContextHints === 'function'
+		) {
 			source = image
 		} else {
-			throw new Error('barcodeScanner.scanImage: expected a file path, file URL, {uri} ref, or NSImage')
+			throw new Error(
+				'barcodeScanner.scanImage: expected a file path, file URL, {uri} ref, or NSImage',
+			)
 		}
 
 		const cg = source?.CGImageForProposedRectContextHints?.(null, null, null)
@@ -103,6 +119,7 @@ export const barcodeScanner: BarcodeScannerService = {
 			let type =
 				FORMATS[symbology] ??
 				(symbology.startsWith(VISION_PREFIX) ? symbology.slice(VISION_PREFIX.length) : symbology)
+
 			let data = String(observation?.payloadStringValue ?? '')
 			if (type === 'ean13') {
 				if (data.length === 13 && data.startsWith('0') && wantsUpcA) {
@@ -120,7 +137,12 @@ export const barcodeScanner: BarcodeScannerService = {
 				const oy = Number(box.origin?.y)
 				const width = Number(box.size?.width)
 				const height = Number(box.size?.height)
-				if (Number.isFinite(ox) && Number.isFinite(oy) && Number.isFinite(width) && Number.isFinite(height)) {
+				if (
+					Number.isFinite(ox) &&
+					Number.isFinite(oy) &&
+					Number.isFinite(width) &&
+					Number.isFinite(height)
+				) {
 					// Vision bounds are normalized with a bottom-left origin.
 					code.bounds = {
 						x: ox * W,

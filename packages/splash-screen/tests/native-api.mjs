@@ -19,6 +19,7 @@ assert.ok(
 const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
 	encoding: 'utf8',
 })
+
 assert.equal(sdk.status, 0, sdk.stderr)
 assert.ok(
 	existsSync(join(sdk.stdout.trim(), 'System/Library/Frameworks/UIKit.framework')),
@@ -54,6 +55,7 @@ for (const member of [
 ]) {
 	assert.ok(foundation.includes(member), `types-ios lost Foundation member: ${member}`)
 }
+
 const objectivec = declarations('ObjectiveC')
 for (const member of [
 	'addObserverForKeyPathOptionsContext',
@@ -63,10 +65,12 @@ for (const member of [
 ]) {
 	assert.ok(objectivec.includes(member), `types-ios lost ObjectiveC member: ${member}`)
 }
+
 const dispatch = declarations('Dispatch')
 for (const member of ['declare function dispatch_after', 'declare function dispatch_time']) {
 	assert.ok(dispatch.includes(member), `types-ios lost Dispatch member: ${member}`)
 }
+
 const uikit = declarations('UIKit')
 for (const member of [
 	'storyboardWithNameBundle',
@@ -81,6 +85,7 @@ for (const member of [
 ]) {
 	assert.ok(uikit.includes(member), `types-ios lost UIKit member: ${member}`)
 }
+
 console.log(
 	'iOS launch-screen binding prerequisites pass. No window, observer or storyboard was created.',
 )

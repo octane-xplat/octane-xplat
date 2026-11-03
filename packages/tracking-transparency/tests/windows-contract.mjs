@@ -10,22 +10,26 @@ const types = spawnSync(
 	],
 	{ encoding: 'utf8' },
 )
+
 assert.equal(types.status, 0, 'WinRT AdvertisingManager type must resolve; no identifier is read')
 const { backend, advertisingIdentifier } = await import('./windows-contract-bundle.mjs')
 let reads = 0,
 	fixture = 'SYNTHETICADVERTISINGID123'
+
 const manager = {
 	get AdvertisingId() {
 		reads++
 		return fixture
 	},
 }
+
 globalThis.Windows = { System: { UserProfile: { AdvertisingManager: manager } } }
 assert.deepEqual(backend.capabilities(), {
 	prompt: false,
 	advertisingId: true,
 	advertisingIdAsync: true,
 })
+
 assert.equal(reads, 0, 'capability checks must not read an identifier')
 assert.equal(backend.read(), -1)
 assert.equal(await backend.request(), -1)
@@ -38,6 +42,7 @@ assert.equal(
 	advertisingIdentifier(await backend.advertisingIdAsync(), backend.identifierFormat),
 	null,
 )
+
 delete globalThis.Windows
 assert.equal(backend.capabilities().advertisingId, false)
 assert.equal(backend.advertisingId(), null)

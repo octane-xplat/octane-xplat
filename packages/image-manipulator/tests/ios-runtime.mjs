@@ -41,6 +41,7 @@ const result = spawnSync(
 	],
 	{ cwd: repoRoot, encoding: 'utf8', timeout: 600_000, maxBuffer: 8 * 1024 * 1024 },
 )
+
 assert.equal(result.status, 0, `${result.stdout ?? ''}${result.stderr ?? ''}`)
 const output = result.stdout.slice(result.stdout.indexOf('{'))
 const report = JSON.parse(output)
@@ -57,6 +58,7 @@ for (const sample of samples) {
 		`Encoded pixels: ${JSON.stringify(actual)}`,
 	)
 }
+
 checkOrientations(Object.values(run.measurements).filter((value) => value?.orientation))
 console.log(
 	`iOS ${device}: ${run.assertions.length} native assertions, ${samples.length} independently decoded PNG samples, and eight EXIF orientations passed.`,

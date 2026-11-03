@@ -12,6 +12,7 @@ import {
 	hasPending,
 	settle,
 } from './ui-toggle-fields.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK toggle fields test',
@@ -19,6 +20,7 @@ const window = new Gtk.Window({
 	default_height: 450,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const errors: unknown[] = []
@@ -31,6 +33,7 @@ const pause = (ms = 180) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -39,6 +42,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const owner = (value: any) => {
 	const form = node('toggle-fields')
@@ -47,13 +51,16 @@ const owner = (value: any) => {
 	}
 	return value
 }
+
 const labels = (name: string) =>
 	[...container.nodes.values()].filter(
 		(n) => n.type === 'label' && String(n.props.text).startsWith(name),
 	)
+
 const visible = (value: any) => !!value?.view?.get_mapped() && value.view.getBounds().height > 0
 let ack = 0,
 	osInput = false
+
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: any, key: number) => {
@@ -63,6 +70,7 @@ keys.connect('key-pressed', (_: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 async function clickLabel(value: any) {
 	const bounds = value.view.getBounds()
@@ -81,17 +89,20 @@ async function clickLabel(value: any) {
 	check('OS label input acknowledged', ack >= next)
 	await pause()
 }
+
 let props: Parameters<typeof ToggleFields>[0] = {
 	width: 220,
 	required: true,
 	loading: true,
 	readOnly: true,
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(ToggleFields, props)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -109,15 +120,18 @@ async function run() {
 			id + ' authored width sizes the whole field',
 			Math.abs(field.view.getBounds().width - 220) <= 2,
 		)
+
 		check(
 			id + ' inherits required metadata',
 			native.test_accessible_boolean_property(view, Gtk.AccessibleProperty.REQUIRED, true) === null,
 		)
+
 		check(
 			id + ' exposes read-only metadata',
 			native.test_accessible_boolean_property(view, Gtk.AccessibleProperty.READ_ONLY, true) ===
 				null,
 		)
+
 		check(
 			id + ' exposes loading metadata',
 			native.test_accessible_state(view, Gtk.AccessibleState.BUSY, 1) === null,
@@ -139,10 +153,12 @@ async function run() {
 			'switch label dispatches one requested change',
 			changes.length === 1 && changes[0][0] === 'switch' && changes[0][1] === true,
 		)
+
 		check(
 			'switch label also invokes changeAction once',
 			actions.length === 1 && actions[0][0] === 'switch' && hasPending('switch'),
 		)
+
 		if (hasPending('switch')) {
 			settle('switch', false)
 			await pause()
@@ -170,11 +186,13 @@ async function run() {
 				boolean(view, Gtk.AccessibleProperty.READ_ONLY, false) &&
 				busy(view, false),
 		)
+
 		check(name + ' announces help and validation', description(view, help + '. ' + issue))
 		check(
 			name + ' exposes invalid state',
 			native.test_accessible_state(view, Gtk.AccessibleState.INVALID, 1) === null,
 		)
+
 		check(
 			name + ' keeps automation identity independent from control ID',
 			view.get_name() === name + '-automation',
@@ -300,6 +318,7 @@ async function run() {
 		] as const) {
 			const before = changes.length,
 				beforeActions = actions.length
+
 			await clickLabel(labels(label)[0])
 			check(
 				name + ' label enters one optimistic action',
@@ -311,6 +330,7 @@ async function run() {
 					checked(view, Gtk.AccessibleTristate.TRUE) &&
 					busy(view, true),
 			)
+
 			settle(name, true)
 			await pause()
 			check(
@@ -320,6 +340,7 @@ async function run() {
 					changes.length === before + 1,
 			)
 		}
+
 		await render({ checkboxValue: true, switchValue: true })
 		for (const [name, view, label] of [
 			['checkbox', checkbox, 'Keep receipts'],
@@ -333,6 +354,7 @@ async function run() {
 					checked(view, Gtk.AccessibleTristate.TRUE) &&
 					hasPending(name),
 			)
+
 			settle(name, false)
 			await pause()
 			check(
@@ -343,6 +365,7 @@ async function run() {
 					busy(view, false),
 			)
 		}
+
 		await render({ checkboxValue: undefined, switchValue: undefined, throws: true })
 		for (const [name, view, label] of [
 			['checkbox', checkbox, 'Keep receipts'],
@@ -360,6 +383,7 @@ async function run() {
 					!hasPending(name),
 			)
 		}
+
 		await render({ throws: false, readOnly: true })
 		let before = changes.length
 		await clickLabel(labels('Keep receipts')[0])
@@ -368,6 +392,7 @@ async function run() {
 			'read-only labels cannot start changes or actions',
 			changes.length === before && !hasPending('checkbox') && !hasPending('switch'),
 		)
+
 		await render({ readOnly: false, disabled: true })
 		before = changes.length
 		await clickLabel(labels('Keep receipts')[0])
@@ -376,11 +401,13 @@ async function run() {
 			'disabled labels cannot start changes',
 			changes.length === before && !checkbox.get_sensitive() && !toggle.get_sensitive(),
 		)
+
 		check(
 			'disabled reason joins the native hint',
 			description(checkbox, 'Checkbox help. Checkbox locked') &&
 				description(toggle, 'Switch help. Switch locked'),
 		)
+
 		await render({ disabled: false })
 		check(
 			'dropping disabled restores sensitivity and removes reason',
@@ -405,6 +432,7 @@ async function run() {
 				boolean(view, Gtk.AccessibleProperty.READ_ONLY, true) &&
 				boolean(view, Gtk.AccessibleProperty.REQUIRED, false),
 		)
+
 		check(
 			id + ' inherits provider size without a nested field',
 			node(id).props.className.includes(
@@ -476,6 +504,7 @@ async function run() {
 			'external field label focuses its control',
 			window.get_focus() === contextCheckbox && changes.length === before,
 		)
+
 		// The visible checkbox's explicit accessible name differs from its label;
 		// use the control surface to exercise the uncontrolled mixed rollback.
 		await clickLabel(node('context-checkbox'))
@@ -483,6 +512,7 @@ async function run() {
 			'uncontrolled mixed click requests true',
 			changes[before][1] === true && hasPending('context-checkbox'),
 		)
+
 		settle('context-checkbox', false)
 		await pause()
 		check(
@@ -491,6 +521,7 @@ async function run() {
 				changes[before + 1][1] === false &&
 				busy(contextCheckbox, false),
 		)
+
 		await clickLabel(node('context-switch'))
 		check('context switch starts an action before disposal', hasPending('context-switch'))
 	}
@@ -520,6 +551,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -532,6 +564,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

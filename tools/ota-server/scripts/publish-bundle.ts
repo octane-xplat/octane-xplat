@@ -79,12 +79,14 @@ if (
 ) {
 	fail('A prepared release payload with native build metadata is required')
 }
+
 const record = JSON.parse(
 	readFileSync(
 		join(resolve(args['project-dir']), '.xplat/fingerprints', args.platform + '.json'),
 		'utf8',
 	),
 )
+
 if (
 	record.hash !== metadata.hash ||
 	record.platform !== metadata.platform ||
@@ -97,10 +99,12 @@ if (
 ) {
 	fail('Native build record does not match this release payload')
 }
+
 const current = await createFingerprintAsync(resolve(args['project-dir']), {
 	platforms: [args.platform],
 	toolchain: record.toolchain,
 })
+
 if (current.hash !== metadata.hash) {
 	fail(
 		'Native inputs changed after this payload was prepared; rebuild the native binary and payload before publishing',

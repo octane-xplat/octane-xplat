@@ -20,6 +20,7 @@ const require = createRequire(import.meta.url)
 const sqliteAnchor = dirname(
 	realpathSync(require.resolve('@nativescript-community/sqlite/package.json')),
 )
+
 const fromSqlite = createRequire(join(sqliteAnchor, 'resolve-anchor.js'))
 const packageRoot = (name) => dirname(fromSqlite.resolve(`${name}/package.json`))
 
@@ -38,6 +39,7 @@ test('plugin family carries no pre-step cursor row access', () => {
 		const files = readdirSync(root, { recursive: true }).filter(
 			(file) => typeof file === 'string' && /\.[cm]?js$/.test(file),
 		)
+
 		for (const file of files) {
 			if (/getRaw|resultDictionary|FMResultSet/.test(readFileSync(join(root, file), 'utf8'))) {
 				offenders.push(`${name}/${file}`)
@@ -60,6 +62,7 @@ test('sqlite-core get/getArray share the select request path', () => {
 		const body = source.match(
 			new RegExp(`(?:async )?${method}\\(query, params, options\\) \\{([\\s\\S]*?)\\n\\s*\\}`),
 		)?.[1]
+
 		assert.ok(body, `could not read ${method}()'s body in installed database.js`)
 		assert.ok(
 			/this\.query\(query, params, options, (?:true|false)\)/.test(body),

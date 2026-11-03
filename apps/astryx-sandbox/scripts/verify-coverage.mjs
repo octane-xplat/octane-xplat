@@ -25,13 +25,16 @@ function readSrc(rel) {
 /** Keys of a top-level `const x = { ... }` object literal, line-based. */
 function objectKeys(src, marker) {
 	const start = src.indexOf(marker)
-	if (start < 0) {throw new Error(`marker not found: ${marker}`)}
+	if (start < 0) {
+		throw new Error(`marker not found: ${marker}`)
+	}
 	const open = src.indexOf('{', start)
 	let depth = 0
 	let end = -1
 	for (let i = open; i < src.length; i++) {
-		if (src[i] === '{') {depth++}
-		else if (src[i] === '}') {
+		if (src[i] === '{') {
+			depth++
+		} else if (src[i] === '}') {
 			depth--
 			if (depth === 0) {
 				end = i
@@ -42,9 +45,14 @@ function objectKeys(src, marker) {
 	const keys = []
 	for (const line of src.slice(open + 1, end).split('\n')) {
 		const t = line.trim().replace(/,$/, '')
-		if (!t || t.startsWith('//')) {continue}
+		if (!t || t.startsWith('//')) {
+			continue
+		}
+
 		const m = t.match(/^([A-Za-z_$][\w$]*|'[^']+'|"[^"]+")\s*(:|$)/)
-		if (m) {keys.push(m[1].replace(/^['"]|['"]$/g, ''))}
+		if (m) {
+			keys.push(m[1].replace(/^['"]|['"]$/g, ''))
+		}
 	}
 	return keys
 }
@@ -58,9 +66,18 @@ function buildRows() {
 	])
 	const portedExamples = new Set(exampleKeys)
 	const portedPages = new Set(pageKeys)
-	const portedFixed = new Set(['/', '/components-patterns/', '/themes/', '/tools/', '/templates/', '/404/'])
+	const portedFixed = new Set([
+		'/',
+		'/components-patterns/',
+		'/themes/',
+		'/tools/',
+		'/templates/',
+		'/404/',
+	])
 	const statusOf = (row) => {
-		if (blockers.has(row.route)) {return 'blocked'}
+		if (blockers.has(row.route)) {
+			return 'blocked'
+		}
 		if (
 			(row.kind === 'template-block' || row.kind === 'template-page') &&
 			row.name &&
@@ -68,7 +85,9 @@ function buildRows() {
 		) {
 			return 'ported'
 		}
-		if (portedFixed.has(row.route) || portedPages.has(row.route)) {return 'ported'}
+		if (portedFixed.has(row.route) || portedPages.has(row.route)) {
+			return 'ported'
+		}
 		return 'pending'
 	}
 	return pinnedRoutes.map((row) => ({ ...row, status: statusOf(row) }))
@@ -77,7 +96,9 @@ function buildRows() {
 export async function verifyCoverage(page, baseUrl, check) {
 	const rows = buildRows()
 	const counts = { ported: 0, blocked: 0, pending: 0 }
-	for (const row of rows) {counts[row.status]++}
+	for (const row of rows) {
+		counts[row.status]++
+	}
 	check(
 		`coverage join reconciles ${pinnedStats.total} routes`,
 		rows.length === pinnedStats.total,
@@ -99,7 +120,9 @@ export async function verifyCoverage(page, baseUrl, check) {
 				const state = await page
 					.waitForFunction(
 						() => {
-							if (document.querySelector('.sb-pending')) {return 'pending'}
+							if (document.querySelector('.sb-pending')) {
+								return 'pending'
+							}
 							// Icon/skeleton-only examples carry no text — any rendered
 							// element inside the embed root counts. Overlay examples
 							// (CommandPalette) portal to body level outside the root.
@@ -108,13 +131,11 @@ export async function verifyCoverage(page, baseUrl, check) {
 								if (root.querySelector('*') || (root.textContent ?? '').trim().length > 0) {
 									return 'content'
 								}
-								if (
-									document.querySelector(
-										'.vx-command-palette, [role="dialog"], .vx-overlay',
-									)
-								) {
+
+								if (document.querySelector('.vx-command-palette, [role="dialog"], .vx-overlay')) {
 									return 'content'
 								}
+
 								return ''
 							}
 							const els = document.body?.querySelectorAll('*:not(script):not(style)') ?? []
@@ -126,6 +147,7 @@ export async function verifyCoverage(page, baseUrl, check) {
 						{ timeout: 12000 },
 					)
 					.then((h) => h.jsonValue())
+
 				ok = state === 'content'
 				why = `state=${state}`
 			} else {
@@ -135,9 +157,11 @@ export async function verifyCoverage(page, baseUrl, check) {
 					.waitForSelector('.sb-pending', { timeout: 12000 })
 					.then(() => 'pending')
 					.catch(() => 'timeout')
+
 				ok = state === 'pending'
 				why = `state=${state}`
 			}
+
 			if (ok && row.status !== 'ported') {
 				// The placeholder must carry the honest status badge.
 				const badge = await page
@@ -145,15 +169,19 @@ export async function verifyCoverage(page, baseUrl, check) {
 					.first()
 					.textContent()
 					.catch(() => '')
+
 				ok = (badge ?? '').trim() === row.status
 				why += ` badge=${(badge ?? '').trim()}`
 			}
 		} catch (e) {
 			why = String(e).slice(0, 120)
 		}
+
 		if (!ok) {
 			failures++
-			if (detail.length < 40) {detail.push(`${row.route}(${row.status}): ${why}`)}
+			if (detail.length < 40) {
+				detail.push(`${row.route}(${row.status}): ${why}`)
+			}
 		}
 	}
 	check(
@@ -196,8 +224,18 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
 				{ timeout: 10000 },
 			)
 			.catch(() => {})
-		const text = (await page.locator('.sb-embed-root').textContent().catch(() => '')) ?? ''
-		check(`route ${route} renders ported content`, text.includes(a) && text.includes(b), `${text.length} chars`)
+
+		const text =
+			(await page
+				.locator('.sb-embed-root')
+				.textContent()
+				.catch(() => '')) ?? ''
+
+		check(
+			`route ${route} renders ported content`,
+			text.includes(a) && text.includes(b),
+			`${text.length} chars`,
+		)
 	}
 
 	// Code renders real inline code elements inside text runs.
@@ -210,7 +248,9 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
 	)
 
 	// Blockquote renders a cite attribution.
-	await page.goto(baseUrl + '/templates/BlockquoteShowcase/?embed=1', { waitUntil: 'domcontentloaded' })
+	await page.goto(baseUrl + '/templates/BlockquoteShowcase/?embed=1', {
+		waitUntil: 'domcontentloaded',
+	})
 	await page.waitForSelector('.sb-embed-root cite', { timeout: 10000 }).catch(() => {})
 	check(
 		'Blockquote renders cite attribution',
@@ -219,7 +259,9 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
 	)
 
 	// Citation renders linked chips and numbered pills.
-	await page.goto(baseUrl + '/templates/CitationShowcase/?embed=1', { waitUntil: 'domcontentloaded' })
+	await page.goto(baseUrl + '/templates/CitationShowcase/?embed=1', {
+		waitUntil: 'domcontentloaded',
+	})
 	await page.waitForSelector('.sb-embed-root .vx-citation', { timeout: 10000 }).catch(() => {})
 	check(
 		'Citation renders both variants',
@@ -234,7 +276,9 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
 
 	// Carousel: slides render; the next button scrolls the viewport.
 	await page.goto(baseUrl + '/templates/CarouselSnap/?embed=1', { waitUntil: 'domcontentloaded' })
-	await page.waitForSelector('.sb-embed-root .vx-carousel-slide', { timeout: 10000 }).catch(() => {})
+	await page
+		.waitForSelector('.sb-embed-root .vx-carousel-slide', { timeout: 10000 })
+		.catch(() => {})
 	check(
 		'Carousel renders all slides',
 		(await page.locator('.sb-embed-root .vx-carousel-slide').count()) === 5,
@@ -286,8 +330,19 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
 	]) {
 		await page.goto(baseUrl + route + '?embed=1', { waitUntil: 'domcontentloaded' })
 		const pending = await page.locator('.sb-pending').count()
-		const badge = ((await page.locator('.sb-pending .sb-status').textContent().catch(() => '')) ?? '').trim()
-		const text = (await page.locator('.sb-pending').textContent().catch(() => '')) ?? ''
+		const badge = (
+			(await page
+				.locator('.sb-pending .sb-status')
+				.textContent()
+				.catch(() => '')) ?? ''
+		).trim()
+
+		const text =
+			(await page
+				.locator('.sb-pending')
+				.textContent()
+				.catch(() => '')) ?? ''
+
 		check(
 			`blocked route ${route} shows recorded gap`,
 			pending === 1 && badge === 'blocked' && text.includes(needle),
@@ -324,16 +379,21 @@ export async function verifyJourney(page, baseUrl, check) {
 		await page.goto(baseUrl + '/templates/CarouselSnap/')
 	}
 	await page.waitForTimeout(500)
-	check('journey: search reaches template', page.url().includes('/templates/CarouselSnap'), page.url())
 	check(
-		'journey: template renders',
-		(await page.locator('.vx-carousel-slide').count()) === 5,
+		'journey: search reaches template',
+		page.url().includes('/templates/CarouselSnap'),
+		page.url(),
 	)
+	check('journey: template renders', (await page.locator('.vx-carousel-slide').count()) === 5)
 
 	// interact: scroll the carousel via its next button.
 	const scroller = page.locator('.vx-carousel-viewport')
 	const x0 = await scroller.evaluate((el) => el.scrollLeft).catch(() => 0)
-	await page.locator('.vx-carousel-next').first().click().catch(() => {})
+	await page
+		.locator('.vx-carousel-next')
+		.first()
+		.click()
+		.catch(() => {})
 	await page.waitForTimeout(400)
 	const x1 = await scroller.evaluate((el) => el.scrollLeft).catch(() => x0)
 	check('journey: carousel interaction scrolls', x1 > x0, `${x0} → ${x1}`)
@@ -347,10 +407,7 @@ export async function verifyJourney(page, baseUrl, check) {
 	)
 	await page.keyboard.press('Escape')
 	await page.waitForTimeout(300)
-	check(
-		'journey: palette dismisses',
-		(await page.locator('.vx-cmdk-search').count()) === 0,
-	)
+	check('journey: palette dismisses', (await page.locator('.vx-cmdk-search').count()) === 0)
 	await page.goto(baseUrl + '/templates/ToastShowcase/', { waitUntil: 'networkidle' })
 	await page.locator('button', { hasText: 'Show toast' }).first().click()
 	await page.waitForTimeout(500)
@@ -362,11 +419,16 @@ export async function verifyJourney(page, baseUrl, check) {
 	// theme + viewport (template routes carry the PreviewShell's theme menu).
 	await page.locator('[aria-label="Preview theme"], [aria-label="Theme"]').first().click()
 	await page.waitForTimeout(300)
-	await page.locator('[role="menuitemradio"], [role="menuitem"]').filter({ hasText: 'Stone' }).first().click()
+	await page
+		.locator('[role="menuitemradio"], [role="menuitem"]')
+		.filter({ hasText: 'Stone' })
+		.first()
+		.click()
 	await page.waitForTimeout(300)
 	check(
 		'journey: theme switches',
-		(await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'stone',
+		(await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) ===
+			'stone',
 	)
 	// Narrow viewport: the preview sidebar collapses (AppShell swaps to a
 	// drawer toggle on framed routes; template routes hide their sidebar).
@@ -375,7 +437,9 @@ export async function verifyJourney(page, baseUrl, check) {
 	check(
 		'journey: narrow viewport collapses navigation',
 		(await page.locator('.sb-preview-sidebar').count()) === 0 ||
-			(await page.locator('button[aria-label*="navigation" i], button[aria-label*="nav" i]').count()) > 0,
+			(await page
+				.locator('button[aria-label*="navigation" i], button[aria-label*="nav" i]')
+				.count()) > 0,
 	)
 	await page.setViewportSize({ width: 1280, height: 800 })
 	await page.waitForTimeout(300)
@@ -383,13 +447,18 @@ export async function verifyJourney(page, baseUrl, check) {
 	// Back → previous route; retained state across a fresh navigation.
 	await page.goBack()
 	await page.waitForTimeout(400)
-	check('journey: Back returns to carousel', page.url().includes('/templates/CarouselSnap'), page.url())
+	check(
+		'journey: Back returns to carousel',
+		page.url().includes('/templates/CarouselSnap'),
+		page.url(),
+	)
 
 	// reset/relaunch: a fresh load retains the stored theme; then reset.
 	await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
 	check(
 		'journey: stored theme survives relaunch',
-		(await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) === 'stone',
+		(await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) ===
+			'stone',
 	)
 	await page.evaluate(() => {
 		window.localStorage.setItem('astryx-sandbox-theme', 'neutral')

@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
 				if (phase.phase === 'tab') {
@@ -70,6 +71,7 @@ test(
 				} else if (phase.phase === 'return') {
 					send('key', 'Return')
 				}
+
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error

@@ -3,7 +3,18 @@
 // GAPS: Text `justify`/`textWrap` props are unported — textAlign/textWrap land
 // in style. ArrowRightIcon was 20/solid upstream; the registry carries the
 // 24/outline glyph.
-import { AspectRatio, Button, Heading, HStack, Icon, Layout, LayoutContent, Section, Text, VStack } from '@octane-xplat/ui'
+import {
+	AspectRatio,
+	Button,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	Section,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 const IMAGE_URL = '/template-assets/light-scene-horizontal-1.png'
 
@@ -12,11 +23,13 @@ const heroImage = {
 	height: '100%',
 	objectFit: 'cover' as const,
 }
+
 const heroFrame = {
 	maxWidth: 1200,
 	marginInline: 'auto',
 	borderRadius: 'var(--radius-page)',
 }
+
 const textCenter = {
 	textAlign: 'center' as const,
 	textWrap: 'balance' as const,

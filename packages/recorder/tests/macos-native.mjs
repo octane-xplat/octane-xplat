@@ -265,6 +265,7 @@ run().catch((error) => { console.error(String(error)); throw error })
 			assert.equal(result.status, 0, `${variant.name}\n${output}`)
 			assert.match(output, /MACOS_RECORDER_HOST_OK/, `${variant.name}\n${output}`)
 		}
+
 		console.log('macOS packed recorder: TypeScript host dispatch passed')
 	} finally {
 		await rm(app, { recursive: true, force: true })

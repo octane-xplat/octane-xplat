@@ -4,9 +4,18 @@ import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export const areaRef: { current: ScrollableAreaHandle | null } = { current: null }
 export const refreshEvents: number[] = []
-const bindArea = (handle: ScrollableAreaHandle | null) => { areaRef.current = handle }
+const bindArea = (handle: ScrollableAreaHandle | null) => {
+	areaRef.current = handle
+}
 
-export function Area(props: { axis: 'block' | 'inline' | 'both'; refresh?: boolean; refreshing?: boolean; version?: number; hideSpinner?: boolean; testID?: string }) @{
+export function Area(props: {
+	axis: 'block' | 'inline' | 'both'
+	refresh?: boolean
+	refreshing?: boolean
+	version?: number
+	hideSpinner?: boolean
+	testID?: string
+}) @{
 	<View id="area-root" style={{ width: 240, height: 340, flexDirection: 'column' }}>
 		<ScrollableArea
 			id="area"
@@ -20,7 +29,13 @@ export function Area(props: { axis: 'block' | 'inline' | 'both'; refresh?: boole
 			onRefresh={props.refresh ? () => refreshEvents.push(props.version ?? 1) : undefined}
 			refreshing={props.refresh ? props.refreshing : undefined}
 		>
-			<View id="area-document" style={{ width: props.axis === 'block' ? 184 : 500, height: props.axis === 'inline' ? 80 : 400 }}>
+			<View
+				id="area-document"
+				style={{
+					width: props.axis === 'block' ? 184 : 500,
+					height: props.axis === 'inline' ? 80 : 400,
+				}}
+			>
 				<Text>Feed content</Text>
 			</View>
 		</ScrollableArea>

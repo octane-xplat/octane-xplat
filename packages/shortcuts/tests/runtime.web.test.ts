@@ -799,6 +799,7 @@ describe('shortcuts', () => {
 				expression: '',
 				eventType: 'keydown',
 			})
+
 			shortcuts.dispose()
 		} finally {
 			vi.useRealTimers()
@@ -835,6 +836,7 @@ describe('shortcuts', () => {
 				expression: 'k',
 				eventType: 'keydown',
 			})
+
 			expect(errors).toEqual(['recording:boom'])
 			shortcuts.dispose()
 		} finally {
@@ -860,6 +862,7 @@ describe('shortcuts', () => {
 				expression: 'Ctrl+k',
 				eventType: 'keydown',
 			})
+
 			shortcuts.dispose()
 		} finally {
 			vi.useRealTimers()

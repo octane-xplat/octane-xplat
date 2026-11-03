@@ -1,4 +1,3 @@
-
 // TypeScript port of the removed Swift XplatCameraHost. The bridge wraps
 // AVFoundation instances as untyped NativeObject — re-pointing the prototype
 // (same idiom as the packaged host's WebSocket shim) binds the class members.
@@ -58,6 +57,7 @@ declare const CMVideoFormatDescriptionGetDimensions: (desc: unknown) => {
 	width: number
 	height: number
 }
+
 declare const CMFormatDescriptionGetMediaSubType: (desc: unknown) => number
 
 // AVAuthorizationStatus.
@@ -136,6 +136,7 @@ const claimCamera = (id: string, owner: object): boolean => {
 	cameraOwners.set(id, owner)
 	return true
 }
+
 const releaseCamera = (id: string, owner: object): void => {
 	if (cameraOwners.get(id) === owner) {
 		cameraOwners.delete(id)
@@ -277,16 +278,18 @@ export function createCameraHost(): CameraHost {
 	}
 	const mediaKind = (kind: string) => (kind === 'microphone' ? AVMediaTypeAudio : AVMediaTypeVideo)
 	const declared = (mediaType: string) => {
-		const key = mediaType === AVMediaTypeAudio ? 'NSMicrophoneUsageDescription' : 'NSCameraUsageDescription'
+		const key =
+			mediaType === AVMediaTypeAudio ? 'NSMicrophoneUsageDescription' : 'NSCameraUsageDescription'
 		return NSBundle.mainBundle.objectForInfoDictionaryKey(key) != null
 	}
 
 	const cameraDevices = (): any[] => {
-		const discovery = AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypesMediaTypePosition(
-			[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeExternalUnknown],
-			AVMediaTypeVideo,
-			0,
-		)
+		const discovery =
+			AVCaptureDeviceDiscoverySession.discoverySessionWithDeviceTypesMediaTypePosition(
+				[AVCaptureDeviceTypeBuiltInWideAngleCamera, AVCaptureDeviceTypeExternalUnknown],
+				AVMediaTypeVideo,
+				0,
+			)
 		typed(discovery, AVCaptureDeviceDiscoverySession)
 		const found: any[] = []
 		const list = discovery.devices
@@ -325,11 +328,13 @@ export function createCameraHost(): CameraHost {
 			if (rotation < 0) {
 				rotation += 360
 			}
+
 			const descriptions = track.formatDescriptions
 			if (descriptions.count > 0) {
 				const subtype = fourCharCode(
 					CMFormatDescriptionGetMediaSubType(descriptions.objectAtIndex(0)),
 				)
+
 				if (subtype === 'avc1') {
 					videoCodec = 'avc1'
 				} else if (subtype === 'hvc1' || subtype === 'hev1') {
@@ -338,10 +343,7 @@ export function createCameraHost(): CameraHost {
 			}
 		}
 		const duration = CMTimeGetSeconds(asset.duration)
-		const attrs = NSFileManager.defaultManager.attributesOfItemAtPathError(
-			String(url.path),
-			null,
-		)
+		const attrs = NSFileManager.defaultManager.attributesOfItemAtPathError(String(url.path), null)
 		const size = Number(attrs?.objectForKey?.('NSFileSize') ?? 0)
 		const info: Record<string, unknown> = {
 			fileUrl: String(url.absoluteString),
@@ -419,11 +421,8 @@ export function createCameraHost(): CameraHost {
 			[AVCaptureDeviceWasConnectedNotification, true],
 		] as const) {
 			observers.push(
-				center.addObserverForNameObjectQueueUsingBlock(
-					name,
-					null,
-					NSOperationQueue.mainQueue,
-					() => send({ type: 'availability', available }),
+				center.addObserverForNameObjectQueueUsingBlock(name, null, NSOperationQueue.mainQueue, () =>
+					send({ type: 'availability', available }),
 				),
 			)
 		}
@@ -476,9 +475,11 @@ export function createCameraHost(): CameraHost {
 		const audio = !photo && options.audio === true
 		rotationAngle = typeof options.rotationAngle === 'number' ? options.rotationAngle : undefined
 		const devices = cameraDevices()
-		const device = cameraId != null
-			? devices.find((entry) => String(entry.uniqueID) === cameraId)
-			: (devices[0] ?? typed(AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo), AVCaptureDevice))
+		const device =
+			cameraId != null
+				? devices.find((entry) => String(entry.uniqueID) === cameraId)
+				: (devices[0] ??
+					typed(AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo), AVCaptureDevice))
 		if (!device) {
 			return 'unavailable'
 		}
@@ -497,9 +498,11 @@ export function createCameraHost(): CameraHost {
 				if (input == null) {
 					throw new Error('input')
 				}
+
 				if (videoInput != null) {
 					session.removeInput(videoInput)
 				}
+
 				videoInput = input
 				if (session.canAddInput(input)) {
 					session.addInput(input)
@@ -507,11 +510,13 @@ export function createCameraHost(): CameraHost {
 					failure = 'unavailable'
 				}
 			}
+
 			if (audio && audioInput == null) {
 				const microphone = typed(
 					AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio),
 					AVCaptureDevice,
 				)
+
 				if (microphone) {
 					const alloc = typed(AVCaptureDeviceInput.alloc(), AVCaptureDeviceInput)
 					const input = typed(alloc.initWithDeviceError(microphone, null), AVCaptureDeviceInput)
@@ -524,6 +529,7 @@ export function createCameraHost(): CameraHost {
 				session.removeInput(audioInput)
 				audioInput = undefined
 			}
+
 			if (photo && photoOutput == null) {
 				const output = AVCapturePhotoOutput.new()
 				if (session.canAddOutput(output)) {
@@ -533,6 +539,7 @@ export function createCameraHost(): CameraHost {
 					failure = 'unavailable'
 				}
 			}
+
 			if (!photo && movieOutput == null) {
 				const output = AVCaptureMovieFileOutput.new()
 				if (session.canAddOutput(output)) {
@@ -540,16 +547,19 @@ export function createCameraHost(): CameraHost {
 					movieOutput = typed(output, AVCaptureMovieFileOutput)
 				}
 			}
+
 			session.commitConfiguration()
 			if (rotationAngle !== undefined) {
 				videoConnection = typed(
 					movieOutput?.connectionWithMediaType(AVMediaTypeVideo),
 					AVCaptureConnection,
 				)
+
 				const supported =
 					videoConnection != null &&
 					orientationForAngle(rotationAngle) !== undefined &&
 					videoConnection.isVideoOrientationSupported() === true
+
 				if (!supported) {
 					failure = 'unsupportedConfiguration'
 				}
@@ -560,6 +570,7 @@ export function createCameraHost(): CameraHost {
 			} catch {
 				// A committed-partial configuration is already consistent.
 			}
+
 			return 'unavailable'
 		}
 		if (failure != null) {
@@ -707,14 +718,17 @@ export function createCameraHost(): CameraHost {
 				if (!device.lockForConfiguration(null)) {
 					return false
 				}
+
 				if (focus) {
 					device.focusPointOfInterest = devicePoint
 					device.focusMode = 1 // autoFocus
 				}
+
 				if (expose) {
 					device.exposurePointOfInterest = devicePoint
 					device.exposureMode = 1 // autoExpose
 				}
+
 				device.unlockForConfiguration()
 				return true
 			} catch {
@@ -739,7 +753,14 @@ export function createCameraHost(): CameraHost {
 				.URLByAppendingPathComponent(bundleId)
 				.URLByAppendingPathComponent('octane-camera')
 			const manager = NSFileManager.defaultManager
-			if (!manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(directory, true, null, null)) {
+			if (
+				!manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
+					directory,
+					true,
+					null,
+					null,
+				)
+			) {
 				return null
 			}
 			return String(directory.absoluteString)
@@ -753,7 +774,9 @@ export function createCameraHost(): CameraHost {
 			const url = NSURL.fileURLWithPath(path)
 			recordingPath = path
 			movieOutput.maxRecordedDuration =
-				maximumDurationMs > 0 ? CMTimeMakeWithSeconds(maximumDurationMs / 1000, 1000) : ({ seconds: 0, timescale: 0, flags: 0, epoch: 0 } as any)
+				maximumDurationMs > 0
+					? CMTimeMakeWithSeconds(maximumDurationMs / 1000, 1000)
+					: ({ seconds: 0, timescale: 0, flags: 0, epoch: 0 } as any)
 			recordingDelegate = recordingDelegateClass().new()
 			recordingDelegate.onFinish = (_output: any, fileUrl: any, failure: any) => {
 				const succeeded =
@@ -775,6 +798,7 @@ export function createCameraHost(): CameraHost {
 					} catch {
 						// Reclaim only the file this attempt created.
 					}
+
 					payload.error = {
 						domain: failure != null ? String(failure.domain) : 'XplatCamera',
 						code: failure != null ? Number(failure.code) : -1,

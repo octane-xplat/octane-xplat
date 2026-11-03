@@ -21,6 +21,7 @@ const result = await build({
 		rollupOptions: { external: ['octane', 'octane/jsx-runtime', '@octane-xplat/lib/capability'] },
 	},
 })
+
 const chunks = (Array.isArray(result) ? result : [result]).flatMap((value) => value.output)
 assert.ok(
 	chunks.some(
@@ -29,6 +30,7 @@ assert.ok(
 			Object.keys(chunk.modules).some((id) => id.includes('html2canvas-pro')),
 	),
 )
+
 assert.ok(
 	chunks.every(
 		(chunk) =>
@@ -36,6 +38,7 @@ assert.ok(
 			!Object.keys(chunk.modules).some((id) => id.includes('@nativescript/core')),
 	),
 )
+
 console.log(
 	'Browser graph links the real DOM engine and excludes NativeScript; output was never executed and no capture occurred.',
 )

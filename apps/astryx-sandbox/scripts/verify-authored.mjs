@@ -245,7 +245,9 @@ try {
 
 	await test('motion lab bugs drawer demo derives the timer', async () => {
 		await go('motion-lab/bugs')
-		await page.getByRole('switch', { name: 'Derive the timer from the transition', exact: true }).click()
+		await page
+			.getByRole('switch', { name: 'Derive the timer from the transition', exact: true })
+			.click()
 		await has('100% of the slide runs')
 	})
 

@@ -211,6 +211,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
 				) {
 					throw new Error('Update payload does not match the installed native fingerprint')
 				}
+
 				const pkg = decode(files['package.json'])
 				if (typeof pkg.main !== 'string' || !/^[a-zA-Z0-9_-]+(?:\.mjs)?$/.test(pkg.main)) {
 					throw new Error('Invalid update entry point')

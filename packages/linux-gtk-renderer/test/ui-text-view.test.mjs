@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => {
 					try {
 						execFileSync('xdotool', args, { env, timeout: 7000 })
@@ -68,13 +69,16 @@ test(
 						throw new Error('xdotool ' + args.join(' ') + ': ' + error.message)
 					}
 				}
+
 				send('windowfocus', id)
 				if (phase.text) {
 					send('type', '--clearmodifiers', '--delay', '30', phase.text)
 				}
+
 				if (phase.key) {
 					send('key', '--clearmodifiers', phase.key)
 				}
+
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error

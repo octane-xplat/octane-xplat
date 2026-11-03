@@ -5,6 +5,7 @@ import type {
 	ScreenOrientationInfo,
 	Subscription,
 } from './types'
+
 export interface OrientationBackend {
 	capabilities(): ScreenOrientationCapabilities
 	info(): ScreenOrientationInfo

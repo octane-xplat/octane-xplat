@@ -20,6 +20,7 @@ writeFileSync(
 		aliases: { turned: { parent: 'wide', rotate: 1 } },
 	}),
 )
+
 writeFileSync(join(root, 'package.json'), '{"type":"module"}')
 
 const plugin = xplatIcons()
@@ -27,7 +28,7 @@ plugin.configResolved({ root })
 
 const context = (watched = []) => ({
 	error(message) {
-		throw new Error(typeof message === 'string' ? message : message?.message ?? String(message))
+		throw new Error(typeof message === 'string' ? message : (message?.message ?? String(message)))
 	},
 	addWatchFile(id) {
 		watched.push(id)

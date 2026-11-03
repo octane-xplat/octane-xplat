@@ -44,6 +44,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 			: language !== 'plaintext'
 				? language
 				: null
+
 	const hasHeader = props.title != null || languageLabel != null
 	// A collapsed body must never outlive the visible header that controls it.
 	const canCollapse = hasHeader && isCollapsible && lines.length >= collapsibleThreshold

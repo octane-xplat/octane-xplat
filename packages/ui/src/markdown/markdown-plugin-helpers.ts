@@ -27,6 +27,7 @@ import {
 	type MarkdownTransformContext,
 	type PreparedMarkdownPlugins,
 } from './markdown-plugins.ts'
+
 import type {
 	MdCode,
 	MdDataValue,
@@ -40,6 +41,7 @@ import type {
 	MdTableCell,
 	MdTableRow,
 } from './markdown-ast.ts'
+
 import type { MdNodeBase } from './markdown-ast.ts'
 
 type AnyExtension = MarkdownExtensionNode
@@ -62,18 +64,10 @@ const UNOWNED: MarkdownHelperOwnership = Object.freeze({
 })
 
 export interface MarkdownTextTransformContext {
-	readonly parentType:
-		| 'heading'
-		| 'paragraph'
-		| 'strong'
-		| 'emphasis'
-		| 'delete'
-		| 'tableCell'
+	readonly parentType: 'heading' | 'paragraph' | 'strong' | 'emphasis' | 'delete' | 'tableCell'
 }
 
-export interface MarkdownTextTransformOptions<
-	Node extends MarkdownExtensionNode = never,
-> {
+export interface MarkdownTextTransformOptions<Node extends MarkdownExtensionNode = never> {
 	/** Global expression matched against eligible built-in prose only. */
 	readonly pattern: RegExp
 	/**
@@ -132,6 +126,7 @@ function cloneReplacement<T>(value: T, seen?: Map<object, unknown>): T {
 		for (const item of value) {
 			clone.push(cloneReplacement(item, seen))
 		}
+
 		return clone as T
 	}
 	if (Object.getPrototypeOf(value) !== Object.prototype) {
@@ -146,6 +141,7 @@ function cloneReplacement<T>(value: T, seen?: Map<object, unknown>): T {
 				tracked = new Map<object, unknown>()
 				tracked.set(value, clone)
 			}
+
 			clone[key] = cloneReplacement(nested, tracked)
 		} else {
 			clone[key] = nested
@@ -210,8 +206,10 @@ function replaceTextNode(
 					pattern.unicode || pattern.flags.includes('v'),
 				)
 			}
+
 			continue
 		}
+
 		if (
 			!Number.isInteger(resolvedEnd) ||
 			resolvedEnd < defaultEnd ||
@@ -220,12 +218,15 @@ function replaceTextNode(
 		) {
 			throw new TypeError('Markdown text transform returned an invalid end index')
 		}
+
 		if (start < cursor) {
 			continue
 		}
+
 		if (start > cursor) {
 			output.push({ type: 'text', value: value.slice(cursor, start) })
 		}
+
 		const replacement = options.replace(match, { parentType })
 		// The callback's nodes are the only untrusted structure this helper can
 		// introduce. Each one is checked here under the same rules Core applies
@@ -243,20 +244,21 @@ function replaceTextNode(
 						: replacementNode,
 				)
 			}
+
 			adoptMarkdownHelperNodes(adopted, ownership)
 			for (const node of adopted) {
 				adoptedReplacements.add(node)
 			}
+
 			output.push(...adopted)
 		} else {
 			const single = replacement as Phrasing
-			const adopted = adoptedReplacements.has(single)
-				? cloneReplacement(single)
-				: single
+			const adopted = adoptedReplacements.has(single) ? cloneReplacement(single) : single
 			adoptMarkdownHelperNode(adopted, ownership)
 			adoptedReplacements.add(adopted)
 			output.push(adopted)
 		}
+
 		cursor = resolvedEnd
 		pattern.lastIndex =
 			resolvedEnd === start
@@ -266,6 +268,7 @@ function replaceTextNode(
 						pattern.unicode || pattern.flags.includes('v'),
 					)
 				: Math.max(pattern.lastIndex, resolvedEnd)
+
 		changed = true
 	}
 
@@ -294,39 +297,32 @@ function transformPhrasing(
 	for (let index = 0; index < children.length; index++) {
 		const node = children[index]
 		if (node.type === 'text') {
-			const replaced = replaceTextNode(
-				node.value,
-				options,
-				parentType,
-				ownership,
-				scanner,
-			)
+			const replaced = replaceTextNode(node.value, options, parentType, ownership, scanner)
 			if (replaced == null) {
 				next?.push(node)
 				continue
 			}
+
 			next ??= children.slice(0, index)
 			for (const replacement of replaced) {
 				next.push(replacement)
 			}
+
 			continue
 		}
+
 		if (node.type === 'strong' || node.type === 'emphasis' || node.type === 'delete') {
-			const nested = transformPhrasing(
-				node.children,
-				options,
-				node.type,
-				ownership,
-				scanner,
-			)
+			const nested = transformPhrasing(node.children, options, node.type, ownership, scanner)
 			if (nested === node.children) {
 				next?.push(node)
 				continue
 			}
+
 			next ??= children.slice(0, index)
 			next.push({ ...node, children: nested })
 			continue
 		}
+
 		// Links, images, code, math, citations, breaks, and accepted extension
 		// syntax are protected contexts owned by their existing semantics.
 		next?.push(node)
@@ -373,28 +369,17 @@ function transformBlocks(
 			next?.push(block)
 			continue
 		}
+
 		let replacement: MdNode
 		switch (block.type) {
 			case 'heading':
 			case 'paragraph': {
-				const children = transformPhrasing(
-					block.children,
-					options,
-					block.type,
-					ownership,
-					scanner,
-				)
+				const children = transformPhrasing(block.children, options, block.type, ownership, scanner)
 				replacement = children === block.children ? block : { ...block, children }
 				break
 			}
 			case 'blockquote': {
-				const children = transformBlocks(
-					block.children,
-					options,
-					ownership,
-					scanner,
-					source,
-				)
+				const children = transformBlocks(block.children, options, ownership, scanner, source)
 				replacement = children === block.children ? block : { ...block, children }
 				break
 			}
@@ -402,20 +387,16 @@ function transformBlocks(
 				let items: MdListItem[] | undefined
 				for (let itemIndex = 0; itemIndex < block.children.length; itemIndex++) {
 					const item = block.children[itemIndex]
-					const itemChildren = transformBlocks(
-						item.children,
-						options,
-						ownership,
-						scanner,
-						source,
-					)
+					const itemChildren = transformBlocks(item.children, options, ownership, scanner, source)
 					if (itemChildren === item.children) {
 						items?.push(item)
 						continue
 					}
+
 					items ??= block.children.slice(0, itemIndex)
 					items.push({ ...item, children: itemChildren })
 				}
+
 				replacement = items == null ? block : { ...block, children: items }
 				break
 			}
@@ -433,20 +414,25 @@ function transformBlocks(
 							ownership,
 							scanner,
 						)
+
 						if (cellChildren === cell.children) {
 							cells?.push(cell)
 							continue
 						}
+
 						cells ??= row.children.slice(0, cellIndex)
 						cells.push({ ...cell, children: cellChildren })
 					}
+
 					if (cells == null) {
 						rows?.push(row)
 						continue
 					}
+
 					rows ??= block.children.slice(0, rowIndex)
 					rows.push({ ...row, children: cells })
 				}
+
 				replacement = rows == null ? block : { ...block, children: rows }
 				break
 			}
@@ -458,9 +444,11 @@ function transformBlocks(
 				replacement = block
 				break
 		}
+
 		if (next === undefined && replacement !== block) {
 			next = blocks.slice(0, index)
 		}
+
 		next?.push(replacement)
 	}
 	return next ?? blocks
@@ -469,9 +457,11 @@ function transformBlocks(
 export function createMarkdownTextTransform(
 	options: MarkdownTextTransformOptions<never>,
 ): MarkdownTransform<never>
+
 export function createMarkdownTextTransform<Node extends MarkdownExtensionNode>(
 	options: MarkdownTextTransformOptions<Node>,
 ): MarkdownTransform<Node>
+
 export function createMarkdownTextTransform(
 	options: MarkdownTextTransformOptions<MarkdownExtensionNode>,
 ): MarkdownTransform<MarkdownExtensionNode> {
@@ -490,14 +480,12 @@ export function createMarkdownTextTransform(
 		options.requiredSubstrings == null
 			? undefined
 			: (Object.freeze([...options.requiredSubstrings]) as readonly [string, ...string[]])
-	const normalizedOptions: MarkdownTextTransformOptions<MarkdownExtensionNode> = Object.freeze(
-		{
-			pattern: new RegExp(options.pattern.source, options.pattern.flags),
-			requiredSubstrings,
-			getEndIndex: options.getEndIndex,
-			replace: options.replace,
-		},
-	)
+	const normalizedOptions: MarkdownTextTransformOptions<MarkdownExtensionNode> = Object.freeze({
+		pattern: new RegExp(options.pattern.source, options.pattern.flags),
+		requiredSubstrings,
+		getEndIndex: options.getEndIndex,
+		replace: options.replace,
+	})
 	const transform: MarkdownTransform<MarkdownExtensionNode> = (root, context) => {
 		const ownership = getMarkdownHelperOwnership(context) ?? UNOWNED
 		const children = transformBlocks(
@@ -505,10 +493,7 @@ export function createMarkdownTextTransform(
 			normalizedOptions,
 			ownership,
 			{
-				pattern: new RegExp(
-					normalizedOptions.pattern.source,
-					normalizedOptions.pattern.flags,
-				),
+				pattern: new RegExp(normalizedOptions.pattern.source, normalizedOptions.pattern.flags),
 				busy: false,
 			},
 			ownership.sourceUnchanged &&
@@ -593,10 +578,7 @@ function cloneNestedPluginData(
 	return clonePluginData(value, nestedAncestors)
 }
 
-function clonePluginData(
-	value: unknown,
-	ancestors?: ReadonlySet<object>,
-): MarkdownPluginData {
+function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): MarkdownPluginData {
 	if (value == null || typeof value === 'boolean' || typeof value === 'string') {
 		return value as MarkdownPluginData
 	}
@@ -604,6 +586,7 @@ function clonePluginData(
 		if (!Number.isFinite(value)) {
 			throw new TypeError('invalid plugin data')
 		}
+
 		return value
 	}
 	if (
@@ -621,6 +604,7 @@ function clonePluginData(
 				items[index] = cloneNestedPluginData(value[index], value, ancestors)
 			}
 		}
+
 		clone = Object.freeze(items)
 	} else {
 		const record: Record<string, MarkdownPluginData> = {}
@@ -630,6 +614,7 @@ function clonePluginData(
 				value,
 				ancestors,
 			)
+
 			if (key === '__proto__') {
 				Object.defineProperty(record, key, {
 					configurable: true,
@@ -641,6 +626,7 @@ function clonePluginData(
 				record[key] = nested
 			}
 		}
+
 		clone = Object.freeze(record)
 	}
 	return clone
@@ -695,7 +681,12 @@ function createProposal(
 }
 
 function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
-	return value != null && typeof value === 'object' && 'then' in value && typeof value.then === 'function'
+	return (
+		value != null &&
+		typeof value === 'object' &&
+		'then' in value &&
+		typeof value.then === 'function'
+	)
 }
 
 function consumeInvalidAsyncNode(
@@ -774,14 +765,7 @@ function fenceTransformBlocks(
 		let replacement: MdNode
 		switch (block.type) {
 			case 'code':
-				replacement = annotateCode(
-					block,
-					languages,
-					pluginName,
-					hasRenderer,
-					createNode,
-					report,
-				)
+				replacement = annotateCode(block, languages, pluginName, hasRenderer, createNode, report)
 				break
 			case 'blockquote': {
 				const children = fenceTransformBlocks(
@@ -792,6 +776,7 @@ function fenceTransformBlocks(
 					createNode,
 					report,
 				)
+
 				replacement = children === block.children ? block : { ...block, children }
 				break
 			}
@@ -807,13 +792,16 @@ function fenceTransformBlocks(
 						createNode,
 						report,
 					)
+
 					if (itemChildren === item.children) {
 						items?.push(item)
 						continue
 					}
+
 					items ??= block.children.slice(0, itemIndex)
 					items.push({ ...item, children: itemChildren })
 				}
+
 				replacement = items == null ? block : { ...block, children: items }
 				break
 			}
@@ -827,9 +815,11 @@ function fenceTransformBlocks(
 				replacement = block
 				break
 		}
+
 		if (next === undefined && replacement !== block) {
 			next = blocks.slice(0, index)
 		}
+
 		next?.push(replacement)
 	}
 	return next ?? blocks
@@ -999,16 +989,17 @@ function normalizeRanges(
 		) {
 			decorationFail('ranges must be ordered, non-empty, non-negative UTF-16 offsets')
 		}
+
 		if (range.data !== undefined && !isMarkdownPluginData(range.data)) {
 			decorationFail('range data must be finite JSON-like plugin data')
 		}
+
 		const data = range.data === undefined ? undefined : cloneDecorationData(range.data)
-		const key = `${range.start}\0${range.end}\0${
-			data === undefined ? '' : JSON.stringify(data)
-		}`
+		const key = `${range.start}\0${range.end}\0${data === undefined ? '' : JSON.stringify(data)}`
 		if (seen.has(key)) {
 			continue
 		}
+
 		seen.add(key)
 		normalized.push({
 			start: range.start,
@@ -1131,6 +1122,7 @@ function spanOrder(children: ReadonlyArray<DecoratableNode>): ReadonlyArray<numb
 		if (start < 0) {
 			continue
 		}
+
 		if (start < previous) {
 			const indices: number[] = []
 			for (let scan = 0; scan < children.length; scan++) {
@@ -1138,13 +1130,15 @@ function spanOrder(children: ReadonlyArray<DecoratableNode>): ReadonlyArray<numb
 					indices.push(scan)
 				}
 			}
+
 			indices.sort(
 				(left, right) =>
-					spanStart(children[left].position) - spanStart(children[right].position) ||
-					left - right,
+					spanStart(children[left].position) - spanStart(children[right].position) || left - right,
 			)
+
 			return indices
 		}
+
 		previous = start
 	}
 	return undefined
@@ -1207,16 +1201,19 @@ function decorateChildren(
 		if (cursor >= ranges.length && active.length === 0) {
 			break
 		}
+
 		const index = order?.[slot] ?? slot
 		const child = children[index]
 		const start = spanStart(child.position)
 		if (start < 0) {
 			continue
 		}
+
 		const end = child.position?.end.offset as number
 		while (cursor < ranges.length && ranges[cursor].start < end) {
 			active.push(ranges[cursor++])
 		}
+
 		// Retire in place: spans are visited in ascending start order, so a range
 		// that ended before this one starts cannot match any later span either.
 		let kept = 0
@@ -1225,6 +1222,7 @@ function decorateChildren(
 				active[kept++] = active[activeSlot]
 			}
 		}
+
 		active.length = kept
 		if (kept === 0) {
 			// No range reaches this block. When the next range starts beyond this
@@ -1238,12 +1236,15 @@ function decorateChildren(
 					slot = jump - 1
 				}
 			}
+
 			continue
 		}
+
 		const decorated = decorateNode(child, active, state)
 		if (decorated === child) {
 			continue
 		}
+
 		next ??= children.slice()
 		next[index] = decorated
 	}
@@ -1318,9 +1319,7 @@ export function createMarkdownSourceDecoration(
 			hasReported: false,
 		}
 		const children = decorateChildren(root.children, usable, state)
-		return children === root.children
-			? document
-			: ({ ...document, children } as unknown as MdDoc)
+		return children === root.children ? document : ({ ...document, children } as unknown as MdDoc)
 	}
 
 	// Every node this helper emits is built here, from ranges validated above:
@@ -1416,11 +1415,7 @@ function readFrontmatter(source: string):
 			readonly end: number
 			readonly fields: FrontmatterRecord
 	  } {
-	const openingLength = source.startsWith('---\r\n')
-		? 5
-		: source.startsWith('---\n')
-			? 4
-			: 0
+	const openingLength = source.startsWith('---\r\n') ? 5 : source.startsWith('---\n') ? 4 : 0
 	if (openingLength === 0) {
 		return { status: 'none' }
 	}
@@ -1434,11 +1429,13 @@ function readFrontmatter(source: string):
 		if (line.trim() === '') {
 			continue
 		}
+
 		const separator = line.indexOf(':')
 		const key = line.slice(0, separator).trim()
 		if (separator <= 0 || key === '' || entries.has(key)) {
 			return { status: 'none' }
 		}
+
 		entries.set(key, line.slice(separator + 1).trim())
 	}
 	// A plain object, so a parser that returns the record unchanged passes the
@@ -1538,6 +1535,7 @@ function replaceLineEndings(value: string): ReadonlyArray<Phrasing> | null {
 		if (match.index > cursor) {
 			output.push({ type: 'text', value: value.slice(cursor, match.index) })
 		}
+
 		output.push({ type: 'break' })
 		cursor = match.index + match[0].length
 		match = pattern.exec(value)
@@ -1560,8 +1558,10 @@ function softTransformPhrasing(children: ReadonlyArray<MdInline>): ReadonlyArray
 				next ??= children.slice(0, index)
 				next.push(...replacement)
 			}
+
 			continue
 		}
+
 		if (
 			node.type === 'strong' ||
 			node.type === 'emphasis' ||
@@ -1575,8 +1575,10 @@ function softTransformPhrasing(children: ReadonlyArray<MdInline>): ReadonlyArray
 			} else {
 				next?.push(node)
 			}
+
 			continue
 		}
+
 		next?.push(node)
 	}
 	return next ?? children
@@ -1611,6 +1613,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 				if (nested !== node.children) {
 					transformed = { ...node, children: nested }
 				}
+
 				break
 			}
 			case 'blockquote': {
@@ -1618,6 +1621,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 				if (nested !== node.children) {
 					transformed = { ...node, children: nested }
 				}
+
 				break
 			}
 			case 'list': {
@@ -1625,6 +1629,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 				if (nested.some((child, childIndex) => child !== node.children[childIndex])) {
 					transformed = { ...node, children: nested }
 				}
+
 				break
 			}
 			case 'table': {
@@ -1632,6 +1637,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 				if (nested.some((child, childIndex) => child !== node.children[childIndex])) {
 					transformed = { ...node, children: nested }
 				}
+
 				break
 			}
 			case 'code':
@@ -1643,9 +1649,11 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 			default:
 				node satisfies never
 		}
+
 		if (transformed !== node) {
 			next ??= children.slice(0, index)
 		}
+
 		next?.push(transformed)
 	}
 	return next ?? children
@@ -1777,9 +1785,9 @@ function readPortableConfig(
 		return undefined
 	}
 
-	const config = (definition as unknown as Record<PropertyKey, unknown>)[
-		portableConfigKey
-	] as Partial<PortableMarkdownHeadingLinksConfig> | undefined
+	const config = (definition as unknown as Record<PropertyKey, unknown>)[portableConfigKey] as
+		| Partial<PortableMarkdownHeadingLinksConfig>
+		| undefined
 	if (
 		config == null ||
 		typeof config !== 'object' ||
@@ -1811,10 +1819,7 @@ export function createMarkdownHeadingLinks(
 	if (options.headingIdPrefix !== undefined && typeof options.headingIdPrefix !== 'string') {
 		headingLinksFail('headingIdPrefix must be a string')
 	}
-	if (
-		options.permalinkBaseUrl !== undefined &&
-		typeof options.permalinkBaseUrl !== 'string'
-	) {
+	if (options.permalinkBaseUrl !== undefined && typeof options.permalinkBaseUrl !== 'string') {
 		headingLinksFail('permalinkBaseUrl must be a string')
 	}
 
@@ -1864,6 +1869,7 @@ function visitHeadings(root: MdDoc, visit: (heading: Heading) => void): void {
 				for (const child of node.children) {
 					walk(child)
 				}
+
 				break
 			case 'list':
 				for (const item of node.children) {
@@ -1871,6 +1877,7 @@ function visitHeadings(root: MdDoc, visit: (heading: Heading) => void): void {
 						walk(child)
 					}
 				}
+
 				break
 			default:
 				break

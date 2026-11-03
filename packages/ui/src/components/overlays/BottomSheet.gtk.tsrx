@@ -88,19 +88,24 @@ export function GtkSheetPanel(props: {
 			const detentFractions = props.snapPoints?.length
 				? normalizeSnapPoints(props.snapPoints, vh())
 				: []
+
 			const sized = detentFractions.length ? null : sheetHeightDips(props.height, vh())
 			try {
 				view.style.height = sized == null ? undefined : Math.round(sized)
-			} catch { }
+			} catch {}
 
-			ctl = attachSheetDetents(view, grabber.current, detentFractions, vh, () =>
-				dismiss.current?.(),
+			ctl = attachSheetDetents(
+				view,
+				grabber.current,
+				detentFractions,
+				vh,
+				() => dismiss.current?.(),
 				{
-					dismissible:
-						props.dismissible !== false && (props.purpose ?? 'info') !== 'required',
+					dismissible: props.dismissible !== false && (props.purpose ?? 'info') !== 'required',
 					swipeOnly: !detentFractions.length,
 				},
 			)
+
 			ctl.enter()
 		}
 
@@ -113,6 +118,7 @@ export function GtkSheetPanel(props: {
 				view.off?.('loaded', onLoaded)
 				setup()
 			}
+
 			view.on?.('loaded', onLoaded)
 		}
 
@@ -124,16 +130,8 @@ export function GtkSheetPanel(props: {
 			panel.current = v
 		}}
 		id={props.id}
-		className={cx(
-			'vx-sheet-host',
-			'vx-bottom-sheet-host',
-			themeSchemeClasses(),
-			props.className,
-		)}
-		style={mergeStyle(
-			{ display: 'flex', flexDirection: 'column' },
-			styleRecord(props.style),
-		)}
+		className={cx('vx-sheet-host', 'vx-bottom-sheet-host', themeSchemeClasses(), props.className)}
+		style={mergeStyle({ display: 'flex', flexDirection: 'column' }, styleRecord(props.style))}
 		accessibilityLabel={props.label ?? ''}
 	>
 		<masonview
@@ -225,9 +223,11 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 		const finish = () => {
 			try {
 				l.dispose()
-			} catch { }
+			} catch {}
+
 			setLayer(null)
 		}
+
 		const panelView = l.target?.get_first_child?.()
 		let animated = false
 		try {
@@ -237,12 +237,14 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 					translate: { x: 0, y: vh },
 					duration: 160,
 				})
+
 				if (sliding?.then) {
 					animated = true
 					void sliding.then(finish, finish)
 				}
 			}
-		} catch { }
+		} catch {}
+
 		if (!animated) {
 			finish()
 		}
@@ -270,6 +272,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 			if (shown.current) {
 				release()
 			}
+
 			releasing.current = false
 			return
 		}
@@ -286,6 +289,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 			align: { h: 'fill', v: 'end' },
 			onScrimPress: purpose === 'info' ? dismissSurface : undefined,
 		})
+
 		shown.current = l
 		setLayer(l)
 		l.setVisible(true)
@@ -295,7 +299,8 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 		() => () => {
 			try {
 				shown.current?.dispose?.()
-			} catch { }
+			} catch {}
+
 			shown.current = null
 		},
 		[],
@@ -303,6 +308,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 
 	// Zero-size sentinel — the sheet resolves its overlay host from the
 	// declaring component's ancestry.
+
 	<>
 		<masonview
 			ref={(v: any) => {
@@ -457,9 +463,11 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 		const finish = () => {
 			try {
 				l.dispose()
-			} catch { }
+			} catch {}
+
 			setLayer(null)
 		}
+
 		const panelView = l.target?.get_first_child?.()
 		let animated = false
 		try {
@@ -469,12 +477,14 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 					translate: { x: 0, y: vh },
 					duration: 160,
 				})
+
 				if (sliding?.then) {
 					animated = true
 					void sliding.then(finish, finish)
 				}
 			}
-		} catch { }
+		} catch {}
+
 		if (!animated) {
 			finish()
 		}
@@ -502,6 +512,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 			if (shown.current) {
 				release()
 			}
+
 			releasing.current = false
 			return
 		}
@@ -517,6 +528,7 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 			align: { h: 'fill', v: 'end' },
 			onScrimPress: dismissSurface,
 		})
+
 		shown.current = l
 		setLayer(l)
 		l.setVisible(true)
@@ -526,7 +538,8 @@ export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
 		() => () => {
 			try {
 				shown.current?.dispose?.()
-			} catch { }
+			} catch {}
+
 			shown.current = null
 		},
 		[],

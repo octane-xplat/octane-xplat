@@ -116,6 +116,7 @@ function bindPage(state: PagerState, page: PagerPage, index: number) {
 	if (state.props.__onCellTarget) {
 		const changed =
 			!page.portalActive || !Object.is(page.portalItem, item) || page.host.__portalIndex !== index
+
 		page.portalId ??= nextPortalPageId++
 		if (changed) {
 			page.portalGeneration = (page.portalGeneration ?? 0) + 1
@@ -151,7 +152,12 @@ function unbindPage(state: PagerState, page: PagerPage) {
 	page.host.bindingContext = undefined
 	page.host.removeFromSuperview()
 	state.props.onItemDisposing?.(
-		Object.freeze({ eventName: 'itemDisposing', object: state.view, index: page.index, view: page.host }),
+		Object.freeze({
+			eventName: 'itemDisposing',
+			object: state.view,
+			index: page.index,
+			view: page.host,
+		}),
 	)
 }
 
@@ -175,6 +181,7 @@ function layoutPages(state: PagerState) {
 				? host.leadingAnchor.constraintEqualToAnchor(previous.trailingAnchor)
 				: host.leadingAnchor.constraintEqualToAnchor(state.document.leadingAnchor),
 		)
+
 		previous = host
 	}
 
@@ -216,13 +223,12 @@ export function makePagerView(): NSView {
 	}
 
 	states.set(view, state)
-	state.boundsObserver =
-		NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			NSViewBoundsDidChangeNotification,
-			clip,
-			null,
-			() => scheduleSettle(state),
-		)
+	state.boundsObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+		NSViewBoundsDidChangeNotification,
+		clip,
+		null,
+		() => scheduleSettle(state),
+	)
 
 	return view
 }

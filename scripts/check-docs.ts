@@ -35,15 +35,18 @@ export function markdownParts(source: string) {
 				const indentation = Math.min(
 					...open.lines.filter((s) => s.trim()).map((s) => s.match(/^\s*/)![0].length),
 				)
+
 				fences.push({
 					line: open.line,
 					language: open.language,
 					code: open.lines.map((s) => s.slice(indentation)).join('\n'),
 				})
+
 				open = undefined
 			} else {
 				open.lines.push(line)
 			}
+
 			prose.push('')
 		} else if (marker) {
 			open = { marker: marker[1], line: index + 1, language: marker[2].trim(), lines: [] }
@@ -82,11 +85,13 @@ function anchors(source: string, site: boolean): Set<string> {
 			.toLowerCase()
 			.replace(/[^\p{L}\p{N}_\s-]/gu, '')
 			.replace(/ /g, '-')
+
 		let id = base
 		let suffix = 0
 		while (ids.has(id)) {
 			id = `${base}-${++suffix}`
 		}
+
 		ids.add(id)
 	}
 	for (const match of prose.matchAll(/\b(?:id|name)=["']([^"']+)["']/g)) {
@@ -107,12 +112,14 @@ export function checkDocumentation(root: string) {
 		if (!entry.isDirectory() || !existsSync(manifest)) {
 			continue
 		}
+
 		const metadata = JSON.parse(readFileSync(manifest, 'utf8'))
 		if (!metadata.private) {
 			const api = resolve(root, 'docs/api', `api-${entry.name}.md`)
 			slugs.set(`api-${entry.name}`, api)
 			generated.add(api)
 		}
+
 		const readme = resolve(packages, entry.name, 'README.md')
 		if (existsSync(readme)) {
 			readmes.push(readme)
@@ -126,6 +133,7 @@ export function checkDocumentation(root: string) {
 		if (slugs.has(slug) && !generated.has(path)) {
 			errors.push(`${relative(root, path)}: duplicate public slug ${slug}`)
 		}
+
 		slugs.set(slug, path)
 		if (
 			!GROUPS.some(
@@ -165,17 +173,21 @@ export function checkDocumentation(root: string) {
 		if (titleCount !== 1) {
 			fail(1, 'expected one H1 title')
 		}
+
 		if (site && !purposeOf(source)) {
 			fail(1, 'add a purpose blockquote after the H1 (used by llms.txt)')
 		}
+
 		if (unclosed) {
 			fail(unclosed, 'unclosed code fence')
 		}
+
 		for (const fence of fences) {
 			if (!fence.language) {
 				fail(fence.line, 'code fence needs a language; use text for output')
 			}
 		}
+
 		// Inline and reference destinations. Code literals are not navigable links.
 		const linkText = prose.replace(/`+[^`\n]*`+/g, '')
 		const links = [
@@ -183,6 +195,7 @@ export function checkDocumentation(root: string) {
 				/\]\(<?([^\s)>]+)>?(?:\s+["'][^\n]*["'])?\)|^\s*\[[^\]]+\]:\s*<?([^\s>]+)>?/gm,
 			),
 		]
+
 		for (const match of links) {
 			const href = match[1] ?? match[2]
 			const line = linkText.slice(0, match.index).split('\n').length
@@ -194,12 +207,14 @@ export function checkDocumentation(root: string) {
 					if (/^\/(?:llms(?:-full)?\.txt|demos\/)/.test(url.pathname)) {
 						continue
 					}
+
 					const slug = decodeURIComponent(url.pathname.replace(/^\/|\/$/g, '')) || 'README'
 					const found = slugs.get(slug)
 					if (!found) {
 						fail(line, `unknown public guide: ${href}`)
 						continue
 					}
+
 					target = found
 					hash = decodeURIComponent(url.hash.slice(1))
 				} else if (
@@ -212,6 +227,7 @@ export function checkDocumentation(root: string) {
 							url.pathname.replace(/^\/octane-xplat\/octane-xplat\/(?:blob|tree)\/main\//, ''),
 						),
 					)
+
 					hash = decodeURIComponent(url.hash.slice(1))
 				} else if (/^[a-z][a-z\d+.-]*:|^\/\//i.test(href)) {
 					continue // No network requests: external availability is reviewed separately.
@@ -220,19 +236,23 @@ export function checkDocumentation(root: string) {
 					target = file ? resolve(dirname(path), decodeURIComponent(file.split('?')[0])) : path
 					hash = decodeURIComponent(fragment)
 				}
+
 				const rel = relative(root, target)
 				if (rel === '..' || rel.startsWith(`..${sep}`)) {
 					fail(line, `link escapes repository: ${href}`)
 					continue
 				}
+
 				// API routes are derived from public manifests even before generation.
 				if (generated.has(target) && !existsSync(target) && !hash) {
 					continue
 				}
+
 				if (!existsSync(target)) {
 					fail(line, `missing local target: ${href}`)
 					continue
 				}
+
 				if (hash && target.endsWith('.md') && statSync(target).isFile()) {
 					if (!anchors(readFileSync(target, 'utf8'), docs.includes(target)).has(hash)) {
 						fail(line, `missing heading: ${href}`)
@@ -242,6 +262,7 @@ export function checkDocumentation(root: string) {
 				fail(line, `invalid link ${href}: ${String(error)}`)
 			}
 		}
+
 		inventory.push({
 			path: name,
 			kind: site ? 'guide' : readmes.includes(path) ? 'package-readme' : 'contributor-or-entry',
@@ -258,6 +279,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 	if (args.some((arg) => arg !== '--inventory')) {
 		throw new Error('Usage: node scripts/check-docs.ts [--inventory]')
 	}
+
 	const result = checkDocumentation(fileURLToPath(new URL('../', import.meta.url)))
 	if (args.includes('--inventory')) {
 		console.log(JSON.stringify(result, null, 2))
@@ -268,6 +290,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 			`Documentation structure and links pass (${result.inventory.length} files). Prose, API correctness, and runtime behavior require review.`,
 		)
 	}
+
 	if (result.errors.length) {
 		process.exitCode = 1
 	}

@@ -3,6 +3,7 @@ import type { CaptureBackend } from './backend-types'
 const unavailable = (): never => {
 	throw new UnavailabilityError('App view capture on this host')
 }
+
 export const backend: CaptureBackend = {
 	capabilities: () => ({ view: false, screen: false, formats: [], scrollContent: false }),
 	validate: unavailable,

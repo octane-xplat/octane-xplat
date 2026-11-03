@@ -21,6 +21,7 @@ const fixture = vi.hoisted(() => {
 	}
 	return { handlers, element, elements, sdk, loadStripe: vi.fn(async () => sdk) }
 })
+
 vi.mock('@stripe/stripe-js/pure', () => ({ loadStripe: fixture.loadStripe }))
 import { backend } from '../src/backend.web'
 const options = {
@@ -28,6 +29,7 @@ const options = {
 	paymentIntentClientSecret: 'pi_fixture_secret_fixture',
 	returnURL: 'https://example.com/checkout-return',
 }
+
 const turn = () => new Promise((done) => setTimeout(done, 0))
 beforeEach(async () => {
 	vi.clearAllMocks()
@@ -48,6 +50,7 @@ beforeEach(async () => {
 	await backend.reset()
 	await backend.initialize({ publishableKey: 'pk_test_fixture' })
 })
+
 it('mounts SDK-owned input, cancels without confirmation and releases modal ownership', async () => {
 	const focus = document.createElement('button')
 	document.body.append(focus)
@@ -64,6 +67,7 @@ it('mounts SDK-owned input, cancels without confirmation and releases modal owne
 	expect(document.querySelector('dialog')).toBeNull()
 	expect(document.activeElement).toBe(focus)
 })
+
 it('keeps a declined checkout open for retry and prevents concurrent confirmation or cancellation', async () => {
 	await backend.prepare(options)
 	const pending = backend.present()
@@ -83,6 +87,7 @@ it('keeps a declined checkout open for retry and prevents concurrent confirmatio
 	expect(fixture.element.destroy).toHaveBeenCalledTimes(1)
 	expect(document.querySelector('style')).toBeNull()
 })
+
 it('rejects non-card web Intents and handles failed hosted input without retaining DOM', async () => {
 	fixture.sdk.retrievePaymentIntent.mockResolvedValueOnce({
 		paymentIntent: {
@@ -99,6 +104,7 @@ it('rejects non-card web Intents and handles failed hosted input without retaini
 	expect(fixture.element.destroy).toHaveBeenCalledTimes(1)
 	expect(fixture.sdk.confirmPayment).not.toHaveBeenCalled()
 })
+
 it('reports unsupported browser hosts without loading Stripe', () => {
 	const original = HTMLDialogElement.prototype.showModal
 	Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {

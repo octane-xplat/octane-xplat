@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@nativescript-community/gesturehandler', () => import('../test/gesturehandler'))
-vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v * 2 } } }))
+vi.mock('@nativescript/core', () => ({
+	Utils: { layout: { toDevicePixels: (v: number) => v * 2 } },
+}))
 
 import { attachInput } from './input.mobile'
 import {
@@ -21,8 +23,16 @@ describe('native input adapter', () => {
 		try {
 			const [pan] = handlers.slice(-4)
 			expect(pan.options.minDist).toBe(12)
-			pan.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { x: 10, y: 20 } })
-			expect(send).toHaveBeenCalledWith({ kind: 'panStart', at: { x: 10, y: 20 }, pointer: 'touch' })
+			pan.emit(GestureHandlerStateEvent, {
+				state: GestureState.ACTIVE,
+				extraData: { x: 10, y: 20 },
+			})
+
+			expect(send).toHaveBeenCalledWith({
+				kind: 'panStart',
+				at: { x: 10, y: 20 },
+				pointer: 'touch',
+			})
 		} finally {
 			off()
 			vi.unstubAllGlobals()
@@ -49,7 +59,10 @@ describe('native input adapter', () => {
 		const [pan] = handlers.slice(-4)
 		pan.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { x: 10, y: 20 } })
 		pan.emit(GestureHandlerTouchEvent, { state: GestureState.ACTIVE, extraData: { x: 30, y: 40 } })
-		pan.emit(GestureHandlerStateEvent, { state: GestureState.END, extraData: { x: 30, y: 40, velocityX: 900, velocityY: 120 } })
+		pan.emit(GestureHandlerStateEvent, {
+			state: GestureState.END,
+			extraData: { x: 30, y: 40, velocityX: 900, velocityY: 120 },
+		})
 		expect(sent).toEqual([
 			{ kind: 'panStart', at: { x: 10, y: 20 }, pointer: 'touch' },
 			{ kind: 'panMove', at: { x: 30, y: 40 } },
@@ -63,7 +76,10 @@ describe('native input adapter', () => {
 		const off = attachInput(node, { maxZoom: 4 }, (i) => sent.push(i))
 		const [pan] = handlers.slice(-4)
 		pan.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { x: 0, y: 0 } })
-		pan.emit(GestureHandlerStateEvent, { state: GestureState.CANCELLED, extraData: { x: 5, y: 5, velocityX: 100, velocityY: 0 } })
+		pan.emit(GestureHandlerStateEvent, {
+			state: GestureState.CANCELLED,
+			extraData: { x: 5, y: 5, velocityX: 100, velocityY: 0 },
+		})
 		expect(sent.at(-1)).toMatchObject({ kind: 'panEnd', cancelled: true })
 		off()
 	})
@@ -72,9 +88,18 @@ describe('native input adapter', () => {
 		const sent: any[] = []
 		const off = attachInput(node, { maxZoom: 4 }, (i) => sent.push(i))
 		const [, pinch] = handlers.slice(-4)
-		pinch.emit(GestureHandlerStateEvent, { state: GestureState.ACTIVE, extraData: { scale: 1, focalX: 100, focalY: 200 } })
-		pinch.emit(GestureHandlerTouchEvent, { state: GestureState.ACTIVE, extraData: { scale: 1.5, focalX: 100, focalY: 200 } })
-		pinch.emit(GestureHandlerStateEvent, { state: GestureState.END, extraData: { scale: 1.5, focalX: 100, focalY: 200 } })
+		pinch.emit(GestureHandlerStateEvent, {
+			state: GestureState.ACTIVE,
+			extraData: { scale: 1, focalX: 100, focalY: 200 },
+		})
+		pinch.emit(GestureHandlerTouchEvent, {
+			state: GestureState.ACTIVE,
+			extraData: { scale: 1.5, focalX: 100, focalY: 200 },
+		})
+		pinch.emit(GestureHandlerStateEvent, {
+			state: GestureState.END,
+			extraData: { scale: 1.5, focalX: 100, focalY: 200 },
+		})
 		expect(sent[0].kind).toBe('pinchStart')
 		expect(sent[1].kind).toBe('pinchMove')
 		// a/b synthesized symmetric about the focal point; dist grows with scale.

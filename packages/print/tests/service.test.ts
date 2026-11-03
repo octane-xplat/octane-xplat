@@ -6,12 +6,14 @@ const host = vi.hoisted(() => ({
 	select: vi.fn(async () => ({ name: 'Printer', url: 'ipp://fixture' })),
 	remove: vi.fn(),
 }))
+
 vi.mock('../src/backend', () => ({ backend: host }))
 import { printAsync, printToFileAsync, selectPrinterAsync, releasePrintFile } from '../src/service'
 beforeEach(() => {
 	vi.clearAllMocks()
 	host.file.mockResolvedValue({ uri: 'file:///cache/owned.pdf', numberOfPages: 2 })
 })
+
 it('rejects conflicting sources and invalid geometry before native work', async () => {
 	await expect(printAsync({ html: '<p>one</p>', uri: 'file:///two.pdf' })).rejects.toThrow(
 		'Choose HTML',
@@ -29,6 +31,7 @@ it('rejects conflicting sources and invalid geometry before native work', async 
 	expect(host.file).not.toHaveBeenCalled()
 	expect(host.print).not.toHaveBeenCalled()
 })
+
 it('snapshots page settings and normalizes landscape without changing caller input', async () => {
 	const margins = { top: 10, left: 20, bottom: 10, right: 20 }
 	await printAsync({ html: '<p>Document</p>', orientation: 'landscape', margins })
@@ -40,6 +43,7 @@ it('snapshots page settings and normalizes landscape without changing caller inp
 		useMarkupFormatter: false,
 	})
 })
+
 it('serializes PDF export, printing and printer selection around the same owner', async () => {
 	let complete!: (value: { uri: string; numberOfPages: number }) => void
 	host.file.mockReturnValueOnce(
@@ -54,6 +58,7 @@ it('serializes PDF export, printing and printer selection around the same owner'
 	releasePrintFile(await first)
 	await expect(printAsync({ html: 'Three' })).resolves.toBeUndefined()
 })
+
 it('releases only owned PDFs, keeps earlier outputs and permits cleanup retry', async () => {
 	const first = await printToFileAsync({ html: 'One' })
 	host.file.mockResolvedValueOnce({ uri: 'file:///cache/second.pdf', numberOfPages: 1 })
@@ -69,6 +74,7 @@ it('releases only owned PDFs, keeps earlier outputs and permits cleanup retry', 
 	releasePrintFile(second)
 	expect(host.remove.mock.calls.map((call) => call[0])).toEqual([first.uri, first.uri, second.uri])
 })
+
 it('releases the operation lock after native failure', async () => {
 	host.file.mockRejectedValueOnce(new Error('Renderer failed'))
 	await expect(printToFileAsync()).rejects.toThrow('Renderer failed')

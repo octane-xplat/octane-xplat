@@ -4,9 +4,22 @@
 // outline glyph (recorded).
 import { useMemo, useState } from 'octane'
 import {
-	Avatar, HStack, Icon, IconButton, Layout, LayoutContent, List, ListItem,
-	MetadataList, MetadataListItem, Section, SegmentedControl,
-	SegmentedControlItem, Text, Toolbar, VStack,
+	Avatar,
+	HStack,
+	Icon,
+	IconButton,
+	Layout,
+	LayoutContent,
+	List,
+	ListItem,
+	MetadataList,
+	MetadataListItem,
+	Section,
+	SegmentedControl,
+	SegmentedControlItem,
+	Text,
+	Toolbar,
+	VStack,
 } from '@octane-xplat/ui'
 
 interface FileSystemItem {
@@ -205,17 +218,13 @@ const FILESYSTEM: FileSystemItem[] = [
 						id: 'storybook',
 						name: 'storybook',
 						type: 'folder',
-						children: [
-							{ id: 'sb-config', name: '.storybook', type: 'folder', children: [] },
-						],
+						children: [{ id: 'sb-config', name: '.storybook', type: 'folder', children: [] }],
 					},
 					{
 						id: 'sandbox-app',
 						name: 'sandbox',
 						type: 'folder',
-						children: [
-							{ id: 'sandbox-src', name: 'src', type: 'folder', children: [] },
-						],
+						children: [{ id: 'sandbox-src', name: 'src', type: 'folder', children: [] }],
 					},
 				],
 			},
@@ -235,12 +244,18 @@ const detailColumn = {
 
 function findItem(items: FileSystemItem[], id: string): FileSystemItem | null {
 	for (const item of items) {
-		if (item.id === id) {return item}
+		if (item.id === id) {
+			return item
+		}
+
 		if (item.children) {
 			const found = findItem(item.children, id)
-			if (found) {return found}
+			if (found) {
+				return found
+			}
 		}
 	}
+
 	return null
 }
 
@@ -267,28 +282,40 @@ export function FileExplorerTemplate() @{
 					items: selected.children,
 					selectedId: selectedPath[i + 1] ?? null,
 				})
+
 				currentItems = selected.children
 			} else {
 				break
 			}
 		}
+
 		return cols
 	}, [selectedPath])
 
 	const currentFolderName = useMemo(() => {
-		if (selectedPath.length === 0) {return 'Home'}
+		if (selectedPath.length === 0) {
+			return 'Home'
+		}
+
 		const lastId = selectedPath[selectedPath.length - 1]
 		const item = findItem(FILESYSTEM, lastId)
-		if (item?.type === 'folder') {return item.name}
+		if (item?.type === 'folder') {
+			return item.name
+		}
+
 		if (selectedPath.length >= 2) {
 			const parent = findItem(FILESYSTEM, selectedPath[selectedPath.length - 2])
 			return parent?.name ?? 'Home'
 		}
+
 		return 'Home'
 	}, [selectedPath])
 
 	const selectedFile = useMemo(() => {
-		if (selectedPath.length === 0) {return null}
+		if (selectedPath.length === 0) {
+			return null
+		}
+
 		const lastId = selectedPath[selectedPath.length - 1]
 		const item = findItem(FILESYSTEM, lastId)
 		return item?.type === 'file' ? item : null
@@ -412,31 +439,22 @@ export function FileExplorerTemplate() @{
 									{col.items.map((item) => {
 										const isSelected = col.selectedId === item.id
 										const hasChildren =
-											item.type === 'folder' &&
-											item.children != null &&
-											item.children.length > 0
+											item.type === 'folder' && item.children != null && item.children.length > 0
+
 										return (
 											<ListItem
 												key={item.id}
 												label={item.name}
 												startContent={
 													<Icon
-														name={
-															item.type === 'folder'
-																? 'sandbox-folder'
-																: 'sandbox-document'
-														}
+														name={item.type === 'folder' ? 'sandbox-folder' : 'sandbox-document'}
 														color={item.type === 'folder' ? 'accent' : 'secondary'}
 														size={16}
 													/>
 												}
 												endContent={
 													hasChildren ? (
-														<Icon
-															name="sandbox-chevron-right"
-															size={12}
-															color="secondary"
-														/>
+														<Icon name="sandbox-chevron-right" size={12} color="secondary" />
 													) : undefined
 												}
 												onPress={() => handleSelect(colIndex, item.id)}
@@ -449,26 +467,16 @@ export function FileExplorerTemplate() @{
 						)
 					})}
 					{selectedFile ? (
-						<Section
-							padding={6}
-							variant="transparent"
-							style={{ ...scrollable, ...detailColumn }}
-						>
+						<Section padding={6} variant="transparent" style={{ ...scrollable, ...detailColumn }}>
 							<VStack gap={4} hAlign="center">
 								<Avatar name={selectedFile.name} size={96} />
 								<VStack gap={1} hAlign="center">
 									<Text type="label">{selectedFile.name}</Text>
-									<Text type="supporting">
-										{getFileExtension(selectedFile.name)} Document
-									</Text>
+									<Text type="supporting">{getFileExtension(selectedFile.name)} Document</Text>
 								</VStack>
 								<MetadataList title="Information">
-									<MetadataListItem label="Created">
-										March 28, 2026 at 2:15 PM
-									</MetadataListItem>
-									<MetadataListItem label="Modified">
-										Yesterday, 10:27 PM
-									</MetadataListItem>
+									<MetadataListItem label="Created">March 28, 2026 at 2:15 PM</MetadataListItem>
+									<MetadataListItem label="Modified">Yesterday, 10:27 PM</MetadataListItem>
 									<MetadataListItem label="Kind">
 										{getFileExtension(selectedFile.name)} Document
 									</MetadataListItem>

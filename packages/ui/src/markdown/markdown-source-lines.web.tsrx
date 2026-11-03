@@ -15,6 +15,7 @@ export function MdSourceLines(props: {
 	if (props.lines == null) {
 		return <>{props.children}</>
 	}
+
 	return (
 		<div
 			style={{ display: 'contents' }}

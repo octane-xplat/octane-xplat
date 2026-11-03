@@ -80,11 +80,14 @@ function SearchInputControl(inputProps: SearchInputProps) @{
 				if (!v) {
 					return
 				}
+
 				applyEscapeProps(v, props)
 			}}
 			className="vx-search-field"
 			hint={props.placeholder}
-			accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+			accessibilityLabel={
+				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+			}
 			accessibilityHint={props.accessibilityHint}
 			accessibilityState={nativeAccessibilityState({
 				disabled: props.isDisabled,
@@ -118,11 +121,11 @@ function SearchInputControl(inputProps: SearchInputProps) @{
 	</masonview>
 }
 
-
 /** Keep field chrome and its editor owner mounted across label/status changes. */
 export function SearchInput(inputProps: SearchInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
 	const props = useFieldControlProps(inputProps)
+
 	@if (inField) {
 		<SearchInputControl {...inputProps} />
 	} @else {

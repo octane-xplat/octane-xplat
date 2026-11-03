@@ -13,6 +13,7 @@ const server = await createServer({
 		fs: { allow: [fileURLToPath(new URL('../../..', import.meta.url))] },
 	},
 })
+
 let browser
 try {
 	await server.listen()
@@ -33,6 +34,7 @@ try {
 		})
 		return { count: assertions.length }
 	})
+
 	assert.ok(result.count >= 43)
 	console.log(`Chromium Web Crypto: ${result.count} real-engine conformance assertions passed.`)
 } finally {

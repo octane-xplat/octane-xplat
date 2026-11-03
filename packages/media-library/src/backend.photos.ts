@@ -13,6 +13,7 @@ const keys: Record<AssetField, string> = {
 	duration: 'duration',
 	isFavorite: 'isFavorite',
 }
+
 const nativeMedia: Record<string, number> = { unknown: 0, image: 1, video: 2, audio: 3 }
 const mediaNames = ['unknown', 'image', 'video', 'audio'] as const
 const response = (status: number): PermissionResponse => ({
@@ -197,6 +198,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
 					{ cause: error, cleanupError },
 				)
 			}
+
 			throw error
 		}
 	}
@@ -221,6 +223,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
 						resolve(response(Number(status))),
 					),
 				)
+
 				prompts.set(level, pending)
 				void pending.finally(() => prompts.delete(level))
 			}
@@ -296,17 +299,21 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
 				const candidates = Array.from({ length: resources.count }, (_, index) =>
 					resources.objectAtIndex(index),
 				)
+
 				const resource = candidates.find(
 					(item) => Number(item.type) === (Number(value.mediaType) === 2 ? 2 : 1),
 				)
+
 				if (!resource) {
 					throw new Error('The original asset resource is unavailable')
 				}
+
 				const extension =
 					String(resource.originalFilename)
 						.split('.')
 						.pop()
 						?.replace(/[^a-zA-Z0-9]/g, '') || 'bin'
+
 				const request = kit.PHAssetResourceRequestOptions.alloc().init()
 				request.networkAccessAllowed = true
 				return exported(

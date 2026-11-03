@@ -47,10 +47,7 @@ export interface WindowLayer {
 }
 
 export interface WindowLayerDeps {
-	createRoot(
-		contentView: NSView,
-		anchor: NSView,
-	): WindowLayerContentRoot
+	createRoot(contentView: NSView, anchor: NSView): WindowLayerContentRoot
 	fittingSize(view: NSView): NSSize | null | undefined
 	View?: NSClass<NSView>
 	Event?: typeof NSEvent
@@ -126,12 +123,17 @@ export function showWindowLayer(
 		size: { width: 1, height: 1 },
 	})
 
-	const root = options.createContentRoot ? options.createContentRoot(contentView) : createRoot(contentView, anchor)
+	const root = options.createContentRoot
+		? options.createContentRoot(contentView)
+		: createRoot(contentView, anchor)
 	if (!root || typeof root.render !== 'function' || typeof root.unmount !== 'function') {
 		throw new TypeError('AppKit layer content root requires render and unmount')
 	}
 	contentView.hidden = true
-	let ready = false, presented = false, revision = 0, requested = !options.deferPresentation
+	let ready = false,
+		presented = false,
+		revision = 0,
+		requested = !options.deferPresentation
 	let surface = options.props ?? {}
 	let positioning: WindowLayerOptions = options
 	let monitor: any = null
@@ -143,9 +145,12 @@ export function showWindowLayer(
 		}
 
 		if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) {
-			layer.close(true); return
+			layer.close(true)
+			return
 		}
-		if (!ready) {return}
+		if (!ready) {
+			return
+		}
 		const viewport = container.bounds
 		const height = viewport.size.height
 		const rect = anchor.convertRectToView(anchor.bounds, container)
@@ -167,8 +172,13 @@ export function showWindowLayer(
 			height,
 		})
 
-		if (layer.closed) {return}
-		if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) { layer.close(true); return }
+		if (layer.closed) {
+			return
+		}
+		if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) {
+			layer.close(true)
+			return
+		}
 		const frame = {
 			origin: {
 				x: viewport.origin.x + point.left,
@@ -176,22 +186,38 @@ export function showWindowLayer(
 			},
 			size,
 		}
-		if (![frame.origin.x, frame.origin.y, size.width, size.height].every(Number.isFinite) || size.width < 0 || size.height < 0) {
+		if (
+			![frame.origin.x, frame.origin.y, size.width, size.height].every(Number.isFinite) ||
+			size.width < 0 ||
+			size.height < 0
+		) {
 			throw new RangeError('AppKit layer positioning requires finite, nonnegative geometry')
 		}
 		const previous = contentView.frame
-		if (!previous || previous.origin.x !== frame.origin.x || previous.origin.y !== frame.origin.y ||
-			previous.size.width !== size.width || previous.size.height !== size.height) {contentView.frame = frame}
+		if (
+			!previous ||
+			previous.origin.x !== frame.origin.x ||
+			previous.origin.y !== frame.origin.y ||
+			previous.size.width !== size.width ||
+			previous.size.height !== size.height
+		) {
+			contentView.frame = frame
+		}
 	}
 
 	const layer: WindowLayer = {
 		contentView,
 		closed: false,
 		show() {
-			if (layer.closed) {return}
+			if (layer.closed) {
+				return
+			}
 			requested = true
 			updatePosition()
-			if (!layer.closed && ready) { contentView.hidden = false; presented = true }
+			if (!layer.closed && ready) {
+				contentView.hidden = false
+				presented = true
+			}
 		},
 		update(props, nextPositioning) {
 			if (layer.closed) {
@@ -214,40 +240,80 @@ export function showWindowLayer(
 			ready = false
 			root.render(options.component, surface)
 			const committed = () => {
-				if (layer.closed || current !== revision) {return}
+				if (layer.closed || current !== revision) {
+					return
+				}
 				ready = true
 				try {
 					updatePosition()
-					if (requested && !layer.closed) { contentView.hidden = false; presented = true }
+					if (requested && !layer.closed) {
+						contentView.hidden = false
+						presented = true
+					}
 				} catch (error) {
-					try { layer.close() } catch (cleanupError) { console.error('[macos-layer] commit cleanup failed', cleanupError) }
+					try {
+						layer.close()
+					} catch (cleanupError) {
+						console.error('[macos-layer] commit cleanup failed', cleanupError)
+					}
+
 					throw error
 				}
 			}
-			if (root.whenCommitted) {root.whenCommitted(committed)}
-			else {committed()}
+			if (root.whenCommitted) {
+				root.whenCommitted(committed)
+			} else {
+				committed()
+			}
 		},
 		close(dismissed = false) {
-			if (layer.closed) {return}
-			layer.closed = true; revision++; ready = false; presented = false
+			if (layer.closed) {
+				return
+			}
+			layer.closed = true
+			revision++
+			ready = false
+			presented = false
 			const failures: unknown[] = []
-			const clean = (action: () => void) => { try { action() } catch (error) { failures.push(error) } }
-			clean(() => { contentView.hidden = true })
-			const previousMonitor = monitor; monitor = null
-			if (previousMonitor) {clean(() => Event!.removeMonitor(previousMonitor))}
-			for (const observer of observers.splice(0)) {clean(() => Center!.defaultCenter.removeObserver(observer))}
-			for (const release of releases.splice(0)) {clean(release)}
+			const clean = (action: () => void) => {
+				try {
+					action()
+				} catch (error) {
+					failures.push(error)
+				}
+			}
+			clean(() => {
+				contentView.hidden = true
+			})
+			const previousMonitor = monitor
+			monitor = null
+			if (previousMonitor) {
+				clean(() => Event!.removeMonitor(previousMonitor))
+			}
+			for (const observer of observers.splice(0)) {
+				clean(() => Center!.defaultCenter.removeObserver(observer))
+			}
+			for (const release of releases.splice(0)) {
+				clean(release)
+			}
 			clean(() => root.unmount())
 			clean(() => contentView.removeFromSuperview())
-			if (dismissed) {clean(() => options.onClose?.())}
-			if (failures.length) {throw failures[0]}
+			if (dismissed) {
+				clean(() => options.onClose?.())
+			}
+			if (failures.length) {
+				throw failures[0]
+			}
 		},
 	}
 
 	try {
 		container.addSubview(contentView)
 		layer.update(surface)
-		if (layer.closed) {return layer}
+		if (layer.closed) {
+			return layer
+		}
+
 		// Reposition for window resize, anchor movement and enclosing scroll views.
 		for (let view: NSView | null = anchor; view; view = view.superview) {
 			releases.push(ownNotifications(view))
@@ -284,24 +350,45 @@ export function showWindowLayer(
 			),
 		)
 
-		observers.push(Center!.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-			'NSWindowDidUpdateNotification', null, null,
-			(note: { object?: unknown }) => { if (note?.object === ownerWindow || note?.object === anchor.window) {updatePosition()} },
-		))
+		observers.push(
+			Center!.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+				'NSWindowDidUpdateNotification',
+				null,
+				null,
+				(note: { object?: unknown }) => {
+					if (note?.object === ownerWindow || note?.object === anchor.window) {
+						updatePosition()
+					}
+				},
+			),
+		)
 
 		if (Event?.addLocalMonitorForEventsMatchingMaskHandler) {
 			monitor = Event.addLocalMonitorForEventsMatchingMaskHandler(
 				(1 << 1) | (1 << 3) | (1 << 25),
 				(event: NSEvent) => {
-					if (layer.closed) {return event}
-					if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) { layer.close(true); return event }
-					if (!presented || !positioning.lightDismiss || event.window !== ownerWindow) {return event}
+					if (layer.closed) {
+						return event
+					}
+					if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) {
+						layer.close(true)
+						return event
+					}
+					if (!presented || !positioning.lightDismiss || event.window !== ownerWindow) {
+						return event
+					}
 
 					const point = container.convertPointFromView(event.locationInWindow, null)
 					if (positioning.excludeAnchorFromDismiss) {
 						const rect = anchor.convertRectToView(anchor.bounds, container)
-						if (point.x >= rect.origin.x && point.y >= rect.origin.y &&
-							point.x <= rect.origin.x + rect.size.width && point.y <= rect.origin.y + rect.size.height) {return event}
+						if (
+							point.x >= rect.origin.x &&
+							point.y >= rect.origin.y &&
+							point.x <= rect.origin.x + rect.size.width &&
+							point.y <= rect.origin.y + rect.size.height
+						) {
+							return event
+						}
 					}
 					const frame = contentView.frame
 					if (
@@ -320,7 +407,12 @@ export function showWindowLayer(
 
 		return layer
 	} catch (error) {
-		try { layer.close() } catch (cleanupError) { console.error('[macos-layer] setup cleanup failed', cleanupError) }
+		try {
+			layer.close()
+		} catch (cleanupError) {
+			console.error('[macos-layer] setup cleanup failed', cleanupError)
+		}
+
 		throw error
 	}
 }

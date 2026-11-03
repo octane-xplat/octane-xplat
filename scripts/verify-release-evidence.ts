@@ -104,6 +104,7 @@ if (mode === 'verify') {
 	} else {
 		assert.ok(sha, '--sha required')
 	}
+
 	const repo = process.env.GITHUB_REPOSITORY
 	assert.ok(repo, 'GITHUB_REPOSITORY required')
 	const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
@@ -135,6 +136,7 @@ if (mode === 'verify') {
 			track === 'stable'
 				? `repos/${repo}/actions/workflows/${workflow}/runs?event=${event}&branch=release/lockstep&status=completed&per_page=20`
 				: `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}&status=completed&event=${event}&per_page=10`
+
 		const runs = JSON.parse(gh(query))
 
 		for (const run of runs.workflow_runs ?? []) {
@@ -153,8 +155,10 @@ if (mode === 'verify') {
 				if (process.env.GITHUB_OUTPUT) {
 					appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
 				}
+
 				process.exit(0)
 			}
+
 			assert.ok(
 				evidenceRunId,
 				`no completed CI run for ${sha} carried release evidence — ` +

@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useEffect, useRef, useState } from 'octane'
 import type { PinInputProps, TextInputHandle } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FieldContext, useFieldControlProps } from './field-context'
 import { NativeToggleField } from './NativeToggleField.tsrx'
 import { TextInput } from './TextInput.tsrx'
@@ -77,9 +82,13 @@ function PinInputControl(props: PinInputProps) @{
 		accessibilityRole={nativeAccessibilityRole('group')}
 		accessibilityLabel={fieldProps.ariaLabel ?? fieldProps.fieldLabel}
 		accessibilityHint={fieldProps.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: fieldProps.isDisabled,
-			readOnly: fieldProps.isReadOnly, required: fieldProps.isRequired,
-			busy: fieldProps.isLoading, invalid: fieldProps.status?.type === 'error' })}
+		accessibilityState={nativeAccessibilityState({
+			disabled: fieldProps.isDisabled,
+			readOnly: fieldProps.isReadOnly,
+			required: fieldProps.isRequired,
+			busy: fieldProps.isLoading,
+			invalid: fieldProps.status?.type === 'error',
+		})}
 	>
 		@for (const i of Array.from({ length }, (_, k) => k); key i) {
 			<TextInput
@@ -108,6 +117,7 @@ function PinInputControl(props: PinInputProps) @{
 /** One field owns the group; numbered editors retain unique identities. */
 export function PinInput(props: PinInputProps): unknown @{
 	const inField = useContext(FieldContext) != null
+
 	@if (inField) {
 		<PinInputControl {...props} />
 	} @else {

@@ -15,21 +15,25 @@ type ObserverBridge = {
 	new (listener: unknown): NativeObserver
 	Listener: new (methods: { changed(): void }) => unknown
 }
+
 function observerBridge(): ObserverBridge | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'medialibrary', 'LibraryObserver']) as
 		| ObserverBridge
 		| undefined
 }
+
 const available = () =>
 	typeof android !== 'undefined' &&
 	android.os.Build.VERSION.SDK_INT >= 29 &&
 	Boolean(Application.android && observerBridge())
+
 function context(): android.content.Context {
 	if (!available()) {
 		throw new UnavailabilityError('MediaLibrary on Android 10+ with its native plugin')
 	}
 	return Application.android.context
 }
+
 const resolver = () => context().getContentResolver()
 const root = () => android.provider.MediaStore.Files.getContentUri('external')
 const sdk = () => android.os.Build.VERSION.SDK_INT
@@ -39,15 +43,19 @@ const granularNames: Record<GranularPermission, string> = {
 	video: 'android.permission.READ_MEDIA_VIDEO',
 	audio: 'android.permission.READ_MEDIA_AUDIO',
 }
+
 const defaults: GranularPermission[] = ['photo', 'video', 'audio']
 const granted = (permission: string) =>
 	context().checkSelfPermission(permission) === android.content.pm.PackageManager.PERMISSION_GRANTED
+
 const preferences = () =>
 	context().getSharedPreferences('octane-xplat-media-library', android.content.Context.MODE_PRIVATE)
+
 const namesFor = (granular: GranularPermission[]) =>
 	sdk() >= 33
 		? granular.map((value) => granularNames[value])
 		: ['android.permission.READ_EXTERNAL_STORAGE']
+
 function permissionResponse(writeOnly: boolean, granular = defaults): PermissionResponse {
 	if (writeOnly) {
 		return {
@@ -85,6 +93,7 @@ function permissionResponse(writeOnly: boolean, granular = defaults): Permission
 		accessPrivileges: all ? 'all' : limited ? 'limited' : 'none',
 	}
 }
+
 function assertReadable(): void {
 	context()
 	const any =
@@ -96,6 +105,7 @@ function assertReadable(): void {
 		throw new Error('Media-library read permission is required')
 	}
 }
+
 let requestCode = 22528
 let presentation = Promise.resolve()
 function serialized<T>(action: () => Promise<T>): Promise<T> {
@@ -106,6 +116,7 @@ function serialized<T>(action: () => Promise<T>): Promise<T> {
 	)
 	return operation
 }
+
 const prompts = new Map<string, Promise<PermissionResponse>>()
 async function permissions(
 	request: boolean,
@@ -190,12 +201,14 @@ async function permissions(
 	)
 	return operation
 }
+
 function mediaUri(id: string): android.net.Uri {
 	if (!/^content:\/\/media\/[^/]+\/(?:images\/media|video\/media|audio\/media)\/\d+$/.test(id)) {
 		throw new TypeError('Expected a MediaStore asset identifier')
 	}
 	return android.net.Uri.parse(id)
 }
+
 const columns: Record<AssetField, string> = {
 	creationTime: 'datetaken',
 	modificationTime: 'date_modified',
@@ -205,6 +218,7 @@ const columns: Record<AssetField, string> = {
 	duration: 'duration',
 	isFavorite: 'is_favorite',
 }
+
 const mediaNumbers: Record<string, number> = { image: 1, audio: 2, video: 3, unknown: 0 }
 const projections = [
 	'_id',
@@ -220,14 +234,17 @@ const projections = [
 	'bucket_display_name',
 	'relative_path',
 ]
+
 const nullableNumber = (cursor: android.database.Cursor, column: string): number | null => {
 	const index = cursor.getColumnIndex(column)
 	return index < 0 || cursor.isNull(index) ? null : Number(cursor.getLong(index))
 }
+
 const nullableString = (cursor: android.database.Cursor, column: string): string | null => {
 	const index = cursor.getColumnIndex(column)
 	return index < 0 || cursor.isNull(index) ? null : String(cursor.getString(index))
 }
+
 function metadata(cursor: android.database.Cursor): AssetMetadata {
 	const kind = nullableNumber(cursor, 'media_type'),
 		row = nullableString(cursor, '_id')
@@ -254,6 +271,7 @@ function metadata(cursor: android.database.Cursor): AssetMetadata {
 		isFavorite: nullableNumber(cursor, 'is_favorite') === 1,
 	}
 }
+
 function cursorFor(
 	uri: android.net.Uri,
 	selection: string | null = null,
@@ -272,6 +290,7 @@ function cursorFor(
 	}
 	return cursor
 }
+
 function rowFor(id: string): AssetMetadata {
 	assertReadable()
 	const cursor = cursorFor(mediaUri(id))
@@ -279,11 +298,13 @@ function rowFor(id: string): AssetMetadata {
 		if (!cursor.moveToFirst()) {
 			throw new Error('Asset is missing or outside the granted library scope')
 		}
+
 		return metadata(cursor)
 	} finally {
 		cursor.close()
 	}
 }
+
 function query(spec: QuerySpec): AssetMetadata[] {
 	assertReadable()
 	const where = ['media_type IN (1,2,3)', 'is_pending = 0'],
@@ -297,16 +318,20 @@ function query(spec: QuerySpec): AssetMetadata[] {
 		if (filter.field === 'isFavorite' && sdk() < 30) {
 			throw new UnavailabilityError('MediaStore favorite filters on Android 10')
 		}
+
 		const values = Array.isArray(filter.value) ? filter.value : [filter.value]
 		if (filter.operator === 'within' && !values.length) {
 			return []
 		}
+
 		const operator = { eq: '=', within: 'IN', gt: '>', gte: '>=', lt: '<', lte: '<=' }[
 			filter.operator
 		]
+
 		where.push(
 			`${columns[filter.field]} ${operator} ${filter.operator === 'within' ? `(${values.map(() => '?').join(',')})` : '?'}`,
 		)
+
 		for (const value of values) {
 			const converted =
 				filter.field === 'mediaType'
@@ -315,9 +340,11 @@ function query(spec: QuerySpec): AssetMetadata[] {
 						? Number(value)
 						: Number(value) *
 							(filter.field === 'creationTime' || filter.field === 'duration' ? 1000 : 1)
+
 			if (!Number.isFinite(converted)) {
 				throw new RangeError('Query value is outside the supported numeric range')
 			}
+
 			args.push(String(converted))
 		}
 	}
@@ -339,11 +366,13 @@ function query(spec: QuerySpec): AssetMetadata[] {
 		while ((spec.limit === undefined || rows.length < spec.limit) && cursor.moveToNext()) {
 			rows.push(metadata(cursor))
 		}
+
 		return rows
 	} finally {
 		cursor.close()
 	}
 }
+
 function albums(): Array<AlbumMetadata & { path: string }> {
 	assertReadable()
 	const cursor = cursorFor(root(), 'media_type IN (1,2,3) AND is_pending = 0')
@@ -353,15 +382,18 @@ function albums(): Array<AlbumMetadata & { path: string }> {
 			const id = nullableString(cursor, 'bucket_id'),
 				name = nullableString(cursor, 'bucket_display_name'),
 				path = nullableString(cursor, 'relative_path')
+
 			if (id !== null && name !== null && path !== null) {
 				result.set(id, { id, title: name, type: null, path })
 			}
 		}
+
 		return [...result.values()]
 	} finally {
 		cursor.close()
 	}
 }
+
 function album(id: string) {
 	assertReadable()
 	const cursor = cursorFor(root(), 'bucket_id = ? AND media_type IN (1,2,3) AND is_pending = 0', [
@@ -371,11 +403,14 @@ function album(id: string) {
 		if (!cursor.moveToFirst()) {
 			throw new Error('Album is missing or outside the granted library scope')
 		}
+
 		const title = nullableString(cursor, 'bucket_display_name'),
 			path = nullableString(cursor, 'relative_path')
+
 		if (title === null || path === null) {
 			throw new Error('Album metadata is unavailable')
 		}
+
 		return { id, title, path, type: null, count: cursor.getCount() }
 	} finally {
 		cursor.close()
@@ -436,6 +471,7 @@ function confirm(intent: android.app.PendingIntent): Promise<void> {
 			}),
 	)
 }
+
 function uriList(ids: string[]) {
 	const result = new java.util.ArrayList<android.net.Uri>()
 	for (const id of ids) {
@@ -443,11 +479,13 @@ function uriList(ids: string[]) {
 	}
 	return result
 }
+
 async function writable(ids: string[]): Promise<void> {
 	if (ids.length && sdk() >= 30) {
 		await confirm(android.provider.MediaStore.createWriteRequest(resolver(), uriList(ids)))
 	}
 }
+
 function recoverable(error: unknown): android.app.RecoverableSecurityException | undefined {
 	const value =
 		typeof error === 'object' && error !== null && 'nativeException' in error
@@ -455,6 +493,7 @@ function recoverable(error: unknown): android.app.RecoverableSecurityException |
 			: error
 	return value instanceof android.app.RecoverableSecurityException ? value : undefined
 }
+
 async function removeAssets(ids: string[]): Promise<void> {
 	context()
 	if (!ids.length) {
@@ -482,11 +521,13 @@ async function removeAssets(ids: string[]): Promise<void> {
 		}
 	}
 }
+
 function valuesForPath(path: string) {
 	const values = new android.content.ContentValues()
 	values.put('relative_path', path)
 	return values
 }
+
 async function move(ids: string[], path: string): Promise<void> {
 	await writable(ids)
 	for (const id of ids) {
@@ -507,6 +548,7 @@ async function move(ids: string[], path: string): Promise<void> {
 		}
 	}
 }
+
 async function create(file: string, targetPath?: string): Promise<string> {
 	const uri = android.net.Uri.parse(file),
 		local = uri.getPath()
@@ -524,6 +566,7 @@ async function create(file: string, targetPath?: string): Promise<string> {
 	}
 	return publishCopy(source.getName(), mime, targetPath, () => new java.io.FileInputStream(source))
 }
+
 async function copyAsset(id: string, targetPath: string): Promise<string> {
 	const value = rowFor(id),
 		uri = mediaUri(id),
@@ -544,6 +587,7 @@ async function copyAsset(id: string, targetPath: string): Promise<string> {
 		},
 	)
 }
+
 async function publishCopy(
 	filename: string,
 	mime: string,
@@ -581,6 +625,7 @@ async function publishCopy(
 			if (!output) {
 				throw new Error('MediaStore did not open the asset for writing')
 			}
+
 			try {
 				const bytes = java.nio.ByteBuffer.allocate(65536).array()
 				let count: number
@@ -593,11 +638,13 @@ async function publishCopy(
 		} finally {
 			input.close()
 		}
+
 		const finished = new android.content.ContentValues()
 		finished.put('is_pending', java.lang.Integer.valueOf(0))
 		if (resolver().update(destination, finished, null, null) < 1) {
 			throw new Error('MediaStore could not publish the created asset')
 		}
+
 		return String(destination)
 	} catch (error) {
 		resolver().delete(destination, null, null)
@@ -656,6 +703,7 @@ export const backend: LibraryBackend = {
 				if (!cursor.moveToFirst()) {
 					throw new Error('Asset is missing')
 				}
+
 				const id = nullableString(cursor, 'bucket_id')
 				return id === null ? [] : [album(id)]
 			} finally {
@@ -707,10 +755,12 @@ export const backend: LibraryBackend = {
 			if (!cursor.moveToFirst()) {
 				throw new Error('Created album cannot be resolved')
 			}
+
 			const id = nullableString(cursor, 'bucket_id')
 			if (id === null) {
 				throw new Error('MediaStore returned no album identifier')
 			}
+
 			return id
 		} finally {
 			cursor.close()

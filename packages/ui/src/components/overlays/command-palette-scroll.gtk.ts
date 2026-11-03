@@ -25,8 +25,12 @@ export function scrollCommandPaletteHighlight(row: any): void {
 			}
 
 			adj.set_value(
-				Math.max(adj.get_lower(), Math.min(value, Math.max(adj.get_lower(), adj.get_upper() - page))),
+				Math.max(
+					adj.get_lower(),
+					Math.min(value, Math.max(adj.get_lower(), adj.get_upper() - page)),
+				),
 			)
+
 			return
 		}
 	}

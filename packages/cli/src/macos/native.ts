@@ -529,7 +529,7 @@ export async function inspectMacOSNative(appRoot) {
 	// where `xcrun --find` cannot select a separately installed toolchain.
 	const swift = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.swift'))
 		? process.env.XPLAT_MACOS_SWIFTC ||
-				(await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler'))
+			(await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler'))
 		: null
 
 	const zig = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.zig'))
@@ -854,6 +854,7 @@ export async function buildMacOSNative(
 				['-gUj', join(staging, 'arm64', outputName)],
 				`${leaf.name}: inspect exports`,
 			)
+
 			for (const symbol of exports
 				.split('\n')
 				.filter((symbol) => /^_[A-Za-z]/.test(symbol) && !symbol.startsWith('_swift_FORCE_LOAD'))) {

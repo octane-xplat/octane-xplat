@@ -5,10 +5,28 @@
 // `onChange` → `onValueChange`.
 import { useCallback, useState } from 'octane'
 import {
-	Button, Card, CodeBlock, copyText, Divider, DropdownMenu, Heading, HStack,
-	Icon, Layout, LayoutContent, LayoutPanel, List, ListItem, Outline,
-	Selector, StackItem, Text, useMediaQuery, VStack,
+	Button,
+	Card,
+	CodeBlock,
+	copyText,
+	Divider,
+	DropdownMenu,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	List,
+	ListItem,
+	Outline,
+	Selector,
+	StackItem,
+	Text,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { OutlineItem } from '@octane-xplat/ui'
 
 const OUTLINE_ITEMS: OutlineItem[] = [
@@ -75,7 +93,11 @@ export function DocumentationTechnicalTemplate() @{
 								isLabelHidden
 								options={OUTLINE_OPTIONS}
 								value={activeId}
-								onValueChange={(id) => { if (id != null) {scrollToId(id)} }}
+								onValueChange={(id) => {
+									if (id != null) {
+										scrollToId(id)
+									}
+								}}
 								width="100%"
 							/>
 						) : null}
@@ -97,7 +119,9 @@ export function DocumentationTechnicalTemplate() @{
 									variant="ghost"
 									size="sm"
 									icon={<Icon name="sandbox-clipboard-document" />}
-									clickAction={async () => { await copyText(AI_PROMPT) }}
+									clickAction={async () => {
+										await copyText(AI_PROMPT)
+									}}
 								/>
 								<DropdownMenu
 									button={{
@@ -110,16 +134,20 @@ export function DocumentationTechnicalTemplate() @{
 									items={[
 										{ type: 'action', key: 'v0', label: 'Open in v0', onSelect: () => {} },
 										{ type: 'action', key: 'claude', label: 'Open in Claude', onSelect: () => {} },
-										{ type: 'action', key: 'chatgpt', label: 'Open in ChatGPT', onSelect: () => {} },
+										{
+											type: 'action',
+											key: 'chatgpt',
+											label: 'Open in ChatGPT',
+											onSelect: () => {},
+										},
 										{ type: 'action', key: 'cursor', label: 'Open in Cursor', onSelect: () => {} },
 									]}
 								/>
 							</HStack>
 							<Text type="body" color="secondary">
-								Help me get set up with Product Name. Based on my project, do
-								the following: 1. Install @astryxdesign/core and the StyleX
-								compiler. 2. Wrap my app in ThemeProvider. 3. Replace one
-								existing component with an Astryx equivalent.
+								Help me get set up with Product Name. Based on my project, do the following: 1.
+								Install @astryxdesign/core and the StyleX compiler. 2. Wrap my app in ThemeProvider.
+								3. Replace one existing component with an Astryx equivalent.
 							</Text>
 						</VStack>
 					</Card>
@@ -142,27 +170,22 @@ export function DocumentationTechnicalTemplate() @{
 							Install the package
 						</Heading>
 						<Text type="body">
-							Every project starts with installing the core package. This
-							gives you access to all components, tokens, and utilities.
+							Every project starts with installing the core package. This gives you access to all
+							components, tokens, and utilities.
 						</Text>
 						<VStack gap={2}>
 							<Text type="body" weight="bold">
 								Step 1: Install the core package
 							</Text>
-							<CodeBlock
-								code="npm install @astryxdesign/core"
-								language="bash"
-								width="100%"
-							/>
+							<CodeBlock code="npm install @astryxdesign/core" language="bash" width="100%" />
 						</VStack>
 						<VStack gap={2}>
 							<Text type="body" weight="bold">
 								Step 2: Import the precompiled styles
 							</Text>
 							<Text type="body" color="secondary">
-								Astryx ships precompiled CSS, so there is no build plugin to
-								configure. Import the reset and component stylesheets once at
-								your app entry point.
+								Astryx ships precompiled CSS, so there is no build plugin to configure. Import the
+								reset and component stylesheets once at your app entry point.
 							</Text>
 							<CodeBlock
 								code={`import '@astryxdesign/core/reset.css';\nimport '@astryxdesign/core/astryx.css';`}
@@ -189,9 +212,8 @@ export function DocumentationTechnicalTemplate() @{
 							Configure theming
 						</Heading>
 						<Text type="body">
-							Astryx ships with a default theme that works out of the box. To
-							customize colors, typography, and spacing, wrap your app in a
-							theme provider.
+							Astryx ships with a default theme that works out of the box. To customize colors,
+							typography, and spacing, wrap your app in a theme provider.
 						</Text>
 						<CodeBlock
 							code={`import { ThemeProvider } from '@astryxdesign/core/Theme';\n\nexport default function App({ children }) {\n  return (\n    <ThemeProvider theme="default">\n      {children}\n    </ThemeProvider>\n  );\n}`}

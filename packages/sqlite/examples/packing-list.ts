@@ -32,6 +32,7 @@ export async function openPackingList(name = 'packing.db', allowTransient = fals
 				'Durable storage is unavailable. Changes would be lost when this session ends.',
 			)
 		}
+
 		await migratePackingList(db)
 	} catch (error) {
 		await db.close()

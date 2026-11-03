@@ -14,7 +14,12 @@ import { Popover } from './Popover.macos.tsrx'
 import { TextSlot } from '../forms/text-slot.tsrx'
 import { AppKitMenuReturnProvider, createAppKitMenuReturn } from './menu-return.macos'
 import { appKitHost } from '../../internal/platform/host-bridge'
-import { appKitContextMenuOrigin, appKitContextPointerOrigin, appKitContextMenuContains } from './context-menu-origin.macos'
+import {
+	appKitContextMenuOrigin,
+	appKitContextPointerOrigin,
+	appKitContextMenuContains,
+} from './context-menu-origin.macos'
+
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 
 /** Self-drawn AppKit context actions: pointer intent stays with the native
@@ -26,10 +31,18 @@ export function ContextMenu<
 >(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
 
 export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
-	const anchor = useRef<NSView | null>(null), trigger = useRef<NSView | null>(null), origin = useRef<NSView | null>(null)
+	const anchor = useRef<NSView | null>(null),
+		trigger = useRef<NSView | null>(null),
+		origin = useRef<NSView | null>(null)
+
 	const contextLease = useRef<(() => void) | null>(null)
-	const bridge = appKitHost(), observeContext = bridge?.observeContextMenu
-	const contextSupported = Boolean(bridge?.contextMenuEventsSupported && typeof observeContext === 'function')
+	const bridge = appKitHost(),
+		observeContext = bridge?.observeContextMenu
+
+	const contextSupported = Boolean(
+		bridge?.contextMenuEventsSupported && typeof observeContext === 'function',
+	)
+
 	const [internal, setInternal] = useState(props.defaultOpen ?? false)
 	const controlled = props.isOpen !== undefined
 	const requestedOpen = props.isOpen ?? internal
@@ -49,51 +62,139 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 
 	const live = useRef({ props, open, setOpen })
 	live.current = { props, open, setOpen }
-	const returnOwner = useMemo(() => createAppKitMenuReturn({
-		anchor: () => appKitContextMenuOrigin(anchor.current, origin.current) ?? appKitContextMenuOrigin(anchor.current, trigger.current),
-		open: () => live.current.open, close: () => live.current.setOpen(false),
-	}), [])
-	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
-	const closeMenu = () => { returnOwner.reset(); setOpen(false) }
-	const openPointer = (toggle = false) => {
-		if (!anchor.current || live.current.props.isDisabled) return
-		origin.current = appKitContextMenuOrigin(anchor.current, trigger.current)
-		returnOwner.reset(); live.current.setOpen(toggle ? !live.current.open : true)
+	const returnOwner = useMemo(
+		() =>
+			createAppKitMenuReturn({
+				anchor: () =>
+					appKitContextMenuOrigin(anchor.current, origin.current) ??
+					appKitContextMenuOrigin(anchor.current, trigger.current),
+				open: () => live.current.open,
+				close: () => live.current.setOpen(false),
+			}),
+		[],
+	)
+
+	const finalFocus = useMemo(
+		() => ({
+			get current() {
+				return returnOwner.focusTarget()
+			},
+		}),
+		[],
+	)
+
+	const closeMenu = () => {
+		returnOwner.reset()
+		setOpen(false)
 	}
+
+	const openPointer = (toggle = false) => {
+		if (!anchor.current || live.current.props.isDisabled) {
+			return
+		}
+
+		origin.current = appKitContextMenuOrigin(anchor.current, trigger.current)
+		returnOwner.reset()
+		live.current.setOpen(toggle ? !live.current.open : true)
+	}
+
 	const keyDown = (event: NativeKeyboardEvent<NSView>) => {
 		const current = live.current
-		const opens = (event.key === 'F10' && event.shiftKey) || (event.key === 'ContextMenu' && !event.shiftKey)
-		if (!anchor.current || current.props.isDisabled || current.open || event.defaultPrevented || event.isComposing ||
-			event.altKey || event.ctrlKey || event.metaKey || !opens) return
+		const opens =
+			(event.key === 'F10' && event.shiftKey) || (event.key === 'ContextMenu' && !event.shiftKey)
+
+		if (
+			!anchor.current ||
+			current.props.isDisabled ||
+			current.open ||
+			event.defaultPrevented ||
+			event.isComposing ||
+			event.altKey ||
+			event.ctrlKey ||
+			event.metaKey ||
+			!opens
+		) {
+			return
+		}
+
 		const target = appKitContextMenuOrigin(anchor.current, event.target)
-		if (!target) return
-		origin.current = target; returnOwner.reset()
-		event.preventDefault(); event.stopPropagation(); current.setOpen(true)
+		if (!target) {
+			return
+		}
+
+		origin.current = target
+		returnOwner.reset()
+		event.preventDefault()
+		event.stopPropagation()
+		current.setOpen(true)
 	}
-	const bind = useCallback((view: NSView | null) => {
-		contextLease.current?.(); contextLease.current = null
-		anchor.current = view
-		if (!view) { origin.current = null; return }
-		applyEscapeProps(view, live.current.props)
-		if (!contextSupported) return
-		const off = observeContext(view, (target: NSView) => {
-			if (anchor.current !== view || live.current.props.isDisabled || !appKitContextMenuContains(view, target)) return false
-			origin.current = appKitContextPointerOrigin(view, target) ?? appKitContextMenuOrigin(view, trigger.current)
-			returnOwner.reset(); live.current.setOpen(true)
-			return true
-		})
-		if (typeof off !== 'function') throw new Error('AppKit context intent ownership unavailable')
-		contextLease.current = off
-	}, [observeContext, contextSupported])
-	useLayoutEffect(() => () => { contextLease.current?.(); contextLease.current = null; origin.current = null }, [])
+
+	const bind = useCallback(
+		(view: NSView | null) => {
+			contextLease.current?.()
+			contextLease.current = null
+			anchor.current = view
+			if (!view) {
+				origin.current = null
+				return
+			}
+
+			applyEscapeProps(view, live.current.props)
+			if (!contextSupported) {
+				return
+			}
+
+			const off = observeContext(view, (target: NSView) => {
+				if (
+					anchor.current !== view ||
+					live.current.props.isDisabled ||
+					!appKitContextMenuContains(view, target)
+				) {
+					return false
+				}
+
+				origin.current =
+					appKitContextPointerOrigin(view, target) ?? appKitContextMenuOrigin(view, trigger.current)
+
+				returnOwner.reset()
+				live.current.setOpen(true)
+				return true
+			})
+
+			if (typeof off !== 'function') {
+				throw new Error('AppKit context intent ownership unavailable')
+			}
+
+			contextLease.current = off
+		},
+		[observeContext, contextSupported],
+	)
+
+	useLayoutEffect(
+		() => () => {
+			contextLease.current?.()
+			contextLease.current = null
+			origin.current = null
+		},
+		[],
+	)
 
 	useLayoutEffect(() => {
-		if (anchor.current) applyEscapeProps(anchor.current, props)
+		if (anchor.current) {
+			applyEscapeProps(anchor.current, props)
+		}
 	}, [props])
-	useLayoutEffect(() => { if (open) returnOwner.reset() }, [open])
+
+	useLayoutEffect(() => {
+		if (open) {
+			returnOwner.reset()
+		}
+	}, [open])
 
 	useEffect(() => {
-		if (props.isDisabled && requestedOpen) setOpen(false)
+		if (props.isDisabled && requestedOpen) {
+			setOpen(false)
+		}
 	}, [props.isDisabled, requestedOpen])
 
 	<masonview
@@ -130,7 +231,11 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
 			className={cx('vx-menu', props.menuClassName)}
 		>
 			<AppKitMenuReturnProvider value={returnOwner}>
-				<MenuSurface closeMenu={closeMenu} initialFocus="first" label={props.accessibilityLabel ?? props.label}>
+				<MenuSurface
+					closeMenu={closeMenu}
+					initialFocus="first"
+					label={props.accessibilityLabel ?? props.label}
+				>
 					<MenuData items={props.items} />
 					{props.menu}
 				</MenuSurface>

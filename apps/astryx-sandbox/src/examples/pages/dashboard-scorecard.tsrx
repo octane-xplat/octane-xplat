@@ -6,11 +6,29 @@
 // icons render via the sandbox registry (heroicon names → sandbox-*).
 import { useMemo, useState } from 'octane'
 import {
-	Avatar, Badge, Button, Card, Divider, Grid, Heading, HStack, Icon,
-	Layout, LayoutContent, LayoutHeader, LayoutPanel, ProgressBar,
-	SegmentedControl, SegmentedControlItem, StackItem, Text, Timestamp,
-	useMediaQuery, VStack,
+	Avatar,
+	Badge,
+	Button,
+	Card,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	ProgressBar,
+	SegmentedControl,
+	SegmentedControlItem,
+	StackItem,
+	Text,
+	Timestamp,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
+
 import { ChartLines } from './charts.tsrx'
 
 type Period = 'WoW' | 'MoM' | 'QoQ'
@@ -53,30 +71,102 @@ const RAG_PROGRESS: Record<Rag, 'success' | 'warning' | 'error'> = {
 function ragFor(deltaPct: number, higherIsBetter: boolean): Rag {
 	const favorable = higherIsBetter ? deltaPct >= 0 : deltaPct <= 0
 	const mag = Math.abs(deltaPct)
-	if (!favorable && mag >= 1.5) {return 'red'}
-	if (!favorable || mag < 1) {return 'amber'}
+	if (!favorable && mag >= 1.5) {
+		return 'red'
+	}
+
+	if (!favorable || mag < 1) {
+		return 'amber'
+	}
+
 	return 'green'
 }
 
 const KPIS: Kpi[] = [
-	{ key: 'revenue', label: 'Net revenue', value: '$4.82M', delta: { WoW: 2.4, MoM: 6.1, QoQ: 14.3 }, higherIsBetter: true },
-	{ key: 'arr', label: 'ARR', value: '$58.1M', delta: { WoW: 1.1, MoM: 3.8, QoQ: 11.2 }, higherIsBetter: true },
-	{ key: 'nrr', label: 'Net revenue retention', value: '112%', delta: { WoW: 0.3, MoM: -0.8, QoQ: 2.1 }, higherIsBetter: true },
-	{ key: 'churn', label: 'Gross churn', value: '1.9%', delta: { WoW: 0.4, MoM: 1.6, QoQ: -0.7 }, higherIsBetter: false },
-	{ key: 'cac', label: 'CAC payback', value: '14.2 mo', delta: { WoW: -0.2, MoM: -3.4, QoQ: -8.1 }, higherIsBetter: false },
-	{ key: 'nps', label: 'NPS', value: '48', delta: { WoW: 1.0, MoM: 4.0, QoQ: 6.0 }, higherIsBetter: true },
+	{
+		key: 'revenue',
+		label: 'Net revenue',
+		value: '$4.82M',
+		delta: { WoW: 2.4, MoM: 6.1, QoQ: 14.3 },
+		higherIsBetter: true,
+	},
+	{
+		key: 'arr',
+		label: 'ARR',
+		value: '$58.1M',
+		delta: { WoW: 1.1, MoM: 3.8, QoQ: 11.2 },
+		higherIsBetter: true,
+	},
+	{
+		key: 'nrr',
+		label: 'Net revenue retention',
+		value: '112%',
+		delta: { WoW: 0.3, MoM: -0.8, QoQ: 2.1 },
+		higherIsBetter: true,
+	},
+	{
+		key: 'churn',
+		label: 'Gross churn',
+		value: '1.9%',
+		delta: { WoW: 0.4, MoM: 1.6, QoQ: -0.7 },
+		higherIsBetter: false,
+	},
+	{
+		key: 'cac',
+		label: 'CAC payback',
+		value: '14.2 mo',
+		delta: { WoW: -0.2, MoM: -3.4, QoQ: -8.1 },
+		higherIsBetter: false,
+	},
+	{
+		key: 'nps',
+		label: 'NPS',
+		value: '48',
+		delta: { WoW: 1.0, MoM: 4.0, QoQ: 6.0 },
+		higherIsBetter: true,
+	},
 ]
 
 const OKRS: Okr[] = [
-	{ objective: 'Reach $60M ARR', owner: 'Dana Whitfield · CRO', actual: 58.1, target: 60, unit: 'M' },
-	{ objective: 'Expand into 3 new enterprise verticals', owner: 'Marcus Lin · VP Sales', actual: 2, target: 3, unit: '' },
-	{ objective: 'Ship AI copilot GA', owner: 'Priya Raman · VP Product', actual: 82, target: 100, unit: '%' },
-	{ objective: 'Improve gross margin to 78%', owner: 'Tom Okafor · CFO', actual: 75.4, target: 78, unit: '%' },
+	{
+		objective: 'Reach $60M ARR',
+		owner: 'Dana Whitfield · CRO',
+		actual: 58.1,
+		target: 60,
+		unit: 'M',
+	},
+	{
+		objective: 'Expand into 3 new enterprise verticals',
+		owner: 'Marcus Lin · VP Sales',
+		actual: 2,
+		target: 3,
+		unit: '',
+	},
+	{
+		objective: 'Ship AI copilot GA',
+		owner: 'Priya Raman · VP Product',
+		actual: 82,
+		target: 100,
+		unit: '%',
+	},
+	{
+		objective: 'Improve gross margin to 78%',
+		owner: 'Tom Okafor · CFO',
+		actual: 75.4,
+		target: 78,
+		unit: '%',
+	},
 ]
 
 function okrRag(pct: number): Rag {
-	if (pct >= 90) {return 'green'}
-	if (pct >= 70) {return 'amber'}
+	if (pct >= 90) {
+		return 'green'
+	}
+
+	if (pct >= 70) {
+		return 'amber'
+	}
+
 	return 'red'
 }
 
@@ -218,6 +308,7 @@ const DELTA_ICON = {
 function DeltaIndicator(props: { deltaPct: number; rag: Rag }) @{
 	const sign = props.deltaPct > 0 ? '+' : ''
 	const direction = props.deltaPct === 0 ? 'flat' : props.deltaPct < 0 ? 'down' : 'up'
+
 	<HStack gap={2} vAlign="center">
 		<Text type="body" color="secondary">
 			{sign}
@@ -230,6 +321,7 @@ function DeltaIndicator(props: { deltaPct: number; rag: Rag }) @{
 function ScorecardTile(props: { kpi: Kpi; period: Period }) @{
 	const deltaPct = props.kpi.delta[props.period]
 	const rag = ragFor(deltaPct, props.kpi.higherIsBetter)
+
 	<Card padding={5}>
 		<VStack gap={1}>
 			<Text type="label" color="secondary">
@@ -248,6 +340,7 @@ function OkrRow(props: { okr: Okr }) @{
 	const rag = okrRag(pct)
 	// `owner` is "Name · Title"; the avatar wants the person, not the title.
 	const ownerName = props.okr.owner.split('·')[0].trim()
+
 	<VStack gap={2}>
 		<HStack hAlign="between" vAlign="center" gap={3}>
 			<StackItem size="fill">
@@ -283,6 +376,7 @@ function OkrRow(props: { okr: Okr }) @{
 function TrendChart(props: { trend: (typeof TRENDS)[number] }) @{
 	const latest = props.trend.data[props.trend.data.length - 1]
 	const deltaPct = Math.round(((latest.current - latest.prior) / latest.prior) * 100)
+
 	<Card padding={5}>
 		<VStack gap={6}>
 			<HStack hAlign="between" vAlign="center">
@@ -317,11 +411,15 @@ function TrendChart(props: { trend: (typeof TRENDS)[number] }) @{
 			<HStack gap={5} vAlign="center">
 				<HStack gap={2} vAlign="center">
 					<Icon name="sandbox-stop" size={12} color={props.trend.color} />
-					<Text type="supporting" color="secondary">Current period</Text>
+					<Text type="supporting" color="secondary">
+						Current period
+					</Text>
 				</HStack>
 				<HStack gap={2} vAlign="center">
 					<Icon name="sandbox-stop" size={12} color={COLORS.prior} />
-					<Text type="supporting" color="secondary">Prior period</Text>
+					<Text type="supporting" color="secondary">
+						Prior period
+					</Text>
 				</HStack>
 			</HStack>
 		</VStack>
@@ -331,10 +429,7 @@ function TrendChart(props: { trend: (typeof TRENDS)[number] }) @{
 function NarrativeCard(props: { callout: Callout }) @{
 	<Card padding={5}>
 		<HStack gap={3} vAlign="start">
-			<Badge
-				variant="blue"
-				label={CALLOUT_LABEL[props.callout.status]}
-			/>
+			<Badge variant="blue" label={CALLOUT_LABEL[props.callout.status]} />
 			<VStack gap={1}>
 				<Heading level={4}>{props.callout.title}</Heading>
 				<Text type="body" color="secondary">
@@ -387,7 +482,9 @@ export function DashboardScorecardTemplate() @{
 							<Text type="body" color="secondary">
 								{PERIOD_SUBTITLE[period]}
 							</Text>
-							<Text type="body" color="secondary">· Generated</Text>
+							<Text type="body" color="secondary">
+								· Generated
+							</Text>
 							<Timestamp
 								value="2026-06-30T08:00:00+00:00"
 								format="date"

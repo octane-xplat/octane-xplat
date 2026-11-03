@@ -6,10 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript-classic'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
-import {
-	macOSHostArch,
-	hostBundle,
-} from '../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')

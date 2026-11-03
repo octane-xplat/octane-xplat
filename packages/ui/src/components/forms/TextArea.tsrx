@@ -40,6 +40,7 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 		() => fitTextArea(el.current, props),
 		[props.rows, props.autoGrow, props.maxRows, props.style, props.className, props.size],
 	)
+
 	// Imperative controlled write — Android setText resets selection to 0.
 	useEffect(() => writeText(el.current, value), [value, editVersion])
 
@@ -65,7 +66,9 @@ function TextAreaControl(inputProps: TextAreaProps) @{
 			<masonview key="icon" className="vx-textarea-icon">
 				{typeof props.startIcon === 'string' ? (
 					<Icon name={props.startIcon} size={16} />
-				) : props.startIcon}
+				) : (
+					props.startIcon
+				)}
 			</masonview>
 		) : null}
 		<textview
@@ -131,8 +134,11 @@ function TextAreaControl(inputProps: TextAreaProps) @{
  *  uncontrolled text, native focus, selection and handles survive. */
 export function TextArea(inputProps: TextAreaProps): unknown @{
 	if (inputProps.secure) {
-		throw new Error('native TextArea: secure multiline input is unavailable; use TextInput with secure instead.')
+		throw new Error(
+			'native TextArea: secure multiline input is unavailable; use TextInput with secure instead.',
+		)
 	}
+
 	const inField = useContext(FieldContext) != null
 	const props = useFieldControlProps(inputProps)
 

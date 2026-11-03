@@ -25,7 +25,9 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 	const bridge =
 		typeof __XPLAT_DEV_BRIDGE__ !== 'undefined'
 			? __XPLAT_DEV_BRIDGE__
-			: ('__XPLAT_DEV_BRIDGE__' in globalThis ? (globalThis as Record<string, any>).__XPLAT_DEV_BRIDGE__ : undefined)
+			: '__XPLAT_DEV_BRIDGE__' in globalThis
+				? (globalThis as Record<string, any>).__XPLAT_DEV_BRIDGE__
+				: undefined
 	const token =
 		typeof bridge === 'object' &&
 		bridge !== null &&
@@ -35,11 +37,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 			: undefined
 	const origin = (globalThis as any).__NS_HTTP_ORIGIN__ ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
 
-	if (
-		typeof origin !== 'string' ||
-		!/^https?:\/\//.test(origin) ||
-		typeof token !== 'string'
-	) {
+	if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
 		return null
 	}
 

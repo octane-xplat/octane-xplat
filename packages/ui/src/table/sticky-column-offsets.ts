@@ -12,7 +12,9 @@ import { DEFAULT_MIN_COLUMN_WIDTH } from './column-utils'
  * pixel columns use their value; proportional columns use their declared
  * minWidth (or the default); unknown widths use the default.
  */
-export function getStickyColumnWidth<T extends Record<string, unknown>>(col: TableColumn<T>): number {
+export function getStickyColumnWidth<T extends Record<string, unknown>>(
+	col: TableColumn<T>,
+): number {
 	const w = col.width
 	if (!w) {
 		return DEFAULT_MIN_COLUMN_WIDTH

@@ -72,6 +72,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 				encodedSource(input.uri),
 				android.util.Base64.DEFAULT,
 			)
+
 			image = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.length)
 			const stream = new java.io.ByteArrayInputStream(bytes)
 			try {
@@ -86,11 +87,13 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 			if (!stream) {
 				throw new Error('Could not open the image')
 			}
+
 			try {
 				image = android.graphics.BitmapFactory.decodeStream(stream)
 			} finally {
 				stream.close()
 			}
+
 			const metadata = resolver.openInputStream(location)
 			if (metadata) {
 				try {
@@ -108,9 +111,11 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 				orientation = new android.media.ExifInterface(input.uri).getAttributeInt('Orientation', 1)
 			}
 		}
+
 		if (!image) {
 			throw new Error('Could not decode the image')
 		}
+
 		image = orient(image, orientation)
 		const frame = { image, width: image.getWidth(), height: image.getHeight() }
 		const size = initialSize(frame, options)
@@ -118,6 +123,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 			image = null
 			return frame
 		}
+
 		return transform(frame, { kind: 'resize', ...size })
 	} finally {
 		image?.recycle()
@@ -141,6 +147,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 		const paint = new android.graphics.Paint(
 			android.graphics.Paint.ANTI_ALIAS_FLAG | android.graphics.Paint.FILTER_BITMAP_FLAG,
 		)
+
 		switch (operation.kind) {
 			case 'resize':
 				canvas.drawBitmap(
@@ -149,6 +156,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 					new android.graphics.RectF(0, 0, size.width, size.height),
 					paint,
 				)
+
 				break
 			case 'crop':
 				canvas.drawBitmap(source, -operation.originX, -operation.originY, paint)
@@ -163,12 +171,15 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 					operation.axis === 'horizontal' ? size.width : 0,
 					operation.axis === 'vertical' ? size.height : 0,
 				)
+
 				canvas.scale(
 					operation.axis === 'horizontal' ? -1 : 1,
 					operation.axis === 'vertical' ? -1 : 1,
 				)
+
 				canvas.drawBitmap(source, 0, 0, paint)
 		}
+
 		return { image, ...size }
 	} catch (error) {
 		image.recycle()
@@ -192,9 +203,11 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 					: android.os.Build.VERSION.SDK_INT >= 30
 						? android.graphics.Bitmap.CompressFormat.WEBP_LOSSY
 						: android.graphics.Bitmap.CompressFormat.WEBP
+
 		if (!pixels(frame).compress(format, Math.round(options.compress * 100), stream)) {
 			throw new Error('Image encoding failed')
 		}
+
 		const bytes = stream.toByteArray()
 		output = new java.io.FileOutputStream(local)
 		output.write(bytes)

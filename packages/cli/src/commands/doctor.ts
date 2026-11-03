@@ -336,6 +336,7 @@ export const doctor = command({
 				cwd,
 				120000,
 			)
+
 			row(
 				'tsrx package declarations',
 				declarations.ok,

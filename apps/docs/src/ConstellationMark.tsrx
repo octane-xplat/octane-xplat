@@ -32,6 +32,7 @@ function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
 					{ opacity: 0.35 },
 					{ duration: leg(), delay: rest, ease: 'easeInOut' },
 				)
+
 				if (cancelled || down !== 'finished') {
 					break
 				}
@@ -44,6 +45,7 @@ function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
 				rest = 0.2 + Math.random() * 2
 			}
 		})()
+
 		return () => {
 			cancelled = true
 		}
@@ -58,6 +60,7 @@ function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
  *  through the shared motion driver, bounded to one run per layer. */
 export function ConstellationMark() @{
 	const twinkling = useStore(docAtTop)
+
 	<View className="constellation" accessible={false}>
 		@for (const layer of CONSTELLATION_LAYERS; key layer.name) {
 			<TwinkleLayer name={layer.name} {twinkling} />
@@ -71,5 +74,6 @@ export function DocTopSentinel() @{
 	const observer = useIntersectionObserver({
 		onChange: (entry) => docAtTop.set(entry.isIntersecting),
 	})
+
 	<View ref={observer.ref} className="doc-top-sentinel" />
 }

@@ -35,6 +35,7 @@ export type HostCapabilitiesRequest = {
 	/** Request correlation id. */
 	id: number
 }
+
 /** Request envelope union. */
 export type HostRequest = HostCallRequest | HostCapabilitiesRequest
 
@@ -68,6 +69,7 @@ export type HostEventMessage = {
 	/** Event payload, JSON-serialized. */
 	payload: unknown
 }
+
 /** Envelope for host-bound messages. */
 export type HostMessage = HostReplyMessage | HostEventMessage
 

@@ -14,6 +14,7 @@ export function followHref(href: string): void {
 		if (typeof open !== 'function' || open(href) !== true) {
 			console.warn(`[octane-xplat] Cannot open external URI on this GTK host: ${href}`)
 		}
+
 		return
 	}
 	void router.navigateUrl(href).then((result) => {

@@ -12,7 +12,14 @@ export { Stack } from './components/layout/Stack.tsrx'
 export { StackItem } from './components/layout/StackItem.tsrx'
 export { Center } from './components/layout/Center.tsrx'
 export { Section } from './components/collections/Section.tsrx'
-export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout.tsrx'
+export {
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+	LayoutFooter,
+	LayoutPanel,
+} from './components/layout/Layout.tsrx'
+
 export { Absolute } from './components/layout/Absolute.tsrx'
 export { Spacer } from './components/layout/Spacer.tsrx'
 export { Badge } from './components/feedback/Badge.tsrx'
@@ -57,6 +64,7 @@ export {
 	capitalize,
 	DEFAULT_MIN_COLUMN_WIDTH,
 } from './table/column-utils'
+
 export { paginateData } from './table/paginate-data'
 export { sortTableData } from './table/use-table-sortable-state'
 export { toSearchFilters } from './table/to-search-filters'
@@ -70,6 +78,7 @@ export {
 	resolveThemeTokens,
 	defaultThemeTokens,
 } from './theme/defined-theme'
+
 export { generateThemeCss } from './theme/theme-css'
 export {
 	useThemeScheme,
@@ -79,6 +88,7 @@ export {
 	getThemePreference,
 	onThemeSchemeChange,
 } from './theme/theme-scheme'
+
 export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
 export { Theme } from './theme/Theme.tsrx'
 export { useTheme, useThemeName } from './theme/use-theme.tsrx'
@@ -101,6 +111,7 @@ export {
 	getLocaleDirection,
 	frFR,
 } from './internal/platform/internationalization'
+
 export { LinkProvider } from './components/navigation/LinkProvider.tsrx'
 export { useLinkComponent } from './components/navigation/use-link-component.tsrx'
 export { LinkContext } from './components/navigation/link-context'
@@ -109,6 +120,7 @@ export {
 	usePowerSearchConfig,
 	resolveOperatorLabel,
 } from './components/forms/power-search-config'
+
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
 export { Button } from './components/actions/Button.tsrx'
 export { IconButton } from './components/media/IconButton.tsrx'
@@ -174,6 +186,7 @@ export {
 	registerIndicators,
 	indicatorScope,
 } from './components/feedback/indicators'
+
 export { useIndicator } from './components/feedback/use-indicator.tsrx'
 
 export { Checkbox as CheckboxInput } from './components/forms/Checkbox.tsrx'
@@ -223,6 +236,7 @@ export {
 	DropdownMenuRadioItem,
 	DropdownMenuSubMenu,
 } from './components/overlays/MenuParts.tsrx'
+
 export {
 	DropdownMenuItem as ContextMenuItem,
 	DropdownMenuLink as ContextMenuLink,
@@ -234,6 +248,7 @@ export {
 	DropdownMenuRadioItem as ContextMenuRadioItem,
 	DropdownMenuSubMenu as ContextMenuSubMenu,
 } from './components/overlays/MenuParts.tsrx'
+
 export {
 	DropdownMenuItem as BreadcrumbMenuItem,
 	DropdownMenuLink as BreadcrumbMenuLink,
@@ -245,6 +260,7 @@ export {
 	DropdownMenuRadioItem as BreadcrumbMenuRadioItem,
 	DropdownMenuSubMenu as BreadcrumbMenuSubMenu,
 } from './components/overlays/MenuParts.tsrx'
+
 export { DropdownMenuContext, useDropdownMenuContext } from './components/overlays/menu-context'
 
 export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb.tsrx'
@@ -259,7 +275,11 @@ export { useImperativeDialog } from './components/overlays/use-imperative-dialog
 export { AlertDialog } from './components/overlays/AlertDialog.tsrx'
 export { useImperativeAlertDialog } from './components/overlays/use-imperative-alert-dialog.tsrx'
 export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope.tsrx'
-export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider.tsrx'
+export {
+	LayerProvider,
+	LayerContext,
+	useLayerContext,
+} from './components/overlays/layer-provider.tsrx'
 
 export { CommandPalette } from './components/overlays/CommandPalette.tsrx'
 export { Lightbox } from './components/overlays/Lightbox.tsrx'
@@ -299,6 +319,7 @@ export {
 	TopNavRenderContext,
 	useTopNavRenderMode,
 } from './components/navigation/TopNav.tsrx'
+
 export {
 	SideNav,
 	SideNavSection,
@@ -309,7 +330,13 @@ export {
 	SideNavRenderContext,
 	useSideNavRenderMode,
 } from './components/navigation/SideNav.tsrx'
-export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav.tsrx'
+
+export {
+	MobileNav,
+	MobileNavToggle,
+	useAppShellMobile,
+} from './components/navigation/MobileNav.tsrx'
+
 export { NavIcon } from './components/navigation/NavIcon.tsrx'
 export {
 	NavHeadingMenu,
@@ -319,6 +346,7 @@ export {
 	useNavHeadingMenuContext,
 	useNavHeadingCloseContext,
 } from './components/navigation/NavMenu.tsrx'
+
 export { TabList, Tab, TabMenu, useTabListContext } from './components/collections/TabList.tsrx'
 export { NavigationMenu } from './components/navigation/NavigationMenu.tsrx'
 export { NavLink } from './components/navigation/NavLink.tsrx'
@@ -346,6 +374,7 @@ export {
 	useTableColumnSettings,
 	useTableColumnSettingsState,
 } from './table/use-table-column-settings'
+
 export { useTableColumnResize } from './table/use-table-column-resize.tsrx'
 export { useTableFilterState } from './table/use-table-filter-state'
 export { useTableFiltering } from './table/use-table-filtering.tsrx'
@@ -374,6 +403,7 @@ export {
 	PowerSearchToken,
 	PowerSearchFilterEditor,
 } from './components/forms/PowerSearch.tsrx'
+
 export { Calendar } from './components/forms/Calendar.tsrx'
 export { DateInput } from './components/forms/DateInput.tsrx'
 export { TimeInput } from './components/forms/TimeInput.tsrx'
@@ -384,12 +414,11 @@ export {
 	useCalendarConstraints,
 	useCalendarNavigation,
 } from './components/forms/calendar-hooks.tsrx'
+
 export { ColorArea } from './components/forms/ColorArea.tsrx'
 export { ColorSlider } from './components/forms/ColorSlider.tsrx'
 export { ColorField } from './components/forms/ColorField.tsrx'
 export { ColorPicker } from './components/forms/ColorPicker.tsrx'
-
-
 
 // Slice J — embedded web document (WebKitGTK 6.0 `WebKit.WebView`). GTK leaf:
 // WebView.gtk.tsrx. See research/GTK-SLICES.md row J.

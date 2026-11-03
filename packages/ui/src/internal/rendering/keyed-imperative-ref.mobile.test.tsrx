@@ -21,12 +21,7 @@ vi.mock('../../../../video/src/video-chrome.tsrx', () => ({
 }))
 
 import { describe, expect, it, vi } from 'vitest'
-import {
-	useCallback,
-	useImperativeHandle,
-	useRef,
-	useState,
-} from 'octane'
+import { useCallback, useImperativeHandle, useRef, useState } from 'octane'
 import {
 	createObjectContainer,
 	createObjectDriver,
@@ -41,7 +36,12 @@ import { Video } from '../../../../video/src/Video.tsrx'
  *  by the leaf's own completion event. */
 function ClipFixture(props: { ref?: any; marker: string; onEnded?: () => void }) @{
 	const host = useRef<any>(null)
-	useImperativeHandle(props.ref, () => ({ marker: host.current?.props.marker, native: host.current }), [])
+	useImperativeHandle(
+		props.ref,
+		() => ({ marker: host.current?.props.marker, native: host.current }),
+		[],
+	)
+
 	const bindHost = useCallback((v: any) => {
 		host.current = v
 	}, [])
@@ -51,11 +51,13 @@ function ClipFixture(props: { ref?: any; marker: string; onEnded?: () => void })
 
 function FixtureFeed(props: { ref?: any }) @{
 	const [clip, setClip] = useState('a')
+
 	<ClipFixture key={clip} marker={clip} ref={props.ref} onEnded={() => setClip('b')} />
 }
 
 function FixtureForFeed(props: { ref?: any }) @{
 	const [clip, setClip] = useState('a')
+
 	<stacklayout>
 		@for (const id of [clip]; key id) {
 			<ClipFixture marker={id} ref={props.ref} onEnded={() => setClip('b')} />
@@ -66,6 +68,7 @@ function FixtureForFeed(props: { ref?: any }) @{
 function ClipChild(props: { marker: string; onEnded?: () => void }) @{
 	const inner = useRef<any>(null)
 	childRef.current = inner
+
 	<ClipFixture marker={props.marker} ref={inner} onEnded={props.onEnded} />
 }
 
@@ -73,13 +76,21 @@ const childRef: { current: any } = { current: null }
 
 function ChildRefFeed() @{
 	const [clip, setClip] = useState('a')
+
 	<ClipChild key={clip} marker={clip} onEnded={() => setClip('b')} />
 }
 
 function AppFeed(props: { ref?: any }) @{
 	const [clip, setClip] = useState('a')
-	<Video key={clip} src={`file:///${clip}.mp4`} ref={props.ref} controls={false} autoPlay
-		onEnded={() => setClip('b')} />
+
+	<Video
+		key={clip}
+		src={`file:///${clip}.mp4`}
+		ref={props.ref}
+		controls={false}
+		autoPlay
+		onEnded={() => setClip('b')}
+	/>
 }
 
 const PLAYLIST = ['a', 'b', 'c']
@@ -87,8 +98,15 @@ const PLAYLIST = ['a', 'b', 'c']
 function PlaylistFeed(props: { ref?: any }) @{
 	const [index, setIndex] = useState(0)
 	const clip = PLAYLIST[index]
-	<Video key={clip} src={`file:///${clip}.mp4`} ref={props.ref} controls={false} autoPlay
-		onEnded={() => setIndex(index + 1)} />
+
+	<Video
+		key={clip}
+		src={`file:///${clip}.mp4`}
+		ref={props.ref}
+		controls={false}
+		autoPlay
+		onEnded={() => setIndex(index + 1)}
+	/>
 }
 
 function MutedFeed(props: { ref?: any; muted?: boolean }) @{
@@ -98,10 +116,16 @@ function MutedFeed(props: { ref?: any; muted?: boolean }) @{
 function findByType(container: any, type: string, parent: any = null): any {
 	const children = parent === null ? container.children : parent.children
 	for (const child of children) {
-		if (child.type === type) return child
+		if (child.type === type) {
+			return child
+		}
+
 		const found = findByType(container, type, child)
-		if (found) return found
+		if (found) {
+			return found
+		}
 	}
+
 	return null
 }
 
@@ -187,6 +211,7 @@ describe('keyed replacement and imperative refs (GH#91)', () => {
 				expect(ref.current?.native).toBe(current)
 				flushUniversalSync(() => container.dispatchEvent(current, 'finished'))
 			}
+
 			const third = findByType(container, 'xplatvideo')
 			expect(ref.current?.native).toBe(third)
 		} finally {
@@ -200,6 +225,7 @@ describe('keyed replacement and imperative refs (GH#91)', () => {
 			...inner,
 			updates: { classify: () => 'recreate' as const },
 		}
+
 		const { container, root, ref } = mount(MutedFeed, { muted: false }, driver)
 		try {
 			const first = findByType(container, 'xplatvideo')

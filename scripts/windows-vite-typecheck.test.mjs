@@ -37,23 +37,28 @@ for (const tsrx of [false, true]) {
 					files: ['main.ts'],
 				}),
 			)
+
 			writeFileSync(
 				path.join(directory, 'value.windows.ts'),
 				"export const value = 'windows' as const\n",
 			)
+
 			writeFileSync(
 				path.join(directory, 'value.native.ts'),
 				"export const value = 'native' as const\n",
 			)
+
 			writeFileSync(
 				path.join(directory, 'view.windows.tsrx'),
 				"export const view = 'tsrx' as const\n",
 			)
+
 			const entry = (expected, extension = '.tsrx') => `
 import { value } from './value'
 ${tsrx ? `import { view } from './view.windows${extension}'; const checkedView: 'tsrx' = view` : ''}
 const checked: '${expected}' = value
 `
+
 			const main = path.join(directory, 'main.ts')
 			process.chdir(directory)
 			const options = { platform: 'windows', logDiagnostics: false }
@@ -64,6 +69,7 @@ const checked: '${expected}' = value
 				writeFileSync(main, entry('windows', ''))
 				await assert.rejects(() => plugin.buildStart(), /TypeScript found 1 error/)
 			}
+
 			writeFileSync(main, entry('windows'))
 			await plugin.buildStart()
 			writeFileSync(main, entry('wrong'))

@@ -482,6 +482,7 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
 				if (extname(specifier) && !/\.(?:[cm]?[jt]sx?|tsrx|d\.[cm]?ts|json)$/.test(specifier)) {
 					continue
 				}
+
 				const resolved = ts.resolveModuleName(specifier, file, options, host).resolvedModule
 				if (!resolved) {
 					failures.push(

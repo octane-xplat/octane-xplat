@@ -85,6 +85,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 				press.connect('pressed', () => options.onScrimPress?.())
 				scrim.add_controller(press)
 			}
+
 			layer.set_child(scrim)
 		}
 
@@ -99,9 +100,14 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 		// on lower layers so background controls do not receive it.
 		const suppressed: Array<[any, boolean, boolean]> = []
 		const suppressLower = () => {
-			if (!modal) { return }
+			if (!modal) {
+				return
+			}
 			for (const w of [container.contentHost, ...Array.from(container.overlayLayers ?? [])]) {
-				if (!w || w === layer) { continue }
+				if (!w || w === layer) {
+					continue
+				}
+
 				suppressed.push([w, w.can_focus, w.can_target])
 				w.can_focus = false
 				w.can_target = false
@@ -114,7 +120,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 						w.can_focus = canFocus
 						w.can_target = canTarget
 					}
-				} catch { }
+				} catch {}
 			}
 			suppressed.length = 0
 		}
@@ -127,7 +133,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 					if (owner?.get_mapped?.() && initial?.get_mapped?.() && initial.get_root?.() === owner) {
 						initial.grab_focus()
 					}
-				} catch { }
+				} catch {}
 			}
 		})()
 
@@ -140,25 +146,35 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 		const handle = {
 			target,
 			setVisible(visible: boolean) {
-				if (disposed) { return }
-				if (visible === presented) { return }
+				if (disposed) {
+					return
+				}
+				if (visible === presented) {
+					return
+				}
 				presented = visible
 				layer.set_visible(visible)
 				if (visible) {
 					suppressLower()
 					// Capture focus into the layer so Escape and Tab reach it.
-					try { target.grab_focus() } catch { }
+					try {
+						target.grab_focus()
+					} catch {}
 				} else {
 					restoreLower()
 					restoreFocus()
 				}
 			},
 			dispose() {
-				if (disposed) { return }
+				if (disposed) {
+					return
+				}
 				disposed = true
 				restoreLower()
 				restoreFocus()
-				try { overlay.remove_overlay(layer) } catch { }
+				try {
+					overlay.remove_overlay(layer)
+				} catch {}
 				container.overlayLayers?.delete(layer)
 				container.overlayLayerHandles?.delete(handle)
 			},

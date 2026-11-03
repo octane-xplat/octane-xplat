@@ -27,7 +27,9 @@ export function FormLayout(props: FormLayoutProps): unknown @{
 	const forwardedRef = useMemo(
 		() =>
 			refList((view: any) => {
-				if (view) applyEscapeProps(view, props)
+				if (view) {
+					applyEscapeProps(view, props)
+				}
 			}, props.ref),
 		[props.ref, props.ios, props.android, props.web],
 	)

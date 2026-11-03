@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 280,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -35,6 +38,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const part = () => nodes('vx-selectoroption')[0]
 const text = () => nodes('vx-selectoroption-text')[0]
@@ -43,6 +47,7 @@ const description = () => nodes('vx-selectoroption-description')[0]
 const icon = () => nodes('vx-selectoroption-icon')[0]
 const close = (actual: number | undefined, expected: number) =>
 	Math.abs((actual ?? NaN) - expected) <= 2
+
 let props: Parameters<typeof SelectorOptionScene>[0] = {
 	id: 'selector-part',
 	label: 'Small',
@@ -51,11 +56,13 @@ let props: Parameters<typeof SelectorOptionScene>[0] = {
 	className: 'selector-authored',
 	style: { width: 280, height: 80, margin: 8 },
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(SelectorOptionScene, props)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -207,6 +214,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -218,6 +226,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

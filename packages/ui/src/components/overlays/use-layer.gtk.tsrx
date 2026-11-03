@@ -47,24 +47,34 @@ export function useLayer<O extends LayerOptions>(
 	controlledOpen.current = options.isOpen
 
 	const show = useCallback(() => {
-		if (visible || openRef.current) { return }
+		if (visible || openRef.current) {
+			return
+		}
+
 		if (!controlled) {
 			openRef.current = true
 			setIsOpen(true)
 		}
+
 		onShow.current?.()
 	}, [visible, controlled])
 
 	const hide = useCallback(() => {
-		if (!(controlledOpen.current ?? openRef.current)) { return }
+		if (!(controlledOpen.current ?? openRef.current)) {
+			return
+		}
+
 		if (!controlled) {
 			openRef.current = false
 			setIsOpen(false)
 		}
+
 		onHide.current?.()
 	}, [controlled])
 
-	const ref = useCallback((el: any) => { anchorEl.current = el }, [])
+	const ref = useCallback((el: any) => {
+		anchorEl.current = el
+	}, [])
 
 	const render = useCallback(
 		(children: any, props?: ContextRenderProps | FixedRenderProps) => {
@@ -79,7 +89,10 @@ export function useLayer<O extends LayerOptions>(
 							anchor={fixed ? markerEl : anchorEl}
 							fixedPosition={
 								fixed
-									? { x: (props as FixedRenderProps)?.x ?? 0, y: (props as FixedRenderProps)?.y ?? 0 }
+									? {
+											x: (props as FixedRenderProps)?.x ?? 0,
+											y: (props as FixedRenderProps)?.y ?? 0,
+										}
 									: undefined
 							}
 							layerPosition={
@@ -93,7 +106,10 @@ export function useLayer<O extends LayerOptions>(
 							onDismiss={() => hide()}
 							className={cx('vx-popover', props?.className)}
 							style={props?.style}
-							dismissOnEscape={options.dismissOnEscape === true || (options.dismissOnEscape === undefined && options.lightDismiss === true)}
+							dismissOnEscape={
+								options.dismissOnEscape === true ||
+								(options.dismissOnEscape === undefined && options.lightDismiss === true)
+							}
 							dismissOnOutsideTap={options.lightDismiss === true}
 						>
 							{children}
@@ -101,7 +117,9 @@ export function useLayer<O extends LayerOptions>(
 					) : null}
 					{fixed && (
 						<masonview
-							ref={(v: any) => { markerEl.current = v }}
+							ref={(v: any) => {
+								markerEl.current = v
+							}}
 							style={mergeStyle({ display: 'flex' }, { width: 1, height: 1 })}
 						/>
 					)}

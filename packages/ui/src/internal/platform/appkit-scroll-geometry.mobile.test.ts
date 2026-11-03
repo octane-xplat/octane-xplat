@@ -6,7 +6,9 @@ import { readBounds } from '../../components/layout/measure-bounds.macos'
 function fixture(flipped: boolean) {
 	const clip = {
 		bounds: { origin: { x: 25, y: 0 }, size: { width: 100, height: 100 } },
-		scrollToPoint: vi.fn((point: { x: number; y: number }) => { clip.bounds.origin = point }),
+		scrollToPoint: vi.fn((point: { x: number; y: number }) => {
+			clip.bounds.origin = point
+		}),
 		animator: vi.fn(() => ({})),
 	}
 	const view = {
@@ -55,10 +57,20 @@ it('AppKit seeks tolerate missing documents, invalid axes, short content and una
 
 it('AppKit measurement uses flipped window-content coordinates and a nonzero bounds origin', () => {
 	for (const flipped of [true, false]) {
-		const content = { flipped, bounds: { origin: { x: 10, y: 20 }, size: { width: 400, height: 300 } } }
-		const view = { window: { contentView: content }, bounds: {}, convertRectToView: vi.fn(() => ({
-			origin: { x: 40, y: 80 }, size: { width: 50, height: 60 },
-		})) }
+		const content = {
+			flipped,
+			bounds: { origin: { x: 10, y: 20 }, size: { width: 400, height: 300 } },
+		}
+
+		const view = {
+			window: { contentView: content },
+			bounds: {},
+			convertRectToView: vi.fn(() => ({
+				origin: { x: 40, y: 80 },
+				size: { width: 50, height: 60 },
+			})),
+		}
+
 		expect(readBounds(view)).toEqual({ x: 30, y: flipped ? 60 : 180, width: 50, height: 60 })
 		expect(view.convertRectToView).toHaveBeenCalledWith(view.bounds, content)
 	}

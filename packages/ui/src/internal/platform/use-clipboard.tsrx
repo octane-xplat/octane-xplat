@@ -86,7 +86,9 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
 			owner.resetVersion++
 			const timer = owner.timer
 			owner.timer = null
-			if (timer != null) clearTimeout(timer)
+			if (timer != null) {
+				clearTimeout(timer)
+			}
 		}
 	}, [])
 
@@ -95,44 +97,74 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
 			const owner = lifetime.current
 			const generation = owner.generation
 			const isCurrent = () => owner.active && owner.generation === generation
-			if (!isCurrent()) return false
+			if (!isCurrent()) {
+				return false
+			}
+
 			let value: string | undefined
 			try {
 				value = text ?? getItems?.()
 			} catch {
 				// The text producer can fail before the platform write starts.
 			}
-			if (!isCurrent()) return false
+
+			if (!isCurrent()) {
+				return false
+			}
 
 			let success = false
 			if (value !== undefined) {
-				try { success = await copyText(value) } catch { /* Failed platform write. */ }
+				try {
+					success = await copyText(value)
+				} catch {
+					/* Failed platform write. */
+				}
 			}
-			if (!isCurrent()) return success
+
+			if (!isCurrent()) {
+				return success
+			}
 
 			if (success) {
 				setIsCopied(true)
-				if (!isCurrent()) return success
+				if (!isCurrent()) {
+					return success
+				}
+
 				const version = ++owner.resetVersion
 				const previous = owner.timer
 				owner.timer = null
-				if (previous != null) clearTimeout(previous)
-				if (!isCurrent()) return success
+				if (previous != null) {
+					clearTimeout(previous)
+				}
+
+				if (!isCurrent()) {
+					return success
+				}
+
 				owner.timer = setTimeout(() => {
-					if (!isCurrent() || owner.resetVersion !== version) return
+					if (!isCurrent() || owner.resetVersion !== version) {
+						return
+					}
+
 					owner.timer = null
 					setIsCopied(false)
 				}, resetAfterMs)
 
 				// Own the timer before an announcement can reenter/unmount the owner.
 				if (announceMessage && isCurrent()) {
-					try { announce(announceMessage) } catch {
+					try {
+						announce(announceMessage)
+					} catch {
 						// Announcement availability cannot change a completed write.
 					}
 				}
 			}
 
-			if (isCurrent()) onCopy?.(success)
+			if (isCurrent()) {
+				onCopy?.(success)
+			}
+
 			return success
 		},
 		[getItems, onCopy, announceMessage, resetAfterMs],

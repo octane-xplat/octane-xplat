@@ -23,11 +23,13 @@ for (const [name, source] of [
 		}
 	}
 }
+
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
 	recursive: true,
 	filter: (path) => !path.endsWith('google-services.json'),
 })
+
 const caseFile = join(packageRoot, 'tests/runtime.ios.ts')
 const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', caseFile, ['@octane-xplat/lib'], resources)
@@ -37,6 +39,7 @@ const installed = spawnSync(
 	['simctl', 'get_app_container', device, project.appId, 'data'],
 	{ encoding: 'utf8' },
 )
+
 if (installed.status === 0) {
 	container = installed.stdout.trim()
 	await mkdir(join(container, 'Documents'), { recursive: true })
@@ -45,9 +48,11 @@ if (installed.status === 0) {
 		JSON.stringify({ stage: 'starting', appId: project.appId }),
 	)
 }
+
 const driver = await createDialogDriver(device)
 const flatten = (node) =>
 	!node || typeof node !== 'object' ? [] : [node, ...(node.children ?? []).flatMap(flatten)]
+
 const child = spawn(
 	'bun',
 	[
@@ -69,16 +74,20 @@ const child = spawn(
 	],
 	{ cwd: repo, stdio: ['ignore', 'pipe', 'pipe'] },
 )
+
 let stdout = '',
 	stderr = '',
 	done = false,
 	labels = []
+
 child.stdout.on('data', (data) => {
 	stdout += data
 })
+
 child.stderr.on('data', (data) => {
 	stderr += data
 })
+
 const exited = new Promise((resolve, reject) => {
 	child.once('error', reject)
 	child.once('close', (code) => {
@@ -86,6 +95,7 @@ const exited = new Promise((resolve, reject) => {
 		resolve(code)
 	})
 })
+
 const timer = setTimeout(() => child.kill('SIGTERM'), 240000)
 try {
 	while (!done) {
@@ -93,6 +103,7 @@ try {
 		if (done) {
 			break
 		}
+
 		try {
 			if (!container) {
 				const current = spawnSync(
@@ -100,14 +111,18 @@ try {
 					['simctl', 'get_app_container', device, project.appId, 'data'],
 					{ encoding: 'utf8' },
 				)
+
 				if (current.status !== 0) {
 					continue
 				}
+
 				container = current.stdout.trim()
 			}
+
 			const step = JSON.parse(
 				await readFile(join(container, 'Documents/print-test-step.json'), 'utf8'),
 			)
+
 			if (
 				step.appId !== project.appId ||
 				![
@@ -120,21 +135,25 @@ try {
 			) {
 				continue
 			}
+
 			const hierarchy = await driver.hierarchy(project.appId)
 			const nodes = flatten(hierarchy.axElement)
 			labels = nodes.map((node) => String(node.label ?? '')).filter(Boolean)
 			if (!labels.some((label) => /print|printer/i.test(label))) {
 				continue
 			}
+
 			const cancel = nodes.find((node) => /^(Cancel|Close)$/.test(String(node.label ?? '')))
 			if (!cancel) {
 				continue
 			}
+
 			const frame = cancel.frame ?? {},
 				x = Number(frame.x ?? frame.X),
 				y = Number(frame.y ?? frame.Y),
 				width = Number(frame.width ?? frame.Width),
 				height = Number(frame.height ?? frame.Height)
+
 			assert.ok([x, y, width, height].every(Number.isFinite) && width > 0 && height > 0)
 			await driver.tap(x + width / 2, y + height / 2)
 			console.log('Canceled owned fixture UI through accessibility: ' + step.stage)
@@ -144,6 +163,7 @@ try {
 			}
 		}
 	}
+
 	const code = await exited
 	assert.equal(code, 0, stdout + stderr + '\nLast accessibility labels: ' + JSON.stringify(labels))
 	const report = JSON.parse(stdout.slice(stdout.indexOf('{')))
@@ -159,5 +179,6 @@ try {
 		child.kill('SIGTERM')
 		await exited
 	}
+
 	driver.close()
 }

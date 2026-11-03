@@ -7,6 +7,7 @@ import {
 	findBlocklistMatches,
 	toShortcutValidationError,
 } from '../blocklists/compileBlocklist.js'
+
 import type { ShortcutHost } from '../../host-types.js'
 import { normalizeKeyboardEvent } from '../events/normalizeKeyboardEvent.js'
 import { chooseWinner, evaluateEditablePolicy, applyConsumption, matchesStep } from './dispatch.js'
@@ -36,6 +37,7 @@ import type {
 	ShortcutValidationResult,
 	WhenTrace,
 } from '../types/public.js'
+
 import type { BindingRecord, Candidate, EvaluateResult } from '../types/internal.js'
 import { RESERVED_CONTEXT_NAMES } from '../types/internal.js'
 
@@ -138,6 +140,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 			if (!handler) {
 				throw new TypeError('A handler is required when binding from a string')
 			}
+
 			return bind({ combo: input, within, handler })
 		}
 		return bind({ ...input, within }, handler)
@@ -256,9 +259,11 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 			if (segments.length === 0) {
 				continue
 			}
+
 			if (RESERVED_CONTEXT_NAMES.has(segments[0]!)) {
 				throw new TypeError(`Context path "${path}" uses a reserved namespace`)
 			}
+
 			setNestedValue(nextContext, segments, value)
 		}
 		userContext = nextContext
@@ -300,6 +305,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 			if (matches.length === 0) {
 				return { valid: true, combo, canonicalCombo: step.expression }
 			}
+
 			return {
 				valid: false,
 				combo,
@@ -397,6 +403,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 					activeScopes,
 					activeScopesAfterPause,
 				)
+
 				traceCandidates.set(binding.id, trace)
 				continue
 			}
@@ -413,6 +420,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 				host.isEditableTarget(normalized.target),
 				normalized.modifiers,
 			)
+
 			if (!editableResult.allowed) {
 				trace.rejectedBy = 'editable-policy'
 				traceCandidates.set(binding.id, trace)
@@ -429,6 +437,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 					traceCandidates.set(binding.id, trace)
 					continue
 				}
+
 				trace.matcherMatched = true
 				candidates.push({
 					binding,
@@ -437,6 +446,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 					sequenceLength: 1,
 					boundaryDepth,
 				})
+
 				traceCandidates.set(binding.id, trace)
 				continue
 			}
@@ -458,6 +468,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 			} else if (!sequenceResult.keptState) {
 				trace.rejectedBy = 'matcher'
 			}
+
 			traceCandidates.set(binding.id, trace)
 		}
 
@@ -489,6 +500,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 					continue
 				}
 			}
+
 			eligibleCandidates.push(candidate)
 		}
 
@@ -585,6 +597,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 					event: normalized,
 				})
 			}
+
 			return {
 				result: false,
 				error: normalizedError,
@@ -803,6 +816,7 @@ function getNestedValue(root: Record<string, unknown>, segments: readonly string
 		if (!isPlainObject(cursor) && !Array.isArray(cursor)) {
 			return undefined
 		}
+
 		cursor = (cursor as Record<string, unknown>)[segment]
 	}
 	return cursor
@@ -815,6 +829,7 @@ function deleteNestedValue(root: Record<string, unknown>, segments: readonly str
 		if (!isPlainObject(next)) {
 			return false
 		}
+
 		cursor = next
 	}
 	const last = segments[segments.length - 1]!

@@ -289,8 +289,10 @@ function styleDict(node: NodeLike): Record<string, any> {
 	const collapsedBorder = edgeBox(style.borderWidth)
 	const sideStyles = borderStyleSides(style)
 	const borderEdge = (key: string, side: 'top' | 'right' | 'bottom' | 'left') =>
-		hiddenBorderStyle(sideStyles[side]) ? [0, 0] :
-			lenDim(style[key]) ?? (collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined)
+		hiddenBorderStyle(sideStyles[side])
+			? [0, 0]
+			: (lenDim(style[key]) ??
+				(collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined))
 	const border = {
 		left: borderEdge('borderLeftWidth', 'left'),
 		right: borderEdge('borderRightWidth', 'right'),

@@ -73,6 +73,7 @@ export function redsOf(base64) {
 		if (bytes.toString('ascii', offset + 4, offset + 8) === 'IDAT') {
 			chunks.push(bytes.subarray(offset + 8, offset + 8 + size))
 		}
+
 		offset += size + 12
 	}
 	const filtered = inflateSync(Buffer.concat(chunks))
@@ -88,24 +89,29 @@ export function redsOf(base64) {
 			const left = x >= channels ? row[x - channels] : 0
 			const up = previous[x],
 				diagonal = x >= channels ? previous[x - channels] : 0
+
 			const estimate = left + up - diagonal
 			const distances = [
 				Math.abs(estimate - left),
 				Math.abs(estimate - up),
 				Math.abs(estimate - diagonal),
 			]
+
 			const paeth =
 				distances[0] <= distances[1] && distances[0] <= distances[2]
 					? left
 					: distances[1] <= distances[2]
 						? up
 						: diagonal
+
 			const prediction = [0, left, up, Math.floor((left + up) / 2), paeth][filter]
 			row[x] = (filtered[y * (stride + 1) + 1 + x] + prediction) & 255
 		}
+
 		for (let x = 0; x < width; x++) {
 			reds.push(row[x * channels])
 		}
+
 		previous = row
 	}
 	return reds

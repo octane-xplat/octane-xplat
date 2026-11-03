@@ -53,6 +53,7 @@ export type {
 	CursorQueryOptions,
 	CursorQueryDefinition,
 } from './cursor-query'
+
 export { createStore } from './store'
 export { useStore } from './useStore.macos.tsrx'
 

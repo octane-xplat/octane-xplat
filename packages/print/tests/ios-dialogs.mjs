@@ -76,13 +76,16 @@ export async function createDialogDriver(device) {
 			capabilities: {},
 			clientInfo: { name: 'xplat-nonvisual-print-fixture', version: '1' },
 		})
+
 		child.stdin.write(
 			JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized' }) + '\n',
 		)
+
 		const inspected = await request('tools/call', {
 			name: 'inspect_screen',
 			arguments: { device_id: device },
 		})
+
 		assert.ok(!inspected.isError, JSON.stringify(inspected))
 		assert.ok(
 			inspected.content.every((item) => item.type === 'text'),

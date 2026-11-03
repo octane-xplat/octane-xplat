@@ -5,5 +5,8 @@ import type { ProbeContext } from '../../tools/probe/context'
 export default StorageControls
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('appkit-storage-status'))
-	ctx.record('qualification', 'Mounted controls only; no storage, restart, OS lifecycle or native input operation exercised')
+	ctx.record(
+		'qualification',
+		'Mounted controls only; no storage, restart, OS lifecycle or native input operation exercised',
+	)
 }

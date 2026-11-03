@@ -13,6 +13,7 @@ import {
 	controlledChanges,
 	controlledValue,
 } from './ui-text-entry.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK text entry test',
@@ -20,6 +21,7 @@ const window = new Gtk.Window({
 	default_height: 320,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -27,6 +29,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -35,6 +38,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -42,12 +46,14 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const entry = () => inputRef.current!.native as any
 const focusedWithin = (view: any) => {
 	const focused = window.get_focus()
 	return focused === view || !!focused?.is_ancestor(view)
 }
+
 const placeholder = (view: any): any => {
 	if (view.get_css_name() === 'placeholder') {
 		return view
@@ -60,6 +66,7 @@ const placeholder = (view: any): any => {
 	}
 	return null
 }
+
 const rgb = (widget: any) => {
 	const color = widget.get_style_context().get_color()
 	return [color.red, color.green, color.blue]
@@ -75,6 +82,7 @@ let props: Parameters<typeof TextEntry>[0] = {
 	keyboard: 'email',
 	secure: true,
 }
+
 const render = () => root.render(TextEntry, props)
 let osAck = 0
 let writeOnLeft = false
@@ -92,6 +100,7 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 let osKeyboard = false
 async function inputPhase(phase: string, target = entry()) {
@@ -106,6 +115,7 @@ async function inputPhase(phase: string, target = entry()) {
 	}
 	check('OS phase completed: ' + phase, osAck >= next)
 }
+
 async function run() {
 	render()
 	window.present()
@@ -214,6 +224,7 @@ async function run() {
 			'caption hint preserves one submission: ' + returnKey,
 			submits.length === count + 1 && submits.at(-1) === props.version,
 		)
+
 		check(
 			'caption hint does not change focus or editor: ' + returnKey,
 			focusedWithin(view) && node('entry').view === view && entry() === view,
@@ -391,6 +402,7 @@ async function run() {
 			'real keyboard input updates uncontrolled component state',
 			entry().text === 'Typed' && changes.at(-1) === 'Typed',
 		)
+
 		check('real Return dispatches the current callback', submits.at(-1) === 3)
 		const changeCount = changes.length
 		props = { ...props, readOnly: true }
@@ -401,6 +413,7 @@ async function run() {
 			'real keyboard cannot edit a read-only entry',
 			entry().text === 'Typed' && changes.length === changeCount,
 		)
+
 		check('read-only input keeps OS focus', focusedWithin(entry()))
 		const submitCount = submits.length
 		props = { ...props, disabled: true }
@@ -411,6 +424,7 @@ async function run() {
 			'disabled entry ignores real typing and Return',
 			entry().text === 'Typed' && changes.length === changeCount && submits.length === submitCount,
 		)
+
 		props = { version: 4, value: 'ABCDE' }
 		render()
 		await pause()
@@ -424,10 +438,12 @@ async function run() {
 			'real navigation follows a controlled write',
 			keyWrites === 1 && entry().get_delegate().cursor_position === 3,
 		)
+
 		check(
 			'selection repair cannot override real key navigation',
 			node('entry').selSettleSource === null,
 		)
+
 		osKeyboard = true
 	}
 	props = { ...props, controlledMode: 'reject' }
@@ -487,6 +503,7 @@ async function run() {
 				controlled.get_delegate().cursor_position === 3 &&
 				focusedWithin(controlled),
 		)
+
 		check(
 			'one native middle edit reports onChange once',
 			controlledChanges.length === count + 1 && controlledChanges.at(-1) === 'AcXted',
@@ -516,6 +533,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -527,6 +545,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

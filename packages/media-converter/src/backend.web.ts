@@ -8,6 +8,7 @@ import {
 	WebMOutputFormat,
 	canEncodeVideo,
 } from 'mediabunny'
+
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 
@@ -92,13 +93,16 @@ export const backend: ConversionBackend = {
 				if (control.cancelled()) {
 					throw aborted()
 				}
+
 				const frame = decompressFrame(frames[index]!, gif.gct, true)
 				const d = frame.dims
 				if (d.left + d.width > width || d.top + d.height > height || !d.width || !d.height) {
 					throw new TypeError('GIF frame lies outside its canvas')
 				}
+
 				const previous =
 					frame.disposalType === 3 ? layers.getImageData(0, 0, width, height) : undefined
+
 				patch.width = d.width
 				patch.height = d.height
 				patchContext.putImageData(
@@ -106,6 +110,7 @@ export const backend: ConversionBackend = {
 					0,
 					0,
 				)
+
 				layers.drawImage(patch, d.left, d.top)
 				ctx.fillStyle = request.backgroundColor
 				ctx.fillRect(0, 0, outputWidth, outputHeight)
@@ -117,18 +122,22 @@ export const backend: ConversionBackend = {
 				} else if (previous) {
 					layers.putImageData(previous, 0, 0)
 				}
+
 				control.progress((index + 1) / frames.length)
 				// Yield so cancellation and UI work can run between decoding frames.
 				await new Promise<void>((resolve) => setTimeout(resolve, 0))
 			}
+
 			video.close()
 			if (control.cancelled()) {
 				throw aborted()
 			}
+
 			await output.finalize()
 			if (!target.buffer) {
 				throw new Error('Video encoding produced no bytes')
 			}
+
 			const mimeType = request.format === 'mp4' ? 'video/mp4' : 'video/webm'
 			return {
 				uri: URL.createObjectURL(new Blob([target.buffer], { type: mimeType })),

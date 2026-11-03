@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { InputRatingProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { getIcon } from '../media/icons'
 import { useIconRegistry } from '../media/icon-registry-context'
 import { Icon } from '../media/Icon.tsrx'
@@ -92,6 +97,7 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
 /** A labelled rating field with one selected score and filled preceding glyphs. */
 export function InputRating(props: InputRatingProps): unknown @{
 	const inField = useContext(FieldContext) != null
+
 	@if (inField) {
 		<InputRatingControl {...props} />
 	} @else {

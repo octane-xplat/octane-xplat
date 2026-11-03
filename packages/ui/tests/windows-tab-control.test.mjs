@@ -346,7 +346,10 @@ test('Windows UIA selection settles the latest controlled value after the native
 	f.flushTasks()
 	assert.equal(f.tabs.SelectedIndex, 1)
 	assert.deepEqual(f.calls, ['b'], 'settling must not issue another request')
-	assert.deepEqual(Array.from(f.tabs.peers, (peer) => peer.IsTabStop), [false, true])
+	assert.deepEqual(
+		Array.from(f.tabs.peers, (peer) => peer.IsTabStop),
+		[false, true],
+	)
 	f.tabs.SelectedIndex = 0
 	f.tabs.index = 0
 	f.flushTasks()

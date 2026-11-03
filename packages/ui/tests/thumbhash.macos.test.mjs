@@ -6,11 +6,7 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript-classic'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import {
-	macOSHostArch,
-	hostBundle,
-	hostRoot,
-} from '../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // Real AppKit/JSC host: NSBitmapImageRep decode, CGBitmapContext scale to
 // ≤100px, premultiplied readback, JS unpremultiply, reference-port encode.
@@ -42,7 +38,10 @@ try {
 
 	const leaves = await Promise.all(
 		['hash-image', 'thumbhash.macos'].map(async (base) => {
-			const source = await readFile(new URL(`../src/components/media/${base}.ts`, import.meta.url), 'utf8')
+			const source = await readFile(
+				new URL(`../src/components/media/${base}.ts`, import.meta.url),
+				'utf8',
+			)
 			return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${transpile(
 				source,
 			)}; return exports; })();`

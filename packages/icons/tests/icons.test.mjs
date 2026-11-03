@@ -94,7 +94,7 @@ test('addIcon/addIcons register single icons that shadow collections, invalidate
 	assert.throws(() => addIcon('single:Body', { body }), TypeError)
 	assert.throws(() => addIcon('single:noicon', {}), TypeError)
 	assert.throws(() => addIcon('single:noicon2', null), TypeError)
-	assert.throws(() => addIcons({ 'bulk:nope' : null }), TypeError)
+	assert.throws(() => addIcons({ 'bulk:nope': null }), TypeError)
 	assert.throws(() => addIcons({ broken: { body } }), TypeError)
 	assert.throws(() => addIcons(null), TypeError)
 })

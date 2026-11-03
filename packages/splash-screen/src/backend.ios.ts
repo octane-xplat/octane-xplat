@@ -40,11 +40,15 @@ let autoHide: Scheduled | null = null
 interface RootObserverClass {
 	new: () => NSObject
 }
+
 /** `extend` is supplied by the runtime bridge, not the declared NSObject type. */
 interface NativeExtendable<Class> {
 	extend(members: Record<string, unknown>): Class
 }
-const SplashScreenRootObserver = (NSObject as unknown as NativeExtendable<RootObserverClass>).extend({
+
+const SplashScreenRootObserver = (
+	NSObject as unknown as NativeExtendable<RootObserverClass>
+).extend({
 	// UIKit removes existing window subviews when NativeScript assigns the
 	// scene root. Reattach synchronously after that assignment, before the
 	// first frame, and keep the continuation above replacement roots.
@@ -84,6 +88,7 @@ function after(seconds: number, run: () => void): Scheduled {
 	})
 	return work
 }
+
 function nextTurn(run: () => void): Scheduled {
 	const work: Scheduled = { cancelled: false }
 	NSOperationQueue.mainQueue.addOperationWithBlock(() => {
@@ -102,6 +107,7 @@ function storyboardName(): string | null {
 	const name = configured.endsWith('.storyboard') ? configured.slice(0, -11) : configured
 	return NSBundle.mainBundle.pathForResourceOfType(name, 'storyboardc') ? name : null
 }
+
 function configured(): boolean {
 	return storyboardName() !== null
 }
@@ -123,14 +129,10 @@ function prepare(alreadyStarted: boolean): boolean {
 		// Reject non-numeric types (including Booleans), non-integral and
 		// out-of-range values exactly like the removed Swift guard.
 		const value = supplied instanceof NSNumber ? supplied.doubleValue : supplied
-		if (
-			typeof value !== 'number' ||
-			!Number.isInteger(value) ||
-			value < 100 ||
-			value > 120000
-		) {
+		if (typeof value !== 'number' || !Number.isInteger(value) || value < 100 || value > 120000) {
 			return false
 		}
+
 		maxHold = value / 1000
 	}
 	prepared = true
@@ -191,12 +193,14 @@ function configure(options: SplashScreenOptions): boolean {
 		) {
 			return false
 		}
+
 		duration = options.duration / 1000
 	}
 	if (options.fade !== undefined) {
 		if (typeof options.fade !== 'boolean') {
 			return false
 		}
+
 		fade = options.fade
 	}
 	return true
@@ -210,8 +214,10 @@ function attach(window: UIWindow): void {
 	let root: UIViewController | null = null
 	try {
 		root = name
-			? UIStoryboard.storyboardWithNameBundle(name, NSBundle.mainBundle)
-					.instantiateInitialViewController()
+			? UIStoryboard.storyboardWithNameBundle(
+					name,
+					NSBundle.mainBundle,
+				).instantiateInitialViewController()
 			: null
 	} catch {
 		root = null
@@ -294,6 +300,7 @@ function dismiss(animated: boolean): void {
 		() => finish(),
 	)
 }
+
 function finish(): void {
 	controller?.view.removeFromSuperview()
 	controller = null
@@ -301,6 +308,7 @@ function finish(): void {
 	hiding = false
 	dismissed = true
 }
+
 function removeObservers(): void {
 	if (visibleObserver) {
 		NSNotificationCenter.defaultCenter.removeObserver(visibleObserver)
@@ -343,17 +351,17 @@ export function diagnostics(): string {
 let initDone = false
 function ensure(): void {
 	if (!configured()) {
-		throw new UnavailabilityError(
-			'SplashScreen requires a launch storyboard; rebuild the app',
-		)
+		throw new UnavailabilityError('SplashScreen requires a launch storyboard; rebuild the app')
 	}
 	if (!initDone) {
 		if (!prepare(Boolean(Application.started))) {
 			throw new Error('Invalid native splash screen configuration')
 		}
+
 		initDone = true
 	}
 }
+
 export const backend: SplashScreenBackend = {
 	capabilities: () => {
 		const available = configured()

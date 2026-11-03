@@ -60,12 +60,14 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 			) {
 				continue
 			}
+
 			checked++
 			for (const error of exampleErrors(fence)) {
 				errors.push(`${page.path}:${fence.line}: ${error}`)
 			}
 		}
 	}
+
 	if (errors.length) {
 		console.error(errors.join('\n'))
 		process.exitCode = 1

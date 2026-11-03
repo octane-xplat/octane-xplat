@@ -5,6 +5,7 @@ const fake = vi.hoisted(() => ({
 	hide: vi.fn(),
 	configure: vi.fn(),
 }))
+
 vi.mock('../src/backend', () => ({ backend: fake }))
 import { SplashScreen, hide, hideAsync, preventAutoHideAsync, setOptions } from '../src/service'
 import { backend as unsupported } from '../src/unsupported'

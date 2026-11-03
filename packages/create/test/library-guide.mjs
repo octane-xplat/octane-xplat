@@ -21,6 +21,7 @@ function run(command, args, cwd) {
 	assert.equal(result.status, 0, `${command} ${args.join(' ')} failed`)
 	return result.stdout
 }
+
 const tarballs = new Map()
 function packPackage(root) {
 	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -32,6 +33,7 @@ function packPackage(root) {
 	tarballs.set(manifest.name, path)
 	return path
 }
+
 function prepare(root) {
 	const path = join(root, 'package.json')
 	const config = JSON.parse(readFileSync(path, 'utf8'))
@@ -57,6 +59,7 @@ try {
 	]) {
 		packPackage(join(repo, 'packages', dir))
 	}
+
 	writeFileSync(
 		join(work, 'package.json'),
 		JSON.stringify({
@@ -64,6 +67,7 @@ try {
 			dependencies: { 'create-octane-xplat': `file:${tarballs.get('create-octane-xplat')}` },
 		}),
 	)
+
 	run('bun', ['install', '--ignore-scripts'], work)
 	const creator = join(work, 'node_modules/create-octane-xplat/dist/index.js')
 	const library = join(work, 'travel-controls')
@@ -81,6 +85,7 @@ try {
 		],
 		work,
 	)
+
 	// A non-code asset must survive the same source files whitelist.
 	mkdirSync(join(library, 'src/assets'))
 	writeFileSync(join(library, 'src/assets/packing.txt'), 'Passport\nCharger\n')
@@ -88,6 +93,7 @@ try {
 	for (const task of ['typegen', 'typecheck', 'lint', 'test', 'test:packed']) {
 		run('bun', ['run', task], library)
 	}
+
 	run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], library)
 	const artifact = packPackage(library)
 	const listing = run('tar', ['-tzf', artifact], work)
@@ -100,6 +106,7 @@ try {
 	]) {
 		assert.ok(listing.includes(path), `missing ${path}`)
 	}
+
 	run(process.execPath, [creator, app, '--targets', 'web', '--no-install'], work)
 	const manifestPath = join(app, 'package.json')
 	const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
@@ -113,6 +120,7 @@ import { Badge } from '@example/travel-controls'
 createRoot(document.getElementById('root')!).render(<Badge label="Packed library ready" />)
 `,
 	)
+
 	const viteConfig = join(app, 'vite.config.ts')
 	writeFileSync(
 		viteConfig,
@@ -129,18 +137,22 @@ createRoot(document.getElementById('root')!).render(<Badge label="Packed library
 }, `,
 		),
 	)
+
 	prepare(app)
 	for (const task of ['typecheck', 'build']) {
 		run('bun', ['run', task], app)
 	}
+
 	const output = readdirSync(join(app, 'dist/assets'))
 		.filter((name) => name.endsWith('.js'))
 		.map((name) => readFileSync(join(app, 'dist/assets', name), 'utf8'))
 		.join('\n')
+
 	assert.ok(
 		output.includes('Packed library ready'),
 		'installed library was not compiled into the web bundle',
 	)
+
 	console.log(
 		'PASS library guide: packed creator, isolated install, generated types, four plain TypeScript consumers, packed source/assets and consuming web production build. No native/browser runtime qualification.',
 	)

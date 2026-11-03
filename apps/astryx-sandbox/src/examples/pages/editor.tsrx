@@ -4,10 +4,32 @@
 // the upstream contract (panel can't dock on a narrow canvas).
 import { useCallback, useState } from 'octane'
 import {
-	Button, Card, Dialog, DialogHeader, Divider, EmptyState, Heading,
-	HStack, Icon, Layout, LayoutContent, LayoutHeader, LayoutPanel, List,
-	ListItem, SegmentedControl, SegmentedControlItem, Selector, Spinner,
-	StackItem, Tab, TabList, Text, TextInput, useMediaQuery, VStack,
+	Button,
+	Card,
+	Dialog,
+	DialogHeader,
+	Divider,
+	EmptyState,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	List,
+	ListItem,
+	SegmentedControl,
+	SegmentedControlItem,
+	Selector,
+	Spinner,
+	StackItem,
+	Tab,
+	TabList,
+	Text,
+	TextInput,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
 
 type BlockType = 'hero' | 'text' | 'image' | 'button' | 'cards' | 'features' | 'cta'
@@ -31,14 +53,17 @@ interface HeroBlock extends BlockBase {
 		alignment?: 'left' | 'center' | 'right'
 	}
 }
+
 interface TextBlock extends BlockBase {
 	type: 'text'
 	props: { heading?: string; description?: string; buttonLabel?: string; content?: string }
 }
+
 interface ImageBlock extends BlockBase {
 	type: 'image'
 	props: Record<string, never>
 }
+
 interface ButtonBlock extends BlockBase {
 	type: 'button'
 	props: {
@@ -47,10 +72,12 @@ interface ButtonBlock extends BlockBase {
 		size?: 'sm' | 'md' | 'lg'
 	}
 }
+
 interface CardsBlock extends BlockBase {
 	type: 'cards'
 	props: { cards?: CardItem[] }
 }
+
 interface FeaturesBlock extends BlockBase {
 	type: 'features'
 	props: {
@@ -60,6 +87,7 @@ interface FeaturesBlock extends BlockBase {
 		items?: Transaction[]
 	}
 }
+
 interface CtaBlock extends BlockBase {
 	type: 'cta'
 	props: { heading?: string; description?: string; buttonLabel?: string }
@@ -98,21 +126,56 @@ type Transaction = {
 
 const DEFAULT_BLOCKS: Block[] = [
 	{
-		id: '2', type: 'features', label: 'Recent Transactions',
+		id: '2',
+		type: 'features',
+		label: 'Recent Transactions',
 		props: {
 			heading: 'Recent Transactions',
 			description: 'Your latest account activity.',
 			items: [
-				{ id: 't1', name: 'Blue Bottle Coffee', category: 'Food & Drink', date: 'Today, 10:24 AM', amount: '-$6.50' },
-				{ id: 't2', name: 'Whole Foods Market', category: 'Groceries', date: 'Yesterday', amount: '-$142.30' },
-				{ id: 't3', name: 'Stripe Payout', category: 'Income', date: 'Oct 12', amount: '+$4,200.00', isPositive: true },
-				{ id: 't4', name: 'Uber Technologies', category: 'Transport', date: 'Oct 11', amount: '-$24.10' },
-				{ id: 't5', name: 'Netflix Subscription', category: 'Entertainment', date: 'Oct 10', amount: '-$19.99' },
+				{
+					id: 't1',
+					name: 'Blue Bottle Coffee',
+					category: 'Food & Drink',
+					date: 'Today, 10:24 AM',
+					amount: '-$6.50',
+				},
+				{
+					id: 't2',
+					name: 'Whole Foods Market',
+					category: 'Groceries',
+					date: 'Yesterday',
+					amount: '-$142.30',
+				},
+				{
+					id: 't3',
+					name: 'Stripe Payout',
+					category: 'Income',
+					date: 'Oct 12',
+					amount: '+$4,200.00',
+					isPositive: true,
+				},
+				{
+					id: 't4',
+					name: 'Uber Technologies',
+					category: 'Transport',
+					date: 'Oct 11',
+					amount: '-$24.10',
+				},
+				{
+					id: 't5',
+					name: 'Netflix Subscription',
+					category: 'Entertainment',
+					date: 'Oct 10',
+					amount: '-$19.99',
+				},
 			],
 		},
 	},
 	{
-		id: '3', type: 'text', label: 'Syncing State',
+		id: '3',
+		type: 'text',
+		label: 'Syncing State',
 		props: {
 			heading: 'Syncing your accounts',
 			description: "We're pulling in your latest transactions.\nThis usually takes a few seconds.",
@@ -120,10 +183,13 @@ const DEFAULT_BLOCKS: Block[] = [
 		},
 	},
 	{
-		id: '4', type: 'cta', label: 'Trust Notice',
+		id: '4',
+		type: 'cta',
+		label: 'Trust Notice',
 		props: {
 			heading: 'Adding devices from people you trust',
-			description: "When you approve a request, you grant someone full access to your account. They'll be able to change reservations and send messages on your behalf.",
+			description:
+				"When you approve a request, you grant someone full access to your account. They'll be able to change reservations and send messages on your behalf.",
 		},
 	},
 ]
@@ -133,8 +199,15 @@ function makeBlock(type: BlockType, id: string): Block {
 	switch (type) {
 		case 'hero':
 			return {
-				id, type, label,
-				props: { heading: 'New Hero', subheading: 'Subtitle goes here', buttonLabel: 'Click Me', alignment: 'center' },
+				id,
+				type,
+				label,
+				props: {
+					heading: 'New Hero',
+					subheading: 'Subtitle goes here',
+					buttonLabel: 'Click Me',
+					alignment: 'center',
+				},
 			}
 		case 'text':
 			return { id, type, label, props: { content: 'Enter your text here.' } }
@@ -144,7 +217,9 @@ function makeBlock(type: BlockType, id: string): Block {
 			return { id, type, label, props: { label: 'Button', variant: 'primary', size: 'md' } }
 		case 'cards':
 			return {
-				id, type, label,
+				id,
+				type,
+				label,
 				props: {
 					cards: [
 						{ title: 'Pricing', description: 'Flexible plans for every team size.' },
@@ -154,16 +229,27 @@ function makeBlock(type: BlockType, id: string): Block {
 			}
 		case 'features':
 			return {
-				id, type, label,
+				id,
+				type,
+				label,
 				props: {
-					heading: 'Activity', description: '',
-					items: [{ id: 't1', name: 'New Item', category: 'General', date: 'Today', amount: '$0.00' }],
+					heading: 'Activity',
+					description: '',
+					items: [
+						{ id: 't1', name: 'New Item', category: 'General', date: 'Today', amount: '$0.00' },
+					],
 				},
 			}
 		case 'cta':
 			return {
-				id, type, label,
-				props: { heading: 'New CTA', description: 'Supporting copy goes here.', buttonLabel: 'Learn more' },
+				id,
+				type,
+				label,
+				props: {
+					heading: 'New CTA',
+					description: 'Supporting copy goes here.',
+					buttonLabel: 'Learn more',
+				},
 			}
 	}
 }
@@ -191,68 +277,96 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
 	switch (props.block.type) {
 		case 'hero': {
 			const p = props.block.props
-   return <VStack gap={3}>
-				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
-				<TextInput label="Subheading" value={p.subheading ?? ''} onChange={set('subheading')} />
-				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
-				<Selector
-					label="Alignment"
-					options={[
-						{ value: 'left', label: 'Left' },
-						{ value: 'center', label: 'Center' },
-						{ value: 'right', label: 'Right' },
-					]}
-					value={p.alignment ?? 'center'}
-					onValueChange={(v) => props.onUpdate('alignment', v)}
-				/>
-			</VStack>
+			return (
+				<VStack gap={3}>
+					<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+					<TextInput label="Subheading" value={p.subheading ?? ''} onChange={set('subheading')} />
+					<TextInput
+						label="Button label"
+						value={p.buttonLabel ?? ''}
+						onChange={set('buttonLabel')}
+					/>
+					<Selector
+						label="Alignment"
+						options={[
+							{ value: 'left', label: 'Left' },
+							{ value: 'center', label: 'Center' },
+							{ value: 'right', label: 'Right' },
+						]}
+						value={p.alignment ?? 'center'}
+						onValueChange={(v) => props.onUpdate('alignment', v)}
+					/>
+				</VStack>
+			)
 		}
 		case 'text': {
 			const p = props.block.props
-   return <VStack gap={3}>
-				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
-				<TextInput label="Description" value={p.description ?? ''} onChange={set('description')} />
-				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
-				<TextInput label="Body text" value={p.content ?? ''} onChange={set('content')} />
-			</VStack>
+			return (
+				<VStack gap={3}>
+					<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+					<TextInput
+						label="Description"
+						value={p.description ?? ''}
+						onChange={set('description')}
+					/>
+					<TextInput
+						label="Button label"
+						value={p.buttonLabel ?? ''}
+						onChange={set('buttonLabel')}
+					/>
+					<TextInput label="Body text" value={p.content ?? ''} onChange={set('content')} />
+				</VStack>
+			)
 		}
 		case 'button': {
 			const p = props.block.props
-   return <VStack gap={3}>
-				<TextInput label="Label" value={p.label ?? ''} onChange={set('label')} />
-				<Selector
-					label="Variant"
-					options={[
-						{ value: 'primary', label: 'Primary' },
-						{ value: 'secondary', label: 'Secondary' },
-						{ value: 'ghost', label: 'Ghost' },
-					]}
-					value={p.variant ?? 'primary'}
-					onValueChange={(v) => props.onUpdate('variant', v)}
-				/>
-				<Selector
-					label="Size"
-					options={[
-						{ value: 'sm', label: 'Small' },
-						{ value: 'md', label: 'Medium' },
-						{ value: 'lg', label: 'Large' },
-					]}
-					value={p.size ?? 'md'}
-					onValueChange={(v) => props.onUpdate('size', v)}
-				/>
-			</VStack>
+			return (
+				<VStack gap={3}>
+					<TextInput label="Label" value={p.label ?? ''} onChange={set('label')} />
+					<Selector
+						label="Variant"
+						options={[
+							{ value: 'primary', label: 'Primary' },
+							{ value: 'secondary', label: 'Secondary' },
+							{ value: 'ghost', label: 'Ghost' },
+						]}
+						value={p.variant ?? 'primary'}
+						onValueChange={(v) => props.onUpdate('variant', v)}
+					/>
+					<Selector
+						label="Size"
+						options={[
+							{ value: 'sm', label: 'Small' },
+							{ value: 'md', label: 'Medium' },
+							{ value: 'lg', label: 'Large' },
+						]}
+						value={p.size ?? 'md'}
+						onValueChange={(v) => props.onUpdate('size', v)}
+					/>
+				</VStack>
+			)
 		}
 		case 'features':
 		case 'cta': {
 			const p = props.block.props
-   return <VStack gap={3}>
-				<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
-				<TextInput label="Description" value={p.description ?? ''} onChange={set('description')} />
-				<TextInput label="Button label" value={p.buttonLabel ?? ''} onChange={set('buttonLabel')} />
-			</VStack>
+			return (
+				<VStack gap={3}>
+					<TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
+					<TextInput
+						label="Description"
+						value={p.description ?? ''}
+						onChange={set('description')}
+					/>
+					<TextInput
+						label="Button label"
+						value={p.buttonLabel ?? ''}
+						onChange={set('buttonLabel')}
+					/>
+				</VStack>
+			)
 		}
 		default:
-   return <EmptyState title="No configurable properties" isCompact />
+			return <EmptyState title="No configurable properties" isCompact />
 	}
 }
 
@@ -262,114 +376,166 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
 	switch (props.block.type) {
 		case 'hero': {
 			const p = props.block.props
-   return <Card padding={6} style={cardStyle}>
-				<div onClick={props.onSelect} style={clickable}>
-					<VStack gap={4} hAlign={(p.alignment ?? 'center') === 'left' ? 'start' : (p.alignment ?? 'center') === 'right' ? 'end' : 'center'}>
-						<Heading level={2}>{p.heading || 'Hero Heading'}</Heading>
-						<Text type="supporting" color="secondary">
-							{p.subheading || 'Subtitle text goes here'}
-						</Text>
-						{p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : null}
-					</VStack>
-				</div>
-			</Card>
+			return (
+				<Card padding={6} style={cardStyle}>
+					<div onClick={props.onSelect} style={clickable}>
+						<VStack
+							gap={4}
+							hAlign={
+								(p.alignment ?? 'center') === 'left'
+									? 'start'
+									: (p.alignment ?? 'center') === 'right'
+										? 'end'
+										: 'center'
+							}
+						>
+							<Heading level={2}>{p.heading || 'Hero Heading'}</Heading>
+							<Text type="supporting" color="secondary">
+								{p.subheading || 'Subtitle text goes here'}
+							</Text>
+							{p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : null}
+						</VStack>
+					</div>
+				</Card>
+			)
 		}
 		case 'text': {
 			const p = props.block.props
 			if (p.heading) {
 				return (
+					<Card padding={6} style={cardStyle}>
+						<div onClick={props.onSelect} style={clickable}>
+							<EmptyState
+								title={p.heading}
+								description={p.description}
+								icon={<Spinner />}
+								actions={
+									p.buttonLabel ? (
+										<Button label={p.buttonLabel} variant="secondary" clickAction={() => {}} />
+									) : undefined
+								}
+							/>
+						</div>
+					</Card>
+				)
+			}
+
+			return (
+				<Card style={cardStyle}>
+					<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
+						<Text type="body">{p.content || 'Text content'}</Text>
+					</div>
+				</Card>
+			)
+		}
+		case 'image':
+			return (
+				<Card padding={0} style={cardStyle}>
+					<div
+						onClick={props.onSelect}
+						style={{
+							...clickable,
+							height: 180,
+							backgroundColor: 'var(--color-background-muted)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}
+					>
+						<Icon name="sandbox-photo" size={32} color="secondary" />
+					</div>
+				</Card>
+			)
+		case 'button': {
+			const p = props.block.props
+			return (
 				<Card padding={6} style={cardStyle}>
 					<div onClick={props.onSelect} style={clickable}>
-						<EmptyState
-							title={p.heading}
-							description={p.description}
-							icon={<Spinner />}
-							actions={p.buttonLabel ? <Button label={p.buttonLabel} variant="secondary" clickAction={() => {}} /> : undefined}
+						<Button
+							label={p.label || 'Button'}
+							variant={p.variant ?? 'primary'}
+							size={p.size ?? 'md'}
+							clickAction={() => {}}
 						/>
 					</div>
 				</Card>
-				)
-			}
-			return <Card style={cardStyle}>
-				<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
-					<Text type="body">{p.content || 'Text content'}</Text>
-				</div>
-			</Card>
-		}
-		case 'image':
-   return <Card padding={0} style={cardStyle}>
-				<div onClick={props.onSelect} style={{ ...clickable, height: 180, backgroundColor: 'var(--color-background-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-					<Icon name="sandbox-photo" size={32} color="secondary" />
-				</div>
-			</Card>
-		case 'button': {
-			const p = props.block.props
-   return <Card padding={6} style={cardStyle}>
-				<div onClick={props.onSelect} style={clickable}>
-					<Button
-						label={p.label || 'Button'}
-						variant={p.variant ?? 'primary'}
-						size={p.size ?? 'md'}
-						clickAction={() => {}}
-					/>
-				</div>
-			</Card>
+			)
 		}
 		case 'features': {
 			const p = props.block.props
 			const items = p.items ?? []
-			return <Card padding={6} style={cardStyle}>
-				<div onClick={props.onSelect} style={clickable}>
-					<VStack gap={3}>
-						<Heading level={3}>{p.heading || 'Features'}</Heading>
-						{p.description ? (
-							<Text type="supporting" color="secondary">{p.description}</Text>
-						) : null}
-						<VStack gap={2}>
-							{items.map((item) => (
-								<HStack key={item.id} gap={3} vAlign="center">
-									<Icon name="sandbox-sparkles" color="secondary" />
-									<StackItem size="fill">
-										<VStack gap={0}>
-											<Text type="label" weight="semibold">{item.name}</Text>
-											<Text type="supporting" color="secondary">{item.category}</Text>
-										</VStack>
-									</StackItem>
-									<Text type="label" weight="semibold" style={{ color: item.isPositive ? 'var(--color-text-success, #067647)' : undefined }}>
-										{item.amount}
-									</Text>
-								</HStack>
-							))}
+			return (
+				<Card padding={6} style={cardStyle}>
+					<div onClick={props.onSelect} style={clickable}>
+						<VStack gap={3}>
+							<Heading level={3}>{p.heading || 'Features'}</Heading>
+							{p.description ? (
+								<Text type="supporting" color="secondary">
+									{p.description}
+								</Text>
+							) : null}
+							<VStack gap={2}>
+								{items.map((item) => (
+									<HStack key={item.id} gap={3} vAlign="center">
+										<Icon name="sandbox-sparkles" color="secondary" />
+										<StackItem size="fill">
+											<VStack gap={0}>
+												<Text type="label" weight="semibold">
+													{item.name}
+												</Text>
+												<Text type="supporting" color="secondary">
+													{item.category}
+												</Text>
+											</VStack>
+										</StackItem>
+										<Text
+											type="label"
+											weight="semibold"
+											style={{
+												color: item.isPositive ? 'var(--color-text-success, #067647)' : undefined,
+											}}
+										>
+											{item.amount}
+										</Text>
+									</HStack>
+								))}
+							</VStack>
 						</VStack>
-					</VStack>
-				</div>
-			</Card>
+					</div>
+				</Card>
+			)
 		}
 		case 'cards': {
 			const cardItems = props.block.props.cards ?? []
-			return <Card style={cardStyle}>
-				<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
-					<Heading level={3}>Cards</Heading>
-					<List density="balanced" hasDividers={false}>
-						{cardItems.map((c) => (
-							<ListItem key={c.title} label={c.title} description={c.description} />
-						))}
-					</List>
-				</div>
-			</Card>
+			return (
+				<Card style={cardStyle}>
+					<div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
+						<Heading level={3}>Cards</Heading>
+						<List density="balanced" hasDividers={false}>
+							{cardItems.map((c) => (
+								<ListItem key={c.title} label={c.title} description={c.description} />
+							))}
+						</List>
+					</div>
+				</Card>
+			)
 		}
 		case 'cta': {
 			const p = props.block.props
-   return <Card padding={6} style={cardStyle}>
-				<div onClick={props.onSelect} style={clickable}>
-					<EmptyState
-						title={p.heading || 'CTA'}
-						description={p.description}
-						icon={<Icon name="sandbox-megaphone" size={24} />}
-						actions={p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : undefined}
-					/>
-				</div>
-			</Card>
+			return (
+				<Card padding={6} style={cardStyle}>
+					<div onClick={props.onSelect} style={clickable}>
+						<EmptyState
+							title={p.heading || 'CTA'}
+							description={p.description}
+							icon={<Icon name="sandbox-megaphone" size={24} />}
+							actions={
+								p.buttonLabel ? <Button label={p.buttonLabel} clickAction={() => {}} /> : undefined
+							}
+						/>
+					</div>
+				</Card>
+			)
 		}
 	}
 }
@@ -398,9 +564,15 @@ export function EditorTemplate() @{
 	const moveBlock = useCallback((id: string, dir: -1 | 1) => {
 		setBlocks((prev) => {
 			const idx = prev.findIndex((b) => b.id === id)
-			if (idx < 0) {return prev}
+			if (idx < 0) {
+				return prev
+			}
+
 			const target = idx + dir
-			if (target < 0 || target >= prev.length) {return prev}
+			if (target < 0 || target >= prev.length) {
+				return prev
+			}
+
 			const next = [...prev]
 			const [moved] = next.splice(idx, 1)
 			next.splice(target, 0, moved)
@@ -425,7 +597,9 @@ export function EditorTemplate() @{
 		(id: string) => {
 			setSelectedId(id)
 			setSidebarTab('properties')
-			if (isMobile) {setIsCustomizeOpen(true)}
+			if (isMobile) {
+				setIsCustomizeOpen(true)
+			}
 		},
 		[isMobile],
 	)
@@ -460,19 +634,25 @@ export function EditorTemplate() @{
 									<Button
 										label="Move up"
 										icon={<Icon name="sandbox-chevron-up" size={16} />}
-										variant="ghost" size="sm" isIconOnly
+										variant="ghost"
+										size="sm"
+										isIconOnly
 										clickAction={() => moveBlock(block.id, -1)}
 									/>
 									<Button
 										label="Move down"
 										icon={<Icon name="sandbox-chevron-down" size={16} />}
-										variant="ghost" size="sm" isIconOnly
+										variant="ghost"
+										size="sm"
+										isIconOnly
 										clickAction={() => moveBlock(block.id, 1)}
 									/>
 									<Button
 										label="Delete block"
 										icon={<Icon name="sandbox-trash" size={16} />}
-										variant="ghost" size="sm" isIconOnly
+										variant="ghost"
+										size="sm"
+										isIconOnly
 										clickAction={() => deleteBlock(block.id)}
 									/>
 								</HStack>
@@ -486,7 +666,10 @@ export function EditorTemplate() @{
 
 	const propertiesTabContent = selectedBlock ? (
 		<VStack gap={3} padding={4}>
-			<BlockProperties block={selectedBlock} onUpdate={(key, value) => updateBlockProp(selectedBlock.id, key, value)} />
+			<BlockProperties
+				block={selectedBlock}
+				onUpdate={(key, value) => updateBlockProp(selectedBlock.id, key, value)}
+			/>
 		</VStack>
 	) : (
 		<EmptyState
@@ -500,10 +683,7 @@ export function EditorTemplate() @{
 	const editingContent = (
 		<VStack gap={0}>
 			<VStack padding={3}>
-				<TabList
-					value={sidebarTab}
-					onChange={(v) => setSidebarTab(v as SidebarTab)}
-				>
+				<TabList value={sidebarTab} onChange={(v) => setSidebarTab(v as SidebarTab)}>
 					<Tab value="blocks" label="Blocks" />
 					<Tab value="properties" label="Properties" />
 				</TabList>
@@ -541,7 +721,9 @@ export function EditorTemplate() @{
 										<Button
 											label="Rename page"
 											icon={<Icon name="sandbox-pencil" size={14} />}
-											variant="ghost" size="sm" isIconOnly
+											variant="ghost"
+											size="sm"
+											isIconOnly
 											clickAction={() => setIsEditingTitle(true)}
 										/>
 									</HStack>
@@ -574,7 +756,11 @@ export function EditorTemplate() @{
 				<LayoutContent padding={8}>
 					<VStack gap={4} style={canvasStyle(VIEWPORT_MAX[viewport])}>
 						{isMobile ? (
-							<Button label="Customize" variant="secondary" clickAction={() => setIsCustomizeOpen(true)} />
+							<Button
+								label="Customize"
+								variant="secondary"
+								clickAction={() => setIsCustomizeOpen(true)}
+							/>
 						) : null}
 						{blocks.map((block) => (
 							<BlockPreview
@@ -596,11 +782,7 @@ export function EditorTemplate() @{
 			}
 		/>
 		{isMobile ? (
-			<Dialog
-				isOpen={isCustomizeOpen}
-				onOpenChange={setIsCustomizeOpen}
-				purpose="form"
-			>
+			<Dialog isOpen={isCustomizeOpen} onOpenChange={setIsCustomizeOpen} purpose="form">
 				<DialogHeader title="Customize" onOpenChange={setIsCustomizeOpen} />
 				{editingContent}
 			</Dialog>

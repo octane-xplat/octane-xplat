@@ -6,10 +6,25 @@
 // upstream Cell fills.
 import { useMemo, useState } from 'octane'
 import {
-	Button, Card, Divider, Grid, Heading, HStack, Icon, Layout,
-	LayoutContent, LayoutHeader, SegmentedControl, SegmentedControlItem,
-	Selector, Table, Text, Token, VStack,
+	Button,
+	Card,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	SegmentedControl,
+	SegmentedControlItem,
+	Selector,
+	Table,
+	Text,
+	Token,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartLines } from './charts.tsrx'
 
@@ -39,11 +54,31 @@ interface FunnelStage {
 }
 
 const FUNNEL_STAGES: FunnelStage[] = [
-	{ key: 'visit', label: 'Visited site', users: { all: 128400, web: 82600, ios: 27300, android: 18500 } },
-	{ key: 'signup', label: 'Signed up', users: { all: 41200, web: 24800, ios: 9600, android: 6800 } },
-	{ key: 'activate', label: 'Activated', users: { all: 22600, web: 12900, ios: 5900, android: 3800 } },
-	{ key: 'subscribe', label: 'Subscribed', users: { all: 9100, web: 5100, ios: 2600, android: 1400 } },
-	{ key: 'retain', label: 'Retained 30d', users: { all: 6300, web: 3600, ios: 1850, android: 850 } },
+	{
+		key: 'visit',
+		label: 'Visited site',
+		users: { all: 128400, web: 82600, ios: 27300, android: 18500 },
+	},
+	{
+		key: 'signup',
+		label: 'Signed up',
+		users: { all: 41200, web: 24800, ios: 9600, android: 6800 },
+	},
+	{
+		key: 'activate',
+		label: 'Activated',
+		users: { all: 22600, web: 12900, ios: 5900, android: 3800 },
+	},
+	{
+		key: 'subscribe',
+		label: 'Subscribed',
+		users: { all: 9100, web: 5100, ios: 2600, android: 1400 },
+	},
+	{
+		key: 'retain',
+		label: 'Retained 30d',
+		users: { all: 6300, web: 3600, ios: 1850, android: 850 },
+	},
 ]
 
 const TREND = [
@@ -101,10 +136,22 @@ const COHORTS: Cohort[] = [
 const MAX_WEEKS = 8
 
 function retentionColor(pct: number): 'green' | 'teal' | 'yellow' | 'orange' | 'red' {
-	if (pct >= 70) {return 'green'}
-	if (pct >= 50) {return 'teal'}
-	if (pct >= 40) {return 'yellow'}
-	if (pct >= 32) {return 'orange'}
+	if (pct >= 70) {
+		return 'green'
+	}
+
+	if (pct >= 50) {
+		return 'teal'
+	}
+
+	if (pct >= 40) {
+		return 'yellow'
+	}
+
+	if (pct >= 32) {
+		return 'orange'
+	}
+
 	return 'red'
 }
 
@@ -170,12 +217,14 @@ function RetentionCell(props: { value: string | number }) @{
 	if (Number.isNaN(pct)) {
 		return <Text color="secondary">—</Text>
 	}
+
 	<Token size="sm" color={retentionColor(pct)} label={`${pct}%`} />
 }
 
 function KpiTile(props: { kpi: Kpi }) @{
 	const positive = props.kpi.delta >= 0
 	const good = props.kpi.higherIsBetter === positive
+
 	<Card padding={4}>
 		<VStack gap={1}>
 			<Text type="label" color="secondary">
@@ -189,7 +238,14 @@ function KpiTile(props: { kpi: Kpi }) @{
 						size={12}
 						color={good ? 'success' : 'error'}
 					/>
-					<Text type="body" style={{ color: good ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+					<Text
+						type="body"
+						style={{
+							color: good
+								? 'var(--color-text-success, #067647)'
+								: 'var(--color-text-error, #d92d20)',
+						}}
+					>
 						{positive ? '+' : ''}
 						{props.kpi.delta.toFixed(1)}%
 					</Text>
@@ -206,7 +262,9 @@ function ConversionFunnel(props: { segment: Segment }) @{
 		users: stage.users[props.segment],
 		color: FUNNEL_COLORS[i],
 	}))
+
 	const top = bars[0].users
+
 	<VStack gap={4}>
 		{bars.map((bar) => (
 			<VStack key={bar.key} gap={1}>
@@ -244,6 +302,7 @@ function FunnelSteps(props: { segment: Segment }) @{
 			drop,
 		}
 	})
+
 	<Grid columns={{ minWidth: 180, repeat: 'fit' }} style={{ gap: 'var(--spacing-3)' }}>
 		{steps.map((step) => (
 			<Card key={step.key} padding={3}>

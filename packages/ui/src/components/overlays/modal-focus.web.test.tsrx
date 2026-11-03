@@ -340,11 +340,21 @@ for (const custom of [false, true]) {
 }
 
 function IsModalOverlay(props: { dismiss: () => void }) @{
-	<><button id="outside">Outside</button><Overlay open isModal accessibilityLabel="Photo viewer" onDismiss={props.dismiss}><button id="inside">Inside</button></Overlay></>
+	<>
+		<button id="outside">Outside</button>
+		<Overlay open isModal accessibilityLabel="Photo viewer" onDismiss={props.dismiss}>
+			<button id="inside">Inside</button>
+		</Overlay>
+	</>
 }
 
 function PlainOverlay(props: { dismiss: () => void }) @{
-	<><button id="outside">Outside</button><Overlay open accessibilityLabel="Plain" onDismiss={props.dismiss}><button id="inside">Inside</button></Overlay></>
+	<>
+		<button id="outside">Outside</button>
+		<Overlay open accessibilityLabel="Plain" onDismiss={props.dismiss}>
+			<button id="inside">Inside</button>
+		</Overlay>
+	</>
 }
 
 describe('Overlay isModal', () => {
@@ -364,7 +374,12 @@ describe('Overlay isModal', () => {
 			expect(panel.getAttribute('aria-label')).toBe('Photo viewer')
 			expect(host.hasAttribute('inert')).toBe(true)
 			const inside = document.querySelector('#inside') as HTMLElement
-			act(() => inside.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			act(() =>
+				inside.dispatchEvent(
+					new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+				),
+			)
+
 			expect(dismiss).toHaveBeenCalledTimes(1)
 		} finally {
 			act(() => root.unmount())
@@ -386,7 +401,12 @@ describe('Overlay isModal', () => {
 			expect(panel.getAttribute('aria-modal')).toBeNull()
 			expect(host.hasAttribute('inert')).toBe(false)
 			const inside = document.querySelector('#inside') as HTMLElement
-			act(() => inside.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })))
+			act(() =>
+				inside.dispatchEvent(
+					new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+				),
+			)
+
 			expect(dismiss).not.toHaveBeenCalled()
 		} finally {
 			act(() => root.unmount())

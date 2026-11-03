@@ -120,7 +120,11 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
 		{...layoutChildProps(
 			props,
 			mergeStyle(
-				{ flexDirection: isGrid ? 'row' : 'column', flexWrap: isGrid ? 'wrap' : 'nowrap', display: 'flex' },
+				{
+					flexDirection: isGrid ? 'row' : 'column',
+					flexWrap: isGrid ? 'wrap' : 'nowrap',
+					display: 'flex',
+				},
 				props.style,
 			),
 		)}

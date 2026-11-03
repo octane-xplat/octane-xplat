@@ -189,6 +189,7 @@ try {
 		existsSync(join(packedRoot, 'src/video-view.macos.ts')),
 		'the TypeScript AppKit engine is packed',
 	)
+
 	assert.ok(
 		!existsSync(join(packedRoot, 'platforms')),
 		'no native platforms directory ships for the AppKit engine',

@@ -5,8 +5,26 @@
 // {label,onClick} → {type:'action',key,label,onSelect}.
 import { useState } from 'octane'
 import {
-	Button, Card, Divider, DropdownMenu, Grid, GridSpan, Heading, HStack,
-	Icon, Layout, LayoutContent, Link, List, ListItem, Table, Text, VStack, pixel } from '@octane-xplat/ui'
+	Button,
+	Card,
+	Divider,
+	DropdownMenu,
+	Grid,
+	GridSpan,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	Link,
+	List,
+	ListItem,
+	Table,
+	Text,
+	VStack,
+	pixel,
+} from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartLines, ChartSparkline } from './charts.tsrx'
 
@@ -17,6 +35,7 @@ function genSpark(seed: number, start: number, end: number, volatility: number, 
 		s = (Math.imul(s, 1664525) + 1013904223) >>> 0
 		return s / 0x100000000
 	}
+
 	const points: number[] = []
 	let drift = 0
 	for (let i = 0; i < N; i++) {
@@ -26,17 +45,26 @@ function genSpark(seed: number, start: number, end: number, volatility: number, 
 			Math.sin(t * Math.PI * 2.3 + seed * 0.13) * volatility * 1.4 +
 			Math.sin(t * Math.PI * 5.7 + seed * 0.41) * volatility * 0.9 +
 			Math.sin(t * Math.PI * 13.1 + seed * 0.07) * volatility * 0.5
+
 		drift = drift * 0.55 + (rand() - 0.5) * volatility * 2.2
 		const spike = rand() < 0.04 ? (rand() - 0.5) * volatility * 4 : 0
 		points.push(trend + wave + drift + spike)
 	}
+
 	return points
 }
 
 // Portfolio value anchors (months, k$) → sampled into the chart series.
 const PORTFOLIO_ANCHORS: [number, number][] = [
-	[0, 218], [2, 226], [4, 231], [6, 248], [8, 262], [10, 279], [12, 294],
+	[0, 218],
+	[2, 226],
+	[4, 231],
+	[6, 248],
+	[8, 262],
+	[10, 279],
+	[12, 294],
 ]
+
 const portfolioData = (() => {
 	const points: number[] = []
 	const totalDays = PORTFOLIO_ANCHORS[PORTFOLIO_ANCHORS.length - 1][0]
@@ -44,7 +72,10 @@ const portfolioData = (() => {
 	for (let i = 0; i < N; i++) {
 		const day = (i / (N - 1)) * totalDays
 		let j = 0
-		while (j < PORTFOLIO_ANCHORS.length - 2 && PORTFOLIO_ANCHORS[j + 1][0] < day) {j++}
+		while (j < PORTFOLIO_ANCHORS.length - 2 && PORTFOLIO_ANCHORS[j + 1][0] < day) {
+			j++
+		}
+
 		const [d0, v0] = PORTFOLIO_ANCHORS[j]
 		const [d1, v1] = PORTFOLIO_ANCHORS[j + 1]
 		const t = (day - d0) / (d1 - d0)
@@ -53,6 +84,7 @@ const portfolioData = (() => {
 		const noise = (seed - Math.floor(seed) - 0.5) * 3.6
 		points.push(Number((base + noise).toFixed(1)))
 	}
+
 	return points
 })()
 
@@ -72,14 +104,70 @@ const topAssets = [
 ]
 
 const marketIndices = [
-	{ name: 'Dow Jones', ticker: 'DJI', price: '43,821.67', change: '+0.42%', positive: true, spark: genSpark(1337, 78, 84, 3.2) },
-	{ name: 'NASDAQ', ticker: 'IXIC', price: '18,942.18', change: '-0.50%', positive: false, spark: genSpark(2718, 62, 55, 3.0) },
-	{ name: 'S&P 500', ticker: 'SPX', price: '5,918.33', change: '+0.18%', positive: true, spark: genSpark(3141, 70, 73, 2.4) },
-	{ name: 'NYSE Composite', ticker: 'NYA', price: '19,752.41', change: '+0.31%', positive: true, spark: genSpark(1618, 66, 70, 2.0) },
-	{ name: 'NVIDIA Corp.', ticker: 'NVDA', price: '$177.39', change: '+2.94%', positive: true, spark: genSpark(4242, 58, 74, 4.4) },
-	{ name: 'Intel Corp.', ticker: 'INTC', price: '$50.38', change: '-1.12%', positive: false, spark: genSpark(5555, 72, 63, 3.6) },
-	{ name: 'Nokia Corp.', ticker: 'NOK', price: '$8.82', change: '+0.57%', positive: true, spark: genSpark(8888, 46, 50, 2.2) },
-	{ name: 'Tesla, Inc.', ticker: 'TSLA', price: '$360.59', change: '-0.88%', positive: false, spark: genSpark(9999, 80, 71, 5.2) },
+	{
+		name: 'Dow Jones',
+		ticker: 'DJI',
+		price: '43,821.67',
+		change: '+0.42%',
+		positive: true,
+		spark: genSpark(1337, 78, 84, 3.2),
+	},
+	{
+		name: 'NASDAQ',
+		ticker: 'IXIC',
+		price: '18,942.18',
+		change: '-0.50%',
+		positive: false,
+		spark: genSpark(2718, 62, 55, 3.0),
+	},
+	{
+		name: 'S&P 500',
+		ticker: 'SPX',
+		price: '5,918.33',
+		change: '+0.18%',
+		positive: true,
+		spark: genSpark(3141, 70, 73, 2.4),
+	},
+	{
+		name: 'NYSE Composite',
+		ticker: 'NYA',
+		price: '19,752.41',
+		change: '+0.31%',
+		positive: true,
+		spark: genSpark(1618, 66, 70, 2.0),
+	},
+	{
+		name: 'NVIDIA Corp.',
+		ticker: 'NVDA',
+		price: '$177.39',
+		change: '+2.94%',
+		positive: true,
+		spark: genSpark(4242, 58, 74, 4.4),
+	},
+	{
+		name: 'Intel Corp.',
+		ticker: 'INTC',
+		price: '$50.38',
+		change: '-1.12%',
+		positive: false,
+		spark: genSpark(5555, 72, 63, 3.6),
+	},
+	{
+		name: 'Nokia Corp.',
+		ticker: 'NOK',
+		price: '$8.82',
+		change: '+0.57%',
+		positive: true,
+		spark: genSpark(8888, 46, 50, 2.2),
+	},
+	{
+		name: 'Tesla, Inc.',
+		ticker: 'TSLA',
+		price: '$360.59',
+		change: '-0.88%',
+		positive: false,
+		spark: genSpark(9999, 80, 71, 5.2),
+	},
 ]
 
 interface StockRow extends Record<string, unknown> {
@@ -101,13 +189,18 @@ const trendingStocks: StockRow[] = [
 
 function SignedCell(props: { value: number; suffix: string }) @{
 	const positive = props.value >= 0
+
 	<HStack gap={1} vAlign="center">
 		<Icon
 			name={positive ? 'sandbox-arrow-trending-up' : 'sandbox-arrow-trending-down'}
 			size={12}
 			color={positive ? 'success' : 'error'}
 		/>
-		<Text style={{ color: positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+		<Text
+			style={{
+				color: positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)',
+			}}
+		>
 			{positive ? '+' : ''}
 			{props.value.toFixed(2)}
 			{props.suffix}
@@ -145,6 +238,7 @@ const trendingColumns: TableColumn<StockRow>[] = [
 
 function MetricCard(props: { value: string; change: string; label: string }) @{
 	const positive = !props.change.startsWith('-')
+
 	<Card>
 		<VStack gap={2}>
 			<Heading level={2}>{props.value}</Heading>
@@ -154,7 +248,14 @@ function MetricCard(props: { value: string; change: string; label: string }) @{
 					size={12}
 					color={positive ? 'success' : 'error'}
 				/>
-				<Text type="supporting" style={{ color: positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+				<Text
+					type="supporting"
+					style={{
+						color: positive
+							? 'var(--color-text-success, #067647)'
+							: 'var(--color-text-error, #d92d20)',
+					}}
+				>
 					{props.change}
 				</Text>
 				<Text type="supporting" color="secondary">
@@ -165,7 +266,12 @@ function MetricCard(props: { value: string; change: string; label: string }) @{
 	</Card>
 }
 
-function AssetRow(props: { ticker: string; name: string; value: string; change: string }) @{
+function AssetRow(props: {
+	ticker: string
+	name: string
+	value: string
+	change: string
+}) @{
 	<ListItem
 		label={props.ticker}
 		description={props.name}
@@ -199,7 +305,14 @@ function MarketCard(props: {
 			</HStack>
 			<HStack gap={2} vAlign="center">
 				<Heading level={3}>{props.price}</Heading>
-				<Text type="body" style={{ color: props.positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+				<Text
+					type="body"
+					style={{
+						color: props.positive
+							? 'var(--color-text-success, #067647)'
+							: 'var(--color-text-error, #d92d20)',
+					}}
+				>
 					{props.change}
 				</Text>
 			</HStack>
@@ -250,12 +363,42 @@ export function DashboardCompositionTemplate() @{
 							}}
 							hasChevron
 							items={[
-								{ type: 'action', key: '1m', label: '1 month', onSelect: () => setTimeRange('1 month') },
-								{ type: 'action', key: '3m', label: '3 months', onSelect: () => setTimeRange('3 months') },
-								{ type: 'action', key: '6m', label: '6 months', onSelect: () => setTimeRange('6 months') },
-								{ type: 'action', key: '1y', label: '1 year', onSelect: () => setTimeRange('1 year') },
-								{ type: 'action', key: '5y', label: '5 years', onSelect: () => setTimeRange('5 years') },
-								{ type: 'action', key: 'all', label: 'All time', onSelect: () => setTimeRange('All time') },
+								{
+									type: 'action',
+									key: '1m',
+									label: '1 month',
+									onSelect: () => setTimeRange('1 month'),
+								},
+								{
+									type: 'action',
+									key: '3m',
+									label: '3 months',
+									onSelect: () => setTimeRange('3 months'),
+								},
+								{
+									type: 'action',
+									key: '6m',
+									label: '6 months',
+									onSelect: () => setTimeRange('6 months'),
+								},
+								{
+									type: 'action',
+									key: '1y',
+									label: '1 year',
+									onSelect: () => setTimeRange('1 year'),
+								},
+								{
+									type: 'action',
+									key: '5y',
+									label: '5 years',
+									onSelect: () => setTimeRange('5 years'),
+								},
+								{
+									type: 'action',
+									key: 'all',
+									label: 'All time',
+									onSelect: () => setTimeRange('All time'),
+								},
 							]}
 						/>
 					</HStack>

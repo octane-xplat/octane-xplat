@@ -7,11 +7,11 @@ interface Engine {
 	capture(view: android.view.View, json: string): string
 	remove(uri: string): boolean
 }
+
 function engine(): Engine | undefined {
-	return lookupGlobal(['com', 'octanexplat', 'viewshot', 'ViewShotBridge']) as
-		| Engine
-		| undefined
+	return lookupGlobal(['com', 'octanexplat', 'viewshot', 'ViewShotBridge']) as Engine | undefined
 }
+
 function required() {
 	const value = engine()
 	if (!value) {
@@ -21,6 +21,7 @@ function required() {
 	}
 	return value
 }
+
 function nativeView(target: object): android.view.View {
 	const value = target instanceof View ? target.nativeViewProtected : target
 	if (!(value instanceof android.view.View)) {
@@ -32,6 +33,7 @@ function nativeView(target: object): android.view.View {
 	}
 	return value
 }
+
 async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
 	if (
 		options.snapshotContentContainer ||
@@ -51,6 +53,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 	}
 	return reply.uri
 }
+
 export const backend: CaptureBackend = {
 	capabilities: () => ({
 		view: Boolean(engine()),
@@ -89,6 +92,7 @@ export const backend: CaptureBackend = {
 					throw error
 				}
 			}
+
 			await new Promise<void>((resolve) => setTimeout(resolve, 16))
 		}
 		throw new Error('ViewShot unmounted while waiting for layout')

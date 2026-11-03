@@ -34,6 +34,7 @@ function expandEscape(letter: string, body: string) {
 		if (!res?.code) {
 			throw new Error(`Failed to expand Unicode property escape ${key}`)
 		}
+
 		const src = res.code.trim().replace(/;+$/, '')
 		const negated = src.startsWith('/[^')
 		entry = { inner: src.slice(negated ? 3 : 2, src.lastIndexOf(']')), negated }

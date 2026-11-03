@@ -20,6 +20,7 @@ import {
 	TableHeaderCell,
 	TableRow,
 } from '../table/Table.tsrx'
+
 import { sanitizeUrl } from '../routing/safe-url'
 import { mdInlineLen, mdInlineText, mdDoc } from './markdown-ast'
 import { parseMdInline, parseMdNodes } from './markdown-parse'
@@ -32,10 +33,8 @@ import {
 	type MdPluginEntry,
 	type PreparedMarkdownPlugins,
 } from './markdown-plugins'
-import {
-	getMarkdownFenceProposal,
-	projectMarkdownHeadingLinks,
-} from './markdown-plugin-helpers'
+
+import { getMarkdownFenceProposal, projectMarkdownHeadingLinks } from './markdown-plugin-helpers'
 import { MdSourceLines } from './markdown-source-lines.tsrx'
 import { useClipboard } from '../internal/platform/use-clipboard.tsrx'
 import { useContainerReveal } from '../components/layout/use-container-reveal.tsrx'
@@ -49,6 +48,7 @@ import {
 	trimStreamingArtifacts,
 	type MarkdownIncrementalState,
 } from './markdown-stream'
+
 import { projectMdHeadings } from '../components/collections/outline-utils'
 import {
 	MdBreak,
@@ -62,10 +62,8 @@ import {
 	MdParagraph,
 	MdStrong,
 } from './markdown-inline.tsrx'
-import {
-	parseCssDuration,
-	useStreamingText,
-} from '../components/content/use-streaming-text.tsrx'
+
+import { parseCssDuration, useStreamingText } from '../components/content/use-streaming-text.tsrx'
 import { useTheme } from '../theme/use-theme.tsrx'
 
 import type {
@@ -116,6 +114,7 @@ function blockSpacing(node: MdNode, compact: boolean): readonly [number, number]
 					: node.type === 'thematicBreak'
 						? 'hr'
 						: node.type
+
 	const s = SPACING[slot] ?? SPACING.paragraph
 	return compact ? s.c : s.d
 }
@@ -124,7 +123,10 @@ function blockSpacing(node: MdNode, compact: boolean): readonly [number, number]
  *  computed marginTop per block gives the identical geometry on hosts
  *  without collapsing (native) and on web. */
 function seamStyle(nodes: readonly MdNode[], i: number, compact: boolean) {
-	if (i === 0) return undefined
+	if (i === 0) {
+		return undefined
+	}
+
 	const prevEnd = blockSpacing(nodes[i - 1], compact)[1]
 	const start = blockSpacing(nodes[i], compact)[0]
 	return { marginTop: Math.max(prevEnd, start) }
@@ -139,9 +141,15 @@ const NUMBER_MARKERS = ['decimal', 'lower-alpha', 'lower-roman'] as const
  *  `diff` layers over plaintext, `diff-<lang>` over `<lang>`. */
 function parseFenceLanguage(info: string | undefined): { language: string; isDiff: boolean } {
 	const value = (info ?? '').trim()
-	if (value === 'diff') return { language: 'plaintext', isDiff: true }
+	if (value === 'diff') {
+		return { language: 'plaintext', isDiff: true }
+	}
+
 	const layered = /^diff-(.+)$/.exec(value)
-	if (layered) return { language: layered[1], isDiff: true }
+	if (layered) {
+		return { language: layered[1], isDiff: true }
+	}
+
 	return { language: value || 'plaintext', isDiff: false }
 }
 
@@ -154,7 +162,10 @@ const TABLE_HEADER_ONE_LINE_MAX_CH = 20
 
 function computeTableColumnMinWidths(node: MdTable): number[] {
 	const [header, ...rows] = node.children
-	if (header == null) return []
+	if (header == null) {
+		return []
+	}
+
 	return header.children.map((cell, colIdx) => {
 		const headerLen = mdInlineLen(cell.children)
 		let maxLen = headerLen
@@ -162,9 +173,12 @@ function computeTableColumnMinWidths(node: MdTable): number[] {
 			const rowCell = row.children[colIdx]
 			if (rowCell != null) {
 				const len = mdInlineLen(rowCell.children)
-				if (len > maxLen) maxLen = len
+				if (len > maxLen) {
+					maxLen = len
+				}
 			}
 		}
+
 		const bodyFloor = Math.ceil(maxLen / TABLE_COLUMN_TARGET_LINES)
 		const headerFloor = Math.min(headerLen, TABLE_HEADER_ONE_LINE_MAX_CH)
 		return Math.min(TABLE_COLUMN_MAX_CH, Math.max(TABLE_COLUMN_MIN_CH, bodyFloor, headerFloor))
@@ -186,7 +200,10 @@ interface StreamCursor {
  *  (Astryx `wrapTextWithFade` + `computeSegments` key contract). */
 function SegmentedText(props: { text: string; pos: number; stream: StreamCursor; segKey: string }) {
 	const segs = computeSegments(props.text, props.pos, props.stream.boundaries, props.segKey)
-	if (!segs) return props.text
+	if (!segs) {
+		return props.text
+	}
+
 	return (
 		<span key={`wrap-${props.segKey}`}>
 			{segs.map((seg) =>
@@ -234,6 +251,7 @@ function blockSourceLines(
 	if (ctx.plugins?.sourceLines !== true) {
 		return undefined
 	}
+
 	const start = node.position?.start.line
 	const end = node.position?.end.line
 	return start != null && end != null ? { start, end } : undefined
@@ -270,6 +288,7 @@ function pluginBoundaryId(value: object): number {
 		id = ++nextPluginBoundaryId
 		pluginBoundaryIds.set(value, id)
 	}
+
 	return id
 }
 
@@ -290,6 +309,7 @@ function renderMdPluginNode(
 	if (renderer == null) {
 		return fallback
 	}
+
 	let rendered: unknown
 	try {
 		rendered = renderer.render({ node })
@@ -297,6 +317,7 @@ function renderMdPluginNode(
 		reportMarkdownPluginFailure(node.plugin, 'render', error)
 		return fallback
 	}
+
 	return (
 		<MdPluginBoundary
 			key={`${pluginBoundaryId(node)}-${pluginBoundaryId(renderer.render)}`}
@@ -326,14 +347,12 @@ function MdHeadingPermalink(props: {
 }): unknown @{
 	const t = useTranslator()
 	const copiedLabel = t('@astryx.markdownHeadingLinks.copied')
-	const copyLabel = t('@astryx.markdownHeadingLinks.copy').replace(
-		'{heading}',
-		props.label,
-	)
+	const copyLabel = t('@astryx.markdownHeadingLinks.copy').replace('{heading}', props.label)
 	const { copy, isCopied } = useClipboard({
 		announce: copiedLabel,
 		resetAfterMs: COPY_FEEDBACK_MS,
 	})
+
 	const { getContainerProps, getContentRevealProps } = useContainerReveal()
 	return (
 		<View
@@ -383,6 +402,7 @@ function useStableMdSyntaxEntries(
 	) {
 		prevRef.current = prepared
 	}
+
 	return prevRef.current
 }
 
@@ -392,6 +412,7 @@ function citationNumber(ctx: NonNullable<RenderCtx['citations']>, sourceId: stri
 		num = ctx.nextNumber++
 		ctx.numberMap.set(sourceId, num)
 	}
+
 	return num
 }
 
@@ -410,6 +431,7 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
 		match: RegExpMatchArray
 		plugin: MarkdownInlinePlugin
 	}
+
 	const allMatches: RawMatch[] = []
 	for (const plugin of plugins) {
 		plugin.pattern.lastIndex = 0
@@ -418,14 +440,19 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
 			let end: number
 			if (plugin.getEndIndex) {
 				const result = plugin.getEndIndex(text, m)
-				if (result === false) continue
+				if (result === false) {
+					continue
+				}
+
 				end = result
 			} else {
 				end = m.index + m[0].length
 			}
+
 			allMatches.push({ start: m.index, end, match: m, plugin })
 		}
 	}
+
 	allMatches.sort((a, b) => a.start - b.start)
 	const resolved: RawMatch[] = []
 	let lastEnd = 0
@@ -435,20 +462,32 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
 			lastEnd = m.end
 		}
 	}
-	if (resolved.length === 0) return [{ type: 'text', content: text }]
+
+	if (resolved.length === 0) {
+		return [{ type: 'text', content: text }]
+	}
+
 	const segments: InlineSegment[] = []
 	let cursor = 0
 	for (let i = 0; i < resolved.length; i++) {
 		const m = resolved[i]
-		if (m.start > cursor) segments.push({ type: 'text', content: text.slice(cursor, m.start) })
+		if (m.start > cursor) {
+			segments.push({ type: 'text', content: text.slice(cursor, m.start) })
+		}
+
 		segments.push({
 			type: 'plugin',
 			element: m.plugin.render(m.match, `plugin-${i}`),
 			matchLength: m.end - m.start,
 		})
+
 		cursor = m.end
 	}
-	if (cursor < text.length) segments.push({ type: 'text', content: text.slice(cursor) })
+
+	if (cursor < text.length) {
+		segments.push({ type: 'text', content: text.slice(cursor) })
+	}
+
 	return segments
 }
 
@@ -470,6 +509,7 @@ function Inlines(props: {
 			start: at,
 			runColor: runColor ?? props.ctx.stream.runColor,
 		}
+
 	for (const n of props.nodes ?? []) {
 		const at = pos
 		const key = `${props.segKey}.${seq}`
@@ -483,21 +523,29 @@ function Inlines(props: {
 							if (seg.type === 'text') {
 								out.push(
 									props.ctx.stream ? (
-										<SegmentedText text={seg.content} pos={segPos} stream={streamOf(segPos)!} segKey={key} />
+										<SegmentedText
+											text={seg.content}
+											pos={segPos}
+											stream={streamOf(segPos)!}
+											segKey={key}
+										/>
 									) : (
 										seg.content
 									),
 								)
+
 								segPos += seg.content.length
 							} else {
 								out.push(seg.element)
 								segPos += seg.matchLength
 							}
 						}
+
 						pos += n.value.length
 						break
 					}
 				}
+
 				out.push(
 					props.ctx.stream ? (
 						<SegmentedText text={n.value} pos={at} stream={streamOf(at)!} segKey={key} />
@@ -505,6 +553,7 @@ function Inlines(props: {
 						n.value
 					),
 				)
+
 				pos += n.value.length
 				break
 			}
@@ -514,6 +563,7 @@ function Inlines(props: {
 						<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
 					</MdStrong>,
 				)
+
 				pos += mdInlineLen(n.children)
 				break
 			case 'emphasis':
@@ -522,14 +572,20 @@ function Inlines(props: {
 						<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
 					</MdEmphasis>,
 				)
+
 				pos += mdInlineLen(n.children)
 				break
 			case 'delete':
 				out.push(
 					<MdDelete>
-						<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-secondary') }} segKey={key} />
+						<Inlines
+							nodes={n.children}
+							ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-secondary') }}
+							segKey={key}
+						/>
 					</MdDelete>,
 				)
+
 				pos += mdInlineLen(n.children)
 				break
 			case 'inlineCode': {
@@ -551,14 +607,20 @@ function Inlines(props: {
 				} else {
 					out.push(<Comp value={n.value} display="inline" />)
 				}
+
 				pos += n.value.length
 				break
 			}
 			case 'link': {
 				const safe = sanitizeUrl(n.url)
 				const kids = (
-					<Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-accent') }} segKey={key} />
+					<Inlines
+						nodes={n.children}
+						ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-accent') }}
+						segKey={key}
+					/>
 				)
+
 				if (safe == null) {
 					out.push(kids)
 				} else {
@@ -573,6 +635,7 @@ function Inlines(props: {
 						),
 					)
 				}
+
 				pos += mdInlineLen(n.children)
 				break
 			}
@@ -588,6 +651,7 @@ function Inlines(props: {
 						<MdInlineImage src={safe} alt={n.alt} />
 					),
 				)
+
 				pos += n.alt.length
 				break
 			}
@@ -598,6 +662,7 @@ function Inlines(props: {
 					out.push(`[${n.sourceId}]`)
 					break
 				}
+
 				const num = citationNumber(cctx, n.sourceId)
 				const source = cctx.sources[n.sourceId] ?? { title: n.sourceId }
 				const variant = cctx.style === 'number' ? 'number' : 'label'
@@ -609,6 +674,7 @@ function Inlines(props: {
 						<MdCitation source={source} number={num} variant={variant} />
 					),
 				)
+
 				break
 			}
 			case 'break':
@@ -622,6 +688,7 @@ function Inlines(props: {
 				) : (
 					fallbackText
 				)
+
 				out.push(renderMdPluginNode(props.ctx.plugins, n, fallback))
 				pos += fallbackText.length
 				break
@@ -629,15 +696,23 @@ function Inlines(props: {
 			default:
 				out.push(
 					props.ctx.stream ? (
-						<SegmentedText text={(n as any).value ?? ''} pos={at} stream={streamOf(at)!} segKey={key} />
+						<SegmentedText
+							text={(n as any).value ?? ''}
+							pos={at}
+							stream={streamOf(at)!}
+							segKey={key}
+						/>
 					) : (
 						((n as any).value ?? '')
 					),
 				)
+
 				pos += ((n as any).value ?? '').length
 		}
+
 		seq++
 	}
+
 	return out
 }
 
@@ -661,6 +736,7 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
 					),
 				} as Partial<MarkdownComponents>,
 			}
+
 	const cellAlign = (i: number) =>
 		props.node.align[i] === 'center'
 			? ('center' as const)
@@ -669,7 +745,11 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
 				: undefined
 
 	<View style={{ maxWidth: '100%' }} className="vx-md-table">
-		<Table dividers="grid" textOverflow="wrap" style={{ borderWidth: 1, borderColor: 'var(--color-border)', borderStyle: 'solid' }}>
+		<Table
+			dividers="grid"
+			textOverflow="wrap"
+			style={{ borderWidth: 1, borderColor: 'var(--color-border)', borderStyle: 'solid' }}
+		>
 			<TableHeader>
 				<TableRow>
 					{header?.children.map((h, i) => (
@@ -726,8 +806,7 @@ function ListItems(props: {
 	compact: boolean
 }): unknown @{
 	const node = props.node
-	const isTaskList =
-		node.children.length > 0 && node.children.every((item) => item.checked != null)
+	const isTaskList = node.children.length > 0 && node.children.every((item) => item.checked != null)
 
 	const t = useTranslator()
 	const itemContent = (item: MdList['children'][number], j: number) => {
@@ -746,10 +825,12 @@ function ListItems(props: {
 			/>
 		)
 	}
+
 	const itemText = (item: MdList['children'][number]): string => {
 		const firstParagraph = item.children.find((b) => b.type === 'paragraph') as
 			| { children: readonly MdInline[] }
 			| undefined
+
 		return firstParagraph != null
 			? mdInlineText(firstParagraph.children)
 			: t('@astryx.markdown.taskList')
@@ -760,6 +841,7 @@ function ListItems(props: {
 			.map((item, i) => ({ item, key: `task-${i}` }))
 			.filter(({ item }) => item.checked)
 			.map(({ key }) => key)
+
 		return (
 			<MdCheckList value={checkedValues} label={t('@astryx.markdown.taskList')}>
 				{node.children.map((item, i) => (
@@ -776,15 +858,18 @@ function ListItems(props: {
 	return (
 		// Rows reach one spacing-2 inset past the container line on each side,
 		// like the reference's `blockIndent` on the list itself.
-		<MdRowList ordered={node.ordered} start={node.start} style={{ marginLeft: -8, marginRight: -8 }}>
+		<MdRowList
+			ordered={node.ordered}
+			start={node.start}
+			style={{ marginLeft: -8, marginRight: -8 }}
+		>
 			{node.children.map((item, j) => {
 				// A task item beside plain items keeps its own checked state: it
 				// shows a read-only checkbox where its marker would be, named by
 				// its text (FR23).
 				const task =
-					item.checked == null
-						? undefined
-						: { isChecked: item.checked, label: itemText(item) }
+					item.checked == null ? undefined : { isChecked: item.checked, label: itemText(item) }
+
 				return (
 					<ListMarkerScope
 						marker={(node.ordered ? NUMBER_MARKERS : BULLET_MARKERS)[props.ctx.listDepth % 3]}
@@ -811,28 +896,40 @@ function Blocks(props: {
 		...(props.contentWidth != null ? { maxWidth: props.contentWidth } : {}),
 		...(props.contentAlign === 'center' ? { alignSelf: 'center' } : {}),
 	})
+
 	const blockAlignStyle = () => (props.contentAlign === 'center' ? { alignSelf: 'center' } : {})
 
 	const blocks = []
 	for (const [i, node] of props.nodes.entries()) {
 		const segKey = `${props.segKey}.${i}`
-		const margin = props.margin !== undefined ? props.margin : seamStyle(props.nodes, i, props.compact)
+		const margin =
+			props.margin !== undefined ? props.margin : seamStyle(props.nodes, i, props.compact)
+
 		const sl = blockSourceLines(props.ctx, node)
 		switch (node.type) {
 			case 'heading': {
 				const level = Math.min(6, node.depth + (props.ctx.headingLevelStart ?? 1) - 1) as
-					| 1 | 2 | 3 | 4 | 5 | 6
+					| 1
+					| 2
+					| 3
+					| 4
+					| 5
+					| 6
+
 				const kids = <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
 				const headingId = props.ctx.headingIds?.get(node)
 				const permalinkUrl = props.ctx.permalinkUrls?.get(node)
 				const Comp = props.ctx.components?.heading as any
 				const rendered = Comp ? (
-					<Comp level={level} id={headingId} sourceLines={sl}>{kids}</Comp>
+					<Comp level={level} id={headingId} sourceLines={sl}>
+						{kids}
+					</Comp>
 				) : (
 					<Heading level={level} id={headingId} style={{ ...margin, ...proseStyle() } as never}>
 						{kids}
 					</Heading>
 				)
+
 				blocks.push(
 					<MdSourceLines lines={sl}>
 						{permalinkUrl != null ? (
@@ -847,6 +944,7 @@ function Blocks(props: {
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'paragraph': {
@@ -861,6 +959,7 @@ function Blocks(props: {
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'code': {
@@ -869,6 +968,7 @@ function Blocks(props: {
 				const diffLanguage = fence.isDiff
 					? fence.language.match(/^\w*/)?.[0] || 'plaintext'
 					: undefined
+
 				const language = diffLanguage ?? legacyLanguage
 				const Comp = props.ctx.components?.code as any
 				const fallback = Comp ? (
@@ -888,6 +988,7 @@ function Blocks(props: {
 						/>
 					</View>
 				)
+
 				// A semantic-fence transform proposes an extension node in place of
 				// this code block; its renderer may decline (null/boolean →
 				// fallback), throw, or suspend — all land on the same fallback.
@@ -903,6 +1004,7 @@ function Blocks(props: {
 							reportMarkdownPluginFailure(proposal.node.plugin, 'render', error)
 							failed = true
 						}
+
 						blocks.push(
 							<MdSourceLines lines={sl}>
 								{failed || rendered == null || typeof rendered === 'boolean' ? (
@@ -917,9 +1019,11 @@ function Blocks(props: {
 								)}
 							</MdSourceLines>,
 						)
+
 						break
 					}
 				}
+
 				blocks.push(<MdSourceLines lines={sl}>{fallback}</MdSourceLines>)
 				break
 			}
@@ -934,6 +1038,7 @@ function Blocks(props: {
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'table':
@@ -944,15 +1049,24 @@ function Blocks(props: {
 						</View>
 					</MdSourceLines>,
 				)
+
 				break
 			case 'list':
 				blocks.push(
 					<MdSourceLines lines={sl}>
 						<View style={{ ...margin, ...proseStyle() } as never}>
-							<ListItems node={node} segKey={segKey} ctx={props.ctx} contentWidth={props.contentWidth} contentAlign={props.contentAlign} compact={props.compact} />
+							<ListItems
+								node={node}
+								segKey={segKey}
+								ctx={props.ctx}
+								contentWidth={props.contentWidth}
+								contentAlign={props.contentAlign}
+								compact={props.compact}
+							/>
 						</View>
 					</MdSourceLines>,
 				)
+
 				break
 			case 'blockquote': {
 				const kids = (
@@ -965,6 +1079,7 @@ function Blocks(props: {
 						compact={props.compact}
 					/>
 				)
+
 				const Comp = props.ctx.components?.blockquote as any
 				blocks.push(
 					<MdSourceLines lines={sl}>
@@ -975,6 +1090,7 @@ function Blocks(props: {
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'thematicBreak': {
@@ -985,16 +1101,19 @@ function Blocks(props: {
 							<Comp sourceLines={sl} />
 						) : (
 							<View
-								style={{
-									...margin,
-									height: 1,
-									borderTopWidth: 1,
-									borderTopColor: 'var(--color-border)',
-								} as never}
+								style={
+									{
+										...margin,
+										height: 1,
+										borderTopWidth: 1,
+										borderTopColor: 'var(--color-border)',
+									} as never
+								}
 							/>
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'image': {
@@ -1017,6 +1136,7 @@ function Blocks(props: {
 						)}
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			case 'extension': {
@@ -1031,12 +1151,14 @@ function Blocks(props: {
 						</View>
 					</MdSourceLines>,
 				)
+
 				break
 			}
 			default:
 				blocks.push(null)
 		}
 	}
+
 	return blocks
 }
 
@@ -1068,6 +1190,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 		if (props.plugins == null || props.plugins.length === 0) {
 			return undefined
 		}
+
 		try {
 			return prepareMarkdownPlugins(props.plugins)
 		} catch (error) {
@@ -1075,6 +1198,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 			return undefined
 		}
 	}, [props.plugins])
+
 	const syntaxPlugins = useStableMdSyntaxEntries(preparedPlugins)
 
 	// Bursty chunks drain through a steady character reveal before parsing
@@ -1103,8 +1227,8 @@ export function Markdown(props: MarkdownProps): unknown @{
 			math: hasMathRenderer,
 			plugins: syntaxPlugins?.syntaxEntries,
 		}
-		const extensionText = (n: MdExtension) =>
-			markdownExtensionText(preparedPlugins, n)
+
+		const extensionText = (n: MdExtension) => markdownExtensionText(preparedPlugins, n)
 
 		let nodes: MdNode[]
 		let inlineNodes: MdInline[]
@@ -1130,6 +1254,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 				!streaming,
 				'inline',
 			)
+
 			const paragraph = transformed.children[0]
 			inlineNodes = paragraph?.type === 'paragraph' ? [...paragraph.children] : parsed
 			nodes = []
@@ -1143,6 +1268,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 				false,
 				'block',
 			).children as MdNode[]
+
 			inlineNodes = []
 		} else {
 			incRef.current = undefined
@@ -1153,6 +1279,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 				true,
 				'block',
 			).children as MdNode[]
+
 			inlineNodes = []
 		}
 
@@ -1160,10 +1287,12 @@ export function Markdown(props: MarkdownProps): unknown @{
 			boundariesRef.current = []
 			prevLenRef.current = 0
 		}
+
 		prevTextRef.current = smoothedText
 		const boundaries = streaming
 			? computeBoundaries(boundariesRef.current, prevLenRef.current, maxSpans)
 			: []
+
 		boundariesRef.current = boundaries
 
 		const offsets: number[] = new Array(nodes.length)
@@ -1171,11 +1300,9 @@ export function Markdown(props: MarkdownProps): unknown @{
 		for (let i = 0; i < nodes.length; i++) {
 			offsets[i] = acc
 			const node = nodes[i]
-			acc +=
-				node.type === 'extension'
-					? extensionText(node).length
-					: markdownTextLength([node])
+			acc += node.type === 'extension' ? extensionText(node).length : markdownTextLength([node])
 		}
+
 		prevLenRef.current = inline ? mdInlineLen(inlineNodes, extensionText) : acc
 
 		// The heading-links module owns all-depth heading identity once
@@ -1183,9 +1310,8 @@ export function Markdown(props: MarkdownProps): unknown @{
 		const headingLinks = inline
 			? undefined
 			: projectMarkdownHeadingLinks(mdDoc(nodes), preparedPlugins)
-		const headingIds = inline
-			? undefined
-			: (headingLinks?.ids ?? projectMdHeadings(nodes).ids)
+
+		const headingIds = inline ? undefined : (headingLinks?.ids ?? projectMdHeadings(nodes).ids)
 		return {
 			nodes,
 			inlineNodes,
@@ -1196,7 +1322,18 @@ export function Markdown(props: MarkdownProps): unknown @{
 			headingLabels: headingLinks?.labels,
 			permalinkUrls: headingLinks?.permalinkUrls,
 		}
-	}, [props.data, smoothedText, streaming, props.sources, props.display, props.autolink, hasMathRenderer, maxSpans, preparedPlugins, syntaxPlugins])
+	}, [
+		props.data,
+		smoothedText,
+		streaming,
+		props.sources,
+		props.display,
+		props.autolink,
+		hasMathRenderer,
+		maxSpans,
+		preparedPlugins,
+		syntaxPlugins,
+	])
 
 	const ctxBase: RenderCtx = {
 		onLinkClick: props.onLinkClick,
@@ -1247,9 +1384,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 			...(contentWidthValue != null
 				? {
 						'--vx-md-content-width':
-							typeof contentWidthValue === 'number'
-								? `${contentWidthValue}px`
-								: contentWidthValue,
+							typeof contentWidthValue === 'number' ? `${contentWidthValue}px` : contentWidthValue,
 					}
 				: {}),
 			fontFamily: 'var(--font-family-body, inherit)',
@@ -1265,9 +1400,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 				segKey={`b${i}`}
 				ctx={{
 					...ctxBase,
-					stream: view.fade
-						? { boundaries: view.boundaries, start: view.offsets[i] }
-						: undefined,
+					stream: view.fade ? { boundaries: view.boundaries, start: view.offsets[i] } : undefined,
 				}}
 				contentWidth={contentWidthValue}
 				contentAlign={align}
@@ -1296,6 +1429,7 @@ export function MarkdownPluginNodeRenderer(props: {
 			return undefined
 		}
 	}, [props.plugins])
+
 	const fallback = <>{props.node.source ?? markdownExtensionText(prepared, props.node)}</>
 	return <>{renderMdPluginNode(prepared, props.node, fallback)}</>
 }

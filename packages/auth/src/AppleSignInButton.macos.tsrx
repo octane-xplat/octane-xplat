@@ -11,7 +11,13 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 	const handle = useRef<ReturnType<typeof attachAppleButton> | null>(null)
 	const current = useRef(props)
 	current.current = props
-	const action = useRef(createSignInButtonAction(() => current.current, () => appleAuth.signIn()))
+	const action = useRef(
+		createSignInButtonAction(
+			() => current.current,
+			() => appleAuth.signIn(),
+		),
+	)
+
 	useEffect(() => action.current.mount(), [])
 
 	useEffect(() => {
@@ -21,13 +27,18 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
 
 		let attached = true
 		const attachment = attachAppleButton(anchor.current, current.current, () => {
-			if (attached) action.current.press()
+			if (attached) {
+				action.current.press()
+			}
 		})
+
 		handle.current = attachment
 		return () => {
 			attached = false
 			attachment.detach()
-			if (handle.current === attachment) handle.current = null
+			if (handle.current === attachment) {
+				handle.current = null
+			}
 		}
 	}, [props.type, props.theme])
 

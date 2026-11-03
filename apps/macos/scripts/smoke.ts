@@ -30,7 +30,10 @@ const closed = new Promise((resolve) => host.once('close', resolve))
 let timer
 try {
 	const report = await new Promise((resolve, reject) => {
-		timer = setTimeout(() => reject(new Error(`AppKit smoke timed out after ${timeoutMs}ms`)), timeoutMs)
+		timer = setTimeout(
+			() => reject(new Error(`AppKit smoke timed out after ${timeoutMs}ms`)),
+			timeoutMs,
+		)
 		host.once('error', reject)
 		host.once('close', (code, signal) => {
 			reject(new Error(`AppKit host exited before completing smoke (${code ?? signal})`))

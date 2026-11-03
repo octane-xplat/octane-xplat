@@ -20,8 +20,9 @@ const hubs = new WeakMap<object, Hub>()
  * window and every registered popup, including sibling and nested popups.
  * The UI layer stack owns which session may claim an event; this hub owns GTK. */
 export function bindPopupEvents(window: any, popup: any, options: PopupEventOptions): () => void {
-	if (popup.get_root() !== window)
-		{throw new Error('linux-gtk popup events require a popup in the declaring window.')}
+	if (popup.get_root() !== window) {
+		throw new Error('linux-gtk popup events require a popup in the declaring window.')
+	}
 	let hub = hubs.get(window)
 	if (!hub) {
 		hub = { sessions: new Set(), natives: new Map() }
@@ -36,17 +37,29 @@ export function bindPopupEvents(window: any, popup: any, options: PopupEventOpti
 			},
 		}
 		for (const session of [...owner.sessions].reverse()) {
-			if (!owner.sessions.has(session)) {continue}
+			if (!owner.sessions.has(session)) {
+				continue
+			}
+
 			try {
-				if (!session.options.isPresent()) {continue}
-				if (kind === 'onOutside' && session.popup.get_surface() === surface) {continue}
+				if (!session.options.isPresent()) {
+					continue
+				}
+
+				if (kind === 'onOutside' && session.popup.get_surface() === surface) {
+					continue
+				}
+
 				session.options[kind](event)
 			} catch (error) {
 				// Keep a claim made before user code throws. Reporting must not
 				// give the same input to a lower layer or background control.
 				console.error('[linux-gtk] event handler failed', error)
 			}
-			if (claimed) {break}
+
+			if (claimed) {
+				break
+			}
 		}
 		return claimed
 	}
@@ -69,7 +82,9 @@ export function bindPopupEvents(window: any, popup: any, options: PopupEventOpti
 		pointer.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 		const pointerSignal = pointer.connect('event', (_controller: any, event: any) => {
 			const type = event.get_event_type()
-			if (type !== Gdk.EventType.BUTTON_PRESS && type !== Gdk.EventType.TOUCH_BEGIN) {return false}
+			if (type !== Gdk.EventType.BUTTON_PRESS && type !== Gdk.EventType.TOUCH_BEGIN) {
+				return false
+			}
 			return dispatch('onOutside', event.get_surface())
 		})
 		widget.add_controller(pointer)
@@ -85,17 +100,23 @@ export function bindPopupEvents(window: any, popup: any, options: PopupEventOpti
 	}
 	const removeNative = (widget: any) => {
 		const binding = owner.natives.get(widget)
-		if (!binding || --binding.users > 0) {return}
+		if (!binding || --binding.users > 0) {
+			return
+		}
 		binding.dispose()
 		owner.natives.delete(widget)
 	}
-	if (!owner.sessions.size) {addNative(window)}
+	if (!owner.sessions.size) {
+		addNative(window)
+	}
 	addNative(popup)
 	const session = { popup, options }
 	owner.sessions.add(session)
 	let disposed = false
 	return () => {
-		if (disposed) {return}
+		if (disposed) {
+			return
+		}
 		disposed = true
 		owner.sessions.delete(session)
 		removeNative(popup)

@@ -193,6 +193,7 @@ try {
 			`Missing native share file: ${file}`,
 		)
 	}
+
 	assert.deepEqual(packedManifest.xplat?.macos?.frameworks, ['Foundation', 'AppKit'])
 
 	const exportMaps = [

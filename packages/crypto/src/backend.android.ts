@@ -7,6 +7,7 @@ function javaBytes(bytes: Uint8Array) {
 	}
 	return result
 }
+
 function bytes(value: ArrayLike<number>): Uint8Array<ArrayBuffer> {
 	const result = new Uint8Array(value.length)
 	for (let index = 0; index < value.length; index++) {
@@ -14,6 +15,7 @@ function bytes(value: ArrayLike<number>): Uint8Array<ArrayBuffer> {
 	}
 	return result
 }
+
 const ready = () => typeof java !== 'undefined' && typeof javax !== 'undefined'
 export const backend: CryptoBackend = {
 	capabilities: () =>

@@ -49,7 +49,14 @@ export function sourceWithoutImports(url: URL) {
 	)
 }
 
-const SLICE_BASE = { normalizeHostStyleProps, borderStyleSides, hiddenBorderStyle, borderStrokeStyle, correctProjectionRadii, correctProjectionShadows }
+const SLICE_BASE = {
+	normalizeHostStyleProps,
+	borderStyleSides,
+	hiddenBorderStyle,
+	borderStrokeStyle,
+	correctProjectionRadii,
+	correctProjectionShadows,
+}
 
 const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
 
@@ -64,6 +71,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
 				Object.defineProperty(context, key, { value, writable: true, configurable: true })
 			}
 		}
+
 		return runInNewContext(CSS_SLICE_STUBS + code, context)
 	}
 	return runInNewContext(CSS_SLICE_STUBS + code, { ...SLICE_BASE, ...context })
@@ -76,13 +84,21 @@ export function runSlice(code: string, context?: Record<string, any>) {
 export function spySliceContext(target: Record<string, any> = {}) {
 	const sandbox = new Proxy(target, {
 		has(t, key) {
-			if (typeof key !== 'string') {return key in t}
+			if (typeof key !== 'string') {
+				return key in t
+			}
 			return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
 		},
 		get(t, key) {
-			if (key in t) {return (t as any)[key]}
-			if (typeof key !== 'string') {return undefined}
-			if (key in globalThis) {return (globalThis as any)[key]}
+			if (key in t) {
+				return (t as any)[key]
+			}
+			if (typeof key !== 'string') {
+				return undefined
+			}
+			if (key in globalThis) {
+				return (globalThis as any)[key]
+			}
 			const calls: any[][] = []
 			// A `function` (not an arrow) stays a valid `instanceof` right side.
 			const spy: any = function (...args: any[]) {

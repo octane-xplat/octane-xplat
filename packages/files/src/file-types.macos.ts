@@ -37,4 +37,3 @@ export const MIME_EXTENSIONS: Record<string, string[]> = {
 	'application/gzip': ['gz'],
 	'application/xml': ['xml'],
 }
-

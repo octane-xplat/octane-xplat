@@ -20,6 +20,7 @@ try {
 	const orientations = JSON.parse(
 		await readFile(join(packageRoot, 'tests/orientation-fixtures.json'), 'utf8'),
 	)
+
 	const image = join(temporary, 'source.png')
 	await writeFile(image, png())
 	const modules = []
@@ -29,10 +30,12 @@ try {
 			module: ts.ModuleKind.CommonJS,
 			target: ts.ScriptTarget.ES2022,
 		})
+
 		modules.push(
 			`registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
 		)
 	}
+
 	// The existing native runtime/metadata is reused. No app window, screenshots,
 	// platform rebuild, or mutations of the remote repository are needed.
 	const fixture = join(temporary, 'fixture.cjs')
@@ -120,14 +123,12 @@ setTimeout(async () => {
 })();
 `,
 	)
+
 	const bootstrap = join(temporary, 'bootstrap.js')
 	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
 	const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
 	const bytes = await readFile(join(bundle, 'host'))
-	assert.equal(
-		createHash('sha256').update(bytes).digest('hex'),
-		manifest.sha256['macos/host'],
-	)
+	assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
 	const executable = join(temporary, 'host')
 	await writeFile(executable, bytes, { mode: 0o755 })
 	const result = spawnSync(
@@ -140,6 +141,7 @@ setTimeout(async () => {
 		],
 		{ cwd: temporary, encoding: 'utf8', timeout: 20_000 },
 	)
+
 	const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
 	assert.equal(result.status, 0, output)
 	assert.doesNotMatch(output, /IMAGE_APPKIT_FAIL/)
@@ -155,12 +157,14 @@ setTimeout(async () => {
 			`${sample.message}: ${JSON.stringify(actual)}`,
 		)
 	}
+
 	checkOrientations(
 		output
 			.split('\n')
 			.filter((line) => line.startsWith('IMAGE_ORIENTATION '))
 			.map((line) => JSON.parse(line.slice('IMAGE_ORIENTATION '.length))),
 	)
+
 	console.log(
 		output
 			.split('\n')
@@ -168,6 +172,7 @@ setTimeout(async () => {
 			.join('\n')
 			.trim(),
 	)
+
 	console.log('Eight EXIF orientations passed independently decoded pixel and dimension checks.')
 } finally {
 	await rm(temporary, { recursive: true, force: true })

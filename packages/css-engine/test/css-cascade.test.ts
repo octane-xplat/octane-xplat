@@ -256,8 +256,12 @@ test('media evaluator: color scheme + size', () => {
 })
 
 test('explicit animation none resets earlier rules and earlier declarations but permits later animation rules', () => {
-	registerStylesheet('animation-reset-boundary', '@keyframes reset-test-spin { to { transform:rotate(360deg) } } .reset-base { animation:reset-test-spin 1s linear infinite } .reset-stop { animation:none } .reset-again { animation:reset-test-spin 2s linear infinite } .reset-in-rule { animation:reset-test-spin 1s linear infinite; animation:none } .reset-name { animation-name:none }')
-	const animations = (...classes: string[]) => computeCascade(node('masonview', { classes }), stylesheetScope()).animations
+	registerStylesheet(
+		'animation-reset-boundary',
+		'@keyframes reset-test-spin { to { transform:rotate(360deg) } } .reset-base { animation:reset-test-spin 1s linear infinite } .reset-stop { animation:none } .reset-again { animation:reset-test-spin 2s linear infinite } .reset-in-rule { animation:reset-test-spin 1s linear infinite; animation:none } .reset-name { animation-name:none }',
+	)
+	const animations = (...classes: string[]) =>
+		computeCascade(node('masonview', { classes }), stylesheetScope()).animations
 	assert.equal(animations('reset-base').length, 1)
 	assert.equal(animations('reset-base', 'reset-stop').length, 0)
 	assert.equal(animations('reset-base', 'reset-in-rule').length, 0)

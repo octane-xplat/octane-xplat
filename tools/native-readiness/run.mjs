@@ -163,6 +163,7 @@ manifest.overrides ??= {}
 for (const [name, file] of tarballs) {
 	manifest.overrides[name] = `file:${file}`
 }
+
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 
 run('bun', ['install'], app)

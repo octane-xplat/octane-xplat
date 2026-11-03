@@ -2,7 +2,11 @@ import Gtk from 'gi://Gtk?version=4.0'
 import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import { bindPopupEvents } from '../../../src/popup-events'
-import { dispatchLayerKey, registerLayer, shouldCloseLayer } from '../../../../ui/src/components/overlays/layer-stack'
+import {
+	dispatchLayerKey,
+	registerLayer,
+	shouldCloseLayer,
+} from '../../../../ui/src/components/overlays/layer-stack'
 
 Gtk.init()
 const window = new Gtk.Window({
@@ -11,6 +15,7 @@ const window = new Gtk.Window({
 	default_height: 600,
 	decorated: false,
 })
+
 const fixed = new Gtk.Fixed()
 window.set_child(fixed)
 const anchorA = new Gtk.Button({ label: 'Anchor A' })
@@ -24,6 +29,7 @@ for (const [widget, x, y] of [
 	widget.set_size_request(120, 40)
 	fixed.put(widget, x, y)
 }
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 180) =>
 	new Promise<void>((resolve) =>
@@ -32,27 +38,35 @@ const pause = (ms = 180) =>
 			return false
 		}),
 	)
+
 let checks = 0,
 	ack = 0,
 	outsideClicks = 0
+
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
 	checks++
-	if (!ok) {failures.push(name)}
+	if (!ok) {
+		failures.push(name)
+	}
 }
+
 outside.connect('clicked', () => outsideClicks++)
 const acknowledgers: Array<[any, any]> = []
 function acknowledge(widget: any) {
 	const keys = new Gtk.EventControllerKey()
 	keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 	keys.connect('key-pressed', (_controller: any, key: number) => {
-		if (key !== Gdk.KEY_F12) {return false}
+		if (key !== Gdk.KEY_F12) {
+			return false
+		}
 		ack++
 		return true
 	})
 	widget.add_controller(keys)
 	acknowledgers.push([widget, keys])
 }
+
 acknowledge(window)
 const controllerCount = (widget: any) => widget.observe_controllers().get_n_items()
 const windowBaseline = controllerCount(window)
@@ -107,29 +121,37 @@ function layer(anchor: any, depth: number) {
 			dispatchLayerKey({ key: 'Escape', preventDefault: () => event.preventDefault() })
 		},
 		onOutside(event) {
-			if (!state.outsideEnabled || !shouldCloseLayer(token)) {return}
+			if (!state.outsideEnabled || !shouldCloseLayer(token)) {
+				return
+			}
 			event.preventDefault()
 			state.outside++
 			request()
 		},
 	})
 	state.dispose = () => {
-		if (state.disposed) {return}
+		if (state.disposed) {
+			return
+		}
 		state.disposed = true
 		removeLayer()
 		removeEvents()
 	}
 	return state
 }
+
 const a = layer(anchorA, 0),
 	b = layer(anchorB, 0),
 	c = layer(a.action, 1)
+
 c.popup.set_position(Gtk.PositionType.RIGHT)
 const layers = [a, b, c]
 const point = (widget: any) => {
 	const native = widget.get_native()
 	const [ok, rect] = widget.compute_bounds(native)
-	if (!ok) {throw new Error('No native input bounds')}
+	if (!ok) {
+		throw new Error('No native input bounds')
+	}
 	const [tx, ty] = native.get_surface_transform()
 	let x = rect.origin.x - tx + rect.size.width / 2,
 		y = rect.origin.y - ty + rect.size.height / 2
@@ -144,20 +166,26 @@ const point = (widget: any) => {
 	const [wx, wy] = window.get_surface_transform()
 	return { x: x + wx, y: y + wy }
 }
+
 async function input(widget: any, action: { key?: string; type?: string } = {}) {
 	const actions = action.key || action.type != null ? [action] : [{ hover: true }, {}]
 	for (const phase of actions) {
 		const next = ack + 1
 		print('GTK_POPUP_EVENTS_READY ' + JSON.stringify({ ...point(widget), ...phase }))
-		for (let i = 0; i < 200 && ack < next; i++) {await pause(25)}
+		for (let i = 0; i < 200 && ack < next; i++) {
+			await pause(25)
+		}
+
 		check('actual OS input acknowledged', ack >= next)
 		await pause()
 	}
 }
+
 async function run() {
 	check('one shared window controller pair', controllerCount(window) === windowBaseline + 2)
-	for (const item of layers)
-		{check('one controller pair per native popup', controllerCount(item.popup) === item.baseline + 2)}
+	for (const item of layers) {
+		check('one controller pair per native popup', controllerCount(item.popup) === item.baseline + 2)
+	}
 	window.present()
 	await pause()
 	a.popup.popup()
@@ -176,6 +204,7 @@ async function run() {
 			'blocked Escape keeps controlled layer and request count',
 			a.escape === 0 && a.popup.get_mapped(),
 		)
+
 		a.escapeEnabled = true
 		await input(a.entry, { key: 'Escape' })
 		check('unhandled editor Escape reaches layer once', a.escape === 1 && a.popup.get_mapped())
@@ -192,6 +221,7 @@ async function run() {
 			'outside policy can allow background interaction',
 			outsideClicks === 1 && a.outside === 0 && a.popup.get_mapped(),
 		)
+
 		a.outsideEnabled = true
 		await input(outside)
 		check('outside claim consumes click before background', outsideClicks === 1 && a.outside === 1)
@@ -204,6 +234,7 @@ async function run() {
 			'sibling popup claims lower popup click',
 			b.outside === 1 && a.clicks === 1 && a.outside === 1,
 		)
+
 		await input(a.entry, { key: 'Escape' })
 		check('sibling owns Escape from another native surface', b.escape === 1 && a.escape === 1)
 		c.popup.popup()
@@ -214,24 +245,28 @@ async function run() {
 			'nested depth claims sibling surface click',
 			c.outside === 1 && b.clicks === 0 && b.outside === 1,
 		)
+
 		c.outsideEnabled = false
 		await input(b.action)
 		check(
 			'nested outside policy permits lower surface interaction',
 			c.outside === 1 && b.clicks === 1,
 		)
+
 		c.escapeEnabled = false
 		await input(b.action, { key: 'Escape' })
 		check(
 			'nested block protects lower Escape owners',
 			c.escape === 0 && b.escape === 1 && a.escape === 1,
 		)
+
 		c.escapeEnabled = true
 		await input(b.action, { key: 'Escape' })
 		check(
 			'nested owner receives Escape once across surfaces',
 			c.escape === 1 && c.popup.get_mapped(),
 		)
+
 		dispatchLayerKey({ key: 'Escape', isComposing: true, preventDefault() {} })
 		check('synthetic composition guard retains layer', c.escape === 1)
 		await input(c.entry)
@@ -239,12 +274,14 @@ async function run() {
 			'nested entry accepts focus on its own native surface',
 			window.get_focus() === c.entry.get_delegate(),
 		)
+
 		c.closeOnRequest = true
 		await input(c.entry, { key: 'Escape' })
 		check(
 			'synchronous close removes only top layer',
 			c.escape === 2 && !c.popup.get_mapped() && b.escape === 1 && a.escape === 1,
 		)
+
 		check('closing removes nested native controllers', controllerCount(c.popup) === c.baseline)
 		b.popup.popdown()
 		b.dispose()
@@ -253,12 +290,14 @@ async function run() {
 			'sibling cleanup preserves shared window pair',
 			controllerCount(window) === windowBaseline + 2,
 		)
+
 		check('sibling native controllers are removed', controllerCount(b.popup) === b.baseline)
 		await input(a.entry, { key: 'Escape' })
 		check(
 			'remaining parent resumes Escape ownership',
 			a.escape === 2 && b.escape === 1 && c.escape === 2,
 		)
+
 		osInput = true
 	}
 	for (const item of layers) {
@@ -267,8 +306,9 @@ async function run() {
 		item.dispose()
 	}
 	check('last layer removes shared window pair', controllerCount(window) === windowBaseline)
-	for (const item of layers)
-		{check('all popup controller pairs are removed', controllerCount(item.popup) === item.baseline)}
+	for (const item of layers) {
+		check('all popup controller pairs are removed', controllerCount(item.popup) === item.baseline)
+	}
 	const reopened = layer(anchorA, 0)
 	layers.push(reopened)
 	reopened.popup.popup()
@@ -300,8 +340,11 @@ async function run() {
 				gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
 			}),
 	)
-	if (failures.length) {throw new Error(failures.join('; '))}
+	if (failures.length) {
+		throw new Error(failures.join('; '))
+	}
 }
+
 let failed = false
 run()
 	.catch((error) => {
@@ -315,9 +358,14 @@ run()
 			item.popup.popdown()
 			item.popup.unparent()
 		}
-		for (const [widget, controller] of acknowledgers) {widget.remove_controller(controller)}
+		for (const [widget, controller] of acknowledgers) {
+			widget.remove_controller(controller)
+		}
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
-if (failed) {imports.system.exit(1)}
+if (failed) {
+	imports.system.exit(1)
+}

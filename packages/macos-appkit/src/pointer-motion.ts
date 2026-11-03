@@ -116,12 +116,7 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
 		 *  is dispatching that event (e.g. inside a tap recognizer callback). */
 		locate(view: any): { x: number; y: number } | null {
 			const event = native().NSApplication?.sharedApplication?.currentEvent
-			if (
-				!view ||
-				!event ||
-				!MOUSE_TYPES.has(Number(event.type)) ||
-				event.window !== view.window
-			) {
+			if (!view || !event || !MOUSE_TYPES.has(Number(event.type)) || event.window !== view.window) {
 				return null
 			}
 

@@ -105,7 +105,14 @@ export function validateTransition(t: Transition): void {
 			throw new Error('motion: inertia transitions do not accept repeat')
 		}
 	} else {
-		for (const key of ['power', 'timeConstant', 'min', 'max', 'bounceStiffness', 'bounceDamping'] as const) {
+		for (const key of [
+			'power',
+			'timeConstant',
+			'min',
+			'max',
+			'bounceStiffness',
+			'bounceDamping',
+		] as const) {
 			if (t[key] !== undefined) {
 				throw new Error(`motion: ${key} requires an inertia transition`)
 			}
@@ -135,7 +142,8 @@ export function validateTransition(t: Transition): void {
 		const value = t[key]
 		if (
 			value !== undefined &&
-			(!Number.isFinite(value) || (key !== 'velocity' && key !== 'min' && key !== 'max' && value < 0))
+			(!Number.isFinite(value) ||
+				(key !== 'velocity' && key !== 'min' && key !== 'max' && value < 0))
 		) {
 			throw new Error(`motion: invalid ${key}`)
 		}
@@ -272,24 +280,24 @@ export function runAnimation(
 					restSpeed: transition.restSpeed,
 				})
 			: transition.type === 'spring'
-			? spring({
-					keyframes: [legFrom, legTo],
-					stiffness: transition.stiffness ?? 100,
-					damping: transition.damping ?? 10,
-					mass: transition.mass ?? 1,
-					velocity: transition.velocity ?? 0,
-					restSpeed: transition.restSpeed,
-					restDelta: transition.restDelta,
-					// Visual-duration spring spec — duration/bounce instead of
-					// stiffness/damping; motion-dom takes milliseconds.
-					duration: transition.duration !== undefined ? duration * 1000 : undefined,
-					bounce: transition.bounce,
-				})
-			: keyframes({
-					keyframes: [legFrom, legTo],
-					duration: duration * 1000,
-					ease: transition.ease ?? 'easeInOut',
-				})
+				? spring({
+						keyframes: [legFrom, legTo],
+						stiffness: transition.stiffness ?? 100,
+						damping: transition.damping ?? 10,
+						mass: transition.mass ?? 1,
+						velocity: transition.velocity ?? 0,
+						restSpeed: transition.restSpeed,
+						restDelta: transition.restDelta,
+						// Visual-duration spring spec — duration/bounce instead of
+						// stiffness/damping; motion-dom takes milliseconds.
+						duration: transition.duration !== undefined ? duration * 1000 : undefined,
+						bounce: transition.bounce,
+					})
+				: keyframes({
+						keyframes: [legFrom, legTo],
+						duration: duration * 1000,
+						ease: transition.ease ?? 'easeInOut',
+					})
 
 	let leg = 0
 	let generator = makeGenerator(from, to)
@@ -309,7 +317,11 @@ export function runAnimation(
 		const state = generator.next(elapsed)
 		// Inertia ignores `to` — the generator's resting value is the destination.
 		const legEnd =
-			transition.type === 'inertia' ? state.value : repeatType === 'loop' || leg % 2 === 0 ? to : from
+			transition.type === 'inertia'
+				? state.value
+				: repeatType === 'loop' || leg % 2 === 0
+					? to
+					: from
 		update(state.done ? legEnd : state.value)
 		if (state.done) {
 			if (leg < repeat) {

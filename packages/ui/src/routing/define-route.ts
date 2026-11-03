@@ -493,7 +493,7 @@ export const defineRouteGroup: RouteGroupDefiner = Object.assign(
 	groupsWithContext<RouteContext>(),
 	{
 		/** Rebinds the group definer to a custom root context type. */
-	withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
+		withContext: function withContext<Context extends Exclude<RouteGuardResult, void>>() {
 			return groupsWithContext<Context>()
 		},
 	},

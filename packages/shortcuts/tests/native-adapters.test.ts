@@ -123,6 +123,7 @@ function winHost() {
 			for (let i = 0; i < translated.text.length; i++) {
 				output[i] = translated.text.charCodeAt(i)
 			}
+
 			return translated.count
 		}
 		throw new Error(name)

@@ -3,14 +3,18 @@ import { test } from 'node:test'
 import { createAppKitPointerMotion, viewPoint } from '../src/pointer-motion.ts'
 
 function fixture() {
-	const added: any[] = [], removed: any[] = [], inits: any[] = []
+	const added: any[] = [],
+		removed: any[] = [],
+		inits: any[] = []
 	const native: any = {
-		NSTrackingArea: { alloc: () => ({
-			initWithRectOptionsOwnerUserInfo: (rect: any, options: number, owner: any, info: any) => {
-				inits.push([rect, options, owner, info])
-				return { id: inits.length }
-			},
-		}) },
+		NSTrackingArea: {
+			alloc: () => ({
+				initWithRectOptionsOwnerUserInfo: (rect: any, options: number, owner: any, info: any) => {
+					inits.push([rect, options, owner, info])
+					return { id: inits.length }
+				},
+			}),
+		},
 		NSApplication: { sharedApplication: { currentEvent: null as any } },
 	}
 	const view: any = {
@@ -36,15 +40,22 @@ test('viewPoint converts window points into flipped and unflipped view space and
 	assert.deepEqual(viewPoint({ ...view, flipped: false }, { x: 10, y: 20 }), { x: 8, y: 33 })
 	assert.equal(viewPoint(null, { x: 1, y: 1 }), null)
 	assert.equal(viewPoint(view, null), null)
-	assert.equal(viewPoint({ ...view, convertPointFromView: () => ({ x: NaN, y: 1 }) }, { x: 1, y: 1 }), null)
+	assert.equal(
+		viewPoint({ ...view, convertPointFromView: () => ({ x: NaN, y: 1 }) }, { x: 1, y: 1 }),
+		null,
+	)
 	assert.equal(viewPoint({ bounds: view.bounds }, { x: 1, y: 1 }), null)
 })
 
 test('observe installs a tracking area with the motion mask and dispatches converted enter/move/exit', () => {
-	const f = fixture(), calls: any[] = []
+	const f = fixture(),
+		calls: any[] = []
 	f.motion.observe(
 		f.view,
-		{ move: (x: number, y: number) => calls.push(['move', x, y]), exit: () => calls.push(['exit']) },
+		{
+			move: (x: number, y: number) => calls.push(['move', x, y]),
+			exit: () => calls.push(['exit']),
+		},
 		f.target,
 	)
 	assert.equal(f.added.length, 1)
@@ -62,17 +73,20 @@ test('observe installs a tracking area with the motion mask and dispatches conve
 })
 
 test('release removes the area, ends dispatch and is inert on a second call', () => {
-	const f = fixture(), calls: any[] = []
+	const f = fixture(),
+		calls: any[] = []
 	const off = f.motion.observe(f.view, { move: () => calls.push(1), exit: () => {} }, f.target)
 	const area = f.added[0]
-	off(); off()
+	off()
+	off()
 	assert.deepEqual(f.removed, [area])
 	assert.equal(f.motion.dispatch(area, 'move', { locationInWindow: { x: 1, y: 1 } }), false)
 	assert.deepEqual(calls, [])
 })
 
 test('leases on one view stay independent', () => {
-	const f = fixture(), calls: string[] = []
+	const f = fixture(),
+		calls: string[] = []
 	const first = f.motion.observe(f.view, { move: () => calls.push('a'), exit: () => {} }, f.target)
 	const second = f.motion.observe(f.view, { move: () => calls.push('b'), exit: () => {} }, f.target)
 	assert.equal(f.added.length, 2)
@@ -84,11 +98,24 @@ test('leases on one view stay independent', () => {
 })
 
 test('a throwing motion handler is contained and dispatch still reports the record', () => {
-	const f = fixture(), errors: any[] = []
+	const f = fixture(),
+		errors: any[] = []
 	const original = console.error
-	console.error = (...args: any[]) => { errors.push(args) }
+	console.error = (...args: any[]) => {
+		errors.push(args)
+	}
 	try {
-		f.motion.observe(f.view, { move: () => { throw new Error('boom') }, exit: () => {} }, f.target)
+		f.motion.observe(
+			f.view,
+			{
+				move: () => {
+					throw new Error('boom')
+				},
+				exit: () => {},
+			},
+			f.target,
+		)
+
 		assert.equal(f.motion.dispatch(f.added[0], 'move', { locationInWindow: { x: 1, y: 1 } }), true)
 		assert.equal(errors.length, 1)
 	} finally {

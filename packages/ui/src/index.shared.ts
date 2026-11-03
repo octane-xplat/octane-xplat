@@ -34,7 +34,14 @@ export { Center } from './components/layout/Center.tsrx'
 export { Section } from './components/collections/Section.tsrx'
 /** Five-slot page region primitive (Astryx `Layout` + its header/content
  *  regions). AppShell owns the app frame; Layout structures inside it. */
-export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout.tsrx'
+export {
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+	LayoutFooter,
+	LayoutPanel,
+} from './components/layout/Layout.tsrx'
+
 export { AspectRatio } from './components/layout/AspectRatio.tsrx'
 export { VisuallyHidden } from './components/content/VisuallyHidden.tsrx'
 /** Keyboard focus containment — React Aria's FocusScope. Check
@@ -70,7 +77,12 @@ export { ToggleButton, ToggleButtonGroup } from './components/actions/ToggleButt
 export { ClickableCard } from './components/actions/ClickableCard.tsrx'
 export { SelectableCard } from './components/actions/SelectableCard.tsrx'
 export { MoreMenu } from './components/overlays/MoreMenu.tsrx'
-export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './components/forms/PowerSearch.tsrx'
+export {
+	PowerSearch,
+	PowerSearchToken,
+	PowerSearchFilterEditor,
+} from './components/forms/PowerSearch.tsrx'
+
 export {
 	createPowerSearchConfig,
 	usePowerSearchConfig,
@@ -210,7 +222,11 @@ export { ListItem } from './components/collections/ListItem.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
 export { GridList } from './components/collections/GridList.tsrx'
 export { useGridList } from './components/collections/use-grid-list.tsrx'
-export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list.tsrx'
+export type {
+	UseGridListOptions,
+	UseGridListResult,
+} from './components/collections/use-grid-list.tsrx'
+
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './components/forms/InputNumber.tsrx'
 export { PinInput } from './components/forms/PinInput.tsrx'
@@ -233,7 +249,12 @@ export { DateInput } from './components/forms/DateInput.tsrx'
 export { TimeInput } from './components/forms/TimeInput.tsrx'
 export { DateTimeInput } from './components/forms/DateTimeInput.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.tsrx'
-export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks.tsrx'
+export {
+	useCalendarDays,
+	useCalendarConstraints,
+	useCalendarNavigation,
+} from './components/forms/calendar-hooks.tsrx'
+
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
 export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
 export type {
@@ -357,7 +378,12 @@ export {
 	useSideNavRenderMode,
 } from './components/navigation/SideNav.tsrx'
 
-export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav.tsrx'
+export {
+	MobileNav,
+	MobileNavToggle,
+	useAppShellMobile,
+} from './components/navigation/MobileNav.tsrx'
+
 export { NavIcon } from './components/navigation/NavIcon.tsrx'
 export { NavHeadingMenu, NavHeadingMenuItem } from './components/navigation/NavMenu.tsrx'
 export {
@@ -623,7 +649,11 @@ export type { UseTableColumnResizeConfig } from './table/use-table-column-resize
 export type { UseTableFilteringConfig } from './table/use-table-filtering.tsrx'
 export type { UseTableRowIndexConfig } from './table/use-table-row-index.tsrx'
 export type { UseTableRowStatusConfig } from './table/use-table-row-status.tsrx'
-export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state.tsrx'
+export type {
+	UseTableTreeStateConfig,
+	UseTableTreeStateResult,
+} from './table/use-table-tree-state.tsrx'
+
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
@@ -669,6 +699,7 @@ export type {
 	WebViewMessageEvent,
 	WebViewProps,
 } from './props'
+
 export { Overlay } from './components/overlays/Overlay.tsrx'
 export { Popover } from './components/overlays/Popover.tsrx'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y
@@ -677,7 +708,12 @@ export { useLayer } from './components/overlays/use-layer.tsrx'
 export { usePopover } from './components/overlays/use-popover.tsrx'
 export { useTooltip } from './components/overlays/use-tooltip.tsrx'
 export { useMediaQuery } from './internal/platform/use-media-query.tsrx'
-export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider.tsrx'
+export {
+	LayerProvider,
+	LayerContext,
+	useLayerContext,
+} from './components/overlays/layer-provider.tsrx'
+
 export { Dialog, DialogHeader } from './components/overlays/Dialog.tsrx'
 export { useImperativeDialog } from './components/overlays/use-imperative-dialog.tsrx'
 export { AlertDialog } from './components/overlays/AlertDialog.tsrx'
@@ -933,11 +969,24 @@ export type {
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
 export { useFocus, useFocusRing } from './internal/accessibility/use-focus.tsrx'
-export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus.tsrx'
+export type {
+	FocusEventPayload,
+	UseFocusOptions,
+	UseFocusRingResult,
+} from './internal/accessibility/use-focus.tsrx'
+
 export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.tsrx'
-export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible.tsrx'
+export type {
+	FocusInputModality,
+	UseFocusVisibleResult,
+} from './internal/accessibility/use-focus-visible.tsrx'
+
 export { useFocusWithin } from './internal/accessibility/use-focus-within.tsrx'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within.tsrx'
+export type {
+	UseFocusWithinOptions,
+	UseFocusWithinResult,
+} from './internal/accessibility/use-focus-within.tsrx'
+
 export { useLandmark } from './internal/accessibility/use-landmark.tsrx'
 export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark.tsrx'
 
@@ -945,10 +994,19 @@ export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility
 export { mergeProps } from './internal/layout/merge-props'
 export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard'
-export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard'
+export type {
+	KeyboardEvent,
+	UseKeyboardOptions,
+	UseKeyboardResult,
+} from './internal/keyboard/use-keyboard'
+
 export { useObjectRef } from './internal/accessibility/use-object-ref'
 export { useClipboard } from './internal/platform/use-clipboard.tsrx'
-export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard.tsrx'
+export type {
+	UseClipboardOptions,
+	UseClipboardResult,
+} from './internal/platform/use-clipboard.tsrx'
+
 export { copyText } from './internal/platform/clipboard-write'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
 export type { FlatRef } from './internal/accessibility/ref-list'

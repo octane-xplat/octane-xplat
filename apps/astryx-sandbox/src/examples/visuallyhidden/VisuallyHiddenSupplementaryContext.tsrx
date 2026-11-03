@@ -27,8 +27,7 @@ export function VisuallyHiddenSupplementaryContext() {
 								{delta}
 								{/* The arrow is decorative; spell out the trend for AT. */}
 								<VisuallyHidden>
-									{direction === 'up' ? ' increase' : ' decrease'} from last
-									month
+									{direction === 'up' ? ' increase' : ' decrease'} from last month
 								</VisuallyHidden>
 							</Text>
 						</HStack>

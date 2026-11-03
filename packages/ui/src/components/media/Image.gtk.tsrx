@@ -14,9 +14,11 @@ function gtkPlaceholder(placeholder: string): string | undefined {
 	if (png) {
 		return `data:image/png;base64,${png}`
 	}
+
 	if (/^https?:\/\//i.test(placeholder)) {
 		return undefined
 	}
+
 	return placeholder
 }
 
@@ -42,6 +44,7 @@ export function Image(props: ImageProps): unknown @{
 		() => (props.placeholder && !svg ? gtkPlaceholder(props.placeholder) : undefined),
 		[props.placeholder, svg],
 	)
+
 	const stretch = fitToStretch[props.contentFit ?? 'cover'] ?? 'aspectFill'
 
 	<image

@@ -16,6 +16,7 @@ try {
 		throw error
 	}
 }
+
 await writeFile(
 	join(app, 'package.json'),
 	JSON.stringify({
@@ -26,9 +27,11 @@ await writeFile(
 		dependencies: { '@octane-xplat/print': 'workspace:*' },
 	}),
 )
+
 const { buildMacOSNative, writeNativeBootstrap } = await import(
 	pathToFileURL(join(repo, 'packages/cli/src/macos/native.ts')).href
 )
+
 const artifact = await buildMacOSNative(app)
 assert.equal(artifact.libraries.length, 1, 'Only the print leaf should compile')
 assert.deepEqual(artifact.leaves, ['@octane-xplat/print'])
@@ -61,6 +64,7 @@ setTimeout(async () => {
 }, 0);
 `,
 )
+
 const require = createRequire(join(repo, 'apps/mobile/package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
 await build({
@@ -76,6 +80,7 @@ await build({
 		minify: false,
 	},
 })
+
 const hostRoot = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
 const run = spawnSync(
 	join(hostRoot, 'host'),
@@ -87,11 +92,13 @@ const run = spawnSync(
 	],
 	{ encoding: 'utf8', timeout: 30000, maxBuffer: 4 * 1024 * 1024 },
 )
+
 assert.equal(
 	run.status,
 	0,
 	`${run.stdout}${run.stderr} signal=${run.signal} error=${run.error?.message}`,
 )
+
 assert.match(run.stdout + run.stderr, /PRINT_MACOS_CONSUMER_OK/)
 console.log(
 	'AppKit JavaScript consumer: CLI-built print dylib and metadata, async callback, repeated real PDF exports, base64 and release passed.',

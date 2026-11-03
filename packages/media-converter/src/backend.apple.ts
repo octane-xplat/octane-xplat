@@ -16,6 +16,7 @@ interface Engine {
 	cancel(id: string): void
 	remove(uri: string): boolean
 }
+
 let engine: Engine | undefined
 let serial = 0
 /** The installed bridge object — `new()` is a method, not a construct signature. */
@@ -24,6 +25,7 @@ function host(): Engine | undefined {
 	const type = lookupGlobal(['XplatMediaConverter']) as NativeEngineFactory | undefined
 	return (engine ??= type?.new())
 }
+
 export const backend: ConversionBackend = {
 	isAvailable: async (format) => format === 'mp4' && Boolean(host()),
 	async convert(source, request, control) {
@@ -38,8 +40,10 @@ export const backend: ConversionBackend = {
 			value.startCallback(JSON.stringify({ ...request, source, id }), (json) => {
 				try {
 					const parsed: unknown = JSON.parse(json)
-					const event =
-						(typeof parsed === 'object' && parsed !== null ? parsed : {}) as ConverterEvent
+					const event = (
+						typeof parsed === 'object' && parsed !== null ? parsed : {}
+					) as ConverterEvent
+
 					if (event.error) {
 						reject(event.cancelled ? aborted() : new Error(event.error))
 					} else if (event.result) {

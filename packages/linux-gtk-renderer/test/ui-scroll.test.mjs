@@ -69,6 +69,7 @@ test('headless scrolling observes real GTK ranges, animation, content resize and
 			)
 				.trim()
 				.split('\n')[0]
+
 			execFileSync('xdotool', ['mousemove', '--sync', '--window', id, '40', '40', 'click', '5'], {
 				env,
 				timeout: 5000,

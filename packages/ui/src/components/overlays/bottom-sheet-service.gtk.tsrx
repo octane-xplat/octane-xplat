@@ -85,8 +85,11 @@ export function openBottomSheetWithOwner(
 
 		let finished = false
 		let layer: any = null
-		let contentRoot: { render?: (component: any, props: any) => void; unmount?: () => void } | null =
-			null
+		let contentRoot: {
+			render?: (component: any, props: any) => void
+			unmount?: () => void
+		} | null = null
+
 		const entry: ActiveSheet = {
 			finish(result) {
 				if (finished) {
@@ -100,7 +103,8 @@ export function openBottomSheetWithOwner(
 				} finally {
 					try {
 						layer?.dispose()
-					} catch { }
+					} catch {}
+
 					resolve(result)
 				}
 			},
@@ -137,6 +141,7 @@ export function openBottomSheetWithOwner(
 			layer.setVisible(true)
 			active.add(entry)
 		}
+
 		closeSheet = entry.finish
 	}) as BottomSheetHandle
 

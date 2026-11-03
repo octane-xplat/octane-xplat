@@ -175,17 +175,21 @@ class WindowsMenuControl extends LayoutBase {
 				if (children && typeof children.Append === 'function') {
 					host = node
 				}
+
 				let parent
 				try {
 					parent = tree.GetParent(node)
 				} catch {
 					parent = undefined
 				}
+
 				if (!parent) {
 					break
 				}
+
 				node = parent
 			}
+
 			if (host) {
 				this.host = host
 				return host
@@ -218,12 +222,12 @@ class WindowsMenuControl extends LayoutBase {
 				const topLeft = this.nativeViewProtected
 					.TransformToVisual(host)
 					.TransformPoint({ X: 0, Y: 0 })
+
 				const anchorX = Number(topLeft.X)
 				const anchorY = Number(topLeft.Y)
 				const width =
-					Number(this.nativeViewProtected.ActualWidth) ||
-					Number(this.getMeasuredWidth?.()) ||
-					0
+					Number(this.nativeViewProtected.ActualWidth) || Number(this.getMeasuredWidth?.()) || 0
+
 				this.items.forEach((item, index) => {
 					// left/top are dropped by the Windows CSS parser; the
 					// absolute frame comes from explicit size + translate. Raw
@@ -250,13 +254,12 @@ class WindowsMenuControl extends LayoutBase {
 						// A panel only hit-tests where it has a Background —
 						// transparent still registers; none passes input through.
 						if (!native.Background) {
-							native.Background =
-								new Microsoft.UI.Xaml.Media.SolidColorBrush({
-									A: 1,
-									R: 0,
-									G: 0,
-									B: 0,
-								})
+							native.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush({
+								A: 1,
+								R: 0,
+								G: 0,
+								B: 0,
+							})
 						}
 					} catch (error) {
 						this.diag('item-native-layout', error)
@@ -266,11 +269,13 @@ class WindowsMenuControl extends LayoutBase {
 			} catch (error) {
 				this.diag('item-layout', error)
 			}
+
 			this.requestLayout?.()
 			host.Children.Append(this.canvas)
 			try {
 				canvasStatics.SetZIndex(this.canvas, 2147483647)
 			} catch {}
+
 			this.popupOpen = true
 			this.captureFocus()
 			this.focusFirstWithRetry(4)
@@ -322,6 +327,7 @@ class WindowsMenuControl extends LayoutBase {
 			for (const item of this.items) {
 				this.setItemVisibility(item, false)
 			}
+
 			const children = this.childCollection(this.host)
 			if (children) {
 				const count = Number(children.Size)
@@ -350,7 +356,7 @@ class WindowsMenuControl extends LayoutBase {
 		item.peer = peer
 		item.owner = this
 		try {
-			(item.style as any).position = 'absolute'
+			;(item.style as any).position = 'absolute'
 		} catch (error) {
 			this.diag('item-position', error)
 		}
@@ -450,6 +456,7 @@ class WindowsMenuControl extends LayoutBase {
 						}
 					}),
 			)
+
 			this.presenter().KeyDown = this.keyDown
 			for (const item of this.items) {
 				item.peer.KeyDown = this.keyDown
@@ -459,10 +466,10 @@ class WindowsMenuControl extends LayoutBase {
 			this.diag('keydown', error)
 		}
 		try {
-			this.tapped = NSWinRT.asDelegate(
-				'Microsoft.UI.Xaml.Input.TappedEventHandler',
-				() => receive(() => this.hide(true)),
+			this.tapped = NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.TappedEventHandler', () =>
+				receive(() => this.hide(true)),
 			)
+
 			this.dismiss().Tapped = this.tapped
 		} catch (error) {
 			this.tapped = undefined
@@ -487,25 +494,24 @@ class WindowsMenuControl extends LayoutBase {
 				if (!native) {
 					continue
 				}
-				native.Tapped = NSWinRT.asDelegate(
-					'Microsoft.UI.Xaml.Input.TappedEventHandler',
-					() =>
-						receive(() => {
-							if (
-								!item.settings ||
-								item.settings.disabled ||
-								this.settings?.blocked ||
-								!this.isEnabled
-							) {
-								return
-							}
-							try {
-								item.settings.onSelect?.()
-							} catch (error) {
-								reportActionError(error)
-							}
-							this.hide(true)
-						}),
+
+				native.Tapped = NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.TappedEventHandler', () =>
+					receive(() => {
+						if (
+							!item.settings ||
+							item.settings.disabled ||
+							this.settings?.blocked ||
+							!this.isEnabled
+						) {
+							return
+						}
+						try {
+							item.settings.onSelect?.()
+						} catch (error) {
+							reportActionError(error)
+						}
+						this.hide(true)
+					}),
 				)
 			}
 		} catch (error) {
@@ -542,6 +548,7 @@ class WindowsMenuControl extends LayoutBase {
 			try {
 				this.slots.FindName('XplatPresenter').KeyDown = null
 			} catch {}
+
 			try {
 				this.slots.FindName('XplatDismiss').Tapped = null
 			} catch {}
@@ -618,27 +625,30 @@ class WindowsMenuControl extends LayoutBase {
 	}
 
 	private focusFirstWithRetry(attempts: number): void {
-		this.focusTask = setTimeout(() => {
-			this.focusTask = undefined
-			if (!this.popupOpen || !this.isLoaded) {
-				return
-			}
-			const peers = this.enabledItems().map((item) => item.peer)
-			let focused: any
-			try {
-				focused = Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement(
-					this.nativeViewProtected.XamlRoot,
-				)
-			} catch {}
-			if (peers.includes(focused)) {
-				return
-			}
-			this.tryFocus(this.presenter(), Microsoft.UI.Xaml.FocusState.Keyboard)
-			this.tryFocus(peers[0], Microsoft.UI.Xaml.FocusState.Keyboard)
-			if (attempts > 1) {
-				this.focusFirstWithRetry(attempts - 1)
-			}
-		}, attempts === 4 ? 0 : 50)
+		this.focusTask = setTimeout(
+			() => {
+				this.focusTask = undefined
+				if (!this.popupOpen || !this.isLoaded) {
+					return
+				}
+				const peers = this.enabledItems().map((item) => item.peer)
+				let focused: any
+				try {
+					focused = Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement(
+						this.nativeViewProtected.XamlRoot,
+					)
+				} catch {}
+				if (peers.includes(focused)) {
+					return
+				}
+				this.tryFocus(this.presenter(), Microsoft.UI.Xaml.FocusState.Keyboard)
+				this.tryFocus(peers[0], Microsoft.UI.Xaml.FocusState.Keyboard)
+				if (attempts > 1) {
+					this.focusFirstWithRetry(attempts - 1)
+				}
+			},
+			attempts === 4 ? 0 : 50,
+		)
 	}
 
 	private focusSibling(direction: number): void {
@@ -705,9 +715,11 @@ class WindowsMenuControl extends LayoutBase {
 			if (automation.GetName(presenter) !== label) {
 				automation.SetName(presenter, label)
 			}
+
 			if (automation.GetAutomationId(presenter) !== this.presenterId) {
 				automation.SetAutomationId(presenter, this.presenterId)
 			}
+
 			const width = Number(this.nativeViewProtected.ActualWidth)
 			if (width > 0 && Number(this.minWidthAccessor!.get!.call(presenter)) !== width) {
 				this.minWidthAccessor!.set!.call(presenter, width)
@@ -716,6 +728,7 @@ class WindowsMenuControl extends LayoutBase {
 			const open = Boolean(
 				this.settings?.open && !this.settings.blocked && this.isEnabled && this.isLoaded,
 			)
+
 			if (open !== this.popupOpen && Number(this.nativeViewProtected.ActualWidth) > 0) {
 				if (open) {
 					this.show()

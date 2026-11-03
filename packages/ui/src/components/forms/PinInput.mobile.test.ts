@@ -12,6 +12,7 @@ vi.mock('@nativescript/core', () => ({
 	isAndroid: true,
 	Utils: { openUrl: vi.fn() },
 }))
+
 vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
 vi.mock('../media/svg', () => ({}))
 vi.mock('../../routing/default-router', () => ({

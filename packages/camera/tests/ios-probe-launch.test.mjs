@@ -22,12 +22,14 @@ fs.appendFileSync(process.env.CAMERA_TEST_TRACE, JSON.stringify(process.argv.sli
 if (process.argv.includes('launch')) process.stdout.write(JSON.stringify({result:{process:{processIdentifier:4242}}}))
 `,
 		)
+
 		await chmod(mock, 0o755)
 		await run(work, trace)
 	} finally {
 		await rm(work, { recursive: true, force: true })
 	}
 }
+
 function launch(work, trace, mode) {
 	const child = spawn(
 		process.execPath,
@@ -58,6 +60,7 @@ function launch(work, trace, mode) {
 	done.finally(() => clearTimeout(timer))
 	return { child, done, output: () => output }
 }
+
 test('signed build-only probe phase never installs or launches a device app', async () =>
 	fixture(async (work, trace) => {
 		const h = launch(work, trace, 'physical-build')
@@ -65,6 +68,7 @@ test('signed build-only probe phase never installs or launches a device app', as
 		await assert.rejects(readFile(trace), { code: 'ENOENT' })
 		assert.equal(h.output(), '')
 	}))
+
 test('physical probe requests CoreDevice JSON and terminates the exact launched PID', async () =>
 	fixture(async (work, trace) => {
 		const h = launch(work, trace, 'physical')
@@ -73,8 +77,10 @@ test('physical probe requests CoreDevice JSON and terminates the exact launched 
 				if (h.child.exitCode !== null || h.child.signalCode !== null) {
 					assert.fail('Launcher exited before readiness')
 				}
+
 				await new Promise((resolve) => setTimeout(resolve, 10))
 			}
+
 			assert.match(h.output(), /\[xplat-probe-ios-app\] owned.probe/)
 		} finally {
 			h.child.kill('SIGTERM')

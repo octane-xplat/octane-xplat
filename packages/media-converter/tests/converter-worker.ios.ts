@@ -28,6 +28,7 @@ declare function CVPixelBufferPoolCreatePixelBuffer(
 	pool: unknown,
 	pixelBufferOut: interop.Reference<unknown>,
 ): number
+
 declare function CVPixelBufferLockBaseAddress(pixelBuffer: unknown, lockFlags: number): number
 declare function CVPixelBufferUnlockBaseAddress(pixelBuffer: unknown, unlockFlags: number): number
 declare function CVPixelBufferGetBaseAddress(pixelBuffer: unknown): interop.Pointer | null
@@ -55,11 +56,13 @@ function post(event: Record<string, unknown>): void {
 	}
 }
 
-function convert(request: {
-	source: string
-	backgroundColor: string
-	bitrate: number
-}): { uri: string; width: number; height: number; duration: number; mimeType: string } {
+function convert(request: { source: string; backgroundColor: string; bitrate: number }): {
+	uri: string
+	width: number
+	height: number
+	duration: number
+	mimeType: string
+} {
 	const invalid = (message: string) => new Error(message)
 	const uri = request.source
 	const url = uri.startsWith('/') ? NSURL.fileURLWithPath(uri) : NSURL.URLWithString(uri)
@@ -79,7 +82,13 @@ function convert(request: {
 	const properties = CGImageSourceCopyPropertiesAtIndex(source, 0, null)
 	const rawWidth = Number(properties?.objectForKey(kCGImagePropertyPixelWidth) ?? 0)
 	const rawHeight = Number(properties?.objectForKey(kCGImagePropertyPixelHeight) ?? 0)
-	if (!count || count > MAX_FRAMES || !rawWidth || !rawHeight || rawWidth * rawHeight > MAX_PIXELS) {
+	if (
+		!count ||
+		count > MAX_FRAMES ||
+		!rawWidth ||
+		!rawHeight ||
+		rawWidth * rawHeight > MAX_PIXELS
+	) {
 		throw invalid(`GIF must have 1–${MAX_FRAMES} frames and at most ${MAX_PIXELS} pixels`)
 	}
 	const delays: number[] = []
@@ -89,6 +98,7 @@ function convert(request: {
 		const seconds =
 			Number(gif?.objectForKey(kCGImagePropertyGIFUnclampedDelayTime) ?? 0) ||
 			Number(gif?.objectForKey(kCGImagePropertyGIFDelayTime) ?? 0)
+
 		delays.push(seconds > 0 ? Math.max(10, Math.round(seconds * 1000)) : 100)
 	}
 	const duration = delays.reduce((total, value) => total + value, 0)
@@ -119,16 +129,22 @@ function convert(request: {
 	if (!writer.canApplyOutputSettingsForMediaType(settings, AVMediaTypeVideo)) {
 		throw invalid('H.264 encoder does not support these dimensions')
 	}
-	const input = AVAssetWriterInput.alloc().initWithMediaTypeOutputSettings(AVMediaTypeVideo, settings)
+	const input = AVAssetWriterInput.alloc().initWithMediaTypeOutputSettings(
+		AVMediaTypeVideo,
+		settings,
+	)
 	input.mediaTimeScale = 1000
-	const adapter = AVAssetWriterInputPixelBufferAdaptor.alloc()
-		.initWithAssetWriterInputSourcePixelBufferAttributes(input, {
-			[kCVPixelBufferPixelFormatTypeKey]: kCVPixelFormatType_32ARGB,
-			[kCVPixelBufferWidthKey]: width,
-			[kCVPixelBufferHeightKey]: height,
-			[kCVPixelBufferCGImageCompatibilityKey]: true,
-			[kCVPixelBufferCGBitmapContextCompatibilityKey]: true,
-		} as unknown as NSDictionary<string, unknown>)
+	const adapter =
+		AVAssetWriterInputPixelBufferAdaptor.alloc().initWithAssetWriterInputSourcePixelBufferAttributes(
+			input,
+			{
+				[kCVPixelBufferPixelFormatTypeKey]: kCVPixelFormatType_32ARGB,
+				[kCVPixelBufferWidthKey]: width,
+				[kCVPixelBufferHeightKey]: height,
+				[kCVPixelBufferCGImageCompatibilityKey]: true,
+				[kCVPixelBufferCGBitmapContextCompatibilityKey]: true,
+			} as unknown as NSDictionary<string, unknown>,
+		)
 	if (!writer.canAddInput(input)) {
 		throw invalid('Could not add video track')
 	}
@@ -139,6 +155,7 @@ function convert(request: {
 		if (!writer.startWriting()) {
 			throw writer.error ?? invalid('Could not start video encoding')
 		}
+
 		writer.startSessionAtSourceTime(kCMTimeZero)
 		let time = 0
 		for (let index = 0; index < count; index++) {
@@ -147,17 +164,21 @@ function convert(request: {
 				if (writer.status === 3 /* AVAssetWriterStatusFailed */ || Date.now() > deadline) {
 					throw writer.error ?? invalid('Video encoder timed out')
 				}
+
 				NSThread.sleepForTimeInterval(0.001)
 			}
+
 			const image = CGImageSourceCreateImageAtIndex(source, index, null)
 			const pool = adapter.pixelBufferPool
 			if (!image || !pool) {
 				throw invalid('Could not decode a GIF frame')
 			}
+
 			const ref = new interop.Reference<unknown>()
 			if (CVPixelBufferPoolCreatePixelBuffer(null, pool, ref) !== 0 || !ref.value) {
 				throw invalid('Could not allocate frame pixels')
 			}
+
 			const pixel = ref.value
 			CVPixelBufferLockBaseAddress(pixel, 0)
 			try {
@@ -170,9 +191,11 @@ function convert(request: {
 					CGColorSpaceCreateDeviceRGB(),
 					2 as CGBitmapInfo /* kCGImageAlphaInfoNoneSkipFirst */,
 				)
+
 				if (!context) {
 					throw invalid('Could not draw a video frame')
 				}
+
 				CGContextSetRGBFillColor(
 					context,
 					((rgb >> 16) & 255) / 255,
@@ -180,6 +203,7 @@ function convert(request: {
 					(rgb & 255) / 255,
 					1,
 				)
+
 				CGContextFillRect(context, CGRectMake(0, 0, width, height))
 				CGContextDrawImage(context, CGRectMake(0, height - rawHeight, rawWidth, rawHeight), image)
 				if (!adapter.appendPixelBufferWithPresentationTime(pixel, CMTimeMake(time, 1000))) {
@@ -188,19 +212,28 @@ function convert(request: {
 			} finally {
 				CVPixelBufferUnlockBaseAddress(pixel, 0)
 			}
+
 			time += delays[index]!
 			post({ progress: (index + 1) / count })
 		}
+
 		writer.endSessionAtSourceTime(CMTimeMake(duration, 1000))
 		input.markAsFinished()
 		writer.finishWritingWithCompletionHandler(() => {})
 		const deadline = Date.now() + FINISH_TIMEOUT_MS
-		while (writer.status !== 2 && writer.status !== 3 && writer.status !== 4 && Date.now() < deadline) {
+		while (
+			writer.status !== 2 &&
+			writer.status !== 3 &&
+			writer.status !== 4 &&
+			Date.now() < deadline
+		) {
 			NSThread.sleepForTimeInterval(0.01)
 		}
+
 		if (writer.status !== 2 /* AVAssetWriterStatusCompleted */) {
 			throw writer.error ?? invalid('Video encoding failed')
 		}
+
 		succeeded = true
 		return {
 			uri: String(output.absoluteString),

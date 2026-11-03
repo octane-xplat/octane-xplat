@@ -84,6 +84,7 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
 				if (record(data)?.error === 'invalid_grant') {
 					return null
 				}
+
 				throw new Error('Session refresh is temporarily unavailable')
 			}
 			return credentials(data, previous.sessionToken)

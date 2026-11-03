@@ -18,10 +18,7 @@ const requireShim = (id, context) => {
 		const parentExports = context.exports
 		context.exports = {}
 		try {
-			const source = readFileSync(
-				new URL(`../../files/src${leaf[1]}.ts`, import.meta.url),
-				'utf8',
-			)
+			const source = readFileSync(new URL(`../../files/src${leaf[1]}.ts`, import.meta.url), 'utf8')
 			vm.runInContext(ts.transpile(source, { module: ts.ModuleKind.CommonJS }), context)
 			return context.exports
 		} finally {
@@ -49,27 +46,27 @@ async function load(overrides = {}) {
 		__sheetClass: class {
 			constructor() {
 				const host = {
-						permissionStatus() {
-							return 'notDetermined'
-						},
-						requestPermissionReply(reply) {
-							events.push('camera permission')
-							reply('granted')
-						},
-						presentReply(options, reply) {
-							events.push('present')
-							this.reply = reply
-						},
-						dispose() {
-							events.push('dispose')
-						},
-						discard(uri) {
-							events.push(`discard ${uri}`)
-						},
-						...overrides,
-					}
-					hosts.push(host)
-					return host
+					permissionStatus() {
+						return 'notDetermined'
+					},
+					requestPermissionReply(reply) {
+						events.push('camera permission')
+						reply('granted')
+					},
+					presentReply(options, reply) {
+						events.push('present')
+						this.reply = reply
+					},
+					dispose() {
+						events.push('dispose')
+					},
+					discard(uri) {
+						events.push(`discard ${uri}`)
+					},
+					...overrides,
+				}
+				hosts.push(host)
+				return host
 			}
 		},
 		require: (id) => requireShim(id, context),

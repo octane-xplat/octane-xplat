@@ -4,10 +4,7 @@ import { mkdir, mkdtemp, symlink, writeFile } from 'node:fs/promises'
 import { resolve, join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../cli/src/macos/native.ts'
-import {
-	macOSHostArch,
-	hostBundle,
-} from '../../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle } from '../../../cli/src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../../../cli/src/macos/executables.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))

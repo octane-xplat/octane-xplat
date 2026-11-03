@@ -43,14 +43,17 @@ export async function captureNativeToolchainAsync(
 				encoding: 'utf8',
 				timeout: 15000,
 			}).match(/^Xcode [0-9.]+\r?\nBuild version [A-Za-z0-9]+/m)?.[0]
+
 			const sdk = execFileSync(
 				'xcrun',
 				['--sdk', platform === 'ios' ? 'iphoneos' : 'macosx', '--show-sdk-version'],
 				{ encoding: 'utf8', timeout: 15000 },
 			).trim()
+
 			if (!xcode || !/^[0-9.]+$/.test(sdk)) {
 				throw new Error()
 			}
+
 			return { xcode, sdk, environment }
 		} catch {
 			throw new Error('Cannot identify the Apple compiler/SDK for this native build')
@@ -67,15 +70,18 @@ export async function captureNativeToolchainAsync(
 				.replaceAll('\\:', ':')
 				.replaceAll('\\\\', '\\')
 		}
+
 		if (!sdk || !existsSync(sdk)) {
 			throw new Error('Cannot identify the Android SDK for this native build')
 		}
+
 		const versions: Record<string, string> = {}
 		for (const group of ['platforms', 'build-tools', 'ndk', 'cmdline-tools']) {
 			const path = join(sdk, group)
 			if (!existsSync(path)) {
 				continue
 			}
+
 			for (const name of (await readdir(path)).sort()) {
 				const properties = join(path, name, 'source.properties')
 				if (existsSync(properties)) {
@@ -83,23 +89,29 @@ export async function captureNativeToolchainAsync(
 				}
 			}
 		}
+
 		if (!Object.keys(versions).some((name) => name.startsWith('platforms/'))) {
 			throw new Error('No installed Android platform SDK metadata')
 		}
+
 		const java = spawnSync(
 			process.env.JAVA_HOME ? join(process.env.JAVA_HOME, 'bin/java') : 'java',
 			['-version'],
 			{ encoding: 'utf8', timeout: 15000 },
 		)
+
 		if (java.status !== 0 || !(java.stdout + java.stderr).trim()) {
 			throw new Error('Cannot identify the Java toolchain for this native build')
 		}
+
 		const version = (java.stdout + java.stderr).match(
 			/^(?:openjdk|java)(?: version)? "?([0-9][A-Za-z0-9._+-]*)/m,
 		)?.[1]
+
 		if (!version) {
 			throw new Error('Cannot parse the Java toolchain version')
 		}
+
 		versions.java = version
 		return { ...versions, environment }
 	}

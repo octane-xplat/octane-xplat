@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useContext, useState } from 'octane'
 import type { SegmentedControlProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FieldContext, useFieldControlProps } from './field-context'
 import { NativeToggleField } from './NativeToggleField.tsrx'
 import { SegmentedControlItem } from './SegmentedControlItem.tsrx'
@@ -19,10 +24,17 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
 	const current = props.value ?? internal
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const select = (value: string) => {
-		if (isBlocked || value === current) return
-		if (props.value === undefined) setInternal(value)
+		if (isBlocked || value === current) {
+			return
+		}
+
+		if (props.value === undefined) {
+			setInternal(value)
+		}
+
 		props.onValueChange?.(value)
 	}
+
 	const ctx = {
 		selected: current,
 		select,
@@ -34,27 +46,39 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
 	<masonview
 		ref={(view: any) => applyEscapeProps(view, props)}
 		id={props.id}
-		className={cx('vx-segmented', 'vx-segmented--native',
+		className={cx(
+			'vx-segmented',
+			'vx-segmented--native',
 			props.layout === 'fill' && 'vx-segmented--fill',
 			props.isDisabled && 'vx-segmented--disabled',
 			props.isReadOnly && 'vx-segmented--readonly',
 			props.isLoading && 'vx-segmented--loading',
 			props.status && `vx-segmented--status-${props.status.type}`,
 			props.size && `vx-segmented--size-${props.size}`,
-			props.className)}
+			props.className,
+		)}
 		style={mergeStyle({ display: 'flex' }, props.style)}
 		isEnabled={!props.isDisabled}
 		accessibilityRole={nativeAccessibilityRole('radiogroup')}
-		accessibilityLabel={props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label}
+		accessibilityLabel={
+			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+		}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled,
-			readOnly: props.isReadOnly, required: props.isRequired, busy: props.isLoading,
-			invalid: props.status?.type === 'error' })}
+		accessibilityState={nativeAccessibilityState({
+			disabled: props.isDisabled,
+			readOnly: props.isReadOnly,
+			required: props.isRequired,
+			busy: props.isLoading,
+			invalid: props.status?.type === 'error',
+		})}
 	>
 		<SegmentedControlProvider value={ctx}>
 			@for (const option of props.options ?? []; key option.value) {
-				<SegmentedControlItem value={option.value} label={option.label ?? option.value}
-					isDisabled={option.isDisabled} />
+				<SegmentedControlItem
+					value={option.value}
+					label={option.label ?? option.value}
+					isDisabled={option.isDisabled}
+				/>
 			}
 			{props.children}
 		</SegmentedControlProvider>
@@ -63,6 +87,7 @@ function SegmentedControlBody(inputProps: SegmentedControlProps) @{
 
 export function SegmentedControl(props: SegmentedControlProps): unknown @{
 	const inField = useContext(FieldContext) != null
+
 	@if (inField) {
 		<SegmentedControlBody {...props} />
 	} @else {

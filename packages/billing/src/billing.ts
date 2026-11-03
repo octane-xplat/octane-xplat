@@ -45,6 +45,7 @@ function getClient(): Payment {
 			}
 			readyWaiters.clear()
 		}
+
 		client.onPurchaseUpdate = (purchases, error) => {
 			if (error) {
 				const out = {
@@ -114,6 +115,7 @@ export const billing: Billing = {
 					code: 'PRODUCT_UNAVAILABLE',
 				})
 			}
+
 			native = fetched
 		} else {
 			native = product.native as NativeProduct | undefined

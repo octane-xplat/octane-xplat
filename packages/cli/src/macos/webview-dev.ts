@@ -13,6 +13,7 @@ import {
 	macOSHostArch,
 	validateHostBundle,
 } from './jsc-host/runtime.ts'
+
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
 /** Run the configured DOM frontend in WKWebView with a CLI-managed JSC host. */

@@ -7,26 +7,51 @@ function fixture() {
 	let registrations = 0
 	const removed: unknown[] = []
 	const center = {
-		addObserverForNameObjectQueueUsingBlock: (_name: string, _object: unknown, _queue: unknown, callback: typeof notify) => {
-			notify = callback; registrations++; return 'focus-monitor'
+		addObserverForNameObjectQueueUsingBlock: (
+			_name: string,
+			_object: unknown,
+			_queue: unknown,
+			callback: typeof notify,
+		) => {
+			notify = callback
+			registrations++
+			return 'focus-monitor'
 		},
 		removeObserver: (token: unknown) => removed.push(token),
 	}
-	const dispatcher = createAppKitFocusWithinDispatcher(() => ({ NSNotificationCenter: { defaultCenter: center } }))
+	const dispatcher = createAppKitFocusWithinDispatcher(() => ({
+		NSNotificationCenter: { defaultCenter: center },
+	}))
 	const window: any = { firstResponder: null }
 	const root: any = { window, superview: null }
 	const first: any = { window, superview: root }
 	const second: any = { window, superview: root }
 	const outside: any = { window, superview: null }
-	const focus = (view: any) => { window.firstResponder = view; notify({ object: window }) }
-	return { dispatcher, window, root, first, second, outside, focus, removed, registrations: () => registrations }
+	const focus = (view: any) => {
+		window.firstResponder = view
+		notify({ object: window })
+	}
+	return {
+		dispatcher,
+		window,
+		root,
+		first,
+		second,
+		outside,
+		focus,
+		removed,
+		registrations: () => registrations,
+	}
 }
 
 test('container callbacks report boundary crossings, not movement among descendants', () => {
 	const env = fixture()
 	const events: any[] = []
 	env.window.firstResponder = env.outside
-	env.dispatcher.set(env.root, { onFocus: (event) => events.push(event), onBlur: (event) => events.push(event) })
+	env.dispatcher.set(env.root, {
+		onFocus: (event) => events.push(event),
+		onBlur: (event) => events.push(event),
+	})
 	env.focus(env.outside)
 	env.focus(env.first)
 	env.focus(env.second)
@@ -63,7 +88,10 @@ test('replacements retain state; removals release the observer and pending initi
 	const calls: string[] = []
 	env.window.firstResponder = env.first
 	env.dispatcher.set(env.root, { onFocus: () => calls.push('old') })
-	env.dispatcher.set(env.root, { onFocus: () => calls.push('new'), onBlur: () => calls.push('blur') })
+	env.dispatcher.set(env.root, {
+		onFocus: () => calls.push('new'),
+		onBlur: () => calls.push('blur'),
+	})
 	assert.deepEqual(calls, [])
 	await Promise.resolve()
 	assert.deepEqual(calls, ['new'])
@@ -86,7 +114,10 @@ test('windows and nested boundaries keep independent containment state', () => {
 	secondWindow.firstResponder = other
 	const calls: string[] = []
 	env.dispatcher.set(env.root, { onFocus: () => calls.push('root') })
-	env.dispatcher.set(env.first, { onFocus: () => calls.push('child'), onBlur: () => calls.push('child-blur') })
+	env.dispatcher.set(env.first, {
+		onFocus: () => calls.push('child'),
+		onBlur: () => calls.push('child-blur'),
+	})
 	env.dispatcher.set(other, { onFocus: () => calls.push('other') })
 	env.focus(env.first)
 	env.dispatcher.synchronize(secondWindow)
@@ -112,11 +143,25 @@ test('detachment emits an exit and reparenting permits a later entry', () => {
 test('unavailable or failed native observation is reported without throwing', () => {
 	const missing = createAppKitFocusWithinDispatcher(() => ({}))
 	assert.equal(missing.available(), false)
-	missing.set({}, { onFocus() { throw new Error('must not fire') } })
+	missing.set(
+		{},
+		{
+			onFocus() {
+				throw new Error('must not fire')
+			},
+		},
+	)
 	missing.dispose()
-	const failed = createAppKitFocusWithinDispatcher(() => ({ NSNotificationCenter: { defaultCenter: {
-		addObserverForNameObjectQueueUsingBlock() { throw new Error('bridge unavailable') }, removeObserver() {},
-	} } }))
+	const failed = createAppKitFocusWithinDispatcher(() => ({
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock() {
+					throw new Error('bridge unavailable')
+				},
+				removeObserver() {},
+			},
+		},
+	}))
 	failed.set({}, { onFocus() {} })
 	assert.equal(failed.available(), false)
 	failed.dispose()

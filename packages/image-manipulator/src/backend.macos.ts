@@ -15,6 +15,7 @@ import {
 	NSURLSession,
 	NSUUID,
 } from '@octane-xplat/platform/macos'
+
 import type { NSHTTPURLResponse } from '@octane-xplat/platform/macos'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { lookupGlobal } from '@octane-xplat/lib/capability'
@@ -75,6 +76,7 @@ function draw(size: Size, action: (context: NSGraphicsContext['CGContext']) => v
 			graphics.CGContext,
 			true,
 		)
+
 		action(graphics.CGContext)
 		graphics.flushGraphics()
 		return { image: bitmap, ...size }
@@ -101,6 +103,7 @@ async function dataFor(uri: string): Promise<NSData> {
 		if (!url) {
 			throw new TypeError('Invalid image URL')
 		}
+
 		return new Promise((resolve, reject) => {
 			const task = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
 				url,
@@ -121,12 +124,14 @@ async function dataFor(uri: string): Promise<NSData> {
 		if (!match) {
 			throw new TypeError('Image data URIs must contain base64-encoded image bytes')
 		}
+
 		data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
 	} else {
 		const local = uri.startsWith('file://') ? NSURL.URLWithString(uri)?.path : uri
 		if (!local?.startsWith('/')) {
 			throw new TypeError('AppKit image paths must be absolute file paths or file URLs')
 		}
+
 		data = NSData.dataWithContentsOfFile(local)
 	}
 	if (!data) {
@@ -178,6 +183,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 					operation.axis === 'horizontal' ? size.width : 0,
 					operation.axis === 'vertical' ? size.height : 0,
 				)
+
 				CGContextScaleCTM(
 					context,
 					operation.axis === 'horizontal' ? -1 : 1,
@@ -206,8 +212,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 		options.format === 'jpeg' ? 3 : 4,
 		properties,
 	)
-	const codec =
-		lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
+	const codec = lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
 	if (options.format === 'webp' && !codec) {
 		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
 	}
@@ -225,6 +230,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 		if (!data.writeToFileAtomically(local, true)) {
 			throw new Error('Could not save the encoded image')
 		}
+
 		return {
 			uri,
 			width: frame.width,

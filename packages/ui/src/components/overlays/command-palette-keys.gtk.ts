@@ -13,13 +13,13 @@ export function bindCommandPaletteKeys(
 ): () => void {
 	const entry = input
 	if (!entry?.add_controller) {
-		return () => { }
+		return () => {}
 	}
 
 	const grab = () => {
 		try {
 			entry.grab_focus?.()
-		} catch { }
+		} catch {}
 	}
 	// Focus may fail while the freshly created layer is still unmapped — grab
 	// now, and again when the entry maps.
@@ -75,6 +75,6 @@ export function bindCommandPaletteKeys(
 			if (changeId) {
 				entry.disconnect(changeId)
 			}
-		} catch { }
+		} catch {}
 	}
 }

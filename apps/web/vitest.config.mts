@@ -5,7 +5,7 @@ import { octane } from '@octanejs/vite-plugin'
 // Component tests run through the same octane transform the web app uses —
 // web suffix chain so leaves resolve to their DOM implementations.
 export default defineConfig({
-	plugins: [xplatTsrx('web'),...octane()],
+	plugins: [xplatTsrx('web'), ...octane()],
 	ssr: {
 		resolve: { conditions: ['web'] },
 	},

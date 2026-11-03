@@ -11,6 +11,7 @@ const keys = new Set([
 	'handleGLSurfaceViewOnAndroid',
 	'useRenderInContext',
 ])
+
 /** Bound decoded/native bitmap allocation to 32 million pixels, including the default host scale. */
 export const MAX_CAPTURE_PIXELS = 32_000_000
 export function checkDimensions(width: number, height: number): void {
@@ -28,6 +29,7 @@ export function checkDimensions(width: number, height: number): void {
 		)
 	}
 }
+
 export function normalizeOptions(options: CaptureOptions = {}): NormalizedCaptureOptions {
 	if (
 		!options ||

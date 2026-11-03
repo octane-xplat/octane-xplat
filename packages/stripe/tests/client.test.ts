@@ -9,6 +9,7 @@ const options = {
 	paymentIntentClientSecret: 'pi_fixture_secret_fixture',
 	returnURL: 'testapp://checkout',
 }
+
 function fixture() {
 	const backend = {
 		available: () => true,
@@ -20,6 +21,7 @@ function fixture() {
 	} satisfies StripeBackend
 	return { backend, client: createStripeClient(backend) }
 }
+
 function deferred<T>() {
 	let resolve!: (value: T) => void
 	const promise = new Promise<T>((done) => {
@@ -41,6 +43,7 @@ it('rejects secret keys before calling the SDK and snapshots mutable wallet sett
 	expect(await pending).toEqual({})
 	expect(backend.prepare.mock.calls[0]?.[0].applePay?.merchantCountryCode).toBe('US')
 })
+
 it('invalidates a previous sheet when replacement options are invalid', async () => {
 	const { client, backend } = fixture()
 	await client.initStripe(config)
@@ -51,6 +54,7 @@ it('invalidates a previous sheet when replacement options are invalid', async ()
 	expect((await client.presentPaymentSheet()).error).toBeDefined()
 	expect(backend.present).not.toHaveBeenCalled()
 })
+
 it('blocks overlapping presentation, replacement, reconfiguration and disposal', async () => {
 	const { client, backend } = fixture()
 	await client.initStripe(config)
@@ -68,6 +72,7 @@ it('blocks overlapping presentation, replacement, reconfiguration and disposal',
 	expect((await client.presentPaymentSheet()).error).toBeDefined()
 	expect(backend.present).toHaveBeenCalledTimes(2)
 })
+
 it('never returns raw SDK failures or client secrets and releases failed initialization', async () => {
 	const { client, backend } = fixture()
 	await client.initStripe(config)
@@ -77,6 +82,7 @@ it('never returns raw SDK failures or client secrets and releases failed initial
 	expect((await client.presentPaymentSheet()).error).toBeDefined()
 	expect(backend.reset).toHaveBeenCalledTimes(3)
 })
+
 it('passes only the configured URL scheme to the SDK and reports unsupported hosts safely', async () => {
 	const { client, backend } = fixture()
 	expect(await client.handleURLCallback('testapp://checkout')).toBe(false)

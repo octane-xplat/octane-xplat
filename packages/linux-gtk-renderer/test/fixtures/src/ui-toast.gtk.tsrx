@@ -1,14 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useRef, useState } from 'octane'
-import {
-	Button,
-	Text,
-	Toast,
-	ToastViewport,
-	View,
-	showToast,
-	useToast,
-} from '@octane-xplat/ui'
+import { Button, Text, Toast, ToastViewport, View, showToast, useToast } from '@octane-xplat/ui'
 import type { ToastHandle } from '@octane-xplat/ui'
 
 /** Buttons docked on the enclosing viewport — `useToast` reads the context. */
@@ -17,6 +9,7 @@ function ViewportProbes(props: {
 	keep: (key: string, handle: ToastHandle | null) => void
 }) @{
 	const toast = useToast()
+
 	<>
 		<Button
 			id={`${props.prefix}-push`}
@@ -79,6 +72,7 @@ export function ToastProbe() @{
 	// Every interactive probe lives in a narrow left column — live toast
 	// stacks own the corners (360-wide columns at both edges), so buttons
 	// stay in the uncovered middle-left band.
+
 	<View style={{ flexDirection: 'column', width: 150, marginTop: 90 }}>
 		<Button id="bg" label="Background" clickAction={() => setBgClicks(bgClicks + 1)} />
 		<Text id="bg-count">{String(bgClicks)}</Text>
@@ -109,7 +103,11 @@ export function ToastProbe() @{
 				})
 			}}
 		/>
-		<Button id="vp-dismiss-c" label="Dismiss C" clickAction={() => handles.current.vpc?.dismiss()} />
+		<Button
+			id="vp-dismiss-c"
+			label="Dismiss C"
+			clickAction={() => handles.current.vpc?.dismiss()}
+		/>
 		{vp2Mounted ? (
 			<ToastViewport position="bottomStart" inset={{ bottom: 60, start: 50 }}>
 				<ViewportProbes prefix="in" keep={keep} />

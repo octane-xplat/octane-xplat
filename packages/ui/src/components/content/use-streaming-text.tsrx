@@ -19,9 +19,15 @@ const FALLBACK_TICK_MS_FAST = 8
  *  Returns null if unparseable. */
 export function parseCssDuration(value: string): number | null {
 	const ms = value.match(/^([\d.]+)ms$/)
-	if (ms) return parseFloat(ms[1])
+	if (ms) {
+		return parseFloat(ms[1])
+	}
+
 	const s = value.match(/^([\d.]+)s$/)
-	if (s) return parseFloat(s[1]) * 1000
+	if (s) {
+		return parseFloat(s[1]) * 1000
+	}
+
 	return null
 }
 
@@ -48,10 +54,14 @@ function isLowSurrogate(codeUnit: number): boolean {
  *  Without `Intl.Segmenter` only a lone low surrogate is held back — the
  *  Astryx fallback, narrower than full cluster awareness. */
 export function snapToGraphemeBoundary(text: string, offset: number): number {
-	if (offset <= 0 || offset >= text.length) return offset
+	if (offset <= 0 || offset >= text.length) {
+		return offset
+	}
+
 	if (graphemeSegmenter) {
 		return graphemeSegmenter.segment(text).containing(offset)?.index ?? offset
 	}
+
 	return isLowSurrogate(text.charCodeAt(offset)) ? offset - 1 : offset
 }
 
@@ -75,6 +85,7 @@ function frameHost(): FrameHost {
 			cancel: (id) => cancel.call(globalThis, id),
 		}
 	}
+
 	return {
 		request: (callback) => setTimeout(() => callback(Date.now()), 16) as unknown as number,
 		cancel: (id) => clearTimeout(id as unknown as ReturnType<typeof setTimeout>),
@@ -105,9 +116,15 @@ export function useStreamingText(
 
 	const { token } = useTheme()
 	const tickMs = useMemo(() => {
-		if (speed === 'instant') return 0
+		if (speed === 'instant') {
+			return 0
+		}
+
 		const base = parseCssDuration(token('--duration-fast-min'))
-		if (base == null) return speed === 'fast' ? FALLBACK_TICK_MS_FAST : FALLBACK_TICK_MS
+		if (base == null) {
+			return speed === 'fast' ? FALLBACK_TICK_MS_FAST : FALLBACK_TICK_MS
+		}
+
 		const tick = speed === 'fast' ? base / 20 : base / 10
 		return Math.max(4, Math.round(tick))
 	}, [token, speed])
@@ -131,6 +148,7 @@ export function useStreamingText(
 			displayedLenRef.current = 0
 		}
 	}
+
 	const prevIsStreamingRef = useRef(isStreaming)
 	if (isStreaming !== prevIsStreamingRef.current) {
 		prevIsStreamingRef.current = isStreaming
@@ -142,7 +160,10 @@ export function useStreamingText(
 	const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 
 	useEffect(() => {
-		if (!isStreaming || speed === 'instant' || prefersReducedMotion) return
+		if (!isStreaming || speed === 'instant' || prefersReducedMotion) {
+			return
+		}
+
 		const host = frameHost()
 
 		function tick(now: number) {
@@ -156,6 +177,7 @@ export function useStreamingText(
 					bump((n) => n + 1)
 				}
 			}
+
 			frame = host.request(tick)
 		}
 
@@ -166,5 +188,6 @@ export function useStreamingText(
 	if (!isStreaming || speed === 'instant' || prefersReducedMotion) {
 		return targetText
 	}
+
 	return targetText.slice(0, snapToGraphemeBoundary(targetText, displayedLenRef.current))
 }

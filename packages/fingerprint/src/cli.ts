@@ -8,6 +8,7 @@ import {
 	diffFingerprintChangesAsync,
 	NATIVE_FINGERPRINT_FORMAT,
 } from './index.ts'
+
 import type { Fingerprint, Options, Platform } from './types.ts'
 const { values } = parseArgs({
 	options: {
@@ -18,6 +19,7 @@ const { values } = parseArgs({
 		help: { type: 'boolean' },
 	},
 })
+
 if (values.help) {
 	console.log(
 		'xplat-fingerprint [--dir APP_ROOT] [--platform ios|android|macos|linux|windows] [--build-record FILE] [--diff FILE]\nPrint JSON only; a build record supplies the platform and recorded compiler context. Diff compares a saved fingerprint with the project.',
@@ -40,9 +42,11 @@ if (values.help) {
 			) {
 				throw new Error('Invalid or mismatched native build record')
 			}
+
 			options.platforms = [record.platform]
 			options.toolchain = record.toolchain
 		}
+
 		const result = values.diff
 			? await diffFingerprintChangesAsync(
 					JSON.parse(await readFile(resolve(values.diff), 'utf8')) as Fingerprint,
@@ -50,6 +54,7 @@ if (values.help) {
 					options,
 				)
 			: await createFingerprintAsync(root, options)
+
 		console.log(JSON.stringify(result, null, 2))
 	} catch (error) {
 		console.error(error instanceof Error ? error.message : 'Fingerprint failed')

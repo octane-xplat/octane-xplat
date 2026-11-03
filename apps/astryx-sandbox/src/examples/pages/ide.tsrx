@@ -7,11 +7,31 @@
 // `startIcon` takes rendered icon content.
 import { useMemo, useState } from 'octane'
 import {
-	Button, CodeBlock, Heading, Icon, Layout, LayoutContent, LayoutPanel,
-	List, ListItem, MetadataList, MetadataListItem, ResizeHandle,
-	SegmentedControl, SegmentedControlItem, Stack, StackItem, Tab, TabList,
-	Text, TextInput, TreeList, useMediaQuery, useResizable,
+	Button,
+	CodeBlock,
+	Heading,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	List,
+	ListItem,
+	MetadataList,
+	MetadataListItem,
+	ResizeHandle,
+	SegmentedControl,
+	SegmentedControlItem,
+	Stack,
+	StackItem,
+	Tab,
+	TabList,
+	Text,
+	TextInput,
+	TreeList,
+	useMediaQuery,
+	useResizable,
 } from '@octane-xplat/ui'
+
 import type { TreeListNode } from '@octane-xplat/ui'
 
 const styles: Record<string, any> = {
@@ -72,7 +92,7 @@ export default function Counter() {
       <Button label="Reset" variant="secondary" onClick={reset} />
     </div>
   );
-}`;
+}`
 
 const TERMINAL_OUTPUT = `$ yarn dev
 yarn run v1.22.22
@@ -85,7 +105,7 @@ $ next dev
  ✓ Compiled /counter in 1.2s (847 modules)
  GET /counter 200 in 1340ms
 
-$ `;
+$ `
 
 const FILE_TREE: TreeListNode[] = [
 	{
@@ -186,11 +206,7 @@ export function IdeTemplate() @{
 						isMobile ? undefined : (
 							<>
 								{!startPanel.isCollapsed ? (
-									<LayoutPanel
-										width={startPanel.size}
-										hasDivider={false}
-										padding={0}
-									>
+									<LayoutPanel width={startPanel.size} hasDivider={false} padding={0}>
 										<Stack direction="vertical" style={styles.fileExplorer} gap={2}>
 											<TextInput
 												label="Search files"
@@ -302,16 +318,8 @@ export function IdeTemplate() @{
 												label="Resize properties panel"
 											/>
 											{!endPanel.isCollapsed ? (
-												<LayoutPanel
-													width={endPanel.size}
-													hasDivider={false}
-													padding={4}
-												>
-													<Stack
-														direction="vertical"
-														gap={3}
-														style={styles.propertiesPanel}
-													>
+												<LayoutPanel width={endPanel.size} hasDivider={false} padding={4}>
+													<Stack direction="vertical" gap={3} style={styles.propertiesPanel}>
 														<SegmentedControl
 															label="Properties panel sections"
 															value={activePropertiesTab}
@@ -319,48 +327,27 @@ export function IdeTemplate() @{
 															size="sm"
 															layout="fill"
 														>
-															<SegmentedControlItem
-																label="Properties"
-																value="properties"
-															/>
-															<SegmentedControlItem
-																label="History"
-																value="history"
-															/>
+															<SegmentedControlItem label="Properties" value="properties" />
+															<SegmentedControlItem label="History" value="history" />
 														</SegmentedControl>
 														{activePropertiesTab === 'properties' ? (
-															<Stack
-																direction="vertical"
-																gap={3}
-																style={styles.propertiesContent}
-															>
+															<Stack direction="vertical" gap={3} style={styles.propertiesContent}>
 																<Stack direction="vertical" gap={1}>
 																	<Heading level={3} maxLines={1}>
 																		{activeFile}
 																	</Heading>
-																	<Text
-																		color="secondary"
-																		type="supporting"
-																		maxLines={1}
-																	>
+																	<Text color="secondary" type="supporting" maxLines={1}>
 																		src/components/{activeFile}
 																	</Text>
 																</Stack>
 																<MetadataList style={styles.metadataCompact}>
 																	{PROPERTIES.map((prop) => (
-																		<MetadataListItem
-																			key={prop.label}
-																			label={prop.label}
-																		>
+																		<MetadataListItem key={prop.label} label={prop.label}>
 																			{prop.value}
 																		</MetadataListItem>
 																	))}
 																</MetadataList>
-																<Stack
-																	direction="vertical"
-																	gap={2}
-																	style={styles.propertyActions}
-																>
+																<Stack direction="vertical" gap={2} style={styles.propertyActions}>
 																	<Button
 																		label="Format Document"
 																		size="sm"
@@ -389,17 +376,11 @@ export function IdeTemplate() @{
 																			key={item.label}
 																			label={item.label}
 																			endContent={
-																				<Text
-																					type="supporting"
-																					color="secondary"
-																					maxLines={1}
-																				>
+																				<Text type="supporting" color="secondary" maxLines={1}>
 																					{item.time}
 																				</Text>
 																			}
-																			startContent={
-																				<span style={styles.historyTimelineDot} />
-																			}
+																			startContent={<span style={styles.historyTimelineDot} />}
 																		/>
 																	))}
 																</List>

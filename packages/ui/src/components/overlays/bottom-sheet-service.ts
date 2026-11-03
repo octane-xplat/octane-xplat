@@ -7,7 +7,11 @@ import { currentRootLayoutFor, topRootLayout } from '../layout/root-layout'
 import { applyThemeClasses } from '../../theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
 import { attachSheetDetents } from './sheet-detents'
-import { createKeyboardOverlayHost, keyboardOverlayAnimation } from '../../internal/keyboard/keyboard-overlay-host'
+import {
+	createKeyboardOverlayHost,
+	keyboardOverlayAnimation,
+} from '../../internal/keyboard/keyboard-overlay-host'
+
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
 import { Screen } from '@nativescript/core'
 

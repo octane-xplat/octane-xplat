@@ -5910,6 +5910,7 @@ type FileGroupRoot<Module> = Module extends {
 }
 	? Root
 	: {}
+
 type FileRootContext<Module, Context> = string extends keyof Context
 	? FileGroupRoot<Module>
 	: Context & FileGroupRoot<Module>
@@ -16090,6 +16091,7 @@ export type {
 	MdDoc,
 	MdParseOptions,
 } from './markdown/markdown-ast'
+
 import type { MdDoc } from './markdown/markdown-ast'
 
 /** A block's 1-based, inclusive source lines, given to `components` block

@@ -39,14 +39,17 @@ try {
 		await mkdir(dirname(target), { recursive: true })
 		await symlink(join(packageRoot, 'node_modules', dependency), target, 'dir')
 	}
+
 	for (const value of Object.values(manifest.exports['.'])) {
 		assert.equal(typeof value, 'string')
 		await readFile(join(unpacked, value))
 	}
+
 	await writeFile(
 		join(temporary, 'package.json'),
 		JSON.stringify({ private: true, type: 'module' }),
 	)
+
 	await writeFile(
 		join(temporary, 'consumer.ts'),
 		`
@@ -68,9 +71,11 @@ export { MediaLibrary, hook, releaseAssetUri }
 new Query().eq(AssetField.WIDTH, 'wide')
 `,
 	)
+
 	await readFile(
 		join(unpacked, 'platforms/android/java/com/octanexplat/medialibrary/LibraryObserver.java'),
 	)
+
 	await readFile(join(unpacked, 'platforms/android/AndroidManifest.xml'))
 	for (const [name, conditions, lib] of [
 		['web', ['web'], ['ESNext', 'DOM']],
@@ -94,12 +99,14 @@ new Query().eq(AssetField.WIDTH, 'wide')
 				files: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repoRoot, 'node_modules/typescript/bin/tsc'), '-p', config],
 			temporary,
 		)
 	}
+
 	const browser = await build({
 		root: temporary,
 		configFile: false,
@@ -111,9 +118,11 @@ new Query().eq(AssetField.WIDTH, 'wide')
 			minify: false,
 		},
 	})
+
 	assert.ok(
 		chunks(browser).some((chunk) => chunk.type === 'chunk' && chunk.exports.includes('browse')),
 	)
+
 	const native = await build({
 		root: temporary,
 		configFile: false,
@@ -134,6 +143,7 @@ new Query().eq(AssetField.WIDTH, 'wide')
 			resolve: { conditions: ['native'] },
 		},
 	})
+
 	// A packed iOS graph must reach its real platform backend, not the unsupported fallback.
 	assert.ok(
 		chunks(native).some(
@@ -143,6 +153,7 @@ new Query().eq(AssetField.WIDTH, 'wide')
 				chunk.code.includes('registerChangeObserver'),
 		),
 	)
+
 	console.log(
 		'Packed consumer: ambient-free public types, web production bundle, and iOS PhotoKit backend resolution, and packaged Android observer/permissions passed.',
 	)

@@ -6,6 +6,7 @@ export function base64(bytes: Uint8Array): string {
 		const a = bytes[index]!,
 			b = bytes[index + 1] ?? 0,
 			c = bytes[index + 2] ?? 0
+
 		out +=
 			alphabet[a >>> 2]! +
 			alphabet[((a & 3) << 4) | (b >>> 4)]! +
@@ -14,6 +15,7 @@ export function base64(bytes: Uint8Array): string {
 	}
 	return out
 }
+
 export function decodeBase64(value: string): Uint8Array<ArrayBuffer> {
 	if (
 		typeof value !== 'string' ||
@@ -35,12 +37,15 @@ export function decodeBase64(value: string): Uint8Array<ArrayBuffer> {
 			(alphabet.indexOf(padded[index + 1]!) << 12) |
 			(Math.max(0, alphabet.indexOf(padded[index + 2]!)) << 6) |
 			Math.max(0, alphabet.indexOf(padded[index + 3]!))
+
 		if (offset < bytes.length) {
 			bytes[offset++] = bits >>> 16
 		}
+
 		if (offset < bytes.length) {
 			bytes[offset++] = bits >>> 8
 		}
+
 		if (offset < bytes.length) {
 			bytes[offset++] = bits
 		}
@@ -50,15 +55,18 @@ export function decodeBase64(value: string): Uint8Array<ArrayBuffer> {
 	}
 	return bytes
 }
+
 export function hex(bytes: Uint8Array): string {
 	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
+
 export function decodeHex(value: string): Uint8Array<ArrayBuffer> {
 	if (!/^(?:[0-9a-fA-F]{2})*$/.test(value)) {
 		throw new TypeError('Expected an even number of hexadecimal digits')
 	}
 	return Uint8Array.from(value.match(/../g) ?? [], (part) => parseInt(part, 16))
 }
+
 /** Copy before asynchronous work, preserving the caller's exact view range. */
 export function bufferBytes(value: CryptoBufferSource): Uint8Array<ArrayBuffer> {
 	if (ArrayBuffer.isView(value)) {
@@ -69,6 +77,7 @@ export function bufferBytes(value: CryptoBufferSource): Uint8Array<ArrayBuffer> 
 	}
 	throw new TypeError('Expected an ArrayBuffer or typed-array view')
 }
+
 export function binary(value: BinaryInput): Uint8Array<ArrayBuffer> {
 	if (typeof value === 'string') {
 		return decodeBase64(value)
@@ -81,6 +90,7 @@ export function binary(value: BinaryInput): Uint8Array<ArrayBuffer> {
 	}
 	return bufferBytes(value)
 }
+
 export function join(...values: Uint8Array[]): Uint8Array<ArrayBuffer> {
 	const result = new Uint8Array(values.reduce((size, value) => size + value.byteLength, 0))
 	let offset = 0
@@ -90,6 +100,7 @@ export function join(...values: Uint8Array[]): Uint8Array<ArrayBuffer> {
 	}
 	return result
 }
+
 /** UTF-8 with replacement of lone surrogates, matching Web TextEncoder. */
 export function utf8(value: string): Uint8Array<ArrayBuffer> {
 	const bytes: number[] = []
@@ -98,6 +109,7 @@ export function utf8(value: string): Uint8Array<ArrayBuffer> {
 		if (point >= 0xd800 && point <= 0xdfff) {
 			point = 0xfffd
 		}
+
 		if (point < 0x80) {
 			bytes.push(point)
 		} else if (point < 0x800) {
@@ -115,6 +127,7 @@ export function utf8(value: string): Uint8Array<ArrayBuffer> {
 	}
 	return new Uint8Array(bytes)
 }
+
 export function options(value: unknown, keys: string[]): void {
 	if (
 		!value ||
@@ -125,6 +138,7 @@ export function options(value: unknown, keys: string[]): void {
 		throw new TypeError('Invalid crypto options')
 	}
 }
+
 export function output(
 	bytes: Uint8Array<ArrayBuffer>,
 	encoding: 'bytes' | 'base64',

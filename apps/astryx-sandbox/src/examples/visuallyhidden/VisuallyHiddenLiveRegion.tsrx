@@ -17,8 +17,8 @@ export function VisuallyHiddenLiveRegion() {
 	return (
 		<VStack gap={4} hAlign="start">
 			<Text type="supporting" color="secondary">
-				Drag-and-drop and other visual-only changes are silent to screen
-				readers. A live region narrates them.
+				Drag-and-drop and other visual-only changes are silent to screen readers. A live region
+				narrates them.
 			</Text>
 			<HStack gap={3} vAlign="center">
 				<Button label="Move task" variant="secondary" clickAction={move} />

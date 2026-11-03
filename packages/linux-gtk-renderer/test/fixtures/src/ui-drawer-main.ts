@@ -15,6 +15,7 @@ const check = (name: string, ok: boolean | unknown) => {
 		failures.push(name)
 	}
 }
+
 const dbg: string[] = []
 
 const window = new Gtk.Window({
@@ -23,6 +24,7 @@ const window = new Gtk.Window({
 	default_height: 700,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {})
@@ -49,6 +51,7 @@ const findGtkText = (needle: string): any => {
 					: typeof w.get_text === 'function'
 						? w.get_text()
 						: null
+
 			if (typeof text === 'string' && text.includes(needle)) {
 				found = w
 				return
@@ -61,6 +64,7 @@ const findGtkText = (needle: string): any => {
 	walk(window)
 	return found
 }
+
 const findView = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
 		if (n?.props?.id === id) {
@@ -69,6 +73,7 @@ const findView = (id: string): any => {
 	}
 	return null
 }
+
 /** Widget-tree lookup by the renderer's widget name (id/accessibilityLabel
  *  mirror) — reaches portal-mounted children regardless of node bookkeeping. */
 const findByName = (name: string): any => {
@@ -90,6 +95,7 @@ const findByName = (name: string): any => {
 	walk(window)
 	return found
 }
+
 /** First ancestor of `w` (inclusive) that fills the window height — the
  *  drawer panel's mason container, not the label inside it. */
 const fillAncestor = (w: any): any => {
@@ -101,6 +107,7 @@ const fillAncestor = (w: any): any => {
 	}
 	return null
 }
+
 const hasText = (id: string, text: string): boolean => {
 	for (const n of (container as any).nodes.values()) {
 		try {
@@ -119,12 +126,14 @@ const hasText = (id: string, text: string): boolean => {
 					}
 					return false
 				}
+
 				return probe(n)
 			}
 		} catch {}
 	}
 	return false
 }
+
 const bounds = (w: any): { x: number; y: number; w: number; h: number } | null => {
 	const [ok, pt] = w.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
 	const [okB, rect] = w.compute_bounds(w)
@@ -141,6 +150,7 @@ const ready = (payload: any) => {
 		readyResolve = resolve
 	})
 }
+
 const keyCtl = new Gtk.EventControllerKey()
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
@@ -150,6 +160,7 @@ keyCtl.connect('key-pressed', (_c, keyval) => {
 	}
 	return false
 })
+
 const clickAt = async (widget: any) => {
 	const native = widget.get_native()
 	const [ok, rect] = widget.compute_bounds(native)
@@ -170,6 +181,7 @@ const clickAt = async (widget: any) => {
 	const [wx, wy] = window.get_surface_transform()
 	await ready({ x: x + wx, y: y + wy })
 }
+
 const overlayChildren = () => (container as any).overlayLayers?.size ?? 0
 
 async function run() {
@@ -251,4 +263,5 @@ run().catch((e) => {
 	print('GTK_DRAWER_ERROR ' + String(e && (e.stack || e)))
 	loop.quit()
 })
+
 loop.run()

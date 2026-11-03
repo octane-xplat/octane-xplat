@@ -24,6 +24,7 @@ function driveFrames() {
 		rafCallbacks.push(cb)
 		return rafCallbacks.length
 	})
+
 	vi.stubGlobal('cancelAnimationFrame', () => {})
 }
 
@@ -34,18 +35,23 @@ function driveFrames() {
 function driveBrowserFrames() {
 	rafCallbacks = []
 	const ok = (r: unknown) => r === undefined || r === globalThis || r === window
-	vi.stubGlobal(
-		'requestAnimationFrame',
-		function (this: unknown, cb: (t: number) => void) {
-			if (!ok(this)) throw new TypeError('Illegal invocation')
-			rafCallbacks.push(cb)
-			return rafCallbacks.length
-		},
-	)
+	vi.stubGlobal('requestAnimationFrame', function (this: unknown, cb: (t: number) => void) {
+		if (!ok(this)) {
+			throw new TypeError('Illegal invocation')
+		}
+
+		rafCallbacks.push(cb)
+		return rafCallbacks.length
+	})
+
 	vi.stubGlobal('cancelAnimationFrame', function (this: unknown, id: number) {
-		if (!ok(this)) throw new TypeError('Illegal invocation')
+		if (!ok(this)) {
+			throw new TypeError('Illegal invocation')
+		}
+
 		rafCallbacks[id - 1] = () => {}
 	})
+
 	vi.stubGlobal('matchMedia', (query: string) => ({
 		matches: false,
 		media: query,
@@ -57,7 +63,9 @@ function driveBrowserFrames() {
 function frame(now: number) {
 	const cbs = rafCallbacks.splice(0)
 	act(() => {
-		for (const cb of cbs) cb(now)
+		for (const cb of cbs) {
+			cb(now)
+		}
 	})
 }
 
@@ -175,7 +183,8 @@ it('wraps newly arrived text in vx-md-fade spans', () => {
 it('renders rich content through shared table, code, task and strike primitives', () => {
 	const { el, render } = mount()
 	render({
-		children: '# Title\n\n~~old~~ **new**\n\n- [x] Done\n- [ ] Next\n\n| Name | Count |\n| :--- | ---: |\n| **Ready** | 3 |\n\n```ts\nconst ready = true\n```',
+		children:
+			'# Title\n\n~~old~~ **new**\n\n- [x] Done\n- [ ] Next\n\n| Name | Count |\n| :--- | ---: |\n| **Ready** | 3 |\n\n```ts\nconst ready = true\n```',
 		density: 'compact',
 		headingLevelStart: 3,
 	})
@@ -223,10 +232,16 @@ it('custom renderers keep hooks, providers and identity across chunk updates', (
 			mounts.push('mounted')
 			return true
 		})
+
 		void mounted
 		renders.push(props.code)
-		return <div className="spy-code" data-lang={props.language}>{props.code}</div>
+		return (
+			<div className="spy-code" data-lang={props.language}>
+				{props.code}
+			</div>
+		)
 	}
+
 	render({ children: '```ts\nconst a = 1\n```', components: { code: SpyCode } })
 	const first = el.querySelector('.spy-code')
 	expect(first?.textContent).toContain('const a = 1')
@@ -247,6 +262,7 @@ it('onLinkClick returning false cancels navigation; default path still anchors',
 			return false
 		},
 	})
+
 	const a = el.querySelector('a[href="/stop"]') as HTMLAnchorElement
 	expect(a).not.toBeNull()
 	a.click()
@@ -258,8 +274,13 @@ it('onLinkClick returning false cancels navigation; default path still anchors',
 it('custom link renderer receives the sanitized href and label', () => {
 	const { el, render } = mount()
 	function MyLink(props: { href: string; children?: unknown }) {
-		return <span className="my-link" data-href={props.href}>{props.children}</span>
+		return (
+			<span className="my-link" data-href={props.href}>
+				{props.children}
+			</span>
+		)
 	}
+
 	render({ children: '[x](javascript:alert(1)) [y](/ok)', components: { link: MyLink } })
 	// Unsafe href falls back to text before reaching the renderer.
 	expect(el.querySelectorAll('.my-link').length).toBe(1)

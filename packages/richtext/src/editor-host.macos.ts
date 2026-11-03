@@ -21,6 +21,7 @@ import {
 	WKWebViewConfiguration,
 	WKWebsiteDataStore,
 } from '@octane-xplat/platform/macos'
+
 import type { NSView } from '@octane-xplat/platform/macos'
 
 interface ChannelState {
@@ -66,9 +67,7 @@ function channelClass(): { alloc(): { init(): Channel } } {
 					return
 				}
 				const allow = String(action?.request?.URL?.absoluteString ?? '') === 'about:blank'
-				decisionHandler(
-					allow ? WKNavigationActionPolicy.Allow : WKNavigationActionPolicy.Cancel,
-				)
+				decisionHandler(allow ? WKNavigationActionPolicy.Allow : WKNavigationActionPolicy.Cancel)
 			},
 		},
 		{

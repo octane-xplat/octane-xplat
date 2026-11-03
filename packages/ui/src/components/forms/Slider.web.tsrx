@@ -22,7 +22,11 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 	const drag = useRef<{ lo0: number; hi0: number; which: 'lo' | 'hi' } | null>(null)
 	const [internal, setInternal] = useState(props.defaultValue ?? props.min ?? props.minValue ?? 0)
 	const origin = useRef(0)
-	const tooltip = useTooltip({ isEnabled: props.valueDisplay === 'tooltip' && !props.disabled && !props.isDisabled, delay: 0 })
+	const tooltip = useTooltip({
+		isEnabled: props.valueDisplay === 'tooltip' && !props.disabled && !props.isDisabled,
+		delay: 0,
+	})
+
 	const generatedId = useId()
 	const controlId = props.id ?? generatedId
 
@@ -39,16 +43,21 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 	const blocked = disabled || props.isReadOnly
 	const width = measure.bounds?.width ?? 0
 	const step = props.step ?? 0
-	const snap = (n: number) => n <= min ? min : n >= max ? max
-		: step > 0 ? min + Math.round((n - min) / step) * step : n
+	const snap = (n: number) =>
+		n <= min ? min : n >= max ? max : step > 0 ? min + Math.round((n - min) / step) * step : n
+
 	const ratio = (n: number) => (max === min ? 0 : (n - min) / (max - min))
 	const fmt = (n: number) => (props.formatValue ? props.formatValue(n) : String(n))
 	const readout = isRange ? `${fmt(lo)} – ${fmt(hi)}` : fmt(lo)
 
 	const emit = (next: number | [number, number]) => {
-		if (props.value === undefined) setInternal(next)
+		if (props.value === undefined) {
+			setInternal(next)
+		}
+
 		props.onValueChange?.(next)
 	}
+
 	const move = (which: 'lo' | 'hi', next: number) => {
 		if (isRange) {
 			const clamped = Math.min(max, Math.max(min, snap(next)))
@@ -103,10 +112,14 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 
 	useEffect(() => {
 		const node = host.current
-		if (!node) return
+		if (!node) {
+			return
+		}
+
 		const down = (event: PointerEvent) => {
 			origin.current = event.clientX - node.getBoundingClientRect().left
 		}
+
 		node.addEventListener('pointerdown', down, true)
 		return () => node.removeEventListener('pointerdown', down, true)
 	}, [])
@@ -182,7 +195,12 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 				}}
 				aria-hidden="true"
 			/>
-			<div className="vx-slider-thumb" ref={tooltip.positionRef} style={{ left: ratio(hi) * width }} aria-hidden="true" />
+			<div
+				className="vx-slider-thumb"
+				ref={tooltip.positionRef}
+				style={{ left: ratio(hi) * width }}
+				aria-hidden="true"
+			/>
 			{isRange ? (
 				<div
 					className="vx-slider-thumb vx-slider-thumb--lo"

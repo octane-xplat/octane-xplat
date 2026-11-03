@@ -9,12 +9,14 @@ function object(value: unknown, keys: string[]): void {
 		throw new TypeError('Unsupported print option')
 	}
 }
+
 function pageSize(value: unknown, name: string): number {
 	if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0 || value > 14400) {
 		throw new RangeError(`${name} must be greater than zero and at most 14400 points`)
 	}
 	return value
 }
+
 function layout(value: Pick<PrintOptions, 'width' | 'height' | 'margins' | 'orientation'>) {
 	let width = pageSize(value.width ?? 612, 'width'),
 		height = pageSize(value.height ?? 792, 'height')
@@ -32,6 +34,7 @@ function layout(value: Pick<PrintOptions, 'width' | 'height' | 'margins' | 'orie
 			if (typeof number !== 'number' || !Number.isFinite(number) || number < 0) {
 				throw new RangeError('Margins must be nonnegative finite point values')
 			}
+
 			margins[name] = number
 		}
 	}
@@ -40,16 +43,19 @@ function layout(value: Pick<PrintOptions, 'width' | 'height' | 'margins' | 'orie
 	}
 	return { width, height, margins }
 }
+
 function optionalBoolean(value: unknown, name: string): void {
 	if (value !== undefined && typeof value !== 'boolean') {
 		throw new TypeError(`${name} must be boolean`)
 	}
 }
+
 function optionalText(value: unknown, name: string): void {
 	if (value !== undefined && typeof value !== 'string') {
 		throw new TypeError(`${name} must be a string`)
 	}
 }
+
 export function printOptions(value: PrintOptions): NormalizedPrintOptions {
 	object(value, [
 		'html',
@@ -77,6 +83,7 @@ export function printOptions(value: PrintOptions): NormalizedPrintOptions {
 		if (!value.uri.trim()) {
 			throw new TypeError('PDF URI must not be empty')
 		}
+
 		if (
 			value.width !== undefined ||
 			value.height !== undefined ||
@@ -88,6 +95,7 @@ export function printOptions(value: PrintOptions): NormalizedPrintOptions {
 	}
 	return { ...value, ...layout(value), useMarkupFormatter: value.useMarkupFormatter ?? false }
 }
+
 export function fileOptions(value: FilePrintOptions = {}): NormalizedFileOptions {
 	object(value, ['html', 'width', 'height', 'margins', 'base64', 'useMarkupFormatter', 'textZoom'])
 	optionalText(value.html, 'html')

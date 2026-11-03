@@ -58,8 +58,12 @@ function machineryApi(extra: Record<string, any> = {}) {
 		onStylesheetsChanged,
 		appKitContainers: new Set(),
 		restyleContainer: (container: any) => {
-			for (const child of container.children ?? []) {ctx.api.markStyleDirty(child, true)}
-			for (const entry of container.portalTargets?.values?.() ?? []) {ctx.api.markStyleDirty(entry.root, true)}
+			for (const child of container.children ?? []) {
+				ctx.api.markStyleDirty(child, true)
+			}
+			for (const entry of container.portalTargets?.values?.() ?? []) {
+				ctx.api.markStyleDirty(entry.root, true)
+			}
 			ctx.api.flushStyleDirty(container)
 		},
 		// Records + routes warnings the way applyStyle's unsupported branch does.
@@ -354,35 +358,57 @@ test('(l) a used pseudo-class restyles; an unused one only updates the set', asy
 	assert.ok(n.cssPseudoClasses.has('bogusstate'), 'the set still records the state')
 })
 
-
 test('AppKit reveal cascades hover/focus into actions while nested containers reset their own state', async () => {
-	const css = readFileSync(new URL('../../ui/src/components/layout/use-container-reveal.macos.css', import.meta.url), 'utf8')
+	const css = readFileSync(
+		new URL('../../ui/src/components/layout/use-container-reveal.macos.css', import.meta.url),
+		'utf8',
+	)
 	assert.ok(css)
 	registerStylesheet('t-appkit-container-reveal', css)
 	const { api } = machineryApi()
-	const outer = sliceNode('masonview'), container = outer.container
+	const outer = sliceNode('masonview'),
+		container = outer.container
 	const action = sliceNode('masonview', { parent: outer, container })
 	const inner = sliceNode('masonview', { parent: outer, container })
 	const innerAction = sliceNode('masonview', { parent: inner, container })
-	for (const view of [outer, inner]) {api.applyClassName(view, 'vx-appkit-reveal-container')}
-	for (const view of [action, innerAction]) {api.applyClassName(view, 'vx-appkit-reveal-content')}
+	for (const view of [outer, inner]) {
+		api.applyClassName(view, 'vx-appkit-reveal-container')
+	}
+	for (const view of [action, innerAction]) {
+		api.applyClassName(view, 'vx-appkit-reveal-content')
+	}
 	await tick()
 	assert.equal(action.computedStyle.opacity, 0)
 	assert.equal(innerAction.computedStyle.opacity, 0)
-	api.setPseudoClass(outer, 'hover', true); await tick()
+	api.setPseudoClass(outer, 'hover', true)
+	await tick()
 	assert.equal(action.computedStyle.opacity, 1)
-	assert.equal(innerAction.computedStyle.opacity, 0, 'outer hover must not reveal an inactive nested row')
-	api.setPseudoClass(inner, 'focus-within', true); api.setPseudoClass(outer, 'focus-within', true); await tick()
+	assert.equal(
+		innerAction.computedStyle.opacity,
+		0,
+		'outer hover must not reveal an inactive nested row',
+	)
+	api.setPseudoClass(inner, 'focus-within', true)
+	api.setPseudoClass(outer, 'focus-within', true)
+	await tick()
 	assert.equal(innerAction.computedStyle.opacity, 1)
-	api.setPseudoClass(outer, 'hover', false); await tick()
+	api.setPseudoClass(outer, 'hover', false)
+	await tick()
 	assert.equal(action.computedStyle.opacity, 1, 'ancestor focus-within also reveals outer actions')
-	assert.equal(innerAction.computedStyle.opacity, 1, 'focus keeps nested actions visible after pointer exit')
-	api.setPseudoClass(inner, 'focus-within', false); await tick()
+	assert.equal(
+		innerAction.computedStyle.opacity,
+		1,
+		'focus keeps nested actions visible after pointer exit',
+	)
+	api.setPseudoClass(inner, 'focus-within', false)
+	await tick()
 	assert.equal(innerAction.computedStyle.opacity, 0)
 	assert.equal(action.computedStyle.opacity, 1, 'focus moved from nested row to outer row')
-	api.setPseudoClass(outer, 'focus-within', false); await tick()
+	api.setPseudoClass(outer, 'focus-within', false)
+	await tick()
 	assert.equal(action.computedStyle.opacity, 0)
-	api.applyClassName(action, ''); await tick()
+	api.applyClassName(action, '')
+	await tick()
 	assert.equal(action.computedStyle.opacity ?? 1, 1, 'disabling reveal drops the opacity override')
 	assert.equal(action.computedStyle.display, undefined)
 	assert.equal(action.computedStyle.visibility, undefined)
@@ -390,32 +416,84 @@ test('AppKit reveal cascades hover/focus into actions while nested containers re
 })
 
 test('CSS focus observer capability requires a token, retries failure and scopes updates to the matching window', () => {
-	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let focusObserverInstalled = false'), FULL_SOURCE.indexOf("/** Wire a container's live nodes"))
-	let attempts = 0, callback: (note: unknown) => void = () => {}, mode = 'nil'
-	const first = { hostView: { window: {} } }, second = { hostView: { window: {} } }, updated: unknown[] = []
-	const api = runSlice(code + '\n({ installFocusObserver, available: () => focusObserverInstalled })', {
-		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
-			attempts++; callback = next
-			if (mode === 'throw') {throw Error('simulated registration failure')}
-			return mode === 'nil' ? null : {}
-		} } },
-		NSWindowDidUpdateNotification: 'window-update', appKitContainers: new Set([first, second]),
-		syncContainerFocus: (container: unknown) => updated.push(container), console: { warn() {} },
-	})
-	api.installFocusObserver(); assert.equal(api.available(), false)
-	mode = 'throw'; api.installFocusObserver(); assert.equal(api.available(), false)
-	mode = 'ok'; api.installFocusObserver(); assert.equal(api.available(), true)
-	api.installFocusObserver(); assert.equal(attempts, 3, 'successful observation installs once')
-	callback({ object: second.hostView.window }); assert.deepEqual(updated, [second])
+	const code = FULL_SOURCE.slice(
+		FULL_SOURCE.indexOf('let focusObserverInstalled = false'),
+		FULL_SOURCE.indexOf("/** Wire a container's live nodes"),
+	)
+	let attempts = 0,
+		callback: (note: unknown) => void = () => {},
+		mode = 'nil'
+	const first = { hostView: { window: {} } },
+		second = { hostView: { window: {} } },
+		updated: unknown[] = []
+	const api = runSlice(
+		code + '\n({ installFocusObserver, available: () => focusObserverInstalled })',
+		{
+			NSNotificationCenter: {
+				defaultCenter: {
+					addObserverForNameObjectQueueUsingBlock: (
+						_name: unknown,
+						_object: unknown,
+						_queue: unknown,
+						next: typeof callback,
+					) => {
+						attempts++
+						callback = next
+						if (mode === 'throw') {
+							throw Error('simulated registration failure')
+						}
+						return mode === 'nil' ? null : {}
+					},
+				},
+			},
+			NSWindowDidUpdateNotification: 'window-update',
+			appKitContainers: new Set([first, second]),
+			syncContainerFocus: (container: unknown) => updated.push(container),
+			console: { warn() {} },
+		},
+	)
+	api.installFocusObserver()
+	assert.equal(api.available(), false)
+	mode = 'throw'
+	api.installFocusObserver()
+	assert.equal(api.available(), false)
+	mode = 'ok'
+	api.installFocusObserver()
+	assert.equal(api.available(), true)
+	api.installFocusObserver()
+	assert.equal(attempts, 3, 'successful observation installs once')
+	callback({ object: second.hostView.window })
+	assert.deepEqual(updated, [second])
 })
 
 test('CSS :focus-visible modality observer tracks keyboard/pointer input without consuming events', () => {
-	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('let cssInputModality'), FULL_SOURCE.indexOf('// firstResponder changes never post'))
-	let keyNotify: any, pointerNotify: any, keyInstalls = 0, pointerInstalls = 0
-	const api = runSlice(code + '\n({ installCssModalityObserver, modality: () => cssInputModality })', {
-		keyboardDispatcher: { observe: (notify: any) => { keyInstalls++; keyNotify = notify; return () => {} } },
-		contextPointerDispatcher: { observe: (notify: any) => { pointerInstalls++; pointerNotify = notify; return () => {} } },
-	})
+	const code = FULL_SOURCE.slice(
+		FULL_SOURCE.indexOf('let cssInputModality'),
+		FULL_SOURCE.indexOf('// firstResponder changes never post'),
+	)
+	let keyNotify: any,
+		pointerNotify: any,
+		keyInstalls = 0,
+		pointerInstalls = 0
+	const api = runSlice(
+		code + '\n({ installCssModalityObserver, modality: () => cssInputModality })',
+		{
+			keyboardDispatcher: {
+				observe: (notify: any) => {
+					keyInstalls++
+					keyNotify = notify
+					return () => {}
+				},
+			},
+			contextPointerDispatcher: {
+				observe: (notify: any) => {
+					pointerInstalls++
+					pointerNotify = notify
+					return () => {}
+				},
+			},
+		},
+	)
 	api.installCssModalityObserver()
 	api.installCssModalityObserver()
 	assert.equal(keyInstalls, 1, 'keyboard observation installs once')
@@ -432,7 +510,9 @@ test('CSS :focus-visible modality observer tracks keyboard/pointer input without
 	assert.equal(api.modality(), 'keyboard', 'Shift+keyDown counts so Shift+Tab shows focus')
 	pointerNotify({ type: 2, modifierFlags: 0 })
 	assert.equal(api.modality(), 'keyboard', 'non-down pointer events are ignored')
-	for (const type of [3, 25]) {pointerNotify({ type, modifierFlags: 0 })}
+	for (const type of [3, 25]) {
+		pointerNotify({ type, modifierFlags: 0 })
+	}
 	assert.equal(api.modality(), 'pointer', 'right/other mouse down mark pointer modality')
 })
 
@@ -443,12 +523,16 @@ test('CSS :focus-visible follows input modality, keyView direction, and text-ent
 	)
 	const pseudoCalls: any[] = []
 	const cssNodesByView = new Map()
-	const api = runSlice(code + '\n({ syncContainerFocus, setModality: (m) => { cssInputModality = m } })', {
-		cssNodesByView,
-		setPseudoClass: (node: any, name: string, value: boolean) => pseudoCalls.push([node.type, name, value]),
-		keyboardDispatcher: { observe: () => () => {} },
-		contextPointerDispatcher: { observe: () => () => {} },
-	})
+	const api = runSlice(
+		code + '\n({ syncContainerFocus, setModality: (m) => { cssInputModality = m } })',
+		{
+			cssNodesByView,
+			setPseudoClass: (node: any, name: string, value: boolean) =>
+				pseudoCalls.push([node.type, name, value]),
+			keyboardDispatcher: { observe: () => () => {} },
+			contextPointerDispatcher: { observe: () => () => {} },
+		},
+	)
 	const focusVisible = (type: string) =>
 		pseudoCalls.filter((c) => c[0] === type && c[1] === 'focus-visible').at(-1)?.[2]
 
@@ -464,7 +548,11 @@ test('CSS :focus-visible follows input modality, keyView direction, and text-ent
 
 	api.setModality('keyboard')
 	api.syncContainerFocus(container)
-	assert.equal(focusVisible('button'), true, 'keyboard modality re-syncs past the cssFocusVisible early-return')
+	assert.equal(
+		focusVisible('button'),
+		true,
+		'keyboard modality re-syncs past the cssFocusVisible early-return',
+	)
 
 	api.setModality('pointer')
 	window.keyViewSelectionDirection = 1
@@ -477,11 +565,19 @@ test('CSS :focus-visible follows input modality, keyView direction, and text-ent
 	window.firstResponder = fieldView
 	window.keyViewSelectionDirection = 0
 	api.syncContainerFocus(container)
-	assert.equal(focusVisible('textfield'), true, 'text-entry nodes match :focus-visible under pointer modality')
+	assert.equal(
+		focusVisible('textfield'),
+		true,
+		'text-entry nodes match :focus-visible under pointer modality',
+	)
 
 	window.firstResponder = { delegate: fieldView }
 	api.syncContainerFocus(container)
-	assert.equal(container.cssFocusVisible, true, 'the field editor resolves to its textfield through delegate')
+	assert.equal(
+		container.cssFocusVisible,
+		true,
+		'the field editor resolves to its textfield through delegate',
+	)
 })
 
 test('media env resolves per window — portals use their target window, not the largest', () => {
@@ -492,7 +588,12 @@ test('media env resolves per window — portals use their target window, not the
 	ctx.appKitContainers.add(container)
 	const direct: any = { parent: null, container, cssType: 'stacklayout', view: {} }
 	assert.equal(api.envForNode(direct).width, 1200)
-	const portalroot: any = { parent: null, container, cssType: 'portalroot', view: { window: small } }
+	const portalroot: any = {
+		parent: null,
+		container,
+		cssType: 'portalroot',
+		view: { window: small },
+	}
 	const child: any = { parent: portalroot, container, cssType: 'label', view: {} }
 	assert.equal(api.envForNode(child).width, 320, 'portal content sizes to its own window')
 	assert.equal(api.nodeHostWindow(child), small)
@@ -503,35 +604,63 @@ test('media env resolves per window — portals use their target window, not the
 })
 
 test('CSS media resize observer installs once, scopes to container windows, and coalesces refreshes', () => {
-	const code = FULL_SOURCE.slice(FULL_SOURCE.indexOf('// ---- Media queries on resize'), FULL_SOURCE.indexOf('// Accessibility display notifications'))
-	let installs = 0, callback: (note: unknown) => void = () => {}, evals = 0, restyles: any[] = []
+	const code = FULL_SOURCE.slice(
+		FULL_SOURCE.indexOf('// ---- Media queries on resize'),
+		FULL_SOURCE.indexOf('// Accessibility display notifications'),
+	)
+	let installs = 0,
+		callback: (note: unknown) => void = () => {},
+		evals = 0,
+		restyles: any[] = []
 	const microtasks: (() => void)[] = []
-	const win = {}, foreign = {}
+	const win = {},
+		foreign = {}
 	let width = 100
 	const container = { hostView: { window: win }, portalTargets: new Map() }
-	const api = runSlice(code + '\n({ installResizeObserver, onHostWindowResize, seedContainerMedia, refreshWindowMedia, containerWindowTargets })', {
-		NSNotificationCenter: { defaultCenter: { addObserverForNameObjectQueueUsingBlock: (_name: unknown, _object: unknown, _queue: unknown, next: typeof callback) => {
-			installs++; callback = next
-			return {}
-		} } },
-		NSWindowDidResizeNotification: 'resize',
-		appKitContainers: new Set([container]),
-		queueMicrotask: (fn: () => void) => microtasks.push(fn),
-		stylesheetsHaveMediaRules: () => true,
-		stylesheetMediaQueries: () => ['(min-width: 50px)'],
-		evalMediaQuery: (_q: string, env: any) => { evals++; return env.width >= 50 },
-		windowMediaSize: (w: any) => ({ width, height: 40 }),
-		mediaSharedEnv: () => ({ colorScheme: 'light', reducedMotion: false }),
-		restyleContainer: (c: any) => { restyles.push(c) },
-	})
-	api.installResizeObserver(); api.installResizeObserver()
+	const api = runSlice(
+		code +
+			'\n({ installResizeObserver, onHostWindowResize, seedContainerMedia, refreshWindowMedia, containerWindowTargets })',
+		{
+			NSNotificationCenter: {
+				defaultCenter: {
+					addObserverForNameObjectQueueUsingBlock: (
+						_name: unknown,
+						_object: unknown,
+						_queue: unknown,
+						next: typeof callback,
+					) => {
+						installs++
+						callback = next
+						return {}
+					},
+				},
+			},
+			NSWindowDidResizeNotification: 'resize',
+			appKitContainers: new Set([container]),
+			queueMicrotask: (fn: () => void) => microtasks.push(fn),
+			stylesheetsHaveMediaRules: () => true,
+			stylesheetMediaQueries: () => ['(min-width: 50px)'],
+			evalMediaQuery: (_q: string, env: any) => {
+				evals++
+				return env.width >= 50
+			},
+			windowMediaSize: (w: any) => ({ width, height: 40 }),
+			mediaSharedEnv: () => ({ colorScheme: 'light', reducedMotion: false }),
+			restyleContainer: (c: any) => {
+				restyles.push(c)
+			},
+		},
+	)
+	api.installResizeObserver()
+	api.installResizeObserver()
 	assert.equal(installs, 1, 'one observer across repeated installs')
 	const targets = api.containerWindowTargets(container)
 	assert.equal(targets.length, 1)
 	assert.equal(targets[0], win)
 	callback({ object: foreign })
 	assert.equal(microtasks.length, 0, 'a notification for a foreign window does nothing')
-	callback({ object: win }); callback({ object: win })
+	callback({ object: win })
+	callback({ object: win })
 	assert.equal(microtasks.length, 1, 'two resizes in one turn coalesce into one queued refresh')
 	microtasks.shift()!()
 	assert.equal(restyles.length, 1, 'first unseeded observation restyles')

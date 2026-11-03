@@ -5,12 +5,29 @@ import { Button, Text, TextInput, View, useGridFocus } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
 
 export default function GridCellFocusProbe() @{
-	const [disabled, setDisabled] = useState(false), [hidden, setHidden] = useState(false), [removed, setRemoved] = useState(false)
-	const [alternate, setAlternate] = useState(false), [nested, setNested] = useState(true), [chosen, setChosen] = useState('none'), [last, setLast] = useState('none')
-	const grid = useGridFocus<NSView>({ rows: 3, columns: 3, onFocusChange: (index) => setLast(`${alternate ? 'B' : 'A'}:${index}`) })
+	const [disabled, setDisabled] = useState(false),
+		[hidden, setHidden] = useState(false),
+		[removed, setRemoved] = useState(false)
+
+	const [alternate, setAlternate] = useState(false),
+		[nested, setNested] = useState(true),
+		[chosen, setChosen] = useState('none'),
+		[last, setLast] = useState('none')
+
+	const grid = useGridFocus<NSView>({
+		rows: 3,
+		columns: 3,
+		onFocusChange: (index) => setLast(`${alternate ? 'B' : 'A'}:${index}`),
+	})
+
 	const inner = useGridFocus<NSView>({ rows: 1, columns: 2 })
+
 	<View className="gap-3">
-		<Text>Native grid-cell focus: source implementation, OS qualification pending. Use Tab, arrows and Home/End. Cell activation stays on Enter/Space or click; nested fields keep editing keys. This probe records mounting only.</Text>
+		<Text>
+			Native grid-cell focus: source implementation, OS qualification pending. Use Tab, arrows and
+			Home/End. Cell activation stays on Enter/Space or click; nested fields keep editing keys. This
+			probe records mounting only.
+		</Text>
 		<Button label="Focus first cell" clickAction={() => grid.onFocusCell?.(0)} />
 		<Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(99)} />
 		<Button label="Toggle disabled cell 4" clickAction={() => setDisabled(!disabled)} />
@@ -21,19 +38,47 @@ export default function GridCellFocusProbe() @{
 		<masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="cell-focus-grid">
 			@for (const number of [0, 1, 2, 3, 4, 5, 6, 7, 8]) {
 				@if (!(removed && number === 7)) {
-					<masonview data-grid-cell className="cell-focus-cell" accessible accessibilityRole="button"
-						accessibilityLabel={`Cell ${number}`} accessibilityState={{ disabled: disabled && number === 4 }}
+					<masonview
+						data-grid-cell
+						className="cell-focus-cell"
+						accessible
+						accessibilityRole="button"
+						accessibilityLabel={`Cell ${number}`}
+						accessibilityState={{ disabled: disabled && number === 4 }}
 						style={{ display: hidden && number === 3 ? 'none' : 'flex' }}
-						onTap={() => { if (!(disabled && number === 4)) setChosen(String(number)) }}>
+						onTap={() => {
+							if (!(disabled && number === 4)) {
+								setChosen(String(number))
+							}
+						}}
+					>
 						<label text={`Cell ${number}`} />
-						@if (number === 8) { <TextInput label="Cell 8 notes" /> }
+						@if (number === 8) {
+							<TextInput label="Cell 8 notes" />
+						}
 					</masonview>
 				}
 			}
 			@if (nested) {
 				<masonview ref={inner.ref} onKeyDown={inner.onKeyDown} className="cell-focus-inner">
-					<masonview data-grid-cell className="cell-focus-cell" accessible accessibilityRole="button" onTap={() => setChosen('nested A')}><label text="Nested A" /></masonview>
-					<masonview data-grid-cell className="cell-focus-cell" accessible accessibilityRole="button" onTap={() => setChosen('nested B')}><label text="Nested B" /></masonview>
+					<masonview
+						data-grid-cell
+						className="cell-focus-cell"
+						accessible
+						accessibilityRole="button"
+						onTap={() => setChosen('nested A')}
+					>
+						<label text="Nested A" />
+					</masonview>
+					<masonview
+						data-grid-cell
+						className="cell-focus-cell"
+						accessible
+						accessibilityRole="button"
+						onTap={() => setChosen('nested B')}
+					>
+						<label text="Nested B" />
+					</masonview>
 				</masonview>
 			}
 		</masonview>
@@ -43,5 +88,8 @@ export default function GridCellFocusProbe() @{
 
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('grid-cell-focus-status'))
-	ctx.record('qualification', 'Mounted only; native Tab/arrows/Home/End, activation, nested scopes, input, layout and AX not exercised')
+	ctx.record(
+		'qualification',
+		'Mounted only; native Tab/arrows/Home/End, activation, nested scopes, input, layout and AX not exercised',
+	)
 }

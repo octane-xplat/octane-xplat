@@ -9,6 +9,7 @@ import {
 	symlinkSync,
 	rmSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -22,6 +23,7 @@ const run = (command, args, cwd = temporary) =>
 		timeout: 90_000,
 		maxBuffer: 4 * 1024 * 1024,
 	})
+
 try {
 	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], root)
 	const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
@@ -35,6 +37,7 @@ try {
 		join(temporary, 'package/node_modules/@casbin/expression-eval'),
 		'dir',
 	)
+
 	writeFileSync(join(temporary, 'package.json'), JSON.stringify({ type: 'module' }))
 	writeFileSync(
 		join(temporary, 'consumer.ts'),
@@ -51,6 +54,7 @@ export function install(target: object): ShortcutRuntime {
 export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {return shortcuts.explain(event)}
 `,
 	)
+
 	for (const condition of ['web', 'browser', 'macos', 'gtk', 'windows', 'native']) {
 		for (const mode of ['Bundler', 'NodeNext']) {
 			writeFileSync(
@@ -70,11 +74,13 @@ export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {retur
 					files: ['consumer.ts'],
 				}),
 			)
+
 			// The consumer intentionally has no DOM or platform ambient types.
 			writeFileSync(
 				join(temporary, 'console.d.ts'),
 				'declare const console: { log(...args: unknown[]): void }\n',
 			)
+
 			const config = JSON.parse(readFileSync(join(temporary, 'tsconfig.json')))
 			config.files.push('console.d.ts')
 			writeFileSync(join(temporary, 'tsconfig.json'), JSON.stringify(config))
@@ -84,12 +90,14 @@ export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {retur
 				join(temporary, 'tsconfig.json'),
 			])
 		}
+
 		const resolved = run(process.execPath, [
 			`--conditions=${condition}`,
 			'--input-type=module',
 			'-e',
 			"console.log(import.meta.resolve('@octane-xplat/shortcuts'))",
 		])
+
 		assert.match(
 			resolved,
 			new RegExp(
@@ -97,6 +105,7 @@ export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {retur
 			),
 		)
 	}
+
 	for (const condition of ['macos', 'gtk', 'windows']) {
 		const resolved = run(process.execPath, [
 			'--conditions=browser',
@@ -105,11 +114,13 @@ export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {retur
 			'-e',
 			"console.log(import.meta.resolve('@octane-xplat/shortcuts'))",
 		])
+
 		assert.ok(
 			resolved.trim().endsWith(`index.${condition}.js`),
 			'Native host must win over Vite browser defaults',
 		)
 	}
+
 	run(process.execPath, [
 		'--input-type=module',
 		'-e',
@@ -119,6 +130,7 @@ try { createShortcuts({target:{}}); throw Error('unexpected support') }
 catch(error) { if(!error.message.includes('host condition')) throw error }
 `,
 	])
+
 	console.log(
 		'Packed consumer: six conditions × Bundler/NodeNext, closed ambient-free declarations, ESM resolution and unsupported-host failure passed.',
 	)

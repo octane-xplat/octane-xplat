@@ -16,6 +16,7 @@ const flush = () => {
 		GLib.file_set_contents('/tmp/gtk-focus-dbg.log', dbg.join('\n'))
 	} catch {}
 }
+
 const check = (name: string, ok: boolean | unknown) => {
 	checks.push(name)
 	dbg.push((ok ? 'PASS ' : 'FAIL ') + name)
@@ -24,6 +25,7 @@ const check = (name: string, ok: boolean | unknown) => {
 		failures.push(name)
 	}
 }
+
 /** Events logged after `mark` — proves ordering inside one input phase
  *  (the F12 ack itself arrives as keyboard input afterwards). */
 const since = (mark: string) => events.slice(events.lastIndexOf('mark:' + mark) + 1)
@@ -34,6 +36,7 @@ const window = new Gtk.Window({
 	default_height: 560,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -41,6 +44,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 
 const pump = (ms: number) =>
@@ -59,10 +63,12 @@ const findView = (id: string): any => {
 	}
 	return null
 }
+
 const focusName = () => {
 	const f = window.get_focus()
 	return f ? GObject.type_name(f) : 'null'
 }
+
 /** Entries delegate real focus to their inner GtkText — the focus widget
  *  is the view itself or a descendant of it (walk the parent chain so
  *  composite delegates count too). */
@@ -74,10 +80,12 @@ const hasFocus = (view: any) => {
 	}
 	return false
 }
+
 const dump = (tag: string) => {
 	dbg.push('LOG ' + tag + ' focus=' + focusName() + ' | ' + events.slice(-12).join(' '))
 	flush()
 }
+
 const subtree = (view: any): string[] => {
 	const names: string[] = []
 	const walk = (w: any, depth: number) => {
@@ -89,6 +97,7 @@ const subtree = (view: any): string[] => {
 	walk(view?.get_first_child?.(), 0)
 	return names
 }
+
 const dumpGrid = (view: any) => {
 	dbg.push('GRID ' + subtree(view).join(' | '))
 	flush()
@@ -103,6 +112,7 @@ const ready = (payload: any) => {
 		readyResolve = resolve
 	})
 }
+
 const keyCtl = new Gtk.EventControllerKey()
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c: any, keyval: number) => {
@@ -112,6 +122,7 @@ keyCtl.connect('key-pressed', (_c: any, keyval: number) => {
 	}
 	return false
 })
+
 const point = (widget: any) => {
 	const root2 = widget?.get_native?.()
 	if (!root2) {
@@ -135,6 +146,7 @@ const point = (widget: any) => {
 	const [wx, wy] = window.get_surface_transform()
 	return { x: x + wx, y: y + wy }
 }
+
 const clickAt = async (widget: any, mark: string) => {
 	const p = widget && point(widget)
 	if (!p) {
@@ -145,11 +157,13 @@ const clickAt = async (widget: any, mark: string) => {
 	await ready(p)
 	dump(mark)
 }
+
 const keyPhase = async (mark: string, key: string) => {
 	events.push('mark:' + mark)
 	await ready({ key })
 	dump(mark)
 }
+
 const keyControllers = (view: any): any[] => {
 	const found: any[] = []
 	const all = view.observe_controllers()
@@ -164,6 +178,7 @@ const keyControllers = (view: any): any[] => {
 	}
 	return found
 }
+
 /** tf-keys owns separate keydown/keyup controllers — emit on every key
  *  controller; unconnected signals no-op. */
 const emitKey = (view: any, signal: 'key-pressed' | 'key-released', key: number, mods = 0) =>
@@ -174,9 +189,7 @@ const emitKey = (view: any, signal: 'key-pressed' | 'key-released', key: number,
 // Bridge-side modality log — records every transition in order so pointer
 // evidence survives the keyboard F12 that ends each phase.
 const gtkHost = (globalThis as any).__octaneGtkHost
-gtkHost?.onInputModalityChange?.(() =>
-	events.push('modality:' + gtkHost.getInputModality()),
-)
+gtkHost?.onInputModalityChange?.(() => events.push('modality:' + gtkHost.getInputModality()))
 
 async function run() {
 	root.render(FocusProbe, {})
@@ -199,18 +212,18 @@ async function run() {
 	// --- useLandmark: shared leaf forwards role + label onto real widgets.
 	const lmMain = findView('lm-main')
 	const lmNav = findView('lm-nav')
-	check('landmark main role reaches widget', lmMain?.get_accessible_role() === Gtk.AccessibleRole.MAIN)
+	check(
+		'landmark main role reaches widget',
+		lmMain?.get_accessible_role() === Gtk.AccessibleRole.MAIN,
+	)
 	check(
 		'landmark navigation role reaches widget',
 		lmNav?.get_accessible_role() === Gtk.AccessibleRole.NAVIGATION,
 	)
 	check(
 		'landmark main label reaches widget',
-		native.test_accessible_string_property(
-			lmMain,
-			Gtk.AccessibleProperty.LABEL,
-			'Main region',
-		) === null,
+		native.test_accessible_string_property(lmMain, Gtk.AccessibleProperty.LABEL, 'Main region') ===
+			null,
 	)
 	check(
 		'landmark nav label reaches widget',
@@ -225,30 +238,30 @@ async function run() {
 	check('useKeyboard reports support', state.kbSupported === true)
 	check('modality starts unknown', state.modality === 'unknown')
 	check('focus ring hidden before focus', state.ringVisible === false)
-	check('grid cells realized focusable', cells.every((c) => c?.get_can_focus?.() === true))
+	check(
+		'grid cells realized focusable',
+		cells.every((c) => c?.get_can_focus?.() === true),
+	)
 
 	// --- In-process key delivery: emit through the node's own controller —
 	// proves the wiring + normalization without OS input.
 	emitKey(tfKeys, 'key-pressed', Gdk.KEY_x)
 	await pump(40)
 	check('x claim logged', events.includes('tf:claim:x'))
-	check(
-		'key event fields normalized',
-		events.includes('tf:down:x||0000|false|false|false'),
-	)
+	check('key event fields normalized', events.includes('tf:down:x||0000|false|false|false'))
 	emitKey(tfKeys, 'key-released', Gdk.KEY_y)
 	emitKey(tfKeys, 'key-pressed', Gdk.KEY_a, Gdk.ModifierType.CONTROL_MASK)
 	await pump(40)
-	check(
-		'keyup payload carries eventName + object',
-		events.includes('tf:up:y:keyup:true'),
-	)
+	check('keyup payload carries eventName + object', events.includes('tf:up:y:keyup:true'))
 	check('ctrl modifier normalized', events.includes('tf:down:a||0100|false|false|false'))
 
 	// --- In-process focus moves exercise enter/leave semantics too.
 	tfFocus.grab_focus()
 	await pump(60)
-	check('useFocus fires onFocus with event', events.some((e) => e.startsWith('focus:on:')))
+	check(
+		'useFocus fires onFocus with event',
+		events.some((e) => e.startsWith('focus:on:')),
+	)
 	check('useFocus reports focus change', events.includes('focus:change:true'))
 	fwA.grab_focus()
 	await pump(60)
@@ -273,10 +286,7 @@ async function run() {
 		await pump(60)
 		await keyPhase('tab1', 'Tab')
 		check('OS Tab focuses first field', hasFocus(tfKeys))
-		check(
-			'Tab keyup reaches the newly focused field',
-			events.includes('tf:up:Tab:keyup:true'),
-		)
+		check('Tab keyup reaches the newly focused field', events.includes('tf:up:Tab:keyup:true'))
 
 		await keyPhase('x', 'x')
 		check('preventDefault suppresses real insertion', tfKeys.get_text() === '')
@@ -292,15 +302,23 @@ async function run() {
 		await keyPhase('ctrl-a', 'ctrl+a')
 		check('real ctrl chord reports ctrlKey', events.includes('tf:down:a||0100|false|false|false'))
 		await keyPhase('shift-a', 'shift+a')
-		check('real shift chord reports shifted key', events.includes('tf:down:A||0001|false|false|false'))
+		check(
+			'real shift chord reports shifted key',
+			events.includes('tf:down:A||0001|false|false|false'),
+		)
 
 		await keyPhase('tab2', 'Tab')
 		check(
 			'Tab keydown reaches focused field with normalized fields',
 			events.includes('tf:down:Tab||0000|false|false|false'),
 		)
+
 		check('Tab into focus probe', hasFocus(tfFocus))
-		check('useFocus onFocus from real Tab', since('tab2').some((e) => e.startsWith('focus:on:')))
+		check(
+			'useFocus onFocus from real Tab',
+			since('tab2').some((e) => e.startsWith('focus:on:')),
+		)
+
 		check('useFocus change true from real Tab', since('tab2').includes('focus:change:true'))
 		check('focus payload carries type field', since('tab2').includes('focus:on:focus:focus'))
 
@@ -369,7 +387,11 @@ async function run() {
 		// Back to keyboard: real Tab moves focus and restores keyboard modality.
 		await keyPhase('tab8', 'Tab')
 		check('focus leaves ring target', hasFocus(kbField))
-		check('modality back to keyboard', events.lastIndexOf('modality:keyboard') > events.lastIndexOf('modality:pointer'))
+		check(
+			'modality back to keyboard',
+			events.lastIndexOf('modality:keyboard') > events.lastIndexOf('modality:pointer'),
+		)
+
 		check('isFocusVisible() keyboard again', isFocusVisible() === true)
 	}
 
@@ -386,6 +408,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -397,6 +420,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

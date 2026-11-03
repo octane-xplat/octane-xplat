@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 const hostBundle =
 	process.env.XPLAT_JSC_HOST_BUNDLE ??
 	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 const probeSource = resolve(
 	dirname(fileURLToPath(import.meta.url)),
@@ -122,11 +123,7 @@ test(
 			],
 			{ encoding: 'utf8' },
 		)
-		assert.equal(
-			compile.status,
-			0,
-			`provider compile failed: ${compile.stderr ?? ''}`,
-		)
+		assert.equal(compile.status, 0, `provider compile failed: ${compile.stderr ?? ''}`)
 
 		const script = join(dir, 'fixture.cjs')
 		writeFileSync(script, fixture.replace('__DYLIB__', dylib))
@@ -182,9 +179,6 @@ test(
 		assert.match(output, /XPLAT_BLOCK_FIRE stack marker=400/)
 		assert.match(output, /XPLAT_BLOCK_FIRE declared-heap marker=500 policy=1/)
 		assert.match(output, /XPLAT_BLOCK_FIRE declared-stack marker=600 policy=1/)
-		assert.match(
-			output,
-			/PROBE_RESULT untyped0=ok untyped1=ok declared0=ok declared1=ok/,
-		)
+		assert.match(output, /PROBE_RESULT untyped0=ok untyped1=ok declared0=ok declared1=ok/)
 	},
 )

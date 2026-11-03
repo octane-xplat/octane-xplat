@@ -72,6 +72,7 @@ export function bindPressKeys(node: ElementNode) {
 					view.grab_focus()
 				}
 			})
+
 			view.add_controller(togglePointer)
 		}
 		if (

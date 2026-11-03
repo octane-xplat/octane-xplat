@@ -77,6 +77,7 @@ function ResizablePanel() {
 			events.push('size:' + Math.round(s))
 		},
 	})
+
 	state.size = region.size
 	return (
 		<masonview
@@ -111,6 +112,7 @@ export function AppShellProbe() @{
 	// expand with real input (the icon-only rail button is not reliably
 	// hit-testable in this fixture's layout).
 	const collapseHandle = useRef<any>(null)
+
 	<AppShell
 		id="shell"
 		variant="section"
@@ -135,9 +137,7 @@ export function AppShellProbe() @{
 						}
 					/>
 				}
-				centerContent={
-					<TopNavItem id="tn-docs" label="Docs" onClick={() => setPick('docs')} />
-				}
+				centerContent={<TopNavItem id="tn-docs" label="Docs" onClick={() => setPick('docs')} />}
 				endContent={
 					<TopNavMenu
 						id="tnmenu"

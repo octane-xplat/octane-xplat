@@ -171,17 +171,21 @@ export function extractNotes(root: string, release: Release, version: string) {
 				) {
 					fence = undefined
 				}
+
 				body.push(line)
 				continue
 			}
+
 			if (delimiter) {
 				fence = delimiter
 				body.push(line)
 				continue
 			}
+
 			if (line.startsWith('## ')) {
 				break
 			}
+
 			body.push(line)
 		}
 

@@ -8,6 +8,7 @@ interface Engine {
 	presentCompletion(json: string, completion: (result: string) => void): void
 	remove(uri: string): boolean
 }
+
 let instance: Engine | undefined
 /** The installed bridge object — `new()` is a method, not a construct signature. */
 type NativeEngineFactory = { new: () => Engine }
@@ -16,6 +17,7 @@ function engine(): Engine | undefined {
 	const Type = lookupGlobal(['XplatPrintEngine']) as NativeEngineFactory | undefined
 	return (instance ??= Type?.new())
 }
+
 function required(): Engine {
 	const value = engine()
 	if (!value) {
@@ -23,11 +25,13 @@ function required(): Engine {
 	}
 	return value
 }
+
 // The Swift engine replies with a JSON string; the shared reply channel takes
 // decoded payloads. Parse inside the engine callback.
 function reply(callback: (payload: unknown) => void): (json: string) => void {
 	return (json) => callback(JSON.parse(json))
 }
+
 export const backend: PrintBackend = {
 	capabilities() {
 		const host = engine()

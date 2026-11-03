@@ -46,6 +46,7 @@ function compiled(name, source, imports = {}, template = false) {
 
 const read = (name) =>
 	readFileSync(new URL('../src/components/media/' + name, import.meta.url), 'utf8')
+
 const support = moduleFile(
 	'support',
 	`
@@ -74,13 +75,16 @@ export const Microsoft={UI:{Xaml:{Automation:{
 }}}};
 `,
 )
+
 const raster = compiled('raster-windows', read('raster-source.windows.ts'))
 const mobileRaster = compiled('raster-native', read('raster-source.ts'), {
 	'@nativescript/core': support,
 })
+
 const accessibility = compiled('image-accessibility', read('image-accessibility.windows.ts'), {
 	'@octane-xplat/platform/windows': support,
 })
+
 const image = compiled(
 	'image',
 	read('Image.tsrx'),
@@ -101,6 +105,7 @@ const image = compiled(
 	]),
 	true,
 )
+
 const avatar = compiled(
 	'avatar',
 	read('Avatar.windows.tsrx'),
@@ -112,6 +117,7 @@ const avatar = compiled(
 	},
 	true,
 )
+
 const { Image } = await import(image)
 const { Avatar } = await import(avatar)
 const { bindImageAccessibility } = await import(accessibility)

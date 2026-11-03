@@ -1,1 +1,1 @@
-export declare function clamp(val: number, min?: number, max?: number): number;
+export declare function clamp(val: number, min?: number, max?: number): number

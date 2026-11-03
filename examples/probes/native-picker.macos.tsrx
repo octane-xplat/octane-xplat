@@ -5,5 +5,8 @@ import type { ProbeContext } from '../../tools/probe/context'
 export default NativePickerDemo
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('native-picker-status'))
-	ctx.record('qualification', 'Mounted demo only; native picker opening, pointer/keyboard selection, tracking, focus, AX and lifecycle not exercised')
+	ctx.record(
+		'qualification',
+		'Mounted demo only; native picker opening, pointer/keyboard selection, tracking, focus, AX and lifecycle not exercised',
+	)
 }

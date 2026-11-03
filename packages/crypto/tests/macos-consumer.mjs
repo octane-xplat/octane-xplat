@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 const root = fileURLToPath(new URL('..', import.meta.url)),
 	repo = process.env.XPLAT_NATIVE_TEST_REPO
+
 assert.ok(repo, 'Select the skymac.local checkout')
 await linkDependencies(root, repo)
 const app = join(root, 'tests/.runtime/macos-consumer')
@@ -18,6 +19,7 @@ try {
 		throw error
 	}
 }
+
 await writeFile(
 	join(app, 'package.json'),
 	JSON.stringify({
@@ -28,9 +30,11 @@ await writeFile(
 		dependencies: { '@octane-xplat/crypto': 'workspace:*' },
 	}),
 )
+
 const { buildMacOSNative, writeNativeBootstrap } = await import(
 	pathToFileURL(join(repo, 'packages/cli/src/macos/native.ts')).href
 )
+
 const artifact = await buildMacOSNative(app)
 assert.ok(artifact.leaves.includes('@octane-xplat/crypto'))
 const bootstrap = join(app, 'bootstrap.js')
@@ -53,6 +57,7 @@ setTimeout(async () => {
 },0);
 `,
 )
+
 const require = createRequire(join(repo, 'apps/mobile/package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
 await build({
@@ -68,6 +73,7 @@ await build({
 		minify: false,
 	},
 })
+
 const host = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
 const result = spawnSync(
 	join(host, 'host'),
@@ -79,6 +85,7 @@ const result = spawnSync(
 	],
 	{ encoding: 'utf8', timeout: 30000, maxBuffer: 4 * 1024 * 1024 },
 )
+
 assert.equal(result.status, 0, `${result.stdout}${result.stderr} signal=${result.signal}`)
 const match = /CRYPTO_MACOS_OK assertions=(\d+)/.exec(result.stdout + result.stderr)
 assert.ok(match, result.stdout + result.stderr)

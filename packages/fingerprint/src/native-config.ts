@@ -43,6 +43,7 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
 				const code = path.endsWith('.ts')
 					? transpileModule(source, { compilerOptions: { module: ModuleKind.CommonJS } }).outputText
 					: source
+
 				const require = createRequire(path)
 				const localRequire = Object.assign(
 					(name: string) =>
@@ -51,6 +52,7 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
 							: require(name),
 					{ resolve: require.resolve },
 				)
+
 				compileFunction(
 					code,
 					['exports', 'require', 'module', '__filename', '__dirname', 'console'],
@@ -59,11 +61,13 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
 			}
 			return module.exports
 		}
+
 		const exported = load(file)
 		const value: unknown = exported.default ?? exported
 		if (!value || typeof value !== 'object' || Array.isArray(value)) {
 			throw new Error()
 		}
+
 		return value as Record<string, any>
 	} catch {
 		throw new Error(
@@ -71,6 +75,7 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
 		)
 	}
 }
+
 /** Stable, value-only config. Unserializable settings fail instead of silently disappearing. */
 export function configValue(value: unknown, root: string, resources: string): unknown {
 	if (value === undefined) {
@@ -80,6 +85,7 @@ export function configValue(value: unknown, root: string, resources: string): un
 		if (typeof value === 'number' && !Number.isFinite(value)) {
 			throw new Error('Native build settings must be finite JSON values')
 		}
+
 		return value
 	}
 	if (typeof value === 'string') {

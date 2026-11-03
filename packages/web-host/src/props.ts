@@ -73,6 +73,7 @@ interface ServerContextOptional<Catalog> {
 	/** Request-local router context factory. */
 	context?: RequestContext<Catalog>
 }
+
 /** Request-local router context factory — the catalog's routes require it. */
 interface ServerContextRequired<Catalog> {
 	/** Request-local router context factory. */

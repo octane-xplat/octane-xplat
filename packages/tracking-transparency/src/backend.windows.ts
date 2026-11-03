@@ -4,6 +4,7 @@ import { lookupGlobal } from '@octane-xplat/lib/capability'
 interface AdvertisingManager {
 	readonly AdvertisingId: string
 }
+
 function manager(): AdvertisingManager | undefined {
 	try {
 		return lookupGlobal(['Windows', 'System', 'UserProfile', 'AdvertisingManager']) as
@@ -13,6 +14,7 @@ function manager(): AdvertisingManager | undefined {
 		return undefined
 	}
 }
+
 function identifier(): string | null {
 	const source = manager()
 	if (!source) {
@@ -27,6 +29,7 @@ function identifier(): string | null {
 	}
 	return value
 }
+
 export const backend: TrackingBackend = {
 	...noGate,
 	identifierFormat: 'alphanumeric',

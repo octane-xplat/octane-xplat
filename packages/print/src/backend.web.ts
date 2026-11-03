@@ -5,6 +5,7 @@ const available = () => typeof window !== 'undefined' && typeof window.print ===
 const unavailable = async (): Promise<never> => {
 	throw new UnavailabilityError('Print PDF files / printer selection in a browser')
 }
+
 export const backend: PrintBackend = {
 	capabilities: () => ({ print: available(), printToFile: false, selectPrinter: false }),
 	async print(options) {
@@ -82,6 +83,7 @@ export const backend: PrintBackend = {
 					if (finished) {
 						return
 					}
+
 					afterPrint = () => cleanup()
 					target.addEventListener('afterprint', afterPrint, { once: true })
 					target.focus()

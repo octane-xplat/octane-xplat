@@ -122,10 +122,16 @@ function diffCanon(ref: Canon | undefined, cand: Canon | undefined, path: string
 		return
 	}
 	for (const key of new Set([...Object.keys(ref), ...Object.keys(cand)])) {
-		if (key === 'type' || key === 'children') continue
+		if (key === 'type' || key === 'children') {
+			continue
+		}
+
 		const a = ref[key]
 		const b = cand[key]
-		if (a === undefined && b === undefined) continue
+		if (a === undefined && b === undefined) {
+			continue
+		}
+
 		if (JSON.stringify(a) !== JSON.stringify(b)) {
 			out.push({ path: `${path}.${key}`, kind: 'attr-diff', reference: a, candidate: b })
 		}
@@ -137,6 +143,7 @@ function diffCanon(ref: Canon | undefined, cand: Canon | undefined, path: string
 		diffCanon(rk[i], ck[i], `${path}/${rk[i]?.type ?? candType(ck[i])}${i}`, out)
 	}
 }
+
 const candType = (c: Canon | undefined) => c?.type ?? 'missing'
 
 // ---------------------------------------------------------------------------
@@ -148,13 +155,16 @@ const candType = (c: Canon | undefined) => c?.type ?? 'missing'
  *  fields}` decoder on both so doc.data envelopes compare verbatim. */
 function pluginEntries(mod: any, scenario: MarkdownScenario): unknown[] | undefined {
 	const profiles = scenario.options?.plugins
-	if (profiles == null) return undefined
+	if (profiles == null) {
+		return undefined
+	}
 	return profiles.map((p) => {
 		switch (p) {
 			case 'soft-breaks':
 				return mod.markdownSoftBreaksPlugin
 			case 'frontmatter':
-				return mod.createMarkdownFrontmatter({ name: 'meta', parse: (fields: any) => fields }).plugin
+				return mod.createMarkdownFrontmatter({ name: 'meta', parse: (fields: any) => fields })
+					.plugin
 			case 'source-lines':
 				return mod.markdownSourceLinesPlugin
 			case 'heading-links':
@@ -180,21 +190,35 @@ async function runParserMode() {
 
 	for (const scenario of markdownScenarios) {
 		const opts: Record<string, unknown> = {}
-		if (scenario.options?.autolink) opts.autolink = scenario.options.autolink
-		if (scenario.options?.sourceIds) opts.sourceIds = new Set(scenario.options.sourceIds)
-		if (scenario.options?.math) opts.math = true
-		if (scenario.options?.sourceRanges) opts.sourceRanges = true
+		if (scenario.options?.autolink) {
+			opts.autolink = scenario.options.autolink
+		}
+
+		if (scenario.options?.sourceIds) {
+			opts.sourceIds = new Set(scenario.options.sourceIds)
+		}
+
+		if (scenario.options?.math) {
+			opts.math = true
+		}
+
+		if (scenario.options?.sourceRanges) {
+			opts.sourceRanges = true
+		}
+
 		const candOpts: Record<string, unknown> = { ...opts }
 		if (scenario.options?.plugins != null) {
 			// Full entries on both sides — each parser applies transforms internally.
 			opts.plugins = pluginEntries(refPlugins, scenario)
 			candOpts.plugins = pluginEntries(candHelpers, scenario)
 		}
+
 		// pluginsAt: stream steps before the index run without plugins; the
 		// config flips mid-stream and the settled prefix must invalidate.
 		const pluginsAt = scenario.options?.pluginsAt
 		const stepOpts = (step: number) =>
 			pluginsAt != null && step < pluginsAt ? { ...opts, plugins: undefined } : opts
+
 		const stepCandOpts = (step: number) =>
 			pluginsAt != null && step < pluginsAt ? { ...candOpts, plugins: undefined } : candOpts
 
@@ -241,28 +265,33 @@ async function runParserMode() {
 						// The schedule's final step always sees the full option set so
 						// pluginsAt flips mid-stream on every replayed schedule.
 						const so = stepOpts(step === schedule.length - 1 ? Number.MAX_SAFE_INTEGER : step)
-						const sco = stepCandOpts(
-							step === schedule.length - 1 ? Number.MAX_SAFE_INTEGER : step,
-						)
+						const sco = stepCandOpts(step === schedule.length - 1 ? Number.MAX_SAFE_INTEGER : step)
 						// Both sides parse the production-trimmed snapshot: the
 						// component trims before the incremental parse in each stack.
 						const refTrim = refSrc.trimStreamingArtifacts(acc, { math: opts.math === true })
 						const candTrim = candStream.trimStreamingArtifacts(acc, {
 							math: opts.math === true,
 						})
+
 						const refStep = canonRef(
 							refSrc.parseMarkdownAstIncremental(refTrim, refState, so as any),
 						)
+
 						const candStep = canonCandDoc(
 							candStream.parseMarkdownIncremental(candTrim, candState, sco as any),
 						)
+
 						diffCanon(refStep, candStep, `step${step}`, stepDiffs)
 						step++
 					}
+
 					// Final documents converge to the same full parse.
 					const refFinal = canonRef(ref.parseMarkdownAst(scenario.source, opts as any))
 					const candParser = candStream.createMarkdownStreamParser(candOpts as any)
-					for (const chunk of schedule) candParser.append(chunk)
+					for (const chunk of schedule) {
+						candParser.append(chunk)
+					}
+
 					const candFinish = canonCandDoc(candParser.finish())
 					const finishDiffs: Diff[] = []
 					diffCanon(refFinal, candFinish, 'finish', finishDiffs)
@@ -299,6 +328,7 @@ async function runParserMode() {
 						diffs,
 					)
 				}
+
 				// B accumulates the halves in reverse order — a different
 				// document that both sides must still parse identically.
 				let accB = ''
@@ -314,13 +344,18 @@ async function runParserMode() {
 						diffs,
 					)
 				}
+
 				results.push({
 					key: `${scenario.key}/multi-stream`,
 					status: diffs.length === 0 ? 'match' : 'candidate-diff',
 					diffs: diffs.slice(0, 20),
 				})
 			} catch (e) {
-				results.push({ key: `${scenario.key}/multi-stream`, status: 'harness-error', error: String(e) })
+				results.push({
+					key: `${scenario.key}/multi-stream`,
+					status: 'harness-error',
+					error: String(e),
+				})
 			}
 
 			// Reset/disposal: after reset(), appended text must parse exactly
@@ -389,6 +424,7 @@ async function runBrowserMode(mode: 'behavior' | 'layout') {
 					probe(browser, `http://127.0.0.1:${SIDES[0].port}`),
 					probe(browser, `http://127.0.0.1:${SIDES[1].port}`),
 				])
+
 				const diffs: Diff[] = []
 				const candIndex = new Map(candidate.map((o: any) => [o.step, o.value]))
 				for (const { step, value } of reference) {
@@ -398,9 +434,11 @@ async function runBrowserMode(mode: 'behavior' | 'layout') {
 						diffs.push({ path: step, kind: `${mode}-diff`, reference: value, candidate: other })
 					}
 				}
+
 				for (const [step, value] of candIndex) {
 					diffs.push({ path: step, kind: `${mode}-diff`, reference: undefined, candidate: value })
 				}
+
 				results.push({
 					key: `${mode}-${engine}`,
 					status: diffs.length === 0 ? 'match' : 'candidate-diff',
@@ -413,7 +451,9 @@ async function runBrowserMode(mode: 'behavior' | 'layout') {
 			}
 		}
 	} finally {
-		for (const s of servers) await s.httpServer.close()
+		for (const s of servers) {
+			await s.httpServer.close()
+		}
 	}
 	return { mode, results }
 }
@@ -434,7 +474,9 @@ function makeDoc(bytes: number): string {
 	const list = '- alpha\n- beta\n  - nested\n- [x] task\n\n'
 	const table = '| col a | col b |\n| :-- | --: |\n| 1 | 2 |\n\n'
 	let out = '# Benchmark document\n\n'
-	while (out.length < bytes) out += para + list + table
+	while (out.length < bytes) {
+		out += para + list + table
+	}
 	return out
 }
 
@@ -470,11 +512,13 @@ async function runPerformanceMode() {
 		for (const w of [ref, cand]) {
 			void w
 		}
+
 		// warmup
 		for (let i = 0; i < 3; i++) {
 			ref.parseMarkdownAst(source)
 			cand.parseMdDoc(source)
 		}
+
 		const n = bytes > 50 * 1024 ? 15 : 30
 		const r = samples(() => ref.parseMarkdownAst(source), n)
 		const c = samples(() => cand.parseMdDoc(source), n)
@@ -520,6 +564,7 @@ async function runPerformanceMode() {
 			ref.parseMarkdownIncremental(half, s2 as any, {} as any)
 			Object.assign(state, s2)
 		}, 12)
+
 		const c = samples(() => {
 			candStreamMod.parseMarkdownIncremental(source, cstate)
 			// reset to the same precondition
@@ -527,6 +572,7 @@ async function runPerformanceMode() {
 			candStreamMod.parseMarkdownIncremental(half, s2)
 			Object.assign(cstate, s2)
 		}, 12)
+
 		results.push({
 			key: `perf-incremental-${bytes}`,
 			status: 'match',
@@ -536,7 +582,10 @@ async function runPerformanceMode() {
 
 	// Plugin profile: the upstream soft-breaks helper workload (the restored
 	// markdown-perf route profile) — full parse+transform per side.
-	const pluginDoc = Array.from({ length: 50 }, (_, i) => `claim ${i} with **bold**\nsoft line\nmore`).join('\n\n')
+	const pluginDoc = Array.from(
+		{ length: 50 },
+		(_, i) => `claim ${i} with **bold**\nsoft line\nmore`,
+	).join('\n\n')
 	const refPluginOpts = { plugins: [refPlugins.markdownSoftBreaksPlugin] }
 	const candPluginOpts = { plugins: [candHelpers.markdownSoftBreaksPlugin] }
 	for (let i = 0; i < 3; i++) {
@@ -597,15 +646,14 @@ async function runPerformanceMode() {
 	// Simultaneous messages: 8 independent stream states fed the same 10 KB
 	// doc in 256-char chunks — one pass per side.
 	const simDoc = workloads[1].source
-	const simRun = (
-		makeState: () => unknown,
-		step: (text: string, state: unknown) => void,
-	) => {
+	const simRun = (makeState: () => unknown, step: (text: string, state: unknown) => void) => {
 		const t0 = performance.now()
 		const states = Array.from({ length: 8 }, makeState)
 		for (let i = 0; i < simDoc.length; i += 256) {
 			const snap = simDoc.slice(0, i + 256)
-			for (const s of states) step(snap, s)
+			for (const s of states) {
+				step(snap, s)
+			}
 		}
 		return performance.now() - t0
 	}
@@ -638,6 +686,7 @@ async function runPerformanceMode() {
 			gc(true)
 			return process.memoryUsage().heapUsed - before
 		}
+
 		const rDelta = cycle((s) => ref.parseMarkdownAst(s))
 		const cDelta = cycle((s) => cand.parseMdDoc(s))
 		results.push({
@@ -694,20 +743,28 @@ async function main() {
 					: mode === 'performance'
 						? await runPerformanceMode()
 						: await runBrowserMode(mode)
+
 			writeFileSync(`${artifacts}/${mode}.json`, JSON.stringify(out, null, '\t'))
 			const errors = out.results.filter(
 				(r) => r.status === 'harness-error' || r.status === 'reference-error',
 			)
+
 			const diffs = out.results.filter(
 				(r) => r.status === 'candidate-diff' || r.status === 'candidate-error',
 			)
+
 			summary[mode] = {
 				match: out.results.length - errors.length - diffs.length,
 				diff: diffs.length,
 				errors: errors.length,
 			}
-			if (errors.length > 0) exitCode = 4
-			else if (diffs.length > 0) exitCode = Math.max(exitCode, 1)
+
+			if (errors.length > 0) {
+				exitCode = 4
+			} else if (diffs.length > 0) {
+				exitCode = Math.max(exitCode, 1)
+			}
+
 			console.log(
 				`[markdown/${mode}] ${out.results.length} results: ${summary[mode].match} match, ${diffs.length} candidate findings, ${errors.length} reference/harness errors`,
 			)

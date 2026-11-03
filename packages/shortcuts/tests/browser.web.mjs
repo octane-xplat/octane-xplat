@@ -9,6 +9,7 @@ const server = await createServer({
 	root: fileURLToPath(new URL('./fixtures', import.meta.url)),
 	server: { host: '127.0.0.1', port: 0, fs: { allow: [packageRoot] } },
 })
+
 let browser
 try {
 	await server.listen()
@@ -34,12 +35,14 @@ try {
 		'blocked-text',
 		'inbox',
 	])
+
 	await page.evaluate(() => {
 		window.recorded = window.fixture.shortcuts.record({
 			timeout: 300,
 			consumeEvents: true,
 		}).finished
 	})
+
 	await page.keyboard.press('Control+Shift+x')
 	const recording = await page.evaluate(() => window.recorded)
 	assert.equal(recording.expression, 'Ctrl+Shift+x')
@@ -50,6 +53,7 @@ try {
 		'blocked-text',
 		'inbox',
 	])
+
 	assert.deepEqual(errors, [])
 	console.log(
 		'Chromium: boundary, editable policies, native default prevention, sequences, recording and disposal passed (no screenshots).',

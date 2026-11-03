@@ -30,6 +30,7 @@ try {
 		],
 		{ encoding: 'utf8', timeout: 60000 },
 	)
+
 	assert.equal(build.status, 0, build.stdout + build.stderr)
 	const result = spawnSync(join(directory, 'case'), { encoding: 'utf8', timeout: 30000 })
 	assert.equal(
@@ -37,6 +38,7 @@ try {
 		0,
 		`${result.stdout}${result.stderr} signal=${result.signal} error=${result.error?.message}`,
 	)
+
 	assert.match(result.stdout, /PRINT_ENGINE_OK assertions=19/)
 	console.log(result.stdout.trim())
 } finally {

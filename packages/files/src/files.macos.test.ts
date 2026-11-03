@@ -12,7 +12,9 @@ describe('AppKit files bridge', () => {
 	let destination: any
 
 	beforeEach(() => {
-		vi.stubGlobal('UTType', undefined); vi.stubGlobal('objc', undefined); vi.stubGlobal('dlopen', undefined)
+		vi.stubGlobal('UTType', undefined)
+		vi.stubGlobal('objc', undefined)
+		vi.stubGlobal('dlopen', undefined)
 		source = new Uint8Array([1, 2, 3])
 		closed = vi.fn()
 		stop = vi.fn()
@@ -31,32 +33,42 @@ describe('AppKit files bridge', () => {
 			fileURLWithPath: url,
 			URLWithString: (uri: string) => url(decodeURIComponent(new URL(uri).pathname)),
 		})
-		vi.stubGlobal('NSFileManager', { defaultManager: {
-			URLsForDirectoryInDomains: () => ({ firstObject: url('/Documents') }),
-			createDirectoryAtURLWithIntermediateDirectoriesAttributesError: () => true,
-		} })
-		vi.stubGlobal('NSData', { dataWithBytesLength: (buffer: ArrayBuffer, length: number) => ({
-			writeToURLAtomically: () => {
-				if (writeOK) {writes.push(new Uint8Array(buffer, 0, length).slice())}
-				return writeOK
+		vi.stubGlobal('NSFileManager', {
+			defaultManager: {
+				URLsForDirectoryInDomains: () => ({ firstObject: url('/Documents') }),
+				createDirectoryAtURLWithIntermediateDirectoriesAttributesError: () => true,
 			},
-		}) })
-		vi.stubGlobal('NSFileHandle', { fileHandleForReadingAtPath: () => {
-			let offset = 0
-			return {
-				closeFile: closed,
-				readDataOfLength: (length: number) => {
-					const bytes = source.slice(offset, offset + length)
-					offset += bytes.length
-					return { length: bytes.length, bytes }
+		})
+		vi.stubGlobal('NSData', {
+			dataWithBytesLength: (buffer: ArrayBuffer, length: number) => ({
+				writeToURLAtomically: () => {
+					if (writeOK) {
+						writes.push(new Uint8Array(buffer, 0, length).slice())
+					}
+					return writeOK
 				},
-			}
-		} })
+			}),
+		})
+		vi.stubGlobal('NSFileHandle', {
+			fileHandleForReadingAtPath: () => {
+				let offset = 0
+				return {
+					closeFile: closed,
+					readDataOfLength: (length: number) => {
+						const bytes = source.slice(offset, offset + length)
+						offset += bytes.length
+						return { length: bytes.length, bytes }
+					},
+				}
+			},
+		})
 		vi.stubGlobal('interop', { bufferFromData: (data: any) => data.bytes.buffer })
-		vi.stubGlobal('NSSavePanel', { savePanel: () => ({
-			URL: destination,
-			runModal: () => response,
-		}) })
+		vi.stubGlobal('NSSavePanel', {
+			savePanel: () => ({
+				URL: destination,
+				runModal: () => response,
+			}),
+		})
 	})
 	afterEach(() => vi.unstubAllGlobals())
 
@@ -67,7 +79,9 @@ describe('AppKit files bridge', () => {
 	})
 
 	it('rejects oversized data and still closes resources', async () => {
-		await expect(files.readBytes({ name: 'a', uri: '/tmp/a' }, { maxBytes: 2 })).rejects.toThrow('2-byte limit')
+		await expect(files.readBytes({ name: 'a', uri: '/tmp/a' }, { maxBytes: 2 })).rejects.toThrow(
+			'2-byte limit',
+		)
 		expect(closed).toHaveBeenCalledOnce()
 		expect(stop).toHaveBeenCalledOnce()
 	})
@@ -84,7 +98,10 @@ describe('AppKit files bridge', () => {
 
 	it('writes only the supplied byte view and rejects atomic write failure', async () => {
 		const bytes = new Uint8Array([9, 1, 2, 9]).subarray(1, 3)
-		expect(await files.writeBytes('a.bin', bytes)).toEqual({ name: 'a.bin', uri: '/Documents/a.bin' })
+		expect(await files.writeBytes('a.bin', bytes)).toEqual({
+			name: 'a.bin',
+			uri: '/Documents/a.bin',
+		})
 		expect(writes).toEqual([new Uint8Array([1, 2])])
 		writeOK = false
 		await expect(files.writeBytes('a.bin', bytes)).rejects.toThrow('Failed to write')
@@ -116,26 +133,44 @@ describe('AppKit files bridge', () => {
 	})
 
 	it('single picking preserves extension/MIME restrictions and starting-folder options', async () => {
-		const panel: any = { URL: { lastPathComponent: 'report.pdf', absoluteString: 'file:///tmp/report.pdf' }, runModal: vi.fn(() => 1) }
+		const panel: any = {
+			URL: { lastPathComponent: 'report.pdf', absoluteString: 'file:///tmp/report.pdf' },
+			runModal: vi.fn(() => 1),
+		}
 		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
-		expect(await files.pick('.PDF,application/json', { startingFolder: '/tmp' })).toEqual({ name: 'report.pdf', uri: 'file:///tmp/report.pdf' })
-		expect(panel.allowedFileTypes).toEqual(['pdf', 'json']); expect(panel.allowsOtherFileTypes).toBe(false)
-		expect(panel.directoryURL.path).toBe('/tmp'); expect(panel.allowsMultipleSelection).toBe(false)
+		expect(await files.pick('.PDF,application/json', { startingFolder: '/tmp' })).toEqual({
+			name: 'report.pdf',
+			uri: 'file:///tmp/report.pdf',
+		})
+		expect(panel.allowedFileTypes).toEqual(['pdf', 'json'])
+		expect(panel.allowsOtherFileTypes).toBe(false)
+		expect(panel.directoryURL.path).toBe('/tmp')
+		expect(panel.allowsMultipleSelection).toBe(false)
 	})
 
 	it('multiple picking retains cancellation and clears a reused panel for any-type requests', async () => {
-		const urls = [{ lastPathComponent: 'a.pdf', absoluteString: 'file:///a.pdf' }, { lastPathComponent: 'b.pdf', absoluteString: 'file:///b.pdf' }]
-		const panel: any = { URLs: { count: urls.length, objectAtIndex: index => urls[index] }, runModal: () => response }
+		const urls = [
+			{ lastPathComponent: 'a.pdf', absoluteString: 'file:///a.pdf' },
+			{ lastPathComponent: 'b.pdf', absoluteString: 'file:///b.pdf' },
+		]
+		const panel: any = {
+			URLs: { count: urls.length, objectAtIndex: (index) => urls[index] },
+			runModal: () => response,
+		}
 		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
-		expect(await files.pickMultiple('.pdf')).toHaveLength(2); expect(panel.allowedFileTypes).toEqual(['pdf'])
+		expect(await files.pickMultiple('.pdf')).toHaveLength(2)
+		expect(panel.allowedFileTypes).toEqual(['pdf'])
 		response = 0
-		expect(await files.pick('*/*,.png')).toBeNull(); expect(panel.allowedFileTypes).toBeNull()
+		expect(await files.pick('*/*,.png')).toBeNull()
+		expect(panel.allowedFileTypes).toBeNull()
 		expect(await files.pickMultiple()).toEqual([])
 	})
 
 	it('registered MIME types outside the fallback table reach modern native panel filtering', async () => {
 		const document = { identifier: 'org.example.document', dynamic: false }
-		vi.stubGlobal('UTType', { typeWithMIMEType: mime => mime === 'application/x-example-document' ? document : null })
+		vi.stubGlobal('UTType', {
+			typeWithMIMEType: (mime) => (mime === 'application/x-example-document' ? document : null),
+		})
 		const panel: any = { allowedContentTypes: [], runModal: () => 0 }
 		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
 		expect(await files.pick('application/x-example-document')).toBeNull()
@@ -145,7 +180,10 @@ describe('AppKit files bridge', () => {
 	it('an unresolved filter rejects before modal presentation without becoming unrestricted', async () => {
 		const panel: any = { allowedFileTypes: ['previous'], runModal: vi.fn(() => 1) }
 		vi.stubGlobal('NSOpenPanel', { openPanel: () => panel })
-		await expect(files.pick('.pdf,application/x-not-known')).rejects.toMatchObject({ name: 'UnsupportedFileTypeError' })
-		expect(panel.runModal).not.toHaveBeenCalled(); expect(panel.allowedFileTypes).toEqual(['previous'])
+		await expect(files.pick('.pdf,application/x-not-known')).rejects.toMatchObject({
+			name: 'UnsupportedFileTypeError',
+		})
+		expect(panel.runModal).not.toHaveBeenCalled()
+		expect(panel.allowedFileTypes).toEqual(['previous'])
 	})
 })

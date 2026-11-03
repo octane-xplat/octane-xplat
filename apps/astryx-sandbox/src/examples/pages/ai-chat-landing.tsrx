@@ -7,15 +7,26 @@
 // host, matching upstream's own feature-detect fallback.
 import { useRef, useState } from 'octane'
 import {
-	ClickableCard, DropdownMenu, Grid, Heading, HStack, Icon, Layout,
-	LayoutContent, StackItem, Text, ToggleButton, ToggleButtonGroup, Token,
+	ClickableCard,
+	DropdownMenu,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	StackItem,
+	Text,
+	ToggleButton,
+	ToggleButtonGroup,
+	Token,
 	VStack,
 } from '@octane-xplat/ui'
-import {
-	ChatComposer, ChatComposerDrawer, ChatComposerInput,
-} from '@octane-xplat/ui/chat'
+
+import { ChatComposer, ChatComposerDrawer, ChatComposerInput } from '@octane-xplat/ui/chat'
 import type {
-	ChatComposerInputHandle, ChatComposerTrigger,
+	ChatComposerInputHandle,
+	ChatComposerTrigger,
 	ChatComposerTriggerItem,
 } from '@octane-xplat/ui/chat'
 
@@ -24,28 +35,92 @@ const composerInput = { minHeight: 84 } as const
 
 const CATEGORY_SUGGESTIONS: Record<string, { heading: string; body: string; prompt: string }[]> = {
 	writing: [
-		{ heading: 'Draft a professional email', body: 'Compose a clear, polished email for any audience', prompt: 'Help me draft a professional email' },
-		{ heading: 'Improve my writing', body: 'Enhance the clarity, tone, and flow of my text', prompt: 'Review and improve the following text:' },
-		{ heading: 'Create a project proposal', body: 'Write a proposal with goals, timeline, and deliverables', prompt: 'Help me write a project proposal for' },
-		{ heading: 'Summarize a document', body: 'Condense a long document into key takeaways', prompt: 'Summarize the following document into key points:' },
+		{
+			heading: 'Draft a professional email',
+			body: 'Compose a clear, polished email for any audience',
+			prompt: 'Help me draft a professional email',
+		},
+		{
+			heading: 'Improve my writing',
+			body: 'Enhance the clarity, tone, and flow of my text',
+			prompt: 'Review and improve the following text:',
+		},
+		{
+			heading: 'Create a project proposal',
+			body: 'Write a proposal with goals, timeline, and deliverables',
+			prompt: 'Help me write a project proposal for',
+		},
+		{
+			heading: 'Summarize a document',
+			body: 'Condense a long document into key takeaways',
+			prompt: 'Summarize the following document into key points:',
+		},
 	],
 	coding: [
-		{ heading: 'Debug my code', body: 'Find and fix issues in a code snippet', prompt: 'Help me debug the following code:' },
-		{ heading: 'Write a function', body: 'Generate a well-typed function with error handling', prompt: 'Write a function that' },
-		{ heading: 'Explain this code', body: 'Break down complex code into understandable pieces', prompt: 'Explain what the following code does:' },
-		{ heading: 'Review my pull request', body: 'Check for bugs, performance, and best practices', prompt: 'Review this code for bugs and improvements:' },
+		{
+			heading: 'Debug my code',
+			body: 'Find and fix issues in a code snippet',
+			prompt: 'Help me debug the following code:',
+		},
+		{
+			heading: 'Write a function',
+			body: 'Generate a well-typed function with error handling',
+			prompt: 'Write a function that',
+		},
+		{
+			heading: 'Explain this code',
+			body: 'Break down complex code into understandable pieces',
+			prompt: 'Explain what the following code does:',
+		},
+		{
+			heading: 'Review my pull request',
+			body: 'Check for bugs, performance, and best practices',
+			prompt: 'Review this code for bugs and improvements:',
+		},
 	],
 	research: [
-		{ heading: 'Compare options', body: 'Analyze pros and cons of different approaches', prompt: 'Compare the pros and cons of' },
-		{ heading: 'Explain a concept', body: 'Break down a complex topic in simple terms', prompt: 'Explain the concept of' },
-		{ heading: 'Find best practices', body: 'Research standards and recommended approaches', prompt: 'What are the best practices for' },
-		{ heading: 'Summarize findings', body: 'Compile research into a structured overview', prompt: 'Summarize the key findings on' },
+		{
+			heading: 'Compare options',
+			body: 'Analyze pros and cons of different approaches',
+			prompt: 'Compare the pros and cons of',
+		},
+		{
+			heading: 'Explain a concept',
+			body: 'Break down a complex topic in simple terms',
+			prompt: 'Explain the concept of',
+		},
+		{
+			heading: 'Find best practices',
+			body: 'Research standards and recommended approaches',
+			prompt: 'What are the best practices for',
+		},
+		{
+			heading: 'Summarize findings',
+			body: 'Compile research into a structured overview',
+			prompt: 'Summarize the key findings on',
+		},
 	],
 	creative: [
-		{ heading: 'Brainstorm ideas', body: 'Generate creative concepts for a project', prompt: 'Brainstorm ideas for' },
-		{ heading: 'Write a story', body: 'Create an engaging narrative with characters', prompt: 'Write a short story about' },
-		{ heading: 'Design a concept', body: 'Explore product or visual design ideas', prompt: 'Help me design a concept for' },
-		{ heading: 'Create a tagline', body: 'Craft a memorable phrase for a brand or product', prompt: 'Create a catchy tagline for' },
+		{
+			heading: 'Brainstorm ideas',
+			body: 'Generate creative concepts for a project',
+			prompt: 'Brainstorm ideas for',
+		},
+		{
+			heading: 'Write a story',
+			body: 'Create an engaging narrative with characters',
+			prompt: 'Write a short story about',
+		},
+		{
+			heading: 'Design a concept',
+			body: 'Explore product or visual design ideas',
+			prompt: 'Help me design a concept for',
+		},
+		{
+			heading: 'Create a tagline',
+			body: 'Craft a memorable phrase for a brand or product',
+			prompt: 'Create a catchy tagline for',
+		},
 	],
 }
 
@@ -77,8 +152,16 @@ const MENTION_ITEMS: ChatComposerTriggerItem<{ role: string }>[] = [
 ]
 
 const COMMAND_ITEMS: ChatComposerTriggerItem<{ description: string }>[] = [
-	{ id: 'summarize', label: 'summarize', auxiliaryData: { description: 'Summarize the conversation' } },
-	{ id: 'translate', label: 'translate', auxiliaryData: { description: 'Translate text to another language' } },
+	{
+		id: 'summarize',
+		label: 'summarize',
+		auxiliaryData: { description: 'Summarize the conversation' },
+	},
+	{
+		id: 'translate',
+		label: 'translate',
+		auxiliaryData: { description: 'Translate text to another language' },
+	},
 	{ id: 'search', label: 'search', auxiliaryData: { description: 'Search the web or documents' } },
 	{ id: 'code', label: 'code', auxiliaryData: { description: 'Generate or explain code' } },
 	{ id: 'help', label: 'help', auxiliaryData: { description: 'Show available commands' } },
@@ -125,6 +208,7 @@ export function AIChatLandingTemplate() @{
 		'user_research.csv',
 		'brand_guidelines.pdf',
 	])
+
 	const composerInputRef = useRef<ChatComposerInputHandle | null>(null)
 
 	const activeMode = MODE_OPTIONS.find((m) => m.key === mode) ?? MODE_OPTIONS[0]
@@ -132,14 +216,20 @@ export function AIChatLandingTemplate() @{
 
 	const applySuggestion = (prompt: string) => {
 		const input = composerInputRef.current
-		if (!input) {return}
+		if (!input) {
+			return
+		}
+
 		input.focus()
 		input.insertText(prompt)
 	}
 
 	const insertMention = (item: (typeof MENTION_ITEMS)[number]) => {
 		const input = composerInputRef.current
-		if (!input) {return}
+		if (!input) {
+			return
+		}
+
 		input.focus()
 		input.insertToken({ value: `@${item.id}`, label: item.label, variant: 'blue' })
 	}
@@ -186,9 +276,7 @@ export function AIChatLandingTemplate() @{
 										<Token
 											key={name}
 											label={name}
-											onRemove={() =>
-												setAttachments((prev) => prev.filter((n) => n !== name))
-											}
+											onRemove={() => setAttachments((prev) => prev.filter((n) => n !== name))}
 										/>
 									))}
 								</ChatComposerDrawer>
@@ -224,25 +312,28 @@ export function AIChatLandingTemplate() @{
 										icon: <Icon name={activeMode.icon} size={16} />,
 									}}
 									menuWidth={200}
-									items={MODE_OPTIONS.flatMap((opt) => {
-										const menuItem = {
-											type: 'action' as const,
-											key: opt.key,
-											label: opt.label,
-											icon: <Icon name={opt.icon} size={16} />,
-											onSelect: () => {
-												const tokenLabel = TOKEN_MODES[opt.key]
-												if (tokenLabel) {
-													insertModeToken(tokenLabel)
-												} else {
-													setMode(opt.key)
-												}
-											},
-										}
-										return opt.key === 'sensitive'
-											? [{ type: 'separator' as const, key: 'd' }, menuItem]
-											: [menuItem]
-									}) as never}
+									items={
+										MODE_OPTIONS.flatMap((opt) => {
+											const menuItem = {
+												type: 'action' as const,
+												key: opt.key,
+												label: opt.label,
+												icon: <Icon name={opt.icon} size={16} />,
+												onSelect: () => {
+													const tokenLabel = TOKEN_MODES[opt.key]
+													if (tokenLabel) {
+														insertModeToken(tokenLabel)
+													} else {
+														setMode(opt.key)
+													}
+												},
+											}
+
+											return opt.key === 'sensitive'
+												? [{ type: 'separator' as const, key: 'd' }, menuItem]
+												: [menuItem]
+										}) as never
+									}
 								/>
 								<DropdownMenu
 									button={{
@@ -254,7 +345,12 @@ export function AIChatLandingTemplate() @{
 									menuWidth={200}
 									items={[
 										{ type: 'action', key: 'prefs', label: 'Preferences', onSelect: () => {} },
-										{ type: 'action', key: 'keys', label: 'Keyboard shortcuts', onSelect: () => {} },
+										{
+											type: 'action',
+											key: 'keys',
+											label: 'Keyboard shortcuts',
+											onSelect: () => {},
+										},
 										{ type: 'action', key: 'about', label: 'About', onSelect: () => {} },
 									]}
 								/>

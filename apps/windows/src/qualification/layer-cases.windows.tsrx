@@ -49,6 +49,7 @@ function SelectorCase(props: SceneProps): unknown @{
 					open: next,
 					fixtureRevision: props.revision,
 				})
+
 				setOpen(next)
 			}}
 		/>
@@ -83,6 +84,7 @@ function DropdownCase(props: SceneProps): unknown @{
 					open: next,
 					fixtureRevision: props.revision,
 				})
+
 				if (props.revision !== 2) {
 					setOpen(next)
 				}
@@ -130,6 +132,7 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
 				open: true,
 				fixtureRevision: props.revision,
 			})
+
 			if (props.revision !== 2) {
 				setOpen(true)
 			}
@@ -140,6 +143,7 @@ function AnchoredLayerCase(props: SceneProps): unknown @{
 				open: false,
 				fixtureRevision: props.revision,
 			})
+
 			if (props.revision !== 2) {
 				setOpen(false)
 			}
@@ -200,6 +204,7 @@ function NestedLayerCase(props: SceneProps): unknown @{
 				open: true,
 				fixtureRevision: props.revision,
 			})
+
 			setOuterOpen(true)
 		},
 		onHide: () => {
@@ -208,9 +213,11 @@ function NestedLayerCase(props: SceneProps): unknown @{
 				open: false,
 				fixtureRevision: props.revision,
 			})
+
 			setOuterOpen(false)
 		},
 	})
+
 	const inner = useLayer({
 		mode: 'context',
 		isOpen: innerOpen,
@@ -222,6 +229,7 @@ function NestedLayerCase(props: SceneProps): unknown @{
 				open: true,
 				fixtureRevision: props.revision,
 			})
+
 			setInnerOpen(true)
 		},
 		onHide: () => {
@@ -230,6 +238,7 @@ function NestedLayerCase(props: SceneProps): unknown @{
 				open: false,
 				fixtureRevision: props.revision,
 			})
+
 			setInnerOpen(false)
 		},
 	})
@@ -253,11 +262,7 @@ function NestedLayerCase(props: SceneProps): unknown @{
 				accessible
 				accessibilityLabel={`Outer layer content ${props.revision}`}
 			>
-				<Button
-					label={`Inner layer ${props.revision}`}
-					ref={inner.ref}
-					clickAction={inner.show}
-				/>
+				<Button label={`Inner layer ${props.revision}`} ref={inner.ref} clickAction={inner.show} />
 				<Button label="Close outer" clickAction={outer.hide} />
 			</View>,
 			{ placement: 'below' },

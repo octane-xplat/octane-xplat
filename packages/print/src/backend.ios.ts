@@ -59,7 +59,10 @@ const owned = new Set<string>()
 const failure = (code = 'ERR_PRINT_FAILED'): Payload => ({
 	ok: false,
 	code,
-	message: code === 'ERR_PRINT_CANCELLED' ? 'Printing was canceled' : 'The document could not be printed or exported',
+	message:
+		code === 'ERR_PRINT_CANCELLED'
+			? 'Printing was canceled'
+			: 'The document could not be printed or exported',
 })
 
 function respond(value: Payload, reply: Reply) {
@@ -92,6 +95,7 @@ interface PaperLayout {
 	renderer: UIPrintPageRenderer
 	paper: CGRect
 }
+
 /** Native metadata omits Class.extend; keep the bridge assertion in one type. */
 type Extendable<T> = {
 	extend(
@@ -113,9 +117,7 @@ function paperLayout(width: number, height: number, margins: Payload): PaperLayo
 	const renderer = UIPrintPageRenderer.new()
 	renderer.setValueForKey(NSValue.valueWithCGRect(paper), 'paperRect')
 	renderer.setValueForKey(
-		NSValue.valueWithCGRect(
-			CGRectMake(left, top, width - left - right, height - top - bottom),
-		),
+		NSValue.valueWithCGRect(CGRectMake(left, top, width - left - right, height - top - bottom)),
 		'printableRect',
 	)
 	return { renderer, paper }
@@ -134,29 +136,31 @@ function navigationOwner(self: object): HtmlTask {
 }
 
 function navigationDelegate(task: HtmlTask): WKNavigationDelegate & NSObject {
-	return (NSObject as unknown as Extendable<WKNavigationDelegate & NSObject>).extend(
-		{
-			owner: task,
-			webViewDidFinishNavigation(webView: WKWebView, _navigation: WKNavigation) {
-				const owner = navigationOwner(this)
-				// A native DOM read flushes WebKit's pending layout before its print formatter is used.
-				webView.evaluateJavaScriptCompletionHandler(
-					'document.body ? document.body.scrollHeight : 0',
-					(_result: unknown, error: NSError | null) => owner.finish(error == null),
-				)
+	return (NSObject as unknown as Extendable<WKNavigationDelegate & NSObject>)
+		.extend(
+			{
+				owner: task,
+				webViewDidFinishNavigation(webView: WKWebView, _navigation: WKNavigation) {
+					const owner = navigationOwner(this)
+					// A native DOM read flushes WebKit's pending layout before its print formatter is used.
+					webView.evaluateJavaScriptCompletionHandler(
+						'document.body ? document.body.scrollHeight : 0',
+						(_result: unknown, error: NSError | null) => owner.finish(error == null),
+					)
+				},
+				webViewDidFailNavigationWithError() {
+					navigationOwner(this).finish(false)
+				},
+				webViewDidFailProvisionalNavigationWithError() {
+					navigationOwner(this).finish(false)
+				},
+				webViewWebContentProcessDidTerminate() {
+					navigationOwner(this).finish(false)
+				},
 			},
-			webViewDidFailNavigationWithError() {
-				navigationOwner(this).finish(false)
-			},
-			webViewDidFailProvisionalNavigationWithError() {
-				navigationOwner(this).finish(false)
-			},
-			webViewWebContentProcessDidTerminate() {
-				navigationOwner(this).finish(false)
-			},
-		},
-		{ name: 'XplatPrintNavigationDelegate', protocols: [WKNavigationDelegate] },
-	).new()
+			{ name: 'XplatPrintNavigationDelegate', protocols: [WKNavigationDelegate] },
+		)
+		.new()
 }
 
 class HtmlTask {
@@ -275,6 +279,7 @@ function render(json: string, reply: Reply): void {
 			} catch {
 				// Temporary leftovers are reclaimed by the OS.
 			}
+
 			respond(failure(), reply)
 			return
 		}
@@ -284,7 +289,9 @@ function render(json: string, reply: Reply): void {
 				ok: true,
 				uri: String(url.absoluteString),
 				numberOfPages: document.pageCount,
-				...(options.base64 === true && { base64: bytes.base64EncodedStringWithOptions(0 as NSDataBase64EncodingOptions) }),
+				...(options.base64 === true && {
+					base64: bytes.base64EncodedStringWithOptions(0 as NSDataBase64EncodingOptions),
+				}),
 			},
 			reply,
 		)
@@ -303,7 +310,12 @@ function fetchPDF(value: string, completion: (data: NSData | null) => void): voi
 			completion(null)
 			return
 		}
-		const data = NSData.alloc().initWithBase64EncodedStringOptions(encoded, 0 as NSDataBase64DecodingOptions)
+
+		const data = NSData.alloc().initWithBase64EncodedStringOptions(
+			encoded,
+			0 as NSDataBase64DecodingOptions,
+		)
+
 		completion(data && data.length <= LIMIT && pdf.alloc().initWithData(data) ? data : null)
 		return
 	}
@@ -369,14 +381,18 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
 			error: NSError | null,
 		) =>
 			respond(
-				completed && error == null ? { ok: true } : failure(error != null ? 'ERR_PRINT_FAILED' : 'ERR_PRINT_CANCELLED'),
+				completed && error == null
+					? { ok: true }
+					: failure(error != null ? 'ERR_PRINT_FAILED' : 'ERR_PRINT_CANCELLED'),
 				reply,
 			)
 		let accepted: boolean
 		const target = options.printerUrl
 		if (typeof target === 'string') {
 			const url = NSURL.URLWithString(target)
-			accepted = url ? controller.printToPrinterCompletionHandler(UIPrinter.printerWithURL(url), done) : false
+			accepted = url
+				? controller.printToPrinterCompletionHandler(UIPrinter.printerWithURL(url), done)
+				: false
 		} else {
 			accepted = controller.presentFromRectInViewAnimatedCompletionHandler(
 				CGRectMake(
@@ -435,7 +451,8 @@ function select(presenter: UIViewController, reply: Reply): void {
 		respond(failure(), reply)
 		return
 	}
-	const controller = UIPrinterPickerController.printerPickerControllerWithInitiallySelectedPrinter(null)
+	const controller =
+		UIPrinterPickerController.printerPickerControllerWithInitiallySelectedPrinter(null)
 	picker = controller
 	const accepted = controller.presentFromRectInViewAnimatedCompletionHandler(
 		CGRectMake(
@@ -483,6 +500,7 @@ function remove(value: string): boolean {
 		if (NSFileManager.defaultManager.fileExistsAtPath(String(url.path))) {
 			NSFileManager.defaultManager.removeItemAtURLError(url, undefined)
 		}
+
 		owned.delete(value)
 		return true
 	} catch {
@@ -517,10 +535,7 @@ export const backend: PrintBackend = {
 		if (options.textZoom !== 100) {
 			throw new UnavailabilityError('Print textZoom outside Android')
 		}
-		return invoke(
-			(callback) => render(JSON.stringify(options), callback),
-			fileResult,
-		)
+		return invoke((callback) => render(JSON.stringify(options), callback), fileResult)
 	},
 	async select() {
 		const view = presenter()

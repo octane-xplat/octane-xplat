@@ -15,10 +15,12 @@ for (const pkg of packages) {
 		new Set(files.filter((file) => file.endsWith('.js')).map((file) => file.slice(0, -3))),
 	)
 }
+
 for (const directory of ['locales', 'time-zones']) {
 	await rm(new URL(directory, output), { recursive: true, force: true })
 	await mkdir(new URL(directory, output), { recursive: true })
 }
+
 async function emit(path, imports) {
 	// Resolve the platform initializer before registering data. Other targets use
 	// the empty initializer; FormatJS data modules leave built-in constructors alone.
@@ -27,6 +29,7 @@ async function emit(path, imports) {
 	await writeFile(new URL(`${path}.js`, output), code)
 	await writeFile(new URL(`${path}.d.ts`, output), 'export {}\n')
 }
+
 // Number/date/list data is regional; plural rules may only have the parent tag.
 let count = 0
 for (const locale of locales.get('intl-numberformat')) {
@@ -36,17 +39,22 @@ for (const locale of locales.get('intl-numberformat')) {
 		while (tag && !locales.get(pkg).has(tag)) {
 			tag = tag.includes('-') ? tag.slice(0, tag.lastIndexOf('-')) : ''
 		}
+
 		if (!tag) {
 			break
 		}
+
 		imports.push(`@formatjs/${pkg}/locale-data/${tag}.js`)
 	}
+
 	if (imports.length === packages.length) {
 		await emit(`locales/${locale}`, imports)
 		count++
 	}
 }
+
 for (const zones of ['all', 'golden']) {
 	await emit(`time-zones/${zones}`, [`@formatjs/intl-datetimeformat/add-${zones}-tz.js`])
 }
+
 console.log(`Lingui formatting data entries generated (${count} locales).`)

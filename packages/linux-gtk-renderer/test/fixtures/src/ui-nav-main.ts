@@ -10,52 +10,85 @@ const checks: string[] = []
 const failures: string[] = []
 const check = (name: string, ok: boolean | unknown) => {
 	checks.push(name)
-	if (!ok) { failures.push(name) }
+	if (!ok) {
+		failures.push(name)
+	}
 }
+
 const osInput = GLib.getenv('GTK_NAV_OS') === '1'
 
-const window = new Gtk.Window({ title: 'Octane GTK Nav test', default_width: 640, default_height: 560, decorated: false })
+const window = new Gtk.Window({
+	title: 'Octane GTK Nav test',
+	default_width: 640,
+	default_height: 560,
+	decorated: false,
+})
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
-const pump = (ms: number) => new Promise<void>((resolve) => {
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => { resolve(); return false })
-})
+const pump = (ms: number) =>
+	new Promise<void>((resolve) => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+			resolve()
+			return false
+		})
+	})
 
 const findView = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n.view }
+		if (n?.props?.id === id) {
+			return n.view
+		}
 	}
 	return null
 }
+
 const hasText = (needle: string): boolean => {
 	for (const n of (container as any).nodes.values()) {
-		try { if (JSON.stringify(n.props).includes(needle)) { return true } } catch { }
+		try {
+			if (JSON.stringify(n.props).includes(needle)) {
+				return true
+			}
+		} catch {}
 	}
 	return false
 }
+
 const findLabel = (text: string): any => {
 	for (const n of (container as any).nodes.values()) {
 		try {
 			if (JSON.stringify(n.props).includes(text)) {
 				let cur = n
-				while (cur && !cur.view) { cur = cur.parent }
-				if (cur?.view) { return cur.view }
+				while (cur && !cur.view) {
+					cur = cur.parent
+				}
+
+				if (cur?.view) {
+					return cur.view
+				}
 			}
-		} catch { }
+		} catch {}
 	}
 	return null
 }
+
 const point = (widget: any): { x: number; y: number } => {
 	const native = widget.get_native()
 	const [ok, rect] = widget.compute_bounds(native)
-	if (!ok) { throw new Error('No native input bounds') }
+	if (!ok) {
+		throw new Error('No native input bounds')
+	}
 	const [tx, ty] = native.get_surface_transform()
 	let x = rect.origin.x - tx + rect.size.width / 2
 	let y = rect.origin.y - ty + rect.size.height / 2
-	for (let surface = native.get_surface(); typeof surface.get_parent === 'function'; surface = surface.get_parent()) {
+	for (
+		let surface = native.get_surface();
+		typeof surface.get_parent === 'function';
+		surface = surface.get_parent()
+	) {
 		x += surface.get_position_x()
 		y += surface.get_position_y()
 	}
@@ -66,12 +99,18 @@ const point = (widget: any): { x: number; y: number } => {
 let readyResolve: (() => void) | null = null
 const ready = (payload: any) => {
 	print('GTK_NAV_READY ' + JSON.stringify(payload))
-	return new Promise<void>((resolve) => { readyResolve = resolve })
+	return new Promise<void>((resolve) => {
+		readyResolve = resolve
+	})
 }
+
 const keyCtl = new Gtk.EventControllerKey()
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
-	if (keyval === Gdk.KEY_F12 && readyResolve) { readyResolve(); readyResolve = null }
+	if (keyval === Gdk.KEY_F12 && readyResolve) {
+		readyResolve()
+		readyResolve = null
+	}
 	return false
 })
 
@@ -86,7 +125,12 @@ const clickAt = async (widget: any) => {
 // browser to prove the OS-side open).
 const hostBridge = (globalThis as any).__octaneGtkHost
 const openedUris: string[] = []
-if (hostBridge) { hostBridge.openUri = (uri: string) => { openedUris.push(String(uri)); return true } }
+if (hostBridge) {
+	hostBridge.openUri = (uri: string) => {
+		openedUris.push(String(uri))
+		return true
+	}
+}
 
 async function run() {
 	await initNav()
@@ -106,7 +150,9 @@ async function run() {
 	check('route outlet shows initial route', hasText('HOME ROUTE'))
 	check('route href reports /', state.route === '/')
 	if (!hasText('HOME ROUTE') || state.route !== '/') {
-		failures.push('DBG seed events=' + JSON.stringify(events.slice(0, 6)) + ' route=' + String(state.route))
+		failures.push(
+			'DBG seed events=' + JSON.stringify(events.slice(0, 6)) + ' route=' + String(state.route),
+		)
 	}
 	check('TabList mounts', !!findView('tl'))
 	check('Tabs mounts', !!findView('tabs'))
@@ -166,18 +212,31 @@ async function run() {
 			try {
 				if (JSON.stringify(n.props).includes('HOME ROUTE')) {
 					let cur = n
-					while (cur && !cur.view) { cur = cur.parent }
-					if (!cur?.view) { continue }
+					while (cur && !cur.view) {
+						cur = cur.parent
+					}
+
+					if (!cur?.view) {
+						continue
+					}
+
 					// Any invisible ancestor (the RoutePane wrapper) means hidden;
 					// children keep visible=true under a hidden parent on GTK.
 					let anyHidden = false
 					for (let w = cur.view; w; w = w.get_parent?.()) {
-						if (w.visible === false || w.get_visible?.() === false) { anyHidden = true; break }
+						if (w.visible === false || w.get_visible?.() === false) {
+							anyHidden = true
+							break
+						}
 					}
-					if (!anyHidden) { homeVisible = true }
+
+					if (!anyHidden) {
+						homeVisible = true
+					}
 				}
-			} catch { }
+			} catch {}
 		}
+
 		check('home pane hidden under docs', !homeVisible)
 	}
 	check('NavLink mounts', !!findView('nlto'))
@@ -215,10 +274,13 @@ run()
 					gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
 				}),
 		)
-		try { root.unmount() } catch { }
+		try {
+			root.unmount()
+		} catch {}
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

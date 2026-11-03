@@ -13,6 +13,7 @@ import {
 	Pressable,
 	Text,
 } from '@octane-xplat/ui'
+
 import {
 	configureRouter,
 	router,
@@ -28,6 +29,7 @@ export const state: Record<string, any> = { route: null, tab: 'a', strip: 'a', p
 function HomeRoute() {
 	return <Text id="route-home">HOME ROUTE</Text>
 }
+
 function DocsRoute() {
 	return <Text id="route-docs">DOCS ROUTE</Text>
 }
@@ -52,6 +54,7 @@ export async function initNav() {
 	if (homeCheck.status !== 'valid' || docsCheck.status !== 'valid') {
 		throw new Error('fixture routes did not validate')
 	}
+
 	homeDest = homeCheck.destination
 	docsDest = docsCheck.destination
 }
@@ -87,6 +90,7 @@ export function NavProbe() @{
 	state.strip = strip
 	const [tab, setTab] = useState('a')
 	state.tab = tab
+
 	<Screen id="screen">
 		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
 			<RouterProvider router={router}>

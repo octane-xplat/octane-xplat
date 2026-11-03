@@ -16,8 +16,7 @@ export interface ShortcutHost {
 }
 
 export function unwrap(target: object): any {
-	const protectedView =
-		'nativeViewProtected' in target ? target.nativeViewProtected : undefined
+	const protectedView = 'nativeViewProtected' in target ? target.nativeViewProtected : undefined
 	return typeof protectedView === 'object' && protectedView !== null ? protectedView : target
 }
 

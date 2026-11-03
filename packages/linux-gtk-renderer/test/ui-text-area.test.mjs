@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => {
 					try {
 						execFileSync('xdotool', args, { env, timeout: 7000 })
@@ -68,6 +69,7 @@ test(
 						throw new Error('xdotool ' + args.join(' ') + ': ' + error.message)
 					}
 				}
+
 				send('windowfocus', id)
 				if (phase.phase === 'return') {
 					send('key', '--clearmodifiers', 'Return')
@@ -83,6 +85,7 @@ test(
 						String(Math.round(phase.x)),
 						String(Math.round(phase.y)),
 					)
+
 					send(
 						'click',
 						'--repeat',
@@ -92,6 +95,7 @@ test(
 						phase.phase.endsWith('-click') ? '1' : phase.phase.endsWith('down') ? '5' : '4',
 					)
 				}
+
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error

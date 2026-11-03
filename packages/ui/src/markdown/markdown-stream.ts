@@ -16,6 +16,7 @@ import {
 	trimStreamingArtifacts,
 	type MarkdownIncrementalState,
 } from './markdown-parse.ts'
+
 import { mdDoc, mdInlineLen } from './markdown-ast.ts'
 import type { MdDoc, MdNode, MdParseOptions } from './markdown-ast.ts'
 

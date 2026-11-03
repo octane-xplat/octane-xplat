@@ -44,9 +44,11 @@ export function useTrackingPermissions(
 				const response = await (request
 					? requestTrackingPermissionsAsync()
 					: getTrackingPermissionsAsync())
+
 				if (owner.active && serial === owner.serial) {
 					setValue(response)
 				}
+
 				return response
 			} finally {
 				if (request) {

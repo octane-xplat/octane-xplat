@@ -8,13 +8,16 @@ interface Engine {
 	present(activity: android.app.Activity, json: string, callback: object): void
 	remove(uri: string): boolean
 }
+
 interface Constructor {
 	new (): Engine
 	Completion: { new (implementation: { complete(json: string): void }): object }
 }
+
 function constructor(): Constructor | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'print', 'PrintEngine']) as Constructor | undefined
 }
+
 let instance: Engine | undefined
 function engine(): Engine {
 	const Type = constructor()
@@ -23,6 +26,7 @@ function engine(): Engine {
 	}
 	return (instance ??= new Type())
 }
+
 function activity(): android.app.Activity {
 	const value = Application.android.foregroundActivity
 	if (!value) {
@@ -30,6 +34,7 @@ function activity(): android.app.Activity {
 	}
 	return value
 }
+
 function completion(callback: (json: string) => void): object {
 	const Type = constructor()
 	if (!Type) {
@@ -37,6 +42,7 @@ function completion(callback: (json: string) => void): object {
 	}
 	return new Type.Completion({ complete: callback })
 }
+
 export const backend: PrintBackend = {
 	capabilities() {
 		const present = typeof android !== 'undefined' && Boolean(constructor())

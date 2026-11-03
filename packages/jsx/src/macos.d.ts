@@ -71,9 +71,13 @@ export declare namespace JSX {
 		| 'tabviewitem'
 	> {
 		/** AX orientation for named toolbar hosts; does not change layout or keys. */
-		masonview: NativeElements<HostElement>['masonview'] & { accessibilityOrientation?: 'horizontal' | 'vertical' }
+		masonview: NativeElements<HostElement>['masonview'] & {
+			accessibilityOrientation?: 'horizontal' | 'vertical'
+		}
 		/** AppKit AXHeading metadata; prefer ui's Heading level prop. */
-		label: NativeElements<HostElement>['label'] & { accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6 }
+		label: NativeElements<HostElement>['label'] & {
+			accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6
+		}
 		/** CSS color string for the AppKit placeholder; prefer ui's TextInput placeholderTextColor prop. */
 		textfield: NativeElements<HostElement>['textfield'] & { placeholderTextColor?: string }
 		proxyviewcontainer: Attributes<LogicalElement>

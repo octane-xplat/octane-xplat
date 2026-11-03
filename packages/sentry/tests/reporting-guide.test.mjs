@@ -9,6 +9,7 @@ const compiled = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
 })
+
 function fixture() {
 	let options,
 		captured = 0,
@@ -31,6 +32,7 @@ function fixture() {
 	vm.runInNewContext(compiled, { exports, require: () => sdk })
 	return { helper: exports, options: () => options, captured: () => captured, closed: () => closed }
 }
+
 const config = {
 	dsn: 'https://public@example.test/1',
 	release: 'packing@1+1',

@@ -106,9 +106,5 @@ test('the engine is a universal Mach-O within the app deployment target', () => 
 		)
 	}
 
-	assert.deepEqual(
-		slices,
-		new Set([0x0100000c, 0x01000007]),
-		'expected arm64 and x86_64 slices',
-	)
+	assert.deepEqual(slices, new Set([0x0100000c, 0x01000007]), 'expected arm64 and x86_64 slices')
 })

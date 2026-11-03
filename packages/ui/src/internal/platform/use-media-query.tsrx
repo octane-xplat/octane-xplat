@@ -10,15 +10,18 @@ function readReducedMotion(): boolean {
 	if (Application.ios) {
 		return Boolean(platform.UIAccessibilityIsReduceMotionEnabled?.())
 	}
+
 	if (!platform.android) {
 		return false
 	}
+
 	if (
 		Number(Device.sdkVersion) >= 26 &&
 		platform.android.animation?.ValueAnimator?.areAnimatorsEnabled?.() === false
 	) {
 		return true
 	}
+
 	// `Utils.android` is a {} stub outside a real Android runtime.
 	const context = (Utils.android as any).getApplicationContext()
 	return (
@@ -36,9 +39,11 @@ function observeReducedMotion(notify: () => void): () => void {
 	if (Application.ios) {
 		const name = (globalThis as Record<string, any>)
 			.UIAccessibilityReduceMotionStatusDidChangeNotification
+
 		const observer = Application.ios.addNotificationObserver(name, notify)
 		return () => Application.ios.removeNotificationObserver(observer, name)
 	}
+
 	Application.on(Application.resumeEvent, notify)
 	return () => Application.off(Application.resumeEvent, notify)
 }

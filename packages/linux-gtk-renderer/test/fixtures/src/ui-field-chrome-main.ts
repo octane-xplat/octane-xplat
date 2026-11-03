@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 540,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -34,9 +37,11 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const byClass = (name: string) =>
 	[...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
+
 const fieldOwner = (id: string) => {
 	let owner = node(id).parent
 	while (owner && !owner.cssClasses?.has('vx-field')) {
@@ -47,6 +52,7 @@ const fieldOwner = (id: string) => {
 	}
 	return owner
 }
+
 const near = (actual: number, expected: number) => Math.abs(actual - expected) < 2
 const popup = (anchor: any) => {
 	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling()) {
@@ -56,6 +62,7 @@ const popup = (anchor: any) => {
 	}
 	throw new Error('no native status popover')
 }
+
 let props: Parameters<typeof FieldChrome>[0] = {
 	bareWidth: 260,
 	fieldWidth: '75%',
@@ -65,6 +72,7 @@ let props: Parameters<typeof FieldChrome>[0] = {
 	readOnly: true,
 	size: 'sm',
 }
+
 const render = () => root.render(FieldChrome, props)
 let ack = 0
 const keys = new Gtk.EventControllerKey()
@@ -76,6 +84,7 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 async function phase(phase: string, point?: { x: number; y: number }) {
 	const next = ack + 1
@@ -86,6 +95,7 @@ async function phase(phase: string, point?: { x: number; y: number }) {
 	check('OS phase completed ' + phase, ack >= next)
 	await pause()
 }
+
 let osInput = false
 async function run() {
 	render()
@@ -139,6 +149,7 @@ async function run() {
 		const label = byClass('vx-field-label').find((n) =>
 			n.view?.get_text().startsWith('Account'),
 		)!.view!
+
 		const bounds = label.getBounds()
 		window.set_focus(null)
 		await phase('label', { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 })
@@ -296,11 +307,13 @@ async function run() {
 			'actual Return clears in callback order',
 			actions.join() === 'change:,clear' && bare.get_text() === '',
 		)
+
 		check('clear returns native focus to the input', window.get_focus() === bare.get_delegate())
 		check(
 			'empty uncontrolled input removes clear affordance',
 			byClass('vx-input-clear').length === 0,
 		)
+
 		await phase('info')
 		check('actual Tab reaches field info', window.get_focus() === info.view)
 		const infoPopup = popup(info.parent!.view)
@@ -328,6 +341,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -339,6 +353,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

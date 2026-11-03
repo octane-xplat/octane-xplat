@@ -35,7 +35,14 @@ export { Center } from './components/layout/Center.web.tsrx'
 export { Section } from './components/collections/Section.web.tsrx'
 /** Five-slot page region primitive (Astryx `Layout` + its header/content
  *  regions). AppShell owns the app frame; Layout structures inside it. */
-export { Layout, LayoutHeader, LayoutContent, LayoutFooter, LayoutPanel } from './components/layout/Layout.web.tsrx'
+export {
+	Layout,
+	LayoutHeader,
+	LayoutContent,
+	LayoutFooter,
+	LayoutPanel,
+} from './components/layout/Layout.web.tsrx'
+
 export { AspectRatio } from './components/layout/AspectRatio.web.tsrx'
 export { VisuallyHidden } from './components/content/VisuallyHidden.web.tsrx'
 /** Keyboard focus containment — React Aria's FocusScope. Check
@@ -71,7 +78,12 @@ export { ToggleButton, ToggleButtonGroup } from './components/actions/ToggleButt
 export { ClickableCard } from './components/actions/ClickableCard.web.tsrx'
 export { SelectableCard } from './components/actions/SelectableCard.web.tsrx'
 export { MoreMenu } from './components/overlays/MoreMenu.web.tsrx'
-export { PowerSearch, PowerSearchToken, PowerSearchFilterEditor } from './components/forms/PowerSearch.web.tsrx'
+export {
+	PowerSearch,
+	PowerSearchToken,
+	PowerSearchFilterEditor,
+} from './components/forms/PowerSearch.web.tsrx'
+
 export {
 	createPowerSearchConfig,
 	usePowerSearchConfig,
@@ -211,7 +223,11 @@ export { ListItem } from './components/collections/ListItem.web.tsrx'
 /** Interactive 2D cell collection — React Aria `GridList`/`useGridList`. */
 export { GridList } from './components/collections/GridList.web.tsrx'
 export { useGridList } from './components/collections/use-grid-list.web.tsrx'
-export type { UseGridListOptions, UseGridListResult } from './components/collections/use-grid-list.web.tsrx'
+export type {
+	UseGridListOptions,
+	UseGridListResult,
+} from './components/collections/use-grid-list.web.tsrx'
+
 /** Bounded numeric entry, exported under Astryx's component name. */
 export { InputNumber as NumberInput } from './components/forms/InputNumber.web.tsrx'
 export { PinInput } from './components/forms/PinInput.web.tsrx'
@@ -234,7 +250,12 @@ export { DateInput } from './components/forms/DateInput.web.tsrx'
 export { TimeInput } from './components/forms/TimeInput.web.tsrx'
 export { DateTimeInput } from './components/forms/DateTimeInput.web.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.web.tsrx'
-export { useCalendarDays, useCalendarConstraints, useCalendarNavigation } from './components/forms/calendar-hooks.tsrx'
+export {
+	useCalendarDays,
+	useCalendarConstraints,
+	useCalendarNavigation,
+} from './components/forms/calendar-hooks.tsrx'
+
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
 export type { CalendarDay, CalendarMonthGrid } from './components/forms/calendar-core'
 export type {
@@ -358,7 +379,12 @@ export {
 	useSideNavRenderMode,
 } from './components/navigation/SideNav.web.tsrx'
 
-export { MobileNav, MobileNavToggle, useAppShellMobile } from './components/navigation/MobileNav.web.tsrx'
+export {
+	MobileNav,
+	MobileNavToggle,
+	useAppShellMobile,
+} from './components/navigation/MobileNav.web.tsrx'
+
 export { NavIcon } from './components/navigation/NavIcon.web.tsrx'
 export { NavHeadingMenu, NavHeadingMenuItem } from './components/navigation/NavMenu.web.tsrx'
 export {
@@ -441,7 +467,11 @@ export type {
 	UseResizableSingleConfig,
 } from './props'
 
-export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb.web.tsrx'
+export {
+	Breadcrumb as Breadcrumbs,
+	BreadcrumbItem,
+} from './components/navigation/Breadcrumb.web.tsrx'
+
 export { Pagination } from './components/collections/Pagination.web.tsrx'
 export { Stepper } from './components/collections/Stepper.web.tsrx'
 export { NavigationMenu } from './components/navigation/NavigationMenu.web.tsrx'
@@ -624,7 +654,11 @@ export type { UseTableColumnResizeConfig } from './table/use-table-column-resize
 export type { UseTableFilteringConfig } from './table/use-table-filtering.tsrx'
 export type { UseTableRowIndexConfig } from './table/use-table-row-index.tsrx'
 export type { UseTableRowStatusConfig } from './table/use-table-row-status.tsrx'
-export type { UseTableTreeStateConfig, UseTableTreeStateResult } from './table/use-table-tree-state.tsrx'
+export type {
+	UseTableTreeStateConfig,
+	UseTableTreeStateResult,
+} from './table/use-table-tree-state.tsrx'
+
 export type { UseTableFilterStateResult } from './table/use-table-filter-state'
 export type { ResolvedColumnWidth, ResolvedColumnWidths } from './table/column-utils'
 
@@ -670,6 +704,7 @@ export type {
 	WebViewMessageEvent,
 	WebViewProps,
 } from './props'
+
 export { Overlay } from './components/overlays/Overlay.web.tsrx'
 export { Popover } from './components/overlays/Popover.web.tsrx'
 /** Anchored-layer primitive — anchor-relative (context) or fixed x/y
@@ -678,7 +713,12 @@ export { useLayer } from './components/overlays/use-layer.web.tsrx'
 export { usePopover } from './components/overlays/use-popover.tsrx'
 export { useTooltip } from './components/overlays/use-tooltip.web.tsrx'
 export { useMediaQuery } from './internal/platform/use-media-query.web.tsrx'
-export { LayerProvider, LayerContext, useLayerContext } from './components/overlays/layer-provider.tsrx'
+export {
+	LayerProvider,
+	LayerContext,
+	useLayerContext,
+} from './components/overlays/layer-provider.tsrx'
+
 export { Dialog, DialogHeader } from './components/overlays/Dialog.web.tsrx'
 export { useImperativeDialog } from './components/overlays/use-imperative-dialog.web.tsrx'
 export { AlertDialog } from './components/overlays/AlertDialog.web.tsrx'
@@ -934,22 +974,51 @@ export type {
 // useFocusWithin/useLandmark counterparts. Modality tracking and landmark
 // cycling are web leaves; native leaves keep the same API shape.
 export { useFocus, useFocusRing } from './internal/accessibility/use-focus.tsrx'
-export type { FocusEventPayload, UseFocusOptions, UseFocusRingResult } from './internal/accessibility/use-focus.tsrx'
-export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.web.tsrx'
-export type { FocusInputModality, UseFocusVisibleResult } from './internal/accessibility/use-focus-visible.web.tsrx'
+export type {
+	FocusEventPayload,
+	UseFocusOptions,
+	UseFocusRingResult,
+} from './internal/accessibility/use-focus.tsrx'
+
+export {
+	useFocusVisible,
+	isFocusVisible,
+} from './internal/accessibility/use-focus-visible.web.tsrx'
+
+export type {
+	FocusInputModality,
+	UseFocusVisibleResult,
+} from './internal/accessibility/use-focus-visible.web.tsrx'
+
 export { useFocusWithin } from './internal/accessibility/use-focus-within.web.tsrx'
-export type { UseFocusWithinOptions, UseFocusWithinResult } from './internal/accessibility/use-focus-within.web.tsrx'
+export type {
+	UseFocusWithinOptions,
+	UseFocusWithinResult,
+} from './internal/accessibility/use-focus-within.web.tsrx'
+
 export { useLandmark } from './internal/accessibility/use-landmark.web.tsrx'
-export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark.web.tsrx'
+export type {
+	UseLandmarkOptions,
+	LandmarkProps,
+} from './internal/accessibility/use-landmark.web.tsrx'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './internal/layout/merge-props'
 export { useKeyboardInset } from './internal/keyboard/use-keyboard-inset.web.tsrx'
 export { useKeyboard } from './internal/keyboard/use-keyboard.web'
-export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './internal/keyboard/use-keyboard.web'
+export type {
+	KeyboardEvent,
+	UseKeyboardOptions,
+	UseKeyboardResult,
+} from './internal/keyboard/use-keyboard.web'
+
 export { useObjectRef } from './internal/accessibility/use-object-ref'
 export { useClipboard } from './internal/platform/use-clipboard.tsrx'
-export type { UseClipboardOptions, UseClipboardResult } from './internal/platform/use-clipboard.tsrx'
+export type {
+	UseClipboardOptions,
+	UseClipboardResult,
+} from './internal/platform/use-clipboard.tsrx'
+
 export { copyText } from './internal/platform/clipboard-write.web'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
 export type { FlatRef } from './internal/accessibility/ref-list'

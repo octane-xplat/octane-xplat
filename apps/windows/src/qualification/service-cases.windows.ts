@@ -10,6 +10,7 @@ import {
 	storage,
 	webAuthn,
 } from '@octane-xplat/platform'
+
 import { files } from '@octane-xplat/files'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { Windows } from '@octane-xplat/platform/windows'
@@ -54,6 +55,7 @@ async function randomSpec(): Promise<Record<string, unknown>> {
 		for (const byte of filled.subarray(0, 4096)) {
 			seen.add(byte)
 		}
+
 		filledDistinct = seen.size
 	}
 	let nonViewError = ''
@@ -86,6 +88,7 @@ function storageProbe(): Record<string, unknown> {
 		if (!values) {
 			return { valuesPresent: false }
 		}
+
 		return {
 			valuesPresent: true,
 			hasLookup: typeof values.Lookup === 'function',
@@ -95,7 +98,9 @@ function storageProbe(): Record<string, unknown> {
 			hasFirst: typeof values.First === 'function',
 			hasSize: typeof values.Size === 'number' || typeof values.Size === 'function',
 			ownKeys: Object.getOwnPropertyNames(values).slice(0, 24).join(','),
-			protoKeys: Object.getOwnPropertyNames(Object.getPrototypeOf(values) ?? {}).slice(0, 24).join(','),
+			protoKeys: Object.getOwnPropertyNames(Object.getPrototypeOf(values) ?? {})
+				.slice(0, 24)
+				.join(','),
 		}
 	} catch (error) {
 		return { valuesPresent: false, probeError: String(error) }
@@ -175,7 +180,7 @@ async function filesSpec(): Promise<Record<string, unknown>> {
 	} catch (error) {
 		pickError = String(error)
 	}
-	const exported = await files.export('core20-export.txt', new Uint8Array([1,2,3]))
+	const exported = await files.export('core20-export.txt', new Uint8Array([1, 2, 3]))
 	let released = false
 	try {
 		files.release(draft)
@@ -322,7 +327,9 @@ async function filesChunkSpec(): Promise<Record<string, unknown>> {
 		},
 	}
 	signal.aborted = true
-	for (const listener of listeners) listener()
+	for (const listener of listeners) {
+		listener()
+	}
 	let abortError = ''
 	try {
 		await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
@@ -435,7 +442,16 @@ async function secureDepthSpec(): Promise<Record<string, unknown>> {
 	const readOver = wroteOver ? await secureStorage.get(key) : null
 	const removed = await secureStorage.remove(key)
 	const readAfterRemove = await secureStorage.get(key)
-	return { ...result, wroteEmpty, readEmpty, wroteCtrl, readCtrl, readOver, removed, readAfterRemove }
+	return {
+		...result,
+		wroteEmpty,
+		readEmpty,
+		wroteCtrl,
+		readCtrl,
+		readOver,
+		removed,
+		readAfterRemove,
+	}
 }
 
 /** Sandbox identity: unique write names, cleanup and release ownership. */
@@ -465,7 +481,9 @@ async function mediaDepthSpec(): Promise<Record<string, unknown>> {
 	const view = runtime.NativeScript ?? null
 	return {
 		screen: typeof Screen.mainScreen === 'object' && Screen.mainScreen !== null,
-		pointerDevice: typeof runtime.PointerDevice !== 'undefined' || typeof runtime.Windows?.Devices?.Input?.PointerDevice !== 'undefined',
+		pointerDevice:
+			typeof runtime.PointerDevice !== 'undefined' ||
+			typeof runtime.Windows?.Devices?.Input?.PointerDevice !== 'undefined',
 		uiSettings: typeof runtime.Windows?.UI?.ViewManagement?.UISettings !== 'undefined',
 		nsWidgetsPointer: view && typeof view.Widgets?.PointerDevice !== 'undefined',
 	}
@@ -475,32 +493,77 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
 	try {
 		let result: Record<string, unknown>
 		switch (spec) {
-			case 'clipboard': result = await clipboardSpec(); break
-			case 'random': result = await randomSpec(); break
-			case 'storage': result = await storageSpec(); break
-			case 'storage-persist': result = await storageSpec('persisted-across-launches'); break
-			case 'storage-verify': result = await storageSpec(); break
-			case 'keepawake': result = await keepAwakeSpec(); break
-			case 'connectivity': result = await connectivitySpec(); break
-			case 'device': result = await deviceSpec(); break
-			case 'appinfo': result = await appInfoSpec(); break
-			case 'files': result = await filesSpec(); break
-			case 'corefs': result = await coreFsSpec(); break
-			case 'secure-storage': result = await secureStorageSpec(); break
-			case 'secure-persist': result = await secureStorageSpec('persisted-secure-across-launches'); break
-			case 'secure-verify': result = await secureStorageSpec(); break
-			case 'files-chunk': result = await filesChunkSpec(); break
-			case 'clipboard-nontext': result = await clipboardNontextSpec(); break
-			case 'auth': result = await authSpec(); break
-			case 'window-metrics': result = await windowMetricsSpec(); break
-			case 'files-pickers': result = await filesPickersSpec(); break
-			case 'secure-depth': result = await secureDepthSpec(); break
-			case 'files-identity': result = await filesIdentitySpec(); break
-			case 'media-depth': result = await mediaDepthSpec(); break
+			case 'clipboard':
+				result = await clipboardSpec()
+				break
+			case 'random':
+				result = await randomSpec()
+				break
+			case 'storage':
+				result = await storageSpec()
+				break
+			case 'storage-persist':
+				result = await storageSpec('persisted-across-launches')
+				break
+			case 'storage-verify':
+				result = await storageSpec()
+				break
+			case 'keepawake':
+				result = await keepAwakeSpec()
+				break
+			case 'connectivity':
+				result = await connectivitySpec()
+				break
+			case 'device':
+				result = await deviceSpec()
+				break
+			case 'appinfo':
+				result = await appInfoSpec()
+				break
+			case 'files':
+				result = await filesSpec()
+				break
+			case 'corefs':
+				result = await coreFsSpec()
+				break
+			case 'secure-storage':
+				result = await secureStorageSpec()
+				break
+			case 'secure-persist':
+				result = await secureStorageSpec('persisted-secure-across-launches')
+				break
+			case 'secure-verify':
+				result = await secureStorageSpec()
+				break
+			case 'files-chunk':
+				result = await filesChunkSpec()
+				break
+			case 'clipboard-nontext':
+				result = await clipboardNontextSpec()
+				break
+			case 'auth':
+				result = await authSpec()
+				break
+			case 'window-metrics':
+				result = await windowMetricsSpec()
+				break
+			case 'files-pickers':
+				result = await filesPickersSpec()
+				break
+			case 'secure-depth':
+				result = await secureDepthSpec()
+				break
+			case 'files-identity':
+				result = await filesIdentitySpec()
+				break
+			case 'media-depth':
+				result = await mediaDepthSpec()
+				break
 			default:
 				record('service-error', { spec, message: 'Unknown service spec' })
 				return
 		}
+
 		record('service-result', { spec, ...result })
 	} catch (error) {
 		record('service-error', { spec, message: String(error) })

@@ -205,10 +205,18 @@ test('macOS pending settings cross first host installation without resurrecting 
 	const data = new Map([['obsolete', 'old']])
 	context.__xplatAppKit = {
 		data,
-		storageGet(key) { return this.data.get(key) ?? null },
-		storageSet(key, value) { this.data.set(key, value) },
-		storageRemove(key) { this.data.delete(key) },
-		storageFlush() { return this.data.get('draft') === 'local' },
+		storageGet(key) {
+			return this.data.get(key) ?? null
+		},
+		storageSet(key, value) {
+			this.data.set(key, value)
+		},
+		storageRemove(key) {
+			this.data.delete(key)
+		},
+		storageFlush() {
+			return this.data.get('draft') === 'local'
+		},
 	}
 	assert.equal(api.getString('draft'), 'local')
 	assert.equal(api.getString('obsolete'), null)
@@ -260,7 +268,9 @@ test('macOS pending settings remain with their host and failed writes preserve e
 	api.setString('draft', 'second')
 	context.__xplatAppKit = first
 	assert.equal(api.getString('draft'), 'first')
-	first.storageSet = () => { throw new Error('unavailable') }
+	first.storageSet = () => {
+		throw new Error('unavailable')
+	}
 	assert.throws(() => api.setString('draft', 'failed'), /unavailable/)
 	assert.equal(api.getString('draft'), 'first')
 	assert.throws(() => api.flush(), /unavailable/)
@@ -275,7 +285,9 @@ test('macOS bounded flush retains a newer reentrant write for the next handoff',
 	context.__xplatAppKit = {
 		storageSet(key, value) {
 			data.set(key, value)
-			if (value === 'first') {api.setString(key, 'newer')}
+			if (value === 'first') {
+				api.setString(key, 'newer')
+			}
 		},
 		storageGet: (key) => data.get(key) ?? null,
 	}
@@ -291,17 +303,35 @@ test('macOS retired lifecycle callbacks cannot flush another host, even if unsub
 	let removed = 0
 	let firstFlushes = 0
 	let nextFlushes = 0
-	const { api, context } = load('storage.macos', { __xplatAppKit: {
-		appState: 'active', storageSet() {}, storageFlush() { firstFlushes++; return true },
-		onAppStateChange(listener) {
-			listeners.push(listener)
-			return () => { removed++; throw new Error('cleanup failed') }
+	const { api, context } = load('storage.macos', {
+		__xplatAppKit: {
+			appState: 'active',
+			storageSet() {},
+			storageFlush() {
+				firstFlushes++
+				return true
+			},
+			onAppStateChange(listener) {
+				listeners.push(listener)
+				return () => {
+					removed++
+					throw new Error('cleanup failed')
+				}
+			},
 		},
-	} })
+	})
 	api.setString('draft', 'first')
 	context.__xplatAppKit = {
-		appState: 'active', storageSet() {}, storageFlush() { nextFlushes++; return true },
-		onAppStateChange(listener) { listeners.push(listener); return () => {} },
+		appState: 'active',
+		storageSet() {},
+		storageFlush() {
+			nextFlushes++
+			return true
+		},
+		onAppStateChange(listener) {
+			listeners.push(listener)
+			return () => {}
+		},
 	}
 	api.setString('draft', 'next')
 	assert.equal(removed, 1)
@@ -318,11 +348,19 @@ test('macOS retries failed lifecycle registration and binds methods to their hos
 	let attempts = 0
 	let listener
 	const owner = {
-		appState: 'active', storageSet() { assert.equal(this, owner) },
-		storageFlush() { assert.equal(this, owner); return true },
+		appState: 'active',
+		storageSet() {
+			assert.equal(this, owner)
+		},
+		storageFlush() {
+			assert.equal(this, owner)
+			return true
+		},
 		onAppStateChange(next) {
 			assert.equal(this, owner)
-			if (++attempts === 1) {throw new Error('not ready')}
+			if (++attempts === 1) {
+				throw new Error('not ready')
+			}
 			listener = next
 			next() // Synchronous registration callback is safe.
 			return () => {}
@@ -341,12 +379,21 @@ test('macOS lifecycle follows replaced hooks and keeps flush errors explicit', (
 	const listeners = []
 	let removed = 0
 	const owner = {
-		appState: 'active', storageSet() {}, storageFlush: () => true,
-		onAppStateChange(listener) { listeners.push(listener); return () => { removed++ } },
+		appState: 'active',
+		storageSet() {},
+		storageFlush: () => true,
+		onAppStateChange(listener) {
+			listeners.push(listener)
+			return () => {
+				removed++
+			}
+		},
 	}
 	const { api } = load('storage.macos', { __xplatAppKit: owner })
 	api.setString('draft', 'first')
-	owner.storageFlush = () => { throw new Error('unavailable') }
+	owner.storageFlush = () => {
+		throw new Error('unavailable')
+	}
 	api.setString('draft', 'second')
 	assert.equal(removed, 1)
 	owner.appState = 'inactive'

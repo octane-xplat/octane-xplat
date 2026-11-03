@@ -7,22 +7,36 @@ import ts from 'typescript-classic'
 // Future source models: root dependencies are inert stubs; no native window,
 // status/menu/title bar, renderer, OS preference or installed consumer runs.
 const files = ['system-bars.macos.ts', 'index.macos.ts']
-const compiled = Object.fromEntries(await Promise.all(files.map(async file => [file,
-	ts.transpileModule(await readFile(new URL(`../src/${file}`, import.meta.url), 'utf8'), {
-		fileName: file, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-	}).outputText,
-])))
+const compiled = Object.fromEntries(
+	await Promise.all(
+		files.map(async (file) => [
+			file,
+			ts.transpileModule(await readFile(new URL(`../src/${file}`, import.meta.url), 'utf8'), {
+				fileName: file,
+				compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+			}).outputText,
+		]),
+	),
+)
+
 function load(warn) {
-	const context = vm.createContext({ console: { warn } }), cache = {}
+	const context = vm.createContext({ console: { warn } }),
+		cache = {}
 	function require(name) {
-		const file = files.find(file => './' + file.slice(0, -3) === name)
+		const file = files.find((file) => './' + file.slice(0, -3) === name)
 		if (!file) {
-			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {return {}}
+			if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {
+				return {}
+			}
+
 			throw new Error('Unexpected system-bars import')
 		}
 		if (!cache[file]) {
-			const exports = cache[file] = {}
-			vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(exports, require)
+			const exports = (cache[file] = {})
+			vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(
+				exports,
+				require,
+			)
 		}
 		return cache[file]
 	}
@@ -30,19 +44,26 @@ function load(warn) {
 }
 
 test('AppKit root and purpose expose both shared system-bar methods as the same explicitly unsupported object', () => {
-	const warnings = [], require = load(message => warnings.push(message))
-	const root = require('./index.macos'), leaf = require('./system-bars.macos')
+	const warnings = [],
+		require = load((message) => warnings.push(message))
+	const root = require('./index.macos'),
+		leaf = require('./system-bars.macos')
 	assert.equal(root.systemBars, leaf.systemBars)
 	assert.deepEqual(Object.keys(leaf.systemBars).sort(), ['setColor', 'setStatusBarStyle'])
 	assert.deepEqual(warnings, [])
 	assert.equal(root.systemBars.setStatusBarStyle('light'), undefined)
 	assert.equal(leaf.systemBars.setStatusBarStyle('dark'), undefined)
 	assert.equal(root.systemBars.setColor('private color payload'), undefined)
-	assert.deepEqual(warnings, Array(3).fill('[octane-xplat] System bars are unsupported by the AppKit host.'))
+	assert.deepEqual(
+		warnings,
+		Array(3).fill('[octane-xplat] System bars are unsupported by the AppKit host.'),
+	)
 })
 
 test('AppKit unsupported system-bar calls remain inert when diagnostics fail', () => {
-	const { systemBars } = load(() => { throw new Error('unavailable console') })('./system-bars.macos')
+	const { systemBars } = load(() => {
+		throw new Error('unavailable console')
+	})('./system-bars.macos')
 	assert.doesNotThrow(() => systemBars.setStatusBarStyle('light'))
 	assert.doesNotThrow(() => systemBars.setColor('#123456'))
 })

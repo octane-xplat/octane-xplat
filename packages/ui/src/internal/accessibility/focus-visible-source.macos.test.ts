@@ -15,18 +15,31 @@ function host() {
 			},
 			removeMonitor: (token: string) => removed.push(token),
 		},
-		NSNotificationCenter: { defaultCenter: {
-			addObserverForNameObjectQueueUsingBlock: (_name: string, _object: unknown, _queue: unknown, callback: () => void) => {
-				inactive = callback
-				return 'observer'
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock: (
+					_name: string,
+					_object: unknown,
+					_queue: unknown,
+					callback: () => void,
+				) => {
+					inactive = callback
+					return 'observer'
+				},
+				removeObserver: (token: string) => removed.push(token),
 			},
-			removeObserver: (token: string) => removed.push(token),
-		} },
+		},
 	}
-	return { native, removed, installs: () => installs, event: (type: number, modifierFlags = 0) => {
-		const event = { type, modifierFlags }
-		expect(key(event)).toBe(event)
-	}, inactive: () => inactive() }
+	return {
+		native,
+		removed,
+		installs: () => installs,
+		event: (type: number, modifierFlags = 0) => {
+			const event = { type, modifierFlags }
+			expect(key(event)).toBe(event)
+		},
+		inactive: () => inactive(),
+	}
 }
 
 describe('AppKit input modality source', () => {
@@ -35,9 +48,17 @@ describe('AppKit input modality source', () => {
 		const source = createAppKitFocusVisibleSource(() => env.native)
 		const snapshots: unknown[] = []
 		const off = source.subscribe(() => snapshots.push(source.getSnapshot()))
-		expect(source.getSnapshot()).toEqual({ isSupported: true, isFocusVisible: false, inputModality: 'unknown' })
+		expect(source.getSnapshot()).toEqual({
+			isSupported: true,
+			isFocusVisible: false,
+			inputModality: 'unknown',
+		})
 		env.event(10)
-		expect(source.getSnapshot()).toEqual({ isSupported: true, isFocusVisible: true, inputModality: 'keyboard' })
+		expect(source.getSnapshot()).toEqual({
+			isSupported: true,
+			isFocusVisible: true,
+			inputModality: 'keyboard',
+		})
 		const stable = source.getSnapshot()
 		env.event(10)
 		expect(source.getSnapshot()).toBe(stable)
@@ -54,7 +75,9 @@ describe('AppKit input modality source', () => {
 		const env = host()
 		const source = createAppKitFocusVisibleSource(() => env.native)
 		const off = source.subscribe(() => {})
-		for (const modifier of [1 << 18, 1 << 19, 1 << 20]) {env.event(10, modifier)}
+		for (const modifier of [1 << 18, 1 << 19, 1 << 20]) {
+			env.event(10, modifier)
+		}
 		expect(source.getSnapshot().inputModality).toBe('unknown')
 		env.event(10, 1 << 17) // Shift+Tab remains keyboard input.
 		expect(source.getSnapshot().isFocusVisible).toBe(true)
@@ -99,7 +122,9 @@ describe('AppKit input modality source', () => {
 		expect(missing.getSnapshot().isSupported).toBe(false)
 		off()
 		const env = host()
-		env.native.NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock = () => { throw new Error('registration failed') }
+		env.native.NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock = () => {
+			throw new Error('registration failed')
+		}
 		const source = createAppKitFocusVisibleSource(() => env.native)
 		const cleanup = source.subscribe(() => {})
 		expect(source.getSnapshot().isSupported).toBe(false)
@@ -111,10 +136,15 @@ describe('AppKit input modality source', () => {
 		const env = host()
 		let observed!: (event: { type: number; modifierFlags: number }) => void
 		let released = false
-		const source = createAppKitFocusVisibleSource(() => env.native, (notify) => {
-			observed = notify
-			return () => { released = true }
-		})
+		const source = createAppKitFocusVisibleSource(
+			() => env.native,
+			(notify) => {
+				observed = notify
+				return () => {
+					released = true
+				}
+			},
+		)
 		const off = source.subscribe(() => {})
 		// The ordinary NSEvent monitor may never receive this cancelled key.
 		observed({ type: 10, modifierFlags: 1 << 17 })
@@ -127,21 +157,44 @@ describe('AppKit input modality source', () => {
 
 it('renderer pointer observation updates modality before a consumed context intent and releases its lease', () => {
 	const env = host()
-	let pointer!: (event: { type: number; modifierFlags: number }) => void, released = 0
-	const source = createAppKitFocusVisibleSource(() => env.native, undefined, (notify) => { pointer = notify; return () => { released++ } })
+	let pointer!: (event: { type: number; modifierFlags: number }) => void,
+		released = 0
+	const source = createAppKitFocusVisibleSource(
+		() => env.native,
+		undefined,
+		(notify) => {
+			pointer = notify
+			return () => {
+				released++
+			}
+		},
+	)
 	const off = source.subscribe(() => {})
-	env.event(10); expect(source.getSnapshot().isFocusVisible).toBe(true)
+	env.event(10)
+	expect(source.getSnapshot().isFocusVisible).toBe(true)
 	pointer({ type: 3, modifierFlags: 0 }) // Renderer dispatch observes before context consumption.
 	expect(source.getSnapshot().inputModality).toBe('pointer')
-	env.event(10); env.event(1) // Bridged mode does not rely on the second native pointer monitor.
+	env.event(10)
+	env.event(1) // Bridged mode does not rely on the second native pointer monitor.
 	expect(source.getSnapshot().isFocusVisible).toBe(true)
-	off(); expect(released).toBe(1)
+	off()
+	expect(released).toBe(1)
 })
 
 it('an older bridge without pointer observation retains the existing native pointer path', () => {
-	const env = host(), source = createAppKitFocusVisibleSource(() => env.native, undefined, () => undefined)
+	const env = host(),
+		source = createAppKitFocusVisibleSource(
+			() => env.native,
+			undefined,
+			() => undefined,
+		)
 	const off = source.subscribe(() => {})
-	env.event(10); env.event(1)
-	expect(source.getSnapshot()).toEqual({ isSupported: true, isFocusVisible: false, inputModality: 'pointer' })
+	env.event(10)
+	env.event(1)
+	expect(source.getSnapshot()).toEqual({
+		isSupported: true,
+		isFocusVisible: false,
+		inputModality: 'pointer',
+	})
 	off()
 })

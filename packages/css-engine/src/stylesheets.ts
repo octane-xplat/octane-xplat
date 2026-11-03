@@ -105,7 +105,9 @@ export function stylesheetMediaQueries(): string[] {
 	const out = new Set<string>()
 	const visit = (raw: string | string[] | undefined) => {
 		for (const q of Array.isArray(raw) ? raw : [raw]) {
-			if (q) {out.add(q)}
+			if (q) {
+				out.add(q)
+			}
 		}
 	}
 	for (const id of order) {
@@ -113,9 +115,11 @@ export function stylesheetMediaQueries(): string[] {
 		if (!entry) {
 			continue
 		}
+
 		for (const r of entry.selectors) {
 			visit(r.mediaQueryString)
 		}
+
 		for (const k of entry.keyframes) {
 			visit(k.mediaQueryString)
 		}

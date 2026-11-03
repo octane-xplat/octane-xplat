@@ -14,11 +14,21 @@ describe('restricted native media queries', () => {
 	})
 
 	it('distinguishes desktop pointer/hover from mobile touch traits', () => {
-		for (const query of ['(pointer: fine)', '(any-pointer: fine)', '(hover: hover)', '(any-hover: hover)']) {
+		for (const query of [
+			'(pointer: fine)',
+			'(any-pointer: fine)',
+			'(hover: hover)',
+			'(any-hover: hover)',
+		]) {
 			expect(evaluateNativeMediaQuery(query, desktop)).toBe(true)
 			expect(evaluateNativeMediaQuery(query, touch)).toBe(false)
 		}
-		for (const query of ['(pointer: coarse)', '(any-pointer: coarse)', '(hover: none)', '(any-hover: none)']) {
+		for (const query of [
+			'(pointer: coarse)',
+			'(any-pointer: coarse)',
+			'(hover: none)',
+			'(any-hover: none)',
+		]) {
 			expect(evaluateNativeMediaQuery(query, desktop)).toBe(false)
 			expect(evaluateNativeMediaQuery(query, touch)).toBe(true)
 		}
@@ -30,11 +40,23 @@ describe('restricted native media queries', () => {
 		expect(evaluateNativeMediaQuery('not (pointer: coarse)', desktop)).toBe(true)
 		expect(evaluateNativeMediaQuery('(min-width: 800px) and (hover: hover)', desktop)).toBe(true)
 		expect(evaluateNativeMediaQuery('(pointer: coarse), (min-width: 800px)', desktop)).toBe(true)
-		expect(evaluateNativeMediaQuery('(max-width: 500px) or (min-width: 800px) and (pointer: coarse)', desktop)).toBe(false)
+		expect(
+			evaluateNativeMediaQuery(
+				'(max-width: 500px) or (min-width: 800px) and (pointer: coarse)',
+				desktop,
+			),
+		).toBe(false)
 	})
 
 	it('does not turn unknown features or malformed values into matches', () => {
-		for (const query of ['', '(pointer: banana)', '(hover: banana)', '(orientation: banana)', '(prefers-reduced-motion: reduce)', '(min-width: 8..0px)']) {
+		for (const query of [
+			'',
+			'(pointer: banana)',
+			'(hover: banana)',
+			'(orientation: banana)',
+			'(prefers-reduced-motion: reduce)',
+			'(min-width: 8..0px)',
+		]) {
 			expect(evaluateNativeMediaQuery(query, desktop)).toBe(false)
 		}
 	})

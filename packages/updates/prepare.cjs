@@ -156,6 +156,7 @@ module.exports = async function prepare({
 			'__XPLAT_NATIVE_FINGERPRINT__',
 			fingerprint.hash,
 		)
+
 		source = replaceBlock(source, guard, (text, block) => {
 			const offset = text.search(/int\s+main\s*\(/)
 			if (offset < 0) {
@@ -193,6 +194,7 @@ module.exports = async function prepare({
 			'__XPLAT_NATIVE_FINGERPRINT__',
 			fingerprint.hash,
 		)
+
 		source = replaceBlock(source, guard, (text, block) => {
 			const offset = text.lastIndexOf('}')
 			if (offset < 0) {

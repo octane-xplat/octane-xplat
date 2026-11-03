@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 350,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const errors: unknown[] = []
@@ -24,14 +25,17 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0,
 	ack = 0
+
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
 		throw new Error(name)
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const controller = (view: any) => {
 	const all = view.observe_controllers()
@@ -42,6 +46,7 @@ const controller = (view: any) => {
 	}
 	throw new Error('no toggle keyboard controller')
 }
+
 const down = (view: any, key = Gdk.KEY_space) => controller(view).emit('key-pressed', key, 0, 0)
 const up = (view: any, key = Gdk.KEY_space) => controller(view).emit('key-released', key, 0, 0)
 const keys = new Gtk.EventControllerKey()
@@ -53,6 +58,7 @@ keys.connect('key-pressed', (_: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 async function phase(name: string) {
 	const next = ack + 1
@@ -63,6 +69,7 @@ async function phase(name: string) {
 	check('OS phase completed ' + name, ack >= next)
 	await pause()
 }
+
 let osInput = false
 async function run() {
 	root.render(ToggleControls, {})
@@ -159,6 +166,7 @@ async function run() {
 			'OS Space commits one checkbox change',
 			changes.length === 5 && changes[4][0] === 'checkbox' && changes[4][1] === true,
 		)
+
 		await phase('return')
 		check('OS Return does not toggle checkbox', changes.length === 5)
 		mixed.focus()
@@ -170,6 +178,7 @@ async function run() {
 				changes[5][0] === 'mixed' &&
 				checked(mixed, Gtk.AccessibleTristate.MIXED),
 		)
+
 		toggle.focus()
 		await pause()
 		await phase('space')
@@ -203,6 +212,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -214,6 +224,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

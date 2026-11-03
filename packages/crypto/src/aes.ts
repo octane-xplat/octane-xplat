@@ -12,12 +12,14 @@ import type {
 	ArrayBufferDecryptOptions,
 	Base64DecryptOptions,
 } from './types'
+
 const keys = new WeakMap<AESEncryptionKey, Uint8Array<ArrayBuffer>>()
 type Parts = {
 	iv: Uint8Array<ArrayBuffer>
 	ciphertext: Uint8Array<ArrayBuffer>
 	tag: Uint8Array<ArrayBuffer>
 }
+
 const sealed = new WeakMap<AESSealedData, Parts>()
 function keyBytes(key: AESEncryptionKey): Uint8Array<ArrayBuffer> {
 	const value = keys.get(key)
@@ -26,6 +28,7 @@ function keyBytes(key: AESEncryptionKey): Uint8Array<ArrayBuffer> {
 	}
 	return value.slice()
 }
+
 function size(value: number): asserts value is AESKeySize {
 	if (value !== 128 && value !== 192 && value !== 256) {
 		throw new RangeError('AES key size must be 128, 192 or 256 bits')
@@ -34,16 +37,19 @@ function size(value: number): asserts value is AESKeySize {
 		throw new UnavailabilityError(`Crypto AES-${value} on this host`)
 	}
 }
+
 function tagLength(value: number): asserts value is 16 {
 	if (value !== 16) {
 		throw new UnavailabilityError('Crypto portable AES-GCM requires a 16-byte tag')
 	}
 }
+
 function ivLength(value: number): void {
 	if (value !== 12) {
 		throw new UnavailabilityError('Crypto portable AES-GCM requires a 12-byte nonce')
 	}
 }
+
 /** Exportable in-memory key; this is not a hardware-backed keystore handle. */
 export class AESEncryptionKey {
 	private constructor(bytes: Uint8Array<ArrayBuffer>) {
@@ -67,11 +73,13 @@ export class AESEncryptionKey {
 			if (encoding !== 'hex' && encoding !== 'base64') {
 				throw new TypeError('Key encoding must be hex or base64')
 			}
+
 			bytes = encoding === 'hex' ? decodeHex(value) : decodeBase64(value)
 		} else {
 			if (encoding !== undefined || !(value instanceof Uint8Array)) {
 				throw new TypeError('Expected key bytes or an encoded key string')
 			}
+
 			bytes = binary(value)
 		}
 		size(bytes.length * 8)
@@ -87,6 +95,7 @@ export class AESEncryptionKey {
 		return encoding === 'hex' ? hex(keyBytes(this)) : base64(keyBytes(this))
 	}
 }
+
 function parts(value: AESSealedData): Parts {
 	const result = sealed.get(value)
 	if (!result) {
@@ -94,6 +103,7 @@ function parts(value: AESSealedData): Parts {
 	}
 	return result
 }
+
 /** Portable byte layout is nonce (12) + ciphertext + authentication tag (16). */
 export class AESSealedData {
 	private constructor(
@@ -191,6 +201,7 @@ export class AESSealedData {
 		)
 	}
 }
+
 /** Encrypt binary data; string input must be base64. Leave nonce unset for fresh secure bytes. */
 export async function aesEncryptAsync(
 	plaintext: BinaryInput,
@@ -208,6 +219,7 @@ export async function aesEncryptAsync(
 			if ('bytes' in value.nonce) {
 				throw new TypeError('Choose nonce bytes or nonce length')
 			}
+
 			ivLength(value.nonce.length)
 			iv = getRandomBytes(12)
 		} else if ('bytes' in value.nonce) {
@@ -228,21 +240,25 @@ export async function aesEncryptAsync(
 		material.fill(0)
 	}
 }
+
 export function aesDecryptAsync(
 	data: AESSealedData,
 	key: AESEncryptionKey,
 	value: Base64DecryptOptions,
 ): Promise<string>
+
 export function aesDecryptAsync(
 	data: AESSealedData,
 	key: AESEncryptionKey,
 	value?: ArrayBufferDecryptOptions,
 ): Promise<Uint8Array<ArrayBuffer>>
+
 export function aesDecryptAsync(
 	data: AESSealedData,
 	key: AESEncryptionKey,
 	value?: AESDecryptOptions,
 ): Promise<string | Uint8Array<ArrayBuffer>>
+
 /** Authentication failures reject without returning any plaintext. */
 export async function aesDecryptAsync(
 	data: AESSealedData,

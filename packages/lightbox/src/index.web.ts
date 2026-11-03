@@ -17,13 +17,42 @@ export type {
 } from './props'
 
 import { Lightbox as LightboxImpl } from './Lightbox.web.tsrx'
-import { Backdrop, Close, Description, Next, Popup, Prev, Root, Slide, Title, Trigger, Viewport } from './root.web.tsrx'
+import {
+	Backdrop,
+	Close,
+	Description,
+	Next,
+	Popup,
+	Prev,
+	Root,
+	Slide,
+	Title,
+	Trigger,
+	Viewport,
+} from './root.web.tsrx'
+
 import { Image } from './Image.web.tsrx'
 import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.web.tsrx'
 
 export { useLightbox } from './use-lightbox.web.tsrx'
 export { useLightboxState } from './root.web.tsrx'
-export { Root, Trigger, Popup, Backdrop, Viewport, Slide, Image, Close, Prev, Next, Title, Description, Thumbnails, Thumbnail, ThumbnailIndicator }
+export {
+	Root,
+	Trigger,
+	Popup,
+	Backdrop,
+	Viewport,
+	Slide,
+	Image,
+	Close,
+	Prev,
+	Next,
+	Title,
+	Description,
+	Thumbnails,
+	Thumbnail,
+	ThumbnailIndicator,
+}
 
 /** The convenience viewer with the headless parts as statics —
  *  `Lightbox.Root`, `Lightbox.Trigger`, …. */

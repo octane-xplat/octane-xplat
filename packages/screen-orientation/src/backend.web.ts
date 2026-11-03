@@ -8,8 +8,10 @@ type BrowserOrientation = EventTarget & {
 	lock?: (policy: string) => Promise<void>
 	unlock?: () => void
 }
+
 const orientation = (): BrowserOrientation | undefined =>
 	typeof screen === 'undefined' ? undefined : (screen.orientation as BrowserOrientation)
+
 const required = () => {
 	const value = orientation()
 	if (!value) {
@@ -17,6 +19,7 @@ const required = () => {
 	}
 	return value
 }
+
 const policies: readonly WebLock[] = [
 	'natural',
 	'any',
@@ -27,12 +30,14 @@ const policies: readonly WebLock[] = [
 	'landscape-primary',
 	'landscape-secondary',
 ] as const
+
 const orientations: Record<string, Orientation> = {
 	'portrait-primary': Orientation.PORTRAIT_UP,
 	'portrait-secondary': Orientation.PORTRAIT_DOWN,
 	'landscape-primary': Orientation.LANDSCAPE_LEFT,
 	'landscape-secondary': Orientation.LANDSCAPE_RIGHT,
 }
+
 // Browsers expose no policy getter. UNKNOWN means no successful request by this leaf.
 let lastPolicy: WebLock = WebOrientationLock.UNKNOWN
 let lastLock: OrientationLock = OrientationLock.UNKNOWN
@@ -45,6 +50,7 @@ async function apply(value: WebLock, lock: OrientationLock) {
 	lastPolicy = value
 	lastLock = lock
 }
+
 export const backend: OrientationBackend = {
 	capabilities: () => ({
 		observe: Boolean(orientation()),

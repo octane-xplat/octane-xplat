@@ -6,11 +6,15 @@ import { KVK, postKey, postClick } from '../../tools/probe/appkit-input'
 export default function FocusModalityProbe() {
 	const modality = useFocusVisible()
 	const ring = useFocusRing()
-	return <VStack gap={2}>
-		<TextInput id="modality-input" label="Search" {...ring.focusProps} />
-		<Text id="modality-status">{modality.isSupported ? modality.inputModality : 'unsupported'}</Text>
-		<Text id="modality-ring">{ring.isFocusVisible ? 'visible' : 'hidden'}</Text>
-	</VStack>
+	return (
+		<VStack gap={2}>
+			<TextInput id="modality-input" label="Search" {...ring.focusProps} />
+			<Text id="modality-status">
+				{modality.isSupported ? modality.inputModality : 'unsupported'}
+			</Text>
+			<Text id="modality-ring">{ring.isFocusVisible ? 'visible' : 'hidden'}</Text>
+		</VStack>
+	)
 }
 
 // CGEvent posts drive the modality tracker through sendEvent: posted keys
@@ -18,7 +22,12 @@ export default function FocusModalityProbe() {
 // requires real focus plus keyboard modality.
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('modality-input')?.window)
-	ctx.assert('AppKit input bridge installed', String(ctx.find('modality-status').stringValue) !== 'unsupported', true)
+	ctx.assert(
+		'AppKit input bridge installed',
+		String(ctx.find('modality-status').stringValue) !== 'unsupported',
+		true,
+	)
+
 	ctx.record('initial modality', String(ctx.find('modality-status').stringValue))
 	ctx.record('initial ring state', String(ctx.find('modality-ring').stringValue))
 	const input = ctx.find('modality-input')
@@ -26,7 +35,10 @@ export async function run(ctx: ProbeContext) {
 
 	// Posted key → keyboard modality → focus-visible ring.
 	postKey(KVK.RightArrow)
-	await ctx.waitFor(() => ctx.find('modality-status')?.stringValue === 'keyboard', { timeout: 2000 })
+	await ctx.waitFor(() => ctx.find('modality-status')?.stringValue === 'keyboard', {
+		timeout: 2000,
+	})
+
 	ctx.assert('ring visible on keyboard', String(ctx.find('modality-ring')?.stringValue), 'visible')
 
 	// Posted click → pointer modality → ring hides again.
@@ -36,6 +48,9 @@ export async function run(ctx: ProbeContext) {
 
 	// Back to keyboard.
 	postKey(KVK.LeftArrow)
-	await ctx.waitFor(() => ctx.find('modality-status')?.stringValue === 'keyboard', { timeout: 2000 })
+	await ctx.waitFor(() => ctx.find('modality-status')?.stringValue === 'keyboard', {
+		timeout: 2000,
+	})
+
 	ctx.assert('ring returns on keyboard', String(ctx.find('modality-ring')?.stringValue), 'visible')
 }

@@ -13,11 +13,15 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 	const index = options.index ?? internal
 	const setIndex = useCallback(
 		(i: number) => {
-			if (options.index == null) setInternal(i)
+			if (options.index == null) {
+				setInternal(i)
+			}
+
 			options.onIndexChange?.(i)
 		},
 		[options.index, options.onIndexChange],
 	)
+
 	const open = useCallback(
 		(i = 0) => {
 			setIndex(i)
@@ -25,6 +29,7 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 		},
 		[setIndex],
 	)
+
 	const close = useCallback(() => setIsOpen(false), [])
 
 	const triggers = useState(() => new Map<number, Set<HTMLElement>>())[0]
@@ -34,9 +39,14 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 			set = new Set()
 			triggers.set(i, set)
 		}
-		if (el) set.add(el as HTMLElement)
-		else set.clear()
+
+		if (el) {
+			set.add(el as HTMLElement)
+		} else {
+			set.clear()
+		}
 	}
+
 	const getTriggerProps = useCallback(
 		(i: number): LightboxTriggerProps => ({
 			onPress: () => open(i),
@@ -48,24 +58,24 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
 
 	const element = (
 		<InternalTriggersContext value={triggers}>
-		<Lightbox
-			isOpen={isOpen}
-			onOpenChange={(o: boolean) => {
-				setIsOpen(o)
-				options.onOpenChange?.(o)
-			}}
-			media={options.media}
-			index={index}
-			onIndexChange={setIndex}
-			hasZoom={options.hasZoom}
-			maxZoom={options.maxZoom}
-			hasBackdropDismiss={options.hasBackdropDismiss}
-			hasWheelZoom={options.hasWheelZoom}
-			triggerScroll={options.triggerScroll}
-			transition={options.transition}
-			hasAutoPlay={options.hasAutoPlay}
-			finalFocusRef={options.finalFocusRef}
-		/>
+			<Lightbox
+				isOpen={isOpen}
+				onOpenChange={(o: boolean) => {
+					setIsOpen(o)
+					options.onOpenChange?.(o)
+				}}
+				media={options.media}
+				index={index}
+				onIndexChange={setIndex}
+				hasZoom={options.hasZoom}
+				maxZoom={options.maxZoom}
+				hasBackdropDismiss={options.hasBackdropDismiss}
+				hasWheelZoom={options.hasWheelZoom}
+				triggerScroll={options.triggerScroll}
+				transition={options.transition}
+				hasAutoPlay={options.hasAutoPlay}
+				finalFocusRef={options.finalFocusRef}
+			/>
 		</InternalTriggersContext>
 	)
 

@@ -33,9 +33,11 @@ import type { NSClass } from '@octane-xplat/platform/macos'
 const app = NSApplication.sharedApplication
 
 const externalRunLoop = () =>
-	(globalThis as typeof globalThis & {
-		process?: { env?: Record<string, string | undefined> }
-	}).process?.env?.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
+	(
+		globalThis as typeof globalThis & {
+			process?: { env?: Record<string, string | undefined> }
+		}
+	).process?.env?.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
 
 // The dev harness and the bundled app import this module as separate
 // instances; windowing state is shared through globalThis so delegates
@@ -163,17 +165,17 @@ function sameNativeWindow(left: unknown, right: unknown): boolean {
 		left === right ||
 		Boolean(
 			typeof left === 'object' &&
-				left !== null &&
-				'isEqual' in left &&
-				typeof left.isEqual === 'function' &&
-				left.isEqual(right),
+			left !== null &&
+			'isEqual' in left &&
+			typeof left.isEqual === 'function' &&
+			left.isEqual(right),
 		) ||
 		Boolean(
 			typeof right === 'object' &&
-				right !== null &&
-				'isEqual' in right &&
-				typeof right.isEqual === 'function' &&
-				right.isEqual(left),
+			right !== null &&
+			'isEqual' in right &&
+			typeof right.isEqual === 'function' &&
+			right.isEqual(left),
 		)
 	)
 }
@@ -262,17 +264,19 @@ class AppDelegate extends NSObject {
 
 	applicationDidBecomeActive() {
 		shared.platformServices.appState = 'active'
-		notifyAppKitListeners(shared.platformServices.appStateListeners, listener => listener())
+		notifyAppKitListeners(shared.platformServices.appStateListeners, (listener) => listener())
 	}
 
 	applicationDidResignActive() {
 		shared.platformServices.appState = 'inactive'
-		notifyAppKitListeners(shared.platformServices.appStateListeners, listener => listener())
+		notifyAppKitListeners(shared.platformServices.appStateListeners, (listener) => listener())
 	}
 
 	windowDidResize(notification: any) {
 		const nativeWindow = notification.object
-		notifyAppKitListeners(shared.platformServices.windowResizeListeners, listener => listener(nativeWindow))
+		notifyAppKitListeners(shared.platformServices.windowResizeListeners, (listener) =>
+			listener(nativeWindow),
+		)
 	}
 
 	applicationOpenURLs(_application: any, urls: any) {
@@ -281,7 +285,9 @@ class AppDelegate extends NSObject {
 			if (shared.platformServices.deepLinkListeners.size === 0) {
 				shared.platformServices.pendingUrls.push(string)
 			} else {
-				notifyAppKitListeners(shared.platformServices.deepLinkListeners, listener => listener(string))
+				notifyAppKitListeners(shared.platformServices.deepLinkListeners, (listener) =>
+					listener(string),
+				)
 			}
 		}
 	}
@@ -375,151 +381,161 @@ function installPlatformServices() {
 	const info = NSBundle.mainBundle.infoDictionary ?? {}
 	let windowSizeSnapshot: (WindowSize & { orientation: 'portrait' | 'landscape' }) | undefined
 	// Assigning would evaluate accessors once and freeze these live values.
-	Object.defineProperties(bridge, Object.getOwnPropertyDescriptors({
-		appInfo: {
-			supported: true,
-			version: (info as any).CFBundleShortVersionString ?? null,
-			build: (info as any).CFBundleVersion ?? null,
-			bundleId: NSBundle.mainBundle.bundleIdentifier ?? null,
-		},
-		get appState() {
-			return services.appState
-		},
-		get windowSize() {
-			const window =
-				services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
+	Object.defineProperties(
+		bridge,
+		Object.getOwnPropertyDescriptors({
+			appInfo: {
+				supported: true,
+				version: (info as any).CFBundleShortVersionString ?? null,
+				build: (info as any).CFBundleVersion ?? null,
+				bundleId: NSBundle.mainBundle.bundleIdentifier ?? null,
+			},
+			get appState() {
+				return services.appState
+			},
+			get windowSize() {
+				const window =
+					services.primaryWindow ?? app.keyWindow ?? app.mainWindow ?? app.windows?.firstObject
 
-			const size = window?.contentView?.bounds?.size ?? window?.contentView?.frame?.size ??
-				window?.frame?.size ?? { width: 0, height: 0 }
-			const width = Number(size.width ?? 0)
-			const height = Number(size.height ?? 0)
-			if (!windowSizeSnapshot || windowSizeSnapshot.width !== width || windowSizeSnapshot.height !== height) {
-				windowSizeSnapshot = {
-					width,
-					height,
-					orientation: width >= height ? 'landscape' : 'portrait',
+				const size = window?.contentView?.bounds?.size ??
+					window?.contentView?.frame?.size ??
+					window?.frame?.size ?? { width: 0, height: 0 }
+				const width = Number(size.width ?? 0)
+				const height = Number(size.height ?? 0)
+				if (
+					!windowSizeSnapshot ||
+					windowSizeSnapshot.width !== width ||
+					windowSizeSnapshot.height !== height
+				) {
+					windowSizeSnapshot = {
+						width,
+						height,
+						orientation: width >= height ? 'landscape' : 'portrait',
+					}
 				}
-			}
-			return windowSizeSnapshot
-		},
-		announce(text: string) {
-			if (shared.running) {
-				announceAppKit(text, app)
-			}
-		},
-		readClipboard() {
-			const value = NSPasteboard.generalPasteboard.stringForType('public.utf8-plain-text')
-			return value == null ? null : String(value)
-		},
-		writeClipboard(value: string) {
-			const pasteboard = NSPasteboard.generalPasteboard
-			pasteboard.clearContents()
-			return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
-		},
-		shareContent({
-			text,
-			url,
-			title,
-			file,
-		}: {
-			text?: string
-			url?: string
-			title?: string
-			file?: string
-		}) {
-			const anchor = services.primaryWindow?.contentView
-			if (!anchor || typeof NSSharingServicePicker === 'undefined') {
-				return 'unavailable'
-			}
-
-			try {
-				let items
-				if (typeof file === 'string') {
-					if (!NSFileManager.defaultManager.fileExistsAtPath(file)) {
-						return 'unavailable'
-					}
-
-					items = [NSURL.fileURLWithPath(file)]
-				} else if (typeof url === 'string') {
-					const nativeUrl = NSURL.URLWithString(url)
-					if (!nativeUrl) {
-						return 'unavailable'
-					}
-
-					items = [nativeUrl, String(title ?? url)]
-				} else if (typeof text === 'string') {
-					items = [text]
-				} else {
+				return windowSizeSnapshot
+			},
+			announce(text: string) {
+				if (shared.running) {
+					announceAppKit(text, app)
+				}
+			},
+			readClipboard() {
+				const value = NSPasteboard.generalPasteboard.stringForType('public.utf8-plain-text')
+				return value == null ? null : String(value)
+			},
+			writeClipboard(value: string) {
+				const pasteboard = NSPasteboard.generalPasteboard
+				pasteboard.clearContents()
+				return Boolean(pasteboard.setStringForType(String(value), 'public.utf8-plain-text'))
+			},
+			shareContent({
+				text,
+				url,
+				title,
+				file,
+			}: {
+				text?: string
+				url?: string
+				title?: string
+				file?: string
+			}) {
+				const anchor = services.primaryWindow?.contentView
+				if (!anchor || typeof NSSharingServicePicker === 'undefined') {
 					return 'unavailable'
 				}
 
-				const picker = NSSharingServicePicker.alloc().initWithItems(items)
-				const bounds = anchor.bounds
-				const rect = {
-					origin: {
-						x: bounds.origin.x + bounds.size.width / 2,
-						y: bounds.origin.y + bounds.size.height / 2,
-					},
-					size: { width: 0, height: 0 },
+				try {
+					let items
+					if (typeof file === 'string') {
+						if (!NSFileManager.defaultManager.fileExistsAtPath(file)) {
+							return 'unavailable'
+						}
+
+						items = [NSURL.fileURLWithPath(file)]
+					} else if (typeof url === 'string') {
+						const nativeUrl = NSURL.URLWithString(url)
+						if (!nativeUrl) {
+							return 'unavailable'
+						}
+
+						items = [nativeUrl, String(title ?? url)]
+					} else if (typeof text === 'string') {
+						items = [text]
+					} else {
+						return 'unavailable'
+					}
+
+					const picker = NSSharingServicePicker.alloc().initWithItems(items)
+					const bounds = anchor.bounds
+					const rect = {
+						origin: {
+							x: bounds.origin.x + bounds.size.width / 2,
+							y: bounds.origin.y + bounds.size.height / 2,
+						},
+						size: { width: 0, height: 0 },
+					}
+
+					const edges: Record<string, number> =
+						typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
+
+					picker.showRelativeToRectOfViewPreferredEdge(rect, anchor, edges.MinYEdge ?? 1)
+					return 'shared'
+				} catch (error) {
+					console.error('[macos] share picker presentation failed', error)
+					return 'unavailable'
+				}
+			},
+			openUrl(url: string) {
+				const target = NSURL.URLWithString(String(url))
+				if (!target) {
+					return false
 				}
 
-				const edges: Record<string, number> =
-					typeof NSRectEdge === 'object' && NSRectEdge ? NSRectEdge : {}
-
-				picker.showRelativeToRectOfViewPreferredEdge(rect, anchor, edges.MinYEdge ?? 1)
-				return 'shared'
-			} catch (error) {
-				console.error('[macos] share picker presentation failed', error)
-				return 'unavailable'
-			}
-		},
-		openUrl(url: string) {
-			const target = NSURL.URLWithString(String(url))
-			if (!target) {
-				return false
-			}
-
-			return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
-		},
-		openPath(path: string) {
-			return Boolean(NSWorkspace.sharedWorkspace.openURL(NSURL.fileURLWithPath(String(path))))
-		},
-		storageGet(key: string) {
-			const value = NSUserDefaults.standardUserDefaults.stringForKey(String(key))
-			return value == null ? null : String(value)
-		},
-		storageSet(key: string, value: string) {
-			NSUserDefaults.standardUserDefaults.setObjectForKey(String(value), String(key))
-		},
-		storageRemove(key: string) {
-			NSUserDefaults.standardUserDefaults.removeObjectForKey(String(key))
-		},
-		storageFlush() {
-			return Boolean(NSUserDefaults.standardUserDefaults.synchronize())
-		},
-		onAppStateChange(listener: () => void) {
-			return subscribeAppKitEvent(services.appStateListeners, listener).dispose
-		},
-		onWindowResize(listener: (window?: NSWindow) => void) {
-			return subscribeAppKitEvent(services.windowResizeListeners, listener).dispose
-		},
-		onDeepLink(listener: (url: string) => void) {
-			const registration = subscribeAppKitEvent(services.deepLinkListeners, listener)
-			const pending = services.pendingUrls.splice(0)
-			for (const [index, url] of pending.entries()) {
-				try { registration.dispatch(url) } catch (error) {
-					registration.dispose()
-					// Restore the failed and unattempted URLs before any newer queue.
-					services.pendingUrls = pending.slice(index).concat(services.pendingUrls)
-					throw error
+				return Boolean(NSWorkspace.sharedWorkspace.openURL(target))
+			},
+			openPath(path: string) {
+				return Boolean(NSWorkspace.sharedWorkspace.openURL(NSURL.fileURLWithPath(String(path))))
+			},
+			storageGet(key: string) {
+				const value = NSUserDefaults.standardUserDefaults.stringForKey(String(key))
+				return value == null ? null : String(value)
+			},
+			storageSet(key: string, value: string) {
+				NSUserDefaults.standardUserDefaults.setObjectForKey(String(value), String(key))
+			},
+			storageRemove(key: string) {
+				NSUserDefaults.standardUserDefaults.removeObjectForKey(String(key))
+			},
+			storageFlush() {
+				return Boolean(NSUserDefaults.standardUserDefaults.synchronize())
+			},
+			onAppStateChange(listener: () => void) {
+				return subscribeAppKitEvent(services.appStateListeners, listener).dispose
+			},
+			onWindowResize(listener: (window?: NSWindow) => void) {
+				return subscribeAppKitEvent(services.windowResizeListeners, listener).dispose
+			},
+			onDeepLink(listener: (url: string) => void) {
+				const registration = subscribeAppKitEvent(services.deepLinkListeners, listener)
+				const pending = services.pendingUrls.splice(0)
+				for (const [index, url] of pending.entries()) {
+					try {
+						registration.dispatch(url)
+					} catch (error) {
+						registration.dispose()
+						// Restore the failed and unattempted URLs before any newer queue.
+						services.pendingUrls = pending.slice(index).concat(services.pendingUrls)
+						throw error
+					}
 				}
-			}
-			return registration.dispose
-		},
-		consumeInitialUrl() {
-			return services.pendingUrls.shift() ?? null
-		},
-	}))
+				return registration.dispose
+			},
+			consumeInitialUrl() {
+				return services.pendingUrls.shift() ?? null
+			},
+		}),
+	)
 }
 
 try {

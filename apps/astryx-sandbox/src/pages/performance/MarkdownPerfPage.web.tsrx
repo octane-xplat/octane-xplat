@@ -28,6 +28,7 @@ import {
 	generateMarkdownFixture,
 	nextStreamOffset,
 } from './markdown-benchmark'
+
 import {
 	getMarkdownBenchmarkPlugins,
 	getMarkdownBenchmarkProfile,
@@ -68,10 +69,7 @@ function formatCount(value: number | null): string {
 	return value == null ? '—' : value.toLocaleString()
 }
 
-function formatFrameCounts(
-	frames: number | null,
-	droppedFrames: number | null,
-): string {
+function formatFrameCounts(frames: number | null, droppedFrames: number | null): string {
 	return frames == null || droppedFrames == null
 		? '—'
 		: `${frames.toLocaleString()} / ${droppedFrames.toLocaleString()}`
@@ -118,21 +116,13 @@ export function MarkdownPerfPage() {
 
 	const profile = getMarkdownBenchmarkProfile(profileId)
 	const plugins = getMarkdownBenchmarkPlugins(profile, pipeline)
-	const baseFixture = useMemo(
-		() => generateMarkdownFixture(Number(sectionCount)),
-		[sectionCount],
-	)
+	const baseFixture = useMemo(() => generateMarkdownFixture(Number(sectionCount)), [sectionCount])
 	const fixture = useMemo(
 		() => profile.prepareSource(baseFixture, claimDensity),
 		[baseFixture, claimDensity, profile],
 	)
-	const currentComparisonKey = comparisonKey(
-		profileId,
-		claimDensity,
-		mode,
-		sectionCount,
-		burstSize,
-	)
+
+	const currentComparisonKey = comparisonKey(profileId, claimDensity, mode, sectionCount, burstSize)
 	const baseline = baselines[currentComparisonKey]
 
 	const stopTimers = useCallback(() => {
@@ -140,14 +130,17 @@ export function MarkdownPerfPage() {
 			clearTimeout(feedTimerRef.current)
 			feedTimerRef.current = null
 		}
+
 		if (settleTimerRef.current != null) {
 			clearTimeout(settleTimerRef.current)
 			settleTimerRef.current = null
 		}
+
 		if (resetFrameRef.current != null) {
 			cancelAnimationFrame(resetFrameRef.current)
 			resetFrameRef.current = null
 		}
+
 		cancelAnimationFrame(frameRef.current.id)
 	}, [])
 
@@ -155,6 +148,7 @@ export function MarkdownPerfPage() {
 		if (!runningRef.current) {
 			return
 		}
+
 		runningRef.current = false
 		setIsRunning(false)
 		cancelAnimationFrame(frameRef.current.id)
@@ -165,6 +159,7 @@ export function MarkdownPerfPage() {
 			frames: frameRef.current.frames,
 			droppedFrames: frameRef.current.dropped,
 		}
+
 		setMetrics(nextMetrics)
 		const activeRun = activeRunRef.current
 		if (activeRun?.pipeline === 'baseline') {
@@ -179,9 +174,11 @@ export function MarkdownPerfPage() {
 		if (!producerDoneRef.current || !runningRef.current) {
 			return
 		}
+
 		if (settleTimerRef.current != null) {
 			clearTimeout(settleTimerRef.current)
 		}
+
 		settleTimerRef.current = setTimeout(finish, SETTLE_DELAY_MS)
 	}, [finish])
 
@@ -190,10 +187,12 @@ export function MarkdownPerfPage() {
 		if (surface == null) {
 			return
 		}
+
 		const observer = new MutationObserver(() => {
 			if (!runningRef.current) {
 				return
 			}
+
 			mutationBatchesRef.current += 1
 			firstPaintRef.current ??= performance.now() - startTimeRef.current
 			setMetrics((current) => ({
@@ -201,13 +200,16 @@ export function MarkdownPerfPage() {
 				firstPaintMs: firstPaintRef.current,
 				mutationBatches: mutationBatchesRef.current,
 			}))
+
 			scheduleFinish()
 		})
+
 		observer.observe(surface, {
 			childList: true,
 			subtree: true,
 			characterData: true,
 		})
+
 		return () => observer.disconnect()
 	}, [scheduleFinish])
 
@@ -230,13 +232,16 @@ export function MarkdownPerfPage() {
 			if (!runningRef.current) {
 				return
 			}
+
 			frameState.frames += 1
 			if (now - frameState.previous > 20) {
 				frameState.dropped += 1
 			}
+
 			frameState.previous = now
 			frameState.id = requestAnimationFrame(measureFrame)
 		}
+
 		frameState.id = requestAnimationFrame(measureFrame)
 	}, [])
 
@@ -279,10 +284,12 @@ export function MarkdownPerfPage() {
 						feedTimerRef.current = setTimeout(feed, BURST_INTERVAL_MS)
 						return
 					}
+
 					producerDoneRef.current = true
 					setIsStreaming(false)
 					scheduleFinish()
 				}
+
 				feed()
 			})
 		})
@@ -305,9 +312,7 @@ export function MarkdownPerfPage() {
 	}, [stopTimers])
 
 	const progress =
-		fixture.length === 0
-			? 0
-			: Math.round((renderedSource.length / fixture.length) * 100)
+		fixture.length === 0 ? 0 : Math.round((renderedSource.length / fixture.length) * 100)
 
 	return (
 		<AppShell contentPadding={4} height="fill">
@@ -315,9 +320,8 @@ export function MarkdownPerfPage() {
 				<VStack gap={1}>
 					<Heading level={2}>Markdown Performance</Heading>
 					<Text type="body" color="secondary">
-						Compare a complete render with bursty streamed input while observing
-						first paint, total completion, DOM mutation batches, and dropped
-						animation frames.
+						Compare a complete render with bursty streamed input while observing first paint, total
+						completion, DOM mutation batches, and dropped animation frames.
 					</Text>
 				</VStack>
 
@@ -326,27 +330,19 @@ export function MarkdownPerfPage() {
 						<SegmentedControl
 							label="Plugin profile"
 							value={profileId}
-							onValueChange={(value) =>
-								setProfileId(value as MarkdownBenchmarkProfileId)
-							}
+							onValueChange={(value) => setProfileId(value as MarkdownBenchmarkProfileId)}
 							isDisabled={isRunning}
 							disabledMessage="Stop the active run before changing profiles."
 							size="sm"
 						>
 							{MARKDOWN_BENCHMARK_PROFILES.map((entry) => (
-								<SegmentedControlItem
-									key={entry.id}
-									value={entry.id}
-									label={entry.label}
-								/>
+								<SegmentedControlItem key={entry.id} value={entry.id} label={entry.label} />
 							))}
 						</SegmentedControl>
 						<SegmentedControl
 							label="Pipeline"
 							value={pipeline}
-							onValueChange={(value) =>
-								setPipeline(value as MarkdownBenchmarkPipeline)
-							}
+							onValueChange={(value) => setPipeline(value as MarkdownBenchmarkPipeline)}
 							isDisabled={isRunning}
 							disabledMessage="Stop the active run before changing pipelines."
 							size="sm"
@@ -357,9 +353,7 @@ export function MarkdownPerfPage() {
 						<SegmentedControl
 							label="Claim density"
 							value={claimDensity}
-							onValueChange={(value) =>
-								setClaimDensity(value as MarkdownBenchmarkClaimDensity)
-							}
+							onValueChange={(value) => setClaimDensity(value as MarkdownBenchmarkClaimDensity)}
 							isDisabled={isRunning}
 							disabledMessage="Stop the active run before changing claim density."
 							size="sm"
@@ -404,11 +398,7 @@ export function MarkdownPerfPage() {
 							size="sm"
 						>
 							{BURST_OPTIONS.map((value) => (
-								<SegmentedControlItem
-									key={value}
-									value={value}
-									label={`${value} chars`}
-								/>
+								<SegmentedControlItem key={value} value={value} label={`${value} chars`} />
 							))}
 						</SegmentedControl>
 						<Button
@@ -442,20 +432,14 @@ export function MarkdownPerfPage() {
 									<Text type="label">First paint</Text>
 									<Text type="code">
 										{formatDuration(metrics.firstPaintMs)} ·{' '}
-										{formatBenchmarkChange(
-											metrics.firstPaintMs,
-											baseline?.firstPaintMs ?? null,
-										)}
+										{formatBenchmarkChange(metrics.firstPaintMs, baseline?.firstPaintMs ?? null)}
 									</Text>
 								</VStack>
 								<VStack gap={0.5}>
 									<Text type="label">Complete</Text>
 									<Text type="code">
 										{formatDuration(metrics.completeMs)} ·{' '}
-										{formatBenchmarkChange(
-											metrics.completeMs,
-											baseline?.completeMs ?? null,
-										)}
+										{formatBenchmarkChange(metrics.completeMs, baseline?.completeMs ?? null)}
 									</Text>
 								</VStack>
 								<VStack gap={0.5}>
@@ -472,20 +456,15 @@ export function MarkdownPerfPage() {
 									<Text type="label">Frames / drops</Text>
 									<Text type="code">
 										{formatFrameCounts(metrics.frames, metrics.droppedFrames)} ·{' '}
-										{formatBenchmarkChange(
-											metrics.droppedFrames,
-											baseline?.droppedFrames ?? null,
-										)}
+										{formatBenchmarkChange(metrics.droppedFrames, baseline?.droppedFrames ?? null)}
 									</Text>
 								</VStack>
 							</Grid>
 							<Text type="body" color="secondary">
-								Each metric includes its change from the latest matching
-								baseline. For each workload and density, run the Empty pipeline
-								before the Plugin pipeline. A dropped frame is a measured
-								animation-frame gap over 20 ms. Completion waits for the
-								rendered subtree to stay unchanged for 180 ms after the final
-								source burst.
+								Each metric includes its change from the latest matching baseline. For each workload
+								and density, run the Empty pipeline before the Plugin pipeline. A dropped frame is a
+								measured animation-frame gap over 20 ms. Completion waits for the rendered subtree
+								to stay unchanged for 180 ms after the final source burst.
 							</Text>
 						</VStack>
 					</Card>
@@ -493,11 +472,7 @@ export function MarkdownPerfPage() {
 					<Card padding={4}>
 						<div ref={surfaceRef}>
 							{plugins.length === 0 ? (
-								<Markdown
-									key={runKey}
-									isStreaming={isStreaming}
-									contentWidth={760}
-								>
+								<Markdown key={runKey} isStreaming={isStreaming} contentWidth={760}>
 									{renderedSource}
 								</Markdown>
 							) : (

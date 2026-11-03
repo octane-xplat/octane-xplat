@@ -9,10 +9,12 @@ interface NativeSheet {
 	reset(): boolean
 	handleURL(value: string): boolean
 }
+
 type NativeConstructor = { new: () => NativeSheet }
 function constructor(): NativeConstructor | undefined {
 	return lookupGlobal(['XplatStripePaymentSheet']) as NativeConstructor | undefined
 }
+
 let sheet: NativeSheet | undefined
 let configuration: InitStripeParams | undefined
 export const backend: StripeBackend = {

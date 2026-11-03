@@ -9,10 +9,7 @@ export interface NativeMediaTraits {
 }
 
 /** Evaluate one `(feature: value)` term against explicit host traits. */
-function evalTerm(
-	term: string,
-	traits: NativeMediaTraits,
-): boolean {
+function evalTerm(term: string, traits: NativeMediaTraits): boolean {
 	const negated = /^not\s+/i.test(term)
 	const body = term
 		.replace(/^not\s+/i, '')
@@ -30,9 +27,17 @@ function evalTerm(
 		const name = (feature ? feature[1] : body).toLowerCase()
 		const value = (feature?.[2] ?? '').toLowerCase()
 		if (name === 'pointer' || name === 'any-pointer') {
-			result = value === '' ? true : value === 'coarse' ? traits.coarse : value === 'fine' ? !traits.coarse : false
+			result =
+				value === ''
+					? true
+					: value === 'coarse'
+						? traits.coarse
+						: value === 'fine'
+							? !traits.coarse
+							: false
 		} else if (name === 'hover' || name === 'any-hover') {
-			result = value === '' || value === 'hover' ? traits.hover : value === 'none' ? !traits.hover : false
+			result =
+				value === '' || value === 'hover' ? traits.hover : value === 'none' ? !traits.hover : false
 		} else if (name === 'prefers-reduced-motion') {
 			result =
 				value === 'reduce' || value === ''
@@ -41,7 +46,10 @@ function evalTerm(
 						? traits.reducedMotion === false
 						: false
 		} else if (name === 'orientation') {
-			result = value === 'landscape' ? traits.width > traits.height : value === 'portrait' && traits.height >= traits.width
+			result =
+				value === 'landscape'
+					? traits.width > traits.height
+					: value === 'portrait' && traits.height >= traits.width
 		} else if (name === 'width') {
 			result = true
 		} else if (name === 'height') {

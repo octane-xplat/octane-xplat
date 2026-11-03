@@ -36,9 +36,7 @@ const load: Promise<unknown> = (async () => {
 
 const persist = (): void => {
 	const snapshot = JSON.stringify([...entries])
-	writeTail = load
-		.then(() => File.fromPath(storePath()).writeText(snapshot))
-		.catch(() => {})
+	writeTail = load.then(() => File.fromPath(storePath()).writeText(snapshot)).catch(() => {})
 }
 
 export const storage = {
@@ -51,7 +49,9 @@ export const storage = {
 		persist()
 	},
 	remove: (key: string): void => {
-		if (entries.delete(key)) persist()
+		if (entries.delete(key)) {
+			persist()
+		}
 	},
 	/** False: persistence is asynchronous; no blocking commit is exposed. */
 	flush: (): boolean => false,

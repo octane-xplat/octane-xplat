@@ -26,12 +26,14 @@ function loadFramework(path: string): boolean {
 		return false
 	}
 }
+
 function manager(): typeof ATTrackingManager {
 	if (!loadFramework('/System/Library/Frameworks/AppTrackingTransparency.framework')) {
 		return undefined
 	}
 	return typeof ATTrackingManager === 'undefined' ? undefined : ATTrackingManager
 }
+
 function identifiers(): typeof ASIdentifierManager | undefined {
 	if (!loadFramework('/System/Library/Frameworks/AdSupport.framework')) {
 		return undefined
@@ -75,6 +77,7 @@ export const backend: TrackingBackend = {
 						'Configure NSUserTrackingUsageDescription in Info.plist and rebuild before requesting tracking',
 					),
 				)
+
 				return
 			}
 			if (Number(UIApplication.sharedApplication.applicationState) !== applicationStateActive) {

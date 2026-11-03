@@ -116,7 +116,7 @@ describe('parseMessageBatch', () => {
 		expect(parseMessageBatch('[{"type":"ready"},2]')).toEqual([{ type: 'ready' }, 2])
 	})
 
-	it('unwraps Android\'s JSON-encoded transport result first', () => {
+	it("unwraps Android's JSON-encoded transport result first", () => {
 		expect(parseMessageBatch('"[{\\"type\\":\\"ready\\"}]"', true)).toEqual([{ type: 'ready' }])
 	})
 

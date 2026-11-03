@@ -15,10 +15,7 @@ export interface GtkWindowServiceController {
 	setSize(size: { width: number; height: number }): void
 }
 
-type WindowContentResolver = (
-	data: unknown,
-	controller: GtkWindowServiceController,
-) => unknown
+type WindowContentResolver = (data: unknown, controller: GtkWindowServiceController) => unknown
 
 export interface GtkWindowService {
 	openWindow(options?: Record<string, any>): GtkWindowServiceController
@@ -75,8 +72,7 @@ export function createGtkWindowService(deps: {
 		if (parentOption?.isClosed === true) {
 			throw new Error('openWindow cannot use a closed parent window')
 		}
-		const rawParent =
-			parentOption && 'window' in parentOption ? parentOption.window : parentOption
+		const rawParent = parentOption && 'window' in parentOption ? parentOption.window : parentOption
 		if (rawParent != null && !(rawParent instanceof Gtk.Window)) {
 			throw new TypeError('openWindow parent must be a Gtk.Window or window controller')
 		}
@@ -164,6 +160,7 @@ export function createGtkWindowService(deps: {
 			try {
 				win.destroy()
 			} catch {}
+
 			throw new Error(
 				options.component == null
 					? 'Install a window content resolver before calling openWindow() — the GTK host bridge exposes setWindowContentResolver'

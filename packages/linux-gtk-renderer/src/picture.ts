@@ -33,6 +33,7 @@ function httpBytes(uri: string, cancellable: any): Promise<any> {
 							if (status < 200 || status >= 300) {
 								throw new Error('Image HTTP status ' + status)
 							}
+
 							resolve(bytes)
 						} catch (error) {
 							reject(error)
@@ -51,10 +52,12 @@ function dataBytes(body: string): Uint8Array {
 			bytes.push(raw[i])
 			continue
 		}
+
 		const pair = String.fromCharCode(raw[i + 1] ?? 0, raw[i + 2] ?? 0)
 		if (!/^[0-9a-f]{2}$/i.test(pair)) {
 			throw new Error('Invalid image data URI escape')
 		}
+
 		bytes.push(Number.parseInt(pair, 16))
 		i += 2
 	}
@@ -70,6 +73,7 @@ async function sourceBytes(source: string, cancellable: any, bundleUrl: string):
 		if (comma < 0) {
 			throw new Error('Invalid image data URI')
 		}
+
 		const header = source.slice(0, comma)
 		const body = source.slice(comma + 1)
 		return new GLib.Bytes(/;base64$/i.test(header) ? GLib.base64_decode(body) : dataBytes(body))
@@ -203,7 +207,9 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 		setSource,
 		restyle: renderSvg,
 		setPlaceholder(value: unknown) {
-			if (disposed) { return }
+			if (disposed) {
+				return
+			}
 			placeholderSource = value
 			if (value == null || value === '') {
 				placeholderTexture = null
@@ -211,14 +217,18 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
 			}
 			sourceBytes(String(value), null, bundleUrl)
 				.then((bytes) => {
-					if (disposed || !bytes) { return }
+					if (disposed || !bytes) {
+						return
+					}
 					placeholderTexture = Gdk.Texture.new_from_bytes(bytes)
 					if (view.isLoading && !view.imageSource) {
 						view.set_paintable(placeholderTexture)
 						view.imageSource = placeholderTexture
 					}
 				})
-				.catch(() => { placeholderTexture = null })
+				.catch(() => {
+					placeholderTexture = null
+				})
 		},
 		setStretch(value: unknown) {
 			const modes: Record<string, number> = {

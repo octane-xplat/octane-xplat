@@ -8,6 +8,7 @@ interface Policy {
 	mask: number
 	lock: OrientationLock
 }
+
 const masks: readonly number[] = [26, 30, 6, 2, 4, 24, 16, 8] as const
 // UIKit interface landscapeLeft=4 and landscapeRight=3, opposite the
 // UIDevice sensor constants. Expo retains the interface left/right names.
@@ -18,6 +19,7 @@ const changed = new Set<() => void>()
 function currentWindow() {
 	return Application.primaryWindow?.ios?.uiWindow
 }
+
 function required(): UIWindow {
 	const window = currentWindow()
 	if (!window?.windowScene) {
@@ -25,6 +27,7 @@ function required(): UIWindow {
 	}
 	return window
 }
+
 function declaredMask(window: UIWindow | null): number {
 	const tablet = window?.traitCollection.userInterfaceIdiom === 2 /* UIUserInterfaceIdiom.pad */
 	const bundle = NSBundle.mainBundle
@@ -46,6 +49,7 @@ function declaredMask(window: UIWindow | null): number {
 	}
 	return mask
 }
+
 function configured(window: UIWindow): boolean {
 	if (!window.windowScene || Number(UIDevice.currentDevice.systemVersion.split('.')[0]) < 16) {
 		return false
@@ -54,6 +58,7 @@ function configured(window: UIWindow): boolean {
 	// invokes the forwarding helper while connecting the primary window.
 	return forwarded.has(window)
 }
+
 function nativePolicy(window: UIWindow): number {
 	const app = UIApplication.sharedApplication
 	const delegate = app.delegate
@@ -64,6 +69,7 @@ function nativePolicy(window: UIWindow): number {
 	}
 	return app.supportedInterfaceOrientationsForWindow(window)
 }
+
 function canApply(window: UIWindow, mask: number): boolean {
 	if (!configured(window) || !mask || (declaredMask(window) & mask) !== mask) {
 		return false
@@ -79,6 +85,7 @@ function canApply(window: UIWindow, mask: number): boolean {
 		window.traitCollection.userInterfaceIdiom === 1 /* UIUserInterfaceIdiom.phone */ && mask & 4
 	)
 }
+
 function info() {
 	const window = required()
 	const native = window.windowScene!.interfaceOrientation
@@ -98,6 +105,7 @@ function info() {
 		verticalSizeClass: window.traitCollection.verticalSizeClass,
 	}
 }
+
 function refreshControllers(window: UIWindow) {
 	let controller = window.rootViewController
 	while (controller) {
@@ -105,6 +113,7 @@ function refreshControllers(window: UIWindow) {
 		controller = controller.presentedViewController
 	}
 }
+
 async function apply(mask: number, lock: OrientationLock): Promise<void> {
 	const window = required()
 	if (!canApply(window, mask)) {
@@ -155,6 +164,7 @@ async function apply(mask: number, lock: OrientationLock): Promise<void> {
 			)
 			poll()
 		})
+
 		if (nativePolicy(window) !== mask) {
 			throw new Error('iOS delegate did not apply the requested orientation mask')
 		}
@@ -164,6 +174,7 @@ async function apply(mask: number, lock: OrientationLock): Promise<void> {
 		} else {
 			policies.delete(window)
 		}
+
 		refreshControllers(window)
 		throw error
 	}
@@ -173,6 +184,7 @@ async function apply(mask: number, lock: OrientationLock): Promise<void> {
 		}
 	}, 0)
 }
+
 export const backend: OrientationBackend = {
 	capabilities() {
 		const window = currentWindow()

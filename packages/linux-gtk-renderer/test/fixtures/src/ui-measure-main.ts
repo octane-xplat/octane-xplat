@@ -13,6 +13,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -21,6 +22,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 let latest: any
 let reports = 0
@@ -30,11 +32,13 @@ const check = (label: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const report = (b: any) => {
 	latest = b
 	reports++
 }
+
 async function run() {
 	root.render(Measurement, { width: 200, report })
 	window.present()
@@ -151,12 +155,14 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
 		failure = error
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

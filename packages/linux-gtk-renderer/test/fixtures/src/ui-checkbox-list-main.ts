@@ -9,6 +9,7 @@ import {
 	CheckboxStandaloneScene,
 	SwitchFocusScene,
 } from './ui-checkbox-list.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK checkbox list test',
@@ -16,6 +17,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -23,6 +25,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 140) =>
 	new Promise<void>((resolve) =>
@@ -31,6 +34,7 @@ const pause = (ms = 140) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -39,6 +43,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const rows = () => {
 	const owner = nodes('vx-checkbox-group')[0]
@@ -58,25 +63,31 @@ const rows = () => {
 	walk(owner)
 	return found
 }
+
 const group = () => nodes('vx-checkbox-group')[0].view!
 let native: any
 const named = (view: any, value: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, value) === null
+
 const bool = (view: any, key: number, value: boolean) =>
 	native.test_accessible_boolean_property(view, key, value) === null
+
 const state = (view: any, key: number, value: number) =>
 	native.test_accessible_state(view, key, value) === null
+
 let props: Parameters<typeof CheckboxListScene>[0] = {
 	defaultValue: ['a'],
 	label: 'Features',
 	description: 'Choose features',
 	width: 280,
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(CheckboxListScene, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -87,6 +98,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_CHECKBOX_LIST_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
@@ -106,6 +118,7 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -120,6 +133,7 @@ async function run() {
 			mode + ': field width',
 			Math.abs((nodes('vx-field')[0]?.view?.getBounds().width ?? NaN) - 280) <= 2,
 		)
+
 		check(mode + ': group role', group().get_accessible_role() === Gtk.AccessibleRole.GROUP)
 		check(mode + ': group name', named(group(), 'Features'))
 		check(mode + ': required metadata', bool(group(), Gtk.AccessibleProperty.REQUIRED, true))
@@ -127,25 +141,30 @@ async function run() {
 			mode + ': checkbox roles',
 			rows().every((n) => n.view!.get_accessible_role() === Gtk.AccessibleRole.CHECKBOX),
 		)
+
 		check(
 			mode + ': checkbox names',
 			rows().every((n, i) => named(n.view, ['Alpha', 'Beta', 'Gamma'][i])),
 		)
+
 		check(
 			mode + ': default checked set',
 			rows().every((n, i) => state(n.view, Gtk.AccessibleState.CHECKED, i === 0 ? 1 : 0)),
 		)
+
 		check(mode + ': disabled option sensitivity', !rows()[1].view!.is_sensitive())
 		check(
 			mode + ': enabled rows focus',
 			rows()[0].view!.get_focusable() && rows()[2].view!.get_focusable(),
 		)
+
 		check(mode + ': option end content', nodes('checkbox-test-end').length === 1)
 		await render({
 			isReadOnly: true,
 			isLoading: true,
 			status: { type: 'error', message: 'Choose again' },
 		})
+
 		check(mode + ': readOnly group metadata', bool(group(), Gtk.AccessibleProperty.READ_ONLY, true))
 		check(mode + ': busy group metadata', state(group(), Gtk.AccessibleState.BUSY, 1))
 		check(mode + ': invalid group metadata', state(group(), Gtk.AccessibleState.INVALID, 1))
@@ -155,6 +174,7 @@ async function run() {
 			mode + ': disabled rows sensitivity',
 			rows().every((n) => !n.view!.is_sensitive()),
 		)
+
 		await render({ isDisabled: false })
 	}
 	const changes: string[][] = []
@@ -175,6 +195,7 @@ async function run() {
 			'local pointer adds one checked value',
 			checked(2, true) && changes.at(-1)?.join() === 'c',
 		)
+
 		check('pointer focuses the clicked checkbox', focused(rows()[2].view))
 		const count = changes.length
 		await input(rows()[2].view, { key: 'Return' })
@@ -187,6 +208,7 @@ async function run() {
 			'local Space removes pointer selection',
 			changes.at(-1)?.length === 0 && checked(2, false),
 		)
+
 		await render({ defaultValue: ['c'] })
 		check('default updates do not reset local set', checked(0, false) && checked(2, false))
 		await render({ isReadOnly: true })
@@ -197,6 +219,7 @@ async function run() {
 			'readOnly pointer focuses without toggling',
 			focused(rows()[2].view) && changes.length === readOnlyCount,
 		)
+
 		rows()[2].view!.set_focus_on_click(false)
 		rows()[0].view!.grab_focus()
 		await input(label('Gamma'), { click: true })
@@ -204,6 +227,7 @@ async function run() {
 			'native focus-on-click opt-out is respected',
 			focused(rows()[0].view) && changes.length === readOnlyCount,
 		)
+
 		rows()[2].view!.set_focus_on_click(true)
 		await render({ isReadOnly: false })
 
@@ -217,6 +241,7 @@ async function run() {
 				mode + ': controlled rejection retains checked set',
 				checked(0, true) && checked(2, false) && changes.at(-1)?.join() === 'a,c',
 			)
+
 			await render({
 				onValueChange: (value) => {
 					changes.push([...value])
@@ -224,20 +249,24 @@ async function run() {
 					root.render(CheckboxListScene, props)
 				},
 			})
+
 			await input(rows()[2].view, { key: 'space' })
 			check(
 				mode + ': controlled Space accepts checked set',
 				checked(0, true) && checked(2, true) && props.value?.join() === 'a,c',
 			)
+
 			await input(label('Alpha'), { click: true })
 			check(
 				mode + ': controlled pointer removes one value',
 				checked(0, false) && checked(2, true) && props.value?.join() === 'c',
 			)
+
 			check(
 				mode + ': selection retains row widgets',
 				rows().every((n, i) => n.view === retained[i]),
 			)
+
 			await render({ isReadOnly: true })
 			const count = changes.length
 			rows()[2].view!.grab_focus()
@@ -247,6 +276,7 @@ async function run() {
 				mode + ': readOnly keyboard and pointer do not edit',
 				changes.length === count && checked(0, false) && checked(2, true),
 			)
+
 			await render({ isReadOnly: false, isDisabled: true })
 			await input(label('Alpha'), { click: true })
 			check(mode + ': disabled pointer does not edit', changes.length === count)
@@ -425,6 +455,7 @@ async function run() {
 			isChecked: 'indeterminate',
 			onCheck: (value) => requests.push(value),
 		})
+
 		await pause()
 		standalone.grab_focus()
 		await input(standalone, { key: 'space' })
@@ -432,10 +463,12 @@ async function run() {
 			'standalone mixed requests true and retains controlled mixed',
 			requests.join() === 'true' && state(standalone, Gtk.AccessibleState.CHECKED, 2),
 		)
+
 		const accept = (value: boolean) => {
 			requests.push(value)
 			root.render(CheckboxStandaloneScene, { isChecked: value, onCheck: accept })
 		}
+
 		root.render(CheckboxStandaloneScene, { isChecked: 'indeterminate', onCheck: accept })
 		await pause()
 		await input(standalone, { key: 'space' })
@@ -443,6 +476,7 @@ async function run() {
 			'standalone owner accepts mixed toggle',
 			state(standalone, Gtk.AccessibleState.CHECKED, 1),
 		)
+
 		await input(standalone, { key: 'space' })
 		check(
 			'standalone owner accepts unchecked toggle',
@@ -458,12 +492,14 @@ async function run() {
 		const target = [...container.nodes.values()].find(
 			(n) => n.view?.get_accessible_role() === Gtk.AccessibleRole.SWITCH,
 		)!.view!
+
 		origin.grab_focus()
 		await input(label('Focus switch'), { click: true })
 		check(
 			'readOnly switch pointer focuses without editing',
 			focused(target) && changes.length === 0,
 		)
+
 		target.set_focus_on_click(false)
 		origin.grab_focus()
 		await input(label('Focus switch'), { click: true })
@@ -476,6 +512,7 @@ async function run() {
 			'switch pointer focuses and requests one toggle',
 			focused(target) && changes.join() === 'true',
 		)
+
 		root.render(SwitchFocusScene, { isDisabled: true, onChange })
 		await pause()
 		origin.grab_focus()
@@ -504,6 +541,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -515,6 +553,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

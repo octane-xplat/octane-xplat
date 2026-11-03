@@ -29,6 +29,7 @@ test('native leaf registers firebase().crashlytics() before first use', async ()
 						value: () => plugin,
 						writable: false,
 					})
+
 					return {}
 				default:
 					throw new Error(`unexpected import: ${id}`)

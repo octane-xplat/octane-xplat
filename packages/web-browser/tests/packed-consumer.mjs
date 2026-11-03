@@ -11,6 +11,7 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -180,10 +181,12 @@ try {
 		existsSync(join(packedRoot, 'src/in-app-browser.macos.ts')),
 		'the TypeScript AppKit browser is packed',
 	)
+
 	assert.ok(
 		!existsSync(join(packedRoot, 'platforms/macos')),
 		'no macOS native leaf ships for the AppKit browser',
 	)
+
 	assert.ok(
 		existsSync(join(packedRoot, 'platforms/android')),
 		'the Android Custom Tabs leaf still ships',

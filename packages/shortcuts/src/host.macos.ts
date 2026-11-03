@@ -62,6 +62,7 @@ export const host: ShortcutHost = {
 					onKeyUp: (event: unknown) => receive('keyup', event),
 				}),
 			)
+
 			const native = globalThis as any
 			const center = native.NSNotificationCenter?.defaultCenter
 			if (center) {
@@ -76,6 +77,7 @@ export const host: ShortcutHost = {
 							}
 						},
 					)
+
 					releases.push(() => center.removeObserver(token))
 				}
 			}

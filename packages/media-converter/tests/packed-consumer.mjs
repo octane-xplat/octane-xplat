@@ -39,14 +39,17 @@ try {
 		await mkdir(dirname(target), { recursive: true })
 		await symlink(join(packageRoot, 'node_modules', dependency), target, 'dir')
 	}
+
 	for (const value of Object.values(manifest.exports['.'])) {
 		assert.equal(typeof value, 'string')
 		await readFile(join(unpacked, value))
 	}
+
 	await writeFile(
 		join(temporary, 'package.json'),
 		JSON.stringify({ private: true, type: 'module' }),
 	)
+
 	await writeFile(
 		join(temporary, 'consumer.ts'),
 		`
@@ -60,6 +63,7 @@ export { isAvailable }
 convertGif('input.gif', { format: 'avi' })
 `,
 	)
+
 	await readFile(join(unpacked, 'platforms/android/java/com/octanexplat/converter/Converter.java'))
 	await readFile(join(unpacked, 'platforms/android/include.gradle'))
 	await readFile(join(unpacked, 'platforms/ios/src/XplatMediaConverter.swift'))
@@ -86,12 +90,14 @@ convertGif('input.gif', { format: 'avi' })
 				files: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repoRoot, 'node_modules/typescript/bin/tsc'), '-p', config],
 			temporary,
 		)
 	}
+
 	const browser = await build({
 		root: temporary,
 		configFile: false,
@@ -103,9 +109,11 @@ convertGif('input.gif', { format: 'avi' })
 			minify: false,
 		},
 	})
+
 	assert.ok(
 		chunks(browser).some((chunk) => chunk.type === 'chunk' && chunk.exports.includes('convert')),
 	)
+
 	const native = await build({
 		root: temporary,
 		configFile: false,
@@ -126,6 +134,7 @@ convertGif('input.gif', { format: 'avi' })
 			resolve: { conditions: ['native'] },
 		},
 	})
+
 	// A packed iOS graph must reach its real platform backend, not the unsupported fallback.
 	assert.ok(
 		chunks(native).some(
@@ -135,6 +144,7 @@ convertGif('input.gif', { format: 'avi' })
 				chunk.code.includes('startCallback'),
 		),
 	)
+
 	console.log(
 		'Packed converter: ambient-free web/native types, browser production build, iOS bridge resolution, and packaged Apple/Android sources passed.',
 	)

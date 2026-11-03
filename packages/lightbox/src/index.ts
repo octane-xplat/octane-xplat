@@ -32,6 +32,7 @@ export {
 	Description,
 	useLightboxState,
 } from './root.tsrx'
+
 export { Image } from './Image.tsrx'
 
 export { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'

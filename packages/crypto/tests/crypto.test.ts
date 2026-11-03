@@ -10,6 +10,7 @@ import {
 	digestStringAsync,
 	getRandomValues,
 } from '../src/index'
+
 afterEach(() => vi.unstubAllGlobals())
 it('matches published digest/AES vectors, byte boundaries, ownership and authentication failures', async () => {
 	let count = 0
@@ -22,6 +23,7 @@ it('matches published digest/AES vectors, byte boundaries, ownership and authent
 	})
 	expect(count).toBeGreaterThanOrEqual(43)
 })
+
 it('matches native-independent text and base64 encoding, including malformed input', () => {
 	for (const text of ['', 'a', 'ab', 'abc', '你好 🌍', '\ud800x', 'x\udfff']) {
 		expect(utf8(text)).toEqual(new TextEncoder().encode(text))
@@ -35,6 +37,7 @@ it('matches native-independent text and base64 encoding, including malformed inp
 		expect(() => decodeBase64(value)).toThrow()
 	}
 })
+
 it('fails closed when the secure source is absent or throws', async () => {
 	vi.stubGlobal('crypto', undefined)
 	expect(() => getRandomBytes(8)).toThrow()
@@ -46,6 +49,7 @@ it('fails closed when the secure source is absent or throws', async () => {
 	})
 	expect(() => getRandomBytes(8)).toThrow('OS random failure')
 })
+
 it('accepts all integer views and rejects invalid counts and encodings', async () => {
 	for (const Type of [
 		Int8Array,

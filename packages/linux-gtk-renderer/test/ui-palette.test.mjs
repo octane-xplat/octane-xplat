@@ -8,5 +8,4 @@ test('GTK command palette filters, navigates, and dismisses on real input', (t) 
 		marker: 'GTK_PALETTE',
 		input: true,
 		minChecks: { properties: 8, os: 16 },
-	}),
-)
+	}))

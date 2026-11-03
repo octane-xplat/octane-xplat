@@ -13,11 +13,13 @@ function run(command, args) {
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	return result.stdout
 }
+
 try {
 	assert.equal(
 		await readFile(join(root, 'platforms/macos/src/XplatWebPEncoder.m'), 'utf8'),
 		await readFile(join(root, 'platforms/ios/src/XplatWebPEncoder.m'), 'utf8'),
 	)
+
 	const main = join(directory, 'main.m')
 	await writeFile(
 		main,
@@ -44,10 +46,12 @@ int main() { @autoreleasepool {
 } return 0; }
 `,
 	)
+
 	const sources = [
 		...globSync(join(vendor, 'src/{dec,dsp,enc,utils}/*.c')),
 		...globSync(join(vendor, 'sharpyuv/*.c')),
 	]
+
 	const objects = []
 	for (const [index, source] of sources.entries()) {
 		const object = join(directory, `${index}.o`)
@@ -63,8 +67,10 @@ int main() { @autoreleasepool {
 			'-o',
 			object,
 		])
+
 		objects.push(object)
 	}
+
 	run('xcrun', [
 		'clang',
 		'-fobjc-arc',
@@ -84,6 +90,7 @@ int main() { @autoreleasepool {
 		'-o',
 		join(directory, 'case'),
 	])
+
 	console.log(run(join(directory, 'case'), []).trim())
 	const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
 	run('xcrun', [
@@ -98,6 +105,7 @@ int main() { @autoreleasepool {
 		join(vendor, 'src'),
 		join(root, 'platforms/ios/src/XplatWebPEncoder.m'),
 	])
+
 	console.log('iOS SDK: codec bridge syntax passed (not CocoaPods integration or device runtime).')
 } finally {
 	await rm(directory, { recursive: true, force: true })

@@ -4,14 +4,38 @@
 // rendered icon content; ToothIcon → sandbox-cog.
 import { useState } from 'octane'
 import {
-	Avatar, AvatarStatusDot, Badge, Divider, EmptyState, Heading, HStack,
-	Icon, IconButton, Layout, LayoutContent, LayoutPanel, List, ListItem,
-	Stack, StackItem, StatusDot, Text, TextInput, Timestamp, useMediaQuery,
+	Avatar,
+	AvatarStatusDot,
+	Badge,
+	Divider,
+	EmptyState,
+	Heading,
+	HStack,
+	Icon,
+	IconButton,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	List,
+	ListItem,
+	Stack,
+	StackItem,
+	StatusDot,
+	Text,
+	TextInput,
+	Timestamp,
+	useMediaQuery,
 	VStack,
 } from '@octane-xplat/ui'
+
 import {
-	ChatComposer, ChatLayout, ChatMessage, ChatMessageBubble,
-	ChatMessageList, ChatMessageMetadata, ChatSystemMessage,
+	ChatComposer,
+	ChatLayout,
+	ChatMessage,
+	ChatMessageBubble,
+	ChatMessageList,
+	ChatMessageMetadata,
+	ChatSystemMessage,
 } from '@octane-xplat/ui/chat'
 
 const styles: Record<string, any> = {
@@ -74,8 +98,18 @@ const USERS: Record<string, { name: string }> = {
 }
 
 const CHANNELS = [
-	{ id: 'design-systems', name: 'design-systems', topic: 'Component APIs, tokens, and release coordination', unread: 0 },
-	{ id: 'frontend-guild', name: 'frontend-guild', topic: 'Cross-team frontend practices', unread: 4 },
+	{
+		id: 'design-systems',
+		name: 'design-systems',
+		topic: 'Component APIs, tokens, and release coordination',
+		unread: 0,
+	},
+	{
+		id: 'frontend-guild',
+		name: 'frontend-guild',
+		topic: 'Cross-team frontend practices',
+		unread: 4,
+	},
 	{ id: 'releases', name: 'releases', topic: 'Release announcements and rollbacks', unread: 12 },
 	{ id: 'random', name: 'random', topic: 'Everything else', unread: 0 },
 ]
@@ -109,39 +143,55 @@ interface StreamMessage {
 const MESSAGES_BY_CHANNEL: Record<string, StreamMessage[]> = {
 	'design-systems': [
 		{
-			id: 'm1', userId: 'mira', time: Date.parse('2026-06-30T09:12:00+00:00'),
+			id: 'm1',
+			userId: 'mira',
+			time: Date.parse('2026-06-30T09:12:00+00:00'),
 			bubbles: [
 				'Morning! The Timestamp component now supports a `system_date` format — worth switching the audit log over.',
 				'I put the migration notes in the wiki under Decisions.',
 			],
 		},
 		{
-			id: 'm2', userId: 'devon', time: Date.parse('2026-06-30T09:15:00+00:00'),
+			id: 'm2',
+			userId: 'devon',
+			time: Date.parse('2026-06-30T09:15:00+00:00'),
 			bubbles: ['Nice. Does that unblock the incident console timeline work?'],
 		},
 		{
-			id: 'm3', userId: 'you', time: Date.parse('2026-06-30T09:17:00+00:00'),
+			id: 'm3',
+			userId: 'you',
+			time: Date.parse('2026-06-30T09:17:00+00:00'),
 			bubbles: [
 				'It does — I will pick that up after the template review.',
 				'One question on the List density defaults, will start a thread.',
 			],
 		},
 		{
-			id: 'm4', userId: 'sasha', time: Date.parse('2026-06-30T09:24:00+00:00'),
-			bubbles: ['Heads up: the token sync job ran clean overnight, no drift between core and the theme packages.'],
+			id: 'm4',
+			userId: 'sasha',
+			time: Date.parse('2026-06-30T09:24:00+00:00'),
+			bubbles: [
+				'Heads up: the token sync job ran clean overnight, no drift between core and the theme packages.',
+			],
 		},
 		{
-			id: 'm5', userId: 'mira', time: Date.parse('2026-06-30T09:26:00+00:00'),
+			id: 'm5',
+			userId: 'mira',
+			time: Date.parse('2026-06-30T09:26:00+00:00'),
 			bubbles: ['Great — closing out the drift task then.'],
 		},
 	],
 	'frontend-guild': [
 		{
-			id: 'g1', userId: 'devon', time: Date.parse('2026-06-30T08:40:00+00:00'),
+			id: 'g1',
+			userId: 'devon',
+			time: Date.parse('2026-06-30T08:40:00+00:00'),
 			bubbles: ['Guild sync moved to Thursday this week to avoid the release freeze.'],
 		},
 		{
-			id: 'g2', userId: 'you', time: Date.parse('2026-06-30T08:44:00+00:00'),
+			id: 'g2',
+			userId: 'you',
+			time: Date.parse('2026-06-30T08:44:00+00:00'),
 			bubbles: ['Works for me — agenda doc is updated.'],
 		},
 	],
@@ -155,17 +205,23 @@ interface ThreadReply {
 }
 
 const THREAD_ROOT: ThreadReply = {
-	id: 't0', userId: 'you', time: Date.parse('2026-06-30T09:17:30+00:00'),
+	id: 't0',
+	userId: 'you',
+	time: Date.parse('2026-06-30T09:17:30+00:00'),
 	text: 'One question on the List density defaults — should channel sidebars use compact or balanced? The spec shows both.',
 }
 
 const THREAD_REPLIES: ThreadReply[] = [
 	{
-		id: 't1', userId: 'mira', time: Date.parse('2026-06-30T09:19:00+00:00'),
+		id: 't1',
+		userId: 'mira',
+		time: Date.parse('2026-06-30T09:19:00+00:00'),
 		text: 'Compact for navigation surfaces. Balanced is for content lists where descriptions carry weight.',
 	},
 	{
-		id: 't2', userId: 'devon', time: Date.parse('2026-06-30T09:21:00+00:00'),
+		id: 't2',
+		userId: 'devon',
+		time: Date.parse('2026-06-30T09:21:00+00:00'),
 		text: 'Agreed — the sidebar rows here are a good reference implementation.',
 	},
 ]
@@ -202,7 +258,9 @@ function StreamMessageGroup(props: { message: StreamMessage }) @{
 				metadata={
 					index === lastIndex ? (
 						<ChatMessageMetadata
-							timestamp={<Timestamp value={props.message.time} format="time" valueUnit="unix-milliseconds" />}
+							timestamp={
+								<Timestamp value={props.message.time} format="time" valueUnit="unix-milliseconds" />
+							}
 						/>
 					) : undefined
 				}
@@ -229,7 +287,9 @@ export function MessagingShellTemplate() @{
 
 	const normalizedQuery = searchQuery.trim().toLowerCase()
 	const visibleChannels = CHANNELS.filter((c) => c.name.toLowerCase().includes(normalizedQuery))
-	const visibleDms = DIRECT_MESSAGES.filter((dm) => USERS[dm.userId].name.toLowerCase().includes(normalizedQuery))
+	const visibleDms = DIRECT_MESSAGES.filter((dm) =>
+		USERS[dm.userId].name.toLowerCase().includes(normalizedQuery),
+	)
 
 	const showThreadPanel = isThreadOpen && !isThreadHidden
 
@@ -307,9 +367,7 @@ export function MessagingShellTemplate() @{
 								setSelectedChannelId(channel.id)
 								setSelectedDmId(null)
 							}}
-							startContent={
-								<Icon name="sandbox-hashtag" size={16} color="secondary" />
-							}
+							startContent={<Icon name="sandbox-hashtag" size={16} color="secondary" />}
 							endContent={
 								channel.unread > 0 ? (
 									<Badge label={String(channel.unread)} variant="neutral" />
@@ -347,9 +405,7 @@ export function MessagingShellTemplate() @{
 									/>
 								}
 								endContent={
-									dm.unread > 0 ? (
-										<Badge label={String(dm.unread)} variant="neutral" />
-									) : undefined
+									dm.unread > 0 ? <Badge label={String(dm.unread)} variant="neutral" /> : undefined
 								}
 							/>
 						))}
@@ -384,10 +440,7 @@ export function MessagingShellTemplate() @{
 				<div style={styles.chatFill}>
 					<ChatLayout
 						composer={
-							<ChatComposer
-								placeholder={`Message #${selectedChannel.name}`}
-								onSubmit={() => {}}
-							/>
+							<ChatComposer placeholder={`Message #${selectedChannel.name}`} onSubmit={() => {}} />
 						}
 						emptyState={
 							<EmptyState
@@ -399,12 +452,8 @@ export function MessagingShellTemplate() @{
 					>
 						{messages.length > 0 ? (
 							<ChatMessageList density="balanced">
-								<ChatSystemMessage variant="divider">
-									Tuesday, June 30
-								</ChatSystemMessage>
-								<ChatSystemMessage>
-									Sasha Ortiz joined #{selectedChannel.name}
-								</ChatSystemMessage>
+								<ChatSystemMessage variant="divider">Tuesday, June 30</ChatSystemMessage>
+								<ChatSystemMessage>Sasha Ortiz joined #{selectedChannel.name}</ChatSystemMessage>
 								{messages.map((message) => (
 									<StreamMessageGroup key={message.id} message={message} />
 								))}
@@ -447,16 +496,20 @@ export function MessagingShellTemplate() @{
 							name={USERS[THREAD_ROOT.userId].name}
 							metadata={
 								<ChatMessageMetadata
-									timestamp={<Timestamp value={THREAD_ROOT.time} format="time" valueUnit="unix-milliseconds" />}
+									timestamp={
+										<Timestamp
+											value={THREAD_ROOT.time}
+											format="time"
+											valueUnit="unix-milliseconds"
+										/>
+									}
 								/>
 							}
 						>
 							{THREAD_ROOT.text}
 						</ChatMessageBubble>
 					</ChatMessage>
-					<ChatSystemMessage variant="divider">
-						{THREAD_REPLIES.length} replies
-					</ChatSystemMessage>
+					<ChatSystemMessage variant="divider">{THREAD_REPLIES.length} replies</ChatSystemMessage>
 					{THREAD_REPLIES.map((reply) => (
 						<ChatMessage
 							key={reply.id}
@@ -467,7 +520,9 @@ export function MessagingShellTemplate() @{
 								name={USERS[reply.userId].name}
 								metadata={
 									<ChatMessageMetadata
-										timestamp={<Timestamp value={reply.time} format="time" valueUnit="unix-milliseconds" />}
+										timestamp={
+											<Timestamp value={reply.time} format="time" valueUnit="unix-milliseconds" />
+										}
 									/>
 								}
 							>
@@ -478,11 +533,7 @@ export function MessagingShellTemplate() @{
 				</ChatMessageList>
 			</StackItem>
 			<div style={styles.threadComposer}>
-				<ChatComposer
-					density="compact"
-					placeholder="Reply in thread..."
-					onSubmit={() => {}}
-				/>
+				<ChatComposer density="compact" placeholder="Reply in thread..." onSubmit={() => {}} />
 			</div>
 		</Stack>
 	)

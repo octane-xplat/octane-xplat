@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 300,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -35,6 +38,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const close = (actual: number, expected: number) => Math.abs(actual - expected) <= 1
 const node = (name: string) => [...container.nodes.values()].find((n) => n.cssClasses?.has(name))!
 const bounds = (name: string) => node(name).view!.getBounds()
@@ -51,6 +55,7 @@ const initialBox = {
 	paddingBottom: 4,
 	borderWidth: 2,
 }
+
 const initialLeaf = {
 	width: 60,
 	height: 24,
@@ -61,12 +66,14 @@ const initialLeaf = {
 	padding: 0,
 	borderWidth: 0,
 }
+
 let props: Parameters<typeof BoxModelScene>[0] = { box: initialBox, leaf: initialLeaf }
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(BoxModelScene, props)
 	await pause()
 }
+
 const first = () => bounds('box-first')
 const leaf = () => bounds('box-leaf')
 const last = () => bounds('box-last')
@@ -232,6 +239,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -244,6 +252,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

@@ -15,6 +15,7 @@ try {
 	for (const name of ['media-converter', 'image-manipulator', 'macos-appkit']) {
 		await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
 	}
+
 	await writeFile(
 		join(directory, 'package.json'),
 		JSON.stringify({
@@ -27,6 +28,7 @@ try {
 			},
 		}),
 	)
+
 	await writeFile(join(directory, 'input.gif'), gifBytes())
 	const artifact = await buildMacOSNative(directory)
 	assert.ok(artifact.leaves.includes('@octane-xplat/media-converter'))
@@ -56,6 +58,7 @@ setTimeout(async()=>{
 },0)
 `,
 	)
+
 	await build({
 		root: directory,
 		configFile: false,
@@ -68,6 +71,7 @@ setTimeout(async()=>{
 			minify: false,
 		},
 	})
+
 	const host = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
 	const result = spawnSync(
 		join(host, 'host'),
@@ -79,12 +83,14 @@ setTimeout(async()=>{
 		],
 		{ encoding: 'utf8', timeout: 60000, maxBuffer: 4 * 1024 * 1024 },
 	)
+
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	assert.match(
 		result.stdout + result.stderr,
 		/CONVERSION_CONSUMER_OK/,
 		result.stdout + result.stderr,
 	)
+
 	console.log('CONVERSION_CONSUMER_OK actual-native-metadata,js-bridges,video,webp,cleanup')
 } finally {
 	await rm(directory, { recursive: true, force: true })

@@ -28,11 +28,14 @@ assert.ok(
 	!values['refresh-js'] || (target === 'ios' && values['reuse-build']),
 	'Refreshing JS requires an existing unsigned iOS simulator build',
 )
+
 const repo =
 	process.env.XPLAT_NATIVE_TEST_REPO ?? resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
+
 const { prepare, filesUnder, dependencies } = await import(
 	pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 )
+
 const { command } = await import(pathToFileURL(join(repo, 'tools/probe/process.ts')).href)
 const driver = resolve(dirname(fileURLToPath(import.meta.url)), 'fixtures/driver.mobile.ts')
 const events = []
@@ -91,13 +94,16 @@ const fixtureBuildFile = join(project.root, 'ota-test-build.json')
 const fixtureBuild = values['reuse-build']
 	? JSON.parse(await readFile(fixtureBuildFile, 'utf8'))
 	: { port: 0 }
+
 assert.ok(
 	Number.isInteger(fixtureBuild.port) && fixtureBuild.port >= 0 && fixtureBuild.port <= 65535,
 )
+
 await new Promise((resolve, reject) => {
 	server.once('error', reject)
 	server.listen(fixtureBuild.port, '127.0.0.1', resolve)
 })
+
 const port = server.address().port
 // Reuse the maintained probe runtime and its installed native engines.
 // The probe runner links installed packages rather than producing a lockfile;
@@ -107,13 +113,16 @@ const buildToolRoot = resolve(
 	dirname(createRequire(import.meta.url).resolve('@octane-xplat/fingerprint')),
 	'..',
 )
+
 selected.resolved.set('@octane-xplat/fingerprint', buildToolRoot)
 projectPackage.devDependencies['@octane-xplat/fingerprint'] = JSON.parse(
 	await readFile(join(buildToolRoot, 'package.json'), 'utf8'),
 ).version
+
 const overrides = Object.fromEntries(
 	[...selected.resolved].map(([name, path]) => [name, 'file:' + path]),
 )
+
 // Directory dependencies may contain development edges of directory dependencies while making
 // the lockfile. Resolve their workspace references from this checkout too.
 for (const entry of await readdir(join(repo, 'packages'), { withFileTypes: true })) {
@@ -121,6 +130,7 @@ for (const entry of await readdir(join(repo, 'packages'), { withFileTypes: true 
 	if (!entry.isDirectory()) {
 		continue
 	}
+
 	let manifest
 	try {
 		manifest = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'))
@@ -128,12 +138,15 @@ for (const entry of await readdir(join(repo, 'packages'), { withFileTypes: true 
 		if (error.code === 'ENOENT') {
 			continue
 		}
+
 		throw error
 	}
+
 	if (manifest.name && !Object.hasOwn(overrides, manifest.name)) {
 		overrides[manifest.name] = 'file:' + directory
 	}
 }
+
 await mkdir(join(project.root, 'node_modules/@octane-xplat'), { recursive: true })
 try {
 	await symlink(
@@ -146,6 +159,7 @@ try {
 		throw error
 	}
 }
+
 const repoPackage = JSON.parse(await readFile(join(repo, 'package.json'), 'utf8'))
 const catalog = repoPackage.workspaces.catalog
 for (const [name, version] of Object.entries(catalog)) {
@@ -153,6 +167,7 @@ for (const [name, version] of Object.entries(catalog)) {
 		overrides[name] = version
 	}
 }
+
 projectPackage.packageManager = 'bun@1.4.4'
 projectPackage.workspaces = { packages: [], catalog }
 projectPackage.overrides = overrides
@@ -161,6 +176,7 @@ await command('bun', ['install', '--lockfile-only', '--ignore-scripts'], {
 	cwd: project.root,
 	timeout: 120000,
 })
+
 await initializeUpdates(project.root)
 await writeFile(
 	join(project.root, 'src/index.ts'),
@@ -220,6 +236,7 @@ const stop = async () => {
 const ownershipFile = join(project.root, 'ota-test-owner.json')
 let installed = false,
 	reverse = false
+
 let changedNativeSource
 
 try {
@@ -254,8 +271,10 @@ try {
 			['prepare', target, '--path', project.root, '--release', '--no-hmr', ...releaseArgs],
 			{ cwd: '/tmp', env, timeout: 300000 },
 		)
+
 		await writeFile(join(project.root, 'release-prepare.log'), prepared.stdout + prepared.stderr)
 	}
+
 	const iosDirectory = join(project.root, 'platforms/ios')
 	const iosProject =
 		target === 'ios'
@@ -279,6 +298,7 @@ try {
 	const buildRecord = JSON.parse(
 		await readFile(join(project.root, '.xplat/fingerprints', target + '.json'), 'utf8'),
 	)
+
 	assert.equal(
 		(
 			await createFingerprintAsync(project.root, {
@@ -288,6 +308,7 @@ try {
 		).hash,
 		buildMetadata.hash,
 	)
+
 	const files = {}
 	for (const file of await filesUnder(assets)) {
 		files[file.slice(assets.length + 1)] = new Uint8Array(await readFile(file))
@@ -345,11 +366,13 @@ try {
 		const bundledMetadata = JSON.parse(
 			await readFile(join(artifact, 'app/xplat-native.json'), 'utf8'),
 		)
+
 		assert.deepEqual(
 			bundledMetadata,
 			buildMetadata,
 			'installed artifact must match the prepared payload',
 		)
+
 		if (values['refresh-js']) {
 			// Reuse the exact native executable only after proving its baked input
 			// identity still matches. Replace resources in a task-owned copy.
@@ -358,6 +381,7 @@ try {
 			await cp(assets, join(copy, 'app'), { recursive: true })
 			artifact = copy
 		}
+
 		await sim(['install', device, artifact])
 	} else {
 		// Never reinstall or clear an unrelated app. Each fixture uses its own hash ID.
@@ -445,15 +469,18 @@ try {
 		await writeFile(changed, '// A native source added after the installed binary was built.\n', {
 			flag: 'wx',
 		})
+
 		changedNativeSource = changed
 		const incompatible = await createFingerprintAsync(project.root, {
 			platforms: [target],
 			toolchain: buildRecord.toolchain,
 		})
+
 		assert.notEqual(incompatible.hash, buildMetadata.hash)
 		const container = (
 			await sim(['get_app_container', device, project.appId, 'data'])
 		).stdout.trim()
+
 		const ota = join(container, 'Library/Application Support/xplat-ota')
 		const next = join(ota, 'next/app')
 		await mkdir(next, { recursive: true })
@@ -461,14 +488,17 @@ try {
 			await mkdir(dirname(join(next, name)), { recursive: true })
 			await writeFile(join(next, name), bytes)
 		}
+
 		await writeFile(
 			join(next, 'xplat-native.json'),
 			JSON.stringify({ ...buildMetadata, hash: incompatible.hash }),
 		)
+
 		await writeFile(
 			join(next, 'bundle.mjs'),
 			"throw new Error('Incompatible native payload must never execute');\n",
 		)
+
 		const incompatibleSHA = '4'.repeat(64)
 		await writeFile(
 			join(ota, 'next/release.json'),
@@ -480,6 +510,7 @@ try {
 				url: 'https://ota.test/bundles/' + incompatibleSHA,
 			}),
 		)
+
 		const checkpoint = events.length
 		await writeFile(join(container, 'Documents/ota-test-phase.txt'), 'awaiting-embedded')
 		await launch()
@@ -490,9 +521,11 @@ try {
 					.some((event) => event.name === 'embedded-restored' && event.marker === 1),
 			'incompatible native payload rejected before JavaScript',
 		)
+
 		assert.equal((await readFile(join(ota, 'rejected.txt'), 'utf8')).trim(), incompatibleSHA)
 		assert.equal((await readdir(ota)).includes('next'), false)
 	}
+
 	const result = { target, device, artifact, appId: project.appId, events, status: 'passed' }
 	await writeFile(join(project.root, 'ota-lifecycle-result.json'), JSON.stringify(result, null, 2))
 	console.log(
@@ -506,6 +539,7 @@ try {
 	if (changedNativeSource) {
 		await rm(changedNativeSource)
 	}
+
 	if (installed) {
 		await stop()
 	}

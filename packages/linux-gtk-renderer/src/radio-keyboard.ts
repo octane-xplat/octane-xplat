@@ -44,6 +44,7 @@ function radioOptions(group: ElementNode): ElementNode[] {
 			if (node.type === 'masonview' && node.view!.is_sensitive() && node.view!.get_focusable()) {
 				options.push(node)
 			}
+
 			return
 		}
 		for (const child of node.children) {

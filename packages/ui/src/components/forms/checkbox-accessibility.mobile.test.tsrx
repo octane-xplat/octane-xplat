@@ -20,12 +20,18 @@ describe('native checkbox selection semantics', () => {
 		const props = { accessibilityLabel: 'Select current page', onChange: change }
 		root.render(Checkbox, { ...props, value: 'indeterminate' })
 		const findCheckbox = (node: any): any => {
-			if (node.props?.accessibilityRole === 'checkbox') return node
+			if (node.props?.accessibilityRole === 'checkbox') {
+				return node
+			}
+
 			for (const child of node.children ?? []) {
 				const found = findCheckbox(child)
-				if (found) return found
+				if (found) {
+					return found
+				}
 			}
 		}
+
 		const host = findCheckbox(container.children[0])
 		expect(host).toBeDefined()
 		expect(host.props.accessibilityRole).toBe('checkbox')

@@ -21,6 +21,7 @@ shortcuts.bind({
 	preventDefault: true,
 	handler: () => calls.push('palette'),
 })
+
 shortcuts.bind({ sequence: 'g i', handler: () => calls.push('inbox') })
 let recording
 shortcuts.bind({
@@ -32,6 +33,7 @@ shortcuts.bind({
 		})
 	},
 })
+
 let passed = false
 shortcuts.bind({
 	combo: 'F12',
@@ -47,9 +49,11 @@ shortcuts.bind({
 		loop.quit()
 	},
 })
+
 GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 12, () => {
 	loop.quit()
 	return GLib.SOURCE_REMOVE
 })
+
 loop.run()
 System.exit(passed ? 0 : 1)

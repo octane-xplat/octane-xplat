@@ -16,12 +16,14 @@ import {
 	CustomRadio,
 	CustomCheck,
 } from './ui-indicators.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK indicator test',
 	default_width: 440,
 	default_height: 380,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const errors: unknown[] = []
@@ -34,6 +36,7 @@ const pause = (ms = 180) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -41,6 +44,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const find = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)
 const node = (id: string) => {
 	const value = find(id)
@@ -49,6 +53,7 @@ const node = (id: string) => {
 	}
 	return value
 }
+
 const child = (id: string) => node(id).children[0]
 const near = (actual: number, expected: number) => Math.abs(actual - expected) <= 1
 let props: Parameters<typeof Indicators>[0] = { state: 'unchecked', size: 'sm' }
@@ -57,6 +62,7 @@ const render = async (next: Partial<typeof props> = {}) => {
 	root.render(Indicators, props)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -240,6 +246,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -252,6 +259,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

@@ -8,6 +8,7 @@ export interface ReportingConfig {
 	dist: string
 	environment: string
 }
+
 let collecting = false
 let initialized = false
 const cleanPath = (value: string | undefined) => value?.split(/[?#]/)[0]
@@ -52,7 +53,9 @@ export function filterError(event: ErrorEvent): ErrorEvent {
 
 /** Call only after the app's collection preference allows reporting. */
 export function startReporting(config: ReportingConfig): void {
-	if (initialized) {return}
+	if (initialized) {
+		return
+	}
 	Sentry.init({
 		...config,
 		dataCollection: {
@@ -78,7 +81,9 @@ export function startReporting(config: ReportingConfig): void {
 
 /** Returns a queued event ID, not a server delivery acknowledgement. */
 export function reportDeliveryCheck(): string | null {
-	if (!collecting) {return null}
+	if (!collecting) {
+		return null
+	}
 	Sentry.addBreadcrumb({ category: 'app-action', message: 'report-delivery-check' })
 	return Sentry.captureException(new Error('Xplat reporting check'))
 }

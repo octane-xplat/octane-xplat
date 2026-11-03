@@ -6,6 +6,7 @@ const fake = vi.hoisted(() => ({
 	release: vi.fn(),
 	capabilities: () => ({ view: true, screen: false, formats: ['png'], scrollContent: false }),
 }))
+
 vi.mock('../src/backend', () => ({ backend: fake }))
 import { captureRef, captureScreen, releaseCapture, viewShot } from '../src/service'
 const tick = async () => {
@@ -13,10 +14,12 @@ const tick = async () => {
 	await Promise.resolve()
 	await Promise.resolve()
 }
+
 beforeEach(() => {
 	vi.clearAllMocks()
 	fake.capture.mockResolvedValue('owned:fixture')
 })
+
 describe('service ordering with string-only fixtures', () => {
 	it('snapshots options and serializes ref/screen operations, recovering after rejection', async () => {
 		let reject!: (error: Error) => void

@@ -35,14 +35,18 @@ export function createAppKitChartPointer(
 } {
 	let panning = false
 	return {
-		pan(event: { deltaX?: unknown; deltaY?: unknown; state?: unknown; x?: number; y?: number }): void {
+		pan(event: {
+			deltaX?: unknown
+			deltaY?: unknown
+			state?: unknown
+			x?: number
+			y?: number
+		}): void {
 			// The AppKit driver emits a superset payload carrying x/y; the shared
 			// PanGestureEvent type only declares deltaX/deltaY/state.
 			const panEvent = event as AppKitPanEvent
 			const state = Number(panEvent.state)
-			const point = finite(panEvent.x, panEvent.y)
-				? { x: panEvent.x, y: panEvent.y }
-				: null
+			const point = finite(panEvent.x, panEvent.y) ? { x: panEvent.x, y: panEvent.y } : null
 			if (state === 1) {
 				if (!point) {
 					return
@@ -50,7 +54,12 @@ export function createAppKitChartPointer(
 
 				// x/y includes the current delta — subtract it for the press start.
 				panning = true
-				scrub('down', point.x - Number(panEvent.deltaX ?? 0), point.y - Number(panEvent.deltaY ?? 0))
+				scrub(
+					'down',
+					point.x - Number(panEvent.deltaX ?? 0),
+					point.y - Number(panEvent.deltaY ?? 0),
+				)
+
 				scrub('move', point.x, point.y)
 			} else if (state === 2) {
 				if (panning && point) {

@@ -23,16 +23,19 @@ interface Widget {
 	get_first_child(): Widget | null
 	get_next_sibling(): Widget | null
 }
+
 // Host SDK contracts stay local: another renderer's ambient GJS declarations
 // may describe only its own subset when a consumer checks several leaves.
 interface Snapshot {
 	to_node(): object | null
 }
+
 interface TemporaryFile {
 	get_uri(): string
 	delete(cancellable: null): boolean
 	query_exists(cancellable: null): boolean
 }
+
 // The GI runtime globals arrive untyped — bound once to the shapes this
 // backend declares rather than asserting per call site.
 interface GtkRuntimeShape {
@@ -44,6 +47,7 @@ interface GtkRuntimeShape {
 		snapshot(snapshot: Snapshot, width: number, height: number): void
 	}
 }
+
 interface GLibRuntimeShape {
 	base64_encode(bytes: Uint8Array): string
 	get_monotonic_time(): number
@@ -51,6 +55,7 @@ interface GLibRuntimeShape {
 	PRIORITY_DEFAULT: number
 	SOURCE_REMOVE: false
 }
+
 interface GioRuntimeShape {
 	File: {
 		new_tmp(template: string): [
@@ -62,9 +67,11 @@ interface GioRuntimeShape {
 		]
 	}
 }
+
 interface GrapheneRuntimeShape {
 	Rect: new () => { init(x: number, y: number, width: number, height: number): unknown }
 }
+
 const Gtk = GtkRuntime as unknown as GtkRuntimeShape
 const GLib = GLibRuntime as unknown as GLibRuntimeShape
 const Gio = GioRuntime as unknown as GioRuntimeShape
@@ -73,6 +80,7 @@ const owned = new Map<
 	string,
 	{ delete(cancellable: null): boolean; query_exists(cancellable: null): boolean }
 >()
+
 function widget(target: object): Widget {
 	if (!(target instanceof Gtk.Widget)) {
 		throw new TypeError('GTK capture requires a Gtk.Widget host')
@@ -104,6 +112,7 @@ function widget(target: object): Widget {
 	}
 	return view
 }
+
 async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
 	if (
 		options.format !== 'png' ||
@@ -145,6 +154,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 		} finally {
 			stream.close(null)
 		}
+
 		const uri: string = file.get_uri()
 		owned.set(uri, file)
 		return uri
@@ -152,9 +162,11 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 		if (file.query_exists(null)) {
 			file.delete(null)
 		}
+
 		throw error
 	}
 }
+
 export const backend: CaptureBackend = {
 	capabilities: () => ({ view: true, screen: false, formats: ['png'], scrollContent: false }),
 	validate(target) {
@@ -185,6 +197,7 @@ export const backend: CaptureBackend = {
 					throw error
 				}
 			}
+
 			await new Promise<void>((resolve) =>
 				GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
 					resolve()

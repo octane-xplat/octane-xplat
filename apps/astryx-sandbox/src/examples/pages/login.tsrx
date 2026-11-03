@@ -3,13 +3,24 @@
 // `onClick` → `clickAction`; Banner `container="card"` has no equivalent
 // ('banner'|'section' only) — omitted.
 import { useState } from 'octane'
-import { Banner, Button, Card, Center, Heading, Icon, Text, TextInput, VStack } from '@octane-xplat/ui'
+import {
+	Banner,
+	Button,
+	Card,
+	Center,
+	Heading,
+	Icon,
+	Text,
+	TextInput,
+	VStack,
+} from '@octane-xplat/ui'
 
 // Standalone auth page paints its own body background (no host shell).
 const pageStyle = {
 	minHeight: '100%',
 	backgroundColor: 'var(--color-background-body)',
 }
+
 // Cap the column at 400px but let it shrink to fit narrow screens.
 const contentStyle = {
 	width: '100%',
@@ -28,6 +39,7 @@ export function LoginTemplate() @{
 			setError('Please enter both email and password.')
 			return
 		}
+
 		setIsLoading(true)
 		setTimeout(() => setIsLoading(false), 2000)
 	}

@@ -22,7 +22,9 @@ export function useScrollableArea<TElement extends object = object>(
 	options: UseScrollableAreaOptions = {},
 ): UseScrollableAreaResult<TElement> {
 	const axis = options.axis ?? 'block'
-	const direction = useDirection(), directionRef = useRef(direction)
+	const direction = useDirection(),
+		directionRef = useRef(direction)
+
 	directionRef.current = direction
 	const axisRef = useRef(axis)
 	axisRef.current = axis
@@ -38,7 +40,14 @@ export function useScrollableArea<TElement extends object = object>(
 		}
 
 		const { maxX, x, maxY, y } = scrollableAreaMetrics(viewport.current, event)
-		const next = scrollableAreaState(axisRef.current, maxX, convertAppKitInlineOffset(x, maxX, directionRef.current), maxY, y)
+		const next = scrollableAreaState(
+			axisRef.current,
+			maxX,
+			convertAppKitInlineOffset(x, maxX, directionRef.current),
+			maxY,
+			y,
+		)
+
 		if (!sameScrollState(stateRef.current, next)) {
 			stateRef.current = next
 			setState(next)

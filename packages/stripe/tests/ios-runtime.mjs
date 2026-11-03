@@ -11,6 +11,7 @@ assert.ok(
 	repo && sdk && device,
 	'Select the skymac checkout, official SDK directory and task-owned simulator',
 )
+
 const runtime = join(packageRoot, 'tests/.runtime')
 await mkdir(runtime, { recursive: true })
 const plugin = join(runtime, 'sdk-plugin')
@@ -24,12 +25,14 @@ await writeFile(
 		nativescript: { platforms: { ios: '9.1.0' } },
 	}),
 )
+
 let count = 0
 async function visit(directory) {
 	for (const entry of await readdir(directory, { withFileTypes: true })) {
 		if (!entry.isDirectory()) {
 			continue
 		}
+
 		const path = join(directory, entry.name)
 		if (entry.name.endsWith('.xcframework')) {
 			try {
@@ -39,12 +42,14 @@ async function visit(directory) {
 					throw error
 				}
 			}
+
 			count++
 		} else {
 			await visit(path)
 		}
 	}
 }
+
 await visit(sdk)
 assert.ok(count, 'Official SDK frameworks are required')
 for (const [name, source] of [
@@ -62,16 +67,19 @@ for (const [name, source] of [
 		}
 	}
 }
+
 const resources = join(runtime, 'App_Resources')
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
 	recursive: true,
 	filter: (path) => !path.endsWith('google-services.json'),
 })
+
 await mkdir(join(resources, 'iOS/src'), { recursive: true })
 await cp(
 	join(packageRoot, 'platforms/ios/src/XplatStripePaymentSheet.swift'),
 	join(resources, 'iOS/src/XplatStripePaymentSheet.swift'),
 )
+
 const result = spawnSync(
 	'bun',
 	[
@@ -93,6 +101,7 @@ const result = spawnSync(
 	],
 	{ cwd: repo, encoding: 'utf8', timeout: 600000, maxBuffer: 16 * 1024 * 1024 },
 )
+
 assert.equal(result.status, 0, `${result.stdout}${result.stderr}`)
 const report = JSON.parse(result.stdout.slice(result.stdout.indexOf('{')))
 assert.equal(report.results.length, 1)

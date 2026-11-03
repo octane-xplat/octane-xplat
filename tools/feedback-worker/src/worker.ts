@@ -12,6 +12,7 @@ const TEXT_LIMITS = {
 	evidence: 8000,
 	workaround: 4000,
 } as const
+
 const TARGETS = new Set(['web', 'ios', 'android', 'macos', 'linux', 'windows', 'unknown'])
 const IMPACTS = new Set(['blocked', 'rework', 'investigation', 'surprise'])
 const FIELDS = new Set([...Object.keys(TEXT_LIMITS), 'target', 'impact'])
@@ -45,11 +46,13 @@ async function readBody(request: Request): Promise<string | null> {
 			if (done) {
 				break
 			}
+
 			length += value.byteLength
 			if (length > MAX_BODY_BYTES) {
 				await reader.cancel()
 				return null
 			}
+
 			chunks.push(value)
 		}
 	} finally {
@@ -77,6 +80,7 @@ function validate(value: unknown): string | null {
 		if ((field === 'evidence' || field === 'workaround') && text === undefined) {
 			continue
 		}
+
 		if (typeof text !== 'string' || !text.trim() || text.length > limit) {
 			return `${field} must be a non-empty string of at most ${limit} characters.`
 		}
@@ -119,6 +123,7 @@ export default {
 			if (body === null) {
 				return json(413, { error: 'report-too-large', max_bytes: MAX_BODY_BYTES })
 			}
+
 			value = JSON.parse(body)
 		} catch {
 			return json(400, { error: 'invalid-json' })
@@ -149,6 +154,7 @@ export default {
 					report.workaround ?? null,
 				)
 				.run()
+
 			if (!result.success) {
 				return json(503, { error: 'temporarily-unavailable' })
 			}

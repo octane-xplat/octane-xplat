@@ -52,7 +52,15 @@ import { normalizeKeyEvent } from './key-event.js'
 import { createGtkWindowService, type GtkWindowService } from './window-service.js'
 import { disposeWebView, makeWebView, updateWebView } from './webview-instance.js'
 
-import { CSS_PROPS, gtkStyleCss, markupEscape, normalizeStyleBag, spanPangoAttrs, spanTextTransform } from './style-css.js'
+import {
+	CSS_PROPS,
+	gtkStyleCss,
+	markupEscape,
+	normalizeStyleBag,
+	spanPangoAttrs,
+	spanTextTransform,
+} from './style-css.js'
+
 import { resolveTransform, cssTransformText } from './transform-style.js'
 import { createUniversalRoot } from 'octane/universal/native'
 import type {
@@ -478,6 +486,7 @@ function syncCss(node: ElementNode, style: PropBag | null | undefined) {
 			if (composite) {
 				layout.remove_css_class(node.cssClass + '-layout')
 			}
+
 			node.cssClass = null
 		}
 
@@ -1245,8 +1254,10 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
 		const rtl =
 			style?.direction === 'rtl' ||
 			(style?.direction == null && view.get_direction() === Gtk.TextDirection.RTL)
+
 		const right =
 			value === 'right' || value === 1 || (value === 'end' && !rtl) || (value === 'start' && rtl)
+
 		const center = value === 'center' || value === 0.5
 		const justification =
 			value === 'justify'
@@ -1256,6 +1267,7 @@ function syncTextAlign(node: ElementNode, view: GtkView, style: PropBag) {
 					: right
 						? Gtk.Justification.RIGHT
 						: Gtk.Justification.LEFT
+
 		view.set_justification(justification)
 		const hint = node.textView!.placeholder
 		hint.set_xalign(center ? 0.5 : right ? 1 : 0)
@@ -1365,6 +1377,7 @@ function restyleAllContainers() {
 		for (const child of container.children) {
 			markStyleDirty(child, true)
 		}
+
 		for (const target of container.portalTargets.values()) {
 			if (target.synthetic && target.parent) {
 				markStyleDirty(target.parent, true)
@@ -1417,11 +1430,13 @@ function setInputModality(next: 'keyboard' | 'pointer' | 'unknown') {
 		listener()
 	}
 }
+
 const SHORTCUT_MODIFIERS =
 	Gdk.ModifierType.CONTROL_MASK |
 	Gdk.ModifierType.ALT_MASK |
 	Gdk.ModifierType.SUPER_MASK |
 	Gdk.ModifierType.META_MASK
+
 // GTK reports the key-pressed `state` without the just-pressed key's own
 // bit, so a bare Control/Alt/Meta press would read as an unmodified key —
 // the web leaf excludes those through the event's own modifier flags.
@@ -1436,6 +1451,7 @@ const MODIFIER_KEYVALS = new Set([
 	Gdk.KEY_Super_L,
 	Gdk.KEY_Super_R,
 ])
+
 let emittedScheme: string | null = null
 function notifyAppearance() {
 	const scheme = cssSchemeName()
@@ -1503,13 +1519,24 @@ function wireContainerWindow(container: GtkContainer) {
 	if (!container.layerKeyController) {
 		const keys = new Gtk.EventControllerKey()
 		keys.connect('key-pressed', (_controller: any, keyval: number) => {
-			if (keyval !== Gdk.KEY_Escape) { return false }
+			if (keyval !== Gdk.KEY_Escape) {
+				return false
+			}
 			const sink = container.layerKeySink
-			if (!sink) { return false }
+			if (!sink) {
+				return false
+			}
 			let prevented = false
-			sink({ key: 'Escape', isComposing: false, preventDefault: () => { prevented = true } })
+			sink({
+				key: 'Escape',
+				isComposing: false,
+				preventDefault: () => {
+					prevented = true
+				},
+			})
 			return prevented
 		})
+
 		root.add_controller(keys)
 		container.layerKeyController = keys
 	}
@@ -1534,6 +1561,7 @@ function wireContainerWindow(container: GtkContainer) {
 				return false
 			},
 		)
+
 		const pointer = new Gtk.EventControllerLegacy()
 		pointer.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 		pointer.connect('event', (_controller: any, event: any) => {
@@ -1542,6 +1570,7 @@ function wireContainerWindow(container: GtkContainer) {
 				setInputModality('pointer')
 			}
 		})
+
 		root.add_controller(keys)
 		root.add_controller(pointer)
 		container.modalityControllers = [keys, pointer]
@@ -1579,6 +1608,7 @@ function wireContainerWindow(container: GtkContainer) {
 			if (!surface) {
 				return
 			}
+
 			container.surfaceWired = true
 			// GdkSurface::layout fires once the new size is live — after a
 			// set_default_size request AND for WM-driven resizes that never
@@ -1651,6 +1681,7 @@ function syncBoxAlignment(node: ElementNode, source: PropBag) {
 			view.set_valign(Gtk.Align.FILL)
 			node.boxAlignmentManaged = false
 		}
+
 		return
 	}
 	const horizontal = host.orientation === Gtk.Orientation.HORIZONTAL
@@ -1880,6 +1911,7 @@ function applyStyleViewProps(node: ElementNode, view: GtkView, style: PropBag) {
 		if (layout !== view) {
 			layout.set_direction(d)
 		}
+
 		node.styleDirection = true
 	} else if (node.styleDirection) {
 		node.styleDirection = false
@@ -2279,6 +2311,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		if (node.type !== 'webview' || !WEBVIEW_EVENT_PROPS.has(name)) {
 			warnEventProp(node, name)
 		}
+
 		return // classified events arrive as `event` commands
 	}
 	// Cascade-fed props apply on viewless nodes too — contentview and friends
@@ -2325,13 +2358,16 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 		if (!view) {
 			return
 		}
+
 		if (name === 'accessibilityLabel') {
 			view.set_name(widgetName(node))
 		}
+
 		const property =
 			name === 'accessibilityLabel'
 				? Gtk.AccessibleProperty.LABEL
 				: Gtk.AccessibleProperty.DESCRIPTION
+
 		try {
 			if (value == null) {
 				view.reset_property(property)
@@ -2344,6 +2380,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 				'<' + node.type + '> could not set GTK accessible text: ' + (error as Error).message,
 			)
 		}
+
 		return
 	}
 	if (
@@ -2501,6 +2538,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn('<' + node.type + '> ignored prop ' + name)
 			}
+
 			return
 		case 'masonview':
 			if (name === 'spacing' || name === 'gap' || name === 'rowGap' || name === 'columnGap') {
@@ -2602,6 +2640,7 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 			} else {
 				warn(`<textview> ignored prop ${name}`)
 			}
+
 			return
 		case 'textfield':
 			if (name === 'value' || name === 'text') {
@@ -2640,9 +2679,11 @@ function setProp(node: ElementNode, name: string, value: unknown) {
 					node.props.scrollBarIndicatorVisible === false
 						? Gtk.PolicyType.EXTERNAL
 						: Gtk.PolicyType.AUTOMATIC
+
 				const enabled = node.props.isScrollEnabled !== false
 				view.hscrollbar_policy =
 					enabled && orientation !== 'vertical' ? policy : Gtk.PolicyType.NEVER
+
 				view.vscrollbar_policy =
 					enabled && orientation !== 'horizontal' ? policy : Gtk.PolicyType.NEVER
 			} else {
@@ -2814,6 +2855,7 @@ function resetProp(node: ElementNode, name: string) {
 					node.props.isEnabled !== false &&
 					node.props.enabled !== false,
 			)
+
 			return
 		case 'visibility':
 			syncVisibility(node, true)
@@ -2856,6 +2898,7 @@ function resetProp(node: ElementNode, name: string) {
 			if (name === 'accessibilityLabel') {
 				view.set_name(widgetName(node))
 			}
+
 			try {
 				view.reset_property(
 					name === 'accessibilityLabel'
@@ -3029,6 +3072,7 @@ function syncText(anchor: ElementNode | null) {
 			if (child.view !== null) {
 				continue
 			}
+
 			if (child.type === 'span') {
 				const own = spanChain(child)
 				const next: SpanChain = {
@@ -3036,6 +3080,7 @@ function syncText(anchor: ElementNode | null) {
 					link: own.link ?? chain.link,
 					tx: (s) => own.tx(chain.tx(s)),
 				}
+
 				emitRun(child.text, next)
 				collect(child, next)
 			} else if (child.type === TEXT) {
@@ -3116,6 +3161,7 @@ function viewIndexOf(
 			if (ordered[i].get_parent() !== host) {
 				continue
 			}
+
 			let index = 0
 			for (let child = host.get_first_child(); child; child = child.get_next_sibling(), index++) {
 				if (child === ordered[i]) {
@@ -3123,10 +3169,12 @@ function viewIndexOf(
 				}
 			}
 		}
+
 		let length = 0
 		for (let child = host.get_first_child(); child; child = child.get_next_sibling()) {
 			length++
 		}
+
 		return length
 	}
 	const siblings = parent === null ? container.children : parent.children
@@ -3572,6 +3620,7 @@ function connectEvent(
 				pressed = action === 'down'
 				dispatch({ eventName: 'touch', object: view, action, x, y })
 			}
+
 			view.add_controller(gesture)
 			return {
 				connections: [
@@ -3608,6 +3657,7 @@ function connectEvent(
 			let x = 0,
 				y = 0,
 				time = 0
+
 			const send = (state: string, dx: number, dy: number) => {
 				const now = GLib.get_monotonic_time() / 1000
 				const elapsed = now - time
@@ -3618,6 +3668,7 @@ function connectEvent(
 				time = now
 				dispatch({ x, y, dx: x, dy: y, vx, vy, state, target: view })
 			}
+
 			view.add_controller(gesture)
 			return {
 				connections: [
@@ -3756,6 +3807,7 @@ function connectEvent(
 					return event.defaultPrevented === true || event.cancelBubble === true
 				},
 			)
+
 			view.add_controller(controller)
 			return { connections: [{ emitter: controller, signalId }], controllers: [controller] }
 		}
@@ -3798,6 +3850,7 @@ function connectEvent(
 					controllers: [],
 				}
 			}
+
 			const signal =
 				view instanceof Gtk.Switch
 					? 'notify::active'
@@ -3835,9 +3888,11 @@ function connectEvent(
 						return true
 					},
 				)
+
 				view.add_controller(controller)
 				return { connections: [{ emitter: controller, signalId }], controllers: [controller] }
 			}
+
 			return {
 				connections: [{ emitter: view, signalId: view.connect('activate', handler) }],
 				controllers: [],
@@ -4053,6 +4108,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 				}
 			},
 		})
+
 		// Cursor movement and selection clicks do not emit text changes. Stop
 		// delayed repair on actual input too, before GTK handles that event.
 		const input = new Gtk.EventControllerLegacy()
@@ -4069,6 +4125,7 @@ function bindNodePublicInstance(node: ElementNode): () => void {
 			}
 			return false
 		})
+
 		view.add_controller(input)
 		disposeEntryInput = () => {
 			input.disconnect(signal)
@@ -4178,11 +4235,13 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
 				if (isMasonHostView(target)) {
 					throw new Error('linux-gtk portal: a Mason target must belong to this root.')
 				}
+
 				if (
 					!(target instanceof Gtk.Box || target instanceof Gtk.Fixed || target instanceof Gtk.Grid)
 				) {
 					throw new Error('linux-gtk portal: target must be a multi-child GTK layout container.')
 				}
+
 				parent = createNodeState(
 					container,
 					-(container.nextPortalTarget + 1),
@@ -4190,6 +4249,7 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
 					{},
 					null,
 				)
+
 				parent.portalHost = target
 				synthetic = true
 			} else if (
@@ -4214,8 +4274,10 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
 			) {
 				throw new Error('linux-gtk portal: target is not a live GTK layout ref.')
 			}
+
 			parent = logical
 		}
+
 		const host = parent ? hostViewOf(container, parent) : container.host
 		if (
 			!(
@@ -4229,6 +4291,7 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
 				'linux-gtk portal: target must resolve to a multi-child GTK layout container.',
 			)
 		}
+
 		const id = ++container.nextPortalTarget
 		record = {
 			id,
@@ -4238,6 +4301,7 @@ function preparePortalTarget(context: UniversalPortalTargetContext<GtkContainer>
 			synthetic,
 			references: 0,
 		}
+
 		container.portalTargets.set(id, record)
 		container.portalTargetsByObject.set(target, record)
 	}
@@ -4302,6 +4366,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 			if (node.type === 'webview' && node.view !== null) {
 				disposeWebView(node.view)
 			}
+
 			node.disposePublicInstance?.()
 			node.destroyed = true
 			container.cssDirty?.delete(node)
@@ -4354,10 +4419,12 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				)
 					? oldFocus
 					: null
+
 			node.picture?.dispose()
 			if (node.type === 'webview' && oldView !== null) {
 				disposeWebView(oldView)
 			}
+
 			node.disposePublicInstance?.()
 			disposeListeners(node)
 			node.muted.clear()
@@ -4401,6 +4468,7 @@ function applyCommand(container: GtkContainer, command: UniversalHostCommand) {
 				command.type === 'image' || command.type === 'svgview'
 					? bindPicture(node, import.meta.url)
 					: undefined
+
 			if (node.view !== null && isMasonHostView(node.view)) {
 				bindMasonView(node.view, node)
 			}
@@ -4497,10 +4565,12 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 			if (command.op === 'create' || command.op === 'recreate') {
 				types.set(command.id, command.type)
 			}
+
 			const type =
 				'id' in command
 					? (types.get(command.id) ?? container.nodes.get(command.id)?.type)
 					: undefined
+
 			if (type === 'textview' && 'props' in command && command.props?.secure === true) {
 				throw new Error(
 					'linux-gtk: secure multiline input is unavailable; use TextInput with secure instead.',
@@ -4548,7 +4618,10 @@ export const gtkDriver: UniversalHostDriver<GtkContainer, GtkView | ElementNode 
 	},
 }
 
-export function createGtkContainer(host: GtkView, options: { service?: boolean } = {}): GtkContainer {
+export function createGtkContainer(
+	host: GtkView,
+	options: { service?: boolean } = {},
+): GtkContainer {
 	// A renderer-owned Gtk.Overlay inside the host — the RootLayout
 	// equivalent. The root content mounts into its main child; overlay layers
 	// (dialogs, sheets, toasts) stack above it via `add_overlay`.
@@ -4557,16 +4630,22 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 	overlay.set_vexpand(true)
 	// Mirror a Gtk.Fixed host so root `left`/`top` props position children
 	// through the same put/move path the host uses for its own children.
-	const contentHost = host instanceof Gtk.Fixed
-		? new Gtk.Fixed()
-		: new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+	const contentHost =
+		host instanceof Gtk.Fixed
+			? new Gtk.Fixed()
+			: new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 	overlay.set_child(contentHost)
 	// Attach the overlay to whatever widget the caller handed in — Box
 	// `append`, Fixed `put`, Grid `attach`, or a content-view `set_child`.
-	if (host instanceof Gtk.Box) { host.append(overlay) }
-	else if (host instanceof Gtk.Fixed) { host.put(overlay, 0, 0) }
-	else if (host instanceof Gtk.Grid) { host.attach(overlay, 0, 0, 1, 1) }
-	else { host.set_child?.(overlay) }
+	if (host instanceof Gtk.Box) {
+		host.append(overlay)
+	} else if (host instanceof Gtk.Fixed) {
+		host.put(overlay, 0, 0)
+	} else if (host instanceof Gtk.Grid) {
+		host.attach(overlay, 0, 0, 1, 1)
+	} else {
+		host.set_child?.(overlay)
+	}
 	const container: GtkContainer = {
 		host,
 		overlay,
@@ -4608,7 +4687,9 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 			// the registered sink; registering swaps the handler only.
 			container.layerKeySink = handler
 			return () => {
-				if (container.layerKeySink === handler) { container.layerKeySink = null }
+				if (container.layerKeySink === handler) {
+					container.layerKeySink = null
+				}
 			}
 		},
 		// Environment + host services for ui's theme/environment leaves —
@@ -4662,8 +4743,8 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 		announce: (text: string, politeness?: string) => {
 			try {
 				const last =
-					[...liveGtkContainers].filter((c) => !c.service).at(-1) ??
-					[...liveGtkContainers].at(-1)
+					[...liveGtkContainers].filter((c) => !c.service).at(-1) ?? [...liveGtkContainers].at(-1)
+
 				const widget = last?.host
 				// GtkAccessible.announce + priority enum are GTK >= 4.14; the
 				// vendored GI types predate them, so read through `any` like the
@@ -4672,8 +4753,8 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 				if (typeof widget?.announce !== 'function' || Priority === undefined) {
 					return false
 				}
-				const priority =
-					politeness === 'assertive' ? Priority.HIGH : Priority.MEDIUM
+
+				const priority = politeness === 'assertive' ? Priority.HIGH : Priority.MEDIUM
 				widget.announce(String(text), priority)
 				return true
 			} catch {
@@ -4693,14 +4774,18 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 			const release = layer.dispose?.bind(layer)
 			if (typeof release === 'function') {
 				layer.dispose = () => {
-					try { mounted.root.unmount() } catch { }
+					try {
+						mounted.root.unmount()
+					} catch {}
 					release()
 				}
 			}
 			return {
 				root: mounted.root,
 				unmount: () => {
-					try { mounted.root.unmount() } catch { }
+					try {
+						mounted.root.unmount()
+					} catch {}
 				},
 			}
 		},
@@ -4708,8 +4793,7 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 		// call with its own universal root, the GTK counterpart of the macOS
 		// __xplatAppKitOpenWindow + setWindowContentResolver seam.
 		openWindow: (options: any) => windowService().openWindow(options ?? {}),
-		setWindowContentResolver: (resolve: any) =>
-			windowService().setWindowContentResolver(resolve),
+		setWindowContentResolver: (resolve: any) => windowService().setWindowContentResolver(resolve),
 		// External-URL open seam for ui's nav-href.gtk — Gtk.show_uri_full on
 		// the app's main window (GTK >= 4.10). Returns false when the request
 		// cannot be made so callers surface the failure instead of assuming
@@ -4720,6 +4804,7 @@ export function createGtkContainer(host: GtkView, options: { service?: boolean }
 				if (typeof show !== 'function') {
 					return false
 				}
+
 				show(mainGtkWindow(), String(uri), null, () => {})
 				return true
 			} catch {
@@ -4783,17 +4868,29 @@ export function createGtkRoot(host: GtkView, options: GtkRootOptions = {}) {
 		// Settle any in-flight incremental GC while JS still controls the
 		// stack — teardown emissions (map/unmap/state-flags/idle sources)
 		// dispatched during a sweep are blocked and dropped, not deferred.
-		try { (globalThis as any).imports?.system?.gc?.() } catch { }
+		try {
+			;(globalThis as any).imports?.system?.gc?.()
+		} catch {}
 		universalUnmount()
-		for (const layer of Array.from(container.overlayLayerHandles ?? [])) { layer.dispose() }
+		for (const layer of Array.from(container.overlayLayerHandles ?? [])) {
+			layer.dispose()
+		}
 		const overlay = container.overlay
 		if (overlay) {
 			const parent = overlay.get_parent?.()
-			if (parent === host && (host instanceof Gtk.Box || host instanceof Gtk.Fixed || host instanceof Gtk.Grid)) { host.remove(overlay) }
-			else if (parent === host) { host.set_child?.(null) }
+			if (
+				parent === host &&
+				(host instanceof Gtk.Box || host instanceof Gtk.Fixed || host instanceof Gtk.Grid)
+			) {
+				host.remove(overlay)
+			} else if (parent === host) {
+				host.set_child?.(null)
+			}
 		}
 		liveGtkContainers.delete(container)
-		if (liveGtkContainers.size === 0) { delete (globalThis as any).__octaneGtkHost }
+		if (liveGtkContainers.size === 0) {
+			delete (globalThis as any).__octaneGtkHost
+		}
 	}
 	return { root, container }
 }

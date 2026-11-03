@@ -18,60 +18,96 @@ const checks: string[] = []
 const failures: string[] = []
 const check = (name: string, ok: boolean | unknown) => {
 	checks.push(name)
-	if (!ok) { failures.push(name) }
+	if (!ok) {
+		failures.push(name)
+	}
 }
+
 const osInput = GLib.getenv('GTK_APPSHELL_OS') === '1'
 
-const window = new Gtk.Window({ title: 'Octane GTK Appshell test', default_width: 1100, default_height: 640, decorated: false })
+const window = new Gtk.Window({
+	title: 'Octane GTK Appshell test',
+	default_width: 1100,
+	default_height: 640,
+	decorated: false,
+})
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
-const pump = (ms: number) => new Promise<void>((resolve) => {
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => { resolve(); return false })
-})
+const pump = (ms: number) =>
+	new Promise<void>((resolve) => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+			resolve()
+			return false
+		})
+	})
 
 const findView = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n.view }
+		if (n?.props?.id === id) {
+			return n.view
+		}
 	}
 	return null
 }
+
 const hasText = (needle: string): boolean => {
 	for (const n of (container as any).nodes.values()) {
-		try { if (JSON.stringify(n.props).includes(needle)) { return true } } catch { }
+		try {
+			if (JSON.stringify(n.props).includes(needle)) {
+				return true
+			}
+		} catch {}
 	}
 	return false
 }
+
 const findLabel = (text: string): any => {
 	for (const n of (container as any).nodes.values()) {
 		try {
 			if (JSON.stringify(n.props).includes(text)) {
 				let cur = n
-				while (cur && !cur.view) { cur = cur.parent }
-				if (cur?.view) { return cur.view }
+				while (cur && !cur.view) {
+					cur = cur.parent
+				}
+
+				if (cur?.view) {
+					return cur.view
+				}
 			}
-		} catch { }
+		} catch {}
 	}
 	return null
 }
+
 const findClass = (cls: string): any => {
 	for (const n of (container as any).nodes.values()) {
 		try {
-			if (String(n.props?.className ?? '').includes(cls) && n.view) { return n.view }
-		} catch { }
+			if (String(n.props?.className ?? '').includes(cls) && n.view) {
+				return n.view
+			}
+		} catch {}
 	}
 	return null
 }
+
 const point = (widget: any): { x: number; y: number } => {
 	const native = widget.get_native()
 	const [ok, rect] = widget.compute_bounds(native)
-	if (!ok) { throw new Error('No native input bounds') }
+	if (!ok) {
+		throw new Error('No native input bounds')
+	}
 	const [tx, ty] = native.get_surface_transform()
 	let x = rect.origin.x - tx + rect.size.width / 2
 	let y = rect.origin.y - ty + rect.size.height / 2
-	for (let surface = native.get_surface(); typeof surface.get_parent === 'function'; surface = surface.get_parent()) {
+	for (
+		let surface = native.get_surface();
+		typeof surface.get_parent === 'function';
+		surface = surface.get_parent()
+	) {
 		x += surface.get_position_x()
 		y += surface.get_position_y()
 	}
@@ -82,17 +118,25 @@ const point = (widget: any): { x: number; y: number } => {
 let readyResolve: (() => void) | null = null
 const ready = (payload: any) => {
 	print('GTK_APPSHELL_READY ' + JSON.stringify(payload))
-	return new Promise<void>((resolve) => { readyResolve = resolve })
+	return new Promise<void>((resolve) => {
+		readyResolve = resolve
+	})
 }
+
 const keyCtl = new Gtk.EventControllerKey()
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
-	if (keyval === Gdk.KEY_F12 && readyResolve) { readyResolve(); readyResolve = null }
+	if (keyval === Gdk.KEY_F12 && readyResolve) {
+		readyResolve()
+		readyResolve = null
+	}
 	return false
 })
 
 const describe = (w: any): string => {
-	if (!w) { return 'null' }
+	if (!w) {
+		return 'null'
+	}
 	try {
 		return (
 			(w.constructor?.name ?? 'w') +
@@ -105,6 +149,7 @@ const describe = (w: any): string => {
 		return 'err'
 	}
 }
+
 /** What widget actually receives a click at a screen point. */
 const pickAt = (c: { x: number; y: number }): any => {
 	try {
@@ -114,18 +159,24 @@ const pickAt = (c: { x: number; y: number }): any => {
 		return null
 	}
 }
+
 const clickAt = async (widget: any, tag = '?') => {
 	const c = point(widget)
-	if (c.x === 0 && c.y === 0) { failures.push('degenerate-bounds:' + tag) }
+	if (c.x === 0 && c.y === 0) {
+		failures.push('degenerate-bounds:' + tag)
+	}
 	// Race the F12 handshake — an unclosed popover (or a grabbed modal) can
 	// swallow the key event and must not deadlock the whole run.
 	await Promise.race([ready({ x: c.x, y: c.y }), pump(2500)])
 	await pump(220)
 	return { c, picked: pickAt(c) }
 }
+
 const dragFrom = async (widget: any, dx: number, dy: number, tag = '?') => {
 	const c = point(widget)
-	if (c.x === 0 && c.y === 0) { failures.push('degenerate-bounds:' + tag) }
+	if (c.x === 0 && c.y === 0) {
+		failures.push('degenerate-bounds:' + tag)
+	}
 	await Promise.race([ready({ x: c.x, y: c.y, drag: { dx, dy } }), pump(2500)])
 	await pump(300)
 	return { c, picked: pickAt(c) }
@@ -148,7 +199,10 @@ async function run() {
 
 	check('safe-area insets are zero', state.insets?.top === 0 && state.insets?.bottom === 0)
 	check('keyboard inset is zero', state.kbinset === 0)
-	check('useContainerReveal returns prop getters', typeof state.reveal?.getContainerProps === 'function')
+	check(
+		'useContainerReveal returns prop getters',
+		typeof state.reveal?.getContainerProps === 'function',
+	)
 	check('useImageMode returns fallback', state.imgmode === 'dark')
 	// The shell's mobile flag is emit-driven — the AppShell breakpoint watch
 	// fires on each layoutChanged, and GTK can hand the window a transient
@@ -198,7 +252,10 @@ async function run() {
 		const ws = findView('nhm-a')
 		if (ws) {
 			await clickAt(ws, 'nhm-a')
-			check('NavHeadingMenuItem fires + closes', state.navPick === 'workspace' && !hasText('Workspace'))
+			check(
+				'NavHeadingMenuItem fires + closes',
+				state.navPick === 'workspace' && !hasText('Workspace'),
+			)
 		}
 	}
 
@@ -235,6 +292,7 @@ async function run() {
 			await clickAt(navToggle, 'nav-toggle')
 			await pump(300)
 		}
+
 		check('expand flips collapse state', state.collapsed === false)
 		check('expand restores the rail', shellWidth() > w1 + 50)
 	}
@@ -248,7 +306,11 @@ async function run() {
 	check('MobileNavToggle appears below breakpoint', !!toggle)
 	if (toggle) {
 		await clickAt(toggle, 'mobilenav-toggle')
-		check('toggle opens MobileNav drawer', state.mobile?.isMobileNavOpen === true || !!findClass('vx-mobilenav'))
+		check(
+			'toggle opens MobileNav drawer',
+			state.mobile?.isMobileNavOpen === true || !!findClass('vx-mobilenav'),
+		)
+
 		const backdrop = findClass('vx-mobilenav-backdrop')
 		if (backdrop) {
 			await clickAt(backdrop, 'backdrop')
@@ -265,7 +327,12 @@ async function run() {
 		state.winData = data
 		return ChildWindow
 	})
-	const winHandle = openWindow({ data: { tag: 'child' }, title: 'Child one', kind: 'regular', size: { width: 240, height: 160 } } as any)
+	const winHandle = openWindow({
+		data: { tag: 'child' },
+		title: 'Child one',
+		kind: 'regular',
+		size: { width: 240, height: 160 },
+	} as any)
 	check('openWindow returns handle', !!winHandle && typeof winHandle.id === 'string')
 	check('resolver received data', state.winData?.tag === 'child')
 	if (winHandle) {
@@ -275,7 +342,10 @@ async function run() {
 		winHandle.setSize?.({ width: 300, height: 200 })
 		check('setTitle/setSize run', true)
 		let closed = false
-		void winHandle.closed.then(() => { closed = true })
+		void winHandle.closed.then(() => {
+			closed = true
+		})
+
 		winHandle.close()
 		await pump(200)
 		check('close settles closed promise', closed === true && winHandle.isClosed === true)
@@ -310,10 +380,13 @@ run()
 					gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
 				}),
 		)
-		try { root.unmount() } catch { }
+		try {
+			root.unmount()
+		} catch {}
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

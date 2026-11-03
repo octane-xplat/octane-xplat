@@ -36,7 +36,9 @@ function mount() {
 function frame(now: number) {
 	const cbs = rafCallbacks.splice(0)
 	act(() => {
-		for (const cb of cbs) cb(now)
+		for (const cb of cbs) {
+			cb(now)
+		}
 	})
 }
 
@@ -47,6 +49,7 @@ beforeEach(() => {
 		rafCallbacks.push(cb)
 		return rafCallbacks.length
 	})
+
 	vi.stubGlobal('cancelAnimationFrame', (id: number) => cancelled.push(id))
 })
 
@@ -79,7 +82,10 @@ it('reveals text progressively through animation frames and drains bursts', () =
 	expect(el.textContent).toBe('Hello, world! This i')
 	// A burst mid-drain keeps revealing toward the new target.
 	render('Hello, world! This is a test. And more.', true)
-	for (let i = 0; i < 6; i++) frame(150 + i * 60)
+	for (let i = 0; i < 6; i++) {
+		frame(150 + i * 60)
+	}
+
 	expect(el.textContent).toBe('Hello, world! This is a test. And more.')
 })
 
@@ -145,6 +151,7 @@ it('snapToGraphemeBoundary leaves boundaries and never splits clusters', () => {
 	for (let offset = 2; offset < 1 + family.length; offset++) {
 		expect(snapToGraphemeBoundary(text, offset)).toBe(1)
 	}
+
 	expect(snapToGraphemeBoundary('hello', 0)).toBe(0)
 	expect(snapToGraphemeBoundary('hello', 5)).toBe(5)
 	expect(snapToGraphemeBoundary('hello', 3)).toBe(3)
@@ -157,6 +164,7 @@ it('returns the full text under prefers-reduced-motion', () => {
 		addEventListener() {},
 		removeEventListener() {},
 	}))
+
 	const { el, render } = mount()
 	render('reduced motion', true)
 	expect(el.textContent).toBe('reduced motion')

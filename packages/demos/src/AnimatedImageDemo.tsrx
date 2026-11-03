@@ -7,9 +7,7 @@ import { Heading, Text, View } from '@octane-xplat/ui'
 export function AnimatedImageDemo() @{
 	<View className="gap-4">
 		<Heading level={2}>Animated image</Heading>
-		<Text>
-			Use animated images for small illustrations, loading states and reactions.
-		</Text>
+		<Text>Use animated images for small illustrations, loading states and reactions.</Text>
 		<AnimatedImage
 			id="animated-image"
 			src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_(large).gif"

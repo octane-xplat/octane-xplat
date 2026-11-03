@@ -6,6 +6,7 @@ import type {
 	PackagedProofResult,
 	PackagedProofServices,
 } from '../src/webview-packaged-proof-contracts'
+
 import type { HostClient } from '@octane-xplat/platform/host'
 
 const output = document.querySelector<HTMLPreElement>('#result')!
@@ -117,11 +118,10 @@ async function runProof(client: HostClient<PackagedProofServices, PackagedProofE
 					stream.getTracks().forEach((track) => track.stop())
 					return 'stream'
 				})
-				.catch((error: unknown) =>
-					error instanceof DOMException ? error.name : String(error),
-				),
+				.catch((error: unknown) => (error instanceof DOMException ? error.name : String(error))),
 			new Promise<string>((resolve) => setTimeout(() => resolve('gum-pending-20s'), 20_000)),
 		])
+
 		assert(
 			capture === 'NotAllowedError' || capture === 'stream' || capture === 'NotFoundError',
 			`unexpected getUserMedia outcome: ${capture}`,

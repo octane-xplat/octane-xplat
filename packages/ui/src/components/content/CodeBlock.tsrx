@@ -90,14 +90,17 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 		if (l.length > 1 && l[l.length - 1] === '') {
 			l.pop()
 		}
+
 		return l
 	}, [props.code])
+
 	const diff = useMemo(() => (isDiff ? splitDiffLines(lines) : null), [isDiff, lines])
 	const tokenLines = useTokenLines(
 		diff ? diff.content.join('\n') : props.code,
 		language,
 		props.tokenizer,
 	)
+
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
@@ -112,6 +115,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 			: language !== 'plaintext'
 				? language
 				: null
+
 	const hasHeader = props.title != null || languageLabel != null
 	// A collapsed body must never outlive the visible header that controls it.
 	const canCollapse = hasHeader && isCollapsible && lines.length >= collapsibleThreshold
@@ -147,6 +151,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 									? '#1111127F'
 									: '#0536590C'
 								: undefined
+
 				const markerColor =
 					diffKind === 'added'
 						? scheme === 'dark'
@@ -157,6 +162,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
 								? '#FFB2B8'
 								: '#7B0210'
 							: mutedColor(scheme)
+
 				return (
 					<masonview
 						key={lineNo}

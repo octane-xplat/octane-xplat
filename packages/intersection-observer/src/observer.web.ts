@@ -3,7 +3,8 @@
 // presents the same surface.
 import type { IntersectionObserverConstructor } from './types'
 
-const NativeObserver = 'IntersectionObserver' in globalThis ? globalThis.IntersectionObserver : undefined
+const NativeObserver =
+	'IntersectionObserver' in globalThis ? globalThis.IntersectionObserver : undefined
 
 /** Whether the current web host provides the DOM IntersectionObserver API. */
 export const supported: boolean = typeof NativeObserver === 'function'

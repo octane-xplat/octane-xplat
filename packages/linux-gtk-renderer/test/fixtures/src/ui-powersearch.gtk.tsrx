@@ -17,7 +17,15 @@ export const state: Record<string, any> = {
 const defs: FieldDefinition[] = [
 	{ key: 'name', type: 'string', label: 'Name' },
 	{ key: 'count', type: 'number', label: 'Count' },
-	{ key: 'status', type: 'enum', label: 'Status', enumValues: [{ value: 'open', label: 'Open' }, { value: 'closed', label: 'Closed' }] },
+	{
+		key: 'status',
+		type: 'enum',
+		label: 'Status',
+		enumValues: [
+			{ value: 'open', label: 'Open' },
+			{ value: 'closed', label: 'Closed' },
+		],
+	},
 ]
 
 const { config } = createPowerSearchConfig(defs, 'ProbeConfig')

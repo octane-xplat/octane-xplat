@@ -13,6 +13,7 @@ import {
 	NSView,
 	NSZeroRect,
 } from '@octane-xplat/platform/macos'
+
 import type { NSCopying } from '@octane-xplat/platform/macos'
 import { createAppleBackend, type NativeData } from './backend.apple'
 import type { CaptureBackend } from './backend-types'
@@ -56,8 +57,8 @@ export const backend: CaptureBackend = createAppleBackend({
 			throw new Error('AppKit could not allocate the view cache')
 		}
 		view.cacheDisplayInRectToBitmapImageRep(view.bounds, source)
-		const output = NSBitmapImageRep.alloc()
-			.initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
+		const output =
+			NSBitmapImageRep.alloc().initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
 				null,
 				width,
 				height,
@@ -69,9 +70,7 @@ export const backend: CaptureBackend = createAppleBackend({
 				0,
 				0,
 			)
-		const context = output
-			? NSGraphicsContext.graphicsContextWithBitmapImageRep(output)
-			: null
+		const context = output ? NSGraphicsContext.graphicsContextWithBitmapImageRep(output) : null
 		if (!output || !context) {
 			throw new Error('AppKit could not allocate the output bitmap')
 		}

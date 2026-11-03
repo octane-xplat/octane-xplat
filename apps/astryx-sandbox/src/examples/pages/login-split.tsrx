@@ -7,9 +7,23 @@
 // styles/login-split.css.
 import { useState } from 'octane'
 import {
-	Button, Card, Center, Divider, EmptyState, Grid, Heading, HStack, Icon, Link, Section,
-	StackItem, Text, TextInput, VStack,
+	Button,
+	Card,
+	Center,
+	Divider,
+	EmptyState,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Link,
+	Section,
+	StackItem,
+	Text,
+	TextInput,
+	VStack,
 } from '@octane-xplat/ui'
+
 import './styles/login-split.css'
 
 const COVER_IMAGE_URL = '/template-assets/light-working-vertical-1.png'
@@ -26,11 +40,13 @@ const pageStyle = {
 	minHeight: '100%',
 	backgroundColor: 'var(--color-background-body)',
 }
+
 const cardWrap = {
 	width: '100%',
 	maxWidth: 1000,
 	marginInline: 'auto',
 }
+
 const coverImage = {
 	width: '100%',
 	height: '100%',
@@ -49,6 +65,7 @@ export function LoginSplitTemplate() @{
 			setLoginFailed(true)
 			return
 		}
+
 		setIsLoading(true)
 		setLoginFailed(false)
 		setTimeout(() => {
@@ -64,7 +81,8 @@ export function LoginSplitTemplate() @{
 					<Grid
 						columns={{ minWidth: COLUMN_MIN_WIDTH, repeat: 'fit' }}
 						style={{ gap: 32, alignItems: 'stretch' }}
-						className="tp-login-split-grid">
+						className="tp-login-split-grid"
+					>
 						{/* Form */}
 						<Section variant="transparent" padding={0} height="100%">
 							<VStack gap={4} height="100%">
@@ -173,11 +191,7 @@ export function LoginSplitTemplate() @{
 						    corners (overflow:clip + radius), so the image needs no radius. */}
 						<div className="tp-login-split-image">
 							<Card variant="transparent" padding={0} width="100%" height="100%">
-								<img
-									style={coverImage}
-									src={COVER_IMAGE_URL}
-									alt="Two people working at a desk"
-								/>
+								<img style={coverImage} src={COVER_IMAGE_URL} alt="Two people working at a desk" />
 							</Card>
 						</div>
 					</Grid>

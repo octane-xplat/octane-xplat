@@ -204,6 +204,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 			} else {
 				collapse()
 			}
+
 			return
 		}
 

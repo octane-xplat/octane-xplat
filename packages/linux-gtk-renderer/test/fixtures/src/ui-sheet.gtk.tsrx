@@ -61,11 +61,46 @@ export function SheetProbe() @{
 		<Button id="form-open" label="FormOpen" clickAction={() => setFormOpen(true)} />
 		<Button id="noscrim-open" label="NoScrim" clickAction={() => setNoScrimOpen(true)} />
 		<Button id="unctl-mount" label="Unctl" clickAction={() => setUnctlMounted(true)} />
-		<Button id="h-hug" label="HHug" clickAction={() => { setHeightMode('hug'); setHeightOpen(true) }} />
-		<Button id="h-capped" label="HCapped" clickAction={() => { setHeightMode('capped'); setHeightOpen(true) }} />
-		<Button id="h-tall" label="HTall" clickAction={() => { setHeightMode('tall'); setHeightOpen(true) }} />
-		<Button id="h-num" label="HNum" clickAction={() => { setHeightMode(300); setHeightOpen(true) }} />
-		<Button id="h-pct" label="HPct" clickAction={() => { setHeightMode('50%'); setHeightOpen(true) }} />
+		<Button
+			id="h-hug"
+			label="HHug"
+			clickAction={() => {
+				setHeightMode('hug')
+				setHeightOpen(true)
+			}}
+		/>
+		<Button
+			id="h-capped"
+			label="HCapped"
+			clickAction={() => {
+				setHeightMode('capped')
+				setHeightOpen(true)
+			}}
+		/>
+		<Button
+			id="h-tall"
+			label="HTall"
+			clickAction={() => {
+				setHeightMode('tall')
+				setHeightOpen(true)
+			}}
+		/>
+		<Button
+			id="h-num"
+			label="HNum"
+			clickAction={() => {
+				setHeightMode(300)
+				setHeightOpen(true)
+			}}
+		/>
+		<Button
+			id="h-pct"
+			label="HPct"
+			clickAction={() => {
+				setHeightMode('50%')
+				setHeightOpen(true)
+			}}
+		/>
 		<Button id="sw-a" label="SwA" clickAction={() => setSwActive('a')} />
 		<Button id="sw-b" label="SwB" clickAction={() => setSwActive('b')} />
 		<Button
@@ -84,11 +119,7 @@ export function SheetProbe() @{
 				handle.then((result) => setMark('imp2:' + String(result)))
 			}}
 		/>
-		<Button
-			id="svc-latest"
-			label="SvcLatest"
-			clickAction={() => closeBottomSheet('svc2-result')}
-		/>
+		<Button id="svc-latest" label="SvcLatest" clickAction={() => closeBottomSheet('svc2-result')} />
 		<ImperativeProbe onResult={(v) => setMark('uib:' + v)} />
 
 		<BottomSheet
@@ -96,7 +127,9 @@ export function SheetProbe() @{
 			isOpen={ctlOpen}
 			onOpenChange={(next) => {
 				setCtlOpen(next)
-				if (!next) { setMark('ctl:closed') }
+				if (!next) {
+					setMark('ctl:closed')
+				}
 			}}
 			label="Controlled sheet"
 		>
@@ -110,7 +143,9 @@ export function SheetProbe() @{
 			isOpen={snapOpen}
 			onOpenChange={(next) => {
 				setSnapOpen(next)
-				if (!next) { setMark('snap:closed') }
+				if (!next) {
+					setMark('snap:closed')
+				}
 			}}
 			label="Snap sheet"
 			snapPoints={SNAP_POINTS}
@@ -198,20 +233,34 @@ export function SheetProbe() @{
 			label="Sheet menu"
 			presentation="bottom-sheet"
 			items={[
-				{ type: 'action', key: 'dm-one', label: 'SheetActionOne', onSelect: () => setMark('dm:one') },
+				{
+					type: 'action',
+					key: 'dm-one',
+					label: 'SheetActionOne',
+					onSelect: () => setMark('dm:one'),
+				},
 			]}
 		/>
 		<MoreMenu
 			id="mm-sheet"
 			label="More sheet"
 			presentation="bottom-sheet"
-			items={[{ type: 'action', key: 'mm-one', label: 'MoreActionOne', onSelect: () => setMark('mm:one') }]}
+			items={[
+				{
+					type: 'action',
+					key: 'mm-one',
+					label: 'MoreActionOne',
+					onSelect: () => setMark('mm:one'),
+				},
+			]}
 		/>
 		<MoreMenu
 			id="mm-adaptive"
 			label="More adaptive"
 			presentation="adaptive"
-			items={[{ type: 'action', key: 'mm-ad', label: 'AdaptiveOne', onSelect: () => setMark('mm:ad') }]}
+			items={[
+				{ type: 'action', key: 'mm-ad', label: 'AdaptiveOne', onSelect: () => setMark('mm:ad') },
+			]}
 		/>
 	</View>
 }

@@ -239,6 +239,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 			const values = contentBox
 				? null
 				: context?.[box === 'border' ? 'get_border' : 'get_padding']()
+
 			out[box] = Object.fromEntries(edges.map((edge) => [edge, [0, values?.[edge] ?? 0]]))
 		}
 	}
@@ -701,9 +702,11 @@ function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [num
 		const nat = horizontal
 			? computeRootSize(root, MAX_CONTENT, offer)[0]
 			: computeRootSize(root, offer, MAX_CONTENT)[1]
+
 		const min = horizontal
 			? computeRootSize(root, MIN_CONTENT, offer)[0]
 			: computeRootSize(root, offer, MIN_CONTENT)[1]
+
 		return [Math.max(0, min - own), Math.max(0, nat - own)]
 	} finally {
 		mason.node_set_style(masonEngine()!, root, JSON.stringify(authored))

@@ -15,21 +15,29 @@ export function Overlay(props: OverlayProps): unknown @{
 	const open = props.open ?? internal
 	const [layer, setLayer] = useState<any>(null)
 	const requestDismiss = () => {
-		if (props.open === undefined) { setInternal(false) }
+		if (props.open === undefined) {
+			setInternal(false)
+		}
+
 		props.onDismiss?.()
 	}
+
 	const dismiss = useRef(requestDismiss)
 	dismiss.current = requestDismiss
 	const modal = !!(props.shadeCover || props.isModal)
 
 	useEffect(() => {
 		const view = hostView.current
-		if (!view || !open) { return }
+		if (!view || !open) {
+			return
+		}
+
 		const l = view.createOverlayLayer({
 			modal,
 			scrim: !!props.shadeCover,
 			onScrimPress: props.shadeCover ? () => dismiss.current() : undefined,
 		})
+
 		setLayer(l)
 		l.setVisible(true)
 		return () => l.dispose()
@@ -37,8 +45,13 @@ export function Overlay(props: OverlayProps): unknown @{
 
 	<>
 		<masonview
-			ref={(v: any) => { hostView.current = v }}
-			style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, { width: 0, height: 0 }))}
+			ref={(v: any) => {
+				hostView.current = v
+			}}
+			style={mergeStyle(
+				{ flexDirection: 'column' },
+				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+			)}
 		/>
 		{open && layer
 			? createPortal(

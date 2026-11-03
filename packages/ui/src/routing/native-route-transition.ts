@@ -46,17 +46,17 @@ export type NativeTransitionOptions = {
 	reducedMotion?: 'skip' | 'allow'
 } & (
 	| {
-		/** Frame-page transition factory (navigation-level transition). */
-		page: NativePageTransitionFactory
-		/** Rendered-view transition options, when content also animates. */
-		view?: NativeViewTransitionOptions
-	}
+			/** Frame-page transition factory (navigation-level transition). */
+			page: NativePageTransitionFactory
+			/** Rendered-view transition options, when content also animates. */
+			view?: NativeViewTransitionOptions
+	  }
 	| {
-		/** Frame-page transition factory, when the view carries the motion. */
-		page?: NativePageTransitionFactory
-		/** Rendered-view transition options (per-view animation). */
-		view: NativeViewTransitionOptions
-	}
+			/** Frame-page transition factory, when the view carries the motion. */
+			page?: NativePageTransitionFactory
+			/** Rendered-view transition options (per-view animation). */
+			view: NativeViewTransitionOptions
+	  }
 )
 
 interface StoredNativeTransitionOptions {

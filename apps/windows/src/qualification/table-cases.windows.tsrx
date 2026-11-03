@@ -26,10 +26,12 @@ export function TableCases(props: {
 		name: `Row ${String(index + 1).padStart(2, '0')} revision ${props.revision}`,
 		count: index,
 	}))
+
 	const columns: TableColumn<Row>[] = [
 		{ key: 'name', header: `Name ${props.revision}`, sortable: true },
 		{ key: 'count', header: 'Count', width: pixel(80), align: 'end' },
 	]
+
 	const state = useTableSortableState<Row>({
 		data,
 		sort,
@@ -41,6 +43,7 @@ export function TableCases(props: {
 			}
 		},
 	})
+
 	const sortable = useTableSortable<Row>(state.sortConfig)
 
 	<View className="core20-viewport">

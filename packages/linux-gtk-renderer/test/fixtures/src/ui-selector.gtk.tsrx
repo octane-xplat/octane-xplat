@@ -3,8 +3,18 @@ import { View, Text, TextInput, Pressable, Selector, MultiSelector, Field } from
 import type { SelectOption } from '../../../../ui/src/props'
 
 export const refs: Record<string, any> = {}
-export const counts = { changes: [] as any[], multi: [] as string[], opens: [] as boolean[], outside: 0, queries: [] as string[], errors: 0 }
-const capture = (name: string) => (view: any) => { refs[name] = view }
+export const counts = {
+	changes: [] as any[],
+	multi: [] as string[],
+	opens: [] as boolean[],
+	outside: 0,
+	queries: [] as string[],
+	errors: 0,
+}
+
+const capture = (name: string) => (view: any) => {
+	refs[name] = view
+}
 
 export const OPTIONS: SelectOption[] = [
 	{ value: 'a', label: 'Alpha' },
@@ -35,37 +45,53 @@ export function Scene(props: {
 }) @{
 	<>
 		<TextInput id="sel-peer" ref={capture('peer')} defaultValue="Peer" style={{ width: 180 }} />
-		{props.variant === 'uncontrolled'
-			? (props.nonce ? <View><Selector
-				id="sel"
-				options={OPTIONS}
-				placeholder={props.placeholder}
-				searchable={props.searchable}
-				hasClear={props.hasClear}
-				isDisabled={props.disabled}
-				defaultOpen
-				defaultValue={props.defaultValue}
-				onOpenChange={(o: boolean) => counts.opens.push(o)}
-				onValueChange={(v: any) => counts.changes.push(v)}
-				onChangeQuery={(q: string) => counts.queries.push(q)}
-				style={{ width: 220 }}
-			/></View>
-			: <View><View><Selector
-				id="sel"
-				options={OPTIONS}
-				placeholder={props.placeholder}
-				searchable={props.searchable}
-				hasClear={props.hasClear}
-				isDisabled={props.disabled}
-				defaultOpen
-				defaultValue={props.defaultValue}
-				onOpenChange={(o: boolean) => counts.opens.push(o)}
-				onValueChange={(v: any) => counts.changes.push(v)}
-				onChangeQuery={(q: string) => counts.queries.push(q)}
-				style={{ width: 220 }}
-			/></View></View>)
-		: props.showField
-			? <Field id="sel-field" label={props.fieldLabel ?? 'Assignee'} status={props.fieldError ? { type: 'error' as const, message: props.fieldError } : undefined} isRequired={props.fieldRequired}>
+		{props.variant === 'uncontrolled' ? (
+			props.nonce ? (
+				<View>
+					<Selector
+						id="sel"
+						options={OPTIONS}
+						placeholder={props.placeholder}
+						searchable={props.searchable}
+						hasClear={props.hasClear}
+						isDisabled={props.disabled}
+						defaultOpen
+						defaultValue={props.defaultValue}
+						onOpenChange={(o: boolean) => counts.opens.push(o)}
+						onValueChange={(v: any) => counts.changes.push(v)}
+						onChangeQuery={(q: string) => counts.queries.push(q)}
+						style={{ width: 220 }}
+					/>
+				</View>
+			) : (
+				<View>
+					<View>
+						<Selector
+							id="sel"
+							options={OPTIONS}
+							placeholder={props.placeholder}
+							searchable={props.searchable}
+							hasClear={props.hasClear}
+							isDisabled={props.disabled}
+							defaultOpen
+							defaultValue={props.defaultValue}
+							onOpenChange={(o: boolean) => counts.opens.push(o)}
+							onValueChange={(v: any) => counts.changes.push(v)}
+							onChangeQuery={(q: string) => counts.queries.push(q)}
+							style={{ width: 220 }}
+						/>
+					</View>
+				</View>
+			)
+		) : props.showField ? (
+			<Field
+				id="sel-field"
+				label={props.fieldLabel ?? 'Assignee'}
+				status={
+					props.fieldError ? { type: 'error' as const, message: props.fieldError } : undefined
+				}
+				isRequired={props.fieldRequired}
+			>
 				<Selector
 					id="sel"
 					options={OPTIONS}
@@ -83,7 +109,8 @@ export function Scene(props: {
 					style={{ width: 220 }}
 				/>
 			</Field>
-			: <Selector
+		) : (
+			<Selector
 				id="sel"
 				options={OPTIONS}
 				placeholder={props.placeholder}
@@ -98,7 +125,8 @@ export function Scene(props: {
 				onValueChange={(v: any) => counts.changes.push(v)}
 				onChangeQuery={(q: string) => counts.queries.push(q)}
 				style={{ width: 220 }}
-			/>}
+			/>
+		)}
 		<MultiSelector
 			id="multi"
 			options={OPTIONS}
@@ -108,6 +136,15 @@ export function Scene(props: {
 			onValueChange={(v: string[]) => counts.multi.push(v.join(','))}
 			style={{ width: 220, marginTop: 24 }}
 		/>
-		<Pressable id="sel-outside" accessibilityRole="button" style={{ width: 100, height: 32, marginTop: 24 }} onPress={() => { counts.outside++ }}><Text>Outside</Text></Pressable>
+		<Pressable
+			id="sel-outside"
+			accessibilityRole="button"
+			style={{ width: 100, height: 32, marginTop: 24 }}
+			onPress={() => {
+				counts.outside++
+			}}
+		>
+			<Text>Outside</Text>
+		</Pressable>
 	</>
 }

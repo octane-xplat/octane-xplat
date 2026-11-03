@@ -12,6 +12,7 @@ const granted: PermissionResponse = {
 	expires: 'never',
 	accessPrivileges: 'all',
 }
+
 const denied: PermissionResponse = {
 	status: 'denied',
 	granted: false,
@@ -19,6 +20,7 @@ const denied: PermissionResponse = {
 	expires: 'never',
 	accessPrivileges: 'none',
 }
+
 const roots: Array<ReturnType<typeof createRoot>> = []
 afterEach(() => {
 	for (const root of roots.splice(0)) {
@@ -27,6 +29,7 @@ afterEach(() => {
 	document.body.replaceChildren()
 	vi.clearAllMocks()
 })
+
 function deferred() {
 	let resolve!: (value: PermissionResponse) => void
 	const promise = new Promise<PermissionResponse>((done) => {
@@ -34,6 +37,7 @@ function deferred() {
 	})
 	return { promise, resolve }
 }
+
 function mount() {
 	const host = document.createElement('div')
 	document.body.append(host)
@@ -49,6 +53,7 @@ function mount() {
 	const render = (props: PermissionHookOptions) => flushSync(() => root.render(Consumer, props))
 	return { render, root, state: () => state, renders: () => renders }
 }
+
 it('keeps a later permission request from being overwritten by an earlier read', async () => {
 	const read = deferred(),
 		request = deferred()
@@ -66,6 +71,7 @@ it('keeps a later permission request from being overwritten by an earlier read',
 	await new Promise((done) => setTimeout(done, 25))
 	expect(view.state()[0]).toEqual(granted)
 })
+
 it('rejects stale option results and leaves disposed components alone', async () => {
 	const first = deferred(),
 		second = deferred(),
@@ -91,6 +97,7 @@ it('rejects stale option results and leaves disposed components alone', async ()
 	await new Promise((done) => setTimeout(done, 25))
 	expect(view.renders()).toBe(count)
 })
+
 it('accepts an explicit getter immediately after commit with automatic reads disabled', async () => {
 	native.permissions.mockResolvedValue(granted)
 	const view = mount()
@@ -98,6 +105,7 @@ it('accepts an explicit getter immediately after commit with automatic reads dis
 	await view.state()[2]()
 	await vi.waitFor(() => expect(view.state()[0]).toEqual(granted))
 })
+
 it('keeps an immediate explicit request ahead of the passive mount read', async () => {
 	native.permissions.mockImplementation(async (prompt: boolean) => (prompt ? granted : denied))
 	const view = mount()

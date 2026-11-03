@@ -22,6 +22,7 @@ export function getFocusScopeCapabilities(): FocusScopeCapabilities {
  *  nativescript `escape-props` accessibility props don't apply. */
 export function FocusScope(props: FocusScopeProps): unknown @{
 	const refs = useMemo(() => refList(props.ref), [props.ref])
+
 	<masonview
 		className={cx('vx-focus-scope', props.className)}
 		style={mergeStyle({ display: 'flex' }, props.style)}

@@ -11,7 +11,9 @@ declare global {
 	// (hover, popups, menus, sheets) and the VirtualList offset channel.
 	var __xplatAppKit: {
 		/** Renderer-owned heading snapshot; no mutation tracking or navigation proof. */
-		readOutlineHeadings?: (view: object) => { id: string; label: string; level: number; view?: object }[]
+		readOutlineHeadings?: (
+			view: object,
+		) => { id: string; label: string; level: number; view?: object }[]
 		/** Image-owned encoded disk bytes plus decoded memory, separate from shared HTTP caching. */
 		imageCache?: {
 			readonly supportsCachePolicy?: boolean
@@ -33,21 +35,43 @@ declare global {
 		/** CSS hover/focus-within source capability; not native input qualification. */
 		readonly containerRevealSupported?: boolean
 		/** Owned native layout pins and row ordering; OS hit-testing remains unqualified. */
-		retainTableStickyPlacement?: (view: object) => import('./sticky-placement.ts').StickyPlacementLease | undefined
+		retainTableStickyPlacement?: (
+			view: object,
+		) => import('./sticky-placement.ts').StickyPlacementLease | undefined
 		readonly focusWithinSupported?: boolean
 		readonly contextMenuEventsSupported?: boolean
-		observeFileDrop?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { enabled(): boolean; receive(uris: string[]): boolean }) => () => void
-		observeContextMenu?: (view: import('@octane-xplat/platform/macos').NSView, handler: (target: import('@octane-xplat/platform/macos').NSView) => boolean) => () => void
-		observePointerInput?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
+		observeFileDrop?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			handlers: { enabled(): boolean; receive(uris: string[]): boolean },
+		) => () => void
+		observeContextMenu?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			handler: (target: import('@octane-xplat/platform/macos').NSView) => boolean,
+		) => () => void
+		observePointerInput?: (
+			notify: (event: { type: number; modifierFlags: number }) => void,
+		) => () => void
 		/** Coordinate Xplat key handlers before an independent scope monitor. */
-		dispatchKeyboardEvent?: (event: unknown) => { defaultPrevented: boolean; propagationStopped: boolean }
+		dispatchKeyboardEvent?: (event: unknown) => {
+			defaultPrevented: boolean
+			propagationStopped: boolean
+		}
 		/** Observe app key input before a handler/scope cancels native dispatch. */
-		observeHardwareKeys?: (notify: (event: { type: number; modifierFlags: number }) => void) => () => void
+		observeHardwareKeys?: (
+			notify: (event: { type: number; modifierFlags: number }) => void,
+		) => () => void
 		/** Private composed-control key lease, alongside reconciled prop handlers. */
-		observeViewKeys?: (view: import('@octane-xplat/platform/macos').NSView, handlers: {
-			onKeyDown?: (event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>) => void
-			onKeyUp?: (event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>) => void
-		}) => () => void
+		observeViewKeys?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			handlers: {
+				onKeyDown?: (
+					event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>,
+				) => void
+				onKeyUp?: (
+					event: import('@octane-xplat/jsx/intrinsics').NativeKeyboardEvent<object>,
+				) => void
+			},
+		) => () => void
 		/** Exclude a self-drawn native host from Tab without rejecting arrow focus. */
 		suppressTabStop?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		/** Opt a disabled self-drawn host into focus without enabling activation. */
@@ -56,9 +80,14 @@ declare global {
 		retainFocusTarget?: (view: import('@octane-xplat/platform/macos').NSView) => () => void
 		observeHover?: (view: import('@octane-xplat/platform/macos').NSView, handlers: any) => void
 		/** NSTrackingArea move/exit lease per call — hover-style coordinates, no event monitor. */
-		observePointerMotion?: (view: import('@octane-xplat/platform/macos').NSView, handlers: { move(x: number, y: number): void; exit(): void }) => () => void
+		observePointerMotion?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+			handlers: { move(x: number, y: number): void; exit(): void },
+		) => () => void
 		/** Current mouse event's point in view coordinates; valid only inside the dispatch (tap). */
-		locatePointer?: (view: import('@octane-xplat/platform/macos').NSView) => { x: number; y: number } | null
+		locatePointer?: (
+			view: import('@octane-xplat/platform/macos').NSView,
+		) => { x: number; y: number } | null
 		showAnchoredPopup?: (options: any) => void
 		showLayer?: (options: any) => any
 		attachContextMenu?: (
@@ -68,7 +97,12 @@ declare global {
 		) => (() => void) | null
 		attachPicker?: (
 			view: import('@octane-xplat/platform/macos').NSView,
-			options: { options: readonly { id: string; title: string; disabled?: boolean }[]; selection?: string; enabled: boolean; accessibilityLabel?: string },
+			options: {
+				options: readonly { id: string; title: string; disabled?: boolean }[]
+				selection?: string
+				enabled: boolean
+				accessibilityLabel?: string
+			},
 			onSelect: (id: string) => void,
 		) => { update(options: any): void; detach(): void } | null
 		attachDatePicker?: (

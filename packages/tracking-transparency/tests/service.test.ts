@@ -6,6 +6,7 @@ const native = vi.hoisted(() => ({
 	advertisingIdAsync: vi.fn(async () => null as string | null),
 	capabilities: () => ({ prompt: true, advertisingId: true, advertisingIdAsync: true }),
 }))
+
 vi.mock('../src/backend', () => ({ backend: native }))
 import {
 	getAdvertisingId,
@@ -14,6 +15,7 @@ import {
 	isAvailable,
 	requestTrackingPermissionsAsync,
 } from '../src/service'
+
 import { permissionResponse } from '../src/permission'
 function deferred<T>() {
 	let resolve!: (value: T) => void, reject!: (error: Error) => void
@@ -23,6 +25,7 @@ function deferred<T>() {
 	})
 	return { promise, resolve, reject }
 }
+
 beforeEach(() => {
 	vi.clearAllMocks()
 	native.read.mockReturnValue(0)
@@ -30,6 +33,7 @@ beforeEach(() => {
 	native.advertisingId.mockReturnValue(null)
 	native.advertisingIdAsync.mockResolvedValue(null)
 })
+
 describe('tracking permissions without native prompts or real identifiers', () => {
 	it('maps all native states with Expo fields and preserves restrictions', () => {
 		const undetermined = permissionResponse(0)

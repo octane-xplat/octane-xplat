@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { band, fit, intersect, lerpVisual, objectPosition, panRange, rubber, thumbVisualFrom, toStyle, zoomAt } from './math'
+import {
+	band,
+	fit,
+	intersect,
+	lerpVisual,
+	objectPosition,
+	panRange,
+	rubber,
+	thumbVisualFrom,
+	toStyle,
+	zoomAt,
+} from './math'
 
 const box = { x: 0, y: 0, w: 100, h: 100 }
 
@@ -52,8 +63,18 @@ describe('math', () => {
 		expect(s.x).toBe(75)
 		expect(s.inset).toEqual({ top: 0, right: 50, bottom: 0, left: 50 })
 		expect(s.radius).toBe(20)
-		const end = toStyle(lerpVisual(thumb, { img: base, clip: base, radius: 0, opacity: 1 }, 1), base)
-		expect(end).toEqual({ x: 0, y: 0, scale: 1, inset: { top: 0, right: 0, bottom: 0, left: 0 }, radius: 0, opacity: 1 })
+		const end = toStyle(
+			lerpVisual(thumb, { img: base, clip: base, radius: 0, opacity: 1 }, 1),
+			base,
+		)
+		expect(end).toEqual({
+			x: 0,
+			y: 0,
+			scale: 1,
+			inset: { top: 0, right: 0, bottom: 0, left: 0 },
+			radius: 0,
+			opacity: 1,
+		})
 	})
 
 	it('objectPosition', () => {
@@ -62,29 +83,54 @@ describe('math', () => {
 	})
 })
 
-	describe('zero-box safety', () => {
-		it('toStyle emits no NaN with a zero-size base', () => {
-			const v: Visual = { img: { x: 0, y: 0, w: 0, h: 0 }, clip: { x: 0, y: 0, w: 0, h: 0 }, radius: 0, opacity: 1 }
-			const s = toStyle(v, { x: 0, y: 0, w: 0, h: 0 })
-			for (const n of [s.x, s.y, s.scale, s.opacity, s.radius, s.inset.top, s.inset.right, s.inset.bottom, s.inset.left]) {
-				expect(Number.isFinite(n)).toBe(true)
-			}
-		})
-		it('fit returns finite values with a zero-size box', () => {
-			const f = fit(1.333, { x: 0, y: 0, w: 0, h: 0 })
-			for (const n of [f.x, f.y, f.w, f.h]) {expect(Number.isFinite(n)).toBe(true)}
-		})
+describe('zero-box safety', () => {
+	it('toStyle emits no NaN with a zero-size base', () => {
+		const v: Visual = {
+			img: { x: 0, y: 0, w: 0, h: 0 },
+			clip: { x: 0, y: 0, w: 0, h: 0 },
+			radius: 0,
+			opacity: 1,
+		}
+		const s = toStyle(v, { x: 0, y: 0, w: 0, h: 0 })
+		for (const n of [
+			s.x,
+			s.y,
+			s.scale,
+			s.opacity,
+			s.radius,
+			s.inset.top,
+			s.inset.right,
+			s.inset.bottom,
+			s.inset.left,
+		]) {
+			expect(Number.isFinite(n)).toBe(true)
+		}
 	})
+	it('fit returns finite values with a zero-size box', () => {
+		const f = fit(1.333, { x: 0, y: 0, w: 0, h: 0 })
+		for (const n of [f.x, f.y, f.w, f.h]) {
+			expect(Number.isFinite(n)).toBe(true)
+		}
+	})
+})
 
 describe('thumbVisualFrom', () => {
 	it('cover-fits the image into the trigger rect in slide-local space', () => {
-		const v = thumbVisualFrom({ x: 10, y: 20, w: 120, h: 80 }, { x: 0, y: 0, w: 402, h: 874 }, 4 / 3)
+		const v = thumbVisualFrom(
+			{ x: 10, y: 20, w: 120, h: 80 },
+			{ x: 0, y: 0, w: 402, h: 874 },
+			4 / 3,
+		)
 		expect(v.img).toEqual({ x: 10, y: 15, w: 120, h: 90 })
 		expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
 		expect(v.opacity).toBe(1)
 	})
 	it('subtracts the slide offset', () => {
-		const v = thumbVisualFrom({ x: 110, y: 120, w: 120, h: 80 }, { x: 100, y: 100, w: 402, h: 874 }, 4 / 3)
+		const v = thumbVisualFrom(
+			{ x: 110, y: 120, w: 120, h: 80 },
+			{ x: 100, y: 100, w: 402, h: 874 },
+			4 / 3,
+		)
 		expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
 		expect(v.img.x).toBe(10)
 	})

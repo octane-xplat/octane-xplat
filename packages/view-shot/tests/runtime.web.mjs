@@ -38,6 +38,7 @@ const server = await createServer({
 		fs: { allow: [fileURLToPath(new URL('../../..', import.meta.url))] },
 	},
 })
+
 let browser
 try {
 	await server.listen()
@@ -51,6 +52,7 @@ try {
 		const { fixture } = await import('/tests/component-harness.web.ts')
 		globalThis.fixture = fixture
 	})
+
 	await page.waitForFunction(() => typeof fixture.ref.current?.capture === 'function')
 	assert.equal(await page.evaluate(() => fixture.host.textContent), 'Trip card')
 	assert.equal(await page.evaluate(() => fixture.trace.captured.length), 0)
@@ -59,6 +61,7 @@ try {
 		await page.evaluate(() => fixture.trace.captured[0] === document.getElementById('card')),
 		true,
 	)
+
 	assert.equal(await page.evaluate(() => fixture.captureRef(fixture.ref)), 'owned:fixture-2')
 	await page.evaluate(() => fixture.releaseCapture('owned:fixture-1'))
 	await page.evaluate(() => fixture.render({ captureMode: 'update' }))
@@ -70,6 +73,7 @@ try {
 		'owned:fixture-1',
 		'owned:fixture-3',
 	])
+
 	await page.evaluate(() => fixture.root.unmount())
 	assert.equal(await page.evaluate(() => fixture.ref.current), null)
 	assert.equal(await page.evaluate(() => fixture.host.textContent), '')
@@ -78,6 +82,7 @@ try {
 		'owned:fixture-3',
 		'owned:fixture-4',
 	])
+
 	assert.deepEqual(errors, [])
 	console.log(
 		'Chromium: 11 component/ref/lifecycle assertions pass with a string-only backend. No image capture, canvas encoding, screenshot or image inspection occurred.',

@@ -12,6 +12,7 @@ describe('use-table-sortable-state', () => {
 				[{ sortKey: 'name' as never, direction: 'ascending' as const }],
 				undefined,
 			)
+
 			expect(sorted.map((r) => r.name)).toEqual(['row1', 'row2', 'row10'])
 		} finally {
 			vi.stubGlobal('Intl', saved)

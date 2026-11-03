@@ -159,7 +159,9 @@ function LightboxPanel(props: {
 								{ display: 'flex' },
 							)}
 						>
-							{count > 1 && <Text className="vx-lightbox-counter">{`${index + 1} of ${count}`}</Text>}
+							{count > 1 && (
+								<Text className="vx-lightbox-counter">{`${index + 1} of ${count}`}</Text>
+							)}
 							{item?.caption != null &&
 								(typeof item.caption === 'string' ? (
 									<Text className="vx-lightbox-caption">{item.caption}</Text>
@@ -168,7 +170,10 @@ function LightboxPanel(props: {
 								))}
 						</masonview>
 						<masonview
-							style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+							style={mergeStyle(
+								{ flexDirection: 'row', alignItems: 'center' },
+								{ display: 'flex' },
+							)}
 						>
 							<Pressable
 								className="vx-lightbox-nav"
@@ -250,6 +255,7 @@ export function Lightbox(props: LightboxProps): unknown @{
 			align: { h: 'fill', v: 'fill' },
 			onScrimPress: () => dismiss.current?.(false),
 		})
+
 		l.target.set_can_focus?.(true)
 		// Left/Right page through media while the modal surface is up (macOS
 		// presentation contract). A capture-phase controller on the window
@@ -274,13 +280,15 @@ export function Lightbox(props: LightboxProps): unknown @{
 
 			return false
 		})
+
 		root?.add_controller?.(keys)
 		setLayer(l)
 		l.setVisible(true)
 		return () => {
 			try {
 				root?.remove_controller?.(keys)
-			} catch { }
+			} catch {}
+
 			l.dispose()
 			setLayer(null)
 		}

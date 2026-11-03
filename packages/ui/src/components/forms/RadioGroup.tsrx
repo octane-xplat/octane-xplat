@@ -3,7 +3,12 @@ import { mergeStyle } from '../../internal/layout/style-merge'
 import { useState, useContext } from 'octane'
 import type { RadioGroupProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FieldContext, useFieldControlProps } from './field-context'
 import { NativeToggleField } from './NativeToggleField.tsrx'
 import { RadioIndicator, indicatorScope } from '../feedback/indicators'
@@ -20,7 +25,10 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 	const isBlocked = props.isDisabled || props.isReadOnly
 	const Ind = useIndicator('radio') ?? RadioIndicator
 	const select = (value: string) => {
-		if (isBlocked || value === current) return
+		if (isBlocked || value === current) {
+			return
+		}
+
 		if (props.value === undefined) {
 			setInternal(value)
 		}
@@ -56,9 +64,13 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 			props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
 		}
 		accessibilityHint={props.accessibilityHint}
-		accessibilityState={nativeAccessibilityState({ disabled: props.isDisabled,
-			readOnly: props.isReadOnly, required: props.isRequired, busy: props.isLoading,
-			invalid: props.status?.type === 'error' })}
+		accessibilityState={nativeAccessibilityState({
+			disabled: props.isDisabled,
+			readOnly: props.isReadOnly,
+			required: props.isRequired,
+			busy: props.isLoading,
+			invalid: props.status?.type === 'error',
+		})}
 	>
 		{(props.options ?? []).map((opt: any) => {
 			const selected = current === opt.value
@@ -78,7 +90,11 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 					accessibilityRole={nativeAccessibilityRole('radio')}
 					accessibilityLabel={opt.label ?? opt.value}
 					accessibilityHint={opt.description}
-					accessibilityState={nativeAccessibilityState({ checked: selected, disabled, readOnly: props.isReadOnly })}
+					accessibilityState={nativeAccessibilityState({
+						checked: selected,
+						disabled,
+						readOnly: props.isReadOnly,
+					})}
 					onTap={blocked ? undefined : () => select(opt.value)}
 					style={{ display: 'flex' }}
 				>
@@ -87,11 +103,10 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 						size={props.size === 'sm' ? 'sm' : 'md'}
 						isDisabled={disabled}
 					/>
-					<masonview
-						className="vx-radio-label-col"
-						style={{ display: 'flex' }}
-					>
-						{opt.label != null ? <label className="vx-radio-label" text={opt.label} textWrap /> : null}
+					<masonview className="vx-radio-label-col" style={{ display: 'flex' }}>
+						{opt.label != null ? (
+							<label className="vx-radio-label" text={opt.label} textWrap />
+						) : null}
 						{opt.description != null ? (
 							<label className="vx-radio-description" text={opt.description} textWrap />
 						) : null}
@@ -110,9 +125,9 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
 	</masonview>
 }
 
-
 export function RadioGroup(props: RadioGroupProps): unknown @{
 	const inField = useContext(FieldContext) != null
+
 	@if (inField) {
 		<RadioGroupControl {...props} />
 	} @else {

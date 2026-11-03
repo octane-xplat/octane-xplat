@@ -23,11 +23,13 @@ const methods = [
 	[GLib, 'base64_encode'],
 	[Graphene.Rect.prototype, 'init'],
 ]
+
 for (const [owner, name] of methods) {
 	if (typeof owner[name] !== 'function') {
 		throw new Error('Missing GTK API: ' + name)
 	}
 }
+
 print(
 	JSON.stringify({
 		assertions: methods.length,

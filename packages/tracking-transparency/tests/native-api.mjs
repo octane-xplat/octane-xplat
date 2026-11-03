@@ -21,6 +21,7 @@ assert.ok(
 const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
 	encoding: 'utf8',
 })
+
 assert.equal(sdk.status, 0, sdk.stderr)
 for (const framework of ['AppTrackingTransparency', 'AdSupport']) {
 	assert.ok(
@@ -42,6 +43,7 @@ const arch = readdirSync(objcDir).find((entry) => entry.startsWith('objc-'))
 assert.ok(arch, 'no objc-* declaration directory under @nativescript/types-ios')
 const declarations = (framework) =>
 	readFileSync(join(objcDir, arch, `objc!${framework}.d.ts`), 'utf8')
+
 const att = declarations('AppTrackingTransparency')
 for (const member of [
 	'declare class ATTrackingManager',
@@ -51,6 +53,7 @@ for (const member of [
 ]) {
 	assert.ok(att.includes(member), `types-ios lost AppTrackingTransparency member: ${member}`)
 }
+
 const ads = declarations('AdSupport')
 for (const member of [
 	'declare class ASIdentifierManager',
@@ -60,6 +63,7 @@ for (const member of [
 ]) {
 	assert.ok(ads.includes(member), `types-ios lost AdSupport member: ${member}`)
 }
+
 console.log(
 	`${platform} ATT/AdSupport binding prerequisites pass. No permission prompt or advertising identifier read was performed.`,
 )

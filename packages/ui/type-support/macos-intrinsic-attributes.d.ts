@@ -7,9 +7,11 @@ declare module '@octane-xplat/jsx/intrinsics' {
 	interface MasonViewProps {
 		accessibilityOrientation?: 'horizontal' | 'vertical'
 	}
+
 	interface TextBaseProps {
 		accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6
 	}
+
 	interface TextFieldProps<TElement> {
 		placeholderTextColor?: string
 	}

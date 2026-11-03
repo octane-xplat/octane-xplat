@@ -3,7 +3,13 @@ import '@octane-xplat/ui/theme/chrome.css'
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
-import { SearchHarness, NestedSearch, GrowingSearchRow, searchRef } from './ui-search-input.gtk.tsrx'
+import {
+	SearchHarness,
+	NestedSearch,
+	GrowingSearchRow,
+	searchRef,
+} from './ui-search-input.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK search input test',
@@ -11,6 +17,7 @@ const window = new Gtk.Window({
 	default_height: 360,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -18,6 +25,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +34,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -33,6 +42,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 let props: Parameters<typeof SearchHarness>[0] = {
@@ -40,11 +50,13 @@ let props: Parameters<typeof SearchHarness>[0] = {
 	label: 'Find items',
 	width: '75%',
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(SearchHarness, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -55,6 +67,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_SEARCH_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
@@ -74,6 +87,7 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -373,6 +387,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -381,6 +396,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

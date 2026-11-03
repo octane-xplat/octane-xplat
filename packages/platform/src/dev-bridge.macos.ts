@@ -13,7 +13,7 @@ export function devBridgePlatform(): 'macos' {
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const bridge = ('__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined)
+	const bridge = '__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined
 	const token =
 		typeof bridge === 'object' &&
 		bridge !== null &&
@@ -23,11 +23,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 			: undefined
 	const origin = (globalThis as any).location?.origin ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
 
-	if (
-		typeof origin !== 'string' ||
-		!/^https?:\/\//.test(origin) ||
-		typeof token !== 'string'
-	) {
+	if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
 		return null
 	}
 

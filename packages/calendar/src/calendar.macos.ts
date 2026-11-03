@@ -3,13 +3,7 @@
 // same entity type). Metadata targets macOS 11, so the deprecated
 // requestAccessToEntityTypeCompletion is the bound request entry point —
 // on macOS 14+ it still performs the full-access events prompt.
-import {
-	EKEntityType,
-	EKEvent,
-	EKEventStore,
-	EKSpan,
-	NSDate,
-} from '@octane-xplat/platform/macos'
+import { EKEntityType, EKEvent, EKEventStore, EKSpan, NSDate } from '@octane-xplat/platform/macos'
 import type { Calendar, CalendarEvent, CalendarInfo, NewEvent, PermissionResult } from './types'
 
 let store: any = null
@@ -22,6 +16,7 @@ const eventStore = () => {
 		if (typeof EKEventStore?.authorizationStatusForEntityType !== 'function') {
 			return null
 		}
+
 		return (store = EKEventStore.new())
 	} catch {
 		return null
@@ -63,7 +58,12 @@ const permissionResponse = () => {
 
 	const status = rawStatus()
 	return {
-		status: status === 3 || status === 4 ? ('granted' as const) : status === 0 ? ('undetermined' as const) : ('denied' as const),
+		status:
+			status === 3 || status === 4
+				? ('granted' as const)
+				: status === 0
+					? ('undetermined' as const)
+					: ('denied' as const),
 		granted: status === 3 || status === 4,
 		canAskAgain: status === 0 || status === 3 || status === 4,
 	}
@@ -135,12 +135,9 @@ export const calendar: Calendar = {
 		calendarIds?: string[],
 	): Promise<CalendarEvent[]> {
 		const s = eventStore()
-		const wanted =
-			calendarIds?.length
-				? calendarIds
-						.map((id) => s?.calendarWithIdentifier?.(id))
-						.filter((c: any) => c != null)
-				: null
+		const wanted = calendarIds?.length
+			? calendarIds.map((id) => s?.calendarWithIdentifier?.(id)).filter((c: any) => c != null)
+			: null
 		const predicate = s?.predicateForEventsWithStartDateEndDateCalendars(
 			toNSDate(startDate),
 			toNSDate(endDate),

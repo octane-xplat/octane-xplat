@@ -10,6 +10,7 @@ const converter = createConverter(backend)
 export function isAvailable(format?: VideoFormat): Promise<boolean> {
 	return converter.isAvailable(format)
 }
+
 /** Convert one GIF traversal to an opaque video. Odd dimensions are padded on the right/bottom.
  * @example
  * import { convertGif } from '@octane-xplat/media-converter'
@@ -19,6 +20,7 @@ export function isAvailable(format?: VideoFormat): Promise<boolean> {
 export function convertGif(source: string, options?: GifConversionOptions): ConversionJob {
 	return converter.convertGif(source, options)
 }
+
 /** Release a temporary output created by this API instance; never deletes an input.
  * @example
  * import { releaseVideo } from '@octane-xplat/media-converter'

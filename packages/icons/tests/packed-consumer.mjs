@@ -51,8 +51,10 @@ try {
 		const conditionExport = manifest.exports['.'][condition]
 		const conditionTarget =
 			typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
+
 		assert.ok(conditionTarget.startsWith('./src/'))
 	}
+
 	const macosComponent = readFileSync(join(packed, 'src/Icon.macos.tsrx'), 'utf8')
 	assert.equal(
 		macosComponent,

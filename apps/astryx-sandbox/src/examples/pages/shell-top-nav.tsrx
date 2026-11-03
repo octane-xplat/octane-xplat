@@ -3,10 +3,24 @@
 // GAPS: `stylex` rules → styles/shell-top-nav.css classes; `Icon icon={Cmp}`
 // → registered `Icon name`; Grid `gap` is not a prop — it moves into style.
 import {
-	AppShell, Badge, Button, Card, Grid, Icon, IconButton, NavIcon, Stack, TopNav,
-	TopNavHeading, TopNavItem, TopNavMegaMenu, TopNavMegaMenuFeaturedCard,
-	TopNavMegaMenuItem, VStack,
+	AppShell,
+	Badge,
+	Button,
+	Card,
+	Grid,
+	Icon,
+	IconButton,
+	NavIcon,
+	Stack,
+	TopNav,
+	TopNavHeading,
+	TopNavItem,
+	TopNavMegaMenu,
+	TopNavMegaMenuFeaturedCard,
+	TopNavMegaMenuItem,
+	VStack,
 } from '@octane-xplat/ui'
+
 import './styles/shell-top-nav.css'
 
 type MegaItem = { name: string; tagline: string; icon: string }

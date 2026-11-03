@@ -17,6 +17,7 @@ const native = vi.hoisted(() => ({
 	subscribe: vi.fn(),
 	isAvailable: () => true,
 }))
+
 vi.mock('../src/backend', () => ({ backend: native }))
 import {
 	Asset,
@@ -27,6 +28,7 @@ import {
 	getPermissionsAsync,
 	requestPermissionsAsync,
 } from '../src/core'
+
 import { AssetField, MediaType } from '../src/types'
 
 const metadata: AssetMetadata = {
@@ -40,6 +42,7 @@ const metadata: AssetMetadata = {
 	modificationTime: 13,
 	isFavorite: false,
 }
+
 beforeEach(() => {
 	vi.clearAllMocks()
 	native.metadata.mockResolvedValue(metadata)

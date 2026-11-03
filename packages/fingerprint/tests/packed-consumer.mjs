@@ -16,6 +16,7 @@ function run(command, args, cwd) {
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	return result.stdout
 }
+
 try {
 	const packed = join(root, 'tests/.runtime/packed')
 	await mkdir(packed, { recursive: true })
@@ -24,6 +25,7 @@ try {
 			await rm(join(packed, file))
 		}
 	}
+
 	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], root)
 	const archive = (await readdir(packed)).find((file) => file.endsWith('.tgz'))
 	assert.ok(archive)
@@ -37,6 +39,7 @@ try {
 			dependencies: { '@octane-xplat/fingerprint': 'file:' + join(packed, archive) },
 		}),
 	)
+
 	run('bun', ['install', '--ignore-scripts'], temporary)
 	const project = join(temporary, 'app')
 	await mkdir(join(project, 'App_Resources/iOS'), { recursive: true })
@@ -45,6 +48,7 @@ try {
 		join(project, 'bun.lock'),
 		'{"lockfileVersion": 3, "workspaces": {"": {}}, "packages": {},}',
 	)
+
 	await writeFile(join(project, 'nativescript.config.ts'), "export default { id: 'consumer.test' }")
 	await writeFile(join(project, 'App_Resources/iOS/Probe.swift'), '// Native fixture')
 	await writeFile(
@@ -64,12 +68,14 @@ try {
  await writeFile('./app/build-record.json',JSON.stringify({...built,format:NATIVE_FINGERPRINT_FORMAT,platform:'ios',release:true,toolchain}))
  `,
 	)
+
 	run(process.execPath, ['case.mjs'], temporary)
 	run(
 		process.execPath,
 		['node_modules/@octane-xplat/fingerprint/dist/cli.js', '--dir', project, '--platform', 'ios'],
 		temporary,
 	)
+
 	const comparison = run(
 		process.execPath,
 		[
@@ -83,6 +89,7 @@ try {
 		],
 		temporary,
 	)
+
 	assert.deepEqual(JSON.parse(comparison), [])
 	const manifest = JSON.parse(await readFile(join(packed, 'package/package.json'), 'utf8'))
 	assert.equal(manifest.dependencies.typescript, '5.9.3')

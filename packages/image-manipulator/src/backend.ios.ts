@@ -42,10 +42,12 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 		const source = input.uri.startsWith('data:')
 			? ImageSource.fromBase64Sync(encodedSource(input.uri))
 			: ImageSource.fromFileOrResourceSync(input.uri)
+
 		const image: UIImage | undefined = source?.ios
 		if (!image?.CGImage) {
 			throw new Error('Could not decode the image')
 		}
+
 		const sideways = sidewaysOrientations.has(image.imageOrientation)
 		const width = CGImageGetWidth(image.CGImage)
 		const height = CGImageGetHeight(image.CGImage)
@@ -53,6 +55,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
 			sideways ? { width: height, height: width } : { width, height },
 			options,
 		)
+
 		// UIImage drawing normalizes all EXIF rotations/reflections at physical scale 1.
 		return draw(size, () => image.drawInRect({ origin: { x: 0, y: 0 }, size }))
 	} finally {
@@ -92,6 +95,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 					operation.axis === 'horizontal' ? size.width : 0,
 					operation.axis === 'vertical' ? size.height : 0,
 				)
+
 				CGContextScaleCTM(
 					context,
 					operation.axis === 'horizontal' ? -1 : 1,
@@ -104,8 +108,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 
 async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<ImageResult> {
 	const png = options.format === 'jpeg' ? null : UIImagePNGRepresentation(pixels(frame))
-	const codec =
-		lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
+	const codec = lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
 	if (options.format === 'webp' && !codec) {
 		throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
 	}
@@ -126,6 +129,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 		if (!data.writeToFileAtomically(local, true)) {
 			throw new Error('Could not save the encoded image')
 		}
+
 		return {
 			uri: String(NSURL.fileURLWithPath(local).absoluteString),
 			width: frame.width,
@@ -138,6 +142,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
 		if (File.exists(local)) {
 			File.fromPath(local).removeSync()
 		}
+
 		throw error
 	}
 }

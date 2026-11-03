@@ -9,11 +9,36 @@
 // hex text field; pointer-drag canvas manipulation → numeric axis inputs.
 import { useRef, useState } from 'octane'
 import {
-	Badge, Button, Card, Center, CheckboxInput, Divider, DropdownMenu,
-	Heading, HStack, Icon, IconButton, Layout, LayoutContent,
-	LayoutHeader, LayoutPanel, List, ListItem, NumberInput, ResizeHandle,
-	Section, Selector, StackItem, Switch, Tab, TabList, Text, TextInput,
-	TreeList, useResizable, VStack,
+	Badge,
+	Button,
+	Card,
+	Center,
+	CheckboxInput,
+	Divider,
+	DropdownMenu,
+	Heading,
+	HStack,
+	Icon,
+	IconButton,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	List,
+	ListItem,
+	NumberInput,
+	ResizeHandle,
+	Section,
+	Selector,
+	StackItem,
+	Switch,
+	Tab,
+	TabList,
+	Text,
+	TextInput,
+	TreeList,
+	useResizable,
+	VStack,
 } from '@octane-xplat/ui'
 
 type LayerKind = 'text' | 'image'
@@ -80,8 +105,15 @@ const FRAME = { width: 1080, height: 1920 }
 const PHOTO_LAYER_SRC = '/template-assets/moody-scene-vertical-1.png'
 
 const NO_FILTERS: Filters = {
-	blur: 0, brightness: 100, contrast: 100, grayscale: 0, hue: 0,
-	invert: 0, opacity: 100, saturate: 100, sepia: 0,
+	blur: 0,
+	brightness: 100,
+	contrast: 100,
+	grayscale: 0,
+	hue: 0,
+	invert: 0,
+	opacity: 100,
+	saturate: 100,
+	sepia: 0,
 }
 
 const NO_SHADOW: Shadow = { x: 0, y: 0, blur: 0, spread: 0, color: '#000000' }
@@ -109,7 +141,13 @@ const WEIGHT_OPTIONS = [
 ]
 
 const EXPORT_FORMATS = [
-	'PNG at 1×', 'PNG at 2×', 'PNG at 4×', 'JPG at 1×', 'JPG at 2×', 'WebP at 1×', 'PDF',
+	'PNG at 1×',
+	'PNG at 2×',
+	'PNG at 4×',
+	'JPG at 1×',
+	'JPG at 2×',
+	'WebP at 1×',
+	'PDF',
 ]
 
 const INITIAL_TABS: DocumentTabData[] = [
@@ -120,32 +158,77 @@ const INITIAL_TABS: DocumentTabData[] = [
 
 const INITIAL_LAYERS: Layer[] = [
 	{
-		id: 'headline', name: 'Headline', kind: 'text',
-		x: 56, y: 136, width: 968, height: 300, rotation: 0,
-		paddingInline: 0, paddingBlock: 0, radius: 0, isLocked: false,
-		content: 'A weekend in Salzburg', fill: '#111111',
-		family: 'Anton', weight: 'Regular', color: '#ffffff', size: 128,
-		line: 1.1, tracking: 0, alignX: 'start', alignY: 'start',
+		id: 'headline',
+		name: 'Headline',
+		kind: 'text',
+		x: 56,
+		y: 136,
+		width: 968,
+		height: 300,
+		rotation: 0,
+		paddingInline: 0,
+		paddingBlock: 0,
+		radius: 0,
+		isLocked: false,
+		content: 'A weekend in Salzburg',
+		fill: '#111111',
+		family: 'Anton',
+		weight: 'Regular',
+		color: '#ffffff',
+		size: 128,
+		line: 1.1,
+		tracking: 0,
+		alignX: 'start',
+		alignY: 'start',
 	},
 	{
-		id: 'dateline', name: 'Dateline', kind: 'text',
-		x: 56, y: 470, width: 968, height: 60, rotation: 0,
-		paddingInline: 0, paddingBlock: 0, radius: 0, isLocked: false,
-		content: 'July 17 – 21 · five days in the Alps', fill: '#111111',
-		family: 'Inter Tight', weight: 'Medium', color: '#ffffff', size: 32,
-		line: 1.3, tracking: 0.02, alignX: 'start', alignY: 'start',
+		id: 'dateline',
+		name: 'Dateline',
+		kind: 'text',
+		x: 56,
+		y: 470,
+		width: 968,
+		height: 60,
+		rotation: 0,
+		paddingInline: 0,
+		paddingBlock: 0,
+		radius: 0,
+		isLocked: false,
+		content: 'July 17 – 21 · five days in the Alps',
+		fill: '#111111',
+		family: 'Inter Tight',
+		weight: 'Medium',
+		color: '#ffffff',
+		size: 32,
+		line: 1.3,
+		tracking: 0.02,
+		alignX: 'start',
+		alignY: 'start',
 	},
 	{
-		id: 'photo', name: 'Photo', kind: 'image',
-		x: 0, y: 0, width: 1080, height: 1920, rotation: 0,
-		paddingInline: 0, paddingBlock: 0, radius: 0, isLocked: true,
-		content: 'Moody alpine scene at dusk', fit: 'cover',
+		id: 'photo',
+		name: 'Photo',
+		kind: 'image',
+		x: 0,
+		y: 0,
+		width: 1080,
+		height: 1920,
+		rotation: 0,
+		paddingInline: 0,
+		paddingBlock: 0,
+		radius: 0,
+		isLocked: true,
+		content: 'Moody alpine scene at dusk',
+		fit: 'cover',
 		filters: { ...NO_FILTERS, brightness: 88, saturate: 110 },
 	},
 ]
 
 const filterCss = (f?: Filters): string => {
-	if (!f) {return 'none'}
+	if (!f) {
+		return 'none'
+	}
+
 	const parts = [
 		f.blur ? `blur(${f.blur}px)` : '',
 		f.brightness !== 100 ? `brightness(${f.brightness}%)` : '',
@@ -157,14 +240,14 @@ const filterCss = (f?: Filters): string => {
 		f.saturate !== 100 ? `saturate(${f.saturate}%)` : '',
 		f.sepia ? `sepia(${f.sepia}%)` : '',
 	].filter(Boolean)
+
 	return parts.length ? parts.join(' ') : 'none'
 }
 
 const shadowCss = (s?: Shadow): string | undefined =>
 	s ? `${s.x}px ${s.y}px ${s.blur}px ${s.spread}px ${s.color}` : undefined
 
-const layerIcon = (kind: LayerKind) =>
-	kind === 'text' ? 'sandbox-document-text' : 'sandbox-photo'
+const layerIcon = (kind: LayerKind) => (kind === 'text' ? 'sandbox-document-text' : 'sandbox-photo')
 
 function InspectorSection(props: { title: string; children: any }) @{
 	<VStack gap={2}>
@@ -186,10 +269,15 @@ function StepperRow(props: {
 	<HStack hAlign="between" vAlign="center">
 		<Text type="supporting">{props.label}</Text>
 		<NumberInput
-			label={props.label} isLabelHidden width={96} size="sm"
+			label={props.label}
+			isLabelHidden
+			width={96}
+			size="sm"
 			value={props.value}
 			onValueChange={(v) => props.onChange(v ?? 0)}
-			min={props.min} max={props.max} step={props.step ?? 1}
+			min={props.min}
+			max={props.max}
+			step={props.step ?? 1}
 		/>
 	</HStack>
 }
@@ -201,14 +289,22 @@ function AxisInput(props: {
 	onChange: (axis: 'x' | 'y', v: number) => void
 }) @{
 	<HStack gap={2} vAlign="center">
-		<Text type="supporting" style={{ width: 80 }}>{props.label}</Text>
+		<Text type="supporting" style={{ width: 80 }}>
+			{props.label}
+		</Text>
 		<NumberInput
-			label={`${props.label} X`} isLabelHidden size="sm"
-			value={props.x} onValueChange={(v) => props.onChange('x', v ?? 0)}
+			label={`${props.label} X`}
+			isLabelHidden
+			size="sm"
+			value={props.x}
+			onValueChange={(v) => props.onChange('x', v ?? 0)}
 		/>
 		<NumberInput
-			label={`${props.label} Y`} isLabelHidden size="sm"
-			value={props.y} onValueChange={(v) => props.onChange('y', v ?? 0)}
+			label={`${props.label} Y`}
+			isLabelHidden
+			size="sm"
+			value={props.y}
+			onValueChange={(v) => props.onChange('y', v ?? 0)}
 		/>
 	</HStack>
 }
@@ -221,8 +317,12 @@ function FilterRow(props: {
 	<HStack hAlign="between" vAlign="center">
 		<Text type="supporting">{props.label}</Text>
 		<NumberInput
-			label={props.label} isLabelHidden width={96} size="sm"
-			value={props.value} onValueChange={(v) => props.onChange(v ?? 0)}
+			label={props.label}
+			isLabelHidden
+			width={96}
+			size="sm"
+			value={props.value}
+			onValueChange={(v) => props.onChange(v ?? 0)}
 		/>
 	</HStack>
 }
@@ -232,18 +332,29 @@ function ShadowFields(props: {
 	onChange: (shadow: Shadow | undefined) => void
 }) @{
 	const s = props.shadow ?? NO_SHADOW
+
 	<>
 		<Switch
-			label="Drop shadow" value={props.shadow != null}
+			label="Drop shadow"
+			value={props.shadow != null}
 			onChange={(on) => props.onChange(on ? NO_SHADOW : undefined)}
-			labelPosition="start" labelSpacing="spread"
+			labelPosition="start"
+			labelSpacing="spread"
 		/>
 		{props.shadow ? (
 			<VStack gap={2}>
 				{(['x', 'y', 'blur', 'spread'] as const).map((key) => (
 					<StepperRow
 						key={key}
-						label={key === 'x' ? 'Offset X' : key === 'y' ? 'Offset Y' : key === 'blur' ? 'Blur' : 'Spread'}
+						label={
+							key === 'x'
+								? 'Offset X'
+								: key === 'y'
+									? 'Offset Y'
+									: key === 'blur'
+										? 'Blur'
+										: 'Spread'
+						}
 						value={s[key]}
 						onChange={(v) => props.onChange({ ...s, [key]: v })}
 					/>
@@ -251,8 +362,12 @@ function ShadowFields(props: {
 				<HStack hAlign="between" vAlign="center">
 					<Text type="supporting">Color</Text>
 					<TextInput
-						label="Shadow color" isLabelHidden width={96} size="sm"
-						value={s.color} onChange={(v) => props.onChange({ ...s, color: v })}
+						label="Shadow color"
+						isLabelHidden
+						width={96}
+						size="sm"
+						value={s.color}
+						onChange={(v) => props.onChange({ ...s, color: v })}
 					/>
 				</HStack>
 			</VStack>
@@ -260,20 +375,21 @@ function ShadowFields(props: {
 	</>
 }
 
-function LayerRow(props: {
-	layer: Layer
-	isSelected: boolean
-	onSelect: () => void
-}) @{
+function LayerRow(props: { layer: Layer; isSelected: boolean; onSelect: () => void }) @{
 	<ListItem
 		label={props.layer.name}
 		startContent={
 			<Icon
-				name={layerIcon(props.layer.kind)} size={16}
+				name={layerIcon(props.layer.kind)}
+				size={16}
 				color={props.isSelected ? 'accent' : 'secondary'}
 			/>
 		}
-		endContent={props.layer.isLocked ? <Icon name="sandbox-lock-closed" size={14} color="secondary" /> : undefined}
+		endContent={
+			props.layer.isLocked ? (
+				<Icon name="sandbox-lock-closed" size={14} color="secondary" />
+			) : undefined
+		}
 		isSelected={props.isSelected}
 		onPress={props.onSelect}
 	/>
@@ -299,13 +415,18 @@ export function CanvasEditorTemplate() @{
 				const neighbour = next[index] ?? next[index - 1]
 				setActiveTab(neighbour ? neighbour.id : '')
 			}
+
 			return next
 		})
 	}
 
 	const addTab = () => {
 		untitledCount.current += 1
-		const tab = { id: `untitled-${untitledCount.current}`, name: `Untitled ${untitledCount.current}` }
+		const tab = {
+			id: `untitled-${untitledCount.current}`,
+			name: `Untitled ${untitledCount.current}`,
+		}
+
 		setTabs((current) => [...current, tab])
 		setActiveTab(tab.id)
 	}
@@ -318,9 +439,7 @@ export function CanvasEditorTemplate() @{
 
 	const updateSelected = (patch: Partial<Layer>) => {
 		setLayers((current) =>
-			current.map((layer) =>
-				layer.id === selectedID ? { ...layer, ...patch } : layer,
-			),
+			current.map((layer) => (layer.id === selectedID ? { ...layer, ...patch } : layer)),
 		)
 	}
 
@@ -328,17 +447,27 @@ export function CanvasEditorTemplate() @{
 
 	const canvas = (
 		<VStack gap={3} padding={6} style={{ flex: 1, minWidth: 0 }}>
-			<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0 }}>
-				<div style={{
-					width: FRAME.width * scale,
-					height: FRAME.height * scale,
-					maxHeight: '100%',
-					position: 'relative',
-					backgroundColor: 'var(--color-background-muted)',
-					borderRadius: 'var(--radius-element)',
-					overflow: 'hidden',
-					flexShrink: 0,
-				}}>
+			<div
+				style={{
+					flex: 1,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					minHeight: 0,
+				}}
+			>
+				<div
+					style={{
+						width: FRAME.width * scale,
+						height: FRAME.height * scale,
+						maxHeight: '100%',
+						position: 'relative',
+						backgroundColor: 'var(--color-background-muted)',
+						borderRadius: 'var(--radius-element)',
+						overflow: 'hidden',
+						flexShrink: 0,
+					}}
+				>
 					{orderedLayers.map((layer) => {
 						const isPhoto = layer.kind === 'image'
 						return (
@@ -353,7 +482,10 @@ export function CanvasEditorTemplate() @{
 									height: layer.height * scale,
 									transform: `rotate(${layer.rotation}deg)`,
 									cursor: layer.isLocked ? 'default' : 'pointer',
-									outline: layer.id === selectedID ? '2px solid var(--color-accent-primary, #0171E3)' : undefined,
+									outline:
+										layer.id === selectedID
+											? '2px solid var(--color-accent-primary, #0171E3)'
+											: undefined,
 									backgroundColor: layer.fill,
 									borderRadius: layer.radius * scale,
 									padding: `${layer.paddingBlock * scale}px ${layer.paddingInline * scale}px`,
@@ -370,19 +502,34 @@ export function CanvasEditorTemplate() @{
 										style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
 									/>
 								) : (
-									<div style={{
-										fontFamily: layer.family,
-										fontWeight: layer.weight === 'Bold' ? 700 : layer.weight === 'Semibold' ? 600 : layer.weight === 'Medium' ? 500 : 400,
-										fontStyle: layer.isItalic ? 'italic' : 'normal',
-										fontSize: (layer.size ?? 16) * scale,
-										lineHeight: layer.line,
-										letterSpacing: `${(layer.tracking ?? 0) * scale}em`,
-										color: layer.color,
-										textAlign: layer.alignX === 'justify' ? 'justify' : (layer.alignX ?? 'start') as any,
-										display: 'flex',
-										alignItems: layer.alignY === 'end' ? 'flex-end' : layer.alignY === 'center' ? 'center' : 'flex-start',
-										height: '100%',
-									}}>
+									<div
+										style={{
+											fontFamily: layer.family,
+											fontWeight:
+												layer.weight === 'Bold'
+													? 700
+													: layer.weight === 'Semibold'
+														? 600
+														: layer.weight === 'Medium'
+															? 500
+															: 400,
+											fontStyle: layer.isItalic ? 'italic' : 'normal',
+											fontSize: (layer.size ?? 16) * scale,
+											lineHeight: layer.line,
+											letterSpacing: `${(layer.tracking ?? 0) * scale}em`,
+											color: layer.color,
+											textAlign:
+												layer.alignX === 'justify' ? 'justify' : ((layer.alignX ?? 'start') as any),
+											display: 'flex',
+											alignItems:
+												layer.alignY === 'end'
+													? 'flex-end'
+													: layer.alignY === 'center'
+														? 'center'
+														: 'flex-start',
+											height: '100%',
+										}}
+									>
 										{layer.content}
 									</div>
 								)}
@@ -400,36 +547,69 @@ export function CanvasEditorTemplate() @{
 				<HStack hAlign="between" vAlign="center">
 					<Text type="supporting">Name</Text>
 					<TextInput
-						label="Layer name" isLabelHidden width={160} size="sm"
-						value={selected.name} onChange={(v) => updateSelected({ name: v })}
+						label="Layer name"
+						isLabelHidden
+						width={160}
+						size="sm"
+						value={selected.name}
+						onChange={(v) => updateSelected({ name: v })}
 					/>
 				</HStack>
 				<Switch
-					label="Locked" value={selected.isLocked}
+					label="Locked"
+					value={selected.isLocked}
 					onChange={(v) => updateSelected({ isLocked: v })}
-					labelPosition="start" labelSpacing="spread"
+					labelPosition="start"
+					labelSpacing="spread"
 				/>
 			</InspectorSection>
 			<InspectorSection title="Position & size">
-				<AxisInput label="Position" x={selected.x} y={selected.y} onChange={(axis, v) => updateSelected({ [axis]: v })} />
-				<AxisInput label="Size" x={selected.width} y={selected.height} onChange={(axis, v) => updateSelected({ [axis === 'x' ? 'width' : 'height']: v })} />
-				<StepperRow label="Rotation" value={selected.rotation} onChange={(v) => updateSelected({ rotation: v })} />
-				<StepperRow label="Corner radius" value={selected.radius} onChange={(v) => updateSelected({ radius: v })} min={0} />
+				<AxisInput
+					label="Position"
+					x={selected.x}
+					y={selected.y}
+					onChange={(axis, v) => updateSelected({ [axis]: v })}
+				/>
+				<AxisInput
+					label="Size"
+					x={selected.width}
+					y={selected.height}
+					onChange={(axis, v) => updateSelected({ [axis === 'x' ? 'width' : 'height']: v })}
+				/>
+				<StepperRow
+					label="Rotation"
+					value={selected.rotation}
+					onChange={(v) => updateSelected({ rotation: v })}
+				/>
+				<StepperRow
+					label="Corner radius"
+					value={selected.radius}
+					onChange={(v) => updateSelected({ radius: v })}
+					min={0}
+				/>
 			</InspectorSection>
 			<InspectorSection title="Fill & stroke">
 				<HStack hAlign="between" vAlign="center">
 					<Text type="supporting">Fill</Text>
 					<TextInput
-						label="Fill color" isLabelHidden width={96} size="sm"
-						value={selected.fill ?? ''} placeholder="#hex"
+						label="Fill color"
+						isLabelHidden
+						width={96}
+						size="sm"
+						value={selected.fill ?? ''}
+						placeholder="#hex"
 						onChange={(v) => updateSelected({ fill: v || undefined })}
 					/>
 				</HStack>
 				<HStack hAlign="between" vAlign="center">
 					<Text type="supporting">Border</Text>
 					<TextInput
-						label="Border color" isLabelHidden width={96} size="sm"
-						value={selected.border ?? ''} placeholder="#hex"
+						label="Border color"
+						isLabelHidden
+						width={96}
+						size="sm"
+						value={selected.border ?? ''}
+						placeholder="#hex"
 						onChange={(v) => updateSelected({ border: v || undefined })}
 					/>
 				</HStack>
@@ -438,29 +618,49 @@ export function CanvasEditorTemplate() @{
 				<>
 					<InspectorSection title="Content">
 						<TextInput
-							label="Text content" isLabelHidden
-							value={selected.content} onChange={(v) => updateSelected({ content: v })}
+							label="Text content"
+							isLabelHidden
+							value={selected.content}
+							onChange={(v) => updateSelected({ content: v })}
 						/>
 					</InspectorSection>
 					<InspectorSection title="Typography">
 						<HStack hAlign="between" vAlign="center">
 							<Text type="supporting">Family</Text>
 							<Selector
-								label="Font family" isLabelHidden width={160} size="sm"
-								options={FONT_OPTIONS} value={selected.family ?? 'Anton'}
+								label="Font family"
+								isLabelHidden
+								width={160}
+								size="sm"
+								options={FONT_OPTIONS}
+								value={selected.family ?? 'Anton'}
 								onValueChange={(v) => updateSelected({ family: v ?? 'Anton' })}
 							/>
 						</HStack>
 						<HStack hAlign="between" vAlign="center">
 							<Text type="supporting">Weight</Text>
 							<Selector
-								label="Weight" isLabelHidden width={160} size="sm"
-								options={WEIGHT_OPTIONS} value={selected.weight ?? 'Regular'}
+								label="Weight"
+								isLabelHidden
+								width={160}
+								size="sm"
+								options={WEIGHT_OPTIONS}
+								value={selected.weight ?? 'Regular'}
 								onValueChange={(v) => updateSelected({ weight: v ?? 'Regular' })}
 							/>
 						</HStack>
-						<StepperRow label="Size" value={selected.size ?? 16} onChange={(v) => updateSelected({ size: v })} min={1} />
-						<StepperRow label="Line height" value={selected.line ?? 1} onChange={(v) => updateSelected({ line: v })} step={0.1} />
+						<StepperRow
+							label="Size"
+							value={selected.size ?? 16}
+							onChange={(v) => updateSelected({ size: v })}
+							min={1}
+						/>
+						<StepperRow
+							label="Line height"
+							value={selected.line ?? 1}
+							onChange={(v) => updateSelected({ line: v })}
+							step={0.1}
+						/>
 						<HStack hAlign="between" vAlign="center">
 							<Text type="supporting">Color</Text>
 							<HStack gap={2} vAlign="center">
@@ -471,15 +671,22 @@ export function CanvasEditorTemplate() @{
 									style={{ width: 32, height: 24, padding: 0, border: 'none', background: 'none' }}
 								/>
 								<TextInput
-									label="Text color" isLabelHidden width={96} size="sm"
-									value={selected.color ?? ''} onChange={(v) => updateSelected({ color: v })}
+									label="Text color"
+									isLabelHidden
+									width={96}
+									size="sm"
+									value={selected.color ?? ''}
+									onChange={(v) => updateSelected({ color: v })}
 								/>
 							</HStack>
 						</HStack>
 						<HStack hAlign="between" vAlign="center">
 							<Text type="supporting">Align X</Text>
 							<Selector
-								label="Horizontal alignment" isLabelHidden width={160} size="sm"
+								label="Horizontal alignment"
+								isLabelHidden
+								width={160}
+								size="sm"
 								options={[
 									{ value: 'start', label: 'Start' },
 									{ value: 'center', label: 'Center' },
@@ -493,7 +700,10 @@ export function CanvasEditorTemplate() @{
 						<HStack hAlign="between" vAlign="center">
 							<Text type="supporting">Align Y</Text>
 							<Selector
-								label="Vertical alignment" isLabelHidden width={160} size="sm"
+								label="Vertical alignment"
+								isLabelHidden
+								width={160}
+								size="sm"
 								options={[
 									{ value: 'start', label: 'Top' },
 									{ value: 'center', label: 'Middle' },
@@ -504,20 +714,43 @@ export function CanvasEditorTemplate() @{
 							/>
 						</HStack>
 						<Switch
-							label="Italic" value={selected.isItalic ?? false}
+							label="Italic"
+							value={selected.isItalic ?? false}
 							onChange={(v) => updateSelected({ isItalic: v })}
-							labelPosition="start" labelSpacing="spread"
+							labelPosition="start"
+							labelSpacing="spread"
 						/>
 					</InspectorSection>
 				</>
 			) : null}
 			{selected.kind === 'image' ? (
 				<InspectorSection title="Adjustments">
-					{(['brightness', 'contrast', 'saturate', 'grayscale', 'sepia', 'hue', 'blur', 'opacity', 'invert'] as const).map((key) => (
+					{(
+						[
+							'brightness',
+							'contrast',
+							'saturate',
+							'grayscale',
+							'sepia',
+							'hue',
+							'blur',
+							'opacity',
+							'invert',
+						] as const
+					).map((key) => (
 						<FilterRow
 							key={key}
 							label={key[0].toUpperCase() + key.slice(1)}
-							value={selected.filters?.[key] ?? (key === 'hue' || key === 'blur' || key === 'grayscale' || key === 'sepia' || key === 'invert' ? 0 : 100)}
+							value={
+								selected.filters?.[key] ??
+								(key === 'hue' ||
+								key === 'blur' ||
+								key === 'grayscale' ||
+								key === 'sepia' ||
+								key === 'invert'
+									? 0
+									: 100)
+							}
 							onChange={(v) =>
 								updateSelected({ filters: { ...(selected.filters ?? NO_FILTERS), [key]: v } })
 							}
@@ -526,10 +759,7 @@ export function CanvasEditorTemplate() @{
 				</InspectorSection>
 			) : null}
 			<InspectorSection title="Shadow">
-				<ShadowFields
-					shadow={selected.shadow}
-					onChange={(shadow) => updateSelected({ shadow })}
-				/>
+				<ShadowFields shadow={selected.shadow} onChange={(shadow) => updateSelected({ shadow })} />
 			</InspectorSection>
 		</VStack>
 	)
@@ -542,7 +772,13 @@ export function CanvasEditorTemplate() @{
 				<HStack gap={0.5} vAlign="center" hAlign="between">
 					<HStack gap={0.5} vAlign="center">
 						<DropdownMenu
-							button={{ label: 'Menu', variant: 'ghost', size: 'sm', isIconOnly: true, icon: <Icon name="sandbox-bars-3" size={16} /> }}
+							button={{
+								label: 'Menu',
+								variant: 'ghost',
+								size: 'sm',
+								isIconOnly: true,
+								icon: <Icon name="sandbox-bars-3" size={16} />,
+							}}
 							menuWidth={280}
 							items={[
 								{ type: 'action', key: 'new', label: 'New poster', onSelect: addTab },
@@ -551,13 +787,23 @@ export function CanvasEditorTemplate() @{
 								{ type: 'action', key: 'save', label: 'Save', onSelect: () => {} },
 								{ type: 'action', key: 'saveas', label: 'Save as…', onSelect: () => {} },
 								{
-									type: 'submenu', key: 'export', label: 'Export',
+									type: 'submenu',
+									key: 'export',
+									label: 'Export',
 									items: EXPORT_FORMATS.map((format, i) => ({
-										type: 'action', key: `export-${i}`, label: format, onSelect: () => {},
+										type: 'action',
+										key: `export-${i}`,
+										label: format,
+										onSelect: () => {},
 									})),
 								},
 								{ type: 'separator', key: 'd2' },
-								{ type: 'action', key: 'close', label: 'Close', onSelect: () => closeTab(activeTab) },
+								{
+									type: 'action',
+									key: 'close',
+									label: 'Close',
+									onSelect: () => closeTab(activeTab),
+								},
 							]}
 						/>
 						<HStack gap={0} vAlign="center" isScrollable style={{ flex: 1, minWidth: 0 }}>
@@ -569,27 +815,39 @@ export function CanvasEditorTemplate() @{
 									style={{
 										padding: '2px 8px',
 										borderRadius: 'var(--radius-element)',
-										backgroundColor: tab.id === activeTab ? 'var(--color-background-muted)' : undefined,
+										backgroundColor:
+											tab.id === activeTab ? 'var(--color-background-muted)' : undefined,
 										maxWidth: 164,
 										flexShrink: 0,
 									}}
 								>
-									<Icon name="sandbox-document" size={14} color={tab.id === activeTab ? 'accent' : 'secondary'} />
+									<Icon
+										name="sandbox-document"
+										size={14}
+										color={tab.id === activeTab ? 'accent' : 'secondary'}
+									/>
 									<Text
-										type="supporting" maxLines={1}
+										type="supporting"
+										maxLines={1}
 										color={tab.id === activeTab ? 'primary' : 'secondary'}
 									>
 										{tab.name}
 									</Text>
 									<Button
-										label={`Close ${tab.name}`} variant="ghost" size="sm" isIconOnly
+										label={`Close ${tab.name}`}
+										variant="ghost"
+										size="sm"
+										isIconOnly
 										icon={<Icon name="sandbox-x-mark" size={12} />}
 										clickAction={() => closeTab(tab.id)}
 									/>
 								</HStack>
 							))}
 							<Button
-								label="New document" variant="ghost" size="sm" isIconOnly
+								label="New document"
+								variant="ghost"
+								size="sm"
+								isIconOnly
 								icon={<Icon name="sandbox-plus" size={16} />}
 								clickAction={addTab}
 							/>
@@ -597,22 +855,40 @@ export function CanvasEditorTemplate() @{
 					</HStack>
 					<HStack gap={2} vAlign="center">
 						<Selector
-							label="Zoom" isLabelHidden size="sm" width={96}
-							options={ZOOM_OPTIONS} value={zoom}
+							label="Zoom"
+							isLabelHidden
+							size="sm"
+							width={96}
+							options={ZOOM_OPTIONS}
+							value={zoom}
 							onValueChange={(v) => setZoom(v ?? '0.4')}
 						/>
 						<DropdownMenu
-							button={{ label: 'Appearance', variant: 'ghost', size: 'sm', icon: <Icon name="sandbox-sun" size={16} /> }}
+							button={{
+								label: 'Appearance',
+								variant: 'ghost',
+								size: 'sm',
+								icon: <Icon name="sandbox-sun" size={16} />,
+							}}
 							items={(['system', 'light', 'dark'] as const).map((mode) => ({
-								type: 'action', key: mode,
+								type: 'action',
+								key: mode,
 								label: `${mode[0].toUpperCase() + mode.slice(1)}${appearance === mode ? ' ✓' : ''}`,
 								onSelect: () => setAppearance(mode),
 							}))}
 						/>
 						<DropdownMenu
-							button={{ label: 'Export', variant: 'secondary', size: 'sm', icon: <Icon name="sandbox-arrow-down-tray" size={16} /> }}
+							button={{
+								label: 'Export',
+								variant: 'secondary',
+								size: 'sm',
+								icon: <Icon name="sandbox-arrow-down-tray" size={16} />,
+							}}
 							items={EXPORT_FORMATS.map((format, i) => ({
-								type: 'action', key: `e${i}`, label: format, onSelect: () => {},
+								type: 'action',
+								key: `e${i}`,
+								label: format,
+								onSelect: () => {},
 							}))}
 						/>
 						<Button label="Share" variant="primary" size="sm" clickAction={() => {}} />
@@ -624,10 +900,7 @@ export function CanvasEditorTemplate() @{
 			chrome.left ? (
 				<LayoutPanel width={rail.props._size} hasDivider>
 					<VStack gap={0}>
-						<TabList
-							value={panel}
-							onChange={(v) => setPanel(v as 'layers' | 'assets')}
-						>
+						<TabList value={panel} onChange={(v) => setPanel(v as 'layers' | 'assets')}>
 							<Tab value="layers" label="Layers" />
 							<Tab value="assets" label="Assets" />
 						</TabList>
@@ -647,7 +920,9 @@ export function CanvasEditorTemplate() @{
 								<Card padding={3}>
 									<VStack gap={1} hAlign="center">
 										<Icon name="sandbox-photo" size={24} color="secondary" />
-										<Text type="supporting" color="secondary">moody-scene-vertical-1.png</Text>
+										<Text type="supporting" color="secondary">
+											moody-scene-vertical-1.png
+										</Text>
 									</VStack>
 								</Card>
 								<Text type="supporting" color="secondary">

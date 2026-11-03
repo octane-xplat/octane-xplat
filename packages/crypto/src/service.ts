@@ -9,6 +9,7 @@ import type {
 	CryptoDigestOptions,
 	IntegerTypedArray,
 } from './types'
+
 /** Never falls back to Math.random, including development builds. */
 export function getRandomBytes(byteCount: number): Uint8Array<ArrayBuffer> {
 	if (!Number.isInteger(byteCount) || byteCount < 0 || byteCount > 1024) {
@@ -19,9 +20,11 @@ export function getRandomBytes(byteCount: number): Uint8Array<ArrayBuffer> {
 	}
 	return random.bytes(byteCount).slice()
 }
+
 export async function getRandomBytesAsync(byteCount: number): Promise<Uint8Array<ArrayBuffer>> {
 	return getRandomBytes(byteCount)
 }
+
 /** Fills only this integer view; the Web Crypto 65,536-byte quota applies everywhere. */
 export function getRandomValues<T extends IntegerTypedArray>(typedArray: T): T {
 	if (
@@ -40,6 +43,7 @@ export function getRandomValues<T extends IntegerTypedArray>(typedArray: T): T {
 	}
 	return random.fill(typedArray)
 }
+
 export function randomUUID(): string {
 	const bytes = getRandomBytes(16)
 	bytes[6] = (bytes[6]! & 15) | 64
@@ -47,6 +51,7 @@ export function randomUUID(): string {
 	const text = hex(bytes)
 	return `${text.slice(0, 8)}-${text.slice(8, 12)}-${text.slice(12, 16)}-${text.slice(16, 20)}-${text.slice(20)}`
 }
+
 /** Hash a snapshot of the exact buffer/view; unsupported algorithms reject. */
 export async function digest(
 	algorithm: CryptoDigestAlgorithm,
@@ -57,6 +62,7 @@ export async function digest(
 	}
 	return (await backend.digest(algorithm, bufferBytes(data))).buffer
 }
+
 /** UTF-8 string digest; hexadecimal output is lowercase and base64 is padded. */
 export async function digestStringAsync(
 	algorithm: CryptoDigestAlgorithm,
@@ -73,6 +79,7 @@ export async function digestStringAsync(
 	const result = new Uint8Array(await digest(algorithm, utf8(data)))
 	return value.encoding === 'hex' ? hex(result) : base64(result)
 }
+
 export const Crypto = {
 	get capabilities(): CryptoCapabilities {
 		return { random: random.supported, ...backend.capabilities() }

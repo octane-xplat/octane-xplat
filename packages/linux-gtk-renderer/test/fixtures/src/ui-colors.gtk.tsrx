@@ -29,7 +29,9 @@ export function ColorsProbe() @{
 		<masonview
 			onPan={(e: any) => {
 				state.dbgPan = (state.dbgPan ?? '') + (e.state?.[0] ?? '?')
-				if (e.state === 'moved') { state.dbgMoved = (state.dbgMoved ?? 0) + 1 }
+				if (e.state === 'moved') {
+					state.dbgMoved = (state.dbgMoved ?? 0) + 1
+				}
 			}}
 		>
 			<ColorArea

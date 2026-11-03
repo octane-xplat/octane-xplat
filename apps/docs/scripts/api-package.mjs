@@ -9,6 +9,7 @@ import {
 	symlinkSync,
 	writeFileSync,
 } from 'node:fs'
+
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import ts from 'typescript-classic'
@@ -34,12 +35,15 @@ function declarationFences(markdown) {
 				) {
 					continue
 				}
+
 				if (node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DeclareKeyword)) {
 					continue
 				}
+
 				const exported = node.modifiers?.find(
 					(modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
 				)
+
 				edits.push({
 					at: exported ? exported.end : node.getStart(ast),
 					text: exported ? ' declare' : 'declare ',
@@ -72,6 +76,7 @@ export async function packageMarkdown(manifestPath) {
 				return !/\.[^/]+$/.test(basename(path)) || /\.(?:[cm]?tsx?|tsrx|json)$/.test(path)
 			},
 		})
+
 		// Declarations need only a local resolver config. Keep node_modules out of
 		// the copy; the original dependency links still resolve external types.
 		writeFileSync(
@@ -86,9 +91,11 @@ export async function packageMarkdown(manifestPath) {
 				},
 			}),
 		)
+
 		if (existsSync(join(source, 'node_modules'))) {
 			symlinkSync(join(source, 'node_modules'), join(staging, 'node_modules'), 'junction')
 		}
+
 		function target(value, entry) {
 			if (typeof value === 'string') {
 				if (/\.[cm]?js$/.test(value)) {
@@ -96,10 +103,12 @@ export async function packageMarkdown(manifestPath) {
 					if (globSync(declaration, { cwd: source }).length) {
 						return value
 					}
+
 					const candidate = value.replace(/^\.\/dist\//, './src/').replace(/\.[cm]?js$/, '.ts')
 					if (globSync(candidate, { cwd: source }).length) {
 						return target(candidate, entry)
 					}
+
 					// A JavaScript-only command has no TSDoc declaration to render.
 					// Explicit types targets never take this path: missing declarations fail.
 					if (globSync(value, { cwd: source }).length) {
@@ -107,12 +116,15 @@ export async function packageMarkdown(manifestPath) {
 						return undefined
 					}
 				}
+
 				if (/\.(?:[cm]?ts|tsx)$/.test(value) && !/\.d\.[cm]?ts$/.test(value)) {
 					for (const file of globSync(value, { cwd: source })) {
 						sources.add(resolve(source, file))
 					}
+
 					return value.replace(/\.(?:([cm]?)ts|tsx)$/, '.d.$1ts')
 				}
+
 				return value
 			}
 			if (Array.isArray(value)) {
@@ -122,6 +134,7 @@ export async function packageMarkdown(manifestPath) {
 				if ('types' in value) {
 					return { types: target(value.types, entry) }
 				}
+
 				return Object.fromEntries(
 					Object.entries(value)
 						.map(([key, v]) => [key, target(v, entry)])
@@ -130,6 +143,7 @@ export async function packageMarkdown(manifestPath) {
 			}
 			return value
 		}
+
 		if (manifest.exports) {
 			manifest.exports = Object.fromEntries(
 				Object.entries(manifest.exports)
@@ -154,20 +168,24 @@ export async function packageMarkdown(manifestPath) {
 					),
 			)
 		}
+
 		for (const key of ['types', 'typings']) {
 			if (manifest[key]) {
 				manifest[key] = target(manifest[key], '.')
 			}
 		}
+
 		if (sources.size) {
 			// Emit once per package, using its own compiler settings, rather than
 			// asking exports-md to launch one compiler per wildcard entry point.
 			const configPath =
 				ts.findConfigFile(source, ts.sys.fileExists) ?? resolve(source, '../../tsconfig.base.json')
+
 			const config = ts.readConfigFile(configPath, ts.sys.readFile)
 			if (config.error) {
 				throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'))
 			}
+
 			const { options } = ts.parseJsonConfigFileContent(config.config, ts.sys, dirname(configPath))
 			const program = ts.createProgram([...sources], {
 				...options,
@@ -181,6 +199,7 @@ export async function packageMarkdown(manifestPath) {
 				rootDir: undefined,
 				outDir: join(staging, '.emit'),
 			})
+
 			const emitted = program.emit(undefined, (file, contents, _bom, _error, sourceFiles) => {
 				const original = sourceFiles?.[0]?.fileName
 				if (!original) {
@@ -199,12 +218,14 @@ export async function packageMarkdown(manifestPath) {
 					rmSync(copiedSource, { force: true })
 				}
 			})
+
 			if (emitted.emitSkipped) {
 				throw new Error(
 					`Could not emit API declarations for ${manifest.name}: ${ts.formatDiagnosticsWithColorAndContext(emitted.diagnostics, { getCanonicalFileName: (file) => file, getCurrentDirectory: () => source, getNewLine: () => '\n' })}`,
 				)
 			}
 		}
+
 		// exports-md 0.2.20 indexes only the first variable in a declaration list.
 		// Split lists in the disposable declarations so every export is reachable.
 		for (const file of globSync('**/*.d.{ts,mts,cts}', {
@@ -218,6 +239,7 @@ export async function packageMarkdown(manifestPath) {
 				ts.ScriptTarget.Latest,
 				true,
 			)
+
 			if (
 				!ast.statements.some(
 					(node) => ts.isVariableStatement(node) && node.declarationList.declarations.length > 1,
@@ -225,6 +247,7 @@ export async function packageMarkdown(manifestPath) {
 			) {
 				continue
 			}
+
 			const statements = ast.statements.flatMap((node) => {
 				if (!ts.isVariableStatement(node)) {
 					return [node]
@@ -237,11 +260,13 @@ export async function packageMarkdown(manifestPath) {
 					),
 				)
 			})
+
 			writeFileSync(
 				path,
 				ts.createPrinter().printFile(ts.factory.updateSourceFile(ast, statements)),
 			)
 		}
+
 		writeFileSync(join(staging, 'package.json'), JSON.stringify(manifest))
 		const result = await generateMarkdownForModule(join(staging, 'package.json'), {
 			// exports-md parses declarations through TypeScript's classic JavaScript API.
@@ -250,15 +275,19 @@ export async function packageMarkdown(manifestPath) {
 			followReExports: true,
 			propertyDocs: 'list',
 		})
+
 		const note = untyped.size
 			? `\nJavaScript-only entry points without TypeScript declarations: ${[...untyped].map((entry) => `\`${manifest.name}${entry === '.' ? '' : entry.slice(1)}\``).join(', ')}. See the package guide for usage.\n`
 			: ''
+
 		const scope = wildcards.length
 			? `\nThis reference covers the root and explicitly named subpaths. Wildcard subpaths (${wildcards.map((entry) => `\`${entry}\``).join(', ')}) follow the declarations in the installed package.\n`
 			: ''
+
 		const sdk = sdkAliases.length
 			? '\nGenerated OS SDK aliases (`/ios`, `/android`, `/macos`, `/windows`) are not expanded here. See the [native API type guidance](https://docs.nativescript.org/guide/native-code/generate-typings) and the declarations in your installed package.\n'
 			: ''
+
 		return scope + sdk + declarationFences(result.markdown) + note
 	} finally {
 		rmSync(staging, { recursive: true, force: true })

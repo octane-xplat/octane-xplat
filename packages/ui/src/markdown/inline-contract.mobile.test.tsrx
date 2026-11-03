@@ -21,13 +21,23 @@ vi.mock('@nativescript/core', () => ({
 	CSSType: () => () => {},
 	registerElement: () => {},
 	View: class {},
-	Device: { os: 'iOS', osVersion: '26.0', model: 'iPhone', manufacturer: 'Apple', language: 'en-US', region: 'US' },
+	Device: {
+		os: 'iOS',
+		osVersion: '26.0',
+		model: 'iPhone',
+		manufacturer: 'Apple',
+		language: 'en-US',
+		region: 'US',
+	},
 	isIOS: true,
 	isAndroid: false,
 	Application: { ios: true, android: false, on() {}, off() {} },
 	Utils: { openUrl: () => true },
 }))
-vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
+
+vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({
+	applyNativeModifiers: () => {},
+}))
 
 import { createContext, use, useContext, useEffect, useMemo } from 'octane'
 import { signal$ } from 'octane/signals'
@@ -39,6 +49,7 @@ import { View } from '../components/layout/View.tsrx'
 function all(node: any): any[] {
 	return [node, ...(node.children ?? []).flatMap(all)]
 }
+
 const textsOf = (node: any): string[] =>
 	all(node).flatMap((n) => (typeof n.text === 'string' && n.text ? [n.text] : []))
 
@@ -64,6 +75,7 @@ function SlotRenderer(props: { text: string }): unknown @{
 			stats.unmounts++
 		}
 	}, [])
+
 	const derived = useMemo(() => props.text.toUpperCase(), [props.text])
 	return (
 		<View>
@@ -75,17 +87,23 @@ function SlotRenderer(props: { text: string }): unknown @{
 }
 
 function ThrowingRenderer(): unknown @{
-	if (throwNow$.get()) throw new Error('renderer exploded')
+	if (throwNow$.get()) {
+		throw new Error('renderer exploded')
+	}
+
 	return <label id="threw-ok" text="recovered" />
 }
+
 function PendingRenderer(): unknown @{
 	const v = use(pendPromise)
 	return <label id="pend-ok" text={`resolved:${v}`} />
 }
+
 function SecondSuspender(): unknown @{
 	const v = use(pend2Promise)
 	return <label id="pend2-ok" text={`late:${v}`} />
 }
+
 function DecliningRenderer(): unknown @{
 	return null
 }
@@ -100,7 +118,10 @@ function ContractSurface(): unknown @{
 				<ThrowingRenderer />
 			} @catch (error, reset) {
 				<View>
-					<label id="fb-throw" text={`caught:${String((error as any)?.message ?? error)}`} />
+					<label
+						id="fb-throw"
+						text={`caught:${String((error as any)?.message ?? error)}`}
+					/>
 					<button
 						id="fb-reset"
 						text="reset"
@@ -202,11 +223,15 @@ describe('markdown renderer contracts (universal object driver)', () => {
 		await vi.waitFor(() =>
 			expect(byId(container, 'fb-throw')?.props?.text).toBe('caught:renderer exploded'),
 		)
+
 		// pending → pending arm, then body after resolve
 		expect(byId(container, 'fb-pend')?.props?.text).toBe('pending-fallback')
 		pendResolve?.('late-value')
 		flushUniversalSync(() => {})
-		await vi.waitFor(() => expect(byId(container, 'pend-ok')?.props?.text).toBe('resolved:late-value'))
+		await vi.waitFor(() =>
+			expect(byId(container, 'pend-ok')?.props?.text).toBe('resolved:late-value'),
+		)
+
 		// unmount while pending → resolve lands nowhere, no error
 		expect(byId(container, 'fb-pend2')?.props?.text).toBe('second-pending')
 		showSuspender$.set(false)

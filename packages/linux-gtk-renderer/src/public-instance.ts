@@ -24,6 +24,7 @@ type RefEvent =
 	| 'fontChanged'
 	| 'accessibilityIncrement'
 	| 'accessibilityDecrement'
+
 type Listener = (event: { eventName: RefEvent; object: unknown; [key: string]: unknown }) => void
 
 const NUMERIC_STYLE_KEYS = new Set([
@@ -140,11 +141,7 @@ export function bindPublicInstance(
 		if (disposed) {
 			return
 		}
-		for (
-			let child = view.get_first_child();
-			child;
-			child = child.get_next_sibling()
-		) {
+		for (let child = view.get_first_child(); child; child = child.get_next_sibling()) {
 			if (callback(child as GtkView) === false) {
 				return
 			}
@@ -155,11 +152,7 @@ export function bindPublicInstance(
 			return null
 		}
 		let i = 0
-		for (
-			let child = view.get_first_child();
-			child;
-			child = child.get_next_sibling(), i++
-		) {
+		for (let child = view.get_first_child(); child; child = child.get_next_sibling(), i++) {
 			if (i === index) {
 				return child as GtkView
 			}
@@ -171,11 +164,7 @@ export function bindPublicInstance(
 			return 0
 		}
 		let count = 0
-		for (
-			let child = view.get_first_child();
-			child;
-			child = child.get_next_sibling()
-		) {
+		for (let child = view.get_first_child(); child; child = child.get_next_sibling()) {
 			count++
 		}
 		return count
@@ -184,11 +173,7 @@ export function bindPublicInstance(
 		if (disposed || !other) {
 			return null
 		}
-		const [ok, x, y] = view.translate_coordinates(other, 0, 0) as [
-			boolean,
-			number,
-			number,
-		]
+		const [ok, x, y] = view.translate_coordinates(other, 0, 0) as [boolean, number, number]
 		return ok ? { x, y } : null
 	}
 	// NS measured size ≈ GTK natural measure for the axis.
@@ -239,6 +224,7 @@ export function bindPublicInstance(
 			if (disposed) {
 				break
 			}
+
 			listener({ eventName, object: view, ...detail })
 		}
 	}

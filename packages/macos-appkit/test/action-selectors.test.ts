@@ -126,7 +126,15 @@ test('every assigned action string has an exact metadata selector, without infer
 })
 
 test('text edit/focus delegates declare the exact one-argument selectors and keep their JS methods', () => {
-	for (const name of ['controlTextDidChange', 'textFieldSubmitted', 'textDidChange', 'controlTextDidBeginEditing', 'controlTextDidEndEditing', 'textDidBeginEditing', 'textDidEndEditing']) {
+	for (const name of [
+		'controlTextDidChange',
+		'textFieldSubmitted',
+		'textDidChange',
+		'controlTextDidBeginEditing',
+		'controlTextDidEndEditing',
+		'textDidBeginEditing',
+		'textDidEndEditing',
+	]) {
 		const selector = name + ':'
 		assert.equal(ButtonActionTarget.ObjCExposedMethods[selector]?.params.length, 1, selector)
 		assert.equal(ButtonActionTarget.ObjCExposedMethods[name], undefined, name)
@@ -135,11 +143,18 @@ test('text edit/focus delegates declare the exact one-argument selectors and kee
 })
 
 test('control/menu action metadata uses full selectors and native registration exposes the menu prototype', () => {
-	for (const [target, name] of [[ButtonActionTarget, 'buttonPressed'], [ButtonActionTarget, 'controlChanged'], [MenuActionTarget, 'menuItemSelected']]) {
+	for (const [target, name] of [
+		[ButtonActionTarget, 'buttonPressed'],
+		[ButtonActionTarget, 'controlChanged'],
+		[MenuActionTarget, 'menuItemSelected'],
+	]) {
 		assert.equal(target.ObjCExposedMethods[name + ':']?.params.length, 1)
 		assert.equal(target.ObjCExposedMethods[name], undefined)
 		assert.equal(typeof target.prototype[name], 'function')
 	}
-	const menuSource = source.slice(source.indexOf('class MenuActionTarget'), source.indexOf('menuActionTarget = MenuActionTarget.new()'))
+	const menuSource = source.slice(
+		source.indexOf('class MenuActionTarget'),
+		source.indexOf('menuActionTarget = MenuActionTarget.new()'),
+	)
 	assert.match(menuSource, /registerGestureClass\(this\)/)
 })

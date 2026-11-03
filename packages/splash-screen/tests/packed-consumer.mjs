@@ -11,6 +11,7 @@ const run = (cmd, args, cwd) => {
 	const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 }
+
 try {
 	const pack = join(temporary, 'pack')
 	await mkdir(pack)
@@ -27,6 +28,7 @@ try {
 		),
 		'packed splash-screen must not ship iOS native wrapper sources',
 	)
+
 	const java = 'platforms/android/java/com/octanexplat/splashscreen/SplashScreenBridge.java'
 	assert.equal(await readFile(join(packed, java), 'utf8'), await readFile(join(root, java), 'utf8'))
 	for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
@@ -47,6 +49,7 @@ hide()
 void held; void dismissed; void supported; void fade
 `,
 		)
+
 		await writeFile(
 			join(app, 'tsconfig.json'),
 			JSON.stringify({
@@ -63,12 +66,14 @@ void held; void dismissed; void supported; void fade
 				include: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(app, 'tsconfig.json')],
 			app,
 		)
 	}
+
 	console.log(
 		'Packed splash consumer: six target declarations without native ambient types; iOS ships no native wrapper; shipped Java file contents verified. Native runtime is a separate check.',
 	)

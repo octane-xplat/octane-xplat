@@ -1041,6 +1041,7 @@ export function createSessionBackend(
 								Array.from({ length: outputs.count }, (_, index) =>
 									outputs.objectAtIndex(index).connectionWithMediaType(AVMediaTypeVideo),
 								).find(Boolean)
+
 							writerDiagnostics(
 								'cameraCommitted',
 								JSON.stringify({
@@ -1125,6 +1126,7 @@ export function createSessionBackend(
 						stage: 'preparation',
 						issue: emitIssue('unavailable', 'startRecording', 'No audio input device is available'),
 					})
+
 					return
 				}
 			}

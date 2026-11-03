@@ -7,6 +7,7 @@ const nativeStatuses = new Map<number, TrackingAuthorizationStatus>([
 	[2, 'denied'],
 	[3, 'authorized'],
 ])
+
 export function permissionResponse(value: number): PermissionResponse {
 	const authorizationStatus = nativeStatuses.get(value)
 	if (!authorizationStatus) {
@@ -21,6 +22,7 @@ export function permissionResponse(value: number): PermissionResponse {
 		authorizationStatus,
 	})
 }
+
 export function advertisingIdentifier(
 	value: string | null,
 	format: 'uuid' | 'alphanumeric' = 'uuid',

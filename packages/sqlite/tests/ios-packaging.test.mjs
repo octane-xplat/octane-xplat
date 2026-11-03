@@ -23,6 +23,7 @@ const require = createRequire(import.meta.url)
 const sqliteAnchor = dirname(
 	realpathSync(require.resolve('@nativescript-community/sqlite/package.json')),
 )
+
 const fromSqlite = createRequire(join(sqliteAnchor, 'resolve-anchor.js'))
 const packageRoot = (name) => dirname(fromSqlite.resolve(`${name}/package.json`))
 
@@ -80,8 +81,10 @@ test('sqlite-bridge slices retain headers and static libraries', () => {
 			existsSync(join(dir, 'Headers/NSSqliteBridge.h')),
 			`${slice}: missing Headers/NSSqliteBridge.h — NativeScript metadata generation and ObjC consumers read this header`,
 		)
+
 		const binary =
 			plist.match(/<key>BinaryPath<\/key>\s*<string>([^<]+)/)?.[1] ?? 'libNSSqliteBridge.a'
+
 		assert.ok(
 			existsSync(join(dir, binary)),
 			`${slice}: missing ${binary} — the bridge's static library must still link`,

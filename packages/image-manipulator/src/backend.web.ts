@@ -65,6 +65,7 @@ function transform(
 					operation.axis === 'horizontal' ? size.width : 0,
 					operation.axis === 'vertical' ? size.height : 0,
 				)
+
 				ctx.scale(operation.axis === 'horizontal' ? -1 : 1, operation.axis === 'vertical' ? -1 : 1)
 				ctx.drawImage(frame.image, 0, 0)
 				break
@@ -74,11 +75,14 @@ function transform(
 					if (!CSS.supports('color', operation.backgroundColor)) {
 						throw new TypeError('Invalid backgroundColor')
 					}
+
 					ctx.fillStyle = operation.backgroundColor
 					ctx.fillRect(0, 0, size.width, size.height)
 				}
+
 				ctx.drawImage(frame.image, operation.originX, operation.originY)
 		}
+
 		return { image, ...size }
 	} catch (error) {
 		dispose(image)

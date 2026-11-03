@@ -4,7 +4,12 @@ import { useMemo, useId } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { InputGroupProps, InputGroupTextProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { FormField } from './FormField.tsrx'
 import { useFieldControlProps } from './field-context'
 import { TextSlot } from './text-slot.tsrx'

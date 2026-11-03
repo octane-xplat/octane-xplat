@@ -5,12 +5,35 @@
 // state mutations either).
 import { useMemo, useState } from 'octane'
 import {
-	Button, createPowerSearchConfig, Divider, EmptyState, Heading, HStack,
-	Icon, Layout, LayoutContent, LayoutHeader, LayoutPanel, List, ListItem,
-	MetadataList, MetadataListItem, PowerSearch, ResizeHandle,
-	SegmentedControl, SegmentedControlItem, StackItem, StatusDot, Text,
-	Timestamp, Token, useMediaQuery, useResizable, VStack,
+	Button,
+	createPowerSearchConfig,
+	Divider,
+	EmptyState,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	List,
+	ListItem,
+	MetadataList,
+	MetadataListItem,
+	PowerSearch,
+	ResizeHandle,
+	SegmentedControl,
+	SegmentedControlItem,
+	StackItem,
+	StatusDot,
+	Text,
+	Timestamp,
+	Token,
+	useMediaQuery,
+	useResizable,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { PowerSearchFilterFor } from '@octane-xplat/ui'
 
 type Severity = 'sev1' | 'sev2' | 'sev3'
@@ -45,9 +68,21 @@ const INCIDENTS: Incident[] = [
 		startedAt: '2026-06-30T21:14:00Z',
 		impact: '12% of checkout requests failing in us-east',
 		timeline: [
-			{ at: '2026-06-30T21:14:00Z', label: 'Incident declared', detail: 'Paging monitor: checkout-api 5xx > 5% for 10m' },
-			{ at: '2026-06-30T21:19:00Z', label: 'Commander assigned', detail: 'Priya Raman took command' },
-			{ at: '2026-06-30T21:31:00Z', label: 'Suspect identified', detail: 'Deploy 8f31c2 correlates with error onset' },
+			{
+				at: '2026-06-30T21:14:00Z',
+				label: 'Incident declared',
+				detail: 'Paging monitor: checkout-api 5xx > 5% for 10m',
+			},
+			{
+				at: '2026-06-30T21:19:00Z',
+				label: 'Commander assigned',
+				detail: 'Priya Raman took command',
+			},
+			{
+				at: '2026-06-30T21:31:00Z',
+				label: 'Suspect identified',
+				detail: 'Deploy 8f31c2 correlates with error onset',
+			},
 		],
 	},
 	{
@@ -60,8 +95,16 @@ const INCIDENTS: Incident[] = [
 		startedAt: '2026-06-30T19:42:00Z',
 		impact: 'New listings not searchable; stale results served',
 		timeline: [
-			{ at: '2026-06-30T19:42:00Z', label: 'Incident declared', detail: 'Indexing lag alarm crossed 30m threshold' },
-			{ at: '2026-06-30T20:05:00Z', label: 'Mitigation attempted', detail: 'Doubled indexer worker pool; lag still climbing' },
+			{
+				at: '2026-06-30T19:42:00Z',
+				label: 'Incident declared',
+				detail: 'Indexing lag alarm crossed 30m threshold',
+			},
+			{
+				at: '2026-06-30T20:05:00Z',
+				label: 'Mitigation attempted',
+				detail: 'Doubled indexer worker pool; lag still climbing',
+			},
 		],
 	},
 	{
@@ -74,7 +117,11 @@ const INCIDENTS: Incident[] = [
 		startedAt: '2026-06-30T18:20:00Z',
 		impact: 'Third-party webhook delivery delayed up to 15m',
 		timeline: [
-			{ at: '2026-06-30T18:20:00Z', label: 'Incident declared', detail: 'Queue depth alarm on webhook-delivery' },
+			{
+				at: '2026-06-30T18:20:00Z',
+				label: 'Incident declared',
+				detail: 'Queue depth alarm on webhook-delivery',
+			},
 		],
 	},
 	{
@@ -87,8 +134,16 @@ const INCIDENTS: Incident[] = [
 		startedAt: '2026-06-30T14:03:00Z',
 		impact: 'End-of-day settlement delayed by up to 4h',
 		timeline: [
-			{ at: '2026-06-30T14:03:00Z', label: 'Incident declared', detail: 'Settlement job heartbeat missed twice' },
-			{ at: '2026-06-30T14:40:00Z', label: 'Mitigation applied', detail: 'Job restarted with backfill window; queue draining' },
+			{
+				at: '2026-06-30T14:03:00Z',
+				label: 'Incident declared',
+				detail: 'Settlement job heartbeat missed twice',
+			},
+			{
+				at: '2026-06-30T14:40:00Z',
+				label: 'Mitigation applied',
+				detail: 'Job restarted with backfill window; queue draining',
+			},
 		],
 	},
 	{
@@ -101,8 +156,16 @@ const INCIDENTS: Incident[] = [
 		startedAt: '2026-06-29T22:10:00Z',
 		impact: 'Higher origin load; no user-facing errors',
 		timeline: [
-			{ at: '2026-06-29T22:10:00Z', label: 'Incident declared', detail: 'Cache-hit ratio dropped below 85%' },
-			{ at: '2026-06-29T23:05:00Z', label: 'Resolved', detail: 'PoP cache warmed; ratio recovered to 96%' },
+			{
+				at: '2026-06-29T22:10:00Z',
+				label: 'Incident declared',
+				detail: 'Cache-hit ratio dropped below 85%',
+			},
+			{
+				at: '2026-06-29T23:05:00Z',
+				label: 'Resolved',
+				detail: 'PoP cache warmed; ratio recovered to 96%',
+			},
 		],
 	},
 ]
@@ -113,11 +176,13 @@ const STATUS_LABEL: Record<IncidentStatus, string> = {
 	mitigated: 'Mitigated',
 	resolved: 'Resolved',
 }
+
 const STATUS_TOKEN_COLOR: Record<IncidentStatus, 'red' | 'yellow' | 'green'> = {
 	investigating: 'red',
 	mitigated: 'yellow',
 	resolved: 'green',
 }
+
 const SEVERITY_DOT: Record<Severity, 'error' | 'warning' | 'neutral'> = {
 	sev1: 'error',
 	sev2: 'warning',
@@ -210,7 +275,12 @@ function IncidentRows(props: {
 										color={STATUS_TOKEN_COLOR[incident.status]}
 										label={STATUS_LABEL[incident.status]}
 									/>
-									<Timestamp value={Date.parse(incident.startedAt)} valueUnit="unix-milliseconds" format="relative" color="secondary" />
+									<Timestamp
+										value={Date.parse(incident.startedAt)}
+										valueUnit="unix-milliseconds"
+										format="relative"
+										color="secondary"
+									/>
 								</HStack>
 							}
 							onPress={() => props.onSelect(incident.id)}
@@ -268,7 +338,11 @@ function IncidentInspector(props: { incident: Incident }) @{
 				<Text type="body">{props.incident.commander}</Text>
 			</MetadataListItem>
 			<MetadataListItem label="Started">
-				<Timestamp value={Date.parse(props.incident.startedAt)} valueUnit="unix-milliseconds" format="date_time" />
+				<Timestamp
+					value={Date.parse(props.incident.startedAt)}
+					valueUnit="unix-milliseconds"
+					format="date_time"
+				/>
 			</MetadataListItem>
 			<MetadataListItem label="Impact">
 				<Text type="body">{props.incident.impact}</Text>
@@ -285,7 +359,14 @@ function IncidentInspector(props: { incident: Incident }) @{
 						key={`${event.at}-${event.label}`}
 						label={event.label}
 						description={event.detail}
-						endContent={<Timestamp value={Date.parse(event.at)} valueUnit="unix-milliseconds" format="time" color="secondary" />}
+						endContent={
+							<Timestamp
+								value={Date.parse(event.at)}
+								valueUnit="unix-milliseconds"
+								format="time"
+								color="secondary"
+							/>
+						}
 					/>
 				))}
 			</List>

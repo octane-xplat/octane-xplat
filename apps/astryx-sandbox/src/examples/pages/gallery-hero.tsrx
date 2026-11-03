@@ -3,7 +3,18 @@
 // GAPS: Text `justify`/`textWrap` props unported → style. Grid `gap` is not a
 // prop upstream-side here — gap moves into style (recorded convention).
 // ArrowRightIcon 20/solid → 24/outline registry glyph.
-import { AspectRatio, Button, Grid, Heading, HStack, Icon, Layout, LayoutContent, Text, VStack } from '@octane-xplat/ui'
+import {
+	AspectRatio,
+	Button,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	Text,
+	VStack,
+} from '@octane-xplat/ui'
 
 const IMAGES = [
 	{
@@ -26,10 +37,12 @@ const galleryImage = {
 	height: '100%',
 	objectFit: 'cover' as const,
 }
+
 // Rounds the image corners. No radius prop on AspectRatio (#2582).
 const galleryImageClip = {
 	borderRadius: 'var(--radius-container)',
 }
+
 const textCenter = {
 	textAlign: 'center' as const,
 	textWrap: 'balance' as const,

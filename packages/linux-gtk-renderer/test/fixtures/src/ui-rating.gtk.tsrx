@@ -1,5 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { View, FormLayout, Field, Pressable, Text, IconRegistryProvider, createIconRegistry, InputRating } from '@octane-xplat/ui'
+import {
+	View,
+	FormLayout,
+	Field,
+	Pressable,
+	Text,
+	IconRegistryProvider,
+	createIconRegistry,
+	InputRating,
+} from '@octane-xplat/ui'
+
 import type { InputRatingProps } from '@octane-xplat/ui'
 
 const left = createIconRegistry()
@@ -11,13 +21,16 @@ right.registerIcon('☆', { text: 'R' })
 export function RatingScene(props: InputRatingProps & { iconVersion?: number }) @{
 	<View style={{ width: 320, height: 400 }}>
 		<IconRegistryProvider value={props.iconVersion === 2 ? right : left}>
-		<FormLayout defaultOptionality="required">
-			<InputRating {...props} id="rating-control" />
-		</FormLayout>
+			<FormLayout defaultOptionality="required">
+				<InputRating {...props} id="rating-control" />
+			</FormLayout>
 		</IconRegistryProvider>
-		<Pressable className="rating-after" accessibilityRole="button"><Text>After</Text></Pressable>
+		<Pressable className="rating-after" accessibilityRole="button">
+			<Text>After</Text>
+		</Pressable>
 	</View>
 }
+
 export function RatingContextScene(props: InputRatingProps) @{
 	<View style={{ width: 320, height: 400 }}>
 		<Field label="Parent rating" width={280} isGroupLabel isReadOnly isRequired size="sm">

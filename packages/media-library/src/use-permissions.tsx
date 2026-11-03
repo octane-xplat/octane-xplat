@@ -37,9 +37,11 @@ export function usePermissions(
 					writeOnly,
 					granular,
 				)
+
 				if (owner.active && serial === owner.serial) {
 					setValue({ owner, response })
 				}
+
 				return response
 			} finally {
 				if (request) {

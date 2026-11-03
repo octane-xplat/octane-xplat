@@ -213,6 +213,7 @@ try {
 		!existsSync(join(packedRoot, 'platforms/macos')),
 		'macOS backend ships no native leaf — TypeScript drives the ObjC bridge',
 	)
+
 	assert.ok(existsSync(join(packedRoot, 'src/recorder-host.macos.ts')))
 	// Resolve and execute the actual public condition with no mobile modules
 	// installed. A missing native bridge must be a safe unsupported recorder.

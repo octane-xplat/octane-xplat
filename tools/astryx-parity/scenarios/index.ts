@@ -22,4 +22,5 @@ export {
 	ASTRYX_BASELINE,
 	ASTRYX_REVIEWED_COMMIT,
 } from './markdown.ts'
+
 export type { MarkdownScenario, MarkdownCapability } from './markdown.ts'

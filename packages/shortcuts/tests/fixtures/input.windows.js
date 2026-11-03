@@ -6,6 +6,7 @@ import { createShortcuts } from '../../src/index.windows.ts'
 for (const name of ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval']) {
 	globalThis[name] ??= globalThis['__ns__' + name]
 }
+
 const ui = Microsoft.UI.Xaml
 const window = new ui.Window()
 window.Title = 'XplatShortcuts'
@@ -27,6 +28,7 @@ setTimeout(() => {
 			ui.UIElement.PreviewKeyDownEvent,
 			(callback) => new ui.Input.KeyEventHandler(callback),
 		)
+
 		const shortcuts = createShortcuts({ target: box })
 		const calls = []
 		let recording
@@ -40,6 +42,7 @@ setTimeout(() => {
 				console.log('SHORTCUT palette')
 			},
 		})
+
 		shortcuts.bind({ sequence: 'g i', handler: () => calls.push('sequence') })
 		shortcuts.bind({ combo: 'x', handler: () => calls.push('plain') })
 		shortcuts.bind({ combo: 'F3', handler: () => editor.Focus(ui.FocusState.Programmatic) })
@@ -49,6 +52,7 @@ setTimeout(() => {
 			preventDefault: true,
 			handler: () => calls.push('prevented'),
 		})
+
 		shortcuts.bind({
 			combo: 'F2',
 			handler() {
@@ -58,6 +62,7 @@ setTimeout(() => {
 				})
 			},
 		})
+
 		shortcuts.bind({
 			combo: 'F12',
 			editablePolicy: 'allow-in-editable',
@@ -76,6 +81,7 @@ setTimeout(() => {
 				button.Focus(ui.FocusState.Programmatic)
 			},
 		})
+
 		button.Focus(ui.FocusState.Programmatic)
 		console.log('SHORTCUT READY')
 	} catch (error) {

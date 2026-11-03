@@ -1,6 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
-import { createObjectContainer, createObjectDriver, createUniversalRoot, flushUniversalSync } from 'octane/universal/native'
+import {
+	createObjectContainer,
+	createObjectDriver,
+	createUniversalRoot,
+	flushUniversalSync,
+} from 'octane/universal/native'
+
 import { Root, useLightboxState } from './root.tsrx'
 import { useLightbox } from './use-lightbox.tsrx'
 import type { UseLightboxReturn, UseLightboxState } from './props'
@@ -20,9 +26,15 @@ function ReadState() {
 	state = useLightboxState()
 	return null
 }
+
 function StateHarness() {
-	return <Root media={media} defaultIndex={1}><ReadState /></Root>
+	return (
+		<Root media={media} defaultIndex={1}>
+			<ReadState />
+		</Root>
+	)
 }
+
 function ImperativeHarness() {
 	const current = useLightbox({ media, onOpenChange })
 	lightbox = current
@@ -30,7 +42,11 @@ function ImperativeHarness() {
 }
 
 it('native state exposes the shared media, visibility, navigation and zoom contract', () => {
-	const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
+	const root = createUniversalRoot(
+		createObjectContainer('nativescript'),
+		createObjectDriver('nativescript'),
+	)
+
 	try {
 		flushUniversalSync(() => root.render(StateHarness, {}))
 		expect(state!.items).toBe(media)
@@ -38,9 +54,19 @@ it('native state exposes the shared media, visibility, navigation and zoom contr
 		expect(state!.count).toBe(2)
 		expect(state!.index).toBe(1)
 		expect(state!.open).toBe(false)
-		for (const action of ['openAt', 'close', 'goTo', 'next', 'prev', 'zoomIn', 'zoomOut', 'resetZoom'] as const) {
+		for (const action of [
+			'openAt',
+			'close',
+			'goTo',
+			'next',
+			'prev',
+			'zoomIn',
+			'zoomOut',
+			'resetZoom',
+		] as const) {
 			expect(state![action], action).toBeTypeOf('function')
 		}
+
 		flushUniversalSync(() => state!.openAt(0))
 		expect(state!.open).toBe(true)
 		expect(state!.item).toBe(media[0])
@@ -52,7 +78,11 @@ it('native state exposes the shared media, visibility, navigation and zoom contr
 })
 
 it('native imperative hook supplies a default trigger and indexed triggers', async () => {
-	const root = createUniversalRoot(createObjectContainer('nativescript'), createObjectDriver('nativescript'))
+	const root = createUniversalRoot(
+		createObjectContainer('nativescript'),
+		createObjectDriver('nativescript'),
+	)
+
 	try {
 		flushUniversalSync(() => root.render(ImperativeHarness, {}))
 		expect(lightbox!.triggerProps.ref).toBeTypeOf('function')

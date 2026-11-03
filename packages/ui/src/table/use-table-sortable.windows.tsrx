@@ -61,12 +61,14 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
 	const label = typeof props.column.header === 'string' ? props.column.header : props.column.key
 	const rank =
 		props.isMultiSortEnabled && sort.length > 1 && entryIndex >= 0 ? entryIndex + 1 : null
+
 	const name =
 		direction == null
 			? `Sort by ${label}`
 			: rank != null
 				? `Sorted by ${label} ${direction} (priority ${rank} of ${sort.length})`
 				: `Sorted by ${label} ${direction}`
+
 	const iconName =
 		direction === 'ascending'
 			? 'xplat-arrow-up'

@@ -10,6 +10,7 @@ import {
 	markdownSoftBreaksPlugin,
 	markdownSourceLinesPlugin,
 } from '@octane-xplat/ui/markdown'
+
 import {
 	buttonScenarios,
 	textInputScenarios,
@@ -319,11 +320,15 @@ const boomNode =
 		display: 'block' as const,
 		data: { code: ctx.code },
 	})
+
 const boundaryPlugins = {
 	error: createMarkdownPlugin({
 		name: 'x-error',
 		apiVersion: 1,
-		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-error') }),
+		transform: createMarkdownFenceTransform({
+			languages: ['boom'],
+			createNode: boomNode('x-error'),
+		}),
 		renderers: {
 			boom: {
 				render: () => {
@@ -336,13 +341,19 @@ const boundaryPlugins = {
 	decline: createMarkdownPlugin({
 		name: 'x-decline',
 		apiVersion: 1,
-		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-decline') }),
+		transform: createMarkdownFenceTransform({
+			languages: ['boom'],
+			createNode: boomNode('x-decline'),
+		}),
 		renderers: { boom: { render: () => null, toText: () => 'decline' } },
 	}),
 	pending: createMarkdownPlugin({
 		name: 'x-pending',
 		apiVersion: 1,
-		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-pending') }),
+		transform: createMarkdownFenceTransform({
+			languages: ['boom'],
+			createNode: boomNode('x-pending'),
+		}),
 		renderers: { boom: { render: () => <PendingNode />, toText: () => 'pending' } },
 	}),
 }
@@ -524,7 +535,12 @@ function MarkdownBehavior() {
 }
 
 function MarkdownLayout() {
-	const cells: readonly { key: string; width: number; density?: 'compact'; contentAlign?: 'center' }[] = [
+	const cells: readonly {
+		key: string
+		width: number
+		density?: 'compact'
+		contentAlign?: 'center'
+	}[] = [
 		{ key: 'prose-basic', width: 480 },
 		{ key: 'table-layout', width: 480 },
 		{ key: 'content-width', width: 480 },

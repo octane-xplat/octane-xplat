@@ -5,10 +5,7 @@ import type { VideoProps } from './props'
 import { layoutChildProps } from './layout-child'
 import { mergeStyle } from './style-merge'
 import { VideoChrome } from './video-chrome.tsrx'
-import {
-	createAppKitVideoOwner,
-	type AppKitVideoState,
-} from './video-owner.macos.ts'
+import { createAppKitVideoOwner, type AppKitVideoState } from './video-owner.macos.ts'
 import { createVideoView } from './video-view.macos.ts'
 
 /** AVPlayerLayer surface with shared self-drawn chrome. Playback is

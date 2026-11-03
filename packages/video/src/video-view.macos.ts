@@ -28,6 +28,7 @@ import {
 	NSURL,
 	NSView,
 } from '@octane-xplat/platform/macos'
+
 import type { AppKitVideoNative } from './video-owner.macos.ts'
 
 interface VideoState {

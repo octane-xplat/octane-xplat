@@ -18,6 +18,7 @@ export async function exportCrop(
 			original.height - originY,
 			Math.ceil(natural.y + natural.height) - originY,
 		)
+
 		context.crop({ originX, originY, width, height })
 		cropped = await context.renderAsync()
 		return await cropped.saveAsync({ format: SaveFormat.PNG })

@@ -9,6 +9,7 @@ window.set_child(host)
 const container = createGtkContainer(host)
 const command = (op: string, id: number, extra: Record<string, unknown> = {}) =>
 	({ op, id, ...extra }) as UniversalHostCommand
+
 const apply = (commands: UniversalHostCommand[]) =>
 	gtkDriver
 		.prepareBatch(
@@ -21,6 +22,7 @@ const apply = (commands: UniversalHostCommand[]) =>
 			},
 		)
 		.apply()
+
 const node = (id: number) => container.nodes.get(id)!
 const view = (id: number) => node(id).view!
 const pause = () =>
@@ -30,6 +32,7 @@ const pause = () =>
 			return false
 		}),
 	)
+
 const loop = GLib.MainLoop.new(null, false)
 let checks = 0
 const check = (name: string, ok: boolean) => {
@@ -38,18 +41,22 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const groupProps = (display = 'flex') => ({
 	style: { display, width: 200, height: 80, flexDirection: 'column' },
 })
+
 const leafProps = (extra: Record<string, unknown> = {}, style: Record<string, unknown> = {}) => ({
 	text: 'Leaf',
 	...extra,
 	style: { width: 160, height: 30, ...style },
 })
+
 const update = async (id: number, props: Record<string, unknown>) => {
 	apply([command('update', id, { props })])
 	await pause()
 }
+
 async function run() {
 	apply([
 		command('create', 1, {
@@ -198,6 +205,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -209,6 +217,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

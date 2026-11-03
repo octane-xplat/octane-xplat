@@ -24,6 +24,7 @@ export function PackingScreen() {
 					await list.close()
 					return
 				}
+
 				owner.list = list
 				const items = await list.list()
 				if (owner.active) {

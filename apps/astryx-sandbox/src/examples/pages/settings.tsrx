@@ -4,20 +4,31 @@
 // component); `type="password"` → `secure`; Button `onClick` → `clickAction`.
 import { useState } from 'octane'
 import {
-	Button, CheckboxInput, createStaticSource, Divider, Grid, Heading,
-	HStack, Icon, Layout, LayoutContent, LayoutHeader, LayoutPanel, List,
-	ListItem, StackItem, Tab, TabList, Text, TextInput, Typeahead,
-	useMediaQuery, VStack,
+	Button,
+	CheckboxInput,
+	createStaticSource,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	List,
+	ListItem,
+	StackItem,
+	Tab,
+	TabList,
+	Text,
+	TextInput,
+	Typeahead,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
 
-const NAV_ITEMS = [
-	'Profile',
-	'Account',
-	'Members',
-	'Billing',
-	'Invoices',
-	'API',
-]
+const NAV_ITEMS = ['Profile', 'Account', 'Members', 'Billing', 'Invoices', 'API']
 
 const SETTINGS_ITEMS = [
 	{ id: '1', label: 'Username' },
@@ -99,7 +110,7 @@ export function SettingsTemplate() @{
 							</TabList>
 						</VStack>
 					) : null}
-					<Grid style={{gap: 'var(--spacing-10)'}} columns={{ minWidth: 320 }} >
+					<Grid style={{ gap: 'var(--spacing-10)' }} columns={{ minWidth: 320 }}>
 						<VStack gap={1}>
 							<Heading level={3}>Basic information</Heading>
 							<Text type="supporting" color="secondary">
@@ -119,7 +130,7 @@ export function SettingsTemplate() @{
 
 					<Divider />
 
-					<Grid style={{gap: 'var(--spacing-10)'}} columns={{ minWidth: 320 }} >
+					<Grid style={{ gap: 'var(--spacing-10)' }} columns={{ minWidth: 320 }}>
 						<VStack gap={1}>
 							<Heading level={3}>Change password</Heading>
 							<Text type="supporting" color="secondary">
@@ -127,9 +138,19 @@ export function SettingsTemplate() @{
 							</Text>
 						</VStack>
 						<VStack gap={4}>
-							<TextInput label="Verify current password" secure value={currentPw} onChange={setCurrentPw} />
+							<TextInput
+								label="Verify current password"
+								secure
+								value={currentPw}
+								onChange={setCurrentPw}
+							/>
 							<TextInput label="New password" secure value={newPw} onChange={setNewPw} />
-							<TextInput label="Confirm password" secure value={confirmPw} onChange={setConfirmPw} />
+							<TextInput
+								label="Confirm password"
+								secure
+								value={confirmPw}
+								onChange={setConfirmPw}
+							/>
 							<HStack>
 								<Button label="Save" variant="primary" clickAction={() => {}} />
 							</HStack>
@@ -138,7 +159,7 @@ export function SettingsTemplate() @{
 
 					<Divider />
 
-					<Grid style={{gap: 'var(--spacing-10)'}} columns={{ minWidth: 320 }} >
+					<Grid style={{ gap: 'var(--spacing-10)' }} columns={{ minWidth: 320 }}>
 						<VStack gap={1}>
 							<Heading level={3}>Advanced settings</Heading>
 							<Text type="supporting" color="secondary">

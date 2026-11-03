@@ -21,6 +21,7 @@ export type HapticPoint = {
 	/** Texture 0-1 — maps to iOS CHHaptic sharpness, ignored elsewhere. */
 	sharpness?: number
 }
+
 /** A composed haptic pattern — a duration with sampled control points. */
 export type HapticPattern = {
 	/** Total pattern length in milliseconds. */

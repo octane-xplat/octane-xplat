@@ -17,6 +17,7 @@ export interface Filter {
 	operator: 'eq' | 'within' | 'gt' | 'gte' | 'lt' | 'lte'
 	value: string | number | boolean | readonly (string | number | boolean)[]
 }
+
 export interface QuerySpec {
 	filters: Filter[]
 	order: SortDescriptor[]
@@ -24,6 +25,7 @@ export interface QuerySpec {
 	offset: number
 	album?: string
 }
+
 export interface LibraryBackend {
 	isAvailable(): boolean
 	permissions(

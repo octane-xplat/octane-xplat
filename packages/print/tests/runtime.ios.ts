@@ -6,6 +6,7 @@ import {
 	selectPrinterAsync,
 	releasePrintFile,
 } from '../src/index'
+
 import type { FilePrintResult } from '../src/types'
 type Context = {
 	assert(name: string, actual: unknown, expected?: unknown): void
@@ -13,6 +14,7 @@ type Context = {
 	onCleanup(callback: () => void): void
 	waitFor<T>(predicate: () => T, options?: { timeout?: number }): Promise<NonNullable<T>>
 }
+
 type NativePDF = {
 	pageCount: number
 	string: string | null
@@ -20,10 +22,12 @@ type NativePDF = {
 		index: number,
 	): { boundsForBox(box: number): { size: { width: number; height: number } } } | null
 }
+
 // The installed SDK types omit PDFKit; the native metadata loads it with the Swift facade.
 interface PDFKitRuntime {
 	PDFDocument: { alloc(): { initWithURL(url: NSURL): NativePDF | null } }
 }
+
 const pdfKit = globalThis as unknown as PDFKitRuntime
 export async function run(ctx: Context) {
 	const step = File.fromPath(path.join(knownFolders.documents().path, 'print-test-step.json'))
@@ -97,6 +101,7 @@ export async function run(ctx: Context) {
 				error && typeof error === 'object' && 'code' in error && error.code === 'ERR_PRINT_FAILED',
 			)
 		}
+
 		ctx.assert('invalid PDF rejects before presentation', failed)
 		ctx.assert(
 			'no modal retained after failed source',
@@ -116,10 +121,12 @@ export async function run(ctx: Context) {
 				error.code === 'ERR_PRINT_CANCELLED',
 			)
 		}
+
 		ctx.assert('print dialog cancellation rejects', canceled)
 		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
 			timeout: 10000,
 		})
+
 		ctx.assert(
 			'print dialog presenter released',
 			!Application.ios.rootController?.presentedViewController,
@@ -138,14 +145,17 @@ export async function run(ctx: Context) {
 				error.code === 'ERR_PRINT_CANCELLED',
 			)
 		}
+
 		ctx.assert('existing PDF print cancellation rejects', canceled)
 		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
 			timeout: 10000,
 		})
+
 		ctx.assert(
 			'PDF print presenter released',
 			!Application.ios.rootController?.presentedViewController,
 		)
+
 		ctx.assert('printing preserves input PDF', File.exists(NSURL.URLWithString(second.uri)!.path!))
 	}
 	if (Print.capabilities.print) {
@@ -163,10 +173,12 @@ export async function run(ctx: Context) {
 				error.code === 'ERR_PRINT_CANCELLED',
 			)
 		}
+
 		ctx.assert('data-URI PDF print cancellation rejects', canceled)
 		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
 			timeout: 10000,
 		})
+
 		ctx.assert(
 			'data-URI presenter released',
 			!Application.ios.rootController?.presentedViewController,
@@ -187,10 +199,12 @@ export async function run(ctx: Context) {
 				error.code === 'ERR_PRINT_CANCELLED',
 			)
 		}
+
 		ctx.assert('HTTPS PDF print cancellation rejects', canceled)
 		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
 			timeout: 10000,
 		})
+
 		ctx.assert(
 			'HTTPS print presenter released',
 			!Application.ios.rootController?.presentedViewController,
@@ -209,10 +223,12 @@ export async function run(ctx: Context) {
 				error.code === 'ERR_PRINT_CANCELLED',
 			)
 		}
+
 		ctx.assert('printer selection cancellation rejects', canceled)
 		await ctx.waitFor(() => !Application.ios.rootController?.presentedViewController, {
 			timeout: 10000,
 		})
+
 		ctx.assert(
 			'printer picker presenter released',
 			!Application.ios.rootController?.presentedViewController,

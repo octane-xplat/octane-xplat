@@ -4,11 +4,38 @@
 // has no equivalent — the terms error is rendered as a Text row instead.
 import { useMemo, useState } from 'octane'
 import {
-	Badge, Banner, Button, Card, CheckboxInput, CheckboxList,
-	CheckboxListItem, Divider, Field, FormLayout, Grid, Heading, HStack,
-	Icon, Layout, LayoutContent, LayoutFooter, LayoutHeader, MetadataList,
-	MetadataListItem, NumberInput, RadioList, RadioListItem, SelectableCard,
-	Selector, StackItem, Step, Stepper, Switch, Text, TextArea, TextInput,
+	Badge,
+	Banner,
+	Button,
+	Card,
+	CheckboxInput,
+	CheckboxList,
+	CheckboxListItem,
+	Divider,
+	Field,
+	FormLayout,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutFooter,
+	LayoutHeader,
+	MetadataList,
+	MetadataListItem,
+	NumberInput,
+	RadioList,
+	RadioListItem,
+	SelectableCard,
+	Selector,
+	StackItem,
+	Step,
+	Stepper,
+	Switch,
+	Text,
+	TextArea,
+	TextInput,
 	VStack,
 } from '@octane-xplat/ui'
 
@@ -33,15 +60,48 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 const PLANS = [
-	{ id: 'starter', label: 'Starter', pricePerSeat: 0, seatLimit: 5, description: 'Up to 5 members, 3 projects, community support.' },
-	{ id: 'growth', label: 'Growth', pricePerSeat: 24, seatLimit: 250, description: 'Unlimited projects, integrations, and standard support.' },
-	{ id: 'scale', label: 'Scale', pricePerSeat: 48, seatLimit: 2000, description: 'Advanced controls, a 99.9% SLA, and a dedicated CSM.' },
+	{
+		id: 'starter',
+		label: 'Starter',
+		pricePerSeat: 0,
+		seatLimit: 5,
+		description: 'Up to 5 members, 3 projects, community support.',
+	},
+	{
+		id: 'growth',
+		label: 'Growth',
+		pricePerSeat: 24,
+		seatLimit: 250,
+		description: 'Unlimited projects, integrations, and standard support.',
+	},
+	{
+		id: 'scale',
+		label: 'Scale',
+		pricePerSeat: 48,
+		seatLimit: 2000,
+		description: 'Advanced controls, a 99.9% SLA, and a dedicated CSM.',
+	},
 ]
 
 const ADDONS = [
-	{ id: 'sso', label: 'SSO / SAML', price: 3, description: 'Single sign-on through Okta, Entra ID, or Google.' },
-	{ id: 'audit', label: 'Audit log export', price: 2, description: 'Stream workspace audit events to your SIEM.' },
-	{ id: 'regions', label: 'Extra regions', price: 4, description: 'Replicate workspace data to a second region.' },
+	{
+		id: 'sso',
+		label: 'SSO / SAML',
+		price: 3,
+		description: 'Single sign-on through Okta, Entra ID, or Google.',
+	},
+	{
+		id: 'audit',
+		label: 'Audit log export',
+		price: 2,
+		description: 'Stream workspace audit events to your SIEM.',
+	},
+	{
+		id: 'regions',
+		label: 'Extra regions',
+		price: 4,
+		description: 'Replicate workspace data to a second region.',
+	},
 ]
 
 const SLUG_PATTERN = /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/
@@ -87,6 +147,7 @@ export function FormWizardTemplate() @{
 				.filter(Boolean),
 		[invites],
 	)
+
 	const invalidEmails = emails.filter((e) => !EMAIL_PATTERN.test(e))
 
 	const plan = PLANS.find((p) => p.id === planId) ?? PLANS[0]
@@ -94,6 +155,7 @@ export function FormWizardTemplate() @{
 		(sum, a) => sum + a.price,
 		0,
 	)
+
 	const seatCount = seats ?? 0
 	const monthlyTotal = (plan.pricePerSeat + addonCostPerSeat) * seatCount
 
@@ -104,6 +166,7 @@ export function FormWizardTemplate() @{
 		if (!name.trim()) {
 			workspace.name = 'Enter a name for the workspace.'
 		}
+
 		if (!slug.trim()) {
 			workspace.slug = 'Enter a URL for the workspace.'
 		} else if (!SLUG_PATTERN.test(slug)) {
@@ -129,6 +192,7 @@ export function FormWizardTemplate() @{
 		if (!acceptedTerms) {
 			review.terms = 'Accept the terms to create the workspace.'
 		}
+
 		return [workspace, team, planStep, review]
 	}, [name, slug, invalidEmails, seatCount, plan, acceptedTerms])
 
@@ -154,6 +218,7 @@ export function FormWizardTemplate() @{
 		if (firstProblem) {
 			return
 		}
+
 		setStep((s) => Math.min(STEPS.length - 1, s + 1))
 	}
 
@@ -172,6 +237,7 @@ export function FormWizardTemplate() @{
 		if (index > step) {
 			markAttempted(step)
 		}
+
 		setStep(index)
 	}
 
@@ -190,7 +256,8 @@ export function FormWizardTemplate() @{
 					<Stepper
 						activeStep={step}
 						orientation="horizontal"
-						onStepClick={goTo} accessibilityLabel="Create workspace progress"
+						onStepClick={goTo}
+						accessibilityLabel="Create workspace progress"
 						indicatorPosition="on-track"
 					>
 						{STEPS.map((s, i) => (
@@ -213,8 +280,8 @@ export function FormWizardTemplate() @{
 						<VStack gap={1}>
 							<Heading level={2}>Workspace details</Heading>
 							<Text type="supporting" color="secondary">
-								Name your workspace and pick where its data lives. The region
-								is permanent — moving data later means a migration.
+								Name your workspace and pick where its data lives. The region is permanent — moving
+								data later means a migration.
 							</Text>
 						</VStack>
 						<FormLayout defaultOptionality="optional">
@@ -224,7 +291,9 @@ export function FormWizardTemplate() @{
 								value={name}
 								onChange={(v) => setName(v ?? '')}
 								placeholder="Acme Inc."
-								status={currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined}
+								status={
+									currentErrors.name ? { type: 'error', message: currentErrors.name } : undefined
+								}
 							/>
 							<TextInput
 								label="Workspace URL"
@@ -233,7 +302,9 @@ export function FormWizardTemplate() @{
 								onChange={(v) => setSlug(v ?? '')}
 								placeholder="acme"
 								description={`terrace.app/${slug.trim() || 'your-workspace'}`}
-								status={currentErrors.slug ? { type: 'error', message: currentErrors.slug } : undefined}
+								status={
+									currentErrors.slug ? { type: 'error', message: currentErrors.slug } : undefined
+								}
 							/>
 							<Selector
 								label="Data region"
@@ -242,7 +313,11 @@ export function FormWizardTemplate() @{
 								onValueChange={(v) => setRegion(v ?? '')}
 								description="Where projects, files, and audit logs are stored at rest."
 							/>
-							<RadioList label="Who can join" value={visibility} onValueChange={(v) => setVisibility(v ?? '')}>
+							<RadioList
+								label="Who can join"
+								value={visibility}
+								onValueChange={(v) => setVisibility(v ?? '')}
+							>
 								<RadioListItem
 									value="invite"
 									label="Invite only"
@@ -278,12 +353,32 @@ export function FormWizardTemplate() @{
 								value={invites}
 								onChange={(v) => setInvites(v ?? '')}
 								placeholder="name@northwind.dev, comma or newline separated"
-								status={currentErrors.invites ? { type: 'error', message: currentErrors.invites } : undefined}
+								status={
+									currentErrors.invites
+										? { type: 'error', message: currentErrors.invites }
+										: undefined
+								}
 							/>
-							<RadioList label="Role for invited members" value={role} onValueChange={(v) => setRole(v ?? '')}>
-								<RadioListItem value="admin" label="Admin" description="Can manage members, billing, and workspace settings." />
-								<RadioListItem value="member" label="Member" description="Can create and edit projects and files." />
-								<RadioListItem value="guest" label="Guest" description="Can view and comment on shared projects only." />
+							<RadioList
+								label="Role for invited members"
+								value={role}
+								onValueChange={(v) => setRole(v ?? '')}
+							>
+								<RadioListItem
+									value="admin"
+									label="Admin"
+									description="Can manage members, billing, and workspace settings."
+								/>
+								<RadioListItem
+									value="member"
+									label="Member"
+									description="Can create and edit projects and files."
+								/>
+								<RadioListItem
+									value="guest"
+									label="Guest"
+									description="Can view and comment on shared projects only."
+								/>
 							</RadioList>
 							<Switch
 								label="Send invites as soon as the workspace is created"
@@ -312,8 +407,8 @@ export function FormWizardTemplate() @{
 						<VStack gap={1}>
 							<Heading level={2}>Choose a plan</Heading>
 							<Text type="supporting" color="secondary">
-								Billed monthly per seat. Change plans or add capabilities at
-								any time from workspace settings.
+								Billed monthly per seat. Change plans or add capabilities at any time from workspace
+								settings.
 							</Text>
 						</VStack>
 						<FormLayout defaultOptionality="optional">
@@ -330,7 +425,9 @@ export function FormWizardTemplate() @{
 											<VStack gap={2}>
 												<HStack gap={2} vAlign="center" hAlign="between">
 													<Text type="label">{p.label}</Text>
-													{p.id === 'growth' ? <Badge variant="success" label="Recommended" /> : null}
+													{p.id === 'growth' ? (
+														<Badge variant="success" label="Recommended" />
+													) : null}
 												</HStack>
 												<Text type="large" weight="bold">
 													{p.pricePerSeat === 0 ? 'Free' : `${money(p.pricePerSeat)}/seat`}
@@ -351,7 +448,9 @@ export function FormWizardTemplate() @{
 								max={plan.seatLimit}
 								step={1}
 								description={`Includes you. ${plan.label} allows up to ${plan.seatLimit}.`}
-								status={currentErrors.seats ? { type: 'error', message: currentErrors.seats } : undefined}
+								status={
+									currentErrors.seats ? { type: 'error', message: currentErrors.seats } : undefined
+								}
 							/>
 							<CheckboxList
 								label="Add-ons"
@@ -401,8 +500,8 @@ export function FormWizardTemplate() @{
 						<VStack gap={1}>
 							<Heading level={2}>Review and create</Heading>
 							<Text type="supporting" color="secondary">
-								Nothing is saved until you create the workspace. Use the steps
-								above to go back and edit.
+								Nothing is saved until you create the workspace. Use the steps above to go back and
+								edit.
 							</Text>
 						</VStack>
 
@@ -435,9 +534,7 @@ export function FormWizardTemplate() @{
 						) : null}
 
 						<MetadataList orientation="vertical">
-							<MetadataListItem label="Workspace name">
-								{name.trim() || '—'}
-							</MetadataListItem>
+							<MetadataListItem label="Workspace name">{name.trim() || '—'}</MetadataListItem>
 							<MetadataListItem label="Workspace URL">
 								terrace.app/{slug.trim() || '—'}
 							</MetadataListItem>
@@ -464,7 +561,9 @@ export function FormWizardTemplate() @{
 							<MetadataListItem label="Add-ons">
 								{addons.length === 0
 									? 'None'
-									: ADDONS.filter((a) => addons.includes(a.id)).map((a) => a.label).join(', ')}
+									: ADDONS.filter((a) => addons.includes(a.id))
+											.map((a) => a.label)
+											.join(', ')}
 							</MetadataListItem>
 							<MetadataListItem label="Estimated monthly cost">
 								{money(monthlyTotal)} · {seatCount} {seatCount === 1 ? 'seat' : 'seats'}

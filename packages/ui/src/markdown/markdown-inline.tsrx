@@ -20,6 +20,7 @@ function activationEvent(): NavigationActivationEvent & { defaultPrevented: bool
 			event.defaultPrevented = true
 		},
 	}
+
 	return event
 }
 
@@ -86,8 +87,7 @@ export function MdCitation(props: {
 }): unknown @{
 	const url = props.source.url
 	const safe = url == null ? null : sanitizeUrl(url)
-	const text =
-		props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
+	const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
 	return (
 		<span
 			style={{ color: 'var(--color-text-accent, #3b82f6)' }}
@@ -99,10 +99,7 @@ export function MdCitation(props: {
 }
 
 /** Block paragraph host on native — the text label carries the runs. */
-export function MdParagraph(props: {
-	style?: unknown
-	children?: unknown
-}): unknown @{
+export function MdParagraph(props: { style?: unknown; children?: unknown }): unknown @{
 	return (
 		<Text accessibilityRole="paragraph" style={props.style as never}>
 			{props.children}

@@ -70,10 +70,12 @@ export interface AsyncListOptions<T, C = string> {
 		items: readonly T[]
 		/** Requested sort. */
 		sortDescriptor: SortDescriptor
-	}) => { /** Sorted items — replaces the list. */ items: T[] } | Promise<{
-		/** Sorted items — replaces the list. */
-		items: T[]
-	}>
+	}) =>
+		| { /** Sorted items — replaces the list. */ items: T[] }
+		| Promise<{
+				/** Sorted items — replaces the list. */
+				items: T[]
+		  }>
 	/** Initial selection — 'all' or a key iterable; read once. */
 	initialSelectedKeys?: 'all' | Iterable<Key>
 	/** Initial query text; read once — a non-empty value filters the first load too. */

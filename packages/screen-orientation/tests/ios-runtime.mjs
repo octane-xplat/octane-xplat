@@ -10,20 +10,24 @@ const { values } = parseArgs({
 		'refresh-js': { type: 'boolean', default: false },
 	},
 })
+
 assert.ok(
 	!values['refresh-js'] || values['reuse-build'],
 	'Refresh JS requires an existing native executable',
 )
+
 const repo = process.env.XPLAT_NATIVE_TEST_REPO
 const device = process.env.XPLAT_IOS_DEVICE
 assert.ok(
 	repo && device && process.platform === 'darwin',
 	'Select the Apple test checkout and an owned simulator',
 )
+
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const { prepare, filesUnder } = await import(
 	pathToFileURL(join(repo, 'tools/probe/project.ts')).href
 )
+
 const { command } = await import(pathToFileURL(join(repo, 'tools/probe/process.ts')).href)
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
@@ -33,6 +37,7 @@ const project = await prepare(
 	['@octane-xplat/screen-orientation'],
 	resources,
 )
+
 console.log(JSON.stringify({ project: project.root, appId: project.appId }))
 // prepare() normally boots the development probe host. This fixture owns the
 // release entry and launches it without that host's HTTP control connection.
@@ -40,6 +45,7 @@ await writeFile(
 	join(project.root, 'src/index.ts'),
 	'import ' + JSON.stringify(join(packageRoot, 'tests/runtime.ios.ts')) + '\n',
 )
+
 const output = join(project.root, 'platforms/ios/build/Release-iphonesimulator')
 const sim = (args, allowFailure = false) => command('xcrun', ['simctl', ...args], { allowFailure })
 await sim(['boot', device], true)
@@ -50,6 +56,7 @@ if (!values['reuse-build']) {
 		['build', 'ios', '--path', project.root, '--release', '--for-device', 'false', '--no-hmr'],
 		{ cwd: '/tmp', timeout: 300000 },
 	)
+
 	await writeFile(join(project.root, 'orientation-release-build.log'), build.stdout + build.stderr)
 } else if (values['refresh-js']) {
 	const prepared = await command(
@@ -57,11 +64,13 @@ if (!values['reuse-build']) {
 		['prepare', 'ios', '--path', project.root, '--release', '--for-device', 'false', '--no-hmr'],
 		{ cwd: '/tmp', timeout: 300000 },
 	)
+
 	await writeFile(
 		join(project.root, 'orientation-release-prepare.log'),
 		prepared.stdout + prepared.stderr,
 	)
 }
+
 const artifact = (await filesUnder(output)).find((file) => file.endsWith('.app/Info.plist'))
 assert.ok(artifact, 'expected an unsigned simulator release app')
 let app = dirname(artifact)
@@ -72,6 +81,7 @@ if (values['refresh-js']) {
 		if (!entry.isDirectory()) {
 			continue
 		}
+
 		const assets = join(ios, entry.name, 'app')
 		try {
 			if ((await stat(join(assets, 'package.json'))).isFile()) {
@@ -83,12 +93,14 @@ if (values['refresh-js']) {
 			}
 		}
 	}
+
 	assert.equal(candidates.length, 1)
 	const copy = join(project.root, 'orientation-refreshed-release.app')
 	await cp(app, copy, { recursive: true })
 	await cp(candidates[0], join(copy, 'app'), { recursive: true })
 	app = copy
 }
+
 await sim(['install', device, app])
 const container = (await sim(['get_app_container', device, project.appId, 'data'])).stdout.trim()
 const documents = join(container, 'Documents')
@@ -107,6 +119,7 @@ try {
 				const current = JSON.parse(
 					await readFile(join(documents, 'orientation-result.json'), 'utf8'),
 				)
+
 				if (current.nonce === nonce) {
 					result = current
 					break
@@ -116,13 +129,16 @@ try {
 					throw error
 				}
 			}
+
 			await new Promise((resolve) => setTimeout(resolve, 150))
 		}
+
 		assert.ok(result, 'timed out: ' + mode)
 		assert.equal(result.passed, true, JSON.stringify(result))
 		results.push(result)
 		console.log(JSON.stringify(result))
 	}
+
 	await writeFile(
 		join(project.root, 'orientation-release-results.json'),
 		JSON.stringify({ appId: project.appId, device, results }, null, 2),

@@ -22,7 +22,11 @@ export { Tooltip } from '../components/overlays/Tooltip.web.tsrx'
 // (useOutlineFromMarkdown/useOutlineFromDoc) stay on the root barrel; the
 // view-tree form `useOutlineFromView` lives on the explicit platform paths
 // `@octane-xplat/ui/nativescript` (iOS/Android) and `@octane-xplat/ui/macos`.
-export { useOutlineFromDOM, outlineItemsFromDOM } from '../components/collections/outline-dom.web.tsrx'
+export {
+	useOutlineFromDOM,
+	outlineItemsFromDOM,
+} from '../components/collections/outline-dom.web.tsrx'
+
 export type { OutlineFromDOMOptions } from '../components/collections/outline-dom.web.tsrx'
 
 /** Props for the HoverCard overlay.

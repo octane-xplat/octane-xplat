@@ -42,6 +42,7 @@ export async function run(ctx: ProbeContext) {
 		typeof ctx.host === 'object' && ctx.host !== null && 'page' in ctx.host
 			? (ctx.host.page as import('@nativescript/core').Page)
 			: undefined
+
 	page.iosIgnoreSafeArea = false
 	ctx.mount(InsetContent)
 	await ctx.waitFor(() => (ctx.find('stage') as View)?.getActualSize().height > 0)

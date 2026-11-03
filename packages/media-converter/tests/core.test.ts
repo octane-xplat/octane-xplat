@@ -9,6 +9,7 @@ const video: ConvertedVideo = {
 	duration: 100,
 	mimeType: 'video/mp4',
 }
+
 function deferred<T>() {
 	let resolve!: (value: T) => void
 	const promise = new Promise<T>((done) => {
@@ -16,6 +17,7 @@ function deferred<T>() {
 	})
 	return { promise, resolve }
 }
+
 function fixture() {
 	const released: string[] = []
 	const backend: ConversionBackend = {
@@ -27,6 +29,7 @@ function fixture() {
 	}
 	return { backend, released, api: createConverter(backend) }
 }
+
 describe('conversion ownership', () => {
 	it('only releases successful owned outputs and allows retry after a removal failure', async () => {
 		const { api, backend, released } = fixture()

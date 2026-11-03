@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { reduce, type RootState } from './state'
 
-const closed: RootState = { index: 0, phase: 'closed', zoomed: false, dragging: false, uiHidden: false, held: null }
-const open: RootState = { index: 0, phase: 'open', zoomed: false, dragging: false, uiHidden: false, held: null }
+const closed: RootState = {
+	index: 0,
+	phase: 'closed',
+	zoomed: false,
+	dragging: false,
+	uiHidden: false,
+	held: null,
+}
+
+const open: RootState = {
+	index: 0,
+	phase: 'open',
+	zoomed: false,
+	dragging: false,
+	uiHidden: false,
+	held: null,
+}
+
 const at = (state: RootState, phase: RootState['phase']): RootState => ({ ...state, phase })
 
 describe('root reducer', () => {
@@ -56,7 +72,10 @@ describe('root reducer', () => {
 	})
 
 	it('zoom resets on every index change', () => {
-		const r = reduce({ ...open, zoomed: true }, { kind: 'goTo', index: 1, count: 5, reducedMotion: false })
+		const r = reduce(
+			{ ...open, zoomed: true },
+			{ kind: 'goTo', index: 1, count: 5, reducedMotion: false },
+		)
 		expect(r.state.zoomed).toBe(false)
 	})
 

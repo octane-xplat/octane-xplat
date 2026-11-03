@@ -17,6 +17,7 @@ export function ListMarkerScope(props: {
 	if (context == null) {
 		return props.children
 	}
+
 	return (
 		<ListProvider value={{ ...context, marker: props.marker, task: props.task }}>
 			{props.children}

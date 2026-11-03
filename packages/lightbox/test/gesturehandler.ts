@@ -8,6 +8,7 @@ export const GestureState = {
 	ACTIVE: 4,
 	END: 5,
 }
+
 export const HandlerType = { PAN: 'pan', PINCH: 'pinch', TAP: 'tap' }
 export const GestureHandlerStateEvent = 'GestureHandlerStateEvent'
 export const GestureHandlerTouchEvent = 'GestureHandlerTouchEvent'
@@ -23,7 +24,9 @@ export const Manager = {
 				node: undefined as any,
 				on: (name: string, fn: Function) => listeners.set(name, fn),
 				off: (name: string, fn?: Function) => {
-					if (!fn || listeners.get(name) === fn) {listeners.delete(name)}
+					if (!fn || listeners.get(name) === fn) {
+						listeners.delete(name)
+					}
 				},
 				attachToView(node: any) {
 					this.node = node
@@ -38,6 +41,7 @@ export const Manager = {
 		},
 	}),
 }
+
 export function reset() {
 	handlers.length = 0
 }

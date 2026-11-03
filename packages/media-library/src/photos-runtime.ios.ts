@@ -11,6 +11,7 @@ function runtime(): PhotoRuntime | null {
 	}
 	return typeof PHPhotoLibrary === 'undefined' ? null : (globalThis as unknown as PhotoRuntime)
 }
+
 export const appleHost: AppleHost = {
 	runtime,
 	observer(listener) {
@@ -21,7 +22,9 @@ export const appleHost: AppleHost = {
 		if (!subscribe) {
 			subscribe = observerFactory(
 				NSObject,
-				'PHPhotoLibraryChangeObserver' in globalThis ? globalThis.PHPhotoLibraryChangeObserver : undefined,
+				'PHPhotoLibraryChangeObserver' in globalThis
+					? globalThis.PHPhotoLibraryChangeObserver
+					: undefined,
 				`XplatLibraryObserver${NSUUID.UUID().UUIDString.replace(/-/g, '')}`,
 				(callback) => NSOperationQueue.mainQueue.addOperationWithBlock(callback),
 				(observer) =>

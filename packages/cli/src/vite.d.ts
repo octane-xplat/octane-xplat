@@ -13,7 +13,16 @@ export function xplatCss(platform?: CssPlatform): Plugin
 /** Select platform implementations for explicit TSRX paths in a custom
  * compiler or test setup. Standard platform presets and xplatBoundary include it. */
 export function xplatTsrx(
-	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'gtk' | 'visionos' | 'native',
+	platform?:
+		| 'web'
+		| 'ios'
+		| 'android'
+		| 'macos'
+		| 'windows'
+		| 'linux'
+		| 'gtk'
+		| 'visionos'
+		| 'native',
 ): Plugin
 
 export const nativeExtensions: string[]
@@ -25,7 +34,16 @@ export const nativeExtensions: string[]
  *  bundle transitively — lint catches direct imports, this catches the
  *  transitive path). Warns once per module in dev. */
 export function xplatBoundary(
-	platform?: 'web' | 'ios' | 'android' | 'macos' | 'windows' | 'linux' | 'gtk' | 'visionos' | 'native',
+	platform?:
+		| 'web'
+		| 'ios'
+		| 'android'
+		| 'macos'
+		| 'windows'
+		| 'linux'
+		| 'gtk'
+		| 'visionos'
+		| 'native',
 ): Plugin
 
 /** `define` entries implementing the `process.env.NODE_ENV` npm convention —

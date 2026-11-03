@@ -1,36 +1,90 @@
 /** AppKit border style resolution shared by painting and Mason edge sizing. */
 export type Side = 'top' | 'right' | 'bottom' | 'left'
 const sides: Side[] = ['top', 'right', 'bottom', 'left']
-const styles = new Set(['none', 'hidden', 'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'])
-const sideKeys: Record<string, Side> = Object.assign(Object.create(null), { borderTopStyle: 'top', borderRightStyle: 'right', borderBottomStyle: 'bottom', borderLeftStyle: 'left' })
-const edgeKeys: Record<string, Side> = Object.assign(Object.create(null), { borderTop: 'top', borderRight: 'right', borderBottom: 'bottom', borderLeft: 'left' })
+const styles = new Set([
+	'none',
+	'hidden',
+	'solid',
+	'dashed',
+	'dotted',
+	'double',
+	'groove',
+	'ridge',
+	'inset',
+	'outset',
+])
+
+const sideKeys: Record<string, Side> = Object.assign(Object.create(null), {
+	borderTopStyle: 'top',
+	borderRightStyle: 'right',
+	borderBottomStyle: 'bottom',
+	borderLeftStyle: 'left',
+})
+
+const edgeKeys: Record<string, Side> = Object.assign(Object.create(null), {
+	borderTop: 'top',
+	borderRight: 'right',
+	borderBottom: 'bottom',
+	borderLeft: 'left',
+})
 
 export function borderStyleSides(style: Record<string, unknown>): Record<Side, string> {
 	// Width-only native styles retain the existing implicit solid default.
 	const out = { top: 'solid', right: 'solid', bottom: 'solid', left: 'solid' }
 	for (const [key, value] of Object.entries(style)) {
-		if (value == null || (key !== 'borderStyle' && key !== 'border' && !sideKeys[key] && !edgeKeys[key])) {continue}
+		if (
+			value == null ||
+			(key !== 'borderStyle' && key !== 'border' && !sideKeys[key] && !edgeKeys[key])
+		) {
+			continue
+		}
+
 		const text = String(value).trim().toLowerCase()
 		if (key === 'borderStyle') {
 			const parts = text.split(/\s+/)
-			if (parts.length > 4) {continue}
-			const values = [parts[0], parts[1] ?? parts[0], parts[2] ?? parts[0], parts[3] ?? parts[1] ?? parts[0]]
-			for (let i = 0; i < sides.length; i++) {out[sides[i]] = values[i]}
-		} else if (sideKeys[key]) {out[sideKeys[key]] = text}
-		else if (key === 'border' || edgeKeys[key]) {
-			const named = text.split(/\s+/).find(part => styles.has(part)) ?? 'solid'
-			for (const side of key === 'border' ? sides : [edgeKeys[key]]) {out[side] = named}
+			if (parts.length > 4) {
+				continue
+			}
+
+			const values = [
+				parts[0],
+				parts[1] ?? parts[0],
+				parts[2] ?? parts[0],
+				parts[3] ?? parts[1] ?? parts[0],
+			]
+
+			for (let i = 0; i < sides.length; i++) {
+				out[sides[i]] = values[i]
+			}
+		} else if (sideKeys[key]) {
+			out[sideKeys[key]] = text
+		} else if (key === 'border' || edgeKeys[key]) {
+			const named = text.split(/\s+/).find((part) => styles.has(part)) ?? 'solid'
+			for (const side of key === 'border' ? sides : [edgeKeys[key]]) {
+				out[side] = named
+			}
 		}
 	}
 	return out
 }
 
-export function hiddenBorderStyle(style: string): boolean { return style === 'none' || style === 'hidden' }
+export function hiddenBorderStyle(style: string): boolean {
+	return style === 'none' || style === 'hidden'
+}
 
-export function borderStrokeStyle(style: string, width: number): { pattern: number[]; cap: 'butt' | 'round' } | null {
-	if (!(width > 0) || !Number.isFinite(width * 3)) {return null}
-	if (style === 'dashed') {return { pattern: [width * 3, width * 3], cap: 'butt' }}
-	if (style === 'dotted') {return { pattern: [0, width * 2], cap: 'round' }}
+export function borderStrokeStyle(
+	style: string,
+	width: number,
+): { pattern: number[]; cap: 'butt' | 'round' } | null {
+	if (!(width > 0) || !Number.isFinite(width * 3)) {
+		return null
+	}
+	if (style === 'dashed') {
+		return { pattern: [width * 3, width * 3], cap: 'butt' }
+	}
+	if (style === 'dotted') {
+		return { pattern: [0, width * 2], cap: 'round' }
+	}
 	return null
 }
 
@@ -44,7 +98,10 @@ export function borderBands(style: string, side: Side, width: number): BorderBan
 	switch (style) {
 		case 'double':
 			return width >= 3
-				? [{ from: 0, to: 1 / 3, shade: 'base' }, { from: 2 / 3, to: 1, shade: 'base' }]
+				? [
+						{ from: 0, to: 1 / 3, shade: 'base' },
+						{ from: 2 / 3, to: 1, shade: 'base' },
+					]
 				: [{ from: 0, to: 1, shade: 'base' }]
 		case 'inset':
 			return [{ from: 0, to: 1, shade: topLeft ? 'dark' : 'base' }]
@@ -66,7 +123,12 @@ export function borderBands(style: string, side: Side, width: number): BorderBan
 }
 
 /** Chromium Color::Dark() equivalent (components 0..1) used for 3D border shading. */
-export function darkBorderComponents(c: { red: number; green: number; blue: number; alpha: number }): {
+export function darkBorderComponents(c: {
+	red: number
+	green: number
+	blue: number
+	alpha: number
+}): {
 	red: number
 	green: number
 	blue: number
@@ -93,16 +155,46 @@ export function borderBandPoints(
 	from: number,
 	to: number,
 ): [number, number][] {
-	const a = { top: widths.top * from, right: widths.right * from, bottom: widths.bottom * from, left: widths.left * from }
-	const b = { top: widths.top * to, right: widths.right * to, bottom: widths.bottom * to, left: widths.left * to }
+	const a = {
+		top: widths.top * from,
+		right: widths.right * from,
+		bottom: widths.bottom * from,
+		left: widths.left * from,
+	}
+	const b = {
+		top: widths.top * to,
+		right: widths.right * to,
+		bottom: widths.bottom * to,
+		left: widths.left * to,
+	}
 	switch (side) {
 		case 'top':
-			return [[a.left, h - a.top], [w - a.right, h - a.top], [w - b.right, h - b.top], [b.left, h - b.top]]
+			return [
+				[a.left, h - a.top],
+				[w - a.right, h - a.top],
+				[w - b.right, h - b.top],
+				[b.left, h - b.top],
+			]
 		case 'right':
-			return [[w - a.right, h - a.top], [w - a.right, a.bottom], [w - b.right, b.bottom], [w - b.right, h - b.top]]
+			return [
+				[w - a.right, h - a.top],
+				[w - a.right, a.bottom],
+				[w - b.right, b.bottom],
+				[w - b.right, h - b.top],
+			]
 		case 'bottom':
-			return [[w - a.right, a.bottom], [a.left, a.bottom], [b.left, b.bottom], [w - b.right, b.bottom]]
+			return [
+				[w - a.right, a.bottom],
+				[a.left, a.bottom],
+				[b.left, b.bottom],
+				[w - b.right, b.bottom],
+			]
 		case 'left':
-			return [[a.left, a.bottom], [a.left, h - a.top], [b.left, h - b.top], [b.left, b.bottom]]
+			return [
+				[a.left, a.bottom],
+				[a.left, h - a.top],
+				[b.left, h - b.top],
+				[b.left, b.bottom],
+			]
 	}
 }

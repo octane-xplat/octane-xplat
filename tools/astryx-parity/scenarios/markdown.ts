@@ -81,7 +81,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:density',
 		kind: 'prop',
-		summary: "density: 'default'|'compact' scales per-block spacing (heading major/minor, paragraph, codeblock, blockquote, list, table, hr, image).",
+		summary:
+			"density: 'default'|'compact' scales per-block spacing (heading major/minor, paragraph, codeblock, blockquote, list, table, hr, image).",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -134,7 +135,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:citationStyle',
 		kind: 'prop',
-		summary: "citationStyle 'label'|'number' picks chip vs sequential-number badge. Default 'label'.",
+		summary:
+			"citationStyle 'label'|'number' picks chip vs sequential-number badge. Default 'label'.",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -144,7 +146,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:contentWidth',
 		kind: 'prop',
-		summary: 'contentWidth number|string constrains prose blocks (default 680); tables and code blocks stay container-width.',
+		summary:
+			'contentWidth number|string constrains prose blocks (default 680); tables and code blocks stay container-width.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -154,7 +157,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:contentAlign',
 		kind: 'prop',
-		summary: "contentAlign 'start'|'center' positions prose inside the container when narrower than contentWidth. Default 'start'.",
+		summary:
+			"contentAlign 'start'|'center' positions prose inside the container when narrower than contentWidth. Default 'start'.",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -164,7 +168,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:components',
 		kind: 'prop',
-		summary: 'components replaces default renderers per node kind; replaced blocks lose their Markdown theme target.',
+		summary:
+			'components replaces default renderers per node kind; replaced blocks lose their Markdown theme target.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -174,7 +179,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:plugins',
 		kind: 'prop',
-		summary: 'plugins is one ordered list of opaque createMarkdownPlugin() entries driving syntax → transform → render.',
+		summary:
+			'plugins is one ordered list of opaque createMarkdownPlugin() entries driving syntax → transform → render.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 5,
@@ -195,7 +201,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'prop:autolink',
 		kind: 'prop',
-		summary: "autolink: 'gfm' opt-in turns bare URLs/www/angle forms/emails into links with GFM trailing-punctuation exclusions.",
+		summary:
+			"autolink: 'gfm' opt-in turns bare URLs/www/angle forms/emails into links with GFM trailing-punctuation exclusions.",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -210,7 +217,10 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
-		coverage: { question: 'Which BaseProps surface (aria/data/id/style) maps to Octane root props vs web-only leaves?' },
+		coverage: {
+			question:
+				'Which BaseProps surface (aria/data/id/style) maps to Octane root props vs web-only leaves?',
+		},
 		local: 'partial',
 	}),
 
@@ -220,7 +230,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'renderer:code',
 		kind: 'renderer',
-		summary: 'code({code, language?, sourceLines?}) renders every fence no semantic-fence plugin claims, including claimed fences whose renderer declines/throws/suspends.',
+		summary:
+			'code({code, language?, sourceLines?}) renders every fence no semantic-fence plugin claims, including claimed fences whose renderer declines/throws/suspends.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -240,7 +251,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'renderer:math',
 		kind: 'renderer',
-		summary: "math({value, display:'inline'|'block', sourceLines?}) both enables $…$/$$…$$ parsing and renders expressions as inert text.",
+		summary:
+			"math({value, display:'inline'|'block', sourceLines?}) both enables $…$/$$…$$ parsing and renders expressions as inert text.",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -260,7 +272,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'renderer:link',
 		kind: 'renderer',
-		summary: 'link({href, children}) receives the sanitized href; onLinkClick does not wrap custom links.',
+		summary:
+			'link({href, children}) receives the sanitized href; onLinkClick does not wrap custom links.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -270,7 +283,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'renderer:heading',
 		kind: 'renderer',
-		summary: 'heading({level, children, id?, sourceLines?}); callers own applying the shared allocated id.',
+		summary:
+			'heading({level, children, id?, sourceLines?}); callers own applying the shared allocated id.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -290,7 +304,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'renderer:image',
 		kind: 'renderer',
-		summary: 'image({src, alt, sourceLines?}) receives only safe URLs; unsafe URLs render the fallback part.',
+		summary:
+			'image({src, alt, sourceLines?}) receives only safe URLs; unsafe URLs render the fallback part.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -324,7 +339,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:headings',
 		kind: 'grammar',
-		summary: 'ATX headings (0-3 leading spaces, 1-6 #s, optional closing sequence) and Setext underlines.',
+		summary:
+			'ATX headings (0-3 leading spaces, 1-6 #s, optional closing sequence) and Setext underlines.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -334,7 +350,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:paragraphs',
 		kind: 'grammar',
-		summary: 'Paragraphs with lazy continuation inside quotes and list items; blank line or interrupting block closes.',
+		summary:
+			'Paragraphs with lazy continuation inside quotes and list items; blank line or interrupting block closes.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -344,7 +361,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:fences',
 		kind: 'grammar',
-		summary: 'Fenced code (```/~~~), info string + meta, indented fences, unclosed fence runs to EOF, final-newline handling.',
+		summary:
+			'Fenced code (```/~~~), info string + meta, indented fences, unclosed fence runs to EOF, final-newline handling.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -375,7 +393,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:blockquotes',
 		kind: 'grammar',
-		summary: 'Nested blockquotes with omitted repeated markers (lazy continuation) and inner block structure.',
+		summary:
+			'Nested blockquotes with omitted repeated markers (lazy continuation) and inner block structure.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -385,7 +404,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:tables',
 		kind: 'grammar',
-		summary: 'GFM tables: alignment row, escaped \\| in cells and inside inline-code spans, indented tables.',
+		summary:
+			'GFM tables: alignment row, escaped \\| in cells and inside inline-code spans, indented tables.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -406,7 +426,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:reference-links',
 		kind: 'grammar',
-		summary: 'Reference-style links resolve against document-global definitions; late definitions invalidate incremental settled cache.',
+		summary:
+			'Reference-style links resolve against document-global definitions; late definitions invalidate incremental settled cache.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -416,7 +437,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:images',
 		kind: 'grammar',
-		summary: 'Image syntax with alt text; unsafe destinations render the fallback Image part rather than the custom renderer.',
+		summary:
+			'Image syntax with alt text; unsafe destinations render the fallback Image part rather than the custom renderer.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -426,7 +448,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:emphasis',
 		kind: 'grammar',
-		summary: 'strong/emphasis/delete delimiter rules incl. intraword cases, nesting, and delimiter-run edges.',
+		summary:
+			'strong/emphasis/delete delimiter rules incl. intraword cases, nesting, and delimiter-run edges.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -436,7 +459,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:code-spans',
 		kind: 'grammar',
-		summary: 'Inline code spans: variable backtick runs, whitespace trim, unmatched backtick stays literal; opaque to other syntax.',
+		summary:
+			'Inline code spans: variable backtick runs, whitespace trim, unmatched backtick stays literal; opaque to other syntax.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -446,7 +470,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:breaks',
 		kind: 'grammar',
-		summary: 'Hard breaks via trailing spaces (and soft line endings; softBreaks helper maps them to hard breaks when installed).',
+		summary:
+			'Hard breaks via trailing spaces (and soft line endings; softBreaks helper maps them to hard breaks when installed).',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -466,7 +491,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:character-references',
 		kind: 'grammar',
-		summary: 'Named/numeric character references decode in prose; invalid/out-of-range become U+FFFD or stay literal.',
+		summary:
+			'Named/numeric character references decode in prose; invalid/out-of-range become U+FFFD or stay literal.',
 		sourceRef: `${MD}/characterReferences.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -476,7 +502,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:escapes',
 		kind: 'grammar',
-		summary: 'Backslash escapes for ASCII punctuation; structural escapes like \\| inside table cells.',
+		summary:
+			'Backslash escapes for ASCII punctuation; structural escapes like \\| inside table cells.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -486,7 +513,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:autolinks',
 		kind: 'grammar',
-		summary: "autolink 'gfm': bare https?/www/angle <scheme:>/<email>/bare user@host; trailing punctuation peeling; skipped in code/links/alt.",
+		summary:
+			"autolink 'gfm': bare https?/www/angle <scheme:>/<email>/bare user@host; trailing punctuation peeling; skipped in code/links/alt.",
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -496,7 +524,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:citations',
 		kind: 'grammar',
-		summary: '[id] and 【id】 markers become citation nodes only when the id is in sourceIds; otherwise plain text/links.',
+		summary:
+			'[id] and 【id】 markers become citation nodes only when the id is in sourceIds; otherwise plain text/links.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -517,7 +546,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'grammar:indentation',
 		kind: 'grammar',
-		summary: 'Indented constructs: indented code blocks, indented fences/tables, ATX indentation, incremental indentation parity.',
+		summary:
+			'Indented constructs: indented code blocks, indented fences/tables, ATX indentation, incremental indentation parity.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -531,7 +561,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'parser:parseMarkdown',
 		kind: 'parser',
-		summary: 'parseMarkdown → legacy BlockNode[] projection; parseMarkdownAst → canonical MarkdownAstRoot; both accept options+plugins.',
+		summary:
+			'parseMarkdown → legacy BlockNode[] projection; parseMarkdownAst → canonical MarkdownAstRoot; both accept options+plugins.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -541,7 +572,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'parser:parseInline',
 		kind: 'parser',
-		summary: 'parseInline/parseInlineAst return phrasing content for inline display and custom inline use.',
+		summary:
+			'parseInline/parseInlineAst return phrasing content for inline display and custom inline use.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -562,7 +594,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'parser:options',
 		kind: 'parser',
-		summary: 'CommonParseOptions: sourceIds, plugins, autolink, sourceRanges, math, isFinal; legacy ReadonlySet<string> compat accepted.',
+		summary:
+			'CommonParseOptions: sourceIds, plugins, autolink, sourceRanges, math, isFinal; legacy ReadonlySet<string> compat accepted.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -583,17 +616,22 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'parser:trimStreamingArtifacts',
 		kind: 'parser',
-		summary: 'trimStreamingArtifacts strips trailing incomplete inline syntax (incl. open math) from the last line for streaming display.',
+		summary:
+			'trimStreamingArtifacts strips trailing incomplete inline syntax (incl. open math) from the last line for streaming display.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 4,
-		coverage: { question: 'Does the Octane stream trim seam already cover every upstream case (math, multi-line constructs)?' },
+		coverage: {
+			question:
+				'Does the Octane stream trim seam already cover every upstream case (math, multi-line constructs)?',
+		},
 		local: 'partial',
 	}),
 	cap({
 		id: 'parser:decodeMarkdownCharacterReferences',
 		kind: 'parser',
-		summary: 'decodeMarkdownCharacterReferences(text) exposed as a server-safe utility matching render-time decoding.',
+		summary:
+			'decodeMarkdownCharacterReferences(text) exposed as a server-safe utility matching render-time decoding.',
 		sourceRef: `${MD}/characterReferences.ts`,
 		status: 'shipped',
 		milestone: 2,
@@ -608,7 +646,10 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/index.ts`,
 		status: 'shipped',
 		milestone: 2,
-		coverage: { question: 'Which Octane entrypoint equivalently isolates pure parsing from the component on native bundles?' },
+		coverage: {
+			question:
+				'Which Octane entrypoint equivalently isolates pure parsing from the component on native bundles?',
+		},
 		local: 'partial',
 	}),
 
@@ -619,11 +660,13 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		id: 'protocol:createMarkdownPlugin',
 		kind: 'protocol',
 		summary:
-			"createMarkdownPlugin validates {name, apiVersion:1, syntax?|transform, renderers}, freezes/brands the entry; malformed definitions throw.",
+			'createMarkdownPlugin validates {name, apiVersion:1, syntax?|transform, renderers}, freezes/brands the entry; malformed definitions throw.',
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Which validation failures throw vs degrade when plugins are malformed?' },
+		coverage: {
+			question: 'Which validation failures throw vs degrade when plugins are malformed?',
+		},
 		local: 'present',
 	}),
 	cap({
@@ -634,7 +677,9 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Which bounded-progress and deferral semantics must Octane tokenizers honor?' },
+		coverage: {
+			question: 'Which bounded-progress and deferral semantics must Octane tokenizers honor?',
+		},
 		local: 'present',
 	}),
 	cap({
@@ -645,7 +690,10 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'How does Octane enforce readonly/freeze without a structuredClone cost per transform?' },
+		coverage: {
+			question:
+				'How does Octane enforce readonly/freeze without a structuredClone cost per transform?',
+		},
 		local: 'present',
 	}),
 	cap({
@@ -656,7 +704,10 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Which Octane boundary reproduces throw/pending/decline fallback on web and native?' },
+		coverage: {
+			question:
+				'Which Octane boundary reproduces throw/pending/decline fallback on web and native?',
+		},
 		local: 'present',
 	}),
 	cap({
@@ -678,37 +729,50 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Does the spec-unshipped onPluginDiagnostic change observable 0.7.4 fallback behavior?' },
+		coverage: {
+			question:
+				'Does the spec-unshipped onPluginDiagnostic change observable 0.7.4 fallback behavior?',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'protocol:capabilities-introspection',
 		kind: 'protocol',
-		summary: 'getMarkdownPluginCapabilities + isMarkdownExtensionNode let surfaces adopt plugins without reading definitions.',
+		summary:
+			'getMarkdownPluginCapabilities + isMarkdownExtensionNode let surfaces adopt plugins without reading definitions.',
 		sourceRef: `${MD}/plugins/protocol.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Do Octane rich-text surfaces need these guards for milestone-5 plugin adoption?' },
+		coverage: {
+			question: 'Do Octane rich-text surfaces need these guards for milestone-5 plugin adoption?',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'protocol:onPluginDiagnostic',
 		kind: 'protocol',
-		summary: 'onPluginDiagnostic diagnostic channel (plugin, phase, code, severity, rate-limited) — declared by the 0.7.4 spec, absent from the 0.7.4 artifact.',
+		summary:
+			'onPluginDiagnostic diagnostic channel (plugin, phase, code, severity, rate-limited) — declared by the 0.7.4 spec, absent from the 0.7.4 artifact.',
 		sourceRef: `${MD}/Markdown.spec.md`,
 		status: 'spec-only',
 		milestone: 5,
-		coverage: { question: 'Confirm upstream shipped no diagnostic channel in 0.7.4; decide whether parity tracks spec or artifact.' },
+		coverage: {
+			question:
+				'Confirm upstream shipped no diagnostic channel in 0.7.4; decide whether parity tracks spec or artifact.',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'protocol:plugin-renderer',
 		kind: 'protocol',
-		summary: 'MarkdownPluginNodeRenderer (client-only subpath) renders one extension node with Markdown-identical boundary/fallback.',
+		summary:
+			'MarkdownPluginNodeRenderer (client-only subpath) renders one extension node with Markdown-identical boundary/fallback.',
 		sourceRef: `${MD}/plugin-renderer/MarkdownPluginNodeRenderer.tsx`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Is a single-node plugin renderer required for Octane surfaces (Chat/rich text)?' },
+		coverage: {
+			question: 'Is a single-node plugin renderer required for Octane surfaces (Chat/rich text)?',
+		},
 		local: 'present',
 	}),
 
@@ -718,37 +782,47 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'helper:textTransform',
 		kind: 'helper',
-		summary: 'createMarkdownTextTransform: global regex over eligible prose parents (heading/paragraph/strong/emphasis/delete/tableCell), requiredSubstrings fast path, getEndIndex refine, replace→phrasing content.',
+		summary:
+			'createMarkdownTextTransform: global regex over eligible prose parents (heading/paragraph/strong/emphasis/delete/tableCell), requiredSubstrings fast path, getEndIndex refine, replace→phrasing content.',
 		sourceRef: `${MD}/plugins/textTransform.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Which upstream textTransform fixtures port to Octane helpers unchanged?' },
+		coverage: {
+			question: 'Which upstream textTransform fixtures port to Octane helpers unchanged?',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'helper:semanticFence',
 		kind: 'helper',
-		summary: 'createMarkdownFenceTransform: claimed languages → typed block extension node; null/undefined return keeps CodeBlock rendering.',
+		summary:
+			'createMarkdownFenceTransform: claimed languages → typed block extension node; null/undefined return keeps CodeBlock rendering.',
 		sourceRef: `${MD}/plugins/semanticFence.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'How do semantic-fence claims interact with baked-route precompiled docs?' },
+		coverage: {
+			question: 'How do semantic-fence claims interact with baked-route precompiled docs?',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'helper:sourceDecoration',
 		kind: 'helper',
-		summary: 'createMarkdownSourceDecoration/getMarkdownSourceDecorations: UTF-16 ranges → named non-semantic decorations on overlapping authored nodes.',
+		summary:
+			'createMarkdownSourceDecoration/getMarkdownSourceDecorations: UTF-16 ranges → named non-semantic decorations on overlapping authored nodes.',
 		sourceRef: `${MD}/plugins/sourceDecoration.ts`,
 		status: 'shipped',
 		milestone: 5,
-		coverage: { question: 'Where do decorations live on Octane nodes (data field vs external map)?' },
+		coverage: {
+			question: 'Where do decorations live on Octane nodes (data field vs external map)?',
+		},
 		local: 'present',
 	}),
 	cap({
 		id: 'helper:frontmatter',
 		kind: 'helper',
-		summary: 'createMarkdownFrontmatter: leading --- block, unique key:value grammar, typed metadata, withheld while streaming, removed from render.',
+		summary:
+			'createMarkdownFrontmatter: leading --- block, unique key:value grammar, typed metadata, withheld while streaming, removed from render.',
 		sourceRef: `${MD}/plugins/frontmatter.ts`,
 		status: 'shipped',
 		milestone: 5,
@@ -758,7 +832,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'helper:softBreaks',
 		kind: 'helper',
-		summary: 'markdownSoftBreaksPlugin converts soft line endings in phrasing content to hard breaks.',
+		summary:
+			'markdownSoftBreaksPlugin converts soft line endings in phrasing content to hard breaks.',
 		sourceRef: `${MD}/plugins/softBreaks.ts`,
 		status: 'shipped',
 		milestone: 5,
@@ -768,7 +843,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'helper:sourceLines',
 		kind: 'helper',
-		summary: 'markdownSourceLinesPlugin stamps 1-based data-source-line(-end) on rendered blocks, sourceLines props on block renderers, position lines on canonical nodes.',
+		summary:
+			'markdownSourceLinesPlugin stamps 1-based data-source-line(-end) on rendered blocks, sourceLines props on block renderers, position lines on canonical nodes.',
 		sourceRef: `${MD}/plugins/sourceLines.ts`,
 		status: 'shipped',
 		milestone: 5,
@@ -778,7 +854,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'helper:headingLinks',
 		kind: 'helper',
-		summary: 'createMarkdownHeadingLinks: stable ids for every h1–h6 (incl. nested) + inline sibling permalink copy button; headingIdPrefix/permalinkBaseUrl options.',
+		summary:
+			'createMarkdownHeadingLinks: stable ids for every h1–h6 (incl. nested) + inline sibling permalink copy button; headingIdPrefix/permalinkBaseUrl options.',
 		sourceRef: `${MD}/plugins/headingLinks.ts`,
 		status: 'shipped',
 		milestone: 5,
@@ -788,7 +865,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'helper:remark',
 		kind: 'helper',
-		summary: 'createMarkdownRemarkTransform adapts sync transform-only Remark plugins over the documented MDAST subset; unsupported behavior fails closed with a diagnostic.',
+		summary:
+			'createMarkdownRemarkTransform adapts sync transform-only Remark plugins over the documented MDAST subset; unsupported behavior fails closed with a diagnostic.',
 		sourceRef: `${MD}/remark.ts`,
 		status: 'shipped',
 		milestone: 5,
@@ -802,7 +880,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'stream:smoothing',
 		kind: 'streaming',
-		summary: 'Internal useStreamingText smoothing: natural 10ch/50ms, fast 4ch/8ms, instant; theme motion tokens override tick; grapheme-cluster snap.',
+		summary:
+			'Internal useStreamingText smoothing: natural 10ch/50ms, fast 4ch/8ms, instant; theme motion tokens override tick; grapheme-cluster snap.',
 		sourceRef: 'packages/core/src/hooks/useStreamingText.ts',
 		status: 'shipped',
 		milestone: 4,
@@ -812,7 +891,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'stream:fade',
 		kind: 'streaming',
-		summary: 'Boundary-ring fade-in spans (keyed settled-/fade- segments); reduced motion collapses the opacity transition to 0s.',
+		summary:
+			'Boundary-ring fade-in spans (keyed settled-/fade- segments); reduced motion collapses the opacity transition to 0s.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 4,
@@ -822,7 +902,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'stream:settlement',
 		kind: 'streaming',
-		summary: 'Incremental settlement with settled prefix reuse; linkDef changes invalidate; open constructs withheld until closed; finish = full parse.',
+		summary:
+			'Incremental settlement with settled prefix reuse; linkDef changes invalidate; open constructs withheld until closed; finish = full parse.',
 		sourceRef: `${MD}/parser.ts`,
 		status: 'shipped',
 		milestone: 4,
@@ -832,7 +913,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'stream:withholding',
 		kind: 'streaming',
-		summary: 'Incomplete frontmatter and math withheld while streaming so raw syntax never flashes.',
+		summary:
+			'Incomplete frontmatter and math withheld while streaming so raw syntax never flashes.',
 		sourceRef: `${MD}/Markdown.spec.md`,
 		status: 'shipped',
 		milestone: 4,
@@ -846,7 +928,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:link-policy',
 		kind: 'render',
-		summary: 'External http(s) links render <a target="_blank" rel="noopener noreferrer">; internal links route through the provider link component; unsafe hrefs render plain text.',
+		summary:
+			'External http(s) links render <a target="_blank" rel="noopener noreferrer">; internal links route through the provider link component; unsafe hrefs render plain text.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -856,7 +939,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:citations',
 		kind: 'render',
-		summary: 'Citations number sequentially by first-cited order; unknown ids get {title:id}; no sources renders literal [id] text.',
+		summary:
+			'Citations number sequentially by first-cited order; unknown ids get {title:id}; no sources renders literal [id] text.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -866,7 +950,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:heading-ids',
 		kind: 'render',
-		summary: 'Top-level headings get slugify/uniqueSlug ids (section fallback for empty) shared with Markdown-derived Outline; headingLinks plugin widens to nested headings.',
+		summary:
+			'Top-level headings get slugify/uniqueSlug ids (section fallback for empty) shared with Markdown-derived Outline; headingLinks plugin widens to nested headings.',
 		sourceRef: `${MD}/headingProjection.ts`,
 		status: 'shipped',
 		milestone: 3,
@@ -876,7 +961,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:table-floors',
 		kind: 'render',
-		summary: 'Content-derived column width floors (4–24ch, ~2-line target, header one-line cap 20ch), no header truncation, unbroken inline-code tokens, single nested scroll region.',
+		summary:
+			'Content-derived column width floors (4–24ch, ~2-line target, header one-line cap 20ch), no header truncation, unbroken inline-code tokens, single nested scroll region.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -886,7 +972,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:code-diff-wrap',
 		kind: 'render',
-		summary: 'Default code path: long lines wrap (no sideways scroll), diff/diff-<lang> fences get the diff layer over plaintext/<lang>, isCollapsible.',
+		summary:
+			'Default code path: long lines wrap (no sideways scroll), diff/diff-<lang> fences get the diff layer over plaintext/<lang>, isCollapsible.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -896,7 +983,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:prose-layout',
 		kind: 'render',
-		summary: 'contentWidth(680 default) constrains prose; tables/code unconstrained; contentAlign centers the prose column.',
+		summary:
+			'contentWidth(680 default) constrains prose; tables/code unconstrained; contentAlign centers the prose column.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -906,7 +994,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:list-markers',
 		kind: 'render',
-		summary: 'List marker style fixed per depth (AST-061 DEC-6); ordered markers and task checkboxes share one anatomy.',
+		summary:
+			'List marker style fixed per depth (AST-061 DEC-6); ordered markers and task checkboxes share one anatomy.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -916,7 +1005,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:unsafe-url-fallback',
 		kind: 'render',
-		summary: 'javascript:/data:/vbscript: and control-char-normalized dangerous URLs never reach navigation or image renderers; text/fallback parts render instead.',
+		summary:
+			'javascript:/data:/vbscript: and control-char-normalized dangerous URLs never reach navigation or image renderers; text/fallback parts render instead.',
 		sourceRef: `${MD}/url.ts`,
 		status: 'shipped',
 		milestone: 3,
@@ -926,7 +1016,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:inline-display',
 		kind: 'render',
-		summary: "display='inline' renders one markdown target and no block anatomy — text/links/code/citations/plugins/inline math only.",
+		summary:
+			"display='inline' renders one markdown target and no block anatomy — text/links/code/citations/plugins/inline math only.",
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -946,11 +1037,15 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'render:targets',
 		kind: 'render',
-		summary: 'Theme targets: markdown root + markdown-heading/-paragraph/-list/-codeblock/-blockquote/-table/-hr/-image (codeblock anomaly kept); optional extension target.',
+		summary:
+			'Theme targets: markdown root + markdown-heading/-paragraph/-list/-codeblock/-blockquote/-table/-hr/-image (codeblock anomaly kept); optional extension target.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
-		coverage: { question: 'Do Octane theme targets exist for Markdown parts, and should parity adopt the names?' },
+		coverage: {
+			question:
+				'Do Octane theme targets exist for Markdown parts, and should parity adopt the names?',
+		},
 		local: 'missing',
 	}),
 
@@ -960,11 +1055,14 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'a11y:structure',
 		kind: 'render',
-		summary: 'Semantic h1–h6/p/blockquote/list/table structure; table exposes one named scroll region + conditional tab stop.',
+		summary:
+			'Semantic h1–h6/p/blockquote/list/table structure; table exposes one named scroll region + conditional tab stop.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 6,
-		coverage: { question: 'Which native a11y attributes carry heading/table semantics on each platform?' },
+		coverage: {
+			question: 'Which native a11y attributes carry heading/table semantics on each platform?',
+		},
 		local: 'missing',
 	}),
 	cap({
@@ -984,7 +1082,8 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'integration:outline',
 		kind: 'integration',
-		summary: 'parseOutlineFromMarkdown/useOutlineFromMarkdown share parser, transforms, extension text projection, and heading identity with the component ({plugins, isFinal} options).',
+		summary:
+			'parseOutlineFromMarkdown/useOutlineFromMarkdown share parser, transforms, extension text projection, and heading identity with the component ({plugins, isFinal} options).',
 		sourceRef: 'packages/core/src/Outline/parseOutlineFromMarkdown.ts',
 		status: 'shipped',
 		milestone: 3,
@@ -994,17 +1093,21 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'integration:link-provider',
 		kind: 'integration',
-		summary: 'Internal links render through the app-provided link component (useLinkComponent); absent provider falls back to <a>.',
+		summary:
+			'Internal links render through the app-provided link component (useLinkComponent); absent provider falls back to <a>.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
-		coverage: { question: 'Which Octane provider supplies the internal-link component for Markdown?' },
+		coverage: {
+			question: 'Which Octane provider supplies the internal-link component for Markdown?',
+		},
 		local: 'missing',
 	}),
 	cap({
 		id: 'integration:i18n',
 		kind: 'integration',
-		summary: 'Component reads translator (useTranslator) for chrome strings; localizable strings exist inside rendered parts.',
+		summary:
+			'Component reads translator (useTranslator) for chrome strings; localizable strings exist inside rendered parts.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'shipped',
 		milestone: 3,
@@ -1014,17 +1117,22 @@ export const markdownCapabilities: MarkdownCapability[] = [
 	cap({
 		id: 'integration:rsc-boundary',
 		kind: 'integration',
-		summary: 'Plugin entries containing functions are not serializable props — they cannot cross an RSC boundary into the client component.',
+		summary:
+			'Plugin entries containing functions are not serializable props — they cannot cross an RSC boundary into the client component.',
 		sourceRef: `${MD}/Markdown.spec.md`,
 		status: 'shipped',
 		milestone: 7,
-		coverage: { question: 'Does this constraint apply to Octane baked routes (no RSC), or does data-only baking sidestep it?' },
+		coverage: {
+			question:
+				'Does this constraint apply to Octane baked routes (no RSC), or does data-only baking sidestep it?',
+		},
 		local: 'missing',
 	}),
 	cap({
 		id: 'integration:post-074-codeLanguages',
 		kind: 'integration',
-		summary: 'codeLanguages prop (lists CodeBlock language values) added upstream after 0.7.4 — separate inventory, not a parity target.',
+		summary:
+			'codeLanguages prop (lists CodeBlock language values) added upstream after 0.7.4 — separate inventory, not a parity target.',
 		sourceRef: `${MD}/Markdown.tsx`,
 		status: 'post-0.7.4',
 		milestone: 7,
@@ -1076,10 +1184,16 @@ const longDocument = (() => {
 	for (let i = 0; i < 120; i++) {
 		switch (i % 6) {
 			case 0:
-				sections.push(`## Section ${i + 1}\n\nParagraph ${i + 1} of the long document with context and analysis prose.`)
+				sections.push(
+					`## Section ${i + 1}\n\nParagraph ${i + 1} of the long document with context and analysis prose.`,
+				)
+
 				break
 			case 1:
-				sections.push('```typescript\nfunction process(data: unknown[]) {\n  return data.filter(Boolean)\n}\n```')
+				sections.push(
+					'```typescript\nfunction process(data: unknown[]) {\n  return data.filter(Boolean)\n}\n```',
+				)
+
 				break
 			case 2:
 				sections.push(`- First point ${i}\n- Second **finding**\n- Third observation`)
@@ -1100,8 +1214,22 @@ const longDocument = (() => {
 /** Deterministic 8-column × 40-row table for cell-floor and overflow checks. */
 const largeTable = (() => {
 	const head = '| ' + Array.from({ length: 8 }, (_, i) => `col-${i}`).join(' | ') + ' |'
-	const align = '| ' + Array.from({ length: 8 }, (_, i) => (i % 3 === 0 ? ':---' : i % 3 === 1 ? ':--:' : '---:')).join(' | ') + ' |'
-	const rows = Array.from({ length: 40 }, (_, r) => '| ' + Array.from({ length: 8 }, (_, c) => `r${r}c${c}${c === 3 ? '-unbroken-longer-token' : ''}`).join(' | ') + ' |')
+	const align =
+		'| ' +
+		Array.from({ length: 8 }, (_, i) =>
+			i % 3 === 0 ? ':---' : i % 3 === 1 ? ':--:' : '---:',
+		).join(' | ') +
+		' |'
+	const rows = Array.from(
+		{ length: 40 },
+		(_, r) =>
+			'| ' +
+			Array.from(
+				{ length: 8 },
+				(_, c) => `r${r}c${c}${c === 3 ? '-unbroken-longer-token' : ''}`,
+			).join(' | ') +
+			' |',
+	)
 	return [head, align, ...rows].join('\n') + '\n'
 })()
 
@@ -1125,6 +1253,7 @@ export const STREAM_FIXTURE_CHUNKS = [
 	'de`.\n\n- a\n- b',
 	'\n\n```ts\nx()\n```\n',
 ] as const
+
 export const STREAM_FIXTURE_SOURCE = STREAM_FIXTURE_CHUNKS.join('')
 
 /** Fence source claimed by the boundary fixture plugins — language `boom`
@@ -1136,11 +1265,18 @@ export const markdownScenarios: MarkdownScenario[] = [
 	{
 		key: 'prose-basic',
 		source: '# Hello\n\nThis is **bold** and _italic_ text.\n\n- Item one\n- Item two\n',
-		capabilities: ['grammar:headings', 'grammar:emphasis', 'grammar:lists', 'parser:parseMarkdown', 'prop:density'],
+		capabilities: [
+			'grammar:headings',
+			'grammar:emphasis',
+			'grammar:lists',
+			'parser:parseMarkdown',
+			'prop:density',
+		],
 	},
 	{
 		key: 'headings',
-		source: '# H1\n\n## H2\n\n### H3\n\n#### H4\n\n  ## Indented\n\nSetext one\n=========\n\nSetext two\n---------\n',
+		source:
+			'# H1\n\n## H2\n\n### H3\n\n#### H4\n\n  ## Indented\n\nSetext one\n=========\n\nSetext two\n---------\n',
 		capabilities: ['grammar:headings', 'grammar:indentation'],
 	},
 	{
@@ -1172,7 +1308,8 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'lists',
-		source: '- a\n- b\n  - nested\n  - nested two\n- c\n\n1. one\n2. two\n   1. deep\n\n5) five\n6) six\n',
+		source:
+			'- a\n- b\n  - nested\n  - nested two\n- c\n\n1. one\n2. two\n   1. deep\n\n5) five\n6) six\n',
 		capabilities: ['grammar:lists', 'render:list-markers'],
 	},
 	{
@@ -1182,7 +1319,8 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'blockquote-nested',
-		source: '> outer\n>\n> > inner quote\n> back to outer\nlazy line\n\n> ## quoted heading\n> - quoted item\n',
+		source:
+			'> outer\n>\n> > inner quote\n> back to outer\nlazy line\n\n> ## quoted heading\n> - quoted item\n',
 		capabilities: ['grammar:blockquotes', 'grammar:paragraphs'],
 	},
 	{
@@ -1192,7 +1330,8 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'table-pipes',
-		source: '| a | b |\n| :- | -: |\n| 1 | 2 |\n| \\|pipe | `x\\|y` |\n\nshort:\n\n| c |\n| - |\n| d |\n',
+		source:
+			'| a | b |\n| :- | -: |\n| 1 | 2 |\n| \\|pipe | `x\\|y` |\n\nshort:\n\n| c |\n| - |\n| d |\n',
 		capabilities: ['grammar:tables', 'grammar:code-spans', 'render:table-floors'],
 	},
 	{
@@ -1209,7 +1348,8 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'reference-links',
-		source: 'See [the docs][docs] and [short].\n\n[docs]: https://example.com/docs\n[short]: /local\n',
+		source:
+			'See [the docs][docs] and [short].\n\n[docs]: https://example.com/docs\n[short]: /local\n',
 		capabilities: ['grammar:reference-links', 'grammar:links'],
 	},
 	{
@@ -1230,7 +1370,11 @@ export const markdownScenarios: MarkdownScenario[] = [
 	{
 		key: 'entities',
 		source: '&copy; &#169; &#xA9; &unknown; &amp; &#0; \\&copy;\n',
-		capabilities: ['grammar:character-references', 'grammar:escapes', 'parser:decodeMarkdownCharacterReferences'],
+		capabilities: [
+			'grammar:character-references',
+			'grammar:escapes',
+			'parser:decodeMarkdownCharacterReferences',
+		],
 	},
 	{
 		key: 'escapes',
@@ -1273,18 +1417,21 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'math-opt-in',
-		source: 'Inline $x^2+y$ and currency $5 and $6.\n\n$$E=mc^2$$\n\nEscaped \\$not math$ and open $never closed.\n',
+		source:
+			'Inline $x^2+y$ and currency $5 and $6.\n\n$$E=mc^2$$\n\nEscaped \\$not math$ and open $never closed.\n',
 		options: { math: true },
 		capabilities: ['grammar:math', 'renderer:math'],
 	},
 	{
 		key: 'indentation',
-		source: '    indented code block\n    second line\n\n   ```js\n   fence under indent\n   ```\n\n   | a |\n   | - |\n   | b |\n',
+		source:
+			'    indented code block\n    second line\n\n   ```js\n   fence under indent\n   ```\n\n   | a |\n   | - |\n   | b |\n',
 		capabilities: ['grammar:indentation', 'grammar:fences', 'grammar:tables'],
 	},
 	{
 		key: 'unicode-nesting',
-		source: 'Emoji 🎉 and CJK  with ****.\n\n> - nested quote list\n>   - deep two\n>     - deep three\n',
+		source:
+			'Emoji 🎉 and CJK  with ****.\n\n> - nested quote list\n>   - deep two\n>     - deep three\n',
 		capabilities: ['grammar:blockquotes', 'grammar:lists'],
 	},
 	{
@@ -1297,7 +1444,13 @@ export const markdownScenarios: MarkdownScenario[] = [
 		key: 'stream-basic',
 		source: '# Title\n\nFirst paragraph with **bold**.\n\n- one\n- two\n',
 		chunks: ['# Ti', 'tle\n\nFirst paragraph with **bo', 'ld**.\n\n- one\n- ', 'two\n'],
-		capabilities: ['stream:smoothing', 'stream:settlement', 'stream:fade', 'parser:incremental', 'prop:isStreaming'],
+		capabilities: [
+			'stream:smoothing',
+			'stream:settlement',
+			'stream:fade',
+			'parser:incremental',
+			'prop:isStreaming',
+		],
 	},
 	{
 		key: 'stream-math',
@@ -1338,12 +1491,25 @@ export const markdownScenarios: MarkdownScenario[] = [
 	},
 	{
 		key: 'custom-renderers',
-		source: '## Head\n\nPara [l](/x).\n\n```js\nx=1\n```\n\n> quote\n\n---\n\n![i](https://a/b.png)\n',
-		capabilities: ['prop:components', 'renderer:code', 'renderer:inlineCode', 'renderer:citation', 'renderer:link', 'renderer:heading', 'renderer:paragraph', 'renderer:image', 'renderer:blockquote', 'renderer:hr'],
+		source:
+			'## Head\n\nPara [l](/x).\n\n```js\nx=1\n```\n\n> quote\n\n---\n\n![i](https://a/b.png)\n',
+		capabilities: [
+			'prop:components',
+			'renderer:code',
+			'renderer:inlineCode',
+			'renderer:citation',
+			'renderer:link',
+			'renderer:heading',
+			'renderer:paragraph',
+			'renderer:image',
+			'renderer:blockquote',
+			'renderer:hr',
+		],
 	},
 	{
 		key: 'content-width',
-		source: 'Paragraph of prose that should sit inside the prose column while the table below uses the full width.\n\n| a | b |\n| - | - |\n| 1 | 2 |\n',
+		source:
+			'Paragraph of prose that should sit inside the prose column while the table below uses the full width.\n\n| a | b |\n| - | - |\n| 1 | 2 |\n',
 		capabilities: ['prop:contentWidth', 'prop:contentAlign', 'render:prose-layout'],
 	},
 	{
@@ -1368,7 +1534,13 @@ export const markdownScenarios: MarkdownScenario[] = [
 	{
 		key: 'long-document',
 		source: longDocument,
-		capabilities: ['grammar:paragraphs', 'grammar:lists', 'grammar:tables', 'grammar:fences', 'parser:parseMarkdown'],
+		capabilities: [
+			'grammar:paragraphs',
+			'grammar:lists',
+			'grammar:tables',
+			'grammar:fences',
+			'parser:parseMarkdown',
+		],
 	},
 	{
 		// Malformed constructs must degrade identically — unclosed link/fence/
@@ -1376,7 +1548,14 @@ export const markdownScenarios: MarkdownScenario[] = [
 		key: 'malformed',
 		source:
 			'[unclosed link](https://example.com\n\n![unclosed image\n\n**unclosed bold\n\nstray ] bracket [ and |\n\n>\n\n- \n\n```ts\ndangling fence\n',
-		capabilities: ['grammar:links', 'grammar:images', 'grammar:emphasis', 'grammar:fences', 'grammar:blockquotes', 'grammar:lists'],
+		capabilities: [
+			'grammar:links',
+			'grammar:images',
+			'grammar:emphasis',
+			'grammar:fences',
+			'grammar:blockquotes',
+			'grammar:lists',
+		],
 	},
 	{
 		key: 'deep-nesting',
@@ -1389,7 +1568,11 @@ export const markdownScenarios: MarkdownScenario[] = [
 		key: 'unicode-rich',
 		source:
 			'Café combining and éacute\n\nעברית و العربية مختلط RTL\n\nFamily: 👨‍👩‍👧 flag 🇺🇸\n\nＦｕｌｌｗｉｄｔｈ and a​zero​width\n\nSurrogate pair 😀 and math 𝒜\n',
-		capabilities: ['grammar:paragraphs', 'grammar:escapes', 'parser:decodeMarkdownCharacterReferences'],
+		capabilities: [
+			'grammar:paragraphs',
+			'grammar:escapes',
+			'parser:decodeMarkdownCharacterReferences',
+		],
 	},
 	{
 		// CRLF endings and trailing-space breaks — upstream parser.test.ts
@@ -1424,7 +1607,13 @@ export const markdownScenarios: MarkdownScenario[] = [
 		key: 'unbroken-tokens',
 		source:
 			'A verylongunbrokentokenthatcannotbewrappedatanypointhttps://example.com/also/quite/long/path?with=query&more=params and tail.\n\n```\nconst veryLongUnbrokenCodeTokenThatExceedsTheProseColumnWidthAndMustEitherWrapOrScrollDependingOnTheContract = true;\n```\n\n| cell |\n| --- |\n| anotherverylongunbrokentablecelltoken |\n',
-		capabilities: ['grammar:paragraphs', 'grammar:fences', 'grammar:tables', 'render:code-diff-wrap', 'render:table-floors'],
+		capabilities: [
+			'grammar:paragraphs',
+			'grammar:fences',
+			'grammar:tables',
+			'render:code-diff-wrap',
+			'render:table-floors',
+		],
 	},
 	{
 		// Empty and repeated headings — slug/id allocation edges (upstream
@@ -1539,7 +1728,10 @@ export function streamSchedules(source: string, seed = 7): string[][] {
 			parts.push(source.slice(pos, pos + n))
 			pos += n
 		}
-		if (parts.length > 1) schedules.push(parts)
+
+		if (parts.length > 1) {
+			schedules.push(parts)
+		}
 	}
 	return schedules
 }

@@ -101,7 +101,9 @@ export function addIcons(icons: Record<string, IconifyIcon>): void {
 
 	for (const [name, icon] of Object.entries(icons)) {
 		if (!iconNameParts(name) || !icon || typeof icon.body !== 'string') {
-			throw new TypeError(`Expected a \`prefix:name\` name and Iconify data with a string body: ${name}`)
+			throw new TypeError(
+				`Expected a \`prefix:name\` name and Iconify data with a string body: ${name}`,
+			)
 		}
 
 		singles.set(name, icon)

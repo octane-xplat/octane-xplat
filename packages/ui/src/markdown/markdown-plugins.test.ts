@@ -17,6 +17,7 @@ import {
 	type MarkdownPluginEntry,
 	type MarkdownTokenizerInput,
 } from './markdown-plugins'
+
 import {
 	createMarkdownFenceTransform,
 	createMarkdownFrontmatter,
@@ -29,11 +30,13 @@ import {
 	markdownSourceLinesPlugin,
 	projectMarkdownHeadingLinks,
 } from './markdown-plugin-helpers'
+
 import {
 	createMarkdownIncrementalState,
 	createMarkdownStreamParser,
 	parseMarkdownIncremental,
 } from './markdown-stream'
+
 import type { MdNode } from '../props'
 
 const PASS = {
@@ -41,9 +44,7 @@ const PASS = {
 	toText: () => 'ext',
 }
 
-function syntaxPlugin(
-	overrides: Partial<Parameters<typeof createMarkdownPlugin>[0]> = {},
-) {
+function syntaxPlugin(overrides: Partial<Parameters<typeof createMarkdownPlugin>[0]> = {}) {
 	return createMarkdownPlugin({
 		name: 'test-syntax',
 		apiVersion: 1,
@@ -118,9 +119,9 @@ afterEach(() => {
 
 describe('createMarkdownPlugin + prepare', () => {
 	it('rejects malformed definitions at registration', () => {
-		expect(() => createMarkdownPlugin({ name: '', apiVersion: 1, transform: () => null as never })).toThrow(
-			'non-empty',
-		)
+		expect(() =>
+			createMarkdownPlugin({ name: '', apiVersion: 1, transform: () => null as never }),
+		).toThrow('non-empty')
 		expect(() =>
 			createMarkdownPlugin({
 				name: 'x',
@@ -214,9 +215,9 @@ describe('createMarkdownPlugin + prepare', () => {
 			// different array identity → different prepared object, same identity
 			prepareMarkdownPlugins([blockPlugin(), syntaxPlugin()]),
 		)
-		expect(
-			prepareMarkdownPlugins([syntaxPlugin()])!.syntaxIdentity,
-		).not.toBe(prepared.syntaxIdentity)
+		expect(prepareMarkdownPlugins([syntaxPlugin()])!.syntaxIdentity).not.toBe(
+			prepared.syntaxIdentity,
+		)
 	})
 })
 
@@ -266,11 +267,76 @@ describe('plugin syntax parsing', () => {
 	it('reports and falls back for out-of-range, wrong-owner, and unrendered nodes', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
 		const cases: Array<[string, unknown]> = [
-			['out of range', { status: 'match', end: 999, node: { type: 'extension', plugin: 'test-block', name: 'callout', display: 'block', data: null } }],
-			['zero progress', { status: 'match', end: 0, node: { type: 'extension', plugin: 'test-block', name: 'callout', display: 'block', data: null } }],
-			['foreign plugin', { status: 'match', end: 5, node: { type: 'extension', plugin: 'other', name: 'callout', display: 'block', data: null } }],
-			['missing renderer', { status: 'match', end: 5, node: { type: 'extension', plugin: 'test-block', name: 'ghost', display: 'block', data: null } }],
-			['non-data', { status: 'match', end: 5, node: { type: 'extension', plugin: 'test-block', name: 'callout', display: 'block', data: { bad: () => {} } } }],
+			[
+				'out of range',
+				{
+					status: 'match',
+					end: 999,
+					node: {
+						type: 'extension',
+						plugin: 'test-block',
+						name: 'callout',
+						display: 'block',
+						data: null,
+					},
+				},
+			],
+			[
+				'zero progress',
+				{
+					status: 'match',
+					end: 0,
+					node: {
+						type: 'extension',
+						plugin: 'test-block',
+						name: 'callout',
+						display: 'block',
+						data: null,
+					},
+				},
+			],
+			[
+				'foreign plugin',
+				{
+					status: 'match',
+					end: 5,
+					node: {
+						type: 'extension',
+						plugin: 'other',
+						name: 'callout',
+						display: 'block',
+						data: null,
+					},
+				},
+			],
+			[
+				'missing renderer',
+				{
+					status: 'match',
+					end: 5,
+					node: {
+						type: 'extension',
+						plugin: 'test-block',
+						name: 'ghost',
+						display: 'block',
+						data: null,
+					},
+				},
+			],
+			[
+				'non-data',
+				{
+					status: 'match',
+					end: 5,
+					node: {
+						type: 'extension',
+						plugin: 'test-block',
+						name: 'callout',
+						display: 'block',
+						data: { bad: () => {} },
+					},
+				},
+			],
 		]
 		for (const [label, result] of cases) {
 			const plugin = blockPlugin(() => result)
@@ -320,20 +386,21 @@ describe('plugin syntax parsing', () => {
 
 	it('a tokenize that ends mid-line is rejected as a block', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
-		const partial = blockPlugin((input) => ({
-			status: 'match',
-			end: input.offset + 4,
-			node: {
-				type: 'extension',
-				plugin: 'test-midline',
-				name: 'callout',
-				display: 'block',
-				data: null,
-			},
-		}), 'test-midline')
-		expect(parseMdNodes('!!! hello\n\nrest', { plugins: [partial] })[0].type).toBe(
-			'paragraph',
+		const partial = blockPlugin(
+			(input) => ({
+				status: 'match',
+				end: input.offset + 4,
+				node: {
+					type: 'extension',
+					plugin: 'test-midline',
+					name: 'callout',
+					display: 'block',
+					data: null,
+				},
+			}),
+			'test-midline',
 		)
+		expect(parseMdNodes('!!! hello\n\nrest', { plugins: [partial] })[0].type).toBe('paragraph')
 		expect(warn).toHaveBeenCalled()
 	})
 })
@@ -382,10 +449,11 @@ describe('streaming + deferral', () => {
 			isFinal: false,
 		})
 		expect(
-			late.children.some((b) => b.type === 'paragraph' &&
-				(b as { children: { type: string }[] }).children.some(
-					(c) => c.type === 'extension',
-				)),
+			late.children.some(
+				(b) =>
+					b.type === 'paragraph' &&
+					(b as { children: { type: string }[] }).children.some((c) => c.type === 'extension'),
+			),
 		).toBe(true)
 	})
 
@@ -569,10 +637,7 @@ describe('transforms', () => {
 			},
 		})
 		parseMdNodes('hi', { plugins: [reporter] })
-		expect(warn).toHaveBeenCalledWith(
-			expect.stringContaining('reporter'),
-			expect.anything(),
-		)
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('reporter'), expect.anything())
 	})
 
 	it('renderer/toText fallback resolves through the prepared map', () => {
@@ -743,9 +808,7 @@ describe('createMarkdownSourceDecoration', () => {
 		const parser = createMarkdownStreamParser({ plugins: [plugin] })
 		parser.append('mark')
 		expect(getMarkdownSourceDecorations(parser.append(' here').children[0])).toEqual([])
-		expect(
-			getMarkdownSourceDecorations(parser.finish().children[0]),
-		).toEqual([{ name: 'mark' }])
+		expect(getMarkdownSourceDecorations(parser.finish().children[0])).toEqual([{ name: 'mark' }])
 	})
 
 	it('skips nodes carrying foreign data at the envelope key', () => {
@@ -784,9 +847,7 @@ describe('createMarkdownFrontmatter', () => {
 		const doc = parseMdDoc('---\ntitle: Hello\n---\nbody', { plugins: [fm.plugin] })
 		expect(fm.getMetadata(doc)).toEqual({ title: 'Hello' })
 		expect(doc.children).toHaveLength(1)
-		expect((doc.children[0] as { children: { value?: string }[] }).children[0].value).toBe(
-			'body',
-		)
+		expect((doc.children[0] as { children: { value?: string }[] }).children[0].value).toBe('body')
 		expect(fm.parse('---\ntitle: H\n---\nx')).toMatchObject({
 			status: 'match',
 			metadata: { title: 'H' },
@@ -852,19 +913,17 @@ describe('createMarkdownHeadingLinks', () => {
 		expect(projection.permalinkUrls.size).toBe(3)
 		const ids = [...projection.ids.values()]
 		expect(new Set(ids).size).toBe(3)
-		expect([...projection.permalinkUrls.values()][0]).toBe(
-			'https://docs.example/a#title',
-		)
+		expect([...projection.permalinkUrls.values()][0]).toBe('https://docs.example/a#title')
 	})
 
 	it('honors headingIdPrefix and rejects unsafe base URLs', () => {
-		const plugins = [createMarkdownHeadingLinks({ headingIdPrefix: 'doc', permalinkBaseUrl: 'https://x.dev' })]
+		const plugins = [
+			createMarkdownHeadingLinks({ headingIdPrefix: 'doc', permalinkBaseUrl: 'https://x.dev' }),
+		]
 		const doc = parseMdDoc('# A', { plugins })
 		const projection = projectMarkdownHeadingLinks(doc, prepareMarkdownPlugins(plugins))!
 		expect([...projection.ids.values()][0]).toBe('doc--a')
-		expect(() =>
-			createMarkdownHeadingLinks({ permalinkBaseUrl: 'javascript:x' }),
-		).toThrow()
+		expect(() => createMarkdownHeadingLinks({ permalinkBaseUrl: 'javascript:x' })).toThrow()
 	})
 })
 

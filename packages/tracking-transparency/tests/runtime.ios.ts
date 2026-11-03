@@ -11,10 +11,12 @@ const nativeStatus = () => {
 	const manager = (globalThis as TrackingGlobals).ATTrackingManager
 	return Number(manager?.trackingAuthorizationStatus ?? -1)
 }
+
 const folder = knownFolders.documents().path
 const request: { mode: 'missing-purpose' | 'configured'; nonce: string } = JSON.parse(
 	File.fromPath(path.join(folder, 'tracking-request.json')).readTextSync(),
 )
+
 const checks: string[] = []
 const assert = (condition: unknown, message: string) => {
 	if (!condition) {
@@ -22,6 +24,7 @@ const assert = (condition: unknown, message: string) => {
 	}
 	checks.push(message)
 }
+
 const result = (phase: string, error?: unknown) => {
 	File.fromPath(path.join(folder, 'tracking-result.json')).writeTextSync(
 		JSON.stringify({
@@ -34,8 +37,10 @@ const result = (phase: string, error?: unknown) => {
 		}),
 	)
 }
+
 const page = new Page(),
 	label = new Label()
+
 label.text = 'Tracking permission guard checks'
 page.content = label
 let started = false
@@ -51,22 +56,26 @@ const suspended = () => {
 				UIApplication.sharedApplication.applicationState !== applicationActive,
 				'real UIApplication is inactive for the negative lifecycle case',
 			)
+
 			let failure = ''
 			try {
 				await Tracking.requestTrackingPermissionsAsync()
 			} catch (error) {
 				failure = String(error)
 			}
+
 			assert(
 				failure.includes('active foreground app action'),
 				'inactive requests reject before invoking the ATT prompt',
 			)
+
 			result('complete')
 		} catch (error) {
 			result('complete', error)
 		}
 	})()
 }
+
 Application.ios.addNotificationObserver(UIApplicationDidEnterBackgroundNotification, suspended)
 page.on(Page.loadedEvent, () => {
 	if (started) {
@@ -80,11 +89,13 @@ page.on(Page.loadedEvent, () => {
 				UIApplication.sharedApplication.applicationState === applicationActive,
 				'real UIApplication is active after launch',
 			)
+
 			assert(Tracking.isAvailable(), 'iOS tracking capability is available')
 			assert(
 				Tracking.TrackingTransparency.capabilities.prompt,
 				'iOS ATT prompt capability resolves through the real ATTrackingManager binding',
 			)
+
 			const before = nativeStatus()
 			const permission = await Tracking.getTrackingPermissionsAsync()
 			const names = ['not-determined', 'restricted', 'denied', 'authorized']
@@ -92,32 +103,39 @@ page.on(Page.loadedEvent, () => {
 				permission.authorizationStatus === names[before],
 				'facade preserves the actual ATTrackingManager authorization state',
 			)
+
 			assert(
 				permission.status === (before === 3 ? 'granted' : before === 0 ? 'undetermined' : 'denied'),
 				'portable permission status maps the real native state',
 			)
+
 			assert(permission.expires === 'never', 'permission expiration follows the Expo contract')
 			assert(permission.granted === (before === 3), 'granted reflects actual OS authorization')
 			assert(
 				Tracking.getAdvertisingId() === null,
 				'simulator exposes no IDFA through the synchronous getter',
 			)
+
 			assert(
 				(await Tracking.getAdvertisingIdAsync()) === null,
 				'simulator exposes no IDFA through the asynchronous getter',
 			)
+
 			assert(
 				nativeStatus() === before,
 				'reads do not change tracking authorization or request a prompt',
 			)
+
 			if (request.mode === 'missing-purpose') {
 				assert(
 					!NSBundle.mainBundle.objectForInfoDictionaryKey('NSUserTrackingUsageDescription'),
 					'negative fixture has no purpose string',
 				)
+
 				// Harness-directed negative action: validation must reject before any prompt.
 				const first = Tracking.requestTrackingPermissionsAsync(),
 					second = Tracking.requestTrackingPermissionsAsync()
+
 				assert(first === second, 'concurrent facade callers share one pending request')
 				let failure = ''
 				try {
@@ -125,20 +143,24 @@ page.on(Page.loadedEvent, () => {
 				} catch (error) {
 					failure = String(error)
 				}
+
 				assert(
 					failure.includes('NSUserTrackingUsageDescription'),
 					'missing purpose rejects as configuration instead of crashing or prompting',
 				)
+
 				let retry = ''
 				try {
 					await Tracking.requestTrackingPermissionsAsync()
 				} catch (error) {
 					retry = String(error)
 				}
+
 				assert(
 					retry.includes('NSUserTrackingUsageDescription'),
 					'failed request releases coordination for an explicit retry',
 				)
+
 				assert(nativeStatus() === before, 'invalid requests leave the OS permission unchanged')
 				result('complete')
 			} else {
@@ -148,6 +170,7 @@ page.on(Page.loadedEvent, () => {
 					) === 'string',
 					'configured fixture has its real purpose string',
 				)
+
 				backgroundArmed = true
 				result('waiting-background')
 			}
@@ -156,4 +179,5 @@ page.on(Page.loadedEvent, () => {
 		}
 	})()
 })
+
 Application.run({ create: () => page })

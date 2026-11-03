@@ -149,6 +149,7 @@ describe('GET /manifest', () => {
 			const bad = {
 				BUNDLES: bucketWith({ [`channels/stable/ios/${SHA_B}.json`]: JSON.stringify(value) }),
 			}
+
 			const res = await get(`/manifest?platform=ios&nativeFingerprint=${SHA_B}`, bad)
 			assert.equal(res.status, 502)
 			assert.equal((await res.json()).error, 'bad-pointer')

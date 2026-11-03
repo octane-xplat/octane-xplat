@@ -79,6 +79,7 @@ consumerConfig.overrides = {
 	'@tiptap/pm': '3.28.0',
 	'@tiptap/starter-kit': '3.28.0',
 }
+
 consumerConfig.packageManager = 'bun@1.4.4'
 await writeFile(consumerFile, JSON.stringify(consumerConfig))
 await writeFile(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')

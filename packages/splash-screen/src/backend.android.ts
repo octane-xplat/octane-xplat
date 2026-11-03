@@ -8,8 +8,10 @@ interface Engine {
 	animationSupported(): boolean
 	configure(options: string): boolean
 }
+
 const engine = () =>
 	(globalThis as any).com?.octanexplat?.splashscreen?.SplashScreenBridge as Engine | undefined
+
 let prepared = false
 function host(): Engine {
 	const value = engine()
@@ -20,10 +22,12 @@ function host(): Engine {
 		if (!value.initialize(Utils.android.getApplicationContext(), Boolean(Application.started))) {
 			throw new Error('Invalid native splash screen configuration')
 		}
+
 		prepared = true
 	}
 	return value
 }
+
 export const backend: SplashScreenBackend = {
 	capabilities: () => ({
 		hold: !!engine(),

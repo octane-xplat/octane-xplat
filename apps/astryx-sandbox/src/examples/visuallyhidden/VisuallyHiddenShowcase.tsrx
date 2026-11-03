@@ -27,12 +27,7 @@ export function VisuallyHiddenShowcase() {
 						</Text>
 						<HStack gap={2}>
 							{actions.map(({ label, icon }) => (
-								<IconButton
-									key={label}
-									label={label}
-									icon={<Icon name={icon} />}
-									variant="ghost"
-								/>
+								<IconButton key={label} label={label} icon={<Icon name={icon} />} variant="ghost" />
 							))}
 						</HStack>
 					</VStack>

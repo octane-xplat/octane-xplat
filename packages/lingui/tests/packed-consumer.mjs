@@ -89,6 +89,7 @@ assert.equal(typeof babelExtractor.extract, 'function')
    assert.equal(typeof Intl.RelativeTimeFormat, 'undefined')
   `,
 	})
+
 	// Invoke the CLI entrypoint directly: `bun run lingui` resolves the .bin
 	// shim, where commander's `lingui extract` file-subcommand lookup fails.
 	const require = createRequire(join(app, 'package.json'))
@@ -103,6 +104,7 @@ assert.equal(typeof babelExtractor.extract, 'function')
 		readFileSync(join(app, 'src/app.tsrx'), 'utf8')
 			.split('\n')
 			.findIndex((line) => line.includes('t`Extraction probe from tsrx`')) + 1
+
 	assert.ok(authoredLine > 0)
 	assert.deepEqual(probe.origin, [['src/app.tsrx', authoredLine]])
 	console.log('lingui packed consumer: plain Node import, extraction, and authored origins passed')

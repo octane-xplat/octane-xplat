@@ -5,10 +5,37 @@
 // public component. Table `width: pixel(125)` → number.
 import { useState } from 'octane'
 import {
-	Avatar, Badge, Banner, Button, Card, Center, CodeBlock, Dialog,
-	DialogHeader, Divider, Heading, HStack, Icon, Layout, LayoutContent,
-	LayoutPanel, Outline, Section, Selector, StackItem, Tab, TabList, Table,
-	Text, Token, Tooltip, useMediaQuery, VStack, pixel } from '@octane-xplat/ui'
+	Avatar,
+	Badge,
+	Banner,
+	Button,
+	Card,
+	Center,
+	CodeBlock,
+	Dialog,
+	DialogHeader,
+	Divider,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutPanel,
+	Outline,
+	Section,
+	Selector,
+	StackItem,
+	Tab,
+	TabList,
+	Table,
+	Text,
+	Token,
+	Tooltip,
+	useMediaQuery,
+	VStack,
+	pixel,
+} from '@octane-xplat/ui'
+
 import type { OutlineItem } from '@octane-xplat/ui'
 
 const tabListFlush = { marginInlineStart: '-12px' } as const
@@ -57,8 +84,7 @@ const DOCS = {
 		},
 		{
 			title: 'Default button with badge',
-			description:
-				'Buttons can include a badge to highlight new or updated actions.',
+			description: 'Buttons can include a badge to highlight new or updated actions.',
 			code: `<Button\n  label="Button"\n  variant="secondary"\n/>`,
 		},
 	],
@@ -86,9 +112,7 @@ const COMPONENT_PREVIEW = (
 
 export function DocumentationDesignTemplate() @{
 	const [exampleTabs, setExampleTabs] = useState<Record<string, string>>({})
-	const [activeId, setActiveId] = useState<string | undefined>(
-		COMPONENT_OUTLINE_ITEMS[0]?.id,
-	)
+	const [activeId, setActiveId] = useState<string | undefined>(COMPONENT_OUTLINE_ITEMS[0]?.id)
 	const isMobile = useMediaQuery('(max-width: 768px)')
 
 	const scrollToId = (id: string) => {
@@ -111,10 +135,7 @@ export function DocumentationDesignTemplate() @{
 					role="complementary"
 					style={outlinePanel}
 				>
-					<Outline
-						items={COMPONENT_OUTLINE_ITEMS}
-						onActiveIdChange={setActiveId}
-					/>
+					<Outline items={COMPONENT_OUTLINE_ITEMS} onActiveIdChange={setActiveId} />
 				</LayoutPanel>
 			)
 		}
@@ -122,7 +143,9 @@ export function DocumentationDesignTemplate() @{
 			<LayoutContent isScrollable={false} padding={8}>
 				<VStack gap={8}>
 					<VStack gap={2}>
-						<Heading type="display-1" level={1}>{DOCS.name}</Heading>
+						<Heading type="display-1" level={1}>
+							{DOCS.name}
+						</Heading>
 						<Text type="supporting" color="secondary">
 							March 30, 2026 · Updated 5:40 p.m. PST
 						</Text>
@@ -139,9 +162,7 @@ export function DocumentationDesignTemplate() @{
 					</VStack>
 
 					<Card variant="muted" padding={0}>
-						<Center height={360}>
-							{COMPONENT_PREVIEW}
-						</Center>
+						<Center height={360}>{COMPONENT_PREVIEW}</Center>
 					</Card>
 
 					<VStack gap={4}>
@@ -173,13 +194,10 @@ export function DocumentationDesignTemplate() @{
 									key: 'text',
 									header: 'Practices',
 									renderCell: (item: Record<string, unknown>) => (
-										<Text type="body">
-											{item.text as string}
-										</Text>
+										<Text type="body">{item.text as string}</Text>
 									),
 								},
 							]}
-
 						/>
 					</VStack>
 
@@ -190,8 +208,7 @@ export function DocumentationDesignTemplate() @{
 							Examples
 						</Heading>
 						<Text type="large" weight="normal">
-							Explore common configurations, variations, and states for this
-							component.
+							Explore common configurations, variations, and states for this component.
 						</Text>
 					</VStack>
 					<VStack gap={8}>
@@ -258,11 +275,7 @@ export function DocumentationDesignTemplate() @{
 											{activeTab === 'description' ? (
 												<Text type="body">{example.description}</Text>
 											) : (
-												<CodeBlock
-													code={example.code}
-													language="tsx"
-													width="100%"
-												/>
+												<CodeBlock code={example.code} language="tsx" width="100%" />
 											)}
 										</VStack>
 									</Section>

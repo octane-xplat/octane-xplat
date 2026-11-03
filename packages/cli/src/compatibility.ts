@@ -299,6 +299,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 	for (const patch of wanted) {
 		oldPatches[patch.specifier] ??=
 			manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
+
 		if (manager === 'bun') {
 			change(
 				join(root, oldPatches[patch.specifier]),
@@ -323,6 +324,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 		if (Array.isArray(owner.workspaces)) {
 			owner.workspaces = { packages: owner.workspaces }
 		}
+
 		owner.workspaces ??= { packages: [] }
 		for (const key of ['catalog', 'catalogs']) {
 			if (result[key]) {
@@ -333,6 +335,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 				}
 			}
 		}
+
 		for (const key of ['overrides', 'patchedDependencies']) {
 			if (result[key]) {
 				owner[key] = result[key]

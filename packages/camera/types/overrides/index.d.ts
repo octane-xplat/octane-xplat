@@ -29,5 +29,6 @@ export type {
 	MovieTake,
 	StartRecordingOptions,
 } from './types.js'
+
 export { createMemoryCameraStorage, createSyntheticCameraSession } from './synthetic-session.js'
 export type { SyntheticCameraScript, SyntheticCameraStorage } from './synthetic-session.js'

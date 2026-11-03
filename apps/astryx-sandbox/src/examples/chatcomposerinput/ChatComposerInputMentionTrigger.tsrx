@@ -23,9 +23,7 @@ export function ChatComposerInputMentionTrigger() {
 	const mentionTrigger = defineChatComposerTrigger({
 		character: '@',
 		searchSource: userSource,
-		renderItem: (item) => (
-			<TypeaheadItem item={item} description={item.auxiliaryData?.role} />
-		),
+		renderItem: (item) => <TypeaheadItem item={item} description={item.auxiliaryData?.role} />,
 		onSelect: (item) => ({
 			value: `@${item.id}`,
 			label: item.label,

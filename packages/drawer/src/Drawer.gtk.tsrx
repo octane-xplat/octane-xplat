@@ -6,6 +6,7 @@ import {
 	createPortal as createUniversalPortal,
 	type UniversalRenderable,
 } from 'octane/universal/native'
+
 import { cx } from '@octane-xplat/lib'
 import * as gtkUi from '@octane-xplat/ui'
 import { mergeStyle } from './style-merge'
@@ -70,6 +71,7 @@ export function Drawer(props: DrawerProps): unknown @{
 		latest.current.onOpenChange?.(false)
 		latest.current.onDismiss?.()
 	}
+
 	const dismiss = useRef(requestDismiss)
 	dismiss.current = requestDismiss
 
@@ -85,6 +87,7 @@ export function Drawer(props: DrawerProps): unknown @{
 			align: { h: 'start', v: 'fill' },
 			onScrimPress: () => dismiss.current(),
 		})
+
 		setLayer(l)
 		l.setVisible(true)
 
@@ -102,6 +105,7 @@ export function Drawer(props: DrawerProps): unknown @{
 				dismiss.current()
 				return true
 			})
+
 			root.add_controller(keys)
 		}
 
@@ -110,6 +114,7 @@ export function Drawer(props: DrawerProps): unknown @{
 			if (index >= 0) {
 				drawerLayers.splice(index, 1)
 			}
+
 			try {
 				if (keys) {
 					root.remove_controller(keys)
@@ -117,6 +122,7 @@ export function Drawer(props: DrawerProps): unknown @{
 			} catch {
 				// The window is already gone; GTK drops orphaned controllers.
 			}
+
 			l.dispose()
 			setLayer(null)
 		}

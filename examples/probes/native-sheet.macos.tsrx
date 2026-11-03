@@ -5,5 +5,8 @@ import type { ProbeContext } from '../../tools/probe/context'
 export default NativeSheetDemo
 export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => ctx.find('native-sheet-status'))
-	ctx.record('qualification', 'Mounted demo only; native sheet opening, input, focus, queueing, context, teardown and AX not exercised')
+	ctx.record(
+		'qualification',
+		'Mounted demo only; native sheet opening, input, focus, queueing, context, teardown and AX not exercised',
+	)
 }

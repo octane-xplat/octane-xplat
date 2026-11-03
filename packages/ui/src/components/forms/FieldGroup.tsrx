@@ -14,8 +14,10 @@ export function FieldGroup(props: FieldGroupProps): unknown @{
 		accessibilityRole="group"
 		accessibilityLabel={props.label}
 	>
-		<masonview className="vx-fieldgroup-heading"
-			style={{ display: props.label != null ? 'flex' : 'none' }}>
+		<masonview
+			className="vx-fieldgroup-heading"
+			style={{ display: props.label != null ? 'flex' : 'none' }}
+		>
 			<label className="vx-fieldgroup-label" text={props.label ?? ''} />
 		</masonview>
 		{props.children}

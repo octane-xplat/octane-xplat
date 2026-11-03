@@ -11,7 +11,9 @@ const checks: string[] = []
 const failures: string[] = []
 const check = (name: string, ok: boolean | unknown) => {
 	checks.push(name)
-	if (!ok) { failures.push(name) }
+	if (!ok) {
+		failures.push(name)
+	}
 }
 
 const window = new Gtk.Window({ default_width: 400, default_height: 400 })
@@ -22,26 +24,40 @@ const loop = GLib.MainLoop.new(null, false)
 
 const findView = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n.view }
+		if (n?.props?.id === id) {
+			return n.view
+		}
 	}
 	return null
 }
+
 const findNode = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n }
+		if (n?.props?.id === id) {
+			return n
+		}
 	}
 	return null
 }
+
 const hasText = (needle: string): boolean => {
 	for (const n of (container as any).nodes.values()) {
-		try { if (JSON.stringify(n.props).includes(needle)) { return true } } catch { }
+		try {
+			if (JSON.stringify(n.props).includes(needle)) {
+				return true
+			}
+		} catch {}
 	}
 	return false
 }
 
-const pump = (ms: number) => new Promise<void>((resolve) => {
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => { resolve(); return false })
-})
+const pump = (ms: number) =>
+	new Promise<void>((resolve) => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+			resolve()
+			return false
+		})
+	})
 
 async function run() {
 	root.render(ImageProbe, {})
@@ -79,7 +95,10 @@ async function run() {
 
 	// Thumbnail — good loads, bad falls back.
 	check('Thumbnail mounts', !!findView('thumb'))
-	check('Thumbnail image produced a texture', !!findView('thumb')?.imageSource || hasText('preview'))
+	check(
+		'Thumbnail image produced a texture',
+		!!findView('thumb')?.imageSource || hasText('preview'),
+	)
 
 	// User — avatar + name row.
 	check('User mounts', !!findView('user'))
@@ -98,7 +117,10 @@ async function run() {
 	}
 	const expectedHash = rgbaToThumbHashUri(4, 4, expectedRgba)
 	const hash = await thumbHashUri(PNG_2x2)
-	check('thumbHashUri returns a thumbhash: URI', typeof hash === 'string' && hash.startsWith('thumbhash:'))
+	check(
+		'thumbHashUri returns a thumbhash: URI',
+		typeof hash === 'string' && hash.startsWith('thumbhash:'),
+	)
 	check('thumbHashUri decodes to the encoder output', hash === expectedHash)
 
 	// Source grammar: `~/` resolves relative to the bundle (import.meta.url),
@@ -107,7 +129,15 @@ async function run() {
 	const pngBytes = new GLib.Bytes(GLib.base64_decode(PNG_2x2.slice(PNG_2x2.indexOf(',') + 1)))
 	const bundleDir = Gio.File.new_for_uri(import.meta.url).get_parent()
 	const tildeFile = bundleDir.get_child('probe-image.png')
-	await new Promise((res, rej) => tildeFile.replace_contents_bytes_async(pngBytes, null, false, 0, null, (f, r) => { try { res(f.replace_contents_finish(r)) } catch (e) { rej(e) } }))
+	await new Promise((res, rej) =>
+		tildeFile.replace_contents_bytes_async(pngBytes, null, false, 0, null, (f, r) => {
+			try {
+				res(f.replace_contents_finish(r))
+			} catch (e) {
+				rej(e)
+			}
+		}),
+	)
 	const tildeHash = await thumbHashUri('~/probe-image.png')
 	check('thumbHashUri resolves ~/ relative to the bundle', tildeHash === expectedHash)
 
@@ -116,7 +146,10 @@ async function run() {
 	const absHash = await thumbHashUri(absPath)
 	check('thumbHashUri resolves an absolute file path', absHash === expectedHash)
 
-	print('GTK_IMAGES ' + JSON.stringify({ checks: checks.length, failures, osInput: false, gtk: '4.14.5' }))
+	print(
+		'GTK_IMAGES ' +
+			JSON.stringify({ checks: checks.length, failures, osInput: false, gtk: '4.14.5' }),
+	)
 	loop.quit()
 }
 
@@ -124,4 +157,5 @@ run().catch((e) => {
 	print('GTK_IMAGES_ERROR ' + String(e && (e.stack || e)))
 	loop.quit()
 })
+
 loop.run()

@@ -15,6 +15,7 @@ function surfaceOrigin(native: any) {
 		if (!parent) {
 			return null
 		}
+
 		x += surface.get_position_x()
 		y += surface.get_position_y()
 		surface = parent
@@ -47,6 +48,7 @@ export function popupBounds(view: any, host: any): GtkBounds | null {
 			if (!fromOk) {
 				return null
 			}
+
 			const [toOk, to] = hostNative.compute_point(
 				host,
 				new Graphene.Point({
@@ -54,9 +56,11 @@ export function popupBounds(view: any, host: any): GtkBounds | null {
 					y: from.y + source.y - target.y,
 				}),
 			)
+
 			if (!toOk) {
 				return null
 			}
+
 			points.push(to)
 		}
 	}

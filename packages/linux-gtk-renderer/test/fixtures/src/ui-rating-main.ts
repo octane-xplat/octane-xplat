@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -35,16 +38,20 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const group = () => nodes('vx-rating')[0].view! as any
 const cells = () => nodes('vx-rating-cell')
 let native: any
 const named = (view: any, text: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, text) === null
+
 const bool = (view: any, key: number, value: boolean) =>
 	native.test_accessible_boolean_property(view, key, value) === null
+
 const state = (view: any, key: number, value: number) =>
 	native.test_accessible_state(view, key, value) === null
+
 const changes: number[] = []
 let props: Parameters<typeof RatingScene>[0] = {
 	label: 'Trip rating',
@@ -54,11 +61,13 @@ let props: Parameters<typeof RatingScene>[0] = {
 	max: 5,
 	onValueChange: (value) => changes.push(value),
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(RatingScene, props)
 	await pause()
 }
+
 const close = (a: number | undefined, b: number) => Math.abs((a ?? NaN) - b) <= 2
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
@@ -70,6 +79,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_RATING_OS') === '1'
 async function input(view: any, action: { key?: string; click?: boolean }) {
@@ -85,8 +95,10 @@ async function input(view: any, action: { key?: string; click?: boolean }) {
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 const checked = (score: number) =>
 	cells().every((node, i) => state(node.view, Gtk.AccessibleState.CHECKED, i + 1 === score ? 1 : 0))
+
 async function run() {
 	await render()
 	window.present()
@@ -213,6 +225,7 @@ async function run() {
 			'pointer selects and focuses a score',
 			props.value === 1 && window.get_focus() === cells()[0].view,
 		)
+
 		await input(group(), { key: 'Left' })
 		check('arrows wrap between endpoint scores', props.value === 5 && checked(5))
 		const count = changes.length
@@ -225,6 +238,7 @@ async function run() {
 			'pointer selection updates the filled prefix',
 			props.value === 4 && nodes('vx-rating-cell--on').length === 4 && checked(4),
 		)
+
 		const selectedCount = changes.length
 		await input(cells()[3].view, { click: true })
 		check('duplicate pointer selection is suppressed', changes.length === selectedCount)
@@ -234,6 +248,7 @@ async function run() {
 			'readOnly arrows move focus without changing score',
 			window.get_focus() === cells()[4].view && props.value === 4,
 		)
+
 		await input(group(), { key: 'space' })
 		await input(cells()[0].view, { click: true })
 		check('readOnly pointer focus remains available', window.get_focus() === cells()[0].view)
@@ -250,12 +265,14 @@ async function run() {
 			'rejected pointer edit retains owner state',
 			checked(2) && nodes('vx-rating-cell--on').length === 2,
 		)
+
 		const rejectCount = changes.length
 		await input(cells()[4].view, { click: true })
 		check(
 			'repeated rejected pointer edits still report',
 			changes.length === rejectCount + 1 && changes.at(-1) === 5,
 		)
+
 		await input(group(), { key: 'space' })
 		check('rejected Space retains owner state', props.value === 2 && checked(2))
 		accept = true
@@ -269,10 +286,12 @@ async function run() {
 			'framework RTL style reaches every score',
 			cells().every((n) => n.view!.get_direction() === Gtk.TextDirection.RTL),
 		)
+
 		check(
 			'RTL reverses physical score order',
 			cells()[0].view!.getBounds().x > cells()[4].view!.getBounds().x,
 		)
+
 		await input(group(), { key: 'Right' })
 		check('RTL reverses horizontal radio navigation', props.value === 4 && checked(4))
 		await render({ style: undefined })
@@ -389,6 +408,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -400,6 +420,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

@@ -9,6 +9,7 @@ class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
 		return getIOSSupportedInterfaceOrientations(window)
 	}
 }
+
 import { Application } from '@nativescript/core'
 import { getIOSSupportedInterfaceOrientations } from '../src/index'
 

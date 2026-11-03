@@ -8,6 +8,7 @@ import {
 	SegmentedContextScene,
 	SegmentedStandaloneScene,
 } from './ui-segmented-control.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK segmented control test',
@@ -15,6 +16,7 @@ const window = new Gtk.Window({
 	default_height: 360,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -22,6 +24,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 140) =>
 	new Promise<void>((resolve) =>
@@ -30,6 +33,7 @@ const pause = (ms = 140) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -38,6 +42,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const segments = () => {
 	const owner = nodes('vx-segmented')[0]
@@ -57,14 +62,18 @@ const segments = () => {
 	walk(owner)
 	return found
 }
+
 const group = () => nodes('vx-segmented')[0].view!
 let native: any
 const named = (view: any, value: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, value) === null
+
 const bool = (view: any, key: number, value: boolean) =>
 	native.test_accessible_boolean_property(view, key, value) === null
+
 const state = (view: any, key: number, value: number) =>
 	native.test_accessible_state(view, key, value) === null
+
 let props: Parameters<typeof SegmentedScene>[0] = {
 	defaultValue: 'a',
 	label: 'View mode',
@@ -72,11 +81,13 @@ let props: Parameters<typeof SegmentedScene>[0] = {
 	width: 280,
 	layout: 'fill',
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(SegmentedScene, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -87,6 +98,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_SEGMENTED_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
@@ -106,6 +118,7 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -120,45 +133,54 @@ async function run() {
 			mode + ': field width',
 			Math.abs((nodes('vx-field')[0]?.view?.getBounds().width ?? NaN) - 280) <= 2,
 		)
+
 		check(
 			mode + ': radio group role',
 			group().get_accessible_role() === Gtk.AccessibleRole.RADIO_GROUP,
 		)
+
 		check(mode + ': group name', named(group(), 'View mode'))
 		check(mode + ': required metadata', bool(group(), Gtk.AccessibleProperty.REQUIRED, true))
 		check(
 			mode + ': radio segment roles',
 			segments().every((n) => n.view!.get_accessible_role() === Gtk.AccessibleRole.RADIO),
 		)
+
 		check(
 			mode + ': segment names',
 			segments().every((n, i) => named(n.view, ['Alpha', 'Beta', 'Gamma'][i])),
 		)
+
 		check(
 			mode + ': default checked segment',
 			segments().every((n, i) => state(n.view, Gtk.AccessibleState.CHECKED, i === 0 ? 1 : 0)),
 		)
+
 		check(mode + ': disabled segment sensitivity', !segments()[1].view!.is_sensitive())
 		check(
 			mode + ': enabled segments focus',
 			segments()[0].view!.get_focusable() && segments()[2].view!.get_focusable(),
 		)
+
 		const bounds = segments().map((n) => n.view!.getBounds())
 		check(
 			mode + ': fill gives equal segment widths',
 			Math.max(...bounds.map((b) => b.width)) - Math.min(...bounds.map((b) => b.width)) <= 1,
 		)
+
 		check(
 			mode + ': segments share one horizontal row',
 			bounds.every((b) => Math.abs(b.y - bounds[0].y) <= 2) &&
 				bounds[0].x < bounds[1].x &&
 				bounds[1].x < bounds[2].x,
 		)
+
 		await render({
 			isReadOnly: true,
 			isLoading: true,
 			status: { type: 'error', message: 'Choose again' },
 		})
+
 		check(mode + ': readOnly group metadata', bool(group(), Gtk.AccessibleProperty.READ_ONLY, true))
 		check(mode + ': busy group metadata', state(group(), Gtk.AccessibleState.BUSY, 1))
 		check(mode + ': invalid group metadata', state(group(), Gtk.AccessibleState.INVALID, 1))
@@ -180,8 +202,10 @@ async function run() {
 		const after = [...container.nodes.values()].find((n) => n.props.id === 'segment-after')!.view!
 		const focused = (view: any) =>
 			window.get_focus() === view || window.get_focus()?.is_ancestor(view)
+
 		const checked = (index: number, value: boolean) =>
 			state(segments()[index].view, Gtk.AccessibleState.CHECKED, value ? 1 : 0)
+
 		before.grab_focus()
 		await input(before, { key: 'Tab' })
 		check('Tab enters the selected segment', focused(segments()[0].view))
@@ -190,6 +214,7 @@ async function run() {
 			'arrow skips disabled segment and selects locally',
 			checked(2, true) && changes.join() === 'c' && focused(segments()[2].view),
 		)
+
 		await input(segments()[2].view, { key: 'space' })
 		check('selected Space does not notify again', changes.join() === 'c')
 		await input(segments()[2].view, { key: 'Tab' })
@@ -201,6 +226,7 @@ async function run() {
 			'reverse arrow selects previous eligible segment',
 			checked(0, true) && changes.at(-1) === 'a',
 		)
+
 		for (const parts of [false, true]) {
 			const mode = parts ? 'parts' : 'options'
 			await render({ parts, value: 'a', onValueChange: (value) => changes.push(value) })
@@ -211,6 +237,7 @@ async function run() {
 				mode + ': controlled rejection keeps selection',
 				checked(0, true) && checked(2, false) && changes.at(-1) === 'c',
 			)
+
 			await render({
 				onValueChange: (value) => {
 					changes.push(value)
@@ -218,6 +245,7 @@ async function run() {
 					root.render(SegmentedScene, props)
 				},
 			})
+
 			await input(segments()[2].view, { key: 'space' })
 			check(mode + ': controlled owner accepts selection', checked(2, true) && props.value === 'c')
 			await input(segments()[0].view, { click: true })
@@ -225,10 +253,12 @@ async function run() {
 				mode + ': pointer selects and focuses',
 				checked(0, true) && props.value === 'a' && focused(segments()[0].view),
 			)
+
 			check(
 				mode + ': selection retains segment widgets',
 				segments().every((n, i) => n.view === retained[i]),
 			)
+
 			const count = changes.length
 			await input(segments()[0].view, { key: 'Return' })
 			check(mode + ': Return does not activate a radio segment', changes.length === count)
@@ -238,17 +268,20 @@ async function run() {
 				mode + ': readOnly arrows focus without selecting',
 				focused(segments()[2].view) && checked(0, true) && changes.length === count,
 			)
+
 			await input(segments()[2].view, { click: true })
 			check(
 				mode + ': readOnly pointer focuses without selecting',
 				focused(segments()[2].view) && checked(0, true) && changes.length === count,
 			)
+
 			await render({ isReadOnly: false, isDisabled: true })
 			before.grab_focus()
 			await input(before, { key: 'Tab' })
 			check(mode + ': disabled group is skipped by Tab', focused(after) && changes.length === count)
 			await render({ isDisabled: false })
 		}
+
 		await render({ value: undefined, defaultValue: 'c' })
 		check('dropping controlled value restores original local owner', checked(0, true))
 		check('default updates do not reset local owner', checked(2, false))
@@ -373,20 +406,24 @@ async function run() {
 				root.render(SegmentedScene, props)
 			},
 		})
+
 		check(
 			'RTL reaches native segment direction',
 			segments().every((n) => n.view!.get_direction() === Gtk.TextDirection.RTL),
 		)
+
 		check(
 			'RTL reverses physical segment order',
 			segments()[0].view!.getBounds().x > segments()[2].view!.getBounds().x,
 		)
+
 		segments()[0].view!.grab_focus()
 		await input(segments()[0].view, { key: 'Right' })
 		check(
 			'RTL Right selects previous logical segment',
 			props.value === 'c' && state(segments()[2].view, Gtk.AccessibleState.CHECKED, 1),
 		)
+
 		await input(segments()[2].view, { key: 'Left' })
 		check(
 			'RTL Left selects next logical segment',
@@ -440,6 +477,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -451,6 +489,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

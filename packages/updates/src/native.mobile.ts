@@ -68,6 +68,7 @@ export function nativeEnvironment(): Environment {
 					const data = NSData.dataWithData(
 						value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength) as any,
 					)
+
 					// Large Foundation data can bridge as OS_dispatch_data without
 					// NSData instance methods. Keep the write inside Foundation.
 					// This file is private staging; move() commits the whole directory.

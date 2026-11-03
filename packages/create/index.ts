@@ -193,6 +193,7 @@ function printNextSteps(dir, ids, template) {
 		console.log(
 			'  bun run typecheck\n  bun run lint\n  bun run typegen\n  bun run test\n  bun run test:packed',
 		)
+
 		return
 	}
 

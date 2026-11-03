@@ -4,8 +4,15 @@ import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 import { createTabStopSuppression } from '../src/tab-stop.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
-const view = source.slice(source.indexOf('class AccessibleHostView'), source.indexOf('const masonElementRegistration'))
-const retain = source.slice(source.indexOf('appKitBridge.retainFocusTarget ='), source.indexOf('appKitBridge.showAnchoredPopup ='))
+const view = source.slice(
+	source.indexOf('class AccessibleHostView'),
+	source.indexOf('const masonElementRegistration'),
+)
+
+const retain = source.slice(
+	source.indexOf('appKitBridge.retainFocusTarget ='),
+	source.indexOf('appKitBridge.showAnchoredPopup ='),
+)
 
 test('AppKit scope fallback accepts programmatic focus without a Tab stop or fake action', () => {
 	let defaults = 0
@@ -16,8 +23,12 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
 	const tabStops = createTabStopSuppression()
 	const { AccessibleHostView } = runSlice(view + '\n' + retain + '\n({ AccessibleHostView })', {
 		NSView: class {
-			get canBecomeKeyView() { return true }
-			keyDown() { defaults++ }
+			get canBecomeKeyView() {
+				return true
+			}
+			keyDown() {
+				defaults++
+			}
 		},
 		NativeClass() {},
 		interop: { types: { bool: 'bool', id: 'id' } },

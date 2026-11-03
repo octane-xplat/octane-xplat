@@ -22,42 +22,67 @@ export const environment: RuntimeEnvironment = {
 	subscribe(listener) {
 		const app = host()
 		const subscribeApp = app.onAppStateChange
-		let active = true, registering = true
+		let active = true,
+			registering = true
 		let network: ConnectivityState | undefined
 		let stopApp: (() => void) | undefined, stopNetwork: (() => void) | undefined
 		const stop = () => {
-			if (!active) {return}
+			if (!active) {
+				return
+			}
 			active = false
 			const cleanups = [stopNetwork, stopApp]
 			stopNetwork = stopApp = undefined
 			let failure: unknown
 			let failed = false
 			for (const cleanup of cleanups) {
-				try { cleanup?.() } catch (error) {
-					if (!failed) { failed = true; failure = error }
+				try {
+					cleanup?.()
+				} catch (error) {
+					if (!failed) {
+						failed = true
+						failure = error
+					}
 				}
 			}
-			if (failed) {throw failure}
+			if (failed) {
+				throw failure
+			}
 		}
 		try {
 			if (typeof subscribeApp === 'function') {
 				stopApp = subscribeApp.call(app, () => {
-					if (!active || registering || host() !== app || app.onAppStateChange !== subscribeApp) {return}
-					try { listener(snapshot(network ?? connectivity.getState())) } catch {
+					if (!active || registering || host() !== app || app.onAppStateChange !== subscribeApp) {
+						return
+					}
+					try {
+						listener(snapshot(network ?? connectivity.getState()))
+					} catch {
 						// Native activity delivery must not block unrelated app listeners.
 					}
 				})
 			}
+
 			stopNetwork = connectivity.subscribe((state) => {
-				if (!active) {return}
+				if (!active) {
+					return
+				}
 				network = state
-				if (!registering) {listener(snapshot(state))}
+				if (!registering) {
+					listener(snapshot(state))
+				}
 			})
+
 			registering = false
 			// Publish once, after both cleanup handles have been acquired.
 			listener(snapshot(network ?? connectivity.getState()))
 		} catch (error) {
-			try { stop() } catch { /* Preserve the original acquisition/listener error. */ }
+			try {
+				stop()
+			} catch {
+				/* Preserve the original acquisition/listener error. */
+			}
+
 			throw error
 		}
 		return stop

@@ -6,8 +6,23 @@
 // recharts' floating-bar trick has no public equivalent.
 import { useState } from 'octane'
 import {
-	Badge, Card, Divider, Heading, HStack, Icon, Layout, LayoutContent,
-	LayoutHeader, ProgressBar, Table, Text, useMediaQuery, VStack, pixel } from '@octane-xplat/ui'
+	Badge,
+	Card,
+	Divider,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	ProgressBar,
+	Table,
+	Text,
+	useMediaQuery,
+	VStack,
+	pixel,
+} from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartLines } from './charts.tsrx'
 
@@ -47,10 +62,34 @@ const RAG_FILL: Record<Rag, string> = {
 const CHART_NEUTRAL = 'var(--color-border-emphasized, #8B98A9)'
 
 const TASK_STATUS = [
-	{ key: 'closed', label: 'Closed', tasks: 86, points: 190, color: 'var(--color-data-categorical-blue, #0171E3)' },
-	{ key: 'inProgress', label: 'In progress', tasks: 24, points: 58, color: 'var(--color-data-categorical-green, #0B991F)' },
-	{ key: 'inReview', label: 'In review', tasks: 12, points: 24, color: 'var(--color-data-categorical-orange, #EB6E00)' },
-	{ key: 'blocked', label: 'Blocked', tasks: 5, points: 22, color: 'var(--color-data-categorical-red, #F5394F)' },
+	{
+		key: 'closed',
+		label: 'Closed',
+		tasks: 86,
+		points: 190,
+		color: 'var(--color-data-categorical-blue, #0171E3)',
+	},
+	{
+		key: 'inProgress',
+		label: 'In progress',
+		tasks: 24,
+		points: 58,
+		color: 'var(--color-data-categorical-green, #0B991F)',
+	},
+	{
+		key: 'inReview',
+		label: 'In review',
+		tasks: 12,
+		points: 24,
+		color: 'var(--color-data-categorical-orange, #EB6E00)',
+	},
+	{
+		key: 'blocked',
+		label: 'Blocked',
+		tasks: 5,
+		points: 22,
+		color: 'var(--color-data-categorical-red, #F5394F)',
+	},
 	{ key: 'planned', label: 'Planned', tasks: 21, points: 26, color: CHART_NEUTRAL },
 ]
 
@@ -65,13 +104,69 @@ interface Milestone {
 }
 
 const MILESTONES: Milestone[] = [
-	{ id: 'm1', name: 'Kickoff & scoping', phase: 'build', start: 0, end: 8, status: 'onTrack', dateLabel: 'Apr 1 – Apr 9' },
-	{ id: 'm2', name: 'Architecture sign-off', phase: 'build', start: 8, end: 20, status: 'onTrack', dateLabel: 'Apr 9 – Apr 21' },
-	{ id: 'm3', name: 'Feature complete', phase: 'build', start: 20, end: 44, status: 'atRisk', dateLabel: 'Apr 21 – May 15' },
-	{ id: 'm4', name: 'Private beta', phase: 'beta', start: 44, end: 62, status: 'atRisk', dateLabel: 'May 15 – Jun 2' },
-	{ id: 'm5', name: 'Bug bash & hardening', phase: 'beta', start: 58, end: 72, status: 'blocked', dateLabel: 'May 29 – Jun 12' },
-	{ id: 'm6', name: 'GA readiness review', phase: 'ga', start: 72, end: 82, status: 'onTrack', dateLabel: 'Jun 12 – Jun 22' },
-	{ id: 'm7', name: 'Public launch', phase: 'ga', start: 82, end: 90, status: 'onTrack', dateLabel: 'Jun 22 – Jun 30' },
+	{
+		id: 'm1',
+		name: 'Kickoff & scoping',
+		phase: 'build',
+		start: 0,
+		end: 8,
+		status: 'onTrack',
+		dateLabel: 'Apr 1 – Apr 9',
+	},
+	{
+		id: 'm2',
+		name: 'Architecture sign-off',
+		phase: 'build',
+		start: 8,
+		end: 20,
+		status: 'onTrack',
+		dateLabel: 'Apr 9 – Apr 21',
+	},
+	{
+		id: 'm3',
+		name: 'Feature complete',
+		phase: 'build',
+		start: 20,
+		end: 44,
+		status: 'atRisk',
+		dateLabel: 'Apr 21 – May 15',
+	},
+	{
+		id: 'm4',
+		name: 'Private beta',
+		phase: 'beta',
+		start: 44,
+		end: 62,
+		status: 'atRisk',
+		dateLabel: 'May 15 – Jun 2',
+	},
+	{
+		id: 'm5',
+		name: 'Bug bash & hardening',
+		phase: 'beta',
+		start: 58,
+		end: 72,
+		status: 'blocked',
+		dateLabel: 'May 29 – Jun 12',
+	},
+	{
+		id: 'm6',
+		name: 'GA readiness review',
+		phase: 'ga',
+		start: 72,
+		end: 82,
+		status: 'onTrack',
+		dateLabel: 'Jun 12 – Jun 22',
+	},
+	{
+		id: 'm7',
+		name: 'Public launch',
+		phase: 'ga',
+		start: 82,
+		end: 90,
+		status: 'onTrack',
+		dateLabel: 'Jun 22 – Jun 30',
+	},
 ]
 
 interface Workstream extends Record<string, unknown> {
@@ -85,14 +180,78 @@ interface Workstream extends Record<string, unknown> {
 }
 
 const WORKSTREAMS: Workstream[] = [
-	{ id: 'w1', name: 'Core platform', owner: 'Priya Raman', phase: 'build', percent: 100, due: '2026-04-21', status: 'onTrack' },
-	{ id: 'w2', name: 'Data pipeline', owner: 'Marcus Webb', phase: 'build', percent: 82, due: '2026-05-08', status: 'atRisk' },
-	{ id: 'w3', name: 'Admin console', owner: 'Lena Fischer', phase: 'build', percent: 91, due: '2026-05-15', status: 'onTrack' },
-	{ id: 'w4', name: 'Beta onboarding', owner: 'Tom Okafor', phase: 'beta', percent: 64, due: '2026-06-02', status: 'atRisk' },
-	{ id: 'w5', name: 'Load & reliability', owner: 'Dana Whitfield', phase: 'beta', percent: 38, due: '2026-06-12', status: 'blocked' },
-	{ id: 'w6', name: 'Docs & enablement', owner: 'Sofia Marín', phase: 'ga', percent: 55, due: '2026-06-22', status: 'onTrack' },
-	{ id: 'w7', name: 'Launch marketing', owner: 'Kenji Watanabe', phase: 'ga', percent: 41, due: '2026-06-22', status: 'onTrack' },
-	{ id: 'w8', name: 'Go-to-market ops', owner: 'Lena Fischer', phase: 'ga', percent: 30, due: '2026-06-30', status: 'atRisk' },
+	{
+		id: 'w1',
+		name: 'Core platform',
+		owner: 'Priya Raman',
+		phase: 'build',
+		percent: 100,
+		due: '2026-04-21',
+		status: 'onTrack',
+	},
+	{
+		id: 'w2',
+		name: 'Data pipeline',
+		owner: 'Marcus Webb',
+		phase: 'build',
+		percent: 82,
+		due: '2026-05-08',
+		status: 'atRisk',
+	},
+	{
+		id: 'w3',
+		name: 'Admin console',
+		owner: 'Lena Fischer',
+		phase: 'build',
+		percent: 91,
+		due: '2026-05-15',
+		status: 'onTrack',
+	},
+	{
+		id: 'w4',
+		name: 'Beta onboarding',
+		owner: 'Tom Okafor',
+		phase: 'beta',
+		percent: 64,
+		due: '2026-06-02',
+		status: 'atRisk',
+	},
+	{
+		id: 'w5',
+		name: 'Load & reliability',
+		owner: 'Dana Whitfield',
+		phase: 'beta',
+		percent: 38,
+		due: '2026-06-12',
+		status: 'blocked',
+	},
+	{
+		id: 'w6',
+		name: 'Docs & enablement',
+		owner: 'Sofia Marín',
+		phase: 'ga',
+		percent: 55,
+		due: '2026-06-22',
+		status: 'onTrack',
+	},
+	{
+		id: 'w7',
+		name: 'Launch marketing',
+		owner: 'Kenji Watanabe',
+		phase: 'ga',
+		percent: 41,
+		due: '2026-06-22',
+		status: 'onTrack',
+	},
+	{
+		id: 'w8',
+		name: 'Go-to-market ops',
+		owner: 'Lena Fischer',
+		phase: 'ga',
+		percent: 30,
+		due: '2026-06-30',
+		status: 'atRisk',
+	},
 ]
 
 interface Risk {
@@ -228,9 +387,7 @@ function TaskProgressDonut() @{
 			{TASK_STATUS.map((s) => (
 				<HStack key={s.key} gap={2} vAlign="center">
 					<Icon name="sandbox-stop" size={12} color={s.color} />
-					<Text type="supporting">
-						{s.label}
-					</Text>
+					<Text type="supporting">{s.label}</Text>
 					<Text type="supporting" color="secondary">
 						{s.tasks} tasks · {s.points} pts
 					</Text>
@@ -354,10 +511,7 @@ export function DashboardProgressTemplate() @{
 							<Text type="body" color="secondary">
 								Program status · {PHASE_LABEL[phase]} phase
 							</Text>
-							<Badge
-								label={RAG_LABEL[PROGRAM_STATUS]}
-								variant={RAG_BADGE[PROGRAM_STATUS]}
-							/>
+							<Badge label={RAG_LABEL[PROGRAM_STATUS]} variant={RAG_BADGE[PROGRAM_STATUS]} />
 						</HStack>
 					</VStack>
 					<HStack gap={2}>
@@ -388,7 +542,11 @@ export function DashboardProgressTemplate() @{
 								height={240}
 								series={[
 									{ name: 'Ideal', data: BURNDOWN.map((b) => b.ideal), color: CHART_NEUTRAL },
-									{ name: 'Actual', data: BURNDOWN.map((b) => b.actual), color: 'var(--color-data-categorical-blue, #0171E3)' },
+									{
+										name: 'Actual',
+										data: BURNDOWN.map((b) => b.actual),
+										color: 'var(--color-data-categorical-blue, #0171E3)',
+									},
 								]}
 							/>
 							<HStack gap={5} vAlign="center">

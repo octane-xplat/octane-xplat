@@ -8,6 +8,7 @@ import type { LinearGradientProps } from '../../internal-props'
  *  needs none. */
 export function LinearGradient(props: LinearGradientProps): unknown @{
 	const dir = props.direction === 'horizontal' ? 'to right' : 'to bottom'
+
 	<masonview
 		id={props.id}
 		className={props.className}

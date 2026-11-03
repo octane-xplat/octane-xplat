@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 360,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -18,6 +19,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +28,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 let osPull = false
 const check = (label: string, ok: boolean) => {
@@ -34,12 +37,15 @@ const check = (label: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string, type?: string) =>
 	[...container.nodes.values()].find((n) => n.props.id === id && (!type || n.type === type))!
+
 const spinner = (id: string) => node(id, 'activityindicator')
 const scroll = () => areaRef.current!.native as any
 const indicator = () =>
 	[...container.nodes.values()].find((n) => n.cssBaseClasses.has('vx-refresh'))!
+
 const dragFor = (view: any) => {
 	const controllers = view.observe_controllers()
 	for (let i = 0; i < controllers.get_n_items(); i++) {
@@ -50,6 +56,7 @@ const dragFor = (view: any) => {
 	}
 	throw new Error('Missing imperative pan controller')
 }
+
 async function run() {
 	root.render(Area, { axis: 'block' })
 	window.present()
@@ -237,6 +244,7 @@ async function run() {
 			})
 			print('GTK_UI_AREA_READY')
 		})
+
 		await pause(100)
 		osPull = true
 		check('actual X11 drag refreshes once through GTK picking', refreshEvents.length === before + 1)
@@ -273,12 +281,14 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
 		failure = error
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

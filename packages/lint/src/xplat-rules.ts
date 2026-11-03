@@ -831,13 +831,24 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 export function checkTsrxDefault(program, _source, filename, options) {
 	const file = norm(filename)
 	const match = /^(.*)\.(web|mobile|ios|android|macos|windows|linux|gtk)\.tsrx$/.exec(file)
-	if (!match || !file.includes('/src/') || /\/(test|tests|fixtures|vendor)\//.test(file) || fileExcluded(file, options)) {
+	if (
+		!match ||
+		!file.includes('/src/') ||
+		/\/(test|tests|fixtures|vendor)\//.test(file) ||
+		fileExcluded(file, options)
+	) {
 		return []
 	}
-	if (['.tsrx', '.tsx', '.ts'].some(extension => existsSync(match[1] + extension))) {
+	if (['.tsrx', '.tsx', '.ts'].some((extension) => existsSync(match[1] + extension))) {
 		return []
 	}
-	return [{ node: program, message: 'Platform TSRX modules need an unsuffixed implementation or declaration-only type contract.' }]
+	return [
+		{
+			node: program,
+			message:
+				'Platform TSRX modules need an unsuffixed implementation or declaration-only type contract.',
+		},
+	]
 }
 
 // ---------- style object rules (invariant #6 + NS silent drops) ----------

@@ -53,6 +53,7 @@ export function lookupGlobal(path: readonly [string, ...string[]]): unknown {
 		if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
 			return undefined
 		}
+
 		const record = value as Record<string, unknown>
 		value = key in record ? record[key] : undefined
 	}

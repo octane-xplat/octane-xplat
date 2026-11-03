@@ -38,7 +38,11 @@ export type Command =
 	| { kind: 'stop' }
 	| { kind: 'set'; t: Transform }
 	| { kind: 'settle'; t: Transform }
-	| { kind: 'inertia'; velocity: XY; bounds: { minX: number; maxX: number; minY: number; maxY: number } }
+	| {
+			kind: 'inertia'
+			velocity: XY
+			bounds: { minX: number; maxX: number; minY: number; maxY: number }
+	  }
 	| { kind: 'presence'; value: number }
 	| { kind: 'restorePresence' }
 	| { kind: 'dragging'; value: boolean }
@@ -52,7 +56,16 @@ const ZOOMED = 1.01
 type Gesture =
 	| { kind: 'pending' | 'pan' | 'dismiss'; start: XY; x0: number; y0: number; pointer: PointerKind }
 	| { kind: 'track'; start: XY; pointer: PointerKind }
-	| { kind: 'pinch'; d0: number; m0: XY; m: XY; s0: number; x0: number; y0: number; wasZoomed: boolean }
+	| {
+			kind: 'pinch'
+			d0: number
+			m0: XY
+			m: XY
+			s0: number
+			x0: number
+			y0: number
+			wasZoomed: boolean
+	  }
 
 const dist = (a: XY, b: XY) => Math.hypot(a.x - b.x, a.y - b.y)
 const mid = (a: XY, b: XY): XY => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 })
@@ -99,7 +112,11 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 	const letGo = (dy: number, v: XY, cancelled: boolean): Command[] => {
 		const out: Command[] = [{ kind: 'dragging', value: false }]
 		const projected = dy + v.y * 0.2
-		if (!cancelled && Math.abs(projected) > env.view().h * 0.15 && Math.sign(projected) === Math.sign(dy)) {
+		if (
+			!cancelled &&
+			Math.abs(projected) > env.view().h * 0.15 &&
+			Math.sign(projected) === Math.sign(dy)
+		) {
 			out.push({ kind: 'close', velocity: v })
 		} else {
 			out.push({ kind: 'settle', t: { x: 0, y: 0, scale: 1 } }, { kind: 'restorePresence' })
@@ -109,7 +126,9 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 	/** Spring target zoomed about a point (upstream `settle` + `zoomTo`). */
 	const settleTo = (s1: number, focus: XY | null): Command[] => {
 		const f = env.fit()
-		if (!f) {return []}
+		if (!f) {
+			return []
+		}
 		const view = env.view()
 		const t = env.transform()
 		const s0 = t.scale
@@ -140,16 +159,26 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 					g = null
 					return []
 				}
+
 				const t = env.transform()
 				g = { kind: 'pending', start: intent.at, x0: t.x, y0: t.y, pointer: intent.pointer }
 				return [{ kind: 'stop' }]
 			}
 			case 'panMove': {
-				if (!g || g.kind === 'pinch') {return []}
-				if (!ready()) {return reset()}
+				if (!g || g.kind === 'pinch') {
+					return []
+				}
+
+				if (!ready()) {
+					return reset()
+				}
+
 				const p = intent.at
 				if (g.kind === 'pending') {
-					if (dist(p, g.start) < SLOP) {return []}
+					if (dist(p, g.start) < SLOP) {
+						return []
+					}
+
 					const adx = Math.abs(p.x - g.start.x)
 					const ady = Math.abs(p.y - g.start.y)
 					const s = env.transform().scale
@@ -161,20 +190,24 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 							g = null
 							return []
 						}
+
 						g = { ...g, kind: 'dismiss' }
 						return [{ kind: 'dragging', value: true }]
 					} else {
 						// A mouse swiping slightly diagonally is still swiping; only a clearly vertical drag dismisses.
 						const horizontal =
 							g.pointer === 'mouse' && env.itemCount() > 1 ? ady <= adx * 1.5 : adx > ady
+
 						if (!horizontal) {
 							g = { ...g, kind: 'dismiss' }
 							return [{ kind: 'dragging', value: true }]
 						}
+
 						g = { kind: 'track', start: g.start, pointer: g.pointer }
 						return [{ kind: 'track', phase: 'start', dx: 0, vx: 0 }]
 					}
 				}
+
 				const dx = p.x - g.start.x
 				const dy = p.y - g.start.y
 				if (g.kind === 'pan') {
@@ -192,14 +225,24 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 						},
 					]
 				}
-				if (g.kind === 'dismiss') {return pull(g.start, dx, dy)}
+
+				if (g.kind === 'dismiss') {
+					return pull(g.start, dx, dy)
+				}
+
 				return [{ kind: 'track', phase: 'move', dx, vx: 0 }]
 			}
 			case 'panEnd': {
-				if (!g || g.kind === 'pinch') {return []}
+				if (!g || g.kind === 'pinch') {
+					return []
+				}
+
 				const gesture = g
 				g = null
-				if (gesture.kind === 'pending') {return []}
+				if (gesture.kind === 'pending') {
+					return []
+				}
+
 				if (gesture.kind === 'track') {
 					return [
 						{
@@ -212,7 +255,11 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 						},
 					]
 				}
-				if (gesture.kind === 'dismiss') {return letGo(intent.at.y - gesture.start.y, intent.velocity, intent.cancelled)}
+
+				if (gesture.kind === 'dismiss') {
+					return letGo(intent.at.y - gesture.start.y, intent.velocity, intent.cancelled)
+				}
+
 				const t = env.transform()
 				return [
 					{
@@ -223,11 +270,15 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 				]
 			}
 			case 'pinchStart': {
-				if (env.maxZoom() <= 1) {return reset()}
+				if (env.maxZoom() <= 1) {
+					return reset()
+				}
+
 				if (!ready()) {
 					g = null
 					return []
 				}
+
 				const t = env.transform()
 				g = {
 					kind: 'pinch',
@@ -239,12 +290,23 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 					y0: t.y,
 					wasZoomed: t.scale > ZOOMED,
 				}
+
 				return [{ kind: 'stop' }]
 			}
 			case 'pinchMove': {
-				if (g?.kind !== 'pinch') {return []}
-				if (env.maxZoom() <= 1) { g = null; return settleTo(1, null) }
-				if (!ready()) {return reset()}
+				if (g?.kind !== 'pinch') {
+					return []
+				}
+
+				if (env.maxZoom() <= 1) {
+					g = null
+					return settleTo(1, null)
+				}
+
+				if (!ready()) {
+					return reset()
+				}
+
 				const f = env.fit()!
 				const max = env.maxZoom()
 				const pinch = g
@@ -261,19 +323,25 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 						},
 					},
 				]
+
 				if (!pinch.wasZoomed) {
 					out.push({ kind: 'presence', value: clamp((s - 0.5) / 0.5, 0, 1) })
 				}
+
 				return out
 			}
 			case 'pinchEnd': {
-				if (g?.kind !== 'pinch') {return []}
+				if (g?.kind !== 'pinch') {
+					return []
+				}
+
 				const pinch = g
 				g = null
 				const t = env.transform()
 				if (!pinch.wasZoomed && t.scale < 0.85 && !intent.cancelled) {
 					return [{ kind: 'close' }]
 				}
+
 				const s1 = clamp(t.scale, 1, env.maxZoom())
 				const f = env.fit()!
 				return [
@@ -291,7 +359,10 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 			}
 			case 'tap': {
 				const f = env.fit()
-				if (!f) {return []}
+				if (!f) {
+					return []
+				}
+
 				const t = env.transform()
 				const box = { x: f.x + t.x, y: f.y + t.y, w: f.w * t.scale, h: f.h * t.scale }
 				const onImage =
@@ -299,6 +370,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 					intent.at.x <= box.x + box.w &&
 					intent.at.y >= box.y &&
 					intent.at.y <= box.y + box.h
+
 				return [
 					{
 						kind: 'tap',
@@ -311,16 +383,23 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 			}
 			case 'doubleTap': {
 				const f = env.fit()
-				if (!f) {return []}
+				if (!f) {
+					return []
+				}
+
 				const view = env.view()
 				if (env.transform().scale > ZOOMED) {
 					return settleTo(1, null)
 				}
+
 				return settleTo(Math.max(2, view.w / f.w, view.h / f.h), intent.at)
 			}
 			case 'zoomNow': {
 				const f = env.fit()
-				if (!f) {return []}
+				if (!f) {
+					return []
+				}
+
 				const t = env.transform()
 				const s1 = clamp(intent.scale, 1, env.maxZoom())
 				const b = bounds(s1)

@@ -80,6 +80,7 @@ export function ListItem(props: ListItemProps): unknown @{
 		accessibilityValue: props.accessibilityValue,
 		accessibilityLiveRegion: props.accessibilityLiveRegion,
 	}
+
 	const state = { disabled: props.isDisabled, selected: props.isSelected }
 	const content = (
 		<>

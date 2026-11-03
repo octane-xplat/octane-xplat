@@ -74,6 +74,7 @@ function MainTable() @{
 		selectedKeys,
 		setSelectedKeys,
 	})
+
 	state.selectionCount = selectionState.selectedCount
 	const [sortKeys, setSortKeys] = useState<any[]>([])
 	const { sortedData, sortConfig } = useTableSortableState<Record<string, any>>({
@@ -84,12 +85,15 @@ function MainTable() @{
 			setSortKeys(sort)
 		},
 	})
+
 	const { filters, onFilterChange } = useTableFilterState()
 	state.filterApplied = JSON.stringify(filters)
 	const shownData = sortedData.filter(
 		(row: any) =>
-			filters.name == null || String(row.name).toLowerCase().includes(String(filters.name).toLowerCase()),
+			filters.name == null ||
+			String(row.name).toLowerCase().includes(String(filters.name).toLowerCase()),
 	)
+
 	const plugins = {
 		sort: useTableSortable(sortConfig),
 		selection: useTableSelection(selectionConfig),
@@ -109,6 +113,7 @@ function MainTable() @{
 					} else {
 						next.add(key)
 					}
+
 					state.expanded = [...next]
 					return next
 				})
@@ -148,6 +153,7 @@ function GroupedTable() @{
 				} else {
 					next.add(key)
 				}
+
 				state.collapsedGroups = [...next]
 				return next
 			})
@@ -228,6 +234,7 @@ function SettingsTable() @{
 		activeColumnKeys,
 		onChangeActiveColumnKeys: (keys: ReadonlyArray<string>) => setActiveColumnKeys([...keys]),
 	})
+
 	state.settings = {
 		toggleColumn: settings.toggleColumn,
 		showAllColumns: settings.showAllColumns,
@@ -236,11 +243,7 @@ function SettingsTable() @{
 	}
 
 	<View style={{ flexDirection: 'column' }}>
-		<Pressable
-			id="col-toggle"
-			onPress={() => settings.toggleColumn('team')}
-			style={{ padding: 6 }}
-		>
+		<Pressable id="col-toggle" onPress={() => settings.toggleColumn('team')} style={{ padding: 6 }}>
 			<Text>TOGGLE TEAM COL</Text>
 		</Pressable>
 		<Table

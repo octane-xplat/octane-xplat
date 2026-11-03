@@ -9,10 +9,12 @@ const source = await readFile(
 	new URL('../../../packages/demos/src/auth-guide/session.ts', import.meta.url),
 	'utf8',
 )
+
 const output = ts.transpile(source, {
 	module: ts.ModuleKind.CommonJS,
 	target: ts.ScriptTarget.ES2022,
 })
+
 const exports = {}
 vm.runInNewContext(output, { exports, require: () => ({ createStore }) })
 const { createAccountSession } = exports
@@ -67,7 +69,9 @@ test('credential deletion failure keeps private UI retired and requires a retry'
 	const account = createAccountSession(
 		fake({
 			signOut: async () => {
-				if (++attempts === 1) {throw new Error('storage error with private details')}
+				if (++attempts === 1) {
+					throw new Error('storage error with private details')
+				}
 			},
 		}),
 	)

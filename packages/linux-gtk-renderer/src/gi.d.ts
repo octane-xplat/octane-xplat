@@ -430,6 +430,7 @@ declare module 'gi://GLib' {
 			run(): void
 			quit(): void
 		}
+
 		const Bytes: any
 		function base64_decode(value: string): Uint8Array
 		const MAJOR_VERSION: number
@@ -534,6 +535,7 @@ declare module 'gi://Gdk?version=4.0' {
 			width: number
 			height: number
 		}
+
 		const SeatCapability: {
 			NONE: number
 			POINTER: number
@@ -543,9 +545,11 @@ declare module 'gi://Gdk?version=4.0' {
 			ALL_POINTING: number
 			ALL: number
 		}
+
 		class Seat {
 			get_capabilities(): number
 		}
+
 		class Display {
 			static get_default(): Display | null
 			list_seats(): Seat[]
@@ -582,6 +586,7 @@ declare module 'gi://Gio' {
 			static new_from_bytes(bytes: unknown): MemoryInputStream
 			[key: string]: any
 		}
+
 		class File {
 			static new_for_path(path: string): File
 			static new_for_uri(uri: string): File
@@ -620,6 +625,7 @@ declare module 'gi://GdkPixbuf' {
 		const Pixbuf: any
 		const InterpType: { BILINEAR: number; [key: string]: number }
 	}
+
 	export default GdkPixbuf
 }
 

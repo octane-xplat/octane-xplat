@@ -18,6 +18,7 @@ function element(target: object): HTMLElement {
 	}
 	return target
 }
+
 function dimensions(host: HTMLElement, options: NormalizedCaptureOptions) {
 	const bounds = host.getBoundingClientRect()
 	const ratio = host.ownerDocument.defaultView?.devicePixelRatio ?? 1
@@ -31,6 +32,7 @@ function dimensions(host: HTMLElement, options: NormalizedCaptureOptions) {
 		sourceHeight,
 	}
 }
+
 function assertOptions(options: NormalizedCaptureOptions) {
 	if (options.fileName !== undefined) {
 		throw new UnavailabilityError('Custom capture file names on web')
@@ -45,6 +47,7 @@ function assertOptions(options: NormalizedCaptureOptions) {
 		throw new UnavailabilityError('Native capture strategies on web')
 	}
 }
+
 async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
 	assertOptions(options)
 	const host = element(target)
@@ -73,6 +76,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 			allowTaint: false,
 			logging: false,
 		})
+
 		element(host)
 		checkDimensions(canvas.width, canvas.height)
 		output = canvas
@@ -84,20 +88,25 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 			if (!context) {
 				throw new Error('Could not allocate a capture canvas')
 			}
+
 			if (options.format === 'jpg') {
 				context.fillStyle = '#ffffff'
 				context.fillRect(0, 0, output.width, output.height)
 			}
+
 			context.drawImage(canvas, 0, 0, output.width, output.height)
 		}
+
 		const mime = options.format === 'jpg' ? 'image/jpeg' : 'image/png'
 		if (options.result !== 'tmpfile') {
 			const uri = output.toDataURL(mime, options.quality)
 			if (!uri.startsWith(`data:${mime};base64,`)) {
 				throw new Error('Browser did not encode the requested image format')
 			}
+
 			return options.result === 'data-uri' ? uri : uri.slice(uri.indexOf(',') + 1)
 		}
+
 		const blob = await new Promise<Blob>((resolve, reject) =>
 			output!.toBlob(
 				(value) => {
@@ -111,6 +120,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 				options.quality,
 			),
 		)
+
 		element(host)
 		const uri = URL.createObjectURL(blob)
 		owned.add(uri)
@@ -120,12 +130,14 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 			output.width = 0
 			output.height = 0
 		}
+
 		if (canvas) {
 			canvas.width = 0
 			canvas.height = 0
 		}
 	}
 }
+
 export const backend: CaptureBackend = {
 	capabilities: () => ({
 		view: typeof document !== 'undefined' && typeof HTMLCanvasElement !== 'undefined',
@@ -159,6 +171,7 @@ export const backend: CaptureBackend = {
 					throw error
 				}
 			}
+
 			await new Promise<void>((resolve) => setTimeout(resolve, 16))
 		}
 		throw new Error('ViewShot unmounted while waiting for layout')

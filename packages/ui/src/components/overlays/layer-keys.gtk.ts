@@ -7,9 +7,7 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 // dialog layer handles it. Popover sessions keep their popup-events path.
 configureLayerKeys(() => {
 	const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
-	return (
-		host?.installKeyMonitor?.((event: any) => dispatchLayerKey(event)) ?? (() => {})
-	)
+	return host?.installKeyMonitor?.((event: any) => dispatchLayerKey(event)) ?? (() => {})
 })
 
 /** GTK sessions dispatch Escape through the shared layer stack after native

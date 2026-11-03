@@ -114,14 +114,14 @@ function appWindow() {
 	for (const scene of scenes.allObjects ?? []) {
 		if (scene instanceof UIWindowScene) {
 			const windows: unknown = scene.windows
-			for (const w of (typeof windows === 'object' &&
+			for (const w of typeof windows === 'object' &&
 			windows !== null &&
 			'allObjects' in windows &&
 			Array.isArray(windows.allObjects)
 				? windows.allObjects
 				: Array.isArray(windows)
 					? windows
-					: [])) {
+					: []) {
 				if (w.isKeyWindow) {
 					return w
 				}

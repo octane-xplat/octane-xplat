@@ -5,6 +5,7 @@ export const MediaType = {
 	AUDIO: 'audio',
 	VIDEO: 'video',
 } as const
+
 /** One of the device-library media kinds. */
 export type MediaType = (typeof MediaType)[keyof typeof MediaType]
 /** Apple collection kinds; Android does not expose smart collections. */
@@ -23,6 +24,7 @@ export const PermissionStatus = {
 	DENIED: 'denied',
 	UNDETERMINED: 'undetermined',
 } as const
+
 /** Granted, denied, or not yet determined by the OS. */
 export type PermissionStatus = (typeof PermissionStatus)[keyof typeof PermissionStatus]
 /** Android 13+ read-access categories; omitted means all three. */
@@ -37,6 +39,7 @@ export interface PermissionResponse {
 	expires: 'never'
 	accessPrivileges: 'all' | 'limited' | 'none'
 }
+
 /** Octane hook settings. Defaults: read on mount, no prompt, read/write access. */
 export interface PermissionHookOptions {
 	writeOnly?: boolean
@@ -46,6 +49,7 @@ export interface PermissionHookOptions {
 	/** Prompt on mount only when explicitly enabled. Prefer an action calling the request callback. */
 	request?: boolean
 }
+
 /** Filter and ordering keys supported by this package. */
 export const AssetField = {
 	CREATION_TIME: 'creationTime',
@@ -56,6 +60,7 @@ export const AssetField = {
 	DURATION: 'duration',
 	IS_FAVORITE: 'isFavorite',
 } as const
+
 /** A validated metadata query key. */
 export type AssetField = (typeof AssetField)[keyof typeof AssetField]
 /** Values accepted by equality and inclusion filters. Times and duration use seconds. */
@@ -68,11 +73,13 @@ export interface AssetFieldValueMap {
 	duration: number
 	isFavorite: boolean
 }
+
 /** Query ordering. ascending defaults to true. */
 export interface SortDescriptor {
 	key: AssetField
 	ascending?: boolean
 }
+
 /** Current metadata without file export. Dimensions use pixels; timestamps and duration use seconds. */
 export interface AssetMetadata {
 	id: string
@@ -86,6 +93,7 @@ export interface AssetMetadata {
 	modificationTime: number | null
 	isFavorite: boolean
 }
+
 /** Metadata plus a readable URI. Release its URI after preview/upload finishes. */
 export interface AssetInfo extends Omit<AssetMetadata, 'filename' | 'width' | 'height'> {
 	filename: string
@@ -93,22 +101,26 @@ export interface AssetInfo extends Omit<AssetMetadata, 'filename' | 'width' | 'h
 	height: number
 	uri: string
 }
+
 /** Current collection metadata. Android returns null for type. */
 export interface AlbumMetadata {
 	id: string
 	title: string
 	type: AlbumType | null
 }
+
 /** Asset location in decimal degrees. Android location metadata is unavailable. */
 export interface Location {
 	latitude: number
 	longitude: number
 }
+
 /** Recorded pixel dimensions, without decoding the full image. */
 export interface Shape {
 	width: number
 	height: number
 }
+
 /** Library invalidation. This version emits hasIncrementalChanges: false; reload your page. */
 export interface MediaLibraryAssetsChangeEvent {
 	hasIncrementalChanges: boolean
@@ -116,6 +128,7 @@ export interface MediaLibraryAssetsChangeEvent {
 	deletedAssets?: string[]
 	updatedAssets?: string[]
 }
+
 /** Own one change subscription; remove is idempotent and stops queued delivery. */
 export interface EventSubscription {
 	remove(): void

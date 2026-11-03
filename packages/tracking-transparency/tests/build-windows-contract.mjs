@@ -7,6 +7,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const root = process.env.XPLAT_TRACKING_PACKAGE ?? fileURLToPath(new URL('..', import.meta.url))
 const output =
 	process.env.XPLAT_TRACKING_CONTRACT_OUTPUT ?? join(tmpdir(), 'xplat-tracking-windows-contract')
+
 const require = createRequire(join(root, 'package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
 const result = await build({
@@ -23,9 +24,11 @@ const result = await build({
 		},
 	},
 })
+
 const chunks = (Array.isArray(result) ? result : [result])
 	.flatMap((value) => value.output)
 	.filter((value) => value.type === 'chunk')
+
 assert.equal(chunks.length, 1)
 await mkdir(output, { recursive: true })
 await writeFile(join(output, 'windows-contract.mjs'), chunks[0].code)

@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 350,
 	decorated: false,
 })
+
 const scroll = new Gtk.ScrolledWindow()
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 scroll.set_child(host)
@@ -20,6 +21,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -28,6 +30,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -35,6 +38,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const popup = (anchor: any) => {
 	for (let child = anchor.get_first_child(); child; child = child.get_next_sibling()) {
@@ -44,6 +48,7 @@ const popup = (anchor: any) => {
 	}
 	throw new Error('no native popover')
 }
+
 const emit = (anchor: any, type: string) => {
 	const model = anchor.observe_controllers()
 	for (let i = 0; i < model.get_n_items(); i++) {
@@ -57,6 +62,7 @@ const emit = (anchor: any, type: string) => {
 		}
 	}
 }
+
 let props: Parameters<typeof Tooltips>[0] = { value: 'First' }
 const render = () => root.render(Tooltips, props)
 let ack = 0
@@ -69,6 +75,7 @@ keys.connect('key-pressed', (_controller: any, key: number) => {
 	}
 	return false
 })
+
 window.add_controller(keys)
 async function phase(name: string) {
 	const bounds = node('tip-anchor').view!.getBounds()
@@ -87,6 +94,7 @@ async function phase(name: string) {
 	check('OS phase completed ' + name, ack >= next)
 	await pause(140)
 }
+
 let osInput = false
 async function run() {
 	render()
@@ -303,11 +311,13 @@ async function run() {
 			'actual Tab focuses trigger and opens tooltip',
 			window.get_focus() === field.get_delegate() && native.get_mapped(),
 		)
+
 		await phase('escape')
 		check(
 			'actual Escape dismisses without moving focus',
 			!native.get_visible() && window.get_focus() === field.get_delegate(),
 		)
+
 		osInput = true
 	}
 	peer.focus()
@@ -353,6 +363,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -364,6 +375,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

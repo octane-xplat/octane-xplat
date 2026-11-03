@@ -9,6 +9,7 @@ function formatValue(value: VideoFormat = 'mp4'): VideoFormat {
 	}
 	return value
 }
+
 export function createConverter(backend: ConversionBackend): {
 	isAvailable(format?: VideoFormat): Promise<boolean>
 	convertGif(source: string, options?: GifConversionOptions): ConversionJob

@@ -11,43 +11,122 @@ function fixture() {
 	let tabMode = false
 	let recalc = 0
 	let acceptsFocus = true
-	const window: any = { firstResponder: null, recalculateKeyViewLoop: () => recalc++, makeFirstResponder(view: any) {
-		if (!acceptsFocus) {return false}
-		this.firstResponder = view; return true
-	} }
+	const window: any = {
+		firstResponder: null,
+		recalculateKeyViewLoop: () => recalc++,
+		makeFirstResponder(view: any) {
+			if (!acceptsFocus) {
+				return false
+			}
+			this.firstResponder = view
+			return true
+		},
+	}
 	const root: any = { window, userInterfaceLayoutDirection: 0 }
 	const row = (id: string, y: number) => {
-		const view: any = { window, superview: root, hidden: false, frame: { origin: { y } }, bounds: {}, scrollRectToVisible() {}, isAccessibilityEnabled: () => true }
+		const view: any = {
+			window,
+			superview: root,
+			hidden: false,
+			frame: { origin: { y } },
+			bounds: {},
+			scrollRectToVisible() {},
+			isAccessibilityEnabled: () => true,
+		}
 		return { key: id, view }
 	}
 	let rows = [row('a', 0), row('b', 0), row('c', 20), row('d', 20)]
-	const native = { NSNotificationCenter: { defaultCenter: {
-		addObserverForNameObjectQueueUsingBlock(_name: string, _object: unknown, _queue: unknown, handler: typeof notify) {
-			notify = handler; registrations++; return registrations === 1 ? 'observer' : `observer-${registrations}`
+	const native = {
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock(
+					_name: string,
+					_object: unknown,
+					_queue: unknown,
+					handler: typeof notify,
+				) {
+					notify = handler
+					registrations++
+					return registrations === 1 ? 'observer' : `observer-${registrations}`
+				},
+				removeObserver: (token: unknown) => removed.push(token),
+			},
 		},
-		removeObserver: (token: unknown) => removed.push(token),
-	} } }
-	const bridge = { keyboardEventsSupported: true, suppressTabStop(view: any) {
-		suppressed.add(view); return () => suppressed.delete(view)
-	} }
-	const navigation = createAppKitGridNavigation({
-		root: () => root, rows: () => rows, columns: () => columns, tabMode: () => tabMode,
-		press: (row, event, toggleOnly) => presses.push([row.key, event.shiftKey, toggleOnly]),
-	}, () => native, () => bridge)
+	}
+	const bridge = {
+		keyboardEventsSupported: true,
+		suppressTabStop(view: any) {
+			suppressed.add(view)
+			return () => suppressed.delete(view)
+		},
+	}
+	const navigation = createAppKitGridNavigation(
+		{
+			root: () => root,
+			rows: () => rows,
+			columns: () => columns,
+			tabMode: () => tabMode,
+			press: (row, event, toggleOnly) => presses.push([row.key, event.shiftKey, toggleOnly]),
+		},
+		() => native,
+		() => bridge,
+	)
 	const send = (key: string, extra = {}) => {
-		let prevented = false, stopped = false
+		let prevented = false,
+			stopped = false
 		navigation.onKeyDown({
-			key, code: '', eventName: 'keyDown', object: root, currentTarget: root, target: window.firstResponder,
-			altKey: false, ctrlKey: false, metaKey: false, shiftKey: false, repeat: false, isComposing: false,
-			get defaultPrevented() { return prevented }, preventDefault: () => { prevented = true }, stopPropagation: () => { stopped = true }, ...extra,
+			key,
+			code: '',
+			eventName: 'keyDown',
+			object: root,
+			currentTarget: root,
+			target: window.firstResponder,
+			altKey: false,
+			ctrlKey: false,
+			metaKey: false,
+			shiftKey: false,
+			repeat: false,
+			isComposing: false,
+			get defaultPrevented() {
+				return prevented
+			},
+			preventDefault: () => {
+				prevented = true
+			},
+			stopPropagation: () => {
+				stopped = true
+			},
+			...extra,
 		})
 		return { prevented, stopped }
 	}
-	return { navigation, root, window, rows, suppressed, removed, presses, native, bridge, send,
-		update: () => notify({ object: window }), registrations: () => registrations, recalc: () => recalc,
+	return {
+		navigation,
+		root,
+		window,
+		rows,
+		suppressed,
+		removed,
+		presses,
+		native,
+		bridge,
+		send,
+		update: () => notify({ object: window }),
+		registrations: () => registrations,
+		recalc: () => recalc,
 		getNotify: () => notify,
-		setRows: (next: typeof rows) => { rows = next }, setColumns: (value?: number) => { columns = value },
-		setTabMode: (value: boolean) => { tabMode = value }, rejectFocus: () => { acceptsFocus = false },
+		setRows: (next: typeof rows) => {
+			rows = next
+		},
+		setColumns: (value?: number) => {
+			columns = value
+		},
+		setTabMode: (value: boolean) => {
+			tabMode = value
+		},
+		rejectFocus: () => {
+			acceptsFocus = false
+		},
 	}
 }
 
@@ -104,7 +183,13 @@ it('preserves descendant editing, composition, shortcuts and already prevented e
 	expect(env.send('ArrowRight').prevented).toBe(false)
 	expect(env.send('Enter').prevented).toBe(false)
 	env.window.firstResponder = env.rows[0].view
-	for (const extra of [{ isComposing: true }, { altKey: true }, { ctrlKey: true }, { metaKey: true }, { defaultPrevented: true }]) {
+	for (const extra of [
+		{ isComposing: true },
+		{ altKey: true },
+		{ ctrlKey: true },
+		{ metaKey: true },
+		{ defaultPrevented: true },
+	]) {
 		expect(env.send('ArrowDown', extra).stopped).toBe(false)
 		expect(env.window.firstResponder).toBe(env.rows[0].view)
 	}
@@ -118,7 +203,10 @@ it('distinguishes Enter action and Space selection and preserves Shift range inf
 	env.window.firstResponder = env.rows[0].view
 	expect(env.send('Enter').prevented).toBe(true)
 	expect(env.send(' ', { shiftKey: true }).prevented).toBe(true)
-	expect(env.presses).toEqual([['a', false, false], ['a', true, true]])
+	expect(env.presses).toEqual([
+		['a', false, false],
+		['a', true, true],
+	])
 	env.navigation.dispose()
 })
 
@@ -173,7 +261,9 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 	let count = 0
 	const suppress = env.bridge.suppressTabStop
 	env.bridge.suppressTabStop = (view: any) => {
-		if (++count === 2) {throw new Error('unavailable')}
+		if (++count === 2) {
+			throw new Error('unavailable')
+		}
 		return suppress(view)
 	}
 	env.navigation.start()
@@ -184,7 +274,9 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 
 it('leaves focus outside an all-disabled grid and releases every exclusion on teardown', () => {
 	const env = fixture()
-	for (const row of env.rows) {row.view.isAccessibilityEnabled = () => false}
+	for (const row of env.rows) {
+		row.view.isAccessibilityEnabled = () => false
+	}
 	const outside = { window: env.window }
 	env.window.firstResponder = outside
 	env.navigation.start()
@@ -198,21 +290,47 @@ it('leaves focus outside an all-disabled grid and releases every exclusion on te
 })
 
 it('retires old notification closures before another observation generation starts', () => {
-	const env = fixture(); env.navigation.start(); const stale = env.getNotify()
-	env.navigation.dispose(); env.navigation.start(); env.window.firstResponder = env.rows[2].view
-	stale({ object: env.window }); expect(env.suppressed.has(env.rows[2].view)).toBe(true)
-	env.update(); expect(env.suppressed.has(env.rows[2].view)).toBe(false)
-	env.navigation.dispose(); env.navigation.dispose(); expect(env.removed).toEqual(['observer', 'observer-2'])
+	const env = fixture()
+	env.navigation.start()
+	const stale = env.getNotify()
+	env.navigation.dispose()
+	env.navigation.start()
+	env.window.firstResponder = env.rows[2].view
+	stale({ object: env.window })
+	expect(env.suppressed.has(env.rows[2].view)).toBe(true)
+	env.update()
+	expect(env.suppressed.has(env.rows[2].view)).toBe(false)
+	env.navigation.dispose()
+	env.navigation.dispose()
+	expect(env.removed).toEqual(['observer', 'observer-2'])
 })
 
 it('attempts each observation/Tab lease removal once despite native release and key-loop failure', () => {
-	const env = fixture(), suppress = env.bridge.suppressTabStop
+	const env = fixture(),
+		suppress = env.bridge.suppressTabStop
 	let releases = 0
-	env.bridge.suppressTabStop = (view: any) => { const release = suppress(view); return () => { release(); releases++; throw Error('private lease detail') } }
-	env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => { env.removed.push(token); throw Error('private observer detail') }
-	env.navigation.start(); const stale = env.getNotify()
-	env.window.recalculateKeyViewLoop = () => { throw Error('private loop detail') }
-	expect(() => env.navigation.dispose()).not.toThrow(); expect(() => env.navigation.dispose()).not.toThrow()
-	expect(releases).toBe(3); expect(env.suppressed.size).toBe(0); expect(env.removed).toEqual(['observer'])
-	expect(() => stale({ object: env.window })).not.toThrow(); expect(env.suppressed.size).toBe(0)
+	env.bridge.suppressTabStop = (view: any) => {
+		const release = suppress(view)
+		return () => {
+			release()
+			releases++
+			throw Error('private lease detail')
+		}
+	}
+	env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => {
+		env.removed.push(token)
+		throw Error('private observer detail')
+	}
+	env.navigation.start()
+	const stale = env.getNotify()
+	env.window.recalculateKeyViewLoop = () => {
+		throw Error('private loop detail')
+	}
+	expect(() => env.navigation.dispose()).not.toThrow()
+	expect(() => env.navigation.dispose()).not.toThrow()
+	expect(releases).toBe(3)
+	expect(env.suppressed.size).toBe(0)
+	expect(env.removed).toEqual(['observer'])
+	expect(() => stale({ object: env.window })).not.toThrow()
+	expect(env.suppressed.size).toBe(0)
 })

@@ -56,16 +56,19 @@ export class SequenceMachine {
 			if (state.bindingId !== binding.id || state.matchedScope !== matchedScope) {
 				continue
 			}
+
 			if (binding.keyEvent !== normalized.type) {
 				nextStates.push(state)
 				keptState = true
 				continue
 			}
+
 			if (normalized.repeat && !binding.allowRepeat) {
 				nextStates.push(state)
 				keptState = true
 				continue
 			}
+
 			const expectedStep = binding.steps[state.stepIndex]
 			if (expectedStep && matchesStep(normalized, expectedStep)) {
 				if (state.stepIndex === binding.steps.length - 1) {
@@ -83,6 +86,7 @@ export class SequenceMachine {
 						stepIndex: state.stepIndex + 1,
 						expiresAt: now + sequenceTimeout,
 					})
+
 					keptState = true
 				}
 			}
@@ -108,6 +112,7 @@ export class SequenceMachine {
 						stepIndex: 1,
 						expiresAt: now + sequenceTimeout,
 					})
+
 					keptState = true
 				}
 			}

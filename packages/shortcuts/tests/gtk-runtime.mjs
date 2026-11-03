@@ -17,6 +17,7 @@ const run = (script, input) =>
 		['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5', host, prefix + 'sh -c ' + q(script)],
 		{ input, encoding: 'utf8', timeout: 30_000, maxBuffer: 1024 * 1024 },
 	)
+
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-gtk-'))
 let remote
 try {
@@ -35,6 +36,7 @@ try {
 			minify: false,
 		},
 	})
+
 	remote = run('mktemp -d /tmp/xplat-shortcuts-XXXXXX').trim()
 	assert.match(remote, /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/)
 	run(`cat > ${q(remote + '/input.js')}`, readFileSync(join(temporary, 'input.js')))
@@ -59,11 +61,13 @@ wait "$app_pid" || result=$?
 cat output.log
 exit "$result"
 `
+
 	run(`cat > ${q(remote + '/driver.sh')}`, driver)
 	console.log(run(`xvfb-run -a sh ${q(remote + '/driver.sh')}`))
 } finally {
 	if (remote && /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/.test(remote)) {
 		run(`rm -rf ${q(remote)}`)
 	}
+
 	rmSync(temporary, { recursive: true, force: true })
 }

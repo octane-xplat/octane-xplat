@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -18,6 +19,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 140) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +28,7 @@ const pause = (ms = 140) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -34,18 +37,23 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const cells = () => nodes('vx-pininput-cell').map((n) => n.view! as any)
 const group = () => nodes('vx-pininput')[0].view!
 let native: any
 const named = (view: any, value: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, value) === null
+
 const bool = (view: any, key: number, value: boolean) =>
 	native.test_accessible_boolean_property(view, key, value) === null
+
 const state = (view: any, key: number, value: number) =>
 	native.test_accessible_state(view, key, value) === null
+
 const changes: string[] = [],
 	completed: string[] = []
+
 let props: Parameters<typeof PinScene>[0] = {
 	label: 'Code',
 	width: 280,
@@ -54,11 +62,13 @@ let props: Parameters<typeof PinScene>[0] = {
 	onValueChange: (value) => changes.push(value),
 	onComplete: (value) => completed.push(value),
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(PinScene, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -69,6 +79,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_PIN_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
@@ -88,14 +99,17 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 const focused = (view: any) => {
 	const focus = window.get_focus()
 	return focus === view || focus?.is_ancestor(view) === true
 }
+
 const text = () =>
 	cells()
 		.map((view) => view.text)
 		.join('')
+
 async function run() {
 	await render()
 	window.present()
@@ -221,6 +235,7 @@ async function run() {
 				check('automatic focus advances ' + i, focused(cells()[i + 1]))
 			}
 		}
+
 		check('each entered digit reports once', changes.join('|') === '1|12|123|1234')
 		check('completion fires once for the filled code', completed.join('|') === '1234')
 		await input(cells()[1], { click: true })
@@ -232,12 +247,14 @@ async function run() {
 			'truncation disables future edits',
 			cells().every((v, i) => v.get_editable() === i <= 1),
 		)
+
 		await input(cells()[1], { type: '5' })
 		check('refilling advances to the next empty editor', text() === '15' && focused(cells()[2]))
 		check(
 			'sequential editing retains native editors',
 			cells().every((v, i) => v === editors[i]),
 		)
+
 		await render({ secure: true })
 		await input(cells()[2], { type: '6' })
 		check('secure entry still advances', text() === '156' && focused(cells()[3]))
@@ -245,6 +262,7 @@ async function run() {
 			'secure entry remains masked',
 			cells().every((v) => !v.get_visibility()),
 		)
+
 		const count = changes.length
 		await render({ isReadOnly: true })
 		await input(cells()[3], { click: true })
@@ -267,12 +285,14 @@ async function run() {
 				}
 			},
 		})
+
 		await input(cells()[1], { click: true })
 		await input(cells()[1], { type: '9' })
 		check(
 			'controlled rejection restores the owner value',
 			text() === '1' && changes.at(-1) === '19',
 		)
+
 		check('rejected append does not advance focus', focused(cells()[1]))
 		await input(cells()[1], { type: '9' })
 		check('repeated rejection restores again', text() === '1' && changes.at(-1) === '19')
@@ -373,6 +393,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -384,6 +405,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

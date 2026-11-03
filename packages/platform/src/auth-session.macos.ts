@@ -65,10 +65,15 @@ function ensureAnchorClass() {
 				const operation = active
 				// Native wrappers can differ while denoting the same session.
 				try {
-					if (!operation || !operation.session) {return null}
+					if (!operation || !operation.session) {
+						return null
+					}
+
 					const owns = operation.session === session || operation.session.isEqual?.(session)
 					return owns && operation.window?.visible ? operation.window : null
-				} catch { return null }
+				} catch {
+					return null
+				}
 			},
 		},
 		{
@@ -118,30 +123,57 @@ const implementation: AuthSessionImpl = {
 				}
 
 				settled = true
-				const session = operation.session, provider = operation.provider
+				const session = operation.session,
+					provider = operation.provider
 				for (const observer of observers.splice(0)) {
-					try { center.removeObserver(observer) } catch { /* Retired callbacks remain inert. */ }
+					try {
+						center.removeObserver(observer)
+					} catch {
+						/* Retired callbacks remain inert. */
+					}
 				}
 				operation.session = null
 				operation.provider = null
 				operation.window = null
-				if (active === operation) {active = null}
+				if (active === operation) {
+					active = null
+				}
 				try {
-					if (session?.presentationContextProvider === provider) {session.presentationContextProvider = null}
-				} catch { /* JS ownership is already retired. */ }
+					if (session?.presentationContextProvider === provider) {
+						session.presentationContextProvider = null
+					}
+				} catch {
+					/* JS ownership is already retired. */
+				}
 				if (cancelNative) {
-					try { session?.cancel() } catch { /* Cancellation must still settle. */ }
+					try {
+						session?.cancel()
+					} catch {
+						/* Cancellation must still settle. */
+					}
 				}
 				resolve(result)
 			}
 			const observe = (name: any, object: any) => {
-				const token = center.addObserverForNameObjectQueueUsingBlock(name, object, NSOperationQueue.mainQueue, () => {
-					finish({ type: 'cancel' }, true)
-				})
-				if (!token) {throw new Error('authSession.open: presenter observation failed')}
+				const token = center.addObserverForNameObjectQueueUsingBlock(
+					name,
+					object,
+					NSOperationQueue.mainQueue,
+					() => {
+						finish({ type: 'cancel' }, true)
+					},
+				)
+				if (!token) {
+					throw new Error('authSession.open: presenter observation failed')
+				}
 				// Registration itself may synchronously deliver teardown.
-				if (settled) { try { center.removeObserver(token) } catch {} }
-				else {observers.push(token)}
+				if (settled) {
+					try {
+						center.removeObserver(token)
+					} catch {}
+				} else {
+					observers.push(token)
+				}
 			}
 
 			try {
@@ -165,26 +197,45 @@ const implementation: AuthSessionImpl = {
 				}
 
 				const app = NSApplication.sharedApplication
-				operation.window = [app.keyWindow, app.mainWindow].find((window) =>
-					window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
+				operation.window = [app.keyWindow, app.mainWindow].find(
+					(window) =>
+						window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
 				)
-				if (!operation.window) {throw new Error('authSession.open: a visible AppKit presentation window is required')}
+
+				if (!operation.window) {
+					throw new Error('authSession.open: a visible AppKit presentation window is required')
+				}
+
 				center = NSNotificationCenter.defaultCenter
 				observe(NSWindowWillCloseNotification, operation.window)
-				if (settled) {return}
+				if (settled) {
+					return
+				}
+
 				observe(NSApplicationWillTerminateNotification, null)
-				if (settled) {return}
+				if (settled) {
+					return
+				}
 
 				ensureAnchorClass()
-				if (settled) {return}
+				if (settled) {
+					return
+				}
+
 				operation.provider = AuthSessionAnchor.new()
-				if (settled) { operation.provider = null; return }
+				if (settled) {
+					operation.provider = null
+					return
+				}
+
 				operation.session =
 					ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
 						nsUrl,
 						callbackScheme,
 						(callbackURL: any, error: any) => {
-							if (settled) {return}
+							if (settled) {
+								return
+							}
 							try {
 								if (error) {
 									finish(
@@ -195,9 +246,7 @@ const implementation: AuthSessionImpl = {
 									)
 								} else if (callbackURL) {
 									const callback = String(callbackURL.absoluteString)
-									if (
-										callback.split(':')[0].toLowerCase() !== callbackScheme.toLowerCase()
-									) {
+									if (callback.split(':')[0].toLowerCase() !== callbackScheme.toLowerCase()) {
 										throw new Error('authSession.open: unexpected callback scheme')
 									}
 
@@ -215,26 +264,41 @@ const implementation: AuthSessionImpl = {
 				if (settled) {
 					const lateSession = operation.session
 					operation.session = null
-					try { lateSession?.cancel() } catch {}
+					try {
+						lateSession?.cancel()
+					} catch {}
+
 					return
 				}
 
 				const session = operation.session
 				session.prefersEphemeralWebBrowserSession = ephemeral
-				if (settled) {return}
-				session.presentationContextProvider = operation.provider
 				if (settled) {
-					try { session.presentationContextProvider = null } catch {}
 					return
 				}
+
+				session.presentationContextProvider = operation.provider
+				if (settled) {
+					try {
+						session.presentationContextProvider = null
+					} catch {}
+
+					return
+				}
+
 				if (!session.start()) {
 					finish({ type: 'error', message: 'authSession.open: session failed to start' }, true)
 				}
 			} catch (error) {
-				finish({
-					type: 'error',
-					message: String((error as any)?.localizedDescription ?? (error as any)?.message ?? error),
-				}, true)
+				finish(
+					{
+						type: 'error',
+						message: String(
+							(error as any)?.localizedDescription ?? (error as any)?.message ?? error,
+						),
+					},
+					true,
+				)
 			}
 		})
 	},

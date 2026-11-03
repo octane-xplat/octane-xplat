@@ -16,6 +16,7 @@ const token = (claims = {}, key = privateKey) =>
 		.setIssuer(issuer)
 		.setAudience(audience)
 		.sign(key)
+
 const request = (credential, path = '/api/me', method = 'GET') =>
 	new Request(`https://api.example.test${path}`, {
 		method,
@@ -47,6 +48,7 @@ test('another issuer, audience, expired token or missing subject is rejected', a
 			.setExpirationTime(name === 'expiry' ? value : '2m')
 			.setIssuer(name === 'issuer' ? value : issuer)
 			.setAudience(name === 'audience' ? value : audience)
+
 		const response = await api(request(await builder.sign(privateKey)))
 		assert.equal(response.status, 401)
 		assert.equal(response.headers.get('www-authenticate'), 'Bearer error="invalid_token"')

@@ -6,14 +6,18 @@ import { Lightbox, useLightbox } from './index.web'
 import type { LightboxMedia } from './props'
 
 vi.mock('@nativescript-community/gesturehandler', () => ({
-	Manager: { getInstance: () => ({ createGestureHandler: () => ({ on() {}, off() {}, attachToView() {}, detachFromView() {} }) }) },
+	Manager: {
+		getInstance: () => ({
+			createGestureHandler: () => ({ on() {}, off() {}, attachToView() {}, detachFromView() {} }),
+		}),
+	},
 	HandlerType: { PAN: 'pan', PINCH: 'pinch', TAP: 'tap' },
 	GestureState: {},
 	GestureHandlerStateEvent: 's',
 	GestureHandlerTouchEvent: 't',
 }))
-vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v } } }))
 
+vi.mock('@nativescript/core', () => ({ Utils: { layout: { toDevicePixels: (v: number) => v } } }))
 
 const media: LightboxMedia[] = [
 	{ src: 'a.jpg', alt: 'first', caption: 'Caption A' },
@@ -37,11 +41,18 @@ function mount(node: unknown) {
 
 const q = (s: string) => document.body.querySelector(s) as HTMLElement | null
 
-function Harness(props: { onOpenChange?: (o: boolean) => void; onIndexChange?: (i: number) => void }) {
+function Harness(props: {
+	onOpenChange?: (o: boolean) => void
+	onIndexChange?: (i: number) => void
+}) {
 	const lb = useLightbox({ media, onIndexChange: props.onIndexChange })
 	return (
 		<div>
-			<button id="open-trigger" onClick={lb.getTriggerProps(1).onPress} ref={lb.getTriggerProps(1).ref as never}>
+			<button
+				id="open-trigger"
+				onClick={lb.getTriggerProps(1).onPress}
+				ref={lb.getTriggerProps(1).ref as never}
+			>
 				open
 			</button>
 			{lb.element}
@@ -87,7 +98,10 @@ describe('lightbox web', () => {
 		const counter = q('.vx-lightbox-counter')
 		expect(counter?.textContent?.trim()).toBe('1 of 3')
 		expect(q('.vx-lightbox-caption')?.textContent).toContain('Caption A')
-		const prev = q('.vx-lightbox-prev button, button.vx-lightbox-nav') ?? document.body.querySelectorAll('button')
+		const prev =
+			q('.vx-lightbox-prev button, button.vx-lightbox-nav') ??
+			document.body.querySelectorAll('button')
+
 		const navs = [...document.body.querySelectorAll('.vx-lightbox-nav')]
 		expect((navs[0] as HTMLButtonElement).disabled).toBe(true)
 		expect((navs[1] as HTMLButtonElement).disabled).toBe(false)
@@ -96,7 +110,10 @@ describe('lightbox web', () => {
 
 	it('Next navigates and fires onIndexChange', async () => {
 		const onIndexChange = vi.fn()
-		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />)
+		const m = mount(
+			<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />,
+		)
+
 		await act(async () => {})
 		const next = [...document.body.querySelectorAll('.vx-lightbox-nav')][1] as HTMLButtonElement
 		act(() => next.click())
@@ -108,10 +125,16 @@ describe('lightbox web', () => {
 
 	it('ArrowRight navigates', async () => {
 		const onIndexChange = vi.fn()
-		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />)
+		const m = mount(
+			<Lightbox isOpen onOpenChange={() => {}} media={media} onIndexChange={onIndexChange} />,
+		)
+
 		await act(async () => {})
 		const popup = q('.vx-lightbox-popup')!
-		act(() => popup.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })))
+		act(() =>
+			popup.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })),
+		)
+
 		expect(onIndexChange).toHaveBeenCalledWith(1)
 		m.close()
 	})
@@ -120,9 +143,15 @@ describe('lightbox web', () => {
 		const onOpenChange = vi.fn()
 		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
 		await act(async () => {})
-		act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
+		act(() =>
+			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+		)
+
 		// onOpenChange(false) fires after the close morph finishes.
-		await act(async () => { await new Promise((r) => setTimeout(r, 800)) })
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 800))
+		})
+
 		expect(onOpenChange).toHaveBeenCalledWith(false)
 		m.close()
 	})
@@ -140,7 +169,10 @@ describe('lightbox web', () => {
 
 	it('hasBackdropDismiss={false} keeps the viewer open on backdrop tap', async () => {
 		const onOpenChange = vi.fn()
-		const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} hasBackdropDismiss={false} />)
+		const m = mount(
+			<Lightbox isOpen onOpenChange={onOpenChange} media={media} hasBackdropDismiss={false} />,
+		)
+
 		await act(async () => {})
 		const popup = q('[data-phase]')!
 		// Tap the backdrop area via the image wrap's pointer path.
@@ -149,8 +181,11 @@ describe('lightbox web', () => {
 			const down = new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 })
 			wrap.dispatchEvent(down)
 			wrap.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 0, clientY: 0 }))
-			await act(async () => { await new Promise((r) => setTimeout(r, 400)) })
+			await act(async () => {
+				await new Promise((r) => setTimeout(r, 400))
+			})
 		}
+
 		expect(q('[data-phase]')).toBeTruthy()
 		expect(onOpenChange).not.toHaveBeenCalledWith(false)
 		m.close()
@@ -177,10 +212,19 @@ describe('lightbox web', () => {
 		button.id = 'final-focus'
 		document.body.appendChild(button)
 		const finalFocusRef = { current: button as HTMLElement }
-		const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} finalFocusRef={finalFocusRef} />)
+		const m = mount(
+			<Lightbox isOpen onOpenChange={() => {}} media={media} finalFocusRef={finalFocusRef} />,
+		)
+
 		await act(async () => {})
-		act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
-		await act(async () => { await new Promise((r) => setTimeout(r, 1800)) })
+		act(() =>
+			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+		)
+
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 1800))
+		})
+
 		expect(document.activeElement).toBe(button)
 		m.close()
 		button.remove()
@@ -191,17 +235,30 @@ describe('lightbox web', () => {
 			const lb = useLightbox({ media })
 			return (
 				<div>
-					<button id="t1" onClick={lb.getTriggerProps(1).onPress} ref={lb.getTriggerProps(1).ref as never}>t1</button>
+					<button
+						id="t1"
+						onClick={lb.getTriggerProps(1).onPress}
+						ref={lb.getTriggerProps(1).ref as never}
+					>
+						t1
+					</button>
 					{lb.element}
 				</div>
 			)
 		}
+
 		const m = mount(<Controlled />)
 		act(() => (q('#t1') as HTMLButtonElement).click())
 		await act(async () => {})
 		expect(q('[data-phase]')).toBeTruthy()
-		act(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })))
-		await act(async () => { await new Promise((r) => setTimeout(r, 1800)) })
+		act(() =>
+			document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+		)
+
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 1800))
+		})
+
 		expect(document.activeElement).toBe(q('#t1'))
 		m.close()
 	})
@@ -214,8 +271,11 @@ describe('lightbox web', () => {
 		if (wrap) {
 			wrap.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 }))
 			wrap.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 0, clientY: 0 }))
-			await act(async () => { await new Promise((r) => setTimeout(r, 400)) })
+			await act(async () => {
+				await new Promise((r) => setTimeout(r, 400))
+			})
 		}
+
 		// A backdrop tap requests close (whether it lands on the image or backdrop,
 		// the default closeOnBackdropClick path is what we're covering here).
 		expect(q('[data-phase]')).toBeTruthy() // still mounted mid-close is fine
@@ -225,31 +285,42 @@ describe('lightbox web', () => {
 	it('reduced motion opens and completes (fade path — morph distinction is e2e-covered)', async () => {
 		const callbacks = new Set<(e: { matches: boolean }) => void>()
 		vi.stubGlobal('matchMedia', (q2: string) => ({
-			get matches() { return q2.includes('reduce') },
+			get matches() {
+				return q2.includes('reduce')
+			},
 			addEventListener: (_: string, cb: (e: { matches: boolean }) => void) => callbacks.add(cb),
-			removeEventListener: (_: string, cb: (e: { matches: boolean }) => void) => callbacks.delete(cb),
+			removeEventListener: (_: string, cb: (e: { matches: boolean }) => void) =>
+				callbacks.delete(cb),
 			media: q2,
 		}))
+
 		function Controlled() {
 			const lb = useLightbox({ media })
 			return (
 				<div>
-					<button id="t0" onClick={lb.getTriggerProps(0).onPress} ref={lb.getTriggerProps(0).ref as never}>
+					<button
+						id="t0"
+						onClick={lb.getTriggerProps(0).onPress}
+						ref={lb.getTriggerProps(0).ref as never}
+					>
 						<img id="thumb-img" src="a.jpg" alt="a" />
 					</button>
 					{lb.element}
 				</div>
 			)
 		}
+
 		const m = mount(<Controlled />)
 		act(() => (q('#t0') as HTMLButtonElement).click())
-		await act(async () => { await new Promise((r) => setTimeout(r, 600)) })
+		await act(async () => {
+			await new Promise((r) => setTimeout(r, 600))
+		})
+
 		// REDUCED is 0.16s — the open completes fast; assert it lands, not the morph detail.
 		expect(q('[data-phase]')).toBeTruthy()
 		m.close()
 		vi.unstubAllGlobals()
 	})
-
 })
 
 // Keep this suite on the actual Overlay without compiling unrelated UI barrel exports.

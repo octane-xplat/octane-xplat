@@ -77,7 +77,9 @@ test('AppKit query storage never promotes pre-host memory or revives it after ho
 	const storage = (await importStorage()).platformQueryStorage
 	storage.set('record', 'old')
 	globalThis.__xplatAppKit = {
-		storageGet: () => null, storageSet() {}, storageRemove() {},
+		storageGet: () => null,
+		storageSet() {},
+		storageRemove() {},
 	}
 	assert.equal(storage.get('record'), null)
 	storage.remove('record')
@@ -87,7 +89,12 @@ test('AppKit query storage never promotes pre-host memory or revives it after ho
 
 test('AppKit query storage isolates partial bridges and refuses an unconfirmed durable purge', async () => {
 	let nativeReads = 0
-	const first = { storageGet() { nativeReads++; return 'native' } }
+	const first = {
+		storageGet() {
+			nativeReads++
+			return 'native'
+		},
+	}
 	globalThis.__xplatAppKit = first
 	const storage = (await importStorage()).platformQueryStorage
 	storage.set('record', 'memory')
@@ -116,9 +123,15 @@ test('AppKit query storage discards partial-cache mirrors when a complete bridge
 test('AppKit query storage preserves hook receivers and attempts partial removal without claiming purge', async () => {
 	const owner = {
 		data: new Map(),
-		storageGet(key) { return this.data.get(key) ?? null },
-		storageSet(key, value) { this.data.set(key, value) },
-		storageRemove(key) { this.data.delete(key) },
+		storageGet(key) {
+			return this.data.get(key) ?? null
+		},
+		storageSet(key, value) {
+			this.data.set(key, value)
+		},
+		storageRemove(key) {
+			this.data.delete(key)
+		},
 	}
 	globalThis.__xplatAppKit = owner
 	const storage = (await importStorage()).platformQueryStorage
@@ -131,7 +144,9 @@ test('AppKit query storage preserves hook receivers and attempts partial removal
 
 test('AppKit query storage refuses a durable purge after a previously observed bridge disappears', async () => {
 	globalThis.__xplatAppKit = {
-		storageGet: () => 'native', storageSet() {}, storageRemove() {},
+		storageGet: () => 'native',
+		storageSet() {},
+		storageRemove() {},
 	}
 	const storage = (await importStorage()).platformQueryStorage
 	assert.equal(storage.get('record'), 'native')

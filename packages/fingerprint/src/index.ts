@@ -19,11 +19,13 @@ import type {
 	Options,
 	Platform,
 } from './types.ts'
+
 export type * from './types.ts'
 const hash = (bytes: string | Uint8Array) => createHash('sha256').update(bytes).digest('hex')
 const slash = (path: string) => path.split(sep).join('/')
 const id = (value: FingerprintSource) =>
 	value.type === 'file' ? `file:${value.filePath}` : `contents:${value.id}`
+
 function stable(value: unknown): string {
 	if (value === null || typeof value !== 'object') {
 		return JSON.stringify(value)
@@ -40,13 +42,16 @@ function stable(value: unknown): string {
 		'}'
 	)
 }
+
 async function json(file: string): Promise<Record<string, any>> {
 	return JSON.parse(await readFile(file, 'utf8'))
 }
+
 const within = (root: string, file: string) => {
 	const path = relative(root, file)
 	return path === '' || (!path.startsWith('..' + sep) && path !== '..' && !isAbsolute(path))
 }
+
 const ignoredDirectories = new Set([
 	'node_modules',
 	'.git',
@@ -58,6 +63,7 @@ const ignoredDirectories = new Set([
 	'.gradle',
 	'DerivedData',
 ])
+
 async function walk(
 	root: string,
 	path: string,
@@ -86,6 +92,7 @@ async function walk(
 		}
 	}
 }
+
 function options(value: Options): void {
 	if (
 		!value ||
@@ -144,6 +151,7 @@ function options(value: Options): void {
 		throw new Error('Resolved native configuration must be an object')
 	}
 }
+
 function resolvePackage(name: string, root: string, optional = false): string | null {
 	const require = createRequire(join(root, 'package.json'))
 	for (const folder of require.resolve.paths(name) ?? []) {
@@ -157,6 +165,7 @@ function resolvePackage(name: string, root: string, optional = false): string | 
 	}
 	throw new Error(`Fingerprint dependency ${name} is not installed`)
 }
+
 /** Collect installed native inputs and the app's resolved NativeScript configuration. */
 export async function createFingerprintAsync(
 	projectRoot: string,
@@ -326,6 +335,7 @@ export async function createFingerprintAsync(
 			`App_Resources/${names[platform]}/`,
 			'application native resources',
 		)
+
 		if (!['ios', 'android'].includes(platform)) {
 			await tree(
 				root,
@@ -334,11 +344,13 @@ export async function createFingerprintAsync(
 				'application desktop native sources',
 			)
 		}
+
 		const nativeSources = nativeConfig[platform]?.NativeSource
 		if (nativeSources !== undefined) {
 			if (!Array.isArray(nativeSources)) {
 				throw new Error('NativeSource must be a named source array')
 			}
+
 			for (const source of nativeSources) {
 				if (
 					!source ||
@@ -349,6 +361,7 @@ export async function createFingerprintAsync(
 				) {
 					throw new Error('Invalid NativeSource declaration')
 				}
+
 				const pattern = resolve(root, source.path)
 				const prefix = pattern.split(/[*?[\]{}]/, 1)[0]!
 				const base = await realpath(prefix.endsWith(sep) ? prefix : dirname(prefix))
@@ -363,11 +376,13 @@ export async function createFingerprintAsync(
 						count++
 					})
 				}
+
 				if (!count) {
 					throw new Error(`NativeSource ${source.name} matches no files`)
 				}
 			}
 		}
+
 		await tree(
 			root,
 			join(root, 'native', platform),
@@ -407,6 +422,7 @@ export async function createFingerprintAsync(
 			if (errors.length) {
 				throw new Error(`Invalid Bun lockfile: ${lockFile}`)
 			}
+
 			lock.importers = lock.workspaces
 		} else {
 			lock = parse(text)
@@ -447,6 +463,7 @@ export async function createFingerprintAsync(
 					bunEntry = lock.packages[key]
 					break
 				}
+
 				if (!prefix) {
 					break
 				}
@@ -473,6 +490,7 @@ export async function createFingerprintAsync(
 		if (native) {
 			const identity = `${pkg.name}@${pkg.version}`,
 				prefix = `node_modules/${pkg.name}/`
+
 			const lockEntries: any[] = bun
 				? []
 				: Object.entries(lock.packages)
@@ -511,6 +529,7 @@ export async function createFingerprintAsync(
 									]
 								: [key, raw]
 						})
+
 			if (bunEntry) {
 				const source = String(bunEntry[0])
 				const at = source.indexOf('@', 1)
@@ -523,10 +542,12 @@ export async function createFingerprintAsync(
 						`Native dependency ${identity} disagrees with Bun lock metadata ${source}`,
 					)
 				}
+
 				// Integrity identifies local archives without hashing checkout-specific paths.
 				const local =
 					/^(?:file:|link:|workspace:|\/|[A-Za-z]:)/.test(spec) ||
 					(spec.endsWith('.tgz') && !/^https?:/.test(spec))
+
 				lockEntries.push([
 					identity,
 					{
@@ -548,6 +569,7 @@ export async function createFingerprintAsync(
 			) {
 				throw new Error(`Native dependency ${identity} is missing lock metadata`)
 			}
+
 			const nativeDescriptor = stable({
 				name: pkg.name,
 				version: pkg.version,
@@ -556,16 +578,19 @@ export async function createFingerprintAsync(
 				lock: lockEntries.map(([key, entry]) => [key, entry]),
 				patch: lock.patchedDependencies?.[identity] ?? null,
 			})
+
 			const old = nativeIdentities.get(identity)
 			if (old && old !== nativeDescriptor) {
 				throw new Error(`Ambiguous installed native dependency ${identity}`)
 			}
+
 			nativeIdentities.set(identity, nativeDescriptor)
 			contents(
 				`dependency:${identity}`,
 				JSON.parse(nativeDescriptor),
 				'installed native dependency and lock resolution',
 			)
+
 			for (const platform of platforms) {
 				await tree(
 					packageRoot,
@@ -574,9 +599,11 @@ export async function createFingerprintAsync(
 					'native dependency sources',
 				)
 			}
+
 			if (/^@nativescript\/(?:ios|android)$/.test(pkg.name)) {
 				await tree(packageRoot, packageRoot, prefix, 'native runtime engine files')
 			}
+
 			for (const directory of ['libs', 'frameworks', 'jniLibs']) {
 				await tree(
 					packageRoot,
@@ -585,12 +612,14 @@ export async function createFingerprintAsync(
 					'native dependency libraries',
 				)
 			}
+
 			await tree(
 				packageRoot,
 				join(packageRoot, 'native'),
 				prefix + 'native/',
 				'native bootstrap sources',
 			)
+
 			await tree(packageRoot, join(packageRoot, 'hooks'), prefix + 'hooks/', 'native build hooks')
 			for (const filename of [
 				'nativescript.config.js',
@@ -608,6 +637,7 @@ export async function createFingerprintAsync(
 					)
 				}
 			}
+
 			await tree(packageRoot, packageRoot, prefix, 'native metadata declarations', true, true)
 			const patch = patchMap[identity]
 			if (patch) {
@@ -615,6 +645,7 @@ export async function createFingerprintAsync(
 				if (typeof path !== 'string' || !within(lockRoot, resolve(lockRoot, path))) {
 					throw new Error('Invalid native dependency patch path')
 				}
+
 				await file(resolve(lockRoot, path), `patches/${identity}`, 'native dependency patch')
 			}
 		}
@@ -624,6 +655,7 @@ export async function createFingerprintAsync(
 				packageRoot,
 				Boolean(pkg.optionalDependencies?.[name] && !pkg.dependencies?.[name]),
 			)
+
 			if (dependency) {
 				await visit(dependency, name, bunKey)
 			}
@@ -644,6 +676,7 @@ export async function createFingerprintAsync(
 			root,
 			Boolean(app.optionalDependencies?.[name] && !app.dependencies?.[name]),
 		)
+
 		if (dependency) {
 			await visit(dependency, name)
 		}
@@ -666,10 +699,12 @@ export async function createFingerprintAsync(
 		) {
 			throw new Error('Invalid extra fingerprint source')
 		}
+
 		if (source.type === 'contents') {
 			if (typeof source.id !== 'string' || !source.id || typeof source.contents !== 'string') {
 				throw new Error('Invalid contents source')
 			}
+
 			add({
 				type: 'contents',
 				id: source.id,
@@ -680,11 +715,14 @@ export async function createFingerprintAsync(
 			if (typeof source.filePath !== 'string' || isAbsolute(source.filePath)) {
 				throw new Error('Extra sources must be relative paths')
 			}
+
 			const path = resolve(root, source.filePath),
 				actual = await realpath(path)
+
 			if (!within(root, actual)) {
 				throw new Error('Extra source escapes the project root')
 			}
+
 			if (source.type === 'file') {
 				await file(path, slash(relative(root, path)), source.reasons.join('; '), false)
 			} else {
@@ -700,9 +738,11 @@ export async function createFingerprintAsync(
 		hash: hash(stable(sources.map((source) => ({ id: id(source), hash: source.hash })))),
 	}
 }
+
 export async function createProjectHashAsync(root: string, options?: Options): Promise<string> {
 	return (await createFingerprintAsync(root, options)).hash
 }
+
 export function diffFingerprints(before: Fingerprint, after: Fingerprint): FingerprintDiffItem[] {
 	const a = new Map(before.sources.map((source) => [id(source), source])),
 		b = new Map(after.sources.map((source) => [id(source), source]))
@@ -718,6 +758,7 @@ export function diffFingerprints(before: Fingerprint, after: Fingerprint): Finge
 					: []
 	})
 }
+
 export async function diffFingerprintChangesAsync(
 	fingerprint: Fingerprint,
 	root: string,

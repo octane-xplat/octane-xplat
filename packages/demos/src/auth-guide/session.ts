@@ -31,22 +31,29 @@ export function createAccountSession(auth: HostedAuth) {
 	}
 	async function loadAccount(owner: number) {
 		const response = await auth.fetch('/api/me')
-		if (owner !== generation) {return}
+		if (owner !== generation) {
+			return
+		}
 		if (response.status === 401) {
 			await signOut()
 			return
 		}
-		if (!response.ok) {throw new Error('Account service unavailable')}
+		if (!response.ok) {
+			throw new Error('Account service unavailable')
+		}
 		const account: unknown = await response.json()
-		if (owner !== generation) {return}
+		if (owner !== generation) {
+			return
+		}
 		if (
 			typeof account !== 'object' ||
 			account === null ||
 			!('subject' in account) ||
 			typeof account.subject !== 'string' ||
 			!account.subject
-		)
-			{throw new Error('Invalid account response')}
+		) {
+			throw new Error('Invalid account response')
+		}
 		const subject = account.subject
 		state.update((previous) => ({
 			status: 'authenticated',
@@ -57,7 +64,9 @@ export function createAccountSession(auth: HostedAuth) {
 		}))
 	}
 	function failed(owner: number) {
-		if (owner !== generation) {return}
+		if (owner !== generation) {
+			return
+		}
 		state.update((previous) => ({
 			...previous,
 			status: 'error',
@@ -67,7 +76,9 @@ export function createAccountSession(auth: HostedAuth) {
 		}))
 	}
 	async function restore() {
-		if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {return}
+		if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {
+			return
+		}
 		const owner = ++generation
 		if (!auth.supported) {
 			signedOut('This sign-in method is unavailable on this target.', 'unsupported')
@@ -76,40 +87,58 @@ export function createAccountSession(auth: HostedAuth) {
 		state.update((previous) => ({ ...previous, status: 'checking', message: 'Checking sign-in…' }))
 		try {
 			if ((await auth.restore()) === 'unauthenticated') {
-				if (owner === generation) {signedOut('Signed out.')}
+				if (owner === generation) {
+					signedOut('Signed out.')
+				}
+
 				return
 			}
+
 			await loadAccount(owner)
 		} catch {
 			failed(owner)
 		}
 	}
 	async function signIn() {
-		if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {return}
+		if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {
+			return
+		}
 		const owner = ++generation
 		state.update((previous) => ({ ...previous, status: 'checking', message: 'Opening sign-in…' }))
 		try {
 			const result = await auth.signIn()
-			if (owner !== generation) {return}
-			if (result.status === 'success') {await loadAccount(owner)}
-			else
-				{signedOut(
+			if (owner !== generation) {
+				return
+			}
+
+			if (result.status === 'success') {
+				await loadAccount(owner)
+			} else {
+				signedOut(
 					result.status === 'cancelled' ? 'Sign-in cancelled.' : 'Sign-in failed. Try again.',
-				)}
+				)
+			}
 		} catch {
 			failed(owner)
 		}
 	}
 	async function signOut() {
-		if (clearingCredentials) {return}
+		if (clearingCredentials) {
+			return
+		}
 		clearingCredentials = true
 		const owner = ++generation
 		signedOut('Signing out…', 'checking')
 		try {
 			await auth.signOut()
-			if (owner === generation) {signedOut('Signed out.')}
+			if (owner === generation) {
+				signedOut('Signed out.')
+			}
 		} catch {
-			if (owner !== generation) {return}
+			if (owner !== generation) {
+				return
+			}
+
 			state.update((previous) => ({
 				...previous,
 				status: 'error',

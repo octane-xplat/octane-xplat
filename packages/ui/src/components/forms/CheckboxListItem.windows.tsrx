@@ -94,7 +94,9 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
 			checked={checked}
 			readOnly={readOnly}
 			isEnabled={!disabled}
-			accessibilityLabel={props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value)}
+			accessibilityLabel={
+				props.accessibilityLabel ?? (typeof props.label === 'string' ? props.label : props.value)
+			}
 			accessibilityHint={props.description}
 			requestChange={requestChange}
 		/>

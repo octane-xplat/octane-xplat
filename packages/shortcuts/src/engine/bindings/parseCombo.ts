@@ -57,12 +57,14 @@ export function compileCombo(source: string, platform: Platform): CompiledStep {
 			} else {
 				modifiers.add(parsed.name)
 			}
+
 			continue
 		}
 
 		if (primaryKey) {
 			throw new TypeError(`Combo "${source}" has multiple primary keys`)
 		}
+
 		primaryKey = parsed.key
 	}
 

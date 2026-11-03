@@ -53,8 +53,11 @@ interface NativeRecorder extends NativeObject {
 }
 
 declare const AVAudioRecorder: {
-	alloc(): { initWithURLSettingsError(url: NativeURL, settings: unknown, outError: unknown): NativeRecorder }
+	alloc(): {
+		initWithURLSettingsError(url: NativeURL, settings: unknown, outError: unknown): NativeRecorder
+	}
 }
+
 declare const AVAudioRecorderDelegate: unknown
 declare const AVCaptureDevice: {
 	defaultDeviceWithMediaType(mediaType: string): NativeDevice | null
@@ -65,15 +68,19 @@ declare const AVCaptureDevice: {
 		handler: (granted: boolean) => void,
 	): void
 }
+
 declare const NSApplication: {
 	readonly sharedApplication: { isActive(): boolean }
 }
+
 declare const NSBundle: {
 	readonly mainBundle: { objectForInfoDictionaryKey(key: string): unknown }
 }
+
 declare const NSData: {
 	dataWithContentsOfFile(path: string): NativeData | null
 }
+
 declare const NSFileManager: {
 	readonly defaultManager: {
 		readonly temporaryDirectory: NativeURL
@@ -86,9 +93,11 @@ declare const NSFileManager: {
 		removeItemAtURLError(url: NativeURL, outError: unknown): boolean
 	}
 }
+
 declare const NSMutableDictionary: {
 	dictionary(): { setObjectForKey(value: unknown, key: string): void }
 }
+
 declare const NSNotificationCenter: {
 	readonly defaultCenter: {
 		addObserverForNameObjectQueueUsingBlock(
@@ -100,9 +109,11 @@ declare const NSNotificationCenter: {
 		removeObserver(observer: unknown): void
 	}
 }
+
 declare const NSObject: {
 	extend(members: unknown, options: unknown): { new: () => unknown }
 }
+
 declare const NSOperationQueue: { readonly mainQueue: unknown }
 declare const NSUUID: { UUID(): { UUIDString: string } }
 
@@ -150,10 +161,7 @@ const isAudioDevice = (object: unknown): boolean =>
 // One Delegate class serves every host instance; the bridge can deliver a
 // different JS wrapper for the same delegate on callback, so handlers are
 // keyed by the receiver's native pointer, not by wrapper identity.
-const handlers = new Map<
-	number,
-	{ finish(flag: boolean): void; error(cause: unknown): void }
->()
+const handlers = new Map<number, { finish(flag: boolean): void; error(cause: unknown): void }>()
 
 const delegateClass = () => {
 	DelegateClass ??= NSObject.extend(
@@ -192,6 +200,7 @@ interface BridgeGlobals {
 	interop?: object
 	NSObject?: object
 }
+
 const bridgeReady = (): boolean => {
 	const globals = globalThis as BridgeGlobals
 	if (
@@ -483,6 +492,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 				) {
 					throw new Error('AVAudioRecorder could not create the take directory')
 				}
+
 				takeURL = url
 				takeDirectory = directory
 				const settings = NSMutableDictionary.dictionary()
@@ -497,6 +507,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 				if (!value) {
 					throw new Error('AVAudioRecorder could not open a recording file')
 				}
+
 				recorder = value
 				const nextDelegate = delegateClass().new()
 				delegate = nextDelegate
@@ -505,12 +516,14 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 					finish: (flag) => onFinish(value, flag),
 					error: (cause) => onError(value, cause),
 				})
+
 				value.delegate = nextDelegate
 				value.meteringEnabled = true
 				if (!value.prepareToRecord() || !value.record()) {
 					cancel()
 					return 'AVAudioRecorder refused to start'
 				}
+
 				capturing = true
 				interrupted = false
 				return ''
@@ -520,6 +533,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 					typeof cause === 'object' && cause !== null && 'localizedDescription' in cause
 						? cause.localizedDescription
 						: undefined
+
 				return description == null ? String(cause) : String(description)
 			}
 		},

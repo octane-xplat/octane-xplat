@@ -3,14 +3,7 @@
 // keyboard/mouse input and reads UIA; this scene emits input-event/key-event
 // records and renders state the driver can observe.
 import { useEffect, useRef, useState } from 'octane'
-import {
-	Button,
-	Text,
-	TextArea,
-	TextInput,
-	VStack,
-	useScrollableArea,
-} from '@octane-xplat/ui'
+import { Button, Text, TextArea, TextInput, VStack, useScrollableArea } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export type InputEmit = (event: string, data?: Record<string, unknown>) => void
@@ -28,6 +21,7 @@ function watchKeys(
 		const native = handle()?.native as any
 		return typeof native?.on === 'function' ? native : null
 	}
+
 	const emitKey = (kind: string) => (event: any) => {
 		emit('key-event', {
 			source,
@@ -35,10 +29,12 @@ function watchKeys(
 			key: event?.nativeEvent?.Key,
 			handled: event?.nativeEvent?.Handled === true,
 		})
+
 		if (kind === 'down' && consumeKey != null && event?.nativeEvent?.Key === consumeKey) {
 			event.nativeEvent.Handled = true
 		}
 	}
+
 	const down = emitKey('down')
 	const up = emitKey('up')
 	let attached = false
@@ -51,6 +47,7 @@ function watchKeys(
 			clearInterval(timer)
 		}
 	}, 150)
+
 	return () => {
 		clearInterval(timer)
 		const v = view()
@@ -88,6 +85,7 @@ export function InputCases(props: {
 
 	const emitChange = (source: string) => (next: string) =>
 		emit('input-event', { source, kind: 'change', value: next })
+
 	const emitSubmit = (source: string) => () => emit('input-event', { source, kind: 'submit' })
 	const emitFocus = (source: string) => () => emit('input-event', { source, kind: 'focus' })
 	const emitBlur = (source: string) => () => emit('input-event', { source, kind: 'blur' })
@@ -102,100 +100,104 @@ export function InputCases(props: {
 		<Text id="input-status">{`Core20 input mounted=${props.mounted} controlled=${props.controlledValue}`}</Text>
 		@if (props.mounted) {
 			<>
-			<TextInput
-				id="input-controlled"
-				ref={controlledRef}
-				value={props.controlledValue}
-				accessibilityLabel="Controlled field"
-				returnKeyType="done"
-				onChange={(next: string) => {
-					emit('input-event', { source: 'controlled', kind: 'change', value: next })
-					props.onControlledWrite(next)
-				}}
-				{...shared('controlled')}
-			/>
-			<TextInput
-				id="input-second"
-				ref={secondRef}
-				defaultValue="second"
-				accessibilityLabel="Second field"
-				onChange={emitChange('second')}
-				{...shared('second')}
-			/>
-			<TextInput
-				id="input-secure"
-				ref={secureRef}
-				value={secureValue}
-				secure={true}
-				accessibilityLabel="Secure field"
-				onChange={(next: string) => {
-					emit('input-event', { source: 'secure', kind: 'change' })
-					setSecureValue(next)
-				}}
-				{...shared('secure')}
-			/>
-			<TextInput
-				id="input-readonly"
-				value="frozen"
-				isReadOnly={true}
-				accessibilityLabel="Readonly field"
-				onChange={emitChange('readonly')}
-				{...shared('readonly')}
-			/>
-			<TextInput
-				id="input-disabled"
-				value="blocked"
-				isDisabled={true}
-				accessibilityLabel="Disabled field"
-				onChange={emitChange('disabled')}
-				{...shared('disabled')}
-			/>
-			<TextInput
-				id="input-form-user"
-				value={formUser}
-				accessibilityLabel="Form user"
-				returnKeyType="next"
-				onChange={(next: string) => {
-					emit('input-event', { source: 'form-user', kind: 'change', value: next })
-					setFormUser(next)
-				}}
-				{...shared('form-user')}
-			/>
-			<TextInput
-				id="input-form-pass"
-				value={formPass}
-				secure={true}
-				accessibilityLabel="Form pass"
-				returnKeyType="send"
-				onChange={(next: string) => {
-					emit('input-event', { source: 'form-pass', kind: 'change' })
-					setFormPass(next)
-				}}
-				{...shared('form-pass')}
-			/>
-			<TextInput
-				id="input-consumed"
-				ref={consumedRef}
-				defaultValue="eaten"
-				accessibilityLabel="Consumed field"
-				returnKeyType="done"
-				onChange={emitChange('consumed')}
-				{...shared('consumed')}
-			/>
-			<TextArea
-				id="input-multiline"
-				value={multiValue}
-				rows={3}
-				accessibilityLabel="Multiline field"
-				onChange={(next: string) => {
-					emit('input-event', { source: 'multiline', kind: 'change', value: next })
-					setMultiValue(next)
-				}}
-				onSubmit={emitSubmit('multiline')}
-			/>
+				<TextInput
+					id="input-controlled"
+					ref={controlledRef}
+					value={props.controlledValue}
+					accessibilityLabel="Controlled field"
+					returnKeyType="done"
+					onChange={(next: string) => {
+						emit('input-event', { source: 'controlled', kind: 'change', value: next })
+						props.onControlledWrite(next)
+					}}
+					{...shared('controlled')}
+				/>
+				<TextInput
+					id="input-second"
+					ref={secondRef}
+					defaultValue="second"
+					accessibilityLabel="Second field"
+					onChange={emitChange('second')}
+					{...shared('second')}
+				/>
+				<TextInput
+					id="input-secure"
+					ref={secureRef}
+					value={secureValue}
+					secure={true}
+					accessibilityLabel="Secure field"
+					onChange={(next: string) => {
+						emit('input-event', { source: 'secure', kind: 'change' })
+						setSecureValue(next)
+					}}
+					{...shared('secure')}
+				/>
+				<TextInput
+					id="input-readonly"
+					value="frozen"
+					isReadOnly={true}
+					accessibilityLabel="Readonly field"
+					onChange={emitChange('readonly')}
+					{...shared('readonly')}
+				/>
+				<TextInput
+					id="input-disabled"
+					value="blocked"
+					isDisabled={true}
+					accessibilityLabel="Disabled field"
+					onChange={emitChange('disabled')}
+					{...shared('disabled')}
+				/>
+				<TextInput
+					id="input-form-user"
+					value={formUser}
+					accessibilityLabel="Form user"
+					returnKeyType="next"
+					onChange={(next: string) => {
+						emit('input-event', { source: 'form-user', kind: 'change', value: next })
+						setFormUser(next)
+					}}
+					{...shared('form-user')}
+				/>
+				<TextInput
+					id="input-form-pass"
+					value={formPass}
+					secure={true}
+					accessibilityLabel="Form pass"
+					returnKeyType="send"
+					onChange={(next: string) => {
+						emit('input-event', { source: 'form-pass', kind: 'change' })
+						setFormPass(next)
+					}}
+					{...shared('form-pass')}
+				/>
+				<TextInput
+					id="input-consumed"
+					ref={consumedRef}
+					defaultValue="eaten"
+					accessibilityLabel="Consumed field"
+					returnKeyType="done"
+					onChange={emitChange('consumed')}
+					{...shared('consumed')}
+				/>
+				<TextArea
+					id="input-multiline"
+					value={multiValue}
+					rows={3}
+					accessibilityLabel="Multiline field"
+					onChange={(next: string) => {
+						emit('input-event', { source: 'multiline', kind: 'change', value: next })
+						setMultiValue(next)
+					}}
+					onSubmit={emitSubmit('multiline')}
+				/>
 			</>
 		}
-		<Button id="input-focus-second" label="Focus second" clickAction={() => secondRef.current?.focus()} />
+		<Button
+			id="input-focus-second"
+			label="Focus second"
+			clickAction={() => secondRef.current?.focus()}
+		/>
 	</VStack>
 }
 

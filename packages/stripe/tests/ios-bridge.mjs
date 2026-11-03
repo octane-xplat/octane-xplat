@@ -11,12 +11,14 @@ async function visit(directory) {
 		if (!entry.isDirectory()) {
 			continue
 		}
+
 		const path = join(directory, entry.name)
 		if (entry.name.endsWith('.xcframework')) {
 			const slices = await readdir(path)
 			const simulator = slices.find(
 				(name) => name.startsWith('ios-') && name.endsWith('-simulator'),
 			)
+
 			if (simulator) {
 				frameworkRoots.push(join(path, simulator))
 			}
@@ -25,15 +27,18 @@ async function visit(directory) {
 		}
 	}
 }
+
 await visit(root)
 assert.ok(frameworkRoots.length, 'No simulator framework slices were found')
 const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
 	encoding: 'utf8',
 })
+
 assert.equal(sdk.status, 0, sdk.stderr)
 const source = fileURLToPath(
 	new URL('../platforms/ios/src/XplatStripePaymentSheet.swift', import.meta.url),
 )
+
 for (const languageVersion of ['4', '5']) {
 	const result = spawnSync(
 		'xcrun',
@@ -51,8 +56,10 @@ for (const languageVersion of ['4', '5']) {
 		],
 		{ encoding: 'utf8', timeout: 60000 },
 	)
+
 	assert.equal(result.status, 0, `${result.stdout}${result.stderr}`)
 }
+
 console.log(
 	'Official Stripe iOS 26.15.1 simulator SDK: Swift/Objective-C bridge typecheck passed; no checkout or charge was performed.',
 )

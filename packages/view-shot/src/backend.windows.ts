@@ -12,6 +12,7 @@ const projection = (): { Windows?: any; Microsoft?: any; NSWinRT?: any } => ({
 	Microsoft: lookupGlobal(['Microsoft']),
 	NSWinRT: lookupGlobal(['NSWinRT']),
 })
+
 const owned = new Map<string, string>()
 function available(): boolean {
 	try {
@@ -27,6 +28,7 @@ function available(): boolean {
 		return false
 	}
 }
+
 function nativeView(target: object): any {
 	if (!available()) {
 		throw new UnavailabilityError('View capture in this Windows runtime projection')
@@ -52,6 +54,7 @@ function nativeView(target: object): any {
 			) {
 				throw new UnavailabilityError('Web/video/GPU surfaces in Windows capture')
 			}
+
 			type = type.BaseType
 		}
 		const count = helper.GetChildrenCount(child)
@@ -62,6 +65,7 @@ function nativeView(target: object): any {
 	validate(host)
 	return host
 }
+
 function close(value: any): void {
 	if (typeof value?.Dispose === 'function') {
 		value.Dispose()
@@ -69,6 +73,7 @@ function close(value: any): void {
 		value?.Close?.()
 	}
 }
+
 async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
 	if (
 		options.format !== 'png' ||
@@ -113,29 +118,35 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 		const encoder = await wait(
 			imaging.BitmapEncoder.CreateAsync(imaging.BitmapEncoder.PngEncoderId, stream),
 		)
+
 		encoder.SetSoftwareBitmap(bitmap)
 		await wait(encoder.FlushAsync())
 		const length = Number(stream.Size)
 		if (!Number.isSafeInteger(length) || length <= 0 || length > 256000000) {
 			throw new Error('Windows encoded an invalid capture size')
 		}
+
 		input = stream.GetInputStreamAt(0)
 		reader = new Windows.Storage.Streams.DataReader(input)
 		if (Number(await wait(reader.LoadAsync(length))) !== length) {
 			throw new Error('Could not read the complete Windows capture')
 		}
+
 		const buffer = reader.ReadBuffer(length)
 		if (options.result !== 'tmpfile') {
 			const encoded: string =
 				Windows.Security.Cryptography.CryptographicBuffer.EncodeToBase64String(buffer)
+
 			return options.result === 'data-uri' ? 'data:image/png;base64,' + encoded : encoded
 		}
+
 		const file = await wait(
 			Windows.Storage.ApplicationData.Current.TemporaryFolder.CreateFileAsync(
 				'octane-view-shot.png',
 				Windows.Storage.CreationCollisionOption.GenerateUniqueName,
 			),
 		)
+
 		try {
 			await wait(Windows.Storage.FileIO.WriteBufferAsync(file, buffer))
 			const path: string = file.Path
@@ -146,6 +157,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 					.map(encodeURIComponent)
 					.join('/')
 					.replace(/^([A-Za-z])%3A/, '$1:')
+
 			owned.set(uri, path)
 			return uri
 		} catch (error) {
@@ -159,6 +171,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 		close(bitmap)
 	}
 }
+
 export const backend: CaptureBackend = {
 	capabilities: () => ({
 		view: available(),
@@ -196,6 +209,7 @@ export const backend: CaptureBackend = {
 					throw error
 				}
 			}
+
 			await new Promise<void>((resolve) => setTimeout(resolve, 16))
 		}
 		throw new Error('ViewShot unmounted while waiting for layout')

@@ -12,6 +12,7 @@ import {
 	standaloneRef,
 	standaloneChanges,
 } from './ui-text-area.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK text area test',
@@ -19,11 +20,13 @@ const window = new Gtk.Window({
 	default_height: 360,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const outer = new Gtk.ScrolledWindow({
 	hscrollbar_policy: Gtk.PolicyType.NEVER,
 	vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
 })
+
 outer.set_child(host)
 window.set_child(outer)
 const { root, container } = createGtkRoot(host, {
@@ -31,6 +34,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -39,6 +43,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 // A window-child replacement may allocate on a later GTK frame under load.
 const waitForAllocation = async (ready: () => boolean) => {
 	for (let attempt = 0; attempt < 120 && !ready(); attempt++) {
@@ -46,6 +51,7 @@ const waitForAllocation = async (ready: () => boolean) => {
 	}
 	return ready()
 }
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -53,6 +59,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const close = (a: number, b: number) => Math.abs(a - b) <= 2
 const style = { width: 280, fontSize: 26, padding: 0, borderWidth: 0, margin: 0 }
 let props: Parameters<typeof TextAreaHarness>[0] = { value: 'One', style }
@@ -61,6 +68,7 @@ const render = async (next: Partial<typeof props> = {}) => {
 	root.render(TextAreaHarness, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -71,6 +79,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
 	const bounds = view.getBounds()
@@ -90,6 +99,7 @@ async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
 	check('OS phase completed: ' + phase, acknowledgments >= ack)
 	await pause(300)
 }
+
 async function run() {
 	let secureError: unknown
 	try {
@@ -219,6 +229,7 @@ async function run() {
 			'selection replacement reports one complete user edit: ' + JSON.stringify(edits),
 			edits.length === 1 && edits[0] === 'aXc',
 		)
+
 		check('parent rejection restores the controlled value', view.text === 'abc')
 		view.select_region(1, 2)
 		await input(view, 'type-X')
@@ -232,6 +243,7 @@ async function run() {
 				root.render(TextAreaHarness, props)
 			},
 		})
+
 		view.set_position(1)
 		await input(view, 'type-Y')
 		check('accepting parent receives one edit', edits.length === 1 && edits[0] === 'aYbc')
@@ -239,6 +251,7 @@ async function run() {
 			'accepted owner value remains in the editor',
 			view.text === 'aYbc' && props.value === 'aYbc',
 		)
+
 		check('accepted edit keeps its native caret', view.get_position() === 2)
 		await render({ value: 'One', onChange: undefined })
 	}
@@ -253,22 +266,26 @@ async function run() {
 				root.render(TextAreaHarness, props)
 			},
 		})
+
 		view.focus()
 		await input(view, 'type-ABCD')
 		check(
 			'TextArea forwards its native character cap',
 			view.text === 'ABC' && props.value === 'ABC',
 		)
+
 		check(
 			'TextArea only reports accepted inserted characters',
 			limitedEdits.join(',') === 'A,AB,ABC',
 		)
+
 		await render({ maxLength: undefined })
 		await input(view, 'type-D')
 		check(
 			'removing TextArea cap restores native insertion',
 			view.text === 'ABCD' && props.value === 'ABCD',
 		)
+
 		await render({ value: '', maxLength: 0 })
 		const beforeZero = limitedEdits.length
 		await input(view, 'type-X')
@@ -276,6 +293,7 @@ async function run() {
 			'zero TextArea cap blocks edits and callbacks',
 			view.text === '' && limitedEdits.length === beforeZero,
 		)
+
 		await render({ value: 'One', maxLength: undefined, onChange: undefined })
 	}
 	const line = view.get_line_yrange(buffer.get_start_iter())[1]
@@ -309,12 +327,14 @@ async function run() {
 			'OS Ctrl End moves caret to final character',
 			view.get_position() === Array.from(long).length,
 		)
+
 		check('OS keyboard scrolls the capped editor internally', adjustment.get_value() > 0)
 		await input(view, 'home')
 		check(
 			'OS Ctrl Home restores the first line',
 			adjustment.get_value() === 0 && view.get_position() === 0,
 		)
+
 		await input(view, 'wheel-down')
 		check('OS wheel scrolls the capped editor internally', adjustment.get_value() > 0)
 		await input(view, 'wheel-up', 12)
@@ -419,6 +439,7 @@ async function run() {
 			value: 'Aligned',
 			placeholder: 'Aligned',
 		})
+
 		check('multiline alignment ' + align, view.get_justification() === expected)
 		check('hint alignment ' + align, hint.get_xalign() === x && hint.get_justify() === expected)
 		if (align === 'center' || align === 'right') {
@@ -428,6 +449,7 @@ async function run() {
 				location.x > view.get_width() / (align === 'center' ? 5 : 2),
 			)
 		}
+
 		await render({ value: '' })
 		check('aligned hint is visible ' + align, hint.get_visible())
 	}
@@ -439,12 +461,14 @@ async function run() {
 				direction + ' logical alignment ' + align,
 				view.get_justification() === (right ? Gtk.Justification.RIGHT : Gtk.Justification.LEFT),
 			)
+
 			check(direction + ' hint alignment ' + align, hint.get_xalign() === (right ? 1 : 0))
 			const logicalLocation = view.get_iter_location(buffer.get_start_iter())
 			check(
 				direction + ' native geometry ' + align,
 				right ? logicalLocation.x > view.get_width() / 2 : logicalLocation.x < 2,
 			)
+
 			await render({ value: '' })
 			const [hintPositioned, logicalHintBounds] = hint.compute_bounds(view)
 			const [logicalHintX] = hint.get_layout_offsets()
@@ -770,6 +794,7 @@ async function run() {
 		const label = [...fieldHarness.container.nodes.values()].find(
 			(n) => n.view instanceof Gtk.Label && n.view.get_text().startsWith('Outer notes'),
 		)!
+
 		window.set_focus(null)
 		await input(label.view, 'label-click', 1)
 		check(
@@ -807,6 +832,7 @@ async function run() {
 				throw error
 			},
 		})
+
 		const initial = {
 			generation: 1,
 			content: name === 'box' ? Array.from({ length: 12 }, () => 'A line').join('\n') : undefined,
@@ -815,17 +841,20 @@ async function run() {
 			left: name === 'fixed' ? 10 : undefined,
 			top: name === 'fixed' ? 12 : undefined,
 		}
+
 		nested.root.render(StandaloneEditor, initial)
 		await pause()
 		const editor = standaloneRef.current
 		const node = [...nested.container.nodes.values()].find(
 			(node) => node.props.id === 'standalone-editor',
 		)!
+
 		const viewport = node.layoutView!
 		check(
 			name + ': native editor identity is public',
 			editor === node.view && editor instanceof Gtk.TextView,
 		)
+
 		check(
 			name + ': native scrolling host owns the editor',
 			viewport.get_child() instanceof Gtk.ScrolledWindow &&
@@ -836,10 +865,12 @@ async function run() {
 			name + ': scrolling host mounts through viewless parents',
 			viewport.is_ancestor(nativeHost),
 		)
+
 		check(
 			name + ': initial physical size request',
 			viewport.get_size_request().join(',') === '160,80',
 		)
+
 		if (name === 'box') {
 			const allocated = await waitForAllocation(
 				() =>
@@ -847,6 +878,7 @@ async function run() {
 					close(viewport.get_height(), 80) &&
 					close(editor.get_width(), 160),
 			)
+
 			check(
 				'box: definite dimensions apply to the whole control: ' +
 					JSON.stringify({
@@ -862,6 +894,7 @@ async function run() {
 					}),
 				allocated,
 			)
+
 			nested.root.render(StandaloneEditor, { ...initial, content: 'LongWord'.repeat(100) })
 			await pause()
 			check(
@@ -870,11 +903,13 @@ async function run() {
 					() => close(viewport.get_width(), 160) && close(viewport.get_height(), 80),
 				),
 			)
+
 			nested.root.render(StandaloneEditor, { ...initial, width: undefined, height: undefined })
 			check(
 				'removing dimensions restores natural expansion',
 				await waitForAllocation(() => viewport.get_width() > 160 && viewport.get_height() > 80),
 			)
+
 			nested.root.render(StandaloneEditor, initial)
 			check(
 				'restoring dimensions caps content again',
@@ -883,10 +918,12 @@ async function run() {
 				),
 			)
 		}
+
 		if (name === 'fixed') {
 			const bounds = editor.getBounds()
 			check('fixed: initial viewport position', close(bounds.x, 10) && close(bounds.y, 12))
 		}
+
 		nested.root.render(StandaloneEditor, {
 			...initial,
 			width: 90,
@@ -894,15 +931,18 @@ async function run() {
 			left: name === 'fixed' ? 25 : undefined,
 			top: name === 'fixed' ? 30 : undefined,
 		})
+
 		await pause()
 		check(
 			name + ': size updates reach the physical host',
 			viewport.get_size_request().join(',') === '90,55',
 		)
+
 		if (name === 'fixed') {
 			const bounds = editor.getBounds()
 			check('fixed: viewport position updates', close(bounds.x, 25) && close(bounds.y, 30))
 		}
+
 		nested.root.render(StandaloneEditor, { ...initial, translateX: 20, opacity: 0.4 })
 		await pause()
 		const [ok, translated] = viewport.compute_bounds(nativeHost)
@@ -911,11 +951,13 @@ async function run() {
 			name + ': transform moves the physical scrolling host',
 			ok && close(translated.origin.x, (initial.left ?? 0) + 20),
 		)
+
 		check(name + ': editor is not translated twice', inside && close(relative.origin.x, 0))
 		check(
 			name + ': opacity applies once to the full control',
 			Math.abs(viewport.get_opacity() - 0.4) < 0.01 && editor.get_opacity() === 1,
 		)
+
 		editor.focus()
 		await pause()
 		standaloneChanges.length = 0
@@ -929,26 +971,31 @@ async function run() {
 				recreatedViewport !== viewport &&
 				recreatedViewport.get_child().get_child() === recreated,
 		)
+
 		check(
 			name + ': recreated physical host remains mounted',
 			recreatedViewport.is_ancestor(nativeHost) && !viewport.is_ancestor(nativeHost),
 		)
+
 		check(name + ': recreation restores editor focus', window.get_focus() === recreated)
 		recreated.get_buffer().insert_at_cursor('!', -1)
 		check(
 			name + ': recreated buffer retains its event descriptor',
 			standaloneChanges.length === 1 && standaloneChanges[0] === '1:' + recreated.text,
 		)
+
 		nested.root.render(StandaloneEditor, { ...initial, generation: 2 })
 		await pause()
 		check(
 			name + ': keyed replacement yields a new native editor',
 			standaloneRef.current !== recreated && standaloneRef.current instanceof Gtk.TextView,
 		)
+
 		check(
 			name + ': retired viewport leaves the host tree',
 			!recreatedViewport.is_ancestor(nativeHost),
 		)
+
 		nested.root.unmount()
 		await pause()
 		check(name + ': standalone ref clears', standaloneRef.current === null)
@@ -963,6 +1010,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -970,6 +1018,7 @@ run()
 		console.error(error)
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

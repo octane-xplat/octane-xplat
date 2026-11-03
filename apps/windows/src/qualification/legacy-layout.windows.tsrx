@@ -68,6 +68,7 @@ export function LegacyLayout(props: { revision: number }): unknown @{
 			row.addChild(label)
 			return label
 		})
+
 		const destination = new StackLayout()
 		destination.id = 'core20-auto-destination'
 		destination.width = 170

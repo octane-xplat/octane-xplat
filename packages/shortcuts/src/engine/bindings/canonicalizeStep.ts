@@ -8,6 +8,7 @@ export function canonicalizePrimaryKey(key: string): string {
 		if (key === ' ') {
 			return 'Space'
 		}
+
 		return /[A-Z]/.test(key) ? key.toLowerCase() : key
 	}
 

@@ -42,6 +42,7 @@ compatibility.frameworkVersion = version
 const typegenVersion = JSON.parse(
 	readFileSync('packages/tsrx-typegen/package.json', 'utf8'),
 ).version
+
 let published: string | undefined
 try {
 	published = JSON.parse(
@@ -53,6 +54,7 @@ try {
 } catch {
 	published = undefined
 }
+
 if (published === typegenVersion) {
 	compatibility.packages['tsrx-typegen'].version = typegenVersion
 	console.log('tsrx-typegen starter pin -> ' + typegenVersion)

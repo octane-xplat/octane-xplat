@@ -22,6 +22,7 @@ const ONE = `<!doctype html><title>Page One</title><body>
 <input id="f" type="file">
 <script>window.pick = () => document.getElementById('f').showPicker()</script>
 </body>`
+
 const TWO = '<!doctype html><title>Page Two</title><body>two</body>'
 const POPUP = '<!doctype html><title>Popup</title><body>popup</body>'
 
@@ -80,6 +81,7 @@ export async function verifyMacOS(packed, temporary) {
 			await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
 			await symlink(root, join(app, 'node_modules', name))
 		}
+
 		await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
 		const script = await consumer(
 			packed,
@@ -230,6 +232,7 @@ async function main() {
 main().then(() => __xplatStopHost(), error => { let d = ''; try { d = ' desc=' + String(error) } catch(e) {} console.error('FIXTURE_FAIL ' + String(error && (error.message || error.name || '')) + ' ' + String(error && error.stack).split('\\n').slice(0,4).join(' | ') + d); __xplatStopHost() })
 `,
 		)
+
 		const artifact = await buildMacOSNative(app)
 		const bootstrap = join(app, 'bootstrap.js')
 		await writeNativeBootstrap(artifact, bootstrap)
@@ -261,6 +264,7 @@ main().then(() => __xplatStopHost(), error => { let d = ''; try { d = ' desc=' +
 				}
 			})
 		})
+
 		assert.match(output, /MACOS_WEB_BROWSER_TARGET_OK/, output)
 		console.log(
 			output

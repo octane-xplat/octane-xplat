@@ -87,6 +87,7 @@ export function outputSize(input: Size, operation: Operation): Size {
 			) {
 				throw new RangeError('Crop rectangle exceeds the current image bounds')
 			}
+
 			return { width: operation.width, height: operation.height }
 		case 'extent':
 			return { width: operation.width, height: operation.height }

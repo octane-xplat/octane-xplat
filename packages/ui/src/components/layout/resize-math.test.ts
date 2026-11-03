@@ -19,9 +19,7 @@ it('rejects percent shapes with absent, doubled, or malformed bounds', () => {
 	expect(isPercentSize({ type: 'percent' })).toBe(false)
 	expect(isPercentSize({ type: 'percent', value: 50 })).toBe(false)
 	expect(isPercentSize({ type: 'percent', value: '50', min: pixel(200) })).toBe(false)
-	expect(
-		isPercentSize({ type: 'percent', value: 50, min: pixel(10), max: pixel(20) }),
-	).toBe(false)
+	expect(isPercentSize({ type: 'percent', value: 50, min: pixel(10), max: pixel(20) })).toBe(false)
 	expect(isPercentSize({ type: 'percent', value: 50, min: { type: 'pixel' } })).toBe(false)
 	expect(isPercentSize({ type: 'percent', value: 50, min: { type: 'other', value: 1 } })).toBe(
 		false,

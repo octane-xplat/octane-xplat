@@ -19,6 +19,7 @@ export function OverlaysProbe() @{
 	const [bgClicks, setBgClicks] = useState(0)
 	const [ctlOpen, setCtlOpen] = useState(false)
 	const [ovOpen, setOvOpen] = useState(false)
+
 	<>
 		<Button id="bg" label="Background" clickAction={() => setBgClicks(bgClicks + 1)} />
 		<Text id="bg-count">{String(bgClicks)}</Text>
@@ -47,7 +48,11 @@ export function OverlaysProbe() @{
 			description="Proceed with the action?"
 			actionLabel="Confirm"
 			cancelLabel="Cancel"
-			onOpenChange={(o) => { if (!o) { setMark('') } }}
+			onOpenChange={(o) => {
+				if (!o) {
+					setMark('')
+				}
+			}}
 			onAction={() => setMark('action:ok')}
 		/>
 
@@ -65,6 +70,7 @@ export function OverlaysProbe() @{
 function ImperativeProbe(props: { onResult: (v: string) => void }) @{
 	const dialog = useImperativeDialog()
 	const alert = useImperativeAlertDialog()
+
 	<>
 		<Button
 			id="imp-trigger"
@@ -92,5 +98,6 @@ function ImperativeProbe(props: { onResult: (v: string) => void }) @{
 
 function LayerContextProbe() @{
 	const ctx = useLayerContext()
+
 	<Text id="ctx-value">{'ctx:' + (ctx ? 'set' : 'null')}</Text>
 }

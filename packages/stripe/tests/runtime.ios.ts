@@ -7,10 +7,12 @@ import {
 	resetPaymentSheet,
 	handleURLCallback,
 } from '../src/index'
+
 type Context = {
 	assert(name: string, actual: unknown, expected?: unknown): void
 	waitFor<T>(predicate: () => T, options?: { timeout?: number }): Promise<NonNullable<T>>
 }
+
 /** Invalid public fixtures exercise the SDK failure path and cannot authorize a charge. */
 export async function run(ctx: Context) {
 	ctx.assert('official bridge available', Stripe.supported)

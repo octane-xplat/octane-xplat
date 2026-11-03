@@ -6,9 +6,25 @@
 // takes the next boolean (upstream no-arg toggle).
 import { useState } from 'octane'
 import {
-	AspectRatio, Badge, Button, Center, Collapsible, CollapsibleGroup,
-	Divider, Grid, Heading, HStack, Icon, Layout, LayoutContent, NumberInput,
-	SegmentedControl, SegmentedControlItem, SelectableCard, Text, VStack,
+	AspectRatio,
+	Badge,
+	Button,
+	Center,
+	Collapsible,
+	CollapsibleGroup,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	NumberInput,
+	SegmentedControl,
+	SegmentedControlItem,
+	SelectableCard,
+	Text,
+	VStack,
 } from '@octane-xplat/ui'
 
 // Custom CSS here is limited to what the components can't express today:
@@ -20,12 +36,14 @@ const stickyInfo = {
 	top: 'var(--spacing-8)',
 	alignSelf: 'start',
 } as const
+
 const heroImage = {
 	width: '100%',
 	height: '100%',
 	objectFit: 'cover',
 	borderRadius: 'var(--radius-container)',
 } as const
+
 const thumbImage = {
 	width: '100%',
 	height: '100%',
@@ -97,7 +115,7 @@ function ImageGallery(props: { selected: number; onSelect: (i: number) => void }
 		<AspectRatio ratio={4 / 5}>
 			<img style={heroImage} src={heroSrc} alt={PRODUCT.name} />
 		</AspectRatio>
-		<Grid style={{gap: 'var(--spacing-2)'}} columns={3} >
+		<Grid style={{ gap: 'var(--spacing-2)' }} columns={3}>
 			{thumbnails.map((src, i) => (
 				<AspectRatio key={i} ratio={1}>
 					<SelectableCard
@@ -135,7 +153,7 @@ function ProductInfo() @{
 				<Text type="large" weight="bold">
 					{fmt(PRODUCT.price)}
 				</Text>
-				<Text type="body" color="secondary" style={{textDecoration: 'line-through'}}>
+				<Text type="body" color="secondary" style={{ textDecoration: 'line-through' }}>
 					{fmt(PRODUCT.originalPrice)}
 				</Text>
 				<Badge variant="error" label="Sale" />
@@ -234,7 +252,7 @@ export function ProductDetailTemplate() @{
 		contentWidth={1200}
 		content={
 			<LayoutContent padding={6}>
-				<Grid style={{gap: 'var(--spacing-5)'}} columns={{ minWidth: 320, repeat: 'fit' }} >
+				<Grid style={{ gap: 'var(--spacing-5)' }} columns={{ minWidth: 320, repeat: 'fit' }}>
 					<ImageGallery selected={selectedThumb} onSelect={setSelectedThumb} />
 					<VStack gap={0} style={stickyInfo}>
 						<ProductInfo />

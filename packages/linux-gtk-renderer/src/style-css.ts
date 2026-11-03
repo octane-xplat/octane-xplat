@@ -291,18 +291,19 @@ export function gtkStyleCss(
 				font[key] = style[key]
 			}
 		}
+
 		const layout = selector + '-layout'
 		const inherited = gtkStyleCss(layout, font, 'textview-hint-host')
 		if (inherited) {
 			rules.push(inherited)
 		}
+
 		rules.push(
 			`${layout} .xplat-text-placeholder { color: ${style?.placeholderColor ?? 'alpha(currentColor, 0.5)'}; }`,
 		)
 	}
 	return rules.join('\n')
 }
-
 
 // ---------------------------------------------------------------------------
 // Viewless <span> runs — style-bag → Pango markup for Gtk.Label hosts. GTK
@@ -355,6 +356,7 @@ function pangoSize(value: unknown): string | null {
 		if (s.endsWith('px') || s.endsWith('pt')) {
 			return Number.isFinite(n) ? String(Math.round(n * 1024)) : null
 		}
+
 		return s === '' ? null : s
 	}
 	return null
@@ -420,7 +422,8 @@ export function spanTextTransform(style: PropBag): ((text: string) => string) | 
 		case 'lowercase':
 			return (s) => s.toLowerCase()
 		case 'capitalize':
-			return (s) => s.replace(/(^|\s)(\p{L})/gu, (_m, sp: string, c: string) => sp + c.toUpperCase())
+			return (s) =>
+				s.replace(/(^|\s)(\p{L})/gu, (_m, sp: string, c: string) => sp + c.toUpperCase())
 		default:
 			return null
 	}

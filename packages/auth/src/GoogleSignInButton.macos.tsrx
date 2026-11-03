@@ -8,7 +8,13 @@ import type { GoogleSignInButtonProps } from './types'
 export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
 	const current = useRef(props)
 	current.current = props
-	const action = useRef(createSignInButtonAction(() => current.current, () => googleAuth.signIn()))
+	const action = useRef(
+		createSignInButtonAction(
+			() => current.current,
+			() => googleAuth.signIn(),
+		),
+	)
+
 	useEffect(() => action.current.mount(), [])
 
 	<button

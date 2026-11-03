@@ -65,12 +65,8 @@ function machOSlices(bytes) {
 			break
 		}
 
-		const offset = wide
-			? Number(bytes.readBigUInt64BE(entry + 8))
-			: bytes.readUInt32BE(entry + 8)
-		const size = wide
-			? Number(bytes.readBigUInt64BE(entry + 16))
-			: bytes.readUInt32BE(entry + 12)
+		const offset = wide ? Number(bytes.readBigUInt64BE(entry + 8)) : bytes.readUInt32BE(entry + 8)
+		const size = wide ? Number(bytes.readBigUInt64BE(entry + 16)) : bytes.readUInt32BE(entry + 12)
 		slices.push(bytes.subarray(offset, offset + size))
 	}
 
@@ -195,9 +191,7 @@ export function inspectJscHost() {
 			// the packaged host/framework which must stay self-contained.
 			const generatorIssues = []
 			inspectMachO(bytes, relativePath, generatorIssues, minimumJscHostSystemVersion)
-			issues.push(
-				...generatorIssues.filter((issue) => !issue.includes('unpackaged library')),
-			)
+			issues.push(...generatorIssues.filter((issue) => !issue.includes('unpackaged library')))
 		}
 	}
 

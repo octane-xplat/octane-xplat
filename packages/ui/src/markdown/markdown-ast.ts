@@ -282,6 +282,7 @@ function checkBase(node: object, path: string): void {
 			if (point == null || typeof point !== 'object') {
 				fail(path, `position.${side} must be an object`)
 			}
+
 			for (const field of ['line', 'column', 'offset'] as const) {
 				if (point[field] !== undefined && typeof point[field] !== 'number') {
 					fail(path, `position.${side}.${field} must be a number`)
@@ -305,25 +306,46 @@ function checkInline(node: unknown, path: string): void {
 		case 'text':
 		case 'inlineCode':
 		case 'inlineMath':
-			if (typeof n.value !== 'string') fail(path, `${n.type}.value must be a string`)
+			if (typeof n.value !== 'string') {
+				fail(path, `${n.type}.value must be a string`)
+			}
+
 			return
 		case 'strong':
 		case 'emphasis':
 		case 'delete':
-			if (!Array.isArray(kids)) fail(path, `${n.type}.children must be an array`)
+			if (!Array.isArray(kids)) {
+				fail(path, `${n.type}.children must be an array`)
+			}
+
 			kids.forEach((k: MdInline, i: number) => checkInline(k, `${path}/${n.type}[${i}]`))
 			return
 		case 'link':
-			if (typeof n.url !== 'string') fail(path, 'link.url must be a string')
-			if (!Array.isArray(kids)) fail(path, 'link.children must be an array')
+			if (typeof n.url !== 'string') {
+				fail(path, 'link.url must be a string')
+			}
+
+			if (!Array.isArray(kids)) {
+				fail(path, 'link.children must be an array')
+			}
+
 			kids.forEach((k: MdInline, i: number) => checkInline(k, `${path}/link[${i}]`))
 			return
 		case 'image':
-			if (typeof n.url !== 'string') fail(path, 'image.url must be a string')
-			if (typeof n.alt !== 'string') fail(path, 'image.alt must be a string')
+			if (typeof n.url !== 'string') {
+				fail(path, 'image.url must be a string')
+			}
+
+			if (typeof n.alt !== 'string') {
+				fail(path, 'image.alt must be a string')
+			}
+
 			return
 		case 'citation':
-			if (typeof n.sourceId !== 'string') fail(path, 'citation.sourceId must be a string')
+			if (typeof n.sourceId !== 'string') {
+				fail(path, 'citation.sourceId must be a string')
+			}
+
 			return
 		case 'break':
 			return
@@ -364,41 +386,68 @@ function checkBlock(node: unknown, path: string): void {
 			if (typeof n.depth !== 'number' || n.depth < 1 || n.depth > 6) {
 				fail(path, 'heading.depth must be 1..6')
 			}
-			if (!Array.isArray(n.children)) fail(path, 'heading.children must be an array')
+
+			if (!Array.isArray(n.children)) {
+				fail(path, 'heading.children must be an array')
+			}
+
 			n.children.forEach((k: MdInline, i: number) => checkInline(k, `${path}/heading[${i}]`))
 			return
 		case 'paragraph':
-			if (!Array.isArray(n.children)) fail(path, 'paragraph.children must be an array')
+			if (!Array.isArray(n.children)) {
+				fail(path, 'paragraph.children must be an array')
+			}
+
 			n.children.forEach((k: MdInline, i: number) => checkInline(k, `${path}/paragraph[${i}]`))
 			return
 		case 'code':
-			if (typeof n.value !== 'string') fail(path, 'code.value must be a string')
+			if (typeof n.value !== 'string') {
+				fail(path, 'code.value must be a string')
+			}
+
 			if (n.lang !== null && typeof n.lang !== 'string') {
 				fail(path, 'code.lang must be a string or null')
 			}
+
 			if (n.meta !== undefined && typeof n.meta !== 'string') {
 				fail(path, 'code.meta must be a string')
 			}
+
 			return
 		case 'math':
-			if (typeof n.value !== 'string') fail(path, 'math.value must be a string')
+			if (typeof n.value !== 'string') {
+				fail(path, 'math.value must be a string')
+			}
+
 			return
 		case 'blockquote':
-			if (!Array.isArray(n.children)) fail(path, 'blockquote.children must be an array')
+			if (!Array.isArray(n.children)) {
+				fail(path, 'blockquote.children must be an array')
+			}
+
 			n.children.forEach((k: MdNode, i: number) => checkBlock(k, `${path}/blockquote[${i}]`))
 			return
 		case 'list': {
-			if (typeof n.ordered !== 'boolean') fail(path, 'list.ordered must be a boolean')
+			if (typeof n.ordered !== 'boolean') {
+				fail(path, 'list.ordered must be a boolean')
+			}
+
 			if (n.start !== undefined && typeof n.start !== 'number') {
 				fail(path, 'list.start must be a number')
 			}
+
 			if (n.spread !== undefined && typeof n.spread !== 'boolean') {
 				fail(path, 'list.spread must be a boolean')
 			}
+
 			if (n.delimiter !== undefined && n.delimiter !== '.' && n.delimiter !== ')') {
 				fail(path, "list.delimiter must be '.' or ')'")
 			}
-			if (!Array.isArray(n.children)) fail(path, 'list.children must be an array')
+
+			if (!Array.isArray(n.children)) {
+				fail(path, 'list.children must be an array')
+			}
+
 			n.children.forEach((item: MdListItem, i: number) => {
 				if (item.type !== 'listItem') {
 					fail(`${path}/list[${i}]`, 'list children must be listItem nodes')
@@ -412,16 +461,24 @@ function checkBlock(node: unknown, path: string): void {
 				}
 				item.children.forEach((k: MdNode, j: number) => checkBlock(k, `${path}/list[${i}][${j}]`))
 			})
+
 			return
 		}
 		case 'table': {
-			if (!Array.isArray(n.align)) fail(path, 'table.align must be an array')
+			if (!Array.isArray(n.align)) {
+				fail(path, 'table.align must be an array')
+			}
+
 			n.align.forEach((a, i) => {
 				if (a !== null && a !== 'left' && a !== 'center' && a !== 'right') {
 					fail(`${path}.align[${i}]`, 'must be left|center|right|null')
 				}
 			})
-			if (!Array.isArray(n.children)) fail(path, 'table.children must be an array')
+
+			if (!Array.isArray(n.children)) {
+				fail(path, 'table.children must be an array')
+			}
+
 			n.children.forEach((row: MdTableRow, i: number) => {
 				if (row.type !== 'tableRow') {
 					fail(`${path}/table[${i}]`, 'table children must be tableRow nodes')
@@ -441,13 +498,20 @@ function checkBlock(node: unknown, path: string): void {
 					)
 				})
 			})
+
 			return
 		}
 		case 'thematicBreak':
 			return
 		case 'image':
-			if (typeof n.url !== 'string') fail(path, 'image.url must be a string')
-			if (typeof n.alt !== 'string') fail(path, 'image.alt must be a string')
+			if (typeof n.url !== 'string') {
+				fail(path, 'image.url must be a string')
+			}
+
+			if (typeof n.alt !== 'string') {
+				fail(path, 'image.alt must be a string')
+			}
+
 			return
 		case 'extension':
 			checkExtension(node as MdExtension, path, 'block')

@@ -37,7 +37,10 @@ export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 		(isRichLabel ? t('@astryx.checkboxList.item.checkbox') : (props.label as string))
 
 	const toggle = () => {
-		if (blocked) return
+		if (blocked) {
+			return
+		}
+
 		if (groupMode) {
 			ctx!.select?.(props.value!, state !== 'checked')
 		} else {
@@ -51,11 +54,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): JSX.Element @{
 		style={props.style}
 		web={props.web}
 		label={
-			namesFromVisibleLabel ? (
-				<span id={labelID}>{props.label as any}</span>
-			) : (
-				(props.label as any)
-			)
+			namesFromVisibleLabel ? <span id={labelID}>{props.label as any}</span> : (props.label as any)
 		}
 		description={props.description}
 		endContent={props.endContent}

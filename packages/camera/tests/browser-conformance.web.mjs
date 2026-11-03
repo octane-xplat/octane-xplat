@@ -276,6 +276,7 @@ try {
 	console.log(
 		'camera web conformance: real Chromium MediaRecorder/WebM VP8+Opus, silent/audio, repeated and early stop, limit overshoot, hidden-page notification, quota failure, retention rejection, disposal, IndexedDB reopening after reload passed; persistent grant and visibility are injected seams',
 	)
+
 	await liveSwitchConformance(page)
 } finally {
 	await browser.close()

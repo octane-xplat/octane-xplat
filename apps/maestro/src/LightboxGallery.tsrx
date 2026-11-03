@@ -18,19 +18,32 @@ export default function LightboxGallery() {
 			<Text>Maestro lightbox</Text>
 			<Text>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
 			<Lightbox.Root media={media} isOpen={open} onOpenChange={setOpen} onIndexChange={setIndex}>
-				<Lightbox.Trigger index={0} testID="lb-trigger-0"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--red" /></Lightbox.Trigger>
-				<Lightbox.Trigger index={1} testID="lb-trigger-1"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--green" /></Lightbox.Trigger>
-				<Lightbox.Trigger index={2} testID="lb-trigger-2"><View className="maestro-lightbox-thumb maestro-lightbox-thumb--blue" /></Lightbox.Trigger>
+				<Lightbox.Trigger index={0} testID="lb-trigger-0">
+					<View className="maestro-lightbox-thumb maestro-lightbox-thumb--red" />
+				</Lightbox.Trigger>
+				<Lightbox.Trigger index={1} testID="lb-trigger-1">
+					<View className="maestro-lightbox-thumb maestro-lightbox-thumb--green" />
+				</Lightbox.Trigger>
+				<Lightbox.Trigger index={2} testID="lb-trigger-2">
+					<View className="maestro-lightbox-thumb maestro-lightbox-thumb--blue" />
+				</Lightbox.Trigger>
 				<Lightbox.Popup testID="lb-popup">
 					<Lightbox.Backdrop testID="lb-backdrop" />
 					<Lightbox.Viewport>
 						{media.map((_, i) => (
-							<Lightbox.Slide key={i} index={i}><Lightbox.Image /></Lightbox.Slide>
+							<Lightbox.Slide key={i} index={i}>
+								<Lightbox.Image />
+							</Lightbox.Slide>
 						))}
 					</Lightbox.Viewport>
-					<Lightbox.Close testID="lb-close"><Text>{'close'}</Text></Lightbox.Close>
+					<Lightbox.Close testID="lb-close">
+						<Text>{'close'}</Text>
+					</Lightbox.Close>
 					{/* The modal popup hides the page from accessibility, so flows read the state here while open. */}
-					<Text testID="lb-state" style={{ position: 'absolute', left: 8, bottom: 8 }}>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
+					<Text
+						testID="lb-state"
+						style={{ position: 'absolute', left: 8, bottom: 8 }}
+					>{`state: ${open ? 'open' : 'closed'}:${index}`}</Text>
 				</Lightbox.Popup>
 			</Lightbox.Root>
 		</Screen>

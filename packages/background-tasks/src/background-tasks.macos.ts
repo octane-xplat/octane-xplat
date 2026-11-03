@@ -57,7 +57,9 @@ export const backgroundTasks: BackgroundTasks = {
 
 			Promise.resolve()
 				.then(() => executor({ name }))
-				.then((result: TaskResult) => completion(result === 'success' ? RESULT_FINISHED : RESULT_DEFERRED))
+				.then((result: TaskResult) =>
+					completion(result === 'success' ? RESULT_FINISHED : RESULT_DEFERRED),
+				)
 				.catch(() => completion(RESULT_DEFERRED))
 		})
 		schedulers.set(name, scheduler)
@@ -75,8 +77,7 @@ export const backgroundTasks: BackgroundTasks = {
 		}
 	},
 
-	getStatus: async (): Promise<TaskStatus> =>
-		schedulerClass() ? 'available' : 'unavailable',
+	getStatus: async (): Promise<TaskStatus> => (schedulerClass() ? 'available' : 'unavailable'),
 
 	isRegistered: async (name: string): Promise<boolean> => schedulers.has(name),
 }

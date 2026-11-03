@@ -25,10 +25,7 @@ export interface MarkdownBenchmarkProfile {
 	prepareSource(source: string, density: MarkdownBenchmarkClaimDensity): string
 }
 
-function addSoftBreakClaims(
-	source: string,
-	density: MarkdownBenchmarkClaimDensity,
-): string {
+function addSoftBreakClaims(source: string, density: MarkdownBenchmarkClaimDensity): string {
 	if (density === 'none') {
 		return source
 	}
@@ -45,9 +42,7 @@ function addSoftBreakClaims(
 				return [line]
 			}
 			const splitAt = line.indexOf(', and inline ')
-			return splitAt < 0
-				? [line]
-				: [line.slice(0, splitAt + 1), line.slice(splitAt + 2)]
+			return splitAt < 0 ? [line] : [line.slice(0, splitAt + 1), line.slice(splitAt + 2)]
 		})
 		.join('\n')
 }

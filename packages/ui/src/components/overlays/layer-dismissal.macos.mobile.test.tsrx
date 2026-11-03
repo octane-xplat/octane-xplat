@@ -217,6 +217,4 @@ describe('portable cross-root layer ownership', () => {
 			vi.unstubAllGlobals()
 		}
 	})
-
-
 })

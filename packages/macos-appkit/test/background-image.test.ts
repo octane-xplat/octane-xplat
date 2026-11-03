@@ -19,24 +19,48 @@ function harness() {
 	const makeLayer = () => {
 		const layer: any = {
 			children: [] as any[],
-			addSublayer(l: any) { this.children.push(l); l.superlayer = this },
-			insertSublayerAtIndex(l: any, i: number) { this.children.splice(i, 0, l); l.superlayer = this },
-			removeFromSuperlayer() { this.superlayer?.children?.splice(this.superlayer.children.indexOf(this), 1); this.superlayer = null },
+			addSublayer(l: any) {
+				this.children.push(l)
+				l.superlayer = this
+			},
+			insertSublayerAtIndex(l: any, i: number) {
+				this.children.splice(i, 0, l)
+				l.superlayer = this
+			},
+			removeFromSuperlayer() {
+				this.superlayer?.children?.splice(this.superlayer.children.indexOf(this), 1)
+				this.superlayer = null
+			},
 		}
 		created.push(layer)
 		return layer
 	}
 	const releases: string[] = []
 	const ctx = {
-		collectBackground, positioningBox, resolveImageSize, resolveStops, tileRects,
+		collectBackground,
+		positioningBox,
+		resolveImageSize,
+		resolveStops,
+		tileRects,
 		BORDER_CORNERS: ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'],
 		CALayer: { alloc: () => ({ init: makeLayer }) },
 		CAShapeLayer: { alloc: () => ({ init: makeLayer }) },
 		CAGradientLayer: { layer: makeLayer },
 		NSNumber: { numberWithDouble: (v: number) => v },
-		NSImage: { alloc: () => ({ initWithSize: () => ({ lockFocusFlipped() {}, unlockFocus() {}, CGImageForProposedRectContextHints: () => ({}) }) }) },
+		NSImage: {
+			alloc: () => ({
+				initWithSize: () => ({
+					lockFocusFlipped() {},
+					unlockFocus() {},
+					CGImageForProposedRectContextHints: () => ({}),
+				}),
+			}),
+		},
 		nativeColor: (c: any) => ({ CGColor: c }),
-		requestImage: (url: string, deliver: any) => { ctx.delivered?.(url, deliver); return () => releases.push(url) },
+		requestImage: (url: string, deliver: any) => {
+			ctx.delivered?.(url, deliver)
+			return () => releases.push(url)
+		},
 		borderStyleSides: () => ({ top: 'solid', right: 'solid', bottom: 'solid', left: 'solid' }),
 		hiddenBorderStyle: () => false,
 		borderLength: (v: any) => Number(v) || 0,
@@ -54,7 +78,12 @@ function harness() {
 }
 
 const node = (style: any) => ({
-	view: { flipped: false, wantsLayer: false, bounds: { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } }, layer: makeLayer() },
+	view: {
+		flipped: false,
+		wantsLayer: false,
+		bounds: { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } },
+		layer: makeLayer(),
+	},
 	computedStyle: style,
 })
 
@@ -62,9 +91,18 @@ function makeLayer(): any {
 	const l: any = {
 		children: [] as any[],
 		superlayer: null,
-		addSublayer(c: any) { this.children.push(c); c.superlayer = this },
-		insertSublayerAtIndex(c: any, i: number) { this.children.splice(i, 0, c); c.superlayer = this },
-		removeFromSuperlayer() { this.superlayer?.children?.splice(this.superlayer.children.indexOf(this), 1); this.superlayer = null },
+		addSublayer(c: any) {
+			this.children.push(c)
+			c.superlayer = this
+		},
+		insertSublayerAtIndex(c: any, i: number) {
+			this.children.splice(i, 0, c)
+			c.superlayer = this
+		},
+		removeFromSuperlayer() {
+			this.superlayer?.children?.splice(this.superlayer.children.indexOf(this), 1)
+			this.superlayer = null
+		},
 	}
 	return l
 }
@@ -94,7 +132,8 @@ test('a gradient layer paints stops, resizes with the host, and clears', () => {
 test('multiple layers keep CSS first-on-top order under the border layer', () => {
 	const { api } = harness()
 	const n = node({
-		backgroundImage: 'linear-gradient(red, blue), url(~/tile.png), radial-gradient(circle, white, black)',
+		backgroundImage:
+			'linear-gradient(red, blue), url(~/tile.png), radial-gradient(circle, white, black)',
 		borderStyle: 'solid',
 	}) as any
 	api.syncBackgrounds(n)
@@ -102,14 +141,19 @@ test('multiple layers keep CSS first-on-top order under the border layer', () =>
 	assert.equal(host.children.length, 3)
 	assert.equal(host.children[0].type, 'axial')
 	assert.equal(host.children[2].type, 'radial')
-	assert.ok(Number(host.children[0].zPosition) > Number(host.children[2].zPosition), 'first layer on top')
+	assert.ok(
+		Number(host.children[0].zPosition) > Number(host.children[2].zPosition),
+		'first layer on top',
+	)
 })
 
 test('url() layers subscribe to image loads and release on rebuild/teardown', () => {
 	const { api, ctx, releases } = harness()
 	const n = node({ backgroundImage: 'url(~/tile.png)' }) as any
 	let deliver: any
-	ctx.delivered = (_url: string, d: any) => { deliver = d }
+	ctx.delivered = (_url: string, d: any) => {
+		deliver = d
+	}
 	api.syncBackgrounds(n)
 	assert.ok(deliver)
 	const entry = n.bgPainted[0]
@@ -127,7 +171,11 @@ test('the shorthand routes its color to backgroundColor and warns on junk', () =
 	const orig = console.warn
 	console.warn = (m: string) => warnings.push(m)
 	try {
-		const n = node({ background: 'url(a.png) center/cover #123456', backgroundBlendMode: 'screen' }) as any
+		const n = node({
+			background: 'url(a.png) center/cover #123456',
+			backgroundBlendMode: 'screen',
+		}) as any
+
 		api.syncBackgrounds(n)
 		assert.equal(n.styleBg, '#123456')
 		assert.equal(n.view.layer.backgroundColor, '#123456')

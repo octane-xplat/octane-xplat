@@ -30,14 +30,20 @@ vi.mock('@nativescript/core', () => ({
 	Application: { on() {}, off() {} },
 }))
 
-vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({ applyNativeModifiers: () => {} }))
+vi.mock('../../internal/platform/apply-native-modifiers.native', () => ({
+	applyNativeModifiers: () => {},
+}))
+
 // The routing import graph reaches the platform barrel, whose per-service
 // modules evaluate @nativescript/core at import; none are exercised here.
 vi.mock('@octane-xplat/platform', () => ({ announce: () => {} }))
 vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 // The universal runtime only accepts compiler-defined components — stand in
 // with a real compiled leaf rather than a bare function.
-vi.mock('../media/Icon', async () => ({ Icon: (await vi.importActual('../layout/View.tsrx')).View }))
+vi.mock('../media/Icon', async () => ({
+	Icon: (await vi.importActual('../layout/View.tsrx')).View,
+}))
+
 vi.mock('./Popover', async () => ({ Popover: (await vi.importActual('../layout/View.tsrx')).View }))
 import { MenuSurface } from './MenuSurface.tsrx'
 import { DropdownMenuItem, MenuData } from './MenuParts.tsrx'
@@ -160,7 +166,10 @@ describe('native menu action contracts (object driver)', () => {
 
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 vi.mock('../layout/pan.macos.tsrx', () => ({ usePan: () => undefined }))
-vi.mock('../media/Icon.macos.tsrx', async () => ({ Icon: (await vi.importActual('../layout/View.tsrx')).View }))
+vi.mock('../media/Icon.macos.tsrx', async () => ({
+	Icon: (await vi.importActual('../layout/View.tsrx')).View,
+}))
+
 import { DropdownMenu as MacMenu } from './DropdownMenu.macos.tsrx'
 import { dispatchLayerKey } from './layer-stack'
 import { createPortalObjectDriver } from '../../../tests/portal-object-driver'
@@ -172,6 +181,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const observers = new Map<object, (note: any) => void>(),
 		layers: any[] = [],
 		window: any = {}
+
 	vi.stubGlobal('NSNotificationCenter', {
 		defaultCenter: {
 			addObserverForNameObjectQueueUsingBlock(
@@ -189,6 +199,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 			},
 		},
 	})
+
 	vi.stubGlobal('__xplatAppKit', {
 		showLayer(options: any) {
 			const source = options.createContentRoot({ window }),
@@ -202,11 +213,13 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 						if (layer.closed) {
 							return
 						}
+
 						layer.closed = true
 						source.unmount()
 						options.onClose()
 					}),
 				}
+
 			layers.push(layer)
 			layer.update()
 			return layer
@@ -217,17 +230,20 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 	const root = createUniversalRoot(container, createPortalObjectDriver())
 	const pick = vi.fn(),
 		close = vi.fn()
+
 	const settle = async () => {
 		for (let index = 0; index < 4; index++) {
 			await Promise.resolve()
 			flushUniversalSync(() => {})
 		}
 	}
+
 	const notify = () => {
 		for (const callback of [...observers.values()]) {
 			callback({ object: window })
 		}
 	}
+
 	const hydrate = (node: any) => {
 		node.window = window
 		node.convertRectToView = () => {}
@@ -252,6 +268,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
 		const trigger = all(container).find((node) =>
 			String(node.props?.className).includes('vx-menu-trigger'),
 		)
+
 		hydrate(trigger)
 		notify()
 		await settle()

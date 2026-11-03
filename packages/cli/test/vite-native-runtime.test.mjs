@@ -186,9 +186,11 @@ export { View, Style }
 import { Style } from '${full}/style'
 export { View, Style }`,
 				)
+
 				assert.throws(() => createRequire(entry).resolve(`${full}/style`), {
 					code: 'MODULE_NOT_FOUND',
 				})
+
 				process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
 				const config = await xplatNative('production')
 				const { build } = await import('vite')
@@ -203,12 +205,14 @@ export { View, Style }`,
 						lib: { entry, formats: ['es'] },
 					},
 				})
+
 				const code = [result]
 					.flat()
 					.flatMap((bundle) => bundle.output)
 					.filter((chunk) => chunk.type === 'chunk')
 					.map((chunk) => chunk.code)
 					.join('\n')
+
 				assert.ok(code.includes('full-windows'))
 				assert.ok(code.includes('full-style'))
 			} finally {

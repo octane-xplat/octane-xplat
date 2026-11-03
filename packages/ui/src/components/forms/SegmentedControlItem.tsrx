@@ -2,7 +2,12 @@
 import { useContext } from 'octane'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { SegmentedControlItemProps } from '../../props'
-import { applyEscapeProps, nativeAccessibilityRole, nativeAccessibilityState } from '../overlays/escape-props'
+import {
+	applyEscapeProps,
+	nativeAccessibilityRole,
+	nativeAccessibilityState,
+} from '../overlays/escape-props'
+
 import { SegmentedControlContext } from './option-list-contexts'
 
 /** `SegmentedControlItem` — one segment inside a `SegmentedControl`
@@ -29,7 +34,11 @@ export function SegmentedControlItem(props: SegmentedControlItemProps): unknown 
 		isEnabled={!disabled}
 		accessibilityRole={ctx ? nativeAccessibilityRole('radio') : undefined}
 		accessibilityLabel={props.label ?? props.value}
-		accessibilityState={ctx ? nativeAccessibilityState({ checked: selected, disabled, readOnly: ctx.isReadOnly }) : undefined}
+		accessibilityState={
+			ctx
+				? nativeAccessibilityState({ checked: selected, disabled, readOnly: ctx.isReadOnly })
+				: undefined
+		}
 		onTap={!ctx || blocked ? undefined : () => ctx.select?.(props.value)}
 	>
 		{props.icon != null ? (

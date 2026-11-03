@@ -106,26 +106,57 @@ test('uncached sources decode off the caller path; cached, stale and disposed lo
 })
 
 test('remote sources use owned transport; placeholders paint while pending and remain on failure', async () => {
-	const env = rendererImageFixture(), placeholder = 'data:image/png;base64,YQ=='
-	const expected = { data: { value: 'YQ==', options: 0 } }, views: any[] = []
-	const view = () => { const next: any = { image: null }; views.push(next); return next }
+	const env = rendererImageFixture(),
+		placeholder = 'data:image/png;base64,YQ=='
+	const expected = { data: { value: 'YQ==', options: 0 } },
+		views: any[] = []
+	const view = () => {
+		const next: any = { image: null }
+		views.push(next)
+		return next
+	}
 	try {
-		const first = view(); env.updateImage(first, 'https://x/photo.png', placeholder)
-		assert.deepEqual(first.image, expected); await env.start(); assert.equal(env.tasks.length, 1)
-		env.tasks[0].handler({ remote: 'photo-bytes' }, { statusCode: 200 }, null); env.flush()
+		const first = view()
+		env.updateImage(first, 'https://x/photo.png', placeholder)
+		assert.deepEqual(first.image, expected)
+		await env.start()
+		assert.equal(env.tasks.length, 1)
+		env.tasks[0].handler({ remote: 'photo-bytes' }, { statusCode: 200 }, null)
+		env.flush()
 		assert.deepEqual(first.image, { data: { remote: 'photo-bytes' } })
-		const cached = view(); env.updateImage(cached, 'https://x/photo.png', placeholder)
-		assert.deepEqual(cached.image, { data: { remote: 'photo-bytes' } }); assert.equal(env.tasks.length, 1)
-		const failing = view(); env.updateImage(failing, 'https://x/missing.png', placeholder)
-		assert.deepEqual(failing.image, expected); await env.start()
-		env.tasks[1].handler(null, null, Error('404')); env.flush(); assert.deepEqual(failing.image, expected)
-		const bare = view(); env.updateImage(bare, 'https://x/gone.png'); await env.start()
-		env.tasks[2].handler(null, null, Error('500')); env.flush(); assert.equal(bare.image, null)
-		const swapped = view(); env.updateImage(swapped, 'https://x/old.png', placeholder); await env.start()
+		const cached = view()
+		env.updateImage(cached, 'https://x/photo.png', placeholder)
+		assert.deepEqual(cached.image, { data: { remote: 'photo-bytes' } })
+		assert.equal(env.tasks.length, 1)
+		const failing = view()
+		env.updateImage(failing, 'https://x/missing.png', placeholder)
+		assert.deepEqual(failing.image, expected)
+		await env.start()
+		env.tasks[1].handler(null, null, Error('404'))
+		env.flush()
+		assert.deepEqual(failing.image, expected)
+		const bare = view()
+		env.updateImage(bare, 'https://x/gone.png')
+		await env.start()
+		env.tasks[2].handler(null, null, Error('500'))
+		env.flush()
+		assert.equal(bare.image, null)
+		const swapped = view()
+		env.updateImage(swapped, 'https://x/old.png', placeholder)
+		await env.start()
 		env.updateImage(swapped, 'data:image/png;base64,Yg==', placeholder)
-		assert.equal(env.tasks.length, 4); assert.equal(env.tasks[3].cancelled, 1)
-		env.tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null); env.flush(); await env.start()
+		assert.equal(env.tasks.length, 4)
+		assert.equal(env.tasks[3].cancelled, 1)
+		env.tasks[3].handler({ remote: 'old-bytes' }, { statusCode: 200 }, null)
+		env.flush()
+		await env.start()
 		assert.deepEqual(swapped.image, { data: { value: 'Yg==', options: 0 } })
-		const empty = view(); env.updateImage(empty, '', placeholder); assert.deepEqual(empty.image, expected)
-	} finally { for (const field of views) {env.disposeImage(field)} }
+		const empty = view()
+		env.updateImage(empty, '', placeholder)
+		assert.deepEqual(empty.image, expected)
+	} finally {
+		for (const field of views) {
+			env.disposeImage(field)
+		}
+	}
 })

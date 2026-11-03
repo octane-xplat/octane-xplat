@@ -200,6 +200,7 @@ try {
 		if (!Number.isSafeInteger(devicePid) || devicePid <= 0) {
 			throw new Error('Physical iOS launch returned no valid process identifier')
 		}
+
 		console.log('[xplat-probe-ios-app] ' + appId)
 	} else {
 		const installed = await sim(['get_app_container', device, appId, 'data'], {
@@ -225,5 +226,6 @@ try {
 	if (buildOnly) {
 		process.exit(1)
 	}
+
 	await stop()
 }

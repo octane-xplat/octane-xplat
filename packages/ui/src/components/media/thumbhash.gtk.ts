@@ -17,10 +17,12 @@ function dataBytes(body: string): Uint8Array {
 			bytes.push(raw[i])
 			continue
 		}
+
 		const pair = String.fromCharCode(raw[i + 1] ?? 0, raw[i + 2] ?? 0)
 		if (!/^[0-9a-f]{2}$/i.test(pair)) {
 			throw new Error('Invalid image data URI escape')
 		}
+
 		bytes.push(Number.parseInt(pair, 16))
 		i += 2
 	}
@@ -41,6 +43,7 @@ async function sourceBytes(src: string): Promise<any> {
 		if (comma < 0) {
 			throw new Error('Invalid image data URI')
 		}
+
 		const header = src.slice(0, comma)
 		const body = src.slice(comma + 1)
 		return new GLib.Bytes(/;base64$/i.test(header) ? GLib.base64_decode(body) : dataBytes(body))
@@ -62,6 +65,7 @@ async function sourceBytes(src: string): Promise<any> {
 						reject(new Error('thumbHashUri: HTTP ' + status))
 						return
 					}
+
 					resolve(bytes)
 				} catch (error) {
 					reject(error)
@@ -72,7 +76,9 @@ async function sourceBytes(src: string): Promise<any> {
 
 	let file: any
 	if (src.startsWith('~/')) {
-		file = Gio.File.new_for_uri(import.meta.url).get_parent().resolve_relative_path(src.slice(2))
+		file = Gio.File.new_for_uri(import.meta.url)
+			.get_parent()
+			.resolve_relative_path(src.slice(2))
 	} else if (src.startsWith('res://')) {
 		file = Gio.File.new_for_uri('resource:///' + src.slice(6).replace(/^\/+/, ''))
 	} else if (/^[a-z][a-z\d+.-]*:/i.test(src)) {

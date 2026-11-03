@@ -6,7 +6,11 @@ vi.mock('../../components/media/svg', () => ({
 }))
 
 import { describe, expect, it, vi } from 'vitest'
-import { nativeAccessibilityState, nativeAccessibilityRole } from '../../components/overlays/escape-props'
+import {
+	nativeAccessibilityState,
+	nativeAccessibilityRole,
+} from '../../components/overlays/escape-props'
+
 import { useImperativeHandle, useMemo, useRef } from 'octane'
 import { useMeasure } from '../../components/layout/useMeasure.tsrx'
 import {

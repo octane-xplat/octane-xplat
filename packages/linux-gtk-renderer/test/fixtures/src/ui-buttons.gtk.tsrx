@@ -18,19 +18,43 @@ export function Probe(props: { disabled?: boolean }) @{
 			id="btn"
 			label="Save"
 			variant="primary"
-			clickAction={() => { counts.presses++ }}
+			clickAction={() => {
+				counts.presses++
+			}}
 		/>
-		<Button id="btn-dis" label="Noop" isDisabled clickAction={() => { counts.presses += 100 }} />
-		<IconButton id="icon-btn" icon="check" label="Confirm" clickAction={() => { counts.icon++ }} />
-		<ToggleButton
-			id="tgl"
-			label="Bold"
-			onPressedChange={(p) => counts.toggles.push(p)}
+		<Button
+			id="btn-dis"
+			label="Noop"
+			isDisabled
+			clickAction={() => {
+				counts.presses += 100
+			}}
 		/>
+		<IconButton
+			id="icon-btn"
+			icon="check"
+			label="Confirm"
+			clickAction={() => {
+				counts.icon++
+			}}
+		/>
+		<ToggleButton id="tgl" label="Bold" onPressedChange={(p) => counts.toggles.push(p)} />
 		<ButtonGroup id="grp" label="Group" isDisabled={props.disabled}>
-			<Button id="grp-a" label="A" clickAction={() => { counts.presses += 10 }} />
+			<Button
+				id="grp-a"
+				label="A"
+				clickAction={() => {
+					counts.presses += 10
+				}}
+			/>
 		</ButtonGroup>
-		<ClickableCard id="card" label="Card" onPress={() => { counts.card++ }}>
+		<ClickableCard
+			id="card"
+			label="Card"
+			onPress={() => {
+				counts.card++
+			}}
+		>
 			<Text>Body</Text>
 		</ClickableCard>
 		<View id="btn-outside" style={{ width: 200, height: 40 }} />

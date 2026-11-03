@@ -13,6 +13,7 @@ import {
 	type MarkdownSyntaxPluginDefinition,
 	type MarkdownTransformContext,
 } from './markdown-plugins.ts'
+
 import {
 	createMarkdownRemarkTransform,
 	type MarkdownRemarkFile,
@@ -135,6 +136,7 @@ function deepFreeze<T>(value: T, seen = new Set<object>()): T {
 		for (const nested of Object.values(value)) {
 			deepFreeze(nested, seen)
 		}
+
 		Object.freeze(value)
 	}
 	return value
@@ -314,10 +316,7 @@ describe('remark adapter — supported round trip', () => {
 				root.children?.splice(index, 1)
 			}
 		})
-		expect(result.children.map((node) => node.type)).toEqual([
-			'heading',
-			'paragraph',
-		])
+		expect(result.children.map((node) => node.type)).toEqual(['heading', 'paragraph'])
 	})
 
 	it('gives every invocation a fresh tree and isolated file data', () => {
@@ -459,9 +458,9 @@ describe('remark adapter — a plugin cannot talk its way out of a failure', () 
 	})
 
 	it('fails the attach when the plugin touches the processor', () => {
-		const { root, result, reports } = runAdapter('Body.', function (
-			this: { data(key: string): void },
-		) {
+		const { root, result, reports } = runAdapter('Body.', function (this: {
+			data(key: string): void
+		}) {
 			this.data('micromarkExtensions')
 			return () => undefined
 		} as never)
@@ -498,8 +497,7 @@ describe('remark adapter — rejection matrix', () => {
 		},
 		{
 			name: 'a callback-style transformer',
-			plugin: () =>
-				((_tree: unknown, _file: unknown, _next: unknown) => undefined) as never,
+			plugin: () => ((_tree: unknown, _file: unknown, _next: unknown) => undefined) as never,
 			reason: /callback-style/,
 		},
 		{
@@ -714,15 +712,11 @@ describe('remark adapter — rejection matrix', () => {
 	]
 
 	it.each(rejectionCases)('keeps the last valid document on %s', (testCase) => {
-		const { root, result, reports } = runAdapter(
-			testCase.source ?? 'Body text.',
-			testCase.plugin,
-			{
-				sourceIds: testCase.sourceIds,
-				plugins: testCase.plugins,
-				display: testCase.display,
-			},
-		)
+		const { root, result, reports } = runAdapter(testCase.source ?? 'Body text.', testCase.plugin, {
+			sourceIds: testCase.sourceIds,
+			plugins: testCase.plugins,
+			display: testCase.display,
+		})
 		expect(result).toBe(root)
 		expect(reports.join('\n')).toMatch(testCase.reason)
 	})
@@ -778,6 +772,7 @@ describe('remark adapter — a refused promise is never left unhandled', () => {
 			const { root, result, reports } = runAdapter('Body.', () => () => {
 				return Promise.reject(new Error('late failure')) as never
 			})
+
 			expect(result).toBe(root)
 			expect(reports.join('\n')).toMatch(/asynchronous transformer/)
 			await new Promise((resolve) => setTimeout(resolve, 10))

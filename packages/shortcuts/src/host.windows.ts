@@ -67,6 +67,7 @@ function keyboard(api: any) {
 			if (ctrlKey && !altKey) {
 				state[17] = state[162] = state[163] = 0
 			}
+
 			const layout = call('GetKeyboardLayout', 'pointer', uint(0))
 			const count = Number(
 				call(
@@ -81,6 +82,7 @@ function keyboard(api: any) {
 					{ type: 'pointer', value: layout },
 				),
 			)
+
 			composing = count < 0
 			key =
 				count < 0
@@ -182,6 +184,7 @@ export const host: ShortcutHost = {
 					),
 				)
 			}
+
 			for (const [name, routed] of [
 				['LostFocus', ui.UIElement.LostFocusEvent],
 				['Unloaded', ui.FrameworkElement.UnloadedEvent],
@@ -189,11 +192,13 @@ export const host: ShortcutHost = {
 				if (!routed) {
 					continue
 				}
+
 				const reset = () => {
 					if (active) {
 						callbacks.reset()
 					}
 				}
+
 				releases.push(
 					subscribeNativeEvent(
 						element,

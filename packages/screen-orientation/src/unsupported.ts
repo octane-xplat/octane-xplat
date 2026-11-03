@@ -3,6 +3,7 @@ import type { OrientationBackend } from './backend-types'
 const unavailable = (): never => {
 	throw new UnavailabilityError('Screen orientation on this host')
 }
+
 export const backend: OrientationBackend = {
 	capabilities: () => ({ observe: false, lock: false }),
 	info: unavailable,

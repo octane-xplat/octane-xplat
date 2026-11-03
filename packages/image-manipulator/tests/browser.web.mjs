@@ -128,11 +128,13 @@ try {
 						)
 					}
 				}
+
 				const saved = await webpPixels.saveAsync({
 					format: SaveFormat.WEBP,
 					compress: 1,
 					base64: true,
 				})
+
 				try {
 					const blob = await fetch(saved.uri).then((response) => response.blob())
 					const bytes = new Uint8Array(await blob.arrayBuffer())
@@ -170,6 +172,7 @@ try {
 			unmounted,
 		}
 	})
+
 	assert.deepEqual(result.rotated.reds, [80, 20, 100, 40, 120, 60])
 	assert.deepEqual([result.rotated.width, result.rotated.height], [2, 3])
 	assert.deepEqual(result.cropped.reds, [100, 40, 120, 60])
@@ -191,6 +194,7 @@ try {
 			unmounted: result.unmounted,
 		}),
 	)
+
 	assert.equal(result.sourceChanged, true)
 	assert.equal(result.unmounted, true)
 	for (const sample of [
@@ -204,6 +208,7 @@ try {
 		assert.equal(sample.base64, true)
 		assert.equal(sample.revoked, true)
 	}
+
 	for (const output of result.webpOutputs) {
 		assert.equal(output.mime, 'image/webp')
 		assert.equal(output.riff, 'RIFF')
@@ -211,6 +216,7 @@ try {
 		assert.deepEqual([output.size.width, output.size.height], [3, 2])
 		assert.equal(output.base64, true)
 	}
+
 	assert.deepEqual(errors, [])
 	console.log(
 		'Chromium: exact pixel transforms, action order, resize, extent, PNG/WebP bytes and forced WASM fallback, source refs, reset, release, bounds and Octane hook lifecycle passed; no screenshots captured.',

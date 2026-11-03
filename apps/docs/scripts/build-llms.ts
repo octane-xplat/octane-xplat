@@ -15,6 +15,7 @@ import {
 	slugFor,
 	titleOf,
 } from '../src/doc-meta.ts'
+
 import { buildChangelogMd } from '../src/changelog-format.ts'
 
 const here = dirname(fileURLToPath(import.meta.url))
@@ -76,6 +77,7 @@ const changelogMd = buildChangelogMd(
 	await readFile(join(here, '../../../CHANGELOG.md'), 'utf8'),
 	await readFile(join(here, '../../../FIXLOG.md'), 'utf8'),
 )
+
 docs.push({
 	slug: 'changelog',
 	title: titleOf('changelog', changelogMd),

@@ -24,6 +24,7 @@ for (const name of engines) {
 		encoding: 'utf8',
 		timeout: 120_000,
 	})
+
 	assert.equal(built.status, 0, `${name} build-browser:\n${built.stdout}\n${built.stderr}`)
 }
 
@@ -33,6 +34,7 @@ await symlink(
 	fileURLToPath(new URL('../../platform', import.meta.url)),
 	join(app, 'node_modules/@octane-xplat/platform'),
 )
+
 await writeFile(join(app, 'package.json'), JSON.stringify({ name: 'wk-fixture', type: 'module' }))
 
 const pageImports = engines
@@ -41,6 +43,7 @@ const pageImports = engines
 			`import page${i} from ${JSON.stringify(join(repo, `packages/${name}/dist/macos/browser.js`))}`,
 	)
 	.join('\n')
+
 const pages = engines.map((name, i) => `[${JSON.stringify(name)}, page${i}]`).join(',')
 
 await writeFile(
@@ -222,8 +225,10 @@ const output = await new Promise((resolveOutput, reject) => {
 		}
 	})
 })
+
 for (const name of engines) {
 	assert.match(output, new RegExp(`${name}: WK_EDITOR_OK`), output)
 }
+
 assert.doesNotMatch(output, /EDITOR_FAIL/, output)
 console.log('WK editor host: real AppKit/JSC dispatch passed for richtext, tiptap, lexical')

@@ -93,12 +93,10 @@ it('skips disabled controls and ignores keyboard changes', () => {
 	expect(change).not.toHaveBeenCalled()
 })
 
-
 it('keeps fractional values in the default text readout', () => {
 	const { slider } = mount({ value: 0.5, min: 0, max: 1, valueDisplay: 'text' })
 	expect(slider.querySelector('.vx-slider-value')?.textContent).toBe('0.5')
 })
-
 
 it('seeds scalar and range defaults once and retains local keyboard edits', () => {
 	const scalar = mount({ defaultValue: 40, step: 5 })
@@ -128,6 +126,7 @@ it('uses the pressed position to choose the nearest range thumb', () => {
 	const { slider } = mount({ value: [20, 80], min: 0, max: 100, step: 5, onValueChange: change })
 	const pointer = (name: string, x: number) =>
 		act(() => slider.dispatchEvent(new MouseEvent(name, { clientX: x, bubbles: true })))
+
 	pointer('pointerdown', 160)
 	pointer('pointermove', 180)
 	pointer('pointerup', 180)
@@ -139,18 +138,22 @@ it('uses the pressed position to choose the nearest range thumb', () => {
 	expect(change).toHaveBeenLastCalledWith([40, 80])
 })
 
-
 it('shows a formatted thumb tooltip on focus and retains its live value', async () => {
 	const formatValue = (value: number) => value + '%'
 	const { slider, render } = mount({ value: 25, valueDisplay: 'tooltip', formatValue })
 	act(() => slider.focus())
-	await vi.waitFor(() => expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('25%'))
+	await vi.waitFor(() =>
+		expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('25%'),
+	)
+
 	render({ value: 35, valueDisplay: 'tooltip', formatValue })
-	await vi.waitFor(() => expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('35%'))
+	await vi.waitFor(() =>
+		expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('35%'),
+	)
+
 	key(slider, 'Escape')
 	await vi.waitFor(() => expect(document.querySelector('[role="tooltip"]')).toBeNull())
 })
-
 
 it('reaches the maximum when the step does not divide the interval', () => {
 	const change = vi.fn()
@@ -158,7 +161,6 @@ it('reaches the maximum when the step does not divide the interval', () => {
 	key(slider, 'End')
 	expect(change).toHaveBeenLastCalledWith(28)
 })
-
 
 it('keeps read-only sliders focusable without presenting them as disabled', () => {
 	const change = vi.fn()

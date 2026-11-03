@@ -8,8 +8,7 @@ import * as BrowserSentry from '@sentry/browser'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { SentryBreadcrumb, SentryInitOptions, SentryService, SentryUser } from './types'
 
-const transport = () =>
-	typeof (globalThis as any).fetch === 'function'
+const transport = () => typeof (globalThis as any).fetch === 'function'
 
 let ready = false
 

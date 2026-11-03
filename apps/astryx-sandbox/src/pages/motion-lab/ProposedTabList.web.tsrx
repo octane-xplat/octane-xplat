@@ -24,9 +24,7 @@
 
 import { useLayoutEffect, useRef, createContext, useContext } from 'octane'
 
-const ProposedContext = createContext<{ value: string; onChange: (v: string) => void } | null>(
-	null,
-)
+const ProposedContext = createContext<{ value: string; onChange: (v: string) => void } | null>(null)
 
 export function TabList(props: {
 	value: string
@@ -43,11 +41,13 @@ export function TabList(props: {
 		if (strip == null || indicator == null) {
 			return
 		}
+
 		const selected = strip.querySelector<HTMLElement>('[data-selected="true"]')
 		if (selected == null) {
 			indicator.style.width = '0'
 			return
 		}
+
 		const stripRect = strip.getBoundingClientRect()
 		const rect = selected.getBoundingClientRect()
 		indicator.style.transform = `translateX(${rect.left - stripRect.left}px)`

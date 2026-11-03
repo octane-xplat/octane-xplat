@@ -45,10 +45,7 @@ try {
 		{
 			prebuilt: [
 				{
-					source: join(
-						packageRoot,
-						'../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib',
-					),
+					source: join(packageRoot, '../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib'),
 				},
 			],
 			libraries: [],

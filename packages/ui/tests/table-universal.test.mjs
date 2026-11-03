@@ -4,7 +4,15 @@ import { compile } from 'octane/compiler'
 
 // These hooks return plugin data containing render callbacks. A successful
 // DOM build does not prove that the universal compiler can lower those values.
-for (const name of ['row-index', 'row-expansion', 'grouped-rows', 'row-status', 'tree-data', 'column-resize.macos', 'sticky-columns.macos']) {
+for (const name of [
+	'row-index',
+	'row-expansion',
+	'grouped-rows',
+	'row-status',
+	'tree-data',
+	'column-resize.macos',
+	'sticky-columns.macos',
+]) {
 	for (const hmr of [false, true]) {
 		test(`${name} compiles for AppKit with HMR ${hmr ? 'on' : 'off'}`, async () => {
 			const filename = `use-table-${name}.tsrx`
@@ -23,12 +31,20 @@ for (const name of ['row-index', 'row-expansion', 'grouped-rows', 'row-status', 
 	}
 }
 
-
 for (const hmr of [false, true]) {
 	test(`AppKit column resize handle compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
 		const filename = 'column-resize-handle.macos.tsrx'
 		const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
-		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-appkit', target: 'universal', server: 'unsupported', text: 'host' } })
+		compile(source, filename, {
+			hmr,
+			renderer: {
+				id: 'macos',
+				module: '@octane-xplat/macos-appkit',
+				target: 'universal',
+				server: 'unsupported',
+				text: 'host',
+			},
+		})
 	})
 }
 
@@ -36,6 +52,15 @@ for (const hmr of [false, true]) {
 	test(`AppKit Table body text compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
 		const filename = 'Table.macos.tsrx'
 		const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
-		compile(source, filename, { hmr, renderer: { id: 'macos', module: '@octane-xplat/macos-appkit', target: 'universal', server: 'unsupported', text: 'host' } })
+		compile(source, filename, {
+			hmr,
+			renderer: {
+				id: 'macos',
+				module: '@octane-xplat/macos-appkit',
+				target: 'universal',
+				server: 'unsupported',
+				text: 'host',
+			},
+		})
 	})
 }

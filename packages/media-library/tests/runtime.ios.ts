@@ -21,6 +21,7 @@ type Context = {
 	): Promise<NonNullable<T>>
 	onCleanup(callback: () => unknown | Promise<unknown>): void
 }
+
 const fixture =
 	'iVBORw0KGgoAAAANSUhEUgAAAAMAAAACCAIAAAASFvFNAAAAHElEQVR4nGMQYWDQYGCwYWBgCGBgSGFgqGBgAAANrAGldwYwdgAAAABJRU5ErkJggg=='
 
@@ -62,6 +63,7 @@ export async function run(ctx: Context) {
 		} catch {
 			rejected = true
 		}
+
 		ctx.assert('queries reject without authorization', rejected)
 		ctx.record('phase', 'no-access')
 		return

@@ -5,11 +5,13 @@ export interface ConversionRequest {
 	backgroundColor: string
 	bitrate: number
 }
+
 export interface ConversionControl {
 	cancelled(): boolean
 	onCancel(action: () => void): void
 	progress(value: number): void
 }
+
 export interface ConversionBackend {
 	isAvailable(format: VideoFormat): Promise<boolean>
 	convert(
@@ -19,6 +21,7 @@ export interface ConversionBackend {
 	): Promise<ConvertedVideo>
 	release(uri: string): void
 }
+
 export function aborted(): Error {
 	const error = new Error('Media conversion was cancelled')
 	error.name = 'AbortError'

@@ -14,9 +14,11 @@ const device = process.env.XPLAT_IOS_DEVICE
 if (!device || !/^[A-Za-z0-9-]+$/.test(device)) {
 	throw new Error('Set XPLAT_IOS_DEVICE to the paired physical iPhone UDID')
 }
+
 if (process.platform !== 'darwin') {
 	throw new Error('Physical iOS qualification requires macOS')
 }
+
 const call = (command, args, options = {}) => {
 	const result = spawnSync(command, args, { encoding: 'utf8', timeout: 30_000, ...options })
 	if (result.error || result.status !== 0) {
@@ -24,12 +26,14 @@ const call = (command, args, options = {}) => {
 	}
 	return result.stdout
 }
+
 const broker = (resources, purpose, args) =>
 	call(
 		'goddard-agent',
 		['resource', 'run', '--json', JSON.stringify({ resources, purpose }), '--', ...args],
 		{ stdio: 'inherit', timeout: 0 },
 	)
+
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const bounded = async (promise, ms) => {
 	let timer
@@ -61,6 +65,7 @@ if (process.argv[2] !== '--device') {
 		'600000',
 		'physical-build',
 	])
+
 	broker(
 		{ exclusive: [`device:${device}`] },
 		'Qualify camera switching and OS background recovery without visual analysis',
@@ -85,6 +90,7 @@ if (process.argv[2] !== '--device') {
 			'--quiet',
 			...args.slice(2),
 		])
+
 	const child = spawn(
 		'bun',
 		[
@@ -104,10 +110,12 @@ if (process.argv[2] !== '--device') {
 		],
 		{ cwd: repo, stdio: ['ignore', 'inherit', 'pipe'] },
 	)
+
 	let logs = '',
 		exited = false,
 		result,
 		phaseExercised = false
+
 	const completion = new Promise((resolve, reject) => {
 		child.on('error', reject)
 		child.on('exit', (code, signal) => {
@@ -116,10 +124,12 @@ if (process.argv[2] !== '--device') {
 			resolve()
 		})
 	})
+
 	child.stderr.on('data', (data) => {
 		logs += data
 		process.stderr.write(data)
 	})
+
 	const stop = () => child.kill('SIGTERM')
 	process.on('SIGINT', stop)
 	process.on('SIGTERM', stop)
@@ -129,14 +139,17 @@ if (process.argv[2] !== '--device') {
 			if (Date.now() > deadline) {
 				throw new Error('Physical camera phase timed out')
 			}
+
 			await delay(1000)
 			const app = logs.match(/\[xplat-probe-ios-app\] ([A-Za-z0-9.]+)/)?.[1]
 			if (!app) {
 				continue
 			}
+
 			if (app !== expectedApp) {
 				throw new Error('Probe source changed after its build; rerun qualification')
 			}
+
 			let phase
 			try {
 				ctl(
@@ -151,6 +164,7 @@ if (process.argv[2] !== '--device') {
 					'--domain-identifier',
 					app,
 				)
+
 				ctl(
 					'copy',
 					'from',
@@ -163,19 +177,23 @@ if (process.argv[2] !== '--device') {
 					'--domain-identifier',
 					app,
 				)
+
 				phase = JSON.parse(readFileSync(phasePath, 'utf8'))
 			} catch {
 				continue
 			} // The app may not have written this run's phase yet.
+
 			if (phase.phase !== 'background-recording' || phase.token !== token) {
 				continue
 			}
+
 			console.error('Backgrounding isolated camera probe through Settings launch')
 			ctl('process', 'launch', 'com.apple.Preferences')
 			await delay(2000)
 			ctl('process', 'launch', app) // foreground the same process; do not terminate/relaunch it
 			phaseExercised = true
 		}
+
 		await bounded(completion, 120_000)
 		if (result.code !== 0 || !phaseExercised) {
 			throw new Error(`Camera probe failed: ${JSON.stringify({ ...result, phaseExercised })}`)
@@ -191,6 +209,7 @@ if (process.argv[2] !== '--device') {
 				}
 			}
 		}
+
 		process.off('SIGINT', stop)
 		process.off('SIGTERM', stop)
 		rmSync(work, { recursive: true, force: true })

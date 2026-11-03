@@ -20,7 +20,15 @@ function fixture(options = {}) {
 		}
 	}
 	const owner = { IsHostVisible: true, ContentIslandEnvironment: { AppWindowId: { Value: 7 } } }
-	const state = { focus: [], captures: [], activationReads: [], primaryReads: 0, active: true, layerKeySetup: null, layerKeyEvents: [] }
+	const state = {
+		focus: [],
+		captures: [],
+		activationReads: [],
+		primaryReads: 0,
+		active: true,
+		layerKeySetup: null,
+		layerKeyEvents: [],
+	}
 	const control = (root = owner) => ({
 		XamlRoot: root,
 		IsLoaded: true,

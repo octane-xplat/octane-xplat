@@ -70,6 +70,7 @@ test('override subcommand reads the existing body on stdin', () => {
 			encoding: 'utf8',
 			input: stdin,
 		})
+
 		assert.equal(run.status, 0, run.stderr)
 		assert.equal(run.stdout, expected, `input=${input}`)
 	}

@@ -32,6 +32,7 @@ let serverOutput = ''
 server.stdout.on('data', (data) => {
 	serverOutput += data
 })
+
 server.stderr.on('data', (data) => {
 	serverOutput += data
 })
@@ -70,11 +71,11 @@ const PAGES = [
 	['shell-nav', ['AppShell.tsx', 'Share', 'README.md'], 0],
 	['detail-page', ['All orders', '#1001'], 0],
 	['product-detail', ['Solstice Mug & Plate Set', 'Add to Cart'], 0],
-	['contact-form', ['Let\'s work together', 'Submit'], 0],
+	['contact-form', ["Let's work together", 'Submit'], 0],
 	['file-explorer', ['Chrome Apps', 'Applications'], 0],
 	['messaging-shell', ['Jump to'], 0],
 	['ide', ['Search'], 0],
-	['form-two-column', ['Let\'s work together', 'Full name'], 0],
+	['form-two-column', ["Let's work together", 'Full name'], 0],
 	['settings', ['Settings'], 0],
 	['documentation', ['Breadcrumbs', 'Typeahead'], 0],
 	['dashboard', ['Active users', 'Traffic channels'], 0],
@@ -113,9 +114,11 @@ try {
 		} catch {
 			/* The preview process is still starting. */
 		}
+
 		if (server.exitCode !== null) {
 			throw new Error(serverOutput)
 		}
+
 		await new Promise((resolve) => setTimeout(resolve, 100))
 	}
 
@@ -134,10 +137,15 @@ try {
 	}
 
 	for (const [name, strings, imgCount] of PAGES) {
-		if (only && !only.has(name)) {continue}
+		if (only && !only.has(name)) {
+			continue
+		}
+
 		await test(`${name}: rendered content`, async () => {
 			await go(name)
-			for (const text of strings) {await has(text)}
+			for (const text of strings) {
+				await has(text)
+			}
 			assert.equal(await page.locator('.sb-pending').count(), 0, 'still pending')
 			if (imgCount > 0) {
 				assert.equal(await page.locator('img').count(), imgCount, 'image count')
@@ -145,7 +153,8 @@ try {
 		})
 	}
 
-	const want = (name, fn) => (!only || only.has(name.split(':')[0]) ? test(name, fn) : Promise.resolve())
+	const want = (name, fn) =>
+		!only || only.has(name.split(':')[0]) ? test(name, fn) : Promise.resolve()
 
 	// ── Behavior checks (real pointer/keyboard) ──
 

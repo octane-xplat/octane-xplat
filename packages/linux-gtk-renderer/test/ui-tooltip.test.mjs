@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
 				if (phase.phase === 'hover') {
@@ -78,6 +79,7 @@ test(
 				} else if (phase.phase === 'escape') {
 					send('key', 'Escape')
 				}
+
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error

@@ -10,7 +10,9 @@ export function createClipWriter(view: any): ClipWriter {
 		mechanism: 'mask',
 		setClip(inset, radius) {
 			const host = layer()
-			if (!host) {return}
+			if (!host) {
+				return
+			}
 			// The native host may not be ready when the writer is created.
 			// Attach after layout and restore our mask if a host update removed it.
 			if (!mask) {
@@ -21,16 +23,26 @@ export function createClipWriter(view: any): ClipWriter {
 			CATransaction.begin()
 			CATransaction.setDisableActions(true)
 			try {
-				mask.frame = CGRectMake(inset.left, inset.top, Math.max(0, width - inset.left - inset.right), Math.max(0, height - inset.top - inset.bottom))
+				mask.frame = CGRectMake(
+					inset.left,
+					inset.top,
+					Math.max(0, width - inset.left - inset.right),
+					Math.max(0, height - inset.top - inset.bottom),
+				)
+
 				mask.cornerRadius = radius
-				if (host.mask !== mask) {host.mask = mask}
+				if (host.mask !== mask) {
+					host.mask = mask
+				}
 			} finally {
 				CATransaction.commit()
 			}
 		},
 		clear() {
 			const host = layer()
-			if (host && mask && host.mask === mask) {host.mask = null}
+			if (host && mask && host.mask === mask) {
+				host.mask = null
+			}
 		},
 	}
 }

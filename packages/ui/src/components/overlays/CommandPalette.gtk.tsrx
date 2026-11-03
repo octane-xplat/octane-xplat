@@ -19,7 +19,7 @@ import { bindCommandPaletteKeys } from './command-palette-keys.gtk'
 // matching never consults it. A minimal local shim keeps the contract.
 if (typeof (globalThis as any).AbortController === 'undefined') {
 	;(globalThis as any).AbortController = class {
-		readonly signal = { aborted: false, addEventListener: () => { } }
+		readonly signal = { aborted: false, addEventListener: () => {} }
 		abort() {
 			this.signal.aborted = true
 		}
@@ -273,6 +273,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
 			scrim: true,
 			onScrimPress: () => controller.close(),
 		})
+
 		setLayer(l)
 		l.setVisible(true)
 		return () => {

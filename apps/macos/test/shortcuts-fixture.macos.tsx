@@ -19,6 +19,7 @@ const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 	2,
 	false,
 )
+
 window.releasedWhenClosed = false
 window.title = 'XplatShortcuts'
 app.finishLaunching()
@@ -35,6 +36,7 @@ setTimeout(async () => {
 				throw new Error(message)
 			}
 		}
+
 		check(target && editor, 'renderer views missing')
 		check(!host.isEditableTarget(NSButton.new()), 'non-text controls remain shortcut targets')
 		shortcuts = createShortcuts({ target })
@@ -47,11 +49,13 @@ setTimeout(async () => {
 			preventDefault: true,
 			handler: () => calls.push('palette'),
 		})
+
 		shortcuts.bind({
 			sequence: 'g i',
 			editablePolicy: 'allow-in-editable',
 			handler: () => calls.push('sequence'),
 		})
+
 		shortcuts.bind({ combo: 'x', handler: () => calls.push('plain') })
 		const pause = () => new Promise((resolve) => setTimeout(resolve, 100))
 		const send = (code, chars, flags = 0, up = false) => {
@@ -70,6 +74,7 @@ setTimeout(async () => {
 				)
 			app.postEventAtStart(event, false)
 		}
+
 		check(window.makeFirstResponder(editor), 'editor focus')
 		app.activateIgnoringOtherApps(true)
 		send(40, 'k', 1 << 20)
@@ -86,6 +91,7 @@ setTimeout(async () => {
 			calls.join(',') === 'palette,sequence',
 			'matching, sequence and editable policy: ' + calls,
 		)
+
 		check(String(editor.stringValue) === 'x', 'native editable text')
 		const recording = shortcuts.record({ timeout: 250, consumeEvents: true })
 		send(7, 'x', (1 << 20) | (1 << 17))

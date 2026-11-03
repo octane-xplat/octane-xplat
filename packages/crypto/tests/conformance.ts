@@ -14,11 +14,13 @@ import {
 	getRandomValues,
 	randomUUID,
 } from '../src/index'
+
 import { decodeHex, hex } from '../src/bytes'
 type Context = {
 	assert(name: string, actual: unknown, expected?: unknown): void
 	record(name: string, value: unknown): void
 }
+
 export async function run(ctx: Context) {
 	const check = (name: string, actual: unknown, expected: unknown = true) =>
 		ctx.assert(name, actual, expected)
@@ -235,6 +237,7 @@ export async function run(ctx: Context) {
 	if (Crypto.capabilities.aesKeySizes.includes(192)) {
 		const key192 = await AESEncryptionKey.generate(192),
 			sealed192 = await aesEncryptAsync(new Uint8Array([1, 2, 3]), key192)
+
 		check('AES192 roundtrip', hex(await aesDecryptAsync(sealed192, key192)), '010203')
 	} else {
 		check('AES192 explicitly unavailable', await rejects(() => AESEncryptionKey.generate(192)))
@@ -243,21 +246,25 @@ export async function run(ctx: Context) {
 		if (!Crypto.capabilities.aesKeySizes.includes(vector.bits)) {
 			continue
 		}
+
 		const vectorKey = await AESEncryptionKey.import(vector.key, 'hex')
 		const encrypted = await aesEncryptAsync(decodeHex(vector.plaintext), vectorKey, {
 			nonce: { bytes: decodeHex(vector.iv) },
 			additionalData: decodeHex(vector.aad),
 		})
+
 		check(
 			`CAVP AES${vector.bits} ciphertext ${vector.plaintext.length}`,
 			hex(await encrypted.ciphertext()),
 			vector.ciphertext,
 		)
+
 		check(
 			`CAVP AES${vector.bits} tag ${vector.plaintext.length}`,
 			hex(await encrypted.tag()),
 			vector.tag,
 		)
+
 		check(
 			`CAVP AES${vector.bits} decrypt ${vector.plaintext.length}`,
 			hex(await aesDecryptAsync(encrypted, vectorKey, { additionalData: decodeHex(vector.aad) })),

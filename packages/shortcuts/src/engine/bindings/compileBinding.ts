@@ -55,6 +55,7 @@ function normalizeBindingInput(input: BindingInput, handler?: ShortcutHandler): 
 		if (!handler) {
 			throw new TypeError('A handler is required when binding from a string')
 		}
+
 		return { combo: input, handler }
 	}
 

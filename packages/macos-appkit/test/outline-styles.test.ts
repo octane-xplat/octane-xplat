@@ -1,12 +1,21 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle, borderBands, borderBandPoints, darkBorderComponents } from '../src/border-styles.ts'
+import {
+	borderStyleSides,
+	hiddenBorderStyle,
+	borderStrokeStyle,
+	borderBands,
+	borderBandPoints,
+	darkBorderComponents,
+} from '../src/border-styles.ts'
 
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 const SLICE =
-	source.slice(source.indexOf('function outlineSpec'), source.indexOf('// ---- Background layers')) +
-	'\n({ outlineSpec, syncOutline })'
+	source.slice(
+		source.indexOf('function outlineSpec'),
+		source.indexOf('// ---- Background layers'),
+	) + '\n({ outlineSpec, syncOutline })'
 
 function harness(style: any) {
 	const observerTokens: any[] = []
@@ -14,17 +23,37 @@ function harness(style: any) {
 	const shapes: any[] = []
 	const makeShape = () => {
 		const s: any = {
-			addSublayer(l: any) { l.superlayer = this },
-			removeFromSuperlayer() { this.superlayer = null },
+			addSublayer(l: any) {
+				l.superlayer = this
+			},
+			removeFromSuperlayer() {
+				this.superlayer = null
+			},
 		}
 		shapes.push(s)
 		return s
 	}
 	const ctx = {
-		borderStyleSides, hiddenBorderStyle, borderStrokeStyle, borderBands, borderBandPoints, darkBorderComponents,
+		borderStyleSides,
+		hiddenBorderStyle,
+		borderStrokeStyle,
+		borderBands,
+		borderBandPoints,
+		darkBorderComponents,
 		BORDER_CORNERS: ['topLeft', 'topRight', 'bottomRight', 'bottomLeft'],
 		BORDER_SIDES: ['top', 'right', 'bottom', 'left'],
-		BORDER_STYLE_WORDS: new Set(['none', 'hidden', 'solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset']),
+		BORDER_STYLE_WORDS: new Set([
+			'none',
+			'hidden',
+			'solid',
+			'dashed',
+			'dotted',
+			'double',
+			'groove',
+			'ridge',
+			'inset',
+			'outset',
+		]),
 		CALayer: { alloc: () => ({ init: makeShape }) },
 		CAShapeLayer: { alloc: () => ({ init: makeShape }) },
 		CGPathCreateMutable: () => ({}),
@@ -35,19 +64,43 @@ function harness(style: any) {
 		scaleBorderRadii: (r: any) => r,
 		correctProjectionRadii: (_v: any, r: any) => r,
 		NSNumber: { numberWithDouble: (v: number) => v },
-		NSColor: { keyboardFocusIndicatorColor: { CGColor: 'focus' }, colorWithSRGBRedGreenBlueAlpha: () => ({ CGColor: 'dark' }) },
+		NSColor: {
+			keyboardFocusIndicatorColor: { CGColor: 'focus' },
+			colorWithSRGBRedGreenBlueAlpha: () => ({ CGColor: 'dark' }),
+		},
 		nativeColor: (c: any) => ({ CGColor: 'cg:' + c }),
 		srgbComponents: () => ({ red: 0.5, green: 0.5, blue: 0.5, alpha: 1 }),
 		effectiveStyle: () => style,
-		NSNotificationCenter: { defaultCenter: {
-			addObserverForNameObjectQueueUsingBlock(_n: any, _v: any, _q: any, cb: any) { resize = cb; const t = {}; observerTokens.push(t); return t },
-			removeObserver(t: any) { observerTokens.splice(observerTokens.indexOf(t), 1) },
-		} },
+		NSNotificationCenter: {
+			defaultCenter: {
+				addObserverForNameObjectQueueUsingBlock(_n: any, _v: any, _q: any, cb: any) {
+					resize = cb
+					const t = {}
+					observerTokens.push(t)
+					return t
+				},
+				removeObserver(t: any) {
+					observerTokens.splice(observerTokens.indexOf(t), 1)
+				},
+			},
+		},
 		NSViewFrameDidChangeNotification: 'frame',
 		console,
 	}
 	const api = runSlice(SLICE, ctx)
-	const node: any = { view: { wantsLayer: false, flipped: false, bounds: { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } }, layer: { addSublayer(l: any) { l.superlayer = this }, cornerRadius: 4 } } }
+	const node: any = {
+		view: {
+			wantsLayer: false,
+			flipped: false,
+			bounds: { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } },
+			layer: {
+				addSublayer(l: any) {
+					l.superlayer = this
+				},
+				cornerRadius: 4,
+			},
+		},
+	}
 	return { api, node, shapes, observerTokens, fireResize: () => resize?.() }
 }
 
@@ -55,7 +108,10 @@ test('outlineSpec parses shorthand and longhands, none clears', () => {
 	const { api } = harness({})
 	assert.equal(api.outlineSpec({ outline: '2px dashed red' })?.style, 'dashed')
 	assert.equal(api.outlineSpec({ outline: '2px dashed red' })?.width, 2)
-	assert.equal(api.outlineSpec({ outlineStyle: 'dotted', outlineWidth: 3, outlineOffset: 2 })?.offset, 2)
+	assert.equal(
+		api.outlineSpec({ outlineStyle: 'dotted', outlineWidth: 3, outlineOffset: 2 })?.offset,
+		2,
+	)
 	assert.equal(api.outlineSpec({ outline: 'none' }), null)
 	assert.equal(api.outlineSpec({ outlineWidth: 0 }), null)
 	assert.equal(api.outlineSpec({ outlineStyle: 'auto' })?.style ?? null, null)

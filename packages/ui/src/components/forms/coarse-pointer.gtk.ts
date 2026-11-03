@@ -14,6 +14,6 @@ export function hasCoarsePointer(): boolean {
 				return true
 			}
 		}
-	} catch { }
+	} catch {}
 	return false
 }

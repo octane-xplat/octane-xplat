@@ -3,6 +3,7 @@ import type { LibraryBackend } from './backend-types'
 const unavailable = (): never => {
 	throw new UnavailabilityError('MediaLibrary')
 }
+
 /** Browsers, GTK and Windows have no wired device-library backend. */
 export const backend: LibraryBackend = {
 	isAvailable: () => false,

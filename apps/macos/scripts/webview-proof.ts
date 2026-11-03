@@ -6,10 +6,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/src/macos/native.ts'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
-import {
-	macOSHostArch,
-	hostBundle,
-} from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = fileURLToPath(new URL('..', import.meta.url))
 const verifying = process.argv.includes('--verify')

@@ -1,4 +1,10 @@
-import type { PartialFilter, PowerSearchFilter, PowerSearchItem, PowerSearchProps } from '../../props'
+import type {
+	PartialFilter,
+	PowerSearchFilter,
+	PowerSearchItem,
+	PowerSearchProps,
+} from '../../props'
+
 import type { createInternalConfig } from './power-search-config'
 
 /** Internal resolved presentation boundary. The container owns query, suggestions,

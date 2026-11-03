@@ -14,10 +14,12 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 registerStylesheet(
 	'animation-priority',
 	'@keyframes held-opacity { from { opacity: 0.6; } to { opacity: 0.6; } } .held-opacity { animation: held-opacity 10ms forwards; }',
 )
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 80) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +28,7 @@ const pause = (ms = 80) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (label: string, ok: boolean) => {
 	if (!ok) {
@@ -33,6 +36,7 @@ const check = (label: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 async function run() {
 	root.render(Animated, { version: 1 })
@@ -180,12 +184,14 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
 		failure = error
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

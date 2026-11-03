@@ -17,9 +17,18 @@ export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
 	const [items, setItems] = useState<OutlineItem[]>([])
 	const snapshot = useMemo(() => createAppKitOutlineSnapshot(), [])
 	useEffect(() => {
-		const host = appKitHost(), reader = host?.readOutlineHeadings
-		const next = snapshot.read(appKitOutlineRoot(containerRef), typeof reader === 'function' ? reader : undefined)
-		if (next !== items) setItems(next)
+		const host = appKitHost(),
+			reader = host?.readOutlineHeadings
+
+		const next = snapshot.read(
+			appKitOutlineRoot(containerRef),
+			typeof reader === 'function' ? reader : undefined,
+		)
+
+		if (next !== items) {
+			setItems(next)
+		}
 	})
+
 	return items
 }

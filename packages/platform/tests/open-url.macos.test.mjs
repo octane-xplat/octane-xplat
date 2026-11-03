@@ -6,19 +6,32 @@ import vm from 'node:vm'
 import ts from 'typescript-classic'
 
 const requireLib = createRequire(import.meta.url)
-const compiled = Object.fromEntries(await Promise.all(['open-url.macos', 'appkit-host', 'index.macos'].map(async (name) => [name,
-	ts.transpile(await readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8'), {
-		module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022,
-	}),
-])))
+const compiled = Object.fromEntries(
+	await Promise.all(
+		['open-url.macos', 'appkit-host', 'index.macos'].map(async (name) => [
+			name,
+			ts.transpile(await readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8'), {
+				module: ts.ModuleKind.CommonJS,
+				target: ts.ScriptTarget.ES2022,
+			}),
+		]),
+	),
+)
+
 function load(globals = {}) {
 	const context = vm.createContext({ ...globals })
 	const cache = new Map()
 	function require(name) {
-		if (name === '@octane-xplat/lib/capability') {return requireLib(name)}
+		if (name === '@octane-xplat/lib/capability') {
+			return requireLib(name)
+		}
 		const key = name.replace(/^\.\//, '')
-		if (!compiled[key]) {return {}}
-		if (cache.has(key)) {return cache.get(key)}
+		if (!compiled[key]) {
+			return {}
+		}
+		if (cache.has(key)) {
+			return cache.get(key)
+		}
 		const exports = {}
 		cache.set(key, exports)
 		vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)(exports, require)
@@ -26,18 +39,23 @@ function load(globals = {}) {
 	}
 	return { context, leaf: require('./open-url.macos'), root: require('./index.macos') }
 }
+
 function fixture({ url = {}, accepted = true, fail } = {}) {
 	const lookups = []
 	const opens = []
 	const workspace = {
 		URLForApplicationWithBundleIdentifier(id) {
 			lookups.push(id)
-			if (fail === 'lookup') {throw new Error('lookup failed')}
+			if (fail === 'lookup') {
+				throw new Error('lookup failed')
+			}
 			return url
 		},
 		openURL(value) {
 			opens.push(value)
-			if (fail === 'open') {throw new Error('open failed')}
+			if (fail === 'open') {
+				throw new Error('open failed')
+			}
 			return accepted
 		},
 	}
@@ -65,7 +83,11 @@ test('absent/partial/throwing native bridges are unsupported and reads remain li
 	assert.throws(() => env.leaf.openSettings.open(), { name: 'UnavailabilityError' })
 	env.context.NSWorkspace = { sharedWorkspace: { openURL() {} } }
 	assert.equal(env.leaf.openSettings.supported, false)
-	Object.defineProperty(env.context.NSWorkspace, 'sharedWorkspace', { get() { throw new Error('unavailable') } })
+	Object.defineProperty(env.context.NSWorkspace, 'sharedWorkspace', {
+		get() {
+			throw new Error('unavailable')
+		},
+	})
 	assert.equal(env.leaf.openSettings.supported, false)
 	env.context.NSWorkspace = { sharedWorkspace: fixture().workspace }
 	assert.equal(env.leaf.openSettings.supported, true)
@@ -115,7 +137,12 @@ test('outbound links still delegate to the live host independently of settings s
 	const env = load()
 	assert.equal(env.leaf.openUrl('https://example.test'), false)
 	const links = []
-	env.context.__xplatAppKit = { openUrl: (url) => { links.push(url); return true } }
+	env.context.__xplatAppKit = {
+		openUrl: (url) => {
+			links.push(url)
+			return true
+		},
+	}
 	assert.equal(env.root.openUrl('https://example.test'), true)
 	assert.deepEqual(links, ['https://example.test'])
 	assert.equal(env.leaf.openSettings.supported, false)

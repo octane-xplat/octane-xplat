@@ -9,11 +9,13 @@ export async function mobileSource(uri: string): Promise<{ uri: string; release(
 			knownFolders.temp().path,
 			`xplat-image-source-${Date.now()}-${++serial}`,
 		)
+
 		const release = () => {
 			if (File.exists(local)) {
 				File.fromPath(local).removeSync()
 			}
 		}
+
 		try {
 			await Http.getFile(uri, local)
 			return { uri: local, release }

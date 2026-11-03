@@ -6,6 +6,7 @@ export type {
 	TrackingAuthorizationStatus,
 	TrackingCapabilities,
 } from './types'
+
 export {
 	TrackingTransparency,
 	isAvailable,
@@ -14,4 +15,5 @@ export {
 	getAdvertisingId,
 	getAdvertisingIdAsync,
 } from './service'
+
 export { useTrackingPermissions } from './use-tracking-permissions'

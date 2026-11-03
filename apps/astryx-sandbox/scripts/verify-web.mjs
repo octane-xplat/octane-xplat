@@ -95,6 +95,7 @@ if (process.argv.includes('--spinner-only')) {
 	console.log(
 		`${results.length - failures.length}/${results.length} SpinnerShowcase checks passed (${browserName})`,
 	)
+
 	process.exit(failures.length ? 1 : 0)
 }
 
@@ -160,6 +161,7 @@ if (process.argv.includes('--coverage-only')) {
 	console.log(
 		`${results.length - failures.length}/${results.length} unit-14 coverage checks passed (${browserName})`,
 	)
+
 	process.exit(failures.length ? 1 : 0)
 }
 
@@ -305,7 +307,7 @@ try {
 	check(
 		'motion-lab subroute renders ported content',
 		(await page.locator('.sb-pending').count()) === 0 &&
-			(((await page.textContent('body')) ?? '').trim().length > 0),
+			((await page.textContent('body')) ?? '').trim().length > 0,
 	)
 
 	// Unknown route → 404 surface
@@ -1248,9 +1250,8 @@ try {
 				const nodes = document.body.querySelectorAll(
 					'.vx-spinner, [class^="vx-"], [role="dialog"], main *',
 				).length
-				return nodes > 0
-					? { ok: true, reason: `body=${nodes}` }
-					: { ok: false, reason: 'no-stage' }
+
+				return nodes > 0 ? { ok: true, reason: `body=${nodes}` } : { ok: false, reason: 'no-stage' }
 			}
 			if (stage.querySelector('.sb-pending')) {
 				return { ok: false, reason: 'pending' }

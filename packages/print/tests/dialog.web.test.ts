@@ -14,11 +14,13 @@ function loadFrame() {
 	frame.dispatchEvent(new Event('load'))
 	return { frame, view, print, content }
 }
+
 afterEach(() => {
 	vi.useRealTimers()
 	vi.restoreAllMocks()
 	document.body.replaceChildren()
 })
+
 it('dispatches current-page printing and rejects file creation without an extra dialog', async () => {
 	const print = vi.spyOn(window, 'print').mockImplementation(() => {})
 	await backend.print(printOptions({}))
@@ -28,6 +30,7 @@ it('dispatches current-page printing and rejects file creation without an extra 
 	expect(print).toHaveBeenCalledTimes(1)
 	expect(backend.capabilities().printToFile).toBe(false)
 })
+
 it('owns an isolated static HTML document through print-dialog dismissal', async () => {
 	const pending = backend.print(
 		printOptions({ html: '<html><body><h1>Receipt</h1></body></html>', width: 360, height: 540 }),
@@ -44,6 +47,7 @@ it('owns an isolated static HTML document through print-dialog dismissal', async
 	await pending
 	expect(document.body.contains(frame)).toBe(false)
 })
+
 it('cleans a stalled iframe when the browser does not report dismissal', async () => {
 	vi.useFakeTimers()
 	const pending = backend.print(printOptions({ html: 'Receipt' }))
@@ -53,6 +57,7 @@ it('cleans a stalled iframe when the browser does not report dismissal', async (
 	await expected
 	expect(document.querySelector('iframe')).toBeNull()
 })
+
 it('rejects unsupported PDF URI printing before creating a document', async () => {
 	await expect(
 		backend.print(printOptions({ uri: 'https://example.com/input.pdf' })),

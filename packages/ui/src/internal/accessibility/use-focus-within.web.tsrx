@@ -30,13 +30,19 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
 
 	return {
 		focusWithinProps: {
-			onFocus: (event?: FocusWithinEvent) => update(true, normalizeFocusWithinEvent(event, 'focus')),
+			onFocus: (event?: FocusWithinEvent) =>
+				update(true, normalizeFocusWithinEvent(event, 'focus')),
 			onBlur: (event?: FocusWithinEvent) => {
 				const normalized = normalizeFocusWithinEvent(event, 'blur')
 				const focusEvent = normalized as FocusEvent | undefined
 				const target = focusEvent?.currentTarget as Element | null
 				const related = focusEvent?.relatedTarget as Node | null
-				if (target && related && typeof target.contains === 'function' && target.contains(related)) {
+				if (
+					target &&
+					related &&
+					typeof target.contains === 'function' &&
+					target.contains(related)
+				) {
 					return
 				}
 

@@ -10,6 +10,7 @@ interface NativeEngine {
 	cancel(id: string): void
 	remove(uri: string): boolean
 }
+
 /** The bridge's progress/result event envelope. */
 interface ConverterEvent {
 	progress?: number
@@ -22,14 +23,17 @@ interface EngineClass {
 	new (): NativeEngine
 	Callback: new (methods: { onEvent(json: string): void }) => object
 }
+
 function engineClass(): EngineClass | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'converter', 'Converter']) as EngineClass | undefined
 }
+
 let instance: NativeEngine | undefined
 let serial = 0
 function engine(): NativeEngine | undefined {
 	return (instance ??= engineClass() ? new (engineClass()!)() : undefined)
 }
+
 export const backend: ConversionBackend = {
 	isAvailable: async (format) => format === 'mp4' && Boolean(engine()?.available()),
 	async convert(source, request, control) {
@@ -46,8 +50,10 @@ export const backend: ConversionBackend = {
 				onEvent(json) {
 					try {
 						const parsed: unknown = JSON.parse(json)
-						const event =
-							(typeof parsed === 'object' && parsed !== null ? parsed : {}) as ConverterEvent
+						const event = (
+							typeof parsed === 'object' && parsed !== null ? parsed : {}
+						) as ConverterEvent
+
 						if (event.error) {
 							reject(event.cancelled ? aborted() : new Error(event.error))
 						} else if (event.result) {

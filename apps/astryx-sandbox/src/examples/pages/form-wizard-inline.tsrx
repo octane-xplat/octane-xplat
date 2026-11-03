@@ -4,29 +4,114 @@
 // through; step `endContent` slot and nested-Stepper margin work as upstream.
 import { useEffect, useMemo, useState } from 'octane'
 import {
-	Banner, Button, Card, CheckboxList, CheckboxListItem, FieldStatus,
-	FormLayout, Heading, HStack, Icon, Layout, LayoutContent, LayoutHeader,
-	MetadataList, MetadataListItem, RadioList, RadioListItem, Selector,
-	Spinner, StackItem, Step, Stepper, Switch, Text, useToast, VStack,
+	Banner,
+	Button,
+	Card,
+	CheckboxList,
+	CheckboxListItem,
+	FieldStatus,
+	FormLayout,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	MetadataList,
+	MetadataListItem,
+	RadioList,
+	RadioListItem,
+	Selector,
+	Spinner,
+	StackItem,
+	Step,
+	Stepper,
+	Switch,
+	Text,
+	useToast,
+	VStack,
 } from '@octane-xplat/ui'
 
 const REPOS = [
-	{ id: 'web', name: 'northwind/web', branch: 'main', packageManager: 'pnpm 11', lockfile: 'pnpm-lock.yaml', testRunner: 'Vitest', testCount: 1284, description: 'Marketing site and the signed-in dashboard.' },
-	{ id: 'api', name: 'northwind/api', branch: 'main', packageManager: 'npm 10', lockfile: 'package-lock.json', testRunner: 'Jest', testCount: 862, description: 'GraphQL gateway and the billing workers.' },
-	{ id: 'design', name: 'northwind/design-system', branch: 'trunk', packageManager: 'pnpm 11', lockfile: 'pnpm-lock.yaml', testRunner: 'Vitest', testCount: 431, description: 'Component library published to the internal registry.' },
+	{
+		id: 'web',
+		name: 'northwind/web',
+		branch: 'main',
+		packageManager: 'pnpm 11',
+		lockfile: 'pnpm-lock.yaml',
+		testRunner: 'Vitest',
+		testCount: 1284,
+		description: 'Marketing site and the signed-in dashboard.',
+	},
+	{
+		id: 'api',
+		name: 'northwind/api',
+		branch: 'main',
+		packageManager: 'npm 10',
+		lockfile: 'package-lock.json',
+		testRunner: 'Jest',
+		testCount: 862,
+		description: 'GraphQL gateway and the billing workers.',
+	},
+	{
+		id: 'design',
+		name: 'northwind/design-system',
+		branch: 'trunk',
+		packageManager: 'pnpm 11',
+		lockfile: 'pnpm-lock.yaml',
+		testRunner: 'Vitest',
+		testCount: 431,
+		description: 'Component library published to the internal registry.',
+	},
 ]
 
 const TRIGGERS = [
-	{ id: 'pr', label: 'Pull requests', description: 'Every push to a branch with an open pull request.' },
-	{ id: 'push', label: 'Pushes to the default branch', description: 'Direct commits and merges, after the fact.' },
-	{ id: 'tag', label: 'Release tags', description: 'Tags matching v*, so a release is verified before it ships.' },
+	{
+		id: 'pr',
+		label: 'Pull requests',
+		description: 'Every push to a branch with an open pull request.',
+	},
+	{
+		id: 'push',
+		label: 'Pushes to the default branch',
+		description: 'Direct commits and merges, after the fact.',
+	},
+	{
+		id: 'tag',
+		label: 'Release tags',
+		description: 'Tags matching v*, so a release is verified before it ships.',
+	},
 ]
 
 const JOBS = [
-	{ id: 'lint', label: 'Lint', description: 'ESLint and Prettier over the changed files. Needs 1 GB.', memoryGB: 1, seconds: 74 },
-	{ id: 'unit', label: 'Unit tests', description: 'The full suite, sharded across the available cores. Needs 2 GB.', memoryGB: 2, seconds: 203 },
-	{ id: 'build', label: 'Production build', description: 'The build that would ship, with bundle size reported. Needs 2 GB.', memoryGB: 2, seconds: 126 },
-	{ id: 'e2e', label: 'End-to-end tests', description: 'Playwright against a preview deployment. Needs 4 GB.', memoryGB: 4, seconds: 391 },
+	{
+		id: 'lint',
+		label: 'Lint',
+		description: 'ESLint and Prettier over the changed files. Needs 1 GB.',
+		memoryGB: 1,
+		seconds: 74,
+	},
+	{
+		id: 'unit',
+		label: 'Unit tests',
+		description: 'The full suite, sharded across the available cores. Needs 2 GB.',
+		memoryGB: 2,
+		seconds: 203,
+	},
+	{
+		id: 'build',
+		label: 'Production build',
+		description: 'The build that would ship, with bundle size reported. Needs 2 GB.',
+		memoryGB: 2,
+		seconds: 126,
+	},
+	{
+		id: 'e2e',
+		label: 'End-to-end tests',
+		description: 'Playwright against a preview deployment. Needs 4 GB.',
+		memoryGB: 4,
+		seconds: 391,
+	},
 ]
 
 const RUNNERS = [
@@ -119,20 +204,24 @@ export function FormWizardInlineTemplate() @{
 		if (triggers.length === 0) {
 			repository.triggers = 'Pick at least one trigger.'
 		}
+
 		const pipeline: Record<string, string> = {}
 		if (jobs.length === 0) {
 			pipeline.jobs = 'Pick at least one job.'
 		}
+
 		return [repository, pipeline, {}, {}, {}, {}]
 	}, [triggers, jobs])
 
-	const currentErrors = isDone ? {} : errorsByStep[active] ?? {}
-	const isStepBroken = (index: number) => index < active && Object.keys(errorsByStep[index] ?? {}).length > 0
+	const currentErrors = isDone ? {} : (errorsByStep[active] ?? {})
+	const isStepBroken = (index: number) =>
+		index < active && Object.keys(errorsByStep[index] ?? {}).length > 0
 
 	useEffect(() => {
 		if (!AUTO_STEPS.includes(active)) {
 			return undefined
 		}
+
 		const state = auto[active]
 		if (state.status !== 'idle') {
 			return undefined
@@ -145,6 +234,7 @@ export function FormWizardInlineTemplate() @{
 				setAuto((s) => ({ ...s, [active]: { ...s[active], status: 'passed' } }))
 				setActive((a) => a + 1)
 			}, SETTLE_MS)
+
 			return () => clearTimeout(timer)
 		}
 
@@ -158,6 +248,7 @@ export function FormWizardInlineTemplate() @{
 					: { ...s, [active]: { ...s[active], done: s[active].done + 1 } },
 			)
 		}, TICK_MS)
+
 		return () => clearTimeout(timer)
 	}, [active, auto, checksFor, starvedJob])
 
@@ -170,6 +261,7 @@ export function FormWizardInlineTemplate() @{
 					next[stepIndex] = IDLE
 				}
 			}
+
 			return next
 		})
 	}
@@ -178,9 +270,11 @@ export function FormWizardInlineTemplate() @{
 		if (Object.keys(errorsByStep[active] ?? {}).length !== 0) {
 			return
 		}
+
 		if (active === STEP_META.length - 1) {
 			showToast({ body: 'Continuous integration is on', uniqueID: 'ci-enabled' })
 		}
+
 		setActive((a) => a + 1)
 	}
 
@@ -191,17 +285,23 @@ export function FormWizardInlineTemplate() @{
 		if (STEP_META[index].kind === 'human') {
 			return index < active ? 'passed' : 'pending'
 		}
+
 		if (auto[index].status === 'failed') {
 			return 'failed'
 		}
+
 		if (auto[index].status === 'passed') {
 			return 'passed'
 		}
+
 		return index === active ? 'running' : 'pending'
 	}
 
 	const summaryFor = (index: number) => {
-		if (index >= active) {return undefined}
+		if (index >= active) {
+			return undefined
+		}
+
 		switch (index) {
 			case 0:
 				return repo.name
@@ -210,7 +310,9 @@ export function FormWizardInlineTemplate() @{
 			case 2:
 			case 3:
 			case 4:
-				return auto[index].status === 'passed' ? `${checksFor[index].length} checks passed` : undefined
+				return auto[index].status === 'passed'
+					? `${checksFor[index].length} checks passed`
+					: undefined
 			default:
 				return undefined
 		}
@@ -218,76 +320,81 @@ export function FormWizardInlineTemplate() @{
 
 	/** The confirm row every expanded human step ends with. */
 	const stepActions = (label: string, index: number) => @{
-		const count = Object.keys(currentErrors).length
-		<HStack gap={2} vAlign="center" wrap="wrap">
-			<Button label={label} variant="primary" clickAction={confirmStep} />
-			{index > 0 ? (
-				<Button label="Back" variant="ghost" clickAction={() => goToStep(index - 1)} />
-			) : null}
-			{count > 0 ? (
-				<FieldStatus
-					type="error"
-					variant="detached"
-					message={count === 1 ? 'One problem above needs fixing first.' : `${count} problems above need fixing first.`}
-				/>
-			) : null}
-		</HStack>
-	}
+			const count = Object.keys(currentErrors).length
+
+			<HStack gap={2} vAlign="center" wrap="wrap">
+				<Button label={label} variant="primary" clickAction={confirmStep} />
+				{index > 0 ? (
+					<Button label="Back" variant="ghost" clickAction={() => goToStep(index - 1)} />
+				) : null}
+				{count > 0 ? (
+					<FieldStatus
+						type="error"
+						variant="detached"
+						message={
+							count === 1
+								? 'One problem above needs fixing first.'
+								: `${count} problems above need fixing first.`
+						}
+					/>
+				) : null}
+			</HStack>
+		}
 
 	/** The body of an automatic step: its sub-checks, ticking through. */
 	const autoBody = (index: number) => @{
-		const checks = checksFor[index]
-		const state = auto[index]
-		const failed = state.status === 'failed'
+			const checks = checksFor[index]
+			const state = auto[index]
+			const failed = state.status === 'failed'
 
-		<VStack gap={4}>
-			<Stepper
-				activeStep={state.done}
-				orientation="vertical"
-				indicatorPosition="on-track"
-				accessibilityLabel={`${STEP_META[index].label} checks`}
-				style={{ marginInlineStart: NESTED_RAIL_PULL }}
-			>
-				{checks.map((check, i) => {
-					const isPast = i < state.done
-					const isCurrent = i === state.done
-					return (
-						<Step
-							key={check.id}
-							step={i}
-							label={check.label}
-							status={isPast ? 'success' : isCurrent && failed ? 'error' : undefined}
-							indicator={
-								isCurrent && failed ? (
-									<Icon name="xplat-error" size={16} />
-								) : isCurrent ? (
-									<Spinner size="sm" shade="default" />
-								) : (
-									'auto'
-								)
-							}
-						/>
-					)
-				})}
-			</Stepper>
+			<VStack gap={4}>
+				<Stepper
+					activeStep={state.done}
+					orientation="vertical"
+					indicatorPosition="on-track"
+					accessibilityLabel={`${STEP_META[index].label} checks`}
+					style={{ marginInlineStart: NESTED_RAIL_PULL }}
+				>
+					{checks.map((check, i) => {
+						const isPast = i < state.done
+						const isCurrent = i === state.done
+						return (
+							<Step
+								key={check.id}
+								step={i}
+								label={check.label}
+								status={isPast ? 'success' : isCurrent && failed ? 'error' : undefined}
+								indicator={
+									isCurrent && failed ? (
+										<Icon name="xplat-error" size={16} />
+									) : isCurrent ? (
+										<Spinner size="sm" shade="default" />
+									) : (
+										'auto'
+									)
+								}
+							/>
+						)
+					})}
+				</Stepper>
 
-			{failed && starvedJob != null ? (
-				<Banner
-					status="error"
-					title={`${starvedJob.label} ran out of memory`}
-					description={`The job asked for ${starvedJob.memoryGB} GB and the ${runner.label.toLowerCase()} runner has ${runner.memoryGB} GB. Size the runner up, or drop the job from the pipeline.`}
-					endContent={
-						<Button
-							label="Back to the pipeline"
-							variant="secondary"
-							size="sm"
-							clickAction={() => goToStep(1)}
-						/>
-					}
-				/>
-			) : null}
-		</VStack>
-	}
+				{failed && starvedJob != null ? (
+					<Banner
+						status="error"
+						title={`${starvedJob.label} ran out of memory`}
+						description={`The job asked for ${starvedJob.memoryGB} GB and the ${runner.label.toLowerCase()} runner has ${runner.memoryGB} GB. Size the runner up, or drop the job from the pipeline.`}
+						endContent={
+							<Button
+								label="Back to the pipeline"
+								variant="secondary"
+								size="sm"
+								clickAction={() => goToStep(1)}
+							/>
+						}
+					/>
+				) : null}
+			</VStack>
+		}
 
 	<Layout
 		height="fill"
@@ -311,7 +418,8 @@ export function FormWizardInlineTemplate() @{
 				<VStack gap={6}>
 					<Stepper
 						activeStep={active}
-						orientation="vertical" accessibilityLabel="Continuous integration setup progress"
+						orientation="vertical"
+						accessibilityLabel="Continuous integration setup progress"
 						onStepClick={goToStep}
 					>
 						{STEP_META.map((meta, index) => {
@@ -343,19 +451,11 @@ export function FormWizardInlineTemplate() @{
 											<StackItem size="fill">
 												<HStack gap={3} vAlign="center" hAlign="end">
 													<StackItem size="fill">
-														<Text
-															type="supporting"
-															color="secondary"
-															maxLines={1}
-														>
+														<Text type="supporting" color="secondary" maxLines={1}>
 															{summaryFor(index)}
 														</Text>
 													</StackItem>
-													<Text
-														type="supporting"
-														color="accent"
-														weight="medium"
-													>
+													<Text type="supporting" color="accent" weight="medium">
 														{meta.kind === 'auto' ? 'Run again' : 'Edit'}
 													</Text>
 												</HStack>
@@ -380,10 +480,19 @@ export function FormWizardInlineTemplate() @{
 														value={triggers}
 														onValueChange={(v) => setTriggers(v ?? '')}
 
-														status={currentErrors.triggers ? { type: 'error', message: currentErrors.triggers } : undefined}
+														status={
+															currentErrors.triggers
+																? { type: 'error', message: currentErrors.triggers }
+																: undefined
+														}
 													>
 														{TRIGGERS.map((t) => (
-															<CheckboxListItem key={t.id} value={t.id} label={t.label} description={t.description} />
+															<CheckboxListItem
+																key={t.id}
+																value={t.id}
+																label={t.label}
+																description={t.description}
+															/>
 														))}
 													</CheckboxList>
 													{stepActions('Continue', index)}
@@ -398,10 +507,19 @@ export function FormWizardInlineTemplate() @{
 														value={jobs}
 														onValueChange={(v) => setJobs(v ?? '')}
 
-														status={currentErrors.jobs ? { type: 'error', message: currentErrors.jobs } : undefined}
+														status={
+															currentErrors.jobs
+																? { type: 'error', message: currentErrors.jobs }
+																: undefined
+														}
 													>
 														{JOBS.map((job) => (
-															<CheckboxListItem key={job.id} value={job.id} label={job.label} description={job.description} />
+															<CheckboxListItem
+																key={job.id}
+																value={job.id}
+																label={job.label}
+																description={job.description}
+															/>
 														))}
 													</CheckboxList>
 													<RadioList
@@ -434,16 +552,28 @@ export function FormWizardInlineTemplate() @{
 												<FormLayout defaultOptionality="optional">
 													<Card variant="muted" padding={4}>
 														<MetadataList orientation="vertical">
-															<MetadataListItem label="Repository" icon={<Icon name="sandbox-cube" size={16} />}>
+															<MetadataListItem
+																label="Repository"
+																icon={<Icon name="sandbox-cube" size={16} />}
+															>
 																{repo.name}
 															</MetadataListItem>
-															<MetadataListItem label="Triggers" icon={<Icon name="sandbox-bolt" size={16} />}>
+															<MetadataListItem
+																label="Triggers"
+																icon={<Icon name="sandbox-bolt" size={16} />}
+															>
 																{triggerSummary}
 															</MetadataListItem>
-															<MetadataListItem label="Runner" icon={<Icon name="sandbox-cpu-chip" size={16} />}>
+															<MetadataListItem
+																label="Runner"
+																icon={<Icon name="sandbox-cpu-chip" size={16} />}
+															>
 																{`${runner.label}, ${runner.memoryGB} GB · Node ${nodeVersion}`}
 															</MetadataListItem>
-															<MetadataListItem label="Toolchain" icon={<Icon name="sandbox-beaker" size={16} />}>
+															<MetadataListItem
+																label="Toolchain"
+																icon={<Icon name="sandbox-beaker" size={16} />}
+															>
 																{`${repo.packageManager} · ${repo.testRunner}, ${repo.testCount.toLocaleString()} tests`}
 															</MetadataListItem>
 														</MetadataList>
@@ -469,8 +599,8 @@ export function FormWizardInlineTemplate() @{
 
 					{hasFailure ? (
 						<Text type="supporting" color="secondary">
-							Setup is paused at the failed step above. Fix what it found and
-							the remaining checks will pick up from there.
+							Setup is paused at the failed step above. Fix what it found and the remaining checks
+							will pick up from there.
 						</Text>
 					) : null}
 					{isDone ? (

@@ -8,9 +8,10 @@ export const docsIcons = createIconRegistry()
 // The constellation twinkles per layer: each registered glyph is an
 // interleaved subset of the source polygons, so a layer's opacity fade reads
 // as scattered stars dimming together.
-export const CONSTELLATION_LAYERS = constellationLayers(constellation, 16).map(
-	(markup, index) => ({ name: `docs-constellation-${index}`, markup }),
-)
+export const CONSTELLATION_LAYERS = constellationLayers(constellation, 16).map((markup, index) => ({
+	name: `docs-constellation-${index}`,
+	markup,
+}))
 
 docsIcons.registerIcons({
 	'docs-markdown': { text: 'M↓' },

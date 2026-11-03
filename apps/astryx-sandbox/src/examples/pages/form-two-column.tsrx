@@ -4,9 +4,22 @@
 // (upstream string[] + onChange); Button `onClick` → `clickAction`.
 import { useState } from 'octane'
 import {
-	AspectRatio, Button,
-	Heading, Card, Center, Divider, Grid, HStack, Link, Section,
-	Selector, Text, TextArea, TextInput, Token, VStack,
+	AspectRatio,
+	Button,
+	Heading,
+	Card,
+	Center,
+	Divider,
+	Grid,
+	HStack,
+	Link,
+	Section,
+	Selector,
+	Text,
+	TextArea,
+	TextInput,
+	Token,
+	VStack,
 } from '@octane-xplat/ui'
 
 const ILLUSTRATION_URL = '/template-assets/light-working-vertical-2.png'
@@ -42,6 +55,7 @@ const CONTACT_COLUMNS = [
 const pageStyle = {
 	minHeight: '100%',
 } as const
+
 const illustrationImg = {
 	width: '100%',
 	height: '100%',
@@ -73,15 +87,14 @@ export function FormTwoColumnTemplate() @{
 		<Section maxWidth={1100} width="100%" padding={10} variant="transparent">
 			<VStack gap={10}>
 				{/* Two-column; stacks to one column below ~520px. */}
-				<Grid style={{gap: 'var(--spacing-10)'}} columns={{ minWidth: 320 }}>
+				<Grid style={{ gap: 'var(--spacing-10)' }} columns={{ minWidth: 320 }}>
 					<VStack gap={6}>
 						<VStack gap={3}>
 							<Heading type="display-1" level={1}>
 								Let's work together
 							</Heading>
 							<Text type="body" color="secondary">
-								Tell us what you're working on and we'll help you
-								figure out the best path forward.
+								Tell us what you're working on and we'll help you figure out the best path forward.
 							</Text>
 						</VStack>
 						<AspectRatio ratio={4 / 3}>
@@ -104,7 +117,7 @@ export function FormTwoColumnTemplate() @{
 								onChange={setFullName}
 								status={errors.fullName ? { type: 'error', message: errors.fullName } : undefined}
 							/>
-							<Grid style={{gap: 'var(--spacing-3)'}} columns={{ minWidth: 180 }} >
+							<Grid style={{ gap: 'var(--spacing-3)' }} columns={{ minWidth: 180 }}>
 								<TextInput
 									label="Email"
 									isLabelHidden
@@ -121,7 +134,7 @@ export function FormTwoColumnTemplate() @{
 									onChange={setCompany}
 								/>
 							</Grid>
-							<Grid style={{gap: 'var(--spacing-3)'}} columns={{ minWidth: 180 }} >
+							<Grid style={{ gap: 'var(--spacing-3)' }} columns={{ minWidth: 180 }}>
 								<TextInput
 									label="Job title"
 									isLabelHidden
@@ -182,15 +195,13 @@ export function FormTwoColumnTemplate() @{
 				{/* Contact strip; stacks below ~440px. */}
 				<VStack gap={6}>
 					<Divider />
-					<Grid style={{gap: 'var(--spacing-6)'}} columns={{ minWidth: 200 }} >
+					<Grid style={{ gap: 'var(--spacing-6)' }} columns={{ minWidth: 200 }}>
 						{CONTACT_COLUMNS.map((col) => (
 							<VStack key={col.label} gap={1} hAlign="center">
 								<Text type="supporting" color="secondary">
 									{col.label}
 								</Text>
-								<Link href={`mailto:${col.email}`}>
-									{col.email}
-								</Link>
+								<Link href={`mailto:${col.email}`}>{col.email}</Link>
 							</VStack>
 						))}
 					</Grid>

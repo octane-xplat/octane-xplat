@@ -13,12 +13,7 @@
 
 import { isSafeMdParserUrl } from './markdown-url.ts'
 import { MD_DOC_KIND, MD_DOC_VERSION } from './markdown-ast.ts'
-import type {
-	MdDataValue,
-	MdDoc,
-	MdExtension,
-	MdPosition,
-} from './markdown-ast.ts'
+import type { MdDataValue, MdDoc, MdExtension, MdPosition } from './markdown-ast.ts'
 import type { Renderable } from '../props'
 
 export type MarkdownPluginData = MdDataValue
@@ -238,8 +233,8 @@ export type MarkdownTransformPluginDefinition<
 	readonly parseKey?: never
 	readonly syntax?: never
 } & ([Node] extends [never]
-	? { readonly renderers?: never }
-	: { readonly renderers: MarkdownExtensionRenderers<Node> })
+		? { readonly renderers?: never }
+		: { readonly renderers: MarkdownExtensionRenderers<Node> })
 
 export type MarkdownPluginDefinition<
 	Name extends string,
@@ -249,9 +244,7 @@ export type MarkdownPluginDefinition<
 declare const markdownPluginNode: unique symbol
 
 /** Opaque, covariant entry safe to store in heterogeneous plugin lists. */
-export interface MarkdownPluginEntry<
-	Node extends MarkdownExtensionNode = MarkdownExtensionNode,
-> {
+export interface MarkdownPluginEntry<Node extends MarkdownExtensionNode = MarkdownExtensionNode> {
 	readonly name: string
 	readonly apiVersion: 1
 	readonly [markdownPluginNode]: Node
@@ -351,6 +344,7 @@ function deepFreezeConfig<T>(value: T, seen: Set<object> = new Set()): T {
 		for (const nested of Object.values(value)) {
 			deepFreezeConfig(nested, seen)
 		}
+
 		Object.freeze(value)
 	}
 	return value
@@ -369,6 +363,7 @@ function validateSyntax(pluginName: string, syntax: MarkdownSyntaxCapability): v
 		if (!Number.isFinite(contribution.maxSpan) || contribution.maxSpan <= 0) {
 			fail(`"${pluginName}" syntax maxSpan must be positive and finite`)
 		}
+
 		for (const prefix of contribution.startsWith) {
 			if (prefix === '' || prefix.length > contribution.maxSpan) {
 				fail(`"${pluginName}" syntax prefixes must be non-empty and bounded`)
@@ -381,13 +376,16 @@ export function createMarkdownPlugin<
 	const Name extends string,
 	const Node extends MarkdownExtensionNode<Name>,
 >(definition: MarkdownSyntaxPluginDefinition<Name, Node>): MarkdownPluginEntry<Node>
+
 export function createMarkdownPlugin<const Name extends string>(
 	definition: MarkdownTransformPluginDefinition<Name, never>,
 ): MarkdownPluginEntry<never>
+
 export function createMarkdownPlugin<
 	const Name extends string,
 	const Node extends MarkdownExtensionNode<Name>,
 >(definition: MarkdownTransformPluginDefinition<Name, Node>): MarkdownPluginEntry<Node>
+
 export function createMarkdownPlugin(
 	definition:
 		| MarkdownPluginDefinition<string, MarkdownExtensionNode>
@@ -406,6 +404,7 @@ export function createMarkdownPlugin(
 		if (definition.parseKey.trim() === '') {
 			fail(`"${definition.name}" parseKey must be non-empty`)
 		}
+
 		validateSyntax(definition.name, definition.syntax)
 		if (Object.keys(definition.renderers).length === 0) {
 			fail(`"${definition.name}" syntax must provide renderers`)
@@ -470,14 +469,8 @@ interface PreparedRenderer {
 export interface PreparedMarkdownPlugins {
 	readonly entries: ReadonlyArray<MarkdownPluginEntry>
 	readonly syntaxEntries: ReadonlyArray<MarkdownPluginEntry>
-	readonly inlineByFirstCharacter: ReadonlyMap<
-		string,
-		ReadonlyArray<PreparedSyntaxContribution>
-	>
-	readonly blockByFirstCharacter: ReadonlyMap<
-		string,
-		ReadonlyArray<PreparedSyntaxContribution>
-	>
+	readonly inlineByFirstCharacter: ReadonlyMap<string, ReadonlyArray<PreparedSyntaxContribution>>
+	readonly blockByFirstCharacter: ReadonlyMap<string, ReadonlyArray<PreparedSyntaxContribution>>
 	readonly transforms: ReadonlyArray<PreparedTransform>
 	/** Whether any transform is plugin-authored and needs Core's guards. */
 	readonly hasUntrustedTransform: boolean
@@ -546,6 +539,7 @@ export function prepareMarkdownPlugins(
 		if (names.has(definition.name)) {
 			fail(`duplicate name "${definition.name}"`)
 		}
+
 		names.add(definition.name)
 		entries.push(entry)
 
@@ -555,10 +549,10 @@ export function prepareMarkdownPlugins(
 				transform: definition.transform,
 				claims: (definition.transform as ClaimAwareMarkdownTransform)[markdownTransformClaim],
 				trusted:
-					(definition.transform as TrustAwareMarkdownTransform)[markdownTransformTrusted] ===
-					true,
+					(definition.transform as TrustAwareMarkdownTransform)[markdownTransformTrusted] === true,
 			})
 		}
+
 		if (definition.renderers != null) {
 			for (const [nodeName, renderer] of Object.entries(definition.renderers)) {
 				renderers.set(`${definition.name}\0${nodeName}`, {
@@ -567,6 +561,7 @@ export function prepareMarkdownPlugins(
 				})
 			}
 		}
+
 		if (
 			(definition as { readonly [markdownSourceLinesDefinition]?: true })[
 				markdownSourceLinesDefinition
@@ -576,32 +571,30 @@ export function prepareMarkdownPlugins(
 			syntaxEntries.push(syntaxOnlyEntry(publicEntry))
 			syntaxIdentity.push(`${definition.name}\0${definition.apiVersion}\0source-lines`)
 		}
+
 		if ('syntax' in definition && definition.syntax != null) {
 			syntaxEntries.push(syntaxOnlyEntry(publicEntry))
-			syntaxIdentity.push(
-				`${definition.name}\0${definition.apiVersion}\0${definition.parseKey}`,
-			)
+			syntaxIdentity.push(`${definition.name}\0${definition.apiVersion}\0${definition.parseKey}`)
 			for (const contribution of definition.syntax.inline ?? []) {
 				const prepared: PreparedSyntaxContribution = {
 					pluginName: definition.name,
 					display: 'inline',
 					contribution,
 				}
-				for (const firstCharacter of new Set(
-					contribution.startsWith.map((prefix) => prefix[0]),
-				)) {
+
+				for (const firstCharacter of new Set(contribution.startsWith.map((prefix) => prefix[0]))) {
 					appendMapValue(inlineByFirstCharacter, firstCharacter, prepared)
 				}
 			}
+
 			for (const contribution of definition.syntax.block ?? []) {
 				const prepared: PreparedSyntaxContribution = {
 					pluginName: definition.name,
 					display: 'block',
 					contribution,
 				}
-				for (const firstCharacter of new Set(
-					contribution.startsWith.map((prefix) => prefix[0]),
-				)) {
+
+				for (const firstCharacter of new Set(contribution.startsWith.map((prefix) => prefix[0]))) {
 					appendMapValue(blockByFirstCharacter, firstCharacter, prepared)
 				}
 			}
@@ -654,6 +647,7 @@ export function freezeMarkdownPluginData<T extends MarkdownPluginData>(value: T)
 		for (const nested of Object.values(value)) {
 			freezeMarkdownPluginData(nested)
 		}
+
 		Object.freeze(value)
 	}
 	return value
@@ -686,6 +680,7 @@ function isValidPosition(position: MdPosition): boolean {
 		if (start === undefined && end === undefined) {
 			continue
 		}
+
 		if (
 			!Number.isInteger(start) ||
 			!Number.isInteger(end) ||
@@ -694,6 +689,7 @@ function isValidPosition(position: MdPosition): boolean {
 		) {
 			return false
 		}
+
 		measured = true
 	}
 	return measured
@@ -714,9 +710,9 @@ function collectCodeInternalProperties(root: MdDoc): Map<string, CodeInternalPro
 			const descriptors = Object.getOwnPropertySymbols(node)
 				.map((symbol) => [symbol, Object.getOwnPropertyDescriptor(node, symbol)] as const)
 				.filter(
-					(entry): entry is readonly [symbol, PropertyDescriptor] =>
-						entry[1]?.enumerable === true,
+					(entry): entry is readonly [symbol, PropertyDescriptor] => entry[1]?.enumerable === true,
 				)
+
 			if (descriptors.length > 0) {
 				const key = codeSourceSignature(node as unknown as Record<string, unknown>)
 				properties.set(key, [...(properties.get(key) ?? []), { descriptors }])
@@ -760,11 +756,13 @@ function restoreCodeInternalProperties(previous: MdDoc, next: MdDoc): MdDoc {
 					current.writable !== descriptor.writable
 				)
 			})
+
 			if (internal != null && shouldRestore === true) {
 				const clone = { ...node }
 				for (const [symbol, descriptor] of internal.descriptors) {
 					Object.defineProperty(clone, symbol, descriptor)
 				}
+
 				current = clone
 			}
 		}
@@ -780,7 +778,9 @@ function restoreCodeInternalProperties(previous: MdDoc, next: MdDoc): MdDoc {
 
 	return {
 		...next,
-		children: next.children.map((child) => visit(child as { readonly type: string })) as MdDoc['children'],
+		children: next.children.map((child) =>
+			visit(child as { readonly type: string }),
+		) as MdDoc['children'],
 	}
 }
 
@@ -815,6 +815,7 @@ function collectSourceInvariants(root: MdDoc): Map<string, SourceInvariant[]> {
 				name: record.name,
 				display: record.display,
 			}
+
 			positions.set(key, [...(positions.get(key) ?? []), invariant])
 		}
 		if ('children' in node && Array.isArray(node.children)) {
@@ -924,6 +925,7 @@ const PHRASING_TYPES = new Set([
 	'image',
 	'citation',
 ])
+
 const BLOCK_TYPES = new Set([
 	'heading',
 	'paragraph',
@@ -935,6 +937,7 @@ const BLOCK_TYPES = new Set([
 	'thematicBreak',
 	'image',
 ])
+
 const PHRASING_PARENTS = new Set([
 	'heading',
 	'paragraph',
@@ -944,6 +947,7 @@ const PHRASING_PARENTS = new Set([
 	'link',
 	'tableCell',
 ])
+
 const BLOCK_PARENTS = new Set(['root', 'blockquote', 'listItem'])
 const CHILD_PARENT_TYPES = new Set([
 	...PHRASING_PARENTS,
@@ -1028,9 +1032,11 @@ function validateAst(
 					invariant.name === node.name &&
 					invariant.display === node.display,
 			)
+
 			if (invariantIndex < 0) {
 				return false
 			}
+
 			invariants.splice(invariantIndex, 1)
 		}
 		if (type !== 'extension' && node.source !== undefined) {
@@ -1042,11 +1048,13 @@ function validateAst(
 				if (![1, 2, 3, 4, 5, 6].includes(node.depth as number)) {
 					return false
 				}
+
 				const marker = (
 					node as unknown as {
 						readonly [sourceHeadingMarker]?: SourceHeadingMarker
 					}
 				)[sourceHeadingMarker]
+
 				if (
 					marker != null &&
 					(!sourceHeadingMarkers.has(marker) ||
@@ -1055,9 +1063,11 @@ function validateAst(
 				) {
 					return false
 				}
+
 				if (marker != null) {
 					seenHeadingMarkers.add(marker)
 				}
+
 				break
 			}
 			case 'text':
@@ -1067,6 +1077,7 @@ function validateAst(
 				if (typeof node.value !== 'string') {
 					return false
 				}
+
 				break
 			case 'code':
 				if (
@@ -1076,11 +1087,13 @@ function validateAst(
 				) {
 					return false
 				}
+
 				break
 			case 'link':
 				if (typeof node.url !== 'string' || !isSafeMdParserUrl(node.url)) {
 					return false
 				}
+
 				break
 			case 'image':
 				if (
@@ -1090,11 +1103,13 @@ function validateAst(
 				) {
 					return false
 				}
+
 				break
 			case 'citation':
 				if (typeof node.sourceId !== 'string') {
 					return false
 				}
+
 				break
 			case 'list':
 				if (
@@ -1104,6 +1119,7 @@ function validateAst(
 				) {
 					return false
 				}
+
 				break
 			case 'table':
 				if (
@@ -1115,6 +1131,7 @@ function validateAst(
 				) {
 					return false
 				}
+
 				break
 			case 'extension': {
 				if (
@@ -1127,6 +1144,7 @@ function validateAst(
 				) {
 					return false
 				}
+
 				const signature = extensionSignature(node)
 				const existing = existingExtensions.get(signature)
 				if (existing != null && existing.count > 0) {
@@ -1138,6 +1156,7 @@ function validateAst(
 				) {
 					return false
 				}
+
 				break
 			}
 			case 'strong':
@@ -1159,6 +1178,7 @@ function validateAst(
 			if (!Array.isArray(node.children)) {
 				return false
 			}
+
 			for (const child of node.children) {
 				if (!visit(child, type, insideLink || type === 'link')) {
 					return false
@@ -1174,8 +1194,7 @@ function validateAst(
 		Array.from(existingExtensions.values()).every(
 			(extension) => extension.plugin === activePluginName || extension.count === 0,
 		) &&
-		(display === 'block' ||
-			(doc.children.length === 1 && doc.children[0]?.type === 'paragraph'))
+		(display === 'block' || (doc.children.length === 1 && doc.children[0]?.type === 'paragraph'))
 	)
 }
 
@@ -1324,6 +1343,7 @@ export function adoptMarkdownHelperNodes(
 					break
 				}
 			}
+
 			if (!extra) {
 				return
 			}
@@ -1367,15 +1387,13 @@ export function adoptMarkdownHelperNodes(
 				if (typeof node.value !== 'string') {
 					return false
 				}
+
 				break
 			case 'link':
-				if (
-					withinLink ||
-					typeof node.url !== 'string' ||
-					!isSafeMdParserUrl(node.url)
-				) {
+				if (withinLink || typeof node.url !== 'string' || !isSafeMdParserUrl(node.url)) {
 					return false
 				}
+
 				break
 			case 'image':
 				if (
@@ -1385,11 +1403,13 @@ export function adoptMarkdownHelperNodes(
 				) {
 					return false
 				}
+
 				break
 			case 'citation':
 				if (typeof node.sourceId !== 'string') {
 					return false
 				}
+
 				break
 			case 'extension':
 				if (
@@ -1402,6 +1422,7 @@ export function adoptMarkdownHelperNodes(
 				) {
 					return false
 				}
+
 				break
 			case 'strong':
 			case 'emphasis':
@@ -1413,6 +1434,7 @@ export function adoptMarkdownHelperNodes(
 			if (!Array.isArray(node.children)) {
 				return false
 			}
+
 			for (const child of node.children) {
 				if (!visit(child, withinLink)) {
 					return false
@@ -1422,6 +1444,7 @@ export function adoptMarkdownHelperNodes(
 			if (!Array.isArray(node.children)) {
 				return false
 			}
+
 			for (const child of node.children) {
 				if (!visit(child, true)) {
 					return false
@@ -1480,6 +1503,7 @@ export function reportMarkdownPluginFailure(
 			// eslint-disable-next-line no-console
 			console.error(`Markdown: ${message}`)
 		}
+
 		return
 	}
 	warnPluginOnce(key, message, error)
@@ -1512,6 +1536,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 		if (!priorTransformChangedTree && prepared.claims?.(source) === false) {
 			continue
 		}
+
 		// A plugin-authored transform observes deeply frozen input and has its
 		// output validated. Both guards exist to contain untrusted structure, so
 		// a Core-authored trusted helper needs neither — and a pipeline of only
@@ -1524,12 +1549,14 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 				rendererKeys = new Set(plugins.renderers.keys())
 				guarded = true
 			}
+
 			// Deeply freezes the whole tree, including anything a trusted helper
 			// left shared and mutable, before plugin-authored code observes it.
 			// Subtrees already frozen by an earlier pass are skipped.
 			document = freezeAst(document)
 			deferredFreeze = false
 		}
+
 		try {
 			const context: InternalMarkdownTransformContext = {
 				source,
@@ -1543,6 +1570,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 					plugins.renderers.has(`${prepared.pluginName}\0${nodeName}`),
 				[markdownTransformSourceUnchanged]: !priorTransformChangedTree,
 			}
+
 			const next = prepared.transform(document, context) as unknown
 			if (
 				next != null &&
@@ -1552,9 +1580,11 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 				void Promise.resolve(next).catch(() => {})
 				throw new TypeError('Async Markdown transforms are not supported')
 			}
+
 			if (next === document) {
 				continue
 			}
+
 			if (prepared.trusted) {
 				priorTransformChangedTree = true
 				// No freeze here. Nothing untrusted can observe this tree yet —
@@ -1567,6 +1597,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 				document = next as MdDoc
 				continue
 			}
+
 			const positions = collectSourceInvariants(document)
 			const existingExtensions = collectExtensionSignatures(document)
 			if (
@@ -1583,6 +1614,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 			) {
 				throw new TypeError('Transform returned an invalid Markdown document')
 			}
+
 			priorTransformChangedTree = true
 			document = freezeAst(restoreCodeInternalProperties(document, next as MdDoc))
 		} catch (error) {

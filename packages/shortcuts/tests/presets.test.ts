@@ -8,6 +8,7 @@ import {
 	safariBrowserShortcuts,
 	windowsOsShortcuts,
 } from '../src/index.web'
+
 import { compileBlocklist } from '../src/engine/blocklists/compileBlocklist'
 
 function combos(entries: readonly { combo: string }[]): string[] {

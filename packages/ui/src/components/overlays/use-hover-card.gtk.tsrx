@@ -26,19 +26,17 @@ function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void 
 	// the callbacks current with a constant ref identity.
 	const handlers = useRef({ enter: props.enter, exit: props.exit })
 	handlers.current = { enter: props.enter, exit: props.exit }
-	const bind = useCallback(
-		(v: any) => {
-			detach.current?.()
-			detach.current = null
-			if (v) {
-				detach.current = observeHover(v, {
-					enter: () => handlers.current.enter(),
-					exit: () => handlers.current.exit(),
-				})
-			}
-		},
-		[],
-	)
+	const bind = useCallback((v: any) => {
+		detach.current?.()
+		detach.current = null
+		if (v) {
+			detach.current = observeHover(v, {
+				enter: () => handlers.current.enter(),
+				exit: () => handlers.current.exit(),
+			})
+		}
+	}, [])
+
 	useEffect(() => () => detach.current?.(), [])
 
 	<masonview
@@ -74,8 +72,14 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 	onHide.current = options.onHide
 
 	const clearTimers = useCallback(() => {
-		if (openTimer.current) { clearTimeout(openTimer.current) }
-		if (closeTimer.current) { clearTimeout(closeTimer.current) }
+		if (openTimer.current) {
+			clearTimeout(openTimer.current)
+		}
+
+		if (closeTimer.current) {
+			clearTimeout(closeTimer.current)
+		}
+
 		openTimer.current = null
 		closeTimer.current = null
 	}, [])
@@ -83,14 +87,23 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 	const requestedShow = useRef(false)
 	const closeNow = useCallback(() => {
 		clearTimers()
-		if (!controlled) { setUncontrolled(false) }
+		if (!controlled) {
+			setUncontrolled(false)
+		}
+
 		onHide.current?.()
 	}, [clearTimers, controlled])
 
 	const openNow = useCallback(() => {
-		if (!isEnabled || open || !positionEl.current) { return }
+		if (!isEnabled || open || !positionEl.current) {
+			return
+		}
+
 		requestedShow.current = true
-		if (!controlled) { setUncontrolled(true) }
+		if (!controlled) {
+			setUncontrolled(true)
+		}
+
 		onShow.current?.()
 	}, [isEnabled, controlled, open])
 
@@ -104,7 +117,10 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 
 	const id = layer.id
 	const scheduleShow = useCallback(() => {
-		if (!isEnabled || options.isOpen === false) { return }
+		if (!isEnabled || options.isOpen === false) {
+			return
+		}
+
 		clearTimers()
 		openTimer.current = setTimeout(() => {
 			openTimer.current = null
@@ -119,11 +135,16 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 	const overTrigger = useRef(false)
 	const overCard = useRef(false)
 	const scheduleHide = useCallback(() => {
-		if (options.isOpen === true) { return }
+		if (options.isOpen === true) {
+			return
+		}
+
 		clearTimers()
 		closeTimer.current = setTimeout(() => {
 			closeTimer.current = null
-			if (!overTrigger.current && !overCard.current) { closeNow() }
+			if (!overTrigger.current && !overCard.current) {
+				closeNow()
+			}
 		}, hideDelay)
 	}, [options.isOpen, clearTimers, hideDelay, closeNow])
 
@@ -131,7 +152,9 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 		clearTimers()
 		closeTimer.current = setTimeout(() => {
 			closeTimer.current = null
-			if (!overTrigger.current && !overCard.current) { closeNow() }
+			if (!overTrigger.current && !overCard.current) {
+				closeNow()
+			}
 		}, hideDelay)
 	}, [clearTimers, closeNow, hideDelay])
 
@@ -154,15 +177,22 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 			detachHover.current?.()
 			detachHover.current = null
 			interactionEl.current = el
-			if (!el || !isEnabled) { return }
+			if (!el || !isEnabled) {
+				return
+			}
+
 			detachHover.current = observeHover(el, {
-				enter: () => { overTrigger.current = true; latestShow.current() },
+				enter: () => {
+					overTrigger.current = true
+					latestShow.current()
+				},
 				exit: () => {
 					overTrigger.current = false
 					if (openTimer.current) {
 						clearTimeout(openTimer.current)
 						openTimer.current = null
 					}
+
 					latestHide.current()
 				},
 			})
@@ -180,13 +210,18 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 
 	useEffect(() => {
 		if (open && isEnabled) {
-			if (!requestedShow.current) { onShow.current?.() }
+			if (!requestedShow.current) {
+				onShow.current?.()
+			}
+
 			requestedShow.current = false
 		}
 	}, [open, isEnabled])
 
 	useEffect(() => {
-		if (options.isOpen === false) { clearTimers() }
+		if (options.isOpen === false) {
+			clearTimers()
+		}
 	}, [options.isOpen, clearTimers])
 
 	useEffect(
@@ -202,8 +237,14 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 			return layer.render(
 				<HoverCardPanel
 					body={children}
-					enter={() => { overCard.current = true; clearTimers() }}
-					exit={() => { overCard.current = false; scheduleCardHide() }}
+					enter={() => {
+						overCard.current = true
+						clearTimers()
+					}}
+					exit={() => {
+						overCard.current = false
+						scheduleCardHide()
+					}}
 				/>,
 				{
 					placement: props?.placement ?? options.placement ?? 'above',
@@ -215,7 +256,14 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
 				},
 			)
 		},
-		[layer.render, options.placement, options.alignment, options.label, scheduleCardHide, clearTimers],
+		[
+			layer.render,
+			options.placement,
+			options.alignment,
+			options.label,
+			scheduleCardHide,
+			clearTimers,
+		],
 	)
 
 	return {

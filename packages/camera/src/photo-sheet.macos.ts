@@ -51,7 +51,10 @@ class XplatPhotoCaptureSheet extends SheetBase {
 	static ObjCProtocols: any[] = g.NSWindowDelegate ? [g.NSWindowDelegate] : []
 	static ObjCExposedMethods: Record<string, unknown> = {
 		permissionStatus: { params: [] as any[], returns: g.interop?.types?.id },
-		'present:reply:': { params: [g.interop?.types?.id, g.interop?.types?.id], returns: g.interop?.types?.void },
+		'present:reply:': {
+			params: [g.interop?.types?.id, g.interop?.types?.id],
+			returns: g.interop?.types?.void,
+		},
 		'discard:': { params: [g.interop?.types?.id], returns: g.interop?.types?.void },
 		dispose: { params: [] as any[], returns: g.interop?.types?.void },
 		'windowShouldClose:': { params: [g.interop?.types?.id], returns: g.interop?.types?.bool },
@@ -71,6 +74,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
 					Object.defineProperty(this.prototype, name, { ...descriptor, enumerable: true })
 				}
 			}
+
 			g.NativeClass(this)
 		}
 	}
@@ -122,7 +126,11 @@ class XplatPhotoCaptureSheet extends SheetBase {
 	}
 
 	// Explicit host window mirrors the Swift test seam.
-	presentOnWindow(parent: any, options: Record<string, unknown>, reply: (result: string | null) => void): void {
+	presentOnWindow(
+		parent: any,
+		options: Record<string, unknown>,
+		reply: (result: string | null) => void,
+	): void {
 		// saveToGallery is not refused here: the media leaf owns the Photos
 		// write after the shot file is delivered.
 		if (this.disposed || this.sheet != null || parent.attachedSheet != null) {
@@ -132,7 +140,10 @@ class XplatPhotoCaptureSheet extends SheetBase {
 		this.options = options
 		this.reply = reply
 		this.parent = parent
-		const frame = (w: number, h: number) => ({ origin: { x: 0, y: 0 }, size: { width: w, height: h } })
+		const frame = (w: number, h: number) => ({
+			origin: { x: 0, y: 0 },
+			size: { width: w, height: h },
+		})
 		const sheet = typed(
 			NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(frame(640, 480), 3, 2, false),
 			NSWindow,
@@ -140,7 +151,10 @@ class XplatPhotoCaptureSheet extends SheetBase {
 		sheet.title = 'Take a photo'
 		sheet.delegate = this
 		const content = NSView.alloc().initWithFrame(frame(640, 480))
-		const preview = NSView.alloc().initWithFrame({ origin: { x: 16, y: 80 }, size: { width: 608, height: 384 } })
+		const preview = NSView.alloc().initWithFrame({
+			origin: { x: 16, y: 80 },
+			size: { width: 608, height: 384 },
+		})
 		preview.wantsLayer = true
 		preview.layer.backgroundColor = NSColor.blackColor.CGColor
 		content.addSubview(preview)
@@ -187,9 +201,11 @@ class XplatPhotoCaptureSheet extends SheetBase {
 			if (this.captureButton != null) {
 				this.captureButton.isEnabled = false
 			}
+
 			if (this.statusLabel != null) {
 				this.statusLabel.stringValue = 'Starting camera…'
 			}
+
 			this.deadline(token)
 			// Authorization happens only after the user presses Capture.
 			this.host.requestPermissionReply('camera', (status: string) => {
@@ -223,6 +239,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
 							clearTimeout(this.timeout)
 							this.timeout = undefined
 						}
+
 						this.captureButton.isEnabled = true
 						if (this.statusLabel != null) {
 							this.statusLabel.stringValue = 'Frame your photo, then choose Capture.'
@@ -238,6 +255,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
 					this.complete(null)
 				}
 			})
+
 			return
 		}
 		const token = this.life.capture()
@@ -270,8 +288,10 @@ class XplatPhotoCaptureSheet extends SheetBase {
 		}
 		// Option semantics match the Swift NSNumber cast: a non-number falls
 		// back to the source size, while an out-of-range number fails below.
-		const width = typeof this.options.width === 'number' ? this.options.width : Number(source.pixelsWide)
-		const height = typeof this.options.height === 'number' ? this.options.height : Number(source.pixelsHigh)
+		const width =
+			typeof this.options.width === 'number' ? this.options.width : Number(source.pixelsWide)
+		const height =
+			typeof this.options.height === 'number' ? this.options.height : Number(source.pixelsHigh)
 		if (
 			!Number.isFinite(width) ||
 			!Number.isFinite(height) ||
@@ -298,17 +318,25 @@ class XplatPhotoCaptureSheet extends SheetBase {
 		try {
 			image.addRepresentation(source)
 			image.size = { width: Math.floor(size.width), height: Math.floor(size.height) }
-			const tiff = typeof image.TIFFRepresentation === 'function' ? image.TIFFRepresentation() : image.TIFFRepresentation
-			const scaled = tiff != null ? typed(NSBitmapImageRep.imageRepWithData(tiff), NSBitmapImageRep) : null
+			const tiff =
+				typeof image.TIFFRepresentation === 'function'
+					? image.TIFFRepresentation()
+					: image.TIFFRepresentation
+
+			const scaled =
+				tiff != null ? typed(NSBitmapImageRep.imageRepWithData(tiff), NSBitmapImageRep) : null
+
 			if (scaled == null) {
 				return null
 			}
+
 			const props = NSMutableDictionary.dictionary()
 			props.setObjectForKey(0.9, NSImageCompressionFactor)
 			const jpeg = scaled.representationUsingTypeProperties(g.NSBitmapImageFileTypeJPEG ?? 3, props)
 			if (jpeg == null) {
 				return null
 			}
+
 			return this.persistWrite(jpeg)
 		} catch {
 			return null
@@ -324,10 +352,12 @@ class XplatPhotoCaptureSheet extends SheetBase {
 				uri: String(url.path),
 				dataUrl: `data:image/jpeg;base64,${jpeg.base64EncodedStringWithOptions(0)}`,
 			}
+
 			const message = JSON.stringify(payload)
 			if (!jpeg.writeToURLAtomically(url, true)) {
 				return null
 			}
+
 			return message
 		} catch {
 			try {
@@ -335,6 +365,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
 			} catch {
 				// Temporary leftovers are reclaimed by the OS.
 			}
+
 			return null
 		}
 	}

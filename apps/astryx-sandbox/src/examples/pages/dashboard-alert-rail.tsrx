@@ -5,11 +5,33 @@
 // alerts rail is read-only in the port (upstream has no actions either).
 import { useMemo, useState } from 'octane'
 import {
-	Badge, Card, Divider, EmptyState, Grid, Heading, HStack, Icon, Layout,
-	LayoutContent, LayoutHeader, LayoutPanel, List, ListItem,
-	SegmentedControl, SegmentedControlItem, Selector, StackItem, StatusDot,
-	Table, Text, Timestamp, Token, useMediaQuery, VStack,
+	Badge,
+	Card,
+	Divider,
+	EmptyState,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	List,
+	ListItem,
+	SegmentedControl,
+	SegmentedControlItem,
+	Selector,
+	StackItem,
+	StatusDot,
+	Table,
+	Text,
+	Timestamp,
+	Token,
+	useMediaQuery,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartLines, ChartSparkline } from './charts.tsrx'
 
@@ -63,22 +85,118 @@ interface Kpi {
 
 const KPI_BY_ENV: Record<Environment, Kpi[]> = {
 	production: [
-		{ key: 'health', label: 'Overall health', value: '98.6%', status: 'healthy', statusLabel: 'Healthy', delta: '+0.3%', deltaPositive: true },
-		{ key: 'error', label: 'Error rate', value: '1.84%', status: 'warning', statusLabel: 'Elevated', delta: '+0.9%', deltaPositive: false },
-		{ key: 'latency', label: 'p99 latency', value: '512 ms', status: 'warning', statusLabel: 'Above target', delta: '+84 ms', deltaPositive: false },
-		{ key: 'availability', label: 'Availability', value: '99.98%', status: 'healthy', statusLabel: 'Operational', delta: '+0.01%', deltaPositive: true },
+		{
+			key: 'health',
+			label: 'Overall health',
+			value: '98.6%',
+			status: 'healthy',
+			statusLabel: 'Healthy',
+			delta: '+0.3%',
+			deltaPositive: true,
+		},
+		{
+			key: 'error',
+			label: 'Error rate',
+			value: '1.84%',
+			status: 'warning',
+			statusLabel: 'Elevated',
+			delta: '+0.9%',
+			deltaPositive: false,
+		},
+		{
+			key: 'latency',
+			label: 'p99 latency',
+			value: '512 ms',
+			status: 'warning',
+			statusLabel: 'Above target',
+			delta: '+84 ms',
+			deltaPositive: false,
+		},
+		{
+			key: 'availability',
+			label: 'Availability',
+			value: '99.98%',
+			status: 'healthy',
+			statusLabel: 'Operational',
+			delta: '+0.01%',
+			deltaPositive: true,
+		},
 	],
 	staging: [
-		{ key: 'health', label: 'Overall health', value: '99.4%', status: 'healthy', statusLabel: 'Healthy', delta: '+0.1%', deltaPositive: true },
-		{ key: 'error', label: 'Error rate', value: '0.42%', status: 'healthy', statusLabel: 'Nominal', delta: '-0.2%', deltaPositive: true },
-		{ key: 'latency', label: 'p99 latency', value: '338 ms', status: 'healthy', statusLabel: 'Within target', delta: '-12 ms', deltaPositive: true },
-		{ key: 'availability', label: 'Availability', value: '99.99%', status: 'healthy', statusLabel: 'Operational', delta: '+0.00%', deltaPositive: true },
+		{
+			key: 'health',
+			label: 'Overall health',
+			value: '99.4%',
+			status: 'healthy',
+			statusLabel: 'Healthy',
+			delta: '+0.1%',
+			deltaPositive: true,
+		},
+		{
+			key: 'error',
+			label: 'Error rate',
+			value: '0.42%',
+			status: 'healthy',
+			statusLabel: 'Nominal',
+			delta: '-0.2%',
+			deltaPositive: true,
+		},
+		{
+			key: 'latency',
+			label: 'p99 latency',
+			value: '338 ms',
+			status: 'healthy',
+			statusLabel: 'Within target',
+			delta: '-12 ms',
+			deltaPositive: true,
+		},
+		{
+			key: 'availability',
+			label: 'Availability',
+			value: '99.99%',
+			status: 'healthy',
+			statusLabel: 'Operational',
+			delta: '+0.00%',
+			deltaPositive: true,
+		},
 	],
 	development: [
-		{ key: 'health', label: 'Overall health', value: '96.2%', status: 'warning', statusLabel: 'Noisy', delta: '-1.2%', deltaPositive: false },
-		{ key: 'error', label: 'Error rate', value: '4.10%', status: 'critical', statusLabel: 'Elevated', delta: '+2.4%', deltaPositive: false },
-		{ key: 'latency', label: 'p99 latency', value: '890 ms', status: 'warning', statusLabel: 'Above target', delta: '+210 ms', deltaPositive: false },
-		{ key: 'availability', label: 'Availability', value: '99.61%', status: 'healthy', statusLabel: 'Operational', delta: '-0.04%', deltaPositive: false },
+		{
+			key: 'health',
+			label: 'Overall health',
+			value: '96.2%',
+			status: 'warning',
+			statusLabel: 'Noisy',
+			delta: '-1.2%',
+			deltaPositive: false,
+		},
+		{
+			key: 'error',
+			label: 'Error rate',
+			value: '4.10%',
+			status: 'critical',
+			statusLabel: 'Elevated',
+			delta: '+2.4%',
+			deltaPositive: false,
+		},
+		{
+			key: 'latency',
+			label: 'p99 latency',
+			value: '890 ms',
+			status: 'warning',
+			statusLabel: 'Above target',
+			delta: '+210 ms',
+			deltaPositive: false,
+		},
+		{
+			key: 'availability',
+			label: 'Availability',
+			value: '99.61%',
+			status: 'healthy',
+			statusLabel: 'Operational',
+			delta: '-0.04%',
+			deltaPositive: false,
+		},
 	],
 }
 
@@ -90,7 +208,11 @@ const SPARKLINES: Record<string, number[]> = {
 }
 
 const SPARK_LEN: Record<TimeWindow, number> = { '1h': 3, '1d': 7, '7d': 7 }
-const ENV_LATENCY_FACTOR: Record<Environment, number> = { production: 1, staging: 0.7, development: 1.4 }
+const ENV_LATENCY_FACTOR: Record<Environment, number> = {
+	production: 1,
+	staging: 0.7,
+	development: 1.4,
+}
 
 interface HostRow extends Record<string, unknown> {
 	id: string
@@ -105,16 +227,116 @@ interface HostRow extends Record<string, unknown> {
 }
 
 const HOST_ROWS: HostRow[] = [
-	{ id: '1', service: 'checkout-api', environment: 'production', region: 'us-east-1', instances: 24, rpm: 9240, errorRate: 2.1, p99: 512, status: 'warning' },
-	{ id: '2', service: 'checkout-api', environment: 'production', region: 'us-west-2', instances: 18, rpm: 6110, errorRate: 0.3, p99: 214, status: 'healthy' },
-	{ id: '3', service: 'checkout-api', environment: 'production', region: 'eu-west-1', instances: 12, rpm: 3980, errorRate: 0.4, p99: 236, status: 'healthy' },
-	{ id: '4', service: 'search-indexer', environment: 'production', region: 'us-east-1', instances: 16, rpm: 4120, errorRate: 5.8, p99: 1180, status: 'critical' },
-	{ id: '5', service: 'search-indexer', environment: 'production', region: 'ap-southeast-1', instances: 8, rpm: 2040, errorRate: 0.9, p99: 342, status: 'healthy' },
-	{ id: '6', service: 'payments', environment: 'production', region: 'us-east-1', instances: 14, rpm: 5480, errorRate: 0.2, p99: 188, status: 'healthy' },
-	{ id: '7', service: 'checkout-api', environment: 'staging', region: 'us-east-1', instances: 4, rpm: 480, errorRate: 0.4, p99: 298, status: 'healthy' },
-	{ id: '8', service: 'search-indexer', environment: 'staging', region: 'us-east-1', instances: 3, rpm: 210, errorRate: 0.1, p99: 402, status: 'healthy' },
-	{ id: '9', service: 'auth', environment: 'development', region: 'us-west-2', instances: 2, rpm: 96, errorRate: 9.4, p99: 1410, status: 'critical' },
-	{ id: '10', service: 'checkout-api', environment: 'development', region: 'us-west-2', instances: 2, rpm: 74, errorRate: 2.2, p99: 620, status: 'warning' },
+	{
+		id: '1',
+		service: 'checkout-api',
+		environment: 'production',
+		region: 'us-east-1',
+		instances: 24,
+		rpm: 9240,
+		errorRate: 2.1,
+		p99: 512,
+		status: 'warning',
+	},
+	{
+		id: '2',
+		service: 'checkout-api',
+		environment: 'production',
+		region: 'us-west-2',
+		instances: 18,
+		rpm: 6110,
+		errorRate: 0.3,
+		p99: 214,
+		status: 'healthy',
+	},
+	{
+		id: '3',
+		service: 'checkout-api',
+		environment: 'production',
+		region: 'eu-west-1',
+		instances: 12,
+		rpm: 3980,
+		errorRate: 0.4,
+		p99: 236,
+		status: 'healthy',
+	},
+	{
+		id: '4',
+		service: 'search-indexer',
+		environment: 'production',
+		region: 'us-east-1',
+		instances: 16,
+		rpm: 4120,
+		errorRate: 5.8,
+		p99: 1180,
+		status: 'critical',
+	},
+	{
+		id: '5',
+		service: 'search-indexer',
+		environment: 'production',
+		region: 'ap-southeast-1',
+		instances: 8,
+		rpm: 2040,
+		errorRate: 0.9,
+		p99: 342,
+		status: 'healthy',
+	},
+	{
+		id: '6',
+		service: 'payments',
+		environment: 'production',
+		region: 'us-east-1',
+		instances: 14,
+		rpm: 5480,
+		errorRate: 0.2,
+		p99: 188,
+		status: 'healthy',
+	},
+	{
+		id: '7',
+		service: 'checkout-api',
+		environment: 'staging',
+		region: 'us-east-1',
+		instances: 4,
+		rpm: 480,
+		errorRate: 0.4,
+		p99: 298,
+		status: 'healthy',
+	},
+	{
+		id: '8',
+		service: 'search-indexer',
+		environment: 'staging',
+		region: 'us-east-1',
+		instances: 3,
+		rpm: 210,
+		errorRate: 0.1,
+		p99: 402,
+		status: 'healthy',
+	},
+	{
+		id: '9',
+		service: 'auth',
+		environment: 'development',
+		region: 'us-west-2',
+		instances: 2,
+		rpm: 96,
+		errorRate: 9.4,
+		p99: 1410,
+		status: 'critical',
+	},
+	{
+		id: '10',
+		service: 'checkout-api',
+		environment: 'development',
+		region: 'us-west-2',
+		instances: 2,
+		rpm: 74,
+		errorRate: 2.2,
+		p99: 620,
+		status: 'warning',
+	},
 ]
 
 interface Alert {
@@ -127,21 +349,64 @@ interface Alert {
 }
 
 const ALERTS: Alert[] = [
-	{ id: 'AL-8842', severity: 'critical', title: 'search-indexer 5xx rate above 5%', service: 'search-indexer · us-east-1', at: '2026-06-30T21:14:00+00:00', state: 'firing' },
-	{ id: 'AL-8841', severity: 'warning', title: 'checkout-api p99 latency above 500ms', service: 'checkout-api · us-east-1', at: '2026-06-30T21:02:00+00:00', state: 'firing' },
-	{ id: 'AL-8840', severity: 'warning', title: 'edge-cdn cache hit ratio degraded', service: 'edge-cdn · eu-west-1', at: '2026-06-30T20:41:00+00:00', state: 'acknowledged' },
-	{ id: 'AL-8839', severity: 'critical', title: 'auth error rate spike in dev cluster', service: 'auth · us-west-2', at: '2026-06-30T20:18:00+00:00', state: 'acknowledged' },
-	{ id: 'AL-8838', severity: 'warning', title: 'notifications queue depth climbing', service: 'notifications · ap-southeast-1', at: '2026-06-30T19:55:00+00:00', state: 'firing' },
-	{ id: 'AL-8837', severity: 'warning', title: 'payments settlement job heartbeat missed', service: 'payments · us-east-1', at: '2026-06-30T18:30:00+00:00', state: 'resolved' },
+	{
+		id: 'AL-8842',
+		severity: 'critical',
+		title: 'search-indexer 5xx rate above 5%',
+		service: 'search-indexer · us-east-1',
+		at: '2026-06-30T21:14:00+00:00',
+		state: 'firing',
+	},
+	{
+		id: 'AL-8841',
+		severity: 'warning',
+		title: 'checkout-api p99 latency above 500ms',
+		service: 'checkout-api · us-east-1',
+		at: '2026-06-30T21:02:00+00:00',
+		state: 'firing',
+	},
+	{
+		id: 'AL-8840',
+		severity: 'warning',
+		title: 'edge-cdn cache hit ratio degraded',
+		service: 'edge-cdn · eu-west-1',
+		at: '2026-06-30T20:41:00+00:00',
+		state: 'acknowledged',
+	},
+	{
+		id: 'AL-8839',
+		severity: 'critical',
+		title: 'auth error rate spike in dev cluster',
+		service: 'auth · us-west-2',
+		at: '2026-06-30T20:18:00+00:00',
+		state: 'acknowledged',
+	},
+	{
+		id: 'AL-8838',
+		severity: 'warning',
+		title: 'notifications queue depth climbing',
+		service: 'notifications · ap-southeast-1',
+		at: '2026-06-30T19:55:00+00:00',
+		state: 'firing',
+	},
+	{
+		id: 'AL-8837',
+		severity: 'warning',
+		title: 'payments settlement job heartbeat missed',
+		service: 'payments · us-east-1',
+		at: '2026-06-30T18:30:00+00:00',
+		state: 'resolved',
+	},
 ]
 
 const ALERT_ORDER: AlertState[] = ['firing', 'acknowledged', 'resolved']
 
-const ALERT_STATE_TOKEN: Record<AlertState, { color: 'red' | 'yellow' | 'green'; label: string }> = {
-	firing: { color: 'red', label: 'Firing' },
-	acknowledged: { color: 'yellow', label: 'Acknowledged' },
-	resolved: { color: 'green', label: 'Resolved' },
-}
+const ALERT_STATE_TOKEN: Record<AlertState, { color: 'red' | 'yellow' | 'green'; label: string }> =
+	{
+		firing: { color: 'red', label: 'Firing' },
+		acknowledged: { color: 'yellow', label: 'Acknowledged' },
+		resolved: { color: 'green', label: 'Resolved' },
+	}
 
 const LATENCY_LINES = [
 	{ name: 'p50', color: 'var(--color-data-categorical-blue, #0171E3)', base: 190, noise: 24 },
@@ -150,10 +415,30 @@ const LATENCY_LINES = [
 ]
 
 const TRAFFIC_LINES = [
-	{ name: 'us-east-1', color: 'var(--color-data-categorical-blue, #0171E3)', base: 9800, noise: 900 },
-	{ name: 'us-west-2', color: 'var(--color-data-categorical-green, #0B991F)', base: 6400, noise: 720 },
-	{ name: 'eu-west-1', color: 'var(--color-data-categorical-purple, #6B1EFD)', base: 4200, noise: 560 },
-	{ name: 'ap-southeast-1', color: 'var(--color-data-categorical-teal, #08A3A3)', base: 2600, noise: 420 },
+	{
+		name: 'us-east-1',
+		color: 'var(--color-data-categorical-blue, #0171E3)',
+		base: 9800,
+		noise: 900,
+	},
+	{
+		name: 'us-west-2',
+		color: 'var(--color-data-categorical-green, #0B991F)',
+		base: 6400,
+		noise: 720,
+	},
+	{
+		name: 'eu-west-1',
+		color: 'var(--color-data-categorical-purple, #6B1EFD)',
+		base: 4200,
+		noise: 560,
+	},
+	{
+		name: 'ap-southeast-1',
+		color: 'var(--color-data-categorical-teal, #08A3A3)',
+		base: 2600,
+		noise: 420,
+	},
 ]
 
 const UPTIME_DAYS = 30
@@ -170,10 +455,19 @@ const UPTIME_LABEL: Record<UptimeStatus, string> = {
 	down: 'Down',
 }
 
-const UPTIME_ENV_RISK: Record<Environment, number> = { production: 1, staging: 0.6, development: 2.2 }
+const UPTIME_ENV_RISK: Record<Environment, number> = {
+	production: 1,
+	staging: 0.6,
+	development: 2.2,
+}
+
 const UPTIME_STATUS_RISK: Record<HealthStatus, number> = { healthy: 1, warning: 3, critical: 6 }
 const DAY_UPTIME: Record<UptimeStatus, number> = { operational: 1, degraded: 0.965, down: 0.82 }
-const UPTIME_TODAY: Record<HealthStatus, UptimeStatus> = { healthy: 'operational', warning: 'degraded', critical: 'down' }
+const UPTIME_TODAY: Record<HealthStatus, UptimeStatus> = {
+	healthy: 'operational',
+	warning: 'degraded',
+	critical: 'down',
+}
 
 function hashNoise(i: number, seed: number): number {
 	const s = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453
@@ -194,10 +488,15 @@ function seedForService(service: string): number {
 	for (let i = 0; i < service.length; i++) {
 		h = (h * 31 + service.charCodeAt(i)) % 9973
 	}
+
 	return h
 }
 
-function buildUptime(service: string, environment: Environment, status: HealthStatus): ServiceUptime {
+function buildUptime(
+	service: string,
+	environment: Environment,
+	status: HealthStatus,
+): ServiceUptime {
 	const seed = seedForService(service)
 	const risk = UPTIME_ENV_RISK[environment] * UPTIME_STATUS_RISK[status]
 	const downWobble = 0.6 + 0.8 * hashNoise(seed, 3.7)
@@ -207,9 +506,16 @@ function buildUptime(service: string, environment: Environment, status: HealthSt
 	const ranked = [...Array(UPTIME_DAYS).keys()].sort(
 		(a, b) => hashNoise(b, seed) - hashNoise(a, seed),
 	)
+
 	const days: UptimeStatus[] = new Array(UPTIME_DAYS).fill('operational')
-	for (let k = 0; k < downCount; k++) {days[ranked[k]] = 'down'}
-	for (let k = downCount; k < downCount + degradedCount; k++) {days[ranked[k]] = 'degraded'}
+	for (let k = 0; k < downCount; k++) {
+		days[ranked[k]] = 'down'
+	}
+
+	for (let k = downCount; k < downCount + degradedCount; k++) {
+		days[ranked[k]] = 'degraded'
+	}
+
 	days[UPTIME_DAYS - 1] = UPTIME_TODAY[status]
 	const cleanDay = DAY_UPTIME.operational - 0.02 - hashNoise(seed, 11.3) * 0.06
 	let served = 0
@@ -221,15 +527,23 @@ function buildUptime(service: string, environment: Environment, status: HealthSt
 			served += cleanDay - hashNoise(i, seed + 1) * 0.02
 		} else {
 			served += DAY_UPTIME[day]
-			if (day === 'degraded') {degradedDays++} else {downDays++}
+			if (day === 'degraded') {
+				degradedDays++
+			} else {
+				downDays++
+			}
 		}
 	}
+
 	return { service, status, days, uptime: served / UPTIME_DAYS, degradedDays, downDays }
 }
 
 function dayLabel(i: number): string {
 	const ago = UPTIME_DAYS - 1 - i
-	if (ago === 0) {return 'Today'}
+	if (ago === 0) {
+		return 'Today'
+	}
+
 	return ago === 1 ? 'Yesterday' : `${ago} days ago`
 }
 
@@ -265,18 +579,33 @@ function KpiTile(props: { kpi: Kpi; spark: number[] }) @{
 				<Heading level={2}>{props.kpi.value}</Heading>
 				<HStack gap={1} vAlign="center">
 					<Icon
-						name={props.kpi.deltaPositive ? 'sandbox-arrow-trending-up' : 'sandbox-arrow-trending-down'}
+						name={
+							props.kpi.deltaPositive ? 'sandbox-arrow-trending-up' : 'sandbox-arrow-trending-down'
+						}
 						size={12}
 						color={props.kpi.deltaPositive ? 'success' : 'error'}
 					/>
-					<Text type="supporting" style={{ color: props.kpi.deltaPositive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+					<Text
+						type="supporting"
+						style={{
+							color: props.kpi.deltaPositive
+								? 'var(--color-text-success, #067647)'
+								: 'var(--color-text-error, #d92d20)',
+						}}
+					>
 						{props.kpi.delta}
 					</Text>
 				</HStack>
 			</HStack>
 			<ChartSparkline
 				data={props.spark}
-				color={props.kpi.status === 'healthy' ? '#22c55e' : props.kpi.status === 'warning' ? '#f59e0b' : '#ef4444'}
+				color={
+					props.kpi.status === 'healthy'
+						? '#22c55e'
+						: props.kpi.status === 'warning'
+							? '#f59e0b'
+							: '#ef4444'
+				}
 				height={24}
 			/>
 		</VStack>
@@ -354,15 +683,19 @@ function AlertsFeed() @{
 		iconColor={firing > 0 ? 'error' : 'secondary'}
 		title="Active alerts"
 		subtitle={`${ALERTS.length} in the last 24h · newest first`}
-		badge={
-			<Badge label={`${firing} firing`} variant={firing > 0 ? 'error' : 'neutral'} />
-		}
+		badge={<Badge label={`${firing} firing`} variant={firing > 0 ? 'error' : 'neutral'} />}
 	>
 		{groups.length === 0 ? (
 			<EmptyState
 				title="All clear"
 				description="No active alerts across the selected environment."
-				icon={<Icon name="sandbox-check-circle" size={24} color={'var(--color-text-success, #067647)'} />}
+				icon={
+					<Icon
+						name="sandbox-check-circle"
+						size={24}
+						color={'var(--color-text-success, #067647)'}
+					/>
+				}
 				isCompact
 			/>
 		) : (
@@ -388,7 +721,8 @@ function AlertsFeed() @{
 										label={ALERT_STATE_TOKEN[alert.state].label}
 									/>
 									<Timestamp
-										value={Date.parse(alert.at)} valueUnit="unix-milliseconds"
+										value={Date.parse(alert.at)}
+										valueUnit="unix-milliseconds"
 										format="relative"
 										color="secondary"
 									/>
@@ -403,7 +737,10 @@ function AlertsFeed() @{
 }
 
 function errorColor(rate: number): 'red' | 'yellow' | 'green' {
-	if (rate >= 5) {return 'red'}
+	if (rate >= 5) {
+		return 'red'
+	}
+
 	return rate >= 1.5 ? 'yellow' : 'green'
 }
 
@@ -458,11 +795,7 @@ function UptimeStrip(props: { entry: ServiceUptime }) @{
 		props.entry.degradedDays === 1 ? 'day' : 'days'
 	}, ${props.entry.downDays} with downtime.`
 
-	<div
-		style={{ display: 'flex', gap: 2, width: '100%' }}
-		role="img"
-		aria-label={summary}
-	>
+	<div style={{ display: 'flex', gap: 2, width: '100%' }} role="img" aria-label={summary}>
 		{props.entry.days.map((day, i) => (
 			<div
 				key={i}
@@ -525,6 +858,7 @@ export function DashboardAlertRailTemplate() @{
 				worst.set(row.service, row.status)
 			}
 		}
+
 		return [...worst.entries()]
 			.sort((a, b) => a[0].localeCompare(b[0]))
 			.map(([service, status]) => buildUptime(service, environment, status))
@@ -592,11 +926,7 @@ export function DashboardAlertRailTemplate() @{
 					<VStack gap={6}>
 						<Grid columns={{ minWidth: 240, repeat: 'fit' }} style={{ gap: 'var(--spacing-3)' }}>
 							{kpis.map((kpi) => (
-								<KpiTile
-									key={kpi.key}
-									kpi={kpi}
-									spark={SPARKLINES[kpi.key].slice(-sparkLen)}
-								/>
+								<KpiTile key={kpi.key} kpi={kpi} spark={SPARKLINES[kpi.key].slice(-sparkLen)} />
 							))}
 						</Grid>
 						<Grid columns={{ minWidth: 320, repeat: 'fit' }} style={{ gap: 'var(--spacing-3)' }}>

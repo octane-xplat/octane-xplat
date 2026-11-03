@@ -11,6 +11,7 @@ const run = (cmd, args, cwd) => {
 	const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 }
+
 try {
 	const pack = join(temporary, 'pack')
 	await mkdir(pack)
@@ -25,6 +26,7 @@ try {
 		await cp(packed, join(app, 'node_modules/@octane-xplat/view-shot'), {
 			recursive: true,
 		})
+
 		await symlink(join(root, 'node_modules/octane'), join(app, 'node_modules/octane'), 'dir')
 		await writeFile(join(app, 'package.json'), '{"type":"module"}')
 		await writeFile(
@@ -41,6 +43,7 @@ releaseCapture('file:///foreign')
 void result; void screen; void supported
 `,
 		)
+
 		await writeFile(
 			join(app, 'tsconfig.json'),
 			JSON.stringify({
@@ -57,12 +60,14 @@ void result; void screen; void supported
 				include: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(app, 'tsconfig.json')],
 			app,
 		)
 	}
+
 	console.log(
 		'Packed view-shot consumer: seven target declarations without native ambient types pass. Runtime qualification is a separate check.',
 	)

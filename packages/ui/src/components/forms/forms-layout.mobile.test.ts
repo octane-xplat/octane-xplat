@@ -32,7 +32,12 @@ import { TextInput } from './TextInput.tsrx'
 import { Checkbox } from './Checkbox.tsrx'
 import { List } from '../collections/List.tsrx'
 import { ListItem } from '../collections/ListItem.tsrx'
-import { getIndicator, registerIndicator, CheckboxIndicator, CheckIndicator } from '../feedback/indicators'
+import {
+	getIndicator,
+	registerIndicator,
+	CheckboxIndicator,
+	CheckIndicator,
+} from '../feedback/indicators'
 
 function mount(component: any, props: any = {}) {
 	const container = createObjectContainer('nativescript')

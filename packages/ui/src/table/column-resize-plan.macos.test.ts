@@ -13,10 +13,15 @@ const source = (): TableColumn<Person>[] => [
 	{ key: 'team', width: proportional(2, { minWidth: 240 }) },
 	{ key: 'status', width: pixel(140) },
 ]
-const plan = (columns: TableColumn<Person>[], plugins: TablePlugin<Person>[]) => planTableRender({ data, columns, plugins, textOverflow: 'wrap' })
+
+const plan = (columns: TableColumn<Person>[], plugins: TablePlugin<Person>[]) =>
+	planTableRender({ data, columns, plugins, textOverflow: 'wrap' })
+
 describe('AppKit controlled table width plan', () => {
 	it('header, body and scroll minimum share the same overridden columns', () => {
-		const resize = createAppKitColumnResizePlugin<Person>(() => ({ columnWidths: { name: 300, team: 420 } }))
+		const resize = createAppKitColumnResizePlugin<Person>(() => ({
+			columnWidths: { name: 300, team: 420 },
+		}))
 		const result = plan(source(), [resize])
 		expect(result.tableMinWidth).toBe(860)
 		expect(result.headerCells[0]!.widthStyle).toEqual({ width: '300px', minWidth: '300px' })
@@ -27,9 +32,16 @@ describe('AppKit controlled table width plan', () => {
 		expect(result.columns[0]!.resizable).toBe(false) // Locking gestures does not block controlled values.
 	})
 	it('reads current config, supports zero/removal and does not mutate frozen caller columns or echo callbacks', () => {
-		let calls = 0, config: UseTableColumnResizeConfig = { columnWidths: { name: 0 }, onColumnResizeEnd: () => calls++ }
-		const columns = source(), resize = createAppKitColumnResizePlugin<Person>(() => config)
-		for (const column of columns) {Object.freeze(column)}
+		let calls = 0,
+			config: UseTableColumnResizeConfig = {
+				columnWidths: { name: 0 },
+				onColumnResizeEnd: () => calls++,
+			}
+		const columns = source(),
+			resize = createAppKitColumnResizePlugin<Person>(() => config)
+		for (const column of columns) {
+			Object.freeze(column)
+		}
 		Object.freeze(columns)
 		expect(plan(columns, [resize]).columns[0]!.width).toEqual(pixel(0))
 		config = { ...config, columnWidths: { name: 500 } }
@@ -40,12 +52,22 @@ describe('AppKit controlled table width plan', () => {
 		expect(calls).toBe(0)
 	})
 	it('composes after reordered/synthetic columns and supplies current widths to offset resolution', () => {
-		const reorder: TablePlugin<Person> = { transformColumns: (columns) => [{ key: 'gutter', width: pixel(40) }, ...columns.slice().reverse()] }
-		const resize = createAppKitColumnResizePlugin<Person>(() => ({ columnWidths: { name: 320, gutter: 60 } }))
+		const reorder: TablePlugin<Person> = {
+			transformColumns: (columns) => [
+				{ key: 'gutter', width: pixel(40) },
+				...columns.slice().reverse(),
+			],
+		}
+		const resize = createAppKitColumnResizePlugin<Person>(() => ({
+			columnWidths: { name: 320, gutter: 60 },
+		}))
 		const result = plan(source(), [reorder, resize])
 		expect(result.columns.map((column) => column.key)).toEqual(['gutter', 'status', 'team', 'name'])
 		expect(result.tableMinWidth).toBe(760)
-		expect(resolveStickySide(result.columns, 'team', ['team'], [])).toEqual({ edge: 'start', offset: 200 })
+		expect(resolveStickySide(result.columns, 'team', ['team'], [])).toEqual({
+			edge: 'start',
+			offset: 200,
+		})
 	})
 	it('ignores inherited dictionary values and widths for currently absent columns', () => {
 		const columns: TableColumn<Person>[] = [{ key: 'toString', width: pixel(100) }]
@@ -55,16 +77,23 @@ describe('AppKit controlled table width plan', () => {
 		expect(plan(columns, [resize]).columns).toBe(columns)
 	})
 	it('rejects invalid visible widths and lets the pipeline isolate the failed transform without partial mutation', () => {
-		const columns = source(), errors = vi.spyOn(console, 'error').mockImplementation(() => {})
+		const columns = source(),
+			errors = vi.spyOn(console, 'error').mockImplementation(() => {})
 		try {
 			for (const value of [-1, Infinity, Number.NaN]) {
-				const resize = createAppKitColumnResizePlugin<Person>(() => ({ columnWidths: { name: 500, team: value } }))
+				const resize = createAppKitColumnResizePlugin<Person>(() => ({
+					columnWidths: { name: 500, team: value },
+				}))
+
 				expect(() => resize.transformColumns!(columns)).toThrow(/finite nonnegative/)
 				const result = plan(columns, [resize])
 				expect(result.columns).toBe(columns)
 				expect(result.tableMinWidth).toBe(560)
 			}
+
 			expect(errors).toHaveBeenCalledTimes(3)
-		} finally { errors.mockRestore() }
+		} finally {
+			errors.mockRestore()
+		}
 	})
 })

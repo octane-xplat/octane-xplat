@@ -49,6 +49,7 @@ import {
 	WKWebViewConfiguration,
 	WKWindowFeatures,
 } from '@octane-xplat/platform/macos'
+
 import type { AppKitBrowserFactory, AppKitBrowserNative } from './browser-owner.macos.ts'
 
 const sameObject = (a: unknown, b: unknown): boolean =>
@@ -95,7 +96,6 @@ const copyBlock = (handler: unknown): interop.Pointer | null => {
 	const ptr = blockPointer(handler)
 	return ptr === handler ? null : _Block_copy(ptr as interop.PointerConvertible)
 }
-
 
 // Completion is claimed before ending a sheet: AppKit may synchronously
 // call back. The async hop lets Cocoa remove the old sheet before the
@@ -241,6 +241,7 @@ function cleanup(
 					}
 				}
 			}
+
 			browser.navigationDelegate = null as unknown as WKNavigationDelegate
 			browser.UIDelegate = null as unknown as WKUIDelegate
 			browser.stopLoading()
@@ -437,12 +438,17 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 				const kept = copyBlock(completionHandler)
 				if (session == null) {
 					completionHandler()
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
+
 					return
 				}
 				presentDialog(session, pageAlert(message, frame, false), browser, () => {
 					completionHandler()
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
 				})
 			},
 			webViewRunJavaScriptConfirmPanelWithMessageInitiatedByFrameCompletionHandler(
@@ -456,12 +462,17 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 				const kept = copyBlock(completionHandler)
 				if (session == null) {
 					completionHandler(false)
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
+
 					return
 				}
 				presentDialog(session, pageAlert(message, frame, true), browser, (response) => {
 					completionHandler(response === NSAlertFirstButtonReturn)
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
 				})
 			},
 			webViewRunJavaScriptTextInputPanelWithPromptDefaultTextInitiatedByFrameCompletionHandler(
@@ -476,7 +487,10 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 				const kept = copyBlock(completionHandler)
 				if (session == null) {
 					completionHandler(null)
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
+
 					return
 				}
 				const alert = pageAlert(prompt, frame, true)
@@ -490,7 +504,9 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 				alert.window.initialFirstResponder = input
 				presentDialog(session, alert, browser, (response) => {
 					completionHandler(response === NSAlertFirstButtonReturn ? input.stringValue : null)
-					if (kept != null) _Block_release(kept)
+					if (kept != null) {
+						_Block_release(kept)
+					}
 				})
 			},
 			webViewRunOpenPanelWithParametersInitiatedByFrameCompletionHandler(
@@ -512,14 +528,19 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 					session.fileSelection != null ||
 					owner.attachedSheet != null
 				) {
-						completionHandler(null)
-					if (kept != null) _Block_release(kept)
+					completionHandler(null)
+					if (kept != null) {
+						_Block_release(kept)
+					}
+
 					return
 				}
 				const panel = NSOpenPanel.openPanel()
 				const host = String(frame.securityOrigin.host ?? '')
 				panel.message =
-					host.length === 0 ? 'Choose files for this web page' : `Choose files for web page: ${host}`
+					host.length === 0
+						? 'Choose files for this web page'
+						: `Choose files for web page: ${host}`
 				panel.prompt = 'Choose'
 				panel.allowsMultipleSelection = parameters.allowsMultipleSelection
 				panel.canChooseDirectories = parameters.allowsDirectories
@@ -532,7 +553,9 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 					deliver: (response) => (response === NSModalResponseOK ? panel.URLs : null),
 					complete: (urls) => {
 						completionHandler(urls)
-						if (kept != null) _Block_release(kept)
+						if (kept != null) {
+							_Block_release(kept)
+						}
 					},
 				}
 				session.fileSelection = selection

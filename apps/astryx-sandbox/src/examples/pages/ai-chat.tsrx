@@ -6,16 +6,43 @@
 // is approximated with useMediaQuery at the same 768px breakpoint.
 import { useRef, useState } from 'octane'
 import {
-	Avatar, Button, Card, ClickableCard, CodeBlock, Dialog, DialogHeader,
-	DropdownMenu, Heading, HStack, Icon, Layout, LayoutContent,
-	ResizeHandle, StackItem, Text, Timestamp, Toolbar, Token,
-	useMediaQuery, useResizable, VStack,
+	Avatar,
+	Button,
+	Card,
+	ClickableCard,
+	CodeBlock,
+	Dialog,
+	DialogHeader,
+	DropdownMenu,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	ResizeHandle,
+	StackItem,
+	Text,
+	Timestamp,
+	Toolbar,
+	Token,
+	useMediaQuery,
+	useResizable,
+	VStack,
 } from '@octane-xplat/ui'
+
 import {
-	ChatComposer, ChatComposerInput, ChatLayout, ChatMessage,
-	ChatMessageBubble, ChatMessageList, ChatMessageMetadata,
-	ChatSystemMessage, ChatTokenizedText, ChatToolCalls,
+	ChatComposer,
+	ChatComposerInput,
+	ChatLayout,
+	ChatMessage,
+	ChatMessageBubble,
+	ChatMessageList,
+	ChatMessageMetadata,
+	ChatSystemMessage,
+	ChatTokenizedText,
+	ChatToolCalls,
 } from '@octane-xplat/ui/chat'
+
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 const MOBILE_MAX_WIDTH = 768
@@ -91,10 +118,31 @@ function ArtifactActions(props: { onClose?: () => void }) @{
 				{ type: 'action', key: 'v1', label: 'v1', onSelect: () => {} },
 			]}
 		/>
-		<Button label="Copy" variant="ghost" size="sm" icon={<Icon name="sandbox-clipboard-document" size={16} />} isIconOnly clickAction={() => {}} />
-		<Button label="Share" variant="ghost" size="sm" icon={<Icon name="sandbox-share" size={16} />} isIconOnly clickAction={() => {}} />
+		<Button
+			label="Copy"
+			variant="ghost"
+			size="sm"
+			icon={<Icon name="sandbox-clipboard-document" size={16} />}
+			isIconOnly
+			clickAction={() => {}}
+		/>
+		<Button
+			label="Share"
+			variant="ghost"
+			size="sm"
+			icon={<Icon name="sandbox-share" size={16} />}
+			isIconOnly
+			clickAction={() => {}}
+		/>
 		{props.onClose != null ? (
-			<Button label="Close document" variant="ghost" size="sm" icon={<Icon name="sandbox-x-mark" size={16} />} isIconOnly clickAction={props.onClose} />
+			<Button
+				label="Close document"
+				variant="ghost"
+				size="sm"
+				icon={<Icon name="sandbox-x-mark" size={16} />}
+				isIconOnly
+				clickAction={props.onClose}
+			/>
 		) : null}
 	</>
 }
@@ -121,8 +169,12 @@ function ArtifactCard(props: { onOpen: () => void }) @{
 			<Icon name="sandbox-document-text" size={20} color="secondary" />
 			<StackItem size="fill">
 				<VStack gap={0}>
-					<Text type="label" weight="semibold">{ARTIFACT_TITLE}</Text>
-					<Text type="supporting" color="secondary">Document</Text>
+					<Text type="label" weight="semibold">
+						{ARTIFACT_TITLE}
+					</Text>
+					<Text type="supporting" color="secondary">
+						Document
+					</Text>
 				</VStack>
 			</StackItem>
 			<Icon name="sandbox-chevron-right" size={16} color="secondary" />
@@ -159,17 +211,27 @@ export function AIChatTemplate() @{
 						<ChatLayout
 							composer={
 								<ChatComposer
-									input={
-										<ChatComposerInput
-											placeholder="Ask anything…"
-										/>
-									}
+									input={<ChatComposerInput placeholder="Ask anything…" />}
 									footerActions={
 										<DropdownMenu
-											button={{ label: composerMode === 'ask' ? 'Ask' : 'Edit', variant: 'ghost', size: 'sm' }}
+											button={{
+												label: composerMode === 'ask' ? 'Ask' : 'Edit',
+												variant: 'ghost',
+												size: 'sm',
+											}}
 											items={[
-												{ type: 'action', key: 'ask', label: 'Ask', onSelect: () => setComposerMode('ask') },
-												{ type: 'action', key: 'edit', label: 'Edit', onSelect: () => setComposerMode('edit') },
+												{
+													type: 'action',
+													key: 'ask',
+													label: 'Ask',
+													onSelect: () => setComposerMode('ask'),
+												},
+												{
+													type: 'action',
+													key: 'edit',
+													label: 'Edit',
+													onSelect: () => setComposerMode('edit'),
+												},
 											]}
 										/>
 									}
@@ -187,30 +249,50 @@ export function AIChatTemplate() @{
 									<ChatMessageBubble
 										metadata={
 											<ChatMessageMetadata
-												timestamp={<Timestamp value={Date.parse("2026-04-29T10:15:00")} valueUnit="unix-milliseconds" format="time" />}
+												timestamp={
+													<Timestamp
+														value={Date.parse('2026-04-29T10:15:00')}
+														valueUnit="unix-milliseconds"
+														format="time"
+													/>
+												}
 											/>
 										}
 									>
-										<ChatTokenizedText
->
-											@agent Can you review these auth files? The JWT refresh
-											logic seems broken — tokens expire but the middleware
-											doesn't catch it.
+										<ChatTokenizedText>
+											@agent Can you review these auth files? The JWT refresh logic seems broken —
+											tokens expire but the middleware doesn't catch it.
 										</ChatTokenizedText>
 									</ChatMessageBubble>
 								</ChatMessage>
 
 								<ChatMessage sender="assistant" avatar={<Avatar name="Agent" size="md" />}>
 									<ChatMessageBubble variant="ghost">
-										Looking into the auth files now. Let me read through the
-										code and trace the token refresh flow.
+										Looking into the auth files now. Let me read through the code and trace the
+										token refresh flow.
 									</ChatMessageBubble>
 									<ChatToolCalls
 										defaultIsExpanded
 										calls={[
-											{ name: 'read', target: 'auth-service.ts', status: 'complete', duration: '45ms' },
-											{ name: 'read', target: 'middleware.ts', status: 'complete', duration: '38ms' },
-											{ name: 'bash', target: 'grep -rn "refreshToken" src/', status: 'complete', duration: '120ms', node: 'cli:remote-server' },
+											{
+												name: 'read',
+												target: 'auth-service.ts',
+												status: 'complete',
+												duration: '45ms',
+											},
+											{
+												name: 'read',
+												target: 'middleware.ts',
+												status: 'complete',
+												duration: '38ms',
+											},
+											{
+												name: 'bash',
+												target: 'grep -rn "refreshToken" src/',
+												status: 'complete',
+												duration: '120ms',
+												node: 'cli:remote-server',
+											},
 										]}
 									/>
 									<ChatMessageBubble variant="ghost">
@@ -233,7 +315,13 @@ export function AIChatTemplate() @{
 										width="100%"
 										metadata={
 											<ChatMessageMetadata
-												timestamp={<Timestamp value={Date.parse("2026-04-29T10:18:40")} valueUnit="unix-milliseconds" format="time" />}
+												timestamp={
+													<Timestamp
+														value={Date.parse('2026-04-29T10:18:40')}
+														valueUnit="unix-milliseconds"
+														format="time"
+													/>
+												}
 											/>
 										}
 									>
@@ -245,13 +333,18 @@ export function AIChatTemplate() @{
 									<ChatMessageBubble
 										metadata={
 											<ChatMessageMetadata
-												timestamp={<Timestamp value={Date.parse("2026-04-29T10:20:00")} valueUnit="unix-milliseconds" format="time" />}
+												timestamp={
+													<Timestamp
+														value={Date.parse('2026-04-29T10:20:00')}
+														valueUnit="unix-milliseconds"
+														format="time"
+													/>
+												}
 												status="delivered"
 											/>
 										}
 									>
-										This is great. Can you add a section on rollout and
-										monitoring at the end?
+										This is great. Can you add a section on rollout and monitoring at the end?
 									</ChatMessageBubble>
 								</ChatMessage>
 
@@ -261,11 +354,22 @@ export function AIChatTemplate() @{
 									</ChatMessageBubble>
 									<ChatToolCalls
 										calls={[
-											{ name: 'edit', target: 'docs/token-refresh.md', status: 'running', node: 'cli:remote-server' },
+											{
+												name: 'edit',
+												target: 'docs/token-refresh.md',
+												status: 'running',
+												node: 'cli:remote-server',
+											},
 										]}
 									/>
 									<ChatMessageMetadata
-										timestamp={<Timestamp value={Date.parse("2026-04-29T10:20:30")} valueUnit="unix-milliseconds" format="time" />}
+										timestamp={
+											<Timestamp
+												value={Date.parse('2026-04-29T10:20:30')}
+												valueUnit="unix-milliseconds"
+												format="time"
+											/>
+										}
 									/>
 								</ChatMessage>
 							</ChatMessageList>
@@ -302,8 +406,12 @@ export function AIChatTemplate() @{
 									<HStack gap={3} vAlign="center">
 										<Icon name="sandbox-document-text" size={16} color="secondary" />
 										<VStack gap={0}>
-											<Text type="label" weight="semibold">{ARTIFACT_TITLE}</Text>
-											<Text type="supporting" color="secondary">{ARTIFACT_SUBTITLE}</Text>
+											<Text type="label" weight="semibold">
+												{ARTIFACT_TITLE}
+											</Text>
+											<Text type="supporting" color="secondary">
+												{ARTIFACT_SUBTITLE}
+											</Text>
 										</VStack>
 									</HStack>
 								}
@@ -318,10 +426,7 @@ export function AIChatTemplate() @{
 			}
 		/>
 		{isNarrow ? (
-			<Dialog
-				isOpen={isArtifactDialogOpen}
-				onOpenChange={setIsArtifactDialogOpen}
-			>
+			<Dialog isOpen={isArtifactDialogOpen} onOpenChange={setIsArtifactDialogOpen}>
 				<DialogHeader title={ARTIFACT_TITLE} onOpenChange={setIsArtifactDialogOpen} />
 				<LayoutContent>
 					<ArtifactBody />

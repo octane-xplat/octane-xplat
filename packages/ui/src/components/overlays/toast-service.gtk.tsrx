@@ -3,7 +3,13 @@ import { useCallback, useContext } from 'octane'
 import { hostGlobal } from '../../internal/platform/host-bridge'
 import type { ShowToastFn, ToastOptions, ToastPosition } from '../../props'
 import { ToastViewportContext } from './toast-context'
-import { FALLBACK_TOAST_VIEWPORT, pushToast, registerToastViewport, toastHandleFor } from './toast-store'
+import {
+	FALLBACK_TOAST_VIEWPORT,
+	pushToast,
+	registerToastViewport,
+	toastHandleFor,
+} from './toast-store'
+
 import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk.tsrx'
 
 /** The fallback stack's dedicated universal root inside nonmodal overlay
@@ -31,6 +37,7 @@ function ensureFallbackViewport(): void {
 			scrim: false,
 			align: TOAST_EDGE_ALIGN[position],
 		})
+
 		layer.setVisible(true)
 		layers[position] = layer
 	}
@@ -41,6 +48,7 @@ function ensureFallbackViewport(): void {
 		position: 'bottomEnd',
 		layers,
 	})
+
 	fallback = { layers, unmount: mounted.unmount }
 
 	// The layers dispose on root teardown (or explicit disposal) — clear the
@@ -51,9 +59,12 @@ function ensureFallbackViewport(): void {
 	hostLayer.dispose = () => {
 		for (const layer of Object.values(layers)) {
 			if (layer !== hostLayer) {
-				try { (layer as any).dispose() } catch { }
+				try {
+					;(layer as any).dispose()
+				} catch {}
 			}
 		}
+
 		release()
 		unregister()
 		if (fallback?.layers === layers) {

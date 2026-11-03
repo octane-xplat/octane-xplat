@@ -5,10 +5,24 @@
 // hover-driven piece). MoreMenu `items` take {type:'action',key,label,onSelect}.
 import { useState } from 'octane'
 import {
-	AppShell, Card, Divider, HStack, Icon, Layout, LayoutContent, LayoutFooter,
-	MoreMenu, NavIcon, SideNav, SideNavHeading, SideNavItem, SideNavSection,
-	StatusDot, VStack,
+	AppShell,
+	Card,
+	Divider,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutFooter,
+	MoreMenu,
+	NavIcon,
+	SideNav,
+	SideNavHeading,
+	SideNavItem,
+	SideNavSection,
+	StatusDot,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { StatusDotVariant } from '@octane-xplat/ui'
 
 type Conversation = {
@@ -81,7 +95,9 @@ function ConversationItem(props: {
 				label={props.label}
 				href="#"
 				isSelected={props.isSelected}
-				endContent={showMenu ? null : <StatusDot variant={props.status} label={props.statusLabel} />}
+				endContent={
+					showMenu ? null : <StatusDot variant={props.status} label={props.statusLabel} />
+				}
 				actions={
 					showMenu ? (
 						<MoreMenu
@@ -162,16 +178,8 @@ export function ShellSideNavTemplate() @{
 				<LayoutContent padding={6}>
 					<VStack gap={5}>
 						{MESSAGES.map((message, mi) => (
-							<HStack
-								key={mi}
-								hAlign={message.role === 'assistant' ? 'start' : 'end'}
-							>
-								<Card
-									variant="muted"
-									padding={0}
-									width={message.width}
-									height={message.height}
-								/>
+							<HStack key={mi} hAlign={message.role === 'assistant' ? 'start' : 'end'}>
+								<Card variant="muted" padding={0} width={message.width} height={message.height} />
 							</HStack>
 						))}
 					</VStack>

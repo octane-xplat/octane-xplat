@@ -1,4 +1,12 @@
-import type { ClassValue, HostElement, PlatformProps, Renderable, StyleProp, TestIDProps } from '@octane-xplat/ui'
+import type {
+	ClassValue,
+	HostElement,
+	PlatformProps,
+	Renderable,
+	StyleProp,
+	TestIDProps,
+} from '@octane-xplat/ui'
+
 import type { MotionValue, Transition } from '@octane-xplat/motion'
 
 // ---------- lightbox ----------
@@ -180,23 +188,27 @@ export interface LightboxPartProps extends TestIDProps {
 	className?: ClassValue
 	style?: StyleProp
 }
+
 /** `Lightbox.Trigger` — registers the morph source element for `index`. */
 export interface LightboxTriggerPartProps extends LightboxPartProps {
 	index: number
 	/** Activation callback — matches the cross-platform `onPress` convention. */
 	onPress?: (event: unknown) => void
 }
+
 /** `Lightbox.Slide`. */
 export interface LightboxSlidePartProps extends LightboxPartProps {
 	index: number
 	/** Taps on this slide (after the double-tap window when zoom is on). Call `event.preventDefault()` to skip the default. */
 	onTap?: (event: LightboxTapEvent) => void
 }
+
 /** A selectable thumbnail inside `Lightbox.Thumbnails`. */
 export interface LightboxThumbnailPartProps extends LightboxPartProps {
 	index: number
 	onPress?: (event: unknown) => void
 }
+
 /** `Lightbox.Image` — defaults `src`/`alt`/`srcSet`/`sizes` to the slide's item. */
 export interface LightboxImagePartProps extends LightboxPartProps {
 	src?: string

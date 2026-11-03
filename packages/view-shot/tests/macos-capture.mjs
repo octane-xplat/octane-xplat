@@ -17,6 +17,7 @@ process.env.METADATA_PATH = join(
 	'packages/cli/src/macos/jsc-host/prebuilt/macos',
 	`metadata.macos.${arch}.nsmd`,
 )
+
 await import(pathToFileURL(runtime).href)
 const { backend } = await import(pathToFileURL(join(root, 'src/backend.macos.ts')).href)
 const { normalizeOptions } = await import(pathToFileURL(join(root, 'src/options.ts')).href)
@@ -37,6 +38,7 @@ const win = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 	NSBackingStoreType.Buffered,
 	false,
 )
+
 const view = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 120, 80))
 view.wantsLayer = true
 const text = NSTextField.alloc().initWithFrame(NSMakeRect(5, 30, 110, 40))
@@ -58,17 +60,24 @@ assert.equal(existsSync(path), false, 'owned release deletes')
 backend.release('file:///foreign-nothing-owned.png')
 
 const png = Buffer.from(
-	await backend.capture(view, normalizeOptions({ format: 'png', result: 'base64', width: 60, height: 40 })),
+	await backend.capture(
+		view,
+		normalizeOptions({ format: 'png', result: 'base64', width: 60, height: 40 }),
+	),
 	'base64',
 )
+
 assert.equal(png.subarray(0, 4).toString('hex'), '89504e47', 'png signature')
 const dataURI = await backend.capture(
 	view,
 	normalizeOptions({ format: 'jpg', result: 'data-uri', quality: 0.9 }),
 )
+
 assert.ok(dataURI.startsWith('data:image/jpeg;base64,'), 'jpeg data uri')
 assert.equal(
-	Buffer.from(dataURI.slice('data:image/jpeg;base64,'.length), 'base64').subarray(0, 2).toString('hex'),
+	Buffer.from(dataURI.slice('data:image/jpeg;base64,'.length), 'base64')
+		.subarray(0, 2)
+		.toString('hex'),
 	'ffd8',
 	'jpeg signature',
 )
@@ -78,31 +87,36 @@ const full = Buffer.from(
 	await backend.capture(view, normalizeOptions({ format: 'png', result: 'base64' })),
 	'base64',
 )
+
 const decoded = NSBitmapImageRep.imageRepWithData(
 	NSData.dataWithBytesLength(new Uint8Array(full).buffer, full.length),
 )
+
 const pixels = new Uint8Array(
 	objc.getArrayBuffer(
 		decoded.bitmapData,
 		decoded.pixelsWide * decoded.pixelsHigh * decoded.samplesPerPixel,
 	),
 )
+
 const colors = new Set()
 for (let i = 0; i < pixels.length; i += 4) {
 	colors.add((pixels[i] << 16) | (pixels[i + 1] << 8) | pixels[i + 2])
 }
+
 assert.ok(colors.size > 50, `nonblank capture (${colors.size} colors)`)
 
 const detached = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 50, 50))
 await assert.rejects(backend.capture(detached, normalizeOptions()), /^Error: View is detached$/)
+await assert.rejects(backend.capture(view, normalizeOptions({ format: 'webp' })), /unavailable/i)
 await assert.rejects(
-	backend.capture(view, normalizeOptions({ format: 'webp' })),
+	backend.capture(
+		view,
+		normalizeOptions({ format: 'png', result: 'base64', useRenderInContext: true }),
+	),
 	/unavailable/i,
 )
-await assert.rejects(
-	backend.capture(view, normalizeOptions({ format: 'png', result: 'base64', useRenderInContext: true })),
-	/unavailable/i,
-)
+
 await assert.rejects(backend.captureScreen(normalizeOptions()), /unavailable/i)
 win.close()
 console.log(

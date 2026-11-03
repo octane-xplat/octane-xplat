@@ -140,12 +140,19 @@ test('ordinary labels leave height to width-constrained native measurement', () 
 
 test('style-only overflow recomposes the full label and paragraph after replacement or removal', () => {
 	const { node, view, update } = fixture()
-	update({ text: 'Complete source title', style: { whiteSpace: 'nowrap', textOverflow: 'ellipsis', lineHeight: 28 } })
+	update({
+		text: 'Complete source title',
+		style: { whiteSpace: 'nowrap', textOverflow: 'ellipsis', lineHeight: 28 },
+	})
 	assert.equal(view.maximumNumberOfLines, 1)
 	assert.equal(view.cell.lineBreakMode, modes.TruncatingTail)
 	assert.equal(view.attributedStringValue.text, 'Complete source title')
 	assert.equal(view.attributedStringValue.attributes.paragraph.lineBreakMode, modes.TruncatingTail)
-	assert.equal(node.height, undefined, 'an explicit line height is not replaced by the implicit one-line pin')
+	assert.equal(
+		node.height,
+		undefined,
+		'an explicit line height is not replaced by the implicit one-line pin',
+	)
 	update({ style: { whiteSpace: 'normal', textOverflow: 'clip', lineHeight: 28 } })
 	assert.equal(view.cell.lineBreakMode, modes.WordWrapping)
 	assert.equal(view.attributedStringValue.attributes.paragraph.lineBreakMode, modes.WordWrapping)
@@ -185,8 +192,15 @@ test('unsupported CSS modes warn by property and reset rather than preserving st
 
 test('CSS one-line modes preserve assigned height and release an implicit pin on removal', () => {
 	const assigned = fixture()
-	assigned.update({ text: 'Full title', style: { height: 40, whiteSpace: 'nowrap', textOverflow: 'ellipsis' } })
-	assert.equal(assigned.node.height, undefined, 'overflow leaves explicit height to the style writer')
+	assigned.update({
+		text: 'Full title',
+		style: { height: 40, whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
+	})
+	assert.equal(
+		assigned.node.height,
+		undefined,
+		'overflow leaves explicit height to the style writer',
+	)
 	const { node, view, update } = fixture()
 	update({ text: 'Full title', style: { whiteSpace: 'nowrap', textOverflow: 'ellipsis' } })
 	assert.equal(node.height, 21)
@@ -198,9 +212,17 @@ test('CSS one-line modes preserve assigned height and release an implicit pin on
 test('decoration and spacing alone retain CSS overflow in the attributed paragraph', () => {
 	for (const decoration of [{ letterSpacing: 1 }, { textDecoration: 'underline' }]) {
 		const { view, update } = fixture()
-		update({ text: 'Complete decorated title', style: { ...decoration, whiteSpace: 'nowrap', textOverflow: 'ellipsis' } })
+		update({
+			text: 'Complete decorated title',
+			style: { ...decoration, whiteSpace: 'nowrap', textOverflow: 'ellipsis' },
+		})
+
 		assert.equal(view.attributedStringValue.text, 'Complete decorated title')
-		assert.equal(view.attributedStringValue.attributes.paragraph.lineBreakMode, modes.TruncatingTail)
+		assert.equal(
+			view.attributedStringValue.attributes.paragraph.lineBreakMode,
+			modes.TruncatingTail,
+		)
+
 		update({ style: { ...decoration, whiteSpace: 'normal' } })
 		assert.equal(view.attributedStringValue.attributes.paragraph.lineBreakMode, modes.WordWrapping)
 	}

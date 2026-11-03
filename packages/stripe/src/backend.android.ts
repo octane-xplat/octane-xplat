@@ -7,9 +7,11 @@ interface Bridge {
 	present(activity: android.app.Activity, json: string, listener: object): void
 	Listener: { new (implementation: { complete(code: string): void }): object }
 }
+
 function bridge(): Bridge | undefined {
 	return lookupGlobal(['com', 'octanexplat', 'stripe', 'PaymentSheetBridge']) as Bridge | undefined
 }
+
 let prepared: PaymentSheetSetupParams | undefined
 export const backend: StripeBackend = {
 	available: () =>

@@ -11,9 +11,22 @@ it('cancels the unmeasured image opening frame when unmounted', async () => {
 	document.body.append(host)
 	const root = createRoot(host)
 	try {
-		await act(async () => root.render(<Root media={[{ src: 'photo.jpg', alt: 'Photo', width: 800, height: 600 }]} defaultOpen><Popup><Viewport /></Popup></Root>))
+		await act(async () =>
+			root.render(
+				<Root media={[{ src: 'photo.jpg', alt: 'Photo', width: 800, height: 600 }]} defaultOpen>
+					<Popup>
+						<Viewport />
+					</Popup>
+				</Root>,
+			),
+		)
+
 		act(() => root.unmount())
 		expect(cancel).toHaveBeenCalled()
 		await vi.advanceTimersByTimeAsync(100)
-	} finally { cancel.mockRestore(); host.remove(); vi.useRealTimers() }
+	} finally {
+		cancel.mockRestore()
+		host.remove()
+		vi.useRealTimers()
+	}
 })

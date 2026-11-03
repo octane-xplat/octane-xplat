@@ -10,6 +10,7 @@ import {
 	themeSchemeClasses,
 	applyThemeClasses,
 } from '@octane-xplat/ui'
+
 import { ThemeProbe } from './ui-theme.gtk.tsrx'
 
 Gtk.init()
@@ -18,16 +19,27 @@ const checks: string[] = []
 const failures: string[] = []
 const dbg: string[] = []
 const flush = () => {
-	try { GLib.file_set_contents('/tmp/gtk-theme-dbg.log', dbg.join('\n')) } catch { }
+	try {
+		GLib.file_set_contents('/tmp/gtk-theme-dbg.log', dbg.join('\n'))
+	} catch {}
 }
+
 const check = (name: string, ok: boolean | unknown) => {
 	checks.push(name)
 	dbg.push((ok ? 'PASS ' : 'FAIL ') + name)
 	flush()
-	if (!ok) { failures.push(name) }
+	if (!ok) {
+		failures.push(name)
+	}
 }
 
-const window = new Gtk.Window({ title: 'Octane GTK Theme test', default_width: 700, default_height: 500, decorated: false })
+const window = new Gtk.Window({
+	title: 'Octane GTK Theme test',
+	default_width: 700,
+	default_height: 500,
+	decorated: false,
+})
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {})
@@ -47,89 +59,143 @@ if (origAnnounce) {
 	}
 }
 
-const pump = (ms: number) => new Promise<void>((resolve) => {
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => { resolve(); return false })
-})
+const pump = (ms: number) =>
+	new Promise<void>((resolve) => {
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+			resolve()
+			return false
+		})
+	})
 
 const findView = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n.view }
+		if (n?.props?.id === id) {
+			return n.view
+		}
 	}
 	return null
 }
+
 const findNode = (id: string): any => {
 	for (const n of (container as any).nodes.values()) {
-		if (n?.props?.id === id) { return n }
+		if (n?.props?.id === id) {
+			return n
+		}
 	}
 	return null
 }
+
 /** Label content lives on the text child node, not the element — walk the
  *  logical subtree under the id like the other fixtures do. */
 const hasText = (id: string, text: string): boolean => {
 	const start = findNode(id)
-	if (!start) { return false }
+	if (!start) {
+		return false
+	}
 	const probe = (node: any): boolean => {
-		if (!node) { return false }
+		if (!node) {
+			return false
+		}
 		try {
-			if (JSON.stringify(node.props).includes(text)) { return true }
-		} catch { }
-		for (const c of node.children ?? []) { if (probe(c)) { return true } }
+			if (JSON.stringify(node.props).includes(text)) {
+				return true
+			}
+		} catch {}
+		for (const c of node.children ?? []) {
+			if (probe(c)) {
+				return true
+			}
+		}
 		return false
 	}
 	return probe(start)
 }
+
 const themeScopeNode = (): any => {
 	for (const n of (container as any).nodes.values()) {
 		try {
-			if (n?.cssClasses?.has?.('xds-theme-probe')) { return n }
-		} catch { }
+			if (n?.cssClasses?.has?.('xds-theme-probe')) {
+				return n
+			}
+		} catch {}
 	}
 	return null
 }
-const readClipboard = (): Promise<string | null> => new Promise((resolve) => {
-	try {
-		Gdk.Display.get_default()?.get_clipboard()?.read_text_async(null, (cb: any, res: any) => {
-			try { resolve(cb.read_text_finish(res) ?? null) } catch { resolve(null) }
+
+const readClipboard = (): Promise<string | null> =>
+	new Promise((resolve) => {
+		try {
+			Gdk.Display.get_default()
+				?.get_clipboard()
+				?.read_text_async(null, (cb: any, res: any) => {
+					try {
+						resolve(cb.read_text_finish(res) ?? null)
+					} catch {
+						resolve(null)
+					}
+				})
+		} catch {
+			resolve(null)
+		}
+		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
+			resolve(null)
+			return false
 		})
-	} catch {
-		resolve(null)
-	}
-	GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => { resolve(null); return false })
-})
+	})
 
 let readyResolve: (() => void) | null = null
 const ready = (payload: any) => {
 	dbg.push('READY ' + JSON.stringify(payload))
 	flush()
 	print('GTK_THEME_READY ' + JSON.stringify(payload))
-	return new Promise<void>((resolve) => { readyResolve = resolve })
+	return new Promise<void>((resolve) => {
+		readyResolve = resolve
+	})
 }
+
 const keyCtl = new Gtk.EventControllerKey()
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
-	if (keyval === Gdk.KEY_F12 && readyResolve) { readyResolve(); readyResolve = null }
+	if (keyval === Gdk.KEY_F12 && readyResolve) {
+		readyResolve()
+		readyResolve = null
+	}
 	return false
 })
+
 const point = (widget: any) => {
 	const native = widget?.get_native?.()
-	if (!native) { return null }
+	if (!native) {
+		return null
+	}
 	const [ok, rect] = widget.compute_bounds(native)
-	if (!ok) { return null }
+	if (!ok) {
+		return null
+	}
 	const [tx, ty] = native.get_surface_transform()
 	let x = rect.origin.x - tx + rect.size.width / 2
 	let y = rect.origin.y - ty + rect.size.height / 2
-	for (let surface = native.get_surface(); typeof surface.get_parent === 'function'; surface = surface.get_parent()) {
+	for (
+		let surface = native.get_surface();
+		typeof surface.get_parent === 'function';
+		surface = surface.get_parent()
+	) {
 		x += surface.get_position_x()
 		y += surface.get_position_y()
 	}
 	const [wx, wy] = window.get_surface_transform()
 	return { x: x + wx, y: y + wy }
 }
+
 const clickAt = async (widget: any, what?: string) => {
 	const p = widget && point(widget)
-	if (!p) { dbg.push('MISSING widget ' + String(what)); return }
+	if (!p) {
+		dbg.push('MISSING widget ' + String(what))
+		return
+	}
 	await ready(p)
 }
+
 const setPreferDark = (value: boolean) => {
 	settings.gtk_application_prefer_dark_theme = value
 }
@@ -157,21 +223,22 @@ async function run() {
 	check('useTheme token resolves light value', hasText('theme-token', '#123456'))
 	const scope = themeScopeNode()
 	check('theme scope class stamps the subtree root', !!scope)
-	check(
-		'generated scope rule feeds the cascade',
-		scope?.computedStyle?.color === 'rgb(17, 34, 51)',
-	)
+	check('generated scope rule feeds the cascade', scope?.computedStyle?.color === 'rgb(17, 34, 51)')
 	const themedText = findNode('theme-primary')
 	check(
 		'scope color inherits into themed text',
 		themedText?.computedStyle?.color === 'rgb(17, 34, 51)',
 	)
-	check('themeSchemeClasses carries the scope class', themeSchemeClasses().includes('xds-theme-probe'))
+	check(
+		'themeSchemeClasses carries the scope class',
+		themeSchemeClasses().includes('xds-theme-probe'),
+	)
 	const imperative: { className: string } = { className: '' }
 	const unbindTheme = applyThemeClasses(imperative, 'vx-probe-host')
 	check(
 		'applyThemeClasses stamps base + scope',
-		imperative.className.includes('vx-probe-host') && imperative.className.includes('xds-theme-probe'),
+		imperative.className.includes('vx-probe-host') &&
+			imperative.className.includes('xds-theme-probe'),
 	)
 	check('applyThemeClasses omits dark while light', !imperative.className.includes('ns-dark'))
 
@@ -190,12 +257,10 @@ async function run() {
 	)
 	check(
 		'theme view restamps dark classes',
-		(darkScope?.cssClasses?.has?.('ns-dark') ?? false) || (darkScope?.cssClasses?.has?.('dark') ?? false),
+		(darkScope?.cssClasses?.has?.('ns-dark') ?? false) ||
+			(darkScope?.cssClasses?.has?.('dark') ?? false),
 	)
-	check(
-		'applyThemeClasses re-stamps dark live',
-		imperative.className.includes('ns-dark dark'),
-	)
+	check('applyThemeClasses re-stamps dark live', imperative.className.includes('ns-dark dark'))
 
 	// --- App preference: explicit light wins over a dark system source.
 	await clickAt(findView('pref-light'), 'pref-light')
@@ -281,13 +346,25 @@ async function run() {
 	await pump(200)
 	check('unmount releases all nodes', container.nodes.size === 0)
 
-	print('GTK_THEME ' + JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }))
+	print(
+		'GTK_THEME ' +
+			JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
+	)
 	loop.quit()
 }
 
 run().catch((error) => {
 	printerr('theme fixture failed', error)
-	print('GTK_THEME ' + JSON.stringify({ checks: checks.length, failures: [...failures, 'run crashed'], osInput: true, gtk: '4.14.5' }))
+	print(
+		'GTK_THEME ' +
+			JSON.stringify({
+				checks: checks.length,
+				failures: [...failures, 'run crashed'],
+				osInput: true,
+				gtk: '4.14.5',
+			}),
+	)
 	loop.quit()
 })
+
 loop.run()

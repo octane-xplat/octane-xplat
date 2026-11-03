@@ -13,6 +13,7 @@ const folder = knownFolders.documents().path
 const request: { nonce: string } = JSON.parse(
 	File.fromPath(path.join(folder, 'stripe-request.json')).readTextSync(),
 )
+
 const checks: string[] = []
 function assert(condition: unknown, message: string) {
 	if (!condition) {
@@ -20,17 +21,21 @@ function assert(condition: unknown, message: string) {
 	}
 	checks.push(message)
 }
+
 async function waitFor(predicate: () => boolean) {
 	const deadline = Date.now() + 15000
 	while (!predicate()) {
 		if (Date.now() >= deadline) {
 			throw new Error('Timed out waiting for the native presenter')
 		}
+
 		await new Promise<void>((resolve) => setTimeout(resolve, 50))
 	}
 }
+
 const page = new Page(),
 	label = new Label()
+
 label.text = 'Packed Stripe SDK guard checks'
 page.content = label
 let started = false
@@ -46,17 +51,20 @@ page.on(Page.loadedEvent, () => {
 					UIApplication.sharedApplication.applicationState === activeApplicationState &&
 					Boolean(Application.ios.rootController?.viewIfLoaded?.window),
 			)
+
 			assert(Stripe.supported, 'packed package resolves the compiled native bridge')
 			assert(
 				!Application.ios.rootController?.presentedViewController,
 				'native presenter starts idle',
 			)
+
 			await initStripe({ publishableKey: 'pk_test_fixture', urlScheme: 'testapp' })
 			const options = {
 				merchantDisplayName: 'Xplat packed Stripe fixture',
 				paymentIntentClientSecret: 'pi_fixture_secret_fixture',
 				returnURL: 'testapp://checkout',
 			}
+
 			assert(!(await initPaymentSheet(options)).error, 'SPM SDK prepares the guest sheet')
 			let finished = false
 			const pending = presentPaymentSheet()
@@ -68,34 +76,41 @@ page.on(Page.loadedEvent, () => {
 					finished = true
 				},
 			)
+
 			assert(Boolean((await presentPaymentSheet()).error), 'duplicate presentation is rejected')
 			assert(Boolean((await resetPaymentSheet()).error), 'active presentation cannot be reset')
 			await waitFor(
 				() => Boolean(Application.ios.rootController?.presentedViewController) || finished,
 			)
+
 			assert(
 				Boolean(Application.ios.rootController?.presentedViewController),
 				'real SPM SDK loading controller becomes presented',
 			)
+
 			assert(
 				(await pending).error?.code === 'Failed',
 				'invalid public fixtures fail in the real SPM SDK',
 			)
+
 			await waitFor(() => !Application.ios.rootController?.presentedViewController)
 			assert(
 				!Application.ios.rootController?.presentedViewController,
 				'failed checkout releases the native presenter',
 			)
+
 			assert(!(await resetPaymentSheet()).error, 'idle prepared sheet can be reset')
 			assert(Boolean((await presentPaymentSheet()).error), 'disposed sheet cannot present')
 			assert(
 				!(await handleURLCallback('anotherapp://checkout')),
 				'foreign return URL remains unhandled',
 			)
+
 			assert(
 				!(await handleURLCallback('testapp://unrelated')),
 				'unrecognized registered URL remains unhandled',
 			)
+
 			File.fromPath(path.join(folder, 'stripe-result.json')).writeTextSync(
 				JSON.stringify({ nonce: request.nonce, passed: true, checks }),
 			)
@@ -106,4 +121,5 @@ page.on(Page.loadedEvent, () => {
 		}
 	})()
 })
+
 Application.run({ create: () => page })

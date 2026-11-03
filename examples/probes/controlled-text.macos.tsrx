@@ -12,31 +12,68 @@ export default function ControlledTextProbe() {
 	const [note, setNote] = useState('Multiline note')
 	const timers = useRef<Partial<Record<'field' | 'note', ReturnType<typeof setTimeout>>>>({})
 	const sequence = useRef(0)
-	useEffect(() => () => {
-		for (const timer of Object.values(timers.current)) clearTimeout(timer)
-		timers.current = {}
-	}, [])
+	useEffect(
+		() => () => {
+			for (const timer of Object.values(timers.current)) {
+				clearTimeout(timer)
+			}
+
+			timers.current = {}
+		},
+		[],
+	)
+
 	const replaceLater = (target: 'field' | 'note') => {
 		clearTimeout(timers.current[target])
 		timers.current[target] = setTimeout(() => {
 			delete timers.current[target]
 			const next = `External ${++sequence.current}`
-			if (target === 'field') setField(next)
-			else setNote(next)
+			if (target === 'field') {
+				setField(next)
+			} else {
+				setNote(next)
+			}
 		}, 5000)
 	}
-	return <VStack gap={2}>
-		<Button label="Remove / restore fields" clickAction={() => setShown((value) => !value)} />
-		{shown ? <TextInput id="controlled-field" label="Single-line composition" value={field} onChange={setField} /> : null}
-		<Button label="Replace single line in five seconds" clickAction={() => replaceLater('field')} />
-		<Text id="controlled-field-state">{field}</Text>
-		{shown ? <TextArea id="controlled-note" label="Multiline composition" value={note} onChange={setNote}
-			placeholder="Add a note" placeholderTextColor={coloredPlaceholder ? '#68707e' : undefined} /> : null}
-		<Button label="Toggle multiline placeholder color" clickAction={() => setColoredPlaceholder((value) => !value)} />
-		<Text>Empty the note to inspect placeholder color changes and removal. Mounting does not qualify native painting.</Text>
-		<Button label="Replace note in five seconds" clickAction={() => replaceLater('note')} />
-		<Text id="controlled-note-state">{note}</Text>
-	</VStack>
+
+	return (
+		<VStack gap={2}>
+			<Button label="Remove / restore fields" clickAction={() => setShown((value) => !value)} />
+			{shown ? (
+				<TextInput
+					id="controlled-field"
+					label="Single-line composition"
+					value={field}
+					onChange={setField}
+				/>
+			) : null}
+			<Button
+				label="Replace single line in five seconds"
+				clickAction={() => replaceLater('field')}
+			/>
+			<Text id="controlled-field-state">{field}</Text>
+			{shown ? (
+				<TextArea
+					id="controlled-note"
+					label="Multiline composition"
+					value={note}
+					onChange={setNote}
+					placeholder="Add a note"
+					placeholderTextColor={coloredPlaceholder ? '#68707e' : undefined}
+				/>
+			) : null}
+			<Button
+				label="Toggle multiline placeholder color"
+				clickAction={() => setColoredPlaceholder((value) => !value)}
+			/>
+			<Text>
+				Empty the note to inspect placeholder color changes and removal. Mounting does not qualify
+				native painting.
+			</Text>
+			<Button label="Replace note in five seconds" clickAction={() => replaceLater('note')} />
+			<Text id="controlled-note-state">{note}</Text>
+		</VStack>
+	)
 }
 
 // Initial native metadata only; this cannot prove actual IME or physical input.

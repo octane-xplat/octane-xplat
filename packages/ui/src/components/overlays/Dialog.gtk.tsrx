@@ -28,7 +28,9 @@ function DialogBody(props: DialogProps & { titleId: string }) @{
 		accessibilityLabel={props.accessibilityLabel}
 		accessibilityRole={purpose === 'required' ? 'alert' : undefined}
 	>
-		<DialogProvider value={{ titleId: props.titleId, isModal: false, requestClose: props.onOpenChange }}>
+		<DialogProvider
+			value={{ titleId: props.titleId, isModal: false, requestClose: props.onOpenChange }}
+		>
 			{props.children}
 		</DialogProvider>
 	</masonview>
@@ -42,7 +44,9 @@ export function DialogHeader(props: DialogHeaderProps): unknown @{
 		className={cx('vx-dialog-header', props.className)}
 		style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, props.style))}
 	>
-		<masonview style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}>
+		<masonview
+			style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+		>
 			{props.startContent}
 			<masonview
 				className="vx-dialog-header-text"
@@ -70,7 +74,10 @@ export function Dialog(props: DialogProps): unknown @{
 	const open = props.isOpen ?? internal
 	const titleId = useId()
 	const requestChange = (isOpen: boolean) => {
-		if (props.isOpen === undefined) { setInternal(isOpen) }
+		if (props.isOpen === undefined) {
+			setInternal(isOpen)
+		}
+
 		props.onOpenChange?.(isOpen)
 	}
 
@@ -81,42 +88,58 @@ export function Dialog(props: DialogProps): unknown @{
 	dismiss.current = requestChange
 
 	useLayerDismissal({
-		get active() { return !!open && !props.isInline },
+		get active() {
+			return !!open && !props.isInline
+		},
 		isPresent: () => !!shown.current,
 		dismiss: () => requestChange(false),
-		get behavior() { return props.purpose === 'required' ? 'block' : 'close' },
+		get behavior() {
+			return props.purpose === 'required' ? 'block' : 'close'
+		},
 		getFocusTarget: () => props.finalFocusRef?.current,
 		getHost: () => sentinel.current,
 	})
 
 	useEffect(() => {
 		const view = sentinel.current
-		if (!view || !open || props.isInline) { return }
+		if (!view || !open || props.isInline) {
+			return
+		}
+
 		const l = view.createOverlayLayer({
 			modal: true,
 			scrim: true,
 			onScrimPress: props.purpose === 'required' ? undefined : () => dismiss.current(false),
 		})
+
 		shown.current = l
 		setLayer(l)
 		l.setVisible(true)
-		return () => { l.dispose(); shown.current = null }
+		return () => {
+			l.dispose()
+			shown.current = null
+		}
 	}, [open, props.isInline])
 
 	<>
 		<masonview
-			ref={(v: any) => { sentinel.current = v }}
-			style={mergeStyle({ flexDirection: 'column' }, mergeStyle({ display: 'flex' }, { width: 0, height: 0 }))}
+			ref={(v: any) => {
+				sentinel.current = v
+			}}
+			style={mergeStyle(
+				{ flexDirection: 'column' },
+				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+			)}
 		/>
-		{props.isInline
-			? <DialogBody {...props} titleId={titleId} />
-			: open && layer
-			? createPortal(
-					<SizeProvider value={null}>
-						<DialogBody {...props} titleId={titleId} />
-					</SizeProvider>,
-					layer.target,
-				)
-			: null}
+		{props.isInline ? (
+			<DialogBody {...props} titleId={titleId} />
+		) : open && layer ? (
+			createPortal(
+				<SizeProvider value={null}>
+					<DialogBody {...props} titleId={titleId} />
+				</SizeProvider>,
+				layer.target,
+			)
+		) : null}
 	</>
 }

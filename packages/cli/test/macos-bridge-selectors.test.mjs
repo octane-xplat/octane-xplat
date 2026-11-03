@@ -195,18 +195,10 @@ test(
 		)
 
 		// extend() requires the shipped bootstrap as fourth argument.
-		const shim = resolve(
-			dirname(fileURLToPath(import.meta.url)),
-			'../src/macos/jsc-host/shim.js',
-		)
+		const shim = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/shim.js')
 		const child = spawn(
 			join(hostBundle, 'host'),
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				script,
-				metadata,
-				shim,
-			],
+			[join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'), script, metadata, shim],
 			{ stdio: ['ignore', 'ignore', 'pipe'] },
 		)
 		let output = ''

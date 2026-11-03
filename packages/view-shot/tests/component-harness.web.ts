@@ -7,5 +7,6 @@ const root = createRoot(host)
 const ref: { current: ViewShotRef | null } = { current: null }
 const render = (props: ViewShotProps) =>
 	flushSync(() => root.render(ViewShot, { ref, children: 'Trip card', id: 'card', ...props }))
+
 export const fixture = { root, ref, trace, captureRef, releaseCapture, render, host }
 render({})

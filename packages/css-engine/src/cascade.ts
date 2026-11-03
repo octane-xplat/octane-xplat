@@ -244,7 +244,10 @@ function resolveDeclaration(
  * edge's value (same precedence as any other duplicate key).
  */
 // Per-ruleset parsed-animation cache — NS `animationsSymbol`, keyed weakly.
-const rulesetAnimations = new WeakMap<object, { infos: KeyframeAnimationInfo[] | undefined; reset: boolean }>()
+const rulesetAnimations = new WeakMap<
+	object,
+	{ infos: KeyframeAnimationInfo[] | undefined; reset: boolean }
+>()
 
 const LONGHAND_TO_RENDERER: Record<string, string> = {
 	borderTopLeftRadius: 'borderRadius',
@@ -412,13 +415,26 @@ export function computeCascade(
 			let resetAt = -1
 			for (let index = 0; index < declarations.length; index++) {
 				const declaration = declarations[index]
-				if ((declaration.property === 'animation' || declaration.property === 'animation-name') &&
-					String(declaration.value).trim().toLowerCase() === 'none') {resetAt = index}
+				if (
+					(declaration.property === 'animation' || declaration.property === 'animation-name') &&
+					String(declaration.value).trim().toLowerCase() === 'none'
+				) {
+					resetAt = index
+				}
 			}
-			parsed = { infos: keyframeAnimationsFromCSSDeclarations(declarations.slice(resetAt + 1)), reset: resetAt >= 0 }
+
+			parsed = {
+				infos: keyframeAnimationsFromCSSDeclarations(declarations.slice(resetAt + 1)),
+				reset: resetAt >= 0,
+			}
+
 			rulesetAnimations.set(ruleset, parsed)
 		}
-		if (parsed.reset) {animations.length = 0}
+
+		if (parsed.reset) {
+			animations.length = 0
+		}
+
 		for (const info of parsed.infos ?? []) {
 			attachKeyframes(info)
 			animations.push(info)

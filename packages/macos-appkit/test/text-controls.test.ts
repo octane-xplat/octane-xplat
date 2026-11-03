@@ -1,5 +1,18 @@
-import { disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue } from '../src/text-value.ts'
-import { enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange } from '../src/text-limit.ts'
+import {
+	disposeTextValue,
+	isWritingTextValue,
+	notifyTextValueCommit,
+	setTextValue,
+} from '../src/text-value.ts'
+
+import {
+	enforceTextLimit,
+	isNormalizingTextLimit,
+	recordTextLimitEdit,
+	rememberTextLimitValue,
+	reportTextLimitChange,
+} from '../src/text-limit.ts'
+
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -93,8 +106,15 @@ function propsHarness() {
 	const warnings = []
 	const actionHandlers = new Map()
 	const { applyProps } = runSlice(propApplication + '\n({ applyProps })', {
-		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange,
-		disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue,
+		enforceTextLimit,
+		isNormalizingTextLimit,
+		recordTextLimitEdit,
+		rememberTextLimitValue,
+		reportTextLimitChange,
+		disposeTextValue,
+		isWritingTextValue,
+		notifyTextValueCommit,
+		setTextValue,
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
@@ -235,8 +255,15 @@ test('per-edit delegate events fire the change handler while the action fires su
 	const actionIdsByView = new WeakMap()
 	const textNodesByView = new WeakMap()
 	const { ButtonActionTarget } = runSlice(targetClass + '\n({ ButtonActionTarget })', {
-		enforceTextLimit, isNormalizingTextLimit, recordTextLimitEdit, rememberTextLimitValue, reportTextLimitChange,
-		disposeTextValue, isWritingTextValue, notifyTextValueCommit, setTextValue,
+		enforceTextLimit,
+		isNormalizingTextLimit,
+		recordTextLimitEdit,
+		rememberTextLimitValue,
+		reportTextLimitChange,
+		disposeTextValue,
+		isWritingTextValue,
+		notifyTextValueCommit,
+		setTextValue,
 		elementBehaviors: new Map(),
 		behaviorOf: () => undefined,
 		isManualLayoutParent: (t: string) =>
@@ -295,16 +322,21 @@ test('per-edit delegate events fire the change handler while the action fires su
 	assert.deepEqual(events, ['change', 'submit', 'area-change'])
 })
 
-
 test('multiline submit delegate preserves ordinary Return and marked-text confirmation', () => {
 	const seen: string[] = []
 	const textNodesByView = new WeakMap()
 	const { ButtonActionTarget } = runSlice(targetClass + '\n({ ButtonActionTarget })', {
-		NSObject: class {}, NSButton: class {}, NSPanGestureRecognizer: class {}, NSNotification: class {},
-		NativeClass() {}, registerGestureClass() {},
+		NSObject: class {},
+		NSButton: class {},
+		NSPanGestureRecognizer: class {},
+		NSNotification: class {},
+		NativeClass() {},
+		registerGestureClass() {},
 		interop: { types: { void: 'void', bool: 'bool', id: 'id' } },
-		NSTextViewDelegate: {}, NSTextFieldDelegate: {},
-		textNodesByView, dispatchTextEvent: (_node: unknown, event: string) => seen.push(event),
+		NSTextViewDelegate: {},
+		NSTextFieldDelegate: {},
+		textNodesByView,
+		dispatchTextEvent: (_node: unknown, event: string) => seen.push(event),
 	})
 	const target = new ButtonActionTarget()
 	const view: any = { hasMarkedText: () => false }
@@ -331,17 +363,22 @@ test('multiline submit delegate preserves ordinary Return and marked-text confir
 	assert.deepEqual(seen, ['onSubmit', 'onSubmit'])
 })
 
-
 test('controlled echoes do not assign an unchanged native editor string', () => {
 	for (const type of ['textfield', 'textview']) {
 		const { applyProps } = propsHarness()
 		const node = textNode(type)
 		const property = type === 'textview' ? 'string' : 'stringValue'
-		let text = 'composing', writes = 0
+		let text = 'composing',
+			writes = 0
+
 		Object.defineProperty(node.view, property, {
 			get: () => text,
-			set: (value: string) => { text = value; writes++ },
+			set: (value: string) => {
+				text = value
+				writes++
+			},
 		})
+
 		applyProps(node, { value: 'composing' })
 		assert.equal(writes, 0)
 		applyProps(node, { value: 'external' })

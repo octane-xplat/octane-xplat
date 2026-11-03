@@ -43,9 +43,11 @@ export function ToastViewport(props: ToastViewportProps): unknown @{
 				scrim: false,
 				align: TOAST_EDGE_ALIGN[position],
 			})
+
 			layer.setVisible(true)
 			map[position] = layer
 		}
+
 		setLayers(map)
 		return () => {
 			for (const layer of Object.values(map)) {

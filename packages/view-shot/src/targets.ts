@@ -3,6 +3,7 @@ const components = new WeakMap<object, () => object | null>()
 export function bindComponentTarget(handle: object, read: () => object | null): void {
 	components.set(handle, read)
 }
+
 export function resolveTarget(target: CaptureTarget): object {
 	if (!target || typeof target !== 'object') {
 		throw new TypeError('Capture requires an attached host or a populated Octane host ref')

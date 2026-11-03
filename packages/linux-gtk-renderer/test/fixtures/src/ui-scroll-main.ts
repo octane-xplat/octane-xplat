@@ -11,6 +11,7 @@ const window = new Gtk.Window({
 	default_height: 180,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -18,6 +19,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -26,6 +28,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 let osWheel = false
 const check = (label: string, ok: boolean) => {
@@ -34,6 +37,7 @@ const check = (label: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const props = { axis: 'both' as const, width: 600, height: 400 }
 async function run() {
 	root.render(Scrollable, props)
@@ -189,6 +193,7 @@ async function run() {
 			view.on('scroll', wheel)
 			print('GTK_UI_SCROLL_READY')
 		})
+
 		osWheel = true
 		check('actual X11 wheel input scrolls the GTK viewport', view.scrollTop > 0)
 	}
@@ -219,12 +224,14 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
 		failure = error
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

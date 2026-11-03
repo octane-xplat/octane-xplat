@@ -13,11 +13,13 @@ function deferred<T>() {
 	})
 	return { promise, resolve, reject }
 }
+
 const tick = async () => {
 	await Promise.resolve()
 	await Promise.resolve()
 	await Promise.resolve()
 }
+
 function setup(initial: CaptureLifecycleProps = {}) {
 	let props = initial
 	const dependencies = {
@@ -36,6 +38,7 @@ function setup(initial: CaptureLifecycleProps = {}) {
 		},
 	}
 }
+
 describe('capture lifecycle without capturing images', () => {
 	it('mounts once, resolves component refs and releases automatic output on disposal', async () => {
 		const onCapture = vi.fn()

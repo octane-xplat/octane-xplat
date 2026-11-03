@@ -169,6 +169,7 @@ try {
 		for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
 			subpaths.push(`/${service}`)
 		}
+
 		if (target !== 'macos') {
 			subpaths.push('/clipboard', '/keep-awake')
 		} else {
@@ -188,6 +189,7 @@ try {
 					`import * as purpose${i} from '@octane-xplat/platform${subpath}'; console.log(purpose${i});`,
 			)
 			.join('\n')
+
 		// Keep purpose imports separate from the root, so root re-exports cannot mask a
 		// broken purpose condition. Includes canonical and existing .ts spellings.
 		const purposes = await compile(purposeContents)
@@ -196,6 +198,7 @@ try {
 				assert.ok(purposes.files.includes(`${installed}/src/${service}.macos.ts`))
 				assert.ok(!purposes.files.includes(`${installed}/src/${service}.ts`))
 			}
+
 			assert.doesNotMatch(
 				purposes.code,
 				/@nativescript\/core/,
@@ -220,12 +223,14 @@ try {
 			result.files.some((file) => file.endsWith('.tsrx')),
 			'hook sources enter the compiler',
 		)
+
 		if (target === 'macos') {
 			for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
 				assert.ok(
 					result.files.includes(`${installed}/src/${service}.macos.tsrx`),
 					`${service} selects AppKit`,
 				)
+
 				assert.ok(
 					!result.files.includes(`${installed}/src/${service}.tsrx`),
 					`${service} excludes the phone hook`,
@@ -302,6 +307,7 @@ try {
 			join(temporary, 'consumer.ts'),
 			contents + '\n' + legacyContents + '\n' + purposeContents,
 		)
+
 		for (const mode of [ts.ModuleResolutionKind.Bundler, ts.ModuleResolutionKind.NodeNext]) {
 			const program = ts.createProgram([join(temporary, 'consumer.ts')], {
 				strict: true,

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { createGestureMachine, type Command, type Intent, type MachineEnv, type Transform } from './gesture-machine'
+import {
+	createGestureMachine,
+	type Command,
+	type Intent,
+	type MachineEnv,
+	type Transform,
+} from './gesture-machine'
 
 // Slide 400x300, image fitted at {0, 50, 400, 200} (4:3 into 400x300? 2:1 → contain 400x200).
 const F = { x: 0, y: 50, w: 400, h: 200 }
@@ -20,14 +26,20 @@ function make(over: Partial<MachineEnv> = {}, t: Transform = { x: 0, y: 0, scale
 	return { machine, run, env }
 }
 
-const pan = (kind: 'panStart' | 'panMove' | 'panEnd', at: { x: number; y: number }, extra: any = {}): Intent =>
-	({ kind, at, ...extra }) as Intent
+const pan = (
+	kind: 'panStart' | 'panMove' | 'panEnd',
+	at: { x: number; y: number },
+	extra: any = {},
+): Intent => ({ kind, at, ...extra }) as Intent
+
 const kinds = (out: Command[]) => out.map((c) => c.kind)
 
 describe('gesture machine', () => {
 	it('emits stop on panStart and ignores moves under the 6px slop', () => {
 		const { run } = make()
-		expect(run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))).toEqual([{ kind: 'stop' }])
+		expect(run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))).toEqual([
+			{ kind: 'stop' },
+		])
 		expect(run(pan('panMove', { x: 104, y: 101 }))).toEqual([])
 	})
 
@@ -48,14 +60,16 @@ describe('gesture machine', () => {
 		const { run } = make()
 		run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))
 		run(pan('panMove', { x: 140, y: 100 }))
-		expect(run(pan('panEnd', { x: 160, y: 100 }, { velocity: { x: 900, y: 0 }, cancelled: true }))).toEqual([
-			{ kind: 'track', phase: 'end', dx: 60, vx: 0, cancelled: true },
-		])
+		expect(
+			run(pan('panEnd', { x: 160, y: 100 }, { velocity: { x: 900, y: 0 }, cancelled: true })),
+		).toEqual([{ kind: 'track', phase: 'end', dx: 60, vx: 0, cancelled: true }])
 
 		const zoomed = make({}, { x: 0, y: 0, scale: 2 })
 		zoomed.run(pan('panStart', { x: 100, y: 100 }, { pointer: 'touch' }))
 		zoomed.run(pan('panMove', { x: 140, y: 130 }))
-		const out = zoomed.run(pan('panEnd', { x: 140, y: 130 }, { velocity: { x: 500, y: 300 }, cancelled: true }))
+		const out = zoomed.run(
+			pan('panEnd', { x: 140, y: 130 }, { velocity: { x: 500, y: 300 }, cancelled: true }),
+		)
 		const inertia = out[0]!
 		expect(inertia.kind).toBe('inertia')
 		if (inertia.kind === 'inertia') {
@@ -70,7 +84,9 @@ describe('gesture machine', () => {
 		expect(run(pan('panMove', { x: 160, y: 102 }))).toEqual([
 			{ kind: 'track', phase: 'move', dx: 60, vx: 0 },
 		])
-		const end = run(pan('panEnd', { x: 170, y: 102 }, { velocity: { x: -900, y: 0 }, cancelled: false }))
+		const end = run(
+			pan('panEnd', { x: 170, y: 102 }, { velocity: { x: -900, y: 0 }, cancelled: false }),
+		)
 		expect(end).toEqual([{ kind: 'track', phase: 'end', dx: 70, vx: -900, cancelled: false }])
 	})
 
@@ -104,7 +120,9 @@ describe('gesture machine', () => {
 		// rubber banded: less than raw +100 translate
 		expect(set.t.x).toBeLessThan(100)
 		expect(set.t.x).toBeGreaterThan(-1)
-		const end = run(pan('panEnd', { x: 200, y: 180 }, { velocity: { x: 300, y: 50 }, cancelled: false }))
+		const end = run(
+			pan('panEnd', { x: 200, y: 180 }, { velocity: { x: 300, y: 50 }, cancelled: false }),
+		)
 		const inertia = end[0]!
 		expect(inertia.kind).toBe('inertia')
 		if (inertia.kind === 'inertia') {
@@ -122,7 +140,9 @@ describe('gesture machine', () => {
 		run(pan('panStart', { x: 200, y: 150 }, { pointer: 'touch' }))
 		run(pan('panMove', { x: 200, y: 200 }))
 		// dy=30, vy=400 → projected 110 > 45 (0.15·300), same sign → close
-		const close = run(pan('panEnd', { x: 200, y: 180 }, { velocity: { x: 0, y: 400 }, cancelled: false }))
+		const close = run(
+			pan('panEnd', { x: 200, y: 180 }, { velocity: { x: 0, y: 400 }, cancelled: false }),
+		)
 		expect(close).toEqual([
 			{ kind: 'dragging', value: false },
 			{ kind: 'close', velocity: { x: 0, y: 400 } },
@@ -131,7 +151,9 @@ describe('gesture machine', () => {
 		run(pan('panStart', { x: 200, y: 150 }, { pointer: 'touch' }))
 		run(pan('panMove', { x: 200, y: 190 }))
 		// dy=20, vy=0 → settle identity + restorePresence
-		const back = run(pan('panEnd', { x: 200, y: 170 }, { velocity: { x: 0, y: 0 }, cancelled: false }))
+		const back = run(
+			pan('panEnd', { x: 200, y: 170 }, { velocity: { x: 0, y: 0 }, cancelled: false }),
+		)
 		expect(back).toEqual([
 			{ kind: 'dragging', value: false },
 			{ kind: 'settle', t: { x: 0, y: 0, scale: 1 } },
@@ -217,11 +239,13 @@ describe('gesture machine', () => {
 	})
 })
 
-
 it('disabled zoom ignores pinch and clamps double tap, wheel and button zoom without disabling paging', () => {
 	const { run } = make({ maxZoom: () => 1 })
-	const a = { x: 100, y: 100 }, b = { x: 200, y: 100 }
-	expect(run({ kind: 'pinchStart', a, b }, { kind: 'pinchMove', a, b: { x: 350, y: 100 } })).toEqual([])
+	const a = { x: 100, y: 100 },
+		b = { x: 200, y: 100 }
+	expect(
+		run({ kind: 'pinchStart', a, b }, { kind: 'pinchMove', a, b: { x: 350, y: 100 } }),
+	).toEqual([])
 	for (const intent of [
 		{ kind: 'doubleTap', at: a },
 		{ kind: 'zoomNow', scale: 8, focal: a },
@@ -229,19 +253,26 @@ it('disabled zoom ignores pinch and clamps double tap, wheel and button zoom wit
 	] as Intent[]) {
 		const commands = run(intent)
 		for (const command of commands) {
-			if (command.kind === 'set' || command.kind === 'settle') {expect(command.t.scale).toBe(1)}
+			if (command.kind === 'set' || command.kind === 'settle') {
+				expect(command.t.scale).toBe(1)
+			}
 		}
 	}
-	expect(run(pan('panStart', a, { pointer: 'touch' }), pan('panMove', { x: 180, y: 100 })).map(c => c.kind)).toContain('track')
+	expect(
+		run(pan('panStart', a, { pointer: 'touch' }), pan('panMove', { x: 180, y: 100 })).map(
+			(c) => c.kind,
+		),
+	).toContain('track')
 })
 
 it('settles an active pinch when zoom is disabled mid-gesture', () => {
 	let maximum = 4
 	const { run } = make({ maxZoom: () => maximum }, { x: 0, y: 0, scale: 2 })
-	const a = { x: 100, y: 100 }, b = { x: 200, y: 100 }
+	const a = { x: 100, y: 100 },
+		b = { x: 200, y: 100 }
 	run({ kind: 'pinchStart', a, b })
 	maximum = 1
 	const commands = run({ kind: 'pinchMove', a, b: { x: 350, y: 100 } })
-	expect(commands.find(c => c.kind === 'settle')).toMatchObject({ t: { scale: 1 } })
+	expect(commands.find((c) => c.kind === 'settle')).toMatchObject({ t: { scale: 1 } })
 	expect(run({ kind: 'pinchEnd', cancelled: false })).toEqual([])
 })

@@ -19,11 +19,13 @@ export type SoundBankOptions = {
 	/** Per-bank cap on simultaneous voices; the host's maxVoices still applies. */
 	maxVoices?: number
 }
+
 /** Per-call playback options. */
 export type PlaySoundOptions = {
 	/** Linear gain 0–1 for this play. */
 	volume?: number
 }
+
 /** An owned set of named clips. Dispose when its lifetime ends. */
 export interface SoundBank {
 	/** Inspect host availability before offering sound UI. */

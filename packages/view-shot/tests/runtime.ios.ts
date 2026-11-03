@@ -6,20 +6,22 @@ type Context = {
 	onCleanup(callback: () => void): void
 	waitFor<T>(predicate: () => T, options?: { timeout?: number }): Promise<NonNullable<T>>
 }
+
 const manager = NSFileManager.defaultManager
 function fileBytes(uri: string): NSData {
 	const url = NSURL.URLWithString(uri)!
 	return NSData.dataWithContentsOfURL(url)!
 }
+
 function pngSignature(data: NSData): boolean {
 	if (data.length < 8) {
 		return false
 	}
 	return (
-		data.subdataWithRange(NSMakeRange(0, 8)).base64EncodedStringWithOptions(0) ===
-		'iVBORw0KGgo='
+		data.subdataWithRange(NSMakeRange(0, 8)).base64EncodedStringWithOptions(0) === 'iVBORw0KGgo='
 	)
 }
+
 export async function run(ctx: Context) {
 	ctx.assert('view capture available', viewShot.capabilities.view, true)
 	ctx.assert('screen capture available', viewShot.capabilities.screen, true)
@@ -43,7 +45,11 @@ export async function run(ctx: Context) {
 
 	// Capture the mounted root view as base64 png and jpeg.
 	const png = await captureRef(root, { format: 'png', result: 'base64' })
-	ctx.assert('base64 png signature', pngSignature(NSData.alloc().initWithBase64EncodedStringOptions(png, 0)!), true)
+	ctx.assert(
+		'base64 png signature',
+		pngSignature(NSData.alloc().initWithBase64EncodedStringOptions(png, 0)!),
+		true,
+	)
 	const jpeg = await captureRef(root, { format: 'jpg', result: 'data-uri', quality: 0.9 })
 	ctx.assert('jpeg data uri prefix', jpeg.startsWith('data:image/jpeg;base64,'), true)
 
@@ -71,7 +77,12 @@ export async function run(ctx: Context) {
 			await captureRef(root, { format: 'png', result: 'base64' }).catch((error: Error) => {
 				refused = error.message
 			})
-			ctx.assert('protected surface refused', refused, 'Web/video/GPU surfaces are outside this capture subset')
+
+			ctx.assert(
+				'protected surface refused',
+				refused,
+				'Web/video/GPU surfaces are outside this capture subset',
+			)
 		} finally {
 			host.removeFromSuperview()
 		}
@@ -88,10 +99,6 @@ export async function run(ctx: Context) {
 	await captureRef(root, { format: 'webp' }).then(
 		() => ctx.assert('webp refusal', 'no error', 'unavailable'),
 		(error: Error) =>
-			ctx.assert(
-				'webp refusal',
-				/strategy.*subset|unavailable/i.test(error.message),
-				true,
-			),
+			ctx.assert('webp refusal', /strategy.*subset|unavailable/i.test(error.message), true),
 	)
 }

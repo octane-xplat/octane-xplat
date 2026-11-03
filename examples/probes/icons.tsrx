@@ -51,6 +51,7 @@ export async function run(ctx: ProbeContext) {
 		iconSnapshot(ctx.find('icon-value')).body.includes('M0 0h32v16'),
 		true,
 	)
+
 	ctx.assert(
 		'icon= wins over name=',
 		iconSnapshot(ctx.find('icon-both')).body.includes('M0 0h32v16'),

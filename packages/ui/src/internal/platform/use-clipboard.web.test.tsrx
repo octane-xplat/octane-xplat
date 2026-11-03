@@ -111,10 +111,20 @@ describe('useClipboard (DOM renderer)', () => {
 
 	it('suppresses late feedback and held triggers after unmount without cancelling the started write', async () => {
 		let finish!: (success: boolean) => void
-		vi.mocked(copyText).mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
-		const getItems = vi.fn(() => 'hello'), onCopy = vi.fn()
+		vi.mocked(copyText).mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					finish = resolve
+				}),
+		)
+
+		const getItems = vi.fn(() => 'hello'),
+			onCopy = vi.fn()
+
 		const { root, el } = mount({ getItems, onCopy, announce: 'Copied' })
-		const held = captured, pending = held.copy()
+		const held = captured,
+			pending = held.copy()
+
 		act(() => root.unmount())
 		finish(true)
 		expect(await pending).toBe(true)
@@ -133,10 +143,14 @@ describe('useClipboard (DOM renderer)', () => {
 
 	it('does not write after a text producer unmounts its reader', async () => {
 		const onCopy = vi.fn()
-		const { root, el } = mount({ getItems: () => {
-			act(() => root.unmount())
-			return 'hello'
-		}, onCopy })
+		const { root, el } = mount({
+			getItems: () => {
+				act(() => root.unmount())
+				return 'hello'
+			},
+			onCopy,
+		})
+
 		expect(await captured.copy()).toBe(false)
 		expect(copyText).not.toHaveBeenCalled()
 		expect(onCopy).not.toHaveBeenCalled()
@@ -144,9 +158,17 @@ describe('useClipboard (DOM renderer)', () => {
 	})
 
 	it('a failed announcement leaves the copy result, callback and reset intact', async () => {
-		vi.mocked(announce).mockImplementationOnce(() => { throw new Error('unavailable') })
-		const onCopy = vi.fn(), { root, el } = mount({ onCopy, announce: 'Copied', resetAfterMs: 100 })
-		await act(async () => { expect(await captured.copy('hello')).toBe(true) })
+		vi.mocked(announce).mockImplementationOnce(() => {
+			throw new Error('unavailable')
+		})
+
+		const onCopy = vi.fn(),
+			{ root, el } = mount({ onCopy, announce: 'Copied', resetAfterMs: 100 })
+
+		await act(async () => {
+			expect(await captured.copy('hello')).toBe(true)
+		})
+
 		expect(onCopy).toHaveBeenCalledWith(true)
 		expect(el.textContent).toBe('copied')
 		act(() => vi.advanceTimersByTime(100))
@@ -154,5 +176,4 @@ describe('useClipboard (DOM renderer)', () => {
 		root.unmount()
 		el.remove()
 	})
-
 })

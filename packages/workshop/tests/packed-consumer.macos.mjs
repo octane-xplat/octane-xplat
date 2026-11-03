@@ -33,6 +33,7 @@ mkdirSync(pack)
 let succeeded = false
 const onDarwinMac =
 	process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64')
+
 function run(command, args, cwd = consumer, options = {}) {
 	const result = spawnSync(command, args, {
 		cwd,

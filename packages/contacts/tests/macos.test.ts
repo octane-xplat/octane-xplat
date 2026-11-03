@@ -35,7 +35,9 @@ function fixture({ status = 3 }: { status?: number } = {}) {
 			block: (contact: any) => void,
 		) => {
 			record('enumerate', [request, error])
-			for (const c of people) {block(c)}
+			for (const c of people) {
+				block(c)
+			}
 			return true
 		},
 		unifiedContactsMatchingPredicateKeysToFetchError: (predicate: any, keys: any, error: any) => {
@@ -51,7 +53,10 @@ function fixture({ status = 3 }: { status?: number } = {}) {
 			record('save', [request, error])
 			return true
 		},
-		requestAccessForEntityTypeCompletionHandler: (type: number, completion: (granted: boolean) => void) => {
+		requestAccessForEntityTypeCompletionHandler: (
+			type: number,
+			completion: (granted: boolean) => void,
+		) => {
 			record('requestAccess', [type])
 			completion(true)
 		},

@@ -126,7 +126,9 @@ export function useFieldControl<
 		/** Web-only prop bag forwarded verbatim. */
 		web?: Record<string, any>
 	},
->(props: T): {
+>(
+	props: T,
+): {
 	/** Resolved props with field-context defaults applied. */
 	props: T & ResolvedFieldControlProps
 	/** Whether a Field ancestor supplied the merged context. */

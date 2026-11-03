@@ -46,6 +46,7 @@ function command(executable, args, cwd, log, timeout = 300000) {
 	assert.equal(result.status, 0, (result.stdout ?? '') + (result.stderr ?? ''))
 	return result
 }
+
 command('tar', ['-xzf', archive, '--strip-components=1', '-C', installed], '/tmp')
 const manifest = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'))
 assert.equal(manifest.name, '@octane-xplat/stripe')
@@ -64,6 +65,7 @@ for (const name of Object.keys({ ...manifest.dependencies, ...manifest.peerDepen
 			resolved = dirname(resolved)
 		}
 	}
+
 	const destination = join(consumer, 'node_modules', name)
 	await mkdir(dirname(destination), { recursive: true })
 	try {
@@ -74,6 +76,7 @@ for (const name of Object.keys({ ...manifest.dependencies, ...manifest.peerDepen
 		}
 	}
 }
+
 const entry = join(consumer, 'entry.ts')
 await writeFile(
 	entry,
@@ -81,6 +84,7 @@ await writeFile(
 		? await readFile(join(packageRoot, 'tests/spm-runtime.ios.ts'), 'utf8')
 		: 'export {}\n',
 )
+
 const resources = join(consumer, 'App_Resources')
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
 // Include the entire packed native input in the probe's resource identity.
@@ -88,25 +92,30 @@ await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recu
 const archiveHash = createHash('sha256')
 	.update(await readFile(archive))
 	.digest('hex')
+
 await writeFile(
 	join(resources, 'iOS/build.xcconfig'),
 	`IPHONEOS_DEPLOYMENT_TARGET = 15.0\n// Packed Stripe archive: ${archiveHash}\n`,
 )
+
 const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', entry, ['@octane-xplat/stripe'], resources)
 await writeFile(
 	join(project.root, 'src/index.ts'),
 	values.runtime ? 'import ' + JSON.stringify(entry) + '\n' : 'export {}\n',
 )
+
 console.log(
 	JSON.stringify({ phase: 'prepare-packed-plugin', project: project.root, sdkCompilation: false }),
 )
+
 await command(
 	'ns',
 	['prepare', 'ios', '--path', project.root, '--release', '--for-device', 'false', '--no-hmr'],
 	'/tmp',
 	join(consumer, 'native-prepare.log'),
 )
+
 const ios = join(project.root, 'platforms/ios')
 const projects = (await readdir(ios)).filter((name) => name.endsWith('.xcodeproj'))
 assert.equal(projects.length, 1)
@@ -116,16 +125,19 @@ assert.ok(
 	pbx.includes('https://github.com/stripe/stripe-ios'),
 	'NativeScript must consume the packed plugin SPM declaration',
 )
+
 assert.ok(pbx.includes('26.15.1'), 'SDK version must remain pinned')
 for (const product of ['StripePaymentSheet', 'StripePayments']) {
 	assert.ok(pbx.includes(product), `Missing SPM product ${product}`)
 }
+
 // NativeScript prepare already invokes xcodebuild -resolvePackageDependencies.
 // Assert its actual lock instead of running resolution a second time.
 const locks = [join(xcode, 'project.xcworkspace/xcshareddata/swiftpm/Package.resolved')]
 for (const workspace of (await readdir(ios)).filter((name) => name.endsWith('.xcworkspace'))) {
 	locks.push(join(ios, workspace, 'xcshareddata/swiftpm/Package.resolved'))
 }
+
 const resolved = locks.find(existsSync)
 assert.ok(resolved, 'NativeScript must finish SPM resolution and persist its actual pins')
 const lock = JSON.parse(await readFile(resolved, 'utf8'))
@@ -140,12 +152,14 @@ await command(
 	'/tmp',
 	join(consumer, 'package-products.log'),
 )
+
 let app
 if (values.build) {
 	assert.ok(
 		pbx.includes('XplatStripePaymentSheet.swift'),
 		'The packed Swift bridge must belong to the native target',
 	)
+
 	console.log(JSON.stringify({ phase: 'build-unsigned-spm-consumer', sdkCompilation: true }))
 	await command(
 		'ns',
@@ -155,6 +169,7 @@ if (values.build) {
 		600000,
 	)
 }
+
 if (values.build || values.runtime) {
 	const output = join(ios, 'build/Release-iphonesimulator')
 	const apps = (await readdir(output)).filter((name) => name.endsWith('.app'))
@@ -165,8 +180,10 @@ if (values.build || values.runtime) {
 		['-c', 'Print :CFBundleExecutable', join(app, 'Info.plist')],
 		'/tmp',
 	).stdout.trim()
+
 	assert.ok(existsSync(join(app, executable)), 'Compiled consumer executable must exist')
 }
+
 let runtime
 if (values.runtime) {
 	const device = process.env.XPLAT_IOS_DEVICE
@@ -176,6 +193,7 @@ if (values.runtime) {
 		if (!directory.isDirectory()) {
 			continue
 		}
+
 		const candidate = join(ios, directory.name, 'app')
 		try {
 			if ((await stat(join(candidate, 'package.json'))).isFile()) {
@@ -187,6 +205,7 @@ if (values.runtime) {
 			}
 		}
 	}
+
 	assert.equal(assets.length, 1)
 	const refreshed = join(project.root, 'stripe-refreshed-spm.app')
 	await cp(app, refreshed, { recursive: true })
@@ -215,8 +234,10 @@ if (values.runtime) {
 					throw error
 				}
 			}
+
 			await new Promise((resolve) => setTimeout(resolve, 150))
 		}
+
 		assert.ok(runtime, 'Packed Stripe SDK runtime timed out')
 		assert.equal(runtime.passed, true, JSON.stringify(runtime))
 		console.log(JSON.stringify(runtime))
@@ -225,6 +246,7 @@ if (values.runtime) {
 			encoding: 'utf8',
 			timeout: 10000,
 		})
+
 		if (stopped.status !== 0) {
 			console.warn(
 				'The owned Stripe app was already stopped or could not be terminated; the caller shuts down its simulator.',
@@ -232,6 +254,7 @@ if (values.runtime) {
 		}
 	}
 }
+
 console.log(
 	JSON.stringify({
 		passed: true,

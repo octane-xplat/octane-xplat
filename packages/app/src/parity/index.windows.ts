@@ -12,6 +12,7 @@ type ImportGlob = (
 	pattern: string | string[],
 	options: { eager: true },
 ) => Record<string, { PARITY?: ParityFixture[] }>
+
 const glob: unknown = 'glob' in import.meta ? import.meta.glob : undefined
 const modules =
 	typeof glob === 'function'

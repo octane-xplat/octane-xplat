@@ -22,14 +22,27 @@ function toAlpha(n: number): string {
 		s = String.fromCharCode(97 + (n % 26)) + s
 		n = Math.floor(n / 26)
 	}
+
 	return s
 }
 
 function toRoman(n: number): string {
 	const table: readonly [number, string][] = [
-		[1000, 'm'], [900, 'cm'], [500, 'd'], [400, 'cd'], [100, 'c'], [90, 'xc'],
-		[50, 'l'], [40, 'xl'], [10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i'],
+		[1000, 'm'],
+		[900, 'cm'],
+		[500, 'd'],
+		[400, 'cd'],
+		[100, 'c'],
+		[90, 'xc'],
+		[50, 'l'],
+		[40, 'xl'],
+		[10, 'x'],
+		[9, 'ix'],
+		[5, 'v'],
+		[4, 'iv'],
+		[1, 'i'],
 	]
+
 	let s = ''
 	for (const [v, r] of table) {
 		while (n >= v) {
@@ -37,11 +50,16 @@ function toRoman(n: number): string {
 			n -= v
 		}
 	}
+
 	return s || 'i'
 }
 
 function orderedGlyph(n: number, kind: ListMarker | ListMarkerStyle): string {
-	return kind === 'lower-alpha' ? `${toAlpha(n)}.` : kind === 'lower-roman' ? `${toRoman(n)}.` : `${n}.`
+	return kind === 'lower-alpha'
+		? `${toAlpha(n)}.`
+		: kind === 'lower-roman'
+			? `${toRoman(n)}.`
+			: `${n}.`
 }
 
 export function MdRowList(props: {
@@ -73,10 +91,7 @@ export function MdRowList(props: {
 	)
 }
 
-export function MdRowItem(props: {
-	index?: number
-	label?: unknown
-}): unknown @{
+export function MdRowItem(props: { index?: number; label?: unknown }): unknown @{
 	const ctx = useContext(ListContext)
 	const markerKind = ctx?.marker ?? ctx?.listStyle ?? 'disc'
 	const task = markerKind == null ? undefined : ctx?.task

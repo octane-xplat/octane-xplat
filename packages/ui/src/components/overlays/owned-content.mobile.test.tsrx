@@ -11,7 +11,10 @@ import {
 import { createContentOwner } from './owned-content'
 import { useOwnedContent } from './use-owned-content.tsrx'
 
-vi.mock('../../internal/platform/native-portal', () => ({ createPortal: (children: any) => children }))
+vi.mock('../../internal/platform/native-portal', () => ({
+	createPortal: (children: any) => children,
+}))
+
 const Name = createContext('missing')
 const Provider: any = Name
 let content: ReturnType<typeof useOwnedContent>

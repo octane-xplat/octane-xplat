@@ -10,6 +10,7 @@ const integer = (value: number) => {
 	boxed.set_int(value)
 	return boxed
 }
+
 function inputState(value: unknown): Bag {
 	if (typeof value === 'object' && value !== null) {
 		return value as Bag
@@ -27,6 +28,7 @@ function inputState(value: unknown): Bag {
 			return {}
 	}
 }
+
 /** Apply after the complete prop bag so sensitivity/editability and metadata
  * observe the same generation. GTK's optional booleans/tristates use G_TYPE_INT,
  * while ordinary booleans and boolean properties use G_TYPE_BOOLEAN. */
@@ -94,6 +96,7 @@ export function syncAccessibilityState(view: any, props: Bag) {
 					: value
 						? Gtk.AccessibleInvalidState.TRUE
 						: Gtk.AccessibleInvalidState.FALSE
+
 		add('invalid', Gtk.AccessibleState.INVALID, invalid)
 	}
 	const nativeReadOnly =
@@ -112,6 +115,7 @@ export function syncAccessibilityState(view: any, props: Bag) {
 		if (next.has(key)) {
 			continue
 		}
+
 		if (binding.kind === 'state') {
 			view.reset_state(binding.id)
 		} else {

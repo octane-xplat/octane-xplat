@@ -10,6 +10,7 @@ const available = () =>
 	typeof HTMLDialogElement !== 'undefined' &&
 	typeof HTMLDialogElement.prototype.showModal === 'function' &&
 	window.isSecureContext !== false
+
 const failed = (): PresentPaymentSheetResult => ({
 	error: {
 		code: 'Failed',
@@ -100,11 +101,13 @@ export const backend: StripeBackend = {
 					if (dialog.open) {
 						dialog.close()
 					}
+
 					dialog.remove()
 					style.remove()
 					if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
 						previousFocus.focus()
 					}
+
 					resolve(result)
 				}
 			}
@@ -160,15 +163,18 @@ export const backend: StripeBackend = {
 								status.textContent = validation.error.message ?? 'Check the payment form'
 								return
 							}
+
 							const result = await sdk.confirmPayment({
 								elements: currentElements,
 								confirmParams: { return_url: options.returnURL! },
 								redirect: 'if_required',
 							})
+
 							if (result.error) {
 								status.textContent = result.error.message ?? 'The payment could not be completed'
 								return
 							}
+
 							if (
 								result.paymentIntent &&
 								['succeeded', 'processing', 'requires_capture'].includes(
@@ -204,6 +210,7 @@ export const backend: StripeBackend = {
 						submit.disabled = false
 					}
 				})
+
 				element.on('loaderror', () => finish(failed()))
 				element.mount(mount)
 			} catch {

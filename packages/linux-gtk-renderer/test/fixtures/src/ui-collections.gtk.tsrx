@@ -47,6 +47,7 @@ const gridItems = [
 	{ id: 'g3', name: 'GCELL 3' },
 	{ id: 'g4', name: 'GCELL 4' },
 ]
+
 const treeNodes = [
 	{
 		key: 'parent',
@@ -58,6 +59,7 @@ const treeNodes = [
 	},
 	{ key: 'leaf', label: 'LEAF NODE' },
 ]
+
 const vlistItems = Array.from({ length: 120 }, (_, i) => ({
 	id: 'row-' + i,
 	label: 'VROW ' + i,
@@ -146,7 +148,14 @@ export function CollectionsProbe() @{
 				))}
 			</OverflowList>
 		</View>
-		<Carousel id="car" label="Demo carousel" style={{ height: 80 }} hasButtons hasSnap ref={carouselRef}>
+		<Carousel
+			id="car"
+			label="Demo carousel"
+			style={{ height: 80 }}
+			hasButtons
+			hasSnap
+			ref={carouselRef}
+		>
 			{carouselItems.map((name: string) => (
 				<View key={name} style={{ width: 160, height: 64 }}>
 					<Text>{'SLIDE ' + name}</Text>

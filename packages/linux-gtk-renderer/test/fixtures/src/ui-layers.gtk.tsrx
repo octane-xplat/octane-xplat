@@ -26,17 +26,32 @@ export function LayersProbe() @{
 	const [ctlOpen, setCtlOpen] = useState(false)
 	const [lightBg, setLightBg] = useState(0)
 	const [noLightBg, setNoLightBg] = useState(0)
+
 	<ProbeContext value="from-declaring">
 		<Breadcrumbs id="crumbs" items={crumbs} separator=">" />
-		<Breadcrumbs id="overflow" items={[...crumbs, { key: 'deep', label: 'Deep', href: '/deep' }]} maxVisibleItems={2} />
+		<Breadcrumbs
+			id="overflow"
+			items={[...crumbs, { key: 'deep', label: 'Deep', href: '/deep' }]}
+			maxVisibleItems={2}
+		/>
 		<PopoverProbe onPick={() => setMark('popover')} />
 		<ContextLayerProbe id="layer" onEvent={(e) => setMark(e)} />
 		<ContextLayerProbe id="layer-light" lightDismiss onEvent={(e) => setMark(e)} />
 		<ContextLayerProbe id="layer-nolight" lightDismiss={false} onEvent={(e) => setMark(e)} />
 		<ContextLayerProbe id="layer-noesc" dismissOnEscape={false} onEvent={(e) => setMark(e)} />
-		<ContextLayerProbe id="geo-bs" placement="bottom" alignment="start" onEvent={(e) => setMark(e)} />
+		<ContextLayerProbe
+			id="geo-bs"
+			placement="bottom"
+			alignment="start"
+			onEvent={(e) => setMark(e)}
+		/>
 		<ContextLayerProbe id="geo-te" placement="top" alignment="end" onEvent={(e) => setMark(e)} />
-		<ContextLayerProbe id="geo-rc" placement="right" alignment="center" onEvent={(e) => setMark(e)} />
+		<ContextLayerProbe
+			id="geo-rc"
+			placement="right"
+			alignment="center"
+			onEvent={(e) => setMark(e)}
+		/>
 		<ContextLayerProbe id="geo-ls" placement="left" alignment="start" onEvent={(e) => setMark(e)} />
 		<Button id="ctl-toggle" label="Toggle controlled" clickAction={() => setCtlOpen(!ctlOpen)} />
 		<ControlledLayerProbe id="ctl" open={ctlOpen} onEvent={(e) => setMark(e)} />
@@ -70,6 +85,7 @@ function ContextLayerProbe(props: {
 		onShow: () => props.onEvent(props.id + ':shown'),
 		onHide: () => props.onEvent(props.id + ':hidden'),
 	})
+
 	<>
 		<Button
 			id={props.id + '-trigger'}
@@ -85,37 +101,63 @@ function ContextLayerProbe(props: {
 	</>
 }
 
-function ControlledLayerProbe(props: { id: string; open: boolean; onEvent: (e: string) => void }) @{
+function ControlledLayerProbe(props: {
+	id: string
+	open: boolean
+	onEvent: (e: string) => void
+}) @{
 	const layer = useLayer({
 		mode: 'context',
 		isOpen: props.open,
 		onShow: () => props.onEvent('ctl:shown'),
 		onHide: () => props.onEvent('ctl:hidden'),
 	})
+
 	<>
 		<Button id={props.id + '-trigger'} label="controlled" ref={layer.ref} />
-		{layer.render(<Text id={props.id + '-body'}>Controlled layer</Text>, { placement: 'bottom', alignment: 'start', offset: 8 })}
+		{layer.render(<Text id={props.id + '-body'}>Controlled layer</Text>, {
+			placement: 'bottom',
+			alignment: 'start',
+			offset: 8,
+		})}
 	</>
 }
 
 function FixedLayerProbe(props: { id: string; x: number; y: number }) @{
 	const layer = useLayer({ mode: 'fixed' })
+
 	<>
-		<Button id={props.id + '-trigger'} label={props.id + ' trigger'} clickAction={() => (layer.isOpen ? layer.hide() : layer.show())} />
-		{layer.render(<Text id={props.id + '-body'}>Fixed {props.x},{props.y}</Text>, { x: props.x, y: props.y })}
+		<Button
+			id={props.id + '-trigger'}
+			label={props.id + ' trigger'}
+			clickAction={() => (layer.isOpen ? layer.hide() : layer.show())}
+		/>
+		{layer.render(
+			<Text id={props.id + '-body'}>
+				Fixed {props.x},{props.y}
+			</Text>,
+			{ x: props.x, y: props.y },
+		)}
 	</>
 }
 
 export function PopoverProbe(props: { onPick: () => void }) @{
 	const pop = usePopover()
+
 	<>
-		<Button id="pop-trigger" label="Popover trigger" ref={pop.triggerRef} clickAction={() => pop.toggle()} />
+		<Button
+			id="pop-trigger"
+			label="Popover trigger"
+			ref={pop.triggerRef}
+			clickAction={() => pop.toggle()}
+		/>
 		{pop.render(<Text id="pop-body">Popover body</Text>)}
 	</>
 }
 
 function ControlledHover(props: { id: string; open?: boolean }) @{
 	const card = useHoverCard({ isOpen: props.open })
+
 	<>
 		<View id={props.id} ref={card.ref} className="vx-hovercard-trigger">
 			<Text id={props.id + '-trigger'}>Controlled hover</Text>
@@ -126,6 +168,7 @@ function ControlledHover(props: { id: string; open?: boolean }) @{
 
 function DisabledHover(props: { id: string }) @{
 	const card = useHoverCard({ isEnabled: false })
+
 	<>
 		<View id={props.id} ref={card.ref} className="vx-hovercard-trigger">
 			<Text id={props.id + '-trigger'}>Disabled hover</Text>

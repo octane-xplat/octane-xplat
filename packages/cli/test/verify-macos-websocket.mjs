@@ -10,11 +10,7 @@ import { createServer } from 'node:http'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import {
-	macOSHostArch,
-	hostBundle,
-	hostRoot,
-} from '../src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle, hostRoot } from '../src/macos/jsc-host/runtime.ts'
 import { macOSExecutable } from '../src/macos/executables.ts'
 
 if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {

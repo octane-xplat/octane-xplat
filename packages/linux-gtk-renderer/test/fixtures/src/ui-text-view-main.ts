@@ -9,6 +9,7 @@ const window = new Gtk.Window({
 	default_height: 260,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -16,6 +17,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 100) =>
 	new Promise<void>((resolve) =>
@@ -24,6 +26,7 @@ const pause = (ms = 100) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -31,6 +34,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 let props: Parameters<typeof Multiline>[0] = { value: 'A😀B\nCD', version: 1, keyboard: 'email' }
 const render = async (next: Partial<typeof props> = {}) => {
@@ -38,6 +42,7 @@ const render = async (next: Partial<typeof props> = {}) => {
 	root.render(Multiline, props)
 	await pause()
 }
+
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
@@ -48,6 +53,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 async function input(text?: string, key?: string) {
 	const ack = acknowledgments + 1
@@ -58,6 +64,7 @@ async function input(text?: string, key?: string) {
 	check('OS input acknowledgment', acknowledgments >= ack)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -189,10 +196,12 @@ async function run() {
 			'OS replacement emits exactly one change: ' + JSON.stringify(changes.slice(before)),
 			changes.length === before + 1 && changes.at(-1) === 'aXc',
 		)
+
 		buffer.set_enable_undo(true)
 		await render({ value: 'abc', maxLength: 4 })
 		view.select_region(1, 2)
 		const beforePaste = changes.length
+
 		;(globalThis as any).imports.gi.Gdk.Display.get_default().get_clipboard().set('😀ZQ')
 		await input(undefined, 'ctrl+v')
 		check('OS paste accepts the complete emoji prefix within UTF16 cap', view.text === 'a😀c')
@@ -200,6 +209,7 @@ async function run() {
 			'bounded paste sends one final edit',
 			changes.length === beforePaste + 1 && changes.at(-1) === 'a😀c',
 		)
+
 		check('bounded paste keeps the caret after the accepted prefix', view.get_position() === 2)
 		await input(undefined, 'ctrl+z')
 		check('native undo restores the selected text after bounded paste', view.text === 'abc')
@@ -218,6 +228,7 @@ async function run() {
 				check('submit uses current handler', submits.at(-1) === props.version)
 			}
 		}
+
 		await render({ value: 'Shift', returnKey: 'done' })
 		view.set_position(5)
 		const beforeShift = submits.length
@@ -226,6 +237,7 @@ async function run() {
 			'Shift Return retains newline editing',
 			view.text === 'Shift\n' && submits.length === beforeShift,
 		)
+
 		await render({ editable: false, value: 'Read only' })
 		await input('blocked', 'Return')
 		check('OS edits cannot change readOnly buffer', view.text === 'Read only')
@@ -264,6 +276,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -271,6 +284,7 @@ run()
 		console.error(error)
 	})
 	.finally(() => loop.quit())
+
 loop.run()
 if (failure) {
 	throw failure

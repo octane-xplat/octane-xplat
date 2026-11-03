@@ -42,23 +42,47 @@ function fixture(Component: any, props: any, peer = geometry()) {
 
 describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 	it('forwards declared identity/name/description/visibility metadata and removes it on the same viewport', () => {
-		const fx = fixture(ScrollableArea, { id: 'notes', testID: 'notes-test', label: 'Fallback', accessible: false,
-			accessibilityLabel: 'Trip notes', accessibilityHint: 'Scroll to review.', accessibilityValue: '24 notes', children: 'Notes' })
+		const fx = fixture(ScrollableArea, {
+			id: 'notes',
+			testID: 'notes-test',
+			label: 'Fallback',
+			accessible: false,
+			accessibilityLabel: 'Trip notes',
+			accessibilityHint: 'Scroll to review.',
+			accessibilityValue: '24 notes',
+			children: 'Notes',
+		})
+
 		try {
 			const host = fx.host
-			expect(host.props.testID).toBe('notes-test'); expect(host.props.accessible).toBe(false)
-			expect(host.props.accessibilityLabel).toBe('Trip notes'); expect(host.props.accessibilityHint).toBe('Scroll to review.'); expect(host.props.accessibilityValue).toBe('24 notes')
-			fx.render({ id: 'notes', label: 'Fallback', children: 'Notes' }); expect(fx.container.children[0]).toBe(host); expect(host.props.accessibilityLabel).toBe('Fallback')
-			for (const key of ['testID', 'accessible', 'accessibilityHint', 'accessibilityValue']) expect(host.props[key]).toBeUndefined()
-			fx.render({ id: 'notes', children: 'Notes' }); expect(host.props.accessibilityLabel).toBeUndefined()
-		} finally { fx.root.unmount() }
+			expect(host.props.testID).toBe('notes-test')
+			expect(host.props.accessible).toBe(false)
+			expect(host.props.accessibilityLabel).toBe('Trip notes')
+			expect(host.props.accessibilityHint).toBe('Scroll to review.')
+			expect(host.props.accessibilityValue).toBe('24 notes')
+			fx.render({ id: 'notes', label: 'Fallback', children: 'Notes' })
+			expect(fx.container.children[0]).toBe(host)
+			expect(host.props.accessibilityLabel).toBe('Fallback')
+			for (const key of ['testID', 'accessible', 'accessibilityHint', 'accessibilityValue']) {
+				expect(host.props[key]).toBeUndefined()
+			}
+
+			fx.render({ id: 'notes', children: 'Notes' })
+			expect(host.props.accessibilityLabel).toBeUndefined()
+		} finally {
+			fx.root.unmount()
+		}
 	})
 
 	it('replaces object and callback refs without replacing the viewport, and clears them', () => {
 		const object = { current: null as any }
 		const callback = vi.fn()
 		const next = { current: null as any }
-		const fx = fixture(ScrollableArea, { ref: object, className: ['viewport', { active: true, hidden: false }] })
+		const fx = fixture(ScrollableArea, {
+			ref: object,
+			className: ['viewport', { active: true, hidden: false }],
+		})
+
 		try {
 			expect(object.current.native).toBe(fx.host)
 			expect(fx.host.props.className).toBe('viewport active')
@@ -242,7 +266,6 @@ describe('AppKit headless scroll geometry and event composition', () => {
 	})
 })
 
-
 it('converts AppKit physical/logical inline coordinates with clamped RTL inversion', () => {
 	expect(convertAppKitInlineOffset(40, 200, 'rtl')).toBe(160)
 	expect(convertAppKitInlineOffset(160, 200, 'rtl')).toBe(40)
@@ -254,8 +277,13 @@ it('converts AppKit physical/logical inline coordinates with clamped RTL inversi
 
 it('reads RTL start/end edges and updates direction without a scroll event', () => {
 	function Localized(props: any) {
-		return <InternationalizationProvider dir={props.dir}><Headless axis="both" /></InternationalizationProvider>
+		return (
+			<InternationalizationProvider dir={props.dir}>
+				<Headless axis="both" />
+			</InternationalizationProvider>
+		)
 	}
+
 	const peer = geometry(true)
 	peer.contentView.bounds.origin = { x: 200, y: 0 }
 	const fx = fixture(Localized, { dir: 'rtl' }, peer)
@@ -269,16 +297,23 @@ it('reads RTL start/end edges and updates direction without a scroll event', () 
 		peer.contentView.bounds.origin.x = 0
 		flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', {}))
 		expect(area.state.inline.atEnd).toBe(true)
-	} finally { fx.root.unmount() }
+	} finally {
+		fx.root.unmount()
+	}
 })
 
 it('keeps a stable logical handle across direction changes and mirrors inline padding', () => {
-	const handle = { current: null as any }, calls: unknown[] = []
+	const handle = { current: null as any },
+		calls: unknown[] = []
+
 	function Localized(props: any) {
-		return <InternationalizationProvider dir={props.dir}>
-			<ScrollableArea ref={handle} axis="both" paddingInlineStart={2} paddingInlineEnd={6} />
-		</InternationalizationProvider>
+		return (
+			<InternationalizationProvider dir={props.dir}>
+				<ScrollableArea ref={handle} axis="both" paddingInlineStart={2} paddingInlineEnd={6} />
+			</InternationalizationProvider>
+		)
 	}
+
 	const peer = geometry(true)
 	Object.assign(peer.contentView, { scrollToPoint: (point: any) => calls.push(point) })
 	Object.assign(peer, { reflectScrolledClipView() {} })
@@ -298,5 +333,7 @@ it('keeps a stable logical handle across direction changes and mirrors inline pa
 		expect(calls.at(-1)).toEqual({ x: 0, y: 50 })
 		current.scrollToOffset({ inline: NaN })
 		expect(calls).toHaveLength(3)
-	} finally { fx.root.unmount() }
+	} finally {
+		fx.root.unmount()
+	}
 })

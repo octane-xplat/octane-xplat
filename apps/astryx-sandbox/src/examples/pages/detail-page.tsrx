@@ -4,10 +4,35 @@
 // {value,label} shape.
 import { useState } from 'octane'
 import {
-	Avatar, Badge, Button, Card, Collapsible, Dialog, DialogHeader, Divider,
-	Heading, HStack, Icon, Layout, LayoutContent, LayoutHeader, LayoutPanel,
-	Link, List, ListItem, MetadataList, MetadataListItem, ProgressBar,
-	Section, StackItem, Tab, TabList, TabMenu, Text, Thumbnail, useMediaQuery,
+	Avatar,
+	Badge,
+	Button,
+	Card,
+	Collapsible,
+	Dialog,
+	DialogHeader,
+	Divider,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	LayoutPanel,
+	Link,
+	List,
+	ListItem,
+	MetadataList,
+	MetadataListItem,
+	ProgressBar,
+	Section,
+	StackItem,
+	Tab,
+	TabList,
+	TabMenu,
+	Text,
+	Thumbnail,
+	useMediaQuery,
 	VStack,
 } from '@octane-xplat/ui'
 
@@ -26,11 +51,41 @@ const PRODUCT_IMAGES = [
 ]
 
 const PRODUCTS = [
-	{ name: 'Solstice Mug', details: 'Glaze: Snow\nFinish: Matte', price: 89.0, qty: 1, image: PRODUCT_IMAGES[0] },
-	{ name: 'Ember Bowl', details: 'Glaze: Sage\nSize: 6 in', price: 42.0, qty: 2, image: PRODUCT_IMAGES[1] },
-	{ name: 'Terra Cup', details: 'Glaze: Oat\nSize: 14 in', price: 65.0, qty: 1, image: PRODUCT_IMAGES[2] },
-	{ name: 'Dawn Plate Set', details: 'Glaze: Charcoal\nCapacity: 3 oz', price: 34.0, qty: 3, image: PRODUCT_IMAGES[3] },
-	{ name: 'Kiln Salad Bowl', details: 'Glaze: Snow\nHeight: 8 in', price: 78.0, qty: 1, image: PRODUCT_IMAGES[4] },
+	{
+		name: 'Solstice Mug',
+		details: 'Glaze: Snow\nFinish: Matte',
+		price: 89.0,
+		qty: 1,
+		image: PRODUCT_IMAGES[0],
+	},
+	{
+		name: 'Ember Bowl',
+		details: 'Glaze: Sage\nSize: 6 in',
+		price: 42.0,
+		qty: 2,
+		image: PRODUCT_IMAGES[1],
+	},
+	{
+		name: 'Terra Cup',
+		details: 'Glaze: Oat\nSize: 14 in',
+		price: 65.0,
+		qty: 1,
+		image: PRODUCT_IMAGES[2],
+	},
+	{
+		name: 'Dawn Plate Set',
+		details: 'Glaze: Charcoal\nCapacity: 3 oz',
+		price: 34.0,
+		qty: 3,
+		image: PRODUCT_IMAGES[3],
+	},
+	{
+		name: 'Kiln Salad Bowl',
+		details: 'Glaze: Snow\nHeight: 8 in',
+		price: 78.0,
+		qty: 1,
+		image: PRODUCT_IMAGES[4],
+	},
 ]
 
 const SUBTOTAL = PRODUCTS.reduce((sum, p) => sum + p.price * p.qty, 0)
@@ -61,10 +116,7 @@ const ACTIVITY = [
 		user: 'System',
 		text: 'has several information changes',
 		time: 'Feb 23 at 11:30 AM',
-		changes: [
-			'Payment verified via Visa ...7482',
-			'Fraud check passed — low risk',
-		],
+		changes: ['Payment verified via Visa ...7482', 'Fraud check passed — low risk'],
 	},
 	{
 		type: 'event' as const,
@@ -172,12 +224,7 @@ function PageHeader(props: {
 
 			<HStack vAlign="center">
 				<StackItem size="fill">
-					<TabList
-						value={props.activeTab}
-						onChange={props.onTabChange}
-						size="lg"
-						isFullBleed
-					>
+					<TabList value={props.activeTab} onChange={props.onTabChange} size="lg" isFullBleed>
 						<Tab value="details" label="Details" />
 						<Tab value="invoices" label="Invoices" />
 						<Tab value="timeline" label="Timeline" />
@@ -234,9 +281,7 @@ function ItemsCard() @{
 							</VStack>
 						}
 						onPress={() => {}}
-						startContent={
-							<Thumbnail src={product.image} alt={product.name} label={product.name} />
-						}
+						startContent={<Thumbnail src={product.image} alt={product.name} label={product.name} />}
 						endContent={
 							<VStack gap={0} hAlign="end">
 								<Text type="body" weight="bold" maxLines={1}>
@@ -362,11 +407,7 @@ function TimelineSection() @{
 												<VStack gap={1}>
 													{item.changes.map((change, j) => (
 														<HStack key={j} gap={2} vAlign="center">
-															<Icon
-																name="sandbox-pencil-square"
-																size={16}
-																color="secondary"
-															/>
+															<Icon name="sandbox-pencil-square" size={16} color="secondary" />
 															<Text type="supporting" color="secondary">
 																{change}
 															</Text>
@@ -413,9 +454,8 @@ function PanelContent() @{
 	<VStack gap={4}>
 		<Collapsible trigger={<Heading level={4}>Notes</Heading>}>
 			<Text type="body">
-				Customer is a repeat buyer — 3rd order this quarter. Prefers snow and
-				oat glazes. Requested gift wrapping for the mug set. Ships to a
-				residential address in CA.{' '}
+				Customer is a repeat buyer — 3rd order this quarter. Prefers snow and oat glazes. Requested
+				gift wrapping for the mug set. Ships to a residential address in CA.{' '}
 				<Link href="#" color="secondary">
 					Show more
 				</Link>
@@ -424,28 +464,18 @@ function PanelContent() @{
 		<Collapsible trigger={<Heading level={4}>Customer</Heading>}>
 			<MetadataList>
 				<MetadataListItem label="Name">Jane Doe</MetadataListItem>
-				<MetadataListItem label="Address">
-					321 Smith Road, CA 38238
-				</MetadataListItem>
+				<MetadataListItem label="Address">321 Smith Road, CA 38238</MetadataListItem>
 				<MetadataListItem label="Phone">234-</MetadataListItem>
 				<MetadataListItem label="Email">janedoe@email.com</MetadataListItem>
-				<MetadataListItem label="Billing Address">
-					Same as shipping address
-				</MetadataListItem>
+				<MetadataListItem label="Billing Address">Same as shipping address</MetadataListItem>
 			</MetadataList>
 		</Collapsible>
 		<Collapsible trigger={<Heading level={4}>Fraud Analysis</Heading>}>
 			<VStack gap={1}>
-				<ProgressBar
-					label="Risk level"
-					value={15}
-					variant="success"
-					isLabelHidden
-				/>
+				<ProgressBar label="Risk level" value={15} variant="success" isLabelHidden />
 				<Text type="body">Recommendation: Fulfill order</Text>
 				<Text type="body">
-					There is a low chance that you will receive a chargeback on this
-					order.
+					There is a low chance that you will receive a chargeback on this order.
 				</Text>
 			</VStack>
 		</Collapsible>
@@ -507,9 +537,7 @@ export function DetailPageTemplate() @{
 			onOpenChange={setPanelDialogOpen}
 		>
 			<Layout
-				header={
-					<DialogHeader title="Order details" onOpenChange={setPanelDialogOpen} />
-				}
+				header={<DialogHeader title="Order details" onOpenChange={setPanelDialogOpen} />}
 				content={
 					<LayoutContent padding={4}>
 						<PanelContent />

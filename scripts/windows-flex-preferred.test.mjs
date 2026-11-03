@@ -11,6 +11,7 @@ const added = (name) =>
 		.filter((line) => line.startsWith('+') && !line.startsWith('+++'))
 		.map((line) => line.slice(1))
 		.join('\n')
+
 const emit = (source) =>
 	ts.transpileModule(source, {
 		compilerOptions: {
@@ -20,9 +21,11 @@ const emit = (source) =>
 			removeComments: true,
 		},
 	}).outputText
+
 const source = emit(
 	`class FlexboxLayout extends FlexboxLayoutBase {${added('core-preferred-source.patch')}}`,
 )
+
 const packaged = emit(
 	`class FlexboxLayout extends FlexboxLayoutBase {${added('core-preferred-package.patch')}}`,
 )

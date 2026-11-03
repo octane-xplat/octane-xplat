@@ -36,7 +36,10 @@ function fixture({ status = 3 }: { status?: number } = {}) {
 			record('predicateForEvents', [begin, end, cals])
 			return { predicate: true }
 		},
-		eventsMatchingPredicate: () => ({ count: events.length, objectAtIndex: (i: number) => events[i] }),
+		eventsMatchingPredicate: () => ({
+			count: events.length,
+			objectAtIndex: (i: number) => events[i],
+		}),
 		eventWithIdentifier: (id: string) => {
 			record('eventWithIdentifier', [id])
 			return events.find((e) => e.eventIdentifier === id) ?? null

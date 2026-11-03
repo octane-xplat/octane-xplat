@@ -417,6 +417,7 @@ const passed = results.filter(
 	(result) =>
 		typeof result === 'object' && result !== null && 'pass' in result && result.pass === true,
 ).length
+
 const expectation =
 	mode === 'baseline' ? passed === 0 : mode === 'reference' ? passed === results.length : true
 

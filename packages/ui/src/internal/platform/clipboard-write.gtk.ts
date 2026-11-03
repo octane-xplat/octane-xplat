@@ -14,6 +14,7 @@ export async function copyText(text: string): Promise<boolean> {
 		if (!clipboard) {
 			return false
 		}
+
 		const bytes = new GLib.Bytes(new TextEncoder().encode(text))
 		return (
 			clipboard.set_content(

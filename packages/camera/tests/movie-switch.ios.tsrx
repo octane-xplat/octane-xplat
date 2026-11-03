@@ -17,8 +17,15 @@ const originalSwitch = backend.switchCamera!
 let afterAcquired: (() => void) | undefined
 backend.switchCamera = (camera) => {
 	const operation = originalSwitch(camera)
-	return { ...operation, completion: operation.completion.then((selected) => { afterAcquired?.(); return selected }) }
+	return {
+		...operation,
+		completion: operation.completion.then((selected) => {
+			afterAcquired?.()
+			return selected
+		}),
+	}
 }
+
 const session = new SharedCameraSession(backend, config)
 let enable = () => {}
 let showSession = (_session: CameraSession) => {}
@@ -54,9 +61,17 @@ export async function run(ctx: ProbeContext) {
 	const committed: any[] = []
 	const phase = knownFolders.documents().getFile('camera-probe-phase.txt')
 	recordWriter = (type, payload) => {
-		if (type === 'finished') { writerStatistics.push(JSON.parse(payload)); ctx.record('native-writers', writerStatistics) }
-		if (type === 'cameraCommitted') { committed.push(JSON.parse(payload)); ctx.record('camera-connections', committed) }
+		if (type === 'finished') {
+			writerStatistics.push(JSON.parse(payload))
+			ctx.record('native-writers', writerStatistics)
+		}
+
+		if (type === 'cameraCommitted') {
+			committed.push(JSON.parse(payload))
+			ctx.record('camera-connections', committed)
+		}
 	}
+
 	ctx.onCleanup(() => session.dispose())
 	ctx.assert('camera permission', await session.requestPermission('camera'), 'granted')
 	ctx.assert('microphone permission', await session.requestPermission('microphone'), 'granted')
@@ -74,7 +89,12 @@ export async function run(ctx: ProbeContext) {
 		ctx.assert(`elapsed continues through ${facing}`, take.elapsedMs >= before, true)
 		const connection = committed.at(-1)!
 		ctx.assert(`unmirrored recorded ${facing}`, connection.videoMirrored, false)
-		ctx.assert(`preview mirroring ${facing}`, connection.previewMirrored, facing === 'front' && connection.previewMirrorSupported)
+		ctx.assert(
+			`preview mirroring ${facing}`,
+			connection.previewMirrored,
+			facing === 'front' && connection.previewMirrorSupported,
+		)
+
 		ctx.assert(`portrait connection ${facing}`, connection.orientation, 1)
 	}
 
@@ -92,7 +112,16 @@ export async function run(ctx: ProbeContext) {
 	ctx.assert('audio present', outcome.clip.hasAudio, true)
 	const mainStatistics = writerStatistics[0]!
 	ctx.assert('incoming audio gaps below 1 ms', mainStatistics.maxAudioInputGapMs < 1, true)
-	ctx.assert('incoming audio spans the take', Math.abs(mainStatistics.audioLastOffsetMs - mainStatistics.audioFirstOffsetMs - mainStatistics.audioInputDurationMs) < 5, true)
+	ctx.assert(
+		'incoming audio spans the take',
+		Math.abs(
+			mainStatistics.audioLastOffsetMs -
+				mainStatistics.audioFirstOffsetMs -
+				mainStatistics.audioInputDurationMs,
+		) < 5,
+		true,
+	)
+
 	const asset = AVURLAsset.assetWithURL(
 		NSURL.fileURLWithPath(outcome.clip.output.fileUrl.slice('file://'.length)),
 	)
@@ -125,11 +154,15 @@ export async function run(ctx: ProbeContext) {
 				if (CMSampleBufferGetSampleTimingInfo(sample, index, timing) !== 0) {
 					throw new Error('Could not read encoded packet timing')
 				}
+
 				const time = CMTimeGetSeconds(timing.value.presentationTimeStamp)
 				const duration = CMTimeGetSeconds(timing.value.duration)
 				first = Math.min(first, time)
 				last = Math.max(last, time + (Number.isFinite(duration) ? duration : 0))
-				if (Number.isFinite(previous)) maxGap = Math.max(maxGap, time - previous)
+				if (Number.isFinite(previous)) {
+					maxGap = Math.max(maxGap, time - previous)
+				}
+
 				monotonic &&= time > previous
 				previous = time
 				count++
@@ -172,18 +205,33 @@ export async function run(ctx: ProbeContext) {
 	await ctx.waitFor(() => provisional.state === 'recording')
 	await new Promise((resolve) => setTimeout(resolve, 500))
 	let reachedAcquisition = false
-	afterAcquired = () => { reachedAcquisition = true; provisional.stop() }
+	afterAcquired = () => {
+		reachedAcquisition = true
+		provisional.stop()
+	}
+
 	try {
-		const issue = await session.switchCamera('front').then(() => 'completed', (error) => error.kind)
+		const issue = await session.switchCamera('front').then(
+			() => 'completed',
+			(error) => error.kind,
+		)
+
 		ctx.assert('acquisition before cancellation', reachedAcquisition, true)
 		ctx.assert('stop after acquisition cancels switch', issue, 'invalidState')
 		ctx.assert('stop after acquisition preserves clip', (await provisional.completion).kind, 'clip')
-	} finally { afterAcquired = undefined }
+	} finally {
+		afterAcquired = undefined
+	}
+
 	await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
 	const limited = session.startRecording({ maximumDurationMs: 600 })
 	await ctx.waitFor(() => limited.state === 'recording')
 	await new Promise((resolve) => setTimeout(resolve, 500))
-	const limitedSwitch = session.switchCamera('front').then(() => 'finished', (error) => error.kind)
+	const limitedSwitch = session.switchCamera('front').then(
+		() => 'finished',
+		(error) => error.kind,
+	)
+
 	const limitedOutcome = await limited.completion
 	ctx.assert('limit during flip keeps clip', limitedOutcome.kind, 'clip')
 	ctx.assert('duration limit owns completion', limitedOutcome.endReason, 'maximumDuration')
@@ -200,12 +248,19 @@ export async function run(ctx: ProbeContext) {
 	await new Promise((resolve) => setTimeout(resolve, 500))
 	const tokenFile = knownFolders.documents().getFile('camera-probe-token.txt')
 	await ctx.waitFor(() => tokenFile.readTextSync().trim().length > 0, { timeout: 15000 })
-	phase.writeTextSync(JSON.stringify({ phase: 'background-recording', token: tokenFile.readTextSync().trim() }))
+	phase.writeTextSync(
+		JSON.stringify({ phase: 'background-recording', token: tokenFile.readTextSync().trim() }),
+	)
+
 	const backgroundOutcome = await background.completion
 	ctx.record('background-outcome', backgroundOutcome)
 	ctx.assert('background retains clip', backgroundOutcome.kind, 'clip')
 	ctx.assert('OS background owns completion', backgroundOutcome.endReason, 'backgrounded')
-	await ctx.waitFor(async () => !session.snapshot().interrupted && (await session.capabilities()).available, { timeout: 15000 })
+	await ctx.waitFor(
+		async () => !session.snapshot().interrupted && (await session.capabilities()).available,
+		{ timeout: 15000 },
+	)
+
 	const foreground = session.startRecording()
 	await ctx.waitFor(() => foreground.state === 'recording')
 	await new Promise((resolve) => setTimeout(resolve, 500))
@@ -216,19 +271,33 @@ export async function run(ctx: ProbeContext) {
 	ctx.onCleanup(() => publicSession.dispose())
 	showSession(publicSession)
 	await ctx.waitFor(() => ready, { timeout: 15000 })
-	ctx.assert('public factory switching capability', (await publicSession.capabilities()).cameraSwitchDuringRecording, true)
+	ctx.assert(
+		'public factory switching capability',
+		(await publicSession.capabilities()).cameraSwitchDuringRecording,
+		true,
+	)
+
 	const publicTake = publicSession.startRecording({ audio: false, orientation: 'landscapeRight' })
 	await ctx.waitFor(() => publicTake.state === 'recording')
 	await publicSession.switchCamera('front')
-	ctx.assert('public factory switched front', publicSession.snapshot().activeCamera?.facing, 'front')
+	ctx.assert(
+		'public factory switched front',
+		publicSession.snapshot().activeCamera?.facing,
+		'front',
+	)
+
 	await new Promise((resolve) => setTimeout(resolve, 500))
 	const publicOutcome = await publicTake.stop()
 	ctx.assert('public factory returns clip', publicOutcome.kind, 'clip')
 	if (publicOutcome.kind === 'clip') {
 		ctx.assert('silent take has no audio', publicOutcome.clip.hasAudio, false)
-		ctx.assert('landscape output dimensions', publicOutcome.clip.width > publicOutcome.clip.height, true)
+		ctx.assert(
+			'landscape output dimensions',
+			publicOutcome.clip.width > publicOutcome.clip.height,
+			true,
+		)
 	}
+
 	ctx.record('public-factory-outcome', publicOutcome)
 	phase.writeTextSync('complete')
-
 }

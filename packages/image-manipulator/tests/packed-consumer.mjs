@@ -39,14 +39,17 @@ try {
 		await mkdir(dirname(target), { recursive: true })
 		await symlink(join(packageRoot, 'node_modules', dependency), target, 'dir')
 	}
+
 	for (const value of Object.values(manifest.exports['.'])) {
 		assert.equal(typeof value, 'string')
 		await readFile(join(unpacked, value))
 	}
+
 	await writeFile(
 		join(temporary, 'package.json'),
 		JSON.stringify({ private: true, type: 'module' }),
 	)
+
 	await writeFile(
 		join(temporary, 'consumer.ts'),
 		`
@@ -68,6 +71,7 @@ const invalid: Parameters<ImageManipulatorContext['crop']>[0] = { x: 0, y: 0, wi
 void invalid
 `,
 	)
+
 	for (const [name, conditions, lib] of [
 		['web', ['web'], ['ESNext', 'DOM']],
 		['native', ['native'], ['ESNext']],
@@ -90,12 +94,14 @@ void invalid
 				files: ['consumer.ts'],
 			}),
 		)
+
 		run(
 			process.execPath,
 			[join(repoRoot, 'node_modules/typescript/bin/tsc'), '-p', config],
 			temporary,
 		)
 	}
+
 	const browser = await build({
 		root: temporary,
 		configFile: false,
@@ -107,9 +113,11 @@ void invalid
 			minify: false,
 		},
 	})
+
 	assert.ok(
 		chunks(browser).some((chunk) => chunk.type === 'chunk' && chunk.exports.includes('transform')),
 	)
+
 	const native = await build({
 		root: temporary,
 		configFile: false,
@@ -130,12 +138,14 @@ void invalid
 			resolve: { conditions: ['native'] },
 		},
 	})
+
 	// A packed iOS graph must reach its real platform backend, not the unsupported fallback.
 	assert.ok(
 		chunks(native).some(
 			(chunk) => chunk.type === 'chunk' && chunk.code.includes('UIGraphicsImageRenderer'),
 		),
 	)
+
 	console.log(
 		'Packed consumer: ambient-free public types, web production bundle, and iOS backend resolution passed.',
 	)

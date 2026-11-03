@@ -13,6 +13,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = () =>
 	new Promise<void>((resolve) =>
@@ -21,6 +22,7 @@ const pause = () =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -28,6 +30,7 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 let props: Parameters<typeof Accessibility>[0] = {}
 const render = () => root.render(Accessibility, props)
@@ -36,6 +39,7 @@ const state = (view: any, key: string, expected: number | boolean) => {
 	const message = native.test_accessible_state(view, Gtk.AccessibleState[key], Number(expected))
 	check('stored state ' + key + '=' + expected + ': ' + message, message === null)
 }
+
 const property = (view: any, key: string, expected: boolean) => {
 	const message = native.test_accessible_boolean_property(
 		view,
@@ -44,6 +48,7 @@ const property = (view: any, key: string, expected: boolean) => {
 	)
 	check('stored property ' + key + '=' + expected + ': ' + message, message === null)
 }
+
 const textProperty = (view: any, key: string, expected: string) => {
 	const message = native.test_accessible_string_property(
 		view,
@@ -52,6 +57,7 @@ const textProperty = (view: any, key: string, expected: string) => {
 	)
 	check('stored text ' + key + ': ' + message, message === null)
 }
+
 async function run() {
 	render()
 	window.present()
@@ -271,6 +277,7 @@ async function run() {
 			}),
 	)
 }
+
 let failure: unknown
 run()
 	.catch((error) => {
@@ -282,6 +289,7 @@ run()
 		window.destroy()
 		loop.quit()
 	})
+
 loop.run()
 if (failure) {
 	throw failure

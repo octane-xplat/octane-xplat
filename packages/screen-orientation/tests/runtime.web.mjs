@@ -13,6 +13,7 @@ const server = await createServer({
 		fs: { allow: [fileURLToPath(new URL('../../..', import.meta.url))] },
 	},
 })
+
 let browser
 try {
 	await server.listen()
@@ -23,6 +24,7 @@ try {
 		const api = await import('/src/index.web.ts')
 		globalThis.orientationFixture = { api, events: [], subscription: undefined }
 	})
+
 	const session = await page.context().newCDPSession(page)
 	const rotate = (type, angle, width, height) =>
 		session.send('Emulation.setDeviceMetricsOverride', {
@@ -32,12 +34,14 @@ try {
 			deviceScaleFactor: 1,
 			screenOrientation: { type, angle },
 		})
+
 	await rotate('portraitPrimary', 0, 400, 800)
 	assert.equal(await page.evaluate(() => orientationFixture.api.getOrientationAsync()), 1)
 	await page.evaluate(() => {
 		const f = orientationFixture
 		f.subscription = f.api.addOrientationChangeListener((event) => f.events.push(event))
 	})
+
 	await rotate('landscapePrimary', 90, 800, 400)
 	await page.waitForFunction(() => orientationFixture.events.length === 1)
 	assert.equal(await page.evaluate(() => orientationFixture.api.getOrientationAsync()), 3)
@@ -51,6 +55,7 @@ try {
 		orientationFixture.subscription.remove()
 		orientationFixture.subscription.remove()
 	})
+
 	await rotate('landscapePrimary', 90, 800, 400)
 	await page.waitForFunction(() => screen.orientation.type === 'landscape-primary')
 	assert.equal(await page.evaluate(() => orientationFixture.events.length), 2)
@@ -73,6 +78,7 @@ try {
 			actual: await api.getOrientationAsync(),
 		}
 	})
+
 	assert.equal(result.rejected, false, 'CDP mobile context accepts locking')
 	assert.equal(result.before, 9)
 	assert.equal(result.after, 3)
@@ -83,9 +89,11 @@ try {
 		frame.src = '/tests/index.html'
 		document.body.append(frame)
 	})
+
 	await page.waitForFunction(
 		() => document.querySelector('iframe')?.contentDocument?.readyState === 'complete',
 	)
+
 	const frame = page.frames().find((candidate) => candidate !== page.mainFrame())
 	assert.ok(frame)
 	const blocked = await frame.evaluate(async () => {
@@ -98,6 +106,7 @@ try {
 		}
 		return { errorName, policy: await api.getOrientationLockAsync() }
 	})
+
 	assert.ok(blocked.errorName, 'sandboxed document must preserve its real browser policy refusal')
 	assert.equal(blocked.policy, 9)
 	console.log(

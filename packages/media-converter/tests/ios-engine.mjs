@@ -11,6 +11,7 @@ function run(command, args, timeout = 120000) {
 	assert.equal(result.status, 0, `${result.stdout}${result.stderr}`)
 	return result.stdout
 }
+
 function reserved(request, command, args, timeout = 120000) {
 	return process.env.GODDARD_DAEMON_ADDRESS
 		? run(
@@ -20,6 +21,7 @@ function reserved(request, command, args, timeout = 120000) {
 			)
 		: run(command, args, timeout)
 }
+
 const directory = await mkdtemp(join(tmpdir(), 'xplat-converter-ios-'))
 let device
 try {
@@ -43,6 +45,7 @@ try {
 			join(directory, 'case'),
 		],
 	)
+
 	const runtimes = JSON.parse(run('xcrun', ['simctl', 'list', 'runtimes', '-j'])).runtimes
 	const runtime = runtimes.find((value) => value.isAvailable && value.name.startsWith('iOS'))
 	assert.ok(runtime, 'An installed iOS simulator runtime is required')
@@ -53,6 +56,7 @@ try {
 		'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro',
 		runtime.identifier,
 	]).trim()
+
 	const runner = join(directory, 'run.mjs')
 	await writeFile(
 		runner,
@@ -63,6 +67,7 @@ try {run(['simctl','boot',device]);run(['simctl','bootstatus',device,'-b']);run(
 finally {spawnSync('xcrun',['simctl','shutdown',device],{encoding:'utf8',timeout:30000})}
 `,
 	)
+
 	const output = reserved(
 		{
 			resources: { resident_devices: 1, exclusive: [`ios:${device}`] },
@@ -72,6 +77,7 @@ finally {spawnSync('xcrun',['simctl','shutdown',device],{encoding:'utf8',timeout
 		[runner],
 		180000,
 	)
+
 	assert.match(output, /APPLE_CONVERTER_OK/)
 	console.log(output.trim())
 	console.log(
@@ -81,5 +87,6 @@ finally {spawnSync('xcrun',['simctl','shutdown',device],{encoding:'utf8',timeout
 	if (device) {
 		run('xcrun', ['simctl', 'delete', device])
 	}
+
 	await rm(directory, { recursive: true, force: true })
 }

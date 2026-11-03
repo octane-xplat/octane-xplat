@@ -70,6 +70,7 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
 			)
 				.trim()
 				.split('\n')[0]
+
 			execFileSync(
 				'xdotool',
 				[

@@ -8,5 +8,4 @@ test('GTK theme scheme, media queries, clipboard and announcements', (t) =>
 		marker: 'GTK_THEME',
 		input: true,
 		minChecks: { properties: 8, os: 4 },
-	}),
-)
+	}))

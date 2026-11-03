@@ -9,7 +9,12 @@ import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { dispatchLayerKey } from './layer-stack'
 import { SizeProvider } from '../layout/size-context'
 import { useThemeScheme } from '../../theme/theme-scheme'
-import { layerOffset, positionPopover, resolveLayerAlignment, resolveLayerSide } from './popover-position'
+import {
+	layerOffset,
+	positionPopover,
+	resolveLayerAlignment,
+	resolveLayerSide,
+} from './popover-position'
 
 function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
 	const [session, setSession] = useState<any>(null)
@@ -24,37 +29,56 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
 		dismiss: () => props.onDismiss?.(),
 		behavior: props.dismissOnEscape === false ? 'block' : 'close',
 	})
+
 	const options = {
 		position(anchor: any, panel: any, viewport: any, rtl: boolean) {
 			if (props.fixedPosition) {
-				return { left: props.fixedPosition.x, top: props.fixedPosition.y, placement: 'bottom' as const }
+				return {
+					left: props.fixedPosition.x,
+					top: props.fixedPosition.y,
+					placement: 'bottom' as const,
+				}
 			}
+
 			const side = props.layerPosition
 				? resolveLayerSide(props.layerPosition.placement, rtl)
 				: (props.placement ?? 'bottom')
+
 			return positionPopover(
 				{ left: anchor.x, top: anchor.y, width: anchor.width, height: anchor.height },
 				panel,
 				{ left: viewport.x, top: viewport.y, width: viewport.width, height: viewport.height },
-				side, gap,
-				props.layerPosition ? resolveLayerAlignment(props.layerPosition.alignment, side, rtl) : (props.alignment ?? 'start'),
+				side,
+				gap,
+				props.layerPosition
+					? resolveLayerAlignment(props.layerPosition.alignment, side, rtl)
+					: (props.alignment ?? 'start'),
 			)
 		},
 		onEscape(event: { preventDefault(): void }) {
 			dispatchLayerKey({ key: 'Escape', preventDefault: () => event.preventDefault() })
 		},
 		onOutside(event: { preventDefault(): void }) {
-			if (props.dismissOnOutsideTap === false || !dismissal.shouldClose()) { return }
+			if (props.dismissOnOutsideTap === false || !dismissal.shouldClose()) {
+				return
+			}
+
 			event.preventDefault()
 			props.onDismiss?.()
 		},
 		onUnavailable() {
-			if (dismissal.shouldClose(true)) { props.onDismiss?.() }
+			if (dismissal.shouldClose(true)) {
+				props.onDismiss?.()
+			}
 		},
 		onDisposed() {
-			if (live.current) { live.current = null; setSession(null) }
+			if (live.current) {
+				live.current = null
+				setSession(null)
+			}
 		},
 	}
+
 	const latest = useRef(options)
 	latest.current = options
 	useEffect(() => {
@@ -66,23 +90,32 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
 			instance?.dispose()
 		}
 	}, [props.anchorView])
-	useEffect(() => { session?.configure(options) }, null)
+
 	useEffect(() => {
-		if (props.open) { session?.show() }
-		else { session?.hide() }
+		session?.configure(options)
+	}, null)
+
+	useEffect(() => {
+		if (props.open) {
+			session?.show()
+		} else {
+			session?.hide()
+		}
 	}, [session, props.open])
 
 	<>
-		{session ? createPortal(
-			<View className={cx('vx-popover-layer', dark && 'ns-dark')}>
-				<View className={cx('vx-popover', props.className)} style={props.style}>
-					<LayerDepthProvider value={dismissal.depth}>
-						<SizeProvider value={null}>{props.children}</SizeProvider>
-					</LayerDepthProvider>
-				</View>
-			</View>,
-			session.target,
-		) : null}
+		{session
+			? createPortal(
+					<View className={cx('vx-popover-layer', dark && 'ns-dark')}>
+						<View className={cx('vx-popover', props.className)} style={props.style}>
+							<LayerDepthProvider value={dismissal.depth}>
+								<SizeProvider value={null}>{props.children}</SizeProvider>
+							</LayerDepthProvider>
+						</View>
+					</View>,
+					session.target,
+				)
+			: null}
 	</>
 }
 
@@ -95,14 +128,22 @@ export function Popover(props: PopoverProps): unknown @{
 	useEffect(() => {
 		const raw = props.anchor?.current ?? null
 		const next = (raw as any)?.native !== undefined ? (raw as any).native : raw
-		if (next !== anchor) { setAnchor(next) }
+		if (next !== anchor) {
+			setAnchor(next)
+		}
 	}, null)
+
 	const requestDismiss = () => {
-		if (props.open === undefined) { setInternal(false) }
+		if (props.open === undefined) {
+			setInternal(false)
+		}
+
 		props.onDismiss?.()
 	}
 
 	<>
-		{open && anchor ? <PopoverLayer {...props} open={open} anchorView={anchor} onDismiss={requestDismiss} /> : null}
+		{open && anchor ? (
+			<PopoverLayer {...props} open={open} anchorView={anchor} onDismiss={requestDismiss} />
+		) : null}
 	</>
 }

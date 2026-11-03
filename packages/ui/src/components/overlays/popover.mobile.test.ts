@@ -28,7 +28,9 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
 	createNativeScriptRoot: () => ({ render() {}, unmount() {} }),
 }))
 
-vi.mock('../../internal/platform/native-portal', () => ({ createPortal: (children: any) => children }))
+vi.mock('../../internal/platform/native-portal', () => ({
+	createPortal: (children: any) => children,
+}))
 
 vi.mock('../layout/root-layout', () => ({
 	rootLayoutFor: () => ({

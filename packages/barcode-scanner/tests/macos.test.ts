@@ -39,7 +39,9 @@ function fixture() {
 		CGImageGetHeight: () => 100,
 		VNDetectBarcodesRequest: { alloc: () => ({ init: () => request }) },
 		VNImageRequestHandler: {
-			alloc: () => ({ initWithCGImageOptions: () => ({ performRequestsError: () => state.performed }) }),
+			alloc: () => ({
+				initWithCGImageOptions: () => ({ performRequestsError: () => state.performed }),
+			}),
 		},
 	})
 	const scanner = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\nbarcodeScanner', context)
@@ -69,8 +71,13 @@ test('a path scans QR symbologies and maps Vision bounds into image pixels', asy
 	])
 
 	// NSArray-shaped results (count/objectAtIndex) decode the same way.
-	f.request.results = { count: 1, objectAtIndex: (i: number) => [observation('VNBarcodeSymbologyQR', 'RAW')][i] }
-	assert.deepEqual(plain(await f.scanner.scanImage('/tmp/qr.png', ['qr'])), [{ type: 'qr', data: 'RAW' }])
+	f.request.results = {
+		count: 1,
+		objectAtIndex: (i: number) => [observation('VNBarcodeSymbologyQR', 'RAW')][i],
+	}
+	assert.deepEqual(plain(await f.scanner.scanImage('/tmp/qr.png', ['qr'])), [
+		{ type: 'qr', data: 'RAW' },
+	])
 })
 
 test('file URLs, {uri} refs and duck-typed NSImages pick the right input path', async () => {
@@ -117,11 +124,17 @@ test('a upc_a-only request drops genuine EAN-13s and unwraps leading-zero ones',
 
 test('scanImage rejects remote URLs, foreign inputs, unreadable images and Vision failures', async () => {
 	const f = fixture()
-	await assert.rejects(f.scanner.scanImage('https://x/y.png', ['qr']), /download remote images first/)
+	await assert.rejects(
+		f.scanner.scanImage('https://x/y.png', ['qr']),
+		/download remote images first/,
+	)
 	await assert.rejects(f.scanner.scanImage(42, ['qr']), /expected a file path, file URL/)
 	await assert.rejects(f.scanner.scanImage('/tmp/missing.png', ['qr']), /could not read the image/)
 	f.state.performed = false
-	await assert.rejects(f.scanner.scanImage('/tmp/qr.png', ['qr']), /Vision could not process the image/)
+	await assert.rejects(
+		f.scanner.scanImage('/tmp/qr.png', ['qr']),
+		/Vision could not process the image/,
+	)
 })
 
 test('the service reports still-image support without a camera permission owner', async () => {

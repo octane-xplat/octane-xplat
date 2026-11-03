@@ -41,6 +41,7 @@ export function attachSheetDetents(
 	closeNow: () => void,
 	options?: SheetDetentsOptions,
 ): SheetDetentsController
+
 export function attachSheetDetents(
 	panel: any,
 	grabber: any,
@@ -49,6 +50,7 @@ export function attachSheetDetents(
 	closeNow: () => void,
 	options?: SheetDetentsOptions,
 ): SheetDetentsController
+
 export function attachSheetDetents(
 	panel: any,
 	grabberOrDetents: any,
@@ -60,8 +62,12 @@ export function attachSheetDetents(
 	// The GTK form carries closeNow at position five — a function there means
 	// (panel, grabber, detents, vh, close, options); the shared-service shape
 	// (host, detents, close, options) leaves it undefined.
-	let grabber: any, detents: readonly number[], vh: () => number, closeNow: () => void, options: SheetDetentsOptions
-	if (typeof closeNowOrOptions === "function") {
+	let grabber: any,
+		detents: readonly number[],
+		vh: () => number,
+		closeNow: () => void,
+		options: SheetDetentsOptions
+	if (typeof closeNowOrOptions === 'function') {
 		grabber = grabberOrDetents
 		detents = detentsOrVh
 		vh = vhOrClose
@@ -83,8 +89,7 @@ export function attachSheetDetents(
 	const max = sorted[sorted.length - 1] ?? 0
 	/** Content-sized panels dismiss once the drag covers ~40% of their
 	 *  height (or on a downward fling). */
-	const panelHeight = () =>
-		panel.getActualSize?.().height || panel.get_height?.() || 0
+	const panelHeight = () => panel.getActualSize?.().height || panel.get_height?.() || 0
 	const dismissible = () => options.dismissible !== false
 
 	// The translated-away part is outside the visible stop. Reserve it inside
@@ -98,7 +103,7 @@ export function attachSheetDetents(
 		}
 		try {
 			panel.style.paddingBottom = basePadding + Math.max(0, Math.round(offset))
-		} catch { }
+		} catch {}
 	}
 
 	let active = true
@@ -108,7 +113,7 @@ export function attachSheetDetents(
 	// Fully below the window until enter() runs the slide-in.
 	try {
 		panel.translateY = vh()
-	} catch { }
+	} catch {}
 
 	let dragging = false
 	let ty0 = 0
@@ -126,10 +131,10 @@ export function attachSheetDetents(
 		try {
 			const done = panel.animate?.({ translate: { x: 0, y: value }, duration: SNAP_MS })
 			if (done?.then) {
-				void done.then(complete, () => { })
+				void done.then(complete, () => {})
 				return
 			}
-		} catch { }
+		} catch {}
 		panel.translateY = value
 		const timer = setTimeout(() => {
 			timers.delete(timer)
@@ -214,7 +219,7 @@ export function attachSheetDetents(
 			// fractions resolve against the window height.
 			try {
 				panel.style.height = Math.round(max * vh())
-			} catch { }
+			} catch {}
 			panel.translateY = vh()
 			animateTo(detentOffset(sorted, cur, vh()))
 		},
@@ -229,7 +234,7 @@ export function attachSheetDetents(
 			timers.clear()
 			try {
 				panel.style.paddingBottom = basePadding || undefined
-			} catch { }
+			} catch {}
 			grabber?.off?.('pan', onPan)
 		},
 	}

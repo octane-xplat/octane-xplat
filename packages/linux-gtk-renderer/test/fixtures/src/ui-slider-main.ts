@@ -12,6 +12,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const { root, container } = createGtkRoot(host, {
@@ -19,6 +20,7 @@ const { root, container } = createGtkRoot(host, {
 		throw error
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 160) =>
 	new Promise<void>((resolve) =>
@@ -27,6 +29,7 @@ const pause = (ms = 160) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const failures: string[] = []
 const check = (name: string, ok: boolean) => {
@@ -35,6 +38,7 @@ const check = (name: string, ok: boolean) => {
 		failures.push(name)
 	}
 }
+
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const slider = () => nodes('vx-slider')[0].view! as any
 const bounds = (name: string) => nodes(name)[0]?.view?.getBounds()
@@ -42,13 +46,17 @@ const labels = () =>
 	nodes('vx-slider-value')
 		.map((n) => (n.view as any)?.get_text?.() ?? '')
 		.join('')
+
 let native: any
 const named = (view: any, text: string) =>
 	native.test_accessible_string_property(view, Gtk.AccessibleProperty.LABEL, text) === null
+
 const bool = (view: any, key: number, value: boolean) =>
 	native.test_accessible_boolean_property(view, key, value) === null
+
 const state = (view: any, key: number, value: number) =>
 	native.test_accessible_state(view, key, value) === null
+
 const changes: (number | [number, number])[] = []
 let props: Parameters<typeof SliderScene>[0] = {
 	label: 'Volume',
@@ -59,11 +67,13 @@ let props: Parameters<typeof SliderScene>[0] = {
 	step: 5,
 	onValueChange: (value) => changes.push(value),
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(SliderScene, props)
 	await pause()
 }
+
 const close = (a: number | undefined, b: number) => Math.abs((a ?? NaN) - b) <= 2
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
@@ -75,6 +85,7 @@ keys.connect('key-pressed', (_: unknown, key: number) => {
 	acknowledgments++
 	return true
 })
+
 window.add_controller(keys)
 const osInput = GLib.getenv('GTK_SLIDER_OS') === '1'
 async function input(action: {
@@ -96,8 +107,10 @@ async function input(action: {
 	check('OS phase completed', acknowledgments >= ack)
 	await pause()
 }
+
 const numeric = (key: number, value: number) =>
 	native.test_accessible_double_property(slider(), key, value) === null
+
 async function run() {
 	await render()
 	window.present()
@@ -234,6 +247,7 @@ async function run() {
 			'accepted key updates the owner',
 			props.value === 45 && numeric(Gtk.AccessibleProperty.VALUE_NOW, 45),
 		)
+
 		await input({ key: 'Up' })
 		check('up increments', props.value === 50)
 		await input({ key: 'Down' })
@@ -272,11 +286,13 @@ async function run() {
 			'range keyboard input adjusts the upper endpoint',
 			JSON.stringify(props.value) === '[20,85]' && numeric(Gtk.AccessibleProperty.VALUE_NOW, 85),
 		)
+
 		await input({ key: 'Right' })
 		check(
 			'range keyboard input restores the upper endpoint',
 			JSON.stringify(props.value) === '[20,90]',
 		)
+
 		await input({ drag: { dx: 56 }, fraction: 0.2 })
 		check('drag selects the nearest low thumb', JSON.stringify(props.value) === '[40,90]')
 		await input({ drag: { dx: 196 }, fraction: 0.4 })
@@ -288,10 +304,12 @@ async function run() {
 			'controlled rejected drag preserves the owner',
 			props.value === 40 && numeric(Gtk.AccessibleProperty.VALUE_NOW, 40),
 		)
+
 		check(
 			'controlled rejected drag keeps fill geometry',
 			close(bounds('vx-slider-fill')?.width, 112),
 		)
+
 		await render({ value: undefined, defaultValue: 10 })
 		await input({ key: 'Right' })
 		check('uncontrolled keyboard edits persist', numeric(Gtk.AccessibleProperty.VALUE_NOW, 45))
@@ -318,6 +336,7 @@ async function run() {
 			'step is anchored to the minimum',
 			props.value === 8 && numeric(Gtk.AccessibleProperty.VALUE_NOW, 8),
 		)
+
 		await input({ key: 'End' })
 		check('End respects changed maximum', props.value === 28)
 		await input({ key: 'Home' })
@@ -357,6 +376,7 @@ async function run() {
 			'Tab leaves the slider for the next control',
 			window.get_focus() === nodes('slider-after')[0].view,
 		)
+
 		await pause(220)
 		check('blur closes the value tooltip', nodes('vx-tooltip').length === 0)
 		await input({ hover: true, fraction: 1.1 })
@@ -367,17 +387,20 @@ async function run() {
 			[...container.nodes.values()]
 				.filter((n) => n.view instanceof Gtk.Label)
 				.map((n) => (n.view as any).get_text())
+
 		check('tooltip contains the formatted value', hintText().includes('30%'))
 		check(
 			'tooltip describes the interaction owner',
 			Gtk.test_accessible_has_relation(slider(), Gtk.AccessibleRelation.DESCRIBED_BY),
 		)
+
 		const high = nodes('vx-slider-thumb')[0].view as any
 		const popup = high.get_first_child()
 		check(
 			'value tooltip is anchored on the high thumb',
 			popup instanceof Gtk.Popover && popup.get_parent() === high && popup.get_visible(),
 		)
+
 		await input({ hover: true, fraction: 1.1 })
 		await pause(220)
 		check('pointer exit closes the value tooltip', nodes('vx-tooltip').length === 0)
@@ -394,11 +417,13 @@ async function run() {
 			'dismissal clears the description relation',
 			!Gtk.test_accessible_has_relation(slider(), Gtk.AccessibleRelation.DESCRIBED_BY),
 		)
+
 		await render({ valueDisplay: 'text' })
 		check(
 			'readout mode change removes tooltip content',
 			nodes('vx-tooltip').length === 0 && labels() === '35%',
 		)
+
 		check('readout mode change retains the input owner', slider() === inputOwner)
 		check('text mode disposes the unused native tooltip', high.get_first_child() === null)
 		await render({ valueDisplay: 'tooltip' })
@@ -412,6 +437,7 @@ async function run() {
 				retiringPopup !== popup &&
 				retiringPopup.get_visible(),
 		)
+
 		check('retired tooltip remains detached', popup.get_parent() === null)
 		check('reopened tooltip keeps the correct anchor', retiringPopup?.get_parent() === high)
 	}
@@ -437,6 +463,7 @@ async function run() {
 	window.destroy()
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -448,6 +475,7 @@ run().catch((error) => {
 	window.destroy()
 	loop.quit()
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

@@ -11,6 +11,7 @@ const fake = vi.hoisted(() => ({
 	subscribe: vi.fn((_callback: () => void) => ({ remove: vi.fn() })),
 	iosSupportedOrientations: vi.fn(),
 }))
+
 vi.mock('../src/backend', () => ({ backend: fake }))
 import {
 	addOrientationChangeListener,
@@ -19,6 +20,7 @@ import {
 	supportsOrientationLockAsync,
 	unlockAsync,
 } from '../src/service'
+
 import { backend as unsupported } from '../src/unsupported'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 beforeEach(() => vi.clearAllMocks())

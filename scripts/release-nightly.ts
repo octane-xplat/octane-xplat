@@ -79,11 +79,13 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 		} catch {
 			published = undefined
 		}
+
 		const { publish, version, reason } = nightlyDecision({
 			root: process.cwd(),
 			candidate,
 			published,
 		})
+
 		console.log(`publish=${publish}\nversion=${version}\nreason=${reason}`)
 	} catch (error) {
 		console.error(error.message)

@@ -37,11 +37,7 @@ function tagFor(label: string, url?: string): string | undefined {
 		return undefined // 'Unreleased' and other unversioned sections
 	}
 
-	const prefix = label
-		.slice(0, label.indexOf(version))
-		.trim()
-		.toLowerCase()
-		.replace(/\s+/g, '-')
+	const prefix = label.slice(0, label.indexOf(version)).trim().toLowerCase().replace(/\s+/g, '-')
 	return prefix && !prefix.startsWith('octane') ? `${prefix}-v${version}` : `v${version}`
 }
 
@@ -58,9 +54,10 @@ export function parseLog(md: string): LogSection[] {
 			return
 		}
 
-		const m = /^(?:\[([^\]]+)\]\(([^)\s]+)\)|\[([^\]]+)\]|(\S.*?))(?:\s+-\s+(\d{4}-\d{2}-\d{2}))?\s*$/.exec(
-			body[0].slice(3),
-		)
+		const m =
+			/^(?:\[([^\]]+)\]\(([^)\s]+)\)|\[([^\]]+)\]|(\S.*?))(?:\s+-\s+(\d{4}-\d{2}-\d{2}))?\s*$/.exec(
+				body[0].slice(3),
+			)
 		const title = (m?.[1] ?? m?.[3] ?? m?.[4] ?? body[0].slice(3)).trim()
 		const url = m?.[2]
 		const date = m?.[5]

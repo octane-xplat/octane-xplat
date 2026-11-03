@@ -14,6 +14,7 @@ const required = () => {
 	}
 	return value
 }
+
 function orientation(): Orientation {
 	const value = required()
 	const display =
@@ -45,6 +46,7 @@ function orientation(): Orientation {
 				])[rotation] ?? Orientation.UNKNOWN
 	)
 }
+
 function canLock(): boolean {
 	const value = activity()
 	if (!value || value.isFinishing() || value.isDestroyed()) {
@@ -63,6 +65,7 @@ function canLock(): boolean {
 		value.getResources().getConfiguration().smallestScreenWidthDp >= 600
 	)
 }
+
 function allowed(constant: number, actual: Orientation): boolean {
 	if ([1, 7, 9, 12].includes(constant)) {
 		return constant === 1
@@ -80,6 +83,7 @@ function allowed(constant: number, actual: Orientation): boolean {
 	}
 	return actual !== Orientation.UNKNOWN
 }
+
 async function apply(constant: number): Promise<void> {
 	const value = required()
 	if (constant !== -1 && !canLock()) {
@@ -95,15 +99,19 @@ async function apply(constant: number): Promise<void> {
 					if (value !== activity() || value.isDestroyed()) {
 						return reject(new Error('Primary Android Activity changed during orientation request'))
 					}
+
 					if (value.getRequestedOrientation() !== constant) {
 						return reject(new Error('Android did not retain the requested orientation policy'))
 					}
+
 					if (Date.now() - start >= 150 && (constant === -1 || allowed(constant, orientation()))) {
 						return resolve()
 					}
+
 					if (Date.now() - start >= 4000) {
 						return reject(new Error('Android did not reach the requested screen orientation'))
 					}
+
 					setTimeout(poll, 25)
 				} catch (error) {
 					reject(error)
@@ -115,9 +123,11 @@ async function apply(constant: number): Promise<void> {
 		if (!value.isDestroyed()) {
 			value.setRequestedOrientation(previous)
 		}
+
 		throw error
 	}
 }
+
 export const backend: OrientationBackend = {
 	capabilities: () => ({ observe: Boolean(activity()), lock: canLock() }),
 	info: () => ({ orientation: orientation() }),

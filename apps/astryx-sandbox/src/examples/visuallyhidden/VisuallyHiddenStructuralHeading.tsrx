@@ -12,8 +12,8 @@ export function VisuallyHiddenStructuralHeading() {
 	return (
 		<VStack gap={3} hAlign="start">
 			<Text type="supporting" color="secondary">
-				The layout makes this group obvious to sighted users. A hidden heading
-				gives screen-reader users the same landmark to jump to.
+				The layout makes this group obvious to sighted users. A hidden heading gives screen-reader
+				users the same landmark to jump to.
 			</Text>
 			{/* No visible heading is needed here, but AT users navigate by heading. */}
 			<VisuallyHidden as="h2">Build status</VisuallyHidden>

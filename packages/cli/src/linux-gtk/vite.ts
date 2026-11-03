@@ -21,44 +21,67 @@ export function xplatGtkSlotDedupe() {
 	return {
 		name: 'xplat-gtk-slot-dedupe',
 		transform(code, id) {
-			if (!/\.(tsrx|tsx|ts|mts|js|mjs)$/.test(id)) { return }
-			if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) { return }
+			if (!/\.(tsrx|tsx|ts|mts|js|mjs)$/.test(id)) {
+				return
+			}
+			if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) {
+				return
+			}
 			const firstLocal = new Map()
 			const firstSpec = new Map()
 			const fold = new Map()
 			let changed = false
-			let out = code.replace(/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?/g,
+			let out = code.replace(
+				/import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?/g,
 				(stmt, names, spec) => {
 					const kept = []
 					for (const raw of names.split(',')) {
 						const part = raw.trim()
 						const m = part.match(/^(withSlot|hookSlots) as (_\$[A-Za-z0-9_$]+)$/)
 						if (!m) {
-							if (part) { kept.push(part) }
+							if (part) {
+								kept.push(part)
+							}
+
 							continue
 						}
+
 						const [, kind, local] = m
 						const prev = firstSpec.get(kind)
 						if (prev !== undefined && prev !== spec) {
-							throw new Error(`xplat-gtk-slot-dedupe: ${kind} imported from '${prev}' and '${spec}' in ${id}`)
+							throw new Error(
+								`xplat-gtk-slot-dedupe: ${kind} imported from '${prev}' and '${spec}' in ${id}`,
+							)
 						}
+
 						if (firstLocal.has(kind)) {
-							if (local !== firstLocal.get(kind)) { fold.set(local, firstLocal.get(kind)) }
+							if (local !== firstLocal.get(kind)) {
+								fold.set(local, firstLocal.get(kind))
+							}
+
 							changed = true
 							continue
 						}
+
 						firstLocal.set(kind, local)
 						firstSpec.set(kind, spec)
 						kept.push(part)
 					}
-					if (!kept.length) { changed = true; return '' }
+					if (!kept.length) {
+						changed = true
+						return ''
+					}
 					return `import { ${kept.join(', ')} } from '${spec}';`
-				})
+				},
+			)
 			for (const [from, to] of fold) {
 				// `\b` is wrong here: `$` is not a word char, so `_$hookSlots` would
 				// match the prefix of `_$hookSlots$1`. Refuse any name continuation.
 				const rx = new RegExp(from.replace(/\$/g, '\\$') + '(?![\\w$])', 'g')
-				if (rx.test(out)) { changed = true; out = out.replace(rx, to) }
+				if (rx.test(out)) {
+					changed = true
+					out = out.replace(rx, to)
+				}
 			}
 			return changed ? { code: out } : undefined
 		},
@@ -185,7 +208,10 @@ export async function xplatLinuxGtk(env, options = {}) {
 				// reach the leaf as ../overlays/escape-props, overlays siblings as
 				// ./escape-props. The regex must span the whole specifier: alias
 				// replacements go through String.replace.
-				{ find: /(^|.*\/)escape-props$/, replacement: resolveApp(`${renderer}/compat/escape-props`) },
+				{
+					find: /(^|.*\/)escape-props$/,
+					replacement: resolveApp(`${renderer}/compat/escape-props`),
+				},
 				{
 					find: /^@nativescript\/core$/,
 					replacement: resolveApp(`${renderer}/compat/native-core`),

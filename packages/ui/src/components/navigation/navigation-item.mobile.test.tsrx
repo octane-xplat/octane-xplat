@@ -31,7 +31,11 @@ vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 vi.mock('../overlays/Popover', () => ({ Popover: () => null }))
 // Keep pure source conversion while skipping the SDK's SVGView registration.
 vi.mock('../media/svg', async () => await import('../media/svg-source'))
-import { NavigationChrome, type NavigationChromeKind } from '../../../tests/navigation-item-cases.tsrx'
+import {
+	NavigationChrome,
+	type NavigationChromeKind,
+} from '../../../tests/navigation-item-cases.tsrx'
+
 import { checkedLinkFixture } from '../../../tests/validated-destination-cases.tsrx'
 
 function nodes(node: any): any[] {

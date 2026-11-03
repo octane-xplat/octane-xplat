@@ -6,6 +6,7 @@ interface MotionStyle {
 	read(property: string): unknown
 	write(property: string, value: number): void
 }
+
 type MotionResult = { status: 'finished' | 'cancelled' }
 
 /** Docking motion used by native-style UI controllers. Only the implemented

@@ -57,6 +57,7 @@ export function ThemeProbe() @{
 		onCopy: (ok) => setCopyOk('copy-' + String(ok)),
 		announce: 'text copied',
 	})
+
 	const announce = useAnnounce()
 	useEffect(() => onThemeSchemeChange(() => setEvents((n) => n + 1)), [])
 
@@ -73,7 +74,11 @@ export function ThemeProbe() @{
 		<Button id="pref-dark" label="PrefDark" clickAction={() => setThemePreference('dark')} />
 		<Button id="pref-light" label="PrefLight" clickAction={() => setThemePreference('light')} />
 		<Button id="pref-system" label="PrefSystem" clickAction={() => setThemePreference('system')} />
-		<Button id="ann-btn" label="Announce" clickAction={() => announce('gtk announcement', 'assertive')} />
+		<Button
+			id="ann-btn"
+			label="Announce"
+			clickAction={() => announce('gtk announcement', 'assertive')}
+		/>
 		<Pressable
 			id="clip-btn"
 			onPress={clip.clipboardProps.onPress}

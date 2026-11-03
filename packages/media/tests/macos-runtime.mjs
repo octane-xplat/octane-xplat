@@ -7,11 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { deflateSync } from 'node:zlib'
 import ts from 'typescript-classic'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
-import {
-	macOSHostArch,
-	hostBundle,
-	hostRoot,
-} from '../../cli/src/macos/jsc-host/runtime.ts'
+import { macOSHostArch, hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 // No panel, window, image view, camera, Photos access or desktop input.
 // Actual AppKit image decoding/JPEG encoding and Foundation IO; the panel and

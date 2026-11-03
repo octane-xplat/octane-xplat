@@ -8,5 +8,4 @@ test('GTK focus, keyboard and landmark hooks', (t) =>
 		marker: 'GTK_FOCUS',
 		input: true,
 		minChecks: { properties: 20, os: 45 },
-	}),
-)
+	}))

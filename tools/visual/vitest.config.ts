@@ -28,7 +28,8 @@ function iosCapture() {
 
 export default defineConfig({
 	optimizeDeps: { include: ['vitest-plugin-vis > ssim.js'] },
-	plugins: [xplatTsrx('web'),
+	plugins: [
+		xplatTsrx('web'),
 		...octane(),
 		vis({
 			preset: 'manual',

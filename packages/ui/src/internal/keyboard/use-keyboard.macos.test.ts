@@ -14,22 +14,43 @@ it('exposes portable fields and live prevention without leaking native targets',
 	let stopped = false
 	let received: any
 	const raw: any = {
-		key: 'k', code: 'KeyK', altKey: false, ctrlKey: false, metaKey: true, shiftKey: false,
-		repeat: false, isComposing: false, object: {}, target: {}, currentTarget: {}, native: {},
-		get defaultPrevented() { return prevented },
-		preventDefault: () => { prevented = true }, stopPropagation: () => { stopped = true },
+		key: 'k',
+		code: 'KeyK',
+		altKey: false,
+		ctrlKey: false,
+		metaKey: true,
+		shiftKey: false,
+		repeat: false,
+		isComposing: false,
+		object: {},
+		target: {},
+		currentTarget: {},
+		native: {},
+		get defaultPrevented() {
+			return prevented
+		},
+		preventDefault: () => {
+			prevented = true
+		},
+		stopPropagation: () => {
+			stopped = true
+		},
 	}
-	const { isSupported, keyboardProps } = useKeyboard({ onKeyDown: (event) => {
-		received = event
-		event.preventDefault()
-		event.stopPropagation()
-	} })
+	const { isSupported, keyboardProps } = useKeyboard({
+		onKeyDown: (event) => {
+			received = event
+			event.preventDefault()
+			event.stopPropagation()
+		},
+	})
 	expect(isSupported).toBe(true)
 	keyboardProps.onKeyDown?.(raw)
 	expect(received).toMatchObject({ key: 'k', code: 'KeyK', metaKey: true })
 	expect(received.defaultPrevented).toBe(true)
 	expect(stopped).toBe(true)
-	for (const field of ['object', 'target', 'currentTarget', 'native']) {expect(field in received).toBe(false)}
+	for (const field of ['object', 'target', 'currentTarget', 'native']) {
+		expect(field in received).toBe(false)
+	}
 })
 
 it('does not attach absent callbacks and forwards key-up independently', () => {
@@ -37,7 +58,18 @@ it('does not attach absent callbacks and forwards key-up independently', () => {
 	const up = vi.fn()
 	const { keyboardProps } = useKeyboard({ onKeyUp: up })
 	expect(keyboardProps.onKeyDown).toBeUndefined()
-	keyboardProps.onKeyUp?.({ key: 'a', code: 'KeyA', altKey: false, ctrlKey: false, metaKey: false,
-		shiftKey: false, repeat: false, isComposing: false, defaultPrevented: false, preventDefault() {}, stopPropagation() {} })
+	keyboardProps.onKeyUp?.({
+		key: 'a',
+		code: 'KeyA',
+		altKey: false,
+		ctrlKey: false,
+		metaKey: false,
+		shiftKey: false,
+		repeat: false,
+		isComposing: false,
+		defaultPrevented: false,
+		preventDefault() {},
+		stopPropagation() {},
+	})
 	expect(up).toHaveBeenCalledOnce()
 })

@@ -445,6 +445,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 			stable.jobs[id].if.includes("github.event.pull_request.head.ref == 'release/lockstep'"),
 			`${id} must run only for the release pull request`,
 		)
+
 		const checkout = stable.jobs[id].steps.find((step) =>
 			step.uses?.startsWith('actions/checkout@'),
 		)
@@ -455,10 +456,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 	assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
 	assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'qualify'])
 	assert.equal(release.jobs.docs.if, "needs.gate.outputs.channel == 'ci'")
-	assert.match(
-		release.jobs['tsrx-typegen'].if,
-		/needs\.tsrx-typegen-resume\.result == 'success'/,
-	)
+	assert.match(release.jobs['tsrx-typegen'].if, /needs\.tsrx-typegen-resume\.result == 'success'/)
 	assert.deepEqual(dependencies(release.jobs['tsrx-typegen']), ['gate', 'tsrx-typegen-resume'])
 	assert.equal(release.jobs['tsrx-typegen-resume'].concurrency.group, 'release-tsrx-typegen')
 	assert.equal(release.jobs['tsrx-typegen'].concurrency.group, 'release-tsrx-typegen')

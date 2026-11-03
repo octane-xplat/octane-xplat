@@ -194,7 +194,10 @@ describe('parseMarkdownIncremental', () => {
 			// positions included.
 			const parser = createMarkdownStreamParser()
 			let last
-			for (const chunk of doc) last = parser.append(chunk)
+			for (const chunk of doc) {
+				last = parser.append(chunk)
+			}
+
 			expect(last?.children, `doc tail ${JSON.stringify(tail)}`).toEqual(
 				parseMdDoc(trimStreamingArtifacts(doc)).children,
 			)
@@ -207,8 +210,14 @@ describe('parseMarkdownIncremental', () => {
 		// next block arrives. Once settled, the same object is reused.
 		const state = createMarkdownIncrementalState()
 		parseMarkdownIncremental('# Title\n\nfirst para\n\n', state)
-		const second = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\n', state).children
-		const third = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\nthird', state).children
+		const second = parseMarkdownIncremental(
+			'# Title\n\nfirst para\n\nsecond para\n\n',
+			state,
+		).children
+		const third = parseMarkdownIncremental(
+			'# Title\n\nfirst para\n\nsecond para\n\nthird',
+			state,
+		).children
 		expect(third[0]).toBe(second[0])
 		expect(third[1]).toBe(second[1])
 		expect(third[2]).not.toBe(second[2])
@@ -265,10 +274,9 @@ describe('parseMarkdownIncremental', () => {
 
 	it('shows an open code fence as a growing code block, not literal backticks', () => {
 		const state = createMarkdownIncrementalState()
-		expect(parseMarkdownIncremental('before\n\n```ts\ncons', state).children.map((n) => n.type)).toEqual([
-			'paragraph',
-			'code',
-		])
+		expect(
+			parseMarkdownIncremental('before\n\n```ts\ncons', state).children.map((n) => n.type),
+		).toEqual(['paragraph', 'code'])
 
 		const later = parseMarkdownIncremental('before\n\n```ts\nconst x = 1\n```', state).children
 		expect(later[1]).toMatchObject({ type: 'code', lang: 'ts', value: 'const x = 1' })

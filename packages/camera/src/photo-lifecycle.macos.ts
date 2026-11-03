@@ -8,6 +8,7 @@ const Phase: Record<Phase, Phase> = {
 	capturing: 'capturing',
 	finished: 'finished',
 }
+
 export function createPhotoCaptureLifecycle() {
 	let phase: Phase = Phase.idle
 	let generation = 0
@@ -49,4 +50,5 @@ export function createPhotoCaptureLifecycle() {
 		},
 	}
 }
+
 export type PhotoCaptureLifecycle = ReturnType<typeof createPhotoCaptureLifecycle>

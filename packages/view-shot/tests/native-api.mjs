@@ -13,6 +13,7 @@ if (platform === 'macos') {
 		encoding: 'utf8',
 		timeout: 120000,
 	})
+
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	console.log(result.stdout.trim())
 } else {
@@ -23,10 +24,9 @@ if (platform === 'macos') {
 		repo && device,
 		'Select the repository checkout and a task-owned simulator via XPLAT_IOS_DEVICE',
 	)
+
 	const caseFile = join(root, 'tests/runtime.ios.ts')
-	const { prepare } = await import(
-		pathToFileURL(join(repo, 'tools/probe/project.ts')).href
-	)
+	const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 	await prepare('ios', caseFile, ['@octane-xplat/lib'])
 	const result = spawnSync(
 		'bun',
@@ -48,6 +48,7 @@ if (platform === 'macos') {
 		],
 		{ cwd: repo, encoding: 'utf8', timeout: 320000 },
 	)
+
 	assert.equal(result.status, 0, result.stdout + result.stderr)
 	const report = JSON.parse(result.stdout.slice(result.stdout.indexOf('{')))
 	assert.equal(report.results.length, 1)

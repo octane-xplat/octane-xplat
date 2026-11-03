@@ -84,32 +84,32 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 		>
 			{props.presets?.length ? (
 				<scrollview className="vx-daterangeinput-presets" accessibilityLabel="Presets">
-				<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
-					{props.presets.map((preset, index) => (
-						<masonview
-						key={preset.label}
-						id={`${inputId}-preset-${index}`}
-						onTap={() => {
-							if (!isPresetDisabled(preset)) {
-								selectRange(preset.getRange())
-							}
-						}}
-						className={cx(
-							'vx-daterangeinput-preset',
-							isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
-						)}
-						accessibilityRole="button"
-						isEnabled={!isPresetDisabled(preset)}
-						accessibilityState={nativeAccessibilityState({
-							selected: isSelectedPreset(preset),
-							disabled: isPresetDisabled(preset),
-						})}
-						style={{ display: 'flex' }}
-						>
-						<label text={preset.label} />
-						</masonview>
-					))}
-				</masonview>
+					<masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
+						{props.presets.map((preset, index) => (
+							<masonview
+								key={preset.label}
+								id={`${inputId}-preset-${index}`}
+								onTap={() => {
+									if (!isPresetDisabled(preset)) {
+										selectRange(preset.getRange())
+									}
+								}}
+								className={cx(
+									'vx-daterangeinput-preset',
+									isSelectedPreset(preset) && 'vx-daterangeinput-preset--selected',
+								)}
+								accessibilityRole="button"
+								isEnabled={!isPresetDisabled(preset)}
+								accessibilityState={nativeAccessibilityState({
+									selected: isSelectedPreset(preset),
+									disabled: isPresetDisabled(preset),
+								})}
+								style={{ display: 'flex' }}
+							>
+								<label text={preset.label} />
+							</masonview>
+						))}
+					</masonview>
 				</scrollview>
 			) : null}
 			<Calendar

@@ -24,7 +24,10 @@ export function mobileAdapter() {
 			if (size?.width > 0 && size?.height > 0) {
 				const { layout } = Utils
 				widthMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.width), layout.EXACTLY)
-				heightMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.height), layout.EXACTLY)
+				heightMeasureSpec = layout.makeMeasureSpec(
+					layout.toDevicePixels(size.height),
+					layout.EXACTLY,
+				)
 			}
 			measure.call(this, widthMeasureSpec, heightMeasureSpec)
 		}

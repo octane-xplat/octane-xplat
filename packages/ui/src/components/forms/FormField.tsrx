@@ -55,10 +55,16 @@ export function FormField(props: FormFieldProps): unknown @{
 				className="vx-field-label-row"
 				style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
 			>
-				<label id={labelId} className="vx-field-label" text={labelText}
+				<label
+					id={labelId}
+					className="vx-field-label"
+					text={labelText}
 					onTap={() => {
-						if (!props.isDisabled && !props.isGroupLabel) fieldRef.current?.getViewById?.(controlId)?.focus?.()
-					}} />
+						if (!props.isDisabled && !props.isGroupLabel) {
+							fieldRef.current?.getViewById?.(controlId)?.focus?.()
+						}
+					}}
+				/>
 				{props.labelTooltip != null ? (
 					<Tooltip
 						trigger={
@@ -128,7 +134,10 @@ export function FormField(props: FormFieldProps): unknown @{
 	}
 
 	<masonview
-		ref={(view: any) => { fieldRef.current = view; applyEscapeProps(view, props) }}
+		ref={(view: any) => {
+			fieldRef.current = view
+			applyEscapeProps(view, props)
+		}}
 		id={props.id}
 		className={cx(rootClass, isHorizontalLabels && 'vx-field--hl')}
 		style={mergeStyle(
@@ -145,7 +154,8 @@ export function FormField(props: FormFieldProps): unknown @{
 		<masonview
 			className={cx('vx-field-body', isHorizontalLabels && 'vx-field-hl-body')}
 			style={{
-				display: 'flex', flexDirection: 'column',
+				display: 'flex',
+				flexDirection: 'column',
 				gap: authoredStyle.rowGap ?? authoredStyle.gap ?? 4,
 				...(isHorizontalLabels ? { flexGrow: 1 } : {}),
 			}}

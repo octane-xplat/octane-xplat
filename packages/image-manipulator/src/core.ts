@@ -102,6 +102,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
 				if (!input.trim()) {
 					throw new TypeError('Image source URI must not be empty')
 				}
+
 				source = observe(
 					Promise.resolve()
 						.then(() => backend.load(input, normalized))
@@ -112,6 +113,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
 				if (!state || state.released) {
 					throw released()
 				}
+
 				const pixels = hold(state.pixels)
 				const size = initialSize(pixels.frame, normalized)
 				if (size.width === pixels.frame.width && size.height === pixels.frame.height) {

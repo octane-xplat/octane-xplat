@@ -34,7 +34,9 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 	const open = requestedOpen && !disabled
 
 	const initialFocus = useRef<'first' | 'last'>('first')
-	const local = useRef(internal), active = useRef<symbol | null>(null)
+	const local = useRef(internal),
+		active = useRef<symbol | null>(null)
+
 	const live = useRef({ props, disabled, busy: false })
 	live.current = { props, disabled, busy: !!(button.isLoading && !button.isInterruptible) }
 	const bindAnchor = useCallback((view: NSView | null) => {
@@ -42,46 +44,112 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 		// Keep an accepted request claimed until its own finally releases it.
 		anchor.current = view
 	}, [])
+
 	const setOpen = (intent: boolean | 'toggle', resetReturn = false, edge?: 'first' | 'last') => {
 		const current = live.current
-		if (!anchor.current || active.current) return
+		if (!anchor.current || active.current) {
+			return
+		}
+
 		const previous = current.props.isOpen ?? local.current
 		const next = intent === 'toggle' ? !previous : intent
-		if (next && (current.disabled || current.busy || (edge && previous))) return
+		if (next && (current.disabled || current.busy || (edge && previous))) {
+			return
+		}
+
 		const token = Symbol('dropdown-open-change')
 		active.current = token
 		try {
-			if (resetReturn) returnOwner.reset()
-			if (next) initialFocus.current = edge ?? 'first'
-			if (current.props.isOpen === undefined) { local.current = next; setInternal(next) }
+			if (resetReturn) {
+				returnOwner.reset()
+			}
+
+			if (next) {
+				initialFocus.current = edge ?? 'first'
+			}
+
+			if (current.props.isOpen === undefined) {
+				local.current = next
+				setInternal(next)
+			}
+
 			current.props.onOpenChange?.(next)
 		} finally {
-			if (active.current === token) active.current = null
+			if (active.current === token) {
+				active.current = null
+			}
 		}
 	}
 
-
 	const liveReturn = useRef({ open, close: () => setOpen(false) })
 	liveReturn.current = { open, close: () => setOpen(false) }
-	const returnOwner = useMemo(() => createAppKitMenuReturn({ anchor: () => anchor.current,
-		open: () => liveReturn.current.open, close: () => liveReturn.current.close() }), [])
-	const finalFocus = useMemo(() => ({ get current() { return returnOwner.focusTarget() } }), [])
+	const returnOwner = useMemo(
+		() =>
+			createAppKitMenuReturn({
+				anchor: () => anchor.current,
+				open: () => liveReturn.current.open,
+				close: () => liveReturn.current.close(),
+			}),
+		[],
+	)
+
+	const finalFocus = useMemo(
+		() => ({
+			get current() {
+				return returnOwner.focusTarget()
+			},
+		}),
+		[],
+	)
+
 	const closeMenu = () => setOpen(false, true)
 
-	const keys = useAppKitViewKeys({ onKeyDown: (event) => {
-		const current = live.current
-		if (!anchor.current || active.current || current.disabled || current.busy ||
-			(current.props.isOpen ?? local.current) || event.defaultPrevented || event.isComposing ||
-			event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
-		if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return
-		event.preventDefault(); event.stopPropagation()
-		setOpen(true, true, event.key === 'ArrowUp' ? 'last' : 'first')
-	} })
-	const mergedRef = useMemo(() => button.ref ? [bindAnchor, keys.ref, button.ref] : [bindAnchor, keys.ref], [button.ref, keys.ref, bindAnchor])
-	useLayoutEffect(() => { if (!open) initialFocus.current = 'first'; else returnOwner.reset() }, [open])
+	const keys = useAppKitViewKeys({
+		onKeyDown: (event) => {
+			const current = live.current
+			if (
+				!anchor.current ||
+				active.current ||
+				current.disabled ||
+				current.busy ||
+				(current.props.isOpen ?? local.current) ||
+				event.defaultPrevented ||
+				event.isComposing ||
+				event.altKey ||
+				event.ctrlKey ||
+				event.metaKey ||
+				event.shiftKey
+			) {
+				return
+			}
+
+			if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+				return
+			}
+
+			event.preventDefault()
+			event.stopPropagation()
+			setOpen(true, true, event.key === 'ArrowUp' ? 'last' : 'first')
+		},
+	})
+
+	const mergedRef = useMemo(
+		() => (button.ref ? [bindAnchor, keys.ref, button.ref] : [bindAnchor, keys.ref]),
+		[button.ref, keys.ref, bindAnchor],
+	)
+
+	useLayoutEffect(() => {
+		if (!open) {
+			initialFocus.current = 'first'
+		} else {
+			returnOwner.reset()
+		}
+	}, [open])
 
 	useEffect(() => {
-		if (disabled && requestedOpen) setOpen(false)
+		if (disabled && requestedOpen) {
+			setOpen(false)
+		}
 	}, [disabled, requestedOpen])
 
 	const buttonLabel = typeof button.label === 'string' ? button.label : undefined
@@ -114,16 +182,16 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 			style={typeof props.menuWidth === 'number' ? { minWidth: props.menuWidth } : undefined}
 		>
 			<AppKitMenuReturnProvider value={returnOwner}>
-			<MenuSurface
-				closeMenu={closeMenu}
-				initialFocus={initialFocus.current}
-				label={props.label ?? buttonLabel}
-				className={props.className}
-				style={props.style}
-			>
-				<MenuData items={props.items} />
-				{props.children}
-			</MenuSurface>
+				<MenuSurface
+					closeMenu={closeMenu}
+					initialFocus={initialFocus.current}
+					label={props.label ?? buttonLabel}
+					className={props.className}
+					style={props.style}
+				>
+					<MenuData items={props.items} />
+					{props.children}
+				</MenuSurface>
 			</AppKitMenuReturnProvider>
 		</Popover>
 	</>

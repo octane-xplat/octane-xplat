@@ -7,6 +7,7 @@ import type {
 	AvatarStatusDotProps,
 	AvatarStatusDotVariant,
 } from '../../props'
+
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Image } from './Image.tsrx'
@@ -16,6 +17,7 @@ const namedSizes: Record<string, number> = { xsm: 16, sm: 24, md: 32, lg: 40, xl
 // pixel supplies the frame while the initials remain the visible content.
 const transparentImage =
 	'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII='
+
 const px = (size: AvatarSize | undefined) =>
 	size == null ? 32 : typeof size === 'number' ? size : (namedSizes[size] ?? 32)
 

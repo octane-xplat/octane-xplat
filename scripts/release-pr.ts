@@ -86,6 +86,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
 				rest.length === 2 || rest.length === 3,
 				'usage: node scripts/release-pr.ts body <version> <notes-file> [override]',
 			)
+
 			const [version, notesFile, override] = rest
 			process.stdout.write(
 				renderReleaseBody({

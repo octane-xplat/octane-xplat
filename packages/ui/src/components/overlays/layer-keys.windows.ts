@@ -32,6 +32,7 @@ configureLayerKeys(() => {
 							prevented = true
 						},
 					})
+
 					if (prevented) {
 						args.Handled = true
 					}
@@ -40,6 +41,7 @@ configureLayerKeys(() => {
 				}
 			},
 		)
+
 		host.PreviewKeyDown = handler
 		return () => {
 			try {

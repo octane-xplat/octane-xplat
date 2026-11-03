@@ -146,6 +146,7 @@ manifest.overrides ??= {}
 for (const [name, tarball] of tarballs) {
 	manifest.overrides[name] = `file:${tarball}`
 }
+
 writeFileSync(appManifestPath, JSON.stringify(manifest, null, '\t') + '\n')
 
 // ---- install + fixture --------------------------------------------------------

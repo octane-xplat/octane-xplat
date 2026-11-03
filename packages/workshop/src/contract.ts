@@ -127,6 +127,7 @@ interface StoryControlUnset {
 	/** 'Unset' removes the key from the next props bag rather than merging a stale value. */
 	allowUnset?: boolean
 }
+
 /** Unset prohibition for a required prop. */
 interface StoryControlNoUnset {
 	/** Always false on required props — a required key cannot be unset. */
@@ -151,6 +152,7 @@ interface InjectedStateProp<S> {
 	/** Fresh state store injected into the component per generation. */
 	state: Store<S>
 }
+
 /** Injected fixture prop for a fixture-bearing story. */
 interface InjectedFixtureProp<F> {
 	/** Typed fixture result injected into the component per generation. */
@@ -171,16 +173,19 @@ interface StoryStateAbsent {
 	/** Reserved injected prop — must stay undeclared when the story has no state. */
 	state?: never
 }
+
 /** State factory for a stateful story. */
 interface StoryStateField<S> {
 	/** Fresh-state factory run per generation; the result is injected as the `state` prop. */
 	state: () => S
 }
+
 /** Fixture field for a fixture-less story — must stay undeclared. */
 interface StoryFixtureAbsent {
 	/** Reserved injected prop — must stay undeclared when the story has no fixture. */
 	fixture?: never
 }
+
 /** Fixture factory for a fixture-bearing story. */
 interface StoryFixtureField<F> {
 	/** Fixture factory run per generation; the result is injected as the `fixture` prop. */
@@ -278,7 +283,11 @@ function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): voi
 				fail(`story "${definition.id}" — control "${key}" must be an object`)
 			}
 
-			const type = typeof control === 'object' && control !== null && 'type' in control ? control.type : undefined
+			const type =
+				typeof control === 'object' && control !== null && 'type' in control
+					? control.type
+					: undefined
+
 			if (!['boolean', 'string', 'number', 'enum'].includes(type ?? '')) {
 				fail(
 					`story "${definition.id}" — control "${key}" has unknown type "${type}" (expected boolean, string, number or enum)`,

@@ -44,7 +44,9 @@ const content = [
 export function MarkdownCitedContent() {
 	return (
 		<Center width="100%" style={{ maxWidth: 450 }}>
-			<Markdown sources={sources} density="compact" headingLevelStart={3}>{content}</Markdown>
+			<Markdown sources={sources} density="compact" headingLevelStart={3}>
+				{content}
+			</Markdown>
 		</Center>
 	)
 }

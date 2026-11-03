@@ -69,7 +69,6 @@ export function Citation(props: CitationProps): unknown @{
 						{source.title}
 					</label>
 				) : null}
-
 			</>
 		)
 

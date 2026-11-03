@@ -16,11 +16,13 @@ declare function CGImageDestinationCreateWithURL(
 	count: number,
 	options: NSDictionary<string, unknown> | null,
 ): unknown
+
 declare function CGImageDestinationAddImage(
 	destination: unknown,
 	image: unknown,
 	properties: NSDictionary<string, unknown> | null,
 ): void
+
 declare function CGImageDestinationFinalize(destination: unknown): boolean
 declare function CGBitmapContextCreateImage(context: unknown): unknown
 declare function CMTimeGetSeconds(time: unknown): number
@@ -36,14 +38,18 @@ const folder = knownFolders.documents().path
 const checks: string[] = []
 const metrics: Record<string, unknown> = {}
 const assert = (condition: unknown, message: string) => {
-	if (!condition) throw new Error(message)
+	if (!condition) {
+		throw new Error(message)
+	}
 	checks.push(message)
 }
+
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 const stage = (name: string) =>
 	File.fromPath(path.join(folder, 'converter-stage.json')).writeTextSync(
 		JSON.stringify({ stage: name, t: Date.now() }),
 	)
+
 const result = (error?: unknown) =>
 	File.fromPath(path.join(folder, 'converter-result.json')).writeTextSync(
 		JSON.stringify({
@@ -53,6 +59,7 @@ const result = (error?: unknown) =>
 			...(error ? { error: String(error) } : {}),
 		}),
 	)
+
 // Only xplat-video-* files directly inside the temporary directory are owned
 // outputs; count them to prove teardown does not leak files.
 const orphanOutputs = () => {
@@ -62,7 +69,9 @@ const orphanOutputs = () => {
 	const names: string[] = []
 	for (let index = 0; index < (items?.count ?? 0); index++) {
 		const name = String(items!.objectAtIndex(index))
-		if (name.startsWith('xplat-video-')) names.push(name)
+		if (name.startsWith('xplat-video-')) {
+			names.push(name)
+		}
 	}
 	return names
 }
@@ -85,14 +94,22 @@ const options = (() => {
 
 // Build a worst-case-in-caps GIF on device through ImageIO so the exact same
 // encode surface (CGImageSource decode → AVAssetWriter) is measured end to end.
-const writeBigGif = (file: string, frames: number, width: number, height: number, delayMs: number) => {
+const writeBigGif = (
+	file: string,
+	frames: number,
+	width: number,
+	height: number,
+	delayMs: number,
+) => {
 	const destination = CGImageDestinationCreateWithURL(
 		NSURL.fileURLWithPath(file),
 		'com.compuserve.gif',
 		frames,
 		null,
 	)
-	if (!destination) throw new Error('Could not create GIF destination')
+	if (!destination) {
+		throw new Error('Could not create GIF destination')
+	}
 	const context = CGBitmapContextCreate(
 		null,
 		width,
@@ -102,11 +119,15 @@ const writeBigGif = (file: string, frames: number, width: number, height: number
 		CGColorSpaceCreateDeviceRGB(),
 		5 as CGBitmapInfo /* kCGImageAlphaInfoNoneSkipLast */,
 	)
-	if (!context) throw new Error('Could not create frame context')
+	if (!context) {
+		throw new Error('Could not create frame context')
+	}
 	CGContextSetRGBFillColor(context, 0.15, 0.45, 0.85, 1)
 	CGContextFillRect(context, CGRectMake(0, 0, width, height))
 	const image = CGBitmapContextCreateImage(context)
-	if (!image) throw new Error('Could not render frame image')
+	if (!image) {
+		throw new Error('Could not render frame image')
+	}
 	const properties = {
 		[kCGImagePropertyGIFDictionary]: { [kCGImagePropertyGIFDelayTime]: delayMs / 1000 },
 	} as unknown as NSDictionary<string, unknown>
@@ -127,7 +148,9 @@ let started = false
 // parens off `void (async () => {…})()` inside a handler, which dropped the
 // media-converter import — a build artifact, not a runtime limitation.
 page.on(Page.loadedEvent, async () => {
-	if (started) return
+	if (started) {
+		return
+	}
 	started = true
 	try {
 		stage('start')
@@ -157,6 +180,7 @@ page.on(Page.loadedEvent, async () => {
 				progress = value
 			},
 		}).result
+
 		const smallMs = Date.now() - startedAt
 		clearInterval(ticker)
 		assert(video.duration === 600, 'traversal duration preserved')
@@ -174,6 +198,7 @@ page.on(Page.loadedEvent, async () => {
 		const samples = AVAssetReaderTrackOutput.alloc().initWithTrackOutputSettings(track, {
 			[kCVPixelBufferPixelFormatTypeKey]: 1111970369,
 		})
+
 		reader.addOutput(samples)
 		assert(reader.startReading(), 'reader started')
 		let frames = 0
@@ -187,9 +212,13 @@ page.on(Page.loadedEvent, async () => {
 			CVPixelBufferLockBaseAddress(pixel, 1 /* kCVPixelBufferLock_ReadOnly */)
 			const data = new Uint8Array(
 				interop.bufferFromData(
-					NSData.dataWithBytesLength(CVPixelBufferGetBaseAddress(pixel), CVPixelBufferGetDataSize(pixel)),
+					NSData.dataWithBytesLength(
+						CVPixelBufferGetBaseAddress(pixel),
+						CVPixelBufferGetDataSize(pixel),
+					),
 				),
 			)
+
 			CVPixelBufferUnlockBaseAddress(pixel, 0)
 			const red = data[2]!
 			const blue = data[0]!
@@ -198,11 +227,13 @@ page.on(Page.loadedEvent, async () => {
 				`composited pixel at ${time}s (r=${red}, b=${blue})`,
 			)
 		}
+
 		assert(frames === 3, `decoded ${frames} frames`)
 		assert(
 			Math.abs(times[1]! - 0.1) < 0.02 && Math.abs(times[2]! - 0.4) < 0.02,
 			`frame times ${JSON.stringify(times)}`,
 		)
+
 		releaseVideo(video)
 		assert(!File.exists(video.uri.replace('file://', '')), 'release removes output')
 		assert(orphanOutputs().length === 0, 'temporary outputs cleaned after release')
@@ -211,14 +242,17 @@ page.on(Page.loadedEvent, async () => {
 		// ≤4.2 Mpx, ≤64 MiB, ≤60 s traversal).
 		stage('big-generate')
 		const big = path.join(folder, 'big.gif')
-		if (File.exists(big)) NSFileManager.defaultManager.removeItemAtPathError(big)
+		if (File.exists(big)) {
+			NSFileManager.defaultManager.removeItemAtPathError(big)
+		}
+
 		startedAt = Date.now()
 		writeBigGif(big, options.frames, options.width, options.height, options.delayMs)
 		const bigBytes = Number(
-			NSFileManager.defaultManager
-				.attributesOfItemAtPathError(big)
-				?.objectForKey('NSFileSize') ?? 0,
+			NSFileManager.defaultManager.attributesOfItemAtPathError(big)?.objectForKey('NSFileSize') ??
+				0,
 		)
+
 		metrics.bigGenerate = { ms: Date.now() - startedAt, bytes: bigBytes }
 		assert(bigBytes > 0 && bigBytes <= 64 * 1024 * 1024, `big fixture ${bigBytes} bytes in cap`)
 
@@ -237,9 +271,16 @@ page.on(Page.loadedEvent, async () => {
 				bigVideo.height === options.height + (options.height % 2),
 			`big dimensions ${bigVideo.width}x${bigVideo.height}`,
 		)
+
 		assert(bigProgress === 1, `big progress ${bigProgress}`)
 		assert(ticks > 10, `main isolate responsive during big job (ticks=${ticks})`)
-		metrics.bigEncode = { ms: bigMs, ticks, frames: options.frames, width: options.width, height: options.height }
+		metrics.bigEncode = {
+			ms: bigMs,
+			ticks,
+			frames: options.frames,
+			width: options.width,
+			height: options.height,
+		}
 
 		const bigAsset = AVURLAsset.alloc().initWithURLOptions(NSURL.URLWithString(bigVideo.uri), null)
 		const bigSeconds = CMTimeGetSeconds(bigAsset.duration)
@@ -247,6 +288,7 @@ page.on(Page.loadedEvent, async () => {
 			Math.abs(bigSeconds - expectedDuration / 1000) < 0.2,
 			`big encoded duration ${bigSeconds}s`,
 		)
+
 		releaseVideo(bigVideo)
 		assert(!File.exists(bigVideo.uri.replace('file://', '')), 'big release removes output')
 		assert(orphanOutputs().length === 0, 'temporary outputs cleaned after big release')
@@ -255,7 +297,10 @@ page.on(Page.loadedEvent, async () => {
 		stage('cancel-encode')
 		let seen = 0
 		const job = convertGif(big, { onProgress: (value) => (seen = value) })
-		while (seen === 0) await wait(5)
+		while (seen === 0) {
+			await wait(5)
+		}
+
 		startedAt = Date.now()
 		job.cancel()
 		let cancelled = ''
@@ -264,6 +309,7 @@ page.on(Page.loadedEvent, async () => {
 		} catch (error) {
 			cancelled = (error as Error).name
 		}
+
 		metrics.cancelEncode = { ms: Date.now() - startedAt, progressAtCancel: seen }
 		assert(cancelled === 'AbortError', `cancel during encode rejects AbortError (${cancelled})`)
 		assert(orphanOutputs().length === 0, 'cancelled encode leaves no partial output')
@@ -284,6 +330,7 @@ page.on(Page.loadedEvent, async () => {
 		} catch (error) {
 			cancelled = (error as Error).name
 		}
+
 		assert(cancelled === 'AbortError', `immediate cancel rejects AbortError (${cancelled})`)
 		await wait(500)
 		metrics.immediateCancelOrphans = orphanOutputs().length
@@ -300,4 +347,5 @@ page.on(Page.loadedEvent, async () => {
 		result(error)
 	}
 })
+
 Application.run({ create: () => page })

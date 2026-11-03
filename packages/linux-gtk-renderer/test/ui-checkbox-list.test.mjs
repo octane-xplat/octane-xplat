@@ -61,6 +61,7 @@ test(
 				)
 					.trim()
 					.split('\n')[0]
+
 				const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
 				send('windowfocus', id)
 				if (phase.type != null) {
@@ -75,8 +76,10 @@ test(
 						String(Math.round(phase.x)),
 						String(Math.round(phase.y)),
 					)
+
 					send('click', '1')
 				}
+
 				send('key', 'F12')
 			} catch (error) {
 				inputError = error

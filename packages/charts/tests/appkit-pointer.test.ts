@@ -8,7 +8,9 @@ function fixture() {
 		locatePointer: () => f.located,
 		observePointerMotion: (_view: unknown, handlers: any) => {
 			f.handlers = handlers
-			return () => { f.releases++ }
+			return () => {
+				f.releases++
+			}
 		},
 	}
 	const pointer = createAppKitChartPointer(
@@ -42,7 +44,11 @@ describe('appkit chart pointer', () => {
 		f.pan(1)
 		f.pan(2, NaN, NaN)
 		f.pan(3, NaN, NaN)
-		expect(f.calls).toEqual([['down', 15, 20], ['move', 20, 30], ['cancel', 0, 0]])
+		expect(f.calls).toEqual([
+			['down', 15, 20],
+			['move', 20, 30],
+			['cancel', 0, 0],
+		])
 		f.pan(2, 40, 50)
 		expect(f.calls).toHaveLength(3)
 	})
@@ -53,7 +59,11 @@ describe('appkit chart pointer', () => {
 		expect(f.calls).toEqual([])
 		f.pan(1)
 		f.pan(0)
-		expect(f.calls).toEqual([['down', 15, 20], ['move', 20, 30], ['cancel', 0, 0]])
+		expect(f.calls).toEqual([
+			['down', 15, 20],
+			['move', 20, 30],
+			['cancel', 0, 0],
+		])
 	})
 
 	test('tap uses the located mouse point or falls back to the scene center', () => {
@@ -61,7 +71,10 @@ describe('appkit chart pointer', () => {
 		f.pointer.tap({})
 		f.located = null
 		f.pointer.tap({})
-		expect(f.calls).toEqual([['tap', 3, 4], ['tap', 100, 50]])
+		expect(f.calls).toEqual([
+			['tap', 3, 4],
+			['tap', 100, 50],
+		])
 	})
 
 	test('observe reports hover/leave and suppresses them while panning', () => {

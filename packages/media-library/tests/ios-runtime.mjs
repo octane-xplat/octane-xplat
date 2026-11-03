@@ -19,14 +19,17 @@ function run(command, args, options = {}) {
 	assert.equal(result.status, 0, `${result.stdout ?? ''}${result.stderr ?? ''}`)
 	return result.stdout
 }
+
 const devices = JSON.parse(run('xcrun', ['simctl', 'list', 'devices', '--json']))
 const selected = Object.values(devices.devices)
 	.flat()
 	.find((item) => item.udid === device)
+
 assert.ok(
 	selected?.state === 'Booted' && selected.name.startsWith('Xplat'),
 	'Use a booted task-owned Xplat simulator',
 )
+
 for (const [name, source] of [
 	['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
 	['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')],
@@ -41,11 +44,13 @@ for (const [name, source] of [
 		}
 	}
 }
+
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
 	recursive: true,
 	filter: (path) => !path.endsWith('google-services.json'),
 })
+
 const plist = join(resources, 'iOS/Info.plist')
 let text = await readFile(plist, 'utf8')
 for (const key of ['NSPhotoLibraryUsageDescription', 'NSPhotoLibraryAddUsageDescription']) {
@@ -56,17 +61,20 @@ for (const key of ['NSPhotoLibraryUsageDescription', 'NSPhotoLibraryAddUsageDesc
 		)
 	}
 }
+
 await writeFile(plist, text)
 const caseFile = join(packageRoot, 'tests/runtime.ios.ts')
 const { prepare } = await import(pathToFileURL(join(repo, 'tools/probe/project.ts')).href)
 const project = await prepare('ios', caseFile, ['@octane-xplat/lib'], resources)
 const privacy = (action, service) =>
 	run('xcrun', ['simctl', 'privacy', device, action, service, project.appId])
+
 const installed = spawnSync(
 	'xcrun',
 	['simctl', 'get_app_container', device, project.appId, 'app'],
 	{ encoding: 'utf8' },
 )
+
 if (installed.status === 0) {
 	privacy('reset', 'photos')
 	privacy('reset', 'photos-add')
@@ -77,9 +85,11 @@ if (installed.status === 0) {
 		project.appId,
 		'data',
 	]).trim()
+
 	await mkdir(join(container, 'Documents'), { recursive: true })
 	await writeFile(join(container, 'Documents/media-library-test-phase.txt'), 'initial')
 }
+
 let dialogs
 function flatten(node) {
 	if (!node || typeof node !== 'object') {
@@ -87,6 +97,7 @@ function flatten(node) {
 	}
 	return [node, ...(node.children ?? []).flatMap(flatten)]
 }
+
 async function handleDialog() {
 	if (!dialogs) {
 		return []
@@ -100,6 +111,7 @@ async function handleDialog() {
 			project.appId,
 			'data',
 		]).trim()
+
 		step = JSON.parse(
 			await readFile(join(container, 'Documents/media-library-test-step.json'), 'utf8'),
 		)
@@ -150,6 +162,7 @@ async function handleDialog() {
 	console.log('Confirmed owned fixture dialog through accessibility: ' + button.label)
 	return labels
 }
+
 async function probe() {
 	const child = spawn(
 		'bun',
@@ -196,6 +209,7 @@ async function probe() {
 			if (done) {
 				break
 			}
+
 			try {
 				lastLabels = await handleDialog()
 			} catch (error) {
@@ -204,12 +218,14 @@ async function probe() {
 				}
 			}
 		}
+
 		const code = await exited
 		assert.equal(
 			code,
 			0,
 			`${stdout}${stderr}\nLast accessibility labels: ${JSON.stringify(lastLabels)}`,
 		)
+
 		const report = JSON.parse(stdout.slice(stdout.indexOf('{')))
 		assert.equal(report.results.length, 1)
 		assert.equal(report.results[0].status, 'pass', JSON.stringify(report.results[0]))
@@ -222,6 +238,7 @@ async function probe() {
 		}
 	}
 }
+
 try {
 	const initial = await probe()
 	assert.equal(
@@ -229,6 +246,7 @@ try {
 		project.appId,
 		'Privacy changes must target the running fixture app',
 	)
+
 	assert.equal(initial.measurements.phase, 'no-access')
 	assert.equal(initial.measurements.permission, 'undetermined')
 	const container = run('xcrun', [
@@ -238,6 +256,7 @@ try {
 		project.appId,
 		'data',
 	]).trim()
+
 	await writeFile(join(container, 'Documents/media-library-test-phase.txt'), 'authorized')
 	// PhotoKit can retain authorization state in a resident app process.
 	spawnSync('xcrun', ['simctl', 'terminate', device, project.appId], { encoding: 'utf8' })

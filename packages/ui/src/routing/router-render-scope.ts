@@ -1,5 +1,10 @@
 import { bindRouterFlow, isDefaultRouter } from './router-instance'
-import type { ClientRouterHost, PreparedRouteMatch, RouterInstance, RouterNavigator } from '../props'
+import type {
+	ClientRouterHost,
+	PreparedRouteMatch,
+	RouterInstance,
+	RouterNavigator,
+} from '../props'
 
 /** Renderer-owned scope. Retained entries provide their own match subscription;
  * their navigator still targets the flow that owns that entry. Never find a

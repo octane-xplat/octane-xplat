@@ -41,10 +41,7 @@ export function generateMarkdownFixture(sectionCount: number): string {
 	].join('\n\n')
 }
 
-export function formatBenchmarkChange(
-	value: number | null,
-	baseline: number | null,
-): string {
+export function formatBenchmarkChange(value: number | null, baseline: number | null): string {
 	if (value == null || baseline == null) {
 		return '—'
 	}

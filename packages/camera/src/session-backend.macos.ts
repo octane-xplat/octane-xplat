@@ -44,7 +44,6 @@ interface CameraHost {
 	dispose(): void
 }
 
-
 type HostEvent =
 	| { type: 'recordingStarted'; fileUrl: string; audio: boolean }
 	| {

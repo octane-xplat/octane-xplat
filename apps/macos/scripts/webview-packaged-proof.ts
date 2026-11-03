@@ -87,6 +87,7 @@ try {
 	await cp(resolve(appRoot, 'dist/webview-packaged-proof'), join(resources, 'web'), {
 		recursive: true,
 	})
+
 	await cp(native.metadata.arm64, join(resources, 'metadata.macos.arm64.nsmd'))
 	await cp(native.metadata.x86_64, join(resources, 'metadata.macos.x86_64.nsmd'))
 	await writeNativeBootstrap(native, join(resources, 'host-shim.js'), { packaged: true })
@@ -97,6 +98,7 @@ try {
 		recursive: true,
 		verbatimSymlinks: true,
 	})
+
 	for (const [target, alias] of [
 		['A', join(frameworkPath, 'Versions/Current')],
 		['Versions/Current/Headers', join(frameworkPath, 'Headers')],
@@ -118,11 +120,13 @@ try {
 		await cp(library.source, path)
 		nativeLibraries.push(path)
 	}
+
 	for (const library of native.libraries) {
 		const path = join(contents, 'Frameworks', library.file)
 		await cp(join(native.directory, library.file), path)
 		nativeLibraries.push(path)
 	}
+
 	for (const resource of native.resources ?? []) {
 		const destination = join(resources, resource.destination)
 		await mkdir(dirname(destination), { recursive: true })
@@ -135,6 +139,7 @@ try {
 		join(resources, 'pwned.js'),
 		'window.parent && window.parent.postMessage("PWNED", "*");\n',
 	)
+
 	await symlink('../pwned.js', join(resources, 'web/linked-pwned.js'))
 	await mkdir(join(resources, 'web/assets'), { recursive: true })
 	await writeFile(join(resources, 'web/assets/probe.js'), 'window.__xplatProbeServed = true;\n')
@@ -155,8 +160,7 @@ try {
 					process.env.XPLAT_PROOF_MEDIA_USAGE === '1'
 						? {
 								NSCameraUsageDescription: 'The packaged proof exercises media capture.',
-								NSMicrophoneUsageDescription:
-									'The packaged proof exercises microphone status.',
+								NSMicrophoneUsageDescription: 'The packaged proof exercises microphone status.',
 							}
 						: {},
 			},
@@ -168,6 +172,7 @@ try {
 	for (const library of nativeLibraries) {
 		run('codesign', ['--force', '--sign', '-', library])
 	}
+
 	run('codesign', ['--force', '--sign', '-', frameworkPath])
 	run('codesign', ['--force', '--sign', '-', join(contents, 'MacOS', executableName)])
 	run('codesign', ['--force', '--sign', '-', stagedApp])

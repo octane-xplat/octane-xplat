@@ -54,8 +54,7 @@ export function subscribeSystemScheme(cb: () => void): () => void {
 				'name' in parsed &&
 				parsed.name === 'appearance.change'
 			) {
-				hostedScheme =
-					'payload' in parsed && parsed.payload === 'dark' ? 'dark' : 'light'
+				hostedScheme = 'payload' in parsed && parsed.payload === 'dark' ? 'dark' : 'light'
 				cb()
 			}
 		} catch {

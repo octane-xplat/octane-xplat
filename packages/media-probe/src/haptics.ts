@@ -26,9 +26,7 @@ export const playPreset = () => {
 	if (Application.android) {
 		const instance = pulsar()
 		const support = instance.hapticSupport()
-		if (
-			support.compareTo(com.swmansion.pulsar.types.CompatibilityMode.STANDARD_SUPPORT) >= 0
-		) {
+		if (support.compareTo(com.swmansion.pulsar.types.CompatibilityMode.STANDARD_SUPPORT) >= 0) {
 			// pulsar-android 1.3.0 names this preset SystemNotificationSuccess;
 			// the Kotlin bridge's "Success" never resolved in the name table.
 			instance.getPresets().getByName('SystemNotificationSuccess')?.play()
@@ -57,6 +55,7 @@ export const playCustomPattern = () => {
 		composer.parsePattern(
 			new types.PatternData(new types.ContinuousPattern(amplitude, frequency), discrete),
 		)
+
 		composer.play()
 	} else {
 		XplatPulsarBridge.playCustomPattern()

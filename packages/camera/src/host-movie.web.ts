@@ -73,6 +73,7 @@ const probeHost = async (): Promise<CameraHost | null> => {
 			Array.isArray(capabilities.camera)
 				? capabilities.camera
 				: undefined
+
 		if (Array.isArray(methods) && requiredMethods.every((name) => methods.includes(name))) {
 			return client
 		}

@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 const hostBundle =
 	process.env.XPLAT_JSC_HOST_BUNDLE ??
 	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
 // The napi backend used to invoke JS-backed ObjC method IMPs and C-function

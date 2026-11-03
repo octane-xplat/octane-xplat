@@ -48,10 +48,7 @@ assert.equal(dispatched.status, 0, dispatched.stdout + dispatched.stderr)
 assert.match(dispatched.stdout, /NATIVE_SHARE_CONTRACT_OK/)
 console.log(dispatched.stdout.trim())
 const artifact = await buildMacOSNative(app)
-assert.deepEqual([...artifact.leaves].sort(), [
-	'@octane-xplat/platform',
-	'@octane-xplat/share',
-])
+assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/platform', '@octane-xplat/share'])
 
 const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
@@ -87,4 +84,6 @@ const result = spawnSync(
 
 assert.equal(result.status, 0, result.stdout + result.stderr)
 assert.match(result.stdout + result.stderr, /MACOS_SHARE_CALLBACK_OK/)
-console.log('AppKit share metadata and no-presenter callback checked; no OS share UI or delivery evidence.')
+console.log(
+	'AppKit share metadata and no-presenter callback checked; no OS share UI or delivery evidence.',
+)

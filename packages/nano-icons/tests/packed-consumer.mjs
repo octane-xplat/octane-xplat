@@ -84,6 +84,7 @@ try {
 		const conditionExport = manifest.exports['.'][condition]
 		const conditionTarget =
 			typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
+
 		assert.ok(conditionTarget.startsWith('./src/'))
 	}
 

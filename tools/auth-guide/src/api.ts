@@ -43,12 +43,14 @@ export function createApi({ issuer, audience, keys }: ApiOptions) {
 				algorithms: ['RS256'],
 				requiredClaims: ['sub', 'exp', 'iat'],
 			})
+
 			if (typeof payload.sub !== 'string' || !payload.sub) {
 				return new Response(null, {
 					status: 401,
 					headers: { ...headers, 'WWW-Authenticate': 'Bearer error="invalid_token"' },
 				})
 			}
+
 			return Response.json({ subject: payload.sub }, { headers })
 		} catch (error) {
 			const invalid =
@@ -59,7 +61,11 @@ export function createApi({ issuer, audience, keys }: ApiOptions) {
 				error instanceof errors.JWSSignatureVerificationFailed ||
 				error instanceof errors.JOSEAlgNotAllowed ||
 				error instanceof errors.JWKSNoMatchingKey
-			if (!invalid) {return new Response(null, { status: 503, headers })}
+
+			if (!invalid) {
+				return new Response(null, { status: 503, headers })
+			}
+
 			return new Response(null, {
 				status: 401,
 				headers: { ...headers, 'WWW-Authenticate': 'Bearer error="invalid_token"' },

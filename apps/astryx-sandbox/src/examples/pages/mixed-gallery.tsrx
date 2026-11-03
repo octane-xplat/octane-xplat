@@ -11,12 +11,14 @@ const containerStyle = {
 	containerType: 'inline-size' as const,
 	containerName: 'tp-mixed-gallery',
 }
+
 // Fills the AspectRatio box. No objectFit prop on AspectRatio (#2582).
 const imgStyle = {
 	width: '100%',
 	height: '100%',
 	objectFit: 'cover' as const,
 }
+
 // Rounds the image corners. No radius prop on AspectRatio (#2582).
 const clipStyle = {
 	borderRadius: 'var(--radius-element)',

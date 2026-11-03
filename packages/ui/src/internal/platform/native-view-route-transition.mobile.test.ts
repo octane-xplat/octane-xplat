@@ -42,7 +42,10 @@ const sdk = vi.hoisted(() => {
 })
 
 vi.mock('@nativescript/core', () => sdk)
-vi.mock('../../routing/native-route-motion-policy', () => ({ readNativeReducedMotion: () => false }))
+vi.mock('../../routing/native-route-motion-policy', () => ({
+	readNativeReducedMotion: () => false,
+}))
+
 import { defineNativeTransition } from '../../routing/native-route-transition'
 import { createNativeViewRouteTransitions } from './native-view-route-transition.mobile'
 const context = { direction: 'forward' as const, action: 'push' as const, from: null, to: null }

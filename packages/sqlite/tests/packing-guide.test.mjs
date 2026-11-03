@@ -18,6 +18,7 @@ function load(path, dependencies) {
 	}, exports)
 	return exports
 }
+
 const { isolateDatabase } = load('../src/operation-queue.ts', {})
 function backend(path, persistent = true) {
 	const sql = new DatabaseSync(path)
@@ -58,6 +59,7 @@ function backend(path, persistent = true) {
 	}
 	return isolateDatabase(db)
 }
+
 function guide(openDatabase, supported = true) {
 	return load('../examples/packing-list.ts', {
 		'@octane-xplat/sqlite': { openDatabase, supported },
@@ -84,9 +86,11 @@ test('packing list: real file CRUD survives close/reopen and parameterized label
 		if (list) {
 			await list.close()
 		}
+
 		rmSync(dir, { recursive: true, force: true })
 	}
 })
+
 test('packing migration upgrades a v1 file while retaining existing records', async () => {
 	const dir = mkdtempSync(join(tmpdir(), 'packing-migration-'))
 	const path = join(dir, 'packing.db')
@@ -103,6 +107,7 @@ test('packing migration upgrades a v1 file while retaining existing records', as
 		rmSync(dir, { recursive: true, force: true })
 	}
 })
+
 test('failed migration rolls back both schema and version', async () => {
 	const db = backend(':memory:')
 	await db.execute(
@@ -117,6 +122,7 @@ test('failed migration rolls back both schema and version', async () => {
 		await db.close()
 	}
 })
+
 test('future schema is rejected without deleting data', async () => {
 	const db = backend(':memory:')
 	await db.setUserVersion(3)
@@ -127,6 +133,7 @@ test('future schema is rejected without deleting data', async () => {
 		await db.close()
 	}
 })
+
 test('transient storage is refused and closed; explicit preview can opt in', async () => {
 	const db = backend(':memory:', false)
 	await assert.rejects(guide(() => Promise.resolve(db)).openPackingList(), /Durable storage/)
@@ -143,6 +150,7 @@ test('transient storage is refused and closed; explicit preview can opt in', asy
 		await list.close()
 	}
 })
+
 test('unsupported target rejects before attempting a database open', async () => {
 	await assert.rejects(
 		guide(() => {

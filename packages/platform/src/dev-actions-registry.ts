@@ -1001,10 +1001,7 @@ function parseInvocation(request: unknown): InvocationRequest | undefined {
 	if (typeof request.requestId !== 'string' || typeof request.actionId !== 'string') {
 		return undefined
 	}
-	if (
-		request.registryRevision !== undefined &&
-		typeof request.registryRevision !== 'number'
-	) {
+	if (request.registryRevision !== undefined && typeof request.registryRevision !== 'number') {
 		return undefined
 	}
 	return {
@@ -1032,8 +1029,7 @@ const toFailureRecord = (
 		typeof thrown.message === 'string'
 	) {
 		const name = 'name' in thrown && typeof thrown.name === 'string' ? thrown.name : 'Error'
-		const stack =
-			'stack' in thrown && typeof thrown.stack === 'string' ? thrown.stack : undefined
+		const stack = 'stack' in thrown && typeof thrown.stack === 'string' ? thrown.stack : undefined
 		return {
 			...base,
 			name,

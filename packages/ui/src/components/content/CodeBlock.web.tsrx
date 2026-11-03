@@ -87,13 +87,20 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 		if (l.length > 1 && l[l.length - 1] === '') {
 			l.pop()
 		}
+
 		return l
 	}, [props.code])
+
 	// In diff mode the base language sees the code with the glyph column set
 	// aside, so a `tsx` diff still highlights as `tsx` on every line; headers
 	// contribute an empty line and are rendered as their raw text.
 	const diff = useMemo(() => (isDiff ? splitDiffLines(lines) : null), [isDiff, lines])
-	const tokenLines = useTokenLines(diff ? diff.content.join('\n') : props.code, language, props.tokenizer)
+	const tokenLines = useTokenLines(
+		diff ? diff.content.join('\n') : props.code,
+		language,
+		props.tokenizer,
+	)
+
 	const { copy, copied } = useCodeCopy(props.code, props.onCopy)
 	const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
@@ -183,7 +190,9 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 			<div className="vx-codeblock-header">
 				<div className="vx-codeblock-header-text">
 					{props.title != null ? <span className="vx-codeblock-title">{props.title}</span> : null}
-					{languageLabel != null ? <span className="vx-codeblock-lang">{languageLabel}</span> : null}
+					{languageLabel != null ? (
+						<span className="vx-codeblock-lang">{languageLabel}</span>
+					) : null}
 				</div>
 				<div className="vx-codeblock-header-actions">
 					{copyButton}
@@ -217,42 +226,47 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
 						const lineNo = i + 1
 						const isHl = highlighted.has(lineNo)
 						const diffKind = diff?.kinds[i]
-						const lineEl = diff != null ? (
-							<div
-								data-line={lineNo}
-								data-diff={diffKind === 'context' ? undefined : diffKind}
-								className={[
-									'vx-codeblock-line',
-									'vx-codeblock-line--diff',
-									diffKind !== 'context' && `vx-codeblock-line--diff-${diffKind}`,
-									isHl && 'vx-codeblock-line--highlighted',
-								]}
-							>
-								<span className="vx-codeblock-diff-marker">{diff.glyphs[i] || ' '}</span>
-								<span className="vx-codeblock-line-content">
-									{diffKind === 'header' ? (
-										line === '' ? '​' : line
+						const lineEl =
+							diff != null ? (
+								<div
+									data-line={lineNo}
+									data-diff={diffKind === 'context' ? undefined : diffKind}
+									className={[
+										'vx-codeblock-line',
+										'vx-codeblock-line--diff',
+										diffKind !== 'context' && `vx-codeblock-line--diff-${diffKind}`,
+										isHl && 'vx-codeblock-line--highlighted',
+									]}
+								>
+									<span className="vx-codeblock-diff-marker">{diff.glyphs[i] || ' '}</span>
+									<span className="vx-codeblock-line-content">
+										{diffKind === 'header' ? (
+											line === '' ? (
+												'​'
+											) : (
+												line
+											)
+										) : (
+											<CodeLine line={diff.content[i]} tokens={tokenLines[i]} />
+										)}
+									</span>
+								</div>
+							) : (
+								<div
+									data-line={lineNo}
+									className={['vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted']}
+								>
+									{useRanges ? (
+										line === '' ? (
+											'​'
+										) : (
+											line
+										)
 									) : (
-										<CodeLine line={diff.content[i]} tokens={tokenLines[i]} />
+										<CodeLine line={line} tokens={tokenLines[i]} />
 									)}
-								</span>
-							</div>
-						) : (
-							<div
-								data-line={lineNo}
-								className={['vx-codeblock-line', isHl && 'vx-codeblock-line--highlighted']}
-							>
-								{useRanges ? (
-									line === '' ? (
-										'​'
-									) : (
-										line
-									)
-								) : (
-									<CodeLine line={line} tokens={tokenLines[i]} />
-								)}
-							</div>
-						)
+								</div>
+							)
 
 						return hasLineNumbers ? (
 							<div key={lineNo} className="vx-codeblock-row">

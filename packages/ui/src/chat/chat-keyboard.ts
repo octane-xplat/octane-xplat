@@ -4,7 +4,11 @@ import { observeKeyboardViewport } from '@octane-xplat/platform/keyboard-viewpor
 import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 import { unknownKeyboardState } from '@octane-xplat/platform/keyboard-state'
 import { leaseNativePaddingBottom } from '../components/layout/native-padding'
-import { subscribeKeyboardState, keyboardHostDisplacement } from '../internal/keyboard/keyboard-inset'
+import {
+	subscribeKeyboardState,
+	keyboardHostDisplacement,
+} from '../internal/keyboard/keyboard-inset'
+
 import { chatHost } from './chat-scroll-host'
 import { chatAtEnd, chatScrollControl, leaseChatViewportMotion } from './chat-scroll-state'
 import { checkChatPanelHeight } from './chat-keyboard-types'

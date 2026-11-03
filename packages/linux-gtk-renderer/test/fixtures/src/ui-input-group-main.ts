@@ -12,6 +12,7 @@ import {
 	roleRef,
 	roleHandle,
 } from './ui-input-group.gtk.tsrx'
+
 Gtk.init()
 const window = new Gtk.Window({
 	title: 'Octane GTK input group test',
@@ -19,6 +20,7 @@ const window = new Gtk.Window({
 	default_height: 440,
 	decorated: false,
 })
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 window.set_child(host)
 const errors: unknown[] = []
@@ -27,6 +29,7 @@ const { root, container } = createGtkRoot(host, {
 		errors.push(error)
 	},
 })
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 200) =>
 	new Promise<void>((resolve) =>
@@ -35,6 +38,7 @@ const pause = (ms = 200) =>
 			return false
 		}),
 	)
+
 let checks = 0
 const check = (name: string, ok: boolean) => {
 	if (!ok) {
@@ -42,8 +46,10 @@ const check = (name: string, ok: boolean) => {
 	}
 	checks++
 }
+
 const byClass = (name: string) =>
 	[...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
+
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const near = (a: number, b: number) => Math.abs(a - b) <= 2
 let props: Parameters<typeof GroupScene>[0] = {
@@ -55,11 +61,13 @@ let props: Parameters<typeof GroupScene>[0] = {
 	status: { type: 'error', message: 'Check amount' },
 	statusVariant: 'detached',
 }
+
 const render = async (next: Partial<typeof props> = {}) => {
 	props = { ...props, ...next }
 	root.render(GroupScene, props)
 	await pause()
 }
+
 async function run() {
 	await render()
 	window.present()
@@ -312,6 +320,7 @@ async function run() {
 	)
 	loop.quit()
 }
+
 let failed = false
 run().catch((error) => {
 	failed = true
@@ -323,6 +332,7 @@ run().catch((error) => {
 		loop.quit()
 	}
 })
+
 loop.run()
 if (failed) {
 	;(globalThis as any).imports.system.exit(1)

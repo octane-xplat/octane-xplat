@@ -1,7 +1,15 @@
 // Files — AppKit host leaf.
 import { applyAppKitFileTypeFilter } from './file-pick-filter.macos'
 import { MIME_EXTENSIONS } from './file-types.macos'
-import { assertSafeFileName, concatBytes, exactBuffer, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
+import {
+	assertSafeFileName,
+	concatBytes,
+	exactBuffer,
+	exportBusy,
+	fileTooLarge,
+	throwIfAborted,
+} from './file-bytes'
+
 import type {
 	FileExportOptions,
 	FileExportResult,
@@ -11,14 +19,15 @@ import type {
 	FilePickOptions,
 } from './types'
 
-
 function fileURL(uri: string): any {
 	const host = globalThis as any
 	if (!uri.startsWith('/') && !uri.startsWith('file:')) {
 		throw new Error(`Not a local file: ${uri}`)
 	}
 
-	const url = uri.startsWith('file:') ? host.NSURL.URLWithString(uri) : host.NSURL.fileURLWithPath(uri)
+	const url = uri.startsWith('file:')
+		? host.NSURL.URLWithString(uri)
+		: host.NSURL.fileURLWithPath(uri)
 	if (!url || !url.isFileURL) {
 		throw new Error(`Not a local file: ${uri}`)
 	}
@@ -33,7 +42,9 @@ function writeData(url: any, data: any): void {
 			throw new Error(`Failed to write file: ${String(url.path)}`)
 		}
 	} finally {
-		if (scoped) {url.stopAccessingSecurityScopedResource()}
+		if (scoped) {
+			url.stopAccessingSecurityScopedResource()
+		}
 	}
 }
 
@@ -42,7 +53,15 @@ function documentsURL(name: string): any {
 	const host = globalThis as any
 	const manager = host.NSFileManager.defaultManager
 	const directory = manager.URLsForDirectoryInDomains(9, 1).firstObject
-	if (!directory || !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(directory, true, null, null)) {
+	if (
+		!directory ||
+		!manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
+			directory,
+			true,
+			null,
+			null,
+		)
+	) {
 		throw new Error('Unable to create the Documents directory')
 	}
 
@@ -125,9 +144,14 @@ export const files: Files = {
 			let total = 0
 			while (true) {
 				throwIfAborted(opts?.signal)
-				const length = opts?.maxBytes == null ? 65536 : Math.max(1, Math.min(65536, opts.maxBytes - total + 1))
+				const length =
+					opts?.maxBytes == null ? 65536 : Math.max(1, Math.min(65536, opts.maxBytes - total + 1))
+
 				const data = handle.readDataOfLength(length)
-				if (!data || Number(data.length) === 0) {break}
+				if (!data || Number(data.length) === 0) {
+					break
+				}
+
 				total += Number(data.length)
 				if (opts?.maxBytes != null && total > opts.maxBytes) {
 					throw fileTooLarge(file.uri, opts.maxBytes)
@@ -141,8 +165,12 @@ export const files: Files = {
 			throwIfAborted(opts?.signal)
 			return concatBytes(chunks, total)
 		} finally {
-			try { handle?.closeFile() } finally {
-				if (scoped) {url.stopAccessingSecurityScopedResource()}
+			try {
+				handle?.closeFile()
+			} finally {
+				if (scoped) {
+					url.stopAccessingSecurityScopedResource()
+				}
 			}
 		}
 	},
@@ -163,9 +191,13 @@ export const files: Files = {
 		opts?: FileExportOptions,
 	): Promise<FileExportResult> {
 		assertSafeFileName(name)
-		if (exporting) {throw exportBusy()}
+		if (exporting) {
+			throw exportBusy()
+		}
 		const host = globalThis as any
-		if (!host.NSSavePanel?.savePanel) {return 'unavailable'}
+		if (!host.NSSavePanel?.savePanel) {
+			return 'unavailable'
+		}
 		exporting = true
 		try {
 			// Yield before runModal so concurrent callers observe the busy state.
@@ -174,9 +206,18 @@ export const files: Files = {
 			panel.nameFieldStringValue = name
 			panel.canCreateDirectories = true
 			const extensions = opts?.mimeType ? MIME_EXTENSIONS[opts.mimeType.toLowerCase()] : undefined
-			if (extensions?.length) {panel.allowedFileTypes = extensions}
-			if (panel.runModal() !== (host.NSModalResponseOK ?? 1)) {return 'cancelled'}
-			if (!panel.URL) {throw new Error('The save panel returned no destination')}
+			if (extensions?.length) {
+				panel.allowedFileTypes = extensions
+			}
+
+			if (panel.runModal() !== (host.NSModalResponseOK ?? 1)) {
+				return 'cancelled'
+			}
+
+			if (!panel.URL) {
+				throw new Error('The save panel returned no destination')
+			}
+
 			writeData(panel.URL, byteData(bytes))
 			return 'saved'
 		} finally {

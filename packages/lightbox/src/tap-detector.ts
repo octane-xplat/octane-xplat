@@ -24,11 +24,16 @@ export function createTapDetector(opts: {
 			cancelTimer = null
 			const now = opts.now()
 			if (waitForDouble) {
-				if (lastTap && now - lastTap.t < DOUBLE_TAP_MS && Math.hypot(at.x - lastTap.x, at.y - lastTap.y) < DOUBLE_TAP_PX) {
+				if (
+					lastTap &&
+					now - lastTap.t < DOUBLE_TAP_MS &&
+					Math.hypot(at.x - lastTap.x, at.y - lastTap.y) < DOUBLE_TAP_PX
+				) {
 					lastTap = null
 					emit({ kind: 'doubleTap', at })
 					return
 				}
+
 				lastTap = { ...at, t: now }
 				cancelTimer = opts.schedule(() => emit({ kind: 'tap', at, pointer }), TAP_DELAY_MS)
 				return

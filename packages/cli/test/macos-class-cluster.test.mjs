@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 const hostBundle =
 	process.env.XPLAT_JSC_HOST_BUNDLE ??
 	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
 function boot(fixture) {
@@ -32,7 +33,12 @@ function boot(fixture) {
 
 	const child = spawn(
 		join(hostBundle, 'host'),
-		[join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'), script, metadata, bootstrap],
+		[
+			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+			script,
+			metadata,
+			bootstrap,
+		],
 		{ stdio: ['ignore', 'ignore', 'pipe'] },
 	)
 	let output = ''

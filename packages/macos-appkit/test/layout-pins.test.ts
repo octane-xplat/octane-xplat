@@ -20,11 +20,14 @@ const layout =
 
 const retained = new Map<object, any>()
 const stickyPlacements = createStickyPlacements<any>({
-	nodeFor: (view) => retained.get(view), valid: (node, view) => retained.get(view) === node,
+	nodeFor: (view) => retained.get(view),
+	valid: (node, view) => retained.get(view) === node,
 	convert: (_node, base) => ({ x: base.x, width: base.width, rowX: 0, rowWidth: 1000 }),
 	repin: (node, base) => pinLayoutChild(node, base.parent, base.x, base.y, base.width, base.height),
-	order() {}, invalidate() {},
+	order() {},
+	invalidate() {},
 })
+
 const { pinLayoutChild, releasePlacementPins } = runSlice(
 	layout + '\n({ pinLayoutChild, releasePlacementPins })',
 	{ queueMicrotask: undefined, stickyPlacements },
@@ -104,9 +107,10 @@ test('releasePlacementPins on an unpinned node is a no-op', () => {
 	releasePlacementPins(child('b'))
 })
 
-
 test('sticky leases modify native pins without accumulating offsets and restore latest layout on release', () => {
-	const item: any = child('sticky'), host = view(); retained.set(item.view, item)
+	const item: any = child('sticky'),
+		host = view()
+	retained.set(item.view, item)
 	const lease = stickyPlacements.retain(item.view)!
 	pinLayoutChild(item, host, 10, 2, 100, 40)
 	lease.update(80, 2)
@@ -117,41 +121,65 @@ test('sticky leases modify native pins without accumulating offsets and restore 
 	lease.release()
 	assert.equal(item.placementPins.leading.constant, 20)
 	assert.equal(item.placementPins.width.constant, 120)
-	lease.update(900, 2); assert.equal(item.placementPins.leading.constant, 20)
+	lease.update(900, 2)
+	assert.equal(item.placementPins.leading.constant, 20)
 })
+
 test('newest lease owns placement; reparent reset and detached owners cannot write stale pins', () => {
-	const item: any = child('replaced'), host = view(); retained.set(item.view, item)
+	const item: any = child('replaced'),
+		host = view()
+	retained.set(item.view, item)
 	const old = stickyPlacements.retain(item.view)!
-	pinLayoutChild(item, host, 10, 0, 100, 40); old.update(50, 1)
+	pinLayoutChild(item, host, 10, 0, 100, 40)
+	old.update(50, 1)
 	const current = stickyPlacements.retain(item.view)!
-	old.release(); old.update(500, 2)
+	old.release()
+	old.update(500, 2)
 	assert.equal(item.placementPins.leading.constant, 60)
 	releasePlacementPins(item)
 	pinLayoutChild(item, view(), 5, 0, 100, 40)
 	assert.equal(item.placementPins.leading.constant, 5)
 	assert.equal(stickyPlacements.priority(item), 0)
-	retained.delete(item.view); current.update(100, 2)
+	retained.delete(item.view)
+	current.update(100, 2)
 	assert.equal(current.read({}), undefined)
 	assert.equal(item.placementPins.leading.constant, 5)
 })
+
 test('sticky native sibling ordering puts shifted start/end cells above ordinary cells and restores template order', () => {
-	const start = { view: {} }, middle = { view: {} }, end = { view: {} }, children = [start, middle, end]
-	const priorities = new Map<object, number>([[start, 2], [end, 1]])
-	const calls: object[] = [], host: any = {
-		subviews: children.map((node) => node.view),
-		addSubviewPositionedRelativeTo: (view: object) => calls.push(view),
+	const start = { view: {} },
+		middle = { view: {} },
+		end = { view: {} },
+		children = [start, middle, end]
+	const priorities = new Map<object, number>([
+		[start, 2],
+		[end, 1],
+	])
+	const calls: object[] = [],
+		host: any = {
+			subviews: children.map((node) => node.view),
+			addSubviewPositionedRelativeTo: (view: object) => calls.push(view),
+		}
+	for (const node of children) {
+		Object.assign(node.view, { superview: host })
 	}
-	for (const node of children) {Object.assign(node.view, { superview: host })}
 	const parent = { children }
 	Object.assign(start, { parent })
-	const code = source.slice(source.indexOf('function orderStickySiblings'), source.indexOf('const stickyPlacements ='))
+	const code = source.slice(
+		source.indexOf('function orderStickySiblings'),
+		source.indexOf('const stickyPlacements ='),
+	)
 	const { orderStickySiblings } = runSlice(code + '\n({ orderStickySiblings })', {
-		layoutView: (node: any) => node.view, stickyPlacements: { priority: (node: object) => priorities.get(node) ?? 0 },
+		layoutView: (node: any) => node.view,
+		stickyPlacements: { priority: (node: object) => priorities.get(node) ?? 0 },
 	})
 	orderStickySiblings(start)
 	assert.deepEqual(calls, [middle.view, end.view, start.view])
-	host.subviews = [middle.view, end.view, start.view]; calls.length = 0
-	orderStickySiblings(start); assert.equal(calls.length, 0)
-	priorities.clear(); orderStickySiblings(start)
+	host.subviews = [middle.view, end.view, start.view]
+	calls.length = 0
+	orderStickySiblings(start)
+	assert.equal(calls.length, 0)
+	priorities.clear()
+	orderStickySiblings(start)
 	assert.deepEqual(calls, [start.view, middle.view, end.view])
 })

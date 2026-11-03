@@ -6,10 +6,24 @@
 // four comparison deltas as a row (upstream same).
 import { useState } from 'octane'
 import {
-	Button, Card, Divider, Grid, Heading, HStack, Icon, Layout,
-	LayoutContent, LayoutHeader, ProgressBar, Selector, StackItem, Table,
-	Text, VStack,
+	Button,
+	Card,
+	Divider,
+	Grid,
+	Heading,
+	HStack,
+	Icon,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	ProgressBar,
+	Selector,
+	StackItem,
+	Table,
+	Text,
+	VStack,
 } from '@octane-xplat/ui'
+
 import type { TableColumn } from '@octane-xplat/ui'
 import { ChartBars, ChartLines, ChartSparkline } from './charts.tsrx'
 
@@ -49,6 +63,7 @@ function spark(seed: number, trend: number): SparkPoint[] {
 		const burst = noise(i, seed + 91) > 0.9 ? (noise(i, seed + 43) - 0.4) * 20 : 0
 		out.push({ i, v: Math.round(base + weekly + drift + jitter + burst) })
 	}
+
 	return out
 }
 
@@ -62,18 +77,102 @@ interface Metric {
 }
 
 const OVERVIEW_METRICS: Metric[] = [
-	{ key: 'active-users', label: 'Active users', value: '1.28M', higherIsBetter: true, deltas: { dd: 0.4, ww: 2.1, mm: 6.4, yy: 18.2 }, spark: spark(1, 1.1) },
-	{ key: 'new-users', label: 'New users', value: '184.2K', higherIsBetter: true, deltas: { dd: 1.2, ww: 3.8, mm: 9.1, yy: 24.6 }, spark: spark(2, 1.4) },
-	{ key: 'sessions', label: 'Sessions', value: '4.62M', higherIsBetter: true, deltas: { dd: 0.2, ww: 1.4, mm: 5.2, yy: 15.9 }, spark: spark(3, 0.9) },
-	{ key: 'avg-session', label: 'Avg. session', value: '6m 42s', higherIsBetter: true, deltas: { dd: -0.3, ww: 0.8, mm: 2.1, yy: -4.3 }, spark: spark(4, 0.3) },
-	{ key: 'pages-session', label: 'Pages / session', value: '5.3', higherIsBetter: true, deltas: { dd: 0.1, ww: -0.6, mm: 1.2, yy: 3.7 }, spark: spark(5, 0.4) },
-	{ key: 'bounce', label: 'Bounce rate', value: '38.6%', higherIsBetter: false, deltas: { dd: -0.2, ww: -1.1, mm: -2.4, yy: -6.8 }, spark: spark(6, -0.5) },
-	{ key: 'dau-mau', label: 'DAU / MAU', value: '52.1%', higherIsBetter: true, deltas: { dd: 0.3, ww: 1.0, mm: 3.2, yy: 8.4 }, spark: spark(7, 0.7) },
-	{ key: 'conversion', label: 'Conversion rate', value: '3.84%', higherIsBetter: true, deltas: { dd: -0.1, ww: 0.9, mm: 2.6, yy: 11.2 }, spark: spark(8, 0.6) },
-	{ key: 'activation', label: 'Activation rate', value: '61.4%', higherIsBetter: true, deltas: { dd: 0.2, ww: 1.3, mm: 4.1, yy: 12.7 }, spark: spark(9, 0.8) },
-	{ key: 'retention-30', label: '30-day retention', value: '27.4%', higherIsBetter: true, deltas: { dd: 0.1, ww: -0.4, mm: 1.8, yy: 5.3 }, spark: spark(10, -0.3) },
-	{ key: 'churn', label: 'Churn rate', value: '4.7%', higherIsBetter: false, deltas: { dd: -0.1, ww: -0.3, mm: -1.2, yy: -2.4 }, spark: spark(11, -0.4) },
-	{ key: 'nps', label: 'NPS', value: '41', higherIsBetter: true, deltas: { dd: 0.2, ww: 0.6, mm: -2.2, yy: -8.1 }, spark: spark(12, 0.35) },
+	{
+		key: 'active-users',
+		label: 'Active users',
+		value: '1.28M',
+		higherIsBetter: true,
+		deltas: { dd: 0.4, ww: 2.1, mm: 6.4, yy: 18.2 },
+		spark: spark(1, 1.1),
+	},
+	{
+		key: 'new-users',
+		label: 'New users',
+		value: '184.2K',
+		higherIsBetter: true,
+		deltas: { dd: 1.2, ww: 3.8, mm: 9.1, yy: 24.6 },
+		spark: spark(2, 1.4),
+	},
+	{
+		key: 'sessions',
+		label: 'Sessions',
+		value: '4.62M',
+		higherIsBetter: true,
+		deltas: { dd: 0.2, ww: 1.4, mm: 5.2, yy: 15.9 },
+		spark: spark(3, 0.9),
+	},
+	{
+		key: 'avg-session',
+		label: 'Avg. session',
+		value: '6m 42s',
+		higherIsBetter: true,
+		deltas: { dd: -0.3, ww: 0.8, mm: 2.1, yy: -4.3 },
+		spark: spark(4, 0.3),
+	},
+	{
+		key: 'pages-session',
+		label: 'Pages / session',
+		value: '5.3',
+		higherIsBetter: true,
+		deltas: { dd: 0.1, ww: -0.6, mm: 1.2, yy: 3.7 },
+		spark: spark(5, 0.4),
+	},
+	{
+		key: 'bounce',
+		label: 'Bounce rate',
+		value: '38.6%',
+		higherIsBetter: false,
+		deltas: { dd: -0.2, ww: -1.1, mm: -2.4, yy: -6.8 },
+		spark: spark(6, -0.5),
+	},
+	{
+		key: 'dau-mau',
+		label: 'DAU / MAU',
+		value: '52.1%',
+		higherIsBetter: true,
+		deltas: { dd: 0.3, ww: 1.0, mm: 3.2, yy: 8.4 },
+		spark: spark(7, 0.7),
+	},
+	{
+		key: 'conversion',
+		label: 'Conversion rate',
+		value: '3.84%',
+		higherIsBetter: true,
+		deltas: { dd: -0.1, ww: 0.9, mm: 2.6, yy: 11.2 },
+		spark: spark(8, 0.6),
+	},
+	{
+		key: 'activation',
+		label: 'Activation rate',
+		value: '61.4%',
+		higherIsBetter: true,
+		deltas: { dd: 0.2, ww: 1.3, mm: 4.1, yy: 12.7 },
+		spark: spark(9, 0.8),
+	},
+	{
+		key: 'retention-30',
+		label: '30-day retention',
+		value: '27.4%',
+		higherIsBetter: true,
+		deltas: { dd: 0.1, ww: -0.4, mm: 1.8, yy: 5.3 },
+		spark: spark(10, -0.3),
+	},
+	{
+		key: 'churn',
+		label: 'Churn rate',
+		value: '4.7%',
+		higherIsBetter: false,
+		deltas: { dd: -0.1, ww: -0.3, mm: -1.2, yy: -2.4 },
+		spark: spark(11, -0.4),
+	},
+	{
+		key: 'nps',
+		label: 'NPS',
+		value: '41',
+		higherIsBetter: true,
+		deltas: { dd: 0.2, ww: 0.6, mm: -2.2, yy: -8.1 },
+		spark: spark(12, 0.35),
+	},
 ]
 
 const ACTIVE_TREND = (() => {
@@ -84,11 +183,20 @@ const ACTIVE_TREND = (() => {
 		out.push({
 			t: i,
 			label: `Day ${i + 1}`,
-			desktop: Math.round(520 + (i * 90) / TREND_DAYS + (weekend ? -110 : 20) + (noise(i, 11) - 0.5) * 80),
-			mobile: Math.round(680 + (i * 150) / TREND_DAYS + (weekend ? 85 : -15) + (noise(i, 23) - 0.5) * 125 + spike * 130),
+			desktop: Math.round(
+				520 + (i * 90) / TREND_DAYS + (weekend ? -110 : 20) + (noise(i, 11) - 0.5) * 80,
+			),
+			mobile: Math.round(
+				680 +
+					(i * 150) / TREND_DAYS +
+					(weekend ? 85 : -15) +
+					(noise(i, 23) - 0.5) * 125 +
+					spike * 130,
+			),
 			tablet: Math.round(140 + (weekend ? 24 : -5) + (noise(i, 37) - 0.5) * 40 + spike * 18),
 		})
 	}
+
 	return out
 })()
 
@@ -142,11 +250,13 @@ const RANGE_OPTIONS = [
 	{ value: '30d', label: 'Last 30 days' },
 	{ value: '90d', label: 'Last 90 days' },
 ]
+
 const SEGMENT_OPTIONS = [
 	{ value: 'all', label: 'All users' },
 	{ value: 'new', label: 'New users' },
 	{ value: 'returning', label: 'Returning users' },
 ]
+
 const DEVICE_OPTIONS = [
 	{ value: 'all', label: 'All devices' },
 	{ value: 'mobile', label: 'Mobile' },
@@ -171,6 +281,7 @@ function LegendDot(props: { color: string; label: string }) @{
 function DeltaValue(props: { value: number; higherIsBetter: boolean; label: string }) @{
 	const positive = props.value >= 0
 	const good = props.higherIsBetter === positive
+
 	<VStack gap={0}>
 		<Text type="supporting" color="secondary">
 			{props.label}
@@ -181,7 +292,12 @@ function DeltaValue(props: { value: number; higherIsBetter: boolean; label: stri
 				size={12}
 				color={good ? 'success' : 'error'}
 			/>
-			<Text type="supporting" style={{ color: good ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+			<Text
+				type="supporting"
+				style={{
+					color: good ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)',
+				}}
+			>
 				{positive ? '+' : ''}
 				{props.value.toFixed(1)}%
 			</Text>
@@ -191,6 +307,7 @@ function DeltaValue(props: { value: number; higherIsBetter: boolean; label: stri
 
 function MetricCard(props: { metric: Metric }) @{
 	const m = props.metric
+
 	<Card padding={4}>
 		<VStack gap={2}>
 			<HStack hAlign="between" vAlign="center">
@@ -231,9 +348,7 @@ function ActiveUsersTrend() @{
 function BreakdownCard(props: { title: string; data: BreakdownSegment[] }) @{
 	<Card padding={5}>
 		<VStack gap={4}>
-			<Heading level={4}>
-				{props.title}
-			</Heading>
+			<Heading level={4}>{props.title}</Heading>
 			<ChartBars
 				height={160}
 				bars={props.data.map((d) => ({ label: d.label, value: d.value, color: d.color }))}
@@ -257,13 +372,19 @@ function BreakdownCard(props: { title: string; data: BreakdownSegment[] }) @{
 
 function DeltaBadge(props: { value: number }) @{
 	const positive = props.value >= 0
+
 	<HStack gap={1} vAlign="center">
 		<Icon
 			name={positive ? 'sandbox-arrow-up' : 'sandbox-arrow-down'}
 			size={12}
 			color={positive ? 'success' : 'error'}
 		/>
-		<Text type="body" style={{ color: positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)' }}>
+		<Text
+			type="body"
+			style={{
+				color: positive ? 'var(--color-text-success, #067647)' : 'var(--color-text-error, #d92d20)',
+			}}
+		>
 			{positive ? '+' : ''}
 			{props.value.toFixed(1)}%
 		</Text>

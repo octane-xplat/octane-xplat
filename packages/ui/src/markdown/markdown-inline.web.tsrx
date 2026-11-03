@@ -54,6 +54,7 @@ export function MdLinkRun(props: {
 					shiftKey: e.shiftKey,
 					altKey: e.altKey,
 				}
+
 				const result = props.onLinkClick?.(href, event)
 				if (result === false || prevented) {
 					e.preventDefault()
@@ -109,10 +110,7 @@ export function MdCitation(props: {
 
 /** Paragraph — `<div role="paragraph">` like the reference (inline content
  *  can carry block-level nodes, so `<p>` composition is avoided). */
-export function MdParagraph(props: {
-	style?: unknown
-	children?: unknown
-}): JSX.Element @{
+export function MdParagraph(props: { style?: unknown; children?: unknown }): JSX.Element @{
 	return (
 		<div role="paragraph" style={props.style as never}>
 			{props.children}

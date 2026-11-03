@@ -11,8 +11,13 @@ if (supported) {
 
 /** Call after constructing/rendering the root Page, before navigating to it. */
 export function revealWhenLoaded(page: Page): void {
-	if (!supported) {return}
+	if (!supported) {
+		return
+	}
 	const reveal = () => hide()
-	if (page.isLoaded) {reveal()}
-	else {page.once(Page.loadedEvent, reveal)}
+	if (page.isLoaded) {
+		reveal()
+	} else {
+		page.once(Page.loadedEvent, reveal)
+	}
 }

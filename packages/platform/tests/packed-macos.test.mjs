@@ -137,6 +137,7 @@ random.fill(16)
 				options,
 				ts.sys,
 			)
+
 			assert.equal(
 				selected.resolvedModule?.resolvedFileName,
 				realpathSync(join(modules, `types/generated/${service}.d.ts`)),

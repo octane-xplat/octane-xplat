@@ -7,11 +7,28 @@
 // CommandPalette `isOpen` → `open`. Stack onClick wrapper → plain div.
 import { useEffect, useMemo, useState } from 'octane'
 import {
-	AppShell, Button, Card, CommandPalette, createStaticSource,
-	DropdownMenu, DropdownMenuDivider, DropdownMenuItem, HStack, Icon, IconButton, Kbd, Layout,
-	LayoutContent, LayoutHeader, SideNav, TextInput, TopNav, TreeList,
+	AppShell,
+	Button,
+	Card,
+	CommandPalette,
+	createStaticSource,
+	DropdownMenu,
+	DropdownMenuDivider,
+	DropdownMenuItem,
+	HStack,
+	Icon,
+	IconButton,
+	Kbd,
+	Layout,
+	LayoutContent,
+	LayoutHeader,
+	SideNav,
+	TextInput,
+	TopNav,
+	TreeList,
 	VStack,
 } from '@octane-xplat/ui'
+
 import type { TreeListNode } from '@octane-xplat/ui'
 
 const noop = () => {}
@@ -181,6 +198,7 @@ export function ShellNavTemplate() @{
 				setIsPaletteOpen(true)
 			}
 		}
+
 		window.addEventListener('keydown', handleKeyDown)
 		return () => window.removeEventListener('keydown', handleKeyDown)
 	}, [])
@@ -259,13 +277,7 @@ export function ShellNavTemplate() @{
 					<LayoutHeader hasDivider padding={6}>
 						<HStack gap={2}>
 							{EDITOR_TABS.map((tab) => (
-								<Card
-									key={tab}
-									variant="muted"
-									padding={0}
-									width={132}
-									height={36}
-								/>
+								<Card key={tab} variant="muted" padding={0} width={132} height={36} />
 							))}
 						</HStack>
 					</LayoutHeader>
@@ -275,27 +287,11 @@ export function ShellNavTemplate() @{
 						<VStack gap={2}>
 							{CODE_LINES.map((width, i) =>
 								width === '0%' ? (
-									<Card
-										key={i}
-										variant="muted"
-										padding={0}
-										width={1}
-										height={14}
-									/>
+									<Card key={i} variant="muted" padding={0} width={1} height={14} />
 								) : (
 									<HStack key={i} gap={3} vAlign="center">
-										<Card
-											variant="muted"
-											padding={0}
-											width={20}
-											height={14}
-										/>
-										<Card
-											variant="muted"
-											padding={0}
-											width={width}
-											height={14}
-										/>
+										<Card variant="muted" padding={0} width={20} height={14} />
+										<Card variant="muted" padding={0} width={width} height={14} />
 									</HStack>
 								),
 							)}

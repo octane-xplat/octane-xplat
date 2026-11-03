@@ -3,6 +3,7 @@ import {
 	NSHapticFeedbackPattern,
 	NSHapticFeedbackPerformanceTime,
 } from '@octane-xplat/platform/macos'
+
 import type { Haptics } from './types'
 
 /** AppKit offers discrete trackpad feedback; patterns and continuous intensity
@@ -17,17 +18,26 @@ export const createHaptics = (): Haptics => {
 			presets: !disposed && Boolean(performer),
 			patterns: false,
 			realtime: false,
-			reason: 'AppKit supplies discrete feedback on compatible trackpads; patterns and realtime intensity are unavailable.',
+			reason:
+				'AppKit supplies discrete feedback on compatible trackpads; patterns and realtime intensity are unavailable.',
 		}),
 		play: (preset) => {
-			if (disposed || !performer) {return false}
+			if (disposed || !performer) {
+				return false
+			}
 			try {
-				const pattern = preset === 'selection'
-					? NSHapticFeedbackPattern.Alignment
-					: preset.startsWith('impact-')
-						? NSHapticFeedbackPattern.LevelChange
-						: NSHapticFeedbackPattern.Generic
-				performer.performFeedbackPatternPerformanceTime(pattern, NSHapticFeedbackPerformanceTime.Now)
+				const pattern =
+					preset === 'selection'
+						? NSHapticFeedbackPattern.Alignment
+						: preset.startsWith('impact-')
+							? NSHapticFeedbackPattern.LevelChange
+							: NSHapticFeedbackPattern.Generic
+
+				performer.performFeedbackPatternPerformanceTime(
+					pattern,
+					NSHapticFeedbackPerformanceTime.Now,
+				)
+
 				return true
 			} catch {
 				return false
@@ -36,6 +46,8 @@ export const createHaptics = (): Haptics => {
 		playPattern: () => false,
 		startRealtime: () => ({ update: () => {}, stop: () => {} }),
 		stop: () => {},
-		dispose: () => { disposed = true },
+		dispose: () => {
+			disposed = true
+		},
 	}
 }

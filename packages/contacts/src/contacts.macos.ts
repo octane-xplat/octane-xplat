@@ -26,6 +26,7 @@ import {
 	CNPhoneNumber,
 	CNSaveRequest,
 } from '@octane-xplat/platform/macos'
+
 import type {
 	Contact,
 	ContactAddress,
@@ -46,6 +47,7 @@ const contactStore = () => {
 		if (typeof CNContactStore?.authorizationStatusForEntityType !== 'function') {
 			return null
 		}
+
 		return (store = CNContactStore.new())
 	} catch {
 		return null
@@ -72,8 +74,9 @@ function ensureAccess(): Promise<PermissionResult> {
 	}
 
 	return new Promise((resolve) => {
-		s.requestAccessForEntityTypeCompletionHandler(CNEntityType.CNEntityTypeContacts ?? 0, (granted: boolean) =>
-			resolve(granted ? 'granted' : 'denied'),
+		s.requestAccessForEntityTypeCompletionHandler(
+			CNEntityType.CNEntityTypeContacts ?? 0,
+			(granted: boolean) => resolve(granted ? 'granted' : 'denied'),
 		)
 	})
 }
@@ -126,7 +129,10 @@ const nsarray = (list: any): any[] => {
 }
 
 const labeled = (list: any, value: (entry: any) => unknown) =>
-	nsarray(list).map((entry) => ({ label: entry?.label ? String(entry.label) : undefined, value: value(entry) }))
+	nsarray(list).map((entry) => ({
+		label: entry?.label ? String(entry.label) : undefined,
+		value: value(entry),
+	}))
 
 function asContact(native: any): Contact {
 	const firstName = native?.givenName ? String(native.givenName) : undefined
@@ -150,19 +156,17 @@ function asContact(native: any): Contact {
 		phoneNumbers: labeled(native?.phoneNumbers, (e) => String(e?.value?.stringValue ?? '')).map(
 			({ label, value }) => ({ label, number: value as string }),
 		),
-		addresses: labeled(
-			native?.postalAddresses,
-			(e): ContactAddress => ({
-				street: e?.value?.street ? String(e.value.street) : undefined,
-				city: e?.value?.city ? String(e.value.city) : undefined,
-				region: e?.value?.state ? String(e.value.state) : undefined,
-				postalCode: e?.value?.postalCode ? String(e.value.postalCode) : undefined,
-				country: e?.value?.country ? String(e.value.country) : undefined,
-			}),
-		).map(({ label, value }) => ({ label, ...(value as ContactAddress) })),
-		urls: labeled(native?.urlAddresses, (e) => String(e?.value ?? '')).map(
-			({ label, value }) => ({ label, url: value as string }),
-		),
+		addresses: labeled(native?.postalAddresses, (e): ContactAddress => ({
+			street: e?.value?.street ? String(e.value.street) : undefined,
+			city: e?.value?.city ? String(e.value.city) : undefined,
+			region: e?.value?.state ? String(e.value.state) : undefined,
+			postalCode: e?.value?.postalCode ? String(e.value.postalCode) : undefined,
+			country: e?.value?.country ? String(e.value.country) : undefined,
+		})).map(({ label, value }) => ({ label, ...(value as ContactAddress) })),
+		urls: labeled(native?.urlAddresses, (e) => String(e?.value ?? '')).map(({ label, value }) => ({
+			label,
+			url: value as string,
+		})),
 		company: native?.organizationName ? String(native.organizationName) : undefined,
 		jobTitle: native?.jobTitle ? String(native.jobTitle) : undefined,
 	}
@@ -288,11 +292,7 @@ export const contacts: Contacts = {
 
 	async update(id: string, contact: NewContact): Promise<string> {
 		const s = requireStore()
-		const existing = s.unifiedContactWithIdentifierKeysToFetchError(
-			id,
-			fetchKeys(),
-			null,
-		)
+		const existing = s.unifiedContactWithIdentifierKeysToFetchError(id, fetchKeys(), null)
 		if (!existing) {
 			throw new Error(`contacts.update: no contact with id ${id}`)
 		}
@@ -309,7 +309,11 @@ export const contacts: Contacts = {
 
 	async remove(id: string): Promise<void> {
 		const s = requireStore()
-		const existing = s.unifiedContactWithIdentifierKeysToFetchError(id, [CNContactIdentifierKey], null)
+		const existing = s.unifiedContactWithIdentifierKeysToFetchError(
+			id,
+			[CNContactIdentifierKey],
+			null,
+		)
 		if (!existing) {
 			return
 		}
@@ -332,7 +336,12 @@ permissionOwners.contacts = {
 
 		const status = rawStatus()
 		return {
-			status: status === 3 ? ('granted' as const) : status === 0 ? ('undetermined' as const) : ('denied' as const),
+			status:
+				status === 3
+					? ('granted' as const)
+					: status === 0
+						? ('undetermined' as const)
+						: ('denied' as const),
 			granted: status === 3,
 			canAskAgain: status === 0 || status === 3,
 		}

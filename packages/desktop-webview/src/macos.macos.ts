@@ -216,9 +216,7 @@ function channelClass(): { alloc(): { init(): NSObject } } {
 					!state.disposed &&
 					isMainFrame(action?.targetFrame) &&
 					trusted(origin, state.trustedOrigin)
-				decisionHandler(
-					allow ? WKNavigationActionPolicy.Allow : WKNavigationActionPolicy.Cancel,
-				)
+				decisionHandler(allow ? WKNavigationActionPolicy.Allow : WKNavigationActionPolicy.Cancel)
 			},
 		},
 		{
@@ -273,6 +271,7 @@ const requestMediaTypeAccess = (mediaType: string, deadlineSeconds: number | nul
 		if (deadline != null && Date.now() >= deadline) {
 			return
 		}
+
 		runLoopSpin(0.01)
 	}
 }
@@ -335,7 +334,8 @@ function schemeHandlerClass(): { alloc(): { init(): NSObject } } {
 
 function serveSchemeTask(task: WKURLSchemeTask): void {
 	const url = task.request?.URL
-	const components = url == null ? null : NSURLComponents.componentsWithURLResolvingAgainstBaseURL(url, false)
+	const components =
+		url == null ? null : NSURLComponents.componentsWithURLResolvingAgainstBaseURL(url, false)
 	const encoded = components?.percentEncodedPath
 	const root = bundleRoot()
 	if (
@@ -350,7 +350,7 @@ function serveSchemeTask(task: WKURLSchemeTask): void {
 		return
 	}
 
-		// percentEncodedPath bridges as a JS string; a malformed escape fails the
+	// percentEncodedPath bridges as a JS string; a malformed escape fails the
 	// decode like removingPercentEncoding returning nil did.
 	let decoded: string
 	try {
@@ -366,8 +366,7 @@ function serveSchemeTask(task: WKURLSchemeTask): void {
 		return
 	}
 
-	const exists = (path: NSURL) =>
-		NSFileManager.defaultManager.fileExistsAtPath(String(path.path))
+	const exists = (path: NSURL) => NSFileManager.defaultManager.fileExistsAtPath(String(path.path))
 	const file = exists(requested)
 		? requested
 		: String(NSURL.fileURLWithPath(relativePath).pathExtension) === ''
@@ -375,10 +374,7 @@ function serveSchemeTask(task: WKURLSchemeTask): void {
 			: requested
 	const resolvedRoot = String(root.URLByResolvingSymlinksInPath.path)
 	const resolvedFile = file.URLByResolvingSymlinksInPath
-	if (
-		!String(resolvedFile.path).startsWith(resolvedRoot + '/') ||
-		!exists(resolvedFile)
-	) {
+	if (!String(resolvedFile.path).startsWith(resolvedRoot + '/') || !exists(resolvedFile)) {
 		schemeError(task, 404)
 		return
 	}
@@ -389,7 +385,8 @@ function serveSchemeTask(task: WKURLSchemeTask): void {
 		return
 	}
 
-	const mimeType = mimeTypes[String(resolvedFile.pathExtension).toLowerCase()] ?? 'application/octet-stream'
+	const mimeType =
+		mimeTypes[String(resolvedFile.pathExtension).toLowerCase()] ?? 'application/octet-stream'
 	const encoding =
 		mimeType.startsWith('text/') || mimeType === 'application/javascript' ? 'utf-8' : null
 	task.didReceiveResponse(
@@ -502,11 +499,12 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 			return null
 		}
 		const directory = root.URLByAppendingPathComponentIsDirectory('octane-camera', true)
-		const ok = NSFileManager.defaultManager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
-			directory,
-			true,
-			null,
-		)
+		const ok =
+			NSFileManager.defaultManager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
+				directory,
+				true,
+				null,
+			)
 		return ok ? directory : null
 	}
 
@@ -783,6 +781,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 				if (target == null) {
 					return null
 				}
+
 				const parent = target.URLByDeletingLastPathComponent
 				if (
 					NSFileManager.defaultManager.fileExistsAtPath(String(target.path)) ||
@@ -790,6 +789,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 				) {
 					return null
 				}
+
 				return { fileUrl: String(target.absoluteString) }
 			}
 
@@ -853,6 +853,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 					if (handle == null) {
 						throw new Error('staged movie open failed')
 					}
+
 					try {
 						handle.seekToEndOfFile()
 						handle.writeData(data)
@@ -861,10 +862,15 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 					}
 				} else {
 					staged = target.URLByAppendingPathExtension(`${NSUUID.UUID().UUIDString}.part`)
-					const ok = data.writeToURLOptionsError(staged, NSDataWritingOptions.DataWritingWithoutOverwriting)
+					const ok = data.writeToURLOptionsError(
+						staged,
+						NSDataWritingOptions.DataWritingWithoutOverwriting,
+					)
+
 					if (!ok) {
 						throw new Error('staged movie write failed')
 					}
+
 					state.stagedMovies.set(key, staged)
 				}
 
@@ -941,6 +947,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
 				) {
 					return null
 				}
+
 				handle.seekToFileOffset(offset)
 				const chunk = handle.readDataUpToLengthError(length)
 				return chunk == null ? null : String(chunk.base64EncodedStringWithOptions(0))

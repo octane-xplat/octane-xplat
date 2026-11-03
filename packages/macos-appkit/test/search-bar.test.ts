@@ -16,7 +16,8 @@ function fixture() {
 		scopes: string[] = []
 
 	const writers = new Map<object, ReturnType<typeof createTextValueWriter>>()
-	const jobs: (() => void)[] = [], cancelled = new Set<unknown>()
+	const jobs: (() => void)[] = [],
+		cancelled = new Set<unknown>()
 	const observers = new Map<object, () => void>()
 	const api = runSlice(
 		[
@@ -33,9 +34,15 @@ function fixture() {
 				let writer = writers.get(view)
 				if (!writer && value !== undefined) {
 					writer = createTextValueWriter(create(), {
-						schedule: (job) => { jobs.push(job); return job },
-						cancel: (job) => { cancelled.add(job) },
+						schedule: (job) => {
+							jobs.push(job)
+							return job
+						},
+						cancel: (job) => {
+							cancelled.add(job)
+						},
 					})
+
 					writers.set(view, writer)
 				}
 				writer?.update(value)
@@ -43,10 +50,17 @@ function fixture() {
 			isWritingTextValue: (view: object) => writers.get(view)?.isWriting ?? false,
 			notifyTextValueCommit: (view: object) => writers.get(view)?.flushLater(),
 			NSWindowDidUpdateNotification: 'window-update',
-			NSNotificationCenter: { defaultCenter: {
-				addObserverForNameObjectQueueUsingBlock: (_name, window, _queue, notify) => { observers.set(window, notify); return window },
-				removeObserver: (window) => { observers.delete(window) },
-			} },
+			NSNotificationCenter: {
+				defaultCenter: {
+					addObserverForNameObjectQueueUsingBlock: (_name, window, _queue, notify) => {
+						observers.set(window, notify)
+						return window
+					},
+					removeObserver: (window) => {
+						observers.delete(window)
+					},
+				},
+			},
 			elementBehaviors: new Map(),
 			behaviorOf: () => undefined,
 			isManualLayoutParent: (t: string) =>
@@ -77,7 +91,9 @@ function fixture() {
 				cell = {}
 				editor: any = null
 				window = {}
-				currentEditor() { return this.editor }
+				currentEditor() {
+					return this.editor
+				}
 				initWithFrame(frame: any) {
 					this.frame = frame
 					return this
@@ -110,8 +126,23 @@ function fixture() {
 
 	textNodesByView.set(view, node)
 	const target = new api.ButtonActionTarget()
-	return { ...api, view, node, target, scopes, actionHandlers, textNodesByView, writers, observers,
-		runJobs() { for (const job of jobs.splice(0)) {if (!cancelled.has(job)) {job()}} },
+	return {
+		...api,
+		view,
+		node,
+		target,
+		scopes,
+		actionHandlers,
+		textNodesByView,
+		writers,
+		observers,
+		runJobs() {
+			for (const job of jobs.splice(0)) {
+				if (!cancelled.has(job)) {
+					job()
+				}
+			}
+		},
 	}
 }
 
@@ -257,11 +288,15 @@ test('SearchBar rejects view, text and projected children in batch preflight', (
 	}
 })
 
-
 test('SearchBar preserves marked editor text until the latest external value can commit', () => {
-	const f = fixture(), values: string[] = []
+	const f = fixture(),
+		values: string[] = []
 	f.node.props.onTextChange = (event: any) => values.push(event.value)
-	f.view.editor = { string: 'marked', hasMarkedText: () => true, selectedRange: { location: 6, length: 0 } }
+	f.view.editor = {
+		string: 'marked',
+		hasMarkedText: () => true,
+		selectedRange: { location: 6, length: 0 },
+	}
 	f.target.controlTextDidChange({ object: f.view })
 	assert.equal(f.node.text, 'marked') // Read the live field editor, not the stale model.
 	for (const text of ['first', 'latest']) {
@@ -281,7 +316,8 @@ test('SearchBar preserves marked editor text until the latest external value can
 })
 
 test('SearchBar native echo supersedes deferred text and teardown cancels pending work', () => {
-	const f = fixture(), values: string[] = []
+	const f = fixture(),
+		values: string[] = []
 	f.node.props.onTextChange = (event: any) => values.push(event.value)
 	f.view.editor = { string: 'composing', hasMarkedText: () => true }
 	f.node.props.text = 'external'
@@ -306,10 +342,12 @@ test('SearchBar native echo supersedes deferred text and teardown cancels pendin
 	assert.equal(f.observers.size, 0)
 })
 
-
 test('SearchBar deferred clear uses the current handler and emits one property change', () => {
-	const f = fixture(), values: string[] = []
-	f.node.props.onTextChange = () => { throw new Error('stale handler') }
+	const f = fixture(),
+		values: string[] = []
+	f.node.props.onTextChange = () => {
+		throw new Error('stale handler')
+	}
 	f.view.editor = { string: 'marked', hasMarkedText: () => true }
 	f.node.text = 'marked'
 	f.node.props.text = ''

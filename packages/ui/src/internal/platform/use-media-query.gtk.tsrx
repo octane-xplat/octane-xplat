@@ -11,6 +11,7 @@ export function useMediaQuery(query: string): boolean {
 	const [matches, setMatches] = useState(
 		() => hostGlobal<Record<string, any>>('__octaneGtkHost')?.matchMedia?.(query) === true,
 	)
+
 	useEffect(() => {
 		const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
 		const update = () => setMatches(host?.matchMedia?.(query) === true)

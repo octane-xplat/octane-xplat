@@ -25,11 +25,13 @@ export async function nativeResolutions(
 	if (platforms.includes('ios')) {
 		const ios = join(nativeRoot, 'ios'),
 			podfile = join(ios, 'Podfile.lock')
+
 		if (existsSync(podfile)) {
 			const value = parse(await readFile(podfile, 'utf8'))
 			if (!value || typeof value !== 'object' || !Array.isArray(value.PODS)) {
 				throw new Error('Invalid native Podfile.lock')
 			}
+
 			delete value['PODFILE CHECKSUM']
 			for (const [name, source] of Object.entries(value['EXTERNAL SOURCES'] ?? {}) as [
 				string,
@@ -41,13 +43,16 @@ export async function nativeResolutions(
 					await tree(directory, directory, `native-pod/${name}/`, 'local native Pod sources')
 					source[':path'] = '<local-native-source>'
 				}
+
 				const spec = source[':podspec']
 				if (typeof spec === 'string' && !/^https?:/.test(spec)) {
 					source[':podspec'] = spec.replaceAll(root, '<project>')
 				}
 			}
+
 			add('native-resolution:ios/Podfile.lock', configValue(value, root, root))
 		}
+
 		if (existsSync(ios)) {
 			for await (const file of glob('**/Package.resolved', {
 				cwd: ios,
@@ -68,18 +73,22 @@ export async function nativeResolutions(
 				) {
 					throw new Error('Unsupported native Swift package resolution metadata')
 				}
+
 				const logical = file
 					.split(sep)
 					.join('/')
 					.replace(/[^/]+\.(xcworkspace|xcodeproj)(?=\/)/g, 'project.$1')
+
 				const identity = (pin: Record<string, any>): string =>
 					pin.identity ?? pin.package ?? pin.repositoryURL ?? pin.location ?? ''
+
 				if (
 					pins.some((pin) => typeof identity(pin) !== 'string' || !identity(pin)) ||
 					new Set(pins.map(identity)).size !== pins.length
 				) {
 					throw new Error('Ambiguous native Swift package identities')
 				}
+
 				add(
 					'native-resolution:ios/' + logical,
 					configValue(

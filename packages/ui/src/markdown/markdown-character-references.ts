@@ -24,6 +24,7 @@ function namedReference(name: string): string | undefined {
 				.slice(separator + 1)
 				.split(',')
 				.map((hex) => parseInt(hex, 16))
+
 			namedReferences.set(entry.slice(0, separator), String.fromCodePoint(...codePoints))
 		}
 	}
@@ -84,6 +85,7 @@ export function decodeLiteralText(text: string): string {
 			index += 2
 			continue
 		}
+
 		if (character === '&') {
 			const reference = matchCharacterReference(text, index)
 			if (reference != null) {
@@ -92,6 +94,7 @@ export function decodeLiteralText(text: string): string {
 				continue
 			}
 		}
+
 		output += character
 		index++
 	}
@@ -125,6 +128,7 @@ export function decodeMarkdownCharacterReferences(text: string): string {
 			ampersand = text.indexOf('&', ampersand + 1)
 			continue
 		}
+
 		output += text.slice(index, ampersand) + reference.value
 		index = reference.end
 		ampersand = text.indexOf('&', index)

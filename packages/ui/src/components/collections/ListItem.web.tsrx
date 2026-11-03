@@ -67,13 +67,7 @@ export function ListItem(props: ListItemProps): JSX.Element @{
 	const marker =
 		task != null ? (
 			<span className="vx-listmarker vx-listmarker--task">
-				<Checkbox
-					size="sm"
-					value={task.isChecked}
-					label={task.label}
-					isLabelHidden
-					isReadOnly
-				/>
+				<Checkbox size="sm" value={task.isChecked} label={task.label} isLabelHidden isReadOnly />
 			</span>
 		) : markerKind === 'disc' || markerKind === 'circle' || markerKind === 'square' ? (
 			<span className="vx-listmarker">

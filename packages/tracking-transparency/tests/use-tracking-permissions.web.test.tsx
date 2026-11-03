@@ -9,6 +9,7 @@ const native = vi.hoisted(() => ({
 	advertisingIdAsync: async () => null,
 	capabilities: () => ({ prompt: true, advertisingId: true, advertisingIdAsync: true }),
 }))
+
 vi.mock('../src/backend', () => ({ backend: native }))
 import { useTrackingPermissions } from '../src/use-tracking-permissions'
 const roots: Array<ReturnType<typeof createRoot>> = []
@@ -19,6 +20,7 @@ afterEach(() => {
 	document.body.replaceChildren()
 	vi.clearAllMocks()
 })
+
 function deferred<T>() {
 	let resolve!: (value: T) => void
 	const promise = new Promise<T>((done) => {
@@ -26,6 +28,7 @@ function deferred<T>() {
 	})
 	return { promise, resolve }
 }
+
 function mount() {
 	const host = document.createElement('div')
 	document.body.append(host)
@@ -49,6 +52,7 @@ function mount() {
 		render: (props: PermissionHookOptions) => flushSync(() => root.render(Consumer, props)),
 	}
 }
+
 it('reads on mount without prompting and requests only through the returned method', async () => {
 	native.read.mockReturnValue(0)
 	native.request.mockResolvedValue(3)
@@ -60,6 +64,7 @@ it('reads on mount without prompting and requests only through the returned meth
 	await vi.waitFor(() => expect(view.state()[0]?.status).toBe('granted'))
 	expect(native.request).toHaveBeenCalledOnce()
 })
+
 it('ignores an old response and never updates a disposed reader', async () => {
 	const prompt = deferred<number>()
 	native.read.mockReturnValue(0)
@@ -84,6 +89,7 @@ it('ignores an old response and never updates a disposed reader', async () => {
 	await new Promise((done) => setTimeout(done, 10))
 	expect(view.renders()).toBe(count)
 })
+
 it('rejects automatic request options before any request can be dispatched', () => {
 	const view = mount()
 	expect(() => view.render({ request: true } as never)).toThrow('explicit action')

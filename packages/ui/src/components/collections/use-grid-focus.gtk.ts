@@ -49,6 +49,7 @@ export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResul
 					found.push(w)
 					continue
 				}
+
 				walk(w.get_first_child())
 			}
 		}
