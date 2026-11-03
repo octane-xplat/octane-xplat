@@ -24,7 +24,7 @@ do not establish runtime behavior on a browser or device.
 - AC2: Linting leaves source unchanged by default; safe fixes are opt-in, remaining errors fail the command, and warnings remain advisory.
 - AC3: Files and directories select the same scope in both passes, with matching Git/config ignores and consistent output-directory, symlink and nested-repository boundaries.
 - AC4: The reader can use a strict JSON project config, extend the bundled preset, and override Xplat rule severities/options for matching files; unsupported config formats and invocation-root scope are explicit.
-- AC5: The reader can format source separately and check formatting without writes; app and library starters expose the supported lint and formatting scripts.
+- AC5: Formatting discovers all Oxfmt file types and special filenames, excludes generated lockfiles, and restricts Octane fixes to JS/TS/TSRX. CSS and other languages preserve check/write/stdin behavior. The reader can format source separately and check formatting without writes; app and library starters expose the supported lint and formatting scripts.
 - AC6: Existing standalone xplat-lint invocations remain usable with paths and safe fixes, including direct Node invocation without bin shims on PATH.
 
 ## Documentation
@@ -33,5 +33,5 @@ do not establish runtime behavior on a browser or device.
 - AC2: [Lint behavior and exit codes](../../../docs/packages/package-cli.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
 - AC3: [Selection and ignores](../../../docs/packages/package-lint.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../packages/cli/test/lint.test.mjs).
 - AC4: [Project configuration](../../../docs/packages/package-lint.md#project-configuration) and the [configuration parity tests](../../../packages/cli/test/lint.test.mjs).
-- AC5: [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../packages/cli/test/fmt.test.mjs).
+- AC5: Formatting discovers all Oxfmt file types and special filenames, excludes generated lockfiles, and restricts Octane fixes to JS/TS/TSRX. CSS and other languages preserve check/write/stdin behavior. [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../packages/cli/test/fmt.test.mjs).
 - AC6: [Standalone command and direct Node example](../../../docs/packages/package-lint.md) and the [compatibility integration test](../../../packages/cli/test/lint.test.mjs).

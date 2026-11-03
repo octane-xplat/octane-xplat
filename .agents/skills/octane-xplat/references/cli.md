@@ -131,7 +131,8 @@ bun run xplat docs search "navigation" --corpus changelog --json
 ## Choose an app-building operation
 
 Use existing project scripts and focused help for ordinary changes. Formatting
-writes by default; upgrades, platform additions, generated routes, fonts, and
+covers Oxfmt languages and special filenames plus TSRX; Octane fixes apply
+to JS/TS/TSRX. It writes by default; upgrades, platform additions, generated routes, fonts, and
 OTA configuration can change the workspace. Keep them within the task. Start
 with check modes when inspecting compatibility or source quality.
 

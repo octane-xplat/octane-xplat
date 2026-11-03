@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// `xplat fmt` — formats JS/TS/JSX/TSX and .tsrx source in place.
+// `xplat fmt` — formats all Oxfmt languages and .tsrx source in place.
 //
 // The engine (@octane-xplat/fmt) runs in-process: safe Oxlint fixes, Oxfmt,
 // and the Xplat spacing rule, with no spawned tools. This command owns file
@@ -12,7 +12,6 @@ import { lstatSync, readFileSync, readdirSync, renameSync, statSync, writeFileSy
 import { join, relative, resolve } from 'node:path'
 import ignore from 'ignore'
 
-const EXTENSIONS = new Set(['js', 'mjs', 'cjs', 'jsx', 'ts', 'mts', 'cts', 'tsx', 'tsrx'])
 
 // Mirrors packages/lint's companion-pass inventory.
 const IGNORED_DIRS = new Set([
@@ -39,7 +38,9 @@ Usage:
   xplat fmt --stdin-filepath PATH   Read stdin, write formatted text to stdout
 
 Paths may be files or directories; directories are walked recursively.
-Supported: ${[...EXTENSIONS].map((e) => `.${e}`).join(' ')}
+Supported: all Oxfmt file types plus .tsrx (including JSON, CSS, Markdown,
+YAML, TOML, GraphQL, HTML, Vue, Svelte, MDX and Handlebars).
+Special filenames and lockfile exclusions follow the installed formatter.
 
 Exit codes: 0 clean · 1 check differences · 2 usage/config/transform/IO error
 `
@@ -81,8 +82,12 @@ export async function runFmt(argv) {
 
   let formatter
   try {
-    const { createFormatter } = await import('@octane-xplat/fmt')
+    const { createFormatter, supportsPath } = await import('@octane-xplat/fmt')
     formatter = await createFormatter({ cwd })
+    if (typeof supportsPath !== 'function') {
+      throw new Error('installed @octane-xplat/fmt lacks full language support; update the CLI formatter dependency')
+    }
+    formatter.supportsPath = supportsPath
   } catch (error) {
     return fail(`fmt: ${error.message ?? error}`)
   }
@@ -149,8 +154,12 @@ async function runStdin(cwd, filepath, check) {
   const source = await readStdin()
   let formatter
   try {
-    const { createFormatter } = await import('@octane-xplat/fmt')
+    const { createFormatter, supportsPath } = await import('@octane-xplat/fmt')
     formatter = await createFormatter({ cwd })
+    if (typeof supportsPath !== 'function') {
+      throw new Error('installed @octane-xplat/fmt lacks full language support; update the CLI formatter dependency')
+    }
+    formatter.supportsPath = supportsPath
   } catch (error) {
     return fail(`fmt: ${error.message ?? error}`)
   }
@@ -203,8 +212,7 @@ function collectFiles(cwd, inputs, formatter) {
         ignores.load(abs)
         yield* walkInto(abs)
       } else if (entry.isFile()) {
-        const ext = entry.name.split('.').pop()
-        if (EXTENSIONS.has(ext) && !ignores.isIgnored(abs)) {
+        if (formatter.supportsPath(abs) && !ignores.isIgnored(abs)) {
           yield abs
         }
       }
@@ -239,7 +247,7 @@ function collectFiles(cwd, inputs, formatter) {
         }
       } else {
         const ext = abs.split('.').pop()
-        if (!EXTENSIONS.has(ext)) {
+        if (!formatter.supportsPath(abs)) {
           throw new Error(`unsupported extension .${ext}: ${input}`)
         }
 

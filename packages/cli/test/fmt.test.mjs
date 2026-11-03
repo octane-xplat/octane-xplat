@@ -68,9 +68,9 @@ test('fmt restricts to explicit paths and fails on unknown or unsupported ones',
   assert.equal(readFileSync(join(dir, 'src/b.ts'), 'utf8'), MESSY)
 
   assert.equal(run(['fmt', 'gone.ts'], dir).status, 2)
-  writeFileSync(join(dir, 'note.md'), '# hi\n')
-  assert.match(run(['fmt', 'note.md'], dir).stderr, /unsupported extension/)
-  assert.equal(run(['fmt', 'note.md'], dir).status, 2)
+  writeFileSync(join(dir, 'note.unknown'), '# hi\n')
+  assert.match(run(['fmt', 'note.unknown'], dir).stderr, /unsupported extension/)
+  assert.equal(run(['fmt', 'note.unknown'], dir).status, 2)
 })
 
 test('fmt stops at nested-repository boundaries and malformed input writes nothing', (t) => {
@@ -97,4 +97,21 @@ test('fmt honors .gitignore during discovery', (t) => {
   assert.equal(run(['fmt'], dir).status, 0)
   assert.equal(readFileSync(join(dir, 'skipme.ts'), 'utf8'), MESSY)
   assert.equal(readFileSync(join(dir, 'keep.ts'), 'utf8'), TIDY)
+})
+
+test('fmt discovers Oxfmt languages and special filenames, preserving check, stdin and ignores', (t) => {
+ const source = 'a{color:red}'
+ const dir = app(t, { 'theme.css': source, 'data.json': '{"x":1}', 'README': '# Hello\n\nhello   world', 'Pipfile': '[hello]\na=1', '.gitignore': 'skip.css\n', 'skip.css': source })
+ assert.equal(run(['fmt', '--check'], dir).status, 1)
+ const stdin = run(['fmt', '--stdin-filepath', 'theme.css'], dir, source)
+ assert.equal(stdin.status, 0, stdin.stderr)
+ assert.match(stdin.stdout, /color: red/)
+ assert.equal(readFileSync(join(dir, 'theme.css'), 'utf8'), source)
+ assert.equal(run(['fmt', '--stdin-filepath', 'theme.css', '--check'], dir, source).status, 1)
+ const write = run(['fmt'], dir)
+ assert.equal(write.status, 0, write.stderr)
+ assert.equal(readFileSync(join(dir, 'theme.css'), 'utf8'), stdin.stdout)
+ assert.equal(readFileSync(join(dir, 'skip.css'), 'utf8'), source)
+ assert.equal(run(['fmt', '--check'], dir).status, 0)
+ assert.equal(run(['fmt', 'theme.css'], dir).status, 0)
 })

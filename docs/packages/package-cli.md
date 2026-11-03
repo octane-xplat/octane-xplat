@@ -42,7 +42,7 @@ bun run xplat upgrade --check # preview alignment to this CLI's compatibility se
 bun run xplat upgrade      # align workspace versions and patches, then install
 bun run xplat typecheck    # web + native tsconfigs
 bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
-bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
+bun run xplat fmt          # format Oxfmt file types + .tsrx in place (--check, --stdin-filepath)
 bun run xplat patches apply  # install the framework's bun patch set into this app
 bun run xplat patches check  # verify the patch set is registered and unmodified
 bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
@@ -273,6 +273,16 @@ bun run xplat lint src
 bun run xplat lint --fix src
 bun run xplat fmt
 bun run xplat fmt --check
+```
+
+Formatting covers Oxfmt's languages, aliases and special filenames, including
+CSS, JSON, Markdown, YAML, TOML, GraphQL and templates. Octane lint fixes and
+statement spacing apply to JS/TS/TSRX. Check mode leaves files untouched;
+stdin mode writes only to stdout. Generated lockfiles are excluded.
+
+```sh
+bun run xplat fmt --check packages/ui/src/theme/chrome.css
+bun run xplat fmt docs config.json
 ```
 
 Lint exits `0` when no errors remain, `1` for lint errors, and `2` for command
