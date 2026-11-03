@@ -3,7 +3,7 @@ import { Switch } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function SwitchShowcase() @{
-	const [enabled, setEnabled] = useState(true)
+  const [enabled, setEnabled] = useState(true)
 
-	<Switch label="Enable notifications" value={enabled} onChange={setEnabled} />
+  <Switch label="Enable notifications" value={enabled} onChange={setEnabled} />
 }

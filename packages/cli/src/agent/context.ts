@@ -20,56 +20,56 @@ import { defaultClient, readPreference } from './selection.ts'
  *  - docs: createDocsService option overrides (tests fix repo/cache)
  */
 export function agentContext(options = {}) {
-	const workspaceRoot = resolve(options.project ?? process.cwd())
-	const client = options.client ?? defaultClient()
-	const preference = options.app ? null : readPreference(workspaceRoot, client)
-	const appSelector = options.app ?? preference?.appId ?? null
+  const workspaceRoot = resolve(options.project ?? process.cwd())
+  const client = options.client ?? defaultClient()
+  const preference = options.app ? null : readPreference(workspaceRoot, client)
+  const appSelector = options.app ?? preference?.appId ?? null
 
-	// A per-invocation evidence root: artifact-writing commands route through
-	// the runtime host (host-client.mjs), never this context — but the store
-	// creates its directories eagerly, so give it a scratch dir removed on exit.
-	const evidenceRoot = mkdtempSync(join(tmpdir(), 'xplat-agent-evidence-'))
-	process.on('exit', () => rmSync(evidenceRoot, { recursive: true, force: true }))
+  // A per-invocation evidence root: artifact-writing commands route through
+  // the runtime host (host-client.mjs), never this context — but the store
+  // creates its directories eagerly, so give it a scratch dir removed on exit.
+  const evidenceRoot = mkdtempSync(join(tmpdir(), 'xplat-agent-evidence-'))
+  process.on('exit', () => rmSync(evidenceRoot, { recursive: true, force: true }))
 
-	// Release-repo override for docs binding (XPLAT_DOCS_REPO) — mirrors
-	// XPLAT_MCP_CACHE for the docs snapshot cache. Used by packed-lane
-	// fixtures and offline mirrors; absent means the canonical repo.
-	const docs =
-		options.docs ??
-		(process.env.XPLAT_DOCS_REPO ? { repo: process.env.XPLAT_DOCS_REPO } : undefined)
+  // Release-repo override for docs binding (XPLAT_DOCS_REPO) — mirrors
+  // XPLAT_MCP_CACHE for the docs snapshot cache. Used by packed-lane
+  // fixtures and offline mirrors; absent means the canonical repo.
+  const docs =
+    options.docs ??
+    (process.env.XPLAT_DOCS_REPO ? { repo: process.env.XPLAT_DOCS_REPO } : undefined)
 
-	const context = createWorkspaceContext({
-		workspaceRoot,
-		appSelector,
-		serverIdentity: cliServerIdentity(),
-		permissionScopes: options.permissionScopes,
-		evidenceRoot,
-		docs,
-		code: createCodeService({
-			workspaceRoot,
-			workspaceKind: () => context.discovery.workspace.kind,
-		}),
-	})
+  const context = createWorkspaceContext({
+    workspaceRoot,
+    appSelector,
+    serverIdentity: cliServerIdentity(),
+    permissionScopes: options.permissionScopes,
+    evidenceRoot,
+    docs,
+    code: createCodeService({
+      workspaceRoot,
+      workspaceKind: () => context.discovery.workspace.kind,
+    }),
+  })
 
-	// The context records any pre-bound selector as 'configured'; distinguish
-	// the precedence level that supplied it so reports stay honest.
-	if (context.selectionReason === 'configured') {
-		context.selectionReason = options.app ? 'explicit' : preference ? 'preference' : 'configured'
-	}
+  // The context records any pre-bound selector as 'configured'; distinguish
+  // the precedence level that supplied it so reports stay honest.
+  if (context.selectionReason === 'configured') {
+    context.selectionReason = options.app ? 'explicit' : preference ? 'preference' : 'configured'
+  }
 
-	return { context, client, preference, workspaceRoot }
+  return { context, client, preference, workspaceRoot }
 }
 
 /** Envelope `context` block — stable identity fields an agent can echo back. */
 export function envelopeContext({ command, context, platform }) {
-	const selection = context?.boundApp
-		? { state: 'bound', appId: context.boundApp.id, reason: context.selectionReason }
-		: undefined
+  const selection = context?.boundApp
+    ? { state: 'bound', appId: context.boundApp.id, reason: context.selectionReason }
+    : undefined
 
-	return {
-		command,
-		projectId: context?.boundApp?.id ?? null,
-		...(platform ? { platform } : {}),
-		...(selection ? { selection } : {}),
-	}
+  return {
+    command,
+    projectId: context?.boundApp?.id ?? null,
+    ...(platform ? { platform } : {}),
+    ...(selection ? { selection } : {}),
+  }
 }

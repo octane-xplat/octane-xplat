@@ -6,7 +6,7 @@ import { useEffect } from 'octane'
 import type { MapViewProps } from './props'
 
 export function MapView(props: MapViewProps): void @{
-	useEffect(() => {
-		props.onError?.({ message: 'unsupported: MapView is not wired on macOS' })
-	}, [])
+  useEffect(() => {
+    props.onError?.({ message: 'unsupported: MapView is not wired on macOS' })
+  }, [])
 }

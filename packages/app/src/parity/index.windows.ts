@@ -9,36 +9,36 @@ import type { ParityFixture } from '@octane-xplat/ui/parity'
 export type { ParityFixture } from '@octane-xplat/ui/parity'
 
 type ImportGlob = (
-	pattern: string | string[],
-	options: { eager: true },
+  pattern: string | string[],
+  options: { eager: true },
 ) => Record<string, { PARITY?: ParityFixture[] }>
 
 const glob: unknown = 'glob' in import.meta ? import.meta.glob : undefined
 const modules =
-	typeof glob === 'function'
-		? (glob as ImportGlob)(
-				[
-					'../../../**/src/**/*.parity*.{tsrx,tsx}',
-					'!../../../pager/src/**/*.parity*.{tsrx,tsx}',
-					'!../../../video/src/**/*.parity*.{tsrx,tsx}',
-				],
-				{ eager: true },
-			)
-		: {}
+  typeof glob === 'function'
+    ? (glob as ImportGlob)(
+        [
+          '../../../**/src/**/*.parity*.{tsrx,tsx}',
+          '!../../../pager/src/**/*.parity*.{tsrx,tsx}',
+          '!../../../video/src/**/*.parity*.{tsrx,tsx}',
+        ],
+        { eager: true },
+      )
+    : {}
 
 const fixtures: ParityFixture[] = []
 for (const [path, mod] of Object.entries(modules).sort(([a], [b]) =>
-	// localeCompare throws "Icu error" on the Windows runtime — plain
-	// code-unit ordering is deterministic enough for the registry.
-	a < b ? -1 : a > b ? 1 : 0,
+  // localeCompare throws "Icu error" on the Windows runtime — plain
+  // code-unit ordering is deterministic enough for the registry.
+  a < b ? -1 : a > b ? 1 : 0,
 )) {
-	if (!/\.parity\.(tsrx|tsx)$/.test(path)) {
-		throw new Error(
-			`${path}: platform-suffixed parity fixtures are unsupported — keep parity renders in <Component>.parity.tsrx`,
-		)
-	}
+  if (!/\.parity\.(tsrx|tsx)$/.test(path)) {
+    throw new Error(
+      `${path}: platform-suffixed parity fixtures are unsupported — keep parity renders in <Component>.parity.tsrx`,
+    )
+  }
 
-	fixtures.push(...(mod.PARITY ?? []))
+  fixtures.push(...(mod.PARITY ?? []))
 }
 
 export const PARITY_FIXTURES = fixtures

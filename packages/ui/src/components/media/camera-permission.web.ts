@@ -3,9 +3,9 @@
 // stays twin-symmetric.
 
 export function cameraHardwarePresent(): boolean {
-	return typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia
+  return typeof navigator !== 'undefined' && !!navigator.mediaDevices?.getUserMedia
 }
 
 export function ensureCameraPermission(): Promise<boolean> {
-	return Promise.resolve(false)
+  return Promise.resolve(false)
 }

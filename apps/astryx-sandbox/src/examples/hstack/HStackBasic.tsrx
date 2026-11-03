@@ -2,9 +2,9 @@
 import { Badge, HStack } from '@octane-xplat/ui'
 
 export function HStackBasic() @{
-	<HStack gap={2} vAlign="center">
-		<Badge label="React" />
-		<Badge label="TypeScript" />
-		<Badge label="Node.js" />
-	</HStack>
+  <HStack gap={2} vAlign="center">
+    <Badge label="React" />
+    <Badge label="TypeScript" />
+    <Badge label="Node.js" />
+  </HStack>
 }

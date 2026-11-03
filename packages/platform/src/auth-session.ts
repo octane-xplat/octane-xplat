@@ -21,174 +21,174 @@ declare const ASWebAuthenticationPresentationContextProviding: any
 let active = false
 
 function isCallback(url: string | null | undefined, scheme: string): url is string {
-	return !!url && url.slice(0, scheme.length + 1).toLowerCase() === `${scheme.toLowerCase()}:`
+  return !!url && url.slice(0, scheme.length + 1).toLowerCase() === `${scheme.toLowerCase()}:`
 }
 
 function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
-	return new Promise((resolve) => {
-		const nsUrl = NSURL.URLWithString(url)
-		if (!nsUrl) {
-			resolve({ type: 'error', message: 'authSession.open: invalid URL' })
-			return
-		}
+  return new Promise((resolve) => {
+    const nsUrl = NSURL.URLWithString(url)
+    if (!nsUrl) {
+      resolve({ type: 'error', message: 'authSession.open: invalid URL' })
+      return
+    }
 
-		// The session must be retained for the ceremony's lifetime — ARC sees
-		// no JS-side reference.
-		let session: any
-		let provider: any
-		const finish = (result: AuthSessionResult) => {
-			session = null
-			provider = null
-			resolve(result)
-		}
+    // The session must be retained for the ceremony's lifetime — ARC sees
+    // no JS-side reference.
+    let session: any
+    let provider: any
+    const finish = (result: AuthSessionResult) => {
+      session = null
+      provider = null
+      resolve(result)
+    }
 
-		session = ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
-			nsUrl,
-			options.callbackScheme,
-			(callbackURL: any, error: any) => {
-				if (error) {
-					finish(
-						error.code === ASWebAuthenticationSessionErrorCode.CanceledLogin
-							? { type: 'cancel' }
-							: { type: 'error', message: error.localizedDescription },
-					)
+    session = ASWebAuthenticationSession.alloc().initWithURLCallbackURLSchemeCompletionHandler(
+      nsUrl,
+      options.callbackScheme,
+      (callbackURL: any, error: any) => {
+        if (error) {
+          finish(
+            error.code === ASWebAuthenticationSessionErrorCode.CanceledLogin
+              ? { type: 'cancel' }
+              : { type: 'error', message: error.localizedDescription },
+          )
 
-					return
-				}
+          return
+        }
 
-				finish(
-					callbackURL ? { type: 'success', url: callbackURL.absoluteString } : { type: 'cancel' },
-				)
-			},
-		)
+        finish(
+          callbackURL ? { type: 'success', url: callbackURL.absoluteString } : { type: 'cancel' },
+        )
+      },
+    )
 
-		session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
-		provider = presentationAnchorClass().new()
-		session.presentationContextProvider = provider
+    session.prefersEphemeralWebBrowserSession = !!options.prefersEphemeralSession
+    provider = presentationAnchorClass().new()
+    session.presentationContextProvider = provider
 
-		if (!session.start()) {
-			finish({ type: 'error', message: 'authSession.open: session failed to start' })
-		}
-	})
+    if (!session.start()) {
+      finish({ type: 'error', message: 'authSession.open: session failed to start' })
+    }
+  })
 }
 
 // Build the provider on first use, using the runtime class-extension API.
 let AuthSessionPresentationAnchor: any
 
 function presentationAnchorClass(): any {
-	if (!AuthSessionPresentationAnchor) {
-		AuthSessionPresentationAnchor = (NSObject as any).extend(
-			{
-				presentationAnchorForWebAuthenticationSession(): UIWindow {
-					const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
-					const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
-					for (let i = 0; i < scenes.count; i++) {
-						const scene = scenes.objectAtIndex(i) as UIWindowScene
-						if (scene.activationState === foregroundActive) {
-							const anchor = scene.windows.objectAtIndex(0)
-							if (anchor) {
-								return anchor
-							}
-						}
-					}
+  if (!AuthSessionPresentationAnchor) {
+    AuthSessionPresentationAnchor = (NSObject as any).extend(
+      {
+        presentationAnchorForWebAuthenticationSession(): UIWindow {
+          const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
+          const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
+          for (let i = 0; i < scenes.count; i++) {
+            const scene = scenes.objectAtIndex(i) as UIWindowScene
+            if (scene.activationState === foregroundActive) {
+              const anchor = scene.windows.objectAtIndex(0)
+              if (anchor) {
+                return anchor
+              }
+            }
+          }
 
-					return UIApplication.sharedApplication.keyWindow as UIWindow
-				},
-			},
-			{
-				name: 'XplatAuthSessionPresentationAnchor',
-				protocols: [ASWebAuthenticationPresentationContextProviding],
-			},
-		)
-	}
+          return UIApplication.sharedApplication.keyWindow as UIWindow
+        },
+      },
+      {
+        name: 'XplatAuthSessionPresentationAnchor',
+        protocols: [ASWebAuthenticationPresentationContextProviding],
+      },
+    )
+  }
 
-	return AuthSessionPresentationAnchor
+  return AuthSessionPresentationAnchor
 }
 
 function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
-	return new Promise((resolve) => {
-		const scheme = options.callbackScheme
-		const intentUrl = (intent: any) => intent?.getDataString?.()
-		// `Utils.android` is a {} stub in the pinned Windows core build.
-		const androidUtils = Utils.android as any
-		const initialActivity =
-			androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
+  return new Promise((resolve) => {
+    const scheme = options.callbackScheme
+    const intentUrl = (intent: any) => intent?.getDataString?.()
+    // `Utils.android` is a {} stub in the pinned Windows core build.
+    const androidUtils = Utils.android as any
+    const initialActivity =
+      androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
 
-		const initialUrl = intentUrl(initialActivity?.getIntent?.())
-		let finished = false
+    const initialUrl = intentUrl(initialActivity?.getIntent?.())
+    let finished = false
 
-		const finish = (result: AuthSessionResult) => {
-			if (finished) {
-				return
-			}
+    const finish = (result: AuthSessionResult) => {
+      if (finished) {
+        return
+      }
 
-			finished = true
-			Application.android.off('activityNewIntent', onNewIntent)
-			Application.off(Application.resumeEvent, onResume)
-			resolve(result)
-		}
+      finished = true
+      Application.android.off('activityNewIntent', onNewIntent)
+      Application.off(Application.resumeEvent, onResume)
+      resolve(result)
+    }
 
-		const onNewIntent = (args: any) => {
-			const callback = intentUrl(args.intent)
-			if (isCallback(callback, scheme)) {
-				finish({ type: 'success', url: callback })
-			}
-		}
+    const onNewIntent = (args: any) => {
+      const callback = intentUrl(args.intent)
+      if (isCallback(callback, scheme)) {
+        finish({ type: 'success', url: callback })
+      }
+    }
 
-		const onResume = () => {
-			const activity = androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
-			// Core's onNewIntent calls setIntent(), so a redirect delivered while
-			// the Custom Tab was open is already the activity's intent here; a
-			// resume without a matching URL is a user dismiss.
-			const callback = intentUrl(activity?.getIntent?.())
-			if (callback !== initialUrl && isCallback(callback, scheme)) {
-				finish({ type: 'success', url: callback })
-			} else {
-				finish({ type: 'cancel' })
-			}
-		}
+    const onResume = () => {
+      const activity = androidUtils.getCurrentActivity() ?? Application.android.foregroundActivity
+      // Core's onNewIntent calls setIntent(), so a redirect delivered while
+      // the Custom Tab was open is already the activity's intent here; a
+      // resume without a matching URL is a user dismiss.
+      const callback = intentUrl(activity?.getIntent?.())
+      if (callback !== initialUrl && isCallback(callback, scheme)) {
+        finish({ type: 'success', url: callback })
+      } else {
+        finish({ type: 'cancel' })
+      }
+    }
 
-		Application.android.on('activityNewIntent', onNewIntent)
-		Application.on(Application.resumeEvent, onResume)
+    Application.android.on('activityNewIntent', onNewIntent)
+    Application.on(Application.resumeEvent, onResume)
 
-		try {
-			const activity = androidUtils.getCurrentActivity()
-			const tabs = (globalThis as any).androidx?.browser?.customtabs?.CustomTabsIntent
-			if (activity && tabs) {
-				new tabs.Builder().build().launchUrl(activity, android.net.Uri.parse(url))
-			} else {
-				// No androidx.browser on the classpath — a plain browser VIEW
-				// intent still returns through the same deep-link path.
-				if (!Utils.openUrl(url)) {
-					finish({ type: 'error', message: 'authSession.open: browser could not open URL' })
-				}
-			}
-		} catch {
-			finish({ type: 'error', message: 'authSession.open: browser launch failed' })
-		}
-	})
+    try {
+      const activity = androidUtils.getCurrentActivity()
+      const tabs = (globalThis as any).androidx?.browser?.customtabs?.CustomTabsIntent
+      if (activity && tabs) {
+        new tabs.Builder().build().launchUrl(activity, android.net.Uri.parse(url))
+      } else {
+        // No androidx.browser on the classpath — a plain browser VIEW
+        // intent still returns through the same deep-link path.
+        if (!Utils.openUrl(url)) {
+          finish({ type: 'error', message: 'authSession.open: browser could not open URL' })
+        }
+      }
+    } catch {
+      finish({ type: 'error', message: 'authSession.open: browser launch failed' })
+    }
+  })
 }
 
 /** OAuth/ephemeral auth-session service. */
 export const authSession: Service<AuthSessionImpl> = {
-	supported: true,
-	isAvailable: async () => true,
-	async open(url, options) {
-		if (active) {
-			return Promise.resolve({
-				type: 'error',
-				message: 'authSession.open: a session is already active',
-			})
-		}
+  supported: true,
+  isAvailable: async () => true,
+  async open(url, options) {
+    if (active) {
+      return Promise.resolve({
+        type: 'error',
+        message: 'authSession.open: a session is already active',
+      })
+    }
 
-		active = true
-		const run = Application.ios ? iosOpen : androidOpen
-		try {
-			return await run(url, options)
-		} catch {
-			return { type: 'error', message: 'authSession.open: native session failed' }
-		} finally {
-			active = false
-		}
-	},
+    active = true
+    const run = Application.ios ? iosOpen : androidOpen
+    try {
+      return await run(url, options)
+    } catch {
+      return { type: 'error', message: 'authSession.open: native session failed' }
+    } finally {
+      active = false
+    }
+  },
 }

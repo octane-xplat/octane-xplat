@@ -1,7 +1,7 @@
 const vibrate = (pattern: number | number[]) => {
-	if (typeof navigator !== 'undefined') {
-		navigator.vibrate?.(pattern)
-	}
+  if (typeof navigator !== 'undefined') {
+    navigator.vibrate?.(pattern)
+  }
 }
 
 export const playPreset = () => vibrate([12, 35, 18])

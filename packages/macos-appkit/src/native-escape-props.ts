@@ -2,29 +2,29 @@
 export function applyEscapeProps() {}
 
 export function nativeAccessibilityRole(role: string) {
-	return role
+  return role
 }
 
 export function nativeAccessibilityState(state?: {
-	disabled?: boolean
-	selected?: boolean
-	checked?: boolean
+  disabled?: boolean
+  selected?: boolean
+  checked?: boolean
 }) {
-	if (state?.disabled) {
-		return 'disabled'
-	}
+  if (state?.disabled) {
+    return 'disabled'
+  }
 
-	if (state?.selected) {
-		return 'selected'
-	}
+  if (state?.selected) {
+    return 'selected'
+  }
 
-	if (state?.checked === true) {
-		return 'checked'
-	}
+  if (state?.checked === true) {
+    return 'checked'
+  }
 
-	if (state?.checked === false) {
-		return 'unchecked'
-	}
+  if (state?.checked === false) {
+    return 'unchecked'
+  }
 
-	return undefined
+  return undefined
 }

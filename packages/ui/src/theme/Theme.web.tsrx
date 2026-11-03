@@ -27,52 +27,52 @@ import { useThemeScheme } from './theme-scheme'
 
 import type { JSX } from 'octane/jsx-runtime'
 export interface ThemeProps {
-	/** Theme built by `defineTheme`. */
-	theme: DefinedTheme
-	/** Color mode for the scope; inherits the parent Theme when omitted. */
-	mode?: ThemeMode
-	children?: any
+  /** Theme built by `defineTheme`. */
+  theme: DefinedTheme
+  /** Color mode for the scope; inherits the parent Theme when omitted. */
+  mode?: ThemeMode
+  children?: any
 }
 
 export function Theme(props: ThemeProps): JSX.Element @{
-	const parent = useContext(ThemeContext)
-	const isNested = useContext(ThemeNestingContext)
-	const scheme = useThemeScheme()
+  const parent = useContext(ThemeContext)
+  const isNested = useContext(ThemeNestingContext)
+  const scheme = useThemeScheme()
 
-	const mode: ThemeMode = props.mode ?? parent?.mode ?? 'system'
-	const effective = mode === 'system' ? scheme : mode
+  const mode: ThemeMode = props.mode ?? parent?.mode ?? 'system'
+  const effective = mode === 'system' ? scheme : mode
 
-	useEffect(() => {
-		registerTheme(props.theme)
-		ensureThemeCss(props.theme)
-	}, [props.theme])
+  useEffect(() => {
+    registerTheme(props.theme)
+    ensureThemeCss(props.theme)
+  }, [props.theme])
 
-	useEffect(() => {
-		if (isNested) {
-			return
-		}
+  useEffect(() => {
+    if (isNested) {
+      return
+    }
 
-		const unscope = setRootThemeScope(props.theme)
-		const unsync = syncDocumentRootTheme(props.theme.name, effective)
-		return () => {
-			unsync()
-			unscope()
-		}
-	}, [isNested, props.theme, effective])
+    const unscope = setRootThemeScope(props.theme)
+    const unsync = syncDocumentRootTheme(props.theme.name, effective)
+    return () => {
+      unsync()
+      unscope()
+    }
+  }, [isNested, props.theme, effective])
 
-	const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
+  const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
 
-	return (
-		<ThemeProviderEl value={ctx}>
-			<ThemeNestingProviderEl value={true}>
-				<div
-					data-xds-theme={props.theme.name}
-					className={`xds-theme xds-theme-${props.theme.name} ${effective === 'dark' ? 'dark ns-dark' : 'xds-light'}`}
-					style={{ display: 'contents', colorScheme: effective }}
-				>
-					{props.children}
-				</div>
-			</ThemeNestingProviderEl>
-		</ThemeProviderEl>
-	)
+  return (
+    <ThemeProviderEl value={ctx}>
+      <ThemeNestingProviderEl value={true}>
+        <div
+          data-xds-theme={props.theme.name}
+          className={`xds-theme xds-theme-${props.theme.name} ${effective === 'dark' ? 'dark ns-dark' : 'xds-light'}`}
+          style={{ display: 'contents', colorScheme: effective }}
+        >
+          {props.children}
+        </div>
+      </ThemeNestingProviderEl>
+    </ThemeProviderEl>
+  )
 }

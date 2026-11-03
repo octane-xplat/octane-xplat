@@ -25,59 +25,59 @@ A working app.
 `
 
 function fixture(t, content = recipe) {
-	const root = mkdtempSync(join(tmpdir(), 'recipe-check-'))
-	t.after(() => rmSync(root, { recursive: true, force: true }))
-	mkdirSync(join(root, '.agents/docs/recipes'), { recursive: true })
-	writeFileSync(join(root, '.agents/docs/recipes/task.md'), content)
-	writeFileSync(join(root, 'guide.md'), '# Guide\n\n## Instructions\nSteps.\n')
-	return root
+  const root = mkdtempSync(join(tmpdir(), 'recipe-check-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  mkdirSync(join(root, '.agents/docs/recipes'), { recursive: true })
+  writeFileSync(join(root, '.agents/docs/recipes/task.md'), content)
+  writeFileSync(join(root, 'guide.md'), '# Guide\n\n## Instructions\nSteps.\n')
+  return root
 }
 
 test('accepts mapped criteria and explicit gaps', (t) => {
-	assert.deepEqual(checkRecipes(fixture(t)), [])
-	assert.deepEqual(
-		checkRecipes(
-			fixture(
-				t,
-				recipe.replace(
-					'[Instructions](../../../guide.md#instructions).',
-					'Gap: instructions missing.',
-				),
-			),
-		),
-		[],
-	)
+  assert.deepEqual(checkRecipes(fixture(t)), [])
+  assert.deepEqual(
+    checkRecipes(
+      fixture(
+        t,
+        recipe.replace(
+          '[Instructions](../../../guide.md#instructions).',
+          'Gap: instructions missing.',
+        ),
+      ),
+    ),
+    [],
+  )
 })
 
 test('rejects missing files and missing heading anchors', (t) => {
-	assert.match(
-		checkRecipes(fixture(t, recipe.replace('guide.md', 'absent.md'))).join('\n'),
-		/unreadable local link/,
-	)
+  assert.match(
+    checkRecipes(fixture(t, recipe.replace('guide.md', 'absent.md'))).join('\n'),
+    /unreadable local link/,
+  )
 
-	assert.match(
-		checkRecipes(fixture(t, recipe.replace('#instructions', '#absent'))).join('\n'),
-		/missing heading/,
-	)
+  assert.match(
+    checkRecipes(fixture(t, recipe.replace('#instructions', '#absent'))).join('\n'),
+    /missing heading/,
+  )
 })
 
 test('rejects unmapped criteria and stale mappings', (t) => {
-	const errors = checkRecipes(
-		fixture(t, recipe.replace('- AC1: [Instructions]', '- AC2: [Instructions]')),
-	).join('\n')
+  const errors = checkRecipes(
+    fixture(t, recipe.replace('- AC1: [Instructions]', '- AC2: [Instructions]')),
+  ).join('\n')
 
-	assert.match(errors, /AC1 needs a documentation link/)
-	assert.match(errors, /unknown AC2/)
+  assert.match(errors, /AC1 needs a documentation link/)
+  assert.match(errors, /unknown AC2/)
 })
 
 test('rejects duplicate recipe and criterion IDs', (t) => {
-	const root = fixture(
-		t,
-		recipe.replace('- AC1: The result is observable.', '- AC1: First.\n- AC1: Second.'),
-	)
+  const root = fixture(
+    t,
+    recipe.replace('- AC1: The result is observable.', '- AC1: First.\n- AC1: Second.'),
+  )
 
-	writeFileSync(join(root, '.agents/docs/recipes/duplicate.md'), recipe)
-	const errors = checkRecipes(root).join('\n')
-	assert.match(errors, /duplicate recipe ID/)
-	assert.match(errors, /duplicate AC1/)
+  writeFileSync(join(root, '.agents/docs/recipes/duplicate.md'), recipe)
+  const errors = checkRecipes(root).join('\n')
+  assert.match(errors, /duplicate recipe ID/)
+  assert.match(errors, /duplicate AC1/)
 })

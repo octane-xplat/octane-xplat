@@ -24,87 +24,87 @@ const sounds = () => (_sounds ??= createSoundBank({ maxVoices: 4 }))
 const player = () => (_player ??= createAudioPlayer())
 
 async function ensureSound(): Promise<void> {
-	if (_soundLoaded) {
-		return
-	}
+  if (_soundLoaded) {
+    return
+  }
 
-	await sounds().load('tap', SAMPLE)
-	_soundLoaded = true
+  await sounds().load('tap', SAMPLE)
+  _soundLoaded = true
 }
 
 /** Fires a checklist stimulus; resolves to a short status string the page
  *  echoes. Never throws — a broken trigger is itself a finding. */
 export async function runQaTrigger(key: string): Promise<string> {
-	try {
-		switch (key) {
-			case 'sound-tap':
-				await ensureSound()
-				await sounds().play('tap', { volume: 0.5 })
-				return 'played'
-			case 'sound-overlap':
-				await ensureSound()
-				void sounds().play('tap')
-				setTimeout(() => void sounds().play('tap'), 35)
-				return 'played ×2'
-			case 'audio-play':
-				await player().setQueue([
-					{ id: 'sample', source: SAMPLE, title: 'Sample audio', artist: 'Octane xplat' },
-				])
+  try {
+    switch (key) {
+      case 'sound-tap':
+        await ensureSound()
+        await sounds().play('tap', { volume: 0.5 })
+        return 'played'
+      case 'sound-overlap':
+        await ensureSound()
+        void sounds().play('tap')
+        setTimeout(() => void sounds().play('tap'), 35)
+        return 'played ×2'
+      case 'audio-play':
+        await player().setQueue([
+          { id: 'sample', source: SAMPLE, title: 'Sample audio', artist: 'Octane xplat' },
+        ])
 
-				await player().play()
-				return 'playing'
-			case 'audio-pause':
-				await player().pause()
-				return 'paused'
-			case 'audio-seek':
-				await player().seek(10)
-				return 'seeked to 10s'
-			case 'haptic-preset':
-				await haptics().play('success')
-				return 'fired'
-			case 'haptic-pattern':
-				await haptics().playPattern({
-					duration: 240,
-					points: [
-						{ at: 0, intensity: 0.8 },
-						{ at: 100, intensity: 0.3, sharpness: 0.8 },
-					],
-				})
+        await player().play()
+        return 'playing'
+      case 'audio-pause':
+        await player().pause()
+        return 'paused'
+      case 'audio-seek':
+        await player().seek(10)
+        return 'seeked to 10s'
+      case 'haptic-preset':
+        await haptics().play('success')
+        return 'fired'
+      case 'haptic-pattern':
+        await haptics().playPattern({
+          duration: 240,
+          points: [
+            { at: 0, intensity: 0.8 },
+            { at: 100, intensity: 0.3, sharpness: 0.8 },
+          ],
+        })
 
-				return 'fired'
-			case 'haptic-hold':
-				_hold ??= haptics().startRealtime()
-				_hold.update(0.8, 0.5)
-				return 'holding'
-			case 'notify': {
-				if (!(await notifications.requestPermissions()).granted) {
-					return 'unsupported'
-				}
+        return 'fired'
+      case 'haptic-hold':
+        _hold ??= haptics().startRealtime()
+        _hold.update(0.8, 0.5)
+        return 'holding'
+      case 'notify': {
+        if (!(await notifications.requestPermissions()).granted) {
+          return 'unsupported'
+        }
 
-				notifications.notify('Human QA', 'notification check')
-				return 'sent — background the app now'
-			}
-			case 'share':
-				return 'result: ' + (await share.text('octane-xplat human QA'))
-			case 'biometric': {
-				if (!(await biometrics.requestPermissions()).granted) {
-					return 'unsupported'
-				}
+        notifications.notify('Human QA', 'notification check')
+        return 'sent — background the app now'
+      }
+      case 'share':
+        return 'result: ' + (await share.text('octane-xplat human QA'))
+      case 'biometric': {
+        if (!(await biometrics.requestPermissions()).granted) {
+          return 'unsupported'
+        }
 
-				return (await biometrics.verify('Confirm it is you')) ? 'verified' : 'failed'
-			}
-			default:
-				return 'unknown trigger: ' + key
-		}
-	} catch (e) {
-		return 'error: ' + (e instanceof Error ? e.message : String(e))
-	}
+        return (await biometrics.verify('Confirm it is you')) ? 'verified' : 'failed'
+      }
+      default:
+        return 'unknown trigger: ' + key
+    }
+  } catch (e) {
+    return 'error: ' + (e instanceof Error ? e.message : String(e))
+  }
 }
 
 /** Releases a `hold` trigger (onPressOut). */
 export function releaseQaTrigger(key: string): void {
-	if (key === 'haptic-hold' && _hold) {
-		_hold.stop()
-		_hold = null
-	}
+  if (key === 'haptic-hold' && _hold) {
+    _hold.stop()
+    _hold = null
+  }
 }

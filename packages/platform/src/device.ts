@@ -3,10 +3,10 @@ import type { DeviceInfo } from './types'
 
 /** Static device metadata service. */
 export const device: DeviceInfo = {
-	os: Device.os.toLowerCase() === 'ios' ? 'ios' : 'android',
-	osVersion: Device.osVersion,
-	model: Device.model,
-	manufacturer: Device.manufacturer,
-	language: Device.language.split('-')[0] ?? '',
-	region: Device.region,
+  os: Device.os.toLowerCase() === 'ios' ? 'ios' : 'android',
+  osVersion: Device.osVersion,
+  model: Device.model,
+  manufacturer: Device.manufacturer,
+  language: Device.language.split('-')[0] ?? '',
+  region: Device.region,
 }

@@ -3,16 +3,16 @@ import { useMemo } from 'octane'
 import { CommandPalette, createStaticSource } from '@octane-xplat/ui'
 
 export function CommandPaletteShowcase() @{
-	const source = useMemo(
-		() =>
-			createStaticSource([
-				{ id: 'home', label: 'Home' },
-				{ id: 'settings', label: 'Settings' },
-				{ id: 'profile', label: 'Profile' },
-				{ id: 'help', label: 'Help' },
-			]),
-		[],
-	)
+  const source = useMemo(
+    () =>
+      createStaticSource([
+        { id: 'home', label: 'Home' },
+        { id: 'settings', label: 'Settings' },
+        { id: 'profile', label: 'Profile' },
+        { id: 'help', label: 'Help' },
+      ]),
+    [],
+  )
 
-	<CommandPalette open onOpenChange={() => {}} searchSource={source} />
+  <CommandPalette open onOpenChange={() => {}} searchSource={source} />
 }

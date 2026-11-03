@@ -5,13 +5,13 @@ import type { AudioPlayer } from './types'
 
 /** Create an independent player on web/iOS/macOS; Android owns one app playback service. */
 export const createAudioPlayer = (): AudioPlayer => {
-	if (Application.android) {
-		return createAndroidAudioPlayer()
-	}
+  if (Application.android) {
+    return createAndroidAudioPlayer()
+  }
 
-	if (Application.ios) {
-		return createIOSAudioPlayer()
-	}
+  if (Application.ios) {
+    return createIOSAudioPlayer()
+  }
 
-	throw new Error('@octane-xplat/audio requires iOS or Android')
+  throw new Error('@octane-xplat/audio requires iOS or Android')
 }

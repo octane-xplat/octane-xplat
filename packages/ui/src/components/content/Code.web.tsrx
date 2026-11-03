@@ -7,18 +7,18 @@ import type { JSX } from 'octane/jsx-runtime'
  *  the run adopts its surrounding text metrics; `color` picks the primary,
  *  secondary, or inherited text color. */
 export function Code(props: CodeProps): JSX.Element @{
-	<code
-		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
-		className={[
-			'vx-code',
-			props.color === 'secondary' && 'vx-color-secondary',
-			props.color === 'inherit' && 'vx-code--inherit',
-			props.size === 'inherit' && 'vx-code--size-inherit',
-			props.className,
-		]}
-		style={props.style}
-	>
-		{props.children}
-	</code>
+  <code
+    ref={(e: any) => applyEscapeProps(e, props)}
+    id={props.id}
+    className={[
+      'vx-code',
+      props.color === 'secondary' && 'vx-color-secondary',
+      props.color === 'inherit' && 'vx-code--inherit',
+      props.size === 'inherit' && 'vx-code--size-inherit',
+      props.className,
+    ]}
+    style={props.style}
+  >
+    {props.children}
+  </code>
 }

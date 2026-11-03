@@ -10,20 +10,20 @@ import type { ColorScheme } from '../props'
  * @see ColorScheme, getThemePreference.
  */
 export function getColorScheme(): ColorScheme {
-	// systemAppearance() is deprecated in favor of primaryWindow, but the
-	// primary window isn't guaranteed during early boot — fall back.
-	return (
-		Application.primaryWindow?.systemAppearance?.() ?? Application.systemAppearance?.() ?? 'light'
-	)
+  // systemAppearance() is deprecated in favor of primaryWindow, but the
+  // primary window isn't guaranteed during early boot — fall back.
+  return (
+    Application.primaryWindow?.systemAppearance?.() ?? Application.systemAppearance?.() ?? 'light'
+  )
 }
 
 export function subscribeSystemScheme(cb: () => void): () => void {
-	const h = () => cb()
-	Application.on('systemAppearanceChanged', h)
-	return () => Application.off('systemAppearanceChanged', h)
+  const h = () => cb()
+  Application.on('systemAppearanceChanged', h)
+  return () => Application.off('systemAppearanceChanged', h)
 }
 
 /** Reactive system appearance — 'light' | 'dark', re-renders on OS change. */
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
+  return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
 }

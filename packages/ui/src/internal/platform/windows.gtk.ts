@@ -14,47 +14,47 @@ let seq = 0
  *  as the macOS host. Returns `null` when the host has no window service;
  *  invalid options (bad `kind`, a closed `parent`) throw. */
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
-	const open = hostGlobal('__octaneGtkHost')?.openWindow
-	if (typeof open !== 'function') {
-		console.warn('[octane-xplat] Window creation is unsupported by the current GTK host.')
-		return null
-	}
+  const open = hostGlobal('__octaneGtkHost')?.openWindow
+  if (typeof open !== 'function') {
+    console.warn('[octane-xplat] Window creation is unsupported by the current GTK host.')
+    return null
+  }
 
-	const parent = controllers.get(options.parent as WindowHandle) ?? options.parent
-	const controller = open({ ...options, parent })
+  const parent = controllers.get(options.parent as WindowHandle) ?? options.parent
+  const controller = open({ ...options, parent })
 
-	const handle: WindowHandle = {
-		id: `w${++seq}`,
-		closed: controller.closed,
-		get isClosed() {
-			return !!controller.isClosed
-		},
-		close() {
-			controller.close()
-		},
-		...(typeof controller.setTitle === 'function'
-			? { setTitle: (title: string) => controller.setTitle(title) }
-			: {}),
-		...(typeof controller.setSize === 'function'
-			? { setSize: (size: { width: number; height: number }) => controller.setSize(size) }
-			: {}),
-		// The GTK controller carries an assignable onCloseRequested slot —
-		// the close-request signal routes through it before GTK destroys the
-		// window.
-		...('onCloseRequested' in controller
-			? {
-					onCloseRequested(callback: () => boolean) {
-						controller.onCloseRequested = callback
-						return () => {
-							if (controller.onCloseRequested === callback) {
-								controller.onCloseRequested = null
-							}
-						}
-					},
-				}
-			: {}),
-	}
+  const handle: WindowHandle = {
+    id: `w${++seq}`,
+    closed: controller.closed,
+    get isClosed() {
+      return !!controller.isClosed
+    },
+    close() {
+      controller.close()
+    },
+    ...(typeof controller.setTitle === 'function'
+      ? { setTitle: (title: string) => controller.setTitle(title) }
+      : {}),
+    ...(typeof controller.setSize === 'function'
+      ? { setSize: (size: { width: number; height: number }) => controller.setSize(size) }
+      : {}),
+    // The GTK controller carries an assignable onCloseRequested slot —
+    // the close-request signal routes through it before GTK destroys the
+    // window.
+    ...('onCloseRequested' in controller
+      ? {
+          onCloseRequested(callback: () => boolean) {
+            controller.onCloseRequested = callback
+            return () => {
+              if (controller.onCloseRequested === callback) {
+                controller.onCloseRequested = null
+              }
+            }
+          },
+        }
+      : {}),
+  }
 
-	controllers.set(handle, controller)
-	return handle
+  controllers.set(handle, controller)
+  return handle
 }

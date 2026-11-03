@@ -23,16 +23,16 @@ half4 main(float2 fragCoord) {
 /** RuntimeShader probe — the card's subtree renders through a RenderEffect
  *  (AGSL, API 33+). Sweep reads: 'effect-haze' host. */
 export function EffectsDemo() @{
-	<Screen className="vx-app flex-1 gap-4">
-		<Text className="text-xl font-semibold">Shader effects</Text>
-		<ShaderEffect id="effect-haze" source={HAZE} style={{ width: 300, height: 80 }}>
-			<View style={{ width: 300, height: 80, backgroundColor: '#2e1a1a' }}>
-				<Text style={{ color: '#fff' }}>heat haze (AGSL)</Text>
-			</View>
-		</ShaderEffect>
-		<Text className="text-sm text-muted">
-			AGSL RuntimeShader via RenderEffect — Android 13+ only; older devices render the subtree
-			untouched.
-		</Text>
-	</Screen>
+  <Screen className="vx-app flex-1 gap-4">
+    <Text className="text-xl font-semibold">Shader effects</Text>
+    <ShaderEffect id="effect-haze" source={HAZE} style={{ width: 300, height: 80 }}>
+      <View style={{ width: 300, height: 80, backgroundColor: '#2e1a1a' }}>
+        <Text style={{ color: '#fff' }}>heat haze (AGSL)</Text>
+      </View>
+    </ShaderEffect>
+    <Text className="text-sm text-muted">
+      AGSL RuntimeShader via RenderEffect — Android 13+ only; older devices render the subtree
+      untouched.
+    </Text>
+  </Screen>
 }

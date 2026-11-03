@@ -2,10 +2,10 @@
 import { MetadataList, MetadataListItem } from '@octane-xplat/ui'
 
 export function MetadataListHorizontalMetadata() @{
-	<MetadataList orientation="horizontal">
-		<MetadataListItem label="Status">Active</MetadataListItem>
-		<MetadataListItem label="Type">Premium</MetadataListItem>
-		<MetadataListItem label="Owner">Joey</MetadataListItem>
-		<MetadataListItem label="Created">Jan 15, 2026</MetadataListItem>
-	</MetadataList>
+  <MetadataList orientation="horizontal">
+    <MetadataListItem label="Status">Active</MetadataListItem>
+    <MetadataListItem label="Type">Premium</MetadataListItem>
+    <MetadataListItem label="Owner">Joey</MetadataListItem>
+    <MetadataListItem label="Created">Jan 15, 2026</MetadataListItem>
+  </MetadataList>
 }

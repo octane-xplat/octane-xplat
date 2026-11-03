@@ -6,6 +6,6 @@ import type { TableContextValue } from './types'
 
 /** Resolved table context for cells and rows — null outside a Table. */
 export const TableContext: Context<TableContextValue | null> =
-	createContext<TableContextValue | null>(null)
+  createContext<TableContextValue | null>(null)
 
 export const TableContextProvider: any = TableContext

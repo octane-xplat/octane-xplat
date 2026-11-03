@@ -2,9 +2,9 @@
 export function applyEscapeProps() {}
 
 export function nativeAccessibilityRole(role: string) {
-	return role
+  return role
 }
 
 export function nativeAccessibilityState(state?: Record<string, unknown>) {
-	return state
+  return state
 }

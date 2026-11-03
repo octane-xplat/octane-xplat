@@ -5,6 +5,6 @@ import { readWindowsConnectivity } from './connectivity-state'
 
 /** Windows profile state with the shared NativeScript monitor and listener ownership. */
 export const connectivity: ConnectivityImpl = createNativeConnectivity(
-	Connectivity,
-	readWindowsConnectivity,
+  Connectivity,
+  readWindowsConnectivity,
 )

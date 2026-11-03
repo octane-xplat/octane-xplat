@@ -9,20 +9,20 @@ import type { Renderable } from '../props'
  * per-block attributes without adding a layout box.
  */
 export function MdSourceLines(props: {
-	lines?: { readonly start: number; readonly end: number }
-	children?: Renderable
+  lines?: { readonly start: number; readonly end: number }
+  children?: Renderable
 }): JSX.Element @{
-	if (props.lines == null) {
-		return <>{props.children}</>
-	}
+  if (props.lines == null) {
+    return <>{props.children}</>
+  }
 
-	return (
-		<div
-			style={{ display: 'contents' }}
-			data-source-line={props.lines.start}
-			data-source-line-end={props.lines.end}
-		>
-			{props.children}
-		</div>
-	)
+  return (
+    <div
+      style={{ display: 'contents' }}
+      data-source-line={props.lines.start}
+      data-source-line-end={props.lines.end}
+    >
+      {props.children}
+    </div>
+  )
 }

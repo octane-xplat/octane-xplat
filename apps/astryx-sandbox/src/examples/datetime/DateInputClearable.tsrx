@@ -4,16 +4,16 @@ import { useState } from 'octane'
 import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from '@octane-xplat/ui'
 
 export function DateInputClearable() @{
-	const [value, setValue] = useState<ISODateString | null>(null)
+  const [value, setValue] = useState<ISODateString | null>(null)
 
-	<div style={{ width: 400 }}>
-		<DateInput
-			label="Start date"
-			description="Pick a start date for your project"
-			placeholder="YYYY-MM-DD"
-			value={value}
-			onChange={setValue}
-			hasClear
-		/>
-	</div>
+  <div style={{ width: 400 }}>
+    <DateInput
+      label="Start date"
+      description="Pick a start date for your project"
+      placeholder="YYYY-MM-DD"
+      value={value}
+      onChange={setValue}
+      hasClear
+    />
+  </div>
 }

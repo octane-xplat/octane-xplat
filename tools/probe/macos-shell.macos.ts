@@ -12,94 +12,94 @@ import * as renderer from '@octane-xplat/macos-appkit'
 import { createAppKitWindow, fitWindowToContent } from '../../apps/macos/src/appkit.ts'
 
 globalThis.__xplatDevModules = {
-	'octane/universal/native': native,
-	'octane/signals': signals,
-	'octane/signals/client': signalsClient,
-	'octane/internal/client': internal,
-	'@octane-xplat/macos-appkit': renderer,
+  'octane/universal/native': native,
+  'octane/signals': signals,
+  'octane/signals/client': signalsClient,
+  'octane/internal/client': internal,
+  '@octane-xplat/macos-appkit': renderer,
 }
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 let running = Promise.resolve()
 
 function adapter() {
-	let root
-	const find = (id) => root?.__macosDebug.findId(id) ?? null
-	const required = (id) => {
-		const view = find(id)
-		if (!view) {
-			throw new Error('Missing probe view: ' + id)
-		}
+  let root
+  const find = (id) => root?.__macosDebug.findId(id) ?? null
+  const required = (id) => {
+    const view = find(id)
+    if (!view) {
+      throw new Error('Missing probe view: ' + id)
+    }
 
-		return view
-	}
+    return view
+  }
 
-	return {
-		host: appKit,
-		identity: 'AppKit/JavaScriptCore',
-		interaction: 'appkit-action-dispatch',
-		mount(Component, props) {
-			root?.unmount()
-			root = renderer.createMacOSRoot(appKit.contentView, harnessFontOptions)
-			root.render(Component, { ...props, parentWindow: appKit.window })
-			fitWindowToContent(appKit.window)
-		},
-		find,
-		press(id) {
-			root.__macosDebug.pressId(id)
-		},
-		setText(id, value) {
-			root.__macosDebug.setText(id, value)
-		},
-		inspect(id) {
-			appKit.contentView.layoutSubtreeIfNeeded()
-			const view = required(id)
-			const frame = view.frame
-			const alignment = view.alignmentRectForFrame?.(frame)
-			return {
-				text: String(view.stringValue ?? view.string ?? view.title ?? ''),
-				value: String(view.stringValue ?? view.string ?? ''),
-				frame: frame
-					? {
-							x: Number(frame.origin.x),
-							y: Number(frame.origin.y),
-							width: Number(frame.size.width),
-							height: Number(frame.size.height),
-						}
-					: null,
-				alignmentRect: alignment
-					? {
-							x: Number(alignment.origin.x),
-							y: Number(alignment.origin.y),
-							width: Number(alignment.size.width),
-							height: Number(alignment.size.height),
-						}
-					: null,
-				superview: view.superview ? String(view.superview.constructor.name) : null,
-				contentHeight: view.documentView
-					? Number(view.documentView.frame?.size?.height ?? 0)
-					: undefined,
-			}
-		},
-		dispose() {
-			root?.unmount()
-		},
-	}
+  return {
+    host: appKit,
+    identity: 'AppKit/JavaScriptCore',
+    interaction: 'appkit-action-dispatch',
+    mount(Component, props) {
+      root?.unmount()
+      root = renderer.createMacOSRoot(appKit.contentView, harnessFontOptions)
+      root.render(Component, { ...props, parentWindow: appKit.window })
+      fitWindowToContent(appKit.window)
+    },
+    find,
+    press(id) {
+      root.__macosDebug.pressId(id)
+    },
+    setText(id, value) {
+      root.__macosDebug.setText(id, value)
+    },
+    inspect(id) {
+      appKit.contentView.layoutSubtreeIfNeeded()
+      const view = required(id)
+      const frame = view.frame
+      const alignment = view.alignmentRectForFrame?.(frame)
+      return {
+        text: String(view.stringValue ?? view.string ?? view.title ?? ''),
+        value: String(view.stringValue ?? view.string ?? ''),
+        frame: frame
+          ? {
+              x: Number(frame.origin.x),
+              y: Number(frame.origin.y),
+              width: Number(frame.size.width),
+              height: Number(frame.size.height),
+            }
+          : null,
+        alignmentRect: alignment
+          ? {
+              x: Number(alignment.origin.x),
+              y: Number(alignment.origin.y),
+              width: Number(alignment.size.width),
+              height: Number(alignment.size.height),
+            }
+          : null,
+        superview: view.superview ? String(view.superview.constructor.name) : null,
+        contentHeight: view.documentView
+          ? Number(view.documentView.frame?.size?.height ?? 0)
+          : undefined,
+      }
+    },
+    dispose() {
+      root?.unmount()
+    },
+  }
 }
 
 function reload() {
-	running = running
-		.then(async () => {
-			const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
-			await loaded.start(adapter())
-		})
-		.catch((error) => console.error('[xplat-probe-host-error]', error?.stack ?? String(error)))
+  running = running
+    .then(async () => {
+      const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
+      await loaded.start(adapter())
+    })
+    .catch((error) => console.error('[xplat-probe-host-error]', error?.stack ?? String(error)))
 }
 
 globalThis.__xplatOnInput = (line) => {
-	if (line === 'reload') {
-		reload()
-	}
+  if (line === 'reload') {
+    reload()
+  }
 }
 
 void appKit.applicationClosed.then(() => globalThis.__xplatStopHost?.())

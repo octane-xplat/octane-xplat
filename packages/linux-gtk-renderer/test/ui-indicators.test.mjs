@@ -9,46 +9,46 @@ import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 test(
-	'GTK decorative indicators and subscribed registry retain states, geometry and ownership',
-	{ timeout: 90000 },
-	async (t) => {
-		const outDir = join(fixture, 'dist-ui-indicators')
-		if (!gjsAvailable() || !masonTypelibPresent()) {
-			t.skip('GJS and XplatMason required for runtime')
-			return
-		}
-		await build({
-			logLevel: 'error',
-			...(await xplatLinuxGtk('production', {
-				root: fixture,
-				entry: 'src/ui-indicators-main.ts',
-				outDir,
-			})),
-		})
-		const bundle = join(outDir, 'app.js')
-		assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
-		const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
-		const result = spawnSync('gjs', ['-m', bundle], {
-			env: { ...process.env, GTK_A11Y: 'test', XPLAT_MASON_TYPELIB: nativeDir },
-			encoding: 'utf8',
-			timeout: 45000,
-		})
-		assert.equal(result.status, 0, result.stdout + '\n' + result.stderr)
-		assert.doesNotMatch(
-			result.stderr,
-			/Gjs-CRITICAL|Gtk-CRITICAL|effect.*failed|\[linux-gtk\] event handler failed/,
-		)
-		const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_INDICATORS '))
-		assert.ok(line, result.stdout)
-		const info = JSON.parse(line.slice('GTK_INDICATORS '.length))
-		assert.ok(info.checks >= 35, JSON.stringify(info))
-		t.diagnostic(
-			process.platform +
-				'; GTK ' +
-				info.gtk +
-				'; ' +
-				info.checks +
-				' native geometry/context/lifecycle assertions; no OS input, images, IME or AT-client proof',
-		)
-	},
+  'GTK decorative indicators and subscribed registry retain states, geometry and ownership',
+  { timeout: 90000 },
+  async (t) => {
+    const outDir = join(fixture, 'dist-ui-indicators')
+    if (!gjsAvailable() || !masonTypelibPresent()) {
+      t.skip('GJS and XplatMason required for runtime')
+      return
+    }
+    await build({
+      logLevel: 'error',
+      ...(await xplatLinuxGtk('production', {
+        root: fixture,
+        entry: 'src/ui-indicators-main.ts',
+        outDir,
+      })),
+    })
+    const bundle = join(outDir, 'app.js')
+    assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+    const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
+    const result = spawnSync('gjs', ['-m', bundle], {
+      env: { ...process.env, GTK_A11Y: 'test', XPLAT_MASON_TYPELIB: nativeDir },
+      encoding: 'utf8',
+      timeout: 45000,
+    })
+    assert.equal(result.status, 0, result.stdout + '\n' + result.stderr)
+    assert.doesNotMatch(
+      result.stderr,
+      /Gjs-CRITICAL|Gtk-CRITICAL|effect.*failed|\[linux-gtk\] event handler failed/,
+    )
+    const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_INDICATORS '))
+    assert.ok(line, result.stdout)
+    const info = JSON.parse(line.slice('GTK_INDICATORS '.length))
+    assert.ok(info.checks >= 35, JSON.stringify(info))
+    t.diagnostic(
+      process.platform +
+        '; GTK ' +
+        info.gtk +
+        '; ' +
+        info.checks +
+        ' native geometry/context/lifecycle assertions; no OS input, images, IME or AT-client proof',
+    )
+  },
 )

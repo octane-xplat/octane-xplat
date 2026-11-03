@@ -1,8 +1,8 @@
 import {
-	disposeTextValue,
-	isWritingTextValue,
-	notifyTextValueCommit,
-	setTextValue,
+  disposeTextValue,
+  isWritingTextValue,
+  notifyTextValueCommit,
+  setTextValue,
 } from '../src/text-value.ts'
 
 import assert from 'node:assert/strict'
@@ -13,266 +13,266 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const helpers = source.slice(
-	source.indexOf('function dispatchTextEvent('),
-	source.indexOf('function setAction('),
+  source.indexOf('function dispatchTextEvent('),
+  source.indexOf('function setAction('),
 )
 
 const delegate = source.slice(
-	source.indexOf('class ButtonActionTarget'),
-	source.indexOf('const buttonActionTarget'),
+  source.indexOf('class ButtonActionTarget'),
+  source.indexOf('const buttonActionTarget'),
 )
 
 function load() {
-	const nodes = new WeakMap()
-	const context = {
-		elementBehaviors: new Map(),
-		behaviorOf: () => undefined,
-		isManualLayoutParent: (t: string) =>
-			[
-				'gridlayout',
-				'liquidglass',
-				'absolutelayout',
-				'contentview',
-				'actionbar',
-				'docklayout',
-				'wraplayout',
-				'rootlayout',
-			].includes(t),
-		registerElementType: () => {},
+  const nodes = new WeakMap()
+  const context = {
+    elementBehaviors: new Map(),
+    behaviorOf: () => undefined,
+    isManualLayoutParent: (t: string) =>
+      [
+        'gridlayout',
+        'liquidglass',
+        'absolutelayout',
+        'contentview',
+        'actionbar',
+        'docklayout',
+        'wraplayout',
+        'rootlayout',
+      ].includes(t),
+    registerElementType: () => {},
 
-		disposeTextValue,
-		isWritingTextValue,
-		notifyTextValueCommit,
-		setTextValue,
-		textNodesByView: nodes,
-		actionIdsByView: new WeakMap(),
-		actionHandlers: new Map(),
-		NSObject: class {},
-		NSTextViewDelegate: {},
-		NSTextFieldDelegate: {},
-		NSButton: {},
-		NSPanGestureRecognizer: {},
-		NSNotification: {},
-		interop: { types: { void: {} } },
-		NativeClass() {},
-		registerGestureClass() {},
-		DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
-		NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
-		NSParagraphStyleAttributeName: 'paragraph',
-		setSizeConstraint(node, name, value) {
-			node.sizeConstraintSpecs = { [name]: { points: value } }
-			node.height = value
-		},
-		InteractionSecureTextFieldCell: { alloc: () => ({ initTextCell: () => ({ secure: true }) }) },
-		InteractionTextFieldCell: { alloc: () => ({ initTextCell: () => ({ secure: false }) }) },
-	}
+    disposeTextValue,
+    isWritingTextValue,
+    notifyTextValueCommit,
+    setTextValue,
+    textNodesByView: nodes,
+    actionIdsByView: new WeakMap(),
+    actionHandlers: new Map(),
+    NSObject: class {},
+    NSTextViewDelegate: {},
+    NSTextFieldDelegate: {},
+    NSButton: {},
+    NSPanGestureRecognizer: {},
+    NSNotification: {},
+    interop: { types: { void: {} } },
+    NativeClass() {},
+    registerGestureClass() {},
+    DEFAULT_TEXT_LINE_HEIGHT_RATIO: 21 / 16,
+    NSMutableParagraphStyle: { alloc: () => ({ init: () => ({}) }) },
+    NSParagraphStyleAttributeName: 'paragraph',
+    setSizeConstraint(node, name, value) {
+      node.sizeConstraintSpecs = { [name]: { points: value } }
+      node.height = value
+    },
+    InteractionSecureTextFieldCell: { alloc: () => ({ initTextCell: () => ({ secure: true }) }) },
+    InteractionTextFieldCell: { alloc: () => ({ initTextCell: () => ({ secure: false }) }) },
+  }
 
-	return {
-		nodes,
-		...runSlice(
-			helpers +
-				'\n' +
-				delegate +
-				'\n({ dispatchTextEvent, fitTextView, syncSecureTextField, ButtonActionTarget })',
-			context,
-		),
-	}
+  return {
+    nodes,
+    ...runSlice(
+      helpers +
+        '\n' +
+        delegate +
+        '\n({ dispatchTextEvent, fitTextView, syncSecureTextField, ButtonActionTarget })',
+      context,
+    ),
+  }
 }
 
 function node(props = {}) {
-	return { props, container: { root: { eventScope: (_kind, run) => run() } } }
+  return { props, container: { root: { eventScope: (_kind, run) => run() } } }
 }
 
 test('focus transitions deduplicate notifications and read the latest callbacks', () => {
-	const { dispatchTextEvent } = load()
-	const calls = []
-	const control = node({ onFocus: () => calls.push('focus'), onBlur: () => calls.push('blur') })
-	dispatchTextEvent(control, 'onFocus')
-	dispatchTextEvent(control, 'onFocus')
-	control.props.onBlur = () => calls.push('new blur')
-	dispatchTextEvent(control, 'onBlur')
-	dispatchTextEvent(control, 'onBlur')
-	assert.deepEqual(calls, ['focus', 'new blur'])
+  const { dispatchTextEvent } = load()
+  const calls = []
+  const control = node({ onFocus: () => calls.push('focus'), onBlur: () => calls.push('blur') })
+  dispatchTextEvent(control, 'onFocus')
+  dispatchTextEvent(control, 'onFocus')
+  control.props.onBlur = () => calls.push('new blur')
+  dispatchTextEvent(control, 'onBlur')
+  dispatchTextEvent(control, 'onBlur')
+  assert.deepEqual(calls, ['focus', 'new blur'])
 })
 
 test('multiline action returns submit once; ordinary Return remains a newline', () => {
-	const { nodes, ButtonActionTarget } = load()
-	const view = {}
-	let submits = 0
-	const control = node({ onSubmit: () => submits++ })
-	nodes.set(view, control)
-	const target = new ButtonActionTarget()
-	for (const key of [undefined, 'next', 'go', 'search']) {
-		control.props.returnKeyType = key
-		assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
-	}
+  const { nodes, ButtonActionTarget } = load()
+  const view = {}
+  let submits = 0
+  const control = node({ onSubmit: () => submits++ })
+  nodes.set(view, control)
+  const target = new ButtonActionTarget()
+  for (const key of [undefined, 'next', 'go', 'search']) {
+    control.props.returnKeyType = key
+    assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
+  }
 
-	for (const key of ['done', 'send']) {
-		control.props.returnKeyType = key
-		assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
-		assert.equal(target.textViewDoCommandBySelector(view, 'insertTab:'), false)
-	}
+  for (const key of ['done', 'send']) {
+    control.props.returnKeyType = key
+    assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
+    assert.equal(target.textViewDoCommandBySelector(view, 'insertTab:'), false)
+  }
 
-	assert.equal(submits, 2)
-	control.props.onSubmit = undefined
-	assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
+  assert.equal(submits, 2)
+  control.props.onSubmit = undefined
+  assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
 })
 
 test('growth uses measured wrapped content, caps viewport, and preserves full document', () => {
-	const { fitTextView } = load()
-	let measured = 120
-	const control = node({ rows: 2, autoGrow: true, maxRows: 3 })
-	control.view = {
-		font: { ascender: 15, descender: -5, leading: 0 },
-		textContainer: {},
-		layoutManager: {
-			ensureLayoutForTextContainer() {},
-			usedRectForTextContainer: () => ({ size: { height: measured } }),
-			extraLineFragmentRect: { size: { height: 0 } },
-		},
-		frame: { size: { width: 100 } },
-		setFrameSize(size) {
-			this.frame = { size }
-		},
-	}
+  const { fitTextView } = load()
+  let measured = 120
+  const control = node({ rows: 2, autoGrow: true, maxRows: 3 })
+  control.view = {
+    font: { ascender: 15, descender: -5, leading: 0 },
+    textContainer: {},
+    layoutManager: {
+      ensureLayoutForTextContainer() {},
+      usedRectForTextContainer: () => ({ size: { height: measured } }),
+      extraLineFragmentRect: { size: { height: 0 } },
+    },
+    frame: { size: { width: 100 } },
+    setFrameSize(size) {
+      this.frame = { size }
+    },
+  }
 
-	control.textViewport = {
-		documentView: control.view,
-		contentView: { bounds: { size: { width: 100, height: 0 } } },
-	}
-	fitTextView(control)
-	assert.equal(control.height, 60)
-	assert.equal(control.view.frame.size.height, 120)
-	control.props.maxRows = undefined
-	fitTextView(control)
-	assert.equal(control.height, 120)
-	measured = 20
-	fitTextView(control)
-	assert.equal(control.height, 40)
-	control.props.autoGrow = false
-	measured = 200
-	fitTextView(control)
-	assert.equal(control.height, 40)
-	control.props.style = { height: 90 }
-	fitTextView(control)
-	assert.equal(control.height, 40, 'explicit height is owned by style application')
-	control.props.style = { lineHeight: 20 }
-	control.view.font = { ascender: 14, descender: -4, leading: 0 }
-	control.view.textContainerInset = { width: 8, height: 4 }
-	fitTextView(control)
-	assert.equal(control.height, 48, 'two shared lines include vertical padding')
-	control.props.rows = 3
-	fitTextView(control)
-	assert.equal(control.height, 68, 'three shared lines include vertical padding')
+  control.textViewport = {
+    documentView: control.view,
+    contentView: { bounds: { size: { width: 100, height: 0 } } },
+  }
+  fitTextView(control)
+  assert.equal(control.height, 60)
+  assert.equal(control.view.frame.size.height, 120)
+  control.props.maxRows = undefined
+  fitTextView(control)
+  assert.equal(control.height, 120)
+  measured = 20
+  fitTextView(control)
+  assert.equal(control.height, 40)
+  control.props.autoGrow = false
+  measured = 200
+  fitTextView(control)
+  assert.equal(control.height, 40)
+  control.props.style = { height: 90 }
+  fitTextView(control)
+  assert.equal(control.height, 40, 'explicit height is owned by style application')
+  control.props.style = { lineHeight: 20 }
+  control.view.font = { ascender: 14, descender: -4, leading: 0 }
+  control.view.textContainerInset = { width: 8, height: 4 }
+  fitTextView(control)
+  assert.equal(control.height, 48, 'two shared lines include vertical padding')
+  control.props.rows = 3
+  fitTextView(control)
+  assert.equal(control.height, 68, 'three shared lines include vertical padding')
 })
 
 test('secure changes keep the view, current editor text, selection and submit wiring', () => {
-	const { syncSecureTextField } = load()
-	const editor = { string: 'typed', selectedRange: { location: 2, length: 1 } }
-	const target = {}
-	const control = node({ secure: true })
-	const field = (control.view = {
-		cell: { target, action: 'controlChanged', tag: 42, font: 'font', enabled: true },
-		currentEditor: () => editor,
-		stringValue: 'stale',
-		window: { makeFirstResponder() {} },
-	})
+  const { syncSecureTextField } = load()
+  const editor = { string: 'typed', selectedRange: { location: 2, length: 1 } }
+  const target = {}
+  const control = node({ secure: true })
+  const field = (control.view = {
+    cell: { target, action: 'controlChanged', tag: 42, font: 'font', enabled: true },
+    currentEditor: () => editor,
+    stringValue: 'stale',
+    window: { makeFirstResponder() {} },
+  })
 
-	syncSecureTextField(control)
-	assert.equal(control.view, field)
-	assert.equal(field.cell.secure, true)
-	assert.equal(field.stringValue, 'typed')
-	assert.equal(field.cell.target, target)
-	assert.equal(field.cell.action, 'controlChanged')
-	assert.equal(editor.selectedRange.location, 2)
-	control.props.secure = false
-	syncSecureTextField(control)
-	assert.equal(field.cell.secure, false)
-	assert.equal(field.cell.font, 'font')
+  syncSecureTextField(control)
+  assert.equal(control.view, field)
+  assert.equal(field.cell.secure, true)
+  assert.equal(field.stringValue, 'typed')
+  assert.equal(field.cell.target, target)
+  assert.equal(field.cell.action, 'controlChanged')
+  assert.equal(editor.selectedRange.location, 2)
+  control.props.secure = false
+  syncSecureTextField(control)
+  assert.equal(field.cell.secure, false)
+  assert.equal(field.cell.font, 'font')
 })
 
 function sizingNode() {
-	const control: any = node({ rows: 2, autoGrow: true })
-	let measurements = 0,
-		frames = 0,
-		minimums = 0
-	control.view = {
-		font: { ascender: 15, descender: -5, leading: 0 },
-		textContainer: {},
-		layoutManager: {
-			ensureLayoutForTextContainer() {},
-			usedRectForTextContainer() {
-				measurements++
-				return { size: { height: 120 } }
-			},
-			extraLineFragmentRect: { size: { height: 0 } },
-		},
-		frame: { size: { width: 100 } },
-		setFrameSize() {
-			frames++
-		},
-		set minSize(_value: unknown) {
-			minimums++
-		},
-	}
-	control.textViewport = {
-		documentView: control.view,
-		contentView: { bounds: { size: { width: 100, height: 0 } } },
-	}
-	return { control, counts: () => ({ measurements, frames, minimums }) }
+  const control: any = node({ rows: 2, autoGrow: true })
+  let measurements = 0,
+    frames = 0,
+    minimums = 0
+  control.view = {
+    font: { ascender: 15, descender: -5, leading: 0 },
+    textContainer: {},
+    layoutManager: {
+      ensureLayoutForTextContainer() {},
+      usedRectForTextContainer() {
+        measurements++
+        return { size: { height: 120 } }
+      },
+      extraLineFragmentRect: { size: { height: 0 } },
+    },
+    frame: { size: { width: 100 } },
+    setFrameSize() {
+      frames++
+    },
+    set minSize(_value: unknown) {
+      minimums++
+    },
+  }
+  control.textViewport = {
+    documentView: control.view,
+    contentView: { bounds: { size: { width: 100, height: 0 } } },
+  }
+  return { control, counts: () => ({ measurements, frames, minimums }) }
 }
 
 // Authored VM/source models only; native layout and observer timing remain unrun.
 test('retired multiline nodes skip later sizing without touching native scope', () => {
-	const { fitTextView } = load(),
-		f = sizingNode()
-	f.control.textLayoutRetired = true
-	Object.defineProperty(f.control.textViewport, 'contentView', {
-		get() {
-			throw Error('retired native scope')
-		},
-	})
-	fitTextView(f.control)
-	assert.deepEqual(f.counts(), { measurements: 0, frames: 0, minimums: 0 })
+  const { fitTextView } = load(),
+    f = sizingNode()
+  f.control.textLayoutRetired = true
+  Object.defineProperty(f.control.textViewport, 'contentView', {
+    get() {
+      throw Error('retired native scope')
+    },
+  })
+  fitTextView(f.control)
+  assert.deepEqual(f.counts(), { measurements: 0, frames: 0, minimums: 0 })
 })
 
 test('sizing stops when native layout retires or replaces the editor scope', () => {
-	const { fitTextView } = load()
-	for (const phase of ['ensure', 'measure']) {
-		const f = sizingNode(),
-			manager = f.control.view.layoutManager
+  const { fitTextView } = load()
+  for (const phase of ['ensure', 'measure']) {
+    const f = sizingNode(),
+      manager = f.control.view.layoutManager
 
-		if (phase === 'ensure') {
-			manager.ensureLayoutForTextContainer = () => {
-				f.control.textLayoutRetired = true
-			}
-		} else {
-			manager.usedRectForTextContainer = () => {
-				f.control.textViewport = {}
-				return { size: { height: 120 } }
-			}
-		}
+    if (phase === 'ensure') {
+      manager.ensureLayoutForTextContainer = () => {
+        f.control.textLayoutRetired = true
+      }
+    } else {
+      manager.usedRectForTextContainer = () => {
+        f.control.textViewport = {}
+        return { size: { height: 120 } }
+      }
+    }
 
-		fitTextView(f.control)
-		assert.equal(f.control.height, undefined)
-		assert.equal(f.counts().frames, 0)
-		assert.equal(f.counts().minimums, 0)
-		assert.equal(f.control.fittingText, false)
-	}
+    fitTextView(f.control)
+    assert.equal(f.control.height, undefined)
+    assert.equal(f.counts().frames, 0)
+    assert.equal(f.counts().minimums, 0)
+    assert.equal(f.control.fittingText, false)
+  }
 })
 
 test('constraint reentry cannot apply later document frame writes to a retired editor', () => {
-	const { fitTextView } = load(),
-		f = sizingNode()
-	let constraints = 0
-	Object.defineProperty(f.control, 'height', {
-		set() {
-			constraints++
-			f.control.textLayoutRetired = true
-		},
-	})
-	fitTextView(f.control)
-	assert.equal(constraints, 1)
-	assert.deepEqual(f.counts(), { measurements: 1, frames: 0, minimums: 0 })
-	assert.equal(f.control.fittingText, false)
+  const { fitTextView } = load(),
+    f = sizingNode()
+  let constraints = 0
+  Object.defineProperty(f.control, 'height', {
+    set() {
+      constraints++
+      f.control.textLayoutRetired = true
+    },
+  })
+  fitTextView(f.control)
+  assert.equal(constraints, 1)
+  assert.deepEqual(f.counts(), { measurements: 1, frames: 0, minimums: 0 })
+  assert.equal(f.control.fittingText, false)
 })

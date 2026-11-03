@@ -4,7 +4,7 @@
 import type { IntersectionObserverConstructor } from './types'
 
 const NativeObserver =
-	'IntersectionObserver' in globalThis ? globalThis.IntersectionObserver : undefined
+  'IntersectionObserver' in globalThis ? globalThis.IntersectionObserver : undefined
 
 /** Whether the current web host provides the DOM IntersectionObserver API. */
 export const supported: boolean = typeof NativeObserver === 'function'
@@ -12,19 +12,19 @@ export const supported: boolean = typeof NativeObserver === 'function'
 /** Non-DOM hosts (test runners, SSR): observe() records nothing and no
  *  entries are ever delivered. Callers can check `supported` first. */
 class UnsupportedObserver {
-	readonly root = null
-	readonly rootMargin = '0px'
-	readonly thresholds = [0] as const
-	constructor(_callback: unknown, _options?: unknown) {}
-	observe(): void {}
-	unobserve(): void {}
-	disconnect(): void {}
-	takeRecords() {
-		return []
-	}
+  readonly root = null
+  readonly rootMargin = '0px'
+  readonly thresholds = [0] as const
+  constructor(_callback: unknown, _options?: unknown) {}
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+  takeRecords() {
+    return []
+  }
 }
 
 /** The browser's DOM IntersectionObserver, or an inert non-DOM host stub. */
 export const IntersectionObserver: IntersectionObserverConstructor = (
-	supported ? NativeObserver : UnsupportedObserver
+  supported ? NativeObserver : UnsupportedObserver
 ) as IntersectionObserverConstructor

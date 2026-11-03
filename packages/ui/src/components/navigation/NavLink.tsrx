@@ -1,9 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type {
-	NavLinkProps,
-	RegisteredRouteContracts,
-	AppRouteStacks,
-	RouteTransitionName,
+  NavLinkProps,
+  RegisteredRouteContracts,
+  AppRouteStacks,
+  RouteTransitionName,
 } from '../../props'
 
 import { Pressable } from '../actions/Pressable.tsrx'
@@ -13,23 +13,23 @@ import { cx } from '@octane-xplat/lib'
 
 /** Route link — resolves a typed destination and renders an active-aware anchor. */
 export function NavLink<
-	Contracts = RegisteredRouteContracts,
-	Stacks extends string = keyof AppRouteStacks & string,
-	Transitions extends string = RouteTransitionName,
+  Contracts = RegisteredRouteContracts,
+  Stacks extends string = keyof AppRouteStacks & string,
+  Transitions extends string = RouteTransitionName,
 >(props: NavLinkProps<Contracts, Stacks, Transitions>): any
 
 export function NavLink(props: NavLinkInput) @{
-	const link = useNavigationItem(props, 'route')
+  const link = useNavigationItem(props, 'route')
 
-	<Pressable
-		id={props.id}
-		className={cx(props.className, link.selected ? props.activeClassName : undefined)}
-		style={props.style}
-		accessibilityRole="link"
-		accessibilityState={{ disabled: link.disabled, selected: link.selected }}
-		disabled={link.disabled}
-		onPress={() => link.activateNative()}
-	>
-		{props.children}
-	</Pressable>
+  <Pressable
+    id={props.id}
+    className={cx(props.className, link.selected ? props.activeClassName : undefined)}
+    style={props.style}
+    accessibilityRole="link"
+    accessibilityState={{ disabled: link.disabled, selected: link.selected }}
+    disabled={link.disabled}
+    onPress={() => link.activateNative()}
+  >
+    {props.children}
+  </Pressable>
 }

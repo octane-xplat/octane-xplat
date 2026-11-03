@@ -16,55 +16,55 @@ const bridge = () => hostGlobal('__xplatBridge')
 let seq = 0
 
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
-	if (!bridge()?.call) {
-		return openWebWindow(options)
-	}
+  if (!bridge()?.call) {
+    return openWebWindow(options)
+  }
 
-	const id = `w${++seq}`
-	let isClosed = false
-	let resolveClosed: () => void = () => {}
-	const closed = new Promise<void>((resolve) => {
-		resolveClosed = resolve
-	})
+  const id = `w${++seq}`
+  let isClosed = false
+  let resolveClosed: () => void = () => {}
+  const closed = new Promise<void>((resolve) => {
+    resolveClosed = resolve
+  })
 
-	const finish = () => {
-		if (isClosed) {
-			return
-		}
+  const finish = () => {
+    if (isClosed) {
+      return
+    }
 
-		isClosed = true
-		resolveClosed()
-	}
+    isClosed = true
+    resolveClosed()
+  }
 
-	const off = bridge()?.on('windows', 'closed', (wid: unknown) => {
-		if (wid === id) {
-			off()
-			finish()
-		}
-	})
+  const off = bridge()?.on('windows', 'closed', (wid: unknown) => {
+    if (wid === id) {
+      off()
+      finish()
+    }
+  })
 
-	void bridge()
-		.call('windows', 'open', [{ ...options, id }])
-		.catch(() => {
-			off()
-			finish()
-		})
+  void bridge()
+    .call('windows', 'open', [{ ...options, id }])
+    .catch(() => {
+      off()
+      finish()
+    })
 
-	return {
-		id,
-		closed,
-		get isClosed() {
-			return isClosed
-		},
-		close() {
-			void bridge()
-				.call('windows', 'close', [id])
-				.catch(() => {})
-		},
-		setTitle(title: string) {
-			void bridge()
-				.call('windows', 'setTitle', [id, title])
-				.catch(() => {})
-		},
-	}
+  return {
+    id,
+    closed,
+    get isClosed() {
+      return isClosed
+    },
+    close() {
+      void bridge()
+        .call('windows', 'close', [id])
+        .catch(() => {})
+    },
+    setTitle(title: string) {
+      void bridge()
+        .call('windows', 'setTitle', [id, title])
+        .catch(() => {})
+    },
+  }
 }

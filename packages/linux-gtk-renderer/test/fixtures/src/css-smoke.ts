@@ -16,20 +16,20 @@ import chromeCss from '@octane-xplat/ui/theme/chrome.css?raw'
 // console.warn is non-configurable in GJS — the [linux-gtk-css] warn-once
 // evidence lands on stderr; the node test counts it there.
 function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
-	gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
+  gtkDriver.prepareBatch(container, { renderer: 'gtk', commands }).apply()
 }
 
 function idle(): Promise<void> {
-	return new Promise((resolve) => {
-		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => {
-			resolve()
-			return false
-		})
-	})
+  return new Promise((resolve) => {
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 0, () => {
+      resolve()
+      return false
+    })
+  })
 }
 
 const cmd = (op: string, id: number, extra: Record<string, unknown> = {}) =>
-	({ op, id, ...extra }) as UniversalHostCommand
+  ({ op, id, ...extra }) as UniversalHostCommand
 
 const out: Record<string, unknown> = { ok: false }
 
@@ -43,59 +43,59 @@ win.set_child(host)
 const container = createGtkContainer(host)
 
 apply(container, [
-	cmd('create', 1, { type: 'masonview', props: { className: 'inherit-host' } }),
-	cmd('create', 2, { type: 'label', props: { text: 'a', className: 'accent' } }),
-	cmd('create', 3, { type: 'label', props: { text: 'v', className: 'uses-var' } }),
-	cmd('create', 4, {
-		type: 'label',
-		props: { text: 'i', className: 'accent', style: { color: '#0000ff' } },
-	}),
-	cmd('create', 5, { type: 'label', props: { text: 'd', className: 'dis' } }),
-	cmd('create', 6, { type: 'label', props: { text: 'w', className: 'w1' } }),
-	cmd('create', 7, { type: 'label', props: { text: 'w', className: 'w1' } }),
-	cmd('create', 8, { type: 'label', props: { text: 's', className: 'second' } }),
-	cmd('insert', 1, { parent: null, before: null }),
-	cmd('insert', 2, { parent: 1, before: null }),
-	cmd('insert', 3, { parent: 1, before: null }),
-	cmd('insert', 4, { parent: 1, before: null }),
-	cmd('insert', 5, { parent: 1, before: null }),
-	cmd('insert', 6, { parent: 1, before: null }),
-	cmd('insert', 7, { parent: 1, before: null }),
-	cmd('create', 11, { type: 'label', props: { text: 'b', className: 'borders' } }),
-	cmd('create', 12, { type: 'label', props: { text: 'sp', className: 'lspace' } }),
-	cmd('create', 13, { type: 'switch', props: { className: 'sw', checked: true } }),
-	cmd('create', 14, { type: 'label', props: { text: 'h', className: 'hid' } }),
-	cmd('create', 15, { type: 'label', props: { text: 'c', className: 'col' } }),
-	cmd('create', 16, { type: 'label', props: { text: 'r', className: 'rtl' } }),
-	cmd('create', 17, { type: 'label', props: { text: 'e', className: 'ell' } }),
-	cmd('create', 18, { type: 'label', props: { text: 'a', className: 'hal' } }),
-	cmd('create', 19, { type: 'label', props: { text: 'h', className: 'hov' } }),
-	cmd('create', 20, { type: 'textfield', props: { className: 'hf' } }),
-	cmd('create', 21, { type: 'button', props: { text: 'p', className: 'hl' } }),
-	cmd('create', 22, { type: 'label', props: { text: 'n', className: 'nrm' } }),
-	cmd('create', 23, { type: 'masonview', props: { className: 'card' } }),
-	cmd('create', 24, { type: 'label', props: { text: 't', className: 'title' } }),
-	cmd('create', 25, { type: 'switch', props: { className: 'sw2' } }),
-	cmd('create', 26, { type: 'label', props: { text: 'm', className: 'mqx' } }),
-	cmd('create', 27, { type: 'label', props: { text: 's', className: 'sel' } }),
-	cmd('insert', 8, { parent: 1, before: null }),
-	cmd('insert', 11, { parent: 1, before: null }),
-	cmd('insert', 12, { parent: 1, before: null }),
-	cmd('insert', 13, { parent: 1, before: null }),
-	cmd('insert', 14, { parent: 1, before: null }),
-	cmd('insert', 15, { parent: 1, before: null }),
-	cmd('insert', 16, { parent: 1, before: null }),
-	cmd('insert', 17, { parent: 1, before: null }),
-	cmd('insert', 18, { parent: 1, before: null }),
-	cmd('insert', 19, { parent: 1, before: null }),
-	cmd('insert', 20, { parent: 1, before: null }),
-	cmd('insert', 21, { parent: 1, before: null }),
-	cmd('insert', 22, { parent: 1, before: null }),
-	cmd('insert', 23, { parent: 1, before: null }),
-	cmd('insert', 24, { parent: 23, before: null }),
-	cmd('insert', 25, { parent: 1, before: null }),
-	cmd('insert', 26, { parent: 1, before: null }),
-	cmd('insert', 27, { parent: 1, before: null }),
+  cmd('create', 1, { type: 'masonview', props: { className: 'inherit-host' } }),
+  cmd('create', 2, { type: 'label', props: { text: 'a', className: 'accent' } }),
+  cmd('create', 3, { type: 'label', props: { text: 'v', className: 'uses-var' } }),
+  cmd('create', 4, {
+    type: 'label',
+    props: { text: 'i', className: 'accent', style: { color: '#0000ff' } },
+  }),
+  cmd('create', 5, { type: 'label', props: { text: 'd', className: 'dis' } }),
+  cmd('create', 6, { type: 'label', props: { text: 'w', className: 'w1' } }),
+  cmd('create', 7, { type: 'label', props: { text: 'w', className: 'w1' } }),
+  cmd('create', 8, { type: 'label', props: { text: 's', className: 'second' } }),
+  cmd('insert', 1, { parent: null, before: null }),
+  cmd('insert', 2, { parent: 1, before: null }),
+  cmd('insert', 3, { parent: 1, before: null }),
+  cmd('insert', 4, { parent: 1, before: null }),
+  cmd('insert', 5, { parent: 1, before: null }),
+  cmd('insert', 6, { parent: 1, before: null }),
+  cmd('insert', 7, { parent: 1, before: null }),
+  cmd('create', 11, { type: 'label', props: { text: 'b', className: 'borders' } }),
+  cmd('create', 12, { type: 'label', props: { text: 'sp', className: 'lspace' } }),
+  cmd('create', 13, { type: 'switch', props: { className: 'sw', checked: true } }),
+  cmd('create', 14, { type: 'label', props: { text: 'h', className: 'hid' } }),
+  cmd('create', 15, { type: 'label', props: { text: 'c', className: 'col' } }),
+  cmd('create', 16, { type: 'label', props: { text: 'r', className: 'rtl' } }),
+  cmd('create', 17, { type: 'label', props: { text: 'e', className: 'ell' } }),
+  cmd('create', 18, { type: 'label', props: { text: 'a', className: 'hal' } }),
+  cmd('create', 19, { type: 'label', props: { text: 'h', className: 'hov' } }),
+  cmd('create', 20, { type: 'textfield', props: { className: 'hf' } }),
+  cmd('create', 21, { type: 'button', props: { text: 'p', className: 'hl' } }),
+  cmd('create', 22, { type: 'label', props: { text: 'n', className: 'nrm' } }),
+  cmd('create', 23, { type: 'masonview', props: { className: 'card' } }),
+  cmd('create', 24, { type: 'label', props: { text: 't', className: 'title' } }),
+  cmd('create', 25, { type: 'switch', props: { className: 'sw2' } }),
+  cmd('create', 26, { type: 'label', props: { text: 'm', className: 'mqx' } }),
+  cmd('create', 27, { type: 'label', props: { text: 's', className: 'sel' } }),
+  cmd('insert', 8, { parent: 1, before: null }),
+  cmd('insert', 11, { parent: 1, before: null }),
+  cmd('insert', 12, { parent: 1, before: null }),
+  cmd('insert', 13, { parent: 1, before: null }),
+  cmd('insert', 14, { parent: 1, before: null }),
+  cmd('insert', 15, { parent: 1, before: null }),
+  cmd('insert', 16, { parent: 1, before: null }),
+  cmd('insert', 17, { parent: 1, before: null }),
+  cmd('insert', 18, { parent: 1, before: null }),
+  cmd('insert', 19, { parent: 1, before: null }),
+  cmd('insert', 20, { parent: 1, before: null }),
+  cmd('insert', 21, { parent: 1, before: null }),
+  cmd('insert', 22, { parent: 1, before: null }),
+  cmd('insert', 23, { parent: 1, before: null }),
+  cmd('insert', 24, { parent: 23, before: null }),
+  cmd('insert', 25, { parent: 1, before: null }),
+  cmd('insert', 26, { parent: 1, before: null }),
+  cmd('insert', 27, { parent: 1, before: null }),
 ])
 
 const node = (id: number) => container.nodes.get(id)
@@ -129,8 +129,8 @@ out.enabledColor = colorOf(5)
 // Adjacent-sibling rule re-matches after inserting a .first before .second.
 out.siblingBefore = colorOf(8)
 apply(container, [
-	cmd('create', 9, { type: 'label', props: { text: 'f', className: 'first' } }),
-	cmd('insert', 9, { parent: 1, before: 8 }),
+  cmd('create', 9, { type: 'label', props: { text: 'f', className: 'first' } }),
+  cmd('insert', 9, { parent: 1, before: 8 }),
 ])
 
 out.siblingAfter = colorOf(8)
@@ -139,15 +139,15 @@ out.siblingAfter = colorOf(8)
 // per-node xplat-n<id> carrier class does.
 out.widgetHasAccent = node(2)?.view?.has_css_class?.('accent') ?? null
 out.widgetHasXplatClass = (node(2)?.view?.get_css_classes?.() ?? []).some((c: string) =>
-	c.startsWith('xplat-n'),
+  c.startsWith('xplat-n'),
 )
 
 // Runtime registerStylesheet: registration and replace-in-place both restyle
 // mounted widgets after a microtask.
 registerStylesheet('rt', '.rt { color: #101010 }')
 apply(container, [
-	cmd('create', 10, { type: 'label', props: { text: 'r', className: 'rt' } }),
-	cmd('insert', 10, { parent: 1, before: null }),
+  cmd('create', 10, { type: 'label', props: { text: 'r', className: 'rt' } }),
+  cmd('insert', 10, { parent: 1, before: null }),
 ])
 
 out.rtFirst = colorOf(10)
@@ -180,32 +180,32 @@ out.letterSpacingRule = String(node(12)?.cssSignature ?? '').includes('letter-sp
 // Switch color/backgroundColor paint the slider gizmo + checked track, not
 // the widget node — find the slider subnode and read its color.
 const cssNameWalk = (w, name) => {
-	for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
-		if (c.get_css_name?.() === name) {
-			return c
-		}
+  for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
+    if (c.get_css_name?.() === name) {
+      return c
+    }
 
-		const nested = cssNameWalk(c, name)
-		if (nested) {
-			return nested
-		}
-	}
-	return null
+    const nested = cssNameWalk(c, name)
+    if (nested) {
+      return nested
+    }
+  }
+  return null
 }
 
 const swView = node(13)?.view
 const swSlider = swView ? cssNameWalk(swView, 'slider') : null
 out.switchThumbColor = swSlider?.get_color?.()
-	? {
-			r: swSlider.get_color().red,
-			g: swSlider.get_color().green,
-			b: swSlider.get_color().blue,
-		}
-	: null
+  ? {
+      r: swSlider.get_color().red,
+      g: swSlider.get_color().green,
+      b: swSlider.get_color().blue,
+    }
+  : null
 
 out.switchOwnColor = String(node(13)?.cssSignature ?? '').includes('.xplat-n')
-	? /xplat-n\d+ \{[^}]*\bcolor:/.test(String(node(13)?.cssSignature ?? ''))
-	: null
+  ? /xplat-n\d+ \{[^}]*\bcolor:/.test(String(node(13)?.cssSignature ?? ''))
+  : null
 
 // hidden keeps space (child-invisible); collapse unmaps.
 out.hiddenVisible = node(14)?.view?.get_visible?.()
@@ -229,7 +229,7 @@ out.valign = halView?.valign ?? halView?.get_valign?.()
 // ---- B2: pseudo-classes, media-on-resize, root classes -------------------
 
 const idleStyles = async () => {
-	await idle()
+  await idle()
 }
 
 const setFlags = (id, flags) => node(id).view.set_state_flags(flags, true)
@@ -284,7 +284,7 @@ await idleStyles()
 out.checkedBefore = node(25)?.computedStyle?.opacity
 const swNode = node(25)
 if (swNode?.view) {
-	swNode.view.active = true
+  swNode.view.active = true
 }
 
 await idleStyles()
@@ -311,16 +311,16 @@ out.rootClassesB2 = [...(node(1)?.cssClasses ?? [])].sort()
 
 // ---- Keyframe animations ---------------------------------------------------
 const sleep = (ms: number) =>
-	new Promise<void>((resolve) => {
-		GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
-			resolve()
-			return false
-		})
-	})
+  new Promise<void>((resolve) => {
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+      resolve()
+      return false
+    })
+  })
 
 registerStylesheet(
-	'anim',
-	`@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  'anim',
+  `@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 	.fade { animation: fade 300ms linear forwards; }
 	@keyframes slide { from { transform: translateX(0); } to { transform: translateX(100); } }
 	.slide { animation-name: slide; animation-duration: 300ms; animation-timing-function: linear; }`,
@@ -328,10 +328,10 @@ registerStylesheet(
 
 await idle()
 apply(container, [
-	cmd('create', 40, { type: 'label', props: { text: 'f', className: 'fade' } }),
-	cmd('create', 41, { type: 'label', props: { text: 's', className: 'slide' } }),
-	cmd('insert', 40, { parent: null, before: null }),
-	cmd('insert', 41, { parent: null, before: null }),
+  cmd('create', 40, { type: 'label', props: { text: 'f', className: 'fade' } }),
+  cmd('create', 41, { type: 'label', props: { text: 's', className: 'slide' } }),
+  cmd('insert', 40, { parent: null, before: null }),
+  cmd('insert', 41, { parent: null, before: null }),
 ])
 
 // Segment 0 lands synchronously at play.
@@ -341,7 +341,7 @@ out.fadeMid = node(40)?.view?.get_opacity()
 out.slideMidCss = node(41)?.cssSignature
 // An inline-style restyle mid-animation must not restart it.
 apply(container, [
-	cmd('update', 40, { props: { text: 'f', className: 'fade', style: { color: '#010203' } } }),
+  cmd('update', 40, { props: { text: 'f', className: 'fade', style: { color: '#010203' } } }),
 ])
 
 out.fadeAfterInline = node(40)?.view?.get_opacity()
@@ -352,7 +352,7 @@ out.slideEndOverlay = node(41)?.animatedStyle ?? null
 out.slideEndCss = node(41)?.cssSignature
 // A class change re-matches → NS updateDynamicState restarts the animation.
 apply(container, [
-	cmd('update', 40, { props: { text: 'f', className: 'fade again', style: { color: '#010203' } } }),
+  cmd('update', 40, { props: { text: 'f', className: 'fade again', style: { color: '#010203' } } }),
 ])
 
 out.fadeRestart = node(40)?.view?.get_opacity()

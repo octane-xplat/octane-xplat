@@ -6,11 +6,11 @@
 // @nativescript/types packages, which a package must declare when its checked
 // sources use them.
 declare var console: {
-	log(...args: unknown[]): void
-	info(...args: unknown[]): void
-	warn(...args: unknown[]): void
-	error(...args: unknown[]): void
-	debug(...args: unknown[]): void
+  log(...args: unknown[]): void
+  info(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
+  debug(...args: unknown[]): void
 }
 
 declare function setTimeout(callback: (...args: unknown[]) => void, delay?: number): number

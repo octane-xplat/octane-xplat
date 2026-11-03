@@ -7,13 +7,13 @@ import { defineConfig } from 'vitest/config'
 const STORE_PATH = new URL('../ui/src/data/store.ts', import.meta.url).pathname
 
 export default defineConfig({
-	resolve: {
-		alias: [
-			{ find: /^@octane-xplat\/ui\/data$/, replacement: STORE_PATH },
-			{ find: /^@octane-xplat\/ui$/, replacement: STORE_PATH },
-		],
-	},
-	test: {
-		include: ['tests/**/*.test.{ts,mts,mjs}'],
-	},
+  resolve: {
+    alias: [
+      { find: /^@octane-xplat\/ui\/data$/, replacement: STORE_PATH },
+      { find: /^@octane-xplat\/ui$/, replacement: STORE_PATH },
+    ],
+  },
+  test: {
+    include: ['tests/**/*.test.{ts,mts,mjs}'],
+  },
 })

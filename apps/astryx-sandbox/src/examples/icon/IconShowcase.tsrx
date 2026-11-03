@@ -2,5 +2,5 @@
 import { Icon } from '@octane-xplat/ui'
 
 export function IconShowcase() @{
-	return <Icon name="xplat-search" color="primary" size={20} />
+  return <Icon name="xplat-search" color="primary" size={20} />
 }

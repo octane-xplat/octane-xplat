@@ -15,137 +15,137 @@ const DEFAULT_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-modal
  *  `srcdoc` and wins over `src` when both are set. The iframe `error`
  *  event is unreliable cross-browser, so `onError` is best-effort here. */
 export function WebView(props: WebViewProps): JSX.Element @{
-	const frame = useRef<HTMLIFrameElement | null>(null)
-	const handle = (el: any): WebViewHandle => ({
-		reload: () => {
-			try {
-				// Same-origin and srcdoc frames reload in place.
-				el.contentWindow.location.reload()
-			} catch {
-				// Cross-origin frame — re-request the document instead.
-				if (el.src) {
-					el.src = el.src
-				}
-			}
-		},
-		// history navigation is allowed cross-origin; location/stop are not.
-		goBack: () => el.contentWindow?.history.back(),
-		goForward: () => el.contentWindow?.history.forward(),
-		stopLoading: () => {
-			try {
-				el.contentWindow?.stop()
-			} catch {
-				/* cross-origin frames can't be stopped */
-			}
-		},
-		native: el,
-	})
+  const frame = useRef<HTMLIFrameElement | null>(null)
+  const handle = (el: any): WebViewHandle => ({
+    reload: () => {
+      try {
+        // Same-origin and srcdoc frames reload in place.
+        el.contentWindow.location.reload()
+      } catch {
+        // Cross-origin frame — re-request the document instead.
+        if (el.src) {
+          el.src = el.src
+        }
+      }
+    },
+    // history navigation is allowed cross-origin; location/stop are not.
+    goBack: () => el.contentWindow?.history.back(),
+    goForward: () => el.contentWindow?.history.forward(),
+    stopLoading: () => {
+      try {
+        el.contentWindow?.stop()
+      } catch {
+        /* cross-origin frames can't be stopped */
+      }
+    },
+    native: el,
+  })
 
-	useEffect(() => {
-		const el = frame.current
-		if (!el) {
-			return
-		}
+  useEffect(() => {
+    const el = frame.current
+    if (!el) {
+      return
+    }
 
-		let observer: ResizeObserver | undefined
-		let observedDocument: Document | undefined
-		const measure = () => {
-			try {
-				const doc = el.contentDocument
-				const body = doc?.body
-				const root = doc?.documentElement
-				if (!doc || !body || !root) {
-					return
-				}
+    let observer: ResizeObserver | undefined
+    let observedDocument: Document | undefined
+    const measure = () => {
+      try {
+        const doc = el.contentDocument
+        const body = doc?.body
+        const root = doc?.documentElement
+        if (!doc || !body || !root) {
+          return
+        }
 
-				const size = {
-					width: Math.max(body.scrollWidth, root.scrollWidth),
-					height: Math.max(body.scrollHeight, root.scrollHeight),
-				}
+        const size = {
+          width: Math.max(body.scrollWidth, root.scrollWidth),
+          height: Math.max(body.scrollHeight, root.scrollHeight),
+        }
 
-				if (size.width <= 0 || size.height <= 0) {
-					return
-				}
+        if (size.width <= 0 || size.height <= 0) {
+          return
+        }
 
-				if (props.matchContents) {
-					el.style.height = `${size.height}px`
-				}
+        if (props.matchContents) {
+          el.style.height = `${size.height}px`
+        }
 
-				props.onLayoutContent?.(size)
-				if (observedDocument !== doc && typeof ResizeObserver !== 'undefined') {
-					observer?.disconnect()
-					observer = new ResizeObserver(measure)
-					observer.observe(body)
-					observer.observe(root)
-					observedDocument = doc
-				}
-			} catch {
-				// Cross-origin documents cannot be inspected by the embedding page.
-			}
-		}
+        props.onLayoutContent?.(size)
+        if (observedDocument !== doc && typeof ResizeObserver !== 'undefined') {
+          observer?.disconnect()
+          observer = new ResizeObserver(measure)
+          observer.observe(body)
+          observer.observe(root)
+          observedDocument = doc
+        }
+      } catch {
+        // Cross-origin documents cannot be inspected by the embedding page.
+      }
+    }
 
-		el.addEventListener('load', measure)
-		measure()
-		return () => {
-			el.removeEventListener('load', measure)
-			observer?.disconnect()
-		}
-	}, [props.matchContents, props.onLayoutContent])
+    el.addEventListener('load', measure)
+    measure()
+    return () => {
+      el.removeEventListener('load', measure)
+      observer?.disconnect()
+    }
+  }, [props.matchContents, props.onLayoutContent])
 
-	useImperativeHandle(props.ref, () => handle(frame.current), [])
+  useImperativeHandle(props.ref, () => handle(frame.current), [])
 
-	useEffect(() => {
-		const el = frame.current
-		const onMessage = props.onMessage
-		if (!el || !onMessage) {
-			return
-		}
+  useEffect(() => {
+    const el = frame.current
+    const onMessage = props.onMessage
+    if (!el || !onMessage) {
+      return
+    }
 
-		const receive = (event: MessageEvent) => {
-			// `source` binds the sender to this frame's content window —
-			// only that frame can produce it. `origin` still surfaces so the
-			// app can keep its own validation (e.g. a session token).
-			if (event.source !== el.contentWindow || !isWebViewMessage(event.data)) {
-				return
-			}
+    const receive = (event: MessageEvent) => {
+      // `source` binds the sender to this frame's content window —
+      // only that frame can produce it. `origin` still surfaces so the
+      // app can keep its own validation (e.g. a session token).
+      if (event.source !== el.contentWindow || !isWebViewMessage(event.data)) {
+        return
+      }
 
-			onMessage({
-				data: event.data.data,
-				url: props.html === undefined ? el.src || undefined : undefined,
-				origin: event.origin,
-			})
-		}
+      onMessage({
+        data: event.data.data,
+        url: props.html === undefined ? el.src || undefined : undefined,
+        origin: event.origin,
+      })
+    }
 
-		window.addEventListener('message', receive)
-		return () => window.removeEventListener('message', receive)
-	}, [props.onMessage, props.html])
+    window.addEventListener('message', receive)
+    return () => window.removeEventListener('message', receive)
+  }, [props.onMessage, props.html])
 
-	<iframe
-		ref={(el: any) => {
-			frame.current = el
-			if (!el) {
-				return
-			}
+  <iframe
+    ref={(el: any) => {
+      frame.current = el
+      if (!el) {
+        return
+      }
 
-			applyEscapeProps(el, props)
-		}}
-		id={props.id}
-		className={['vx-webview', props.className]}
-		{...layoutChildProps(props)}
-		srcDoc={props.html}
-		src={props.html === undefined ? props.src : undefined}
-		sandbox={props.sandbox === false ? undefined : (props.sandbox ?? DEFAULT_SANDBOX)}
-		scrolling={props.scrollEnabled === false ? 'no' : undefined}
-		title={props.accessibilityLabel}
-		aria-hidden={props.accessible === false ? true : undefined}
-		onLoad={(e: any) =>
-			props.onLoad?.({ url: props.html === undefined ? e.currentTarget?.src : undefined })
-		}
-		onError={(e: any) =>
-			props.onError?.({
-				url: props.html === undefined ? e.currentTarget?.src : undefined,
-				error: 'iframe failed to load',
-			})
-		}
-	/>
+      applyEscapeProps(el, props)
+    }}
+    id={props.id}
+    className={['vx-webview', props.className]}
+    {...layoutChildProps(props)}
+    srcDoc={props.html}
+    src={props.html === undefined ? props.src : undefined}
+    sandbox={props.sandbox === false ? undefined : (props.sandbox ?? DEFAULT_SANDBOX)}
+    scrolling={props.scrollEnabled === false ? 'no' : undefined}
+    title={props.accessibilityLabel}
+    aria-hidden={props.accessible === false ? true : undefined}
+    onLoad={(e: any) =>
+      props.onLoad?.({ url: props.html === undefined ? e.currentTarget?.src : undefined })
+    }
+    onError={(e: any) =>
+      props.onError?.({
+        url: props.html === undefined ? e.currentTarget?.src : undefined,
+        error: 'iframe failed to load',
+      })
+    }
+  />
 }

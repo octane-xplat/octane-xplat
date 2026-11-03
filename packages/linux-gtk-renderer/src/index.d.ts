@@ -20,18 +20,18 @@ export type GtkView = Gtk.Widget & { [key: string]: any }
  *  intrinsics (`#text`, `span`, `formattedstring`, `contentview`,
  *  `proxyviewcontainer`, `rootlayout`). */
 export interface ElementNode {
-	readonly id: number
-	readonly type: string
-	readonly view: GtkView | null
-	[key: string]: any
+  readonly id: number
+  readonly type: string
+  readonly view: GtkView | null
+  [key: string]: any
 }
 
 /** Per-root state shared by the driver commands. */
 export interface GtkContainer {
-	host: GtkView
-	nodes: Map<number, ElementNode>
-	children: ElementNode[]
-	root: GtkRoot | null
+  host: GtkView
+  nodes: Map<number, ElementNode>
+  children: ElementNode[]
+  root: GtkRoot | null
 }
 
 export interface GtkRootOptions extends UniversalRootOptions<GtkContainer> {}
@@ -44,6 +44,6 @@ export declare function createGtkContainer(host: GtkView): GtkContainer
  *  box). GJS supplies no queueMicrotask — the root installs the proven
  *  Promise-based scheduling bridge; pass `scheduleMicrotask` to override. */
 export declare function createGtkRoot(
-	host: GtkView,
-	options?: GtkRootOptions,
+  host: GtkView,
+  options?: GtkRootOptions,
 ): { root: GtkRoot; container: GtkContainer }

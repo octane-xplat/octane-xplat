@@ -13,47 +13,47 @@ export type { ColorScheme } from '../props'
 import type { ColorScheme } from '../props'
 
 const bridged = () => {
-	if (typeof window === 'undefined') {
-		return false
-	}
-	const webkit = 'webkit' in window ? window.webkit : undefined
-	const handlers =
-		typeof webkit === 'object' && webkit !== null && 'messageHandlers' in webkit
-			? webkit.messageHandlers
-			: undefined
-	return typeof handlers === 'object' && handlers !== null && 'xplat' in handlers
+  if (typeof window === 'undefined') {
+    return false
+  }
+  const webkit = 'webkit' in window ? window.webkit : undefined
+  const handlers =
+    typeof webkit === 'object' && webkit !== null && 'messageHandlers' in webkit
+      ? webkit.messageHandlers
+      : undefined
+  return typeof handlers === 'object' && handlers !== null && 'xplat' in handlers
 }
 
 let lastScheme: ColorScheme =
-	((window as Record<string, any>).__xplatColorScheme as ColorScheme | undefined) ?? 'light'
+  ((window as Record<string, any>).__xplatColorScheme as ColorScheme | undefined) ?? 'light'
 
 function getSystemScheme(): ColorScheme {
-	return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches
-		? 'dark'
-		: 'light'
+  return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
 }
 
 export function getColorScheme(): ColorScheme {
-	return bridged() ? lastScheme : getSystemScheme()
+  return bridged() ? lastScheme : getSystemScheme()
 }
 
 export function subscribeSystemScheme(cb: () => void): () => void {
-	if (!bridged()) {
-		const mq = matchMedia('(prefers-color-scheme: dark)')
-		mq.addEventListener('change', cb)
-		return () => mq.removeEventListener('change', cb)
-	}
+  if (!bridged()) {
+    const mq = matchMedia('(prefers-color-scheme: dark)')
+    mq.addEventListener('change', cb)
+    return () => mq.removeEventListener('change', cb)
+  }
 
-	const onChange = (e: Event) => {
-		const detail = (e as CustomEvent).detail
-		lastScheme = detail === 'dark' ? 'dark' : 'light'
-		cb()
-	}
+  const onChange = (e: Event) => {
+    const detail = (e as CustomEvent).detail
+    lastScheme = detail === 'dark' ? 'dark' : 'light'
+    cb()
+  }
 
-	window.addEventListener('xplat:appearance.change', onChange)
-	return () => window.removeEventListener('xplat:appearance.change', onChange)
+  window.addEventListener('xplat:appearance.change', onChange)
+  return () => window.removeEventListener('xplat:appearance.change', onChange)
 }
 
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
+  return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
 }

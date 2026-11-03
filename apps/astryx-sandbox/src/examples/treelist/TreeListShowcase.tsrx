@@ -2,19 +2,19 @@
 import { TreeList } from '@octane-xplat/ui'
 
 export function TreeListShowcase() @{
-	<TreeList
-		defaultExpandedKeys={new Set(['docs'])}
-		nodes={[
-			{
-				key: 'docs',
-				label: 'Documents',
-				children: [
-					{ key: 'notes', label: 'Notes' },
-					{ key: 'projects', label: 'Projects' },
-				],
-			},
-			{ key: 'shared', label: 'Shared with me' },
-		]}
-		onAction={() => {}}
-	/>
+  <TreeList
+    defaultExpandedKeys={new Set(['docs'])}
+    nodes={[
+      {
+        key: 'docs',
+        label: 'Documents',
+        children: [
+          { key: 'notes', label: 'Notes' },
+          { key: 'projects', label: 'Projects' },
+        ],
+      },
+      { key: 'shared', label: 'Shared with me' },
+    ]}
+    onAction={() => {}}
+  />
 }

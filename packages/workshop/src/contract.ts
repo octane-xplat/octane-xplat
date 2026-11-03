@@ -14,12 +14,12 @@ export type WorkshopTarget = 'web' | 'ios' | 'android' | 'macos' | 'windows' | '
 
 /** Targets the workshop can render. */
 export const WORKSHOP_TARGETS: readonly WorkshopTarget[] = [
-	'web',
-	'ios',
-	'android',
-	'macos',
-	'windows',
-	'linux',
+  'web',
+  'ios',
+  'android',
+  'macos',
+  'windows',
+  'linux',
 ]
 
 /** Version of the authoring contract — bumped on breaking changes. */
@@ -34,12 +34,12 @@ export type StoryTargets = 'all' | readonly WorkshopTarget[]
  * `AbortController`/`signal.throwIfAborted` being the underlying mechanism.
  */
 export interface CancellationSignal {
-	/** True once the generation's cancellation has been requested. */
-	readonly aborted: boolean
-	/** Subscribe to cancellation; the listener fires once when the generation retires. */
-	addEventListener(type: 'abort', listener: () => void): void
-	/** Detach a previously registered abort listener. */
-	removeEventListener(type: 'abort', listener: () => void): void
+  /** True once the generation's cancellation has been requested. */
+  readonly aborted: boolean
+  /** Subscribe to cancellation; the listener fires once when the generation retires. */
+  addEventListener(type: 'abort', listener: () => void): void
+  /** Detach a previously registered abort listener. */
+  removeEventListener(type: 'abort', listener: () => void): void
 }
 
 /** Teardown callback returned by a story. */
@@ -47,18 +47,18 @@ export type StoryCleanup = () => void | Promise<void>
 
 /** Context handed to the fixture factory for each story generation. */
 export interface FixtureContext {
-	/** The real target this run mounts on. */
-	readonly target: WorkshopTarget
-	/** Capabilities declared by the story. */
-	readonly capabilities: readonly string[]
-	/** Observable cancellation; aborted when the generation retires. */
-	readonly signal: CancellationSignal
-	/**
-	 * Register an owned resource for disposal. Disposal runs exactly once —
-	 * including for resources registered after cancellation, which are
-	 * released as soon as the fixture settles.
-	 */
-	onCleanup(cleanup: StoryCleanup): void
+  /** The real target this run mounts on. */
+  readonly target: WorkshopTarget
+  /** Capabilities declared by the story. */
+  readonly capabilities: readonly string[]
+  /** Observable cancellation; aborted when the generation retires. */
+  readonly signal: CancellationSignal
+  /**
+   * Register an owned resource for disposal. Disposal runs exactly once —
+   * including for resources registered after cancellation, which are
+   * released as soon as the fixture settles.
+   */
+  onCleanup(cleanup: StoryCleanup): void
 }
 
 /** Prepares one generation's fixture — may return a Promise; the result is injected as the `fixture` prop. */
@@ -72,66 +72,66 @@ export type StoryComponent<P> = (props: P) => unknown
  * each receives the typed fixture result and `children`.
  */
 export type StoryProvider<F> = (props: {
-	/** The typed fixture result for this generation. */
-	fixture: F
-	/** The wrapped story content. */
-	children?: unknown
+  /** The typed fixture result for this generation. */
+  fixture: F
+  /** The wrapped story content. */
+  children?: unknown
 }) => unknown
 
 /** Toggle control. */
 export interface BooleanControl {
-	/** Control kind discriminator. */
-	type: 'boolean'
+  /** Control kind discriminator. */
+  type: 'boolean'
 }
 
 /** Text control. */
 export interface StringControl {
-	/** Control kind discriminator. */
-	type: 'string'
-	/** Empty-state hint text. */
-	placeholder?: string
+  /** Control kind discriminator. */
+  type: 'string'
+  /** Empty-state hint text. */
+  placeholder?: string
 }
 
 /** Numeric control. */
 export interface NumberControl {
-	/** Control kind discriminator. */
-	type: 'number'
-	/** Minimum value. */
-	min?: number
-	/** Maximum value. */
-	max?: number
-	/** Increment step. */
-	step?: number
+  /** Control kind discriminator. */
+  type: 'number'
+  /** Minimum value. */
+  min?: number
+  /** Maximum value. */
+  max?: number
+  /** Increment step. */
+  step?: number
 }
 
 /** Single-choice control over an explicit option list. */
 export interface EnumControl<T> {
-	/** Control kind discriminator. */
-	type: 'enum'
-	/** Allowed values. */
-	options: readonly T[]
+  /** Control kind discriminator. */
+  type: 'enum'
+  /** Allowed values. */
+  options: readonly T[]
 }
 
 type ControlValue<T> = 0 extends 1 & T
-	? BooleanControl | NumberControl | StringControl | EnumControl<T>
-	: [T] extends [boolean]
-		? BooleanControl
-		: [T] extends [number]
-			? NumberControl | EnumControl<T>
-			: [T] extends [string]
-				? StringControl | EnumControl<T>
-				: never
+  ? BooleanControl | NumberControl | StringControl | EnumControl<T>
+  : [T] extends [boolean]
+    ? BooleanControl
+    : [T] extends [number]
+      ? NumberControl | EnumControl<T>
+      : [T] extends [string]
+        ? StringControl | EnumControl<T>
+        : never
 
 /** Unset option for an optional prop. */
 interface StoryControlUnset {
-	/** 'Unset' removes the key from the next props bag rather than merging a stale value. */
-	allowUnset?: boolean
+  /** 'Unset' removes the key from the next props bag rather than merging a stale value. */
+  allowUnset?: boolean
 }
 
 /** Unset prohibition for a required prop. */
 interface StoryControlNoUnset {
-	/** Always false on required props — a required key cannot be unset. */
-	allowUnset?: false
+  /** Always false on required props — a required key cannot be unset. */
+  allowUnset?: false
 }
 
 /**
@@ -140,28 +140,28 @@ interface StoryControlNoUnset {
  * key from the next props bag rather than merging a stale value.
  */
 export type StoryControl<T, Optional extends boolean> = ControlValue<T> &
-	(Optional extends true ? StoryControlUnset : StoryControlNoUnset)
+  (Optional extends true ? StoryControlUnset : StoryControlNoUnset)
 
 /** Editable inputs per declared prop, keyed by prop name. */
 export type StoryControls<P> = {
-	[K in keyof P]?: StoryControl<NonNullable<P[K]>, undefined extends P[K] ? true : false>
+  [K in keyof P]?: StoryControl<NonNullable<P[K]>, undefined extends P[K] ? true : false>
 }
 
 /** Injected state prop for a stateful story. */
 interface InjectedStateProp<S> {
-	/** Fresh state store injected into the component per generation. */
-	state: Store<S>
+  /** Fresh state store injected into the component per generation. */
+  state: Store<S>
 }
 
 /** Injected fixture prop for a fixture-bearing story. */
 interface InjectedFixtureProp<F> {
-	/** Typed fixture result injected into the component per generation. */
-	fixture: F
+  /** Typed fixture result injected into the component per generation. */
+  fixture: F
 }
 
 /** Props the runner injects beyond `args`: fresh state store + fixture. */
 export type InjectedStoryProps<S, F> = (S extends void ? unknown : InjectedStateProp<S>) &
-	(F extends void ? unknown : InjectedFixtureProp<F>)
+  (F extends void ? unknown : InjectedFixtureProp<F>)
 
 type ReservedStoryKeys = 'state' | 'fixture'
 
@@ -170,26 +170,26 @@ type PropsWithoutReserved<P> = Extract<keyof P, ReservedStoryKeys> extends never
 
 /** State field for a stateless story — must stay undeclared. */
 interface StoryStateAbsent {
-	/** Reserved injected prop — must stay undeclared when the story has no state. */
-	state?: never
+  /** Reserved injected prop — must stay undeclared when the story has no state. */
+  state?: never
 }
 
 /** State factory for a stateful story. */
 interface StoryStateField<S> {
-	/** Fresh-state factory run per generation; the result is injected as the `state` prop. */
-	state: () => S
+  /** Fresh-state factory run per generation; the result is injected as the `state` prop. */
+  state: () => S
 }
 
 /** Fixture field for a fixture-less story — must stay undeclared. */
 interface StoryFixtureAbsent {
-	/** Reserved injected prop — must stay undeclared when the story has no fixture. */
-	fixture?: never
+  /** Reserved injected prop — must stay undeclared when the story has no fixture. */
+  fixture?: never
 }
 
 /** Fixture factory for a fixture-bearing story. */
 interface StoryFixtureField<F> {
-	/** Fixture factory run per generation; the result is injected as the `fixture` prop. */
-	fixture: FixtureFactory<F>
+  /** Fixture factory run per generation; the result is injected as the `fixture` prop. */
+  fixture: FixtureFactory<F>
 }
 
 /**
@@ -198,140 +198,140 @@ interface StoryFixtureField<F> {
  * evaluating the module.
  */
 export type StoryDefinition<P = Record<string, never>, S = void, F = void> = {
-	/** Stable, unique story id — e.g. 'account/profile-card'. */
-	id: string
-	/** Display title; '/' segments group the catalog. */
-	title: string
-	/** Targets this story can mount on; 'all' covers the six product targets. */
-	targets: StoryTargets
-	/** Host capabilities the story requires (e.g. 'camera', 'network-write'). */
-	capabilities?: readonly string[]
-	/** The component under development. */
-	component: StoryComponent<PropsWithoutReserved<P> & InjectedStoryProps<S, F>>
-	/** Immutable default props for each run; cloned fresh per generation. */
-	args: PropsWithoutReserved<P>
-	/** Explicit editable inputs for declared props. */
-	controls?: StoryControls<P>
-	/** Fixture preparation budget in milliseconds; defaults to 10 000. */
-	fixtureTimeout?: number
-	/** Ordered wrappers applied around the component for each generation. */
-	providers?: readonly StoryProvider<F extends void ? undefined : F>[]
+  /** Stable, unique story id — e.g. 'account/profile-card'. */
+  id: string
+  /** Display title; '/' segments group the catalog. */
+  title: string
+  /** Targets this story can mount on; 'all' covers the six product targets. */
+  targets: StoryTargets
+  /** Host capabilities the story requires (e.g. 'camera', 'network-write'). */
+  capabilities?: readonly string[]
+  /** The component under development. */
+  component: StoryComponent<PropsWithoutReserved<P> & InjectedStoryProps<S, F>>
+  /** Immutable default props for each run; cloned fresh per generation. */
+  args: PropsWithoutReserved<P>
+  /** Explicit editable inputs for declared props. */
+  controls?: StoryControls<P>
+  /** Fixture preparation budget in milliseconds; defaults to 10 000. */
+  fixtureTimeout?: number
+  /** Ordered wrappers applied around the component for each generation. */
+  providers?: readonly StoryProvider<F extends void ? undefined : F>[]
 } & (S extends void ? StoryStateAbsent : StoryStateField<S>) &
-	(F extends void ? StoryFixtureAbsent : StoryFixtureField<F>)
+  (F extends void ? StoryFixtureAbsent : StoryFixtureField<F>)
 
 /** Declare a story. Validates cheap authoring rules eagerly. */
 export function defineStory<P = Record<string, never>, S = void, F = void>(
-	definition: StoryDefinition<P, S, F>,
+  definition: StoryDefinition<P, S, F>,
 ): StoryDefinition<P, S, F> {
-	assertLiteralAuthoring(definition)
-	return definition
+  assertLiteralAuthoring(definition)
+  return definition
 }
 
 function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): void {
-	const fail = (message: string): never => {
-		throw new Error(`defineStory: ${message}`)
-	}
+  const fail = (message: string): never => {
+    throw new Error(`defineStory: ${message}`)
+  }
 
-	if (typeof definition?.id !== 'string' || !definition.id) {
-		fail('a story requires a non-empty string id')
-	}
+  if (typeof definition?.id !== 'string' || !definition.id) {
+    fail('a story requires a non-empty string id')
+  }
 
-	if (typeof definition.title !== 'string' || !definition.title) {
-		fail(`story "${definition.id}" requires a non-empty string title`)
-	}
+  if (typeof definition.title !== 'string' || !definition.title) {
+    fail(`story "${definition.id}" requires a non-empty string title`)
+  }
 
-	const targets = definition.targets
-	const valid =
-		targets === 'all' ||
-		(Array.isArray(targets) &&
-			targets.length > 0 &&
-			targets.every((t) => WORKSHOP_TARGETS.includes(t)))
+  const targets = definition.targets
+  const valid =
+    targets === 'all' ||
+    (Array.isArray(targets) &&
+      targets.length > 0 &&
+      targets.every((t) => WORKSHOP_TARGETS.includes(t)))
 
-	if (!valid) {
-		fail(
-			`story "${definition.id}" — targets must be 'all' or a subset of: ${WORKSHOP_TARGETS.join(', ')}`,
-		)
-	}
+  if (!valid) {
+    fail(
+      `story "${definition.id}" — targets must be 'all' or a subset of: ${WORKSHOP_TARGETS.join(', ')}`,
+    )
+  }
 
-	if (typeof definition.component !== 'function') {
-		fail(`story "${definition.id}" — component must be an Octane component`)
-	}
+  if (typeof definition.component !== 'function') {
+    fail(`story "${definition.id}" — component must be an Octane component`)
+  }
 
-	if (definition.args == null || typeof definition.args !== 'object') {
-		fail(`story "${definition.id}" — args must be an object`)
-	}
+  if (definition.args == null || typeof definition.args !== 'object') {
+    fail(`story "${definition.id}" — args must be an object`)
+  }
 
-	if ('state' in definition && typeof definition.state !== 'function') {
-		fail(`story "${definition.id}" — state must be a factory function`)
-	}
+  if ('state' in definition && typeof definition.state !== 'function') {
+    fail(`story "${definition.id}" — state must be a factory function`)
+  }
 
-	if ('fixture' in definition && typeof definition.fixture !== 'function') {
-		fail(`story "${definition.id}" — fixture must be a factory function`)
-	}
+  if ('fixture' in definition && typeof definition.fixture !== 'function') {
+    fail(`story "${definition.id}" — fixture must be a factory function`)
+  }
 
-	if (definition.args && typeof definition.args === 'object') {
-		for (const key of ['state', 'fixture'] as const) {
-			if (key in definition.args) {
-				fail(`story "${definition.id}" — args may not declare reserved injected prop "${key}"`)
-			}
-		}
-	}
+  if (definition.args && typeof definition.args === 'object') {
+    for (const key of ['state', 'fixture'] as const) {
+      if (key in definition.args) {
+        fail(`story "${definition.id}" — args may not declare reserved injected prop "${key}"`)
+      }
+    }
+  }
 
-	if (definition.controls) {
-		for (const [key, control] of Object.entries(definition.controls)) {
-			if (!control || typeof control !== 'object') {
-				fail(`story "${definition.id}" — control "${key}" must be an object`)
-			}
+  if (definition.controls) {
+    for (const [key, control] of Object.entries(definition.controls)) {
+      if (!control || typeof control !== 'object') {
+        fail(`story "${definition.id}" — control "${key}" must be an object`)
+      }
 
-			const type =
-				typeof control === 'object' && control !== null && 'type' in control
-					? control.type
-					: undefined
+      const type =
+        typeof control === 'object' && control !== null && 'type' in control
+          ? control.type
+          : undefined
 
-			if (!['boolean', 'string', 'number', 'enum'].includes(type ?? '')) {
-				fail(
-					`story "${definition.id}" — control "${key}" has unknown type "${type}" (expected boolean, string, number or enum)`,
-				)
-			}
+      if (!['boolean', 'string', 'number', 'enum'].includes(type ?? '')) {
+        fail(
+          `story "${definition.id}" — control "${key}" has unknown type "${type}" (expected boolean, string, number or enum)`,
+        )
+      }
 
-			if (type === 'enum' && !Array.isArray((control as EnumControl<unknown>).options)) {
-				fail(`story "${definition.id}" — enum control "${key}" requires an options array`)
-			}
+      if (type === 'enum' && !Array.isArray((control as EnumControl<unknown>).options)) {
+        fail(`story "${definition.id}" — enum control "${key}" requires an options array`)
+      }
 
-			if (
-				type === 'number' &&
-				typeof (control as NumberControl).min === 'number' &&
-				typeof (control as NumberControl).max === 'number' &&
-				(control as NumberControl).min! > (control as NumberControl).max!
-			) {
-				fail(`story "${definition.id}" — number control "${key}" has min > max`)
-			}
-		}
-	}
+      if (
+        type === 'number' &&
+        typeof (control as NumberControl).min === 'number' &&
+        typeof (control as NumberControl).max === 'number' &&
+        (control as NumberControl).min! > (control as NumberControl).max!
+      ) {
+        fail(`story "${definition.id}" — number control "${key}" has min > max`)
+      }
+    }
+  }
 
-	if (definition.providers !== undefined && !Array.isArray(definition.providers)) {
-		fail(`story "${definition.id}" — providers must be an array`)
-	}
+  if (definition.providers !== undefined && !Array.isArray(definition.providers)) {
+    fail(`story "${definition.id}" — providers must be an array`)
+  }
 }
 
 /** Consumer workshop configuration, loaded by the dev tooling. */
 export interface WorkshopConfig {
-	/** Discovered story entries. */
-	stories?: {
-		/** Glob(s) matching story modules. Default: '**&#47;*.stories.{ts,tsx,tsrx}' plus platform-suffixed leaves. */
-		include?: string | readonly string[]
-		exclude?: string | readonly string[]
-	}
-	/**
-	 * Module specifiers (relative to the config file) whose `providers` or
-	 * `default` export is an array of provider components wrapping every story.
-	 */
-	providerModules?: readonly string[]
-	/** Extra static asset roots served under /@workshop-assets/<name>/. */
-	assets?: Record<string, string>
+  /** Discovered story entries. */
+  stories?: {
+    /** Glob(s) matching story modules. Default: '**&#47;*.stories.{ts,tsx,tsrx}' plus platform-suffixed leaves. */
+    include?: string | readonly string[]
+    exclude?: string | readonly string[]
+  }
+  /**
+   * Module specifiers (relative to the config file) whose `providers` or
+   * `default` export is an array of provider components wrapping every story.
+   */
+  providerModules?: readonly string[]
+  /** Extra static asset roots served under /@workshop-assets/<name>/. */
+  assets?: Record<string, string>
 }
 
 /** Type-checked helper for workshop.config. */
 export function defineWorkshopConfig(config: WorkshopConfig): WorkshopConfig {
-	return config
+  return config
 }

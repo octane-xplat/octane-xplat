@@ -8,10 +8,10 @@ import { layoutChildProps } from '../layout/layout-child'
 import { isSvgSrc, svgSource } from './svg'
 import { createSizedImageBinding } from './image-sizing'
 import {
-	contentFitToStretch,
-	needsContentRect,
-	resolveContentFit,
-	resolveContentPosition,
+  contentFitToStretch,
+  needsContentRect,
+  resolveContentFit,
+  resolveContentPosition,
 } from './image-content'
 
 import { createImageContentBinding } from './image-content-binding'
@@ -24,33 +24,33 @@ import { bindImageAccessibility } from './image-accessibility'
  *  Accepts `blurhash:`/`thumbhash:` (decoded to PNG bytes in JS — see
  *  ./hash-image), `data:` base64, `res://`, `~/`, and plain file paths. */
 function placeholderSource(placeholder: string): ImageSource | null {
-	const png = hashToPngBase64(placeholder)
-	if (png) {
-		return ImageSource.fromBase64Sync(png)
-	}
+  const png = hashToPngBase64(placeholder)
+  if (png) {
+    return ImageSource.fromBase64Sync(png)
+  }
 
-	const comma = placeholder.indexOf(',')
-	if (
-		placeholder.startsWith('data:') &&
-		comma > 0 &&
-		placeholder.slice(0, comma).endsWith(';base64')
-	) {
-		return ImageSource.fromBase64Sync(placeholder.slice(comma + 1))
-	}
+  const comma = placeholder.indexOf(',')
+  if (
+    placeholder.startsWith('data:') &&
+    comma > 0 &&
+    placeholder.slice(0, comma).endsWith(';base64')
+  ) {
+    return ImageSource.fromBase64Sync(placeholder.slice(comma + 1))
+  }
 
-	if (placeholder.startsWith('res://')) {
-		return ImageSource.fromResourceSync(placeholder.slice('res://'.length))
-	}
+  if (placeholder.startsWith('res://')) {
+    return ImageSource.fromResourceSync(placeholder.slice('res://'.length))
+  }
 
-	if (placeholder.startsWith('~/')) {
-		return ImageSource.fromFileSync(knownFolders.currentApp().path + '/' + placeholder.slice(2))
-	}
+  if (placeholder.startsWith('~/')) {
+    return ImageSource.fromFileSync(knownFolders.currentApp().path + '/' + placeholder.slice(2))
+  }
 
-	if (!/^https?:\/\//.test(placeholder)) {
-		return ImageSource.fromFileSync(placeholder)
-	}
+  if (!/^https?:\/\//.test(placeholder)) {
+    return ImageSource.fromFileSync(placeholder)
+  }
 
-	return null
+  return null
 }
 
 /** Re-resolves on every call — iOS disposes the previous ImageSource's
@@ -58,14 +58,14 @@ function placeholderSource(placeholder: string): ImageSource | null {
  *  pending (or nothing is showing), so a completed final image is never
  *  clobbered. */
 function applyPlaceholder(view: any, placeholder: string | undefined): void {
-	if (!placeholder || !(view.isLoading || !view.imageSource)) {
-		return
-	}
+  if (!placeholder || !(view.isLoading || !view.imageSource)) {
+    return
+  }
 
-	const ph = placeholderSource(placeholder)
-	if (ph) {
-		view.imageSource = ph
-	}
+  const ph = placeholderSource(placeholder)
+  if (ph) {
+    view.imageSource = ph
+  }
 }
 
 /** Image — NS <image>. `src` accepts the NS ImageSource grammar:
@@ -100,15 +100,15 @@ function applyPlaceholder(view: any, placeholder: string | undefined): void {
  *  bitmaps. Remote URLs decode async and font-icon srcs sync regardless —
  *  NS honors loadMode only on the file/resource/data paths. */
 function clipImageHost(host: any): void {
-	host?.on?.('loaded', () => {
-		// iOS UIView clipsToBounds defaults false (DOM/NS overflow:visible);
-		// cover/positioned rects must clip at the component box. Android
-		// ViewGroups clip children by default — and the host never receives
-		// escape props, which would unclip it.
-		if (isIOS && host.ios) {
-			host.ios.clipsToBounds = true
-		}
-	})
+  host?.on?.('loaded', () => {
+    // iOS UIView clipsToBounds defaults false (DOM/NS overflow:visible);
+    // cover/positioned rects must clip at the component box. Android
+    // ViewGroups clip children by default — and the host never receives
+    // escape props, which would unclip it.
+    if (isIOS && host.ios) {
+      host.ios.clipsToBounds = true
+    }
+  })
 }
 
 /**
@@ -117,134 +117,134 @@ function clipImageHost(host: any): void {
  * @see ImageProps for src grammar, sizing, and fit.
  */
 export function Image(props: ImageProps): unknown @{
-	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
-	const srcString = sources ? '' : (props.src as string)
-	const fit = resolveContentFit(props.contentFit)
-	const position = resolveContentPosition(props.contentPosition)
-	const computed = needsContentRect(fit, position)
-	const imageRef = useRef<any>(null)
-	const placeholderRef = useRef(props.placeholder)
-	placeholderRef.current = props.placeholder
-	const sizing = useMemo(
-		() =>
-			createSizedImageBinding({
-				afterIssue: (v: any) => applyPlaceholder(v, placeholderRef.current),
-				// iOS ignores decode dims — a same-src resize reload only
-				// flickers. Android needs it for the re-decode at the new size.
-				reissueOnResize: isAndroid,
-				// Android's Mason re-measures a leaf with a pending request on
-				// its own; an extra one collapses flex-grown auto heights.
-				relayoutOnImageSource: isIOS,
-			}),
-		[],
-	)
+  const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
+  const srcString = sources ? '' : (props.src as string)
+  const fit = resolveContentFit(props.contentFit)
+  const position = resolveContentPosition(props.contentPosition)
+  const computed = needsContentRect(fit, position)
+  const imageRef = useRef<any>(null)
+  const placeholderRef = useRef(props.placeholder)
+  placeholderRef.current = props.placeholder
+  const sizing = useMemo(
+    () =>
+      createSizedImageBinding({
+        afterIssue: (v: any) => applyPlaceholder(v, placeholderRef.current),
+        // iOS ignores decode dims — a same-src resize reload only
+        // flickers. Android needs it for the re-decode at the new size.
+        reissueOnResize: isAndroid,
+        // Android's Mason re-measures a leaf with a pending request on
+        // its own; an extra one collapses flex-grown auto heights.
+        relayoutOnImageSource: isIOS,
+      }),
+    [],
+  )
 
-	const binding = useMemo(
-		() =>
-			createImageContentBinding({
-				isAndroid,
-				screenScale: () => Screen.mainScreen?.scale ?? 1,
-				issue: (view: any, src: any, gate?: string) => sizing.update(view, src, gate),
-			}),
-		[],
-	)
+  const binding = useMemo(
+    () =>
+      createImageContentBinding({
+        isAndroid,
+        screenScale: () => Screen.mainScreen?.scale ?? 1,
+        issue: (view: any, src: any, gate?: string) => sizing.update(view, src, gate),
+      }),
+    [],
+  )
 
-	const boundRef = useRef({ key: props.recyclingKey, src: props.src })
-	const bound = boundRef.current
-	boundRef.current = { key: props.recyclingKey, src: props.src }
-	// expo-image `recyclingKey`: platform-list cells rebind the same view, and
-	// Android's setUri keeps drawing the previous bitmap until the new fetch
-	// resolves. Clear it before the ref re-binds the next src — only when
-	// identity AND source both changed (same src = same bitmap).
-	if (
-		bound.key != null &&
-		props.recyclingKey != null &&
-		bound.key !== props.recyclingKey &&
-		bound.src !== props.src &&
-		imageRef.current
-	) {
-		imageRef.current.imageSource = null
-	}
+  const boundRef = useRef({ key: props.recyclingKey, src: props.src })
+  const bound = boundRef.current
+  boundRef.current = { key: props.recyclingKey, src: props.src }
+  // expo-image `recyclingKey`: platform-list cells rebind the same view, and
+  // Android's setUri keeps drawing the previous bitmap until the new fetch
+  // resolves. Clear it before the ref re-binds the next src — only when
+  // identity AND source both changed (same src = same bitmap).
+  if (
+    bound.key != null &&
+    props.recyclingKey != null &&
+    bound.key !== props.recyclingKey &&
+    bound.src !== props.src &&
+    imageRef.current
+  ) {
+    imageRef.current.imageSource = null
+  }
 
-	const svg = useMemo(
-		() => (srcString && isSvgSrc(srcString) ? svgSource(srcString) : null),
-		[srcString],
-	)
+  const svg = useMemo(
+    () => (srcString && isSvgSrc(srcString) ? svgSource(srcString) : null),
+    [srcString],
+  )
 
-	const source = useMemo(() => resolveRasterSource(srcString), [srcString])
+  const source = useMemo(() => resolveRasterSource(srcString), [srcString])
 
-	const update = { source: sources ? null : source, sources, fit, position, computed }
+  const update = { source: sources ? null : source, sources, fit, position, computed }
 
-	useLayoutEffect(
-		() => (svg == null ? bindImageAccessibility(imageRef.current, props.alt) : undefined),
-		[props.alt, svg, computed],
-	)
+  useLayoutEffect(
+    () => (svg == null ? bindImageAccessibility(imageRef.current, props.alt) : undefined),
+    [props.alt, svg, computed],
+  )
 
-	useLayoutEffect(() => {
-		const view = imageRef.current
-		if (!view || !props.placeholder || svg != null) {
-			return
-		}
+  useLayoutEffect(() => {
+    const view = imageRef.current
+    if (!view || !props.placeholder || svg != null) {
+      return
+    }
 
-		const show = () => applyPlaceholder(view, props.placeholder)
-		show()
-		view.on?.('isLoadingChange', show)
-		return () => view.off?.('isLoadingChange', show)
-	}, [props.src, props.placeholder, svg])
+    const show = () => applyPlaceholder(view, props.placeholder)
+    show()
+    view.on?.('isLoadingChange', show)
+    return () => view.off?.('isLoadingChange', show)
+  }, [props.src, props.placeholder, svg])
 
-	@if (svg != null) {
-		<svgview
-			ref={(v: any) => applyEscapeProps(v, props)}
-			id={props.id}
-			{...layoutChildProps(props)}
-			className={cx(props.className)}
-			src={svg}
-			stretch={
-				fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)
-			}
-			accessibilityLabel={props.alt}
-		/>
-	} @else if (computed) {
-		<masonview
-			ref={(v: any) => {
-				clipImageHost(v)
-				if (v) {
-					binding.update(v, null, update)
-				}
-			}}
-			id={props.id}
-			{...layoutChildProps(props, props.style)}
-			className={cx(props.className)}
-		>
-			<image
-				ref={(v: any) => {
-					imageRef.current = v
-					applyEscapeProps(v, props)
-					if (v) {
-						binding.update(null, v, update)
-					}
-				}}
-				stretch="fill"
-				loadMode={props.decoding ?? 'async'}
-				accessibilityLabel={props.alt}
-				style={{ position: 'absolute' }}
-			/>
-		</masonview>
-	} @else {
-		<image
-			ref={(v: any) => {
-				imageRef.current = v
-				applyEscapeProps(v, props)
-				if (v) {
-					binding.update(v, v, update)
-				}
-			}}
-			id={props.id}
-			{...layoutChildProps(props, props.style)}
-			className={cx(props.className)}
-			stretch={contentFitToStretch(fit)}
-			loadMode={props.decoding ?? 'async'}
-			accessibilityLabel={props.alt}
-		/>
-	}
+  @if (svg != null) {
+    <svgview
+      ref={(v: any) => applyEscapeProps(v, props)}
+      id={props.id}
+      {...layoutChildProps(props)}
+      className={cx(props.className)}
+      src={svg}
+      stretch={
+        fit === 'none' ? 'none' : contentFitToStretch(fit === 'scale-down' ? 'contain' : fit)
+      }
+      accessibilityLabel={props.alt}
+    />
+  } @else if (computed) {
+    <masonview
+      ref={(v: any) => {
+        clipImageHost(v)
+        if (v) {
+          binding.update(v, null, update)
+        }
+      }}
+      id={props.id}
+      {...layoutChildProps(props, props.style)}
+      className={cx(props.className)}
+    >
+      <image
+        ref={(v: any) => {
+          imageRef.current = v
+          applyEscapeProps(v, props)
+          if (v) {
+            binding.update(null, v, update)
+          }
+        }}
+        stretch="fill"
+        loadMode={props.decoding ?? 'async'}
+        accessibilityLabel={props.alt}
+        style={{ position: 'absolute' }}
+      />
+    </masonview>
+  } @else {
+    <image
+      ref={(v: any) => {
+        imageRef.current = v
+        applyEscapeProps(v, props)
+        if (v) {
+          binding.update(v, v, update)
+        }
+      }}
+      id={props.id}
+      {...layoutChildProps(props, props.style)}
+      className={cx(props.className)}
+      stretch={contentFitToStretch(fit)}
+      loadMode={props.decoding ?? 'async'}
+      accessibilityLabel={props.alt}
+    />
+  }
 }

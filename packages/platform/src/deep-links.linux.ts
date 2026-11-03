@@ -9,45 +9,45 @@ const handlers = new Set<LinkHandler>()
 let wired = false
 
 function wire() {
-	if (wired) {
-		return
-	}
+  if (wired) {
+    return
+  }
 
-	wired = true
-	window.addEventListener('popstate', () => {
-		for (const h of handlers) {
-			h(location.pathname + location.search)
-		}
-	})
+  wired = true
+  window.addEventListener('popstate', () => {
+    for (const h of handlers) {
+      h(location.pathname + location.search)
+    }
+  })
 }
 
 export function onDeepLink(cb: LinkHandler): () => void {
-	if (bridged()) {
-		return onHostEvent('app.deep-link', (url) => cb(String(url)))
-	}
+  if (bridged()) {
+    return onHostEvent('app.deep-link', (url) => cb(String(url)))
+  }
 
-	wire()
-	handlers.add(cb)
-	return () => handlers.delete(cb)
+  wire()
+  handlers.add(cb)
+  return () => handlers.delete(cb)
 }
 
 let consumedInitialUrl = false
 
 export function consumeInitialUrl(): string | null {
-	if (consumedInitialUrl) {
-		return null
-	}
+  if (consumedInitialUrl) {
+    return null
+  }
 
-	consumedInitialUrl = true
-	if (bridged()) {
-		const url = bootstrap()?.initialUrl ?? window.__xplatInitialUrl ?? null
-		if (window.__xplatHostSnapshot) {
-			window.__xplatHostSnapshot.initialUrl = null
-		}
+  consumedInitialUrl = true
+  if (bridged()) {
+    const url = bootstrap()?.initialUrl ?? window.__xplatInitialUrl ?? null
+    if (window.__xplatHostSnapshot) {
+      window.__xplatHostSnapshot.initialUrl = null
+    }
 
-		window.__xplatInitialUrl = null
-		return url
-	}
+    window.__xplatInitialUrl = null
+    return url
+  }
 
-	return location.pathname === '/' ? null : location.pathname + location.search
+  return location.pathname === '/' ? null : location.pathname + location.search
 }

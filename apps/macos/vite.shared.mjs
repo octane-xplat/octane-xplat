@@ -10,45 +10,45 @@ const bambooRoot = resolve(appRoot, '../../packages/app/')
 const fontAssetRoot = resolve(appRoot, '../../packages/app/src/assets/fonts')
 
 export function bundledFontDefines() {
-	return {
-		__XPLAT_GEIST_FONT_BASE64__: JSON.stringify(
-			readFileSync(join(fontAssetRoot, 'Geist-Variable.ttf')).toString('base64'),
-		),
-		__XPLAT_GEIST_FONT_LICENSE__: JSON.stringify(
-			readFileSync(join(fontAssetRoot, 'OFL.txt'), 'utf8'),
-		),
-	}
+  return {
+    __XPLAT_GEIST_FONT_BASE64__: JSON.stringify(
+      readFileSync(join(fontAssetRoot, 'Geist-Variable.ttf')).toString('base64'),
+    ),
+    __XPLAT_GEIST_FONT_LICENSE__: JSON.stringify(
+      readFileSync(join(fontAssetRoot, 'OFL.txt'), 'utf8'),
+    ),
+  }
 }
 
 export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo = true } = {}) {
-	const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
-	const mode = process.env.OCTANE_MACOS_VLIST_MODE
-	const entry = packaged
-		? 'src/main.ts'
-		: virtualListBench
-			? mode === 'variable'
-				? 'src/VirtualListVariableWindowedBench.tsx'
-				: mode === 'windowed'
-					? 'src/VirtualListWindowedBench.tsx'
-					: 'src/VirtualListBench.tsx'
-			: 'src/App.tsx'
+  const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
+  const mode = process.env.OCTANE_MACOS_VLIST_MODE
+  const entry = packaged
+    ? 'src/main.ts'
+    : virtualListBench
+      ? mode === 'variable'
+        ? 'src/VirtualListVariableWindowedBench.tsx'
+        : mode === 'windowed'
+          ? 'src/VirtualListWindowedBench.tsx'
+          : 'src/VirtualListBench.tsx'
+      : 'src/App.tsx'
 
-	return defineConfig(async ({ mode }) => {
-		const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
-		return {
-			...config,
-			define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },
-			// The dev shell hosts the renderer only; the app bundle owns the stylesheet.
-			plugins: bamboo
-				? [
-						...(config.plugins ?? []),
-						xplatBamboo({
-							cwd: bambooRoot,
-							configPath: `${bambooRoot}/bamboo.config.ts`,
-							native: true,
-						}),
-					]
-				: config.plugins,
-		}
-	})
+  return defineConfig(async ({ mode }) => {
+    const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
+    return {
+      ...config,
+      define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },
+      // The dev shell hosts the renderer only; the app bundle owns the stylesheet.
+      plugins: bamboo
+        ? [
+            ...(config.plugins ?? []),
+            xplatBamboo({
+              cwd: bambooRoot,
+              configPath: `${bambooRoot}/bamboo.config.ts`,
+              native: true,
+            }),
+          ]
+        : config.plugins,
+    }
+  })
 }

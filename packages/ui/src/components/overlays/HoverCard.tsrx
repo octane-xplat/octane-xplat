@@ -10,32 +10,32 @@ import { View } from '../layout/View.tsrx'
  *  trigger only. `focusTrigger` has no native focus traversal to key on
  *  — inert here (documented deviation). */
 export function HoverCard(props: HoverCardProps): unknown @{
-	const card = useHoverCard({
-		placement: props.placement,
-		alignment: props.alignment,
-		delay: props.delay,
-		hideDelay: props.hideDelay,
-		focusTrigger: props.focusTrigger,
-		touchTrigger: props.touchTrigger,
-		isEnabled: props.isEnabled,
-		label: props.label,
-		isOpen: props.isOpen,
-		isDefaultOpen: props.isDefaultOpen,
-		onShow: () => props.onOpenChange?.(true),
-		onHide: () => props.onOpenChange?.(false),
-	})
+  const card = useHoverCard({
+    placement: props.placement,
+    alignment: props.alignment,
+    delay: props.delay,
+    hideDelay: props.hideDelay,
+    focusTrigger: props.focusTrigger,
+    touchTrigger: props.touchTrigger,
+    isEnabled: props.isEnabled,
+    label: props.label,
+    isOpen: props.isOpen,
+    isDefaultOpen: props.isDefaultOpen,
+    onShow: () => props.onOpenChange?.(true),
+    onHide: () => props.onOpenChange?.(false),
+  })
 
-	<>
-		<View
-			id={props.id}
-			ref={card.ref}
-			className={cx('vx-hovercard-trigger', props.className)}
-			style={props.style}
-			ios={props.ios}
-			android={props.android}
-		>
-			{props.children}
-		</View>
-		{card.renderHoverCard(props.content, { className: props.className })}
-	</>
+  <>
+    <View
+      id={props.id}
+      ref={card.ref}
+      className={cx('vx-hovercard-trigger', props.className)}
+      style={props.style}
+      ios={props.ios}
+      android={props.android}
+    >
+      {props.children}
+    </View>
+    {card.renderHoverCard(props.content, { className: props.className })}
+  </>
 }

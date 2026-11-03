@@ -17,7 +17,7 @@ import type { ChatComposerTrigger, ChatComposerTriggerItem } from '../props'
  * ```
  */
 export function defineChatComposerTrigger<TItem extends ChatComposerTriggerItem>(
-	trigger: ChatComposerTrigger<TItem>,
+  trigger: ChatComposerTrigger<TItem>,
 ): ChatComposerTrigger<TItem> {
-	return trigger
+  return trigger
 }

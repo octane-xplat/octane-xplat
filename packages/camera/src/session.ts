@@ -13,7 +13,7 @@ import type { CameraSession, CameraSessionConfig } from './types'
  *  Recording support is delivered per platform; `capabilities()` reports
  *  honest `supported`/`available` state on every host. */
 export function createCameraSession(config: CameraSessionConfig = {}): CameraSession {
-	return new SharedCameraSession(createSessionBackend(config), config)
+  return new SharedCameraSession(createSessionBackend(config), config)
 }
 
 /** Package-internal: attach `host` as the session's preview surface.
@@ -21,17 +21,17 @@ export function createCameraSession(config: CameraSessionConfig = {}): CameraSes
  *  returned function requests stop on an in-flight attempt and releases
  *  camera ownership once finalization settles. */
 export function attachSessionPreview(
-	session: CameraSession,
-	host: unknown,
-	listener?: BackendPreviewListener,
+  session: CameraSession,
+  host: unknown,
+  listener?: BackendPreviewListener,
 ): () => void {
-	if (!(session instanceof SharedCameraSession)) {
-		throw new CameraCaptureError({
-			kind: 'invalidArgument',
-			operation: 'attachPreview',
-			message: 'session was not created by createCameraSession',
-		})
-	}
+  if (!(session instanceof SharedCameraSession)) {
+    throw new CameraCaptureError({
+      kind: 'invalidArgument',
+      operation: 'attachPreview',
+      message: 'session was not created by createCameraSession',
+    })
+  }
 
-	return session.attach(host, listener)
+  return session.attach(host, listener)
 }

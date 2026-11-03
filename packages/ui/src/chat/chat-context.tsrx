@@ -1,9 +1,9 @@
 import { createContext, useContext } from 'octane'
 import type {
-	ChatComposerContextValue,
-	ChatLayoutContextValue,
-	ChatListContextValue,
-	ChatMessageContextValue,
+  ChatComposerContextValue,
+  ChatLayoutContextValue,
+  ChatListContextValue,
+  ChatMessageContextValue,
 } from '../props'
 
 /** Per-message context: sender + density for bubbles and metadata. */
@@ -23,11 +23,11 @@ export const ChatLayoutContext: any = createContext<ChatLayoutContextValue | nul
 export const ChatLayoutProvider: any = ChatLayoutContext
 
 export function useChatMessageContext(): ChatMessageContextValue | null {
-	return useContext(ChatMessageContext)
+  return useContext(ChatMessageContext)
 }
 
 export function useChatListContext(): ChatListContextValue | null {
-	return useContext(ChatListContext)
+  return useContext(ChatListContext)
 }
 
 /**
@@ -36,7 +36,7 @@ export function useChatListContext(): ChatListContextValue | null {
  * @see ChatComposerContextValue.
  */
 export function useChatComposerContext(): ChatComposerContextValue | null {
-	return useContext(ChatComposerContext)
+  return useContext(ChatComposerContext)
 }
 
 /**
@@ -45,5 +45,5 @@ export function useChatComposerContext(): ChatComposerContextValue | null {
  * @see ChatLayoutContextValue.
  */
 export function useChatLayoutContext(): ChatLayoutContextValue | null {
-	return useContext(ChatLayoutContext)
+  return useContext(ChatLayoutContext)
 }

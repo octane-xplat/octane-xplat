@@ -6,345 +6,345 @@ import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
-	masonCorePackage,
-	masonFullPackage,
-	masonLegacyPackage,
+  masonCorePackage,
+  masonFullPackage,
+  masonLegacyPackage,
 } from '../../packages/cli/src/mason-engine.ts'
 
 export const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 export const directory = dirname(fileURLToPath(import.meta.url))
 export const appFor = (target) =>
-	join(repo, 'apps', ['ios', 'android'].includes(target) ? 'mobile' : target)
+  join(repo, 'apps', ['ios', 'android'].includes(target) ? 'mobile' : target)
 
 export const hash = (value) => createHash('sha256').update(value).digest('hex').slice(0, 16)
 export const caseIdentity = (target, caseFile) => hash(repo + '\n' + caseFile + '\n' + target)
 export const json = async (path) => JSON.parse(await readFile(path, 'utf8'))
 export const importFrom = async (root, specifier) => {
-	const loaded = await import(
-		pathToFileURL(createRequire(join(root, 'package.json')).resolve(specifier)).href
-	)
+  const loaded = await import(
+    pathToFileURL(createRequire(join(root, 'package.json')).resolve(specifier)).href
+  )
 
-	return loaded.default && typeof loaded.default === 'object'
-		? { ...loaded.default, ...loaded }
-		: loaded
+  return loaded.default && typeof loaded.default === 'object'
+    ? { ...loaded.default, ...loaded }
+    : loaded
 }
 
 async function packageRoot(name, roots) {
-	for (const root of roots) {
-		let ancestor = root
-		while (true) {
-			const candidate = join(ancestor, 'node_modules', name)
-			if (existsSync(join(candidate, 'package.json'))) {
-				return realpath(candidate)
-			}
+  for (const root of roots) {
+    let ancestor = root
+    while (true) {
+      const candidate = join(ancestor, 'node_modules', name)
+      if (existsSync(join(candidate, 'package.json'))) {
+        return realpath(candidate)
+      }
 
-			const parent = dirname(ancestor)
-			if (parent === ancestor) {
-				break
-			}
+      const parent = dirname(ancestor)
+      if (parent === ancestor) {
+        break
+      }
 
-			ancestor = parent
-		}
-	}
+      ancestor = parent
+    }
+  }
 
-	for (const entry of await readdir(join(repo, 'packages'))) {
-		const root = join(repo, 'packages', entry)
-		if (
-			existsSync(join(root, 'package.json')) &&
-			(await json(join(root, 'package.json'))).name === name
-		) {
-			return root
-		}
-	}
+  for (const entry of await readdir(join(repo, 'packages'))) {
+    const root = join(repo, 'packages', entry)
+    if (
+      existsSync(join(root, 'package.json')) &&
+      (await json(join(root, 'package.json'))).name === name
+    ) {
+      return root
+    }
+  }
 
-	throw new Error(
-		`Dependency ${name} is not installed. Install it in a workspace package before probing it.`,
-	)
+  throw new Error(
+    `Dependency ${name} is not installed. Install it in a workspace package before probing it.`,
+  )
 }
 
 export async function filesUnder(root) {
-	if (!existsSync(root)) {
-		return []
-	}
+  if (!existsSync(root)) {
+    return []
+  }
 
-	const files = []
-	for (const item of await readdir(root, { withFileTypes: true })) {
-		if (item.name.startsWith('.') || item.name === 'node_modules') {
-			continue
-		}
+  const files = []
+  for (const item of await readdir(root, { withFileTypes: true })) {
+    if (item.name.startsWith('.') || item.name === 'node_modules') {
+      continue
+    }
 
-		const path = join(root, item.name)
-		if (item.isDirectory()) {
-			files.push(...(await filesUnder(path)))
-		} else if (item.isFile()) {
-			files.push(path)
-		}
-	}
+    const path = join(root, item.name)
+    if (item.isDirectory()) {
+      files.push(...(await filesUnder(path)))
+    } else if (item.isFile()) {
+      files.push(path)
+    }
+  }
 
-	return files
+  return files
 }
 
 export async function dependencies(target, caseFile, extra) {
-	const app = appFor(target)
-	const pkg = await json(join(app, 'package.json'))
-	const names = new Set(['octane', '@octane-xplat/ui', ...extra])
-	if (target === 'macos') {
-		names.add('@nativescript/macos-node-api')
-		// The shell imports the renderer; its runtime-dep edge is also what
-		// discoverMacOSNative follows to find the shipped Mason dylib.
-		names.add('@octane-xplat/macos-appkit')
-	}
+  const app = appFor(target)
+  const pkg = await json(join(app, 'package.json'))
+  const names = new Set(['octane', '@octane-xplat/ui', ...extra])
+  if (target === 'macos') {
+    names.add('@nativescript/macos-node-api')
+    // The shell imports the renderer; its runtime-dep edge is also what
+    // discoverMacOSNative follows to find the shipped Mason dylib.
+    names.add('@octane-xplat/macos-appkit')
+  }
 
-	if (['ios', 'android'].includes(target)) {
-		// Mobile probes always run core; the replaced engines collide natively.
-		const conflicts = [masonFullPackage, masonLegacyPackage].filter((name) => extra.includes(name))
-		if (conflicts.length) {
-			throw new Error(
-				`${conflicts.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap.`,
-			)
-		}
+  if (['ios', 'android'].includes(target)) {
+    // Mobile probes always run core; the replaced engines collide natively.
+    const conflicts = [masonFullPackage, masonLegacyPackage].filter((name) => extra.includes(name))
+    if (conflicts.length) {
+      throw new Error(
+        `${conflicts.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap.`,
+      )
+    }
 
-		for (const name of [
-			'@nativescript/core',
-			'@nativescript-community/octane',
-			// NativeScript collects plugin binaries from runtime dependencies.
-			masonCorePackage,
-			'@nativescript-community/gesturehandler',
-			'@valor/nativescript-websockets',
-		]) {
-			names.add(name)
-		}
-	}
+    for (const name of [
+      '@nativescript/core',
+      '@nativescript-community/octane',
+      // NativeScript collects plugin binaries from runtime dependencies.
+      masonCorePackage,
+      '@nativescript-community/gesturehandler',
+      '@valor/nativescript-websockets',
+    ]) {
+      names.add(name)
+    }
+  }
 
-	const roots = [dirname(caseFile)]
-	while (dirname(roots.at(-1)) !== roots.at(-1)) {
-		roots.push(dirname(roots.at(-1)))
-	}
+  const roots = [dirname(caseFile)]
+  while (dirname(roots.at(-1)) !== roots.at(-1)) {
+    roots.push(dirname(roots.at(-1)))
+  }
 
-	roots.push(
-		app,
-		...['web', 'mobile', 'macos', 'linux'].map((name) => join(repo, 'apps', name)),
-		repo,
-	)
+  roots.push(
+    app,
+    ...['web', 'mobile', 'macos', 'linux'].map((name) => join(repo, 'apps', name)),
+    repo,
+  )
 
-	const resolved = new Map()
-	const development = Object.keys(pkg.devDependencies ?? {}).filter(
-		(name) =>
-			!names.has(masonCorePackage) || ![masonFullPackage, masonLegacyPackage].includes(name),
-	)
-	for (const name of new Set([...names, ...development])) {
-		resolved.set(name, await packageRoot(name, roots))
-	}
+  const resolved = new Map()
+  const development = Object.keys(pkg.devDependencies ?? {}).filter(
+    (name) =>
+      !names.has(masonCorePackage) || ![masonFullPackage, masonLegacyPackage].includes(name),
+  )
+  for (const name of new Set([...names, ...development])) {
+    resolved.set(name, await packageRoot(name, roots))
+  }
 
-	const nativeFiles = []
-	const visited = new Set()
-	async function visit(root) {
-		if (visited.has(root)) {
-			return
-		}
+  const nativeFiles = []
+  const visited = new Set()
+  async function visit(root) {
+    if (visited.has(root)) {
+      return
+    }
 
-		visited.add(root)
-		const manifest = await json(join(root, 'package.json'))
-		if (
-			names.has(masonCorePackage) &&
-			[masonFullPackage, masonLegacyPackage].includes(manifest.name)
-		) {
-			throw new Error(
-				`Core probe also resolves ${manifest.name}; remove the conflicting runtime dependency.`,
-			)
-		}
-		nativeFiles.push(join(root, 'package.json'))
-		nativeFiles.push(...(await filesUnder(join(root, 'platforms'))))
-		for (const name of Object.keys({
-			...manifest.dependencies,
-			...manifest.optionalDependencies,
-		})) {
-			// pnpm places transitive dependencies beside the package in its
-			// virtual store, rather than inside the package's node_modules.
-			let candidate
-			try {
-				candidate = await packageRoot(name, [root])
-			} catch (error) {
-				if (Object.hasOwn(manifest.optionalDependencies ?? {}, name)) {
-					continue
-				}
+    visited.add(root)
+    const manifest = await json(join(root, 'package.json'))
+    if (
+      names.has(masonCorePackage) &&
+      [masonFullPackage, masonLegacyPackage].includes(manifest.name)
+    ) {
+      throw new Error(
+        `Core probe also resolves ${manifest.name}; remove the conflicting runtime dependency.`,
+      )
+    }
+    nativeFiles.push(join(root, 'package.json'))
+    nativeFiles.push(...(await filesUnder(join(root, 'platforms'))))
+    for (const name of Object.keys({
+      ...manifest.dependencies,
+      ...manifest.optionalDependencies,
+    })) {
+      // pnpm places transitive dependencies beside the package in its
+      // virtual store, rather than inside the package's node_modules.
+      let candidate
+      try {
+        candidate = await packageRoot(name, [root])
+      } catch (error) {
+        if (Object.hasOwn(manifest.optionalDependencies ?? {}, name)) {
+          continue
+        }
 
-				throw error
-			}
+        throw error
+      }
 
-			if (!resolved.has(name)) {
-				resolved.set(name, candidate)
-			}
+      if (!resolved.has(name)) {
+        resolved.set(name, candidate)
+      }
 
-			await visit(candidate)
-		}
-	}
+      await visit(candidate)
+    }
+  }
 
-	if (target !== 'web' && target !== 'linux') {
-		for (const name of names) {
-			await visit(resolved.get(name))
-		}
-	}
+  if (target !== 'web' && target !== 'linux') {
+    for (const name of names) {
+      await visit(resolved.get(name))
+    }
+  }
 
-	return { names, resolved, nativeFiles, app, pkg }
+  return { names, resolved, nativeFiles, app, pkg }
 }
 
 export async function fingerprint(deps, resources) {
-	const files = [...deps.nativeFiles, join(repo, 'bun.lock'), ...(await filesUnder(directory))]
+  const files = [...deps.nativeFiles, join(repo, 'bun.lock'), ...(await filesUnder(directory))]
 
-	if (resources) {
-		files.push(
-			...(await filesUnder(resources)).filter((path) => !path.endsWith('google-services.json')),
-		)
-	}
+  if (resources) {
+    files.push(
+      ...(await filesUnder(resources)).filter((path) => !path.endsWith('google-services.json')),
+    )
+  }
 
-	const digest = createHash('sha256')
-	digest.update(JSON.stringify([...deps.resolved]))
-	for (const path of [...new Set(files)].sort()) {
-		digest.update(path)
-		digest.update(await readFile(path))
-	}
+  const digest = createHash('sha256')
+  digest.update(JSON.stringify([...deps.resolved]))
+  for (const path of [...new Set(files)].sort()) {
+    digest.update(path)
+    digest.update(await readFile(path))
+  }
 
-	return { key: digest.digest('hex').slice(0, 16), files }
+  return { key: digest.digest('hex').slice(0, 16), files }
 }
 
 export async function prepare(target, caseFile, extra = [], resources) {
-	const deps = await dependencies(target, caseFile, extra)
-	const native = ['ios', 'android'].includes(target)
-	const resourceRoot = native ? (resources ?? join(deps.app, 'App_Resources')) : undefined
-	const stamp = await fingerprint(deps, resourceRoot)
-	const identity = caseIdentity(target, caseFile)
-	const root = join(repo, 'research/probes', identity, 'build-' + stamp.key)
-	await mkdir(join(root, 'src'), { recursive: true })
-	await mkdir(join(root, 'node_modules'), { recursive: true })
-	try {
-		await symlink(join(deps.app, 'node_modules/.bin'), join(root, 'node_modules/.bin'))
-	} catch (error) {
-		if (error.code !== 'EEXIST') {
-			throw error
-		}
-	}
+  const deps = await dependencies(target, caseFile, extra)
+  const native = ['ios', 'android'].includes(target)
+  const resourceRoot = native ? (resources ?? join(deps.app, 'App_Resources')) : undefined
+  const stamp = await fingerprint(deps, resourceRoot)
+  const identity = caseIdentity(target, caseFile)
+  const root = join(repo, 'research/probes', identity, 'build-' + stamp.key)
+  await mkdir(join(root, 'src'), { recursive: true })
+  await mkdir(join(root, 'node_modules'), { recursive: true })
+  try {
+    await symlink(join(deps.app, 'node_modules/.bin'), join(root, 'node_modules/.bin'))
+  } catch (error) {
+    if (error.code !== 'EEXIST') {
+      throw error
+    }
+  }
 
-	for (const [name, path] of deps.resolved) {
-		const destination = join(root, 'node_modules', name)
-		await mkdir(dirname(destination), { recursive: true })
-		try {
-			await symlink(path, destination)
-		} catch (error) {
-			if (error.code !== 'EEXIST') {
-				throw error
-			}
-		}
-	}
+  for (const [name, path] of deps.resolved) {
+    const destination = join(root, 'node_modules', name)
+    await mkdir(dirname(destination), { recursive: true })
+    try {
+      await symlink(path, destination)
+    } catch (error) {
+      if (error.code !== 'EEXIST') {
+        throw error
+      }
+    }
+  }
 
-	const pkg = {
-		name: 'xplat-isolated-probe',
-		version: '0.0.0',
-		private: true,
-		main: 'src/index.ts',
-		dependencies: Object.fromEntries(
-			await Promise.all(
-				[...deps.names].map(async (name) => [
-					name,
-					(await json(join(deps.resolved.get(name), 'package.json'))).version,
-				]),
-			),
-		),
-		devDependencies: Object.fromEntries(
-			await Promise.all(
-				[...deps.resolved]
-					.filter(([name]) => !deps.names.has(name))
-					.map(async ([name, path]) => [name, (await json(join(path, 'package.json'))).version]),
-			),
-		),
-	}
+  const pkg = {
+    name: 'xplat-isolated-probe',
+    version: '0.0.0',
+    private: true,
+    main: 'src/index.ts',
+    dependencies: Object.fromEntries(
+      await Promise.all(
+        [...deps.names].map(async (name) => [
+          name,
+          (await json(join(deps.resolved.get(name), 'package.json'))).version,
+        ]),
+      ),
+    ),
+    devDependencies: Object.fromEntries(
+      await Promise.all(
+        [...deps.resolved]
+          .filter(([name]) => !deps.names.has(name))
+          .map(async ([name, path]) => [name, (await json(join(path, 'package.json'))).version]),
+      ),
+    ),
+  }
 
-	const appId = 'org.octanexplat.probe.p' + identity + '.p' + stamp.key
-	if (target === 'macos') {
-		pkg.type = 'module'
-		pkg.xplat = {
-			targets: {
-				macos: {
-					runtime: 'appkit-node-api',
-					dev: {
-						viteConfig: 'vite.case.config.ts',
-						bundleFile: 'dist/case.cjs',
-						shellViteConfig: 'vite.shell.config.ts',
-						shellBundleFile: 'dist/shell.cjs',
-					},
-				},
-			},
-		}
-	}
+  const appId = 'org.octanexplat.probe.p' + identity + '.p' + stamp.key
+  if (target === 'macos') {
+    pkg.type = 'module'
+    pkg.xplat = {
+      targets: {
+        macos: {
+          runtime: 'appkit-node-api',
+          dev: {
+            viteConfig: 'vite.case.config.ts',
+            bundleFile: 'dist/case.cjs',
+            shellViteConfig: 'vite.shell.config.ts',
+            shellBundleFile: 'dist/shell.cjs',
+          },
+        },
+      },
+    }
+  }
 
-	await writeFile(join(root, 'package.json'), JSON.stringify(pkg, null, 2))
-	if (native) {
-		if (!existsSync(join(root, 'App_Resources'))) {
-			await cp(resourceRoot, join(root, 'App_Resources'), {
-				recursive: true,
-				filter: (path) => !path.endsWith('google-services.json'),
-			})
-		}
+  await writeFile(join(root, 'package.json'), JSON.stringify(pkg, null, 2))
+  if (native) {
+    if (!existsSync(join(root, 'App_Resources'))) {
+      await cp(resourceRoot, join(root, 'App_Resources'), {
+        recursive: true,
+        filter: (path) => !path.endsWith('google-services.json'),
+      })
+    }
 
-		await writeFile(
-			join(root, 'src/index.ts'),
-			`import ${JSON.stringify(join(directory, 'mobile-host.mobile.ts'))}\n`,
-		)
+    await writeFile(
+      join(root, 'src/index.ts'),
+      `import ${JSON.stringify(join(directory, 'mobile-host.mobile.ts'))}\n`,
+    )
 
-		await writeFile(
-			join(root, 'nativescript.config.ts'),
-			`export default ${JSON.stringify({
-				id: appId,
-				appPath: 'src',
-				appResourcesPath: 'App_Resources',
-				cli: { packageManager: 'bun' },
-				bundler: 'vite',
-				bundlerConfigPath: 'vite.host.config.mts',
-			})}\n`,
-		)
+    await writeFile(
+      join(root, 'nativescript.config.ts'),
+      `export default ${JSON.stringify({
+        id: appId,
+        appPath: 'src',
+        appResourcesPath: 'App_Resources',
+        cli: { packageManager: 'bun' },
+        bundler: 'vite',
+        bundlerConfigPath: 'vite.host.config.mts',
+      })}\n`,
+    )
 
-		await writeFile(
-			join(root, 'vite.host.config.mts'),
-			`import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nimport { scratchResolver } from ${JSON.stringify(join(directory, 'project.ts'))}\nexport default defineConfig(({mode}) => xplatNative(mode, {rules: [{include: '**/*.{tsx,tsrx}', renderer: 'nativescript'}], extra: {plugins: [scratchResolver(${JSON.stringify(root)})]}}))\n`,
-		)
+    await writeFile(
+      join(root, 'vite.host.config.mts'),
+      `import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nimport { scratchResolver } from ${JSON.stringify(join(directory, 'project.ts'))}\nexport default defineConfig(({mode}) => xplatNative(mode, {rules: [{include: '**/*.{tsx,tsrx}', renderer: 'nativescript'}], extra: {plugins: [scratchResolver(${JSON.stringify(root)})]}}))\n`,
+    )
 
-		// `<case>.fonts/` beside the case file is installed into the app's
-		// `app/fonts` — NativeScript resolves custom font families there
-		// (iOS registers at startup; Android by `<family>.ttf` file name).
-		const caseFonts = join(
-			dirname(caseFile),
-			basename(caseFile).replace(/\.[cm]?[jt]sx?/, '') + '.fonts',
-		)
+    // `<case>.fonts/` beside the case file is installed into the app's
+    // `app/fonts` — NativeScript resolves custom font families there
+    // (iOS registers at startup; Android by `<family>.ttf` file name).
+    const caseFonts = join(
+      dirname(caseFile),
+      basename(caseFile).replace(/\.[cm]?[jt]sx?/, '') + '.fonts',
+    )
 
-		if (existsSync(caseFonts)) {
-			await cp(caseFonts, join(root, 'src', 'fonts'), { recursive: true })
-		}
-	}
+    if (existsSync(caseFonts)) {
+      await cp(caseFonts, join(root, 'src', 'fonts'), { recursive: true })
+    }
+  }
 
-	return { root, identity, appId, deps, stamp, resourceRoot }
+  return { root, identity, appId, deps, stamp, resourceRoot }
 }
 
 /** Resolve scratch imports through the isolated project's declared deps. */
 export function scratchResolver(project) {
-	return {
-		name: 'xplat-probe-dependencies',
-		async resolveId(source, importer) {
-			if (
-				!importer ||
-				source.startsWith('.') ||
-				source.startsWith('/') ||
-				source.startsWith('\0') ||
-				source.startsWith('node:')
-			) {
-				return
-			}
+  return {
+    name: 'xplat-probe-dependencies',
+    async resolveId(source, importer) {
+      if (
+        !importer ||
+        source.startsWith('.') ||
+        source.startsWith('/') ||
+        source.startsWith('\0') ||
+        source.startsWith('node:')
+      ) {
+        return
+      }
 
-			const resolved = await this.resolve(source, importer, { skipSelf: true })
-			if (resolved) {
-				return resolved
-			}
+      const resolved = await this.resolve(source, importer, { skipSelf: true })
+      if (resolved) {
+        return resolved
+      }
 
-			return this.resolve(source, join(project, 'src/index.ts'), { skipSelf: true })
-		},
-	}
+      return this.resolve(source, join(project, 'src/index.ts'), { skipSelf: true })
+    },
+  }
 }

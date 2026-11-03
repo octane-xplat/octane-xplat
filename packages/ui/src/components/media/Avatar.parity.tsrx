@@ -3,15 +3,15 @@ import { Avatar } from './Avatar.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function AvatarFixture() @{
-	<Avatar
-		className="parity-avatar-root"
-		fallback="AB"
-		alt="Alex Brown"
-		size={40}
-		style={{ backgroundColor: '#dbeafe' }}
-	/>
+  <Avatar
+    className="parity-avatar-root"
+    fallback="AB"
+    alt="Alex Brown"
+    size={40}
+    style={{ backgroundColor: '#dbeafe' }}
+  />
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'avatar-fallback', component: 'Avatar', renderer: AvatarFixture, props: {} },
+  { name: 'avatar-fallback', component: 'Avatar', renderer: AvatarFixture, props: {} },
 ]

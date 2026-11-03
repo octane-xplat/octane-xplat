@@ -8,22 +8,22 @@ import type { JSX } from 'octane/jsx-runtime'
  *  (Astryx `EmptyState`). `isCompact` tightens the rhythm via the
  *  `vx-empty--compact` class hook. */
 export function Empty(props: EmptyProps): JSX.Element @{
-	<div
-		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
-		className={['vx-empty', props.isCompact && 'vx-empty--compact', props.className]}
-		style={props.style}
-	>
-		{props.icon ? (
-			typeof props.icon === 'string' ? (
-				<Icon name={props.icon} className="vx-empty-icon" />
-			) : (
-				props.icon
-			)
-		) : null}
-		{props.title != null ? <span className="vx-empty-title">{props.title}</span> : null}
-		{props.description != null ? <span className="vx-empty-desc">{props.description}</span> : null}
-		{props.children}
-		{props.actions != null ? <div className="vx-empty-actions">{props.actions}</div> : null}
-	</div>
+  <div
+    ref={(e: any) => applyEscapeProps(e, props)}
+    id={props.id}
+    className={['vx-empty', props.isCompact && 'vx-empty--compact', props.className]}
+    style={props.style}
+  >
+    {props.icon ? (
+      typeof props.icon === 'string' ? (
+        <Icon name={props.icon} className="vx-empty-icon" />
+      ) : (
+        props.icon
+      )
+    ) : null}
+    {props.title != null ? <span className="vx-empty-title">{props.title}</span> : null}
+    {props.description != null ? <span className="vx-empty-desc">{props.description}</span> : null}
+    {props.children}
+    {props.actions != null ? <div className="vx-empty-actions">{props.actions}</div> : null}
+  </div>
 }

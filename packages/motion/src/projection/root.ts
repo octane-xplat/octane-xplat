@@ -7,8 +7,8 @@ import { cleanDirtyNodes, propagateDirtyNodes, ProjectionNode } from './node'
 import { SharedStack } from './stack'
 
 export interface ProjectionRootOptions {
-	clock: Clock
-	barrier: LayoutBarrier
+  clock: Clock
+  barrier: LayoutBarrier
 }
 
 /**
@@ -17,223 +17,223 @@ export interface ProjectionRootOptions {
  * pass per resize, and one frame loop driving every layout animation.
  */
 export class ProjectionRoot {
-	readonly nodes: ProjectionNode[] = []
-	readonly sharedStacks: Map<string, SharedStack> = new Map<string, SharedStack>()
-	readonly animationClock: Clock
-	frameTimestamp: number = 0
-	private frameScheduled = false
-	private passScheduled = false
-	private resizePending = false
-	private needsProjectionUpdate = false
-	private queuedTicks = new Map<number, () => void>()
-	private nextTickId = 0
-	private observeStop?: () => void
+  readonly nodes: ProjectionNode[] = []
+  readonly sharedStacks: Map<string, SharedStack> = new Map<string, SharedStack>()
+  readonly animationClock: Clock
+  frameTimestamp: number = 0
+  private frameScheduled = false
+  private passScheduled = false
+  private resizePending = false
+  private needsProjectionUpdate = false
+  private queuedTicks = new Map<number, () => void>()
+  private nextTickId = 0
+  private observeStop?: () => void
 
-	constructor(private options: ProjectionRootOptions) {
-		this.animationClock = {
-			now: options.clock.now,
-			request: (tick) => {
-				const id = ++this.nextTickId
-				this.queuedTicks.set(id, tick)
-				this.ensureFrame()
-				return id
-			},
-			cancel: (id) => {
-				this.queuedTicks.delete(id)
-			},
-		}
-	}
+  constructor(private options: ProjectionRootOptions) {
+    this.animationClock = {
+      now: options.clock.now,
+      request: (tick) => {
+        const id = ++this.nextTickId
+        this.queuedTicks.set(id, tick)
+        this.ensureFrame()
+        return id
+      },
+      cancel: (id) => {
+        this.queuedTicks.delete(id)
+      },
+    }
+  }
 
-	get isMotionHost(): (node: unknown) => boolean {
-		return this.options.barrier.isMotionHost?.bind(this.options.barrier) ?? (() => false)
-	}
+  get isMotionHost(): (node: unknown) => boolean {
+    return this.options.barrier.isMotionHost?.bind(this.options.barrier) ?? (() => false)
+  }
 
-	add(node: ProjectionNode): void {
-		node.root = this
-		let index = this.nodes.length
-		while (index > 0 && this.nodes[index - 1].depth > node.depth) {
-			index--
-		}
-		this.nodes.splice(index, 0, node)
-		if (node.options.layoutId !== undefined) {
-			const key = node.options.layoutId
-			let stack = this.sharedStacks.get(key)
-			if (!stack) {
-				stack = new SharedStack()
-				this.sharedStacks.set(key, stack)
-			}
+  add(node: ProjectionNode): void {
+    node.root = this
+    let index = this.nodes.length
+    while (index > 0 && this.nodes[index - 1].depth > node.depth) {
+      index--
+    }
+    this.nodes.splice(index, 0, node)
+    if (node.options.layoutId !== undefined) {
+      const key = node.options.layoutId
+      let stack = this.sharedStacks.get(key)
+      if (!stack) {
+        stack = new SharedStack()
+        this.sharedStacks.set(key, stack)
+      }
 
-			stack.add(node)
-		}
-		if (this.nodes.length === 1) {
-			this.observeStop = this.options.barrier.observe(this)
-		}
-	}
+      stack.add(node)
+    }
+    if (this.nodes.length === 1) {
+      this.observeStop = this.options.barrier.observe(this)
+    }
+  }
 
-	remove(node: ProjectionNode): void {
-		const index = this.nodes.indexOf(node)
-		if (index === -1) {
-			return
-		}
-		this.nodes.splice(index, 1)
-		node.shared?.remove(node)
-		node.detach()
-		this.invalidate('mutation')
-		if (!this.nodes.length) {
-			this.observeStop?.()
-			this.observeStop = undefined
-		}
-	}
+  remove(node: ProjectionNode): void {
+    const index = this.nodes.indexOf(node)
+    if (index === -1) {
+      return
+    }
+    this.nodes.splice(index, 1)
+    node.shared?.remove(node)
+    node.detach()
+    this.invalidate('mutation')
+    if (!this.nodes.length) {
+      this.observeStop?.()
+      this.observeStop = undefined
+    }
+  }
 
-	invalidate(kind: 'commit' | 'mutation' | 'resize'): void {
-		if (kind === 'resize') {
-			this.resizePending = true
-			this.ensureFrame()
-			return
-		}
+  invalidate(kind: 'commit' | 'mutation' | 'resize'): void {
+    if (kind === 'resize') {
+      this.resizePending = true
+      this.ensureFrame()
+      return
+    }
 
-		if (this.passScheduled || (!this.nodes.length && !this.sharedStacks.size)) {
-			return
-		}
-		this.passScheduled = true
-		this.options.barrier.schedule(() => {
-			this.passScheduled = false
-			this.runPass()
-		})
-	}
+    if (this.passScheduled || (!this.nodes.length && !this.sharedStacks.size)) {
+      return
+    }
+    this.passScheduled = true
+    this.options.barrier.schedule(() => {
+      this.passScheduled = false
+      this.runPass()
+    })
+  }
 
-	scheduleUpdateProjection(): void {
-		this.needsProjectionUpdate = true
-		this.ensureFrame()
-	}
+  scheduleUpdateProjection(): void {
+    this.needsProjectionUpdate = true
+    this.ensureFrame()
+  }
 
-	/** Channel writes while projecting recalc this frame's projected transform. */
-	requestProjectionFrame(): void {
-		this.scheduleUpdateProjection()
-	}
+  /** Channel writes while projecting recalc this frame's projected transform. */
+  requestProjectionFrame(): void {
+    this.scheduleUpdateProjection()
+  }
 
-	private ensureFrame() {
-		if (this.frameScheduled) {
-			return
-		}
-		this.frameScheduled = true
-		this.options.clock.request(() => this.runFrame())
-	}
+  private ensureFrame() {
+    if (this.frameScheduled) {
+      return
+    }
+    this.frameScheduled = true
+    this.options.clock.request(() => this.runFrame())
+  }
 
-	private runFrame() {
-		this.frameScheduled = false
-		this.frameTimestamp = this.options.clock.now()
+  private runFrame() {
+    this.frameScheduled = false
+    this.frameTimestamp = this.options.clock.now()
 
-		if (this.resizePending) {
-			this.resizePending = false
-			this.runResizePass()
-		}
+    if (this.resizePending) {
+      this.resizePending = false
+      this.runResizePass()
+    }
 
-		const ticks = [...this.queuedTicks.values()]
-		this.queuedTicks.clear()
-		for (const tick of ticks) {
-			tick()
-		}
+    const ticks = [...this.queuedTicks.values()]
+    this.queuedTicks.clear()
+    for (const tick of ticks) {
+      tick()
+    }
 
-		if (this.needsProjectionUpdate) {
-			this.needsProjectionUpdate = false
-			this.updateProjection()
-		}
-	}
+    if (this.needsProjectionUpdate) {
+      this.needsProjectionUpdate = false
+      this.updateProjection()
+    }
+  }
 
-	private measureNodes() {
-		for (const node of this.nodes) {
-			if (node.hasProjected) {
-				node.hooks?.resetProjection()
-			}
-		}
+  private measureNodes() {
+    for (const node of this.nodes) {
+      if (node.hasProjected) {
+        node.hooks?.resetProjection()
+      }
+    }
 
-		for (const node of this.nodes) {
-			const measurement = node.hooks?.measureLayout()
-			if (measurement) {
-				const previous = node.layout
-				node.layout = measurement
-				node.rebaseDrag(previous)
-				if (!previous || !boxEqualsRounded(previous.layoutBox, measurement.layoutBox)) {
-					node.layoutVersion++
-				}
-			}
-		}
-	}
+    for (const node of this.nodes) {
+      const measurement = node.hooks?.measureLayout()
+      if (measurement) {
+        const previous = node.layout
+        node.layout = measurement
+        node.rebaseDrag(previous)
+        if (!previous || !boxEqualsRounded(previous.layoutBox, measurement.layoutBox)) {
+          node.layoutVersion++
+        }
+      }
+    }
+  }
 
-	private runPass() {
-		this.frameTimestamp = this.options.clock.now()
-		if (this.resizePending) {
-			this.resizePending = false
-			this.runResizePass()
-			return
-		}
+  private runPass() {
+    this.frameTimestamp = this.options.clock.now()
+    if (this.resizePending) {
+      this.resizePending = false
+      this.runResizePass()
+      return
+    }
 
-		this.measureNodes()
-		for (const stack of this.sharedStacks.values()) {
-			stack.prepare()
-		}
-		for (const node of this.nodes) {
-			node.notifyLayoutUpdate()
-		}
-		this.updateProjection()
-		for (const [key, stack] of this.sharedStacks) {
-			stack.settleExits()
-			if (!stack.members.length) {
-				this.sharedStacks.delete(key)
-			}
-		}
-	}
+    this.measureNodes()
+    for (const stack of this.sharedStacks.values()) {
+      stack.prepare()
+    }
+    for (const node of this.nodes) {
+      node.notifyLayoutUpdate()
+    }
+    this.updateProjection()
+    for (const [key, stack] of this.sharedStacks) {
+      stack.settleExits()
+      if (!stack.members.length) {
+        this.sharedStacks.delete(key)
+      }
+    }
+  }
 
-	private runResizePass() {
-		this.measureNodes()
-		for (const node of this.nodes) {
-			if (node.currentAnimation) {
-				node.finishAnimation()
-				node.targetDelta = node.relativeTarget = node.target = undefined
-				node.isProjectionDirty = true
-			}
-		}
+  private runResizePass() {
+    this.measureNodes()
+    for (const node of this.nodes) {
+      if (node.currentAnimation) {
+        node.finishAnimation()
+        node.targetDelta = node.relativeTarget = node.target = undefined
+        node.isProjectionDirty = true
+      }
+    }
 
-		for (const stack of this.sharedStacks.values()) {
-			stack.complete()
-		}
-		this.updateProjection()
-	}
+    for (const stack of this.sharedStacks.values()) {
+      stack.complete()
+    }
+    this.updateProjection()
+  }
 
-	private updateProjection() {
-		this.needsProjectionUpdate = false
-		for (const node of this.nodes) {
-			propagateDirtyNodes(node)
-		}
-		for (const node of this.nodes) {
-			if (node.shared?.lead && node.shared.lead !== node) {
-				node.shared.follow(node)
-			} else {
-				node.resolveTargetDelta()
-			}
-		}
-		for (const node of this.nodes) {
-			node.calcProjection()
-		}
-		for (const node of this.nodes) {
-			node.render()
-		}
-		for (const node of this.nodes) {
-			node.renderOpacity()
-		}
-		for (const node of this.nodes) {
-			node.refreshPresented()
-		}
-		for (const node of this.nodes) {
-			cleanDirtyNodes(node)
-		}
-	}
+  private updateProjection() {
+    this.needsProjectionUpdate = false
+    for (const node of this.nodes) {
+      propagateDirtyNodes(node)
+    }
+    for (const node of this.nodes) {
+      if (node.shared?.lead && node.shared.lead !== node) {
+        node.shared.follow(node)
+      } else {
+        node.resolveTargetDelta()
+      }
+    }
+    for (const node of this.nodes) {
+      node.calcProjection()
+    }
+    for (const node of this.nodes) {
+      node.render()
+    }
+    for (const node of this.nodes) {
+      node.renderOpacity()
+    }
+    for (const node of this.nodes) {
+      node.refreshPresented()
+    }
+    for (const node of this.nodes) {
+      cleanDirtyNodes(node)
+    }
+  }
 }
 
 let sharedRoot: ProjectionRoot | undefined
 
 /** Per-Renderer-tree projection root; created on first layout host. */
 export function projectionRoot(): ProjectionRoot {
-	return (sharedRoot ??= new ProjectionRoot({ clock, barrier }))
+  return (sharedRoot ??= new ProjectionRoot({ clock, barrier }))
 }

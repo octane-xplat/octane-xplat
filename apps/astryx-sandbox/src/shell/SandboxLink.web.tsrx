@@ -7,49 +7,49 @@
 import { followHref } from './follow-href.web'
 
 export interface SandboxLinkProps {
-	href: string
-	/** Router-style destination injected by `useLinkComponent` — mirrors
-	 *  upstream's `to={href}` handoff. Navigation uses `to ?? href`. */
-	to?: unknown
-	className?: any
-	style?: any
-	id?: string
-	children?: any
-	'aria-label'?: string
-	onClick?: (e: any) => void
-	[key: string]: any
+  href: string
+  /** Router-style destination injected by `useLinkComponent` — mirrors
+   *  upstream's `to={href}` handoff. Navigation uses `to ?? href`. */
+  to?: unknown
+  className?: any
+  style?: any
+  id?: string
+  children?: any
+  'aria-label'?: string
+  onClick?: (e: any) => void
+  [key: string]: any
 }
 
 function isExternal(href: string) {
-	return /^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(href)
+  return /^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(href)
 }
 
 export function SandboxLink(props: SandboxLinkProps) @{
-	const { href, to, onClick, ...rest } = props
-	const destination = typeof to === 'string' ? to : href
-	return (
-		<a
-			{...rest}
-			href={href}
-			onClick={(e: any) => {
-				onClick?.(e)
-				if (e?.defaultPrevented || isExternal(href)) {
-					return
-				}
+  const { href, to, onClick, ...rest } = props
+  const destination = typeof to === 'string' ? to : href
+  return (
+    <a
+      {...rest}
+      href={href}
+      onClick={(e: any) => {
+        onClick?.(e)
+        if (e?.defaultPrevented || isExternal(href)) {
+          return
+        }
 
-				if (e?.button !== undefined && e.button !== 0) {
-					return
-				}
+        if (e?.button !== undefined && e.button !== 0) {
+          return
+        }
 
-				if (e?.metaKey || e?.ctrlKey || e?.shiftKey || e?.altKey) {
-					return
-				}
+        if (e?.metaKey || e?.ctrlKey || e?.shiftKey || e?.altKey) {
+          return
+        }
 
-				e?.preventDefault?.()
-				followHref(destination)
-			}}
-		/>
-	)
+        e?.preventDefault?.()
+        followHref(destination)
+      }}
+    />
+  )
 }
 
 export default SandboxLink

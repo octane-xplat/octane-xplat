@@ -14,42 +14,42 @@ import { rootLayoutFor } from '../layout/root-layout'
  *  `isTopLayer` are web semantics (documented; `inset` applies as extra
  *  edge margin where noted on the service). */
 export function ToastViewport(props: ToastViewportProps): unknown @{
-	const id = useId()
-	const sentinel = useRef<any>(null)
-	const ctx = useMemo<ToastViewportContextValue>(
-		() => ({ id, position: props.position ?? 'bottomEnd', maxVisible: props.maxVisible ?? 5 }),
-		[id, props.position, props.maxVisible],
-	)
+  const id = useId()
+  const sentinel = useRef<any>(null)
+  const ctx = useMemo<ToastViewportContextValue>(
+    () => ({ id, position: props.position ?? 'bottomEnd', maxVisible: props.maxVisible ?? 5 }),
+    [id, props.position, props.maxVisible],
+  )
 
-	useEffect(() => {
-		const rl = rootLayoutFor(sentinel.current)
-		if (!rl) {
-			return
-		}
+  useEffect(() => {
+    const rl = rootLayoutFor(sentinel.current)
+    if (!rl) {
+      return
+    }
 
-		const unregShared = registerToastViewport(id)
-		const unregNative = registerNativeToastViewport(id, {
-			rl,
-			position: ctx.position,
-			maxVisible: ctx.maxVisible,
-		})
+    const unregShared = registerToastViewport(id)
+    const unregNative = registerNativeToastViewport(id, {
+      rl,
+      position: ctx.position,
+      maxVisible: ctx.maxVisible,
+    })
 
-		return () => {
-			unregNative()
-			unregShared()
-		}
-	}, [id, ctx])
+    return () => {
+      unregNative()
+      unregShared()
+    }
+  }, [id, ctx])
 
-	<>
-		<ToastViewportProvider value={ctx}>{props.children}</ToastViewportProvider>
-		<masonview
-			ref={(v: any) => {
-				sentinel.current = v
-			}}
-			style={mergeStyle(
-				{ flexDirection: 'column' },
-				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
-			)}
-		/>
-	</>
+  <>
+    <ToastViewportProvider value={ctx}>{props.children}</ToastViewportProvider>
+    <masonview
+      ref={(v: any) => {
+        sentinel.current = v
+      }}
+      style={mergeStyle(
+        { flexDirection: 'column' },
+        mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+      )}
+    />
+  </>
 }

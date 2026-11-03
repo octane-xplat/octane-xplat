@@ -8,23 +8,23 @@ import './layouts.css'
 
 const roots = new Set<ReturnType<typeof renderNativeScriptApp>>()
 const entry = {
-	create() {
-		const page = new Page()
-		page.actionBarHidden = true
-		roots.add(renderNativeScriptApp(page, Qualification))
-		return page
-	},
+  create() {
+    const page = new Page()
+    page.actionBarHidden = true
+    roots.add(renderNativeScriptApp(page, Qualification))
+    return page
+  },
 }
 
 if (Application.started) {
-	Application.resetRootView(entry)
+  Application.resetRootView(entry)
 } else {
-	Application.run(entry)
+  Application.run(entry)
 }
 
 import.meta.hot?.dispose(() => {
-	for (const root of roots) {
-		root.unmount()
-	}
-	roots.clear()
+  for (const root of roots) {
+    root.unmount()
+  }
+  roots.clear()
 })

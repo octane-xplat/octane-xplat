@@ -7,10 +7,10 @@ export const supported: boolean = false
 /** Windows bring-up is deferred — renders the placeholder so a shared
  *  screen still mounts. */
 export function RichTextEditor(props: RichTextEditorProps): unknown @{
-	<label
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		text="Rich text editing is not supported on Windows yet."
-	/>
+  <label
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    text="Rich text editing is not supported on Windows yet."
+  />
 }

@@ -7,15 +7,15 @@ import { fileURLToPath } from 'node:url'
 const appRoot = dirname(dirname(fileURLToPath(import.meta.url)))
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
-	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-	'../../bin/xplat.mjs',
+  dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
+  '../../bin/xplat.mjs',
 )
 
 const appSource = join(appRoot, 'src/App.tsx')
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
-	cwd: appRoot,
-	env: { ...process.env, OCTANE_MACOS_AUTOMATION: '0' },
-	stdio: ['ignore', 'pipe', 'pipe'],
+  cwd: appRoot,
+  env: { ...process.env, OCTANE_MACOS_AUTOMATION: '0' },
+  stdio: ['ignore', 'pipe', 'pipe'],
 })
 
 let output = ''
@@ -24,35 +24,35 @@ let updated = false
 // A cold build prepares both the shell and application before starting AppKit.
 const deadline = setTimeout(() => host.kill('SIGTERM'), 120000)
 for (const stream of [host.stdout, host.stderr]) {
-	stream.on('data', (chunk) => {
-		output += chunk.toString()
-		if (!touched && output.includes('[macos] AppKit window ready')) {
-			touched = true
-			const now = new Date()
-			utimesSync(appSource, now, now)
-		}
+  stream.on('data', (chunk) => {
+    output += chunk.toString()
+    if (!touched && output.includes('[macos] AppKit window ready')) {
+      touched = true
+      const now = new Date()
+      utimesSync(appSource, now, now)
+    }
 
-		if (touched && !updated && output.includes('[macos] component rendered after hot edit')) {
-			updated = true
-			setTimeout(() => host.kill('SIGTERM'), 300)
-		}
-	})
+    if (touched && !updated && output.includes('[macos] component rendered after hot edit')) {
+      updated = true
+      setTimeout(() => host.kill('SIGTERM'), 300)
+    }
+  })
 }
 
 const { code, signal } = await new Promise((resolve, reject) => {
-	host.once('error', reject)
-	host.once('close', (code, signal) => resolve({ code, signal }))
+  host.once('error', reject)
+  host.once('close', (code, signal) => resolve({ code, signal }))
 })
 
 clearTimeout(deadline)
 const count = (text) => output.split(text).length - 1
 if (
-	!updated ||
-	count('NativeScript init completed') !== 1 ||
-	count('[harness] App mounted') !== 1 ||
-	count('[macos] component rendered after hot edit') !== 1
+  !updated ||
+  count('NativeScript init completed') !== 1 ||
+  count('[harness] App mounted') !== 1 ||
+  count('[macos] component rendered after hot edit') !== 1
 ) {
-	throw Error(`JavaScriptCore HMR failed (code=${code}, signal=${signal}):\n${output.slice(-4000)}`)
+  throw Error(`JavaScriptCore HMR failed (code=${code}, signal=${signal}):\n${output.slice(-4000)}`)
 }
 
 console.log('JavaScriptCore HMR: edit rebuilt, updated in process, and kept the mounted root')

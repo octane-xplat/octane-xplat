@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'octane'
 import {
-	matchesWindowsMediaQuery,
-	observeWindowsMediaTraits,
-	readWindowsMediaTraits,
+  matchesWindowsMediaQuery,
+  observeWindowsMediaTraits,
+  readWindowsMediaTraits,
 } from './media-query-host'
 
 /**
@@ -20,16 +20,16 @@ import {
  * }
  */
 export function useMediaQuery(query: string): boolean {
-	const [matches, setMatches] = useState(() =>
-		matchesWindowsMediaQuery(query, readWindowsMediaTraits()),
-	)
+  const [matches, setMatches] = useState(() =>
+    matchesWindowsMediaQuery(query, readWindowsMediaTraits()),
+  )
 
-	useEffect(() => {
-		const update = () => setMatches(matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
-		const release = observeWindowsMediaTraits(update)
-		update()
-		return release
-	}, [query])
+  useEffect(() => {
+    const update = () => setMatches(matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
+    const release = observeWindowsMediaTraits(update)
+    update()
+    return release
+  }, [query])
 
-	return matches
+  return matches
 }

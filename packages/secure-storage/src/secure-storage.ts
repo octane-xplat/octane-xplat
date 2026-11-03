@@ -8,9 +8,9 @@ const store = new SecureStorage()
 // No runtime permission needed — Keychain/Keystore is device-owned.
 /** Secure-storage service (Keychain / Keystore-backed). */
 export const secureStorage: Service<SecureStore> = {
-	supported: true,
-	isAvailable: async () => true,
-	get: (key) => store.get({ key }).then((v) => v ?? null),
-	set: (key, value) => store.set({ key, value }),
-	remove: (key) => store.remove({ key }),
+  supported: true,
+  isAvailable: async () => true,
+  get: (key) => store.get({ key }).then((v) => v ?? null),
+  set: (key, value) => store.set({ key, value }),
+  remove: (key) => store.remove({ key }),
 }

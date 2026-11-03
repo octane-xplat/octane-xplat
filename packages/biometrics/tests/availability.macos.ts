@@ -6,44 +6,44 @@ declare const LAContext: any
 declare const interop: any
 
 setTimeout(async () => {
-	try {
-		if (!biometrics.supported) {
-			throw new Error('LocalAuthentication bridge unavailable')
-		}
+  try {
+    if (!biometrics.supported) {
+      throw new Error('LocalAuthentication bridge unavailable')
+    }
 
-		const context = LAContext.new()
-		const error = new interop.Reference()
-		const available = context.canEvaluatePolicyError(1, error)
-		const code = error.value ? Number(error.value.code) : null
-		const expected = available
-			? 'granted'
-			: error.value?.domain === 'com.apple.LocalAuthentication' &&
-				  [-6, -7, -12, -13].includes(code!)
-				? 'unsupported'
-				: 'denied'
+    const context = LAContext.new()
+    const error = new interop.Reference()
+    const available = context.canEvaluatePolicyError(1, error)
+    const code = error.value ? Number(error.value.code) : null
+    const expected = available
+      ? 'granted'
+      : error.value?.domain === 'com.apple.LocalAuthentication' &&
+          [-6, -7, -12, -13].includes(code!)
+        ? 'unsupported'
+        : 'denied'
 
-		context.invalidate()
-		const actual = (await biometrics.requestPermissions()).status
-		if (actual !== expected) {
-			throw new Error(`Expected ${expected}, got ${actual}`)
-		}
+    context.invalidate()
+    const actual = (await biometrics.requestPermissions()).status
+    if (actual !== expected) {
+      throw new Error(`Expected ${expected}, got ${actual}`)
+    }
 
-		if (await biometrics.verify('  ')) {
-			throw new Error('Blank reason authenticated')
-		}
+    if (await biometrics.verify('  ')) {
+      throw new Error('Blank reason authenticated')
+    }
 
-		if (actual === 'unsupported') {
-			if (await biometrics.verify('Verify unavailable biometrics')) {
-				throw new Error('Unavailable biometrics authenticated')
-			}
-		}
+    if (actual === 'unsupported') {
+      if (await biometrics.verify('Verify unavailable biometrics')) {
+        throw new Error('Unavailable biometrics authenticated')
+      }
+    }
 
-		console.log(
-			`APPKIT_BIOMETRICS_OK: requestPermissions=${actual}; native availability=${available}; code=${code}`,
-		)
-	} catch (error) {
-		console.error('APPKIT_BIOMETRICS_FAIL: ' + String(error))
-	} finally {
-		;(globalThis as any).__xplatStopHost()
-	}
+    console.log(
+      `APPKIT_BIOMETRICS_OK: requestPermissions=${actual}; native availability=${available}; code=${code}`,
+    )
+  } catch (error) {
+    console.error('APPKIT_BIOMETRICS_FAIL: ' + String(error))
+  } finally {
+    ;(globalThis as any).__xplatStopHost()
+  }
 }, 0)

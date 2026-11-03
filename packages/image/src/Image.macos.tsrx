@@ -8,5 +8,5 @@ import { withAppKitImageRequest } from './cache-bridge.macos'
  * headers, decode bounds and transitions remain gaps. Owned load/error events
  * use a private handoff through the same core native host. */
 export function Image(props: ImageProps) @{
-	<CoreImage {...withAppKitImageRequest(props, CoreImage)} />
+  <CoreImage {...withAppKitImageRequest(props, CoreImage)} />
 }

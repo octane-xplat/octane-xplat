@@ -2,28 +2,28 @@
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function DropdownMenuItemShowcase() @{
-	return (
-		<DropdownMenu button={{ label: 'Actions' }}>
-			<DropdownMenuItem
-				icon="sandbox-pencil-square"
-				label="Edit"
-				description="Modify this item"
-				onSelect={() => {}}
-			/>
-			<DropdownMenuItem
-				icon="sandbox-document-duplicate"
-				label="Duplicate"
-				description="Create a copy"
-				onSelect={() => {}}
-			/>
-			<DropdownMenuItem icon="sandbox-share" label="Share" onSelect={() => {}} />
-			<DropdownMenuItem
-				icon="sandbox-trash"
-				label="Delete"
-				description="This action cannot be undone"
-				variant="destructive"
-				onSelect={() => {}}
-			/>
-		</DropdownMenu>
-	)
+  return (
+    <DropdownMenu button={{ label: 'Actions' }}>
+      <DropdownMenuItem
+        icon="sandbox-pencil-square"
+        label="Edit"
+        description="Modify this item"
+        onSelect={() => {}}
+      />
+      <DropdownMenuItem
+        icon="sandbox-document-duplicate"
+        label="Duplicate"
+        description="Create a copy"
+        onSelect={() => {}}
+      />
+      <DropdownMenuItem icon="sandbox-share" label="Share" onSelect={() => {}} />
+      <DropdownMenuItem
+        icon="sandbox-trash"
+        label="Delete"
+        description="This action cannot be undone"
+        variant="destructive"
+        onSelect={() => {}}
+      />
+    </DropdownMenu>
+  )
 }

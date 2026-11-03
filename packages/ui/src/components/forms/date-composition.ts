@@ -1,17 +1,17 @@
 /** Read native marked/composing text without replacing the OS input delegate. */
 export function hasDateComposition(
-	view: any,
-	event?: { isComposing?: boolean; keyCode?: number },
+  view: any,
+  event?: { isComposing?: boolean; keyCode?: number },
 ): boolean {
-	if (event?.isComposing || event?.keyCode === 229) {
-		return true
-	}
+  if (event?.isComposing || event?.keyCode === 229) {
+    return true
+  }
 
-	if (view?.ios?.markedTextRange) {
-		return true
-	}
+  if (view?.ios?.markedTextRange) {
+    return true
+  }
 
-	const editable = view?.android?.getText?.()
-	const composing = globalThis.android?.view?.inputmethod?.BaseInputConnection
-	return !!editable && !!composing && composing.getComposingSpanStart(editable) >= 0
+  const editable = view?.android?.getText?.()
+  const composing = globalThis.android?.view?.inputmethod?.BaseInputConnection
+  return !!editable && !!composing && composing.getComposingSpanStart(editable) >= 0
 }

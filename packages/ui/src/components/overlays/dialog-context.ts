@@ -5,18 +5,18 @@ import { createContext, type Context } from 'octane'
  *  Scoped to the dialog subtree — on native this context lives inside the
  *  overlay root, which is still a single Octane root, so context works. */
 export interface DialogContextValue {
-	/** Id the DialogHeader title should stamp on itself. */
-	titleId: string
-	/** False while `isInline` — title carries no autofocus/label duties. */
-	isModal: boolean
-	/** The dialog's resolved open-state request — lets a `DialogHeader`
-	 *  close affordance work when the header's own `onOpenChange` is absent
-	 *  (required for uncontrolled `defaultOpen` dialogs). */
-	requestClose?: (isOpen: boolean) => void
+  /** Id the DialogHeader title should stamp on itself. */
+  titleId: string
+  /** False while `isInline` — title carries no autofocus/label duties. */
+  isModal: boolean
+  /** The dialog's resolved open-state request — lets a `DialogHeader`
+   *  close affordance work when the header's own `onOpenChange` is absent
+   *  (required for uncontrolled `defaultOpen` dialogs). */
+  requestClose?: (isOpen: boolean) => void
 }
 
 export const DialogContext: Context<DialogContextValue | null> =
-	createContext<DialogContextValue | null>(null)
+  createContext<DialogContextValue | null>(null)
 
 /** JSX-provider form — the universal renderer's context is a callable
  *  rather than a `.Provider` member (same aliasing as FieldProvider). */

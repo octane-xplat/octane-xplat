@@ -9,33 +9,33 @@ import { Image } from './Image.macos.tsrx'
  *  `size` sets the square + border-radius inline so the circle is identical
  *  across targets. */
 export function Avatar(props: AvatarProps): unknown @{
-	const size =
-		typeof props.size === 'number'
-			? props.size
-			: (({ xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 } as Record<string, number>)[
-					props.size ?? 'md'
-				] ?? 32)
+  const size =
+    typeof props.size === 'number'
+      ? props.size
+      : (({ xsm: 16, sm: 24, md: 32, lg: 40, xl: 48 } as Record<string, number>)[
+          props.size ?? 'md'
+        ] ?? 32)
 
-	const box = { width: size, height: size, borderRadius: size / 2 }
+  const box = { width: size, height: size, borderRadius: size / 2 }
 
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-avatar', props.className)}
-		style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), ...box })}
-		accessibilityLabel={props.alt}
-	>
-		{props.src ? (
-			<Image
-				className="vx-avatar-img"
-				src={props.src}
-				alt={props.alt}
-				style={{ width: size, height: size, borderRadius: size / 2 }}
-			/>
-		) : (
-			<label className="vx-avatar-fallback" text={props.fallback ?? ''} />
-		)}
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-avatar', props.className)}
+    style={mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), ...box })}
+    accessibilityLabel={props.alt}
+  >
+    {props.src ? (
+      <Image
+        className="vx-avatar-img"
+        src={props.src}
+        alt={props.alt}
+        style={{ width: size, height: size, borderRadius: size / 2 }}
+      />
+    ) : (
+      <label className="vx-avatar-fallback" text={props.fallback ?? ''} />
+    )}
+  </masonview>
 }
 
 // AvatarStatusDot has no AppKit-specific leaf yet; reuse the shared

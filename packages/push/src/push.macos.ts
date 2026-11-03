@@ -6,17 +6,17 @@ const unsupported = () => new Error('push: remote push is not supported on macOS
 
 /** Push-messaging service — FCM/APNs. Inert on macOS. */
 export const push: Push = {
-	supported: false,
-	configured: false,
-	configure: async (_options?: PushConfigureOptions) => {
-		throw unsupported()
-	},
-	requestPermission: async (): Promise<PushPermission> => {
-		throw unsupported()
-	},
-	getToken: async () => null,
-	deleteToken: async () => {},
-	onMessage: (_handler: (message: PushMessage) => void) => () => {},
-	onNotificationOpen: (_handler: (message: PushMessage) => void) => () => {},
-	onTokenRefresh: (_handler: (token: string) => void) => () => {},
+  supported: false,
+  configured: false,
+  configure: async (_options?: PushConfigureOptions) => {
+    throw unsupported()
+  },
+  requestPermission: async (): Promise<PushPermission> => {
+    throw unsupported()
+  },
+  getToken: async () => null,
+  deleteToken: async () => {},
+  onMessage: (_handler: (message: PushMessage) => void) => () => {},
+  onNotificationOpen: (_handler: (message: PushMessage) => void) => () => {},
+  onTokenRefresh: (_handler: (token: string) => void) => () => {},
 }

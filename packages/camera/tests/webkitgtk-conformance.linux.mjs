@@ -35,15 +35,15 @@ const hostScript = join(repoRoot, 'packages/cli/src/linux/host/gjs-host.js')
 const conformanceScript = join(harnessDir, 'camera-conformance.linux.js')
 
 if (process.platform !== 'linux') {
-	throw new Error('WebKitGTK conformance requires a Linux host with gjs and WebKitGTK 6.0.')
+  throw new Error('WebKitGTK conformance requires a Linux host with gjs and WebKitGTK 6.0.')
 }
 
 for (const binary of ['gjs', 'xvfb-run', 'dbus-run-session']) {
-	try {
-		execFileSync('which', [binary], { stdio: 'pipe' })
-	} catch {
-		throw new Error(`${binary} is required for WebKitGTK conformance`)
-	}
+  try {
+    execFileSync('which', [binary], { stdio: 'pipe' })
+  } catch {
+    throw new Error(`${binary} is required for WebKitGTK conformance`)
+  }
 }
 
 // Build the harness bundle.
@@ -52,58 +52,58 @@ const vitePackage = JSON.parse(readFileSync(require.resolve('vite/package.json')
 const viteBin = join(dirname(require.resolve('vite/package.json')), vitePackage.bin.vite)
 const bundleDir = mkdtempSync(join(tmpdir(), 'camera-webkitgtk-bundle-'))
 execFileSync(
-	process.execPath,
-	[viteBin, 'build', '--config', join(harnessDir, 'vite.config.ts'), '--outDir', bundleDir],
-	{ cwd: harnessDir, stdio: 'inherit' },
+  process.execPath,
+  [viteBin, 'build', '--config', join(harnessDir, 'vite.config.ts'), '--outDir', bundleDir],
+  { cwd: harnessDir, stdio: 'inherit' },
 )
 
 assert.ok(existsSync(join(bundleDir, 'index.html')), 'harness bundle built')
 
 const runPhase = (label, extraEnv = {}, args = []) => {
-	const xdg = mkdtempSync(join(tmpdir(), `camera-xdg-${label}-`))
-	const result = spawnSync(
-		'xvfb-run',
-		[
-			'-a',
-			'dbus-run-session',
-			'--',
-			'gjs',
-			hostScript,
-			'--bundle',
-			bundleDir,
-			'--self-test',
-			...args,
-		],
-		{
-			env: {
-				...process.env,
-				XDG_DATA_HOME: xdg,
-				XDG_CONFIG_HOME: xdg,
-				XPLAT_CAMERA_MOCK: '1',
-				XPLAT_MEDIA_POLICY: 'allow',
-				XPLAT_SELFTEST_SCRIPT: conformanceScript,
-				GSK_RENDERER: 'cairo',
-				LIBGL_ALWAYS_SOFTWARE: '1',
-				...extraEnv,
-			},
-			encoding: 'utf8',
-			timeout: 240_000,
-			maxBuffer: 32 * 1024 * 1024,
-		},
-	)
+  const xdg = mkdtempSync(join(tmpdir(), `camera-xdg-${label}-`))
+  const result = spawnSync(
+    'xvfb-run',
+    [
+      '-a',
+      'dbus-run-session',
+      '--',
+      'gjs',
+      hostScript,
+      '--bundle',
+      bundleDir,
+      '--self-test',
+      ...args,
+    ],
+    {
+      env: {
+        ...process.env,
+        XDG_DATA_HOME: xdg,
+        XDG_CONFIG_HOME: xdg,
+        XPLAT_CAMERA_MOCK: '1',
+        XPLAT_MEDIA_POLICY: 'allow',
+        XPLAT_SELFTEST_SCRIPT: conformanceScript,
+        GSK_RENDERER: 'cairo',
+        LIBGL_ALWAYS_SOFTWARE: '1',
+        ...extraEnv,
+      },
+      encoding: 'utf8',
+      timeout: 240_000,
+      maxBuffer: 32 * 1024 * 1024,
+    },
+  )
 
-	process.stdout.write(result.stdout ?? '')
-	process.stderr.write(result.stderr ?? '')
-	if (result.error) {
-		throw result.error
-	}
+  process.stdout.write(result.stdout ?? '')
+  process.stderr.write(result.stderr ?? '')
+  if (result.error) {
+    throw result.error
+  }
 
-	assert.equal(result.status, 0, `${label} host exited ${result.status}`)
-	const selftest = (result.stdout ?? '').match(/SELFTEST_RESULT (\{.*\})/)
-	assert.ok(selftest, `${label} produced no SELFTEST_RESULT`)
-	const parsed = JSON.parse(selftest[1])
-	assert.deepEqual(parsed.failed, [], `${label} failures: ${parsed.failed.join(', ')}`)
-	return { stdout: result.stdout ?? '', xdg }
+  assert.equal(result.status, 0, `${label} host exited ${result.status}`)
+  const selftest = (result.stdout ?? '').match(/SELFTEST_RESULT (\{.*\})/)
+  assert.ok(selftest, `${label} produced no SELFTEST_RESULT`)
+  const parsed = JSON.parse(selftest[1])
+  assert.deepEqual(parsed.failed, [], `${label} failures: ${parsed.failed.join(', ')}`)
+  return { stdout: result.stdout ?? '', xdg }
 }
 
 // Phase 1 — record + in-page reload reopen.
@@ -118,7 +118,7 @@ assert.ok(output.fileUrl.startsWith('file://'))
 // under the app data dir, so the phases share one XDG profile; this proves
 // the clip survives recorder disposal AND a full app restart.
 runPhase('reopen', { XDG_DATA_HOME: record.xdg, XDG_CONFIG_HOME: record.xdg }, [
-	`xplat://localhost/?phase=reopen&output=${encodeURIComponent(JSON.stringify(output))}`,
+  `xplat://localhost/?phase=reopen&output=${encodeURIComponent(JSON.stringify(output))}`,
 ])
 
 // Phase 3 — denial policy on a clean profile reports blocked honestly.

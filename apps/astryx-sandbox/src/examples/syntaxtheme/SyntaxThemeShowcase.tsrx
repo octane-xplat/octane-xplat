@@ -11,14 +11,14 @@ const sampleCode = `async function save() {
 }`
 
 export function SyntaxThemeShowcase() {
-	return (
-		<>
-			<Stack direction="vertical" gap={2} style={{ width: 360, maxWidth: '100%' }}>
-				<Text type="supporting" weight="bold" color="secondary">
-					One Dark Pro preset
-				</Text>
-				<CodeBlock syntaxTheme={oneDarkPro} code={sampleCode} language="tsx" />
-			</Stack>
-		</>
-	)
+  return (
+    <>
+      <Stack direction="vertical" gap={2} style={{ width: 360, maxWidth: '100%' }}>
+        <Text type="supporting" weight="bold" color="secondary">
+          One Dark Pro preset
+        </Text>
+        <CodeBlock syntaxTheme={oneDarkPro} code={sampleCode} language="tsx" />
+      </Stack>
+    </>
+  )
 }

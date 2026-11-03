@@ -7,8 +7,8 @@ export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within
 /** Attach to a raw native container. The renderer observes its window's
  * first responder; shared View does not forward onFocus/onBlur. */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
-	return {
-		...useFocusWithinState(options),
-		isSubtreeTrackingSupported: Boolean(appKitHost()?.focusWithinSupported),
-	}
+  return {
+    ...useFocusWithinState(options),
+    isSubtreeTrackingSupported: Boolean(appKitHost()?.focusWithinSupported),
+  }
 }

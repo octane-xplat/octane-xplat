@@ -13,7 +13,7 @@ const LinkProviderEl: any = LinkContext
  *  native it supplies the link surface where one is rendered — nav items
  *  already route through the canonical router via `followHref`. */
 export function LinkProvider(props: LinkProviderProps): unknown @{
-	const value = useMemo(() => ({ component: props.component }), [props.component])
+  const value = useMemo(() => ({ component: props.component }), [props.component])
 
-	<LinkProviderEl value={value}>{props.children}</LinkProviderEl>
+  <LinkProviderEl value={value}>{props.children}</LinkProviderEl>
 }

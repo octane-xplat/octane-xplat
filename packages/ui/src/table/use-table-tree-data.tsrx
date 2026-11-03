@@ -6,11 +6,11 @@
 
 import { useRef } from 'octane'
 import type {
-	TablePlugin,
-	BodyRowRenderProps,
-	HeaderCellRenderProps,
-	TableTreeRowMeta,
-	UseTableTreeDataConfig,
+  TablePlugin,
+  BodyRowRenderProps,
+  HeaderCellRenderProps,
+  TableTreeRowMeta,
+  UseTableTreeDataConfig,
 } from './types'
 
 import type { Renderable, TableColumn } from '../props'
@@ -21,172 +21,172 @@ import { TableSlot, tableSlot } from './table-slot.tsrx'
 const INDENT_STEP = { sm: 12, md: 16, lg: 24 } as const
 
 function TreeCellContent<T extends Record<string, unknown>>(props: {
-	meta: TableTreeRowMeta | undefined
-	indent: 'sm' | 'md' | 'lg'
-	onToggle: () => void
-	children: any
+  meta: TableTreeRowMeta | undefined
+  indent: 'sm' | 'md' | 'lg'
+  onToggle: () => void
+  children: any
 }) @{
-	const meta = props.meta
-	if (!meta) {
-		return <TableSlot value={props.children} />
-	}
+  const meta = props.meta
+  if (!meta) {
+    return <TableSlot value={props.children} />
+  }
 
-	const indent = meta.level > 0 ? meta.level * INDENT_STEP[props.indent] : 0
+  const indent = meta.level > 0 ? meta.level * INDENT_STEP[props.indent] : 0
 
-	<masonview
-		className="vx-table-tree-cell"
-		style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: indent }}
-	>
-		{meta.hasChildren ? (
-			<masonview
-				className="vx-table-expander"
-				onTap={props.onToggle}
-				accessibilityLabel={meta.isExpanded ? 'Collapse row' : 'Expand row'}
-				style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-			>
-				<Icon name="xplat-chevron-right" size={12} />
-			</masonview>
-		) : (
-			<masonview style={{ width: 24, height: 24 }} />
-		)}
-		{typeof props.children === 'string' || typeof props.children === 'number' ? (
-			<label text={String(props.children)} />
-		) : (
-			<TableSlot value={props.children} />
-		)}
-	</masonview>
+  <masonview
+    className="vx-table-tree-cell"
+    style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: indent }}
+  >
+    {meta.hasChildren ? (
+      <masonview
+        className="vx-table-expander"
+        onTap={props.onToggle}
+        accessibilityLabel={meta.isExpanded ? 'Collapse row' : 'Expand row'}
+        style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Icon name="xplat-chevron-right" size={12} />
+      </masonview>
+    ) : (
+      <masonview style={{ width: 24, height: 24 }} />
+    )}
+    {typeof props.children === 'string' || typeof props.children === 'number' ? (
+      <label text={String(props.children)} />
+    ) : (
+      <TableSlot value={props.children} />
+    )}
+  </masonview>
 }
 
 function TreeExpandAllToggle(props: {
-	isAllExpanded: boolean | 'indeterminate'
-	onExpandAll: () => void
-	onCollapseAll: () => void
+  isAllExpanded: boolean | 'indeterminate'
+  onExpandAll: () => void
+  onCollapseAll: () => void
 }) @{
-	const allExpanded = props.isAllExpanded === true
+  const allExpanded = props.isAllExpanded === true
 
-	<masonview
-		className="vx-table-expander"
-		onTap={() => (allExpanded ? props.onCollapseAll() : props.onExpandAll())}
-		accessibilityLabel={allExpanded ? 'Collapse all rows' : 'Expand all rows'}
-		style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
-	>
-		<Icon name="xplat-chevron-right" size={12} />
-	</masonview>
+  <masonview
+    className="vx-table-expander"
+    onTap={() => (allExpanded ? props.onCollapseAll() : props.onExpandAll())}
+    accessibilityLabel={allExpanded ? 'Collapse all rows' : 'Expand all rows'}
+    style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}
+  >
+    <Icon name="xplat-chevron-right" size={12} />
+  </masonview>
 }
 
 function TreeHeaderBefore(props: {
-	before: any
-	isAllExpanded: boolean | 'indeterminate'
-	onExpandAll: () => void
-	onCollapseAll: () => void
+  before: any
+  isAllExpanded: boolean | 'indeterminate'
+  onExpandAll: () => void
+  onCollapseAll: () => void
 }) @{
-	<>
-		<TableSlot value={props.before} />
-		<TreeExpandAllToggle
-			isAllExpanded={props.isAllExpanded}
-			onExpandAll={props.onExpandAll}
-			onCollapseAll={props.onCollapseAll}
-		/>
-	</>
+  <>
+    <TableSlot value={props.before} />
+    <TreeExpandAllToggle
+      isAllExpanded={props.isAllExpanded}
+      onExpandAll={props.onExpandAll}
+      onCollapseAll={props.onCollapseAll}
+    />
+  </>
 }
 
 /** Headless tree plugin — expands row data with indent/affordance metadata. */
 export function useTableTreeData<T extends Record<string, unknown>>(
-	config: UseTableTreeDataConfig<T>,
+  config: UseTableTreeDataConfig<T>,
 ): TablePlugin<T> {
-	const configRef = useRef(config)
-	configRef.current = config
+  const configRef = useRef(config)
+  configRef.current = config
 
-	const treeKeyRef = useRef<string | undefined>(undefined)
+  const treeKeyRef = useRef<string | undefined>(undefined)
 
-	return {
-		transformColumns(columns: TableColumn<T>[]) {
-			const { hasExpandableRows, treeColumnKey } = configRef.current
+  return {
+    transformColumns(columns: TableColumn<T>[]) {
+      const { hasExpandableRows, treeColumnKey } = configRef.current
 
-			const configuredExists = treeColumnKey != null && columns.some((c) => c.key === treeColumnKey)
-			const treeKey = configuredExists
-				? treeColumnKey
-				: (columns.find((c) => !c.key.startsWith('__'))?.key ?? columns[0]?.key)
+      const configuredExists = treeColumnKey != null && columns.some((c) => c.key === treeColumnKey)
+      const treeKey = configuredExists
+        ? treeColumnKey
+        : (columns.find((c) => !c.key.startsWith('__'))?.key ?? columns[0]?.key)
 
-			treeKeyRef.current = treeKey
+      treeKeyRef.current = treeKey
 
-			if (!hasExpandableRows) {
-				return columns
-			}
+      if (!hasExpandableRows) {
+        return columns
+      }
 
-			return columns.map((col) => {
-				if (col.key !== treeKey) {
-					return col
-				}
+      return columns.map((col) => {
+        if (col.key !== treeKey) {
+          return col
+        }
 
-				const originalRenderCell = col.renderCell
-				return {
-					...col,
-					renderCell: (item: T) => {
-						const cfg = configRef.current
-						return tableSlot(TreeCellContent, {
-							meta: cfg.getRowMeta(item),
-							indent: cfg.indent ?? 'md',
-							onToggle: () => cfg.onToggleItem(item),
-							children: originalRenderCell
-								? originalRenderCell(item)
-								: String((item[col.key] as string | number | null | undefined) ?? ''),
-						})
-					},
-				}
-			})
-		},
+        const originalRenderCell = col.renderCell
+        return {
+          ...col,
+          renderCell: (item: T) => {
+            const cfg = configRef.current
+            return tableSlot(TreeCellContent, {
+              meta: cfg.getRowMeta(item),
+              indent: cfg.indent ?? 'md',
+              onToggle: () => cfg.onToggleItem(item),
+              children: originalRenderCell
+                ? originalRenderCell(item)
+                : String((item[col.key] as string | number | null | undefined) ?? ''),
+            })
+          },
+        }
+      })
+    },
 
-		transformHeaderCell(
-			props: HeaderCellRenderProps,
-			column: TableColumn<T>,
-		): HeaderCellRenderProps {
-			const { hasExpandableRows, hasExpandAllControl, isAllExpanded, onExpandAll, onCollapseAll } =
-				configRef.current
+    transformHeaderCell(
+      props: HeaderCellRenderProps,
+      column: TableColumn<T>,
+    ): HeaderCellRenderProps {
+      const { hasExpandableRows, hasExpandAllControl, isAllExpanded, onExpandAll, onCollapseAll } =
+        configRef.current
 
-			if (
-				!hasExpandAllControl ||
-				!hasExpandableRows ||
-				column.key !== treeKeyRef.current ||
-				isAllExpanded === undefined ||
-				!onExpandAll ||
-				!onCollapseAll
-			) {
-				return props
-			}
+      if (
+        !hasExpandAllControl ||
+        !hasExpandableRows ||
+        column.key !== treeKeyRef.current ||
+        isAllExpanded === undefined ||
+        !onExpandAll ||
+        !onCollapseAll
+      ) {
+        return props
+      }
 
-			return {
-				...props,
-				before: tableSlot(TreeHeaderBefore, {
-					before: props.before,
-					isAllExpanded,
-					onExpandAll,
-					onCollapseAll,
-				}),
-			}
-		},
+      return {
+        ...props,
+        before: tableSlot(TreeHeaderBefore, {
+          before: props.before,
+          isAllExpanded,
+          onExpandAll,
+          onCollapseAll,
+        }),
+      }
+    },
 
-		transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
-			const cfg = configRef.current
-			if (!cfg.hasExpandableRows) {
-				return props
-			}
+    transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
+      const cfg = configRef.current
+      if (!cfg.hasExpandableRows) {
+        return props
+      }
 
-			const meta = cfg.getRowMeta(item)
-			const rowClickExpandable = cfg.hasRowClickExpansion === true && meta?.hasChildren === true
+      const meta = cfg.getRowMeta(item)
+      const rowClickExpandable = cfg.hasRowClickExpansion === true && meta?.hasChildren === true
 
-			return {
-				...props,
-				htmlProps: {
-					...props.htmlProps,
-					'aria-level': meta ? meta.level + 1 : undefined,
-					'aria-expanded': meta?.hasChildren === true ? meta.isExpanded : undefined,
-					...(rowClickExpandable ? { onClick: () => configRef.current.onToggleItem(item) } : {}),
-				},
-				classes: rowClickExpandable ? [...props.classes, 'vx-table-row--clickable'] : props.classes,
-			}
-		},
-	}
+      return {
+        ...props,
+        htmlProps: {
+          ...props.htmlProps,
+          'aria-level': meta ? meta.level + 1 : undefined,
+          'aria-expanded': meta?.hasChildren === true ? meta.isExpanded : undefined,
+          ...(rowClickExpandable ? { onClick: () => configRef.current.onToggleItem(item) } : {}),
+        },
+        classes: rowClickExpandable ? [...props.classes, 'vx-table-row--clickable'] : props.classes,
+      }
+    },
+  }
 }
 
 export type { TableTreeRowMeta, UseTableTreeDataConfig }

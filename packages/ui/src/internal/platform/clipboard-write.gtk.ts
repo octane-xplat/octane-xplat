@@ -8,20 +8,20 @@ import GLib from 'gi://GLib'
 
 /** Write text to the system clipboard. Resolves false on failure. */
 export async function copyText(text: string): Promise<boolean> {
-	try {
-		const Gdk4: any = Gdk
-		const clipboard = Gdk4.Display.get_default?.()?.get_clipboard?.()
-		if (!clipboard) {
-			return false
-		}
+  try {
+    const Gdk4: any = Gdk
+    const clipboard = Gdk4.Display.get_default?.()?.get_clipboard?.()
+    if (!clipboard) {
+      return false
+    }
 
-		const bytes = new GLib.Bytes(new TextEncoder().encode(text))
-		return (
-			clipboard.set_content(
-				Gdk4.ContentProvider.new_for_bytes('text/plain;charset=utf-8', bytes),
-			) === true
-		)
-	} catch {
-		return false
-	}
+    const bytes = new GLib.Bytes(new TextEncoder().encode(text))
+    return (
+      clipboard.set_content(
+        Gdk4.ContentProvider.new_for_bytes('text/plain;charset=utf-8', bytes),
+      ) === true
+    )
+  } catch {
+    return false
+  }
 }

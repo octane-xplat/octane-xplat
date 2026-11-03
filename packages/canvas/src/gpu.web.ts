@@ -4,5 +4,5 @@
  *  `getPreferredCanvasFormat()`. Typed `any` deliberately — the shim and the
  *  real navigator.gpu differ structurally beyond that shared surface. */
 export function getGPU(): any {
-	return (globalThis.navigator as any)?.gpu ?? null
+  return (globalThis.navigator as any)?.gpu ?? null
 }

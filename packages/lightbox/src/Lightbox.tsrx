@@ -5,131 +5,131 @@ import { Text } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import type { LightboxProps } from './props'
 import {
-	Backdrop,
-	Close,
-	Description,
-	Next,
-	Popup,
-	Prev,
-	Root,
-	Slide,
-	Title,
-	Trigger,
-	useLightboxState,
-	Viewport,
+  Backdrop,
+  Close,
+  Description,
+  Next,
+  Popup,
+  Prev,
+  Root,
+  Slide,
+  Title,
+  Trigger,
+  useLightboxState,
+  Viewport,
 } from './root.tsrx'
 
 import { Image } from './Image.tsrx'
 import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'
 
 function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
-	const state = useLightboxState()
-	const item = state.items[props.index]
-	// Keep the convenience viewer’s explicit native video fallback.
-	if (item?.type === 'video') {
-		return <Text>{item.alt}</Text>
-	}
+  const state = useLightboxState()
+  const item = state.items[props.index]
+  // Keep the convenience viewer’s explicit native video fallback.
+  if (item?.type === 'video') {
+    return <Text>{item.alt}</Text>
+  }
 
-	return <Image src={item?.src} alt={item?.alt} />
+  return <Image src={item?.src} alt={item?.alt} />
 }
 
 function Counter() @{
-	const state = useLightboxState()
-	if (state.count <= 1) {
-		return null
-	}
+  const state = useLightboxState()
+  if (state.count <= 1) {
+    return null
+  }
 
-	return <label className="vx-lightbox-counter">{`${state.index + 1} of ${state.count}`}</label>
+  return <label className="vx-lightbox-counter">{`${state.index + 1} of ${state.count}`}</label>
 }
 
 function Caption() @{
-	const state = useLightboxState()
-	const caption = state.item?.caption
-	if (caption == null) {
-		return null
-	}
+  const state = useLightboxState()
+  const caption = state.item?.caption
+  if (caption == null) {
+    return null
+  }
 
-	return (
-		<label className="vx-lightbox-caption">
-			{typeof caption === 'string' ? caption : (caption as never)}
-		</label>
-	)
+  return (
+    <label className="vx-lightbox-caption">
+      {typeof caption === 'string' ? caption : (caption as never)}
+    </label>
+  )
 }
 
 function LightboxBase(props: LightboxProps): unknown @{
-	return (
-		<Root
-			media={props.media}
-			isOpen={props.isOpen}
-			defaultOpen={props.defaultOpen}
-			index={props.index}
-			defaultIndex={props.defaultIndex}
-			onOpenChange={props.onOpenChange}
-			onIndexChange={props.onIndexChange}
-			hasZoom={props.hasZoom}
-			maxZoom={props.maxZoom}
-			hasWheelZoom={props.hasWheelZoom}
-			hasBackdropDismiss={props.hasBackdropDismiss}
-			triggerScroll={props.triggerScroll}
-			transition={props.transition}
-			finalFocusRef={props.finalFocusRef}
-		>
-			<Popup className={cx('vx-lightbox-layer', props.className)} style={props.style} id={props.id}>
-				<Backdrop />
-				<Viewport>
-					{props.media?.map((_, i) => (
-						<Slide key={i} index={i}>
-							<DefaultSlide index={i} hasAutoPlay={!!props.hasAutoPlay} />
-						</Slide>
-					))}
-				</Viewport>
-				<Close className="vx-lightbox-close">
-					<Text>{'×'}</Text>
-				</Close>
-				<Prev className="vx-lightbox-prev">
-					<Text>{'‹'}</Text>
-				</Prev>
-				<Next className="vx-lightbox-next">
-					<Text>{'›'}</Text>
-				</Next>
-				<Counter />
-				<Caption />
-			</Popup>
-		</Root>
-	)
+  return (
+    <Root
+      media={props.media}
+      isOpen={props.isOpen}
+      defaultOpen={props.defaultOpen}
+      index={props.index}
+      defaultIndex={props.defaultIndex}
+      onOpenChange={props.onOpenChange}
+      onIndexChange={props.onIndexChange}
+      hasZoom={props.hasZoom}
+      maxZoom={props.maxZoom}
+      hasWheelZoom={props.hasWheelZoom}
+      hasBackdropDismiss={props.hasBackdropDismiss}
+      triggerScroll={props.triggerScroll}
+      transition={props.transition}
+      finalFocusRef={props.finalFocusRef}
+    >
+      <Popup className={cx('vx-lightbox-layer', props.className)} style={props.style} id={props.id}>
+        <Backdrop />
+        <Viewport>
+          {props.media?.map((_, i) => (
+            <Slide key={i} index={i}>
+              <DefaultSlide index={i} hasAutoPlay={!!props.hasAutoPlay} />
+            </Slide>
+          ))}
+        </Viewport>
+        <Close className="vx-lightbox-close">
+          <Text>{'×'}</Text>
+        </Close>
+        <Prev className="vx-lightbox-prev">
+          <Text>{'‹'}</Text>
+        </Prev>
+        <Next className="vx-lightbox-next">
+          <Text>{'›'}</Text>
+        </Next>
+        <Counter />
+        <Caption />
+      </Popup>
+    </Root>
+  )
 }
 
 /** The convenience viewer with the headless parts as statics. */
 export const Lightbox = Object.assign(LightboxBase, {
-	Root,
-	Trigger,
-	Popup,
-	Backdrop,
-	Viewport,
-	Slide,
-	Image,
-	Close,
-	Prev,
-	Next,
-	Title,
-	Description,
-	Thumbnails,
-	Thumbnail,
-	ThumbnailIndicator,
+  Root,
+  Trigger,
+  Popup,
+  Backdrop,
+  Viewport,
+  Slide,
+  Image,
+  Close,
+  Prev,
+  Next,
+  Title,
+  Description,
+  Thumbnails,
+  Thumbnail,
+  ThumbnailIndicator,
 }) as typeof LightboxBase & {
-	Root: typeof Root
-	Trigger: typeof Trigger
-	Popup: typeof Popup
-	Backdrop: typeof Backdrop
-	Viewport: typeof Viewport
-	Slide: typeof Slide
-	Image: typeof Image
-	Close: typeof Close
-	Prev: typeof Prev
-	Next: typeof Next
-	Title: typeof Title
-	Description: typeof Description
-	Thumbnails: typeof Thumbnails
-	Thumbnail: typeof Thumbnail
-	ThumbnailIndicator: typeof ThumbnailIndicator
+  Root: typeof Root
+  Trigger: typeof Trigger
+  Popup: typeof Popup
+  Backdrop: typeof Backdrop
+  Viewport: typeof Viewport
+  Slide: typeof Slide
+  Image: typeof Image
+  Close: typeof Close
+  Prev: typeof Prev
+  Next: typeof Next
+  Title: typeof Title
+  Description: typeof Description
+  Thumbnails: typeof Thumbnails
+  Thumbnail: typeof Thumbnail
+  ThumbnailIndicator: typeof ThumbnailIndicator
 }

@@ -5,16 +5,16 @@ import type { SetTranslate } from '../../props'
  *  is a direct prop set — synchronous on the UI thread. */
 /** Mutable translate fields declared by the runtime view, outside the shared type. */
 interface TranslateTarget {
-	translateX: number
-	translateY: number
+  translateX: number
+  translateY: number
 }
 
 export const setTranslate: SetTranslate = (view, x = 0, y = 0) => {
-	if (!view) {
-		return
-	}
+  if (!view) {
+    return
+  }
 
-	const target = view as TranslateTarget
-	target.translateX = x
-	target.translateY = y
+  const target = view as TranslateTarget
+  target.translateX = x
+  target.translateY = y
 }

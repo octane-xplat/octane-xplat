@@ -12,29 +12,29 @@
  *  `cancelsTouchesInView` stays false so taps still reach buttons. */
 
 import {
-	NSObject,
-	UIApplication,
-	UITapGestureRecognizer,
-	UITextField,
-	UITextView,
-	UIWindowScene,
-	interop,
+  NSObject,
+  UIApplication,
+  UITapGestureRecognizer,
+  UITextField,
+  UITextView,
+  UIWindowScene,
+  interop,
 } from '@octane-xplat/platform/ios'
 
 import { UIGestureRecognizerDelegate } from '@octane-xplat/platform/ios'
 export function attachTapToBlur(view: any): () => void {
-	const marker = '__xplatTapToBlur'
-	if (!view || view[marker]) {
-		return () => {}
-	}
+  const marker = '__xplatTapToBlur'
+  if (!view || view[marker]) {
+    return () => {}
+  }
 
-	view[marker] = true
+  view[marker] = true
 
-	iosAttach()
-	return () => {
-		view[marker] = false
-		iosDetach()
-	}
+  iosAttach()
+  return () => {
+    view[marker] = false
+    iosDetach()
+  }
 }
 
 let iosTargetClass: any = null
@@ -44,90 +44,90 @@ let iosRecognizer: any = null
 let iosWindow: any = null
 
 function iosAttach() {
-	iosCount++
-	if (iosRecognizer) {
-		return
-	}
+  iosCount++
+  if (iosRecognizer) {
+    return
+  }
 
-	const appWin = appWindow()
-	if (!appWin) {
-		return
-	}
+  const appWin = appWindow()
+  if (!appWin) {
+    return
+  }
 
-	iosWindow = appWin
-	// The probe runtime does not provide NativeClass. Register through the
-	// Objective-C bridge lazily, and reuse the class across attach cycles.
-	if (!iosTargetClass) {
-		iosTargetClass = (NSObject as any).extend(
-			{
-				gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
-					let hit = touch.view
-					while (hit) {
-						const textField = hit.isKindOfClass(UITextField.class())
-						const textView = hit.isKindOfClass(UITextView.class())
-						if (textField || textView) {
-							return false
-						}
+  iosWindow = appWin
+  // The probe runtime does not provide NativeClass. Register through the
+  // Objective-C bridge lazily, and reuse the class across attach cycles.
+  if (!iosTargetClass) {
+    iosTargetClass = (NSObject as any).extend(
+      {
+        gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
+          let hit = touch.view
+          while (hit) {
+            const textField = hit.isKindOfClass(UITextField.class())
+            const textView = hit.isKindOfClass(UITextView.class())
+            if (textField || textView) {
+              return false
+            }
 
-						hit = hit.superview
-					}
+            hit = hit.superview
+          }
 
-					return true
-				},
+          return true
+        },
 
-				'tap:'(_recognizer: any) {
-					iosWindow.endEditing(true)
-				},
-			},
-			{
-				name: 'XplatTapToBlurRecognizerTarget',
-				protocols: [UIGestureRecognizerDelegate],
-				exposedMethods: {
-					'tap:': { returns: interop.types.void, params: [interop.types.id] },
-				},
-			},
-		)
-	}
+        'tap:'(_recognizer: any) {
+          iosWindow.endEditing(true)
+        },
+      },
+      {
+        name: 'XplatTapToBlurRecognizerTarget',
+        protocols: [UIGestureRecognizerDelegate],
+        exposedMethods: {
+          'tap:': { returns: interop.types.void, params: [interop.types.id] },
+        },
+      },
+    )
+  }
 
-	iosTarget = iosTargetClass.new()
-	iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap:')
-	iosRecognizer.delegate = iosTarget
-	iosRecognizer.cancelsTouchesInView = false
-	appWin.addGestureRecognizer(iosRecognizer)
+  iosTarget = iosTargetClass.new()
+  iosRecognizer = UITapGestureRecognizer.alloc().initWithTargetAction(iosTarget, 'tap:')
+  iosRecognizer.delegate = iosTarget
+  iosRecognizer.cancelsTouchesInView = false
+  appWin.addGestureRecognizer(iosRecognizer)
 }
 
 function iosDetach() {
-	iosCount--
-	if (iosCount > 0 || !iosRecognizer) {
-		return
-	}
+  iosCount--
+  if (iosCount > 0 || !iosRecognizer) {
+    return
+  }
 
-	iosWindow?.removeGestureRecognizer(iosRecognizer)
-	iosRecognizer = null
-	iosTarget = null
-	iosWindow = null
+  iosWindow?.removeGestureRecognizer(iosRecognizer)
+  iosRecognizer = null
+  iosTarget = null
+  iosWindow = null
 }
 
 function appWindow() {
-	const scenes = UIApplication.sharedApplication.connectedScenes
-	// connectedScenes is an NSSet — `allObjects` marshals to a JS array.
-	for (const scene of scenes.allObjects ?? []) {
-		if (scene instanceof UIWindowScene) {
-			const windows: unknown = scene.windows
-			for (const w of typeof windows === 'object' &&
-			windows !== null &&
-			'allObjects' in windows &&
-			Array.isArray(windows.allObjects)
-				? windows.allObjects
-				: Array.isArray(windows)
-					? windows
-					: []) {
-				if (w.isKeyWindow) {
-					return w
-				}
-			}
-		}
-	}
+  const scenes = UIApplication.sharedApplication.connectedScenes
+  // connectedScenes is an NSSet — `allObjects` marshals to a JS array.
+  for (const scene of scenes.allObjects ?? []) {
+    if (scene instanceof UIWindowScene) {
+      const windows: unknown = scene.windows
+      for (const w of typeof windows === 'object' &&
+      windows !== null &&
+      'allObjects' in windows &&
+      Array.isArray(windows.allObjects)
+        ? windows.allObjects
+        : Array.isArray(windows)
+          ? windows
+          : []) {
+        if (w.isKeyWindow) {
+          return w
+        }
+      }
+    }
+  }
 
-	return UIApplication.sharedApplication.keyWindow
+  return UIApplication.sharedApplication.keyWindow
 }

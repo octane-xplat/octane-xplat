@@ -4,7 +4,7 @@ import type { AuthSessionImpl } from './types'
 
 /** Windows hosted authentication requires a desktop callback/activation adapter. */
 export const authSession: Service<AuthSessionImpl> = {
-	supported: false,
-	isAvailable: async () => false,
-	open: () => Promise.reject(new UnavailabilityError('authSession')),
+  supported: false,
+  isAvailable: async () => false,
+  open: () => Promise.reject(new UnavailabilityError('authSession')),
 }

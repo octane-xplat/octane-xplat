@@ -7,30 +7,30 @@ import { Icon } from '../media/Icon.tsrx'
 
 /** Banner — inline notice strip with optional dismiss affordance. */
 const statusIcon: Record<string, string> = {
-	info: 'xplat-info',
-	success: 'xplat-check-circle',
-	warning: 'xplat-warning',
-	error: 'xplat-error',
+  info: 'xplat-info',
+  success: 'xplat-check-circle',
+  warning: 'xplat-warning',
+  error: 'xplat-error',
 }
 
 /** Page-level announcement bar with status tone and actions. */
 export function Banner(props: BannerProps): unknown @{
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-banner', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	>
-		{typeof props.icon === 'string' ? (
-			<Icon name={props.icon} className="vx-banner-icon" />
-		) : (
-			(props.icon ?? null)
-		)}
-		<masonview className="vx-banner-body" style={{ display: 'flex' }}>
-			{props.children}
-		</masonview>
-		{props.onDismiss ? (
-			<label className="vx-banner-dismiss" text="✕" onTap={props.onDismiss} />
-		) : null}
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-banner', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  >
+    {typeof props.icon === 'string' ? (
+      <Icon name={props.icon} className="vx-banner-icon" />
+    ) : (
+      (props.icon ?? null)
+    )}
+    <masonview className="vx-banner-body" style={{ display: 'flex' }}>
+      {props.children}
+    </masonview>
+    {props.onDismiss ? (
+      <label className="vx-banner-dismiss" text="✕" onTap={props.onDismiss} />
+    ) : null}
+  </masonview>
 }

@@ -9,26 +9,26 @@ import { join, resolve, sep } from 'node:path'
 // This integration check starts nine TypeScript compiler processes. Allow the
 // full platform sweep to finish on shared hosts while keeping every assertion.
 it('connects package-root registration to consumer destination types', async () => {
-	const root = fileURLToPath(new URL('../../', import.meta.url))
-	const cache = join(root, 'node_modules/.cache')
-	await mkdir(cache, { recursive: true })
-	const fixture = await mkdtemp(join(cache, 'routing-package-'))
-	try {
-		const packed = process.env.XPLAT_ROUTING_UI_PACKAGE
-		if (packed) {
-			// A package scope prevents ancestor self-reference from silently using
-			// workspace declarations when qualifying an extracted distribution.
-			await writeFile(join(fixture, 'package.json'), '{"private":true,"type":"module"}')
-			await mkdir(join(fixture, 'node_modules/@octane-xplat'), { recursive: true })
-			await symlink(resolve(packed), join(fixture, 'node_modules/@octane-xplat/ui'), 'dir')
-			const consumer = createRequire(join(fixture, 'consumer.mts'))
-			const resolved = await realpath(consumer.resolve('@octane-xplat/ui/routing/core'))
-			expect(resolved.startsWith((await realpath(packed)) + sep)).toBe(true)
-		}
+  const root = fileURLToPath(new URL('../../', import.meta.url))
+  const cache = join(root, 'node_modules/.cache')
+  await mkdir(cache, { recursive: true })
+  const fixture = await mkdtemp(join(cache, 'routing-package-'))
+  try {
+    const packed = process.env.XPLAT_ROUTING_UI_PACKAGE
+    if (packed) {
+      // A package scope prevents ancestor self-reference from silently using
+      // workspace declarations when qualifying an extracted distribution.
+      await writeFile(join(fixture, 'package.json'), '{"private":true,"type":"module"}')
+      await mkdir(join(fixture, 'node_modules/@octane-xplat'), { recursive: true })
+      await symlink(resolve(packed), join(fixture, 'node_modules/@octane-xplat/ui'), 'dir')
+      const consumer = createRequire(join(fixture, 'consumer.mts'))
+      const resolved = await realpath(consumer.resolve('@octane-xplat/ui/routing/core'))
+      expect(resolved.startsWith((await realpath(packed)) + sep)).toBe(true)
+    }
 
-		await writeFile(
-			join(fixture, 'consumer.mts'),
-			`
+    await writeFile(
+      join(fixture, 'consumer.mts'),
+      `
 import type {} from '@octane-xplat/ui'
 import { router, configureRouter, redirect, useRouter, useNavigation, useNavigationBlocker, getRouteApi, RouterProvider, RouterPane, createPaneRouterHost } from '@octane-xplat/ui/routing'
 import { createRouter, defineRoute, defineRouteGroup, withSearchDecoder, defineRoutes, defineRuntimeRoutes, mergeRouteManifests } from '@octane-xplat/ui/routing/core'
@@ -737,12 +737,12 @@ createRouter({ catalog: accountCatalog, host: undefined as unknown as RouterHost
 // @ts-expect-error Consumers must supply required root context dependencies.
 createRouter({ catalog: accountCatalog, host: undefined as unknown as RouterHost })
 `,
-		)
+    )
 
-		const compiler = join(root, 'node_modules/typescript/bin/tsc')
-		await writeFile(
-			join(fixture, 'literal-diagnostic.mts'),
-			`
+    const compiler = join(root, 'node_modules/typescript/bin/tsc')
+    await writeFile(
+      join(fixture, 'literal-diagnostic.mts'),
+      `
 import { defineRoutes } from '@octane-xplat/ui/routing/core'
 import type { RouteSpec, ContractsOf, DestinationFor } from '@octane-xplat/ui/routing/core'
 const screen = () => null
@@ -761,125 +761,125 @@ defineRoutes<BakedSpecs, { baked: { title: string } }>({ routes: [{ path: '/bake
 
 void [destination, missing]
 `,
-		)
+    )
 
-		const literalDiagnostic = spawnSync(
-			process.execPath,
-			[
-				compiler,
-				'--strict',
-				'--noEmit',
-				'--skipLibCheck',
-				'--target',
-				'ES2020',
-				'--module',
-				'NodeNext',
-				'--moduleResolution',
-				'NodeNext',
-				'--types',
-				'node',
-				join(fixture, 'literal-diagnostic.mts'),
-			],
-			{ cwd: root, encoding: 'utf8' },
-		)
+    const literalDiagnostic = spawnSync(
+      process.execPath,
+      [
+        compiler,
+        '--strict',
+        '--noEmit',
+        '--skipLibCheck',
+        '--target',
+        'ES2020',
+        '--module',
+        'NodeNext',
+        '--moduleResolution',
+        'NodeNext',
+        '--types',
+        'node',
+        join(fixture, 'literal-diagnostic.mts'),
+      ],
+      { cwd: root, encoding: 'utf8' },
+    )
 
-		expect(literalDiagnostic.error).toBeUndefined()
-		expect(literalDiagnostic.status).toBe(2)
-		const diagnostic = literalDiagnostic.stdout + literalDiagnostic.stderr
-		expect(diagnostic.match(/error TS\d+/g), diagnostic).toHaveLength(1)
-		expect(diagnostic).toContain('Preserve literal paths with as const')
-		// Native TypeScript can omit the incidental missing-property explanation.
-		const incidental = diagnostic.indexOf("Property 'baked' is missing")
-		if (incidental >= 0) {
-			expect(diagnostic.indexOf('Preserve literal paths with as const')).toBeLessThan(incidental)
-		}
+    expect(literalDiagnostic.error).toBeUndefined()
+    expect(literalDiagnostic.status).toBe(2)
+    const diagnostic = literalDiagnostic.stdout + literalDiagnostic.stderr
+    expect(diagnostic.match(/error TS\d+/g), diagnostic).toHaveLength(1)
+    expect(diagnostic).toContain('Preserve literal paths with as const')
+    // Native TypeScript can omit the incidental missing-property explanation.
+    const incidental = diagnostic.indexOf("Property 'baked' is missing")
+    if (incidental >= 0) {
+      expect(diagnostic.indexOf('Preserve literal paths with as const')).toBeLessThan(incidental)
+    }
 
-		const result = spawnSync(
-			process.execPath,
-			[
-				compiler,
-				'--strict',
-				'--noEmit',
-				'--skipLibCheck',
-				'--target',
-				'ES2020',
-				'--module',
-				'NodeNext',
-				'--moduleResolution',
-				'NodeNext',
-				'--jsx',
-				'preserve',
-				'--types',
-				'node',
-				join(fixture, 'consumer.mts'),
-			],
-			{ cwd: root, encoding: 'utf8' },
-		)
+    const result = spawnSync(
+      process.execPath,
+      [
+        compiler,
+        '--strict',
+        '--noEmit',
+        '--skipLibCheck',
+        '--target',
+        'ES2020',
+        '--module',
+        'NodeNext',
+        '--moduleResolution',
+        'NodeNext',
+        '--jsx',
+        'preserve',
+        '--types',
+        'node',
+        join(fixture, 'consumer.mts'),
+      ],
+      { cwd: root, encoding: 'utf8' },
+    )
 
-		expect(result.error).toBeUndefined()
-		expect(result.status, result.stdout + result.stderr).toBe(0)
-		await writeFile(
-			join(fixture, 'web.json'),
-			JSON.stringify({
-				compilerOptions: {
-					strict: true,
-					noEmit: true,
-					skipLibCheck: true,
-					target: 'ES2020',
-					module: 'NodeNext',
-					moduleResolution: 'NodeNext',
-					jsx: 'preserve',
-					types: ['node'],
-					customConditions: ['web'],
-					moduleSuffixes: ['.web', ''],
-				},
-				files: ['consumer.mts'],
-			}),
-		)
+    expect(result.error).toBeUndefined()
+    expect(result.status, result.stdout + result.stderr).toBe(0)
+    await writeFile(
+      join(fixture, 'web.json'),
+      JSON.stringify({
+        compilerOptions: {
+          strict: true,
+          noEmit: true,
+          skipLibCheck: true,
+          target: 'ES2020',
+          module: 'NodeNext',
+          moduleResolution: 'NodeNext',
+          jsx: 'preserve',
+          types: ['node'],
+          customConditions: ['web'],
+          moduleSuffixes: ['.web', ''],
+        },
+        files: ['consumer.mts'],
+      }),
+    )
 
-		const web = spawnSync(process.execPath, [compiler, '-p', join(fixture, 'web.json')], {
-			cwd: root,
-			encoding: 'utf8',
-		})
+    const web = spawnSync(process.execPath, [compiler, '-p', join(fixture, 'web.json')], {
+      cwd: root,
+      encoding: 'utf8',
+    })
 
-		expect(web.error).toBeUndefined()
-		expect(web.status, web.stdout + web.stderr).toBe(0)
-		for (const condition of ['native', 'macos', 'linux', 'windows']) {
-			await writeFile(
-				join(fixture, condition + '.json'),
-				JSON.stringify({
-					compilerOptions: {
-						strict: true,
-						noEmit: true,
-						skipLibCheck: true,
-						target: 'ES2020',
-						module: 'NodeNext',
-						moduleResolution: 'NodeNext',
-						jsx: 'preserve',
-						types: ['node'],
-						customConditions: [condition],
-						moduleSuffixes: ['.' + condition, ''],
-					},
-					files: ['consumer.mts'],
-				}),
-			)
+    expect(web.error).toBeUndefined()
+    expect(web.status, web.stdout + web.stderr).toBe(0)
+    for (const condition of ['native', 'macos', 'linux', 'windows']) {
+      await writeFile(
+        join(fixture, condition + '.json'),
+        JSON.stringify({
+          compilerOptions: {
+            strict: true,
+            noEmit: true,
+            skipLibCheck: true,
+            target: 'ES2020',
+            module: 'NodeNext',
+            moduleResolution: 'NodeNext',
+            jsx: 'preserve',
+            types: ['node'],
+            customConditions: [condition],
+            moduleSuffixes: ['.' + condition, ''],
+          },
+          files: ['consumer.mts'],
+        }),
+      )
 
-			const checked = spawnSync(
-				process.execPath,
-				[compiler, '-p', join(fixture, condition + '.json')],
-				{
-					cwd: root,
-					encoding: 'utf8',
-				},
-			)
+      const checked = spawnSync(
+        process.execPath,
+        [compiler, '-p', join(fixture, condition + '.json')],
+        {
+          cwd: root,
+          encoding: 'utf8',
+        },
+      )
 
-			expect(checked.error).toBeUndefined()
-			expect(checked.status, condition + ': ' + checked.stdout + checked.stderr).toBe(0)
-		}
+      expect(checked.error).toBeUndefined()
+      expect(checked.status, condition + ': ' + checked.stdout + checked.stderr).toBe(0)
+    }
 
-		await writeFile(
-			join(fixture, 'consumer.native.mts'),
-			`
+    await writeFile(
+      join(fixture, 'consumer.native.mts'),
+      `
 import { defineRoute, defineRoutes, createRouter, defineTransitions } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
 import { defineNativeTransition } from '@octane-xplat/ui/nativescript'
@@ -906,35 +906,35 @@ nativeRouter.push({ to: '/native/:id', transition: 'detail' })
 // @ts-expect-error Native instances retain finite custom effect names.
 nativeRouter.push({ to: '/native/:id', params: { id: 'coat' }, transition: 'invented' })
 `,
-		)
+    )
 
-		const native = spawnSync(
-			process.execPath,
-			[
-				compiler,
-				'--strict',
-				'--noEmit',
-				'--skipLibCheck',
-				'--target',
-				'ES2020',
-				'--module',
-				'NodeNext',
-				'--moduleResolution',
-				'NodeNext',
-				'--customConditions',
-				'native',
-				'--types',
-				'node',
-				join(fixture, 'consumer.native.mts'),
-			],
-			{ cwd: root, encoding: 'utf8' },
-		)
+    const native = spawnSync(
+      process.execPath,
+      [
+        compiler,
+        '--strict',
+        '--noEmit',
+        '--skipLibCheck',
+        '--target',
+        'ES2020',
+        '--module',
+        'NodeNext',
+        '--moduleResolution',
+        'NodeNext',
+        '--customConditions',
+        'native',
+        '--types',
+        'node',
+        join(fixture, 'consumer.native.mts'),
+      ],
+      { cwd: root, encoding: 'utf8' },
+    )
 
-		expect(native.error).toBeUndefined()
-		expect(native.status, native.stdout + native.stderr).toBe(0)
-		await writeFile(
-			join(fixture, 'consumer.macos.mts'),
-			`
+    expect(native.error).toBeUndefined()
+    expect(native.status, native.stdout + native.stderr).toBe(0)
+    await writeFile(
+      join(fixture, 'consumer.macos.mts'),
+      `
 import { defineAppKitTransition } from '@octane-xplat/ui/macos'
 import { createRouter, defineRoute, defineRoutes, defineTransitions } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
@@ -955,33 +955,33 @@ defineAppKitTransition({ from: {}, duration: 'fast' })
 // @ts-expect-error Finite registry names apply equally to AppKit.
 navigation.push({ to: '/appkit/:id', params: { id: 'coat' }, transition: 'invented' })
 `,
-		)
+    )
 
-		const macos = spawnSync(
-			process.execPath,
-			[
-				compiler,
-				'--strict',
-				'--noEmit',
-				'--skipLibCheck',
-				'--target',
-				'ES2022',
-				'--module',
-				'NodeNext',
-				'--moduleResolution',
-				'NodeNext',
-				'--customConditions',
-				'macos',
-				'--types',
-				'node',
-				join(fixture, 'consumer.macos.mts'),
-			],
-			{ cwd: root, encoding: 'utf8' },
-		)
+    const macos = spawnSync(
+      process.execPath,
+      [
+        compiler,
+        '--strict',
+        '--noEmit',
+        '--skipLibCheck',
+        '--target',
+        'ES2022',
+        '--module',
+        'NodeNext',
+        '--moduleResolution',
+        'NodeNext',
+        '--customConditions',
+        'macos',
+        '--types',
+        'node',
+        join(fixture, 'consumer.macos.mts'),
+      ],
+      { cwd: root, encoding: 'utf8' },
+    )
 
-		expect(macos.error).toBeUndefined()
-		expect(macos.status, macos.stdout + macos.stderr).toBe(0)
-	} finally {
-		await rm(fixture, { recursive: true, force: true })
-	}
+    expect(macos.error).toBeUndefined()
+    expect(macos.status, macos.stdout + macos.stderr).toBe(0)
+  } finally {
+    await rm(fixture, { recursive: true, force: true })
+  }
 }, 120_000)

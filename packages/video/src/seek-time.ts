@@ -3,9 +3,9 @@
  *  seconds for `CMTimeMakeWithSeconds`. The public handle and chrome keep
  *  milliseconds — convert once at the plugin boundary. */
 export function seekToTime(
-	video: { seekToTime(time: number): void },
-	ms: number,
-	platform: 'ios' | 'android',
+  video: { seekToTime(time: number): void },
+  ms: number,
+  platform: 'ios' | 'android',
 ): void {
-	video.seekToTime(platform === 'ios' ? ms / 1000 : ms)
+  video.seekToTime(platform === 'ios' ? ms / 1000 : ms)
 }

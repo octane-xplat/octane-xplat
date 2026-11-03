@@ -30,13 +30,13 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import {
-	appendFileSync,
-	mkdirSync,
-	mkdtempSync,
-	readFileSync,
-	readdirSync,
-	rmSync,
-	writeFileSync,
+  appendFileSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -46,8 +46,8 @@ import { RELEASE_TRACKS, verifyEvidence } from './release-channel.ts'
 const args = process.argv.slice(2)
 const mode = args[0]
 const value = (name) => {
-	const i = args.indexOf(`--${name}`)
-	return i >= 0 ? args[i + 1] : undefined
+  const i = args.indexOf(`--${name}`)
+  return i >= 0 ? args[i + 1] : undefined
 }
 
 let sha = value('sha') ?? (mode === 'record' ? process.env.GITHUB_SHA : undefined)
@@ -62,159 +62,159 @@ const required = RELEASE_TRACKS[track].jobs
 const tree = value('tree')
 
 if (mode === 'record') {
-	assert.ok(sha, '--sha or GITHUB_SHA required')
-	assert.ok(runId, '--run-id or GITHUB_RUN_ID required')
-	if (track === 'stable') {
-		assert.ok(tree, '--tree required for stable evidence')
-	}
+  assert.ok(sha, '--sha or GITHUB_SHA required')
+  assert.ok(runId, '--run-id or GITHUB_RUN_ID required')
+  if (track === 'stable') {
+    assert.ok(tree, '--tree required for stable evidence')
+  }
 
-	const needs = JSON.parse(value('jobs') ?? '{}')
-	const jobs = Object.fromEntries(required.map((job) => [job, needs[job]?.result ?? 'absent']))
+  const needs = JSON.parse(value('jobs') ?? '{}')
+  const jobs = Object.fromEntries(required.map((job) => [job, needs[job]?.result ?? 'absent']))
 
-	const status = Object.values(jobs).every((r) => r === 'success') ? 'success' : 'failure'
+  const status = Object.values(jobs).every((r) => r === 'success') ? 'success' : 'failure'
 
-	mkdirSync(outDir, { recursive: true })
-	const file = join(outDir, 'ci-evidence.json')
-	writeFileSync(
-		file,
-		JSON.stringify(
-			{
-				track,
-				...(track === 'stable' ? { tree } : {}),
-				sha,
-				runId: Number(runId),
-				status,
-				required,
-				jobs,
-				recordedAt: new Date().toISOString(),
-			},
-			null,
-			2,
-		) + '\n',
-	)
+  mkdirSync(outDir, { recursive: true })
+  const file = join(outDir, 'ci-evidence.json')
+  writeFileSync(
+    file,
+    JSON.stringify(
+      {
+        track,
+        ...(track === 'stable' ? { tree } : {}),
+        sha,
+        runId: Number(runId),
+        status,
+        required,
+        jobs,
+        recordedAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    ) + '\n',
+  )
 
-	console.log(`evidence: ${status} — ${file}`)
-	console.log(JSON.stringify(jobs, null, 2))
-	process.exit(0)
+  console.log(`evidence: ${status} — ${file}`)
+  console.log(JSON.stringify(jobs, null, 2))
+  process.exit(0)
 }
 
 if (mode === 'verify') {
-	if (track === 'stable') {
-		assert.ok(tree, '--tree required for stable verification')
-	} else {
-		assert.ok(sha, '--sha required')
-	}
+  if (track === 'stable') {
+    assert.ok(tree, '--tree required for stable verification')
+  } else {
+    assert.ok(sha, '--sha required')
+  }
 
-	const repo = process.env.GITHUB_REPOSITORY
-	assert.ok(repo, 'GITHUB_REPOSITORY required')
-	const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
+  const repo = process.env.GITHUB_REPOSITORY
+  assert.ok(repo, 'GITHUB_REPOSITORY required')
+  const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
-	const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
-	const findArtifact = (id) => {
-		const { artifacts = [] } = JSON.parse(
-			gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100`),
-		)
-		const matches = artifacts.filter((artifact) => artifact.name === artifactName)
-		assert.ok(matches.length <= 1, 'ambiguous release evidence artifacts')
-		return matches[0]
-	}
+  const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
+  const findArtifact = (id) => {
+    const { artifacts = [] } = JSON.parse(
+      gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100`),
+    )
+    const matches = artifacts.filter((artifact) => artifact.name === artifactName)
+    assert.ok(matches.length <= 1, 'ambiguous release evidence artifacts')
+    return matches[0]
+  }
 
-	let evidenceRunId = runId ? Number(runId) : null
-	let artifact = evidenceRunId ? findArtifact(evidenceRunId) : null
-	if (evidenceRunId) {
-		assert.ok(
-			artifact,
-			`CI run ${evidenceRunId} produced no ${artifactName} artifact — ` +
-				'the tested revision carried no release evidence',
-		)
-	} else {
-		// No explicit run: search only this track's workflow and event. Stable
-		// evidence lives on the release pull request's completed runs; a ci
-		// lookup filters to the exact tested SHA.
-		const { workflow, event } = RELEASE_TRACKS[track]
-		const query =
-			track === 'stable'
-				? `repos/${repo}/actions/workflows/${workflow}/runs?event=${event}&branch=release/lockstep&status=completed&per_page=20`
-				: `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}&status=completed&event=${event}&per_page=10`
+  let evidenceRunId = runId ? Number(runId) : null
+  let artifact = evidenceRunId ? findArtifact(evidenceRunId) : null
+  if (evidenceRunId) {
+    assert.ok(
+      artifact,
+      `CI run ${evidenceRunId} produced no ${artifactName} artifact — ` +
+        'the tested revision carried no release evidence',
+    )
+  } else {
+    // No explicit run: search only this track's workflow and event. Stable
+    // evidence lives on the release pull request's completed runs; a ci
+    // lookup filters to the exact tested SHA.
+    const { workflow, event } = RELEASE_TRACKS[track]
+    const query =
+      track === 'stable'
+        ? `repos/${repo}/actions/workflows/${workflow}/runs?event=${event}&branch=release/lockstep&status=completed&per_page=20`
+        : `repos/${repo}/actions/workflows/${workflow}/runs?head_sha=${sha}&status=completed&event=${event}&per_page=10`
 
-		const runs = JSON.parse(gh(query))
+    const runs = JSON.parse(gh(query))
 
-		for (const run of runs.workflow_runs ?? []) {
-			artifact = findArtifact(run.id)
-			if (artifact) {
-				evidenceRunId = run.id
-				break
-			}
-		}
+    for (const run of runs.workflow_runs ?? []) {
+      artifact = findArtifact(run.id)
+      if (artifact) {
+        evidenceRunId = run.id
+        break
+      }
+    }
 
-		if (!evidenceRunId) {
-			if (track === 'stable') {
-				// Not yet qualified is a normal state, not an error — the caller
-				// decides whether to run Stable CI inline for this tree.
-				console.log(`no Stable CI run carried evidence for tree ${tree} — unqualified`)
-				if (process.env.GITHUB_OUTPUT) {
-					appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
-				}
+    if (!evidenceRunId) {
+      if (track === 'stable') {
+        // Not yet qualified is a normal state, not an error — the caller
+        // decides whether to run Stable CI inline for this tree.
+        console.log(`no Stable CI run carried evidence for tree ${tree} — unqualified`)
+        if (process.env.GITHUB_OUTPUT) {
+          appendFileSync(process.env.GITHUB_OUTPUT, 'channel=none\nsha=\n')
+        }
 
-				process.exit(0)
-			}
+        process.exit(0)
+      }
 
-			assert.ok(
-				evidenceRunId,
-				`no completed CI run for ${sha} carried release evidence — ` +
-					'publish only revisions CI tested',
-			)
-		}
-	}
+      assert.ok(
+        evidenceRunId,
+        `no completed CI run for ${sha} carried release evidence — ` +
+          'publish only revisions CI tested',
+      )
+    }
+  }
 
-	assert.ok(!artifact.expired, 'CI release evidence has expired')
-	const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
-	const { jobs } = JSON.parse(
-		gh(`repos/${repo}/actions/runs/${evidenceRunId}/jobs?filter=latest&per_page=100`),
-	)
+  assert.ok(!artifact.expired, 'CI release evidence has expired')
+  const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
+  const { jobs } = JSON.parse(
+    gh(`repos/${repo}/actions/runs/${evidenceRunId}/jobs?filter=latest&per_page=100`),
+  )
 
-	mkdirSync(outDir, { recursive: true })
-	const tmp = mkdtempSync(join(tmpdir(), 'ci-evidence-'))
+  mkdirSync(outDir, { recursive: true })
+  const tmp = mkdtempSync(join(tmpdir(), 'ci-evidence-'))
 
-	const zipPath = join(tmp, 'evidence.zip')
-	// gh api streams the zip to stdout — capture it as a raw buffer.
-	const binary = execFileSync('gh', ['api', `repos/${repo}/actions/artifacts/${artifact.id}/zip`], {
-		maxBuffer: 64 * 1024 * 1024,
-	})
+  const zipPath = join(tmp, 'evidence.zip')
+  // gh api streams the zip to stdout — capture it as a raw buffer.
+  const binary = execFileSync('gh', ['api', `repos/${repo}/actions/artifacts/${artifact.id}/zip`], {
+    maxBuffer: 64 * 1024 * 1024,
+  })
 
-	writeFileSync(zipPath, binary)
-	const unzip = spawnSync('unzip', ['-o', zipPath, '-d', tmp], { stdio: 'inherit' })
-	assert.equal(unzip.status, 0, 'unzip failed')
-	const evidenceFile = readdirSync(tmp).find((f) => f === 'ci-evidence.json')
-	assert.ok(evidenceFile, 'artifact did not contain ci-evidence.json')
-	const evidence = JSON.parse(readFileSync(join(tmp, evidenceFile), 'utf8'))
-	sha ??= evidence.sha
+  writeFileSync(zipPath, binary)
+  const unzip = spawnSync('unzip', ['-o', zipPath, '-d', tmp], { stdio: 'inherit' })
+  assert.equal(unzip.status, 0, 'unzip failed')
+  const evidenceFile = readdirSync(tmp).find((f) => f === 'ci-evidence.json')
+  assert.ok(evidenceFile, 'artifact did not contain ci-evidence.json')
+  const evidence = JSON.parse(readFileSync(join(tmp, evidenceFile), 'utf8'))
+  sha ??= evidence.sha
 
-	const channel = verifyEvidence(evidence, {
-		sha,
-		tree,
-		runId: evidenceRunId,
-		track,
-		repository: repo,
-		run,
-		jobs,
-	})
+  const channel = verifyEvidence(evidence, {
+    sha,
+    tree,
+    runId: evidenceRunId,
+    track,
+    repository: repo,
+    run,
+    jobs,
+  })
 
-	rmSync(tmp, { recursive: true, force: true })
-	console.log(`release channel: ${channel} — CI run ${evidenceRunId} at ${sha}`)
-	for (const job of required) {
-		console.log(`  ${job}: ${evidence.jobs?.[job] ?? 'absent'}`)
-	}
+  rmSync(tmp, { recursive: true, force: true })
+  console.log(`release channel: ${channel} — CI run ${evidenceRunId} at ${sha}`)
+  for (const job of required) {
+    console.log(`  ${job}: ${evidence.jobs?.[job] ?? 'absent'}`)
+  }
 
-	if (channel === 'none') {
-		console.log(`${track} qualification did not pass for this revision — nothing to release`)
-	}
+  if (channel === 'none') {
+    console.log(`${track} qualification did not pass for this revision — nothing to release`)
+  }
 
-	if (process.env.GITHUB_OUTPUT) {
-		appendFileSync(process.env.GITHUB_OUTPUT, `channel=${channel}\nsha=${sha}\n`)
-	}
+  if (process.env.GITHUB_OUTPUT) {
+    appendFileSync(process.env.GITHUB_OUTPUT, `channel=${channel}\nsha=${sha}\n`)
+  }
 
-	process.exit(0)
+  process.exit(0)
 }
 
 console.error('usage: verify-release-evidence.ts <record|verify> --track <ci|stable> ...')

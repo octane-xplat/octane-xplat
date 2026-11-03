@@ -13,16 +13,16 @@ import { DEFAULT_MIN_COLUMN_WIDTH } from './column-utils'
  * minWidth (or the default); unknown widths use the default.
  */
 export function getStickyColumnWidth<T extends Record<string, unknown>>(
-	col: TableColumn<T>,
+  col: TableColumn<T>,
 ): number {
-	const w = col.width
-	if (!w) {
-		return DEFAULT_MIN_COLUMN_WIDTH
-	}
-	if (w.type === 'pixel') {
-		return w.value
-	}
-	return w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH
+  const w = col.width
+  if (!w) {
+    return DEFAULT_MIN_COLUMN_WIDTH
+  }
+  if (w.type === 'pixel') {
+    return w.value
+  }
+  return w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH
 }
 
 /**
@@ -31,28 +31,28 @@ export function getStickyColumnWidth<T extends Record<string, unknown>>(
  * (inclusive of any synthetic columns before it). `null` if none / no context.
  */
 export function computeStickyStartOffsets<T extends Record<string, unknown>>(
-	columns: ReadonlyArray<TableColumn<T>> | undefined,
-	startKeys: string[],
+  columns: ReadonlyArray<TableColumn<T>> | undefined,
+  startKeys: string[],
 ): Map<string, number> | null {
-	if (!columns || columns.length === 0 || startKeys.length === 0) {
-		return null
-	}
-	let lastStickyIndex = -1
-	for (let i = 0; i < columns.length; i++) {
-		if (startKeys.includes(columns[i]!.key)) {
-			lastStickyIndex = i
-		}
-	}
-	if (lastStickyIndex === -1) {
-		return null
-	}
-	const offsets = new Map<string, number>()
-	let cumulative = 0
-	for (let i = 0; i <= lastStickyIndex; i++) {
-		offsets.set(columns[i]!.key, cumulative)
-		cumulative += getStickyColumnWidth(columns[i]!)
-	}
-	return offsets
+  if (!columns || columns.length === 0 || startKeys.length === 0) {
+    return null
+  }
+  let lastStickyIndex = -1
+  for (let i = 0; i < columns.length; i++) {
+    if (startKeys.includes(columns[i]!.key)) {
+      lastStickyIndex = i
+    }
+  }
+  if (lastStickyIndex === -1) {
+    return null
+  }
+  const offsets = new Map<string, number>()
+  let cumulative = 0
+  for (let i = 0; i <= lastStickyIndex; i++) {
+    offsets.set(columns[i]!.key, cumulative)
+    cumulative += getStickyColumnWidth(columns[i]!)
+  }
+  return offsets
 }
 
 /**
@@ -61,29 +61,29 @@ export function computeStickyStartOffsets<T extends Record<string, unknown>>(
  * from the end (last column = 0). `null` if none.
  */
 export function computeStickyEndOffsets<T extends Record<string, unknown>>(
-	columns: ReadonlyArray<TableColumn<T>> | undefined,
-	endKeys: string[],
+  columns: ReadonlyArray<TableColumn<T>> | undefined,
+  endKeys: string[],
 ): Map<string, number> | null {
-	if (!columns || columns.length === 0 || endKeys.length === 0) {
-		return null
-	}
-	let firstStickyIndex = -1
-	for (let i = 0; i < columns.length; i++) {
-		if (endKeys.includes(columns[i]!.key)) {
-			firstStickyIndex = i
-			break
-		}
-	}
-	if (firstStickyIndex === -1) {
-		return null
-	}
-	const offsets = new Map<string, number>()
-	let cumulative = 0
-	for (let i = columns.length - 1; i >= firstStickyIndex; i--) {
-		offsets.set(columns[i]!.key, cumulative)
-		cumulative += getStickyColumnWidth(columns[i]!)
-	}
-	return offsets
+  if (!columns || columns.length === 0 || endKeys.length === 0) {
+    return null
+  }
+  let firstStickyIndex = -1
+  for (let i = 0; i < columns.length; i++) {
+    if (endKeys.includes(columns[i]!.key)) {
+      firstStickyIndex = i
+      break
+    }
+  }
+  if (firstStickyIndex === -1) {
+    return null
+  }
+  const offsets = new Map<string, number>()
+  let cumulative = 0
+  for (let i = columns.length - 1; i >= firstStickyIndex; i--) {
+    offsets.set(columns[i]!.key, cumulative)
+    cumulative += getStickyColumnWidth(columns[i]!)
+  }
+  return offsets
 }
 
 export type StickySide = { edge: 'start' | 'end'; offset: number }
@@ -94,18 +94,18 @@ export type StickySide = { edge: 'start' | 'end'; offset: number }
  * Returns `null` for columns that should not be pinned.
  */
 export function resolveStickySide<T extends Record<string, unknown>>(
-	columns: ReadonlyArray<TableColumn<T>> | undefined,
-	columnKey: string,
-	startKeys: string[],
-	endKeys: string[],
+  columns: ReadonlyArray<TableColumn<T>> | undefined,
+  columnKey: string,
+  startKeys: string[],
+  endKeys: string[],
 ): StickySide | null {
-	const startOffsets = computeStickyStartOffsets(columns, startKeys)
-	if (startOffsets?.has(columnKey)) {
-		return { edge: 'start', offset: startOffsets.get(columnKey) ?? 0 }
-	}
-	const endOffsets = computeStickyEndOffsets(columns, endKeys)
-	if (endOffsets?.has(columnKey)) {
-		return { edge: 'end', offset: endOffsets.get(columnKey) ?? 0 }
-	}
-	return null
+  const startOffsets = computeStickyStartOffsets(columns, startKeys)
+  if (startOffsets?.has(columnKey)) {
+    return { edge: 'start', offset: startOffsets.get(columnKey) ?? 0 }
+  }
+  const endOffsets = computeStickyEndOffsets(columns, endKeys)
+  if (endOffsets?.has(columnKey)) {
+    return { edge: 'end', offset: endOffsets.get(columnKey) ?? 0 }
+  }
+  return null
 }

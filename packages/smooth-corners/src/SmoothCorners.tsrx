@@ -3,8 +3,8 @@ import { useCallback, useEffect, useRef } from 'octane'
 import { isIOS } from '@nativescript/core'
 import { applySmoothClip as applyIosClip, applySmoothShadow as applyIosShadow } from './apply.ios'
 import {
-	applySmoothClip as applyAndroidClip,
-	applySmoothShadow as applyAndroidShadow,
+  applySmoothClip as applyAndroidClip,
+  applySmoothShadow as applyAndroidShadow,
 } from './apply.android'
 
 import { outerLayoutProps, paintedStyle } from './layout-child'
@@ -22,65 +22,65 @@ const applyShadow = isIOS ? applyIosShadow : applyAndroidShadow
  *  web/macOS-only here: the inner host is a gridlayout, which has no flex
  *  vocabulary. */
 export function SmoothCorners(props: SmoothCornersProps): unknown @{
-	const state = useRef<{ inner: any; outer: any; props: SmoothCornersProps }>({
-		inner: null,
-		outer: null,
-		props,
-	})
+  const state = useRef<{ inner: any; outer: any; props: SmoothCornersProps }>({
+    inner: null,
+    outer: null,
+    props,
+  })
 
-	state.current.props = props
+  state.current.props = props
 
-	const apply = useCallback(() => {
-		const s = state.current
-		if (s.inner) {
-			applyClip(s.inner, s.props)
-		}
+  const apply = useCallback(() => {
+    const s = state.current
+    if (s.inner) {
+      applyClip(s.inner, s.props)
+    }
 
-		if (s.outer) {
-			applyShadow(s.outer, s.props)
-		}
-	}, [])
+    if (s.outer) {
+      applyShadow(s.outer, s.props)
+    }
+  }, [])
 
-	const bind = useCallback(
-		(which: 'inner' | 'outer') => (view: any) => {
-			const s = state.current
-			const prev = s[which]
-			if (prev && prev !== view) {
-				prev.off?.('loaded', apply)
-				prev.off?.('layoutChanged', apply)
-			}
+  const bind = useCallback(
+    (which: 'inner' | 'outer') => (view: any) => {
+      const s = state.current
+      const prev = s[which]
+      if (prev && prev !== view) {
+        prev.off?.('loaded', apply)
+        prev.off?.('layoutChanged', apply)
+      }
 
-			s[which] = view
-			if (!view) {
-				return
-			}
+      s[which] = view
+      if (!view) {
+        return
+      }
 
-			view.on?.('loaded', apply)
-			view.on?.('layoutChanged', apply)
-			apply()
-		},
-		[apply],
-	)
+      view.on?.('loaded', apply)
+      view.on?.('layoutChanged', apply)
+      apply()
+    },
+    [apply],
+  )
 
-	const bindInner = useRef(bind('inner'))
-	const bindOuter = useRef(bind('outer'))
+  const bindInner = useRef(bind('inner'))
+  const bindOuter = useRef(bind('outer'))
 
-	// Prop changes without a layout event still need a re-clip.
-	useEffect(() => apply())
+  // Prop changes without a layout event still need a re-clip.
+  useEffect(() => apply())
 
-	return (
-		<masonview
-			ref={bindOuter.current}
-			style={{ display: 'grid', ...outerLayoutProps(props).style }}
-		>
-			<masonview
-				ref={bindInner.current}
-				id={props.id}
-				className={props.className}
-				style={{ display: 'grid', ...paintedStyle(props.style) }}
-			>
-				{props.children}
-			</masonview>
-		</masonview>
-	)
+  return (
+    <masonview
+      ref={bindOuter.current}
+      style={{ display: 'grid', ...outerLayoutProps(props).style }}
+    >
+      <masonview
+        ref={bindInner.current}
+        id={props.id}
+        className={props.className}
+        style={{ display: 'grid', ...paintedStyle(props.style) }}
+      >
+        {props.children}
+      </masonview>
+    </masonview>
+  )
 }

@@ -11,20 +11,20 @@ const MINIMUM = new Date()
 
 /** Demonstrates the Material 3 DatePicker initialDate/onDateSelected contract. */
 export function NativeDatePickerDemo() @{
-	const [selected, setSelected] = useState<Date | null>(null)
+  const [selected, setSelected] = useState<Date | null>(null)
 
-	<View className="controls-demo gap-4">
-		<Heading>Material date picker</Heading>
-		<Text>Poll closes</Text>
-		<MaterialDatePicker
-			id="native-date-picker-poll-close"
-			style={{ height: 400 }}
-			initialDate={INITIAL}
-			displayedComponents="date"
-			selectableDates={{ start: MINIMUM }}
-			onDateSelected={setSelected}
-			accessibilityLabel="Poll closing date"
-		/>
-		<Text>{`Selected: ${selected ? selected.toDateString() : 'none'}`}</Text>
-	</View>
+  <View className="controls-demo gap-4">
+    <Heading>Material date picker</Heading>
+    <Text>Poll closes</Text>
+    <MaterialDatePicker
+      id="native-date-picker-poll-close"
+      style={{ height: 400 }}
+      initialDate={INITIAL}
+      displayedComponents="date"
+      selectableDates={{ start: MINIMUM }}
+      onDateSelected={setSelected}
+      accessibilityLabel="Poll closing date"
+    />
+    <Text>{`Selected: ${selected ? selected.toDateString() : 'none'}`}</Text>
+  </View>
 }

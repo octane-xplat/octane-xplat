@@ -2,55 +2,55 @@ import type { Target, Transition, DragInfo } from './types'
 import type { Measurement, ProjectionWrite } from './projection/types'
 
 export interface DelegatedRequest {
-	/** Channels the caller asked to animate. */
-	target: Target
-	/** Full channel-space destination: retained values plus the target. */
-	dest: Target
-	/** Effective native destination — `scale` folded into scaleX/scaleY. */
-	eff: Target
-	transition: Transition
+  /** Channels the caller asked to animate. */
+  target: Target
+  /** Full channel-space destination: retained values plus the target. */
+  dest: Target
+  /** Effective native destination — `scale` folded into scaleX/scaleY. */
+  eff: Target
+  transition: Transition
 }
 
 /** A run handed to the platform animator; presentation state stays readable. */
 export interface DelegatedRun {
-	/** Reads current rendered values in effective channels (scale folded). */
-	sample(): Target
-	/** Stops the run at its presentation state; the model is synced to it. */
-	cancel(): void
-	finished: Promise<'finished' | 'cancelled'>
+  /** Reads current rendered values in effective channels (scale folded). */
+  sample(): Target
+  /** Stops the run at its presentation state; the model is synced to it. */
+  cancel(): void
+  finished: Promise<'finished' | 'cancelled'>
 }
 
 /** Gesture-target kinds: press covers whileTap, focus covers whileFocus. */
 export type GestureKind = 'press' | 'focus'
 
 export interface GestureCallbacks {
-	start(): void
-	end(): void
+  start(): void
+  end(): void
 }
 
 export interface PanCallbacks {
-	start(event: any, info: DragInfo): void
-	move(event: any, info: DragInfo): void
-	end(event: any, info: DragInfo): void
+  start(event: any, info: DragInfo): void
+  move(event: any, info: DragInfo): void
+  end(event: any, info: DragInfo): void
 }
 
 export interface HostAdapter {
-	pan?(axis: true | 'x' | 'y', callbacks: PanCallbacks): () => void
-	read(): Target
-	write(values: Target): void
-	restore(): void
-	/**
-	 * Run a declarative tween on the platform animator. Returns null to fall
-	 * back to the JS engine.
-	 */
-	delegate?(request: DelegatedRequest): DelegatedRun | null
-	/** Subscribe to a gesture lifecycle; returns an unsubscribe, or null if the
-	 *  host cannot emit it (focus events only exist on focusable hosts). */
-	gesture?(kind: GestureKind, callbacks: GestureCallbacks): (() => void) | null
-	/** Measure the host's layout box for projection; null if unmeasurable. */
-	measureLayout?(): Measurement | null
-	/** Temporarily clear any projection transform so layout can be measured. */
-	resetProjection?(): void
-	/** null hands transform ownership back to plain channel writes (write(latest)). */
-	project?(write: ProjectionWrite | null): void
+  pan?(axis: true | 'x' | 'y', callbacks: PanCallbacks): () => void
+  read(): Target
+  write(values: Target): void
+  restore(): void
+  /**
+   * Run a declarative tween on the platform animator. Returns null to fall
+   * back to the JS engine.
+   */
+  delegate?(request: DelegatedRequest): DelegatedRun | null
+  /** Subscribe to a gesture lifecycle; returns an unsubscribe, or null if the
+   *  host cannot emit it (focus events only exist on focusable hosts). */
+  gesture?(kind: GestureKind, callbacks: GestureCallbacks): (() => void) | null
+  /** Measure the host's layout box for projection; null if unmeasurable. */
+  measureLayout?(): Measurement | null
+  /** Temporarily clear any projection transform so layout can be measured. */
+  resetProjection?(): void
+  /** null hands transform ownership back to plain channel writes (write(latest)). */
+  project?(write: ProjectionWrite | null): void
 }

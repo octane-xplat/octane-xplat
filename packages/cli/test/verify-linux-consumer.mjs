@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os'
 const here = dirname(fileURLToPath(import.meta.url))
 const [cliTarball, platformTarball] = process.argv.slice(2)
 if (process.platform !== 'linux' || !cliTarball || !platformTarball) {
-	throw new Error('Run on Linux: node verify-linux-consumer.mjs <cli.tgz> <platform.tgz>')
+  throw new Error('Run on Linux: node verify-linux-consumer.mjs <cli.tgz> <platform.tgz>')
 }
 
 const root = mkdtempSync(join(tmpdir(), 'xplat-linux-consumer-'))
@@ -27,7 +27,7 @@ manifest.packageManager = 'bun@1.4.4'
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 
 const run = (cmd, args, options = {}) =>
-	execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
+  execFileSync(cmd, args, { cwd: app, stdio: 'inherit', ...options })
 
 run('bun', ['install'])
 run('bun', ['run', 'xplat', 'build', '--targets', 'linux'])
@@ -48,8 +48,8 @@ const configHome = join(root, 'config')
 mkdirSync(configHome)
 const driver = join(root, 'runtime-driver.mjs')
 writeFileSync(
-	driver,
-	`
+  driver,
+  `
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -117,14 +117,14 @@ try {
 )
 
 run('xvfb-run', ['-a', 'dbus-run-session', '--', process.execPath, driver], {
-	env: {
-		...process.env,
-		GSK_RENDERER: 'cairo',
-		LIBGL_ALWAYS_SOFTWARE: '1',
-		XDG_DATA_HOME: data,
-		XDG_CONFIG_HOME: configHome,
-	},
-	timeout: 180000,
+  env: {
+    ...process.env,
+    GSK_RENDERER: 'cairo',
+    LIBGL_ALWAYS_SOFTWARE: '1',
+    XDG_DATA_HOME: data,
+    XDG_CONFIG_HOME: configHome,
+  },
+  timeout: 180000,
 })
 
 console.log(`Linux consumer evidence: ${root}`)

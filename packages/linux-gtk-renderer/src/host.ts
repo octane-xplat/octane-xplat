@@ -7,23 +7,23 @@ import { createGtkRoot } from './index.js'
 import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
 export interface GtkAppOptions {
-	/** Reverse-DNS app id, e.g. `dev.xplat.demo`. */
-	applicationId: string
-	title?: string
-	defaultWidth?: number
-	defaultHeight?: number
-	/** Gio.ApplicationFlags — defaults to FLAGS_NONE (primary-instance
-	 *  semantics; a second launch activates the running window). */
-	flags?: number
+  /** Reverse-DNS app id, e.g. `dev.xplat.demo`. */
+  applicationId: string
+  title?: string
+  defaultWidth?: number
+  defaultHeight?: number
+  /** Gio.ApplicationFlags — defaults to FLAGS_NONE (primary-instance
+   *  semantics; a second launch activates the running window). */
+  flags?: number
 }
 
 export interface GtkAppMount {
-	app: Gtk.Application
-	window: Gtk.ApplicationWindow
-	/** The Gtk.Box the universal root mounts into. */
-	content: GtkView
-	container: GtkContainer
-	root: GtkRoot
+  app: Gtk.Application
+  window: Gtk.ApplicationWindow
+  /** The Gtk.Box the universal root mounts into. */
+  content: GtkView
+  container: GtkContainer
+  root: GtkRoot
 }
 
 /** Create the application window, mount a universal root on a vertical
@@ -31,31 +31,31 @@ export interface GtkAppMount {
  *  Returns GtkApplication.run's exit status — call it as the app entry's
  *  last expression. */
 export function runGtkApp(options: GtkAppOptions, mount: (target: GtkAppMount) => void): number {
-	const app = new Gtk.Application({
-		application_id: options.applicationId,
-		flags: options.flags ?? Gio.ApplicationFlags.FLAGS_NONE,
-	})
-	// FLAGS_NONE keeps primary-instance semantics — a second launch re-fires
-	// `activate` on the running app. Only mount once; later activations just
-	// re-present the existing window.
-	let mounted: GtkAppMount | null = null
-	app.connect('activate', () => {
-		if (mounted !== null) {
-			mounted.window.present()
-			return
-		}
-		const window = new Gtk.ApplicationWindow({
-			application: app,
-			title: options.title ?? 'Octane App',
-			default_width: options.defaultWidth ?? 560,
-			default_height: options.defaultHeight ?? 420,
-		})
-		const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
-		window.set_child(content)
-		const { root, container } = createGtkRoot(content)
-		mounted = { app, window, content, container, root }
-		mount(mounted)
-		window.present()
-	})
-	return app.run(null)
+  const app = new Gtk.Application({
+    application_id: options.applicationId,
+    flags: options.flags ?? Gio.ApplicationFlags.FLAGS_NONE,
+  })
+  // FLAGS_NONE keeps primary-instance semantics — a second launch re-fires
+  // `activate` on the running app. Only mount once; later activations just
+  // re-present the existing window.
+  let mounted: GtkAppMount | null = null
+  app.connect('activate', () => {
+    if (mounted !== null) {
+      mounted.window.present()
+      return
+    }
+    const window = new Gtk.ApplicationWindow({
+      application: app,
+      title: options.title ?? 'Octane App',
+      default_width: options.defaultWidth ?? 560,
+      default_height: options.defaultHeight ?? 420,
+    })
+    const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
+    window.set_child(content)
+    const { root, container } = createGtkRoot(content)
+    mounted = { app, window, content, container, root }
+    mount(mounted)
+    window.present()
+  })
+  return app.run(null)
 }

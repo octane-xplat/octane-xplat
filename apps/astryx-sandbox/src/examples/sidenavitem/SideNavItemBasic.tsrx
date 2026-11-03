@@ -2,8 +2,8 @@
 import { Icon, SideNav, SideNavItem } from '@octane-xplat/ui'
 
 export function SideNavItemBasic() @{
-	<SideNav>
-		<SideNavItem label="Inbox" icon={<Icon name="sandbox-envelope" />} isSelected href="#" />
-		<SideNavItem label="Documents" icon={<Icon name="sandbox-document-duplicate" />} href="#" />
-	</SideNav>
+  <SideNav>
+    <SideNavItem label="Inbox" icon={<Icon name="sandbox-envelope" />} isSelected href="#" />
+    <SideNavItem label="Documents" icon={<Icon name="sandbox-document-duplicate" />} href="#" />
+  </SideNav>
 }

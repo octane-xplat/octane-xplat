@@ -18,45 +18,45 @@ const listeners = new Set<() => void>()
 const emit = () => listeners.forEach((listener) => listener())
 
 export function setThemePreference(value: ThemePreference): void {
-	if (preference === value) {
-		return
-	}
+  if (preference === value) {
+    return
+  }
 
-	preference = value
-	// An explicit preference pins NSApp.appearance; 'system' clears the
-	// override. The effectiveAppearance change notifies appearance listeners,
-	// so CSS root classes, media queries and native controls all follow.
-	;(globalThis as Record<string, any>).__xplatAppKit?.setAppearanceOverride?.(
-		value === 'system' ? null : value,
-	)
-	emit()
+  preference = value
+  // An explicit preference pins NSApp.appearance; 'system' clears the
+  // override. The effectiveAppearance change notifies appearance listeners,
+  // so CSS root classes, media queries and native controls all follow.
+  ;(globalThis as Record<string, any>).__xplatAppKit?.setAppearanceOverride?.(
+    value === 'system' ? null : value,
+  )
+  emit()
 }
 
 export function getThemePreference(): ThemePreference {
-	return preference
+  return preference
 }
 
 export function getThemeScheme(): ThemeScheme {
-	return preference === 'system' ? getColorScheme() : preference
+  return preference === 'system' ? getColorScheme() : preference
 }
 
 function subscribe(callback: () => void): () => void {
-	listeners.add(callback)
-	const unsubscribeSystem = subscribeSystemScheme(callback)
-	return () => {
-		listeners.delete(callback)
-		unsubscribeSystem()
-	}
+  listeners.add(callback)
+  const unsubscribeSystem = subscribeSystemScheme(callback)
+  return () => {
+    listeners.delete(callback)
+    unsubscribeSystem()
+  }
 }
 
 export function useThemeScheme(): ThemeScheme {
-	return useSyncExternalStore(subscribe, getThemeScheme)
+  return useSyncExternalStore(subscribe, getThemeScheme)
 }
 
 export function useThemePreference(): ThemePreference {
-	return useSyncExternalStore(subscribe, getThemePreference)
+  return useSyncExternalStore(subscribe, getThemePreference)
 }
 
 export function onThemeSchemeChange(callback: () => void): () => void {
-	return subscribe(callback)
+  return subscribe(callback)
 }

@@ -7,150 +7,150 @@ import { applyEscapeProps, layoutChildProps } from './layout-child.web'
 
 /** Live web preview backed by getUserMedia. */
 export function CameraView(props: CameraViewProps): JSX.Element @{
-	const hostRef = useRef<any>(null)
-	const video = useRef<HTMLVideoElement | null>(null)
-	const facing = props.facing ?? 'back'
-	const active = props.active !== false
-	const readyFired = useRef(false)
+  const hostRef = useRef<any>(null)
+  const video = useRef<HTMLVideoElement | null>(null)
+  const facing = props.facing ?? 'back'
+  const active = props.active !== false
+  const readyFired = useRef(false)
 
-	useEffect(() => {
-		const element = video.current
-		if (!element || !active) {
-			return
-		}
+  useEffect(() => {
+    const element = video.current
+    if (!element || !active) {
+      return
+    }
 
-		if (props.session) {
-			if (props.facing !== undefined) {
-				props.onError?.({ message: 'camera session conflicts with facing' })
-				return
-			}
+    if (props.session) {
+      if (props.facing !== undefined) {
+        props.onError?.({ message: 'camera session conflicts with facing' })
+        return
+      }
 
-			try {
-				return attachSessionPreview(props.session, element, {
-					onReady: props.onReady,
-					onError: (issue) => props.onError?.({ message: issue.message }),
-				})
-			} catch (error: any) {
-				props.onError?.({ message: error?.message ?? 'camera session error' })
-				return
-			}
-		}
+      try {
+        return attachSessionPreview(props.session, element, {
+          onReady: props.onReady,
+          onError: (issue) => props.onError?.({ message: issue.message }),
+        })
+      } catch (error: any) {
+        props.onError?.({ message: error?.message ?? 'camera session error' })
+        return
+      }
+    }
 
-		const mediaDevices = navigator.mediaDevices
-		if (!mediaDevices?.getUserMedia) {
-			props.onError?.({ message: 'camera unsupported' })
-			return
-		}
+    const mediaDevices = navigator.mediaDevices
+    if (!mediaDevices?.getUserMedia) {
+      props.onError?.({ message: 'camera unsupported' })
+      return
+    }
 
-		let stream: MediaStream | null = null
-		let disposed = false
-		readyFired.current = false
-		mediaDevices
-			.getUserMedia({
-				video: { facingMode: facing === 'front' ? 'user' : 'environment' },
-				audio: false,
-			})
-			.then((nextStream) => {
-				if (disposed) {
-					for (const track of nextStream.getTracks()) {
-						track.stop()
-					}
+    let stream: MediaStream | null = null
+    let disposed = false
+    readyFired.current = false
+    mediaDevices
+      .getUserMedia({
+        video: { facingMode: facing === 'front' ? 'user' : 'environment' },
+        audio: false,
+      })
+      .then((nextStream) => {
+        if (disposed) {
+          for (const track of nextStream.getTracks()) {
+            track.stop()
+          }
 
-					return
-				}
+          return
+        }
 
-				stream = nextStream
-				element.srcObject = nextStream
-				element.play()?.catch(() => {})
-			})
-			.catch((error: any) => {
-				props.onError?.({
-					message:
-						error?.name === 'NotAllowedError'
-							? 'camera permission denied'
-							: String(error?.name ?? error ?? 'camera error'),
-				})
-			})
+        stream = nextStream
+        element.srcObject = nextStream
+        element.play()?.catch(() => {})
+      })
+      .catch((error: any) => {
+        props.onError?.({
+          message:
+            error?.name === 'NotAllowedError'
+              ? 'camera permission denied'
+              : String(error?.name ?? error ?? 'camera error'),
+        })
+      })
 
-		return () => {
-			disposed = true
-			element.srcObject = null
-			if (stream) {
-				for (const track of stream.getTracks()) {
-					track.stop()
-				}
-			}
-		}
-	}, [active, facing, props.session])
+    return () => {
+      disposed = true
+      element.srcObject = null
+      if (stream) {
+        for (const track of stream.getTracks()) {
+          track.stop()
+        }
+      }
+    }
+  }, [active, facing, props.session])
 
-	useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined)
+  useImperativeHandle(props.ref, () => ({ native: hostRef.current }), undefined)
 
-	<div
-		id={props.id}
-		className={['vx-layers', 'vx-cameraview', props.className]}
-		{...layoutChildProps(props, {
-			position: 'relative',
-			overflow: 'hidden',
-			backgroundColor: '#000',
-			...props.style,
-		})}
-		role={props.accessibilityRole}
-		aria-label={props.accessibilityLabel}
-		aria-hidden={props.accessible === false ? true : undefined}
-		aria-description={props.accessibilityHint}
-		aria-valuetext={props.accessibilityValue}
-		aria-disabled={props.accessibilityState?.disabled}
-		aria-selected={props.accessibilityState?.selected}
-		aria-checked={props.accessibilityState?.checked}
-		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
-	>
-		@if (active) {
-			<video
-				ref={(element: HTMLVideoElement | null) => {
-					hostRef.current = element
-					video.current = element
-					if (!element) {
-						return
-					}
+  <div
+    id={props.id}
+    className={['vx-layers', 'vx-cameraview', props.className]}
+    {...layoutChildProps(props, {
+      position: 'relative',
+      overflow: 'hidden',
+      backgroundColor: '#000',
+      ...props.style,
+    })}
+    role={props.accessibilityRole}
+    aria-label={props.accessibilityLabel}
+    aria-hidden={props.accessible === false ? true : undefined}
+    aria-description={props.accessibilityHint}
+    aria-valuetext={props.accessibilityValue}
+    aria-disabled={props.accessibilityState?.disabled}
+    aria-selected={props.accessibilityState?.selected}
+    aria-checked={props.accessibilityState?.checked}
+    aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+  >
+    @if (active) {
+      <video
+        ref={(element: HTMLVideoElement | null) => {
+          hostRef.current = element
+          video.current = element
+          if (!element) {
+            return
+          }
 
-					applyEscapeProps(element, props)
-				}}
-				muted={true}
-				autoplay={true}
-				playsInline={true}
-				onClick={(event: MouseEvent) => {
-					const onTap = props.onTap
-					const target = event.currentTarget as HTMLElement | null
-					if (!onTap || !target) {
-						return
-					}
+          applyEscapeProps(element, props)
+        }}
+        muted={true}
+        autoplay={true}
+        playsInline={true}
+        onClick={(event: MouseEvent) => {
+          const onTap = props.onTap
+          const target = event.currentTarget as HTMLElement | null
+          if (!onTap || !target) {
+            return
+          }
 
-					const rect = target.getBoundingClientRect()
-					if (!(rect.width > 0) || !(rect.height > 0)) {
-						return
-					}
+          const rect = target.getBoundingClientRect()
+          if (!(rect.width > 0) || !(rect.height > 0)) {
+            return
+          }
 
-					onTap({
-						x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
-						y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)),
-					})
-				}}
-				style={{
-					display: 'block',
-					width: '100%',
-					height: '100%',
-					objectFit: 'cover',
-					transform: facing === 'front' ? 'scaleX(-1)' : undefined,
-				}}
-				onPlaying={() => {
-					if (props.session || readyFired.current) {
-						return
-					}
+          onTap({
+            x: Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)),
+            y: Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height)),
+          })
+        }}
+        style={{
+          display: 'block',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: facing === 'front' ? 'scaleX(-1)' : undefined,
+        }}
+        onPlaying={() => {
+          if (props.session || readyFired.current) {
+            return
+          }
 
-					readyFired.current = true
-					props.onReady?.()
-				}}
-			/>
-		}
-	</div>
+          readyFired.current = true
+          props.onReady?.()
+        }}
+      />
+    }
+  </div>
 }

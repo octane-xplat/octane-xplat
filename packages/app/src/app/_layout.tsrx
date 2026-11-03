@@ -24,19 +24,19 @@ const renderTest = () => <Test />
 // Chips navigate inside the tab's own stack — the Demos pane is a Frame
 // (TabSpec.stack), so demo pushes stay under the tab bar.
 const renderApps = () => (
-	<Gallery
-		onOpen={(id) => router.push({ to: '/demo/:id', params: { id: id }, stack: 'demos' })}
-		kind="app"
-		title="Apps"
-	/>
+  <Gallery
+    onOpen={(id) => router.push({ to: '/demo/:id', params: { id: id }, stack: 'demos' })}
+    kind="app"
+    title="Apps"
+  />
 )
 
 const TABS: TabSpec[] = [
-	{ key: 'home', title: 'Home', icon: 'tab-home', render: renderHome },
-	{ key: 'apps', title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
-	// Instrumentation + proofs — last so the familiar tabs stay the first
-	// thing a human sees. Its own stack keeps seam-proof pushes local.
-	{ key: 'test', title: 'Test', icon: 'tab-test', render: renderTest, stack: 'test' },
+  { key: 'home', title: 'Home', icon: 'tab-home', render: renderHome },
+  { key: 'apps', title: 'Apps', icon: 'tab-demos', render: renderApps, stack: 'demos' },
+  // Instrumentation + proofs — last so the familiar tabs stay the first
+  // thing a human sees. Its own stack keeps seam-proof pushes local.
+  { key: 'test', title: 'Test', icon: 'tab-test', render: renderTest, stack: 'test' },
 ]
 
 console.log('[harness] App module evaluated')
@@ -46,47 +46,47 @@ console.log('[harness] App module evaluated')
  *  tab surface: Screen wraps content in the platform root (rootlayout on
  *  native, div on web). */
 export function RootLayout(props: { children?: any }) @{
-	// Effective scheme on the shell root: .dark/.ns-dark here re-themes the
-	// tab bar + every pane (tokens inherit); separate roots (pushed pages,
-	// overlays) get stamped by theme-scheme's host hooks instead.
-	const scheme = useThemeScheme()
+  // Effective scheme on the shell root: .dark/.ns-dark here re-themes the
+  // tab bar + every pane (tokens inherit); separate roots (pushed pages,
+  // overlays) get stamped by theme-scheme's host hooks instead.
+  const scheme = useThemeScheme()
 
-	console.log('[harness] App render')
+  console.log('[harness] App render')
 
-	// Parity sweep mounts its stage inline instead of pushing /parity — the
-	// AppKit host presents pushed root routes as surfaces that automation
-	// can't keep alive long enough to measure.
-	const [parityOpen, setParityOpen] = useState(false)
-	useEffect(() => onParityStageOpen(() => setParityOpen(true)), [])
+  // Parity sweep mounts its stage inline instead of pushing /parity — the
+  // AppKit host presents pushed root routes as surfaces that automation
+  // can't keep alive long enough to measure.
+  const [parityOpen, setParityOpen] = useState(false)
+  useEffect(() => onParityStageOpen(() => setParityOpen(true)), [])
 
-	useEffect(() => {
-		console.log('[harness] App mounted')
-	}, [])
+  useEffect(() => {
+    console.log('[harness] App mounted')
+  }, [])
 
-	if (parityOpen) {
-		return <Parity />
-	}
+  if (parityOpen) {
+    return <Parity />
+  }
 
-	// Pushed root routes are wrapped in this layout by the native route host.
-	// Let their screen fill the page; the initial app render has no child and
-	// uses the tab shell below.
-	if (props.children != null) {
-		return <>{props.children}</>
-	}
+  // Pushed root routes are wrapped in this layout by the native route host.
+  // Let their screen fill the page; the initial app render has no child and
+  // uses the tab shell below.
+  if (props.children != null) {
+    return <>{props.children}</>
+  }
 
-	<Screen
-		className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}
-	>
-		<RouteOutlet>
-			<Tabs
-				id="app-tabs"
-				className="flex-1"
-				tabs={TABS}
-				defaultSelectedKey="home"
-				onSelectionChange={(key) => {
-					console.log('[probe] tab -> ' + key)
-				}}
-			/>
-		</RouteOutlet>
-	</Screen>
+  <Screen
+    className={['vx-app', 'vx-app-flush', 'flex-1', scheme === 'dark' ? 'dark ns-dark' : '']}
+  >
+    <RouteOutlet>
+      <Tabs
+        id="app-tabs"
+        className="flex-1"
+        tabs={TABS}
+        defaultSelectedKey="home"
+        onSelectionChange={(key) => {
+          console.log('[probe] tab -> ' + key)
+        }}
+      />
+    </RouteOutlet>
+  </Screen>
 }

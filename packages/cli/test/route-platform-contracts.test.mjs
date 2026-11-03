@@ -12,221 +12,221 @@ const require = createRequire(join(workspace, 'packages/ui/package.json'))
 const ts = require('typescript-classic')
 const { build } = await import('vite')
 async function fixture() {
-	const root = await mkdtemp(join(tmpdir(), 'xplat-platform-contracts-'))
-	await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
-	await symlink(
-		resolve(process.env.XPLAT_ROUTING_UI_PACKAGE ?? join(workspace, 'packages/ui')),
-		join(root, 'node_modules/@octane-xplat/ui'),
-		'dir',
-	)
-	await symlink(
-		dirname(require.resolve('vite/package.json')),
-		join(root, 'node_modules/vite'),
-		'dir',
-	)
-	await put(root, 'package.json', '{"private":true,"type":"module"}')
-	return root
+  const root = await mkdtemp(join(tmpdir(), 'xplat-platform-contracts-'))
+  await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
+  await symlink(
+    resolve(process.env.XPLAT_ROUTING_UI_PACKAGE ?? join(workspace, 'packages/ui')),
+    join(root, 'node_modules/@octane-xplat/ui'),
+    'dir',
+  )
+  await symlink(
+    dirname(require.resolve('vite/package.json')),
+    join(root, 'node_modules/vite'),
+    'dir',
+  )
+  await put(root, 'package.json', '{"private":true,"type":"module"}')
+  return root
 }
 
 async function put(root, path, source) {
-	await mkdir(dirname(join(root, path)), { recursive: true })
-	await writeFile(join(root, path), source)
+  await mkdir(dirname(join(root, path)), { recursive: true })
+  await writeFile(join(root, path), source)
 }
 
 function check(root, condition = 'web') {
-	const host = ts.createCompilerHost({})
-	host.getCurrentDirectory = () => root
-	const program = ts.createProgram(
-		[join(root, 'consumer.tsx')],
-		{
-			strict: true,
-			noEmit: true,
-			skipLibCheck: true,
-			allowImportingTsExtensions: true,
-			module: ts.ModuleKind.ESNext,
-			moduleResolution: ts.ModuleResolutionKind.Bundler,
-			target: ts.ScriptTarget.ES2020,
-			jsx: ts.JsxEmit.Preserve,
-			customConditions: [condition],
-			types: ['vite/client'],
-		},
-		host,
-	)
-	return ts.getPreEmitDiagnostics(program).map((issue) => ({
-		file: issue.file?.fileName,
-		text: ts.flattenDiagnosticMessageText(issue.messageText, '\n'),
-	}))
+  const host = ts.createCompilerHost({})
+  host.getCurrentDirectory = () => root
+  const program = ts.createProgram(
+    [join(root, 'consumer.tsx')],
+    {
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+      allowImportingTsExtensions: true,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      target: ts.ScriptTarget.ES2020,
+      jsx: ts.JsxEmit.Preserve,
+      customConditions: [condition],
+      types: ['vite/client'],
+    },
+    host,
+  )
+  return ts.getPreEmitDiagnostics(program).map((issue) => ({
+    file: issue.file?.fileName,
+    text: ts.flattenDiagnosticMessageText(issue.messageText, '\n'),
+  }))
 }
 
 const screen = 'export default function Screen() { return null }'
 
 test('generated callback checks reject malformed exports before route startup', async () => {
-	const root = await fixture()
-	try {
-		await put(
-			root,
-			'consumer.tsx',
-			`import './routes.gen.types'
+  const root = await fixture()
+  try {
+    await put(
+      root,
+      'consumer.tsx',
+      `import './routes.gen.types'
 import { defineRoute } from '@octane-xplat/ui/routing/core'
 // @ts-expect-error Programmatic guards enforce the same return contract.
 defineRoute({ path: '/bad-guard', beforeLoad: () => false }).screen(() => null)
 // @ts-expect-error Programmatic parsers also require an object result.
 defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null)
 `,
-		)
+    )
 
-		for (const [field, value] of [
-			['group', '{}'],
-			['beforeLoad', '"deny"'],
-			['beforeLoad', '() => false'],
-			['beforeLoad', 'async () => false'],
-			['loader', '42'],
-			['ErrorBoundary', '{}'],
-			['head', '{ title: 42 }'],
-			['head', '() => ({ title: 42 })'],
-			[
-				'validateSearch',
-				'{ "~standard": { version: 2, vendor: "fixture", validate: () => ({ value: {} }) } }',
-			],
-			['validateSearch', '(raw: { page: number }) => raw'],
-			[
-				'validateSearch',
-				'{} as import("@octane-xplat/ui/routing/core").RouteSearchSchema<{ page: number }, { page: number }>',
-			],
-			['validateSearch', '() => 42'],
-			['validateSearch', '() => []'],
-			['validateSearch', 'async () => []'],
-			['validateSearch', '() => new Date()'],
-			[
-				'validateSearch',
-				'{ "~standard": { version: 1 as const, vendor: "fixture", validate: () => ({ value: 42 }) } }',
-			],
-			[
-				'validateSearch',
-				'Object.assign(() => ({}), { "~standard": { version: 1 as const, vendor: "fixture", validate: () => ({ value: 42 }) } })',
-			],
-		]) {
-			await put(root, 'app/bad.tsx', `export const ${field} = ${value}\n${screen}`)
-			await generateRoutes(root, 'app', undefined, { bake: false })
-			for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-				const issues = check(root, condition)
-				assert.ok(
-					issues.some((issue) => issue.file?.endsWith('routes.gen.contracts.ts')),
-					`${condition}: ${field} must be diagnosed: ${JSON.stringify(issues)}`,
-				)
-			}
-		}
+    for (const [field, value] of [
+      ['group', '{}'],
+      ['beforeLoad', '"deny"'],
+      ['beforeLoad', '() => false'],
+      ['beforeLoad', 'async () => false'],
+      ['loader', '42'],
+      ['ErrorBoundary', '{}'],
+      ['head', '{ title: 42 }'],
+      ['head', '() => ({ title: 42 })'],
+      [
+        'validateSearch',
+        '{ "~standard": { version: 2, vendor: "fixture", validate: () => ({ value: {} }) } }',
+      ],
+      ['validateSearch', '(raw: { page: number }) => raw'],
+      [
+        'validateSearch',
+        '{} as import("@octane-xplat/ui/routing/core").RouteSearchSchema<{ page: number }, { page: number }>',
+      ],
+      ['validateSearch', '() => 42'],
+      ['validateSearch', '() => []'],
+      ['validateSearch', 'async () => []'],
+      ['validateSearch', '() => new Date()'],
+      [
+        'validateSearch',
+        '{ "~standard": { version: 1 as const, vendor: "fixture", validate: () => ({ value: 42 }) } }',
+      ],
+      [
+        'validateSearch',
+        'Object.assign(() => ({}), { "~standard": { version: 1 as const, vendor: "fixture", validate: () => ({ value: 42 }) } })',
+      ],
+    ]) {
+      await put(root, 'app/bad.tsx', `export const ${field} = ${value}\n${screen}`)
+      await generateRoutes(root, 'app', undefined, { bake: false })
+      for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+        const issues = check(root, condition)
+        assert.ok(
+          issues.some((issue) => issue.file?.endsWith('routes.gen.contracts.ts')),
+          `${condition}: ${field} must be diagnosed: ${JSON.stringify(issues)}`,
+        )
+      }
+    }
 
-		await put(root, 'app/bad.tsx', `${screen}\nexport const beforeLoad = undefined`)
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		assert.deepEqual(check(root), [])
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    await put(root, 'app/bad.tsx', `${screen}\nexport const beforeLoad = undefined`)
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    assert.deepEqual(check(root), [])
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('generated variants reject incompatible loader, search and guard contracts', async () => {
-	const root = await fixture()
-	try {
-		await put(root, 'consumer.tsx', "import './routes.gen.types'\n")
-		const cases = [
-			[
-				'data',
-				'export function loader() { return { count: 1 } }',
-				"export function loader() { return { title: 'web' } }",
-			],
-			[
-				'search',
-				"export function validateSearch(raw: { tab?: unknown }) { return { tab: 'ios' as const } }",
-				"export function validateSearch(raw: { tab?: unknown }) { return { tab: 'web' as const } }",
-			],
-			[
-				'searchInput',
-				'export function validateSearch(raw: { page: unknown }) { return { page: Number(raw.page) } }',
-				'export function validateSearch(raw: { page?: unknown }) { return { page: Number(raw.page ?? 1) } }',
-			],
-			[
-				'context',
-				"export function beforeLoad() { return { owner: 'ios' } }",
-				'export function beforeLoad() { return { owner: 1 } }',
-			],
-		]
+  const root = await fixture()
+  try {
+    await put(root, 'consumer.tsx', "import './routes.gen.types'\n")
+    const cases = [
+      [
+        'data',
+        'export function loader() { return { count: 1 } }',
+        "export function loader() { return { title: 'web' } }",
+      ],
+      [
+        'search',
+        "export function validateSearch(raw: { tab?: unknown }) { return { tab: 'ios' as const } }",
+        "export function validateSearch(raw: { tab?: unknown }) { return { tab: 'web' as const } }",
+      ],
+      [
+        'searchInput',
+        'export function validateSearch(raw: { page: unknown }) { return { page: Number(raw.page) } }',
+        'export function validateSearch(raw: { page?: unknown }) { return { page: Number(raw.page ?? 1) } }',
+      ],
+      [
+        'context',
+        "export function beforeLoad() { return { owner: 'ios' } }",
+        'export function beforeLoad() { return { owner: 1 } }',
+      ],
+    ]
 
-		for (const [field, ios, web] of cases) {
-			await put(root, 'app/item.ios.tsx', ios + '\n' + screen)
-			await put(root, 'app/item.web.tsx', web + '\n' + screen)
-			await generateRoutes(root, 'app', undefined, { bake: false })
-			for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-				const issues = check(root, condition)
-				assert.ok(
-					issues.some(
-						(issue) =>
-							issue.file?.endsWith('routes.gen.contracts.ts') && issue.text.includes(field),
-					),
-					`${condition} must diagnose incompatible ${field}: ${JSON.stringify(issues)}`,
-				)
-			}
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    for (const [field, ios, web] of cases) {
+      await put(root, 'app/item.ios.tsx', ios + '\n' + screen)
+      await put(root, 'app/item.web.tsx', web + '\n' + screen)
+      await generateRoutes(root, 'app', undefined, { bake: false })
+      for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+        const issues = check(root, condition)
+        assert.ok(
+          issues.some(
+            (issue) =>
+              issue.file?.endsWith('routes.gen.contracts.ts') && issue.text.includes(field),
+          ),
+          `${condition} must diagnose incompatible ${field}: ${JSON.stringify(issues)}`,
+        )
+      }
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('shared calls require availability proof and explicit target catalogs retain their own typed paths', async () => {
-	const root = await fixture()
-	try {
-		await put(root, 'app/index.tsx', screen)
-		await put(
-			root,
-			'app/profile/[id].tsx',
-			'export function loader() { return { title: "shared" } }\n' + screen,
-		)
+  const root = await fixture()
+  try {
+    await put(root, 'app/index.tsx', screen)
+    await put(
+      root,
+      'app/profile/[id].tsx',
+      'export function loader() { return { title: "shared" } }\n' + screen,
+    )
 
-		await put(
-			root,
-			'app/profile/[id].web.tsx',
-			'export function loader() { return { title: "web" } }\n' + screen,
-		)
+    await put(
+      root,
+      'app/profile/[id].web.tsx',
+      'export function loader() { return { title: "web" } }\n' + screen,
+    )
 
-		await put(
-			root,
-			'app/camera.web.tsx',
-			'export function loader() { return { photo: "web" } }\n' + screen,
-		)
+    await put(
+      root,
+      'app/camera.web.tsx',
+      'export function loader() { return { photo: "web" } }\n' + screen,
+    )
 
-		await put(root, 'app/handset.mobile.tsx', screen)
-		await put(root, 'app/devices/[id].tsx', screen)
-		await put(root, 'app/devices/camera.web.tsx', screen)
-		await put(
-			root,
-			'app/account.ios.tsx',
-			'export function loader() { return { title: "ios" } }\n' + screen,
-		)
+    await put(root, 'app/handset.mobile.tsx', screen)
+    await put(root, 'app/devices/[id].tsx', screen)
+    await put(root, 'app/devices/camera.web.tsx', screen)
+    await put(
+      root,
+      'app/account.ios.tsx',
+      'export function loader() { return { title: "ios" } }\n' + screen,
+    )
 
-		await put(
-			root,
-			'app/account.web.tsx',
-			'export function loader() { return { title: "web" } }\n' + screen,
-		)
+    await put(
+      root,
+      'app/account.web.tsx',
+      'export function loader() { return { title: "web" } }\n' + screen,
+    )
 
-		await put(
-			root,
-			'extra.ts',
-			`import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
+    await put(
+      root,
+      'extra.ts',
+      `import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
 export const extra = defineRoutes([defineRoute({ path: '/configured' }).screen(() => null)])`,
-		)
+    )
 
-		await put(
-			root,
-			'xplat.routes.json',
-			JSON.stringify({ manifests: [{ module: './extra.ts', export: 'extra' }] }),
-		)
+    await put(
+      root,
+      'xplat.routes.json',
+      JSON.stringify({ manifests: [{ module: './extra.ts', export: 'extra' }] }),
+    )
 
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(
-			root,
-			'consumer.tsx',
-			`
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    await put(
+      root,
+      'consumer.tsx',
+      `
 import './routes.gen.types'
 import { router, useRouter, getRouteApi, redirect } from '@octane-xplat/ui/routing'
 import { NavLink, SideNavItem } from '@octane-xplat/ui'
@@ -287,133 +287,133 @@ export async function Controls() {
  return null
 }
 `,
-		)
+    )
 
-		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-			assert.deepEqual(check(root, condition), [], condition)
-		}
+    for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+      assert.deepEqual(check(root, condition), [], condition)
+    }
 
-		const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
-		assert.deepEqual(metadata.routes.find((route) => route.name === 'camera').platforms, [
-			'web',
-			'linux',
-		])
+    const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
+    assert.deepEqual(metadata.routes.find((route) => route.name === 'camera').platforms, [
+      'web',
+      'linux',
+    ])
 
-		for (const target of ['web', 'ios', 'android', 'mobile', 'macos', 'linux', 'windows']) {
-			await put(
-				root,
-				`runtime-${target}.ts`,
-				`
+    for (const target of ['web', 'ios', 'android', 'mobile', 'macos', 'linux', 'windows']) {
+      await put(
+        root,
+        `runtime-${target}.ts`,
+        `
 import { routes } from './routes.gen.catalog.${target}'
 import { createRoutePreparation, manifestToJson } from '@octane-xplat/ui/routing/core'
 export const metadata = manifestToJson(routes)
 export const resolve = createRoutePreparation({ catalog: routes }).resolveUrl
 export const prepare = createRoutePreparation({ catalog: routes }).prepare
 `,
-			)
+      )
 
-			const output = join(root, 'out', target)
-			await build({
-				root,
-				configFile: false,
-				logLevel: 'silent',
-				resolve: { conditions: ['web'] },
-				build: {
-					outDir: output,
-					lib: {
-						entry: join(root, `runtime-${target}.ts`),
-						formats: ['es'],
-						fileName: () => 'runtime.mjs',
-					},
-				},
-			})
+      const output = join(root, 'out', target)
+      await build({
+        root,
+        configFile: false,
+        logLevel: 'silent',
+        resolve: { conditions: ['web'] },
+        build: {
+          outDir: output,
+          lib: {
+            entry: join(root, `runtime-${target}.ts`),
+            formats: ['es'],
+            fileName: () => 'runtime.mjs',
+          },
+        },
+      })
 
-			const runtime = await import(pathToFileURL(join(output, 'runtime.mjs')).href)
-			assert.deepEqual(runtime.metadata.routes.find((route) => route.name === 'camera').platforms, [
-				'web',
-				'linux',
-			])
+      const runtime = await import(pathToFileURL(join(output, 'runtime.mjs')).href)
+      assert.deepEqual(runtime.metadata.routes.find((route) => route.name === 'camera').platforms, [
+        'web',
+        'linux',
+      ])
 
-			assert.equal(runtime.resolve('/__unknown__').reason, 'pattern')
-			assert.equal(runtime.resolve('/devices/other').status, 'matched', target)
-			assert.deepEqual(
-				runtime.resolve('/handset').status,
-				['ios', 'android', 'mobile'].includes(target) ? 'matched' : 'not-found',
-				target,
-			)
+      assert.equal(runtime.resolve('/__unknown__').reason, 'pattern')
+      assert.equal(runtime.resolve('/devices/other').status, 'matched', target)
+      assert.deepEqual(
+        runtime.resolve('/handset').status,
+        ['ios', 'android', 'mobile'].includes(target) ? 'matched' : 'not-found',
+        target,
+      )
 
-			assert.equal(
-				runtime.resolve('/devices/camera').status,
-				target === 'web' || target === 'linux' ? 'matched' : 'not-found',
-				`${target}: unavailable static metadata wins over an available parameter route`,
-			)
+      assert.equal(
+        runtime.resolve('/devices/camera').status,
+        target === 'web' || target === 'linux' ? 'matched' : 'not-found',
+        `${target}: unavailable static metadata wins over an available parameter route`,
+      )
 
-			if (target === 'web' || target === 'linux') {
-				assert.equal(runtime.resolve('/camera').status, 'matched', target)
-				const prepared = await runtime.prepare({ to: '/camera' })
-				assert.equal(prepared.status, 'ready', target)
-				assert.equal(prepared.match.data.photo, 'web', target)
-			} else {
-				assert.deepEqual(
-					runtime.resolve('/camera'),
-					{ status: 'not-found', reason: 'unavailable' },
-					target,
-				)
-			}
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+      if (target === 'web' || target === 'linux') {
+        assert.equal(runtime.resolve('/camera').status, 'matched', target)
+        const prepared = await runtime.prepare({ to: '/camera' })
+        assert.equal(prepared.status, 'ready', target)
+        assert.equal(prepared.match.data.photo, 'web', target)
+      } else {
+        assert.deepEqual(
+          runtime.resolve('/camera'),
+          { status: 'not-found', reason: 'unavailable' },
+          target,
+        )
+      }
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('platform variants cannot rename the parameters of one URL pattern', async () => {
-	const root = await fixture()
-	try {
-		await put(root, 'app/items/[id].ios.tsx', screen)
-		await put(root, 'app/items/[slug].web.tsx', screen)
-		await assert.rejects(
-			generateRoutes(root, 'app', undefined, { bake: false }),
-			/route\/incompatible-platform-params.*\[id\].*\[slug\]/,
-		)
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+  const root = await fixture()
+  try {
+    await put(root, 'app/items/[id].ios.tsx', screen)
+    await put(root, 'app/items/[slug].web.tsx', screen)
+    await assert.rejects(
+      generateRoutes(root, 'app', undefined, { bake: false }),
+      /route\/incompatible-platform-params.*\[id\].*\[slug\]/,
+    )
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('plain TypeScript and JavaScript helpers do not become phantom screens', async () => {
-	const root = await fixture()
-	try {
-		await put(root, 'app/index.tsx', screen)
-		await put(root, 'app/helper.ts', 'export function format() { return "helper" }')
-		await put(root, 'app/helper.web.js', 'export default function helper() {}')
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
-		assert.deepEqual(
-			metadata.routes.map((route) => route.name),
-			['index'],
-		)
+  const root = await fixture()
+  try {
+    await put(root, 'app/index.tsx', screen)
+    await put(root, 'app/helper.ts', 'export function format() { return "helper" }')
+    await put(root, 'app/helper.web.js', 'export default function helper() {}')
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
+    assert.deepEqual(
+      metadata.routes.map((route) => route.name),
+      ['index'],
+    )
 
-		await put(
-			root,
-			'consumer.tsx',
-			`import './routes.gen.types'
+    await put(
+      root,
+      'consumer.tsx',
+      `import './routes.gen.types'
 import { router } from '@octane-xplat/ui/routing'
 router.push({ to: '/' })
 // @ts-expect-error Helpers have no route contract.
 router.push({ to: '/helper' })
 `,
-		)
+    )
 
-		assert.deepEqual(check(root), [])
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    assert.deepEqual(check(root), [])
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('compatible variants infer local callback arguments without a registry cycle', async () => {
-	const root = await fixture()
-	try {
-		const leaf = `import type { RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
+  const root = await fixture()
+  try {
+    const leaf = `import type { RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 export async function validateSearch(raw: { tab?: unknown }) {
  const tab = raw.tab ?? 'details'
  if (tab !== 'details' && tab !== 'activity') throw new Error('Invalid tab')
@@ -434,36 +434,36 @@ export default function Screen(props: RouteProps<'/items/:id'>) {
  return null
 }`
 
-		await put(root, 'app/[id].tsx', leaf.replaceAll('/items/:id', '/:id'))
-		await put(root, 'app/[id].web.tsx', leaf.replaceAll('/items/:id', '/:id'))
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(
-			root,
-			'consumer.tsx',
-			`import './routes.gen.types'
+    await put(root, 'app/[id].tsx', leaf.replaceAll('/items/:id', '/:id'))
+    await put(root, 'app/[id].web.tsx', leaf.replaceAll('/items/:id', '/:id'))
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    await put(
+      root,
+      'consumer.tsx',
+      `import './routes.gen.types'
 import { router, getRouteApi } from '@octane-xplat/ui/routing'
 router.push({ to: '/:id', params: { id: 'coat' }, search: { tab: 'activity' } })
 const title: string = getRouteApi('/:id').useLoaderData().title
 // @ts-expect-error The shared destination preserves the validator's finite input.
 router.push({ to: '/:id', params: { id: 'coat' }, search: { tab: 'invented' } })
 `,
-		)
+    )
 
-		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-			assert.deepEqual(check(root, condition), [], condition)
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+      assert.deepEqual(check(root, condition), [], condition)
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('callable schemas retain protocol search types through generated file contracts', async () => {
-	const root = await fixture()
-	try {
-		await put(
-			root,
-			'app/index.tsx',
-			`import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
+  const root = await fixture()
+  try {
+    await put(
+      root,
+      'app/index.tsx',
+      `import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
 import type { RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 const schema: RouteSearchSchema<{ page?: number }, { page: number }> = {
  '~standard': { version: 1, vendor: 'fixture', validate: () => ({ value: { page: 1 } }) },
@@ -479,13 +479,13 @@ export default function Screen(props: RouteProps<'/'>) {
  const page: number = props.data.page
  return null
 }`,
-		)
+    )
 
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(
-			root,
-			'consumer.tsx',
-			`import './routes.gen.types'
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    await put(
+      root,
+      'consumer.tsx',
+      `import './routes.gen.types'
 import { router, getRouteApi } from '@octane-xplat/ui/routing'
 router.push({ to: '/', search: { page: 2 } })
 const page: number = getRouteApi('/').useSearch().page
@@ -494,48 +494,48 @@ router.push({ to: '/', search: { page: 'two' } })
 // @ts-expect-error Ordinary-call output does not become screen data.
 const text: string = getRouteApi('/').useLoaderData().page
 `,
-		)
+    )
 
-		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-			assert.deepEqual(check(root, condition), [], condition)
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+      assert.deepEqual(check(root, condition), [], condition)
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('named interfaces preserve file and programmatic search contracts on every target', async () => {
-	const root = await fixture()
-	try {
-		await put(
-			root,
-			'app/items/[id].tsx',
-			`
+  const root = await fixture()
+  try {
+    await put(
+      root,
+      'app/items/[id].tsx',
+      `
 export interface Search { tab: 'details' | 'activity'; page: number }
 export function validateSearch(raw: { tab?: unknown; page?: unknown }): Search {
   return { tab: raw.tab === 'activity' ? 'activity' : 'details', page: Number(raw.page ?? 1) }
 }
 export default function Item() { return null }
 `,
-		)
+    )
 
-		await put(
-			root,
-			'app/schema.tsx',
-			`
+    await put(
+      root,
+      'app/schema.tsx',
+      `
 import { withSearchDecoder, type RouteSearchSchema } from '@octane-xplat/ui/routing/core'
 import type { Search } from './items/[id]'
 const schema: RouteSearchSchema<{ tab?: 'details' | 'activity'; page?: number }, Search> = { '~standard': { version: 1, vendor: 'named', validate: () => ({ value: { tab: 'details', page: 1 } }) } }
 export const validateSearch = withSearchDecoder(schema, raw => ({ tab: raw.tab === 'activity' ? 'activity' : 'details', page: Number(raw.page ?? 1) } as const))
 export default function Screen() { return null }
 `,
-		)
+    )
 
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(
-			root,
-			'consumer.tsx',
-			`
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    await put(
+      root,
+      'consumer.tsx',
+      `
 import './routes.gen.types'
 import { defineRoute, defineRoutes, createRouter } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
@@ -556,31 +556,31 @@ navigation.push({ to: '/programmatic', search: { tab: 'activity', page: 2 } })
 // @ts-expect-error Programmatic named search retains literal values.
 navigation.push({ to: '/programmatic', search: { tab: 'invented' } })
 `,
-		)
+    )
 
-		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-			assert.deepEqual(check(root, condition), [], condition)
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+      assert.deepEqual(check(root, condition), [], condition)
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('generated file routes inherit parent group data without requiring it as root context', async () => {
-	const root = await fixture()
-	try {
-		await put(
-			root,
-			'scopes.ts',
-			`import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
+  const root = await fixture()
+  try {
+    await put(
+      root,
+      'scopes.ts',
+      `import { defineRouteGroup } from '@octane-xplat/ui/routing/core'
 export const account = defineRouteGroup({ id: 'account', loader: () => ({ name: 'Alex' }) })
 export const project = account.group({ id: 'project', loader: ({ context }) => ({ owner: context.account.name }) })`,
-		)
+    )
 
-		await put(
-			root,
-			'app/item.tsx',
-			`export { project as group } from '../scopes'
+    await put(
+      root,
+      'app/item.tsx',
+      `export { project as group } from '../scopes'
 import type { RouteHeadArgs, RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 export function beforeLoad({ context }: RouteGuardArgs<'/item'>) {
  const owner: string = context.project.owner
@@ -605,102 +605,102 @@ export default function Screen(props: RouteProps<'/item'>) {
  props.context.account.invented
  return null
 }`,
-		)
+    )
 
-		await generateRoutes(root, 'app', undefined, { bake: false })
-		await put(
-			root,
-			'consumer.tsx',
-			`import './routes.gen.types'
+    await generateRoutes(root, 'app', undefined, { bake: false })
+    await put(
+      root,
+      'consumer.tsx',
+      `import './routes.gen.types'
 import { createRouter } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
 import { routes } from './routes.gen.catalog.web'
 createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`,
-		)
+    )
 
-		for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
-			assert.deepEqual(check(root, condition), [], condition)
-		}
-	} finally {
-		await rm(root, { recursive: true, force: true })
-	}
+    for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
+      assert.deepEqual(check(root, condition), [], condition)
+    }
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
 })
 
 test('generated catalogs split route code, keep layouts eager, and preload without running callbacks', async () => {
-	const root = await fixture()
-	try {
-		await put(
-			root,
-			'app/_layout.web.tsx',
-			`globalThis.routeEvents.push('layout'); export default function Layout() { return null }`,
-		)
+  const root = await fixture()
+  try {
+    await put(
+      root,
+      'app/_layout.web.tsx',
+      `globalThis.routeEvents.push('layout'); export default function Layout() { return null }`,
+    )
 
-		await put(
-			root,
-			'app/index.web.tsx',
-			`globalThis.routeEvents.push('index'); export default function Home() { return null }`,
-		)
+    await put(
+      root,
+      'app/index.web.tsx',
+      `globalThis.routeEvents.push('index'); export default function Home() { return null }`,
+    )
 
-		await put(
-			root,
-			'app/item.web.tsx',
-			`
+    await put(
+      root,
+      'app/item.web.tsx',
+      `
  globalThis.routeEvents.push('item-module');
  export const beforeLoad = () => { globalThis.routeEvents.push('guard') };
  export const loader = () => { globalThis.routeEvents.push('loader'); return 'loaded' };
  export default function Item() { return null }
 `,
-		)
+    )
 
-		await put(
-			root,
-			'app/item.tsx',
-			`throw new Error('wrong platform'); export default function Item() { return null }`,
-		)
+    await put(
+      root,
+      'app/item.tsx',
+      `throw new Error('wrong platform'); export default function Item() { return null }`,
+    )
 
-		await generateRoutes(root)
-		await put(
-			root,
-			'runtime.ts',
-			`
+    await generateRoutes(root)
+    await put(
+      root,
+      'runtime.ts',
+      `
  import { routes } from './routes.gen.catalog.web';
  import { createRoutePreparation } from '@octane-xplat/ui/routing/core';
  export const engine = createRoutePreparation({ catalog: routes });
 `,
-		)
+    )
 
-		const bundle = await build({
-			root,
-			configFile: false,
-			logLevel: 'silent',
-			resolve: { conditions: ['web'] },
-			build: {
-				outDir: join(root, 'out'),
-				minify: false,
-				lib: { entry: join(root, 'runtime.ts'), formats: ['es'], fileName: () => 'runtime.mjs' },
-			},
-		})
+    const bundle = await build({
+      root,
+      configFile: false,
+      logLevel: 'silent',
+      resolve: { conditions: ['web'] },
+      build: {
+        outDir: join(root, 'out'),
+        minify: false,
+        lib: { entry: join(root, 'runtime.ts'), formats: ['es'], fileName: () => 'runtime.mjs' },
+      },
+    })
 
-		const entry = (Array.isArray(bundle) ? bundle[0] : bundle).output.find(
-			(item) => item.type === 'chunk' && item.isEntry,
-		)
+    const entry = (Array.isArray(bundle) ? bundle[0] : bundle).output.find(
+      (item) => item.type === 'chunk' && item.isEntry,
+    )
 
-		assert.ok(entry.dynamicImports.length >= 2, 'route files have separate import chunks')
-		assert.ok(!entry.code.includes('item-module'), 'route code is absent from initial entry')
-		globalThis.routeEvents = []
-		const { engine } = await import(pathToFileURL(join(root, 'out/runtime.mjs')).href)
-		assert.deepEqual(globalThis.routeEvents, ['layout'])
-		assert.equal(engine.resolveUrl('/item').status, 'matched')
-		assert.deepEqual(globalThis.routeEvents, ['layout'])
-		assert.equal((await engine.preload('/item')).status, 'preloaded')
-		assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module'])
-		assert.equal((await engine.prepare('/item')).match.data, 'loaded')
-		assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module', 'guard', 'loader'])
-		assert.equal((await engine.prepare('/item')).match.data, 'loaded')
-		assert.deepEqual(globalThis.routeEvents.slice(-2), ['guard', 'loader'])
-		engine.dispose()
-	} finally {
-		delete globalThis.routeEvents
-		await rm(root, { recursive: true, force: true })
-	}
+    assert.ok(entry.dynamicImports.length >= 2, 'route files have separate import chunks')
+    assert.ok(!entry.code.includes('item-module'), 'route code is absent from initial entry')
+    globalThis.routeEvents = []
+    const { engine } = await import(pathToFileURL(join(root, 'out/runtime.mjs')).href)
+    assert.deepEqual(globalThis.routeEvents, ['layout'])
+    assert.equal(engine.resolveUrl('/item').status, 'matched')
+    assert.deepEqual(globalThis.routeEvents, ['layout'])
+    assert.equal((await engine.preload('/item')).status, 'preloaded')
+    assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module'])
+    assert.equal((await engine.prepare('/item')).match.data, 'loaded')
+    assert.deepEqual(globalThis.routeEvents, ['layout', 'item-module', 'guard', 'loader'])
+    assert.equal((await engine.prepare('/item')).match.data, 'loaded')
+    assert.deepEqual(globalThis.routeEvents.slice(-2), ['guard', 'loader'])
+    engine.dispose()
+  } finally {
+    delete globalThis.routeEvents
+    await rm(root, { recursive: true, force: true })
+  }
 })

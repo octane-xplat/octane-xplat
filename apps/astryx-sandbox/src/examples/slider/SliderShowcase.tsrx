@@ -3,12 +3,12 @@ import { Slider } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function SliderShowcase() @{
-	const [value, setValue] = useState(50)
+  const [value, setValue] = useState(50)
 
-	<Slider
-		label="Volume"
-		value={value}
-		onValueChange={(v) => setValue(v as number)}
-		style={{ width: 300 }}
-	/>
+  <Slider
+    label="Volume"
+    value={value}
+    onValueChange={(v) => setValue(v as number)}
+    style={{ width: 300 }}
+  />
 }

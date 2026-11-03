@@ -1,14 +1,14 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import * as gesturehandler from '@nativescript-community/gesturehandler'
 import {
-	Application,
-	File,
-	Frame,
-	knownFolders,
-	Page,
-	path,
-	isIOS,
-	Utils,
+  Application,
+  File,
+  Frame,
+  knownFolders,
+  Page,
+  path,
+  isIOS,
+  Utils,
 } from '@nativescript/core'
 
 import * as core from '@nativescript/core'
@@ -33,33 +33,33 @@ import * as internal from 'octane/internal/client'
 // Keep one runtime across independently compiled cases. Plugin modules use
 // NativeScript's require and are present in this host's declared dependency graph.
 const modules = {
-	'@nativescript/core': core,
-	'@nativescript-community/gesturehandler': gesturehandler,
-	'@nativescript/core/animation-frame': animationFrame,
-	// Leaf/plugin Android entries import these subpaths directly; without a
-	// map entry the case-side require misses outside the host's own graph.
-	'@nativescript/core/application': application,
-	'@nativescript/core/application-settings': applicationSettings,
-	// Plugin code inlined into the case bundle (e.g. ui-image) requires these
-	// deep core subpaths through the load shim — a bare require would search a
-	// tns_modules dir that bundled apps don't ship.
-	'@nativescript/core/platform': platform,
-	'@nativescript/core/ui/image': uiImage,
-	// MasonKit-level plugins reach deeper core subpaths (layout/style property
-	// objects that the root barrel doesn't re-export).
-	'@nativescript/core/css/parser': cssParser,
-	'@nativescript/core/ui/editable-text-base': editableTextBase,
-	'@nativescript/core/ui/layouts/flexbox-layout': flexboxLayout,
-	'@nativescript/core/ui/styling/css-shadow': cssShadow,
-	'@nativescript/core/utils': utils,
-	'@nativescript/core/utils/lazy': lazy,
-	'@nativescript/core/utils/layout-helper': layoutHelper,
-	'@nativescript/core/utils/types': utilsTypes,
-	'@nativescript-community/octane': native,
-	'octane/universal/native': native,
-	'octane/signals': signals,
-	'octane/signals/client': signalsClient,
-	'octane/internal/client': internal,
+  '@nativescript/core': core,
+  '@nativescript-community/gesturehandler': gesturehandler,
+  '@nativescript/core/animation-frame': animationFrame,
+  // Leaf/plugin Android entries import these subpaths directly; without a
+  // map entry the case-side require misses outside the host's own graph.
+  '@nativescript/core/application': application,
+  '@nativescript/core/application-settings': applicationSettings,
+  // Plugin code inlined into the case bundle (e.g. ui-image) requires these
+  // deep core subpaths through the load shim — a bare require would search a
+  // tns_modules dir that bundled apps don't ship.
+  '@nativescript/core/platform': platform,
+  '@nativescript/core/ui/image': uiImage,
+  // MasonKit-level plugins reach deeper core subpaths (layout/style property
+  // objects that the root barrel doesn't re-export).
+  '@nativescript/core/css/parser': cssParser,
+  '@nativescript/core/ui/editable-text-base': editableTextBase,
+  '@nativescript/core/ui/layouts/flexbox-layout': flexboxLayout,
+  '@nativescript/core/ui/styling/css-shadow': cssShadow,
+  '@nativescript/core/utils': utils,
+  '@nativescript/core/utils/lazy': lazy,
+  '@nativescript/core/utils/layout-helper': layoutHelper,
+  '@nativescript/core/utils/types': utilsTypes,
+  '@nativescript-community/octane': native,
+  'octane/universal/native': native,
+  'octane/signals': signals,
+  'octane/signals/client': signalsClient,
+  'octane/internal/client': internal,
 }
 
 gesturehandler.install()
@@ -71,19 +71,19 @@ page.actionBarHidden = true
 page.iosIgnoreSafeArea = true
 page.androidOverflowEdge = 'ignore'
 if (isIOS) {
-	const measure = page.measure
-	page.measure = function (widthMeasureSpec, heightMeasureSpec) {
-		// Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript:
-		// core measures a Page against safeAreaLayoutGuide even when it
-		// ignores safe areas, then lays children out in the full frame.
-		const size = this.nativeViewProtected?.bounds?.size
-		if (size?.width > 0 && size?.height > 0) {
-			const { layout } = Utils
-			widthMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.width), layout.EXACTLY)
-			heightMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.height), layout.EXACTLY)
-		}
-		measure.call(this, widthMeasureSpec, heightMeasureSpec)
-	}
+  const measure = page.measure
+  page.measure = function (widthMeasureSpec, heightMeasureSpec) {
+    // Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript:
+    // core measures a Page against safeAreaLayoutGuide even when it
+    // ignores safe areas, then lays children out in the full frame.
+    const size = this.nativeViewProtected?.bounds?.size
+    if (size?.width > 0 && size?.height > 0) {
+      const { layout } = Utils
+      widthMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.width), layout.EXACTLY)
+      heightMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.height), layout.EXACTLY)
+    }
+    measure.call(this, widthMeasureSpec, heightMeasureSpec)
+  }
 }
 
 frame.navigate({ create: () => page })
@@ -94,86 +94,86 @@ const sessionPath = path.join(knownFolders.documents().path, 'probe-session.json
 // Physical devices can't receive a Documents file before launch, so the
 // session may arrive as a launch environment variable instead.
 const launchSession =
-	typeof NSProcessInfo !== 'undefined'
-		? NSProcessInfo.processInfo.environment?.objectForKey?.('XPLAT_PROBE_SESSION')
-		: undefined
+  typeof NSProcessInfo !== 'undefined'
+    ? NSProcessInfo.processInfo.environment?.objectForKey?.('XPLAT_PROBE_SESSION')
+    : undefined
 
 setInterval(async () => {
-	if (busy || (!launchSession && !File.exists(sessionPath))) {
-		return
-	}
+  if (busy || (!launchSession && !File.exists(sessionPath))) {
+    return
+  }
 
-	busy = true
-	let control
-	let session
-	try {
-		session = JSON.parse(launchSession ?? (await File.fromPath(sessionPath).readText()))
-		control = await (await fetch(session.url + '/control')).json()
-		if (!control.runId || control.runId === lastRun) {
-			return
-		}
+  busy = true
+  let control
+  let session
+  try {
+    session = JSON.parse(launchSession ?? (await File.fromPath(sessionPath).readText()))
+    control = await (await fetch(session.url + '/control')).json()
+    if (!control.runId || control.runId === lastRun) {
+      return
+    }
 
-		lastRun = control.runId
-		const source = await (await fetch(session.url + '/bundle')).text()
-		const css = await (await fetch(session.url + '/style')).text()
-		// Android's CSS loader requires a path inside the extracted app root.
-		const cssPath = path.join(knownFolders.currentApp().path, 'probe.css')
-		try {
-			await File.fromPath(cssPath).writeText(css)
-			Application.setCssFileName('~/probe.css')
-			Application.loadAppCss()
-		} catch {
-			// Physical iOS app bundles are read-only; apply the text directly.
-			Application.addCss(css)
-		}
+    lastRun = control.runId
+    const source = await (await fetch(session.url + '/bundle')).text()
+    const css = await (await fetch(session.url + '/style')).text()
+    // Android's CSS loader requires a path inside the extracted app root.
+    const cssPath = path.join(knownFolders.currentApp().path, 'probe.css')
+    try {
+      await File.fromPath(cssPath).writeText(css)
+      Application.setCssFileName('~/probe.css')
+      Application.loadAppCss()
+    } catch {
+      // Physical iOS app bundles are read-only; apply the text directly.
+      Application.addCss(css)
+    }
 
-		const module = { exports: {} }
-		// Externalized imports not in `modules` fall through to NativeScript's
-		// require, which resolves a package subpath literally — '@nativescript/core/utils'
-		// never reaches `utils/index.js`. Retry the directory-index spellings
-		// plugins actually ship before giving up.
-		const load = (name) => {
-			if (modules[name]) {
-				return modules[name]
-			}
+    const module = { exports: {} }
+    // Externalized imports not in `modules` fall through to NativeScript's
+    // require, which resolves a package subpath literally — '@nativescript/core/utils'
+    // never reaches `utils/index.js`. Retry the directory-index spellings
+    // plugins actually ship before giving up.
+    const load = (name) => {
+      if (modules[name]) {
+        return modules[name]
+      }
 
-			for (const candidate of [
-				name,
-				`${name}/index.ios`,
-				`${name}/index.android`,
-				`${name}/index`,
-			]) {
-				try {
-					return require(candidate)
-				} catch {}
-			}
+      for (const candidate of [
+        name,
+        `${name}/index.ios`,
+        `${name}/index.android`,
+        `${name}/index`,
+      ]) {
+        try {
+          return require(candidate)
+        } catch {}
+      }
 
-			return require(name)
-		}
+      return require(name)
+    }
 
-		new Function('require', 'module', 'exports', source)(load, module, module.exports)
-		await module.exports.start(control, (result) => {
-			console.log('[xplat-probe] ' + JSON.stringify(result))
-			return fetch(session.url + '/result', { method: 'POST', body: JSON.stringify(result) })
-		})
-	} catch (error) {
-		console.log('[xplat-probe-host-error] ' + (error?.stack ?? String(error)))
-		if (control?.runId && session) {
-			await fetch(session.url + '/result', {
-				method: 'POST',
-				body: JSON.stringify({
-					schema: 1,
-					...control,
-					host: 'NativeScript',
-					interaction: 'event-handler-dispatch',
-					status: 'fail',
-					assertions: [],
-					measurements: {},
-					errors: [{ message: error?.message ?? String(error) }],
-				}),
-			}).catch(() => {})
-		}
-	} finally {
-		busy = false
-	}
+    new Function('require', 'module', 'exports', source)(load, module, module.exports)
+    await module.exports.start(control, (result) => {
+      console.log('[xplat-probe] ' + JSON.stringify(result))
+      return fetch(session.url + '/result', { method: 'POST', body: JSON.stringify(result) })
+    })
+  } catch (error) {
+    console.log('[xplat-probe-host-error] ' + (error?.stack ?? String(error)))
+    if (control?.runId && session) {
+      await fetch(session.url + '/result', {
+        method: 'POST',
+        body: JSON.stringify({
+          schema: 1,
+          ...control,
+          host: 'NativeScript',
+          interaction: 'event-handler-dispatch',
+          status: 'fail',
+          assertions: [],
+          measurements: {},
+          errors: [{ message: error?.message ?? String(error) }],
+        }),
+      }).catch(() => {})
+    }
+  } finally {
+    busy = false
+  }
 }, 100)

@@ -3,14 +3,14 @@ import { DropdownMenu } from '@octane-xplat/ui'
 import { menuItems } from './helpers'
 
 export function DropdownMenuShowcase() @{
-	return (
-		<DropdownMenu
-			button={{ label: 'Actions' }}
-			items={menuItems([
-				{ label: 'Edit', onClick: () => {} },
-				{ label: 'Duplicate', onClick: () => {} },
-				{ label: 'Delete', onClick: () => {} },
-			])}
-		/>
-	)
+  return (
+    <DropdownMenu
+      button={{ label: 'Actions' }}
+      items={menuItems([
+        { label: 'Edit', onClick: () => {} },
+        { label: 'Duplicate', onClick: () => {} },
+        { label: 'Delete', onClick: () => {} },
+      ])}
+    />
+  )
 }

@@ -8,10 +8,10 @@ import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
-	primary: 'bg-primary text-onprimary',
-	secondary: 'btn-secondary',
-	ghost: 'btn-ghost',
-	destructive: 'bg-danger text-onprimary',
+  primary: 'bg-primary text-onprimary',
+  secondary: 'btn-secondary',
+  ghost: 'btn-ghost',
+  destructive: 'bg-danger text-onprimary',
 }
 
 /** Confirmation dialog (Astryx `AlertDialog`) — a `required`-purpose
@@ -19,62 +19,62 @@ const ACTION_VARIANT_CLASS: Record<string, string> = {
  *  `role="alertdialog"`) with title, description, Cancel, and one action
  *  button. The action reports through `onAction`; callers own `isOpen`. */
 export function AlertDialog(props: AlertDialogProps): JSX.Element @{
-	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const open = props.isOpen ?? internal
-	const requestChange = (isOpen: boolean) => {
-		if (props.isOpen === undefined) {
-			setInternal(isOpen)
-		}
+  const [internal, setInternal] = useState(props.defaultOpen ?? false)
+  const open = props.isOpen ?? internal
+  const requestChange = (isOpen: boolean) => {
+    if (props.isOpen === undefined) {
+      setInternal(isOpen)
+    }
 
-		props.onOpenChange?.(isOpen)
-	}
+    props.onOpenChange?.(isOpen)
+  }
 
-	return (
-		<Dialog
-			isOpen={open}
-			onOpenChange={requestChange}
-			purpose="required"
-			width={props.width ?? 400}
-			isInline={props.isInline}
-			finalFocusRef={props.finalFocusRef}
-			accessibilityLabel={typeof props.title === 'string' ? props.title : undefined}
-			className={cx('vx-alertdialog', props.className)}
-			style={props.style}
-			id={props.id}
-			web={props.web}
-		>
-			<div className="vx-alertdialog-title" data-vx-dialog-title="" tabIndex={-1}>
-				{typeof props.title === 'string' ? (
-					<h2 className="vx-alertdialog-heading">{props.title}</h2>
-				) : (
-					props.title
-				)}
-			</div>
-			{props.description != null && (
-				<div className="vx-alertdialog-desc">
-					{typeof props.description === 'string' ? (
-						<Text>{props.description}</Text>
-					) : (
-						props.description
-					)}
-				</div>
-			)}
-			<div className="vx-alertdialog-actions">
-				<Button
-					className="btn btn-secondary"
-					clickAction={() => requestChange(false)}
-					isDisabled={props.isActionLoading}
-				>
-					{props.cancelLabel ?? 'Cancel'}
-				</Button>
-				<Button
-					className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
-					clickAction={props.onAction}
-					isLoading={props.isActionLoading}
-				>
-					{props.actionLabel}
-				</Button>
-			</div>
-		</Dialog>
-	)
+  return (
+    <Dialog
+      isOpen={open}
+      onOpenChange={requestChange}
+      purpose="required"
+      width={props.width ?? 400}
+      isInline={props.isInline}
+      finalFocusRef={props.finalFocusRef}
+      accessibilityLabel={typeof props.title === 'string' ? props.title : undefined}
+      className={cx('vx-alertdialog', props.className)}
+      style={props.style}
+      id={props.id}
+      web={props.web}
+    >
+      <div className="vx-alertdialog-title" data-vx-dialog-title="" tabIndex={-1}>
+        {typeof props.title === 'string' ? (
+          <h2 className="vx-alertdialog-heading">{props.title}</h2>
+        ) : (
+          props.title
+        )}
+      </div>
+      {props.description != null && (
+        <div className="vx-alertdialog-desc">
+          {typeof props.description === 'string' ? (
+            <Text>{props.description}</Text>
+          ) : (
+            props.description
+          )}
+        </div>
+      )}
+      <div className="vx-alertdialog-actions">
+        <Button
+          className="btn btn-secondary"
+          clickAction={() => requestChange(false)}
+          isDisabled={props.isActionLoading}
+        >
+          {props.cancelLabel ?? 'Cancel'}
+        </Button>
+        <Button
+          className={cx('btn', ACTION_VARIANT_CLASS[props.actionVariant ?? 'destructive'])}
+          clickAction={props.onAction}
+          isLoading={props.isActionLoading}
+        >
+          {props.actionLabel}
+        </Button>
+      </div>
+    </Dialog>
+  )
 }

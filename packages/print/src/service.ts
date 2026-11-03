@@ -2,40 +2,40 @@ import { backend } from './backend'
 import { printOptions, fileOptions } from './options'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type {
-	PrintOptions,
-	FilePrintOptions,
-	FilePrintResult,
-	Printer,
-	PrintCapabilities,
+  PrintOptions,
+  FilePrintOptions,
+  FilePrintResult,
+  Printer,
+  PrintCapabilities,
 } from './types'
 
 let busy = false
 const owned = new Set<string>()
 async function operation<T>(
-	available: boolean,
-	name: string,
-	action: () => Promise<T>,
+  available: boolean,
+  name: string,
+  action: () => Promise<T>,
 ): Promise<T> {
-	if (!available) {
-		throw new UnavailabilityError(name)
-	}
-	if (busy) {
-		throw Object.assign(new Error('A print operation is already active'), {
-			code: 'ERR_PRINT_BUSY',
-		})
-	}
-	busy = true
-	try {
-		return await action()
-	} finally {
-		busy = false
-	}
+  if (!available) {
+    throw new UnavailabilityError(name)
+  }
+  if (busy) {
+    throw Object.assign(new Error('A print operation is already active'), {
+      code: 'ERR_PRINT_BUSY',
+    })
+  }
+  busy = true
+  try {
+    return await action()
+  } finally {
+    busy = false
+  }
 }
 
 /** Open the system print UI. Promise semantics depend on the platform; physical printing is never guaranteed. */
 export async function printAsync(options: PrintOptions): Promise<void> {
-	const snapshot = printOptions(options)
-	return operation(backend.capabilities().print, 'Print.printAsync', () => backend.print(snapshot))
+  const snapshot = printOptions(options)
+  return operation(backend.capabilities().print, 'Print.printAsync', () => backend.print(snapshot))
 }
 
 /** Create a real PDF cache file; unsupported browser exports reject without opening a dialog.
@@ -49,49 +49,49 @@ export async function printAsync(options: PrintOptions): Promise<void> {
  * ```
  */
 export async function printToFileAsync(options: FilePrintOptions = {}): Promise<FilePrintResult> {
-	const snapshot = fileOptions(options)
-	return operation(backend.capabilities().printToFile, 'Print.printToFileAsync', async () => {
-		const result = await backend.file(snapshot)
-		owned.add(result.uri)
-		return result
-	})
+  const snapshot = fileOptions(options)
+  return operation(backend.capabilities().printToFile, 'Print.printToFileAsync', async () => {
+    const result = await backend.file(snapshot)
+    owned.add(result.uri)
+    return result
+  })
 }
 
 /** Pick an AirPrint destination on iOS. Cancellation rejects. */
 export function selectPrinterAsync(): Promise<Printer> {
-	return operation(backend.capabilities().selectPrinter, 'Print.selectPrinterAsync', () =>
-		backend.select(),
-	)
+  return operation(backend.capabilities().selectPrinter, 'Print.selectPrinterAsync', () =>
+    backend.select(),
+  )
 }
 
 /** Delete only PDF exports owned by this package. Unknown/previously released results are harmless. */
 export function releasePrintFile(result: FilePrintResult | string): void {
-	const uri = typeof result === 'string' ? result : result.uri
-	if (!owned.has(uri)) {
-		return
-	}
-	backend.remove(uri)
-	owned.delete(uri)
+  const uri = typeof result === 'string' ? result : result.uri
+  if (!owned.has(uri)) {
+    return
+  }
+  backend.remove(uri)
+  owned.delete(uri)
 }
 
 /** Discover operation support before showing a print or PDF-export action. */
 export const Print: {
-	readonly supported: boolean
-	readonly capabilities: PrintCapabilities
-	printAsync: typeof printAsync
-	printToFileAsync: typeof printToFileAsync
-	selectPrinterAsync: typeof selectPrinterAsync
-	releasePrintFile: typeof releasePrintFile
+  readonly supported: boolean
+  readonly capabilities: PrintCapabilities
+  printAsync: typeof printAsync
+  printToFileAsync: typeof printToFileAsync
+  selectPrinterAsync: typeof selectPrinterAsync
+  releasePrintFile: typeof releasePrintFile
 } = {
-	get supported(): boolean {
-		const value = backend.capabilities()
-		return value.print || value.printToFile || value.selectPrinter
-	},
-	get capabilities(): PrintCapabilities {
-		return backend.capabilities()
-	},
-	printAsync,
-	printToFileAsync,
-	selectPrinterAsync,
-	releasePrintFile,
+  get supported(): boolean {
+    const value = backend.capabilities()
+    return value.print || value.printToFile || value.selectPrinter
+  },
+  get capabilities(): PrintCapabilities {
+    return backend.capabilities()
+  },
+  printAsync,
+  printToFileAsync,
+  selectPrinterAsync,
+  releasePrintFile,
 }

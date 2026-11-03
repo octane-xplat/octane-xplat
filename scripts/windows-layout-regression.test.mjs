@@ -7,16 +7,16 @@ import { verifyWindowsLayoutRepair } from '../apps/windows/scripts/verify-layout
 const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
 
 test('installed Core and selected native pair contain the matching fixed-size repair', () => {
-	verifyWindowsLayoutRepair()
+  verifyWindowsLayoutRepair()
 })
 
 test('installed Windows preview preserves percentage sizing and parent lifecycle', () => {
-	const helper = fileURLToPath(
-		new URL(
-			'../tools/platform-qualification/windows-layout/percent-sizing.test.mjs',
-			import.meta.url,
-		),
-	)
-	const view = appRequire.resolve('@nativescript/core/ui/core/view/index.windows.js')
-	execFileSync(process.execPath, [helper, view], { stdio: 'pipe' })
+  const helper = fileURLToPath(
+    new URL(
+      '../tools/platform-qualification/windows-layout/percent-sizing.test.mjs',
+      import.meta.url,
+    ),
+  )
+  const view = appRequire.resolve('@nativescript/core/ui/core/view/index.windows.js')
+  execFileSync(process.execPath, [helper, view], { stdio: 'pipe' })
 })

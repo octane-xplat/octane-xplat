@@ -4,16 +4,16 @@ import { useState } from 'octane'
 import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from '@octane-xplat/ui'
 
 export function TimeInputConstrained() @{
-	const [value, setValue] = useState<ISOTimeString | null>(null)
+  const [value, setValue] = useState<ISOTimeString | null>(null)
 
-	<div style={{ width: 400 }}>
-		<TimeInput
-			label="Meeting start"
-			min="09:00"
-			max="17:00"
-			description="Business hours only"
-			value={value}
-			onChange={setValue}
-		/>
-	</div>
+  <div style={{ width: 400 }}>
+    <TimeInput
+      label="Meeting start"
+      min="09:00"
+      max="17:00"
+      description="Business hours only"
+      value={value}
+      onChange={setValue}
+    />
+  </div>
 }

@@ -17,7 +17,7 @@ import { outlineItemsFromViewTree } from './outline-view-tree'
  * ```
  */
 export function getOutlineFromViewCapabilities(): OutlineFromViewCapabilities {
-	return { isSupported: true, mode: 'snapshot' }
+  return { isSupported: true, mode: 'snapshot' }
 }
 
 /** `useOutlineFromView` — outline items from a native view subtree. Pass a
@@ -29,21 +29,21 @@ export function getOutlineFromViewCapabilities(): OutlineFromViewCapabilities {
  *  when the heading set is dynamic. Check `getOutlineFromViewCapabilities()`
  *  before relying on native-view discovery. */
 export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
-	const [items, setItems] = useState<OutlineItem[]>([])
+  const [items, setItems] = useState<OutlineItem[]>([])
 
-	useEffect(() => {
-		const view =
-			containerRef && typeof containerRef === 'object' && 'current' in containerRef
-				? containerRef.current
-				: containerRef
+  useEffect(() => {
+    const view =
+      containerRef && typeof containerRef === 'object' && 'current' in containerRef
+        ? containerRef.current
+        : containerRef
 
-		if (!view) {
-			setItems([])
-			return
-		}
+    if (!view) {
+      setItems([])
+      return
+    }
 
-		setItems(outlineItemsFromViewTree(view))
-	})
+    setItems(outlineItemsFromViewTree(view))
+  })
 
-	return items
+  return items
 }

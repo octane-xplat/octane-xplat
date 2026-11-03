@@ -11,39 +11,39 @@ import type { Haptics, HapticsImpl } from './types'
 // unsupported instead of crashing at module evaluation.
 let engine: Haptics | null | undefined
 const getEngine = (): Haptics | null => {
-	if (engine === undefined) {
-		try {
-			engine = createHaptics()
-		} catch {
-			engine = null
-		}
-	}
+  if (engine === undefined) {
+    try {
+      engine = createHaptics()
+    } catch {
+      engine = null
+    }
+  }
 
-	return engine
+  return engine
 }
 
 const available = (): boolean => haptics.supported
 
 const withEngine = (run: (engine: Haptics) => boolean | void) => {
-	const engine = getEngine()
-	if (!engine?.capabilities().supported) {
-		throw new UnavailabilityError('haptics')
-	}
+  const engine = getEngine()
+  if (!engine?.capabilities().supported) {
+    throw new UnavailabilityError('haptics')
+  }
 
-	return run(engine)
+  return run(engine)
 }
 
 /** Expo-haptics-shaped shared service. */
 export const haptics: Service<HapticsImpl> = {
-	get supported() {
-		try {
-			return getEngine()?.capabilities().supported ?? false
-		} catch {
-			return false
-		}
-	},
-	isAvailable: async () => available(),
-	impact: (style = 'light') => void withEngine((engine) => engine.play(`impact-${style}`)),
-	notification: (kind) => void withEngine((engine) => engine.play(kind)),
-	selection: () => void withEngine((engine) => engine.play('selection')),
+  get supported() {
+    try {
+      return getEngine()?.capabilities().supported ?? false
+    } catch {
+      return false
+    }
+  },
+  isAvailable: async () => available(),
+  impact: (style = 'light') => void withEngine((engine) => engine.play(`impact-${style}`)),
+  notification: (kind) => void withEngine((engine) => engine.play(kind)),
+  selection: () => void withEngine((engine) => engine.play('selection')),
 }

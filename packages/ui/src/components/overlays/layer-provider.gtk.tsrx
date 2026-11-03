@@ -6,7 +6,7 @@ export const LayerContext: any = createContext<LayerContextValue | null>(null)
 export const LayerProviderContext: any = LayerContext
 
 export function useLayerContext(): LayerContextValue | null {
-	return useContext(LayerContext)
+  return useContext(LayerContext)
 }
 
 const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
@@ -16,16 +16,16 @@ const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
  *  is the nativescript `RootLayout` path (toast family is slice D3), so this
  *  leaf ships the context surface only; viewport registration lands with D3. */
 export function LayerProvider(props: LayerProviderProps): unknown @{
-	const existing = useLayerContext()
-	const toast = props.toast ?? DEFAULT_TOAST_CONFIG
-	const value = useMemo<LayerContextValue>(
-		() => ({ toastConfig: toast, isProvider: true }),
-		[toast],
-	)
+  const existing = useLayerContext()
+  const toast = props.toast ?? DEFAULT_TOAST_CONFIG
+  const value = useMemo<LayerContextValue>(
+    () => ({ toastConfig: toast, isProvider: true }),
+    [toast],
+  )
 
-	if (existing) {
-		return <>{props.children}</>
-	}
+  if (existing) {
+    return <>{props.children}</>
+  }
 
-	return <LayerContext value={value}>{props.children}</LayerContext>
+  return <LayerContext value={value}>{props.children}</LayerContext>
 }

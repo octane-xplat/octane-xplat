@@ -3,34 +3,34 @@
 // Hook-bearing services live in .tsrx files. Consumers typecheck the generated
 // declarations while the app compiler resolves each runtime platform leaf.
 export type {
-	AppState,
-	AppInfo,
-	AuthSessionImpl,
-	AuthSessionOptions,
-	AuthSessionResult,
-	ConnectionType,
-	ConnectivityImpl,
-	ConnectivityState,
-	DeviceInfo,
-	Insets,
-	Locale,
-	PermissionKind,
-	RandomImpl,
-	OpenSettingsImpl,
-	WebAuthnAssertionJSON,
-	WebAuthnCreateOptionsJSON,
-	WebAuthnGetOptionsJSON,
-	WebAuthnImpl,
-	WebAuthnRegistrationJSON,
-	WindowSize,
+  AppState,
+  AppInfo,
+  AuthSessionImpl,
+  AuthSessionOptions,
+  AuthSessionResult,
+  ConnectionType,
+  ConnectivityImpl,
+  ConnectivityState,
+  DeviceInfo,
+  Insets,
+  Locale,
+  PermissionKind,
+  RandomImpl,
+  OpenSettingsImpl,
+  WebAuthnAssertionJSON,
+  WebAuthnCreateOptionsJSON,
+  WebAuthnGetOptionsJSON,
+  WebAuthnImpl,
+  WebAuthnRegistrationJSON,
+  WindowSize,
 } from './types'
 
 export { UnavailabilityError } from '@octane-xplat/lib/capability'
 export type {
-	Permissioned,
-	PermissionResponse,
-	PermissionStatus,
-	Service,
+  Permissioned,
+  PermissionResponse,
+  PermissionStatus,
+  Service,
 } from '@octane-xplat/lib/capability'
 
 export { device } from './device'

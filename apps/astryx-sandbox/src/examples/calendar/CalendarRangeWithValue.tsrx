@@ -4,7 +4,7 @@ import { useState } from 'octane'
 import type { DateRange } from '@octane-xplat/ui'
 
 export function CalendarRangeWithValue() @{
-	const [value, setValue] = useState<DateRange | null>({ start: '2025-03-10', end: '2025-03-20' })
+  const [value, setValue] = useState<DateRange | null>({ start: '2025-03-10', end: '2025-03-20' })
 
-	<Calendar mode="range" value={value} onChange={setValue} />
+  <Calendar mode="range" value={value} onChange={setValue} />
 }

@@ -9,8 +9,8 @@ import { fileURLToPath } from 'node:url'
 // XPLAT_JSC_HOST_BUNDLE points at a build-runtime.sh output directory to check
 // a locally rebuilt host before the committed prebuilt rotates.
 const hostBundle =
-	process.env.XPLAT_JSC_HOST_BUNDLE ??
-	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+  process.env.XPLAT_JSC_HOST_BUNDLE ??
+  resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
 
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
@@ -83,75 +83,75 @@ setTimeout(() => {
 `
 
 test(
-	'AppKit host marshals foreign-thread JS method IMPs onto the JS thread',
-	{ skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
-	async (t) => {
-		const dir = mkdtempSync(join(tmpdir(), 'xplat-foreign-imp-'))
-		t.after(() => rmSync(dir, { recursive: true, force: true }))
+  'AppKit host marshals foreign-thread JS method IMPs onto the JS thread',
+  { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
+  async (t) => {
+    const dir = mkdtempSync(join(tmpdir(), 'xplat-foreign-imp-'))
+    t.after(() => rmSync(dir, { recursive: true, force: true }))
 
-		const script = join(dir, 'fixture.cjs')
-		writeFileSync(script, fixture)
-		// The shipped shim is the bootstrap the packaged/dev host runs.
-		const bootstrap = join(dir, 'bootstrap.js')
-		writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
+    const script = join(dir, 'fixture.cjs')
+    writeFileSync(script, fixture)
+    // The shipped shim is the bootstrap the packaged/dev host runs.
+    const bootstrap = join(dir, 'bootstrap.js')
+    writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
-		// The rebuild output directory carries host + framework but not metadata;
-		// resolve the nsmd beside whichever bundle ships it.
-		const metadata = join(
-			existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
-				? hostBundle
-				: resolve(hostRoot, 'prebuilt/macos'),
-			`metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
-		)
+    // The rebuild output directory carries host + framework but not metadata;
+    // resolve the nsmd beside whichever bundle ships it.
+    const metadata = join(
+      existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
+        ? hostBundle
+        : resolve(hostRoot, 'prebuilt/macos'),
+      `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
+    )
 
-		const child = spawn(
-			join(hostBundle, 'host'),
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				script,
-				metadata,
-				bootstrap,
-			],
-			{ stdio: ['ignore', 'ignore', 'pipe'] },
-		)
-		let output = ''
-		child.stderr.on('data', (chunk) => {
-			output += chunk
-		})
-		const status = await new Promise((resolve) => {
-			const timeout = setTimeout(() => {
-				child.kill('SIGKILL')
-				resolve('timeout')
-			}, 30_000)
-			child.on('close', (code) => {
-				clearTimeout(timeout)
-				resolve(code)
-			})
-		})
+    const child = spawn(
+      join(hostBundle, 'host'),
+      [
+        join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+        script,
+        metadata,
+        bootstrap,
+      ],
+      { stdio: ['ignore', 'ignore', 'pipe'] },
+    )
+    let output = ''
+    child.stderr.on('data', (chunk) => {
+      output += chunk
+    })
+    const status = await new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        child.kill('SIGKILL')
+        resolve('timeout')
+      }, 30_000)
+      child.on('close', (code) => {
+        clearTimeout(timeout)
+        resolve(code)
+      })
+    })
 
-		// Before the patch this process segfaulted inside JSMethodCallback on the
-		// spawned thread; a clean exit is itself the regression signal.
-		assert.equal(status, 0, `host exited ${status}\n${output}`)
-		assert.match(output, /PING_MAIN_RESULT=42/)
-		assert.match(output, /DETACHED_X3/)
+    // Before the patch this process segfaulted inside JSMethodCallback on the
+    // spawned thread; a clean exit is itself the regression signal.
+    assert.equal(status, 0, `host exited ${status}\n${output}`)
+    assert.match(output, /PING_MAIN_RESULT=42/)
+    assert.match(output, /DETACHED_X3/)
 
-		const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
-		assert.ok(marker, `missing probe result marker:\n${output}`)
-		const delivered = JSON.parse(marker.slice(0, marker.indexOf(' opFinished=')))
-		const opFinished = Number(/ opFinished=(\S+)/.exec(marker)?.[1])
-		const opResult = / opResult=(\S+)/.exec(marker)?.[1]
+    const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
+    assert.ok(marker, `missing probe result marker:\n${output}`)
+    const delivered = JSON.parse(marker.slice(0, marker.indexOf(' opFinished=')))
+    const opFinished = Number(/ opFinished=(\S+)/.exec(marker)?.[1])
+    const opResult = / opResult=(\S+)/.exec(marker)?.[1]
 
-		// Main-thread control + 3 detached NSThread IMPs + the nested post from
-		// inside respond all delivered on the JS thread.
-		assert.deepEqual(delivered, {
-			pings: 5,
-			respondRuns: 1,
-			respondOnMain: 1,
-			nestedPost: 1,
-		})
-		// The queue thread's caller frame parked until main filled ret, and the
-		// NSString the JS callback returned made it back through the boundary.
-		assert.equal(opFinished, 1)
-		assert.equal(opResult, 'PONG_FROM_JS')
-	},
+    // Main-thread control + 3 detached NSThread IMPs + the nested post from
+    // inside respond all delivered on the JS thread.
+    assert.deepEqual(delivered, {
+      pings: 5,
+      respondRuns: 1,
+      respondOnMain: 1,
+      nestedPost: 1,
+    })
+    // The queue thread's caller frame parked until main filled ret, and the
+    // NSString the JS callback returned made it back through the boundary.
+    assert.equal(opFinished, 1)
+    assert.equal(opResult, 'PONG_FROM_JS')
+  },
 )

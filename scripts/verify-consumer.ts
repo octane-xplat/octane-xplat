@@ -44,14 +44,14 @@ import { readBunLock } from '../packages/cli/src/package-manager.ts'
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
-	cpSync,
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readFileSync,
-	realpathSync,
-	rmSync,
-	writeFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -65,8 +65,8 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const flag = (name) => args.includes(`--${name}`)
 const flagValue = (name) => {
-	const index = args.indexOf(`--${name}`)
-	return index >= 0 ? args[index + 1] : undefined
+  const index = args.indexOf(`--${name}`)
+  return index >= 0 ? args[index + 1] : undefined
 }
 
 const doBuild = !flag('no-build')
@@ -77,19 +77,19 @@ const smokeIos = flag('smoke-ios')
 const testIos = flag('test-ios')
 const testAndroid = flag('test-android')
 assert.ok(
-	!quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
-	'--quick cannot qualify native builds or device tests; use the full consumer workflow',
+  !quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
+  '--quick cannot qualify native builds or device tests; use the full consumer workflow',
 )
 
 if (testAndroid) {
-	assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
+  assert.ok(process.env.VERIFY_ANDROID_DEVICE, '--test-android requires VERIFY_ANDROID_DEVICE')
 }
 
 const keep = flag('keep') || Boolean(process.env.VERIFY_CONSUMER_DIR)
 
 const work = process.env.VERIFY_CONSUMER_DIR
-	? resolve(process.env.VERIFY_CONSUMER_DIR)
-	: mkdtempSync(join(tmpdir(), 'xplat-consumer-'))
+  ? resolve(process.env.VERIFY_CONSUMER_DIR)
+  : mkdtempSync(join(tmpdir(), 'xplat-consumer-'))
 
 const packDir = join(work, 'pack')
 // The dir basename becomes the Xcode project/target name — 'app' would
@@ -101,7 +101,7 @@ const extractDir = join(work, 'create')
 // A reused VERIFY_CONSUMER_DIR may hold a previous attempt's app/scaffold —
 // reset those (the pack dir is rewritten in place anyway).
 for (const dir of [appDir, libraryDir, extractDir]) {
-	rmSync(dir, { recursive: true, force: true })
+  rmSync(dir, { recursive: true, force: true })
 }
 
 mkdirSync(packDir, { recursive: true })
@@ -109,371 +109,371 @@ mkdirSync(extractDir, { recursive: true })
 
 const results = []
 const record = (name, ok, detail = '') => {
-	results.push({ name, ok, detail })
-	console.log(`[verify] ${name}: ${ok ? 'OK' : 'FAIL'}${detail ? ` — ${detail}` : ''}`)
+  results.push({ name, ok, detail })
+  console.log(`[verify] ${name}: ${ok ? 'OK' : 'FAIL'}${detail ? ` — ${detail}` : ''}`)
 }
 
 function run(command, argv, cwd, env = {}) {
-	const result = spawnSync(command, argv, {
-		cwd,
-		env: { ...process.env, ...env },
-		encoding: 'utf8',
-		maxBuffer: 64 * 1024 * 1024,
-	})
+  const result = spawnSync(command, argv, {
+    cwd,
+    env: { ...process.env, ...env },
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  })
 
-	if (result.stdout) {
-		process.stdout.write(result.stdout)
-	}
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
 
-	if (result.stderr) {
-		process.stderr.write(result.stderr)
-	}
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
 
-	if (result.error) {
-		throw result.error
-	}
+  if (result.error) {
+    throw result.error
+  }
 
-	// A silent nonzero exit (e.g. a shim spawning a missing binary) is
-	// undebuggable from CI logs — surface the process result itself.
-	if (result.status !== 0) {
-		console.error(
-			`[verify] ${command} ${argv.join(' ')} → status=${result.status} signal=${result.signal} ` +
-				`stdout=${result.stdout?.length ?? 0}B stderr=${result.stderr?.length ?? 0}B`,
-		)
-	}
+  // A silent nonzero exit (e.g. a shim spawning a missing binary) is
+  // undebuggable from CI logs — surface the process result itself.
+  if (result.status !== 0) {
+    console.error(
+      `[verify] ${command} ${argv.join(' ')} → status=${result.status} signal=${result.signal} ` +
+        `stdout=${result.stdout?.length ?? 0}B stderr=${result.stderr?.length ?? 0}B`,
+    )
+  }
 
-	return result
+  return result
 }
 
 async function gate(name, timeoutMs, fn) {
-	let timeout
-	try {
-		const detail = await Promise.race([
-			fn(),
-			new Promise((_, reject) => {
-				timeout = setTimeout(
-					() => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)),
-					timeoutMs,
-				)
-			}),
-		])
+  let timeout
+  try {
+    const detail = await Promise.race([
+      fn(),
+      new Promise((_, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error(`gate timed out after ${timeoutMs / 60000}m`)),
+          timeoutMs,
+        )
+      }),
+    ])
 
-		record(name, true, detail ?? '')
-	} catch (error) {
-		record(name, false, String(error?.message ?? error).split('\n')[0])
-		console.error(`[verify] ${name} failed:`, error)
-		report()
-		console.error(`[verify] work dir kept for inspection: ${work}`)
-		// Drain piped stdout before exiting — process.exit drops queued async
-		// writes, which lost the failing subprocess's output in CI logs.
-		await Promise.all([
-			new Promise((r) => process.stdout.write('', r)),
-			new Promise((r) => process.stderr.write('', r)),
-		])
+    record(name, true, detail ?? '')
+  } catch (error) {
+    record(name, false, String(error?.message ?? error).split('\n')[0])
+    console.error(`[verify] ${name} failed:`, error)
+    report()
+    console.error(`[verify] work dir kept for inspection: ${work}`)
+    // Drain piped stdout before exiting — process.exit drops queued async
+    // writes, which lost the failing subprocess's output in CI logs.
+    await Promise.all([
+      new Promise((r) => process.stdout.write('', r)),
+      new Promise((r) => process.stderr.write('', r)),
+    ])
 
-		process.exit(1)
-	} finally {
-		clearTimeout(timeout)
-	}
+    process.exit(1)
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 function report() {
-	const failed = results.filter((r) => !r.ok)
-	console.log(
-		`\n[verify] ${results.length - failed.length}/${results.length} gates passed` +
-			(failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''),
-	)
+  const failed = results.filter((r) => !r.ok)
+  console.log(
+    `\n[verify] ${results.length - failed.length}/${results.length} gates passed` +
+      (failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''),
+  )
 }
 
 const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
 
 try {
-	// ---- build ------------------------------------------------------------
-	if (doBuild) {
-		await gate('package declarations and assets', 20 * 60 * 1000, () => {
-			const r = run('bun', ['build:packages'], repoRoot)
+  // ---- build ------------------------------------------------------------
+  if (doBuild) {
+    await gate('package declarations and assets', 20 * 60 * 1000, () => {
+      const r = run('bun', ['build:packages'], repoRoot)
 
-			assert.equal(r.status, 0, 'package preparation failed')
-		})
-	}
+      assert.equal(r.status, 0, 'package preparation failed')
+    })
+  }
 
-	// ---- pack -------------------------------------------------------------
-	const tarballs = new Map()
-	await gate('bun pm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
-		for (const pkg of lockstepPackages(repoRoot)) {
-			// Quick mode and --no-build consume prepared artifacts. The caller
-			// gates pack:check separately; never rebuild through lifecycle hooks
-			// when the caller explicitly requested --no-build.
-			const r = run(
-				'bun',
-				[
-					'pm',
-					'pack',
-					...(quick || !doBuild ? ['--ignore-scripts'] : []),
-					'--destination',
-					packDir,
-				],
-				join(repoRoot, pkg.dir),
-			)
+  // ---- pack -------------------------------------------------------------
+  const tarballs = new Map()
+  await gate('bun pm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
+    for (const pkg of lockstepPackages(repoRoot)) {
+      // Quick mode and --no-build consume prepared artifacts. The caller
+      // gates pack:check separately; never rebuild through lifecycle hooks
+      // when the caller explicitly requested --no-build.
+      const r = run(
+        'bun',
+        [
+          'pm',
+          'pack',
+          ...(quick || !doBuild ? ['--ignore-scripts'] : []),
+          '--destination',
+          packDir,
+        ],
+        join(repoRoot, pkg.dir),
+      )
 
-			assert.equal(r.status, 0, `bun pm pack failed for ${pkg.name}`)
-			const expected = join(packDir, tarballName(pkg))
-			assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
-			tarballs.set(pkg.name, expected)
-		}
+      assert.equal(r.status, 0, `bun pm pack failed for ${pkg.name}`)
+      const expected = join(packDir, tarballName(pkg))
+      assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
+      tarballs.set(pkg.name, expected)
+    }
 
-		return `${tarballs.size} tarballs`
-	})
+    return `${tarballs.size} tarballs`
+  })
 
-	// ---- scaffold via the packed create bin --------------------------------
-	// Web-only subset: `xplat add ios android` below restores the rest, which
-	// exercises the post-scaffold enablement path on the packed artifacts.
-	await gate(
-		`packed create-octane-xplat scaffolds ${quick ? 'a web starter' : 'app and library starters'}`,
-		60 * 1000,
-		() => {
-			const createTarball = tarballs.get('create-octane-xplat')
-			assert.ok(createTarball, 'create-octane-xplat tarball missing')
-			// Install the creator as bun create does: its published JavaScript
-			// entry and declared runtime dependencies must work outside the repo.
-			writeFileSync(
-				join(extractDir, 'package.json'),
-				JSON.stringify({
-					private: true,
-					dependencies: { 'create-octane-xplat': `file:${createTarball}` },
-				}),
-			)
-			writeFileSync(join(extractDir, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
-			const install = run('bun', ['install', '--ignore-scripts'], extractDir)
-			assert.equal(install.status, 0, 'packed creator install failed')
-			const creator = join(extractDir, 'node_modules/create-octane-xplat')
-			const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
-			const binPath = join(creator, creatorManifest.bin['create-octane-xplat'])
-			assert.ok(existsSync(binPath), 'packed create bin missing')
-			const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
+  // ---- scaffold via the packed create bin --------------------------------
+  // Web-only subset: `xplat add ios android` below restores the rest, which
+  // exercises the post-scaffold enablement path on the packed artifacts.
+  await gate(
+    `packed create-octane-xplat scaffolds ${quick ? 'a web starter' : 'app and library starters'}`,
+    60 * 1000,
+    () => {
+      const createTarball = tarballs.get('create-octane-xplat')
+      assert.ok(createTarball, 'create-octane-xplat tarball missing')
+      // Install the creator as bun create does: its published JavaScript
+      // entry and declared runtime dependencies must work outside the repo.
+      writeFileSync(
+        join(extractDir, 'package.json'),
+        JSON.stringify({
+          private: true,
+          dependencies: { 'create-octane-xplat': `file:${createTarball}` },
+        }),
+      )
+      writeFileSync(join(extractDir, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
+      const install = run('bun', ['install', '--ignore-scripts'], extractDir)
+      assert.equal(install.status, 0, 'packed creator install failed')
+      const creator = join(extractDir, 'node_modules/create-octane-xplat')
+      const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
+      const binPath = join(creator, creatorManifest.bin['create-octane-xplat'])
+      assert.ok(existsSync(binPath), 'packed create bin missing')
+      const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
 
-			assert.equal(runResult.status, 0, 'create bin exited nonzero')
-			assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
-			assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
-			assert.ok(
-				!existsSync(join(appDir, 'nativescript.config.ts')),
-				'subset scaffold leaked native files',
-			)
-			if (quick) {
-				return
-			}
+      assert.equal(runResult.status, 0, 'create bin exited nonzero')
+      assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
+      assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
+      assert.ok(
+        !existsSync(join(appDir, 'nativescript.config.ts')),
+        'subset scaffold leaked native files',
+      )
+      if (quick) {
+        return
+      }
 
-			const libraryName = '@example/consumer-library'
-			const libraryResult = run(
-				'node',
-				[binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
-				work,
-			)
+      const libraryName = '@example/consumer-library'
+      const libraryResult = run(
+        'node',
+        [binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
+        work,
+      )
 
-			assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
-			const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
-			assert.equal(libraryManifest.name, libraryName)
-			assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
-			assert.ok(
-				libraryManifest.exports['.'].native,
-				'library starter missed native conditional export',
-			)
+      assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
+      const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
+      assert.equal(libraryManifest.name, libraryName)
+      assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
+      assert.ok(
+        libraryManifest.exports['.'].native,
+        'library starter missed native conditional export',
+      )
 
-			assert.ok(
-				libraryManifest.scripts['test:packed'],
-				'library starter missed packed-consumer script',
-			)
+      assert.ok(
+        libraryManifest.scripts['test:packed'],
+        'library starter missed packed-consumer script',
+      )
 
-			assert.ok(
-				existsSync(join(libraryDir, 'src/Badge.tsx')),
-				'library starter missed native component',
-			)
+      assert.ok(
+        existsSync(join(libraryDir, 'src/Badge.tsx')),
+        'library starter missed native component',
+      )
 
-			assert.ok(
-				existsSync(join(libraryDir, 'src/Badge.web.tsx')),
-				'library starter missed web component',
-			)
+      assert.ok(
+        existsSync(join(libraryDir, 'src/Badge.web.tsx')),
+        'library starter missed web component',
+      )
 
-			assert.ok(
-				existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
-				'library starter missed packed-consumer check',
-			)
+      assert.ok(
+        existsSync(join(libraryDir, 'tests/packed-consumer.mjs')),
+        'library starter missed packed-consumer check',
+      )
 
-			assert.ok(
-				!existsSync(join(libraryDir, 'index.html')),
-				'library starter leaked app entry files',
-			)
-			assert.ok(
-				!existsSync(join(libraryDir, 'nativescript.config.ts')),
-				'library starter leaked app NativeScript configuration',
-			)
-		},
-	)
+      assert.ok(
+        !existsSync(join(libraryDir, 'index.html')),
+        'library starter leaked app entry files',
+      )
+      assert.ok(
+        !existsSync(join(libraryDir, 'nativescript.config.ts')),
+        'library starter leaked app NativeScript configuration',
+      )
+    },
+  )
 
-	// ---- repoint lockstep workspace packages at the tarballs --------------
-	const consumerManifestPath = join(appDir, 'package.json')
-	await gate('consumer manifest rewritten to file: tarballs', 60 * 1000, () => {
-		const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-		let rewritten = 0
-		for (const section of ['dependencies', 'devDependencies']) {
-			for (const dep of Object.keys(manifest[section] ?? {})) {
-				if (!tarballs.has(dep)) {
-					continue
-				}
+  // ---- repoint lockstep workspace packages at the tarballs --------------
+  const consumerManifestPath = join(appDir, 'package.json')
+  await gate('consumer manifest rewritten to file: tarballs', 60 * 1000, () => {
+    const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+    let rewritten = 0
+    for (const section of ['dependencies', 'devDependencies']) {
+      for (const dep of Object.keys(manifest[section] ?? {})) {
+        if (!tarballs.has(dep)) {
+          continue
+        }
 
-				const tarball = tarballs.get(dep)
-				manifest[section][dep] = `file:${tarball}`
-				rewritten++
-			}
-		}
+        const tarball = tarballs.get(dep)
+        manifest[section][dep] = `file:${tarball}`
+        rewritten++
+      }
+    }
 
-		writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
+    writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
 
-		// Late additions and transitive framework dependencies use these same tarballs.
-		manifest.overrides ??= {}
-		for (const [name, tarball] of tarballs) {
-			manifest.overrides[name] = `file:${tarball}`
-		}
-		writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
-		return `${rewritten} deps + packed dependency overrides`
-	})
+    // Late additions and transitive framework dependencies use these same tarballs.
+    manifest.overrides ??= {}
+    for (const [name, tarball] of tarballs) {
+      manifest.overrides[name] = `file:${tarball}`
+    }
+    writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
+    return `${rewritten} deps + packed dependency overrides`
+  })
 
-	// ---- install ------------------------------------------------------------
-	await gate('bun install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
-		const r = run('bun', ['install'], appDir)
-		assert.equal(r.status, 0, 'bun install failed')
-	})
+  // ---- install ------------------------------------------------------------
+  await gate('bun install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
+    const r = run('bun', ['install'], appDir)
+    assert.equal(r.status, 0, 'bun install failed')
+  })
 
-	await gate(
-		'default web starter includes web tests without unused features or the macOS SDK',
-		60 * 1000,
-		() => {
-			const installed = new Set<string>()
-			const graph = readBunLock(appDir)
-			assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
-			for (const entry of Object.values(graph.packages) as any[]) {
-				if (Array.isArray(entry)) {
-					installed.add(entry[0].slice(0, entry[0].indexOf('@', 1)))
-				}
-			}
+  await gate(
+    'default web starter includes web tests without unused features or the macOS SDK',
+    60 * 1000,
+    () => {
+      const installed = new Set<string>()
+      const graph = readBunLock(appDir)
+      assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
+      for (const entry of Object.values(graph.packages) as any[]) {
+        if (Array.isArray(entry)) {
+          installed.add(entry[0].slice(0, entry[0].indexOf('@', 1)))
+        }
+      }
 
-			for (const name of [
-				'@octane-xplat/effects',
-				'@octane-xplat/image',
-				'@nativescript/unit-test-runner',
-				'@nativescript/macos-node-api',
-			]) {
-				assert.ok(!installed.has(name), `default app unexpectedly installed ${name}`)
-			}
-			for (const name of ['vitest', 'jsdom']) {
-				assert.ok(installed.has(name), `default app missed ${name}`)
-			}
-		},
-	)
+      for (const name of [
+        '@octane-xplat/effects',
+        '@octane-xplat/image',
+        '@nativescript/unit-test-runner',
+        '@nativescript/macos-node-api',
+      ]) {
+        assert.ok(!installed.has(name), `default app unexpectedly installed ${name}`)
+      }
+      for (const name of ['vitest', 'jsdom']) {
+        assert.ok(installed.has(name), `default app missed ${name}`)
+      }
+    },
+  )
 
-	await gate(
-		'installed @octane-xplat/ui is the packed payload, not a workspace link',
-		60 * 1000,
-		() => {
-			const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
-			assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
-			const resolved = realpathSync(installed)
-			assert.ok(
-				!resolved.startsWith(join(repoRoot, 'packages')),
-				`ui resolves into the workspace: ${resolved}`,
-			)
+  await gate(
+    'installed @octane-xplat/ui is the packed payload, not a workspace link',
+    60 * 1000,
+    () => {
+      const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
+      assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
+      const resolved = realpathSync(installed)
+      assert.ok(
+        !resolved.startsWith(join(repoRoot, 'packages')),
+        `ui resolves into the workspace: ${resolved}`,
+      )
 
-			const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
-			for (const target of ['web', 'native', 'macos', 'linux']) {
-				const entry = manifest.exports['.'][target]
-				const runtime = typeof entry === 'string' ? entry : entry.default
-				const types = typeof entry === 'string' ? manifest.exports['.'].types : entry.types
-				assert.ok(runtime.startsWith('./src/'), `${target} runtime must use source`)
-				assert.ok(types.endsWith('.d.ts'), `${target} types must use declarations`)
-				assert.ok(existsSync(join(installed, runtime)), `${target} source missing`)
-				assert.ok(existsSync(join(installed, types)), `${target} declarations missing`)
-			}
-		},
-	)
+      const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
+      for (const target of ['web', 'native', 'macos', 'linux']) {
+        const entry = manifest.exports['.'][target]
+        const runtime = typeof entry === 'string' ? entry : entry.default
+        const types = typeof entry === 'string' ? manifest.exports['.'].types : entry.types
+        assert.ok(runtime.startsWith('./src/'), `${target} runtime must use source`)
+        assert.ok(types.endsWith('.d.ts'), `${target} types must use declarations`)
+        assert.ok(existsSync(join(installed, runtime)), `${target} source missing`)
+        assert.ok(existsSync(join(installed, types)), `${target} declarations missing`)
+      }
+    },
+  )
 
-	await gate('plain TypeScript consumes installed web declarations', 60 * 1000, () => {
-		const source = join(appDir, 'verify-declarations.ts')
-		const config = join(appDir, 'verify-declarations.json')
-		writeFileSync(
-			source,
-			`import { Text, type TextProps } from '@octane-xplat/ui'
+  await gate('plain TypeScript consumes installed web declarations', 60 * 1000, () => {
+    const source = join(appDir, 'verify-declarations.ts')
+    const config = join(appDir, 'verify-declarations.json')
+    writeFileSync(
+      source,
+      `import { Text, type TextProps } from '@octane-xplat/ui'
 const props: TextProps = { children: 'Packed consumer' }
 void Text
 void props
 `,
-		)
-		writeFileSync(
-			config,
-			JSON.stringify({
-				compilerOptions: {
-					target: 'ESNext',
-					module: 'ESNext',
-					moduleResolution: 'Bundler',
-					customConditions: ['web'],
-					lib: ['ESNext', 'DOM', 'DOM.Iterable'],
-					types: [],
-					strict: true,
-					noEmit: true,
-					skipLibCheck: true,
-					allowImportingTsExtensions: true,
-				},
-				files: ['verify-declarations.ts'],
-			}),
-		)
-		try {
-			const result = run('bun', ['run', 'tsc', '--project', config], appDir)
-			assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
-		} finally {
-			rmSync(source, { force: true })
-			rmSync(config, { force: true })
-		}
-	})
+    )
+    writeFileSync(
+      config,
+      JSON.stringify({
+        compilerOptions: {
+          target: 'ESNext',
+          module: 'ESNext',
+          moduleResolution: 'Bundler',
+          customConditions: ['web'],
+          lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+          types: [],
+          strict: true,
+          noEmit: true,
+          skipLibCheck: true,
+          allowImportingTsExtensions: true,
+        },
+        files: ['verify-declarations.ts'],
+      }),
+    )
+    try {
+      const result = run('bun', ['run', 'tsc', '--project', config], appDir)
+      assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
+    } finally {
+      rmSync(source, { force: true })
+      rmSync(config, { force: true })
+    }
+  })
 
-	// ---- xplat add: enable the platforms skipped at scaffold ---------------
-	if (!quick) {
-		await gate(
-			'xplat add ios android --no-install, then install — platform and test setup on packed CLI',
-			15 * 60 * 1000,
-			() => {
-				const r = run('bun', ['run', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
-				assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-				const install = run('bun', ['install', '--no-frozen-lockfile'], appDir)
-				assert.equal(install.status, 0, 'platform dependencies failed to install')
-				assert.ok(
-					existsSync(join(appDir, 'nativescript.config.ts')),
-					'add produced no nativescript.config.ts',
-				)
+  // ---- xplat add: enable the platforms skipped at scaffold ---------------
+  if (!quick) {
+    await gate(
+      'xplat add ios android --no-install, then install — platform and test setup on packed CLI',
+      15 * 60 * 1000,
+      () => {
+        const r = run('bun', ['run', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
+        assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+        const install = run('bun', ['install', '--no-frozen-lockfile'], appDir)
+        assert.equal(install.status, 0, 'platform dependencies failed to install')
+        assert.ok(
+          existsSync(join(appDir, 'nativescript.config.ts')),
+          'add produced no nativescript.config.ts',
+        )
 
-				assert.ok(
-					existsSync(join(appDir, 'App_Resources/iOS')),
-					'add produced no App_Resources/iOS',
-				)
-				assert.ok(
-					existsSync(join(appDir, 'App_Resources/Android')),
-					'add produced no App_Resources/Android',
-				)
+        assert.ok(
+          existsSync(join(appDir, 'App_Resources/iOS')),
+          'add produced no App_Resources/iOS',
+        )
+        assert.ok(
+          existsSync(join(appDir, 'App_Resources/Android')),
+          'add produced no App_Resources/Android',
+        )
 
-				const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-				assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
-				assert.ok(
-					manifest.devDependencies['@nativescript/android'],
-					'add missed @nativescript/android',
-				)
-			},
-		)
-	}
+        const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+        assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
+        assert.ok(
+          manifest.devDependencies['@nativescript/android'],
+          'add missed @nativescript/android',
+        )
+      },
+    )
+  }
 
-	// ---- consumer gates ------------------------------------------------------
-	await gate('installed UI source compiles in the development server', 60 * 1000, () => {
-		const check = join(appDir, 'verify-source-dev.ts')
-		writeFileSync(
-			check,
-			`import assert from 'node:assert/strict'
+  // ---- consumer gates ------------------------------------------------------
+  await gate('installed UI source compiles in the development server', 60 * 1000, () => {
+    const check = join(appDir, 'verify-source-dev.ts')
+    writeFileSync(
+      check,
+      `import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 import { readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
@@ -488,376 +488,376 @@ try {
   assert.doesNotMatch(result.code, /@\\{/)
 } finally { await server.close() }
 `,
-		)
+    )
 
-		try {
-			const r = run('node', [check], appDir)
-			assert.equal(r.status, 0, 'development transform of installed TSRX failed')
-		} finally {
-			rmSync(check, { force: true })
-		}
-	})
+    try {
+      const r = run('node', [check], appDir)
+      assert.equal(r.status, 0, 'development transform of installed TSRX failed')
+    } finally {
+      rmSync(check, { force: true })
+    }
+  })
 
-	for (const [name, argv] of [
-		...(!quick
-			? [
-					['bun run lint', ['lint']],
-					['bun run typecheck (web + native)', ['typecheck']],
-				]
-			: []),
-		['bun run test:web — default component test', ['test:web']],
-		['bun run build — web bundle from packed ui', ['build']],
-		...(!quick ? [['bun run xplat doctor', ['xplat', 'doctor']]] : []),
-	]) {
-		await gate(name, 10 * 60 * 1000, () => {
-			const r = run('bun', ['run', ...argv], appDir)
-			assert.equal(r.status, 0, `${name} exited ${r.status}`)
-		})
-	}
+  for (const [name, argv] of [
+    ...(!quick
+      ? [
+          ['bun run lint', ['lint']],
+          ['bun run typecheck (web + native)', ['typecheck']],
+        ]
+      : []),
+    ['bun run test:web — default component test', ['test:web']],
+    ['bun run build — web bundle from packed ui', ['build']],
+    ...(!quick ? [['bun run xplat doctor', ['xplat', 'doctor']]] : []),
+  ]) {
+    await gate(name, 10 * 60 * 1000, () => {
+      const r = run('bun', ['run', ...argv], appDir)
+      assert.equal(r.status, 0, `${name} exited ${r.status}`)
+    })
+  }
 
-	if (quick) {
-		// Starter-skill routing snippets must compile in the scaffolded app.
-		// Fenced blocks whose first line is a `// src/...` path comment are
-		// written to that path; blocks sharing a path are concatenated.
-		await gate('starter skill routing snippets compile in the scaffold', 10 * 60 * 1000, () => {
-			const skillPath = join(
-				repoRoot,
-				'packages/create/template/.agents/skills/xplat/references/navigation.md',
-			)
-			const markdown = readFileSync(skillPath, 'utf8')
-			const files = new Map<string, string[]>()
-			for (const match of markdown.matchAll(/```(?:tsx?|tsrx)\n([\s\S]*?)```/g)) {
-				const block = match[1].replace(/\n$/, '')
-				const first = block.split('\n', 1)[0].trim()
-				const target = /^\/\/ (src\/\S+)/.exec(first)?.[1]
-				if (!target) {
-					continue
-				}
+  if (quick) {
+    // Starter-skill routing snippets must compile in the scaffolded app.
+    // Fenced blocks whose first line is a `// src/...` path comment are
+    // written to that path; blocks sharing a path are concatenated.
+    await gate('starter skill routing snippets compile in the scaffold', 10 * 60 * 1000, () => {
+      const skillPath = join(
+        repoRoot,
+        'packages/create/template/.agents/skills/xplat/references/navigation.md',
+      )
+      const markdown = readFileSync(skillPath, 'utf8')
+      const files = new Map<string, string[]>()
+      for (const match of markdown.matchAll(/```(?:tsx?|tsrx)\n([\s\S]*?)```/g)) {
+        const block = match[1].replace(/\n$/, '')
+        const first = block.split('\n', 1)[0].trim()
+        const target = /^\/\/ (src\/\S+)/.exec(first)?.[1]
+        if (!target) {
+          continue
+        }
 
-				const list = files.get(target) ?? []
-				list.push(block)
-				files.set(target, list)
-			}
+        const list = files.get(target) ?? []
+        list.push(block)
+        files.set(target, list)
+      }
 
-			assert.ok(files.size >= 3, `expected at least 3 snippet files, found ${files.size}`)
-			// Later users of this scaffold (such as the routing evaluation)
-			// need the untouched starter source, so restore it afterwards.
-			const source = join(appDir, 'src')
-			const saved = join(mkdtempSync(join(tmpdir(), 'xplat-starter-src-')), 'src')
-			cpSync(source, saved, { recursive: true, verbatimSymlinks: true })
-			try {
-				const written: string[] = []
-				for (const [rel, blocks] of files) {
-					const path = join(appDir, rel)
-					mkdirSync(dirname(path), { recursive: true })
-					writeFileSync(path, blocks.join('\n\n') + '\n')
-					written.push(rel)
-				}
+      assert.ok(files.size >= 3, `expected at least 3 snippet files, found ${files.size}`)
+      // Later users of this scaffold (such as the routing evaluation)
+      // need the untouched starter source, so restore it afterwards.
+      const source = join(appDir, 'src')
+      const saved = join(mkdtempSync(join(tmpdir(), 'xplat-starter-src-')), 'src')
+      cpSync(source, saved, { recursive: true, verbatimSymlinks: true })
+      try {
+        const written: string[] = []
+        for (const [rel, blocks] of files) {
+          const path = join(appDir, rel)
+          mkdirSync(dirname(path), { recursive: true })
+          writeFileSync(path, blocks.join('\n\n') + '\n')
+          written.push(rel)
+        }
 
-				// Missing params must fail typecheck before the positive run.
-				const negative = join(appDir, 'src/negative-destination.ts')
-				writeFileSync(
-					negative,
-					`import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
-				)
+        // Missing params must fail typecheck before the positive run.
+        const negative = join(appDir, 'src/negative-destination.ts')
+        writeFileSync(
+          negative,
+          `import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
+        )
 
-				const denied = run('bun', ['run', 'xplat', 'typecheck'], appDir)
-				assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
-				rmSync(negative, { force: true })
+        const denied = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+        assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
+        rmSync(negative, { force: true })
 
-				const routes = run('bun', ['run', 'xplat', 'routes'], appDir)
-				assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
-				const typecheck = run('bun', ['run', 'xplat', 'typecheck'], appDir)
-				assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
-				const lint = run('bun', ['run', 'xplat', 'lint', 'src'], appDir)
-				assert.equal(lint.status, 0, 'skill snippets failed lint')
-			} finally {
-				rmSync(source, { recursive: true, force: true })
-				cpSync(saved, source, { recursive: true, verbatimSymlinks: true })
-				rmSync(dirname(saved), { recursive: true, force: true })
-			}
-		})
-	}
+        const routes = run('bun', ['run', 'xplat', 'routes'], appDir)
+        assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
+        const typecheck = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+        assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
+        const lint = run('bun', ['run', 'xplat', 'lint', 'src'], appDir)
+        assert.equal(lint.status, 0, 'skill snippets failed lint')
+      } finally {
+        rmSync(source, { recursive: true, force: true })
+        cpSync(saved, source, { recursive: true, verbatimSymlinks: true })
+        rmSync(dirname(saved), { recursive: true, force: true })
+      }
+    })
+  }
 
-	if (!quick) {
-		await gate(
-			'library starter installs and publishes source with isolated declarations',
-			15 * 60 * 1000,
-			() => {
-				const file = join(libraryDir, 'package.json')
-				const manifest = JSON.parse(readFileSync(file, 'utf8'))
-				manifest.overrides ??= {}
-				for (const [name, tarball] of tarballs) {
-					manifest.overrides[name] = `file:${tarball}`
-				}
-				writeFileSync(file, JSON.stringify(manifest, null, '\t') + '\n')
+  if (!quick) {
+    await gate(
+      'library starter installs and publishes source with isolated declarations',
+      15 * 60 * 1000,
+      () => {
+        const file = join(libraryDir, 'package.json')
+        const manifest = JSON.parse(readFileSync(file, 'utf8'))
+        manifest.overrides ??= {}
+        for (const [name, tarball] of tarballs) {
+          manifest.overrides[name] = `file:${tarball}`
+        }
+        writeFileSync(file, JSON.stringify(manifest, null, '\t') + '\n')
 
-				for (const argv of [
-					['install'],
-					['typegen'],
-					['typecheck'],
-					['lint'],
-					['test'],
-					['test:packed'],
-				]) {
-					const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
-					assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
-				}
-			},
-		)
-	}
+        for (const argv of [
+          ['install'],
+          ['typegen'],
+          ['typecheck'],
+          ['lint'],
+          ['test'],
+          ['test:packed'],
+        ]) {
+          const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
+          assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
+        }
+      },
+    )
+  }
 
-	// ---- optional browser smoke ---------------------------------------------
-	if (smokeTargets.includes('web')) {
-		await gate('browser smoke — packed ui renders the starter', 3 * 60 * 1000, async () => {
-			// Grab a free port — stale previews from other runs hold fixed ports.
-			const { createServer } = await import('node:net')
-			const port = await new Promise((resolve) => {
-				const server = createServer()
-				server.listen(0, () => {
-					const p = server.address().port
-					server.close(() => resolve(p))
-				})
-			})
+  // ---- optional browser smoke ---------------------------------------------
+  if (smokeTargets.includes('web')) {
+    await gate('browser smoke — packed ui renders the starter', 3 * 60 * 1000, async () => {
+      // Grab a free port — stale previews from other runs hold fixed ports.
+      const { createServer } = await import('node:net')
+      const port = await new Promise((resolve) => {
+        const server = createServer()
+        server.listen(0, () => {
+          const p = server.address().port
+          server.close(() => resolve(p))
+        })
+      })
 
-			const preview = spawn(
-				'bun',
-				['run', 'vite', 'preview', '--port', String(port), '--strictPort'],
-				{
-					shell: process.platform === 'win32',
-					cwd: appDir,
-					detached: true,
-					stdio: ['ignore', 'pipe', 'pipe'],
-				},
-			)
+      const preview = spawn(
+        'bun',
+        ['run', 'vite', 'preview', '--port', String(port), '--strictPort'],
+        {
+          shell: process.platform === 'win32',
+          cwd: appDir,
+          detached: true,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        },
+      )
 
-			let browser
-			let browsers
-			try {
-				await new Promise((resolve, reject) => {
-					const timer = setTimeout(
-						() => reject(new Error('vite preview never printed Local')),
-						30000,
-					)
+      let browser
+      let browsers
+      try {
+        await new Promise((resolve, reject) => {
+          const timer = setTimeout(
+            () => reject(new Error('vite preview never printed Local')),
+            30000,
+          )
 
-					preview.stdout.on('data', (chunk) => {
-						if (String(chunk).includes('Local')) {
-							clearTimeout(timer)
-							resolve()
-						}
-					})
+          preview.stdout.on('data', (chunk) => {
+            if (String(chunk).includes('Local')) {
+              clearTimeout(timer)
+              resolve()
+            }
+          })
 
-					preview.on('error', reject)
-					preview.on('exit', (code) => reject(new Error(`vite preview exited ${code}`)))
-				})
+          preview.on('error', reject)
+          preview.on('exit', (code) => reject(new Error(`vite preview exited ${code}`)))
+        })
 
-				await new Promise((resolve) => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
-				const { createRequire } = await import('node:module')
-				const require = createRequire(join(repoRoot, 'apps/web/package.json'))
-				const playwright = require('playwright')
-				browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')
-					.split(',')
-					.map((name) => name.trim())
-					.filter(Boolean)
+        const { createRequire } = await import('node:module')
+        const require = createRequire(join(repoRoot, 'apps/web/package.json'))
+        const playwright = require('playwright')
+        browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')
+          .split(',')
+          .map((name) => name.trim())
+          .filter(Boolean)
 
-				assert.ok(browsers.length, 'XPLAT_WEB_BROWSERS selected no browser engines')
-				for (const browserName of browsers) {
-					console.log(`[verify] browser smoke (${browserName})`)
-					const browserType = playwright[browserName]
-					assert.ok(browserType, `Unsupported Playwright browser: ${browserName}`)
-					browser = await browserType.launch()
-					try {
-						const page = await browser.newPage()
-						const errors = []
-						page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
-						page.on(
-							'console',
-							(m) => m.type() === 'error' && errors.push(`console.error: ${m.text()}`),
-						)
+        assert.ok(browsers.length, 'XPLAT_WEB_BROWSERS selected no browser engines')
+        for (const browserName of browsers) {
+          console.log(`[verify] browser smoke (${browserName})`)
+          const browserType = playwright[browserName]
+          assert.ok(browserType, `Unsupported Playwright browser: ${browserName}`)
+          browser = await browserType.launch()
+          try {
+            const page = await browser.newPage()
+            const errors = []
+            page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
+            page.on(
+              'console',
+              (m) => m.type() === 'error' && errors.push(`console.error: ${m.text()}`),
+            )
 
-						await page.goto(`http://localhost:${port}`, {
-							waitUntil: 'networkidle',
-							timeout: 30000,
-						})
+            await page.goto(`http://localhost:${port}`, {
+              waitUntil: 'networkidle',
+              timeout: 30000,
+            })
 
-						await page.waitForSelector('.title', { timeout: 10000 })
-						assert.equal(await page.locator('.title').innerText(), 'octane-xplat')
-						assert.equal(await page.locator('.count').innerText(), '0')
-						await page.click('.btn:has-text("+")')
-						assert.equal(await page.locator('.count').innerText(), '1')
-						assert.equal(errors.length, 0, errors.join('; '))
-					} finally {
-						await browser.close()
-						browser = undefined
-					}
-				}
-			} finally {
-				await browser?.close().catch(() => {})
-				try {
-					process.kill(-preview.pid, 'SIGTERM')
-				} catch {
-					preview.kill('SIGTERM')
-				}
-			}
+            await page.waitForSelector('.title', { timeout: 10000 })
+            assert.equal(await page.locator('.title').innerText(), 'octane-xplat')
+            assert.equal(await page.locator('.count').innerText(), '0')
+            await page.click('.btn:has-text("+")')
+            assert.equal(await page.locator('.count').innerText(), '1')
+            assert.equal(errors.length, 0, errors.join('; '))
+          } finally {
+            await browser.close()
+            browser = undefined
+          }
+        }
+      } finally {
+        await browser?.close().catch(() => {})
+        try {
+          process.kill(-preview.pid, 'SIGTERM')
+        } catch {
+          preview.kill('SIGTERM')
+        }
+      }
 
-			return browsers.join(', ')
-		})
-	}
+      return browsers.join(', ')
+    })
+  }
 
-	// ---- optional native builds + iOS sim smoke ------------------------------
-	for (const platform of nativeTargets) {
-		await gate(
-			`ns build ${platform} — packed artifacts produce a native app`,
-			30 * 60 * 1000,
-			() => {
-				const r = run(
-					'bun',
-					['run', 'ns', 'build', platform],
-					appDir,
-					platform === 'android' && process.env.VERIFY_JAVA_HOME
-						? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
-						: {},
-				)
+  // ---- optional native builds + iOS sim smoke ------------------------------
+  for (const platform of nativeTargets) {
+    await gate(
+      `ns build ${platform} — packed artifacts produce a native app`,
+      30 * 60 * 1000,
+      () => {
+        const r = run(
+          'bun',
+          ['run', 'ns', 'build', platform],
+          appDir,
+          platform === 'android' && process.env.VERIFY_JAVA_HOME
+            ? { JAVA_HOME: process.env.VERIFY_JAVA_HOME }
+            : {},
+        )
 
-				assert.equal(r.status, 0, `ns build ${platform} exited ${r.status}`)
-			},
-		)
-	}
+        assert.equal(r.status, 0, `ns build ${platform} exited ${r.status}`)
+      },
+    )
+  }
 
-	if (smokeIos) {
-		await gate(
-			'iOS simulator smoke — packed build installs, launches, stays alive',
-			5 * 60 * 1000,
-			async () => {
-				const buildDir = join(appDir, 'platforms', 'ios', 'build')
-				assert.ok(existsSync(buildDir), 'no ios build output')
-				const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
-				const appPath = find.stdout.trim().split('\n').find(Boolean)
-				assert.ok(appPath, 'no .app under platforms/ios/build')
+  if (smokeIos) {
+    await gate(
+      'iOS simulator smoke — packed build installs, launches, stays alive',
+      5 * 60 * 1000,
+      async () => {
+        const buildDir = join(appDir, 'platforms', 'ios', 'build')
+        assert.ok(existsSync(buildDir), 'no ios build output')
+        const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
+        const appPath = find.stdout.trim().split('\n').find(Boolean)
+        assert.ok(appPath, 'no .app under platforms/ios/build')
 
-				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
-				const sims = Object.values(JSON.parse(list.stdout).devices)
-					.flat()
-					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
+        const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+        const sims = Object.values(JSON.parse(list.stdout).devices)
+          .flat()
+          .filter((d) => d.isAvailable && /iPhone/.test(d.name))
 
-				const sim = process.env.VERIFY_IOS_DEVICE
-					? sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE)
-					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
+        const sim = process.env.VERIFY_IOS_DEVICE
+          ? sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE)
+          : (sims.find((d) => d.state === 'Booted') ?? sims[0])
 
-				assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
+        assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
 
-				run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
-				const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
-				assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
+        run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
+        const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
+        assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
 
-				const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
-					/id:\s*'([^']+)'/,
-				)
+        const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
+          /id:\s*'([^']+)'/,
+        )
 
-				assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
-				const bundleId = idMatch[1]
+        assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
+        const bundleId = idMatch[1]
 
-				const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
-				assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
-				const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
-				assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
+        const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
+        assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
+        const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
+        assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
 
-				// Let the app run, then read its log — fatal/JS-error signatures fail.
-				await new Promise((resolve) => setTimeout(resolve, 12000))
-				const log = run(
-					'xcrun',
-					[
-						'simctl',
-						'spawn',
-						sim.udid,
-						'log',
-						'show',
-						'--last',
-						'20s',
-						'--style',
-						'compact',
-						'--predicate',
-						`processID == ${pid}`,
-					],
-					work,
-				)
+        // Let the app run, then read its log — fatal/JS-error signatures fail.
+        await new Promise((resolve) => setTimeout(resolve, 12000))
+        const log = run(
+          'xcrun',
+          [
+            'simctl',
+            'spawn',
+            sim.udid,
+            'log',
+            'show',
+            '--last',
+            '20s',
+            '--style',
+            'compact',
+            '--predicate',
+            `processID == ${pid}`,
+          ],
+          work,
+        )
 
-				const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
-				assert.ok(
-					services.stdout.includes(bundleId),
-					'app is not in launchctl list after 12s — it crashed or was killed',
-				)
+        const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
+        assert.ok(
+          services.stdout.includes(bundleId),
+          'app is not in launchctl list after 12s — it crashed or was killed',
+        )
 
-				assert.ok(
-					!/fatal|Terminating|JavaScript error|JS ERROR|unhandled/i.test(log.stdout),
-					`app log shows an error:\n${log.stdout.slice(-2000)}`,
-				)
+        assert.ok(
+          !/fatal|Terminating|JavaScript error|JS ERROR|unhandled/i.test(log.stdout),
+          `app log shows an error:\n${log.stdout.slice(-2000)}`,
+        )
 
-				run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
-				return `booted ${sim.name}, pid ${pid}`
-			},
-		)
-	}
+        run('xcrun', ['simctl', 'terminate', sim.udid, bundleId], work)
+        return `booted ${sim.name}, pid ${pid}`
+      },
+    )
+  }
 
-	// ---- optional on-device spec suite --------------------------------------
-	if (testIos) {
-		await gate(
-			'ns test ios — scaffolded on-device specs run in the packed app runtime',
-			30 * 60 * 1000,
-			() => {
-				const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
-				assert.equal(list.status, 0, 'simctl list failed')
-				const sims = Object.values(JSON.parse(list.stdout).devices)
-					.flat()
-					.filter((d) => d.isAvailable && /iPhone/.test(d.name))
+  // ---- optional on-device spec suite --------------------------------------
+  if (testIos) {
+    await gate(
+      'ns test ios — scaffolded on-device specs run in the packed app runtime',
+      30 * 60 * 1000,
+      () => {
+        const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+        assert.equal(list.status, 0, 'simctl list failed')
+        const sims = Object.values(JSON.parse(list.stdout).devices)
+          .flat()
+          .filter((d) => d.isAvailable && /iPhone/.test(d.name))
 
-				const sim = process.env.VERIFY_IOS_DEVICE
-					? (sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE) ?? {
-							udid: process.env.VERIFY_IOS_DEVICE,
-							name: process.env.VERIFY_IOS_DEVICE,
-						})
-					: (sims.find((d) => d.state === 'Booted') ?? sims[0])
+        const sim = process.env.VERIFY_IOS_DEVICE
+          ? (sims.find((d) => d.udid === process.env.VERIFY_IOS_DEVICE) ?? {
+              udid: process.env.VERIFY_IOS_DEVICE,
+              name: process.env.VERIFY_IOS_DEVICE,
+            })
+          : (sims.find((d) => d.state === 'Booted') ?? sims[0])
 
-				assert.ok(sim, 'no available iPhone simulator')
+        assert.ok(sim, 'no available iPhone simulator')
 
-				// Xcode 27 hosts have no Simulator.app — `ns run` can only target
-				// an already-booted device, so boot here and wait (both are
-				// no-ops when the simulator is already up).
-				run('xcrun', ['simctl', 'boot', sim.udid], work)
-				const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
-				assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
+        // Xcode 27 hosts have no Simulator.app — `ns run` can only target
+        // an already-booted device, so boot here and wait (both are
+        // no-ops when the simulator is already up).
+        run('xcrun', ['simctl', 'boot', sim.udid], work)
+        const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
+        assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
 
-				const r = run('bun', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
-				assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
+        const r = run('bun', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
+        assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
 
-				const summary = r.stdout
-					.split('\n')
-					.filter((line) => /Test Files|Tests\s+\d+/.test(line))
-					.join(' ')
-					.trim()
+        const summary = r.stdout
+          .split('\n')
+          .filter((line) => /Test Files|Tests\s+\d+/.test(line))
+          .join(' ')
+          .trim()
 
-				return `booted ${sim.name}${summary ? ` — ${summary}` : ''}`
-			},
-		)
-	}
+        return `booted ${sim.name}${summary ? ` — ${summary}` : ''}`
+      },
+    )
+  }
 
-	if (testAndroid) {
-		await gate(
-			'ns test android — scaffolded on-device specs run in the packed app runtime',
-			30 * 60 * 1000,
-			() => {
-				return verifyAndroidTests({ appDir, work, device: process.env.VERIFY_ANDROID_DEVICE, run })
-			},
-		)
-	}
+  if (testAndroid) {
+    await gate(
+      'ns test android — scaffolded on-device specs run in the packed app runtime',
+      30 * 60 * 1000,
+      () => {
+        return verifyAndroidTests({ appDir, work, device: process.env.VERIFY_ANDROID_DEVICE, run })
+      },
+    )
+  }
 
-	report()
+  report()
 } finally {
-	// GitHub-hosted runners discard the VM; deleting this install is slower than teardown.
-	if (!keep && process.env.GITHUB_ACTIONS !== 'true') {
-		rmSync(work, { recursive: true, force: true })
-	} else if (keep) {
-		console.log(`[verify] work dir kept at ${work}`)
-	}
+  // GitHub-hosted runners discard the VM; deleting this install is slower than teardown.
+  if (!keep && process.env.GITHUB_ACTIONS !== 'true') {
+    rmSync(work, { recursive: true, force: true })
+  } else if (keep) {
+    console.log(`[verify] work dir kept at ${work}`)
+  }
 }

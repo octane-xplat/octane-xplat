@@ -4,199 +4,199 @@
 
 /** The account the provider authenticated. */
 export interface AuthUser {
-	/** Stable subject id — Apple `user`, Google `id` (id-token `sub`). */
-	id: string
-	/** Email the provider returned; absent when not granted. */
-	email?: string
-	/**
-	 * Best-effort display name. Apple only returns name parts on the first
-	 * authorization for an account — expect `undefined` on repeat sign-ins.
-	 */
-	name?: string
-	/** Given name when the provider returns it. */
-	givenName?: string
-	/** Family name when the provider returns it. */
-	familyName?: string
-	/** Google only. */
-	photoUrl?: string
+  /** Stable subject id — Apple `user`, Google `id` (id-token `sub`). */
+  id: string
+  /** Email the provider returned; absent when not granted. */
+  email?: string
+  /**
+   * Best-effort display name. Apple only returns name parts on the first
+   * authorization for an account — expect `undefined` on repeat sign-ins.
+   */
+  name?: string
+  /** Given name when the provider returns it. */
+  givenName?: string
+  /** Family name when the provider returns it. */
+  familyName?: string
+  /** Google only. */
+  photoUrl?: string
 }
 
 /** The provider credential — hand it to your backend for verification. */
 export interface AuthCredential {
-	/** Identity provider that issued the credential. */
-	provider: 'apple' | 'google'
-	/** OIDC ID token (JWT). Apple `identityToken`; Google `idToken` / GIS `credential`. */
-	idToken?: string
-	/**
-	 * Server-side exchange code — Apple `authorizationCode`; Google
-	 * `serverAuthCode` (requires `serverClientId` in `GoogleAuthConfig`).
-	 */
-	authorizationCode?: string
-	/** Google only — short-lived API access token. */
-	accessToken?: string
-	/** Granted scopes where the provider reports them. */
-	scopes: string[]
-	/** Provider user id. */
-	user: AuthUser
+  /** Identity provider that issued the credential. */
+  provider: 'apple' | 'google'
+  /** OIDC ID token (JWT). Apple `identityToken`; Google `idToken` / GIS `credential`. */
+  idToken?: string
+  /**
+   * Server-side exchange code — Apple `authorizationCode`; Google
+   * `serverAuthCode` (requires `serverClientId` in `GoogleAuthConfig`).
+   */
+  authorizationCode?: string
+  /** Google only — short-lived API access token. */
+  accessToken?: string
+  /** Granted scopes where the provider reports them. */
+  scopes: string[]
+  /** Provider user id. */
+  user: AuthUser
 }
 
 /** Sign-in outcome — token/user plus the provider payload. */
 export type SignInResult =
-	| {
-			/** Provider flow completed — `credential` is present. */
-			status: 'success'
-			credential: AuthCredential
-	  }
-	| {
-			/** The user dismissed the flow, or it ended without a credential. */
-			status: 'cancelled'
-	  }
-	| {
-			/** The flow failed — `message` describes why. */
-			status: 'error'
-			message: string
-	  }
+  | {
+      /** Provider flow completed — `credential` is present. */
+      status: 'success'
+      credential: AuthCredential
+    }
+  | {
+      /** The user dismissed the flow, or it ended without a credential. */
+      status: 'cancelled'
+    }
+  | {
+      /** The flow failed — `message` describes why. */
+      status: 'error'
+      message: string
+    }
 
 /** Requested Apple sign-in data scopes. */
 export type AppleScope = 'email' | 'name'
 
 /** Options for appleAuth.configure(). */
 export interface AppleAuthConfig {
-	/**
-	 * Web only — the Services ID registered in the Apple developer portal
-	 * (e.g. `com.example.app.web`). Required on web; ignored natively, where
-	 * the app id + `com.apple.developer.applesignin` entitlement is the client.
-	 */
-	clientId?: string
-	/** Web only — a return URL registered on the Services ID. */
-	redirectURI?: string
-	/** Web only — run the flow in a popup instead of a full-page redirect (default true). */
-	usePopup?: boolean
+  /**
+   * Web only — the Services ID registered in the Apple developer portal
+   * (e.g. `com.example.app.web`). Required on web; ignored natively, where
+   * the app id + `com.apple.developer.applesignin` entitlement is the client.
+   */
+  clientId?: string
+  /** Web only — a return URL registered on the Services ID. */
+  redirectURI?: string
+  /** Web only — run the flow in a popup instead of a full-page redirect (default true). */
+  usePopup?: boolean
 }
 
 /** Per-call sign-in options. */
 export interface AppleSignInOptions {
-	/** Apple data to request — maps to `EMAIL`/`FULL_NAME` native scopes. */
-	scopes?: AppleScope[]
-	/** Nonce bound into the credential — pass the value your backend issued. */
-	nonce?: string
+  /** Apple data to request — maps to `EMAIL`/`FULL_NAME` native scopes. */
+  scopes?: AppleScope[]
+  /** Nonce bound into the credential — pass the value your backend issued. */
+  nonce?: string
 }
 
 /** Credential validity states for an Apple user id. */
 export type AppleCredentialState =
-	| 'authorized'
-	| 'revoked'
-	| 'notFound'
-	| 'transferred'
-	/** Anywhere the state check can't run — Android, web. */
-	| 'unknown'
+  | 'authorized'
+  | 'revoked'
+  | 'notFound'
+  | 'transferred'
+  /** Anywhere the state check can't run — Android, web. */
+  | 'unknown'
 
 /** Apple Sign-In service facade. */
 export interface AppleAuth {
-	/**
-	 * Whether the provider's native SDK can run here — iOS 13+ and the macOS
-	 * AppKit host (AuthenticationServices via the ObjC bridge; the packaged
-	 * app needs the applesignin entitlement for the sheet to complete).
-	 * False on Android. On web it reports whether a browser runtime exists;
-	 * `configure` still needs a `clientId` before `signIn` will succeed.
-	 */
-	readonly supported: boolean
-	/** One-time setup — call before sign-in; the platform SDK loads lazily on first use. */
-	configure(config: AppleAuthConfig): void
-	/** Start the provider sign-in flow. */
-	signIn(options?: AppleSignInOptions): Promise<SignInResult>
-	/** iOS and macOS — credential state for a prior `user.id`. */
-	getCredentialState(userId: string): Promise<AppleCredentialState>
+  /**
+   * Whether the provider's native SDK can run here — iOS 13+ and the macOS
+   * AppKit host (AuthenticationServices via the ObjC bridge; the packaged
+   * app needs the applesignin entitlement for the sheet to complete).
+   * False on Android. On web it reports whether a browser runtime exists;
+   * `configure` still needs a `clientId` before `signIn` will succeed.
+   */
+  readonly supported: boolean
+  /** One-time setup — call before sign-in; the platform SDK loads lazily on first use. */
+  configure(config: AppleAuthConfig): void
+  /** Start the provider sign-in flow. */
+  signIn(options?: AppleSignInOptions): Promise<SignInResult>
+  /** iOS and macOS — credential state for a prior `user.id`. */
+  getCredentialState(userId: string): Promise<AppleCredentialState>
 }
 
 /** App-owned Google OAuth ceremony for the macOS system browser. */
 export interface GoogleHostedAuthFlow {
-	/** Issue a fresh backend attempt, binding state, nonce, scopes and callback destination. */
-	createRequest(
-		options: GoogleSignInOptions &
-			Pick<GoogleAuthConfig, 'clientId' | 'serverClientId' | 'scopes' | 'hostedDomain'>,
-	): Promise<{ url: string; callbackScheme: string }>
-	/** Validate/redeem the callback against that attempt on your backend; return its Google credential. */
-	complete(callbackURL: string): Promise<AuthCredential>
-	/** Optional backend logout. macOS requests ephemeral browser sessions. */
-	signOut?(): Promise<void>
+  /** Issue a fresh backend attempt, binding state, nonce, scopes and callback destination. */
+  createRequest(
+    options: GoogleSignInOptions &
+      Pick<GoogleAuthConfig, 'clientId' | 'serverClientId' | 'scopes' | 'hostedDomain'>,
+  ): Promise<{ url: string; callbackScheme: string }>
+  /** Validate/redeem the callback against that attempt on your backend; return its Google credential. */
+  complete(callbackURL: string): Promise<AuthCredential>
+  /** Optional backend logout. macOS requests ephemeral browser sessions. */
+  signOut?(): Promise<void>
 }
 
 /** Options for googleAuth.configure(). */
 export interface GoogleAuthConfig {
-	/**
-	 * OAuth client id — the web client id on web (required there). On iOS it
-	 * is optional when `GIDClientID` is in the app's Info.plist; on Android the
-	 * id comes from the google-services resources.
-	 */
-	clientId?: string
-	/** Your backend's web client id — makes credentials carry `authorizationCode` (server auth code). */
-	serverClientId?: string
-	/** OAuth scopes to request. */
-	scopes?: string[]
-	/** Restrict to a Google Workspace domain. */
-	hostedDomain?: string
-	/** macOS only — hosted OAuth adapter; other targets keep using their provider SDK. */
-	hostedFlow?: GoogleHostedAuthFlow
+  /**
+   * OAuth client id — the web client id on web (required there). On iOS it
+   * is optional when `GIDClientID` is in the app's Info.plist; on Android the
+   * id comes from the google-services resources.
+   */
+  clientId?: string
+  /** Your backend's web client id — makes credentials carry `authorizationCode` (server auth code). */
+  serverClientId?: string
+  /** OAuth scopes to request. */
+  scopes?: string[]
+  /** Restrict to a Google Workspace domain. */
+  hostedDomain?: string
+  /** macOS only — hosted OAuth adapter; other targets keep using their provider SDK. */
+  hostedFlow?: GoogleHostedAuthFlow
 }
 
 /** Per-call sign-in options. */
 export interface GoogleSignInOptions {
-	/**
-	 * Web/macOS — nonce bound into the id token. Scope requests go through
-	 * `GoogleAuthConfig.scopes`; neither provider SDK takes per-call scopes.
-	 */
-	nonce?: string
+  /**
+   * Web/macOS — nonce bound into the id token. Scope requests go through
+   * `GoogleAuthConfig.scopes`; neither provider SDK takes per-call scopes.
+   */
+  nonce?: string
 }
 
 /** Google Sign-In service facade. */
 export interface GoogleAuth {
-	/**
-	 * Whether the provider can run here — iOS/Android + browsers, or macOS
-	 * AuthenticationServices (requires `configure({ hostedFlow })`). Android devices without
-	 * Play services still report true — the sign-in call surfaces the failure.
-	 */
-	readonly supported: boolean
-	/** One-time setup — call before sign-in. Resolves once the provider SDK is ready. */
-	configure(config?: GoogleAuthConfig): Promise<void>
-	/** Start the provider sign-in flow. */
-	signIn(options?: GoogleSignInOptions): Promise<SignInResult>
-	/** Clear SDK account selection; macOS calls hostedFlow.signOut and requests ephemeral sessions. */
-	signOut(): Promise<void>
+  /**
+   * Whether the provider can run here — iOS/Android + browsers, or macOS
+   * AuthenticationServices (requires `configure({ hostedFlow })`). Android devices without
+   * Play services still report true — the sign-in call surfaces the failure.
+   */
+  readonly supported: boolean
+  /** One-time setup — call before sign-in. Resolves once the provider SDK is ready. */
+  configure(config?: GoogleAuthConfig): Promise<void>
+  /** Start the provider sign-in flow. */
+  signIn(options?: GoogleSignInOptions): Promise<SignInResult>
+  /** Clear SDK account selection; macOS calls hostedFlow.signOut and requests ephemeral sessions. */
+  signOut(): Promise<void>
 }
 
 interface SignInButtonBaseProps {
-	/** Element id passed through to the host element. */
-	id?: string
-	/** Class list applied to the button element. */
+  /** Element id passed through to the host element. */
+  id?: string
+  /** Class list applied to the button element. */
 
-	className?: any
-	/** Inline style (string CSS or object). */
+  className?: any
+  /** Inline style (string CSS or object). */
 
-	style?: any
-	/** Disables the sign-in button. */
+  style?: any
+  /** Disables the sign-in button. */
 
-	disabled?: boolean
-	/** Tap hook — fires alongside the sign-in flow (not a gate). */
-	onPress?: () => void
-	/** Called with the outcome of the flow the button started. */
-	onResult?: (result: SignInResult) => void
+  disabled?: boolean
+  /** Tap hook — fires alongside the sign-in flow (not a gate). */
+  onPress?: () => void
+  /** Called with the outcome of the flow the button started. */
+  onResult?: (result: SignInResult) => void
 }
 
 /** Props for the AppleSignInButton element. */
 export interface AppleSignInButtonProps extends SignInButtonBaseProps {
-	/** Label variant — 'default' is "Sign in with Apple". */
-	type?: 'default' | 'signUp' | 'continue'
-	/** Presentation theme hint for the sign-in UI. */
-	theme?: 'black' | 'white' | 'whiteOutline'
+  /** Label variant — 'default' is "Sign in with Apple". */
+  type?: 'default' | 'signUp' | 'continue'
+  /** Presentation theme hint for the sign-in UI. */
+  theme?: 'black' | 'white' | 'whiteOutline'
 }
 
 /** Props for the GoogleSignInButton element. */
 export interface GoogleSignInButtonProps extends SignInButtonBaseProps {
-	/** Native button color scheme — 'dark'/'light'/'auto'. */
-	theme?: 'dark' | 'light' | 'auto'
-	/** 'wide' and 'icon' are native-only shapes; web renders 'standard'. */
-	variant?: 'standard' | 'wide' | 'icon'
+  /** Native button color scheme — 'dark'/'light'/'auto'. */
+  theme?: 'dark' | 'light' | 'auto'
+  /** 'wide' and 'icon' are native-only shapes; web renders 'standard'. */
+  variant?: 'standard' | 'wide' | 'icon'
 }
 
 /* ------------------------------------------------------------------ */
@@ -208,15 +208,15 @@ export interface GoogleSignInButtonProps extends SignInButtonBaseProps {
  * `@octane-xplat/secure-storage`'s `SecureStore` and any host bridge.
  */
 export interface HostedAuthCredentialStore {
-	/** Read a persisted value; null when absent. */
+  /** Read a persisted value; null when absent. */
 
-	get(key: string): Promise<string | null>
-	/** Persist a value. */
+  get(key: string): Promise<string | null>
+  /** Persist a value. */
 
-	set(key: string, value: string): Promise<unknown>
-	/** Delete a persisted key. */
+  set(key: string, value: string): Promise<unknown>
+  /** Delete a persisted key. */
 
-	remove(key: string): Promise<unknown>
+  remove(key: string): Promise<unknown>
 }
 
 /**
@@ -225,103 +225,103 @@ export interface HostedAuthCredentialStore {
  * which both runtimes' `fetch` accept at runtime.
  */
 export interface HostedAuthRequestInit {
-	/** HTTP method. */
-	method?: string
-	/** Request headers — plain map or fetch-style entry pairs. */
-	headers?: Record<string, string> | Iterable<readonly [string, string]>
-	/** Request body. */
-	body?: unknown
-	/** Abort signal for the request. */
-	signal?: unknown
+  /** HTTP method. */
+  method?: string
+  /** Request headers — plain map or fetch-style entry pairs. */
+  headers?: Record<string, string> | Iterable<readonly [string, string]>
+  /** Request body. */
+  body?: unknown
+  /** Abort signal for the request. */
+  signal?: unknown
 }
 
 /** The slice of `fetch`'s `Response` the client exposes. */
 export interface HostedAuthResponse {
-	/** HTTP status code. */
-	readonly status: number
-	/** Whether the status is 2xx. */
-	readonly ok: boolean
-	/** Header lookup — same contract as `Headers.get` (null when absent). */
-	readonly headers: { get(name: string): string | null }
-	/** Parse the response body as JSON. */
+  /** HTTP status code. */
+  readonly status: number
+  /** Whether the status is 2xx. */
+  readonly ok: boolean
+  /** Header lookup — same contract as `Headers.get` (null when absent). */
+  readonly headers: { get(name: string): string | null }
+  /** Parse the response body as JSON. */
 
-	json(): Promise<unknown>
-	/** Read the response body as text. */
+  json(): Promise<unknown>
+  /** Read the response body as text. */
 
-	text(): Promise<string>
+  text(): Promise<string>
 }
 
 /** Minimal fetch contract the hosted flow needs. */
 export type HostedAuthFetch = (
-	url: string,
-	init?: HostedAuthRequestInit,
+  url: string,
+  init?: HostedAuthRequestInit,
 ) => Promise<HostedAuthResponse>
 
 /** What a hosted browser ceremony returns — matches `authSession`'s result. */
 export type HostedAuthSessionResult =
-	| {
-			/** The ceremony completed — `url` is the callback to redeem. */
-			type: 'success'
-			url: string
-	  }
-	| {
-			/** The user dismissed the ceremony before a callback. */
-			type: 'cancel'
-	  }
-	| {
-			/** The session failed — `message` describes why. */
-			type: 'error'
-			message: string
-	  }
+  | {
+      /** The ceremony completed — `url` is the callback to redeem. */
+      type: 'success'
+      url: string
+    }
+  | {
+      /** The user dismissed the ceremony before a callback. */
+      type: 'cancel'
+    }
+  | {
+      /** The session failed — `message` describes why. */
+      type: 'error'
+      message: string
+    }
 
 /** An established hosted-auth session. */
 export interface HostedAuthSession {
-	/** Whether the OS can run a hosted sign-in session on this target. */
-	readonly supported: boolean
-	/** Open the hosted sign-in flow. */
+  /** Whether the OS can run a hosted sign-in session on this target. */
+  readonly supported: boolean
+  /** Open the hosted sign-in flow. */
 
-	open(url: string, options: { callbackScheme: string }): Promise<HostedAuthSessionResult>
+  open(url: string, options: { callbackScheme: string }): Promise<HostedAuthSessionResult>
 }
 
 /** Credential record the client persists between sessions. */
 export interface HostedAuthCredentials {
-	/** Short-lived access credential — Bearer on authorized API requests. */
-	token: string
-	/** `token` expiry in milliseconds since epoch. */
-	expiresAt: number
-	/** Durable session credential — mints access tokens; revoked on sign-out. */
-	sessionToken: string
+  /** Short-lived access credential — Bearer on authorized API requests. */
+  token: string
+  /** `token` expiry in milliseconds since epoch. */
+  expiresAt: number
+  /** Durable session credential — mints access tokens; revoked on sign-out. */
+  sessionToken: string
 }
 
 /** Fresh single-use PKCE pair the client generates for each ceremony. */
 export interface HostedAuthPkce {
-	/** High-entropy verifier kept out of the hosted URL and deep link. */
-	verifier: string
-	/** base64url(SHA-256(verifier)) sent in the sign-in attempt. */
-	challenge: string
+  /** High-entropy verifier kept out of the hosted URL and deep link. */
+  verifier: string
+  /** base64url(SHA-256(verifier)) sent in the sign-in attempt. */
+  challenge: string
 }
 
 /** Dependencies the client hands to the flow for each backend call. */
 export interface HostedAuthFlowContext {
-	/** DOM-free transport bound to the client's `fetch` config. */
-	fetch: HostedAuthFetch
-	/** The ceremony's PKCE pair — present during `begin` and `complete`. */
-	pkce?: HostedAuthPkce
+  /** DOM-free transport bound to the client's `fetch` config. */
+  fetch: HostedAuthFetch
+  /** The ceremony's PKCE pair — present during `begin` and `complete`. */
+  pkce?: HostedAuthPkce
 }
 
 /** One sign-in attempt result (success/cancel/failure). */
 export interface HostedAuthAttempt {
-	/** Absolute URL to open in the system browser. */
-	url: string
-	/** Custom URL scheme the browser callback returns on. */
-	callbackScheme: string
-	/**
-	 * Server-issued state the callback's `state` query parameter must echo.
-	 * When set, the client rejects mismatched callbacks before `complete`.
-	 */
-	state?: string
-	/** Flow-private data handed back to `complete` (e.g. an attempt id). */
-	data?: unknown
+  /** Absolute URL to open in the system browser. */
+  url: string
+  /** Custom URL scheme the browser callback returns on. */
+  callbackScheme: string
+  /**
+   * Server-issued state the callback's `state` query parameter must echo.
+   * When set, the client rejects mismatched callbacks before `complete`.
+   */
+  state?: string
+  /** Flow-private data handed back to `complete` (e.g. an attempt id). */
+  data?: unknown
 }
 
 /**
@@ -331,75 +331,75 @@ export interface HostedAuthAttempt {
  * refresh, and revocation calls.
  */
 export interface HostedAuthFlow {
-	/**
-	 * Issue the sign-in attempt against the backend and return the hosted
-	 * page to open. `context.pkce` is the ceremony's verifier/challenge.
-	 */
-	begin(context: HostedAuthFlowContext): Promise<HostedAuthAttempt>
-	/**
-	 * Redeem the system-browser callback URL into credentials. Return `null`
-	 * — or throw — to fail the sign-in.
-	 */
-	complete(
-		callbackUrl: string,
-		attempt: HostedAuthAttempt,
-		context: HostedAuthFlowContext,
-	): Promise<HostedAuthCredentials | null>
-	/**
-	 * Mint a fresh credential record from the durable session credential.
-	 * Return `null` when the session is expired or revoked — the client
-	 * clears stored credentials. Throw for transient failures.
-	 */
-	refresh?(
-		credentials: HostedAuthCredentials,
-		context: HostedAuthFlowContext,
-	): Promise<HostedAuthCredentials | null>
-	/** Revoke the durable session credential — best-effort. */
-	revoke?(credentials: HostedAuthCredentials, context: HostedAuthFlowContext): Promise<void>
+  /**
+   * Issue the sign-in attempt against the backend and return the hosted
+   * page to open. `context.pkce` is the ceremony's verifier/challenge.
+   */
+  begin(context: HostedAuthFlowContext): Promise<HostedAuthAttempt>
+  /**
+   * Redeem the system-browser callback URL into credentials. Return `null`
+   * — or throw — to fail the sign-in.
+   */
+  complete(
+    callbackUrl: string,
+    attempt: HostedAuthAttempt,
+    context: HostedAuthFlowContext,
+  ): Promise<HostedAuthCredentials | null>
+  /**
+   * Mint a fresh credential record from the durable session credential.
+   * Return `null` when the session is expired or revoked — the client
+   * clears stored credentials. Throw for transient failures.
+   */
+  refresh?(
+    credentials: HostedAuthCredentials,
+    context: HostedAuthFlowContext,
+  ): Promise<HostedAuthCredentials | null>
+  /** Revoke the durable session credential — best-effort. */
+  revoke?(credentials: HostedAuthCredentials, context: HostedAuthFlowContext): Promise<void>
 }
 
 /** Configuration for createHostedAuth(). */
 export interface HostedAuthConfig {
-	/**
-	 * HTTPS origin of the hosted backend; same-origin requests may carry
-	 * Bearer tokens. Loopback HTTP (localhost, 127.0.0.1, [::1]) is allowed
-	 * for local development.
-	 */
-	apiOrigin: string
-	/** The product's hosted-auth wire contract. */
-	flow: HostedAuthFlow
-	/**
-	 * Which same-origin paths get `Authorization: Bearer <access token>` on
-	 * `fetch`. Default: every `/api/*` path except the `/api/auth` mount.
-	 */
-	authorizePath?(pathname: string): boolean
-	/** Credential persistence — defaults to `@octane-xplat/secure-storage`. */
-	storage?: HostedAuthCredentialStore
-	/** Secure-storage key for the credential blob — default `hosted-auth`. */
-	storageKey?: string
-	/** Transport override — defaults to the global `fetch`. */
-	fetch?: HostedAuthFetch
-	/** Ceremony override — defaults to the platform `authSession` capability. */
-	authSession?: HostedAuthSession
-	/** Clock override for expiry checks — defaults to `Date.now`. */
-	now?: () => number
+  /**
+   * HTTPS origin of the hosted backend; same-origin requests may carry
+   * Bearer tokens. Loopback HTTP (localhost, 127.0.0.1, [::1]) is allowed
+   * for local development.
+   */
+  apiOrigin: string
+  /** The product's hosted-auth wire contract. */
+  flow: HostedAuthFlow
+  /**
+   * Which same-origin paths get `Authorization: Bearer <access token>` on
+   * `fetch`. Default: every `/api/*` path except the `/api/auth` mount.
+   */
+  authorizePath?(pathname: string): boolean
+  /** Credential persistence — defaults to `@octane-xplat/secure-storage`. */
+  storage?: HostedAuthCredentialStore
+  /** Secure-storage key for the credential blob — default `hosted-auth`. */
+  storageKey?: string
+  /** Transport override — defaults to the global `fetch`. */
+  fetch?: HostedAuthFetch
+  /** Ceremony override — defaults to the platform `authSession` capability. */
+  authSession?: HostedAuthSession
+  /** Clock override for expiry checks — defaults to `Date.now`. */
+  now?: () => number
 }
 
 /** Result of the hosted sign-in attempt. */
 export type HostedAuthSignInResult =
-	| {
-			/** Credentials were minted and stored. */
-			status: 'success'
-	  }
-	| {
-			/** The user dismissed the hosted ceremony, or it ended without a callback. */
-			status: 'cancelled'
-	  }
-	| {
-			/** The ceremony or redemption failed — `message` describes why. */
-			status: 'error'
-			message: string
-	  }
+  | {
+      /** Credentials were minted and stored. */
+      status: 'success'
+    }
+  | {
+      /** The user dismissed the hosted ceremony, or it ended without a callback. */
+      status: 'cancelled'
+    }
+  | {
+      /** The ceremony or redemption failed — `message` describes why. */
+      status: 'error'
+      message: string
+    }
 
 /** Hosted-auth availability states. */
 export type HostedAuthStatus = 'authenticated' | 'unauthenticated'
@@ -412,45 +412,45 @@ export type HostedAuthStatus = 'authenticated' | 'unauthenticated'
  * reports whether the hosted ceremony can run (false on web).
  */
 export interface HostedAuth {
-	/**
-	 * Whether the hosted ceremony can run on this target — the platform
-	 * `authSession` capability plus an OS CSPRNG. Web reports false: browser
-	 * apps keep the cookie session flow.
-	 */
-	readonly supported: boolean
-	/**
-	 * Load persisted credentials into memory. Resolves `authenticated` when a
-	 * durable session token was stored — the access token may still need a
-	 * refresh before the first API call.
-	 */
-	restore(): Promise<HostedAuthStatus>
-	/**
-	 * Run the hosted sign-in ceremony: `flow.begin` → `authSession` →
-	 * `flow.complete`. Stores the credential record on success. A sign-out
-	 * during the ceremony supersedes it and resolves this call as cancelled.
-	 */
-	signIn(): Promise<HostedAuthSignInResult>
-	/**
-	 * A currently valid access token, minting a fresh one from the stored
-	 * session credential when expired. Resolves `null` when there is no usable
-	 * credential — sign in again.
-	 */
-	getAccessToken(): Promise<string | null>
-	/**
-	 * `fetch` that attaches `Authorization: Bearer <access token>` to
-	 * `authorizePath`-matching requests under `apiOrigin` and replays once
-	 * after a refresh when the server rejects the token. A body that cannot
-	 * be replayed (e.g. a consumed stream) surfaces the original challenge
-	 * response. Other URLs pass through.
-	 */
-	fetch(url: string, init?: HostedAuthRequestInit): Promise<HostedAuthResponse>
-	/**
-	 * Retire pending sign-in/refresh work, clear memory immediately, and remove
-	 * stored credentials after earlier saves finish. Then revoke the previous
-	 * durable session via `flow.revoke` when provided. Rejects with a sanitized
-	 * error if durable deletion fails or reports false, after attempting revoke.
-	 * Memory remains cleared; callers may retry signOut. Server revocation and
-	 * credential saves remain best-effort. A later sign-in starts a new session.
-	 */
-	signOut(): Promise<void>
+  /**
+   * Whether the hosted ceremony can run on this target — the platform
+   * `authSession` capability plus an OS CSPRNG. Web reports false: browser
+   * apps keep the cookie session flow.
+   */
+  readonly supported: boolean
+  /**
+   * Load persisted credentials into memory. Resolves `authenticated` when a
+   * durable session token was stored — the access token may still need a
+   * refresh before the first API call.
+   */
+  restore(): Promise<HostedAuthStatus>
+  /**
+   * Run the hosted sign-in ceremony: `flow.begin` → `authSession` →
+   * `flow.complete`. Stores the credential record on success. A sign-out
+   * during the ceremony supersedes it and resolves this call as cancelled.
+   */
+  signIn(): Promise<HostedAuthSignInResult>
+  /**
+   * A currently valid access token, minting a fresh one from the stored
+   * session credential when expired. Resolves `null` when there is no usable
+   * credential — sign in again.
+   */
+  getAccessToken(): Promise<string | null>
+  /**
+   * `fetch` that attaches `Authorization: Bearer <access token>` to
+   * `authorizePath`-matching requests under `apiOrigin` and replays once
+   * after a refresh when the server rejects the token. A body that cannot
+   * be replayed (e.g. a consumed stream) surfaces the original challenge
+   * response. Other URLs pass through.
+   */
+  fetch(url: string, init?: HostedAuthRequestInit): Promise<HostedAuthResponse>
+  /**
+   * Retire pending sign-in/refresh work, clear memory immediately, and remove
+   * stored credentials after earlier saves finish. Then revoke the previous
+   * durable session via `flow.revoke` when provided. Rejects with a sanitized
+   * error if durable deletion fails or reports false, after attempting revoke.
+   * Memory remains cleared; callers may retry signOut. Server revocation and
+   * credential saves remain best-effort. A later sign-in starts a new session.
+   */
+  signOut(): Promise<void>
 }

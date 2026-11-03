@@ -7,7 +7,7 @@ import { xplatLinuxGtk } from '../../../cli/src/linux-gtk/vite.ts'
 // a bare Gtk.Box and prints the widget tree + a click→update check. Run under
 // `xvfb-run -a gjs -m dist/app.js`.
 export default async (env) =>
-	xplatLinuxGtk(env, {
-		root: fileURLToPath(new URL('.', import.meta.url)),
-		entry: 'src/introspect.ts',
-	})
+  xplatLinuxGtk(env, {
+    root: fileURLToPath(new URL('.', import.meta.url)),
+    entry: 'src/introspect.ts',
+  })

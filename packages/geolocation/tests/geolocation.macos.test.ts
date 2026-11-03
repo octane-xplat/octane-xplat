@@ -5,85 +5,85 @@ import { permissions } from '../../platform/src/permissions.ts'
 
 const globals = globalThis as any
 afterEach(() => {
-	delete globals.XplatGeolocation
+  delete globals.XplatGeolocation
 })
 
 const position = {
-	latitude: 1,
-	longitude: 2,
-	accuracy: 3,
-	altitude: null,
-	heading: null,
-	speed: null,
-	timestamp: 123,
+  latitude: 1,
+  longitude: 2,
+  accuracy: 3,
+  altitude: null,
+  heading: null,
+  speed: null,
+  timestamp: 123,
 }
 
 test('missing or unconfigured hosts remain unsupported through both entry points', async () => {
-	for (const host of [undefined, { isAvailable: () => false }]) {
-		globals.XplatGeolocation = host
-		assert.equal(geolocation.supported, false)
-		assert.equal(await geolocation.isAvailable(), false)
-		assert.equal((await geolocation.requestPermissions()).status, 'unsupported')
-		assert.equal((await permissions.requestPermissions('location')).status, 'unsupported')
-		await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
-	}
+  for (const host of [undefined, { isAvailable: () => false }]) {
+    globals.XplatGeolocation = host
+    assert.equal(geolocation.supported, false)
+    assert.equal(await geolocation.isAvailable(), false)
+    assert.equal((await geolocation.requestPermissions()).status, 'unsupported')
+    assert.equal((await permissions.requestPermissions('location')).status, 'unsupported')
+    await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
+  }
 })
 
 test('permission outcomes remain distinct and register with the permission dispatcher', async () => {
-	for (const result of ['granted', 'denied', 'unsupported']) {
-		globals.XplatGeolocation = {
-			isAvailable: () => true,
-			ensure: (done: any) => done(result),
-		}
+  for (const result of ['granted', 'denied', 'unsupported']) {
+    globals.XplatGeolocation = {
+      isAvailable: () => true,
+      ensure: (done: any) => done(result),
+    }
 
-		assert.equal(geolocation.supported, true)
-		assert.equal((await geolocation.requestPermissions()).status, result)
-		assert.equal((await permissions.requestPermissions('location')).status, result)
-	}
+    assert.equal(geolocation.supported, true)
+    assert.equal((await geolocation.requestPermissions()).status, result)
+    assert.equal((await permissions.requestPermissions('location')).status, result)
+  }
 })
 
 test('position options, JSON normalization, and concurrent callbacks stay independent', async () => {
-	const calls: any[] = []
-	globals.XplatGeolocation = {
-		isAvailable: () => true,
-		positionTimeoutMaximumAgeCompletion: (...args: any[]) => calls.push(args),
-	}
+  const calls: any[] = []
+  globals.XplatGeolocation = {
+    isAvailable: () => true,
+    positionTimeoutMaximumAgeCompletion: (...args: any[]) => calls.push(args),
+  }
 
-	const first = geolocation.getCurrentPosition({
-		enableHighAccuracy: true,
-		timeout: 25,
-		maximumAge: 50,
-	})
+  const first = geolocation.getCurrentPosition({
+    enableHighAccuracy: true,
+    timeout: 25,
+    maximumAge: 50,
+  })
 
-	const second = geolocation.getCurrentPosition()
-	assert.deepEqual(
-		calls.map((call) => call.slice(0, 3)),
-		[
-			[true, 25, 50],
-			[false, -1, 0],
-		],
-	)
+  const second = geolocation.getCurrentPosition()
+  assert.deepEqual(
+    calls.map((call) => call.slice(0, 3)),
+    [
+      [true, 25, 50],
+      [false, -1, 0],
+    ],
+  )
 
-	calls[1][3](JSON.stringify(position), 0, '')
-	calls[0][3](JSON.stringify({ ...position, latitude: 9 }), 0, '')
-	assert.deepEqual(await second, position)
-	assert.equal((await first).latitude, 9)
+  calls[1][3](JSON.stringify(position), 0, '')
+  calls[0][3](JSON.stringify({ ...position, latitude: 9 }), 0, '')
+  assert.deepEqual(await second, position)
+  assert.equal((await first).latitude, 9)
 })
 
 test('denial, unavailable, timeout and an unloaded host reject with distinct codes', async () => {
-	for (const code of [1, 2, 3]) {
-		globals.XplatGeolocation = {
-			isAvailable: () => true,
-			positionTimeoutMaximumAgeCompletion: (_a: any, _b: any, _c: any, done: any) =>
-				done(null, code, 'native error'),
-		}
+  for (const code of [1, 2, 3]) {
+    globals.XplatGeolocation = {
+      isAvailable: () => true,
+      positionTimeoutMaximumAgeCompletion: (_a: any, _b: any, _c: any, done: any) =>
+        done(null, code, 'native error'),
+    }
 
-		await assert.rejects(geolocation.getCurrentPosition(), {
-			code,
-			message: 'native error',
-		})
-	}
+    await assert.rejects(geolocation.getCurrentPosition(), {
+      code,
+      message: 'native error',
+    })
+  }
 
-	delete globals.XplatGeolocation
-	await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
+  delete globals.XplatGeolocation
+  await assert.rejects(geolocation.getCurrentPosition(), { name: 'UnavailabilityError' })
 })

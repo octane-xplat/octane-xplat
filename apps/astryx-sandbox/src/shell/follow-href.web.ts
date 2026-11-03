@@ -5,12 +5,12 @@
 import { router } from '@octane-xplat/ui/routing'
 
 export function followHref(href: string): void {
-	if (!href) {
-		return
-	}
-	if (router.resolveUrl(href).status === 'matched') {
-		void router.navigateUrl(href)
-		return
-	}
-	window.location.href = href
+  if (!href) {
+    return
+  }
+  if (router.resolveUrl(href).status === 'matched') {
+    void router.navigateUrl(href)
+    return
+  }
+  window.location.href = href
 }

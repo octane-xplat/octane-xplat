@@ -14,17 +14,17 @@ registerElement('animatedimage', Img)
  *  There is intentionally no play/pause prop — <img> can't pause on web, so
  *  the shared contract is always-playing. */
 export function AnimatedImage(props: AnimatedImageProps): unknown @{
-	<animatedimage
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		src={props.src}
-		stretch={props.stretch ?? 'aspectFit'}
-		width={props.width}
-		height={props.height}
-		animatedImageView={true}
-		autoPlayAnimations={true}
-		accessibilityLabel={props.alt}
-	/>
+  <animatedimage
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    src={props.src}
+    stretch={props.stretch ?? 'aspectFit'}
+    width={props.width}
+    height={props.height}
+    animatedImageView={true}
+    autoPlayAnimations={true}
+    accessibilityLabel={props.alt}
+  />
 }

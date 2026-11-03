@@ -8,24 +8,24 @@ const Visibility: any = RouterFlowVisibilityContext
 import type { RoutePaneProps } from '../props'
 
 export function RoutePane(props: RoutePaneProps): any {
-	return (
-		<Visibility value={props.active}>
-			<View
-				ref={(view: any) => {
-					if (view) {
-						view.hidden = !props.active
-					}
+  return (
+    <Visibility value={props.active}>
+      <View
+        ref={(view: any) => {
+          if (view) {
+            view.hidden = !props.active
+          }
 
-					props.viewRef?.(view)
-				}}
-				style={
-					props.active
-						? { display: 'flex', flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 0 }
-						: { display: 'flex', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }
-				}
-			>
-				{props.children}
-			</View>
-		</Visibility>
-	)
+          props.viewRef?.(view)
+        }}
+        style={
+          props.active
+            ? { display: 'flex', flexGrow: 1, flexShrink: 1, minWidth: 0, minHeight: 0 }
+            : { display: 'flex', position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }
+        }
+      >
+        {props.children}
+      </View>
+    </Visibility>
+  )
 }

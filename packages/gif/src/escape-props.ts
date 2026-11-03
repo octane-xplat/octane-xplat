@@ -4,12 +4,12 @@ import { isAndroid, isIOS } from '@nativescript/core'
  *  same convention @octane-xplat/ui uses, kept local so this leaf does not
  *  depend on ui. */
 export function applyEscapeProps(view: any, props: { ios?: any; android?: any }): void {
-	if (!view) {
-		return
-	}
+  if (!view) {
+    return
+  }
 
-	const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
-	if (bag) {
-		Object.assign(view, bag)
-	}
+  const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
+  if (bag) {
+    Object.assign(view, bag)
+  }
 }

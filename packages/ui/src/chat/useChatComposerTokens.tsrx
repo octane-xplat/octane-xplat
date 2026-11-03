@@ -13,67 +13,67 @@ export { isCustomToken }
 /** The native composer's editable host — installed by ChatComposerInput
  *  (`insertTokenAtCaret`/`expandTokenToText`/`hasToken`). */
 interface ComposerTokenHost {
-	insertTokenAtCaret?(token: any, id?: string): string | undefined
-	expandTokenToText?(token: any): void
-	hasToken?(id: string): boolean
+  insertTokenAtCaret?(token: any, id?: string): string | undefined
+  expandTokenToText?(token: any): void
+  hasToken?(id: string): boolean
 }
 
 /** Owns composer inline-token portals and their chip-registry sync. */
 export function useChatComposerTokens({
-	editableRef,
-	onEmitChange,
+  editableRef,
+  onEmitChange,
 }: UseChatComposerTokensOptions): UseChatComposerTokensReturn {
-	const [tokenPortals, setTokenPortals] = useState<UseChatComposerTokensReturn['tokenPortals']>([])
+  const [tokenPortals, setTokenPortals] = useState<UseChatComposerTokensReturn['tokenPortals']>([])
 
-	const insertToken = useCallback(
-		(token: any): string | undefined => {
-			const host = editableRef.current as ComposerTokenHost | null | undefined
-			const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-			const record = { id, span: null, token }
-			setTokenPortals((prev) => [...prev, record])
-			host?.insertTokenAtCaret?.(token, id)
-			return id
-		},
-		[editableRef],
-	)
+  const insertToken = useCallback(
+    (token: any): string | undefined => {
+      const host = editableRef.current as ComposerTokenHost | null | undefined
+      const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+      const record = { id, span: null, token }
+      setTokenPortals((prev) => [...prev, record])
+      host?.insertTokenAtCaret?.(token, id)
+      return id
+    },
+    [editableRef],
+  )
 
-	const expandToken = useCallback(
-		(id: string) => {
-			const portal = tokenPortals.find((p) => p.id === id)
-			if (!portal) {
-				return
-			}
+  const expandToken = useCallback(
+    (id: string) => {
+      const portal = tokenPortals.find((p) => p.id === id)
+      if (!portal) {
+        return
+      }
 
-			;(editableRef.current as ComposerTokenHost | null | undefined)?.expandTokenToText?.(
-				portal.token,
-			)
+      ;(editableRef.current as ComposerTokenHost | null | undefined)?.expandTokenToText?.(
+        portal.token,
+      )
 
-			setTokenPortals((prev) => prev.filter((p) => p.id !== id))
-			onEmitChange()
-		},
-		[editableRef, tokenPortals, onEmitChange],
-	)
+      setTokenPortals((prev) => prev.filter((p) => p.id !== id))
+      onEmitChange()
+    },
+    [editableRef, tokenPortals, onEmitChange],
+  )
 
-	// Native token chips live outside the editable text — no keydown/paste
-	// interception exists; return false so callers fall through.
-	const handleKeyDown = useCallback((_e: any): boolean => false, [])
-	const handlePaste = useCallback((_e: any): boolean => false, [])
+  // Native token chips live outside the editable text — no keydown/paste
+  // interception exists; return false so callers fall through.
+  const handleKeyDown = useCallback((_e: any): boolean => false, [])
+  const handlePaste = useCallback((_e: any): boolean => false, [])
 
-	const cleanupPortals = useCallback(() => {
-		setTokenPortals((prev) =>
-			prev.filter(
-				(p) =>
-					(editableRef.current as ComposerTokenHost | null | undefined)?.hasToken?.(p.id) ?? true,
-			),
-		)
-	}, [editableRef])
+  const cleanupPortals = useCallback(() => {
+    setTokenPortals((prev) =>
+      prev.filter(
+        (p) =>
+          (editableRef.current as ComposerTokenHost | null | undefined)?.hasToken?.(p.id) ?? true,
+      ),
+    )
+  }, [editableRef])
 
-	return {
-		tokenPortals,
-		expandToken,
-		insertToken,
-		handleKeyDown,
-		handlePaste,
-		cleanupPortals,
-	}
+  return {
+    tokenPortals,
+    expandToken,
+    insertToken,
+    handleKeyDown,
+    handlePaste,
+    cleanupPortals,
+  }
 }

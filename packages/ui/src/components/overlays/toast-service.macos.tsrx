@@ -4,13 +4,13 @@ import { appKitHost, hostGlobal } from '../../internal/platform/host-bridge'
 import type { ShowToastFn, ToastOptions } from '../../props'
 import { ToastViewportContext } from './toast-context'
 import {
-	FALLBACK_TOAST_VIEWPORT,
-	dismissToast,
-	pushToast,
-	registerToastViewport,
-	toastHandleFor,
-	toastOnViewport,
-	toastStore,
+  FALLBACK_TOAST_VIEWPORT,
+  dismissToast,
+  pushToast,
+  registerToastViewport,
+  toastHandleFor,
+  toastOnViewport,
+  toastStore,
 } from './toast-store'
 
 import { ToastViewportSurface } from './toast-viewport.macos.tsrx'
@@ -18,59 +18,59 @@ import { ToastViewportSurface } from './toast-viewport.macos.tsrx'
 let fallback: any = null
 
 function ensureFallbackViewport(): void {
-	if (fallback && !fallback.closed) {
-		return
-	}
+  if (fallback && !fallback.closed) {
+    return
+  }
 
-	const present = appKitHost()?.presentSurface
-	if (!present) {
-		throw new Error('AppKit host has no toast presenter')
-	}
+  const present = appKitHost()?.presentSurface
+  if (!present) {
+    throw new Error('AppKit host has no toast presenter')
+  }
 
-	const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
-	try {
-		// A zero-size coordinator root owns the four edge stacks and anchored
-		// popovers; it closes with its window, releasing subscriptions/timers.
-		const host = present({
-			kind: 'toast',
-			modal: false,
-			width: 0,
-			maxHeight: 0,
-			component: ToastViewportSurface,
-			props: { viewportId: FALLBACK_TOAST_VIEWPORT },
-		})
+  const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
+  try {
+    // A zero-size coordinator root owns the four edge stacks and anchored
+    // popovers; it closes with its window, releasing subscriptions/timers.
+    const host = present({
+      kind: 'toast',
+      modal: false,
+      width: 0,
+      maxHeight: 0,
+      component: ToastViewportSurface,
+      props: { viewportId: FALLBACK_TOAST_VIEWPORT },
+    })
 
-		fallback = host
-		void host.closedPromise.then(() => {
-			unregister()
-			if (fallback === host) {
-				fallback = null
-			}
+    fallback = host
+    void host.closedPromise.then(() => {
+      unregister()
+      if (fallback === host) {
+        fallback = null
+      }
 
-			for (const entry of toastStore.getSnapshot()) {
-				if (toastOnViewport(entry, FALLBACK_TOAST_VIEWPORT)) {
-					dismissToast(entry.id, 'manual')
-				}
-			}
-		})
-	} catch (error) {
-		unregister()
-		throw error
-	}
+      for (const entry of toastStore.getSnapshot()) {
+        if (toastOnViewport(entry, FALLBACK_TOAST_VIEWPORT)) {
+          dismissToast(entry.id, 'manual')
+        }
+      }
+    })
+  } catch (error) {
+    unregister()
+    throw error
+  }
 }
 
 export const showToast: ShowToastFn = (options) => {
-	ensureFallbackViewport()
-	return toastHandleFor(pushToast(options, FALLBACK_TOAST_VIEWPORT))
+  ensureFallbackViewport()
+  return toastHandleFor(pushToast(options, FALLBACK_TOAST_VIEWPORT))
 }
 
 export function useToast(): ShowToastFn @{
-	const ctx = useContext(ToastViewportContext)
-	return useCallback(
-		(options: ToastOptions) => {
-			ensureFallbackViewport()
-			return toastHandleFor(pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT))
-		},
-		[ctx?.id],
-	)
+  const ctx = useContext(ToastViewportContext)
+  return useCallback(
+    (options: ToastOptions) => {
+      ensureFallbackViewport()
+      return toastHandleFor(pushToast(options, ctx?.id ?? FALLBACK_TOAST_VIEWPORT))
+    },
+    [ctx?.id],
+  )
 }

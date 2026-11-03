@@ -17,26 +17,26 @@ export type WebGPUSupportInfo = import('shaders/js').WebGPUSupportInfo
  *  does NativeScript's. Kept structural so shared code never names DOM
  *  globals. */
 export interface AbortSignalLike {
-	readonly aborted: boolean
-	addEventListener?(type: 'abort', listener: () => void): void
-	removeEventListener?(type: 'abort', listener: () => void): void
+  readonly aborted: boolean
+  addEventListener?(type: 'abort', listener: () => void): void
+  removeEventListener?(type: 'abort', listener: () => void): void
 }
 
 /** Externally acquired WebGPU device + adapter pair — the caller owns its
  *  lifetime. Pass to `createShader` via `options.gpu` to share one device
  *  across instances. */
 export interface SharedGpu {
-	device: any
-	adapter: any
+  device: any
+  adapter: any
 }
 
 /** Upstream `ShaderOptions` plus adapter lifecycle glue. Preset, component
  *  names, parameters, and all other fields keep upstream semantics. */
 export interface CreateShaderOptions extends ShaderOptions {
-	/** Aborts deferred or in-flight initialization — e.g. the surface
-	 *  unmounted while the engine was still starting. A late completion is
-	 *  destroyed, never revived. */
-	signal?: AbortSignalLike
+  /** Aborts deferred or in-flight initialization — e.g. the surface
+   *  unmounted while the engine was still starting. A late completion is
+   *  destroyed, never revived. */
+  signal?: AbortSignalLike
 }
 
 /** Create a shader on an Xplat Canvas surface (the `canvas` from
@@ -58,9 +58,9 @@ export interface CreateShaderOptions extends ShaderOptions {
  *  On unsupported hosts (native desktop) the returned promise resolves to
  *  a no-op instance whose `getFailureReason()` is `'unsupported'`. */
 export declare function createShader(
-	canvas: unknown,
-	preset: PresetConfig,
-	options?: CreateShaderOptions,
+  canvas: unknown,
+  preset: PresetConfig,
+  options?: CreateShaderOptions,
 ): Promise<ShaderInstance>
 
 /** Acquire a WebGPU `{device, adapter}` through the platform entry point
@@ -68,7 +68,7 @@ export declare function createShader(
  *  Resolves null where WebGPU is unavailable — keep the static fallback in
  *  that case. The caller owns the device; the adapter never destroys it. */
 export declare function createSharedDevice(options?: {
-	powerPreference?: string
+  powerPreference?: string
 }): Promise<SharedGpu | null>
 
 /** True when a WebGPU entry point exists. On native this reflects the

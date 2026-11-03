@@ -3,36 +3,36 @@ import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function ViewLayoutFixture() @{
-	<View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6}>
-		<View className="parity-view-first" style={{ width: 20, height: 10 }} />
-		<View className="parity-view-second" style={{ width: 20, height: 10 }} />
-	</View>
+  <View className="parity-view-root" style={{ width: 96, height: 48 }} gap={6}>
+    <View className="parity-view-first" style={{ width: 20, height: 10 }} />
+    <View className="parity-view-second" style={{ width: 20, height: 10 }} />
+  </View>
 }
 
 function ViewPaddingLayoutFixture() @{
-	<View className="parity-padded-view-root" style={{ width: 96, height: 48, padding: 8 }} gap={6}>
-		<View className="parity-padded-view-first" style={{ width: 20, height: 10 }} />
-		<View className="parity-padded-view-second" style={{ width: 20, height: 10 }} />
-	</View>
+  <View className="parity-padded-view-root" style={{ width: 96, height: 48, padding: 8 }} gap={6}>
+    <View className="parity-padded-view-first" style={{ width: 20, height: 10 }} />
+    <View className="parity-padded-view-second" style={{ width: 20, height: 10 }} />
+  </View>
 }
 
 function PercentSizeLayoutFixture() @{
-	<View className="parity-percent-root" style={{ width: '50%', height: '50%' }} />
+  <View className="parity-percent-root" style={{ width: '50%', height: '50%' }} />
 }
 
 function ShrinkingRowFixture() @{
-	<View
-		className="parity-shrink-root"
-		style={{ display: 'flex', flexDirection: 'row', width: 170, height: 20 }}
-	>
-		<View className="parity-shrink-first" style={{ width: 100, height: 20, flexShrink: 1 }} />
-		<View className="parity-shrink-second" style={{ width: 100, height: 20, flexShrink: 1 }} />
-	</View>
+  <View
+    className="parity-shrink-root"
+    style={{ display: 'flex', flexDirection: 'row', width: 170, height: 20 }}
+  >
+    <View className="parity-shrink-first" style={{ width: 100, height: 20, flexShrink: 1 }} />
+    <View className="parity-shrink-second" style={{ width: 100, height: 20, flexShrink: 1 }} />
+  </View>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'view-shrinking-row', component: 'View', renderer: ShrinkingRowFixture, props: {} },
-	{ name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
-	{ name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
-	{ name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
+  { name: 'view-shrinking-row', component: 'View', renderer: ShrinkingRowFixture, props: {} },
+  { name: 'view-layout', component: 'View', renderer: ViewLayoutFixture, props: {} },
+  { name: 'view-padding-layout', component: 'View', renderer: ViewPaddingLayoutFixture, props: {} },
+  { name: 'percent-size-layout', component: 'View', renderer: PercentSizeLayoutFixture, props: {} },
 ]

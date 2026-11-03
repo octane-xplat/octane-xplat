@@ -14,71 +14,71 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
  * guaranteed interactive session. Caller reserves native_builds:1.
  * Foreground-app recording qualification stays a separate hardware gate. */
 export async function checkMacOSNative(packedRoot) {
-	assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
-	assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
-	const app = await mkdtemp(join(tmpdir(), 'xplat-recorder-native-'))
-	try {
-		await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
-		await cp(packedRoot, join(app, 'node_modules/@octane-xplat/recorder'), { recursive: true })
-		await symlink(
-			fileURLToPath(new URL('../../platform', import.meta.url)),
-			join(app, 'node_modules/@octane-xplat/platform'),
-		)
+  assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
+  assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
+  const app = await mkdtemp(join(tmpdir(), 'xplat-recorder-native-'))
+  try {
+    await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
+    await cp(packedRoot, join(app, 'node_modules/@octane-xplat/recorder'), { recursive: true })
+    await symlink(
+      fileURLToPath(new URL('../../platform', import.meta.url)),
+      join(app, 'node_modules/@octane-xplat/platform'),
+    )
 
-		await writeFile(
-			join(app, 'package.json'),
-			JSON.stringify({
-				name: 'recorder-native-consumer',
-				type: 'module',
-				private: true,
-				dependencies: { '@octane-xplat/recorder': '0.0.0' },
-			}),
-		)
+    await writeFile(
+      join(app, 'package.json'),
+      JSON.stringify({
+        name: 'recorder-native-consumer',
+        type: 'module',
+        private: true,
+        dependencies: { '@octane-xplat/recorder': '0.0.0' },
+      }),
+    )
 
-		const fixture = join(app, 'wav-fixture')
-		const compiled = spawnSync(
-			'xcrun',
-			[
-				'swiftc',
-				fileURLToPath(new URL('./wav-fixture.macos.swift', import.meta.url)),
-				'-o',
-				fixture,
-			],
-			{ encoding: 'utf8', timeout: 60_000 },
-		)
+    const fixture = join(app, 'wav-fixture')
+    const compiled = spawnSync(
+      'xcrun',
+      [
+        'swiftc',
+        fileURLToPath(new URL('./wav-fixture.macos.swift', import.meta.url)),
+        '-o',
+        fixture,
+      ],
+      { encoding: 'utf8', timeout: 60_000 },
+    )
 
-		assert.equal(compiled.status, 0, `${compiled.stdout}\n${compiled.stderr}`)
-		const wavePath = join(app, 'fixture.wav')
-		const written = spawnSync(fixture, [wavePath], { encoding: 'utf8', timeout: 10_000 })
-		assert.equal(written.status, 0, `${written.stdout}\n${written.stderr}`)
-		const sandbox = { exports: {}, Uint8Array }
-		vm.runInNewContext(
-			ts.transpile(readFileSync(new URL('../src/wav.ts', import.meta.url), 'utf8'), {
-				module: ts.ModuleKind.CommonJS,
-				target: ts.ScriptTarget.ES2022,
-			}),
-			sandbox,
-		)
+    assert.equal(compiled.status, 0, `${compiled.stdout}\n${compiled.stderr}`)
+    const wavePath = join(app, 'fixture.wav')
+    const written = spawnSync(fixture, [wavePath], { encoding: 'utf8', timeout: 10_000 })
+    assert.equal(written.status, 0, `${written.stdout}\n${written.stderr}`)
+    const sandbox = { exports: {}, Uint8Array }
+    vm.runInNewContext(
+      ts.transpile(readFileSync(new URL('../src/wav.ts', import.meta.url), 'utf8'), {
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+      }),
+      sandbox,
+    )
 
-		const bytes = new Uint8Array(readFileSync(wavePath))
-		const metadata = sandbox.exports.inspectPcmWav(bytes)
-		assert.equal(metadata.sampleRate, 16000)
-		assert.equal(metadata.channels, 2)
-		assert.equal(metadata.durationSeconds, 0.01)
-		const dataAt = Buffer.from(bytes).indexOf('data') + 8
-		const samples = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
-		assert.equal(samples.getInt16(dataAt, true), 8192)
-		assert.equal(samples.getInt16(dataAt + 2, true), -8192)
-		console.log(
-			'macOS AVFoundation finalized WAV: 16000 Hz stereo int16 samples and metadata passed',
-		)
+    const bytes = new Uint8Array(readFileSync(wavePath))
+    const metadata = sandbox.exports.inspectPcmWav(bytes)
+    assert.equal(metadata.sampleRate, 16000)
+    assert.equal(metadata.channels, 2)
+    assert.equal(metadata.durationSeconds, 0.01)
+    const dataAt = Buffer.from(bytes).indexOf('data') + 8
+    const samples = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+    assert.equal(samples.getInt16(dataAt, true), 8192)
+    assert.equal(samples.getInt16(dataAt + 2, true), -8192)
+    console.log(
+      'macOS AVFoundation finalized WAV: 16000 Hz stereo int16 samples and metadata passed',
+    )
 
-		// The TypeScript host replaces the Swift leaf: bundle the packed package
-		// and drive it through the real AppKit/JSC host binary ([NSApp run]).
-		const source = join(app, 'consumer.ts')
-		await writeFile(
-			source,
-			`
+    // The TypeScript host replaces the Swift leaf: bundle the packed package
+    // and drive it through the real AppKit/JSC host binary ([NSApp run]).
+    const source = join(app, 'consumer.ts')
+    await writeFile(
+      source,
+      `
 import { createAudioRecorder } from '@octane-xplat/recorder'
 import { createNativeRecorderHost } from 'recorder-host-impl'
 const check = (value, message) => { if (!value) throw Error(message) }
@@ -207,67 +207,67 @@ setTimeout(() => globalThis.__xplatStopHost(), 0)
 }
 run().catch((error) => { console.error(String(error)); throw error })
 `,
-		)
+    )
 
-		await build({
-			configFile: false,
-			root: app,
-			resolve: {
-				conditions: ['macos'],
-				alias: {
-					'recorder-host-impl': join(
-						app,
-						'node_modules/@octane-xplat/recorder/src/recorder-host.macos.ts',
-					),
-				},
-			},
-			build: {
-				outDir: join(app, 'dist'),
-				minify: false,
-				lib: { entry: source, formats: ['cjs'], fileName: () => 'consumer.cjs' },
-			},
-		})
+    await build({
+      configFile: false,
+      root: app,
+      resolve: {
+        conditions: ['macos'],
+        alias: {
+          'recorder-host-impl': join(
+            app,
+            'node_modules/@octane-xplat/recorder/src/recorder-host.macos.ts',
+          ),
+        },
+      },
+      build: {
+        outDir: join(app, 'dist'),
+        minify: false,
+        lib: { entry: source, formats: ['cjs'], fileName: () => 'consumer.cjs' },
+      },
+    })
 
-		// Bundle.main reads a sibling Info.plist for flat binaries: one host
-		// copy declares the microphone usage string, the other does not. Keep
-		// them in separate directories so the declaration cannot leak.
-		const nsMetadata = join(hostBundle, `metadata.macos.${process.arch}.nsmd`)
-		const shim = fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url))
-		const framework = join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript')
-		const variants = [
-			{ name: 'undeclared', plist: null },
-			{
-				name: 'declared',
-				plist:
-					'<?xml version="1.0" encoding="UTF-8"?>\n' +
-					'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
-					'<plist version="1.0"><dict>' +
-					'<key>NSMicrophoneUsageDescription</key><string>Recorder host checks.</string>' +
-					'</dict></plist>\n',
-			},
-		]
+    // Bundle.main reads a sibling Info.plist for flat binaries: one host
+    // copy declares the microphone usage string, the other does not. Keep
+    // them in separate directories so the declaration cannot leak.
+    const nsMetadata = join(hostBundle, `metadata.macos.${process.arch}.nsmd`)
+    const shim = fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url))
+    const framework = join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript')
+    const variants = [
+      { name: 'undeclared', plist: null },
+      {
+        name: 'declared',
+        plist:
+          '<?xml version="1.0" encoding="UTF-8"?>\n' +
+          '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+          '<plist version="1.0"><dict>' +
+          '<key>NSMicrophoneUsageDescription</key><string>Recorder host checks.</string>' +
+          '</dict></plist>\n',
+      },
+    ]
 
-		for (const variant of variants) {
-			const dir = join(app, `host-${variant.name}`)
-			await mkdir(dir, { recursive: true })
-			await cp(join(hostBundle, 'host'), join(dir, 'host'))
-			if (variant.plist) {
-				await writeFile(join(dir, 'Info.plist'), variant.plist)
-			}
+    for (const variant of variants) {
+      const dir = join(app, `host-${variant.name}`)
+      await mkdir(dir, { recursive: true })
+      await cp(join(hostBundle, 'host'), join(dir, 'host'))
+      if (variant.plist) {
+        await writeFile(join(dir, 'Info.plist'), variant.plist)
+      }
 
-			const result = spawnSync(
-				join(dir, 'host'),
-				[framework, join(app, 'dist/consumer.cjs'), nsMetadata, shim],
-				{ encoding: 'utf8', timeout: 45_000 },
-			)
+      const result = spawnSync(
+        join(dir, 'host'),
+        [framework, join(app, 'dist/consumer.cjs'), nsMetadata, shim],
+        { encoding: 'utf8', timeout: 45_000 },
+      )
 
-			const output = `${result.stdout}\n${result.stderr}`
-			assert.equal(result.status, 0, `${variant.name}\n${output}`)
-			assert.match(output, /MACOS_RECORDER_HOST_OK/, `${variant.name}\n${output}`)
-		}
+      const output = `${result.stdout}\n${result.stderr}`
+      assert.equal(result.status, 0, `${variant.name}\n${output}`)
+      assert.match(output, /MACOS_RECORDER_HOST_OK/, `${variant.name}\n${output}`)
+    }
 
-		console.log('macOS packed recorder: TypeScript host dispatch passed')
-	} finally {
-		await rm(app, { recursive: true, force: true })
-	}
+    console.log('macOS packed recorder: TypeScript host dispatch passed')
+  } finally {
+    await rm(app, { recursive: true, force: true })
+  }
 }

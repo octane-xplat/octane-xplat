@@ -10,41 +10,41 @@ import { HStack } from '../components/layout/HStack.tsrx'
 
 /** Selection-count toolbar shown while table rows are selected. */
 export function TableSelectionToolbar(props: TableSelectionToolbarProps): any @{
-	const {
-		selection,
-		label = 'Bulk actions',
-		renderSelectionLabel,
-		clearLabel = 'Unselect All',
-		startContent,
-		size,
-		variant,
-		className,
-		style,
-	} = props
+  const {
+    selection,
+    label = 'Bulk actions',
+    renderSelectionLabel,
+    clearLabel = 'Unselect All',
+    startContent,
+    size,
+    variant,
+    className,
+    style,
+  } = props
 
-	if (!selection.hasSelection) return null as any
+  if (!selection.hasSelection) return null as any
 
-	<Toolbar
-		label={label}
-		variant={variant ?? 'muted'}
-		size={size ?? 'sm'}
-		className={className}
-		style={style}
-		startContent={startContent}
-		endContent={
-			<HStack gap={4} vAlign="center">
-				{renderSelectionLabel ? (
-					renderSelectionLabel(selection.selectedCount)
-				) : (
-					<Text>{`${selection.selectedCount} selected`}</Text>
-				)}
-				<Button
-					label={clearLabel}
-					variant="secondary"
-					size="sm"
-					clickAction={selection.clearSelection}
-				/>
-			</HStack>
-		}
-	/>
+  <Toolbar
+    label={label}
+    variant={variant ?? 'muted'}
+    size={size ?? 'sm'}
+    className={className}
+    style={style}
+    startContent={startContent}
+    endContent={
+      <HStack gap={4} vAlign="center">
+        {renderSelectionLabel ? (
+          renderSelectionLabel(selection.selectedCount)
+        ) : (
+          <Text>{`${selection.selectedCount} selected`}</Text>
+        )}
+        <Button
+          label={clearLabel}
+          variant="secondary"
+          size="sm"
+          clickAction={selection.clearSelection}
+        />
+      </HStack>
+    }
+  />
 }

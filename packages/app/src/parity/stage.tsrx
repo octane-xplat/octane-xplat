@@ -13,35 +13,35 @@ const PARITY_BOX_STYLE = { width: 220, height: 64 }
  *  Elements are dumped relative to their .parity-box, so label metrics and
  *  scroll position can't shift the numbers. */
 export function ParityStage() @{
-	const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined
-	const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES
-	useEffect(() => {
-		installParityDump()
-	}, [])
+  const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined
+  const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES
+  useEffect(() => {
+    installParityDump()
+  }, [])
 
-	<View
-		id="parity-stage"
-		className="parity-stage"
-		gap={12}
-		alignItems="start"
-		ios={{ iosOverflowSafeAreaEnabled: false }}
-	>
-		@for (const f of fixtures; key f.name) {
-			<View id={'cell-' + f.name} className="parity-cell" gap={0} alignItems="start">
-				<Text className="parity-label" style={{ fontSize: 10, color: '#666666' }}>
-					{f.name}
-				</Text>
-				<View
-					className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}
-					style={{
-						width: f.width ?? PARITY_BOX_STYLE.width,
-						height: f.height ?? PARITY_BOX_STYLE.height,
-					}}
-					alignItems={f.wide ? 'stretch' : 'start'}
-				>
-					<{f.renderer} {...f.props} />
-				</View>
-			</View>
-		}
-	</View>
+  <View
+    id="parity-stage"
+    className="parity-stage"
+    gap={12}
+    alignItems="start"
+    ios={{ iosOverflowSafeAreaEnabled: false }}
+  >
+    @for (const f of fixtures; key f.name) {
+      <View id={'cell-' + f.name} className="parity-cell" gap={0} alignItems="start">
+        <Text className="parity-label" style={{ fontSize: 10, color: '#666666' }}>
+          {f.name}
+        </Text>
+        <View
+          className={f.wide ? 'parity-box parity-box--fill' : 'parity-box'}
+          style={{
+            width: f.width ?? PARITY_BOX_STYLE.width,
+            height: f.height ?? PARITY_BOX_STYLE.height,
+          }}
+          alignItems={f.wide ? 'stretch' : 'start'}
+        >
+          <{f.renderer} {...f.props} />
+        </View>
+      </View>
+    }
+  </View>
 }

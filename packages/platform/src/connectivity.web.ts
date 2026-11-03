@@ -5,58 +5,58 @@ import type { ConnectionType, ConnectivityImpl, ConnectivityState } from './type
 const listeners = new Set<(state: ConnectivityState) => void>()
 
 function connectionType(): ConnectionType {
-	const type = (navigator as Navigator & { connection?: { type?: string } }).connection?.type
-	switch (type) {
-		case 'wifi':
-			return 'wifi'
-		case 'cellular':
-			return 'mobile'
-		case 'ethernet':
-			return 'ethernet'
-		case 'bluetooth':
-			return 'bluetooth'
-		case 'vpn':
-			return 'vpn'
-		default:
-			return navigator.onLine ? 'unknown' : 'none'
-	}
+  const type = (navigator as Navigator & { connection?: { type?: string } }).connection?.type
+  switch (type) {
+    case 'wifi':
+      return 'wifi'
+    case 'cellular':
+      return 'mobile'
+    case 'ethernet':
+      return 'ethernet'
+    case 'bluetooth':
+      return 'bluetooth'
+    case 'vpn':
+      return 'vpn'
+    default:
+      return navigator.onLine ? 'unknown' : 'none'
+  }
 }
 
 function read(): ConnectivityState {
-	return { online: navigator.onLine, type: connectionType() }
+  return { online: navigator.onLine, type: connectionType() }
 }
 
 function notify() {
-	const state = read()
-	for (const listener of listeners) {
-		listener(state)
-	}
+  const state = read()
+  for (const listener of listeners) {
+    listener(state)
+  }
 }
 
 function addListeners() {
-	window.addEventListener('online', notify)
-	window.addEventListener('offline', notify)
+  window.addEventListener('online', notify)
+  window.addEventListener('offline', notify)
 }
 
 function removeListeners() {
-	window.removeEventListener('online', notify)
-	window.removeEventListener('offline', notify)
+  window.removeEventListener('online', notify)
+  window.removeEventListener('offline', notify)
 }
 
 export const connectivity: ConnectivityImpl = {
-	getState: read,
-	subscribe(listener) {
-		if (listeners.size === 0) {
-			addListeners()
-		}
+  getState: read,
+  subscribe(listener) {
+    if (listeners.size === 0) {
+      addListeners()
+    }
 
-		listeners.add(listener)
-		listener(read())
-		return () => {
-			listeners.delete(listener)
-			if (listeners.size === 0) {
-				removeListeners()
-			}
-		}
-	},
+    listeners.add(listener)
+    listener(read())
+    return () => {
+      listeners.delete(listener)
+      if (listeners.size === 0) {
+        removeListeners()
+      }
+    }
+  },
 }

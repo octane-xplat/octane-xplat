@@ -16,78 +16,78 @@ import { MenuSheet, useMenuSheet } from './menu-sheet.tsrx'
  *  DropdownMenu, positioned over the children. There is no right-click on
  *  touch targets; long-press is the honest equivalent gesture. */
 export function ContextMenu<
-	Contracts = RegisteredRouteContracts,
-	Stacks extends string = keyof AppRouteStacks & string,
-	Transitions extends string = RouteTransitionName,
+  Contracts = RegisteredRouteContracts,
+  Stacks extends string = keyof AppRouteStacks & string,
+  Transitions extends string = RouteTransitionName,
 >(props: ContextMenuProps<Contracts, Stacks, Transitions>): any
 
 export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps>) @{
-	const anchor = useRef<any>(null)
-	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const controlled = props.isOpen !== undefined
-	const open = props.isOpen ?? internal
-	const asSheet = useMenuSheet(props.presentation)
+  const anchor = useRef<any>(null)
+  const [internal, setInternal] = useState(props.defaultOpen ?? false)
+  const controlled = props.isOpen !== undefined
+  const open = props.isOpen ?? internal
+  const asSheet = useMenuSheet(props.presentation)
 
-	const setOpen = (next: boolean) => {
-		if (props.isDisabled && next) {
-			return
-		}
+  const setOpen = (next: boolean) => {
+    if (props.isDisabled && next) {
+      return
+    }
 
-		if (!controlled) {
-			setInternal(next)
-		}
+    if (!controlled) {
+      setInternal(next)
+    }
 
-		props.onOpenChange?.(next)
-	}
+    props.onOpenChange?.(next)
+  }
 
-	<masonview
-		ref={(v: any) => {
-			anchor.current = v
-			if (v) {
-				applyEscapeProps(v, props)
-			}
-		}}
-		id={props.id}
-		className={cx('vx-contextmenu', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-		onLongPress={props.isDisabled ? undefined : () => setOpen(true)}
-	>
-		{props.children}
-		{props.trigger && (
-			<Pressable
-				accessibilityLabel={props.accessibilityLabel ?? 'Open actions'}
-				disabled={props.isDisabled}
-				onPress={() => setOpen(!open)}
-			>
-				{props.trigger}
-			</Pressable>
-		)}
-		@if (asSheet) {
-			<MenuSheet
-				open={open}
-				onOpenChange={setOpen}
-				label={props.label ?? props.accessibilityLabel}
-				items={props.items}
-			>
-				{props.menu}
-			</MenuSheet>
-		} @else {
-			<Popover
-				anchor={anchor}
-				open={open}
-				placement={props.placement ?? 'bottom'}
-				alignment={props.alignment}
-				onDismiss={() => setOpen(false)}
-				className={cx('vx-menu', props.menuClassName)}
-			>
-				<MenuSurface
-					closeMenu={() => setOpen(false)}
-					label={props.accessibilityLabel ?? props.label}
-				>
-					<MenuData items={props.items} />
-					{props.menu}
-				</MenuSurface>
-			</Popover>
-		}
-	</masonview>
+  <masonview
+    ref={(v: any) => {
+      anchor.current = v
+      if (v) {
+        applyEscapeProps(v, props)
+      }
+    }}
+    id={props.id}
+    className={cx('vx-contextmenu', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+    onLongPress={props.isDisabled ? undefined : () => setOpen(true)}
+  >
+    {props.children}
+    {props.trigger && (
+      <Pressable
+        accessibilityLabel={props.accessibilityLabel ?? 'Open actions'}
+        disabled={props.isDisabled}
+        onPress={() => setOpen(!open)}
+      >
+        {props.trigger}
+      </Pressable>
+    )}
+    @if (asSheet) {
+      <MenuSheet
+        open={open}
+        onOpenChange={setOpen}
+        label={props.label ?? props.accessibilityLabel}
+        items={props.items}
+      >
+        {props.menu}
+      </MenuSheet>
+    } @else {
+      <Popover
+        anchor={anchor}
+        open={open}
+        placement={props.placement ?? 'bottom'}
+        alignment={props.alignment}
+        onDismiss={() => setOpen(false)}
+        className={cx('vx-menu', props.menuClassName)}
+      >
+        <MenuSurface
+          closeMenu={() => setOpen(false)}
+          label={props.accessibilityLabel ?? props.label}
+        >
+          <MenuData items={props.items} />
+          {props.menu}
+        </MenuSurface>
+      </Popover>
+    }
+  </masonview>
 }

@@ -4,8 +4,8 @@ import { isTopLayer, registerLayer, shouldCloseLayer } from './layer-stack'
 import type { Context } from 'octane'
 
 export type LayerDismissal = {
-	depth: number
-	shouldClose: (retiring?: boolean) => boolean
+  depth: number
+  shouldClose: (retiring?: boolean) => boolean
 }
 
 export const LayerDepthContext: Context<number> = createContext(0)
@@ -13,63 +13,63 @@ export const LayerDepthProvider: any = LayerDepthContext
 
 /** Internal depth is passed explicitly into separately mounted native roots. */
 export function useLayerDismissal(options: {
-	active: boolean
-	dismiss(): void
-	behavior?: 'close' | 'block'
-	contains?(target: any): boolean
-	isPresent?(): boolean
-	restoreFocus?: boolean
-	getFocusTarget?(): any
-	getHost?(): any
-	/** Internal portal ownership can cross a separately mounted service root. */
-	minimumDepth?: number
+  active: boolean
+  dismiss(): void
+  behavior?: 'close' | 'block'
+  contains?(target: any): boolean
+  isPresent?(): boolean
+  restoreFocus?: boolean
+  getFocusTarget?(): any
+  getHost?(): any
+  /** Internal portal ownership can cross a separately mounted service root. */
+  minimumDepth?: number
 }): LayerDismissal {
-	const depth = Math.max(useContext(LayerDepthContext), options.minimumDepth ?? 0)
-	const latest = useRef(options)
-	latest.current = options
-	const token = useRef<object>({})
+  const depth = Math.max(useContext(LayerDepthContext), options.minimumDepth ?? 0)
+  const latest = useRef(options)
+  latest.current = options
+  const token = useRef<object>({})
 
-	const wasActive = useRef(false)
+  const wasActive = useRef(false)
 
-	useEffect(() => {
-		if (!options.active) {
-			wasActive.current = false
-			return
-		}
+  useEffect(() => {
+    if (!options.active) {
+      wasActive.current = false
+      return
+    }
 
-		if (!wasActive.current) {
-			token.current = {}
-			wasActive.current = true
-		}
+    if (!wasActive.current) {
+      token.current = {}
+      wasActive.current = true
+    }
 
-		const restore = captureLayerFocus(
-			() => latest.current.getFocusTarget?.(),
-			latest.current.getHost?.(),
-		)
+    const restore = captureLayerFocus(
+      () => latest.current.getFocusTarget?.(),
+      latest.current.getHost?.(),
+    )
 
-		const remove = registerLayer({
-			token: token.current,
-			depth,
-			get behavior() {
-				return latest.current.behavior ?? 'close'
-			},
-			dismiss: () => latest.current.dismiss(),
-			contains: (target) => latest.current.contains?.(target) ?? false,
-			isPresent: () => latest.current.active && (latest.current.isPresent?.() ?? true),
-			keyScope: () => latest.current.getHost?.(),
-		})
+    const remove = registerLayer({
+      token: token.current,
+      depth,
+      get behavior() {
+        return latest.current.behavior ?? 'close'
+      },
+      dismiss: () => latest.current.dismiss(),
+      contains: (target) => latest.current.contains?.(target) ?? false,
+      isPresent: () => latest.current.active && (latest.current.isPresent?.() ?? true),
+      keyScope: () => latest.current.getHost?.(),
+    })
 
-		return () => {
-			const wasTop = isTopLayer(token.current, true)
-			remove()
-			if (wasTop && latest.current.restoreFocus !== false) {
-				restore()
-			}
-		}
-	}, [options.active, depth])
+    return () => {
+      const wasTop = isTopLayer(token.current, true)
+      remove()
+      if (wasTop && latest.current.restoreFocus !== false) {
+        restore()
+      }
+    }
+  }, [options.active, depth])
 
-	return {
-		depth: depth + 1,
-		shouldClose: (retiring = false) => shouldCloseLayer(token.current, retiring),
-	}
+  return {
+    depth: depth + 1,
+    shouldClose: (retiring = false) => shouldCloseLayer(token.current, retiring),
+  }
 }

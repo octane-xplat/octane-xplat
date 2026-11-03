@@ -8,10 +8,10 @@ import { buildChangelogMd } from './changelog-format'
 import type { DocPage } from './docs'
 
 export const CHANGELOG_DOC: DocPage = {
-	slug: 'changelog',
-	id: 'changelog',
-	title: 'Changelog',
-	md: buildChangelogMd(changelogMd, fixlogMd),
-	dir: 'releases',
-	section: 'releases',
+  slug: 'changelog',
+  id: 'changelog',
+  title: 'Changelog',
+  md: buildChangelogMd(changelogMd, fixlogMd),
+  dir: 'releases',
+  section: 'releases',
 }

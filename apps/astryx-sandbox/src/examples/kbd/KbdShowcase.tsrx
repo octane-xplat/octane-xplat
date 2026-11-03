@@ -2,5 +2,5 @@
 import { Kbd } from '@octane-xplat/ui'
 
 export function KbdShowcase() @{
-	return <Kbd keys="mod+k" />
+  return <Kbd keys="mod+k" />
 }

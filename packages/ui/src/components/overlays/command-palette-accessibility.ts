@@ -2,14 +2,14 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 
 /** Announce search status through the active native accessibility service. */
 export function announceCommandPalette(view: any, message: string): void {
-	if (!message) {
-		return
-	}
+  if (!message) {
+    return
+  }
 
-	const notify = hostGlobal('UIAccessibilityPostNotification')
-	if (typeof notify === 'function') {
-		notify(hostGlobal('UIAccessibilityAnnouncementNotification'), message)
-	} else {
-		view?.nativeViewProtected?.announceForAccessibility?.(message)
-	}
+  const notify = hostGlobal('UIAccessibilityPostNotification')
+  if (typeof notify === 'function') {
+    notify(hostGlobal('UIAccessibilityAnnouncementNotification'), message)
+  } else {
+    view?.nativeViewProtected?.announceForAccessibility?.(message)
+  }
 }

@@ -2,15 +2,15 @@
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function DropdownMenuItemBasic() @{
-	return (
-		<DropdownMenu button={{ label: 'Actions' }}>
-			<DropdownMenuItem label="Edit" description="Modify this item" onSelect={() => {}} />
-			<DropdownMenuItem label="Duplicate" description="Create a copy" onSelect={() => {}} />
-			<DropdownMenuItem
-				label="Delete"
-				description="This action cannot be undone"
-				onSelect={() => {}}
-			/>
-		</DropdownMenu>
-	)
+  return (
+    <DropdownMenu button={{ label: 'Actions' }}>
+      <DropdownMenuItem label="Edit" description="Modify this item" onSelect={() => {}} />
+      <DropdownMenuItem label="Duplicate" description="Create a copy" onSelect={() => {}} />
+      <DropdownMenuItem
+        label="Delete"
+        description="This action cannot be undone"
+        onSelect={() => {}}
+      />
+    </DropdownMenu>
+  )
 }

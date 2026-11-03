@@ -5,33 +5,33 @@ import type { OpenSettingsImpl } from './types'
 
 /** Submit an outbound URL. True acknowledges submission, not the eventual OS result. */
 export function openUrl(url: string): boolean {
-	return Utils.openUrl(url)
+  return Utils.openUrl(url)
 }
 
 function packageFamily(): string | null {
-	try {
-		return Windows?.ApplicationModel?.Package?.Current?.Id?.FamilyName || null
-	} catch {
-		// Unpackaged desktop apps have no per-package settings page.
-		return null
-	}
+  try {
+    return Windows?.ApplicationModel?.Package?.Current?.Id?.FamilyName || null
+  } catch {
+    // Unpackaged desktop apps have no per-package settings page.
+    return null
+  }
 }
 
 /** Submit this packaged app's Settings URI; unavailable without identity. */
 export const openSettings: Service<OpenSettingsImpl> = {
-	get supported() {
-		return packageFamily() !== null
-	},
-	isAvailable: async () => packageFamily() !== null,
-	open() {
-		const family = packageFamily()
-		if (!family) {
-			return false
-		}
-		try {
-			return openUrl(`ms-settings:appsfeatures-app?PFN=${encodeURIComponent(family)}`)
-		} catch {
-			return false
-		}
-	},
+  get supported() {
+    return packageFamily() !== null
+  },
+  isAvailable: async () => packageFamily() !== null,
+  open() {
+    const family = packageFamily()
+    if (!family) {
+      return false
+    }
+    try {
+      return openUrl(`ms-settings:appsfeatures-app?PFN=${encodeURIComponent(family)}`)
+    } catch {
+      return false
+    }
+  },
 }

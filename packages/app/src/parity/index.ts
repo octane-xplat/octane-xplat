@@ -5,29 +5,29 @@ import type { ParityFixture } from '@octane-xplat/ui/parity'
 export type { ParityFixture } from '@octane-xplat/ui/parity'
 
 type ImportGlob = (
-	pattern: string,
-	options: { eager: true },
+  pattern: string,
+  options: { eager: true },
 ) => Record<string, { PARITY?: ParityFixture[] }>
 
 const glob: unknown = 'glob' in import.meta ? import.meta.glob : undefined
 const modules =
-	typeof glob === 'function'
-		? (glob as ImportGlob)('../../../**/src/**/*.parity*.{tsrx,tsx}', { eager: true })
-		: {}
+  typeof glob === 'function'
+    ? (glob as ImportGlob)('../../../**/src/**/*.parity*.{tsrx,tsx}', { eager: true })
+    : {}
 
 const fixtures: ParityFixture[] = []
 for (const [path, mod] of Object.entries(modules).sort(([a], [b]) => a.localeCompare(b))) {
-	if (!/\.parity\.(tsrx|tsx)$/.test(path)) {
-		// <Comp>.parity.<platform>.tsrx — platform fixture variants are not yet
-		// resolved by this registry. Adding one needs a suffix-selection tier
-		// here plus the native pragma on the unsuffixed file (it becomes the
-		// native default leaf once a .web sibling exists).
-		throw new Error(
-			`${path}: platform-suffixed parity fixtures are unsupported — keep parity renders in <Component>.parity.tsrx`,
-		)
-	}
+  if (!/\.parity\.(tsrx|tsx)$/.test(path)) {
+    // <Comp>.parity.<platform>.tsrx — platform fixture variants are not yet
+    // resolved by this registry. Adding one needs a suffix-selection tier
+    // here plus the native pragma on the unsuffixed file (it becomes the
+    // native default leaf once a .web sibling exists).
+    throw new Error(
+      `${path}: platform-suffixed parity fixtures are unsupported — keep parity renders in <Component>.parity.tsrx`,
+    )
+  }
 
-	fixtures.push(...(mod.PARITY ?? []))
+  fixtures.push(...(mod.PARITY ?? []))
 }
 
 export const PARITY_FIXTURES = fixtures

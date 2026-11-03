@@ -12,34 +12,34 @@ import { Device } from '@nativescript/core'
 declare const __XPLAT_DEV_BRIDGE__: { token?: string } | undefined
 
 export interface DevBridgeEndpoint {
-	origin: string
-	token: string
+  origin: string
+  token: string
 }
 
 export function devBridgePlatform(): 'ios' | 'android' | 'windows' {
-	const os = Device.os.toLowerCase()
-	return os === 'ios' || os === 'android' ? os : 'windows'
+  const os = Device.os.toLowerCase()
+  return os === 'ios' || os === 'android' ? os : 'windows'
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const bridge =
-		typeof __XPLAT_DEV_BRIDGE__ !== 'undefined'
-			? __XPLAT_DEV_BRIDGE__
-			: '__XPLAT_DEV_BRIDGE__' in globalThis
-				? (globalThis as Record<string, any>).__XPLAT_DEV_BRIDGE__
-				: undefined
-	const token =
-		typeof bridge === 'object' &&
-		bridge !== null &&
-		'token' in bridge &&
-		typeof bridge.token === 'string'
-			? bridge.token
-			: undefined
-	const origin = (globalThis as any).__NS_HTTP_ORIGIN__ ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
+  const bridge =
+    typeof __XPLAT_DEV_BRIDGE__ !== 'undefined'
+      ? __XPLAT_DEV_BRIDGE__
+      : '__XPLAT_DEV_BRIDGE__' in globalThis
+        ? (globalThis as Record<string, any>).__XPLAT_DEV_BRIDGE__
+        : undefined
+  const token =
+    typeof bridge === 'object' &&
+    bridge !== null &&
+    'token' in bridge &&
+    typeof bridge.token === 'string'
+      ? bridge.token
+      : undefined
+  const origin = (globalThis as any).__NS_HTTP_ORIGIN__ ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
 
-	if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
-		return null
-	}
+  if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
+    return null
+  }
 
-	return { origin, token }
+  return { origin, token }
 }

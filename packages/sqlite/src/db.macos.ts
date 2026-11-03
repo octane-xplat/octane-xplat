@@ -33,316 +33,316 @@ const SQLITE_BLOB = 4
 let dlopened = false
 
 const ensureLib = () => {
-	if (dlopened) {
-		return
-	}
+  if (dlopened) {
+    return
+  }
 
-	if (typeof host.dlopen !== 'function' || typeof host.sqlite3_open !== 'function') {
-		throw new Error('sqlite3 interop unavailable — host metadata predates the sqlite3/dlfcn sweep')
-	}
+  if (typeof host.dlopen !== 'function' || typeof host.sqlite3_open !== 'function') {
+    throw new Error('sqlite3 interop unavailable — host metadata predates the sqlite3/dlfcn sweep')
+  }
 
-	host.dlopen('/usr/lib/libsqlite3.dylib', 2)
-	dlopened = true
+  host.dlopen('/usr/lib/libsqlite3.dylib', 2)
+  dlopened = true
 }
 
 /** Whether this platform leaf has a real SQLite backend (runtime-checked on macOS). */
 export const supported: boolean =
-	typeof host.dlopen === 'function' && typeof host.sqlite3_open === 'function'
+  typeof host.dlopen === 'function' && typeof host.sqlite3_open === 'function'
 
 // NSApplicationSupportDirectory (14) / NSUserDomainMask (1).
 const databaseDir = (): string | null => {
-	try {
-		const urls = host.NSFileManager.defaultManager.URLsForDirectoryInDomains(14, 1)
-		if (!urls?.count) {
-			return null
-		}
+  try {
+    const urls = host.NSFileManager.defaultManager.URLsForDirectoryInDomains(14, 1)
+    if (!urls?.count) {
+      return null
+    }
 
-		return `${urls.objectAtIndex(0).path}/octane-sqlite`
-	} catch {
-		return null
-	}
+    return `${urls.objectAtIndex(0).path}/octane-sqlite`
+  } catch {
+    return null
+  }
 }
 
 const databasePath = (name: string): string | null => {
-	if (name === ':memory:') {
-		return null
-	}
+  if (name === ':memory:') {
+    return null
+  }
 
-	const dir = databaseDir()
-	if (!dir || !fs) {
-		return null
-	}
+  const dir = databaseDir()
+  if (!dir || !fs) {
+    return null
+  }
 
-	try {
-		fs.mkdirSync(dir)
-	} catch {}
+  try {
+    fs.mkdirSync(dir)
+  } catch {}
 
-	return `${dir}/${name.replace(/[^\w.-]/g, '_')}.sqlite3`
+  return `${dir}/${name.replace(/[^\w.-]/g, '_')}.sqlite3`
 }
 
 const toArray = (params?: SqliteParams): SqliteParam[] =>
-	params == null ? [] : Array.isArray(params) ? params : [params]
+  params == null ? [] : Array.isArray(params) ? params : [params]
 
 const bind = (stmt: any, params: SqliteParam[]) => {
-	for (let i = 0; i < params.length; i++) {
-		const p = params[i]
-		const index = i + 1
+  for (let i = 0; i < params.length; i++) {
+    const p = params[i]
+    const index = i + 1
 
-		if (p == null) {
-			host.sqlite3_bind_null(stmt, index)
-		} else if (typeof p === 'string') {
-			host.sqlite3_bind_text(stmt, index, p, -1, SQLITE_TRANSIENT())
-		} else if (typeof p === 'bigint') {
-			host.sqlite3_bind_int64(stmt, index, p)
-		} else if (typeof p === 'number') {
-			if (Number.isSafeInteger(p)) {
-				host.sqlite3_bind_int64(stmt, index, p)
-			} else {
-				host.sqlite3_bind_double(stmt, index, p)
-			}
-		} else {
-			const bytes = p instanceof ArrayBuffer ? new Uint8Array(p) : p
-			host.sqlite3_bind_blob(stmt, index, bytes, bytes.byteLength, SQLITE_TRANSIENT())
-		}
-	}
+    if (p == null) {
+      host.sqlite3_bind_null(stmt, index)
+    } else if (typeof p === 'string') {
+      host.sqlite3_bind_text(stmt, index, p, -1, SQLITE_TRANSIENT())
+    } else if (typeof p === 'bigint') {
+      host.sqlite3_bind_int64(stmt, index, p)
+    } else if (typeof p === 'number') {
+      if (Number.isSafeInteger(p)) {
+        host.sqlite3_bind_int64(stmt, index, p)
+      } else {
+        host.sqlite3_bind_double(stmt, index, p)
+      }
+    } else {
+      const bytes = p instanceof ArrayBuffer ? new Uint8Array(p) : p
+      host.sqlite3_bind_blob(stmt, index, bytes, bytes.byteLength, SQLITE_TRANSIENT())
+    }
+  }
 }
 
 const columnValue = (stmt: any, index: number): any => {
-	switch (host.sqlite3_column_type(stmt, index)) {
-		case SQLITE_INTEGER: {
-			const v = host.sqlite3_column_int64(stmt, index)
-			return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n
-				? Number(v)
-				: v
-		}
-		case SQLITE_FLOAT:
-			return host.sqlite3_column_double(stmt, index)
-		case SQLITE_TEXT:
-			return host.interop.stringFromCString(host.sqlite3_column_text(stmt, index))
-		case SQLITE_BLOB: {
-			const ptr = host.sqlite3_column_blob(stmt, index)
-			const len = host.sqlite3_column_bytes(stmt, index)
+  switch (host.sqlite3_column_type(stmt, index)) {
+    case SQLITE_INTEGER: {
+      const v = host.sqlite3_column_int64(stmt, index)
+      return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n
+        ? Number(v)
+        : v
+    }
+    case SQLITE_FLOAT:
+      return host.sqlite3_column_double(stmt, index)
+    case SQLITE_TEXT:
+      return host.interop.stringFromCString(host.sqlite3_column_text(stmt, index))
+    case SQLITE_BLOB: {
+      const ptr = host.sqlite3_column_blob(stmt, index)
+      const len = host.sqlite3_column_bytes(stmt, index)
 
-			if (!ptr || !len) {
-				return new Uint8Array(0)
-			}
+      if (!ptr || !len) {
+        return new Uint8Array(0)
+      }
 
-			const data = host.NSData.alloc().initWithBytesLength(ptr, len)
-			return new Uint8Array(host.interop.bufferFromData(data))
-		}
-		default:
-			return null
-	}
+      const data = host.NSData.alloc().initWithBytesLength(ptr, len)
+      return new Uint8Array(host.interop.bufferFromData(data))
+    }
+    default:
+      return null
+  }
 }
 
 class MacosSqliteDb implements SqliteDb {
-	isOpen = true
-	constructor(
-		private readonly db: any,
-		readonly persistent: boolean,
-	) {}
+  isOpen = true
+  constructor(
+    private readonly db: any,
+    readonly persistent: boolean,
+  ) {}
 
-	private ensureOpen() {
-		if (!this.isOpen) {
-			throw new Error('sqlite db is closed')
-		}
-	}
+  private ensureOpen() {
+    if (!this.isOpen) {
+      throw new Error('sqlite db is closed')
+    }
+  }
 
-	private err(): Error {
-		return new Error(host.interop.stringFromCString(host.sqlite3_errmsg(this.db)) || 'sqlite error')
-	}
+  private err(): Error {
+    return new Error(host.interop.stringFromCString(host.sqlite3_errmsg(this.db)) || 'sqlite error')
+  }
 
-	// prepare → bind → step to completion → finalize. Rows are yielded through
-	// `onRow` (object or array shape chosen by the caller).
-	private run(
-		sql: string,
-		params: SqliteParam[],
-		onRow?: (stmt: any, cols: number) => void,
-	): number {
-		const ref = new host.interop.Reference()
-		const rc = host.sqlite3_prepare_v2(this.db, sql, -1, ref, null)
+  // prepare → bind → step to completion → finalize. Rows are yielded through
+  // `onRow` (object or array shape chosen by the caller).
+  private run(
+    sql: string,
+    params: SqliteParam[],
+    onRow?: (stmt: any, cols: number) => void,
+  ): number {
+    const ref = new host.interop.Reference()
+    const rc = host.sqlite3_prepare_v2(this.db, sql, -1, ref, null)
 
-		if (rc !== 0) {
-			throw this.err()
-		}
+    if (rc !== 0) {
+      throw this.err()
+    }
 
-		const stmt = ref.value
-		try {
-			bind(stmt, params)
-			const cols = host.sqlite3_column_count(stmt)
-			let rows = 0
+    const stmt = ref.value
+    try {
+      bind(stmt, params)
+      const cols = host.sqlite3_column_count(stmt)
+      let rows = 0
 
-			while (true) {
-				const step = host.sqlite3_step(stmt)
+      while (true) {
+        const step = host.sqlite3_step(stmt)
 
-				if (step === SQLITE_ROW) {
-					rows++
-					onRow?.(stmt, cols)
-				} else if (step === SQLITE_DONE) {
-					return rows
-				} else {
-					throw this.err()
-				}
-			}
-		} finally {
-			host.sqlite3_finalize(stmt)
-		}
-	}
+        if (step === SQLITE_ROW) {
+          rows++
+          onRow?.(stmt, cols)
+        } else if (step === SQLITE_DONE) {
+          return rows
+        } else {
+          throw this.err()
+        }
+      }
+    } finally {
+      host.sqlite3_finalize(stmt)
+    }
+  }
 
-	execute = async (sql: string, params?: SqliteParams): Promise<void> => {
-		this.ensureOpen()
-		this.run(sql, toArray(params))
-	}
-	select = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> => {
-		this.ensureOpen()
-		const rows: T[] = []
+  execute = async (sql: string, params?: SqliteParams): Promise<void> => {
+    this.ensureOpen()
+    this.run(sql, toArray(params))
+  }
+  select = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> => {
+    this.ensureOpen()
+    const rows: T[] = []
 
-		this.run(sql, toArray(params), (stmt, cols) => {
-			const row: Record<string, unknown> = {}
-			for (let i = 0; i < cols; i++) {
-				row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
-					stmt,
-					i,
-				)
-			}
+    this.run(sql, toArray(params), (stmt, cols) => {
+      const row: Record<string, unknown> = {}
+      for (let i = 0; i < cols; i++) {
+        row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
+          stmt,
+          i,
+        )
+      }
 
-			rows.push(row as T)
-		})
+      rows.push(row as T)
+    })
 
-		return rows
-	}
-	selectArray = async (sql: string, params?: SqliteParams) => {
-		this.ensureOpen()
-		const rows: any[][] = []
+    return rows
+  }
+  selectArray = async (sql: string, params?: SqliteParams) => {
+    this.ensureOpen()
+    const rows: any[][] = []
 
-		this.run(sql, toArray(params), (stmt, cols) => {
-			const row: any[] = []
-			for (let i = 0; i < cols; i++) {
-				row.push(columnValue(stmt, i))
-			}
+    this.run(sql, toArray(params), (stmt, cols) => {
+      const row: any[] = []
+      for (let i = 0; i < cols; i++) {
+        row.push(columnValue(stmt, i))
+      }
 
-			rows.push(row)
-		})
+      rows.push(row)
+    })
 
-		return rows
-	}
-	get = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null> => {
-		const rows = await this.select<T>(sql, params)
-		return rows[0] ?? null
-	}
-	getArray = async (sql: string, params?: SqliteParams) => {
-		const rows = await this.selectArray(sql, params)
-		return rows[0] ?? null
-	}
-	transaction = async <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> => {
-		this.ensureOpen()
-		this.run('BEGIN', [])
-		try {
-			const result = await action(this)
-			this.run('COMMIT', [])
-			return result
-		} catch (error) {
-			try {
-				this.run('ROLLBACK', [])
-			} catch {}
+    return rows
+  }
+  get = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null> => {
+    const rows = await this.select<T>(sql, params)
+    return rows[0] ?? null
+  }
+  getArray = async (sql: string, params?: SqliteParams) => {
+    const rows = await this.selectArray(sql, params)
+    return rows[0] ?? null
+  }
+  transaction = async <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> => {
+    this.ensureOpen()
+    this.run('BEGIN', [])
+    try {
+      const result = await action(this)
+      this.run('COMMIT', [])
+      return result
+    } catch (error) {
+      try {
+        this.run('ROLLBACK', [])
+      } catch {}
 
-			throw error
-		}
-	}
-	each = async (
-		sql: string,
-		params: SqliteParams,
-		onRow: (error: Error | null, row: SqliteRow) => void,
-		onDone: (error: Error | null, count: number) => void,
-	) => {
-		this.ensureOpen()
-		let count = 0
+      throw error
+    }
+  }
+  each = async (
+    sql: string,
+    params: SqliteParams,
+    onRow: (error: Error | null, row: SqliteRow) => void,
+    onDone: (error: Error | null, count: number) => void,
+  ) => {
+    this.ensureOpen()
+    let count = 0
 
-		try {
-			this.run(sql, toArray(params), (stmt, cols) => {
-				const row: SqliteRow = {}
-				for (let i = 0; i < cols; i++) {
-					row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
-						stmt,
-						i,
-					)
-				}
+    try {
+      this.run(sql, toArray(params), (stmt, cols) => {
+        const row: SqliteRow = {}
+        for (let i = 0; i < cols; i++) {
+          row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
+            stmt,
+            i,
+          )
+        }
 
-				onRow(null, row)
-				count++
-			})
-		} catch (error) {
-			onDone(error as Error, count)
-			throw error
-		}
+        onRow(null, row)
+        count++
+      })
+    } catch (error) {
+      onDone(error as Error, count)
+      throw error
+    }
 
-		onDone(null, count)
-		return count
-	}
-	getUserVersion = async (): Promise<number> => {
-		this.ensureOpen()
-		return Number((await this.getArray('PRAGMA user_version'))?.[0] ?? 0)
-	}
-	setUserVersion = async (version: number): Promise<void> => {
-		this.ensureOpen()
-		this.run(`PRAGMA user_version = ${version | 0}`, [])
-	}
-	close = async () => {
-		if (!this.isOpen) {
-			return
-		}
+    onDone(null, count)
+    return count
+  }
+  getUserVersion = async (): Promise<number> => {
+    this.ensureOpen()
+    return Number((await this.getArray('PRAGMA user_version'))?.[0] ?? 0)
+  }
+  setUserVersion = async (version: number): Promise<void> => {
+    this.ensureOpen()
+    this.run(`PRAGMA user_version = ${version | 0}`, [])
+  }
+  close = async () => {
+    if (!this.isOpen) {
+      return
+    }
 
-		this.isOpen = false
-		host.sqlite3_close_v2(this.db)
-	}
+    this.isOpen = false
+    host.sqlite3_close_v2(this.db)
+  }
 }
 
 /** Open (or create) a database by name — a bare name resolves to the
  *  app's documents directory on native. */
 export const openDatabase = async (
-	name: string,
-	_options?: OpenDatabaseOptions,
+  name: string,
+  _options?: OpenDatabaseOptions,
 ): Promise<SqliteDb> => {
-	ensureLib()
+  ensureLib()
 
-	const path = name === ':memory:' ? ':memory:' : databasePath(name)
-	const ref = new host.interop.Reference()
-	const rc = host.sqlite3_open(path ?? ':memory:', ref)
+  const path = name === ':memory:' ? ':memory:' : databasePath(name)
+  const ref = new host.interop.Reference()
+  const rc = host.sqlite3_open(path ?? ':memory:', ref)
 
-	if (rc !== 0) {
-		const db = ref.value
-		const message = db
-			? host.interop.stringFromCString(host.sqlite3_errmsg(db))
-			: `open failed (rc=${rc})`
+  if (rc !== 0) {
+    const db = ref.value
+    const message = db
+      ? host.interop.stringFromCString(host.sqlite3_errmsg(db))
+      : `open failed (rc=${rc})`
 
-		if (db) {
-			host.sqlite3_close_v2(db)
-		}
+    if (db) {
+      host.sqlite3_close_v2(db)
+    }
 
-		throw new Error(`sqlite open failed: ${message}`)
-	}
+    throw new Error(`sqlite open failed: ${message}`)
+  }
 
-	const db = ref.value
-	host.sqlite3_busy_timeout(db, 5000)
-	return isolateDatabase(new MacosSqliteDb(db, path != null))
+  const db = ref.value
+  host.sqlite3_busy_timeout(db, 5000)
+  return isolateDatabase(new MacosSqliteDb(db, path != null))
 }
 
 /** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> => {
-	const path = databasePath(name)
-	if (!path) {
-		return false
-	}
+  const path = databasePath(name)
+  if (!path) {
+    return false
+  }
 
-	let removed = false
-	const fm = host.NSFileManager.defaultManager
+  let removed = false
+  const fm = host.NSFileManager.defaultManager
 
-	for (const suffix of ['', '-wal', '-shm', '-journal']) {
-		const target = `${path}${suffix}`
-		if (fs?.existsSync(target)) {
-			removed = !!fm.removeItemAtPathError(target, null) || removed
-		}
-	}
+  for (const suffix of ['', '-wal', '-shm', '-journal']) {
+    const target = `${path}${suffix}`
+    if (fs?.existsSync(target)) {
+      removed = !!fm.removeItemAtPathError(target, null) || removed
+    }
+  }
 
-	return removed
+  return removed
 }

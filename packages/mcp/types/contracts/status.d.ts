@@ -6,35 +6,35 @@
  */
 
 import type {
-	CodeIndexStatus,
-	DocsStatus,
-	GuidanceStatus,
-	ProjectIdentity,
-	RuntimePrerequisite,
+  CodeIndexStatus,
+  DocsStatus,
+  GuidanceStatus,
+  ProjectIdentity,
+  RuntimePrerequisite,
 } from './identity'
 
 import type { PlatformCapabilityMatrix } from './capabilities'
 import type { PermissionGrant } from './policy'
 
 export interface ServerInfo {
-	name: string
-	version: string
+  name: string
+  version: string
 }
 
 export interface ProjectStatusReport {
-	server: ServerInfo
-	identity: ProjectIdentity
-	guidance: GuidanceStatus
-	docs: DocsStatus
-	codeIndex: CodeIndexStatus
-	/** Prerequisites relevant to the detected apps' declared platforms. */
-	prerequisites: RuntimePrerequisite[]
-	/** Matrix for the workspace's declared platforms. */
-	capabilities: PlatformCapabilityMatrix[]
-	/** Current permission grants and their states. */
-	permissions: PermissionGrant[]
-	/** What this product deliberately does not do. */
-	boundaries: readonly string[]
-	/** Ordered next steps for the agent, tailored to the report's actual state. */
-	nextSteps: string[]
+  server: ServerInfo
+  identity: ProjectIdentity
+  guidance: GuidanceStatus
+  docs: DocsStatus
+  codeIndex: CodeIndexStatus
+  /** Prerequisites relevant to the detected apps' declared platforms. */
+  prerequisites: RuntimePrerequisite[]
+  /** Matrix for the workspace's declared platforms. */
+  capabilities: PlatformCapabilityMatrix[]
+  /** Current permission grants and their states. */
+  permissions: PermissionGrant[]
+  /** What this product deliberately does not do. */
+  boundaries: readonly string[]
+  /** Ordered next steps for the agent, tailored to the report's actual state. */
+  nextSteps: string[]
 }

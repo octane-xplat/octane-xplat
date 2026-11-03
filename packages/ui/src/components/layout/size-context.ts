@@ -9,17 +9,17 @@ import type { FieldControlSize } from '../../props'
  *  reset the cascade for their content, matching Astryx's layer-scoped
  *  context. */
 export const SizeContext: Context<FieldControlSize | null> = createContext<FieldControlSize | null>(
-	null,
+  null,
 )
 
 /** Resolve the effective size from an explicit prop, the inherited context,
  *  or the given default — Astryx `useSize`. */
 export function useSize<T extends string = FieldControlSize>(
-	sizeProp?: T,
-	defaultSize: T = 'md' as T,
+  sizeProp?: T,
+  defaultSize: T = 'md' as T,
 ): T {
-	const inherited = useContext(SizeContext)
-	return sizeProp ?? (inherited as T | null) ?? defaultSize
+  const inherited = useContext(SizeContext)
+  return sizeProp ?? (inherited as T | null) ?? defaultSize
 }
 
 /** Provider alias typed `any` — Octane renders the context object itself as

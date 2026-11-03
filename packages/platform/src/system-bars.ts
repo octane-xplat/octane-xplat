@@ -4,33 +4,33 @@ import { Application, Color } from '@nativescript/core'
 
 /** System bar (status/nav bar) service. */
 export const systemBars = {
-	/** Status-bar content appearance — 'light' means light icons on a dark bar. */
-	setStatusBarStyle(style: 'light' | 'dark'): void {
-		// 'light'|'dark' name the icon appearance: 'light' = light content
-		// for dark backgrounds. NS View.statusBarStyle uses the same
-		// convention on both platforms (Android → APPEARANCE_LIGHT_*).
-		const root = Application.getRootView()
-		if (root) {
-			root.statusBarStyle = style
-		}
+  /** Status-bar content appearance — 'light' means light icons on a dark bar. */
+  setStatusBarStyle(style: 'light' | 'dark'): void {
+    // 'light'|'dark' name the icon appearance: 'light' = light content
+    // for dark backgrounds. NS View.statusBarStyle uses the same
+    // convention on both platforms (Android → APPEARANCE_LIGHT_*).
+    const root = Application.getRootView()
+    if (root) {
+      root.statusBarStyle = style
+    }
 
-		if (Application.ios) {
-			const app = Application.ios.nativeApp
+    if (Application.ios) {
+      const app = Application.ios.nativeApp
 
-			// NS 9: per-page statusBarStyle is the preferred seam — the
-			// root-view write above drives it; keep the app-level setter as
-			// fallback for controllers outside the root's hierarchy.
+      // NS 9: per-page statusBarStyle is the preferred seam — the
+      // root-view write above drives it; keep the app-level setter as
+      // fallback for controllers outside the root's hierarchy.
 
-			;(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
-		}
-	},
-	/** Android only — paints both status and navigation bars; no-op elsewhere. */
-	setColor(color: string): void {
-		const c = new Color(color)
-		if (Application.android?.startActivity) {
-			const win = Application.android.startActivity.getWindow()
-			win.setStatusBarColor(c.android)
-			win.setNavigationBarColor(c.android)
-		}
-	},
+      ;(app as any)?.setStatusBarStyle?.(style === 'light' ? 1 : 0)
+    }
+  },
+  /** Android only — paints both status and navigation bars; no-op elsewhere. */
+  setColor(color: string): void {
+    const c = new Color(color)
+    if (Application.android?.startActivity) {
+      const win = Application.android.startActivity.getWindow()
+      win.setStatusBarColor(c.android)
+      win.setNavigationBarColor(c.android)
+    }
+  },
 }

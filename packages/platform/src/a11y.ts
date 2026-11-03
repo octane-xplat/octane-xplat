@@ -5,16 +5,16 @@ import { UIAccessibilityPostNotification } from '@octane-xplat/platform/ios'
 
 /** Speak a string through the platform a11y announcer. */
 export function announce(text: string): void {
-	if (Application.ios) {
-		UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, text)
-		return
-	}
+  if (Application.ios) {
+    UIAccessibilityPostNotification(UIAccessibilityAnnouncementNotification, text)
+    return
+  }
 
-	if (Application.android) {
-		const view = Application.android.foregroundActivity?.findViewById?.(
-			16908290 /* android.R.id.content */,
-		)
+  if (Application.android) {
+    const view = Application.android.foregroundActivity?.findViewById?.(
+      16908290 /* android.R.id.content */,
+    )
 
-		view?.announceForAccessibility?.(text)
-	}
+    view?.announceForAccessibility?.(text)
+  }
 }

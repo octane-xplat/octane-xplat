@@ -10,30 +10,30 @@ import { tokenizeChatText } from './chat-tokenize'
  *  wrapping row: text runs become labels, tokens become chips in order —
  *  same content, wrapped flow instead of true inline. */
 export function ChatTokenizedText(props: ChatTokenizedTextProps): unknown @{
-	const text = props.children ?? ''
-	if (!text || !props.tokens || props.tokens.length === 0) {
-		return (
-			<masonview
-				id={props.id}
-				className={cx('vx-chattext', props.className)}
-				style={mergeStyle({ flexWrap: 'wrap' }, mergeStyle({ display: 'flex' }, props.style))}
-			>
-				<label text={text} />
-			</masonview>
-		)
-	}
+  const text = props.children ?? ''
+  if (!text || !props.tokens || props.tokens.length === 0) {
+    return (
+      <masonview
+        id={props.id}
+        className={cx('vx-chattext', props.className)}
+        style={mergeStyle({ flexWrap: 'wrap' }, mergeStyle({ display: 'flex' }, props.style))}
+      >
+        <label text={text} />
+      </masonview>
+    )
+  }
 
-	<masonview
-		id={props.id}
-		className={cx('vx-chattext', props.className)}
-		style={mergeStyle({ alignItems: 'center' }, mergeStyle({ display: 'flex' }, props.style))}
-	>
-		{tokenizeChatText(text, props.tokens).map((part) =>
-			part.kind === 'token' ? (
-				<ChatTokenChip token={part.token} />
-			) : (
-				<label text={part.text} textWrap={true} />
-			),
-		)}
-	</masonview>
+  <masonview
+    id={props.id}
+    className={cx('vx-chattext', props.className)}
+    style={mergeStyle({ alignItems: 'center' }, mergeStyle({ display: 'flex' }, props.style))}
+  >
+    {tokenizeChatText(text, props.tokens).map((part) =>
+      part.kind === 'token' ? (
+        <ChatTokenChip token={part.token} />
+      ) : (
+        <label text={part.text} textWrap={true} />
+      ),
+    )}
+  </masonview>
 }

@@ -1,9 +1,9 @@
 import type {
-	IndicatorComponent,
-	IndicatorMap,
-	IndicatorName,
-	IndicatorRegistry,
-	ReadableStore,
+  IndicatorComponent,
+  IndicatorMap,
+  IndicatorName,
+  IndicatorRegistry,
+  ReadableStore,
 } from '../../props'
 
 import { CheckboxIndicator } from '../forms/CheckboxIndicator.tsrx'
@@ -18,9 +18,9 @@ export const indicatorScope = 'vx-indicator-scope'
 
 /** Core visuals for the three indicator names. */
 export const defaultIndicators: { [N in IndicatorName]: IndicatorComponent<IndicatorMap[N]> } = {
-	check: CheckIndicator,
-	radio: RadioIndicator,
-	checkbox: CheckboxIndicator,
+  check: CheckIndicator,
+  radio: RadioIndicator,
+  checkbox: CheckboxIndicator,
 }
 
 /** App-registered overrides (the portable `indicators` half of Astryx's
@@ -37,10 +37,10 @@ export const indicatorOverrides: ReadableStore<IndicatorRegistry> = overrides
  * @see IndicatorName, IndicatorProps, IndicatorComponent.
  */
 export function registerIndicator<N extends IndicatorName>(
-	name: N,
-	component: IndicatorComponent<IndicatorMap[N]>,
+  name: N,
+  component: IndicatorComponent<IndicatorMap[N]>,
 ): void {
-	overrides.update((prev) => ({ ...prev, [name]: component }) as IndicatorRegistry)
+  overrides.update((prev) => ({ ...prev, [name]: component }) as IndicatorRegistry)
 }
 
 /**
@@ -49,18 +49,18 @@ export function registerIndicator<N extends IndicatorName>(
  * @see registerIndicator.
  */
 export function registerIndicators(registry: IndicatorRegistry): void {
-	overrides.update((prev) => {
-		const next = { ...prev } as Record<string, IndicatorComponent>
-		let changed = false
-		for (const [name, component] of Object.entries(registry)) {
-			if (component) {
-				next[name] = component as IndicatorComponent
-				changed = true
-			}
-		}
+  overrides.update((prev) => {
+    const next = { ...prev } as Record<string, IndicatorComponent>
+    let changed = false
+    for (const [name, component] of Object.entries(registry)) {
+      if (component) {
+        next[name] = component as IndicatorComponent
+        changed = true
+      }
+    }
 
-		return changed ? (next as IndicatorRegistry) : prev
-	})
+    return changed ? (next as IndicatorRegistry) : prev
+  })
 }
 
 /** Resolve an indicator by name: override → built-in. A non-reactive
@@ -68,11 +68,11 @@ export function registerIndicators(registry: IndicatorRegistry): void {
  *  (module-augmented `IndicatorMap` keys with no built-in) resolve to
  *  `undefined` until registered. */
 export function getIndicator<N extends IndicatorName>(
-	name: N,
+  name: N,
 ): IndicatorComponent<IndicatorMap[N]> | undefined {
-	return (overrides.getSnapshot()[name] ?? defaultIndicators[name]) as
-		| IndicatorComponent<IndicatorMap[N]>
-		| undefined
+  return (overrides.getSnapshot()[name] ?? defaultIndicators[name]) as
+    | IndicatorComponent<IndicatorMap[N]>
+    | undefined
 }
 
 export { CheckboxIndicator, CheckIndicator, RadioIndicator }

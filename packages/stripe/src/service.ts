@@ -1,10 +1,10 @@
 import { backend } from './backend'
 import { createStripeClient } from './client'
 import type {
-	InitStripeParams,
-	PaymentSheetSetupParams,
-	InitPaymentSheetResult,
-	PresentPaymentSheetResult,
+  InitStripeParams,
+  PaymentSheetSetupParams,
+  InitPaymentSheetResult,
+  PresentPaymentSheetResult,
 } from './types'
 
 const client = createStripeClient(backend)
@@ -20,12 +20,12 @@ export const initStripe: (options: InitStripeParams) => Promise<void> = client.i
  * ```
  */
 export const initPaymentSheet: (
-	options: PaymentSheetSetupParams,
+  options: PaymentSheetSetupParams,
 ) => Promise<InitPaymentSheetResult> = client.initPaymentSheet
 
 /** Present SDK-owned secure input. A successful client flow still requires backend payment verification. */
 export const presentPaymentSheet: () => Promise<PresentPaymentSheetResult> =
-	client.presentPaymentSheet
+  client.presentPaymentSheet
 
 /** Release an idle prepared sheet and its client secret. Active checkout must finish or be canceled by the user. */
 export const resetPaymentSheet: () => Promise<InitPaymentSheetResult> = client.resetPaymentSheet
@@ -33,19 +33,19 @@ export const resetPaymentSheet: () => Promise<InitPaymentSheetResult> = client.r
 export const handleURLCallback: (url: string) => Promise<boolean> = client.handleURLCallback
 /** Availability is independent from SDK initialization, merchant setup and payment authorization. */
 export const Stripe: {
-	readonly supported: boolean
-	initStripe: (options: InitStripeParams) => Promise<void>
-	initPaymentSheet: (options: PaymentSheetSetupParams) => Promise<InitPaymentSheetResult>
-	presentPaymentSheet: () => Promise<PresentPaymentSheetResult>
-	resetPaymentSheet: () => Promise<InitPaymentSheetResult>
-	handleURLCallback: (url: string) => Promise<boolean>
+  readonly supported: boolean
+  initStripe: (options: InitStripeParams) => Promise<void>
+  initPaymentSheet: (options: PaymentSheetSetupParams) => Promise<InitPaymentSheetResult>
+  presentPaymentSheet: () => Promise<PresentPaymentSheetResult>
+  resetPaymentSheet: () => Promise<InitPaymentSheetResult>
+  handleURLCallback: (url: string) => Promise<boolean>
 } = {
-	get supported(): boolean {
-		return client.supported
-	},
-	initStripe,
-	initPaymentSheet,
-	presentPaymentSheet,
-	resetPaymentSheet,
-	handleURLCallback,
+  get supported(): boolean {
+    return client.supported
+  },
+  initStripe,
+  initPaymentSheet,
+  presentPaymentSheet,
+  resetPaymentSheet,
+  handleURLCallback,
 }

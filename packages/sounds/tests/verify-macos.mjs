@@ -8,30 +8,30 @@ import { build } from 'vite'
 import { macOSHostArch, hostBundle, hostRoot } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 async function consumer(packed, app, source) {
-	const installed = join(app, 'node_modules/@octane-xplat/sounds')
-	await mkdir(installed, { recursive: true })
-	await cp(packed, installed, { recursive: true })
-	await writeFile(join(app, 'package.json'), JSON.stringify({ type: 'module' }))
-	await writeFile(join(app, 'fixture.mjs'), source)
-	await build({
-		configFile: false,
-		root: app,
-		logLevel: 'error',
-		resolve: { conditions: ['macos', 'native'] },
-		build: {
-			minify: false,
-			lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
-		},
-	})
+  const installed = join(app, 'node_modules/@octane-xplat/sounds')
+  await mkdir(installed, { recursive: true })
+  await cp(packed, installed, { recursive: true })
+  await writeFile(join(app, 'package.json'), JSON.stringify({ type: 'module' }))
+  await writeFile(join(app, 'fixture.mjs'), source)
+  await build({
+    configFile: false,
+    root: app,
+    logLevel: 'error',
+    resolve: { conditions: ['macos', 'native'] },
+    build: {
+      minify: false,
+      lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
+    },
+  })
 
-	return join(app, 'dist/fixture.cjs')
+  return join(app, 'dist/fixture.cjs')
 }
 
 export async function checkPublicImport(packed, app) {
-	const script = await consumer(
-		packed,
-		app,
-		`
+  const script = await consumer(
+    packed,
+    app,
+    `
 import { createSoundBank } from '@octane-xplat/sounds'
 async function check() {
  const bank = createSoundBank({ maxVoices: 2 })
@@ -45,56 +45,56 @@ async function check() {
 }
 check().catch(error => { console.error(error); process.exitCode = 1 })
 `,
-	)
+  )
 
-	const result = spawnSync(process.execPath, [script], { encoding: 'utf8', timeout: 10_000 })
-	assert.equal(result.status, 0, result.stdout + result.stderr)
-	assert.match(result.stdout, /PUBLIC_MACOS_SOUNDS_IMPORT_OK/)
-	console.log('Packed macOS public import/construct passes without mobile peers.')
+  const result = spawnSync(process.execPath, [script], { encoding: 'utf8', timeout: 10_000 })
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  assert.match(result.stdout, /PUBLIC_MACOS_SOUNDS_IMPORT_OK/)
+  console.log('Packed macOS public import/construct passes without mobile peers.')
 }
 
 function silentWav() {
-	const samples = 16000
-	const bytes = Buffer.alloc(44 + samples * 2)
-	bytes.write('RIFF')
-	bytes.writeUInt32LE(bytes.length - 8, 4)
-	bytes.write('WAVEfmt ', 8)
-	bytes.writeUInt32LE(16, 16)
-	bytes.writeUInt16LE(1, 20)
-	bytes.writeUInt16LE(1, 22)
-	bytes.writeUInt32LE(8000, 24)
-	bytes.writeUInt32LE(16000, 28)
-	bytes.writeUInt16LE(2, 32)
-	bytes.writeUInt16LE(16, 34)
-	bytes.write('data', 36)
-	bytes.writeUInt32LE(samples * 2, 40)
-	return bytes
+  const samples = 16000
+  const bytes = Buffer.alloc(44 + samples * 2)
+  bytes.write('RIFF')
+  bytes.writeUInt32LE(bytes.length - 8, 4)
+  bytes.write('WAVEfmt ', 8)
+  bytes.writeUInt32LE(16, 16)
+  bytes.writeUInt16LE(1, 20)
+  bytes.writeUInt16LE(1, 22)
+  bytes.writeUInt32LE(8000, 24)
+  bytes.writeUInt32LE(16000, 28)
+  bytes.writeUInt16LE(2, 32)
+  bytes.writeUInt16LE(16, 34)
+  bytes.write('data', 36)
+  bytes.writeUInt32LE(samples * 2, 40)
+  return bytes
 }
 
 export async function verifyMacOS(packed, temporary) {
-	assert.equal(process.platform, 'darwin')
-	const app = join(temporary, 'target')
-	await mkdir(app, { recursive: true })
-	const local = join(app, 'silence.wav')
-	const malformed = join(app, 'malformed.wav')
-	await writeFile(local, silentWav())
-	await writeFile(malformed, 'not audio')
-	const server = createServer((request, response) => {
-		if (request.url === '/slow') {
-			return
-		}
+  assert.equal(process.platform, 'darwin')
+  const app = join(temporary, 'target')
+  await mkdir(app, { recursive: true })
+  const local = join(app, 'silence.wav')
+  const malformed = join(app, 'malformed.wav')
+  await writeFile(local, silentWav())
+  await writeFile(malformed, 'not audio')
+  const server = createServer((request, response) => {
+    if (request.url === '/slow') {
+      return
+    }
 
-		response.writeHead(request.url === '/audio.wav' ? 200 : 404, { 'Content-Type': 'audio/wav' })
-		response.end(request.url === '/audio.wav' ? silentWav() : 'missing')
-	})
+    response.writeHead(request.url === '/audio.wav' ? 200 : 404, { 'Content-Type': 'audio/wav' })
+    response.end(request.url === '/audio.wav' ? silentWav() : 'missing')
+  })
 
-	await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-	const remote = `http://127.0.0.1:${server.address().port}`
-	try {
-		const script = await consumer(
-			packed,
-			app,
-			`
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+  const remote = `http://127.0.0.1:${server.address().port}`
+  try {
+    const script = await consumer(
+      packed,
+      app,
+      `
 import { createSoundBank } from '@octane-xplat/sounds'
 const application = NSApplication.sharedApplication
 console.log('MACOS_SOUNDS_BEGIN')
@@ -158,51 +158,51 @@ async function main() {
 }
 main().then(() => __xplatStopHost(), error => { console.log('MACOS_SOUNDS_ERROR', String(error), error.stack || ''); __xplatStopHost() })
 `,
-		)
+    )
 
-		// Use the existing system metadata and host shim; no added native engine/library.
-		const { spawn } = await import('node:child_process')
-		const output = await new Promise((resolve, reject) => {
-			const child = spawn(
-				join(hostBundle, 'host'),
-				[
-					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-					script,
-					join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-					join(hostRoot, 'shim.js'),
-				],
-				{ cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
-			)
+    // Use the existing system metadata and host shim; no added native engine/library.
+    const { spawn } = await import('node:child_process')
+    const output = await new Promise((resolve, reject) => {
+      const child = spawn(
+        join(hostBundle, 'host'),
+        [
+          join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+          script,
+          join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+          join(hostRoot, 'shim.js'),
+        ],
+        { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
+      )
 
-			let text = ''
-			child.stdout.on('data', (chunk) => {
-				text += chunk
-			})
+      let text = ''
+      child.stdout.on('data', (chunk) => {
+        text += chunk
+      })
 
-			child.stderr.on('data', (chunk) => {
-				text += chunk
-			})
+      child.stderr.on('data', (chunk) => {
+        text += chunk
+      })
 
-			const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
-			child.once('error', (error) => {
-				clearTimeout(timeout)
-				reject(error)
-			})
+      const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
+      child.once('error', (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
 
-			child.once('close', (code, signal) => {
-				clearTimeout(timeout)
-				if (code === 0) {
-					resolve(text)
-				} else {
-					reject(Error(`host exited ${code} ${signal}: ${text}`))
-				}
-			})
-		})
+      child.once('close', (code, signal) => {
+        clearTimeout(timeout)
+        if (code === 0) {
+          resolve(text)
+        } else {
+          reject(Error(`host exited ${code} ${signal}: ${text}`))
+        }
+      })
+    })
 
-		assert.match(output, /MACOS_SOUNDS_TARGET_OK/, output)
-		console.log(output.trim())
-	} finally {
-		server.closeAllConnections()
-		await new Promise((resolve) => server.close(resolve))
-	}
+    assert.match(output, /MACOS_SOUNDS_TARGET_OK/, output)
+    console.log(output.trim())
+  } finally {
+    server.closeAllConnections()
+    await new Promise((resolve) => server.close(resolve))
+  }
 }

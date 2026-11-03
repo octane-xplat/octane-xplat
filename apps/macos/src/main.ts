@@ -11,16 +11,16 @@ const root = createMacOSRoot(contentView, harnessFontOptions)
 let rootUnmounted = false
 
 function unmountMainRoot() {
-	if (rootUnmounted) {
-		return
-	}
+  if (rootUnmounted) {
+    return
+  }
 
-	rootUnmounted = true
-	try {
-		root.unmount()
-	} catch (error) {
-		console.error('[macos] main window root unmount failed', error)
-	}
+  rootUnmounted = true
+  try {
+    root.unmount()
+  } catch (error) {
+    console.error('[macos] main window root unmount failed', error)
+  }
 }
 
 root.render(App as any, { parentWindow: mainWindow })
@@ -30,29 +30,29 @@ console.log('[macos-bundle] component rendered')
 // The host installs `__xplatStopHost` on globalThis; no ambient declaration
 // covers it, so the contract is named here.
 interface HostGlobals {
-	__xplatStopHost?: () => void
+  __xplatStopHost?: () => void
 }
 
 void windowClosed.then(unmountMainRoot)
 void applicationClosed.then(() => {
-	unmountMainRoot()
-	mainWindow.delegate = null as unknown as NSWindowDelegate
-	mainWindow.close()
-	app.delegate = null as unknown as NSApplicationDelegate
-	appKit.delegate = null
-	const stopHost = (globalThis as HostGlobals).__xplatStopHost
-	if (typeof stopHost === 'function') {
-		stopHost()
-	}
+  unmountMainRoot()
+  mainWindow.delegate = null as unknown as NSWindowDelegate
+  mainWindow.close()
+  app.delegate = null as unknown as NSApplicationDelegate
+  appKit.delegate = null
+  const stopHost = (globalThis as HostGlobals).__xplatStopHost
+  if (typeof stopHost === 'function') {
+    stopHost()
+  }
 })
 
 const externalRunLoop =
-	(globalThis as typeof globalThis & { process: { env: Record<string, string | undefined> } })
-		.process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
+  (globalThis as typeof globalThis & { process: { env: Record<string, string | undefined> } })
+    .process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
 
 if (externalRunLoop) {
-	app.finishLaunching()
-	app.activateIgnoringOtherApps(true)
+  app.finishLaunching()
+  app.activateIgnoringOtherApps(true)
 } else {
-	app.run()
+  app.run()
 }

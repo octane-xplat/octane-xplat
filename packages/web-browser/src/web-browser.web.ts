@@ -7,19 +7,19 @@ import type { OpenBrowserOptions, WebBrowser, WebBrowserResult } from './types'
 let opened: Window | null = null
 
 export const webBrowser: WebBrowser = {
-	supported: typeof window !== 'undefined' && typeof window.open === 'function',
+  supported: typeof window !== 'undefined' && typeof window.open === 'function',
 
-	openBrowser(url: string, _options?: OpenBrowserOptions): Promise<WebBrowserResult> {
-		opened = window.open(url, '_blank', 'noopener')
-		return Promise.resolve({ type: opened ? 'opened' : 'cancel' })
-	},
+  openBrowser(url: string, _options?: OpenBrowserOptions): Promise<WebBrowserResult> {
+    opened = window.open(url, '_blank', 'noopener')
+    return Promise.resolve({ type: opened ? 'opened' : 'cancel' })
+  },
 
-	dismissBrowser(): void {
-		opened?.close()
-		opened = null
-	},
+  dismissBrowser(): void {
+    opened?.close()
+    opened = null
+  },
 
-	warmUp: () => Promise.resolve(),
-	coolDown: () => Promise.resolve(),
-	mayInitWithUrl: () => Promise.resolve(),
+  warmUp: () => Promise.resolve(),
+  coolDown: () => Promise.resolve(),
+  mayInitWithUrl: () => Promise.resolve(),
 }

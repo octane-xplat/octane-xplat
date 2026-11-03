@@ -3,14 +3,14 @@ import { SheetPanel } from '../SheetPanel.tsrx'
 
 export { closeBottomSheet }
 export function bottomSheetHost(): null {
-	return null
+  return null
 }
 
 export function openBottomSheet(
-	Component: unknown = SheetPanel,
-	props: Record<string, unknown> = {},
+  Component: unknown = SheetPanel,
+  props: Record<string, unknown> = {},
 ): void {
-	openSheetUI(Component as any, props).catch((error: Error) => {
-		console.log('[probe] sheet unsupported: ' + error.message)
-	})
+  openSheetUI(Component as any, props).catch((error: Error) => {
+    console.log('[probe] sheet unsupported: ' + error.message)
+  })
 }

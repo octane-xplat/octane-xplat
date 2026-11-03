@@ -6,7 +6,7 @@ import { ParityStage } from '../parity/stage.tsrx'
  *  on native for the sweep step. Renders the fixture stage only; no app
  *  chrome so the stage is the whole measurable surface. */
 export function Parity() @{
-	<Screen className="vx-app">
-		<ParityStage />
-	</Screen>
+  <Screen className="vx-app">
+    <ParityStage />
+  </Screen>
 }

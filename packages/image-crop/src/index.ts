@@ -1,12 +1,12 @@
 export { ImageCrop } from './ImageCrop.tsrx'
 export {
-	containFrame,
-	constrainCrop,
-	convertToPixelCrop,
-	convertToPercentCrop,
-	toNaturalCrop,
-	fromNaturalCrop,
-	dragCrop,
+  containFrame,
+  constrainCrop,
+  convertToPixelCrop,
+  convertToPercentCrop,
+  toNaturalCrop,
+  fromNaturalCrop,
+  dragCrop,
 } from './geometry'
 
 export type * from './props'

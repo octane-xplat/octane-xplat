@@ -17,31 +17,31 @@ const bundle = join(hostRoot, 'prebuilt/macos')
 const temporary = await mkdtemp(join(tmpdir(), 'xplat-image-native-'))
 
 try {
-	const orientations = JSON.parse(
-		await readFile(join(packageRoot, 'tests/orientation-fixtures.json'), 'utf8'),
-	)
+  const orientations = JSON.parse(
+    await readFile(join(packageRoot, 'tests/orientation-fixtures.json'), 'utf8'),
+  )
 
-	const image = join(temporary, 'source.png')
-	await writeFile(image, png())
-	const modules = []
-	for (const name of ['types', 'geometry', 'backend.macos', 'core']) {
-		const source = await readFile(join(packageRoot, 'src', `${name}.ts`), 'utf8')
-		const code = ts.transpile(source, {
-			module: ts.ModuleKind.CommonJS,
-			target: ts.ScriptTarget.ES2022,
-		})
+  const image = join(temporary, 'source.png')
+  await writeFile(image, png())
+  const modules = []
+  for (const name of ['types', 'geometry', 'backend.macos', 'core']) {
+    const source = await readFile(join(packageRoot, 'src', `${name}.ts`), 'utf8')
+    const code = ts.transpile(source, {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    })
 
-		modules.push(
-			`registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
-		)
-	}
+    modules.push(
+      `registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
+    )
+  }
 
-	// The existing native runtime/metadata is reused. No app window, screenshots,
-	// platform rebuild, or mutations of the remote repository are needed.
-	const fixture = join(temporary, 'fixture.cjs')
-	await writeFile(
-		fixture,
-		`
+  // The existing native runtime/metadata is reused. No app window, screenshots,
+  // platform rebuild, or mutations of the remote repository are needed.
+  const fixture = join(temporary, 'fixture.cjs')
+  await writeFile(
+    fixture,
+    `
 (function () {
 const registry = {};
 const require = spec => {
@@ -122,58 +122,58 @@ setTimeout(async () => {
 }, 0);
 })();
 `,
-	)
+  )
 
-	const bootstrap = join(temporary, 'bootstrap.js')
-	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
-	const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
-	const bytes = await readFile(join(bundle, 'host'))
-	assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
-	const executable = join(temporary, 'host')
-	await writeFile(executable, bytes, { mode: 0o755 })
-	const result = spawnSync(
-		executable,
-		[
-			join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			fixture,
-			join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
-			bootstrap,
-		],
-		{ cwd: temporary, encoding: 'utf8', timeout: 20_000 },
-	)
+  const bootstrap = join(temporary, 'bootstrap.js')
+  await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+  const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
+  const bytes = await readFile(join(bundle, 'host'))
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
+  const executable = join(temporary, 'host')
+  await writeFile(executable, bytes, { mode: 0o755 })
+  const result = spawnSync(
+    executable,
+    [
+      join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      fixture,
+      join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
+      bootstrap,
+    ],
+    { cwd: temporary, encoding: 'utf8', timeout: 20_000 },
+  )
 
-	const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
-	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /IMAGE_APPKIT_FAIL/)
-	assert.match(output, /IMAGE_APPKIT_OK/)
-	const samples = output.split('\n').filter((line) => line.startsWith('IMAGE_PIXELS '))
-	assert.equal(samples.length, 5)
-	for (const line of samples) {
-		const sample = JSON.parse(line.slice('IMAGE_PIXELS '.length))
-		const actual = redsOf(sample.base64)
-		assert.ok(
-			actual.length === sample.expected.length &&
-				actual.every((value, index) => Math.abs(value - sample.expected[index]) <= 1),
-			`${sample.message}: ${JSON.stringify(actual)}`,
-		)
-	}
+  const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
+  assert.equal(result.status, 0, output)
+  assert.doesNotMatch(output, /IMAGE_APPKIT_FAIL/)
+  assert.match(output, /IMAGE_APPKIT_OK/)
+  const samples = output.split('\n').filter((line) => line.startsWith('IMAGE_PIXELS '))
+  assert.equal(samples.length, 5)
+  for (const line of samples) {
+    const sample = JSON.parse(line.slice('IMAGE_PIXELS '.length))
+    const actual = redsOf(sample.base64)
+    assert.ok(
+      actual.length === sample.expected.length &&
+        actual.every((value, index) => Math.abs(value - sample.expected[index]) <= 1),
+      `${sample.message}: ${JSON.stringify(actual)}`,
+    )
+  }
 
-	checkOrientations(
-		output
-			.split('\n')
-			.filter((line) => line.startsWith('IMAGE_ORIENTATION '))
-			.map((line) => JSON.parse(line.slice('IMAGE_ORIENTATION '.length))),
-	)
+  checkOrientations(
+    output
+      .split('\n')
+      .filter((line) => line.startsWith('IMAGE_ORIENTATION '))
+      .map((line) => JSON.parse(line.slice('IMAGE_ORIENTATION '.length))),
+  )
 
-	console.log(
-		output
-			.split('\n')
-			.filter((line) => !line.startsWith('IMAGE_PIXELS ') && !line.startsWith('IMAGE_ORIENTATION '))
-			.join('\n')
-			.trim(),
-	)
+  console.log(
+    output
+      .split('\n')
+      .filter((line) => !line.startsWith('IMAGE_PIXELS ') && !line.startsWith('IMAGE_ORIENTATION '))
+      .join('\n')
+      .trim(),
+  )
 
-	console.log('Eight EXIF orientations passed independently decoded pixel and dimension checks.')
+  console.log('Eight EXIF orientations passed independently decoded pixel and dimension checks.')
 } finally {
-	await rm(temporary, { recursive: true, force: true })
+  await rm(temporary, { recursive: true, force: true })
 }

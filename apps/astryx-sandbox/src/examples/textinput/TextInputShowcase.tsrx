@@ -3,9 +3,9 @@ import { TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function TextInputShowcase() @{
-	const [value, setValue] = useState('')
+  const [value, setValue] = useState('')
 
-	<div style={{ width: 300 }}>
-		<TextInput label="Name" value={value} onChange={setValue} placeholder="Enter your name" />
-	</div>
+  <div style={{ width: 300 }}>
+    <TextInput label="Name" value={value} onChange={setValue} placeholder="Enter your name" />
+  </div>
 }

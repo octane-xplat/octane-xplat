@@ -4,12 +4,12 @@ import type { UseContainerRevealOptions, UseContainerRevealReturn } from '../../
  * Touch pointers always show actions; nested containers own their own state.
  * Import the shared UI stylesheet, as for other shared components. */
 export function useContainerReveal(
-	options: UseContainerRevealOptions = {},
+  options: UseContainerRevealOptions = {},
 ): UseContainerRevealReturn {
-	return {
-		getContainerProps: () =>
-			options.isEnabled === false ? {} : { className: 'xds-reveal-container' },
-		getContentRevealProps: () =>
-			options.isEnabled === false ? {} : { className: 'xds-reveal-content' },
-	}
+  return {
+    getContainerProps: () =>
+      options.isEnabled === false ? {} : { className: 'xds-reveal-container' },
+    getContentRevealProps: () =>
+      options.isEnabled === false ? {} : { className: 'xds-reveal-content' },
+  }
 }

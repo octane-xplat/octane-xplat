@@ -4,9 +4,9 @@ import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { ViewProps } from '../../props'
 import {
-	applyEscapeProps,
-	nativeAccessibilityRole,
-	nativeAccessibilityState,
+  applyEscapeProps,
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
 } from '../overlays/escape-props'
 
 import { layoutChildProps } from './layout-child'
@@ -17,32 +17,32 @@ import { usePan } from './pan.tsrx'
  *  are normalized to the shared gesture shape (animation-gestures.md):
  *  { x, y, dx, dy, vx, vy, state: 'began'|'moved'|'ended'|'cancelled' }. */
 export function View(props: ViewProps): unknown @{
-	const forwardedRef = useMemo(
-		() =>
-			refList((v: any) => {
-				if (v) {
-					applyEscapeProps(v, props)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((v: any) => {
+        if (v) {
+          applyEscapeProps(v, props)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<masonview
-		id={props.id}
-		testID={props.testID ?? ''}
-		{...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
-		ref={forwardedRef}
-		className={['vx-view', props.className]}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState)}
-		accessibilityLiveRegion={props.accessibilityLiveRegion}
-		onPan={usePan(props.onPan)}
-		onSwipe={props.onSwipe}
-	>
-		{props.children}
-	</masonview>
+  <masonview
+    id={props.id}
+    testID={props.testID ?? ''}
+    {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
+    ref={forwardedRef}
+    className={['vx-view', props.className]}
+    accessible={props.accessible}
+    accessibilityLabel={props.accessibilityLabel}
+    accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+    accessibilityHint={props.accessibilityHint}
+    accessibilityValue={props.accessibilityValue}
+    accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+    accessibilityLiveRegion={props.accessibilityLiveRegion}
+    onPan={usePan(props.onPan)}
+    onSwipe={props.onSwipe}
+  >
+    {props.children}
+  </masonview>
 }

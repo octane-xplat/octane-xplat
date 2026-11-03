@@ -9,56 +9,56 @@ import { createPortal } from '../../internal/platform/native-portal'
 /** Native GTK owns intent and popup geometry; the portal keeps content in
  * this component's universal root, including its context and updates. */
 export function Tooltip(props: TooltipProps): unknown @{
-	const anchor = useRef<any>(null)
-	const [session, setSession] = useState<any>(null)
-	const [open, setOpen] = useState(false)
-	const options = {
-		disabled: props.disabled,
-		openDelay: props.openDelay,
-		closeDelay: props.closeDelay,
-		placement: props.placement,
-		onOpen: () => setOpen(true),
-		onClose: () => setOpen(false),
-	}
+  const anchor = useRef<any>(null)
+  const [session, setSession] = useState<any>(null)
+  const [open, setOpen] = useState(false)
+  const options = {
+    disabled: props.disabled,
+    openDelay: props.openDelay,
+    closeDelay: props.closeDelay,
+    placement: props.placement,
+    onOpen: () => setOpen(true),
+    onClose: () => setOpen(false),
+  }
 
-	const current = useRef(options)
-	current.current = options
-	useEffect(() => {
-		const live = anchor.current.createTooltip(current.current)
-		setSession(live)
-		return () => live.dispose()
-	}, [])
+  const current = useRef(options)
+  current.current = options
+  useEffect(() => {
+    const live = anchor.current.createTooltip(current.current)
+    setSession(live)
+    return () => live.dispose()
+  }, [])
 
-	useEffect(() => {
-		session?.configure(options)
-	}, [session, props.disabled, props.openDelay, props.closeDelay, props.placement])
+  useEffect(() => {
+    session?.configure(options)
+  }, [session, props.disabled, props.openDelay, props.closeDelay, props.placement])
 
-	useEffect(() => {
-		if (open) {
-			session?.show()
-		} else {
-			session?.hide()
-		}
-	}, [session, open])
+  useEffect(() => {
+    if (open) {
+      session?.show()
+    } else {
+      session?.hide()
+    }
+  }, [session, open])
 
-	const content =
-		typeof props.content === 'string' || typeof props.content === 'number' ? (
-			<Text>{props.content}</Text>
-		) : (
-			props.content
-		)
+  const content =
+    typeof props.content === 'string' || typeof props.content === 'number' ? (
+      <Text>{props.content}</Text>
+    ) : (
+      props.content
+    )
 
-	<>
-		<View id={props.id} className={props.className} style={props.style} ref={anchor}>
-			{props.trigger}
-		</View>
-		{open && session
-			? createPortal(
-					<View className={cx('vx-tooltip', props.contentClassName)} style={props.contentStyle}>
-						{content}
-					</View>,
-					session.target,
-				)
-			: null}
-	</>
+  <>
+    <View id={props.id} className={props.className} style={props.style} ref={anchor}>
+      {props.trigger}
+    </View>
+    {open && session
+      ? createPortal(
+          <View className={cx('vx-tooltip', props.contentClassName)} style={props.contentStyle}>
+            {content}
+          </View>,
+          session.target,
+        )
+      : null}
+  </>
 }

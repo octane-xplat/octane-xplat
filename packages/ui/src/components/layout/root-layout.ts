@@ -8,16 +8,16 @@ const registry: RootLayout[] = []
 
 /** Called by the Screen leaf's <rootlayout> onLoaded/onUnloaded. */
 export function registerRootLayout(rl: RootLayout | undefined | null): void {
-	if (rl && !registry.includes(rl)) {
-		registry.push(rl)
-	}
+  if (rl && !registry.includes(rl)) {
+    registry.push(rl)
+  }
 }
 
 export function unregisterRootLayout(rl: RootLayout | undefined | null): void {
-	const i = rl ? registry.indexOf(rl) : -1
-	if (i >= 0) {
-		registry.splice(i, 1)
-	}
+  const i = rl ? registry.indexOf(rl) : -1
+  if (i >= 0) {
+    registry.splice(i, 1)
+  }
 }
 
 /** The most recently mounted rootlayout — the top of the push stack. For
@@ -25,7 +25,7 @@ export function unregisterRootLayout(rl: RootLayout | undefined | null): void {
  *  walk from; last-mounted is the pushed page when one exists. Caveat: tabs
  *  keep visited panes mounted — last is the newest, not the visible tab. */
 export function topRootLayout(): RootLayout | undefined {
-	return registry[registry.length - 1] ?? getRootLayout()
+  return registry[registry.length - 1] ?? getRootLayout()
 }
 
 /** Resolve the RootLayout enclosing `view` by walking the native parent
@@ -33,39 +33,39 @@ export function topRootLayout(): RootLayout | undefined {
  *  RootLayout ancestor IS the current page's overlay host. Falls back to
  *  the top registry entry when the component renders outside any Screen. */
 export function rootLayoutFor(view: any): RootLayout | undefined {
-	for (let v = view?.parent; v; v = v.parent) {
-		if (v instanceof RootLayout) {
-			return v
-		}
-	}
+  for (let v = view?.parent; v; v = v.parent) {
+    if (v instanceof RootLayout) {
+      return v
+    }
+  }
 
-	return topRootLayout()
+  return topRootLayout()
 }
 
 /** A long-lived service outlet can stay on a hidden backstack Page. Present
  * in that Frame's visible Page while retaining the outlet's logical context. */
 export function currentRootLayoutFor(view: any): RootLayout | undefined {
-	const page = view?.page
-	const current = page?.frame?.currentPage
-	if (!current || current === page) {
-		return rootLayoutFor(view)
-	}
+  const page = view?.page
+  const current = page?.frame?.currentPage
+  if (!current || current === page) {
+    return rootLayoutFor(view)
+  }
 
-	const walk = (node: any): RootLayout | undefined => {
-		if (node instanceof RootLayout && node.isLoaded) {
-			return node
-		}
+  const walk = (node: any): RootLayout | undefined => {
+    if (node instanceof RootLayout && node.isLoaded) {
+      return node
+    }
 
-		let result: RootLayout | undefined
-		node?.eachChildView?.((child: any) => {
-			result = walk(child)
-			return !result
-		})
+    let result: RootLayout | undefined
+    node?.eachChildView?.((child: any) => {
+      result = walk(child)
+      return !result
+    })
 
-		return result
-	}
+    return result
+  }
 
-	return walk(current)
+  return walk(current)
 }
 
 /** Search every registered rootlayout for a view by id — overlays/sheets/
@@ -76,40 +76,40 @@ export function currentRootLayoutFor(view: any): RootLayout | undefined {
  *  interaction probes — the live view either doesn't exist here yet or sits
  *  under a loaded branch. */
 export function findInRootLayouts(id: string): any {
-	const walk = (view: any): any => {
-		if (!view) {
-			return null
-		}
+  const walk = (view: any): any => {
+    if (!view) {
+      return null
+    }
 
-		if (view.id === id) {
-			return view
-		}
+    if (view.id === id) {
+      return view
+    }
 
-		let hit: any = null
-		view.eachChildView?.((c: any) => {
-			if (c?.isLoaded === false) {
-				return true
-			}
+    let hit: any = null
+    view.eachChildView?.((c: any) => {
+      if (c?.isLoaded === false) {
+        return true
+      }
 
-			const found = walk(c)
-			if (found) {
-				hit = found
-				return false
-			}
+      const found = walk(c)
+      if (found) {
+        hit = found
+        return false
+      }
 
-			return true
-		})
+      return true
+    })
 
-		return hit
-	}
+    return hit
+  }
 
-	for (let i = registry.length - 1; i >= 0; i--) {
-		const hit = walk(registry[i])
-		if (hit) {
-			return hit
-		}
-	}
+  for (let i = registry.length - 1; i >= 0; i--) {
+    const hit = walk(registry[i])
+    if (hit) {
+      return hit
+    }
+  }
 
-	const rl = getRootLayout()
-	return rl ? walk(rl) : null
+  const rl = getRootLayout()
+  return rl ? walk(rl) : null
 }

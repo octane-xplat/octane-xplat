@@ -24,43 +24,43 @@
 
 import { devBridgeEndpoint, devBridgePlatform } from './dev-bridge'
 import {
-	validateActionDeclaration,
-	validateActionInput,
-	validateActionOutput,
-	type DevActionFields,
+  validateActionDeclaration,
+  validateActionInput,
+  validateActionOutput,
+  type DevActionFields,
 } from './dev-actions-schema'
 
 export type DevActionInfo = {
-	/** Stable action/run identifier. */
-	id: string
-	/** Display title. */
-	title: string
-	description: string
-	/** Current input values. */
-	input: DevActionFields | undefined
-	/** Execution result. */
-	result: DevActionFields | undefined
-	/** Declared side-effect targets. */
-	effects: DevActionEffects
-	/** Whether the action can run now. */
-	availability: {
-		reason?: string | undefined
-		ready: boolean
-		route?:
-			| {
-					url: string
-					fromInput?: undefined
-			  }
-			| {
-					fromInput: boolean
-					url?: undefined
-			  }
-			| undefined
-		readyWhen?: string | undefined
-		platforms?: DevPlatform[] | undefined
-	}
-	/** Current/last execution record. */
-	execution: DevActionExecution | undefined
+  /** Stable action/run identifier. */
+  id: string
+  /** Display title. */
+  title: string
+  description: string
+  /** Current input values. */
+  input: DevActionFields | undefined
+  /** Execution result. */
+  result: DevActionFields | undefined
+  /** Declared side-effect targets. */
+  effects: DevActionEffects
+  /** Whether the action can run now. */
+  availability: {
+    reason?: string | undefined
+    ready: boolean
+    route?:
+      | {
+          url: string
+          fromInput?: undefined
+        }
+      | {
+          fromInput: boolean
+          url?: undefined
+        }
+      | undefined
+    readyWhen?: string | undefined
+    platforms?: DevPlatform[] | undefined
+  }
+  /** Current/last execution record. */
+  execution: DevActionExecution | undefined
 }[]
 
 export type { DevActionField, DevActionFields } from './dev-actions-schema'
@@ -70,86 +70,86 @@ export type DevPlatform = 'web' | 'ios' | 'android' | 'macos' | 'linux' | 'windo
 
 /** Disclosed effect categories — the agent reads these to judge authorization. */
 export interface DevActionEffects {
-	/** Plain-language summary of what the action changes. */
-	summary: string
-	/** Auth service available to actions. */
-	auth?: boolean
-	/** Navigation service available to actions. */
-	navigation?: boolean
-	/** App-state service. */
-	appState?: boolean
-	/** Test-data injection seam. */
-	testData?: boolean
-	/** Effects outside the app (external test services, destructive resets) — the MCP server requires the external-effects grant. */
-	externalEffects?: boolean
+  /** Plain-language summary of what the action changes. */
+  summary: string
+  /** Auth service available to actions. */
+  auth?: boolean
+  /** Navigation service available to actions. */
+  navigation?: boolean
+  /** App-state service. */
+  appState?: boolean
+  /** Test-data injection seam. */
+  testData?: boolean
+  /** Effects outside the app (external test services, destructive resets) — the MCP server requires the external-effects grant. */
+  externalEffects?: boolean
 }
 
 /** Whether a dev action can run. */
 export interface DevActionAvailability {
-	/** Platforms this action applies to; absent = all. */
-	platforms?: DevPlatform[]
-	/** Live readiness — boolean or a probe evaluated on every announce/invoke. */
-	ready?: boolean | (() => { ready: boolean; reason?: string } | boolean)
-	/** Readiness conditions, e.g. "mock test server reachable". */
-	readyWhen?: string
+  /** Platforms this action applies to; absent = all. */
+  platforms?: DevPlatform[]
+  /** Live readiness — boolean or a probe evaluated on every announce/invoke. */
+  ready?: boolean | (() => { ready: boolean; reason?: string } | boolean)
+  /** Readiness conditions, e.g. "mock test server reachable". */
+  readyWhen?: string
 }
 
 /** One execution of a dev action. */
 export interface DevActionExecution {
-	/** 'serialized' (default) runs one action per app instance at a time; 'overlap' declares safe concurrency. */
-	concurrency?: 'serialized' | 'overlap'
-	/** Cooperative cancellation supported by the handler. */
-	cancellable?: boolean
-	/** Idempotent — safe for a retry after an uncertain outcome. */
-	retryable?: boolean
-	/** Execution deadline enforced by the caller; bounded server-side. Route-declared actions spend at most half of it navigating and waiting for the handler. */
-	timeoutMs?: number
+  /** 'serialized' (default) runs one action per app instance at a time; 'overlap' declares safe concurrency. */
+  concurrency?: 'serialized' | 'overlap'
+  /** Cooperative cancellation supported by the handler. */
+  cancellable?: boolean
+  /** Idempotent — safe for a retry after an uncertain outcome. */
+  retryable?: boolean
+  /** Execution deadline enforced by the caller; bounded server-side. Route-declared actions spend at most half of it navigating and waiting for the handler. */
+  timeoutMs?: number
 }
 
 /** Services a dev action may use. */
 export interface DevActionContext {
-	/** Aborted when the caller requests cancellation (cancellable actions only) or when the running handler's owner detaches. */
-	signal: AbortSignal
-	/** Correlation id for the request. */
-	requestId: string
-	/** Disclose a change the action already made — reported back on failure/cancel. */
-	reportPartialEffect(effect: string): void
+  /** Aborted when the caller requests cancellation (cancellable actions only) or when the running handler's owner detaches. */
+  signal: AbortSignal
+  /** Correlation id for the request. */
+  requestId: string
+  /** Disclose a change the action already made — reported back on failure/cancel. */
+  reportPartialEffect(effect: string): void
 }
 
 /** Registered dev-action spec. */
 export interface DevActionSpec {
-	/** Stable machine identity, e.g. `auth.login-as-test-admin`. */
-	id: string
-	/** Display title. */
-	title: string
-	/** When to use it and what successful completion means. */
-	description: string
-	/** Current input values. */
-	input?: DevActionFields
-	/** Execution result. */
-	result?: DevActionFields
-	/** Declared side-effect targets. */
-	effects: DevActionEffects
-	/** Whether the action can run now. */
-	availability?: DevActionAvailability
-	/** Current/last execution record. */
-	execution?: DevActionExecution
-	/**
-	 * URL (e.g. '/checkout') — or an input-derived URL — the framework
-	 * navigates to when this action is invoked without an attached handler.
-	 * Screen-owned actions declare this so agents can reach them without
-	 * knowing app route structure. Dev actions only.
-	 */
-	route?: string | ((input: Record<string, unknown>) => string)
-	/** The handler. May return a Promise; the awaited result is validated
-	 *  against the declared `result` contract, so `unknown` is honest here. */
-	run(input: Record<string, unknown>, context: DevActionContext): unknown
+  /** Stable machine identity, e.g. `auth.login-as-test-admin`. */
+  id: string
+  /** Display title. */
+  title: string
+  /** When to use it and what successful completion means. */
+  description: string
+  /** Current input values. */
+  input?: DevActionFields
+  /** Execution result. */
+  result?: DevActionFields
+  /** Declared side-effect targets. */
+  effects: DevActionEffects
+  /** Whether the action can run now. */
+  availability?: DevActionAvailability
+  /** Current/last execution record. */
+  execution?: DevActionExecution
+  /**
+   * URL (e.g. '/checkout') — or an input-derived URL — the framework
+   * navigates to when this action is invoked without an attached handler.
+   * Screen-owned actions declare this so agents can reach them without
+   * knowing app route structure. Dev actions only.
+   */
+  route?: string | ((input: Record<string, unknown>) => string)
+  /** The handler. May return a Promise; the awaited result is validated
+   *  against the declared `result` contract, so `unknown` is honest here. */
+  run(input: Record<string, unknown>, context: DevActionContext): unknown
 }
 
 /** Handle for a running dev action. */
 export interface DevActionHandle {
-	/** Remove this registration's declaration/attachment; idempotent. */
-	dispose(): void
+  /** Remove this registration's declaration/attachment; idempotent. */
+  dispose(): void
 }
 
 /** A development-action declaration without its handler — the announced contract. */
@@ -163,80 +163,80 @@ export type DevEffectDeclaration = Omit<DevActionDeclaration, 'result'>
 
 /** A declared dev action: the announced contract plus its disposal handle. */
 export interface DevActionDefinition extends DevActionHandle {
-	/** The declared action id. */
-	readonly id: string
-	/** Discriminates from a dev-effect definition. */
-	readonly kind: 'action'
+  /** The declared action id. */
+  readonly id: string
+  /** Discriminates from a dev-effect definition. */
+  readonly kind: 'action'
 }
 
 /** A declared dev effect: every attached handler runs on each invocation. */
 export interface DevEffectDefinition extends DevActionHandle {
-	/** The declared effect id. */
-	readonly id: string
-	/** Discriminates from a dev-action definition. */
-	readonly kind: 'effect'
+  /** The declared effect id. */
+  readonly id: string
+  /** Discriminates from a dev-action definition. */
+  readonly kind: 'effect'
 }
 
 /** One handler's failure as structured data — which owner threw, and the error it threw. */
 export interface DevActionFailure {
-	/** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
-	handler: number
-	/** Optional owner label (e.g. component name) supplied at attach time. */
-	label?: string
-	/** Error/action name. */
-	name: string
-	/** Error message. */
-	message: string
-	/** Error stack trace. */
-	stack?: string
+  /** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
+  handler: number
+  /** Optional owner label (e.g. component name) supplied at attach time. */
+  label?: string
+  /** Error/action name. */
+  name: string
+  /** Error message. */
+  message: string
+  /** Error stack trace. */
+  stack?: string
 }
 
 type AvailabilityProbe = () => { ready: boolean; reason?: string } | boolean
 
 interface DeclarationEntry {
-	spec: DevActionDeclaration
-	kind: 'action' | 'effect'
-	origin: 'static' | 'retained'
-	owners: number
-	key: string
+  spec: DevActionDeclaration
+  kind: 'action' | 'effect'
+  origin: 'static' | 'retained'
+  owners: number
+  key: string
 }
 
 interface HandlerEntry {
-	run: DevActionRun
-	label?: string
+  run: DevActionRun
+  label?: string
 }
 
 interface RunningInvocation {
-	controller: AbortController
-	cancellable: boolean
-	started: boolean
-	/** Handler entries currently executing for this invocation; detaching one aborts it. */
-	active: Set<HandlerEntry>
+  controller: AbortController
+  cancellable: boolean
+  started: boolean
+  /** Handler entries currently executing for this invocation; detaching one aborts it. */
+  active: Set<HandlerEntry>
 }
 
 interface BridgeRuntime {
-	endpoint: { origin: string; token: string }
-	state: 'connecting' | 'live' | 'degraded' | 'stopped'
-	lastError?: string
-	polling: boolean
-	announcing: boolean
-	controller: AbortController
-	timer?: ReturnType<typeof setInterval>
+  endpoint: { origin: string; token: string }
+  state: 'connecting' | 'live' | 'degraded' | 'stopped'
+  lastError?: string
+  polling: boolean
+  announcing: boolean
+  controller: AbortController
+  timer?: ReturnType<typeof setInterval>
 }
 
 interface RegistryState {
-	instanceId: string
-	revision: number
-	actions: Map<string, DeclarationEntry>
-	handlers: Map<string, HandlerEntry[]>
-	outcomes: Map<string, DevActionOutcome>
-	running: Map<string, RunningInvocation>
-	cancelRequested: Set<string>
-	chain: Promise<unknown>
-	bridge?: BridgeRuntime
-	appLabel?: string
-	announceScheduled: boolean
-	navigator?: { impl: DevActionNavigator; unsubscribe?: () => void }
+  instanceId: string
+  revision: number
+  actions: Map<string, DeclarationEntry>
+  handlers: Map<string, HandlerEntry[]>
+  outcomes: Map<string, DevActionOutcome>
+  running: Map<string, RunningInvocation>
+  cancelRequested: Set<string>
+  chain: Promise<unknown>
+  bridge?: BridgeRuntime
+  appLabel?: string
+  announceScheduled: boolean
+  navigator?: { impl: DevActionNavigator; unsubscribe?: () => void }
 }
 
 /**
@@ -245,26 +245,26 @@ interface RegistryState {
  * `navigation_blocked`/`navigation_failed` codes verbatim. @internal
  */
 export class DevNavigationError extends Error {
-	/** Result code. */
-	code: 'navigation_blocked' | 'navigation_failed'
-	constructor(code: 'navigation_blocked' | 'navigation_failed', message: string) {
-		super(message)
-		this.code = code
-	}
+  /** Result code. */
+  code: 'navigation_blocked' | 'navigation_failed'
+  constructor(code: 'navigation_blocked' | 'navigation_failed', message: string) {
+    super(message)
+    this.code = code
+  }
 }
 
 /** The result a router navigator reports to the dev-actions registry. @internal */
 export type DevNavigationResult =
-	| { ok: true; route: string | null }
-	| {
-			/** Whether the call succeeded. */
-			ok: false
-			/** Result code. */
-			code: 'navigation_blocked' | 'navigation_failed'
-			status: string
-			/** Error message. */
-			message: string
-	  }
+  | { ok: true; route: string | null }
+  | {
+      /** Whether the call succeeded. */
+      ok: false
+      /** Result code. */
+      code: 'navigation_blocked' | 'navigation_failed'
+      status: string
+      /** Error message. */
+      message: string
+    }
 
 /**
  * The seam a UI router installs so route-declared dev actions can navigate to
@@ -272,12 +272,12 @@ export type DevNavigationResult =
  * `@octane-xplat/ui/routing/dev`. @internal
  */
 export interface DevActionNavigator {
-	/** Navigate to a route; resolves with the outcome the router reports. */
-	navigate(url: string, signal: AbortSignal): Promise<DevNavigationResult>
-	/** Current route snapshot; undefined when the router has no location yet. */
-	location(): { route: string | null; modal: boolean } | undefined
-	/** Subscribe to route changes; returns an unsubscribe. */
-	subscribe(listener: () => void): () => void
+  /** Navigate to a route; resolves with the outcome the router reports. */
+  navigate(url: string, signal: AbortSignal): Promise<DevNavigationResult>
+  /** Current route snapshot; undefined when the router has no location yet. */
+  location(): { route: string | null; modal: boolean } | undefined
+  /** Subscribe to route changes; returns an unsubscribe. */
+  subscribe(listener: () => void): () => void
 }
 
 /**
@@ -287,73 +287,73 @@ export interface DevActionNavigator {
  * route change without bumping the registry revision. @internal
  */
 export function setDevActionNavigator(navigator: DevActionNavigator | undefined): () => void {
-	const state = registry()
-	const previous = state.navigator
-	previous?.unsubscribe?.()
-	let unsubscribe: (() => void) | undefined
-	if (navigator) {
-		try {
-			unsubscribe = navigator.subscribe(() => scheduleAnnounce(state))
-		} catch {
-			unsubscribe = undefined
-		}
-	}
+  const state = registry()
+  const previous = state.navigator
+  previous?.unsubscribe?.()
+  let unsubscribe: (() => void) | undefined
+  if (navigator) {
+    try {
+      unsubscribe = navigator.subscribe(() => scheduleAnnounce(state))
+    } catch {
+      unsubscribe = undefined
+    }
+  }
 
-	state.navigator = navigator ? { impl: navigator, unsubscribe } : undefined
-	scheduleAnnounce(state)
+  state.navigator = navigator ? { impl: navigator, unsubscribe } : undefined
+  scheduleAnnounce(state)
 
-	let restored = false
-	return () => {
-		if (restored) {
-			return
-		}
+  let restored = false
+  return () => {
+    if (restored) {
+      return
+    }
 
-		restored = true
-		if (state.navigator?.impl === navigator) {
-			unsubscribe?.()
-			state.navigator = previous
-			scheduleAnnounce(state)
-		}
-	}
+    restored = true
+    if (state.navigator?.impl === navigator) {
+      unsubscribe?.()
+      state.navigator = previous
+      scheduleAnnounce(state)
+    }
+  }
 }
 
 interface DevActionOutcome {
-	requestId: string
-	status: 'succeeded' | 'failed' | 'cancelled' | 'unknown'
-	result?: Record<string, unknown>
-	error?: { code: string; message: string; failures?: DevActionFailure[] }
-	partialEffects?: string[]
-	completedAt: string
+  requestId: string
+  status: 'succeeded' | 'failed' | 'cancelled' | 'unknown'
+  result?: Record<string, unknown>
+  error?: { code: string; message: string; failures?: DevActionFailure[] }
+  partialEffects?: string[]
+  completedAt: string
 }
 
 interface InvocationRequest {
-	requestId: string
-	appInstanceId: string
-	actionId: string
-	registryRevision?: number
-	input: Record<string, unknown>
+  requestId: string
+  appInstanceId: string
+  actionId: string
+  registryRevision?: number
+  input: Record<string, unknown>
 }
 
 /** Bridge the dev host uses to reach actions. */
 export interface DevActionBridge {
-	/** Per-app-instance identifier announced to the dev server. */
-	readonly instanceId: string
-	/** Bridge lifecycle: connecting → live → degraded/stopped; 'unavailable' when the host has no endpoint. */
-	readonly state: 'connecting' | 'live' | 'degraded' | 'stopped' | 'unavailable'
-	/** Most recent transport/polling error, when in 'degraded' state. */
-	readonly lastError?: string
-	/** Stop announcing and polling; idempotent. */
-	stop(): void
+  /** Per-app-instance identifier announced to the dev server. */
+  readonly instanceId: string
+  /** Bridge lifecycle: connecting → live → degraded/stopped; 'unavailable' when the host has no endpoint. */
+  readonly state: 'connecting' | 'live' | 'degraded' | 'stopped' | 'unavailable'
+  /** Most recent transport/polling error, when in 'degraded' state. */
+  readonly lastError?: string
+  /** Stop announcing and polling; idempotent. */
+  stop(): void
 }
 
 /** Options for creating the dev-action bridge. */
 export interface DevActionBridgeOptions {
-	/** Dev-server origin override — normally discovered per platform. */
-	origin?: string
-	/** Label for the developer, e.g. which test harness window this is. */
-	appLabel?: string
-	/** Announcement/heartbeat interval; must stay below the bridge's instance TTL. */
-	intervalMs?: number
+  /** Dev-server origin override — normally discovered per platform. */
+  origin?: string
+  /** Label for the developer, e.g. which test harness window this is. */
+  appLabel?: string
+  /** Announcement/heartbeat interval; must stay below the bridge's instance TTL. */
+  intervalMs?: number
 }
 
 const ANNOUNCE_INTERVAL_MS = 5_000
@@ -363,166 +363,166 @@ const MAX_OUTCOMES = 256
 const GLOBAL_KEY = 'octane-xplat.dev-actions'
 
 type FetchLike = (
-	input: string,
-	init?: { method?: string; headers?: Record<string, string>; body?: string; signal?: unknown },
+  input: string,
+  init?: { method?: string; headers?: Record<string, string>; body?: string; signal?: unknown },
 ) => Promise<{ ok: boolean; status: number; json(): Promise<unknown> }>
 
 // Capability probes — a callable member satisfies the declared contract at
 // this ambient boundary; nothing more about it is assumed.
 const fetchImpl = (): FetchLike | undefined => {
-	const candidate: unknown = 'fetch' in globalThis ? globalThis.fetch : undefined
-	return typeof candidate === 'function' ? (candidate as FetchLike) : undefined
+  const candidate: unknown = 'fetch' in globalThis ? globalThis.fetch : undefined
+  return typeof candidate === 'function' ? (candidate as FetchLike) : undefined
 }
 
 const uuid = (): string => {
-	const crypto: unknown = 'crypto' in globalThis ? globalThis.crypto : undefined
-	const randomUUID =
-		typeof crypto === 'object' && crypto !== null && 'randomUUID' in crypto
-			? crypto.randomUUID
-			: undefined
-	return typeof randomUUID === 'function'
-		? String(randomUUID.call(crypto))
-		: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
+  const crypto: unknown = 'crypto' in globalThis ? globalThis.crypto : undefined
+  const randomUUID =
+    typeof crypto === 'object' && crypto !== null && 'randomUUID' in crypto
+      ? crypto.randomUUID
+      : undefined
+  return typeof randomUUID === 'function'
+    ? String(randomUUID.call(crypto))
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`
 }
 
 function registry(): RegistryState {
-	const g = globalThis as unknown as Record<string, RegistryState | undefined>
-	if (!g[GLOBAL_KEY]) {
-		g[GLOBAL_KEY] = {
-			instanceId: `inst_${uuid()}`,
-			revision: 0,
-			actions: new Map(),
-			handlers: new Map(),
-			outcomes: new Map(),
-			running: new Map(),
-			cancelRequested: new Set(),
-			chain: Promise.resolve(),
-			announceScheduled: false,
-		}
-	}
+  const g = globalThis as unknown as Record<string, RegistryState | undefined>
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = {
+      instanceId: `inst_${uuid()}`,
+      revision: 0,
+      actions: new Map(),
+      handlers: new Map(),
+      outcomes: new Map(),
+      running: new Map(),
+      cancelRequested: new Set(),
+      chain: Promise.resolve(),
+      announceScheduled: false,
+    }
+  }
 
-	return g[GLOBAL_KEY] as RegistryState
+  return g[GLOBAL_KEY] as RegistryState
 }
 
 const evaluateAvailability = (spec: DevActionDeclaration): { ready: boolean; reason?: string } => {
-	const probe = spec.availability?.ready as AvailabilityProbe | boolean | undefined
-	if (typeof probe === 'function') {
-		const verdict = probe()
-		return typeof verdict === 'boolean' ? { ready: verdict } : verdict
-	}
+  const probe = spec.availability?.ready as AvailabilityProbe | boolean | undefined
+  if (typeof probe === 'function') {
+    const verdict = probe()
+    return typeof verdict === 'boolean' ? { ready: verdict } : verdict
+  }
 
-	return { ready: probe !== false }
+  return { ready: probe !== false }
 }
 
 const NO_HANDLER_REASON = 'no handler attached; its owning component is not mounted'
 
 const liveAvailability = (state: RegistryState, entry: DeclarationEntry) =>
-	entry.kind === 'action' && (state.handlers.get(entry.spec.id)?.length ?? 0) === 0
-		? { ready: false, reason: NO_HANDLER_REASON }
-		: evaluateAvailability(entry.spec)
+  entry.kind === 'action' && (state.handlers.get(entry.spec.id)?.length ?? 0) === 0
+    ? { ready: false, reason: NO_HANDLER_REASON }
+    : evaluateAvailability(entry.spec)
 
 const declarations = (state: RegistryState) =>
-	[...state.actions.values()].map((entry) => {
-		const spec = entry.spec
-		const live = liveAvailability(state, entry)
-		const routed = entry.kind === 'action' && spec.route !== undefined
-		return {
-			id: spec.id,
-			title: spec.title,
-			description: spec.description,
-			input: spec.input,
-			result: spec.result,
-			effects: routed ? { ...spec.effects, navigation: true } : spec.effects,
-			availability: {
-				...(spec.availability?.platforms ? { platforms: spec.availability.platforms } : {}),
-				...(spec.availability?.readyWhen ? { readyWhen: spec.availability.readyWhen } : {}),
-				...(routed
-					? {
-							route: typeof spec.route === 'string' ? { url: spec.route } : { fromInput: true },
-						}
-					: {}),
-				ready: live.ready,
-				...(live.reason ? { reason: live.reason } : {}),
-			},
-			execution: spec.execution,
-		}
-	})
+  [...state.actions.values()].map((entry) => {
+    const spec = entry.spec
+    const live = liveAvailability(state, entry)
+    const routed = entry.kind === 'action' && spec.route !== undefined
+    return {
+      id: spec.id,
+      title: spec.title,
+      description: spec.description,
+      input: spec.input,
+      result: spec.result,
+      effects: routed ? { ...spec.effects, navigation: true } : spec.effects,
+      availability: {
+        ...(spec.availability?.platforms ? { platforms: spec.availability.platforms } : {}),
+        ...(spec.availability?.readyWhen ? { readyWhen: spec.availability.readyWhen } : {}),
+        ...(routed
+          ? {
+              route: typeof spec.route === 'string' ? { url: spec.route } : { fromInput: true },
+            }
+          : {}),
+        ready: live.ready,
+        ...(live.reason ? { reason: live.reason } : {}),
+      },
+      execution: spec.execution,
+    }
+  })
 
 const snapshot = (state: RegistryState, appLabel?: string) => {
-	let location: { route: string | null; modal: boolean } | undefined
-	try {
-		location = state.navigator?.impl.location()
-	} catch {
-		location = undefined
-	}
+  let location: { route: string | null; modal: boolean } | undefined
+  try {
+    location = state.navigator?.impl.location()
+  } catch {
+    location = undefined
+  }
 
-	return {
-		protocol: 'xplat-dev-actions',
-		version: 1,
-		appInstanceId: state.instanceId,
-		...(appLabel ? { appLabel } : {}),
-		platform: devBridgePlatform(),
-		revision: state.revision,
-		announcedAt: new Date().toISOString(),
-		...(location !== undefined ? { location } : {}),
-		actions: declarations(state),
-	}
+  return {
+    protocol: 'xplat-dev-actions',
+    version: 1,
+    appInstanceId: state.instanceId,
+    ...(appLabel ? { appLabel } : {}),
+    platform: devBridgePlatform(),
+    revision: state.revision,
+    announcedAt: new Date().toISOString(),
+    ...(location !== undefined ? { location } : {}),
+    actions: declarations(state),
+  }
 }
 
 const EFFECT_RESULT: DevActionFields = {
-	fields: { handlerCount: { type: 'integer', minimum: 0 } },
+  fields: { handlerCount: { type: 'integer', minimum: 0 } },
 }
 
 function defineDeclaration(
-	declaration: DevActionDeclaration,
-	kind: 'action' | 'effect',
+  declaration: DevActionDeclaration,
+  kind: 'action' | 'effect',
 ): DevActionDefinition | DevEffectDefinition {
-	const problems = validateActionDeclaration(declaration)
-	if (kind === 'effect' && (declaration as DevActionDeclaration).route !== undefined) {
-		problems.push('route is only supported for dev actions')
-	}
+  const problems = validateActionDeclaration(declaration)
+  if (kind === 'effect' && (declaration as DevActionDeclaration).route !== undefined) {
+    problems.push('route is only supported for dev actions')
+  }
 
-	if (problems.length) {
-		throw new Error(`Invalid dev ${kind} "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
-	}
+  if (problems.length) {
+    throw new Error(`Invalid dev ${kind} "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
+  }
 
-	const state = registry()
-	if (state.actions.has(declaration.id)) {
-		throw new Error(`Dev ${kind} "${declaration.id}" is already registered`)
-	}
+  const state = registry()
+  if (state.actions.has(declaration.id)) {
+    throw new Error(`Dev ${kind} "${declaration.id}" is already registered`)
+  }
 
-	const entry: DeclarationEntry = {
-		spec: kind === 'effect' ? { ...declaration, result: EFFECT_RESULT } : declaration,
-		kind,
-		origin: 'static',
-		owners: 1,
-		key: '',
-	}
+  const entry: DeclarationEntry = {
+    spec: kind === 'effect' ? { ...declaration, result: EFFECT_RESULT } : declaration,
+    kind,
+    origin: 'static',
+    owners: 1,
+    key: '',
+  }
 
-	state.actions.set(declaration.id, entry)
-	state.revision += 1
-	// The app declaration is sufficient setup. Production has no endpoint,
-	// so this remains inert without the dev-server-only bridge token.
-	startDevActionBridge()
-	scheduleAnnounce(state)
+  state.actions.set(declaration.id, entry)
+  state.revision += 1
+  // The app declaration is sufficient setup. Production has no endpoint,
+  // so this remains inert without the dev-server-only bridge token.
+  startDevActionBridge()
+  scheduleAnnounce(state)
 
-	let disposed = false
-	return {
-		id: declaration.id,
-		kind,
-		dispose() {
-			if (disposed) {
-				return
-			}
+  let disposed = false
+  return {
+    id: declaration.id,
+    kind,
+    dispose() {
+      if (disposed) {
+        return
+      }
 
-			disposed = true
-			if (state.actions.get(declaration.id) === entry) {
-				state.actions.delete(declaration.id)
-				state.revision += 1
-				scheduleAnnounce(state)
-			}
-		},
-	} as DevActionDefinition | DevEffectDefinition
+      disposed = true
+      if (state.actions.get(declaration.id) === entry) {
+        state.actions.delete(declaration.id)
+        state.revision += 1
+        scheduleAnnounce(state)
+      }
+    },
+  } as DevActionDefinition | DevEffectDefinition
 }
 
 /**
@@ -532,7 +532,7 @@ function defineDeclaration(
  * duplicate id — registry membership is explicit, never a silent replace.
  */
 export function defineDevAction(declaration: DevActionDeclaration): DevActionDefinition {
-	return defineDeclaration(declaration, 'action') as DevActionDefinition
+  return defineDeclaration(declaration, 'action') as DevActionDefinition
 }
 
 /**
@@ -541,71 +541,71 @@ export function defineDevAction(declaration: DevActionDeclaration): DevActionDef
  * `{ handlerCount }` result contract.
  */
 export function defineDevEffect(declaration: DevEffectDeclaration): DevEffectDefinition {
-	return defineDeclaration(declaration, 'effect') as DevEffectDefinition
+  return defineDeclaration(declaration, 'effect') as DevEffectDefinition
 }
 
 function attachHandler(
-	id: string,
-	kind: 'action' | 'effect',
-	run: DevActionRun,
-	options?: { label?: string },
+  id: string,
+  kind: 'action' | 'effect',
+  run: DevActionRun,
+  options?: { label?: string },
 ): () => void {
-	if (typeof run !== 'function') {
-		throw new Error(
-			`Invalid dev ${kind} handler for "${id}": a run(input, context) function is required`,
-		)
-	}
+  if (typeof run !== 'function') {
+    throw new Error(
+      `Invalid dev ${kind} handler for "${id}": a run(input, context) function is required`,
+    )
+  }
 
-	const state = registry()
-	const entry = state.actions.get(id)
-	if (entry && entry.kind !== kind) {
-		throw new Error(`"${id}" is declared as a dev ${entry.kind}; cannot attach a ${kind} handler`)
-	}
+  const state = registry()
+  const entry = state.actions.get(id)
+  if (entry && entry.kind !== kind) {
+    throw new Error(`"${id}" is declared as a dev ${entry.kind}; cannot attach a ${kind} handler`)
+  }
 
-	const handler: HandlerEntry = {
-		run,
-		...(options?.label !== undefined ? { label: options.label } : {}),
-	}
-	const list = state.handlers.get(id)
-	if (list) {
-		list.push(handler)
-	} else {
-		state.handlers.set(id, [handler])
-	}
+  const handler: HandlerEntry = {
+    run,
+    ...(options?.label !== undefined ? { label: options.label } : {}),
+  }
+  const list = state.handlers.get(id)
+  if (list) {
+    list.push(handler)
+  } else {
+    state.handlers.set(id, [handler])
+  }
 
-	// Availability changed even though the announced contract did not —
-	// re-announce without bumping the registry revision.
-	startDevActionBridge()
-	scheduleAnnounce(state)
+  // Availability changed even though the announced contract did not —
+  // re-announce without bumping the registry revision.
+  startDevActionBridge()
+  scheduleAnnounce(state)
 
-	let detached = false
-	return () => {
-		if (detached) {
-			return
-		}
+  let detached = false
+  return () => {
+    if (detached) {
+      return
+    }
 
-		detached = true
-		const list = state.handlers.get(id)
-		if (list) {
-			const index = list.indexOf(handler)
-			if (index >= 0) {
-				list.splice(index, 1)
-			}
+    detached = true
+    const list = state.handlers.get(id)
+    if (list) {
+      const index = list.indexOf(handler)
+      if (index >= 0) {
+        list.splice(index, 1)
+      }
 
-			if (!list.length) {
-				state.handlers.delete(id)
-			}
-		}
+      if (!list.length) {
+        state.handlers.delete(id)
+      }
+    }
 
-		// A detached owner takes its in-flight invocation down with it.
-		for (const running of state.running.values()) {
-			if (running.active.has(handler)) {
-				running.controller.abort()
-			}
-		}
+    // A detached owner takes its in-flight invocation down with it.
+    for (const running of state.running.values()) {
+      if (running.active.has(handler)) {
+        running.controller.abort()
+      }
+    }
 
-		scheduleAnnounce(state)
-	}
+    scheduleAnnounce(state)
+  }
 }
 
 /**
@@ -615,28 +615,28 @@ function attachHandler(
  * id is allowed — the handler waits for its declaration.
  */
 export function attachDevActionHandler(
-	action: DevActionDefinition | string,
-	run: DevActionRun,
-	options?: { label?: string },
+  action: DevActionDefinition | string,
+  run: DevActionRun,
+  options?: { label?: string },
 ): () => void {
-	if (typeof action !== 'string' && action.kind !== 'action') {
-		throw new Error(`"${action.id}" is a dev ${action.kind}; use attachDevEffectHandler`)
-	}
+  if (typeof action !== 'string' && action.kind !== 'action') {
+    throw new Error(`"${action.id}" is a dev ${action.kind}; use attachDevEffectHandler`)
+  }
 
-	return attachHandler(typeof action === 'string' ? action : action.id, 'action', run, options)
+  return attachHandler(typeof action === 'string' ? action : action.id, 'action', run, options)
 }
 
 /** Attach a handler to a dev effect; every attached handler runs per invocation. `options.label` names this owner in failure records. */
 export function attachDevEffectHandler(
-	effect: DevEffectDefinition | string,
-	run: DevActionRun,
-	options?: { label?: string },
+  effect: DevEffectDefinition | string,
+  run: DevActionRun,
+  options?: { label?: string },
 ): () => void {
-	if (typeof effect !== 'string' && effect.kind !== 'effect') {
-		throw new Error(`"${effect.id}" is a dev ${effect.kind}; use attachDevActionHandler`)
-	}
+  if (typeof effect !== 'string' && effect.kind !== 'effect') {
+    throw new Error(`"${effect.id}" is a dev ${effect.kind}; use attachDevActionHandler`)
+  }
 
-	return attachHandler(typeof effect === 'string' ? effect : effect.id, 'effect', run, options)
+  return attachHandler(typeof effect === 'string' ? effect : effect.id, 'effect', run, options)
 }
 
 /**
@@ -645,44 +645,44 @@ export function attachDevEffectHandler(
  * handlers attached by components stay attached.
  */
 export function registerDevAction(spec: DevActionSpec): DevActionHandle {
-	if (typeof spec.run !== 'function') {
-		throw new Error(`Invalid dev action "${spec.id}": a run(input, context) handler is required`)
-	}
+  if (typeof spec.run !== 'function') {
+    throw new Error(`Invalid dev action "${spec.id}": a run(input, context) handler is required`)
+  }
 
-	const definition = defineDevAction(spec)
-	const detach = attachDevActionHandler(definition, spec.run)
-	return {
-		dispose() {
-			detach()
-			definition.dispose()
-		},
-	}
+  const definition = defineDevAction(spec)
+  const detach = attachDevActionHandler(definition, spec.run)
+  return {
+    dispose() {
+      detach()
+      definition.dispose()
+    },
+  }
 }
 
 const normalizeForKey = (value: unknown): unknown => {
-	if (typeof value === 'function') {
-		return 'function'
-	}
+  if (typeof value === 'function') {
+    return 'function'
+  }
 
-	if (Array.isArray(value)) {
-		return value.map(normalizeForKey)
-	}
+  if (Array.isArray(value)) {
+    return value.map(normalizeForKey)
+  }
 
-	if (value && typeof value === 'object') {
-		const out: Record<string, unknown> = {}
-		for (const name of Object.keys(value).sort()) {
-			out[name] = normalizeForKey((value as Record<string, unknown>)[name])
-		}
+  if (value && typeof value === 'object') {
+    const out: Record<string, unknown> = {}
+    for (const name of Object.keys(value).sort()) {
+      out[name] = normalizeForKey((value as Record<string, unknown>)[name])
+    }
 
-		return out
-	}
+    return out
+  }
 
-	return value
+  return value
 }
 
 /** Stable identity for an inline declaration — functions compare as 'function'. */
 export function devActionDeclarationKey(declaration: DevActionDeclaration): string {
-	return JSON.stringify(normalizeForKey(declaration))
+  return JSON.stringify(normalizeForKey(declaration))
 }
 
 /**
@@ -693,70 +693,70 @@ export function devActionDeclarationKey(declaration: DevActionDeclaration): stri
  * idempotent and drops the declaration when the last owner releases.
  */
 export function retainDevAction(declaration: DevActionDeclaration, key: string): () => void {
-	const problems = validateActionDeclaration(declaration)
-	if (problems.length) {
-		throw new Error(`Invalid dev action "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
-	}
+  const problems = validateActionDeclaration(declaration)
+  if (problems.length) {
+    throw new Error(`Invalid dev action "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
+  }
 
-	const state = registry()
-	const id = declaration.id
-	const entry = state.actions.get(id)
+  const state = registry()
+  const id = declaration.id
+  const entry = state.actions.get(id)
 
-	if (entry?.origin === 'static') {
-		console.warn(
-			`[octane-xplat] Inline dev action declaration for "${id}" is ignored; a module-level declaration already owns this id.`,
-		)
+  if (entry?.origin === 'static') {
+    console.warn(
+      `[octane-xplat] Inline dev action declaration for "${id}" is ignored; a module-level declaration already owns this id.`,
+    )
 
-		return () => {}
-	}
+    return () => {}
+  }
 
-	if (!entry) {
-		state.actions.set(id, { spec: declaration, kind: 'action', origin: 'retained', owners: 1, key })
-		state.revision += 1
-	} else {
-		if (entry.key !== key) {
-			console.warn(
-				`[octane-xplat] Dev action "${id}" has conflicting inline declarations; using the most recent.`,
-			)
+  if (!entry) {
+    state.actions.set(id, { spec: declaration, kind: 'action', origin: 'retained', owners: 1, key })
+    state.revision += 1
+  } else {
+    if (entry.key !== key) {
+      console.warn(
+        `[octane-xplat] Dev action "${id}" has conflicting inline declarations; using the most recent.`,
+      )
 
-			entry.key = key
-			state.revision += 1
-		}
+      entry.key = key
+      state.revision += 1
+    }
 
-		entry.spec = declaration
-		entry.owners += 1
-	}
+    entry.spec = declaration
+    entry.owners += 1
+  }
 
-	startDevActionBridge()
-	scheduleAnnounce(state)
+  startDevActionBridge()
+  scheduleAnnounce(state)
 
-	let released = false
-	return () => {
-		if (released) {
-			return
-		}
+  let released = false
+  return () => {
+    if (released) {
+      return
+    }
 
-		released = true
-		const current = state.actions.get(id)
-		if (current?.origin === 'retained') {
-			current.owners -= 1
-			if (current.owners <= 0) {
-				state.actions.delete(id)
-				state.revision += 1
-				scheduleAnnounce(state)
-			}
-		}
-	}
+    released = true
+    const current = state.actions.get(id)
+    if (current?.origin === 'retained') {
+      current.owners -= 1
+      if (current.owners <= 0) {
+        state.actions.delete(id)
+        state.revision += 1
+        scheduleAnnounce(state)
+      }
+    }
+  }
 }
 
 /** Current declarations as the registry would announce them. */
 export function listDevActions(): DevActionInfo {
-	return declarations(registry())
+  return declarations(registry())
 }
 
 /** The registry revision — increments on every add/remove. */
 export function devActionsRevision(): number {
-	return registry().revision
+  return registry().revision
 }
 
 /**
@@ -766,220 +766,220 @@ export function devActionsRevision(): number {
  * server) the returned handle reports 'unavailable' and stays inert.
  */
 export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevActionBridge {
-	const state = registry()
-	if (state.bridge) {
-		const rt = state.bridge
-		if (options.appLabel !== undefined && options.appLabel !== state.appLabel) {
-			state.appLabel = options.appLabel
-			scheduleAnnounce(state)
-		}
+  const state = registry()
+  if (state.bridge) {
+    const rt = state.bridge
+    if (options.appLabel !== undefined && options.appLabel !== state.appLabel) {
+      state.appLabel = options.appLabel
+      scheduleAnnounce(state)
+    }
 
-		return {
-			instanceId: state.instanceId,
-			get state() {
-				return rt.state
-			},
-			get lastError() {
-				return rt.lastError
-			},
-			stop: () => stopBridge(rt),
-		}
-	}
+    return {
+      instanceId: state.instanceId,
+      get state() {
+        return rt.state
+      },
+      get lastError() {
+        return rt.lastError
+      },
+      stop: () => stopBridge(rt),
+    }
+  }
 
-	const discovered = devBridgeEndpoint()
-	const origin = options.origin ?? discovered?.origin
-	const token = discovered?.token
-	if (!origin || !token) {
-		return {
-			instanceId: state.instanceId,
-			state: 'unavailable',
-			lastError:
-				'No dev-bridge endpoint: this build has no __XPLAT_DEV_BRIDGE__ token (dev-server-only define) or no reachable dev-server origin.',
-			stop: () => {},
-		}
-	}
+  const discovered = devBridgeEndpoint()
+  const origin = options.origin ?? discovered?.origin
+  const token = discovered?.token
+  if (!origin || !token) {
+    return {
+      instanceId: state.instanceId,
+      state: 'unavailable',
+      lastError:
+        'No dev-bridge endpoint: this build has no __XPLAT_DEV_BRIDGE__ token (dev-server-only define) or no reachable dev-server origin.',
+      stop: () => {},
+    }
+  }
 
-	const rt: BridgeRuntime = {
-		endpoint: { origin, token },
-		state: 'connecting',
-		polling: true,
-		announcing: true,
-		controller: new AbortController(),
-	}
+  const rt: BridgeRuntime = {
+    endpoint: { origin, token },
+    state: 'connecting',
+    polling: true,
+    announcing: true,
+    controller: new AbortController(),
+  }
 
-	state.bridge = rt
-	state.appLabel = options.appLabel
+  state.bridge = rt
+  state.appLabel = options.appLabel
 
-	void announceOnce(rt)
-	rt.timer = setInterval(() => void announceOnce(rt), options.intervalMs ?? ANNOUNCE_INTERVAL_MS)
-	void pollLoop(rt)
+  void announceOnce(rt)
+  rt.timer = setInterval(() => void announceOnce(rt), options.intervalMs ?? ANNOUNCE_INTERVAL_MS)
+  void pollLoop(rt)
 
-	return {
-		instanceId: state.instanceId,
-		get state() {
-			return rt.state
-		},
-		get lastError() {
-			return rt.lastError
-		},
-		stop: () => stopBridge(rt),
-	}
+  return {
+    instanceId: state.instanceId,
+    get state() {
+      return rt.state
+    },
+    get lastError() {
+      return rt.lastError
+    },
+    stop: () => stopBridge(rt),
+  }
 }
 
 function stopBridge(rt: BridgeRuntime) {
-	rt.polling = false
-	rt.announcing = false
-	rt.state = 'stopped'
-	rt.controller.abort()
-	if (rt.timer) {
-		clearInterval(rt.timer)
-	}
+  rt.polling = false
+  rt.announcing = false
+  rt.state = 'stopped'
+  rt.controller.abort()
+  if (rt.timer) {
+    clearInterval(rt.timer)
+  }
 
-	if (registry().bridge === rt) {
-		registry().bridge = undefined
-	}
+  if (registry().bridge === rt) {
+    registry().bridge = undefined
+  }
 }
 
 // Coalesce bursts (hot-reload re-registration) into one announcement.
 function scheduleAnnounce(state: RegistryState) {
-	if (!state.bridge?.announcing || state.announceScheduled) {
-		return
-	}
+  if (!state.bridge?.announcing || state.announceScheduled) {
+    return
+  }
 
-	state.announceScheduled = true
-	queueMicrotask(() => {
-		state.announceScheduled = false
-		void announceOnce(state.bridge as BridgeRuntime)
-	})
+  state.announceScheduled = true
+  queueMicrotask(() => {
+    state.announceScheduled = false
+    void announceOnce(state.bridge as BridgeRuntime)
+  })
 }
 
 async function announceOnce(rt: BridgeRuntime) {
-	const fetch = fetchImpl()
-	if (!rt.announcing || !fetch) {
-		if (!fetch) {
-			rt.state = 'degraded'
-			rt.lastError = 'no fetch implementation in this runtime'
-		}
+  const fetch = fetchImpl()
+  if (!rt.announcing || !fetch) {
+    if (!fetch) {
+      rt.state = 'degraded'
+      rt.lastError = 'no fetch implementation in this runtime'
+    }
 
-		return
-	}
+    return
+  }
 
-	const state = registry()
-	try {
-		const res = await fetch(`${rt.endpoint.origin}/__xplat_dev__/registry`, {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/json',
-				'x-xplat-dev-token': rt.endpoint.token,
-			},
-			body: JSON.stringify(snapshot(state, state.appLabel)),
-		})
+  const state = registry()
+  try {
+    const res = await fetch(`${rt.endpoint.origin}/__xplat_dev__/registry`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-xplat-dev-token': rt.endpoint.token,
+      },
+      body: JSON.stringify(snapshot(state, state.appLabel)),
+    })
 
-		rt.state = res.ok ? 'live' : 'degraded'
-		rt.lastError = res.ok ? undefined : `announce failed: HTTP ${res.status}`
-	} catch (error) {
-		rt.state = 'degraded'
-		rt.lastError = `announce failed: ${(error as Error)?.message ?? error}`
-	}
+    rt.state = res.ok ? 'live' : 'degraded'
+    rt.lastError = res.ok ? undefined : `announce failed: HTTP ${res.status}`
+  } catch (error) {
+    rt.state = 'degraded'
+    rt.lastError = `announce failed: ${(error as Error)?.message ?? error}`
+  }
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function pollLoop(rt: BridgeRuntime) {
-	const fetch = fetchImpl()
-	if (!fetch) {
-		rt.state = 'degraded'
-		rt.lastError = 'no fetch implementation in this runtime'
-		return
-	}
+  const fetch = fetchImpl()
+  if (!fetch) {
+    rt.state = 'degraded'
+    rt.lastError = 'no fetch implementation in this runtime'
+    return
+  }
 
-	const state = registry()
-	while (rt.polling) {
-		try {
-			const res = await fetch(
-				`${rt.endpoint.origin}/__xplat_dev__/poll?instance=${encodeURIComponent(
-					state.instanceId,
-				)}&wait=${POLL_WAIT_MS}`,
-				{
-					headers: { 'x-xplat-dev-token': rt.endpoint.token },
-					signal: rt.controller.signal,
-				},
-			)
+  const state = registry()
+  while (rt.polling) {
+    try {
+      const res = await fetch(
+        `${rt.endpoint.origin}/__xplat_dev__/poll?instance=${encodeURIComponent(
+          state.instanceId,
+        )}&wait=${POLL_WAIT_MS}`,
+        {
+          headers: { 'x-xplat-dev-token': rt.endpoint.token },
+          signal: rt.controller.signal,
+        },
+      )
 
-			if (res.status === 404) {
-				// The bridge forgot this instance — re-announce before polling again.
-				await announceOnce(rt)
-				continue
-			}
+      if (res.status === 404) {
+        // The bridge forgot this instance — re-announce before polling again.
+        await announceOnce(rt)
+        continue
+      }
 
-			if (!res.ok) {
-				rt.state = 'degraded'
-				rt.lastError = `poll failed: HTTP ${res.status}`
-				await sleep(1_000)
-				continue
-			}
+      if (!res.ok) {
+        rt.state = 'degraded'
+        rt.lastError = `poll failed: HTTP ${res.status}`
+        await sleep(1_000)
+        continue
+      }
 
-			rt.state = 'live'
-			rt.lastError = undefined
-			const payload: unknown = await res.json()
-			const work = isRecord(payload) ? payload : {}
+      rt.state = 'live'
+      rt.lastError = undefined
+      const payload: unknown = await res.json()
+      const work = isRecord(payload) ? payload : {}
 
-			const invocations = Array.isArray(work.invocations) ? work.invocations : []
-			for (const request of invocations) {
-				const invocation = parseInvocation(request)
-				if (invocation) {
-					void dispatchInvocation(rt, invocation)
-				}
-			}
+      const invocations = Array.isArray(work.invocations) ? work.invocations : []
+      for (const request of invocations) {
+        const invocation = parseInvocation(request)
+        if (invocation) {
+          void dispatchInvocation(rt, invocation)
+        }
+      }
 
-			const cancel = Array.isArray(work.cancel) ? work.cancel : []
-			for (const requestId of cancel) {
-				if (typeof requestId === 'string') {
-					requestCancel(requestId)
-				}
-			}
-		} catch (error) {
-			rt.state = 'degraded'
-			rt.lastError = `poll failed: ${(error as Error)?.message ?? error}`
-			await sleep(1_500)
-		}
-	}
+      const cancel = Array.isArray(work.cancel) ? work.cancel : []
+      for (const requestId of cancel) {
+        if (typeof requestId === 'string') {
+          requestCancel(requestId)
+        }
+      }
+    } catch (error) {
+      rt.state = 'degraded'
+      rt.lastError = `poll failed: ${(error as Error)?.message ?? error}`
+      await sleep(1_500)
+    }
+  }
 }
 
 function requestCancel(requestId: string) {
-	const state = registry()
-	state.cancelRequested.add(requestId)
-	const running = state.running.get(requestId)
-	if (running?.cancellable && running.started) {
-		running.controller.abort()
-	}
+  const state = registry()
+  state.cancelRequested.add(requestId)
+  const running = state.running.get(requestId)
+  if (running?.cancellable && running.started) {
+    running.controller.abort()
+  }
 }
 
 async function postOutcome(rt: BridgeRuntime, outcome: DevActionOutcome) {
-	const fetch = fetchImpl()
-	const state = registry()
-	if (state.outcomes.size >= MAX_OUTCOMES) {
-		state.outcomes.delete(state.outcomes.keys().next().value as string)
-	}
+  const fetch = fetchImpl()
+  const state = registry()
+  if (state.outcomes.size >= MAX_OUTCOMES) {
+    state.outcomes.delete(state.outcomes.keys().next().value as string)
+  }
 
-	state.outcomes.set(outcome.requestId, outcome)
+  state.outcomes.set(outcome.requestId, outcome)
 
-	if (!fetch) {
-		return
-	}
+  if (!fetch) {
+    return
+  }
 
-	try {
-		await fetch(`${rt.endpoint.origin}/__xplat_dev__/result`, {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/json',
-				'x-xplat-dev-token': rt.endpoint.token,
-			},
-			body: JSON.stringify({ requestId: outcome.requestId, outcome }),
-		})
-	} catch {
-		// The MCP side times out honestly when the bridge is gone.
-	}
+  try {
+    await fetch(`${rt.endpoint.origin}/__xplat_dev__/result`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-xplat-dev-token': rt.endpoint.token,
+      },
+      body: JSON.stringify({ requestId: outcome.requestId, outcome }),
+    })
+  } catch {
+    // The MCP side times out honestly when the bridge is gone.
+  }
 }
 
 const FAILURE_MESSAGE_MAX = 1024
@@ -990,425 +990,425 @@ const FAILURE_SUMMARY_SHOWN = 3
 const capText = (text: string, max: number) => (text.length > max ? `${text.slice(0, max)}…` : text)
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
-	typeof value === 'object' && value !== null && !Array.isArray(value)
+  typeof value === 'object' && value !== null && !Array.isArray(value)
 
 // An invocation arriving over the dev transport is untrusted input: check
 // the fields dispatchInvocation actually consumes before running it.
 function parseInvocation(request: unknown): InvocationRequest | undefined {
-	if (!isRecord(request)) {
-		return undefined
-	}
-	if (typeof request.requestId !== 'string' || typeof request.actionId !== 'string') {
-		return undefined
-	}
-	if (request.registryRevision !== undefined && typeof request.registryRevision !== 'number') {
-		return undefined
-	}
-	return {
-		requestId: request.requestId,
-		appInstanceId: typeof request.appInstanceId === 'string' ? request.appInstanceId : '',
-		actionId: request.actionId,
-		...(request.registryRevision !== undefined
-			? { registryRevision: request.registryRevision }
-			: {}),
-		input: isRecord(request.input) ? request.input : {},
-	}
+  if (!isRecord(request)) {
+    return undefined
+  }
+  if (typeof request.requestId !== 'string' || typeof request.actionId !== 'string') {
+    return undefined
+  }
+  if (request.registryRevision !== undefined && typeof request.registryRevision !== 'number') {
+    return undefined
+  }
+  return {
+    requestId: request.requestId,
+    appInstanceId: typeof request.appInstanceId === 'string' ? request.appInstanceId : '',
+    actionId: request.actionId,
+    ...(request.registryRevision !== undefined
+      ? { registryRevision: request.registryRevision }
+      : {}),
+    input: isRecord(request.input) ? request.input : {},
+  }
 }
 
 // Cross-realm safe: duck-typed, never instanceof Error.
 const toFailureRecord = (
-	index: number,
-	label: string | undefined,
-	thrown: unknown,
+  index: number,
+  label: string | undefined,
+  thrown: unknown,
 ): DevActionFailure => {
-	const base = { handler: index, ...(label !== undefined ? { label } : {}) }
-	if (
-		typeof thrown === 'object' &&
-		thrown !== null &&
-		'message' in thrown &&
-		typeof thrown.message === 'string'
-	) {
-		const name = 'name' in thrown && typeof thrown.name === 'string' ? thrown.name : 'Error'
-		const stack = 'stack' in thrown && typeof thrown.stack === 'string' ? thrown.stack : undefined
-		return {
-			...base,
-			name,
-			message: capText(thrown.message, FAILURE_MESSAGE_MAX),
-			...(stack !== undefined ? { stack: capText(stack, FAILURE_STACK_MAX) } : {}),
-		}
-	}
+  const base = { handler: index, ...(label !== undefined ? { label } : {}) }
+  if (
+    typeof thrown === 'object' &&
+    thrown !== null &&
+    'message' in thrown &&
+    typeof thrown.message === 'string'
+  ) {
+    const name = 'name' in thrown && typeof thrown.name === 'string' ? thrown.name : 'Error'
+    const stack = 'stack' in thrown && typeof thrown.stack === 'string' ? thrown.stack : undefined
+    return {
+      ...base,
+      name,
+      message: capText(thrown.message, FAILURE_MESSAGE_MAX),
+      ...(stack !== undefined ? { stack: capText(stack, FAILURE_STACK_MAX) } : {}),
+    }
+  }
 
-	return { ...base, name: 'ThrownValue', message: capText(String(thrown), FAILURE_MESSAGE_MAX) }
+  return { ...base, name: 'ThrownValue', message: capText(String(thrown), FAILURE_MESSAGE_MAX) }
 }
 
 const failOutcome = (requestId: string, code: string, message: string): DevActionOutcome => ({
-	requestId,
-	status: 'failed',
-	error: { code, message },
-	completedAt: new Date().toISOString(),
+  requestId,
+  status: 'failed',
+  error: { code, message },
+  completedAt: new Date().toISOString(),
 })
 
 async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest) {
-	const state = registry()
+  const state = registry()
 
-	// Stable request identity: a repeated delivery re-posts the stored outcome.
-	const prior = state.outcomes.get(request.requestId)
-	if (prior) {
-		await postOutcome(rt, prior)
-		return
-	}
+  // Stable request identity: a repeated delivery re-posts the stored outcome.
+  const prior = state.outcomes.get(request.requestId)
+  if (prior) {
+    await postOutcome(rt, prior)
+    return
+  }
 
-	if (state.running.has(request.requestId) || state.cancelRequested.has(request.requestId)) {
-		return
-	}
+  if (state.running.has(request.requestId) || state.cancelRequested.has(request.requestId)) {
+    return
+  }
 
-	// Rejected before execution — stale revision, removed action, unavailable.
-	if (request.registryRevision !== undefined && request.registryRevision !== state.revision) {
-		await postOutcome(
-			rt,
-			failOutcome(
-				request.requestId,
-				'stale_identity',
-				`registry revision ${request.registryRevision} is stale (current ${state.revision})`,
-			),
-		)
+  // Rejected before execution — stale revision, removed action, unavailable.
+  if (request.registryRevision !== undefined && request.registryRevision !== state.revision) {
+    await postOutcome(
+      rt,
+      failOutcome(
+        request.requestId,
+        'stale_identity',
+        `registry revision ${request.registryRevision} is stale (current ${state.revision})`,
+      ),
+    )
 
-		return
-	}
+    return
+  }
 
-	const entry = state.actions.get(request.actionId)
-	if (!entry) {
-		await postOutcome(
-			rt,
-			failOutcome(request.requestId, 'invalid_selection', `no action "${request.actionId}"`),
-		)
+  const entry = state.actions.get(request.actionId)
+  if (!entry) {
+    await postOutcome(
+      rt,
+      failOutcome(request.requestId, 'invalid_selection', `no action "${request.actionId}"`),
+    )
 
-		return
-	}
+    return
+  }
 
-	const spec = entry.spec
-	const platforms = spec.availability?.platforms
-	const platform = devBridgePlatform()
-	if (platforms && !platforms.includes(platform)) {
-		await postOutcome(
-			rt,
-			failOutcome(
-				request.requestId,
-				'unavailable',
-				`action "${spec.id}" is not applicable on ${platform}`,
-			),
-		)
+  const spec = entry.spec
+  const platforms = spec.availability?.platforms
+  const platform = devBridgePlatform()
+  if (platforms && !platforms.includes(platform)) {
+    await postOutcome(
+      rt,
+      failOutcome(
+        request.requestId,
+        'unavailable',
+        `action "${spec.id}" is not applicable on ${platform}`,
+      ),
+    )
 
-		return
-	}
+    return
+  }
 
-	// Validated early: a function route derives its URL from this input.
-	const input = validateActionInput(spec.input, request.input)
-	if (!input.ok) {
-		await postOutcome(
-			rt,
-			failOutcome(
-				request.requestId,
-				'invalid_selection',
-				`invalid input: ${input.errors.join('; ')}`,
-			),
-		)
+  // Validated early: a function route derives its URL from this input.
+  const input = validateActionInput(spec.input, request.input)
+  if (!input.ok) {
+    await postOutcome(
+      rt,
+      failOutcome(
+        request.requestId,
+        'invalid_selection',
+        `invalid input: ${input.errors.join('; ')}`,
+      ),
+    )
 
-		return
-	}
+    return
+  }
 
-	const handlers = [...(state.handlers.get(spec.id) ?? [])]
-	if (entry.kind === 'action' && handlers.length === 0) {
-		// A route-declared action defers to the serialized work chain, which
-		// navigates to its screen and waits for a handler to attach. Without a
-		// declared route or an installed navigator, it stays unavailable.
-		if (spec.route === undefined) {
-			await postOutcome(
-				rt,
-				failOutcome(
-					request.requestId,
-					'unavailable',
-					`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}`,
-				),
-			)
+  const handlers = [...(state.handlers.get(spec.id) ?? [])]
+  if (entry.kind === 'action' && handlers.length === 0) {
+    // A route-declared action defers to the serialized work chain, which
+    // navigates to its screen and waits for a handler to attach. Without a
+    // declared route or an installed navigator, it stays unavailable.
+    if (spec.route === undefined) {
+      await postOutcome(
+        rt,
+        failOutcome(
+          request.requestId,
+          'unavailable',
+          `action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}`,
+        ),
+      )
 
-			return
-		}
+      return
+    }
 
-		if (!state.navigator) {
-			await postOutcome(
-				rt,
-				failOutcome(
-					request.requestId,
-					'unavailable',
-					`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
-						typeof spec.route === 'string' ? spec.route : 'input-derived'
-					}" is declared but no router navigator is installed`,
-				),
-			)
+    if (!state.navigator) {
+      await postOutcome(
+        rt,
+        failOutcome(
+          request.requestId,
+          'unavailable',
+          `action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
+            typeof spec.route === 'string' ? spec.route : 'input-derived'
+          }" is declared but no router navigator is installed`,
+        ),
+      )
 
-			return
-		}
-	} else {
-		const availability = liveAvailability(state, entry)
-		if (!availability.ready) {
-			await postOutcome(
-				rt,
-				failOutcome(
-					request.requestId,
-					'unavailable',
-					`action "${spec.id}" is unavailable: ${availability.reason ?? 'reported unavailable'}`,
-				),
-			)
+      return
+    }
+  } else {
+    const availability = liveAvailability(state, entry)
+    if (!availability.ready) {
+      await postOutcome(
+        rt,
+        failOutcome(
+          request.requestId,
+          'unavailable',
+          `action "${spec.id}" is unavailable: ${availability.reason ?? 'reported unavailable'}`,
+        ),
+      )
 
-			return
-		}
-	}
+      return
+    }
+  }
 
-	const running: RunningInvocation = {
-		controller: new AbortController(),
-		cancellable: spec.execution?.cancellable === true,
-		started: false,
-		active: new Set(),
-	}
+  const running: RunningInvocation = {
+    controller: new AbortController(),
+    cancellable: spec.execution?.cancellable === true,
+    started: false,
+    active: new Set(),
+  }
 
-	state.running.set(request.requestId, running)
+  state.running.set(request.requestId, running)
 
-	const work = async () => {
-		if (state.cancelRequested.has(request.requestId)) {
-			state.running.delete(request.requestId)
-			await postOutcome(rt, {
-				requestId: request.requestId,
-				status: 'cancelled',
-				completedAt: new Date().toISOString(),
-			})
+  const work = async () => {
+    if (state.cancelRequested.has(request.requestId)) {
+      state.running.delete(request.requestId)
+      await postOutcome(rt, {
+        requestId: request.requestId,
+        status: 'cancelled',
+        completedAt: new Date().toISOString(),
+      })
 
-			return
-		}
+      return
+    }
 
-		running.started = true
-		const partialEffects: string[] = []
-		const context: DevActionContext = {
-			signal: running.controller.signal,
-			requestId: request.requestId,
-			reportPartialEffect: (effect) => partialEffects.push(String(effect)),
-		}
+    running.started = true
+    const partialEffects: string[] = []
+    const context: DevActionContext = {
+      signal: running.controller.signal,
+      requestId: request.requestId,
+      reportPartialEffect: (effect) => partialEffects.push(String(effect)),
+    }
 
-		let invocationFailures: DevActionFailure[] | undefined
-		try {
-			let handlers = [...(state.handlers.get(spec.id) ?? [])]
-			if (entry.kind === 'action' && handlers.length === 0 && spec.route !== undefined) {
-				// Screen not mounted: navigate to the declared route, then wait for
-				// its handler to attach and report ready. The navigator was checked
-				// before dispatch; it could have been uninstalled since.
-				const navigator = state.navigator?.impl
-				if (!navigator) {
-					await postOutcome(
-						rt,
-						failOutcome(
-							request.requestId,
-							'unavailable',
-							`action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
-								typeof spec.route === 'string' ? spec.route : 'input-derived'
-							}" is declared but no router navigator is installed`,
-						),
-					)
+    let invocationFailures: DevActionFailure[] | undefined
+    try {
+      let handlers = [...(state.handlers.get(spec.id) ?? [])]
+      if (entry.kind === 'action' && handlers.length === 0 && spec.route !== undefined) {
+        // Screen not mounted: navigate to the declared route, then wait for
+        // its handler to attach and report ready. The navigator was checked
+        // before dispatch; it could have been uninstalled since.
+        const navigator = state.navigator?.impl
+        if (!navigator) {
+          await postOutcome(
+            rt,
+            failOutcome(
+              request.requestId,
+              'unavailable',
+              `action "${spec.id}" is unavailable: ${NO_HANDLER_REASON}; route "${
+                typeof spec.route === 'string' ? spec.route : 'input-derived'
+              }" is declared but no router navigator is installed`,
+            ),
+          )
 
-					return
-				}
+          return
+        }
 
-				// Route-declared actions spend at most half of the caller's
-				// deadline navigating and waiting, so the handler and the outcome
-				// post still fit inside the caller's bound. Measured from the
-				// start of navigation, not from its commit.
-				const waitDeadline =
-					spec.execution?.timeoutMs !== undefined
-						? Date.now() + Math.min(10_000, Math.floor(spec.execution.timeoutMs / 2))
-						: Date.now() + 10_000
+        // Route-declared actions spend at most half of the caller's
+        // deadline navigating and waiting, so the handler and the outcome
+        // post still fit inside the caller's bound. Measured from the
+        // start of navigation, not from its commit.
+        const waitDeadline =
+          spec.execution?.timeoutMs !== undefined
+            ? Date.now() + Math.min(10_000, Math.floor(spec.execution.timeoutMs / 2))
+            : Date.now() + 10_000
 
-				// A throwing route function is an ordinary execution failure.
-				const url = typeof spec.route === 'function' ? spec.route(input.value) : spec.route
-				const navigation = await navigator.navigate(url, running.controller.signal)
-				if (running.controller.signal.aborted) {
-					throw new Error('cancelled')
-				}
+        // A throwing route function is an ordinary execution failure.
+        const url = typeof spec.route === 'function' ? spec.route(input.value) : spec.route
+        const navigation = await navigator.navigate(url, running.controller.signal)
+        if (running.controller.signal.aborted) {
+          throw new Error('cancelled')
+        }
 
-				if (!navigation.ok) {
-					await postOutcome(rt, {
-						requestId: request.requestId,
-						status: 'failed',
-						error: {
-							code: navigation.code,
-							message: `navigation to "${url}" did not commit (status "${navigation.status}"): ${navigation.message}`,
-						},
-						completedAt: new Date().toISOString(),
-					})
+        if (!navigation.ok) {
+          await postOutcome(rt, {
+            requestId: request.requestId,
+            status: 'failed',
+            error: {
+              code: navigation.code,
+              message: `navigation to "${url}" did not commit (status "${navigation.status}"): ${navigation.message}`,
+            },
+            completedAt: new Date().toISOString(),
+          })
 
-					return
-				}
+          return
+        }
 
-				partialEffects.push(`navigated to ${url}`)
+        partialEffects.push(`navigated to ${url}`)
 
-				// Mounting the target screen attaches the handler — possibly under a
-				// new registry revision; the in-flight call is not re-checked.
-				let pendingReason = NO_HANDLER_REASON
-				for (;;) {
-					handlers = [...(state.handlers.get(spec.id) ?? [])]
-					const availability = handlers.length
-						? evaluateAvailability(spec)
-						: { ready: false, reason: NO_HANDLER_REASON }
+        // Mounting the target screen attaches the handler — possibly under a
+        // new registry revision; the in-flight call is not re-checked.
+        let pendingReason = NO_HANDLER_REASON
+        for (;;) {
+          handlers = [...(state.handlers.get(spec.id) ?? [])]
+          const availability = handlers.length
+            ? evaluateAvailability(spec)
+            : { ready: false, reason: NO_HANDLER_REASON }
 
-					if (handlers.length && availability.ready) {
-						break
-					}
+          if (handlers.length && availability.ready) {
+            break
+          }
 
-					pendingReason = availability.reason ?? 'reported unavailable'
-					if (running.controller.signal.aborted || state.cancelRequested.has(request.requestId)) {
-						await postOutcome(rt, {
-							requestId: request.requestId,
-							status: 'cancelled',
-							partialEffects,
-							completedAt: new Date().toISOString(),
-						})
+          pendingReason = availability.reason ?? 'reported unavailable'
+          if (running.controller.signal.aborted || state.cancelRequested.has(request.requestId)) {
+            await postOutcome(rt, {
+              requestId: request.requestId,
+              status: 'cancelled',
+              partialEffects,
+              completedAt: new Date().toISOString(),
+            })
 
-						return
-					}
+            return
+          }
 
-					if (Date.now() >= waitDeadline) {
-						await postOutcome(rt, {
-							requestId: request.requestId,
-							status: 'failed',
-							error: {
-								code: 'unavailable',
-								message: `navigated to ${url} but action "${spec.id}" is still unavailable: ${pendingReason}`,
-							},
-							partialEffects,
-							completedAt: new Date().toISOString(),
-						})
+          if (Date.now() >= waitDeadline) {
+            await postOutcome(rt, {
+              requestId: request.requestId,
+              status: 'failed',
+              error: {
+                code: 'unavailable',
+                message: `navigated to ${url} but action "${spec.id}" is still unavailable: ${pendingReason}`,
+              },
+              partialEffects,
+              completedAt: new Date().toISOString(),
+            })
 
-						return
-					}
+            return
+          }
 
-					await sleep(50)
-				}
-			}
+          await sleep(50)
+        }
+      }
 
-			let result: Record<string, unknown> | undefined
-			if (entry.kind === 'effect') {
-				// Broadcast: every handler attached at dispatch start runs, in
-				// attach order, and failures don't stop the remaining handlers.
-				const failureRecords: DevActionFailure[] = []
-				const failureMessages: string[] = []
-				for (const [index, handler] of handlers.entries()) {
-					running.active.add(handler)
-					try {
-						await handler.run(input.value, context)
-					} catch (error) {
-						if (running.controller.signal.aborted) {
-							throw error
-						}
+      let result: Record<string, unknown> | undefined
+      if (entry.kind === 'effect') {
+        // Broadcast: every handler attached at dispatch start runs, in
+        // attach order, and failures don't stop the remaining handlers.
+        const failureRecords: DevActionFailure[] = []
+        const failureMessages: string[] = []
+        for (const [index, handler] of handlers.entries()) {
+          running.active.add(handler)
+          try {
+            await handler.run(input.value, context)
+          } catch (error) {
+            if (running.controller.signal.aborted) {
+              throw error
+            }
 
-						const record = toFailureRecord(index, handler.label, error)
-						if (failureRecords.length < FAILURE_RECORDS_MAX) {
-							failureRecords.push(record)
-						}
+            const record = toFailureRecord(index, handler.label, error)
+            if (failureRecords.length < FAILURE_RECORDS_MAX) {
+              failureRecords.push(record)
+            }
 
-						failureMessages.push(record.message)
-					} finally {
-						running.active.delete(handler)
-					}
-				}
+            failureMessages.push(record.message)
+          } finally {
+            running.active.delete(handler)
+          }
+        }
 
-				if (failureMessages.length) {
-					partialEffects.unshift(
-						`${handlers.length - failureMessages.length} of ${handlers.length} handlers completed`,
-					)
+        if (failureMessages.length) {
+          partialEffects.unshift(
+            `${handlers.length - failureMessages.length} of ${handlers.length} handlers completed`,
+          )
 
-					invocationFailures = failureRecords
-					const shown = failureMessages.slice(0, FAILURE_SUMMARY_SHOWN).join('; ')
-					const rest = failureMessages.length - FAILURE_SUMMARY_SHOWN
-					throw new Error(
-						`${failureMessages.length} of ${handlers.length} handlers failed: ${shown}${rest > 0 ? ` (+${rest} more)` : ''}`,
-					)
-				}
+          invocationFailures = failureRecords
+          const shown = failureMessages.slice(0, FAILURE_SUMMARY_SHOWN).join('; ')
+          const rest = failureMessages.length - FAILURE_SUMMARY_SHOWN
+          throw new Error(
+            `${failureMessages.length} of ${handlers.length} handlers failed: ${shown}${rest > 0 ? ` (+${rest} more)` : ''}`,
+          )
+        }
 
-				result = { handlerCount: handlers.length }
-			} else {
-				// The most recently attached handler wins; older ones stay
-				// attached and take over again when it detaches.
-				const handlerIndex = handlers.length - 1
-				const handler = handlers[handlerIndex]
-				if (handlers.length > 1) {
-					console.warn(
-						`[octane-xplat] Dev action "${spec.id}" has ${handlers.length} attached handlers; using the most recently attached${handler.label ? ` (${handler.label})` : ''}.`,
-					)
-				}
+        result = { handlerCount: handlers.length }
+      } else {
+        // The most recently attached handler wins; older ones stay
+        // attached and take over again when it detaches.
+        const handlerIndex = handlers.length - 1
+        const handler = handlers[handlerIndex]
+        if (handlers.length > 1) {
+          console.warn(
+            `[octane-xplat] Dev action "${spec.id}" has ${handlers.length} attached handlers; using the most recently attached${handler.label ? ` (${handler.label})` : ''}.`,
+          )
+        }
 
-				running.active.add(handler)
-				try {
-					result = (await handler.run(input.value, context)) as Record<string, unknown> | undefined
-				} catch (thrown) {
-					invocationFailures = [toFailureRecord(handlerIndex, handler.label, thrown)]
-					throw thrown
-				} finally {
-					running.active.delete(handler)
-				}
-			}
+        running.active.add(handler)
+        try {
+          result = (await handler.run(input.value, context)) as Record<string, unknown> | undefined
+        } catch (thrown) {
+          invocationFailures = [toFailureRecord(handlerIndex, handler.label, thrown)]
+          throw thrown
+        } finally {
+          running.active.delete(handler)
+        }
+      }
 
-			const output = validateActionOutput(spec.result, result)
-			const outcome: DevActionOutcome = output.ok
-				? {
-						requestId: request.requestId,
-						status: 'succeeded',
-						result: output.value,
-						...(partialEffects.length ? { partialEffects } : {}),
-						completedAt: new Date().toISOString(),
-					}
-				: {
-						requestId: request.requestId,
-						status: 'failed',
-						error: {
-							code: 'execution_failure',
-							message: `output failed the declared result contract: ${output.errors.join('; ')}`,
-						},
-						partialEffects: partialEffects.length
-							? partialEffects
-							: ['action ran to completion; its result was rejected'],
-						completedAt: new Date().toISOString(),
-					}
+      const output = validateActionOutput(spec.result, result)
+      const outcome: DevActionOutcome = output.ok
+        ? {
+            requestId: request.requestId,
+            status: 'succeeded',
+            result: output.value,
+            ...(partialEffects.length ? { partialEffects } : {}),
+            completedAt: new Date().toISOString(),
+          }
+        : {
+            requestId: request.requestId,
+            status: 'failed',
+            error: {
+              code: 'execution_failure',
+              message: `output failed the declared result contract: ${output.errors.join('; ')}`,
+            },
+            partialEffects: partialEffects.length
+              ? partialEffects
+              : ['action ran to completion; its result was rejected'],
+            completedAt: new Date().toISOString(),
+          }
 
-			await postOutcome(rt, outcome)
-		} catch (error) {
-			await postOutcome(
-				rt,
-				running.controller.signal.aborted
-					? {
-							requestId: request.requestId,
-							status: 'cancelled',
-							...(partialEffects.length ? { partialEffects } : {}),
-							completedAt: new Date().toISOString(),
-						}
-					: {
-							requestId: request.requestId,
-							status: 'failed',
-							error: {
-								code: error instanceof DevNavigationError ? error.code : 'execution_failure',
-								message: (error as Error)?.message ?? String(error),
-								...(invocationFailures?.length ? { failures: invocationFailures } : {}),
-							},
-							...(partialEffects.length ? { partialEffects } : {}),
-							completedAt: new Date().toISOString(),
-						},
-			)
-		} finally {
-			state.running.delete(request.requestId)
-		}
-	}
+      await postOutcome(rt, outcome)
+    } catch (error) {
+      await postOutcome(
+        rt,
+        running.controller.signal.aborted
+          ? {
+              requestId: request.requestId,
+              status: 'cancelled',
+              ...(partialEffects.length ? { partialEffects } : {}),
+              completedAt: new Date().toISOString(),
+            }
+          : {
+              requestId: request.requestId,
+              status: 'failed',
+              error: {
+                code: error instanceof DevNavigationError ? error.code : 'execution_failure',
+                message: (error as Error)?.message ?? String(error),
+                ...(invocationFailures?.length ? { failures: invocationFailures } : {}),
+              },
+              ...(partialEffects.length ? { partialEffects } : {}),
+              completedAt: new Date().toISOString(),
+            },
+      )
+    } finally {
+      state.running.delete(request.requestId)
+    }
+  }
 
-	// Serialized by default: one action per app instance at a time.
-	if (spec.execution?.concurrency === 'overlap') {
-		void work()
-	} else {
-		state.chain = state.chain.catch(() => {}).then(work)
-	}
+  // Serialized by default: one action per app instance at a time.
+  if (spec.execution?.concurrency === 'overlap') {
+    void work()
+  } else {
+    state.chain = state.chain.catch(() => {}).then(work)
+  }
 }

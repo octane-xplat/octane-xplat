@@ -6,8 +6,8 @@ export { defineWebTransition } from '../routing/web-route-transition.web'
 export type { WebTransitionOptions } from '../props'
 
 import type {
-	HoverCardProps as SharedHoverCardProps,
-	TooltipProps as SharedTooltipProps,
+  HoverCardProps as SharedHoverCardProps,
+  TooltipProps as SharedTooltipProps,
 } from '../props'
 
 /** @deprecated `HoverCard` is a portable component — import it from
@@ -23,8 +23,8 @@ export { Tooltip } from '../components/overlays/Tooltip.web.tsrx'
 // view-tree form `useOutlineFromView` lives on the explicit platform paths
 // `@octane-xplat/ui/nativescript` (iOS/Android) and `@octane-xplat/ui/macos`.
 export {
-	useOutlineFromDOM,
-	outlineItemsFromDOM,
+  useOutlineFromDOM,
+  outlineItemsFromDOM,
 } from '../components/collections/outline-dom.web.tsrx'
 
 export type { OutlineFromDOMOptions } from '../components/collections/outline-dom.web.tsrx'

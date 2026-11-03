@@ -4,37 +4,37 @@ import type { AppInfo } from './types'
 import { NSBundle } from '@octane-xplat/platform/ios'
 
 function value(value: unknown): string | null {
-	return value === undefined || value === null ? null : String(value)
+  return value === undefined || value === null ? null : String(value)
 }
 
 function read(): AppInfo {
-	if (Application.android) {
-		const context = Application.android.context
-		if (!context) {
-			return { supported: true, version: null, build: null, bundleId: null }
-		}
+  if (Application.android) {
+    const context = Application.android.context
+    if (!context) {
+      return { supported: true, version: null, build: null, bundleId: null }
+    }
 
-		const packageId = context.getPackageName()
-		const packageInfo = context.getPackageManager().getPackageInfo(packageId, 0)
-		return {
-			supported: true,
-			version: value(packageInfo.versionName),
-			build: value(packageInfo.versionCode),
-			bundleId: packageId,
-		}
-	}
+    const packageId = context.getPackageName()
+    const packageInfo = context.getPackageManager().getPackageInfo(packageId, 0)
+    return {
+      supported: true,
+      version: value(packageInfo.versionName),
+      build: value(packageInfo.versionCode),
+      bundleId: packageId,
+    }
+  }
 
-	if (Application.ios) {
-		const bundle = NSBundle.mainBundle
-		return {
-			supported: true,
-			version: value(bundle.objectForInfoDictionaryKey('CFBundleShortVersionString')),
-			build: value(bundle.objectForInfoDictionaryKey('CFBundleVersion')),
-			bundleId: value(bundle.bundleIdentifier),
-		}
-	}
+  if (Application.ios) {
+    const bundle = NSBundle.mainBundle
+    return {
+      supported: true,
+      version: value(bundle.objectForInfoDictionaryKey('CFBundleShortVersionString')),
+      build: value(bundle.objectForInfoDictionaryKey('CFBundleVersion')),
+      bundleId: value(bundle.bundleIdentifier),
+    }
+  }
 
-	return { supported: false, version: null, build: null, bundleId: null }
+  return { supported: false, version: null, build: null, bundleId: null }
 }
 
 // `Application.android.context` doesn't exist while the bundled entry is
@@ -42,16 +42,16 @@ function read(): AppInfo {
 // scope. Defer until first property access.
 /** Static app metadata service. */
 export const appInfo: AppInfo = {
-	get supported() {
-		return read().supported
-	},
-	get version() {
-		return read().version
-	},
-	get build() {
-		return read().build
-	},
-	get bundleId() {
-		return read().bundleId
-	},
+  get supported() {
+    return read().supported
+  },
+  get version() {
+    return read().version
+  },
+  get build() {
+    return read().build
+  },
+  get bundleId() {
+    return read().bundleId
+  },
 }

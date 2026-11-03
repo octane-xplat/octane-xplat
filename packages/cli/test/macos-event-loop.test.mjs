@@ -10,8 +10,8 @@ import { fileURLToPath } from 'node:url'
 // XPLAT_JSC_HOST_BUNDLE points at a build-runtime.sh output directory to check
 // a locally rebuilt host before the committed prebuilt rotates.
 const hostBundle =
-	process.env.XPLAT_JSC_HOST_BUNDLE ??
-	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+  process.env.XPLAT_JSC_HOST_BUNDLE ??
+  resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
 
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
@@ -81,93 +81,93 @@ setTimeout(function () {
 `
 
 test(
-	'AppKit host delivers foreign-queue JS callbacks through the env loop pump',
-	{ skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
-	async (t) => {
-		const dir = mkdtempSync(join(tmpdir(), 'xplat-event-loop-'))
-		t.after(() => rmSync(dir, { recursive: true, force: true }))
+  'AppKit host delivers foreign-queue JS callbacks through the env loop pump',
+  { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
+  async (t) => {
+    const dir = mkdtempSync(join(tmpdir(), 'xplat-event-loop-'))
+    t.after(() => rmSync(dir, { recursive: true, force: true }))
 
-		const requests = []
-		const server = createServer((req, res) => {
-			requests.push(req.url)
-			res.writeHead(200, { 'content-type': 'text/plain' })
-			res.end('ok')
-		})
-		await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-		t.after(() => server.close())
-		const port = server.address().port
+    const requests = []
+    const server = createServer((req, res) => {
+      requests.push(req.url)
+      res.writeHead(200, { 'content-type': 'text/plain' })
+      res.end('ok')
+    })
+    await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+    t.after(() => server.close())
+    const port = server.address().port
 
-		const script = join(dir, 'fixture.cjs')
-		writeFileSync(script, fixture.replace('__PORT__', String(port)))
-		// The shipped shim is the bootstrap the packaged/dev host runs.
-		const bootstrap = join(dir, 'bootstrap.js')
-		writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
+    const script = join(dir, 'fixture.cjs')
+    writeFileSync(script, fixture.replace('__PORT__', String(port)))
+    // The shipped shim is the bootstrap the packaged/dev host runs.
+    const bootstrap = join(dir, 'bootstrap.js')
+    writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
-		// The rebuild output directory carries host + framework but not metadata;
-		// resolve the nsmd beside whichever bundle ships it.
-		const metadata = join(
-			existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
-				? hostBundle
-				: resolve(hostRoot, 'prebuilt/macos'),
-			`metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
-		)
+    // The rebuild output directory carries host + framework but not metadata;
+    // resolve the nsmd beside whichever bundle ships it.
+    const metadata = join(
+      existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
+        ? hostBundle
+        : resolve(hostRoot, 'prebuilt/macos'),
+      `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
+    )
 
-		const child = spawn(
-			join(hostBundle, 'host'),
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				script,
-				metadata,
-				bootstrap,
-			],
-			{ stdio: ['ignore', 'ignore', 'pipe'] },
-		)
-		let output = ''
-		child.stderr.on('data', (chunk) => {
-			output += chunk
-		})
-		const status = await new Promise((resolve) => {
-			const timeout = setTimeout(() => {
-				child.kill('SIGKILL')
-				resolve('timeout')
-			}, 30_000)
-			child.on('close', (code) => {
-				clearTimeout(timeout)
-				resolve(code)
-			})
-		})
-		assert.equal(status, 0, `host exited ${status}\n${output}`)
+    const child = spawn(
+      join(hostBundle, 'host'),
+      [
+        join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+        script,
+        metadata,
+        bootstrap,
+      ],
+      { stdio: ['ignore', 'ignore', 'pipe'] },
+    )
+    let output = ''
+    child.stderr.on('data', (chunk) => {
+      output += chunk
+    })
+    const status = await new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        child.kill('SIGKILL')
+        resolve('timeout')
+      }, 30_000)
+      child.on('close', (code) => {
+        clearTimeout(timeout)
+        resolve(code)
+      })
+    })
+    assert.equal(status, 0, `host exited ${status}\n${output}`)
 
-		const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
-		assert.ok(marker, `missing probe result marker:\n${output}`)
-		const delivered = JSON.parse(marker.slice(0, marker.indexOf(' sessionStatus=')))
-		const sessionStatus = / sessionStatus=(\S+)/.exec(marker)?.[1]
-		const bgQueuePending = Number(/ bgQueuePending=(\S+)/.exec(marker)?.[1])
+    const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
+    assert.ok(marker, `missing probe result marker:\n${output}`)
+    const delivered = JSON.parse(marker.slice(0, marker.indexOf(' sessionStatus=')))
+    const sessionStatus = / sessionStatus=(\S+)/.exec(marker)?.[1]
+    const bgQueuePending = Number(/ bgQueuePending=(\S+)/.exec(marker)?.[1])
 
-		if (delivered.bgq === 0 && delivered.session === 0) {
-			return t.skip(
-				'prebuilt host binary predates the env loop pump; refresh it with ' +
-					'packages/cli/src/macos/jsc-host/build-runtime.sh --install',
-			)
-		}
+    if (delivered.bgq === 0 && delivered.session === 0) {
+      return t.skip(
+        'prebuilt host binary predates the env loop pump; refresh it with ' +
+          'packages/cli/src/macos/jsc-host/build-runtime.sh --install',
+      )
+    }
 
-		// Every previously starved lane now delivers on the main thread.
-		assert.deepEqual(
-			{
-				timer: delivered.timer,
-				mainq: delivered.mainq,
-				bgq: delivered.bgq,
-				bgq2: delivered.bgq2,
-				session: delivered.session,
-				gasync: delivered.gasync,
-			},
-			{ timer: 1, mainq: 1, bgq: 1, bgq2: 1, session: 1, gasync: 1 },
-		)
-		// The serial queue unwedged: both ops completed instead of op2 parking
-		// behind op1's undelivered TSFN call.
-		assert.equal(bgQueuePending, 0)
-		// A real NSURLSession completion reached JS with the HTTP status.
-		assert.deepEqual(requests, ['/probe'])
-		assert.equal(sessionStatus, '200')
-	},
+    // Every previously starved lane now delivers on the main thread.
+    assert.deepEqual(
+      {
+        timer: delivered.timer,
+        mainq: delivered.mainq,
+        bgq: delivered.bgq,
+        bgq2: delivered.bgq2,
+        session: delivered.session,
+        gasync: delivered.gasync,
+      },
+      { timer: 1, mainq: 1, bgq: 1, bgq2: 1, session: 1, gasync: 1 },
+    )
+    // The serial queue unwedged: both ops completed instead of op2 parking
+    // behind op1's undelivered TSFN call.
+    assert.equal(bgQueuePending, 0)
+    // A real NSURLSession completion reached JS with the HTTP status.
+    assert.deepEqual(requests, ['/probe'])
+    assert.equal(sessionStatus, '200')
+  },
 )

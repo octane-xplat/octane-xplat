@@ -12,10 +12,10 @@
 import { ContentView, GestureTypes, type View, type ViewBase } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import {
-	enterText,
-	mount,
-	nextRenderPass,
-	tap as upstreamTap,
+  enterText,
+  mount,
+  nextRenderPass,
+  tap as upstreamTap,
 } from '@nativescript/unit-test-runner/testing'
 
 import { onTestFinished } from 'vitest'
@@ -24,13 +24,13 @@ import { onTestFinished } from 'vitest'
 // tap()/enterText() dispatch through gesture observers — they prove handler
 // wiring, not OS hit-testing (that stays Maestro's lane).
 export {
-	doubleTap,
-	enterText,
-	longPress,
-	nextRenderPass,
-	returnPress,
-	waitForLayout,
-	waitUntil,
+  doubleTap,
+  enterText,
+  longPress,
+  nextRenderPass,
+  returnPress,
+  waitForLayout,
+  waitUntil,
 } from '@nativescript/unit-test-runner/testing'
 
 /** Upstream `tap()` dispatches the `tap` event — MasonKit views remap `tap`
@@ -38,25 +38,25 @@ export {
  *  nothing listens for `tap` and the dispatch is a no-op. A tap is a click;
  *  notify `click` as well when the view carries no `tap` listeners of its own. */
 export async function tap(view: Parameters<typeof upstreamTap>[0]): Promise<void> {
-	await upstreamTap(view)
-	if (view.hasListeners?.('tap')) {
-		return
-	}
-	view.notify({
-		eventName: 'click',
-		object: view,
-		view,
-		type: GestureTypes.tap,
-		ios: undefined,
-		android: undefined,
-	})
-	await nextRenderPass()
+  await upstreamTap(view)
+  if (view.hasListeners?.('tap')) {
+    return
+  }
+  view.notify({
+    eventName: 'click',
+    object: view,
+    view,
+    type: GestureTypes.tap,
+    ios: undefined,
+    android: undefined,
+  })
+  await nextRenderPass()
 }
 
 export type {
-	Mounted,
-	MountOptions,
-	WaitUntilOptions,
+  Mounted,
+  MountOptions,
+  WaitUntilOptions,
 } from '@nativescript/unit-test-runner/testing'
 
 /** The view shape `enterText` accepts — handy as `findByTestId<TextInputView>`. */
@@ -64,20 +64,20 @@ export type TextInputView = Parameters<typeof enterText>[0]
 
 /** Handle for a mounted test component. */
 export interface MountedComponent {
-	/** The ContentView the component rendered into. */
-	view: ContentView
-	/** The runner's host surface; its `content` clears on unmount. */
-	host: ContentView
-	/** Unmount the component root and detach the holder. Idempotent. */
-	unmount(): Promise<void>
+  /** The ContentView the component rendered into. */
+  view: ContentView
+  /** The runner's host surface; its `content` clears on unmount. */
+  host: ContentView
+  /** Unmount the component root and detach the holder. Idempotent. */
+  unmount(): Promise<void>
 }
 
 /** Options for mountXplat(). */
 export interface MountXplatOptions {
-	/** Unmount automatically when the current test finishes. Default true. */
-	autoUnmount?: boolean
-	/** View-load + layout budget forwarded to the runner's mount(). */
-	timeout?: number
+  /** Unmount automatically when the current test finishes. Default true. */
+  autoUnmount?: boolean
+  /** View-load + layout budget forwarded to the runner's mount(). */
+  timeout?: number
 }
 
 // Live component roots for the current spec. mount() replaces host.content
@@ -93,89 +93,89 @@ const liveMounts = new Set<() => Promise<void>>()
  * true) also unmounts when the current test finishes.
  */
 export async function mountXplat<P extends object>(
-	component: (props: P) => unknown,
-	props?: P,
-	options: MountXplatOptions = {},
+  component: (props: P) => unknown,
+  props?: P,
+  options: MountXplatOptions = {},
 ): Promise<MountedComponent> {
-	for (const release of new Set(liveMounts)) {
-		await release()
-	}
+  for (const release of new Set(liveMounts)) {
+    await release()
+  }
 
-	let root: { unmount(): void } | undefined
-	const {
-		view,
-		host,
-		unmount: unmountView,
-	} = await mount(
-		() => {
-			const holder = new ContentView()
-			root = renderNativeScriptApp(holder, component, props)
-			return holder
-		},
-		// The runner's own autoUnmount only clears host.content — the octane
-		// root cleanup lives here instead so both happen as one unit.
-		{ timeout: options.timeout, autoUnmount: false },
-	)
+  let root: { unmount(): void } | undefined
+  const {
+    view,
+    host,
+    unmount: unmountView,
+  } = await mount(
+    () => {
+      const holder = new ContentView()
+      root = renderNativeScriptApp(holder, component, props)
+      return holder
+    },
+    // The runner's own autoUnmount only clears host.content — the octane
+    // root cleanup lives here instead so both happen as one unit.
+    { timeout: options.timeout, autoUnmount: false },
+  )
 
-	let unmounted = false
-	const unmount = async () => {
-		if (unmounted) {
-			return
-		}
+  let unmounted = false
+  const unmount = async () => {
+    if (unmounted) {
+      return
+    }
 
-		unmounted = true
-		liveMounts.delete(unmount)
-		root?.unmount()
-		await unmountView()
-	}
+    unmounted = true
+    liveMounts.delete(unmount)
+    root?.unmount()
+    await unmountView()
+  }
 
-	liveMounts.add(unmount)
-	if (options.autoUnmount !== false) {
-		onTestFinished(() => unmount())
-	}
+  liveMounts.add(unmount)
+  if (options.autoUnmount !== false) {
+    onTestFinished(() => unmount())
+  }
 
-	return { view, host, unmount }
+  return { view, host, unmount }
 }
 
 /** Depth-first walk of the mounted native tree. */
 export function eachDescendant(root: ViewBase, visit: (view: ViewBase) => void): void {
-	const walk = (view: ViewBase) => {
-		visit(view)
+  const walk = (view: ViewBase) => {
+    visit(view)
 
-		;(view as View).eachChildView?.((child) => {
-			walk(child)
-			return true
-		})
-	}
+    ;(view as View).eachChildView?.((child) => {
+      walk(child)
+      return true
+    })
+  }
 
-	walk(root)
+  walk(root)
 }
 
 /** Every `text`/`formattedText` string in the subtree, depth-first. The
  *  runner exposes no query layer — text is the shared observable contract
  *  across Xplat leaves, so this is the portable assertion surface. */
 export function viewText(root: ViewBase): string[] {
-	const out: string[] = []
-	eachDescendant(root, (view) => {
-		const text = typeof view === 'object' && view !== null && 'text' in view ? view.text : undefined
-		if (typeof text === 'string') {
-			out.push(text)
-		}
-	})
+  const out: string[] = []
+  eachDescendant(root, (view) => {
+    const text = typeof view === 'object' && view !== null && 'text' in view ? view.text : undefined
+    if (typeof text === 'string') {
+      out.push(text)
+    }
+  })
 
-	return out
+  return out
 }
 
 /** First descendant whose NativeScript `testID` matches — the native half of
  *  the shared `testID` prop (`data-testid` on web). `id`-based lookups belong
  *  to `view.getViewById` instead. */
 export function findByTestId<T = View>(root: ViewBase, testID: string): T | undefined {
-	let found: T | undefined
-	eachDescendant(root, (view) => {
-		if (!found && (view as View).testID === testID) {
-			found = view as T
-		}
-	})
+  let found: T | undefined
+  eachDescendant(root, (view) => {
+    if (!found && (view as View).testID === testID) {
+      found = view as T
+    }
+  })
 
-	return found
+  return found
 }

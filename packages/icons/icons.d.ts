@@ -9,7 +9,7 @@
 // TODO(octane-xplat#93): TS 6.1+ content mappers replace this stub with
 // plugin-supplied declaration content.
 declare module 'icons:*' {
-	import type { IconifyIcon } from '@octane-xplat/icons'
-	const icon: IconifyIcon
-	export default icon
+  import type { IconifyIcon } from '@octane-xplat/icons'
+  const icon: IconifyIcon
+  export default icon
 }

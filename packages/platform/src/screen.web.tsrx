@@ -6,33 +6,33 @@ import type { WindowSize } from './types'
 import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web'
 
 function read(): WindowSize {
-	return {
-		width: window.innerWidth,
-		height: window.innerHeight,
-		orientation: window.innerWidth >= window.innerHeight ? 'landscape' : 'portrait',
-	}
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight,
+    orientation: window.innerWidth >= window.innerHeight ? 'landscape' : 'portrait',
+  }
 }
 
 /** Window size in CSS px plus derived orientation; re-renders on change.
  *  Inside a desktop webview this follows host `window.resize` events; in a
  *  browser it listens for window resize/orientationchange. */
 export function useWindowSize(): WindowSize {
-	const bootstrap = desktopHostBootstrap()
-	const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read)
-	useEffect(() => {
-		const host = desktopHostClient()
-		if (host) {
-			return host.on('window.resize', setSize)
-		}
+  const bootstrap = desktopHostBootstrap()
+  const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read)
+  useEffect(() => {
+    const host = desktopHostClient()
+    if (host) {
+      return host.on('window.resize', setSize)
+    }
 
-		const update = () => setSize(read())
-		window.addEventListener('resize', update)
-		window.addEventListener('orientationchange', update)
-		return () => {
-			window.removeEventListener('resize', update)
-			window.removeEventListener('orientationchange', update)
-		}
-	}, [])
+    const update = () => setSize(read())
+    window.addEventListener('resize', update)
+    window.addEventListener('orientationchange', update)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('orientationchange', update)
+    }
+  }, [])
 
-	return size
+  return size
 }

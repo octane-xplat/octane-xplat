@@ -7,10 +7,10 @@ import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
-	macOSHostArch,
-	hostBundle,
-	hostRoot,
-	validateHostBundle,
+  macOSHostArch,
+  hostBundle,
+  hostRoot,
+  validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -20,60 +20,60 @@ const directory = await mkdtemp(join(scratch, 'macos-fonts-'))
 const bootstrap = join(directory, 'bootstrap.js')
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
 const config = await createMacOSConfig({
-	packaged: true,
-	rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
+  packaged: true,
+  rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })
 
 for (const custom of [false, true]) {
-	const entry = join(directory, 'main.mjs')
-	await writeFile(
-		entry,
-		[
-			`import { runFontFixture } from ${JSON.stringify(join(appRoot, 'test/font-fixture.macos.tsx'))}`,
-			...(custom
-				? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, 'src/fonts.ts'))}`]
-				: []),
-			`NSApplication.sharedApplication`,
-			`runFontFixture(${custom ? 'harnessFontOptions, true' : ''})`,
-		].join('\n'),
-	)
+  const entry = join(directory, 'main.mjs')
+  await writeFile(
+    entry,
+    [
+      `import { runFontFixture } from ${JSON.stringify(join(appRoot, 'test/font-fixture.macos.tsx'))}`,
+      ...(custom
+        ? [`import { harnessFontOptions } from ${JSON.stringify(join(appRoot, 'src/fonts.ts'))}`]
+        : []),
+      `NSApplication.sharedApplication`,
+      `runFontFixture(${custom ? 'harnessFontOptions, true' : ''})`,
+    ].join('\n'),
+  )
 
-	await build({
-		...config,
-		configFile: false,
-		logLevel: 'error',
-		build: {
-			...config.build,
-			outDir: directory,
-			emptyOutDir: false,
-			lib: { entry, formats: ['cjs'], fileName: 'fixture' },
-		},
-	})
+  await build({
+    ...config,
+    configFile: false,
+    logLevel: 'error',
+    build: {
+      ...config.build,
+      outDir: directory,
+      emptyOutDir: false,
+      lib: { entry, formats: ['cjs'], fileName: 'fixture' },
+    },
+  })
 
-	const bundle = join(directory, 'fixture.cjs')
-	await validateHostBundle(bundle, appRoot)
-	const result = spawnSync(
-		await macOSExecutable(appRoot, 'macos/host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			bundle,
-			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-			bootstrap,
-		],
-		{
-			cwd: directory,
-			env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
-			encoding: 'utf8',
-			timeout: 10_000,
-		},
-	)
+  const bundle = join(directory, 'fixture.cjs')
+  await validateHostBundle(bundle, appRoot)
+  const result = spawnSync(
+    await macOSExecutable(appRoot, 'macos/host'),
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      bundle,
+      join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+      bootstrap,
+    ],
+    {
+      cwd: directory,
+      env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
+      encoding: 'utf8',
+      timeout: 10_000,
+    },
+  )
 
-	const output = result.stdout + result.stderr
-	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /FONT_FIXTURE_FAIL|uncaught render error/)
-	assert.match(output, custom ? /CUSTOM_FONT_OK/ : /SYSTEM_FONT_OK/)
+  const output = result.stdout + result.stderr
+  assert.equal(result.status, 0, output)
+  assert.doesNotMatch(output, /FONT_FIXTURE_FAIL|uncaught render error/)
+  assert.match(output, custom ? /CUSTOM_FONT_OK/ : /SYSTEM_FONT_OK/)
 }
 
 console.log(
-	'AppKit fonts: system defaults, weights, updates, fallback, and explicit harness Geist pass',
+  'AppKit fonts: system defaults, weights, updates, fallback, and explicit harness Geist pass',
 )

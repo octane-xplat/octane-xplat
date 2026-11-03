@@ -6,18 +6,18 @@
  *  container that needs it; the immediate call covers refs attaching after
  *  load. Web clips with CSS overflow — the `.web` leaf is a no-op. */
 export function clipMarquee(view: any): void {
-	const apply = () => {
-		if (view?.ios) {
-			view.ios.clipsToBounds = true
-		}
+  const apply = () => {
+    if (view?.ios) {
+      view.ios.clipsToBounds = true
+    }
 
-		const android = view?.android
-		if (typeof android?.setClipChildren === 'function') {
-			android.setClipChildren(true)
-			android.setClipToPadding(true)
-		}
-	}
+    const android = view?.android
+    if (typeof android?.setClipChildren === 'function') {
+      android.setClipChildren(true)
+      android.setClipToPadding(true)
+    }
+  }
 
-	view?.on?.('loaded', apply)
-	apply()
+  view?.on?.('loaded', apply)
+  apply()
 }

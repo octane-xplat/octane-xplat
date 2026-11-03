@@ -10,24 +10,24 @@ const noop = () => {}
  *  honest rather than absent: `isSupported` is false and the controls are
  *  inert no-ops. */
 export function useSpeechRecognition(
-	_options: UseSpeechRecognitionOptions = {},
+  _options: UseSpeechRecognitionOptions = {},
 ): UseSpeechRecognitionReturn {
-	const start = useCallback(noop, [])
-	const stop = useCallback(noop, [])
-	const abort = useCallback(noop, [])
-	const toggle = useCallback(noop, [])
+  const start = useCallback(noop, [])
+  const stop = useCallback(noop, [])
+  const abort = useCallback(noop, [])
+  const toggle = useCallback(noop, [])
 
-	return {
-		isSupported: false,
-		isListening: false,
-		isSpeaking: false,
-		volume: 0,
-		bands: EMPTY,
-		rawBands: EMPTY,
-		interimTranscript: '',
-		start,
-		stop,
-		abort,
-		toggle,
-	}
+  return {
+    isSupported: false,
+    isListening: false,
+    isSpeaking: false,
+    volume: 0,
+    bands: EMPTY,
+    rawBands: EMPTY,
+    interimTranscript: '',
+    start,
+    stop,
+    abort,
+    toggle,
+  }
 }

@@ -5,42 +5,42 @@ import type { TextType } from '@octane-xplat/ui'
 // `sb-block`/`sb-strikethrough`/`sb-tabular` stand in for upstream Text's
 // `display="block"`/`hasStrikethrough`/`hasTabularNumbers` props.
 const TYPES: { type: TextType; label: string; sample: string; extra?: string }[] = [
-	{ type: 'body', label: 'Body text', sample: 'Body text for paragraphs and general content' },
-	{ type: 'large', label: 'Large text', sample: 'Large text for introductions and callouts' },
-	{ type: 'label', label: 'Label text', sample: 'Label text for form fields and section titles' },
-	{
-		type: 'supporting',
-		label: 'Supporting text',
-		sample: 'Supporting text for captions and metadata',
-	},
-	{ type: 'code', label: 'Code text', sample: 'const theme = defineTheme({})' },
-	{
-		type: 'body',
-		label: 'Strikethrough',
-		sample: 'Body text with strikethrough decoration',
-		extra: 'sb-strikethrough',
-	},
-	{
-		type: 'body',
-		label: 'Tabular numbers',
-		sample: '1,234.56  78.90  100,000.00',
-		extra: 'sb-tabular',
-	},
+  { type: 'body', label: 'Body text', sample: 'Body text for paragraphs and general content' },
+  { type: 'large', label: 'Large text', sample: 'Large text for introductions and callouts' },
+  { type: 'label', label: 'Label text', sample: 'Label text for form fields and section titles' },
+  {
+    type: 'supporting',
+    label: 'Supporting text',
+    sample: 'Supporting text for captions and metadata',
+  },
+  { type: 'code', label: 'Code text', sample: 'const theme = defineTheme({})' },
+  {
+    type: 'body',
+    label: 'Strikethrough',
+    sample: 'Body text with strikethrough decoration',
+    extra: 'sb-strikethrough',
+  },
+  {
+    type: 'body',
+    label: 'Tabular numbers',
+    sample: '1,234.56  78.90  100,000.00',
+    extra: 'sb-tabular',
+  },
 ]
 
 export function TextTypes() @{
-	return (
-		<Stack direction="vertical" gap={3}>
-			{TYPES.map(({ type, label, sample, extra }) => (
-				<Stack key={label} direction="vertical" gap={0}>
-					<Text type="supporting" color="secondary">
-						{label}
-					</Text>
-					<Text type={type} className={`sb-block${extra ? ' ' + extra : ''}`}>
-						{sample}
-					</Text>
-				</Stack>
-			))}
-		</Stack>
-	)
+  return (
+    <Stack direction="vertical" gap={3}>
+      {TYPES.map(({ type, label, sample, extra }) => (
+        <Stack key={label} direction="vertical" gap={0}>
+          <Text type="supporting" color="secondary">
+            {label}
+          </Text>
+          <Text type={type} className={`sb-block${extra ? ' ' + extra : ''}`}>
+            {sample}
+          </Text>
+        </Stack>
+      ))}
+    </Stack>
+  )
 }

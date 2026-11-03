@@ -1,44 +1,44 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { PowerSearchTokenProps } from '../../props'
 import {
-	resolveOperatorLabel,
-	formatFilterValue,
-	createInternalConfig,
+  resolveOperatorLabel,
+  formatFilterValue,
+  createInternalConfig,
 } from './power-search-config'
 
 import { Button } from '../actions/Button.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 export function PowerSearchToken(props: PowerSearchTokenProps): JSX.Element @{
-	const value = formatFilterValue(
-		createInternalConfig(props.config),
-		props.operator.value,
-		props.filter.value,
-		props.maxLength,
-		undefined,
-		undefined,
-		props.timezoneID,
-	)
+  const value = formatFilterValue(
+    createInternalConfig(props.config),
+    props.operator.value,
+    props.filter.value,
+    props.maxLength,
+    undefined,
+    undefined,
+    props.timezoneID,
+  )
 
-	const label = `${props.field.label} ${resolveOperatorLabel(props.operator)}${value ? ` ${value}` : ''}`
+  const label = `${props.field.label} ${resolveOperatorLabel(props.operator)}${value ? ` ${value}` : ''}`
 
-	<span className="vx-power-search-token-row">
-		<Button
-			label={label}
-			variant="secondary"
-			clickAction={props.onPress}
-			isDisabled={props.isDisabled}
-			className="vx-power-search-token"
-		/>
-		{props.onRemove ? (
-			<button
-				type="button"
-				className="vx-power-search-remove"
-				aria-label="Remove filter"
-				onClick={props.onRemove}
-			>
-				×
-			</button>
-		) : null}
-	</span>
+  <span className="vx-power-search-token-row">
+    <Button
+      label={label}
+      variant="secondary"
+      clickAction={props.onPress}
+      isDisabled={props.isDisabled}
+      className="vx-power-search-token"
+    />
+    {props.onRemove ? (
+      <button
+        type="button"
+        className="vx-power-search-remove"
+        aria-label="Remove filter"
+        onClick={props.onRemove}
+      >
+        ×
+      </button>
+    ) : null}
+  </span>
 }

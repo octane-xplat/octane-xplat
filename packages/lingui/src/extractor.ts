@@ -21,28 +21,28 @@ export type Extractor = typeof babelExtractor
  *  Register in lingui.config.ts alongside babelExtractor — the default chain
  *  skips .tsrx entirely. Node-side only; never bundle into an app target. */
 export const tsrxExtractor: Extractor = {
-	match: (filename) => filename.endsWith('.tsrx'),
-	async extract(filename, code, onMessageExtracted, ctx) {
-		const { code: tsCode, map, diagnostics } = compile(code, filename)
-		const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
-		if (errors.length) {
-			throw new Error(`${filename}: ${errors[0]!.message}`)
-		}
+  match: (filename) => filename.endsWith('.tsrx'),
+  async extract(filename, code, onMessageExtracted, ctx) {
+    const { code: tsCode, map, diagnostics } = compile(code, filename)
+    const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
+    if (errors.length) {
+      throw new Error(`${filename}: ${errors[0]!.message}`)
+    }
 
-		// compile() emits a basename in map.sources; Lingui resolves origins
-		// relative to rootDir, so point the map at the authored path to keep
-		// extracted origins (.po `#:` comments) on .tsrx line numbers.
-		map.sources = [filename]
-		await extractFromFileWithBabel(
-			filename,
-			tsCode,
-			onMessageExtracted,
-			{ ...ctx, sourceMaps: map },
-			{
-				plugins: ['typescript', 'jsx'],
-			},
-		)
-	},
+    // compile() emits a basename in map.sources; Lingui resolves origins
+    // relative to rootDir, so point the map at the authored path to keep
+    // extracted origins (.po `#:` comments) on .tsrx line numbers.
+    map.sources = [filename]
+    await extractFromFileWithBabel(
+      filename,
+      tsCode,
+      onMessageExtracted,
+      { ...ctx, sourceMaps: map },
+      {
+        plugins: ['typescript', 'jsx'],
+      },
+    )
+  },
 }
 
 export { babelExtractor }

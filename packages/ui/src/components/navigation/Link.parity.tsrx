@@ -4,11 +4,11 @@ import { Text } from '../content/Text.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function LinkFixture() @{
-	<Link className="parity-link-root" href="/parity">
-		<Text>Open parity</Text>
-	</Link>
+  <Link className="parity-link-root" href="/parity">
+    <Text>Open parity</Text>
+  </Link>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
+  { name: 'link-fixed-target', component: 'Link', renderer: LinkFixture, props: {} },
 ]

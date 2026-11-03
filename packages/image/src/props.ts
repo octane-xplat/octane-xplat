@@ -4,13 +4,13 @@ import type { ImageProps as CoreImageProps } from '@octane-xplat/ui'
 // same props. The core contract types come straight from ui so the leaf can
 // never drift from them; swapping engines is an import-path change.
 export type {
-	ImageContentFit,
-	ImageContentPosition,
-	ImageContentPositionObject,
-	ImageContentPositionString,
-	ImageContentPositionValue,
-	ImageDecoding,
-	ImageSourceLike,
+  ImageContentFit,
+  ImageContentPosition,
+  ImageContentPositionObject,
+  ImageContentPositionString,
+  ImageContentPositionValue,
+  ImageDecoding,
+  ImageSourceLike,
 } from '@octane-xplat/ui'
 
 /** How the engine's caches participate in a load. The plugin exposes a single
@@ -24,38 +24,38 @@ export type ImageCachePolicy = 'memory-disk' | 'none'
 /** Payload of the Image onLoad callback — reports the decoded bitmap, not
  *  the laid-out view size. */
 export interface ImageLoadEvent {
-	/** Decoded bitmap size in pixels. AppKit reports the largest positive
-	 * representation, or 0 when pixel metadata is unavailable (never layout points). */
-	width: number
-	/** Decoded bitmap height in pixels — same contract as `width`. */
-	height: number
-	/** Where the engine served the image from. Absent on web — the browser
-	 *  does not report which cache (if any) satisfied an <img>. */
-	source?: 'network' | 'memory' | 'disk' | 'local'
+  /** Decoded bitmap size in pixels. AppKit reports the largest positive
+   * representation, or 0 when pixel metadata is unavailable (never layout points). */
+  width: number
+  /** Decoded bitmap height in pixels — same contract as `width`. */
+  height: number
+  /** Where the engine served the image from. Absent on web — the browser
+   *  does not report which cache (if any) satisfied an <img>. */
+  source?: 'network' | 'memory' | 'disk' | 'local'
 }
 
 /** Payload of the Image onError callback. */
 export interface ImageErrorEvent {
-	/** The load/decode failure reported by the engine. */
-	error: Error
+  /** The load/decode failure reported by the engine. */
+  error: Error
 }
 
 /** Cache sizing/eviction applied through `initializeImageCache`. Native only —
  *  the web engine (browser HTTP cache) offers no equivalent knobs. */
 export interface ImageCacheConfig {
-	/** In-memory bitmap cache size in bytes (Android Glide). */
-	memoryCacheSize?: number
-	/** Size the memory cache as N fullscreen bitmaps (Android Glide). */
-	memoryCacheScreens?: number
-	/** Persist the cache-key registry across launches so evictions stay
-	 *  consistent (Android SharedPreferences store). */
-	persistentCacheKeys?: boolean
-	/** Bump to invalidate every cached entry — Glide `ObjectKey` signature. */
-	globalSignatureKey?: string
-	/** iOS: track transformed cache keys for eviction. Needed when decodeWidth/
-	 *  decodeHeight (or other transforms) are used alongside evictImage —
-	 *  transformed images key differently than the raw URL. */
-	iosComplexCacheEviction?: boolean
+  /** In-memory bitmap cache size in bytes (Android Glide). */
+  memoryCacheSize?: number
+  /** Size the memory cache as N fullscreen bitmaps (Android Glide). */
+  memoryCacheScreens?: number
+  /** Persist the cache-key registry across launches so evictions stay
+   *  consistent (Android SharedPreferences store). */
+  persistentCacheKeys?: boolean
+  /** Bump to invalidate every cached entry — Glide `ObjectKey` signature. */
+  globalSignatureKey?: string
+  /** iOS: track transformed cache keys for eviction. Needed when decodeWidth/
+   *  decodeHeight (or other transforms) are used alongside evictImage —
+   *  transformed images key differently than the raw URL. */
+  iosComplexCacheEviction?: boolean
 }
 
 /** Result of `isImageCached`. 'none' also covers "unknown" — on web the
@@ -65,13 +65,13 @@ export type ImageCacheState = 'memory' | 'disk' | 'none'
 /** Options for `prefetch` — the same contract `@octane-xplat/gif`'s
  *  `prefetch` carries. */
 export interface PrefetchOptions {
-	/** Request headers forwarded on Android and iOS (the framework patch
-	 *  restores iOS request modifiers). Ignored on web — a plain <img>
-	 *  cannot send custom headers. */
-	headers?: Record<string, string>
-	/** Max URLs fetched in parallel (JS-side cap). Default 5 — the same
-	 *  ceiling NS core's ImageCache used. */
-	concurrency?: number
+  /** Request headers forwarded on Android and iOS (the framework patch
+   *  restores iOS request modifiers). Ignored on web — a plain <img>
+   *  cannot send custom headers. */
+  headers?: Record<string, string>
+  /** Max URLs fetched in parallel (JS-side cap). Default 5 — the same
+   *  ceiling NS core's ImageCache used. */
+  concurrency?: number
 }
 
 /** Display-load context for `isImageCached`. On iOS the engine folds the
@@ -83,10 +83,10 @@ export interface PrefetchOptions {
  *  cannot see Glide's active resources there, so a bitmap still on screen
  *  may report 'none'. Web reports 'none' regardless. */
 export interface ImageCacheQueryOptions {
-	/** Device-pixel decode bounds — same meaning as the `Image` props. */
-	decodeWidth?: number
-	/** Device-pixel decode height — same meaning as the `Image` prop. */
-	decodeHeight?: number
+  /** Device-pixel decode bounds — same meaning as the `Image` props. */
+  decodeWidth?: number
+  /** Device-pixel decode height — same meaning as the `Image` prop. */
+  decodeHeight?: number
 }
 
 /** Image — drop-in alternative to `@octane-xplat/ui`'s Image backed by a real
@@ -101,27 +101,27 @@ export interface ImageCacheQueryOptions {
  *  `loadMode` prop is registered but never read), so 'sync' degrades to
  *  async on native with a console warning rather than a fake. */
 export interface ImageProps extends CoreImageProps {
-	/** Native only — 'none' bypasses memory and disk caches for this image.
-	 *  Default 'memory-disk' leaves both caches active. */
-	cachePolicy?: ImageCachePolicy
-	/** Native only — image shown when `src` fails (`failureImageUri`). */
-	failureImage?: string
-	/** Native only — extra HTTP headers for the request (authenticated URLs). */
-	headers?: Record<string, string>
-	/** Native only — explicit decode bounds in device pixels. Default is the
-	 *  view's laid-out size (the src is held until first layout so the engine
-	 *  never decodes at full source resolution). */
-	decodeWidth?: number
-	/** Native only — decode height in device pixels; paired with `decodeWidth`. */
-	decodeHeight?: number
-	/** Native only — progressive/interlaced rendering while bytes stream. */
-	progressive?: boolean
-	/** Native only — crossfade duration in ms when the image lands (0
-	 *  disables; engine default applies when unset). */
-	fadeDuration?: number
-	/** Fired when the final image is set. `source` reports which cache level
-	 *  served the bitmap — native only; web fires without `source`. */
-	onLoad?: (event: ImageLoadEvent) => void
-	/** Fired when the load fails. */
-	onError?: (event: ImageErrorEvent) => void
+  /** Native only — 'none' bypasses memory and disk caches for this image.
+   *  Default 'memory-disk' leaves both caches active. */
+  cachePolicy?: ImageCachePolicy
+  /** Native only — image shown when `src` fails (`failureImageUri`). */
+  failureImage?: string
+  /** Native only — extra HTTP headers for the request (authenticated URLs). */
+  headers?: Record<string, string>
+  /** Native only — explicit decode bounds in device pixels. Default is the
+   *  view's laid-out size (the src is held until first layout so the engine
+   *  never decodes at full source resolution). */
+  decodeWidth?: number
+  /** Native only — decode height in device pixels; paired with `decodeWidth`. */
+  decodeHeight?: number
+  /** Native only — progressive/interlaced rendering while bytes stream. */
+  progressive?: boolean
+  /** Native only — crossfade duration in ms when the image lands (0
+   *  disables; engine default applies when unset). */
+  fadeDuration?: number
+  /** Fired when the final image is set. `source` reports which cache level
+   *  served the bitmap — native only; web fires without `source`. */
+  onLoad?: (event: ImageLoadEvent) => void
+  /** Fired when the load fails. */
+  onError?: (event: ImageErrorEvent) => void
 }

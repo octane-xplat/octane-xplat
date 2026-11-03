@@ -2,8 +2,8 @@
 import { HStack, Icon, NavIcon } from '@octane-xplat/ui'
 
 export function NavIconBasic() @{
-	<HStack gap={4} vAlign="center">
-		<NavIcon icon={<Icon name="xplat-search" />} />
-		<NavIcon icon={<Icon name="xplat-calendar" />} />
-	</HStack>
+  <HStack gap={4} vAlign="center">
+    <NavIcon icon={<Icon name="xplat-search" />} />
+    <NavIcon icon={<Icon name="xplat-calendar" />} />
+  </HStack>
 }

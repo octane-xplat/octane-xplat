@@ -11,9 +11,9 @@
 import type { TiptapJSON } from './types'
 
 interface Bridge {
-	generateJSON: (html: string, extensions: any[]) => any
-	renderToHTMLString: (options: { extensions: any[]; content: any }) => string
-	extensions: any[]
+  generateJSON: (html: string, extensions: any[]) => any
+  renderToHTMLString: (options: { extensions: any[]; content: any }) => string
+  extensions: any[]
 }
 
 let bridge: Bridge | null | undefined
@@ -22,105 +22,105 @@ let bridge: Bridge | null | undefined
  *  codeBlock parseHTML spreads it. Wrap the VElement getter so it hands back
  *  an iterable array that keeps the mutation methods. */
 function patchClassList(VElement: any): void {
-	const proto = VElement?.prototype
-	if (!proto) {
-		throw new Error('VElement.prototype unavailable')
-	}
+  const proto = VElement?.prototype
+  if (!proto) {
+    throw new Error('VElement.prototype unavailable')
+  }
 
-	const desc = Object.getOwnPropertyDescriptor(proto, 'classList')
-	if (!desc?.get) {
-		throw new Error('classList is not a prototype getter')
-	}
+  const desc = Object.getOwnPropertyDescriptor(proto, 'classList')
+  if (!desc?.get) {
+    throw new Error('classList is not a prototype getter')
+  }
 
-	if ((desc.get as any).__xplatPatched) {
-		return
-	}
+  if ((desc.get as any).__xplatPatched) {
+    return
+  }
 
-	const patched = function (this: any) {
-		const cl = desc.get!.call(this)
-		if (cl && typeof cl[Symbol.iterator] !== 'function') {
-			const tokens = String(this.getAttribute('class') ?? '')
-				.split(/\s+/)
-				.filter(Boolean)
+  const patched = function (this: any) {
+    const cl = desc.get!.call(this)
+    if (cl && typeof cl[Symbol.iterator] !== 'function') {
+      const tokens = String(this.getAttribute('class') ?? '')
+        .split(/\s+/)
+        .filter(Boolean)
 
-			return Object.assign(tokens, cl)
-		}
+      return Object.assign(tokens, cl)
+    }
 
-		return cl
-	}
+    return cl
+  }
 
-	;(patched as any).__xplatPatched = true
-	Object.defineProperty(proto, 'classList', {
-		configurable: true,
-		get: patched,
-		set: desc.set,
-	})
+  ;(patched as any).__xplatPatched = true
+  Object.defineProperty(proto, 'classList', {
+    configurable: true,
+    get: patched,
+    set: desc.set,
+  })
 }
 
 /** Install the minimal parse globals generateJSON's elementFromString
  *  reads. Only installs when the host lacks them, so a real DOM (web
  *  target) is never clobbered. */
 function installDomShim(zeed: any): void {
-	const g = globalThis as any
-	if (g.window?.DOMParser) {
-		return
-	}
+  const g = globalThis as any
+  if (g.window?.DOMParser) {
+    return
+  }
 
-	class ZeedDOMParser {
-		parseFromString(html: string) {
-			const doc = zeed.createHTMLDocument()
-			doc.body.innerHTML = html
-			return doc
-		}
-	}
+  class ZeedDOMParser {
+    parseFromString(html: string) {
+      const doc = zeed.createHTMLDocument()
+      doc.body.innerHTML = html
+      return doc
+    }
+  }
 
-	g.window = { DOMParser: ZeedDOMParser }
-	g.document = zeed.createHTMLDocument()
+  g.window = { DOMParser: ZeedDOMParser }
+  g.document = zeed.createHTMLDocument()
 }
 
 /** Load the bundled editor bridge into the host; resolves false when the host rejects it. */
 export async function ensureJSONBridge(): Promise<boolean> {
-	if (bridge !== undefined) {
-		return bridge !== null
-	}
+  if (bridge !== undefined) {
+    return bridge !== null
+  }
 
-	try {
-		const [core, sk, sr, zeed] = await Promise.all([
-			import('@tiptap/core'),
-			import('@tiptap/starter-kit'),
-			import('@tiptap/static-renderer'),
-			import('zeed-dom'),
-		])
+  try {
+    const [core, sk, sr, zeed] = await Promise.all([
+      import('@tiptap/core'),
+      import('@tiptap/starter-kit'),
+      import('@tiptap/static-renderer'),
+      import('zeed-dom'),
+    ])
 
-		patchClassList(zeed.VElement)
-		installDomShim(zeed)
-		const StarterKit = (sk as any).default ?? (sk as any).StarterKit
+    patchClassList(zeed.VElement)
+    installDomShim(zeed)
+    const StarterKit = (sk as any).default ?? (sk as any).StarterKit
 
-		bridge = {
-			generateJSON: core.generateJSON,
-			renderToHTMLString: sr.renderToHTMLString,
-			extensions: [StarterKit],
-		}
+    bridge = {
+      generateJSON: core.generateJSON,
+      renderToHTMLString: sr.renderToHTMLString,
+      extensions: [StarterKit],
+    }
 
-		return true
-	} catch {
-		bridge = null
-		return false
-	}
+    return true
+  } catch {
+    bridge = null
+    return false
+  }
 }
 
 /** HTML → doc JSON through tiptap's own parseHTML rules. Null when the
  *  bridge hasn't loaded (call ensureJSONBridge first / check `ready`). */
 export function htmlToJSON(html: string): TiptapJSON | null {
-	return (bridge?.generateJSON(html, bridge.extensions) as TiptapJSON | undefined) ?? null
+  return (bridge?.generateJSON(html, bridge.extensions) as TiptapJSON | undefined) ?? null
 }
 
 /** Doc JSON → HTML via tiptap's own renderHTML rules (no DOM). */
 export function jsonToHTML(doc: TiptapJSON): string | null {
-	return bridge?.renderToHTMLString({ extensions: bridge.extensions, content: doc }) ?? null
+  return bridge?.renderToHTMLString({ extensions: bridge.extensions, content: doc }) ?? null
 }
 
 /** True once ensureJSONBridge succeeded — bridge calls are inert before then. */
 export function jsonBridgeReady(): boolean {
-	return bridge != null
+  return bridge != null
 }

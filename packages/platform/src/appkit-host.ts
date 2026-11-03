@@ -4,32 +4,32 @@ import type { AppInfo, AppState, WindowSize } from './types'
  *  macOS host before app code runs. Every hook is optional; missing hooks have explicit
  *  service-specific fallbacks. Native hook failures may reach the caller. */
 export type AppKitHost = {
-	appInfo?: AppInfo
-	appState?: AppState
-	windowSize?: WindowSize
-	announce?: (text: string) => void
-	readClipboard?: () => string | null
-	writeClipboard?: (value: string) => boolean
-	/** A null native read is authoritative; ordinary storage retains only
-	 *  unacknowledged local mutations over it. */
-	storageGet?: (key: string) => string | null
-	storageSet?: (key: string, value: string) => void
-	storageRemove?: (key: string) => void
-	/** Deliver pending storage writes to the host's durable store;
-	 *  returns whether the host confirmed the hand-off. */
-	storageFlush?: () => boolean
-	openUrl?: (url: string) => boolean
-	onWindowResize?: (listener: () => void) => () => void
-	onAppStateChange?: (listener: () => void) => () => void
-	onDeepLink?: (listener: (url: string) => void) => () => void
-	consumeInitialUrl?: () => string | null
+  appInfo?: AppInfo
+  appState?: AppState
+  windowSize?: WindowSize
+  announce?: (text: string) => void
+  readClipboard?: () => string | null
+  writeClipboard?: (value: string) => boolean
+  /** A null native read is authoritative; ordinary storage retains only
+   *  unacknowledged local mutations over it. */
+  storageGet?: (key: string) => string | null
+  storageSet?: (key: string, value: string) => void
+  storageRemove?: (key: string) => void
+  /** Deliver pending storage writes to the host's durable store;
+   *  returns whether the host confirmed the hand-off. */
+  storageFlush?: () => boolean
+  openUrl?: (url: string) => boolean
+  onWindowResize?: (listener: () => void) => () => void
+  onAppStateChange?: (listener: () => void) => () => void
+  onDeepLink?: (listener: (url: string) => void) => () => void
+  consumeInitialUrl?: () => string | null
 }
 
 /** The installed bridge host — undefined until the macOS host installs it.
  *  The single owning read of the `__xplatAppKit` global. */
 export const installedHost = (): AppKitHost | undefined => {
-	const owner: unknown = '__xplatAppKit' in globalThis ? globalThis.__xplatAppKit : undefined
-	return typeof owner === 'object' && owner !== null ? (owner as AppKitHost) : undefined
+  const owner: unknown = '__xplatAppKit' in globalThis ? globalThis.__xplatAppKit : undefined
+  return typeof owner === 'object' && owner !== null ? (owner as AppKitHost) : undefined
 }
 
 export const host = (): AppKitHost => installedHost() ?? {}

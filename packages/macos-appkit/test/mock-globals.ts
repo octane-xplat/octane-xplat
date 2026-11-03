@@ -9,53 +9,53 @@ import { runInNewContext } from 'node:vm'
 // configurable, get-only properties. defineProperty with a value descriptor
 // replaces them; restore() puts the original descriptors back.
 export function mockGlobals(entries: Record<string, unknown>) {
-	const originals = Object.fromEntries(
-		Object.keys(entries).map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]),
-	)
+  const originals = Object.fromEntries(
+    Object.keys(entries).map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]),
+  )
 
-	for (const [key, value] of Object.entries(entries)) {
-		const descriptor = originals[key]
-		if (descriptor && !descriptor.configurable && !descriptor.writable) {
-			// A few bridge globals (NativeClass, objc) are locked by the runtime —
-			// mocks can't replace them; the real values are usable anyway.
-			continue
-		}
+  for (const [key, value] of Object.entries(entries)) {
+    const descriptor = originals[key]
+    if (descriptor && !descriptor.configurable && !descriptor.writable) {
+      // A few bridge globals (NativeClass, objc) are locked by the runtime —
+      // mocks can't replace them; the real values are usable anyway.
+      continue
+    }
 
-		Object.defineProperty(globalThis, key, { value, writable: true, configurable: true })
-	}
+    Object.defineProperty(globalThis, key, { value, writable: true, configurable: true })
+  }
 
-	return function restore() {
-		for (const [key, descriptor] of Object.entries(originals)) {
-			if (descriptor) {
-				if (!descriptor.configurable && !descriptor.writable) {
-					continue
-				}
+  return function restore() {
+    for (const [key, descriptor] of Object.entries(originals)) {
+      if (descriptor) {
+        if (!descriptor.configurable && !descriptor.writable) {
+          continue
+        }
 
-				Object.defineProperty(globalThis, key, descriptor)
-			} else {
-				delete (globalThis as any)[key]
-			}
-		}
-	}
+        Object.defineProperty(globalThis, key, descriptor)
+      } else {
+        delete (globalThis as any)[key]
+      }
+    }
+  }
 }
 
 // vm-eval tests splice source files into script contexts — the platform
 // imports added for module-scoped native types aren't valid in script eval,
 // and the sandbox injects those names as globals anyway. Strip them.
 export function sourceWithoutImports(url: URL) {
-	return stripTypeScriptTypes(readFileSync(url, 'utf8')).replace(
-		/^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm,
-		'',
-	)
+  return stripTypeScriptTypes(readFileSync(url, 'utf8')).replace(
+    /^import\b[\s\S]*?(?:from\s*)?['"][^'"]*['"];?\s*\n/gm,
+    '',
+  )
 }
 
 const SLICE_BASE = {
-	normalizeHostStyleProps,
-	borderStyleSides,
-	hiddenBorderStyle,
-	borderStrokeStyle,
-	correctProjectionRadii,
-	correctProjectionShadows,
+  normalizeHostStyleProps,
+  borderStyleSides,
+  hiddenBorderStyle,
+  borderStrokeStyle,
+  correctProjectionRadii,
+  correctProjectionShadows,
 }
 
 const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
@@ -63,18 +63,18 @@ const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */
 export function runSlice(code: string, context?: Record<string, any>) {
-	if (context && (context as any)[RAW_SLICE_CONTEXT]) {
-		// A raw (spy) context is the sandbox itself. Seed the shared helpers as
-		// own properties so `has`/`get` resolve them before falling to spies.
-		for (const [key, value] of Object.entries(SLICE_BASE)) {
-			if (!Object.getOwnPropertyDescriptor(context, key)) {
-				Object.defineProperty(context, key, { value, writable: true, configurable: true })
-			}
-		}
+  if (context && (context as any)[RAW_SLICE_CONTEXT]) {
+    // A raw (spy) context is the sandbox itself. Seed the shared helpers as
+    // own properties so `has`/`get` resolve them before falling to spies.
+    for (const [key, value] of Object.entries(SLICE_BASE)) {
+      if (!Object.getOwnPropertyDescriptor(context, key)) {
+        Object.defineProperty(context, key, { value, writable: true, configurable: true })
+      }
+    }
 
-		return runInNewContext(CSS_SLICE_STUBS + code, context)
-	}
-	return runInNewContext(CSS_SLICE_STUBS + code, { ...SLICE_BASE, ...context })
+    return runInNewContext(CSS_SLICE_STUBS + code, context)
+  }
+  return runInNewContext(CSS_SLICE_STUBS + code, { ...SLICE_BASE, ...context })
 }
 
 /** Sandbox for slices that need recording spies: every referenced name not in
@@ -82,34 +82,34 @@ export function runSlice(code: string, context?: Record<string, any>) {
  *  records calls on `target[name].calls`. (A plain spread context cannot do
  *  this — undeclared globals need the sandbox's `has` trap to resolve.) */
 export function spySliceContext(target: Record<string, any> = {}) {
-	const sandbox = new Proxy(target, {
-		has(t, key) {
-			if (typeof key !== 'string') {
-				return key in t
-			}
-			return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
-		},
-		get(t, key) {
-			if (key in t) {
-				return (t as any)[key]
-			}
-			if (typeof key !== 'string') {
-				return undefined
-			}
-			if (key in globalThis) {
-				return (globalThis as any)[key]
-			}
-			const calls: any[][] = []
-			// A `function` (not an arrow) stays a valid `instanceof` right side.
-			const spy: any = function (...args: any[]) {
-				calls.push(args)
-			}
-			spy.calls = calls
-			return ((t as any)[key] = spy)
-		},
-	})
-	Object.defineProperty(target, RAW_SLICE_CONTEXT, { value: true })
-	return sandbox
+  const sandbox = new Proxy(target, {
+    has(t, key) {
+      if (typeof key !== 'string') {
+        return key in t
+      }
+      return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
+    },
+    get(t, key) {
+      if (key in t) {
+        return (t as any)[key]
+      }
+      if (typeof key !== 'string') {
+        return undefined
+      }
+      if (key in globalThis) {
+        return (globalThis as any)[key]
+      }
+      const calls: any[][] = []
+      // A `function` (not an arrow) stays a valid `instanceof` right side.
+      const spy: any = function (...args: any[]) {
+        calls.push(args)
+      }
+      spy.calls = calls
+      return ((t as any)[key] = spy)
+    },
+  })
+  Object.defineProperty(target, RAW_SLICE_CONTEXT, { value: true })
+  return sandbox
 }
 
 // Slices eval fragments of src/index.ts without the CSS cascade module —
@@ -180,5 +180,5 @@ if (typeof shallowEqualStyle === 'undefined') var shallowEqualStyle = (a, b) => 
 /** Names CSS_SLICE_STUBS may install — a spy context leaves them alone so the
  *  `typeof X === 'undefined'` guards still produce functional fallbacks. */
 const SLICE_STUB_NAMES = new Set(
-	[...CSS_SLICE_STUBS.matchAll(/typeof (\w+) === 'undefined'/g)].map((m) => m[1]),
+  [...CSS_SLICE_STUBS.matchAll(/typeof (\w+) === 'undefined'/g)].map((m) => m[1]),
 )

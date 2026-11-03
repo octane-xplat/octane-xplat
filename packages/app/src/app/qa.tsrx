@@ -5,5 +5,5 @@ import { HumanQA } from '../HumanQA.tsrx'
  *  sensory output, hit-testing, or physical hardware). Pushed into the
  *  Test stack; a real /qa URL on web. */
 export function Qa() @{
-	<HumanQA />
+  <HumanQA />
 }

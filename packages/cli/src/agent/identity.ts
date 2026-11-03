@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const manifest = JSON.parse(
-	readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
 )
 
 export const CLI_NAME = manifest.name // @octane-xplat/cli

@@ -15,8 +15,8 @@ import { fileURLToPath } from 'node:url'
 const appDir = dirname(dirname(fileURLToPath(import.meta.url)))
 // The xplat bin entry — dev targets spawn through the CLI, not a local shim.
 const xplatCli = join(
-	dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
-	'../cli.ts',
+  dirname(fileURLToPath(import.meta.resolve('@octane-xplat/cli/macos'))),
+  '../cli.ts',
 )
 
 const repoDir = resolve(appDir, '../..')
@@ -27,143 +27,143 @@ const outDir = join(repoDir, 'parity-report', 'shots', 'macos')
 const STEP = 300
 
 const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
-	cwd: appDir,
-	env: {
-		...process.env,
-		OCTANE_MACOS_AUTOMATION: '1',
-		OCTANE_MACOS_PARITY_ONLY: '1',
-	},
-	stdio: ['pipe', 'pipe', 'inherit'],
+  cwd: appDir,
+  env: {
+    ...process.env,
+    OCTANE_MACOS_AUTOMATION: '1',
+    OCTANE_MACOS_PARITY_ONLY: '1',
+  },
+  stdio: ['pipe', 'pipe', 'inherit'],
 })
 
 let lineQueue = []
 let lineWaiters = []
 createInterface({ input: host.stdout }).on('line', (line) => {
-	const waiter = lineWaiters.find((w) => w.match(line))
-	if (waiter) {
-		lineWaiters = lineWaiters.filter((w) => w !== waiter)
-		waiter.resolve(line)
-	} else {
-		lineQueue.push(line)
-	}
+  const waiter = lineWaiters.find((w) => w.match(line))
+  if (waiter) {
+    lineWaiters = lineWaiters.filter((w) => w !== waiter)
+    waiter.resolve(line)
+  } else {
+    lineQueue.push(line)
+  }
 })
 
 function nextLine(match, timeoutMs, label) {
-	const buffered = lineQueue.findIndex((line) => match(line))
-	if (buffered >= 0) {
-		return Promise.resolve(lineQueue.splice(buffered, 1)[0])
-	}
+  const buffered = lineQueue.findIndex((line) => match(line))
+  if (buffered >= 0) {
+    return Promise.resolve(lineQueue.splice(buffered, 1)[0])
+  }
 
-	return new Promise((resolvePromise, reject) => {
-		const waiter = { match, resolve: resolvePromise }
-		lineWaiters.push(waiter)
-		setTimeout(() => {
-			lineWaiters = lineWaiters.filter((w) => w !== waiter)
-			reject(new Error('Timed out waiting for ' + label))
-		}, timeoutMs)
-	})
+  return new Promise((resolvePromise, reject) => {
+    const waiter = { match, resolve: resolvePromise }
+    lineWaiters.push(waiter)
+    setTimeout(() => {
+      lineWaiters = lineWaiters.filter((w) => w !== waiter)
+      reject(new Error('Timed out waiting for ' + label))
+    }, timeoutMs)
+  })
 }
 
 const send = (command) => host.stdin.write(command + '\n')
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const closed = new Promise((resolve) =>
-	host.once('close', (code, signal) => resolve({ code, signal })),
+  host.once('close', (code, signal) => resolve({ code, signal })),
 )
 
 async function cells() {
-	send('cells')
-	const line = await nextLine((l) => l.includes('[parity-cells] '), 10000, 'cell frames')
-	return JSON.parse(line.slice(line.indexOf('[parity-cells] ') + 15))
+  send('cells')
+  const line = await nextLine((l) => l.includes('[parity-cells] '), 10000, 'cell frames')
+  return JSON.parse(line.slice(line.indexOf('[parity-cells] ') + 15))
 }
 
 async function waitForCapture(file, timeoutMs = 600000) {
-	const path = join(outDir, file)
-	const deadline = Date.now() + timeoutMs
-	while (Date.now() < deadline) {
-		if (existsSync(path) && statSync(path).size > 0) {
-			// settle: a still-writing capture grows between checks
-			const size = statSync(path).size
-			await sleep(250)
-			if (existsSync(path) && statSync(path).size === size) {
-				return
-			}
-		}
+  const path = join(outDir, file)
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    if (existsSync(path) && statSync(path).size > 0) {
+      // settle: a still-writing capture grows between checks
+      const size = statSync(path).size
+      await sleep(250)
+      if (existsSync(path) && statSync(path).size === size) {
+        return
+      }
+    }
 
-		await sleep(200)
-	}
+    await sleep(200)
+  }
 
-	throw new Error('Timed out waiting for capture ' + file)
+  throw new Error('Timed out waiting for capture ' + file)
 }
 
 mkdirSync(outDir, { recursive: true })
 
 try {
-	await nextLine((l) => l.includes('[macos] AppKit window ready'), 120000, 'window ready')
-	send('parity')
-	await nextLine((l) => l.includes('[parity-json] '), 30000, 'parity dump')
+  await nextLine((l) => l.includes('[macos] AppKit window ready'), 120000, 'window ready')
+  send('parity')
+  await nextLine((l) => l.includes('[parity-json] '), 30000, 'parity dump')
 
-	const first = await cells()
-	const maxTop = Math.max(0, first.docHeight - first.viewportHeight)
-	const offsets = []
-	for (let o = 0; o <= maxTop; o += STEP) {
-		offsets.push(o)
-	}
+  const first = await cells()
+  const maxTop = Math.max(0, first.docHeight - first.viewportHeight)
+  const offsets = []
+  for (let o = 0; o <= maxTop; o += STEP) {
+    offsets.push(o)
+  }
 
-	if (offsets.length === 0 || offsets[offsets.length - 1] !== maxTop) {
-		offsets.push(maxTop)
-	}
+  if (offsets.length === 0 || offsets[offsets.length - 1] !== maxTop) {
+    offsets.push(maxTop)
+  }
 
-	const manifest = {
-		target: 'macos',
-		docHeight: first.docHeight,
-		viewportHeight: first.viewportHeight,
-		docFlipped: first.docFlipped,
-		shots: [],
-	}
+  const manifest = {
+    target: 'macos',
+    docHeight: first.docHeight,
+    viewportHeight: first.viewportHeight,
+    docFlipped: first.docFlipped,
+    shots: [],
+  }
 
-	for (let i = 0; i < offsets.length; i++) {
-		const file = `shot-${String(i).padStart(3, '0')}.png`
-		send(`scrolltop ${offsets[i]}`)
-		const scrolled = await nextLine((l) => l.includes('[scrolled] '), 10000, 'scroll')
-		await sleep(250)
-		const frames = await cells()
-		const sidecar = {
-			requested: offsets[i],
-			scrollTop: JSON.parse(scrolled.slice(scrolled.indexOf('[scrolled] ') + 11)).scrollTop,
-			...frames,
-		}
+  for (let i = 0; i < offsets.length; i++) {
+    const file = `shot-${String(i).padStart(3, '0')}.png`
+    send(`scrolltop ${offsets[i]}`)
+    const scrolled = await nextLine((l) => l.includes('[scrolled] '), 10000, 'scroll')
+    await sleep(250)
+    const frames = await cells()
+    const sidecar = {
+      requested: offsets[i],
+      scrollTop: JSON.parse(scrolled.slice(scrolled.indexOf('[scrolled] ') + 11)).scrollTop,
+      ...frames,
+    }
 
-		writeFileSync(
-			join(outDir, file.replace(/\.png$/, '.cells.json')),
-			JSON.stringify(sidecar, null, 2),
-		)
+    writeFileSync(
+      join(outDir, file.replace(/\.png$/, '.cells.json')),
+      JSON.stringify(sidecar, null, 2),
+    )
 
-		// The capturer watches the window title — drop 'shot-NNN' there.
-		send('title ' + file.replace(/\.png$/, ''))
-		console.log(`[shots] macos waiting for ${file} (scrollTop=${sidecar.scrollTop})`)
-		await waitForCapture(file)
-		manifest.shots.push({
-			file,
-			scrollTop: sidecar.scrollTop,
-			cellsFile: file.replace(/\.png$/, '.cells.json'),
-		})
-	}
+    // The capturer watches the window title — drop 'shot-NNN' there.
+    send('title ' + file.replace(/\.png$/, ''))
+    console.log(`[shots] macos waiting for ${file} (scrollTop=${sidecar.scrollTop})`)
+    await waitForCapture(file)
+    manifest.shots.push({
+      file,
+      scrollTop: sidecar.scrollTop,
+      cellsFile: file.replace(/\.png$/, '.cells.json'),
+    })
+  }
 
-	send('title parity-done')
-	writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
-	console.log(`[shots] macos → ${outDir} (${manifest.shots.length} shots)`)
+  send('title parity-done')
+  writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2))
+  console.log(`[shots] macos → ${outDir} (${manifest.shots.length} shots)`)
 } catch (error) {
-	console.error('[shots] macOS capture failed: ' + error.message)
-	process.exitCode = 1
+  console.error('[shots] macOS capture failed: ' + error.message)
+  process.exitCode = 1
 } finally {
-	host.kill('SIGTERM')
-	const result = await Promise.race([
-		closed,
-		new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
-	])
+  host.kill('SIGTERM')
+  const result = await Promise.race([
+    closed,
+    new Promise((resolve) => setTimeout(() => resolve(null), 3000)),
+  ])
 
-	if (!result && host.exitCode === null && host.signalCode === null) {
-		host.kill('SIGKILL')
-		await closed
-	}
+  if (!result && host.exitCode === null && host.signalCode === null) {
+    host.kill('SIGKILL')
+    await closed
+  }
 }

@@ -12,32 +12,32 @@ export type DiffLineKind = 'added' | 'removed' | 'header' | 'context'
  * of it; header lines contribute an empty line so offsets stay per line.
  */
 export function splitDiffLines(lines: readonly string[]): {
-	kinds: DiffLineKind[]
-	glyphs: string[]
-	content: string[]
+  kinds: DiffLineKind[]
+  glyphs: string[]
+  content: string[]
 } {
-	const kinds: DiffLineKind[] = []
-	const glyphs: string[] = []
-	const content: string[] = []
-	const fileHeaders = fileHeaderLines(lines)
-	lines.forEach((line, index) => {
-		const kind = diffLineKind(line, { isFileHeader: fileHeaders.has(index) })
-		kinds.push(kind)
-		if (kind === 'header') {
-			glyphs.push('')
-			content.push('')
-		} else if (kind === 'context' && !line.startsWith(' ')) {
-			// A context line without its leading space (an unindented diff, or
-			// an empty line) has no glyph: the marker column is empty and the
-			// whole line is code.
-			glyphs.push('')
-			content.push(line)
-		} else {
-			glyphs.push(line.slice(0, 1))
-			content.push(line.slice(1))
-		}
-	})
-	return { kinds, glyphs, content }
+  const kinds: DiffLineKind[] = []
+  const glyphs: string[] = []
+  const content: string[] = []
+  const fileHeaders = fileHeaderLines(lines)
+  lines.forEach((line, index) => {
+    const kind = diffLineKind(line, { isFileHeader: fileHeaders.has(index) })
+    kinds.push(kind)
+    if (kind === 'header') {
+      glyphs.push('')
+      content.push('')
+    } else if (kind === 'context' && !line.startsWith(' ')) {
+      // A context line without its leading space (an unindented diff, or
+      // an empty line) has no glyph: the marker column is empty and the
+      // whole line is code.
+      glyphs.push('')
+      content.push(line)
+    } else {
+      glyphs.push(line.slice(0, 1))
+      content.push(line.slice(1))
+    }
+  })
+  return { kinds, glyphs, content }
 }
 
 /**
@@ -50,19 +50,19 @@ export function splitDiffLines(lines: readonly string[]): {
  * removed.
  */
 export function diffLineKind(
-	line: string,
-	{ isFileHeader = false }: { isFileHeader?: boolean } = {},
+  line: string,
+  { isFileHeader = false }: { isFileHeader?: boolean } = {},
 ): DiffLineKind {
-	if (line.startsWith('@@') || isFileHeader) {
-		return 'header'
-	}
-	if (line.startsWith('+')) {
-		return 'added'
-	}
-	if (line.startsWith('-')) {
-		return 'removed'
-	}
-	return 'context'
+  if (line.startsWith('@@') || isFileHeader) {
+    return 'header'
+  }
+  if (line.startsWith('+')) {
+    return 'added'
+  }
+  if (line.startsWith('-')) {
+    return 'removed'
+  }
+  return 'context'
 }
 
 /**
@@ -70,16 +70,16 @@ export function diffLineKind(
  * that form a file header directly before an `@@`; `---i;` is a change.
  */
 export function fileHeaderLines(lines: readonly string[]): Set<number> {
-	const headers = new Set<number>()
-	for (let i = 0; i + 2 < lines.length; i++) {
-		if (
-			lines[i].startsWith('--- ') &&
-			lines[i + 1].startsWith('+++ ') &&
-			lines[i + 2].startsWith('@@')
-		) {
-			headers.add(i)
-			headers.add(i + 1)
-		}
-	}
-	return headers
+  const headers = new Set<number>()
+  for (let i = 0; i + 2 < lines.length; i++) {
+    if (
+      lines[i].startsWith('--- ') &&
+      lines[i + 1].startsWith('+++ ') &&
+      lines[i + 2].startsWith('@@')
+    ) {
+      headers.add(i)
+      headers.add(i + 1)
+    }
+  }
+  return headers
 }

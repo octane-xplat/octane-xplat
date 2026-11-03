@@ -4,15 +4,15 @@ import { useState } from 'octane'
 import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from '@octane-xplat/ui'
 
 export function DateTimeInputWithValidation() @{
-	const [value, setValue] = useState<ISODateTimeString | null>(null)
+  const [value, setValue] = useState<ISODateTimeString | null>(null)
 
-	<div style={{ width: 400 }}>
-		<DateTimeInput
-			label="Launch time"
-			isRequired
-			description="Schedule the production deploy"
-			value={value}
-			onChange={setValue}
-		/>
-	</div>
+  <div style={{ width: 400 }}>
+    <DateTimeInput
+      label="Launch time"
+      isRequired
+      description="Schedule the production deploy"
+      value={value}
+      onChange={setValue}
+    />
+  </div>
 }

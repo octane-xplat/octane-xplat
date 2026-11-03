@@ -22,32 +22,32 @@ export const dangerColor = (): string => DANGER
 
 /** StatusDot variant → ink color painted on the dot on native. */
 export function statusDotColor(variant: string, scheme: Scheme): string {
-	switch (variant) {
-		case 'success':
-			return SUCCESS
-		case 'warning':
-			return WARNING
-		case 'error':
-			return DANGER
-		case 'accent':
-			return PRIMARY[scheme]
-		default:
-			return TEXT_SECONDARY[scheme]
-	}
+  switch (variant) {
+    case 'success':
+      return SUCCESS
+    case 'warning':
+      return WARNING
+    case 'error':
+      return DANGER
+    case 'accent':
+      return PRIMARY[scheme]
+    default:
+      return TEXT_SECONDARY[scheme]
+  }
 }
 
 /** ProgressBar variant → fill color on native. */
 export function progressFillColor(variant: string, scheme: Scheme): string {
-	switch (variant) {
-		case 'success':
-			return SUCCESS
-		case 'warning':
-			return WARNING
-		case 'error':
-			return DANGER
-		case 'neutral':
-			return TEXT_SECONDARY[scheme]
-		default:
-			return PRIMARY[scheme]
-	}
+  switch (variant) {
+    case 'success':
+      return SUCCESS
+    case 'warning':
+      return WARNING
+    case 'error':
+      return DANGER
+    case 'neutral':
+      return TEXT_SECONDARY[scheme]
+    default:
+      return PRIMARY[scheme]
+  }
 }

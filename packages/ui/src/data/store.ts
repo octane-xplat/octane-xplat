@@ -19,30 +19,30 @@ export type { ReadableStore, Store, StoreSnapshot } from '../props'
  * @see Store, ReadableStore, useStore.
  */
 export function createStore<T>(initial: T): Store<T> {
-	let value = initial
-	const listeners = new Set<() => void>()
-	const commit = (next: T) => {
-		if (Object.is(next, value)) {
-			return
-		}
+  let value = initial
+  const listeners = new Set<() => void>()
+  const commit = (next: T) => {
+    if (Object.is(next, value)) {
+      return
+    }
 
-		value = next
-		for (const l of [...listeners]) {
-			l()
-		}
-	}
+    value = next
+    for (const l of [...listeners]) {
+      l()
+    }
+  }
 
-	return {
-		getSnapshot: () => value as StoreSnapshot<T>,
-		set: commit,
-		update(updater) {
-			commit(updater(value as StoreSnapshot<T>))
-		},
-		subscribe(notify) {
-			listeners.add(notify)
-			return () => {
-				listeners.delete(notify)
-			}
-		},
-	}
+  return {
+    getSnapshot: () => value as StoreSnapshot<T>,
+    set: commit,
+    update(updater) {
+      commit(updater(value as StoreSnapshot<T>))
+    },
+    subscribe(notify) {
+      listeners.add(notify)
+      return () => {
+        listeners.delete(notify)
+      }
+    },
+  }
 }

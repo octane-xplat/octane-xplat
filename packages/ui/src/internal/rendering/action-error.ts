@@ -3,12 +3,12 @@
  *  re-thrown on a fresh task so it surfaces as an uncaught asynchronous
  *  error instead of being silently swallowed by pending-state cleanup. */
 export function reportActionError(error: unknown, onActionError?: (error: unknown) => void): void {
-	if (onActionError != null) {
-		onActionError(error)
-		return
-	}
+  if (onActionError != null) {
+    onActionError(error)
+    return
+  }
 
-	setTimeout(() => {
-		throw error
-	}, 0)
+  setTimeout(() => {
+    throw error
+  }, 0)
 }

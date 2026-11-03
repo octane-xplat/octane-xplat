@@ -9,29 +9,29 @@ import { cx } from '@octane-xplat/lib'
  *  or focus traversal on iOS/Android, so `delay`/`hideDelay`/
  *  `focusTrigger` are inert — documented deviations. */
 export function HoverCard(props: HoverCardProps): unknown @{
-	const card = useHoverCard({
-		placement: props.placement,
-		alignment: props.alignment,
-		touchTrigger: props.touchTrigger,
-		isEnabled: props.isEnabled,
-		label: props.label,
-		isOpen: props.isOpen,
-		isDefaultOpen: props.isDefaultOpen,
-		onShow: () => props.onOpenChange?.(true),
-		onHide: () => props.onOpenChange?.(false),
-	})
+  const card = useHoverCard({
+    placement: props.placement,
+    alignment: props.alignment,
+    touchTrigger: props.touchTrigger,
+    isEnabled: props.isEnabled,
+    label: props.label,
+    isOpen: props.isOpen,
+    isDefaultOpen: props.isDefaultOpen,
+    onShow: () => props.onOpenChange?.(true),
+    onHide: () => props.onOpenChange?.(false),
+  })
 
-	<>
-		<masonview
-			id={props.id}
-			ref={card.ref}
-			className={cx('vx-hovercard-trigger', props.className)}
-			style={mergeStyle({ display: 'flex' }, props.style)}
-			ios={props.ios}
-			android={props.android}
-		>
-			{props.children}
-		</masonview>
-		{card.renderHoverCard(props.content, { className: props.className })}
-	</>
+  <>
+    <masonview
+      id={props.id}
+      ref={card.ref}
+      className={cx('vx-hovercard-trigger', props.className)}
+      style={mergeStyle({ display: 'flex' }, props.style)}
+      ios={props.ios}
+      android={props.android}
+    >
+      {props.children}
+    </masonview>
+    {card.renderHoverCard(props.content, { className: props.className })}
+  </>
 }

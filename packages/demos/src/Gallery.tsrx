@@ -13,21 +13,21 @@ import { Dialer } from './Dialer.tsrx'
 // resolve.extensions pick the .ios.ts/.android.ts/.web.ts twin, which
 // re-exports the platform-authentic demo leaf (or the shared fallback).
 import {
-	VirtualList,
-	ListDemo,
-	ScrollBoxDemo,
-	PullRefreshDemo,
-	DeviceDemo,
-	ModalDemo,
-	GlassDemo,
-	OverlayDemo,
-	WebViewDemo,
-	EffectsDemo,
-	NativePickerDemo,
-	NativeDatePickerDemo,
-	NativeContextMenuDemo,
-	NativeSheetDemo,
-	FileInputDemo,
+  VirtualList,
+  ListDemo,
+  ScrollBoxDemo,
+  PullRefreshDemo,
+  DeviceDemo,
+  ModalDemo,
+  GlassDemo,
+  OverlayDemo,
+  WebViewDemo,
+  EffectsDemo,
+  NativePickerDemo,
+  NativeDatePickerDemo,
+  NativeContextMenuDemo,
+  NativeSheetDemo,
+  FileInputDemo,
 } from './variant-demos'
 
 import { Weather } from './Weather.tsrx'
@@ -44,11 +44,11 @@ import { PowerSearchDemo } from './PowerSearchDemo.tsrx'
 import { VideoDemo } from './VideoDemo.tsrx'
 import { LottieDemo } from './LottieDemo.tsrx'
 import {
-	CameraDemo,
-	AnimatedImageDemo,
-	CachedImageDemo,
-	CanvasDemo,
-	ShaderDemo,
+  CameraDemo,
+  AnimatedImageDemo,
+  CachedImageDemo,
+  CanvasDemo,
+  ShaderDemo,
 } from './hosted-demos'
 
 import { AuthDemo } from './AuthDemo.tsrx'
@@ -75,63 +75,63 @@ import { useLastDemo } from './store.tsrx'
 // 'proof' = a seam demonstration (probes, proofs, boring stuff) — lives
 // under the harness's Test tab instead of the gallery.
 export const DEMOS: { id: string; title: string; kind: 'app' | 'proof' }[] = [
-	{ id: 'goal-counter', title: 'Goal counter', kind: 'app' },
-	{ id: 'packing-list', title: 'Packing list', kind: 'app' },
-	{ id: 'counter', title: 'Counter', kind: 'app' },
-	{ id: 'watch', title: 'Watch', kind: 'app' },
-	{ id: 'stopwatch', title: 'Stopwatch', kind: 'app' },
-	{ id: 'todo', title: 'Todo', kind: 'app' },
-	{ id: 'ttt', title: 'Tic-Tac-Toe', kind: 'app' },
-	{ id: 'dialer', title: 'Dialer', kind: 'app' },
-	{ id: 'vlist', title: 'List ×500', kind: 'app' },
-	{ id: 'vlist-perf', title: 'List perf ×5000', kind: 'app' },
-	{ id: 'weather', title: 'Weather', kind: 'app' },
-	{ id: 'list-demo', title: 'Feed', kind: 'app' },
-	{ id: 'motion-patterns', title: 'Motion patterns', kind: 'app' },
-	{ id: 'fancy-components', title: 'Fancy components', kind: 'app' },
-	{ id: 'anim', title: 'Keyframes', kind: 'proof' },
-	{ id: 'probe', title: 'Reactivity', kind: 'proof' },
-	{ id: 'scrollbox', title: 'ScrollableArea + List', kind: 'proof' },
-	{ id: 'pull-refresh', title: 'Pull to refresh', kind: 'proof' },
-	{ id: 'device', title: 'Device', kind: 'proof' },
-	{ id: 'modal', title: 'Modal', kind: 'proof' },
-	{ id: 'props', title: 'Props', kind: 'proof' },
-	{ id: 'overlay', title: 'Overlays', kind: 'proof' },
-	{ id: 'controls', title: 'Controls', kind: 'proof' },
-	{ id: 'layout', title: 'Layout', kind: 'proof' },
-	{ id: 'rich-text', title: 'Rich text', kind: 'proof' },
-	{ id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
-	{ id: 'lexical-probe', title: 'Lexical imports', kind: 'proof' },
-	{ id: 'richtext-editor', title: 'Rich text editor', kind: 'proof' },
-	{ id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
-	{ id: 'lexical-editor', title: 'Lexical facade', kind: 'proof' },
-	{ id: 'chat', title: 'Chat', kind: 'app' },
-	{ id: 'content-display', title: 'Content display', kind: 'proof' },
-	{ id: 'divergence', title: 'Layout edges', kind: 'proof' },
-	{ id: 'glass', title: 'Glass', kind: 'proof' },
-	{ id: 'reorder', title: 'Reorder', kind: 'proof' },
-	{ id: 'components', title: 'Components', kind: 'proof' },
-	{ id: 'webview', title: 'WebView', kind: 'proof' },
-	{ id: 'pager', title: 'Pager', kind: 'proof' },
-	{ id: 'segmented', title: 'Segmented control', kind: 'proof' },
-	{ id: 'native-picker', title: 'Native picker', kind: 'app' },
-	{ id: 'native-date-picker', title: 'Native date picker', kind: 'app' },
-	{ id: 'file-input', title: 'File input', kind: 'app' },
-	{ id: 'native-context-menu', title: 'Native context menu', kind: 'app' },
-	{ id: 'native-sheet', title: 'Native sheet', kind: 'app' },
-	{ id: 'search', title: 'Search input', kind: 'proof' },
-	{ id: 'power-search', title: 'PowerSearch', kind: 'proof' },
-	{ id: 'action-controls', title: 'Action controls', kind: 'proof' },
-	{ id: 'video', title: 'Video', kind: 'proof' },
-	{ id: 'lottie', title: 'Lottie', kind: 'proof' },
-	{ id: 'camera', title: 'Camera', kind: 'proof' },
-	{ id: 'animated-image', title: 'Animated image', kind: 'proof' },
-	{ id: 'cached-image', title: 'Cached image', kind: 'proof' },
-	{ id: 'auth', title: 'Provider sign-in', kind: 'proof' },
-	{ id: 'push', title: 'Push notifications', kind: 'proof' },
-	{ id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
-	{ id: 'shaders', title: 'Shader / SimplexNoise', kind: 'proof' },
-	{ id: 'effects', title: 'Shader effects', kind: 'proof' },
+  { id: 'goal-counter', title: 'Goal counter', kind: 'app' },
+  { id: 'packing-list', title: 'Packing list', kind: 'app' },
+  { id: 'counter', title: 'Counter', kind: 'app' },
+  { id: 'watch', title: 'Watch', kind: 'app' },
+  { id: 'stopwatch', title: 'Stopwatch', kind: 'app' },
+  { id: 'todo', title: 'Todo', kind: 'app' },
+  { id: 'ttt', title: 'Tic-Tac-Toe', kind: 'app' },
+  { id: 'dialer', title: 'Dialer', kind: 'app' },
+  { id: 'vlist', title: 'List ×500', kind: 'app' },
+  { id: 'vlist-perf', title: 'List perf ×5000', kind: 'app' },
+  { id: 'weather', title: 'Weather', kind: 'app' },
+  { id: 'list-demo', title: 'Feed', kind: 'app' },
+  { id: 'motion-patterns', title: 'Motion patterns', kind: 'app' },
+  { id: 'fancy-components', title: 'Fancy components', kind: 'app' },
+  { id: 'anim', title: 'Keyframes', kind: 'proof' },
+  { id: 'probe', title: 'Reactivity', kind: 'proof' },
+  { id: 'scrollbox', title: 'ScrollableArea + List', kind: 'proof' },
+  { id: 'pull-refresh', title: 'Pull to refresh', kind: 'proof' },
+  { id: 'device', title: 'Device', kind: 'proof' },
+  { id: 'modal', title: 'Modal', kind: 'proof' },
+  { id: 'props', title: 'Props', kind: 'proof' },
+  { id: 'overlay', title: 'Overlays', kind: 'proof' },
+  { id: 'controls', title: 'Controls', kind: 'proof' },
+  { id: 'layout', title: 'Layout', kind: 'proof' },
+  { id: 'rich-text', title: 'Rich text', kind: 'proof' },
+  { id: 'tiptap-probe', title: 'Tiptap imports', kind: 'proof' },
+  { id: 'lexical-probe', title: 'Lexical imports', kind: 'proof' },
+  { id: 'richtext-editor', title: 'Rich text editor', kind: 'proof' },
+  { id: 'tiptap-editor', title: 'Tiptap facade', kind: 'proof' },
+  { id: 'lexical-editor', title: 'Lexical facade', kind: 'proof' },
+  { id: 'chat', title: 'Chat', kind: 'app' },
+  { id: 'content-display', title: 'Content display', kind: 'proof' },
+  { id: 'divergence', title: 'Layout edges', kind: 'proof' },
+  { id: 'glass', title: 'Glass', kind: 'proof' },
+  { id: 'reorder', title: 'Reorder', kind: 'proof' },
+  { id: 'components', title: 'Components', kind: 'proof' },
+  { id: 'webview', title: 'WebView', kind: 'proof' },
+  { id: 'pager', title: 'Pager', kind: 'proof' },
+  { id: 'segmented', title: 'Segmented control', kind: 'proof' },
+  { id: 'native-picker', title: 'Native picker', kind: 'app' },
+  { id: 'native-date-picker', title: 'Native date picker', kind: 'app' },
+  { id: 'file-input', title: 'File input', kind: 'app' },
+  { id: 'native-context-menu', title: 'Native context menu', kind: 'app' },
+  { id: 'native-sheet', title: 'Native sheet', kind: 'app' },
+  { id: 'search', title: 'Search input', kind: 'proof' },
+  { id: 'power-search', title: 'PowerSearch', kind: 'proof' },
+  { id: 'action-controls', title: 'Action controls', kind: 'proof' },
+  { id: 'video', title: 'Video', kind: 'proof' },
+  { id: 'lottie', title: 'Lottie', kind: 'proof' },
+  { id: 'camera', title: 'Camera', kind: 'proof' },
+  { id: 'animated-image', title: 'Animated image', kind: 'proof' },
+  { id: 'cached-image', title: 'Cached image', kind: 'proof' },
+  { id: 'auth', title: 'Provider sign-in', kind: 'proof' },
+  { id: 'push', title: 'Push notifications', kind: 'proof' },
+  { id: 'canvas', title: 'Canvas / WebGPU', kind: 'proof' },
+  { id: 'shaders', title: 'Shader / SimplexNoise', kind: 'proof' },
+  { id: 'effects', title: 'Shader effects', kind: 'proof' },
 ]
 
 // Render fns are standalone arrows (same contract as TabSpec.render /
@@ -199,62 +199,62 @@ const renderMotionPatterns = () => <MotionPatterns />
 const renderFancyComponents = () => <FancyComponents />
 
 export const RENDER: Record<string, () => any> = {
-	'goal-counter': renderGoalCounter,
-	'packing-list': renderPackingList,
-	counter: renderCounter,
-	watch: renderWatch,
-	stopwatch: renderStopwatch,
-	todo: renderTodo,
-	ttt: renderTtt,
-	dialer: renderDialer,
-	vlist: renderVlist,
-	weather: renderWeather,
-	anim: renderAnim,
-	probe: renderProbe,
-	'list-demo': renderListDemo,
-	scrollbox: renderScrollBox,
-	'pull-refresh': renderPullRefresh,
-	device: renderDevice,
-	modal: renderModal,
-	props: renderProps,
-	overlay: renderOverlay,
-	controls: renderControls,
-	layout: renderLayout,
-	'rich-text': renderRichText,
-	'tiptap-probe': renderTiptapProbe,
-	'lexical-probe': renderLexicalProbe,
-	'richtext-editor': renderRichTextEditor,
-	'tiptap-editor': renderTiptapEditor,
-	'lexical-editor': renderLexicalEditor,
-	chat: renderChat,
-	'content-display': renderContentDisplay,
-	divergence: renderDivergence,
-	glass: renderGlass,
-	reorder: renderReorder,
-	components: renderComponents,
-	webview: renderWebView,
-	pager: renderPager,
-	segmented: renderSegmented,
-	'native-picker': renderNativePicker,
-	'native-date-picker': renderNativeDatePicker,
-	'file-input': renderFileInput,
-	'native-context-menu': renderNativeContextMenu,
-	'native-sheet': renderNativeSheet,
-	search: renderSearch,
-	'power-search': renderPowerSearch,
-	'action-controls': renderActionControls,
-	video: renderVideo,
-	lottie: renderLottie,
-	camera: renderCamera,
-	'animated-image': renderAnimatedImage,
-	'cached-image': renderCachedImage,
-	auth: renderAuth,
-	push: renderPush,
-	canvas: renderCanvas,
-	shaders: renderShaders,
-	effects: renderEffects,
-	'motion-patterns': renderMotionPatterns,
-	'fancy-components': renderFancyComponents,
+  'goal-counter': renderGoalCounter,
+  'packing-list': renderPackingList,
+  counter: renderCounter,
+  watch: renderWatch,
+  stopwatch: renderStopwatch,
+  todo: renderTodo,
+  ttt: renderTtt,
+  dialer: renderDialer,
+  vlist: renderVlist,
+  weather: renderWeather,
+  anim: renderAnim,
+  probe: renderProbe,
+  'list-demo': renderListDemo,
+  scrollbox: renderScrollBox,
+  'pull-refresh': renderPullRefresh,
+  device: renderDevice,
+  modal: renderModal,
+  props: renderProps,
+  overlay: renderOverlay,
+  controls: renderControls,
+  layout: renderLayout,
+  'rich-text': renderRichText,
+  'tiptap-probe': renderTiptapProbe,
+  'lexical-probe': renderLexicalProbe,
+  'richtext-editor': renderRichTextEditor,
+  'tiptap-editor': renderTiptapEditor,
+  'lexical-editor': renderLexicalEditor,
+  chat: renderChat,
+  'content-display': renderContentDisplay,
+  divergence: renderDivergence,
+  glass: renderGlass,
+  reorder: renderReorder,
+  components: renderComponents,
+  webview: renderWebView,
+  pager: renderPager,
+  segmented: renderSegmented,
+  'native-picker': renderNativePicker,
+  'native-date-picker': renderNativeDatePicker,
+  'file-input': renderFileInput,
+  'native-context-menu': renderNativeContextMenu,
+  'native-sheet': renderNativeSheet,
+  search: renderSearch,
+  'power-search': renderPowerSearch,
+  'action-controls': renderActionControls,
+  video: renderVideo,
+  lottie: renderLottie,
+  camera: renderCamera,
+  'animated-image': renderAnimatedImage,
+  'cached-image': renderCachedImage,
+  auth: renderAuth,
+  push: renderPush,
+  canvas: renderCanvas,
+  shaders: renderShaders,
+  effects: renderEffects,
+  'motion-patterns': renderMotionPatterns,
+  'fancy-components': renderFancyComponents,
 }
 
 /** Demo launcher — chip menu. Two modes:
@@ -264,42 +264,42 @@ export const RENDER: Record<string, () => any> = {
  *  `Last opened` reads the module store — it updates after nav pops back,
  *  proving module-scope state crosses roots (context never does). */
 export function Gallery(props: {
-	onOpen?: (id: string) => void
-	kind?: 'app' | 'proof'
-	title?: string
+  onOpen?: (id: string) => void
+  kind?: 'app' | 'proof'
+  title?: string
 }) @{
-	const [demo, setDemo] = useState('counter')
-	const last = useLastDemo()
-	const shown = DEMOS.filter((d) => !props.kind || d.kind === props.kind)
-	const open = (id: string) => {
-		console.log('[probe] demo -> ' + id)
-		if (props.onOpen) {
-			props.onOpen(id)
-		} else {
-			setDemo(id)
-		}
-	}
+  const [demo, setDemo] = useState('counter')
+  const last = useLastDemo()
+  const shown = DEMOS.filter((d) => !props.kind || d.kind === props.kind)
+  const open = (id: string) => {
+    console.log('[probe] demo -> ' + id)
+    if (props.onOpen) {
+      props.onOpen(id)
+    } else {
+      setDemo(id)
+    }
+  }
 
-	<Screen className="vx-app flex-1 gap-6">
-		<HStack className="justify-between items-baseline">
-			<Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
-			<Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
-		</HStack>
-		<ScrollableArea className="flex-1">
-			<HStack className="demo-menu" style={{ minHeight: 1200 }}>
-				@for (const d of shown; key d.id) {
-					<Pressable
-						id={'menu-' + d.id}
-						onPress={() => open(d.id)}
-						className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
-					>
-						<Text>{d.title}</Text>
-					</Pressable>
-				}
-			</HStack>
-		</ScrollableArea>
-		@if (!props.onOpen) {
-			<View className="flex-1 min-h-0">{RENDER[demo]()}</View>
-		}
-	</Screen>
+  <Screen className="vx-app flex-1 gap-6">
+    <HStack className="justify-between items-baseline">
+      <Text className="text-2xl font-semibold">{props.title ?? 'Demos'}</Text>
+      <Text className="text-sm text-muted">{'Last opened: ' + (last ?? '—')}</Text>
+    </HStack>
+    <ScrollableArea className="flex-1">
+      <HStack className="demo-menu" style={{ minHeight: 1200 }}>
+        @for (const d of shown; key d.id) {
+          <Pressable
+            id={'menu-' + d.id}
+            onPress={() => open(d.id)}
+            className={['chip', props.onOpen || demo === d.id ? '' : 'chip-off']}
+          >
+            <Text>{d.title}</Text>
+          </Pressable>
+        }
+      </HStack>
+    </ScrollableArea>
+    @if (!props.onOpen) {
+      <View className="flex-1 min-h-0">{RENDER[demo]()}</View>
+    }
+  </Screen>
 }

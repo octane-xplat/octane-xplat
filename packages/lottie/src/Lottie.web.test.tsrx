@@ -11,54 +11,54 @@ import { Lottie } from './Lottie.web.tsrx'
 const roots: any[] = []
 
 function mount(props: any) {
-	const host = document.createElement('div')
-	document.body.append(host)
-	const root = createRoot(host)
-	roots.push({ root, host })
-	act(() => root.render(<Lottie {...props} />))
-	return host
+  const host = document.createElement('div')
+  document.body.append(host)
+  const root = createRoot(host)
+  roots.push({ root, host })
+  act(() => root.render(<Lottie {...props} />))
+  return host
 }
 
 afterEach(() => {
-	for (const { root, host } of roots.splice(0)) {
-		act(() => root.unmount())
-		host.remove()
-	}
+  for (const { root, host } of roots.splice(0)) {
+    act(() => root.unmount())
+    host.remove()
+  }
 
-	loadAnimation.mockReset()
+  loadAnimation.mockReset()
 })
 
 it('reports malformed inline JSON through onError without throwing', () => {
-	const onError = vi.fn()
-	const host = mount({ src: '{invalid json', onError })
+  const onError = vi.fn()
+  const host = mount({ src: '{invalid json', onError })
 
-	expect(onError).toHaveBeenCalledTimes(1)
-	expect(onError.mock.calls[0][0].message).toMatch(/JSON|position/i)
-	expect(loadAnimation).not.toHaveBeenCalled()
-	expect(host.firstElementChild).not.toBeNull()
+  expect(onError).toHaveBeenCalledTimes(1)
+  expect(onError.mock.calls[0][0].message).toMatch(/JSON|position/i)
+  expect(loadAnimation).not.toHaveBeenCalled()
+  expect(host.firstElementChild).not.toBeNull()
 })
 
 it('reports synchronous lottie-web construction failures through onError', () => {
-	const onError = vi.fn()
-	loadAnimation.mockImplementation(() => {
-		throw new Error('invalid animation data')
-	})
+  const onError = vi.fn()
+  loadAnimation.mockImplementation(() => {
+    throw new Error('invalid animation data')
+  })
 
-	mount({ data: { v: '5.0', layers: [] }, onError })
+  mount({ data: { v: '5.0', layers: [] }, onError })
 
-	expect(onError).toHaveBeenCalledWith({ message: 'invalid animation data' })
+  expect(onError).toHaveBeenCalledWith({ message: 'invalid animation data' })
 })
 
 it('exposes the created animation handle through a ref on initial mount', () => {
-	const animation = {
-		addEventListener: vi.fn(),
-		destroy: vi.fn(),
-	} as any
+  const animation = {
+    addEventListener: vi.fn(),
+    destroy: vi.fn(),
+  } as any
 
-	loadAnimation.mockReturnValue(animation)
-	const ref = { current: null as any }
+  loadAnimation.mockReturnValue(animation)
+  const ref = { current: null as any }
 
-	mount({ data: { v: '5.0', layers: [] }, ref })
+  mount({ data: { v: '5.0', layers: [] }, ref })
 
-	expect(ref.current.native).toBe(animation)
+  expect(ref.current.native).toBe(animation)
 })

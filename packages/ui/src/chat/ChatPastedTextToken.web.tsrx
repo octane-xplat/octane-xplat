@@ -6,41 +6,41 @@ import { Pressable } from '../components/actions/Pressable.web.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
 
 function formatLabel(text: string): string {
-	const lines = text.split('\n').length
-	const chars = text.length
-	return lines > 1 ? `${lines} lines, ${chars} chars` : `${chars} chars`
+  const lines = text.split('\n').length
+  const chars = text.length
+  return lines > 1 ? `${lines} lines, ${chars} chars` : `${chars} chars`
 }
 
 /** Inline token for a long paste — chip shows the size summary; hover
  *  reveals a truncated preview card with an Expand action that dissolves
  *  the token back into editable text. */
 export function ChatPastedTextToken(props: {
-	text: string
-	onExpand?: () => void
+  text: string
+  onExpand?: () => void
 }): JSX.Element @{
-	const label = formatLabel(props.text)
-	const chip: ChatComposerToken = { value: props.text, label, variant: 'neutral' }
+  const label = formatLabel(props.text)
+  const chip: ChatComposerToken = { value: props.text, label, variant: 'neutral' }
 
-	<Tooltip
-		placement="top"
-		openDelay={150}
-		trigger={<ChatTokenChip token={chip} />}
-		content={
-			<div className="vx-chatpaste-preview">
-				<div className="vx-chatpaste-text">{props.text}</div>
-				<div className="vx-chatpaste-footer">
-					<span className="vx-chatpaste-meta">{label}</span>
-					{props.onExpand ? (
-						<Pressable
-							className="vx-chatpaste-expand"
-							onPress={props.onExpand}
-							accessibilityRole="button"
-						>
-							Expand
-						</Pressable>
-					) : null}
-				</div>
-			</div>
-		}
-	/>
+  <Tooltip
+    placement="top"
+    openDelay={150}
+    trigger={<ChatTokenChip token={chip} />}
+    content={
+      <div className="vx-chatpaste-preview">
+        <div className="vx-chatpaste-text">{props.text}</div>
+        <div className="vx-chatpaste-footer">
+          <span className="vx-chatpaste-meta">{label}</span>
+          {props.onExpand ? (
+            <Pressable
+              className="vx-chatpaste-expand"
+              onPress={props.onExpand}
+              accessibilityRole="button"
+            >
+              Expand
+            </Pressable>
+          ) : null}
+        </div>
+      </div>
+    }
+  />
 }

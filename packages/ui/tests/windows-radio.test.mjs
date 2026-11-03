@@ -15,38 +15,38 @@ const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-radio-'))
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
-	const path = join(directory, name + '.mjs')
-	writeFileSync(path, code)
-	return pathToFileURL(path).href
+  const path = join(directory, name + '.mjs')
+  writeFileSync(path, code)
+  return pathToFileURL(path).href
 }
 
 function compiled(name, source, imports = {}, template = true) {
-	let code = template
-		? compile(source, name + '.tsrx', {
-				renderer: {
-					id: 'nativescript',
-					module: runtimeUrl,
-					target: 'universal',
-					server: 'unsupported',
-					text: 'host',
-				},
-			}).code
-		: source
-	code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
-		const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
-		return target ? 'from ' + JSON.stringify(target) : match
-	})
-	return moduleFile(
-		name,
-		ts.transpileModule(code, {
-			compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
-		}).outputText,
-	)
+  let code = template
+    ? compile(source, name + '.tsrx', {
+        renderer: {
+          id: 'nativescript',
+          module: runtimeUrl,
+          target: 'universal',
+          server: 'unsupported',
+          text: 'host',
+        },
+      }).code
+    : source
+  code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
+    const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+    return target ? 'from ' + JSON.stringify(target) : match
+  })
+  return moduleFile(
+    name,
+    ts.transpileModule(code, {
+      compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+    }).outputText,
+  )
 }
 
 const support = moduleFile(
-	'support',
-	`import {createContext} from ${JSON.stringify(runtimeUrl)};
+  'support',
+  `import {createContext} from ${JSON.stringify(runtimeUrl)};
 export const FormLayoutContext=createContext({defaultOptionality:'optional'});
 export const InputGroupContext=createContext(null);
 export const SizeContext=createContext('md');
@@ -64,75 +64,75 @@ export class WindowsRadioGroup {
 )
 
 const field = compiled(
-	'field',
-	readFileSync(new URL('../src/components/forms/field-context.ts', import.meta.url), 'utf8'),
-	{
-		'./form-layout-context': support,
-		'./input-group-context': support,
-		'../layout/size-context': support,
-	},
-	false,
+  'field',
+  readFileSync(new URL('../src/components/forms/field-context.ts', import.meta.url), 'utf8'),
+  {
+    './form-layout-context': support,
+    './input-group-context': support,
+    '../layout/size-context': support,
+  },
+  false,
 )
 
 const contexts = compiled(
-	'contexts',
-	readFileSync(new URL('../src/components/forms/option-list-contexts.ts', import.meta.url), 'utf8'),
-	{},
-	false,
+  'contexts',
+  readFileSync(new URL('../src/components/forms/option-list-contexts.ts', import.meta.url), 'utf8'),
+  {},
+  false,
 )
 
 const nativeContext = compiled(
-	'native-context',
-	readFileSync(
-		new URL('../src/components/forms/radio-context.windows.ts', import.meta.url),
-		'utf8',
-	),
-	{},
-	false,
+  'native-context',
+  readFileSync(
+    new URL('../src/components/forms/radio-context.windows.ts', import.meta.url),
+    'utf8',
+  ),
+  {},
+  false,
 )
 
 const indicator = compiled(
-	'indicator',
-	"export const indicatorScope='indicators'; export function RadioIndicator(props) @{ <indicator state={props.state} /> }",
+  'indicator',
+  "export const indicatorScope='indicators'; export function RadioIndicator(props) @{ <indicator state={props.state} /> }",
 )
 
 const item = compiled(
-	'item',
-	readFileSync(
-		new URL('../src/components/forms/RadioListItem.windows.tsrx', import.meta.url),
-		'utf8',
-	).replace(/^import ['"].*['"]\s*;?$/gm, ''),
-	{
-		'../overlays/escape-props': support,
-		'../../internal/layout/style-merge': support,
-		'./option-list-contexts': contexts,
-		'./radio-context.windows': nativeContext,
-		'../layout/useMeasure.tsrx': support,
-		'../feedback/indicators': indicator,
-		'../feedback/use-indicator.tsrx': support,
-	},
+  'item',
+  readFileSync(
+    new URL('../src/components/forms/RadioListItem.windows.tsrx', import.meta.url),
+    'utf8',
+  ).replace(/^import ['"].*['"]\s*;?$/gm, ''),
+  {
+    '../overlays/escape-props': support,
+    '../../internal/layout/style-merge': support,
+    './option-list-contexts': contexts,
+    './radio-context.windows': nativeContext,
+    '../layout/useMeasure.tsrx': support,
+    '../feedback/indicators': indicator,
+    '../feedback/use-indicator.tsrx': support,
+  },
 )
 
 const group = compiled(
-	'group',
-	readFileSync(new URL('../src/components/forms/RadioGroup.windows.tsrx', import.meta.url), 'utf8'),
-	{
-		'./radio-control.windows': support,
-		'./radio-context.windows': nativeContext,
-		'./RadioListItem.windows.tsrx': item,
-		'../../internal/layout/style-merge': support,
-		'@octane-xplat/lib': support,
-		'../overlays/escape-props': support,
-		'./field-context': field,
-		'./option-list-contexts': contexts,
-	},
+  'group',
+  readFileSync(new URL('../src/components/forms/RadioGroup.windows.tsrx', import.meta.url), 'utf8'),
+  {
+    './radio-control.windows': support,
+    './radio-context.windows': nativeContext,
+    './RadioListItem.windows.tsrx': item,
+    '../../internal/layout/style-merge': support,
+    '@octane-xplat/lib': support,
+    '../overlays/escape-props': support,
+    './field-context': field,
+    './option-list-contexts': contexts,
+  },
 )
 
 const { RadioGroup } = await import(group)
 const { RadioListItem } = await import(item)
 const fixtures = compiled(
-	'fixtures',
-	`import {RadioGroup} from ${JSON.stringify(group)};
+  'fixtures',
+  `import {RadioGroup} from ${JSON.stringify(group)};
 import {RadioListItem} from ${JSON.stringify(item)};
 import {FieldProvider} from ${JSON.stringify(field)};
 export function InField(props) @{
@@ -151,93 +151,93 @@ export function Children(props) @{
 const { InField, Children } = await import(fixtures)
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 function mount(props, component = RadioGroup) {
-	const container = createObjectContainer('nativescript')
-	const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-	const nodes = () => {
-		const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
-		return visit(container.children)
-	}
-	root.render(component, props)
-	return {
-		root,
-		nodes,
-		inputs: () => nodes().filter((node) => node.type === 'xplatwindowsradio'),
-		render: (next) => root.render(component, next),
-	}
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  const nodes = () => {
+    const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+    return visit(container.children)
+  }
+  root.render(component, props)
+  return {
+    root,
+    nodes,
+    inputs: () => nodes().filter((node) => node.type === 'xplatwindowsradio'),
+    render: (next) => root.render(component, next),
+  }
 }
 
 const options = [
-	{ value: 'a', label: 'Alpha' },
-	{ value: 'b', label: 'Beta' },
+  { value: 'a', label: 'Alpha' },
+  { value: 'b', label: 'Beta' },
 ]
 
 test('uncontrolled options retain a seeded default and suppress unchanged requests', async () => {
-	const changes = []
-	const props = { options, defaultValue: 'a', onValueChange: (value) => changes.push(value) }
-	const f = mount(props)
-	try {
-		await tick()
-		const controller = f.inputs()[0].props.settings.group
-		assert.equal(controller.selected, 'a')
-		controller.requestChange('b')
-		await tick()
-		assert.equal(controller.selected, 'b')
-		controller.requestChange('b')
-		f.render({ ...props, defaultValue: 'a' })
-		await tick()
-		assert.equal(controller.selected, 'b')
-		assert.deepEqual(changes, ['b'])
-	} finally {
-		f.root.unmount()
-	}
+  const changes = []
+  const props = { options, defaultValue: 'a', onValueChange: (value) => changes.push(value) }
+  const f = mount(props)
+  try {
+    await tick()
+    const controller = f.inputs()[0].props.settings.group
+    assert.equal(controller.selected, 'a')
+    controller.requestChange('b')
+    await tick()
+    assert.equal(controller.selected, 'b')
+    controller.requestChange('b')
+    f.render({ ...props, defaultValue: 'a' })
+    await tick()
+    assert.equal(controller.selected, 'b')
+    assert.deepEqual(changes, ['b'])
+  } finally {
+    f.root.unmount()
+  }
 })
 
 test('controlled child parts share one controller and keep parent ownership', async () => {
-	const changes = []
-	const props = { value: 'a', onValueChange: (value) => changes.push(value) }
-	const f = mount(props, Children)
-	try {
-		await tick()
-		const [a, b] = f.inputs()
-		assert.equal(a.props.settings.group, b.props.settings.group)
-		const controller = a.props.settings.group
-		controller.requestChange('b')
-		await tick()
-		assert.equal(controller.selected, 'a')
-		f.render({ ...props, value: 'b' })
-		await tick()
-		assert.equal(controller.selected, 'b')
-		assert.deepEqual(changes, ['b'])
-	} finally {
-		f.root.unmount()
-	}
+  const changes = []
+  const props = { value: 'a', onValueChange: (value) => changes.push(value) }
+  const f = mount(props, Children)
+  try {
+    await tick()
+    const [a, b] = f.inputs()
+    assert.equal(a.props.settings.group, b.props.settings.group)
+    const controller = a.props.settings.group
+    controller.requestChange('b')
+    await tick()
+    assert.equal(controller.selected, 'a')
+    f.render({ ...props, value: 'b' })
+    await tick()
+    assert.equal(controller.selected, 'b')
+    assert.deepEqual(changes, ['b'])
+  } finally {
+    f.root.unmount()
+  }
 })
 
 test('real Field context inherits guards for public options and accessible group name', async () => {
-	for (const flags of [{ disabled: true }, { readOnly: true }]) {
-		const changes = []
-		const f = mount({ ...flags, options, onValueChange: (value) => changes.push(value) }, InField)
-		try {
-			await tick()
-			const input = f.inputs()[0]
-			const controller = input.props.settings.group
-			assert.equal(controller.disabled, !!flags.disabled)
-			assert.equal(controller.readOnly, !!flags.readOnly)
-			assert.equal(input.props.isEnabled, !flags.disabled)
-			controller.requestChange('b')
-			assert.deepEqual(changes, [])
-			assert.ok(f.nodes().some((node) => node.props.accessibilityLabel === 'Delivery'))
-		} finally {
-			f.root.unmount()
-		}
-	}
+  for (const flags of [{ disabled: true }, { readOnly: true }]) {
+    const changes = []
+    const f = mount({ ...flags, options, onValueChange: (value) => changes.push(value) }, InField)
+    try {
+      await tick()
+      const input = f.inputs()[0]
+      const controller = input.props.settings.group
+      assert.equal(controller.disabled, !!flags.disabled)
+      assert.equal(controller.readOnly, !!flags.readOnly)
+      assert.equal(input.props.isEnabled, !flags.disabled)
+      controller.requestChange('b')
+      assert.deepEqual(changes, [])
+      assert.ok(f.nodes().some((node) => node.props.accessibilityLabel === 'Delivery'))
+    } finally {
+      f.root.unmount()
+    }
+  }
 })
 
 test('standalone item stays presentational without native activation', () => {
-	const f = mount({ value: 'a', label: 'Alpha' }, RadioListItem)
-	try {
-		assert.equal(f.inputs().length, 0)
-	} finally {
-		f.root.unmount()
-	}
+  const f = mount({ value: 'a', label: 'Alpha' }, RadioListItem)
+  try {
+    assert.equal(f.inputs().length, 0)
+  } finally {
+    f.root.unmount()
+  }
 })

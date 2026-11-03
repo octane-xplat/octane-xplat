@@ -3,9 +3,9 @@ import { defaultFormat } from './axes'
 import type { ChartScene } from './scene'
 
 export interface SceneHit extends ChartHit {
-	/** Datum anchor in chart space — tooltip/crosshair position. */
-	px: number
-	py: number
+  /** Datum anchor in chart space — tooltip/crosshair position. */
+  px: number
+  py: number
 }
 
 /** Touch slop — how far outside the plot a pointer may sit and still hit.
@@ -17,121 +17,121 @@ export const HIT_SLOP = 24
  *  scatter gates on pointer distance instead of always snapping. Pie hits
  *  resolve by ring + angle. Coordinates outside the plot (+slop) miss. */
 export function hitTest(
-	scene: ChartScene,
-	x: number,
-	y: number,
-	slop: number = HIT_SLOP,
+  scene: ChartScene,
+  x: number,
+  y: number,
+  slop: number = HIT_SLOP,
 ): SceneHit | null {
-	if (scene.pie) {
-		return pieHit(scene, x, y, slop)
-	}
+  if (scene.pie) {
+    return pieHit(scene, x, y, slop)
+  }
 
-	const { plot, points } = scene
-	if (!points.length) {
-		return null
-	}
+  const { plot, points } = scene
+  if (!points.length) {
+    return null
+  }
 
-	if (
-		x < plot.x - slop ||
-		x > plot.x + plot.width + slop ||
-		y < plot.y - slop ||
-		y > plot.y + plot.height + slop
-	) {
-		return null
-	}
+  if (
+    x < plot.x - slop ||
+    x > plot.x + plot.width + slop ||
+    y < plot.y - slop ||
+    y > plot.y + plot.height + slop
+  ) {
+    return null
+  }
 
-	if (scene.type === 'scatter') {
-		// Scatter is a point cloud, not a snapped axis — pick the datum
-		// nearest the pointer in 2D and miss when nothing is actually near.
-		let best: SceneHit | null = null
-		let bestDist = Infinity
-		for (const p of points) {
-			const d = Math.hypot(p.cx - x, p.cy - y)
-			if (d < bestDist) {
-				bestDist = d
-				best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
-			}
-		}
+  if (scene.type === 'scatter') {
+    // Scatter is a point cloud, not a snapped axis — pick the datum
+    // nearest the pointer in 2D and miss when nothing is actually near.
+    let best: SceneHit | null = null
+    let bestDist = Infinity
+    for (const p of points) {
+      const d = Math.hypot(p.cx - x, p.cy - y)
+      if (d < bestDist) {
+        bestDist = d
+        best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
+      }
+    }
 
-		return best !== null && bestDist <= slop ? best : null
-	}
+    return best !== null && bestDist <= slop ? best : null
+  }
 
-	const centers = new Map<string, { total: number; count: number }>()
-	for (const p of points) {
-		const cur = centers.get(p.key)
-		if (cur === undefined) {
-			centers.set(p.key, { total: p.cx, count: 1 })
-		} else {
-			cur.total += p.cx
-			cur.count += 1
-		}
-	}
+  const centers = new Map<string, { total: number; count: number }>()
+  for (const p of points) {
+    const cur = centers.get(p.key)
+    if (cur === undefined) {
+      centers.set(p.key, { total: p.cx, count: 1 })
+    } else {
+      cur.total += p.cx
+      cur.count += 1
+    }
+  }
 
-	let key: string | null = null
-	let keyDist = Infinity
-	for (const [k, sum] of centers) {
-		const d = Math.abs(sum.total / sum.count - x)
-		if (d < keyDist) {
-			keyDist = d
-			key = k
-		}
-	}
+  let key: string | null = null
+  let keyDist = Infinity
+  for (const [k, sum] of centers) {
+    const d = Math.abs(sum.total / sum.count - x)
+    if (d < keyDist) {
+      keyDist = d
+      key = k
+    }
+  }
 
-	if (key === null) {
-		return null
-	}
+  if (key === null) {
+    return null
+  }
 
-	let best: SceneHit | null = null
-	let bestDist = Infinity
-	for (const p of points) {
-		if (p.key !== key) {
-			continue
-		}
+  let best: SceneHit | null = null
+  let bestDist = Infinity
+  for (const p of points) {
+    if (p.key !== key) {
+      continue
+    }
 
-		const d = Math.hypot(p.cx - x, p.cy - y)
-		if (d < bestDist) {
-			bestDist = d
-			best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
-		}
-	}
+    const d = Math.hypot(p.cx - x, p.cy - y)
+    if (d < bestDist) {
+      bestDist = d
+      best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
+    }
+  }
 
-	return best
+  return best
 }
 
 function pieHit(scene: ChartScene, x: number, y: number, slop: number): SceneHit | null {
-	const pie = scene.pie!
-	const dx = x - pie.cx
-	const dy = y - pie.cy
-	const r = Math.hypot(dx, dy)
-	if (r < pie.rInner - slop || r > pie.rOuter + slop) {
-		return null
-	}
+  const pie = scene.pie!
+  const dx = x - pie.cx
+  const dy = y - pie.cy
+  const r = Math.hypot(dx, dy)
+  if (r < pie.rInner - slop || r > pie.rOuter + slop) {
+    return null
+  }
 
-	// d3 pie angles run clockwise from 12 o'clock in y-down space:
-	// θ = atan2(dx, −dy) normalized into [0, 2π).
-	const angle = (Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)
-	const slice = pie.slices.find((s) => angle >= s.startAngle && angle < s.endAngle)
-	if (!slice) {
-		return null
-	}
+  // d3 pie angles run clockwise from 12 o'clock in y-down space:
+  // θ = atan2(dx, −dy) normalized into [0, 2π).
+  const angle = (Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)
+  const slice = pie.slices.find((s) => angle >= s.startAngle && angle < s.endAngle)
+  if (!slice) {
+    return null
+  }
 
-	return {
-		series: slice.series,
-		index: slice.index,
-		x: slice.label,
-		y: slice.value,
-		px: slice.cx,
-		py: slice.cy,
-	}
+  return {
+    series: slice.series,
+    index: slice.index,
+    x: slice.label,
+    y: slice.value,
+    px: slice.cx,
+    py: slice.cy,
+  }
 }
 
 export type ScrubPhase = 'down' | 'move' | 'up' | 'cancel' | 'hover' | 'leave' | 'tap'
 
 export interface ScrubProps {
-	tooltip?: boolean
-	crosshair?: boolean
-	onPress?: (hit: ChartHit) => void
-	onScrub?: (hit: ChartHit | null) => void
+  tooltip?: boolean
+  crosshair?: boolean
+  onPress?: (hit: ChartHit) => void
+  onScrub?: (hit: ChartHit | null) => void
 }
 
 /** Shared gesture → cursor state machine. Both leaves normalize their pointer
@@ -143,79 +143,79 @@ export interface ScrubProps {
  *  `cancel`/`leave` clear. `onPress` lives only on `tap` so NS's tap
  *  recognizer and the web click both reach it exactly once. */
 export function createScrub(
-	getScene: () => ChartScene | null,
-	getProps: () => ScrubProps,
-	setCursor: (hit: SceneHit | null) => void,
+  getScene: () => ChartScene | null,
+  getProps: () => ScrubProps,
+  setCursor: (hit: SceneHit | null) => void,
 ): (phase: ScrubPhase, x: number, y: number) => void {
-	let downAt: { x: number; y: number; t: number } | null = null
-	return (phase, x, y) => {
-		const scene = getScene()
-		const props = getProps()
-		const showCursor = props.tooltip === true || props.crosshair === true
-		switch (phase) {
-			case 'down': {
-				downAt = { x, y, t: Date.now() }
-				const hit = scene && showCursor ? hitTest(scene, x, y) : null
-				setCursor(hit)
-				if (hit) {
-					props.onScrub?.(hit)
-				}
+  let downAt: { x: number; y: number; t: number } | null = null
+  return (phase, x, y) => {
+    const scene = getScene()
+    const props = getProps()
+    const showCursor = props.tooltip === true || props.crosshair === true
+    switch (phase) {
+      case 'down': {
+        downAt = { x, y, t: Date.now() }
+        const hit = scene && showCursor ? hitTest(scene, x, y) : null
+        setCursor(hit)
+        if (hit) {
+          props.onScrub?.(hit)
+        }
 
-				break
-			}
-			case 'move': {
-				if (!downAt) {
-					break
-				}
+        break
+      }
+      case 'move': {
+        if (!downAt) {
+          break
+        }
 
-				const hit = scene && showCursor ? hitTest(scene, x, y) : null
-				setCursor(hit)
-				props.onScrub?.(hit)
-				break
-			}
-			case 'hover': {
-				if (downAt) {
-					break
-				}
+        const hit = scene && showCursor ? hitTest(scene, x, y) : null
+        setCursor(hit)
+        props.onScrub?.(hit)
+        break
+      }
+      case 'hover': {
+        if (downAt) {
+          break
+        }
 
-				setCursor(scene && showCursor ? hitTest(scene, x, y) : null)
-				break
-			}
-			case 'up': {
-				downAt = null
-				setCursor(scene ? hitTest(scene, x, y) : null)
-				props.onScrub?.(null)
-				break
-			}
-			case 'tap': {
-				downAt = null
-				const hit = scene ? hitTest(scene, x, y) : null
-				setCursor(hit)
-				if (hit) {
-					props.onPress?.(hit)
-				}
+        setCursor(scene && showCursor ? hitTest(scene, x, y) : null)
+        break
+      }
+      case 'up': {
+        downAt = null
+        setCursor(scene ? hitTest(scene, x, y) : null)
+        props.onScrub?.(null)
+        break
+      }
+      case 'tap': {
+        downAt = null
+        const hit = scene ? hitTest(scene, x, y) : null
+        setCursor(hit)
+        if (hit) {
+          props.onPress?.(hit)
+        }
 
-				break
-			}
-			case 'cancel':
-			case 'leave': {
-				downAt = null
-				setCursor(null)
-				props.onScrub?.(null)
-				break
-			}
-		}
-	}
+        break
+      }
+      case 'cancel':
+      case 'leave': {
+        downAt = null
+        setCursor(null)
+        props.onScrub?.(null)
+        break
+      }
+    }
+  }
 }
 
 /** Tooltip body for a hit — series name + formatted y for cartesian charts,
  *  slice label + value for pie. */
 export function hitLabel(scene: ChartScene, hit: ChartHit): string {
-	if (scene.pie) {
-		const slice = scene.pie.slices.find((s) => s.series === hit.series && s.index === hit.index)
-		return slice ? `${slice.label}: ${defaultFormat(slice.value)}` : defaultFormat(hit.y)
-	}
+  if (scene.pie) {
+    const slice = scene.pie.slices.find((s) => s.series === hit.series && s.index === hit.index)
+    return slice ? `${slice.label}: ${defaultFormat(slice.value)}` : defaultFormat(hit.y)
+  }
 
-	const name = scene.series[hit.series]?.name ?? String(hit.series)
-	return `${name}: ${defaultFormat(hit.y)}`
+  const name = scene.series[hit.series]?.name ?? String(hit.series)
+  return `${name}: ${defaultFormat(hit.y)}`
 }

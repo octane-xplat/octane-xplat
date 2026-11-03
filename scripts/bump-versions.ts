@@ -16,23 +16,23 @@ import { syncCompatibility } from './sync-compatibility.ts'
 
 const version = process.argv[2]?.replace(/^v/, '')
 if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
-	console.error('usage: node scripts/bump-versions.ts <semver>')
-	process.exit(1)
+  console.error('usage: node scripts/bump-versions.ts <semver>')
+  process.exit(1)
 }
 
 const setKey = (raw, key, value) => {
-	const next = raw.replace(new RegExp(`"${key}":\\s*"[^"]*"`), `"${key}": "${value}"`)
-	if (next === raw) {
-		throw new Error(`"${key}" not found`)
-	}
+  const next = raw.replace(new RegExp(`"${key}":\\s*"[^"]*"`), `"${key}": "${value}"`)
+  if (next === raw) {
+    throw new Error(`"${key}" not found`)
+  }
 
-	return next
+  return next
 }
 
 for (const { name, dir } of lockstepPackages()) {
-	const file = `${dir}/package.json`
-	writeFileSync(file, setKey(readFileSync(file, 'utf8'), 'version', version))
-	console.log(`${name} -> ${version}`)
+  const file = `${dir}/package.json`
+  writeFileSync(file, setKey(readFileSync(file, 'utf8'), 'version', version))
+  console.log(`${name} -> ${version}`)
 }
 
 compatibility.frameworkVersion = version
@@ -40,26 +40,26 @@ compatibility.frameworkVersion = version
 // The tsrx-typegen starter pin follows the in-repo version once that version
 // is on the registry; an unpublished version keeps the previous pin.
 const typegenVersion = JSON.parse(
-	readFileSync('packages/tsrx-typegen/package.json', 'utf8'),
+  readFileSync('packages/tsrx-typegen/package.json', 'utf8'),
 ).version
 
 let published: string | undefined
 try {
-	published = JSON.parse(
-		execFileSync('npm', ['view', `tsrx-typegen@${typegenVersion}`, 'version', '--json'], {
-			encoding: 'utf8',
-			stdio: ['ignore', 'pipe', 'pipe'],
-		}),
-	)
+  published = JSON.parse(
+    execFileSync('npm', ['view', `tsrx-typegen@${typegenVersion}`, 'version', '--json'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }),
+  )
 } catch {
-	published = undefined
+  published = undefined
 }
 
 if (published === typegenVersion) {
-	compatibility.packages['tsrx-typegen'].version = typegenVersion
-	console.log('tsrx-typegen starter pin -> ' + typegenVersion)
+  compatibility.packages['tsrx-typegen'].version = typegenVersion
+  console.log('tsrx-typegen starter pin -> ' + typegenVersion)
 } else {
-	console.warn(`tsrx-typegen ${typegenVersion} is not published — keeping the existing starter pin`)
+  console.warn(`tsrx-typegen ${typegenVersion} is not published — keeping the existing starter pin`)
 }
 
 syncCompatibility()

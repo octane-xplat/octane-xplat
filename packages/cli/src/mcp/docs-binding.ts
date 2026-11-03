@@ -17,119 +17,119 @@ const SCOPED_DIR = '@octane-xplat'
 const UNSCOPED = ['tsrx-typegen', 'create-octane-xplat']
 
 const readJson = (path) => {
-	try {
-		return JSON.parse(readFileSync(path, 'utf8'))
-	} catch {
-		return null
-	}
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'))
+  } catch {
+    return null
+  }
 }
 
 /** Versions the selected lockfile records for this importer (empty when absent). */
 function lockfileVersions(projectRoot) {
-	const bun = bunLockedVersions(projectRoot)
-	if (bun) {
-		return bun
-	}
-	const file = join(projectRoot, 'pnpm-lock.yaml')
-	if (!existsSync(file)) {
-		return {}
-	}
+  const bun = bunLockedVersions(projectRoot)
+  if (bun) {
+    return bun
+  }
+  const file = join(projectRoot, 'pnpm-lock.yaml')
+  if (!existsSync(file)) {
+    return {}
+  }
 
-	let doc
-	try {
-		doc = parseYaml(readFileSync(file, 'utf8'))
-	} catch {
-		return {}
-	}
+  let doc
+  try {
+    doc = parseYaml(readFileSync(file, 'utf8'))
+  } catch {
+    return {}
+  }
 
-	const out = {}
-	const importer = doc?.importers?.['.']
-	for (const section of ['dependencies', 'devDependencies']) {
-		for (const [name, entry] of Object.entries(importer?.[section] ?? {})) {
-			// pnpm locks { specifier, version } objects; version may carry a
-			// (peer) suffix that is not part of the released version.
-			const raw = typeof entry === 'string' ? entry : entry?.version
-			if (raw) {
-				out[name] = String(raw).replace(/[(@].*$/, '')
-			}
-		}
-	}
+  const out = {}
+  const importer = doc?.importers?.['.']
+  for (const section of ['dependencies', 'devDependencies']) {
+    for (const [name, entry] of Object.entries(importer?.[section] ?? {})) {
+      // pnpm locks { specifier, version } objects; version may carry a
+      // (peer) suffix that is not part of the released version.
+      const raw = typeof entry === 'string' ? entry : entry?.version
+      if (raw) {
+        out[name] = String(raw).replace(/[(@].*$/, '')
+      }
+    }
+  }
 
-	return out
+  return out
 }
 
 /** package.json specs for this workspace (link:/file:/workspace: detection). */
 function declaredSpecs(projectRoot) {
-	const pkg = readJson(join(projectRoot, 'package.json'))
-	const specs = {}
-	for (const section of ['dependencies', 'devDependencies', 'peerDependencies']) {
-		for (const [name, spec] of Object.entries(pkg?.[section] ?? {})) {
-			specs[name] = spec
-		}
-	}
+  const pkg = readJson(join(projectRoot, 'package.json'))
+  const specs = {}
+  for (const section of ['dependencies', 'devDependencies', 'peerDependencies']) {
+    for (const [name, spec] of Object.entries(pkg?.[section] ?? {})) {
+      specs[name] = spec
+    }
+  }
 
-	return specs
+  return specs
 }
 
 function isLinkedSpec(projectRoot, spec = '') {
-	if (/^(link|workspace|portal):/.test(spec)) {
-		return true
-	}
+  if (/^(link|workspace|portal):/.test(spec)) {
+    return true
+  }
 
-	const file = /^file:(.+)$/.exec(spec)?.[1]
-	if (!file) {
-		return false
-	}
+  const file = /^file:(.+)$/.exec(spec)?.[1]
+  if (!file) {
+    return false
+  }
 
-	try {
-		return statSync(resolve(projectRoot, file)).isDirectory()
-	} catch {
-		// Removing the archive after installation must not turn an installed
-		// tarball into a checkout. Unresolved directory specs remain linked.
-		return !/\.(?:tgz|tar(?:\.gz)?)$/i.test(file)
-	}
+  try {
+    return statSync(resolve(projectRoot, file)).isDirectory()
+  } catch {
+    // Removing the archive after installation must not turn an installed
+    // tarball into a checkout. Unresolved directory specs remain linked.
+    return !/\.(?:tgz|tar(?:\.gz)?)$/i.test(file)
+  }
 }
 
 function installedEntry(projectRoot, name) {
-	const dir = installedPackageRoot(projectRoot, name)
-	if (!dir) {
-		return null
-	}
-	const manifest = join(dir, 'package.json')
+  const dir = installedPackageRoot(projectRoot, name)
+  if (!dir) {
+    return null
+  }
+  const manifest = join(dir, 'package.json')
 
-	const pkg = readJson(manifest)
-	if (!pkg?.name || !pkg?.version) {
-		return null
-	}
+  const pkg = readJson(manifest)
+  if (!pkg?.name || !pkg?.version) {
+    return null
+  }
 
-	return {
-		name: pkg.name,
-		version: pkg.version,
-		installPath: dir,
-		// pnpm registry installs are symlinks too. Only a link outside a
-		// node_modules tree denotes checkout content by location alone.
-		linked:
-			lstatSync(dir).isSymbolicLink() && !realpathSync(dir).split(sep).includes('node_modules'),
-	}
+  return {
+    name: pkg.name,
+    version: pkg.version,
+    installPath: dir,
+    // pnpm registry installs are symlinks too. Only a link outside a
+    // node_modules tree denotes checkout content by location alone.
+    linked:
+      lstatSync(dir).isSymbolicLink() && !realpathSync(dir).split(sep).includes('node_modules'),
+  }
 }
 
 /** node_modules dirs Node would consult from `dir`, innermost first. */
 function nodeModulesDirs(dir) {
-	const out = []
-	let current = resolve(dir)
-	while (true) {
-		if (!current.endsWith(`${sep}node_modules`) && current !== 'node_modules') {
-			out.push(join(current, 'node_modules'))
-		}
+  const out = []
+  let current = resolve(dir)
+  while (true) {
+    if (!current.endsWith(`${sep}node_modules`) && current !== 'node_modules') {
+      out.push(join(current, 'node_modules'))
+    }
 
-		const parent = dirname(current)
-		if (parent === current) {
-			break
-		}
+    const parent = dirname(current)
+    if (parent === current) {
+      break
+    }
 
-		current = parent
-	}
-	return out
+    current = parent
+  }
+  return out
 }
 
 /**
@@ -143,97 +143,97 @@ function nodeModulesDirs(dir) {
  * }}
  */
 export function resolveInstallations(projectRoot) {
-	const specs = declaredSpecs(projectRoot)
-	const locked = lockfileVersions(projectRoot)
-	const candidates = new Set()
+  const specs = declaredSpecs(projectRoot)
+  const locked = lockfileVersions(projectRoot)
+  const candidates = new Set()
 
-	// Enumerate @octane-xplat scope dirs along the node_modules walk-up chain
-	// (nearest wins for `installed` below via installedPackageRoot), so hoisted
-	// workspaces whose scope dir lives at the workspace root are covered.
-	for (const base of nodeModulesDirs(projectRoot)) {
-		const scopedDir = join(base, SCOPED_DIR)
-		if (!existsSync(scopedDir)) {
-			continue
-		}
+  // Enumerate @octane-xplat scope dirs along the node_modules walk-up chain
+  // (nearest wins for `installed` below via installedPackageRoot), so hoisted
+  // workspaces whose scope dir lives at the workspace root are covered.
+  for (const base of nodeModulesDirs(projectRoot)) {
+    const scopedDir = join(base, SCOPED_DIR)
+    if (!existsSync(scopedDir)) {
+      continue
+    }
 
-		for (const entry of readdirSync(scopedDir)) {
-			if (entry.startsWith('.')) {
-				continue
-			}
+    for (const entry of readdirSync(scopedDir)) {
+      if (entry.startsWith('.')) {
+        continue
+      }
 
-			candidates.add(`${SCOPED_DIR}/${entry}`)
-		}
-	}
+      candidates.add(`${SCOPED_DIR}/${entry}`)
+    }
+  }
 
-	for (const name of [...UNSCOPED, ...Object.keys(specs), ...Object.keys(locked)]) {
-		if (name.startsWith(`${SCOPED_DIR}/`) || UNSCOPED.includes(name)) {
-			candidates.add(name)
-		}
-	}
+  for (const name of [...UNSCOPED, ...Object.keys(specs), ...Object.keys(locked)]) {
+    if (name.startsWith(`${SCOPED_DIR}/`) || UNSCOPED.includes(name)) {
+      candidates.add(name)
+    }
+  }
 
-	const packages = []
-	const discrepancies = []
-	for (const name of [...candidates].sort()) {
-		if (!releaseMapping(name, '0.0.0')) {
-			continue
-		}
+  const packages = []
+  const discrepancies = []
+  for (const name of [...candidates].sort()) {
+    if (!releaseMapping(name, '0.0.0')) {
+      continue
+    }
 
-		const entry = installedEntry(projectRoot, name)
-		if (entry) {
-			const kind = entry.linked || isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry'
+    const entry = installedEntry(projectRoot, name)
+    if (entry) {
+      const kind = entry.linked || isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry'
 
-			packages.push({
-				name,
-				version: entry.version,
-				kind,
-				installPath: entry.installPath,
-				source: 'installed',
-			})
+      packages.push({
+        name,
+        version: entry.version,
+        kind,
+        installPath: entry.installPath,
+        source: 'installed',
+      })
 
-			if (locked[name] && locked[name] !== entry.version) {
-				discrepancies.push(
-					`${name}: lockfile records ${locked[name]} but ${entry.version} is installed; using the installation`,
-				)
-			}
-		} else if (locked[name]) {
-			// Declared but not installed — provisional, never silently latest.
-			packages.push({
-				name,
-				version: locked[name],
-				kind: isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry',
-				installPath: null,
-				source: 'lockfile-provisional',
-			})
-		}
-	}
+      if (locked[name] && locked[name] !== entry.version) {
+        discrepancies.push(
+          `${name}: lockfile records ${locked[name]} but ${entry.version} is installed; using the installation`,
+        )
+      }
+    } else if (locked[name]) {
+      // Declared but not installed — provisional, never silently latest.
+      packages.push({
+        name,
+        version: locked[name],
+        kind: isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry',
+        installPath: null,
+        source: 'lockfile-provisional',
+      })
+    }
+  }
 
-	const fingerprint = createHash('sha256')
-		.update(packages.map((p) => `${p.name}@${p.version}:${p.kind}`).join('\n'))
-		.digest('hex')
+  const fingerprint = createHash('sha256')
+    .update(packages.map((p) => `${p.name}@${p.version}:${p.kind}`).join('\n'))
+    .digest('hex')
 
-	return { packages, discrepancies, fingerprint }
+  return { packages, discrepancies, fingerprint }
 }
 
 /** Real location of a linked package's repo docs dir (walk to workspace root). */
 export function developmentDocsDir(installPath) {
-	let dir = resolve(realpathSync(installPath))
-	for (let i = 0; i < 8; i++) {
-		if (
-			existsSync(join(dir, 'bun.lock')) ||
-			existsSync(join(dir, 'pnpm-workspace.yaml')) ||
-			existsSync(join(dir, '.git'))
-		) {
-			const docs = join(dir, 'docs')
-			return existsSync(docs) ? docs : null
-		}
+  let dir = resolve(realpathSync(installPath))
+  for (let i = 0; i < 8; i++) {
+    if (
+      existsSync(join(dir, 'bun.lock')) ||
+      existsSync(join(dir, 'pnpm-workspace.yaml')) ||
+      existsSync(join(dir, '.git'))
+    ) {
+      const docs = join(dir, 'docs')
+      return existsSync(docs) ? docs : null
+    }
 
-		const parent = dirname(dir)
-		if (parent === dir) {
-			break
-		}
+    const parent = dirname(dir)
+    if (parent === dir) {
+      break
+    }
 
-		dir = parent
-	}
+    dir = parent
+  }
 
-	return null
+  return null
 }

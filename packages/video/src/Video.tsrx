@@ -16,9 +16,9 @@ import { VideoChrome } from './video-chrome.tsrx'
 registerElement('xplatvideo', NSVideo)
 
 const FILLS: Record<string, any> = {
-	contain: VideoFill.aspect,
-	cover: VideoFill.aspectFill,
-	fill: VideoFill.fill,
+  contain: VideoFill.aspect,
+  cover: VideoFill.aspectFill,
+  fill: VideoFill.fill,
 }
 
 const platform = isAndroid ? 'android' : 'ios'
@@ -34,155 +34,155 @@ const platform = isAndroid ? 'android' : 'ios'
  *  `finished` even while looping — `onEnded` suppresses it under `loop` to
  *  match the web leaf. */
 export function Video(props: VideoProps): unknown @{
-	const host = useRef<any>(null)
-	const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
-	const [started, setStarted] = useState(false)
-	const [position, setPosition] = useState(0)
-	const [duration, setDuration] = useState(0)
-	const [internalMuted, setInternalMuted] = useState(false)
-	const muted = props.muted ?? internalMuted
-	const appliedSrc = useRef<string | undefined>(undefined)
+  const host = useRef<any>(null)
+  const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
+  const [started, setStarted] = useState(false)
+  const [position, setPosition] = useState(0)
+  const [duration, setDuration] = useState(0)
+  const [internalMuted, setInternalMuted] = useState(false)
+  const muted = props.muted ?? internalMuted
+  const appliedSrc = useRef<string | undefined>(undefined)
 
-	// Resolve the host at call time, not factory time: element refs can
-	// rebind without this effect re-running, and a captured view would
-	// keep describing the outgoing clip after a keyed swap.
-	useImperativeHandle(props.ref, () => handle, [])
+  // Resolve the host at call time, not factory time: element refs can
+  // rebind without this effect re-running, and a captured view would
+  // keep describing the outgoing clip after a keyed swap.
+  useImperativeHandle(props.ref, () => handle, [])
 
-	const bindHost = useCallback((v: any) => {
-		host.current = v
-	}, [])
+  const bindHost = useCallback((v: any) => {
+    host.current = v
+  }, [])
 
-	const drive = (v: any, next: boolean) => {
-		if (!v) {
-			return
-		}
+  const drive = (v: any, next: boolean) => {
+    if (!v) {
+      return
+    }
 
-		if (next) {
-			v.play()
-		} else {
-			v.pause()
-		}
-	}
+    if (next) {
+      v.play()
+    } else {
+      v.pause()
+    }
+  }
 
-	// src + escape props land in effects: escape props are imperative writes
-	// the host prop bag can't express, and `src` must arrive after the flags
-	// (the plugin opens the clip when the src property lands).
-	useEffect(() => {
-		const v = host.current
-		if (!v) {
-			return
-		}
+  // src + escape props land in effects: escape props are imperative writes
+  // the host prop bag can't express, and `src` must arrive after the flags
+  // (the plugin opens the clip when the src property lands).
+  useEffect(() => {
+    const v = host.current
+    if (!v) {
+      return
+    }
 
-		applyEscapeProps(v, props)
-	}, [])
+    applyEscapeProps(v, props)
+  }, [])
 
-	useEffect(() => {
-		const v = host.current
-		if (!v || props.src === appliedSrc.current) {
-			return
-		}
+  useEffect(() => {
+    const v = host.current
+    if (!v || props.src === appliedSrc.current) {
+      return
+    }
 
-		appliedSrc.current = props.src
-		v.src = props.src
-	}, [props.src])
+    appliedSrc.current = props.src
+    v.src = props.src
+  }, [props.src])
 
-	// Controlled `playing` writes — play state is a method call, not a prop.
-	useEffect(() => {
-		if (props.playing === undefined) {
-			return
-		}
+  // Controlled `playing` writes — play state is a method call, not a prop.
+  useEffect(() => {
+    if (props.playing === undefined) {
+      return
+    }
 
-		setPlaying(props.playing)
-		drive(host.current, props.playing)
-	}, [props.playing])
+    setPlaying(props.playing)
+    drive(host.current, props.playing)
+  }, [props.playing])
 
-	const togglePlay = () => {
-		const next = !playing
-		setPlaying(next)
-		drive(host.current, next)
-		props.onPlayingChange?.(next)
-	}
+  const togglePlay = () => {
+    const next = !playing
+    setPlaying(next)
+    drive(host.current, next)
+    props.onPlayingChange?.(next)
+  }
 
-	const handle: VideoHandle = {
-		play: () => host.current?.play(),
-		pause: () => host.current?.pause(),
-		seekTo: (ms: number) => {
-			if (host.current) {
-				seekToTime(host.current, ms, platform)
-			}
-		},
-		currentTime: () => host.current?.getCurrentTime() ?? 0,
-		duration: () => host.current?.getDuration() ?? 0,
-		get native() {
-			return host.current
-		},
-	}
+  const handle: VideoHandle = {
+    play: () => host.current?.play(),
+    pause: () => host.current?.pause(),
+    seekTo: (ms: number) => {
+      if (host.current) {
+        seekToTime(host.current, ms, platform)
+      }
+    },
+    currentTime: () => host.current?.getCurrentTime() ?? 0,
+    duration: () => host.current?.getDuration() ?? 0,
+    get native() {
+      return host.current
+    },
+  }
 
-	<masonview
-		id={props.id}
-		className={['vx-layers', 'vx-video', props.className]}
-		{...layoutChildProps(props, {
-			display: 'grid',
-			gridTemplateRows: '1fr',
-			gridTemplateColumns: '1fr',
-			...props.style,
-		})}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	>
-		<xplatvideo
-			ref={bindHost}
-			autoplay={props.playing ?? props.autoPlay ?? false}
-			controls={false}
-			loop={props.loop}
-			muted={muted}
-			fill={FILLS[props.fit ?? 'contain']}
-			observeCurrentTime={props.controls !== false}
-			onFinished={() => {
-				if (!props.loop) {
-					setPlaying(false)
-					props.onEnded?.()
-				}
-			}}
-			onPlaybackReady={() => {
-				const v = host.current
-				const ms = v?.getDuration?.() ?? 0
-				setDuration(ms)
-				props.onReady?.({ duration: ms })
-			}}
-			onPlaybackStart={() => setStarted(true)}
-			onCurrentTimeUpdated={(e: any) => setPosition(e.position ?? 0)}
-		/>
-		@if (props.controls !== false) {
-			<VideoChrome
-				poster={props.poster}
-				started={started}
-				playing={playing}
-				position={position}
-				duration={duration}
-				muted={muted}
-				onTogglePlay={togglePlay}
-				onToggleMute={() => {
-					const next = !muted
-					setInternalMuted(next)
-					if (host.current) {
-						host.current.muted = next
-					}
+  <masonview
+    id={props.id}
+    className={['vx-layers', 'vx-video', props.className]}
+    {...layoutChildProps(props, {
+      display: 'grid',
+      gridTemplateRows: '1fr',
+      gridTemplateColumns: '1fr',
+      ...props.style,
+    })}
+    accessible={props.accessible}
+    accessibilityLabel={props.accessibilityLabel}
+    accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+    accessibilityHint={props.accessibilityHint}
+    accessibilityValue={props.accessibilityValue}
+    accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+    accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+  >
+    <xplatvideo
+      ref={bindHost}
+      autoplay={props.playing ?? props.autoPlay ?? false}
+      controls={false}
+      loop={props.loop}
+      muted={muted}
+      fill={FILLS[props.fit ?? 'contain']}
+      observeCurrentTime={props.controls !== false}
+      onFinished={() => {
+        if (!props.loop) {
+          setPlaying(false)
+          props.onEnded?.()
+        }
+      }}
+      onPlaybackReady={() => {
+        const v = host.current
+        const ms = v?.getDuration?.() ?? 0
+        setDuration(ms)
+        props.onReady?.({ duration: ms })
+      }}
+      onPlaybackStart={() => setStarted(true)}
+      onCurrentTimeUpdated={(e: any) => setPosition(e.position ?? 0)}
+    />
+    @if (props.controls !== false) {
+      <VideoChrome
+        poster={props.poster}
+        started={started}
+        playing={playing}
+        position={position}
+        duration={duration}
+        muted={muted}
+        onTogglePlay={togglePlay}
+        onToggleMute={() => {
+          const next = !muted
+          setInternalMuted(next)
+          if (host.current) {
+            host.current.muted = next
+          }
 
-					props.onMutedChange?.(next)
-				}}
-				onSeek={(ms: number) => {
-					if (host.current) {
-						seekToTime(host.current, ms, platform)
-						setPosition(ms)
-					}
-				}}
-			/>
-		}
-	</masonview>
+          props.onMutedChange?.(next)
+        }}
+        onSeek={(ms: number) => {
+          if (host.current) {
+            seekToTime(host.current, ms, platform)
+            setPosition(ms)
+          }
+        }}
+      />
+    }
+  </masonview>
 }

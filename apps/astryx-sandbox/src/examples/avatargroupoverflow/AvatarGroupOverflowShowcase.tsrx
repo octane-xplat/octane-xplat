@@ -4,10 +4,10 @@ import { Avatar, AvatarGroup, AvatarGroupOverflow, Stack } from '@octane-xplat/u
 const members = ['Ana Thomas', 'Drew Young', 'Jihoo Song']
 
 export function AvatarGroupOverflowShowcase() @{
-	<AvatarGroup>
-		{members.map((n) => (
-			<Avatar key={n} name={n} />
-		))}
-		<AvatarGroupOverflow count={5} />
-	</AvatarGroup>
+  <AvatarGroup>
+    {members.map((n) => (
+      <Avatar key={n} name={n} />
+    ))}
+    <AvatarGroupOverflow count={5} />
+  </AvatarGroup>
 }

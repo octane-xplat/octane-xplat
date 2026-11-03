@@ -2,5 +2,5 @@
 import { ProgressBar } from '@octane-xplat/ui'
 
 export function ProgressBarIndeterminate() @{
-	return <ProgressBar isIndeterminate label="Loading..." style={{ width: 300 }} />
+  return <ProgressBar isIndeterminate label="Loading..." style={{ width: 300 }} />
 }

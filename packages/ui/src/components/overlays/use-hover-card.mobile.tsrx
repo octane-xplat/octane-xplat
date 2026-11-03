@@ -14,139 +14,139 @@ import { cx } from '@octane-xplat/lib'
  * platform back through the popover's own dismissal).
  */
 export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
-	const isEnabled = options.isEnabled ?? true
-	const touchTrigger = options.touchTrigger ?? 'auto'
-	const controlled = options.isOpen !== undefined
-	const [uncontrolled, setUncontrolled] = useState(options.isDefaultOpen === true)
-	const open = controlled ? options.isOpen === true : uncontrolled
+  const isEnabled = options.isEnabled ?? true
+  const touchTrigger = options.touchTrigger ?? 'auto'
+  const controlled = options.isOpen !== undefined
+  const [uncontrolled, setUncontrolled] = useState(options.isDefaultOpen === true)
+  const open = controlled ? options.isOpen === true : uncontrolled
 
-	const positionEl = useRef<any>(null)
-	const interactionEl = useRef<any>(null)
+  const positionEl = useRef<any>(null)
+  const interactionEl = useRef<any>(null)
 
-	const onShow = useRef(options.onShow)
-	onShow.current = options.onShow
-	const onHide = useRef(options.onHide)
-	onHide.current = options.onHide
+  const onShow = useRef(options.onShow)
+  onShow.current = options.onShow
+  const onHide = useRef(options.onHide)
+  onHide.current = options.onHide
 
-	const show = useCallback(() => {
-		if (!isEnabled) {
-			return
-		}
+  const show = useCallback(() => {
+    if (!isEnabled) {
+      return
+    }
 
-		if (!controlled) {
-			setUncontrolled(true)
-		}
+    if (!controlled) {
+      setUncontrolled(true)
+    }
 
-		onShow.current?.()
-	}, [isEnabled, controlled])
+    onShow.current?.()
+  }, [isEnabled, controlled])
 
-	const hide = useCallback(() => {
-		if (controlled) {
-			onHide.current?.()
-			return
-		}
+  const hide = useCallback(() => {
+    if (controlled) {
+      onHide.current?.()
+      return
+    }
 
-		setUncontrolled(false)
-		onHide.current?.()
-	}, [controlled])
+    setUncontrolled(false)
+    onHide.current?.()
+  }, [controlled])
 
-	const detachTap = useRef<(() => void) | null>(null)
-	const interactionRef = useCallback(
-		(el: any) => {
-			detachTap.current?.()
-			detachTap.current = null
-			interactionEl.current = el
-			if (!el?.on || touchTrigger === 'none' || !isEnabled) {
-				return
-			}
+  const detachTap = useRef<(() => void) | null>(null)
+  const interactionRef = useCallback(
+    (el: any) => {
+      detachTap.current?.()
+      detachTap.current = null
+      interactionEl.current = el
+      if (!el?.on || touchTrigger === 'none' || !isEnabled) {
+        return
+      }
 
-			const handler = () => {
-				if (controlled) {
-					// Report only — the consumer's isOpen update decides.
-					if (options.isOpen) {
-						onHide.current?.()
-					} else {
-						onShow.current?.()
-					}
+      const handler = () => {
+        if (controlled) {
+          // Report only — the consumer's isOpen update decides.
+          if (options.isOpen) {
+            onHide.current?.()
+          } else {
+            onShow.current?.()
+          }
 
-					return
-				}
+          return
+        }
 
-				setUncontrolled((v) => {
-					if (v) {
-						onHide.current?.()
-					} else {
-						onShow.current?.()
-					}
+        setUncontrolled((v) => {
+          if (v) {
+            onHide.current?.()
+          } else {
+            onShow.current?.()
+          }
 
-					return !v
-				})
-			}
+          return !v
+        })
+      }
 
-			el.on('tap', handler)
-			detachTap.current = () => el.off?.('tap', handler)
-		},
-		[isEnabled, touchTrigger, controlled, options.isOpen],
-	)
+      el.on('tap', handler)
+      detachTap.current = () => el.off?.('tap', handler)
+    },
+    [isEnabled, touchTrigger, controlled, options.isOpen],
+  )
 
-	const layer = useLayer({
-		mode: 'context',
-		isOpen: open,
-		lightDismiss: true,
-		dismissOnEscape: true,
-		onHide: hide,
-	})
+  const layer = useLayer({
+    mode: 'context',
+    isOpen: open,
+    lightDismiss: true,
+    dismissOnEscape: true,
+    onHide: hide,
+  })
 
-	const id = layer.id
+  const id = layer.id
 
-	const positionRef = useCallback(
-		(el: any) => {
-			positionEl.current = el
-			layer.ref(el)
-		},
-		[layer.ref],
-	)
+  const positionRef = useCallback(
+    (el: any) => {
+      positionEl.current = el
+      layer.ref(el)
+    },
+    [layer.ref],
+  )
 
-	const ref = useCallback(
-		(el: any) => {
-			positionRef(el)
-			interactionRef(el)
-		},
-		[positionRef, interactionRef],
-	)
+  const ref = useCallback(
+    (el: any) => {
+      positionRef(el)
+      interactionRef(el)
+    },
+    [positionRef, interactionRef],
+  )
 
-	const renderHoverCard = useCallback(
-		(children: any, props?: Record<string, any>) => {
-			return layer.render(
-				<masonview
-					className="vx-hovercard-content"
-					accessibilityLabel={options.label}
-					style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
-				>
-					{children}
-				</masonview>,
-				{
-					placement: props?.placement ?? options.placement ?? 'above',
-					alignment: props?.alignment ?? options.alignment ?? 'center',
-					offset: 8,
-					className: cx('vx-hovercard', props?.className),
-					style: props?.style,
-				},
-			)
-		},
-		[layer.render, options.placement, options.alignment, options.label],
-	)
+  const renderHoverCard = useCallback(
+    (children: any, props?: Record<string, any>) => {
+      return layer.render(
+        <masonview
+          className="vx-hovercard-content"
+          accessibilityLabel={options.label}
+          style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
+        >
+          {children}
+        </masonview>,
+        {
+          placement: props?.placement ?? options.placement ?? 'above',
+          alignment: props?.alignment ?? options.alignment ?? 'center',
+          offset: 8,
+          className: cx('vx-hovercard', props?.className),
+          style: props?.style,
+        },
+      )
+    },
+    [layer.render, options.placement, options.alignment, options.label],
+  )
 
-	return {
-		ref,
-		positionRef,
-		interactionRef,
-		anchorId: layer.anchorId,
-		id,
-		describedBy: id,
-		isOpen: open,
-		renderHoverCard,
-		show,
-		hide,
-	}
+  return {
+    ref,
+    positionRef,
+    interactionRef,
+    anchorId: layer.anchorId,
+    id,
+    describedBy: id,
+    isOpen: open,
+    renderHoverCard,
+    show,
+    hide,
+  }
 }

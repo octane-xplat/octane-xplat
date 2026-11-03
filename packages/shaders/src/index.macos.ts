@@ -5,45 +5,45 @@
 // reason so callers keep their static fallback path identical to web's.
 export * from './types'
 import type {
-	CreateShaderOptions,
-	PresetConfig,
-	SharedGpu,
-	ShaderInstance,
-	WebGPUSupportInfo,
+  CreateShaderOptions,
+  PresetConfig,
+  SharedGpu,
+  ShaderInstance,
+  WebGPUSupportInfo,
 } from './types'
 
 const UNSUPPORTED: ShaderInstance = {
-	getFailureReason: () => 'unsupported',
-	update: () => {},
-	resize: () => {},
-	pause: () => {},
-	resume: () => {},
-	destroy: () => {},
+  getFailureReason: () => 'unsupported',
+  update: () => {},
+  resize: () => {},
+  pause: () => {},
+  resume: () => {},
+  destroy: () => {},
 }
 
 export async function createShader(
-	_canvas: unknown,
-	_preset: PresetConfig,
-	options?: CreateShaderOptions,
+  _canvas: unknown,
+  _preset: PresetConfig,
+  options?: CreateShaderOptions,
 ): Promise<ShaderInstance> {
-	options?.onError?.('unsupported')
-	return UNSUPPORTED
+  options?.onError?.('unsupported')
+  return UNSUPPORTED
 }
 
 export async function createSharedDevice(_options?: {
-	powerPreference?: string
+  powerPreference?: string
 }): Promise<SharedGpu | null> {
-	return null
+  return null
 }
 
 export function isWebGPUSupported(): boolean {
-	return false
+  return false
 }
 
 export async function getWebGPUSupport(): Promise<WebGPUSupportInfo> {
-	return { supported: false, reason: 'unsupported' }
+  return { supported: false, reason: 'unsupported' }
 }
 
 export function prefersReducedMotion(): boolean {
-	return false
+  return false
 }

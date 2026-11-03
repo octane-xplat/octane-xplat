@@ -6,20 +6,20 @@
  **********************************************************************************/
 import { CoreTypes, Property, View } from '@nativescript/core'
 export interface KeyPathColors {
-	[k: string]: Color | string
+  [k: string]: Color | string
 }
 
 export declare class LottieViewBase extends View {
-	static compositionLoadedEvent: string
-	static loadFailedEvent: string
-	stretch: CoreTypes.ImageStretchType
-	async: boolean
-	src: string
-	loop: boolean
-	autoPlay: boolean
-	progress: number
-	keyPathColors: KeyPathColors
-	completionBlock: (animationFinished: boolean) => void
+  static compositionLoadedEvent: string
+  static loadFailedEvent: string
+  stretch: CoreTypes.ImageStretchType
+  async: boolean
+  src: string
+  loop: boolean
+  autoPlay: boolean
+  progress: number
+  keyPathColors: KeyPathColors
+  completionBlock: (animationFinished: boolean) => void
 }
 
 export declare const srcProperty: Property<LottieViewBase, string>

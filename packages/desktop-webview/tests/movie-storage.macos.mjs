@@ -6,13 +6,13 @@
 import assert from 'node:assert/strict'
 import { spawn, execFileSync } from 'node:child_process'
 import {
-	cpSync,
-	mkdtempSync,
-	mkdirSync,
-	readdirSync,
-	rmSync,
-	symlinkSync,
-	writeFileSync,
+  cpSync,
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -22,74 +22,74 @@ import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/nati
 import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 if (process.platform !== 'darwin') {
-	throw new Error('Movie storage checks require macOS')
+  throw new Error('Movie storage checks require macOS')
 }
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const directory = mkdtempSync(join(tmpdir(), 'xplat-movie-storage-'))
 
 const run = (command, args, options = {}) =>
-	execFileSync(command, args, { stdio: 'inherit', timeout: 120_000, ...options })
+  execFileSync(command, args, { stdio: 'inherit', timeout: 120_000, ...options })
 
 try {
-	// Pack the package so the test exercises the published layout.
-	const extracted = join(directory, 'extracted')
-	mkdirSync(extracted)
-	run('bun', ['pm', 'pack', '--destination', directory], { cwd: root })
-	const tarball = readdirSync(directory).find((name) => name.endsWith('.tgz'))
-	run('tar', ['-xzf', join(directory, tarball), '-C', extracted])
-	const packed = join(extracted, 'package')
+  // Pack the package so the test exercises the published layout.
+  const extracted = join(directory, 'extracted')
+  mkdirSync(extracted)
+  run('bun', ['pm', 'pack', '--destination', directory], { cwd: root })
+  const tarball = readdirSync(directory).find((name) => name.endsWith('.tgz'))
+  run('tar', ['-xzf', join(directory, tarball), '-C', extracted])
+  const packed = join(extracted, 'package')
 
-	// A playable generated movie fixture qualifies bytes/storage, not capture.
-	const fixture = join(directory, 'fixture.mp4')
-	run('ffmpeg', [
-		'-v',
-		'error',
-		'-f',
-		'lavfi',
-		'-i',
-		'color=black:s=64x48:r=10',
-		'-t',
-		'0.3',
-		'-c:v',
-		'libx264',
-		'-pix_fmt',
-		'yuv420p',
-		fixture,
-	])
+  // A playable generated movie fixture qualifies bytes/storage, not capture.
+  const fixture = join(directory, 'fixture.mp4')
+  run('ffmpeg', [
+    '-v',
+    'error',
+    '-f',
+    'lavfi',
+    '-i',
+    'color=black:s=64x48:r=10',
+    '-t',
+    '0.3',
+    '-c:v',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    fixture,
+  ])
 
-	// Bundle a consumer that imports the packed entry.
-	const app = join(directory, 'app')
-	mkdirSync(join(app, 'node_modules/@octane-xplat'), { recursive: true })
-	cpSync(packed, join(app, 'node_modules/@octane-xplat/desktop-webview'), { recursive: true })
-	symlinkSync(
-		fileURLToPath(new URL('../../platform', import.meta.url)),
-		join(app, 'node_modules/@octane-xplat/platform'),
-	)
+  // Bundle a consumer that imports the packed entry.
+  const app = join(directory, 'app')
+  mkdirSync(join(app, 'node_modules/@octane-xplat'), { recursive: true })
+  cpSync(packed, join(app, 'node_modules/@octane-xplat/desktop-webview'), { recursive: true })
+  symlinkSync(
+    fileURLToPath(new URL('../../platform', import.meta.url)),
+    join(app, 'node_modules/@octane-xplat/platform'),
+  )
 
-	// Native-leaf discovery resolves each dependency through node_modules.
-	mkdirSync(join(app, 'node_modules/@nativescript'), { recursive: true })
-	symlinkSync(
-		dirname(fileURLToPath(import.meta.resolve('@nativescript/macos-node-api/package.json'))),
-		join(app, 'node_modules/@nativescript/macos-node-api'),
-	)
+  // Native-leaf discovery resolves each dependency through node_modules.
+  mkdirSync(join(app, 'node_modules/@nativescript'), { recursive: true })
+  symlinkSync(
+    dirname(fileURLToPath(import.meta.resolve('@nativescript/macos-node-api/package.json'))),
+    join(app, 'node_modules/@nativescript/macos-node-api'),
+  )
 
-	writeFileSync(
-		join(app, 'package.json'),
-		JSON.stringify({
-			name: 'movie-storage-fixture',
-			type: 'module',
-			dependencies: {
-				'@octane-xplat/desktop-webview': '0.19.0',
-				'@octane-xplat/platform': '0.0.0',
-				'@nativescript/macos-node-api': '0.0.0',
-			},
-		}),
-	)
+  writeFileSync(
+    join(app, 'package.json'),
+    JSON.stringify({
+      name: 'movie-storage-fixture',
+      type: 'module',
+      dependencies: {
+        '@octane-xplat/desktop-webview': '0.19.0',
+        '@octane-xplat/platform': '0.0.0',
+        '@nativescript/macos-node-api': '0.0.0',
+      },
+    }),
+  )
 
-	writeFileSync(
-		join(app, 'fixture.mjs'),
-		`import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'
+  writeFileSync(
+    join(app, 'fixture.mjs'),
+    `import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'
 const check = (condition, message) => { if (!condition) throw Error(message) }
 const fixturePath = ${JSON.stringify(fixture)}
 const fixture = NSData.dataWithContentsOfURL(NSURL.fileURLWithPath(fixturePath))
@@ -176,53 +176,53 @@ console.log('MOVIE_STORAGE_OK: ' + checks + ' checks; fixture media, no capture'
 try { __xplatStopHost() } catch {}
 try { NSApplication.sharedApplication.terminate(null) } catch {}
 `,
-	)
+  )
 
-	run('bun', [
-		'build',
-		join(app, 'fixture.mjs'),
-		'--outfile',
-		join(app, 'dist/fixture.cjs'),
-		'--format',
-		'cjs',
-		'--external',
-		'@nativescript/macos-node-api',
-		'--conditions',
-		'macos,native',
-	])
+  run('bun', [
+    'build',
+    join(app, 'fixture.mjs'),
+    '--outfile',
+    join(app, 'dist/fixture.cjs'),
+    '--format',
+    'cjs',
+    '--external',
+    '@nativescript/macos-node-api',
+    '--conditions',
+    'macos,native',
+  ])
 
-	const artifact = await buildMacOSNative(app)
-	const bootstrap = join(app, 'bootstrap.js')
-	// The bootstrap must dlopen the leaf dylibs — raw shim.js alone leaves the
-	// metadata-declared leaf classes without their native methods.
-	await writeNativeBootstrap(artifact, bootstrap)
+  const artifact = await buildMacOSNative(app)
+  const bootstrap = join(app, 'bootstrap.js')
+  // The bootstrap must dlopen the leaf dylibs — raw shim.js alone leaves the
+  // metadata-declared leaf classes without their native methods.
+  await writeNativeBootstrap(artifact, bootstrap)
 
-	const output = await new Promise((resolveOutput, reject) => {
-		const child = spawn(
-			join(hostBundle, 'host'),
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				join(app, 'dist/fixture.cjs'),
-				artifact.metadata[macOSHostArch()],
-				bootstrap,
-			],
-			{ cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
-		)
-		let text = ''
-		child.stdout.on('data', (chunk) => (text += chunk))
-		child.stderr.on('data', (chunk) => (text += chunk))
-		const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
-		child.once('error', reject)
-		child.once('close', (code, signal) => {
-			clearTimeout(timeout)
-			code === 0
-				? resolveOutput(text)
-				: reject(new Error(`host exited ${code} ${signal}: ${text.slice(-4000)}`))
-		})
-	})
+  const output = await new Promise((resolveOutput, reject) => {
+    const child = spawn(
+      join(hostBundle, 'host'),
+      [
+        join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+        join(app, 'dist/fixture.cjs'),
+        artifact.metadata[macOSHostArch()],
+        bootstrap,
+      ],
+      { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
+    )
+    let text = ''
+    child.stdout.on('data', (chunk) => (text += chunk))
+    child.stderr.on('data', (chunk) => (text += chunk))
+    const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+    child.once('error', reject)
+    child.once('close', (code, signal) => {
+      clearTimeout(timeout)
+      code === 0
+        ? resolveOutput(text)
+        : reject(new Error(`host exited ${code} ${signal}: ${text.slice(-4000)}`))
+    })
+  })
 
-	assert.match(output, /MOVIE_STORAGE_OK/, output)
-	console.log(output.match(/MOVIE_STORAGE_OK[^\n]*/)[0])
+  assert.match(output, /MOVIE_STORAGE_OK/, output)
+  console.log(output.match(/MOVIE_STORAGE_OK[^\n]*/)[0])
 } finally {
-	rmSync(directory, { recursive: true, force: true })
+  rmSync(directory, { recursive: true, force: true })
 }

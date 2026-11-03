@@ -4,26 +4,26 @@
 // scrollTop before resetting — and popstate also races the browser's own
 // scrollRestoration. Imperative reset keeps it synchronous with the nav write.
 export function resetDocScroll() {
-	const el = document.getElementById('doc-content')
-	if (el) {
-		el.scrollTop = 0
-	}
+  const el = document.getElementById('doc-content')
+  if (el) {
+    el.scrollTop = 0
+  }
 
-	// The destination's headings appear after the route commit. Also covers
-	// direct fragment loads and back/forward into a section.
-	requestAnimationFrame(() => {
-		if (!location.hash) {
-			return
-		}
+  // The destination's headings appear after the route commit. Also covers
+  // direct fragment loads and back/forward into a section.
+  requestAnimationFrame(() => {
+    if (!location.hash) {
+      return
+    }
 
-		try {
-			document
-				.getElementById(decodeURIComponent(location.hash.slice(1)))
-				?.scrollIntoView?.({ block: 'start' })
-		} catch {
-			// Malformed URL escapes must not break page navigation.
-		}
-	})
+    try {
+      document
+        .getElementById(decodeURIComponent(location.hash.slice(1)))
+        ?.scrollIntoView?.({ block: 'start' })
+    } catch {
+      // Malformed URL escapes must not break page navigation.
+    }
+  })
 }
 
 window.addEventListener('popstate', resetDocScroll)

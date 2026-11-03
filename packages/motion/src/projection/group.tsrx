@@ -6,11 +6,11 @@ export const LayoutGroupContext: Context<readonly string[]> = createContext<read
 
 /** Namespace shared layout IDs. Commits already invalidate every registered layout host. */
 export function LayoutGroup(props: LayoutGroupProps): unknown @{
-	const parent = useContext(LayoutGroupContext)
-	const namespace = useMemo(() => {
-		const inherited = props.inherit === false ? [] : parent
-		return props.id === undefined ? inherited : [...inherited, props.id]
-	}, [parent, props.id, props.inherit])
+  const parent = useContext(LayoutGroupContext)
+  const namespace = useMemo(() => {
+    const inherited = props.inherit === false ? [] : parent
+    return props.id === undefined ? inherited : [...inherited, props.id]
+  }, [parent, props.id, props.inherit])
 
-	<LayoutGroupContext value={namespace}>{props.children}</LayoutGroupContext>
+  <LayoutGroupContext value={namespace}>{props.children}</LayoutGroupContext>
 }

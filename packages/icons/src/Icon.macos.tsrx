@@ -9,34 +9,34 @@ import { svgDataUri } from './svg-image.macos'
 
 /** AppKit's renderer aliases the universal renderer entry and decodes SVG with NSImage. */
 export function Icon(props: IconProps): unknown @{
-	useStore(registry)
-	const icon = props.icon ?? (props.name ? resolveIcon(props.name) : undefined)
+  useStore(registry)
+  const icon = props.icon ?? (props.name ? resolveIcon(props.name) : undefined)
 
-	const image = useMemo(() => {
-		if (!icon) {
-			return undefined
-		}
+  const image = useMemo(() => {
+    if (!icon) {
+      return undefined
+    }
 
-		const svg = iconToSvg(icon, {
-			size: props.size,
-			color: props.color ?? '#000000',
-			rotate: props.rotate,
-			hFlip: props.hFlip,
-			vFlip: props.vFlip,
-		})
+    const svg = iconToSvg(icon, {
+      size: props.size,
+      color: props.color ?? '#000000',
+      rotate: props.rotate,
+      hFlip: props.hFlip,
+      vFlip: props.vFlip,
+    })
 
-		return { src: svgDataUri(svg.markup), width: svg.width, height: svg.height }
-	}, [icon, props.size, props.color, props.rotate, props.hFlip, props.vFlip])
+    return { src: svgDataUri(svg.markup), width: svg.width, height: svg.height }
+  }, [icon, props.size, props.color, props.rotate, props.hFlip, props.vFlip])
 
-	if (!image) {
-		return null
-	}
+  if (!image) {
+    return null
+  }
 
-	<Image
-		id={props.id}
-		className={props.className}
-		src={image.src}
-		alt={props.label ?? ''}
-		style={{ width: image.width, height: image.height }}
-	/>
+  <Image
+    id={props.id}
+    className={props.className}
+    src={image.src}
+    alt={props.label ?? ''}
+    style={{ width: image.width, height: image.height }}
+  />
 }

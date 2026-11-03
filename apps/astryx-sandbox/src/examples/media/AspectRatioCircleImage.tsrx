@@ -6,11 +6,11 @@ import { AspectRatio } from '@octane-xplat/ui'
 import { Center } from '@octane-xplat/ui'
 
 export function AspectRatioCircleImage() {
-	return (
-		<Center width={300}>
-			<AspectRatio ratio={1} shape="ellipse" fit="cover">
-				<Image src="/template-assets/light-home-square-1.png" alt="Circular image" />
-			</AspectRatio>
-		</Center>
-	)
+  return (
+    <Center width={300}>
+      <AspectRatio ratio={1} shape="ellipse" fit="cover">
+        <Image src="/template-assets/light-home-square-1.png" alt="Circular image" />
+      </AspectRatio>
+    </Center>
+  )
 }

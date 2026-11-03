@@ -6,9 +6,9 @@ import { appKitHost } from '../platform/host-bridge'
 export type { FocusInputModality, UseFocusVisibleResult } from './use-focus-visible.tsrx'
 
 const modality = createAppKitFocusVisibleSource(
-	() => globalThis,
-	(notify) => appKitHost()?.observeHardwareKeys?.(notify) ?? (() => {}),
-	(notify) => appKitHost()?.observePointerInput?.(notify),
+  () => globalThis,
+  (notify) => appKitHost()?.observeHardwareKeys?.(notify) ?? (() => {}),
+  (notify) => appKitHost()?.observePointerInput?.(notify),
 )
 
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
@@ -18,11 +18,11 @@ hot?.dispose(() => modality.dispose())
  * hook unmount releases native observation unless a global read retained it.
  * This reports input modality, not whether a particular view is focused. */
 export function useFocusVisible(): UseFocusVisibleResult {
-	return { ...useSyncExternalStore(modality.subscribe, modality.getSnapshot) }
+  return { ...useSyncExternalStore(modality.subscribe, modality.getSnapshot) }
 }
 
 /** Read global AppKit modality, retaining observation for this module's lifetime.
  * Render readers should use useFocusVisible to subscribe to subsequent changes. */
 export function isFocusVisible(): boolean {
-	return modality.isFocusVisible()
+  return modality.isFocusVisible()
 }

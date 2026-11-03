@@ -18,46 +18,46 @@ import type { ThemeProps } from './Theme.tsrx'
 export type { ThemeProps } from './Theme.tsrx'
 
 export function Theme(props: ThemeProps): unknown @{
-	const parent = useContext(ThemeContext)
-	const isNested = useContext(ThemeNestingContext)
-	const scheme = useThemeScheme()
+  const parent = useContext(ThemeContext)
+  const isNested = useContext(ThemeNestingContext)
+  const scheme = useThemeScheme()
 
-	const mode: ThemeMode = props.mode ?? parent?.mode ?? 'system'
-	const effective = mode === 'system' ? scheme : mode
+  const mode: ThemeMode = props.mode ?? parent?.mode ?? 'system'
+  const effective = mode === 'system' ? scheme : mode
 
-	useEffect(() => {
-		registerTheme(props.theme)
-		ensureThemeCss(props.theme)
-	}, [props.theme])
+  useEffect(() => {
+    registerTheme(props.theme)
+    ensureThemeCss(props.theme)
+  }, [props.theme])
 
-	useEffect(() => {
-		if (isNested) {
-			return
-		}
+  useEffect(() => {
+    if (isNested) {
+      return
+    }
 
-		const unscope = setRootThemeScope(props.theme)
-		const unsync = syncDocumentRootTheme(props.theme.name, effective)
-		return () => {
-			unsync()
-			unscope()
-		}
-	}, [isNested, props.theme, effective])
+    const unscope = setRootThemeScope(props.theme)
+    const unsync = syncDocumentRootTheme(props.theme.name, effective)
+    return () => {
+      unsync()
+      unscope()
+    }
+  }, [isNested, props.theme, effective])
 
-	const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
+  const ctx = useMemo(() => ({ theme: props.theme, mode }), [props.theme, mode])
 
-	return (
-		<ThemeProviderEl value={ctx}>
-			<ThemeNestingProviderEl value={true}>
-				<View
-					className={[
-						'xds-theme',
-						`xds-theme-${props.theme.name}`,
-						effective === 'dark' ? 'dark ns-dark' : 'xds-light',
-					]}
-				>
-					{props.children}
-				</View>
-			</ThemeNestingProviderEl>
-		</ThemeProviderEl>
-	)
+  return (
+    <ThemeProviderEl value={ctx}>
+      <ThemeNestingProviderEl value={true}>
+        <View
+          className={[
+            'xds-theme',
+            `xds-theme-${props.theme.name}`,
+            effective === 'dark' ? 'dark ns-dark' : 'xds-light',
+          ]}
+        >
+          {props.children}
+        </View>
+      </ThemeNestingProviderEl>
+    </ThemeProviderEl>
+  )
 }

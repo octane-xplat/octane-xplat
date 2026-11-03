@@ -3,11 +3,11 @@ import { RadioList, RadioListItem } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function RadioListHorizontalLayout() @{
-	const [value, setValue] = useState('md')
+  const [value, setValue] = useState('md')
 
-	<RadioList label="Size" horizontal value={value} onValueChange={setValue}>
-		<RadioListItem label="Small" value="sm" />
-		<RadioListItem label="Medium" value="md" />
-		<RadioListItem label="Large" value="lg" />
-	</RadioList>
+  <RadioList label="Size" horizontal value={value} onValueChange={setValue}>
+    <RadioListItem label="Small" value="sm" />
+    <RadioListItem label="Medium" value="md" />
+    <RadioListItem label="Large" value="lg" />
+  </RadioList>
 }

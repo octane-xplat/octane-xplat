@@ -6,12 +6,12 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 // widget, which forwards Escape here so the topmost registered overlay or
 // dialog layer handles it. Popover sessions keep their popup-events path.
 configureLayerKeys(() => {
-	const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
-	return host?.installKeyMonitor?.((event: any) => dispatchLayerKey(event)) ?? (() => {})
+  const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+  return host?.installKeyMonitor?.((event: any) => dispatchLayerKey(event)) ?? (() => {})
 })
 
 /** GTK sessions dispatch Escape through the shared layer stack after native
  * editor handling. The declaring host owns focus capture and restoration. */
 export function captureLayerFocus(getTarget?: () => any, host?: any): () => void {
-	return host?.captureLayerFocus?.(getTarget) ?? (() => {})
+  return host?.captureLayerFocus?.(getTarget) ?? (() => {})
 }

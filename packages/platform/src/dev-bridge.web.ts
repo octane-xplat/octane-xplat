@@ -3,28 +3,28 @@
 // The token arrives through the dev-only __XPLAT_DEV_BRIDGE__ define injected
 // by xplatDevBridge(); production builds inject nothing and this stays inert.
 export interface DevBridgeEndpoint {
-	origin: string
-	token: string
+  origin: string
+  token: string
 }
 
 export function devBridgePlatform(): 'web' {
-	return 'web'
+  return 'web'
 }
 
 export function devBridgeEndpoint(): DevBridgeEndpoint | null {
-	const bridge = '__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined
-	const token =
-		typeof bridge === 'object' &&
-		bridge !== null &&
-		'token' in bridge &&
-		typeof bridge.token === 'string'
-			? bridge.token
-			: undefined
-	const origin = (globalThis as any).location?.origin
+  const bridge = '__XPLAT_DEV_BRIDGE__' in globalThis ? globalThis.__XPLAT_DEV_BRIDGE__ : undefined
+  const token =
+    typeof bridge === 'object' &&
+    bridge !== null &&
+    'token' in bridge &&
+    typeof bridge.token === 'string'
+      ? bridge.token
+      : undefined
+  const origin = (globalThis as any).location?.origin
 
-	if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
-		return null
-	}
+  if (typeof origin !== 'string' || !/^https?:\/\//.test(origin) || typeof token !== 'string') {
+    return null
+  }
 
-	return { origin, token }
+  return { origin, token }
 }

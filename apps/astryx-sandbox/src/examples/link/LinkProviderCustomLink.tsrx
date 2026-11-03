@@ -15,34 +15,34 @@ const intercepted = createStore<string | null>(null)
  *  the click and hands the destination to the app — here it surfaces the
  *  target so the swap is observable in the preview. */
 function RouterLink(props: any) @{
-	const { href, onClick, children, ...rest } = props
-	return (
-		<a
-			{...rest}
-			href={href}
-			onClick={(e: any) => {
-				e?.preventDefault?.()
-				onClick?.(e)
-				intercepted.set(href)
-			}}
-		>
-			{children}
-		</a>
-	)
+  const { href, onClick, children, ...rest } = props
+  return (
+    <a
+      {...rest}
+      href={href}
+      onClick={(e: any) => {
+        e?.preventDefault?.()
+        onClick?.(e)
+        intercepted.set(href)
+      }}
+    >
+      {children}
+    </a>
+  )
 }
 
 export function LinkProviderCustomLink() @{
-	const hit = useStore(intercepted)
-	return (
-		<LinkProvider component={RouterLink}>
-			<VStack gap={3}>
-				<Link href="/dashboard">
-					<Text type="body">Go to dashboard</Text>
-				</Link>
-				{hit != null ? (
-					<Text className="sb-link-intercept">RouterLink intercepted navigation to: {hit}</Text>
-				) : null}
-			</VStack>
-		</LinkProvider>
-	)
+  const hit = useStore(intercepted)
+  return (
+    <LinkProvider component={RouterLink}>
+      <VStack gap={3}>
+        <Link href="/dashboard">
+          <Text type="body">Go to dashboard</Text>
+        </Link>
+        {hit != null ? (
+          <Text className="sb-link-intercept">RouterLink intercepted navigation to: {hit}</Text>
+        ) : null}
+      </VStack>
+    </LinkProvider>
+  )
 }

@@ -13,11 +13,11 @@ import type { OutlineItem } from '../../props'
  *  Setext heading, labelled by the inline text, id'd by the deduplicated
  *  slug (same slugify/uniqueSlug contract as upstream). */
 export function useOutlineFromMarkdown(markdown: string): OutlineItem[] {
-	return useMemo(() => parseOutlineFromMarkdown(markdown), [markdown])
+  return useMemo(() => parseOutlineFromMarkdown(markdown), [markdown])
 }
 
 /** Outline items from a baked `MdDoc` (the `xplat routes`/`Markdown` AST) —
  *  the portable form of "outline the document I'm rendering". */
 export function useOutlineFromDoc(doc: MdDoc): OutlineItem[] {
-	return useMemo(() => outlineFromDoc(doc), [doc])
+  return useMemo(() => outlineFromDoc(doc), [doc])
 }

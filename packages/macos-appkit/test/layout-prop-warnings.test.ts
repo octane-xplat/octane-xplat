@@ -9,62 +9,62 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const applyPropsSrc = source.slice(
-	source.indexOf('function applyProps'),
-	source.indexOf('function detach'),
+  source.indexOf('function applyProps'),
+  source.indexOf('function detach'),
 )
 
 const warnings: string[] = []
 const reconciles: any[] = []
 
 const { applyProps } = runSlice(applyPropsSrc + '\n({ applyProps })', {
-	elementBehaviors: new Map(),
-	behaviorOf: () => undefined,
-	isManualLayoutParent: (t: string) =>
-		['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
-	registerElementType: () => {},
-	console: { warn: (msg: unknown) => warnings.push(String(msg)) },
-	queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
-	setSizeConstraint: () => {},
-	syncLabelOverflow: () => {},
-	syncText: () => {},
-	DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
+  elementBehaviors: new Map(),
+  behaviorOf: () => undefined,
+  isManualLayoutParent: (t: string) =>
+    ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+  registerElementType: () => {},
+  console: { warn: (msg: unknown) => warnings.push(String(msg)) },
+  queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),
+  setSizeConstraint: () => {},
+  syncLabelOverflow: () => {},
+  syncText: () => {},
+  DEFAULT_TEXT_LINE_HEIGHT_RATIO: 1.3,
 })
 
 function node(type: string, parentType?: string) {
-	const parent = parentType ? { type: parentType, children: [] } : null
-	const child = { type, props: {}, view: {}, container: { layoutDirty: null }, parent }
-	parent?.children.push(child)
-	return child
+  const parent = parentType ? { type: parentType, children: [] } : null
+  const child = { type, props: {}, view: {}, container: { layoutDirty: null }, parent }
+  parent?.children.push(child)
+  return child
 }
 
 function ignoredWarnings() {
-	return warnings.filter((m) => m.includes('ignored'))
+  return warnings.filter((m) => m.includes('ignored'))
 }
 
 test.beforeEach(() => {
-	warnings.length = 0
-	reconciles.length = 0
+  warnings.length = 0
+  reconciles.length = 0
 })
 
 test('masonview child does not warn for left/top/right/bottom under masonview parent', () => {
-	applyProps(node('masonview', 'masonview'), { left: 0, top: 0, right: 0, bottom: 0 })
-	assert.deepEqual(ignoredWarnings(), [])
+  applyProps(node('masonview', 'masonview'), { left: 0, top: 0, right: 0, bottom: 0 })
+  assert.deepEqual(ignoredWarnings(), [])
 })
 
 test('leaf child does not warn for absolute offsets under masonview parent', () => {
-	applyProps(node('label', 'masonview'), { top: 4, left: 4 })
-	assert.deepEqual(ignoredWarnings(), [])
+  applyProps(node('label', 'masonview'), { top: 4, left: 4 })
+  assert.deepEqual(ignoredWarnings(), [])
 })
 
 test('grid child props do not warn under masonview parent', () => {
-	applyProps(node('label', 'masonview'), { row: 0, col: 1 })
-	assert.deepEqual(ignoredWarnings(), [])
+  applyProps(node('label', 'masonview'), { row: 0, col: 1 })
+  assert.deepEqual(ignoredWarnings(), [])
 })
 
 test('absolute offsets still warn under a parent that cannot consume them', () => {
-	applyProps(node('label', 'contentview'), { top: 4 })
-	assert.ok(
-		ignoredWarnings().some((m) => m.includes('top')),
-		'expected a warning naming the dead prop',
-	)
+  applyProps(node('label', 'contentview'), { top: 4 })
+  assert.ok(
+    ignoredWarnings().some((m) => m.includes('top')),
+    'expected a warning naming the dead prop',
+  )
 })

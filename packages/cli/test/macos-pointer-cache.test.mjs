@@ -9,54 +9,54 @@ import { fileURLToPath } from 'node:url'
 // XPLAT_JSC_HOST_BUNDLE points at a build-runtime.sh output directory to check
 // a locally rebuilt host before the committed prebuilt rotates.
 const hostBundle =
-	process.env.XPLAT_JSC_HOST_BUNDLE ??
-	resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
+  process.env.XPLAT_JSC_HOST_BUNDLE ??
+  resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host/prebuilt/macos')
 
 const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/jsc-host')
 
 function boot(fixture, argv = []) {
-	const dir = mkdtempSync(join(tmpdir(), 'xplat-pointer-cache-'))
-	const script = join(dir, 'fixture.cjs')
-	writeFileSync(script, fixture)
-	// The shipped shim is the bootstrap the packaged/dev host runs.
-	const bootstrap = join(dir, 'bootstrap.js')
-	writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
+  const dir = mkdtempSync(join(tmpdir(), 'xplat-pointer-cache-'))
+  const script = join(dir, 'fixture.cjs')
+  writeFileSync(script, fixture)
+  // The shipped shim is the bootstrap the packaged/dev host runs.
+  const bootstrap = join(dir, 'bootstrap.js')
+  writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
-	// The rebuild output directory carries host + framework but not metadata;
-	// resolve the nsmd beside whichever bundle ships it.
-	const metadata = join(
-		existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
-			? hostBundle
-			: resolve(hostRoot, 'prebuilt/macos'),
-		`metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
-	)
+  // The rebuild output directory carries host + framework but not metadata;
+  // resolve the nsmd beside whichever bundle ships it.
+  const metadata = join(
+    existsSync(join(hostBundle, 'metadata.macos.arm64.nsmd'))
+      ? hostBundle
+      : resolve(hostRoot, 'prebuilt/macos'),
+    `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`,
+  )
 
-	const child = spawn(
-		join(hostBundle, 'host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			script,
-			metadata,
-			bootstrap,
-			...argv,
-		],
-		{ stdio: ['ignore', 'ignore', 'pipe'] },
-	)
-	let output = ''
-	child.stderr.on('data', (chunk) => {
-		output += chunk
-	})
-	const status = new Promise((resolve) => {
-		const timeout = setTimeout(() => {
-			child.kill('SIGKILL')
-			resolve('timeout')
-		}, 60_000)
-		child.on('close', (code) => {
-			clearTimeout(timeout)
-			resolve(code)
-		})
-	})
-	return { status, output: () => output, dir }
+  const child = spawn(
+    join(hostBundle, 'host'),
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      script,
+      metadata,
+      bootstrap,
+      ...argv,
+    ],
+    { stdio: ['ignore', 'ignore', 'pipe'] },
+  )
+  let output = ''
+  child.stderr.on('data', (chunk) => {
+    output += chunk
+  })
+  const status = new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL')
+      resolve('timeout')
+    }, 60_000)
+    child.on('close', (code) => {
+      clearTimeout(timeout)
+      resolve(code)
+    })
+  })
+  return { status, output: () => output, dir }
 }
 
 // runtimes#109: Pointer::finalize posts its g_pointerCache erase to the JS
@@ -123,25 +123,25 @@ setTimeout(function () {
 `
 
 test(
-	'AppKit host deferred pointer-cache finalize preserves live same-key entries',
-	{ skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
-	async (t) => {
-		const run = boot(identityFixture)
-		t.after(() => rmSync(run.dir, { recursive: true, force: true }))
-		const status = await run.status
-		const output = run.output()
+  'AppKit host deferred pointer-cache finalize preserves live same-key entries',
+  { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
+  async (t) => {
+    const run = boot(identityFixture)
+    t.after(() => rmSync(run.dir, { recursive: true, force: true }))
+    const status = await run.status
+    const output = run.output()
 
-		assert.equal(status, 0, `host exited ${status}\n${output}`)
-		const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
-		assert.ok(marker, `missing probe result marker:\n${output}`)
-		const result = JSON.parse(marker)
+    assert.equal(status, 0, `host exited ${status}\n${output}`)
+    const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
+    assert.ok(marker, `missing probe result marker:\n${output}`)
+    const result = JSON.parse(marker)
 
-		// At least one seed wrapper must have been collected and re-cached for
-		// the assertion to have teeth; rounds where the lookup returned the
-		// still-live original wrapper carry no signal.
-		assert.ok(result.definitive >= 1, `no definitive finalize/replacement rounds: ${marker}`)
-		assert.equal(result.broken, 0, `deferred erase removed ${result.broken} live same-key entries`)
-	},
+    // At least one seed wrapper must have been collected and re-cached for
+    // the assertion to have teeth; rounds where the lookup returned the
+    // still-live original wrapper carry no signal.
+    assert.ok(result.definitive >= 1, `no definitive finalize/replacement rounds: ${marker}`)
+    assert.equal(result.broken, 0, `deferred erase removed ${result.broken} live same-key entries`)
+  },
 )
 
 // GC/finalization churn smoke: pointer wrappers cycle through the cache while
@@ -184,16 +184,16 @@ setTimeout(function () {
 `
 
 test(
-	'AppKit host survives pointer-cache churn under GC finalization',
-	{ skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
-	async (t) => {
-		const run = boot(churnFixture)
-		t.after(() => rmSync(run.dir, { recursive: true, force: true }))
-		const status = await run.status
-		const output = run.output()
+  'AppKit host survives pointer-cache churn under GC finalization',
+  { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
+  async (t) => {
+    const run = boot(churnFixture)
+    t.after(() => rmSync(run.dir, { recursive: true, force: true }))
+    const status = await run.status
+    const output = run.output()
 
-		assert.equal(status, 0, `host exited ${status}\n${output}`)
-		assert.match(output, /STRESS_DONE iters=30000/)
-		assert.match(output, /RUNLOOP_DRAIN_OK/)
-	},
+    assert.equal(status, 0, `host exited ${status}\n${output}`)
+    assert.match(output, /STRESS_DONE iters=30000/)
+    assert.match(output, /RUNLOOP_DRAIN_OK/)
+  },
 )

@@ -5,9 +5,9 @@ import { useEffect } from 'octane'
 import type { MapViewProps } from './props'
 
 export function MapView(props: MapViewProps): unknown @{
-	useEffect(() => {
-		props.onError?.({ message: 'unsupported: MapView is not available on windows' })
-	}, [])
+  useEffect(() => {
+    props.onError?.({ message: 'unsupported: MapView is not available on windows' })
+  }, [])
 
-	<placeholder style={props.style} className={props.className} />
+  <placeholder style={props.style} className={props.className} />
 }

@@ -9,18 +9,18 @@ import type { ListMarker, ListTaskMarker } from './list-context'
  *  lists. Outside a List, or in a List without markers, it changes nothing
  *  (Astryx `ListMarkerScope`). */
 export function ListMarkerScope(props: {
-	marker: ListMarker
-	task?: ListTaskMarker
-	children?: unknown
+  marker: ListMarker
+  task?: ListTaskMarker
+  children?: unknown
 }): unknown {
-	const context = useContext(ListContext)
-	if (context == null) {
-		return props.children
-	}
+  const context = useContext(ListContext)
+  if (context == null) {
+    return props.children
+  }
 
-	return (
-		<ListProvider value={{ ...context, marker: props.marker, task: props.task }}>
-			{props.children}
-		</ListProvider>
-	)
+  return (
+    <ListProvider value={{ ...context, marker: props.marker, task: props.task }}>
+      {props.children}
+    </ListProvider>
+  )
 }

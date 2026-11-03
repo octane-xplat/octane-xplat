@@ -10,40 +10,40 @@ const TAP_DELAY_MS = 260
  * a mouse tap on the backdrop — those fires happen immediately.
  */
 export function createTapDetector(opts: {
-	now(): number
-	schedule(fn: () => void, ms: number): () => void
+  now(): number
+  schedule(fn: () => void, ms: number): () => void
 }): {
-	up(at: XY, pointer: PointerKind, waitForDouble: boolean, emit: (i: Intent) => void): void
-	cancel(): void
+  up(at: XY, pointer: PointerKind, waitForDouble: boolean, emit: (i: Intent) => void): void
+  cancel(): void
 } {
-	let lastTap: (XY & { t: number }) | null = null
-	let cancelTimer: (() => void) | null = null
-	return {
-		up(at, pointer, waitForDouble, emit) {
-			cancelTimer?.()
-			cancelTimer = null
-			const now = opts.now()
-			if (waitForDouble) {
-				if (
-					lastTap &&
-					now - lastTap.t < DOUBLE_TAP_MS &&
-					Math.hypot(at.x - lastTap.x, at.y - lastTap.y) < DOUBLE_TAP_PX
-				) {
-					lastTap = null
-					emit({ kind: 'doubleTap', at })
-					return
-				}
+  let lastTap: (XY & { t: number }) | null = null
+  let cancelTimer: (() => void) | null = null
+  return {
+    up(at, pointer, waitForDouble, emit) {
+      cancelTimer?.()
+      cancelTimer = null
+      const now = opts.now()
+      if (waitForDouble) {
+        if (
+          lastTap &&
+          now - lastTap.t < DOUBLE_TAP_MS &&
+          Math.hypot(at.x - lastTap.x, at.y - lastTap.y) < DOUBLE_TAP_PX
+        ) {
+          lastTap = null
+          emit({ kind: 'doubleTap', at })
+          return
+        }
 
-				lastTap = { ...at, t: now }
-				cancelTimer = opts.schedule(() => emit({ kind: 'tap', at, pointer }), TAP_DELAY_MS)
-				return
-			}
-			emit({ kind: 'tap', at, pointer })
-		},
-		cancel() {
-			cancelTimer?.()
-			cancelTimer = null
-			lastTap = null
-		},
-	}
+        lastTap = { ...at, t: now }
+        cancelTimer = opts.schedule(() => emit({ kind: 'tap', at, pointer }), TAP_DELAY_MS)
+        return
+      }
+      emit({ kind: 'tap', at, pointer })
+    },
+    cancel() {
+      cancelTimer?.()
+      cancelTimer = null
+      lastTap = null
+    },
+  }
 }

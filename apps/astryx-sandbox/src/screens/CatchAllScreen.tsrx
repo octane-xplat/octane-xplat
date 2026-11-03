@@ -6,9 +6,9 @@ import { HomeScreen } from './HomeScreen.tsrx'
 import { NotFoundScreen } from './NotFoundScreen.tsrx'
 
 export function CatchAllScreen(props: { params: { rest?: string } }) @{
-	if (!props.params?.rest) {
-		return <HomeScreen />
-	}
+  if (!props.params?.rest) {
+    return <HomeScreen />
+  }
 
-	return <NotFoundScreen />
+  return <NotFoundScreen />
 }

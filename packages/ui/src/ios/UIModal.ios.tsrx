@@ -13,104 +13,104 @@ type ShownModal = { host: GridLayout; unbindTheme: () => void; finished: boolean
  *  inline; children or `component` + `params` portal from the declaring tree
  *  into the modal host and retain its context. */
 export function UIModal(props: UIModalProps): unknown @{
-	const shown = useRef<ShownModal | null>(null)
-	const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
-	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const open = props.open ?? internal
-	const onClose = useRef(props.onClose)
-	onClose.current = props.onClose
-	const controlled = useRef(props.open !== undefined)
-	controlled.current = props.open !== undefined
-	const closed = (result?: unknown) => {
-		if (!controlled.current) {
-			setInternal(false)
-		}
+  const shown = useRef<ShownModal | null>(null)
+  const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
+  const [internal, setInternal] = useState(props.defaultOpen ?? false)
+  const open = props.open ?? internal
+  const onClose = useRef(props.onClose)
+  onClose.current = props.onClose
+  const controlled = useRef(props.open !== undefined)
+  controlled.current = props.open !== undefined
+  const closed = (result?: unknown) => {
+    if (!controlled.current) {
+      setInternal(false)
+    }
 
-		onClose.current?.(result)
-	}
+    onClose.current?.(result)
+  }
 
-	const finish = (instance: ShownModal, result?: unknown) => {
-		if (instance.finished) {
-			return
-		}
+  const finish = (instance: ShownModal, result?: unknown) => {
+    if (instance.finished) {
+      return
+    }
 
-		instance.finished = true
-		instance.unbindTheme()
-		instance.host.removeChildren?.()
-		if (shown.current === instance) {
-			shown.current = null
-		}
+    instance.finished = true
+    instance.unbindTheme()
+    instance.host.removeChildren?.()
+    if (shown.current === instance) {
+      shown.current = null
+    }
 
-		setPortalHost((current) => (current === instance.host ? null : current))
-		closed(result)
-	}
+    setPortalHost((current) => (current === instance.host ? null : current))
+    closed(result)
+  }
 
-	useEffect(() => {
-		if (open && !shown.current) {
-			const presenter = modalPresenter(Frame.topmost())
-			if (!presenter) {
-				// Dropped, not deferred: the effect only re-runs when props
-				// change, so warn loudly instead of silently swallowing open.
-				console.warn(
-					'[Modal] open dropped — no live presenter (currentPage mid-navigation or no active frame).',
-				)
+  useEffect(() => {
+    if (open && !shown.current) {
+      const presenter = modalPresenter(Frame.topmost())
+      if (!presenter) {
+        // Dropped, not deferred: the effect only re-runs when props
+        // change, so warn loudly instead of silently swallowing open.
+        console.warn(
+          '[Modal] open dropped — no live presenter (currentPage mid-navigation or no active frame).',
+        )
 
-				return
-			}
+        return
+      }
 
-			const host = new GridLayout()
-			const unbindTheme = applyThemeClasses(host, 'vx-modal-host')
-			const instance: ShownModal = {
-				host,
-				unbindTheme,
-				finished: false,
-			}
+      const host = new GridLayout()
+      const unbindTheme = applyThemeClasses(host, 'vx-modal-host')
+      const instance: ShownModal = {
+        host,
+        unbindTheme,
+        finished: false,
+      }
 
-			shown.current = instance
-			setPortalHost(host)
+      shown.current = instance
+      setPortalHost(host)
 
-			// Signature is showModal(viewToShow, options) — not an options bag.
-			const fullscreen = props.presentation
-				? props.presentation === 'fullscreen'
-				: (props.fullscreen ?? true)
+      // Signature is showModal(viewToShow, options) — not an options bag.
+      const fullscreen = props.presentation
+        ? props.presentation === 'fullscreen'
+        : (props.fullscreen ?? true)
 
-			presenter.showModal(host, {
-				context: {},
-				closeCallback: (result?: unknown) => finish(instance, result),
-				fullscreen,
-				animated: true,
-			})
-		} else if (!open && shown.current) {
-			const instance = shown.current
-			try {
-				instance.host.closeModal()
-			} catch {
-				finish(instance)
-			}
-		}
-	}, [open])
+      presenter.showModal(host, {
+        context: {},
+        closeCallback: (result?: unknown) => finish(instance, result),
+        fullscreen,
+        animated: true,
+      })
+    } else if (!open && shown.current) {
+      const instance = shown.current
+      try {
+        instance.host.closeModal()
+      } catch {
+        finish(instance)
+      }
+    }
+  }, [open])
 
-	useEffect(
-		() => () => {
-			const instance = shown.current
-			if (!instance) {
-				return
-			}
+  useEffect(
+    () => () => {
+      const instance = shown.current
+      if (!instance) {
+        return
+      }
 
-			shown.current = null
-			instance.finished = true
-			instance.unbindTheme()
-			try {
-				instance.host.closeModal()
-			} catch {}
+      shown.current = null
+      instance.finished = true
+      instance.unbindTheme()
+      try {
+        instance.host.closeModal()
+      } catch {}
 
-			instance.host.removeChildren?.()
-		},
-		[],
-	)
+      instance.host.removeChildren?.()
+    },
+    [],
+  )
 
-	const Component = props.component
-	const content = Component ? <Component {...(props.params ?? {})} /> : <>{props.children}</>
+  const Component = props.component
+  const content = Component ? <Component {...(props.params ?? {})} /> : <>{props.children}</>
 
-	<>{portalHost ? createPortal(content, portalHost) : null}</>
+  <>{portalHost ? createPortal(content, portalHost) : null}</>
 }

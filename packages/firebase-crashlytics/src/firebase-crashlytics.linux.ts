@@ -6,16 +6,16 @@ const reject = () => Promise.reject(new Error('unsupported: no Crashlytics SDK o
 
 /** Crashlytics service — see CrashlyticsService. */
 export const crashlytics: CrashlyticsService = {
-	supported: false,
-	log: () => {},
-	recordError: () => {},
-	setUserId: reject,
-	setAttribute: reject,
-	setAttributes: reject,
-	setCrashlyticsCollectionEnabled: reject,
-	checkForUnsentReports: async () => false,
-	sendUnsentReports: reject,
-	deleteUnsentReports: reject,
-	didCrashOnPreviousExecution: async () => false,
-	crash: () => {},
+  supported: false,
+  log: () => {},
+  recordError: () => {},
+  setUserId: reject,
+  setAttribute: reject,
+  setAttributes: reject,
+  setCrashlyticsCollectionEnabled: reject,
+  checkForUnsentReports: async () => false,
+  sendUnsentReports: reject,
+  deleteUnsentReports: reject,
+  didCrashOnPreviousExecution: async () => false,
+  crash: () => {},
 }

@@ -11,18 +11,18 @@ export type { AnimatedValue } from '../../props'
  * @see AnimatedValue, AnimationResult.
  */
 export function useAnimation(initial = 0, prop = 'translateX'): AnimatedValue {
-	const value = useRef<ReturnType<typeof createAnimatedValue> | null>(null)
-	if (!value.current) {
-		value.current = createAnimatedValue(initial, {
-			now: Date.now,
-			request: requestAnimationFrame,
-			cancel: cancelAnimationFrame,
-			write: (view, next) => {
-				view[prop] = next
-			},
-		})
-	}
+  const value = useRef<ReturnType<typeof createAnimatedValue> | null>(null)
+  if (!value.current) {
+    value.current = createAnimatedValue(initial, {
+      now: Date.now,
+      request: requestAnimationFrame,
+      cancel: cancelAnimationFrame,
+      write: (view, next) => {
+        view[prop] = next
+      },
+    })
+  }
 
-	useEffect(() => () => value.current?.dispose(), [])
-	return value.current
+  useEffect(() => () => value.current?.dispose(), [])
+  return value.current
 }

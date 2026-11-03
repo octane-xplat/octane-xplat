@@ -5,11 +5,11 @@ const unsupported = () => Promise.reject(new Error('unsupported: no geofencing A
 
 /** Geofence-monitoring service — see Geofencing. */
 export const geofencing: Geofencing = {
-	supported: false,
-	ensure: async (): Promise<PermissionResult> => 'unsupported',
-	ensureBackground: async (): Promise<PermissionResult> => 'unsupported',
-	startMonitoring: unsupported,
-	stopMonitoring: unsupported,
-	getMonitoredRegions: unsupported,
-	onRegionEvent: () => () => {},
+  supported: false,
+  ensure: async (): Promise<PermissionResult> => 'unsupported',
+  ensureBackground: async (): Promise<PermissionResult> => 'unsupported',
+  startMonitoring: unsupported,
+  stopMonitoring: unsupported,
+  getMonitoredRegions: unsupported,
+  onRegionEvent: () => () => {},
 }

@@ -13,35 +13,35 @@ import { styleRecord } from '../../internal/layout/style-merge'
  * @see HeadingProps.
  */
 export function Heading(props: HeadingProps): unknown @{
-	const level = props.level ?? 2
-	const theme = useTheme()
-	const scale = headingScaleStyle(theme.tokens, props)
-	const maxLines = props.maxLines ?? 0
+  const level = props.level ?? 2
+  const theme = useTheme()
+  const scale = headingScaleStyle(theme.tokens, props)
+  const maxLines = props.maxLines ?? 0
 
-	const headingStyle = {
-		...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
-		...(scale.fontWeight && { fontWeight: scale.fontWeight }),
-		...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
-		...(scale.color && { color: scale.color }),
-		...(maxLines > 0 && { flexShrink: 1 }),
-		...styleRecord(props.style),
-	}
+  const headingStyle = {
+    ...(scale.fontSizePx != null && { fontSize: scale.fontSizePx }),
+    ...(scale.fontWeight && { fontWeight: scale.fontWeight }),
+    ...(scale.lineHeightPx != null && { lineHeight: scale.lineHeightPx }),
+    ...(scale.color && { color: scale.color }),
+    ...(maxLines > 0 && { flexShrink: 1 }),
+    ...styleRecord(props.style),
+  }
 
-	<label
-		id={props.id}
-		className={cx(
-			'vx-heading',
-			`vx-h${level}`,
-			props.type && `vx-heading--${props.type}`,
-			props.className,
-		)}
-		style={headingStyle}
-		maxLines={maxLines}
-		whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'}
-		textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
-		accessibilityRole={AccessibilityRole.Header}
-		ref={(el: any) => applyNativeProps(el, props)}
-	>
-		{props.children}
-	</label>
+  <label
+    id={props.id}
+    className={cx(
+      'vx-heading',
+      `vx-h${level}`,
+      props.type && `vx-heading--${props.type}`,
+      props.className,
+    )}
+    style={headingStyle}
+    maxLines={maxLines}
+    whiteSpace={maxLines === 1 ? 'nowrap' : 'normal'}
+    textOverflow={maxLines > 0 ? 'ellipsis' : undefined}
+    accessibilityRole={AccessibilityRole.Header}
+    ref={(el: any) => applyNativeProps(el, props)}
+  >
+    {props.children}
+  </label>
 }

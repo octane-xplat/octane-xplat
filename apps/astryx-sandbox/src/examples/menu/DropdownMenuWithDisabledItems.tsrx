@@ -4,27 +4,27 @@ import { DropdownMenu, Text, VStack } from '@octane-xplat/ui'
 import { menuItems } from './helpers'
 
 export function DropdownMenuWithDisabledItems() @{
-	const [lastAction, setLastAction] = useState<string | null>(null)
-	return (
-		<VStack gap={3} align="start">
-			<DropdownMenu
-				button={{ label: 'Manage team' }}
-				items={menuItems([
-					{ label: 'Invite member', onClick: () => setLastAction('Invite') },
-					{ label: 'Edit roles', onClick: () => setLastAction('Edit roles') },
-					{ type: 'divider' },
-					{ label: 'Transfer ownership', isDisabled: true },
-					{ label: 'Delete team', isDisabled: true },
-				])}
-			/>
-			{lastAction && (
-				<Text type="supporting" color="secondary">
-					Last action: {lastAction}
-				</Text>
-			)}
-			<Text type="supporting" color="secondary">
-				Destructive actions are disabled for non-admin users
-			</Text>
-		</VStack>
-	)
+  const [lastAction, setLastAction] = useState<string | null>(null)
+  return (
+    <VStack gap={3} align="start">
+      <DropdownMenu
+        button={{ label: 'Manage team' }}
+        items={menuItems([
+          { label: 'Invite member', onClick: () => setLastAction('Invite') },
+          { label: 'Edit roles', onClick: () => setLastAction('Edit roles') },
+          { type: 'divider' },
+          { label: 'Transfer ownership', isDisabled: true },
+          { label: 'Delete team', isDisabled: true },
+        ])}
+      />
+      {lastAction && (
+        <Text type="supporting" color="secondary">
+          Last action: {lastAction}
+        </Text>
+      )}
+      <Text type="supporting" color="secondary">
+        Destructive actions are disabled for non-admin users
+      </Text>
+    </VStack>
+  )
 }

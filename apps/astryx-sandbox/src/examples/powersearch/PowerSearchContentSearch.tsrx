@@ -4,30 +4,30 @@ import { useState } from 'octane'
 import type { PowerSearchFilterFor } from '@octane-xplat/ui'
 
 const { config, applyFilters } = createPowerSearchConfig(
-	[
-		{ key: 'title', type: 'string', label: 'Title' },
-		{
-			key: 'section',
-			type: 'enum',
-			label: 'Section',
-			enumValues: [
-				{ value: 'getting-started', label: 'Getting started' },
-				{ value: 'components', label: 'Components' },
-				{ value: 'api', label: 'API' },
-			],
-		},
-	],
-	'docs',
+  [
+    { key: 'title', type: 'string', label: 'Title' },
+    {
+      key: 'section',
+      type: 'enum',
+      label: 'Section',
+      enumValues: [
+        { value: 'getting-started', label: 'Getting started' },
+        { value: 'components', label: 'Components' },
+        { value: 'api', label: 'API' },
+      ],
+    },
+  ],
+  'docs',
 )
 
 export function PowerSearchContentSearch() @{
-	const [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([])
+  const [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([])
 
-	<PowerSearch
-		config={config}
-		filters={filters}
-		onChange={setFilters}
-		placeholder="Search documentation…"
-		startIcon={<Icon name="sandbox-magnifying-glass" size={16} />}
-	/>
+  <PowerSearch
+    config={config}
+    filters={filters}
+    onChange={setFilters}
+    placeholder="Search documentation…"
+    startIcon={<Icon name="sandbox-magnifying-glass" size={16} />}
+  />
 }

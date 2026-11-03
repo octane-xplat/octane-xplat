@@ -9,9 +9,9 @@ import { applyEscapeProps } from '../components/overlays/escape-props'
 import { layoutChildProps } from '../components/layout/layout-child'
 
 declare module '@octane-xplat/jsx/intrinsics' {
-	interface NativeElements<TElement> {
-		liquidglasscontainer: Attributes<TElement, { iosGlassEffect?: { spacing?: number } }>
-	}
+  interface NativeElements<TElement> {
+    liquidglasscontainer: Attributes<TElement, { iosGlassEffect?: { spacing?: number } }>
+  }
 }
 
 // The driver needs an intrinsic registration for the padding-aware core view.
@@ -23,13 +23,13 @@ registerElement('liquidglasscontainer', LiquidGlassContainerView)
  *  layout primitive inside and let the glass effects merge spatially.
  *  Inert layout on iOS < 26. */
 export function LiquidGlassContainer(props: LiquidGlassContainerProps): unknown @{
-	<liquidglasscontainer
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		{...layoutChildProps(props)}
-		iosGlassEffect={{ spacing: props.spacing ?? 8 }}
-		className={cx('vx-glass-container', props.className)}
-	>
-		{props.children}
-	</liquidglasscontainer>
+  <liquidglasscontainer
+    id={props.id}
+    ref={(v: any) => applyEscapeProps(v, props)}
+    {...layoutChildProps(props)}
+    iosGlassEffect={{ spacing: props.spacing ?? 8 }}
+    className={cx('vx-glass-container', props.className)}
+  >
+    {props.children}
+  </liquidglasscontainer>
 }

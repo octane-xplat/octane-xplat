@@ -5,5 +5,5 @@ import { GPU } from '@nativescript/canvas'
  *  `getPreferredCanvasFormat()`. Typed `any` deliberately — the shim and the
  *  real navigator.gpu differ structurally beyond that shared surface. */
 export function getGPU(): any {
-	return new GPU()
+  return new GPU()
 }

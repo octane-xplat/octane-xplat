@@ -1,150 +1,150 @@
 import type { RichTextEditorHandle, RichTextEditorProps, RichTextFormat } from './types'
 
 export interface EditorPacket {
-	event: string
-	html?: string
-	json?: any
-	selection?: { start: number; end: number; active: RichTextFormat[] }
-	focused?: boolean
-	message?: string
+  event: string
+  html?: string
+  json?: any
+  selection?: { start: number; end: number; active: RichTextFormat[] }
+  focused?: boolean
+  message?: string
 }
 
 /** Internal transport adapter: synchronous getters read the last WebKit snapshot. */
 export function createEditorSession(
-	send: (packet: string) => void,
-	native: any,
-	readProps: () => RichTextEditorProps & {
-		onJSONChange?: (doc: any) => void
-		onJSONReady?: (ok: boolean) => void
-	},
+  send: (packet: string) => void,
+  native: any,
+  readProps: () => RichTextEditorProps & {
+    onJSONChange?: (doc: any) => void
+    onJSONReady?: (ok: boolean) => void
+  },
 ): {
-	handle: RichTextEditorHandle & {
-		getJSON(): any
-		setJSON(doc: any): void
-	}
-	update(props: object): void
-	receive(serialized: string): void
-	dispose(): void
+  handle: RichTextEditorHandle & {
+    getJSON(): any
+    setJSON(doc: any): void
+  }
+  update(props: object): void
+  receive(serialized: string): void
+  dispose(): void
 } {
-	let disposed = false
-	let ready = false
-	let html = ''
-	let json: any = null
-	let active: RichTextFormat[] = []
-	let focused = false
-	let pending: string[] = []
-	const command = (method: string, ...args: any[]) => {
-		if (disposed) {
-			return
-		}
+  let disposed = false
+  let ready = false
+  let html = ''
+  let json: any = null
+  let active: RichTextFormat[] = []
+  let focused = false
+  let pending: string[] = []
+  const command = (method: string, ...args: any[]) => {
+    if (disposed) {
+      return
+    }
 
-		const packet = JSON.stringify({ method, args })
-		if (ready) {
-			send(packet)
-		} else {
-			pending.push(packet)
-		}
-	}
+    const packet = JSON.stringify({ method, args })
+    if (ready) {
+      send(packet)
+    } else {
+      pending.push(packet)
+    }
+  }
 
-	const handle: RichTextEditorHandle & { getJSON(): any; setJSON(doc: any): void } = {
-		getHTML: () => html,
-		setHTML: (value) => command('setHTML', value),
-		getJSON: () => json,
-		setJSON: (doc) => command('setJSON', doc),
-		apply: (format) => command('apply', format),
-		linkTo: (url, anchor) => command('linkTo', url, anchor),
-		removeLink: () => command('removeLink'),
-		isActive: (format) => active.includes(format),
-		undo: () => command('undo'),
-		redo: () => command('redo'),
-		// Structural commands are Aztec-only for now: the AppKit transport
-		// is one-way async dispatch, so a synchronous "applied" result cannot
-		// be reported and a fire-and-forget forward would lie to the caller.
-		split: () => false,
-		join: () => false,
-		indent: () => false,
-		outdent: () => false,
-		canIndent: () => false,
-		canOutdent: () => false,
-		focus: () => command('focus'),
-		blur: () => command('blur'),
-		isFocused: () => focused,
-		native,
-	}
+  const handle: RichTextEditorHandle & { getJSON(): any; setJSON(doc: any): void } = {
+    getHTML: () => html,
+    setHTML: (value) => command('setHTML', value),
+    getJSON: () => json,
+    setJSON: (doc) => command('setJSON', doc),
+    apply: (format) => command('apply', format),
+    linkTo: (url, anchor) => command('linkTo', url, anchor),
+    removeLink: () => command('removeLink'),
+    isActive: (format) => active.includes(format),
+    undo: () => command('undo'),
+    redo: () => command('redo'),
+    // Structural commands are Aztec-only for now: the AppKit transport
+    // is one-way async dispatch, so a synchronous "applied" result cannot
+    // be reported and a fire-and-forget forward would lie to the caller.
+    split: () => false,
+    join: () => false,
+    indent: () => false,
+    outdent: () => false,
+    canIndent: () => false,
+    canOutdent: () => false,
+    focus: () => command('focus'),
+    blur: () => command('blur'),
+    isFocused: () => focused,
+    native,
+  }
 
-	return {
-		handle,
-		update(props: object): void {
-			command('props', props)
-		},
-		receive(serialized: string): void {
-			if (disposed) {
-				return
-			}
+  return {
+    handle,
+    update(props: object): void {
+      command('props', props)
+    },
+    receive(serialized: string): void {
+      if (disposed) {
+        return
+      }
 
-			const packet: EditorPacket = JSON.parse(serialized)
-			const props = readProps()
-			if (packet.html !== undefined) {
-				html = packet.html
-			}
+      const packet: EditorPacket = JSON.parse(serialized)
+      const props = readProps()
+      if (packet.html !== undefined) {
+        html = packet.html
+      }
 
-			if ('json' in packet) {
-				json = packet.json
-			}
+      if ('json' in packet) {
+        json = packet.json
+      }
 
-			if (packet.selection) {
-				active = packet.selection.active
-			}
+      if (packet.selection) {
+        active = packet.selection.active
+      }
 
-			if (packet.focused !== undefined) {
-				focused = packet.focused
-			}
+      if (packet.focused !== undefined) {
+        focused = packet.focused
+      }
 
-			switch (packet.event) {
-				case 'boot':
-					ready = true
-					for (const packet of pending) {
-						send(packet)
-					}
+      switch (packet.event) {
+        case 'boot':
+          ready = true
+          for (const packet of pending) {
+            send(packet)
+          }
 
-					pending = []
-					break
-				case 'ready':
-					props.onJSONReady?.(true)
-					props.onReady?.()
-					break
-				case 'change':
-					props.onChange?.(html)
-					if (json) {
-						props.onJSONChange?.(json)
-					}
+          pending = []
+          break
+        case 'ready':
+          props.onJSONReady?.(true)
+          props.onReady?.()
+          break
+        case 'change':
+          props.onChange?.(html)
+          if (json) {
+            props.onJSONChange?.(json)
+          }
 
-					break
-				case 'selection':
-					if (packet.selection) {
-						props.onSelectionChange?.(packet.selection)
-					}
+          break
+        case 'selection':
+          if (packet.selection) {
+            props.onSelectionChange?.(packet.selection)
+          }
 
-					break
-				case 'focus':
-					props.onFocus?.()
-					break
-				case 'blur':
-					props.onBlur?.()
-					break
-				case 'error':
-					console.error('[macos-editor] ' + packet.message)
-					break
-			}
-		},
-		dispose(): void {
-			if (disposed) {
-				return
-			}
+          break
+        case 'focus':
+          props.onFocus?.()
+          break
+        case 'blur':
+          props.onBlur?.()
+          break
+        case 'error':
+          console.error('[macos-editor] ' + packet.message)
+          break
+      }
+    },
+    dispose(): void {
+      if (disposed) {
+        return
+      }
 
-			disposed = true
-			pending = []
-			native.dispose()
-		},
-	}
+      disposed = true
+      pending = []
+      native.dispose()
+    },
+  }
 }

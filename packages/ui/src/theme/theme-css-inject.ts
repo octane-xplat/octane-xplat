@@ -16,15 +16,15 @@ const injected = new Set<string>()
 
 /** Register the theme's class-split token rules once per app session. */
 export function ensureThemeCss(theme: DefinedTheme): void {
-	if (injected.has(theme.name)) {
-		return
-	}
-	Application.addCss(generateThemeCss(theme, { target: 'native' }))
-	injected.add(theme.name)
+  if (injected.has(theme.name)) {
+    return
+  }
+  Application.addCss(generateThemeCss(theme, { target: 'native' }))
+  injected.add(theme.name)
 }
 
 /** No document root exists on native — the root scope class travels to
  *  detached hosts through `themeSchemeClasses()` instead. */
 export function syncDocumentRootTheme(_name: string, _mode: 'light' | 'dark'): () => void {
-	return () => {}
+  return () => {}
 }

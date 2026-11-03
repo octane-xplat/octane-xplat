@@ -10,45 +10,45 @@ export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within
  * outside the element the handlers are attached to.
  */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
-	const latest = useRef(options)
-	latest.current = options
-	const within = useRef(false)
-	const update = (next: boolean, event?: FocusEventPayload) => {
-		if (next === within.current) {
-			return
-		}
+  const latest = useRef(options)
+  latest.current = options
+  const within = useRef(false)
+  const update = (next: boolean, event?: FocusEventPayload) => {
+    if (next === within.current) {
+      return
+    }
 
-		within.current = next
-		if (next) {
-			latest.current.onFocusWithin?.(event)
-		} else {
-			latest.current.onBlurWithin?.(event)
-		}
+    within.current = next
+    if (next) {
+      latest.current.onFocusWithin?.(event)
+    } else {
+      latest.current.onBlurWithin?.(event)
+    }
 
-		latest.current.onFocusWithinChange?.(next)
-	}
+    latest.current.onFocusWithinChange?.(next)
+  }
 
-	return {
-		focusWithinProps: {
-			onFocus: (event?: FocusWithinEvent) =>
-				update(true, normalizeFocusWithinEvent(event, 'focus')),
-			onBlur: (event?: FocusWithinEvent) => {
-				const normalized = normalizeFocusWithinEvent(event, 'blur')
-				const focusEvent = normalized as FocusEvent | undefined
-				const target = focusEvent?.currentTarget as Element | null
-				const related = focusEvent?.relatedTarget as Node | null
-				if (
-					target &&
-					related &&
-					typeof target.contains === 'function' &&
-					target.contains(related)
-				) {
-					return
-				}
+  return {
+    focusWithinProps: {
+      onFocus: (event?: FocusWithinEvent) =>
+        update(true, normalizeFocusWithinEvent(event, 'focus')),
+      onBlur: (event?: FocusWithinEvent) => {
+        const normalized = normalizeFocusWithinEvent(event, 'blur')
+        const focusEvent = normalized as FocusEvent | undefined
+        const target = focusEvent?.currentTarget as Element | null
+        const related = focusEvent?.relatedTarget as Node | null
+        if (
+          target &&
+          related &&
+          typeof target.contains === 'function' &&
+          target.contains(related)
+        ) {
+          return
+        }
 
-				update(false, normalized)
-			},
-		},
-		isSubtreeTrackingSupported: true,
-	}
+        update(false, normalized)
+      },
+    },
+    isSubtreeTrackingSupported: true,
+  }
 }

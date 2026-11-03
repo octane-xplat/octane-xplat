@@ -13,47 +13,47 @@ import { useStore } from './use-store.tsrx'
 const store = createStore(0)
 
 function BareChild() @{
-	<span class="bare">{String(store.getSnapshot())}</span>
+  <span class="bare">{String(store.getSnapshot())}</span>
 }
 
 function SubbedChild() @{
-	const v = useStore(store)
+  const v = useStore(store)
 
-	<span class="subbed">{String(v)}</span>
+  <span class="subbed">{String(v)}</span>
 }
 
 function SelectedChild() @{
-	const v = useStore(store, (s) => s * 10)
+  const v = useStore(store, (s) => s * 10)
 
-	<span class="sel">{String(v)}</span>
+  <span class="sel">{String(v)}</span>
 }
 
 function Parent() @{
-	useStore(store)
+  useStore(store)
 
-	<>
-		<BareChild />
-		<SubbedChild />
-		<SelectedChild />
-	</>
+  <>
+    <BareChild />
+    <SubbedChild />
+    <SelectedChild />
+  </>
 }
 
 describe('createStore + useStore (DOM renderer)', () => {
-	it('parent store subscription re-renders a bare-read child too (DOM semantics)', () => {
-		const el = document.createElement('div')
-		document.body.appendChild(el)
-		const root = createRoot(el)
-		act(() => root.render(<Parent />))
-		expect(el.querySelector('.bare')!.textContent).toBe('0')
-		expect(el.querySelector('.subbed')!.textContent).toBe('0')
-		expect(el.querySelector('.sel')!.textContent).toBe('0')
+  it('parent store subscription re-renders a bare-read child too (DOM semantics)', () => {
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    const root = createRoot(el)
+    act(() => root.render(<Parent />))
+    expect(el.querySelector('.bare')!.textContent).toBe('0')
+    expect(el.querySelector('.subbed')!.textContent).toBe('0')
+    expect(el.querySelector('.sel')!.textContent).toBe('0')
 
-		act(() => store.set(1))
-		// On DOM the retained child DOES re-run — the divergence this test pins.
-		expect(el.querySelector('.bare')!.textContent).toBe('1')
-		expect(el.querySelector('.subbed')!.textContent).toBe('1')
-		expect(el.querySelector('.sel')!.textContent).toBe('10')
-		root.unmount()
-		el.remove()
-	})
+    act(() => store.set(1))
+    // On DOM the retained child DOES re-run — the divergence this test pins.
+    expect(el.querySelector('.bare')!.textContent).toBe('1')
+    expect(el.querySelector('.subbed')!.textContent).toBe('1')
+    expect(el.querySelector('.sel')!.textContent).toBe('10')
+    root.unmount()
+    el.remove()
+  })
 })

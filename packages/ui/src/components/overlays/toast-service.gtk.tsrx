@@ -4,10 +4,10 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 import type { ShowToastFn, ToastOptions, ToastPosition } from '../../props'
 import { ToastViewportContext } from './toast-context'
 import {
-	FALLBACK_TOAST_VIEWPORT,
-	pushToast,
-	registerToastViewport,
-	toastHandleFor,
+  FALLBACK_TOAST_VIEWPORT,
+  pushToast,
+  registerToastViewport,
+  toastHandleFor,
 } from './toast-store'
 
 import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surface.gtk.tsrx'
@@ -20,78 +20,78 @@ import { GtkToastSurface, TOAST_EDGE_ALIGN, TOAST_POSITIONS } from './toast-surf
 let fallback: { layers: Partial<Record<ToastPosition, any>>; unmount: () => void } | null = null
 
 function ensureFallbackViewport(): void {
-	if (fallback) {
-		return
-	}
+  if (fallback) {
+    return
+  }
 
-	const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
-	if (!host?.createOverlayLayer || !host.mountServiceRoot) {
-		console.warn('[Toast] linux-gtk overlay host is not mounted; toast was skipped')
-		return
-	}
+  const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+  if (!host?.createOverlayLayer || !host.mountServiceRoot) {
+    console.warn('[Toast] linux-gtk overlay host is not mounted; toast was skipped')
+    return
+  }
 
-	const layers: Partial<Record<ToastPosition, any>> = {}
-	for (const position of TOAST_POSITIONS) {
-		const layer = host.createOverlayLayer({
-			modal: false,
-			scrim: false,
-			align: TOAST_EDGE_ALIGN[position],
-		})
+  const layers: Partial<Record<ToastPosition, any>> = {}
+  for (const position of TOAST_POSITIONS) {
+    const layer = host.createOverlayLayer({
+      modal: false,
+      scrim: false,
+      align: TOAST_EDGE_ALIGN[position],
+    })
 
-		layer.setVisible(true)
-		layers[position] = layer
-	}
+    layer.setVisible(true)
+    layers[position] = layer
+  }
 
-	const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
-	const mounted = host.mountServiceRoot(layers.bottomEnd, GtkToastSurface, {
-		viewportId: FALLBACK_TOAST_VIEWPORT,
-		position: 'bottomEnd',
-		layers,
-	})
+  const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
+  const mounted = host.mountServiceRoot(layers.bottomEnd, GtkToastSurface, {
+    viewportId: FALLBACK_TOAST_VIEWPORT,
+    position: 'bottomEnd',
+    layers,
+  })
 
-	fallback = { layers, unmount: mounted.unmount }
+  fallback = { layers, unmount: mounted.unmount }
 
-	// The layers dispose on root teardown (or explicit disposal) — clear the
-	// fallback so the next toast re-presents it. mountServiceRoot already
-	// chained the service root's unmount into the host layer's dispose.
-	const hostLayer = layers.bottomEnd
-	const release = hostLayer.dispose.bind(hostLayer)
-	hostLayer.dispose = () => {
-		for (const layer of Object.values(layers)) {
-			if (layer !== hostLayer) {
-				try {
-					;(layer as any).dispose()
-				} catch {}
-			}
-		}
+  // The layers dispose on root teardown (or explicit disposal) — clear the
+  // fallback so the next toast re-presents it. mountServiceRoot already
+  // chained the service root's unmount into the host layer's dispose.
+  const hostLayer = layers.bottomEnd
+  const release = hostLayer.dispose.bind(hostLayer)
+  hostLayer.dispose = () => {
+    for (const layer of Object.values(layers)) {
+      if (layer !== hostLayer) {
+        try {
+          ;(layer as any).dispose()
+        } catch {}
+      }
+    }
 
-		release()
-		unregister()
-		if (fallback?.layers === layers) {
-			fallback = null
-		}
-	}
+    release()
+    unregister()
+    if (fallback?.layers === layers) {
+      fallback = null
+    }
+  }
 }
 
 /** Module-level toast (Astryx `useToast` fallback path as a function):
  *  lands on the fallback edge stacks over the most recent live root. */
 export const showToast: ShowToastFn = (options: ToastOptions) => {
-	ensureFallbackViewport()
-	return toastHandleFor(pushToast(options, undefined))
+  ensureFallbackViewport()
+  return toastHandleFor(pushToast(options, undefined))
 }
 
 /** Imperative toast control (Astryx `useToast`), GTK leaf. Inside a
  *  `ToastViewport` toasts dock on that viewport's overlay layers at its
  *  configured edge; outside one they land on the fallback stack. */
 export function useToast(): ShowToastFn @{
-	const ctx = useContext(ToastViewportContext)
-	return useCallback(
-		(options: ToastOptions) => {
-			// Always keep the fallback stack mounted — it receives orphaned
-			// entries when their declaring viewport unmounts (macOS parity).
-			ensureFallbackViewport()
-			return toastHandleFor(pushToast(options, ctx?.id))
-		},
-		[ctx?.id],
-	)
+  const ctx = useContext(ToastViewportContext)
+  return useCallback(
+    (options: ToastOptions) => {
+      // Always keep the fallback stack mounted — it receives orphaned
+      // entries when their declaring viewport unmounts (macOS parity).
+      ensureFallbackViewport()
+      return toastHandleFor(pushToast(options, ctx?.id))
+    },
+    [ctx?.id],
+  )
 }

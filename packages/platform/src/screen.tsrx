@@ -6,23 +6,23 @@ import type { WindowSize } from './types'
 import { Application, Screen } from '@nativescript/core'
 
 function read(): WindowSize {
-	const s = Screen.mainScreen
-	return {
-		width: s.widthDIPs,
-		height: s.heightDIPs,
-		orientation: s.widthDIPs >= s.heightDIPs ? 'landscape' : 'portrait',
-	}
+  const s = Screen.mainScreen
+  return {
+    width: s.widthDIPs,
+    height: s.heightDIPs,
+    orientation: s.widthDIPs >= s.heightDIPs ? 'landscape' : 'portrait',
+  }
 }
 
 /** Main-screen size in DIPs plus derived orientation; re-renders on
  *  orientation changes. */
 export function useWindowSize(): WindowSize {
-	const [size, setSize] = useState<WindowSize>(read)
-	useEffect(() => {
-		const update = () => setSize(read())
-		Application.on(Application.orientationChangedEvent, update)
-		return () => Application.off(Application.orientationChangedEvent, update)
-	}, [])
+  const [size, setSize] = useState<WindowSize>(read)
+  useEffect(() => {
+    const update = () => setSize(read())
+    Application.on(Application.orientationChangedEvent, update)
+    return () => Application.off(Application.orientationChangedEvent, update)
+  }, [])
 
-	return size
+  return size
 }

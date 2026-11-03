@@ -7,12 +7,12 @@ import { TextSlot } from '../forms/text-slot.tsrx'
 
 /** Badge — native text hosts preserve primitive children, including zero. */
 export function Badge(props: BadgeProps): unknown @{
-	<masonview
-		ref={(view: View | null) => applyEscapeProps(view, props)}
-		id={props.id}
-		className={cx('vx-badge', `vx-badge--${props.variant ?? 'neutral'}`, props.className)}
-		style={props.style}
-	>
-		<TextSlot>{props.children ?? props.label}</TextSlot>
-	</masonview>
+  <masonview
+    ref={(view: View | null) => applyEscapeProps(view, props)}
+    id={props.id}
+    className={cx('vx-badge', `vx-badge--${props.variant ?? 'neutral'}`, props.className)}
+    style={props.style}
+  >
+    <TextSlot>{props.children ?? props.label}</TextSlot>
+  </masonview>
 }

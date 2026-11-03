@@ -3,5 +3,5 @@ import { router } from './default-router.macos'
 import { registerRouterDevActionsFor } from './dev-shared'
 
 export function registerRouterDevActions(): { dispose(): void } {
-	return registerRouterDevActionsFor(router)
+  return registerRouterDevActionsFor(router)
 }

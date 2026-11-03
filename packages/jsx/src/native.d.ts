@@ -16,13 +16,13 @@
 import type { TabViewItem } from '@nativescript/core/ui/tab-view/index.js'
 import type { View } from '@nativescript/core/ui/core/view/index.js'
 import type {
-	Attributes,
-	ElementTypeOf,
-	NativeElements,
-	NativeNode,
-	Ref,
-	TabViewProps,
-	TabViewItemProps,
+  Attributes,
+  ElementTypeOf,
+  NativeElements,
+  NativeNode,
+  Ref,
+  TabViewProps,
+  TabViewItemProps,
 } from './shared.js'
 
 export * from './shared.js'
@@ -34,35 +34,35 @@ export type HostElement = View
 export type TabViewItemHandle = TabViewItem
 
 export declare namespace JSX {
-	type Element = NativeNode
-	type ElementType = ElementTypeOf
-	interface IntrinsicElements extends Omit<NativeElements<View>, 'tabview' | 'tabviewitem'> {
-		tabview: Attributes<View, TabViewProps<View, TabViewItem>>
-		tabviewitem: Attributes<TabViewItem, TabViewItemProps>
-	}
+  type Element = NativeNode
+  type ElementType = ElementTypeOf
+  interface IntrinsicElements extends Omit<NativeElements<View>, 'tabview' | 'tabviewitem'> {
+    tabview: Attributes<View, TabViewProps<View, TabViewItem>>
+    tabviewitem: Attributes<TabViewItem, TabViewItemProps>
+  }
 
-	interface IntrinsicAttributes {
-		key?: string | number
-	}
+  interface IntrinsicAttributes {
+    key?: string | number
+  }
 
-	interface IntrinsicClassAttributes<T> {
-		ref?: Ref<T>
-	}
+  interface IntrinsicClassAttributes<T> {
+    ref?: Ref<T>
+  }
 
-	interface ElementChildrenAttribute {
-		children: {}
-	}
+  interface ElementChildrenAttribute {
+    children: {}
+  }
 }
 
 export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxDEV(
-	type: ElementTypeOf,
-	props: unknown,
-	key?: unknown,
-	isStaticChildren?: boolean,
-	source?: unknown,
-	self?: unknown,
+  type: ElementTypeOf,
+  props: unknown,
+  key?: unknown,
+  isStaticChildren?: boolean,
+  source?: unknown,
+  self?: unknown,
 ): JSX.Element
 
 export declare function Fragment(props: { children?: NativeNode }): JSX.Element

@@ -4,10 +4,10 @@ import { applyEscapeProps } from '../overlays/escape-props'
 import { layoutChildProps, normStyle } from '../layout/layout-child.web'
 import { useLayoutEffect, useRef } from 'octane'
 import {
-	imageSrcSet,
-	objectPositionCSSValue,
-	resolveContentFit,
-	resolveContentPosition,
+  imageSrcSet,
+  objectPositionCSSValue,
+  resolveContentFit,
+  resolveContentPosition,
 } from './image-content'
 
 import { hashToPngBase64 } from './hash-image'
@@ -17,8 +17,8 @@ import type { JSX } from 'octane/jsx-runtime'
  *  other value passes through as an ordinary <img> URL (a low-res source
  *  URL is a fine placeholder on web). */
 function placeholderUrl(placeholder: string): string {
-	const png = hashToPngBase64(placeholder)
-	return png ? `data:image/png;base64,${png}` : placeholder
+  const png = hashToPngBase64(placeholder)
+  return png ? `data:image/png;base64,${png}` : placeholder
 }
 
 /** Image — a plain <img>. `src` takes any URL or data: URI; a source array
@@ -34,74 +34,74 @@ function placeholderUrl(placeholder: string): string {
  *  paints. `decoding` writes the HTML `decoding` attribute 1:1 (default
  *  'async' — the shared contract's default, not the browser's 'auto'). */
 export function Image(props: ImageProps): JSX.Element @{
-	const imgRef = useRef<HTMLImageElement | null>(null)
-	const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
-	const selected = sources ? imageSrcSet(sources) : { src: props.src as string, srcSet: undefined }
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const sources = Array.isArray(props.src) ? (props.src as ImageSourceLike[]) : null
+  const selected = sources ? imageSrcSet(sources) : { src: props.src as string, srcSet: undefined }
 
-	useLayoutEffect(() => {
-		const img = imgRef.current
-		// complete = the current src already resolved (cache/sync data URI) —
-		// showing the placeholder would flash backwards.
-		if (!img || !props.placeholder || img.complete) {
-			return
-		}
+  useLayoutEffect(() => {
+    const img = imgRef.current
+    // complete = the current src already resolved (cache/sync data URI) —
+    // showing the placeholder would flash backwards.
+    if (!img || !props.placeholder || img.complete) {
+      return
+    }
 
-		const placeholder = placeholderUrl(props.placeholder)
-		const { src: final, srcSet: finalSrcSet } = selected
-		// (document.createElement — `Image` here is this component, not the
-		// global HTMLImageElement constructor)
-		const warm = document.createElement('img')
-		warm.src = final
-		if (finalSrcSet) {
-			warm.srcset = finalSrcSet
-		}
+    const placeholder = placeholderUrl(props.placeholder)
+    const { src: final, srcSet: finalSrcSet } = selected
+    // (document.createElement — `Image` here is this component, not the
+    // global HTMLImageElement constructor)
+    const warm = document.createElement('img')
+    warm.src = final
+    if (finalSrcSet) {
+      warm.srcset = finalSrcSet
+    }
 
-		const swap = () => {
-			img.src = final
-			if (finalSrcSet) {
-				// srcset overrides src while present — restore it after the
-				// src write so both point at the final selection.
-				img.srcset = finalSrcSet
-			}
-		}
+    const swap = () => {
+      img.src = final
+      if (finalSrcSet) {
+        // srcset overrides src while present — restore it after the
+        // src write so both point at the final selection.
+        img.srcset = finalSrcSet
+      }
+    }
 
-		img.addEventListener('load', swap, { once: true })
-		img.addEventListener('error', swap, { once: true })
-		if (finalSrcSet) {
-			// While srcset is set it wins over src — clear it or the
-			// placeholder assignment below is inert.
-			img.srcset = ''
-		}
+    img.addEventListener('load', swap, { once: true })
+    img.addEventListener('error', swap, { once: true })
+    if (finalSrcSet) {
+      // While srcset is set it wins over src — clear it or the
+      // placeholder assignment below is inert.
+      img.srcset = ''
+    }
 
-		img.src = placeholder
-		return () => {
-			img.removeEventListener('load', swap)
-			img.removeEventListener('error', swap)
-		}
-	}, [props.src, props.placeholder])
+    img.src = placeholder
+    return () => {
+      img.removeEventListener('load', swap)
+      img.removeEventListener('error', swap)
+    }
+  }, [props.src, props.placeholder])
 
-	const style = {
-		objectFit: 'cover',
-		objectPosition: '50% 50%',
-		...normStyle(props.style),
-		...(props.contentFit !== undefined ? { objectFit: resolveContentFit(props.contentFit) } : null),
-		...(props.contentPosition !== undefined
-			? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) }
-			: null),
-	}
+  const style = {
+    objectFit: 'cover',
+    objectPosition: '50% 50%',
+    ...normStyle(props.style),
+    ...(props.contentFit !== undefined ? { objectFit: resolveContentFit(props.contentFit) } : null),
+    ...(props.contentPosition !== undefined
+      ? { objectPosition: objectPositionCSSValue(resolveContentPosition(props.contentPosition)) }
+      : null),
+  }
 
-	<img
-		ref={(e: any) => {
-			imgRef.current = e
-			applyEscapeProps(e, props)
-		}}
-		id={props.id}
-		className={props.className}
-		{...layoutChildProps(props)}
-		src={selected.src}
-		srcSet={selected.srcSet}
-		decoding={props.decoding ?? 'async'}
-		alt={props.alt}
-		style={style}
-	/>
+  <img
+    ref={(e: any) => {
+      imgRef.current = e
+      applyEscapeProps(e, props)
+    }}
+    id={props.id}
+    className={props.className}
+    {...layoutChildProps(props)}
+    src={selected.src}
+    srcSet={selected.srcSet}
+    decoding={props.decoding ?? 'async'}
+    alt={props.alt}
+    style={style}
+  />
 }

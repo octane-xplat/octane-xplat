@@ -10,55 +10,55 @@ type Todo = { id: string; text: string; done: boolean }
  *  live in ui/ios + ui/android), controlled TextInput round-trip,
  *  @if empty-state. */
 export function Todo() @{
-	const [todos, setTodos] = useState<Todo[]>([])
-	const [draft, setDraft] = useState('')
-	const nextId = useRef(0)
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [draft, setDraft] = useState('')
+  const nextId = useRef(0)
 
-	const add = () => {
-		const text = draft.trim()
-		if (!text) {
-			return
-		}
+  const add = () => {
+    const text = draft.trim()
+    if (!text) {
+      return
+    }
 
-		console.log('[probe] todo add ' + text)
-		setTodos([...todos, { id: 't' + ++nextId.current, text, done: false }])
-		setDraft('')
-	}
+    console.log('[probe] todo add ' + text)
+    setTodos([...todos, { id: 't' + ++nextId.current, text, done: false }])
+    setDraft('')
+  }
 
-	const toggle = (id: string) =>
-		setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+  const toggle = (id: string) =>
+    setTodos(todos.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
 
-	const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id))
+  const remove = (id: string) => setTodos(todos.filter((t) => t.id !== id))
 
-	const renderTodo = (t: Todo) => (
-		<HStack className="cell gap-2 items-center">
-			<Pressable onPress={() => toggle(t.id)}>
-				<Text className="todo-check">{t.done ? '✓' : '○'}</Text>
-			</Pressable>
-			<Text className={['flex-1', t.done ? 'todo-done' : '']}>{t.text}</Text>
-			<Pressable onPress={() => remove(t.id)}>
-				<Text className="todo-check">{'✕'}</Text>
-			</Pressable>
-		</HStack>
-	)
+  const renderTodo = (t: Todo) => (
+    <HStack className="cell gap-2 items-center">
+      <Pressable onPress={() => toggle(t.id)}>
+        <Text className="todo-check">{t.done ? '✓' : '○'}</Text>
+      </Pressable>
+      <Text className={['flex-1', t.done ? 'todo-done' : '']}>{t.text}</Text>
+      <Pressable onPress={() => remove(t.id)}>
+        <Text className="todo-check">{'✕'}</Text>
+      </Pressable>
+    </HStack>
+  )
 
-	<View className="vx-app flex-1 gap-4">
-		<HStack className="gap-2">
-			<TextInput
-				value={draft}
-				onChange={(v) => setDraft(v)}
-				placeholder="Add a todo"
-				className="input flex-1"
-			/>
-			<Pressable id="todo-add" onPress={add} className="btn bg-primary">
-				<Text className="text-onprimary">Add</Text>
-			</Pressable>
-		</HStack>
-		@if (todos.length === 0) {
-			<Text className="cell">Nothing yet — add one.</Text>
-		}
-		<ScrollableArea id="todo-list" className="list flex-1">
-			{todos.map(renderTodo)}
-		</ScrollableArea>
-	</View>
+  <View className="vx-app flex-1 gap-4">
+    <HStack className="gap-2">
+      <TextInput
+        value={draft}
+        onChange={(v) => setDraft(v)}
+        placeholder="Add a todo"
+        className="input flex-1"
+      />
+      <Pressable id="todo-add" onPress={add} className="btn bg-primary">
+        <Text className="text-onprimary">Add</Text>
+      </Pressable>
+    </HStack>
+    @if (todos.length === 0) {
+      <Text className="cell">Nothing yet — add one.</Text>
+    }
+    <ScrollableArea id="todo-list" className="list flex-1">
+      {todos.map(renderTodo)}
+    </ScrollableArea>
+  </View>
 }

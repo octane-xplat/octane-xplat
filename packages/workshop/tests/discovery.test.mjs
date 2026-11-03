@@ -17,179 +17,179 @@ export const Basic = defineStory({
 `
 
 describe('scanStoryFile', () => {
-	it('extracts literal metadata from named exports', () => {
-		const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
-		expect(diagnostics).toEqual([])
-		expect(stories[0]).toMatchObject({
-			id: 'counter/basic',
-			title: 'Examples / Counter',
-			targets: 'all',
-			exportName: 'Basic',
-			exported: true,
-		})
-	})
+  it('extracts literal metadata from named exports', () => {
+    const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
+    expect(diagnostics).toEqual([])
+    expect(stories[0]).toMatchObject({
+      id: 'counter/basic',
+      title: 'Examples / Counter',
+      targets: 'all',
+      exportName: 'Basic',
+      exported: true,
+    })
+  })
 
-	it('handles generic instantiation and re-exported bindings', () => {
-		const { stories, diagnostics } = scanStoryFile(
-			`import { defineStory } from '@octane-xplat/workshop'
+  it('handles generic instantiation and re-exported bindings', () => {
+    const { stories, diagnostics } = scanStoryFile(
+      `import { defineStory } from '@octane-xplat/workshop'
 const A = defineStory({ id: 'a', title: 'A', targets: ['web', 'ios'], component: C, args: {} })
 const B = defineStory({ id: 'b', title: 'B', targets: 'all', capabilities: ['camera'], component: C, args: {} })
 export { A, B }
 export default defineStory({ id: 'd', title: 'D', targets: 'all', component: C, args: {} })`,
-			'x.stories.tsrx',
-		)
+      'x.stories.tsrx',
+    )
 
-		expect(diagnostics).toEqual([])
-		expect(stories.map((s) => s.id)).toEqual(['a', 'b', 'd'])
-		expect(stories[1].capabilities).toEqual(['camera'])
-		expect(stories[2].exportName).toBe('default')
-	})
+    expect(diagnostics).toEqual([])
+    expect(stories.map((s) => s.id)).toEqual(['a', 'b', 'd'])
+    expect(stories[1].capabilities).toEqual(['camera'])
+    expect(stories[2].exportName).toBe('default')
+  })
 
-	it('rejects computed metadata with an actionable diagnostic', () => {
-		const { stories, diagnostics } = scanStoryFile(
-			`import { defineStory } from '@octane-xplat/workshop'
+  it('rejects computed metadata with an actionable diagnostic', () => {
+    const { stories, diagnostics } = scanStoryFile(
+      `import { defineStory } from '@octane-xplat/workshop'
 const slug = 'x'
 export const A = defineStory({ id: slug, title: 'A', targets: 'all', component: C, args: {} })`,
-			'x.stories.tsrx',
-		)
+      'x.stories.tsrx',
+    )
 
-		expect(stories).toEqual([])
-		expect(diagnostics[0].message).toMatch(/literal.*"id"|"id".*literal/i)
-	})
+    expect(stories).toEqual([])
+    expect(diagnostics[0].message).toMatch(/literal.*"id"|"id".*literal/i)
+  })
 
-	it('marks unexported definitions for the discovery diagnostic', () => {
-		const { stories } = scanStoryFile(
-			`import { defineStory } from '@octane-xplat/workshop'
+  it('marks unexported definitions for the discovery diagnostic', () => {
+    const { stories } = scanStoryFile(
+      `import { defineStory } from '@octane-xplat/workshop'
 const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args: {} })`,
-			'x.stories.tsrx',
-		)
+      'x.stories.tsrx',
+    )
 
-		expect(stories[0].exported).toBe(false)
-	})
+    expect(stories[0].exported).toBe(false)
+  })
 
-	it('ignores mentions of defineStory that are not calls', () => {
-		const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
-		expect(diagnostics).toEqual([])
-		expect(stories).toHaveLength(1)
-	})
+  it('ignores mentions of defineStory that are not calls', () => {
+    const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
+    expect(diagnostics).toEqual([])
+    expect(stories).toHaveLength(1)
+  })
 })
 
 describe('applicableTargets', () => {
-	it('intersects declared targets with the file suffix', () => {
-		expect(applicableTargets(['web', 'ios'], '/a/b.stories.ios.tsrx')).toEqual(['ios'])
-		expect(applicableTargets(['web'], '/a/b.stories.ios.tsrx')).toEqual([])
-		expect(applicableTargets(['web', 'ios', 'android'], '/a/b.stories.mobile.tsrx')).toEqual([
-			'ios',
-			'android',
-		])
+  it('intersects declared targets with the file suffix', () => {
+    expect(applicableTargets(['web', 'ios'], '/a/b.stories.ios.tsrx')).toEqual(['ios'])
+    expect(applicableTargets(['web'], '/a/b.stories.ios.tsrx')).toEqual([])
+    expect(applicableTargets(['web', 'ios', 'android'], '/a/b.stories.mobile.tsrx')).toEqual([
+      'ios',
+      'android',
+    ])
 
-		expect(applicableTargets(['macos'], '/a/b.stories.tsrx')).toEqual(['macos'])
-	})
+    expect(applicableTargets(['macos'], '/a/b.stories.tsrx')).toEqual(['macos'])
+  })
 })
 
 describe('discoverStories', () => {
-	const fixture = (files) => {
-		const root = mkdtempSync(join(tmpdir(), 'ws-disc-'))
-		for (const [name, contents] of Object.entries(files)) {
-			const file = join(root, name)
-			mkdirSync(join(file, '..'), { recursive: true })
-			writeFileSync(file, contents)
-		}
+  const fixture = (files) => {
+    const root = mkdtempSync(join(tmpdir(), 'ws-disc-'))
+    for (const [name, contents] of Object.entries(files)) {
+      const file = join(root, name)
+      mkdirSync(join(file, '..'), { recursive: true })
+      writeFileSync(file, contents)
+    }
 
-		return root
-	}
+    return root
+  }
 
-	it('discovers sorted entries with applicability for the build target', () => {
-		const root = fixture({
-			'src/a.stories.tsrx': STORY,
-			'src/leaf.stories.ios.tsrx': STORY.replace("'counter/basic'", "'leaf/ios'"),
-		})
+  it('discovers sorted entries with applicability for the build target', () => {
+    const root = fixture({
+      'src/a.stories.tsrx': STORY,
+      'src/leaf.stories.ios.tsrx': STORY.replace("'counter/basic'", "'leaf/ios'"),
+    })
 
-		const { entries, diagnostics } = discoverStories(root, { target: 'web' })
-		expect(diagnostics).toEqual([])
-		expect(entries).toHaveLength(2)
-		const web = entries.find((e) => e.id === 'counter/basic')
-		const ios = entries.find((e) => e.id === 'leaf/ios')
-		expect(web.applicable).toBe(true)
-		expect(ios.applicable).toBe(false)
-		expect(ios.reason).toMatch(/not web/)
-	})
+    const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+    expect(diagnostics).toEqual([])
+    expect(entries).toHaveLength(2)
+    const web = entries.find((e) => e.id === 'counter/basic')
+    const ios = entries.find((e) => e.id === 'leaf/ios')
+    expect(web.applicable).toBe(true)
+    expect(ios.applicable).toBe(false)
+    expect(ios.reason).toMatch(/not web/)
+  })
 
-	it('reports duplicate ids with both locations', () => {
-		const root = fixture({
-			'src/a.stories.tsrx': STORY,
-			'src/b.stories.tsrx': STORY.replace('export const Basic', 'export const Other'),
-		})
+  it('reports duplicate ids with both locations', () => {
+    const root = fixture({
+      'src/a.stories.tsrx': STORY,
+      'src/b.stories.tsrx': STORY.replace('export const Basic', 'export const Other'),
+    })
 
-		const { entries, diagnostics } = discoverStories(root, { target: 'web' })
-		expect(entries).toHaveLength(1)
-		expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
-		expect(diagnostics[0].message).toMatch(/a\.stories\.tsrx/)
-	})
+    const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+    expect(entries).toHaveLength(1)
+    expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
+    expect(diagnostics[0].message).toMatch(/a\.stories\.tsrx/)
+  })
 
-	it('allows one story id across disjoint platform leaves', () => {
-		const root = fixture({
-			'src/iso.stories.web.tsrx': STORY.replace("targets: 'all'", "targets: ['web']"),
-			'src/iso.stories.macos.tsrx': STORY.replace("targets: 'all'", "targets: ['macos']"),
-		})
+  it('allows one story id across disjoint platform leaves', () => {
+    const root = fixture({
+      'src/iso.stories.web.tsrx': STORY.replace("targets: 'all'", "targets: ['web']"),
+      'src/iso.stories.macos.tsrx': STORY.replace("targets: 'all'", "targets: ['macos']"),
+    })
 
-		const { entries, diagnostics } = discoverStories(root, { target: 'macos' })
-		expect(diagnostics).toEqual([])
-		expect(entries).toHaveLength(1)
-		expect(entries[0].applicable).toBe(true)
-	})
+    const { entries, diagnostics } = discoverStories(root, { target: 'macos' })
+    expect(diagnostics).toEqual([])
+    expect(entries).toHaveLength(1)
+    expect(entries[0].applicable).toBe(true)
+  })
 
-	it('still conflicts when leaves claim the same id for the same target', () => {
-		const root = fixture({
-			'src/a.stories.ios.tsrx': STORY,
-			'src/b.stories.ios.tsrx': STORY.replace('export const Basic', 'export const Other'),
-		})
+  it('still conflicts when leaves claim the same id for the same target', () => {
+    const root = fixture({
+      'src/a.stories.ios.tsrx': STORY,
+      'src/b.stories.ios.tsrx': STORY.replace('export const Basic', 'export const Other'),
+    })
 
-		const { diagnostics } = discoverStories(root, { target: 'ios' })
-		expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
-	})
+    const { diagnostics } = discoverStories(root, { target: 'ios' })
+    expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
+  })
 
-	it('reports unexported stories during discovery', () => {
-		const root = fixture({
-			'src/a.stories.tsrx': `import { defineStory } from '@octane-xplat/workshop'
+  it('reports unexported stories during discovery', () => {
+    const root = fixture({
+      'src/a.stories.tsrx': `import { defineStory } from '@octane-xplat/workshop'
 const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args: {} })`,
-		})
+    })
 
-		const { entries, diagnostics } = discoverStories(root, { target: 'web' })
-		expect(entries).toHaveLength(0)
-		expect(diagnostics[0].message).toMatch(/must be exported/)
-	})
+    const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+    expect(entries).toHaveLength(0)
+    expect(diagnostics[0].message).toMatch(/must be exported/)
+  })
 
-	it('target filtering: web leaf inapplicable for ios target', () => {
-		const root = fixture({ 'src/w.stories.web.tsrx': STORY })
-		const { entries } = discoverStories(root, { target: 'ios' })
-		expect(entries[0].applicable).toBe(false)
-	})
+  it('target filtering: web leaf inapplicable for ios target', () => {
+    const root = fixture({ 'src/w.stories.web.tsrx': STORY })
+    const { entries } = discoverStories(root, { target: 'ios' })
+    expect(entries[0].applicable).toBe(false)
+  })
 })
 
 describe('metadata integrity', () => {
-	it('rejects computed arrays and unquoted identifiers without evaluation', () => {
-		for (const targets of ["['web'].concat(other)", 'all', '[]', "'web'"]) {
-			const { stories, diagnostics } = scanStoryFile(
-				STORY.replace("targets: 'all'", `targets: ${targets}`),
-				'invalid.stories.tsrx',
-			)
+  it('rejects computed arrays and unquoted identifiers without evaluation', () => {
+    for (const targets of ["['web'].concat(other)", 'all', '[]', "'web'"]) {
+      const { stories, diagnostics } = scanStoryFile(
+        STORY.replace("targets: 'all'", `targets: ${targets}`),
+        'invalid.stories.tsrx',
+      )
 
-			expect(stories).toHaveLength(0)
-			expect(diagnostics).not.toHaveLength(0)
-		}
-	})
+      expect(stories).toHaveLength(0)
+      expect(diagnostics).not.toHaveLength(0)
+    }
+  })
 
-	it('does not qualify required capabilities merely from target applicability', () => {
-		const root = mkdtempSync(join(tmpdir(), 'ws-caps-'))
-		writeFileSync(
-			join(root, 'caps.stories.tsrx'),
-			STORY.replace("targets: 'all'", "targets: 'all', capabilities: ['camera']"),
-		)
+  it('does not qualify required capabilities merely from target applicability', () => {
+    const root = mkdtempSync(join(tmpdir(), 'ws-caps-'))
+    writeFileSync(
+      join(root, 'caps.stories.tsrx'),
+      STORY.replace("targets: 'all'", "targets: 'all', capabilities: ['camera']"),
+    )
 
-		const { entries, diagnostics } = discoverStories(root)
-		expect(diagnostics).toEqual([])
-		expect(entries[0].applicable).toBe(false)
-		expect(entries[0].reason).toMatch(/unknown\/unqualified.*camera/)
-	})
+    const { entries, diagnostics } = discoverStories(root)
+    expect(diagnostics).toEqual([])
+    expect(entries[0].applicable).toBe(false)
+    expect(entries[0].reason).toMatch(/unknown\/unqualified.*camera/)
+  })
 })

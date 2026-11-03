@@ -11,21 +11,21 @@ import { cx } from '@octane-xplat/lib'
  * @see ButtonGroupProps.
  */
 export function ButtonGroup(props: ButtonGroupProps): unknown @{
-	const orientation = props.orientation ?? 'horizontal'
-	const size = useSize(props.size, 'md')
-	const value = { orientation, isDisabled: !!props.isDisabled, size, position: 'only' as const }
+  const orientation = props.orientation ?? 'horizontal'
+  const size = useSize(props.size, 'md')
+  const value = { orientation, isDisabled: !!props.isDisabled, size, position: 'only' as const }
 
-	<ButtonGroupProvider value={value}>
-		<SizeProvider value={size}>
-			<masonview
-				id={props.id}
-				className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)}
-				style={mergeStyle({ display: 'flex' }, props.style)}
-				accessible={true}
-				accessibilityLabel={props.label}
-			>
-				{props.children}
-			</masonview>
-		</SizeProvider>
-	</ButtonGroupProvider>
+  <ButtonGroupProvider value={value}>
+    <SizeProvider value={size}>
+      <masonview
+        id={props.id}
+        className={cx('vx-button-group', `vx-button-group--${orientation}`, props.className)}
+        style={mergeStyle({ display: 'flex' }, props.style)}
+        accessible={true}
+        accessibilityLabel={props.label}
+      >
+        {props.children}
+      </masonview>
+    </SizeProvider>
+  </ButtonGroupProvider>
 }

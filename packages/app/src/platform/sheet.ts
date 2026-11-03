@@ -11,13 +11,13 @@ export { bottomSheetHost } from '@octane-xplat/ui/nativescript'
  *  Content is parameterized — callers pass any component (e.g. a demo
  *  render fn); defaults to the SheetPanel probe panel. */
 export function openBottomSheet(
-	Component: unknown = SheetPanel,
-	props: Record<string, unknown> = {},
+  Component: unknown = SheetPanel,
+  props: Record<string, unknown> = {},
 ) {
-	openSheetUI(Component as any, props).then(
-		() => console.log('[probe] sheet close'),
-		(e: Error) => console.log('[probe] sheet FAILED: ' + e.message),
-	)
+  openSheetUI(Component as any, props).then(
+    () => console.log('[probe] sheet close'),
+    (e: Error) => console.log('[probe] sheet FAILED: ' + e.message),
+  )
 
-	console.log('[probe] sheet open')
+  console.log('[probe] sheet open')
 }

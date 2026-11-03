@@ -44,184 +44,184 @@
  *  already true). The Image placeholder hooks this to re-apply its bitmap
  *  after the write has nulled `imageSource` (L5, decision #103). */
 export function createSizedImageBinding(
-	options: {
-		afterIssue?: (view: any) => void
-		reissueOnResize?: boolean
-		relayoutOnImageSource?: boolean
-	} = {},
+  options: {
+    afterIssue?: (view: any) => void
+    reissueOnResize?: boolean
+    relayoutOnImageSource?: boolean
+  } = {},
 ) {
-	const reissueOnResize = options.reissueOnResize ?? true
-	const relayoutOnImageSource = options.relayoutOnImageSource ?? true
-	let view: any = null
-	let listening = false
-	let laidOut = false
-	let pendingSrc: any
-	let pendingStretch: string | undefined
-	let appliedSrc: any
-	let applied = false
-	let width = 0
-	let height = 0
+  const reissueOnResize = options.reissueOnResize ?? true
+  const relayoutOnImageSource = options.relayoutOnImageSource ?? true
+  let view: any = null
+  let listening = false
+  let laidOut = false
+  let pendingSrc: any
+  let pendingStretch: string | undefined
+  let appliedSrc: any
+  let applied = false
+  let width = 0
+  let height = 0
 
-	const issue = (next: any) => {
-		// `pendingStretch` overrides view.stretch for the decode gates when the
-		// content-rect path draws stretch='fill' under a different semantic fit
-		// ('none' needs the full-resolution source to find the natural size).
-		const downscale = (pendingStretch ?? view.stretch) !== 'none'
-		view.decodeWidth = { value: downscale ? width : 0, unit: 'px' }
-		view.decodeHeight = { value: downscale ? height : 0, unit: 'px' }
-		view.src = next
-		appliedSrc = next
-		applied = true
-		options.afterIssue?.(view)
-	}
+  const issue = (next: any) => {
+    // `pendingStretch` overrides view.stretch for the decode gates when the
+    // content-rect path draws stretch='fill' under a different semantic fit
+    // ('none' needs the full-resolution source to find the natural size).
+    const downscale = (pendingStretch ?? view.stretch) !== 'none'
+    view.decodeWidth = { value: downscale ? width : 0, unit: 'px' }
+    view.decodeHeight = { value: downscale ? height : 0, unit: 'px' }
+    view.src = next
+    appliedSrc = next
+    applied = true
+    options.afterIssue?.(view)
+  }
 
-	const evaluate = () => {
-		if (!view) {
-			return
-		}
+  const evaluate = () => {
+    if (!view) {
+      return
+    }
 
-		const measuredWidth = view.getMeasuredWidth?.() ?? 0
-		const measuredHeight = view.getMeasuredHeight?.() ?? 0
-		// Hold the request until the first layout pass — before it the
-		// measured size is meaningless. A 0 axis after layout is a real
-		// measure (auto/intrinsic or genuinely zero), not a missing one:
-		// issue with that axis's decode dim at 0 (source resolution on
-		// Android) rather than deadlocking an image whose second axis only
-		// materializes once its bitmap loads.
-		if (!laidOut && view.isLayoutValid !== true && measuredWidth <= 0 && measuredHeight <= 0) {
-			if (view.isLoaded === true) {
-				view.requestLayout?.()
-				retryHeldIssue()
-			}
+    const measuredWidth = view.getMeasuredWidth?.() ?? 0
+    const measuredHeight = view.getMeasuredHeight?.() ?? 0
+    // Hold the request until the first layout pass — before it the
+    // measured size is meaningless. A 0 axis after layout is a real
+    // measure (auto/intrinsic or genuinely zero), not a missing one:
+    // issue with that axis's decode dim at 0 (source resolution on
+    // Android) rather than deadlocking an image whose second axis only
+    // materializes once its bitmap loads.
+    if (!laidOut && view.isLayoutValid !== true && measuredWidth <= 0 && measuredHeight <= 0) {
+      if (view.isLoaded === true) {
+        view.requestLayout?.()
+        retryHeldIssue()
+      }
 
-			return
-		}
+      return
+    }
 
-		if (!applied || pendingSrc !== appliedSrc) {
-			width = measuredWidth
-			height = measuredHeight
-			issue(pendingSrc)
-			return
-		}
+    if (!applied || pendingSrc !== appliedSrc) {
+      width = measuredWidth
+      height = measuredHeight
+      issue(pendingSrc)
+      return
+    }
 
-		if (measuredWidth === width && measuredHeight === height) {
-			return
-		}
+    if (measuredWidth === width && measuredHeight === height) {
+      return
+    }
 
-		// A reload nulls imageSource — never re-issue because an axis
-		// collapsed to 0, or an intrinsic-sized image would lose its second
-		// axis and loop.
-		if (measuredWidth <= 0 || measuredHeight <= 0) {
-			return
-		}
+    // A reload nulls imageSource — never re-issue because an axis
+    // collapsed to 0, or an intrinsic-sized image would lose its second
+    // axis and loop.
+    if (measuredWidth <= 0 || measuredHeight <= 0) {
+      return
+    }
 
-		if (!reissueOnResize) {
-			return
-		}
+    if (!reissueOnResize) {
+      return
+    }
 
-		const stretch = pendingStretch ?? view.stretch
-		if (stretch === 'fill' || stretch === 'none') {
-			return
-		}
+    const stretch = pendingStretch ?? view.stretch
+    if (stretch === 'fill' || stretch === 'none') {
+      return
+    }
 
-		width = measuredWidth
-		height = measuredHeight
-		issue(appliedSrc)
-	}
+    width = measuredWidth
+    height = measuredHeight
+    issue(appliedSrc)
+  }
 
-	const onLayout = () => {
-		laidOut = true
-		evaluate()
-	}
+  const onLayout = () => {
+    laidOut = true
+    evaluate()
+  }
 
-	// The bitmap changed the view's intrinsic size. NS core requests a
-	// layout on imageSourceChange itself, but that request never re-measures
-	// a foreign <image> inside a Mason container — ask again so an
-	// auto/intrinsic axis materializes (unconditional: a same-size rebind
-	// with a different aspect needs it too).
-	const onImageSource = () => {
-		if (relayoutOnImageSource) {
-			view?.requestLayout?.()
-			return
-		}
+  // The bitmap changed the view's intrinsic size. NS core requests a
+  // layout on imageSourceChange itself, but that request never re-measures
+  // a foreign <image> inside a Mason container — ask again so an
+  // auto/intrinsic axis materializes (unconditional: a same-size rebind
+  // with a different aspect needs it too).
+  const onImageSource = () => {
+    if (relayoutOnImageSource) {
+      view?.requestLayout?.()
+      return
+    }
 
-		// Android's Mason does re-measure a foreign leaf that has a pending
-		// layout request — but a source decoded inside the layout pass (a
-		// sync `data:` decode or a warm cache hit) leaves none pending, so
-		// the intrinsic axis the bitmap just made knowable stays 0. Defer
-		// one request past the pass, only while an axis is still missing —
-		// a flex-grown or stretched axis is already nonzero and untouched.
-		if (!missingIntrinsicAxis()) {
-			return
-		}
+    // Android's Mason does re-measure a foreign leaf that has a pending
+    // layout request — but a source decoded inside the layout pass (a
+    // sync `data:` decode or a warm cache hit) leaves none pending, so
+    // the intrinsic axis the bitmap just made knowable stays 0. Defer
+    // one request past the pass, only while an axis is still missing —
+    // a flex-grown or stretched axis is already nonzero and untouched.
+    if (!missingIntrinsicAxis()) {
+      return
+    }
 
-		setTimeout(() => {
-			if (missingIntrinsicAxis()) {
-				view?.requestLayout?.()
-			}
-		}, 0)
-	}
+    setTimeout(() => {
+      if (missingIntrinsicAxis()) {
+        view?.requestLayout?.()
+      }
+    }, 0)
+  }
 
-	const missingIntrinsicAxis = () =>
-		view?.imageSource &&
-		((view.getMeasuredWidth?.() ?? 0) <= 0 || (view.getMeasuredHeight?.() ?? 0) <= 0)
+  const missingIntrinsicAxis = () =>
+    view?.imageSource &&
+    ((view.getMeasuredWidth?.() ?? 0) <= 0 || (view.getMeasuredHeight?.() ?? 0) <= 0)
 
-	// Android marks a view layout-valid without emitting layoutChanged when
-	// the bounds never changed (a 0×0 image), and `loaded` usually fires
-	// before the binding's listener is attached. While held on an attached
-	// view, force a layout pass and re-evaluate on deferred ticks — bounded,
-	// so a permanently 0-sized view doesn't spin forever.
-	let holdRetries = 0
-	const onLoaded = () => {
-		view?.requestLayout?.()
-		retryHeldIssue()
-	}
-	const retryHeldIssue = () => {
-		if (holdRetries >= 10 || !view || applied) {
-			return
-		}
+  // Android marks a view layout-valid without emitting layoutChanged when
+  // the bounds never changed (a 0×0 image), and `loaded` usually fires
+  // before the binding's listener is attached. While held on an attached
+  // view, force a layout pass and re-evaluate on deferred ticks — bounded,
+  // so a permanently 0-sized view doesn't spin forever.
+  let holdRetries = 0
+  const onLoaded = () => {
+    view?.requestLayout?.()
+    retryHeldIssue()
+  }
+  const retryHeldIssue = () => {
+    if (holdRetries >= 10 || !view || applied) {
+      return
+    }
 
-		holdRetries++
-		setTimeout(evaluate, 0)
-	}
+    holdRetries++
+    setTimeout(evaluate, 0)
+  }
 
-	return {
-		/** (Re)bind source → view; issues once the view reports a real layout.
-		 *  `stretchForDecode` overrides view.stretch for the decode/reload
-		 *  gates — see `issue`. */
-		update(next: any, source: any, stretchForDecode?: string): void {
-			if (next !== view) {
-				view?.off?.('layoutChanged', onLayout)
-				view?.off?.('imageSourceChange', onImageSource)
-				view?.off?.('loaded', onLoaded)
-				view = next
-				listening = false
-				laidOut = false
-				holdRetries = 0
-				applied = false
-				appliedSrc = undefined
-			}
+  return {
+    /** (Re)bind source → view; issues once the view reports a real layout.
+     *  `stretchForDecode` overrides view.stretch for the decode/reload
+     *  gates — see `issue`. */
+    update(next: any, source: any, stretchForDecode?: string): void {
+      if (next !== view) {
+        view?.off?.('layoutChanged', onLayout)
+        view?.off?.('imageSourceChange', onImageSource)
+        view?.off?.('loaded', onLoaded)
+        view = next
+        listening = false
+        laidOut = false
+        holdRetries = 0
+        applied = false
+        appliedSrc = undefined
+      }
 
-			pendingSrc = source
-			pendingStretch = stretchForDecode
-			if (view && !listening && typeof view.on === 'function') {
-				view.on('layoutChanged', onLayout)
-				view.on('imageSourceChange', onImageSource)
-				view.on('loaded', onLoaded)
-				listening = true
-			}
+      pendingSrc = source
+      pendingStretch = stretchForDecode
+      if (view && !listening && typeof view.on === 'function') {
+        view.on('layoutChanged', onLayout)
+        view.on('imageSourceChange', onImageSource)
+        view.on('loaded', onLoaded)
+        listening = true
+      }
 
-			evaluate()
-		},
-		dispose(): void {
-			view?.off?.('layoutChanged', onLayout)
-			view?.off?.('imageSourceChange', onImageSource)
-			view?.off?.('loaded', onLoaded)
-			view = null
-			listening = false
-			laidOut = false
-			holdRetries = 0
-			applied = false
-		},
-	}
+      evaluate()
+    },
+    dispose(): void {
+      view?.off?.('layoutChanged', onLayout)
+      view?.off?.('imageSourceChange', onImageSource)
+      view?.off?.('loaded', onLoaded)
+      view = null
+      listening = false
+      laidOut = false
+      holdRetries = 0
+      applied = false
+    },
+  }
 }

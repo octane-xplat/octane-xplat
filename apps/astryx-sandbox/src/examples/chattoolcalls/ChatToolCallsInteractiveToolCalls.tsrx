@@ -26,35 +26,35 @@ Tests:       14 passed, 14 total
 Time:        1.8s`
 
 export function ChatToolCallsInteractiveToolCalls() {
-	return (
-		<ChatToolCalls
-			defaultIsExpanded
-			calls={[
-				{
-					name: 'edit',
-					target: 'src/utils/formatDate.ts',
-					status: 'complete',
-					duration: '85ms',
-					node: 'cli:remote-server',
-					additions: 6,
-					deletions: 3,
-					resultDetail: <CodeBlock code={editDiff} language="typescript" maxHeight="50vh" />,
-				},
-				{
-					name: 'bash',
-					target: 'yarn test',
-					status: 'complete',
-					duration: '1.8s',
-					node: 'cli:remote-server',
-					resultDetail: <CodeBlock code={testOutput} language="bash" maxHeight="50vh" />,
-				},
-				{
-					name: 'web_search',
-					target: 'Intl.DateTimeFormat locale options',
-					status: 'complete',
-					duration: '1.2s',
-				},
-			]}
-		/>
-	)
+  return (
+    <ChatToolCalls
+      defaultIsExpanded
+      calls={[
+        {
+          name: 'edit',
+          target: 'src/utils/formatDate.ts',
+          status: 'complete',
+          duration: '85ms',
+          node: 'cli:remote-server',
+          additions: 6,
+          deletions: 3,
+          resultDetail: <CodeBlock code={editDiff} language="typescript" maxHeight="50vh" />,
+        },
+        {
+          name: 'bash',
+          target: 'yarn test',
+          status: 'complete',
+          duration: '1.8s',
+          node: 'cli:remote-server',
+          resultDetail: <CodeBlock code={testOutput} language="bash" maxHeight="50vh" />,
+        },
+        {
+          name: 'web_search',
+          target: 'Intl.DateTimeFormat locale options',
+          status: 'complete',
+          duration: '1.2s',
+        },
+      ]}
+    />
+  )
 }

@@ -1,15 +1,15 @@
 // Consumer compilation fixture for the documented Markdown entrypoint.
 import {
-	createMarkdownStreamParser,
-	outlineFromDoc,
-	parseMdDoc,
-	flatTokensToLines,
-	tokenize,
-	type CodeTokenizer,
-	type CodeToken,
-	type MdDoc,
-	type MarkdownProps,
-	type SyntaxToken,
+  createMarkdownStreamParser,
+  outlineFromDoc,
+  parseMdDoc,
+  flatTokensToLines,
+  tokenize,
+  type CodeTokenizer,
+  type CodeToken,
+  type MdDoc,
+  type MarkdownProps,
+  type SyntaxToken,
 } from '@octane-xplat/ui/markdown'
 
 const parser = createMarkdownStreamParser()

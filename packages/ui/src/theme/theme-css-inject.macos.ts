@@ -6,14 +6,14 @@ import { generateThemeCss } from './theme-css'
 const injected = new Set<string>()
 
 export function ensureThemeCss(theme: DefinedTheme): void {
-	if (injected.has(theme.name)) {
-		return
-	}
-	registerStylesheet(`xplat-theme:${theme.name}`, generateThemeCss(theme, { target: 'native' }))
-	injected.add(theme.name)
+  if (injected.has(theme.name)) {
+    return
+  }
+  registerStylesheet(`xplat-theme:${theme.name}`, generateThemeCss(theme, { target: 'native' }))
+  injected.add(theme.name)
 }
 
 // AppKit has no document root; detached hosts use themeSchemeClasses().
 export function syncDocumentRootTheme(_name: string, _mode: 'light' | 'dark'): () => void {
-	return () => {}
+  return () => {}
 }

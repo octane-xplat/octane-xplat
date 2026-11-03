@@ -3,20 +3,20 @@ import { CheckboxInput } from '../../index.shared'
 import type { ParityFixture } from '../../parity'
 
 function CheckboxFixture(props: { checked: boolean }) @{
-	<CheckboxInput value={props.checked} />
+  <CheckboxInput value={props.checked} />
 }
 
 export const PARITY: ParityFixture[] = [
-	{
-		name: 'checkbox-off',
-		component: 'CheckboxInput',
-		renderer: CheckboxFixture,
-		props: { checked: false },
-	},
-	{
-		name: 'checkbox-on',
-		component: 'CheckboxInput',
-		renderer: CheckboxFixture,
-		props: { checked: true },
-	},
+  {
+    name: 'checkbox-off',
+    component: 'CheckboxInput',
+    renderer: CheckboxFixture,
+    props: { checked: false },
+  },
+  {
+    name: 'checkbox-on',
+    component: 'CheckboxInput',
+    renderer: CheckboxFixture,
+    props: { checked: true },
+  },
 ]

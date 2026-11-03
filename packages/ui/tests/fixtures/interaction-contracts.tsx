@@ -1,35 +1,35 @@
 import {
-	useKeyboard,
-	useClipboard,
-	useAnimation,
-	type KeyboardEvent,
-	type UseKeyboardOptions,
-	type UseKeyboardResult,
-	type UseClipboardOptions,
-	type UseClipboardResult,
-	type PanState,
-	type SwipeEvent,
-	type AnimationResult,
+  useKeyboard,
+  useClipboard,
+  useAnimation,
+  type KeyboardEvent,
+  type UseKeyboardOptions,
+  type UseKeyboardResult,
+  type UseClipboardOptions,
+  type UseClipboardResult,
+  type PanState,
+  type SwipeEvent,
+  type AnimationResult,
 } from '@octane-xplat/ui'
 
 const keys: UseKeyboardOptions = {
-	onKeyDown(event: KeyboardEvent) {
-		const code: string = event.code
-		const composing: boolean = event.isComposing
-		event.preventDefault()
-		void [code, composing]
-		// @ts-expect-error normalized events do not leak host objects
-		void event.target
-	},
+  onKeyDown(event: KeyboardEvent) {
+    const code: string = event.code
+    const composing: boolean = event.isComposing
+    event.preventDefault()
+    void [code, composing]
+    // @ts-expect-error normalized events do not leak host objects
+    void event.target
+  },
 }
 
 const keyboard: UseKeyboardResult = useKeyboard(keys)
 const supported: boolean = keyboard.isSupported
 const options: UseClipboardOptions = {
-	getItems: () => 'Hello',
-	onCopy: (success: boolean) => void success,
-	announce: 'Copied',
-	resetAfterMs: 2000,
+  getItems: () => 'Hello',
+  onCopy: (success: boolean) => void success,
+  announce: 'Copied',
+  resetAfterMs: 2000,
 }
 
 const clipboard: UseClipboardResult = useClipboard(options)
@@ -47,15 +47,15 @@ const invalidPhase: PanState = 'changed'
 // @ts-expect-error native direction flags are a bounded domain
 const invalidDirection: SwipeEvent['direction'] = 3
 void [
-	supported,
-	copied,
-	direct,
-	pressed,
-	isCopied,
-	finished,
-	spring,
-	phase,
-	direction,
-	invalidPhase,
-	invalidDirection,
+  supported,
+  copied,
+  direct,
+  pressed,
+  isCopied,
+  finished,
+  spring,
+  phase,
+  direction,
+  invalidPhase,
+  invalidDirection,
 ]

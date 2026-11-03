@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
-	cpSync,
-	mkdirSync,
-	mkdtempSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-	symlinkSync,
-	writeFileSync,
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -20,20 +20,20 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-nano-icons-consumer-'))
 
 function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
-	if (result.stdout) {
-		process.stdout.write(result.stdout)
-	}
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
 
-	if (result.stderr) {
-		process.stderr.write(result.stderr)
-	}
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
 
-	if (result.error) {
-		throw result.error
-	}
+  if (result.error) {
+    throw result.error
+  }
 
-	assert.equal(result.status, 0, `${command} ${args.join(' ')} failed`)
+  assert.equal(result.status, 0, `${command} ${args.join(' ')} failed`)
 }
 
 const CONSUMER_SRC = `
@@ -66,120 +66,120 @@ void element; void bound; void tinted; void missing; void invalid
 `
 
 try {
-	const pack = join(temporary, 'pack')
-	const extracted = join(temporary, 'extracted')
-	mkdirSync(pack)
-	mkdirSync(extracted)
-	run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
-	const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
-	assert.ok(tarball)
-	run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
-	const packed = join(extracted, 'package')
-	const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
-	for (const dep of ['@octane-xplat/ui']) {
-		assert.equal(manifest.dependencies[dep].startsWith('workspace:'), false)
-	}
+  const pack = join(temporary, 'pack')
+  const extracted = join(temporary, 'extracted')
+  mkdirSync(pack)
+  mkdirSync(extracted)
+  run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
+  const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+  assert.ok(tarball)
+  run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
+  const packed = join(extracted, 'package')
+  const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+  for (const dep of ['@octane-xplat/ui']) {
+    assert.equal(manifest.dependencies[dep].startsWith('workspace:'), false)
+  }
 
-	for (const condition of ['web', 'native', 'macos']) {
-		const conditionExport = manifest.exports['.'][condition]
-		const conditionTarget =
-			typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
+  for (const condition of ['web', 'native', 'macos']) {
+    const conditionExport = manifest.exports['.'][condition]
+    const conditionTarget =
+      typeof conditionExport === 'string' ? conditionExport : conditionExport?.default
 
-		assert.ok(conditionTarget.startsWith('./src/'))
-	}
+    assert.ok(conditionTarget.startsWith('./src/'))
+  }
 
-	assert.ok(manifest.exports['./build'].default.startsWith('./dist/'))
-	const macosComponent = readFileSync(join(packed, 'src/NanoIcon.macos.tsrx'), 'utf8')
-	assert.equal(
-		macosComponent,
-		readFileSync(join(packageRoot, 'src/NanoIcon.macos.tsrx'), 'utf8'),
-		'packed components retain authored source',
-	)
+  assert.ok(manifest.exports['./build'].default.startsWith('./dist/'))
+  const macosComponent = readFileSync(join(packed, 'src/NanoIcon.macos.tsrx'), 'utf8')
+  assert.equal(
+    macosComponent,
+    readFileSync(join(packageRoot, 'src/NanoIcon.macos.tsrx'), 'utf8'),
+    'packed components retain authored source',
+  )
 
-	assert.ok(readFileSync(join(packed, 'bin/nano-icons.mjs'), 'utf8').startsWith('#!'))
+  assert.ok(readFileSync(join(packed, 'bin/nano-icons.mjs'), 'utf8').startsWith('#!'))
 
-	for (const target of ['web', 'native', 'macos']) {
-		for (const mode of ['bundler', 'nodenext']) {
-			const consumer = join(temporary, `${target}-${mode}`)
-			const modules = join(consumer, 'node_modules')
-			mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
-			cpSync(packed, join(modules, '@octane-xplat/nano-icons'), { recursive: true })
-			for (const dependency of [
-				'octane',
-				'@iconify/types',
-				'@iconify/utils',
-				'@xmldom/xmldom',
-				'cubic2quad',
-				'fonteditor-core',
-				'pathkit-wasm',
-				'svg2ttf',
-				...(target === 'native' ? ['@nativescript-community/octane', '@nativescript/core'] : []),
-				...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
-			]) {
-				const destination = join(modules, dependency)
-				mkdirSync(dirname(destination), { recursive: true })
-				symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
-			}
+  for (const target of ['web', 'native', 'macos']) {
+    for (const mode of ['bundler', 'nodenext']) {
+      const consumer = join(temporary, `${target}-${mode}`)
+      const modules = join(consumer, 'node_modules')
+      mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
+      cpSync(packed, join(modules, '@octane-xplat/nano-icons'), { recursive: true })
+      for (const dependency of [
+        'octane',
+        '@iconify/types',
+        '@iconify/utils',
+        '@xmldom/xmldom',
+        'cubic2quad',
+        'fonteditor-core',
+        'pathkit-wasm',
+        'svg2ttf',
+        ...(target === 'native' ? ['@nativescript-community/octane', '@nativescript/core'] : []),
+        ...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
+      ]) {
+        const destination = join(modules, dependency)
+        mkdirSync(dirname(destination), { recursive: true })
+        symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
+      }
 
-			mkdirSync(join(modules, '@types'), { recursive: true })
-			symlinkSync(
-				join(packageRoot, 'node_modules', '@types/node'),
-				join(modules, '@types/node'),
-				'dir',
-			)
+      mkdirSync(join(modules, '@types'), { recursive: true })
+      symlinkSync(
+        join(packageRoot, 'node_modules', '@types/node'),
+        join(modules, '@types/node'),
+        'dir',
+      )
 
-			// Workspace packages are linked directly: their exports carry the same
-			// conditions, with types generated by the repo's postinstall typegen.
-			for (const workspacePackage of ['icons', 'ui']) {
-				symlinkSync(
-					join(repoRoot, 'packages', workspacePackage),
-					join(modules, '@octane-xplat', workspacePackage),
-					'dir',
-				)
-			}
+      // Workspace packages are linked directly: their exports carry the same
+      // conditions, with types generated by the repo's postinstall typegen.
+      for (const workspacePackage of ['icons', 'ui']) {
+        symlinkSync(
+          join(repoRoot, 'packages', workspacePackage),
+          join(modules, '@octane-xplat', workspacePackage),
+          'dir',
+        )
+      }
 
-			writeFileSync(join(consumer, 'package.json'), '{"type":"module"}')
-			writeFileSync(join(consumer, 'consumer.tsx'), CONSUMER_SRC)
+      writeFileSync(join(consumer, 'package.json'), '{"type":"module"}')
+      writeFileSync(join(consumer, 'consumer.tsx'), CONSUMER_SRC)
 
-			writeFileSync(
-				join(consumer, 'tsconfig.json'),
-				JSON.stringify({
-					compilerOptions: {
-						strict: true,
-						noEmit: true,
-						skipLibCheck: true,
-						target: 'esnext',
-						types: ['node'],
-						module: mode === 'bundler' ? 'esnext' : 'nodenext',
-						moduleResolution: mode,
-						jsx: 'react-jsx',
-						jsxImportSource:
-							target === 'native'
-								? '@nativescript-community/octane'
-								: target === 'macos'
-									? '@octane-xplat/jsx'
-									: 'octane',
-						customConditions: [target],
-						moduleSuffixes:
-							target === 'web'
-								? ['.web', '']
-								: target === 'macos'
-									? ['.macos', '']
-									: ['.mobile', ''],
-					},
-					files: ['consumer.tsx'],
-				}),
-			)
+      writeFileSync(
+        join(consumer, 'tsconfig.json'),
+        JSON.stringify({
+          compilerOptions: {
+            strict: true,
+            noEmit: true,
+            skipLibCheck: true,
+            target: 'esnext',
+            types: ['node'],
+            module: mode === 'bundler' ? 'esnext' : 'nodenext',
+            moduleResolution: mode,
+            jsx: 'react-jsx',
+            jsxImportSource:
+              target === 'native'
+                ? '@nativescript-community/octane'
+                : target === 'macos'
+                  ? '@octane-xplat/jsx'
+                  : 'octane',
+            customConditions: [target],
+            moduleSuffixes:
+              target === 'web'
+                ? ['.web', '']
+                : target === 'macos'
+                  ? ['.macos', '']
+                  : ['.mobile', ''],
+          },
+          files: ['consumer.tsx'],
+        }),
+      )
 
-			run(
-				process.execPath,
-				[join(packageRoot, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'],
-				consumer,
-			)
-		}
-	}
+      run(
+        process.execPath,
+        [join(packageRoot, 'node_modules/typescript/bin/tsc'), '-p', 'tsconfig.json'],
+        consumer,
+      )
+    }
+  }
 
-	console.log('nano-icons packed consumer: web/native/macos declarations pass Bundler and NodeNext')
+  console.log('nano-icons packed consumer: web/native/macos declarations pass Bundler and NodeNext')
 } finally {
-	rmSync(temporary, { recursive: true, force: true })
+  rmSync(temporary, { recursive: true, force: true })
 }

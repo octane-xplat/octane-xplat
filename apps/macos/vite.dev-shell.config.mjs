@@ -3,14 +3,14 @@ import { createMacOSConfig } from './vite.shared.mjs'
 
 const config = createMacOSConfig({ packaged: true, bamboo: false })
 export default defineConfig(async (env) => {
-	const resolved = await config(env)
-	return {
-		...resolved,
-		build: {
-			...resolved.build,
-			outDir: 'dist/dev',
-			emptyOutDir: false,
-			lib: { entry: 'src/dev-shell.mjs', formats: ['cjs'], fileName: 'shell' },
-		},
-	}
+  const resolved = await config(env)
+  return {
+    ...resolved,
+    build: {
+      ...resolved.build,
+      outDir: 'dist/dev',
+      emptyOutDir: false,
+      lib: { entry: 'src/dev-shell.mjs', formats: ['cjs'], fileName: 'shell' },
+    },
+  }
 })

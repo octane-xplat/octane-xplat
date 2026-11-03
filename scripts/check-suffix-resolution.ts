@@ -5,9 +5,9 @@
 import { spawnSync } from 'node:child_process'
 
 const result = spawnSync(
-	'bun',
-	['run', 'turbo', 'run', 'test:typescript', '--filter=@octane-xplat/cli'],
-	{ stdio: 'inherit' },
+  'bun',
+  ['run', 'turbo', 'run', 'test:typescript', '--filter=@octane-xplat/cli'],
+  { stdio: 'inherit' },
 )
 
 process.exitCode = result.status ?? 1

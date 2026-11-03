@@ -2,9 +2,9 @@
 // index.web.ts and index.macos.ts.
 export * from './types'
 export {
-	createShader,
-	createSharedDevice,
-	getWebGPUSupport,
-	isWebGPUSupported,
-	prefersReducedMotion,
+  createShader,
+  createSharedDevice,
+  getWebGPUSupport,
+  isWebGPUSupported,
+  prefersReducedMotion,
 } from './host'

@@ -10,31 +10,31 @@ import { Application, Utils } from '@nativescript/core'
 import { getThemeScheme, onThemeSchemeChange } from './theme-scheme'
 
 function applyStatusBarScheme(): void {
-	if (Application.android) {
-		// setDarkModeHandler stores the handler once per activity, then
-		// re-runs enableEdgeToEdge every call — one call installs + refreshes.
-		// 'light'/'dark' icon names invert: dark scheme → light icons.
-		// Lives on Utils.android — a bare Utils.setDarkModeHandler is
-		// undefined and would no-op silently.
-		Utils.android.setDarkModeHandler?.({ handler: () => getThemeScheme() === 'dark' })
-		return
-	}
+  if (Application.android) {
+    // setDarkModeHandler stores the handler once per activity, then
+    // re-runs enableEdgeToEdge every call — one call installs + refreshes.
+    // 'light'/'dark' icon names invert: dark scheme → light icons.
+    // Lives on Utils.android — a bare Utils.setDarkModeHandler is
+    // undefined and would no-op silently.
+    Utils.android.setDarkModeHandler?.({ handler: () => getThemeScheme() === 'dark' })
+    return
+  }
 
-	const style = getThemeScheme() === 'dark' ? 'light' : 'dark'
-	const root = Application.getRootView()
-	if (root) {
-		root.statusBarStyle = style
-	}
+  const style = getThemeScheme() === 'dark' ? 'light' : 'dark'
+  const root = Application.getRootView()
+  if (root) {
+    root.statusBarStyle = style
+  }
 
-	if (Application.ios) {
-		// Pushed pages own separate view controllers the root's property
-		// doesn't reach — app-level setter as fallback.
-		const nativeApp = Application.ios.nativeApp
-		const setter = 'setStatusBarStyle' in nativeApp ? nativeApp.setStatusBarStyle : undefined
-		if (typeof setter === 'function') {
-			setter.call(nativeApp, style === 'light' ? 1 : 0)
-		}
-	}
+  if (Application.ios) {
+    // Pushed pages own separate view controllers the root's property
+    // doesn't reach — app-level setter as fallback.
+    const nativeApp = Application.ios.nativeApp
+    const setter = 'setStatusBarStyle' in nativeApp ? nativeApp.setStatusBarStyle : undefined
+    if (typeof setter === 'function') {
+      setter.call(nativeApp, style === 'light' ? 1 : 0)
+    }
+  }
 }
 
 onThemeSchemeChange(applyStatusBarScheme)

@@ -8,23 +8,23 @@ import { pathToFileURL } from 'node:url'
 
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-lib-consumer-'))
 function run(command, args) {
-	const result = spawnSync(command, args, { encoding: 'utf8' })
-	assert.equal(result.status, 0, result.stderr || result.stdout)
+  const result = spawnSync(command, args, { encoding: 'utf8' })
+  assert.equal(result.status, 0, result.stderr || result.stdout)
 }
 
 try {
-	run('bun', ['pm', 'pack', '--destination', temporary])
-	const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
-	mkdirSync(join(temporary, 'unpacked'))
-	run('tar', ['-xzf', join(temporary, tarball), '-C', join(temporary, 'unpacked')])
-	const root = join(temporary, 'unpacked/package')
-	const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-	assert.equal(manifest.exports['.'].default, './src/index.ts')
-	assert.match(readFileSync(join(root, manifest.exports['.'].types), 'utf8'), /cx/)
-	const typeFixture = join(root, 'component-props.check.ts')
-	writeFileSync(
-		typeFixture,
-		`
+  run('bun', ['pm', 'pack', '--destination', temporary])
+  const tarball = readdirSync(temporary).find((file) => file.endsWith('.tgz'))
+  mkdirSync(join(temporary, 'unpacked'))
+  run('tar', ['-xzf', join(temporary, tarball), '-C', join(temporary, 'unpacked')])
+  const root = join(temporary, 'unpacked/package')
+  const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+  assert.equal(manifest.exports['.'].default, './src/index.ts')
+  assert.match(readFileSync(join(root, manifest.exports['.'].types), 'utf8'), /cx/)
+  const typeFixture = join(root, 'component-props.check.ts')
+  writeFileSync(
+    typeFixture,
+    `
 import { pickAccessibilityProps, pickLayoutChildProps } from './types/generated/index.js'
 const accessibility = pickAccessibilityProps({ accessibilityRole: 'heading' as const, id: 'ignored' })
 const role: 'heading' = accessibility.accessibilityRole
@@ -41,35 +41,35 @@ accessibility.id
 layout.style
 void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 `,
-	)
+  )
 
-	run('bun', ['run', 'tsc', '--noEmit', '--module', 'NodeNext', '--target', 'ES2020', typeFixture])
+  run('bun', ['run', 'tsc', '--noEmit', '--module', 'NodeNext', '--target', 'ES2020', typeFixture])
 
-	const {
-		cx,
-		pickAccessibilityProps,
-		equalAccessibilityProps,
-		pickLayoutChildProps,
-		equalLayoutChildProps,
-	} = await loadSource(pathToFileURL(join(root, manifest.exports['.'].default)))
+  const {
+    cx,
+    pickAccessibilityProps,
+    equalAccessibilityProps,
+    pickLayoutChildProps,
+    equalLayoutChildProps,
+  } = await loadSource(pathToFileURL(join(root, manifest.exports['.'].default)))
 
-	assert.equal(cx('host', [false, ['active']]), 'host active')
-	assert.equal(
-		equalAccessibilityProps(pickAccessibilityProps({ accessible: false }), { accessible: false }),
-		true,
-	)
+  assert.equal(cx('host', [false, ['active']]), 'host active')
+  assert.equal(
+    equalAccessibilityProps(pickAccessibilityProps({ accessible: false }), { accessible: false }),
+    true,
+  )
 
-	assert.equal(equalLayoutChildProps(pickLayoutChildProps({ row: 0 }), { row: 0 }), true)
-	// Node tooling must load emitted JavaScript, without TS stripping in node_modules.
-	const routingEntry = manifest.exports['./route-pattern']
-	assert.equal(routingEntry.default, './dist/route-pattern.js')
-	const { routePatternPath, parseRouteLocation } = await import(
-		pathToFileURL(join(root, routingEntry.default)).href
-	)
+  assert.equal(equalLayoutChildProps(pickLayoutChildProps({ row: 0 }), { row: 0 }), true)
+  // Node tooling must load emitted JavaScript, without TS stripping in node_modules.
+  const routingEntry = manifest.exports['./route-pattern']
+  assert.equal(routingEntry.default, './dist/route-pattern.js')
+  const { routePatternPath, parseRouteLocation } = await import(
+    pathToFileURL(join(root, routingEntry.default)).href
+  )
 
-	assert.equal(routePatternPath('items/[id]'), '/items/:id')
-	assert.deepEqual(parseRouteLocation('/?tag=a&tag=b').search, { tag: ['a', 'b'] })
-	console.log('lib packed consumer: published source and declarations pass')
+  assert.equal(routePatternPath('items/[id]'), '/items/:id')
+  assert.deepEqual(parseRouteLocation('/?tag=a&tag=b').search, { tag: ['a', 'b'] })
+  console.log('lib packed consumer: published source and declarations pass')
 } finally {
-	rmSync(temporary, { recursive: true, force: true })
+  rmSync(temporary, { recursive: true, force: true })
 }

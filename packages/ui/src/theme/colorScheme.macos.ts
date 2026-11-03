@@ -6,36 +6,36 @@ const listeners = new Set<() => void>()
 const host = () => (globalThis as Record<string, any>).__xplatAppKit ?? {}
 
 function getSystemScheme(): ColorScheme {
-	return host()?.getColorScheme?.() === 'dark' ? 'dark' : 'light'
+  return host()?.getColorScheme?.() === 'dark' ? 'dark' : 'light'
 }
 
 export function getColorScheme(): ColorScheme {
-	return getSystemScheme()
+  return getSystemScheme()
 }
 
 export function subscribeSystemScheme(callback: () => void): () => void {
-	listeners.add(callback)
-	if (!unsubscribeAppearance) {
-		unsubscribeAppearance = host()?.onAppearanceChange?.(() => {
-			listeners.forEach((listener) => listener())
-		})
-	}
+  listeners.add(callback)
+  if (!unsubscribeAppearance) {
+    unsubscribeAppearance = host()?.onAppearanceChange?.(() => {
+      listeners.forEach((listener) => listener())
+    })
+  }
 
-	let active = true
-	return () => {
-		if (!active) {
-			return
-		}
+  let active = true
+  return () => {
+    if (!active) {
+      return
+    }
 
-		active = false
-		listeners.delete(callback)
-		if (listeners.size === 0) {
-			unsubscribeAppearance?.()
-			unsubscribeAppearance = undefined
-		}
-	}
+    active = false
+    listeners.delete(callback)
+    if (listeners.size === 0) {
+      unsubscribeAppearance?.()
+      unsubscribeAppearance = undefined
+    }
+  }
 }
 
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribeSystemScheme, getSystemScheme)
+  return useSyncExternalStore(subscribeSystemScheme, getSystemScheme)
 }

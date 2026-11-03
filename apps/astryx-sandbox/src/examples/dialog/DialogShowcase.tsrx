@@ -3,14 +3,14 @@
 import { Dialog, DialogHeader, Text, VStack } from '@octane-xplat/ui'
 
 export function DialogShowcase() @{
-	return (
-		<Dialog isOpen isInline onOpenChange={() => {}}>
-			<VStack>
-				<DialogHeader title="Modal Title" onOpenChange={() => {}} />
-				<VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
-					<Text type="body">Dialog content goes here.</Text>
-				</VStack>
-			</VStack>
-		</Dialog>
-	)
+  return (
+    <Dialog isOpen isInline onOpenChange={() => {}}>
+      <VStack>
+        <DialogHeader title="Modal Title" onOpenChange={() => {}} />
+        <VStack gap={3} style={{ padding: 'var(--spacing-4)' }}>
+          <Text type="body">Dialog content goes here.</Text>
+        </VStack>
+      </VStack>
+    </Dialog>
+  )
 }

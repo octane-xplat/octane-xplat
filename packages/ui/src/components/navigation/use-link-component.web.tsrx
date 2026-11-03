@@ -10,20 +10,20 @@ import { isSafeDestination } from '../../routing/safe-url'
  *  and custom components receive `to={href}` so router-style links
  *  (React Router, TanStack) work alongside `href` readers. */
 function createSafeLink(Component: any) {
-	function SafeLink(props: any) {
-		const { href, to, ...rest } = props
-		if (!isSafeDestination(href) || !isSafeDestination(to)) {
-			return <a {...rest} />
-		}
+  function SafeLink(props: any) {
+    const { href, to, ...rest } = props
+    if (!isSafeDestination(href) || !isSafeDestination(to)) {
+      return <a {...rest} />
+    }
 
-		if (Component === 'a') {
-			return <a {...rest} href={href} />
-		}
+    if (Component === 'a') {
+      return <a {...rest} href={href} />
+    }
 
-		return <Component {...rest} href={href} to={to ?? href} />
-	}
+    return <Component {...rest} href={href} to={to ?? href} />
+  }
 
-	return SafeLink
+  return SafeLink
 }
 
 /** Resolve `as`, then the `LinkProvider` default, then `'a'` (Astryx
@@ -31,7 +31,7 @@ function createSafeLink(Component: any) {
  *  checks above; memoized so the element identity stays stable while the
  *  resolution is unchanged. */
 export function useLinkComponent(as?: LinkComponentType): LinkComponentType {
-	const ctx = useContext(LinkContext)
-	const resolved: any = as ?? ctx?.component ?? 'a'
-	return useMemo(() => createSafeLink(resolved), [resolved])
+  const ctx = useContext(LinkContext)
+  const resolved: any = as ?? ctx?.component ?? 'a'
+  return useMemo(() => createSafeLink(resolved), [resolved])
 }

@@ -2,11 +2,11 @@ import type { RouteTransitionContext, RouteTransitionResult, TransitionDefinitio
 
 /** @internal Platform animation boundary for incoming retained panes. */
 export interface PaneRouteTransitions {
-	run(
-		context: RouteTransitionContext,
-		name: string | undefined,
-		definition: TransitionDefinition | undefined,
-		view: unknown,
-	): Promise<RouteTransitionResult>
-	interrupt(): void
+  run(
+    context: RouteTransitionContext,
+    name: string | undefined,
+    definition: TransitionDefinition | undefined,
+    view: unknown,
+  ): Promise<RouteTransitionResult>
+  interrupt(): void
 }

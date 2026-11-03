@@ -7,7 +7,7 @@ import type { Service } from '@octane-xplat/lib/capability'
 import type { AuthSessionImpl } from './types'
 
 export const authSession: Service<AuthSessionImpl> = {
-	supported: false,
-	isAvailable: async () => false,
-	open: () => Promise.reject(new UnavailabilityError('authSession')),
+  supported: false,
+  isAvailable: async () => false,
+  open: () => Promise.reject(new UnavailabilityError('authSession')),
 }

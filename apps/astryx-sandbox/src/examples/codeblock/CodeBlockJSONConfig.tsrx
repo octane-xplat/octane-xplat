@@ -16,5 +16,5 @@ const code = `{
 }`
 
 export function CodeBlockJSONConfig() {
-	return <CodeBlock code={code} language="json" title="package.json" hasLineNumbers />
+  return <CodeBlock code={code} language="json" title="package.json" hasLineNumbers />
 }

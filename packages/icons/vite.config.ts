@@ -5,18 +5,18 @@ import { defineConfig } from 'vite'
 // entries (no type stripping inside node_modules). Component exports keep
 // shipping as authored source and are compiled by the app.
 export default defineConfig({
-	build: {
-		lib: {
-			entry: {
-				'vite/index': 'src/vite/index.ts',
-			},
-			formats: ['es'],
-		},
-		outDir: 'dist',
-		emptyOutDir: true,
-		minify: false,
-		rollupOptions: {
-			external: [/^node:/, /^@iconify\//, 'vite'],
-		},
-	},
+  build: {
+    lib: {
+      entry: {
+        'vite/index': 'src/vite/index.ts',
+      },
+      formats: ['es'],
+    },
+    outDir: 'dist',
+    emptyOutDir: true,
+    minify: false,
+    rollupOptions: {
+      external: [/^node:/, /^@iconify\//, 'vite'],
+    },
+  },
 })

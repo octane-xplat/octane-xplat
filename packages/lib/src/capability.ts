@@ -18,11 +18,11 @@ export type PermissionStatus = 'granted' | 'denied' | 'undetermined' | 'unsuppor
  * vocabulary.
  */
 export interface PermissionResponse {
-	status: PermissionStatus
-	/** Convenience: `status === 'granted'`. */
-	granted: boolean
-	/** false → the OS will not re-prompt; route the user to `openSettings()`. */
-	canAskAgain: boolean
+  status: PermissionStatus
+  /** Convenience: `status === 'granted'`. */
+  granted: boolean
+  /** false → the OS will not re-prompt; route the user to `openSettings()`. */
+  canAskAgain: boolean
 }
 
 /**
@@ -32,12 +32,12 @@ export interface PermissionResponse {
  * sites can tell which feature was misused.
  */
 export class UnavailabilityError extends Error {
-	readonly feature: string
-	constructor(feature: string) {
-		super(`${feature} is unavailable on this platform`)
-		this.name = 'UnavailabilityError'
-		this.feature = feature
-	}
+  readonly feature: string
+  constructor(feature: string) {
+    super(`${feature} is unavailable on this platform`)
+    this.name = 'UnavailabilityError'
+    this.feature = feature
+  }
 }
 
 /**
@@ -48,23 +48,23 @@ export class UnavailabilityError extends Error {
  * residual contract assertion to a named type at the owning bridge.
  */
 export function lookupGlobal(path: readonly [string, ...string[]]): unknown {
-	let value: unknown = globalThis
-	for (const key of path) {
-		if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
-			return undefined
-		}
+  let value: unknown = globalThis
+  for (const key of path) {
+    if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
+      return undefined
+    }
 
-		const record = value as Record<string, unknown>
-		value = key in record ? record[key] : undefined
-	}
-	return value
+    const record = value as Record<string, unknown>
+    value = key in record ? record[key] : undefined
+  }
+  return value
 }
 
 /** Throw UnavailabilityError for `feature` unless `available` is true. */
 export function assertAvailable(feature: string, available: boolean): void {
-	if (!available) {
-		throw new UnavailabilityError(feature)
-	}
+  if (!available) {
+    throw new UnavailabilityError(feature)
+  }
 }
 
 /**
@@ -73,8 +73,8 @@ export function assertAvailable(feature: string, available: boolean): void {
  * UnavailabilityError when the capability is absent — check before calling.
  */
 export type Service<T> = T & {
-	readonly supported: boolean
-	isAvailable(): Promise<boolean>
+  readonly supported: boolean
+  isAvailable(): Promise<boolean>
 }
 
 /**
@@ -82,6 +82,6 @@ export type Service<T> = T & {
  * without prompting; `requestPermissions()` may show the system dialog.
  */
 export type Permissioned<T> = Service<T> & {
-	getPermissions(): Promise<PermissionResponse>
-	requestPermissions(): Promise<PermissionResponse>
+  getPermissions(): Promise<PermissionResponse>
+  requestPermissions(): Promise<PermissionResponse>
 }

@@ -11,9 +11,9 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 const lastDemoStore = createStore<string | null>(null)
 
 export function setLastDemo(id: string) {
-	lastDemoStore.set(id)
+  lastDemoStore.set(id)
 }
 
 export function useLastDemo(): string | null {
-	return useStore(lastDemoStore)
+  return useStore(lastDemoStore)
 }

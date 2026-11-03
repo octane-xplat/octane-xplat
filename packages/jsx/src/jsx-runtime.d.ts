@@ -23,31 +23,31 @@ export * from './shared.js'
 export type HostElement = object
 
 export declare namespace JSX {
-	type Element = NativeNode
-	type ElementType = ElementTypeOf
-	interface IntrinsicElements extends NativeElements<HostElement> {}
-	interface IntrinsicAttributes {
-		key?: string | number
-	}
+  type Element = NativeNode
+  type ElementType = ElementTypeOf
+  interface IntrinsicElements extends NativeElements<HostElement> {}
+  interface IntrinsicAttributes {
+    key?: string | number
+  }
 
-	interface IntrinsicClassAttributes<T> {
-		ref?: Ref<T>
-	}
+  interface IntrinsicClassAttributes<T> {
+    ref?: Ref<T>
+  }
 
-	interface ElementChildrenAttribute {
-		children: {}
-	}
+  interface ElementChildrenAttribute {
+    children: {}
+  }
 }
 
 export declare function jsx(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxs(type: ElementTypeOf, props: unknown, key?: unknown): JSX.Element
 export declare function jsxDEV(
-	type: ElementTypeOf,
-	props: unknown,
-	key?: unknown,
-	isStaticChildren?: boolean,
-	source?: unknown,
-	self?: unknown,
+  type: ElementTypeOf,
+  props: unknown,
+  key?: unknown,
+  isStaticChildren?: boolean,
+  source?: unknown,
+  self?: unknown,
 ): JSX.Element
 
 export declare function Fragment(props: { children?: NativeNode }): JSX.Element

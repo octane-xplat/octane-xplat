@@ -4,10 +4,10 @@
  * value would mean. Callable thenables (functions carrying `then`) count.
  */
 export function isThenable(value: unknown): value is PromiseLike<unknown> {
-	return (
-		(typeof value === 'object' || typeof value === 'function') &&
-		value !== null &&
-		'then' in value &&
-		typeof value.then === 'function'
-	)
+  return (
+    (typeof value === 'object' || typeof value === 'function') &&
+    value !== null &&
+    'then' in value &&
+    typeof value.then === 'function'
+  )
 }

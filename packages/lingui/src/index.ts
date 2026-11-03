@@ -1,23 +1,23 @@
 export {
-	catalogsFromGlob,
-	defineCatalogs,
-	detectLocale,
-	getLocale,
-	i18n,
-	initLingui,
-	matchLocale,
-	setLocale,
-	subscribeLocale,
-	supportedLocales,
+  catalogsFromGlob,
+  defineCatalogs,
+  detectLocale,
+  getLocale,
+  i18n,
+  initLingui,
+  matchLocale,
+  setLocale,
+  subscribeLocale,
+  supportedLocales,
 } from './lingui'
 
 export {
-	useCollator,
-	useFilter,
-	useLingui,
-	useListFormatter,
-	useLocale,
-	createFilter,
+  useCollator,
+  useFilter,
+  useLingui,
+  useListFormatter,
+  useLocale,
+  createFilter,
 } from './hooks'
 
 export type { FilterMatch } from './hooks'

@@ -25,108 +25,108 @@ const outDir = join(pkgDir, 'src/types/macos')
 const require = createRequire(import.meta.url)
 
 const BUILTINS = new Set([
-	'string',
-	'number',
-	'boolean',
-	'object',
-	'symbol',
-	'bigint',
-	'unknown',
-	'any',
-	'void',
-	'never',
-	'undefined',
-	'null',
-	'this',
-	'true',
-	'false',
-	'Array',
-	'ArrayBuffer',
-	'ArrayBufferLike',
-	'Boolean',
-	'DataView',
-	'Date',
-	'Error',
-	'Float32Array',
-	'Float64Array',
-	'Function',
-	'Int8Array',
-	'Int16Array',
-	'Int32Array',
-	'Iterable',
-	'IterableIterator',
-	'Iterator',
-	'Map',
-	'Math',
-	'Number',
-	'Object',
-	'Promise',
-	'PropertyKey',
-	'ReadonlyArray',
-	'Record',
-	'RegExp',
-	'Set',
-	'String',
-	'Symbol',
-	'Uint8Array',
-	'Uint8ClampedArray',
-	'Uint16Array',
-	'Uint32Array',
-	'WeakMap',
-	'WeakSet',
-	'Partial',
-	'Required',
-	'Pick',
-	'Omit',
-	'Exclude',
-	'Extract',
-	'NonNullable',
-	'Parameters',
-	'ReturnType',
-	'InstanceType',
-	'ConstructorParameters',
-	'ThisParameterType',
-	'OmitThisParameter',
-	'Awaited',
-	'CallableFunction',
-	'NewableFunction',
-	'Uppercase',
-	'Lowercase',
-	'Capitalize',
-	'Uncapitalize',
-	'unique',
-	'keyof',
-	'typeof',
-	'infer',
-	'extends',
-	'in',
-	'as',
-	'is',
-	'out',
-	'const',
-	'globalThis',
-	'arguments',
-	'new',
-	'abstract',
-	'readonly',
-	'static',
-	'public',
-	'private',
-	'protected',
-	'override',
-	'get',
-	'set',
-	'var',
-	'let',
-	'enum',
-	'import',
-	'declare',
-	'namespace',
-	'module',
-	'interface',
-	'class',
-	'type',
-	'function',
+  'string',
+  'number',
+  'boolean',
+  'object',
+  'symbol',
+  'bigint',
+  'unknown',
+  'any',
+  'void',
+  'never',
+  'undefined',
+  'null',
+  'this',
+  'true',
+  'false',
+  'Array',
+  'ArrayBuffer',
+  'ArrayBufferLike',
+  'Boolean',
+  'DataView',
+  'Date',
+  'Error',
+  'Float32Array',
+  'Float64Array',
+  'Function',
+  'Int8Array',
+  'Int16Array',
+  'Int32Array',
+  'Iterable',
+  'IterableIterator',
+  'Iterator',
+  'Map',
+  'Math',
+  'Number',
+  'Object',
+  'Promise',
+  'PropertyKey',
+  'ReadonlyArray',
+  'Record',
+  'RegExp',
+  'Set',
+  'String',
+  'Symbol',
+  'Uint8Array',
+  'Uint8ClampedArray',
+  'Uint16Array',
+  'Uint32Array',
+  'WeakMap',
+  'WeakSet',
+  'Partial',
+  'Required',
+  'Pick',
+  'Omit',
+  'Exclude',
+  'Extract',
+  'NonNullable',
+  'Parameters',
+  'ReturnType',
+  'InstanceType',
+  'ConstructorParameters',
+  'ThisParameterType',
+  'OmitThisParameter',
+  'Awaited',
+  'CallableFunction',
+  'NewableFunction',
+  'Uppercase',
+  'Lowercase',
+  'Capitalize',
+  'Uncapitalize',
+  'unique',
+  'keyof',
+  'typeof',
+  'infer',
+  'extends',
+  'in',
+  'as',
+  'is',
+  'out',
+  'const',
+  'globalThis',
+  'arguments',
+  'new',
+  'abstract',
+  'readonly',
+  'static',
+  'public',
+  'private',
+  'protected',
+  'override',
+  'get',
+  'set',
+  'var',
+  'let',
+  'enum',
+  'import',
+  'declare',
+  'namespace',
+  'module',
+  'interface',
+  'class',
+  'type',
+  'function',
 ])
 
 // Ambient runtime globals provided by @nativescript/objc-node-api — emitted as
@@ -145,80 +145,80 @@ const duplicates = new Map() // name -> [files]
 const sources = new Map()
 
 for (const file of files) {
-	const text = readFileSync(join(sdkSrc, file), 'utf8')
-	sources.set(file, text)
-	const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
-	const names = new Map()
-	for (const stmt of sf.statements) {
-		for (const [n, kind] of stmtNames(stmt)) {
-			const f = names.get(n) ?? { type: false, value: false, _class: false, kinds: new Set() }
-			f.type =
-				f.type ||
-				kind === 'class' ||
-				kind === 'interface' ||
-				kind === 'type' ||
-				kind === 'enum' ||
-				kind === 'module'
+  const text = readFileSync(join(sdkSrc, file), 'utf8')
+  sources.set(file, text)
+  const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+  const names = new Map()
+  for (const stmt of sf.statements) {
+    for (const [n, kind] of stmtNames(stmt)) {
+      const f = names.get(n) ?? { type: false, value: false, _class: false, kinds: new Set() }
+      f.type =
+        f.type ||
+        kind === 'class' ||
+        kind === 'interface' ||
+        kind === 'type' ||
+        kind === 'enum' ||
+        kind === 'module'
 
-			f.value =
-				f.value ||
-				kind === 'class' ||
-				kind === 'var' ||
-				kind === 'function' ||
-				kind === 'enum' ||
-				kind === 'module'
+      f.value =
+        f.value ||
+        kind === 'class' ||
+        kind === 'var' ||
+        kind === 'function' ||
+        kind === 'enum' ||
+        kind === 'module'
 
-			f._class = f._class || kind === 'class'
-			f.kinds.add(kind)
-			names.set(n, f)
-		}
-	}
+      f._class = f._class || kind === 'class'
+      f.kinds.add(kind)
+      names.set(n, f)
+    }
+  }
 
-	decls.set(file, names)
-	for (const name of names.keys()) {
-		const prev = owners.get(name)
-		if (prev && prev !== file) {
-			duplicates.set(name, (duplicates.get(name) ?? [prev]).concat(file))
-		} else {
-			owners.set(name, file)
-		}
-	}
+  decls.set(file, names)
+  for (const name of names.keys()) {
+    const prev = owners.get(name)
+    if (prev && prev !== file) {
+      duplicates.set(name, (duplicates.get(name) ?? [prev]).concat(file))
+    } else {
+      owners.set(name, file)
+    }
+  }
 }
 
 function stmtNames(stmt) {
-	const out = []
-	if (
-		ts.isClassDeclaration(stmt) ||
-		ts.isInterfaceDeclaration(stmt) ||
-		ts.isTypeAliasDeclaration(stmt) ||
-		ts.isEnumDeclaration(stmt) ||
-		ts.isFunctionDeclaration(stmt)
-	) {
-		if (stmt.name) {
-			out.push([
-				stmt.name.text,
-				ts.isClassDeclaration(stmt)
-					? 'class'
-					: ts.isInterfaceDeclaration(stmt)
-						? 'interface'
-						: ts.isTypeAliasDeclaration(stmt)
-							? 'type'
-							: ts.isEnumDeclaration(stmt)
-								? 'enum'
-								: 'function',
-			])
-		}
-	} else if (ts.isVariableStatement(stmt)) {
-		for (const d of stmt.declarationList.declarations) {
-			if (ts.isIdentifier(d.name)) {
-				out.push([d.name.text, 'var'])
-			}
-		}
-	} else if (ts.isModuleDeclaration(stmt) && ts.isIdentifier(stmt.name)) {
-		out.push([stmt.name.text, 'module'])
-	}
+  const out = []
+  if (
+    ts.isClassDeclaration(stmt) ||
+    ts.isInterfaceDeclaration(stmt) ||
+    ts.isTypeAliasDeclaration(stmt) ||
+    ts.isEnumDeclaration(stmt) ||
+    ts.isFunctionDeclaration(stmt)
+  ) {
+    if (stmt.name) {
+      out.push([
+        stmt.name.text,
+        ts.isClassDeclaration(stmt)
+          ? 'class'
+          : ts.isInterfaceDeclaration(stmt)
+            ? 'interface'
+            : ts.isTypeAliasDeclaration(stmt)
+              ? 'type'
+              : ts.isEnumDeclaration(stmt)
+                ? 'enum'
+                : 'function',
+      ])
+    }
+  } else if (ts.isVariableStatement(stmt)) {
+    for (const d of stmt.declarationList.declarations) {
+      if (ts.isIdentifier(d.name)) {
+        out.push([d.name.text, 'var'])
+      }
+    }
+  } else if (ts.isModuleDeclaration(stmt) && ts.isIdentifier(stmt.name)) {
+    out.push([stmt.name.text, 'module'])
+  }
 
-	return out
+  return out
 }
 
 // Cross-file duplicates (libc/gss/IO overlaps): the ambient merges them; a
@@ -226,22 +226,22 @@ function stmtNames(stmt) {
 // others drop it at emission.
 const dropped = new Map() // file -> Set(name)
 for (const [name, candidates] of duplicates) {
-	const keeper = candidates.sort()[0]
-	for (const f of candidates) {
-		if (f !== keeper) {
-			if (!dropped.has(f)) {
-				dropped.set(f, new Set())
-			}
+  const keeper = candidates.sort()[0]
+  for (const f of candidates) {
+    if (f !== keeper) {
+      if (!dropped.has(f)) {
+        dropped.set(f, new Set())
+      }
 
-			dropped.get(f).add(name)
-		}
-	}
+      dropped.get(f).add(name)
+    }
+  }
 
-	owners.set(name, keeper)
+  owners.set(name, keeper)
 }
 
 if (duplicates.size) {
-	console.warn(`cross-file duplicates (first file wins): ${duplicates.size}`)
+  console.warn(`cross-file duplicates (first file wins): ${duplicates.size}`)
 }
 
 // Value-facet kinds: a `typeof X` / class-extends use needs the value.
@@ -252,75 +252,75 @@ const VALUE_KINDS = new Set(['class', 'var', 'function', 'enum', 'module'])
 // ---------------------------------------------------------------------------
 
 function collectUsage(sf) {
-	const used = new Map() // name -> 'type' | 'value'
-	const add = (name, kind) => {
-		const prev = used.get(name)
-		if (prev !== 'value') {
-			used.set(name, kind)
-		}
-	}
+  const used = new Map() // name -> 'type' | 'value'
+  const add = (name, kind) => {
+    const prev = used.get(name)
+    if (prev !== 'value') {
+      used.set(name, kind)
+    }
+  }
 
-	const local = new Set()
-	// Type parameters are local — collect them before walking.
-	const gatherLocals = (node) => {
-		node.typeParameters?.forEach((p) => local.add(p.name.text))
-		ts.forEachChild(node, gatherLocals)
-	}
+  const local = new Set()
+  // Type parameters are local — collect them before walking.
+  const gatherLocals = (node) => {
+    node.typeParameters?.forEach((p) => local.add(p.name.text))
+    ts.forEachChild(node, gatherLocals)
+  }
 
-	gatherLocals(sf)
+  gatherLocals(sf)
 
-	const visit = (node) => {
-		if (ts.isTypeReferenceNode(node)) {
-			// Qualified name `interop.Pointer` — the type name is the rightmost
-			// identifier; the qualifier root (`interop`) is the external ref.
-			const n = node.typeName
-			if (ts.isIdentifier(n)) {
-				add(n.text, 'type')
-			} else if (ts.isQualifiedName(n) && ts.isIdentifier(n.left)) {
-				add(n.left.text, 'type')
-			}
-		} else if (ts.isTypeQueryNode(node)) {
-			let e = node.exprName
-			while (e && !ts.isIdentifier(e)) {
-				e = e.left
-			}
+  const visit = (node) => {
+    if (ts.isTypeReferenceNode(node)) {
+      // Qualified name `interop.Pointer` — the type name is the rightmost
+      // identifier; the qualifier root (`interop`) is the external ref.
+      const n = node.typeName
+      if (ts.isIdentifier(n)) {
+        add(n.text, 'type')
+      } else if (ts.isQualifiedName(n) && ts.isIdentifier(n.left)) {
+        add(n.left.text, 'type')
+      }
+    } else if (ts.isTypeQueryNode(node)) {
+      let e = node.exprName
+      while (e && !ts.isIdentifier(e)) {
+        e = e.left
+      }
 
-			if (e) {
-				add(e.text, 'value')
-			}
-		} else if (ts.isExpressionWithTypeArguments(node)) {
-			// `extends X` needs the value facet (constructor); `implements`/interface
-			// extends are pure type positions.
-			const isExtends =
-				node.parent &&
-				ts.isHeritageClause(node.parent) &&
-				node.parent.token === ts.SyntaxKind.ExtendsKeyword &&
-				node.parent.parent &&
-				ts.isClassDeclaration(node.parent.parent)
+      if (e) {
+        add(e.text, 'value')
+      }
+    } else if (ts.isExpressionWithTypeArguments(node)) {
+      // `extends X` needs the value facet (constructor); `implements`/interface
+      // extends are pure type positions.
+      const isExtends =
+        node.parent &&
+        ts.isHeritageClause(node.parent) &&
+        node.parent.token === ts.SyntaxKind.ExtendsKeyword &&
+        node.parent.parent &&
+        ts.isClassDeclaration(node.parent.parent)
 
-			let e = node.expression
-			while (e && !ts.isIdentifier(e)) {
-				e = e.left
-			}
+      let e = node.expression
+      while (e && !ts.isIdentifier(e)) {
+        e = e.left
+      }
 
-			if (e) {
-				add(e.text, isExtends ? 'value' : 'type')
-			}
-		}
+      if (e) {
+        add(e.text, isExtends ? 'value' : 'type')
+      }
+    }
 
-		ts.forEachChild(node, visit)
-	}
+    ts.forEachChild(node, visit)
+  }
 
-	visit(sf)
-	for (const name of local) {
-		used.delete(name)
-	}
+  visit(sf)
+  for (const name of local) {
+    used.delete(name)
+  }
 
-	for (const name of BUILTINS) {
-		used.delete(name)
-	}
+  for (const name of BUILTINS) {
+    used.delete(name)
+  }
 
-	return used
+  return used
 }
 
 // ---------------------------------------------------------------------------
@@ -328,7 +328,7 @@ function collectUsage(sf) {
 // ---------------------------------------------------------------------------
 
 const objcApi = require.resolve('@nativescript/objc-node-api/index.d.ts', {
-	paths: [join(pkgDir, '../macos-appkit')],
+  paths: [join(pkgDir, '../macos-appkit')],
 })
 
 const apiText = readFileSync(objcApi, 'utf8')
@@ -336,9 +336,9 @@ const apiSf = ts.createSourceFile('index.d.ts', apiText, ts.ScriptTarget.Latest,
 
 let globalBlock = null
 for (const stmt of apiSf.statements) {
-	if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
-		globalBlock = stmt
-	}
+  if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
+    globalBlock = stmt
+  }
 }
 
 // inline_functions.d.ts may add more globals — same treatment.
@@ -347,128 +347,128 @@ const inlineText = readFileSync(inlineSrc, 'utf8')
 const inlineSf = ts.createSourceFile('inline.d.ts', inlineText, ts.ScriptTarget.Latest, true)
 const globalBlocks = [globalBlock]
 for (const stmt of inlineSf.statements) {
-	if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
-		globalBlocks.push(stmt)
-	}
+  if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
+    globalBlocks.push(stmt)
+  }
 }
 
 const runtimeLines = [
-	'// Generated from @nativescript/objc-node-api ambient globals — module form.',
-	'// Regenerate: pnpm --filter @octane-xplat/platform generate:native-types',
-	'',
+  '// Generated from @nativescript/objc-node-api ambient globals — module form.',
+  '// Regenerate: pnpm --filter @octane-xplat/platform generate:native-types',
+  '',
 ]
 
 const runtimeExported = new Map()
 const runtimeNsMembers = new Map() // namespace name -> [member names]
 for (const block of globalBlocks) {
-	if (!block?.body) {
-		continue
-	}
+  if (!block?.body) {
+    continue
+  }
 
-	const src = block.getSourceFile()
-	for (const member of block.body.statements) {
-		for (const [n, kind] of stmtNames(member)) {
-			RUNTIME_NAMES.add(n)
-			runtimeExported.set(n, kind)
-			if (kind === 'module' && member.body && ts.isModuleBlock(member.body)) {
-				runtimeNsMembers.set(
-					n,
-					member.body.statements.flatMap((m) => {
-						const tp = m.typeParameters?.length
-							? [
-									`<${m.typeParameters.map((p) => p.getText(src)).join(', ')}>`,
-									`<${m.typeParameters.map((p) => p.name.text).join(', ')}>`,
-								]
-							: null
+  const src = block.getSourceFile()
+  for (const member of block.body.statements) {
+    for (const [n, kind] of stmtNames(member)) {
+      RUNTIME_NAMES.add(n)
+      runtimeExported.set(n, kind)
+      if (kind === 'module' && member.body && ts.isModuleBlock(member.body)) {
+        runtimeNsMembers.set(
+          n,
+          member.body.statements.flatMap((m) => {
+            const tp = m.typeParameters?.length
+              ? [
+                  `<${m.typeParameters.map((p) => p.getText(src)).join(', ')}>`,
+                  `<${m.typeParameters.map((p) => p.name.text).join(', ')}>`,
+                ]
+              : null
 
-						return stmtNames(m).map(([n2, k2]) => [n2, k2, tp])
-					}),
-				)
-			}
-		}
+            return stmtNames(m).map(([n2, k2]) => [n2, k2, tp])
+          }),
+        )
+      }
+    }
 
-		// `namespace objc` carries `export { importFramework as import }` — a
-		// keyword member — which a module namespace can't declare. Emit it as a
-		// `const` with an object type instead: `objc.import` stays callable.
-		if (
-			ts.isModuleDeclaration(member) &&
-			member.name.text === 'objc' &&
-			member.body &&
-			ts.isModuleBlock(member.body)
-		) {
-			const props = []
-			for (const stmt of member.body.statements) {
-				if (ts.isFunctionDeclaration(stmt) && stmt.name) {
-					const tp = stmt.typeParameters?.length
-						? `<${stmt.typeParameters.map((p) => p.getText(src)).join(', ')}>`
-						: ''
+    // `namespace objc` carries `export { importFramework as import }` — a
+    // keyword member — which a module namespace can't declare. Emit it as a
+    // `const` with an object type instead: `objc.import` stays callable.
+    if (
+      ts.isModuleDeclaration(member) &&
+      member.name.text === 'objc' &&
+      member.body &&
+      ts.isModuleBlock(member.body)
+    ) {
+      const props = []
+      for (const stmt of member.body.statements) {
+        if (ts.isFunctionDeclaration(stmt) && stmt.name) {
+          const tp = stmt.typeParameters?.length
+            ? `<${stmt.typeParameters.map((p) => p.getText(src)).join(', ')}>`
+            : ''
 
-					const params = stmt.parameters.map((p) => p.getText(src)).join(', ')
-					const ret = stmt.type ? `: ${stmt.type.getText(src)}` : ': void'
-					props.push(`${stmt.name.text}${tp}(${params})${ret}`)
-				} else if (
-					ts.isExportDeclaration(stmt) &&
-					stmt.exportClause &&
-					ts.isNamedExports(stmt.exportClause)
-				) {
-					for (const el of stmt.exportClause.elements) {
-						if (el.propertyName && el.name.text === 'import') {
-							const fn = member.body.statements.find(
-								(s) => ts.isFunctionDeclaration(s) && s.name?.text === el.propertyName.text,
-							)
+          const params = stmt.parameters.map((p) => p.getText(src)).join(', ')
+          const ret = stmt.type ? `: ${stmt.type.getText(src)}` : ': void'
+          props.push(`${stmt.name.text}${tp}(${params})${ret}`)
+        } else if (
+          ts.isExportDeclaration(stmt) &&
+          stmt.exportClause &&
+          ts.isNamedExports(stmt.exportClause)
+        ) {
+          for (const el of stmt.exportClause.elements) {
+            if (el.propertyName && el.name.text === 'import') {
+              const fn = member.body.statements.find(
+                (s) => ts.isFunctionDeclaration(s) && s.name?.text === el.propertyName.text,
+              )
 
-							if (fn) {
-								const params = fn.parameters.map((p) => p.getText(src)).join(', ')
-								const ret = fn.type ? `: ${fn.type.getText(src)}` : ': void'
-								props.push(`import(${params})${ret}`)
-							}
-						}
-					}
-				}
-			}
+              if (fn) {
+                const params = fn.parameters.map((p) => p.getText(src)).join(', ')
+                const ret = fn.type ? `: ${fn.type.getText(src)}` : ': void'
+                props.push(`import(${params})${ret}`)
+              }
+            }
+          }
+        }
+      }
 
-			runtimeLines.push(`export declare const objc: {\n\t${props.join('\n\t')}\n}`)
-			continue
-		}
+      runtimeLines.push(`export declare const objc: {\n\t${props.join('\n\t')}\n}`)
+      continue
+    }
 
-		const text = member.getText(src).replace(/^declare\s+/, '')
-		// `export {…}` statements inside declare global already carry `export`.
-		runtimeLines.push(text.startsWith('export') ? text : `export ${text}`)
-	}
+    const text = member.getText(src).replace(/^declare\s+/, '')
+    // `export {…}` statements inside declare global already carry `export`.
+    runtimeLines.push(text.startsWith('export') ? text : `export ${text}`)
+  }
 }
 
 const runtimeText = runtimeLines.join('\n\n') + '\n'
 const runtimeSf = ts.createSourceFile(
-	'objc-runtime.d.ts',
-	runtimeText,
-	ts.ScriptTarget.Latest,
-	true,
+  'objc-runtime.d.ts',
+  runtimeText,
+  ts.ScriptTarget.Latest,
+  true,
 )
 
 const runtimeUsed = collectUsage(runtimeSf)
 const runtimeImports = []
 for (const [name] of runtimeUsed) {
-	const owner = owners.get(name)
-	if (owner) {
-		runtimeImports.push([owner.replace(/\.d\.ts$/, ''), name])
-	}
+  const owner = owners.get(name)
+  if (owner) {
+    runtimeImports.push([owner.replace(/\.d\.ts$/, ''), name])
+  }
 }
 
 if (runtimeImports.length) {
-	const byFile = new Map()
-	for (const [f, n] of runtimeImports) {
-		if (!byFile.has(f)) {
-			byFile.set(f, [])
-		}
+  const byFile = new Map()
+  for (const [f, n] of runtimeImports) {
+    if (!byFile.has(f)) {
+      byFile.set(f, [])
+    }
 
-		byFile.get(f).push(n)
-	}
+    byFile.get(f).push(n)
+  }
 
-	const header = [...byFile.entries()]
-		.sort()
-		.map(([f, n]) => `import { ${n.sort().join(', ')} } from './${f}'`)
+  const header = [...byFile.entries()]
+    .sort()
+    .map(([f, n]) => `import { ${n.sort().join(', ')} } from './${f}'`)
 
-	runtimeLines.splice(3, 0, ...header, '')
+  runtimeLines.splice(3, 0, ...header, '')
 }
 
 mkdirSync(outDir, { recursive: true })
@@ -480,93 +480,93 @@ writeFileSync(join(outDir, 'objc-runtime.d.ts'), runtimeLines.join('\n\n') + '\n
 
 let totalImported = 0
 for (const file of files) {
-	const text = sources.get(file)
-	const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
-	const used = collectUsage(sf)
-	const localNames = decls.get(file)
+  const text = sources.get(file)
+  const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
+  const used = collectUsage(sf)
+  const localNames = decls.get(file)
 
-	const typeImports = new Map() // file -> names[]
-	const valueImports = new Map()
-	const push = (map, file, name) => {
-		if (!map.has(file)) {
-			map.set(file, [])
-		}
+  const typeImports = new Map() // file -> names[]
+  const valueImports = new Map()
+  const push = (map, file, name) => {
+    if (!map.has(file)) {
+      map.set(file, [])
+    }
 
-		map.get(file).push(name)
-	}
+    map.get(file).push(name)
+  }
 
-	for (const [name, kind] of used) {
-		if (localNames.has(name) || BUILTINS.has(name)) {
-			continue
-		}
+  for (const [name, kind] of used) {
+    if (localNames.has(name) || BUILTINS.has(name)) {
+      continue
+    }
 
-		const owner = owners.get(name)
-		if (RUNTIME_NAMES.has(name)) {
-			push(kind === 'value' ? valueImports : typeImports, './objc-runtime', name)
-		} else if (owner && owner !== file) {
-			push(
-				kind === 'value' ? valueImports : typeImports,
-				'./' + owner.replace(/\.d\.ts$/, ''),
-				name,
-			)
-		} else if (!owner) {
-			unresolved.add(name)
-		}
-	}
+    const owner = owners.get(name)
+    if (RUNTIME_NAMES.has(name)) {
+      push(kind === 'value' ? valueImports : typeImports, './objc-runtime', name)
+    } else if (owner && owner !== file) {
+      push(
+        kind === 'value' ? valueImports : typeImports,
+        './' + owner.replace(/\.d\.ts$/, ''),
+        name,
+      )
+    } else if (!owner) {
+      unresolved.add(name)
+    }
+  }
 
-	const lines = []
-	const emit = (map, keyword) => {
-		for (const [from, names] of [...map.entries()].sort()) {
-			lines.push(`${keyword} { ${names.sort().join(', ')} } from '${from}'`)
-		}
-	}
+  const lines = []
+  const emit = (map, keyword) => {
+    for (const [from, names] of [...map.entries()].sort()) {
+      lines.push(`${keyword} { ${names.sort().join(', ')} } from '${from}'`)
+    }
+  }
 
-	emit(typeImports, 'import type')
-	emit(valueImports, 'import')
-	if (lines.length) {
-		totalImported += lines.length
-		lines.push('')
-	}
+  emit(typeImports, 'import type')
+  emit(valueImports, 'import')
+  if (lines.length) {
+    totalImported += lines.length
+    lines.push('')
+  }
 
-	const drops = dropped.get(file) ?? new Set()
-	for (const stmt of sf.statements) {
-		if (stmt.kind === ts.SyntaxKind.NotEmittedStatement || !stmt.getText(sf).trim()) {
-			continue
-		}
+  const drops = dropped.get(file) ?? new Set()
+  for (const stmt of sf.statements) {
+    if (stmt.kind === ts.SyntaxKind.NotEmittedStatement || !stmt.getText(sf).trim()) {
+      continue
+    }
 
-		let s = stmt.getText(sf)
-		if (s.startsWith('///')) {
-			continue
-		}
+    let s = stmt.getText(sf)
+    if (s.startsWith('///')) {
+      continue
+    }
 
-		const names = stmtNames(stmt)
-		if (names.length && names.every(([n]) => drops.has(n))) {
-			continue
-		}
+    const names = stmtNames(stmt)
+    if (names.length && names.every(([n]) => drops.has(n))) {
+      continue
+    }
 
-		// `declare const x` + `declare class x` merges globally but duplicates
-		// in module scope — the class/enum/function/module is the real symbol.
-		if (
-			ts.isVariableStatement(stmt) &&
-			names.length &&
-			names.every(([n]) => {
-				const f = localNames.get(n)
-				return f && [...f.kinds].some((k) => k !== 'var' && k !== 'interface' && k !== 'type')
-			})
-		) {
-			continue
-		}
+    // `declare const x` + `declare class x` merges globally but duplicates
+    // in module scope — the class/enum/function/module is the real symbol.
+    if (
+      ts.isVariableStatement(stmt) &&
+      names.length &&
+      names.every(([n]) => {
+        const f = localNames.get(n)
+        return f && [...f.kinds].some((k) => k !== 'var' && k !== 'interface' && k !== 'type')
+      })
+    ) {
+      continue
+    }
 
-		// The node-api runtime attaches extend() to every class constructor;
-		// the metadata emitter doesn't model it.
-		if (file === 'Runtime.d.ts' && names.some(([n]) => n === 'NSObject')) {
-			s = s.replace(/}\s*$/, '\tstatic extend(definition: object, options?: object): any\n}')
-		}
+    // The node-api runtime attaches extend() to every class constructor;
+    // the metadata emitter doesn't model it.
+    if (file === 'Runtime.d.ts' && names.some(([n]) => n === 'NSObject')) {
+      s = s.replace(/}\s*$/, '\tstatic extend(definition: object, options?: object): any\n}')
+    }
 
-		lines.push(`export ${s}`)
-	}
+    lines.push(`export ${s}`)
+  }
 
-	writeFileSync(join(outDir, file), lines.join('\n\n') + '\n')
+  writeFileSync(join(outDir, file), lines.join('\n\n') + '\n')
 }
 
 // ---------------------------------------------------------------------------
@@ -574,14 +574,14 @@ for (const file of files) {
 // ---------------------------------------------------------------------------
 
 const barrel = [
-	'// Generated barrel — module-scoped macOS SDK decls.',
-	...files.map((f) => `export * from './${f.replace(/\.d\.ts$/, '')}'`),
+  '// Generated barrel — module-scoped macOS SDK decls.',
+  ...files.map((f) => `export * from './${f.replace(/\.d\.ts$/, '')}'`),
 ]
 
 writeFileSync(join(outDir, 'index.d.ts'), barrel.join('\n') + '\n')
 
 console.log(
-	`macos sdk: ${files.length} files, ${owners.size} names, ${totalImported} import statements, ${unresolved.size} unresolved (ambient-tolerated)`,
+  `macos sdk: ${files.length} files, ${owners.size} names, ${totalImported} import statements, ${unresolved.size} unresolved (ambient-tolerated)`,
 )
 
 // ---------------------------------------------------------------------------
@@ -591,8 +591,8 @@ console.log(
 // ---------------------------------------------------------------------------
 
 writeFileSync(
-	join(outDir, 'extras.d.ts'),
-	`// Hand-authored additions to the generated SDK surface.
+  join(outDir, 'extras.d.ts'),
+  `// Hand-authored additions to the generated SDK surface.
 import type { CGPoint, CGSize, CGRect } from './CoreFoundation'
 import type { NSObject } from './Runtime'
 
@@ -655,14 +655,14 @@ mkdirSync(implDir, { recursive: true })
 
 const SKIP_DL = new Set(['runtime', 'objc-runtime', 'extras', 'index'])
 const fwList = `[\n\t${files
-	.map((f) => basename(f, '.d.ts'))
-	.filter((n) => !n.startsWith('_') && !SKIP_DL.has(n))
-	.map((n) => `'/System/Library/Frameworks/${n}.framework/${n}'`)
-	.join(',\n\t')}\n]`
+  .map((f) => basename(f, '.d.ts'))
+  .filter((n) => !n.startsWith('_') && !SKIP_DL.has(n))
+  .map((n) => `'/System/Library/Frameworks/${n}.framework/${n}'`)
+  .join(',\n\t')}\n]`
 
 writeFileSync(
-	join(implDir, '_rt.js'),
-	`// Generated by packages/platform/scripts/generate-macos-sdk.ts — do not edit.
+  join(implDir, '_rt.js'),
+  `// Generated by packages/platform/scripts/generate-macos-sdk.ts — do not edit.
 // Regenerate: pnpm --filter @octane-xplat/platform generate:native-types
 
 // The ObjC bridge registers framework classes/protocols as globals only
@@ -713,8 +713,8 @@ export const _bind = (fw, name) =>
 )
 
 writeFileSync(
-	join(implDir, '_rt.d.ts'),
-	`export declare const lazyGlobal: any
+  join(implDir, '_rt.d.ts'),
+  `export declare const lazyGlobal: any
 export declare const _g: any
 export declare const _bind: any
 `,
@@ -724,63 +724,63 @@ export declare const _bind: any
 // value exports below (re-export `export type {X}` would collide).
 const typeParams = new Map() // name -> [decl, args]
 for (const file of files) {
-	const sf = ts.createSourceFile(file, sources.get(file), ts.ScriptTarget.Latest, true)
-	for (const stmt of sf.statements) {
-		const tps = stmt.typeParameters
-		for (const [n] of stmtNames(stmt)) {
-			if (tps?.length) {
-				typeParams.set(n, [
-					`<${tps.map((p) => p.getText(sf)).join(', ')}>`,
-					`<${tps.map((p) => p.name.text).join(', ')}>`,
-				])
-			}
-		}
-	}
+  const sf = ts.createSourceFile(file, sources.get(file), ts.ScriptTarget.Latest, true)
+  for (const stmt of sf.statements) {
+    const tps = stmt.typeParameters
+    for (const [n] of stmtNames(stmt)) {
+      if (tps?.length) {
+        typeParams.set(n, [
+          `<${tps.map((p) => p.getText(sf)).join(', ')}>`,
+          `<${tps.map((p) => p.name.text).join(', ')}>`,
+        ])
+      }
+    }
+  }
 }
 
 const impl = []
 for (const file of files) {
-	const local = decls.get(file)
-	const drops = dropped.get(file) ?? new Set()
-	const base = file.replace(/\.d\.ts$/, '')
-	const owned = [...owners.entries()]
-		.filter(([n, f]) => f === file && !drops.has(n))
-		.map(([n]) => n)
-		.sort()
+  const local = decls.get(file)
+  const drops = dropped.get(file) ?? new Set()
+  const base = file.replace(/\.d\.ts$/, '')
+  const owned = [...owners.entries()]
+    .filter(([n, f]) => f === file && !drops.has(n))
+    .map(([n]) => n)
+    .sort()
 
-	if (!owned.length) {
-		continue
-	}
+  if (!owned.length) {
+    continue
+  }
 
-	const needsRuntime = owned.some((n) => {
-		const p = typeParams.get(n)
-		return p && /\b(interop|objc|NativeObject|NativeClass)\./.test(p[0])
-	})
+  const needsRuntime = owned.some((n) => {
+    const p = typeParams.get(n)
+    return p && /\b(interop|objc|NativeObject|NativeClass)\./.test(p[0])
+  })
 
-	const fwBase =
-		SKIP_DL.has(base) || base.startsWith('_')
-			? ''
-			: `/System/Library/Frameworks/${base}.framework/${base}`
+  const fwBase =
+    SKIP_DL.has(base) || base.startsWith('_')
+      ? ''
+      : `/System/Library/Frameworks/${base}.framework/${base}`
 
-	// Impl files are .js + .d.ts (not .ts): Node strip-types resolves './x.js'
-	// directly, and tsc maps it to the sibling declaration — unlike '.ts'
-	// specifiers, which require allowImportingTsExtensions in every consumer.
-	const jsLines = [`import { _bind } from './_rt.js'`, `const FW = '${fwBase}'`]
+  // Impl files are .js + .d.ts (not .ts): Node strip-types resolves './x.js'
+  // directly, and tsc maps it to the sibling declaration — unlike '.ts'
+  // specifiers, which require allowImportingTsExtensions in every consumer.
+  const jsLines = [`import { _bind } from './_rt.js'`, `const FW = '${fwBase}'`]
 
-	for (const name of owned) {
-		const f = local.get(name)
-		if (f.value) {
-			// The binding call must stay marked pure so unused names drop out of
-			// consumer bundles — eagerly materializing all ~78k lazy globals at
-			// module init costs ~30s in the packed runtime (and would hit the
-			// nativescript lazy-getter crashers that are never imported anyway).
-			jsLines.push(`export const ${name} = /* @__PURE__ */ _bind(FW, '${name}')`)
-		}
-	}
+  for (const name of owned) {
+    const f = local.get(name)
+    if (f.value) {
+      // The binding call must stay marked pure so unused names drop out of
+      // consumer bundles — eagerly materializing all ~78k lazy globals at
+      // module init costs ~30s in the packed runtime (and would hit the
+      // nativescript lazy-getter crashers that are never imported anyway).
+      jsLines.push(`export const ${name} = /* @__PURE__ */ _bind(FW, '${name}')`)
+    }
+  }
 
-	writeFileSync(join(implDir, `${base}.js`), jsLines.join('\n') + '\n')
-	writeFileSync(join(implDir, `${base}.d.ts`), `export * from '../macos/${base}.d.ts'\n`)
-	impl.push(`export * from './macos-impl/${base}.js'`)
+  writeFileSync(join(implDir, `${base}.js`), jsLines.join('\n') + '\n')
+  writeFileSync(join(implDir, `${base}.d.ts`), `export * from '../macos/${base}.d.ts'\n`)
+  impl.push(`export * from './macos-impl/${base}.js'`)
 }
 
 impl.push(`export type { NSClass, NSPoint, NSSize, NSRect } from './macos/extras'`)
@@ -790,38 +790,38 @@ impl.push(`export type { NSClass, NSPoint, NSSize, NSRect } from './macos/extras
 const runtimeImpl = [`import { _g, lazyGlobal } from './macos-impl/_rt.js'`]
 
 for (const [name, kind] of [...runtimeExported.entries()].sort()) {
-	if (VALUE_KINDS.has(kind) || kind === 'module') {
-		runtimeImpl.push(
-			`export const ${name}: typeof import('./macos/objc-runtime').${name} = _g.${name}`,
-		)
-	}
+  if (VALUE_KINDS.has(kind) || kind === 'module') {
+    runtimeImpl.push(
+      `export const ${name}: typeof import('./macos/objc-runtime').${name} = _g.${name}`,
+    )
+  }
 
-	if (kind === 'module') {
-		// Namespaces carry member types (`interop.Pointer`); a `declare
-		// namespace` merges them onto the value const — ambient, strip-safe.
-		const members = (runtimeNsMembers.get(name) ?? []).filter(
-			([, mk]) =>
-				!VALUE_KINDS.has(mk) ||
-				mk === 'class' ||
-				mk === 'interface' ||
-				mk === 'type' ||
-				mk === 'enum' ||
-				mk === 'module',
-		)
+  if (kind === 'module') {
+    // Namespaces carry member types (`interop.Pointer`); a `declare
+    // namespace` merges them onto the value const — ambient, strip-safe.
+    const members = (runtimeNsMembers.get(name) ?? []).filter(
+      ([, mk]) =>
+        !VALUE_KINDS.has(mk) ||
+        mk === 'class' ||
+        mk === 'interface' ||
+        mk === 'type' ||
+        mk === 'enum' ||
+        mk === 'module',
+    )
 
-		if (members.length) {
-			runtimeImpl.push(`export declare namespace ${name} {`)
-			for (const [m, , tp] of members) {
-				runtimeImpl.push(
-					`\texport type ${m}${tp?.[0] ?? ''} = import('./macos/objc-runtime').${name}.${m}${tp?.[1] ?? ''}`,
-				)
-			}
+    if (members.length) {
+      runtimeImpl.push(`export declare namespace ${name} {`)
+      for (const [m, , tp] of members) {
+        runtimeImpl.push(
+          `\texport type ${m}${tp?.[0] ?? ''} = import('./macos/objc-runtime').${name}.${m}${tp?.[1] ?? ''}`,
+        )
+      }
 
-			runtimeImpl.push('}')
-		}
-	} else if (kind === 'interface' || kind === 'type' || kind === 'class') {
-		runtimeImpl.push(`export type ${name} = import('./macos/objc-runtime').${name}`)
-	}
+      runtimeImpl.push('}')
+    }
+  } else if (kind === 'interface' || kind === 'type' || kind === 'class') {
+    runtimeImpl.push(`export type ${name} = import('./macos/objc-runtime').${name}`)
+  }
 }
 
 impl.push(...runtimeImpl)

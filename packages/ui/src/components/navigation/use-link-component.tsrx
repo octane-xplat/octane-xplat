@@ -9,6 +9,6 @@ import { LinkContext } from './link-context'
  *  web leaf there is no DOM anchor to guard here: string destinations route
  *  through the canonical router, which rejects unresolvable paths. */
 export function useLinkComponent(as?: LinkComponentType): LinkComponentType {
-	const ctx = useContext(LinkContext)
-	return as ?? ctx?.component ?? 'a'
+  const ctx = useContext(LinkContext)
+  return as ?? ctx?.component ?? 'a'
 }

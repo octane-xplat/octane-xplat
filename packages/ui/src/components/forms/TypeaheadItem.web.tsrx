@@ -10,46 +10,46 @@ import type { JSX } from 'octane/jsx-runtime'
  *  leading icon and supporting description. `item.element` wins when set.
  *  Exported for use in custom `renderItem` implementations. */
 export function TypeaheadItem<T extends SearchableItem>(
-	props: TypeaheadItemProps<T>,
+  props: TypeaheadItemProps<T>,
 ): JSX.Element @{
-	if (props.item.element != null) {
-		return <>{props.item.element}</>
-	}
+  if (props.item.element != null) {
+    return <>{props.item.element}</>
+  }
 
-	const icon =
-		props.icon == null ? null : typeof props.icon === 'string' ? (
-			<Icon name={props.icon} size={16} />
-		) : (
-			props.icon
-		)
+  const icon =
+    props.icon == null ? null : typeof props.icon === 'string' ? (
+      <Icon name={props.icon} size={16} />
+    ) : (
+      props.icon
+    )
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((el: any) => {
-				if (el) {
-					applyEscapeProps(el, props)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((el: any) => {
+        if (el) {
+          applyEscapeProps(el, props)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<div
-		ref={forwardedRef}
-		id={props.id}
-		className={[
-			'vx-typeahead-item',
-			props.isDisabled ? 'vx-typeahead-item--disabled' : undefined,
-			props.className,
-		]}
-		style={props.style}
-		aria-disabled={props.isDisabled || undefined}
-	>
-		{icon}
-		<div className="vx-typeahead-item-content">
-			<span className="vx-typeahead-item-label">{props.item.label}</span>
-			{props.description ? (
-				<span className="vx-typeahead-item-description">{props.description}</span>
-			) : null}
-		</div>
-	</div>
+  <div
+    ref={forwardedRef}
+    id={props.id}
+    className={[
+      'vx-typeahead-item',
+      props.isDisabled ? 'vx-typeahead-item--disabled' : undefined,
+      props.className,
+    ]}
+    style={props.style}
+    aria-disabled={props.isDisabled || undefined}
+  >
+    {icon}
+    <div className="vx-typeahead-item-content">
+      <span className="vx-typeahead-item-label">{props.item.label}</span>
+      {props.description ? (
+        <span className="vx-typeahead-item-description">{props.description}</span>
+      ) : null}
+    </div>
+  </div>
 }

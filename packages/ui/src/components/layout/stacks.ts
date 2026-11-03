@@ -16,8 +16,8 @@ const regListeners = new Set<(name: string, frame: Frame) => void>()
  * @see getStack, Route.
  */
 export function registerStack(name: string, frame: Frame): void {
-	stacks.set(name, frame)
-	regListeners.forEach((l) => l(name, frame))
+  stacks.set(name, frame)
+  regListeners.forEach((l) => l(name, frame))
 }
 
 /**
@@ -26,31 +26,31 @@ export function registerStack(name: string, frame: Frame): void {
  * @see registerStack.
  */
 export function getStack(name: string): Frame | undefined {
-	const registered = stacks.get(name)
-	if (registered) {
-		return registered
-	}
+  const registered = stacks.get(name)
+  if (registered) {
+    return registered
+  }
 
-	if (name === 'root') {
-		const rv = Application.getRootView?.()
-		if (rv instanceof Frame) {
-			return rv
-		}
-	}
+  if (name === 'root') {
+    const rv = Application.getRootView?.()
+    if (rv instanceof Frame) {
+      return rv
+    }
+  }
 
-	return undefined
+  return undefined
 }
 
 /** All registered stacks in registration order — for hardware-back
  *  resolution (pop whichever stack is visibly on top). */
 export function stackEntries(): IterableIterator<[string, Frame]> {
-	return stacks.entries()
+  return stacks.entries()
 }
 
 /** Internal: native hosts can observe Frame registrations after startup. */
 export function onStackRegistered(cb: (name: string, frame: Frame) => void): () => void {
-	regListeners.add(cb)
-	return () => {
-		regListeners.delete(cb)
-	}
+  regListeners.add(cb)
+  return () => {
+    regListeners.delete(cb)
+  }
 }

@@ -12,20 +12,20 @@ registerElement('googlesigninbutton', NSGoogleSignInButton)
  *  starts `googleAuth.signIn()`; `onResult` reports the outcome. Requires a
  *  `googleAuth.configure()` call first where the platform needs it. */
 export function GoogleSignInButton(props: GoogleSignInButtonProps): unknown @{
-	const run = () => {
-		props.onPress?.()
-		if (props.onResult) {
-			googleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
-		}
-	}
+  const run = () => {
+    props.onPress?.()
+    if (props.onResult) {
+      googleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
+    }
+  }
 
-	<googlesigninbutton
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		colorScheme={props.theme ?? 'auto'}
-		colorStyle={props.variant ?? 'standard'}
-		isEnabled={props.disabled !== true}
-		onTap={run}
-	/>
+  <googlesigninbutton
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    colorScheme={props.theme ?? 'auto'}
+    colorStyle={props.variant ?? 'standard'}
+    isEnabled={props.disabled !== true}
+    onTap={run}
+  />
 }

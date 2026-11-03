@@ -9,18 +9,18 @@ export const masonLegacyPackage = '@triniwiz/nativescript-masonkit'
  * the core cutover replaced.
  */
 export function masonEngine(declared: Record<string, unknown>, windows = false) {
-	if (windows) {
-		if (declared[masonCorePackage]) {
-			throw new Error(`${masonCorePackage} supports iOS and Android only; Windows is unqualified.`)
-		}
+  if (windows) {
+    if (declared[masonCorePackage]) {
+      throw new Error(`${masonCorePackage} supports iOS and Android only; Windows is unqualified.`)
+    }
 
-		return masonFullPackage
-	}
-	const replaced = [masonFullPackage, masonLegacyPackage].filter((name) => declared[name])
-	if (replaced.length) {
-		throw new Error(
-			`${replaced.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap. Remove the replaced engine and run xplat upgrade.`,
-		)
-	}
-	return masonCorePackage
+    return masonFullPackage
+  }
+  const replaced = [masonFullPackage, masonLegacyPackage].filter((name) => declared[name])
+  if (replaced.length) {
+    throw new Error(
+      `${replaced.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap. Remove the replaced engine and run xplat upgrade.`,
+    )
+  }
+  return masonCorePackage
 }

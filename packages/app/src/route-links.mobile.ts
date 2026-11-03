@@ -4,48 +4,48 @@ import { getStack, router } from '@octane-xplat/ui/routing'
 
 let wired = false
 export function wireRouteLinks(): void {
-	if (wired) {
-		return
-	}
+  if (wired) {
+    return
+  }
 
-	wired = true
-	const pending: string[] = []
-	let scheduled = false
-	const drain = (tries = 100) => {
-		scheduled = false
-		if (!getStack('root')?.currentPage?.isLoaded) {
-			if (tries > 0) {
-				scheduled = true
-				setTimeout(() => drain(tries - 1), 100)
-			} else {
-				console.warn('[harness] incoming link host did not load; link remains queued')
-			}
+  wired = true
+  const pending: string[] = []
+  let scheduled = false
+  const drain = (tries = 100) => {
+    scheduled = false
+    if (!getStack('root')?.currentPage?.isLoaded) {
+      if (tries > 0) {
+        scheduled = true
+        setTimeout(() => drain(tries - 1), 100)
+      } else {
+        console.warn('[harness] incoming link host did not load; link remains queued')
+      }
 
-			return
-		}
+      return
+    }
 
-		const initial = consumeInitialUrl()
-		if (initial) {
-			pending.unshift(initial)
-		}
+    const initial = consumeInitialUrl()
+    if (initial) {
+      pending.unshift(initial)
+    }
 
-		for (const url of pending.splice(0)) {
-			void router.navigateUrl(url)
-		}
-	}
+    for (const url of pending.splice(0)) {
+      void router.navigateUrl(url)
+    }
+  }
 
-	const schedule = () => {
-		if (!scheduled) {
-			scheduled = true
-			setTimeout(() => drain(), 0)
-		}
-	}
+  const schedule = () => {
+    if (!scheduled) {
+      scheduled = true
+      setTimeout(() => drain(), 0)
+    }
+  }
 
-	onDeepLink((url) => {
-		pending.push(url)
-		schedule()
-	})
+  onDeepLink((url) => {
+    pending.push(url)
+    schedule()
+  })
 
-	Application.on(Application.launchEvent, schedule)
-	schedule()
+  Application.on(Application.launchEvent, schedule)
+  schedule()
 }

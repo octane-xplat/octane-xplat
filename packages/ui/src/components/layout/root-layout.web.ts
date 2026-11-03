@@ -4,13 +4,13 @@ export function registerRootLayout(_layout: unknown): void {}
 export function unregisterRootLayout(_layout: unknown): void {}
 
 export function topRootLayout(): undefined {
-	return undefined
+  return undefined
 }
 
 export function rootLayoutFor(_view: unknown): undefined {
-	return undefined
+  return undefined
 }
 
 export function findInRootLayouts(_id: string): null {
-	return null
+  return null
 }

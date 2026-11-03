@@ -23,62 +23,62 @@ const INLINE_HTML = `<!DOCTYPE html>
 /** WebView seam demo — html/src loading, onLoad/onError reporting,
  *  scrollEnabled, and the imperative handle (reload/back/forward). */
 export function WebViewDemo() @{
-	const [status, setStatus] = useState('idle')
-	const [remote, setRemote] = useState(false)
-	const [scroll, setScroll] = useState(true)
-	const [matchContents, setMatchContents] = useState(false)
-	const [ignoreSafeArea, setIgnoreSafeArea] = useState(false)
-	const [contentSize, setContentSize] = useState('not measured')
-	const handle = useRef<WebViewHandle | null>(null)
+  const [status, setStatus] = useState('idle')
+  const [remote, setRemote] = useState(false)
+  const [scroll, setScroll] = useState(true)
+  const [matchContents, setMatchContents] = useState(false)
+  const [ignoreSafeArea, setIgnoreSafeArea] = useState(false)
+  const [contentSize, setContentSize] = useState('not measured')
+  const handle = useRef<WebViewHandle | null>(null)
 
-	<Screen className="vx-app flex-1 gap-6">
-		<Text className="text-xl font-semibold">WebView</Text>
-		<HStack className="demo-menu">
-			<Pressable
-				className="btn btn-secondary"
-				onPress={() => {
-					setStatus('loading…')
-					setRemote(!remote)
-				}}
-			>
-				<Text>{remote ? 'Inline HTML' : 'Remote URL'}</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => setScroll(!scroll)}>
-				<Text>{scroll ? 'Freeze scroll' : 'Unfreeze scroll'}</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => handle.current?.reload()}>
-				<Text>Reload</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => handle.current?.goBack()}>
-				<Text>Back</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => handle.current?.goForward()}>
-				<Text>Forward</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => handle.current?.stopLoading()}>
-				<Text>Stop</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => setMatchContents(!matchContents)}>
-				<Text>{matchContents ? 'Fill frame' : 'Match content height'}</Text>
-			</Pressable>
-			<Pressable className="btn btn-secondary" onPress={() => setIgnoreSafeArea(!ignoreSafeArea)}>
-				<Text>{ignoreSafeArea ? 'Respect safe area' : 'Ignore safe area'}</Text>
-			</Pressable>
-		</HStack>
-		<Text className="text-sm text-muted">{'status: ' + status + ' · content: ' + contentSize}</Text>
-		<SafeArea className="flex-1" edges={ignoreSafeArea ? [] : undefined}>
-			<WebView
-				ref={handle}
-				className={'webview-demo-frame' + (matchContents ? '' : ' flex-1')}
-				{...(remote ? { src: 'https://example.com' } : { html: INLINE_HTML })}
-				scrollEnabled={scroll}
-				matchContents={matchContents}
-				onLayoutContent={(size) =>
-					setContentSize(`${Math.round(size.width)} × ${Math.round(size.height)}`)
-				}
-				onLoad={(e) => setStatus('loaded' + (e.url ? ' ' + e.url : ''))}
-				onError={(e) => setStatus('error ' + (e.error ?? '') + (e.url ? ' ' + e.url : ''))}
-			/>
-		</SafeArea>
-	</Screen>
+  <Screen className="vx-app flex-1 gap-6">
+    <Text className="text-xl font-semibold">WebView</Text>
+    <HStack className="demo-menu">
+      <Pressable
+        className="btn btn-secondary"
+        onPress={() => {
+          setStatus('loading…')
+          setRemote(!remote)
+        }}
+      >
+        <Text>{remote ? 'Inline HTML' : 'Remote URL'}</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => setScroll(!scroll)}>
+        <Text>{scroll ? 'Freeze scroll' : 'Unfreeze scroll'}</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => handle.current?.reload()}>
+        <Text>Reload</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => handle.current?.goBack()}>
+        <Text>Back</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => handle.current?.goForward()}>
+        <Text>Forward</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => handle.current?.stopLoading()}>
+        <Text>Stop</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => setMatchContents(!matchContents)}>
+        <Text>{matchContents ? 'Fill frame' : 'Match content height'}</Text>
+      </Pressable>
+      <Pressable className="btn btn-secondary" onPress={() => setIgnoreSafeArea(!ignoreSafeArea)}>
+        <Text>{ignoreSafeArea ? 'Respect safe area' : 'Ignore safe area'}</Text>
+      </Pressable>
+    </HStack>
+    <Text className="text-sm text-muted">{'status: ' + status + ' · content: ' + contentSize}</Text>
+    <SafeArea className="flex-1" edges={ignoreSafeArea ? [] : undefined}>
+      <WebView
+        ref={handle}
+        className={'webview-demo-frame' + (matchContents ? '' : ' flex-1')}
+        {...(remote ? { src: 'https://example.com' } : { html: INLINE_HTML })}
+        scrollEnabled={scroll}
+        matchContents={matchContents}
+        onLayoutContent={(size) =>
+          setContentSize(`${Math.round(size.width)} × ${Math.round(size.height)}`)
+        }
+        onLoad={(e) => setStatus('loaded' + (e.url ? ' ' + e.url : ''))}
+        onError={(e) => setStatus('error ' + (e.error ?? '') + (e.url ? ' ' + e.url : ''))}
+      />
+    </SafeArea>
+  </Screen>
 }

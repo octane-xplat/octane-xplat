@@ -11,21 +11,21 @@ type Mode = (typeof MODES)[number]
  *  pulse (opacity+scale), spin (rotate), slide (translate, fill-mode
  *  forwards so the end state persists). Classes live in demo.css. */
 export function AnimShowcase() @{
-	const [active, setActive] = useState<Mode | ''>('')
+  const [active, setActive] = useState<Mode | ''>('')
 
-	<View className="vx-app flex-1 gap-4 items-center">
-		<HStack className="gap-4">
-			@for (const m of MODES; key m) {
-				<Pressable
-					id={'anim-' + m}
-					onPress={() => setActive(active === m ? '' : m)}
-					className={['btn', active === m ? 'bg-primary' : 'btn-secondary']}
-				>
-					<Text className={active === m ? 'text-onprimary' : ''}>{m}</Text>
-				</Pressable>
-			}
-		</HStack>
-		<View className={['demo-anim-box', active ? 'anim-' + active : '']} />
-		<Text className="text-sm text-muted">{'active: ' + (active || 'none')}</Text>
-	</View>
+  <View className="vx-app flex-1 gap-4 items-center">
+    <HStack className="gap-4">
+      @for (const m of MODES; key m) {
+        <Pressable
+          id={'anim-' + m}
+          onPress={() => setActive(active === m ? '' : m)}
+          className={['btn', active === m ? 'bg-primary' : 'btn-secondary']}
+        >
+          <Text className={active === m ? 'text-onprimary' : ''}>{m}</Text>
+        </Pressable>
+      }
+    </HStack>
+    <View className={['demo-anim-box', active ? 'anim-' + active : '']} />
+    <Text className="text-sm text-muted">{'active: ' + (active || 'none')}</Text>
+  </View>
 }

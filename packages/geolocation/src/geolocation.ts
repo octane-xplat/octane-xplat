@@ -6,69 +6,69 @@ import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capabil
 import type { GeolocationImpl, GeolocationPosition } from './types'
 
 function asPosition(nativeLocation: any): GeolocationPosition {
-	const android = nativeLocation.android
-	const ios = nativeLocation.ios
-	const heading = nativeLocation.direction ?? nativeLocation.heading
-	const speed = nativeLocation.speed
-	return {
-		latitude: nativeLocation.latitude,
-		longitude: nativeLocation.longitude,
-		accuracy: Math.max(0, nativeLocation.horizontalAccuracy ?? nativeLocation.accuracy ?? 0),
-		// Altitude itself can be negative; iOS validity uses verticalAccuracy.
-		altitude:
-			(android && !android.hasAltitude()) || (ios && ios.verticalAccuracy < 0)
-				? null
-				: (nativeLocation.altitude ?? null),
-		heading: (android && !android.hasBearing()) || heading == null || heading < 0 ? null : heading,
-		speed: (android && !android.hasSpeed()) || speed == null || speed < 0 ? null : speed,
-		timestamp: Number(nativeLocation.timestamp ?? Date.now()),
-	}
+  const android = nativeLocation.android
+  const ios = nativeLocation.ios
+  const heading = nativeLocation.direction ?? nativeLocation.heading
+  const speed = nativeLocation.speed
+  return {
+    latitude: nativeLocation.latitude,
+    longitude: nativeLocation.longitude,
+    accuracy: Math.max(0, nativeLocation.horizontalAccuracy ?? nativeLocation.accuracy ?? 0),
+    // Altitude itself can be negative; iOS validity uses verticalAccuracy.
+    altitude:
+      (android && !android.hasAltitude()) || (ios && ios.verticalAccuracy < 0)
+        ? null
+        : (nativeLocation.altitude ?? null),
+    heading: (android && !android.hasBearing()) || heading == null || heading < 0 ? null : heading,
+    speed: (android && !android.hasSpeed()) || speed == null || speed < 0 ? null : speed,
+    timestamp: Number(nativeLocation.timestamp ?? Date.now()),
+  }
 }
 
 const impl: GeolocationImpl = {
-	async getCurrentPosition(options) {
-		const nativePosition = await geolocationApi.getCurrentLocation({
-			desiredAccuracy: options?.enableHighAccuracy
-				? CoreTypes.Accuracy.high
-				: CoreTypes.Accuracy.any,
-			maximumAge: options?.maximumAge,
-			timeout: options?.timeout,
-		})
+  async getCurrentPosition(options) {
+    const nativePosition = await geolocationApi.getCurrentLocation({
+      desiredAccuracy: options?.enableHighAccuracy
+        ? CoreTypes.Accuracy.high
+        : CoreTypes.Accuracy.any,
+      maximumAge: options?.maximumAge,
+      timeout: options?.timeout,
+    })
 
-		return asPosition(nativePosition)
-	},
+    return asPosition(nativePosition)
+  },
 }
 
 const respond = (granted: boolean, canAskAgain: boolean): PermissionResponse => ({
-	status: granted ? 'granted' : 'denied',
-	granted,
-	canAskAgain,
+  status: granted ? 'granted' : 'denied',
+  granted,
+  canAskAgain,
 })
 
 /** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
-	supported: true,
-	isAvailable: async () => true,
-	async getPermissions() {
-		// isEnabled() is the plugin's only non-prompting read — services-off and
-		// denied both read as 'denied'.
-		return respond(await geolocationApi.isEnabled(), true)
-	},
-	async requestPermissions() {
-		try {
-			await geolocationApi.enableLocationRequest()
-			return respond(true, true)
-		} catch {
-			return respond(false, false)
-		}
-	},
-	...impl,
+  supported: true,
+  isAvailable: async () => true,
+  async getPermissions() {
+    // isEnabled() is the plugin's only non-prompting read — services-off and
+    // denied both read as 'denied'.
+    return respond(await geolocationApi.isEnabled(), true)
+  },
+  async requestPermissions() {
+    try {
+      await geolocationApi.enableLocationRequest()
+      return respond(true, true)
+    } catch {
+      return respond(false, false)
+    }
+  },
+  ...impl,
 }
 
 // See @octane-xplat/media for the pattern — registers the kind this leaf owns
 // for the platform permissions dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 permissionOwners.location = {
-	getPermissions: () => geolocation.getPermissions(),
-	requestPermissions: () => geolocation.requestPermissions(),
+  getPermissions: () => geolocation.getPermissions(),
+  requestPermissions: () => geolocation.requestPermissions(),
 }

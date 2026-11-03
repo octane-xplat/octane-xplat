@@ -13,39 +13,39 @@ import type { JSX } from 'octane/jsx-runtime'
  *  `Field` renders `display:contents` under this mode so its label/body
  *  become grid items; collapses to a column under 480px (CSS). */
 export function FormLayout(props: FormLayoutProps): JSX.Element @{
-	const parent = useContext(FormLayoutContext)
-	const direction = props.direction ?? 'vertical'
-	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
-	const value = { direction, defaultOptionality }
+  const parent = useContext(FormLayoutContext)
+  const direction = props.direction ?? 'vertical'
+  const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
+  const value = { direction, defaultOptionality }
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((e: any) => {
-				if (e) {
-					applyEscapeProps(e, props)
-					applyWebProps(e, props.web)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((e: any) => {
+        if (e) {
+          applyEscapeProps(e, props)
+          applyWebProps(e, props.web)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<FormLayoutProvider value={value}>
-		<div
-			id={props.id}
-			ref={forwardedRef}
-			className={['vx-formlayout', `vx-formlayout--${direction}`, props.className]}
-			style={props.style}
-			role={props.accessibilityRole}
-			aria-label={props.accessibilityLabel}
-			aria-hidden={props.accessible === false ? true : undefined}
-			aria-description={props.accessibilityHint}
-			aria-valuetext={props.accessibilityValue}
-			aria-disabled={props.accessibilityState?.disabled}
-			aria-selected={props.accessibilityState?.selected}
-			aria-checked={props.accessibilityState?.checked}
-			aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
-		>
-			{props.children}
-		</div>
-	</FormLayoutProvider>
+  <FormLayoutProvider value={value}>
+    <div
+      id={props.id}
+      ref={forwardedRef}
+      className={['vx-formlayout', `vx-formlayout--${direction}`, props.className]}
+      style={props.style}
+      role={props.accessibilityRole}
+      aria-label={props.accessibilityLabel}
+      aria-hidden={props.accessible === false ? true : undefined}
+      aria-description={props.accessibilityHint}
+      aria-valuetext={props.accessibilityValue}
+      aria-disabled={props.accessibilityState?.disabled}
+      aria-selected={props.accessibilityState?.selected}
+      aria-checked={props.accessibilityState?.checked}
+      aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+    >
+      {props.children}
+    </div>
+  </FormLayoutProvider>
 }

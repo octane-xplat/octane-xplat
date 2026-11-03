@@ -16,77 +16,77 @@ const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'octane-macos-picker-runtime-'))
 
 function png(width, height) {
-	const chunk = (name, data) => {
-		const type = Buffer.from(name)
-		const length = Buffer.alloc(4)
-		length.writeUInt32BE(data.length)
-		let crc = 0xffffffff
-		for (const byte of Buffer.concat([type, data])) {
-			crc ^= byte
-			for (let bit = 0; bit < 8; bit++) {
-				crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0)
-			}
-		}
+  const chunk = (name, data) => {
+    const type = Buffer.from(name)
+    const length = Buffer.alloc(4)
+    length.writeUInt32BE(data.length)
+    let crc = 0xffffffff
+    for (const byte of Buffer.concat([type, data])) {
+      crc ^= byte
+      for (let bit = 0; bit < 8; bit++) {
+        crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0)
+      }
+    }
 
-		const checksum = Buffer.alloc(4)
-		checksum.writeUInt32BE((crc ^ 0xffffffff) >>> 0)
-		return Buffer.concat([length, type, data, checksum])
-	}
+    const checksum = Buffer.alloc(4)
+    checksum.writeUInt32BE((crc ^ 0xffffffff) >>> 0)
+    return Buffer.concat([length, type, data, checksum])
+  }
 
-	const header = Buffer.alloc(13)
-	header.writeUInt32BE(width)
-	header.writeUInt32BE(height, 4)
-	header[8] = 8
-	header[9] = 2 // RGB; no generated image is opened or visually inspected.
-	const pixels = Buffer.alloc(height * (1 + width * 3), 80)
-	for (let row = 0; row < height; row++) {
-		pixels[row * (1 + width * 3)] = 0
-	}
+  const header = Buffer.alloc(13)
+  header.writeUInt32BE(width)
+  header.writeUInt32BE(height, 4)
+  header[8] = 8
+  header[9] = 2 // RGB; no generated image is opened or visually inspected.
+  const pixels = Buffer.alloc(height * (1 + width * 3), 80)
+  for (let row = 0; row < height; row++) {
+    pixels[row * (1 + width * 3)] = 0
+  }
 
-	return Buffer.concat([
-		Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
-		chunk('IHDR', header),
-		chunk('IDAT', deflateSync(pixels)),
-		chunk('IEND', Buffer.alloc(0)),
-	])
+  return Buffer.concat([
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]),
+    chunk('IHDR', header),
+    chunk('IDAT', deflateSync(pixels)),
+    chunk('IEND', Buffer.alloc(0)),
+  ])
 }
 
 try {
-	const sources = [join(directory, 'landscape.png'), join(directory, 'portrait.png')]
-	await writeFile(sources[0], png(6, 4))
-	await writeFile(sources[1], png(4, 6))
-	const invalid = join(directory, 'invalid.png')
-	await writeFile(invalid, 'invalid image bytes')
-	// Transpile each AppKit leaf in dependency order and give CommonJS output a
-	// sibling-only require: the JSC shim allows no relative requires.
-	const transpileOptions = {
-		module: ts.ModuleKind.CommonJS,
-		target: ts.ScriptTarget.ES2022,
-	}
+  const sources = [join(directory, 'landscape.png'), join(directory, 'portrait.png')]
+  await writeFile(sources[0], png(6, 4))
+  await writeFile(sources[1], png(4, 6))
+  const invalid = join(directory, 'invalid.png')
+  await writeFile(invalid, 'invalid image bytes')
+  // Transpile each AppKit leaf in dependency order and give CommonJS output a
+  // sibling-only require: the JSC shim allows no relative requires.
+  const transpileOptions = {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  }
 
-	const leaves = await Promise.all(
-		[
-			['media', 'photo-capture.macos'],
-			['media', 'media.macos'],
-			['files', 'file-types.macos'],
-			['files', 'file-pick-filter.macos'],
-			['files', 'file-bytes'],
-			['files', 'files.macos'],
-		].map(async ([pkg, base]) => {
-			const source = await readFile(new URL(`../../${pkg}/src/${base}.ts`, import.meta.url), 'utf8')
+  const leaves = await Promise.all(
+    [
+      ['media', 'photo-capture.macos'],
+      ['media', 'media.macos'],
+      ['files', 'file-types.macos'],
+      ['files', 'file-pick-filter.macos'],
+      ['files', 'file-bytes'],
+      ['files', 'files.macos'],
+    ].map(async ([pkg, base]) => {
+      const source = await readFile(new URL(`../../${pkg}/src/${base}.ts`, import.meta.url), 'utf8')
 
-			return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${ts.transpile(
-				source,
-				transpileOptions,
-			)}; return exports; })();`
-		}),
-	)
+      return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${ts.transpile(
+        source,
+        transpileOptions,
+      )}; return exports; })();`
+    }),
+  )
 
-	const modules = [
-		`const registry = (() => { const registry = {}; const require = (spec) => { const found = registry[spec]; if (!found) { throw new Error('unsupported fixture require: ' + spec); } return found; };`,
-		// The camera leaf is imported as a real dependency: stand in a fake
-		// sheet class with the same surface, recorded events, caller replies.
-		`registry['@octane-xplat/camera/photo-sheet.macos'] = { XplatPhotoCaptureSheet: class { constructor() {
+  const modules = [
+    `const registry = (() => { const registry = {}; const require = (spec) => { const found = registry[spec]; if (!found) { throw new Error('unsupported fixture require: ' + spec); } return found; };`,
+    // The camera leaf is imported as a real dependency: stand in a fake
+    // sheet class with the same surface, recorded events, caller replies.
+    `registry['@octane-xplat/camera/photo-sheet.macos'] = { XplatPhotoCaptureSheet: class { constructor() {
   const sheet = {
     permissionStatus() { return sheetState.status; },
     presentReply(options, reply) { this.options = options; this.reply = reply; sheetEvents.push('present'); },
@@ -96,16 +96,16 @@ try {
   sheets.push(sheet);
   return sheet;
 } } };`,
-		...leaves,
-		'return registry; })();',
-		"const media = registry['./media.macos'].media;",
-		"const files = registry['./files.macos'].files;",
-	]
+    ...leaves,
+    'return registry; })();',
+    "const media = registry['./media.macos'].media;",
+    "const files = registry['./files.macos'].files;",
+  ]
 
-	const script = join(directory, 'fixture.cjs')
-	await writeFile(
-		script,
-		`${modules.join('\n')}
+  const script = join(directory, 'fixture.cjs')
+  await writeFile(
+    script,
+    `${modules.join('\n')}
 NSApplication.sharedApplication;
 const queue = [];
 Object.defineProperty(globalThis, 'NSOpenPanel', { configurable: true, value: { openPanel() {
@@ -241,29 +241,29 @@ setTimeout(async () => {
   }
 }, 0);
 `,
-	)
+  )
 
-	const bootstrap = join(directory, 'bootstrap.js')
-	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
-	const result = spawnSync(
-		await macOSExecutable(packageRoot, 'macos/host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			script,
-			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-			bootstrap,
-		],
-		{ cwd: directory, encoding: 'utf8', timeout: 15_000 },
-	)
+  const bootstrap = join(directory, 'bootstrap.js')
+  await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+  const result = spawnSync(
+    await macOSExecutable(packageRoot, 'macos/host'),
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      script,
+      join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+      bootstrap,
+    ],
+    { cwd: directory, encoding: 'utf8', timeout: 15_000 },
+  )
 
-	const output = result.stdout + result.stderr
-	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /APPKIT_MEDIA_RUNTIME_FAIL/)
-	assert.match(output, /APPKIT_MEDIA_RUNTIME_OK/)
-	console.log(output.trim())
-	console.log(
-		'Real panel selection, OS permission, camera hardware and visual display remain unqualified.',
-	)
+  const output = result.stdout + result.stderr
+  assert.equal(result.status, 0, output)
+  assert.doesNotMatch(output, /APPKIT_MEDIA_RUNTIME_FAIL/)
+  assert.match(output, /APPKIT_MEDIA_RUNTIME_OK/)
+  console.log(output.trim())
+  console.log(
+    'Real panel selection, OS permission, camera hardware and visual display remain unqualified.',
+  )
 } finally {
-	await rm(directory, { recursive: true, force: true })
+  await rm(directory, { recursive: true, force: true })
 }

@@ -14,44 +14,44 @@ import { SandboxShell } from '../shell/SandboxShell.tsrx'
 import { NotFoundScreen } from './NotFoundScreen.tsrx'
 
 export function PageScreen(props: { params: { rest?: string } }) @{
-	const route = `/pages/${props.params.rest ?? ''}/`
-	const row = routeRow(route)
+  const route = `/pages/${props.params.rest ?? ''}/`
+  const row = routeRow(route)
 
-	if (!row) {
-		return (
-			<NotFoundScreen
-				title="Not Found"
-				message={`“${route}” is not part of the pinned sandbox route table.`}
-			/>
-		)
-	}
+  if (!row) {
+    return (
+      <NotFoundScreen
+        title="Not Found"
+        message={`“${route}” is not part of the pinned sandbox route table.`}
+      />
+    )
+  }
 
-	const Page = pageFor(route)
+  const Page = pageFor(route)
 
-	if (row.group === 'fullscreen') {
-		if (isEmbed) {
-			return Page ? <Page /> : <PendingScreen row={row} />
-		}
+  if (row.group === 'fullscreen') {
+    if (isEmbed) {
+      return Page ? <Page /> : <PendingScreen row={row} />
+    }
 
-		return <PreviewShell row={row}>{Page ? <Page /> : <PendingScreen row={row} />}</PreviewShell>
-	}
+    return <PreviewShell row={row}>{Page ? <Page /> : <PendingScreen row={row} />}</PreviewShell>
+  }
 
-	if (row.group === 'raw') {
-		return Page ? <Page /> : <PendingScreen row={row} />
-	}
+  if (row.group === 'raw') {
+    return Page ? <Page /> : <PendingScreen row={row} />
+  }
 
-	return (
-		<SandboxShell>
-			<Layout
-				header={
-					<LayoutHeader hasDivider padding={6}>
-						<Heading level={1}>{row.doc?.displayName ?? 'Sandbox page'}</Heading>
-					</LayoutHeader>
-				}
-				content={
-					<LayoutContent padding={6}>{Page ? <Page /> : <PendingScreen row={row} />}</LayoutContent>
-				}
-			/>
-		</SandboxShell>
-	)
+  return (
+    <SandboxShell>
+      <Layout
+        header={
+          <LayoutHeader hasDivider padding={6}>
+            <Heading level={1}>{row.doc?.displayName ?? 'Sandbox page'}</Heading>
+          </LayoutHeader>
+        }
+        content={
+          <LayoutContent padding={6}>{Page ? <Page /> : <PendingScreen row={row} />}</LayoutContent>
+        }
+      />
+    </SandboxShell>
+  )
 }

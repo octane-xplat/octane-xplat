@@ -8,121 +8,121 @@ import type { JSX } from 'octane/jsx-runtime'
  *  (Chromium/Safari 18.4+; Firefox lacks the detector). Polling runs on
  *  requestVideoFrameCallback where available, else a 250ms interval. */
 export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
-	const video = useRef<HTMLVideoElement | null>(null)
-	const latest = useRef(props)
-	latest.current = props
+  const video = useRef<HTMLVideoElement | null>(null)
+  const latest = useRef(props)
+  latest.current = props
 
-	const handle = (v: HTMLVideoElement | null): BarcodeScannerHandle => ({
-		setPaused: () => {},
-		toggleCamera: () => {},
-		native: v,
-	})
+  const handle = (v: HTMLVideoElement | null): BarcodeScannerHandle => ({
+    setPaused: () => {},
+    toggleCamera: () => {},
+    native: v,
+  })
 
-	useImperativeHandle(props.ref, () => handle(video.current), [])
+  useImperativeHandle(props.ref, () => handle(video.current), [])
 
-	useEffect(() => {
-		const Detector = (globalThis as any).BarcodeDetector
-		const mediaDevices = (globalThis as any).navigator?.mediaDevices
-		if (!Detector || typeof mediaDevices?.getUserMedia !== 'function') {
-			props.onError?.({ message: 'unsupported: BarcodeDetector/getUserMedia is not available' })
-			return
-		}
+  useEffect(() => {
+    const Detector = (globalThis as any).BarcodeDetector
+    const mediaDevices = (globalThis as any).navigator?.mediaDevices
+    if (!Detector || typeof mediaDevices?.getUserMedia !== 'function') {
+      props.onError?.({ message: 'unsupported: BarcodeDetector/getUserMedia is not available' })
+      return
+    }
 
-		const el = video.current
-		if (!el) {
-			return
-		}
+    const el = video.current
+    if (!el) {
+      return
+    }
 
-		let detector: any
-		try {
-			detector = new Detector({ formats: toDetectorFormats(props.formats) })
-		} catch {
-			detector = new Detector()
-		}
+    let detector: any
+    try {
+      detector = new Detector({ formats: toDetectorFormats(props.formats) })
+    } catch {
+      detector = new Detector()
+    }
 
-		let stream: MediaStream | null = null
-		let timer: any = null
-		let cancelled = false
-		const pausedRef = { current: false }
+    let stream: MediaStream | null = null
+    let timer: any = null
+    let cancelled = false
+    const pausedRef = { current: false }
 
-		const poll = async () => {
-			if (cancelled || !el || pausedRef.current) {
-				return
-			}
+    const poll = async () => {
+      if (cancelled || !el || pausedRef.current) {
+        return
+      }
 
-			try {
-				const codes = await detector.detect(el)
-				for (const code of codes ?? []) {
-					const box = code.boundingBox
-					latest.current.onCodeScanned?.({
-						type: fromDetectorFormat(code.format),
-						data: String(code.rawValue ?? ''),
-						bounds: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : undefined,
-					})
-				}
-			} catch {
-				// A transient frame failure ends detection for this tick only.
-			}
+      try {
+        const codes = await detector.detect(el)
+        for (const code of codes ?? []) {
+          const box = code.boundingBox
+          latest.current.onCodeScanned?.({
+            type: fromDetectorFormat(code.format),
+            data: String(code.rawValue ?? ''),
+            bounds: box ? { x: box.x, y: box.y, width: box.width, height: box.height } : undefined,
+          })
+        }
+      } catch {
+        // A transient frame failure ends detection for this tick only.
+      }
 
-			schedule()
-		}
+      schedule()
+    }
 
-		const schedule = () => {
-			if (cancelled) {
-				return
-			}
+    const schedule = () => {
+      if (cancelled) {
+        return
+      }
 
-			const rvfc = (el as any).requestVideoFrameCallback
-			if (typeof rvfc === 'function') {
-				rvfc.call(el, () => poll())
-			} else {
-				timer = setTimeout(poll, 250)
-			}
-		}
+      const rvfc = (el as any).requestVideoFrameCallback
+      if (typeof rvfc === 'function') {
+        rvfc.call(el, () => poll())
+      } else {
+        timer = setTimeout(poll, 250)
+      }
+    }
 
-		// props.paused is read through latest in the poll loop.
-		Object.defineProperty(pausedRef, 'current', {
-			get: () => latest.current.paused ?? false,
-		})
+    // props.paused is read through latest in the poll loop.
+    Object.defineProperty(pausedRef, 'current', {
+      get: () => latest.current.paused ?? false,
+    })
 
-		mediaDevices
-			.getUserMedia({
-				video: { facingMode: props.facing === 'front' ? 'user' : 'environment' },
-				audio: false,
-			})
-			.then((s: MediaStream) => {
-				if (cancelled) {
-					s.getTracks().forEach((t) => t.stop())
-					return
-				}
+    mediaDevices
+      .getUserMedia({
+        video: { facingMode: props.facing === 'front' ? 'user' : 'environment' },
+        audio: false,
+      })
+      .then((s: MediaStream) => {
+        if (cancelled) {
+          s.getTracks().forEach((t) => t.stop())
+          return
+        }
 
-				stream = s
-				el.srcObject = s
-				el.play().catch(() => {})
-				schedule()
-			})
-			.catch((e: any) => {
-				latest.current.onError?.({ message: e?.message ?? 'camera unavailable' })
-			})
+        stream = s
+        el.srcObject = s
+        el.play().catch(() => {})
+        schedule()
+      })
+      .catch((e: any) => {
+        latest.current.onError?.({ message: e?.message ?? 'camera unavailable' })
+      })
 
-		return () => {
-			cancelled = true
-			if (timer) {
-				clearTimeout(timer)
-			}
+    return () => {
+      cancelled = true
+      if (timer) {
+        clearTimeout(timer)
+      }
 
-			stream?.getTracks().forEach((t) => t.stop())
-			el.srcObject = null
-		}
-	}, [props.facing, JSON.stringify(props.formats)])
+      stream?.getTracks().forEach((t) => t.stop())
+      el.srcObject = null
+    }
+  }, [props.facing, JSON.stringify(props.formats)])
 
-	<video
-		ref={(el: HTMLVideoElement | null) => {
-			video.current = el
-		}}
-		muted
-		playsInline
-		style={props.style}
-		className={props.className}
-	/>
+  <video
+    ref={(el: HTMLVideoElement | null) => {
+      video.current = el
+    }}
+    muted
+    playsInline
+    style={props.style}
+    className={props.className}
+  />
 }

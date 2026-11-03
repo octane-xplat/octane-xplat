@@ -7,12 +7,12 @@ import test from 'node:test'
 import { command, ownedProcess } from '../tools/probe/process.ts'
 
 test('native target lock survives interruption until child cleanup finishes', async () => {
-	const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
-	const marker = join(directory, 'cleaned')
-	const release = join(directory, 'release')
-	const wrapper = fileURLToPath(new URL('./with-native-target-lock.py', import.meta.url))
-	const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: directory }
-	const source = `
+  const directory = await mkdtemp(join(tmpdir(), 'xplat-lock-test-'))
+  const marker = join(directory, 'cleaned')
+  const release = join(directory, 'release')
+  const wrapper = fileURLToPath(new URL('./with-native-target-lock.py', import.meta.url))
+  const env = { ...process.env, XPLAT_NATIVE_LOCK_DIR: directory }
+  const source = `
 		const fs = require('node:fs');
 		let stopping = false;
 		process.on('SIGINT', () => {
@@ -29,46 +29,46 @@ test('native target lock survives interruption until child cleanup finishes', as
 		setInterval(() => {}, 1000);
 	`
 
-	const host = ownedProcess(
-		'python3',
-		[wrapper, 'android', process.execPath, '-e', source, marker, release],
-		{ env },
-	)
+  const host = ownedProcess(
+    'python3',
+    [wrapper, 'android', process.execPath, '-e', source, marker, release],
+    { env },
+  )
 
-	try {
-		const line = (expected) =>
-			new Promise((resolve, reject) => {
-				const timeout = setTimeout(() => reject(new Error('Missing ' + expected)), 5000)
-				const unsubscribe = host.onLine((value) => {
-					if (value === expected) {
-						clearTimeout(timeout)
-						unsubscribe()
-						resolve()
-					}
-				})
-			})
+  try {
+    const line = (expected) =>
+      new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('Missing ' + expected)), 5000)
+        const unsubscribe = host.onLine((value) => {
+          if (value === expected) {
+            clearTimeout(timeout)
+            unsubscribe()
+            resolve()
+          }
+        })
+      })
 
-		await line('ready')
-		const cleaning = line('cleaning')
-		const stopping = host.stop()
-		await cleaning
-		const busy = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
-			env,
-			allowFailure: true,
-		})
+    await line('ready')
+    const cleaning = line('cleaning')
+    const stopping = host.stop()
+    await cleaning
+    const busy = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
+      env,
+      allowFailure: true,
+    })
 
-		assert.notEqual(busy.code, 0)
-		assert.match(busy.stderr, /Native target is busy/)
-		await writeFile(release, '')
-		await stopping
-		assert.equal(await readFile(marker, 'utf8'), 'done')
-		const released = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
-			env,
-		})
+    assert.notEqual(busy.code, 0)
+    assert.match(busy.stderr, /Native target is busy/)
+    await writeFile(release, '')
+    await stopping
+    assert.equal(await readFile(marker, 'utf8'), 'done')
+    const released = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
+      env,
+    })
 
-		assert.equal(released.code, 0)
-	} finally {
-		await host.stop()
-		await rm(directory, { recursive: true, force: true })
-	}
+    assert.equal(released.code, 0)
+  } finally {
+    await host.stop()
+    await rm(directory, { recursive: true, force: true })
+  }
 })

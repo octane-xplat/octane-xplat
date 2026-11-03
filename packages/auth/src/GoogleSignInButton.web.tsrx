@@ -8,18 +8,18 @@ import type { JSX } from 'octane/jsx-runtime'
  *  to a plain button that runs `googleAuth.signIn()` (One Tap). `onResult`
  *  reports the outcome either way. */
 export function GoogleSignInButton(props: GoogleSignInButtonProps): JSX.Element @{
-	<div
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		ref={(el: HTMLElement | null) => {
-			if (el && !props.disabled) {
-				void renderGoogleButton(
-					el,
-					{ theme: props.theme, variant: props.variant, onPress: () => props.onPress?.() },
-					(result: SignInResult) => props.onResult?.(result),
-				)
-			}
-		}}
-	/>
+  <div
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    ref={(el: HTMLElement | null) => {
+      if (el && !props.disabled) {
+        void renderGoogleButton(
+          el,
+          { theme: props.theme, variant: props.variant, onPress: () => props.onPress?.() },
+          (result: SignInResult) => props.onResult?.(result),
+        )
+      }
+    }}
+  />
 }

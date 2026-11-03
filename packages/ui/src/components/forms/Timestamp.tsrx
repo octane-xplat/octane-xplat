@@ -2,13 +2,13 @@
 import { useEffect, useState } from 'octane'
 import type { TimestampProps, TimestampFormat } from '../../props'
 import {
-	DEFAULT_AUTO_THRESHOLD,
-	formatInstant,
-	formatTimestampText,
-	getLiveInterval,
-	isRelativeFormat,
-	parseTimestampValue,
-	resolveTimestampFormat,
+  DEFAULT_AUTO_THRESHOLD,
+  formatInstant,
+  formatTimestampText,
+  getLiveInterval,
+  isRelativeFormat,
+  parseTimestampValue,
+  resolveTimestampFormat,
 } from './time-format'
 
 import { cx } from '@octane-xplat/lib'
@@ -22,76 +22,76 @@ import { textRoleClasses } from './text-role'
  *  are accepted for API parity but inert (the absolute instant stays
  *  reachable via the accessible label — see docs/app/components.md). */
 export function Timestamp(props: TimestampProps): unknown @{
-	const format = props.format ?? 'auto'
-	const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
-	const isLive = props.isLive ?? false
-	const isTimezoneShown = props.isTimezoneShown ?? false
+  const format = props.format ?? 'auto'
+  const autoThresholdSeconds = props.autoThresholdSeconds ?? DEFAULT_AUTO_THRESHOLD
+  const isLive = props.isLive ?? false
+  const isTimezoneShown = props.isTimezoneShown ?? false
 
-	const date =
-		typeof props.value === 'number'
-			? parseTimestampValue(props.value, props.valueUnit!)
-			: parseTimestampValue(props.value)
+  const date =
+    typeof props.value === 'number'
+      ? parseTimestampValue(props.value, props.valueUnit!)
+      : parseTimestampValue(props.value)
 
-	const invalid = Number.isNaN(date.getTime())
+  const invalid = Number.isNaN(date.getTime())
 
-	const [now, setNow] = useState(() => new Date())
-	const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000
-	const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds)
-	const relative = !invalid && isRelativeFormat(resolved)
+  const [now, setNow] = useState(() => new Date())
+  const diffSeconds = invalid ? 0 : (now.getTime() - date.getTime()) / 1000
+  const resolved = resolveTimestampFormat(format, diffSeconds, autoThresholdSeconds)
+  const relative = !invalid && isRelativeFormat(resolved)
 
-	useEffect(() => {
-		if (!isLive || invalid || !relative) {
-			return
-		}
+  useEffect(() => {
+    if (!isLive || invalid || !relative) {
+      return
+    }
 
-		let timer: ReturnType<typeof setTimeout> | undefined
-		let cancelled = false
-		const tick = () => {
-			if (cancelled) {
-				return
-			}
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let cancelled = false
+    const tick = () => {
+      if (cancelled) {
+        return
+      }
 
-			const interval = getLiveInterval((Date.now() - date.getTime()) / 1000)
-			timer = setTimeout(() => {
-				setNow(new Date())
-				tick()
-			}, interval)
-		}
+      const interval = getLiveInterval((Date.now() - date.getTime()) / 1000)
+      timer = setTimeout(() => {
+        setNow(new Date())
+        tick()
+      }, interval)
+    }
 
-		tick()
-		return () => {
-			cancelled = true
-			if (timer !== undefined) {
-				clearTimeout(timer)
-			}
-		}
-	}, [isLive, invalid, relative, props.value])
+    tick()
+    return () => {
+      cancelled = true
+      if (timer !== undefined) {
+        clearTimeout(timer)
+      }
+    }
+  }, [isLive, invalid, relative, props.value])
 
-	const text = invalid
-		? 'Invalid Date'
-		: formatTimestampText(
-				date,
-				resolved as Exclude<TimestampFormat, 'auto'>,
-				now,
-				undefined,
-				isTimezoneShown,
-			)
+  const text = invalid
+    ? 'Invalid Date'
+    : formatTimestampText(
+        date,
+        resolved as Exclude<TimestampFormat, 'auto'>,
+        now,
+        undefined,
+        isTimezoneShown,
+      )
 
-	const absoluteLabel = invalid ? undefined : formatInstant(date, 'full', undefined, {})
+  const absoluteLabel = invalid ? undefined : formatInstant(date, 'full', undefined, {})
 
-	const roleClasses = textRoleClasses({
-		type: props.type ?? 'supporting',
-		size: props.size,
-		color: props.color ?? 'secondary',
-		weight: props.weight,
-	})
+  const roleClasses = textRoleClasses({
+    type: props.type ?? 'supporting',
+    size: props.size,
+    color: props.color ?? 'secondary',
+    weight: props.weight,
+  })
 
-	<label
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-timestamp', roleClasses, props.className)}
-		style={props.style}
-		text={text}
-		accessibilityLabel={relative ? absoluteLabel : undefined}
-	/>
+  <label
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-timestamp', roleClasses, props.className)}
+    style={props.style}
+    text={text}
+    accessibilityLabel={relative ? absoluteLabel : undefined}
+  />
 }

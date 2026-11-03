@@ -20,10 +20,10 @@ const emit = () => listeners.forEach((l) => l())
 /** Set the app-level theme preference. 'system' clears the override and
  *  follows the OS appearance. */
 export function setThemePreference(p: ThemePreference): void {
-	if (p !== preference) {
-		preference = p
-		emit()
-	}
+  if (p !== preference) {
+    preference = p
+    emit()
+  }
 }
 
 /**
@@ -32,35 +32,35 @@ export function setThemePreference(p: ThemePreference): void {
  * @see ColorScheme, getColorScheme.
  */
 export function getThemePreference(): ThemePreference {
-	return preference
+  return preference
 }
 
 /** Resolved app scheme: the explicit preference when set, else the system
  *  appearance. */
 export function getThemeScheme(): ThemeScheme {
-	return preference === 'system' ? getColorScheme() : preference
+  return preference === 'system' ? getColorScheme() : preference
 }
 
 function subscribe(cb: () => void): () => void {
-	listeners.add(cb)
-	const offSystem = subscribeSystemScheme(cb)
-	return () => {
-		listeners.delete(cb)
-		offSystem()
-	}
+  listeners.add(cb)
+  const offSystem = subscribeSystemScheme(cb)
+  return () => {
+    listeners.delete(cb)
+    offSystem()
+  }
 }
 
 /** Reactive resolved scheme — re-renders when the preference or the OS
  *  appearance changes the effective scheme. Use `useThemePreference` for
  *  the raw preference including 'system'. */
 export function useThemeScheme(): ThemeScheme {
-	return useSyncExternalStore(subscribe, getThemeScheme)
+  return useSyncExternalStore(subscribe, getThemeScheme)
 }
 
 /** Reactive preference — the app's 'light' | 'dark' | 'system' choice,
  *  re-rendering when the preference changes. */
 export function useThemePreference(): ThemePreference {
-	return useSyncExternalStore(subscribe, getThemePreference)
+  return useSyncExternalStore(subscribe, getThemePreference)
 }
 
 /** Subscribe imperative consumers to resolved-scheme changes; returns an
@@ -69,5 +69,5 @@ export function useThemePreference(): ThemePreference {
  *  roots should prefer `applyThemeClasses` in './theme-host', which keeps
  *  the scheme classes stamped live. */
 export function onThemeSchemeChange(cb: () => void): () => void {
-	return subscribe(cb)
+  return subscribe(cb)
 }

@@ -2,9 +2,9 @@
 import type { AbsoluteProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import {
-	applyEscapeProps,
-	nativeAccessibilityRole,
-	nativeAccessibilityState,
+  applyEscapeProps,
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
 } from '../overlays/escape-props'
 
 /**
@@ -13,19 +13,19 @@ import {
  * @see AbsoluteProps.
  */
 export function Absolute(props: AbsoluteProps): unknown @{
-	<masonview
-		id={props.id}
-		ref={(view: any) => applyEscapeProps(view, props)}
-		className={cx('vx-absolute', props.className)}
-		style={props.style}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState)}
-		accessibilityLiveRegion={props.accessibilityLiveRegion}
-	>
-		{props.children}
-	</masonview>
+  <masonview
+    id={props.id}
+    ref={(view: any) => applyEscapeProps(view, props)}
+    className={cx('vx-absolute', props.className)}
+    style={props.style}
+    accessible={props.accessible}
+    accessibilityLabel={props.accessibilityLabel}
+    accessibilityRole={nativeAccessibilityRole(props.accessibilityRole)}
+    accessibilityHint={props.accessibilityHint}
+    accessibilityValue={props.accessibilityValue}
+    accessibilityState={nativeAccessibilityState(props.accessibilityState)}
+    accessibilityLiveRegion={props.accessibilityLiveRegion}
+  >
+    {props.children}
+  </masonview>
 }

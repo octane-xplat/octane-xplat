@@ -3,19 +3,19 @@
 import { TreeList } from '@octane-xplat/ui'
 
 export function TreeListInteractiveSettings() @{
-	<TreeList
-		defaultExpandedKeys={new Set(['settings'])}
-		nodes={[
-			{
-				key: 'settings',
-				label: 'Settings',
-				children: [
-					{ key: 'general', label: 'General' },
-					{ key: 'advanced', label: 'Advanced' },
-				],
-			},
-			{ key: 'docs', label: 'Documentation', href: '#' },
-		]}
-		onAction={() => {}}
-	/>
+  <TreeList
+    defaultExpandedKeys={new Set(['settings'])}
+    nodes={[
+      {
+        key: 'settings',
+        label: 'Settings',
+        children: [
+          { key: 'general', label: 'General' },
+          { key: 'advanced', label: 'Advanced' },
+        ],
+      },
+      { key: 'docs', label: 'Documentation', href: '#' },
+    ]}
+    onAction={() => {}}
+  />
 }

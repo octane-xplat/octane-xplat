@@ -5,9 +5,9 @@ import type { WebViewMessageEvent } from '@octane-xplat/ui'
 
 declare const __GTK_WEBVIEW_POST_SOURCE__: string
 export const MESSAGE_DOC =
-	'<html><body><script type="module">' +
-	__GTK_WEBVIEW_POST_SOURCE__ +
-	';globalThis.postFixtureMessage = postToHost; postToHost({ startup: true });</script></body></html>'
+  '<html><body><script type="module">' +
+  __GTK_WEBVIEW_POST_SOURCE__ +
+  ';globalThis.postFixtureMessage = postToHost; postToHost({ startup: true });</script></body></html>'
 
 export const MESSAGE_URL = 'data:text/html,' + encodeURIComponent(MESSAGE_DOC)
 export const messages: Array<WebViewMessageEvent & { handler: string }> = []
@@ -20,7 +20,7 @@ export const navHandle: { current: WebViewHandle | null } = { current: null }
 export const stopHandle: { current: WebViewHandle | null } = { current: null }
 
 const INLINE_DOC =
-	'<html><head><style>html,body{margin:0;height:640px}</style></head><body><p>inline doc</p></body></html>'
+  '<html><head><style>html,body{margin:0;height:640px}</style></head><body><p>inline doc</p></body></html>'
 
 export const DATA_DOC = 'data:text/html,<html><body><p>data doc</p></body></html>'
 // A non-routable address hangs the connection attempt, so this load stays
@@ -32,78 +32,78 @@ export const NAV_DOC_A = 'data:text/html,<html><body><p>first doc</p></body></ht
 export const NAV_DOC_B = 'data:text/html,<html><body><p>second doc</p></body></html>'
 
 const on = (id: string, name: string) => (e: WebViewLoadEvent) => {
-	events.push({ id, name, url: e.url, error: e.error })
+  events.push({ id, name, url: e.url, error: e.error })
 }
 
 const onSize = (id: string) => (size: WebViewContentSize) => {
-	sizes.push({ id, width: size.width, height: size.height })
+  sizes.push({ id, width: size.width, height: size.height })
 }
 
 export function WebViewProbe(props: {
-	handler?: 'first' | 'second' | 'off'
-	messageHtml?: string
-	showMessages?: boolean
+  handler?: 'first' | 'second' | 'off'
+  messageHtml?: string
+  showMessages?: boolean
 }) @{
-	<>
-		<WebView
-			id="wv-html"
-			html={INLINE_DOC}
-			scrollEnabled={false}
-			matchContents
-			onLoad={on('html', 'load')}
-			onError={on('html', 'error')}
-			onLayoutContent={onSize('html')}
-		/>
-		<WebView id="wv-src" src={DATA_DOC} onLoad={on('src', 'load')} onError={on('src', 'error')} />
-		<WebView
-			id="wv-bad"
-			src="https://nonexistent.invalid/x"
-			onLoad={on('bad', 'load')}
-			onError={on('bad', 'error')}
-		/>
-		<webview
-			id="wv-raw"
-			src={DATA_DOC}
-			onLoadStarted={(e: any) => events.push({ id: 'raw', name: 'started', url: e.url })}
-			onLoadFinished={(e: any) => events.push({ id: 'raw', name: 'finished', url: e.url })}
-			onLoadError={(e: any) =>
-				events.push({ id: 'raw', name: 'loaderror', url: e.url, error: String(e.error ?? '') })
-			}
-		/>
-		<WebView
-			id="wv-nav"
-			ref={(h: WebViewHandle | null) => {
-				navHandle.current = h
-			}}
-			src={NAV_DOC_A}
-			onLoad={on('nav', 'load')}
-		/>
-		<WebView
-			id="wv-stop"
-			ref={(h: WebViewHandle | null) => {
-				stopHandle.current = h
-			}}
-			src={STOP_URL}
-			onLoad={on('stop', 'load')}
-			onError={on('stop', 'error')}
-		/>
-		{props.showMessages !== false ? (
-			<>
-				<WebView
-					id="wv-message"
-					html={props.messageHtml ?? MESSAGE_DOC}
-					onMessage={
-						props.handler === 'off'
-							? undefined
-							: (event) => messages.push({ ...event, handler: props.handler ?? 'first' })
-					}
-				/>
-				<WebView
-					id="wv-message-url"
-					src={MESSAGE_URL}
-					onMessage={(event) => messages.push({ ...event, handler: 'url' })}
-				/>
-			</>
-		) : null}
-	</>
+  <>
+    <WebView
+      id="wv-html"
+      html={INLINE_DOC}
+      scrollEnabled={false}
+      matchContents
+      onLoad={on('html', 'load')}
+      onError={on('html', 'error')}
+      onLayoutContent={onSize('html')}
+    />
+    <WebView id="wv-src" src={DATA_DOC} onLoad={on('src', 'load')} onError={on('src', 'error')} />
+    <WebView
+      id="wv-bad"
+      src="https://nonexistent.invalid/x"
+      onLoad={on('bad', 'load')}
+      onError={on('bad', 'error')}
+    />
+    <webview
+      id="wv-raw"
+      src={DATA_DOC}
+      onLoadStarted={(e: any) => events.push({ id: 'raw', name: 'started', url: e.url })}
+      onLoadFinished={(e: any) => events.push({ id: 'raw', name: 'finished', url: e.url })}
+      onLoadError={(e: any) =>
+        events.push({ id: 'raw', name: 'loaderror', url: e.url, error: String(e.error ?? '') })
+      }
+    />
+    <WebView
+      id="wv-nav"
+      ref={(h: WebViewHandle | null) => {
+        navHandle.current = h
+      }}
+      src={NAV_DOC_A}
+      onLoad={on('nav', 'load')}
+    />
+    <WebView
+      id="wv-stop"
+      ref={(h: WebViewHandle | null) => {
+        stopHandle.current = h
+      }}
+      src={STOP_URL}
+      onLoad={on('stop', 'load')}
+      onError={on('stop', 'error')}
+    />
+    {props.showMessages !== false ? (
+      <>
+        <WebView
+          id="wv-message"
+          html={props.messageHtml ?? MESSAGE_DOC}
+          onMessage={
+            props.handler === 'off'
+              ? undefined
+              : (event) => messages.push({ ...event, handler: props.handler ?? 'first' })
+          }
+        />
+        <WebView
+          id="wv-message-url"
+          src={MESSAGE_URL}
+          onMessage={(event) => messages.push({ ...event, handler: 'url' })}
+        />
+      </>
+    ) : null}
+  </>
 }

@@ -11,33 +11,33 @@ import type { JSX } from 'octane/jsx-runtime'
  *  bug waiting to ship. `as` picks the tag ('span' inline default; 'div'
  *  for live regions / block announcements). */
 export function VisuallyHidden(props: VisuallyHiddenProps): JSX.Element @{
-	const Tag: any = props.as ?? 'span'
+  const Tag: any = props.as ?? 'span'
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((e: any) => {
-				if (e) {
-					applyEscapeProps(e, props)
-					applyWebProps(e, props.web)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((e: any) => {
+        if (e) {
+          applyEscapeProps(e, props)
+          applyWebProps(e, props.web)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<Tag
-		id={props.id}
-		ref={forwardedRef}
-		className="vx-visually-hidden"
-		role={props.accessibilityRole}
-		aria-label={props.accessibilityLabel}
-		aria-hidden={props.accessible === false ? true : undefined}
-		aria-description={props.accessibilityHint}
-		aria-valuetext={props.accessibilityValue}
-		aria-disabled={props.accessibilityState?.disabled}
-		aria-selected={props.accessibilityState?.selected}
-		aria-checked={props.accessibilityState?.checked}
-		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
-	>
-		{props.children}
-	</Tag>
+  <Tag
+    id={props.id}
+    ref={forwardedRef}
+    className="vx-visually-hidden"
+    role={props.accessibilityRole}
+    aria-label={props.accessibilityLabel}
+    aria-hidden={props.accessible === false ? true : undefined}
+    aria-description={props.accessibilityHint}
+    aria-valuetext={props.accessibilityValue}
+    aria-disabled={props.accessibilityState?.disabled}
+    aria-selected={props.accessibilityState?.selected}
+    aria-checked={props.accessibilityState?.checked}
+    aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+  >
+    {props.children}
+  </Tag>
 }

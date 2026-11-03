@@ -3,21 +3,21 @@
 import { TreeList } from '@octane-xplat/ui'
 
 export function TreeListVariants() @{
-	<TreeList
-		defaultExpandedKeys={new Set(['inbox'])}
-		selectionMode="single"
-		defaultSelectedKeys={new Set(['starred'])}
-		nodes={[
-			{
-				key: 'inbox',
-				label: 'Inbox (3)',
-				children: [
-					{ key: 'unread', label: 'Unread (3)' },
-					{ key: 'starred', label: 'Starred' },
-				],
-			},
-			{ key: 'sent', label: 'Sent' },
-		]}
-		onAction={() => {}}
-	/>
+  <TreeList
+    defaultExpandedKeys={new Set(['inbox'])}
+    selectionMode="single"
+    defaultSelectedKeys={new Set(['starred'])}
+    nodes={[
+      {
+        key: 'inbox',
+        label: 'Inbox (3)',
+        children: [
+          { key: 'unread', label: 'Unread (3)' },
+          { key: 'starred', label: 'Starred' },
+        ],
+      },
+      { key: 'sent', label: 'Sent' },
+    ]}
+    onAction={() => {}}
+  />
 }

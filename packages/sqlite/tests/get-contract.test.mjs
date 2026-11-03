@@ -18,55 +18,55 @@ import test from 'node:test'
 
 const require = createRequire(import.meta.url)
 const sqliteAnchor = dirname(
-	realpathSync(require.resolve('@nativescript-community/sqlite/package.json')),
+  realpathSync(require.resolve('@nativescript-community/sqlite/package.json')),
 )
 
 const fromSqlite = createRequire(join(sqliteAnchor, 'resolve-anchor.js'))
 const packageRoot = (name) => dirname(fromSqlite.resolve(`${name}/package.json`))
 
 const SQLITE_PACKAGES = [
-	'@nativescript-community/sqlite',
-	'@nativescript-community/sqlite-core',
-	'@nativescript-community/sqlite-napi',
-	'@nativescript-community/sqlite-default-engine',
-	'@nativescript-community/sqlite-bridge',
+  '@nativescript-community/sqlite',
+  '@nativescript-community/sqlite-core',
+  '@nativescript-community/sqlite-napi',
+  '@nativescript-community/sqlite-default-engine',
+  '@nativescript-community/sqlite-bridge',
 ]
 
 test('plugin family carries no pre-step cursor row access', () => {
-	const offenders = []
-	for (const name of SQLITE_PACKAGES) {
-		const root = packageRoot(name)
-		const files = readdirSync(root, { recursive: true }).filter(
-			(file) => typeof file === 'string' && /\.[cm]?js$/.test(file),
-		)
+  const offenders = []
+  for (const name of SQLITE_PACKAGES) {
+    const root = packageRoot(name)
+    const files = readdirSync(root, { recursive: true }).filter(
+      (file) => typeof file === 'string' && /\.[cm]?js$/.test(file),
+    )
 
-		for (const file of files) {
-			if (/getRaw|resultDictionary|FMResultSet/.test(readFileSync(join(root, file), 'utf8'))) {
-				offenders.push(`${name}/${file}`)
-			}
-		}
-	}
-	assert.deepEqual(
-		offenders,
-		[],
-		'FMDB-style cursor row access (getRaw/resultDictionary/FMResultSet) reappeared — get()/getArray() would read the row before the cursor advances (sqlite#50)',
-	)
+    for (const file of files) {
+      if (/getRaw|resultDictionary|FMResultSet/.test(readFileSync(join(root, file), 'utf8'))) {
+        offenders.push(`${name}/${file}`)
+      }
+    }
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    'FMDB-style cursor row access (getRaw/resultDictionary/FMResultSet) reappeared — get()/getArray() would read the row before the cursor advances (sqlite#50)',
+  )
 })
 
 test('sqlite-core get/getArray share the select request path', () => {
-	const source = readFileSync(
-		join(packageRoot('@nativescript-community/sqlite-core'), 'database.js'),
-		'utf8',
-	)
-	for (const method of ['select', 'selectArray', 'get', 'getArray']) {
-		const body = source.match(
-			new RegExp(`(?:async )?${method}\\(query, params, options\\) \\{([\\s\\S]*?)\\n\\s*\\}`),
-		)?.[1]
+  const source = readFileSync(
+    join(packageRoot('@nativescript-community/sqlite-core'), 'database.js'),
+    'utf8',
+  )
+  for (const method of ['select', 'selectArray', 'get', 'getArray']) {
+    const body = source.match(
+      new RegExp(`(?:async )?${method}\\(query, params, options\\) \\{([\\s\\S]*?)\\n\\s*\\}`),
+    )?.[1]
 
-		assert.ok(body, `could not read ${method}()'s body in installed database.js`)
-		assert.ok(
-			/this\.query\(query, params, options, (?:true|false)\)/.test(body),
-			`${method}() no longer shares query()'s exec path — re-verify the sqlite#50 row-access contract before consuming this plugin version`,
-		)
-	}
+    assert.ok(body, `could not read ${method}()'s body in installed database.js`)
+    assert.ok(
+      /this\.query\(query, params, options, (?:true|false)\)/.test(body),
+      `${method}() no longer shares query()'s exec path — re-verify the sqlite#50 row-access contract before consuming this plugin version`,
+    )
+  }
 })

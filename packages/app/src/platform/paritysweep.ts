@@ -20,7 +20,7 @@ let ran = false
 let lastDump = ''
 let resolveParitySweepComplete!: () => void
 const paritySweepComplete = new Promise<void>((resolve) => {
-	resolveParitySweepComplete = resolve
+  resolveParitySweepComplete = resolve
 })
 
 const g = globalThis as any
@@ -30,65 +30,65 @@ g.__xplatParitySweepComplete = paritySweepComplete
 // grid overlays lag the frame push by a beat. Two identical dumps back to
 // back is the settled signal; a single nonzero probe catches stale sizes.
 function stableDump() {
-	const dump = (globalThis as any).__xplatParity?.()
-	if (!dump) {
-		return null
-	}
+  const dump = (globalThis as any).__xplatParity?.()
+  if (!dump) {
+    return null
+  }
 
-	const json = JSON.stringify(dump)
-	if (json === lastDump) {
-		return dump
-	}
+  const json = JSON.stringify(dump)
+  if (json === lastDump) {
+    return dump
+  }
 
-	lastDump = json
-	return null
+  lastDump = json
+  return null
 }
 
 function waitFor(cond: () => boolean, then: () => void, tries = 60) {
-	const tick = () => {
-		if (cond() || --tries <= 0) {
-			then()
-		} else {
-			setTimeout(tick, 100)
-		}
-	}
+  const tick = () => {
+    if (cond() || --tries <= 0) {
+      then()
+    } else {
+      setTimeout(tick, 100)
+    }
+  }
 
-	tick()
+  tick()
 }
 
 export function runParity() {
-	if (ran) {
-		return
-	}
+  if (ran) {
+    return
+  }
 
-	ran = true
+  ran = true
 
-	router.push({ to: '/parity' })
-	waitFor(
-		() => stableDump() != null,
-		() => {
-			const dump = stableDump()
-			const cells = Object.keys(dump?.cells ?? {}).length
-			if (!dump) {
-				console.log('[parity] FAIL — stage never produced a dump')
-			} else {
-				try {
-					const file = knownFolders.documents().getFile('parity-report.json')
-					file.writeTextSync(JSON.stringify(dump))
-					console.log('[parity] dump ' + cells + ' fixtures → ' + file.path)
-				} catch (e) {
-					console.log('[parity] write failed: ' + e)
-				}
-			}
+  router.push({ to: '/parity' })
+  waitFor(
+    () => stableDump() != null,
+    () => {
+      const dump = stableDump()
+      const cells = Object.keys(dump?.cells ?? {}).length
+      if (!dump) {
+        console.log('[parity] FAIL — stage never produced a dump')
+      } else {
+        try {
+          const file = knownFolders.documents().getFile('parity-report.json')
+          file.writeTextSync(JSON.stringify(dump))
+          console.log('[parity] dump ' + cells + ' fixtures → ' + file.path)
+        } catch (e) {
+          console.log('[parity] write failed: ' + e)
+        }
+      }
 
-			router.back()
-			resolveParitySweepComplete()
-			console.log('[parity] done')
-		},
-	)
+      router.back()
+      resolveParitySweepComplete()
+      console.log('[parity] done')
+    },
+  )
 }
 
 g.__xplatSweepDone = runParity
 if (Application.android != null && !VIRTUAL_LIST_BENCH_MODE) {
-	setTimeout(runParity, 120000)
+  setTimeout(runParity, 120000)
 }

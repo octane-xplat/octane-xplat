@@ -5,14 +5,14 @@ import type { DefinedTheme, ThemeMode } from './defined-theme'
  *  plus the mode it was asked for (which may itself be inherited/'system';
  *  `useTheme` resolves the effective mode). */
 export interface ThemeContextValue {
-	/** Theme object declared by the nearest `Theme`. */
-	theme: DefinedTheme
-	/** Mode the `Theme` was asked for — may still be 'system'. */
-	mode: ThemeMode
+  /** Theme object declared by the nearest `Theme`. */
+  theme: DefinedTheme
+  /** Mode the `Theme` was asked for — may still be 'system'. */
+  mode: ThemeMode
 }
 
 export const ThemeContext: Context<ThemeContextValue | null> =
-	createContext<ThemeContextValue | null>(null)
+  createContext<ThemeContextValue | null>(null)
 
 /** True inside a `Theme` — lets nested providers skip the root sync
  *  (document attributes, detached-host scope registration) that only the

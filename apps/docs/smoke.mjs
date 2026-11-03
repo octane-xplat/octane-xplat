@@ -9,37 +9,37 @@ import { inlineSpans, parseMd } from './src/md.ts'
 
 const js = 'dist' + readFileSync('dist/index.html', 'utf8').match(/src="([^"]+\.js)"/)[1]
 const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
-	url: 'https://x.test/',
-	runScripts: 'outside-only',
+  url: 'https://x.test/',
+  runScripts: 'outside-only',
 })
 
 const { window } = dom
 const keyDiagnostics = []
 for (const level of ['warn', 'error']) {
-	const report = console[level].bind(console)
-	console[level] = (...args) => {
-		const message = args.map(String).join(' ')
-		if (
-			message.includes('each element in an array child') ||
-			message.includes('two children with the same key')
-		) {
-			keyDiagnostics.push(message)
-		}
+  const report = console[level].bind(console)
+  console[level] = (...args) => {
+    const message = args.map(String).join(' ')
+    if (
+      message.includes('each element in an array child') ||
+      message.includes('two children with the same key')
+    ) {
+      keyDiagnostics.push(message)
+    }
 
-		report(...args)
-	}
+    report(...args)
+  }
 }
 
 for (const k of [
-	'document',
-	'window',
-	'HTMLElement',
-	'MutationObserver',
-	'CustomEvent',
-	'history',
-	'location',
+  'document',
+  'window',
+  'HTMLElement',
+  'MutationObserver',
+  'CustomEvent',
+  'history',
+  'location',
 ]) {
-	globalThis[k] = window[k]
+  globalThis[k] = window[k]
 }
 
 globalThis.requestAnimationFrame = (cb) => setTimeout(cb, 16)
@@ -48,76 +48,76 @@ globalThis.cancelAnimationFrame = (id) => clearTimeout(id)
 window.cancelAnimationFrame = globalThis.cancelAnimationFrame
 window.scrollTo = () => {}
 window.matchMedia ??= () => ({
-	matches: false,
-	addEventListener() {},
-	removeEventListener() {},
-	addListener() {},
-	removeListener() {},
+  matches: false,
+  addEventListener() {},
+  removeEventListener() {},
+  addListener() {},
+  removeListener() {},
 })
 
 const watchdog = setTimeout(() => {
-	console.error('FAIL: bundle eval hung (boot loop)')
-	process.exit(1)
+  console.error('FAIL: bundle eval hung (boot loop)')
+  process.exit(1)
 }, 10000)
 
 window.eval(readFileSync(js, 'utf8'))
 clearTimeout(watchdog)
 async function waitFor(name, predicate) {
-	const deadline = Date.now() + 5000
-	while (!predicate()) {
-		if (Date.now() >= deadline) {
-			throw new Error('Timed out: ' + name)
-		}
+  const deadline = Date.now() + 5000
+  while (!predicate()) {
+    if (Date.now() >= deadline) {
+      throw new Error('Timed out: ' + name)
+    }
 
-		await new Promise((resolve) => setTimeout(resolve, 10))
-	}
+    await new Promise((resolve) => setTimeout(resolve, 10))
+  }
 }
 
 await waitFor(
-	'initial document commit',
-	() =>
-		window.document.querySelector('.doc-page .agent-prompt') &&
-		window.document.querySelector('.constellation svg polygon'),
+  'initial document commit',
+  () =>
+    window.document.querySelector('.doc-page .agent-prompt') &&
+    window.document.querySelector('.constellation svg polygon'),
 )
 
 const navigationTitle = titleOf('navigation', readFileSync('../../docs/app/navigation.md', 'utf8'))
 const root = window.document.getElementById('root')
 const side = window.document.querySelectorAll('.side-item').length
 const numbered = [...window.document.querySelectorAll('.li-marker')].some(
-	(el) => el.textContent?.trim() === '1.',
+  (el) => el.textContent?.trim() === '1.',
 )
 
 const checks = [
-	['root mounted', root?.children.length > 0],
-	['sidebar items', side >= 10],
-	['doc content rendered', (root?.textContent || '').length > 500],
-	['numbered list markers', numbered],
-	[
-		'constellation elements rendered inline',
-		root?.querySelectorAll('.constellation svg polygon').length > 100,
-	],
+  ['root mounted', root?.children.length > 0],
+  ['sidebar items', side >= 10],
+  ['doc content rendered', (root?.textContent || '').length > 500],
+  ['numbered list markers', numbered],
+  [
+    'constellation elements rendered inline',
+    root?.querySelectorAll('.constellation svg polygon').length > 100,
+  ],
 ]
 
 let fail = 0
 for (const [name, ok] of checks) {
-	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
-	if (!ok) {
-		fail++
-	}
+  console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
+  if (!ok) {
+    fail++
+  }
 }
 
 const assert = (name, ok) => {
-	console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
-	if (!ok) {
-		fail++
-	}
+  console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
+  if (!ok) {
+    fail++
+  }
 }
 
 const promptCard = root.querySelector('.agent-prompt')
 assert(
-	'front page includes one agent prompt after the introduction',
-	root.querySelectorAll('.agent-prompt').length === 1 &&
-		promptCard?.previousElementSibling?.classList.contains('lede'),
+  'front page includes one agent prompt after the introduction',
+  root.querySelectorAll('.agent-prompt').length === 1 &&
+    promptCard?.previousElementSibling?.classList.contains('lede'),
 )
 
 const promptText = promptCard?.querySelector('.agent-prompt-copy')?.textContent
@@ -125,9 +125,9 @@ const expandPrompt = promptCard?.querySelector('.agent-prompt-expand')
 expandPrompt?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
-	'agent prompt expands',
-	expandPrompt?.getAttribute('aria-expanded') === 'true' &&
-		promptCard?.querySelector('.agent-prompt-text.is-expanded'),
+  'agent prompt expands',
+  expandPrompt?.getAttribute('aria-expanded') === 'true' &&
+    promptCard?.querySelector('.agent-prompt-text.is-expanded'),
 )
 
 expandPrompt?.click()
@@ -135,30 +135,30 @@ await new Promise((r) => setTimeout(r, 30))
 assert('agent prompt collapses', expandPrompt?.getAttribute('aria-expanded') === 'false')
 let copiedPrompt
 Object.defineProperty(window.navigator, 'clipboard', {
-	configurable: true,
-	value: {
-		writeText: async (text) => {
-			copiedPrompt = text
-		},
-	},
+  configurable: true,
+  value: {
+    writeText: async (text) => {
+      copiedPrompt = text
+    },
+  },
 })
 
 promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
-	'copy includes the complete setup prompt and announces success',
-	copiedPrompt === promptText &&
-		promptText?.includes('/llms-full.txt') &&
-		promptCard?.querySelector('.agent-prompt-status')?.textContent === 'Prompt copied',
+  'copy includes the complete setup prompt and announces success',
+  copiedPrompt === promptText &&
+    promptText?.includes('/llms-full.txt') &&
+    promptCard?.querySelector('.agent-prompt-status')?.textContent === 'Prompt copied',
 )
 
 const promptActions = promptCard?.querySelector('[aria-label="Open prompt actions"]')
 promptActions.click()
 await waitFor('prompt actions open', () => window.document.querySelector('.agent-prompt-menu a'))
 assert(
-	'ChatGPT action includes the full prompt',
-	new URL(window.document.querySelector('.agent-prompt-menu a').href).searchParams.get('q') ===
-		promptText,
+  'ChatGPT action includes the full prompt',
+  new URL(window.document.querySelector('.agent-prompt-menu a').href).searchParams.get('q') ===
+    promptText,
 )
 
 window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -166,156 +166,156 @@ await waitFor('prompt actions close', () => !window.document.querySelector('.age
 assert('Escape dismisses prompt actions', promptActions.getAttribute('aria-expanded') === 'false')
 
 window.navigator.clipboard.writeText = async () => {
-	throw new Error('Clipboard unavailable')
+  throw new Error('Clipboard unavailable')
 }
 
 promptCard?.querySelector('[aria-label="Copy prompt"]')?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
-	'clipboard failure shows manual-copy guidance and expands the prompt',
-	promptCard
-		?.querySelector('.agent-prompt-status.is-error')
-		?.textContent.includes('Select the prompt text') &&
-		expandPrompt?.getAttribute('aria-expanded') === 'true',
+  'clipboard failure shows manual-copy guidance and expands the prompt',
+  promptCard
+    ?.querySelector('.agent-prompt-status.is-error')
+    ?.textContent.includes('Select the prompt text') &&
+    expandPrompt?.getAttribute('aria-expanded') === 'true',
 )
 
 const highlights = [...root.querySelectorAll('.doc .highlight')]
 const promptHighlight = highlights.find((h) => h.textContent === 'Create your first app')
 assert(
-	'Xplat page renders its highlights',
-	highlights.some((h) => h.textContent === 'one project') && !!promptHighlight,
+  'Xplat page renders its highlights',
+  highlights.some((h) => h.textContent === 'one project') && !!promptHighlight,
 )
 
 assert(
-	'highlight keeps its section link',
-	promptHighlight?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run',
+  'highlight keeps its section link',
+  promptHighlight?.querySelector('a')?.getAttribute('href') === '/toolchain#create-and-run',
 )
 
 const mixedHighlight = inlineSpans('before ==**bold** *italic* `code` [link](spec.md)== after')
 assert(
-	'highlight composes with inline formatting',
-	mixedHighlight[0].text === 'before ' &&
-		!mixedHighlight[0].highlight &&
-		mixedHighlight.some((s) => s.highlight && s.bold && s.text === 'bold') &&
-		mixedHighlight.some((s) => s.highlight && s.italic && s.text === 'italic') &&
-		mixedHighlight.some((s) => s.highlight && s.mono && s.text === 'code') &&
-		mixedHighlight.some((s) => s.highlight && s.href === 'spec.md' && s.text === 'link') &&
-		mixedHighlight.at(-1).text === ' after' &&
-		!mixedHighlight.at(-1).highlight,
+  'highlight composes with inline formatting',
+  mixedHighlight[0].text === 'before ' &&
+    !mixedHighlight[0].highlight &&
+    mixedHighlight.some((s) => s.highlight && s.bold && s.text === 'bold') &&
+    mixedHighlight.some((s) => s.highlight && s.italic && s.text === 'italic') &&
+    mixedHighlight.some((s) => s.highlight && s.mono && s.text === 'code') &&
+    mixedHighlight.some((s) => s.highlight && s.href === 'spec.md' && s.text === 'link') &&
+    mixedHighlight.at(-1).text === ' after' &&
+    !mixedHighlight.at(-1).highlight,
 )
 
 assert(
-	'highlight inside bold stays bold',
-	inlineSpans('**==important==**').some((s) => s.highlight && s.bold && s.text === 'important'),
+  'highlight inside bold stays bold',
+  inlineSpans('**==important==**').some((s) => s.highlight && s.bold && s.text === 'important'),
 )
 
 assert(
-	'code keeps highlight markers literal',
-	inlineSpans('`==literal==`')[0].text === '==literal==' &&
-		!inlineSpans('`==literal==`')[0].highlight,
+  'code keeps highlight markers literal',
+  inlineSpans('`==literal==`')[0].text === '==literal==' &&
+    !inlineSpans('`==literal==`')[0].highlight,
 )
 
 assert(
-	'unclosed or empty highlights stay literal',
-	['==unfinished', '====', '===literal==='].every(
-		(text) =>
-			inlineSpans(text).every((s) => !s.highlight) &&
-			inlineSpans(text)
-				.map((s) => s.text)
-				.join('') === text,
-	),
+  'unclosed or empty highlights stay literal',
+  ['==unfinished', '====', '===literal==='].every(
+    (text) =>
+      inlineSpans(text).every((s) => !s.highlight) &&
+      inlineSpans(text)
+        .map((s) => s.text)
+        .join('') === text,
+  ),
 )
 
 assert(
-	'single equals inside highlight stays text',
-	inlineSpans('==x = y==')[0].text === 'x = y' && inlineSpans('==x = y==')[0].highlight,
+  'single equals inside highlight stays text',
+  inlineSpans('==x = y==')[0].text === 'x = y' && inlineSpans('==x = y==')[0].highlight,
 )
 
 assert(
-	'fenced code keeps highlight markers literal',
-	parseMd('```md\n==literal==\n```')[0].text === '==literal==',
+  'fenced code keeps highlight markers literal',
+  parseMd('```md\n==literal==\n```')[0].text === '==literal==',
 )
 
 const table = parseMd('| value | meaning |\n| --- | --- |\n| `ready \\| error` | status |')[0]
 assert(
-	'escaped table pipe stays in its cell',
-	table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`',
+  'escaped table pipe stays in its cell',
+  table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`',
 )
 
 // Sidebar navs hold the route change for the 200ms content fade-out.
 const settle = () => new Promise((resolve) => setTimeout(resolve, 280))
 let scrolledTo
 window.HTMLElement.prototype.scrollIntoView = function () {
-	scrolledTo = this.id
+  scrolledTo = this.id
 }
 
 const firstFlow = [...root.querySelectorAll('a')].find(
-	(a) => a.getAttribute('href') === '/toolchain#create-and-run',
+  (a) => a.getAttribute('href') === '/toolchain#create-and-run',
 )
 
 assert('section link retains fragment', Boolean(firstFlow))
 firstFlow?.click()
 await settle()
 assert(
-	'section navigation reaches heading',
-	window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run',
+  'section navigation reaches heading',
+  window.location.hash === '#create-and-run' && scrolledTo === 'create-and-run',
 )
 
 assert('setup card stays on the front page', !root.querySelector('.agent-prompt'))
 
 function* walkDocs(dir) {
-	for (const entry of readdirSync(dir, { withFileTypes: true })) {
-		const path = join(dir, entry.name)
-		if (entry.isDirectory() && entry.name !== 'evidence') {
-			yield* walkDocs(path)
-		} else if (entry.isFile() && entry.name.endsWith('.md')) {
-			yield path
-		}
-	}
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory() && entry.name !== 'evidence') {
+      yield* walkDocs(path)
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      yield path
+    }
+  }
 }
 
 const sideItem = (title) =>
-	[...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
+  [...root.querySelectorAll('.side-item')].find((el) => el.textContent === title)
 
 assert(
-	'sidebar groups guides by task',
-	GROUPS.every((g) =>
-		[...root.querySelectorAll('.sec-head')].some((el) => el.textContent === g.label),
-	),
+  'sidebar groups guides by task',
+  GROUPS.every((g) =>
+    [...root.querySelectorAll('.sec-head')].some((el) => el.textContent === g.label),
+  ),
 )
 
 for (const path of walkDocs('../../docs')) {
-	const rel = relative('../../docs', path)
-	const dir = dirname(rel) === '.' ? '' : dirname(rel)
-	const slug = slugFor(dir, basename(rel, '.md'))
-	const title = titleOf(slug, readFileSync(path, 'utf8'))
-	sideItem(title)?.click()
-	await waitFor(
-		'page ' + slug,
-		() =>
-			window.location.pathname === docPath(slug) &&
-			root.querySelector('.doc .h1')?.textContent === title,
-	)
+  const rel = relative('../../docs', path)
+  const dir = dirname(rel) === '.' ? '' : dirname(rel)
+  const slug = slugFor(dir, basename(rel, '.md'))
+  const title = titleOf(slug, readFileSync(path, 'utf8'))
+  sideItem(title)?.click()
+  await waitFor(
+    'page ' + slug,
+    () =>
+      window.location.pathname === docPath(slug) &&
+      root.querySelector('.doc .h1')?.textContent === title,
+  )
 
-	assert(
-		`page ${slug}`,
-		window.location.pathname === docPath(slug) &&
-			root.querySelector('.doc .h1')?.textContent === title,
-	)
+  assert(
+    `page ${slug}`,
+    window.location.pathname === docPath(slug) &&
+      root.querySelector('.doc .h1')?.textContent === title,
+  )
 
-	const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
-	assert(
-		`page ${slug} uses semantic headings with section anchors`,
-		headings.length > 0 &&
-			headings.every((heading) => {
-				const element = window.document.getElementById(heading.id)
-				return (
-					element?.tagName === `H${heading.level}` &&
-					root.querySelector('.doc')?.contains(element) &&
-					element.textContent === heading.text
-				)
-			}),
-	)
+  const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
+  assert(
+    `page ${slug} uses semantic headings with section anchors`,
+    headings.length > 0 &&
+      headings.every((heading) => {
+        const element = window.document.getElementById(heading.id)
+        return (
+          element?.tagName === `H${heading.level}` &&
+          root.querySelector('.doc')?.contains(element) &&
+          element.textContent === heading.text
+        )
+      }),
+  )
 }
 
 // Cmd-K palette: open via the global shortcut, query for an API symbol,
@@ -328,17 +328,17 @@ const paletteInput = window.document.getElementById('palette-query')
 assert('palette opens on cmd-k', Boolean(paletteInput))
 
 assert(
-	'palette input is a combobox over a listbox',
-	paletteInput?.getAttribute('role') === 'combobox' &&
-		paletteInput.getAttribute('aria-expanded') === 'true' &&
-		window.document
-			.getElementById(paletteInput.getAttribute('aria-controls'))
-			?.getAttribute('role') === 'listbox',
+  'palette input is a combobox over a listbox',
+  paletteInput?.getAttribute('role') === 'combobox' &&
+    paletteInput.getAttribute('aria-expanded') === 'true' &&
+    window.document
+      .getElementById(paletteInput.getAttribute('aria-controls'))
+      ?.getAttribute('role') === 'listbox',
 )
 
 assert(
-	'palette layer is a modal dialog',
-	Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')),
+  'palette layer is a modal dialog',
+  Boolean(window.document.querySelector('.vx-cmdk-layer [role="dialog"][aria-modal="true"]')),
 )
 
 paletteInput.value = 'useRouter'
@@ -352,30 +352,30 @@ paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown
 await settle()
 const activeDesc = paletteInput.getAttribute('aria-activedescendant')
 assert(
-	'arrow keys drive active-descendant',
-	Boolean(activeDesc) && window.document.getElementById(activeDesc) === topHit,
+  'arrow keys drive active-descendant',
+  Boolean(activeDesc) && window.document.getElementById(activeDesc) === topHit,
 )
 
 paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
 await waitFor(
-	'palette route commit',
-	() =>
-		!window.document.getElementById('palette-query') &&
-		window.location.pathname === docPath('navigation') &&
-		root.querySelector('.doc .h1')?.textContent === navigationTitle,
+  'palette route commit',
+  () =>
+    !window.document.getElementById('palette-query') &&
+    window.location.pathname === docPath('navigation') &&
+    root.querySelector('.doc .h1')?.textContent === navigationTitle,
 )
 
 assert(
-	'palette hit navigates',
-	!window.document.getElementById('palette-query') &&
-		window.location.pathname === docPath('navigation') &&
-		root.querySelector('.doc .h1')?.textContent === navigationTitle,
+  'palette hit navigates',
+  !window.document.getElementById('palette-query') &&
+    window.location.pathname === docPath('navigation') &&
+    root.querySelector('.doc .h1')?.textContent === navigationTitle,
 )
 
 // Reopen from the nav row: the click captures the row as the trigger, so
 // Escape both closes the layer and returns focus to it.
 const searchRow = [...root.querySelectorAll('.nav-row')].find((el) =>
-	el.textContent?.includes('Search'),
+  el.textContent?.includes('Search'),
 )
 
 searchRow?.click()
@@ -383,8 +383,8 @@ await settle()
 assert('palette reopens from nav row', Boolean(window.document.getElementById('palette-query')))
 
 window.document
-	.getElementById('palette-query')
-	?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+  .getElementById('palette-query')
+  ?.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
 
 await settle()
 assert('escape closes palette', !window.document.getElementById('palette-query'))
@@ -392,8 +392,8 @@ assert('focus returns to palette trigger', window.document.activeElement === sea
 
 assert('no missing or duplicate child keys', keyDiagnostics.length === 0)
 assert(
-	'constellation survives navigation',
-	root.querySelectorAll('.constellation svg polygon').length > 100,
+  'constellation survives navigation',
+  root.querySelectorAll('.constellation svg polygon').length > 100,
 )
 
 process.exit(fail ? 1 : 0)

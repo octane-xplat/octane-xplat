@@ -17,114 +17,114 @@ import { Icon } from '../media/Icon.tsrx'
  * content and maxRows caps that growth. Platform helpers use native line
  * metrics and remove old generated constraints when sizing props change. */
 function TextAreaControl(inputProps: TextAreaProps) @{
-	const props = useFieldControlProps(inputProps)
-	const el = useRef<any>(null)
-	const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send'
+  const props = useFieldControlProps(inputProps)
+  const el = useRef<any>(null)
+  const submitOnReturn = props.returnKeyType === 'done' || props.returnKeyType === 'send'
 
-	const [internal, setInternal] = useState(props.defaultValue ?? '')
-	const [editVersion, setEditVersion] = useState(0)
-	const value = props.value ?? internal
-	const setValue = (next: string) => {
-		if (props.value === undefined) {
-			setInternal(next)
-		} else {
-			// Restore the owner value even when an edit is rejected unchanged.
-			setEditVersion((version) => version + 1)
-		}
+  const [internal, setInternal] = useState(props.defaultValue ?? '')
+  const [editVersion, setEditVersion] = useState(0)
+  const value = props.value ?? internal
+  const setValue = (next: string) => {
+    if (props.value === undefined) {
+      setInternal(next)
+    } else {
+      // Restore the owner value even when an edit is rejected unchanged.
+      setEditVersion((version) => version + 1)
+    }
 
-		props.onChange?.(next)
-	}
+    props.onChange?.(next)
+  }
 
-	// Explicit deps — the sizing helper hides prop reads one level down.
-	useEffect(
-		() => fitTextArea(el.current, props),
-		[props.rows, props.autoGrow, props.maxRows, props.style, props.className, props.size],
-	)
+  // Explicit deps — the sizing helper hides prop reads one level down.
+  useEffect(
+    () => fitTextArea(el.current, props),
+    [props.rows, props.autoGrow, props.maxRows, props.style, props.className, props.size],
+  )
 
-	// Imperative controlled write — Android setText resets selection to 0.
-	useEffect(() => writeText(el.current, value), [value, editVersion])
+  // Imperative controlled write — Android setText resets selection to 0.
+  useEffect(() => writeText(el.current, value), [value, editVersion])
 
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			focus: () => el.current.focus(),
-			blur: () => blurText(el.current),
-			native: el.current,
-		}),
-		[],
-	)
+  useImperativeHandle(
+    props.ref,
+    () => ({
+      focus: () => el.current.focus(),
+      blur: () => blurText(el.current),
+      native: el.current,
+    }),
+    [],
+  )
 
-	<masonview
-		className={cx(
-			'vx-textarea-shell',
-			props.status && `vx-textarea-shell--status-${props.status.type}`,
-			props.isDisabled && 'vx-textarea-shell--disabled',
-		)}
-		style={mergeStyle({ flexDirection: 'column', alignItems: 'stretch' }, { display: 'flex' })}
-	>
-		{props.startIcon != null ? (
-			<masonview key="icon" className="vx-textarea-icon">
-				{typeof props.startIcon === 'string' ? (
-					<Icon name={props.startIcon} size={16} />
-				) : (
-					props.startIcon
-				)}
-			</masonview>
-		) : null}
-		<textview
-			key="editor"
-			id={props.id}
-			testID={props.testID ?? ''}
-			ref={(v: any) => {
-				el.current = v
-				if (!v) {
-					return
-				}
+  <masonview
+    className={cx(
+      'vx-textarea-shell',
+      props.status && `vx-textarea-shell--status-${props.status.type}`,
+      props.isDisabled && 'vx-textarea-shell--disabled',
+    )}
+    style={mergeStyle({ flexDirection: 'column', alignItems: 'stretch' }, { display: 'flex' })}
+  >
+    {props.startIcon != null ? (
+      <masonview key="icon" className="vx-textarea-icon">
+        {typeof props.startIcon === 'string' ? (
+          <Icon name={props.startIcon} size={16} />
+        ) : (
+          props.startIcon
+        )}
+      </masonview>
+    ) : null}
+    <textview
+      key="editor"
+      id={props.id}
+      testID={props.testID ?? ''}
+      ref={(v: any) => {
+        el.current = v
+        if (!v) {
+          return
+        }
 
-				applyEscapeProps(v, props)
-			}}
-			className={cx(
-				'vx-textarea',
-				props.isDisabled && 'vx-textarea--disabled',
-				props.isReadOnly && 'vx-textarea--readonly',
-				props.isLoading && 'vx-textarea--loading',
-				props.status && `vx-textarea--status-${props.status.type}`,
-				props.size && `vx-textarea--size-${props.size}`,
-				props.className,
-			)}
-			style={mergeStyle(
-				styleRecord(props.style),
-				props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
-			)}
-			hint={props.placeholder}
-			maxLength={props.maxLength ?? Infinity}
-			accessibilityLabel={
-				props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
-			}
-			accessibilityHint={props.accessibilityHint}
-			accessibilityState={nativeAccessibilityState({
-				disabled: props.isDisabled,
-				readOnly: props.isReadOnly,
-				required: props.isRequired,
-				busy: props.isLoading,
-				invalid: props.status?.type === 'error',
-			})}
-			keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
-			returnKeyType={props.returnKeyType}
-			isEnabled={!props.isDisabled}
-			editable={!props.isDisabled && !props.isReadOnly}
-			onTextChange={(e: any) => {
-				if (!isWritingText(e.object)) {
-					setValue(e.value)
-				}
-			}}
-			// TextView emits returnPress for every newline. Only an explicit action
-			// key opts into the submit semantic; ordinary Return remains a newline.
-			onReturnPress={submitOnReturn ? props.onSubmit : undefined}
-			onFocus={props.onFocus}
-			onBlur={props.onBlur}
-		/>
-	</masonview>
+        applyEscapeProps(v, props)
+      }}
+      className={cx(
+        'vx-textarea',
+        props.isDisabled && 'vx-textarea--disabled',
+        props.isReadOnly && 'vx-textarea--readonly',
+        props.isLoading && 'vx-textarea--loading',
+        props.status && `vx-textarea--status-${props.status.type}`,
+        props.size && `vx-textarea--size-${props.size}`,
+        props.className,
+      )}
+      style={mergeStyle(
+        styleRecord(props.style),
+        props.placeholderTextColor ? { placeholderColor: props.placeholderTextColor } : {},
+      )}
+      hint={props.placeholder}
+      maxLength={props.maxLength ?? Infinity}
+      accessibilityLabel={
+        props.accessibilityLabel ?? props.ariaLabel ?? props.fieldLabel ?? props.label
+      }
+      accessibilityHint={props.accessibilityHint}
+      accessibilityState={nativeAccessibilityState({
+        disabled: props.isDisabled,
+        readOnly: props.isReadOnly,
+        required: props.isRequired,
+        busy: props.isLoading,
+        invalid: props.status?.type === 'error',
+      })}
+      keyboardType={props.keyboardType === 'default' ? undefined : props.keyboardType}
+      returnKeyType={props.returnKeyType}
+      isEnabled={!props.isDisabled}
+      editable={!props.isDisabled && !props.isReadOnly}
+      onTextChange={(e: any) => {
+        if (!isWritingText(e.object)) {
+          setValue(e.value)
+        }
+      }}
+      // TextView emits returnPress for every newline. Only an explicit action
+      // key opts into the submit semantic; ordinary Return remains a newline.
+      onReturnPress={submitOnReturn ? props.onSubmit : undefined}
+      onFocus={props.onFocus}
+      onBlur={props.onBlur}
+    />
+  </masonview>
 }
 
 /** Standalone text areas render Astryx's visible field chrome: outside a
@@ -133,36 +133,36 @@ function TextAreaControl(inputProps: TextAreaProps) @{
  *  the automatic field owner mounted while labels and status change, so
  *  uncontrolled text, native focus, selection and handles survive. */
 export function TextArea(inputProps: TextAreaProps): unknown @{
-	if (inputProps.secure) {
-		throw new Error(
-			'native TextArea: secure multiline input is unavailable; use TextInput with secure instead.',
-		)
-	}
+  if (inputProps.secure) {
+    throw new Error(
+      'native TextArea: secure multiline input is unavailable; use TextInput with secure instead.',
+    )
+  }
 
-	const inField = useContext(FieldContext) != null
-	const props = useFieldControlProps(inputProps)
+  const inField = useContext(FieldContext) != null
+  const props = useFieldControlProps(inputProps)
 
-	@if (inField) {
-		<TextAreaControl {...inputProps} />
-	} @else {
-		<FormField
-			inputID={props.id}
-			label={props.label}
-			description={props.description}
-			status={props.status}
-			statusVariant={props.statusVariant}
-			isRequired={props.isRequired}
-			isOptional={props.isOptional}
-			isLabelHidden={props.isLabelHidden}
-			isDisabled={props.isDisabled}
-			isReadOnly={props.isReadOnly}
-			isLoading={props.isLoading}
-			size={props.size}
-			labelTooltip={props.labelTooltip}
-			disabledMessage={props.disabledMessage}
-			width={props.width}
-		>
-			<TextAreaControl {...inputProps} />
-		</FormField>
-	}
+  @if (inField) {
+    <TextAreaControl {...inputProps} />
+  } @else {
+    <FormField
+      inputID={props.id}
+      label={props.label}
+      description={props.description}
+      status={props.status}
+      statusVariant={props.statusVariant}
+      isRequired={props.isRequired}
+      isOptional={props.isOptional}
+      isLabelHidden={props.isLabelHidden}
+      isDisabled={props.isDisabled}
+      isReadOnly={props.isReadOnly}
+      isLoading={props.isLoading}
+      size={props.size}
+      labelTooltip={props.labelTooltip}
+      disabledMessage={props.disabledMessage}
+      width={props.width}
+    >
+      <TextAreaControl {...inputProps} />
+    </FormField>
+  }
 }

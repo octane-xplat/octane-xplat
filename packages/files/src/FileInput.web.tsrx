@@ -2,11 +2,11 @@
 import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useImperativeHandle, useId, useRef, useState } from 'octane'
 import {
-	Field as FormField,
-	Icon,
-	Spinner as ActivityIndicator,
-	Tooltip,
-	useFieldControl,
+  Field as FormField,
+  Icon,
+  Spinner as ActivityIndicator,
+  Tooltip,
+  useFieldControl,
 } from '@octane-xplat/ui'
 
 import type { FileInputFile, FileInputProps } from './props'
@@ -16,309 +16,309 @@ import { cx, formatFileSize, normalizePicked, validateFiles } from './file-input
 const STATUS_GLYPHS = { error: '⚠', warning: '⚠', success: '✓' } as const
 
 function FileInputControl(inputProps: FileInputProps) @{
-	const { props } = useFieldControl(inputProps)
-	const generatedId = useId()
-	const inputId = props.id ?? generatedId
-	const fileInput = useRef<HTMLInputElement | null>(null)
+  const { props } = useFieldControl(inputProps)
+  const generatedId = useId()
+  const inputId = props.id ?? generatedId
+  const fileInput = useRef<HTMLInputElement | null>(null)
 
-	const [dragging, setDragging] = useState(false)
-	const [busy, setBusy] = useState(false)
-	const [validationErrors, setValidationErrors] = useState<string[]>([])
+  const [dragging, setDragging] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<string[]>([])
 
-	const files: FileInputFile[] =
-		props.value == null ? [] : Array.isArray(props.value) ? props.value : [props.value]
+  const files: FileInputFile[] =
+    props.value == null ? [] : Array.isArray(props.value) ? props.value : [props.value]
 
-	const isDisabled = !!props.isDisabled || !!props.isReadOnly
-	const isBusy = !!props.isLoading || busy
-	const canClear = files.length > 0 && !isDisabled && !isBusy
-	const showsDisabledReason = isDisabled && !!props.disabledMessage
-	const statusType = validationErrors.length ? 'error' : props.status?.type
-	const statusMessage = validationErrors.length ? validationErrors.join(' ') : props.status?.message
+  const isDisabled = !!props.isDisabled || !!props.isReadOnly
+  const isBusy = !!props.isLoading || busy
+  const canClear = files.length > 0 && !isDisabled && !isBusy
+  const showsDisabledReason = isDisabled && !!props.disabledMessage
+  const statusType = validationErrors.length ? 'error' : props.status?.type
+  const statusMessage = validationErrors.length ? validationErrors.join(' ') : props.status?.message
 
-	// Object URLs minted by this control — revoked through files.release as
-	// they leave the value list and at unmount, so picks don't leak their
-	// backing Blobs for the page's lifetime.
-	const minted = useRef(new Set<string>())
-	const mintRef = (file: any): FileInputFile => {
-		const uri = URL.createObjectURL(file)
-		minted.current.add(uri)
-		return { name: file.name, uri, size: file.size, mimeType: file.type, file }
-	}
+  // Object URLs minted by this control — revoked through files.release as
+  // they leave the value list and at unmount, so picks don't leak their
+  // backing Blobs for the page's lifetime.
+  const minted = useRef(new Set<string>())
+  const mintRef = (file: any): FileInputFile => {
+    const uri = URL.createObjectURL(file)
+    minted.current.add(uri)
+    return { name: file.name, uri, size: file.size, mimeType: file.type, file }
+  }
 
-	const releaseDropped = (next: FileInputFile[], candidates: FileInputFile[]) => {
-		const keep = new Set(next.map((file) => file.uri))
-		for (const file of candidates) {
-			if (file.uri && minted.current.has(file.uri) && !keep.has(file.uri)) {
-				minted.current.delete(file.uri)
-				fileService.release(file)
-			}
-		}
-	}
+  const releaseDropped = (next: FileInputFile[], candidates: FileInputFile[]) => {
+    const keep = new Set(next.map((file) => file.uri))
+    for (const file of candidates) {
+      if (file.uri && minted.current.has(file.uri) && !keep.has(file.uri)) {
+        minted.current.delete(file.uri)
+        fileService.release(file)
+      }
+    }
+  }
 
-	useEffect(
-		() => () => {
-			for (const uri of minted.current) {
-				fileService.release({ name: '', uri })
-			}
+  useEffect(
+    () => () => {
+      for (const uri of minted.current) {
+        fileService.release({ name: '', uri })
+      }
 
-			minted.current.clear()
-		},
-		[],
-	)
+      minted.current.clear()
+    },
+    [],
+  )
 
-	// `onChange` mirrors `value`'s shape: array when `isMultiple`, single ref
-	// or null otherwise.
-	const emitValue = (next: FileInputFile[]): FileInputFile | FileInputFile[] | null =>
-		props.isMultiple ? next : (next[0] ?? null)
+  // `onChange` mirrors `value`'s shape: array when `isMultiple`, single ref
+  // or null otherwise.
+  const emitValue = (next: FileInputFile[]): FileInputFile | FileInputFile[] | null =>
+    props.isMultiple ? next : (next[0] ?? null)
 
-	const fireChange = (next: FileInputFile[]) => {
-		const emitted = emitValue(next)
-		props.onChange?.(emitted)
-		if (props.changeAction) {
-			setBusy(true)
-			Promise.resolve(props.changeAction(emitted))
-				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
-				.finally(() => setBusy(false))
-		}
-	}
+  const fireChange = (next: FileInputFile[]) => {
+    const emitted = emitValue(next)
+    props.onChange?.(emitted)
+    if (props.changeAction) {
+      setBusy(true)
+      Promise.resolve(props.changeAction(emitted))
+        .catch((error) => setValidationErrors([String(error?.message ?? error)]))
+        .finally(() => setBusy(false))
+    }
+  }
 
-	const acceptRefs = (picked: FileInputFile[]) => {
-		if (isDisabled || isBusy || !picked.length) {
-			// Refs minted for a pick the control cannot adopt still get revoked.
-			releaseDropped(files, picked)
-			return
-		}
+  const acceptRefs = (picked: FileInputFile[]) => {
+    if (isDisabled || isBusy || !picked.length) {
+      // Refs minted for a pick the control cannot adopt still get revoked.
+      releaseDropped(files, picked)
+      return
+    }
 
-		const merged = props.isMultiple ? [...files, ...picked] : picked
-		const { valid, errors } = validateFiles(merged, {
-			accept: props.accept,
-			maxSize: props.maxSize,
-			maxFiles: props.maxFiles,
-		})
+    const merged = props.isMultiple ? [...files, ...picked] : picked
+    const { valid, errors } = validateFiles(merged, {
+      accept: props.accept,
+      maxSize: props.maxSize,
+      maxFiles: props.maxFiles,
+    })
 
-		setValidationErrors(errors)
-		const next = !props.isMultiple && errors.length ? files : valid
-		releaseDropped(next, [...files, ...picked])
-		if (
-			next.length !== files.length ||
-			next.some((file, index) => file.uri !== files[index]?.uri)
-		) {
-			fireChange(next)
-		}
-	}
+    setValidationErrors(errors)
+    const next = !props.isMultiple && errors.length ? files : valid
+    releaseDropped(next, [...files, ...picked])
+    if (
+      next.length !== files.length ||
+      next.some((file, index) => file.uri !== files[index]?.uri)
+    ) {
+      fireChange(next)
+    }
+  }
 
-	const removeAt = (index: number) => {
-		if (isDisabled || isBusy) {
-			return
-		}
+  const removeAt = (index: number) => {
+    if (isDisabled || isBusy) {
+      return
+    }
 
-		setValidationErrors([])
-		const next = files.filter((_, i) => i !== index)
-		releaseDropped(next, files)
-		fireChange(next)
-	}
+    setValidationErrors([])
+    const next = files.filter((_, i) => i !== index)
+    releaseDropped(next, files)
+    fireChange(next)
+  }
 
-	const pick = () => {
-		if (isDisabled || isBusy) {
-			return
-		}
+  const pick = () => {
+    if (isDisabled || isBusy) {
+      return
+    }
 
-		// An optional custom picker can provide cloud or app-specific sources.
-		if (props.pick) {
-			Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple }))
-				.then((r) => acceptRefs(normalizePicked(r)))
-				.catch((error) => setValidationErrors([String(error?.message ?? error)]))
+    // An optional custom picker can provide cloud or app-specific sources.
+    if (props.pick) {
+      Promise.resolve(props.pick({ accept: props.accept, multiple: props.isMultiple }))
+        .then((r) => acceptRefs(normalizePicked(r)))
+        .catch((error) => setValidationErrors([String(error?.message ?? error)]))
 
-			return
-		}
+      return
+    }
 
-		fileInput.current?.click()
-	}
+    fileInput.current?.click()
+  }
 
-	const handleFileSelect = (e: any) => {
-		const list = e.target.files as any
-		const picked: FileInputFile[] = []
-		if (list) {
-			for (let i = 0; i < list.length; i++) {
-				picked.push(mintRef(list[i]))
-			}
-		}
+  const handleFileSelect = (e: any) => {
+    const list = e.target.files as any
+    const picked: FileInputFile[] = []
+    if (list) {
+      for (let i = 0; i < list.length; i++) {
+        picked.push(mintRef(list[i]))
+      }
+    }
 
-		e.target.value = ''
-		acceptRefs(picked)
-	}
+    e.target.value = ''
+    acceptRefs(picked)
+  }
 
-	const handleDrop = (e: any) => {
-		e.preventDefault()
-		e.stopPropagation()
-		setDragging(false)
-		if (isDisabled || isBusy) {
-			return
-		}
+  const handleDrop = (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragging(false)
+    if (isDisabled || isBusy) {
+      return
+    }
 
-		const list = e.dataTransfer?.files
-		if (!list?.length) {
-			return
-		}
+    const list = e.dataTransfer?.files
+    if (!list?.length) {
+      return
+    }
 
-		const picked: FileInputFile[] = []
-		for (let i = 0; i < list.length; i++) {
-			picked.push(mintRef(list[i]))
-		}
+    const picked: FileInputFile[] = []
+    for (let i = 0; i < list.length; i++) {
+      picked.push(mintRef(list[i]))
+    }
 
-		acceptRefs(picked)
-	}
+    acceptRefs(picked)
+  }
 
-	const dropzone = props.mode === 'dropzone'
-	const itemContent = (
-		<>
-			{files.length ? (
-				<ul className="vx-fileinput-list">
-					{files.map((f: FileInputFile, i: number) => (
-						<li key={`${f.uri}-${i}`} className="vx-fileinput-item">
-							<Icon name="xplat-upload" size={14} />
-							<span className="vx-fileinput-itemname">{f.name}</span>
-							{f.size != null ? (
-								<span className="vx-fileinput-itemsize">{formatFileSize(f.size)}</span>
-							) : null}
-							{!isDisabled && !isBusy ? (
-								<button
-									type="button"
-									className="vx-fileinput-itemremove"
-									aria-label={`Remove ${f.name}`}
-									onClick={() => removeAt(i)}
-								>
-									{'×'}
-								</button>
-							) : null}
-						</li>
-					))}
-				</ul>
-			) : null}
-			{dropzone ? (
-				<div className="vx-fileinput-dropzone-hint">
-					<Icon name="xplat-upload" size={24} />
-					<span>
-						{isDisabled ? 'Upload disabled' : 'Drag & drop files here or click to browse'}
-					</span>
-					{props.accept ? <span className="vx-fileinput-accept">{props.accept}</span> : null}
-				</div>
-			) : (
-				<button
-					type="button"
-					id={inputId}
-					className="vx-fileinput-trigger"
-					disabled={(isDisabled && !showsDisabledReason) || undefined}
-					aria-disabled={showsDisabledReason || undefined}
-					aria-describedby={props.ariaDescribedBy}
-					aria-required={(props.isRequired && !props.isOptional) || undefined}
-					aria-invalid={statusType === 'error' || undefined}
-					aria-busy={isBusy || undefined}
-					onClick={pick}
-				>
-					<Icon name="xplat-upload" size={14} />{' '}
-					{files.length ? 'Choose more files' : 'Choose files'}
-				</button>
-			)}
-			{dropzone ? (
-				<button
-					type="button"
-					id={inputId}
-					className="vx-fileinput-trigger vx-fileinput-trigger--hidden"
-					disabled={(isDisabled && !showsDisabledReason) || undefined}
-					aria-disabled={showsDisabledReason || undefined}
-					aria-describedby={props.ariaDescribedBy}
-					aria-required={(props.isRequired && !props.isOptional) || undefined}
-					aria-invalid={statusType === 'error' || undefined}
-					aria-busy={isBusy || undefined}
-					onClick={pick}
-				>
-					Browse files
-				</button>
-			) : null}
-			{canClear ? (
-				<button
-					type="button"
-					className="vx-fileinput-clear"
-					aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`}
-					onClick={() => {
-						setValidationErrors([])
-						releaseDropped([], files)
-						fireChange([])
-					}}
-				>
-					{'×'}
-				</button>
-			) : null}
-			{isBusy ? <ActivityIndicator busy className="vx-fileinput-spinner" /> : null}
-			{statusType ? (
-				props.statusVariant === 'tooltip' && statusMessage ? (
-					<Tooltip
-						trigger={
-							<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
-								{STATUS_GLYPHS[statusType]}
-							</span>
-						}
-						content={statusMessage}
-					/>
-				) : (
-					<span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
-						{STATUS_GLYPHS[statusType]}
-					</span>
-				)
-			) : null}
-			{statusMessage && props.statusVariant !== 'tooltip' ? (
-				<span
-					className={cx('vx-field-status', `vx-field-status--${statusType}`)}
-					role={statusType === 'error' ? 'alert' : 'status'}
-				>
-					{statusMessage}
-				</span>
-			) : null}
-			<input
-				ref={(el: any) => {
-					fileInput.current = el
-				}}
-				type="file"
-				className="vx-fileinput-nativeinput"
-				accept={props.accept}
-				multiple={props.isMultiple || undefined}
-				disabled={isDisabled || undefined}
-				aria-hidden="true"
-				tabIndex={-1}
-				onChange={handleFileSelect}
-			/>
-		</>
-	)
+  const dropzone = props.mode === 'dropzone'
+  const itemContent = (
+    <>
+      {files.length ? (
+        <ul className="vx-fileinput-list">
+          {files.map((f: FileInputFile, i: number) => (
+            <li key={`${f.uri}-${i}`} className="vx-fileinput-item">
+              <Icon name="xplat-upload" size={14} />
+              <span className="vx-fileinput-itemname">{f.name}</span>
+              {f.size != null ? (
+                <span className="vx-fileinput-itemsize">{formatFileSize(f.size)}</span>
+              ) : null}
+              {!isDisabled && !isBusy ? (
+                <button
+                  type="button"
+                  className="vx-fileinput-itemremove"
+                  aria-label={`Remove ${f.name}`}
+                  onClick={() => removeAt(i)}
+                >
+                  {'×'}
+                </button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {dropzone ? (
+        <div className="vx-fileinput-dropzone-hint">
+          <Icon name="xplat-upload" size={24} />
+          <span>
+            {isDisabled ? 'Upload disabled' : 'Drag & drop files here or click to browse'}
+          </span>
+          {props.accept ? <span className="vx-fileinput-accept">{props.accept}</span> : null}
+        </div>
+      ) : (
+        <button
+          type="button"
+          id={inputId}
+          className="vx-fileinput-trigger"
+          disabled={(isDisabled && !showsDisabledReason) || undefined}
+          aria-disabled={showsDisabledReason || undefined}
+          aria-describedby={props.ariaDescribedBy}
+          aria-required={(props.isRequired && !props.isOptional) || undefined}
+          aria-invalid={statusType === 'error' || undefined}
+          aria-busy={isBusy || undefined}
+          onClick={pick}
+        >
+          <Icon name="xplat-upload" size={14} />{' '}
+          {files.length ? 'Choose more files' : 'Choose files'}
+        </button>
+      )}
+      {dropzone ? (
+        <button
+          type="button"
+          id={inputId}
+          className="vx-fileinput-trigger vx-fileinput-trigger--hidden"
+          disabled={(isDisabled && !showsDisabledReason) || undefined}
+          aria-disabled={showsDisabledReason || undefined}
+          aria-describedby={props.ariaDescribedBy}
+          aria-required={(props.isRequired && !props.isOptional) || undefined}
+          aria-invalid={statusType === 'error' || undefined}
+          aria-busy={isBusy || undefined}
+          onClick={pick}
+        >
+          Browse files
+        </button>
+      ) : null}
+      {canClear ? (
+        <button
+          type="button"
+          className="vx-fileinput-clear"
+          aria-label={`Clear ${props.fieldLabel ?? props.label ?? 'files'}`}
+          onClick={() => {
+            setValidationErrors([])
+            releaseDropped([], files)
+            fireChange([])
+          }}
+        >
+          {'×'}
+        </button>
+      ) : null}
+      {isBusy ? <ActivityIndicator busy className="vx-fileinput-spinner" /> : null}
+      {statusType ? (
+        props.statusVariant === 'tooltip' && statusMessage ? (
+          <Tooltip
+            trigger={
+              <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+                {STATUS_GLYPHS[statusType]}
+              </span>
+            }
+            content={statusMessage}
+          />
+        ) : (
+          <span className={cx('vx-field-icon', `vx-field-icon--${statusType}`)}>
+            {STATUS_GLYPHS[statusType]}
+          </span>
+        )
+      ) : null}
+      {statusMessage && props.statusVariant !== 'tooltip' ? (
+        <span
+          className={cx('vx-field-status', `vx-field-status--${statusType}`)}
+          role={statusType === 'error' ? 'alert' : 'status'}
+        >
+          {statusMessage}
+        </span>
+      ) : null}
+      <input
+        ref={(el: any) => {
+          fileInput.current = el
+        }}
+        type="file"
+        className="vx-fileinput-nativeinput"
+        accept={props.accept}
+        multiple={props.isMultiple || undefined}
+        disabled={isDisabled || undefined}
+        aria-hidden="true"
+        tabIndex={-1}
+        onChange={handleFileSelect}
+      />
+    </>
+  )
 
-	useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined)
+  useImperativeHandle(props.ref, () => ({ open: pick, native: fileInput.current }), undefined)
 
-	<div
-		className={cx(
-			'vx-fileinput',
-			dropzone && 'vx-fileinput--dropzone',
-			isDisabled && 'vx-fileinput--disabled',
-			isBusy && 'vx-fileinput--loading',
-			dragging && 'vx-fileinput--dragging',
-			statusType && `vx-fileinput--status-${statusType}`,
-			props.size && `vx-fileinput--size-${props.size}`,
-			props.className,
-		)}
-		style={props.style}
-		onDragOver={(e: any) => {
-			e.preventDefault()
-			if (!isDisabled && !isBusy) {
-				setDragging(true)
-			}
-		}}
-		onDragEnter={(e: any) => {
-			e.preventDefault()
-		}}
-		onDragLeave={() => setDragging(false)}
-		onDrop={handleDrop}
-	>
-		{itemContent}
-	</div>
+  <div
+    className={cx(
+      'vx-fileinput',
+      dropzone && 'vx-fileinput--dropzone',
+      isDisabled && 'vx-fileinput--disabled',
+      isBusy && 'vx-fileinput--loading',
+      dragging && 'vx-fileinput--dragging',
+      statusType && `vx-fileinput--status-${statusType}`,
+      props.size && `vx-fileinput--size-${props.size}`,
+      props.className,
+    )}
+    style={props.style}
+    onDragOver={(e: any) => {
+      e.preventDefault()
+      if (!isDisabled && !isBusy) {
+        setDragging(true)
+      }
+    }}
+    onDragEnter={(e: any) => {
+      e.preventDefault()
+    }}
+    onDragLeave={() => setDragging(false)}
+    onDrop={handleDrop}
+  >
+    {itemContent}
+  </div>
 }
 
 /**
@@ -328,32 +328,32 @@ function FileInputControl(inputProps: FileInputProps) @{
  * control wrapper in both modes.
  */
 export function FileInput(props: FileInputProps): JSX.Element @{
-	const { inField } = useFieldControl(props)
-	const cid = useId()
-	const control = <FileInputControl {...props} />
-	if (inField) {
-		return control
-	}
+  const { inField } = useFieldControl(props)
+  const cid = useId()
+  const control = <FileInputControl {...props} />
+  if (inField) {
+    return control
+  }
 
-	return (
-		<FormField
-			inputID={props.id ?? cid}
-			label={props.label}
-			isLabelHidden={props.isLabelHidden}
-			description={props.description}
-			isDisabled={props.isDisabled}
-			disabledMessage={props.disabledMessage}
-			isReadOnly={props.isReadOnly}
-			isLoading={props.isLoading}
-			isRequired={props.isRequired}
-			isOptional={props.isOptional}
-			size={props.size}
-			status={props.status}
-			statusVariant={props.statusVariant}
-			labelTooltip={props.labelTooltip}
-			width={props.width}
-		>
-			{control}
-		</FormField>
-	)
+  return (
+    <FormField
+      inputID={props.id ?? cid}
+      label={props.label}
+      isLabelHidden={props.isLabelHidden}
+      description={props.description}
+      isDisabled={props.isDisabled}
+      disabledMessage={props.disabledMessage}
+      isReadOnly={props.isReadOnly}
+      isLoading={props.isLoading}
+      isRequired={props.isRequired}
+      isOptional={props.isOptional}
+      size={props.size}
+      status={props.status}
+      statusVariant={props.statusVariant}
+      labelTooltip={props.labelTooltip}
+      width={props.width}
+    >
+      {control}
+    </FormField>
+  )
 }

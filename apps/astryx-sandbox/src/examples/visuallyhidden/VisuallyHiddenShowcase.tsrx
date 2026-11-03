@@ -4,9 +4,9 @@
 import { Card, HStack, Icon, IconButton, Text, VisuallyHidden, VStack } from '@octane-xplat/ui'
 
 const actions = [
-	{ label: 'Download', icon: 'sandbox-arrow-down-tray' },
-	{ label: 'Share', icon: 'sandbox-share' },
-	{ label: 'Delete', icon: 'sandbox-trash' },
+  { label: 'Download', icon: 'sandbox-arrow-down-tray' },
+  { label: 'Share', icon: 'sandbox-share' },
+  { label: 'Delete', icon: 'sandbox-trash' },
 ] as const
 
 /**
@@ -17,45 +17,45 @@ const actions = [
  * so the demo genuinely exercises the component it documents.
  */
 export function VisuallyHiddenShowcase() {
-	return (
-		<VStack gap={5} hAlign="center">
-			<HStack gap={6} vAlign="stretch" wrap="wrap" hAlign="center">
-				<Card variant="muted">
-					<VStack gap={4} hAlign="center">
-						<Text type="supporting" color="secondary">
-							What you see
-						</Text>
-						<HStack gap={2}>
-							{actions.map(({ label, icon }) => (
-								<IconButton key={label} label={label} icon={<Icon name={icon} />} variant="ghost" />
-							))}
-						</HStack>
-					</VStack>
-				</Card>
+  return (
+    <VStack gap={5} hAlign="center">
+      <HStack gap={6} vAlign="stretch" wrap="wrap" hAlign="center">
+        <Card variant="muted">
+          <VStack gap={4} hAlign="center">
+            <Text type="supporting" color="secondary">
+              What you see
+            </Text>
+            <HStack gap={2}>
+              {actions.map(({ label, icon }) => (
+                <IconButton key={label} label={label} icon={<Icon name={icon} />} variant="ghost" />
+              ))}
+            </HStack>
+          </VStack>
+        </Card>
 
-				<Card variant="muted">
-					<VStack gap={4} hAlign="start">
-						<HStack gap={2} vAlign="center">
-							<Icon name="sandbox-speaker-wave" size={16} />
-							<Text type="supporting" color="secondary">
-								What a screen reader hears
-							</Text>
-						</HStack>
-						<VStack gap={2}>
-							{actions.map(({ label }) => (
-								<Text key={label} type="body">
-									{label}, button
-								</Text>
-							))}
-						</VStack>
-					</VStack>
-				</Card>
-			</HStack>
+        <Card variant="muted">
+          <VStack gap={4} hAlign="start">
+            <HStack gap={2} vAlign="center">
+              <Icon name="sandbox-speaker-wave" size={16} />
+              <Text type="supporting" color="secondary">
+                What a screen reader hears
+              </Text>
+            </HStack>
+            <VStack gap={2}>
+              {actions.map(({ label }) => (
+                <Text key={label} type="body">
+                  {label}, button
+                </Text>
+              ))}
+            </VStack>
+          </VStack>
+        </Card>
+      </HStack>
 
-			{/* A real live region: silent to sighted users, announced by AT. */}
-			<VisuallyHidden as="div" accessibilityLiveRegion="polite">
-				Actions available: Download, Share, Delete.
-			</VisuallyHidden>
-		</VStack>
-	)
+      {/* A real live region: silent to sighted users, announced by AT. */}
+      <VisuallyHidden as="div" accessibilityLiveRegion="polite">
+        Actions available: Download, Share, Delete.
+      </VisuallyHidden>
+    </VStack>
+  )
 }

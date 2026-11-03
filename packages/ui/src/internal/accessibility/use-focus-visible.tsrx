@@ -5,12 +5,12 @@ export type FocusInputModality = 'keyboard' | 'pointer' | 'unknown'
 /** Result of `useFocusVisible` on every target. Check isSupported before
  * relying on modality; default mobile leaves report false and unknown. */
 export interface UseFocusVisibleResult {
-	/** Whether focus should show the visible-focus ring right now. */
-	isFocusVisible: boolean
-	/** Observed input modality driving the state. */
-	inputModality: FocusInputModality
-	/** Whether this target tracks input modality at all. */
-	isSupported: boolean
+  /** Whether focus should show the visible-focus ring right now. */
+  isFocusVisible: boolean
+  /** Observed input modality driving the state. */
+  inputModality: FocusInputModality
+  /** Whether this target tracks input modality at all. */
+  isSupported: boolean
 }
 
 /**
@@ -19,7 +19,7 @@ export interface UseFocusVisibleResult {
  * its own leaf; physical keyboard/pointer input is meaningful on desktop.
  */
 export function useFocusVisible(): UseFocusVisibleResult {
-	return { isFocusVisible: false, inputModality: 'unknown', isSupported: false }
+  return { isFocusVisible: false, inputModality: 'unknown', isSupported: false }
 }
 
 /**
@@ -28,5 +28,5 @@ export function useFocusVisible(): UseFocusVisibleResult {
  * @see useFocusRing.
  */
 export function isFocusVisible(): boolean {
-	return false
+  return false
 }

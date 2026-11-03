@@ -14,9 +14,9 @@ import type { BadgeProps } from './props'
  * ```
  */
 export function Badge(props: BadgeProps): JSX.Element {
-	return (
-		<View className={props.className}>
-			<Text>{normalizeBadgeLabel(props.label)}</Text>
-		</View>
-	)
+  return (
+    <View className={props.className}>
+      <Text>{normalizeBadgeLabel(props.label)}</Text>
+    </View>
+  )
 }

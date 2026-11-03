@@ -21,11 +21,11 @@ export { setTranslate } from './internal/layout/translate.macos'
 export { Text, RichText, RichTextSpan } from './components/content/Text.macos.tsrx'
 export { Pressable } from './components/actions/Pressable.macos.tsrx'
 export {
-	Button,
-	Switch,
-	Slider,
-	SegmentedControl,
-	SearchInput,
+  Button,
+  Switch,
+  Slider,
+  SegmentedControl,
+  SearchInput,
 } from './components/actions/controls.macos.tsrx'
 
 /** Color suite — self-drawn picker parts on the AppKit renderer. */
@@ -74,11 +74,11 @@ export { CheckboxIndicator } from './components/forms/CheckboxIndicator.macos.ts
 export { CheckIndicator } from './components/feedback/CheckIndicator.macos.tsrx'
 export { RadioIndicator } from './components/forms/RadioIndicator.macos.tsrx'
 export {
-	defaultIndicators,
-	getIndicator,
-	registerIndicator,
-	registerIndicators,
-	indicatorScope,
+  defaultIndicators,
+  getIndicator,
+  registerIndicator,
+  registerIndicators,
+  indicatorScope,
 } from './components/feedback/indicators'
 
 export { useIndicator } from './components/feedback/use-indicator.tsrx'
@@ -102,9 +102,9 @@ export { TimeInput } from './components/forms/TimeInput.macos.tsrx'
 export { DateTimeInput } from './components/forms/DateTimeInput.macos.tsrx'
 export { DateRangeInput } from './components/forms/DateRangeInput.macos.tsrx'
 export {
-	useCalendarDays,
-	useCalendarConstraints,
-	useCalendarNavigation,
+  useCalendarDays,
+  useCalendarConstraints,
+  useCalendarNavigation,
 } from './components/forms/calendar-hooks.tsrx'
 
 export { isSameDay, isDateInRange, getWeekNumber } from './components/forms/calendar-core'
@@ -120,47 +120,47 @@ export { NavigationMenu } from './components/navigation/NavigationMenu.macos.tsr
 export { AppShell } from './components/layout/AppShell.macos.tsrx'
 export { AppShellMobileContext } from './components/layout/AppShell.macos.tsrx'
 export {
-	TopNav,
-	TopNavHeading,
-	TopNavItem,
-	TopNavMenu,
-	TopNavMegaMenu,
-	TopNavMegaMenuItem,
-	TopNavMegaMenuFeaturedCard,
+  TopNav,
+  TopNavHeading,
+  TopNavItem,
+  TopNavMenu,
+  TopNavMegaMenu,
+  TopNavMegaMenuItem,
+  TopNavMegaMenuFeaturedCard,
 } from './components/navigation/TopNav.macos.tsrx'
 
 export { TopNavRenderContext, useTopNavRenderMode } from './components/navigation/TopNav.macos.tsrx'
 export {
-	SideNav,
-	SideNavSection,
-	SideNavHeading,
-	SideNavItem,
-	SideNavCollapseButton,
-	useSideNavCollapse,
-	SideNavRenderContext,
-	useSideNavRenderMode,
+  SideNav,
+  SideNavSection,
+  SideNavHeading,
+  SideNavItem,
+  SideNavCollapseButton,
+  useSideNavCollapse,
+  SideNavRenderContext,
+  useSideNavRenderMode,
 } from './components/navigation/SideNav.macos.tsrx'
 
 export {
-	MobileNav,
-	MobileNavToggle,
-	useAppShellMobile,
+  MobileNav,
+  MobileNavToggle,
+  useAppShellMobile,
 } from './components/navigation/MobileNav.macos.tsrx'
 
 export { NavIcon } from './components/navigation/NavIcon.macos.tsrx'
 export { NavHeadingMenu, NavHeadingMenuItem } from './components/navigation/NavMenu.macos.tsrx'
 export {
-	NavHeadingMenuContext,
-	NavHeadingCloseContext,
-	useNavHeadingMenuContext,
-	useNavHeadingCloseContext,
+  NavHeadingMenuContext,
+  NavHeadingCloseContext,
+  useNavHeadingMenuContext,
+  useNavHeadingCloseContext,
 } from './components/navigation/NavMenu.macos.tsrx'
 
 export {
-	TabList,
-	Tab,
-	TabMenu,
-	useTabListContext,
+  TabList,
+  Tab,
+  TabMenu,
+  useTabListContext,
 } from './components/collections/TabList.macos.tsrx'
 
 export { Toolbar } from './components/layout/Toolbar.macos.tsrx'
@@ -178,12 +178,12 @@ export { TableCell } from './table/Table.macos.tsrx'
 export { TableHeaderCell } from './table/Table.macos.tsrx'
 export { TableSelectionToolbar } from './table/TableSelectionToolbar.tsrx'
 export {
-	proportional,
-	generateColumns,
-	resolveColumnWidths,
-	defaultCellRenderer,
-	capitalize,
-	DEFAULT_MIN_COLUMN_WIDTH,
+  proportional,
+  generateColumns,
+  resolveColumnWidths,
+  defaultCellRenderer,
+  capitalize,
+  DEFAULT_MIN_COLUMN_WIDTH,
 } from './table/column-utils'
 
 export { paginateData } from './table/paginate-data'
@@ -192,8 +192,8 @@ export { useTableSortable } from './table/use-table-sortable.tsrx'
 export { useTableSortableState, sortTableData } from './table/use-table-sortable-state'
 export { useTablePagination } from './table/use-table-pagination.tsrx'
 export {
-	useTableColumnSettings,
-	useTableColumnSettingsState,
+  useTableColumnSettings,
+  useTableColumnSettingsState,
 } from './table/use-table-column-settings'
 
 export { useTableColumnResize } from './table/use-table-column-resize.macos.tsrx'
@@ -230,9 +230,9 @@ export { usePopover } from './components/overlays/use-popover.tsrx'
 export { useTooltip } from './components/overlays/use-tooltip.tsrx'
 export { useMediaQuery } from './internal/platform/use-media-query.macos.tsrx'
 export {
-	LayerProvider,
-	LayerContext,
-	useLayerContext,
+  LayerProvider,
+  LayerContext,
+  useLayerContext,
 } from './components/overlays/layer-provider.tsrx'
 
 export { Tooltip } from './components/overlays/Tooltip.tsrx'
@@ -247,22 +247,22 @@ export { Image } from './components/media/Image.macos.tsrx'
  *  extract, encode (NSBitmapImageRep + CoreGraphics). */
 export { thumbHashUri } from './components/media/thumbhash.macos'
 export {
-	/** RGBA pixels → ThumbHash bytes (Evan Wallace reference port). */
-	rgbaToThumbHash,
-	/** RGBA pixels → `thumbhash:<base64>`. */
-	rgbaToThumbHashUri,
+  /** RGBA pixels → ThumbHash bytes (Evan Wallace reference port). */
+  rgbaToThumbHash,
+  /** RGBA pixels → `thumbhash:<base64>`. */
+  rgbaToThumbHashUri,
 } from './components/media/hash-image'
 
 export {
-	PowerSearch,
-	PowerSearchToken,
-	PowerSearchFilterEditor,
+  PowerSearch,
+  PowerSearchToken,
+  PowerSearchFilterEditor,
 } from './components/forms/PowerSearch.macos.tsrx'
 
 export {
-	createPowerSearchConfig,
-	usePowerSearchConfig,
-	resolveOperatorLabel,
+  createPowerSearchConfig,
+  usePowerSearchConfig,
+  resolveOperatorLabel,
 } from './components/forms/power-search-config'
 
 export { WebView } from './components/media/WebView.macos.tsrx'
@@ -282,12 +282,12 @@ export { useImperativeDialog } from './components/overlays/use-imperative-dialog
 export { useImperativeAlertDialog } from './components/overlays/use-imperative-alert-dialog.macos.tsrx'
 export { useAnimation } from './internal/platform/anim.macos.tsrx'
 export {
-	useThemeScheme,
-	getThemeScheme,
-	useThemePreference,
-	setThemePreference,
-	getThemePreference,
-	onThemeSchemeChange,
+  useThemeScheme,
+  getThemeScheme,
+  useThemePreference,
+  setThemePreference,
+  getThemePreference,
+  onThemeSchemeChange,
 } from './theme/theme-scheme'
 
 export { themeSchemeClasses, applyThemeClasses } from './theme/theme-host'
@@ -341,39 +341,39 @@ export { Citation } from './components/content/Citation.macos.tsrx'
 export { Outline } from './components/collections/Outline.macos.tsrx'
 
 export {
-	DropdownMenuItem,
-	DropdownMenuLink,
-	DropdownMenuSection,
-	DropdownMenuSeparator,
-	DropdownMenuDivider,
-	DropdownMenuCheckboxItem,
-	DropdownMenuRadioGroup,
-	DropdownMenuRadioItem,
-	DropdownMenuSubMenu,
+  DropdownMenuItem,
+  DropdownMenuLink,
+  DropdownMenuSection,
+  DropdownMenuSeparator,
+  DropdownMenuDivider,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSubMenu,
 } from './components/overlays/MenuParts.macos.tsrx'
 
 export {
-	DropdownMenuItem as ContextMenuItem,
-	DropdownMenuLink as ContextMenuLink,
-	DropdownMenuSection as ContextMenuSection,
-	DropdownMenuSeparator as ContextMenuSeparator,
-	DropdownMenuDivider as ContextMenuDivider,
-	DropdownMenuCheckboxItem as ContextMenuCheckboxItem,
-	DropdownMenuRadioGroup as ContextMenuRadioGroup,
-	DropdownMenuRadioItem as ContextMenuRadioItem,
-	DropdownMenuSubMenu as ContextMenuSubMenu,
+  DropdownMenuItem as ContextMenuItem,
+  DropdownMenuLink as ContextMenuLink,
+  DropdownMenuSection as ContextMenuSection,
+  DropdownMenuSeparator as ContextMenuSeparator,
+  DropdownMenuDivider as ContextMenuDivider,
+  DropdownMenuCheckboxItem as ContextMenuCheckboxItem,
+  DropdownMenuRadioGroup as ContextMenuRadioGroup,
+  DropdownMenuRadioItem as ContextMenuRadioItem,
+  DropdownMenuSubMenu as ContextMenuSubMenu,
 } from './components/overlays/MenuParts.macos.tsrx'
 
 export {
-	DropdownMenuItem as BreadcrumbMenuItem,
-	DropdownMenuLink as BreadcrumbMenuLink,
-	DropdownMenuSection as BreadcrumbMenuSection,
-	DropdownMenuSeparator as BreadcrumbMenuSeparator,
-	DropdownMenuDivider as BreadcrumbMenuDivider,
-	DropdownMenuCheckboxItem as BreadcrumbMenuCheckboxItem,
-	DropdownMenuRadioGroup as BreadcrumbMenuRadioGroup,
-	DropdownMenuRadioItem as BreadcrumbMenuRadioItem,
-	DropdownMenuSubMenu as BreadcrumbMenuSubMenu,
+  DropdownMenuItem as BreadcrumbMenuItem,
+  DropdownMenuLink as BreadcrumbMenuLink,
+  DropdownMenuSection as BreadcrumbMenuSection,
+  DropdownMenuSeparator as BreadcrumbMenuSeparator,
+  DropdownMenuDivider as BreadcrumbMenuDivider,
+  DropdownMenuCheckboxItem as BreadcrumbMenuCheckboxItem,
+  DropdownMenuRadioGroup as BreadcrumbMenuRadioGroup,
+  DropdownMenuRadioItem as BreadcrumbMenuRadioItem,
+  DropdownMenuSubMenu as BreadcrumbMenuSubMenu,
 } from './components/overlays/MenuParts.macos.tsrx'
 
 export { DropdownMenuContext, useDropdownMenuContext } from './components/overlays/menu-context'
@@ -387,11 +387,11 @@ export { useImageMode } from './components/media/use-image-mode.tsrx'
 
 export { InternationalizationProvider } from './components/forms/InternationalizationProvider.macos.tsrx'
 export {
-	useLocale,
-	useDirection,
-	useTranslator,
-	getLocaleDirection,
-	frFR,
+  useLocale,
+  useDirection,
+  useTranslator,
+  getLocaleDirection,
+  frFR,
 } from './internal/platform/internationalization'
 
 export { useAnnounce } from './components/content/use-announce'
@@ -416,14 +416,14 @@ export { useLinkComponent } from './components/navigation/use-link-component.tsr
 export { useGridFocus } from './components/collections/use-grid-focus.macos.tsrx'
 export { Theme } from './theme/Theme.macos.tsrx'
 export {
-	defineTheme,
-	isDefinedTheme,
-	registerTheme,
-	getRegisteredTheme,
-	getRegisteredThemes,
-	resolveThemeToken,
-	resolveThemeTokens,
-	defaultThemeTokens,
+  defineTheme,
+  isDefinedTheme,
+  registerTheme,
+  getRegisteredTheme,
+  getRegisteredThemes,
+  resolveThemeToken,
+  resolveThemeTokens,
+  defaultThemeTokens,
 } from './theme/defined-theme'
 
 export { generateThemeCss } from './theme/theme-css'

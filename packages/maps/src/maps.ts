@@ -5,6 +5,6 @@ import type { Maps } from './types'
 
 /** Maps service — backend/permissions facade. */
 export const maps: Maps = {
-	supported: true,
-	init: () => {},
+  supported: true,
+  init: () => {},
 }

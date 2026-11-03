@@ -5,19 +5,19 @@
 import { TreeList } from '@octane-xplat/ui'
 
 export function TreeListFileTreeWithIcons() @{
-	<TreeList
-		defaultExpandedKeys={new Set(['src'])}
-		nodes={[
-			{
-				key: 'src',
-				label: 'src',
-				children: [
-					{ key: 'app', label: 'App.tsx' },
-					{ key: 'index', label: 'index.tsx' },
-				],
-			},
-			{ key: 'pkg', label: 'package.json' },
-		]}
-		onAction={() => {}}
-	/>
+  <TreeList
+    defaultExpandedKeys={new Set(['src'])}
+    nodes={[
+      {
+        key: 'src',
+        label: 'src',
+        children: [
+          { key: 'app', label: 'App.tsx' },
+          { key: 'index', label: 'index.tsx' },
+        ],
+      },
+      { key: 'pkg', label: 'package.json' },
+    ]}
+    onAction={() => {}}
+  />
 }

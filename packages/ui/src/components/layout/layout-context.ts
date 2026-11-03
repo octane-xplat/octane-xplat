@@ -4,21 +4,21 @@ import { createContext, type Context } from 'octane'
  *  edge-aware padding (outer padding on edges that touch the layout
  *  boundary, inner padding otherwise). Mirrors Astryx's LayoutSlotsContext. */
 export interface LayoutSlots {
-	hasHeader: boolean
-	hasFooter: boolean
-	hasStart: boolean
-	hasEnd: boolean
+  hasHeader: boolean
+  hasFooter: boolean
+  hasStart: boolean
+  hasEnd: boolean
 }
 
 export const DEFAULT_LAYOUT_SLOTS: LayoutSlots = {
-	hasHeader: false,
-	hasFooter: false,
-	hasStart: false,
-	hasEnd: false,
+  hasHeader: false,
+  hasFooter: false,
+  hasStart: false,
+  hasEnd: false,
 }
 
 export const LayoutSlotsContext: Context<LayoutSlots> =
-	createContext<LayoutSlots>(DEFAULT_LAYOUT_SLOTS)
+  createContext<LayoutSlots>(DEFAULT_LAYOUT_SLOTS)
 
 export const LayoutSlotsProvider: any = LayoutSlotsContext
 
@@ -26,11 +26,11 @@ export const LayoutSlotsProvider: any = LayoutSlotsContext
  *  `hasDivider ?? default ?? false`. Nested Layouts inherit when they don't
  *  set their own (Astryx's LayoutDividerContext). */
 export interface LayoutDividerContextValue {
-	defaultHasDividers: boolean
+  defaultHasDividers: boolean
 }
 
 export const LayoutDividerContext: Context<LayoutDividerContextValue | null> =
-	createContext<LayoutDividerContextValue | null>(null)
+  createContext<LayoutDividerContextValue | null>(null)
 
 export const LayoutDividerProvider: any = LayoutDividerContext
 
@@ -42,28 +42,28 @@ export const LayoutDividerProvider: any = LayoutDividerContext
  *  `padding` on Layout overrides only the outer channel — matching the
  *  upstream contract where `padding` sets `--layout-padding-outer-x/y`. */
 export interface LayoutPadding {
-	outerX: number
-	outerY: number
-	innerX: number
-	innerY: number
+  outerX: number
+  outerY: number
+  innerX: number
+  innerY: number
 }
 
 export const DEFAULT_LAYOUT_PADDING: LayoutPadding = {
-	outerX: 16,
-	outerY: 16,
-	innerX: 16,
-	innerY: 16,
+  outerX: 16,
+  outerY: 16,
+  innerX: 16,
+  innerY: 16,
 }
 
 export const LayoutPaddingContext: Context<LayoutPadding> =
-	createContext<LayoutPadding>(DEFAULT_LAYOUT_PADDING)
+  createContext<LayoutPadding>(DEFAULT_LAYOUT_PADDING)
 
 export const LayoutPaddingProvider: any = LayoutPaddingContext
 
 /** Which side slot a `LayoutPanel` mounts in — `Layout` wraps `start`/`end`
  *  slot content in this context (Astryx `LayoutAreaContext`). */
 export const LayoutAreaContext: Context<'start' | 'end' | null> = createContext<
-	'start' | 'end' | null
+  'start' | 'end' | null
 >(null)
 
 export const LayoutAreaProvider: any = LayoutAreaContext

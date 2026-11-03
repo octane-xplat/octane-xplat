@@ -8,12 +8,12 @@
  * shared-file rules keep `@nativescript/*` imports out of this file.
  */
 import type {
-	Attributes,
-	ClassValue,
-	HostElement,
-	JSX,
-	NativeElements,
-	Ref,
+  Attributes,
+  ClassValue,
+  HostElement,
+  JSX,
+  NativeElements,
+  Ref,
 } from '../src/jsx-runtime.js'
 
 import type { HostElement as MacHostElement, JSX as MacJSX } from '../src/macos.js'
@@ -47,7 +47,7 @@ const asObject: object = shared
 // @ts-expect-error member access fails on the shared handle
 const noMember = shared.ios
 declare class FakeView {
-	requestLayout(): void
+  requestLayout(): void
 }
 
 // @ts-expect-error the shared handle is not a concrete platform view
@@ -69,8 +69,8 @@ void macAsObject
 // --- Ref lifecycle: callback-with-cleanup, object refs, arrays --------------
 
 const refCallback: Ref<HostElement> = (instance) => {
-	void instance
-	return () => {}
+  void instance
+  return () => {}
 }
 
 const refObject: Ref<HostElement> = { current: null }
@@ -86,9 +86,9 @@ const labelProps: Augmented = { text: 'ok', className: 'x' }
 void labelProps
 
 declare module '../src/intrinsics.js' {
-	interface NativeElements<TElement> {
-		fixturewidget: Attributes<TElement, { marker?: number }>
-	}
+  interface NativeElements<TElement> {
+    fixturewidget: Attributes<TElement, { marker?: number }>
+  }
 }
 
 const augmented: Tags<NativeElements<HostElement>> = 'fixturewidget'
@@ -96,17 +96,17 @@ void augmented
 
 // ContentView uses common props across conditions; only refs bind host types.
 const sharedContent: NativeElements<HostElement>['contentview'] = {
-	id: 'single',
-	style: { width: 200, height: 80 },
-	ref: refArray,
+  id: 'single',
+  style: { width: 200, height: 80 },
+  ref: refArray,
 }
 
 const macContent: MacJSX.IntrinsicElements['contentview'] = {
-	id: 'single',
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  id: 'single',
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void sharedContent
@@ -116,13 +116,13 @@ void macContent
 // CSS through `style`/`className`, matching web. Component-level sugar lives
 // on component props and compiles to these style keys before render.
 const masonProps: JSX.IntrinsicElements['masonview'] = {
-	style: {
-		display: 'grid',
-		gridTemplateColumns: '1fr 2fr',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		gap: 8,
-	},
+  style: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 2fr',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
 }
 
 void masonProps
@@ -134,7 +134,7 @@ void badMasonProps
 void badDockChildProps
 
 const macMasonProps: MacJSX.IntrinsicElements['masonview'] = {
-	style: { display: 'flex', flexDirection: 'column', gap: 8 },
+  style: { display: 'flex', flexDirection: 'column', gap: 8 },
 }
 
 void macMasonProps
@@ -147,39 +147,39 @@ void badWrapOrientation
 
 // Viewless macOS hosts expose logical identity, never an NSView facade.
 const macProxy: MacJSX.IntrinsicElements['proxyviewcontainer'] = {
-	ref: [
-		(element) => {
-			if (element) {
-				const id: number = element.id
-				const noView: null = element.view
-				void id
-				void noView
-				// @ts-expect-error logical elements have no NSView methods
-				element.addSubview(element)
-			}
+  ref: [
+    (element) => {
+      if (element) {
+        const id: number = element.id
+        const noView: null = element.view
+        void id
+        void noView
+        // @ts-expect-error logical elements have no NSView methods
+        element.addSubview(element)
+      }
 
-			return () => {}
-		},
-		{ current: null },
-	],
+      return () => {}
+    },
+    { current: null },
+  ],
 }
 
 void macProxy
 
 const sharedRoot: NativeElements<HostElement>['rootlayout'] = {
-	id: 'root',
-	style: { padding: 8 },
-	ref: (element) => {
-		void element
-		return () => {}
-	},
+  id: 'root',
+  style: { padding: 8 },
+  ref: (element) => {
+    void element
+    return () => {}
+  },
 }
 
 const macRoot: MacJSX.IntrinsicElements['rootlayout'] = {
-	ref: (element) => {
-		void element
-		return () => {}
-	},
+  ref: (element) => {
+    void element
+    return () => {}
+  },
 }
 
 void sharedRoot
@@ -189,21 +189,21 @@ const invalidRoot: NativeElements<HostElement>['rootlayout'] = { rows: '20' }
 void invalidRoot
 
 const searchBar: MacJSX.IntrinsicElements['searchbar'] = {
-	text: 'query',
-	hint: 'Find',
-	onTextChange: (event) => {
-		const value: string = event.value
-		void value
-		void event.object
-	},
-	onSubmit: (event) => {
-		void event.eventName
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  text: 'query',
+  hint: 'Find',
+  onTextChange: (event) => {
+    const value: string = event.value
+    void value
+    void event.object
+  },
+  onSubmit: (event) => {
+    void event.eventName
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void searchBar
@@ -212,18 +212,18 @@ const invalidSearchBar: MacJSX.IntrinsicElements['searchbar'] = { text: 123 }
 void invalidSearchBar
 
 const formatted: MacJSX.IntrinsicElements['formattedstring'] = {
-	fontFamily: 'system-ui',
-	fontSize: 18,
-	color: '#ff0000',
-	backgroundColor: '#ffffff',
-	ref: (element) => {
-		if (element) {
-			const view: null = element.view
-			void view
-		}
+  fontFamily: 'system-ui',
+  fontSize: 18,
+  color: '#ff0000',
+  backgroundColor: '#ffffff',
+  ref: (element) => {
+    if (element) {
+      const view: null = element.view
+      void view
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 void formatted
@@ -232,15 +232,15 @@ const invalidFormatted: MacJSX.IntrinsicElements['formattedstring'] = { fontSize
 void invalidFormatted
 
 const htmlView: MacJSX.IntrinsicElements['htmlview'] = {
-	html: '<b>Hello</b>',
-	style: { fontSize: 18 },
-	ref: (view) => {
-		if (view) {
-			view.removeFromSuperview()
-		}
+  html: '<b>Hello</b>',
+  style: { fontSize: 18 },
+  ref: (view) => {
+    if (view) {
+      view.removeFromSuperview()
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 void htmlView
@@ -252,14 +252,14 @@ void invalidHtml
 void invalidHtmlText
 
 const activityIndicator: MacJSX.IntrinsicElements['activityindicator'] = {
-	busy: true,
-	ref: (view) => {
-		if (view) {
-			view.removeFromSuperview()
-		}
+  busy: true,
+  ref: (view) => {
+    if (view) {
+      view.removeFromSuperview()
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 void activityIndicator
@@ -271,23 +271,23 @@ void invalidActivityBusy
 void invalidActivityStyle
 
 const datePicker: MacJSX.IntrinsicElements['datepicker'] = {
-	date: new Date(2026, 4, 10, 19),
-	minDate: '2026-05-01',
-	maxDate: new Date(2026, 4, 31),
-	year: 2026,
-	month: 5,
-	day: 10,
-	onDateChange: (event) => {
-		const date: Date = event.value
-		const old: Date | undefined = event.oldValue
-		void date
-		void old
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  date: new Date(2026, 4, 10, 19),
+  minDate: '2026-05-01',
+  maxDate: new Date(2026, 4, 31),
+  year: 2026,
+  month: 5,
+  day: 10,
+  onDateChange: (event) => {
+    const date: Date = event.value
+    const old: Date | undefined = event.oldValue
+    void date
+    void old
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void datePicker
@@ -299,17 +299,17 @@ const invalidDateStyle: MacJSX.IntrinsicElements['datepicker'] = { datePickerSty
 void invalidDateStyle
 
 const listPicker: MacJSX.IntrinsicElements['listpicker'] = {
-	items: ['First', null, 42],
-	selectedIndex: 1,
-	onSelectedIndexChange: (event) => {
-		const index: number = event.value
-		void index
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  items: ['First', null, 42],
+  selectedIndex: 1,
+  onSelectedIndexChange: (event) => {
+    const index: number = event.value
+    void index
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void listPicker
@@ -321,12 +321,12 @@ const invalidListMode: MacJSX.IntrinsicElements['listpicker'] = { pullsDown: tru
 void invalidListMode
 
 const progress: MacJSX.IntrinsicElements['progress'] = {
-	value: 12.5,
-	maxValue: 100,
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  value: 12.5,
+  maxValue: 100,
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 // @ts-expect-error Progress value must be numeric
@@ -338,22 +338,22 @@ void invalidProgress
 void invalidProgressMode
 
 const segmentedBar: MacJSX.IntrinsicElements['segmentedbar'] = {
-	items: [{ title: 'First' }, { title: 'Second' }],
-	selectedIndex: 1,
-	style: { selectedBackgroundColor: '#ff0000' },
-	onSelectedIndexChange: (event) => {
-		const value: number = event.value
-		const old: number | undefined = event.oldIndex
-		void value
-		void old
-		void event.object
-	},
-	ref: [
-		(view) => {
-			void view
-			return () => {}
-		},
-	],
+  items: [{ title: 'First' }, { title: 'Second' }],
+  selectedIndex: 1,
+  style: { selectedBackgroundColor: '#ff0000' },
+  onSelectedIndexChange: (event) => {
+    const value: number = event.value
+    const old: number | undefined = event.oldIndex
+    void value
+    void old
+    void event.object
+  },
+  ref: [
+    (view) => {
+      void view
+      return () => {}
+    },
+  ],
 }
 
 // @ts-expect-error Index must be numeric
@@ -368,15 +368,15 @@ void badSegmentItems
 void badSegmentMode
 
 const segmentItem: MacJSX.IntrinsicElements['segmentedbaritem'] = {
-	title: 'Day',
-	ref: (element) => {
-		if (element) {
-			const absent: null = element.view
-			void absent
-		}
+  title: 'Day',
+  ref: (element) => {
+    if (element) {
+      const absent: null = element.view
+      void absent
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 // @ts-expect-error Title is a string
@@ -388,17 +388,17 @@ void badItemTitle
 void badItemEnabled
 
 const timePicker: MacJSX.IntrinsicElements['timepicker'] = {
-	time: '10:30:59',
-	hour: 10,
-	minute: 30,
-	minHour: 9,
-	minMinute: 15,
-	maxHour: 17,
-	maxMinute: 45,
-	onTimeChange: (event) => {
-		const value: Date = event.value
-		void value
-	},
+  time: '10:30:59',
+  hour: 10,
+  minute: 30,
+  minHour: 9,
+  minMinute: 15,
+  maxHour: 17,
+  maxMinute: 45,
+  onTimeChange: (event) => {
+    const value: Date = event.value
+    void value
+  },
 }
 
 void timePicker
@@ -410,43 +410,43 @@ const invalidTimeStyle: MacJSX.IntrinsicElements['timepicker'] = { datePickerSty
 void invalidTimeStyle
 
 const listTemplates: JSX.IntrinsicElements['listview'] = {
-	items: [{ name: 'Ada' }],
-	itemTemplate: '<Label text="{{ name }}"/>',
-	itemTemplates: [{ key: 'default', createView: () => ({}) }],
-	onItemLoading: (event) => {
-		const index: number = event.index
-		void index
-		void event.view
-		// @ts-expect-error ItemLoading is observation-only
-		event.view = {}
-	},
+  items: [{ name: 'Ada' }],
+  itemTemplate: '<Label text="{{ name }}"/>',
+  itemTemplates: [{ key: 'default', createView: () => ({}) }],
+  onItemLoading: (event) => {
+    const index: number = event.index
+    void index
+    void event.view
+    // @ts-expect-error ItemLoading is observation-only
+    event.view = {}
+  },
 }
 
 void listTemplates
 const tabs: MacJSX.IntrinsicElements['tabview'] = {
-	selectedIndex: 1,
-	onSelectedIndexChange: (event) => {
-		const value: number = event.value
-		void value
-	},
-	onSelectedIndexChanged: (event) => {
-		const next: number | undefined = event.newIndex
-		void next
-	},
+  selectedIndex: 1,
+  onSelectedIndexChange: (event) => {
+    const value: number = event.value
+    void value
+  },
+  onSelectedIndexChanged: (event) => {
+    const next: number | undefined = event.newIndex
+    void next
+  },
 }
 
 const tabItem: MacJSX.IntrinsicElements['tabviewitem'] = {
-	title: 'Home',
-	iconSource: 'res://Home',
-	ref: (item) => {
-		if (item) {
-			const absent: null = item.view
-			tabs.items = [item]
-			void absent
-		}
+  title: 'Home',
+  iconSource: 'res://Home',
+  ref: (item) => {
+    if (item) {
+      const absent: null = item.view
+      tabs.items = [item]
+      void absent
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 // @ts-expect-error macOS items are logical handles, not prop bags or native views
@@ -469,18 +469,18 @@ void numericClasses
 // Key attachment names stay in the shared vocabulary; AppKit owns the native
 // implementation. Concrete host targets remain typed in direct callbacks.
 const nativeKeys: MacJSX.IntrinsicElements['textfield'] = {
-	onKeyDown: (event) => {
-		const key: string = event.key
-		const code: string = event.code
-		const target: MacHostElement = event.currentTarget
-		event.preventDefault()
-		event.stopPropagation()
-		// @ts-expect-error platform keyCode does not escape the normalized event
-		void event.keyCode
-		void key
-		void code
-		void target
-	},
+  onKeyDown: (event) => {
+    const key: string = event.key
+    const code: string = event.code
+    const target: MacHostElement = event.currentTarget
+    event.preventDefault()
+    event.stopPropagation()
+    // @ts-expect-error platform keyCode does not escape the normalized event
+    void event.keyCode
+    void key
+    void code
+    void target
+  },
 }
 
 void nativeKeys

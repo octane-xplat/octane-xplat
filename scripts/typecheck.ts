@@ -13,30 +13,30 @@ const dir = process.cwd()
 const manifest = loadEnvManifest(dir)
 
 if (!manifest) {
-	console.error(
-		`scripts/typecheck.ts: no ${join(dir, 'tsconfig.envs.json')} — this runner only expands environment manifests`,
-	)
+  console.error(
+    `scripts/typecheck.ts: no ${join(dir, 'tsconfig.envs.json')} — this runner only expands environment manifests`,
+  )
 
-	process.exit(1)
+  process.exit(1)
 }
 
 let programs
 try {
-	programs = expandEnvPrograms(dir, manifest)
+  programs = expandEnvPrograms(dir, manifest)
 } catch (e) {
-	console.error(String(e.message ?? e))
-	process.exit(1)
+  console.error(String(e.message ?? e))
+  process.exit(1)
 }
 
 for (const { env, configPath } of programs) {
-	console.log(`typecheck[${env}]: tsrx-tsc --noEmit -p ${configPath}`)
-	const res = spawnSync('bun', ['run', 'tsrx-tsc', '--noEmit', '-p', configPath], {
-		shell: process.platform === 'win32',
-		cwd: dir,
-		stdio: 'inherit',
-	})
+  console.log(`typecheck[${env}]: tsrx-tsc --noEmit -p ${configPath}`)
+  const res = spawnSync('bun', ['run', 'tsrx-tsc', '--noEmit', '-p', configPath], {
+    shell: process.platform === 'win32',
+    cwd: dir,
+    stdio: 'inherit',
+  })
 
-	if (res.status !== 0) {
-		process.exit(res.status ?? 1)
-	}
+  if (res.status !== 0) {
+    process.exit(res.status ?? 1)
+  }
 }

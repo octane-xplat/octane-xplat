@@ -4,5 +4,5 @@ import type { PrefetchOptions } from './props'
  *  (AnimatedImage renders a placeholder there). Resolves false to report
  *  that honestly. */
 export function prefetch(_srcs: string | string[], _options?: PrefetchOptions): Promise<boolean> {
-	return Promise.resolve(false)
+  return Promise.resolve(false)
 }

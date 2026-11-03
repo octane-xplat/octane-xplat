@@ -13,5 +13,5 @@ export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-wi
  * callbacks; only the capability flag differs.
  */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
-	return { ...useFocusWithinShared(options), isSubtreeTrackingSupported: true }
+  return { ...useFocusWithinShared(options), isSubtreeTrackingSupported: true }
 }

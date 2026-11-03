@@ -6,5 +6,5 @@ import { useSpeechRecognition } from '../components/media/useSpeechRecognition.t
  *  on native: `isSupported` is false and controls are inert (the speech
  *  recognition API is browser-only; a plugin leaf could host a real one). */
 export function useChatDictation(options: UseChatDictationOptions = {}): UseChatDictationReturn {
-	return useSpeechRecognition(options)
+  return useSpeechRecognition(options)
 }

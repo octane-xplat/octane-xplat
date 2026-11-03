@@ -6,15 +6,15 @@ const unsupported = () => Promise.reject(new Error('unsupported: no calendar API
 
 /** Calendar service — EventKit/CalendarContract. */
 export const calendar: Calendar = {
-	supported: false,
-	ensure: async (): Promise<PermissionResult> => 'unsupported',
-	getCalendars: unsupported,
-	getDefaultCalendar: unsupported,
-	getEvents: unsupported,
-	getEvent: unsupported,
-	createEvent: unsupported,
-	updateEvent: unsupported,
-	deleteEvent: unsupported,
+  supported: false,
+  ensure: async (): Promise<PermissionResult> => 'unsupported',
+  getCalendars: unsupported,
+  getDefaultCalendar: unsupported,
+  getEvents: unsupported,
+  getEvent: unsupported,
+  createEvent: unsupported,
+  updateEvent: unsupported,
+  deleteEvent: unsupported,
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})

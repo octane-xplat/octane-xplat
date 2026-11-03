@@ -19,17 +19,17 @@ import { applyEscapeProps } from '../overlays/escape-props'
  * @see ScreenProps, SafeAreaProps.
  */
 export function Screen(props: ScreenProps): unknown @{
-	<masonview
-		className="vx-screen-shell"
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
-	>
-		<masonview
-			className={cx('vx-screen-content', props.className)}
-			style={mergeStyle({ display: 'flex', flexDirection: 'column', flexGrow: 1 }, props.style)}
-		>
-			{props.children}
-		</masonview>
-	</masonview>
+  <masonview
+    className="vx-screen-shell"
+    id={props.id}
+    ref={(v: any) => applyEscapeProps(v, props)}
+    style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
+  >
+    <masonview
+      className={cx('vx-screen-content', props.className)}
+      style={mergeStyle({ display: 'flex', flexDirection: 'column', flexGrow: 1 }, props.style)}
+    >
+      {props.children}
+    </masonview>
+  </masonview>
 }

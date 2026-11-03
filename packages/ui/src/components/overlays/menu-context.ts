@@ -5,7 +5,7 @@ import type { MenuContextValue, MenuRadioGroupProps } from '../../props'
  * Context the menu surface provides its rows — `closeMenu` and inherited size.
  */
 export const DropdownMenuContext: Context<MenuContextValue | null> =
-	createContext<MenuContextValue | null>(null)
+  createContext<MenuContextValue | null>(null)
 
 export const MenuProvider: any = DropdownMenuContext
 /**
@@ -14,10 +14,10 @@ export const MenuProvider: any = DropdownMenuContext
  * @see MenuContextValue.
  */
 export function useDropdownMenuContext(): MenuContextValue | null {
-	return useContext(DropdownMenuContext)
+  return useContext(DropdownMenuContext)
 }
 
 export const MenuRadioContext: Context<MenuRadioGroupProps | null> =
-	createContext<MenuRadioGroupProps | null>(null)
+  createContext<MenuRadioGroupProps | null>(null)
 
 export const MenuRadioProvider: any = MenuRadioContext

@@ -2,8 +2,8 @@
 import { ProgressBar, VStack } from '@octane-xplat/ui'
 
 export function ProgressBarWithValueLabel() @{
-	<VStack gap={3} width={300}>
-		<ProgressBar value={40} label="Storage" hasValueLabel />
-		<ProgressBar value={75} label="Bandwidth" hasValueLabel />
-	</VStack>
+  <VStack gap={3} width={300}>
+    <ProgressBar value={40} label="Storage" hasValueLabel />
+    <ProgressBar value={75} label="Bandwidth" hasValueLabel />
+  </VStack>
 }

@@ -5,16 +5,16 @@ import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capabil
 import type { GeolocationImpl } from './types'
 
 const UNSUPPORTED: PermissionResponse = {
-	status: 'unsupported',
-	granted: false,
-	canAskAgain: false,
+  status: 'unsupported',
+  granted: false,
+  canAskAgain: false,
 }
 
 /** Geolocation service — single-shot position fixes. */
 export const geolocation: Permissioned<GeolocationImpl> = {
-	supported: false,
-	isAvailable: async () => false,
-	getPermissions: async () => UNSUPPORTED,
-	requestPermissions: async () => UNSUPPORTED,
-	getCurrentPosition: () => Promise.reject(new UnavailabilityError('geolocation')),
+  supported: false,
+  isAvailable: async () => false,
+  getPermissions: async () => UNSUPPORTED,
+  requestPermissions: async () => UNSUPPORTED,
+  getCurrentPosition: () => Promise.reject(new UnavailabilityError('geolocation')),
 }

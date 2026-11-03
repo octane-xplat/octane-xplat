@@ -3,11 +3,11 @@
 // .web.tsrx under web); same convention as @octane-xplat/ui index.shared.
 export { SmoothCorners } from './SmoothCorners.tsrx'
 export type {
-	CornerConfig,
-	CornerCurve,
-	CornerOptions,
-	PerCornerConfig,
-	SmoothBorderConfig,
-	SmoothCornersProps,
-	SmoothShadowConfig,
+  CornerConfig,
+  CornerCurve,
+  CornerOptions,
+  PerCornerConfig,
+  SmoothBorderConfig,
+  SmoothCornersProps,
+  SmoothShadowConfig,
 } from './props'

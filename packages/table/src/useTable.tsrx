@@ -17,18 +17,18 @@ import type { DataGridOptions, UseTable } from './props'
  * atoms own the slice) or subscribe `table.atoms.<slice>` yourself.
  */
 export function useTable<TData extends RowData, TFeatures extends TableFeatures = DataGridFeatures>(
-	options: DataGridOptions<TFeatures, TData>,
+  options: DataGridOptions<TFeatures, TData>,
 ): UseTable<TFeatures, TData> {
-	const [{ table }] = useState(() => ({ table: createTable<TData, TFeatures>(options) }))
-	table.setOptions((prev) => ({ ...prev, ...options }) as never)
-	const subscribe = useCallback(
-		(notify: () => void) => {
-			const sub = table.store.subscribe(() => notify())
-			return () => sub.unsubscribe()
-		},
-		[table],
-	)
+  const [{ table }] = useState(() => ({ table: createTable<TData, TFeatures>(options) }))
+  table.setOptions((prev) => ({ ...prev, ...options }) as never)
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      const sub = table.store.subscribe(() => notify())
+      return () => sub.unsubscribe()
+    },
+    [table],
+  )
 
-	const state = useSyncExternalStore(subscribe, () => table.store.get())
-	return { table, state }
+  const state = useSyncExternalStore(subscribe, () => table.store.get())
+  return { table, state }
 }

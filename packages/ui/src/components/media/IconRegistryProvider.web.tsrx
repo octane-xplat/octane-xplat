@@ -4,5 +4,5 @@ import { IconRegistryProvider as IconRegistryContext } from './icon-registry-con
 import type { JSX } from 'octane/jsx-runtime'
 
 export function IconRegistryProvider(props: IconRegistryProviderProps): JSX.Element @{
-	<IconRegistryContext value={props.value}>{props.children}</IconRegistryContext>
+  <IconRegistryContext value={props.value}>{props.children}</IconRegistryContext>
 }

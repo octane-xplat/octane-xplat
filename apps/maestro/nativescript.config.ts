@@ -1,10 +1,10 @@
 import type { NativeScriptConfig } from '@nativescript/core'
 
 export default {
-	id: 'org.nativescript.xplat.maestro',
-	appPath: 'src',
-	appResourcesPath: '../mobile/App_Resources',
-	cli: { packageManager: 'bun' },
-	bundler: 'vite',
-	bundlerConfigPath: 'vite.config.mts',
+  id: 'org.nativescript.xplat.maestro',
+  appPath: 'src',
+  appResourcesPath: '../mobile/App_Resources',
+  cli: { packageManager: 'bun' },
+  bundler: 'vite',
+  bundlerConfigPath: 'vite.config.mts',
 } satisfies NativeScriptConfig

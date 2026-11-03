@@ -14,32 +14,32 @@ const app = await mkdtemp(join(repo, 'research/macos-notifications-'))
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 await symlink(leaf, join(app, 'node_modules/@octane-xplat/notifications'))
 await writeFile(
-	join(app, 'package.json'),
-	JSON.stringify({
-		name: 'notifications-fixture',
-		dependencies: { '@octane-xplat/notifications': '0.9.0' },
-	}),
+  join(app, 'package.json'),
+  JSON.stringify({
+    name: 'notifications-fixture',
+    dependencies: { '@octane-xplat/notifications': '0.9.0' },
+  }),
 )
 
 const executable = join(app, 'native-center')
 const compiled = spawnSync(
-	'xcrun',
-	[
-		'clang',
-		'-fobjc-arc',
-		'-fblocks',
-		'-framework',
-		'Foundation',
-		'-framework',
-		'UserNotifications',
-		'-I',
-		join(leaf, 'platforms/macos/include'),
-		join(leaf, 'platforms/macos/src/XplatLocalNotifications.m'),
-		join(leaf, 'tests/native-center.m'),
-		'-o',
-		executable,
-	],
-	{ encoding: 'utf8', timeout: 30_000 },
+  'xcrun',
+  [
+    'clang',
+    '-fobjc-arc',
+    '-fblocks',
+    '-framework',
+    'Foundation',
+    '-framework',
+    'UserNotifications',
+    '-I',
+    join(leaf, 'platforms/macos/include'),
+    join(leaf, 'platforms/macos/src/XplatLocalNotifications.m'),
+    join(leaf, 'tests/native-center.m'),
+    '-o',
+    executable,
+  ],
+  { encoding: 'utf8', timeout: 30_000 },
 )
 
 assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
@@ -51,8 +51,8 @@ const packaged = join(app, 'NotificationsFixture.app/Contents')
 await mkdir(join(packaged, 'MacOS'), { recursive: true })
 await cp(executable, join(packaged, 'MacOS/NotificationsFixture'))
 await writeFile(
-	join(packaged, 'Info.plist'),
-	`<?xml version="1.0" encoding="UTF-8"?>
+  join(packaged, 'Info.plist'),
+  `<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
 <key>CFBundleExecutable</key><string>NotificationsFixture</string>
 <key>CFBundleIdentifier</key><string>org.octane.xplat.notifications-fixture</string>
@@ -61,8 +61,8 @@ await writeFile(
 )
 
 const bundled = spawnSync(join(packaged, 'MacOS/NotificationsFixture'), [], {
-	encoding: 'utf8',
-	timeout: 10_000,
+  encoding: 'utf8',
+  timeout: 10_000,
 })
 
 assert.equal(bundled.status, 0, bundled.stdout + bundled.stderr)
@@ -71,16 +71,16 @@ console.log('Packaged native fixture: bundle identity support check passes (inte
 
 const artifact = await buildMacOSNative(app)
 assert.deepEqual([...artifact.leaves].sort(), [
-	'@octane-xplat/notifications',
-	'@octane-xplat/platform',
+  '@octane-xplat/notifications',
+  '@octane-xplat/platform',
 ])
 
 const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
 const script = join(app, 'fixture.cjs')
 await writeFile(
-	script,
-	`
+  script,
+  `
 if (typeof XplatLocalNotifications === 'undefined') throw Error('Leaf metadata missing');
 if (XplatLocalNotifications.isAvailable()) throw Error('Unbundled fixture must be unavailable');
 if (typeof XplatLocalNotifications.getStatus !== 'function' || typeof XplatLocalNotifications.ensure !== 'function' || typeof XplatLocalNotifications.notifyBody !== 'function') throw Error('Leaf selectors missing');
@@ -104,19 +104,19 @@ console.log('MACOS_LOCAL_NOTIFICATION_REQUEST_OK');
 )
 
 const result = spawnSync(
-	join(hostBundle, 'host'),
-	[
-		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-		script,
-		artifact.metadata,
-		bootstrap,
-	],
-	{ encoding: 'utf8', timeout: 10_000 },
+  join(hostBundle, 'host'),
+  [
+    join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+    script,
+    artifact.metadata,
+    bootstrap,
+  ],
+  { encoding: 'utf8', timeout: 10_000 },
 )
 
 assert.equal(result.status, 0, result.stdout + result.stderr)
 assert.match(result.stdout + result.stderr, /MACOS_LOCAL_NOTIFICATION_REQUEST_OK/)
 assert.match(result.stdout + result.stderr, /MACOS_NOTIFICATION_STATUS_CALLBACK_OK/)
 console.log(
-	'AppKit: native leaf compiled/loaded; selectors and real immediate request construction pass. No OS permission/delivery evidence.',
+  'AppKit: native leaf compiled/loaded; selectors and real immediate request construction pass. No OS permission/delivery evidence.',
 )

@@ -7,18 +7,18 @@ import { Icon } from '../media/Icon.tsrx'
 
 /** Alert — status callout. `tone` picks a class modifier. */
 export function Alert(props: AlertProps): unknown @{
-	const tone = props.tone ?? 'info'
+  const tone = props.tone ?? 'info'
 
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-alert', 'vx-alert--' + tone, props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	>
-		{props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}
-		<masonview className="vx-alert-body" style={{ display: 'flex' }}>
-			{props.title != null ? <label className="vx-alert-title" text={props.title} /> : null}
-			{props.children}
-		</masonview>
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-alert', 'vx-alert--' + tone, props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  >
+    {props.icon ? <Icon name={props.icon} className="vx-alert-icon" /> : null}
+    <masonview className="vx-alert-body" style={{ display: 'flex' }}>
+      {props.title != null ? <label className="vx-alert-title" text={props.title} /> : null}
+      {props.children}
+    </masonview>
+  </masonview>
 }

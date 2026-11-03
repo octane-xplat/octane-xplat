@@ -17,7 +17,7 @@ export function useUser(id: string) {
 }`
 
 export function CodeBlockShowcase() {
-	return (
-		<CodeBlock code={code} language="typescript" title="useUser.ts" hasLineNumbers hasCopyButton />
-	)
+  return (
+    <CodeBlock code={code} language="typescript" title="useUser.ts" hasLineNumbers hasCopyButton />
+  )
 }

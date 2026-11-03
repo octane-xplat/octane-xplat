@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { test } from 'node:test'
 
 test('importing iOS native types does not eagerly read crash-prone globals', () => {
-	const script = `
+  const script = `
 const names = [
 	'CGVectorMake',
 	'NSMakeCollectable',
@@ -27,11 +27,11 @@ for (const name of names.slice(2)) {
 }
 `
 
-	const result = spawnSync(
-		process.execPath,
-		['--experimental-strip-types', '--input-type=module', '-e', script],
-		{ encoding: 'utf8' },
-	)
+  const result = spawnSync(
+    process.execPath,
+    ['--experimental-strip-types', '--input-type=module', '-e', script],
+    { encoding: 'utf8' },
+  )
 
-	assert.equal(result.status, 0, result.stdout + result.stderr)
+  assert.equal(result.status, 0, result.stdout + result.stderr)
 })

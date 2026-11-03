@@ -2,13 +2,13 @@ import { createContext, type Context } from 'octane'
 
 /** @internal Space supplied by avoidance ancestors in the same native window. */
 export interface ConsumedKeyboardAvoidance {
-	window?: object
-	bottom: number
+  window?: object
+  bottom: number
 }
 
 /** Space already consumed by avoidance ancestors — nested avoiders subtract it.
  *  @internal */
 export const KeyboardAvoidanceContext: Context<ConsumedKeyboardAvoidance> =
-	createContext<ConsumedKeyboardAvoidance>({ bottom: 0 })
+  createContext<ConsumedKeyboardAvoidance>({ bottom: 0 })
 
 export const KeyboardAvoidanceProvider: any = KeyboardAvoidanceContext

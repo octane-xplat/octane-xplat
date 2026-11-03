@@ -6,91 +6,91 @@ import { sourceWithoutImports } from './mock-globals.ts'
 const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
 
 const stack = source.slice(
-	source.indexOf('class AccessibleHostView'),
-	source.indexOf('const masonElementRegistration'),
+  source.indexOf('class AccessibleHostView'),
+  source.indexOf('const masonElementRegistration'),
 )
 
 const apply = source.slice(
-	source.indexOf('function applyAccessibility('),
-	source.indexOf('function applyProps('),
+  source.indexOf('function applyAccessibility('),
+  source.indexOf('function applyProps('),
 )
 
 test('AppKit checkbox/radio roles and values update and disabled controls reject AX press', () => {
-	const ids = new WeakMap()
-	const handlers = new Map()
-	let presses = 0
-	const { AccessibleHostView, applyAccessibility } = runSlice(
-		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
-		{
-			elementBehaviors: new Map(),
-			behaviorOf: () => undefined,
-			isManualLayoutParent: (t: string) =>
-				[
-					'gridlayout',
-					'liquidglass',
-					'absolutelayout',
-					'contentview',
-					'actionbar',
-					'docklayout',
-					'wraplayout',
-					'rootlayout',
-				].includes(t),
-			registerElementType: () => {},
+  const ids = new WeakMap()
+  const handlers = new Map()
+  let presses = 0
+  const { AccessibleHostView, applyAccessibility } = runSlice(
+    stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
+    {
+      elementBehaviors: new Map(),
+      behaviorOf: () => undefined,
+      isManualLayoutParent: (t: string) =>
+        [
+          'gridlayout',
+          'liquidglass',
+          'absolutelayout',
+          'contentview',
+          'actionbar',
+          'docklayout',
+          'wraplayout',
+          'rootlayout',
+        ].includes(t),
+      registerElementType: () => {},
 
-			NSView: class {},
-			NativeClass() {},
-			interop: { types: { bool: 'bool', id: 'id' } },
-			NSNumber: { numberWithDouble: (value) => value },
-			actionIdsByView: ids,
-			actionHandlers: handlers,
-			accessibilityRoles: new Map(),
-			accessibilityLabels: new Map(),
-			stackAccessibilityPropsByView: new WeakMap(),
-			invokeAction: (id) => handlers.get(id)(),
-			inputTransparentViews: new WeakSet(),
-			scopeFocusTargets: new WeakMap(),
-		},
-	)
+      NSView: class {},
+      NativeClass() {},
+      interop: { types: { bool: 'bool', id: 'id' } },
+      NSNumber: { numberWithDouble: (value) => value },
+      actionIdsByView: ids,
+      actionHandlers: handlers,
+      accessibilityRoles: new Map(),
+      accessibilityLabels: new Map(),
+      stackAccessibilityPropsByView: new WeakMap(),
+      invokeAction: (id) => handlers.get(id)(),
+      inputTransparentViews: new WeakSet(),
+      scopeFocusTargets: new WeakMap(),
+    },
+  )
 
-	const view = new AccessibleHostView()
-	const node = { type: 'flexboxlayout', view, actionId: 1 }
-	ids.set(view, 1)
-	handlers.set(1, () => presses++)
-	const set = (name, value) => applyAccessibility(node, name, value)
-	set('accessibilityRole', 'checkbox')
-	set('accessibilityLabel', 'Select Alice')
-	set('accessibilityHint', 'Row 31 of 100')
-	set('accessibilityState', { checked: 'mixed' })
-	set('accessibilityValue', 'Sélection partielle')
-	assert.equal(view.accessibilityRole(), 'AXCheckBox')
-	assert.equal(view.accessibilityLabel(), 'Select Alice')
-	assert.equal(view.accessibilityValue(), 2)
-	assert.equal(view.accessibilityHelp(), 'Row 31 of 100')
-	assert.equal(view.accessibilityIsIgnored(), false)
-	assert.equal(view.accessibilityPerformPress(), true)
-	assert.equal(presses, 1)
-	set('accessibilityRole', 'radio')
-	set('accessibilityState', { checked: true })
-	assert.equal(view.accessibilityRole(), 'AXRadioButton')
-	assert.equal(view.accessibilityValue(), 1)
-	set('accessibilityState', { checked: false })
-	assert.equal(view.accessibilityValue(), 0)
-	set('accessibilityRole', 'radiogroup')
-	assert.equal(view.accessibilityRole(), 'AXRadioGroup')
-	set('accessibilityRole', 'checkbox')
-	set('accessibilityValue', undefined)
-	set('accessibilityState', { checked: true })
-	assert.equal(view.accessibilityValue(), 1)
-	set('accessibilityValue', 'Partially selected')
-	assert.equal(view.accessibilityValue(), 1)
-	set('accessibilityState', { checked: false, disabled: true })
-	assert.equal(view.accessibilityValue(), 0)
-	set('accessibilityValue', 'Sélection partielle')
-	assert.equal(view.accessibilityValue(), 0)
-	assert.equal(view.isAccessibilityEnabled(), false)
-	assert.equal(view.accessibilityPerformPress(), false)
-	set('accessibilityState', { checked: false })
-	handlers.set(1, null)
-	assert.equal(view.accessibilityPerformPress(), false)
-	assert.equal(presses, 1)
+  const view = new AccessibleHostView()
+  const node = { type: 'flexboxlayout', view, actionId: 1 }
+  ids.set(view, 1)
+  handlers.set(1, () => presses++)
+  const set = (name, value) => applyAccessibility(node, name, value)
+  set('accessibilityRole', 'checkbox')
+  set('accessibilityLabel', 'Select Alice')
+  set('accessibilityHint', 'Row 31 of 100')
+  set('accessibilityState', { checked: 'mixed' })
+  set('accessibilityValue', 'Sélection partielle')
+  assert.equal(view.accessibilityRole(), 'AXCheckBox')
+  assert.equal(view.accessibilityLabel(), 'Select Alice')
+  assert.equal(view.accessibilityValue(), 2)
+  assert.equal(view.accessibilityHelp(), 'Row 31 of 100')
+  assert.equal(view.accessibilityIsIgnored(), false)
+  assert.equal(view.accessibilityPerformPress(), true)
+  assert.equal(presses, 1)
+  set('accessibilityRole', 'radio')
+  set('accessibilityState', { checked: true })
+  assert.equal(view.accessibilityRole(), 'AXRadioButton')
+  assert.equal(view.accessibilityValue(), 1)
+  set('accessibilityState', { checked: false })
+  assert.equal(view.accessibilityValue(), 0)
+  set('accessibilityRole', 'radiogroup')
+  assert.equal(view.accessibilityRole(), 'AXRadioGroup')
+  set('accessibilityRole', 'checkbox')
+  set('accessibilityValue', undefined)
+  set('accessibilityState', { checked: true })
+  assert.equal(view.accessibilityValue(), 1)
+  set('accessibilityValue', 'Partially selected')
+  assert.equal(view.accessibilityValue(), 1)
+  set('accessibilityState', { checked: false, disabled: true })
+  assert.equal(view.accessibilityValue(), 0)
+  set('accessibilityValue', 'Sélection partielle')
+  assert.equal(view.accessibilityValue(), 0)
+  assert.equal(view.isAccessibilityEnabled(), false)
+  assert.equal(view.accessibilityPerformPress(), false)
+  set('accessibilityState', { checked: false })
+  handlers.set(1, null)
+  assert.equal(view.accessibilityPerformPress(), false)
+  assert.equal(presses, 1)
 })

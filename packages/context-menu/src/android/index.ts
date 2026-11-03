@@ -1,6 +1,6 @@
 export { MaterialContextMenu } from '../MaterialContextMenu.android.tsrx'
 export type {
-	MaterialContextMenuActivation,
-	MaterialContextMenuItem,
-	MaterialContextMenuProps,
+  MaterialContextMenuActivation,
+  MaterialContextMenuItem,
+  MaterialContextMenuProps,
 } from './types'

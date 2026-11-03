@@ -13,13 +13,13 @@ import type { NanoIconSet } from './set'
  * family registry.
  */
 export function createNanoIconSet<Name extends string = string>(
-	glyphMap: NanoGlyphMapInput & { i: Record<Name, unknown> },
-	options?: { font?: NanoFontSource; name?: string },
+  glyphMap: NanoGlyphMapInput & { i: Record<Name, unknown> },
+  options?: { font?: NanoFontSource; name?: string },
 ): NanoIconSet<Name> {
-	return createNanoIconSetImpl<Name>(glyphMap, options, {
-		registerFont: registerNanoIconFont,
-		icon: NanoIcon,
-	})
+  return createNanoIconSetImpl<Name>(glyphMap, options, {
+    registerFont: registerNanoIconFont,
+    icon: NanoIcon,
+  })
 }
 
 export { NanoIcon }

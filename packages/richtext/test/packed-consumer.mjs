@@ -10,74 +10,74 @@ const packs = join(app, 'packs')
 await mkdir(packs)
 await mkdir(join(app, 'src'))
 function run(command, args, cwd = app) {
-	return execFileSync(command, args, {
-		cwd,
-		encoding: 'utf8',
-		timeout: 420_000,
-		maxBuffer: 16 * 1024 * 1024,
-		env: { ...process.env, MACOS_SIGNING_IDENTITY: '', MACOS_NOTARY_PROFILE: '' },
-	})
+  return execFileSync(command, args, {
+    cwd,
+    encoding: 'utf8',
+    timeout: 420_000,
+    maxBuffer: 16 * 1024 * 1024,
+    env: { ...process.env, MACOS_SIGNING_IDENTITY: '', MACOS_NOTARY_PROFILE: '' },
+  })
 }
 
 const dependencies = {
-	octane: '0.6.3',
-	'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
+  octane: '0.6.3',
+  '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 }
 
 for (const name of [
-	'richtext',
-	'tiptap',
-	'lexical',
-	'platform',
-	'css-engine',
-	'jsx',
-	'macos-appkit',
-	'cli',
-	'docs-search',
-	'lib',
-	'lint',
-	'create',
+  'richtext',
+  'tiptap',
+  'lexical',
+  'platform',
+  'css-engine',
+  'jsx',
+  'macos-appkit',
+  'cli',
+  'docs-search',
+  'lib',
+  'lint',
+  'create',
 ]) {
-	const dir = join(repo, 'packages', name)
-	const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
-	run('bun', ['pm', 'pack', '--destination', packs], dir)
-	dependencies[manifest.name] =
-		`file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
+  const dir = join(repo, 'packages', name)
+  const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
+  run('bun', ['pm', 'pack', '--destination', packs], dir)
+  dependencies[manifest.name] =
+    `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
 
 const product = {
-	productName: 'EditorConsumer',
-	executableName: 'EditorConsumer',
-	bundleIdentifier: 'org.octane.xplat.editor-consumer',
-	version: '0.1.0',
-	minimumSystemVersion: '13.5',
-	viteConfig: 'vite.config.mjs',
-	bundleFile: 'dist/main.cjs',
+  productName: 'EditorConsumer',
+  executableName: 'EditorConsumer',
+  bundleIdentifier: 'org.octane.xplat.editor-consumer',
+  version: '0.1.0',
+  minimumSystemVersion: '13.5',
+  viteConfig: 'vite.config.mjs',
+  bundleFile: 'dist/main.cjs',
 }
 
 await writeFile(
-	join(app, 'package.json'),
-	JSON.stringify(
-		{
-			name: 'editor-consumer',
-			private: true,
-			type: 'module',
-			dependencies,
-			devDependencies: { '@octanejs/vite-plugin': '0.1.61', vite: '8.3.0', typescript: '5.9.3' },
-			xplat: { targets: { macos: { runtime: 'appkit-node-api', package: product } } },
-		},
-		null,
-		2,
-	),
+  join(app, 'package.json'),
+  JSON.stringify(
+    {
+      name: 'editor-consumer',
+      private: true,
+      type: 'module',
+      dependencies,
+      devDependencies: { '@octanejs/vite-plugin': '0.1.61', vite: '8.3.0', typescript: '5.9.3' },
+      xplat: { targets: { macos: { runtime: 'appkit-node-api', package: product } } },
+    },
+    null,
+    2,
+  ),
 )
 
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
-	...dependencies,
-	'@tiptap/core': '3.28.0',
-	'@tiptap/pm': '3.28.0',
-	'@tiptap/starter-kit': '3.28.0',
+  ...dependencies,
+  '@tiptap/core': '3.28.0',
+  '@tiptap/pm': '3.28.0',
+  '@tiptap/starter-kit': '3.28.0',
 }
 
 consumerConfig.packageManager = 'bun@1.4.4'
@@ -85,29 +85,29 @@ await writeFile(consumerFile, JSON.stringify(consumerConfig))
 await writeFile(join(app, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
 await writeFile(
-	join(app, 'tsconfig.json'),
-	JSON.stringify({
-		compilerOptions: {
-			strict: true,
-			skipLibCheck: true,
-			target: 'ESNext',
-			module: 'ESNext',
-			moduleResolution: 'Bundler',
-			jsx: 'react-jsx',
-			jsxImportSource: '@octane-xplat/jsx',
-			customConditions: ['macos'],
-			moduleSuffixes: ['.macos', ''],
-			lib: ['ESNext'],
-			types: [],
-			noEmit: true,
-		},
-		include: ['src/types.tsx'],
-	}),
+  join(app, 'tsconfig.json'),
+  JSON.stringify({
+    compilerOptions: {
+      strict: true,
+      skipLibCheck: true,
+      target: 'ESNext',
+      module: 'ESNext',
+      moduleResolution: 'Bundler',
+      jsx: 'react-jsx',
+      jsxImportSource: '@octane-xplat/jsx',
+      customConditions: ['macos'],
+      moduleSuffixes: ['.macos', ''],
+      lib: ['ESNext'],
+      types: [],
+      noEmit: true,
+    },
+    include: ['src/types.tsx'],
+  }),
 )
 
 await writeFile(
-	join(app, 'src/types.tsx'),
-	`import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtext'
+  join(app, 'src/types.tsx'),
+  `import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtext'
 import { TiptapEditor, ensureJSONBridge, jsonBridgeReady, type TiptapEditorHandle } from '@octane-xplat/tiptap'
 import { LexicalEditor, type LexicalEditorHandle } from '@octane-xplat/lexical'
 const onRef = (h: RichTextEditorHandle | null) => h?.setHTML('<p>Test</p>')
@@ -121,8 +121,8 @@ void elements; void bad; void badJSON; void ensureJSONBridge; void jsonBridgeRea
 )
 
 await writeFile(
-	join(app, 'src/App.macos.tsx'),
-	`/** @jsxImportSource @octane-xplat/jsx */
+  join(app, 'src/App.macos.tsx'),
+  `/** @jsxImportSource @octane-xplat/jsx */
 import { RichTextEditor } from '@octane-xplat/richtext'
 import { TiptapEditor } from '@octane-xplat/tiptap'
 import { LexicalEditor } from '@octane-xplat/lexical'
@@ -144,8 +144,8 @@ export default function App() { return <masonview style={{display:"flex",flexDir
 )
 
 await writeFile(
-	join(app, 'src/main.mjs'),
-	`import '@nativescript/macos-node-api'
+  join(app, 'src/main.mjs'),
+  `import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import App from './App.macos.tsx'
 const app = NSApplication.sharedApplication
@@ -162,8 +162,8 @@ setTimeout(() => { console.error('PACKED_EDITORS_TIMEOUT'); globalThis.__finishE
 )
 
 await writeFile(
-	join(app, 'vite.config.mjs'),
-	`import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+  join(app, 'vite.config.mjs'),
+  `import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 export default async ({mode}) => { const config = await xplatMacOS(mode, {root: import.meta.dirname, entry: 'src/main.mjs'}); config.build.outDir='dist'; return config }
 `,
 )
@@ -177,15 +177,15 @@ run('bun', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
 run('bun', ['run', 'tsc', '--noEmit'])
 console.log('[packed editors] macos declarations pass including negative JSON cases')
 if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
-	console.log('[packed editors] skipping AppKit build/run — needs an Apple Silicon Mac')
-	process.exit(0)
+  console.log('[packed editors] skipping AppKit build/run — needs an Apple Silicon Mac')
+  process.exit(0)
 }
 
 run('bun', ['run', 'xplat', 'build', '--targets', 'macos'])
 console.log('[packed editors] production AppKit build and native metadata pass')
 const executable = join(
-	app,
-	'artifacts/macos-universal/EditorConsumer.app/Contents/MacOS/EditorConsumer',
+  app,
+  'artifacts/macos-universal/EditorConsumer.app/Contents/MacOS/EditorConsumer',
 )
 
 const result = spawnSync(executable, [], { cwd: app, encoding: 'utf8', timeout: 25_000 })
@@ -194,5 +194,5 @@ assert.equal(result.status, 0, output)
 assert.match(output, /PACKED_EDITORS_READY/)
 assert.doesNotMatch(output, /PACKED_EDITORS_TIMEOUT|uncaught render error|command .*failed/)
 console.log(
-	'[packed editors] all three engines mounted via Octane AppKit; refs ready and teardown passed',
+  '[packed editors] all three engines mounted via Octane AppKit; refs ready and teardown passed',
 )

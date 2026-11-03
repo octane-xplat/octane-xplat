@@ -13,20 +13,20 @@ registerElement('nscanvas', NSCanvas)
  *  `ready` event: it fires once the GPU surface exists, which is the
  *  earliest `getContext` may be called. */
 export function Canvas(props: CanvasProps): unknown @{
-	const ready = (event: any) => {
-		const canvas = event.object
-		props.onReady?.({
-			canvas,
-			context: props.context ? canvas.getContext(props.context) : null,
-		})
-	}
+  const ready = (event: any) => {
+    const canvas = event.object
+    props.onReady?.({
+      canvas,
+      context: props.context ? canvas.getContext(props.context) : null,
+    })
+  }
 
-	<nscanvas
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		width={props.width as any}
-		height={props.height as any}
-		onReady={ready}
-	/>
+  <nscanvas
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    width={props.width as any}
+    height={props.height as any}
+    onReady={ready}
+  />
 }

@@ -15,154 +15,154 @@ import { nativeFieldStatusVariant } from './field-status-variant'
  *  native label width is per field because the web grid's shared auto column
  *  has no native analog. Form-wide optionality suppresses redundant markers. */
 export function FormField(props: FormFieldProps): unknown @{
-	const generatedControlId = useId()
-	const fieldRef = useRef<any>(null)
-	const form = useContext(FormLayoutContext)
-	const isHorizontalLabels = form.direction === 'horizontal-labels'
-	const controlId = props.inputID ?? generatedControlId
-	const labelId = props.label == null ? undefined : (props.labelID ?? `${generatedControlId}-label`)
-	const descriptionId =
-		props.description == null
-			? undefined
-			: (props.descriptionID ?? `${generatedControlId}-description`)
+  const generatedControlId = useId()
+  const fieldRef = useRef<any>(null)
+  const form = useContext(FormLayoutContext)
+  const isHorizontalLabels = form.direction === 'horizontal-labels'
+  const controlId = props.inputID ?? generatedControlId
+  const labelId = props.label == null ? undefined : (props.labelID ?? `${generatedControlId}-label`)
+  const descriptionId =
+    props.description == null
+      ? undefined
+      : (props.descriptionID ?? `${generatedControlId}-description`)
 
-	const status = props.status
-	const statusVariant = nativeFieldStatusVariant(props.statusVariant)
+  const status = props.status
+  const statusVariant = nativeFieldStatusVariant(props.statusVariant)
 
-	const statusId =
-		status?.message == null ? undefined : (props.statusID ?? `${generatedControlId}-status`)
+  const statusId =
+    status?.message == null ? undefined : (props.statusID ?? `${generatedControlId}-status`)
 
-	const isRequired = props.isRequired && !props.isOptional
-	const showRequired = isRequired && form.defaultOptionality !== 'required'
-	const showOptional = Boolean(props.isOptional) && form.defaultOptionality !== 'optional'
-	const labelText = showRequired
-		? props.label + ' *'
-		: showOptional
-			? props.label + ' (Optional)'
-			: props.label
+  const isRequired = props.isRequired && !props.isOptional
+  const showRequired = isRequired && form.defaultOptionality !== 'required'
+  const showOptional = Boolean(props.isOptional) && form.defaultOptionality !== 'optional'
+  const labelText = showRequired
+    ? props.label + ' *'
+    : showOptional
+      ? props.label + ' (Optional)'
+      : props.label
 
-	const fieldContext = {
-		...props,
-		controlId: props.isGroupLabel ? undefined : controlId,
-		labelId,
-		descriptionId,
-		statusId,
-	}
+  const fieldContext = {
+    ...props,
+    controlId: props.isGroupLabel ? undefined : controlId,
+    labelId,
+    descriptionId,
+    statusId,
+  }
 
-	const labelNode =
-		props.label == null || props.isLabelHidden ? null : (
-			<masonview
-				className="vx-field-label-row"
-				style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
-			>
-				<label
-					id={labelId}
-					className="vx-field-label"
-					text={labelText}
-					onTap={() => {
-						if (!props.isDisabled && !props.isGroupLabel) {
-							fieldRef.current?.getViewById?.(controlId)?.focus?.()
-						}
-					}}
-				/>
-				{props.labelTooltip != null ? (
-					<Tooltip
-						trigger={
-							<Pressable
-								className="vx-field-info"
-								accessibilityRole="button"
-								accessibilityLabel={'More about ' + props.label}
-								accessibilityHint={props.labelTooltip}
-							>
-								<label text="i" />
-							</Pressable>
-						}
-						content={props.labelTooltip}
-						placement="top"
-					/>
-				) : null}
-			</masonview>
-		)
+  const labelNode =
+    props.label == null || props.isLabelHidden ? null : (
+      <masonview
+        className="vx-field-label-row"
+        style={mergeStyle({ flexDirection: 'row', alignItems: 'center' }, { display: 'flex' })}
+      >
+        <label
+          id={labelId}
+          className="vx-field-label"
+          text={labelText}
+          onTap={() => {
+            if (!props.isDisabled && !props.isGroupLabel) {
+              fieldRef.current?.getViewById?.(controlId)?.focus?.()
+            }
+          }}
+        />
+        {props.labelTooltip != null ? (
+          <Tooltip
+            trigger={
+              <Pressable
+                className="vx-field-info"
+                accessibilityRole="button"
+                accessibilityLabel={'More about ' + props.label}
+                accessibilityHint={props.labelTooltip}
+              >
+                <label text="i" />
+              </Pressable>
+            }
+            content={props.labelTooltip}
+            placement="top"
+          />
+        ) : null}
+      </masonview>
+    )
 
-	const descriptionNode =
-		props.description != null && !props.isLabelHidden ? (
-			<label id={descriptionId} className="vx-field-description" text={props.description} />
-		) : null
+  const descriptionNode =
+    props.description != null && !props.isLabelHidden ? (
+      <label id={descriptionId} className="vx-field-description" text={props.description} />
+    ) : null
 
-	const statusNode =
-		status?.message != null && statusVariant === 'tooltip' ? (
-			<Tooltip
-				trigger={
-					<Pressable
-						className={cx('vx-field-status-trigger', `vx-field-status--${status.type}`)}
-						accessibilityRole="button"
-						accessibilityLabel={status.message}
-					>
-						<label text={status.type === 'success' ? '✓' : '!'} />
-					</Pressable>
-				}
-				content={<label id={statusId} className="vx-field-status" text={status.message} textWrap />}
-				placement="top"
-			/>
-		) : status?.message != null ? (
-			<label
-				id={statusId}
-				className={cx(
-					'vx-field-status',
-					`vx-field-status--${status.type}`,
-					`vx-field-status--${statusVariant}`,
-				)}
-				text={status.message}
-			/>
-		) : null
+  const statusNode =
+    status?.message != null && statusVariant === 'tooltip' ? (
+      <Tooltip
+        trigger={
+          <Pressable
+            className={cx('vx-field-status-trigger', `vx-field-status--${status.type}`)}
+            accessibilityRole="button"
+            accessibilityLabel={status.message}
+          >
+            <label text={status.type === 'success' ? '✓' : '!'} />
+          </Pressable>
+        }
+        content={<label id={statusId} className="vx-field-status" text={status.message} textWrap />}
+        placement="top"
+      />
+    ) : status?.message != null ? (
+      <label
+        id={statusId}
+        className={cx(
+          'vx-field-status',
+          `vx-field-status--${status.type}`,
+          `vx-field-status--${statusVariant}`,
+        )}
+        text={status.message}
+      />
+    ) : null
 
-	const rootClass = cx(
-		'vx-field',
-		status && `vx-field--${status.type}`,
-		`vx-field--status-${statusVariant}`,
-		props.isDisabled && 'vx-field--disabled',
-		props.isReadOnly && 'vx-field--readonly',
-		props.isLoading && 'vx-field--loading',
-		props.size && `vx-field--size-${props.size}`,
-		props.className,
-	)
+  const rootClass = cx(
+    'vx-field',
+    status && `vx-field--${status.type}`,
+    `vx-field--status-${statusVariant}`,
+    props.isDisabled && 'vx-field--disabled',
+    props.isReadOnly && 'vx-field--readonly',
+    props.isLoading && 'vx-field--loading',
+    props.size && `vx-field--size-${props.size}`,
+    props.className,
+  )
 
-	const authoredStyle = styleRecord(props.style)
-	const fieldStyle = {
-		...(props.width != null ? { width: props.width } : {}),
-		...authoredStyle,
-	}
+  const authoredStyle = styleRecord(props.style)
+  const fieldStyle = {
+    ...(props.width != null ? { width: props.width } : {}),
+    ...authoredStyle,
+  }
 
-	<masonview
-		ref={(view: any) => {
-			fieldRef.current = view
-			applyEscapeProps(view, props)
-		}}
-		id={props.id}
-		className={cx(rootClass, isHorizontalLabels && 'vx-field--hl')}
-		style={mergeStyle(
-			{ display: 'flex', flexDirection: isHorizontalLabels ? 'row' : 'column' },
-			fieldStyle,
-		)}
-	>
-		<masonview
-			className={cx('vx-field-label-wrap', isHorizontalLabels && 'vx-field-hl-label')}
-			style={{ display: labelNode == null ? 'none' : 'flex', flexDirection: 'column' }}
-		>
-			{labelNode}
-		</masonview>
-		<masonview
-			className={cx('vx-field-body', isHorizontalLabels && 'vx-field-hl-body')}
-			style={{
-				display: 'flex',
-				flexDirection: 'column',
-				gap: authoredStyle.rowGap ?? authoredStyle.gap ?? 4,
-				...(isHorizontalLabels ? { flexGrow: 1 } : {}),
-			}}
-		>
-			{descriptionNode}
-			<FieldProvider value={fieldContext}>{props.children}</FieldProvider>
-			{statusNode}
-		</masonview>
-	</masonview>
+  <masonview
+    ref={(view: any) => {
+      fieldRef.current = view
+      applyEscapeProps(view, props)
+    }}
+    id={props.id}
+    className={cx(rootClass, isHorizontalLabels && 'vx-field--hl')}
+    style={mergeStyle(
+      { display: 'flex', flexDirection: isHorizontalLabels ? 'row' : 'column' },
+      fieldStyle,
+    )}
+  >
+    <masonview
+      className={cx('vx-field-label-wrap', isHorizontalLabels && 'vx-field-hl-label')}
+      style={{ display: labelNode == null ? 'none' : 'flex', flexDirection: 'column' }}
+    >
+      {labelNode}
+    </masonview>
+    <masonview
+      className={cx('vx-field-body', isHorizontalLabels && 'vx-field-hl-body')}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: authoredStyle.rowGap ?? authoredStyle.gap ?? 4,
+        ...(isHorizontalLabels ? { flexGrow: 1 } : {}),
+      }}
+    >
+      {descriptionNode}
+      <FieldProvider value={fieldContext}>{props.children}</FieldProvider>
+      {statusNode}
+    </masonview>
+  </masonview>
 }

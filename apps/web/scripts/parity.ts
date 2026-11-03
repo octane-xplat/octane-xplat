@@ -16,120 +16,120 @@ const BASE = `http://localhost:${PORT}`
 // detached: the preview is pnpm→vite — kill the whole process group or the
 // vite child outlives the script and orphans the port.
 const preview = spawn('bun', ['run', 'vite', 'preview', '--port', String(PORT), '--strictPort'], {
-	shell: process.platform === 'win32',
-	cwd: webDir,
-	stdio: ['ignore', 'pipe', 'pipe'],
-	detached: true,
+  shell: process.platform === 'win32',
+  cwd: webDir,
+  stdio: ['ignore', 'pipe', 'pipe'],
+  detached: true,
 })
 
 const stopPreview = () => {
-	try {
-		process.kill(-preview.pid, 'SIGTERM')
-	} catch {
-		preview.kill()
-	}
+  try {
+    process.kill(-preview.pid, 'SIGTERM')
+  } catch {
+    preview.kill()
+  }
 }
 
 async function addRenderedFontData(page, dump) {
-	const session = await page.context().newCDPSession(page)
-	try {
-		await session.send('DOM.enable')
-		await session.send('CSS.enable')
-		const {
-			root: { nodeId: documentNodeId },
-		} = await session.send('DOM.getDocument')
+  const session = await page.context().newCDPSession(page)
+  try {
+    await session.send('DOM.enable')
+    await session.send('CSS.enable')
+    const {
+      root: { nodeId: documentNodeId },
+    } = await session.send('DOM.getDocument')
 
-		for (const [name, nodes] of Object.entries(dump.cells ?? {})) {
-			const { nodeId: boxNodeId } = await session.send('DOM.querySelector', {
-				nodeId: documentNodeId,
-				selector: `#cell-${name} .parity-box`,
-			})
+    for (const [name, nodes] of Object.entries(dump.cells ?? {})) {
+      const { nodeId: boxNodeId } = await session.send('DOM.querySelector', {
+        nodeId: documentNodeId,
+        selector: `#cell-${name} .parity-box`,
+      })
 
-			if (!boxNodeId) {
-				continue
-			}
+      if (!boxNodeId) {
+        continue
+      }
 
-			const { nodeIds } = await session.send('DOM.querySelectorAll', {
-				nodeId: boxNodeId,
-				selector: '*',
-			})
+      const { nodeIds } = await session.send('DOM.querySelectorAll', {
+        nodeId: boxNodeId,
+        selector: '*',
+      })
 
-			const measuredNodeIds = [boxNodeId, ...nodeIds]
-			for (let index = 0; index < Math.min(nodes.length, measuredNodeIds.length); index++) {
-				const { fonts } = await session.send('CSS.getPlatformFontsForNode', {
-					nodeId: measuredNodeIds[index],
-				})
+      const measuredNodeIds = [boxNodeId, ...nodeIds]
+      for (let index = 0; index < Math.min(nodes.length, measuredNodeIds.length); index++) {
+        const { fonts } = await session.send('CSS.getPlatformFontsForNode', {
+          nodeId: measuredNodeIds[index],
+        })
 
-				const usedFonts = fonts.filter((font) => font.glyphCount > 0)
-				const families = [...new Set(usedFonts.map((font) => font.familyName).filter(Boolean))]
-				const postScriptNames = [
-					...new Set(usedFonts.map((font) => font.postScriptName).filter(Boolean)),
-				]
+        const usedFonts = fonts.filter((font) => font.glyphCount > 0)
+        const families = [...new Set(usedFonts.map((font) => font.familyName).filter(Boolean))]
+        const postScriptNames = [
+          ...new Set(usedFonts.map((font) => font.postScriptName).filter(Boolean)),
+        ]
 
-				const style = nodes[index]?.style
-				if (!style || families.length === 0) {
-					continue
-				}
+        const style = nodes[index]?.style
+        if (!style || families.length === 0) {
+          continue
+        }
 
-				style.fontFamilyStack = style.fontFamily
-				style.fontFamily = families.join(', ')
-				style.fontPostScriptName = postScriptNames.join(', ')
-			}
-		}
-	} finally {
-		await session.detach()
-	}
+        style.fontFamilyStack = style.fontFamily
+        style.fontFamily = families.join(', ')
+        style.fontPostScriptName = postScriptNames.join(', ')
+      }
+    }
+  } finally {
+    await session.detach()
+  }
 }
 
 await new Promise((r) => preview.stdout.on('data', (d) => String(d).includes('Local') && r()))
 await new Promise((r) => setTimeout(r, 500))
 
 try {
-	const browser = await chromium.launch()
-	const page = await browser.newPage()
-	const errors = []
-	page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
+  const browser = await chromium.launch()
+  const page = await browser.newPage()
+  const errors = []
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
 
-	await page.goto(BASE + '/parity', { waitUntil: 'networkidle' })
-	// Freeze animations: a mid-animation transform inflates the measured
-	// bounding box (e.g. the rotating spinner reads ~29×29 instead of 24×24).
-	await page.addStyleTag({
-		content: '*,*::before,*::after{animation:none!important;transition:none!important}',
-	})
+  await page.goto(BASE + '/parity', { waitUntil: 'networkidle' })
+  // Freeze animations: a mid-animation transform inflates the measured
+  // bounding box (e.g. the rotating spinner reads ~29×29 instead of 24×24).
+  await page.addStyleTag({
+    content: '*,*::before,*::after{animation:none!important;transition:none!important}',
+  })
 
-	await page.waitForSelector('#parity-stage .vx-switch', { timeout: 10000 })
-	// Slider's fill/thumb sizes come from a ResizeObserver pass — give it a
-	// frame to settle before dumping.
-	await page.waitForTimeout(400)
-	// Viewport-anchored fixtures (Popover) clamp to the viewport when their
-	// anchor is below the fold; center the cell so the panel lands in the
-	// expected placement relative to its anchor.
-	await page.evaluate(() =>
-		document.getElementById('cell-popover-bottom-frame')?.scrollIntoView({ block: 'center' }),
-	)
+  await page.waitForSelector('#parity-stage .vx-switch', { timeout: 10000 })
+  // Slider's fill/thumb sizes come from a ResizeObserver pass — give it a
+  // frame to settle before dumping.
+  await page.waitForTimeout(400)
+  // Viewport-anchored fixtures (Popover) clamp to the viewport when their
+  // anchor is below the fold; center the cell so the panel lands in the
+  // expected placement relative to its anchor.
+  await page.evaluate(() =>
+    document.getElementById('cell-popover-bottom-frame')?.scrollIntoView({ block: 'center' }),
+  )
 
-	await page.waitForTimeout(100)
+  await page.waitForTimeout(100)
 
-	const dump = await page.evaluate(() =>
-		globalThis.__xplatParity ? globalThis.__xplatParity() : null,
-	)
+  const dump = await page.evaluate(() =>
+    globalThis.__xplatParity ? globalThis.__xplatParity() : null,
+  )
 
-	if (!dump) {
-		console.log('[parity] __xplatParity missing or returned null')
-		process.exitCode = 1
-	} else {
-		await addRenderedFontData(page, dump)
-		const out = path.join(repoDir, 'parity-report', 'web.json')
-		mkdirSync(path.dirname(out), { recursive: true })
-		writeFileSync(out, JSON.stringify(dump, null, 2))
-		const cells = Object.keys(dump.cells ?? {})
-		console.log(`[parity] web dump → parity-report/web.json (${cells.length} fixtures)`)
-		if (errors.length) {
-			console.log('[parity] page errors: ' + errors.join(' | '))
-		}
-	}
+  if (!dump) {
+    console.log('[parity] __xplatParity missing or returned null')
+    process.exitCode = 1
+  } else {
+    await addRenderedFontData(page, dump)
+    const out = path.join(repoDir, 'parity-report', 'web.json')
+    mkdirSync(path.dirname(out), { recursive: true })
+    writeFileSync(out, JSON.stringify(dump, null, 2))
+    const cells = Object.keys(dump.cells ?? {})
+    console.log(`[parity] web dump → parity-report/web.json (${cells.length} fixtures)`)
+    if (errors.length) {
+      console.log('[parity] page errors: ' + errors.join(' | '))
+    }
+  }
 
-	await browser.close()
+  await browser.close()
 } finally {
-	stopPreview()
+  stopPreview()
 }

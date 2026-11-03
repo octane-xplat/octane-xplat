@@ -17,37 +17,37 @@ export const defaultClient = (env = process.env) => env.XPLAT_AGENT_CLIENT || 'd
 export const agentDir = (workspaceRoot) => join(workspaceRoot, AGENT_DIR)
 
 export const preferencePath = (workspaceRoot, client) =>
-	join(agentDir(workspaceRoot), `${client}.json`)
+  join(agentDir(workspaceRoot), `${client}.json`)
 
 export function readPreference(workspaceRoot, client) {
-	if (!CLIENT_SAFE.test(client)) {
-		return null
-	}
+  if (!CLIENT_SAFE.test(client)) {
+    return null
+  }
 
-	try {
-		const parsed = JSON.parse(readFileSync(preferencePath(workspaceRoot, client), 'utf8'))
-		return parsed && typeof parsed.appId === 'string' ? parsed : null
-	} catch {
-		return null
-	}
+  try {
+    const parsed = JSON.parse(readFileSync(preferencePath(workspaceRoot, client), 'utf8'))
+    return parsed && typeof parsed.appId === 'string' ? parsed : null
+  } catch {
+    return null
+  }
 }
 
 export function writePreference(workspaceRoot, client, app) {
-	const path = preferencePath(workspaceRoot, client)
-	mkdirSync(agentDir(workspaceRoot), { recursive: true })
-	writeFileSync(
-		path,
-		`${JSON.stringify(
-			{
-				client,
-				appId: app.id,
-				appName: app.name,
-				selectedAt: new Date().toISOString(),
-			},
-			null,
-			'\t',
-		)}\n`,
-	)
+  const path = preferencePath(workspaceRoot, client)
+  mkdirSync(agentDir(workspaceRoot), { recursive: true })
+  writeFileSync(
+    path,
+    `${JSON.stringify(
+      {
+        client,
+        appId: app.id,
+        appName: app.name,
+        selectedAt: new Date().toISOString(),
+      },
+      null,
+      '\t',
+    )}\n`,
+  )
 
-	return path
+  return path
 }

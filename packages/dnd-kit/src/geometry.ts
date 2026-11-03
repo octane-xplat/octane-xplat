@@ -2,17 +2,17 @@ import { Rectangle } from '@dnd-kit/geometry'
 
 /** NativeScript screen coordinates and dimensions are in DIPs. */
 export function measure(element: any): Rectangle | null {
-	if (!element || element.isLoaded === false) {
-		return null
-	}
+  if (!element || element.isLoaded === false) {
+    return null
+  }
 
-	const point = element.getLocationOnScreen?.()
-	const size = element.getActualSize?.()
-	return point && size && size.width > 0 && size.height > 0
-		? new Rectangle(point.x, point.y, size.width, size.height)
-		: null
+  const point = element.getLocationOnScreen?.()
+  const size = element.getActualSize?.()
+  return point && size && size.width > 0 && size.height > 0
+    ? new Rectangle(point.x, point.y, size.width, size.height)
+    : null
 }
 
 export function dragStyle(x: number, y: number, dragging = false): Record<string, number | string> {
-	return { translateX: x, translateY: y, zIndex: dragging || x || y ? 1 : 0 }
+  return { translateX: x, translateY: y, zIndex: dragging || x || y ? 1 : 0 }
 }

@@ -6,11 +6,11 @@ import { AspectRatio } from '@octane-xplat/ui'
 import { Center } from '@octane-xplat/ui'
 
 export function AspectRatioSquareImage() {
-	return (
-		<Center width={300}>
-			<AspectRatio ratio={1} fit="cover">
-				<Image src="/template-assets/light-home-square-1.png" alt="1:1 square" />
-			</AspectRatio>
-		</Center>
-	)
+  return (
+    <Center width={300}>
+      <AspectRatio ratio={1} fit="cover">
+        <Image src="/template-assets/light-home-square-1.png" alt="1:1 square" />
+      </AspectRatio>
+    </Center>
+  )
 }

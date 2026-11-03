@@ -1,124 +1,124 @@
 import {
-	canonicalQueryKey,
-	defineQuery,
-	type QueryDefinition,
-	type QueryKey,
-	type QueryKeyPart,
-	type QueryLoadContext,
-	type QueryOptions,
+  canonicalQueryKey,
+  defineQuery,
+  type QueryDefinition,
+  type QueryKey,
+  type QueryKeyPart,
+  type QueryLoadContext,
+  type QueryOptions,
 } from './query-cache'
 
 /** A server page. Undefined cursors mean that direction has ended; null is a valid cursor. */
 export interface CursorPage<T, C extends QueryKeyPart> {
-	/** Items in this page, in server order. */
-	readonly items: readonly T[]
-	/** Cursor reaching the newer page; undefined ends that direction. */
-	readonly nextCursor?: C
-	/** Cursor reaching the older page; undefined ends that direction. */
-	readonly previousCursor?: C
+  /** Items in this page, in server order. */
+  readonly items: readonly T[]
+  /** Cursor reaching the newer page; undefined ends that direction. */
+  readonly nextCursor?: C
+  /** Cursor reaching the older page; undefined ends that direction. */
+  readonly previousCursor?: C
 }
 
 /** One shared feed record, including the exact parameters used for retained pages. */
 export interface CursorQueryData<T, C extends QueryKeyPart> {
-	/** Retained pages, newest-fetch order. */
-	readonly pages: readonly CursorPage<T, C>[]
-	/** The exact cursor each retained page was fetched with. */
-	readonly pageParams: readonly C[]
-	/** Cursor for the next page, when the feed has one. */
-	readonly nextCursor?: C
-	/** Cursor for the previous page, when the feed has one. */
-	readonly previousCursor?: C
-	/** Whether `fetchNextPage` can request another page. */
-	readonly hasNextPage: boolean
-	/** Whether `fetchPreviousPage` can request another page. */
-	readonly hasPreviousPage: boolean
+  /** Retained pages, newest-fetch order. */
+  readonly pages: readonly CursorPage<T, C>[]
+  /** The exact cursor each retained page was fetched with. */
+  readonly pageParams: readonly C[]
+  /** Cursor for the next page, when the feed has one. */
+  readonly nextCursor?: C
+  /** Cursor for the previous page, when the feed has one. */
+  readonly previousCursor?: C
+  /** Whether `fetchNextPage` can request another page. */
+  readonly hasNextPage: boolean
+  /** Whether `fetchPreviousPage` can request another page. */
+  readonly hasPreviousPage: boolean
 }
 
 /** Cursor request input. Every request uses the shared cache's abort signal. */
 export interface CursorPageContext<C extends QueryKeyPart> {
-	/** Cursor identifying the requested page. */
-	readonly cursor: C
-	/** Shared abort signal — aborted when the request is superseded. */
-	readonly signal: AbortSignal
-	/** Why this page is being fetched. */
-	readonly direction: 'initial' | 'refresh' | 'next' | 'previous'
+  /** Cursor identifying the requested page. */
+  readonly cursor: C
+  /** Shared abort signal — aborted when the request is superseded. */
+  readonly signal: AbortSignal
+  /** Why this page is being fetched. */
+  readonly direction: 'initial' | 'refresh' | 'next' | 'previous'
 }
 
 /** Cursor policies plus the usual shared-query policies. */
 export interface CursorQueryOptions<T, C extends QueryKeyPart> extends QueryOptions<
-	CursorQueryData<T, C>
+  CursorQueryData<T, C>
 > {
-	/** Cursor used for the first load and refreshes. */
-	readonly initialCursor: C
-	/** Maximum retained pages; adding next/previous drops the opposite end. @default Infinity */
-	readonly maxPages?: number
+  /** Cursor used for the first load and refreshes. */
+  readonly initialCursor: C
+  /** Maximum retained pages; adding next/previous drops the opposite end. @default Infinity */
+  readonly maxPages?: number
 }
 
 const CURSOR_QUERY: unique symbol = Symbol('cursor-query')
 interface CursorEngine<A extends QueryKeyPart, T, C extends QueryKeyPart> {
-	loadPage: (
-		selection: A,
-		context: CursorPageContext<C>,
-	) => CursorPage<T, C> | PromiseLike<CursorPage<T, C>>
-	initialCursor: C
-	maxPages: number
+  loadPage: (
+    selection: A,
+    context: CursorPageContext<C>,
+  ) => CursorPage<T, C> | PromiseLike<CursorPage<T, C>>
+  initialCursor: C
+  maxPages: number
 }
 
 /** A typed feed definition, usable with useQuery$, ensureData, and prefetch. */
 export interface CursorQueryDefinition<
-	A extends QueryKeyPart,
-	T,
-	C extends QueryKeyPart,
+  A extends QueryKeyPart,
+  T,
+  C extends QueryKeyPart,
 > extends QueryDefinition<A, CursorQueryData<T, C>> {
-	/** Branded engine slot carrying the page loader and cursor policy. */
-	readonly [CURSOR_QUERY]: CursorEngine<A, T, C>
+  /** Branded engine slot carrying the page loader and cursor policy. */
+  readonly [CURSOR_QUERY]: CursorEngine<A, T, C>
 }
 
 function copyCursor<C extends QueryKeyPart>(cursor: C): C {
-	return JSON.parse(canonicalQueryKey(cursor)) as C
+  return JSON.parse(canonicalQueryKey(cursor)) as C
 }
 
 function pack<T, C extends QueryKeyPart>(
-	pages: readonly CursorPage<T, C>[],
-	params: readonly C[],
-	limit: number,
-	direction: 'next' | 'previous',
+  pages: readonly CursorPage<T, C>[],
+  params: readonly C[],
+  limit: number,
+  direction: 'next' | 'previous',
 ): CursorQueryData<T, C> {
-	if (pages.length > limit) {
-		const start = direction === 'next' ? pages.length - limit : 0
-		pages = pages.slice(start, start + limit)
-		params = params.slice(start, start + limit)
-	}
-	const nextCursor = pages.at(-1)?.nextCursor
-	const previousCursor = pages[0]?.previousCursor
-	return Object.freeze({
-		pages: Object.freeze([...pages]),
-		pageParams: Object.freeze([...params]),
-		nextCursor,
-		previousCursor,
-		hasNextPage: nextCursor !== undefined,
-		hasPreviousPage: previousCursor !== undefined,
-	})
+  if (pages.length > limit) {
+    const start = direction === 'next' ? pages.length - limit : 0
+    pages = pages.slice(start, start + limit)
+    params = params.slice(start, start + limit)
+  }
+  const nextCursor = pages.at(-1)?.nextCursor
+  const previousCursor = pages[0]?.previousCursor
+  return Object.freeze({
+    pages: Object.freeze([...pages]),
+    pageParams: Object.freeze([...params]),
+    nextCursor,
+    previousCursor,
+    hasNextPage: nextCursor !== undefined,
+    hasPreviousPage: previousCursor !== undefined,
+  })
 }
 
 async function page<A extends QueryKeyPart, T, C extends QueryKeyPart>(
-	engine: CursorEngine<A, T, C>,
-	selection: A,
-	cursor: C,
-	signal: AbortSignal,
-	direction: CursorPageContext<C>['direction'],
+  engine: CursorEngine<A, T, C>,
+  selection: A,
+  cursor: C,
+  signal: AbortSignal,
+  direction: CursorPageContext<C>['direction'],
 ): Promise<CursorPage<T, C>> {
-	const loaded = await engine.loadPage(selection, { cursor: copyCursor(cursor), signal, direction })
-	if (!loaded || !Array.isArray(loaded.items)) {
-		throw new TypeError('A cursor page must contain an items array')
-	}
-	if (loaded.nextCursor !== undefined) {
-		canonicalQueryKey(loaded.nextCursor)
-	}
-	if (loaded.previousCursor !== undefined) {
-		canonicalQueryKey(loaded.previousCursor)
-	}
-	return Object.freeze({ ...loaded, items: Object.freeze([...loaded.items]) })
+  const loaded = await engine.loadPage(selection, { cursor: copyCursor(cursor), signal, direction })
+  if (!loaded || !Array.isArray(loaded.items)) {
+    throw new TypeError('A cursor page must contain an items array')
+  }
+  if (loaded.nextCursor !== undefined) {
+    canonicalQueryKey(loaded.nextCursor)
+  }
+  if (loaded.previousCursor !== undefined) {
+    canonicalQueryKey(loaded.previousCursor)
+  }
+  return Object.freeze({ ...loaded, items: Object.freeze([...loaded.items]) })
 }
 
 /**
@@ -135,86 +135,86 @@ async function page<A extends QueryKeyPart, T, C extends QueryKeyPart>(
  */
 /** Builds a paged query definition — page loader keyed by cursor plus the usual query policies. */
 export function defineCursorQuery<A extends QueryKeyPart, T, C>(
-	key: QueryKey,
-	loadPage: CursorEngine<A, T, C & QueryKeyPart>['loadPage'],
-	options: CursorQueryOptions<T, C & QueryKeyPart>,
+  key: QueryKey,
+  loadPage: CursorEngine<A, T, C & QueryKeyPart>['loadPage'],
+  options: CursorQueryOptions<T, C & QueryKeyPart>,
 ): CursorQueryDefinition<A, T, C & QueryKeyPart> {
-	const { initialCursor, maxPages = Infinity, ...policy } = options
-	if (maxPages !== Infinity && (!Number.isSafeInteger(maxPages) || maxPages < 1)) {
-		throw new TypeError('maxPages must be a positive integer or Infinity')
-	}
-	const engine: CursorEngine<A, T, C & QueryKeyPart> = Object.freeze({
-		loadPage,
-		initialCursor: copyCursor(initialCursor),
-		maxPages,
-	})
-	const definition = defineQuery(
-		key,
-		async (
-			selection: A,
-			{ signal, previous }: QueryLoadContext<CursorQueryData<T, C & QueryKeyPart>>,
-		) => {
-			const count = Math.max(previous?.pages.length ?? 1, 1)
-			let cursor = previous?.pageParams.length ? previous.pageParams[0]! : engine.initialCursor
-			const pages: CursorPage<T, C & QueryKeyPart>[] = []
-			const params: (C & QueryKeyPart)[] = []
-			for (let index = 0; index < count; index++) {
-				if (params.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))) {
-					throw new Error('A cursor refresh repeated a page parameter')
-				}
+  const { initialCursor, maxPages = Infinity, ...policy } = options
+  if (maxPages !== Infinity && (!Number.isSafeInteger(maxPages) || maxPages < 1)) {
+    throw new TypeError('maxPages must be a positive integer or Infinity')
+  }
+  const engine: CursorEngine<A, T, C & QueryKeyPart> = Object.freeze({
+    loadPage,
+    initialCursor: copyCursor(initialCursor),
+    maxPages,
+  })
+  const definition = defineQuery(
+    key,
+    async (
+      selection: A,
+      { signal, previous }: QueryLoadContext<CursorQueryData<T, C & QueryKeyPart>>,
+    ) => {
+      const count = Math.max(previous?.pages.length ?? 1, 1)
+      let cursor = previous?.pageParams.length ? previous.pageParams[0]! : engine.initialCursor
+      const pages: CursorPage<T, C & QueryKeyPart>[] = []
+      const params: (C & QueryKeyPart)[] = []
+      for (let index = 0; index < count; index++) {
+        if (params.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))) {
+          throw new Error('A cursor refresh repeated a page parameter')
+        }
 
-				params.push(copyCursor(cursor))
-				const next = await page(engine, selection, cursor, signal, previous ? 'refresh' : 'initial')
-				pages.push(next)
-				if (next.nextCursor === undefined) {
-					break
-				}
+        params.push(copyCursor(cursor))
+        const next = await page(engine, selection, cursor, signal, previous ? 'refresh' : 'initial')
+        pages.push(next)
+        if (next.nextCursor === undefined) {
+          break
+        }
 
-				cursor = next.nextCursor
-			}
-			return pack(pages, params, maxPages, 'next')
-		},
-		policy,
-	)
-	return Object.freeze({ ...definition, [CURSOR_QUERY]: engine })
+        cursor = next.nextCursor
+      }
+      return pack(pages, params, maxPages, 'next')
+    },
+    policy,
+  )
+  return Object.freeze({ ...definition, [CURSOR_QUERY]: engine })
 }
 
 /** @internal Build one page operation for the cache's existing request scheduler. */
 /** Adapts a cursor definition's page loader to the plain `QueryDefinition.load` shape. */
 export function cursorPageLoader<A extends QueryKeyPart, T, C extends QueryKeyPart>(
-	definition: CursorQueryDefinition<A, T, C>,
-	direction: 'next' | 'previous',
+  definition: CursorQueryDefinition<A, T, C>,
+  direction: 'next' | 'previous',
 ): QueryDefinition<A, CursorQueryData<T, C>>['load'] {
-	const engine = definition[CURSOR_QUERY]
-	if (!engine) {
-		throw new TypeError('Use defineCursorQuery for page operations')
-	}
-	return async (selection, { signal, previous }) => {
-		if (!previous) {
-			throw new Error('Load the initial cursor page first')
-		}
-		const cursor = direction === 'next' ? previous.nextCursor : previous.previousCursor
-		if (cursor === undefined) {
-			return previous
-		}
-		if (
-			previous.pageParams.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))
-		) {
-			throw new Error('A cursor query repeated a retained page parameter')
-		}
-		const loaded = await page(engine, selection, cursor, signal, direction)
-		return direction === 'next'
-			? pack(
-					[...previous.pages, loaded],
-					[...previous.pageParams, copyCursor(cursor)],
-					engine.maxPages,
-					direction,
-				)
-			: pack(
-					[loaded, ...previous.pages],
-					[copyCursor(cursor), ...previous.pageParams],
-					engine.maxPages,
-					direction,
-				)
-	}
+  const engine = definition[CURSOR_QUERY]
+  if (!engine) {
+    throw new TypeError('Use defineCursorQuery for page operations')
+  }
+  return async (selection, { signal, previous }) => {
+    if (!previous) {
+      throw new Error('Load the initial cursor page first')
+    }
+    const cursor = direction === 'next' ? previous.nextCursor : previous.previousCursor
+    if (cursor === undefined) {
+      return previous
+    }
+    if (
+      previous.pageParams.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))
+    ) {
+      throw new Error('A cursor query repeated a retained page parameter')
+    }
+    const loaded = await page(engine, selection, cursor, signal, direction)
+    return direction === 'next'
+      ? pack(
+          [...previous.pages, loaded],
+          [...previous.pageParams, copyCursor(cursor)],
+          engine.maxPages,
+          direction,
+        )
+      : pack(
+          [loaded, ...previous.pages],
+          [copyCursor(cursor), ...previous.pageParams],
+          engine.maxPages,
+          direction,
+        )
+  }
 }

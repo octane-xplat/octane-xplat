@@ -2,16 +2,16 @@
 import { BreadcrumbItem, Breadcrumbs } from '@octane-xplat/ui'
 
 const teamMenu = [
-	{ label: 'Design', onClick: () => {} },
-	{ label: 'Engineering', onClick: () => {} },
-	{ type: 'divider' as const },
-	{ label: 'Data', onClick: () => {} },
+  { label: 'Design', onClick: () => {} },
+  { label: 'Engineering', onClick: () => {} },
+  { type: 'divider' as const },
+  { label: 'Data', onClick: () => {} },
 ]
 
 export function BreadcrumbsMenuItem() @{
-	<Breadcrumbs>
-		<BreadcrumbItem href="/">Home</BreadcrumbItem>
-		<BreadcrumbItem menu={teamMenu}>Teams</BreadcrumbItem>
-		<BreadcrumbItem isCurrent>Overview</BreadcrumbItem>
-	</Breadcrumbs>
+  <Breadcrumbs>
+    <BreadcrumbItem href="/">Home</BreadcrumbItem>
+    <BreadcrumbItem menu={teamMenu}>Teams</BreadcrumbItem>
+    <BreadcrumbItem isCurrent>Overview</BreadcrumbItem>
+  </Breadcrumbs>
 }

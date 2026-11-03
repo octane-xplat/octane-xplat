@@ -5,10 +5,10 @@ import { Utils } from '@nativescript/core'
 
 /** Write text to the system clipboard. Resolves false on failure. */
 export async function copyText(text: string): Promise<boolean> {
-	try {
-		Utils.copyToClipboard(text)
-		return true
-	} catch {
-		return false
-	}
+  try {
+    Utils.copyToClipboard(text)
+    return true
+  } catch {
+    return false
+  }
 }

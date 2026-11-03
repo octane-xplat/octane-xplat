@@ -16,146 +16,146 @@ import { createListViewabilityTracker } from '../components/collections/list-vie
 import { observeListViewability } from '../components/collections/list-viewability-observer.android'
 import type { ListVisibilityObserver } from '../components/collections/list-viewability-runtime'
 import {
-	createInitialListScrollRestorer,
-	scrollListToIndex,
-	type PlatformListRuntime,
+  createInitialListScrollRestorer,
+  scrollListToIndex,
+  type PlatformListRuntime,
 } from '../components/collections/list-viewability-runtime'
 
 function rejectNestedScrollView(event: any) {
-	let parent = event.object?.parent
-	while (parent) {
-		if (parent instanceof ScrollView) {
-			throw new Error(
-				'[RecyclerView] cannot be nested inside native ScrollView. Use ScrollableArea axis="both" so the list owns scrolling.',
-			)
-		}
+  let parent = event.object?.parent
+  while (parent) {
+    if (parent instanceof ScrollView) {
+      throw new Error(
+        '[RecyclerView] cannot be nested inside native ScrollView. Use ScrollableArea axis="both" so the list owns scrolling.',
+      )
+    }
 
-		parent = parent.parent
-	}
+    parent = parent.parent
+  }
 }
 
 /** Stable ref bag across the memo boundary — refresh callbacks are fresh
  *  closures each parent render, so the props live behind refs and the
  *  memo compare just sees the same bag. */
 interface RefreshBag {
-	cfg: { current: RefreshConfig }
-	indicator: { current: any }
-	ctl: { current: RefreshController | null }
+  cfg: { current: RefreshConfig }
+  indicator: { current: any }
+  ctl: { current: RefreshController | null }
 }
 
 // Native cells own their physical hosts; this component owns their portals.
 // Rebinding preserves the declaring context and updates the current item.
 // The grid wrapper also supports renderItem output with multiple siblings.
 function RecyclerViewInner(props: {
-	className?: any
-	style?: any
-	id?: string
-	items: any[]
-	initialScrollIndex?: number
-	viewabilityConfig?: RecyclerViewProps['viewabilityConfig']
-	renderItem: (item: any, index: number) => any
-	onEndReached?: () => void
-	android?: Record<string, any>
-	modifiers?: RecyclerViewProps['modifiers']
-	refresh?: RefreshBag
-	runtime: PlatformListRuntime
+  className?: any
+  style?: any
+  id?: string
+  items: any[]
+  initialScrollIndex?: number
+  viewabilityConfig?: RecyclerViewProps['viewabilityConfig']
+  renderItem: (item: any, index: number) => any
+  onEndReached?: () => void
+  android?: Record<string, any>
+  modifiers?: RecyclerViewProps['modifiers']
+  refresh?: RefreshBag
+  runtime: PlatformListRuntime
 }) @{
-	const lv = useRef<any>(null)
-	const renderCell = useCallback(
-		(item: any, index: number) => (
-			<masonview style={{ display: 'grid' }}>{props.renderItem(item, index)}</masonview>
-		),
-		[props.renderItem],
-	)
+  const lv = useRef<any>(null)
+  const renderCell = useCallback(
+    (item: any, index: number) => (
+      <masonview style={{ display: 'grid' }}>{props.renderItem(item, index)}</masonview>
+    ),
+    [props.renderItem],
+  )
 
-	const cells = useNativeListCells(renderCell, props.items)
+  const cells = useNativeListCells(renderCell, props.items)
 
-	const visibility = useRef<ListVisibilityObserver | null>(null)
-	const tracker = useRef(createListViewabilityTracker())
-	const initialScroll = useRef(createInitialListScrollRestorer())
-	const tryInitialScroll = () =>
-		initialScroll.current.tryScroll(
-			props.runtime.list.current,
-			props.initialScrollIndex,
-			props.items.length,
-		)
+  const visibility = useRef<ListVisibilityObserver | null>(null)
+  const tracker = useRef(createListViewabilityTracker())
+  const initialScroll = useRef(createInitialListScrollRestorer())
+  const tryInitialScroll = () =>
+    initialScroll.current.tryScroll(
+      props.runtime.list.current,
+      props.initialScrollIndex,
+      props.items.length,
+    )
 
-	useEffect(() => {
-		const list = props.runtime.list.current
-		if (!list) {
-			return
-		}
+  useEffect(() => {
+    const list = props.runtime.list.current
+    if (!list) {
+      return
+    }
 
-		visibility.current = observeListViewability(
-			list,
-			() => ({
-				items: props.runtime.items.current,
-				config: props.runtime.config.current,
-				update: (rows, items, config) =>
-					tracker.current.update(rows, items, config, props.runtime.onChange.current),
-			}),
-			() => tracker.current.reset(),
-		)
+    visibility.current = observeListViewability(
+      list,
+      () => ({
+        items: props.runtime.items.current,
+        config: props.runtime.config.current,
+        update: (rows, items, config) =>
+          tracker.current.update(rows, items, config, props.runtime.onChange.current),
+      }),
+      () => tracker.current.reset(),
+    )
 
-		return () => {
-			visibility.current?.dispose()
-			visibility.current = null
-			tracker.current.dispose()
-		}
-	}, [])
+    return () => {
+      visibility.current?.dispose()
+      visibility.current = null
+      tracker.current.dispose()
+    }
+  }, [])
 
-	useEffect(() => {
-		visibility.current?.refresh()
-	}, [props.items, props.viewabilityConfig])
+  useEffect(() => {
+    visibility.current?.refresh()
+  }, [props.items, props.viewabilityConfig])
 
-	useEffect(() => {
-		tryInitialScroll()
-	}, [props.initialScrollIndex, props.items.length])
+  useEffect(() => {
+    tryInitialScroll()
+  }, [props.initialScrollIndex, props.items.length])
 
-	useEffect(() => {
-		const bag = props.refresh
-		if (!bag || !lv.current) {
-			return
-		}
+  useEffect(() => {
+    const bag = props.refresh
+    if (!bag || !lv.current) {
+      return
+    }
 
-		bag.ctl.current = createPullToRefresh({
-			scroller: lv.current,
-			indicator: bag.indicator.current,
-			isAtTop: () => (lv.current?.android?.computeVerticalScrollOffset?.() ?? 0) <= 0,
-			cfg: bag.cfg,
-		})
+    bag.ctl.current = createPullToRefresh({
+      scroller: lv.current,
+      indicator: bag.indicator.current,
+      isAtTop: () => (lv.current?.android?.computeVerticalScrollOffset?.() ?? 0) <= 0,
+      cfg: bag.cfg,
+    })
 
-		return () => {
-			bag.ctl.current?.detach()
-			bag.ctl.current = null
-		}
-	}, [])
+    return () => {
+      bag.ctl.current?.detach()
+      bag.ctl.current = null
+    }
+  }, [])
 
-	<>
-		<listview
-			ref={(v: any) => {
-				lv.current = v
-				props.runtime.list.current = v
-				applyEscapeProps(v, props)
-				if (v) {
-					tryInitialScroll()
-				}
-			}}
-			id={props.id}
-			className={cx(props.className)}
-			style={props.style}
-			itemTemplate={cells.itemTemplate}
-			onItemLoading={cells.onItemLoading}
-			items={props.items}
-			onLoadMoreItems={props.onEndReached}
-			onLoaded={(event: any) => {
-				rejectNestedScrollView(event)
-				tryInitialScroll()
-			}}
-			{...props.android}
-		/>
-		{cells.element}
-	</>
+  <>
+    <listview
+      ref={(v: any) => {
+        lv.current = v
+        props.runtime.list.current = v
+        applyEscapeProps(v, props)
+        if (v) {
+          tryInitialScroll()
+        }
+      }}
+      id={props.id}
+      className={cx(props.className)}
+      style={props.style}
+      itemTemplate={cells.itemTemplate}
+      onItemLoading={cells.onItemLoading}
+      items={props.items}
+      onLoadMoreItems={props.onEndReached}
+      onLoaded={(event: any) => {
+        rejectNestedScrollView(event)
+        tryInitialScroll()
+      }}
+      {...props.android}
+    />
+    {cells.element}
+  </>
 }
 
 // The listview subtree is memoized on `items` and list configuration: the
@@ -168,21 +168,21 @@ function RecyclerViewInner(props: {
 // not part of the compare. (`RecyclerViewInner` must precede this —
 // compiled components are consts, not hoisted functions.)
 const MemoListView = memo(
-	RecyclerViewInner,
-	(a, b) =>
-		a.items === b.items &&
-		a.initialScrollIndex === b.initialScrollIndex &&
-		a.viewabilityConfig?.itemVisiblePercentThreshold ===
-			b.viewabilityConfig?.itemVisiblePercentThreshold &&
-		a.viewabilityConfig?.minimumViewTime === b.viewabilityConfig?.minimumViewTime &&
-		a.runtime === b.runtime &&
-		a.className === b.className &&
-		a.style === b.style &&
-		a.id === b.id &&
-		a.onEndReached === b.onEndReached &&
-		a.android === b.android &&
-		a.modifiers === b.modifiers &&
-		a.refresh === b.refresh,
+  RecyclerViewInner,
+  (a, b) =>
+    a.items === b.items &&
+    a.initialScrollIndex === b.initialScrollIndex &&
+    a.viewabilityConfig?.itemVisiblePercentThreshold ===
+      b.viewabilityConfig?.itemVisiblePercentThreshold &&
+    a.viewabilityConfig?.minimumViewTime === b.viewabilityConfig?.minimumViewTime &&
+    a.runtime === b.runtime &&
+    a.className === b.className &&
+    a.style === b.style &&
+    a.id === b.id &&
+    a.onEndReached === b.onEndReached &&
+    a.android === b.android &&
+    a.modifiers === b.modifiers &&
+    a.refresh === b.refresh,
 )
 
 /** RecyclerView — the Android public compatibility name for NativeScript
@@ -199,94 +199,94 @@ const MemoListView = memo(
  *  inside a clipped wrapper while the drag accumulates — no
  *  SwipeRefreshLayout, so the pixels match the shared ScrollableArea path. */
 export function RecyclerView<T>(props: RecyclerViewProps<T>): unknown @{
-	const runtime = useRef<PlatformListRuntime>({
-		list: { current: null },
-		items: { current: props.items },
-		config: { current: props.viewabilityConfig },
-		onChange: { current: props.onViewableItemsChanged },
-	})
+  const runtime = useRef<PlatformListRuntime>({
+    list: { current: null },
+    items: { current: props.items },
+    config: { current: props.viewabilityConfig },
+    onChange: { current: props.onViewableItemsChanged },
+  })
 
-	runtime.current.items.current = props.items
-	runtime.current.config.current = props.viewabilityConfig
-	runtime.current.onChange.current = props.onViewableItemsChanged
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			scrollToIndex: (index, options) =>
-				scrollListToIndex(
-					runtime.current.list.current,
-					index,
-					runtime.current.items.current.length,
-					options?.animated,
-				),
-		}),
-		[props.ref],
-	)
+  runtime.current.items.current = props.items
+  runtime.current.config.current = props.viewabilityConfig
+  runtime.current.onChange.current = props.onViewableItemsChanged
+  useImperativeHandle(
+    props.ref,
+    () => ({
+      scrollToIndex: (index, options) =>
+        scrollListToIndex(
+          runtime.current.list.current,
+          index,
+          runtime.current.items.current.length,
+          options?.animated,
+        ),
+    }),
+    [props.ref],
+  )
 
-	const refreshCapable = props.onRefresh != null || props.refreshing != null
-	const cfg = useRef<RefreshConfig>({})
-	cfg.current = {
-		onRefresh: props.onRefresh,
-		refreshing: props.refreshing,
-		threshold: props.refreshThreshold,
-	}
+  const refreshCapable = props.onRefresh != null || props.refreshing != null
+  const cfg = useRef<RefreshConfig>({})
+  cfg.current = {
+    onRefresh: props.onRefresh,
+    refreshing: props.refreshing,
+    threshold: props.refreshThreshold,
+  }
 
-	const indicator = useRef<any>(null)
-	const ctl = useRef<RefreshController | null>(null)
-	const refresh = useRef<RefreshBag>({ cfg, indicator, ctl })
+  const indicator = useRef<any>(null)
+  const ctl = useRef<RefreshController | null>(null)
+  const refresh = useRef<RefreshBag>({ cfg, indicator, ctl })
 
-	useEffect(() => {
-		ctl.current?.sync()
-	}, [props.refreshing])
+  useEffect(() => {
+    ctl.current?.sync()
+  }, [props.refreshing])
 
-	@if (props.items.length > 0) {
-		@if (refreshCapable) {
-			<masonview
-				className={cx('vx-refresh-wrap', props.className)}
-				style={mergeStyle({ display: 'grid' }, props.style)}
-			>
-				<MemoListView
-					id={props.id}
-					items={props.items}
-					renderItem={props.renderItem}
-					onEndReached={props.onEndReached}
-					android={props.android}
-					modifiers={props.modifiers}
-					refresh={refresh.current}
-					initialScrollIndex={props.initialScrollIndex}
-					viewabilityConfig={props.viewabilityConfig}
-					runtime={runtime.current}
-				/>
-				<masonview
-					style={mergeStyle(
-						{ display: 'flex' },
-						{ alignSelf: 'start', height: REFRESH_HEADER_HEIGHT },
-					)}
-					ref={(v: any) => {
-						indicator.current = v
-					}}
-					className="vx-refresh"
-					translateY={-REFRESH_HEADER_HEIGHT}
-				>
-					<ActivityIndicator />
-				</masonview>
-			</masonview>
-		} @else {
-			<MemoListView
-				id={props.id}
-				items={props.items}
-				className={props.className}
-				style={props.style}
-				renderItem={props.renderItem}
-				onEndReached={props.onEndReached}
-				android={props.android}
-				modifiers={props.modifiers}
-				initialScrollIndex={props.initialScrollIndex}
-				viewabilityConfig={props.viewabilityConfig}
-				runtime={runtime.current}
-			/>
-		}
-	} @else {
-		<>{props.renderEmpty?.()}</>
-	}
+  @if (props.items.length > 0) {
+    @if (refreshCapable) {
+      <masonview
+        className={cx('vx-refresh-wrap', props.className)}
+        style={mergeStyle({ display: 'grid' }, props.style)}
+      >
+        <MemoListView
+          id={props.id}
+          items={props.items}
+          renderItem={props.renderItem}
+          onEndReached={props.onEndReached}
+          android={props.android}
+          modifiers={props.modifiers}
+          refresh={refresh.current}
+          initialScrollIndex={props.initialScrollIndex}
+          viewabilityConfig={props.viewabilityConfig}
+          runtime={runtime.current}
+        />
+        <masonview
+          style={mergeStyle(
+            { display: 'flex' },
+            { alignSelf: 'start', height: REFRESH_HEADER_HEIGHT },
+          )}
+          ref={(v: any) => {
+            indicator.current = v
+          }}
+          className="vx-refresh"
+          translateY={-REFRESH_HEADER_HEIGHT}
+        >
+          <ActivityIndicator />
+        </masonview>
+      </masonview>
+    } @else {
+      <MemoListView
+        id={props.id}
+        items={props.items}
+        className={props.className}
+        style={props.style}
+        renderItem={props.renderItem}
+        onEndReached={props.onEndReached}
+        android={props.android}
+        modifiers={props.modifiers}
+        initialScrollIndex={props.initialScrollIndex}
+        viewabilityConfig={props.viewabilityConfig}
+        runtime={runtime.current}
+      />
+    }
+  } @else {
+    <>{props.renderEmpty?.()}</>
+  }
 }

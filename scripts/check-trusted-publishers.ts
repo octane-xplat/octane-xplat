@@ -27,113 +27,113 @@ const requestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL
 const requestToken = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN
 
 if (!requestUrl || !requestToken) {
-	console.error(
-		'check-trusted-publishers: ACTIONS_ID_TOKEN_REQUEST_URL/_TOKEN missing — the job needs `permissions: id-token: write`.',
-	)
+  console.error(
+    'check-trusted-publishers: ACTIONS_ID_TOKEN_REQUEST_URL/_TOKEN missing — the job needs `permissions: id-token: write`.',
+  )
 
-	process.exit(1)
+  process.exit(1)
 }
 
 const selected =
-	process.argv.length > 2
-		? publishablePackages().filter((p) => process.argv.slice(2).includes(p.name))
-		: lockstepPackages()
+  process.argv.length > 2
+    ? publishablePackages().filter((p) => process.argv.slice(2).includes(p.name))
+    : lockstepPackages()
 
 if (!selected.length) {
-	console.error('check-trusted-publishers: no matching packages')
-	process.exit(1)
+  console.error('check-trusted-publishers: no matching packages')
+  process.exit(1)
 }
 
 const cacheFile = process.env.TRUSTED_PUBLISHERS_CACHE
 const cacheScope = JSON.stringify([
-	registry,
-	process.env.GITHUB_REPOSITORY,
-	process.env.GITHUB_WORKFLOW_REF,
-	process.env.GITHUB_JOB,
+  registry,
+  process.env.GITHUB_REPOSITORY,
+  process.env.GITHUB_WORKFLOW_REF,
+  process.env.GITHUB_JOB,
 ])
 
 const now = Date.now()
 const maxAge = 24 * 60 * 60 * 1000
 let checked = {}
 if (cacheFile) {
-	try {
-		const cache = JSON.parse(await readFile(cacheFile, 'utf8'))
-		if (cache.version === 1 && cache.scope === cacheScope) {
-			checked = Object.fromEntries(
-				Object.entries(cache.checked).filter(
-					([, at]) => Number.isFinite(at) && at <= now && now - at < maxAge,
-				),
-			)
-		}
-	} catch {
-		// Missing or invalid cache: verify with npm instead.
-	}
+  try {
+    const cache = JSON.parse(await readFile(cacheFile, 'utf8'))
+    if (cache.version === 1 && cache.scope === cacheScope) {
+      checked = Object.fromEntries(
+        Object.entries(cache.checked).filter(
+          ([, at]) => Number.isFinite(at) && at <= now && now - at < maxAge,
+        ),
+      )
+    }
+  } catch {
+    // Missing or invalid cache: verify with npm instead.
+  }
 }
 
 const pending = selected.filter(({ name }) => {
-	if (!Object.hasOwn(checked, name)) {
-		return true
-	}
-	console.log(`ok: ${name} has a trusted publisher (cached)`)
-	return false
+  if (!Object.hasOwn(checked, name)) {
+    return true
+  }
+  console.log(`ok: ${name} has a trusted publisher (cached)`)
+  return false
 })
 
 if (!pending.length) {
-	process.exit(0)
+  process.exit(0)
 }
 
 const url = new URL(requestUrl)
 url.searchParams.set('audience', `npm:${new URL(registry).hostname}`)
 const idRes = await fetch(url, {
-	headers: { Accept: 'application/json', Authorization: `Bearer ${requestToken}` },
+  headers: { Accept: 'application/json', Authorization: `Bearer ${requestToken}` },
 })
 
 if (!idRes.ok) {
-	console.error(`check-trusted-publishers: GitHub OIDC token request failed (${idRes.status})`)
-	process.exit(1)
+  console.error(`check-trusted-publishers: GitHub OIDC token request failed (${idRes.status})`)
+  process.exit(1)
 }
 
 const { value: idToken } = await idRes.json()
 if (!idToken) {
-	console.error('check-trusted-publishers: GitHub OIDC response had no token')
-	process.exit(1)
+  console.error('check-trusted-publishers: GitHub OIDC response had no token')
+  process.exit(1)
 }
 
 const failures = []
 for (const { name } of pending) {
-	const res = await fetch(
-		`${registry}/-/npm/v1/oidc/token/exchange/package/${encodeURIComponent(name)}`,
-		{ method: 'POST', headers: { Accept: 'application/json', Authorization: `Bearer ${idToken}` } },
-	)
+  const res = await fetch(
+    `${registry}/-/npm/v1/oidc/token/exchange/package/${encodeURIComponent(name)}`,
+    { method: 'POST', headers: { Accept: 'application/json', Authorization: `Bearer ${idToken}` } },
+  )
 
-	if (res.ok && (await res.json()).token) {
-		checked[name] = Date.now()
-		console.log(`ok: ${name} has a trusted publisher`)
-		continue
-	}
+  if (res.ok && (await res.json()).token) {
+    checked[name] = Date.now()
+    console.log(`ok: ${name} has a trusted publisher`)
+    continue
+  }
 
-	let detail = `HTTP ${res.status}`
-	try {
-		detail += ` — ${(await res.json()).message ?? 'unknown error'}`
-	} catch {}
+  let detail = `HTTP ${res.status}`
+  try {
+    detail += ` — ${(await res.json()).message ?? 'unknown error'}`
+  } catch {}
 
-	failures.push(`${name}: ${detail}`)
+  failures.push(`${name}: ${detail}`)
 }
 
 if (failures.length) {
-	console.error(
-		'\nTrusted publishing is not set up for:\n  ' +
-			failures.join('\n  ') +
-			'\n\nConfigure each on npmjs.com (package settings → Trusted Publisher → ' +
-			'GitHub Actions → octane-xplat/octane-xplat, workflow release.yml). ' +
-			'For a package that is not published yet, use the trusted-publisher ' +
-			'setup for new packages (createPackage permission).',
-	)
+  console.error(
+    '\nTrusted publishing is not set up for:\n  ' +
+      failures.join('\n  ') +
+      '\n\nConfigure each on npmjs.com (package settings → Trusted Publisher → ' +
+      'GitHub Actions → octane-xplat/octane-xplat, workflow release.yml). ' +
+      'For a package that is not published yet, use the trusted-publisher ' +
+      'setup for new packages (createPackage permission).',
+  )
 
-	process.exit(1)
+  process.exit(1)
 }
 
 if (cacheFile) {
-	await mkdir(dirname(cacheFile), { recursive: true })
-	await writeFile(cacheFile, JSON.stringify({ version: 1, scope: cacheScope, checked }) + '\n')
+  await mkdir(dirname(cacheFile), { recursive: true })
+  await writeFile(cacheFile, JSON.stringify({ version: 1, scope: cacheScope, checked }) + '\n')
 }

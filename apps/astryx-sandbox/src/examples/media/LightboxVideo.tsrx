@@ -6,23 +6,23 @@ import { Lightbox } from '@octane-xplat/ui'
 import { Button } from '@octane-xplat/ui'
 
 export function LightboxVideo() {
-	const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
-	return (
-		<>
-			<Button label="Play video" clickAction={() => setIsOpen(true)} />
-			<Lightbox
-				isOpen={isOpen}
-				onOpenChange={setIsOpen}
-				media={[
-					{
-						src: '/template-assets/Nature-1.mp4',
-						alt: 'Flower blooming in time-lapse',
-						type: 'video',
-						caption: 'A flower blooming in time-lapse',
-					},
-				]}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Button label="Play video" clickAction={() => setIsOpen(true)} />
+      <Lightbox
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        media={[
+          {
+            src: '/template-assets/Nature-1.mp4',
+            alt: 'Flower blooming in time-lapse',
+            type: 'video',
+            caption: 'A flower blooming in time-lapse',
+          },
+        ]}
+      />
+    </>
+  )
 }

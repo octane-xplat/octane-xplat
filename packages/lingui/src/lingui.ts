@@ -19,29 +19,29 @@ let activationGeneration = 0
 const listeners = new Set<() => void>()
 
 function notify(): void {
-	const snapshot = [...listeners]
-	for (const listener of snapshot) {
-		listener()
-	}
+  const snapshot = [...listeners]
+  for (const listener of snapshot) {
+    listener()
+  }
 }
 
 /** useSyncExternalStore-compatible subscription fired when the active locale
  *  changes; returns the unsubscribe function. */
 export function subscribeLocale(notify: () => void): () => void {
-	listeners.add(notify)
-	return () => {
-		listeners.delete(notify)
-	}
+  listeners.add(notify)
+  return () => {
+    listeners.delete(notify)
+  }
 }
 
 /** Registered locales, i.e. the catalog keys the app passed in. */
 export function supportedLocales(): string[] {
-	return Object.keys(catalogs)
+  return Object.keys(catalogs)
 }
 
 /** The active locale — '' before initLingui resolves. */
 export function getLocale(): string {
-	return current
+  return current
 }
 
 /**
@@ -49,26 +49,26 @@ export function getLocale(): string {
  * list: exact match, then base-language match, then the fallback.
  */
 export function matchLocale(
-	candidate: string | undefined,
-	supported: readonly string[],
-	fallbackLocale: string,
+  candidate: string | undefined,
+  supported: readonly string[],
+  fallbackLocale: string,
 ): string {
-	if (candidate) {
-		const normalized = candidate.replace(/_/g, '-').toLowerCase()
-		const exact = supported.find((locale) => locale.toLowerCase() === normalized)
-		if (exact) {
-			return exact
-		}
+  if (candidate) {
+    const normalized = candidate.replace(/_/g, '-').toLowerCase()
+    const exact = supported.find((locale) => locale.toLowerCase() === normalized)
+    if (exact) {
+      return exact
+    }
 
-		const base = normalized.split('-', 1)[0]
-		const byBase = supported.find((locale) => locale.toLowerCase().split('-', 1)[0] === base)
+    const base = normalized.split('-', 1)[0]
+    const byBase = supported.find((locale) => locale.toLowerCase().split('-', 1)[0] === base)
 
-		if (byBase) {
-			return byBase
-		}
-	}
+    if (byBase) {
+      return byBase
+    }
+  }
 
-	return fallbackLocale
+  return fallbackLocale
 }
 
 /**
@@ -77,7 +77,7 @@ export function matchLocale(
  * registered catalogs.
  */
 export function detectLocale(candidate?: string): string {
-	return matchLocale(candidate ?? detectSystemLocale(), supportedLocales(), fallback)
+  return matchLocale(candidate ?? detectSystemLocale(), supportedLocales(), fallback)
 }
 
 /**
@@ -85,10 +85,10 @@ export function detectLocale(candidate?: string): string {
  * initLingui, or again later to add locales — later calls merge.
  */
 export function defineCatalogs(next: Record<string, CatalogLoader>): void {
-	catalogs = { ...catalogs, ...next }
-	if (!supportedLocales().includes(fallback)) {
-		fallback = supportedLocales()[0] ?? fallback
-	}
+  catalogs = { ...catalogs, ...next }
+  if (!supportedLocales().includes(fallback)) {
+    fallback = supportedLocales()[0] ?? fallback
+  }
 }
 
 /**
@@ -97,18 +97,18 @@ export function defineCatalogs(next: Record<string, CatalogLoader>): void {
  * `locales/<locale>/<name>` (the layout the localization recipe scaffolds).
  */
 export function catalogsFromGlob(
-	record: Record<string, CatalogLoader>,
+  record: Record<string, CatalogLoader>,
 ): Record<string, CatalogLoader> {
-	const out: Record<string, CatalogLoader> = {}
-	for (const [path, loader] of Object.entries(record)) {
-		const segments = path.split('/')
-		const locale = segments[segments.length - 2]
-		if (locale) {
-			out[locale] = loader
-		}
-	}
+  const out: Record<string, CatalogLoader> = {}
+  for (const [path, loader] of Object.entries(record)) {
+    const segments = path.split('/')
+    const locale = segments[segments.length - 2]
+    if (locale) {
+      out[locale] = loader
+    }
+  }
 
-	return out
+  return out
 }
 
 /**
@@ -116,39 +116,39 @@ export function catalogsFromGlob(
  * A newer registered locale choice supersedes pending catalog loads.
  */
 export async function setLocale(locale: string): Promise<void> {
-	const loader = catalogs[locale]
-	if (!loader) {
-		throw new Error(
-			`setLocale: no catalog registered for locale "${locale}" (registered: ${supportedLocales().join(', ') || 'none'})`,
-		)
-	}
+  const loader = catalogs[locale]
+  if (!loader) {
+    throw new Error(
+      `setLocale: no catalog registered for locale "${locale}" (registered: ${supportedLocales().join(', ') || 'none'})`,
+    )
+  }
 
-	const owner = ++activationGeneration
-	const loaded = await loader()
-	if (owner !== activationGeneration) {
-		return
-	}
-	// `?lingui`-style modules wrap the catalog as `{ messages }`; compiled ES
-	// catalogs are the messages object itself. A catalog whose own id is
-	// literally `messages` only collides when its value is a plain object.
-	const wrapped =
-		typeof loaded === 'object' && loaded !== null && 'messages' in loaded
-			? loaded.messages
-			: undefined
-	const catalog =
-		wrapped !== null && typeof wrapped === 'object' && !Array.isArray(wrapped) ? wrapped : loaded
-	// A catalog is a plain record of message entries; anything else is empty.
-	const messages = (
-		typeof catalog === 'object' && catalog !== null && !Array.isArray(catalog) ? catalog : {}
-	) as Messages
+  const owner = ++activationGeneration
+  const loaded = await loader()
+  if (owner !== activationGeneration) {
+    return
+  }
+  // `?lingui`-style modules wrap the catalog as `{ messages }`; compiled ES
+  // catalogs are the messages object itself. A catalog whose own id is
+  // literally `messages` only collides when its value is a plain object.
+  const wrapped =
+    typeof loaded === 'object' && loaded !== null && 'messages' in loaded
+      ? loaded.messages
+      : undefined
+  const catalog =
+    wrapped !== null && typeof wrapped === 'object' && !Array.isArray(wrapped) ? wrapped : loaded
+  // A catalog is a plain record of message entries; anything else is empty.
+  const messages = (
+    typeof catalog === 'object' && catalog !== null && !Array.isArray(catalog) ? catalog : {}
+  ) as Messages
 
-	i18n.loadAndActivate({ locale, messages })
-	if (locale !== current) {
-		current = locale
-		notify()
-	}
+  i18n.loadAndActivate({ locale, messages })
+  if (locale !== current) {
+    current = locale
+    notify()
+  }
 
-	await persist?.save(locale)
+  await persist?.save(locale)
 }
 
 /**
@@ -157,27 +157,27 @@ export async function setLocale(locale: string): Promise<void> {
  * Returns the activated locale.
  */
 export async function initLingui(setup: LinguiSetup): Promise<string> {
-	defineCatalogs(setup.catalogs)
-	if (!supportedLocales().length) {
-		throw new Error('initLingui: setup.catalogs is empty')
-	}
+  defineCatalogs(setup.catalogs)
+  if (!supportedLocales().length) {
+    throw new Error('initLingui: setup.catalogs is empty')
+  }
 
-	if (setup.fallback) {
-		if (!catalogs[setup.fallback]) {
-			throw new Error(`initLingui: fallback "${setup.fallback}" has no registered catalog`)
-		}
+  if (setup.fallback) {
+    if (!catalogs[setup.fallback]) {
+      throw new Error(`initLingui: fallback "${setup.fallback}" has no registered catalog`)
+    }
 
-		fallback = setup.fallback
-	}
+    fallback = setup.fallback
+  }
 
-	persist = setup.persist
-	const persisted = persist ? await persist.load() : undefined
-	const initial = matchLocale(
-		setup.locale ?? persisted ?? detectSystemLocale(),
-		supportedLocales(),
-		fallback,
-	)
+  persist = setup.persist
+  const persisted = persist ? await persist.load() : undefined
+  const initial = matchLocale(
+    setup.locale ?? persisted ?? detectSystemLocale(),
+    supportedLocales(),
+    fallback,
+  )
 
-	await setLocale(initial)
-	return initial
+  await setLocale(initial)
+  return initial
 }

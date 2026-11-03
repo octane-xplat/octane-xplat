@@ -16,22 +16,22 @@ declare const XplatAztecEditorView: any
  *  reports these as unsupported rather than faking a result. `link` is
  *  valid but goes through `linkTo`, matching the Android leaf. */
 const UNSUPPORTED: ReadonlySet<RichTextFormat> = new Set([
-	'taskList',
-	'alignLeft',
-	'alignCenter',
-	'alignRight',
+  'taskList',
+  'alignLeft',
+  'alignCenter',
+  'alignRight',
 ])
 
 class AztecEditor extends View {
-	createNativeView() {
-		return new XplatAztecEditorView()
-	}
+  createNativeView() {
+    return new XplatAztecEditorView()
+  }
 }
 
 declare module '@octane-xplat/jsx/intrinsics' {
-	interface NativeElements<TElement> {
-		xplatrichtext: Attributes<TElement, {}>
-	}
+  interface NativeElements<TElement> {
+    xplatrichtext: Attributes<TElement, {}>
+  }
 }
 
 registerElement('xplatrichtext', AztecEditor)
@@ -43,209 +43,209 @@ export const supported: boolean = true
  *  not a WebView. Content in/out is HTML (`setHTML`/`getHTML`); JSON
  *  interchange lives one layer up in @octane-xplat/tiptap. */
 export function RichTextEditor(props: RichTextEditorProps): unknown @{
-	const host = useRef<any>(null)
-	const lastEmitted = useRef<string | undefined>(undefined)
-	const applyingValue = useRef(false)
-	const emitTimer = useRef<any>(null)
+  const host = useRef<any>(null)
+  const lastEmitted = useRef<string | undefined>(undefined)
+  const applyingValue = useRef(false)
+  const emitTimer = useRef<any>(null)
 
-	// Stable identity — an inline closure re-fires ref(null)/ref(v) per
-	// render, which would bounce host.current around the effects below.
-	useImperativeHandle(props.ref, () => handle(editor()), [])
+  // Stable identity — an inline closure re-fires ref(null)/ref(v) per
+  // render, which would bounce host.current around the effects below.
+  useImperativeHandle(props.ref, () => handle(editor()), [])
 
-	const bindHost = useCallback((v: any) => {
-		host.current = v
-	}, [])
+  const bindHost = useCallback((v: any) => {
+    host.current = v
+  }, [])
 
-	const editor = () => host.current?.ios
+  const editor = () => host.current?.ios
 
-	const emitChange = () => {
-		const e = editor()
-		if (!e || applyingValue.current) {
-			return
-		}
+  const emitChange = () => {
+    const e = editor()
+    if (!e || applyingValue.current) {
+      return
+    }
 
-		clearTimeout(emitTimer.current)
-		emitTimer.current = setTimeout(() => {
-			const current = editor()
-			if (!current || applyingValue.current) {
-				return
-			}
+    clearTimeout(emitTimer.current)
+    emitTimer.current = setTimeout(() => {
+      const current = editor()
+      if (!current || applyingValue.current) {
+        return
+      }
 
-			const html = current.getHTML()
-			lastEmitted.current = html
-			props.onChange?.(html)
-		}, 150)
-	}
+      const html = current.getHTML()
+      lastEmitted.current = html
+      props.onChange?.(html)
+    }, 150)
+  }
 
-	const handle = (e: any): RichTextEditorHandle => ({
-		getHTML: () => e.getHTML(),
-		setHTML: (html: string) => {
-			applyingValue.current = true
-			try {
-				e.setHTML(html)
-				lastEmitted.current = html
-			} finally {
-				applyingValue.current = false
-			}
-		},
-		apply: (format: RichTextFormat) => {
-			if (format === 'link') {
-				throw new RangeError('Use linkTo(url, anchor) to apply a link')
-			}
+  const handle = (e: any): RichTextEditorHandle => ({
+    getHTML: () => e.getHTML(),
+    setHTML: (html: string) => {
+      applyingValue.current = true
+      try {
+        e.setHTML(html)
+        lastEmitted.current = html
+      } finally {
+        applyingValue.current = false
+      }
+    },
+    apply: (format: RichTextFormat) => {
+      if (format === 'link') {
+        throw new RangeError('Use linkTo(url, anchor) to apply a link')
+      }
 
-			if (UNSUPPORTED.has(format) || !e.applyFormat(format)) {
-				throw new RangeError(
-					`[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
-				)
-			}
+      if (UNSUPPORTED.has(format) || !e.applyFormat(format)) {
+        throw new RangeError(
+          `[richtext] apply('${format}') is not supported by the iOS Aztec surface`,
+        )
+      }
 
-			emitChange()
-		},
-		linkTo: (url: string, anchor?: string) => {
-			e.linkTo(url, anchor ?? null)
-			emitChange()
-		},
-		removeLink: () => {
-			e.removeLink()
-			emitChange()
-		},
-		isActive: (format: RichTextFormat) =>
-			!UNSUPPORTED.has(format) && Boolean(e.isFormatActive(format)),
-		undo: () => e.undo(),
-		redo: () => e.redo(),
-		split: () => {
-			const ok = Boolean(e.split())
-			if (ok) {
-				emitChange()
-			}
+      emitChange()
+    },
+    linkTo: (url: string, anchor?: string) => {
+      e.linkTo(url, anchor ?? null)
+      emitChange()
+    },
+    removeLink: () => {
+      e.removeLink()
+      emitChange()
+    },
+    isActive: (format: RichTextFormat) =>
+      !UNSUPPORTED.has(format) && Boolean(e.isFormatActive(format)),
+    undo: () => e.undo(),
+    redo: () => e.redo(),
+    split: () => {
+      const ok = Boolean(e.split())
+      if (ok) {
+        emitChange()
+      }
 
-			return ok
-		},
-		join: () => {
-			const ok = Boolean(e.join())
-			if (ok) {
-				emitChange()
-			}
+      return ok
+    },
+    join: () => {
+      const ok = Boolean(e.join())
+      if (ok) {
+        emitChange()
+      }
 
-			return ok
-		},
-		indent: () => {
-			const ok = Boolean(e.indent())
-			if (ok) {
-				emitChange()
-			}
+      return ok
+    },
+    indent: () => {
+      const ok = Boolean(e.indent())
+      if (ok) {
+        emitChange()
+      }
 
-			return ok
-		},
-		outdent: () => {
-			const ok = Boolean(e.outdent())
-			if (ok) {
-				emitChange()
-			}
+      return ok
+    },
+    outdent: () => {
+      const ok = Boolean(e.outdent())
+      if (ok) {
+        emitChange()
+      }
 
-			return ok
-		},
-		canIndent: () => Boolean(e.canIndent()),
-		canOutdent: () => Boolean(e.canOutdent()),
-		focus: () => e.focus(),
-		blur: () => e.blur(),
-		isFocused: () => e.focused(),
-		native: e,
-	})
+      return ok
+    },
+    canIndent: () => Boolean(e.canIndent()),
+    canOutdent: () => Boolean(e.canOutdent()),
+    focus: () => e.focus(),
+    blur: () => e.blur(),
+    isFocused: () => e.focused(),
+    native: e,
+  })
 
-	useEffect(() => {
-		const e = editor()
-		if (!e) {
-			return
-		}
+  useEffect(() => {
+    const e = editor()
+    if (!e) {
+      return
+    }
 
-		e.onTextChange = () => emitChange()
-		e.onSelectionChange = (start: number, end: number, active: any) => {
-			const formats: RichTextFormat[] = []
-			const count = active?.count ?? 0
-			for (let i = 0; i < count; i++) {
-				formats.push(active.objectAtIndex(i))
-			}
+    e.onTextChange = () => emitChange()
+    e.onSelectionChange = (start: number, end: number, active: any) => {
+      const formats: RichTextFormat[] = []
+      const count = active?.count ?? 0
+      for (let i = 0; i < count; i++) {
+        formats.push(active.objectAtIndex(i))
+      }
 
-			props.onSelectionChange?.({ start, end, active: formats })
-		}
+      props.onSelectionChange?.({ start, end, active: formats })
+    }
 
-		e.onFocus = () => props.onFocus?.()
-		e.onBlur = () => props.onBlur?.()
+    e.onFocus = () => props.onFocus?.()
+    e.onBlur = () => props.onBlur?.()
 
-		if (props.placeholder !== undefined) {
-			e.placeholder = props.placeholder
-		}
+    if (props.placeholder !== undefined) {
+      e.placeholder = props.placeholder
+    }
 
-		e.editable = props.editable !== false
+    e.editable = props.editable !== false
 
-		if (props.value !== undefined) {
-			applyingValue.current = true
-			try {
-				e.setHTML(props.value)
-			} finally {
-				applyingValue.current = false
-			}
-		}
+    if (props.value !== undefined) {
+      applyingValue.current = true
+      try {
+        e.setHTML(props.value)
+      } finally {
+        applyingValue.current = false
+      }
+    }
 
-		if (props.autofocus) {
-			e.focus()
-		}
+    if (props.autofocus) {
+      e.focus()
+    }
 
-		if (props.ios) {
-			Object.assign(e, props.ios)
-		}
+    if (props.ios) {
+      Object.assign(e, props.ios)
+    }
 
-		props.onReady?.()
+    props.onReady?.()
 
-		return () => {
-			clearTimeout(emitTimer.current)
-			e.onTextChange = null
-			e.onSelectionChange = null
-			e.onFocus = null
-			e.onBlur = null
-		}
-	}, [])
+    return () => {
+      clearTimeout(emitTimer.current)
+      e.onTextChange = null
+      e.onSelectionChange = null
+      e.onFocus = null
+      e.onBlur = null
+    }
+  }, [])
 
-	// `value` lands like a controlled prop, minus the loop: text the editor
-	// emitted through onChange is never pushed back; any other change is an
-	// external reset (Aztec-iOS setHTML is non-undoable, matching Android).
-	useEffect(() => {
-		const e = editor()
-		if (!e || props.value === undefined) {
-			return
-		}
+  // `value` lands like a controlled prop, minus the loop: text the editor
+  // emitted through onChange is never pushed back; any other change is an
+  // external reset (Aztec-iOS setHTML is non-undoable, matching Android).
+  useEffect(() => {
+    const e = editor()
+    if (!e || props.value === undefined) {
+      return
+    }
 
-		if (props.value === lastEmitted.current) {
-			return
-		}
+    if (props.value === lastEmitted.current) {
+      return
+    }
 
-		applyingValue.current = true
-		try {
-			e.setHTML(props.value)
-		} finally {
-			applyingValue.current = false
-		}
-	}, [props.value])
+    applyingValue.current = true
+    try {
+      e.setHTML(props.value)
+    } finally {
+      applyingValue.current = false
+    }
+  }, [props.value])
 
-	useEffect(() => {
-		const e = editor()
-		if (e) {
-			e.editable = props.editable !== false
-		}
-	}, [props.editable])
+  useEffect(() => {
+    const e = editor()
+    if (e) {
+      e.editable = props.editable !== false
+    }
+  }, [props.editable])
 
-	useEffect(() => {
-		const e = editor()
-		if (e && props.placeholder !== undefined) {
-			e.placeholder = props.placeholder
-		}
-	}, [props.placeholder])
+  useEffect(() => {
+    const e = editor()
+    if (e && props.placeholder !== undefined) {
+      e.placeholder = props.placeholder
+    }
+  }, [props.placeholder])
 
-	<xplatrichtext
-		ref={bindHost}
-		id={props.id}
-		className={props.className}
-		{...layoutChildProps(props)}
-	/>
+  <xplatrichtext
+    ref={bindHost}
+    id={props.id}
+    className={props.className}
+    {...layoutChildProps(props)}
+  />
 }

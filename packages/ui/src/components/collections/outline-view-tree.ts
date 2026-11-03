@@ -7,95 +7,95 @@ import type { OutlineItem } from '../../props'
 import { slugify, uniqueSlug } from './outline-utils'
 
 export function* outlineChildViews(view: any): Generator<any> {
-	if (!view) {
-		return
-	}
+  if (!view) {
+    return
+  }
 
-	if (typeof view.eachChildView === 'function') {
-		const kids: any[] = []
-		view.eachChildView((c: any) => {
-			kids.push(c)
-			return true
-		})
+  if (typeof view.eachChildView === 'function') {
+    const kids: any[] = []
+    view.eachChildView((c: any) => {
+      kids.push(c)
+      return true
+    })
 
-		yield* kids
-		return
-	}
+    yield* kids
+    return
+  }
 
-	if (view.content) {
-		yield view.content
-	}
+  if (view.content) {
+    yield view.content
+  }
 
-	const kids = view.children ?? view.subviews
-	if (Array.isArray(kids)) {
-		yield* kids
-	}
+  const kids = view.children ?? view.subviews
+  if (Array.isArray(kids)) {
+    yield* kids
+  }
 }
 
 function textOf(view: any): string {
-	if (typeof view.text === 'string') {
-		return view.text
-	}
+  if (typeof view.text === 'string') {
+    return view.text
+  }
 
-	let out = ''
-	for (const child of outlineChildViews(view)) {
-		out += textOf(child)
-	}
+  let out = ''
+  for (const child of outlineChildViews(view)) {
+    out += textOf(child)
+  }
 
-	return out
+  return out
 }
 
 function levelOf(view: any): number {
-	const cls = String(view.className ?? '')
-	const m = cls.match(/vx-h(\d)/)
-	return m ? Number(m[1]) : 2
+  const cls = String(view.className ?? '')
+  const m = cls.match(/vx-h(\d)/)
+  return m ? Number(m[1]) : 2
 }
 
 /** Depth-first heading collection — matches document order. */
 export function outlineItemsFromViewTree(root: any): OutlineItem[] {
-	const counts = new Map<string, number>()
-	const items: OutlineItem[] = []
-	const walk = (view: any) => {
-		if (!view) {
-			return
-		}
+  const counts = new Map<string, number>()
+  const items: OutlineItem[] = []
+  const walk = (view: any) => {
+    if (!view) {
+      return
+    }
 
-		if (view.accessibilityRole === 'header') {
-			const label = textOf(view).trim()
-			if (label) {
-				const id = view.id || uniqueSlug(slugify(label), counts)
-				items.push({ id, label, level: levelOf(view) })
-			}
+    if (view.accessibilityRole === 'header') {
+      const label = textOf(view).trim()
+      if (label) {
+        const id = view.id || uniqueSlug(slugify(label), counts)
+        items.push({ id, label, level: levelOf(view) })
+      }
 
-			return
-		}
+      return
+    }
 
-		for (const child of outlineChildViews(view)) {
-			walk(child)
-		}
-	}
+    for (const child of outlineChildViews(view)) {
+      walk(child)
+    }
+  }
 
-	walk(root)
-	return items
+  walk(root)
+  return items
 }
 
 /** Locate a view by `id` inside a subtree — used by Outline's native
  *  activation to find the heading it should scroll to. */
 export function findViewById(root: any, id: string): any {
-	if (!root) {
-		return null
-	}
+  if (!root) {
+    return null
+  }
 
-	if (root.id === id) {
-		return root
-	}
+  if (root.id === id) {
+    return root
+  }
 
-	for (const child of outlineChildViews(root)) {
-		const hit = findViewById(child, id)
-		if (hit) {
-			return hit
-		}
-	}
+  for (const child of outlineChildViews(root)) {
+    const hit = findViewById(child, id)
+    if (hit) {
+      return hit
+    }
+  }
 
-	return null
+  return null
 }

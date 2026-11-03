@@ -7,13 +7,13 @@ import type { Context } from 'octane'
 /** Context published by `LayerProvider` — `null` means no provider, in
  *  which case toasts lazily self-mount a default viewport. */
 export const LayerContext: Context<LayerContextValue | null> =
-	createContext<LayerContextValue | null>(null)
+  createContext<LayerContextValue | null>(null)
 
 export const LayerProviderContext: any = LayerContext
 
 /** Read the nearest `LayerProvider` value, or `null` outside one. */
 export function useLayerContext(): LayerContextValue | null {
-	return useContext(LayerContext)
+  return useContext(LayerContext)
 }
 
 const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
@@ -24,22 +24,22 @@ const DEFAULT_TOAST_CONFIG: LayerToastConfig = {}
  *  (the outermost wins). One shared leaf: `ToastViewport` already carries
  *  the per-platform stack behavior. */
 export function LayerProvider(props: LayerProviderProps): unknown @{
-	const existing = useLayerContext()
-	const toast = props.toast ?? DEFAULT_TOAST_CONFIG
-	const value = useMemo<LayerContextValue>(
-		() => ({ toastConfig: toast, isProvider: true }),
-		[toast],
-	)
+  const existing = useLayerContext()
+  const toast = props.toast ?? DEFAULT_TOAST_CONFIG
+  const value = useMemo<LayerContextValue>(
+    () => ({ toastConfig: toast, isProvider: true }),
+    [toast],
+  )
 
-	if (existing) {
-		return <>{props.children}</>
-	}
+  if (existing) {
+    return <>{props.children}</>
+  }
 
-	return (
-		<LayerProviderContext value={value}>
-			<ToastViewport position={toast.position} maxVisible={toast.maxVisible} inset={toast.inset}>
-				{props.children}
-			</ToastViewport>
-		</LayerProviderContext>
-	)
+  return (
+    <LayerProviderContext value={value}>
+      <ToastViewport position={toast.position} maxVisible={toast.maxVisible} inset={toast.inset}>
+        {props.children}
+      </ToastViewport>
+    </LayerProviderContext>
+  )
 }

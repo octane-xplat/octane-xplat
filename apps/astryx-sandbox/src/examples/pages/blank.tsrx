@@ -2,11 +2,11 @@
 import { Layout, LayoutContent, Text } from '@octane-xplat/ui'
 
 export function BlankTemplate() @{
-	<Layout
-		content={
-			<LayoutContent>
-				<Text type="large">New Page</Text>
-			</LayoutContent>
-		}
-	/>
+  <Layout
+    content={
+      <LayoutContent>
+        <Text type="large">New Page</Text>
+      </LayoutContent>
+    }
+  />
 }

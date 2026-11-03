@@ -14,41 +14,41 @@ import { useColorState } from '../../theme/color-state.tsrx'
  *  hue survives achromatic edits. React Aria's children-composition picker
  *  is deferred. */
 export function ColorPicker(props: ColorPickerProps): unknown @{
-	const color = useColorState(props, '#ff0000')
+  const color = useColorState(props, '#ff0000')
 
-	<masonview
-		id={props.id}
-		testID={props.testID}
-		className={cx('vx-color-picker', props.className)}
-		style={mergeStyle({ display: 'flex' }, styleRecord(props.style))}
-	>
-		<ColorAreaView
-			hsb={color.hsb}
-			onHsb={color.set}
-			onHsbEnd={color.end}
-			isDisabled={props.isDisabled}
-			testID={props.testID ? `${props.testID}.area` : undefined}
-		/>
-		<ColorSliderView
-			hsb={color.hsb}
-			onHsb={color.set}
-			onHsbEnd={color.end}
-			isDisabled={props.isDisabled}
-			testID={props.testID ? `${props.testID}.hue` : undefined}
-		/>
-		<masonview className="vx-color-picker-row" style={mergeStyle({ display: 'flex' })}>
-			<ColorSwatch color={color.hex} testID={props.testID ? `${props.testID}.swatch` : undefined} />
-			<ColorField
-				value={color.hex}
-				isDisabled={props.isDisabled}
-				testID={props.testID ? `${props.testID}.field` : undefined}
-				onChange={(hex) => {
-					if (normalizeHex(hex)) {
-						color.setHex(hex)
-					}
-				}}
-				onChangeEnd={color.end}
-			/>
-		</masonview>
-	</masonview>
+  <masonview
+    id={props.id}
+    testID={props.testID}
+    className={cx('vx-color-picker', props.className)}
+    style={mergeStyle({ display: 'flex' }, styleRecord(props.style))}
+  >
+    <ColorAreaView
+      hsb={color.hsb}
+      onHsb={color.set}
+      onHsbEnd={color.end}
+      isDisabled={props.isDisabled}
+      testID={props.testID ? `${props.testID}.area` : undefined}
+    />
+    <ColorSliderView
+      hsb={color.hsb}
+      onHsb={color.set}
+      onHsbEnd={color.end}
+      isDisabled={props.isDisabled}
+      testID={props.testID ? `${props.testID}.hue` : undefined}
+    />
+    <masonview className="vx-color-picker-row" style={mergeStyle({ display: 'flex' })}>
+      <ColorSwatch color={color.hex} testID={props.testID ? `${props.testID}.swatch` : undefined} />
+      <ColorField
+        value={color.hex}
+        isDisabled={props.isDisabled}
+        testID={props.testID ? `${props.testID}.field` : undefined}
+        onChange={(hex) => {
+          if (normalizeHex(hex)) {
+            color.setHex(hex)
+          }
+        }}
+        onChangeEnd={color.end}
+      />
+    </masonview>
+  </masonview>
 }

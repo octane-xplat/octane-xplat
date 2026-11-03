@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
-	cpSync,
-	mkdtempSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-	symlinkSync,
-	writeFileSync,
+  cpSync,
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -28,61 +28,61 @@ mkdirSync(consumerRoot, { recursive: true })
 mkdirSync(packOutput, { recursive: true })
 
 function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
-	if (result.stdout) {
-		process.stdout.write(result.stdout)
-	}
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
 
-	if (result.stderr) {
-		process.stderr.write(result.stderr)
-	}
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
 
-	if (result.status !== 0) {
-		throw new Error(`${command} exited with ${result.status}`)
-	}
+  if (result.status !== 0) {
+    throw new Error(`${command} exited with ${result.status}`)
+  }
 }
 
 try {
-	// These probes deliberately mutate sources and generated declarations. Keep
-	// them separate from Turbo's fixture typegen/pack tasks and other test runs.
-	cpSync(fixtureRoot, packageRoot, {
-		recursive: true,
-		filter: (source) => !['node_modules', '.turbo', 'generated'].includes(basename(source)),
-	})
+  // These probes deliberately mutate sources and generated declarations. Keep
+  // them separate from Turbo's fixture typegen/pack tasks and other test runs.
+  cpSync(fixtureRoot, packageRoot, {
+    recursive: true,
+    filter: (source) => !['node_modules', '.turbo', 'generated'].includes(basename(source)),
+  })
 
-	for (const file of ['tsconfig.base.json', 'package.json']) {
-		cpSync(join(root, file), join(workspaceRoot, file))
-	}
+  for (const file of ['tsconfig.base.json', 'package.json']) {
+    cpSync(join(root, file), join(workspaceRoot, file))
+  }
 
-	symlinkSync(
-		join(root, 'packages/tsrx-typegen'),
-		join(workspaceRoot, 'packages/tsrx-typegen'),
-		'dir',
-	)
+  symlinkSync(
+    join(root, 'packages/tsrx-typegen'),
+    join(workspaceRoot, 'packages/tsrx-typegen'),
+    'dir',
+  )
 
-	symlinkSync(join(root, 'packages/jsx'), join(workspaceRoot, 'packages/jsx'), 'dir')
+  symlinkSync(join(root, 'packages/jsx'), join(workspaceRoot, 'packages/jsx'), 'dir')
 
-	symlinkSync(join(root, 'node_modules'), join(workspaceRoot, 'node_modules'), 'dir')
-	symlinkSync(join(fixtureRoot, 'node_modules'), join(packageRoot, 'node_modules'), 'dir')
+  symlinkSync(join(root, 'node_modules'), join(workspaceRoot, 'node_modules'), 'dir')
+  symlinkSync(join(fixtureRoot, 'node_modules'), join(packageRoot, 'node_modules'), 'dir')
 
-	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
-	const tarball = readdirSync(packOutput).find((name) => name.endsWith('.tgz'))
-	assert.ok(tarball, 'bun pm pack produced a tarball')
-	run('tar', ['-xzf', join(packOutput, tarball), '-C', packageOutput], temporary)
-	const extracted = join(packageOutput, 'package')
-	const packedManifest = JSON.parse(readFileSync(join(extracted, 'package.json'), 'utf8'))
-	const typeEntry = packedManifest.exports['.'].types
-	assert.ok(readFileSync(join(extracted, typeEntry), 'utf8'), 'the public type entry is packed')
+  run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+  const tarball = readdirSync(packOutput).find((name) => name.endsWith('.tgz'))
+  assert.ok(tarball, 'bun pm pack produced a tarball')
+  run('tar', ['-xzf', join(packOutput, tarball), '-C', packageOutput], temporary)
+  const extracted = join(packageOutput, 'package')
+  const packedManifest = JSON.parse(readFileSync(join(extracted, 'package.json'), 'utf8'))
+  const typeEntry = packedManifest.exports['.'].types
+  assert.ok(readFileSync(join(extracted, typeEntry), 'utf8'), 'the public type entry is packed')
 
-	const modules = join(consumerRoot, 'node_modules')
-	mkdirSync(modules, { recursive: true })
-	const packageLink = join(modules, packedManifest.name)
-	mkdirSync(dirname(packageLink), { recursive: true })
-	cpSync(extracted, packageLink, { recursive: true })
-	symlinkSync(join(packageRoot, 'node_modules/octane'), join(modules, 'octane'), 'dir')
-	writeFileSync(
-		join(consumerRoot, 'consumer.ts'),
-		`
+  const modules = join(consumerRoot, 'node_modules')
+  mkdirSync(modules, { recursive: true })
+  const packageLink = join(modules, packedManifest.name)
+  mkdirSync(dirname(packageLink), { recursive: true })
+  cpSync(extracted, packageLink, { recursive: true })
+  symlinkSync(join(packageRoot, 'node_modules/octane'), join(modules, 'octane'), 'dir')
+  writeFileSync(
+    join(consumerRoot, 'consumer.ts'),
+    `
 import { Badge, Box, Card, createBadge, decode, type BoxProps } from '${packedManifest.name}'
 import { format } from '${packedManifest.name}/format'
 const props: BoxProps<number> = { value: 42 }
@@ -107,357 +107,357 @@ decode(false)
 const value: string = format(props.value)
 void value
 `,
-	)
+  )
 
-	for (const mode of [
-		{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
-		{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
-	]) {
-		const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
-		writeFileSync(
-			configPath,
-			JSON.stringify(
-				{
-					compilerOptions: {
-						strict: true,
-						noEmit: true,
-						module: mode.module,
-						moduleResolution: mode.moduleResolution,
-						target: 'esnext',
-						skipLibCheck: false,
-					},
-					files: ['consumer.ts'],
-				},
-				null,
-				2,
-			),
-		)
+  for (const mode of [
+    { name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
+    { name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
+  ]) {
+    const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+    writeFileSync(
+      configPath,
+      JSON.stringify(
+        {
+          compilerOptions: {
+            strict: true,
+            noEmit: true,
+            module: mode.module,
+            moduleResolution: mode.moduleResolution,
+            target: 'esnext',
+            skipLibCheck: false,
+          },
+          files: ['consumer.ts'],
+        },
+        null,
+        2,
+      ),
+    )
 
-		run(
-			process.execPath,
-			[join(root, 'node_modules/typescript/bin/tsc'), '--project', configPath],
-			consumerRoot,
-		)
-	}
+    run(
+      process.execPath,
+      [join(root, 'node_modules/typescript/bin/tsc'), '--project', configPath],
+      consumerRoot,
+    )
+  }
 
-	const generatedEntry = join(packageRoot, 'types/generated/index.d.ts')
-	const generatedOriginal = readFileSync(generatedEntry, 'utf8')
-	const stale = `${generatedOriginal}\n// stale output probe\n`
-	try {
-		writeFileSync(generatedEntry, stale)
-		const check = spawnSync(
-			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.ts'),
-				'--project',
-				'tsconfig.types.json',
-				'--check',
-			],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+  const generatedEntry = join(packageRoot, 'types/generated/index.d.ts')
+  const generatedOriginal = readFileSync(generatedEntry, 'utf8')
+  const stale = `${generatedOriginal}\n// stale output probe\n`
+  try {
+    writeFileSync(generatedEntry, stale)
+    const check = spawnSync(
+      process.execPath,
+      [
+        join(root, 'packages/tsrx-typegen/src/cli.ts'),
+        '--project',
+        'tsconfig.types.json',
+        '--check',
+      ],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		assert.notEqual(check.status, 0, 'check mode rejects stale declarations')
-		assert.match(check.stderr, /index\.d\.ts is stale/)
-		assert.equal(readFileSync(generatedEntry, 'utf8'), stale, 'check mode does not rewrite output')
-	} finally {
-		writeFileSync(generatedEntry, generatedOriginal)
-	}
+    assert.notEqual(check.status, 0, 'check mode rejects stale declarations')
+    assert.match(check.stderr, /index\.d\.ts is stale/)
+    assert.equal(readFileSync(generatedEntry, 'utf8'), stale, 'check mode does not rewrite output')
+  } finally {
+    writeFileSync(generatedEntry, generatedOriginal)
+  }
 
-	// A parameter with an initializer before a required parameter widens to
-	// `| undefined` in tsc emit; the isolated emitter must flag it like TS9025.
-	const defaultedSource = join(packageRoot, 'src/defaulted.ts')
-	writeFileSync(
-		defaultedSource,
-		`export function defaulted(size: number = 0, label: string): string {
+  // A parameter with an initializer before a required parameter widens to
+  // `| undefined` in tsc emit; the isolated emitter must flag it like TS9025.
+  const defaultedSource = join(packageRoot, 'src/defaulted.ts')
+  writeFileSync(
+    defaultedSource,
+    `export function defaulted(size: number = 0, label: string): string {
 	return \`\${size}:\${label}\`
 }
 `,
-	)
+  )
 
-	try {
-		const defaulted = spawnSync(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+  try {
+    const defaulted = spawnSync(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		assert.notEqual(
-			defaulted.status,
-			0,
-			'defaulted parameter before a required parameter fails emit',
-		)
+    assert.notEqual(
+      defaulted.status,
+      0,
+      'defaulted parameter before a required parameter fails emit',
+    )
 
-		assert.match(defaulted.stderr, /defaulted\.ts\(\d+,\d+\): error TS9025/)
-	} finally {
-		rmSync(defaultedSource)
-	}
+    assert.match(defaulted.stderr, /defaulted\.ts\(\d+,\d+\): error TS9025/)
+  } finally {
+    rmSync(defaultedSource)
+  }
 
-	run('bun', ['typegen:check'], packageRoot)
-	run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
+  run('bun', ['typegen:check'], packageRoot)
+  run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], packageRoot)
 
-	const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
-	const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
-	const declarationIndex = join(packageRoot, 'src/declaration-input-index/index.d.ts')
-	try {
-		mkdirSync(dirname(declarationIndex), { recursive: true })
-		writeFileSync(declarationIndex, 'export interface PublicInput { value: string }\n')
-		writeFileSync(
-			includedDeclaration,
-			`export interface Included { value: string }
+  const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
+  const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
+  const declarationIndex = join(packageRoot, 'src/declaration-input-index/index.d.ts')
+  try {
+    mkdirSync(dirname(declarationIndex), { recursive: true })
+    writeFileSync(declarationIndex, 'export interface PublicInput { value: string }\n')
+    writeFileSync(
+      includedDeclaration,
+      `export interface Included { value: string }
 export type PublicSurface = typeof import('./declaration-input-index/index')
 `,
-		)
+    )
 
-		writeFileSync(
-			declarationReader,
-			`import type { Included } from './IncludedDeclaration'
+    writeFileSync(
+      declarationReader,
+      `import type { Included } from './IncludedDeclaration'
 export function readIncluded(value: Included): Included { return value }
 `,
-		)
+    )
 
-		run('bun', ['typegen'], packageRoot)
-		assert.equal(
-			readFileSync(join(packageRoot, 'types/generated/IncludedDeclaration.d.ts'), 'utf8'),
-			readFileSync(includedDeclaration, 'utf8').replace(
-				"'./declaration-input-index/index'",
-				"'./declaration-input-index/index.js'",
-			),
-		)
+    run('bun', ['typegen'], packageRoot)
+    assert.equal(
+      readFileSync(join(packageRoot, 'types/generated/IncludedDeclaration.d.ts'), 'utf8'),
+      readFileSync(includedDeclaration, 'utf8').replace(
+        "'./declaration-input-index/index'",
+        "'./declaration-input-index/index.js'",
+      ),
+    )
 
-		assert.match(
-			readFileSync(join(packageRoot, 'types/generated/DeclarationReader.d.ts'), 'utf8'),
-			/['"]\.\/IncludedDeclaration\.js['"]/,
-		)
+    assert.match(
+      readFileSync(join(packageRoot, 'types/generated/DeclarationReader.d.ts'), 'utf8'),
+      /['"]\.\/IncludedDeclaration\.js['"]/,
+    )
 
-		run('bun', ['run', 'tsrx-typegen', '--pack-check'], packageRoot)
-		writeFileSync(
-			includedDeclaration,
-			'export interface Included { value: string; extra?: number }\n',
-		)
+    run('bun', ['run', 'tsrx-typegen', '--pack-check'], packageRoot)
+    writeFileSync(
+      includedDeclaration,
+      'export interface Included { value: string; extra?: number }\n',
+    )
 
-		const staleInput = spawnSync(
-			process.execPath,
-			[
-				join(root, 'packages/tsrx-typegen/src/cli.ts'),
-				'--project',
-				'tsconfig.types.json',
-				'--check',
-			],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+    const staleInput = spawnSync(
+      process.execPath,
+      [
+        join(root, 'packages/tsrx-typegen/src/cli.ts'),
+        '--project',
+        'tsconfig.types.json',
+        '--check',
+      ],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		assert.notEqual(staleInput.status, 0, 'check mode detects changed declaration inputs')
-		assert.match(staleInput.stderr, /IncludedDeclaration\.d\.ts is stale/)
-	} finally {
-		rmSync(includedDeclaration, { force: true })
-		rmSync(declarationReader, { force: true })
-		rmSync(dirname(declarationIndex), { recursive: true, force: true })
-	}
+    assert.notEqual(staleInput.status, 0, 'check mode detects changed declaration inputs')
+    assert.match(staleInput.stderr, /IncludedDeclaration\.d\.ts is stale/)
+  } finally {
+    rmSync(includedDeclaration, { force: true })
+    rmSync(declarationReader, { force: true })
+    rmSync(dirname(declarationIndex), { recursive: true, force: true })
+  }
 
-	run('bun', ['typegen'], packageRoot)
+  run('bun', ['typegen'], packageRoot)
 
-	const collisionName = `collision-${process.pid}`
-	const collidingSources = [
-		join(packageRoot, `src/${collisionName}.ts`),
-		join(packageRoot, `src/${collisionName}.tsrx`),
-	]
+  const collisionName = `collision-${process.pid}`
+  const collidingSources = [
+    join(packageRoot, `src/${collisionName}.ts`),
+    join(packageRoot, `src/${collisionName}.tsrx`),
+  ]
 
-	try {
-		for (const source of collidingSources) {
-			writeFileSync(source, 'export {}\n')
-		}
+  try {
+    for (const source of collidingSources) {
+      writeFileSync(source, 'export {}\n')
+    }
 
-		const collision = spawnSync(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+    const collision = spawnSync(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		assert.notEqual(collision.status, 0, 'same-name source files cannot overwrite declarations')
-		assert.match(collision.stderr, /source output collision/)
-	} finally {
-		for (const source of collidingSources) {
-			rmSync(source, { force: true })
-		}
-	}
+    assert.notEqual(collision.status, 0, 'same-name source files cannot overwrite declarations')
+    assert.match(collision.stderr, /source output collision/)
+  } finally {
+    for (const source of collidingSources) {
+      rmSync(source, { force: true })
+    }
+  }
 
-	const outputDir = join(packageRoot, 'types/generated')
-	const outputManifest = join(outputDir, '.tsrx-typegen-manifest.json')
-	const originalOutputManifest = readFileSync(outputManifest, 'utf8')
-	const lowerName = `caseonly-${process.pid}`
-	const upperName = `CaseOnly-${process.pid}`
-	const lowerSource = join(packageRoot, `src/${lowerName}.tsrx`)
-	const upperSource = join(packageRoot, `src/${upperName}.tsrx`)
-	try {
-		writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
-		run(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			packageRoot,
-		)
+  const outputDir = join(packageRoot, 'types/generated')
+  const outputManifest = join(outputDir, '.tsrx-typegen-manifest.json')
+  const originalOutputManifest = readFileSync(outputManifest, 'utf8')
+  const lowerName = `caseonly-${process.pid}`
+  const upperName = `CaseOnly-${process.pid}`
+  const lowerSource = join(packageRoot, `src/${lowerName}.tsrx`)
+  const upperSource = join(packageRoot, `src/${upperName}.tsrx`)
+  try {
+    writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
+    run(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      packageRoot,
+    )
 
-		const lowerOutput = `${lowerName}.d.ts`
-		assert.ok(JSON.parse(readFileSync(outputManifest, 'utf8')).files.includes(lowerOutput))
-		rmSync(lowerSource)
-		writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
-		run(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			packageRoot,
-		)
+    const lowerOutput = `${lowerName}.d.ts`
+    assert.ok(JSON.parse(readFileSync(outputManifest, 'utf8')).files.includes(lowerOutput))
+    rmSync(lowerSource)
+    writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
+    run(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      packageRoot,
+    )
 
-		const upperOutput = `${upperName}.d.ts`
-		const outputNames = readdirSync(outputDir).filter(
-			(name) => name.toLowerCase() === lowerOutput.toLowerCase(),
-		)
+    const upperOutput = `${upperName}.d.ts`
+    const outputNames = readdirSync(outputDir).filter(
+      (name) => name.toLowerCase() === lowerOutput.toLowerCase(),
+    )
 
-		assert.deepEqual(outputNames, [upperOutput], 'case-only renames replace their owned output')
-		const updatedFiles = JSON.parse(readFileSync(outputManifest, 'utf8')).files
-		assert.ok(updatedFiles.includes(upperOutput))
-		assert.ok(!updatedFiles.includes(lowerOutput))
-	} finally {
-		rmSync(lowerSource, { force: true })
-		rmSync(upperSource, { force: true })
-		for (const name of readdirSync(outputDir)) {
-			if (name.toLowerCase() === `${lowerName}.d.ts`.toLowerCase()) {
-				rmSync(join(outputDir, name), { force: true })
-			}
-		}
+    assert.deepEqual(outputNames, [upperOutput], 'case-only renames replace their owned output')
+    const updatedFiles = JSON.parse(readFileSync(outputManifest, 'utf8')).files
+    assert.ok(updatedFiles.includes(upperOutput))
+    assert.ok(!updatedFiles.includes(lowerOutput))
+  } finally {
+    rmSync(lowerSource, { force: true })
+    rmSync(upperSource, { force: true })
+    for (const name of readdirSync(outputDir)) {
+      if (name.toLowerCase() === `${lowerName}.d.ts`.toLowerCase()) {
+        rmSync(join(outputDir, name), { force: true })
+      }
+    }
 
-		writeFileSync(outputManifest, originalOutputManifest)
-	}
+    writeFileSync(outputManifest, originalOutputManifest)
+  }
 
-	const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
-	const originalConfig = readFileSync(overrideConfigPath, 'utf8')
-	const overrideDeclaration = `${collisionName}.d.ts`
-	const overrideSource = join(packageRoot, `types/overrides/${overrideDeclaration}`)
-	const overrideText = "export interface CollisionContract { kind: 'override' }\n"
-	try {
-		for (const source of collidingSources) {
-			writeFileSync(source, 'export {}\n')
-		}
+  const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
+  const originalConfig = readFileSync(overrideConfigPath, 'utf8')
+  const overrideDeclaration = `${collisionName}.d.ts`
+  const overrideSource = join(packageRoot, `types/overrides/${overrideDeclaration}`)
+  const overrideText = "export interface CollisionContract { kind: 'override' }\n"
+  try {
+    for (const source of collidingSources) {
+      writeFileSync(source, 'export {}\n')
+    }
 
-		mkdirSync(dirname(overrideSource), { recursive: true })
-		writeFileSync(overrideSource, overrideText)
-		const config = JSON.parse(originalConfig)
-		config.overrides = {
-			...config.overrides,
-			[overrideDeclaration]: `types/overrides/${overrideDeclaration}`,
-		}
+    mkdirSync(dirname(overrideSource), { recursive: true })
+    writeFileSync(overrideSource, overrideText)
+    const config = JSON.parse(originalConfig)
+    config.overrides = {
+      ...config.overrides,
+      [overrideDeclaration]: `types/overrides/${overrideDeclaration}`,
+    }
 
-		writeFileSync(overrideConfigPath, JSON.stringify(config, null, 2) + '\n')
-		run(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			packageRoot,
-		)
+    writeFileSync(overrideConfigPath, JSON.stringify(config, null, 2) + '\n')
+    run(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      packageRoot,
+    )
 
-		assert.equal(
-			readFileSync(join(packageRoot, `types/generated/${overrideDeclaration}`), 'utf8'),
-			overrideText,
-		)
+    assert.equal(
+      readFileSync(join(packageRoot, `types/generated/${overrideDeclaration}`), 'utf8'),
+      overrideText,
+    )
 
-		run('bun', ['typegen:check'], packageRoot)
-	} finally {
-		writeFileSync(overrideConfigPath, originalConfig)
-		for (const source of collidingSources) {
-			rmSync(source, { force: true })
-		}
+    run('bun', ['typegen:check'], packageRoot)
+  } finally {
+    writeFileSync(overrideConfigPath, originalConfig)
+    for (const source of collidingSources) {
+      rmSync(source, { force: true })
+    }
 
-		rmSync(overrideSource, { force: true })
-	}
+    rmSync(overrideSource, { force: true })
+  }
 
-	run('bun', ['typegen'], packageRoot)
+  run('bun', ['typegen'], packageRoot)
 
-	const invalidSource = join(packageRoot, 'src/Invalid.tsrx')
-	const generatedBeforeFailure = readFileSync(generatedEntry, 'utf8')
-	try {
-		writeFileSync(invalidSource, 'export function Invalid( {\n')
-		const failedTransform = spawnSync(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+  const invalidSource = join(packageRoot, 'src/Invalid.tsrx')
+  const generatedBeforeFailure = readFileSync(generatedEntry, 'utf8')
+  try {
+    writeFileSync(invalidSource, 'export function Invalid( {\n')
+    const failedTransform = spawnSync(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		assert.notEqual(failedTransform.status, 0, 'transform diagnostics prevent declaration output')
-		assert.match(failedTransform.stderr, /tsrx compiler reported transform diagnostics/)
-		assert.equal(readFileSync(generatedEntry, 'utf8'), generatedBeforeFailure)
-	} finally {
-		rmSync(invalidSource, { force: true })
-	}
+    assert.notEqual(failedTransform.status, 0, 'transform diagnostics prevent declaration output')
+    assert.match(failedTransform.stderr, /tsrx compiler reported transform diagnostics/)
+    assert.equal(readFileSync(generatedEntry, 'utf8'), generatedBeforeFailure)
+  } finally {
+    rmSync(invalidSource, { force: true })
+  }
 
-	run('bun', ['typegen:check'], packageRoot)
+  run('bun', ['typegen:check'], packageRoot)
 
-	const factorySource = join(packageRoot, 'src/Factory.tsrx')
-	const factoryOriginal = readFileSync(factorySource, 'utf8')
-	const factoryConsumer = join(consumerRoot, 'factory-consumer.ts')
-	const factoryConfig = join(consumerRoot, 'tsconfig.factory.json')
-	try {
-		writeFileSync(
-			factorySource,
-			`export function createBadge(defaultLabel: string) {
+  const factorySource = join(packageRoot, 'src/Factory.tsrx')
+  const factoryOriginal = readFileSync(factorySource, 'utf8')
+  const factoryConsumer = join(consumerRoot, 'factory-consumer.ts')
+  const factoryConfig = join(consumerRoot, 'tsconfig.factory.json')
+  try {
+    writeFileSync(
+      factorySource,
+      `export function createBadge(defaultLabel: string) {
 	return function Badge(props: { label?: string }) @{
 		<span>{props.label ?? defaultLabel}</span>
 	}
 }
 `,
-		)
+    )
 
-		const factoryResult = spawnSync(
-			process.execPath,
-			[join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
-			{ cwd: packageRoot, encoding: 'utf8' },
-		)
+    const factoryResult = spawnSync(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
 
-		if (factoryResult.status === 0) {
-			writeFileSync(
-				factoryConsumer,
-				`import { createBadge } from ${JSON.stringify(join(packageRoot, 'types/generated/Factory.js'))}
+    if (factoryResult.status === 0) {
+      writeFileSync(
+        factoryConsumer,
+        `import { createBadge } from ${JSON.stringify(join(packageRoot, 'types/generated/Factory.js'))}
 const Badge = createBadge('fallback')
 Badge({ label: 'explicit' })
 // @ts-expect-error factory component keeps its prop contract
 Badge({ label: 42 })
 `,
-			)
+      )
 
-			writeFileSync(
-				factoryConfig,
-				JSON.stringify(
-					{
-						compilerOptions: {
-							strict: true,
-							noEmit: true,
-							module: 'esnext',
-							moduleResolution: 'bundler',
-							target: 'esnext',
-							skipLibCheck: false,
-						},
-						files: ['factory-consumer.ts'],
-					},
-					null,
-					2,
-				),
-			)
+      writeFileSync(
+        factoryConfig,
+        JSON.stringify(
+          {
+            compilerOptions: {
+              strict: true,
+              noEmit: true,
+              module: 'esnext',
+              moduleResolution: 'bundler',
+              target: 'esnext',
+              skipLibCheck: false,
+            },
+            files: ['factory-consumer.ts'],
+          },
+          null,
+          2,
+        ),
+      )
 
-			run(
-				process.execPath,
-				[join(root, 'node_modules/typescript/bin/tsc'), '--project', factoryConfig],
-				consumerRoot,
-			)
-		} else {
-			assert.match(factoryResult.stderr, /explicit declaration override/)
-		}
-	} finally {
-		writeFileSync(factorySource, factoryOriginal)
-		rmSync(factoryConsumer, { force: true })
-		rmSync(factoryConfig, { force: true })
-	}
+      run(
+        process.execPath,
+        [join(root, 'node_modules/typescript/bin/tsc'), '--project', factoryConfig],
+        consumerRoot,
+      )
+    } else {
+      assert.match(factoryResult.stderr, /explicit declaration override/)
+    }
+  } finally {
+    writeFileSync(factorySource, factoryOriginal)
+    rmSync(factoryConsumer, { force: true })
+    rmSync(factoryConfig, { force: true })
+  }
 
-	run('bun', ['typegen'], packageRoot)
+  run('bun', ['typegen'], packageRoot)
 
-	console.log(
-		'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',
-	)
+  console.log(
+    'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',
+  )
 } finally {
-	rmSync(temporary, { recursive: true, force: true })
+  rmSync(temporary, { recursive: true, force: true })
 }

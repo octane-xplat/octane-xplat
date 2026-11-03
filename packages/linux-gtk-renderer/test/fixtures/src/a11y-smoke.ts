@@ -11,21 +11,21 @@ import type { GtkContainer } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
 
 function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
-	gtkDriver
-		.prepareBatch(
-			container,
-			{ renderer: 'gtk', version: 1, commands },
-			{
-				invokeLocalCallback() {
-					throw new Error('Raw GTK fixture has no local callback owners')
-				},
-			},
-		)
-		.apply()
+  gtkDriver
+    .prepareBatch(
+      container,
+      { renderer: 'gtk', version: 1, commands },
+      {
+        invokeLocalCallback() {
+          throw new Error('Raw GTK fixture has no local callback owners')
+        },
+      },
+    )
+    .apply()
 }
 
 const cmd = (op: string, id: number, extra: Record<string, unknown> = {}) =>
-	({ op, id, ...extra }) as UniversalHostCommand
+  ({ op, id, ...extra }) as UniversalHostCommand
 
 const out: Record<string, unknown> = { ok: false }
 
@@ -37,29 +37,29 @@ win.set_child(host)
 const container = createGtkContainer(host)
 
 apply(container, [
-	// (a) accessibilityLabel mirrors to the GTK widget name.
-	cmd('create', 1, {
-		type: 'button',
-		props: { text: 'Save', accessibilityLabel: 'Save draft' },
-	}),
-	cmd('insert', 1, { parent: null, before: null }),
-	// (b) testID wins the widget name; the accessible label still lands.
-	cmd('create', 2, {
-		type: 'button',
-		props: { text: 'Save', testID: 'save-id', accessibilityLabel: 'Save draft' },
-	}),
-	cmd('insert', 2, { parent: null, before: null }),
-	// (e) the label element gets the same treatment.
-	cmd('create', 3, {
-		type: 'label',
-		props: { text: 'Status', accessibilityLabel: 'Status text' },
-	}),
-	cmd('insert', 3, { parent: null, before: null }),
+  // (a) accessibilityLabel mirrors to the GTK widget name.
+  cmd('create', 1, {
+    type: 'button',
+    props: { text: 'Save', accessibilityLabel: 'Save draft' },
+  }),
+  cmd('insert', 1, { parent: null, before: null }),
+  // (b) testID wins the widget name; the accessible label still lands.
+  cmd('create', 2, {
+    type: 'button',
+    props: { text: 'Save', testID: 'save-id', accessibilityLabel: 'Save draft' },
+  }),
+  cmd('insert', 2, { parent: null, before: null }),
+  // (e) the label element gets the same treatment.
+  cmd('create', 3, {
+    type: 'label',
+    props: { text: 'Status', accessibilityLabel: 'Status text' },
+  }),
+  cmd('insert', 3, { parent: null, before: null }),
 ])
 
 const view = (id: number) => container.nodes.get(id)!.view!
 const hasLabel = (id: number) =>
-	Gtk.test_accessible_has_property(view(id), Gtk.AccessibleProperty.LABEL)
+  Gtk.test_accessible_has_property(view(id), Gtk.AccessibleProperty.LABEL)
 
 // (a) label present, name mirrors accessibilityLabel.
 out.aHasLabel = hasLabel(1)

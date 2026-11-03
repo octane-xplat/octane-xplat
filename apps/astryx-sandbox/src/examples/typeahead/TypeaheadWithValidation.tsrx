@@ -6,22 +6,22 @@ const TECHNOLOGIES = ['React', 'Vue', 'Angular', 'Svelte', 'Next.js', 'Remix', '
 const source = createStaticSource(TECHNOLOGIES.map((t) => ({ id: t, label: t })))
 
 export function TypeaheadWithValidation() @{
-	const [value, setValue] = useState<{ id: string; label: string } | null>(null)
-	const status =
-		value == null
-			? { type: 'error' as const, message: 'Please select a technology from the list' }
-			: undefined
+  const [value, setValue] = useState<{ id: string; label: string } | null>(null)
+  const status =
+    value == null
+      ? { type: 'error' as const, message: 'Please select a technology from the list' }
+      : undefined
 
-	<div style={{ width: 320 }}>
-		<Typeahead
-			label="Framework"
-			isRequired
-			status={status}
-			searchSource={source}
-			value={value}
-			onChange={setValue}
-			placeholder="Start typing…"
-			renderItem={(item) => <TypeaheadItem item={item} />}
-		/>
-	</div>
+  <div style={{ width: 320 }}>
+    <Typeahead
+      label="Framework"
+      isRequired
+      status={status}
+      searchSource={source}
+      value={value}
+      onChange={setValue}
+      placeholder="Start typing…"
+      renderItem={(item) => <TypeaheadItem item={item} />}
+    />
+  </div>
 }

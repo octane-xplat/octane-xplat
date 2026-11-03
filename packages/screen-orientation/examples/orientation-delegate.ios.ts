@@ -1,13 +1,13 @@
 // Keep the native class first for NativeScript Vite's decorator transform.
 @NativeClass()
 class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
-	static ObjCProtocols = [UIApplicationDelegate]
-	applicationSupportedInterfaceOrientationsForWindow(
-		_app: UIApplication,
-		window: UIWindow,
-	): UIInterfaceOrientationMask {
-		return getIOSSupportedInterfaceOrientations(window)
-	}
+  static ObjCProtocols = [UIApplicationDelegate]
+  applicationSupportedInterfaceOrientationsForWindow(
+    _app: UIApplication,
+    window: UIWindow,
+  ): UIInterfaceOrientationMask {
+    return getIOSSupportedInterfaceOrientations(window)
+  }
 }
 
 import { Application } from '@nativescript/core'

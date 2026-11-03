@@ -2,9 +2,9 @@
 import { BreadcrumbItem, Breadcrumbs } from '@octane-xplat/ui'
 
 export function BreadcrumbItemBasic() @{
-	<Breadcrumbs>
-		<BreadcrumbItem href="/">Home</BreadcrumbItem>
-		<BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
-		<BreadcrumbItem isCurrent>Profile</BreadcrumbItem>
-	</Breadcrumbs>
+  <Breadcrumbs>
+    <BreadcrumbItem href="/">Home</BreadcrumbItem>
+    <BreadcrumbItem href="/settings">Settings</BreadcrumbItem>
+    <BreadcrumbItem isCurrent>Profile</BreadcrumbItem>
+  </Breadcrumbs>
 }

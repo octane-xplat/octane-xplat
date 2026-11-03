@@ -6,55 +6,55 @@ import { CHANGELOG_DOC } from './changelog'
 // don't encode the folder layout. The changelog page joins them generated
 // from the repo's root logs.
 const files = import.meta.glob('../../../docs/**/*.md', {
-	query: '?raw',
-	import: 'default',
-	eager: true,
+  query: '?raw',
+  import: 'default',
+  eager: true,
 })
 
 export interface DocPage {
-	slug: string
-	/** List keys on item.id — same value as slug. */
-	id: string
-	title: string
-	md: string
-	/** Corpus-relative directory, such as 'start', 'app', 'platform', or 'testing'. */
-	dir: string
-	/** Sidebar section — the index doc joins 'start'. */
-	section: string
+  slug: string
+  /** List keys on item.id — same value as slug. */
+  id: string
+  title: string
+  md: string
+  /** Corpus-relative directory, such as 'start', 'app', 'platform', or 'testing'. */
+  dir: string
+  /** Sidebar section — the index doc joins 'start'. */
+  section: string
 }
 
 const seen = new Set<string>()
 export const DOCS: DocPage[] = [
-	...Object.entries(files).map(([path, md]) => {
-		const rel = path.split('/docs/')[1].replace(/\.md$/, '')
-		const segs = rel.split('/')
-		const dir = segs.slice(0, -1).join('/')
-		const slug = slugFor(dir, segs[segs.length - 1])
-		if (seen.has(slug)) {
-			throw new Error(`docs: duplicate slug '${slug}' (${path})`)
-		}
+  ...Object.entries(files).map(([path, md]) => {
+    const rel = path.split('/docs/')[1].replace(/\.md$/, '')
+    const segs = rel.split('/')
+    const dir = segs.slice(0, -1).join('/')
+    const slug = slugFor(dir, segs[segs.length - 1])
+    if (seen.has(slug)) {
+      throw new Error(`docs: duplicate slug '${slug}' (${path})`)
+    }
 
-		seen.add(slug)
+    seen.add(slug)
 
-		return {
-			slug,
-			id: slug,
-			title: titleOf(slug, md as string),
-			md: md as string,
-			dir,
-			section: dir || 'start',
-		}
-	}),
-	CHANGELOG_DOC,
+    return {
+      slug,
+      id: slug,
+      title: titleOf(slug, md as string),
+      md: md as string,
+      dir,
+      section: dir || 'start',
+    }
+  }),
+  CHANGELOG_DOC,
 ].sort((a, b) => {
-	const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
-	return d || a.slug.localeCompare(b.slug)
+  const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
+  return d || a.slug.localeCompare(b.slug)
 })
 
 // The introduction uses '/'; all other guides use their flat slug path.
 export function routeForDoc(doc: DocPage | undefined) {
-	return {
-		to: '/:slug?' as const,
-		params: { slug: !doc || doc.slug === 'README' ? undefined : doc.slug },
-	}
+  return {
+    to: '/:slug?' as const,
+    params: { slug: !doc || doc.slug === 'README' ? undefined : doc.slug },
+  }
 }

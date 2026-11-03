@@ -5,23 +5,23 @@ import { useMemo, useState } from 'octane'
 import { CommandPalette, createStaticSource } from '@octane-xplat/ui'
 
 export function CommandPaletteListBasic() @{
-	const [value, setValue] = useState('profile')
-	const source = useMemo(
-		() =>
-			createStaticSource([
-				{ id: 'home', label: 'Go Home' },
-				{ id: 'settings', label: 'Open Settings' },
-				{ id: 'profile', label: 'View Profile' },
-				{ id: 'help', label: 'Help (unavailable)', disabled: true },
-			]),
-		[],
-	)
+  const [value, setValue] = useState('profile')
+  const source = useMemo(
+    () =>
+      createStaticSource([
+        { id: 'home', label: 'Go Home' },
+        { id: 'settings', label: 'Open Settings' },
+        { id: 'profile', label: 'View Profile' },
+        { id: 'help', label: 'Help (unavailable)', disabled: true },
+      ]),
+    [],
+  )
 
-	<CommandPalette
-		open
-		onOpenChange={() => {}}
-		searchSource={source}
-		value={value}
-		onValueChange={setValue}
-	/>
+  <CommandPalette
+    open
+    onOpenChange={() => {}}
+    searchSource={source}
+    value={value}
+    onValueChange={setValue}
+  />
 }

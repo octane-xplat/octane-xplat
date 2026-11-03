@@ -4,11 +4,11 @@ import { createMacOSWebView, type MacOSWebView } from '@octane-xplat/desktop-web
 import { createHostDispatcher, type HostReplyPort } from '@octane-xplat/platform/host'
 
 import type {
-	FrameworkHostEvents,
-	FrameworkHostServices,
-	HostBootstrapState,
-	HostFileRef,
-	HostWindowOpenOptions,
+  FrameworkHostEvents,
+  FrameworkHostServices,
+  HostBootstrapState,
+  HostFileRef,
+  HostWindowOpenOptions,
 } from '@octane-xplat/platform/host/services'
 
 type AppInfo = ReturnType<FrameworkHostServices['app']['getInfo']>
@@ -18,66 +18,66 @@ type PermissionResult = Awaited<ReturnType<FrameworkHostServices['notifications'
 import { createHostedWindow } from './appkit'
 
 export interface AppKitHostServices {
-	appInfo: AppInfo
-	readonly appState: AppState
-	readonly windowSize: WindowSize
-	readClipboard(): string | null
-	writeClipboard(value: string): boolean
-	shareContent(input: {
-		text?: string
-		url?: string
-		title?: string
-		file?: string
-	}): 'shared' | 'unavailable'
-	openUrl(url: string): boolean
-	openPath(path: string): boolean
-	getColorScheme(): 'light' | 'dark'
-	storageGet(key: string): string | null
-	storageSet(key: string, value: string): void
-	storageRemove(key: string): void
-	storageFlush(): boolean
-	consumeInitialUrl(): string | null
-	onAppStateChange(listener: () => void): () => void
-	onWindowResize(listener: (window?: unknown) => void): () => void
-	onDeepLink(listener: (url: string) => void): () => void
-	onAppearanceChange(listener: () => void): () => void
+  appInfo: AppInfo
+  readonly appState: AppState
+  readonly windowSize: WindowSize
+  readClipboard(): string | null
+  writeClipboard(value: string): boolean
+  shareContent(input: {
+    text?: string
+    url?: string
+    title?: string
+    file?: string
+  }): 'shared' | 'unavailable'
+  openUrl(url: string): boolean
+  openPath(path: string): boolean
+  getColorScheme(): 'light' | 'dark'
+  storageGet(key: string): string | null
+  storageSet(key: string, value: string): void
+  storageRemove(key: string): void
+  storageFlush(): boolean
+  consumeInitialUrl(): string | null
+  onAppStateChange(listener: () => void): () => void
+  onWindowResize(listener: (window?: unknown) => void): () => void
+  onDeepLink(listener: (url: string) => void): () => void
+  onAppearanceChange(listener: () => void): () => void
 }
 
 type WebViewWindowController = ReturnType<typeof createHostedWindow>
 
 type Endpoint<Services extends FrameworkHostServices, Events extends FrameworkHostEvents> = {
-	webView: MacOSWebView
-	dispatcher: ReturnType<typeof createHostDispatcher<Services, Events>>
+  webView: MacOSWebView
+  dispatcher: ReturnType<typeof createHostDispatcher<Services, Events>>
 }
 
 export interface DesktopWebViewHost<
-	Services extends FrameworkHostServices = FrameworkHostServices,
-	Events extends FrameworkHostEvents = FrameworkHostEvents,
+  Services extends FrameworkHostServices = FrameworkHostServices,
+  Events extends FrameworkHostEvents = FrameworkHostEvents,
 > {
-	dispatcher: ReturnType<typeof createHostDispatcher<Services, Events>>
-	emit: ReturnType<typeof createHostDispatcher<Services, Events>>['emit']
-	dispose(): void
+  dispatcher: ReturnType<typeof createHostDispatcher<Services, Events>>
+  emit: ReturnType<typeof createHostDispatcher<Services, Events>>['emit']
+  dispose(): void
 }
 
 const windowSizeFor = (
-	size: { width?: number; height?: number } | null | undefined,
+  size: { width?: number; height?: number } | null | undefined,
 ): WindowSize => ({
-	width: Number(size?.width ?? 0),
-	height: Number(size?.height ?? 0),
-	orientation: Number(size?.width ?? 0) >= Number(size?.height ?? 0) ? 'landscape' : 'portrait',
+  width: Number(size?.width ?? 0),
+  height: Number(size?.height ?? 0),
+  orientation: Number(size?.width ?? 0) >= Number(size?.height ?? 0) ? 'landscape' : 'portrait',
 })
 
 const notificationPermission = (webView: MacOSWebView): PermissionResult => {
-	const status = webView.notificationPermission()
-	if (status === 'granted' || status === 'denied') {
-		return status
-	}
+  const status = webView.notificationPermission()
+  if (status === 'granted' || status === 'denied') {
+    return status
+  }
 
-	return webView.requestNotificationPermission() ? 'granted' : 'denied'
+  return webView.requestNotificationPermission() ? 'granted' : 'denied'
 }
 
 const fileRef = (value: { name: string; uri: string } | null): HostFileRef | null =>
-	value && { name: String(value.name), uri: String(value.uri) }
+  value && { name: String(value.name), uri: String(value.uri) }
 
 /**
  * Install the typed framework bridge on one WKWebView. Secondary windows get
@@ -86,321 +86,321 @@ const fileRef = (value: { name: string; uri: string } | null): HostFileRef | nul
 let nextKeepAwakeOwner = 0
 
 export function createDesktopWebViewHost<
-	Services extends FrameworkHostServices,
-	Events extends FrameworkHostEvents,
+  Services extends FrameworkHostServices,
+  Events extends FrameworkHostEvents,
 >(
-	webView: MacOSWebView,
-	appKit: AppKitHostServices,
-	baseUrl: string | null,
-	extraServices: (
-		sender: MacOSWebView,
-		emit: <Event extends keyof Events & string>(name: Event, payload: Events[Event]) => void,
-	) => Omit<Services, keyof FrameworkHostServices>,
-	primaryWindow?: { frame?: { size?: { width?: number; height?: number } } },
+  webView: MacOSWebView,
+  appKit: AppKitHostServices,
+  baseUrl: string | null,
+  extraServices: (
+    sender: MacOSWebView,
+    emit: <Event extends keyof Events & string>(name: Event, payload: Events[Event]) => void,
+  ) => Omit<Services, keyof FrameworkHostServices>,
+  primaryWindow?: { frame?: { size?: { width?: number; height?: number } } },
 ): DesktopWebViewHost<Services, Events> {
-	const endpoints = new Map<MacOSWebView, Endpoint<Services, Events>>()
-	const secondaryWindows = new Map<
-		string,
-		{ controller: WebViewWindowController; webView: MacOSWebView; opener: MacOSWebView }
-	>()
+  const endpoints = new Map<MacOSWebView, Endpoint<Services, Events>>()
+  const secondaryWindows = new Map<
+    string,
+    { controller: WebViewWindowController; webView: MacOSWebView; opener: MacOSWebView }
+  >()
 
-	const pendingInitialUrls = new Map<MacOSWebView, string | null>()
+  const pendingInitialUrls = new Map<MacOSWebView, string | null>()
 
-	const emitAll = <Event extends keyof Events & string>(name: Event, payload: Events[Event]) => {
-		for (const endpoint of endpoints.values()) {
-			endpoint.dispatcher.emit(name, payload)
-		}
-	}
+  const emitAll = <Event extends keyof Events & string>(name: Event, payload: Events[Event]) => {
+    for (const endpoint of endpoints.values()) {
+      endpoint.dispatcher.emit(name, payload)
+    }
+  }
 
-	const isEqual = (value: unknown, other: unknown) =>
-		typeof value === 'object' &&
-		value !== null &&
-		'isEqual' in value &&
-		typeof value.isEqual === 'function' &&
-		Boolean(value.isEqual(other))
-	const sameNativeWindow = (left: unknown, right: unknown) =>
-		left === right || isEqual(left, right) || isEqual(right, left)
+  const isEqual = (value: unknown, other: unknown) =>
+    typeof value === 'object' &&
+    value !== null &&
+    'isEqual' in value &&
+    typeof value.isEqual === 'function' &&
+    Boolean(value.isEqual(other))
+  const sameNativeWindow = (left: unknown, right: unknown) =>
+    left === right || isEqual(left, right) || isEqual(right, left)
 
-	const senderWindowSize = (sender: MacOSWebView) => {
-		const window = sender.owningWindow()
-		// NSWindow's declared shape omits frame — bound the native read once.
-		const size =
-			typeof window === 'object' &&
-			window !== null &&
-			'frame' in window &&
-			typeof window.frame === 'object' &&
-			window.frame !== null &&
-			'size' in window.frame
-				? window.frame.size
-				: undefined
-		return windowSizeFor(size ?? primaryWindow?.frame?.size ?? appKit.windowSize)
-	}
+  const senderWindowSize = (sender: MacOSWebView) => {
+    const window = sender.owningWindow()
+    // NSWindow's declared shape omits frame — bound the native read once.
+    const size =
+      typeof window === 'object' &&
+      window !== null &&
+      'frame' in window &&
+      typeof window.frame === 'object' &&
+      window.frame !== null &&
+      'size' in window.frame
+        ? window.frame.size
+        : undefined
+    return windowSizeFor(size ?? primaryWindow?.frame?.size ?? appKit.windowSize)
+  }
 
-	const hostWindowSize = () => windowSizeFor(primaryWindow?.frame?.size ?? appKit.windowSize)
+  const hostWindowSize = () => windowSizeFor(primaryWindow?.frame?.size ?? appKit.windowSize)
 
-	const bootstrapFor = (sender: MacOSWebView, windowSize: WindowSize): HostBootstrapState => {
-		if (!pendingInitialUrls.has(sender)) {
-			pendingInitialUrls.set(sender, sender === webView ? appKit.consumeInitialUrl() : null)
-		}
+  const bootstrapFor = (sender: MacOSWebView, windowSize: WindowSize): HostBootstrapState => {
+    if (!pendingInitialUrls.has(sender)) {
+      pendingInitialUrls.set(sender, sender === webView ? appKit.consumeInitialUrl() : null)
+    }
 
-		return {
-			appInfo: appKit.appInfo,
-			appState: appKit.appState,
-			windowSize,
-			initialUrl: pendingInitialUrls.get(sender) ?? null,
-			colorScheme: appKit.getColorScheme(),
-		}
-	}
+    return {
+      appInfo: appKit.appInfo,
+      appState: appKit.appState,
+      windowSize,
+      initialUrl: pendingInitialUrls.get(sender) ?? null,
+      colorScheme: appKit.getColorScheme(),
+    }
+  }
 
-	const emitTo = <Event extends keyof Events & string>(
-		sender: MacOSWebView,
-		name: Event,
-		payload: Events[Event],
-	) => {
-		endpoints.get(sender)?.dispatcher.emit(name, payload)
-	}
+  const emitTo = <Event extends keyof Events & string>(
+    sender: MacOSWebView,
+    name: Event,
+    payload: Events[Event],
+  ) => {
+    endpoints.get(sender)?.dispatcher.emit(name, payload)
+  }
 
-	const attach = (target: MacOSWebView, services: Services) => {
-		if (!target.setBootstrap(JSON.stringify(bootstrapFor(target, senderWindowSize(target))))) {
-			throw new Error('failed to install desktop webview bootstrap')
-		}
+  const attach = (target: MacOSWebView, services: Services) => {
+    if (!target.setBootstrap(JSON.stringify(bootstrapFor(target, senderWindowSize(target))))) {
+      throw new Error('failed to install desktop webview bootstrap')
+    }
 
-		const port: HostReplyPort = {
-			reply: (message) => target.deliver(message),
-			emit: (message) => target.deliver(message),
-		}
+    const port: HostReplyPort = {
+      reply: (message) => target.deliver(message),
+      emit: (message) => target.deliver(message),
+    }
 
-		const dispatcher = createHostDispatcher<Services, Events>(services, port)
-		target.installDispatcher((message) => void dispatcher.dispatch(message))
-		endpoints.set(target, { webView: target, dispatcher })
-		return dispatcher
-	}
+    const dispatcher = createHostDispatcher<Services, Events>(services, port)
+    target.installDispatcher((message) => void dispatcher.dispatch(message))
+    endpoints.set(target, { webView: target, dispatcher })
+    return dispatcher
+  }
 
-	const keepAwakeTags = new Map<MacOSWebView, Map<string, string>>()
-	const releaseKeepAwake = (target: MacOSWebView) => {
-		for (const key of keepAwakeTags.get(target)?.values() ?? []) {
-			void keepAwake.deactivate(key)
-		}
+  const keepAwakeTags = new Map<MacOSWebView, Map<string, string>>()
+  const releaseKeepAwake = (target: MacOSWebView) => {
+    for (const key of keepAwakeTags.get(target)?.values() ?? []) {
+      void keepAwake.deactivate(key)
+    }
 
-		keepAwakeTags.delete(target)
-	}
+    keepAwakeTags.delete(target)
+  }
 
-	const keepAwakeFor = (sender: MacOSWebView) => {
-		const owner = ++nextKeepAwakeOwner
-		const tags = new Map<string, string>()
-		keepAwakeTags.set(sender, tags)
-		const service = createTaggedKeepAwake({
-			available: () => keepAwake.isAvailable(),
-			async activate(tag) {
-				const key = `webview:${owner}:${tag}`
-				if (!(await keepAwake.activate(key))) {
-					return false
-				}
+  const keepAwakeFor = (sender: MacOSWebView) => {
+    const owner = ++nextKeepAwakeOwner
+    const tags = new Map<string, string>()
+    keepAwakeTags.set(sender, tags)
+    const service = createTaggedKeepAwake({
+      available: () => keepAwake.isAvailable(),
+      async activate(tag) {
+        const key = `webview:${owner}:${tag}`
+        if (!(await keepAwake.activate(key))) {
+          return false
+        }
 
-				if (!keepAwakeTags.has(sender)) {
-					await keepAwake.deactivate(key)
-					return false
-				}
+        if (!keepAwakeTags.has(sender)) {
+          await keepAwake.deactivate(key)
+          return false
+        }
 
-				tags.set(tag, key)
-				return true
-			},
-			async deactivate(tag) {
-				const key = tags.get(tag)
-				if (key && !(await keepAwake.deactivate(key))) {
-					return false
-				}
+        tags.set(tag, key)
+        return true
+      },
+      async deactivate(tag) {
+        const key = tags.get(tag)
+        if (key && !(await keepAwake.deactivate(key))) {
+          return false
+        }
 
-				tags.delete(tag)
-				return true
-			},
-		})
+        tags.delete(tag)
+        return true
+      },
+    })
 
-		return {
-			activate: (tag: string) => service.activate(tag),
-			deactivate: (tag: string) => service.deactivate(tag),
-		}
-	}
+    return {
+      activate: (tag: string) => service.activate(tag),
+      deactivate: (tag: string) => service.deactivate(tag),
+    }
+  }
 
-	const detach = (target: MacOSWebView) => {
-		releaseKeepAwake(target)
-		endpoints.delete(target)
-		pendingInitialUrls.delete(target)
-		target.dispose()
-	}
+  const detach = (target: MacOSWebView) => {
+    releaseKeepAwake(target)
+    endpoints.delete(target)
+    pendingInitialUrls.delete(target)
+    target.dispose()
+  }
 
-	const loadTarget = (target: MacOSWebView, targetUrl?: string) => {
-		const raw = targetUrl ?? '/'
-		if (/^https?:\/\//i.test(raw)) {
-			return target.load(raw)
-		}
+  const loadTarget = (target: MacOSWebView, targetUrl?: string) => {
+    const raw = targetUrl ?? '/'
+    if (/^https?:\/\//i.test(raw)) {
+      return target.load(raw)
+    }
 
-		const packaged = raw.match(/^xplat:\/\/app(\/.*)?$/i)?.[1] ?? ''
-		const path = packaged || (raw.startsWith('/') ? raw : `/${raw}`) || '/index.html'
-		if (baseUrl) {
-			return target.load(`${baseUrl.replace(/\/$/, '')}${path}`)
-		}
+    const packaged = raw.match(/^xplat:\/\/app(\/.*)?$/i)?.[1] ?? ''
+    const path = packaged || (raw.startsWith('/') ? raw : `/${raw}`) || '/index.html'
+    if (baseUrl) {
+      return target.load(`${baseUrl.replace(/\/$/, '')}${path}`)
+    }
 
-		return target.loadPackaged(path)
-	}
+    return target.loadPackaged(path)
+  }
 
-	const openWebWindow = (opener: MacOSWebView, options: HostWindowOpenOptions) => {
-		const id = String(options.id ?? `w${secondaryWindows.size + 1}`)
-		const controller = createHostedWindow({
-			kind: options.kind === 'dialog' ? 'dialog' : 'regular',
-			parent: options.kind === 'dialog' ? opener.owningWindow() : null,
-			title: options.title,
-			size: options.size,
-		})
+  const openWebWindow = (opener: MacOSWebView, options: HostWindowOpenOptions) => {
+    const id = String(options.id ?? `w${secondaryWindows.size + 1}`)
+    const controller = createHostedWindow({
+      kind: options.kind === 'dialog' ? 'dialog' : 'regular',
+      parent: options.kind === 'dialog' ? opener.owningWindow() : null,
+      title: options.title,
+      size: options.size,
+    })
 
-		const child = createMacOSWebView(controller.window.contentView)
-		child.setWindowContext(id, JSON.stringify(options.data ?? null))
-		attach(child, servicesFor(child))
+    const child = createMacOSWebView(controller.window.contentView)
+    child.setWindowContext(id, JSON.stringify(options.data ?? null))
+    attach(child, servicesFor(child))
 
-		secondaryWindows.set(id, { controller, webView: child, opener })
-		void controller.closed.then(() => {
-			const entry = secondaryWindows.get(id)
-			secondaryWindows.delete(id)
-			endpoints.get(entry?.opener ?? opener)?.dispatcher.emit('windows.closed', id)
-			detach(child)
-		})
+    secondaryWindows.set(id, { controller, webView: child, opener })
+    void controller.closed.then(() => {
+      const entry = secondaryWindows.get(id)
+      secondaryWindows.delete(id)
+      endpoints.get(entry?.opener ?? opener)?.dispatcher.emit('windows.closed', id)
+      detach(child)
+    })
 
-		if (!loadTarget(child, options.url)) {
-			controller.close()
-			throw new Error(`unsupported macOS webview window URL: ${String(options.url ?? '/')}`)
-		}
+    if (!loadTarget(child, options.url)) {
+      controller.close()
+      throw new Error(`unsupported macOS webview window URL: ${String(options.url ?? '/')}`)
+    }
 
-		return id
-	}
+    return id
+  }
 
-	const servicesFor = (sender: MacOSWebView): Services =>
-		Object.assign(
-			{
-				keepAwake: keepAwakeFor(sender),
-				app: {
-					getInfo: () => appKit.appInfo,
-					getState: () => appKit.appState,
-					getWindowSize: () => senderWindowSize(sender),
-					consumeInitialUrl: () => {
-						const url = pendingInitialUrls.get(sender) ?? null
-						pendingInitialUrls.delete(sender)
-						return url
-					},
-				},
-				clipboard: {
-					read: () => Promise.resolve(appKit.readClipboard()),
-					write: (value) => Promise.resolve(appKit.writeClipboard(value)),
-				},
-				files: {
-					pick: (accept, options) =>
-						Promise.resolve(
-							fileRef(sender.pickFile(accept ?? '*/*', options?.startingFolder ?? null)),
-						),
-					readText: (uri) => Promise.resolve(sender.readFileText(uri)),
-					writeText: (name, text) => Promise.resolve(fileRef(sender.writeFileText(name, text))),
-				},
-				notifications: {
-					ensure: () => Promise.resolve(notificationPermission(sender)),
-					notify: (title, body) => Promise.resolve(sender.notify(title, body ?? '')),
-				},
-				secureStorage: {
-					get: (key) => Promise.resolve(sender.secureStorageGet(key)),
-					set: (key, value) => Promise.resolve(sender.secureStorageSet(key, value)),
-					remove: (key) => Promise.resolve(sender.secureStorageRemove(key)),
-				},
-				appearance: {
-					get: () => Promise.resolve(appKit.getColorScheme()),
-				},
-				windows: {
-					open: (options) => Promise.resolve(openWebWindow(sender, options)),
-					close: (id) => {
-						const entry = secondaryWindows.get(id)
-						if (!entry) {
-							return Promise.resolve(false)
-						}
+  const servicesFor = (sender: MacOSWebView): Services =>
+    Object.assign(
+      {
+        keepAwake: keepAwakeFor(sender),
+        app: {
+          getInfo: () => appKit.appInfo,
+          getState: () => appKit.appState,
+          getWindowSize: () => senderWindowSize(sender),
+          consumeInitialUrl: () => {
+            const url = pendingInitialUrls.get(sender) ?? null
+            pendingInitialUrls.delete(sender)
+            return url
+          },
+        },
+        clipboard: {
+          read: () => Promise.resolve(appKit.readClipboard()),
+          write: (value) => Promise.resolve(appKit.writeClipboard(value)),
+        },
+        files: {
+          pick: (accept, options) =>
+            Promise.resolve(
+              fileRef(sender.pickFile(accept ?? '*/*', options?.startingFolder ?? null)),
+            ),
+          readText: (uri) => Promise.resolve(sender.readFileText(uri)),
+          writeText: (name, text) => Promise.resolve(fileRef(sender.writeFileText(name, text))),
+        },
+        notifications: {
+          ensure: () => Promise.resolve(notificationPermission(sender)),
+          notify: (title, body) => Promise.resolve(sender.notify(title, body ?? '')),
+        },
+        secureStorage: {
+          get: (key) => Promise.resolve(sender.secureStorageGet(key)),
+          set: (key, value) => Promise.resolve(sender.secureStorageSet(key, value)),
+          remove: (key) => Promise.resolve(sender.secureStorageRemove(key)),
+        },
+        appearance: {
+          get: () => Promise.resolve(appKit.getColorScheme()),
+        },
+        windows: {
+          open: (options) => Promise.resolve(openWebWindow(sender, options)),
+          close: (id) => {
+            const entry = secondaryWindows.get(id)
+            if (!entry) {
+              return Promise.resolve(false)
+            }
 
-						entry.controller.close()
-						return Promise.resolve(true)
-					},
-					setTitle: (id, title) => {
-						const entry = secondaryWindows.get(id)
-						entry?.controller.setTitle(title)
-						return Promise.resolve(Boolean(entry))
-					},
-				},
-				system: {
-					openUrl: (url) => Promise.resolve(appKit.openUrl(url)),
-					openPath: (path) => Promise.resolve(appKit.openPath(path)),
-					shareContent: (input) => Promise.resolve(appKit.shareContent(input)),
-				},
-				storage: {
-					get: (key) => Promise.resolve(appKit.storageGet(key)),
-					set: (key, value) => Promise.resolve(appKit.storageSet(key, value)),
-					remove: (key) => Promise.resolve(appKit.storageRemove(key)),
-				},
-			} as Services,
-			// Camera movie storage + honest macOS media permission status for
-			// the shared camera session backend inside this webview.
-			{
-				camera: {
-					permissionStatus: (options: { kind: 'camera' | 'microphone' }) =>
-						Promise.resolve({ status: sender.mediaPermissionStatus(options.kind) }),
-					requestPermission: (options: { kind: 'camera' | 'microphone' }) =>
-						Promise.resolve({ status: sender.requestMediaPermission(options.kind) }),
-					movieDirectory: () => Promise.resolve({ fileUrl: sender.movieDirectory() }),
-					reserveMoviePath: (options: { fileUrl?: string; container?: string }) =>
-						Promise.resolve({ reservation: sender.reserveMoviePath(options) }),
-					writeMovieFile: (options: { fileUrl: string; base64: string }) =>
-						Promise.resolve({ file: sender.writeMovieFile(options) }),
-					writeMovieFileChunk: (options: { fileUrl: string; base64: string; final?: boolean }) =>
-						Promise.resolve({ file: sender.writeMovieFileChunk(options) }),
-					readMovieFileChunk: (options: { fileUrl: string; offset: number; length: number }) =>
-						Promise.resolve({ base64: sender.readMovieFileChunk(options) }),
-					movieFileInfo: (options: { fileUrl: string }) =>
-						Promise.resolve({ info: sender.movieFileInfo(options.fileUrl) }),
-					readMovieFile: (options: { fileUrl: string }) =>
-						Promise.resolve({ base64: sender.readMovieFile(options.fileUrl) }),
-					deleteMovieFile: (options: { fileUrl: string }) =>
-						Promise.resolve({ removed: sender.deleteMovieFile(options.fileUrl) }),
-				},
-			},
-			extraServices(sender, (name, payload) => emitTo(sender, name, payload)),
-		)
+            entry.controller.close()
+            return Promise.resolve(true)
+          },
+          setTitle: (id, title) => {
+            const entry = secondaryWindows.get(id)
+            entry?.controller.setTitle(title)
+            return Promise.resolve(Boolean(entry))
+          },
+        },
+        system: {
+          openUrl: (url) => Promise.resolve(appKit.openUrl(url)),
+          openPath: (path) => Promise.resolve(appKit.openPath(path)),
+          shareContent: (input) => Promise.resolve(appKit.shareContent(input)),
+        },
+        storage: {
+          get: (key) => Promise.resolve(appKit.storageGet(key)),
+          set: (key, value) => Promise.resolve(appKit.storageSet(key, value)),
+          remove: (key) => Promise.resolve(appKit.storageRemove(key)),
+        },
+      } as Services,
+      // Camera movie storage + honest macOS media permission status for
+      // the shared camera session backend inside this webview.
+      {
+        camera: {
+          permissionStatus: (options: { kind: 'camera' | 'microphone' }) =>
+            Promise.resolve({ status: sender.mediaPermissionStatus(options.kind) }),
+          requestPermission: (options: { kind: 'camera' | 'microphone' }) =>
+            Promise.resolve({ status: sender.requestMediaPermission(options.kind) }),
+          movieDirectory: () => Promise.resolve({ fileUrl: sender.movieDirectory() }),
+          reserveMoviePath: (options: { fileUrl?: string; container?: string }) =>
+            Promise.resolve({ reservation: sender.reserveMoviePath(options) }),
+          writeMovieFile: (options: { fileUrl: string; base64: string }) =>
+            Promise.resolve({ file: sender.writeMovieFile(options) }),
+          writeMovieFileChunk: (options: { fileUrl: string; base64: string; final?: boolean }) =>
+            Promise.resolve({ file: sender.writeMovieFileChunk(options) }),
+          readMovieFileChunk: (options: { fileUrl: string; offset: number; length: number }) =>
+            Promise.resolve({ base64: sender.readMovieFileChunk(options) }),
+          movieFileInfo: (options: { fileUrl: string }) =>
+            Promise.resolve({ info: sender.movieFileInfo(options.fileUrl) }),
+          readMovieFile: (options: { fileUrl: string }) =>
+            Promise.resolve({ base64: sender.readMovieFile(options.fileUrl) }),
+          deleteMovieFile: (options: { fileUrl: string }) =>
+            Promise.resolve({ removed: sender.deleteMovieFile(options.fileUrl) }),
+        },
+      },
+      extraServices(sender, (name, payload) => emitTo(sender, name, payload)),
+    )
 
-	const dispatcher = attach(webView, servicesFor(webView))
+  const dispatcher = attach(webView, servicesFor(webView))
 
-	const subscriptions = [
-		appKit.onAppStateChange(() => emitAll('app.state.change', appKit.appState)),
-		appKit.onWindowResize((nativeWindow) => {
-			if (!nativeWindow) {
-				emitAll('window.resize', hostWindowSize())
-				return
-			}
+  const subscriptions = [
+    appKit.onAppStateChange(() => emitAll('app.state.change', appKit.appState)),
+    appKit.onWindowResize((nativeWindow) => {
+      if (!nativeWindow) {
+        emitAll('window.resize', hostWindowSize())
+        return
+      }
 
-			for (const endpoint of endpoints.values()) {
-				if (sameNativeWindow(endpoint.webView.owningWindow(), nativeWindow)) {
-					emitTo(endpoint.webView, 'window.resize', senderWindowSize(endpoint.webView))
-				}
-			}
-		}),
-		appKit.onDeepLink((url) => emitAll('app.deep-link', url)),
-		appKit.onAppearanceChange(() => emitAll('appearance.change', appKit.getColorScheme())),
-	]
+      for (const endpoint of endpoints.values()) {
+        if (sameNativeWindow(endpoint.webView.owningWindow(), nativeWindow)) {
+          emitTo(endpoint.webView, 'window.resize', senderWindowSize(endpoint.webView))
+        }
+      }
+    }),
+    appKit.onDeepLink((url) => emitAll('app.deep-link', url)),
+    appKit.onAppearanceChange(() => emitAll('appearance.change', appKit.getColorScheme())),
+  ]
 
-	return {
-		dispatcher,
-		emit: (name, payload) => dispatcher.emit(name, payload),
-		dispose() {
-			for (const unsubscribe of subscriptions) {
-				unsubscribe()
-			}
+  return {
+    dispatcher,
+    emit: (name, payload) => dispatcher.emit(name, payload),
+    dispose() {
+      for (const unsubscribe of subscriptions) {
+        unsubscribe()
+      }
 
-			for (const { webView } of endpoints.values()) {
-				releaseKeepAwake(webView)
-				webView.dispose()
-			}
+      for (const { webView } of endpoints.values()) {
+        releaseKeepAwake(webView)
+        webView.dispose()
+      }
 
-			endpoints.clear()
-		},
-	}
+      endpoints.clear()
+    },
+  }
 }

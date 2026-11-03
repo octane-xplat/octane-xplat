@@ -9,13 +9,13 @@ import { defaultIndicators, indicatorOverrides } from './indicators'
  * `getIndicator` is the non-reactive snapshot for one-time reads.
  */
 export function useIndicator<N extends IndicatorName>(
-	name: N,
+  name: N,
 ): IndicatorComponent<IndicatorMap[N]> | undefined {
-	return useStore(
-		indicatorOverrides,
-		(overrides) =>
-			(overrides[name] ?? defaultIndicators[name]) as
-				| IndicatorComponent<IndicatorMap[N]>
-				| undefined,
-	)
+  return useStore(
+    indicatorOverrides,
+    (overrides) =>
+      (overrides[name] ?? defaultIndicators[name]) as
+        | IndicatorComponent<IndicatorMap[N]>
+        | undefined,
+  )
 }

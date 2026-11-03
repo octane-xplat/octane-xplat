@@ -8,17 +8,17 @@
 export const GROUP_HEADER: unique symbol = Symbol('tableGroupHeader')
 
 export interface TableGroupHeader {
-	[GROUP_HEADER]: true
-	groupKey: string
-	count: number
+  [GROUP_HEADER]: true
+  groupKey: string
+  count: number
 }
 
 export function isGroupHeader(item: unknown): item is TableGroupHeader {
-	return (
-		typeof item === 'object' &&
-		item !== null &&
-		(item as Record<symbol, unknown>)[GROUP_HEADER] === true
-	)
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    (item as Record<symbol, unknown>)[GROUP_HEADER] === true
+  )
 }
 
 // Proxy handler: any field access beyond the marker fields resolves to `''`,
@@ -27,26 +27,26 @@ export function isGroupHeader(item: unknown): item is TableGroupHeader {
 // renderers are handled at render time via `isContentSuppressed`; the Proxy
 // never protected them, because `''` fails a lookup exactly as `undefined`.
 const HEADER_PROXY_HANDLER: ProxyHandler<Record<string | symbol, unknown>> = {
-	get(t: Record<string | symbol, unknown>, prop: string | symbol): unknown {
-		if (prop === GROUP_HEADER || prop === 'groupKey' || prop === 'count') {
-			return t[prop]
-		}
-		return prop in t ? t[prop] : ''
-	},
+  get(t: Record<string | symbol, unknown>, prop: string | symbol): unknown {
+    if (prop === GROUP_HEADER || prop === 'groupKey' || prop === 'count') {
+      return t[prop]
+    }
+    return prop in t ? t[prop] : ''
+  },
 }
 
 /** Build a synthetic header row wrapped in a Proxy so field access resolves
  *  to `''` instead of `undefined`. */
 export function makeGroupHeader<T extends Record<string, unknown>>(
-	groupKey: string,
-	count: number,
+  groupKey: string,
+  count: number,
 ): T {
-	const target: Record<string | symbol, unknown> = {
-		[GROUP_HEADER]: true,
-		groupKey,
-		count,
-	}
-	return new Proxy(target, HEADER_PROXY_HANDLER) as unknown as T
+  const target: Record<string | symbol, unknown> = {
+    [GROUP_HEADER]: true,
+    groupKey,
+    count,
+  }
+  return new Proxy(target, HEADER_PROXY_HANDLER) as unknown as T
 }
 
 /**
@@ -55,44 +55,44 @@ export function makeGroupHeader<T extends Record<string, unknown>>(
  * rest). Collapsed groups contribute only their header row.
  */
 export function flattenGroups<T extends Record<string, unknown>>(
-	data: T[],
-	groupBy: (item: T) => string,
-	collapsedGroups: Set<string>,
-	groupOrder?: string[],
+  data: T[],
+  groupBy: (item: T) => string,
+  collapsedGroups: Set<string>,
+  groupOrder?: string[],
 ): T[] {
-	if (data.length === 0) {
-		return []
-	}
+  if (data.length === 0) {
+    return []
+  }
 
-	// Group preserving first-seen order.
-	const groups = new Map<string, T[]>()
-	for (const item of data) {
-		const key = groupBy(item)
-		const bucket = groups.get(key)
-		if (bucket) {
-			bucket.push(item)
-		} else {
-			groups.set(key, [item])
-		}
-	}
+  // Group preserving first-seen order.
+  const groups = new Map<string, T[]>()
+  for (const item of data) {
+    const key = groupBy(item)
+    const bucket = groups.get(key)
+    if (bucket) {
+      bucket.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  }
 
-	// Determine iteration order.
-	let keys = [...groups.keys()]
-	if (groupOrder && groupOrder.length > 0) {
-		const ordered = groupOrder.filter((k) => groups.has(k))
-		const rest = keys.filter((k) => !groupOrder.includes(k))
-		keys = [...ordered, ...rest]
-	}
+  // Determine iteration order.
+  let keys = [...groups.keys()]
+  if (groupOrder && groupOrder.length > 0) {
+    const ordered = groupOrder.filter((k) => groups.has(k))
+    const rest = keys.filter((k) => !groupOrder.includes(k))
+    keys = [...ordered, ...rest]
+  }
 
-	const out: T[] = []
-	for (const key of keys) {
-		const rows = groups.get(key) ?? []
-		out.push(makeGroupHeader<T>(key, rows.length))
-		if (!collapsedGroups.has(key)) {
-			out.push(...rows)
-		}
-	}
-	return out
+  const out: T[] = []
+  for (const key of keys) {
+    const rows = groups.get(key) ?? []
+    out.push(makeGroupHeader<T>(key, rows.length))
+    if (!collapsedGroups.has(key)) {
+      out.push(...rows)
+    }
+  }
+  return out
 }
 
 /**
@@ -101,19 +101,19 @@ export function flattenGroups<T extends Record<string, unknown>>(
  * (positional map built once so key lookup stays O(1)).
  */
 export function makeGroupedIdKey<T extends Record<string, unknown>>(
-	flattened: T[],
-	getRowKey?: (item: T) => string,
+  flattened: T[],
+  getRowKey?: (item: T) => string,
 ): (item: T) => string {
-	const positionByItem = getRowKey
-		? null
-		: new Map<T, number>(flattened.map((item, i) => [item, i]))
-	return (item: T): string => {
-		if (isGroupHeader(item)) {
-			return `__group_${item.groupKey}`
-		}
-		if (getRowKey) {
-			return getRowKey(item)
-		}
-		return String(positionByItem?.get(item) ?? -1)
-	}
+  const positionByItem = getRowKey
+    ? null
+    : new Map<T, number>(flattened.map((item, i) => [item, i]))
+  return (item: T): string => {
+    if (isGroupHeader(item)) {
+      return `__group_${item.groupKey}`
+    }
+    if (getRowKey) {
+      return getRowKey(item)
+    }
+    return String(positionByItem?.get(item) ?? -1)
+  }
 }

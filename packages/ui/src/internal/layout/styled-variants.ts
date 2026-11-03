@@ -8,32 +8,32 @@ import type { StyledClass, StyledDef, StyledVariant } from '../../props'
  *  variant props never leak to the base component. `className` is appended
  *  last. */
 export function resolveStyledClasses<V extends Record<string, StyledVariant>>(
-	def: StyledDef<V>,
-	props: Record<string, any>,
+  def: StyledDef<V>,
+  props: Record<string, any>,
 ): { classes: StyledClass[]; rest: any } {
-	const classes: StyledClass[] = [def.base]
-	const rest = { ...props }
-	for (const key of Object.keys(def.variants ?? {})) {
-		const variant = def.variants![key]
-		const value = props[key] ?? (def.defaultVariants as Record<string, unknown> | undefined)?.[key]
-		if (isEnumVariant(variant)) {
-			if (value != null && value !== false) {
-				classes.push(variant[value as string])
-			}
-		} else if (value) {
-			classes.push(variant)
-		}
+  const classes: StyledClass[] = [def.base]
+  const rest = { ...props }
+  for (const key of Object.keys(def.variants ?? {})) {
+    const variant = def.variants![key]
+    const value = props[key] ?? (def.defaultVariants as Record<string, unknown> | undefined)?.[key]
+    if (isEnumVariant(variant)) {
+      if (value != null && value !== false) {
+        classes.push(variant[value as string])
+      }
+    } else if (value) {
+      classes.push(variant)
+    }
 
-		delete rest[key]
-	}
+    delete rest[key]
+  }
 
-	if (props.className) {
-		classes.push(props.className)
-	}
+  if (props.className) {
+    classes.push(props.className)
+  }
 
-	return { classes, rest }
+  return { classes, rest }
 }
 
 function isEnumVariant(variant: StyledVariant): variant is Record<string, StyledClass> {
-	return typeof variant === 'object' && variant !== null && !Array.isArray(variant)
+  return typeof variant === 'object' && variant !== null && !Array.isArray(variant)
 }

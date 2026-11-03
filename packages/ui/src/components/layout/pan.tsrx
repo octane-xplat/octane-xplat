@@ -12,85 +12,85 @@ import { hostGlobal } from '../../internal/platform/host-bridge'
 const PAN_STATE = ['cancelled', 'began', 'moved', 'ended'] as const
 
 function panVelocity(
-	e: any,
-	state: number,
-	trackerRef: { current: any },
+  e: any,
+  state: number,
+  trackerRef: { current: any },
 ): { vx: number; vy: number } {
-	if (state === 0) {
-		trackerRef.current?.recycle?.()
-		trackerRef.current = null
-		return { vx: 0, vy: 0 }
-	}
+  if (state === 0) {
+    trackerRef.current?.recycle?.()
+    trackerRef.current = null
+    return { vx: 0, vy: 0 }
+  }
 
-	const recognizer = e.ios
-	const nativeView = e.view?.nativeViewProtected
-	if (recognizer?.velocityInView && nativeView) {
-		const velocity = recognizer.velocityInView(nativeView)
-		return { vx: velocity.x, vy: velocity.y }
-	}
+  const recognizer = e.ios
+  const nativeView = e.view?.nativeViewProtected
+  if (recognizer?.velocityInView && nativeView) {
+    const velocity = recognizer.velocityInView(nativeView)
+    return { vx: velocity.x, vy: velocity.y }
+  }
 
-	// NativeScript's Android pan facade exposes the current MotionEvent but no
-	// velocity. Feed those events to the platform tracker and convert px/sec to
-	// the dip/sec units used by deltaX/deltaY.
-	const motionEvent = e.android?.current
-	const velocityTrackerClass = hostGlobal('android')?.view?.VelocityTracker
-	if (!motionEvent || !velocityTrackerClass) {
-		return { vx: 0, vy: 0 }
-	}
+  // NativeScript's Android pan facade exposes the current MotionEvent but no
+  // velocity. Feed those events to the platform tracker and convert px/sec to
+  // the dip/sec units used by deltaX/deltaY.
+  const motionEvent = e.android?.current
+  const velocityTrackerClass = hostGlobal('android')?.view?.VelocityTracker
+  if (!motionEvent || !velocityTrackerClass) {
+    return { vx: 0, vy: 0 }
+  }
 
-	if (state === 1 || !trackerRef.current) {
-		trackerRef.current?.recycle?.()
-		trackerRef.current = velocityTrackerClass.obtain()
-	}
+  if (state === 1 || !trackerRef.current) {
+    trackerRef.current?.recycle?.()
+    trackerRef.current = velocityTrackerClass.obtain()
+  }
 
-	const tracker = trackerRef.current
-	tracker.addMovement(motionEvent)
-	tracker.computeCurrentVelocity(1000)
-	const density = Utils.layout.getDisplayDensity()
-	const velocity = { vx: tracker.getXVelocity() / density, vy: tracker.getYVelocity() / density }
-	if (state === 0 || state === 3) {
-		tracker.recycle?.()
-		trackerRef.current = null
-	}
+  const tracker = trackerRef.current
+  tracker.addMovement(motionEvent)
+  tracker.computeCurrentVelocity(1000)
+  const density = Utils.layout.getDisplayDensity()
+  const velocity = { vx: tracker.getXVelocity() / density, vy: tracker.getYVelocity() / density }
+  if (state === 0 || state === 3) {
+    tracker.recycle?.()
+    trackerRef.current = null
+  }
 
-	return velocity
+  return velocity
 }
 
 function nativePanState(e: any): number {
-	const motionEvent = e.android?.current
-	if (!motionEvent) {
-		return e.state
-	}
+  const motionEvent = e.android?.current
+  if (!motionEvent) {
+    return e.state
+  }
 
-	const action = motionEvent.getActionMasked?.()
-	const actionCancel = hostGlobal('android')?.view?.MotionEvent?.ACTION_CANCEL ?? 3
-	// NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
-	// preserves the distinction needed by the shared pan contract.
-	return action === actionCancel ? 0 : e.state
+  const action = motionEvent.getActionMasked?.()
+  const actionCancel = hostGlobal('android')?.view?.MotionEvent?.ACTION_CANCEL ?? 3
+  // NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
+  // preserves the distinction needed by the shared pan contract.
+  return action === actionCancel ? 0 : e.state
 }
 
 export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefined {
-	const velocityTracker = useRef<any>(null)
-	// Memoized so the driver's observer doesn't churn per render — each
-	// re-subscribe would re-attach a UIPanGestureRecognizer.
-	const handler = useCallback(
-		(e: any) => {
-			const nativeState = nativePanState(e)
-			const state = PAN_STATE[nativeState] ?? 'moved'
-			const velocity = panVelocity(e, nativeState, velocityTracker)
-			cb?.({
-				x: e.deltaX,
-				y: e.deltaY,
-				dx: e.deltaX,
-				dy: e.deltaY,
-				vx: velocity.vx,
-				vy: velocity.vy,
-				state,
-				target: e.view ?? e.object,
-			})
-		},
-		[cb],
-	)
+  const velocityTracker = useRef<any>(null)
+  // Memoized so the driver's observer doesn't churn per render — each
+  // re-subscribe would re-attach a UIPanGestureRecognizer.
+  const handler = useCallback(
+    (e: any) => {
+      const nativeState = nativePanState(e)
+      const state = PAN_STATE[nativeState] ?? 'moved'
+      const velocity = panVelocity(e, nativeState, velocityTracker)
+      cb?.({
+        x: e.deltaX,
+        y: e.deltaY,
+        dx: e.deltaX,
+        dy: e.deltaY,
+        vx: velocity.vx,
+        vy: velocity.vy,
+        state,
+        target: e.view ?? e.object,
+      })
+    },
+    [cb],
+  )
 
-	return cb ? handler : undefined
+  return cb ? handler : undefined
 }

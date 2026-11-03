@@ -3,12 +3,12 @@ import { Switch } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function SwitchWithDescription() @{
-	const [value, setValue] = useState(false)
+  const [value, setValue] = useState(false)
 
-	<Switch
-		label="Dark mode"
-		description="Switch to a darker color scheme."
-		value={value}
-		onChange={setValue}
-	/>
+  <Switch
+    label="Dark mode"
+    description="Switch to a darker color scheme."
+    value={value}
+    onChange={setValue}
+  />
 }

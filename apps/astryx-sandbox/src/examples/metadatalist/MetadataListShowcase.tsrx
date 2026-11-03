@@ -2,9 +2,9 @@
 import { MetadataList, MetadataListItem } from '@octane-xplat/ui'
 
 export function MetadataListShowcase() @{
-	<MetadataList>
-		<MetadataListItem label="Name">MetadataList</MetadataListItem>
-		<MetadataListItem label="Status">Active</MetadataListItem>
-		<MetadataListItem label="Owner">Joey</MetadataListItem>
-	</MetadataList>
+  <MetadataList>
+    <MetadataListItem label="Name">MetadataList</MetadataListItem>
+    <MetadataListItem label="Status">Active</MetadataListItem>
+    <MetadataListItem label="Owner">Joey</MetadataListItem>
+  </MetadataList>
 }

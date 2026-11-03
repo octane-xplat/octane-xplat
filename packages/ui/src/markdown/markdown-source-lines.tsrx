@@ -8,8 +8,8 @@ import type { Renderable } from '../props'
  * `display:contents` wrapper so geometry matches the block exactly.
  */
 export function MdSourceLines(props: {
-	lines?: { readonly start: number; readonly end: number }
-	children?: Renderable
+  lines?: { readonly start: number; readonly end: number }
+  children?: Renderable
 }): unknown @{
-	return props.children
+  return props.children
 }

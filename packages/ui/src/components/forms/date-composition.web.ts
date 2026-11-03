@@ -1,6 +1,6 @@
 export function hasDateComposition(
-	_view: unknown,
-	event?: { isComposing?: boolean; keyCode?: number },
+  _view: unknown,
+  event?: { isComposing?: boolean; keyCode?: number },
 ): boolean {
-	return !!event?.isComposing || event?.keyCode === 229
+  return !!event?.isComposing || event?.keyCode === 229
 }

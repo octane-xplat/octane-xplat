@@ -1,11 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { JSX } from 'octane/jsx-runtime'
 import {
-	createCharCache,
-	createLayerColorResolver,
-	DEFAULT_ICON_SIZE,
-	resolveGlyphEntry,
-	type NanoGlyphMap,
+  createCharCache,
+  createLayerColorResolver,
+  DEFAULT_ICON_SIZE,
+  resolveGlyphEntry,
+  type NanoGlyphMap,
 } from './glyphmap'
 
 import { useStore } from '@octane-xplat/ui/data'
@@ -13,88 +13,88 @@ import { nanoIconSetRegistry, resolveNanoIcon, type NanoIconSet } from './set'
 import type { NanoIconProps, NanoIconSetProps } from './props'
 
 function transformStyle(props: {
-	rotate?: number
-	hFlip?: boolean
-	vFlip?: boolean
+  rotate?: number
+  hFlip?: boolean
+  vFlip?: boolean
 }): string | undefined {
-	const parts: string[] = []
-	if (props.rotate) {
-		parts.push(`rotate(${(props.rotate * 90) % 360}deg)`)
-	}
+  const parts: string[] = []
+  if (props.rotate) {
+    parts.push(`rotate(${(props.rotate * 90) % 360}deg)`)
+  }
 
-	if (props.hFlip) {
-		parts.push('scaleX(-1)')
-	}
+  if (props.hFlip) {
+    parts.push('scaleX(-1)')
+  }
 
-	if (props.vFlip) {
-		parts.push('scaleY(-1)')
-	}
+  if (props.vFlip) {
+    parts.push('scaleY(-1)')
+  }
 
-	return parts.length ? parts.join(' ') : undefined
+  return parts.length ? parts.join(' ') : undefined
 }
 
 function WebGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) {
-	const size = props.size ?? DEFAULT_ICON_SIZE
-	const [adv, layers] = resolveGlyphEntry(props.glyphMap, props.name)
-	const getChar = charCacheFor(props.glyphMap)
-	const resolveColor = createLayerColorResolver(props.color, props.tintMode, layers)
-	const width = (adv / props.glyphMap.m.u) * size
-	const family = props.glyphMap.m.f
-	const transform = transformStyle(props)
+  const size = props.size ?? DEFAULT_ICON_SIZE
+  const [adv, layers] = resolveGlyphEntry(props.glyphMap, props.name)
+  const getChar = charCacheFor(props.glyphMap)
+  const resolveColor = createLayerColorResolver(props.color, props.tintMode, layers)
+  const width = (adv / props.glyphMap.m.u) * size
+  const family = props.glyphMap.m.f
+  const transform = transformStyle(props)
 
-	return (
-		<span
-			id={props.id}
-			className={['vx-nano-icon', props.className]}
-			role={props.label ? 'img' : undefined}
-			aria-label={props.label}
-			aria-hidden={props.label ? undefined : 'true'}
-			style={{
-				display: 'inline-block',
-				position: 'relative',
-				width,
-				height: size,
-				lineHeight: '0px',
-				verticalAlign: 'middle',
-				flexShrink: 0,
-				transform,
-				...(props.style as object | undefined),
-			}}
-		>
-			{layers.map(([codepoint, srcColor], i) => (
-				<span
-					key={i}
-					aria-hidden="true"
-					style={{
-						position: 'absolute',
-						left: 0,
-						bottom: 0,
-						fontFamily: family,
-						fontWeight: 'normal',
-						fontStyle: 'normal',
-						fontSize: size,
-						lineHeight: size,
-						whiteSpace: 'pre',
-						color: resolveColor(i, srcColor),
-					}}
-				>
-					{getChar(codepoint)}
-				</span>
-			))}
-		</span>
-	)
+  return (
+    <span
+      id={props.id}
+      className={['vx-nano-icon', props.className]}
+      role={props.label ? 'img' : undefined}
+      aria-label={props.label}
+      aria-hidden={props.label ? undefined : 'true'}
+      style={{
+        display: 'inline-block',
+        position: 'relative',
+        width,
+        height: size,
+        lineHeight: '0px',
+        verticalAlign: 'middle',
+        flexShrink: 0,
+        transform,
+        ...(props.style as object | undefined),
+      }}
+    >
+      {layers.map(([codepoint, srcColor], i) => (
+        <span
+          key={i}
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: 0,
+            bottom: 0,
+            fontFamily: family,
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            fontSize: size,
+            lineHeight: size,
+            whiteSpace: 'pre',
+            color: resolveColor(i, srcColor),
+          }}
+        >
+          {getChar(codepoint)}
+        </span>
+      ))}
+    </span>
+  )
 }
 
 const charCaches = new WeakMap<NanoGlyphMap, (codepoint: number) => string>()
 
 function charCacheFor(glyphMap: NanoGlyphMap) {
-	let cache = charCaches.get(glyphMap)
-	if (!cache) {
-		cache = createCharCache()
-		charCaches.set(glyphMap, cache)
-	}
+  let cache = charCaches.get(glyphMap)
+  if (!cache) {
+    cache = createCharCache()
+    charCaches.set(glyphMap, cache)
+  }
 
-	return cache
+  return cache
 }
 
 /**
@@ -106,16 +106,16 @@ function charCacheFor(glyphMap: NanoGlyphMap) {
 const warnedNames = new Set<string>()
 
 export function NanoIcon(props: NanoIconProps): JSX.Element | null {
-	useStore(nanoIconSetRegistry)
-	const resolved = resolveNanoIcon(props.name, props.set)
-	if (!resolved) {
-		if (!warnedNames.has(props.name)) {
-			warnedNames.add(props.name)
-			console.warn(`[nano-icons] Unknown icon "${props.name}" — no registered set contains it`)
-		}
+  useStore(nanoIconSetRegistry)
+  const resolved = resolveNanoIcon(props.name, props.set)
+  if (!resolved) {
+    if (!warnedNames.has(props.name)) {
+      warnedNames.add(props.name)
+      console.warn(`[nano-icons] Unknown icon "${props.name}" — no registered set contains it`)
+    }
 
-		return null
-	}
+    return null
+  }
 
-	return <WebGlyphLayers {...props} glyphMap={resolved.set.glyphMap} />
+  return <WebGlyphLayers {...props} glyphMap={resolved.set.glyphMap} />
 }

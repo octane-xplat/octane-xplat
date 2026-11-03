@@ -10,26 +10,26 @@ import { Pressable } from '../components/actions/Pressable.tsrx'
  *  the fade/max-width transition is a DOM behavior — native toggles
  *  visibility without animation. */
 export function ChatLayoutScrollButton(props: ChatLayoutScrollButtonProps): unknown @{
-	if (!props.isVisible) {
-		return null
-	}
+  if (!props.isVisible) {
+    return null
+  }
 
-	<masonview
-		id={props.id}
-		className={cx('vx-chatscroll-wrap', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	>
-		<Pressable
-			className={cx(
-				'vx-chatscroll',
-				props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed',
-			)}
-			accessibilityRole="button"
-			accessibilityLabel={props.label ?? 'Scroll to bottom'}
-			onPress={props.onPress}
-		>
-			<Icon name="xplat-chevron-down" size={16} />
-			{props.label ? <label className="vx-chatscroll-label" text={props.label} /> : null}
-		</Pressable>
-	</masonview>
+  <masonview
+    id={props.id}
+    className={cx('vx-chatscroll-wrap', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  >
+    <Pressable
+      className={cx(
+        'vx-chatscroll',
+        props.label ? 'vx-chatscroll--expanded' : 'vx-chatscroll--collapsed',
+      )}
+      accessibilityRole="button"
+      accessibilityLabel={props.label ?? 'Scroll to bottom'}
+      onPress={props.onPress}
+    >
+      <Icon name="xplat-chevron-down" size={16} />
+      {props.label ? <label className="vx-chatscroll-label" text={props.label} /> : null}
+    </Pressable>
+  </masonview>
 }

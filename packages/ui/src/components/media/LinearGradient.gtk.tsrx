@@ -7,14 +7,14 @@ import type { LinearGradientProps } from '../../internal-props'
  *  native leaf needs a platform view hook (`linear-gradient-apply`); GTK
  *  needs none. */
 export function LinearGradient(props: LinearGradientProps): unknown @{
-	const dir = props.direction === 'horizontal' ? 'to right' : 'to bottom'
+  const dir = props.direction === 'horizontal' ? 'to right' : 'to bottom'
 
-	<masonview
-		id={props.id}
-		className={props.className}
-		style={{
-			backgroundImage: `linear-gradient(${dir}, ${props.colors.join(', ')})`,
-			...(typeof props.style === 'object' && props.style !== null ? props.style : {}),
-		}}
-	/>
+  <masonview
+    id={props.id}
+    className={props.className}
+    style={{
+      backgroundImage: `linear-gradient(${dir}, ${props.colors.join(', ')})`,
+      ...(typeof props.style === 'object' && props.style !== null ? props.style : {}),
+    }}
+  />
 }

@@ -8,17 +8,17 @@ import type { JSX } from 'octane/jsx-runtime'
  * functions fine, so the factory is a plain component.
  */
 export function styled<
-	P extends { className?: ClassValue },
-	V extends Record<string, StyledVariant>,
+  P extends { className?: ClassValue },
+  V extends Record<string, StyledVariant>,
 >(
-	Base: (props: P) => any,
-	def: StyledDef<V>,
+  Base: (props: P) => any,
+  def: StyledDef<V>,
 ): (props: P & StyledVariantSelection<V>) => JSX.Element {
-	function Styled(props: P & StyledVariantSelection<V>) @{
-		const { classes, rest } = resolveStyledClasses(def, props)
+  function Styled(props: P & StyledVariantSelection<V>) @{
+    const { classes, rest } = resolveStyledClasses(def, props)
 
-		<Base {...rest} className={classes} />
-	}
+    <Base {...rest} className={classes} />
+  }
 
-	return Styled
+  return Styled
 }

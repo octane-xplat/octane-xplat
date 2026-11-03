@@ -9,9 +9,9 @@ declare var __xplatDevModules: any
 declare var __xplatOnInput: any
 
 declare const console: {
-	log(...args: any[]): void
-	warn(...args: any[]): void
-	error(...args: any[]): void
+  log(...args: any[]): void
+  warn(...args: any[]): void
+  error(...args: any[]): void
 }
 
 declare const process: { env: { [key: string]: string | undefined } }

@@ -4,8 +4,8 @@ import { unknownFocusedInputState } from '@octane-xplat/platform/focused-input-s
 
 /** @internal Default adapter is explicitly unsupported. */
 export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (_window, notify) => {
-	notify(unknownFocusedInputState())
-	return () => {}
+  notify(unknownFocusedInputState())
+  return () => {}
 }
 
 /** @internal Active readers install a measurement callback per actual window. */

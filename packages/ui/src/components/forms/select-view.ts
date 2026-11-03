@@ -23,60 +23,60 @@ import type { SelectOptionGroup } from './select-options'
  *  mount this same boundary for the resolved visual-state matrix without
  *  a public export. */
 export interface SelectViewProps extends ResolvedFieldControlProps {
-	testID?: string
-	className?: any
-	style?: any
-	options: SelectOption[]
-	multiple?: boolean
-	searchable?: boolean
-	hasClear?: boolean
-	hasSelectAll?: boolean
-	selectAllLabel?: string
-	searchPlaceholder?: string
-	/** Maximum list height, in px/dip. @default 280 */
-	maxMenuHeight?: number
-	placement?: PopoverPlacement
-	/** Surface the listbox opens on — resolved per host. */
-	presentation?: import('../../props').SelectPresentation
-	/** Trigger chrome — 'input' or 'ghost'. */
-	variant?: import('../../props').SelectVariant
-	renderOption?: (option: SelectOption) => unknown
-	renderValue?: (option: SelectOption) => unknown
-	/** Multi-value trigger summary; 'badges' renders removable tokens. */
-	triggerDisplay?: 'labels' | 'count' | 'badges'
-	accessibilityLabel?: string
-	/** Web form name; native keeps selection in application state. */
-	htmlName?: string
+  testID?: string
+  className?: any
+  style?: any
+  options: SelectOption[]
+  multiple?: boolean
+  searchable?: boolean
+  hasClear?: boolean
+  hasSelectAll?: boolean
+  selectAllLabel?: string
+  searchPlaceholder?: string
+  /** Maximum list height, in px/dip. @default 280 */
+  maxMenuHeight?: number
+  placement?: PopoverPlacement
+  /** Surface the listbox opens on — resolved per host. */
+  presentation?: import('../../props').SelectPresentation
+  /** Trigger chrome — 'input' or 'ghost'. */
+  variant?: import('../../props').SelectVariant
+  renderOption?: (option: SelectOption) => unknown
+  renderValue?: (option: SelectOption) => unknown
+  /** Multi-value trigger summary; 'badges' renders removable tokens. */
+  triggerDisplay?: 'labels' | 'count' | 'badges'
+  accessibilityLabel?: string
+  /** Web form name; native keeps selection in application state. */
+  htmlName?: string
 
-	// Resolved state (written by the container's `useSelect` coordination).
-	/** Effective listbox visibility — already suppressed when blocked. */
-	open: boolean
-	/** Local filter text inside the open surface. */
-	query: string
-	/** Resolved selection values, including an in-flight optimistic value. */
-	selected: string[]
-	/** Filtered options in display order, pre-grouped. */
-	groups: SelectOptionGroup[]
-	/** `groups` flattened — every option currently shown. */
-	shown: SelectOption[]
-	/** Enabled subset of `shown`; the keyboard/pointer navigation set. */
-	enabled: SelectOption[]
-	selectAllState: 'checked' | 'indeterminate' | 'unchecked'
-	/** Async commit in flight — blocks edits and marks options inert. */
-	pending: boolean
-	triggerText: string
-	emptyText: string
-	announcement: string
-	/** Resolved active-descendant option value; platforms without pointer
-	 *  or keyboard highlight leave it unset. */
-	activeValue?: string | null
+  // Resolved state (written by the container's `useSelect` coordination).
+  /** Effective listbox visibility — already suppressed when blocked. */
+  open: boolean
+  /** Local filter text inside the open surface. */
+  query: string
+  /** Resolved selection values, including an in-flight optimistic value. */
+  selected: string[]
+  /** Filtered options in display order, pre-grouped. */
+  groups: SelectOptionGroup[]
+  /** `groups` flattened — every option currently shown. */
+  shown: SelectOption[]
+  /** Enabled subset of `shown`; the keyboard/pointer navigation set. */
+  enabled: SelectOption[]
+  selectAllState: 'checked' | 'indeterminate' | 'unchecked'
+  /** Async commit in flight — blocks edits and marks options inert. */
+  pending: boolean
+  triggerText: string
+  emptyText: string
+  announcement: string
+  /** Resolved active-descendant option value; platforms without pointer
+   *  or keyboard highlight leave it unset. */
+  activeValue?: string | null
 
-	// User intents reported back to the container.
-	onOpenChange: (open: boolean) => void
-	onQueryChange: (query: string) => void
-	onPick: (option: SelectOption) => void
-	onClear: () => void
-	onSelectAll: () => void
-	/** Pointer/keyboard navigation changed the highlighted option. */
-	onActiveValueChange?: (value: string | null) => void
+  // User intents reported back to the container.
+  onOpenChange: (open: boolean) => void
+  onQueryChange: (query: string) => void
+  onPick: (option: SelectOption) => void
+  onClear: () => void
+  onSelectAll: () => void
+  /** Pointer/keyboard navigation changed the highlighted option. */
+  onActiveValueChange?: (value: string | null) => void
 }

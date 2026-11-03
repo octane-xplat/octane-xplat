@@ -6,8 +6,8 @@ import { copyText } from './clipboard-write.macos'
 afterEach(() => writeText.mockReset())
 
 it('uses the AppKit platform writer without requiring a read capability', async () => {
-	writeText.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
-	expect(await copyText('Copied ✓')).toBe(true)
-	expect(await copyText('Denied')).toBe(false)
-	expect(writeText.mock.calls).toEqual([['Copied ✓'], ['Denied']])
+  writeText.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+  expect(await copyText('Copied ✓')).toBe(true)
+  expect(await copyText('Denied')).toBe(false)
+  expect(writeText.mock.calls).toEqual([['Copied ✓'], ['Denied']])
 })

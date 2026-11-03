@@ -13,14 +13,14 @@ const host = () => hostGlobal<Record<string, any>>('__octaneGtkHost')
 
 /** Resolved system appearance — 'light' or 'dark'. */
 export function getColorScheme(): ColorScheme {
-	return host()?.getColorScheme?.() === 'dark' ? 'dark' : 'light'
+  return host()?.getColorScheme?.() === 'dark' ? 'dark' : 'light'
 }
 
 export function subscribeSystemScheme(cb: () => void): () => void {
-	return host()?.onColorSchemeChange?.(cb) ?? (() => {})
+  return host()?.onColorSchemeChange?.(cb) ?? (() => {})
 }
 
 /** Reactive system appearance — 'light' | 'dark', re-renders on OS change. */
 export function useColorScheme(): ColorScheme {
-	return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
+  return useSyncExternalStore(subscribeSystemScheme, getColorScheme)
 }

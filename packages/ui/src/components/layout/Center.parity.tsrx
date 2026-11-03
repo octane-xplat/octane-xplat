@@ -4,11 +4,11 @@ import { View } from './View.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function CenterFixedChildFixture() @{
-	<Center className="parity-center-root" style={{ width: 96, height: 48 }}>
-		<View className="parity-center-child" style={{ width: 20, height: 10 }} />
-	</Center>
+  <Center className="parity-center-root" style={{ width: 96, height: 48 }}>
+    <View className="parity-center-child" style={{ width: 20, height: 10 }} />
+  </Center>
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'center-fixed-child', component: 'Center', renderer: CenterFixedChildFixture, props: {} },
+  { name: 'center-fixed-child', component: 'Center', renderer: CenterFixedChildFixture, props: {} },
 ]

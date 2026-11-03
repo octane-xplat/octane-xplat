@@ -9,25 +9,25 @@ import type { QueryStorageAdapter } from './query-cache'
  * it via `persist.storage`.
  */
 export const platformQueryStorage: QueryStorageAdapter = {
-	get: (key) => {
-		try {
-			return ApplicationSettings.getString(key) ?? null
-		} catch {
-			return null
-		}
-	},
-	set: (key, value) => {
-		try {
-			ApplicationSettings.setString(key, value)
-		} catch {
-			// Persistence is best-effort.
-		}
-	},
-	remove: (key) => {
-		try {
-			ApplicationSettings.remove(key)
-		} catch {
-			// Persistence is best-effort.
-		}
-	},
+  get: (key) => {
+    try {
+      return ApplicationSettings.getString(key) ?? null
+    } catch {
+      return null
+    }
+  },
+  set: (key, value) => {
+    try {
+      ApplicationSettings.setString(key, value)
+    } catch {
+      // Persistence is best-effort.
+    }
+  },
+  remove: (key) => {
+    try {
+      ApplicationSettings.remove(key)
+    } catch {
+      // Persistence is best-effort.
+    }
+  },
 }

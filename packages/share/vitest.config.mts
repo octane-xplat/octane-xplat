@@ -4,5 +4,5 @@ import { defineConfig } from 'vitest/config'
 // leaves driven through faithful global stubs (same call surfaces the NS
 // runtime marshals). Not a substitute for a native smoke run.
 export default defineConfig({
-	test: { include: ['tests/**/*.test.ts'], environment: 'node' },
+  test: { include: ['tests/**/*.test.ts'], environment: 'node' },
 })

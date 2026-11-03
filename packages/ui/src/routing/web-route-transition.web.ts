@@ -7,11 +7,11 @@ import type { TransitionDefinition, WebTransitionOptions } from '../props'
  * export const detail = defineWebTransition({ types: ({ direction }) => ['detail-' + direction] })
  */
 export function defineWebTransition(options: WebTransitionOptions = {}): TransitionDefinition {
-	return Object.freeze({
-		kind: 'web',
-		options: Object.freeze({
-			...options,
-			types: Array.isArray(options.types) ? Object.freeze([...options.types]) : options.types,
-		}),
-	})
+  return Object.freeze({
+    kind: 'web',
+    options: Object.freeze({
+      ...options,
+      types: Array.isArray(options.types) ? Object.freeze([...options.types]) : options.types,
+    }),
+  })
 }

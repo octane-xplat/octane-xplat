@@ -3,14 +3,14 @@ import { SearchInput } from './SearchInput.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SearchInputFixture() @{
-	<SearchInput
-		className="parity-search-input-root"
-		style={{ width: 220, height: 40 }}
-		placeholder="Search projects"
-		accessibilityLabel="Search projects"
-	/>
+  <SearchInput
+    className="parity-search-input-root"
+    style={{ width: 220, height: 40 }}
+    placeholder="Search projects"
+    accessibilityLabel="Search projects"
+  />
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'search-input-basic', component: 'SearchInput', renderer: SearchInputFixture, props: {} },
+  { name: 'search-input-basic', component: 'SearchInput', renderer: SearchInputFixture, props: {} },
 ]

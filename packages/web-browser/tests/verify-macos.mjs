@@ -27,66 +27,66 @@ const TWO = '<!doctype html><title>Page Two</title><body>two</body>'
 const POPUP = '<!doctype html><title>Popup</title><body>popup</body>'
 
 async function consumer(packed, app, source) {
-	const installed = join(app, 'node_modules/@octane-xplat/web-browser')
-	await mkdir(installed, { recursive: true })
-	await cp(packed, installed, { recursive: true })
-	await writeFile(
-		join(app, 'package.json'),
-		JSON.stringify({
-			name: 'web-browser-fixture',
-			type: 'module',
-			dependencies: { '@octane-xplat/web-browser': '0.19.0' },
-		}),
-	)
-	await writeFile(join(app, 'fixture.mjs'), source)
-	await build({
-		configFile: false,
-		root: app,
-		logLevel: 'error',
-		resolve: { conditions: ['macos', 'native'] },
-		build: {
-			minify: false,
-			lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
-		},
-	})
-	return join(app, 'dist/fixture.cjs')
+  const installed = join(app, 'node_modules/@octane-xplat/web-browser')
+  await mkdir(installed, { recursive: true })
+  await cp(packed, installed, { recursive: true })
+  await writeFile(
+    join(app, 'package.json'),
+    JSON.stringify({
+      name: 'web-browser-fixture',
+      type: 'module',
+      dependencies: { '@octane-xplat/web-browser': '0.19.0' },
+    }),
+  )
+  await writeFile(join(app, 'fixture.mjs'), source)
+  await build({
+    configFile: false,
+    root: app,
+    logLevel: 'error',
+    resolve: { conditions: ['macos', 'native'] },
+    build: {
+      minify: false,
+      lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
+    },
+  })
+  return join(app, 'dist/fixture.cjs')
 }
 
 export async function verifyMacOS(packed, temporary) {
-	assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
-	const app = join(temporary, 'target')
-	await mkdir(app, { recursive: true })
-	const server = createServer((request, response) => {
-		if (request.url === '/one.html') {
-			response.writeHead(200, { 'Content-Type': 'text/html' })
-			response.end(ONE)
-		} else if (request.url === '/two.html') {
-			response.writeHead(200, { 'Content-Type': 'text/html' })
-			response.end(TWO)
-		} else if (request.url === '/popup.html') {
-			response.writeHead(200, { 'Content-Type': 'text/html' })
-			response.end(POPUP)
-		} else {
-			response.writeHead(404)
-			response.end('missing')
-		}
-	})
-	await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
-	const remote = `http://127.0.0.1:${server.address().port}`
-	try {
-		// buildMacOSNative walks the package's declared dependencies, and the
-		// engine's macOS import resolves the workspace platform bindings —
-		// link it before bundling so vite and the leaf scanner see them.
-		const link = async (name, root) => {
-			await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
-			await symlink(root, join(app, 'node_modules', name))
-		}
+  assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
+  const app = join(temporary, 'target')
+  await mkdir(app, { recursive: true })
+  const server = createServer((request, response) => {
+    if (request.url === '/one.html') {
+      response.writeHead(200, { 'Content-Type': 'text/html' })
+      response.end(ONE)
+    } else if (request.url === '/two.html') {
+      response.writeHead(200, { 'Content-Type': 'text/html' })
+      response.end(TWO)
+    } else if (request.url === '/popup.html') {
+      response.writeHead(200, { 'Content-Type': 'text/html' })
+      response.end(POPUP)
+    } else {
+      response.writeHead(404)
+      response.end('missing')
+    }
+  })
+  await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
+  const remote = `http://127.0.0.1:${server.address().port}`
+  try {
+    // buildMacOSNative walks the package's declared dependencies, and the
+    // engine's macOS import resolves the workspace platform bindings —
+    // link it before bundling so vite and the leaf scanner see them.
+    const link = async (name, root) => {
+      await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
+      await symlink(root, join(app, 'node_modules', name))
+    }
 
-		await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
-		const script = await consumer(
-			packed,
-			app,
-			`
+    await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
+    const script = await consumer(
+      packed,
+      app,
+      `
 import { webBrowser } from './node_modules/@octane-xplat/web-browser/src/index.macos.ts'
 const application = NSApplication.sharedApplication
 const check = (condition, message) => { if (!condition) throw Error(message) }
@@ -231,50 +231,50 @@ async function main() {
 }
 main().then(() => __xplatStopHost(), error => { let d = ''; try { d = ' desc=' + String(error) } catch(e) {} console.error('FIXTURE_FAIL ' + String(error && (error.message || error.name || '')) + ' ' + String(error && error.stack).split('\\n').slice(0,4).join(' | ') + d); __xplatStopHost() })
 `,
-		)
+    )
 
-		const artifact = await buildMacOSNative(app)
-		const bootstrap = join(app, 'bootstrap.js')
-		await writeNativeBootstrap(artifact, bootstrap)
-		const output = await new Promise((resolveOutput, reject) => {
-			const child = spawn(
-				join(hostBundle, 'host'),
-				[
-					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-					script,
-					artifact.metadata[macOSHostArch()],
-					bootstrap,
-				],
-				{ cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
-			)
-			let text = ''
-			child.stdout.on('data', (chunk) => (text += chunk))
-			child.stderr.on('data', (chunk) => (text += chunk))
-			const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
-			child.once('error', (error) => {
-				clearTimeout(timeout)
-				reject(error)
-			})
-			child.once('close', (code, signal) => {
-				clearTimeout(timeout)
-				if (code === 0) {
-					resolveOutput(text)
-				} else {
-					reject(new Error(`host exited ${code} ${signal}: ${text}`))
-				}
-			})
-		})
+    const artifact = await buildMacOSNative(app)
+    const bootstrap = join(app, 'bootstrap.js')
+    await writeNativeBootstrap(artifact, bootstrap)
+    const output = await new Promise((resolveOutput, reject) => {
+      const child = spawn(
+        join(hostBundle, 'host'),
+        [
+          join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+          script,
+          artifact.metadata[macOSHostArch()],
+          bootstrap,
+        ],
+        { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
+      )
+      let text = ''
+      child.stdout.on('data', (chunk) => (text += chunk))
+      child.stderr.on('data', (chunk) => (text += chunk))
+      const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+      child.once('error', (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
+      child.once('close', (code, signal) => {
+        clearTimeout(timeout)
+        if (code === 0) {
+          resolveOutput(text)
+        } else {
+          reject(new Error(`host exited ${code} ${signal}: ${text}`))
+        }
+      })
+    })
 
-		assert.match(output, /MACOS_WEB_BROWSER_TARGET_OK/, output)
-		console.log(
-			output
-				.trim()
-				.split('\n')
-				.filter((line) => line.includes('MACOS_WEB_BROWSER'))
-				.join('\n'),
-		)
-	} finally {
-		server.closeAllConnections()
-		await new Promise((resolveClose) => server.close(resolveClose))
-	}
+    assert.match(output, /MACOS_WEB_BROWSER_TARGET_OK/, output)
+    console.log(
+      output
+        .trim()
+        .split('\n')
+        .filter((line) => line.includes('MACOS_WEB_BROWSER'))
+        .join('\n'),
+    )
+  } finally {
+    server.closeAllConnections()
+    await new Promise((resolveClose) => server.close(resolveClose))
+  }
 }

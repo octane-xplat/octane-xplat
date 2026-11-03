@@ -6,10 +6,10 @@ const unsupported = () => Promise.reject(new Error('unsupported: no background t
 
 /** Background-task scheduler service — see BackgroundTasks for the contract. */
 export const backgroundTasks: BackgroundTasks = {
-	supported: false,
-	defineTask: () => {},
-	register: unsupported,
-	unregister: unsupported,
-	getStatus: async (): Promise<TaskStatus> => 'unavailable',
-	isRegistered: async () => false,
+  supported: false,
+  defineTask: () => {},
+  register: unsupported,
+  unregister: unsupported,
+  getStatus: async (): Promise<TaskStatus> => 'unavailable',
+  isRegistered: async () => false,
 }

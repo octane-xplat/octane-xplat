@@ -6,77 +6,77 @@
 // (`observeElement`, default on).
 
 import {
-	createShader as upstreamCreateShader,
-	createSharedDevice as upstreamCreateSharedDevice,
-	getWebGPUSupport as upstreamGetWebGPUSupport,
-	isWebGPUSupported as upstreamIsWebGPUSupported,
+  createShader as upstreamCreateShader,
+  createSharedDevice as upstreamCreateSharedDevice,
+  getWebGPUSupport as upstreamGetWebGPUSupport,
+  isWebGPUSupported as upstreamIsWebGPUSupported,
 } from 'shaders/js'
 
 import type {
-	CreateShaderOptions,
-	PresetConfig,
-	SharedGpu,
-	ShaderInstance,
-	WebGPUSupportInfo,
+  CreateShaderOptions,
+  PresetConfig,
+  SharedGpu,
+  ShaderInstance,
+  WebGPUSupportInfo,
 } from './types'
 
 import { resolveOptions, throwIfAborted, waitForPositiveSize, wrapInstance } from './shared'
 import type { Size } from './shared'
 
 function measure(canvas: any): Size {
-	const rect = canvas?.getBoundingClientRect?.()
-	const width = Number(rect?.width) || Number(canvas?.width) || 0
-	const height = Number(rect?.height) || Number(canvas?.height) || 0
-	return { width, height }
+  const rect = canvas?.getBoundingClientRect?.()
+  const width = Number(rect?.width) || Number(canvas?.width) || 0
+  const height = Number(rect?.height) || Number(canvas?.height) || 0
+  return { width, height }
 }
 
 function attachVisibility(hide: () => void, show: () => void): () => void {
-	const doc = (globalThis as any).document
-	if (!doc?.addEventListener) {
-		return () => {}
-	}
+  const doc = (globalThis as any).document
+  if (!doc?.addEventListener) {
+    return () => {}
+  }
 
-	const onChange = () => (doc.visibilityState === 'hidden' ? hide() : show())
-	doc.addEventListener('visibilitychange', onChange)
-	return () => doc.removeEventListener('visibilitychange', onChange)
+  const onChange = () => (doc.visibilityState === 'hidden' ? hide() : show())
+  doc.addEventListener('visibilitychange', onChange)
+  return () => doc.removeEventListener('visibilitychange', onChange)
 }
 
 export async function createShader(
-	canvas: unknown,
-	preset: PresetConfig,
-	options?: CreateShaderOptions,
+  canvas: unknown,
+  preset: PresetConfig,
+  options?: CreateShaderOptions,
 ): Promise<ShaderInstance> {
-	const { upstream, signal } = resolveOptions(options, {})
-	throwIfAborted(signal)
-	await waitForPositiveSize(() => measure(canvas), signal)
-	const inner = await upstreamCreateShader(canvas as any, preset, upstream)
-	if (signal?.aborted) {
-		// Unmounted while the async engine was starting — release the late
-		// completion instead of reviving a disposed surface.
-		inner.destroy()
-		throwIfAborted(signal)
-	}
+  const { upstream, signal } = resolveOptions(options, {})
+  throwIfAborted(signal)
+  await waitForPositiveSize(() => measure(canvas), signal)
+  const inner = await upstreamCreateShader(canvas as any, preset, upstream)
+  if (signal?.aborted) {
+    // Unmounted while the async engine was starting — release the late
+    // completion instead of reviving a disposed surface.
+    inner.destroy()
+    throwIfAborted(signal)
+  }
 
-	return wrapInstance(inner, attachVisibility)
+  return wrapInstance(inner, attachVisibility)
 }
 
 export function createSharedDevice(options?: {
-	powerPreference?: string
+  powerPreference?: string
 }): Promise<SharedGpu | null> {
-	return upstreamCreateSharedDevice(options as any)
+  return upstreamCreateSharedDevice(options as any)
 }
 
 export function isWebGPUSupported(): boolean {
-	return upstreamIsWebGPUSupported()
+  return upstreamIsWebGPUSupported()
 }
 
 export function getWebGPUSupport(): Promise<WebGPUSupportInfo> {
-	return upstreamGetWebGPUSupport()
+  return upstreamGetWebGPUSupport()
 }
 
 export function prefersReducedMotion(): boolean {
-	const matchMedia = (globalThis as any).matchMedia
-	return typeof matchMedia === 'function'
-		? !!matchMedia('(prefers-reduced-motion: reduce)').matches
-		: false
+  const matchMedia = (globalThis as any).matchMedia
+  return typeof matchMedia === 'function'
+    ? !!matchMedia('(prefers-reduced-motion: reduce)').matches
+    : false
 }

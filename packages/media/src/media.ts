@@ -10,11 +10,11 @@ import { create as createImagePicker } from '@nativescript/imagepicker'
 import type { ImagePickerMediaType } from '@nativescript/imagepicker'
 import { Application, File, ImageSource, knownFolders, path } from '@nativescript/core'
 import type {
-	CapturePhotoOptions,
-	MediaImpl,
-	MediaPermissionKind,
-	PermissionResult,
-	PickedImage,
+  CapturePhotoOptions,
+  MediaImpl,
+  MediaPermissionKind,
+  PermissionResult,
+  PickedImage,
 } from './types'
 
 import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
@@ -22,26 +22,26 @@ import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 import { android } from '@octane-xplat/platform/android'
 
 async function ensurePhotos(): Promise<PermissionResult> {
-	let picker
-	try {
-		picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
-	} catch {
-		// Plugin missing or unusable — capability absence, not user denial.
-		return 'unsupported'
-	}
+  let picker
+  try {
+    picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
+  } catch {
+    // Plugin missing or unusable — capability absence, not user denial.
+    return 'unsupported'
+  }
 
-	try {
-		const granted: unknown = await picker.authorize()
-		return granted === true ||
-			(typeof granted === 'object' &&
-				granted !== null &&
-				'authorized' in granted &&
-				granted.authorized === true)
-			? 'granted'
-			: 'denied'
-	} catch {
-		return 'denied'
-	}
+  try {
+    const granted: unknown = await picker.authorize()
+    return granted === true ||
+      (typeof granted === 'object' &&
+        granted !== null &&
+        'authorized' in granted &&
+        granted.authorized === true)
+      ? 'granted'
+      : 'denied'
+  } catch {
+    return 'denied'
+  }
 }
 
 let cameraRequestCode = 7717
@@ -53,233 +53,233 @@ let cameraRequestCode = 7717
 // string vs the 2.x `[status, bool]` array) — a granted permission then maps
 // to 'denied'. The direct paths can't drift with that dependency.
 async function ensureCamera(): Promise<PermissionResult> {
-	try {
-		if (!isCameraAvailable()) {
-			return 'unsupported'
-		}
+  try {
+    if (!isCameraAvailable()) {
+      return 'unsupported'
+    }
 
-		if (Application.ios) {
-			const av = (globalThis as any).AVCaptureDevice
-			const video = (globalThis as any).AVMediaTypeVideo
-			// 0=notDetermined 1=restricted 2=denied 3=authorized
-			const status = av?.authorizationStatusForMediaType?.(video)
-			if (status === 3) {
-				return 'granted'
-			}
+    if (Application.ios) {
+      const av = (globalThis as any).AVCaptureDevice
+      const video = (globalThis as any).AVMediaTypeVideo
+      // 0=notDetermined 1=restricted 2=denied 3=authorized
+      const status = av?.authorizationStatusForMediaType?.(video)
+      if (status === 3) {
+        return 'granted'
+      }
 
-			if (status === 1 || status === 2) {
-				return 'denied'
-			}
+      if (status === 1 || status === 2) {
+        return 'denied'
+      }
 
-			// Framework unlinked or metadata missing — nothing can be granted.
-			if (typeof av?.requestAccessForMediaTypeCompletionHandler !== 'function') {
-				return 'unsupported'
-			}
+      // Framework unlinked or metadata missing — nothing can be granted.
+      if (typeof av?.requestAccessForMediaTypeCompletionHandler !== 'function') {
+        return 'unsupported'
+      }
 
-			return await new Promise<PermissionResult>((resolve) => {
-				av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
-					resolve(granted ? 'granted' : 'denied'),
-				)
-			})
-		}
+      return await new Promise<PermissionResult>((resolve) => {
+        av.requestAccessForMediaTypeCompletionHandler(video, (granted: boolean) =>
+          resolve(granted ? 'granted' : 'denied'),
+        )
+      })
+    }
 
-		const perm = 'android.permission.CAMERA'
-		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+    const perm = 'android.permission.CAMERA'
+    const activity = Application.android.foregroundActivity ?? Application.android.startActivity
 
-		if (
-			activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
-		) {
-			return 'granted'
-		}
+    if (
+      activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
+    ) {
+      return 'granted'
+    }
 
-		if (!activity) {
-			return 'denied'
-		}
+    if (!activity) {
+      return 'denied'
+    }
 
-		return await new Promise<PermissionResult>((resolve) => {
-			const requestCode = cameraRequestCode++
-			const event = Application.android.activityRequestPermissionsEvent
-			const onResult = (args: any) => {
-				if (args.requestCode !== requestCode) {
-					return
-				}
+    return await new Promise<PermissionResult>((resolve) => {
+      const requestCode = cameraRequestCode++
+      const event = Application.android.activityRequestPermissionsEvent
+      const onResult = (args: any) => {
+        if (args.requestCode !== requestCode) {
+          return
+        }
 
-				Application.android.off(event, onResult)
+        Application.android.off(event, onResult)
 
-				resolve(
-					args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
-						? 'granted'
-						: 'denied',
-				)
-			}
+        resolve(
+          args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
+            ? 'granted'
+            : 'denied',
+        )
+      }
 
-			Application.android.on(event, onResult)
-			try {
-				activity.requestPermissions([perm], requestCode)
-			} catch {
-				// A finishing activity rejects the request synchronously —
-				// do not leak the global listener.
-				Application.android.off(event, onResult)
-				resolve('denied')
-			}
-		})
-	} catch (e) {
-		console.log('[media] ensureCamera error: ' + (e as Error)?.message)
-		return 'denied'
-	}
+      Application.android.on(event, onResult)
+      try {
+        activity.requestPermissions([perm], requestCode)
+      } catch {
+        // A finishing activity rejects the request synchronously —
+        // do not leak the global listener.
+        Application.android.off(event, onResult)
+        resolve('denied')
+      }
+    })
+  } catch (e) {
+    console.log('[media] ensureCamera error: ' + (e as Error)?.message)
+    return 'denied'
+  }
 }
 
 async function persistImage(source: ImageSource, name: string): Promise<PickedImage> {
-	const filename = `octane-image-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
-	const uri = path.join(knownFolders.temp().path, filename)
-	try {
-		const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
-		if (!saved) {
-			throw new Error('Could not save the image to temporary storage')
-		}
+  const filename = `octane-image-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
+  const uri = path.join(knownFolders.temp().path, filename)
+  try {
+    const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
+    if (!saved) {
+      throw new Error('Could not save the image to temporary storage')
+    }
 
-		return { name, uri }
-	} catch (error) {
-		// This operation owns this generated path, including a partial save.
-		try {
-			File.fromPath(uri).removeSync()
-		} catch {}
+    return { name, uri }
+  } catch (error) {
+    // This operation owns this generated path, including a partial save.
+    try {
+      File.fromPath(uri).removeSync()
+    } catch {}
 
-		throw error
-	}
+    throw error
+  }
 }
 
 async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[]> {
-	const picker = createImagePicker({ mode, mediaType: 1 as ImagePickerMediaType })
-	const granted: unknown = await picker.authorize()
-	if (
-		!(
-			granted === true ||
-			(typeof granted === 'object' &&
-				granted !== null &&
-				'authorized' in granted &&
-				granted.authorized === true)
-		)
-	) {
-		return []
-	}
+  const picker = createImagePicker({ mode, mediaType: 1 as ImagePickerMediaType })
+  const granted: unknown = await picker.authorize()
+  if (
+    !(
+      granted === true ||
+      (typeof granted === 'object' &&
+        granted !== null &&
+        'authorized' in granted &&
+        granted.authorized === true)
+    )
+  ) {
+    return []
+  }
 
-	const selections = await picker.present()
-	const refs: PickedImage[] = []
-	try {
-		for (const selection of selections) {
-			const source = await ImageSource.fromAsset(selection.asset)
-			const name = selection.originalFilename || selection.filename || 'image.jpg'
-			refs.push(await persistImage(source, name))
-		}
+  const selections = await picker.present()
+  const refs: PickedImage[] = []
+  try {
+    for (const selection of selections) {
+      const source = await ImageSource.fromAsset(selection.asset)
+      const name = selection.originalFilename || selection.filename || 'image.jpg'
+      refs.push(await persistImage(source, name))
+    }
 
-		return refs
-	} catch (error) {
-		for (const ref of refs) {
-			try {
-				File.fromPath(ref.uri).removeSync()
-			} catch {}
-		}
+    return refs
+  } catch (error) {
+    for (const ref of refs) {
+      try {
+        File.fromPath(ref.uri).removeSync()
+      } catch {}
+    }
 
-		throw error
-	}
+    throw error
+  }
 }
 
 const toResponse = (status: PermissionResult): PermissionResponse => ({
-	status,
-	granted: status === 'granted',
-	canAskAgain: status === 'granted',
+  status,
+  granted: status === 'granted',
+  canAskAgain: status === 'granted',
 })
 
 // Non-prompting camera read — iOS authorizationStatusForMediaType and
 // Android checkSelfPermission answer without surfacing a dialog.
 async function cameraStatus(): Promise<PermissionResponse> {
-	try {
-		if (!isCameraAvailable()) {
-			return toResponse('unsupported')
-		}
+  try {
+    if (!isCameraAvailable()) {
+      return toResponse('unsupported')
+    }
 
-		if (Application.ios) {
-			const av = (globalThis as any).AVCaptureDevice
-			const status = av?.authorizationStatusForMediaType?.((globalThis as any).AVMediaTypeVideo)
-			if (status === 3) {
-				return toResponse('granted')
-			}
+    if (Application.ios) {
+      const av = (globalThis as any).AVCaptureDevice
+      const status = av?.authorizationStatusForMediaType?.((globalThis as any).AVMediaTypeVideo)
+      if (status === 3) {
+        return toResponse('granted')
+      }
 
-			if (status === 0) {
-				return { status: 'undetermined', granted: false, canAskAgain: true }
-			}
+      if (status === 0) {
+        return { status: 'undetermined', granted: false, canAskAgain: true }
+      }
 
-			return status === 1 || status === 2 ? toResponse('denied') : toResponse('unsupported')
-		}
+      return status === 1 || status === 2 ? toResponse('denied') : toResponse('unsupported')
+    }
 
-		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
-		const granted =
-			activity?.checkSelfPermission?.('android.permission.CAMERA') ===
-			android.content.pm.PackageManager.PERMISSION_GRANTED
+    const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+    const granted =
+      activity?.checkSelfPermission?.('android.permission.CAMERA') ===
+      android.content.pm.PackageManager.PERMISSION_GRANTED
 
-		// Android can't distinguish never-asked from denied without the
-		// rationale hook — report undetermined and let request resolve it.
-		return granted
-			? toResponse('granted')
-			: { status: 'undetermined', granted: false, canAskAgain: true }
-	} catch {
-		return toResponse('unsupported')
-	}
+    // Android can't distinguish never-asked from denied without the
+    // rationale hook — report undetermined and let request resolve it.
+    return granted
+      ? toResponse('granted')
+      : { status: 'undetermined', granted: false, canAskAgain: true }
+  } catch {
+    return toResponse('unsupported')
+  }
 }
 
 // The imagepicker plugin has no non-prompting read — get reports
 // undetermined and lets requestPermissions resolve the real state.
 async function photosStatus(): Promise<PermissionResponse> {
-	try {
-		createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
-	} catch {
-		return toResponse('unsupported')
-	}
+  try {
+    createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
+  } catch {
+    return toResponse('unsupported')
+  }
 
-	return { status: 'undetermined', granted: false, canAskAgain: true }
+  return { status: 'undetermined', granted: false, canAskAgain: true }
 }
 
 /** Media service — gallery picking and still capture. See MediaImpl. */
 const media: Service<MediaImpl> = {
-	supported: true,
-	isAvailable: async () => true,
-	/** Opens the native image picker; returns null when canceled. */
-	async pickImage(): Promise<PickedImage | null> {
-		const [image] = await pickSelections('single')
-		return image ?? null
-	},
-	/** Opens the native image picker in multiple-selection mode. */
-	pickImages() {
-		return pickSelections('multiple')
-	},
-	/** Presents the OS camera UI; null when canceled, denied, or unsupported. */
-	async capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null> {
-		if ((await ensureCamera()) !== 'granted') {
-			return null
-		}
+  supported: true,
+  isAvailable: async () => true,
+  /** Opens the native image picker; returns null when canceled. */
+  async pickImage(): Promise<PickedImage | null> {
+    const [image] = await pickSelections('single')
+    return image ?? null
+  },
+  /** Opens the native image picker in multiple-selection mode. */
+  pickImages() {
+    return pickSelections('multiple')
+  },
+  /** Presents the OS camera UI; null when canceled, denied, or unsupported. */
+  async capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null> {
+    if ((await ensureCamera()) !== 'granted') {
+      return null
+    }
 
-		try {
-			const asset = await takePicture({
-				width: options?.width,
-				height: options?.height,
-				keepAspectRatio: options?.keepAspectRatio,
-				saveToGallery: options?.saveToGallery ?? false,
-				cameraFacing: options?.cameraFacing,
-			})
+    try {
+      const asset = await takePicture({
+        width: options?.width,
+        height: options?.height,
+        keepAspectRatio: options?.keepAspectRatio,
+        saveToGallery: options?.saveToGallery ?? false,
+        cameraFacing: options?.cameraFacing,
+      })
 
-			const source = await ImageSource.fromAsset(asset)
-			return await persistImage(source, `octane-capture-${Date.now()}.jpg`)
-		} catch {
-			return null
-		}
-	},
-	async getPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
-		return kind === 'photos' ? photosStatus() : cameraStatus()
-	},
-	async requestPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
-		return toResponse(kind === 'photos' ? await ensurePhotos() : await ensureCamera())
-	},
+      const source = await ImageSource.fromAsset(asset)
+      return await persistImage(source, `octane-capture-${Date.now()}.jpg`)
+    } catch {
+      return null
+    }
+  },
+  async getPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
+    return kind === 'photos' ? photosStatus() : cameraStatus()
+  },
+  async requestPermissions(kind: MediaPermissionKind): Promise<PermissionResponse> {
+    return toResponse(kind === 'photos' ? await ensurePhotos() : await ensureCamera())
+  },
 }
 
 // Register the permission owners this leaf provides so
@@ -288,13 +288,13 @@ const media: Service<MediaImpl> = {
 // not installed.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
 permissionOwners.camera = {
-	getPermissions: () => media.getPermissions('camera'),
-	requestPermissions: () => media.requestPermissions('camera'),
+  getPermissions: () => media.getPermissions('camera'),
+  requestPermissions: () => media.requestPermissions('camera'),
 }
 
 permissionOwners.photos = {
-	getPermissions: () => media.getPermissions('photos'),
-	requestPermissions: () => media.requestPermissions('photos'),
+  getPermissions: () => media.getPermissions('photos'),
+  requestPermissions: () => media.requestPermissions('photos'),
 }
 
 export { media }

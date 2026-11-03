@@ -10,24 +10,24 @@ import { nativeScript } from '@nativescript/unit-test-runner'
 // only works against an already-booted simulator, so boot first —
 // `xcrun simctl boot <udid>` — and pass `--device <udid>` (or NS_DEVICE).
 export default defineConfig({
-	plugins: [
-		nativeScript({
-			platform: process.env.NS_PLATFORM || 'ios', // 'android' | 'ios' | 'visionos'
-			device: process.env.NS_DEVICE || undefined,
-			// Keep this in sync with the import.meta.glob in src/test.ts —
-			// the device can only run files that made it into the bundle.
-			include: process.env.VISUAL_CAPTURE_URL
-				? ['src/tests/visual/capture.ios.spec.tsrx']
-				: ['src/**/*.spec.{ts,tsx,tsrx}', '!src/tests/visual/**'],
-			// The connect clock starts when the host session opens and covers
-			// `ns run`'s native build + install + boot — a cold build easily
-			// exceeds the 120s default, and hosted CI runners need ~12+ min for
-			// the vite bundle, pod install, and xcodebuild of the pod graph.
-			connectTimeout: process.env.VISUAL_CAPTURE_URL ? 180_000 : 1_800_000,
-		}),
-	],
-	test: {
-		// Device runs include app startup and real layout passes.
-		testTimeout: 30_000,
-	},
+  plugins: [
+    nativeScript({
+      platform: process.env.NS_PLATFORM || 'ios', // 'android' | 'ios' | 'visionos'
+      device: process.env.NS_DEVICE || undefined,
+      // Keep this in sync with the import.meta.glob in src/test.ts —
+      // the device can only run files that made it into the bundle.
+      include: process.env.VISUAL_CAPTURE_URL
+        ? ['src/tests/visual/capture.ios.spec.tsrx']
+        : ['src/**/*.spec.{ts,tsx,tsrx}', '!src/tests/visual/**'],
+      // The connect clock starts when the host session opens and covers
+      // `ns run`'s native build + install + boot — a cold build easily
+      // exceeds the 120s default, and hosted CI runners need ~12+ min for
+      // the vite bundle, pod install, and xcodebuild of the pod graph.
+      connectTimeout: process.env.VISUAL_CAPTURE_URL ? 180_000 : 1_800_000,
+    }),
+  ],
+  test: {
+    // Device runs include app startup and real layout passes.
+    testTimeout: 30_000,
+  },
 })

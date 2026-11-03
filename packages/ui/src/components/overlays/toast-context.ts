@@ -6,13 +6,13 @@ import type { ToastPosition } from '../../props'
  *  the right stack renders it — context never has to cross the overlay
  *  root boundary on native. */
 export interface ToastViewportContextValue {
-	id: string
-	position: ToastPosition
-	maxVisible: number
+  id: string
+  position: ToastPosition
+  maxVisible: number
 }
 
 export const ToastViewportContext: Context<ToastViewportContextValue | null> =
-	createContext<ToastViewportContextValue | null>(null)
+  createContext<ToastViewportContextValue | null>(null)
 
 /** JSX-provider form — universal-renderer contexts are callables, not
  *  `.Provider` members (same aliasing as DialogProvider). */

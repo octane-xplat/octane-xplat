@@ -7,9 +7,9 @@ import { useEffect } from 'octane'
 import type { BarcodeScannerProps } from './props'
 
 export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
-	useEffect(() => {
-		props.onError?.({ message: 'unsupported: live barcode scanning is not wired on macOS' })
-	}, [])
+  useEffect(() => {
+    props.onError?.({ message: 'unsupported: live barcode scanning is not wired on macOS' })
+  }, [])
 
-	<masonview style={props.style} className={props.className} />
+  <masonview style={props.style} className={props.className} />
 }

@@ -2,20 +2,20 @@ import type { TextMorphProps, TextMorphRun, TextMorphCancel } from '../types/ind
 
 declare function accepts(props: TextMorphProps): void
 accepts({
-	value: 'Deploy\tqueued',
-	className: 'status',
-	style: { fontSize: 16, fontWeight: 'bold', color: 'green' },
-	duration: 400,
-	enabled: true,
-	accessibilityLiveRegion: 'polite',
-	onComplete: (run: TextMorphRun) => {
-		void run.runId
-		void run.from
-		void run.to
-	},
-	onCancel: (run: TextMorphCancel) => {
-		void run.reason
-	},
+  value: 'Deploy\tqueued',
+  className: 'status',
+  style: { fontSize: 16, fontWeight: 'bold', color: 'green' },
+  duration: 400,
+  enabled: true,
+  accessibilityLiveRegion: 'polite',
+  onComplete: (run: TextMorphRun) => {
+    void run.runId
+    void run.from
+    void run.to
+  },
+  onCancel: (run: TextMorphCancel) => {
+    void run.reason
+  },
 })
 
 accepts({ value: '' })

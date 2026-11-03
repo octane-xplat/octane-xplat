@@ -4,14 +4,14 @@ import type { FileInputFile } from '@octane-xplat/files'
 import { useState } from 'octane'
 
 export function FileInputShowcase() @{
-	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>(null)
+  const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>(null)
 
-	<div style={{ width: 350 }}>
-		<FileInput
-			label="Upload file"
-			value={value}
-			onChange={setValue}
-			placeholder="Drag files here or click to browse"
-		/>
-	</div>
+  <div style={{ width: 350 }}>
+    <FileInput
+      label="Upload file"
+      value={value}
+      onChange={setValue}
+      placeholder="Drag files here or click to browse"
+    />
+  </div>
 }

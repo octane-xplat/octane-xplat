@@ -5,10 +5,10 @@ import { cameraHardwarePresent, ensureCameraPermission } from './camera-permissi
 import { startCameraPreview } from './camera-session.ios'
 import { attachSessionPreview } from './session'
 import {
-	applyEscapeProps,
-	layoutChildProps,
-	nativeAccessibilityRole,
-	nativeAccessibilityState,
+  applyEscapeProps,
+  layoutChildProps,
+  nativeAccessibilityRole,
+  nativeAccessibilityState,
 } from './layout-child'
 
 import { observePreviewTap } from './preview-tap'
@@ -17,110 +17,110 @@ import { observePreviewTap } from './preview-tap'
  *  attaches to the session-owned AVCaptureSession so movie recording can
  *  share it; without one the view owns its session as before. */
 export function CameraView(props: CameraViewProps): unknown @{
-	const host = useRef<any>(null)
-	const active = props.active !== false
-	const facing = props.facing ?? 'back'
-	useImperativeHandle(
-		props.ref,
-		() => ({ native: host.current.ios ?? host.current.nativeViewProtected }),
-		[],
-	)
+  const host = useRef<any>(null)
+  const active = props.active !== false
+  const facing = props.facing ?? 'back'
+  useImperativeHandle(
+    props.ref,
+    () => ({ native: host.current.ios ?? host.current.nativeViewProtected }),
+    [],
+  )
 
-	const bindHost = useCallback((view: any) => {
-		host.current = view
-	}, [])
+  const bindHost = useCallback((view: any) => {
+    host.current = view
+  }, [])
 
-	useEffect(() => {
-		const view = host.current
-		if (!view || !active) {
-			return
-		}
+  useEffect(() => {
+    const view = host.current
+    if (!view || !active) {
+      return
+    }
 
-		let disposed = false
-		let stopPreview: (() => void) | undefined
-		const fail = (message: string) => props.onError?.({ message })
+    let disposed = false
+    let stopPreview: (() => void) | undefined
+    const fail = (message: string) => props.onError?.({ message })
 
-		if (props.session) {
-			if (props.facing !== undefined) {
-				fail('camera session conflicts with facing')
-				return
-			}
+    if (props.session) {
+      if (props.facing !== undefined) {
+        fail('camera session conflicts with facing')
+        return
+      }
 
-			try {
-				const detach = attachSessionPreview(props.session, view, {
-					onReady: () => {
-						if (!disposed) {
-							props.onReady?.()
-						}
-					},
-				})
+      try {
+        const detach = attachSessionPreview(props.session, view, {
+          onReady: () => {
+            if (!disposed) {
+              props.onReady?.()
+            }
+          },
+        })
 
-				return () => {
-					disposed = true
-					detach()
-				}
-			} catch (error: any) {
-				fail(error?.message ?? 'camera session error')
-				return
-			}
-		}
+        return () => {
+          disposed = true
+          detach()
+        }
+      } catch (error: any) {
+        fail(error?.message ?? 'camera session error')
+        return
+      }
+    }
 
-		if (!cameraHardwarePresent()) {
-			fail('camera unsupported')
-			return
-		}
+    if (!cameraHardwarePresent()) {
+      fail('camera unsupported')
+      return
+    }
 
-		ensureCameraPermission().then((granted) => {
-			if (disposed) {
-				return
-			}
+    ensureCameraPermission().then((granted) => {
+      if (disposed) {
+        return
+      }
 
-			if (!granted) {
-				fail('camera permission denied')
-				return
-			}
+      if (!granted) {
+        fail('camera permission denied')
+        return
+      }
 
-			try {
-				stopPreview = startCameraPreview(view, facing, props.onReady)
-			} catch (error: any) {
-				fail(error?.message ?? 'camera error')
-			}
-		})
+      try {
+        stopPreview = startCameraPreview(view, facing, props.onReady)
+      } catch (error: any) {
+        fail(error?.message ?? 'camera error')
+      }
+    })
 
-		return () => {
-			disposed = true
-			stopPreview?.()
-		}
-	}, [active, facing, props.session])
+    return () => {
+      disposed = true
+      stopPreview?.()
+    }
+  }, [active, facing, props.session])
 
-	useEffect(() => {
-		const view = host.current
-		if (!view) {
-			return
-		}
+  useEffect(() => {
+    const view = host.current
+    if (!view) {
+      return
+    }
 
-		applyEscapeProps(view.ios ?? view.nativeViewProtected, props)
-	}, [props.ref, props.ios])
+    applyEscapeProps(view.ios ?? view.nativeViewProtected, props)
+  }, [props.ref, props.ios])
 
-	useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
+  useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
 
-	<masonview
-		ref={bindHost}
-		id={props.id}
-		className={['vx-layers', 'vx-cameraview', props.className]}
-		{...layoutChildProps(props, {
-			display: 'grid',
-			gridTemplateRows: '1fr',
-			gridTemplateColumns: '1fr',
-			backgroundColor: '#000',
-			...props.style,
-		})}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
-		accessibilityLiveRegion={props.accessibilityLiveRegion as any}
-	/>
+  <masonview
+    ref={bindHost}
+    id={props.id}
+    className={['vx-layers', 'vx-cameraview', props.className]}
+    {...layoutChildProps(props, {
+      display: 'grid',
+      gridTemplateRows: '1fr',
+      gridTemplateColumns: '1fr',
+      backgroundColor: '#000',
+      ...props.style,
+    })}
+    accessible={props.accessible}
+    accessibilityLabel={props.accessibilityLabel}
+    accessibilityRole={nativeAccessibilityRole(props.accessibilityRole) as any}
+    accessibilityHint={props.accessibilityHint}
+    accessibilityValue={props.accessibilityValue}
+    accessibilityState={nativeAccessibilityState(props.accessibilityState) as any}
+    accessibilityLiveRegion={props.accessibilityLiveRegion as any}
+  />
 }

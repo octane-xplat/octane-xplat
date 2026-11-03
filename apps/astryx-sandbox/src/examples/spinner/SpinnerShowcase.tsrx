@@ -2,5 +2,5 @@
 import { Spinner } from '@octane-xplat/ui'
 
 export function SpinnerShowcase() @{
-	return <Spinner size="lg" />
+  return <Spinner size="lg" />
 }

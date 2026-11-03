@@ -14,43 +14,43 @@ import { useColorState } from '../../theme/color-state.tsrx'
  *  hue survives achromatic edits. React Aria's children-composition picker
  *  is deferred. */
 export function ColorPicker(props: ColorPickerProps): unknown @{
-	const color = useColorState(props, '#ff0000')
+  const color = useColorState(props, '#ff0000')
 
-	<masonview
-		id={props.id}
-		className={cx('vx-color-picker', props.className)}
-		style={mergeStyle(
-			{ display: 'flex', flexDirection: 'column', gap: 8 },
-			styleRecord(props.style),
-		)}
-	>
-		<ColorAreaView
-			hsb={color.hsb}
-			onHsb={color.set}
-			onHsbEnd={color.end}
-			isDisabled={props.isDisabled}
-		/>
-		<ColorSliderView
-			hsb={color.hsb}
-			onHsb={color.set}
-			onHsbEnd={color.end}
-			isDisabled={props.isDisabled}
-		/>
-		<masonview
-			className="vx-color-picker-row"
-			style={mergeStyle({ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center' })}
-		>
-			<ColorSwatch color={color.hex} />
-			<ColorField
-				value={color.hex}
-				isDisabled={props.isDisabled}
-				onChange={(hex) => {
-					if (normalizeHex(hex)) {
-						color.setHex(hex)
-					}
-				}}
-				onChangeEnd={color.end}
-			/>
-		</masonview>
-	</masonview>
+  <masonview
+    id={props.id}
+    className={cx('vx-color-picker', props.className)}
+    style={mergeStyle(
+      { display: 'flex', flexDirection: 'column', gap: 8 },
+      styleRecord(props.style),
+    )}
+  >
+    <ColorAreaView
+      hsb={color.hsb}
+      onHsb={color.set}
+      onHsbEnd={color.end}
+      isDisabled={props.isDisabled}
+    />
+    <ColorSliderView
+      hsb={color.hsb}
+      onHsb={color.set}
+      onHsbEnd={color.end}
+      isDisabled={props.isDisabled}
+    />
+    <masonview
+      className="vx-color-picker-row"
+      style={mergeStyle({ display: 'flex', flexDirection: 'row', gap: 8, alignItems: 'center' })}
+    >
+      <ColorSwatch color={color.hex} />
+      <ColorField
+        value={color.hex}
+        isDisabled={props.isDisabled}
+        onChange={(hex) => {
+          if (normalizeHex(hex)) {
+            color.setHex(hex)
+          }
+        }}
+        onChangeEnd={color.end}
+      />
+    </masonview>
+  </masonview>
 }

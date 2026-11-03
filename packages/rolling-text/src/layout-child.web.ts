@@ -4,56 +4,56 @@ import type { LayoutChildProps } from './props'
  *  attribute has no CSS equivalent and is ignored on web. Grid indices are
  *  zero-based in the shared API, matching NativeScript. */
 export function layoutChildProps(
-	props: LayoutChildProps & { style?: any },
-	baseStyle: any = props.style,
+  props: LayoutChildProps & { style?: any },
+  baseStyle: any = props.style,
 ): {
-	style: any
+  style: any
 } {
-	const style = { ...baseStyle }
-	if (props.row !== undefined) {
-		style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
-	} else if (props.rowSpan !== undefined) {
-		style.gridRow = `span ${props.rowSpan}`
-	}
+  const style = { ...baseStyle }
+  if (props.row !== undefined) {
+    style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
+  } else if (props.rowSpan !== undefined) {
+    style.gridRow = `span ${props.rowSpan}`
+  }
 
-	if (props.col !== undefined) {
-		style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
-	} else if (props.colSpan !== undefined) {
-		style.gridColumn = `span ${props.colSpan}`
-	}
+  if (props.col !== undefined) {
+    style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
+  } else if (props.colSpan !== undefined) {
+    style.gridColumn = `span ${props.colSpan}`
+  }
 
-	if (props.left !== undefined) {
-		style.left = props.left
-	}
+  if (props.left !== undefined) {
+    style.left = props.left
+  }
 
-	if (props.top !== undefined) {
-		style.top = props.top
-	}
+  if (props.top !== undefined) {
+    style.top = props.top
+  }
 
-	if (props.flexGrow !== undefined) {
-		style.flexGrow = props.flexGrow
-	}
+  if (props.flexGrow !== undefined) {
+    style.flexGrow = props.flexGrow
+  }
 
-	if (props.flexShrink !== undefined) {
-		style.flexShrink = props.flexShrink
-	}
+  if (props.flexShrink !== undefined) {
+    style.flexShrink = props.flexShrink
+  }
 
-	if (props.alignSelf !== undefined) {
-		style.alignSelf = props.alignSelf
-	}
+  if (props.alignSelf !== undefined) {
+    style.alignSelf = props.alignSelf
+  }
 
-	if (props.order !== undefined) {
-		style.order = props.order
-	}
+  if (props.order !== undefined) {
+    style.order = props.order
+  }
 
-	// The shared contract is "numbers are dips" (RN semantics), but octane's
-	// DOM renderer keeps React's unitless list — lineHeight is unitless there,
-	// so `style={{lineHeight: 40}}` would render a 40× multiplier instead of
-	// 40px. lineHeight is the one unitless-in-React prop that is a length in
-	// the shared vocabulary; force the px suffix.
-	if (typeof style.lineHeight === 'number') {
-		style.lineHeight = style.lineHeight + 'px'
-	}
+  // The shared contract is "numbers are dips" (RN semantics), but octane's
+  // DOM renderer keeps React's unitless list — lineHeight is unitless there,
+  // so `style={{lineHeight: 40}}` would render a 40× multiplier instead of
+  // 40px. lineHeight is the one unitless-in-React prop that is a length in
+  // the shared vocabulary; force the px suffix.
+  if (typeof style.lineHeight === 'number') {
+    style.lineHeight = style.lineHeight + 'px'
+  }
 
-	return { style }
+  return { style }
 }

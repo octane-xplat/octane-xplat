@@ -13,86 +13,86 @@ const pending: Array<(win: any) => void> = []
 let listening = false
 
 function ensureWindowListener(): void {
-	if (listening) {
-		return
-	}
+  if (listening) {
+    return
+  }
 
-	listening = true
-	Application.on('windowOpen', (args) => {
-		pending.shift()?.(args.window)
-	})
+  listening = true
+  Application.on('windowOpen', (args) => {
+    pending.shift()?.(args.window)
+  })
 }
 
 /** Open another NativeScript window and pass app-owned data to its
  *  resolver. Returns `null` when the host reports synchronously that it
  *  cannot open a window. */
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
-	ensureWindowListener()
+  ensureWindowListener()
 
-	let native: any = null
-	let closeRequested = false
-	let isClosed = false
-	let resolveClosed!: () => void
-	const closed = new Promise<void>((resolve) => {
-		resolveClosed = resolve
-	})
+  let native: any = null
+  let closeRequested = false
+  let isClosed = false
+  let resolveClosed!: () => void
+  const closed = new Promise<void>((resolve) => {
+    resolveClosed = resolve
+  })
 
-	const finish = () => {
-		if (isClosed) {
-			return
-		}
+  const finish = () => {
+    if (isClosed) {
+      return
+    }
 
-		isClosed = true
-		resolveClosed()
-	}
+    isClosed = true
+    resolveClosed()
+  }
 
-	const bind = (win: any) => {
-		native = win
-		win?.on?.('close', finish)
-		if (closeRequested) {
-			try {
-				win?.close?.()
-			} catch {
-				// The surface is gone by definition if close() throws.
-			}
-		}
-	}
+  const bind = (win: any) => {
+    native = win
+    win?.on?.('close', finish)
+    if (closeRequested) {
+      try {
+        win?.close?.()
+      } catch {
+        // The surface is gone by definition if close() throws.
+      }
+    }
+  }
 
-	pending.push(bind)
+  pending.push(bind)
 
-	try {
-		Application.openWindow({ data: options.data as Record<string, any> })
-	} catch (error) {
-		pending.splice(pending.indexOf(bind), 1)
-		finish()
-		console.warn(`[octane-xplat] openWindow failed: ${(error as Error)?.message ?? String(error)}`)
+  try {
+    Application.openWindow({ data: options.data as Record<string, any> })
+  } catch (error) {
+    pending.splice(pending.indexOf(bind), 1)
+    finish()
+    console.warn(`[octane-xplat] openWindow failed: ${(error as Error)?.message ?? String(error)}`)
 
-		return null
-	}
+    return null
+  }
 
-	return {
-		id: `w${++seq}`,
-		closed,
-		get isClosed() {
-			return isClosed || native?.state === 'closed'
-		},
-		close() {
-			if (isClosed) {
-				return
-			}
+  return {
+    id: `w${++seq}`,
+    closed,
+    get isClosed() {
+      return isClosed || native?.state === 'closed'
+    },
+    close() {
+      if (isClosed) {
+        return
+      }
 
-			if (native) {
-				try {
-					native.close()
-				} catch {
-					finish()
-				}
-			} else {
-				// Not yet bound — close on bind if the window still opens, and
-				// settle the handle now so `closed` awaiters don't hang.
-				closeRequested = true
-				finish()
-			}
-		},
-	}
+      if (native) {
+        try {
+          native.close()
+        } catch {
+          finish()
+        }
+      } else {
+        // Not yet bound — close on bind if the window still opens, and
+        // settle the handle now so `closed` awaiters don't hang.
+        closeRequested = true
+        finish()
+      }
+    },
+  }
 }

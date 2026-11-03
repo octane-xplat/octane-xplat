@@ -6,15 +6,15 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** FieldGroup — labeled group of related fields. */
 export function FieldGroup(props: FieldGroupProps): unknown @{
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-fieldgroup', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-		accessibilityRole="group"
-		accessibilityLabel={props.label}
-	>
-		{props.label != null ? <label className="vx-fieldgroup-label" text={props.label} /> : null}
-		{props.children}
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-fieldgroup', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+    accessibilityRole="group"
+    accessibilityLabel={props.label}
+  >
+    {props.label != null ? <label className="vx-fieldgroup-label" text={props.label} /> : null}
+    {props.children}
+  </masonview>
 }

@@ -18,48 +18,48 @@ import { useThemeScheme } from './theme-scheme'
 
 /** Resolved theme data returned by `useTheme`. */
 export interface UseThemeReturn {
-	/** Theme name — 'default' when no theme is reachable. */
-	name: string
-	/** Effective mode — 'system' is resolved against the app scheme. */
-	mode: 'light' | 'dark'
-	/** Concrete token value for the effective mode ('' when unknown). */
-	token: (name: string) => string
-	/** All resolved tokens — defaults merged under the theme's overrides. */
-	tokens: Record<string, string>
+  /** Theme name — 'default' when no theme is reachable. */
+  name: string
+  /** Effective mode — 'system' is resolved against the app scheme. */
+  mode: 'light' | 'dark'
+  /** Concrete token value for the effective mode ('' when unknown). */
+  token: (name: string) => string
+  /** All resolved tokens — defaults merged under the theme's overrides. */
+  tokens: Record<string, string>
 }
 
 /** Nearest theme definition — context first, then the registered root. */
 export function useThemeDefinition(): DefinedTheme | undefined {
-	const ctx = useContext(ThemeContext)
-	const root = getRootThemeScope()
-	return ctx?.theme ?? root ?? undefined
+  const ctx = useContext(ThemeContext)
+  const root = getRootThemeScope()
+  return ctx?.theme ?? root ?? undefined
 }
 
 /** Nearest active theme name — context first, then the registered root. */
 export function useThemeName(): string | null {
-	const ctx = useContext(ThemeContext)
-	const root = getRootThemeScope()
-	return ctx?.theme.name ?? root?.name ?? null
+  const ctx = useContext(ThemeContext)
+  const root = getRootThemeScope()
+  return ctx?.theme.name ?? root?.name ?? null
 }
 
 /** Nearest theme's resolved name, effective mode, and token accessors. */
 export function useTheme(): UseThemeReturn {
-	const ctx = useContext(ThemeContext)
-	const scheme = useThemeScheme()
-	const theme = ctx?.theme ?? getRootThemeScope() ?? undefined
-	const declared = ctx?.mode ?? 'system'
-	const mode = declared === 'system' ? scheme : declared
+  const ctx = useContext(ThemeContext)
+  const scheme = useThemeScheme()
+  const theme = ctx?.theme ?? getRootThemeScope() ?? undefined
+  const declared = ctx?.mode ?? 'system'
+  const mode = declared === 'system' ? scheme : declared
 
-	const tokens = useMemo(() => resolveThemeTokens(theme, { mode }), [theme, mode])
-	const name = theme?.name ?? 'default'
+  const tokens = useMemo(() => resolveThemeTokens(theme, { mode }), [theme, mode])
+  const name = theme?.name ?? 'default'
 
-	return useMemo(
-		() => ({
-			name,
-			mode,
-			token: (tokenName: string) => tokens[tokenName] ?? '',
-			tokens,
-		}),
-		[name, mode, tokens],
-	)
+  return useMemo(
+    () => ({
+      name,
+      mode,
+      token: (tokenName: string) => tokens[tokenName] ?? '',
+      tokens,
+    }),
+    [name, mode, tokens],
+  )
 }

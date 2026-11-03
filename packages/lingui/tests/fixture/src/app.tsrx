@@ -5,9 +5,9 @@ import { t } from '@lingui/core/macro'
 // compiled output location — the origin assertion catches regressions to
 // compiled-output line numbers.
 export function App() @{
-	return (
-		<main>
-			<p>{t`Extraction probe from tsrx`}</p>
-		</main>
-	)
+  return (
+    <main>
+      <p>{t`Extraction probe from tsrx`}</p>
+    </main>
+  )
 }

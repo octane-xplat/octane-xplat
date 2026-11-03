@@ -11,39 +11,39 @@ let host: GridLayout | null = null
  * one Octane sub-root, RootLayout.open/close for z-order + shadeCover.
  */
 export function openOverlay() {
-	const rl = getRootLayout()
-	if (!rl) {
-		console.log('[probe] overlay: no rootlayout found')
-		return
-	}
+  const rl = getRootLayout()
+  if (!rl) {
+    console.log('[probe] overlay: no rootlayout found')
+    return
+  }
 
-	if (!host) {
-		host = new GridLayout()
-		host.id = 'overlay-host'
-		createNativeScriptRoot(host).render(OverlayPanel as unknown as UniversalComponent, {})
-	}
+  if (!host) {
+    host = new GridLayout()
+    host.id = 'overlay-host'
+    createNativeScriptRoot(host).render(OverlayPanel as unknown as UniversalComponent, {})
+  }
 
-	// Same unhandled-rejection hazard as openBottomSheet: rl.open rejects when
-	// the host is still attached — close first, always handle the promise.
-	if ((rl as any).hasChild?.(host)) {
-		;(rl as any).close(host)
-	}
+  // Same unhandled-rejection hazard as openBottomSheet: rl.open rejects when
+  // the host is still attached — close first, always handle the promise.
+  if ((rl as any).hasChild?.(host)) {
+    ;(rl as any).close(host)
+  }
 
-	;(
-		rl.open(host, {
-			shadeCover: { opacity: 0.4, tapToClose: true },
-		}) as Promise<unknown>
-	).then(
-		() => console.log('[probe] overlay open'),
-		(e: Error) => console.log('[probe] overlay open FAILED: ' + e.message),
-	)
+  ;(
+    rl.open(host, {
+      shadeCover: { opacity: 0.4, tapToClose: true },
+    }) as Promise<unknown>
+  ).then(
+    () => console.log('[probe] overlay open'),
+    (e: Error) => console.log('[probe] overlay open FAILED: ' + e.message),
+  )
 }
 
 export function closeOverlay() {
-	const rl = getRootLayout()
-	if (rl && host) {
-		rl.close(host)
-	}
+  const rl = getRootLayout()
+  if (rl && host) {
+    rl.close(host)
+  }
 
-	console.log('[probe] overlay close')
+  console.log('[probe] overlay close')
 }

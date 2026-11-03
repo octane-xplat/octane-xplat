@@ -9,80 +9,80 @@ import { xplatMacOS } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 import { writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import {
-	macOSHostArch,
-	hostBundle,
-	validateHostBundle,
+  macOSHostArch,
+  hostBundle,
+  validateHostBundle,
 } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'octane-motion-channels-'))
 try {
-	const entry = join(directory, 'entry.ts')
-	await writeFile(
-		entry,
-		`import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout, runContainers } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).then(runContainers).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
-	)
+  const entry = join(directory, 'entry.ts')
+  await writeFile(
+    entry,
+    `import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout, runContainers } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).then(runContainers).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
+  )
 
-	const config = await xplatMacOS('development', {
-		root: appRoot,
-		entry,
-		outDir: directory,
-		packaged: true,
-	})
+  const config = await xplatMacOS('development', {
+    root: appRoot,
+    entry,
+    outDir: directory,
+    packaged: true,
+  })
 
-	await build({
-		...config,
-		configFile: false,
-		logLevel: 'error',
-		build: { ...config.build, emptyOutDir: false },
-	})
+  await build({
+    ...config,
+    configFile: false,
+    logLevel: 'error',
+    build: { ...config.build, emptyOutDir: false },
+  })
 
-	const bundle = join(directory, 'main.cjs')
-	await validateHostBundle(bundle, appRoot)
-	const bootstrap = join(directory, 'bootstrap.js')
-	await writeNativeBootstrap(
-		{
-			prebuilt: [
-				{
-					source: join(packageRoot, '../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib'),
-				},
-			],
-			libraries: [],
-		},
-		bootstrap,
-	)
+  const bundle = join(directory, 'main.cjs')
+  await validateHostBundle(bundle, appRoot)
+  const bootstrap = join(directory, 'bootstrap.js')
+  await writeNativeBootstrap(
+    {
+      prebuilt: [
+        {
+          source: join(packageRoot, '../macos-appkit/platforms/macos/prebuilt/libxplatmason.dylib'),
+        },
+      ],
+      libraries: [],
+    },
+    bootstrap,
+  )
 
-	const result = spawnSync(
-		await macOSExecutable(appRoot, 'macos/host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			bundle,
-			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-			bootstrap,
-		],
-		{
-			cwd: directory,
-			encoding: 'utf8',
-			timeout: 30000,
-			env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
-		},
-	)
+  const result = spawnSync(
+    await macOSExecutable(appRoot, 'macos/host'),
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      bundle,
+      join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+      bootstrap,
+    ],
+    {
+      cwd: directory,
+      encoding: 'utf8',
+      timeout: 30000,
+      env: { ...process.env, OCTANE_MACOS_AUTOMATION: '1' },
+    },
+  )
 
-	const output = result.stdout + result.stderr
-	assert.equal(
-		result.status,
-		0,
-		`signal=${result.signal} error=${result.error?.message ?? 'none'}\n${output}`,
-	)
+  const output = result.stdout + result.stderr
+  assert.equal(
+    result.status,
+    0,
+    `signal=${result.signal} error=${result.error?.message ?? 'none'}\n${output}`,
+  )
 
-	assert.doesNotMatch(output, /MOTION_CHANNELS_FAIL|uncaught render error/)
-	assert.match(output, /MOTION_CHANNELS_OK/)
-	assert.match(output, /MOTION_LAYOUT_OK/)
-	assert.match(output, /MOTION_SHARED_LAYOUT_OK/)
-	assert.match(output, /MOTION_DRAG_LAYOUT_OK/)
-	assert.match(output, /MOTION_CONTAINERS_OK/)
-	console.log(output)
+  assert.doesNotMatch(output, /MOTION_CHANNELS_FAIL|uncaught render error/)
+  assert.match(output, /MOTION_CHANNELS_OK/)
+  assert.match(output, /MOTION_LAYOUT_OK/)
+  assert.match(output, /MOTION_SHARED_LAYOUT_OK/)
+  assert.match(output, /MOTION_DRAG_LAYOUT_OK/)
+  assert.match(output, /MOTION_CONTAINERS_OK/)
+  console.log(output)
 } finally {
-	await rm(directory, { recursive: true, force: true })
+  await rm(directory, { recursive: true, force: true })
 }

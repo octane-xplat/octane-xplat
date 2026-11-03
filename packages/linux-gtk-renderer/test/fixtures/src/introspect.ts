@@ -18,12 +18,12 @@ root.render(App, {})
 const seen: string[] = []
 const all: Gtk.Widget[] = []
 const walk = (w: Gtk.Widget | null, depth: number) => {
-	while (w) {
-		all.push(w)
-		seen.push(`${'  '.repeat(depth)}${w.constructor.$gtype.name}`)
-		walk(w.get_first_child(), depth + 1)
-		w = w.get_next_sibling()
-	}
+  while (w) {
+    all.push(w)
+    seen.push(`${'  '.repeat(depth)}${w.constructor.$gtype.name}`)
+    walk(w.get_first_child(), depth + 1)
+    w = w.get_next_sibling()
+  }
 }
 
 walk(host, 0)
@@ -37,8 +37,8 @@ button?.emit('clicked')
 // loop once so it lands before reading the label.
 const loop = GLib.MainLoop.new(null, false)
 GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-	loop.quit()
-	return false
+  loop.quit()
+  return false
 })
 
 loop.run()

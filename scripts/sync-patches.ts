@@ -20,13 +20,13 @@
 // `bun run sync:patches` + update manifest.json why/dropWhen.
 
 import {
-	copyFileSync,
-	existsSync,
-	mkdirSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-	writeFileSync,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { dirname, join } from 'node:path'
@@ -40,9 +40,9 @@ const PATCH_PACKAGE_FILES = join(PATCH_PACKAGE, 'patches')
 const CHECK = process.argv.includes('--check')
 const PACKAGE_ONLY = process.argv.includes('--package-only')
 for (const arg of process.argv.slice(2)) {
-	if (arg !== '--check' && arg !== '--package-only') {
-		throw new Error(`sync-patches: unknown option ${arg}`)
-	}
+  if (arg !== '--check' && arg !== '--package-only') {
+    throw new Error(`sync-patches: unknown option ${arg}`)
+  }
 }
 
 const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8')).patches
@@ -50,124 +50,124 @@ const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'ut
 const relative = (f) => f.slice(repo.length + 1)
 
 const syncPatchPackageFiles = (failures) => {
-	if (!CHECK) {
-		mkdirSync(PATCH_PACKAGE_FILES, { recursive: true })
-	}
+  if (!CHECK) {
+    mkdirSync(PATCH_PACKAGE_FILES, { recursive: true })
+  }
 
-	const wanted = new Set(manifest.map((p) => p.file))
-	for (const patch of manifest) {
-		const src = join(CLI_PATCHES, patch.file)
-		const dst = join(PATCH_PACKAGE_FILES, patch.file)
-		if (existsSync(dst) && readFileSync(src).equals(readFileSync(dst))) {
-			continue
-		}
+  const wanted = new Set(manifest.map((p) => p.file))
+  for (const patch of manifest) {
+    const src = join(CLI_PATCHES, patch.file)
+    const dst = join(PATCH_PACKAGE_FILES, patch.file)
+    if (existsSync(dst) && readFileSync(src).equals(readFileSync(dst))) {
+      continue
+    }
 
-		failures.push(
-			existsSync(dst) ? `${relative(dst)} — differs from canonical` : `${relative(dst)} — missing`,
-		)
+    failures.push(
+      existsSync(dst) ? `${relative(dst)} — differs from canonical` : `${relative(dst)} — missing`,
+    )
 
-		if (!CHECK) {
-			copyFileSync(src, dst)
-		}
-	}
+    if (!CHECK) {
+      copyFileSync(src, dst)
+    }
+  }
 
-	for (const f of existsSync(PATCH_PACKAGE_FILES) ? readdirSync(PATCH_PACKAGE_FILES) : []) {
-		if (f.endsWith('.patch') && !wanted.has(f)) {
-			failures.push(`${relative(join(PATCH_PACKAGE_FILES, f))} — not in manifest`)
-			if (!CHECK) {
-				rmSync(join(PATCH_PACKAGE_FILES, f))
-			}
-		}
-	}
+  for (const f of existsSync(PATCH_PACKAGE_FILES) ? readdirSync(PATCH_PACKAGE_FILES) : []) {
+    if (f.endsWith('.patch') && !wanted.has(f)) {
+      failures.push(`${relative(join(PATCH_PACKAGE_FILES, f))} — not in manifest`)
+      if (!CHECK) {
+        rmSync(join(PATCH_PACKAGE_FILES, f))
+      }
+    }
+  }
 }
 
 const failures = []
 if (!PACKAGE_ONLY) {
-	const file = join(repo, 'package.json')
-	const before = readFileSync(file, 'utf8')
-	const pkg = JSON.parse(before)
-	pkg.patchedDependencies = Object.fromEntries(
-		manifest
-			.filter((patch) => patch.repository !== false)
-			.flatMap((patch) =>
-				(patch.bunSpecifiers ?? [patch.specifier]).map((specifier) => [
-					specifier,
-					`packages/cli/patches/${patch.file}`,
-				]),
-			),
-	)
+  const file = join(repo, 'package.json')
+  const before = readFileSync(file, 'utf8')
+  const pkg = JSON.parse(before)
+  pkg.patchedDependencies = Object.fromEntries(
+    manifest
+      .filter((patch) => patch.repository !== false)
+      .flatMap((patch) =>
+        (patch.bunSpecifiers ?? [patch.specifier]).map((specifier) => [
+          specifier,
+          `packages/cli/patches/${patch.file}`,
+        ]),
+      ),
+  )
 
-	const after = JSON.stringify(pkg, null, '\t') + '\n'
-	if (before !== after) {
-		failures.push('package.json — Bun patchedDependencies are stale')
-		if (!CHECK) {
-			writeFileSync(file, after)
-		}
-	}
+  const after = JSON.stringify(pkg, null, '\t') + '\n'
+  if (before !== after) {
+    failures.push('package.json — Bun patchedDependencies are stale')
+    if (!CHECK) {
+      writeFileSync(file, after)
+    }
+  }
 
-	for (const template of ['template', 'library-template']) {
-		const base = join(repo, 'packages/create', template)
-		const file = join(base, 'package.json')
-		const pkg = JSON.parse(readFileSync(file, 'utf8'))
-		const patches = manifest.filter((patch) => {
-			const at = patch.specifier.indexOf('@', 1)
-			const pin = managedPackage(patch.specifier.slice(0, at))
-			return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
-		})
+  for (const template of ['template', 'library-template']) {
+    const base = join(repo, 'packages/create', template)
+    const file = join(base, 'package.json')
+    const pkg = JSON.parse(readFileSync(file, 'utf8'))
+    const patches = manifest.filter((patch) => {
+      const at = patch.specifier.indexOf('@', 1)
+      const pin = managedPackage(patch.specifier.slice(0, at))
+      return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
+    })
 
-		pkg.patchedDependencies = Object.fromEntries(
-			patches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
-		)
+    pkg.patchedDependencies = Object.fromEntries(
+      patches.map((patch) => [patch.specifier, `patches/${patch.file}`]),
+    )
 
-		const after = JSON.stringify(pkg, null, '\t') + '\n'
-		if (after !== readFileSync(file, 'utf8')) {
-			failures.push(`${relative(file)} — patch registrations are stale`)
-			if (!CHECK) {
-				writeFileSync(file, after)
-			}
-		}
+    const after = JSON.stringify(pkg, null, '\t') + '\n'
+    if (after !== readFileSync(file, 'utf8')) {
+      failures.push(`${relative(file)} — patch registrations are stale`)
+      if (!CHECK) {
+        writeFileSync(file, after)
+      }
+    }
 
-		const destination = join(base, 'patches')
-		if (!CHECK) {
-			mkdirSync(destination, { recursive: true })
-		}
+    const destination = join(base, 'patches')
+    if (!CHECK) {
+      mkdirSync(destination, { recursive: true })
+    }
 
-		const wanted = new Set(patches.map((patch) => patch.file))
-		for (const name of existsSync(destination) ? readdirSync(destination) : []) {
-			if (!wanted.has(name)) {
-				failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
-				if (!CHECK) {
-					rmSync(join(destination, name))
-				}
-			}
-		}
+    const wanted = new Set(patches.map((patch) => patch.file))
+    for (const name of existsSync(destination) ? readdirSync(destination) : []) {
+      if (!wanted.has(name)) {
+        failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
+        if (!CHECK) {
+          rmSync(join(destination, name))
+        }
+      }
+    }
 
-		for (const patch of patches) {
-			const src = join(CLI_PATCHES, patch.file)
-			const dst = join(destination, patch.file)
-			if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
-				failures.push(`${relative(dst)} — starter patch is stale`)
-				if (!CHECK) {
-					copyFileSync(src, dst)
-				}
-			}
-		}
-	}
+    for (const patch of patches) {
+      const src = join(CLI_PATCHES, patch.file)
+      const dst = join(destination, patch.file)
+      if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
+        failures.push(`${relative(dst)} — starter patch is stale`)
+        if (!CHECK) {
+          copyFileSync(src, dst)
+        }
+      }
+    }
+  }
 }
 
 syncPatchPackageFiles(failures)
 
 if (failures.length) {
-	console.error(`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`)
+  console.error(`${CHECK ? 'patch drift' : 'synced'} — ${failures.length} file(s):`)
 
-	for (const f of failures) {
-		console.error(`  ${f}`)
-	}
+  for (const f of failures) {
+    console.error(`  ${f}`)
+  }
 
-	if (CHECK) {
-		console.error('\nrun `bun run sync:patches` to regenerate')
-		process.exit(1)
-	}
+  if (CHECK) {
+    console.error('\nrun `bun run sync:patches` to regenerate')
+    process.exit(1)
+  }
 } else {
-	console.log('patch set in sync')
+  console.log('patch set in sync')
 }

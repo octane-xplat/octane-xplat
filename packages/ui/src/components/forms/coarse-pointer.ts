@@ -4,5 +4,5 @@
  *  (sheet / native pickers) there; platform leaves with a real pointer
  *  capability check override this file (menu-sheet.gtk.tsrx precedent). */
 export function hasCoarsePointer(): boolean {
-	return true
+  return true
 }

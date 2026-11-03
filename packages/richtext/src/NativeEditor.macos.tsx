@@ -7,69 +7,69 @@ import { createEditorSession } from './host-session.macos'
 import { createEditorHost } from './editor-host.macos'
 
 type HostProps = RichTextEditorProps & {
-	/** Bundled browser page URL loaded into the WKWebView bridge. */
-	browser: string
-	/** Serialized document pushed into the editor on change. */
-	json?: any
-	/** Fires when the bridge finished loading `json`. */
-	onJSONReady?: (ready: boolean) => void
-	/** Fires with the serialized document on each edit. */
-	onJSONChange?: (doc: any) => void
+  /** Bundled browser page URL loaded into the WKWebView bridge. */
+  browser: string
+  /** Serialized document pushed into the editor on change. */
+  json?: any
+  /** Fires when the bridge finished loading `json`. */
+  onJSONReady?: (ready: boolean) => void
+  /** Fires with the serialized document on each edit. */
+  onJSONChange?: (doc: any) => void
 }
 
 /** Internal shared AppKit/WKWebView surface, owned by the editor leaf. */
 export function NativeEditor(props: HostProps): unknown {
-	const latest = useRef(props)
-	latest.current = props
-	const session = useRef<ReturnType<typeof createEditorSession> | null>(null)
-	const [handle, setHandle] = useState<any>(null)
-	useImperativeHandle(props.ref, () => handle, [handle])
-	const attach = useCallback((parent: any) => {
-		session.current?.dispose()
-		session.current = null
-		if (!parent) {
-			setHandle(null)
-			return
-		}
+  const latest = useRef(props)
+  latest.current = props
+  const session = useRef<ReturnType<typeof createEditorSession> | null>(null)
+  const [handle, setHandle] = useState<any>(null)
+  useImperativeHandle(props.ref, () => handle, [handle])
+  const attach = useCallback((parent: any) => {
+    session.current?.dispose()
+    session.current = null
+    if (!parent) {
+      setHandle(null)
+      return
+    }
 
-		const native = createEditorHost()
-		const next = createEditorSession(
-			(packet) => native.deliver(packet),
-			native,
-			() => latest.current,
-		)
+    const native = createEditorHost()
+    const next = createEditorSession(
+      (packet) => native.deliver(packet),
+      native,
+      () => latest.current,
+    )
 
-		session.current = next
-		native.installDispatcher((packet: string) => next.receive(packet))
-		native.attachTo(parent)
-		native.load(props.browser)
-		setHandle(next.handle)
-	}, [])
+    session.current = next
+    native.installDispatcher((packet: string) => next.receive(packet))
+    native.attachTo(parent)
+    native.load(props.browser)
+    setHandle(next.handle)
+  }, [])
 
-	useEffect(() => {
-		session.current?.update({
-			value: props.value,
-			json: props.json,
-			placeholder: props.placeholder,
-			editable: props.editable,
-			autofocus: props.autofocus,
-		})
-	}, [handle, props.value, props.json, props.placeholder, props.editable, props.autofocus])
+  useEffect(() => {
+    session.current?.update({
+      value: props.value,
+      json: props.json,
+      placeholder: props.placeholder,
+      editable: props.editable,
+      autofocus: props.autofocus,
+    })
+  }, [handle, props.value, props.json, props.placeholder, props.editable, props.autofocus])
 
-	useEffect(
-		() => () => {
-			session.current?.dispose()
-			session.current = null
-		},
-		[],
-	)
+  useEffect(
+    () => () => {
+      session.current?.dispose()
+      session.current = null
+    },
+    [],
+  )
 
-	return (
-		<masonview
-			id={props.id}
-			className={props.className}
-			style={mergeStyle({ display: 'flex' }, layoutChildProps(props).style)}
-			ref={attach}
-		/>
-	)
+  return (
+    <masonview
+      id={props.id}
+      className={props.className}
+      style={mergeStyle({ display: 'flex' }, layoutChildProps(props).style)}
+      ref={attach}
+    />
+  )
 }

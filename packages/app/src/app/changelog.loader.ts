@@ -8,16 +8,16 @@ import { fileURLToPath } from 'node:url'
  *  routes.gen.data.ts; this module never enters a runtime bundle, so its
  *  imports (node:fs et al.) stay out of every target. */
 export function loader() {
-	const pkg = JSON.parse(
-		readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
-	)
+  const pkg = JSON.parse(
+    readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../package.json'), 'utf8'),
+  )
 
-	const version: string = typeof pkg.version === 'string' ? pkg.version : 'dev'
-	return {
-		version,
-		entries: [
-			{ version, note: 'Baked loader output — computed at codegen' },
-			{ version: '…', note: 'Earlier entries would come from a markdown/content dir' },
-		],
-	}
+  const version: string = typeof pkg.version === 'string' ? pkg.version : 'dev'
+  return {
+    version,
+    entries: [
+      { version, note: 'Baked loader output — computed at codegen' },
+      { version: '…', note: 'Earlier entries would come from a markdown/content dir' },
+    ],
+  }
 }

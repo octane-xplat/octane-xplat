@@ -4,17 +4,17 @@
  * shared intrinsics; mirror them here for the AppKit leaves.
  */
 declare module '@octane-xplat/jsx/intrinsics' {
-	interface MasonViewProps {
-		accessibilityOrientation?: 'horizontal' | 'vertical'
-	}
+  interface MasonViewProps {
+    accessibilityOrientation?: 'horizontal' | 'vertical'
+  }
 
-	interface TextBaseProps {
-		accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6
-	}
+  interface TextBaseProps {
+    accessibilityHeadingLevel?: 1 | 2 | 3 | 4 | 5 | 6
+  }
 
-	interface TextFieldProps<TElement> {
-		placeholderTextColor?: string
-	}
+  interface TextFieldProps<TElement> {
+    placeholderTextColor?: string
+  }
 }
 
 export {}

@@ -10,129 +10,129 @@ import { layerOffset, resolveLayerAlignment, resolveLayerSide } from './popover-
  * Slider uses the thumb for position and the control for hover/focus. This
  * portal preserves the caller's context and the native surface owns intent. */
 export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
-	const id = useId()
-	const [position, setPosition] = useState<any>(null)
-	const [interaction, setInteraction] = useState<any>(null)
-	const [session, setSession] = useState<any>(null)
-	const activeSession = useRef<any>(null)
-	const [internal, setInternal] = useState(options.isDefaultOpen ?? false)
-	const current = useRef(options)
-	const surface = useRef<Omit<ContextRenderProps, 'positioning'> | undefined>(undefined)
-	current.current = options
-	const enabled = options.isEnabled !== false
-	const open = enabled && (options.isOpen === undefined ? internal : options.isOpen)
-	const opened = useRef(open)
-	opened.current = open
-	const configuration = () => {
-		const value = current.current
-		const rtl = interaction?.get_direction?.() === 2
-		const placement = resolveLayerSide(
-			surface.current?.placement ?? value.placement ?? 'above',
-			rtl,
-		)
+  const id = useId()
+  const [position, setPosition] = useState<any>(null)
+  const [interaction, setInteraction] = useState<any>(null)
+  const [session, setSession] = useState<any>(null)
+  const activeSession = useRef<any>(null)
+  const [internal, setInternal] = useState(options.isDefaultOpen ?? false)
+  const current = useRef(options)
+  const surface = useRef<Omit<ContextRenderProps, 'positioning'> | undefined>(undefined)
+  current.current = options
+  const enabled = options.isEnabled !== false
+  const open = enabled && (options.isOpen === undefined ? internal : options.isOpen)
+  const opened = useRef(open)
+  opened.current = open
+  const configuration = () => {
+    const value = current.current
+    const rtl = interaction?.get_direction?.() === 2
+    const placement = resolveLayerSide(
+      surface.current?.placement ?? value.placement ?? 'above',
+      rtl,
+    )
 
-		return {
-			interactionTarget: interaction,
-			placement,
-			alignment: resolveLayerAlignment(
-				surface.current?.alignment ?? value.alignment ?? 'center',
-				placement,
-				rtl,
-			),
-			offset:
-				surface.current?.offset === undefined ? undefined : layerOffset(surface.current.offset),
-			focusTrigger: value.focusTrigger ?? 'auto',
-			touchTrigger: value.touchTrigger ?? 'auto',
-			controlledOpen: value.isOpen,
-			disabled: value.isEnabled === false || value.isOpen === false,
-			openDelay: value.delay ?? 200,
-			closeDelay: value.hideDelay ?? 0,
-			onOpen() {
-				if (current.current.isOpen === undefined) {
-					setInternal(true)
-				}
-			},
-			onClose() {
-				if (current.current.isOpen === undefined) {
-					setInternal(false)
-				}
-			},
-			onShown: () => current.current.onShow?.(),
-			onHidden: () => current.current.onHide?.(),
-		}
-	}
+    return {
+      interactionTarget: interaction,
+      placement,
+      alignment: resolveLayerAlignment(
+        surface.current?.alignment ?? value.alignment ?? 'center',
+        placement,
+        rtl,
+      ),
+      offset:
+        surface.current?.offset === undefined ? undefined : layerOffset(surface.current.offset),
+      focusTrigger: value.focusTrigger ?? 'auto',
+      touchTrigger: value.touchTrigger ?? 'auto',
+      controlledOpen: value.isOpen,
+      disabled: value.isEnabled === false || value.isOpen === false,
+      openDelay: value.delay ?? 200,
+      closeDelay: value.hideDelay ?? 0,
+      onOpen() {
+        if (current.current.isOpen === undefined) {
+          setInternal(true)
+        }
+      },
+      onClose() {
+        if (current.current.isOpen === undefined) {
+          setInternal(false)
+        }
+      },
+      onShown: () => current.current.onShow?.(),
+      onHidden: () => current.current.onHide?.(),
+    }
+  }
 
-	useEffect(() => {
-		if (!enabled || !position || !interaction) {
-			setSession(null)
-			if (!enabled) {
-				setInternal(false)
-			}
+  useEffect(() => {
+    if (!enabled || !position || !interaction) {
+      setSession(null)
+      if (!enabled) {
+        setInternal(false)
+      }
 
-			return
-		}
+      return
+    }
 
-		const live = position.createTooltip(configuration())
-		activeSession.current = live
-		setSession(live)
-		const loaded = () => {
-			if (opened.current) {
-				live.show()
-			}
-		}
+    const live = position.createTooltip(configuration())
+    activeSession.current = live
+    setSession(live)
+    const loaded = () => {
+      if (opened.current) {
+        live.show()
+      }
+    }
 
-		position.on('loaded', loaded)
-		return () => {
-			activeSession.current = null
-			position.off('loaded', loaded)
-			live.dispose()
-		}
-	}, [enabled, position, interaction])
+    position.on('loaded', loaded)
+    return () => {
+      activeSession.current = null
+      position.off('loaded', loaded)
+      live.dispose()
+    }
+  }, [enabled, position, interaction])
 
-	useEffect(() => {
-		session?.configure(configuration())
-	}, null)
+  useEffect(() => {
+    session?.configure(configuration())
+  }, null)
 
-	useEffect(() => {
-		if (open) {
-			session?.show()
-		} else {
-			session?.hide()
-		}
-	}, [session, open])
+  useEffect(() => {
+    if (open) {
+      session?.show()
+    } else {
+      session?.hide()
+    }
+  }, [session, open])
 
-	const positionRef = useCallback((view: any) => setPosition(view), [])
-	const interactionRef = useCallback((view: any) => setInteraction(view), [])
-	const ref = useCallback((view: any) => {
-		positionRef(view)
-		interactionRef(view)
-	}, [])
+  const positionRef = useCallback((view: any) => setPosition(view), [])
+  const interactionRef = useCallback((view: any) => setInteraction(view), [])
+  const ref = useCallback((view: any) => {
+    positionRef(view)
+    interactionRef(view)
+  }, [])
 
-	return {
-		ref,
-		positionRef,
-		interactionRef,
-		anchorId: id,
-		describedBy: id,
-		renderTooltip(children, props) {
-			surface.current = props
-			if (!open || !session || activeSession.current !== session) {
-				return null
-			}
+  return {
+    ref,
+    positionRef,
+    interactionRef,
+    anchorId: id,
+    describedBy: id,
+    renderTooltip(children, props) {
+      surface.current = props
+      if (!open || !session || activeSession.current !== session) {
+        return null
+      }
 
-			const content =
-				typeof children === 'string' || typeof children === 'number' ? (
-					<Text>{children}</Text>
-				) : (
-					children
-				)
+      const content =
+        typeof children === 'string' || typeof children === 'number' ? (
+          <Text>{children}</Text>
+        ) : (
+          children
+        )
 
-			return createPortal(
-				<View id={id} className={['vx-tooltip', props?.className]} style={props?.style}>
-					{content}
-				</View>,
-				session.target,
-			)
-		},
-	}
+      return createPortal(
+        <View id={id} className={['vx-tooltip', props?.className]} style={props?.style}>
+          {content}
+        </View>,
+        session.target,
+      )
+    },
+  }
 }

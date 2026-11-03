@@ -6,33 +6,33 @@ import { defineConfig } from 'vite'
 // tooling lives in src/build/ (excluded from app typecheck sweeps) and emits to
 // dist/build/. src/index.ts emits to dist/index.js for the `./` node condition.
 export default defineConfig({
-	build: {
-		lib: {
-			entry: [
-				'src/index.ts',
-				...globSync('src/build/**/*.ts').filter(
-					(f) =>
-						!f.endsWith('.d.ts') &&
-						!f.includes('.test.') &&
-						!f.includes('native-catalog-vite') &&
-						!f.includes('macos/shell') &&
-						!f.includes('gtk/shell'),
-				),
-			],
-			formats: ['es'],
-		},
-		outDir: 'dist',
-		emptyOutDir: true,
-		minify: false,
-		rollupOptions: {
-			treeshake: false,
-			external: (id) =>
-				id.startsWith('node:') ||
-				(!id.startsWith('.') && !id.startsWith('/') && !id.endsWith('.ts')),
-			output: {
-				preserveModules: true,
-				preserveModulesRoot: 'src',
-			},
-		},
-	},
+  build: {
+    lib: {
+      entry: [
+        'src/index.ts',
+        ...globSync('src/build/**/*.ts').filter(
+          (f) =>
+            !f.endsWith('.d.ts') &&
+            !f.includes('.test.') &&
+            !f.includes('native-catalog-vite') &&
+            !f.includes('macos/shell') &&
+            !f.includes('gtk/shell'),
+        ),
+      ],
+      formats: ['es'],
+    },
+    outDir: 'dist',
+    emptyOutDir: true,
+    minify: false,
+    rollupOptions: {
+      treeshake: false,
+      external: (id) =>
+        id.startsWith('node:') ||
+        (!id.startsWith('.') && !id.startsWith('/') && !id.endsWith('.ts')),
+      output: {
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+      },
+    },
+  },
 })

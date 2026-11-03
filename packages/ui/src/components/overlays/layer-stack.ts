@@ -1,23 +1,23 @@
 /** Portable dismissal ownership. Entries outlive close requests: only the
  * declaring owner decides when a controlled layer stops participating. */
 export interface LayerEntry {
-	token: object
-	depth: number
-	behavior: 'close' | 'block'
-	dismiss(): void
-	contains?(target: any): boolean
-	isPresent?(): boolean
-	/** Opaque declaring host, used only by an owner-scoped key adapter. */
-	keyScope?(): unknown
+  token: object
+  depth: number
+  behavior: 'close' | 'block'
+  dismiss(): void
+  contains?(target: any): boolean
+  isPresent?(): boolean
+  /** Opaque declaring host, used only by an owner-scoped key adapter. */
+  keyScope?(): unknown
 }
 
 export interface LayerKeyEvent {
-	key: string
-	isComposing?: boolean
-	keyCode?: number
-	defaultPrevented?: boolean
-	acceptScope?(scope: unknown): boolean
-	preventDefault(): void
+  key: string
+  isComposing?: boolean
+  keyCode?: number
+  defaultPrevented?: boolean
+  acceptScope?(scope: unknown): boolean
+  preventDefault(): void
 }
 
 const entries: (LayerEntry & { sequence: number })[] = []
@@ -28,109 +28,109 @@ let composing = false
 let listen: (() => () => void) | undefined
 
 export function configureLayerKeys(bind: () => () => void): void {
-	listen = bind
+  listen = bind
 }
 
 export function setLayerComposing(value: boolean): void {
-	composing = value
+  composing = value
 }
 
 function topLayer(retiringToken?: object, acceptScope?: (scope: unknown) => boolean) {
-	let top: (typeof entries)[number] | undefined
-	for (const entry of entries) {
-		if (entry.token !== retiringToken && entry.isPresent?.() === false) {
-			continue
-		}
+  let top: (typeof entries)[number] | undefined
+  for (const entry of entries) {
+    if (entry.token !== retiringToken && entry.isPresent?.() === false) {
+      continue
+    }
 
-		if (acceptScope) {
-			let accepted = false
-			try {
-				accepted = acceptScope(entry.keyScope?.())
-			} catch {
-				/* Retired hosts cannot claim keys. */
-			}
+    if (acceptScope) {
+      let accepted = false
+      try {
+        accepted = acceptScope(entry.keyScope?.())
+      } catch {
+        /* Retired hosts cannot claim keys. */
+      }
 
-			if (!accepted) {
-				continue
-			}
-		}
+      if (!accepted) {
+        continue
+      }
+    }
 
-		if (
-			!top ||
-			entry.depth > top.depth ||
-			(entry.depth === top.depth && entry.sequence > top.sequence)
-		) {
-			top = entry
-		}
-	}
+    if (
+      !top ||
+      entry.depth > top.depth ||
+      (entry.depth === top.depth && entry.sequence > top.sequence)
+    ) {
+      top = entry
+    }
+  }
 
-	return top
+  return top
 }
 
 export function isTopLayer(token: object, retiring = false): boolean {
-	return topLayer(retiring ? token : undefined)?.token === token
+  return topLayer(retiring ? token : undefined)?.token === token
 }
 
 export function layerContains(target: any): boolean {
-	return topLayer()?.contains?.(target) ?? false
+  return topLayer()?.contains?.(target) ?? false
 }
 
 export function shouldCloseLayer(token: object, retiring = false): boolean {
-	return !composing && isTopLayer(token, retiring)
+  return !composing && isTopLayer(token, retiring)
 }
 
 /** Claim before invoking user code, so synchronous unmount cannot give the
  * same event to the next layer. IME Escape suppresses platform close watchers. */
 export function dispatchLayerKey(event: LayerKeyEvent): void {
-	if (event.key !== 'Escape' || event.defaultPrevented) {
-		return
-	}
-	const top = topLayer(undefined, event.acceptScope)
-	if (!top) {
-		return
-	}
+  if (event.key !== 'Escape' || event.defaultPrevented) {
+    return
+  }
+  const top = topLayer(undefined, event.acceptScope)
+  if (!top) {
+    return
+  }
 
-	event.preventDefault()
-	if (composing || event.isComposing || event.keyCode === 229) {
-		return
-	}
+  event.preventDefault()
+  if (composing || event.isComposing || event.keyCode === 229) {
+    return
+  }
 
-	if (top.behavior === 'close') {
-		top.dismiss()
-	}
+  if (top.behavior === 'close') {
+    top.dismiss()
+  }
 }
 
 export function registerLayer(entry: LayerEntry): () => void {
-	let sequence = sequences.get(entry.token)
-	if (sequence === undefined) {
-		sequence = nextSequence++
-		sequences.set(entry.token, sequence)
-	}
+  let sequence = sequences.get(entry.token)
+  if (sequence === undefined) {
+    sequence = nextSequence++
+    sequences.set(entry.token, sequence)
+  }
 
-	const registered = {
-		...entry,
-		sequence,
-		get behavior() {
-			return entry.behavior
-		},
-	}
+  const registered = {
+    ...entry,
+    sequence,
+    get behavior() {
+      return entry.behavior
+    },
+  }
 
-	entries.push(registered)
-	if (!detach && listen) {
-		detach = listen()
-	}
+  entries.push(registered)
+  if (!detach && listen) {
+    detach = listen()
+  }
 
-	return () => {
-		const index = entries.indexOf(registered)
-		if (index < 0) {
-			return
-		}
+  return () => {
+    const index = entries.indexOf(registered)
+    if (index < 0) {
+      return
+    }
 
-		entries.splice(index, 1)
-		if (!entries.length) {
-			detach?.()
-			detach = undefined
-			composing = false
-		}
-	}
+    entries.splice(index, 1)
+    if (!entries.length) {
+      detach?.()
+      detach = undefined
+      composing = false
+    }
+  }
 }

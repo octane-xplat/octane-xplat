@@ -7,19 +7,19 @@ import { fileURLToPath } from 'node:url'
 const requireWeb = createRequire(new URL('../apps/web/package.json', import.meta.url))
 
 export async function loadSource(url, options = {}) {
-	const file = fileURLToPath(url)
-	const { createServer } = await import(requireWeb.resolve('vite'))
-	const server = await createServer({
-		configFile: false,
-		root: dirname(file),
-		logLevel: 'error',
-		server: { middlewareMode: true, watch: null, hmr: false },
-		...options,
-	})
+  const file = fileURLToPath(url)
+  const { createServer } = await import(requireWeb.resolve('vite'))
+  const server = await createServer({
+    configFile: false,
+    root: dirname(file),
+    logLevel: 'error',
+    server: { middlewareMode: true, watch: null, hmr: false },
+    ...options,
+  })
 
-	try {
-		return await server.ssrLoadModule(file)
-	} finally {
-		await server.close()
-	}
+  try {
+    return await server.ssrLoadModule(file)
+  } finally {
+    await server.close()
+  }
 }

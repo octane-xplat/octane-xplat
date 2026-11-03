@@ -18,31 +18,31 @@ import { tableSlot } from './table-slot.tsrx'
  * stable identity by reference; it must return a **unique** string per row.
  */
 export interface UseTableRowIndexConfig<T extends Record<string, unknown>> {
-	/** The data array currently rendered by the table (post sort/filter/page). */
-	data: T[]
-	/** Optional key extractor returning a **unique** string per row. When
-	 *  provided, index lookup is keyed by the returned string; otherwise items
-	 *  match by reference identity. */
-	getRowKey?: (item: T) => string
-	/** Header label for the index column. @default '#' */
-	label?: Renderable
-	/** First index value. @default 1 */
-	startFrom?: number
+  /** The data array currently rendered by the table (post sort/filter/page). */
+  data: T[]
+  /** Optional key extractor returning a **unique** string per row. When
+   *  provided, index lookup is keyed by the returned string; otherwise items
+   *  match by reference identity. */
+  getRowKey?: (item: T) => string
+  /** Header label for the index column. @default '#' */
+  label?: Renderable
+  /** First index value. @default 1 */
+  startFrom?: number
 }
 
 const INDEX_COLUMN_WIDTH = pixel(48)
 
 function RowIndexCell<T extends Record<string, unknown>>(props: {
-	item: T
-	lookup: (item: T) => number | undefined
-	startFrom: number
+  item: T
+  lookup: (item: T) => number | undefined
+  startFrom: number
 }) @{
-	const idx = props.lookup(props.item)
-	if (idx == null) {
-		return null as any
-	}
+  const idx = props.lookup(props.item)
+  if (idx == null) {
+    return null as any
+  }
 
-	<Text className="vx-table-rowindex">{idx + props.startFrom}</Text>
+  <Text className="vx-table-rowindex">{idx + props.startFrom}</Text>
 }
 
 /**
@@ -51,34 +51,34 @@ function RowIndexCell<T extends Record<string, unknown>>(props: {
  * array, so it reflects the current sort / filter / pagination view.
  */
 export function useTableRowIndex<T extends Record<string, unknown>>(
-	config: UseTableRowIndexConfig<T>,
+  config: UseTableRowIndexConfig<T>,
 ): TablePlugin<T> {
-	const { data, getRowKey, label = '#', startFrom = 1 } = config
+  const { data, getRowKey, label = '#', startFrom = 1 } = config
 
-	// Single item → ordinal lookup, rebuilt when the data array or key
-	// extractor changes. Keyed by getRowKey when provided, else by reference.
-	const lookup = useMemo(() => {
-		const map = new Map<unknown, number>()
-		for (let i = 0; i < data.length; i++) {
-			const item = data[i]!
-			map.set(getRowKey ? getRowKey(item) : item, i)
-		}
+  // Single item → ordinal lookup, rebuilt when the data array or key
+  // extractor changes. Keyed by getRowKey when provided, else by reference.
+  const lookup = useMemo(() => {
+    const map = new Map<unknown, number>()
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i]!
+      map.set(getRowKey ? getRowKey(item) : item, i)
+    }
 
-		return (item: T): number | undefined => map.get(getRowKey ? getRowKey(item) : item)
-	}, [data, getRowKey])
+    return (item: T): number | undefined => map.get(getRowKey ? getRowKey(item) : item)
+  }, [data, getRowKey])
 
-	return {
-		transformColumns(columns) {
-			const indexColumn: TableColumn<T> = {
-				key: '__rowIndex',
-				header: label,
-				width: INDEX_COLUMN_WIDTH,
-				align: 'end',
-				resizable: false,
-				renderCell: (item: T) => tableSlot(RowIndexCell, { item, lookup, startFrom }),
-			}
+  return {
+    transformColumns(columns) {
+      const indexColumn: TableColumn<T> = {
+        key: '__rowIndex',
+        header: label,
+        width: INDEX_COLUMN_WIDTH,
+        align: 'end',
+        resizable: false,
+        renderCell: (item: T) => tableSlot(RowIndexCell, { item, lookup, startFrom }),
+      }
 
-			return [indexColumn, ...columns]
-		},
-	}
+      return [indexColumn, ...columns]
+    },
+  }
 }

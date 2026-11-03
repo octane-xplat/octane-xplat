@@ -3,186 +3,186 @@ import { Orientation, OrientationLock, WebOrientationLock } from './types'
 import type { OrientationChangeListener, PlatformOrientationInfo, Subscription } from './types'
 
 function validateLock(lock: OrientationLock) {
-	if (
-		!Number.isInteger(lock) ||
-		lock < OrientationLock.DEFAULT ||
-		lock > OrientationLock.LANDSCAPE_RIGHT
-	) {
-		throw new RangeError('Orientation lock must be a policy between DEFAULT and LANDSCAPE_RIGHT')
-	}
+  if (
+    !Number.isInteger(lock) ||
+    lock < OrientationLock.DEFAULT ||
+    lock > OrientationLock.LANDSCAPE_RIGHT
+  ) {
+    throw new RangeError('Orientation lock must be a policy between DEFAULT and LANDSCAPE_RIGHT')
+  }
 }
 
 // Mutations run in call order; one rejected request does not poison the queue.
 let pending: Promise<void> = Promise.resolve()
 function enqueue(operation: () => Promise<void>): Promise<void> {
-	const result = pending.then(operation)
-	pending = result.catch(() => {})
-	return result
+  const result = pending.then(operation)
+  pending = result.catch(() => {})
+  return result
 }
 
 /** Current screen orientation. */
 export async function getOrientationAsync(): Promise<Orientation> {
-	return backend.info().orientation
+  return backend.info().orientation
 }
 
 /** Current lock in portable values. */
 export async function getOrientationLockAsync(): Promise<OrientationLock> {
-	return backend.policy()
+  return backend.policy()
 }
 
 /** Current lock in platform-native values. */
 export async function getPlatformOrientationLockAsync(): Promise<PlatformOrientationInfo> {
-	return backend.platformPolicy()
+  return backend.platformPolicy()
 }
 
 /** Whether a given lock is possible on this device. */
 export async function supportsOrientationLockAsync(lock: OrientationLock): Promise<boolean> {
-	validateLock(lock)
-	return backend.supports(lock)
+  validateLock(lock)
+  return backend.supports(lock)
 }
 
 /** Apply a portable lock. */
 export async function lockAsync(lock: OrientationLock): Promise<void> {
-	validateLock(lock)
-	return enqueue(() => backend.lock(lock))
+  validateLock(lock)
+  return enqueue(() => backend.lock(lock))
 }
 
 /** Return to default orientation behavior. */
 export async function unlockAsync(): Promise<void> {
-	return enqueue(() => backend.unlock())
+  return enqueue(() => backend.unlock())
 }
 
 /** Apply a platform-native lock. */
 export async function lockPlatformAsync(options: PlatformOrientationInfo): Promise<void> {
-	if (
-		!options ||
-		typeof options !== 'object' ||
-		Array.isArray(options) ||
-		Object.keys(options).length !== 1
-	) {
-		throw new TypeError('Supply exactly one platform orientation field')
-	}
-	const copy = { ...options }
-	if ('screenOrientationArrayIOS' in copy) {
-		if (
-			!Array.isArray(copy.screenOrientationArrayIOS) ||
-			!copy.screenOrientationArrayIOS.length ||
-			copy.screenOrientationArrayIOS.some(
-				(value) => !Number.isInteger(value) || value < 1 || value > 4,
-			)
-		) {
-			throw new RangeError(
-				'iOS orientations must contain values between PORTRAIT_UP and LANDSCAPE_RIGHT',
-			)
-		}
+  if (
+    !options ||
+    typeof options !== 'object' ||
+    Array.isArray(options) ||
+    Object.keys(options).length !== 1
+  ) {
+    throw new TypeError('Supply exactly one platform orientation field')
+  }
+  const copy = { ...options }
+  if ('screenOrientationArrayIOS' in copy) {
+    if (
+      !Array.isArray(copy.screenOrientationArrayIOS) ||
+      !copy.screenOrientationArrayIOS.length ||
+      copy.screenOrientationArrayIOS.some(
+        (value) => !Number.isInteger(value) || value < 1 || value > 4,
+      )
+    ) {
+      throw new RangeError(
+        'iOS orientations must contain values between PORTRAIT_UP and LANDSCAPE_RIGHT',
+      )
+    }
 
-		copy.screenOrientationArrayIOS = [...new Set(copy.screenOrientationArrayIOS)]
-	} else if ('screenOrientationConstantAndroid' in copy) {
-		if (
-			!Number.isInteger(copy.screenOrientationConstantAndroid) ||
-			copy.screenOrientationConstantAndroid! < -1 ||
-			copy.screenOrientationConstantAndroid! > 14
-		) {
-			throw new RangeError('Android orientation constant must be between -1 and 14')
-		}
-	} else if ('screenOrientationLockWeb' in copy) {
-		if (
-			!Object.values(WebOrientationLock).includes(copy.screenOrientationLockWeb!) ||
-			copy.screenOrientationLockWeb === WebOrientationLock.UNKNOWN
-		) {
-			throw new RangeError('Invalid web orientation policy')
-		}
-	} else {
-		throw new TypeError('Unknown platform orientation field')
-	}
-	return enqueue(() => backend.lockPlatform(copy))
+    copy.screenOrientationArrayIOS = [...new Set(copy.screenOrientationArrayIOS)]
+  } else if ('screenOrientationConstantAndroid' in copy) {
+    if (
+      !Number.isInteger(copy.screenOrientationConstantAndroid) ||
+      copy.screenOrientationConstantAndroid! < -1 ||
+      copy.screenOrientationConstantAndroid! > 14
+    ) {
+      throw new RangeError('Android orientation constant must be between -1 and 14')
+    }
+  } else if ('screenOrientationLockWeb' in copy) {
+    if (
+      !Object.values(WebOrientationLock).includes(copy.screenOrientationLockWeb!) ||
+      copy.screenOrientationLockWeb === WebOrientationLock.UNKNOWN
+    ) {
+      throw new RangeError('Invalid web orientation policy')
+    }
+  } else {
+    throw new TypeError('Unknown platform orientation field')
+  }
+  return enqueue(() => backend.lockPlatform(copy))
 }
 
 const axis = (value: number) =>
-	value === Orientation.PORTRAIT_UP || value === Orientation.PORTRAIT_DOWN
-		? 'portrait'
-		: value === Orientation.LANDSCAPE_LEFT || value === Orientation.LANDSCAPE_RIGHT
-			? 'landscape'
-			: 'unknown'
+  value === Orientation.PORTRAIT_UP || value === Orientation.PORTRAIT_DOWN
+    ? 'portrait'
+    : value === Orientation.LANDSCAPE_LEFT || value === Orientation.LANDSCAPE_RIGHT
+      ? 'landscape'
+      : 'unknown'
 
 /** Emits portrait/landscape transitions; same-axis flips do not emit. */
 export function addOrientationChangeListener(listener: OrientationChangeListener): Subscription {
-	if (typeof listener !== 'function') {
-		throw new TypeError('Orientation listener must be a function')
-	}
-	let previous = axis(backend.info().orientation)
-	let active = true
-	const subscription = backend.subscribe(() => {
-		if (!active) {
-			return
-		}
-		const info = backend.info()
-		const next = axis(info.orientation)
-		if (next === 'unknown' || next === previous) {
-			return
-		}
-		previous = next
-		listener({ orientationInfo: { ...info }, orientationLock: backend.policy() })
-	})
-	return {
-		remove() {
-			if (!active) {
-				return
-			}
-			active = false
-			subscription.remove()
-		},
-	}
+  if (typeof listener !== 'function') {
+    throw new TypeError('Orientation listener must be a function')
+  }
+  let previous = axis(backend.info().orientation)
+  let active = true
+  const subscription = backend.subscribe(() => {
+    if (!active) {
+      return
+    }
+    const info = backend.info()
+    const next = axis(info.orientation)
+    if (next === 'unknown' || next === previous) {
+      return
+    }
+    previous = next
+    listener({ orientationInfo: { ...info }, orientationLock: backend.policy() })
+  })
+  return {
+    remove() {
+      if (!active) {
+        return
+      }
+      active = false
+      subscription.remove()
+    },
+  }
 }
 
 /** Forward UIApplicationDelegate's supported-orientations callback here on iOS. */
 export function getIOSSupportedInterfaceOrientations(window: object | null): number {
-	return backend.iosSupportedOrientations(window)
+  return backend.iosSupportedOrientations(window)
 }
 
 /** Orientation service — Expo-shaped API. */
 export const ScreenOrientation: Readonly<{
-	/** What this host supports — `observe`/`lock` are independent. */
-	readonly capabilities: Readonly<import('./types').ScreenOrientationCapabilities>
-	/** Whether orientation observation works on this target. */
-	readonly supported: boolean
-	/** Async `supported` — resolves `capabilities().observe`. */
-	isAvailable(): Promise<boolean>
-	/** Current screen orientation. */
-	getOrientationAsync: typeof getOrientationAsync
-	/** Current lock in portable values. */
-	getOrientationLockAsync: typeof getOrientationLockAsync
-	/** Current lock in platform-native values. */
-	getPlatformOrientationLockAsync: typeof getPlatformOrientationLockAsync
-	/** Whether a given lock is possible on this device. */
-	supportsOrientationLockAsync: typeof supportsOrientationLockAsync
-	/** Apply a portable lock. */
-	lockAsync: typeof lockAsync
-	/** Apply a platform-native lock. */
-	lockPlatformAsync: typeof lockPlatformAsync
-	/** Return to the default orientation behavior. */
-	unlockAsync: typeof unlockAsync
-	/** Observe orientation changes; returns a Subscription. */
-	addOrientationChangeListener: typeof addOrientationChangeListener
-	/** Raw Info.plist orientations (iOS). */
-	getIOSSupportedInterfaceOrientations: typeof getIOSSupportedInterfaceOrientations
+  /** What this host supports — `observe`/`lock` are independent. */
+  readonly capabilities: Readonly<import('./types').ScreenOrientationCapabilities>
+  /** Whether orientation observation works on this target. */
+  readonly supported: boolean
+  /** Async `supported` — resolves `capabilities().observe`. */
+  isAvailable(): Promise<boolean>
+  /** Current screen orientation. */
+  getOrientationAsync: typeof getOrientationAsync
+  /** Current lock in portable values. */
+  getOrientationLockAsync: typeof getOrientationLockAsync
+  /** Current lock in platform-native values. */
+  getPlatformOrientationLockAsync: typeof getPlatformOrientationLockAsync
+  /** Whether a given lock is possible on this device. */
+  supportsOrientationLockAsync: typeof supportsOrientationLockAsync
+  /** Apply a portable lock. */
+  lockAsync: typeof lockAsync
+  /** Apply a platform-native lock. */
+  lockPlatformAsync: typeof lockPlatformAsync
+  /** Return to the default orientation behavior. */
+  unlockAsync: typeof unlockAsync
+  /** Observe orientation changes; returns a Subscription. */
+  addOrientationChangeListener: typeof addOrientationChangeListener
+  /** Raw Info.plist orientations (iOS). */
+  getIOSSupportedInterfaceOrientations: typeof getIOSSupportedInterfaceOrientations
 }> = Object.freeze({
-	get capabilities() {
-		return Object.freeze(backend.capabilities())
-	},
-	get supported() {
-		return backend.capabilities().observe
-	},
-	async isAvailable() {
-		return backend.capabilities().observe
-	},
-	getOrientationAsync,
-	getOrientationLockAsync,
-	getPlatformOrientationLockAsync,
-	supportsOrientationLockAsync,
-	lockAsync,
-	lockPlatformAsync,
-	unlockAsync,
-	addOrientationChangeListener,
-	getIOSSupportedInterfaceOrientations,
+  get capabilities() {
+    return Object.freeze(backend.capabilities())
+  },
+  get supported() {
+    return backend.capabilities().observe
+  },
+  async isAvailable() {
+    return backend.capabilities().observe
+  },
+  getOrientationAsync,
+  getOrientationLockAsync,
+  getPlatformOrientationLockAsync,
+  supportsOrientationLockAsync,
+  lockAsync,
+  lockPlatformAsync,
+  unlockAsync,
+  addOrientationChangeListener,
+  getIOSSupportedInterfaceOrientations,
 })

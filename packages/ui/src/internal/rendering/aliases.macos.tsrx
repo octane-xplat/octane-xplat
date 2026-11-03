@@ -4,5 +4,5 @@ import type { MultiSelectorProps } from '../../props'
 
 /** SelectMenu — multi-select anchored listbox (`Selector` with selectionMode="multiple"). */
 export function SelectMenu(props: MultiSelectorProps): unknown @{
-	return <Select {...props} selectionMode="multiple" />
+  return <Select {...props} selectionMode="multiple" />
 }

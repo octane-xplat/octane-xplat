@@ -19,56 +19,56 @@ export type MarkdownBenchmarkProfileId = 'soft-breaks'
 const EMPTY_PLUGINS: ReadonlyArray<MarkdownPluginEntry> = Object.freeze([])
 
 export interface MarkdownBenchmarkProfile {
-	readonly id: MarkdownBenchmarkProfileId
-	readonly label: string
-	readonly plugins: ReadonlyArray<MarkdownPluginEntry>
-	prepareSource(source: string, density: MarkdownBenchmarkClaimDensity): string
+  readonly id: MarkdownBenchmarkProfileId
+  readonly label: string
+  readonly plugins: ReadonlyArray<MarkdownPluginEntry>
+  prepareSource(source: string, density: MarkdownBenchmarkClaimDensity): string
 }
 
 function addSoftBreakClaims(source: string, density: MarkdownBenchmarkClaimDensity): string {
-	if (density === 'none') {
-		return source
-	}
-	return source
-		.split('\n')
-		.flatMap((line) => {
-			const match = /^Section (\d+) contains /.exec(line)
-			if (match == null) {
-				return [line]
-			}
-			const section = Number(match[1])
-			const claimed = density === 'dense' || section % 10 === 1
-			if (!claimed) {
-				return [line]
-			}
-			const splitAt = line.indexOf(', and inline ')
-			return splitAt < 0 ? [line] : [line.slice(0, splitAt + 1), line.slice(splitAt + 2)]
-		})
-		.join('\n')
+  if (density === 'none') {
+    return source
+  }
+  return source
+    .split('\n')
+    .flatMap((line) => {
+      const match = /^Section (\d+) contains /.exec(line)
+      if (match == null) {
+        return [line]
+      }
+      const section = Number(match[1])
+      const claimed = density === 'dense' || section % 10 === 1
+      if (!claimed) {
+        return [line]
+      }
+      const splitAt = line.indexOf(', and inline ')
+      return splitAt < 0 ? [line] : [line.slice(0, splitAt + 1), line.slice(splitAt + 2)]
+    })
+    .join('\n')
 }
 
 export const MARKDOWN_BENCHMARK_PROFILES: ReadonlyArray<MarkdownBenchmarkProfile> = [
-	{
-		id: 'soft-breaks',
-		label: 'Soft breaks',
-		plugins: [markdownSoftBreaksPlugin],
-		prepareSource: addSoftBreakClaims,
-	},
+  {
+    id: 'soft-breaks',
+    label: 'Soft breaks',
+    plugins: [markdownSoftBreaksPlugin],
+    prepareSource: addSoftBreakClaims,
+  },
 ]
 
 export function getMarkdownBenchmarkPlugins(
-	profile: MarkdownBenchmarkProfile,
-	pipeline: MarkdownBenchmarkPipeline,
+  profile: MarkdownBenchmarkProfile,
+  pipeline: MarkdownBenchmarkPipeline,
 ): ReadonlyArray<MarkdownPluginEntry> {
-	return pipeline === 'plugin' ? profile.plugins : EMPTY_PLUGINS
+  return pipeline === 'plugin' ? profile.plugins : EMPTY_PLUGINS
 }
 
 export function getMarkdownBenchmarkProfile(
-	id: MarkdownBenchmarkProfileId,
+  id: MarkdownBenchmarkProfileId,
 ): MarkdownBenchmarkProfile {
-	const profile = MARKDOWN_BENCHMARK_PROFILES.find((entry) => entry.id === id)
-	if (profile == null) {
-		throw new RangeError(`Unknown Markdown benchmark profile: ${id}`)
-	}
-	return profile
+  const profile = MARKDOWN_BENCHMARK_PROFILES.find((entry) => entry.id === id)
+  if (profile == null) {
+    throw new RangeError(`Unknown Markdown benchmark profile: ${id}`)
+  }
+  return profile
 }

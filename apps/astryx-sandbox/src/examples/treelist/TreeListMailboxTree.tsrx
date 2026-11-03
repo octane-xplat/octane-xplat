@@ -4,20 +4,20 @@
 import { TreeList } from '@octane-xplat/ui'
 
 export function TreeListMailboxTree() @{
-	<TreeList
-		defaultExpandedKeys={new Set(['inbox'])}
-		nodes={[
-			{
-				key: 'inbox',
-				label: 'Inbox (3)',
-				children: [
-					{ key: 'unread', label: 'Unread (3)' },
-					{ key: 'starred', label: 'Starred' },
-				],
-			},
-			{ key: 'sent', label: 'Sent' },
-			{ key: 'drafts', label: 'Drafts (1)' },
-		]}
-		onAction={() => {}}
-	/>
+  <TreeList
+    defaultExpandedKeys={new Set(['inbox'])}
+    nodes={[
+      {
+        key: 'inbox',
+        label: 'Inbox (3)',
+        children: [
+          { key: 'unread', label: 'Unread (3)' },
+          { key: 'starred', label: 'Starred' },
+        ],
+      },
+      { key: 'sent', label: 'Sent' },
+      { key: 'drafts', label: 'Drafts (1)' },
+    ]}
+    onAction={() => {}}
+  />
 }

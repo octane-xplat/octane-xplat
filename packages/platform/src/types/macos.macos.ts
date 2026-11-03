@@ -206,18 +206,18 @@ export const NativeClass: typeof import('./macos/objc-runtime').NativeClass = _g
 export const NativeObject: typeof import('./macos/objc-runtime').NativeObject = _g.NativeObject
 export type NativeObject = import('./macos/objc-runtime').NativeObject
 export const UIMakeEdgeInsets: typeof import('./macos/objc-runtime').UIMakeEdgeInsets =
-	_g.UIMakeEdgeInsets
+  _g.UIMakeEdgeInsets
 
 export const interop: typeof import('./macos/objc-runtime').interop = _g.interop
 export declare namespace interop {
-	export type Type = import('./macos/objc-runtime').interop.Type
-	export type PointerObject = import('./macos/objc-runtime').interop.PointerObject
-	export type Pointer = import('./macos/objc-runtime').interop.Pointer
-	export type PointerConvertible = import('./macos/objc-runtime').interop.PointerConvertible
-	export type Object = import('./macos/objc-runtime').interop.Object
-	export type Reference<T = any> = import('./macos/objc-runtime').interop.Reference<T>
-	export type Enum<_T extends Record<string, number>> =
-		import('./macos/objc-runtime').interop.Enum<_T>
+  export type Type = import('./macos/objc-runtime').interop.Type
+  export type PointerObject = import('./macos/objc-runtime').interop.PointerObject
+  export type Pointer = import('./macos/objc-runtime').interop.Pointer
+  export type PointerConvertible = import('./macos/objc-runtime').interop.PointerConvertible
+  export type Object = import('./macos/objc-runtime').interop.Object
+  export type Reference<T = any> = import('./macos/objc-runtime').interop.Reference<T>
+  export type Enum<_T extends Record<string, number>> =
+    import('./macos/objc-runtime').interop.Enum<_T>
 }
 
 export const objc: typeof import('./macos/objc-runtime').objc = _g.objc

@@ -4,15 +4,15 @@
 // the shared popover path never touches it. The shape matches the mobile
 // leaf so the import resolves and renders stay honest no-ops.
 export function createKeyboardOverlayHost(_panelAlignment: 'bottom' | 'stretch' = 'bottom'): {
-	host: any
-	panel: any
-	bindKeyboard: () => () => void
+  host: any
+  panel: any
+  bindKeyboard: () => () => void
 } {
-	return { host: null as any, panel: null as any, bindKeyboard: () => () => {} }
+  return { host: null as any, panel: null as any, bindKeyboard: () => () => {} }
 }
 
 /** @internal RootLayout fades its presentation container independently. */
 export const keyboardOverlayAnimation = () => ({
-	enterFrom: { opacity: 0, duration: 180 },
-	exitTo: { opacity: 0, duration: 140 },
+  enterFrom: { opacity: 0, duration: 180 },
+  exitTo: { opacity: 0, duration: 140 },
 })

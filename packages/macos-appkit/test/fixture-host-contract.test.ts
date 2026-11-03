@@ -7,28 +7,28 @@ import { test } from 'node:test'
 // consumer executes these fixtures against AppKit, and it is not part of the
 // PR gate — this guard catches assertions written against the removed host.
 const STACK_VIEW_API =
-	/\b(?:viewsInGravity|NSStackViewGravity|NSUserInterfaceLayoutOrientation|edgeInsets)\b|\.orientation\b/
+  /\b(?:viewsInGravity|NSStackViewGravity|NSUserInterfaceLayoutOrientation|edgeInsets)\b|\.orientation\b/
 
 test('renderer creates no NSStackView layout hosts', async () => {
-	const source = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8')
-	assert.doesNotMatch(source, /NSStackView\.alloc|extends NSStackView\b/)
+  const source = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8')
+  assert.doesNotMatch(source, /NSStackView\.alloc|extends NSStackView\b/)
 })
 
 test('packed AppKit fixtures assert Mason geometry, not NSStackView members', async () => {
-	const fixtures = new URL('./fixtures/', import.meta.url)
-	const offenders: string[] = []
-	for (const file of await readdir(fixtures)) {
-		if (!file.endsWith('.ts')) {
-			continue
-		}
+  const fixtures = new URL('./fixtures/', import.meta.url)
+  const offenders: string[] = []
+  for (const file of await readdir(fixtures)) {
+    if (!file.endsWith('.ts')) {
+      continue
+    }
 
-		const lines = (await readFile(new URL(file, fixtures), 'utf8')).split('\n')
-		lines.forEach((line, index) => {
-			if (STACK_VIEW_API.test(line)) {
-				offenders.push(`${file}:${index + 1}: ${line.trim()}`)
-			}
-		})
-	}
+    const lines = (await readFile(new URL(file, fixtures), 'utf8')).split('\n')
+    lines.forEach((line, index) => {
+      if (STACK_VIEW_API.test(line)) {
+        offenders.push(`${file}:${index + 1}: ${line.trim()}`)
+      }
+    })
+  }
 
-	assert.deepEqual(offenders, [])
+  assert.deepEqual(offenders, [])
 })

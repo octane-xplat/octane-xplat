@@ -5,12 +5,12 @@ import { useEffect } from 'octane'
 import type { BannerAdProps } from './props'
 
 export function BannerAd(props: BannerAdProps): unknown @{
-	useEffect(() => {
-		props.onAdEvent?.({
-			type: 'error',
-			error: new Error('unsupported: AdMob is not available on macOS'),
-		})
-	}, [])
+  useEffect(() => {
+    props.onAdEvent?.({
+      type: 'error',
+      error: new Error('unsupported: AdMob is not available on macOS'),
+    })
+  }, [])
 
-	<masonview style={props.style} className={props.className} />
+  <masonview style={props.style} className={props.className} />
 }

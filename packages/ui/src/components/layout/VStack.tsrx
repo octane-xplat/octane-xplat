@@ -5,12 +5,12 @@ import { Stack } from './Stack.tsrx'
 /** Vertical flow stack — `Stack` with `direction="vertical"`.
  *  `vAlign` is the main axis (justify-content), `hAlign` the cross axis. */
 export function VStack(props: VStackProps): unknown @{
-	return (
-		<Stack
-			{...props}
-			direction="vertical"
-			hAlign={props.hAlign ?? props.align}
-			vAlign={props.vAlign ?? props.justify}
-		/>
-	)
+  return (
+    <Stack
+      {...props}
+      direction="vertical"
+      hAlign={props.hAlign ?? props.align}
+      vAlign={props.vAlign ?? props.justify}
+    />
+  )
 }

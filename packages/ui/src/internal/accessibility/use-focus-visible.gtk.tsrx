@@ -25,11 +25,11 @@ const subscribe = (notify: () => void) => host()?.onInputModalityChange?.(notify
  * not a fixed stub.
  */
 export function useFocusVisible(): UseFocusVisibleResult {
-	const inputModality = useSyncExternalStore(subscribe, read)
-	return { isFocusVisible: inputModality === 'keyboard', inputModality, isSupported: true }
+  const inputModality = useSyncExternalStore(subscribe, read)
+  return { isFocusVisible: inputModality === 'keyboard', inputModality, isSupported: true }
 }
 
 /** Non-hook read for render paths that already subscribe elsewhere. */
 export function isFocusVisible(): boolean {
-	return read() === 'keyboard'
+  return read() === 'keyboard'
 }

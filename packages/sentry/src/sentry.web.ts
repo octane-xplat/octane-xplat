@@ -5,33 +5,33 @@ import type { SentryBreadcrumb, SentryInitOptions, SentryService, SentryUser } f
 
 /** Sentry error-reporting service — see SentryService. */
 export const sentry: SentryService = {
-	supported: typeof window !== 'undefined',
+  supported: typeof window !== 'undefined',
 
-	init(options: SentryInitOptions): void {
-		BrowserSentry.init({ ...(options as any) })
-	},
+  init(options: SentryInitOptions): void {
+    BrowserSentry.init({ ...(options as any) })
+  },
 
-	captureException(error: unknown, context?: Record<string, unknown>): void {
-		BrowserSentry.captureException(error, context ? { extra: context } : undefined)
-	},
+  captureException(error: unknown, context?: Record<string, unknown>): void {
+    BrowserSentry.captureException(error, context ? { extra: context } : undefined)
+  },
 
-	captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
-		BrowserSentry.captureMessage(message, level as any)
-	},
+  captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
+    BrowserSentry.captureMessage(message, level as any)
+  },
 
-	addBreadcrumb(breadcrumb: SentryBreadcrumb): void {
-		BrowserSentry.addBreadcrumb(breadcrumb as any)
-	},
+  addBreadcrumb(breadcrumb: SentryBreadcrumb): void {
+    BrowserSentry.addBreadcrumb(breadcrumb as any)
+  },
 
-	setUser(user: SentryUser | null): void {
-		BrowserSentry.setUser(user as any)
-	},
+  setUser(user: SentryUser | null): void {
+    BrowserSentry.setUser(user as any)
+  },
 
-	setTag(key: string, value: string): void {
-		BrowserSentry.setTag(key, value)
-	},
+  setTag(key: string, value: string): void {
+    BrowserSentry.setTag(key, value)
+  },
 
-	setContext(key: string, context: Record<string, unknown> | null): void {
-		BrowserSentry.setContext(key, context as any)
-	},
+  setContext(key: string, context: Record<string, unknown> | null): void {
+    BrowserSentry.setContext(key, context as any)
+  },
 }

@@ -9,50 +9,50 @@ export type AppState = 'active' | 'background' | 'inactive'
 
 /** Static device metadata. */
 export interface DeviceInfo {
-	/** Operating system name. */
-	os: 'web' | 'ios' | 'android' | 'macos' | 'windows'
-	/** OS version string. */
-	osVersion: string
-	/** Device model identifier. */
-	model: string
-	/** Device manufacturer. */
-	manufacturer: string
-	/** Primary language tag. */
-	language: string
-	/** Region/locale tag. */
-	region: string
+  /** Operating system name. */
+  os: 'web' | 'ios' | 'android' | 'macos' | 'windows'
+  /** OS version string. */
+  osVersion: string
+  /** Device model identifier. */
+  model: string
+  /** Device manufacturer. */
+  manufacturer: string
+  /** Primary language tag. */
+  language: string
+  /** Region/locale tag. */
+  region: string
 }
 
 /** Edge insets in px/dips. */
 export interface Insets {
-	/** Top edge inset (px/dips). */
-	top: number
-	/** Bottom edge inset. */
-	bottom: number
-	/** Left edge inset. */
-	left: number
-	/** Right edge inset. */
-	right: number
+  /** Top edge inset (px/dips). */
+  top: number
+  /** Bottom edge inset. */
+  bottom: number
+  /** Left edge inset. */
+  left: number
+  /** Right edge inset. */
+  right: number
 }
 
 /** Window dimensions + orientation. */
 export interface WindowSize {
-	/** Width in px/dips. */
-	width: number
-	/** Height in px/dips. */
-	height: number
-	/** Portrait vs landscape. */
-	orientation: 'portrait' | 'landscape'
+  /** Width in px/dips. */
+  width: number
+  /** Height in px/dips. */
+  height: number
+  /** Portrait vs landscape. */
+  orientation: 'portrait' | 'landscape'
 }
 
 /** Active locale breakdown. */
 export interface Locale {
-	/** BCP-47 locale tag. */
-	tag: string
-	/** Primary language tag. */
-	language: string
-	/** Region/locale tag. */
-	region: string
+  /** BCP-47 locale tag. */
+  tag: string
+  /** Primary language tag. */
+  language: string
+  /** Region/locale tag. */
+  region: string
 }
 
 /**
@@ -63,99 +63,99 @@ export interface Locale {
  * is bound — `fill`/`bytes` throw there rather than weaken to Math.random.
  */
 export interface RandomImpl {
-	/** Whether a secure source is bound — false leaves `fill`/`bytes` throwing. */
-	readonly supported: boolean
-	/** Fill `view` entirely with secure random bytes; returns `view`. */
-	fill<T extends ArrayBufferView>(view: T): T
-	/** Return `length` freshly generated secure random bytes. */
-	bytes(length: number): Uint8Array
+  /** Whether a secure source is bound — false leaves `fill`/`bytes` throwing. */
+  readonly supported: boolean
+  /** Fill `view` entirely with secure random bytes; returns `view`. */
+  fill<T extends ArrayBufferView>(view: T): T
+  /** Return `length` freshly generated secure random bytes. */
+  bytes(length: number): Uint8Array
 }
 
 /** Permission domain keys. */
 export type PermissionKind =
-	| 'notifications'
-	| 'camera'
-	| 'photos'
-	| 'location'
-	| 'location-always'
-	| 'microphone'
-	| 'contacts'
-	| 'calendar'
+  | 'notifications'
+  | 'camera'
+  | 'photos'
+  | 'location'
+  | 'location-always'
+  | 'microphone'
+  | 'contacts'
+  | 'calendar'
 
 /** Network connection kinds. */
 export type ConnectionType =
-	| 'none'
-	| 'wifi'
-	| 'mobile'
-	| 'ethernet'
-	| 'bluetooth'
-	| 'vpn'
-	| 'unknown'
+  | 'none'
+  | 'wifi'
+  | 'mobile'
+  | 'ethernet'
+  | 'bluetooth'
+  | 'vpn'
+  | 'unknown'
 
 /** Connectivity snapshot. */
 export interface ConnectivityState {
-	/** False when this runtime has no connectivity probe. */
-	supported?: boolean
-	/** Whether the device reports connectivity. */
-	online: boolean
-	/** Result/kind discriminator. */
-	type: ConnectionType
+  /** False when this runtime has no connectivity probe. */
+  supported?: boolean
+  /** Whether the device reports connectivity. */
+  online: boolean
+  /** Result/kind discriminator. */
+  type: ConnectionType
 }
 
 /** Connectivity service contract. */
 export interface ConnectivityImpl {
-	/** Current connectivity snapshot. */
-	getState(): ConnectivityState
-	/** Listen for connectivity changes; returns an unsubscribe. */
-	subscribe(listener: (state: ConnectivityState) => void): () => void
+  /** Current connectivity snapshot. */
+  getState(): ConnectivityState
+  /** Listen for connectivity changes; returns an unsubscribe. */
+  subscribe(listener: (state: ConnectivityState) => void): () => void
 }
 
 /** Static app metadata. */
 export interface AppInfo {
-	/** Whether the feature is supported on this platform. */
-	supported: boolean
-	/** OS/app version string. */
-	version: string | null
-	/** Build number. */
-	build: string | null
-	/** Application bundle/package identifier. */
-	bundleId: string | null
+  /** Whether the feature is supported on this platform. */
+  supported: boolean
+  /** OS/app version string. */
+  version: string | null
+  /** Build number. */
+  build: string | null
+  /** Application bundle/package identifier. */
+  bundleId: string | null
 }
 
 /** Permission or preference area a settings deep-link can target. Platforms
  *  without pane routing open their app-level settings page for any value. */
 export type SettingsPane =
-	| 'general'
-	| 'privacy'
-	| 'notifications'
-	| 'camera'
-	| 'microphone'
-	| 'photos'
-	| 'contacts'
-	| 'calendars'
-	| 'reminders'
-	| 'location'
-	| 'bluetooth'
-	| 'accessibility'
-	| 'screenCapture'
-	| 'fullDiskAccess'
-	| 'filesAndFolders'
-	| 'inputMonitoring'
-	| 'speechRecognition'
-	| 'media'
-	| 'automation'
-	| 'home'
-	| 'motion'
-	| 'passkeys'
-	| 'localNetwork'
-	| 'wifi'
-	| 'network'
+  | 'general'
+  | 'privacy'
+  | 'notifications'
+  | 'camera'
+  | 'microphone'
+  | 'photos'
+  | 'contacts'
+  | 'calendars'
+  | 'reminders'
+  | 'location'
+  | 'bluetooth'
+  | 'accessibility'
+  | 'screenCapture'
+  | 'fullDiskAccess'
+  | 'filesAndFolders'
+  | 'inputMonitoring'
+  | 'speechRecognition'
+  | 'media'
+  | 'automation'
+  | 'home'
+  | 'motion'
+  | 'passkeys'
+  | 'localNetwork'
+  | 'wifi'
+  | 'network'
 
 /** Settings-opening contract. */
 export interface OpenSettingsImpl {
-	/** Open this app's page in the platform settings UI, optionally to a
-	 *  specific pane; false when unsupported. */
-	open(pane?: SettingsPane): boolean
+  /** Open this app's page in the platform settings UI, optionally to a
+   *  specific pane; false when unsupported. */
+  open(pane?: SettingsPane): boolean
 }
 
 /**
@@ -163,84 +163,84 @@ export interface OpenSettingsImpl {
  * the payload an RP server such as better-auth or SimpleWebAuthn emits.
  */
 export interface WebAuthnCreateOptionsJSON {
-	/** Server-issued challenge bytes. */
-	challenge: string
-	/** Relying-party parameters. */
-	rp: { name: string; id?: string }
-	/** User-handle parameters. */
-	user: { id: string; name: string; displayName: string }
-	/** Allowed public-key algorithms. */
-	pubKeyCredParams: { type: 'public-key'; alg: number }[]
-	/** Ceremony timeout in ms. */
-	timeout?: number
-	/** Credentials to exclude. */
-	excludeCredentials?: { type: 'public-key'; id: string; transports?: string[] }[]
-	/** Authenticator selection criteria. */
-	authenticatorSelection?: {
-		/** Platform vs cross-platform authenticator. */
-		authenticatorAttachment?: 'platform' | 'cross-platform'
-		requireResidentKey?: boolean
-		residentKey?: 'discouraged' | 'preferred' | 'required'
-		/** User-verification requirement. */
-		userVerification?: 'required' | 'preferred' | 'discouraged'
-	}
-	/** Attestation conveyance preference. */
-	attestation?: 'none' | 'indirect' | 'direct' | 'enterprise'
-	/** WebAuthn extension inputs. */
-	extensions?: Record<string, unknown>
+  /** Server-issued challenge bytes. */
+  challenge: string
+  /** Relying-party parameters. */
+  rp: { name: string; id?: string }
+  /** User-handle parameters. */
+  user: { id: string; name: string; displayName: string }
+  /** Allowed public-key algorithms. */
+  pubKeyCredParams: { type: 'public-key'; alg: number }[]
+  /** Ceremony timeout in ms. */
+  timeout?: number
+  /** Credentials to exclude. */
+  excludeCredentials?: { type: 'public-key'; id: string; transports?: string[] }[]
+  /** Authenticator selection criteria. */
+  authenticatorSelection?: {
+    /** Platform vs cross-platform authenticator. */
+    authenticatorAttachment?: 'platform' | 'cross-platform'
+    requireResidentKey?: boolean
+    residentKey?: 'discouraged' | 'preferred' | 'required'
+    /** User-verification requirement. */
+    userVerification?: 'required' | 'preferred' | 'discouraged'
+  }
+  /** Attestation conveyance preference. */
+  attestation?: 'none' | 'indirect' | 'direct' | 'enterprise'
+  /** WebAuthn extension inputs. */
+  extensions?: Record<string, unknown>
 }
 
 /** WebAuthn authentication options in the JSON wire shape. */
 export interface WebAuthnGetOptionsJSON {
-	/** Server-issued challenge bytes. */
-	challenge: string
-	/** Relying-party id. */
-	rpId?: string
-	/** Ceremony timeout in ms. */
-	timeout?: number
-	/** Acceptable credential descriptors. */
-	allowCredentials?: { type: 'public-key'; id: string; transports?: string[] }[]
-	/** User-verification requirement. */
-	userVerification?: 'required' | 'preferred' | 'discouraged'
-	/** WebAuthn extension inputs. */
-	extensions?: Record<string, unknown>
+  /** Server-issued challenge bytes. */
+  challenge: string
+  /** Relying-party id. */
+  rpId?: string
+  /** Ceremony timeout in ms. */
+  timeout?: number
+  /** Acceptable credential descriptors. */
+  allowCredentials?: { type: 'public-key'; id: string; transports?: string[] }[]
+  /** User-verification requirement. */
+  userVerification?: 'required' | 'preferred' | 'discouraged'
+  /** WebAuthn extension inputs. */
+  extensions?: Record<string, unknown>
 }
 
 interface WebAuthnCredentialJSONBase {
-	/** Base64url credential id — the RP's lookup key. */
-	id: string
-	/** Base64url raw credential id bytes — same value as `id` for platform authenticators. */
-	rawId: string
-	/** Always 'public-key' — the WebAuthn credential kind. */
-	type: 'public-key'
-	/** 'platform'/'cross-platform' when the authenticator reports it. */
-	authenticatorAttachment?: string | null
-	/** WebAuthn extension outputs keyed by extension id. */
-	clientExtensionResults?: Record<string, unknown>
+  /** Base64url credential id — the RP's lookup key. */
+  id: string
+  /** Base64url raw credential id bytes — same value as `id` for platform authenticators. */
+  rawId: string
+  /** Always 'public-key' — the WebAuthn credential kind. */
+  type: 'public-key'
+  /** 'platform'/'cross-platform' when the authenticator reports it. */
+  authenticatorAttachment?: string | null
+  /** WebAuthn extension outputs keyed by extension id. */
+  clientExtensionResults?: Record<string, unknown>
 }
 
 /** Serialized `PublicKeyCredential` from a create() ceremony. */
 export interface WebAuthnRegistrationJSON extends WebAuthnCredentialJSONBase {
-	/** The authenticator response payload. */
-	response: {
-		clientDataJSON: string
-		attestationObject: string
-		authenticatorData?: string
-		publicKey?: string | null
-		publicKeyAlgorithm?: number
-		transports?: string[]
-	}
+  /** The authenticator response payload. */
+  response: {
+    clientDataJSON: string
+    attestationObject: string
+    authenticatorData?: string
+    publicKey?: string | null
+    publicKeyAlgorithm?: number
+    transports?: string[]
+  }
 }
 
 /** Serialized `PublicKeyCredential` from a get() ceremony. */
 export interface WebAuthnAssertionJSON extends WebAuthnCredentialJSONBase {
-	/** The authenticator response payload. */
-	response: {
-		clientDataJSON: string
-		authenticatorData: string
-		signature: string
-		userHandle?: string | null
-	}
+  /** The authenticator response payload. */
+  response: {
+    clientDataJSON: string
+    authenticatorData: string
+    signature: string
+    userHandle?: string | null
+  }
 }
 
 /**
@@ -249,43 +249,43 @@ export interface WebAuthnAssertionJSON extends WebAuthnCredentialJSONBase {
  * instead (decision #66).
  */
 export interface WebAuthnImpl {
-	/** True when a user-verifying platform authenticator (biometric/PIN) exists. */
-	isAvailable(): Promise<boolean>
-	/** Run the registration ceremony; resolves null when the user cancels. */
-	create(options: WebAuthnCreateOptionsJSON): Promise<WebAuthnRegistrationJSON | null>
-	/** Run the assertion (sign-in) ceremony; resolves null when the user cancels. */
-	get(options: WebAuthnGetOptionsJSON): Promise<WebAuthnAssertionJSON | null>
+  /** True when a user-verifying platform authenticator (biometric/PIN) exists. */
+  isAvailable(): Promise<boolean>
+  /** Run the registration ceremony; resolves null when the user cancels. */
+  create(options: WebAuthnCreateOptionsJSON): Promise<WebAuthnRegistrationJSON | null>
+  /** Run the assertion (sign-in) ceremony; resolves null when the user cancels. */
+  get(options: WebAuthnGetOptionsJSON): Promise<WebAuthnAssertionJSON | null>
 }
 
 /** Options for an auth session. */
 export interface AuthSessionOptions {
-	/**
-	 * URL scheme the ceremony redirects back to (e.g. `myapp` →
-	 * `myapp://callback?...`). iOS/macOS intercept it inside the session; on
-	 * Android the app must declare the scheme's intent-filter like any deep
-	 * link (see the incoming-links recipe).
-	 */
-	callbackScheme: string
-	/** iOS/macOS: request a browser session without shared cookies/state (ASWebAuthenticationSession.prefersEphemeralWebBrowserSession). */
-	prefersEphemeralSession?: boolean
+  /**
+   * URL scheme the ceremony redirects back to (e.g. `myapp` →
+   * `myapp://callback?...`). iOS/macOS intercept it inside the session; on
+   * Android the app must declare the scheme's intent-filter like any deep
+   * link (see the incoming-links recipe).
+   */
+  callbackScheme: string
+  /** iOS/macOS: request a browser session without shared cookies/state (ASWebAuthenticationSession.prefersEphemeralWebBrowserSession). */
+  prefersEphemeralSession?: boolean
 }
 
 /** Auth-session outcome. */
 export type AuthSessionResult =
-	| {
-			/** The session captured a callback URL on the requested scheme. */
-			type: 'success'
-			url: string
-	  }
-	| {
-			/** The user dismissed the session, or it ended without a callback. */
-			type: 'cancel'
-	  }
-	| {
-			/** The session failed — `message` describes why. */
-			type: 'error'
-			message: string
-	  }
+  | {
+      /** The session captured a callback URL on the requested scheme. */
+      type: 'success'
+      url: string
+    }
+  | {
+      /** The user dismissed the session, or it ended without a callback. */
+      type: 'cancel'
+    }
+  | {
+      /** The session failed — `message` describes why. */
+      type: 'error'
+      message: string
+    }
 
 /**
  * Hosted browser ceremony: opens `url` in a system browser context
@@ -295,6 +295,6 @@ export type AuthSessionResult =
  * setup (decision #66).
  */
 export interface AuthSessionImpl {
-	/** Open the hosted ceremony; resolves when the site redirects to `callbackScheme`. */
-	open(url: string, options: AuthSessionOptions): Promise<AuthSessionResult>
+  /** Open the hosted ceremony; resolves when the site redirects to `callbackScheme`. */
+  open(url: string, options: AuthSessionOptions): Promise<AuthSessionResult>
 }

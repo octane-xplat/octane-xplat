@@ -9,15 +9,15 @@ import { dirname, join } from 'node:path'
 // binary from the app's dependency tree (anchor at cwd) or this package's own
 // instead. Returns undefined when unresolvable — callers fall back to PATH.
 export const resolveBin = (name, anchors = [join(process.cwd(), 'noop.js'), import.meta.url]) => {
-	for (const anchor of anchors) {
-		try {
-			const require = createRequire(anchor)
-			const manifestPath = require.resolve(`${name}/package.json`)
-			const { bin } = JSON.parse(readFileSync(manifestPath, 'utf8'))
-			const entry = typeof bin === 'string' ? bin : bin?.[name]
-			if (entry) {
-				return join(dirname(manifestPath), entry)
-			}
-		} catch {}
-	}
+  for (const anchor of anchors) {
+    try {
+      const require = createRequire(anchor)
+      const manifestPath = require.resolve(`${name}/package.json`)
+      const { bin } = JSON.parse(readFileSync(manifestPath, 'utf8'))
+      const entry = typeof bin === 'string' ? bin : bin?.[name]
+      if (entry) {
+        return join(dirname(manifestPath), entry)
+      }
+    } catch {}
+  }
 }

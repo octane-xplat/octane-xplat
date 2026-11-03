@@ -5,5 +5,5 @@
  *  (The DOM renderer already flattens arrays, so web leaves don't need
  *  this.) */
 export function cx(...parts: any[]): string {
-	return parts.flat(Infinity).filter(Boolean).join(' ')
+  return parts.flat(Infinity).filter(Boolean).join(' ')
 }

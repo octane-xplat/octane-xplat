@@ -3,80 +3,80 @@ import { createRouterRenderScope, type RouterRenderScope } from './router-render
 import { createStore } from '../data/store'
 import type { BrowserRouteSnapshot } from './browser-router-host.web'
 import type {
-	PreparedRouteMatch,
-	RouterHost,
-	RouterHostContent,
-	RouterInstance,
-	Store,
+  PreparedRouteMatch,
+  RouterHost,
+  RouterHostContent,
+  RouterInstance,
+  Store,
 } from '../props'
 
 /** Request-local, read-only counterpart of the browser outlet. No browser globals
  * and no process-global router; both compilers render exactly the same tree. */
 export function createServerRouterHost(): {
-	/** Request-scoped RouterHost protocol implementation. */
-	host: RouterHost
-	/** Snapshot store the server tree renders from. */
-	views: Store<BrowserRouteSnapshot>
-	/** Binds a router instance; throws when already attached. */
-	attach(router: RouterInstance<any>): void
-	/** Adopts the single server-prepared route; throws on a second call. */
-	initialize(route: PreparedRouteMatch, content: RouterHostContent): void
-	/** Rethrows a route failure after render so it surfaces as a request
-	 *  error instead of a silent blank response. */
-	assertRendered(): void
-	/** Resolves the render scope for a flow; throws before `attach`. */
-	scope(flow: string): RouterRenderScope
-	/** Mount contract — a no-op since server trees render once. */
-	mount: (_flow: string) => () => void
-	/** Element-ref registration — a no-op since the server emits markup. */
-	entryElement: (_id: string, _element: HTMLElement | null) => void
+  /** Request-scoped RouterHost protocol implementation. */
+  host: RouterHost
+  /** Snapshot store the server tree renders from. */
+  views: Store<BrowserRouteSnapshot>
+  /** Binds a router instance; throws when already attached. */
+  attach(router: RouterInstance<any>): void
+  /** Adopts the single server-prepared route; throws on a second call. */
+  initialize(route: PreparedRouteMatch, content: RouterHostContent): void
+  /** Rethrows a route failure after render so it surfaces as a request
+   *  error instead of a silent blank response. */
+  assertRendered(): void
+  /** Resolves the render scope for a flow; throws before `attach`. */
+  scope(flow: string): RouterRenderScope
+  /** Mount contract — a no-op since server trees render once. */
+  mount: (_flow: string) => () => void
+  /** Element-ref registration — a no-op since the server emits markup. */
+  entryElement: (_id: string, _element: HTMLElement | null) => void
 } {
-	let instance: RouterInstance<any> | undefined
-	let failure: unknown
-	let failed = false
-	const views = createStore<BrowserRouteSnapshot>({ main: null, modals: [] })
-	const host: RouterHost = {
-		history: 'linear',
-		canReset: false,
-		getSnapshot(flow) {
-			const entry = views.getSnapshot().main
-			return { route: entry?.flow === flow ? entry.route : null, canGoBack: false, modal: false }
-		},
-		subscribe: () => () => {},
-		commit: () => ({ status: 'unsupported', operation: 'server-navigation' }),
-	}
-	return {
-		host,
-		views,
-		attach(router: RouterInstance<any>): void {
-			if (instance) {
-				throw new Error('Server router host is already attached')
-			}
-			instance = router
-		},
-		initialize(route: PreparedRouteMatch, content: RouterHostContent): void {
-			if (!instance || views.getSnapshot().main) {
-				throw new Error('Server route is already initialized')
-			}
-			const entry = createClientRouteEntry(instance, route.stack, 'initial', route, content)
-			entry.failed = (error) => {
-				failed = true
-				failure = error
-			}
-			views.set({ main: entry, modals: [] })
-		},
-		assertRendered(): void {
-			if (failed) {
-				throw failure
-			}
-		},
-		scope(flow: string): RouterRenderScope {
-			if (!instance) {
-				throw new Error('Server router host is not attached')
-			}
-			return createRouterRenderScope(instance, flow)
-		},
-		mount: (_flow: string) => (): void => {},
-		entryElement: (_id: string, _element: HTMLElement | null): void => {},
-	}
+  let instance: RouterInstance<any> | undefined
+  let failure: unknown
+  let failed = false
+  const views = createStore<BrowserRouteSnapshot>({ main: null, modals: [] })
+  const host: RouterHost = {
+    history: 'linear',
+    canReset: false,
+    getSnapshot(flow) {
+      const entry = views.getSnapshot().main
+      return { route: entry?.flow === flow ? entry.route : null, canGoBack: false, modal: false }
+    },
+    subscribe: () => () => {},
+    commit: () => ({ status: 'unsupported', operation: 'server-navigation' }),
+  }
+  return {
+    host,
+    views,
+    attach(router: RouterInstance<any>): void {
+      if (instance) {
+        throw new Error('Server router host is already attached')
+      }
+      instance = router
+    },
+    initialize(route: PreparedRouteMatch, content: RouterHostContent): void {
+      if (!instance || views.getSnapshot().main) {
+        throw new Error('Server route is already initialized')
+      }
+      const entry = createClientRouteEntry(instance, route.stack, 'initial', route, content)
+      entry.failed = (error) => {
+        failed = true
+        failure = error
+      }
+      views.set({ main: entry, modals: [] })
+    },
+    assertRendered(): void {
+      if (failed) {
+        throw failure
+      }
+    },
+    scope(flow: string): RouterRenderScope {
+      if (!instance) {
+        throw new Error('Server router host is not attached')
+      }
+      return createRouterRenderScope(instance, flow)
+    },
+    mount: (_flow: string) => (): void => {},
+    entryElement: (_id: string, _element: HTMLElement | null): void => {},
+  }
 }

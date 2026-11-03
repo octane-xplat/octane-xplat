@@ -2,5 +2,5 @@
 import { ProgressBar } from '@octane-xplat/ui'
 
 export function ProgressBarShowcase() @{
-	return <ProgressBar value={60} label="Progress" style={{ width: 300 }} />
+  return <ProgressBar value={60} label="Progress" style={{ width: 300 }} />
 }

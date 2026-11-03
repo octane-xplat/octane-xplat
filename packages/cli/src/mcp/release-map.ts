@@ -11,23 +11,23 @@ export const RELEASE_REPO = 'https://github.com/octane-xplat/octane-xplat'
 const lockstepTag = (version) => `v${version}`
 
 const EXPLICIT = {
-	'tsrx-typegen': { dir: 'packages/tsrx-typegen', tag: (v) => `tsrx-typegen-v${v}` },
-	'create-octane-xplat': { dir: 'packages/create', tag: lockstepTag },
+  'tsrx-typegen': { dir: 'packages/tsrx-typegen', tag: (v) => `tsrx-typegen-v${v}` },
+  'create-octane-xplat': { dir: 'packages/create', tag: lockstepTag },
 }
 
 /**
  * @returns {{ repo: string, dir: string, tag: string } | null}
  */
 export function releaseMapping(packageName, version, repo = RELEASE_REPO) {
-	const entry =
-		EXPLICIT[packageName] ??
-		(packageName.startsWith('@octane-xplat/')
-			? { dir: `packages/${packageName.slice('@octane-xplat/'.length)}`, tag: lockstepTag }
-			: null)
+  const entry =
+    EXPLICIT[packageName] ??
+    (packageName.startsWith('@octane-xplat/')
+      ? { dir: `packages/${packageName.slice('@octane-xplat/'.length)}`, tag: lockstepTag }
+      : null)
 
-	if (!entry) {
-		return null
-	}
+  if (!entry) {
+    return null
+  }
 
-	return { repo, dir: entry.dir, tag: entry.tag(version) }
+  return { repo, dir: entry.dir, tag: entry.tag(version) }
 }

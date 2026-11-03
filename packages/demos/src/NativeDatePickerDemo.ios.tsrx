@@ -11,20 +11,20 @@ const MINIMUM = new Date()
 
 /** Demonstrates the SwiftUI DatePicker selection contract. */
 export function NativeDatePickerDemo() @{
-	const [selection, setSelection] = useState(INITIAL)
+  const [selection, setSelection] = useState(INITIAL)
 
-	<View className="controls-demo gap-4">
-		<Heading>SwiftUI date picker</Heading>
-		<Text>Poll closes</Text>
-		<SwiftUIDatePicker
-			id="native-date-picker-poll-close"
-			title="Closes"
-			selection={selection}
-			minimumDate={MINIMUM}
-			displayedComponents={['date', 'hourAndMinute']}
-			onSelectionChange={setSelection}
-			accessibilityLabel="Poll closing time"
-		/>
-		<Text>{`Closes: ${selection.toLocaleString()}`}</Text>
-	</View>
+  <View className="controls-demo gap-4">
+    <Heading>SwiftUI date picker</Heading>
+    <Text>Poll closes</Text>
+    <SwiftUIDatePicker
+      id="native-date-picker-poll-close"
+      title="Closes"
+      selection={selection}
+      minimumDate={MINIMUM}
+      displayedComponents={['date', 'hourAndMinute']}
+      onSelectionChange={setSelection}
+      accessibilityLabel="Poll closing time"
+    />
+    <Text>{`Closes: ${selection.toLocaleString()}`}</Text>
+  </View>
 }

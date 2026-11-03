@@ -13,36 +13,36 @@ import type { JSX } from 'octane/jsx-runtime'
  *  raw listeners through its internal ref. Payloads normalize
  *  to the shared shape {x,y,dx,dy,vx,vy,state,target}. */
 export function View(props: ViewProps): JSX.Element @{
-	const el = useRef<HTMLElement | null>(null)
-	usePan(el, props.onPan)
+  const el = useRef<HTMLElement | null>(null)
+  usePan(el, props.onPan)
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((e: any) => {
-				el.current = e
-				if (e) {
-					applyEscapeProps(e, props)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((e: any) => {
+        el.current = e
+        if (e) {
+          applyEscapeProps(e, props)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<div
-		id={props.id}
-		data-testid={props.testID}
-		ref={forwardedRef}
-		className={['vx-view', props.className]}
-		{...layoutChildProps(props, props.style)}
-		role={props.accessibilityRole}
-		aria-label={props.accessibilityLabel}
-		aria-hidden={props.accessible === false ? true : undefined}
-		aria-description={props.accessibilityHint}
-		aria-valuetext={props.accessibilityValue}
-		aria-disabled={props.accessibilityState?.disabled}
-		aria-selected={props.accessibilityState?.selected}
-		aria-checked={props.accessibilityState?.checked}
-		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
-	>
-		{props.children}
-	</div>
+  <div
+    id={props.id}
+    data-testid={props.testID}
+    ref={forwardedRef}
+    className={['vx-view', props.className]}
+    {...layoutChildProps(props, props.style)}
+    role={props.accessibilityRole}
+    aria-label={props.accessibilityLabel}
+    aria-hidden={props.accessible === false ? true : undefined}
+    aria-description={props.accessibilityHint}
+    aria-valuetext={props.accessibilityValue}
+    aria-disabled={props.accessibilityState?.disabled}
+    aria-selected={props.accessibilityState?.selected}
+    aria-checked={props.accessibilityState?.checked}
+    aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+  >
+    {props.children}
+  </div>
 }

@@ -17,107 +17,107 @@ import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.
 const here = dirname(fileURLToPath(import.meta.url))
 
 async function consumer(packed, app, source) {
-	const installed = join(app, 'node_modules/@octane-xplat/video')
-	await mkdir(installed, { recursive: true })
-	await cp(packed, installed, { recursive: true })
-	await writeFile(
-		join(app, 'package.json'),
-		JSON.stringify({
-			name: 'video-fixture',
-			type: 'module',
-			dependencies: { '@octane-xplat/video': '0.19.0' },
-		}),
-	)
-	await writeFile(join(app, 'fixture.mjs'), source)
-	await build({
-		configFile: false,
-		root: app,
-		logLevel: 'error',
-		resolve: { conditions: ['macos', 'native'] },
-		build: {
-			minify: false,
-			lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
-		},
-	})
-	return join(app, 'dist/fixture.cjs')
+  const installed = join(app, 'node_modules/@octane-xplat/video')
+  await mkdir(installed, { recursive: true })
+  await cp(packed, installed, { recursive: true })
+  await writeFile(
+    join(app, 'package.json'),
+    JSON.stringify({
+      name: 'video-fixture',
+      type: 'module',
+      dependencies: { '@octane-xplat/video': '0.19.0' },
+    }),
+  )
+  await writeFile(join(app, 'fixture.mjs'), source)
+  await build({
+    configFile: false,
+    root: app,
+    logLevel: 'error',
+    resolve: { conditions: ['macos', 'native'] },
+    build: {
+      minify: false,
+      lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
+    },
+  })
+  return join(app, 'dist/fixture.cjs')
 }
 
 function sendRange(request, response, bytes, drip) {
-	const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range ?? '')
-	const start = range ? Number(range[1]) : 0
-	const end = range?.[2] ? Math.min(Number(range[2]), bytes.length - 1) : bytes.length - 1
-	if (start > end || start >= bytes.length) {
-		response.writeHead(416, { 'Content-Range': `bytes */${bytes.length}` })
-		response.end()
-		return
-	}
-	response.writeHead(range ? 206 : 200, {
-		'Content-Type': 'video/mp4',
-		'Accept-Ranges': 'bytes',
-		'Content-Length': end - start + 1,
-		...(range ? { 'Content-Range': `bytes ${start}-${end}/${bytes.length}` } : {}),
-	})
-	if (!drip) {
-		response.end(bytes.subarray(start, end + 1))
-		return
-	}
-	// Keep the transfer in flight across the fixture's measurement window:
-	// the whole clip trickles at roughly one kilobyte a second.
-	let offset = start
-	const tick = () => {
-		const next = Math.min(offset + 256, end + 1)
-		response.write(bytes.subarray(offset, next))
-		offset = next
-		if (offset <= end) {
-			setTimeout(tick, 250)
-		} else {
-			response.end()
-		}
-	}
-	tick()
+  const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range ?? '')
+  const start = range ? Number(range[1]) : 0
+  const end = range?.[2] ? Math.min(Number(range[2]), bytes.length - 1) : bytes.length - 1
+  if (start > end || start >= bytes.length) {
+    response.writeHead(416, { 'Content-Range': `bytes */${bytes.length}` })
+    response.end()
+    return
+  }
+  response.writeHead(range ? 206 : 200, {
+    'Content-Type': 'video/mp4',
+    'Accept-Ranges': 'bytes',
+    'Content-Length': end - start + 1,
+    ...(range ? { 'Content-Range': `bytes ${start}-${end}/${bytes.length}` } : {}),
+  })
+  if (!drip) {
+    response.end(bytes.subarray(start, end + 1))
+    return
+  }
+  // Keep the transfer in flight across the fixture's measurement window:
+  // the whole clip trickles at roughly one kilobyte a second.
+  let offset = start
+  const tick = () => {
+    const next = Math.min(offset + 256, end + 1)
+    response.write(bytes.subarray(offset, next))
+    offset = next
+    if (offset <= end) {
+      setTimeout(tick, 250)
+    } else {
+      response.end()
+    }
+  }
+  tick()
 }
 
 export async function verifyMacOS(packed, temporary) {
-	assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
-	const app = join(temporary, 'target')
-	await mkdir(app, { recursive: true })
-	const local = join(here, 'fixtures/clip.mp4')
-	const clip = await readFile(local)
-	const server = createServer((request, response) => {
-		if (request.url === '/clip.mp4') {
-			sendRange(request, response, clip, false)
-		} else if (request.url === '/slow.mp4') {
-			sendRange(request, response, clip, true)
-		} else if (request.url === '/garbage.mp4') {
-			response.writeHead(200, { 'Content-Type': 'video/mp4', 'Content-Length': 2048 })
-			response.end(Buffer.alloc(2048, 7))
-		} else {
-			response.writeHead(404)
-			response.end('missing')
-		}
-	})
-	await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
-	const remote = `http://127.0.0.1:${server.address().port}`
-	try {
-		// buildMacOSNative walks the package's declared dependencies, and the
-		// engine's macOS import resolves the workspace platform bindings —
-		// link them all before bundling so vite and the leaf scanner see them.
-		const link = async (name, root) => {
-			await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
-			await symlink(root, join(app, 'node_modules', name))
-		}
+  assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
+  const app = join(temporary, 'target')
+  await mkdir(app, { recursive: true })
+  const local = join(here, 'fixtures/clip.mp4')
+  const clip = await readFile(local)
+  const server = createServer((request, response) => {
+    if (request.url === '/clip.mp4') {
+      sendRange(request, response, clip, false)
+    } else if (request.url === '/slow.mp4') {
+      sendRange(request, response, clip, true)
+    } else if (request.url === '/garbage.mp4') {
+      response.writeHead(200, { 'Content-Type': 'video/mp4', 'Content-Length': 2048 })
+      response.end(Buffer.alloc(2048, 7))
+    } else {
+      response.writeHead(404)
+      response.end('missing')
+    }
+  })
+  await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
+  const remote = `http://127.0.0.1:${server.address().port}`
+  try {
+    // buildMacOSNative walks the package's declared dependencies, and the
+    // engine's macOS import resolves the workspace platform bindings —
+    // link them all before bundling so vite and the leaf scanner see them.
+    const link = async (name, root) => {
+      await mkdir(dirname(join(app, 'node_modules', name)), { recursive: true })
+      await symlink(root, join(app, 'node_modules', name))
+    }
 
-		await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
-		await link('@octane-xplat/jsx', fileURLToPath(new URL('../../jsx', import.meta.url)))
-		await link(
-			'@nstudio/nativescript-exoplayer',
-			resolve(here, '../node_modules/@nstudio/nativescript-exoplayer'),
-		)
+    await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
+    await link('@octane-xplat/jsx', fileURLToPath(new URL('../../jsx', import.meta.url)))
+    await link(
+      '@nstudio/nativescript-exoplayer',
+      resolve(here, '../node_modules/@nstudio/nativescript-exoplayer'),
+    )
 
-		const script = await consumer(
-			packed,
-			app,
-			`
+    const script = await consumer(
+      packed,
+      app,
+      `
 import { createVideoView } from './node_modules/@octane-xplat/video/src/video-view.macos.ts'
 const application = NSApplication.sharedApplication
 const check = (condition, message) => { if (!condition) throw Error(message) }
@@ -194,50 +194,50 @@ async function main() {
 }
 main().then(() => __xplatStopHost(), error => { console.error(error); __xplatStopHost() })
 `,
-		)
+    )
 
-		const artifact = await buildMacOSNative(app)
-		const bootstrap = join(app, 'bootstrap.js')
-		await writeNativeBootstrap(artifact, bootstrap)
-		const output = await new Promise((resolveOutput, reject) => {
-			const child = spawn(
-				join(hostBundle, 'host'),
-				[
-					join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-					script,
-					artifact.metadata[macOSHostArch()],
-					bootstrap,
-				],
-				{ cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
-			)
-			let text = ''
-			child.stdout.on('data', (chunk) => (text += chunk))
-			child.stderr.on('data', (chunk) => (text += chunk))
-			const timeout = setTimeout(() => child.kill('SIGKILL'), 90_000)
-			child.once('error', (error) => {
-				clearTimeout(timeout)
-				reject(error)
-			})
-			child.once('close', (code, signal) => {
-				clearTimeout(timeout)
-				if (code === 0) {
-					resolveOutput(text)
-				} else {
-					reject(new Error(`host exited ${code} ${signal}: ${text}`))
-				}
-			})
-		})
+    const artifact = await buildMacOSNative(app)
+    const bootstrap = join(app, 'bootstrap.js')
+    await writeNativeBootstrap(artifact, bootstrap)
+    const output = await new Promise((resolveOutput, reject) => {
+      const child = spawn(
+        join(hostBundle, 'host'),
+        [
+          join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+          script,
+          artifact.metadata[macOSHostArch()],
+          bootstrap,
+        ],
+        { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
+      )
+      let text = ''
+      child.stdout.on('data', (chunk) => (text += chunk))
+      child.stderr.on('data', (chunk) => (text += chunk))
+      const timeout = setTimeout(() => child.kill('SIGKILL'), 90_000)
+      child.once('error', (error) => {
+        clearTimeout(timeout)
+        reject(error)
+      })
+      child.once('close', (code, signal) => {
+        clearTimeout(timeout)
+        if (code === 0) {
+          resolveOutput(text)
+        } else {
+          reject(new Error(`host exited ${code} ${signal}: ${text}`))
+        }
+      })
+    })
 
-		assert.match(output, /MACOS_VIDEO_TARGET_OK/, output)
-		console.log(
-			output
-				.trim()
-				.split('\n')
-				.filter((line) => line.includes('MACOS_VIDEO'))
-				.join('\n'),
-		)
-	} finally {
-		server.closeAllConnections()
-		await new Promise((resolveClose) => server.close(resolveClose))
-	}
+    assert.match(output, /MACOS_VIDEO_TARGET_OK/, output)
+    console.log(
+      output
+        .trim()
+        .split('\n')
+        .filter((line) => line.includes('MACOS_VIDEO'))
+        .join('\n'),
+    )
+  } finally {
+    server.closeAllConnections()
+    await new Promise((resolveClose) => server.close(resolveClose))
+  }
 }

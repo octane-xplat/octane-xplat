@@ -8,66 +8,66 @@ import type { ResizablePercentSize, ResizablePixelSize, ResizableSize } from '..
 
 /** An exact pixel/dip size — `pixel(240)`. */
 export function pixel(value: number): ResizablePixelSize {
-	return { type: 'pixel', value }
+  return { type: 'pixel', value }
 }
 
 /** A percentage with exactly one pixel bound — `percent(50, {min: pixel(200)})`
  *  means 50% of the basis, not below 200px. Throws on out-of-range or
  *  conflicting inputs like upstream. */
 export function percent(
-	value: number,
-	constraint: { min: ResizablePixelSize } | { max: ResizablePixelSize },
+  value: number,
+  constraint: { min: ResizablePixelSize } | { max: ResizablePixelSize },
 ): ResizablePercentSize {
-	if (!Number.isFinite(value) || value < 0 || value > 100) {
-		throw new Error(`percent(): value must be a number in [0, 100], received ${String(value)}`)
-	}
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
+    throw new Error(`percent(): value must be a number in [0, 100], received ${String(value)}`)
+  }
 
-	if (!constraint || 'min' in constraint === 'max' in constraint) {
-		throw new Error('percent(): supply exactly one of { min: pixel(px) } or { max: pixel(px) }')
-	}
+  if (!constraint || 'min' in constraint === 'max' in constraint) {
+    throw new Error('percent(): supply exactly one of { min: pixel(px) } or { max: pixel(px) }')
+  }
 
-	const bound = 'min' in constraint ? constraint.min : constraint.max
-	if (bound.type !== 'pixel' || !Number.isFinite(bound.value) || bound.value < 0) {
-		throw new Error('percent(): the bound must be pixel(px) with a non-negative finite number')
-	}
+  const bound = 'min' in constraint ? constraint.min : constraint.max
+  if (bound.type !== 'pixel' || !Number.isFinite(bound.value) || bound.value < 0) {
+    throw new Error('percent(): the bound must be pixel(px) with a non-negative finite number')
+  }
 
-	return 'min' in constraint
-		? { type: 'percent', value, min: bound }
-		: { type: 'percent', value, max: bound }
+  return 'min' in constraint
+    ? { type: 'percent', value, min: bound }
+    : { type: 'percent', value, max: bound }
 }
 
 export function isPixelSize(v: unknown): v is ResizablePixelSize {
-	return (
-		typeof v === 'object' &&
-		v !== null &&
-		'type' in v &&
-		v.type === 'pixel' &&
-		'value' in v &&
-		typeof v.value === 'number'
-	)
+  return (
+    typeof v === 'object' &&
+    v !== null &&
+    'type' in v &&
+    v.type === 'pixel' &&
+    'value' in v &&
+    typeof v.value === 'number'
+  )
 }
 
 export function isPercentSize(v: unknown): v is ResizablePercentSize {
-	if (
-		typeof v !== 'object' ||
-		v === null ||
-		!('type' in v) ||
-		v.type !== 'percent' ||
-		!('value' in v) ||
-		typeof v.value !== 'number'
-	) {
-		return false
-	}
+  if (
+    typeof v !== 'object' ||
+    v === null ||
+    !('type' in v) ||
+    v.type !== 'percent' ||
+    !('value' in v) ||
+    typeof v.value !== 'number'
+  ) {
+    return false
+  }
 
-	// The percent shape requires exactly one pixel bound; a nullish field
-	// counts as absent so `min?: never`/`max?: never` variants still hold.
-	const min = 'min' in v ? v.min : undefined
-	const max = 'max' in v ? v.max : undefined
-	if ((min != null) === (max != null)) {
-		return false
-	}
+  // The percent shape requires exactly one pixel bound; a nullish field
+  // counts as absent so `min?: never`/`max?: never` variants still hold.
+  const min = 'min' in v ? v.min : undefined
+  const max = 'max' in v ? v.max : undefined
+  if ((min != null) === (max != null)) {
+    return false
+  }
 
-	return isPixelSize(min ?? max)
+  return isPixelSize(min ?? max)
 }
 
 /**
@@ -76,72 +76,72 @@ export function isPercentSize(v: unknown): v is ResizablePercentSize {
  *   percentage sizes and bounds. Returns null when the size cannot resolve.
  */
 export function toPixels(size: ResizableSize | undefined, basis: number): number | null {
-	if (size == null) {
-		return null
-	}
+  if (size == null) {
+    return null
+  }
 
-	if (typeof size === 'number') {
-		return size
-	}
+  if (typeof size === 'number') {
+    return size
+  }
 
-	if (typeof size === 'string') {
-		const trimmed = size.trim()
-		if (trimmed.endsWith('px')) {
-			const n = parseFloat(trimmed)
-			return Number.isFinite(n) ? n : null
-		}
+  if (typeof size === 'string') {
+    const trimmed = size.trim()
+    if (trimmed.endsWith('px')) {
+      const n = parseFloat(trimmed)
+      return Number.isFinite(n) ? n : null
+    }
 
-		if (trimmed.endsWith('%')) {
-			const pct = parseFloat(trimmed)
-			return Number.isFinite(pct) ? (pct / 100) * basis : null
-		}
+    if (trimmed.endsWith('%')) {
+      const pct = parseFloat(trimmed)
+      return Number.isFinite(pct) ? (pct / 100) * basis : null
+    }
 
-		const n = parseFloat(trimmed)
-		return Number.isFinite(n) ? n : null
-	}
+    const n = parseFloat(trimmed)
+    return Number.isFinite(n) ? n : null
+  }
 
-	if (isPixelSize(size)) {
-		return size.value
-	}
+  if (isPixelSize(size)) {
+    return size.value
+  }
 
-	if (isPercentSize(size)) {
-		const px = (size.value / 100) * basis
-		if ('min' in size && size.min) {
-			return Math.max(px, size.min.value)
-		}
+  if (isPercentSize(size)) {
+    const px = (size.value / 100) * basis
+    if ('min' in size && size.min) {
+      return Math.max(px, size.min.value)
+    }
 
-		if ('max' in size && size.max) {
-			return Math.min(px, size.max.value)
-		}
+    if ('max' in size && size.max) {
+      return Math.min(px, size.max.value)
+    }
 
-		return px
-	}
+    return px
+  }
 
-	return null
+  return null
 }
 
 /** Clamp a size to [min, max] then snap to the nearest configured snap
  *  point. Snaps always win — the panel can only rest at snap values. */
 export function clampSize(
-	size: number,
-	minPx: number,
-	maxPx: number,
-	snaps: readonly number[],
+  size: number,
+  minPx: number,
+  maxPx: number,
+  snaps: readonly number[],
 ): number {
-	const clamped = Math.max(minPx, Math.min(size, maxPx))
-	if (snaps.length === 0) {
-		return clamped
-	}
+  const clamped = Math.max(minPx, Math.min(size, maxPx))
+  if (snaps.length === 0) {
+    return clamped
+  }
 
-	let nearest = snaps[0]
-	let dist = Math.abs(clamped - snaps[0])
-	for (let i = 1; i < snaps.length; i++) {
-		const d = Math.abs(clamped - snaps[i])
-		if (d < dist) {
-			dist = d
-			nearest = snaps[i]
-		}
-	}
+  let nearest = snaps[0]
+  let dist = Math.abs(clamped - snaps[0])
+  for (let i = 1; i < snaps.length; i++) {
+    const d = Math.abs(clamped - snaps[i])
+    if (d < dist) {
+      dist = d
+      nearest = snaps[i]
+    }
+  }
 
-	return nearest
+  return nearest
 }

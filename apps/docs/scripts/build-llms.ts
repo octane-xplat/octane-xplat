@@ -6,14 +6,14 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-	GROUPS,
-	docPath,
-	docSlugFor,
-	purposeOf,
-	rankOf,
-	repoPathFor,
-	slugFor,
-	titleOf,
+  GROUPS,
+  docPath,
+  docSlugFor,
+  purposeOf,
+  rankOf,
+  repoPathFor,
+  slugFor,
+  titleOf,
 } from '../src/doc-meta.ts'
 
 import { buildChangelogMd } from '../src/changelog-format.ts'
@@ -27,68 +27,68 @@ const REPO = 'https://github.com/octane-xplat/octane-xplat'
 // Doc-page links resolve to site paths by slug; other relative links resolve
 // against the repo on GitHub — same mapping as MdDoc's renderer.
 function rewriteLinks(md, dir, slugs) {
-	return md.replace(/\]\(([^)\s]+)\)/g, (m, href) => {
-		if (/^(https?:|#|mailto:)/.test(href)) {
-			return m
-		}
+  return md.replace(/\]\(([^)\s]+)\)/g, (m, href) => {
+    if (/^(https?:|#|mailto:)/.test(href)) {
+      return m
+    }
 
-		const slug = docSlugFor(href, dir)
-		if (slug && slugs.has(slug)) {
-			const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
-			return `](${BASE}${docPath(slug)}${hash})`
-		}
+    const slug = docSlugFor(href, dir)
+    if (slug && slugs.has(slug)) {
+      const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
+      return `](${BASE}${docPath(slug)}${hash})`
+    }
 
-		const path = repoPathFor(href, dir)
-		const kind = path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'
-		const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
-		return `](${REPO}/${kind}/main/${path}${hash})`
-	})
+    const path = repoPathFor(href, dir)
+    const kind = path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'
+    const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
+    return `](${REPO}/${kind}/main/${path}${hash})`
+  })
 }
 
 async function* walk(dir) {
-	for (const entry of await readdir(dir, { withFileTypes: true })) {
-		const path = join(dir, entry.name)
-		if (entry.isDirectory() && entry.name !== 'evidence') {
-			yield* walk(path)
-		} else if (entry.name.endsWith('.md')) {
-			yield path
-		}
-	}
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name)
+    if (entry.isDirectory() && entry.name !== 'evidence') {
+      yield* walk(path)
+    } else if (entry.name.endsWith('.md')) {
+      yield path
+    }
+  }
 }
 
 const docs = []
 for await (const path of walk(docsDir)) {
-	const rel = relative(docsDir, path).replace(/\.md$/, '')
-	const dir = dirname(rel)
-	const md = await readFile(path, 'utf8')
-	const slug = slugFor(dir === '.' ? '' : dir, rel.split('/').pop())
-	docs.push({
-		slug,
-		title: titleOf(slug, md),
-		purpose: purposeOf(md),
-		md,
-		dir: dir === '.' ? '' : dir,
-	})
+  const rel = relative(docsDir, path).replace(/\.md$/, '')
+  const dir = dirname(rel)
+  const md = await readFile(path, 'utf8')
+  const slug = slugFor(dir === '.' ? '' : dir, rel.split('/').pop())
+  docs.push({
+    slug,
+    title: titleOf(slug, md),
+    purpose: purposeOf(md),
+    md,
+    dir: dir === '.' ? '' : dir,
+  })
 }
 
 // The changelog page is generated from the repo's root logs — the same
 // document the site renders (see src/changelog.ts).
 const changelogMd = buildChangelogMd(
-	await readFile(join(here, '../../../CHANGELOG.md'), 'utf8'),
-	await readFile(join(here, '../../../FIXLOG.md'), 'utf8'),
+  await readFile(join(here, '../../../CHANGELOG.md'), 'utf8'),
+  await readFile(join(here, '../../../FIXLOG.md'), 'utf8'),
 )
 
 docs.push({
-	slug: 'changelog',
-	title: titleOf('changelog', changelogMd),
-	purpose: purposeOf(changelogMd),
-	md: changelogMd,
-	dir: 'releases',
+  slug: 'changelog',
+  title: titleOf('changelog', changelogMd),
+  purpose: purposeOf(changelogMd),
+  md: changelogMd,
+  dir: 'releases',
 })
 
 docs.sort((a, b) => {
-	const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
-	return d || a.slug.localeCompare(b.slug)
+  const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
+  return d || a.slug.localeCompare(b.slug)
 })
 
 const slugs = new Set(docs.map((d) => d.slug))
@@ -118,12 +118,12 @@ export function Counter() {
 const link = (d) => `- [${d.title}](${BASE}${docPath(d.slug)})${d.purpose ? `: ${d.purpose}` : ''}`
 
 const guideLinks = GROUPS.map(
-	(g) =>
-		`### ${g.label}\n\n` +
-		docs
-			.filter((d) => (d.dir || 'start') === g.dir)
-			.map(link)
-			.join('\n'),
+  (g) =>
+    `### ${g.label}\n\n` +
+    docs
+      .filter((d) => (d.dir || 'start') === g.dir)
+      .map(link)
+      .join('\n'),
 ).join('\n\n')
 
 const llms = `${HEADER}
@@ -143,9 +143,9 @@ ${guideLinks}
 // llms-full stays focused on the app-building guides; the changelog is a
 // reference page (it would dominate the file), so llms.txt only links it.
 const body = docs
-	.filter((d) => d.dir !== 'releases')
-	.map((d) => rewriteLinks(d.md, d.dir, slugs).trim())
-	.join('\n\n---\n\n')
+  .filter((d) => d.dir !== 'releases')
+  .map((d) => rewriteLinks(d.md, d.dir, slugs).trim())
+  .join('\n\n---\n\n')
 
 const full = `${HEADER}
 The complete app-building guides follow in reading order, separated by --- lines. Framework implementation notes and design records are maintained in the repository under .agents/ and are not part of this corpus.

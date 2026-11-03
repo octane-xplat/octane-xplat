@@ -7,10 +7,10 @@ import { build } from 'vite'
 import { createMacOSConfig } from '../vite.shared.mjs'
 import { macOSExecutable } from '../../../packages/cli/src/macos/executables.ts'
 import {
-	macOSHostArch,
-	hostBundle,
-	hostRoot,
-	validateHostBundle,
+  macOSHostArch,
+  hostBundle,
+  hostRoot,
+  validateHostBundle,
 } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -20,34 +20,34 @@ const directory = await mkdtemp(join(scratch, 'macos-announce-'))
 const bootstrap = join(directory, 'bootstrap.js')
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
 const config = await createMacOSConfig({
-	packaged: true,
-	rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
+  packaged: true,
+  rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })
 
 const entry = join(appRoot, 'test/announce-fixture.macos.ts')
 await build({
-	...config,
-	configFile: false,
-	logLevel: 'error',
-	build: {
-		...config.build,
-		outDir: directory,
-		emptyOutDir: false,
-		lib: { entry, formats: ['cjs'], fileName: 'fixture' },
-	},
+  ...config,
+  configFile: false,
+  logLevel: 'error',
+  build: {
+    ...config.build,
+    outDir: directory,
+    emptyOutDir: false,
+    lib: { entry, formats: ['cjs'], fileName: 'fixture' },
+  },
 })
 
 const bundle = join(directory, 'fixture.cjs')
 await validateHostBundle(bundle, appRoot)
 const result = spawnSync(
-	await macOSExecutable(appRoot, 'macos/host'),
-	[
-		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-		bundle,
-		join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-		bootstrap,
-	],
-	{ cwd: directory, encoding: 'utf8', timeout: 15_000 },
+  await macOSExecutable(appRoot, 'macos/host'),
+  [
+    join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+    bundle,
+    join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+    bootstrap,
+  ],
+  { cwd: directory, encoding: 'utf8', timeout: 15_000 },
 )
 
 const output = result.stdout + result.stderr

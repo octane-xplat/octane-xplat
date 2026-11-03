@@ -8,15 +8,15 @@ const commands = `$ astryx init --features agents
 $ pnpm astryx component CodeBlock --dense`
 
 export function CodeBlockTerminal() {
-	return (
-		<>
-			<CodeBlock
-				syntaxTheme={githubDark}
-				code={commands}
-				language="bash"
-				hasCopyButton
-				style={{ width: '100%', maxWidth: 480 }}
-			/>
-		</>
-	)
+  return (
+    <>
+      <CodeBlock
+        syntaxTheme={githubDark}
+        code={commands}
+        language="bash"
+        hasCopyButton
+        style={{ width: '100%', maxWidth: 480 }}
+      />
+    </>
+  )
 }

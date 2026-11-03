@@ -11,60 +11,60 @@ import animation from './pinjump-anim'
  *  controlled `playing` prop and the `ref` handle; status surfaces the
  *  normalized events (duration is ms on both platforms). */
 export function LottieDemo() @{
-	const [playing, setPlaying] = useState(false)
-	const [loop, setLoop] = useState(false)
-	const [speed, setSpeed] = useState(1)
-	const [status, setStatus] = useState('idle')
-	const handle = useRef<LottieHandle | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [loop, setLoop] = useState(false)
+  const [speed, setSpeed] = useState(1)
+  const [status, setStatus] = useState('idle')
+  const handle = useRef<LottieHandle | null>(null)
 
-	<View className="lottie-demo gap-4">
-		<Heading level={2}>Lottie</Heading>
-		<Lottie
-			className="lottie-demo-anim"
-			data={animation}
-			playing={playing}
-			loop={loop}
-			speed={speed}
-			autoPlay={false}
-			accessibilityLabel="pinjump animation"
-			onLoaded={(e) => setStatus(`loaded ${e.duration}ms`)}
-			onEnded={() => setStatus('ended')}
-			onError={(e) => setStatus(`error ${e.message ?? ''}`)}
-			ref={handle}
-		/>
-		<Text className="lottie-demo-status">{status}</Text>
-		<HStack className="gap-2">
-			<Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
-				<Text>{playing ? 'Pause' : 'Play'}</Text>
-			</Button>
-			<Button
-				className="btn btn-secondary"
-				clickAction={() => {
-					handle.current?.stop()
-					setPlaying(false)
-					setStatus('stopped')
-				}}
-			>
-				<Text>Stop</Text>
-			</Button>
-			<Button className="btn btn-secondary" clickAction={() => setLoop(!loop)}>
-				<Text>Loop {loop ? 'on' : 'off'}</Text>
-			</Button>
-			<Button
-				className="btn btn-secondary"
-				clickAction={() => {
-					handle.current?.seekTo(0.5)
-					setStatus('seek 0.5')
-				}}
-			>
-				<Text>Seek 50%</Text>
-			</Button>
-			<Button
-				className="btn btn-secondary"
-				clickAction={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
-			>
-				<Text>{speed}x</Text>
-			</Button>
-		</HStack>
-	</View>
+  <View className="lottie-demo gap-4">
+    <Heading level={2}>Lottie</Heading>
+    <Lottie
+      className="lottie-demo-anim"
+      data={animation}
+      playing={playing}
+      loop={loop}
+      speed={speed}
+      autoPlay={false}
+      accessibilityLabel="pinjump animation"
+      onLoaded={(e) => setStatus(`loaded ${e.duration}ms`)}
+      onEnded={() => setStatus('ended')}
+      onError={(e) => setStatus(`error ${e.message ?? ''}`)}
+      ref={handle}
+    />
+    <Text className="lottie-demo-status">{status}</Text>
+    <HStack className="gap-2">
+      <Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
+        <Text>{playing ? 'Pause' : 'Play'}</Text>
+      </Button>
+      <Button
+        className="btn btn-secondary"
+        clickAction={() => {
+          handle.current?.stop()
+          setPlaying(false)
+          setStatus('stopped')
+        }}
+      >
+        <Text>Stop</Text>
+      </Button>
+      <Button className="btn btn-secondary" clickAction={() => setLoop(!loop)}>
+        <Text>Loop {loop ? 'on' : 'off'}</Text>
+      </Button>
+      <Button
+        className="btn btn-secondary"
+        clickAction={() => {
+          handle.current?.seekTo(0.5)
+          setStatus('seek 0.5')
+        }}
+      >
+        <Text>Seek 50%</Text>
+      </Button>
+      <Button
+        className="btn btn-secondary"
+        clickAction={() => setSpeed(speed === 1 ? 2 : speed === 2 ? 0.5 : 1)}
+      >
+        <Text>{speed}x</Text>
+      </Button>
+    </HStack>
+  </View>
 }

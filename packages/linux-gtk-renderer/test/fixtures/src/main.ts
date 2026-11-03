@@ -5,17 +5,17 @@ import { runGtkApp } from '@octane-xplat/linux-gtk/host'
 import { App } from './App.gtk'
 
 export function main(): number {
-	return runGtkApp(
-		{
-			applicationId: 'dev.xplat.linux-gtk-smoke',
-			title: 'Octane GTK smoke',
-			defaultWidth: 480,
-			defaultHeight: 320,
-		},
-		({ root }) => {
-			root.render(App, {})
-		},
-	)
+  return runGtkApp(
+    {
+      applicationId: 'dev.xplat.linux-gtk-smoke',
+      title: 'Octane GTK smoke',
+      defaultWidth: 480,
+      defaultHeight: 320,
+    },
+    ({ root }) => {
+      root.render(App, {})
+    },
+  )
 }
 
 main()

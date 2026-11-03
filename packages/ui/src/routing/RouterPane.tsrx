@@ -14,21 +14,21 @@ import type { RouterPaneProps } from '../props'
  * function Workspace() { return <RouterPane host={host} router={navigation} /> }
  */
 export function RouterPane<Contracts, Stacks extends string, Transitions extends string>(
-	props: RouterPaneProps<Contracts, Stacks, Transitions>,
+  props: RouterPaneProps<Contracts, Stacks, Transitions>,
 ): any {
-	const host = resolvePaneRouterHost(props.host)
-	const flow = props.stack ?? 'root'
-	if (props.stack !== undefined) {
-		props.router.forStack(props.stack)
-	}
+  const host = resolvePaneRouterHost(props.host)
+  const flow = props.stack ?? 'root'
+  if (props.stack !== undefined) {
+    props.router.forStack(props.stack)
+  }
 
-	if (host.scope(flow).instance !== props.router) {
-		throw new Error('RouterPane host belongs to a different router instance')
-	}
+  if (host.scope(flow).instance !== props.router) {
+    throw new Error('RouterPane host belongs to a different router instance')
+  }
 
-	return (
-		<ClientRouteOutlet host={host} flow={flow}>
-			{props.children}
-		</ClientRouteOutlet>
-	)
+  return (
+    <ClientRouteOutlet host={host} flow={flow}>
+      {props.children}
+    </ClientRouteOutlet>
+  )
 }

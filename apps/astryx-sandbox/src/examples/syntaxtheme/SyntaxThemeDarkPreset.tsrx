@@ -8,9 +8,9 @@ const code = `function greet(name: string) {
 }`
 
 export function SyntaxThemeDarkPreset() {
-	return (
-		<>
-			<CodeBlock syntaxTheme={dracula} code={code} language="tsx" title="Dracula preset" />
-		</>
-	)
+  return (
+    <>
+      <CodeBlock syntaxTheme={dracula} code={code} language="tsx" title="Dracula preset" />
+    </>
+  )
 }

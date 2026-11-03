@@ -2,7 +2,7 @@
 import type { Locale } from './types'
 
 export const locale: Locale = (() => {
-	const tag = navigator.language ?? ''
-	const [language = '', region = ''] = tag.split('-')
-	return { tag, language, region }
+  const tag = navigator.language ?? ''
+  const [language = '', region = ''] = tag.split('-')
+  return { tag, language, region }
 })()

@@ -7,35 +7,35 @@ import { createContext, type Context } from 'octane'
  *  draws the Spinner. This is a context, not a prop, because the wiring is
  *  package-internal — anything on the public props becomes API. */
 export interface BusyIndicatorLane {
-	onBusyChange: (isBusy: boolean) => void
-	subscribe: (onStoreChange: () => void) => () => void
-	getIsBusy: () => boolean
+  onBusyChange: (isBusy: boolean) => void
+  subscribe: (onStoreChange: () => void) => () => void
+  getIsBusy: () => boolean
 }
 
 export function createBusyIndicatorLane(): BusyIndicatorLane {
-	let isBusy = false
-	const listeners = new Set<() => void>()
-	return {
-		onBusyChange(next: boolean) {
-			if (isBusy === next) {
-				return
-			}
+  let isBusy = false
+  const listeners = new Set<() => void>()
+  return {
+    onBusyChange(next: boolean) {
+      if (isBusy === next) {
+        return
+      }
 
-			isBusy = next
-			for (const listener of listeners) {
-				listener()
-			}
-		},
-		subscribe(onStoreChange: () => void) {
-			listeners.add(onStoreChange)
-			return () => listeners.delete(onStoreChange)
-		},
-		getIsBusy: () => isBusy,
-	}
+      isBusy = next
+      for (const listener of listeners) {
+        listener()
+      }
+    },
+    subscribe(onStoreChange: () => void) {
+      listeners.add(onStoreChange)
+      return () => listeners.delete(onStoreChange)
+    },
+    getIsBusy: () => isBusy,
+  }
 }
 
 /** The wrapper's lane, or null when the base renders its own indicator. */
 export const BusyLaneContext: Context<BusyIndicatorLane | null> =
-	createContext<BusyIndicatorLane | null>(null)
+  createContext<BusyIndicatorLane | null>(null)
 
 export const BusyLaneProvider: any = BusyLaneContext

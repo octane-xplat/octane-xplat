@@ -9,44 +9,44 @@ import type { AppleSignInButtonProps, SignInResult } from './types'
 // conditionally and fall back to a plain button everywhere else.
 const PluginButton = (applePlugin as any).SignInButton
 if (PluginButton) {
-	registerElement('applesigninbutton', PluginButton)
+  registerElement('applesigninbutton', PluginButton)
 }
 
 /** Sign in with Apple button — the platform-authentic
  *  ASAuthorizationAppleIDButton on iOS, a plain fallback button elsewhere.
  *  A tap starts `appleAuth.signIn()`; `onResult` reports the outcome. */
 export function AppleSignInButton(props: AppleSignInButtonProps): unknown @{
-	const run = () => {
-		props.onPress?.()
-		if (props.onResult) {
-			appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
-		}
-	}
+  const run = () => {
+    props.onPress?.()
+    if (props.onResult) {
+      appleAuth.signIn().then((result: SignInResult) => props.onResult?.(result))
+    }
+  }
 
-	@if (PluginButton && appleAuth.supported) {
-		<applesigninbutton
-			id={props.id}
-			className={props.className}
-			style={props.style}
-			type={props.type ?? 'default'}
-			buttonStyle={props.theme ?? 'black'}
-			isEnabled={props.disabled !== true}
-			onTap={run}
-		/>
-	} @else {
-		<button
-			id={props.id}
-			className={props.className}
-			style={props.style}
-			text={
-				props.type === 'signUp'
-					? 'Sign up with Apple'
-					: props.type === 'continue'
-						? 'Continue with Apple'
-						: 'Sign in with Apple'
-			}
-			isEnabled={props.disabled !== true}
-			onTap={run}
-		/>
-	}
+  @if (PluginButton && appleAuth.supported) {
+    <applesigninbutton
+      id={props.id}
+      className={props.className}
+      style={props.style}
+      type={props.type ?? 'default'}
+      buttonStyle={props.theme ?? 'black'}
+      isEnabled={props.disabled !== true}
+      onTap={run}
+    />
+  } @else {
+    <button
+      id={props.id}
+      className={props.className}
+      style={props.style}
+      text={
+        props.type === 'signUp'
+          ? 'Sign up with Apple'
+          : props.type === 'continue'
+            ? 'Continue with Apple'
+            : 'Sign in with Apple'
+      }
+      isEnabled={props.disabled !== true}
+      onTap={run}
+    />
+  }
 }

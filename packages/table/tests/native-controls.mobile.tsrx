@@ -8,15 +8,15 @@ export { Checkbox as CheckboxInput } from '../../ui/src/components/forms/Checkbo
 export { Pressable } from '../../ui/src/components/actions/Pressable.tsrx'
 
 export function TextInput() {
-	return <label />
+  return <label />
 }
 
 export function VirtualList(props: any) {
-	return (
-		<View>
-			@for (const row of props.items as any[]; index index; key row.id) {
-				<View>{props.renderItem(row, index)}</View>
-			}
-		</View>
-	)
+  return (
+    <View>
+      @for (const row of props.items as any[]; index index; key row.id) {
+        <View>{props.renderItem(row, index)}</View>
+      }
+    </View>
+  )
 }

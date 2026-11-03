@@ -3,14 +3,14 @@ import type { FocusedInputState } from '@octane-xplat/platform/focused-input-sta
 
 /** @internal Stable snapshots across idle polling frames. */
 export function focusPublisher(
-	publish: (state: FocusedInputState) => void,
+  publish: (state: FocusedInputState) => void,
 ): (next: FocusedInputState) => void {
-	let previous: FocusedInputState | undefined
-	return (next: FocusedInputState) => {
-		if (previous && sameFocusedInput(previous, next)) {
-			return
-		}
-		previous = { ...next, timestampMs: Date.now() }
-		publish(previous)
-	}
+  let previous: FocusedInputState | undefined
+  return (next: FocusedInputState) => {
+    if (previous && sameFocusedInput(previous, next)) {
+      return
+    }
+    previous = { ...next, timestampMs: Date.now() }
+    publish(previous)
+  }
 }

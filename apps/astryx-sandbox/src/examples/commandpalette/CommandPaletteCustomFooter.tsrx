@@ -3,19 +3,19 @@ import { useMemo } from 'octane'
 import { CommandPalette, createStaticSource, Text } from '@octane-xplat/ui'
 
 export function CommandPaletteCustomFooter() @{
-	const source = useMemo(
-		() =>
-			createStaticSource([
-				{ id: 'home', label: 'Home' },
-				{ id: 'settings', label: 'Settings' },
-			]),
-		[],
-	)
+  const source = useMemo(
+    () =>
+      createStaticSource([
+        { id: 'home', label: 'Home' },
+        { id: 'settings', label: 'Settings' },
+      ]),
+    [],
+  )
 
-	<CommandPalette
-		open
-		onOpenChange={() => {}}
-		searchSource={source}
-		footer={<Text type="supporting">Pro tip: use ⌘K to open anywhere</Text>}
-	/>
+  <CommandPalette
+    open
+    onOpenChange={() => {}}
+    searchSource={source}
+    footer={<Text type="supporting">Pro tip: use ⌘K to open anywhere</Text>}
+  />
 }

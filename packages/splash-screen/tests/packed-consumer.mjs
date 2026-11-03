@@ -8,37 +8,37 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const repo = fileURLToPath(new URL('../../..', import.meta.url))
 const temporary = await mkdtemp(join(tmpdir(), 'xplat-splash-consumer-'))
 const run = (cmd, args, cwd) => {
-	const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
-	assert.equal(result.status, 0, result.stdout + result.stderr)
+  const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
+  assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
 try {
-	const pack = join(temporary, 'pack')
-	await mkdir(pack)
-	run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
-	const archive = (await readdir(pack)).find((name) => name.endsWith('.tgz'))
-	assert.ok(archive)
-	run('tar', ['-xzf', join(pack, archive), '-C', pack], root)
-	const packed = join(pack, 'package')
-	// The iOS backend is TypeScript-only: no native wrapper may ship. Android
-	// keeps its Java bridge and its file contents must be packed verbatim.
-	assert.ok(
-		!(await readdir(join(packed, 'platforms'), { withFileTypes: true })).some(
-			(entry) => entry.name === 'ios',
-		),
-		'packed splash-screen must not ship iOS native wrapper sources',
-	)
+  const pack = join(temporary, 'pack')
+  await mkdir(pack)
+  run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
+  const archive = (await readdir(pack)).find((name) => name.endsWith('.tgz'))
+  assert.ok(archive)
+  run('tar', ['-xzf', join(pack, archive), '-C', pack], root)
+  const packed = join(pack, 'package')
+  // The iOS backend is TypeScript-only: no native wrapper may ship. Android
+  // keeps its Java bridge and its file contents must be packed verbatim.
+  assert.ok(
+    !(await readdir(join(packed, 'platforms'), { withFileTypes: true })).some(
+      (entry) => entry.name === 'ios',
+    ),
+    'packed splash-screen must not ship iOS native wrapper sources',
+  )
 
-	const java = 'platforms/android/java/com/octanexplat/splashscreen/SplashScreenBridge.java'
-	assert.equal(await readFile(join(packed, java), 'utf8'), await readFile(join(root, java), 'utf8'))
-	for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
-		const app = join(temporary, target)
-		await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
-		await cp(packed, join(app, 'node_modules/@octane-xplat/splash-screen'), { recursive: true })
-		await writeFile(join(app, 'package.json'), '{"type":"module"}')
-		await writeFile(
-			join(app, 'consumer.ts'),
-			`import { SplashScreen, preventAutoHideAsync, hide, hideAsync, setOptions, type SplashScreenOptions } from '@octane-xplat/splash-screen'
+  const java = 'platforms/android/java/com/octanexplat/splashscreen/SplashScreenBridge.java'
+  assert.equal(await readFile(join(packed, java), 'utf8'), await readFile(join(root, java), 'utf8'))
+  for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
+    const app = join(temporary, target)
+    await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
+    await cp(packed, join(app, 'node_modules/@octane-xplat/splash-screen'), { recursive: true })
+    await writeFile(join(app, 'package.json'), '{"type":"module"}')
+    await writeFile(
+      join(app, 'consumer.ts'),
+      `import { SplashScreen, preventAutoHideAsync, hide, hideAsync, setOptions, type SplashScreenOptions } from '@octane-xplat/splash-screen'
 const options: SplashScreenOptions = { duration: 250, fade: true }
 const held: Promise<boolean> = preventAutoHideAsync()
 const dismissed: Promise<void> = hideAsync()
@@ -48,35 +48,35 @@ setOptions(options)
 hide()
 void held; void dismissed; void supported; void fade
 `,
-		)
+    )
 
-		await writeFile(
-			join(app, 'tsconfig.json'),
-			JSON.stringify({
-				compilerOptions: {
-					noEmit: true,
-					strict: true,
-					skipLibCheck: false,
-					module: 'esnext',
-					moduleResolution: 'bundler',
-					target: 'es2022',
-					types: [],
-					customConditions: [target === 'ios' || target === 'android' ? 'native' : target],
-				},
-				include: ['consumer.ts'],
-			}),
-		)
+    await writeFile(
+      join(app, 'tsconfig.json'),
+      JSON.stringify({
+        compilerOptions: {
+          noEmit: true,
+          strict: true,
+          skipLibCheck: false,
+          module: 'esnext',
+          moduleResolution: 'bundler',
+          target: 'es2022',
+          types: [],
+          customConditions: [target === 'ios' || target === 'android' ? 'native' : target],
+        },
+        include: ['consumer.ts'],
+      }),
+    )
 
-		run(
-			process.execPath,
-			[join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(app, 'tsconfig.json')],
-			app,
-		)
-	}
+    run(
+      process.execPath,
+      [join(repo, 'node_modules/typescript/bin/tsc'), '-p', join(app, 'tsconfig.json')],
+      app,
+    )
+  }
 
-	console.log(
-		'Packed splash consumer: six target declarations without native ambient types; iOS ships no native wrapper; shipped Java file contents verified. Native runtime is a separate check.',
-	)
+  console.log(
+    'Packed splash consumer: six target declarations without native ambient types; iOS ships no native wrapper; shipped Java file contents verified. Native runtime is a separate check.',
+  )
 } finally {
-	await rm(temporary, { recursive: true, force: true })
+  await rm(temporary, { recursive: true, force: true })
 }

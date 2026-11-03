@@ -5,13 +5,13 @@ import type { NativeBackGestureOptions } from './native-back-gesture-types'
 export function prepareNativeBackGesture(_page: Page): void {}
 
 export function isNativeFrameDescendant(_frame: Frame, _parent: Frame): boolean {
-	return false
+  return false
 }
 
 /** Other hosts claim OS Back through their existing platform dispatcher. */
 export function attachNativeBackGesture(
-	_frame: Frame,
-	_options: NativeBackGestureOptions,
+  _frame: Frame,
+  _options: NativeBackGestureOptions,
 ): () => void {
-	return () => {}
+  return () => {}
 }

@@ -15,23 +15,23 @@ const hostRoot = join(repo, 'packages/cli/src/macos/jsc-host')
 const bundle = join(hostRoot, 'prebuilt/macos')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-photos-feasibility-'))
 try {
-	const modules = []
-	for (const name of ['types', 'observer.photos', 'backend.photos', 'photos-runtime.macos']) {
-		const source = await readFile(join(packageRoot, 'src', `${name}.ts`), 'utf8')
-		const code = ts.transpile(source, {
-			module: ts.ModuleKind.CommonJS,
-			target: ts.ScriptTarget.ES2022,
-		})
+  const modules = []
+  for (const name of ['types', 'observer.photos', 'backend.photos', 'photos-runtime.macos']) {
+    const source = await readFile(join(packageRoot, 'src', `${name}.ts`), 'utf8')
+    const code = ts.transpile(source, {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2022,
+    })
 
-		modules.push(
-			`registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
-		)
-	}
+    modules.push(
+      `registry[${JSON.stringify(`./${name}`)}] = (() => { const exports = {}; ${code}; return exports })();`,
+    )
+  }
 
-	const script = join(directory, 'case.cjs')
-	await writeFile(
-		script,
-		`(function () {
+  const script = join(directory, 'case.cjs')
+  await writeFile(
+    script,
+    `(function () {
 const registry = {};
 const require = name => name === '@octane-xplat/platform/macos' ? globalThis : name === '@octane-xplat/lib/capability' ? { UnavailabilityError: class extends Error {} } : registry[name];
 ${modules.join('\n')}
@@ -55,39 +55,39 @@ setTimeout(async () => {
  finally { globalThis.__xplatStopHost(); }
 }, 0);
 })();`,
-	)
+  )
 
-	const bytes = await readFile(join(bundle, 'host'))
-	const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
-	assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
-	const executable = join(directory, 'host')
-	await writeFile(executable, bytes, { mode: 0o755 })
-	const bootstrap = join(directory, 'bootstrap.js')
-	await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
-	const run = spawnSync(
-		executable,
-		[
-			join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			script,
-			join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
-			bootstrap,
-		],
-		{ encoding: 'utf8', timeout: 15000 },
-	)
+  const bytes = await readFile(join(bundle, 'host'))
+  const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
+  const executable = join(directory, 'host')
+  await writeFile(executable, bytes, { mode: 0o755 })
+  const bootstrap = join(directory, 'bootstrap.js')
+  await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+  const run = spawnSync(
+    executable,
+    [
+      join(bundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      script,
+      join(bundle, `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`),
+      bootstrap,
+    ],
+    { encoding: 'utf8', timeout: 15000 },
+  )
 
-	assert.equal(run.status, 0, `${run.stdout}${run.stderr}`)
-	const line = `${run.stdout}${run.stderr}`
-		.split('\n')
-		.find((line) => line.startsWith('PHOTOS_FEASIBILITY '))
+  assert.equal(run.status, 0, `${run.stdout}${run.stderr}`)
+  const line = `${run.stdout}${run.stderr}`
+    .split('\n')
+    .find((line) => line.startsWith('PHOTOS_FEASIBILITY '))
 
-	assert.ok(line, `${run.stdout}${run.stderr}`)
-	const result = JSON.parse(line.slice('PHOTOS_FEASIBILITY '.length))
-	assert.ok(result.available, 'PhotoKit metadata/runtime unavailable')
-	assert.ok(Number.isInteger(result.status))
-	assert.ok(result.observer, result.detail)
-	console.log(
-		'AppKit source adapter: availability, nonprompting permissions, denied read guard, missing-purpose guard and observer release passed; no assets were queried.',
-	)
+  assert.ok(line, `${run.stdout}${run.stderr}`)
+  const result = JSON.parse(line.slice('PHOTOS_FEASIBILITY '.length))
+  assert.ok(result.available, 'PhotoKit metadata/runtime unavailable')
+  assert.ok(Number.isInteger(result.status))
+  assert.ok(result.observer, result.detail)
+  console.log(
+    'AppKit source adapter: availability, nonprompting permissions, denied read guard, missing-purpose guard and observer release passed; no assets were queried.',
+  )
 } finally {
-	await rm(directory, { recursive: true, force: true })
+  await rm(directory, { recursive: true, force: true })
 }

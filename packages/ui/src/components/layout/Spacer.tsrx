@@ -10,10 +10,10 @@ import { applyEscapeProps } from '../overlays/escape-props'
  * @see StackProps.
  */
 export function Spacer(props: SpacerProps): unknown @{
-	<masonview
-		id={props.id}
-		ref={(view: any) => applyEscapeProps(view, props)}
-		className={cx('vx-spacer', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	/>
+  <masonview
+    id={props.id}
+    ref={(view: any) => applyEscapeProps(view, props)}
+    className={cx('vx-spacer', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  />
 }

@@ -4,7 +4,7 @@ import { useState } from 'octane'
 import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from '@octane-xplat/ui'
 
 export function CalendarShowcase() @{
-	const [value, setValue] = useState<ISODateString | null>(null)
+  const [value, setValue] = useState<ISODateString | null>(null)
 
-	<Calendar value={value} onChange={setValue} />
+  <Calendar value={value} onChange={setValue} />
 }

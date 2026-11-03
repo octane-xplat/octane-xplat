@@ -12,11 +12,11 @@ export type { KeyboardEvent, UseKeyboardOptions, UseKeyboardResult } from './use
  * `isComposing` always false — see linux-gtk known-limits).
  */
 export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardResult {
-	return {
-		isSupported: true,
-		keyboardProps: {
-			onKeyDown: options.onKeyDown,
-			onKeyUp: options.onKeyUp,
-		},
-	}
+  return {
+    isSupported: true,
+    keyboardProps: {
+      onKeyDown: options.onKeyDown,
+      onKeyUp: options.onKeyUp,
+    },
+  }
 }

@@ -3,63 +3,63 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { media } from './media.web'
 
 afterEach(() => {
-	vi.useRealTimers()
-	vi.restoreAllMocks()
-	vi.unstubAllGlobals()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 function nextFileInput(): HTMLInputElement[] {
-	const inputs: HTMLInputElement[] = []
-	const original = document.createElement.bind(document)
-	vi.spyOn(document, 'createElement').mockImplementation((tag: string, options?: any) => {
-		const el = original(tag, options)
-		if (tag === 'input') {
-			inputs.push(el as HTMLInputElement)
-		}
+  const inputs: HTMLInputElement[] = []
+  const original = document.createElement.bind(document)
+  vi.spyOn(document, 'createElement').mockImplementation((tag: string, options?: any) => {
+    const el = original(tag, options)
+    if (tag === 'input') {
+      inputs.push(el as HTMLInputElement)
+    }
 
-		return el
-	})
+    return el
+  })
 
-	return inputs
+  return inputs
 }
 
 describe('media (web)', () => {
-	it('permissions report the file-input capability, not a camera prompt state', async () => {
-		await expect(media.requestPermissions('camera')).resolves.toMatchObject({
-			status: 'granted',
-		})
-		await expect(media.getPermissions('photos')).resolves.toMatchObject({
-			status: 'granted',
-		})
-	})
+  it('permissions report the file-input capability, not a camera prompt state', async () => {
+    await expect(media.requestPermissions('camera')).resolves.toMatchObject({
+      status: 'granted',
+    })
+    await expect(media.getPermissions('photos')).resolves.toMatchObject({
+      status: 'granted',
+    })
+  })
 
-	it('a dismissed picker settles empty through the focus fallback', async () => {
-		vi.useFakeTimers()
-		const pending = media.pickImage()
-		window.dispatchEvent(new Event('focus'))
-		await vi.advanceTimersByTimeAsync(400)
-		await expect(pending).resolves.toBeNull()
-	})
+  it('a dismissed picker settles empty through the focus fallback', async () => {
+    vi.useFakeTimers()
+    const pending = media.pickImage()
+    window.dispatchEvent(new Event('focus'))
+    await vi.advanceTimersByTimeAsync(400)
+    await expect(pending).resolves.toBeNull()
+  })
 
-	it('capture preview failures resolve null like the native leaves', async () => {
-		const inputs = nextFileInput()
-		vi.stubGlobal(
-			'URL',
-			Object.assign(function URL() {}, {
-				createObjectURL() {
-					throw new Error('preview failed')
-				},
-			}),
-		)
+  it('capture preview failures resolve null like the native leaves', async () => {
+    const inputs = nextFileInput()
+    vi.stubGlobal(
+      'URL',
+      Object.assign(function URL() {}, {
+        createObjectURL() {
+          throw new Error('preview failed')
+        },
+      }),
+    )
 
-		const pending = media.capturePhoto()
-		const input = inputs[0]!
-		Object.defineProperty(input, 'files', {
-			configurable: true,
-			value: [{ name: 'shot.jpg' }],
-		})
+    const pending = media.capturePhoto()
+    const input = inputs[0]!
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [{ name: 'shot.jpg' }],
+    })
 
-		input.onchange?.({} as Event)
-		await expect(pending).resolves.toBeNull()
-	})
+    input.onchange?.({} as Event)
+    await expect(pending).resolves.toBeNull()
+  })
 })

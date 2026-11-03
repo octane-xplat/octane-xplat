@@ -5,15 +5,15 @@ import { Heading, Text, View } from '@octane-xplat/ui'
 /** Shared `AnimatedImage` demo — GIF decode/autoplay via ui-image
  *  (Fresco/SDWebImage) on mobile, plain <img> on web; experimental NSImageView on AppKit. */
 export function AnimatedImageDemo() @{
-	<View className="gap-4">
-		<Heading level={2}>Animated image</Heading>
-		<Text>Use animated images for small illustrations, loading states and reactions.</Text>
-		<AnimatedImage
-			id="animated-image"
-			src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_(large).gif"
-			alt="Rotating earth"
-			width={160}
-			height={160}
-		/>
-	</View>
+  <View className="gap-4">
+    <Heading level={2}>Animated image</Heading>
+    <Text>Use animated images for small illustrations, loading states and reactions.</Text>
+    <AnimatedImage
+      id="animated-image"
+      src="https://upload.wikimedia.org/wikipedia/commons/2/2c/Rotating_earth_(large).gif"
+      alt="Rotating earth"
+      width={160}
+      height={160}
+    />
+  </View>
 }

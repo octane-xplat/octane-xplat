@@ -12,35 +12,35 @@ assert.ok(host, 'Set SHORTCUTS_GTK_HOST to a Linux host or an OrbStack Mac host'
 const q = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const prefix = process.env.SHORTCUTS_GTK_VM ? `orb -m ${q(vm)} -w /tmp ` : ''
 const run = (script, input) =>
-	execFileSync(
-		'ssh',
-		['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5', host, prefix + 'sh -c ' + q(script)],
-		{ input, encoding: 'utf8', timeout: 30_000, maxBuffer: 1024 * 1024 },
-	)
+  execFileSync(
+    'ssh',
+    ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5', host, prefix + 'sh -c ' + q(script)],
+    { input, encoding: 'utf8', timeout: 30_000, maxBuffer: 1024 * 1024 },
+  )
 
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-gtk-'))
 let remote
 try {
-	await build({
-		configFile: false,
-		logLevel: 'warn',
-		build: {
-			outDir: temporary,
-			emptyOutDir: false,
-			lib: {
-				entry: fileURLToPath(new URL('./fixtures/input.gtk.js', import.meta.url)),
-				formats: ['es'],
-				fileName: () => 'input.js',
-			},
-			rollupOptions: { external: [/^gi:/, 'system'] },
-			minify: false,
-		},
-	})
+  await build({
+    configFile: false,
+    logLevel: 'warn',
+    build: {
+      outDir: temporary,
+      emptyOutDir: false,
+      lib: {
+        entry: fileURLToPath(new URL('./fixtures/input.gtk.js', import.meta.url)),
+        formats: ['es'],
+        fileName: () => 'input.js',
+      },
+      rollupOptions: { external: [/^gi:/, 'system'] },
+      minify: false,
+    },
+  })
 
-	remote = run('mktemp -d /tmp/xplat-shortcuts-XXXXXX').trim()
-	assert.match(remote, /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/)
-	run(`cat > ${q(remote + '/input.js')}`, readFileSync(join(temporary, 'input.js')))
-	const driver = `
+  remote = run('mktemp -d /tmp/xplat-shortcuts-XXXXXX').trim()
+  assert.match(remote, /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/)
+  run(`cat > ${q(remote + '/input.js')}`, readFileSync(join(temporary, 'input.js')))
+  const driver = `
 set -eu
 cd ${q(remote)}
 gjs -m input.js > output.log 2>&1 &
@@ -62,12 +62,12 @@ cat output.log
 exit "$result"
 `
 
-	run(`cat > ${q(remote + '/driver.sh')}`, driver)
-	console.log(run(`xvfb-run -a sh ${q(remote + '/driver.sh')}`))
+  run(`cat > ${q(remote + '/driver.sh')}`, driver)
+  console.log(run(`xvfb-run -a sh ${q(remote + '/driver.sh')}`))
 } finally {
-	if (remote && /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/.test(remote)) {
-		run(`rm -rf ${q(remote)}`)
-	}
+  if (remote && /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/.test(remote)) {
+    run(`rm -rf ${q(remote)}`)
+  }
 
-	rmSync(temporary, { recursive: true, force: true })
+  rmSync(temporary, { recursive: true, force: true })
 }

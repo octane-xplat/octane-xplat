@@ -39,84 +39,84 @@ import { MOTION_SECTIONS } from './sections'
 
 /** The export sets `trailingSlash: true`, so normalise before comparing. */
 function isCurrent(pathname: string, href: string): boolean {
-	const a = pathname.endsWith('/') ? pathname : `${pathname}/`
-	const b = href.endsWith('/') ? href : `${href}/`
-	return a === b
+  const a = pathname.endsWith('/') ? pathname : `${pathname}/`
+  const b = href.endsWith('/') ? href : `${href}/`
+  return a === b
 }
 
 function LabNav() {
-	const pathname = useRouterState().route?.href ?? '/'
-	const groups = [...new Set(MOTION_SECTIONS.map((s) => s.group))]
+  const pathname = useRouterState().route?.href ?? '/'
+  const groups = [...new Set(MOTION_SECTIONS.map((s) => s.group))]
 
-	return (
-		<nav aria-label="Motion Lab pages" className={cx('ml-panel')}>
-			{groups.map((group, i) => (
-				<div key={group}>
-					<Text
-						type="supporting"
-						color="secondary"
-						weight="semibold"
-						className={cx('ml-groupLabel', i === 0 && 'ml-firstGroupLabel')}
-					>
-						{group}
-					</Text>
-					<List density="compact">
-						{MOTION_SECTIONS.filter((s) => s.group === group).map((section) => (
-							<ListItem
-								key={section.href}
-								label={section.title}
-								href={section.href}
-								isSelected={isCurrent(pathname, section.href)}
-							/>
-						))}
-					</List>
-				</div>
-			))}
-		</nav>
-	)
+  return (
+    <nav aria-label="Motion Lab pages" className={cx('ml-panel')}>
+      {groups.map((group, i) => (
+        <div key={group}>
+          <Text
+            type="supporting"
+            color="secondary"
+            weight="semibold"
+            className={cx('ml-groupLabel', i === 0 && 'ml-firstGroupLabel')}
+          >
+            {group}
+          </Text>
+          <List density="compact">
+            {MOTION_SECTIONS.filter((s) => s.group === group).map((section) => (
+              <ListItem
+                key={section.href}
+                label={section.title}
+                href={section.href}
+                isSelected={isCurrent(pathname, section.href)}
+              />
+            ))}
+          </List>
+        </div>
+      ))}
+    </nav>
+  )
 }
 
 export function MotionLabShell({ children }: { children: ReactNode }) {
-	const { registerScope, reducedMotion } = useMotionLab()
-	const ref = useRef<HTMLDivElement | null>(null)
+  const { registerScope, reducedMotion } = useMotionLab()
+  const ref = useRef<HTMLDivElement | null>(null)
 
-	useEffect(() => {
-		registerScope(ref.current)
-		return () => registerScope(null)
-	}, [registerScope])
+  useEffect(() => {
+    registerScope(ref.current)
+    return () => registerScope(null)
+  }, [registerScope])
 
-	return (
-		<div ref={ref} data-reduced-motion={reducedMotion} className={cx('ml-scope', 'ml-fill')}>
-			<Layout
-				height="fill"
-				start={
-					<LayoutPanel hasDivider width={228} padding={0} role="navigation">
-						<LabNav />
-					</LayoutPanel>
-				}
-				content={
-					<LayoutContent padding={0}>
-						<VStack gap={0}>
-							<MotionControlRail />
-							{children}
-						</VStack>
-					</LayoutContent>
-				}
-			/>
-		</div>
-	)
+  return (
+    <div ref={ref} data-reduced-motion={reducedMotion} className={cx('ml-scope', 'ml-fill')}>
+      <Layout
+        height="fill"
+        start={
+          <LayoutPanel hasDivider width={228} padding={0} role="navigation">
+            <LabNav />
+          </LayoutPanel>
+        }
+        content={
+          <LayoutContent padding={0}>
+            <VStack gap={0}>
+              <MotionControlRail />
+              {children}
+            </VStack>
+          </LayoutContent>
+        }
+      />
+    </div>
+  )
 }
 
 /** Route-level wrapper: every /pages/motion-lab/* page renders inside the
  *  shared provider + shell, mirroring upstream's section layout.tsx. */
 export function motionLabPage(Page: any) {
-	return function MotionLabRoute() {
-		return (
-			<MotionLabProvider>
-				<MotionLabShell>
-					<Page />
-				</MotionLabShell>
-			</MotionLabProvider>
-		)
-	}
+  return function MotionLabRoute() {
+    return (
+      <MotionLabProvider>
+        <MotionLabShell>
+          <Page />
+        </MotionLabShell>
+      </MotionLabProvider>
+    )
+  }
 }

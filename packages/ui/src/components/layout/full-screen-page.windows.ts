@@ -6,5 +6,5 @@ import type { Page } from '@nativescript/core'
  * Its measurement and child layout remain owned by NativeScript and WinUI.
  */
 export function prepareFullScreenPage<T extends Page>(page: T): T {
-	return page
+  return page
 }

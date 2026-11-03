@@ -1,25 +1,25 @@
 export type {
-	LightboxMedia,
-	LightboxMediaType,
-	LightboxTapEvent,
-	LightboxOptions,
-	LightboxProps,
-	LightboxRootProps,
-	LightboxPartProps,
-	LightboxTriggerPartProps,
-	LightboxSlidePartProps,
-	LightboxImagePartProps,
-	LightboxThumbnailPartProps,
-	LightboxTriggerProps,
-	UseLightboxOptions,
-	UseLightboxReturn,
-	UseLightboxState,
+  LightboxMedia,
+  LightboxMediaType,
+  LightboxTapEvent,
+  LightboxOptions,
+  LightboxProps,
+  LightboxRootProps,
+  LightboxPartProps,
+  LightboxTriggerPartProps,
+  LightboxSlidePartProps,
+  LightboxImagePartProps,
+  LightboxThumbnailPartProps,
+  LightboxTriggerProps,
+  UseLightboxOptions,
+  UseLightboxReturn,
+  UseLightboxState,
 } from './props'
 
 const PLACEHOLDER = 'support is not implemented yet'
 
 function unsupported(part: string): never {
-	throw new Error(`@octane-xplat/lightbox: ${part} ${PLACEHOLDER}`)
+  throw new Error(`@octane-xplat/lightbox: ${part} ${PLACEHOLDER}`)
 }
 
 /** The convenience viewer with the headless parts as statics. */

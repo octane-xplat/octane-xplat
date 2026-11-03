@@ -4,10 +4,10 @@
 import { Avatar, HStack } from '@octane-xplat/ui'
 
 export function AvatarWithImage() @{
-	<HStack gap={3} vAlign="center">
-		<Avatar name="Ami Pena" />
-		<Avatar name="Ana Thomas" />
-		<Avatar name="Daniela Gimenez" />
-		<Avatar name="Gabriela Fernandez" />
-	</HStack>
+  <HStack gap={3} vAlign="center">
+    <Avatar name="Ami Pena" />
+    <Avatar name="Ana Thomas" />
+    <Avatar name="Daniela Gimenez" />
+    <Avatar name="Gabriela Fernandez" />
+  </HStack>
 }

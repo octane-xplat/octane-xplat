@@ -3,5 +3,5 @@
 import { Device } from '@nativescript/core'
 
 export function detectSystemLocale(): string | undefined {
-	return Device.language || undefined
+  return Device.language || undefined
 }

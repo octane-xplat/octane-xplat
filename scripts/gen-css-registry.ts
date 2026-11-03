@@ -19,16 +19,16 @@ const names = new Set()
 const CSSNAME = /cssName:\s*['"]([^'"]+)['"]/g
 
 function scan(dir) {
-	for (const entry of readdirSync(dir, { withFileTypes: true })) {
-		const p = join(dir, entry.name)
-		if (entry.isDirectory()) {
-			scan(p)
-		} else if (entry.name.endsWith('.js')) {
-			for (const m of readFileSync(p, 'utf8').matchAll(CSSNAME)) {
-				names.add(m[1])
-			}
-		}
-	}
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      scan(p)
+    } else if (entry.name.endsWith('.js')) {
+      for (const m of readFileSync(p, 'utf8').matchAll(CSSNAME)) {
+        names.add(m[1])
+      }
+    }
+  }
 }
 
 scan(join(coreDir, 'ui'))
@@ -36,28 +36,28 @@ scan(join(coreDir, 'ui'))
 // Parsed by CssAnimationParser (css-animation-parser.js), not registered
 // as cssNames — the `animation` shorthand + its longhands.
 for (const a of [
-	'animation',
-	'animation-name',
-	'animation-duration',
-	'animation-delay',
-	'animation-timing-function',
-	'animation-iteration-count',
-	'animation-direction',
-	'animation-fill-mode',
+  'animation',
+  'animation-name',
+  'animation-duration',
+  'animation-delay',
+  'animation-timing-function',
+  'animation-iteration-count',
+  'animation-direction',
+  'animation-fill-mode',
 ]) {
-	names.add(a)
+  names.add(a)
 }
 
 const registry = {
-	generatedFrom: `@nativescript/core@${version}`,
-	properties: [...names].sort(),
+  generatedFrom: `@nativescript/core@${version}`,
+  properties: [...names].sort(),
 }
 
 writeFileSync(
-	new URL('./ns-css-registry.json', import.meta.url),
-	JSON.stringify(registry, null, '\t') + '\n',
+  new URL('./ns-css-registry.json', import.meta.url),
+  JSON.stringify(registry, null, '\t') + '\n',
 )
 
 console.log(
-	`[css-registry] ${registry.properties.length} properties from ${registry.generatedFrom}`,
+  `[css-registry] ${registry.properties.length} properties from ${registry.generatedFrom}`,
 )

@@ -6,61 +6,61 @@
 export type AnnouncePoliteness = 'polite' | 'assertive'
 
 const HIDDEN_CSS =
-	'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;' +
-	'clip:rect(0,0,0,0);white-space:nowrap;border:0;inset-block-start:0;' +
-	'inset-inline-start:0;pointer-events:none;user-select:none;'
+  'position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;' +
+  'clip:rect(0,0,0,0);white-space:nowrap;border:0;inset-block-start:0;' +
+  'inset-inline-start:0;pointer-events:none;user-select:none;'
 
 const CLEAR_DELAY_MS = 2000
 
 const frames: Partial<Record<AnnouncePoliteness, number>> = {}
 let regions: Record<AnnouncePoliteness, HTMLElement> | undefined
 const clearTimers: Record<AnnouncePoliteness, ReturnType<typeof setTimeout> | undefined> = {
-	polite: undefined,
-	assertive: undefined,
+  polite: undefined,
+  assertive: undefined,
 }
 
 function createRegion(politeness: AnnouncePoliteness): HTMLElement {
-	const el = document.createElement('div')
-	el.setAttribute('data-xplat-live-region', politeness)
-	el.setAttribute('aria-live', politeness)
-	el.setAttribute('aria-atomic', 'true')
-	el.setAttribute('role', politeness === 'assertive' ? 'alert' : 'status')
-	el.style.cssText = HIDDEN_CSS
-	document.body.appendChild(el)
-	return el
+  const el = document.createElement('div')
+  el.setAttribute('data-xplat-live-region', politeness)
+  el.setAttribute('aria-live', politeness)
+  el.setAttribute('aria-atomic', 'true')
+  el.setAttribute('role', politeness === 'assertive' ? 'alert' : 'status')
+  el.style.cssText = HIDDEN_CSS
+  document.body.appendChild(el)
+  return el
 }
 
 function getRegions(): Record<AnnouncePoliteness, HTMLElement> | undefined {
-	if (typeof document === 'undefined') {
-		return undefined
-	}
-	regions ??= { polite: createRegion('polite'), assertive: createRegion('assertive') }
-	for (const el of Object.values(regions)) {
-		if (!el.isConnected) {
-			document.body.appendChild(el)
-		}
-	}
-	return regions
+  if (typeof document === 'undefined') {
+    return undefined
+  }
+  regions ??= { polite: createRegion('polite'), assertive: createRegion('assertive') }
+  for (const el of Object.values(regions)) {
+    if (!el.isConnected) {
+      document.body.appendChild(el)
+    }
+  }
+  return regions
 }
 
 export function announce(message: string, politeness: AnnouncePoliteness = 'polite'): void {
-	const target = getRegions()?.[politeness]
-	if (!target) {
-		return
-	}
-	clearTimeout(clearTimers[politeness])
-	if (frames[politeness] !== undefined) {
-		cancelAnimationFrame(frames[politeness]!)
-	}
-	target.textContent = ''
-	if (!message) {
-		return
-	}
-	frames[politeness] = requestAnimationFrame(() => {
-		delete frames[politeness]
-		target.textContent = message
-		clearTimers[politeness] = setTimeout(() => {
-			target.textContent = ''
-		}, CLEAR_DELAY_MS)
-	})
+  const target = getRegions()?.[politeness]
+  if (!target) {
+    return
+  }
+  clearTimeout(clearTimers[politeness])
+  if (frames[politeness] !== undefined) {
+    cancelAnimationFrame(frames[politeness]!)
+  }
+  target.textContent = ''
+  if (!message) {
+    return
+  }
+  frames[politeness] = requestAnimationFrame(() => {
+    delete frames[politeness]
+    target.textContent = message
+    clearTimers[politeness] = setTimeout(() => {
+      target.textContent = ''
+    }, CLEAR_DELAY_MS)
+  })
 }

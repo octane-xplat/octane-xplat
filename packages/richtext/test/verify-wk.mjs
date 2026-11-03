@@ -19,36 +19,36 @@ const engines = ['richtext', 'tiptap', 'lexical']
 // The fixture loads the same self-contained editor documents the package
 // ships; build them rather than trusting a stale dist/.
 for (const name of engines) {
-	const built = spawnSync('bun', ['run', 'build:assets'], {
-		cwd: join(repo, 'packages', name),
-		encoding: 'utf8',
-		timeout: 120_000,
-	})
+  const built = spawnSync('bun', ['run', 'build:assets'], {
+    cwd: join(repo, 'packages', name),
+    encoding: 'utf8',
+    timeout: 120_000,
+  })
 
-	assert.equal(built.status, 0, `${name} build-browser:\n${built.stdout}\n${built.stderr}`)
+  assert.equal(built.status, 0, `${name} build-browser:\n${built.stdout}\n${built.stderr}`)
 }
 
 const app = await mkdtemp(join(tmpdir(), 'xplat-richtext-wk-'))
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 await symlink(
-	fileURLToPath(new URL('../../platform', import.meta.url)),
-	join(app, 'node_modules/@octane-xplat/platform'),
+  fileURLToPath(new URL('../../platform', import.meta.url)),
+  join(app, 'node_modules/@octane-xplat/platform'),
 )
 
 await writeFile(join(app, 'package.json'), JSON.stringify({ name: 'wk-fixture', type: 'module' }))
 
 const pageImports = engines
-	.map(
-		(name, i) =>
-			`import page${i} from ${JSON.stringify(join(repo, `packages/${name}/dist/macos/browser.js`))}`,
-	)
-	.join('\n')
+  .map(
+    (name, i) =>
+      `import page${i} from ${JSON.stringify(join(repo, `packages/${name}/dist/macos/browser.js`))}`,
+  )
+  .join('\n')
 
 const pages = engines.map((name, i) => `[${JSON.stringify(name)}, page${i}]`).join(',')
 
 await writeFile(
-	join(app, 'fixture.mjs'),
-	`import { createEditorHost } from 'richtext-host'
+  join(app, 'fixture.mjs'),
+  `import { createEditorHost } from 'richtext-host'
 ${pageImports}
 const check = (condition, message) => { if (!condition) throw Error(message) }
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -182,52 +182,52 @@ main().catch((error) => { console.error(error); globalThis.__xplatStopHost() })
 // Pull createEditorHost from the package source — the same module NativeEditor
 // imports — aliased so the bundle resolves it without packing.
 await build({
-	configFile: false,
-	root: app,
-	logLevel: 'error',
-	resolve: {
-		conditions: ['macos', 'native'],
-		alias: {
-			'richtext-host': join(repo, 'packages/richtext/src/editor-host.macos.ts'),
-		},
-	},
-	build: {
-		minify: false,
-		lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
-	},
+  configFile: false,
+  root: app,
+  logLevel: 'error',
+  resolve: {
+    conditions: ['macos', 'native'],
+    alias: {
+      'richtext-host': join(repo, 'packages/richtext/src/editor-host.macos.ts'),
+    },
+  },
+  build: {
+    minify: false,
+    lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
+  },
 })
 
 const output = await new Promise((resolveOutput, reject) => {
-	const child = spawn(
-		join(hostBundle, 'host'),
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			join(app, 'dist/fixture.cjs'),
-			join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
-			fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url)),
-		],
-		{ cwd: app },
-	)
-	let text = ''
-	child.stdout.on('data', (chunk) => (text += chunk))
-	child.stderr.on('data', (chunk) => (text += chunk))
-	const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
-	child.once('error', (error) => {
-		clearTimeout(timeout)
-		reject(error)
-	})
-	child.once('close', (code, signal) => {
-		clearTimeout(timeout)
-		if (code === 0) {
-			resolveOutput(text)
-		} else {
-			reject(new Error(`host exited ${code} ${signal}: ${text}`))
-		}
-	})
+  const child = spawn(
+    join(hostBundle, 'host'),
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      join(app, 'dist/fixture.cjs'),
+      join(hostBundle, `metadata.macos.${macOSHostArch()}.nsmd`),
+      fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url)),
+    ],
+    { cwd: app },
+  )
+  let text = ''
+  child.stdout.on('data', (chunk) => (text += chunk))
+  child.stderr.on('data', (chunk) => (text += chunk))
+  const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+  child.once('error', (error) => {
+    clearTimeout(timeout)
+    reject(error)
+  })
+  child.once('close', (code, signal) => {
+    clearTimeout(timeout)
+    if (code === 0) {
+      resolveOutput(text)
+    } else {
+      reject(new Error(`host exited ${code} ${signal}: ${text}`))
+    }
+  })
 })
 
 for (const name of engines) {
-	assert.match(output, new RegExp(`${name}: WK_EDITOR_OK`), output)
+  assert.match(output, new RegExp(`${name}: WK_EDITOR_OK`), output)
 }
 
 assert.doesNotMatch(output, /EDITOR_FAIL/, output)

@@ -3,14 +3,14 @@ import { TextArea } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function TextAreaShowcase() @{
-	const [value, setValue] = useState('')
+  const [value, setValue] = useState('')
 
-	<div style={{ width: 400 }}>
-		<TextArea
-			label="Description"
-			value={value}
-			onChange={setValue}
-			placeholder="Enter a description..."
-		/>
-	</div>
+  <div style={{ width: 400 }}>
+    <TextArea
+      label="Description"
+      value={value}
+      onChange={setValue}
+      placeholder="Enter a description..."
+    />
+  </div>
 }

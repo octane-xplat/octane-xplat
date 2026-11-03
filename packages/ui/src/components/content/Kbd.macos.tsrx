@@ -6,12 +6,12 @@ import { applyEscapeProps } from '../overlays/escape-props'
 
 /** Kbd — keyboard key glyph. */
 export function Kbd(props: KbdProps): unknown @{
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-kbd', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	>
-		{props.children}
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-kbd', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  >
+    {props.children}
+  </masonview>
 }

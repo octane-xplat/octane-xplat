@@ -18,70 +18,70 @@ import type { HostHandler, NativeEvent } from '@octane-xplat/jsx/intrinsics'
  * `value` and `placeholder` (index.ts ~4925–5039 — NS uses `text`/`hint`).
  */
 declare module '@octane-xplat/jsx/intrinsics' {
-	// ---- NativeScript-only ----
-	interface CommonAttributes {
-		isUserInteractionEnabled?: boolean
-	}
+  // ---- NativeScript-only ----
+  interface CommonAttributes {
+    isUserInteractionEnabled?: boolean
+  }
 
-	interface TextBaseProps {
-		textAlignment?: string
-	}
+  interface TextBaseProps {
+    textAlignment?: string
+  }
 
-	interface ListViewProps<TElement> {
-		iosEstimatedRowHeight?: number
-		onLoadMoreItems?: HostHandler<NativeEvent<TElement>>
-	}
+  interface ListViewProps<TElement> {
+    iosEstimatedRowHeight?: number
+    onLoadMoreItems?: HostHandler<NativeEvent<TElement>>
+  }
 
-	interface MasonViewProps {
-		iosIgnoreSafeArea?: boolean
-	}
+  interface MasonViewProps {
+    iosIgnoreSafeArea?: boolean
+  }
 
-	interface TextViewProps<TElement> {
-		returnKeyType?: string
-		keyboardType?: string
-		onReturnPress?: HostHandler<NativeEvent<TElement>>
-	}
+  interface TextViewProps<TElement> {
+    returnKeyType?: string
+    keyboardType?: string
+    onReturnPress?: HostHandler<NativeEvent<TElement>>
+  }
 
-	interface SpanProps {
-		onLinkTap?: HostHandler<NativeEvent<object>>
-	}
+  interface SpanProps {
+    onLinkTap?: HostHandler<NativeEvent<object>>
+  }
 
-	// ---- AppKit-only ----
-	interface CommonAttributes {
-		disabled?: boolean
-		accessibilityMinValue?: number
-		accessibilityMaxValue?: number
-		accessibilityValueDescription?: string
-		onAccessibilityIncrement?: HostHandler<NativeEvent<object>>
-		onAccessibilityDecrement?: HostHandler<NativeEvent<object>>
-	}
+  // ---- AppKit-only ----
+  interface CommonAttributes {
+    disabled?: boolean
+    accessibilityMinValue?: number
+    accessibilityMaxValue?: number
+    accessibilityValueDescription?: string
+    onAccessibilityIncrement?: HostHandler<NativeEvent<object>>
+    onAccessibilityDecrement?: HostHandler<NativeEvent<object>>
+  }
 
-	interface WebViewProps<TElement> {
-		scrollEnabled?: boolean
-		matchContents?: boolean
-		onLayoutContent?: (size: { width: number; height: number }) => void
-		html?: string
-		onLoad?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
-		onError?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
-		onMessage?: HostHandler<NativeEvent<TElement> & { data?: unknown; url?: string }>
-	}
+  interface WebViewProps<TElement> {
+    scrollEnabled?: boolean
+    matchContents?: boolean
+    onLayoutContent?: (size: { width: number; height: number }) => void
+    html?: string
+    onLoad?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
+    onError?: HostHandler<NativeEvent<TElement> & { url?: string; error?: string }>
+    onMessage?: HostHandler<NativeEvent<TElement> & { data?: unknown; url?: string }>
+  }
 
-	interface TextFieldProps<TElement> {
-		value?: string
-		placeholder?: string
-	}
+  interface TextFieldProps<TElement> {
+    value?: string
+    placeholder?: string
+  }
 
-	interface TextViewProps<TElement> {
-		value?: string
-		placeholder?: string
-		rows?: number
-	}
+  interface TextViewProps<TElement> {
+    value?: string
+    placeholder?: string
+    rows?: number
+  }
 
-	interface ScrollViewProps<TElement> {
-		horizontal?: boolean
-	}
+  interface ScrollViewProps<TElement> {
+    horizontal?: boolean
+  }
 
-	interface ImageProps {
-		placeholder?: string
-	}
+  interface ImageProps {
+    placeholder?: string
+  }
 }

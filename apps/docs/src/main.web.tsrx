@@ -8,7 +8,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import './style.css'
 
 createRoot(document.getElementById('root')!).render(
-	<RouterProvider router={router}>
-		<App />
-	</RouterProvider>,
+  <RouterProvider router={router}>
+    <App />
+  </RouterProvider>,
 )

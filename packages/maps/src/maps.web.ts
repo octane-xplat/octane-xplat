@@ -5,13 +5,13 @@ import type { Maps } from './types'
 let apiKey: string | null = null
 
 export function webApiKey(): string | null {
-	return apiKey
+  return apiKey
 }
 
 /** Maps service — backend/permissions facade. */
 export const maps: Maps = {
-	supported: typeof window !== 'undefined',
-	init(options: { apiKey: string }): void {
-		apiKey = options.apiKey
-	},
+  supported: typeof window !== 'undefined',
+  init(options: { apiKey: string }): void {
+    apiKey = options.apiKey
+  },
 }

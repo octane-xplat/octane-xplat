@@ -27,57 +27,57 @@ import { useLayoutEffect, useRef, createContext, useContext } from 'octane'
 const ProposedContext = createContext<{ value: string; onChange: (v: string) => void } | null>(null)
 
 export function TabList(props: {
-	value: string
-	onChange: (value: string) => void
-	hasTravellingIndicator?: boolean
-	children?: any
+  value: string
+  onChange: (value: string) => void
+  hasTravellingIndicator?: boolean
+  children?: any
 }) {
-	const stripRef = useRef<HTMLDivElement | null>(null)
-	const indicatorRef = useRef<HTMLSpanElement | null>(null)
+  const stripRef = useRef<HTMLDivElement | null>(null)
+  const indicatorRef = useRef<HTMLSpanElement | null>(null)
 
-	useLayoutEffect(() => {
-		const strip = stripRef.current
-		const indicator = indicatorRef.current
-		if (strip == null || indicator == null) {
-			return
-		}
+  useLayoutEffect(() => {
+    const strip = stripRef.current
+    const indicator = indicatorRef.current
+    if (strip == null || indicator == null) {
+      return
+    }
 
-		const selected = strip.querySelector<HTMLElement>('[data-selected="true"]')
-		if (selected == null) {
-			indicator.style.width = '0'
-			return
-		}
+    const selected = strip.querySelector<HTMLElement>('[data-selected="true"]')
+    if (selected == null) {
+      indicator.style.width = '0'
+      return
+    }
 
-		const stripRect = strip.getBoundingClientRect()
-		const rect = selected.getBoundingClientRect()
-		indicator.style.transform = `translateX(${rect.left - stripRect.left}px)`
-		indicator.style.width = `${rect.width}px`
-	})
+    const stripRect = strip.getBoundingClientRect()
+    const rect = selected.getBoundingClientRect()
+    indicator.style.transform = `translateX(${rect.left - stripRect.left}px)`
+    indicator.style.width = `${rect.width}px`
+  })
 
-	return (
-		<ProposedContext value={{ value: props.value, onChange: props.onChange }}>
-			<div ref={stripRef} role="tablist" className="ml-tabRow">
-				{props.children}
-				<span ref={indicatorRef} className="ml-indicator" aria-hidden="true" />
-			</div>
-		</ProposedContext>
-	)
+  return (
+    <ProposedContext value={{ value: props.value, onChange: props.onChange }}>
+      <div ref={stripRef} role="tablist" className="ml-tabRow">
+        {props.children}
+        <span ref={indicatorRef} className="ml-indicator" aria-hidden="true" />
+      </div>
+    </ProposedContext>
+  )
 }
 
 export function Tab(props: { value: string; label: string }) {
-	const ctx = useContext(ProposedContext)
-	const selected = ctx?.value === props.value
-	return (
-		<button
-			type="button"
-			role="tab"
-			aria-selected={selected}
-			data-selected={selected}
-			tabIndex={selected ? 0 : -1}
-			className={selected ? 'ml-tab ml-tabSelected' : 'ml-tab'}
-			onClick={() => ctx?.onChange(props.value)}
-		>
-			{props.label}
-		</button>
-	)
+  const ctx = useContext(ProposedContext)
+  const selected = ctx?.value === props.value
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={selected}
+      data-selected={selected}
+      tabIndex={selected ? 0 : -1}
+      className={selected ? 'ml-tab ml-tabSelected' : 'ml-tab'}
+      onClick={() => ctx?.onChange(props.value)}
+    >
+      {props.label}
+    </button>
+  )
 }

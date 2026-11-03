@@ -10,45 +10,45 @@ let hasInitialHostUrl = bootstrap !== null
 let initialHostUrl = bootstrap?.initialUrl ?? null
 
 function wire() {
-	if (wired) {
-		return
-	}
+  if (wired) {
+    return
+  }
 
-	wired = true
-	window.addEventListener('popstate', () => {
-		for (const h of handlers) {
-			h(location.pathname + location.search)
-		}
-	})
+  wired = true
+  window.addEventListener('popstate', () => {
+    for (const h of handlers) {
+      h(location.pathname + location.search)
+    }
+  })
 
-	const host = desktopHostClient()
-	host?.on('app.deep-link', (url) => {
-		for (const handler of handlers) {
-			handler(url)
-		}
-	})
+  const host = desktopHostClient()
+  host?.on('app.deep-link', (url) => {
+    for (const handler of handlers) {
+      handler(url)
+    }
+  })
 }
 
 export function onDeepLink(cb: LinkHandler): () => void {
-	wire()
-	handlers.add(cb)
-	return () => handlers.delete(cb)
+  wire()
+  handlers.add(cb)
+  return () => handlers.delete(cb)
 }
 
 let consumedInitialUrl = false
 
 export function consumeInitialUrl(): string | null {
-	if (consumedInitialUrl) {
-		return null
-	}
+  if (consumedInitialUrl) {
+    return null
+  }
 
-	consumedInitialUrl = true
-	if (hasInitialHostUrl) {
-		hasInitialHostUrl = false
-		const url = initialHostUrl
-		initialHostUrl = null
-		return url
-	}
+  consumedInitialUrl = true
+  if (hasInitialHostUrl) {
+    hasInitialHostUrl = false
+    const url = initialHostUrl
+    initialHostUrl = null
+    return url
+  }
 
-	return location.pathname === '/' ? null : location.pathname + location.search
+  return location.pathname === '/' ? null : location.pathname + location.search
 }

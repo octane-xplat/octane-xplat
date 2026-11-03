@@ -4,12 +4,12 @@ import type { ProbeContext } from '../../tools/probe/context'
 const value$ = signal$(1, { key: 'probe.signals.value' })
 
 export async function run(ctx: ProbeContext) {
-	const owner = createScope({ scopeKey: 'probe.signals' })
-	ctx.onCleanup(() => owner.dispose())
-	runWithSignalOwner(owner, () => {
-		value$.set(value$.get() + 1)
-		ctx.assert('signal updates in the target runtime', value$.get(), 2)
-	})
+  const owner = createScope({ scopeKey: 'probe.signals' })
+  ctx.onCleanup(() => owner.dispose())
+  runWithSignalOwner(owner, () => {
+    value$.set(value$.get() + 1)
+    ctx.assert('signal updates in the target runtime', value$.get(), 2)
+  })
 
-	ctx.record('target', ctx.target)
+  ctx.record('target', ctx.target)
 }

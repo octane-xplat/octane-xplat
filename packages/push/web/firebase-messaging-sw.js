@@ -13,33 +13,33 @@
 
 /* eslint-disable no-undef */
 importScripts(
-	'https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js',
-	'https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging-compat.js',
+  'https://www.gstatic.com/firebasejs/12.19.0/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/12.19.0/firebase-messaging-compat.js',
 )
 
 const config = JSON.parse(new URL(self.location.href).searchParams.get('config') ?? 'null')
 
 if (config) {
-	firebase.initializeApp(config)
+  firebase.initializeApp(config)
 
-	firebase.messaging().onBackgroundMessage((payload) => {
-		// Messages carrying a `notification` payload are displayed by the SDK
-		// before this hook runs — only data-only messages need a hand-shown
-		// notification. Stashing FCM_MSG lets the SDK's click handler route the
-		// tap back to the page the same way.
-		if (payload.notification) {
-			return
-		}
+  firebase.messaging().onBackgroundMessage((payload) => {
+    // Messages carrying a `notification` payload are displayed by the SDK
+    // before this hook runs — only data-only messages need a hand-shown
+    // notification. Stashing FCM_MSG lets the SDK's click handler route the
+    // tap back to the page the same way.
+    if (payload.notification) {
+      return
+    }
 
-		self.registration.showNotification(payload.data?.title ?? '', {
-			body: payload.data?.body,
-			icon: payload.data?.icon,
-			data: { FCM_MSG: payload },
-		})
-	})
+    self.registration.showNotification(payload.data?.title ?? '', {
+      body: payload.data?.body,
+      icon: payload.data?.icon,
+      data: { FCM_MSG: payload },
+    })
+  })
 } else {
-	console.warn(
-		'[xplat-push] firebase-messaging-sw loaded without a `config` query — ' +
-			'register it through push.configure().',
-	)
+  console.warn(
+    '[xplat-push] firebase-messaging-sw loaded without a `config` query — ' +
+      'register it through push.configure().',
+  )
 }

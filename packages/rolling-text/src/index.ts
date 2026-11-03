@@ -1,9 +1,9 @@
 export { RollingText } from './RollingText.tsrx'
 export type {
-	RollingTextProps,
-	RollingTextDirection,
-	RollingTextReducedMotion,
-	RollingTextTransition,
-	RollingTextUnit,
-	RollingTextUpdatePolicy,
+  RollingTextProps,
+  RollingTextDirection,
+  RollingTextReducedMotion,
+  RollingTextTransition,
+  RollingTextUnit,
+  RollingTextUpdatePolicy,
 } from './props'

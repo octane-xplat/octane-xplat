@@ -23,25 +23,25 @@ const mountedViewports = new Set<string>()
 /** Registers a mounted stack so orphaned entries can drain to the
  *  fallback instead of vanishing with their viewport. */
 export function registerToastViewport(id: string): () => void {
-	mountedViewports.add(id)
-	return () => {
-		mountedViewports.delete(id)
-	}
+  mountedViewports.add(id)
+  return () => {
+    mountedViewports.delete(id)
+  }
 }
 
 /** Does this entry render on `viewportId`'s stack? Entries whose owning
  *  viewport unmounted fall back so they still dismiss on schedule. */
 export function toastOnViewport(entry: ToastEntry, viewportId: string): boolean {
-	const owner = entry.viewportId ?? FALLBACK_TOAST_VIEWPORT
-	if (owner === viewportId) {
-		return true
-	}
+  const owner = entry.viewportId ?? FALLBACK_TOAST_VIEWPORT
+  if (owner === viewportId) {
+    return true
+  }
 
-	return (
-		viewportId === FALLBACK_TOAST_VIEWPORT &&
-		owner !== FALLBACK_TOAST_VIEWPORT &&
-		!mountedViewports.has(owner)
-	)
+  return (
+    viewportId === FALLBACK_TOAST_VIEWPORT &&
+    owner !== FALLBACK_TOAST_VIEWPORT &&
+    !mountedViewports.has(owner)
+  )
 }
 
 /** Push a toast. Returns the entry id ('' when a same-`uniqueID` toast
@@ -49,96 +49,96 @@ export function toastOnViewport(entry: ToastEntry, viewportId: string): boolean 
  *  swaps the entry in place — the replaced toast's `onHide` does NOT fire
  *  (it was superseded, not dismissed). */
 export function pushToast(options: ToastOptions, viewportId?: string): string {
-	const list = toastStore.getSnapshot()
-	const uniqueID = options.uniqueID
-	if (
-		uniqueID &&
-		(options.collisionBehavior ?? 'overwrite') === 'ignore' &&
-		list.some((t) => t.options.uniqueID === uniqueID)
-	) {
-		return ''
-	}
+  const list = toastStore.getSnapshot()
+  const uniqueID = options.uniqueID
+  if (
+    uniqueID &&
+    (options.collisionBehavior ?? 'overwrite') === 'ignore' &&
+    list.some((t) => t.options.uniqueID === uniqueID)
+  ) {
+    return ''
+  }
 
-	const entry: ToastEntry = { id: `xplat-toast-${++counter}`, options, viewportId }
-	if (uniqueID) {
-		const existing = list.findIndex((t) => t.options.uniqueID === uniqueID)
-		if (existing >= 0) {
-			toastStore.set(list.map((t) => (t.options.uniqueID === uniqueID ? entry : t)))
-			return entry.id
-		}
-	}
+  const entry: ToastEntry = { id: `xplat-toast-${++counter}`, options, viewportId }
+  if (uniqueID) {
+    const existing = list.findIndex((t) => t.options.uniqueID === uniqueID)
+    if (existing >= 0) {
+      toastStore.set(list.map((t) => (t.options.uniqueID === uniqueID ? entry : t)))
+      return entry.id
+    }
+  }
 
-	toastStore.set([...list, entry])
-	return entry.id
+  toastStore.set([...list, entry])
+  return entry.id
 }
 
 /** Dismiss a toast: fires `onHide` exactly once, flags `exiting` for the
  *  exit presentation, then prunes the entry after `TOAST_EXIT_MS`.
  *  Idempotent — a second call while exiting is a no-op. */
 export function dismissToast(id: string, reason: ToastDismissReason = 'manual'): void {
-	if (!id) {
-		return
-	}
+  if (!id) {
+    return
+  }
 
-	const list = toastStore.getSnapshot()
-	const entry = list.find((t) => t.id === id)
-	if (!entry || entry.exiting) {
-		return
-	}
+  const list = toastStore.getSnapshot()
+  const entry = list.find((t) => t.id === id)
+  if (!entry || entry.exiting) {
+    return
+  }
 
-	entry.options.onHide?.(reason)
-	toastStore.set(list.map((t) => (t.id === id ? { ...t, exiting: true } : t)))
-	setTimeout(() => {
-		toastStore.set(toastStore.getSnapshot().filter((t) => t.id !== id))
-	}, TOAST_EXIT_MS)
+  entry.options.onHide?.(reason)
+  toastStore.set(list.map((t) => (t.id === id ? { ...t, exiting: true } : t)))
+  setTimeout(() => {
+    toastStore.set(toastStore.getSnapshot().filter((t) => t.id !== id))
+  }, TOAST_EXIT_MS)
 }
 
 /** Replace a live toast's options in place (the `update` half of
  *  `ToastHandle`). No-op when the id names no queued entry or the toast
  *  is already dismissing. */
 export function updateToast(id: string, options: ToastOptions): void {
-	if (!id) {
-		return
-	}
+  if (!id) {
+    return
+  }
 
-	const list = toastStore.getSnapshot()
-	const index = list.findIndex((t) => t.id === id)
-	if (index === -1 || list[index].exiting) {
-		return
-	}
+  const list = toastStore.getSnapshot()
+  const index = list.findIndex((t) => t.id === id)
+  if (index === -1 || list[index].exiting) {
+    return
+  }
 
-	toastStore.set(list.map((t) => (t.id === id ? { ...t, options } : t)))
+  toastStore.set(list.map((t) => (t.id === id ? { ...t, options } : t)))
 }
 
 /** Look up a live toast by its deduplication key. */
 export function findToastByUniqueID(uniqueID: string): ToastEntry | undefined {
-	return toastStore.getSnapshot().find((t) => t.options.uniqueID === uniqueID)
+  return toastStore.getSnapshot().find((t) => t.options.uniqueID === uniqueID)
 }
 
 /** Build the public handle for one pushed toast — `null` for the '' id
  *  `pushToast` returns when an 'ignore' collision suppressed it. */
 export function toastHandleFor(id: string): ToastHandle | null {
-	if (!id) {
-		return null
-	}
+  if (!id) {
+    return null
+  }
 
-	return {
-		id,
-		dismiss: () => dismissToast(id, 'manual'),
-		update: (options) => updateToast(id, options),
-	}
+  return {
+    id,
+    dismiss: () => dismissToast(id, 'manual'),
+    update: (options) => updateToast(id, options),
+  }
 }
 
 /** Resolved auto-hide contract: error toasts hold for manual dismissal
  *  unless `isAutoHide` overrides; info toasts auto-hide after
  *  `autoHideDuration` (default 5000ms). */
 export function toastTiming(options: ToastOptions): {
-	isAutoHide: boolean
-	autoHideDuration: number
+  isAutoHide: boolean
+  autoHideDuration: number
 } {
-	const type = options.type ?? 'info'
-	return {
-		isAutoHide: options.isAutoHide ?? type !== 'error',
-		autoHideDuration: Math.max(0, options.autoHideDuration ?? 5000),
-	}
+  const type = options.type ?? 'info'
+  return {
+    isAutoHide: options.isAutoHide ?? type !== 'error',
+    autoHideDuration: Math.max(0, options.autoHideDuration ?? 5000),
+  }
 }

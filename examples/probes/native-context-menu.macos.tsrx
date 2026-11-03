@@ -4,9 +4,9 @@ import type { ProbeContext } from '../../tools/probe/context'
 
 export default NativeContextMenuDemo
 export async function run(ctx: ProbeContext) {
-	await ctx.waitFor(() => ctx.find('native-context-menu-status'))
-	ctx.record(
-		'qualification',
-		'Mounted demo only; native menus, responder propagation, selections, input and AX not exercised',
-	)
+  await ctx.waitFor(() => ctx.find('native-context-menu-status'))
+  ctx.record(
+    'qualification',
+    'Mounted demo only; native menus, responder propagation, selections, input and AX not exercised',
+  )
 }

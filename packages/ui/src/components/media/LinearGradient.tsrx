@@ -7,28 +7,28 @@ import { applyLinearGradient } from './linear-gradient-apply'
  *  inserted at sublayer 0), GradientDrawable background on Android. Colors may
  *  carry alpha ('#rrggbbaa'/'rgba(…)') — both platform color classes parse it. */
 export function LinearGradient(props: LinearGradientProps): unknown @{
-	const state = useRef({ props, view: null as any })
-	state.current.props = props
+  const state = useRef({ props, view: null as any })
+  state.current.props = props
 
-	const ref = useCallback((view: any) => {
-		if (!view) {
-			return
-		}
+  const ref = useCallback((view: any) => {
+    if (!view) {
+      return
+    }
 
-		const apply = () =>
-			applyLinearGradient(view, state.current.props.colors, state.current.props.direction)
+    const apply = () =>
+      applyLinearGradient(view, state.current.props.colors, state.current.props.direction)
 
-		const prev = state.current.view as any
-		if (prev && prev !== view) {
-			prev.off?.('loaded', apply)
-			prev.off?.('layoutChanged', apply)
-		}
+    const prev = state.current.view as any
+    if (prev && prev !== view) {
+      prev.off?.('loaded', apply)
+      prev.off?.('layoutChanged', apply)
+    }
 
-		state.current.view = view
-		view.on?.('loaded', apply)
-		view.on?.('layoutChanged', apply)
-		apply()
-	}, [])
+    state.current.view = view
+    view.on?.('loaded', apply)
+    view.on?.('layoutChanged', apply)
+    apply()
+  }, [])
 
-	<masonview id={props.id} className={props.className} style={props.style} ref={ref} />
+  <masonview id={props.id} className={props.className} style={props.style} ref={ref} />
 }

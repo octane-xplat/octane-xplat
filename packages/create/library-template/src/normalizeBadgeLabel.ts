@@ -8,5 +8,5 @@
  * ```
  */
 export function normalizeBadgeLabel(label: string): string {
-	return label.trim()
+  return label.trim()
 }

@@ -4,9 +4,9 @@ import { useState } from 'octane'
 import type { DateRange } from '@octane-xplat/ui'
 
 export function DateRangeInputShowcase() @{
-	const [value, setValue] = useState<DateRange | null>(null)
+  const [value, setValue] = useState<DateRange | null>(null)
 
-	<div style={{ width: 400 }}>
-		<DateRangeInput label="Vacation dates" value={value} onChange={setValue} />
-	</div>
+  <div style={{ width: 400 }}>
+    <DateRangeInput label="Vacation dates" value={value} onChange={setValue} />
+  </div>
 }

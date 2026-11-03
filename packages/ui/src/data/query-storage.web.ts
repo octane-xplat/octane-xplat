@@ -7,25 +7,25 @@ import type { QueryStorageAdapter } from './query-cache'
  * `QueryStorageAdapter` to `persist.storage` instead.
  */
 export const platformQueryStorage: QueryStorageAdapter = {
-	get: (key) => {
-		try {
-			return window.localStorage.getItem(key)
-		} catch {
-			return null
-		}
-	},
-	set: (key, value) => {
-		try {
-			window.localStorage.setItem(key, value)
-		} catch {
-			// Persistence is best-effort.
-		}
-	},
-	remove: (key) => {
-		try {
-			window.localStorage.removeItem(key)
-		} catch {
-			// Persistence is best-effort.
-		}
-	},
+  get: (key) => {
+    try {
+      return window.localStorage.getItem(key)
+    } catch {
+      return null
+    }
+  },
+  set: (key, value) => {
+    try {
+      window.localStorage.setItem(key, value)
+    } catch {
+      // Persistence is best-effort.
+    }
+  },
+  remove: (key) => {
+    try {
+      window.localStorage.removeItem(key)
+    } catch {
+      // Persistence is best-effort.
+    }
+  },
 }

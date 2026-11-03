@@ -10,8 +10,8 @@ export const REDUCED: Transition = { duration: 0.16, ease: 'easeOut' }
 
 /** Pan-release inertia, upstream spec (lightbox.tsx ~1160). */
 export const INERTIA = {
-	power: 0.5,
-	timeConstant: 280,
-	bounceStiffness: 360,
-	bounceDamping: 36,
+  power: 0.5,
+  timeConstant: 280,
+  bounceStiffness: 360,
+  bounceDamping: 36,
 } as const

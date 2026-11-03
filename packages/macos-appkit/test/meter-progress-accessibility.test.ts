@@ -8,92 +8,92 @@ import assert from 'node:assert/strict'
 // AXProgressIndicator on both stack and grid hosts, each reporting a numeric
 // value within the declared range plus the human-readable description.
 const source = stripTypeScriptTypes(
-	readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
 )
 
 const stack = source.slice(
-	source.indexOf('class AccessibleHostView'),
-	source.indexOf('const masonElementRegistration'),
+  source.indexOf('class AccessibleHostView'),
+  source.indexOf('const masonElementRegistration'),
 )
 
 const apply = source.slice(
-	source.indexOf('function applyAccessibility('),
-	source.indexOf('function applyProps('),
+  source.indexOf('function applyAccessibility('),
+  source.indexOf('function applyProps('),
 )
 
 test('AppKit meter and progressbar roles report range, value, and description', () => {
-	const ids = new WeakMap()
-	const roles = new Map()
-	const labels = new Map()
-	const stackProps = new WeakMap()
-	const { AccessibleHostView, applyAccessibility } = runSlice(
-		stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
-		{
-			elementBehaviors: new Map(),
-			behaviorOf: () => undefined,
-			isManualLayoutParent: (t: string) =>
-				[
-					'gridlayout',
-					'liquidglass',
-					'absolutelayout',
-					'contentview',
-					'actionbar',
-					'docklayout',
-					'wraplayout',
-					'rootlayout',
-				].includes(t),
-			registerElementType: () => {},
+  const ids = new WeakMap()
+  const roles = new Map()
+  const labels = new Map()
+  const stackProps = new WeakMap()
+  const { AccessibleHostView, applyAccessibility } = runSlice(
+    stack + '\n' + apply + '\n({ AccessibleHostView, applyAccessibility })',
+    {
+      elementBehaviors: new Map(),
+      behaviorOf: () => undefined,
+      isManualLayoutParent: (t: string) =>
+        [
+          'gridlayout',
+          'liquidglass',
+          'absolutelayout',
+          'contentview',
+          'actionbar',
+          'docklayout',
+          'wraplayout',
+          'rootlayout',
+        ].includes(t),
+      registerElementType: () => {},
 
-			NSView: class {},
-			NativeClass() {},
-			interop: { types: { bool: 'bool', id: 'id' } },
-			NSNumber: { numberWithDouble: (value) => value },
-			actionIdsByView: ids,
-			actionHandlers: new Map(),
-			accessibilityRoles: roles,
-			accessibilityLabels: labels,
-			stackAccessibilityPropsByView: stackProps,
-			invokeAction: () => {},
-			inputTransparentViews: new WeakSet(),
-			scopeFocusTargets: new WeakMap(),
-		},
-	)
+      NSView: class {},
+      NativeClass() {},
+      interop: { types: { bool: 'bool', id: 'id' } },
+      NSNumber: { numberWithDouble: (value) => value },
+      actionIdsByView: ids,
+      actionHandlers: new Map(),
+      accessibilityRoles: roles,
+      accessibilityLabels: labels,
+      stackAccessibilityPropsByView: stackProps,
+      invokeAction: () => {},
+      inputTransparentViews: new WeakSet(),
+      scopeFocusTargets: new WeakMap(),
+    },
+  )
 
-	const stackView = new AccessibleHostView()
-	const stackNode = { type: 'flexboxlayout', view: stackView, actionId: 1 }
-	ids.set(stackView, 1)
-	const setStack = (name, value) => applyAccessibility(stackNode, name, value)
-	setStack('accessibilityRole', 'meter')
-	setStack('accessibilityLabel', 'Storage used')
-	setStack('accessibilityValue', 6)
-	setStack('accessibilityMinValue', 0)
-	setStack('accessibilityMaxValue', 10)
-	setStack('accessibilityValueDescription', '6 GB of 10 GB used')
-	assert.equal(stackView.accessibilityRole(), 'AXLevelIndicator')
-	assert.equal(stackView.accessibilityLabel(), 'Storage used')
-	assert.equal(stackView.accessibilityValue(), 6)
-	assert.equal(stackView.accessibilityMinValue(), 0)
-	assert.equal(stackView.accessibilityMaxValue(), 10)
-	assert.equal(stackView.accessibilityValueDescription(), '6 GB of 10 GB used')
-	assert.equal(stackView.accessibilityIsIgnored(), false)
+  const stackView = new AccessibleHostView()
+  const stackNode = { type: 'flexboxlayout', view: stackView, actionId: 1 }
+  ids.set(stackView, 1)
+  const setStack = (name, value) => applyAccessibility(stackNode, name, value)
+  setStack('accessibilityRole', 'meter')
+  setStack('accessibilityLabel', 'Storage used')
+  setStack('accessibilityValue', 6)
+  setStack('accessibilityMinValue', 0)
+  setStack('accessibilityMaxValue', 10)
+  setStack('accessibilityValueDescription', '6 GB of 10 GB used')
+  assert.equal(stackView.accessibilityRole(), 'AXLevelIndicator')
+  assert.equal(stackView.accessibilityLabel(), 'Storage used')
+  assert.equal(stackView.accessibilityValue(), 6)
+  assert.equal(stackView.accessibilityMinValue(), 0)
+  assert.equal(stackView.accessibilityMaxValue(), 10)
+  assert.equal(stackView.accessibilityValueDescription(), '6 GB of 10 GB used')
+  assert.equal(stackView.accessibilityIsIgnored(), false)
 
-	setStack('accessibilityRole', 'progressbar')
-	setStack('accessibilityValueDescription', undefined)
-	assert.equal(stackView.accessibilityRole(), 'AXProgressIndicator')
-	assert.equal(stackView.accessibilityValueDescription(), '')
+  setStack('accessibilityRole', 'progressbar')
+  setStack('accessibilityValueDescription', undefined)
+  assert.equal(stackView.accessibilityRole(), 'AXProgressIndicator')
+  assert.equal(stackView.accessibilityValueDescription(), '')
 
-	const gridView = new AccessibleHostView()
-	const gridNode = { type: 'gridlayout', view: gridView, props: {}, actionId: 2 }
-	ids.set(gridView, 2)
-	const setGrid = (name, value) => applyAccessibility(gridNode, name, value)
-	setGrid('accessibilityRole', 'meter')
-	setGrid('accessibilityValue', 3)
-	setGrid('accessibilityValueDescription', '3 of 4 bars')
-	assert.equal(gridView.accessibilityRole(), 'AXLevelIndicator')
-	assert.equal(gridView.accessibilityValue(), 3)
-	assert.equal(gridView.accessibilityValueDescription(), '3 of 4 bars')
-	assert.equal(gridView.accessibilityIsIgnored(), false)
+  const gridView = new AccessibleHostView()
+  const gridNode = { type: 'gridlayout', view: gridView, props: {}, actionId: 2 }
+  ids.set(gridView, 2)
+  const setGrid = (name, value) => applyAccessibility(gridNode, name, value)
+  setGrid('accessibilityRole', 'meter')
+  setGrid('accessibilityValue', 3)
+  setGrid('accessibilityValueDescription', '3 of 4 bars')
+  assert.equal(gridView.accessibilityRole(), 'AXLevelIndicator')
+  assert.equal(gridView.accessibilityValue(), 3)
+  assert.equal(gridView.accessibilityValueDescription(), '3 of 4 bars')
+  assert.equal(gridView.accessibilityIsIgnored(), false)
 
-	setGrid('accessibilityRole', 'progressbar')
-	assert.equal(gridView.accessibilityRole(), 'AXProgressIndicator')
+  setGrid('accessibilityRole', 'progressbar')
+  assert.equal(gridView.accessibilityRole(), 'AXProgressIndicator')
 })

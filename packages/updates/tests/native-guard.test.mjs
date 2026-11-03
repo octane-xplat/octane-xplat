@@ -7,16 +7,16 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 test(
-	'Foundation boot guard activates, recovers unconfirmed code, handles interruption and resets on binary change',
-	{ skip: process.platform !== 'darwin' || process.env.XPLAT_NATIVE_TEST_HOST !== 'skymac.local' },
-	(t) => {
-		const root = mkdtempSync(join(tmpdir(), 'xplat-ota-guard-'))
-		t.after(() => rmSync(root, { recursive: true, force: true }))
-		const guard = readFileSync(
-			fileURLToPath(new URL('../native/boot.m', import.meta.url)),
-			'utf8',
-		).replaceAll('__XPLAT_NATIVE_FINGERPRINT__', 'a'.repeat(64))
-		const source = `#import <Foundation/Foundation.h>
+  'Foundation boot guard activates, recovers unconfirmed code, handles interruption and resets on binary change',
+  { skip: process.platform !== 'darwin' || process.env.XPLAT_NATIVE_TEST_HOST !== 'skymac.local' },
+  (t) => {
+    const root = mkdtempSync(join(tmpdir(), 'xplat-ota-guard-'))
+    t.after(() => rmSync(root, { recursive: true, force: true }))
+    const guard = readFileSync(
+      fileURLToPath(new URL('../native/boot.m', import.meta.url)),
+      'utf8',
+    ).replaceAll('__XPLAT_NATIVE_FINGERPRINT__', 'a'.repeat(64))
+    const source = `#import <Foundation/Foundation.h>
 static NSString *home;
 static NSString *XplatTestHome(void) { return home; }
 #define NSHomeDirectory XplatTestHome
@@ -74,26 +74,26 @@ int main(int argc, char **argv) { @autoreleasepool {
 } return 0; }
 `
 
-		writeFileSync(join(root, 'guard.m'), source)
-		for (const mode of ['release', 'debug']) {
-			const binary = join(root, 'guard-' + mode)
-			const compile = spawnSync(
-				'clang',
-				[
-					'-fobjc-arc',
-					...(mode === 'debug' ? ['-DDEBUG=1'] : []),
-					'-framework',
-					'Foundation',
-					join(root, 'guard.m'),
-					'-o',
-					binary,
-				],
-				{ encoding: 'utf8' },
-			)
+    writeFileSync(join(root, 'guard.m'), source)
+    for (const mode of ['release', 'debug']) {
+      const binary = join(root, 'guard-' + mode)
+      const compile = spawnSync(
+        'clang',
+        [
+          '-fobjc-arc',
+          ...(mode === 'debug' ? ['-DDEBUG=1'] : []),
+          '-framework',
+          'Foundation',
+          join(root, 'guard.m'),
+          '-o',
+          binary,
+        ],
+        { encoding: 'utf8' },
+      )
 
-			assert.equal(compile.status, 0, compile.stderr)
-			const result = spawnSync(binary, [join(root, 'container-' + mode)], { encoding: 'utf8' })
-			assert.equal(result.status, 0, result.stderr)
-		}
-	},
+      assert.equal(compile.status, 0, compile.stderr)
+      const result = spawnSync(binary, [join(root, 'container-' + mode)], { encoding: 'utf8' })
+      assert.equal(result.status, 0, result.stderr)
+    }
+  },
 )

@@ -14,5 +14,5 @@ import { parseMdDoc } from '../../ui/src/markdown/markdown-parse.ts'
  *  `JSON.parse` hands the runtime — assertRouteDataJson rejects undefined
  *  fields as silently-dropped data otherwise. */
 export function mdToDoc(src: string) {
-	return JSON.parse(JSON.stringify(parseMdDoc(src)))
+  return JSON.parse(JSON.stringify(parseMdDoc(src)))
 }

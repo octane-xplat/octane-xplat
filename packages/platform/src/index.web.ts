@@ -1,34 +1,34 @@
 // The browser entry must not traverse the NativeScript-backed default barrel.
 // Explicit suffixes keep Vite's dependency scan on the DOM implementation.
 export type {
-	AppState,
-	AppInfo,
-	AuthSessionImpl,
-	AuthSessionOptions,
-	AuthSessionResult,
-	ConnectionType,
-	ConnectivityImpl,
-	ConnectivityState,
-	DeviceInfo,
-	Insets,
-	Locale,
-	PermissionKind,
-	RandomImpl,
-	OpenSettingsImpl,
-	WebAuthnAssertionJSON,
-	WebAuthnCreateOptionsJSON,
-	WebAuthnGetOptionsJSON,
-	WebAuthnImpl,
-	WebAuthnRegistrationJSON,
-	WindowSize,
+  AppState,
+  AppInfo,
+  AuthSessionImpl,
+  AuthSessionOptions,
+  AuthSessionResult,
+  ConnectionType,
+  ConnectivityImpl,
+  ConnectivityState,
+  DeviceInfo,
+  Insets,
+  Locale,
+  PermissionKind,
+  RandomImpl,
+  OpenSettingsImpl,
+  WebAuthnAssertionJSON,
+  WebAuthnCreateOptionsJSON,
+  WebAuthnGetOptionsJSON,
+  WebAuthnImpl,
+  WebAuthnRegistrationJSON,
+  WindowSize,
 } from './types'
 
 export { UnavailabilityError } from '@octane-xplat/lib/capability'
 export type {
-	Permissioned,
-	PermissionResponse,
-	PermissionStatus,
-	Service,
+  Permissioned,
+  PermissionResponse,
+  PermissionStatus,
+  Service,
 } from '@octane-xplat/lib/capability'
 
 export { device } from './device.web'

@@ -12,22 +12,22 @@ import type { Octane } from 'octane/jsx-runtime'
  */
 
 export interface UseLandmarkOptions {
-	role:
-		| 'main'
-		| 'navigation'
-		| 'search'
-		| 'form'
-		| 'region'
-		| 'banner'
-		| 'contentinfo'
-		| 'complementary'
-	label?: string
+  role:
+    | 'main'
+    | 'navigation'
+    | 'search'
+    | 'form'
+    | 'region'
+    | 'banner'
+    | 'contentinfo'
+    | 'complementary'
+  label?: string
 }
 
 export interface LandmarkProps {
-	accessibilityRole: string
-	accessibilityLabel?: string
-	ref?: Octane.Ref<any>
+  accessibilityRole: string
+  accessibilityLabel?: string
+  ref?: Octane.Ref<any>
 }
 
 const TAB_STOP = 'a[href],button,input,textarea,select,[tabindex],[contenteditable="true"]'
@@ -36,60 +36,60 @@ const landmarks = new Set<HTMLElement>()
 let attached = false
 
 const ordered = (): HTMLElement[] =>
-	[...landmarks].filter((el) => el.isConnected && el.ownerDocument === document)
+  [...landmarks].filter((el) => el.isConnected && el.ownerDocument === document)
 
 const focusLandmark = (el: HTMLElement) => {
-	const stop = el.querySelector<HTMLElement>(TAB_STOP)
+  const stop = el.querySelector<HTMLElement>(TAB_STOP)
 
-	;(stop && stop.tabIndex >= 0 ? stop : el).focus()
+  ;(stop && stop.tabIndex >= 0 ? stop : el).focus()
 }
 
 const onKeyDown = (event: KeyboardEvent) => {
-	if (event.key !== 'F6') {
-		return
-	}
+  if (event.key !== 'F6') {
+    return
+  }
 
-	const els = ordered()
-	if (!els.length) {
-		return
-	}
+  const els = ordered()
+  if (!els.length) {
+    return
+  }
 
-	event.preventDefault()
-	const current = els.findIndex((el) => el.contains(document.activeElement))
-	const next = current < 0 ? 0 : (current + (event.shiftKey ? -1 : 1) + els.length) % els.length
+  event.preventDefault()
+  const current = els.findIndex((el) => el.contains(document.activeElement))
+  const next = current < 0 ? 0 : (current + (event.shiftKey ? -1 : 1) + els.length) % els.length
 
-	focusLandmark(els[next])
+  focusLandmark(els[next])
 }
 
 const attach = () => {
-	if (attached || typeof window === 'undefined') {
-		return
-	}
+  if (attached || typeof window === 'undefined') {
+    return
+  }
 
-	attached = true
-	window.addEventListener('keydown', onKeyDown, true)
+  attached = true
+  window.addEventListener('keydown', onKeyDown, true)
 }
 
 export function useLandmark(options: UseLandmarkOptions): { landmarkProps: LandmarkProps } {
-	attach()
-	const current = useRef<HTMLElement | null>(null)
-	const ref = (el: HTMLElement | null) => {
-		if (current.current) {
-			landmarks.delete(current.current)
-		}
+  attach()
+  const current = useRef<HTMLElement | null>(null)
+  const ref = (el: HTMLElement | null) => {
+    if (current.current) {
+      landmarks.delete(current.current)
+    }
 
-		current.current = el
-		if (el) {
-			el.tabIndex = -1
-			landmarks.add(el)
-		}
-	}
+    current.current = el
+    if (el) {
+      el.tabIndex = -1
+      landmarks.add(el)
+    }
+  }
 
-	return {
-		landmarkProps: {
-			accessibilityRole: options.role,
-			accessibilityLabel: options.label,
-			ref,
-		},
-	}
+  return {
+    landmarkProps: {
+      accessibilityRole: options.role,
+      accessibilityLabel: options.label,
+      ref,
+    },
+  }
 }

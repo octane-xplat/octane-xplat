@@ -14,15 +14,15 @@ import { nativeColor } from '../../theme/native-color'
  *  the `vx-code` background/padding skin — the mono font, muted color, and
  *  chip background on a standalone label come from the class. */
 export function Code(props: CodeProps): unknown @{
-	const scheme = useColorScheme()
-	const colorStyle =
-		props.color === 'secondary' ? { color: nativeColor(mutedColor(scheme)) } : undefined
+  const scheme = useColorScheme()
+  const colorStyle =
+    props.color === 'secondary' ? { color: nativeColor(mutedColor(scheme)) } : undefined
 
-	<Text
-		id={props.id}
-		className={cx('vx-code', props.color === 'secondary' && 'vx-color-secondary', props.className)}
-		style={{ fontFamily: 'monospace', ...colorStyle, ...styleRecord(props.style) }}
-	>
-		{props.children}
-	</Text>
+  <Text
+    id={props.id}
+    className={cx('vx-code', props.color === 'secondary' && 'vx-color-secondary', props.className)}
+    style={{ fontFamily: 'monospace', ...colorStyle, ...styleRecord(props.style) }}
+  >
+    {props.children}
+  </Text>
 }

@@ -12,49 +12,49 @@ import type { JSX } from 'octane/jsx-runtime'
  *  platform-neutral. */
 
 export function MdRowList(props: {
-	ordered?: boolean
-	start?: number
-	style?: Record<string, unknown>
-	children?: unknown
+  ordered?: boolean
+  start?: number
+  style?: Record<string, unknown>
+  children?: unknown
 }): JSX.Element @{
-	return (
-		<List
-			listStyle={props.ordered ? 'decimal' : 'disc'}
-			density="compact"
-			start={props.ordered ? props.start : undefined}
-			style={props.style as never}
-		>
-			{props.children}
-		</List>
-	)
+  return (
+    <List
+      listStyle={props.ordered ? 'decimal' : 'disc'}
+      density="compact"
+      start={props.ordered ? props.start : undefined}
+      style={props.style as never}
+    >
+      {props.children}
+    </List>
+  )
 }
 
 export function MdRowItem(props: { index?: number; label?: unknown }): JSX.Element @{
-	return <ListItem label={props.label as any} />
+  return <ListItem label={props.label as any} />
 }
 
 export function MdCheckList(props: {
-	value: readonly string[]
-	label: string
-	children?: unknown
+  value: readonly string[]
+  label: string
+  children?: unknown
 }): JSX.Element @{
-	return (
-		<CheckboxGroup
-			label={props.label}
-			isLabelHidden
-			value={props.value as string[]}
-			isReadOnly
-			density="compact"
-		>
-			{props.children}
-		</CheckboxGroup>
-	)
+  return (
+    <CheckboxGroup
+      label={props.label}
+      isLabelHidden
+      value={props.value as string[]}
+      isReadOnly
+      density="compact"
+    >
+      {props.children}
+    </CheckboxGroup>
+  )
 }
 
 export function MdCheckItem(props: {
-	value: string
-	label?: unknown
-	textLabel?: string
+  value: string
+  label?: unknown
+  textLabel?: string
 }): JSX.Element @{
-	return <CheckboxListItem value={props.value} label={props.label as any} />
+  return <CheckboxListItem value={props.value} label={props.label as any} />
 }

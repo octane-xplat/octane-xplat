@@ -6,14 +6,14 @@ export { rootLayoutFor, topRootLayout, findInRootLayouts } from '../components/l
 export { bottomSheetHost } from '../components/overlays/bottom-sheet-service'
 export { defineNativeTransition } from '../routing/native-route-transition'
 export type {
-	NativeTransitionContext,
-	NativeTransitionOptions,
-	NativeViewTransitionOptions,
-	NativeViewTransitionValues,
+  NativeTransitionContext,
+  NativeTransitionOptions,
+  NativeViewTransitionOptions,
+  NativeViewTransitionValues,
 } from '../routing/native-route-transition'
 
 // Native-view outline discovery — the DOM form lives under `@octane-xplat/ui/web`.
 export {
-	useOutlineFromView,
-	getOutlineFromViewCapabilities,
+  useOutlineFromView,
+  getOutlineFromViewCapabilities,
 } from '../components/collections/outline-view.tsrx'

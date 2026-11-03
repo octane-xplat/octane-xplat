@@ -10,30 +10,30 @@ import { useListData, type ListData } from './use-list-data'
 let list: ListData<{ name: string }>
 
 function Reader() @{
-	const data = useListData<{ name: string }>({
-		initialItems: [{ name: 'a' }, { name: 'b' }],
-		getKey: (item) => item.name,
-	})
+  const data = useListData<{ name: string }>({
+    initialItems: [{ name: 'a' }, { name: 'b' }],
+    getKey: (item) => item.name,
+  })
 
-	list = data
+  list = data
 
-	<span class="items">{data.items.map((item) => item.name).join(',')}</span>
+  <span class="items">{data.items.map((item) => item.name).join(',')}</span>
 }
 
 describe('useListData (DOM renderer)', () => {
-	it('re-renders on mutator commits', () => {
-		const el = document.createElement('div')
-		document.body.appendChild(el)
-		const root = createRoot(el)
-		act(() => root.render(<Reader />))
-		expect(el.querySelector('.items')!.textContent).toBe('a,b')
+  it('re-renders on mutator commits', () => {
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    const root = createRoot(el)
+    act(() => root.render(<Reader />))
+    expect(el.querySelector('.items')!.textContent).toBe('a,b')
 
-		act(() => list.append({ name: 'c' }))
-		expect(el.querySelector('.items')!.textContent).toBe('a,b,c')
+    act(() => list.append({ name: 'c' }))
+    expect(el.querySelector('.items')!.textContent).toBe('a,b,c')
 
-		act(() => list.remove('a'))
-		expect(el.querySelector('.items')!.textContent).toBe('b,c')
-		root.unmount()
-		el.remove()
-	})
+    act(() => list.remove('a'))
+    expect(el.querySelector('.items')!.textContent).toBe('b,c')
+    root.unmount()
+    el.remove()
+  })
 })

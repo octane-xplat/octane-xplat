@@ -14,32 +14,32 @@ const app = await mkdtemp(join(repo, 'research/macos-share-'))
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 await symlink(leaf, join(app, 'node_modules/@octane-xplat/share'))
 await writeFile(
-	join(app, 'package.json'),
-	JSON.stringify({
-		name: 'share-fixture',
-		dependencies: { '@octane-xplat/share': '0.18.0' },
-	}),
+  join(app, 'package.json'),
+  JSON.stringify({
+    name: 'share-fixture',
+    dependencies: { '@octane-xplat/share': '0.18.0' },
+  }),
 )
 
 const executable = join(app, 'native-picker')
 const compiled = spawnSync(
-	'xcrun',
-	[
-		'clang',
-		'-fobjc-arc',
-		'-fblocks',
-		'-framework',
-		'Foundation',
-		'-framework',
-		'AppKit',
-		'-I',
-		join(leaf, 'platforms/macos/include'),
-		join(leaf, 'platforms/macos/src/XplatShare.m'),
-		join(leaf, 'tests/native-picker.m'),
-		'-o',
-		executable,
-	],
-	{ encoding: 'utf8', timeout: 30_000 },
+  'xcrun',
+  [
+    'clang',
+    '-fobjc-arc',
+    '-fblocks',
+    '-framework',
+    'Foundation',
+    '-framework',
+    'AppKit',
+    '-I',
+    join(leaf, 'platforms/macos/include'),
+    join(leaf, 'platforms/macos/src/XplatShare.m'),
+    join(leaf, 'tests/native-picker.m'),
+    '-o',
+    executable,
+  ],
+  { encoding: 'utf8', timeout: 30_000 },
 )
 
 assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
@@ -54,8 +54,8 @@ const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
 const script = join(app, 'fixture.cjs')
 await writeFile(
-	script,
-	`
+  script,
+  `
 if (typeof XplatShare === 'undefined' || typeof XplatShare.shareKindValueSubjectCompletion !== 'function') throw Error('Share selector missing');
 // This plain host has no NSApplication/presenter. Do not create one or show UI.
 let outcome = null;
@@ -72,18 +72,18 @@ console.log('MACOS_SHARE_CALLBACK_OK');
 )
 
 const result = spawnSync(
-	join(hostBundle, 'host'),
-	[
-		join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-		script,
-		artifact.metadata,
-		bootstrap,
-	],
-	{ encoding: 'utf8', timeout: 10_000 },
+  join(hostBundle, 'host'),
+  [
+    join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+    script,
+    artifact.metadata,
+    bootstrap,
+  ],
+  { encoding: 'utf8', timeout: 10_000 },
 )
 
 assert.equal(result.status, 0, result.stdout + result.stderr)
 assert.match(result.stdout + result.stderr, /MACOS_SHARE_CALLBACK_OK/)
 console.log(
-	'AppKit share metadata and no-presenter callback checked; no OS share UI or delivery evidence.',
+  'AppKit share metadata and no-presenter callback checked; no OS share UI or delivery evidence.',
 )

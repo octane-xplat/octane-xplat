@@ -4,9 +4,9 @@
 // this augmentation restores the member. Must live in a module — a `declare
 // module` in a script file shadows the real package.
 declare module '@nativescript/core' {
-	interface TabViewItem {
-		iconFontFamily: string
-	}
+  interface TabViewItem {
+    iconFontFamily: string
+  }
 }
 
 export {}

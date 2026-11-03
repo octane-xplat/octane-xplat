@@ -13,255 +13,255 @@ import { hasWeb } from '../targets.ts'
 import { installedPackageRoot } from '../package-root.ts'
 
 const SKIP_DIRS = new Set([
-	'node_modules',
-	'.git',
-	'dist',
-	'build',
-	'.turbo',
-	'.next',
-	'coverage',
-	'platforms', // NativeScript-generated native projects — huge and not app source
-	'research',
+  'node_modules',
+  '.git',
+  'dist',
+  'build',
+  '.turbo',
+  '.next',
+  'coverage',
+  'platforms', // NativeScript-generated native projects — huge and not app source
+  'research',
 ])
 
 const MAX_DEPTH = 5
 const XPLAT_DEP = /^(?:@octane-xplat\/|octane-xplat$)/
 
 const readJson = (file) => {
-	try {
-		return JSON.parse(readFileSync(file, 'utf8'))
-	} catch {
-		return null
-	}
+  try {
+    return JSON.parse(readFileSync(file, 'utf8'))
+  } catch {
+    return null
+  }
 }
 
 const run = (cmd, args) => {
-	try {
-		return execFileSync(cmd, args, {
-			encoding: 'utf8',
-			timeout: 15000,
-			stdio: ['ignore', 'pipe', 'ignore'],
-		})
-	} catch {
-		return null
-	}
+  try {
+    return execFileSync(cmd, args, {
+      encoding: 'utf8',
+      timeout: 15000,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+  } catch {
+    return null
+  }
 }
 
 const allDeps = (manifest) => ({ ...manifest?.dependencies, ...manifest?.devDependencies })
 
 const hasRunnableConfig = (dir, manifest) =>
-	existsSync(join(dir, 'nativescript.config.ts')) ||
-	hasWeb(dir) ||
-	manifest?.xplat?.targets !== undefined
+  existsSync(join(dir, 'nativescript.config.ts')) ||
+  hasWeb(dir) ||
+  manifest?.xplat?.targets !== undefined
 
 const isAppDir = (dir, manifest) => {
-	if (!manifest) {
-		return false
-	}
+  if (!manifest) {
+    return false
+  }
 
-	const deps = allDeps(manifest)
-	const xplatDep = Object.keys(deps).some(
-		(name) =>
-			XPLAT_DEP.test(name) || name === 'octane' || name === '@nativescript-community/octane',
-	)
+  const deps = allDeps(manifest)
+  const xplatDep = Object.keys(deps).some(
+    (name) =>
+      XPLAT_DEP.test(name) || name === 'octane' || name === '@nativescript-community/octane',
+  )
 
-	return (xplatDep && hasRunnableConfig(dir, manifest)) || manifest?.xplat?.targets !== undefined
+  return (xplatDep && hasRunnableConfig(dir, manifest)) || manifest?.xplat?.targets !== undefined
 }
 
 // Platform detection mirrors packages/cli/src/targets.ts so CLI and MCP agree.
 export function detectPlatforms(dir) {
-	const manifest = readJson(join(dir, 'package.json'))
-	if (!manifest) {
-		return []
-	}
+  const manifest = readJson(join(dir, 'package.json'))
+  if (!manifest) {
+    return []
+  }
 
-	const platforms = []
-	const deps = allDeps(manifest)
+  const platforms = []
+  const deps = allDeps(manifest)
 
-	if (hasWeb(dir)) {
-		platforms.push('web')
-	}
+  if (hasWeb(dir)) {
+    platforms.push('web')
+  }
 
-	if (existsSync(join(dir, 'nativescript.config.ts'))) {
-		for (const platform of ['ios', 'android', 'windows']) {
-			if (typeof deps[`@nativescript/${platform}`] === 'string') {
-				platforms.push(platform)
-			}
-		}
-	}
+  if (existsSync(join(dir, 'nativescript.config.ts'))) {
+    for (const platform of ['ios', 'android', 'windows']) {
+      if (typeof deps[`@nativescript/${platform}`] === 'string') {
+        platforms.push(platform)
+      }
+    }
+  }
 
-	if (manifest.xplat?.targets?.macos?.runtime === 'appkit-node-api') {
-		platforms.push('macos')
-	}
+  if (manifest.xplat?.targets?.macos?.runtime === 'appkit-node-api') {
+    platforms.push('macos')
+  }
 
-	if (['webkitgtk', 'gtk'].includes(manifest.xplat?.targets?.linux?.runtime)) {
-		platforms.push('linux')
-	}
+  if (['webkitgtk', 'gtk'].includes(manifest.xplat?.targets?.linux?.runtime)) {
+    platforms.push('linux')
+  }
 
-	return platforms
+  return platforms
 }
 
 export function detectGuidance(dir) {
-	const sources = []
-	const candidates = [
-		['AGENTS.md', 'agents-md'],
-		['CLAUDE.md', 'claude-md'],
-		['.devin', 'devin'],
-	]
+  const sources = []
+  const candidates = [
+    ['AGENTS.md', 'agents-md'],
+    ['CLAUDE.md', 'claude-md'],
+    ['.devin', 'devin'],
+  ]
 
-	for (const [file, kind] of candidates) {
-		if (existsSync(join(dir, file))) {
-			sources.push({ kind, path: file })
-		}
-	}
+  for (const [file, kind] of candidates) {
+    if (existsSync(join(dir, file))) {
+      sources.push({ kind, path: file })
+    }
+  }
 
-	if (existsSync(join(dir, 'docs'))) {
-		sources.push({ kind: 'framework', path: 'docs/' })
-	}
+  if (existsSync(join(dir, 'docs'))) {
+    sources.push({ kind: 'framework', path: 'docs/' })
+  }
 
-	return sources
+  return sources
 }
 
 /** Resolve @octane-xplat/* versions from the app's actual node_modules. */
 function installedVersions(dir, declared) {
-	// Resolve each declared dep through Node's walk-up so hoisted workspaces
-	// (scope dir only at the workspace root) report their installed versions.
-	const found = new Map()
-	for (const name of Object.keys(declared).filter((n) => XPLAT_DEP.test(n))) {
-		const root = installedPackageRoot(dir, name)
-		const manifest = root && readJson(join(root, 'package.json'))
-		if (manifest?.version) {
-			found.set(name, manifest.version)
-		}
-	}
+  // Resolve each declared dep through Node's walk-up so hoisted workspaces
+  // (scope dir only at the workspace root) report their installed versions.
+  const found = new Map()
+  for (const name of Object.keys(declared).filter((n) => XPLAT_DEP.test(n))) {
+    const root = installedPackageRoot(dir, name)
+    const manifest = root && readJson(join(root, 'package.json'))
+    if (manifest?.version) {
+      found.set(name, manifest.version)
+    }
+  }
 
-	return Object.keys(declared)
-		.filter((name) => XPLAT_DEP.test(name))
-		.map((name) => {
-			const spec = declared[name]
-			if (found.has(name)) {
-				return { name, version: found.get(name), source: 'installed' }
-			}
+  return Object.keys(declared)
+    .filter((name) => XPLAT_DEP.test(name))
+    .map((name) => {
+      const spec = declared[name]
+      if (found.has(name)) {
+        return { name, version: found.get(name), source: 'installed' }
+      }
 
-			if (spec === 'workspace:*' || spec.startsWith('link:') || spec.startsWith('file:')) {
-				return { name, version: spec, source: 'workspace', declared: spec }
-			}
+      if (spec === 'workspace:*' || spec.startsWith('link:') || spec.startsWith('file:')) {
+        return { name, version: spec, source: 'workspace', declared: spec }
+      }
 
-			return { name, version: null, source: 'unresolved', declared: spec }
-		})
+      return { name, version: null, source: 'unresolved', declared: spec }
+    })
 }
 
 /** The versions the nearest workspace lockfile recorded for this importer. */
 function lockedVersions(workspaceRoot, appDir, declared) {
-	const bun = bunLockedVersions(appDir)
-	if (bun) {
-		return Object.keys(declared)
-			.filter((name) => XPLAT_DEP.test(name))
-			.map((name) => ({
-				name,
-				version: bun[name] ?? null,
-				source: 'lockfile',
-				declared: declared[name],
-			}))
-	}
-	let dir = appDir
-	while (true) {
-		const lockfile = join(dir, 'pnpm-lock.yaml')
-		if (existsSync(lockfile)) {
-			try {
-				const doc = parseYaml(readFileSync(lockfile, 'utf8'))
-				const rel = relative(dir, appDir) || '.'
-				const importer = doc?.importers?.[rel] ?? doc?.importers?.['.']
-				const locked = importer ? { ...importer.dependencies, ...importer.devDependencies } : {}
+  const bun = bunLockedVersions(appDir)
+  if (bun) {
+    return Object.keys(declared)
+      .filter((name) => XPLAT_DEP.test(name))
+      .map((name) => ({
+        name,
+        version: bun[name] ?? null,
+        source: 'lockfile',
+        declared: declared[name],
+      }))
+  }
+  let dir = appDir
+  while (true) {
+    const lockfile = join(dir, 'pnpm-lock.yaml')
+    if (existsSync(lockfile)) {
+      try {
+        const doc = parseYaml(readFileSync(lockfile, 'utf8'))
+        const rel = relative(dir, appDir) || '.'
+        const importer = doc?.importers?.[rel] ?? doc?.importers?.['.']
+        const locked = importer ? { ...importer.dependencies, ...importer.devDependencies } : {}
 
-				return Object.keys(declared)
-					.filter((name) => XPLAT_DEP.test(name))
-					.map((name) => ({
-						name,
-						version: locked[name]?.version ?? locked[name]?.specifier ?? null,
-						source: 'lockfile',
-						declared: declared[name],
-					}))
-			} catch {
-				return []
-			}
-		}
+        return Object.keys(declared)
+          .filter((name) => XPLAT_DEP.test(name))
+          .map((name) => ({
+            name,
+            version: locked[name]?.version ?? locked[name]?.specifier ?? null,
+            source: 'lockfile',
+            declared: declared[name],
+          }))
+      } catch {
+        return []
+      }
+    }
 
-		const next = dirname(dir)
-		if (next === dir || !resolve(next).startsWith(resolve(workspaceRoot))) {
-			return []
-		}
+    const next = dirname(dir)
+    if (next === dir || !resolve(next).startsWith(resolve(workspaceRoot))) {
+      return []
+    }
 
-		dir = next
-	}
+    dir = next
+  }
 }
 
 /** Installed + lockfile comparison: actual installation wins; disagreement is reported. */
 export function resolveFrameworkBinding(workspaceRoot, appDir) {
-	const declared = allDeps(readJson(join(appDir, 'package.json')))
-	const installed = installedVersions(appDir, declared)
-	const locked = lockedVersions(workspaceRoot, appDir, declared)
+  const declared = allDeps(readJson(join(appDir, 'package.json')))
+  const installed = installedVersions(appDir, declared)
+  const locked = lockedVersions(workspaceRoot, appDir, declared)
 
-	if (!installed.length && !locked.length) {
-		return { packages: [], status: 'unresolved' }
-	}
+  if (!installed.length && !locked.length) {
+    return { packages: [], status: 'unresolved' }
+  }
 
-	const installedByName = new Map(installed.map((p) => [p.name, p]))
-	const resolved = installed.some((p) => p.source === 'installed' || p.source === 'workspace')
-	// Nothing verifiably installed → fall back to the lockfile, labeled provisional.
-	const packages = resolved ? installed : locked.map((p) => ({ ...p, source: 'lockfile' }))
+  const installedByName = new Map(installed.map((p) => [p.name, p]))
+  const resolved = installed.some((p) => p.source === 'installed' || p.source === 'workspace')
+  // Nothing verifiably installed → fall back to the lockfile, labeled provisional.
+  const packages = resolved ? installed : locked.map((p) => ({ ...p, source: 'lockfile' }))
 
-	let discrepancy
-	for (const lockedPkg of locked) {
-		const actual = installedByName.get(lockedPkg.name)
-		if (
-			actual?.version &&
-			lockedPkg.version &&
-			lockedPkg.version !== actual.version &&
-			!/^(workspace|link|file):/.test(lockedPkg.version)
-		) {
-			discrepancy = `Lockfile records ${lockedPkg.name}@${lockedPkg.version} but the installation has ${actual.version}; using the actual installation.`
-		}
-	}
+  let discrepancy
+  for (const lockedPkg of locked) {
+    const actual = installedByName.get(lockedPkg.name)
+    if (
+      actual?.version &&
+      lockedPkg.version &&
+      lockedPkg.version !== actual.version &&
+      !/^(workspace|link|file):/.test(lockedPkg.version)
+    ) {
+      discrepancy = `Lockfile records ${lockedPkg.name}@${lockedPkg.version} but the installation has ${actual.version}; using the actual installation.`
+    }
+  }
 
-	return {
-		packages,
-		status: resolved ? 'installed' : 'provisional',
-		discrepancy,
-	}
+  return {
+    packages,
+    status: resolved ? 'installed' : 'provisional',
+    discrepancy,
+  }
 }
 
 function scanPackageDirs(root) {
-	const found = []
-	const visit = (dir, depth) => {
-		if (depth > MAX_DEPTH) {
-			return
-		}
+  const found = []
+  const visit = (dir, depth) => {
+    if (depth > MAX_DEPTH) {
+      return
+    }
 
-		let entries
-		try {
-			entries = readdirSync(dir, { withFileTypes: true })
-		} catch {
-			return
-		}
+    let entries
+    try {
+      entries = readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
 
-		for (const entry of entries) {
-			if (!entry.isDirectory() || SKIP_DIRS.has(entry.name) || entry.name.startsWith('.')) {
-				continue
-			}
+    for (const entry of entries) {
+      if (!entry.isDirectory() || SKIP_DIRS.has(entry.name) || entry.name.startsWith('.')) {
+        continue
+      }
 
-			const path = join(dir, entry.name)
-			if (existsSync(join(path, 'package.json'))) {
-				found.push(path)
-				// Still descend — apps can nest (e.g. examples/ inside an app).
-			}
+      const path = join(dir, entry.name)
+      if (existsSync(join(path, 'package.json'))) {
+        found.push(path)
+        // Still descend — apps can nest (e.g. examples/ inside an app).
+      }
 
-			visit(path, depth + 1)
-		}
-	}
+      visit(path, depth + 1)
+    }
+  }
 
-	visit(root, 0)
-	return found
+  visit(root, 0)
+  return found
 }
 
 /**
@@ -269,121 +269,121 @@ function scanPackageDirs(root) {
  * ambiguous results stay ambiguous until `selectApp`.
  */
 export function discoverWorkspace(workspaceRoot) {
-	const root = resolve(workspaceRoot)
-	const rootManifest = readJson(join(root, 'package.json'))
-	const frameworkRepo =
-		rootManifest?.name === 'octane-xplat' ||
-		readJson(join(root, 'packages', 'ui', 'package.json'))?.name === '@octane-xplat/ui'
+  const root = resolve(workspaceRoot)
+  const rootManifest = readJson(join(root, 'package.json'))
+  const frameworkRepo =
+    rootManifest?.name === 'octane-xplat' ||
+    readJson(join(root, 'packages', 'ui', 'package.json'))?.name === '@octane-xplat/ui'
 
-	const dirs = [root, ...scanPackageDirs(root)]
-	const seen = new Set()
-	const apps = []
-	for (const dir of dirs) {
-		const manifest = readJson(join(dir, 'package.json'))
-		if (!manifest || seen.has(dir) || !isAppDir(dir, manifest)) {
-			continue
-		}
+  const dirs = [root, ...scanPackageDirs(root)]
+  const seen = new Set()
+  const apps = []
+  for (const dir of dirs) {
+    const manifest = readJson(join(dir, 'package.json'))
+    if (!manifest || seen.has(dir) || !isAppDir(dir, manifest)) {
+      continue
+    }
 
-		seen.add(dir)
-		const rel = relative(root, dir) || '.'
-		apps.push({
-			id: rel,
-			name: manifest.name ?? rel.split(sep).pop(),
-			root: dir,
-			relativeRoot: rel,
-			kind:
-				rel.startsWith('packages' + sep) && frameworkRepo ? 'framework-package' : 'consumer-app',
-			platforms: detectPlatforms(dir),
-		})
-	}
+    seen.add(dir)
+    const rel = relative(root, dir) || '.'
+    apps.push({
+      id: rel,
+      name: manifest.name ?? rel.split(sep).pop(),
+      root: dir,
+      relativeRoot: rel,
+      kind:
+        rel.startsWith('packages' + sep) && frameworkRepo ? 'framework-package' : 'consumer-app',
+      platforms: detectPlatforms(dir),
+    })
+  }
 
-	return {
-		workspace: {
-			root,
-			kind: !rootManifest ? 'empty' : frameworkRepo ? 'framework-repo' : 'consumer',
-		},
-		apps,
-	}
+  return {
+    workspace: {
+      root,
+      kind: !rootManifest ? 'empty' : frameworkRepo ? 'framework-repo' : 'consumer',
+    },
+    apps,
+  }
 }
 
 /** Resolve an explicit app selector (id, relative path, or package name). */
 export function selectApp(discovered, selector) {
-	const matches = discovered.apps.filter(
-		(app) => app.id === selector || app.relativeRoot === selector || app.name === selector,
-	)
+  const matches = discovered.apps.filter(
+    (app) => app.id === selector || app.relativeRoot === selector || app.name === selector,
+  )
 
-	return matches
+  return matches
 }
 
 const prerequisiteChecks = [
-	{
-		id: 'node',
-		name: 'Node.js',
-		probe: () => ({ status: 'satisfied', detail: process.version }),
-	},
-	{
-		id: 'bun',
-		name: 'bun',
-		probe: () =>
-			run('bun', ['--version'])
-				? { status: 'satisfied', detail: run('bun', ['--version'])?.trim() }
-				: {
-						status: 'missing',
-						remedy:
-							'Install Bun — runtime sessions spawn the app\u2019s toolchain through `bun run`.',
-					},
-	},
-	{
-		id: 'git',
-		name: 'Git',
-		platforms: undefined, // docs snapshots use it, but every workflow benefits
-		probe: () =>
-			run('git', ['--version'])
-				? { status: 'satisfied', detail: run('git', ['--version'])?.trim() }
-				: {
-						status: 'missing',
-						remedy: 'Install Git — version-matched documentation checkouts need it.',
-					},
-	},
-	{
-		id: 'xcode',
-		name: 'Xcode command line tools',
-		platforms: ['ios', 'macos'],
-		probe: () =>
-			run('xcodebuild', ['-version'])
-				? { status: 'satisfied', detail: run('xcodebuild', ['-version'])?.split('\n')[0] }
-				: {
-						status: 'missing',
-						remedy: 'Install Xcode and run `xcode-select --install`.',
-					},
-	},
-	{
-		id: 'adb',
-		name: 'Android Debug Bridge',
-		platforms: ['android'],
-		probe: () =>
-			run('adb', ['--version'])
-				? { status: 'satisfied', detail: run('adb', ['--version'])?.split('\n')[0] }
-				: {
-						status: 'missing',
-						remedy: 'Install Android platform-tools (adb on PATH).',
-					},
-	},
-	{
-		id: 'chromium',
-		name: 'Chromium browser',
-		platforms: ['web'],
-		probe: () => ({
-			status: 'unknown',
-			remedy: 'Web acceptance checks target Chromium; install it before browser verification runs.',
-		}),
-	},
+  {
+    id: 'node',
+    name: 'Node.js',
+    probe: () => ({ status: 'satisfied', detail: process.version }),
+  },
+  {
+    id: 'bun',
+    name: 'bun',
+    probe: () =>
+      run('bun', ['--version'])
+        ? { status: 'satisfied', detail: run('bun', ['--version'])?.trim() }
+        : {
+            status: 'missing',
+            remedy:
+              'Install Bun — runtime sessions spawn the app\u2019s toolchain through `bun run`.',
+          },
+  },
+  {
+    id: 'git',
+    name: 'Git',
+    platforms: undefined, // docs snapshots use it, but every workflow benefits
+    probe: () =>
+      run('git', ['--version'])
+        ? { status: 'satisfied', detail: run('git', ['--version'])?.trim() }
+        : {
+            status: 'missing',
+            remedy: 'Install Git — version-matched documentation checkouts need it.',
+          },
+  },
+  {
+    id: 'xcode',
+    name: 'Xcode command line tools',
+    platforms: ['ios', 'macos'],
+    probe: () =>
+      run('xcodebuild', ['-version'])
+        ? { status: 'satisfied', detail: run('xcodebuild', ['-version'])?.split('\n')[0] }
+        : {
+            status: 'missing',
+            remedy: 'Install Xcode and run `xcode-select --install`.',
+          },
+  },
+  {
+    id: 'adb',
+    name: 'Android Debug Bridge',
+    platforms: ['android'],
+    probe: () =>
+      run('adb', ['--version'])
+        ? { status: 'satisfied', detail: run('adb', ['--version'])?.split('\n')[0] }
+        : {
+            status: 'missing',
+            remedy: 'Install Android platform-tools (adb on PATH).',
+          },
+  },
+  {
+    id: 'chromium',
+    name: 'Chromium browser',
+    platforms: ['web'],
+    probe: () => ({
+      status: 'unknown',
+      remedy: 'Web acceptance checks target Chromium; install it before browser verification runs.',
+    }),
+  },
 ]
 
 /** Probe prerequisites relevant to the given declared platforms. */
 export function checkPrerequisites(platforms) {
-	const wanted = new Set(platforms)
-	return prerequisiteChecks
-		.filter((check) => !check.platforms || check.platforms.some((p) => wanted.has(p)))
-		.map(({ probe, ...meta }) => ({ ...meta, ...probe() }))
+  const wanted = new Set(platforms)
+  return prerequisiteChecks
+    .filter((check) => !check.platforms || check.platforms.some((p) => wanted.has(p)))
+    .map(({ probe, ...meta }) => ({ ...meta, ...probe() }))
 }

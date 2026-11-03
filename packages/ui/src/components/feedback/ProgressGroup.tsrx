@@ -7,19 +7,19 @@ import { Meter } from './Meter.tsrx'
 
 /** ProgressGroup — stacked labeled Meter rows. */
 export function ProgressGroup(props: ProgressGroupProps): unknown @{
-	<masonview
-		ref={(v: any) => applyEscapeProps(v, props)}
-		id={props.id}
-		className={cx('vx-progressgroup', props.className)}
-		style={mergeStyle({ display: 'flex' }, props.style)}
-	>
-		@for (const item of props.items; key item.key) {
-			<masonview className="vx-progressgroup-row" style={{ display: 'flex' }}>
-				<Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
-				{item.label != null ? (
-					<label className="vx-progressgroup-label" text={item.label} />
-				) : null}
-			</masonview>
-		}
-	</masonview>
+  <masonview
+    ref={(v: any) => applyEscapeProps(v, props)}
+    id={props.id}
+    className={cx('vx-progressgroup', props.className)}
+    style={mergeStyle({ display: 'flex' }, props.style)}
+  >
+    @for (const item of props.items; key item.key) {
+      <masonview className="vx-progressgroup-row" style={{ display: 'flex' }}>
+        <Meter value={item.value} max={item.max} accessibilityLabel={item.label} />
+        {item.label != null ? (
+          <label className="vx-progressgroup-label" text={item.label} />
+        ) : null}
+      </masonview>
+    }
+  </masonview>
 }

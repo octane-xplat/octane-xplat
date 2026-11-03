@@ -3,10 +3,10 @@ import { Switch } from './Switch.tsrx'
 import type { ParityFixture } from '../../parity'
 
 function SwitchFixture(props: { checked: boolean }) @{
-	<Switch value={props.checked} />
+  <Switch value={props.checked} />
 }
 
 export const PARITY: ParityFixture[] = [
-	{ name: 'switch-off', component: 'Switch', renderer: SwitchFixture, props: { checked: false } },
-	{ name: 'switch-on', component: 'Switch', renderer: SwitchFixture, props: { checked: true } },
+  { name: 'switch-off', component: 'Switch', renderer: SwitchFixture, props: { checked: false } },
+  { name: 'switch-on', component: 'Switch', renderer: SwitchFixture, props: { checked: true } },
 ]

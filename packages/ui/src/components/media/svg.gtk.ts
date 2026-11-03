@@ -2,5 +2,5 @@
 // intact instead of requiring browser fetch/atob in the shared native helper.
 export { glyphSvgMarkup, isSvgSrc } from './svg-source'
 export function svgSource(src: string): string {
-	return src
+  return src
 }

@@ -34,7 +34,7 @@ export type ElementTypeOf = string | ((props: any, scope: any) => unknown)
  * `TElement`, without loosening the result or arity checks.
  */
 export type RefCallback<TElement> = {
-	bivarianceHack(instance: TElement | null): void | (() => void)
+  bivarianceHack(instance: TElement | null): void | (() => void)
 }['bivarianceHack']
 
 /**
@@ -52,11 +52,11 @@ export type HostHandler<E> = { bivarianceHack(event: E): void }['bivarianceHack'
  * is accepted.
  */
 export type Ref<TElement> =
-	| RefCallback<TElement>
-	| { current: TElement | null }
-	| readonly Ref<TElement>[]
-	| null
-	| undefined
+  | RefCallback<TElement>
+  | { current: TElement | null }
+  | readonly Ref<TElement>[]
+  | null
+  | undefined
 
 /**
  * HOST-OBJECT PROJECTION — members typed `HostObject` carry renderer host
@@ -85,84 +85,84 @@ export type { ClassValue } from 'octane/jsx-runtime'
 
 /** Base host-event payload — the driver hands `object` the host element. */
 export interface NativeEvent<TElement> {
-	readonly eventName: string
-	readonly object: TElement
+  readonly eventName: string
+  readonly object: TElement
 }
 
 /** AppKit hardware-key payload. Other native drivers do not implement this
  * attachment yet; check useKeyboard().isSupported before depending on it. */
 export interface NativeKeyboardEvent<TElement> extends NativeEvent<TElement> {
-	readonly target: TElement
-	readonly currentTarget: TElement
-	readonly key: string
-	/** Physical key position; empty when the host mapping is unknown. */
-	readonly code: string
-	readonly altKey: boolean
-	readonly ctrlKey: boolean
-	readonly metaKey: boolean
-	readonly shiftKey: boolean
-	readonly repeat: boolean
-	readonly isComposing: boolean
-	readonly defaultPrevented: boolean
-	preventDefault(): void
-	/** Stop Xplat ancestor handlers; this does not cancel the native default. */
-	stopPropagation(): void
+  readonly target: TElement
+  readonly currentTarget: TElement
+  readonly key: string
+  /** Physical key position; empty when the host mapping is unknown. */
+  readonly code: string
+  readonly altKey: boolean
+  readonly ctrlKey: boolean
+  readonly metaKey: boolean
+  readonly shiftKey: boolean
+  readonly repeat: boolean
+  readonly isComposing: boolean
+  readonly defaultPrevented: boolean
+  preventDefault(): void
+  /** Stop Xplat ancestor handlers; this does not cancel the native default. */
+  stopPropagation(): void
 }
 
 /** Tap/double-tap/long-press gestures — `{object}` payload only. */
 export interface TapEvent<TElement> extends NativeEvent<TElement> {}
 export interface SwipeGestureEvent<TElement> extends NativeEvent<TElement> {
-	/** Upstream `SwipeDirection` enum: right=1, left=2, up=4, down=8. Both
-	 * drivers emit these values (AppKit via `swipeDirection()`). */
-	readonly direction: 1 | 2 | 4 | 8
+  /** Upstream `SwipeDirection` enum: right=1, left=2, up=4, down=8. Both
+   * drivers emit these values (AppKit via `swipeDirection()`). */
+  readonly direction: 1 | 2 | 4 | 8
 }
 
 export interface PanGestureEvent<TElement> extends NativeEvent<TElement> {
-	readonly deltaX: number
-	readonly deltaY: number
-	/** Upstream `GestureState` enum — projected, see `HostObject`. */
-	readonly state: unknown
+  readonly deltaX: number
+  readonly deltaY: number
+  /** Upstream `GestureState` enum — projected, see `HostObject`. */
+  readonly state: unknown
 }
 
 export interface PinchGestureEvent<TElement> extends NativeEvent<TElement> {
-	readonly scale: number
-	readonly state: unknown
+  readonly scale: number
+  readonly state: unknown
 }
 
 export interface RotationGestureEvent<TElement> extends NativeEvent<TElement> {
-	readonly rotation: number
-	readonly state: unknown
+  readonly rotation: number
+  readonly state: unknown
 }
 
 export interface TouchGestureEvent<TElement> extends NativeEvent<TElement> {
-	readonly action: unknown
-	readonly x: number
-	readonly y: number
+  readonly action: unknown
+  readonly x: number
+  readonly y: number
 }
 
 /** `PropertyChangeData`-shaped payloads (`textChange`, `checkedChange`, …). */
 export interface ValueChangeEvent<TElement, TValue = unknown> extends NativeEvent<TElement> {
-	readonly value: TValue
-	readonly oldValue?: TValue
+  readonly value: TValue
+  readonly oldValue?: TValue
 }
 
 /** `selectedIndexChange(d)` payloads — `value` is the new index. */
 export interface IndexChangeEvent<TElement> extends NativeEvent<TElement> {
-	readonly value: number
-	readonly oldIndex?: number
-	readonly newIndex?: number
+  readonly value: number
+  readonly oldIndex?: number
+  readonly newIndex?: number
 }
 
 export interface ScrollEvent<TElement> extends NativeEvent<TElement> {
-	readonly scrollX: number
-	readonly scrollY: number
+  readonly scrollX: number
+  readonly scrollY: number
 }
 
 /** Recycled-cell payloads (`itemLoading`, `itemTap`, `itemDisposing`). */
 export interface ItemEvent<TElement> extends NativeEvent<TElement> {
-	readonly index: number
-	/** The recycled host cell. Observation-only: replacing it is outside the shared contract. */
-	readonly view: HostObject
+  readonly index: number
+  /** The recycled host cell. Observation-only: replacing it is outside the shared contract. */
+  readonly view: HostObject
 }
 
 /** Hardware key press/release — `key` is the logical DOM-style key
@@ -172,24 +172,24 @@ export interface ItemEvent<TElement> extends NativeEvent<TElement> {
  *  these on every element (capture-phase Gtk.EventControllerKey);
  *  drivers that do not wire them simply never emit. */
 export interface KeyEvent<TElement> extends NativeEvent<TElement> {
-	readonly key: string
-	readonly code: string
-	readonly altKey: boolean
-	readonly ctrlKey: boolean
-	readonly metaKey: boolean
-	readonly shiftKey: boolean
-	readonly repeat: boolean
-	readonly isComposing: boolean
-	readonly defaultPrevented: boolean
-	preventDefault(): void
-	stopPropagation(): void
+  readonly key: string
+  readonly code: string
+  readonly altKey: boolean
+  readonly ctrlKey: boolean
+  readonly metaKey: boolean
+  readonly shiftKey: boolean
+  readonly repeat: boolean
+  readonly isComposing: boolean
+  readonly defaultPrevented: boolean
+  preventDefault(): void
+  stopPropagation(): void
 }
 
 /** WebView navigation payloads (`loadStarted`/`loadFinished`/`loadError`). */
 export interface WebViewEvent<TElement> extends NativeEvent<TElement> {
-	readonly url?: string
-	readonly error?: unknown
-	readonly navigationType?: unknown
+  readonly url?: string
+  readonly error?: unknown
+  readonly navigationType?: unknown
 }
 
 /** NativeScript `AccessibilityState` names — the single enum value the NS
@@ -198,9 +198,9 @@ export type AccessibilityStateName = 'selected' | 'checked' | 'unchecked' | 'dis
 
 /** Attributes every host element accepts: key, ref, children. */
 export interface OctaneAttributes<TElement> {
-	key?: string | number
-	ref?: Ref<TElement>
-	children?: NativeNode
+  key?: string | number
+  ref?: Ref<TElement>
+  children?: NativeNode
 }
 
 /**
@@ -209,47 +209,47 @@ export interface OctaneAttributes<TElement> {
  * modules register on every view at runtime (`row`, `col`, `dock`, …).
  */
 export interface CommonAttributes {
-	/** Resolved against the app stylesheet; clsx-style composition. */
-	className?: ClassValue
-	/** Alias for `className`. */
-	class?: ClassValue
-	/** A string is parsed as inline CSS; an object is assigned onto the view's style bag. */
-	style?: string | StyleProps | CSSProperties
-	id?: string
-	/**
-	 * Name of the property on a slot-hosting parent (e.g. a drawer's
-	 * `mainContent` / `leftDrawer`) this child should be assigned to instead
-	 * of being added as a regular layout child.
-	 */
-	hostSlot?: string
-	/** Visual-state props both drivers apply to the view itself (NS View props;
-	 * AppKit prop handling at index.ts ~3646/3657/3791/3803 and ~4442/4953).
-	 * Layout has no prop channel on intrinsics — it goes through `style`/`className`
-	 * (`MasonStyleProps`), matching web. */
-	opacity?: number
-	translateX?: number
-	translateY?: number
-	zIndex?: number
-	isEnabled?: boolean
-	visibility?: 'visible' | 'hidden' | 'collapse'
-	accessible?: boolean
-	accessibilityLabel?: string
-	accessibilityRole?: string
-	accessibilityHint?: string
-	accessibilityValue?: string
-	/**
-	 * The drivers differ: NativeScript consumes the enum name (`'selected'`,
-	 * `'checked'`, `'unchecked'`, `'disabled'` — see `AccessibilityStateName`),
-	 * while the AppKit driver reads a record (`.checked`, `.disabled`, …).
-	 * ui's `nativeAccessibilityState` picks per platform.
-	 */
-	accessibilityState?: AccessibilityStateName | Record<string, unknown>
-	accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
-	automationText?: string
-	testID?: string
-	/** Escape bag for platform-specific modifiers applied through a ref or escape-props helper. */
-	ios?: Record<string, unknown>
-	android?: Record<string, unknown>
+  /** Resolved against the app stylesheet; clsx-style composition. */
+  className?: ClassValue
+  /** Alias for `className`. */
+  class?: ClassValue
+  /** A string is parsed as inline CSS; an object is assigned onto the view's style bag. */
+  style?: string | StyleProps | CSSProperties
+  id?: string
+  /**
+   * Name of the property on a slot-hosting parent (e.g. a drawer's
+   * `mainContent` / `leftDrawer`) this child should be assigned to instead
+   * of being added as a regular layout child.
+   */
+  hostSlot?: string
+  /** Visual-state props both drivers apply to the view itself (NS View props;
+   * AppKit prop handling at index.ts ~3646/3657/3791/3803 and ~4442/4953).
+   * Layout has no prop channel on intrinsics — it goes through `style`/`className`
+   * (`MasonStyleProps`), matching web. */
+  opacity?: number
+  translateX?: number
+  translateY?: number
+  zIndex?: number
+  isEnabled?: boolean
+  visibility?: 'visible' | 'hidden' | 'collapse'
+  accessible?: boolean
+  accessibilityLabel?: string
+  accessibilityRole?: string
+  accessibilityHint?: string
+  accessibilityValue?: string
+  /**
+   * The drivers differ: NativeScript consumes the enum name (`'selected'`,
+   * `'checked'`, `'unchecked'`, `'disabled'` — see `AccessibilityStateName`),
+   * while the AppKit driver reads a record (`.checked`, `.disabled`, …).
+   * ui's `nativeAccessibilityState` picks per platform.
+   */
+  accessibilityState?: AccessibilityStateName | Record<string, unknown>
+  accessibilityLiveRegion?: 'none' | 'polite' | 'assertive'
+  automationText?: string
+  testID?: string
+  /** Escape bag for platform-specific modifiers applied through a ref or escape-props helper. */
+  ios?: Record<string, unknown>
+  android?: Record<string, unknown>
 }
 
 /**
@@ -258,31 +258,31 @@ export interface CommonAttributes {
  * `onSubmit` → returnPress), focus/blur, and the view lifecycle pair.
  */
 export interface CommonEvents<TElement> {
-	/** AppKit key-down attachment; useKeyboard reports native availability. */
-	onKeyDown?: HostHandler<NativeKeyboardEvent<TElement>>
-	/** AppKit key-up attachment. Pure modifier changes are not key events here. */
-	onKeyUp?: HostHandler<NativeKeyboardEvent<TElement>>
-	onTap?: HostHandler<TapEvent<TElement>>
-	/** Alias for `onTap`. */
-	onClick?: HostHandler<TapEvent<TElement>>
-	/** Alias for `onTap`. */
-	onPress?: HostHandler<TapEvent<TElement>>
-	onDoubleTap?: HostHandler<TapEvent<TElement>>
-	onLongPress?: HostHandler<TapEvent<TElement>>
-	onSwipe?: HostHandler<SwipeGestureEvent<TElement>>
-	onPan?: HostHandler<PanGestureEvent<TElement>>
-	onPinch?: HostHandler<PinchGestureEvent<TElement>>
-	onRotation?: HostHandler<RotationGestureEvent<TElement>>
-	onTouch?: HostHandler<TouchGestureEvent<TElement>>
-	/** Alias for `onTextChange`. */
-	onChange?: HostHandler<ValueChangeEvent<TElement>>
-	/** Alias for `onReturnPress`. */
-	onSubmit?: HostHandler<NativeEvent<TElement>>
-	onFocus?: HostHandler<NativeEvent<TElement>>
-	onBlur?: HostHandler<NativeEvent<TElement>>
-	onLoaded?: HostHandler<NativeEvent<TElement>>
-	onUnloaded?: HostHandler<NativeEvent<TElement>>
-	onLayoutChanged?: HostHandler<NativeEvent<TElement>>
+  /** AppKit key-down attachment; useKeyboard reports native availability. */
+  onKeyDown?: HostHandler<NativeKeyboardEvent<TElement>>
+  /** AppKit key-up attachment. Pure modifier changes are not key events here. */
+  onKeyUp?: HostHandler<NativeKeyboardEvent<TElement>>
+  onTap?: HostHandler<TapEvent<TElement>>
+  /** Alias for `onTap`. */
+  onClick?: HostHandler<TapEvent<TElement>>
+  /** Alias for `onTap`. */
+  onPress?: HostHandler<TapEvent<TElement>>
+  onDoubleTap?: HostHandler<TapEvent<TElement>>
+  onLongPress?: HostHandler<TapEvent<TElement>>
+  onSwipe?: HostHandler<SwipeGestureEvent<TElement>>
+  onPan?: HostHandler<PanGestureEvent<TElement>>
+  onPinch?: HostHandler<PinchGestureEvent<TElement>>
+  onRotation?: HostHandler<RotationGestureEvent<TElement>>
+  onTouch?: HostHandler<TouchGestureEvent<TElement>>
+  /** Alias for `onTextChange`. */
+  onChange?: HostHandler<ValueChangeEvent<TElement>>
+  /** Alias for `onReturnPress`. */
+  onSubmit?: HostHandler<NativeEvent<TElement>>
+  onFocus?: HostHandler<NativeEvent<TElement>>
+  onBlur?: HostHandler<NativeEvent<TElement>>
+  onLoaded?: HostHandler<NativeEvent<TElement>>
+  onUnloaded?: HostHandler<NativeEvent<TElement>>
+  onLayoutChanged?: HostHandler<NativeEvent<TElement>>
 }
 
 /**
@@ -292,9 +292,9 @@ export interface CommonEvents<TElement> {
  * way — `Attributes<TElement, { src?: string }>`.
  */
 export type Attributes<TElement, Props = object> = OctaneAttributes<TElement> &
-	CommonAttributes &
-	CommonEvents<TElement> &
-	Props
+  CommonAttributes &
+  CommonEvents<TElement> &
+  Props
 
 // ---------------------------------------------------------------------------
 // Per-tag prop surfaces. Primitive members are the shared cross-platform
@@ -311,134 +311,134 @@ export type Attributes<TElement, Props = object> = OctaneAttributes<TElement> &
 export interface MasonViewProps {}
 
 export interface TextBaseProps {
-	text?: string | number
-	/** Rich text content — upstream `string | FormattedString`. */
-	formattedText?: string | HostObject
-	textWrap?: boolean
-	whiteSpace?: 'normal' | 'nowrap' | 'initial' | 'nowrapping'
-	textOverflow?: 'clip' | 'ellipsis' | 'none'
-	maxLines?: number
+  text?: string | number
+  /** Rich text content — upstream `string | FormattedString`. */
+  formattedText?: string | HostObject
+  textWrap?: boolean
+  whiteSpace?: 'normal' | 'nowrap' | 'initial' | 'nowrapping'
+  textOverflow?: 'clip' | 'ellipsis' | 'none'
+  maxLines?: number
 }
 
 export interface SpanProps {
-	text?: string | number
-	fontFamily?: string
-	fontSize?: number
-	fontWeight?: string | number
-	fontStyle?: string
-	textDecoration?: string
-	color?: string | HostObject
-	backgroundColor?: string | HostObject
+  text?: string | number
+  fontFamily?: string
+  fontSize?: number
+  fontWeight?: string | number
+  fontStyle?: string
+  textDecoration?: string
+  color?: string | HostObject
+  backgroundColor?: string | HostObject
 }
 
 export interface FormattedStringProps {
-	fontFamily?: string
-	fontSize?: number
-	color?: string | HostObject
-	backgroundColor?: string | HostObject
+  fontFamily?: string
+  fontSize?: number
+  color?: string | HostObject
+  backgroundColor?: string | HostObject
 }
 
 export interface HtmlViewProps {
-	html?: string
+  html?: string
 }
 
 export interface TextFieldProps<TElement> {
-	text?: string
-	hint?: string
-	secure?: boolean
-	editable?: boolean
-	maxLength?: number
-	keyboardType?: 'datetime' | 'phone' | 'number' | 'url' | 'email' | 'integer' | 'digits' | string
-	returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send' | string
-	autocorrect?: boolean
-	autocapitalizationType?: 'none' | 'words' | 'sentences' | 'allcharacters'
-	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
-	onReturnPress?: HostHandler<NativeEvent<TElement>>
+  text?: string
+  hint?: string
+  secure?: boolean
+  editable?: boolean
+  maxLength?: number
+  keyboardType?: 'datetime' | 'phone' | 'number' | 'url' | 'email' | 'integer' | 'digits' | string
+  returnKeyType?: 'done' | 'next' | 'go' | 'search' | 'send' | string
+  autocorrect?: boolean
+  autocapitalizationType?: 'none' | 'words' | 'sentences' | 'allcharacters'
+  onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+  onReturnPress?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface TextViewProps<TElement> {
-	text?: string
-	hint?: string
-	editable?: boolean
-	maxLength?: number
-	keyboardType?: TextFieldProps<TElement>['keyboardType']
-	returnKeyType?: TextFieldProps<TElement>['returnKeyType']
-	autocorrect?: boolean
-	autoGrow?: boolean
-	maxRows?: number
-	rows?: number
-	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
-	onReturnPress?: HostHandler<NativeEvent<TElement>>
+  text?: string
+  hint?: string
+  editable?: boolean
+  maxLength?: number
+  keyboardType?: TextFieldProps<TElement>['keyboardType']
+  returnKeyType?: TextFieldProps<TElement>['returnKeyType']
+  autocorrect?: boolean
+  autoGrow?: boolean
+  maxRows?: number
+  rows?: number
+  onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+  onReturnPress?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface SearchBarProps<TElement> {
-	text?: string
-	hint?: string
-	onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
-	onSubmit?: HostHandler<NativeEvent<TElement>>
+  text?: string
+  hint?: string
+  onTextChange?: HostHandler<ValueChangeEvent<TElement, string>>
+  onSubmit?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface ButtonProps {
-	text?: string | number
-	formattedText?: string | HostObject
-	isEnabled?: boolean
-	textWrap?: boolean
+  text?: string | number
+  formattedText?: string | HostObject
+  isEnabled?: boolean
+  textWrap?: boolean
 }
 
 export interface SwitchProps<TElement> {
-	checked?: boolean
-	isEnabled?: boolean
-	onCheckedChange?: HostHandler<ValueChangeEvent<TElement, boolean>>
+  checked?: boolean
+  isEnabled?: boolean
+  onCheckedChange?: HostHandler<ValueChangeEvent<TElement, boolean>>
 }
 
 export interface SliderProps<TElement> {
-	value?: number
-	minValue?: number
-	maxValue?: number
-	isEnabled?: boolean
-	onValueChange?: HostHandler<ValueChangeEvent<TElement, number>>
+  value?: number
+  minValue?: number
+  maxValue?: number
+  isEnabled?: boolean
+  onValueChange?: HostHandler<ValueChangeEvent<TElement, number>>
 }
 
 /** Shared range contract for determinate progress on every native target. */
 export interface ProgressProps {
-	/** Defaults to 0; clamps to [0, maxValue]. Nonpositive maxValue displays 0%. */
-	value?: number
-	/** Defaults to 100. A nonpositive maximum displays 0%, without division by zero. */
-	maxValue?: number
+  /** Defaults to 0; clamps to [0, maxValue]. Nonpositive maxValue displays 0%. */
+  value?: number
+  /** Defaults to 100. A nonpositive maximum displays 0%, without division by zero. */
+  maxValue?: number
 }
 
 export interface ActivityIndicatorProps {
-	busy?: boolean
+  busy?: boolean
 }
 
 export interface ListPickerProps<TElement> {
-	items?: readonly unknown[]
-	selectedIndex?: number
-	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
+  items?: readonly unknown[]
+  selectedIndex?: number
+  onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface SegmentedBarProps<TElement> {
-	/** Upstream `SegmentedBarItem[]`. */
-	items?: readonly HostObject[]
-	selectedIndex?: number
-	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
+  /** Upstream `SegmentedBarItem[]`. */
+  items?: readonly HostObject[]
+  selectedIndex?: number
+  onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface SegmentedBarItemProps {
-	title?: string
+  title?: string
 }
 
 /** Calendar-date-only values. Drivers normalize date/minDate/maxDate to local
  * midnight, and dateChange emits a Date at local midnight. Time-of-day belongs
  * to timepicker. Strings are parsed as Date values before normalization. */
 export interface DatePickerProps<TElement> {
-	date?: Date | string
-	minDate?: Date | string
-	maxDate?: Date | string
-	day?: number
-	month?: number
-	year?: number
-	onDateChange?: HostHandler<ValueChangeEvent<TElement, Date>>
+  date?: Date | string
+  minDate?: Date | string
+  maxDate?: Date | string
+  day?: number
+  month?: number
+  year?: number
+  onDateChange?: HostHandler<ValueChangeEvent<TElement, Date>>
 }
 
 /** Minute-precision time of day: time and event values normalize to
@@ -449,39 +449,39 @@ export interface DatePickerProps<TElement> {
  * 00:00–23:59); inverted proposals retain the previous effective range without
  * partial application. Bounds changes clamp selection to the nearest endpoint. */
 export interface TimePickerProps<TElement> {
-	time?: Date | string
-	hour?: number
-	minute?: number
-	minHour?: number
-	maxHour?: number
-	minMinute?: number
-	maxMinute?: number
-	onTimeChange?: HostHandler<ValueChangeEvent<TElement, Date>>
+  time?: Date | string
+  hour?: number
+  minute?: number
+  minHour?: number
+  maxHour?: number
+  minMinute?: number
+  maxMinute?: number
+  onTimeChange?: HostHandler<ValueChangeEvent<TElement, Date>>
 }
 
 export interface ListViewProps<TElement> {
-	/** Upstream `any[] | ItemsSource`. */
-	items?: readonly unknown[] | HostObject
-	/** Zero-argument host factory or NativeScript Builder XML over shared tags.
-	 * Bindings {{ path.sub }}, {{ expression }} and $value evaluate against the
-	 * item bindingContext on bind/rebind. Nested tags are supported. Malformed
-	 * XML, unknown tags and undeclared props throw TypeError. Live observable
-	 * bindings and two-way writeback remain an AppKit qualification gap.
-	 * Callable templates take precedence over strings; their host owns unmount
-	 * on rebind/release. renderItem takes precedence over all templates. */
-	itemTemplate?: string | (() => HostObject)
-	/** Zero-argument keyed host factories. Without itemTemplateSelector only
-	 * "default" is reachable; other keys throw TypeError at the prop boundary. */
-	itemTemplates?: readonly { key: string; createView: () => HostObject }[]
-	/**
-	 * Renders one row into a recycled cell. Takes precedence over
-	 * `itemTemplate`/`itemTemplates`; the cell's own Octane root is diffed in place on rebind.
-	 */
-	renderItem?: (item: any, index: number) => NativeNode
-	separatorColor?: string | HostObject
-	onItemLoading?: HostHandler<ItemEvent<TElement>>
-	onItemTap?: HostHandler<ItemEvent<TElement>>
-	onLoadMoreItems?: HostHandler<NativeEvent<TElement>>
+  /** Upstream `any[] | ItemsSource`. */
+  items?: readonly unknown[] | HostObject
+  /** Zero-argument host factory or NativeScript Builder XML over shared tags.
+   * Bindings {{ path.sub }}, {{ expression }} and $value evaluate against the
+   * item bindingContext on bind/rebind. Nested tags are supported. Malformed
+   * XML, unknown tags and undeclared props throw TypeError. Live observable
+   * bindings and two-way writeback remain an AppKit qualification gap.
+   * Callable templates take precedence over strings; their host owns unmount
+   * on rebind/release. renderItem takes precedence over all templates. */
+  itemTemplate?: string | (() => HostObject)
+  /** Zero-argument keyed host factories. Without itemTemplateSelector only
+   * "default" is reachable; other keys throw TypeError at the prop boundary. */
+  itemTemplates?: readonly { key: string; createView: () => HostObject }[]
+  /**
+   * Renders one row into a recycled cell. Takes precedence over
+   * `itemTemplate`/`itemTemplates`; the cell's own Octane root is diffed in place on rebind.
+   */
+  renderItem?: (item: any, index: number) => NativeNode
+  separatorColor?: string | HostObject
+  onItemLoading?: HostHandler<ItemEvent<TElement>>
+  onItemTap?: HostHandler<ItemEvent<TElement>>
+  onLoadMoreItems?: HostHandler<NativeEvent<TElement>>
 }
 
 /** Unconditioned item instance. Target entries bind this name to the
@@ -496,94 +496,94 @@ export type TabViewItemHandle = HostObject
  * This is minimal hosting for TabView; standalone item qualification follows.
  */
 export interface TabViewProps<TElement, TItem = TabViewItemHandle> {
-	/** Imperative alternative to ordered tabviewitem JSX children. */
-	items?: readonly TItem[]
-	selectedIndex?: number
-	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
-	onSelectedIndexChanged?: HostHandler<IndexChangeEvent<TElement>>
+  /** Imperative alternative to ordered tabviewitem JSX children. */
+  items?: readonly TItem[]
+  selectedIndex?: number
+  onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
+  onSelectedIndexChanged?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface TabViewItemProps {
-	title?: string
-	/** Upstream `string | ImageSource`. */
-	iconSource?: string | HostObject
+  title?: string
+  /** Upstream `string | ImageSource`. */
+  iconSource?: string | HostObject
 }
 
 export interface PageProps<TElement> {
-	actionBarHidden?: boolean
-	enableSwipeBackNavigation?: boolean
-	statusBarStyle?: 'light' | 'dark' | string
-	backgroundSpanUnderStatusBar?: boolean
-	onNavigatedTo?: HostHandler<NativeEvent<TElement>>
-	onNavigatedFrom?: HostHandler<NativeEvent<TElement>>
-	onNavigatingTo?: HostHandler<NativeEvent<TElement>>
+  actionBarHidden?: boolean
+  enableSwipeBackNavigation?: boolean
+  statusBarStyle?: 'light' | 'dark' | string
+  backgroundSpanUnderStatusBar?: boolean
+  onNavigatedTo?: HostHandler<NativeEvent<TElement>>
+  onNavigatedFrom?: HostHandler<NativeEvent<TElement>>
+  onNavigatingTo?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface FrameProps {
-	actionBarVisibility?: 'auto' | 'never' | 'always' | string
+  actionBarVisibility?: 'auto' | 'never' | 'always' | string
 }
 
 export interface ActionBarProps {
-	title?: string
-	/** Upstream `View` — a view instance to render inside the bar. */
-	titleView?: HostObject
-	flat?: boolean
+  title?: string
+  /** Upstream `View` — a view instance to render inside the bar. */
+  titleView?: HostObject
+  flat?: boolean
 }
 
 export interface ActionItemProps {
-	text?: string
-	/** Upstream `string | ImageSource`. */
-	icon?: string | HostObject
+  text?: string
+  /** Upstream `string | ImageSource`. */
+  icon?: string | HostObject
 }
 
 export interface NavigationButtonProps {
-	text?: string
+  text?: string
 }
 
 export interface ImageProps {
-	/** Upstream `string | ImageSource` — `res://`, `~/`, file path, URL, or a decoded source. */
-	src?: string | HostObject
-	imageSource?: HostObject
-	stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
-	loadMode?: 'sync' | 'async'
-	tintColor?: string | HostObject
+  /** Upstream `string | ImageSource` — `res://`, `~/`, file path, URL, or a decoded source. */
+  src?: string | HostObject
+  imageSource?: HostObject
+  stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
+  loadMode?: 'sync' | 'async'
+  tintColor?: string | HostObject
 }
 
 export interface WebViewProps<TElement> {
-	src?: string
-	onLoadStarted?: HostHandler<WebViewEvent<TElement>>
-	onLoadFinished?: HostHandler<WebViewEvent<TElement>>
-	onLoadError?: HostHandler<WebViewEvent<TElement>>
+  src?: string
+  onLoadStarted?: HostHandler<WebViewEvent<TElement>>
+  onLoadFinished?: HostHandler<WebViewEvent<TElement>>
+  onLoadError?: HostHandler<WebViewEvent<TElement>>
 }
 
 export interface ScrollViewProps<TElement> {
-	/** 'both' is consumed by the AppKit driver only (index.ts ~2589). */
-	orientation?: 'horizontal' | 'vertical' | 'both'
-	scrollBarIndicatorVisible?: boolean
-	isScrollEnabled?: boolean
-	onScroll?: HostHandler<ScrollEvent<TElement>>
+  /** 'both' is consumed by the AppKit driver only (index.ts ~2589). */
+  orientation?: 'horizontal' | 'vertical' | 'both'
+  scrollBarIndicatorVisible?: boolean
+  isScrollEnabled?: boolean
+  onScroll?: HostHandler<ScrollEvent<TElement>>
 }
 
 export interface PlaceholderProps<TElement> {
-	/** Fired once the placeholder is attached; the handler assigns `event`'s view. */
-	onCreatingView?: HostHandler<NativeEvent<TElement> & { view?: HostObject }>
+  /** Fired once the placeholder is attached; the handler assigns `event`'s view. */
+  onCreatingView?: HostHandler<NativeEvent<TElement> & { view?: HostObject }>
 }
 
 export interface RootLayoutProps {
-	/** iOS-only safe-area escape — the NativeScript driver's RootLayout reads
-	 * it directly; AppKit's root has no equivalent. */
-	iosIgnoreSafeArea?: boolean
+  /** iOS-only safe-area escape — the NativeScript driver's RootLayout reads
+   * it directly; AppKit's root has no equivalent. */
+  iosIgnoreSafeArea?: boolean
 }
 
 export interface LiquidGlassProps {
-	/** iOS 26+ `UIGlassEffect` configuration — consumed by the NativeScript
-	 * driver's liquid-glass view only. */
-	iosGlassEffect?: {
-		variant?: 'regular' | 'clear'
-		interactive?: boolean
-		tint?: string
-		animateChangeDuration?: number
-	}
+  /** iOS 26+ `UIGlassEffect` configuration — consumed by the NativeScript
+   * driver's liquid-glass view only. */
+  iosGlassEffect?: {
+    variant?: 'regular' | 'clear'
+    interactive?: boolean
+    tint?: string
+    animateChangeDuration?: number
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -593,105 +593,105 @@ export interface LiquidGlassProps {
 // ---------------------------------------------------------------------------
 
 export interface CachedImageProps {
-	/** Upstream `SrcType` — uri, `ImageSource`/`ImageAsset`, a promise of one, or a resolver function. */
-	src?: string | HostObject | PromiseLike<string | HostObject>
-	stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
-	placeholderImageUri?: string
-	failureImageUri?: string
-	lowerResSrc?: string
-	backgroundUri?: string
-	headers?: Record<string, string> | (() => Record<string, string>)
-	fadeDuration?: number
-	alwaysFade?: boolean
-	progressiveRenderingEnabled?: boolean
-	localThumbnailPreviewsEnabled?: boolean
-	showProgressBar?: boolean
-	/** Upstream `Color | string`. */
-	progressBarColor?: string | HostObject
-	roundAsCircle?: boolean
-	roundTopLeftRadius?: number | string
-	roundTopRightRadius?: number | string
-	roundBottomLeftRadius?: number | string
-	roundBottomRightRadius?: number | string
-	blurRadius?: number
-	blurDownSampling?: number
-	imageRotation?: number
-	autoPlayAnimations?: boolean
-	tapToRetryEnabled?: boolean
-	aspectRatio?: number
-	decodeWidth?: number
-	decodeHeight?: number
-	animatedImageView?: boolean
-	loadMode?: 'sync' | 'async'
-	noCache?: boolean
-	noRatioEnforce?: boolean
-	/** Upstream `Color`. */
-	tintColor?: string | HostObject
+  /** Upstream `SrcType` — uri, `ImageSource`/`ImageAsset`, a promise of one, or a resolver function. */
+  src?: string | HostObject | PromiseLike<string | HostObject>
+  stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
+  placeholderImageUri?: string
+  failureImageUri?: string
+  lowerResSrc?: string
+  backgroundUri?: string
+  headers?: Record<string, string> | (() => Record<string, string>)
+  fadeDuration?: number
+  alwaysFade?: boolean
+  progressiveRenderingEnabled?: boolean
+  localThumbnailPreviewsEnabled?: boolean
+  showProgressBar?: boolean
+  /** Upstream `Color | string`. */
+  progressBarColor?: string | HostObject
+  roundAsCircle?: boolean
+  roundTopLeftRadius?: number | string
+  roundTopRightRadius?: number | string
+  roundBottomLeftRadius?: number | string
+  roundBottomRightRadius?: number | string
+  blurRadius?: number
+  blurDownSampling?: number
+  imageRotation?: number
+  autoPlayAnimations?: boolean
+  tapToRetryEnabled?: boolean
+  aspectRatio?: number
+  decodeWidth?: number
+  decodeHeight?: number
+  animatedImageView?: boolean
+  loadMode?: 'sync' | 'async'
+  noCache?: boolean
+  noRatioEnforce?: boolean
+  /** Upstream `Color`. */
+  tintColor?: string | HostObject
 }
 
 export interface SvgViewProps {
-	src?: string | Promise<string>
-	stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
+  src?: string | Promise<string>
+  stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
 }
 
 export interface VideoProps<TElement> {
-	src?: string
-	autoplay?: boolean
-	controls?: boolean
-	loop?: boolean
-	muted?: boolean
-	fill?: 'aspect' | 'aspectFill' | 'fill' | string
-	headers?: Record<string, string>
-	observeCurrentTime?: boolean
-	onFinished?: HostHandler<NativeEvent<TElement>>
-	onPlaybackReady?: HostHandler<NativeEvent<TElement>>
-	onPlaybackStart?: HostHandler<NativeEvent<TElement>>
-	onCurrentTimeUpdated?: HostHandler<NativeEvent<TElement> & { position?: number }>
-	onError?: HostHandler<NativeEvent<TElement> & { error?: unknown }>
+  src?: string
+  autoplay?: boolean
+  controls?: boolean
+  loop?: boolean
+  muted?: boolean
+  fill?: 'aspect' | 'aspectFill' | 'fill' | string
+  headers?: Record<string, string>
+  observeCurrentTime?: boolean
+  onFinished?: HostHandler<NativeEvent<TElement>>
+  onPlaybackReady?: HostHandler<NativeEvent<TElement>>
+  onPlaybackStart?: HostHandler<NativeEvent<TElement>>
+  onCurrentTimeUpdated?: HostHandler<NativeEvent<TElement> & { position?: number }>
+  onError?: HostHandler<NativeEvent<TElement> & { error?: unknown }>
 }
 
 export interface CanvasProps<TElement> {
-	width?: number | string
-	height?: number | string
-	onReady?: HostHandler<NativeEvent<TElement>>
+  width?: number | string
+  height?: number | string
+  onReady?: HostHandler<NativeEvent<TElement>>
 }
 
 export interface LottieProps {
-	src?: string | HostObject
-	autoPlay?: boolean
-	loop?: boolean
-	progress?: number
-	speed?: number
+  src?: string | HostObject
+  autoPlay?: boolean
+  loop?: boolean
+  progress?: number
+  speed?: number
 }
 
 export interface PagerProps<TElement> {
-	items?: readonly unknown[] | HostObject
-	renderItem?: (item: any, index: number) => NativeNode
-	selectedIndex?: number
-	onItemLoading?: HostHandler<ItemEvent<TElement>>
-	onItemDisposing?: HostHandler<ItemEvent<TElement>>
-	onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
+  items?: readonly unknown[] | HostObject
+  renderItem?: (item: any, index: number) => NativeNode
+  selectedIndex?: number
+  onItemLoading?: HostHandler<ItemEvent<TElement>>
+  onItemDisposing?: HostHandler<ItemEvent<TElement>>
+  onSelectedIndexChange?: HostHandler<IndexChangeEvent<TElement>>
 }
 
 export interface AnimatedImageProps {
-	src?: string | HostObject
-	stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
-	width?: number | string
-	height?: number | string
-	animatedImageView?: boolean
-	autoPlayAnimations?: boolean
+  src?: string | HostObject
+  stretch?: 'none' | 'fill' | 'aspectFit' | 'aspectFill'
+  width?: number | string
+  height?: number | string
+  animatedImageView?: boolean
+  autoPlayAnimations?: boolean
 }
 
 export interface AppleSignInButtonProps {
-	type?: 'default' | 'signIn' | 'continue' | 'signUp' | string
-	buttonStyle?: 'black' | 'white' | 'whiteOutline' | string
-	isEnabled?: boolean
+  type?: 'default' | 'signIn' | 'continue' | 'signUp' | string
+  buttonStyle?: 'black' | 'white' | 'whiteOutline' | string
+  isEnabled?: boolean
 }
 
 export interface GoogleSignInButtonProps {
-	colorScheme?: 'auto' | 'dark' | 'light' | string
-	colorStyle?: 'standard' | 'wide' | 'icon' | string
-	isEnabled?: boolean
+  colorScheme?: 'auto' | 'dark' | 'light' | string
+  colorStyle?: 'standard' | 'wide' | 'icon' | string
+  isEnabled?: boolean
 }
 
 /**
@@ -703,57 +703,57 @@ export interface GoogleSignInButtonProps {
  * `@octane-xplat/jsx/intrinsics`.
  */
 export interface NativeElements<TElement> {
-	// Layout
-	masonview: Attributes<TElement, MasonViewProps>
-	contentview: Attributes<TElement>
-	proxyviewcontainer: Attributes<TElement>
-	rootlayout: Attributes<TElement, RootLayoutProps>
-	// Text
-	label: Attributes<TElement, TextBaseProps>
-	formattedstring: Attributes<TElement, FormattedStringProps>
-	span: Attributes<TElement, SpanProps>
-	htmlview: Attributes<TElement, HtmlViewProps>
-	// Text input
-	textfield: Attributes<TElement, TextFieldProps<TElement>>
-	textview: Attributes<TElement, TextViewProps<TElement>>
-	searchbar: Attributes<TElement, SearchBarProps<TElement>>
-	// Controls
-	button: Attributes<TElement, ButtonProps>
-	switch: Attributes<TElement, SwitchProps<TElement>>
-	slider: Attributes<TElement, SliderProps<TElement>>
-	progress: Attributes<TElement, ProgressProps>
-	activityindicator: Attributes<TElement, ActivityIndicatorProps>
-	listpicker: Attributes<TElement, ListPickerProps<TElement>>
-	segmentedbar: Attributes<TElement, SegmentedBarProps<TElement>>
-	segmentedbaritem: Attributes<TElement, SegmentedBarItemProps>
-	datepicker: Attributes<TElement, DatePickerProps<TElement>>
-	timepicker: Attributes<TElement, TimePickerProps<TElement>>
-	// Lists and tabs
-	listview: Attributes<TElement, ListViewProps<TElement>>
-	tabview: Attributes<TElement, TabViewProps<TElement>>
-	tabviewitem: Attributes<TElement, TabViewItemProps>
-	// Navigation chrome
-	page: Attributes<TElement, PageProps<TElement>>
-	frame: Attributes<TElement, FrameProps>
-	actionbar: Attributes<TElement, ActionBarProps>
-	actionitem: Attributes<TElement, ActionItemProps>
-	navigationbutton: Attributes<TElement, NavigationButtonProps>
-	// Media and other
-	image: Attributes<TElement, ImageProps>
-	webview: Attributes<TElement, WebViewProps<TElement>>
-	scrollview: Attributes<TElement, ScrollViewProps<TElement>>
-	placeholder: Attributes<TElement, PlaceholderProps<TElement>>
-	liquidglass: Attributes<TElement, LiquidGlassProps>
-	/** Compiler-produced text node — carries `props.value`, folded into the parent's text. */
-	'#text': Attributes<TElement, { value?: string }>
-	// Maintained cross-platform extensions (registered for iOS + Android).
-	cachedimage: Attributes<TElement, CachedImageProps>
-	svgview: Attributes<TElement, SvgViewProps>
-	xplatvideo: Attributes<TElement, VideoProps<TElement>>
-	nscanvas: Attributes<TElement, CanvasProps<TElement>>
-	xplatlottie: Attributes<TElement, LottieProps>
-	pager: Attributes<TElement, PagerProps<TElement>>
-	animatedimage: Attributes<TElement, AnimatedImageProps>
-	applesigninbutton: Attributes<TElement, AppleSignInButtonProps>
-	googlesigninbutton: Attributes<TElement, GoogleSignInButtonProps>
+  // Layout
+  masonview: Attributes<TElement, MasonViewProps>
+  contentview: Attributes<TElement>
+  proxyviewcontainer: Attributes<TElement>
+  rootlayout: Attributes<TElement, RootLayoutProps>
+  // Text
+  label: Attributes<TElement, TextBaseProps>
+  formattedstring: Attributes<TElement, FormattedStringProps>
+  span: Attributes<TElement, SpanProps>
+  htmlview: Attributes<TElement, HtmlViewProps>
+  // Text input
+  textfield: Attributes<TElement, TextFieldProps<TElement>>
+  textview: Attributes<TElement, TextViewProps<TElement>>
+  searchbar: Attributes<TElement, SearchBarProps<TElement>>
+  // Controls
+  button: Attributes<TElement, ButtonProps>
+  switch: Attributes<TElement, SwitchProps<TElement>>
+  slider: Attributes<TElement, SliderProps<TElement>>
+  progress: Attributes<TElement, ProgressProps>
+  activityindicator: Attributes<TElement, ActivityIndicatorProps>
+  listpicker: Attributes<TElement, ListPickerProps<TElement>>
+  segmentedbar: Attributes<TElement, SegmentedBarProps<TElement>>
+  segmentedbaritem: Attributes<TElement, SegmentedBarItemProps>
+  datepicker: Attributes<TElement, DatePickerProps<TElement>>
+  timepicker: Attributes<TElement, TimePickerProps<TElement>>
+  // Lists and tabs
+  listview: Attributes<TElement, ListViewProps<TElement>>
+  tabview: Attributes<TElement, TabViewProps<TElement>>
+  tabviewitem: Attributes<TElement, TabViewItemProps>
+  // Navigation chrome
+  page: Attributes<TElement, PageProps<TElement>>
+  frame: Attributes<TElement, FrameProps>
+  actionbar: Attributes<TElement, ActionBarProps>
+  actionitem: Attributes<TElement, ActionItemProps>
+  navigationbutton: Attributes<TElement, NavigationButtonProps>
+  // Media and other
+  image: Attributes<TElement, ImageProps>
+  webview: Attributes<TElement, WebViewProps<TElement>>
+  scrollview: Attributes<TElement, ScrollViewProps<TElement>>
+  placeholder: Attributes<TElement, PlaceholderProps<TElement>>
+  liquidglass: Attributes<TElement, LiquidGlassProps>
+  /** Compiler-produced text node — carries `props.value`, folded into the parent's text. */
+  '#text': Attributes<TElement, { value?: string }>
+  // Maintained cross-platform extensions (registered for iOS + Android).
+  cachedimage: Attributes<TElement, CachedImageProps>
+  svgview: Attributes<TElement, SvgViewProps>
+  xplatvideo: Attributes<TElement, VideoProps<TElement>>
+  nscanvas: Attributes<TElement, CanvasProps<TElement>>
+  xplatlottie: Attributes<TElement, LottieProps>
+  pager: Attributes<TElement, PagerProps<TElement>>
+  animatedimage: Attributes<TElement, AnimatedImageProps>
+  applesigninbutton: Attributes<TElement, AppleSignInButtonProps>
+  googlesigninbutton: Attributes<TElement, GoogleSignInButtonProps>
 }

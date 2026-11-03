@@ -3,8 +3,8 @@ import Gdk from 'gi://Gdk?version=4.0'
 import Gtk from 'gi://Gtk?version=4.0'
 import { useEffect, useRef, useState } from 'octane'
 import {
-	createPortal as createUniversalPortal,
-	type UniversalRenderable,
+  createPortal as createUniversalPortal,
+  type UniversalRenderable,
 } from 'octane/universal/native'
 
 import { cx } from '@octane-xplat/lib'
@@ -13,7 +13,7 @@ import { mergeStyle } from './style-merge'
 import type { DrawerProps } from './props'
 
 const createPortal = (children: unknown, target: unknown) =>
-	createUniversalPortal(children as UniversalRenderable, target)
+  createUniversalPortal(children as UniversalRenderable, target)
 
 // `themeSchemeClasses` is a gtk/macos barrel export — the package's default
 // types (what the shared cross-leaf typecheck resolves) do not declare it.
@@ -21,12 +21,12 @@ const createPortal = (children: unknown, target: unknown) =>
 // so the root Theme's scope class and the resolved scheme reach the
 // detached panel host the same way they do for ui's own overlay leaves.
 const themeSchemeClasses: () => string =
-	typeof gtkUi === 'object' &&
-	gtkUi !== null &&
-	'themeSchemeClasses' in gtkUi &&
-	typeof gtkUi.themeSchemeClasses === 'function'
-		? gtkUi.themeSchemeClasses
-		: () => ''
+  typeof gtkUi === 'object' &&
+  gtkUi !== null &&
+  'themeSchemeClasses' in gtkUi &&
+  typeof gtkUi.themeSchemeClasses === 'function'
+    ? gtkUi.themeSchemeClasses
+    : () => ''
 
 /** Open drawer registrations, in overlay creation order — the Gtk.Overlay
  *  stacks layer children in add order, so the last entry is the topmost
@@ -41,13 +41,13 @@ const themeSchemeClasses: () => string =
  *  one ordering difference from the old shared-stack leaf. */
 const drawerLayers: { root: unknown }[] = []
 const topDrawer = (root: unknown): { root: unknown } | undefined => {
-	for (let i = drawerLayers.length - 1; i >= 0; i--) {
-		if (drawerLayers[i].root === root) {
-			return drawerLayers[i]
-		}
-	}
+  for (let i = drawerLayers.length - 1; i >= 0; i--) {
+    if (drawerLayers[i].root === root) {
+      return drawerLayers[i]
+    }
+  }
 
-	return undefined
+  return undefined
 }
 
 /** Edge-docked panel over a modal scrim (Astryx `Drawer`), GTK leaf. The
@@ -57,105 +57,105 @@ const topDrawer = (root: unknown): { root: unknown } | undefined => {
  *  renders inline. Scrim presses and Escape request dismissal; modal
  *  suppression keeps pointer input off the covered content. */
 export function Drawer(props: DrawerProps): unknown @{
-	const latest = useRef(props)
-	latest.current = props
-	const [internal, setInternal] = useState(props.defaultOpen ?? false)
-	const open = props.open ?? internal
-	const sentinel = useRef<any>(null)
-	const [layer, setLayer] = useState<any>(null)
-	const requestDismiss = () => {
-		if (latest.current.open === undefined) {
-			setInternal(false)
-		}
+  const latest = useRef(props)
+  latest.current = props
+  const [internal, setInternal] = useState(props.defaultOpen ?? false)
+  const open = props.open ?? internal
+  const sentinel = useRef<any>(null)
+  const [layer, setLayer] = useState<any>(null)
+  const requestDismiss = () => {
+    if (latest.current.open === undefined) {
+      setInternal(false)
+    }
 
-		latest.current.onOpenChange?.(false)
-		latest.current.onDismiss?.()
-	}
+    latest.current.onOpenChange?.(false)
+    latest.current.onDismiss?.()
+  }
 
-	const dismiss = useRef(requestDismiss)
-	dismiss.current = requestDismiss
+  const dismiss = useRef(requestDismiss)
+  dismiss.current = requestDismiss
 
-	useEffect(() => {
-		const view = sentinel.current
-		if (!view || !open) {
-			return
-		}
+  useEffect(() => {
+    const view = sentinel.current
+    if (!view || !open) {
+      return
+    }
 
-		const l = view.createOverlayLayer({
-			modal: true,
-			scrim: true,
-			align: { h: 'start', v: 'fill' },
-			onScrimPress: () => dismiss.current(),
-		})
+    const l = view.createOverlayLayer({
+      modal: true,
+      scrim: true,
+      align: { h: 'start', v: 'fill' },
+      onScrimPress: () => dismiss.current(),
+    })
 
-		setLayer(l)
-		l.setVisible(true)
+    setLayer(l)
+    l.setVisible(true)
 
-		const root = view.get_root?.()
-		const entry = { root }
-		let keys: any = null
-		if (typeof root?.add_controller === 'function') {
-			drawerLayers.push(entry)
-			keys = new Gtk.EventControllerKey()
-			keys.connect('key-pressed', (_controller: any, keyval: number) => {
-				if (keyval !== Gdk.KEY_Escape || topDrawer(root) !== entry) {
-					return false
-				}
+    const root = view.get_root?.()
+    const entry = { root }
+    let keys: any = null
+    if (typeof root?.add_controller === 'function') {
+      drawerLayers.push(entry)
+      keys = new Gtk.EventControllerKey()
+      keys.connect('key-pressed', (_controller: any, keyval: number) => {
+        if (keyval !== Gdk.KEY_Escape || topDrawer(root) !== entry) {
+          return false
+        }
 
-				dismiss.current()
-				return true
-			})
+        dismiss.current()
+        return true
+      })
 
-			root.add_controller(keys)
-		}
+      root.add_controller(keys)
+    }
 
-		return () => {
-			const index = drawerLayers.indexOf(entry)
-			if (index >= 0) {
-				drawerLayers.splice(index, 1)
-			}
+    return () => {
+      const index = drawerLayers.indexOf(entry)
+      if (index >= 0) {
+        drawerLayers.splice(index, 1)
+      }
 
-			try {
-				if (keys) {
-					root.remove_controller(keys)
-				}
-			} catch {
-				// The window is already gone; GTK drops orphaned controllers.
-			}
+      try {
+        if (keys) {
+          root.remove_controller(keys)
+        }
+      } catch {
+        // The window is already gone; GTK drops orphaned controllers.
+      }
 
-			l.dispose()
-			setLayer(null)
-		}
-	}, [open])
+      l.dispose()
+      setLayer(null)
+    }
+  }, [open])
 
-	<>
-		{props.main}
-		<masonview
-			id={props.id}
-			ref={(v: any) => {
-				sentinel.current = v
-			}}
-			style={mergeStyle(
-				{ flexDirection: 'column' },
-				mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
-			)}
-		/>
-		{open && layer
-			? createPortal(
-					<masonview
-						className={cx('vx-drawer-panel', themeSchemeClasses(), props.className)}
-						style={mergeStyle(
-							// The portal target is a Gtk.Box — flexGrow is what
-							// expands a child to fill its height there.
-							{ flexDirection: 'column', flexGrow: 1, height: '100%' },
-							[{ display: 'flex', width: props.width ?? 280 }, props.style],
-						)}
-						accessibilityLabel={props.accessibilityLabel ?? 'Navigation'}
-					>
-						{props.drawer}
-					</masonview>,
-					layer.target,
-				)
-			: null}
-	</>
+  <>
+    {props.main}
+    <masonview
+      id={props.id}
+      ref={(v: any) => {
+        sentinel.current = v
+      }}
+      style={mergeStyle(
+        { flexDirection: 'column' },
+        mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
+      )}
+    />
+    {open && layer
+      ? createPortal(
+          <masonview
+            className={cx('vx-drawer-panel', themeSchemeClasses(), props.className)}
+            style={mergeStyle(
+              // The portal target is a Gtk.Box — flexGrow is what
+              // expands a child to fill its height there.
+              { flexDirection: 'column', flexGrow: 1, height: '100%' },
+              [{ display: 'flex', width: props.width ?? 280 }, props.style],
+            )}
+            accessibilityLabel={props.accessibilityLabel ?? 'Navigation'}
+          >
+            {props.drawer}
+          </masonview>,
+          layer.target,
+        )
+      : null}
+  </>
 }

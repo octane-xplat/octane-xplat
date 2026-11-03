@@ -6,12 +6,12 @@ import type { ImperativeModalReturn, OpenModal } from '../props'
 
 /** Platform modal handles whose content inherits the rendered element's providers. */
 export function useImperativeModal(): ImperativeModalReturn {
-	const content = useOwnedContent()
-	const open: OpenModal = useMemo(
-		() => (component, params, options) =>
-			openModalWithOwner(content.owner, component, params, options),
-		[content.owner],
-	)
+  const content = useOwnedContent()
+  const open: OpenModal = useMemo(
+    () => (component, params, options) =>
+      openModalWithOwner(content.owner, component, params, options),
+    [content.owner],
+  )
 
-	return { open, element: content.element }
+  return { open, element: content.element }
 }

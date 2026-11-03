@@ -3,7 +3,7 @@ import { ToggleButton } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function ToggleButtonLabel() @{
-	const [showDetails, setShowDetails] = useState(true)
+  const [showDetails, setShowDetails] = useState(true)
 
-	<ToggleButton label="Show details" isPressed={showDetails} onPressedChange={setShowDetails} />
+  <ToggleButton label="Show details" isPressed={showDetails} onPressedChange={setShowDetails} />
 }

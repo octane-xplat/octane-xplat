@@ -7,14 +7,14 @@ import { View, HStack, Text, Pressable } from '@octane-xplat/ui'
 const renderCounts = new Map<string, number>()
 
 function ProbeChild(props: { name: string; n: number }) @{
-	const renders = (renderCounts.get(props.name) ?? 0) + 1
-	renderCounts.set(props.name, renders)
-	console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders)
+  const renders = (renderCounts.get(props.name) ?? 0) + 1
+  renderCounts.set(props.name, renders)
+  console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders)
 
-	<HStack className="gap-2 items-center">
-		<Text className="chip">{props.name}</Text>
-		<Text>{props.name + ' n=' + props.n + ' renders=' + renders}</Text>
-	</HStack>
+  <HStack className="gap-2 items-center">
+    <Text className="chip">{props.name}</Text>
+    <Text>{props.name + ' n=' + props.n + ' renders=' + renders}</Text>
+  </HStack>
 }
 
 const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name)
@@ -30,22 +30,22 @@ const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name)
  *  - renders staying 1 while n= text updates → fine-grained binding,
  *    the component body didn't re-run at all. */
 export function ReactiveProbe() @{
-	const [a, setA] = useState(0)
-	const [b, setB] = useState(0)
-	console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b)
+  const [a, setA] = useState(0)
+  const [b, setB] = useState(0)
+  console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b)
 
-	<View className="vx-app flex-1 gap-4">
-		<HStack className="gap-4">
-			<Pressable id="rp-a" onPress={() => setA(a + 1)} className="btn bg-primary">
-				<Text className="text-onprimary">Bump A</Text>
-			</Pressable>
-			<Pressable id="rp-b" onPress={() => setB(b + 1)} className="btn bg-primary">
-				<Text className="text-onprimary">Bump B</Text>
-			</Pressable>
-		</HStack>
-		<ProbeChild name="plain-a" n={a} />
-		<ProbeChild name="plain-b" n={b} />
-		<MemoChild name="memo-a" n={a} />
-		<MemoChild name="memo-b" n={b} />
-	</View>
+  <View className="vx-app flex-1 gap-4">
+    <HStack className="gap-4">
+      <Pressable id="rp-a" onPress={() => setA(a + 1)} className="btn bg-primary">
+        <Text className="text-onprimary">Bump A</Text>
+      </Pressable>
+      <Pressable id="rp-b" onPress={() => setB(b + 1)} className="btn bg-primary">
+        <Text className="text-onprimary">Bump B</Text>
+      </Pressable>
+    </HStack>
+    <ProbeChild name="plain-a" n={a} />
+    <ProbeChild name="plain-b" n={b} />
+    <MemoChild name="memo-a" n={a} />
+    <MemoChild name="memo-b" n={b} />
+  </View>
 }

@@ -21,25 +21,25 @@ import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
  * @see ScreenProps, SafeAreaProps.
  */
 export function Screen(props: ScreenProps): unknown @{
-	<rootlayout
-		iosIgnoreSafeArea={true}
-		className="vx-screen-shell"
-		id={props.id}
-		ref={(v: any) => applyEscapeProps(v, props)}
-		onLoaded={(e: any) => registerRootLayout(e.object)}
-		onUnloaded={(e: any) => unregisterRootLayout(e.object)}
-	>
-		<masonview
-			iosIgnoreSafeArea={true}
-			className={cx('vx-screen-content', props.className)}
-			style={mergeStyle({ display: 'flex' }, props.style)}
-			ref={(v: any) => {
-				if (v) {
-					attachTapToBlur(v)
-				}
-			}}
-		>
-			{props.children}
-		</masonview>
-	</rootlayout>
+  <rootlayout
+    iosIgnoreSafeArea={true}
+    className="vx-screen-shell"
+    id={props.id}
+    ref={(v: any) => applyEscapeProps(v, props)}
+    onLoaded={(e: any) => registerRootLayout(e.object)}
+    onUnloaded={(e: any) => unregisterRootLayout(e.object)}
+  >
+    <masonview
+      iosIgnoreSafeArea={true}
+      className={cx('vx-screen-content', props.className)}
+      style={mergeStyle({ display: 'flex' }, props.style)}
+      ref={(v: any) => {
+        if (v) {
+          attachTapToBlur(v)
+        }
+      }}
+    >
+      {props.children}
+    </masonview>
+  </rootlayout>
 }

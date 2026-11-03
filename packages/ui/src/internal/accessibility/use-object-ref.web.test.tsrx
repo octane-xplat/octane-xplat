@@ -8,26 +8,26 @@ import { useObjectRef } from './use-object-ref'
 // forward host assignments to the caller's ref.
 
 describe('useObjectRef (DOM renderer)', () => {
-	it('exposes current and forwards assignments to the original ref', () => {
-		const callback = vi.fn()
-		let objectRef: { current: unknown } | undefined
+  it('exposes current and forwards assignments to the original ref', () => {
+    const callback = vi.fn()
+    let objectRef: { current: unknown } | undefined
 
-		function Reader() @{
-			objectRef = useObjectRef<HTMLElement>(callback)
+    function Reader() @{
+      objectRef = useObjectRef<HTMLElement>(callback)
 
-			<div ref={objectRef as any} />
-		}
+      <div ref={objectRef as any} />
+    }
 
-		const el = document.createElement('div')
-		document.body.appendChild(el)
-		const root = createRoot(el)
-		act(() => root.render(<Reader />))
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    const root = createRoot(el)
+    act(() => root.render(<Reader />))
 
-		expect(objectRef?.current).toBe(el.firstElementChild)
-		expect(callback).toHaveBeenCalledWith(el.firstElementChild)
+    expect(objectRef?.current).toBe(el.firstElementChild)
+    expect(callback).toHaveBeenCalledWith(el.firstElementChild)
 
-		act(() => root.unmount())
-		expect(callback).toHaveBeenLastCalledWith(null)
-		el.remove()
-	})
+    act(() => root.unmount())
+    expect(callback).toHaveBeenLastCalledWith(null)
+    el.remove()
+  })
 })

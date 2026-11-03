@@ -4,14 +4,14 @@ import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 import { SwiftUI, UIDataDriver, registerSwiftUI, SwiftUIManager } from '@nativescript/swift-ui'
 import { GridLayout } from '@nativescript/core'
 import {
-	getSwiftUIHostLifecycle,
-	registerSwiftUIHost,
-	unregisterSwiftUIHost,
+  getSwiftUIHostLifecycle,
+  registerSwiftUIHost,
+  unregisterSwiftUIHost,
 } from '@octane-xplat/lib'
 
 import {
-	createPortal as createUniversalPortal,
-	type UniversalRenderable,
+  createPortal as createUniversalPortal,
+  type UniversalRenderable,
 } from 'octane/universal/native'
 
 import { useEffect, useRef, useState } from 'octane'
@@ -21,51 +21,51 @@ declare const XplatContextMenuProvider: any
 declare const NativeScriptViewFactory: any
 
 declare module '@octane-xplat/jsx/intrinsics' {
-	interface NativeElements<TElement> {
-		xplatioscontextmenu: Attributes<
-			TElement,
-			{
-				swiftId?: string
-				data?: Record<string, unknown>
-				onSwiftUIEvent?: (event: { data?: unknown }) => void
-			}
-		>
-	}
+  interface NativeElements<TElement> {
+    xplatioscontextmenu: Attributes<
+      TElement,
+      {
+        swiftId?: string
+        data?: Record<string, unknown>
+        onSwiftUIEvent?: (event: { data?: unknown }) => void
+      }
+    >
+  }
 }
 
 registerElement('xplatioscontextmenu', SwiftUI)
 registerSwiftUI(
-	'xplat-swiftui-contextmenu',
-	(owner: any) => new UIDataDriver(new XplatContextMenuProvider(), owner),
+  'xplat-swiftui-contextmenu',
+  (owner: any) => new UIDataDriver(new XplatContextMenuProvider(), owner),
 )
 
 function createPortal(children: unknown, target: unknown) {
-	return createUniversalPortal(children as UniversalRenderable, target)
+  return createUniversalPortal(children as UniversalRenderable, target)
 }
 
 function ensureNativeScriptViewFactory(): void {
-	if (!NativeScriptViewFactory.shared) {
-		NativeScriptViewFactory.initShared()
-	}
+  if (!NativeScriptViewFactory.shared) {
+    NativeScriptViewFactory.initShared()
+  }
 }
 
 function registerHosts(
-	triggerId: string,
-	trigger: GridLayout,
-	previewId: string,
-	preview: GridLayout,
+  triggerId: string,
+  trigger: GridLayout,
+  previewId: string,
+  preview: GridLayout,
 ): void {
-	ensureNativeScriptViewFactory()
-	registerSwiftUIHost(triggerId, { create: () => trigger })
-	registerSwiftUIHost(previewId, { create: () => preview })
-	SwiftUIManager.registerNativeScriptViews(
-		{ [triggerId]: true, [previewId]: true },
-		getSwiftUIHostLifecycle(),
-	)
+  ensureNativeScriptViewFactory()
+  registerSwiftUIHost(triggerId, { create: () => trigger })
+  registerSwiftUIHost(previewId, { create: () => preview })
+  SwiftUIManager.registerNativeScriptViews(
+    { [triggerId]: true, [previewId]: true },
+    getSwiftUIHostLifecycle(),
+  )
 }
 
 function TriggerRoot(props: { render: () => any }) @{
-	<>{props.render()}</>
+  <>{props.render()}</>
 }
 
 let seq = 0
@@ -74,61 +74,61 @@ let seq = 0
  *  from the declaring Octane tree into NativeScript hosts. Menu items arrive
  *  as serialized data. */
 export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
-	const triggerId = useRef<string>('')
-	if (!triggerId.current) {
-		triggerId.current = `ctxmenu${++seq}`
-	}
+  const triggerId = useRef<string>('')
+  if (!triggerId.current) {
+    triggerId.current = `ctxmenu${++seq}`
+  }
 
-	const previewId = `${triggerId.current}preview`
-	const [portalHosts, setPortalHosts] = useState<{
-		trigger: GridLayout
-		preview: GridLayout
-	} | null>(null)
+  const previewId = `${triggerId.current}preview`
+  const [portalHosts, setPortalHosts] = useState<{
+    trigger: GridLayout
+    preview: GridLayout
+  } | null>(null)
 
-	useEffect(() => {
-		const trigger = new GridLayout()
-		const preview = new GridLayout()
-		registerHosts(triggerId.current, trigger, previewId, preview)
-		setPortalHosts({ trigger, preview })
+  useEffect(() => {
+    const trigger = new GridLayout()
+    const preview = new GridLayout()
+    registerHosts(triggerId.current, trigger, previewId, preview)
+    setPortalHosts({ trigger, preview })
 
-		return () => {
-			unregisterSwiftUIHost(triggerId.current)
-			unregisterSwiftUIHost(previewId)
-		}
-	}, [])
+    return () => {
+      unregisterSwiftUIHost(triggerId.current)
+      unregisterSwiftUIHost(previewId)
+    }
+  }, [])
 
-	const items = props.items ?? []
+  const items = props.items ?? []
 
-	<>
-		<xplatioscontextmenu
-			id={props.id}
-			className={props.className}
-			style={props.style}
-			accessibilityLabel={props.accessibilityLabel}
-			swiftId="xplat-swiftui-contextmenu"
-			data={{
-				triggerId: portalHosts ? triggerId.current : '',
-				previewId: portalHosts && props.preview ? previewId : '',
-				items: items.map((item) => ({
-					id: item.id,
-					title: item.title,
-					destructive: item.destructive ? 1 : 0,
-					disabled: item.disabled ? 1 : 0,
-					divider: item.divider ? 1 : 0,
-				})),
-			}}
-			onSwiftUIEvent={(event: any) => {
-				const item = event.data?.item
-				if (typeof item === 'string' && item) {
-					props.onItemSelected?.(item)
-				}
-			}}
-		/>
-		{portalHosts && props.trigger
-			? createPortal(<TriggerRoot render={props.trigger} />, portalHosts.trigger)
-			: null}
-		{portalHosts && props.preview
-			? createPortal(<TriggerRoot render={props.preview} />, portalHosts.preview)
-			: null}
-	</>
+  <>
+    <xplatioscontextmenu
+      id={props.id}
+      className={props.className}
+      style={props.style}
+      accessibilityLabel={props.accessibilityLabel}
+      swiftId="xplat-swiftui-contextmenu"
+      data={{
+        triggerId: portalHosts ? triggerId.current : '',
+        previewId: portalHosts && props.preview ? previewId : '',
+        items: items.map((item) => ({
+          id: item.id,
+          title: item.title,
+          destructive: item.destructive ? 1 : 0,
+          disabled: item.disabled ? 1 : 0,
+          divider: item.divider ? 1 : 0,
+        })),
+      }}
+      onSwiftUIEvent={(event: any) => {
+        const item = event.data?.item
+        if (typeof item === 'string' && item) {
+          props.onItemSelected?.(item)
+        }
+      }}
+    />
+    {portalHosts && props.trigger
+      ? createPortal(<TriggerRoot render={props.trigger} />, portalHosts.trigger)
+      : null}
+    {portalHosts && props.preview
+      ? createPortal(<TriggerRoot render={props.preview} />, portalHosts.preview)
+      : null}
+  </>
 }

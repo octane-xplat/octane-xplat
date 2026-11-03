@@ -9,14 +9,14 @@ import type { RouteBoundaryProps } from '../props'
  *  caught error and remounts the subtree. Without a declared boundary
  *  the children render bare and errors propagate as they always have. */
 export function RouteBoundary(props: RouteBoundaryProps): unknown @{
-	const Boundary = props.boundary
-	if (!Boundary) {
-		return <>{props.children}</>
-	}
+  const Boundary = props.boundary
+  if (!Boundary) {
+    return <>{props.children}</>
+  }
 
-	@try {
-		<>{props.children}</>
-	} @catch (error, reset) {
-		<Boundary error={error} reset={reset} route={props.route} />
-	}
+  @try {
+    <>{props.children}</>
+  } @catch (error, reset) {
+    <Boundary error={error} reset={reset} route={props.route} />
+  }
 }

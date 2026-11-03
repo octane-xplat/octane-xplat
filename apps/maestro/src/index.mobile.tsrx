@@ -11,10 +11,10 @@ import './app.css'
 installGestureHandler()
 
 Application.run({
-	create() {
-		const page = prepareFullScreenPage(new Page())
-		page.actionBarHidden = true
-		renderNativeScriptApp(page, LightboxGallery)
-		return page
-	},
+  create() {
+    const page = prepareFullScreenPage(new Page())
+    page.actionBarHidden = true
+    renderNativeScriptApp(page, LightboxGallery)
+    return page
+  },
 })

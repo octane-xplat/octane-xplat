@@ -12,39 +12,39 @@ import { FormLayoutContext, FormLayoutProvider } from './form-layout-context'
  *  auto-assign columns, so 'horizontal' uses a wrapped row flow rather
  *  than equal-width columns. */
 export function FormLayout(props: FormLayoutProps): unknown @{
-	const parent = useContext(FormLayoutContext)
-	const direction = props.direction ?? 'vertical'
-	const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
-	const value = { direction, defaultOptionality }
+  const parent = useContext(FormLayoutContext)
+  const direction = props.direction ?? 'vertical'
+  const defaultOptionality = props.defaultOptionality ?? parent.defaultOptionality
+  const value = { direction, defaultOptionality }
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((v: any) => {
-				if (v) {
-					applyEscapeProps(v, props)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((v: any) => {
+        if (v) {
+          applyEscapeProps(v, props)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<FormLayoutProvider value={value}>
-		<masonview
-			id={props.id}
-			ref={forwardedRef}
-			className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
-			style={mergeStyle(
-				{
-					flexDirection: direction === 'horizontal' ? 'row' : 'column',
-					flexWrap: direction === 'horizontal' ? 'wrap' : undefined,
-					gap: 16,
-				},
-				mergeStyle({ display: 'flex' }, props.style),
-			)}
-			accessibilityLabel={props.accessibilityLabel}
-			accessibilityRole={props.accessibilityRole}
-			accessibilityHint={props.accessibilityHint}
-		>
-			{props.children}
-		</masonview>
-	</FormLayoutProvider>
+  <FormLayoutProvider value={value}>
+    <masonview
+      id={props.id}
+      ref={forwardedRef}
+      className={cx('vx-formlayout', `vx-formlayout--${direction}`, props.className)}
+      style={mergeStyle(
+        {
+          flexDirection: direction === 'horizontal' ? 'row' : 'column',
+          flexWrap: direction === 'horizontal' ? 'wrap' : undefined,
+          gap: 16,
+        },
+        mergeStyle({ display: 'flex' }, props.style),
+      )}
+      accessibilityLabel={props.accessibilityLabel}
+      accessibilityRole={props.accessibilityRole}
+      accessibilityHint={props.accessibilityHint}
+    >
+      {props.children}
+    </masonview>
+  </FormLayoutProvider>
 }

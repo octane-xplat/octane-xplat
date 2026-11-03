@@ -6,43 +6,43 @@ import type { VideoEvent, VideoHandle } from '@octane-xplat/video'
 
 const SRC = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
 const POSTER =
-	'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.png'
+  'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.png'
 
 /** Shared `Video` demo — the surface-hosted player: OS engine surface +
  *  the self-drawn transport (tap the frame to show/hide). Buttons exercise
  *  the controlled `playing` prop and the `ref` handle's seek. */
 export function VideoDemo() @{
-	const [playing, setPlaying] = useState(false)
-	const [muted, setMuted] = useState(false)
-	const [status, setStatus] = useState('idle')
-	const handle = useRef<VideoHandle | null>(null)
+  const [playing, setPlaying] = useState(false)
+  const [muted, setMuted] = useState(false)
+  const [status, setStatus] = useState('idle')
+  const handle = useRef<VideoHandle | null>(null)
 
-	<View className="video-demo gap-4">
-		<Heading level={2}>Video</Heading>
-		<Video
-			className="video-demo-player"
-			src={SRC}
-			poster={POSTER}
-			playing={playing}
-			muted={muted}
-			onPlayingChange={setPlaying}
-			onMutedChange={setMuted}
-			onReady={(e: VideoEvent) => setStatus(`ready ${(e.duration ?? 0) / 1000}s`)}
-			onEnded={() => setStatus('ended')}
-			onError={(e: VideoEvent) => setStatus(`error ${e.message ?? ''}`)}
-			ref={handle}
-		/>
-		<HStack className="gap-2">
-			<Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
-				<Text>{playing ? 'Pause' : 'Play'}</Text>
-			</Button>
-			<Button className="btn btn-secondary" clickAction={() => handle.current?.seekTo(15000)}>
-				<Text>Seek 0:15</Text>
-			</Button>
-			<Button className="btn btn-secondary" clickAction={() => setMuted(!muted)}>
-				<Text>{muted ? 'Unmute' : 'Mute'}</Text>
-			</Button>
-		</HStack>
-		<Text className="text-sm text-muted">{status}</Text>
-	</View>
+  <View className="video-demo gap-4">
+    <Heading level={2}>Video</Heading>
+    <Video
+      className="video-demo-player"
+      src={SRC}
+      poster={POSTER}
+      playing={playing}
+      muted={muted}
+      onPlayingChange={setPlaying}
+      onMutedChange={setMuted}
+      onReady={(e: VideoEvent) => setStatus(`ready ${(e.duration ?? 0) / 1000}s`)}
+      onEnded={() => setStatus('ended')}
+      onError={(e: VideoEvent) => setStatus(`error ${e.message ?? ''}`)}
+      ref={handle}
+    />
+    <HStack className="gap-2">
+      <Button className="btn btn-secondary" clickAction={() => setPlaying(!playing)}>
+        <Text>{playing ? 'Pause' : 'Play'}</Text>
+      </Button>
+      <Button className="btn btn-secondary" clickAction={() => handle.current?.seekTo(15000)}>
+        <Text>Seek 0:15</Text>
+      </Button>
+      <Button className="btn btn-secondary" clickAction={() => setMuted(!muted)}>
+        <Text>{muted ? 'Unmute' : 'Mute'}</Text>
+      </Button>
+    </HStack>
+    <Text className="text-sm text-muted">{status}</Text>
+  </View>
 }

@@ -20,7 +20,7 @@ const pushLog = createStore<string[]>([])
 const note = (line: string) => pushLog.update((l) => [line, ...l].slice(0, 12))
 
 const summarize = (m: PushMessage) =>
-	`${m.title ?? m.body ?? 'message'}${m.data ? ' ' + JSON.stringify(m.data) : ''}`
+  `${m.title ?? m.body ?? 'message'}${m.data ? ' ' + JSON.stringify(m.data) : ''}`
 
 // Handlers attach before configure on purpose — supported leaves queue them;
 // the unavailable macOS leaf leaves them inert.
@@ -32,71 +32,71 @@ push.onTokenRefresh((t) => note('token: ' + t.slice(0, 24) + '…'))
  *  event handlers into an on-screen log. Without credentials it reports
  *  'unconfigured' rather than crashing. */
 export function PushDemo() @{
-	const log = useStore(pushLog)
+  const log = useStore(pushLog)
 
-	const configure = async () => {
-		if (!push.supported) {
-			note('unavailable: remote push is not supported on this platform')
-			return
-		}
+  const configure = async () => {
+    if (!push.supported) {
+      note('unavailable: remote push is not supported on this platform')
+      return
+    }
 
-		try {
-			await push.configure(CONFIG ?? {})
-			note(`configured (supported: ${push.supported})`)
-		} catch (e) {
-			note(`unconfigured: ${(e as Error).message}`)
-		}
-	}
+    try {
+      await push.configure(CONFIG ?? {})
+      note(`configured (supported: ${push.supported})`)
+    } catch (e) {
+      note(`unconfigured: ${(e as Error).message}`)
+    }
+  }
 
-	<View className="gap-4">
-		<Heading level={2}>Push notifications</Heading>
-		<Text>
-			FCM via @nativescript/firebase-messaging on iOS/Android, the Firebase JS SDK + shipped service
-			worker on web. Needs real credentials — see docs/platform/push-notifications.md.
-		</Text>
-		@if (!push.supported) {
-			<Text id="push-unavailable">Remote push is unavailable on this platform.</Text>
-		}
-		<HStack className="gap-2">
-			<Pressable id="push-configure" className="btn btn-secondary" onPress={() => void configure()}>
-				<Text>Configure</Text>
-			</Pressable>
-			<Pressable
-				id="push-permission"
-				className="btn btn-secondary"
-				onPress={() =>
-					void push
-						.requestPermission()
-						.then((p) => note('permission: ' + p))
-						.catch((e) => note(String(e)))
-				}
-			>
-				<Text>Permission</Text>
-			</Pressable>
-			<Pressable
-				id="push-token"
-				className="btn btn-secondary"
-				onPress={() =>
-					void push
-						.getToken()
-						.then((t) => note(t ? 'token: ' + t.slice(0, 24) + '…' : 'no token'))
-						.catch((e) => note(String(e)))
-				}
-			>
-				<Text>Get token</Text>
-			</Pressable>
-		</HStack>
-		<View className="gap-2">
-			@for (const line of log; key line) {
-				<Text id="push-log-line" className="text-sm text-muted">
-					{line}
-				</Text>
-			}
-			@if (log.length === 0) {
-				<Text id="push-log-empty" className="text-sm text-muted">
-					no events yet
-				</Text>
-			}
-		</View>
-	</View>
+  <View className="gap-4">
+    <Heading level={2}>Push notifications</Heading>
+    <Text>
+      FCM via @nativescript/firebase-messaging on iOS/Android, the Firebase JS SDK + shipped service
+      worker on web. Needs real credentials — see docs/platform/push-notifications.md.
+    </Text>
+    @if (!push.supported) {
+      <Text id="push-unavailable">Remote push is unavailable on this platform.</Text>
+    }
+    <HStack className="gap-2">
+      <Pressable id="push-configure" className="btn btn-secondary" onPress={() => void configure()}>
+        <Text>Configure</Text>
+      </Pressable>
+      <Pressable
+        id="push-permission"
+        className="btn btn-secondary"
+        onPress={() =>
+          void push
+            .requestPermission()
+            .then((p) => note('permission: ' + p))
+            .catch((e) => note(String(e)))
+        }
+      >
+        <Text>Permission</Text>
+      </Pressable>
+      <Pressable
+        id="push-token"
+        className="btn btn-secondary"
+        onPress={() =>
+          void push
+            .getToken()
+            .then((t) => note(t ? 'token: ' + t.slice(0, 24) + '…' : 'no token'))
+            .catch((e) => note(String(e)))
+        }
+      >
+        <Text>Get token</Text>
+      </Pressable>
+    </HStack>
+    <View className="gap-2">
+      @for (const line of log; key line) {
+        <Text id="push-log-line" className="text-sm text-muted">
+          {line}
+        </Text>
+      }
+      @if (log.length === 0) {
+        <Text id="push-log-empty" className="text-sm text-muted">
+          no events yet
+        </Text>
+      }
+    </View>
+  </View>
 }

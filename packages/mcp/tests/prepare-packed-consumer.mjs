@@ -16,9 +16,9 @@ import { fileURLToPath } from 'node:url'
 
 const work = process.argv[2] && resolve(process.argv[2])
 if (!work || existsSync(work)) {
-	throw new Error(
-		'Supply a new directory: node tests/prepare-packed-consumer.mjs /tmp/xplat-packed-mcp',
-	)
+  throw new Error(
+    'Supply a new directory: node tests/prepare-packed-consumer.mjs /tmp/xplat-packed-mcp',
+  )
 }
 
 const frameworkRoot = fileURLToPath(new URL('../../../', import.meta.url))
@@ -30,27 +30,27 @@ mkdirSync(packDir, { recursive: true })
 mkdirSync(extractDir, { recursive: true })
 
 const run = (command, argv, cwd = work) => {
-	const result = spawnSync(command, argv, { cwd, encoding: 'utf8' })
-	if (result.error) {
-		throw result.error
-	}
+  const result = spawnSync(command, argv, { cwd, encoding: 'utf8' })
+  if (result.error) {
+    throw result.error
+  }
 
-	if (result.status !== 0) {
-		throw new Error(
-			`${command} ${argv.join(' ')} exited ${result.status}:\n${result.stdout}\n${result.stderr}`,
-		)
-	}
+  if (result.status !== 0) {
+    throw new Error(
+      `${command} ${argv.join(' ')} exited ${result.status}:\n${result.stdout}\n${result.stderr}`,
+    )
+  }
 
-	return result.stdout
+  return result.stdout
 }
 
 const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'))
 const packageDirFor = (name) =>
-	name === 'create-octane-xplat'
-		? 'create'
-		: name === 'tsrx-typegen'
-			? 'tsrx-typegen'
-			: name.replace(/^@octane-xplat\//, '')
+  name === 'create-octane-xplat'
+    ? 'create'
+    : name === 'tsrx-typegen'
+      ? 'tsrx-typegen'
+      : name.replace(/^@octane-xplat\//, '')
 
 // ---- scaffold via the packed create bin ------------------------------------
 const createPkg = readJson(join(frameworkRoot, 'packages/create/package.json'))
@@ -59,11 +59,11 @@ const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${
 const createTarball = join(packDir, tarballName(createPkg))
 run('tar', ['-xzf', createTarball, '-C', extractDir])
 run('node', [
-	join(extractDir, 'package', 'dist', 'index.js'),
-	appDir,
-	'--no-install',
-	'--targets',
-	'web',
+  join(extractDir, 'package', 'dist', 'index.js'),
+  appDir,
+  '--no-install',
+  '--targets',
+  'web',
 ])
 
 // ---- package closure: app deps + what they install --------------------------
@@ -73,54 +73,54 @@ const SEED_EXTRAS = ['@octane-xplat/mcp', '@octane-xplat/patches']
 const needed = new Set()
 const queue = []
 for (const section of ['dependencies', 'devDependencies']) {
-	for (const name of Object.keys(manifest[section] ?? {})) {
-		if (name.startsWith('@octane-xplat/')) {
-			queue.push(name)
-		}
-	}
+  for (const name of Object.keys(manifest[section] ?? {})) {
+    if (name.startsWith('@octane-xplat/')) {
+      queue.push(name)
+    }
+  }
 }
 
 queue.push(...SEED_EXTRAS)
 // Dependencies of packed packages install into the consumer too; walk only
 // sections consumers resolve (dependencies/peers/optional, not devDeps).
 while (queue.length) {
-	const name = queue.shift()
-	if (needed.has(name)) {
-		continue
-	}
+  const name = queue.shift()
+  if (needed.has(name)) {
+    continue
+  }
 
-	const dir = join(frameworkRoot, 'packages', packageDirFor(name))
-	if (!existsSync(join(dir, 'package.json'))) {
-		continue
-	}
+  const dir = join(frameworkRoot, 'packages', packageDirFor(name))
+  if (!existsSync(join(dir, 'package.json'))) {
+    continue
+  }
 
-	needed.add(name)
-	const pkg = readJson(join(dir, 'package.json'))
-	for (const section of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
-		for (const dep of Object.keys(pkg[section] ?? {})) {
-			if (
-				dep.startsWith('@octane-xplat/') ||
-				dep === 'create-octane-xplat' ||
-				dep === 'tsrx-typegen'
-			) {
-				queue.push(dep)
-			}
-		}
-	}
+  needed.add(name)
+  const pkg = readJson(join(dir, 'package.json'))
+  for (const section of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
+    for (const dep of Object.keys(pkg[section] ?? {})) {
+      if (
+        dep.startsWith('@octane-xplat/') ||
+        dep === 'create-octane-xplat' ||
+        dep === 'tsrx-typegen'
+      ) {
+        queue.push(dep)
+      }
+    }
+  }
 }
 
 // ---- pack the closure --------------------------------------------------------
 const tarballs = new Map()
 for (const name of [...needed].sort()) {
-	const dir = join(frameworkRoot, 'packages', packageDirFor(name))
-	const pkg = readJson(join(dir, 'package.json'))
-	run('bun', ['pm', 'pack', '--destination', packDir], dir)
-	const tarball = join(packDir, tarballName(pkg))
-	if (!existsSync(tarball)) {
-		throw new Error(`expected tarball ${tarball}`)
-	}
+  const dir = join(frameworkRoot, 'packages', packageDirFor(name))
+  const pkg = readJson(join(dir, 'package.json'))
+  run('bun', ['pm', 'pack', '--destination', packDir], dir)
+  const tarball = join(packDir, tarballName(pkg))
+  if (!existsSync(tarball)) {
+    throw new Error(`expected tarball ${tarball}`)
+  }
 
-	tarballs.set(pkg.name, tarball)
+  tarballs.set(pkg.name, tarball)
 }
 
 console.log(`[prepare] packed ${tarballs.size} tarballs`)
@@ -128,12 +128,12 @@ console.log(`[prepare] packed ${tarballs.size} tarballs`)
 // ---- repoint the consumer at file: tarballs ----------------------------------
 let rewritten = 0
 for (const section of ['dependencies', 'devDependencies']) {
-	for (const dep of Object.keys(manifest[section] ?? {})) {
-		if (tarballs.has(dep)) {
-			manifest[section][dep] = `file:${tarballs.get(dep)}`
-			rewritten++
-		}
-	}
+  for (const dep of Object.keys(manifest[section] ?? {})) {
+    if (tarballs.has(dep)) {
+      manifest[section][dep] = `file:${tarballs.get(dep)}`
+      rewritten++
+    }
+  }
 }
 
 // The private MCP server ships no registry version — install the packed bin.
@@ -144,7 +144,7 @@ console.log(`[prepare] rewrote ${rewritten} deps + @octane-xplat/mcp to file: ta
 // All late and transitive framework resolutions use the packed artifacts.
 manifest.overrides ??= {}
 for (const [name, tarball] of tarballs) {
-	manifest.overrides[name] = `file:${tarball}`
+  manifest.overrides[name] = `file:${tarball}`
 }
 
 writeFileSync(appManifestPath, JSON.stringify(manifest, null, '\t') + '\n')
@@ -154,9 +154,9 @@ run('bun', ['install'], appDir)
 
 const entry = join(appDir, 'src/main.web.tsrx')
 writeFileSync(
-	entry,
-	readFileSync(entry, 'utf8') +
-		`
+  entry,
+  readFileSync(entry, 'utf8') +
+    `
 // App-owned acceptance fixture; the production build removes the declaration and handler.
 if (import.meta.env.DEV) {
 	const { registerDevAction } = await import('@octane-xplat/platform/dev-actions');
@@ -191,17 +191,17 @@ if (import.meta.env.DEV) {
 run('git', ['init', '-q'], appDir)
 run('git', ['add', '-A'], appDir)
 run(
-	'git',
-	[
-		'-c',
-		'user.name=xplat-packed-consumer',
-		'-c',
-		'user.email=packed@local',
-		'commit',
-		'-qm',
-		'packed consumer',
-	],
-	appDir,
+  'git',
+  [
+    '-c',
+    'user.name=xplat-packed-consumer',
+    '-c',
+    'user.email=packed@local',
+    'commit',
+    '-qm',
+    'packed consumer',
+  ],
+  appDir,
 )
 
 // ---- release fixture ----------------------------------------------------------
@@ -210,7 +210,7 @@ run(
 // exact framework HEAD these tarballs were packed from: metadata validation
 // and docs content both match the installed versions.
 const frameworkHead = execFileSync('git', ['-C', frameworkRoot, 'rev-parse', 'HEAD'], {
-	encoding: 'utf8',
+  encoding: 'utf8',
 }).trim()
 
 const uiVersion = readJson(join(frameworkRoot, 'packages/ui/package.json')).version
@@ -218,28 +218,28 @@ const releaseTag = `v${uiVersion}`
 run('git', ['init', '--bare', '-q', fixtureDir])
 run('git', ['-C', frameworkRoot, 'push', '--no-verify', fixtureDir, `HEAD:refs/tags/${releaseTag}`])
 const fixtureCommit = execFileSync(
-	'git',
-	['-C', fixtureDir, 'rev-parse', `refs/tags/${releaseTag}`],
-	{ encoding: 'utf8' },
+  'git',
+  ['-C', fixtureDir, 'rev-parse', `refs/tags/${releaseTag}`],
+  { encoding: 'utf8' },
 ).trim()
 
 const manifest_out = {
-	appDir,
-	packDir,
-	fixtureDir,
-	fixtureUrl: `file://${fixtureDir}`,
-	releaseTag,
-	fixtureCommit,
-	frameworkHead,
-	frameworkVersion: uiVersion,
-	cacheDir: join(work, 'mcp-docs-cache'),
-	evidenceDir: join(work, 'evidence'),
-	packedTarballs: Object.fromEntries(tarballs),
+  appDir,
+  packDir,
+  fixtureDir,
+  fixtureUrl: `file://${fixtureDir}`,
+  releaseTag,
+  fixtureCommit,
+  frameworkHead,
+  frameworkVersion: uiVersion,
+  cacheDir: join(work, 'mcp-docs-cache'),
+  evidenceDir: join(work, 'evidence'),
+  packedTarballs: Object.fromEntries(tarballs),
 }
 
 writeFileSync(join(work, 'packed-consumer.json'), JSON.stringify(manifest_out, null, '\t') + '\n')
 console.log(
-	`[prepare] consumer ${appDir}\n` +
-		`[prepare] release fixture ${fixtureDir} tag ${releaseTag} -> ${fixtureCommit}\n` +
-		`[prepare] run: node tests/packed-stdio-consumer.mjs ${work}`,
+  `[prepare] consumer ${appDir}\n` +
+    `[prepare] release fixture ${fixtureDir} tag ${releaseTag} -> ${fixtureCommit}\n` +
+    `[prepare] run: node tests/packed-stdio-consumer.mjs ${work}`,
 )

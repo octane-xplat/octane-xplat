@@ -4,9 +4,9 @@ import { useState } from 'octane'
 import type { ISODateString, ISOTimeString, ISODateTimeString, DateRange } from '@octane-xplat/ui'
 
 export function DateInputShowcase() @{
-	const [value, setValue] = useState<ISODateString | null>(null)
+  const [value, setValue] = useState<ISODateString | null>(null)
 
-	<div style={{ width: 400 }}>
-		<DateInput label="Birthday" value={value} onChange={setValue} />
-	</div>
+  <div style={{ width: 400 }}>
+    <DateInput label="Birthday" value={value} onChange={setValue} />
+  </div>
 }

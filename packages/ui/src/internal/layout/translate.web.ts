@@ -6,10 +6,10 @@ import { writeTransformProp } from './transform.web'
  *  writes imperative, state stays declarative). Composes with other
  *  transform writes on the same element via ./transform.web. */
 export const setTranslate: SetTranslate = (el, x = 0, y = 0) => {
-	if (!el) {
-		return
-	}
+  if (!el) {
+    return
+  }
 
-	writeTransformProp(el as HTMLElement, 'translateX', x)
-	writeTransformProp(el as HTMLElement, 'translateY', y)
+  writeTransformProp(el as HTMLElement, 'translateX', x)
+  writeTransformProp(el as HTMLElement, 'translateY', y)
 }

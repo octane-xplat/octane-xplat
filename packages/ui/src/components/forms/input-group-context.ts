@@ -6,18 +6,18 @@ import type { InputGroupSize } from '../../props'
  *  group's size and disabled state. Label/description/status ids come via
  *  the FieldContext the group's Field provides — no duplication. */
 export interface InputGroupContextValue {
-	isDisabled?: boolean
-	size?: InputGroupSize
+  isDisabled?: boolean
+  size?: InputGroupSize
 }
 
 export const InputGroupContext: Context<InputGroupContextValue | null> =
-	createContext<InputGroupContextValue | null>(null)
+  createContext<InputGroupContextValue | null>(null)
 
 export const InputGroupProvider: any = InputGroupContext
 
 /** True (with group state) when the control renders inside an InputGroup's
  *  surface — the control should flatten its own border/radius/background. */
 export function useInputGroup(): (InputGroupContextValue & { inInputGroup: boolean }) | null {
-	const group = useContext(InputGroupContext)
-	return group == null ? null : { ...group, inInputGroup: true }
+  const group = useContext(InputGroupContext)
+  return group == null ? null : { ...group, inInputGroup: true }
 }

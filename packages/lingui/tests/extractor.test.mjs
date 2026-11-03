@@ -15,37 +15,37 @@ const fixture = fileURLToPath(new URL('./fixture', import.meta.url))
 const scopeDir = `${fixture}/node_modules/@octane-xplat`
 const catalogPath = `${fixture}/locales/en/messages.json`
 const linguiBin = fileURLToPath(
-	new URL('../node_modules/@lingui/cli/dist/lingui.js', import.meta.url),
+  new URL('../node_modules/@lingui/cli/dist/lingui.js', import.meta.url),
 )
 
 test('lingui extract finds messages in .tsrx via tsrxExtractor', () => {
-	mkdirSync(scopeDir, { recursive: true })
-	// survives between runs — remove a stale link before recreating
-	rmSync(`${scopeDir}/lingui`, { recursive: true, force: true })
-	symlinkSync(pkgDir, `${scopeDir}/lingui`, 'junction')
-	mkdirSync(`${fixture}/locales`, { recursive: true })
-	try {
-		execFileSync(process.execPath, [linguiBin, 'extract'], { cwd: fixture })
-		assert.ok(existsSync(catalogPath), 'catalog written')
-		const catalog = JSON.parse(readFileSync(catalogPath, 'utf8'))
-		const messages = Object.values(catalog).map((entry) => entry.message)
-		assert.ok(messages.includes('Extraction control from tsx'), 'tsx control extracted')
-		assert.ok(messages.includes('Extraction probe from tsrx'), 'tsrx message extracted')
-		// Origins must point at the authored .tsrx line — the extractor feeds
-		// compile()'s sourcemap to Lingui so compiled-output lines don't leak.
-		const tsrxEntry = Object.values(catalog).find(
-			(entry) => entry.message === 'Extraction probe from tsrx',
-		)
+  mkdirSync(scopeDir, { recursive: true })
+  // survives between runs — remove a stale link before recreating
+  rmSync(`${scopeDir}/lingui`, { recursive: true, force: true })
+  symlinkSync(pkgDir, `${scopeDir}/lingui`, 'junction')
+  mkdirSync(`${fixture}/locales`, { recursive: true })
+  try {
+    execFileSync(process.execPath, [linguiBin, 'extract'], { cwd: fixture })
+    assert.ok(existsSync(catalogPath), 'catalog written')
+    const catalog = JSON.parse(readFileSync(catalogPath, 'utf8'))
+    const messages = Object.values(catalog).map((entry) => entry.message)
+    assert.ok(messages.includes('Extraction control from tsx'), 'tsx control extracted')
+    assert.ok(messages.includes('Extraction probe from tsrx'), 'tsrx message extracted')
+    // Origins must point at the authored .tsrx line — the extractor feeds
+    // compile()'s sourcemap to Lingui so compiled-output lines don't leak.
+    const tsrxEntry = Object.values(catalog).find(
+      (entry) => entry.message === 'Extraction probe from tsrx',
+    )
 
-		const authoredLine =
-			readFileSync(`${fixture}/src/app.tsrx`, 'utf8')
-				.split('\n')
-				.findIndex((line) => line.includes('t`Extraction probe from tsrx`')) + 1
+    const authoredLine =
+      readFileSync(`${fixture}/src/app.tsrx`, 'utf8')
+        .split('\n')
+        .findIndex((line) => line.includes('t`Extraction probe from tsrx`')) + 1
 
-		assert.ok(authoredLine > 0)
-		assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', authoredLine]])
-	} finally {
-		rmSync(`${fixture}/locales`, { recursive: true, force: true })
-		rmSync(`${fixture}/node_modules`, { recursive: true, force: true })
-	}
+    assert.ok(authoredLine > 0)
+    assert.deepEqual(tsrxEntry.origin, [['src/app.tsrx', authoredLine]])
+  } finally {
+    rmSync(`${fixture}/locales`, { recursive: true, force: true })
+    rmSync(`${fixture}/node_modules`, { recursive: true, force: true })
+  }
 })

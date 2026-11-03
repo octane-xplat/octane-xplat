@@ -2,13 +2,13 @@ import type { JSX as MacJSX } from '../src/macos.js'
 import type { JSX as SharedJSX } from '../src/jsx-runtime.js'
 
 const horizontal: MacJSX.IntrinsicElements['masonview'] = {
-	accessibilityRole: 'toolbar',
-	accessibilityOrientation: 'horizontal',
+  accessibilityRole: 'toolbar',
+  accessibilityOrientation: 'horizontal',
 }
 
 const vertical: MacJSX.IntrinsicElements['masonview'] = {
-	accessibilityRole: 'toolbar',
-	accessibilityOrientation: 'vertical',
+  accessibilityRole: 'toolbar',
+  accessibilityOrientation: 'vertical',
 }
 
 // @ts-expect-error AppKit axis metadata accepts the two physical layout axes only.

@@ -3,31 +3,31 @@ import { useState } from 'octane'
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu, Text, VStack } from '@octane-xplat/ui'
 
 export function DropdownMenuWithSubmenu() @{
-	const [lastAction, setLastAction] = useState<string | null>(null)
-	return (
-		<VStack gap={3} align="start">
-			<DropdownMenu button={{ label: 'Actions' }}>
-				<DropdownMenuItem
-					icon="sandbox-pencil-square"
-					label="Rename"
-					onSelect={() => setLastAction('Rename')}
-				/>
-				<DropdownMenuSubMenu icon="sandbox-folder" label="Move to">
-					<DropdownMenuItem label="Projects" onSelect={() => setLastAction('Move to Projects')} />
-					<DropdownMenuItem label="Archive" onSelect={() => setLastAction('Move to Archive')} />
-					<DropdownMenuItem label="Trash" onSelect={() => setLastAction('Move to Trash')} />
-				</DropdownMenuSubMenu>
-				<DropdownMenuItem
-					icon="sandbox-trash"
-					label="Delete"
-					onSelect={() => setLastAction('Delete')}
-				/>
-			</DropdownMenu>
-			{lastAction && (
-				<Text type="supporting" color="secondary">
-					Last action: {lastAction}
-				</Text>
-			)}
-		</VStack>
-	)
+  const [lastAction, setLastAction] = useState<string | null>(null)
+  return (
+    <VStack gap={3} align="start">
+      <DropdownMenu button={{ label: 'Actions' }}>
+        <DropdownMenuItem
+          icon="sandbox-pencil-square"
+          label="Rename"
+          onSelect={() => setLastAction('Rename')}
+        />
+        <DropdownMenuSubMenu icon="sandbox-folder" label="Move to">
+          <DropdownMenuItem label="Projects" onSelect={() => setLastAction('Move to Projects')} />
+          <DropdownMenuItem label="Archive" onSelect={() => setLastAction('Move to Archive')} />
+          <DropdownMenuItem label="Trash" onSelect={() => setLastAction('Move to Trash')} />
+        </DropdownMenuSubMenu>
+        <DropdownMenuItem
+          icon="sandbox-trash"
+          label="Delete"
+          onSelect={() => setLastAction('Delete')}
+        />
+      </DropdownMenu>
+      {lastAction && (
+        <Text type="supporting" color="secondary">
+          Last action: {lastAction}
+        </Text>
+      )}
+    </VStack>
+  )
 }

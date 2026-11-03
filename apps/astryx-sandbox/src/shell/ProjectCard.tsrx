@@ -6,18 +6,18 @@ import { SandboxLink } from './SandboxLink.tsrx'
 import type { SandboxPage } from '../data/sandboxPages'
 
 export function ProjectCard(props: { page: SandboxPage }) @{
-	return (
-		<SandboxLink className="sb-card-link" href={props.page.href}>
-			<Card className="sb-card">
-				<VStack gap={1}>
-					<Heading level={3} maxLines={1}>
-						{props.page.name}
-					</Heading>
-					<Text type="body" size="sm" color="secondary" maxLines={2}>
-						{props.page.description}
-					</Text>
-				</VStack>
-			</Card>
-		</SandboxLink>
-	)
+  return (
+    <SandboxLink className="sb-card-link" href={props.page.href}>
+      <Card className="sb-card">
+        <VStack gap={1}>
+          <Heading level={3} maxLines={1}>
+            {props.page.name}
+          </Heading>
+          <Text type="body" size="sm" color="secondary" maxLines={2}>
+            {props.page.description}
+          </Text>
+        </VStack>
+      </Card>
+    </SandboxLink>
+  )
 }

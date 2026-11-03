@@ -13,113 +13,113 @@ import type { JSX } from 'octane/jsx-runtime'
  *  adds a reset affordance. `hasNumberSteppers` gates the buttons
  *  (default shown). */
 export function InputNumber(props: InputNumberProps): JSX.Element @{
-	const size = useSize(props.size, 'md')
-	const [internal, setInternal] = useState(props.defaultValue)
-	const controlled = props.value !== undefined
-	const value = controlled ? props.value : internal
-	const isBlocked = props.isDisabled || props.isReadOnly
-	const showSteppers = props.hasNumberSteppers !== false
+  const size = useSize(props.size, 'md')
+  const [internal, setInternal] = useState(props.defaultValue)
+  const controlled = props.value !== undefined
+  const value = controlled ? props.value : internal
+  const isBlocked = props.isDisabled || props.isReadOnly
+  const showSteppers = props.hasNumberSteppers !== false
 
-	const clamp = (n: number) => Math.min(props.max ?? Infinity, Math.max(props.min ?? -Infinity, n))
+  const clamp = (n: number) => Math.min(props.max ?? Infinity, Math.max(props.min ?? -Infinity, n))
 
-	const setValue = (n: number | null) => {
-		if (isBlocked) {
-			return
-		}
+  const setValue = (n: number | null) => {
+    if (isBlocked) {
+      return
+    }
 
-		if (!controlled) {
-			setInternal(n)
-		}
+    if (!controlled) {
+      setInternal(n)
+    }
 
-		props.onValueChange?.(n)
-	}
+    props.onValueChange?.(n)
+  }
 
-	const stepBy = (dir: number) => {
-		if (isBlocked) {
-			return
-		}
+  const stepBy = (dir: number) => {
+    if (isBlocked) {
+      return
+    }
 
-		setValue(clamp((value ?? 0) + dir * (props.step ?? 1)))
-	}
+    setValue(clamp((value ?? 0) + dir * (props.step ?? 1)))
+  }
 
-	const clear = () => {
-		if (isBlocked) {
-			return
-		}
+  const clear = () => {
+    if (isBlocked) {
+      return
+    }
 
-		setValue(null)
-		props.onClear?.()
-	}
+    setValue(null)
+    props.onClear?.()
+  }
 
-	const display = value == null ? '' : props.formatValue ? props.formatValue(value) : String(value)
+  const display = value == null ? '' : props.formatValue ? props.formatValue(value) : String(value)
 
-	<div
-		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
-		aria-disabled={props.isDisabled || undefined}
-		aria-readonly={props.isReadOnly || undefined}
-		aria-busy={props.isLoading || undefined}
-		className={[
-			'vx-inputnumber',
-			props.isDisabled ? 'vx-inputnumber--disabled' : undefined,
-			props.isReadOnly ? 'vx-inputnumber--readonly' : undefined,
-			props.isLoading ? 'vx-inputnumber--loading' : undefined,
-			props.status ? `vx-inputnumber--status-${props.status.type}` : undefined,
-			`vx-inputnumber--size-${size}`,
-			props.className,
-		]}
-		style={props.style}
-	>
-		{showSteppers ? (
-			<Pressable
-				className="vx-inputnumber-step"
-				disabled={isBlocked}
-				onPress={() => stepBy(-1)}
-				accessibilityLabel="Decrement"
-			>
-				<Icon name="xplat-minus" size={14} />
-			</Pressable>
-		) : null}
-		<TextInput
-			className="vx-inputnumber-field"
-			keyboardType="decimal"
-			isDisabled={props.isDisabled}
-			isReadOnly={props.isReadOnly}
-			placeholder={props.placeholder}
-			value={display}
-			onChange={(text: string) => {
-				const n = parseFloat(text)
-				if (text === '') {
-					setValue(null)
-				} else if (!isNaN(n)) {
-					setValue(clamp(n))
-				}
-			}}
-		/>
-		{props.units != null ? (
-			<span className="vx-inputnumber-units" aria-hidden="true">
-				{props.units}
-			</span>
-		) : null}
-		{showSteppers ? (
-			<Pressable
-				className="vx-inputnumber-step"
-				disabled={isBlocked}
-				onPress={() => stepBy(1)}
-				accessibilityLabel="Increment"
-			>
-				<Icon name="xplat-plus" size={14} />
-			</Pressable>
-		) : null}
-		{props.hasClear && value != null && !isBlocked ? (
-			<button
-				type="button"
-				className="vx-inputnumber-clear"
-				aria-label="Clear value"
-				onClick={clear}
-			>
-				<Icon name="xplat-clear" size={12} />
-			</button>
-		) : null}
-	</div>
+  <div
+    ref={(e: any) => applyEscapeProps(e, props)}
+    id={props.id}
+    aria-disabled={props.isDisabled || undefined}
+    aria-readonly={props.isReadOnly || undefined}
+    aria-busy={props.isLoading || undefined}
+    className={[
+      'vx-inputnumber',
+      props.isDisabled ? 'vx-inputnumber--disabled' : undefined,
+      props.isReadOnly ? 'vx-inputnumber--readonly' : undefined,
+      props.isLoading ? 'vx-inputnumber--loading' : undefined,
+      props.status ? `vx-inputnumber--status-${props.status.type}` : undefined,
+      `vx-inputnumber--size-${size}`,
+      props.className,
+    ]}
+    style={props.style}
+  >
+    {showSteppers ? (
+      <Pressable
+        className="vx-inputnumber-step"
+        disabled={isBlocked}
+        onPress={() => stepBy(-1)}
+        accessibilityLabel="Decrement"
+      >
+        <Icon name="xplat-minus" size={14} />
+      </Pressable>
+    ) : null}
+    <TextInput
+      className="vx-inputnumber-field"
+      keyboardType="decimal"
+      isDisabled={props.isDisabled}
+      isReadOnly={props.isReadOnly}
+      placeholder={props.placeholder}
+      value={display}
+      onChange={(text: string) => {
+        const n = parseFloat(text)
+        if (text === '') {
+          setValue(null)
+        } else if (!isNaN(n)) {
+          setValue(clamp(n))
+        }
+      }}
+    />
+    {props.units != null ? (
+      <span className="vx-inputnumber-units" aria-hidden="true">
+        {props.units}
+      </span>
+    ) : null}
+    {showSteppers ? (
+      <Pressable
+        className="vx-inputnumber-step"
+        disabled={isBlocked}
+        onPress={() => stepBy(1)}
+        accessibilityLabel="Increment"
+      >
+        <Icon name="xplat-plus" size={14} />
+      </Pressable>
+    ) : null}
+    {props.hasClear && value != null && !isBlocked ? (
+      <button
+        type="button"
+        className="vx-inputnumber-clear"
+        aria-label="Clear value"
+        onClick={clear}
+      >
+        <Icon name="xplat-clear" size={12} />
+      </button>
+    ) : null}
+  </div>
 }

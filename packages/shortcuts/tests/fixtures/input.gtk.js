@@ -16,43 +16,43 @@ const shortcuts = createShortcuts({ target: box })
 const calls = []
 shortcuts.setContext('editor.ready', true)
 shortcuts.bind({
-	combo: 'Mod+KeyK',
-	when: 'editor.ready',
-	preventDefault: true,
-	handler: () => calls.push('palette'),
+  combo: 'Mod+KeyK',
+  when: 'editor.ready',
+  preventDefault: true,
+  handler: () => calls.push('palette'),
 })
 
 shortcuts.bind({ sequence: 'g i', handler: () => calls.push('inbox') })
 let recording
 shortcuts.bind({
-	combo: 'F2',
-	handler() {
-		shortcuts.record({ timeout: 250, consumeEvents: true }).finished.then((result) => {
-			recording = result.expression
-			print('RECORDING-DONE')
-		})
-	},
+  combo: 'F2',
+  handler() {
+    shortcuts.record({ timeout: 250, consumeEvents: true }).finished.then((result) => {
+      recording = result.expression
+      print('RECORDING-DONE')
+    })
+  },
 })
 
 let passed = false
 shortcuts.bind({
-	combo: 'F12',
-	handler() {
-		if (calls.join(',') !== 'palette,inbox' || recording !== 'Ctrl+Shift+x') {
-			printerr(JSON.stringify({ calls, recording }))
-		} else {
-			passed = true
-			print('PASS GTK native input, physical keys, when, sequence, recording')
-		}
-		shortcuts.dispose()
-		window.destroy()
-		loop.quit()
-	},
+  combo: 'F12',
+  handler() {
+    if (calls.join(',') !== 'palette,inbox' || recording !== 'Ctrl+Shift+x') {
+      printerr(JSON.stringify({ calls, recording }))
+    } else {
+      passed = true
+      print('PASS GTK native input, physical keys, when, sequence, recording')
+    }
+    shortcuts.dispose()
+    window.destroy()
+    loop.quit()
+  },
 })
 
 GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 12, () => {
-	loop.quit()
-	return GLib.SOURCE_REMOVE
+  loop.quit()
+  return GLib.SOURCE_REMOVE
 })
 
 loop.run()

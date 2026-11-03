@@ -12,53 +12,53 @@ import { layoutChildProps } from '../layout/layout-child'
  *  process needs a session D-Bus for WebKitGTK's bubblewrap sandbox —
  *  headless runs without one stall mid-load. */
 export function WebView(props: WebViewProps): unknown @{
-	const view = useRef<any>(null)
-	const currentProps = useRef(props)
-	currentProps.current = props
-	useImperativeHandle(
-		props.ref,
-		() => ({
-			reload: () => {
-				// reload() re-requests the current URL — inline documents would
-				// reload about:blank, so they go back through load_html.
-				if (currentProps.current.html !== undefined) {
-					view.current?.load_html?.(currentProps.current.html, null)
-				} else {
-					view.current?.reload?.()
-				}
-			},
-			goBack: () => view.current?.go_back?.(),
-			goForward: () => view.current?.go_forward?.(),
-			stopLoading: () => view.current?.stop_loading?.(),
-			get native() {
-				return view.current
-			},
-		}),
-		[],
-	)
+  const view = useRef<any>(null)
+  const currentProps = useRef(props)
+  currentProps.current = props
+  useImperativeHandle(
+    props.ref,
+    () => ({
+      reload: () => {
+        // reload() re-requests the current URL — inline documents would
+        // reload about:blank, so they go back through load_html.
+        if (currentProps.current.html !== undefined) {
+          view.current?.load_html?.(currentProps.current.html, null)
+        } else {
+          view.current?.reload?.()
+        }
+      },
+      goBack: () => view.current?.go_back?.(),
+      goForward: () => view.current?.go_forward?.(),
+      stopLoading: () => view.current?.stop_loading?.(),
+      get native() {
+        return view.current
+      },
+    }),
+    [],
+  )
 
-	<webview
-		ref={view}
-		id={props.id}
-		{...layoutChildProps(props, props.style)}
-		className={cx('vx-webview', props.className)}
-		src={props.src}
-		html={props.html}
-		scrollEnabled={props.scrollEnabled}
-		matchContents={props.matchContents}
-		onLoad={props.onLoad}
-		onError={props.onError}
-		onLayoutContent={props.onLayoutContent}
-		onMessage={
-			props.onMessage
-				? (event) => props.onMessage?.({ data: event.data, url: event.url })
-				: undefined
-		}
-		accessible={props.accessible}
-		accessibilityLabel={props.accessibilityLabel}
-		accessibilityRole={props.accessibilityRole}
-		accessibilityHint={props.accessibilityHint}
-		accessibilityValue={props.accessibilityValue}
-		accessibilityState={props.accessibilityState}
-	/>
+  <webview
+    ref={view}
+    id={props.id}
+    {...layoutChildProps(props, props.style)}
+    className={cx('vx-webview', props.className)}
+    src={props.src}
+    html={props.html}
+    scrollEnabled={props.scrollEnabled}
+    matchContents={props.matchContents}
+    onLoad={props.onLoad}
+    onError={props.onError}
+    onLayoutContent={props.onLayoutContent}
+    onMessage={
+      props.onMessage
+        ? (event) => props.onMessage?.({ data: event.data, url: event.url })
+        : undefined
+    }
+    accessible={props.accessible}
+    accessibilityLabel={props.accessibilityLabel}
+    accessibilityRole={props.accessibilityRole}
+    accessibilityHint={props.accessibilityHint}
+    accessibilityValue={props.accessibilityValue}
+    accessibilityState={props.accessibilityState}
+  />
 }

@@ -10,46 +10,46 @@
 export const DEFAULT_PREFETCH_CONCURRENCY = 5
 
 export function prefetchBatch(
-	srcs: string | string[],
-	concurrency: number | undefined,
-	warm: (url: string) => Promise<boolean>,
+  srcs: string | string[],
+  concurrency: number | undefined,
+  warm: (url: string) => Promise<boolean>,
 ): Promise<boolean> {
-	const urls = Array.isArray(srcs) ? srcs : [srcs]
-	if (urls.length === 0) {
-		return Promise.resolve(true)
-	}
+  const urls = Array.isArray(srcs) ? srcs : [srcs]
+  if (urls.length === 0) {
+    return Promise.resolve(true)
+  }
 
-	const requested = Math.floor(concurrency ?? DEFAULT_PREFETCH_CONCURRENCY)
-	const limit =
-		Number.isFinite(requested) && requested > 0 ? requested : DEFAULT_PREFETCH_CONCURRENCY
+  const requested = Math.floor(concurrency ?? DEFAULT_PREFETCH_CONCURRENCY)
+  const limit =
+    Number.isFinite(requested) && requested > 0 ? requested : DEFAULT_PREFETCH_CONCURRENCY
 
-	return new Promise<boolean>((resolve) => {
-		let next = 0
-		let active = Math.min(limit, urls.length)
-		// Surviving workers stop dequeuing once a failure decides the result —
-		// only already-running warm() calls settle on their own.
-		let failed = false
-		for (let i = 0; i < active; i++) {
-			void (async () => {
-				while (!failed && next < urls.length) {
-					const url = urls[next++]
-					try {
-						if (!(await warm(url))) {
-							failed = true
-							resolve(false)
-							return
-						}
-					} catch {
-						failed = true
-						resolve(false)
-						return
-					}
-				}
+  return new Promise<boolean>((resolve) => {
+    let next = 0
+    let active = Math.min(limit, urls.length)
+    // Surviving workers stop dequeuing once a failure decides the result —
+    // only already-running warm() calls settle on their own.
+    let failed = false
+    for (let i = 0; i < active; i++) {
+      void (async () => {
+        while (!failed && next < urls.length) {
+          const url = urls[next++]
+          try {
+            if (!(await warm(url))) {
+              failed = true
+              resolve(false)
+              return
+            }
+          } catch {
+            failed = true
+            resolve(false)
+            return
+          }
+        }
 
-				if (--active === 0) {
-					resolve(true)
-				}
-			})()
-		}
-	})
+        if (--active === 0) {
+          resolve(true)
+        }
+      })()
+    }
+  })
 }

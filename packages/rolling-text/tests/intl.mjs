@@ -6,31 +6,31 @@ import { checkIntlBundle } from '../../../scripts/intl-test-utils.mjs'
 const source = `export * from '${new URL('../src/segment.ts', import.meta.url).pathname}'`
 
 test('native segmentation owns its prerequisites without formatting polyfills', async () => {
-	const result = await checkIntlBundle(build, {
-		source,
-		check: `
+  const result = await checkIntlBundle(build, {
+    source,
+    check: `
   assert.deepEqual(leaf.segmentUnits('aé👨‍👩‍👧'), ['a', 'é', '👨‍👩‍👧']); assert.deepEqual(leaf.segmentUnits('hello world', 'word'), ['hello ', 'world'])
   assert.equal(typeof Intl.Segmenter, 'function')
   assert.equal(typeof Intl.NumberFormat, 'undefined')
   assert.equal(typeof Intl.Collator, 'undefined')
  `,
-	})
-	assert.ok(result.modules.some((id) => id.includes('intl-segmenter')))
-	assert.equal(
-		result.modules.some((id) => /intl-numberformat|intl-datetimeformat|intl-collator/.test(id)),
-		false,
-	)
+  })
+  assert.ok(result.modules.some((id) => id.includes('intl-segmenter')))
+  assert.equal(
+    result.modules.some((id) => /intl-numberformat|intl-datetimeformat|intl-collator/.test(id)),
+    false,
+  )
 })
 
 test('web segmentation keeps built-ins and includes no FormatJS', async () => {
-	const result = await checkIntlBundle(build, {
-		source,
-		mobile: false,
-		before: 'const original = Intl.Segmenter',
-		check: `assert.deepEqual(leaf.segmentUnits('aé👨‍👩‍👧'), ['a', 'é', '👨‍👩‍👧']); assert.deepEqual(leaf.segmentUnits('hello world', 'word'), ['hello ', 'world']); assert.equal(Intl.Segmenter, original)`,
-	})
-	assert.equal(
-		result.modules.some((id) => id.includes('@formatjs')),
-		false,
-	)
+  const result = await checkIntlBundle(build, {
+    source,
+    mobile: false,
+    before: 'const original = Intl.Segmenter',
+    check: `assert.deepEqual(leaf.segmentUnits('aé👨‍👩‍👧'), ['a', 'é', '👨‍👩‍👧']); assert.deepEqual(leaf.segmentUnits('hello world', 'word'), ['hello ', 'world']); assert.equal(Intl.Segmenter, original)`,
+  })
+  assert.equal(
+    result.modules.some((id) => id.includes('@formatjs')),
+    false,
+  )
 })

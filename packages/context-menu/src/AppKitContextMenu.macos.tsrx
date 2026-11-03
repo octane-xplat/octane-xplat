@@ -13,38 +13,38 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  so AppKit drives right-click activation and disabled items. Items are
  *  serialized data; selection reports through `onItemSelected`. */
 export function AppKitContextMenu(props: AppKitContextMenuProps): unknown @{
-	const latest = useRef(props)
-	latest.current = props
-	const [, rerender] = useState(0)
-	const owner = useMemo(
-		() =>
-			createContextMenuOwner({
-				props: () => latest.current,
-				attach: () =>
-					typeof host().attachContextMenu === 'function'
-						? (host().attachContextMenu as ContextMenuAttach)
-						: undefined,
-				status: () => rerender((n) => n + 1),
-			}),
-		[],
-	)
+  const latest = useRef(props)
+  latest.current = props
+  const [, rerender] = useState(0)
+  const owner = useMemo(
+    () =>
+      createContextMenuOwner({
+        props: () => latest.current,
+        attach: () =>
+          typeof host().attachContextMenu === 'function'
+            ? (host().attachContextMenu as ContextMenuAttach)
+            : undefined,
+        status: () => rerender((n) => n + 1),
+      }),
+    [],
+  )
 
-	useLayoutEffect(() => owner.update(), null)
-	useEffect(() => () => owner.dispose(), [])
+  useLayoutEffect(() => owner.update(), null)
+  useEffect(() => () => owner.dispose(), [])
 
-	<masonview
-		ref={owner.bind}
-		id={props.id}
-		className={cx('xplat-appkit-context-menu', props.className)}
-		style={props.style}
-		accessibilityLabel={props.accessibilityLabel}
-	>
-		{props.trigger()}
-		@if (
-			owner.getStatus() === 'invalid' ||
-			owner.getStatus() === 'unavailable'
-		) {
-			<label text="Menu actions are unavailable." accessibilityLiveRegion="polite" />
-		}
-	</masonview>
+  <masonview
+    ref={owner.bind}
+    id={props.id}
+    className={cx('xplat-appkit-context-menu', props.className)}
+    style={props.style}
+    accessibilityLabel={props.accessibilityLabel}
+  >
+    {props.trigger()}
+    @if (
+      owner.getStatus() === 'invalid' ||
+      owner.getStatus() === 'unavailable'
+    ) {
+      <label text="Menu actions are unavailable." accessibilityLiveRegion="polite" />
+    }
+  </masonview>
 }

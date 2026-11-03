@@ -6,24 +6,24 @@ import { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@oc
 // suffix chain: .web wins over the unsuffixed default — there is no native
 // host for this app yet.
 export default defineConfig(({ mode }) => ({
-	plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
-	define: xplatNodeEnvDefine(mode),
-	server: { port: 5240 },
-	resolve: {
-		conditions: ['web'],
-		// Suffix chain (first match wins): .web → shared → fallback.
-		extensions: [
-			'.web.tsrx',
-			'.tsrx',
-			'.web.tsx',
-			'.tsx',
-			'.web.ts',
-			'.mjs',
-			'.mts',
-			'.ts',
-			'.jsx',
-			'.js',
-			'.json',
-		],
-	},
+  plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
+  define: xplatNodeEnvDefine(mode),
+  server: { port: 5240 },
+  resolve: {
+    conditions: ['web'],
+    // Suffix chain (first match wins): .web → shared → fallback.
+    extensions: [
+      '.web.tsrx',
+      '.tsrx',
+      '.web.tsx',
+      '.tsx',
+      '.web.ts',
+      '.mjs',
+      '.mts',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.json',
+    ],
+  },
 }))

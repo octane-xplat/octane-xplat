@@ -6,163 +6,163 @@ declare const XplatPulsarBridge: any
 declare const com: any
 
 const presetNames: Record<HapticPreset, string> = {
-	selection: 'SystemSelection',
-	'impact-light': 'SystemImpactLight',
-	'impact-medium': 'SystemImpactMedium',
-	'impact-heavy': 'SystemImpactHeavy',
-	success: 'Success',
-	warning: 'Warning',
-	error: 'Error',
+  selection: 'SystemSelection',
+  'impact-light': 'SystemImpactLight',
+  'impact-medium': 'SystemImpactMedium',
+  'impact-heavy': 'SystemImpactHeavy',
+  success: 'Success',
+  warning: 'Warning',
+  error: 'Error',
 }
 
 /** Create an owned haptic engine (see Haptics). */
 export const createHaptics = (): Haptics => {
-	const android = Boolean(Application.android)
-	const context = android
-		? // `Utils.android` is a {} stub in the pinned Windows core build.
-			(Application.android.foregroundActivity ?? (Utils.android as any).getApplicationContext())
-		: undefined
+  const android = Boolean(Application.android)
+  const context = android
+    ? // `Utils.android` is a {} stub in the pinned Windows core build.
+      (Application.android.foregroundActivity ?? (Utils.android as any).getApplicationContext())
+    : undefined
 
-	let disposed = false
-	let realtimeActive = false
-	const sdk = android ? new com.swmansion.pulsar.Pulsar(context) : undefined
-	// Kotlin's default parameter does not emit a zero-argument JVM overload,
-	// so NativeScript reflection needs the strategy argument explicitly.
-	const realtime = android
-		? sdk.getRealtimeComposer(
-				com.swmansion.pulsar.types.RealtimeComposerStrategy.ENVELOPE_WITH_DISCRETE_PRIMITIVES,
-			)
-		: undefined
+  let disposed = false
+  let realtimeActive = false
+  const sdk = android ? new com.swmansion.pulsar.Pulsar(context) : undefined
+  // Kotlin's default parameter does not emit a zero-argument JVM overload,
+  // so NativeScript reflection needs the strategy argument explicitly.
+  const realtime = android
+    ? sdk.getRealtimeComposer(
+        com.swmansion.pulsar.types.RealtimeComposerStrategy.ENVELOPE_WITH_DISCRETE_PRIMITIVES,
+      )
+    : undefined
 
-	// Instance class on iOS (Swift @objcMembers) — call via an
-	// instance; it stays undefined when the plugin bridge isn't linked.
-	const bridge = android
-		? undefined
-		: typeof XplatPulsarBridge !== 'undefined'
-			? new XplatPulsarBridge()
-			: undefined
+  // Instance class on iOS (Swift @objcMembers) — call via an
+  // instance; it stays undefined when the plugin bridge isn't linked.
+  const bridge = android
+    ? undefined
+    : typeof XplatPulsarBridge !== 'undefined'
+      ? new XplatPulsarBridge()
+      : undefined
 
-	const supported = android
-		? sdk.hapticSupport().name() !== 'NO_SUPPORT'
-		: Boolean(bridge?.isSupported?.())
+  const supported = android
+    ? sdk.hapticSupport().name() !== 'NO_SUPPORT'
+    : Boolean(bridge?.isSupported?.())
 
-	const stop = () => {
-		if (disposed) {
-			return
-		}
+  const stop = () => {
+    if (disposed) {
+      return
+    }
 
-		if (realtimeActive) {
-			if (android) {
-				realtime.stop()
-			} else {
-				bridge?.stopRealtime()
-			}
-		}
+    if (realtimeActive) {
+      if (android) {
+        realtime.stop()
+      } else {
+        bridge?.stopRealtime()
+      }
+    }
 
-		if (android) {
-			sdk.stopHaptics()
-		} else {
-			bridge?.stop()
-		}
+    if (android) {
+      sdk.stopHaptics()
+    } else {
+      bridge?.stop()
+    }
 
-		realtimeActive = false
-	}
+    realtimeActive = false
+  }
 
-	return {
-		capabilities: (): HapticsCapabilities => ({
-			supported,
-			presets: supported,
-			patterns: supported,
-			realtime: supported,
-		}),
-		play: (preset) => {
-			if (!supported || disposed) {
-				return false
-			}
+  return {
+    capabilities: (): HapticsCapabilities => ({
+      supported,
+      presets: supported,
+      patterns: supported,
+      realtime: supported,
+    }),
+    play: (preset) => {
+      if (!supported || disposed) {
+        return false
+      }
 
-			try {
-				if (android) {
-					const named = sdk.getPresets().getByName(presetNames[preset])
-					if (!named) {
-						return false
-					}
+      try {
+        if (android) {
+          const named = sdk.getPresets().getByName(presetNames[preset])
+          if (!named) {
+            return false
+          }
 
-					named.play()
-				} else {
-					return bridge.playPreset(presetNames[preset]) === true
-				}
-			} catch {
-				return false
-			}
+          named.play()
+        } else {
+          return bridge.playPreset(presetNames[preset]) === true
+        }
+      } catch {
+        return false
+      }
 
-			return true
-		},
-		playPattern: (pattern: HapticPattern) => {
-			if (!supported || disposed) {
-				return false
-			}
+      return true
+    },
+    playPattern: (pattern: HapticPattern) => {
+      if (!supported || disposed) {
+        return false
+      }
 
-			try {
-				if (android) {
-					const amplitude = new java.util.ArrayList()
-					for (const point of pattern.points) {
-						amplitude.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.intensity))
-					}
+      try {
+        if (android) {
+          const amplitude = new java.util.ArrayList()
+          for (const point of pattern.points) {
+            amplitude.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.intensity))
+          }
 
-					const frequency = new java.util.ArrayList()
-					for (const point of pattern.points) {
-						frequency.add(
-							new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5),
-						)
-					}
+          const frequency = new java.util.ArrayList()
+          for (const point of pattern.points) {
+            frequency.add(
+              new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5),
+            )
+          }
 
-					const data = new com.swmansion.pulsar.types.PatternData(
-						new com.swmansion.pulsar.types.ContinuousPattern(amplitude, frequency),
-						new java.util.ArrayList(),
-					)
+          const data = new com.swmansion.pulsar.types.PatternData(
+            new com.swmansion.pulsar.types.ContinuousPattern(amplitude, frequency),
+            new java.util.ArrayList(),
+          )
 
-					const composer = sdk.getPatternComposer()
-					composer.parsePattern(data)
-					composer.play()
-				} else {
-					return bridge.playPattern(JSON.stringify(pattern)) === true
-				}
-			} catch {
-				return false
-			}
+          const composer = sdk.getPatternComposer()
+          composer.parsePattern(data)
+          composer.play()
+        } else {
+          return bridge.playPattern(JSON.stringify(pattern)) === true
+        }
+      } catch {
+        return false
+      }
 
-			return true
-		},
-		startRealtime: (intensity = 0, sharpness = 0.5) => {
-			if (supported && !disposed) {
-				if (android) {
-					realtime.set(intensity, sharpness)
-				} else {
-					bridge.startRealtime(intensity, sharpness)
-				}
+      return true
+    },
+    startRealtime: (intensity = 0, sharpness = 0.5) => {
+      if (supported && !disposed) {
+        if (android) {
+          realtime.set(intensity, sharpness)
+        } else {
+          bridge.startRealtime(intensity, sharpness)
+        }
 
-				realtimeActive = true
-			}
+        realtimeActive = true
+      }
 
-			return {
-				update: (nextIntensity, nextSharpness = sharpness) => {
-					if (!realtimeActive || disposed) {
-						return
-					}
+      return {
+        update: (nextIntensity, nextSharpness = sharpness) => {
+          if (!realtimeActive || disposed) {
+            return
+          }
 
-					if (android) {
-						realtime.set(nextIntensity, nextSharpness)
-					} else {
-						bridge.setRealtime(nextIntensity, nextSharpness)
-					}
-				},
-				stop,
-			}
-		},
-		stop,
-		dispose: () => {
-			stop()
-			disposed = true
-		},
-	}
+          if (android) {
+            realtime.set(nextIntensity, nextSharpness)
+          } else {
+            bridge.setRealtime(nextIntensity, nextSharpness)
+          }
+        },
+        stop,
+      }
+    },
+    stop,
+    dispose: () => {
+      stop()
+      disposed = true
+    },
+  }
 }

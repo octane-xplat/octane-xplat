@@ -4,30 +4,30 @@ import { applyEscapeProps } from './escape-props.web'
 import type { JSX } from 'octane/jsx-runtime'
 
 const OBJECT_FIT = {
-	none: 'none',
-	fill: 'fill',
-	aspectFit: 'contain',
-	aspectFill: 'cover',
+  none: 'none',
+  fill: 'fill',
+  aspectFit: 'contain',
+  aspectFill: 'cover',
 } as const
 
 /** AnimatedImage — a plain <img>; browsers animate GIF/webp natively.
  *  `stretch` maps to object-fit. */
 export function AnimatedImage(props: AnimatedImageProps): JSX.Element @{
-	<img
-		ref={(e: any) => applyEscapeProps(e, props)}
-		id={props.id}
-		className={props.className}
-		style={
-			typeof props.style === 'string'
-				? props.style
-				: {
-						objectFit: OBJECT_FIT[props.stretch ?? 'aspectFit'],
-						width: props.width,
-						height: props.height,
-						...props.style,
-					}
-		}
-		src={props.src}
-		alt={props.alt}
-	/>
+  <img
+    ref={(e: any) => applyEscapeProps(e, props)}
+    id={props.id}
+    className={props.className}
+    style={
+      typeof props.style === 'string'
+        ? props.style
+        : {
+            objectFit: OBJECT_FIT[props.stretch ?? 'aspectFit'],
+            width: props.width,
+            height: props.height,
+            ...props.style,
+          }
+    }
+    src={props.src}
+    alt={props.alt}
+  />
 }

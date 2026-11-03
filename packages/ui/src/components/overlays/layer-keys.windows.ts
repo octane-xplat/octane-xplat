@@ -9,129 +9,129 @@ const element = (value: any) => model(value)?.nativeViewProtected ?? model(value
 /** Windows has no shared hardware Escape API; preview keys on the declaring
  *  page root reach the layer stack without activating another window. */
 configureLayerKeys(() => {
-	try {
-		const rootView = Application.getRootView?.() as any
-		const host = element(rootView)
-		const preview = Microsoft?.UI?.Xaml?.UIElement?.PreviewKeyDownEvent
-		if (!host || !preview) {
-			return () => {}
-		}
+  try {
+    const rootView = Application.getRootView?.() as any
+    const host = element(rootView)
+    const preview = Microsoft?.UI?.Xaml?.UIElement?.PreviewKeyDownEvent
+    if (!host || !preview) {
+      return () => {}
+    }
 
-		const handler = NSWinRT.asDelegate(
-			'Microsoft.UI.Xaml.Input.KeyEventHandler',
-			(_sender: any, args: any) => {
-				try {
-					if (Number(args?.Key?.value ?? args?.Key) !== 27) {
-						return
-					}
+    const handler = NSWinRT.asDelegate(
+      'Microsoft.UI.Xaml.Input.KeyEventHandler',
+      (_sender: any, args: any) => {
+        try {
+          if (Number(args?.Key?.value ?? args?.Key) !== 27) {
+            return
+          }
 
-					let prevented = false
-					dispatchLayerKey({
-						key: 'Escape',
-						preventDefault: () => {
-							prevented = true
-						},
-					})
+          let prevented = false
+          dispatchLayerKey({
+            key: 'Escape',
+            preventDefault: () => {
+              prevented = true
+            },
+          })
 
-					if (prevented) {
-						args.Handled = true
-					}
-				} catch {
-					// Key dispatch failures must not break the routed event.
-				}
-			},
-		)
+          if (prevented) {
+            args.Handled = true
+          }
+        } catch {
+          // Key dispatch failures must not break the routed event.
+        }
+      },
+    )
 
-		host.PreviewKeyDown = handler
-		return () => {
-			try {
-				host.PreviewKeyDown = null
-			} catch {
-				// Removal on teardown is best effort.
-			}
-		}
-	} catch {
-		return () => {}
-	}
+    host.PreviewKeyDown = handler
+    return () => {
+      try {
+        host.PreviewKeyDown = null
+      } catch {
+        // Removal on teardown is best effort.
+      }
+    }
+  } catch {
+    return () => {}
+  }
 })
 
 function active(root: any): boolean {
-	if (root?.IsHostVisible !== true) {
-		return false
-	}
-	const input = Microsoft?.UI?.Input
-	const id = root.ContentIslandEnvironment?.AppWindowId
-	const activated = input?.InputActivationState?.Activated
-	return (
-		id != null &&
-		activated != null &&
-		input.InputActivationListener.GetForWindowId(id).State === activated
-	)
+  if (root?.IsHostVisible !== true) {
+    return false
+  }
+  const input = Microsoft?.UI?.Input
+  const id = root.ContentIslandEnvironment?.AppWindowId
+  const activated = input?.InputActivationState?.Activated
+  return (
+    id != null &&
+    activated != null &&
+    input.InputActivationListener.GetForWindowId(id).State === activated
+  )
 }
 
 /** Capture the declaring XamlRoot; restoration never activates another window. */
 export function captureLayerFocus(getTarget?: () => any, host?: any): () => void {
-	let owner: any
-	let initial: any
-	try {
-		// A supplied but unattached host must not fall back to the primary window.
-		const source = host ?? getTarget?.() ?? Application.getRootView?.()
-		owner = element(source)?.XamlRoot
-	} catch {
-		return () => {}
-	}
-	if (owner) {
-		try {
-			// WinRT names this overload GetFocusedElementWithRoot; the .NET
-			// projection keeps GetFocusedElement(XamlRoot). Always supply the owner
-			// and reject a foreign result if an older projection drops the argument.
-			const manager = Microsoft?.UI?.Xaml?.Input?.FocusManager
-			const focused =
-				typeof manager?.GetFocusedElementWithRoot === 'function'
-					? manager.GetFocusedElementWithRoot(owner)
-					: manager?.GetFocusedElement(owner)
+  let owner: any
+  let initial: any
+  try {
+    // A supplied but unattached host must not fall back to the primary window.
+    const source = host ?? getTarget?.() ?? Application.getRootView?.()
+    owner = element(source)?.XamlRoot
+  } catch {
+    return () => {}
+  }
+  if (owner) {
+    try {
+      // WinRT names this overload GetFocusedElementWithRoot; the .NET
+      // projection keeps GetFocusedElement(XamlRoot). Always supply the owner
+      // and reject a foreign result if an older projection drops the argument.
+      const manager = Microsoft?.UI?.Xaml?.Input?.FocusManager
+      const focused =
+        typeof manager?.GetFocusedElementWithRoot === 'function'
+          ? manager.GetFocusedElementWithRoot(owner)
+          : manager?.GetFocusedElement(owner)
 
-			initial = focused?.XamlRoot === owner ? focused : undefined
-		} catch {
-			initial = undefined
-		}
-	}
+      initial = focused?.XamlRoot === owner ? focused : undefined
+    } catch {
+      initial = undefined
+    }
+  }
 
-	return () =>
-		queueMicrotask(() => {
-			if (!owner) {
-				return
-			}
-			afterWindowsOverlayExit(owner, () => {
-				try {
-					if (!owner || !active(owner)) {
-						return
-					}
+  return () =>
+    queueMicrotask(() => {
+      if (!owner) {
+        return
+      }
+      afterWindowsOverlayExit(owner, () => {
+        try {
+          if (!owner || !active(owner)) {
+            return
+          }
 
-					const currentOwner = element(host)?.XamlRoot
-					if (currentOwner && currentOwner !== owner) {
-						return
-					}
+          const currentOwner = element(host)?.XamlRoot
+          if (currentOwner && currentOwner !== owner) {
+            return
+          }
 
-					const target = getTarget?.()
-					if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
-						return
-					}
+          const target = getTarget?.()
+          if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
+            return
+          }
 
-					const native = target ? element(target) : initial
-					const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
-					if (
-						native?.XamlRoot === owner &&
-						native.IsLoaded !== false &&
-						native.IsEnabled !== false &&
-						typeof native.Focus === 'function' &&
-						programmatic != null
-					) {
-						native.Focus(programmatic)
-					}
-				} catch {
-					// Removed windows, missing projection and failed focus remain best effort.
-				}
-			})
-		})
+          const native = target ? element(target) : initial
+          const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
+          if (
+            native?.XamlRoot === owner &&
+            native.IsLoaded !== false &&
+            native.IsEnabled !== false &&
+            typeof native.Focus === 'function' &&
+            programmatic != null
+          ) {
+            native.Focus(programmatic)
+          }
+        } catch {
+          // Removed windows, missing projection and failed focus remain best effort.
+        }
+      })
+    })
 }

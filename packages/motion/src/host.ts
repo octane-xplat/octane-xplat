@@ -7,151 +7,151 @@ import { delegatedRun } from './driver'
 import { measureNativeBox } from './projection/measure'
 // The retained NativeScript View exposes direct transform channels in DIP.
 export function attachHost(node: any): HostAdapter {
-	const original = {
-		opacity: node.opacity ?? 1,
-		x: node.translateX ?? 0,
-		y: node.translateY ?? 0,
-		scaleX: node.scaleX ?? 1,
-		scaleY: node.scaleY ?? 1,
-		rotate: node.rotate ?? 0,
-	}
+  const original = {
+    opacity: node.opacity ?? 1,
+    x: node.translateX ?? 0,
+    y: node.translateY ?? 0,
+    scaleX: node.scaleX ?? 1,
+    scaleY: node.scaleY ?? 1,
+    rotate: node.rotate ?? 0,
+  }
 
-	if (
-		original.x ||
-		original.y ||
-		original.rotate ||
-		original.scaleX !== 1 ||
-		original.scaleY !== 1
-	) {
-		throw new Error('motion: put existing transforms on an outer container')
-	}
+  if (
+    original.x ||
+    original.y ||
+    original.rotate ||
+    original.scaleX !== 1 ||
+    original.scaleY !== 1
+  ) {
+    throw new Error('motion: put existing transforms on an outer container')
+  }
 
-	let latestValues: Target = { ...original, scale: 1 }
-	const write = (values: any) => {
-		latestValues = { ...latestValues, ...values }
-		if (values.opacity !== undefined) {
-			node.opacity = Math.min(1, Math.max(0, values.opacity))
-		}
+  let latestValues: Target = { ...original, scale: 1 }
+  const write = (values: any) => {
+    latestValues = { ...latestValues, ...values }
+    if (values.opacity !== undefined) {
+      node.opacity = Math.min(1, Math.max(0, values.opacity))
+    }
 
-		if (values.x !== undefined) {
-			node.translateX = values.x
-		}
+    if (values.x !== undefined) {
+      node.translateX = values.x
+    }
 
-		if (values.y !== undefined) {
-			node.translateY = values.y
-		}
+    if (values.y !== undefined) {
+      node.translateY = values.y
+    }
 
-		if (values.rotate !== undefined) {
-			node.rotate = values.rotate
-		}
+    if (values.rotate !== undefined) {
+      node.rotate = values.rotate
+    }
 
-		if (values.scale !== undefined || values.scaleX !== undefined) {
-			node.scaleX = (values.scale ?? 1) * (values.scaleX ?? 1)
-		}
+    if (values.scale !== undefined || values.scaleX !== undefined) {
+      node.scaleX = (values.scale ?? 1) * (values.scaleX ?? 1)
+    }
 
-		if (values.scale !== undefined || values.scaleY !== undefined) {
-			node.scaleY = (values.scale ?? 1) * (values.scaleY ?? 1)
-		}
-	}
+    if (values.scale !== undefined || values.scaleY !== undefined) {
+      node.scaleY = (values.scale ?? 1) * (values.scaleY ?? 1)
+    }
+  }
 
-	// Mason core's native paint strings are authoritative; Core longhands can be stale.
-	const paintStyle = node._styleHelper ?? node.style
-	const paintKeys = node._styleHelper ? ['borderRadius', 'boxShadow'] : [...radiusKeys, 'boxShadow']
-	let paintSaved: Record<string, any> | undefined
-	let paintApplied: Record<string, any> = {}
-	const restorePaint = () => {
-		if (!paintSaved || !paintStyle) {
-			return
-		}
-		for (const key of paintKeys) {
-			if (paintStyle[key] === paintApplied[key]) {
-				paintStyle[key] = paintSaved[key]
-			}
-		}
-		paintSaved = undefined
-	}
-	const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
-		restorePaint()
-		if (!paintStyle) {
-			return
-		}
-		paintSaved = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
-		const corrected = correctNativePaint(paintSaved, projection)
-		for (const key of Object.keys(corrected)) {
-			if (corrected[key] !== undefined) {
-				paintStyle[key] = corrected[key]
-			}
-		}
-		paintApplied = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
-	}
+  // Mason core's native paint strings are authoritative; Core longhands can be stale.
+  const paintStyle = node._styleHelper ?? node.style
+  const paintKeys = node._styleHelper ? ['borderRadius', 'boxShadow'] : [...radiusKeys, 'boxShadow']
+  let paintSaved: Record<string, any> | undefined
+  let paintApplied: Record<string, any> = {}
+  const restorePaint = () => {
+    if (!paintSaved || !paintStyle) {
+      return
+    }
+    for (const key of paintKeys) {
+      if (paintStyle[key] === paintApplied[key]) {
+        paintStyle[key] = paintSaved[key]
+      }
+    }
+    paintSaved = undefined
+  }
+  const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
+    restorePaint()
+    if (!paintStyle) {
+      return
+    }
+    paintSaved = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
+    const corrected = correctNativePaint(paintSaved, projection)
+    for (const key of Object.keys(corrected)) {
+      if (corrected[key] !== undefined) {
+        paintStyle[key] = corrected[key]
+      }
+    }
+    paintApplied = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
+  }
 
-	return {
-		pan: (axis, callbacks) => attachPan(node, axis, callbacks),
-		measureLayout() {
-			const box = measureNativeBox(node)
-			return box
-				? {
-						layoutBox: box,
-						measuredBox: measureNativeBox(node, true)!,
-						viewportOffset: captureViewportOffset(node),
-					}
-				: null
-		},
-		resetProjection() {
-			restorePaint()
-			// Native measurement ignores transforms, so nothing needs clearing;
-			// render() rewrites every hasProjected node each frame anyway.
-		},
-		project(projection) {
-			if (projection === null) {
-				restorePaint()
-				write(latestValues)
-				return
-			}
-			correctPaint(projection)
-			// Channel writes reach the node, not this adapter, while projecting.
-			latestValues = { ...latestValues, ...projection.latest }
-			node.translateX = projection.delta.x.translate / projection.treeScale.x
-			node.translateY = projection.delta.y.translate / projection.treeScale.y
-			node.scaleX = projection.delta.x.scale
-			node.scaleY = projection.delta.y.scale
-			node.rotate = projection.latest.rotate ?? 0
-		},
-		read: () => ({ ...original, scale: 1 }),
-		write,
-		restore: () => {
-			restorePaint()
-			write(original)
-		},
-		delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
-		gesture(kind, callbacks) {
-			if (typeof node.on !== 'function' || typeof node.off !== 'function') {
-				return null
-			}
+  return {
+    pan: (axis, callbacks) => attachPan(node, axis, callbacks),
+    measureLayout() {
+      const box = measureNativeBox(node)
+      return box
+        ? {
+            layoutBox: box,
+            measuredBox: measureNativeBox(node, true)!,
+            viewportOffset: captureViewportOffset(node),
+          }
+        : null
+    },
+    resetProjection() {
+      restorePaint()
+      // Native measurement ignores transforms, so nothing needs clearing;
+      // render() rewrites every hasProjected node each frame anyway.
+    },
+    project(projection) {
+      if (projection === null) {
+        restorePaint()
+        write(latestValues)
+        return
+      }
+      correctPaint(projection)
+      // Channel writes reach the node, not this adapter, while projecting.
+      latestValues = { ...latestValues, ...projection.latest }
+      node.translateX = projection.delta.x.translate / projection.treeScale.x
+      node.translateY = projection.delta.y.translate / projection.treeScale.y
+      node.scaleX = projection.delta.x.scale
+      node.scaleY = projection.delta.y.scale
+      node.rotate = projection.latest.rotate ?? 0
+    },
+    read: () => ({ ...original, scale: 1 }),
+    write,
+    restore: () => {
+      restorePaint()
+      write(original)
+    },
+    delegate: (req: DelegatedRequest): DelegatedRun | null => delegatedRun(node, req, write),
+    gesture(kind, callbacks) {
+      if (typeof node.on !== 'function' || typeof node.off !== 'function') {
+        return null
+      }
 
-			if (kind === 'press') {
-				// NativeScript's `touch` event: action down/up/cancel.
-				const onTouch = (event: any) => {
-					if (event.action === 'down') {
-						callbacks.start()
-					} else if (event.action === 'up' || event.action === 'cancel') {
-						callbacks.end()
-					}
-				}
+      if (kind === 'press') {
+        // NativeScript's `touch` event: action down/up/cancel.
+        const onTouch = (event: any) => {
+          if (event.action === 'down') {
+            callbacks.start()
+          } else if (event.action === 'up' || event.action === 'cancel') {
+            callbacks.end()
+          }
+        }
 
-				node.on('touch', onTouch)
-				return () => node.off('touch', onTouch)
-			}
+        node.on('touch', onTouch)
+        return () => node.off('touch', onTouch)
+      }
 
-			// focus/blur exist only on focusable hosts (editable text, buttons).
-			const onFocus = () => callbacks.start()
-			const onBlur = () => callbacks.end()
-			node.on('focus', onFocus)
-			node.on('blur', onBlur)
-			return () => {
-				node.off('focus', onFocus)
-				node.off('blur', onBlur)
-			}
-		},
-	}
+      // focus/blur exist only on focusable hosts (editable text, buttons).
+      const onFocus = () => callbacks.start()
+      const onBlur = () => callbacks.end()
+      node.on('focus', onFocus)
+      node.on('blur', onBlur)
+      return () => {
+        node.off('focus', onFocus)
+        node.off('blur', onBlur)
+      }
+    },
+  }
 }

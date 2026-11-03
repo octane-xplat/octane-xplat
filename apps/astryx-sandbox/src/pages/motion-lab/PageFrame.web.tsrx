@@ -14,36 +14,36 @@ import { cx } from '../../cx'
 import type { ReactNode } from 'octane'
 
 export function LabPage({
-	title,
-	intro,
-	decides,
-	badges,
-	children,
+  title,
+  intro,
+  decides,
+  badges,
+  children,
 }: {
-	title: string
-	intro: string
-	decides?: string
-	badges?: ReactNode
-	children: ReactNode
+  title: string
+  intro: string
+  decides?: string
+  badges?: ReactNode
+  children: ReactNode
 }) {
-	return (
-		<Section padding={6} width="100%">
-			<VStack gap={5}>
-				<VStack gap={2} className={cx('ml-intro')}>
-					<HStack gap={2} vAlign="center" wrap="wrap">
-						<Heading level={1}>{title}</Heading>
-						{badges}
-					</HStack>
-					<Text color="secondary">{intro}</Text>
-					{decides != null && (
-						<Text type="supporting" color="secondary">
-							<strong>Decide here: </strong>
-							{decides}
-						</Text>
-					)}
-				</VStack>
-				{children}
-			</VStack>
-		</Section>
-	)
+  return (
+    <Section padding={6} width="100%">
+      <VStack gap={5}>
+        <VStack gap={2} className={cx('ml-intro')}>
+          <HStack gap={2} vAlign="center" wrap="wrap">
+            <Heading level={1}>{title}</Heading>
+            {badges}
+          </HStack>
+          <Text color="secondary">{intro}</Text>
+          {decides != null && (
+            <Text type="supporting" color="secondary">
+              <strong>Decide here: </strong>
+              {decides}
+            </Text>
+          )}
+        </VStack>
+        {children}
+      </VStack>
+    </Section>
+  )
 }

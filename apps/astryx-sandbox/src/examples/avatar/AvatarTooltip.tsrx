@@ -2,10 +2,10 @@
 import { Avatar, HStack } from '@octane-xplat/ui'
 
 export function AvatarTooltip() @{
-	<HStack gap={2} vAlign="center">
-		<Avatar name="Ana Thomas" />
-		<Avatar name="Drew Young" />
-		<Avatar name="Jihoo Song" />
-		<Avatar name="Itai Jordaan" />
-	</HStack>
+  <HStack gap={2} vAlign="center">
+    <Avatar name="Ana Thomas" />
+    <Avatar name="Drew Young" />
+    <Avatar name="Jihoo Song" />
+    <Avatar name="Itai Jordaan" />
+  </HStack>
 }

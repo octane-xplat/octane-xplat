@@ -2,9 +2,9 @@
 import { List, ListItem } from '@octane-xplat/ui'
 
 export function ListBulletedFeatures() @{
-	<List listStyle="disc">
-		<ListItem label="Accessible by default" />
-		<ListItem label="Themeable with StyleX" />
-		<ListItem label="Composable and extensible" />
-	</List>
+  <List listStyle="disc">
+    <ListItem label="Accessible by default" />
+    <ListItem label="Themeable with StyleX" />
+    <ListItem label="Composable and extensible" />
+  </List>
 }

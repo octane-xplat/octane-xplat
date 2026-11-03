@@ -3,13 +3,13 @@ import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function SegmentedControlItemBasic() @{
-	const [value, setValue] = useState('all')
+  const [value, setValue] = useState('all')
 
-	<div style={{ width: 400 }}>
-		<SegmentedControl value={value} onValueChange={setValue}>
-			<SegmentedControlItem label="All" value="all" />
-			<SegmentedControlItem label="Unread" value="unread" />
-			<SegmentedControlItem label="Flagged" value="flagged" />
-		</SegmentedControl>
-	</div>
+  <div style={{ width: 400 }}>
+    <SegmentedControl value={value} onValueChange={setValue}>
+      <SegmentedControlItem label="All" value="all" />
+      <SegmentedControlItem label="Unread" value="unread" />
+      <SegmentedControlItem label="Flagged" value="flagged" />
+    </SegmentedControl>
+  </div>
 }

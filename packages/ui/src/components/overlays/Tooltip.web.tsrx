@@ -10,11 +10,11 @@ import type { JSX } from 'octane/jsx-runtime'
 const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex],[contenteditable="true"]'
 
 type Binding = {
-	node: HTMLElement
-	enter: () => void
-	leave: () => void
-	focusIn: (event: FocusEvent) => void
-	focusOut: () => void
+  node: HTMLElement
+  enter: () => void
+  leave: () => void
+  focusIn: (event: FocusEvent) => void
+  focusOut: () => void
 }
 
 /**
@@ -29,174 +29,174 @@ type Binding = {
  * (decision #47).
  */
 export function Tooltip(props: TooltipProps): JSX.Element @{
-	const [open, setOpen] = useState(false)
-	const anchor = useRef<HTMLElement | null>(null)
-	const binding = useRef<Binding | null>(null)
-	const described = useRef<HTMLElement | null>(null)
-	const layer = useLayer({ mode: 'context', dismissOnEscape: true, onHide: () => closeNow() })
-	const tooltipId = layer.id
-	useEffect(() => {
-		if (open) {
-			layer.show()
-		} else {
-			layer.hide()
-		}
-	}, [open, layer.show, layer.hide])
+  const [open, setOpen] = useState(false)
+  const anchor = useRef<HTMLElement | null>(null)
+  const binding = useRef<Binding | null>(null)
+  const described = useRef<HTMLElement | null>(null)
+  const layer = useLayer({ mode: 'context', dismissOnEscape: true, onHide: () => closeNow() })
+  const tooltipId = layer.id
+  useEffect(() => {
+    if (open) {
+      layer.show()
+    } else {
+      layer.hide()
+    }
+  }, [open, layer.show, layer.hide])
 
-	const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-	const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-	const clearOpen = () => {
-		if (openTimer.current !== null) {
-			clearTimeout(openTimer.current)
-		}
+  const clearOpen = () => {
+    if (openTimer.current !== null) {
+      clearTimeout(openTimer.current)
+    }
 
-		openTimer.current = null
-	}
+    openTimer.current = null
+  }
 
-	const clearClose = () => {
-		if (closeTimer.current !== null) {
-			clearTimeout(closeTimer.current)
-		}
+  const clearClose = () => {
+    if (closeTimer.current !== null) {
+      clearTimeout(closeTimer.current)
+    }
 
-		closeTimer.current = null
-	}
+    closeTimer.current = null
+  }
 
-	const startOpen = () => {
-		if (props.disabled) {
-			return
-		}
+  const startOpen = () => {
+    if (props.disabled) {
+      return
+    }
 
-		clearClose()
-		clearOpen()
-		openTimer.current = setTimeout(
-			() => {
-				openTimer.current = null
-				setOpen(true)
-			},
-			Math.max(0, props.openDelay ?? 500),
-		)
-	}
+    clearClose()
+    clearOpen()
+    openTimer.current = setTimeout(
+      () => {
+        openTimer.current = null
+        setOpen(true)
+      },
+      Math.max(0, props.openDelay ?? 500),
+    )
+  }
 
-	const scheduleClose = () => {
-		clearClose()
-		closeTimer.current = setTimeout(
-			() => {
-				closeTimer.current = null
-				setOpen(false)
-			},
-			Math.max(0, props.closeDelay ?? 100),
-		)
-	}
+  const scheduleClose = () => {
+    clearClose()
+    closeTimer.current = setTimeout(
+      () => {
+        closeTimer.current = null
+        setOpen(false)
+      },
+      Math.max(0, props.closeDelay ?? 100),
+    )
+  }
 
-	const openNow = () => {
-		if (props.disabled) {
-			return
-		}
+  const openNow = () => {
+    if (props.disabled) {
+      return
+    }
 
-		clearClose()
-		clearOpen()
-		setOpen(true)
-	}
+    clearClose()
+    clearOpen()
+    setOpen(true)
+  }
 
-	const closeNow = () => {
-		clearOpen()
-		clearClose()
-		setOpen(false)
-	}
+  const closeNow = () => {
+    clearOpen()
+    clearClose()
+    setOpen(false)
+  }
 
-	const bindAnchor = (node: HTMLElement | null) => {
-		anchor.current = node
-		layer.ref(node)
-		if (binding.current?.node === node) {
-			return
-		}
+  const bindAnchor = (node: HTMLElement | null) => {
+    anchor.current = node
+    layer.ref(node)
+    if (binding.current?.node === node) {
+      return
+    }
 
-		const old = binding.current
-		if (old) {
-			old.node.removeEventListener('mouseenter', old.enter)
-			old.node.removeEventListener('mouseleave', old.leave)
-			old.node.removeEventListener('focusin', old.focusIn)
-			old.node.removeEventListener('focusout', old.focusOut)
-		}
+    const old = binding.current
+    if (old) {
+      old.node.removeEventListener('mouseenter', old.enter)
+      old.node.removeEventListener('mouseleave', old.leave)
+      old.node.removeEventListener('focusin', old.focusIn)
+      old.node.removeEventListener('focusout', old.focusOut)
+    }
 
-		binding.current = null
-		if (!node) {
-			return
-		}
+    binding.current = null
+    if (!node) {
+      return
+    }
 
-		const next: Binding = {
-			node,
-			enter: startOpen,
-			leave: () => {
-				clearOpen()
-				scheduleClose()
-			},
-			focusIn: openNow,
-			focusOut: closeNow,
-		}
+    const next: Binding = {
+      node,
+      enter: startOpen,
+      leave: () => {
+        clearOpen()
+        scheduleClose()
+      },
+      focusIn: openNow,
+      focusOut: closeNow,
+    }
 
-		node.addEventListener('mouseenter', next.enter)
-		node.addEventListener('mouseleave', next.leave)
-		node.addEventListener('focusin', next.focusIn)
-		node.addEventListener('focusout', next.focusOut)
-		binding.current = next
-	}
+    node.addEventListener('mouseenter', next.enter)
+    node.addEventListener('mouseleave', next.leave)
+    node.addEventListener('focusin', next.focusIn)
+    node.addEventListener('focusout', next.focusOut)
+    binding.current = next
+  }
 
-	useEffect(
-		() => () => {
-			clearOpen()
-			clearClose()
-			const current = binding.current
-			if (current) {
-				current.node.removeEventListener('mouseenter', current.enter)
-				current.node.removeEventListener('mouseleave', current.leave)
-				current.node.removeEventListener('focusin', current.focusIn)
-				current.node.removeEventListener('focusout', current.focusOut)
-			}
-		},
-		[],
-	)
+  useEffect(
+    () => () => {
+      clearOpen()
+      clearClose()
+      const current = binding.current
+      if (current) {
+        current.node.removeEventListener('mouseenter', current.enter)
+        current.node.removeEventListener('mouseleave', current.leave)
+        current.node.removeEventListener('focusin', current.focusIn)
+        current.node.removeEventListener('focusout', current.focusOut)
+      }
+    },
+    [],
+  )
 
-	useEffect(() => {
-		if (!open) {
-			return
-		}
+  useEffect(() => {
+    if (!open) {
+      return
+    }
 
-		const host = anchor.current
-		const target = (
-			host?.matches?.(FOCUSABLE) ? host : (host?.querySelector?.(FOCUSABLE) ?? host)
-		) as HTMLElement | null
+    const host = anchor.current
+    const target = (
+      host?.matches?.(FOCUSABLE) ? host : (host?.querySelector?.(FOCUSABLE) ?? host)
+    ) as HTMLElement | null
 
-		if (target) {
-			target.setAttribute('aria-describedby', tooltipId)
-			described.current = target
-		}
+    if (target) {
+      target.setAttribute('aria-describedby', tooltipId)
+      described.current = target
+    }
 
-		const onScroll = () => closeNow()
-		window.addEventListener('scroll', onScroll, true)
-		return () => {
-			window.removeEventListener('scroll', onScroll, true)
-			described.current?.removeAttribute('aria-describedby')
-			described.current = null
-		}
-	}, [open])
+    const onScroll = () => closeNow()
+    window.addEventListener('scroll', onScroll, true)
+    return () => {
+      window.removeEventListener('scroll', onScroll, true)
+      described.current?.removeAttribute('aria-describedby')
+      described.current = null
+    }
+  }, [open])
 
-	<View
-		id={props.id}
-		className={props.className}
-		style={props.style}
-		ref={bindAnchor}
-		web={props.web}
-	>
-		{props.trigger}
-		{layer.render(props.content, {
-			placement: props.placement ?? 'top',
-			alignment: 'start',
-			offset: 8,
-			className: cx('vx-tooltip', props.contentClassName),
-			style: { pointerEvents: 'none', ...styleRecord(props.contentStyle) },
-			accessibilityRole: 'tooltip',
-		})}
-	</View>
+  <View
+    id={props.id}
+    className={props.className}
+    style={props.style}
+    ref={bindAnchor}
+    web={props.web}
+  >
+    {props.trigger}
+    {layer.render(props.content, {
+      placement: props.placement ?? 'top',
+      alignment: 'start',
+      offset: 8,
+      className: cx('vx-tooltip', props.contentClassName),
+      style: { pointerEvents: 'none', ...styleRecord(props.contentStyle) },
+      accessibilityRole: 'tooltip',
+    })}
+  </View>
 }

@@ -8,16 +8,16 @@ import { hostGlobal } from './host-bridge'
  *  Gtk.Settings changes; unsupported features evaluate to `false`, and a
  *  missing bridge (no live root) reports `false`. */
 export function useMediaQuery(query: string): boolean {
-	const [matches, setMatches] = useState(
-		() => hostGlobal<Record<string, any>>('__octaneGtkHost')?.matchMedia?.(query) === true,
-	)
+  const [matches, setMatches] = useState(
+    () => hostGlobal<Record<string, any>>('__octaneGtkHost')?.matchMedia?.(query) === true,
+  )
 
-	useEffect(() => {
-		const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
-		const update = () => setMatches(host?.matchMedia?.(query) === true)
-		update()
-		return host?.onMediaChange?.(update) ?? (() => {})
-	}, [query])
+  useEffect(() => {
+    const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+    const update = () => setMatches(host?.matchMedia?.(query) === true)
+    update()
+    return host?.onMediaChange?.(update) ?? (() => {})
+  }, [query])
 
-	return matches
+  return matches
 }

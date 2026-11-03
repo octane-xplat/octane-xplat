@@ -5,8 +5,8 @@ import { onThemeScopeChange, themeScopeClasses } from './theme-scope'
 /** Host surface the theme scheme classes stamp on — satisfied by DOM
  *  elements and NativeScript views (both carry a string `className`). */
 export interface ThemeClassHost {
-	/** Class string the theme scheme stamps its scope classes onto. */
-	className: string
+  /** Class string the theme scheme stamps its scope classes onto. */
+  className: string
 }
 
 /** Class string to stamp on independently-mounted roots (portal hosts,
@@ -16,7 +16,7 @@ export interface ThemeClassHost {
  *  names because tokens.css publishes both selectors and hosts may render
  *  either vocabulary. */
 export function themeSchemeClasses(): string {
-	return cx(themeScopeClasses(), getThemeScheme() === 'dark' ? 'ns-dark dark' : '')
+  return cx(themeScopeClasses(), getThemeScheme() === 'dark' ? 'ns-dark dark' : '')
 }
 
 /** Stamp `base + themeSchemeClasses()` onto an imperative host (NS view or
@@ -25,15 +25,15 @@ export function themeSchemeClasses(): string {
  *  so a theme switch reaches already-mounted overlay hosts. Works on both
  *  leaves since both honor `.className`. */
 export function applyThemeClasses(view: ThemeClassHost, base = ''): () => void {
-	const apply = () => {
-		view.className = cx(base, themeSchemeClasses())
-	}
+  const apply = () => {
+    view.className = cx(base, themeSchemeClasses())
+  }
 
-	apply()
-	const offScheme = onThemeSchemeChange(apply)
-	const offScope = onThemeScopeChange(apply)
-	return () => {
-		offScheme()
-		offScope()
-	}
+  apply()
+  const offScheme = onThemeSchemeChange(apply)
+  const offScope = onThemeScopeChange(apply)
+  return () => {
+    offScheme()
+    offScope()
+  }
 }

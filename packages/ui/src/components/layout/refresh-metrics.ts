@@ -7,5 +7,5 @@ export const REFRESH_HEADER_HEIGHT = 64
  *  resistance at small pulls; web/Android drive the same ratio so the
  *  affordance reads identically across targets. */
 export function dampenPull(dy: number): number {
-	return dy * 0.5
+  return dy * 0.5
 }

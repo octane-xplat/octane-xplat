@@ -7,15 +7,15 @@ import type { JSX } from 'octane/jsx-runtime'
 
 // Web keeps the wrapper's layout and styling, without claiming keyboard avoidance.
 export function KeyboardAvoiding(props: KeyboardAvoidingProps): JSX.Element @{
-	const forwardedRef = useMemo(() => refList(props.ref), [props.ref])
+  const forwardedRef = useMemo(() => refList(props.ref), [props.ref])
 
-	<div
-		id={props.id}
-		ref={forwardedRef}
-		className={cx('vx-keyboard-avoiding', props.className)}
-		style={props.style}
-		{...props.web}
-	>
-		{props.children}
-	</div>
+  <div
+    id={props.id}
+    ref={forwardedRef}
+    className={cx('vx-keyboard-avoiding', props.className)}
+    style={props.style}
+    {...props.web}
+  >
+    {props.children}
+  </div>
 }

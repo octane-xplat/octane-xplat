@@ -12,61 +12,61 @@ export type { UseTableColumnResizeConfig } from './use-table-column-resize.tsrx'
 
 /** Native preview/commit ownership plus shared column-plan sizing. */
 export function useTableColumnResize<T extends Record<string, unknown>>(
-	config: UseTableColumnResizeConfig,
+  config: UseTableColumnResizeConfig,
 ): TablePlugin<T> {
-	const direction = useDirection(),
-		current = useRef({ config, direction })
+  const direction = useDirection(),
+    current = useRef({ config, direction })
 
-	current.current = { config, direction }
-	const [, render] = useState(0)
-	const state = useMemo(
-		() =>
-			createAppKitColumnResizeState({
-				config: () => current.current.config,
-				changed: () => render((n) => n + 1),
-			}),
-		[],
-	)
+  current.current = { config, direction }
+  const [, render] = useState(0)
+  const state = useMemo(
+    () =>
+      createAppKitColumnResizeState({
+        config: () => current.current.config,
+        changed: () => render((n) => n + 1),
+      }),
+    [],
+  )
 
-	const plan = useMemo(
-		() =>
-			createAppKitColumnResizePlugin<T>(() => ({
-				...current.current.config,
-				columnWidths: state.widths(),
-			})),
-		[],
-	)
+  const plan = useMemo(
+    () =>
+      createAppKitColumnResizePlugin<T>(() => ({
+        ...current.current.config,
+        columnWidths: state.widths(),
+      })),
+    [],
+  )
 
-	useEffect(() => () => state.dispose(), [])
-	return {
-		...plan,
-		transformHeaderCell(props, column) {
-			if (column.resizable === false) {
-				return props
-			}
+  useEffect(() => () => state.dispose(), [])
+  return {
+    ...plan,
+    transformHeaderCell(props, column) {
+      if (column.resizable === false) {
+        return props
+      }
 
-			const width =
-				column.width?.type === 'pixel' ? column.width.value : (column.width?.minWidth ?? 120)
+      const width =
+        column.width?.type === 'pixel' ? column.width.value : (column.width?.minWidth ?? 120)
 
-			return {
-				...props,
-				htmlProps: {
-					...props.htmlProps,
-					style: mergeStyle(props.htmlProps.style, { position: 'relative' }),
-				},
-				overlay: (
-					<>
-						<TableSlot value={props.overlay} />
-						<AppKitColumnResizeHandle
-							columnKey={column.key}
-							label={typeof column.header === 'string' ? column.header : column.key}
-							width={width}
-							direction={current.current.direction}
-							state={state}
-						/>
-					</>
-				),
-			}
-		},
-	}
+      return {
+        ...props,
+        htmlProps: {
+          ...props.htmlProps,
+          style: mergeStyle(props.htmlProps.style, { position: 'relative' }),
+        },
+        overlay: (
+          <>
+            <TableSlot value={props.overlay} />
+            <AppKitColumnResizeHandle
+              columnKey={column.key}
+              label={typeof column.header === 'string' ? column.header : column.key}
+              width={width}
+              direction={current.current.direction}
+              state={state}
+            />
+          </>
+        ),
+      }
+    },
+  }
 }

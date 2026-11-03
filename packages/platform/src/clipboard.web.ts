@@ -3,58 +3,58 @@
 import { desktopHost, desktopHostClient, desktopHostSupports } from './host-runtime.web'
 
 export type Clipboard = {
-	canCopy: boolean
-	writeText: typeof writeText
-	readText: typeof readText
-	// Keep the original names available for existing consumers.
-	write: typeof writeText
-	read: typeof readText
+  canCopy: boolean
+  writeText: typeof writeText
+  readText: typeof readText
+  // Keep the original names available for existing consumers.
+  write: typeof writeText
+  read: typeof readText
 }
 
 const canCopy =
-	(typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') ||
-	desktopHostClient() !== null
+  (typeof navigator !== 'undefined' && typeof navigator.clipboard?.writeText === 'function') ||
+  desktopHostClient() !== null
 
 async function writeText(text: string): Promise<boolean> {
-	const host = desktopHost()
-	if (host && (await desktopHostSupports('clipboard', 'write'))) {
-		try {
-			return await host.clipboard.write(text)
-		} catch {
-			// Fall back to the browser API if the host call failed.
-		}
-	}
+  const host = desktopHost()
+  if (host && (await desktopHostSupports('clipboard', 'write'))) {
+    try {
+      return await host.clipboard.write(text)
+    } catch {
+      // Fall back to the browser API if the host call failed.
+    }
+  }
 
-	try {
-		await navigator.clipboard.writeText(text)
-		return true
-	} catch {
-		return false
-	}
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
 }
 
 async function readText(): Promise<string | null> {
-	const host = desktopHost()
-	if (host && (await desktopHostSupports('clipboard', 'read'))) {
-		try {
-			return await host.clipboard.read()
-		} catch {
-			// Fall back to the browser API if the host call failed.
-		}
-	}
+  const host = desktopHost()
+  if (host && (await desktopHostSupports('clipboard', 'read'))) {
+    try {
+      return await host.clipboard.read()
+    } catch {
+      // Fall back to the browser API if the host call failed.
+    }
+  }
 
-	try {
-		return await navigator.clipboard.readText()
-	} catch {
-		return null
-	}
+  try {
+    return await navigator.clipboard.readText()
+  } catch {
+    return null
+  }
 }
 
 export const clipboard: Clipboard = {
-	canCopy,
-	writeText,
-	readText,
-	// Keep the original names available for existing consumers.
-	write: writeText,
-	read: readText,
+  canCopy,
+  writeText,
+  readText,
+  // Keep the original names available for existing consumers.
+  write: writeText,
+  read: readText,
 }

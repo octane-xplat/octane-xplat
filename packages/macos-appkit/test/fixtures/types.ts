@@ -13,9 +13,9 @@ createMacOSRoot(host, options).unmount()
 registerFontFamily('Test', [{ weight: 400, descriptor }])
 const preset: XplatMacOSOptions = { root: '.', packaged: true }
 const label: JSX.IntrinsicElements['label'] = {
-	id: 'label',
-	text: 'Hello',
-	style: { fontSize: 20 },
+  id: 'label',
+  text: 'Hello',
+  style: { fontSize: 20 },
 }
 
 void preset
@@ -28,11 +28,11 @@ createMacOSRoot(host, { fontFamily: 7 })
 registerFontFamily('Test', [{ weight: 'bold', descriptor }])
 
 const mason: SharedJSX.IntrinsicElements['masonview'] = {
-	style: { display: 'grid', gridTemplateRows: '40px 40px' },
+  style: { display: 'grid', gridTemplateRows: '40px 40px' },
 }
 
 const masonChild: SharedJSX.IntrinsicElements['label'] = {
-	style: { gridRow: 2, gridColumn: 1 },
+  style: { gridRow: 2, gridColumn: 1 },
 }
 
 void mason
@@ -45,11 +45,11 @@ void invalidLayout
 void invalidDockChild
 
 const rootLayout: SharedJSX.IntrinsicElements['rootlayout'] = {
-	style: { width: 200, height: 80, padding: 10 },
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  style: { width: 200, height: 80, padding: 10 },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void rootLayout
@@ -58,21 +58,21 @@ const invalidRoot: SharedJSX.IntrinsicElements['rootlayout'] = { open: true }
 void invalidRoot
 
 const searchBar: SharedJSX.IntrinsicElements['searchbar'] = {
-	text: 'query',
-	hint: 'Find',
-	onTextChange: (event) => {
-		const value: string = event.value
-		void value
-		void event.object
-	},
-	onSubmit: (event) => {
-		void event.eventName
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  text: 'query',
+  hint: 'Find',
+  onTextChange: (event) => {
+    const value: string = event.value
+    void value
+    void event.object
+  },
+  onSubmit: (event) => {
+    void event.eventName
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void searchBar
@@ -81,23 +81,23 @@ const invalidSearchBar: SharedJSX.IntrinsicElements['searchbar'] = { text: 123 }
 void invalidSearchBar
 
 const datePicker: SharedJSX.IntrinsicElements['datepicker'] = {
-	date: new Date(2026, 4, 10, 19),
-	minDate: '2026-05-01',
-	maxDate: new Date(2026, 4, 31),
-	year: 2026,
-	month: 5,
-	day: 10,
-	onDateChange: (event) => {
-		const date: Date = event.value
-		const old: Date | undefined = event.oldValue
-		void date
-		void old
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  date: new Date(2026, 4, 10, 19),
+  minDate: '2026-05-01',
+  maxDate: new Date(2026, 4, 31),
+  year: 2026,
+  month: 5,
+  day: 10,
+  onDateChange: (event) => {
+    const date: Date = event.value
+    const old: Date | undefined = event.oldValue
+    void date
+    void old
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void datePicker
@@ -109,17 +109,17 @@ const invalidDateStyle: SharedJSX.IntrinsicElements['datepicker'] = { datePicker
 void invalidDateStyle
 
 const listPicker: SharedJSX.IntrinsicElements['listpicker'] = {
-	items: ['First', null, 42],
-	selectedIndex: 1,
-	onSelectedIndexChange: (event) => {
-		const index: number = event.value
-		void index
-		void event.object
-	},
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  items: ['First', null, 42],
+  selectedIndex: 1,
+  onSelectedIndexChange: (event) => {
+    const index: number = event.value
+    void index
+    void event.object
+  },
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 void listPicker
@@ -131,12 +131,12 @@ const invalidListMode: SharedJSX.IntrinsicElements['listpicker'] = { pullsDown: 
 void invalidListMode
 
 const progress: SharedJSX.IntrinsicElements['progress'] = {
-	value: 12.5,
-	maxValue: 100,
-	ref: (view) => {
-		void view
-		return () => {}
-	},
+  value: 12.5,
+  maxValue: 100,
+  ref: (view) => {
+    void view
+    return () => {}
+  },
 }
 
 // @ts-expect-error Progress value must be numeric
@@ -148,22 +148,22 @@ void invalidProgress
 void invalidProgressMode
 
 const segmentedBar: SharedJSX.IntrinsicElements['segmentedbar'] = {
-	items: [{ title: 'First' }, { title: 'Second' }],
-	selectedIndex: 1,
-	style: { selectedBackgroundColor: '#ff0000' },
-	onSelectedIndexChange: (event) => {
-		const value: number = event.value
-		const old: number | undefined = event.oldIndex
-		void value
-		void old
-		void event.object
-	},
-	ref: [
-		(view) => {
-			void view
-			return () => {}
-		},
-	],
+  items: [{ title: 'First' }, { title: 'Second' }],
+  selectedIndex: 1,
+  style: { selectedBackgroundColor: '#ff0000' },
+  onSelectedIndexChange: (event) => {
+    const value: number = event.value
+    const old: number | undefined = event.oldIndex
+    void value
+    void old
+    void event.object
+  },
+  ref: [
+    (view) => {
+      void view
+      return () => {}
+    },
+  ],
 }
 
 // @ts-expect-error Index must be numeric
@@ -178,15 +178,15 @@ void badSegmentItems
 void badSegmentMode
 
 const segmentItem: SharedJSX.IntrinsicElements['segmentedbaritem'] = {
-	title: 'Day',
-	ref: (element) => {
-		if (element) {
-			const absent: null = element.view
-			void absent
-		}
+  title: 'Day',
+  ref: (element) => {
+    if (element) {
+      const absent: null = element.view
+      void absent
+    }
 
-		return () => {}
-	},
+    return () => {}
+  },
 }
 
 // @ts-expect-error Title is a string
@@ -198,10 +198,10 @@ void badItemTitle
 void badItemEnabled
 
 const actionbar: SharedJSX.IntrinsicElements['actionbar'] = {
-	title: 'Title',
-	flat: true,
-	titleView: {},
-	ref: () => {},
+  title: 'Title',
+  flat: true,
+  titleView: {},
+  ref: () => {},
 }
 
 // @ts-expect-error flat is boolean

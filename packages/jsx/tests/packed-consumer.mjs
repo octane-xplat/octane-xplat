@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
-	cpSync,
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readdirSync,
-	symlinkSync,
-	writeFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -23,22 +23,22 @@ mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
-	if (result.stdout) {
-		process.stdout.write(result.stdout)
-	}
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
 
-	if (result.stderr) {
-		process.stderr.write(result.stderr)
-	}
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
 
-	if (result.error) {
-		throw result.error
-	}
+  if (result.error) {
+    throw result.error
+  }
 
-	if (result.status !== 0) {
-		throw new Error(`${command} exited with ${result.status}`)
-	}
+  if (result.status !== 0) {
+    throw new Error(`${command} exited with ${result.status}`)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -241,7 +241,7 @@ void badProp
 
 // Per-condition assertions on the conditioned host element type.
 const laneSource = {
-	default: `
+  default: `
 const lane = <label
 	ref={(element) => {
 		// The shared default is a real object type, not unknown.
@@ -285,7 +285,7 @@ import type { TapEvent } from '@octane-xplat/jsx/jsx-runtime'
 const tapHandler = <button onTap={(e: TapEvent<View>) => { void e }} />
 void tapHandler
 `,
-	native: `
+  native: `
 import type { View } from '@nativescript/core/ui/core/view/index.js'
 const lane = <>
 	<label
@@ -298,7 +298,7 @@ const lane = <>
 </>
 void lane
 `,
-	macos: `
+  macos: `
 const heading = <label text="Account" accessibilityRole="heading" accessibilityHeadingLevel={3} />
 // @ts-expect-error AppKit heading levels stay within the public Heading range
 const invalidHeading = <label accessibilityHeadingLevel={7} />
@@ -337,7 +337,7 @@ const lane = <label
 />
 void lane
 `,
-	both: `
+  both: `
 const item = <segmentedbar><segmentedbaritem title="Day" ref={(element) => {
  if (element) { const logical: import('@octane-xplat/jsx/jsx-runtime').LogicalElement = element; const noView: null = logical.view; void noView;
  // @ts-expect-error Logical items do not allocate an NSView
@@ -406,63 +406,63 @@ void domIndex
 `
 
 const lanes = {
-	default: { customConditions: [], nsCore: false, skipLibCheck: false },
-	native: { customConditions: ['native'], nsCore: true, skipLibCheck: true },
-	macos: { customConditions: ['macos'], nsCore: false, skipLibCheck: false },
-	both: { customConditions: ['macos', 'native'], nsCore: false, skipLibCheck: false },
-	dom: { customConditions: ['web'], nsCore: false, skipLibCheck: false, domOnly: true },
+  default: { customConditions: [], nsCore: false, skipLibCheck: false },
+  native: { customConditions: ['native'], nsCore: true, skipLibCheck: true },
+  macos: { customConditions: ['macos'], nsCore: false, skipLibCheck: false },
+  both: { customConditions: ['macos', 'native'], nsCore: false, skipLibCheck: false },
+  dom: { customConditions: ['web'], nsCore: false, skipLibCheck: false, domOnly: true },
 }
 
 const modes = [
-	{ name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
-	{ name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
+  { name: 'bundler', module: 'esnext', moduleResolution: 'bundler' },
+  { name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
 ]
 
 function linkDependencies(modules, names) {
-	for (const dependency of names) {
-		const source = join(packageRoot, 'node_modules', dependency)
-		const fallback = join(repoRoot, 'node_modules', dependency)
-		const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
-		assert.ok(resolved, `dependency ${dependency} must be installed in the workspace`)
-		mkdirSync(dirname(join(modules, dependency)), { recursive: true })
-		symlinkSync(resolved, join(modules, dependency), 'dir')
-	}
+  for (const dependency of names) {
+    const source = join(packageRoot, 'node_modules', dependency)
+    const fallback = join(repoRoot, 'node_modules', dependency)
+    const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+    assert.ok(resolved, `dependency ${dependency} must be installed in the workspace`)
+    mkdirSync(dirname(join(modules, dependency)), { recursive: true })
+    symlinkSync(resolved, join(modules, dependency), 'dir')
+  }
 }
 
 try {
-	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
-	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
-	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
-	const packedRoot = join(extractedRoot, 'package')
+  run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+  const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+  assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
+  run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+  const packedRoot = join(extractedRoot, 'package')
 
-	for (const [laneName, lane] of Object.entries(lanes)) {
-		for (const mode of modes) {
-			const consumerRoot = join(temporary, `${laneName}-${mode.name}`)
-			const modules = join(consumerRoot, 'node_modules')
-			const packageLink = join(modules, '@octane-xplat/jsx')
-			mkdirSync(dirname(packageLink), { recursive: true })
-			cpSync(packedRoot, packageLink, { recursive: true })
+  for (const [laneName, lane] of Object.entries(lanes)) {
+    for (const mode of modes) {
+      const consumerRoot = join(temporary, `${laneName}-${mode.name}`)
+      const modules = join(consumerRoot, 'node_modules')
+      const packageLink = join(modules, '@octane-xplat/jsx')
+      mkdirSync(dirname(packageLink), { recursive: true })
+      cpSync(packedRoot, packageLink, { recursive: true })
 
-			// octane is a required peer (DOM types + universal runtime types).
-			const deps = ['octane']
-			if (lane.nsCore) {
-				deps.push('@nativescript/core', '@nativescript/types')
-			}
+      // octane is a required peer (DOM types + universal runtime types).
+      const deps = ['octane']
+      if (lane.nsCore) {
+        deps.push('@nativescript/core', '@nativescript/types')
+      }
 
-			linkDependencies(modules, deps)
+      linkDependencies(modules, deps)
 
-			writeFileSync(
-				join(consumerRoot, 'package.json'),
-				JSON.stringify({ name: `jsx-consumer-${laneName}-${mode.name}`, type: 'module' }),
-			)
+      writeFileSync(
+        join(consumerRoot, 'package.json'),
+        JSON.stringify({ name: `jsx-consumer-${laneName}-${mode.name}`, type: 'module' }),
+      )
 
-			const files = []
-			if (lane.domOnly) {
-				writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
-				writeFileSync(
-					join(consumerRoot, 'imports.ts'),
-					`
+      const files = []
+      if (lane.domOnly) {
+        writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
+        writeFileSync(
+          join(consumerRoot, 'imports.ts'),
+          `
 import type { JSX } from '@octane-xplat/jsx/dom/jsx-runtime'
 import type { JSX as DevJSX } from '@octane-xplat/jsx/dom/jsx-dev-runtime'
 declare const el: JSX.Element
@@ -470,52 +470,52 @@ declare const dev: DevJSX.Element
 void el
 void dev
 `,
-				)
+        )
 
-				files.push('dom.tsx', 'imports.ts')
-			} else {
-				writeFileSync(join(consumerRoot, 'native.tsx'), nativeSource + laneSource[laneName])
-				writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
-				writeFileSync(join(consumerRoot, 'augment.tsx'), augmentSource)
-				writeFileSync(join(consumerRoot, 'imports.ts'), importsSource)
-				files.push('native.tsx', 'dom.tsx', 'augment.tsx', 'imports.ts')
-			}
+        files.push('dom.tsx', 'imports.ts')
+      } else {
+        writeFileSync(join(consumerRoot, 'native.tsx'), nativeSource + laneSource[laneName])
+        writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
+        writeFileSync(join(consumerRoot, 'augment.tsx'), augmentSource)
+        writeFileSync(join(consumerRoot, 'imports.ts'), importsSource)
+        files.push('native.tsx', 'dom.tsx', 'augment.tsx', 'imports.ts')
+      }
 
-			writeFileSync(
-				join(consumerRoot, 'tsconfig.json'),
-				JSON.stringify(
-					{
-						compilerOptions: {
-							strict: true,
-							noEmit: true,
-							module: mode.module,
-							moduleResolution: mode.moduleResolution,
-							target: 'esnext',
-							jsx: 'react-jsx',
-							jsxImportSource: '@octane-xplat/jsx',
-							customConditions: lane.customConditions,
-							types: lane.nsCore ? ['@nativescript/types'] : [],
-							skipLibCheck: lane.skipLibCheck,
-							lib: ['esnext', 'dom'],
-						},
-						files,
-					},
-					null,
-					2,
-				),
-			)
+      writeFileSync(
+        join(consumerRoot, 'tsconfig.json'),
+        JSON.stringify(
+          {
+            compilerOptions: {
+              strict: true,
+              noEmit: true,
+              module: mode.module,
+              moduleResolution: mode.moduleResolution,
+              target: 'esnext',
+              jsx: 'react-jsx',
+              jsxImportSource: '@octane-xplat/jsx',
+              customConditions: lane.customConditions,
+              types: lane.nsCore ? ['@nativescript/types'] : [],
+              skipLibCheck: lane.skipLibCheck,
+              lib: ['esnext', 'dom'],
+            },
+            files,
+          },
+          null,
+          2,
+        ),
+      )
 
-			run(
-				process.execPath,
-				[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', 'tsconfig.json'],
-				consumerRoot,
-			)
+      run(
+        process.execPath,
+        [join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', 'tsconfig.json'],
+        consumerRoot,
+      )
 
-			console.log(`[packed jsx] ${laneName}/${mode.name} consumer passed`)
-		}
-	}
+      console.log(`[packed jsx] ${laneName}/${mode.name} consumer passed`)
+    }
+  }
 } finally {
-	// Leave the tree on failure for inspection.
+  // Leave the tree on failure for inspection.
 }
 
 console.log(`Packed jsx consumer passed: ${temporary}`)

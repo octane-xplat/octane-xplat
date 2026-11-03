@@ -10,14 +10,14 @@ import { createWebAdapter } from './web.ts'
 import { createWindowsAdapter } from './windows.ts'
 
 export function createAdapters() {
-	const list = [
-		createWebAdapter(),
-		createIosAdapter(),
-		createAndroidAdapter(),
-		createMacosAdapter(),
-		createLinuxAdapter(),
-		createWindowsAdapter(),
-	]
+  const list = [
+    createWebAdapter(),
+    createIosAdapter(),
+    createAndroidAdapter(),
+    createMacosAdapter(),
+    createLinuxAdapter(),
+    createWindowsAdapter(),
+  ]
 
-	return new Map(list.map((adapter) => [adapter.platform, adapter]))
+  return new Map(list.map((adapter) => [adapter.platform, adapter]))
 }

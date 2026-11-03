@@ -3,25 +3,25 @@ import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
 if (process.argv.length > 2) {
-	throw new Error('This task runs headless web only and accepts no target overrides')
+  throw new Error('This task runs headless web only and accepts no target overrides')
 }
 
 const result = spawnSync(
-	process.execPath,
-	[
-		fileURLToPath(new URL('../tools/probe/cli.ts', import.meta.url)),
-		'run',
-		'examples/probes/query-cache.tsrx',
-		'--target',
-		'web',
-		'--timeout',
-		'30000',
-	],
-	{ cwd: fileURLToPath(new URL('../', import.meta.url)), stdio: 'inherit' },
+  process.execPath,
+  [
+    fileURLToPath(new URL('../tools/probe/cli.ts', import.meta.url)),
+    'run',
+    'examples/probes/query-cache.tsrx',
+    '--target',
+    'web',
+    '--timeout',
+    '30000',
+  ],
+  { cwd: fileURLToPath(new URL('../', import.meta.url)), stdio: 'inherit' },
 )
 
 if (result.error) {
-	throw result.error
+  throw result.error
 }
 
 process.exitCode = result.status ?? 1

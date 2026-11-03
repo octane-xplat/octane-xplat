@@ -14,25 +14,25 @@ import type { PrefetchOptions } from './props'
  *  is honored on Android and silently dropped on iOS (upstream gap — see
  *  PrefetchOptions). */
 export function prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
-	try {
-		// The plugin lazily initializes Fresco inside createNativeView; a prefetch
-		// that runs before any Img mounts has to do it first. initialize() is a
-		// no-op once the plugin (or the app) has initialized. iOS has no equivalent
-		// requirement and its initialize() is not guarded, so it stays Android-only.
-		if (isAndroid) {
-			initialize()
-		}
+  try {
+    // The plugin lazily initializes Fresco inside createNativeView; a prefetch
+    // that runs before any Img mounts has to do it first. initialize() is a
+    // no-op once the plugin (or the app) has initialized. iOS has no equivalent
+    // requirement and its initialize() is not guarded, so it stays Android-only.
+    if (isAndroid) {
+      initialize()
+    }
 
-		const pipeline = getImagePipeline()
-		const { concurrency, ...engineOptions } = options ?? {}
+    const pipeline = getImagePipeline()
+    const { concurrency, ...engineOptions } = options ?? {}
 
-		return prefetchBatch(srcs, concurrency, (url) =>
-			pipeline.prefetchToDiskCache(url, engineOptions).then(
-				() => true,
-				() => false,
-			),
-		)
-	} catch {
-		return Promise.resolve(false)
-	}
+    return prefetchBatch(srcs, concurrency, (url) =>
+      pipeline.prefetchToDiskCache(url, engineOptions).then(
+        () => true,
+        () => false,
+      ),
+    )
+  } catch {
+    return Promise.resolve(false)
+  }
 }

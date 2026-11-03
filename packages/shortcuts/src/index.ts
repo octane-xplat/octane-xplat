@@ -13,5 +13,5 @@ export * from './shared.js'
  * ```
  */
 export function createShortcuts(options: ShortcutOptions): ShortcutRuntime {
-	return createRuntime(options, host)
+  return createRuntime(options, host)
 }

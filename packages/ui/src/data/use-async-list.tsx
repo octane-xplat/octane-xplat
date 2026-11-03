@@ -10,15 +10,15 @@ import { useStore } from './use-store.tsrx'
  * trigger reloads thereafter.
  */
 export function useAsyncList<T, C = string>(options: AsyncListOptions<T, C>): AsyncListData<T> {
-	const ref = useRef<AsyncListData<T> | null>(null)
-	if (ref.current === null) {
-		ref.current = createAsyncListData(options)
-	}
+  const ref = useRef<AsyncListData<T> | null>(null)
+  if (ref.current === null) {
+    ref.current = createAsyncListData(options)
+  }
 
-	useStore(ref.current)
-	useEffect(() => {
-		void ref.current!.reload()
-	}, [])
+  useStore(ref.current)
+  useEffect(() => {
+    void ref.current!.reload()
+  }, [])
 
-	return ref.current
+  return ref.current
 }

@@ -42,29 +42,29 @@ export const DEV_ACTIONS_MAX_TIMEOUT_MS: number
 
 /** Runtime-validatable field subset. `fields`/`items` allow one level of structure. */
 export interface DevActionField {
-	type: 'string' | 'number' | 'integer' | 'boolean' | 'object' | 'array'
-	description?: string
-	/** Applied when the caller omits the field. */
-	default?: unknown
-	/** Closed value set. */
-	enum?: readonly unknown[]
-	minLength?: number
-	maxLength?: number
-	/** Regular expression source (must compile). */
-	pattern?: string
-	minimum?: number
-	maximum?: number
-	minItems?: number
-	maxItems?: number
-	/** For `object`: named nested fields. Defaults apply to top-level fields only. */
-	fields?: Record<string, DevActionField>
-	/** For `array`: element contract. */
-	items?: DevActionField
+  type: 'string' | 'number' | 'integer' | 'boolean' | 'object' | 'array'
+  description?: string
+  /** Applied when the caller omits the field. */
+  default?: unknown
+  /** Closed value set. */
+  enum?: readonly unknown[]
+  minLength?: number
+  maxLength?: number
+  /** Regular expression source (must compile). */
+  pattern?: string
+  minimum?: number
+  maximum?: number
+  minItems?: number
+  maxItems?: number
+  /** For `object`: named nested fields. Defaults apply to top-level fields only. */
+  fields?: Record<string, DevActionField>
+  /** For `array`: element contract. */
+  items?: DevActionField
 }
 
 /** Named typed fields. `{}` (or omitted) means the action takes no arguments. */
 export interface DevActionFields {
-	fields?: Record<string, DevActionField>
+  fields?: Record<string, DevActionField>
 }
 
 /**
@@ -73,133 +73,133 @@ export interface DevActionFields {
  * `external-effects` permission scope and is checked at invocation time.
  */
 export interface DevActionEffects {
-	/** Plain-language summary of what the action changes. */
-	summary: string
-	auth?: boolean
-	navigation?: boolean
-	appState?: boolean
-	testData?: boolean
-	/** Effects outside the app itself — external test services, destructive resets. */
-	externalEffects?: boolean
+  /** Plain-language summary of what the action changes. */
+  summary: string
+  auth?: boolean
+  navigation?: boolean
+  appState?: boolean
+  testData?: boolean
+  /** Effects outside the app itself — external test services, destructive resets. */
+  externalEffects?: boolean
 }
 
 export type DevActionConcurrency =
-	/** Default: actions for one app instance run one at a time through a bounded queue. */
-	| 'serialized'
-	/** The app declares this action safe to overlap with other executions. */
-	| 'overlap'
+  /** Default: actions for one app instance run one at a time through a bounded queue. */
+  | 'serialized'
+  /** The app declares this action safe to overlap with other executions. */
+  | 'overlap'
 
 export interface DevActionExecution {
-	concurrency?: DevActionConcurrency
-	/** Cooperative cancellation supported by the handler. */
-	cancellable?: boolean
-	/** Safe to retry (idempotent). Non-retryable actions never auto-rerun. */
-	retryable?: boolean
-	/** Per-action execution deadline; bounded by DEV_ACTIONS_MAX_TIMEOUT_MS. */
-	timeoutMs?: number
+  concurrency?: DevActionConcurrency
+  /** Cooperative cancellation supported by the handler. */
+  cancellable?: boolean
+  /** Safe to retry (idempotent). Non-retryable actions never auto-rerun. */
+  retryable?: boolean
+  /** Per-action execution deadline; bounded by DEV_ACTIONS_MAX_TIMEOUT_MS. */
+  timeoutMs?: number
 }
 
 export interface DevActionDeclaration {
-	/** Stable machine identity, e.g. `auth.login-as-test-admin`. */
-	id: string
-	title: string
-	/** When to use it and what successful completion means. */
-	description: string
-	input?: DevActionFields
-	result?: DevActionFields
-	effects: DevActionEffects
-	availability?: {
-		/** Platforms this action applies to; absent = all. */
-		platforms?: Platform[]
-		/** Readiness conditions outside platform selection (free text). */
-		readyWhen?: string
-	}
-	execution?: DevActionExecution
+  /** Stable machine identity, e.g. `auth.login-as-test-admin`. */
+  id: string
+  title: string
+  /** When to use it and what successful completion means. */
+  description: string
+  input?: DevActionFields
+  result?: DevActionFields
+  effects: DevActionEffects
+  availability?: {
+    /** Platforms this action applies to; absent = all. */
+    platforms?: Platform[]
+    /** Readiness conditions outside platform selection (free text). */
+    readyWhen?: string
+  }
+  execution?: DevActionExecution
 }
 
 /** Declared action plus its live availability, as announced by the app. */
 export interface DevActionListing extends DevActionDeclaration {
-	availability?: {
-		platforms?: Platform[]
-		readyWhen?: string
-		/**
-		 * The app navigates to this URL when the action is invoked without an
-		 * attached handler: a fixed URL, or one derived from validated input.
-		 * Such actions may be invoked while their `ready` is false.
-		 */
-		route?: { url: string } | { fromInput: true }
-		/** Live readiness verdict from the app. */
-		ready: boolean
-		/** Why it is unavailable right now. */
-		reason?: string
-	}
+  availability?: {
+    platforms?: Platform[]
+    readyWhen?: string
+    /**
+     * The app navigates to this URL when the action is invoked without an
+     * attached handler: a fixed URL, or one derived from validated input.
+     * Such actions may be invoked while their `ready` is false.
+     */
+    route?: { url: string } | { fromInput: true }
+    /** Live readiness verdict from the app. */
+    ready: boolean
+    /** Why it is unavailable right now. */
+    reason?: string
+  }
 }
 
 // ---------- registry announcement ----------
 
 export interface DevActionRegistryAnnouncement {
-	protocol: typeof DEV_ACTIONS_PROTOCOL
-	version: number
-	/** Unique per app realm — survives hot reload, never crosses processes. */
-	appInstanceId: string
-	/** App-supplied label for the developer, e.g. package name or window title. */
-	appLabel?: string
-	platform: Platform
-	revision: number
-	announcedAt: string
-	/** Current app location, when the app has an installed router navigator. */
-	location?: { route: string | null; modal: boolean }
-	actions: DevActionListing[]
+  protocol: typeof DEV_ACTIONS_PROTOCOL
+  version: number
+  /** Unique per app realm — survives hot reload, never crosses processes. */
+  appInstanceId: string
+  /** App-supplied label for the developer, e.g. package name or window title. */
+  appLabel?: string
+  platform: Platform
+  revision: number
+  announcedAt: string
+  /** Current app location, when the app has an installed router navigator. */
+  location?: { route: string | null; modal: boolean }
+  actions: DevActionListing[]
 }
 
 // ---------- invocation ----------
 
 export interface DevActionInvocationRequest {
-	/** Stable request identity — retries with the same requestId must not re-run the effect. */
-	requestId: string
-	appInstanceId: string
-	actionId: string
-	/** The registry revision the caller discovered; rejected when stale. */
-	registryRevision: number
-	input: Record<string, unknown>
+  /** Stable request identity — retries with the same requestId must not re-run the effect. */
+  requestId: string
+  appInstanceId: string
+  actionId: string
+  /** The registry revision the caller discovered; rejected when stale. */
+  registryRevision: number
+  input: Record<string, unknown>
 }
 
 export type DevActionInvocationStatus =
-	| 'succeeded'
-	| 'failed'
-	| 'cancelled'
-	/** The app may or may not have run the action; reported, never silently retried. */
-	| 'unknown'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+  /** The app may or may not have run the action; reported, never silently retried. */
+  | 'unknown'
 
 /** One handler's failure as structured data — which owner threw, and the error it threw. */
 export interface DevActionFailure {
-	/** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
-	handler: number
-	/** Optional owner label (e.g. component name) supplied at attach time. */
-	label?: string
-	name: string
-	message: string
-	stack?: string
-	/** Stack with frames resolved to original source positions by the dev server; present only when at least one frame resolved (web today). */
-	sourceStack?: string
+  /** 0-based position, in attach order, of the failing handler among the action's handlers at dispatch. */
+  handler: number
+  /** Optional owner label (e.g. component name) supplied at attach time. */
+  label?: string
+  name: string
+  message: string
+  stack?: string
+  /** Stack with frames resolved to original source positions by the dev server; present only when at least one frame resolved (web today). */
+  sourceStack?: string
 }
 
 export interface DevActionOutcome {
-	requestId: string
-	status: DevActionInvocationStatus
-	/** Structured result validated against the declared result contract. */
-	result?: Record<string, unknown>
-	/** Machine-readable failure detail; mapped to ContractError codes server-side. */
-	error?: { code: string; message: string; failures?: DevActionFailure[] }
-	/** What the app knows changed before a failure/cancellation; absent = unknown. */
-	partialEffects?: string[]
-	completedAt: string
+  requestId: string
+  status: DevActionInvocationStatus
+  /** Structured result validated against the declared result contract. */
+  result?: Record<string, unknown>
+  /** Machine-readable failure detail; mapped to ContractError codes server-side. */
+  error?: { code: string; message: string; failures?: DevActionFailure[] }
+  /** What the app knows changed before a failure/cancellation; absent = unknown. */
+  partialEffects?: string[]
+  completedAt: string
 }
 
 /** What `validateActionInput` returns. */
 export type DevActionInputResult =
-	| { ok: true; value: Record<string, unknown> }
-	| { ok: false; errors: string[] }
+  | { ok: true; value: Record<string, unknown> }
+  | { ok: false; errors: string[] }
 
 // ---------- validators (shared with the app-side implementation) ----------
 
@@ -208,23 +208,23 @@ export declare function validateActionDeclaration(action: unknown): string[]
 
 /** Type-check + apply defaults + reject undeclared fields. */
 export declare function validateActionInput(
-	contract: DevActionFields | undefined,
-	input: unknown,
+  contract: DevActionFields | undefined,
+  input: unknown,
 ): DevActionInputResult
 
 /** Result-contract validation. An invalid output fails explicitly — it does not undo a ran action. */
 export declare function validateActionOutput(
-	contract: DevActionFields | undefined,
-	output: unknown,
+  contract: DevActionFields | undefined,
+  output: unknown,
 ): DevActionInputResult
 
 /** Structural check on an announcement payload. */
 export declare function isDevActionAnnouncement(
-	value: unknown,
+  value: unknown,
 ): value is DevActionRegistryAnnouncement
 
 /** Live availability for an announced action on a given platform. */
 export declare function actionAvailability(
-	action: DevActionListing,
-	platform: Platform,
+  action: DevActionListing,
+  platform: Platform,
 ): { ready: boolean; reason?: string }

@@ -10,33 +10,33 @@ let root: Root | null = null
 let unscheme: (() => void) | null = null
 
 export function openOverlay() {
-	if (layer) {
-		return // already open
-	}
+  if (layer) {
+    return // already open
+  }
 
-	layer = document.createElement('div')
-	Object.assign(layer.style, { position: 'fixed', inset: '0px' })
-	unscheme = applyThemeClasses(layer, 'vx-overlay')
+  layer = document.createElement('div')
+  Object.assign(layer.style, { position: 'fixed', inset: '0px' })
+  unscheme = applyThemeClasses(layer, 'vx-overlay')
 
-	const shade = document.createElement('div')
-	shade.className = 'vx-overlay-shade'
-	shade.addEventListener('click', closeOverlay)
-	const content = document.createElement('div')
-	content.className = 'vx-overlay-content'
-	layer.append(shade, content)
-	document.body.appendChild(layer)
+  const shade = document.createElement('div')
+  shade.className = 'vx-overlay-shade'
+  shade.addEventListener('click', closeOverlay)
+  const content = document.createElement('div')
+  content.className = 'vx-overlay-content'
+  layer.append(shade, content)
+  document.body.appendChild(layer)
 
-	root = createRoot(content)
-	root.render(OverlayPanel)
-	console.log('[probe] overlay open (web)')
+  root = createRoot(content)
+  root.render(OverlayPanel)
+  console.log('[probe] overlay open (web)')
 }
 
 export function closeOverlay() {
-	root?.unmount()
-	root = null
-	unscheme?.()
-	unscheme = null
-	layer?.remove()
-	layer = null
-	console.log('[probe] overlay close')
+  root?.unmount()
+  root = null
+  unscheme?.()
+  unscheme = null
+  layer?.remove()
+  layer = null
+  console.log('[probe] overlay close')
 }

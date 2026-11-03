@@ -5,37 +5,37 @@ import type { ConnectionType, ConnectivityImpl, ConnectivityState } from './type
 import { createNativeConnectivity } from './native-connectivity'
 
 function connectionType(value = Connectivity.getConnectionType()): ConnectionType {
-	const types = Connectivity.connectionType as any
-	if (value === types.none) {
-		return 'none'
-	}
+  const types = Connectivity.connectionType as any
+  if (value === types.none) {
+    return 'none'
+  }
 
-	if (value === types.wifi) {
-		return 'wifi'
-	}
+  if (value === types.wifi) {
+    return 'wifi'
+  }
 
-	if (value === types.mobile) {
-		return 'mobile'
-	}
+  if (value === types.mobile) {
+    return 'mobile'
+  }
 
-	if (value === types.ethernet) {
-		return 'ethernet'
-	}
+  if (value === types.ethernet) {
+    return 'ethernet'
+  }
 
-	if (value === types.bluetooth) {
-		return 'bluetooth'
-	}
+  if (value === types.bluetooth) {
+    return 'bluetooth'
+  }
 
-	if (value === types.vpn) {
-		return 'vpn'
-	}
+  if (value === types.vpn) {
+    return 'vpn'
+  }
 
-	return 'unknown'
+  return 'unknown'
 }
 
 function read(value?: number): ConnectivityState {
-	const type = connectionType(value)
-	return { online: type !== 'none', type }
+  const type = connectionType(value)
+  return { online: type !== 'none', type }
 }
 
 /** Network connectivity service. */

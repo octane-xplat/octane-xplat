@@ -4,32 +4,32 @@
 import { openFilePicker } from '@nativescript-community/ui-document-picker'
 import { Application, File, knownFolders, path, Utils } from '@nativescript/core'
 import {
-	assertSafeFileName,
-	exactBuffer,
-	exportBusy,
-	fileTooLarge,
-	throwIfAborted,
+  assertSafeFileName,
+  exactBuffer,
+  exportBusy,
+  fileTooLarge,
+  throwIfAborted,
 } from './file-bytes'
 
 import type {
-	FileExportOptions,
-	FileExportResult,
-	FileReadBytesOptions,
-	FileRef,
-	Files,
+  FileExportOptions,
+  FileExportResult,
+  FileReadBytesOptions,
+  FileRef,
+  Files,
 } from './types'
 
 import { android, java } from '@octane-xplat/platform/android'
 import {
-	NSData,
-	NSFileHandle,
-	NSFileManager,
-	NSMutableData,
-	NSObject,
-	NSURL,
-	UIApplication,
-	UIDocumentPickerViewController,
-	interop,
+  NSData,
+  NSFileHandle,
+  NSFileManager,
+  NSMutableData,
+  NSObject,
+  NSURL,
+  UIApplication,
+  UIDocumentPickerViewController,
+  interop,
 } from '@octane-xplat/platform/ios'
 
 import { UIDocumentPickerDelegate } from '@octane-xplat/platform/ios'
@@ -39,62 +39,62 @@ const READ_CHUNK = 64 * 1024
 const ANDROID_EXPORT_REQUEST_CODE = 1241
 
 function pickerTypes(accept: string): { extensions: string[]; mimeTypes: string[] } {
-	const values = accept
-		.split(',')
-		.map((value) => value.trim())
-		.filter(Boolean)
+  const values = accept
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
 
-	return {
-		extensions: values.filter((value) => value.startsWith('.')).map((value) => value.slice(1)),
-		// `*/*` is the default, not a useful iOS UTType MIME value. Leaving it
-		// out lets the upstream picker use its public.data fallback.
-		mimeTypes: values.filter((value) => value.includes('/') && value !== '*/*'),
-	}
+  return {
+    extensions: values.filter((value) => value.startsWith('.')).map((value) => value.slice(1)),
+    // `*/*` is the default, not a useful iOS UTType MIME value. Leaving it
+    // out lets the upstream picker use its public.data fallback.
+    mimeTypes: values.filter((value) => value.includes('/') && value !== '*/*'),
+  }
 }
 
 function androidDisplayName(uri: string, nativeUri: any): string | undefined {
-	if (!Application.android || !uri.startsWith('content://')) {
-		return undefined
-	}
+  if (!Application.android || !uri.startsWith('content://')) {
+    return undefined
+  }
 
-	try {
-		const activity = Application.android.foregroundActivity ?? Application.android.startActivity
-		// Android accepts null for projection/filter args; its generated
-		// declarations omit that nullable bridge contract.
-		const noColumns = null as unknown as string[]
-		const noFilter = null as unknown as string
-		const cursor = activity
-			?.getContentResolver()
-			?.query(nativeUri ?? android.net.Uri.parse(uri), noColumns, noFilter, noColumns, noFilter)
+  try {
+    const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+    // Android accepts null for projection/filter args; its generated
+    // declarations omit that nullable bridge contract.
+    const noColumns = null as unknown as string[]
+    const noFilter = null as unknown as string
+    const cursor = activity
+      ?.getContentResolver()
+      ?.query(nativeUri ?? android.net.Uri.parse(uri), noColumns, noFilter, noColumns, noFilter)
 
-		if (!cursor) {
-			return undefined
-		}
+    if (!cursor) {
+      return undefined
+    }
 
-		try {
-			if (!cursor.moveToFirst()) {
-				return undefined
-			}
+    try {
+      if (!cursor.moveToFirst()) {
+        return undefined
+      }
 
-			// android.provider.OpenableColumns.DISPLAY_NAME — the literal the
-			// column contract requires; 'display_name' resolves to -1.
-			const index = cursor.getColumnIndex('_display_name')
-			return index >= 0 ? cursor.getString(index) : undefined
-		} finally {
-			cursor.close()
-		}
-	} catch {
-		return undefined
-	}
+      // android.provider.OpenableColumns.DISPLAY_NAME — the literal the
+      // column contract requires; 'display_name' resolves to -1.
+      const index = cursor.getColumnIndex('_display_name')
+      return index >= 0 ? cursor.getString(index) : undefined
+    } finally {
+      cursor.close()
+    }
+  } catch {
+    return undefined
+  }
 }
 
 function fallbackName(uri: string): string {
-	const segment = uri.split('/').pop() ?? ''
-	try {
-		return decodeURIComponent(segment) || 'document'
-	} catch {
-		return segment || 'document'
-	}
+  const segment = uri.split('/').pop() ?? ''
+  try {
+    return decodeURIComponent(segment) || 'document'
+  } catch {
+    return segment || 'document'
+  }
 }
 
 // Text reads go through the byte path so content://, file://, and bare paths
@@ -103,185 +103,185 @@ function fallbackName(uri: string): string {
 // Java keeps the byte[] on the native side; TextDecoder has no type surface
 // in the DOM-free native context.
 function readAndroidText(uri: string): string {
-	return readAndroidToStream(uri).toString('UTF-8') as unknown as string
+  return readAndroidToStream(uri).toString('UTF-8') as unknown as string
 }
 
 async function pickFiles(
-	accept: string,
-	multiple: boolean,
-	opts?: { startingFolder?: string },
+  accept: string,
+  multiple: boolean,
+  opts?: { startingFolder?: string },
 ): Promise<FileRef[]> {
-	const { extensions, mimeTypes } = pickerTypes(accept)
-	const result = await openFilePicker({
-		extensions,
-		mimeTypes,
-		multipleSelection: multiple,
-		permissions: { read: true, persistable: true },
-		startingFolder: opts?.startingFolder,
-	})
+  const { extensions, mimeTypes } = pickerTypes(accept)
+  const result = await openFilePicker({
+    extensions,
+    mimeTypes,
+    multipleSelection: multiple,
+    permissions: { read: true, persistable: true },
+    startingFolder: opts?.startingFolder,
+  })
 
-	return (result.files ?? []).map((uri, index) => ({
-		name: androidDisplayName(uri, index === 0 ? result.android : undefined) ?? fallbackName(uri),
-		uri,
-	}))
+  return (result.files ?? []).map((uri, index) => ({
+    name: androidDisplayName(uri, index === 0 ? result.android : undefined) ?? fallbackName(uri),
+    uri,
+  }))
 }
 
 // openInputStream accepts content:// and file:// schemes; bare paths go
 // through FileInputStream. Returns null when the resolver cannot open the URI.
 function openAndroidInput(uri: string): any {
-	const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
-	if (uri.startsWith('content://') || uri.startsWith('file://')) {
-		return activity?.getContentResolver()?.openInputStream(android.net.Uri.parse(uri))
-	}
+  const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+  if (uri.startsWith('content://') || uri.startsWith('file://')) {
+    return activity?.getContentResolver()?.openInputStream(android.net.Uri.parse(uri))
+  }
 
-	return new java.io.FileInputStream(uri)
+  return new java.io.FileInputStream(uri)
 }
 
 function readAndroidToStream(uri: string, opts?: FileReadBytesOptions): any {
-	const input = openAndroidInput(uri)
-	if (!input) {
-		throw new Error(`Unable to open picked file: ${uri}`)
-	}
+  const input = openAndroidInput(uri)
+  if (!input) {
+    throw new Error(`Unable to open picked file: ${uri}`)
+  }
 
-	const out = new java.io.ByteArrayOutputStream()
-	const chunk = Array.create('byte', READ_CHUNK)
-	try {
-		let count: number
-		while ((count = input.read(chunk)) !== -1) {
-			throwIfAborted(opts?.signal)
-			out.write(chunk, 0, count)
-			if (opts?.maxBytes != null && out.size() > opts.maxBytes) {
-				throw fileTooLarge(uri, opts.maxBytes)
-			}
-		}
-	} finally {
-		input.close()
-	}
+  const out = new java.io.ByteArrayOutputStream()
+  const chunk = Array.create('byte', READ_CHUNK)
+  try {
+    let count: number
+    while ((count = input.read(chunk)) !== -1) {
+      throwIfAborted(opts?.signal)
+      out.write(chunk, 0, count)
+      if (opts?.maxBytes != null && out.size() > opts.maxBytes) {
+        throw fileTooLarge(uri, opts.maxBytes)
+      }
+    }
+  } finally {
+    input.close()
+  }
 
-	return out
+  return out
 }
 
 function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
-	const out = readAndroidToStream(uri, opts)
-	// ArrayBuffer.from is an NS Android runtime builtin that takes a
-	// java.nio.ByteBuffer — wrap the byte[] rather than marshalling per byte.
-	return new Uint8Array((ArrayBuffer as any).from(java.nio.ByteBuffer.wrap(out.toByteArray())))
+  const out = readAndroidToStream(uri, opts)
+  // ArrayBuffer.from is an NS Android runtime builtin that takes a
+  // java.nio.ByteBuffer — wrap the byte[] rather than marshalling per byte.
+  return new Uint8Array((ArrayBuffer as any).from(java.nio.ByteBuffer.wrap(out.toByteArray())))
 }
 
 // Picked iOS refs come from the picker's Import mode, so they are app-owned
 // copies — no security-scoped access needed. Single-pick URIs keep their
 // percent-encoding, so fall back to a decoded path when the literal misses.
 function iosFilePath(uri: string): string {
-	let p = uri.startsWith('file://') ? uri.slice('file://'.length) : uri
-	if (NSFileManager.defaultManager.fileExistsAtPath(p)) {
-		return p
-	}
+  let p = uri.startsWith('file://') ? uri.slice('file://'.length) : uri
+  if (NSFileManager.defaultManager.fileExistsAtPath(p)) {
+    return p
+  }
 
-	try {
-		const decoded = decodeURIComponent(p)
-		if (decoded !== p && NSFileManager.defaultManager.fileExistsAtPath(decoded)) {
-			return decoded
-		}
-	} catch {}
+  try {
+    const decoded = decodeURIComponent(p)
+    if (decoded !== p && NSFileManager.defaultManager.fileExistsAtPath(decoded)) {
+      return decoded
+    }
+  } catch {}
 
-	return p
+  return p
 }
 
 function readIosBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
-	const p = iosFilePath(uri)
-	const handle = NSFileHandle.fileHandleForReadingAtPath(p)
-	if (!handle) {
-		throw new Error(`Unable to open picked file: ${uri}`)
-	}
+  const p = iosFilePath(uri)
+  const handle = NSFileHandle.fileHandleForReadingAtPath(p)
+  if (!handle) {
+    throw new Error(`Unable to open picked file: ${uri}`)
+  }
 
-	const out = NSMutableData.new()
-	try {
-		while (true) {
-			throwIfAborted(opts?.signal)
-			const data = handle.readDataOfLength(READ_CHUNK)
-			if (!data || data.length === 0) {
-				break
-			}
+  const out = NSMutableData.new()
+  try {
+    while (true) {
+      throwIfAborted(opts?.signal)
+      const data = handle.readDataOfLength(READ_CHUNK)
+      if (!data || data.length === 0) {
+        break
+      }
 
-			out.appendData(data)
-			if (opts?.maxBytes != null && out.length > opts.maxBytes) {
-				throw fileTooLarge(uri, opts.maxBytes)
-			}
-		}
-	} finally {
-		handle.closeFile()
-	}
+      out.appendData(data)
+      if (opts?.maxBytes != null && out.length > opts.maxBytes) {
+        throw fileTooLarge(uri, opts.maxBytes)
+      }
+    }
+  } finally {
+    handle.closeFile()
+  }
 
-	return new Uint8Array(interop.bufferFromData(out))
+  return new Uint8Array(interop.bufferFromData(out))
 }
 
 // ContentResolver.openOutputStream accepts content:// and file:// URIs; bare
 // paths go through FileOutputStream. The WritableByteChannel adapter writes
 // the full buffer per the OutputStream contract — no chunked short writes.
 function writeAndroidBytes(uri: string, bytes: Uint8Array): void {
-	const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
-	const out: java.io.OutputStream | null | undefined =
-		uri.startsWith('content://') || uri.startsWith('file://')
-			? activity?.getContentResolver()?.openOutputStream(android.net.Uri.parse(uri))
-			: new java.io.FileOutputStream(uri)
+  const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+  const out: java.io.OutputStream | null | undefined =
+    uri.startsWith('content://') || uri.startsWith('file://')
+      ? activity?.getContentResolver()?.openOutputStream(android.net.Uri.parse(uri))
+      : new java.io.FileOutputStream(uri)
 
-	if (!out) {
-		throw new Error(`Unable to open destination: ${uri}`)
-	}
+  if (!out) {
+    throw new Error(`Unable to open destination: ${uri}`)
+  }
 
-	try {
-		java.nio.channels.Channels.newChannel(out).write(exactBuffer(bytes) as any)
-	} finally {
-		out.close()
-	}
+  try {
+    java.nio.channels.Channels.newChannel(out).write(exactBuffer(bytes) as any)
+  } finally {
+    out.close()
+  }
 }
 
 function androidExport(
-	name: string,
-	bytes: Uint8Array,
-	opts?: FileExportOptions,
+  name: string,
+  bytes: Uint8Array,
+  opts?: FileExportOptions,
 ): Promise<FileExportResult> {
-	const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
-	if (!activity) {
-		return Promise.resolve('unavailable')
-	}
+  const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+  if (!activity) {
+    return Promise.resolve('unavailable')
+  }
 
-	const Intent = android.content.Intent
-	const intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
-	intent.addCategory(Intent.CATEGORY_OPENABLE)
-	intent.setType(opts?.mimeType ?? '*/*')
-	intent.putExtra(Intent.EXTRA_TITLE, name)
-	intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION)
+  const Intent = android.content.Intent
+  const intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+  intent.addCategory(Intent.CATEGORY_OPENABLE)
+  intent.setType(opts?.mimeType ?? '*/*')
+  intent.putExtra(Intent.EXTRA_TITLE, name)
+  intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION)
 
-	return new Promise<FileExportResult>((resolve, reject) => {
-		const onEvent = (event: any) => {
-			if (event.requestCode !== ANDROID_EXPORT_REQUEST_CODE) {
-				return
-			}
+  return new Promise<FileExportResult>((resolve, reject) => {
+    const onEvent = (event: any) => {
+      if (event.requestCode !== ANDROID_EXPORT_REQUEST_CODE) {
+        return
+      }
 
-			Application.android.off(Application.android.activityResultEvent, onEvent)
-			const uri = event.intent?.getData?.()
-			if (event.resultCode !== android.app.Activity.RESULT_OK || !uri) {
-				resolve('cancelled')
-				return
-			}
+      Application.android.off(Application.android.activityResultEvent, onEvent)
+      const uri = event.intent?.getData?.()
+      if (event.resultCode !== android.app.Activity.RESULT_OK || !uri) {
+        resolve('cancelled')
+        return
+      }
 
-			try {
-				writeAndroidBytes(uri.toString(), bytes)
-				resolve('saved')
-			} catch (error) {
-				reject(error)
-			}
-		}
+      try {
+        writeAndroidBytes(uri.toString(), bytes)
+        resolve('saved')
+      } catch (error) {
+        reject(error)
+      }
+    }
 
-		Application.android.on(Application.android.activityResultEvent, onEvent)
-		try {
-			activity.startActivityForResult(intent, ANDROID_EXPORT_REQUEST_CODE)
-		} catch (error) {
-			Application.android.off(Application.android.activityResultEvent, onEvent)
-			reject(error)
-		}
-	})
+    Application.android.on(Application.android.activityResultEvent, onEvent)
+    try {
+      activity.startActivityForResult(intent, ANDROID_EXPORT_REQUEST_CODE)
+    } catch (error) {
+      Application.android.off(Application.android.activityResultEvent, onEvent)
+      reject(error)
+    }
+  })
 }
 
 // One export UI at a time: Android listeners share the activity-result event,
@@ -295,42 +295,42 @@ let activeExport: { delegate?: any; controller?: any } | null = null
 let IosExportDelegate: any = null
 
 function iosExportDelegateClass(): any {
-	if (IosExportDelegate) {
-		return IosExportDelegate
-	}
+  if (IosExportDelegate) {
+    return IosExportDelegate
+  }
 
-	IosExportDelegate = class extends NSObject {
-		static ObjCProtocols = [UIDocumentPickerDelegate]
-		finish: ((saved: boolean) => void) | null = null
+  IosExportDelegate = class extends NSObject {
+    static ObjCProtocols = [UIDocumentPickerDelegate]
+    finish: ((saved: boolean) => void) | null = null
 
-		documentPickerDidPickDocumentAtURL(controller: any, _url: any): void {
-			this.settle(controller, true)
-		}
-		documentPickerDidPickDocumentsAtURLs(controller: any, urls: any): void {
-			this.settle(controller, urls.count > 0)
-		}
-		documentPickerWasCancelled(controller: any): void {
-			this.settle(controller, false)
-		}
-		private settle(controller: any, saved: boolean): void {
-			const finish = this.finish
-			this.finish = null
-			controller.delegate = null
-			finish?.(saved)
-		}
-	}
+    documentPickerDidPickDocumentAtURL(controller: any, _url: any): void {
+      this.settle(controller, true)
+    }
+    documentPickerDidPickDocumentsAtURLs(controller: any, urls: any): void {
+      this.settle(controller, urls.count > 0)
+    }
+    documentPickerWasCancelled(controller: any): void {
+      this.settle(controller, false)
+    }
+    private settle(controller: any, saved: boolean): void {
+      const finish = this.finish
+      this.finish = null
+      controller.delegate = null
+      finish?.(saved)
+    }
+  }
 
-	return IosExportDelegate
+  return IosExportDelegate
 }
 
 function iosVisibleViewController(): any {
-	const app = UIApplication.sharedApplication
-	const keyWindow = app.keyWindow || (app.windows.count > 0 && app.windows[0])
-	// Utils.ios is only populated on iOS — typed as an empty bag elsewhere.
-	const getVisible = (Utils.ios as any)?.getVisibleViewController
-	return keyWindow && typeof getVisible === 'function'
-		? getVisible(keyWindow.rootViewController)
-		: null
+  const app = UIApplication.sharedApplication
+  const keyWindow = app.keyWindow || (app.windows.count > 0 && app.windows[0])
+  // Utils.ios is only populated on iOS — typed as an empty bag elsewhere.
+  const getVisible = (Utils.ios as any)?.getVisibleViewController
+  return keyWindow && typeof getVisible === 'function'
+    ? getVisible(keyWindow.rootViewController)
+    : null
 }
 
 // Own export picker rather than the upstream plugin's saveFile: that helper
@@ -338,141 +338,141 @@ function iosVisibleViewController(): any {
 // controller leaves the promise unsettled) and holds the picker delegate in
 // one weak module slot, so overlapping calls drop the earlier request.
 async function iosExport(
-	name: string,
-	bytes: Uint8Array,
-	slot: { delegate?: any; controller?: any },
+  name: string,
+  bytes: Uint8Array,
+  slot: { delegate?: any; controller?: any },
 ): Promise<FileExportResult> {
-	// Stage under a dedicated folder — a bare name in the shared temp folder
-	// could overwrite (and then delete) an unrelated app file with that name.
-	const staging = knownFolders.temp().getFolder('xplat-export')
-	const tempPath = path.join(staging.path, name)
-	const staged = NSData.dataWithBytesLength(
-		exactBuffer(bytes) as any,
-		bytes.byteLength,
-	).writeToFileAtomically(tempPath, true)
+  // Stage under a dedicated folder — a bare name in the shared temp folder
+  // could overwrite (and then delete) an unrelated app file with that name.
+  const staging = knownFolders.temp().getFolder('xplat-export')
+  const tempPath = path.join(staging.path, name)
+  const staged = NSData.dataWithBytesLength(
+    exactBuffer(bytes) as any,
+    bytes.byteLength,
+  ).writeToFileAtomically(tempPath, true)
 
-	const removeTemp = () => {
-		try {
-			File.fromPath(tempPath).removeSync()
-		} catch {}
-	}
+  const removeTemp = () => {
+    try {
+      File.fromPath(tempPath).removeSync()
+    } catch {}
+  }
 
-	if (!staged) {
-		throw new Error(`Failed to stage export file: ${name}`)
-	}
+  if (!staged) {
+    throw new Error(`Failed to stage export file: ${name}`)
+  }
 
-	const visibleVC = iosVisibleViewController()
-	if (!visibleVC) {
-		removeTemp()
-		throw new Error('No visible view controller to present the export picker')
-	}
+  const visibleVC = iosVisibleViewController()
+  if (!visibleVC) {
+    removeTemp()
+    throw new Error('No visible view controller to present the export picker')
+  }
 
-	return new Promise<FileExportResult>((resolve, reject) => {
-		try {
-			const controller = UIDocumentPickerViewController.alloc().initForExportingURLsAsCopy(
-				[NSURL.fileURLWithPath(tempPath)] as any,
-				true,
-			)
+  return new Promise<FileExportResult>((resolve, reject) => {
+    try {
+      const controller = UIDocumentPickerViewController.alloc().initForExportingURLsAsCopy(
+        [NSURL.fileURLWithPath(tempPath)] as any,
+        true,
+      )
 
-			const delegate = iosExportDelegateClass().new()
-			// `saved` only after the system commits the export-as-copy to the
-			// chosen destination; dismissal settles as 'cancelled'.
-			delegate.finish = (saved: boolean) => {
-				removeTemp()
-				resolve(saved ? 'saved' : 'cancelled')
-			}
+      const delegate = iosExportDelegateClass().new()
+      // `saved` only after the system commits the export-as-copy to the
+      // chosen destination; dismissal settles as 'cancelled'.
+      delegate.finish = (saved: boolean) => {
+        removeTemp()
+        resolve(saved ? 'saved' : 'cancelled')
+      }
 
-			slot.delegate = delegate
-			slot.controller = controller
-			controller.delegate = delegate
-			controller.shouldShowFileExtensions = true
-			visibleVC.presentViewControllerAnimatedCompletion(controller, true, null)
-		} catch (error) {
-			removeTemp()
-			reject(error)
-		}
-	})
+      slot.delegate = delegate
+      slot.controller = controller
+      controller.delegate = delegate
+      controller.shouldShowFileExtensions = true
+      visibleVC.presentViewControllerAnimatedCompletion(controller, true, null)
+    } catch (error) {
+      removeTemp()
+      reject(error)
+    }
+  })
 }
 
 /** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
-	async pickMultiple(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef[]> {
-		return pickFiles(accept, true, opts)
-	},
-	async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
-		return (await pickFiles(accept, false, opts))[0] ?? null
-	},
-	async readText(ref: FileRef): Promise<string> {
-		if (Application.android) {
-			return readAndroidText(ref.uri)
-		}
+  async pickMultiple(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef[]> {
+    return pickFiles(accept, true, opts)
+  },
+  async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
+    return (await pickFiles(accept, false, opts))[0] ?? null
+  },
+  async readText(ref: FileRef): Promise<string> {
+    if (Application.android) {
+      return readAndroidText(ref.uri)
+    }
 
-		return File.fromPath(iosFilePath(ref.uri)).readText()
-	},
-	async readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
-		throwIfAborted(opts?.signal)
-		return Application.android ? readAndroidBytes(ref.uri, opts) : readIosBytes(ref.uri, opts)
-	},
-	async writeText(name: string, text: string): Promise<FileRef> {
-		assertSafeFileName(name)
-		const p = path.join(docs().path, name)
-		const f = File.fromPath(p)
-		await f.writeText(text)
-		return { name, uri: p }
-	},
-	async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
-		assertSafeFileName(name)
-		const p = path.join(docs().path, name)
-		if (Application.android) {
-			writeAndroidBytes(p, bytes)
-		} else {
-			// FileSystemAccess.writeBufferSync drops the writeToFileAtomically
-			// result and swallows errors without an onError callback, so a
-			// failed write would resolve with a ref to a missing file. Check
-			// the BOOL — it is the platform's overwrite confirmation. Marshal
-			// the view's exact range — the bridge treats the buffer as whole.
-			const written = NSData.dataWithBytesLength(
-				exactBuffer(bytes) as any,
-				bytes.byteLength,
-			).writeToFileAtomically(p, true)
+    return File.fromPath(iosFilePath(ref.uri)).readText()
+  },
+  async readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
+    throwIfAborted(opts?.signal)
+    return Application.android ? readAndroidBytes(ref.uri, opts) : readIosBytes(ref.uri, opts)
+  },
+  async writeText(name: string, text: string): Promise<FileRef> {
+    assertSafeFileName(name)
+    const p = path.join(docs().path, name)
+    const f = File.fromPath(p)
+    await f.writeText(text)
+    return { name, uri: p }
+  },
+  async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
+    assertSafeFileName(name)
+    const p = path.join(docs().path, name)
+    if (Application.android) {
+      writeAndroidBytes(p, bytes)
+    } else {
+      // FileSystemAccess.writeBufferSync drops the writeToFileAtomically
+      // result and swallows errors without an onError callback, so a
+      // failed write would resolve with a ref to a missing file. Check
+      // the BOOL — it is the platform's overwrite confirmation. Marshal
+      // the view's exact range — the bridge treats the buffer as whole.
+      const written = NSData.dataWithBytesLength(
+        exactBuffer(bytes) as any,
+        bytes.byteLength,
+      ).writeToFileAtomically(p, true)
 
-			if (!written) {
-				throw new Error(`Failed to write file: ${p}`)
-			}
-		}
+      if (!written) {
+        throw new Error(`Failed to write file: ${p}`)
+      }
+    }
 
-		return { name, uri: p }
-	},
-	async export(
-		name: string,
-		bytes: Uint8Array,
-		opts?: FileExportOptions,
-	): Promise<FileExportResult> {
-		assertSafeFileName(name)
-		if (activeExport) {
-			throw exportBusy()
-		}
+    return { name, uri: p }
+  },
+  async export(
+    name: string,
+    bytes: Uint8Array,
+    opts?: FileExportOptions,
+  ): Promise<FileExportResult> {
+    assertSafeFileName(name)
+    if (activeExport) {
+      throw exportBusy()
+    }
 
-		const slot: { delegate?: any; controller?: any } = {}
-		activeExport = slot
-		try {
-			return Application.android
-				? await androidExport(name, bytes, opts)
-				: await iosExport(name, bytes, slot)
-		} finally {
-			if (activeExport === slot) {
-				activeExport = null
-			}
-		}
-	},
-	release(ref: FileRef): void {
-		const cachePrefix = knownFolders.temp().path + '/'
-		if (!ref.uri.startsWith(cachePrefix)) {
-			return
-		}
+    const slot: { delegate?: any; controller?: any } = {}
+    activeExport = slot
+    try {
+      return Application.android
+        ? await androidExport(name, bytes, opts)
+        : await iosExport(name, bytes, slot)
+    } finally {
+      if (activeExport === slot) {
+        activeExport = null
+      }
+    }
+  },
+  release(ref: FileRef): void {
+    const cachePrefix = knownFolders.temp().path + '/'
+    if (!ref.uri.startsWith(cachePrefix)) {
+      return
+    }
 
-		try {
-			File.fromPath(ref.uri).removeSync()
-		} catch {}
-	},
+    try {
+      File.fromPath(ref.uri).removeSync()
+    } catch {}
+  },
 }

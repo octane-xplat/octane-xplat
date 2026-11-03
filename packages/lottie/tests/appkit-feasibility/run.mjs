@@ -11,50 +11,50 @@ const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../../../..')
 const leaf = join(repo, 'packages/lottie')
 const animation = {
-	v: '5.7.0',
-	fr: 30,
-	ip: 0,
-	op: 30,
-	w: 100,
-	h: 100,
-	nm: 'AppKit fixture',
-	ddd: 0,
-	assets: [],
-	layers: [
-		{
-			ddd: 0,
-			ind: 1,
-			ty: 1,
-			nm: 'moving solid',
-			sr: 1,
-			ks: {
-				o: { a: 0, k: 100 },
-				r: { a: 0, k: 0 },
-				p: {
-					a: 1,
-					k: [
-						{
-							t: 0,
-							s: [0, 50, 0],
-							e: [100, 50, 0],
-							o: { x: 0.33, y: 0.33 },
-							i: { x: 0.67, y: 0.67 },
-						},
-						{ t: 30, s: [100, 50, 0] },
-					],
-				},
-				a: { a: 0, k: [0, 0, 0] },
-				s: { a: 0, k: [100, 100, 100] },
-			},
-			sw: 20,
-			sh: 20,
-			sc: '#ff0000',
-			ip: 0,
-			op: 30,
-			st: 0,
-			bm: 0,
-		},
-	],
+  v: '5.7.0',
+  fr: 30,
+  ip: 0,
+  op: 30,
+  w: 100,
+  h: 100,
+  nm: 'AppKit fixture',
+  ddd: 0,
+  assets: [],
+  layers: [
+    {
+      ddd: 0,
+      ind: 1,
+      ty: 1,
+      nm: 'moving solid',
+      sr: 1,
+      ks: {
+        o: { a: 0, k: 100 },
+        r: { a: 0, k: 0 },
+        p: {
+          a: 1,
+          k: [
+            {
+              t: 0,
+              s: [0, 50, 0],
+              e: [100, 50, 0],
+              o: { x: 0.33, y: 0.33 },
+              i: { x: 0.67, y: 0.67 },
+            },
+            { t: 30, s: [100, 50, 0] },
+          ],
+        },
+        a: { a: 0, k: [0, 0, 0] },
+        s: { a: 0, k: [100, 100, 100] },
+      },
+      sw: 20,
+      sh: 20,
+      sc: '#ff0000',
+      ip: 0,
+      op: 30,
+      st: 0,
+      bm: 0,
+    },
+  ],
 }
 
 await mkdir(join(repo, 'research'), { recursive: true })
@@ -63,11 +63,11 @@ await mkdir(join(app, 'node_modules'))
 await mkdir(join(app, 'node_modules/@octane-xplat'))
 await symlink(leaf, join(app, 'node_modules/@octane-xplat/lottie'))
 await writeFile(
-	join(app, 'package.json'),
-	JSON.stringify({
-		private: true,
-		dependencies: { '@octane-xplat/lottie': 'workspace:*' },
-	}),
+  join(app, 'package.json'),
+  JSON.stringify({
+    private: true,
+    dependencies: { '@octane-xplat/lottie': 'workspace:*' },
+  }),
 )
 
 const fixturePath = join(app, 'animation.json')
@@ -85,38 +85,38 @@ const bootstrap = join(app, 'bootstrap.js')
 await writeNativeBootstrap(artifact, bootstrap)
 const host = await macOSExecutable(app, 'macos/host')
 const result = await new Promise((resolveRun) => {
-	const child = spawn(
-		host,
-		[
-			join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-			join(here, 'probe.cjs'),
-			artifact.metadata[macOSHostArch()],
-			bootstrap,
-		],
-		{
-			cwd: app,
-			env: {
-				...process.env,
-				LOTTIE_FIXTURE_PATH: fixturePath,
-			},
-		},
-	)
+  const child = spawn(
+    host,
+    [
+      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+      join(here, 'probe.cjs'),
+      artifact.metadata[macOSHostArch()],
+      bootstrap,
+    ],
+    {
+      cwd: app,
+      env: {
+        ...process.env,
+        LOTTIE_FIXTURE_PATH: fixturePath,
+      },
+    },
+  )
 
-	let stdout = ''
-	let stderr = ''
-	const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
-	child.stdout.setEncoding('utf8').on('data', (chunk) => {
-		stdout += chunk
-	})
+  let stdout = ''
+  let stderr = ''
+  const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
+  child.stdout.setEncoding('utf8').on('data', (chunk) => {
+    stdout += chunk
+  })
 
-	child.stderr.setEncoding('utf8').on('data', (chunk) => {
-		stderr += chunk
-	})
+  child.stderr.setEncoding('utf8').on('data', (chunk) => {
+    stderr += chunk
+  })
 
-	child.once('close', (status, signal) => {
-		clearTimeout(timeout)
-		resolveRun({ status, signal, stdout, stderr })
-	})
+  child.once('close', (status, signal) => {
+    clearTimeout(timeout)
+    resolveRun({ status, signal, stdout, stderr })
+  })
 })
 
 console.log(result.stdout)

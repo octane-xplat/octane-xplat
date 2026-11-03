@@ -17,10 +17,10 @@ export type AVAsset_c = typeof AVAsset
 export type AVAssetCache_t = AVAssetCache
 export type AVAssetCache_c = typeof AVAssetCache
 export type AVAssetChapterMetadataGroupsDidChangeNotification_c =
-	typeof AVAssetChapterMetadataGroupsDidChangeNotification
+  typeof AVAssetChapterMetadataGroupsDidChangeNotification
 
 export type AVAssetContainsFragmentsDidChangeNotification_c =
-	typeof AVAssetContainsFragmentsDidChangeNotification
+  typeof AVAssetContainsFragmentsDidChangeNotification
 
 export type AVAssetDownloadConfiguration_t = AVAssetDownloadConfiguration
 export type AVAssetDownloadConfiguration_c = typeof AVAssetDownloadConfiguration
@@ -36,25 +36,25 @@ export type AVAssetDownloadTask_t = AVAssetDownloadTask
 export type AVAssetDownloadTask_c = typeof AVAssetDownloadTask
 export type AVAssetDownloadTaskMediaSelectionKey_c = typeof AVAssetDownloadTaskMediaSelectionKey
 export type AVAssetDownloadTaskMediaSelectionPrefersMultichannelKey_c =
-	typeof AVAssetDownloadTaskMediaSelectionPrefersMultichannelKey
+  typeof AVAssetDownloadTaskMediaSelectionPrefersMultichannelKey
 
 export type AVAssetDownloadTaskMinimumRequiredMediaBitrateKey_c =
-	typeof AVAssetDownloadTaskMinimumRequiredMediaBitrateKey
+  typeof AVAssetDownloadTaskMinimumRequiredMediaBitrateKey
 
 export type AVAssetDownloadTaskMinimumRequiredPresentationSizeKey_c =
-	typeof AVAssetDownloadTaskMinimumRequiredPresentationSizeKey
+  typeof AVAssetDownloadTaskMinimumRequiredPresentationSizeKey
 
 export type AVAssetDownloadTaskPrefersHDRKey_c = typeof AVAssetDownloadTaskPrefersHDRKey
 export type AVAssetDownloadTaskPrefersLosslessAudioKey_c =
-	typeof AVAssetDownloadTaskPrefersLosslessAudioKey
+  typeof AVAssetDownloadTaskPrefersLosslessAudioKey
 
 export type AVAssetDownloadURLSession_t = AVAssetDownloadURLSession
 export type AVAssetDownloadURLSession_c = typeof AVAssetDownloadURLSession
 export type AVAssetDownloadedAssetEvictionPriorityDefault_c =
-	typeof AVAssetDownloadedAssetEvictionPriorityDefault
+  typeof AVAssetDownloadedAssetEvictionPriorityDefault
 
 export type AVAssetDownloadedAssetEvictionPriorityImportant_c =
-	typeof AVAssetDownloadedAssetEvictionPriorityImportant
+  typeof AVAssetDownloadedAssetEvictionPriorityImportant
 
 export type AVAssetDurationDidChangeNotification_c = typeof AVAssetDurationDidChangeNotification
 export type AVAssetExportPreset1280x720_c = typeof AVAssetExportPreset1280x720
@@ -67,17 +67,17 @@ export type AVAssetExportPresetAppleProRes422LPCM_c = typeof AVAssetExportPreset
 export type AVAssetExportPresetAppleProRes4444LPCM_c = typeof AVAssetExportPresetAppleProRes4444LPCM
 export type AVAssetExportPresetHEVC1920x1080_c = typeof AVAssetExportPresetHEVC1920x1080
 export type AVAssetExportPresetHEVC1920x1080WithAlpha_c =
-	typeof AVAssetExportPresetHEVC1920x1080WithAlpha
+  typeof AVAssetExportPresetHEVC1920x1080WithAlpha
 
 export type AVAssetExportPresetHEVC3840x2160_c = typeof AVAssetExportPresetHEVC3840x2160
 export type AVAssetExportPresetHEVC3840x2160WithAlpha_c =
-	typeof AVAssetExportPresetHEVC3840x2160WithAlpha
+  typeof AVAssetExportPresetHEVC3840x2160WithAlpha
 
 export type AVAssetExportPresetHEVC4320x2160_c = typeof AVAssetExportPresetHEVC4320x2160
 export type AVAssetExportPresetHEVC7680x4320_c = typeof AVAssetExportPresetHEVC7680x4320
 export type AVAssetExportPresetHEVCHighestQuality_c = typeof AVAssetExportPresetHEVCHighestQuality
 export type AVAssetExportPresetHEVCHighestQualityWithAlpha_c =
-	typeof AVAssetExportPresetHEVCHighestQualityWithAlpha
+  typeof AVAssetExportPresetHEVCHighestQualityWithAlpha
 
 export type AVAssetExportPresetHighestQuality_c = typeof AVAssetExportPresetHighestQuality
 export type AVAssetExportPresetLowQuality_c = typeof AVAssetExportPresetLowQuality
@@ -90,16 +90,16 @@ export type AVAssetExportPresetPassthrough_c = typeof AVAssetExportPresetPassthr
 export type AVAssetExportSession_t = AVAssetExportSession
 export type AVAssetExportSession_c = typeof AVAssetExportSession
 export type AVAssetExportSessionResumptionFailureReasonIncompatibleSessionSettings_c =
-	typeof AVAssetExportSessionResumptionFailureReasonIncompatibleSessionSettings
+  typeof AVAssetExportSessionResumptionFailureReasonIncompatibleSessionSettings
 
 export type AVAssetExportSessionResumptionFailureReasonIncompatibleTemporaryDirectoryContents_c =
-	typeof AVAssetExportSessionResumptionFailureReasonIncompatibleTemporaryDirectoryContents
+  typeof AVAssetExportSessionResumptionFailureReasonIncompatibleTemporaryDirectoryContents
 
 export type AVAssetExportSessionResumptionFailureReasonTemporaryDirectoryDoesNotExist_c =
-	typeof AVAssetExportSessionResumptionFailureReasonTemporaryDirectoryDoesNotExist
+  typeof AVAssetExportSessionResumptionFailureReasonTemporaryDirectoryDoesNotExist
 
 export type AVAssetExportSessionResumptionFailureReasonUnsupportedForPresetOnPlatform_c =
-	typeof AVAssetExportSessionResumptionFailureReasonUnsupportedForPresetOnPlatform
+  typeof AVAssetExportSessionResumptionFailureReasonUnsupportedForPresetOnPlatform
 
 export type AVAssetExportSessionResumptionState_t = AVAssetExportSessionResumptionState
 export type AVAssetExportSessionResumptionState_c = typeof AVAssetExportSessionResumptionState
@@ -108,38 +108,38 @@ export type AVAssetExportSessionStatus_c = typeof AVAssetExportSessionStatus
 export type AVAssetImageGenerator_t = AVAssetImageGenerator
 export type AVAssetImageGenerator_c = typeof AVAssetImageGenerator
 export type AVAssetImageGeneratorApertureModeCleanAperture_c =
-	typeof AVAssetImageGeneratorApertureModeCleanAperture
+  typeof AVAssetImageGeneratorApertureModeCleanAperture
 
 export type AVAssetImageGeneratorApertureModeEncodedPixels_c =
-	typeof AVAssetImageGeneratorApertureModeEncodedPixels
+  typeof AVAssetImageGeneratorApertureModeEncodedPixels
 
 export type AVAssetImageGeneratorApertureModeProductionAperture_c =
-	typeof AVAssetImageGeneratorApertureModeProductionAperture
+  typeof AVAssetImageGeneratorApertureModeProductionAperture
 
 export type AVAssetImageGeneratorDynamicRangePolicyForceSDR_c =
-	typeof AVAssetImageGeneratorDynamicRangePolicyForceSDR
+  typeof AVAssetImageGeneratorDynamicRangePolicyForceSDR
 
 export type AVAssetImageGeneratorDynamicRangePolicyMatchSource_c =
-	typeof AVAssetImageGeneratorDynamicRangePolicyMatchSource
+  typeof AVAssetImageGeneratorDynamicRangePolicyMatchSource
 
 export type AVAssetImageGeneratorResult_t = AVAssetImageGeneratorResult
 export type AVAssetImageGeneratorResult_c = typeof AVAssetImageGeneratorResult
 export type AVAssetMediaSelectionGroupsDidChangeNotification_c =
-	typeof AVAssetMediaSelectionGroupsDidChangeNotification
+  typeof AVAssetMediaSelectionGroupsDidChangeNotification
 
 export type AVAssetPlaybackAssistant_t = AVAssetPlaybackAssistant
 export type AVAssetPlaybackAssistant_c = typeof AVAssetPlaybackAssistant
 export type AVAssetPlaybackConfigurationOptionNonRectilinearProjection_c =
-	typeof AVAssetPlaybackConfigurationOptionNonRectilinearProjection
+  typeof AVAssetPlaybackConfigurationOptionNonRectilinearProjection
 
 export type AVAssetPlaybackConfigurationOptionSpatialVideo_c =
-	typeof AVAssetPlaybackConfigurationOptionSpatialVideo
+  typeof AVAssetPlaybackConfigurationOptionSpatialVideo
 
 export type AVAssetPlaybackConfigurationOptionStereoMultiviewVideo_c =
-	typeof AVAssetPlaybackConfigurationOptionStereoMultiviewVideo
+  typeof AVAssetPlaybackConfigurationOptionStereoMultiviewVideo
 
 export type AVAssetPlaybackConfigurationOptionStereoVideo_c =
-	typeof AVAssetPlaybackConfigurationOptionStereoVideo
+  typeof AVAssetPlaybackConfigurationOptionStereoVideo
 
 export type AVAssetReader_t = AVAssetReader
 export type AVAssetReader_c = typeof AVAssetReader
@@ -168,17 +168,17 @@ export type AVAssetResourceLoader_c = typeof AVAssetResourceLoader
 export type AVAssetResourceLoaderDelegate_t = AVAssetResourceLoaderDelegate
 export type AVAssetResourceLoaderDelegate_c = typeof AVAssetResourceLoaderDelegate
 export type AVAssetResourceLoadingContentInformationRequest_t =
-	AVAssetResourceLoadingContentInformationRequest
+  AVAssetResourceLoadingContentInformationRequest
 
 export type AVAssetResourceLoadingContentInformationRequest_c =
-	typeof AVAssetResourceLoadingContentInformationRequest
+  typeof AVAssetResourceLoadingContentInformationRequest
 
 export type AVAssetResourceLoadingDataRequest_t = AVAssetResourceLoadingDataRequest
 export type AVAssetResourceLoadingDataRequest_c = typeof AVAssetResourceLoadingDataRequest
 export type AVAssetResourceLoadingRequest_t = AVAssetResourceLoadingRequest
 export type AVAssetResourceLoadingRequest_c = typeof AVAssetResourceLoadingRequest
 export type AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey_c =
-	typeof AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey
+  typeof AVAssetResourceLoadingRequestStreamingContentKeyRequestRequiresPersistentKey
 
 export type AVAssetResourceLoadingRequestor_t = AVAssetResourceLoadingRequestor
 export type AVAssetResourceLoadingRequestor_c = typeof AVAssetResourceLoadingRequestor
@@ -203,23 +203,23 @@ export type AVAssetTrackPlan_c = typeof AVAssetTrackPlan
 export type AVAssetTrackSegment_t = AVAssetTrackSegment
 export type AVAssetTrackSegment_c = typeof AVAssetTrackSegment
 export type AVAssetTrackSegmentsDidChangeNotification_c =
-	typeof AVAssetTrackSegmentsDidChangeNotification
+  typeof AVAssetTrackSegmentsDidChangeNotification
 
 export type AVAssetTrackTimeRangeDidChangeNotification_c =
-	typeof AVAssetTrackTimeRangeDidChangeNotification
+  typeof AVAssetTrackTimeRangeDidChangeNotification
 
 export type AVAssetTrackTrackAssociationsDidChangeNotification_c =
-	typeof AVAssetTrackTrackAssociationsDidChangeNotification
+  typeof AVAssetTrackTrackAssociationsDidChangeNotification
 
 export type AVAssetVariant_t = AVAssetVariant
 export type AVAssetVariant_c = typeof AVAssetVariant
 export type AVAssetVariantAudioAttributes_t = AVAssetVariantAudioAttributes
 export type AVAssetVariantAudioAttributes_c = typeof AVAssetVariantAudioAttributes
 export type AVAssetVariantAudioRenditionSpecificAttributes_t =
-	AVAssetVariantAudioRenditionSpecificAttributes
+  AVAssetVariantAudioRenditionSpecificAttributes
 
 export type AVAssetVariantAudioRenditionSpecificAttributes_c =
-	typeof AVAssetVariantAudioRenditionSpecificAttributes
+  typeof AVAssetVariantAudioRenditionSpecificAttributes
 
 export type AVAssetVariantQualifier_t = AVAssetVariantQualifier
 export type AVAssetVariantQualifier_c = typeof AVAssetVariantQualifier
@@ -241,13 +241,13 @@ export type AVAssetWriterInputCaptionAdaptor_c = typeof AVAssetWriterInputCaptio
 export type AVAssetWriterInputGroup_t = AVAssetWriterInputGroup
 export type AVAssetWriterInputGroup_c = typeof AVAssetWriterInputGroup
 export type AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved_c =
-	typeof AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved
+  typeof AVAssetWriterInputMediaDataLocationBeforeMainMediaDataNotInterleaved
 
 export type AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData_c =
-	typeof AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData
+  typeof AVAssetWriterInputMediaDataLocationInterleavedWithMainMediaData
 
 export type AVAssetWriterInputMediaDataLocationSparselyInterleavedWithMainMediaData_c =
-	typeof AVAssetWriterInputMediaDataLocationSparselyInterleavedWithMainMediaData
+  typeof AVAssetWriterInputMediaDataLocationSparselyInterleavedWithMainMediaData
 
 export type AVAssetWriterInputMetadataAdaptor_t = AVAssetWriterInputMetadataAdaptor
 export type AVAssetWriterInputMetadataAdaptor_c = typeof AVAssetWriterInputMetadataAdaptor
@@ -256,10 +256,10 @@ export type AVAssetWriterInputPassDescription_c = typeof AVAssetWriterInputPassD
 export type AVAssetWriterInputPixelBufferAdaptor_t = AVAssetWriterInputPixelBufferAdaptor
 export type AVAssetWriterInputPixelBufferAdaptor_c = typeof AVAssetWriterInputPixelBufferAdaptor
 export type AVAssetWriterInputTaggedPixelBufferGroupAdaptor_t =
-	AVAssetWriterInputTaggedPixelBufferGroupAdaptor
+  AVAssetWriterInputTaggedPixelBufferGroupAdaptor
 
 export type AVAssetWriterInputTaggedPixelBufferGroupAdaptor_c =
-	typeof AVAssetWriterInputTaggedPixelBufferGroupAdaptor
+  typeof AVAssetWriterInputTaggedPixelBufferGroupAdaptor
 
 export type AVAssetWriterStatus_t = AVAssetWriterStatus
 export type AVAssetWriterStatus_c = typeof AVAssetWriterStatus
@@ -290,13 +290,13 @@ export type AVAudio3DVectorOrientation_c = typeof AVAudio3DVectorOrientation
 export type AVAudioApplication_t = AVAudioApplication
 export type AVAudioApplication_c = typeof AVAudioApplication
 export type AVAudioApplicationInputMuteStateChangeNotification_c =
-	typeof AVAudioApplicationInputMuteStateChangeNotification
+  typeof AVAudioApplicationInputMuteStateChangeNotification
 
 export type AVAudioApplicationMicrophoneInjectionPermission_t =
-	AVAudioApplicationMicrophoneInjectionPermission
+  AVAudioApplicationMicrophoneInjectionPermission
 
 export type AVAudioApplicationMicrophoneInjectionPermission_c =
-	typeof AVAudioApplicationMicrophoneInjectionPermission
+  typeof AVAudioApplicationMicrophoneInjectionPermission
 
 export type AVAudioApplicationMuteStateKey_c = typeof AVAudioApplicationMuteStateKey
 export type AVAudioApplicationRecordPermission_t = AVAudioApplicationRecordPermission
@@ -305,7 +305,7 @@ export type AVAudioBitRateStrategy_Constant_c = typeof AVAudioBitRateStrategy_Co
 export type AVAudioBitRateStrategy_LongTermAverage_c = typeof AVAudioBitRateStrategy_LongTermAverage
 export type AVAudioBitRateStrategy_Variable_c = typeof AVAudioBitRateStrategy_Variable
 export type AVAudioBitRateStrategy_VariableConstrained_c =
-	typeof AVAudioBitRateStrategy_VariableConstrained
+  typeof AVAudioBitRateStrategy_VariableConstrained
 
 export type AVAudioBuffer_t = AVAudioBuffer
 export type AVAudioBuffer_c = typeof AVAudioBuffer
@@ -331,12 +331,12 @@ export type AVAudioConverterPrimeMethod_t = AVAudioConverterPrimeMethod
 export type AVAudioConverterPrimeMethod_c = typeof AVAudioConverterPrimeMethod
 export type AVAudioDynamicRangeControlConfiguration_t = AVAudioDynamicRangeControlConfiguration
 export type AVAudioDynamicRangeControlConfiguration_c =
-	typeof AVAudioDynamicRangeControlConfiguration
+  typeof AVAudioDynamicRangeControlConfiguration
 
 export type AVAudioEngine_t = AVAudioEngine
 export type AVAudioEngine_c = typeof AVAudioEngine
 export type AVAudioEngineConfigurationChangeNotification_c =
-	typeof AVAudioEngineConfigurationChangeNotification
+  typeof AVAudioEngineConfigurationChangeNotification
 
 export type AVAudioEngineManualRenderingError_t = AVAudioEngineManualRenderingError
 export type AVAudioEngineManualRenderingError_c = typeof AVAudioEngineManualRenderingError
@@ -345,16 +345,16 @@ export type AVAudioEngineManualRenderingMode_c = typeof AVAudioEngineManualRende
 export type AVAudioEngineManualRenderingStatus_t = AVAudioEngineManualRenderingStatus
 export type AVAudioEngineManualRenderingStatus_c = typeof AVAudioEngineManualRenderingStatus
 export type AVAudioEnvironmentDistanceAttenuationModel_t =
-	AVAudioEnvironmentDistanceAttenuationModel
+  AVAudioEnvironmentDistanceAttenuationModel
 
 export type AVAudioEnvironmentDistanceAttenuationModel_c =
-	typeof AVAudioEnvironmentDistanceAttenuationModel
+  typeof AVAudioEnvironmentDistanceAttenuationModel
 
 export type AVAudioEnvironmentDistanceAttenuationParameters_t =
-	AVAudioEnvironmentDistanceAttenuationParameters
+  AVAudioEnvironmentDistanceAttenuationParameters
 
 export type AVAudioEnvironmentDistanceAttenuationParameters_c =
-	typeof AVAudioEnvironmentDistanceAttenuationParameters
+  typeof AVAudioEnvironmentDistanceAttenuationParameters
 
 export type AVAudioEnvironmentNode_t = AVAudioEnvironmentNode
 export type AVAudioEnvironmentNode_c = typeof AVAudioEnvironmentNode
@@ -399,7 +399,7 @@ export type AVAudioPlayerNodeBufferOptions_t = AVAudioPlayerNodeBufferOptions
 export type AVAudioPlayerNodeBufferOptions_c = typeof AVAudioPlayerNodeBufferOptions
 export type AVAudioPlayerNodeCompletionCallbackType_t = AVAudioPlayerNodeCompletionCallbackType
 export type AVAudioPlayerNodeCompletionCallbackType_c =
-	typeof AVAudioPlayerNodeCompletionCallbackType
+  typeof AVAudioPlayerNodeCompletionCallbackType
 
 export type AVAudioQuality_t = AVAudioQuality
 export type AVAudioQuality_c = typeof AVAudioQuality
@@ -413,56 +413,56 @@ export type AVAudioSequencer_t = AVAudioSequencer
 export type AVAudioSequencer_c = typeof AVAudioSequencer
 export type AVAudioSequencerInfoDictionaryKeyAlbum_c = typeof AVAudioSequencerInfoDictionaryKeyAlbum
 export type AVAudioSequencerInfoDictionaryKeyApproximateDurationInSeconds_c =
-	typeof AVAudioSequencerInfoDictionaryKeyApproximateDurationInSeconds
+  typeof AVAudioSequencerInfoDictionaryKeyApproximateDurationInSeconds
 
 export type AVAudioSequencerInfoDictionaryKeyArtist_c =
-	typeof AVAudioSequencerInfoDictionaryKeyArtist
+  typeof AVAudioSequencerInfoDictionaryKeyArtist
 
 export type AVAudioSequencerInfoDictionaryKeyChannelLayout_c =
-	typeof AVAudioSequencerInfoDictionaryKeyChannelLayout
+  typeof AVAudioSequencerInfoDictionaryKeyChannelLayout
 
 export type AVAudioSequencerInfoDictionaryKeyComments_c =
-	typeof AVAudioSequencerInfoDictionaryKeyComments
+  typeof AVAudioSequencerInfoDictionaryKeyComments
 
 export type AVAudioSequencerInfoDictionaryKeyComposer_c =
-	typeof AVAudioSequencerInfoDictionaryKeyComposer
+  typeof AVAudioSequencerInfoDictionaryKeyComposer
 
 export type AVAudioSequencerInfoDictionaryKeyCopyright_c =
-	typeof AVAudioSequencerInfoDictionaryKeyCopyright
+  typeof AVAudioSequencerInfoDictionaryKeyCopyright
 
 export type AVAudioSequencerInfoDictionaryKeyEncodingApplication_c =
-	typeof AVAudioSequencerInfoDictionaryKeyEncodingApplication
+  typeof AVAudioSequencerInfoDictionaryKeyEncodingApplication
 
 export type AVAudioSequencerInfoDictionaryKeyGenre_c = typeof AVAudioSequencerInfoDictionaryKeyGenre
 export type AVAudioSequencerInfoDictionaryKeyISRC_c = typeof AVAudioSequencerInfoDictionaryKeyISRC
 export type AVAudioSequencerInfoDictionaryKeyKeySignature_c =
-	typeof AVAudioSequencerInfoDictionaryKeyKeySignature
+  typeof AVAudioSequencerInfoDictionaryKeyKeySignature
 
 export type AVAudioSequencerInfoDictionaryKeyLyricist_c =
-	typeof AVAudioSequencerInfoDictionaryKeyLyricist
+  typeof AVAudioSequencerInfoDictionaryKeyLyricist
 
 export type AVAudioSequencerInfoDictionaryKeyNominalBitRate_c =
-	typeof AVAudioSequencerInfoDictionaryKeyNominalBitRate
+  typeof AVAudioSequencerInfoDictionaryKeyNominalBitRate
 
 export type AVAudioSequencerInfoDictionaryKeyRecordedDate_c =
-	typeof AVAudioSequencerInfoDictionaryKeyRecordedDate
+  typeof AVAudioSequencerInfoDictionaryKeyRecordedDate
 
 export type AVAudioSequencerInfoDictionaryKeySourceBitDepth_c =
-	typeof AVAudioSequencerInfoDictionaryKeySourceBitDepth
+  typeof AVAudioSequencerInfoDictionaryKeySourceBitDepth
 
 export type AVAudioSequencerInfoDictionaryKeySourceEncoder_c =
-	typeof AVAudioSequencerInfoDictionaryKeySourceEncoder
+  typeof AVAudioSequencerInfoDictionaryKeySourceEncoder
 
 export type AVAudioSequencerInfoDictionaryKeySubTitle_c =
-	typeof AVAudioSequencerInfoDictionaryKeySubTitle
+  typeof AVAudioSequencerInfoDictionaryKeySubTitle
 
 export type AVAudioSequencerInfoDictionaryKeyTempo_c = typeof AVAudioSequencerInfoDictionaryKeyTempo
 export type AVAudioSequencerInfoDictionaryKeyTimeSignature_c =
-	typeof AVAudioSequencerInfoDictionaryKeyTimeSignature
+  typeof AVAudioSequencerInfoDictionaryKeyTimeSignature
 
 export type AVAudioSequencerInfoDictionaryKeyTitle_c = typeof AVAudioSequencerInfoDictionaryKeyTitle
 export type AVAudioSequencerInfoDictionaryKeyTrackNumber_c =
-	typeof AVAudioSequencerInfoDictionaryKeyTrackNumber
+  typeof AVAudioSequencerInfoDictionaryKeyTrackNumber
 
 export type AVAudioSequencerInfoDictionaryKeyYear_c = typeof AVAudioSequencerInfoDictionaryKeyYear
 export type AVAudioSession_t = AVAudioSession
@@ -470,7 +470,7 @@ export type AVAudioSession_c = typeof AVAudioSession
 export type AVAudioSessionActivationOptions_t = AVAudioSessionActivationOptions
 export type AVAudioSessionActivationOptions_c = typeof AVAudioSessionActivationOptions
 export type AVAudioSessionAvailableInputsChangeNotification_c =
-	typeof AVAudioSessionAvailableInputsChangeNotification
+  typeof AVAudioSessionAvailableInputsChangeNotification
 
 export type AVAudioSessionCapability_t = AVAudioSessionCapability
 export type AVAudioSessionCapability_c = typeof AVAudioSessionCapability
@@ -497,17 +497,17 @@ export type AVAudioSessionDeactivationSource_c = typeof AVAudioSessionDeactivati
 export type AVAudioSessionDelegate_t = AVAudioSessionDelegate
 export type AVAudioSessionDelegate_c = typeof AVAudioSessionDelegate
 export type AVAudioSessionDidBecomeActiveNotification_c =
-	typeof AVAudioSessionDidBecomeActiveNotification
+  typeof AVAudioSessionDidBecomeActiveNotification
 
 export type AVAudioSessionDidBecomeInactiveNotification_c =
-	typeof AVAudioSessionDidBecomeInactiveNotification
+  typeof AVAudioSessionDidBecomeInactiveNotification
 
 export type AVAudioSessionIOType_t = AVAudioSessionIOType
 export type AVAudioSessionIOType_c = typeof AVAudioSessionIOType
 export type AVAudioSessionInterruptionContext_t = AVAudioSessionInterruptionContext
 export type AVAudioSessionInterruptionContext_c = typeof AVAudioSessionInterruptionContext
 export type AVAudioSessionInterruptionFlags_ShouldResume_c =
-	typeof AVAudioSessionInterruptionFlags_ShouldResume
+  typeof AVAudioSessionInterruptionFlags_ShouldResume
 
 export type AVAudioSessionInterruptionNotification_c = typeof AVAudioSessionInterruptionNotification
 export type AVAudioSessionInterruptionOptionKey_c = typeof AVAudioSessionInterruptionOptionKey
@@ -520,21 +520,21 @@ export type AVAudioSessionInterruptionType_t = AVAudioSessionInterruptionType
 export type AVAudioSessionInterruptionType_c = typeof AVAudioSessionInterruptionType
 export type AVAudioSessionInterruptionTypeKey_c = typeof AVAudioSessionInterruptionTypeKey
 export type AVAudioSessionInterruptionWasSuspendedKey_c =
-	typeof AVAudioSessionInterruptionWasSuspendedKey
+  typeof AVAudioSessionInterruptionWasSuspendedKey
 
 export type AVAudioSessionLocationLower_c = typeof AVAudioSessionLocationLower
 export type AVAudioSessionLocationUpper_c = typeof AVAudioSessionLocationUpper
 export type AVAudioSessionMediaServicesWereLostNotification_c =
-	typeof AVAudioSessionMediaServicesWereLostNotification
+  typeof AVAudioSessionMediaServicesWereLostNotification
 
 export type AVAudioSessionMediaServicesWereResetNotification_c =
-	typeof AVAudioSessionMediaServicesWereResetNotification
+  typeof AVAudioSessionMediaServicesWereResetNotification
 
 export type AVAudioSessionMicrophoneInjectionCapabilitiesChangeNotification_c =
-	typeof AVAudioSessionMicrophoneInjectionCapabilitiesChangeNotification
+  typeof AVAudioSessionMicrophoneInjectionCapabilitiesChangeNotification
 
 export type AVAudioSessionMicrophoneInjectionIsAvailableKey_c =
-	typeof AVAudioSessionMicrophoneInjectionIsAvailableKey
+  typeof AVAudioSessionMicrophoneInjectionIsAvailableKey
 
 export type AVAudioSessionMicrophoneInjectionMode_t = AVAudioSessionMicrophoneInjectionMode
 export type AVAudioSessionMicrophoneInjectionMode_c = typeof AVAudioSessionMicrophoneInjectionMode
@@ -557,11 +557,11 @@ export type AVAudioSessionOrientationLeft_c = typeof AVAudioSessionOrientationLe
 export type AVAudioSessionOrientationRight_c = typeof AVAudioSessionOrientationRight
 export type AVAudioSessionOrientationTop_c = typeof AVAudioSessionOrientationTop
 export type AVAudioSessionOutputMuteStateChangeNotification_c =
-	typeof AVAudioSessionOutputMuteStateChangeNotification
+  typeof AVAudioSessionOutputMuteStateChangeNotification
 
 export type AVAudioSessionPolarPatternCardioid_c = typeof AVAudioSessionPolarPatternCardioid
 export type AVAudioSessionPolarPatternOmnidirectional_c =
-	typeof AVAudioSessionPolarPatternOmnidirectional
+  typeof AVAudioSessionPolarPatternOmnidirectional
 
 export type AVAudioSessionPolarPatternStereo_c = typeof AVAudioSessionPolarPatternStereo
 export type AVAudioSessionPolarPatternSubcardioid_c = typeof AVAudioSessionPolarPatternSubcardioid
@@ -579,10 +579,10 @@ export type AVAudioSessionPortDescription_t = AVAudioSessionPortDescription
 export type AVAudioSessionPortDescription_c = typeof AVAudioSessionPortDescription
 export type AVAudioSessionPortDisplayPort_c = typeof AVAudioSessionPortDisplayPort
 export type AVAudioSessionPortExtensionBluetoothMicrophone_t =
-	AVAudioSessionPortExtensionBluetoothMicrophone
+  AVAudioSessionPortExtensionBluetoothMicrophone
 
 export type AVAudioSessionPortExtensionBluetoothMicrophone_c =
-	typeof AVAudioSessionPortExtensionBluetoothMicrophone
+  typeof AVAudioSessionPortExtensionBluetoothMicrophone
 
 export type AVAudioSessionPortFireWire_c = typeof AVAudioSessionPortFireWire
 export type AVAudioSessionPortHDMI_c = typeof AVAudioSessionPortHDMI
@@ -602,15 +602,15 @@ export type AVAudioSessionPromptStyle_c = typeof AVAudioSessionPromptStyle
 export type AVAudioSessionRecordPermission_t = AVAudioSessionRecordPermission
 export type AVAudioSessionRecordPermission_c = typeof AVAudioSessionRecordPermission
 export type AVAudioSessionRenderingCapabilitiesChangeNotification_c =
-	typeof AVAudioSessionRenderingCapabilitiesChangeNotification
+  typeof AVAudioSessionRenderingCapabilitiesChangeNotification
 
 export type AVAudioSessionRenderingMode_t = AVAudioSessionRenderingMode
 export type AVAudioSessionRenderingMode_c = typeof AVAudioSessionRenderingMode
 export type AVAudioSessionRenderingModeChangeNotification_c =
-	typeof AVAudioSessionRenderingModeChangeNotification
+  typeof AVAudioSessionRenderingModeChangeNotification
 
 export type AVAudioSessionRenderingModeNewRenderingModeKey_c =
-	typeof AVAudioSessionRenderingModeNewRenderingModeKey
+  typeof AVAudioSessionRenderingModeNewRenderingModeKey
 
 export type AVAudioSessionResumptionContext_t = AVAudioSessionResumptionContext
 export type AVAudioSessionResumptionContext_c = typeof AVAudioSessionResumptionContext
@@ -618,11 +618,11 @@ export type AVAudioSessionResumptionContextKey_c = typeof AVAudioSessionResumpti
 export type AVAudioSessionResumptionRecommendation_t = AVAudioSessionResumptionRecommendation
 export type AVAudioSessionResumptionRecommendation_c = typeof AVAudioSessionResumptionRecommendation
 export type AVAudioSessionResumptionRecommendationNotification_c =
-	typeof AVAudioSessionResumptionRecommendationNotification
+  typeof AVAudioSessionResumptionRecommendationNotification
 
 export type AVAudioSessionRouteChangeNotification_c = typeof AVAudioSessionRouteChangeNotification
 export type AVAudioSessionRouteChangePreviousRouteKey_c =
-	typeof AVAudioSessionRouteChangePreviousRouteKey
+  typeof AVAudioSessionRouteChangePreviousRouteKey
 
 export type AVAudioSessionRouteChangeReason_t = AVAudioSessionRouteChangeReason
 export type AVAudioSessionRouteChangeReason_c = typeof AVAudioSessionRouteChangeReason
@@ -634,28 +634,28 @@ export type AVAudioSessionRouteSelection_c = typeof AVAudioSessionRouteSelection
 export type AVAudioSessionRouteSharingPolicy_t = AVAudioSessionRouteSharingPolicy
 export type AVAudioSessionRouteSharingPolicy_c = typeof AVAudioSessionRouteSharingPolicy
 export type AVAudioSessionSetActiveFlags_NotifyOthersOnDeactivation_c =
-	typeof AVAudioSessionSetActiveFlags_NotifyOthersOnDeactivation
+  typeof AVAudioSessionSetActiveFlags_NotifyOthersOnDeactivation
 
 export type AVAudioSessionSetActiveOptions_t = AVAudioSessionSetActiveOptions
 export type AVAudioSessionSetActiveOptions_c = typeof AVAudioSessionSetActiveOptions
 export type AVAudioSessionSilenceSecondaryAudioHintNotification_c =
-	typeof AVAudioSessionSilenceSecondaryAudioHintNotification
+  typeof AVAudioSessionSilenceSecondaryAudioHintNotification
 
 export type AVAudioSessionSilenceSecondaryAudioHintType_t =
-	AVAudioSessionSilenceSecondaryAudioHintType
+  AVAudioSessionSilenceSecondaryAudioHintType
 
 export type AVAudioSessionSilenceSecondaryAudioHintType_c =
-	typeof AVAudioSessionSilenceSecondaryAudioHintType
+  typeof AVAudioSessionSilenceSecondaryAudioHintType
 
 export type AVAudioSessionSilenceSecondaryAudioHintTypeKey_c =
-	typeof AVAudioSessionSilenceSecondaryAudioHintTypeKey
+  typeof AVAudioSessionSilenceSecondaryAudioHintTypeKey
 
 export type AVAudioSessionSpatialAudioEnabledKey_c = typeof AVAudioSessionSpatialAudioEnabledKey
 export type AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification_c =
-	typeof AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification
+  typeof AVAudioSessionSpatialPlaybackCapabilitiesChangedNotification
 
 export type AVAudioSessionUserIntentToUnmuteOutputNotification_c =
-	typeof AVAudioSessionUserIntentToUnmuteOutputNotification
+  typeof AVAudioSessionUserIntentToUnmuteOutputNotification
 
 export type AVAudioSinkNode_t = AVAudioSinkNode
 export type AVAudioSinkNode_c = typeof AVAudioSinkNode
@@ -670,7 +670,7 @@ export type AVAudioStereoOrientation_c = typeof AVAudioStereoOrientation
 export type AVAudioTime_t = AVAudioTime
 export type AVAudioTime_c = typeof AVAudioTime
 export type AVAudioTimePitchAlgorithmLowQualityZeroLatency_c =
-	typeof AVAudioTimePitchAlgorithmLowQualityZeroLatency
+  typeof AVAudioTimePitchAlgorithmLowQualityZeroLatency
 
 export type AVAudioTimePitchAlgorithmSpectral_c = typeof AVAudioTimePitchAlgorithmSpectral
 export type AVAudioTimePitchAlgorithmTimeDomain_c = typeof AVAudioTimePitchAlgorithmTimeDomain
@@ -682,10 +682,10 @@ export type AVAudioUnitComponent_c = typeof AVAudioUnitComponent
 export type AVAudioUnitComponentManager_t = AVAudioUnitComponentManager
 export type AVAudioUnitComponentManager_c = typeof AVAudioUnitComponentManager
 export type AVAudioUnitComponentManagerRegistrationsChangedNotification_c =
-	typeof AVAudioUnitComponentManagerRegistrationsChangedNotification
+  typeof AVAudioUnitComponentManagerRegistrationsChangedNotification
 
 export type AVAudioUnitComponentTagsDidChangeNotification_c =
-	typeof AVAudioUnitComponentTagsDidChangeNotification
+  typeof AVAudioUnitComponentTagsDidChangeNotification
 
 export type AVAudioUnitDelay_t = AVAudioUnitDelay
 export type AVAudioUnitDelay_c = typeof AVAudioUnitDelay
@@ -729,20 +729,20 @@ export type AVAudioUnitTypePanner_c = typeof AVAudioUnitTypePanner
 export type AVAudioUnitVarispeed_t = AVAudioUnitVarispeed
 export type AVAudioUnitVarispeed_c = typeof AVAudioUnitVarispeed
 export type AVAudioVoiceProcessingOtherAudioDuckingConfiguration_t =
-	AVAudioVoiceProcessingOtherAudioDuckingConfiguration
+  AVAudioVoiceProcessingOtherAudioDuckingConfiguration
 
 export type AVAudioVoiceProcessingOtherAudioDuckingConfiguration_c =
-	typeof AVAudioVoiceProcessingOtherAudioDuckingConfiguration
+  typeof AVAudioVoiceProcessingOtherAudioDuckingConfiguration
 
 export type AVAudioVoiceProcessingOtherAudioDuckingLevel_t =
-	AVAudioVoiceProcessingOtherAudioDuckingLevel
+  AVAudioVoiceProcessingOtherAudioDuckingLevel
 
 export type AVAudioVoiceProcessingOtherAudioDuckingLevel_c =
-	typeof AVAudioVoiceProcessingOtherAudioDuckingLevel
+  typeof AVAudioVoiceProcessingOtherAudioDuckingLevel
 
 export type AVAudioVoiceProcessingSpeechActivityEvent_t = AVAudioVoiceProcessingSpeechActivityEvent
 export type AVAudioVoiceProcessingSpeechActivityEvent_c =
-	typeof AVAudioVoiceProcessingSpeechActivityEvent
+  typeof AVAudioVoiceProcessingSpeechActivityEvent
 
 export type AVAuthorizationStatus_t = AVAuthorizationStatus
 export type AVAuthorizationStatus_c = typeof AVAuthorizationStatus
@@ -757,7 +757,7 @@ export type AVCaptionAnimation_c = typeof AVCaptionAnimation
 export type AVCaptionConversionAdjustment_t = AVCaptionConversionAdjustment
 export type AVCaptionConversionAdjustment_c = typeof AVCaptionConversionAdjustment
 export type AVCaptionConversionAdjustmentTypeTimeRange_c =
-	typeof AVCaptionConversionAdjustmentTypeTimeRange
+  typeof AVCaptionConversionAdjustmentTypeTimeRange
 
 export type AVCaptionConversionTimeRangeAdjustment_t = AVCaptionConversionTimeRangeAdjustment
 export type AVCaptionConversionTimeRangeAdjustment_c = typeof AVCaptionConversionTimeRangeAdjustment
@@ -768,7 +768,7 @@ export type AVCaptionConversionValidatorStatus_c = typeof AVCaptionConversionVal
 export type AVCaptionConversionWarning_t = AVCaptionConversionWarning
 export type AVCaptionConversionWarning_c = typeof AVCaptionConversionWarning
 export type AVCaptionConversionWarningTypeExcessMediaData_c =
-	typeof AVCaptionConversionWarningTypeExcessMediaData
+  typeof AVCaptionConversionWarningTypeExcessMediaData
 
 export type AVCaptionDecoration_t = AVCaptionDecoration
 export type AVCaptionDecoration_c = typeof AVCaptionDecoration
@@ -822,13 +822,13 @@ export type AVCaptionUseDropFrameTimeCodeKey_c = typeof AVCaptionUseDropFrameTim
 export type AVCaptureAncillaryDataEncoder_t = AVCaptureAncillaryDataEncoder
 export type AVCaptureAncillaryDataEncoder_c = typeof AVCaptureAncillaryDataEncoder
 export type AVCaptureAncillaryDataUserKeyRDD18InstanceUID_c =
-	typeof AVCaptureAncillaryDataUserKeyRDD18InstanceUID
+  typeof AVCaptureAncillaryDataUserKeyRDD18InstanceUID
 
 export type AVCaptureAncillaryDataUserKeyRDD18UDAMSetVersion_c =
-	typeof AVCaptureAncillaryDataUserKeyRDD18UDAMSetVersion
+  typeof AVCaptureAncillaryDataUserKeyRDD18UDAMSetVersion
 
 export type AVCaptureAncillaryDataUserKeyRDD18UserItems_c =
-	typeof AVCaptureAncillaryDataUserKeyRDD18UserItems
+  typeof AVCaptureAncillaryDataUserKeyRDD18UserItems
 
 export type AVCaptureAspectRatio16x9_c = typeof AVCaptureAspectRatio16x9
 export type AVCaptureAspectRatio1x1_c = typeof AVCaptureAspectRatio1x1
@@ -840,16 +840,16 @@ export type AVCaptureAudioChannel_c = typeof AVCaptureAudioChannel
 export type AVCaptureAudioDataOutput_t = AVCaptureAudioDataOutput
 export type AVCaptureAudioDataOutput_c = typeof AVCaptureAudioDataOutput
 export type AVCaptureAudioDataOutputSampleBufferDelegate_t =
-	AVCaptureAudioDataOutputSampleBufferDelegate
+  AVCaptureAudioDataOutputSampleBufferDelegate
 
 export type AVCaptureAudioDataOutputSampleBufferDelegate_c =
-	typeof AVCaptureAudioDataOutputSampleBufferDelegate
+  typeof AVCaptureAudioDataOutputSampleBufferDelegate
 
 export type AVCaptureAutoExposureBracketedStillImageSettings_t =
-	AVCaptureAutoExposureBracketedStillImageSettings
+  AVCaptureAutoExposureBracketedStillImageSettings
 
 export type AVCaptureAutoExposureBracketedStillImageSettings_c =
-	typeof AVCaptureAutoExposureBracketedStillImageSettings
+  typeof AVCaptureAutoExposureBracketedStillImageSettings
 
 export type AVCaptureAutoFocusRangeRestriction_t = AVCaptureAutoFocusRangeRestriction
 export type AVCaptureAutoFocusRangeRestriction_c = typeof AVCaptureAutoFocusRangeRestriction
@@ -862,14 +862,14 @@ export type AVCaptureBroadcastVideoOutput_c = typeof AVCaptureBroadcastVideoOutp
 export type AVCaptureBroadcastVideoOutputDelegate_t = AVCaptureBroadcastVideoOutputDelegate
 export type AVCaptureBroadcastVideoOutputDelegate_c = typeof AVCaptureBroadcastVideoOutputDelegate
 export type AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy_t =
-	AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy
+  AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy
 
 export type AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy_c =
-	typeof AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy
+  typeof AVCaptureBroadcastVideoOutputDroppedFrameReplacementPolicy
 
 export type AVCaptureCameraLensSmudgeDetectionStatus_t = AVCaptureCameraLensSmudgeDetectionStatus
 export type AVCaptureCameraLensSmudgeDetectionStatus_c =
-	typeof AVCaptureCameraLensSmudgeDetectionStatus
+  typeof AVCaptureCameraLensSmudgeDetectionStatus
 
 export type AVCaptureCenterStageControlMode_t = AVCaptureCenterStageControlMode
 export type AVCaptureCenterStageControlMode_c = typeof AVCaptureCenterStageControlMode
@@ -885,7 +885,7 @@ export type AVCaptureDataOutputSynchronizer_t = AVCaptureDataOutputSynchronizer
 export type AVCaptureDataOutputSynchronizer_c = typeof AVCaptureDataOutputSynchronizer
 export type AVCaptureDataOutputSynchronizerDelegate_t = AVCaptureDataOutputSynchronizerDelegate
 export type AVCaptureDataOutputSynchronizerDelegate_c =
-	typeof AVCaptureDataOutputSynchronizerDelegate
+  typeof AVCaptureDataOutputSynchronizerDelegate
 
 export type AVCaptureDeferredPhotoProxy_t = AVCaptureDeferredPhotoProxy
 export type AVCaptureDeferredPhotoProxy_c = typeof AVCaptureDeferredPhotoProxy
@@ -900,11 +900,11 @@ export type AVCaptureDeviceDiscoverySession_c = typeof AVCaptureDeviceDiscoveryS
 export type AVCaptureDeviceExposureSignalDocument_c = typeof AVCaptureDeviceExposureSignalDocument
 export type AVCaptureDeviceExposureSignalFlicker_c = typeof AVCaptureDeviceExposureSignalFlicker
 export type AVCaptureDeviceExposureSignalGroupPhoto_c =
-	typeof AVCaptureDeviceExposureSignalGroupPhoto
+  typeof AVCaptureDeviceExposureSignalGroupPhoto
 
 export type AVCaptureDeviceExposureSignalStarburst_c = typeof AVCaptureDeviceExposureSignalStarburst
 export type AVCaptureDeviceExposureSignalSubjectMotion_c =
-	typeof AVCaptureDeviceExposureSignalSubjectMotion
+  typeof AVCaptureDeviceExposureSignalSubjectMotion
 
 export type AVCaptureDeviceFormat_t = AVCaptureDeviceFormat
 export type AVCaptureDeviceFormat_c = typeof AVCaptureDeviceFormat
@@ -915,38 +915,38 @@ export type AVCaptureDevicePosition_c = typeof AVCaptureDevicePosition
 export type AVCaptureDeviceRotationCoordinator_t = AVCaptureDeviceRotationCoordinator
 export type AVCaptureDeviceRotationCoordinator_c = typeof AVCaptureDeviceRotationCoordinator
 export type AVCaptureDeviceSubjectAreaDidChangeNotification_c =
-	typeof AVCaptureDeviceSubjectAreaDidChangeNotification
+  typeof AVCaptureDeviceSubjectAreaDidChangeNotification
 
 export type AVCaptureDeviceTypeBuiltInDualCamera_c = typeof AVCaptureDeviceTypeBuiltInDualCamera
 export type AVCaptureDeviceTypeBuiltInDualWideCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInDualWideCamera
+  typeof AVCaptureDeviceTypeBuiltInDualWideCamera
 
 export type AVCaptureDeviceTypeBuiltInDuoCamera_c = typeof AVCaptureDeviceTypeBuiltInDuoCamera
 export type AVCaptureDeviceTypeBuiltInLiDARDepthCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInLiDARDepthCamera
+  typeof AVCaptureDeviceTypeBuiltInLiDARDepthCamera
 
 export type AVCaptureDeviceTypeBuiltInMicrophone_c = typeof AVCaptureDeviceTypeBuiltInMicrophone
 export type AVCaptureDeviceTypeBuiltInTelephotoCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInTelephotoCamera
+  typeof AVCaptureDeviceTypeBuiltInTelephotoCamera
 
 export type AVCaptureDeviceTypeBuiltInTripleCamera_c = typeof AVCaptureDeviceTypeBuiltInTripleCamera
 export type AVCaptureDeviceTypeBuiltInTrueDepthCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInTrueDepthCamera
+  typeof AVCaptureDeviceTypeBuiltInTrueDepthCamera
 
 export type AVCaptureDeviceTypeBuiltInUltraWideCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInUltraWideCamera
+  typeof AVCaptureDeviceTypeBuiltInUltraWideCamera
 
 export type AVCaptureDeviceTypeBuiltInWideAngleCamera_c =
-	typeof AVCaptureDeviceTypeBuiltInWideAngleCamera
+  typeof AVCaptureDeviceTypeBuiltInWideAngleCamera
 
 export type AVCaptureDeviceTypeContinuityCamera_c = typeof AVCaptureDeviceTypeContinuityCamera
 export type AVCaptureDeviceTypeExternal_c = typeof AVCaptureDeviceTypeExternal
 export type AVCaptureDeviceTypeMicrophone_c = typeof AVCaptureDeviceTypeMicrophone
 export type AVCaptureDeviceWasConnectedNotification_c =
-	typeof AVCaptureDeviceWasConnectedNotification
+  typeof AVCaptureDeviceWasConnectedNotification
 
 export type AVCaptureDeviceWasDisconnectedNotification_c =
-	typeof AVCaptureDeviceWasDisconnectedNotification
+  typeof AVCaptureDeviceWasDisconnectedNotification
 
 export type AVCaptureEvent_t = AVCaptureEvent
 export type AVCaptureEvent_c = typeof AVCaptureEvent
@@ -984,7 +984,7 @@ export type AVCaptureInput_c = typeof AVCaptureInput
 export type AVCaptureInputPort_t = AVCaptureInputPort
 export type AVCaptureInputPort_c = typeof AVCaptureInputPort
 export type AVCaptureInputPortFormatDescriptionDidChangeNotification_c =
-	typeof AVCaptureInputPortFormatDescriptionDidChangeNotification
+  typeof AVCaptureInputPortFormatDescriptionDidChangeNotification
 
 export type AVCaptureLensApertureAuto_c = typeof AVCaptureLensApertureAuto
 export type AVCaptureLensApertureCurrent_c = typeof AVCaptureLensApertureCurrent
@@ -992,10 +992,10 @@ export type AVCaptureLensPositionCurrent_c = typeof AVCaptureLensPositionCurrent
 export type AVCaptureLensStabilizationStatus_t = AVCaptureLensStabilizationStatus
 export type AVCaptureLensStabilizationStatus_c = typeof AVCaptureLensStabilizationStatus
 export type AVCaptureManualExposureBracketedStillImageSettings_t =
-	AVCaptureManualExposureBracketedStillImageSettings
+  AVCaptureManualExposureBracketedStillImageSettings
 
 export type AVCaptureManualExposureBracketedStillImageSettings_c =
-	typeof AVCaptureManualExposureBracketedStillImageSettings
+  typeof AVCaptureManualExposureBracketedStillImageSettings
 
 export type AVCaptureMaxAvailableTorchLevel_c = typeof AVCaptureMaxAvailableTorchLevel
 export type AVCaptureMetadataInput_t = AVCaptureMetadataInput
@@ -1023,10 +1023,10 @@ export type AVCapturePhotoBracketSettings_c = typeof AVCapturePhotoBracketSettin
 export type AVCapturePhotoCaptureDelegate_t = AVCapturePhotoCaptureDelegate
 export type AVCapturePhotoCaptureDelegate_c = typeof AVCapturePhotoCaptureDelegate
 export type AVCapturePhotoFileDataRepresentationCustomizer_t =
-	AVCapturePhotoFileDataRepresentationCustomizer
+  AVCapturePhotoFileDataRepresentationCustomizer
 
 export type AVCapturePhotoFileDataRepresentationCustomizer_c =
-	typeof AVCapturePhotoFileDataRepresentationCustomizer
+  typeof AVCapturePhotoFileDataRepresentationCustomizer
 
 export type AVCapturePhotoOutput_t = AVCapturePhotoOutput
 export type AVCapturePhotoOutput_c = typeof AVCapturePhotoOutput
@@ -1034,34 +1034,34 @@ export type AVCapturePhotoOutputCaptureReadiness_t = AVCapturePhotoOutputCapture
 export type AVCapturePhotoOutputCaptureReadiness_c = typeof AVCapturePhotoOutputCaptureReadiness
 export type AVCapturePhotoOutputReadinessCoordinator_t = AVCapturePhotoOutputReadinessCoordinator
 export type AVCapturePhotoOutputReadinessCoordinator_c =
-	typeof AVCapturePhotoOutputReadinessCoordinator
+  typeof AVCapturePhotoOutputReadinessCoordinator
 
 export type AVCapturePhotoOutputReadinessCoordinatorDelegate_t =
-	AVCapturePhotoOutputReadinessCoordinatorDelegate
+  AVCapturePhotoOutputReadinessCoordinatorDelegate
 
 export type AVCapturePhotoOutputReadinessCoordinatorDelegate_c =
-	typeof AVCapturePhotoOutputReadinessCoordinatorDelegate
+  typeof AVCapturePhotoOutputReadinessCoordinatorDelegate
 
 export type AVCapturePhotoQualityPrioritization_t = AVCapturePhotoQualityPrioritization
 export type AVCapturePhotoQualityPrioritization_c = typeof AVCapturePhotoQualityPrioritization
 export type AVCapturePhotoSettings_t = AVCapturePhotoSettings
 export type AVCapturePhotoSettings_c = typeof AVCapturePhotoSettings
 export type AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions_t =
-	AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions
+  AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions
 
 export type AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions_c =
-	typeof AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions
+  typeof AVCapturePrimaryConstituentDeviceRestrictedSwitchingBehaviorConditions
 
 export type AVCapturePrimaryConstituentDeviceSwitchingBehavior_t =
-	AVCapturePrimaryConstituentDeviceSwitchingBehavior
+  AVCapturePrimaryConstituentDeviceSwitchingBehavior
 
 export type AVCapturePrimaryConstituentDeviceSwitchingBehavior_c =
-	typeof AVCapturePrimaryConstituentDeviceSwitchingBehavior
+  typeof AVCapturePrimaryConstituentDeviceSwitchingBehavior
 
 export type AVCaptureReactionEffectState_t = AVCaptureReactionEffectState
 export type AVCaptureReactionEffectState_c = typeof AVCaptureReactionEffectState
 export type AVCaptureReactionSystemImageNameForType_c =
-	typeof AVCaptureReactionSystemImageNameForType
+  typeof AVCaptureReactionSystemImageNameForType
 
 export type AVCaptureReactionTypeBalloons_c = typeof AVCaptureReactionTypeBalloons
 export type AVCaptureReactionTypeConfetti_c = typeof AVCaptureReactionTypeConfetti
@@ -1074,7 +1074,7 @@ export type AVCaptureReactionTypeThumbsUp_c = typeof AVCaptureReactionTypeThumbs
 export type AVCaptureResolvedPhotoSettings_t = AVCaptureResolvedPhotoSettings
 export type AVCaptureResolvedPhotoSettings_c = typeof AVCaptureResolvedPhotoSettings
 export type AVCaptureSceneMonitoringStatusNotEnoughLight_c =
-	typeof AVCaptureSceneMonitoringStatusNotEnoughLight
+  typeof AVCaptureSceneMonitoringStatusNotEnoughLight
 
 export type AVCaptureSession_t = AVCaptureSession
 export type AVCaptureSession_c = typeof AVCaptureSession
@@ -1083,20 +1083,20 @@ export type AVCaptureSessionControlsDelegate_c = typeof AVCaptureSessionControls
 export type AVCaptureSessionDeferredStartDelegate_t = AVCaptureSessionDeferredStartDelegate
 export type AVCaptureSessionDeferredStartDelegate_c = typeof AVCaptureSessionDeferredStartDelegate
 export type AVCaptureSessionDidStartRunningNotification_c =
-	typeof AVCaptureSessionDidStartRunningNotification
+  typeof AVCaptureSessionDidStartRunningNotification
 
 export type AVCaptureSessionDidStopRunningNotification_c =
-	typeof AVCaptureSessionDidStopRunningNotification
+  typeof AVCaptureSessionDidStopRunningNotification
 
 export type AVCaptureSessionErrorKey_c = typeof AVCaptureSessionErrorKey
 export type AVCaptureSessionInterruptionEndedNotification_c =
-	typeof AVCaptureSessionInterruptionEndedNotification
+  typeof AVCaptureSessionInterruptionEndedNotification
 
 export type AVCaptureSessionInterruptionReason_t = AVCaptureSessionInterruptionReason
 export type AVCaptureSessionInterruptionReason_c = typeof AVCaptureSessionInterruptionReason
 export type AVCaptureSessionInterruptionReasonKey_c = typeof AVCaptureSessionInterruptionReasonKey
 export type AVCaptureSessionInterruptionSystemPressureStateKey_c =
-	typeof AVCaptureSessionInterruptionSystemPressureStateKey
+  typeof AVCaptureSessionInterruptionSystemPressureStateKey
 
 export type AVCaptureSessionPreset1280x720_c = typeof AVCaptureSessionPreset1280x720
 export type AVCaptureSessionPreset1920x1080_c = typeof AVCaptureSessionPreset1920x1080
@@ -1111,20 +1111,20 @@ export type AVCaptureSessionPresetPhoto_c = typeof AVCaptureSessionPresetPhoto
 export type AVCaptureSessionPresetiFrame1280x720_c = typeof AVCaptureSessionPresetiFrame1280x720
 export type AVCaptureSessionPresetiFrame960x540_c = typeof AVCaptureSessionPresetiFrame960x540
 export type AVCaptureSessionRuntimeErrorNotification_c =
-	typeof AVCaptureSessionRuntimeErrorNotification
+  typeof AVCaptureSessionRuntimeErrorNotification
 
 export type AVCaptureSessionWasInterruptedNotification_c =
-	typeof AVCaptureSessionWasInterruptedNotification
+  typeof AVCaptureSessionWasInterruptedNotification
 
 export type AVCaptureSlider_t = AVCaptureSlider
 export type AVCaptureSlider_c = typeof AVCaptureSlider
 export type AVCaptureSmartFramingMonitor_t = AVCaptureSmartFramingMonitor
 export type AVCaptureSmartFramingMonitor_c = typeof AVCaptureSmartFramingMonitor
 export type AVCaptureSpatialAudioMetadataSampleGenerator_t =
-	AVCaptureSpatialAudioMetadataSampleGenerator
+  AVCaptureSpatialAudioMetadataSampleGenerator
 
 export type AVCaptureSpatialAudioMetadataSampleGenerator_c =
-	typeof AVCaptureSpatialAudioMetadataSampleGenerator
+  typeof AVCaptureSpatialAudioMetadataSampleGenerator
 
 export type AVCaptureStillImageOutput_t = AVCaptureStillImageOutput
 export type AVCaptureStillImageOutput_c = typeof AVCaptureStillImageOutput
@@ -1136,7 +1136,7 @@ export type AVCaptureSynchronizedDepthData_t = AVCaptureSynchronizedDepthData
 export type AVCaptureSynchronizedDepthData_c = typeof AVCaptureSynchronizedDepthData
 export type AVCaptureSynchronizedMetadataObjectData_t = AVCaptureSynchronizedMetadataObjectData
 export type AVCaptureSynchronizedMetadataObjectData_c =
-	typeof AVCaptureSynchronizedMetadataObjectData
+  typeof AVCaptureSynchronizedMetadataObjectData
 
 export type AVCaptureSynchronizedSampleBufferData_t = AVCaptureSynchronizedSampleBufferData
 export type AVCaptureSynchronizedSampleBufferData_c = typeof AVCaptureSynchronizedSampleBufferData
@@ -1159,20 +1159,20 @@ export type AVCaptureTimecode_t = AVCaptureTimecode
 export type AVCaptureTimecode_c = typeof AVCaptureTimecode
 export type AVCaptureTimecodeAdvancedByFrames_c = typeof AVCaptureTimecodeAdvancedByFrames
 export type AVCaptureTimecodeCreateMetadataSampleBufferAssociatedWithPresentationTimeStamp_c =
-	typeof AVCaptureTimecodeCreateMetadataSampleBufferAssociatedWithPresentationTimeStamp
+  typeof AVCaptureTimecodeCreateMetadataSampleBufferAssociatedWithPresentationTimeStamp
 
 export type AVCaptureTimecodeCreateMetadataSampleBufferForDuration_c =
-	typeof AVCaptureTimecodeCreateMetadataSampleBufferForDuration
+  typeof AVCaptureTimecodeCreateMetadataSampleBufferForDuration
 
 export type AVCaptureTimecodeGenerator_t = AVCaptureTimecodeGenerator
 export type AVCaptureTimecodeGenerator_c = typeof AVCaptureTimecodeGenerator
 export type AVCaptureTimecodeGeneratorDelegate_t = AVCaptureTimecodeGeneratorDelegate
 export type AVCaptureTimecodeGeneratorDelegate_c = typeof AVCaptureTimecodeGeneratorDelegate
 export type AVCaptureTimecodeGeneratorSynchronizationStatus_t =
-	AVCaptureTimecodeGeneratorSynchronizationStatus
+  AVCaptureTimecodeGeneratorSynchronizationStatus
 
 export type AVCaptureTimecodeGeneratorSynchronizationStatus_c =
-	typeof AVCaptureTimecodeGeneratorSynchronizationStatus
+  typeof AVCaptureTimecodeGeneratorSynchronizationStatus
 
 export type AVCaptureTimecodeSource_t = AVCaptureTimecodeSource
 export type AVCaptureTimecodeSource_c = typeof AVCaptureTimecodeSource
@@ -1183,10 +1183,10 @@ export type AVCaptureTorchMode_c = typeof AVCaptureTorchMode
 export type AVCaptureVideoDataOutput_t = AVCaptureVideoDataOutput
 export type AVCaptureVideoDataOutput_c = typeof AVCaptureVideoDataOutput
 export type AVCaptureVideoDataOutputSampleBufferDelegate_t =
-	AVCaptureVideoDataOutputSampleBufferDelegate
+  AVCaptureVideoDataOutputSampleBufferDelegate
 
 export type AVCaptureVideoDataOutputSampleBufferDelegate_c =
-	typeof AVCaptureVideoDataOutputSampleBufferDelegate
+  typeof AVCaptureVideoDataOutputSampleBufferDelegate
 
 export type AVCaptureVideoOrientation_t = AVCaptureVideoOrientation
 export type AVCaptureVideoOrientation_c = typeof AVCaptureVideoOrientation
@@ -1196,7 +1196,7 @@ export type AVCaptureVideoStabilizationMode_t = AVCaptureVideoStabilizationMode
 export type AVCaptureVideoStabilizationMode_c = typeof AVCaptureVideoStabilizationMode
 export type AVCaptureWhiteBalanceChromaticityValues_t = AVCaptureWhiteBalanceChromaticityValues
 export type AVCaptureWhiteBalanceChromaticityValues_c =
-	typeof AVCaptureWhiteBalanceChromaticityValues
+  typeof AVCaptureWhiteBalanceChromaticityValues
 
 export type AVCaptureWhiteBalanceGains_t = AVCaptureWhiteBalanceGains
 export type AVCaptureWhiteBalanceGains_c = typeof AVCaptureWhiteBalanceGains
@@ -1204,25 +1204,25 @@ export type AVCaptureWhiteBalanceGainsCurrent_c = typeof AVCaptureWhiteBalanceGa
 export type AVCaptureWhiteBalanceMode_t = AVCaptureWhiteBalanceMode
 export type AVCaptureWhiteBalanceMode_c = typeof AVCaptureWhiteBalanceMode
 export type AVCaptureWhiteBalanceTemperatureAndTintValues_t =
-	AVCaptureWhiteBalanceTemperatureAndTintValues
+  AVCaptureWhiteBalanceTemperatureAndTintValues
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValues_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValues
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValues
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValuesCloudy_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValuesCloudy
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValuesCloudy
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValuesDaylight_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValuesDaylight
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValuesDaylight
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValuesFluorescent_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValuesFluorescent
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValuesFluorescent
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValuesShadow_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValuesShadow
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValuesShadow
 
 export type AVCaptureWhiteBalanceTemperatureAndTintValuesTungsten_c =
-	typeof AVCaptureWhiteBalanceTemperatureAndTintValuesTungsten
+  typeof AVCaptureWhiteBalanceTemperatureAndTintValuesTungsten
 
 export type AVChannelLayoutKey_c = typeof AVChannelLayoutKey
 export type AVComposition_t = AVComposition
@@ -1230,10 +1230,10 @@ export type AVComposition_c = typeof AVComposition
 export type AVCompositionTrack_t = AVCompositionTrack
 export type AVCompositionTrack_c = typeof AVCompositionTrack
 export type AVCompositionTrackFormatDescriptionReplacement_t =
-	AVCompositionTrackFormatDescriptionReplacement
+  AVCompositionTrackFormatDescriptionReplacement
 
 export type AVCompositionTrackFormatDescriptionReplacement_c =
-	typeof AVCompositionTrackFormatDescriptionReplacement
+  typeof AVCompositionTrackFormatDescriptionReplacement
 
 export type AVCompositionTrackSegment_t = AVCompositionTrackSegment
 export type AVCompositionTrackSegment_c = typeof AVCompositionTrackSegment
@@ -1245,20 +1245,20 @@ export type AVContentKeyRequest_t = AVContentKeyRequest
 export type AVContentKeyRequest_c = typeof AVContentKeyRequest
 export type AVContentKeyRequestProtocolVersionsKey_c = typeof AVContentKeyRequestProtocolVersionsKey
 export type AVContentKeyRequestRandomDeviceIdentifierSeedKey_c =
-	typeof AVContentKeyRequestRandomDeviceIdentifierSeedKey
+  typeof AVContentKeyRequestRandomDeviceIdentifierSeedKey
 
 export type AVContentKeyRequestRequiresValidationDataInSecureTokenKey_c =
-	typeof AVContentKeyRequestRequiresValidationDataInSecureTokenKey
+  typeof AVContentKeyRequestRequiresValidationDataInSecureTokenKey
 
 export type AVContentKeyRequestRetryReasonReceivedObsoleteContentKey_c =
-	typeof AVContentKeyRequestRetryReasonReceivedObsoleteContentKey
+  typeof AVContentKeyRequestRetryReasonReceivedObsoleteContentKey
 
 export type AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease_c =
-	typeof AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease
+  typeof AVContentKeyRequestRetryReasonReceivedResponseWithExpiredLease
 
 export type AVContentKeyRequestRetryReasonTimedOut_c = typeof AVContentKeyRequestRetryReasonTimedOut
 export type AVContentKeyRequestShouldRandomizeDeviceIdentifierKey_c =
-	typeof AVContentKeyRequestShouldRandomizeDeviceIdentifierKey
+  typeof AVContentKeyRequestShouldRandomizeDeviceIdentifierKey
 
 export type AVContentKeyRequestStatus_t = AVContentKeyRequestStatus
 export type AVContentKeyRequestStatus_c = typeof AVContentKeyRequestStatus
@@ -1269,10 +1269,10 @@ export type AVContentKeySession_c = typeof AVContentKeySession
 export type AVContentKeySessionDelegate_t = AVContentKeySessionDelegate
 export type AVContentKeySessionDelegate_c = typeof AVContentKeySessionDelegate
 export type AVContentKeySessionServerPlaybackContextOptionProtocolVersions_c =
-	typeof AVContentKeySessionServerPlaybackContextOptionProtocolVersions
+  typeof AVContentKeySessionServerPlaybackContextOptionProtocolVersions
 
 export type AVContentKeySessionServerPlaybackContextOptionServerChallenge_c =
-	typeof AVContentKeySessionServerPlaybackContextOptionServerChallenge
+  typeof AVContentKeySessionServerPlaybackContextOptionServerChallenge
 
 export type AVContentKeySpecifier_t = AVContentKeySpecifier
 export type AVContentKeySpecifier_c = typeof AVContentKeySpecifier
@@ -1284,22 +1284,22 @@ export type AVCoordinatedPlaybackParticipant_c = typeof AVCoordinatedPlaybackPar
 export type AVCoordinatedPlaybackSuspension_t = AVCoordinatedPlaybackSuspension
 export type AVCoordinatedPlaybackSuspension_c = typeof AVCoordinatedPlaybackSuspension
 export type AVCoordinatedPlaybackSuspensionReasonAudioSessionInterrupted_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonAudioSessionInterrupted
+  typeof AVCoordinatedPlaybackSuspensionReasonAudioSessionInterrupted
 
 export type AVCoordinatedPlaybackSuspensionReasonCoordinatedPlaybackNotPossible_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonCoordinatedPlaybackNotPossible
+  typeof AVCoordinatedPlaybackSuspensionReasonCoordinatedPlaybackNotPossible
 
 export type AVCoordinatedPlaybackSuspensionReasonPlayingInterstitial_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonPlayingInterstitial
+  typeof AVCoordinatedPlaybackSuspensionReasonPlayingInterstitial
 
 export type AVCoordinatedPlaybackSuspensionReasonStallRecovery_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonStallRecovery
+  typeof AVCoordinatedPlaybackSuspensionReasonStallRecovery
 
 export type AVCoordinatedPlaybackSuspensionReasonUserActionRequired_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonUserActionRequired
+  typeof AVCoordinatedPlaybackSuspensionReasonUserActionRequired
 
 export type AVCoordinatedPlaybackSuspensionReasonUserIsChangingCurrentTime_c =
-	typeof AVCoordinatedPlaybackSuspensionReasonUserIsChangingCurrentTime
+  typeof AVCoordinatedPlaybackSuspensionReasonUserIsChangingCurrentTime
 
 export type AVCoreAnimationBeginTimeAtZero_c = typeof AVCoreAnimationBeginTimeAtZero
 export type AVCustomMediaSelectionScheme_t = AVCustomMediaSelectionScheme
@@ -1309,46 +1309,46 @@ export type AVDateRangeMetadataGroup_c = typeof AVDateRangeMetadataGroup
 export type AVDelegatingPlaybackCoordinator_t = AVDelegatingPlaybackCoordinator
 export type AVDelegatingPlaybackCoordinator_c = typeof AVDelegatingPlaybackCoordinator
 export type AVDelegatingPlaybackCoordinatorBufferingCommand_t =
-	AVDelegatingPlaybackCoordinatorBufferingCommand
+  AVDelegatingPlaybackCoordinatorBufferingCommand
 
 export type AVDelegatingPlaybackCoordinatorBufferingCommand_c =
-	typeof AVDelegatingPlaybackCoordinatorBufferingCommand
+  typeof AVDelegatingPlaybackCoordinatorBufferingCommand
 
 export type AVDelegatingPlaybackCoordinatorPauseCommand_t =
-	AVDelegatingPlaybackCoordinatorPauseCommand
+  AVDelegatingPlaybackCoordinatorPauseCommand
 
 export type AVDelegatingPlaybackCoordinatorPauseCommand_c =
-	typeof AVDelegatingPlaybackCoordinatorPauseCommand
+  typeof AVDelegatingPlaybackCoordinatorPauseCommand
 
 export type AVDelegatingPlaybackCoordinatorPlayCommand_t =
-	AVDelegatingPlaybackCoordinatorPlayCommand
+  AVDelegatingPlaybackCoordinatorPlayCommand
 
 export type AVDelegatingPlaybackCoordinatorPlayCommand_c =
-	typeof AVDelegatingPlaybackCoordinatorPlayCommand
+  typeof AVDelegatingPlaybackCoordinatorPlayCommand
 
 export type AVDelegatingPlaybackCoordinatorPlaybackControlCommand_t =
-	AVDelegatingPlaybackCoordinatorPlaybackControlCommand
+  AVDelegatingPlaybackCoordinatorPlaybackControlCommand
 
 export type AVDelegatingPlaybackCoordinatorPlaybackControlCommand_c =
-	typeof AVDelegatingPlaybackCoordinatorPlaybackControlCommand
+  typeof AVDelegatingPlaybackCoordinatorPlaybackControlCommand
 
 export type AVDelegatingPlaybackCoordinatorRateChangeOptions_t =
-	AVDelegatingPlaybackCoordinatorRateChangeOptions
+  AVDelegatingPlaybackCoordinatorRateChangeOptions
 
 export type AVDelegatingPlaybackCoordinatorRateChangeOptions_c =
-	typeof AVDelegatingPlaybackCoordinatorRateChangeOptions
+  typeof AVDelegatingPlaybackCoordinatorRateChangeOptions
 
 export type AVDelegatingPlaybackCoordinatorSeekCommand_t =
-	AVDelegatingPlaybackCoordinatorSeekCommand
+  AVDelegatingPlaybackCoordinatorSeekCommand
 
 export type AVDelegatingPlaybackCoordinatorSeekCommand_c =
-	typeof AVDelegatingPlaybackCoordinatorSeekCommand
+  typeof AVDelegatingPlaybackCoordinatorSeekCommand
 
 export type AVDelegatingPlaybackCoordinatorSeekOptions_t =
-	AVDelegatingPlaybackCoordinatorSeekOptions
+  AVDelegatingPlaybackCoordinatorSeekOptions
 
 export type AVDelegatingPlaybackCoordinatorSeekOptions_c =
-	typeof AVDelegatingPlaybackCoordinatorSeekOptions
+  typeof AVDelegatingPlaybackCoordinatorSeekOptions
 
 export type AVDepthData_t = AVDepthData
 export type AVDepthData_c = typeof AVDepthData
@@ -1369,7 +1369,7 @@ export type AVEncoderBitRatePerChannelKey_c = typeof AVEncoderBitRatePerChannelK
 export type AVEncoderBitRateStrategyKey_c = typeof AVEncoderBitRateStrategyKey
 export type AVEncoderContentSourceKey_c = typeof AVEncoderContentSourceKey
 export type AVEncoderDynamicRangeControlConfigurationKey_c =
-	typeof AVEncoderDynamicRangeControlConfigurationKey
+  typeof AVEncoderDynamicRangeControlConfigurationKey
 
 export type AVError_t = AVError
 export type AVError_c = typeof AVError
@@ -1382,7 +1382,7 @@ export type AVErrorPIDKey_c = typeof AVErrorPIDKey
 export type AVErrorPersistentTrackIDKey_c = typeof AVErrorPersistentTrackIDKey
 export type AVErrorPresentationTimeStampKey_c = typeof AVErrorPresentationTimeStampKey
 export type AVErrorRecordingSuccessfullyFinishedKey_c =
-	typeof AVErrorRecordingSuccessfullyFinishedKey
+  typeof AVErrorRecordingSuccessfullyFinishedKey
 
 export type AVErrorTimeKey_c = typeof AVErrorTimeKey
 export type AVExposureBiasRange_t = AVExposureBiasRange
@@ -1398,19 +1398,19 @@ export type AVExternalStorageDevice_t = AVExternalStorageDevice
 export type AVExternalStorageDevice_c = typeof AVExternalStorageDevice
 export type AVExternalStorageDeviceDiscoverySession_t = AVExternalStorageDeviceDiscoverySession
 export type AVExternalStorageDeviceDiscoverySession_c =
-	typeof AVExternalStorageDeviceDiscoverySession
+  typeof AVExternalStorageDeviceDiscoverySession
 
 export type AVExternalStorageDeviceReasonNotRecommendedForCaptureUseEncrypted_c =
-	typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseEncrypted
+  typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseEncrypted
 
 export type AVExternalStorageDeviceReasonNotRecommendedForCaptureUseSlowWritingSpeed_c =
-	typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseSlowWritingSpeed
+  typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseSlowWritingSpeed
 
 export type AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnknownWritingSpeed_c =
-	typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnknownWritingSpeed
+  typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnknownWritingSpeed
 
 export type AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnsupportedFileSystem_c =
-	typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnsupportedFileSystem
+  typeof AVExternalStorageDeviceReasonNotRecommendedForCaptureUseUnsupportedFileSystem
 
 export type AVExternalSyncDevice_t = AVExternalSyncDevice
 export type AVExternalSyncDevice_c = typeof AVExternalSyncDevice
@@ -1461,23 +1461,23 @@ export type AVFragmentedAssetTrack_c = typeof AVFragmentedAssetTrack
 export type AVFragmentedMovie_t = AVFragmentedMovie
 export type AVFragmentedMovie_c = typeof AVFragmentedMovie
 export type AVFragmentedMovieContainsMovieFragmentsDidChangeNotification_c =
-	typeof AVFragmentedMovieContainsMovieFragmentsDidChangeNotification
+  typeof AVFragmentedMovieContainsMovieFragmentsDidChangeNotification
 
 export type AVFragmentedMovieDurationDidChangeNotification_c =
-	typeof AVFragmentedMovieDurationDidChangeNotification
+  typeof AVFragmentedMovieDurationDidChangeNotification
 
 export type AVFragmentedMovieMinder_t = AVFragmentedMovieMinder
 export type AVFragmentedMovieMinder_c = typeof AVFragmentedMovieMinder
 export type AVFragmentedMovieTrack_t = AVFragmentedMovieTrack
 export type AVFragmentedMovieTrack_c = typeof AVFragmentedMovieTrack
 export type AVFragmentedMovieTrackSegmentsDidChangeNotification_c =
-	typeof AVFragmentedMovieTrackSegmentsDidChangeNotification
+  typeof AVFragmentedMovieTrackSegmentsDidChangeNotification
 
 export type AVFragmentedMovieTrackTimeRangeDidChangeNotification_c =
-	typeof AVFragmentedMovieTrackTimeRangeDidChangeNotification
+  typeof AVFragmentedMovieTrackTimeRangeDidChangeNotification
 
 export type AVFragmentedMovieWasDefragmentedNotification_c =
-	typeof AVFragmentedMovieWasDefragmentedNotification
+  typeof AVFragmentedMovieWasDefragmentedNotification
 
 export type AVFrameRateRange_t = AVFrameRateRange
 export type AVFrameRateRange_c = typeof AVFrameRateRange
@@ -1500,18 +1500,18 @@ export type AVLegibleMediaOptionsMenuContents_c = typeof AVLegibleMediaOptionsMe
 export type AVLegibleMediaOptionsMenuController_t = AVLegibleMediaOptionsMenuController
 export type AVLegibleMediaOptionsMenuController_c = typeof AVLegibleMediaOptionsMenuController
 export type AVLegibleMediaOptionsMenuControllerDelegate_t =
-	AVLegibleMediaOptionsMenuControllerDelegate
+  AVLegibleMediaOptionsMenuControllerDelegate
 
 export type AVLegibleMediaOptionsMenuControllerDelegate_c =
-	typeof AVLegibleMediaOptionsMenuControllerDelegate
+  typeof AVLegibleMediaOptionsMenuControllerDelegate
 
 export type AVLegibleMediaOptionsMenuState_t = AVLegibleMediaOptionsMenuState
 export type AVLegibleMediaOptionsMenuState_c = typeof AVLegibleMediaOptionsMenuState
 export type AVLegibleMediaOptionsMenuStateChangeReason_t =
-	AVLegibleMediaOptionsMenuStateChangeReason
+  AVLegibleMediaOptionsMenuStateChangeReason
 
 export type AVLegibleMediaOptionsMenuStateChangeReason_c =
-	typeof AVLegibleMediaOptionsMenuStateChangeReason
+  typeof AVLegibleMediaOptionsMenuStateChangeReason
 
 export type AVLinearPCMBitDepthKey_c = typeof AVLinearPCMBitDepthKey
 export type AVLinearPCMIsBigEndianKey_c = typeof AVLinearPCMIsBigEndianKey
@@ -1544,58 +1544,58 @@ export type AVMIDISysexEvent_c = typeof AVMIDISysexEvent
 export type AVMakeRectWithAspectRatioInsideRect_c = typeof AVMakeRectWithAspectRatioInsideRect
 export type AVMediaCharacteristicAudible_c = typeof AVMediaCharacteristicAudible
 export type AVMediaCharacteristicCarriesVideoStereoMetadata_c =
-	typeof AVMediaCharacteristicCarriesVideoStereoMetadata
+  typeof AVMediaCharacteristicCarriesVideoStereoMetadata
 
 export type AVMediaCharacteristicContainsAlphaChannel_c =
-	typeof AVMediaCharacteristicContainsAlphaChannel
+  typeof AVMediaCharacteristicContainsAlphaChannel
 
 export type AVMediaCharacteristicContainsHDRVideo_c = typeof AVMediaCharacteristicContainsHDRVideo
 export type AVMediaCharacteristicContainsOnlyForcedSubtitles_c =
-	typeof AVMediaCharacteristicContainsOnlyForcedSubtitles
+  typeof AVMediaCharacteristicContainsOnlyForcedSubtitles
 
 export type AVMediaCharacteristicContainsStereoMultiviewVideo_c =
-	typeof AVMediaCharacteristicContainsStereoMultiviewVideo
+  typeof AVMediaCharacteristicContainsStereoMultiviewVideo
 
 export type AVMediaCharacteristicDescribesMusicAndSoundForAccessibility_c =
-	typeof AVMediaCharacteristicDescribesMusicAndSoundForAccessibility
+  typeof AVMediaCharacteristicDescribesMusicAndSoundForAccessibility
 
 export type AVMediaCharacteristicDescribesVideoForAccessibility_c =
-	typeof AVMediaCharacteristicDescribesVideoForAccessibility
+  typeof AVMediaCharacteristicDescribesVideoForAccessibility
 
 export type AVMediaCharacteristicDubbedTranslation_c = typeof AVMediaCharacteristicDubbedTranslation
 export type AVMediaCharacteristicEasyToRead_c = typeof AVMediaCharacteristicEasyToRead
 export type AVMediaCharacteristicEnhancesSpeechIntelligibility_c =
-	typeof AVMediaCharacteristicEnhancesSpeechIntelligibility
+  typeof AVMediaCharacteristicEnhancesSpeechIntelligibility
 
 export type AVMediaCharacteristicFrameBased_c = typeof AVMediaCharacteristicFrameBased
 export type AVMediaCharacteristicIndicatesHorizontalFieldOfView_c =
-	typeof AVMediaCharacteristicIndicatesHorizontalFieldOfView
+  typeof AVMediaCharacteristicIndicatesHorizontalFieldOfView
 
 export type AVMediaCharacteristicIndicatesNonRectilinearProjection_c =
-	typeof AVMediaCharacteristicIndicatesNonRectilinearProjection
+  typeof AVMediaCharacteristicIndicatesNonRectilinearProjection
 
 export type AVMediaCharacteristicIsAuxiliaryContent_c =
-	typeof AVMediaCharacteristicIsAuxiliaryContent
+  typeof AVMediaCharacteristicIsAuxiliaryContent
 
 export type AVMediaCharacteristicIsMainProgramContent_c =
-	typeof AVMediaCharacteristicIsMainProgramContent
+  typeof AVMediaCharacteristicIsMainProgramContent
 
 export type AVMediaCharacteristicIsOriginalContent_c = typeof AVMediaCharacteristicIsOriginalContent
 export type AVMediaCharacteristicLanguageTranslation_c =
-	typeof AVMediaCharacteristicLanguageTranslation
+  typeof AVMediaCharacteristicLanguageTranslation
 
 export type AVMediaCharacteristicLegible_c = typeof AVMediaCharacteristicLegible
 export type AVMediaCharacteristicMachineGenerated_c = typeof AVMediaCharacteristicMachineGenerated
 export type AVMediaCharacteristicTactileMinimal_c = typeof AVMediaCharacteristicTactileMinimal
 export type AVMediaCharacteristicTranscribesSpokenDialogForAccessibility_c =
-	typeof AVMediaCharacteristicTranscribesSpokenDialogForAccessibility
+  typeof AVMediaCharacteristicTranscribesSpokenDialogForAccessibility
 
 export type AVMediaCharacteristicUsesWideGamutColorSpace_c =
-	typeof AVMediaCharacteristicUsesWideGamutColorSpace
+  typeof AVMediaCharacteristicUsesWideGamutColorSpace
 
 export type AVMediaCharacteristicVisual_c = typeof AVMediaCharacteristicVisual
 export type AVMediaCharacteristicVoiceOverTranslation_c =
-	typeof AVMediaCharacteristicVoiceOverTranslation
+  typeof AVMediaCharacteristicVoiceOverTranslation
 
 export type AVMediaDataStorage_t = AVMediaDataStorage
 export type AVMediaDataStorage_c = typeof AVMediaDataStorage
@@ -1630,7 +1630,7 @@ export type AVMetadata3GPUserDataKeyGenre_c = typeof AVMetadata3GPUserDataKeyGen
 export type AVMetadata3GPUserDataKeyKeywordList_c = typeof AVMetadata3GPUserDataKeyKeywordList
 export type AVMetadata3GPUserDataKeyLocation_c = typeof AVMetadata3GPUserDataKeyLocation
 export type AVMetadata3GPUserDataKeyMediaClassification_c =
-	typeof AVMetadata3GPUserDataKeyMediaClassification
+  typeof AVMetadata3GPUserDataKeyMediaClassification
 
 export type AVMetadata3GPUserDataKeyMediaRating_c = typeof AVMetadata3GPUserDataKeyMediaRating
 export type AVMetadata3GPUserDataKeyPerformer_c = typeof AVMetadata3GPUserDataKeyPerformer
@@ -1647,13 +1647,13 @@ export type AVMetadataCatHeadObject_c = typeof AVMetadataCatHeadObject
 export type AVMetadataCinematicVideoMetadataObject_t = AVMetadataCinematicVideoMetadataObject
 export type AVMetadataCinematicVideoMetadataObject_c = typeof AVMetadataCinematicVideoMetadataObject
 export type AVMetadataCommonIdentifierAccessibilityDescription_c =
-	typeof AVMetadataCommonIdentifierAccessibilityDescription
+  typeof AVMetadataCommonIdentifierAccessibilityDescription
 
 export type AVMetadataCommonIdentifierAlbumName_c = typeof AVMetadataCommonIdentifierAlbumName
 export type AVMetadataCommonIdentifierArtist_c = typeof AVMetadataCommonIdentifierArtist
 export type AVMetadataCommonIdentifierArtwork_c = typeof AVMetadataCommonIdentifierArtwork
 export type AVMetadataCommonIdentifierAssetIdentifier_c =
-	typeof AVMetadataCommonIdentifierAssetIdentifier
+  typeof AVMetadataCommonIdentifierAssetIdentifier
 
 export type AVMetadataCommonIdentifierAuthor_c = typeof AVMetadataCommonIdentifierAuthor
 export type AVMetadataCommonIdentifierContributor_c = typeof AVMetadataCommonIdentifierContributor
@@ -1664,7 +1664,7 @@ export type AVMetadataCommonIdentifierDescription_c = typeof AVMetadataCommonIde
 export type AVMetadataCommonIdentifierFormat_c = typeof AVMetadataCommonIdentifierFormat
 export type AVMetadataCommonIdentifierLanguage_c = typeof AVMetadataCommonIdentifierLanguage
 export type AVMetadataCommonIdentifierLastModifiedDate_c =
-	typeof AVMetadataCommonIdentifierLastModifiedDate
+  typeof AVMetadataCommonIdentifierLastModifiedDate
 
 export type AVMetadataCommonIdentifierLocation_c = typeof AVMetadataCommonIdentifierLocation
 export type AVMetadataCommonIdentifierMake_c = typeof AVMetadataCommonIdentifierMake
@@ -1677,7 +1677,7 @@ export type AVMetadataCommonIdentifierSubject_c = typeof AVMetadataCommonIdentif
 export type AVMetadataCommonIdentifierTitle_c = typeof AVMetadataCommonIdentifierTitle
 export type AVMetadataCommonIdentifierType_c = typeof AVMetadataCommonIdentifierType
 export type AVMetadataCommonKeyAccessibilityDescription_c =
-	typeof AVMetadataCommonKeyAccessibilityDescription
+  typeof AVMetadataCommonKeyAccessibilityDescription
 
 export type AVMetadataCommonKeyAlbumName_c = typeof AVMetadataCommonKeyAlbumName
 export type AVMetadataCommonKeyArtist_c = typeof AVMetadataCommonKeyArtist
@@ -1729,31 +1729,31 @@ export type AVMetadataHumanFullBodyObject_c = typeof AVMetadataHumanFullBodyObje
 export type AVMetadataID3MetadataKeyAlbumSortOrder_c = typeof AVMetadataID3MetadataKeyAlbumSortOrder
 export type AVMetadataID3MetadataKeyAlbumTitle_c = typeof AVMetadataID3MetadataKeyAlbumTitle
 export type AVMetadataID3MetadataKeyAttachedPicture_c =
-	typeof AVMetadataID3MetadataKeyAttachedPicture
+  typeof AVMetadataID3MetadataKeyAttachedPicture
 
 export type AVMetadataID3MetadataKeyAudioEncryption_c =
-	typeof AVMetadataID3MetadataKeyAudioEncryption
+  typeof AVMetadataID3MetadataKeyAudioEncryption
 
 export type AVMetadataID3MetadataKeyAudioSeekPointIndex_c =
-	typeof AVMetadataID3MetadataKeyAudioSeekPointIndex
+  typeof AVMetadataID3MetadataKeyAudioSeekPointIndex
 
 export type AVMetadataID3MetadataKeyBand_c = typeof AVMetadataID3MetadataKeyBand
 export type AVMetadataID3MetadataKeyBeatsPerMinute_c = typeof AVMetadataID3MetadataKeyBeatsPerMinute
 export type AVMetadataID3MetadataKeyComments_c = typeof AVMetadataID3MetadataKeyComments
 export type AVMetadataID3MetadataKeyCommercial_c = typeof AVMetadataID3MetadataKeyCommercial
 export type AVMetadataID3MetadataKeyCommercialInformation_c =
-	typeof AVMetadataID3MetadataKeyCommercialInformation
+  typeof AVMetadataID3MetadataKeyCommercialInformation
 
 export type AVMetadataID3MetadataKeyCommerical_c = typeof AVMetadataID3MetadataKeyCommerical
 export type AVMetadataID3MetadataKeyComposer_c = typeof AVMetadataID3MetadataKeyComposer
 export type AVMetadataID3MetadataKeyConductor_c = typeof AVMetadataID3MetadataKeyConductor
 export type AVMetadataID3MetadataKeyContentGroupDescription_c =
-	typeof AVMetadataID3MetadataKeyContentGroupDescription
+  typeof AVMetadataID3MetadataKeyContentGroupDescription
 
 export type AVMetadataID3MetadataKeyContentType_c = typeof AVMetadataID3MetadataKeyContentType
 export type AVMetadataID3MetadataKeyCopyright_c = typeof AVMetadataID3MetadataKeyCopyright
 export type AVMetadataID3MetadataKeyCopyrightInformation_c =
-	typeof AVMetadataID3MetadataKeyCopyrightInformation
+  typeof AVMetadataID3MetadataKeyCopyrightInformation
 
 export type AVMetadataID3MetadataKeyDate_c = typeof AVMetadataID3MetadataKeyDate
 export type AVMetadataID3MetadataKeyEncodedBy_c = typeof AVMetadataID3MetadataKeyEncodedBy
@@ -1763,31 +1763,31 @@ export type AVMetadataID3MetadataKeyEncryption_c = typeof AVMetadataID3MetadataK
 export type AVMetadataID3MetadataKeyEqualization_c = typeof AVMetadataID3MetadataKeyEqualization
 export type AVMetadataID3MetadataKeyEqualization2_c = typeof AVMetadataID3MetadataKeyEqualization2
 export type AVMetadataID3MetadataKeyEventTimingCodes_c =
-	typeof AVMetadataID3MetadataKeyEventTimingCodes
+  typeof AVMetadataID3MetadataKeyEventTimingCodes
 
 export type AVMetadataID3MetadataKeyFileOwner_c = typeof AVMetadataID3MetadataKeyFileOwner
 export type AVMetadataID3MetadataKeyFileType_c = typeof AVMetadataID3MetadataKeyFileType
 export type AVMetadataID3MetadataKeyGeneralEncapsulatedObject_c =
-	typeof AVMetadataID3MetadataKeyGeneralEncapsulatedObject
+  typeof AVMetadataID3MetadataKeyGeneralEncapsulatedObject
 
 export type AVMetadataID3MetadataKeyGroupIdentifier_c =
-	typeof AVMetadataID3MetadataKeyGroupIdentifier
+  typeof AVMetadataID3MetadataKeyGroupIdentifier
 
 export type AVMetadataID3MetadataKeyInitialKey_c = typeof AVMetadataID3MetadataKeyInitialKey
 export type AVMetadataID3MetadataKeyInternationalStandardRecordingCode_c =
-	typeof AVMetadataID3MetadataKeyInternationalStandardRecordingCode
+  typeof AVMetadataID3MetadataKeyInternationalStandardRecordingCode
 
 export type AVMetadataID3MetadataKeyInternetRadioStationName_c =
-	typeof AVMetadataID3MetadataKeyInternetRadioStationName
+  typeof AVMetadataID3MetadataKeyInternetRadioStationName
 
 export type AVMetadataID3MetadataKeyInternetRadioStationOwner_c =
-	typeof AVMetadataID3MetadataKeyInternetRadioStationOwner
+  typeof AVMetadataID3MetadataKeyInternetRadioStationOwner
 
 export type AVMetadataID3MetadataKeyInvolvedPeopleList_v23_c =
-	typeof AVMetadataID3MetadataKeyInvolvedPeopleList_v23
+  typeof AVMetadataID3MetadataKeyInvolvedPeopleList_v23
 
 export type AVMetadataID3MetadataKeyInvolvedPeopleList_v24_c =
-	typeof AVMetadataID3MetadataKeyInvolvedPeopleList_v24
+  typeof AVMetadataID3MetadataKeyInvolvedPeopleList_v24
 
 export type AVMetadataID3MetadataKeyLanguage_c = typeof AVMetadataID3MetadataKeyLanguage
 export type AVMetadataID3MetadataKeyLeadPerformer_c = typeof AVMetadataID3MetadataKeyLeadPerformer
@@ -1795,73 +1795,73 @@ export type AVMetadataID3MetadataKeyLength_c = typeof AVMetadataID3MetadataKeyLe
 export type AVMetadataID3MetadataKeyLink_c = typeof AVMetadataID3MetadataKeyLink
 export type AVMetadataID3MetadataKeyLyricist_c = typeof AVMetadataID3MetadataKeyLyricist
 export type AVMetadataID3MetadataKeyMPEGLocationLookupTable_c =
-	typeof AVMetadataID3MetadataKeyMPEGLocationLookupTable
+  typeof AVMetadataID3MetadataKeyMPEGLocationLookupTable
 
 export type AVMetadataID3MetadataKeyMediaType_c = typeof AVMetadataID3MetadataKeyMediaType
 export type AVMetadataID3MetadataKeyModifiedBy_c = typeof AVMetadataID3MetadataKeyModifiedBy
 export type AVMetadataID3MetadataKeyMood_c = typeof AVMetadataID3MetadataKeyMood
 export type AVMetadataID3MetadataKeyMusicCDIdentifier_c =
-	typeof AVMetadataID3MetadataKeyMusicCDIdentifier
+  typeof AVMetadataID3MetadataKeyMusicCDIdentifier
 
 export type AVMetadataID3MetadataKeyMusicianCreditsList_c =
-	typeof AVMetadataID3MetadataKeyMusicianCreditsList
+  typeof AVMetadataID3MetadataKeyMusicianCreditsList
 
 export type AVMetadataID3MetadataKeyOfficialArtistWebpage_c =
-	typeof AVMetadataID3MetadataKeyOfficialArtistWebpage
+  typeof AVMetadataID3MetadataKeyOfficialArtistWebpage
 
 export type AVMetadataID3MetadataKeyOfficialAudioFileWebpage_c =
-	typeof AVMetadataID3MetadataKeyOfficialAudioFileWebpage
+  typeof AVMetadataID3MetadataKeyOfficialAudioFileWebpage
 
 export type AVMetadataID3MetadataKeyOfficialAudioSourceWebpage_c =
-	typeof AVMetadataID3MetadataKeyOfficialAudioSourceWebpage
+  typeof AVMetadataID3MetadataKeyOfficialAudioSourceWebpage
 
 export type AVMetadataID3MetadataKeyOfficialInternetRadioStationHomepage_c =
-	typeof AVMetadataID3MetadataKeyOfficialInternetRadioStationHomepage
+  typeof AVMetadataID3MetadataKeyOfficialInternetRadioStationHomepage
 
 export type AVMetadataID3MetadataKeyOfficialPublisherWebpage_c =
-	typeof AVMetadataID3MetadataKeyOfficialPublisherWebpage
+  typeof AVMetadataID3MetadataKeyOfficialPublisherWebpage
 
 export type AVMetadataID3MetadataKeyOriginalAlbumTitle_c =
-	typeof AVMetadataID3MetadataKeyOriginalAlbumTitle
+  typeof AVMetadataID3MetadataKeyOriginalAlbumTitle
 
 export type AVMetadataID3MetadataKeyOriginalArtist_c = typeof AVMetadataID3MetadataKeyOriginalArtist
 export type AVMetadataID3MetadataKeyOriginalFilename_c =
-	typeof AVMetadataID3MetadataKeyOriginalFilename
+  typeof AVMetadataID3MetadataKeyOriginalFilename
 
 export type AVMetadataID3MetadataKeyOriginalLyricist_c =
-	typeof AVMetadataID3MetadataKeyOriginalLyricist
+  typeof AVMetadataID3MetadataKeyOriginalLyricist
 
 export type AVMetadataID3MetadataKeyOriginalReleaseTime_c =
-	typeof AVMetadataID3MetadataKeyOriginalReleaseTime
+  typeof AVMetadataID3MetadataKeyOriginalReleaseTime
 
 export type AVMetadataID3MetadataKeyOriginalReleaseYear_c =
-	typeof AVMetadataID3MetadataKeyOriginalReleaseYear
+  typeof AVMetadataID3MetadataKeyOriginalReleaseYear
 
 export type AVMetadataID3MetadataKeyOwnership_c = typeof AVMetadataID3MetadataKeyOwnership
 export type AVMetadataID3MetadataKeyPartOfASet_c = typeof AVMetadataID3MetadataKeyPartOfASet
 export type AVMetadataID3MetadataKeyPayment_c = typeof AVMetadataID3MetadataKeyPayment
 export type AVMetadataID3MetadataKeyPerformerSortOrder_c =
-	typeof AVMetadataID3MetadataKeyPerformerSortOrder
+  typeof AVMetadataID3MetadataKeyPerformerSortOrder
 
 export type AVMetadataID3MetadataKeyPlayCounter_c = typeof AVMetadataID3MetadataKeyPlayCounter
 export type AVMetadataID3MetadataKeyPlaylistDelay_c = typeof AVMetadataID3MetadataKeyPlaylistDelay
 export type AVMetadataID3MetadataKeyPopularimeter_c = typeof AVMetadataID3MetadataKeyPopularimeter
 export type AVMetadataID3MetadataKeyPositionSynchronization_c =
-	typeof AVMetadataID3MetadataKeyPositionSynchronization
+  typeof AVMetadataID3MetadataKeyPositionSynchronization
 
 export type AVMetadataID3MetadataKeyPrivate_c = typeof AVMetadataID3MetadataKeyPrivate
 export type AVMetadataID3MetadataKeyProducedNotice_c = typeof AVMetadataID3MetadataKeyProducedNotice
 export type AVMetadataID3MetadataKeyPublisher_c = typeof AVMetadataID3MetadataKeyPublisher
 export type AVMetadataID3MetadataKeyRecommendedBufferSize_c =
-	typeof AVMetadataID3MetadataKeyRecommendedBufferSize
+  typeof AVMetadataID3MetadataKeyRecommendedBufferSize
 
 export type AVMetadataID3MetadataKeyRecordingDates_c = typeof AVMetadataID3MetadataKeyRecordingDates
 export type AVMetadataID3MetadataKeyRecordingTime_c = typeof AVMetadataID3MetadataKeyRecordingTime
 export type AVMetadataID3MetadataKeyRelativeVolumeAdjustment_c =
-	typeof AVMetadataID3MetadataKeyRelativeVolumeAdjustment
+  typeof AVMetadataID3MetadataKeyRelativeVolumeAdjustment
 
 export type AVMetadataID3MetadataKeyRelativeVolumeAdjustment2_c =
-	typeof AVMetadataID3MetadataKeyRelativeVolumeAdjustment2
+  typeof AVMetadataID3MetadataKeyRelativeVolumeAdjustment2
 
 export type AVMetadataID3MetadataKeyReleaseTime_c = typeof AVMetadataID3MetadataKeyReleaseTime
 export type AVMetadataID3MetadataKeyReverb_c = typeof AVMetadataID3MetadataKeyReverb
@@ -1871,811 +1871,811 @@ export type AVMetadataID3MetadataKeySignature_c = typeof AVMetadataID3MetadataKe
 export type AVMetadataID3MetadataKeySize_c = typeof AVMetadataID3MetadataKeySize
 export type AVMetadataID3MetadataKeySubTitle_c = typeof AVMetadataID3MetadataKeySubTitle
 export type AVMetadataID3MetadataKeySynchronizedLyric_c =
-	typeof AVMetadataID3MetadataKeySynchronizedLyric
+  typeof AVMetadataID3MetadataKeySynchronizedLyric
 
 export type AVMetadataID3MetadataKeySynchronizedTempoCodes_c =
-	typeof AVMetadataID3MetadataKeySynchronizedTempoCodes
+  typeof AVMetadataID3MetadataKeySynchronizedTempoCodes
 
 export type AVMetadataID3MetadataKeyTaggingTime_c = typeof AVMetadataID3MetadataKeyTaggingTime
 export type AVMetadataID3MetadataKeyTermsOfUse_c = typeof AVMetadataID3MetadataKeyTermsOfUse
 export type AVMetadataID3MetadataKeyTime_c = typeof AVMetadataID3MetadataKeyTime
 export type AVMetadataID3MetadataKeyTitleDescription_c =
-	typeof AVMetadataID3MetadataKeyTitleDescription
+  typeof AVMetadataID3MetadataKeyTitleDescription
 
 export type AVMetadataID3MetadataKeyTitleSortOrder_c = typeof AVMetadataID3MetadataKeyTitleSortOrder
 export type AVMetadataID3MetadataKeyTrackNumber_c = typeof AVMetadataID3MetadataKeyTrackNumber
 export type AVMetadataID3MetadataKeyUniqueFileIdentifier_c =
-	typeof AVMetadataID3MetadataKeyUniqueFileIdentifier
+  typeof AVMetadataID3MetadataKeyUniqueFileIdentifier
 
 export type AVMetadataID3MetadataKeyUnsynchronizedLyric_c =
-	typeof AVMetadataID3MetadataKeyUnsynchronizedLyric
+  typeof AVMetadataID3MetadataKeyUnsynchronizedLyric
 
 export type AVMetadataID3MetadataKeyUserText_c = typeof AVMetadataID3MetadataKeyUserText
 export type AVMetadataID3MetadataKeyUserURL_c = typeof AVMetadataID3MetadataKeyUserURL
 export type AVMetadataID3MetadataKeyYear_c = typeof AVMetadataID3MetadataKeyYear
 export type AVMetadataISOUserDataKeyAccessibilityDescription_c =
-	typeof AVMetadataISOUserDataKeyAccessibilityDescription
+  typeof AVMetadataISOUserDataKeyAccessibilityDescription
 
 export type AVMetadataISOUserDataKeyCopyright_c = typeof AVMetadataISOUserDataKeyCopyright
 export type AVMetadataISOUserDataKeyDate_c = typeof AVMetadataISOUserDataKeyDate
 export type AVMetadataISOUserDataKeyTaggedCharacteristic_c =
-	typeof AVMetadataISOUserDataKeyTaggedCharacteristic
+  typeof AVMetadataISOUserDataKeyTaggedCharacteristic
 
 export type AVMetadataIcyMetadataKeyStreamTitle_c = typeof AVMetadataIcyMetadataKeyStreamTitle
 export type AVMetadataIcyMetadataKeyStreamURL_c = typeof AVMetadataIcyMetadataKeyStreamURL
 export type AVMetadataIdentifier3GPUserDataAlbumAndTrack_c =
-	typeof AVMetadataIdentifier3GPUserDataAlbumAndTrack
+  typeof AVMetadataIdentifier3GPUserDataAlbumAndTrack
 
 export type AVMetadataIdentifier3GPUserDataAuthor_c = typeof AVMetadataIdentifier3GPUserDataAuthor
 export type AVMetadataIdentifier3GPUserDataCollection_c =
-	typeof AVMetadataIdentifier3GPUserDataCollection
+  typeof AVMetadataIdentifier3GPUserDataCollection
 
 export type AVMetadataIdentifier3GPUserDataCopyright_c =
-	typeof AVMetadataIdentifier3GPUserDataCopyright
+  typeof AVMetadataIdentifier3GPUserDataCopyright
 
 export type AVMetadataIdentifier3GPUserDataDescription_c =
-	typeof AVMetadataIdentifier3GPUserDataDescription
+  typeof AVMetadataIdentifier3GPUserDataDescription
 
 export type AVMetadataIdentifier3GPUserDataGenre_c = typeof AVMetadataIdentifier3GPUserDataGenre
 export type AVMetadataIdentifier3GPUserDataKeywordList_c =
-	typeof AVMetadataIdentifier3GPUserDataKeywordList
+  typeof AVMetadataIdentifier3GPUserDataKeywordList
 
 export type AVMetadataIdentifier3GPUserDataLocation_c =
-	typeof AVMetadataIdentifier3GPUserDataLocation
+  typeof AVMetadataIdentifier3GPUserDataLocation
 
 export type AVMetadataIdentifier3GPUserDataMediaClassification_c =
-	typeof AVMetadataIdentifier3GPUserDataMediaClassification
+  typeof AVMetadataIdentifier3GPUserDataMediaClassification
 
 export type AVMetadataIdentifier3GPUserDataMediaRating_c =
-	typeof AVMetadataIdentifier3GPUserDataMediaRating
+  typeof AVMetadataIdentifier3GPUserDataMediaRating
 
 export type AVMetadataIdentifier3GPUserDataPerformer_c =
-	typeof AVMetadataIdentifier3GPUserDataPerformer
+  typeof AVMetadataIdentifier3GPUserDataPerformer
 
 export type AVMetadataIdentifier3GPUserDataRecordingYear_c =
-	typeof AVMetadataIdentifier3GPUserDataRecordingYear
+  typeof AVMetadataIdentifier3GPUserDataRecordingYear
 
 export type AVMetadataIdentifier3GPUserDataThumbnail_c =
-	typeof AVMetadataIdentifier3GPUserDataThumbnail
+  typeof AVMetadataIdentifier3GPUserDataThumbnail
 
 export type AVMetadataIdentifier3GPUserDataTitle_c = typeof AVMetadataIdentifier3GPUserDataTitle
 export type AVMetadataIdentifier3GPUserDataUserRating_c =
-	typeof AVMetadataIdentifier3GPUserDataUserRating
+  typeof AVMetadataIdentifier3GPUserDataUserRating
 
 export type AVMetadataIdentifierID3MetadataAlbumSortOrder_c =
-	typeof AVMetadataIdentifierID3MetadataAlbumSortOrder
+  typeof AVMetadataIdentifierID3MetadataAlbumSortOrder
 
 export type AVMetadataIdentifierID3MetadataAlbumTitle_c =
-	typeof AVMetadataIdentifierID3MetadataAlbumTitle
+  typeof AVMetadataIdentifierID3MetadataAlbumTitle
 
 export type AVMetadataIdentifierID3MetadataAttachedPicture_c =
-	typeof AVMetadataIdentifierID3MetadataAttachedPicture
+  typeof AVMetadataIdentifierID3MetadataAttachedPicture
 
 export type AVMetadataIdentifierID3MetadataAudioEncryption_c =
-	typeof AVMetadataIdentifierID3MetadataAudioEncryption
+  typeof AVMetadataIdentifierID3MetadataAudioEncryption
 
 export type AVMetadataIdentifierID3MetadataAudioSeekPointIndex_c =
-	typeof AVMetadataIdentifierID3MetadataAudioSeekPointIndex
+  typeof AVMetadataIdentifierID3MetadataAudioSeekPointIndex
 
 export type AVMetadataIdentifierID3MetadataBand_c = typeof AVMetadataIdentifierID3MetadataBand
 export type AVMetadataIdentifierID3MetadataBeatsPerMinute_c =
-	typeof AVMetadataIdentifierID3MetadataBeatsPerMinute
+  typeof AVMetadataIdentifierID3MetadataBeatsPerMinute
 
 export type AVMetadataIdentifierID3MetadataComments_c =
-	typeof AVMetadataIdentifierID3MetadataComments
+  typeof AVMetadataIdentifierID3MetadataComments
 
 export type AVMetadataIdentifierID3MetadataCommercial_c =
-	typeof AVMetadataIdentifierID3MetadataCommercial
+  typeof AVMetadataIdentifierID3MetadataCommercial
 
 export type AVMetadataIdentifierID3MetadataCommercialInformation_c =
-	typeof AVMetadataIdentifierID3MetadataCommercialInformation
+  typeof AVMetadataIdentifierID3MetadataCommercialInformation
 
 export type AVMetadataIdentifierID3MetadataCommerical_c =
-	typeof AVMetadataIdentifierID3MetadataCommerical
+  typeof AVMetadataIdentifierID3MetadataCommerical
 
 export type AVMetadataIdentifierID3MetadataComposer_c =
-	typeof AVMetadataIdentifierID3MetadataComposer
+  typeof AVMetadataIdentifierID3MetadataComposer
 
 export type AVMetadataIdentifierID3MetadataConductor_c =
-	typeof AVMetadataIdentifierID3MetadataConductor
+  typeof AVMetadataIdentifierID3MetadataConductor
 
 export type AVMetadataIdentifierID3MetadataContentGroupDescription_c =
-	typeof AVMetadataIdentifierID3MetadataContentGroupDescription
+  typeof AVMetadataIdentifierID3MetadataContentGroupDescription
 
 export type AVMetadataIdentifierID3MetadataContentType_c =
-	typeof AVMetadataIdentifierID3MetadataContentType
+  typeof AVMetadataIdentifierID3MetadataContentType
 
 export type AVMetadataIdentifierID3MetadataCopyright_c =
-	typeof AVMetadataIdentifierID3MetadataCopyright
+  typeof AVMetadataIdentifierID3MetadataCopyright
 
 export type AVMetadataIdentifierID3MetadataCopyrightInformation_c =
-	typeof AVMetadataIdentifierID3MetadataCopyrightInformation
+  typeof AVMetadataIdentifierID3MetadataCopyrightInformation
 
 export type AVMetadataIdentifierID3MetadataDate_c = typeof AVMetadataIdentifierID3MetadataDate
 export type AVMetadataIdentifierID3MetadataEncodedBy_c =
-	typeof AVMetadataIdentifierID3MetadataEncodedBy
+  typeof AVMetadataIdentifierID3MetadataEncodedBy
 
 export type AVMetadataIdentifierID3MetadataEncodedWith_c =
-	typeof AVMetadataIdentifierID3MetadataEncodedWith
+  typeof AVMetadataIdentifierID3MetadataEncodedWith
 
 export type AVMetadataIdentifierID3MetadataEncodingTime_c =
-	typeof AVMetadataIdentifierID3MetadataEncodingTime
+  typeof AVMetadataIdentifierID3MetadataEncodingTime
 
 export type AVMetadataIdentifierID3MetadataEncryption_c =
-	typeof AVMetadataIdentifierID3MetadataEncryption
+  typeof AVMetadataIdentifierID3MetadataEncryption
 
 export type AVMetadataIdentifierID3MetadataEqualization_c =
-	typeof AVMetadataIdentifierID3MetadataEqualization
+  typeof AVMetadataIdentifierID3MetadataEqualization
 
 export type AVMetadataIdentifierID3MetadataEqualization2_c =
-	typeof AVMetadataIdentifierID3MetadataEqualization2
+  typeof AVMetadataIdentifierID3MetadataEqualization2
 
 export type AVMetadataIdentifierID3MetadataEventTimingCodes_c =
-	typeof AVMetadataIdentifierID3MetadataEventTimingCodes
+  typeof AVMetadataIdentifierID3MetadataEventTimingCodes
 
 export type AVMetadataIdentifierID3MetadataFileOwner_c =
-	typeof AVMetadataIdentifierID3MetadataFileOwner
+  typeof AVMetadataIdentifierID3MetadataFileOwner
 
 export type AVMetadataIdentifierID3MetadataFileType_c =
-	typeof AVMetadataIdentifierID3MetadataFileType
+  typeof AVMetadataIdentifierID3MetadataFileType
 
 export type AVMetadataIdentifierID3MetadataGeneralEncapsulatedObject_c =
-	typeof AVMetadataIdentifierID3MetadataGeneralEncapsulatedObject
+  typeof AVMetadataIdentifierID3MetadataGeneralEncapsulatedObject
 
 export type AVMetadataIdentifierID3MetadataGroupIdentifier_c =
-	typeof AVMetadataIdentifierID3MetadataGroupIdentifier
+  typeof AVMetadataIdentifierID3MetadataGroupIdentifier
 
 export type AVMetadataIdentifierID3MetadataInitialKey_c =
-	typeof AVMetadataIdentifierID3MetadataInitialKey
+  typeof AVMetadataIdentifierID3MetadataInitialKey
 
 export type AVMetadataIdentifierID3MetadataInternationalStandardRecordingCode_c =
-	typeof AVMetadataIdentifierID3MetadataInternationalStandardRecordingCode
+  typeof AVMetadataIdentifierID3MetadataInternationalStandardRecordingCode
 
 export type AVMetadataIdentifierID3MetadataInternetRadioStationName_c =
-	typeof AVMetadataIdentifierID3MetadataInternetRadioStationName
+  typeof AVMetadataIdentifierID3MetadataInternetRadioStationName
 
 export type AVMetadataIdentifierID3MetadataInternetRadioStationOwner_c =
-	typeof AVMetadataIdentifierID3MetadataInternetRadioStationOwner
+  typeof AVMetadataIdentifierID3MetadataInternetRadioStationOwner
 
 export type AVMetadataIdentifierID3MetadataInvolvedPeopleList_v23_c =
-	typeof AVMetadataIdentifierID3MetadataInvolvedPeopleList_v23
+  typeof AVMetadataIdentifierID3MetadataInvolvedPeopleList_v23
 
 export type AVMetadataIdentifierID3MetadataInvolvedPeopleList_v24_c =
-	typeof AVMetadataIdentifierID3MetadataInvolvedPeopleList_v24
+  typeof AVMetadataIdentifierID3MetadataInvolvedPeopleList_v24
 
 export type AVMetadataIdentifierID3MetadataLanguage_c =
-	typeof AVMetadataIdentifierID3MetadataLanguage
+  typeof AVMetadataIdentifierID3MetadataLanguage
 
 export type AVMetadataIdentifierID3MetadataLeadPerformer_c =
-	typeof AVMetadataIdentifierID3MetadataLeadPerformer
+  typeof AVMetadataIdentifierID3MetadataLeadPerformer
 
 export type AVMetadataIdentifierID3MetadataLength_c = typeof AVMetadataIdentifierID3MetadataLength
 export type AVMetadataIdentifierID3MetadataLink_c = typeof AVMetadataIdentifierID3MetadataLink
 export type AVMetadataIdentifierID3MetadataLyricist_c =
-	typeof AVMetadataIdentifierID3MetadataLyricist
+  typeof AVMetadataIdentifierID3MetadataLyricist
 
 export type AVMetadataIdentifierID3MetadataMPEGLocationLookupTable_c =
-	typeof AVMetadataIdentifierID3MetadataMPEGLocationLookupTable
+  typeof AVMetadataIdentifierID3MetadataMPEGLocationLookupTable
 
 export type AVMetadataIdentifierID3MetadataMediaType_c =
-	typeof AVMetadataIdentifierID3MetadataMediaType
+  typeof AVMetadataIdentifierID3MetadataMediaType
 
 export type AVMetadataIdentifierID3MetadataModifiedBy_c =
-	typeof AVMetadataIdentifierID3MetadataModifiedBy
+  typeof AVMetadataIdentifierID3MetadataModifiedBy
 
 export type AVMetadataIdentifierID3MetadataMood_c = typeof AVMetadataIdentifierID3MetadataMood
 export type AVMetadataIdentifierID3MetadataMusicCDIdentifier_c =
-	typeof AVMetadataIdentifierID3MetadataMusicCDIdentifier
+  typeof AVMetadataIdentifierID3MetadataMusicCDIdentifier
 
 export type AVMetadataIdentifierID3MetadataMusicianCreditsList_c =
-	typeof AVMetadataIdentifierID3MetadataMusicianCreditsList
+  typeof AVMetadataIdentifierID3MetadataMusicianCreditsList
 
 export type AVMetadataIdentifierID3MetadataOfficialArtistWebpage_c =
-	typeof AVMetadataIdentifierID3MetadataOfficialArtistWebpage
+  typeof AVMetadataIdentifierID3MetadataOfficialArtistWebpage
 
 export type AVMetadataIdentifierID3MetadataOfficialAudioFileWebpage_c =
-	typeof AVMetadataIdentifierID3MetadataOfficialAudioFileWebpage
+  typeof AVMetadataIdentifierID3MetadataOfficialAudioFileWebpage
 
 export type AVMetadataIdentifierID3MetadataOfficialAudioSourceWebpage_c =
-	typeof AVMetadataIdentifierID3MetadataOfficialAudioSourceWebpage
+  typeof AVMetadataIdentifierID3MetadataOfficialAudioSourceWebpage
 
 export type AVMetadataIdentifierID3MetadataOfficialInternetRadioStationHomepage_c =
-	typeof AVMetadataIdentifierID3MetadataOfficialInternetRadioStationHomepage
+  typeof AVMetadataIdentifierID3MetadataOfficialInternetRadioStationHomepage
 
 export type AVMetadataIdentifierID3MetadataOfficialPublisherWebpage_c =
-	typeof AVMetadataIdentifierID3MetadataOfficialPublisherWebpage
+  typeof AVMetadataIdentifierID3MetadataOfficialPublisherWebpage
 
 export type AVMetadataIdentifierID3MetadataOriginalAlbumTitle_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalAlbumTitle
+  typeof AVMetadataIdentifierID3MetadataOriginalAlbumTitle
 
 export type AVMetadataIdentifierID3MetadataOriginalArtist_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalArtist
+  typeof AVMetadataIdentifierID3MetadataOriginalArtist
 
 export type AVMetadataIdentifierID3MetadataOriginalFilename_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalFilename
+  typeof AVMetadataIdentifierID3MetadataOriginalFilename
 
 export type AVMetadataIdentifierID3MetadataOriginalLyricist_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalLyricist
+  typeof AVMetadataIdentifierID3MetadataOriginalLyricist
 
 export type AVMetadataIdentifierID3MetadataOriginalReleaseTime_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalReleaseTime
+  typeof AVMetadataIdentifierID3MetadataOriginalReleaseTime
 
 export type AVMetadataIdentifierID3MetadataOriginalReleaseYear_c =
-	typeof AVMetadataIdentifierID3MetadataOriginalReleaseYear
+  typeof AVMetadataIdentifierID3MetadataOriginalReleaseYear
 
 export type AVMetadataIdentifierID3MetadataOwnership_c =
-	typeof AVMetadataIdentifierID3MetadataOwnership
+  typeof AVMetadataIdentifierID3MetadataOwnership
 
 export type AVMetadataIdentifierID3MetadataPartOfASet_c =
-	typeof AVMetadataIdentifierID3MetadataPartOfASet
+  typeof AVMetadataIdentifierID3MetadataPartOfASet
 
 export type AVMetadataIdentifierID3MetadataPayment_c = typeof AVMetadataIdentifierID3MetadataPayment
 export type AVMetadataIdentifierID3MetadataPerformerSortOrder_c =
-	typeof AVMetadataIdentifierID3MetadataPerformerSortOrder
+  typeof AVMetadataIdentifierID3MetadataPerformerSortOrder
 
 export type AVMetadataIdentifierID3MetadataPlayCounter_c =
-	typeof AVMetadataIdentifierID3MetadataPlayCounter
+  typeof AVMetadataIdentifierID3MetadataPlayCounter
 
 export type AVMetadataIdentifierID3MetadataPlaylistDelay_c =
-	typeof AVMetadataIdentifierID3MetadataPlaylistDelay
+  typeof AVMetadataIdentifierID3MetadataPlaylistDelay
 
 export type AVMetadataIdentifierID3MetadataPopularimeter_c =
-	typeof AVMetadataIdentifierID3MetadataPopularimeter
+  typeof AVMetadataIdentifierID3MetadataPopularimeter
 
 export type AVMetadataIdentifierID3MetadataPositionSynchronization_c =
-	typeof AVMetadataIdentifierID3MetadataPositionSynchronization
+  typeof AVMetadataIdentifierID3MetadataPositionSynchronization
 
 export type AVMetadataIdentifierID3MetadataPrivate_c = typeof AVMetadataIdentifierID3MetadataPrivate
 export type AVMetadataIdentifierID3MetadataProducedNotice_c =
-	typeof AVMetadataIdentifierID3MetadataProducedNotice
+  typeof AVMetadataIdentifierID3MetadataProducedNotice
 
 export type AVMetadataIdentifierID3MetadataPublisher_c =
-	typeof AVMetadataIdentifierID3MetadataPublisher
+  typeof AVMetadataIdentifierID3MetadataPublisher
 
 export type AVMetadataIdentifierID3MetadataRecommendedBufferSize_c =
-	typeof AVMetadataIdentifierID3MetadataRecommendedBufferSize
+  typeof AVMetadataIdentifierID3MetadataRecommendedBufferSize
 
 export type AVMetadataIdentifierID3MetadataRecordingDates_c =
-	typeof AVMetadataIdentifierID3MetadataRecordingDates
+  typeof AVMetadataIdentifierID3MetadataRecordingDates
 
 export type AVMetadataIdentifierID3MetadataRecordingTime_c =
-	typeof AVMetadataIdentifierID3MetadataRecordingTime
+  typeof AVMetadataIdentifierID3MetadataRecordingTime
 
 export type AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment_c =
-	typeof AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment
+  typeof AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment
 
 export type AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment2_c =
-	typeof AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment2
+  typeof AVMetadataIdentifierID3MetadataRelativeVolumeAdjustment2
 
 export type AVMetadataIdentifierID3MetadataReleaseTime_c =
-	typeof AVMetadataIdentifierID3MetadataReleaseTime
+  typeof AVMetadataIdentifierID3MetadataReleaseTime
 
 export type AVMetadataIdentifierID3MetadataReverb_c = typeof AVMetadataIdentifierID3MetadataReverb
 export type AVMetadataIdentifierID3MetadataSeek_c = typeof AVMetadataIdentifierID3MetadataSeek
 export type AVMetadataIdentifierID3MetadataSetSubtitle_c =
-	typeof AVMetadataIdentifierID3MetadataSetSubtitle
+  typeof AVMetadataIdentifierID3MetadataSetSubtitle
 
 export type AVMetadataIdentifierID3MetadataSignature_c =
-	typeof AVMetadataIdentifierID3MetadataSignature
+  typeof AVMetadataIdentifierID3MetadataSignature
 
 export type AVMetadataIdentifierID3MetadataSize_c = typeof AVMetadataIdentifierID3MetadataSize
 export type AVMetadataIdentifierID3MetadataSubTitle_c =
-	typeof AVMetadataIdentifierID3MetadataSubTitle
+  typeof AVMetadataIdentifierID3MetadataSubTitle
 
 export type AVMetadataIdentifierID3MetadataSynchronizedLyric_c =
-	typeof AVMetadataIdentifierID3MetadataSynchronizedLyric
+  typeof AVMetadataIdentifierID3MetadataSynchronizedLyric
 
 export type AVMetadataIdentifierID3MetadataSynchronizedTempoCodes_c =
-	typeof AVMetadataIdentifierID3MetadataSynchronizedTempoCodes
+  typeof AVMetadataIdentifierID3MetadataSynchronizedTempoCodes
 
 export type AVMetadataIdentifierID3MetadataTaggingTime_c =
-	typeof AVMetadataIdentifierID3MetadataTaggingTime
+  typeof AVMetadataIdentifierID3MetadataTaggingTime
 
 export type AVMetadataIdentifierID3MetadataTermsOfUse_c =
-	typeof AVMetadataIdentifierID3MetadataTermsOfUse
+  typeof AVMetadataIdentifierID3MetadataTermsOfUse
 
 export type AVMetadataIdentifierID3MetadataTime_c = typeof AVMetadataIdentifierID3MetadataTime
 export type AVMetadataIdentifierID3MetadataTitleDescription_c =
-	typeof AVMetadataIdentifierID3MetadataTitleDescription
+  typeof AVMetadataIdentifierID3MetadataTitleDescription
 
 export type AVMetadataIdentifierID3MetadataTitleSortOrder_c =
-	typeof AVMetadataIdentifierID3MetadataTitleSortOrder
+  typeof AVMetadataIdentifierID3MetadataTitleSortOrder
 
 export type AVMetadataIdentifierID3MetadataTrackNumber_c =
-	typeof AVMetadataIdentifierID3MetadataTrackNumber
+  typeof AVMetadataIdentifierID3MetadataTrackNumber
 
 export type AVMetadataIdentifierID3MetadataUniqueFileIdentifier_c =
-	typeof AVMetadataIdentifierID3MetadataUniqueFileIdentifier
+  typeof AVMetadataIdentifierID3MetadataUniqueFileIdentifier
 
 export type AVMetadataIdentifierID3MetadataUnsynchronizedLyric_c =
-	typeof AVMetadataIdentifierID3MetadataUnsynchronizedLyric
+  typeof AVMetadataIdentifierID3MetadataUnsynchronizedLyric
 
 export type AVMetadataIdentifierID3MetadataUserText_c =
-	typeof AVMetadataIdentifierID3MetadataUserText
+  typeof AVMetadataIdentifierID3MetadataUserText
 
 export type AVMetadataIdentifierID3MetadataUserURL_c = typeof AVMetadataIdentifierID3MetadataUserURL
 export type AVMetadataIdentifierID3MetadataYear_c = typeof AVMetadataIdentifierID3MetadataYear
 export type AVMetadataIdentifierISOUserDataAccessibilityDescription_c =
-	typeof AVMetadataIdentifierISOUserDataAccessibilityDescription
+  typeof AVMetadataIdentifierISOUserDataAccessibilityDescription
 
 export type AVMetadataIdentifierISOUserDataCopyright_c =
-	typeof AVMetadataIdentifierISOUserDataCopyright
+  typeof AVMetadataIdentifierISOUserDataCopyright
 
 export type AVMetadataIdentifierISOUserDataDate_c = typeof AVMetadataIdentifierISOUserDataDate
 export type AVMetadataIdentifierISOUserDataTaggedCharacteristic_c =
-	typeof AVMetadataIdentifierISOUserDataTaggedCharacteristic
+  typeof AVMetadataIdentifierISOUserDataTaggedCharacteristic
 
 export type AVMetadataIdentifierIcyMetadataStreamTitle_c =
-	typeof AVMetadataIdentifierIcyMetadataStreamTitle
+  typeof AVMetadataIdentifierIcyMetadataStreamTitle
 
 export type AVMetadataIdentifierIcyMetadataStreamURL_c =
-	typeof AVMetadataIdentifierIcyMetadataStreamURL
+  typeof AVMetadataIdentifierIcyMetadataStreamURL
 
 export type AVMetadataIdentifierQuickTimeMetadataAIMEData_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataAIMEData
+  typeof AVMetadataIdentifierQuickTimeMetadataAIMEData
 
 export type AVMetadataIdentifierQuickTimeMetadataAccessibilityDescription_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataAccessibilityDescription
+  typeof AVMetadataIdentifierQuickTimeMetadataAccessibilityDescription
 
 export type AVMetadataIdentifierQuickTimeMetadataAlbum_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataAlbum
+  typeof AVMetadataIdentifierQuickTimeMetadataAlbum
 
 export type AVMetadataIdentifierQuickTimeMetadataArranger_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataArranger
+  typeof AVMetadataIdentifierQuickTimeMetadataArranger
 
 export type AVMetadataIdentifierQuickTimeMetadataArtist_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataArtist
+  typeof AVMetadataIdentifierQuickTimeMetadataArtist
 
 export type AVMetadataIdentifierQuickTimeMetadataArtwork_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataArtwork
+  typeof AVMetadataIdentifierQuickTimeMetadataArtwork
 
 export type AVMetadataIdentifierQuickTimeMetadataAuthor_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataAuthor
+  typeof AVMetadataIdentifierQuickTimeMetadataAuthor
 
 export type AVMetadataIdentifierQuickTimeMetadataAutoLivePhoto_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataAutoLivePhoto
+  typeof AVMetadataIdentifierQuickTimeMetadataAutoLivePhoto
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraFocalLength35mmEquivalent_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraFocalLength35mmEquivalent
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraFocalLength35mmEquivalent
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraFrameReadoutTime_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraFrameReadoutTime
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraFrameReadoutTime
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraISOSensitivity_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraISOSensitivity
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraISOSensitivity
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraIdentifier_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraIdentifier
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraIdentifier
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraLensIrisFNumber_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraLensIrisFNumber
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraLensIrisFNumber
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraLensModel_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraLensModel
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraLensModel
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedAngle_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedAngle
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedAngle
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedTime_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedTime
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraShutterSpeedTime
 
 export type AVMetadataIdentifierQuickTimeMetadataCameraWhiteBalance_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCameraWhiteBalance
+  typeof AVMetadataIdentifierQuickTimeMetadataCameraWhiteBalance
 
 export type AVMetadataIdentifierQuickTimeMetadataCinematicVideoIntent_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCinematicVideoIntent
+  typeof AVMetadataIdentifierQuickTimeMetadataCinematicVideoIntent
 
 export type AVMetadataIdentifierQuickTimeMetadataCollectionUser_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCollectionUser
+  typeof AVMetadataIdentifierQuickTimeMetadataCollectionUser
 
 export type AVMetadataIdentifierQuickTimeMetadataComment_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataComment
+  typeof AVMetadataIdentifierQuickTimeMetadataComment
 
 export type AVMetadataIdentifierQuickTimeMetadataComposer_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataComposer
+  typeof AVMetadataIdentifierQuickTimeMetadataComposer
 
 export type AVMetadataIdentifierQuickTimeMetadataContentIdentifier_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataContentIdentifier
+  typeof AVMetadataIdentifierQuickTimeMetadataContentIdentifier
 
 export type AVMetadataIdentifierQuickTimeMetadataCopyright_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCopyright
+  typeof AVMetadataIdentifierQuickTimeMetadataCopyright
 
 export type AVMetadataIdentifierQuickTimeMetadataCreationDate_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCreationDate
+  typeof AVMetadataIdentifierQuickTimeMetadataCreationDate
 
 export type AVMetadataIdentifierQuickTimeMetadataCredits_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataCredits
+  typeof AVMetadataIdentifierQuickTimeMetadataCredits
 
 export type AVMetadataIdentifierQuickTimeMetadataDescription_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDescription
+  typeof AVMetadataIdentifierQuickTimeMetadataDescription
 
 export type AVMetadataIdentifierQuickTimeMetadataDetectedCatBody_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDetectedCatBody
+  typeof AVMetadataIdentifierQuickTimeMetadataDetectedCatBody
 
 export type AVMetadataIdentifierQuickTimeMetadataDetectedDogBody_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDetectedDogBody
+  typeof AVMetadataIdentifierQuickTimeMetadataDetectedDogBody
 
 export type AVMetadataIdentifierQuickTimeMetadataDetectedFace_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDetectedFace
+  typeof AVMetadataIdentifierQuickTimeMetadataDetectedFace
 
 export type AVMetadataIdentifierQuickTimeMetadataDetectedHumanBody_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDetectedHumanBody
+  typeof AVMetadataIdentifierQuickTimeMetadataDetectedHumanBody
 
 export type AVMetadataIdentifierQuickTimeMetadataDetectedSalientObject_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDetectedSalientObject
+  typeof AVMetadataIdentifierQuickTimeMetadataDetectedSalientObject
 
 export type AVMetadataIdentifierQuickTimeMetadataDirectionFacing_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDirectionFacing
+  typeof AVMetadataIdentifierQuickTimeMetadataDirectionFacing
 
 export type AVMetadataIdentifierQuickTimeMetadataDirectionMotion_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDirectionMotion
+  typeof AVMetadataIdentifierQuickTimeMetadataDirectionMotion
 
 export type AVMetadataIdentifierQuickTimeMetadataDirector_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDirector
+  typeof AVMetadataIdentifierQuickTimeMetadataDirector
 
 export type AVMetadataIdentifierQuickTimeMetadataDisplayName_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataDisplayName
+  typeof AVMetadataIdentifierQuickTimeMetadataDisplayName
 
 export type AVMetadataIdentifierQuickTimeMetadataEncodedBy_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataEncodedBy
+  typeof AVMetadataIdentifierQuickTimeMetadataEncodedBy
 
 export type AVMetadataIdentifierQuickTimeMetadataFullFrameRatePlaybackIntent_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataFullFrameRatePlaybackIntent
+  typeof AVMetadataIdentifierQuickTimeMetadataFullFrameRatePlaybackIntent
 
 export type AVMetadataIdentifierQuickTimeMetadataGenre_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataGenre
+  typeof AVMetadataIdentifierQuickTimeMetadataGenre
 
 export type AVMetadataIdentifierQuickTimeMetadataInformation_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataInformation
+  typeof AVMetadataIdentifierQuickTimeMetadataInformation
 
 export type AVMetadataIdentifierQuickTimeMetadataIsMontage_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataIsMontage
+  typeof AVMetadataIdentifierQuickTimeMetadataIsMontage
 
 export type AVMetadataIdentifierQuickTimeMetadataKeywords_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataKeywords
+  typeof AVMetadataIdentifierQuickTimeMetadataKeywords
 
 export type AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScore_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScore
+  typeof AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScore
 
 export type AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScoringVersion_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScoringVersion
+  typeof AVMetadataIdentifierQuickTimeMetadataLivePhotoVitalityScoringVersion
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationBody_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationBody
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationBody
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationDate_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationDate
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationDate
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationHorizontalAccuracyInMeters_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationHorizontalAccuracyInMeters
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationHorizontalAccuracyInMeters
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationISO6709_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationISO6709
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationISO6709
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationName_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationName
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationName
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationNote_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationNote
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationNote
 
 export type AVMetadataIdentifierQuickTimeMetadataLocationRole_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataLocationRole
+  typeof AVMetadataIdentifierQuickTimeMetadataLocationRole
 
 export type AVMetadataIdentifierQuickTimeMetadataMake_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataMake
+  typeof AVMetadataIdentifierQuickTimeMetadataMake
 
 export type AVMetadataIdentifierQuickTimeMetadataModel_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataModel
+  typeof AVMetadataIdentifierQuickTimeMetadataModel
 
 export type AVMetadataIdentifierQuickTimeMetadataOriginalArtist_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataOriginalArtist
+  typeof AVMetadataIdentifierQuickTimeMetadataOriginalArtist
 
 export type AVMetadataIdentifierQuickTimeMetadataPerformer_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataPerformer
+  typeof AVMetadataIdentifierQuickTimeMetadataPerformer
 
 export type AVMetadataIdentifierQuickTimeMetadataPhonogramRights_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataPhonogramRights
+  typeof AVMetadataIdentifierQuickTimeMetadataPhonogramRights
 
 export type AVMetadataIdentifierQuickTimeMetadataPreferredAffineTransform_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataPreferredAffineTransform
+  typeof AVMetadataIdentifierQuickTimeMetadataPreferredAffineTransform
 
 export type AVMetadataIdentifierQuickTimeMetadataPresentationImmersiveMedia_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataPresentationImmersiveMedia
+  typeof AVMetadataIdentifierQuickTimeMetadataPresentationImmersiveMedia
 
 export type AVMetadataIdentifierQuickTimeMetadataProducer_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataProducer
+  typeof AVMetadataIdentifierQuickTimeMetadataProducer
 
 export type AVMetadataIdentifierQuickTimeMetadataPublisher_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataPublisher
+  typeof AVMetadataIdentifierQuickTimeMetadataPublisher
 
 export type AVMetadataIdentifierQuickTimeMetadataRatingUser_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataRatingUser
+  typeof AVMetadataIdentifierQuickTimeMetadataRatingUser
 
 export type AVMetadataIdentifierQuickTimeMetadataSoftware_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataSoftware
+  typeof AVMetadataIdentifierQuickTimeMetadataSoftware
 
 export type AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScore_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScore
+  typeof AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScore
 
 export type AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScoringVersion_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScoringVersion
+  typeof AVMetadataIdentifierQuickTimeMetadataSpatialOverCaptureQualityScoringVersion
 
 export type AVMetadataIdentifierQuickTimeMetadataTitle_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataTitle
+  typeof AVMetadataIdentifierQuickTimeMetadataTitle
 
 export type AVMetadataIdentifierQuickTimeMetadataVideoOrientation_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataVideoOrientation
+  typeof AVMetadataIdentifierQuickTimeMetadataVideoOrientation
 
 export type AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTColorMatrices_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTColorMatrices
+  typeof AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTColorMatrices
 
 export type AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTWhiteBalanceFactors_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTWhiteBalanceFactors
+  typeof AVMetadataIdentifierQuickTimeMetadataWhiteBalanceByCCTWhiteBalanceFactors
 
 export type AVMetadataIdentifierQuickTimeMetadataYear_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataYear
+  typeof AVMetadataIdentifierQuickTimeMetadataYear
 
 export type AVMetadataIdentifierQuickTimeMetadataiXML_c =
-	typeof AVMetadataIdentifierQuickTimeMetadataiXML
+  typeof AVMetadataIdentifierQuickTimeMetadataiXML
 
 export type AVMetadataIdentifierQuickTimeUserDataAccessibilityDescription_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataAccessibilityDescription
+  typeof AVMetadataIdentifierQuickTimeUserDataAccessibilityDescription
 
 export type AVMetadataIdentifierQuickTimeUserDataAlbum_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataAlbum
+  typeof AVMetadataIdentifierQuickTimeUserDataAlbum
 
 export type AVMetadataIdentifierQuickTimeUserDataArranger_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataArranger
+  typeof AVMetadataIdentifierQuickTimeUserDataArranger
 
 export type AVMetadataIdentifierQuickTimeUserDataArtist_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataArtist
+  typeof AVMetadataIdentifierQuickTimeUserDataArtist
 
 export type AVMetadataIdentifierQuickTimeUserDataAuthor_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataAuthor
+  typeof AVMetadataIdentifierQuickTimeUserDataAuthor
 
 export type AVMetadataIdentifierQuickTimeUserDataChapter_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataChapter
+  typeof AVMetadataIdentifierQuickTimeUserDataChapter
 
 export type AVMetadataIdentifierQuickTimeUserDataComment_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataComment
+  typeof AVMetadataIdentifierQuickTimeUserDataComment
 
 export type AVMetadataIdentifierQuickTimeUserDataComposer_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataComposer
+  typeof AVMetadataIdentifierQuickTimeUserDataComposer
 
 export type AVMetadataIdentifierQuickTimeUserDataCopyright_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataCopyright
+  typeof AVMetadataIdentifierQuickTimeUserDataCopyright
 
 export type AVMetadataIdentifierQuickTimeUserDataCreationDate_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataCreationDate
+  typeof AVMetadataIdentifierQuickTimeUserDataCreationDate
 
 export type AVMetadataIdentifierQuickTimeUserDataCredits_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataCredits
+  typeof AVMetadataIdentifierQuickTimeUserDataCredits
 
 export type AVMetadataIdentifierQuickTimeUserDataDescription_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataDescription
+  typeof AVMetadataIdentifierQuickTimeUserDataDescription
 
 export type AVMetadataIdentifierQuickTimeUserDataDirector_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataDirector
+  typeof AVMetadataIdentifierQuickTimeUserDataDirector
 
 export type AVMetadataIdentifierQuickTimeUserDataDisclaimer_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataDisclaimer
+  typeof AVMetadataIdentifierQuickTimeUserDataDisclaimer
 
 export type AVMetadataIdentifierQuickTimeUserDataEncodedBy_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataEncodedBy
+  typeof AVMetadataIdentifierQuickTimeUserDataEncodedBy
 
 export type AVMetadataIdentifierQuickTimeUserDataFullName_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataFullName
+  typeof AVMetadataIdentifierQuickTimeUserDataFullName
 
 export type AVMetadataIdentifierQuickTimeUserDataGenre_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataGenre
+  typeof AVMetadataIdentifierQuickTimeUserDataGenre
 
 export type AVMetadataIdentifierQuickTimeUserDataHostComputer_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataHostComputer
+  typeof AVMetadataIdentifierQuickTimeUserDataHostComputer
 
 export type AVMetadataIdentifierQuickTimeUserDataInformation_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataInformation
+  typeof AVMetadataIdentifierQuickTimeUserDataInformation
 
 export type AVMetadataIdentifierQuickTimeUserDataKeywords_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataKeywords
+  typeof AVMetadataIdentifierQuickTimeUserDataKeywords
 
 export type AVMetadataIdentifierQuickTimeUserDataLocationISO6709_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataLocationISO6709
+  typeof AVMetadataIdentifierQuickTimeUserDataLocationISO6709
 
 export type AVMetadataIdentifierQuickTimeUserDataMake_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataMake
+  typeof AVMetadataIdentifierQuickTimeUserDataMake
 
 export type AVMetadataIdentifierQuickTimeUserDataModel_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataModel
+  typeof AVMetadataIdentifierQuickTimeUserDataModel
 
 export type AVMetadataIdentifierQuickTimeUserDataOriginalArtist_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataOriginalArtist
+  typeof AVMetadataIdentifierQuickTimeUserDataOriginalArtist
 
 export type AVMetadataIdentifierQuickTimeUserDataOriginalFormat_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataOriginalFormat
+  typeof AVMetadataIdentifierQuickTimeUserDataOriginalFormat
 
 export type AVMetadataIdentifierQuickTimeUserDataOriginalSource_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataOriginalSource
+  typeof AVMetadataIdentifierQuickTimeUserDataOriginalSource
 
 export type AVMetadataIdentifierQuickTimeUserDataPerformers_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataPerformers
+  typeof AVMetadataIdentifierQuickTimeUserDataPerformers
 
 export type AVMetadataIdentifierQuickTimeUserDataPhonogramRights_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataPhonogramRights
+  typeof AVMetadataIdentifierQuickTimeUserDataPhonogramRights
 
 export type AVMetadataIdentifierQuickTimeUserDataProducer_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataProducer
+  typeof AVMetadataIdentifierQuickTimeUserDataProducer
 
 export type AVMetadataIdentifierQuickTimeUserDataProduct_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataProduct
+  typeof AVMetadataIdentifierQuickTimeUserDataProduct
 
 export type AVMetadataIdentifierQuickTimeUserDataPublisher_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataPublisher
+  typeof AVMetadataIdentifierQuickTimeUserDataPublisher
 
 export type AVMetadataIdentifierQuickTimeUserDataSoftware_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataSoftware
+  typeof AVMetadataIdentifierQuickTimeUserDataSoftware
 
 export type AVMetadataIdentifierQuickTimeUserDataSpecialPlaybackRequirements_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataSpecialPlaybackRequirements
+  typeof AVMetadataIdentifierQuickTimeUserDataSpecialPlaybackRequirements
 
 export type AVMetadataIdentifierQuickTimeUserDataTaggedCharacteristic_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataTaggedCharacteristic
+  typeof AVMetadataIdentifierQuickTimeUserDataTaggedCharacteristic
 
 export type AVMetadataIdentifierQuickTimeUserDataTrack_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataTrack
+  typeof AVMetadataIdentifierQuickTimeUserDataTrack
 
 export type AVMetadataIdentifierQuickTimeUserDataTrackName_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataTrackName
+  typeof AVMetadataIdentifierQuickTimeUserDataTrackName
 
 export type AVMetadataIdentifierQuickTimeUserDataURLLink_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataURLLink
+  typeof AVMetadataIdentifierQuickTimeUserDataURLLink
 
 export type AVMetadataIdentifierQuickTimeUserDataWarning_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataWarning
+  typeof AVMetadataIdentifierQuickTimeUserDataWarning
 
 export type AVMetadataIdentifierQuickTimeUserDataWriter_c =
-	typeof AVMetadataIdentifierQuickTimeUserDataWriter
+  typeof AVMetadataIdentifierQuickTimeUserDataWriter
 
 export type AVMetadataIdentifieriTunesMetadataAccountKind_c =
-	typeof AVMetadataIdentifieriTunesMetadataAccountKind
+  typeof AVMetadataIdentifieriTunesMetadataAccountKind
 
 export type AVMetadataIdentifieriTunesMetadataAcknowledgement_c =
-	typeof AVMetadataIdentifieriTunesMetadataAcknowledgement
+  typeof AVMetadataIdentifieriTunesMetadataAcknowledgement
 
 export type AVMetadataIdentifieriTunesMetadataAlbum_c =
-	typeof AVMetadataIdentifieriTunesMetadataAlbum
+  typeof AVMetadataIdentifieriTunesMetadataAlbum
 
 export type AVMetadataIdentifieriTunesMetadataAlbumArtist_c =
-	typeof AVMetadataIdentifieriTunesMetadataAlbumArtist
+  typeof AVMetadataIdentifieriTunesMetadataAlbumArtist
 
 export type AVMetadataIdentifieriTunesMetadataAppleID_c =
-	typeof AVMetadataIdentifieriTunesMetadataAppleID
+  typeof AVMetadataIdentifieriTunesMetadataAppleID
 
 export type AVMetadataIdentifieriTunesMetadataArranger_c =
-	typeof AVMetadataIdentifieriTunesMetadataArranger
+  typeof AVMetadataIdentifieriTunesMetadataArranger
 
 export type AVMetadataIdentifieriTunesMetadataArtDirector_c =
-	typeof AVMetadataIdentifieriTunesMetadataArtDirector
+  typeof AVMetadataIdentifieriTunesMetadataArtDirector
 
 export type AVMetadataIdentifieriTunesMetadataArtist_c =
-	typeof AVMetadataIdentifieriTunesMetadataArtist
+  typeof AVMetadataIdentifieriTunesMetadataArtist
 
 export type AVMetadataIdentifieriTunesMetadataArtistID_c =
-	typeof AVMetadataIdentifieriTunesMetadataArtistID
+  typeof AVMetadataIdentifieriTunesMetadataArtistID
 
 export type AVMetadataIdentifieriTunesMetadataAuthor_c =
-	typeof AVMetadataIdentifieriTunesMetadataAuthor
+  typeof AVMetadataIdentifieriTunesMetadataAuthor
 
 export type AVMetadataIdentifieriTunesMetadataBeatsPerMin_c =
-	typeof AVMetadataIdentifieriTunesMetadataBeatsPerMin
+  typeof AVMetadataIdentifieriTunesMetadataBeatsPerMin
 
 export type AVMetadataIdentifieriTunesMetadataComposer_c =
-	typeof AVMetadataIdentifieriTunesMetadataComposer
+  typeof AVMetadataIdentifieriTunesMetadataComposer
 
 export type AVMetadataIdentifieriTunesMetadataConductor_c =
-	typeof AVMetadataIdentifieriTunesMetadataConductor
+  typeof AVMetadataIdentifieriTunesMetadataConductor
 
 export type AVMetadataIdentifieriTunesMetadataContentRating_c =
-	typeof AVMetadataIdentifieriTunesMetadataContentRating
+  typeof AVMetadataIdentifieriTunesMetadataContentRating
 
 export type AVMetadataIdentifieriTunesMetadataCopyright_c =
-	typeof AVMetadataIdentifieriTunesMetadataCopyright
+  typeof AVMetadataIdentifieriTunesMetadataCopyright
 
 export type AVMetadataIdentifieriTunesMetadataCoverArt_c =
-	typeof AVMetadataIdentifieriTunesMetadataCoverArt
+  typeof AVMetadataIdentifieriTunesMetadataCoverArt
 
 export type AVMetadataIdentifieriTunesMetadataCredits_c =
-	typeof AVMetadataIdentifieriTunesMetadataCredits
+  typeof AVMetadataIdentifieriTunesMetadataCredits
 
 export type AVMetadataIdentifieriTunesMetadataDescription_c =
-	typeof AVMetadataIdentifieriTunesMetadataDescription
+  typeof AVMetadataIdentifieriTunesMetadataDescription
 
 export type AVMetadataIdentifieriTunesMetadataDirector_c =
-	typeof AVMetadataIdentifieriTunesMetadataDirector
+  typeof AVMetadataIdentifieriTunesMetadataDirector
 
 export type AVMetadataIdentifieriTunesMetadataDiscCompilation_c =
-	typeof AVMetadataIdentifieriTunesMetadataDiscCompilation
+  typeof AVMetadataIdentifieriTunesMetadataDiscCompilation
 
 export type AVMetadataIdentifieriTunesMetadataDiscNumber_c =
-	typeof AVMetadataIdentifieriTunesMetadataDiscNumber
+  typeof AVMetadataIdentifieriTunesMetadataDiscNumber
 
 export type AVMetadataIdentifieriTunesMetadataEQ_c = typeof AVMetadataIdentifieriTunesMetadataEQ
 export type AVMetadataIdentifieriTunesMetadataEncodedBy_c =
-	typeof AVMetadataIdentifieriTunesMetadataEncodedBy
+  typeof AVMetadataIdentifieriTunesMetadataEncodedBy
 
 export type AVMetadataIdentifieriTunesMetadataEncodingTool_c =
-	typeof AVMetadataIdentifieriTunesMetadataEncodingTool
+  typeof AVMetadataIdentifieriTunesMetadataEncodingTool
 
 export type AVMetadataIdentifieriTunesMetadataExecProducer_c =
-	typeof AVMetadataIdentifieriTunesMetadataExecProducer
+  typeof AVMetadataIdentifieriTunesMetadataExecProducer
 
 export type AVMetadataIdentifieriTunesMetadataGenreID_c =
-	typeof AVMetadataIdentifieriTunesMetadataGenreID
+  typeof AVMetadataIdentifieriTunesMetadataGenreID
 
 export type AVMetadataIdentifieriTunesMetadataGrouping_c =
-	typeof AVMetadataIdentifieriTunesMetadataGrouping
+  typeof AVMetadataIdentifieriTunesMetadataGrouping
 
 export type AVMetadataIdentifieriTunesMetadataLinerNotes_c =
-	typeof AVMetadataIdentifieriTunesMetadataLinerNotes
+  typeof AVMetadataIdentifieriTunesMetadataLinerNotes
 
 export type AVMetadataIdentifieriTunesMetadataLyrics_c =
-	typeof AVMetadataIdentifieriTunesMetadataLyrics
+  typeof AVMetadataIdentifieriTunesMetadataLyrics
 
 export type AVMetadataIdentifieriTunesMetadataOnlineExtras_c =
-	typeof AVMetadataIdentifieriTunesMetadataOnlineExtras
+  typeof AVMetadataIdentifieriTunesMetadataOnlineExtras
 
 export type AVMetadataIdentifieriTunesMetadataOriginalArtist_c =
-	typeof AVMetadataIdentifieriTunesMetadataOriginalArtist
+  typeof AVMetadataIdentifieriTunesMetadataOriginalArtist
 
 export type AVMetadataIdentifieriTunesMetadataPerformer_c =
-	typeof AVMetadataIdentifieriTunesMetadataPerformer
+  typeof AVMetadataIdentifieriTunesMetadataPerformer
 
 export type AVMetadataIdentifieriTunesMetadataPhonogramRights_c =
-	typeof AVMetadataIdentifieriTunesMetadataPhonogramRights
+  typeof AVMetadataIdentifieriTunesMetadataPhonogramRights
 
 export type AVMetadataIdentifieriTunesMetadataPlaylistID_c =
-	typeof AVMetadataIdentifieriTunesMetadataPlaylistID
+  typeof AVMetadataIdentifieriTunesMetadataPlaylistID
 
 export type AVMetadataIdentifieriTunesMetadataPredefinedGenre_c =
-	typeof AVMetadataIdentifieriTunesMetadataPredefinedGenre
+  typeof AVMetadataIdentifieriTunesMetadataPredefinedGenre
 
 export type AVMetadataIdentifieriTunesMetadataProducer_c =
-	typeof AVMetadataIdentifieriTunesMetadataProducer
+  typeof AVMetadataIdentifieriTunesMetadataProducer
 
 export type AVMetadataIdentifieriTunesMetadataPublisher_c =
-	typeof AVMetadataIdentifieriTunesMetadataPublisher
+  typeof AVMetadataIdentifieriTunesMetadataPublisher
 
 export type AVMetadataIdentifieriTunesMetadataRecordCompany_c =
-	typeof AVMetadataIdentifieriTunesMetadataRecordCompany
+  typeof AVMetadataIdentifieriTunesMetadataRecordCompany
 
 export type AVMetadataIdentifieriTunesMetadataReleaseDate_c =
-	typeof AVMetadataIdentifieriTunesMetadataReleaseDate
+  typeof AVMetadataIdentifieriTunesMetadataReleaseDate
 
 export type AVMetadataIdentifieriTunesMetadataSoloist_c =
-	typeof AVMetadataIdentifieriTunesMetadataSoloist
+  typeof AVMetadataIdentifieriTunesMetadataSoloist
 
 export type AVMetadataIdentifieriTunesMetadataSongID_c =
-	typeof AVMetadataIdentifieriTunesMetadataSongID
+  typeof AVMetadataIdentifieriTunesMetadataSongID
 
 export type AVMetadataIdentifieriTunesMetadataSongName_c =
-	typeof AVMetadataIdentifieriTunesMetadataSongName
+  typeof AVMetadataIdentifieriTunesMetadataSongName
 
 export type AVMetadataIdentifieriTunesMetadataSoundEngineer_c =
-	typeof AVMetadataIdentifieriTunesMetadataSoundEngineer
+  typeof AVMetadataIdentifieriTunesMetadataSoundEngineer
 
 export type AVMetadataIdentifieriTunesMetadataThanks_c =
-	typeof AVMetadataIdentifieriTunesMetadataThanks
+  typeof AVMetadataIdentifieriTunesMetadataThanks
 
 export type AVMetadataIdentifieriTunesMetadataTrackNumber_c =
-	typeof AVMetadataIdentifieriTunesMetadataTrackNumber
+  typeof AVMetadataIdentifieriTunesMetadataTrackNumber
 
 export type AVMetadataIdentifieriTunesMetadataTrackSubTitle_c =
-	typeof AVMetadataIdentifieriTunesMetadataTrackSubTitle
+  typeof AVMetadataIdentifieriTunesMetadataTrackSubTitle
 
 export type AVMetadataIdentifieriTunesMetadataUserComment_c =
-	typeof AVMetadataIdentifieriTunesMetadataUserComment
+  typeof AVMetadataIdentifieriTunesMetadataUserComment
 
 export type AVMetadataIdentifieriTunesMetadataUserGenre_c =
-	typeof AVMetadataIdentifieriTunesMetadataUserGenre
+  typeof AVMetadataIdentifieriTunesMetadataUserGenre
 
 export type AVMetadataItem_t = AVMetadataItem
 export type AVMetadataItem_c = typeof AVMetadataItem
@@ -2700,7 +2700,7 @@ export type AVMetadataObjectTypeAztecCode_c = typeof AVMetadataObjectTypeAztecCo
 export type AVMetadataObjectTypeCatBody_c = typeof AVMetadataObjectTypeCatBody
 export type AVMetadataObjectTypeCatHead_c = typeof AVMetadataObjectTypeCatHead
 export type AVMetadataObjectTypeCinematicVideoMetadata_c =
-	typeof AVMetadataObjectTypeCinematicVideoMetadata
+  typeof AVMetadataObjectTypeCinematicVideoMetadata
 
 export type AVMetadataObjectTypeCodabarCode_c = typeof AVMetadataObjectTypeCodabarCode
 export type AVMetadataObjectTypeCode128Code_c = typeof AVMetadataObjectTypeCode128Code
@@ -2716,16 +2716,16 @@ export type AVMetadataObjectTypeFace_c = typeof AVMetadataObjectTypeFace
 export type AVMetadataObjectTypeFocusTrackedObject_c = typeof AVMetadataObjectTypeFocusTrackedObject
 export type AVMetadataObjectTypeGS1DataBarCode_c = typeof AVMetadataObjectTypeGS1DataBarCode
 export type AVMetadataObjectTypeGS1DataBarExpandedCode_c =
-	typeof AVMetadataObjectTypeGS1DataBarExpandedCode
+  typeof AVMetadataObjectTypeGS1DataBarExpandedCode
 
 export type AVMetadataObjectTypeGS1DataBarLimitedCode_c =
-	typeof AVMetadataObjectTypeGS1DataBarLimitedCode
+  typeof AVMetadataObjectTypeGS1DataBarLimitedCode
 
 export type AVMetadataObjectTypeHumanBody_c = typeof AVMetadataObjectTypeHumanBody
 export type AVMetadataObjectTypeHumanFullBody_c = typeof AVMetadataObjectTypeHumanFullBody
 export type AVMetadataObjectTypeITF14Code_c = typeof AVMetadataObjectTypeITF14Code
 export type AVMetadataObjectTypeInterleaved2of5Code_c =
-	typeof AVMetadataObjectTypeInterleaved2of5Code
+  typeof AVMetadataObjectTypeInterleaved2of5Code
 
 export type AVMetadataObjectTypeMicroPDF417Code_c = typeof AVMetadataObjectTypeMicroPDF417Code
 export type AVMetadataObjectTypeMicroQRCode_c = typeof AVMetadataObjectTypeMicroQRCode
@@ -2734,7 +2734,7 @@ export type AVMetadataObjectTypeQRCode_c = typeof AVMetadataObjectTypeQRCode
 export type AVMetadataObjectTypeSalientObject_c = typeof AVMetadataObjectTypeSalientObject
 export type AVMetadataObjectTypeUPCECode_c = typeof AVMetadataObjectTypeUPCECode
 export type AVMetadataQuickTimeMetadataKeyAccessibilityDescription_c =
-	typeof AVMetadataQuickTimeMetadataKeyAccessibilityDescription
+  typeof AVMetadataQuickTimeMetadataKeyAccessibilityDescription
 
 export type AVMetadataQuickTimeMetadataKeyAlbum_c = typeof AVMetadataQuickTimeMetadataKeyAlbum
 export type AVMetadataQuickTimeMetadataKeyArranger_c = typeof AVMetadataQuickTimeMetadataKeyArranger
@@ -2742,125 +2742,125 @@ export type AVMetadataQuickTimeMetadataKeyArtist_c = typeof AVMetadataQuickTimeM
 export type AVMetadataQuickTimeMetadataKeyArtwork_c = typeof AVMetadataQuickTimeMetadataKeyArtwork
 export type AVMetadataQuickTimeMetadataKeyAuthor_c = typeof AVMetadataQuickTimeMetadataKeyAuthor
 export type AVMetadataQuickTimeMetadataKeyCameraFocalLength35mmEquivalent_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraFocalLength35mmEquivalent
+  typeof AVMetadataQuickTimeMetadataKeyCameraFocalLength35mmEquivalent
 
 export type AVMetadataQuickTimeMetadataKeyCameraFrameReadoutTime_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraFrameReadoutTime
+  typeof AVMetadataQuickTimeMetadataKeyCameraFrameReadoutTime
 
 export type AVMetadataQuickTimeMetadataKeyCameraISOSensitivity_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraISOSensitivity
+  typeof AVMetadataQuickTimeMetadataKeyCameraISOSensitivity
 
 export type AVMetadataQuickTimeMetadataKeyCameraIdentifier_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraIdentifier
+  typeof AVMetadataQuickTimeMetadataKeyCameraIdentifier
 
 export type AVMetadataQuickTimeMetadataKeyCameraLensIrisFNumber_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraLensIrisFNumber
+  typeof AVMetadataQuickTimeMetadataKeyCameraLensIrisFNumber
 
 export type AVMetadataQuickTimeMetadataKeyCameraLensModel_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraLensModel
+  typeof AVMetadataQuickTimeMetadataKeyCameraLensModel
 
 export type AVMetadataQuickTimeMetadataKeyCameraShutterSpeedAngle_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraShutterSpeedAngle
+  typeof AVMetadataQuickTimeMetadataKeyCameraShutterSpeedAngle
 
 export type AVMetadataQuickTimeMetadataKeyCameraShutterSpeedTime_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraShutterSpeedTime
+  typeof AVMetadataQuickTimeMetadataKeyCameraShutterSpeedTime
 
 export type AVMetadataQuickTimeMetadataKeyCameraWhiteBalance_c =
-	typeof AVMetadataQuickTimeMetadataKeyCameraWhiteBalance
+  typeof AVMetadataQuickTimeMetadataKeyCameraWhiteBalance
 
 export type AVMetadataQuickTimeMetadataKeyCinematicVideoIntent_c =
-	typeof AVMetadataQuickTimeMetadataKeyCinematicVideoIntent
+  typeof AVMetadataQuickTimeMetadataKeyCinematicVideoIntent
 
 export type AVMetadataQuickTimeMetadataKeyCollectionUser_c =
-	typeof AVMetadataQuickTimeMetadataKeyCollectionUser
+  typeof AVMetadataQuickTimeMetadataKeyCollectionUser
 
 export type AVMetadataQuickTimeMetadataKeyComment_c = typeof AVMetadataQuickTimeMetadataKeyComment
 export type AVMetadataQuickTimeMetadataKeyComposer_c = typeof AVMetadataQuickTimeMetadataKeyComposer
 export type AVMetadataQuickTimeMetadataKeyContentIdentifier_c =
-	typeof AVMetadataQuickTimeMetadataKeyContentIdentifier
+  typeof AVMetadataQuickTimeMetadataKeyContentIdentifier
 
 export type AVMetadataQuickTimeMetadataKeyCopyright_c =
-	typeof AVMetadataQuickTimeMetadataKeyCopyright
+  typeof AVMetadataQuickTimeMetadataKeyCopyright
 
 export type AVMetadataQuickTimeMetadataKeyCreationDate_c =
-	typeof AVMetadataQuickTimeMetadataKeyCreationDate
+  typeof AVMetadataQuickTimeMetadataKeyCreationDate
 
 export type AVMetadataQuickTimeMetadataKeyCredits_c = typeof AVMetadataQuickTimeMetadataKeyCredits
 export type AVMetadataQuickTimeMetadataKeyDescription_c =
-	typeof AVMetadataQuickTimeMetadataKeyDescription
+  typeof AVMetadataQuickTimeMetadataKeyDescription
 
 export type AVMetadataQuickTimeMetadataKeyDirectionFacing_c =
-	typeof AVMetadataQuickTimeMetadataKeyDirectionFacing
+  typeof AVMetadataQuickTimeMetadataKeyDirectionFacing
 
 export type AVMetadataQuickTimeMetadataKeyDirectionMotion_c =
-	typeof AVMetadataQuickTimeMetadataKeyDirectionMotion
+  typeof AVMetadataQuickTimeMetadataKeyDirectionMotion
 
 export type AVMetadataQuickTimeMetadataKeyDirector_c = typeof AVMetadataQuickTimeMetadataKeyDirector
 export type AVMetadataQuickTimeMetadataKeyDisplayName_c =
-	typeof AVMetadataQuickTimeMetadataKeyDisplayName
+  typeof AVMetadataQuickTimeMetadataKeyDisplayName
 
 export type AVMetadataQuickTimeMetadataKeyEncodedBy_c =
-	typeof AVMetadataQuickTimeMetadataKeyEncodedBy
+  typeof AVMetadataQuickTimeMetadataKeyEncodedBy
 
 export type AVMetadataQuickTimeMetadataKeyFullFrameRatePlaybackIntent_c =
-	typeof AVMetadataQuickTimeMetadataKeyFullFrameRatePlaybackIntent
+  typeof AVMetadataQuickTimeMetadataKeyFullFrameRatePlaybackIntent
 
 export type AVMetadataQuickTimeMetadataKeyGenre_c = typeof AVMetadataQuickTimeMetadataKeyGenre
 export type AVMetadataQuickTimeMetadataKeyInformation_c =
-	typeof AVMetadataQuickTimeMetadataKeyInformation
+  typeof AVMetadataQuickTimeMetadataKeyInformation
 
 export type AVMetadataQuickTimeMetadataKeyIsMontage_c =
-	typeof AVMetadataQuickTimeMetadataKeyIsMontage
+  typeof AVMetadataQuickTimeMetadataKeyIsMontage
 
 export type AVMetadataQuickTimeMetadataKeyKeywords_c = typeof AVMetadataQuickTimeMetadataKeyKeywords
 export type AVMetadataQuickTimeMetadataKeyLocationBody_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationBody
+  typeof AVMetadataQuickTimeMetadataKeyLocationBody
 
 export type AVMetadataQuickTimeMetadataKeyLocationDate_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationDate
+  typeof AVMetadataQuickTimeMetadataKeyLocationDate
 
 export type AVMetadataQuickTimeMetadataKeyLocationISO6709_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationISO6709
+  typeof AVMetadataQuickTimeMetadataKeyLocationISO6709
 
 export type AVMetadataQuickTimeMetadataKeyLocationName_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationName
+  typeof AVMetadataQuickTimeMetadataKeyLocationName
 
 export type AVMetadataQuickTimeMetadataKeyLocationNote_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationNote
+  typeof AVMetadataQuickTimeMetadataKeyLocationNote
 
 export type AVMetadataQuickTimeMetadataKeyLocationRole_c =
-	typeof AVMetadataQuickTimeMetadataKeyLocationRole
+  typeof AVMetadataQuickTimeMetadataKeyLocationRole
 
 export type AVMetadataQuickTimeMetadataKeyMake_c = typeof AVMetadataQuickTimeMetadataKeyMake
 export type AVMetadataQuickTimeMetadataKeyModel_c = typeof AVMetadataQuickTimeMetadataKeyModel
 export type AVMetadataQuickTimeMetadataKeyOriginalArtist_c =
-	typeof AVMetadataQuickTimeMetadataKeyOriginalArtist
+  typeof AVMetadataQuickTimeMetadataKeyOriginalArtist
 
 export type AVMetadataQuickTimeMetadataKeyPerformer_c =
-	typeof AVMetadataQuickTimeMetadataKeyPerformer
+  typeof AVMetadataQuickTimeMetadataKeyPerformer
 
 export type AVMetadataQuickTimeMetadataKeyPhonogramRights_c =
-	typeof AVMetadataQuickTimeMetadataKeyPhonogramRights
+  typeof AVMetadataQuickTimeMetadataKeyPhonogramRights
 
 export type AVMetadataQuickTimeMetadataKeyProducer_c = typeof AVMetadataQuickTimeMetadataKeyProducer
 export type AVMetadataQuickTimeMetadataKeyPublisher_c =
-	typeof AVMetadataQuickTimeMetadataKeyPublisher
+  typeof AVMetadataQuickTimeMetadataKeyPublisher
 
 export type AVMetadataQuickTimeMetadataKeyRatingUser_c =
-	typeof AVMetadataQuickTimeMetadataKeyRatingUser
+  typeof AVMetadataQuickTimeMetadataKeyRatingUser
 
 export type AVMetadataQuickTimeMetadataKeySoftware_c = typeof AVMetadataQuickTimeMetadataKeySoftware
 export type AVMetadataQuickTimeMetadataKeyTitle_c = typeof AVMetadataQuickTimeMetadataKeyTitle
 export type AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTColorMatrices_c =
-	typeof AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTColorMatrices
+  typeof AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTColorMatrices
 
 export type AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTWhiteBalanceFactors_c =
-	typeof AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTWhiteBalanceFactors
+  typeof AVMetadataQuickTimeMetadataKeyWhiteBalanceByCCTWhiteBalanceFactors
 
 export type AVMetadataQuickTimeMetadataKeyYear_c = typeof AVMetadataQuickTimeMetadataKeyYear
 export type AVMetadataQuickTimeMetadataKeyiXML_c = typeof AVMetadataQuickTimeMetadataKeyiXML
 export type AVMetadataQuickTimeUserDataKeyAccessibilityDescription_c =
-	typeof AVMetadataQuickTimeUserDataKeyAccessibilityDescription
+  typeof AVMetadataQuickTimeUserDataKeyAccessibilityDescription
 
 export type AVMetadataQuickTimeUserDataKeyAlbum_c = typeof AVMetadataQuickTimeUserDataKeyAlbum
 export type AVMetadataQuickTimeUserDataKeyArranger_c = typeof AVMetadataQuickTimeUserDataKeyArranger
@@ -2870,66 +2870,66 @@ export type AVMetadataQuickTimeUserDataKeyChapter_c = typeof AVMetadataQuickTime
 export type AVMetadataQuickTimeUserDataKeyComment_c = typeof AVMetadataQuickTimeUserDataKeyComment
 export type AVMetadataQuickTimeUserDataKeyComposer_c = typeof AVMetadataQuickTimeUserDataKeyComposer
 export type AVMetadataQuickTimeUserDataKeyCopyright_c =
-	typeof AVMetadataQuickTimeUserDataKeyCopyright
+  typeof AVMetadataQuickTimeUserDataKeyCopyright
 
 export type AVMetadataQuickTimeUserDataKeyCreationDate_c =
-	typeof AVMetadataQuickTimeUserDataKeyCreationDate
+  typeof AVMetadataQuickTimeUserDataKeyCreationDate
 
 export type AVMetadataQuickTimeUserDataKeyCredits_c = typeof AVMetadataQuickTimeUserDataKeyCredits
 export type AVMetadataQuickTimeUserDataKeyDescription_c =
-	typeof AVMetadataQuickTimeUserDataKeyDescription
+  typeof AVMetadataQuickTimeUserDataKeyDescription
 
 export type AVMetadataQuickTimeUserDataKeyDirector_c = typeof AVMetadataQuickTimeUserDataKeyDirector
 export type AVMetadataQuickTimeUserDataKeyDisclaimer_c =
-	typeof AVMetadataQuickTimeUserDataKeyDisclaimer
+  typeof AVMetadataQuickTimeUserDataKeyDisclaimer
 
 export type AVMetadataQuickTimeUserDataKeyEncodedBy_c =
-	typeof AVMetadataQuickTimeUserDataKeyEncodedBy
+  typeof AVMetadataQuickTimeUserDataKeyEncodedBy
 
 export type AVMetadataQuickTimeUserDataKeyFullName_c = typeof AVMetadataQuickTimeUserDataKeyFullName
 export type AVMetadataQuickTimeUserDataKeyGenre_c = typeof AVMetadataQuickTimeUserDataKeyGenre
 export type AVMetadataQuickTimeUserDataKeyHostComputer_c =
-	typeof AVMetadataQuickTimeUserDataKeyHostComputer
+  typeof AVMetadataQuickTimeUserDataKeyHostComputer
 
 export type AVMetadataQuickTimeUserDataKeyInformation_c =
-	typeof AVMetadataQuickTimeUserDataKeyInformation
+  typeof AVMetadataQuickTimeUserDataKeyInformation
 
 export type AVMetadataQuickTimeUserDataKeyKeywords_c = typeof AVMetadataQuickTimeUserDataKeyKeywords
 export type AVMetadataQuickTimeUserDataKeyLocationISO6709_c =
-	typeof AVMetadataQuickTimeUserDataKeyLocationISO6709
+  typeof AVMetadataQuickTimeUserDataKeyLocationISO6709
 
 export type AVMetadataQuickTimeUserDataKeyMake_c = typeof AVMetadataQuickTimeUserDataKeyMake
 export type AVMetadataQuickTimeUserDataKeyModel_c = typeof AVMetadataQuickTimeUserDataKeyModel
 export type AVMetadataQuickTimeUserDataKeyOriginalArtist_c =
-	typeof AVMetadataQuickTimeUserDataKeyOriginalArtist
+  typeof AVMetadataQuickTimeUserDataKeyOriginalArtist
 
 export type AVMetadataQuickTimeUserDataKeyOriginalFormat_c =
-	typeof AVMetadataQuickTimeUserDataKeyOriginalFormat
+  typeof AVMetadataQuickTimeUserDataKeyOriginalFormat
 
 export type AVMetadataQuickTimeUserDataKeyOriginalSource_c =
-	typeof AVMetadataQuickTimeUserDataKeyOriginalSource
+  typeof AVMetadataQuickTimeUserDataKeyOriginalSource
 
 export type AVMetadataQuickTimeUserDataKeyPerformers_c =
-	typeof AVMetadataQuickTimeUserDataKeyPerformers
+  typeof AVMetadataQuickTimeUserDataKeyPerformers
 
 export type AVMetadataQuickTimeUserDataKeyPhonogramRights_c =
-	typeof AVMetadataQuickTimeUserDataKeyPhonogramRights
+  typeof AVMetadataQuickTimeUserDataKeyPhonogramRights
 
 export type AVMetadataQuickTimeUserDataKeyProducer_c = typeof AVMetadataQuickTimeUserDataKeyProducer
 export type AVMetadataQuickTimeUserDataKeyProduct_c = typeof AVMetadataQuickTimeUserDataKeyProduct
 export type AVMetadataQuickTimeUserDataKeyPublisher_c =
-	typeof AVMetadataQuickTimeUserDataKeyPublisher
+  typeof AVMetadataQuickTimeUserDataKeyPublisher
 
 export type AVMetadataQuickTimeUserDataKeySoftware_c = typeof AVMetadataQuickTimeUserDataKeySoftware
 export type AVMetadataQuickTimeUserDataKeySpecialPlaybackRequirements_c =
-	typeof AVMetadataQuickTimeUserDataKeySpecialPlaybackRequirements
+  typeof AVMetadataQuickTimeUserDataKeySpecialPlaybackRequirements
 
 export type AVMetadataQuickTimeUserDataKeyTaggedCharacteristic_c =
-	typeof AVMetadataQuickTimeUserDataKeyTaggedCharacteristic
+  typeof AVMetadataQuickTimeUserDataKeyTaggedCharacteristic
 
 export type AVMetadataQuickTimeUserDataKeyTrack_c = typeof AVMetadataQuickTimeUserDataKeyTrack
 export type AVMetadataQuickTimeUserDataKeyTrackName_c =
-	typeof AVMetadataQuickTimeUserDataKeyTrackName
+  typeof AVMetadataQuickTimeUserDataKeyTrackName
 
 export type AVMetadataQuickTimeUserDataKeyURLLink_c = typeof AVMetadataQuickTimeUserDataKeyURLLink
 export type AVMetadataQuickTimeUserDataKeyWarning_c = typeof AVMetadataQuickTimeUserDataKeyWarning
@@ -2938,7 +2938,7 @@ export type AVMetadataSalientObject_t = AVMetadataSalientObject
 export type AVMetadataSalientObject_c = typeof AVMetadataSalientObject
 export type AVMetadataiTunesMetadataKeyAccountKind_c = typeof AVMetadataiTunesMetadataKeyAccountKind
 export type AVMetadataiTunesMetadataKeyAcknowledgement_c =
-	typeof AVMetadataiTunesMetadataKeyAcknowledgement
+  typeof AVMetadataiTunesMetadataKeyAcknowledgement
 
 export type AVMetadataiTunesMetadataKeyAlbum_c = typeof AVMetadataiTunesMetadataKeyAlbum
 export type AVMetadataiTunesMetadataKeyAlbumArtist_c = typeof AVMetadataiTunesMetadataKeyAlbumArtist
@@ -2952,7 +2952,7 @@ export type AVMetadataiTunesMetadataKeyBeatsPerMin_c = typeof AVMetadataiTunesMe
 export type AVMetadataiTunesMetadataKeyComposer_c = typeof AVMetadataiTunesMetadataKeyComposer
 export type AVMetadataiTunesMetadataKeyConductor_c = typeof AVMetadataiTunesMetadataKeyConductor
 export type AVMetadataiTunesMetadataKeyContentRating_c =
-	typeof AVMetadataiTunesMetadataKeyContentRating
+  typeof AVMetadataiTunesMetadataKeyContentRating
 
 export type AVMetadataiTunesMetadataKeyCopyright_c = typeof AVMetadataiTunesMetadataKeyCopyright
 export type AVMetadataiTunesMetadataKeyCoverArt_c = typeof AVMetadataiTunesMetadataKeyCoverArt
@@ -2960,51 +2960,51 @@ export type AVMetadataiTunesMetadataKeyCredits_c = typeof AVMetadataiTunesMetada
 export type AVMetadataiTunesMetadataKeyDescription_c = typeof AVMetadataiTunesMetadataKeyDescription
 export type AVMetadataiTunesMetadataKeyDirector_c = typeof AVMetadataiTunesMetadataKeyDirector
 export type AVMetadataiTunesMetadataKeyDiscCompilation_c =
-	typeof AVMetadataiTunesMetadataKeyDiscCompilation
+  typeof AVMetadataiTunesMetadataKeyDiscCompilation
 
 export type AVMetadataiTunesMetadataKeyDiscNumber_c = typeof AVMetadataiTunesMetadataKeyDiscNumber
 export type AVMetadataiTunesMetadataKeyEQ_c = typeof AVMetadataiTunesMetadataKeyEQ
 export type AVMetadataiTunesMetadataKeyEncodedBy_c = typeof AVMetadataiTunesMetadataKeyEncodedBy
 export type AVMetadataiTunesMetadataKeyEncodingTool_c =
-	typeof AVMetadataiTunesMetadataKeyEncodingTool
+  typeof AVMetadataiTunesMetadataKeyEncodingTool
 
 export type AVMetadataiTunesMetadataKeyExecProducer_c =
-	typeof AVMetadataiTunesMetadataKeyExecProducer
+  typeof AVMetadataiTunesMetadataKeyExecProducer
 
 export type AVMetadataiTunesMetadataKeyGenreID_c = typeof AVMetadataiTunesMetadataKeyGenreID
 export type AVMetadataiTunesMetadataKeyGrouping_c = typeof AVMetadataiTunesMetadataKeyGrouping
 export type AVMetadataiTunesMetadataKeyLinerNotes_c = typeof AVMetadataiTunesMetadataKeyLinerNotes
 export type AVMetadataiTunesMetadataKeyLyrics_c = typeof AVMetadataiTunesMetadataKeyLyrics
 export type AVMetadataiTunesMetadataKeyOnlineExtras_c =
-	typeof AVMetadataiTunesMetadataKeyOnlineExtras
+  typeof AVMetadataiTunesMetadataKeyOnlineExtras
 
 export type AVMetadataiTunesMetadataKeyOriginalArtist_c =
-	typeof AVMetadataiTunesMetadataKeyOriginalArtist
+  typeof AVMetadataiTunesMetadataKeyOriginalArtist
 
 export type AVMetadataiTunesMetadataKeyPerformer_c = typeof AVMetadataiTunesMetadataKeyPerformer
 export type AVMetadataiTunesMetadataKeyPhonogramRights_c =
-	typeof AVMetadataiTunesMetadataKeyPhonogramRights
+  typeof AVMetadataiTunesMetadataKeyPhonogramRights
 
 export type AVMetadataiTunesMetadataKeyPlaylistID_c = typeof AVMetadataiTunesMetadataKeyPlaylistID
 export type AVMetadataiTunesMetadataKeyPredefinedGenre_c =
-	typeof AVMetadataiTunesMetadataKeyPredefinedGenre
+  typeof AVMetadataiTunesMetadataKeyPredefinedGenre
 
 export type AVMetadataiTunesMetadataKeyProducer_c = typeof AVMetadataiTunesMetadataKeyProducer
 export type AVMetadataiTunesMetadataKeyPublisher_c = typeof AVMetadataiTunesMetadataKeyPublisher
 export type AVMetadataiTunesMetadataKeyRecordCompany_c =
-	typeof AVMetadataiTunesMetadataKeyRecordCompany
+  typeof AVMetadataiTunesMetadataKeyRecordCompany
 
 export type AVMetadataiTunesMetadataKeyReleaseDate_c = typeof AVMetadataiTunesMetadataKeyReleaseDate
 export type AVMetadataiTunesMetadataKeySoloist_c = typeof AVMetadataiTunesMetadataKeySoloist
 export type AVMetadataiTunesMetadataKeySongID_c = typeof AVMetadataiTunesMetadataKeySongID
 export type AVMetadataiTunesMetadataKeySongName_c = typeof AVMetadataiTunesMetadataKeySongName
 export type AVMetadataiTunesMetadataKeySoundEngineer_c =
-	typeof AVMetadataiTunesMetadataKeySoundEngineer
+  typeof AVMetadataiTunesMetadataKeySoundEngineer
 
 export type AVMetadataiTunesMetadataKeyThanks_c = typeof AVMetadataiTunesMetadataKeyThanks
 export type AVMetadataiTunesMetadataKeyTrackNumber_c = typeof AVMetadataiTunesMetadataKeyTrackNumber
 export type AVMetadataiTunesMetadataKeyTrackSubTitle_c =
-	typeof AVMetadataiTunesMetadataKeyTrackSubTitle
+  typeof AVMetadataiTunesMetadataKeyTrackSubTitle
 
 export type AVMetadataiTunesMetadataKeyUserComment_c = typeof AVMetadataiTunesMetadataKeyUserComment
 export type AVMetadataiTunesMetadataKeyUserGenre_c = typeof AVMetadataiTunesMetadataKeyUserGenre
@@ -3035,10 +3035,10 @@ export type AVMetricPlaybackMode_c = typeof AVMetricPlaybackMode
 export type AVMetricPlaybackModeSwitchEvent_t = AVMetricPlaybackModeSwitchEvent
 export type AVMetricPlaybackModeSwitchEvent_c = typeof AVMetricPlaybackModeSwitchEvent
 export type AVMetricPlayerItemInitialLikelyToKeepUpEvent_t =
-	AVMetricPlayerItemInitialLikelyToKeepUpEvent
+  AVMetricPlayerItemInitialLikelyToKeepUpEvent
 
 export type AVMetricPlayerItemInitialLikelyToKeepUpEvent_c =
-	typeof AVMetricPlayerItemInitialLikelyToKeepUpEvent
+  typeof AVMetricPlayerItemInitialLikelyToKeepUpEvent
 
 export type AVMetricPlayerItemLikelyToKeepUpEvent_t = AVMetricPlayerItemLikelyToKeepUpEvent
 export type AVMetricPlayerItemLikelyToKeepUpEvent_c = typeof AVMetricPlayerItemLikelyToKeepUpEvent
@@ -3056,13 +3056,13 @@ export type AVMetricPlayerItemVariantSwitchEvent_t = AVMetricPlayerItemVariantSw
 export type AVMetricPlayerItemVariantSwitchEvent_c = typeof AVMetricPlayerItemVariantSwitchEvent
 export type AVMetricPlayerItemVariantSwitchStartEvent_t = AVMetricPlayerItemVariantSwitchStartEvent
 export type AVMetricPlayerItemVariantSwitchStartEvent_c =
-	typeof AVMetricPlayerItemVariantSwitchStartEvent
+  typeof AVMetricPlayerItemVariantSwitchStartEvent
 
 export type AVMovie_t = AVMovie
 export type AVMovie_c = typeof AVMovie
 export type AVMovieReferenceRestrictionsKey_c = typeof AVMovieReferenceRestrictionsKey
 export type AVMovieShouldSupportAliasDataReferencesKey_c =
-	typeof AVMovieShouldSupportAliasDataReferencesKey
+  typeof AVMovieShouldSupportAliasDataReferencesKey
 
 export type AVMovieTrack_t = AVMovieTrack
 export type AVMovieTrack_c = typeof AVMovieTrack
@@ -3079,10 +3079,10 @@ export type AVMusicTrackLoopCount_c = typeof AVMusicTrackLoopCount
 export type AVMusicUserEvent_t = AVMusicUserEvent
 export type AVMusicUserEvent_c = typeof AVMusicUserEvent
 export type AVMutableAssetDownloadStorageManagementPolicy_t =
-	AVMutableAssetDownloadStorageManagementPolicy
+  AVMutableAssetDownloadStorageManagementPolicy
 
 export type AVMutableAssetDownloadStorageManagementPolicy_c =
-	typeof AVMutableAssetDownloadStorageManagementPolicy
+  typeof AVMutableAssetDownloadStorageManagementPolicy
 
 export type AVMutableAudioMix_t = AVMutableAudioMix
 export type AVMutableAudioMix_c = typeof AVMutableAudioMix
@@ -3114,7 +3114,7 @@ export type AVMutableVideoCompositionInstruction_t = AVMutableVideoCompositionIn
 export type AVMutableVideoCompositionInstruction_c = typeof AVMutableVideoCompositionInstruction
 export type AVMutableVideoCompositionLayerInstruction_t = AVMutableVideoCompositionLayerInstruction
 export type AVMutableVideoCompositionLayerInstruction_c =
-	typeof AVMutableVideoCompositionLayerInstruction
+  typeof AVMutableVideoCompositionLayerInstruction
 
 export type AVNumberOfChannelsKey_c = typeof AVNumberOfChannelsKey
 export type AVOutputSettingsAssistant_t = AVOutputSettingsAssistant
@@ -3126,11 +3126,11 @@ export type AVOutputSettingsPreset640x480_c = typeof AVOutputSettingsPreset640x4
 export type AVOutputSettingsPreset960x540_c = typeof AVOutputSettingsPreset960x540
 export type AVOutputSettingsPresetHEVC1920x1080_c = typeof AVOutputSettingsPresetHEVC1920x1080
 export type AVOutputSettingsPresetHEVC1920x1080WithAlpha_c =
-	typeof AVOutputSettingsPresetHEVC1920x1080WithAlpha
+  typeof AVOutputSettingsPresetHEVC1920x1080WithAlpha
 
 export type AVOutputSettingsPresetHEVC3840x2160_c = typeof AVOutputSettingsPresetHEVC3840x2160
 export type AVOutputSettingsPresetHEVC3840x2160WithAlpha_c =
-	typeof AVOutputSettingsPresetHEVC3840x2160WithAlpha
+  typeof AVOutputSettingsPresetHEVC3840x2160WithAlpha
 
 export type AVOutputSettingsPresetHEVC4320x2160_c = typeof AVOutputSettingsPresetHEVC4320x2160
 export type AVOutputSettingsPresetHEVC7680x4320_c = typeof AVOutputSettingsPresetHEVC7680x4320
@@ -3146,19 +3146,19 @@ export type AVPictureInPictureController_t = AVPictureInPictureController
 export type AVPictureInPictureController_c = typeof AVPictureInPictureController
 export type AVPictureInPictureControllerContentSource_t = AVPictureInPictureControllerContentSource
 export type AVPictureInPictureControllerContentSource_c =
-	typeof AVPictureInPictureControllerContentSource
+  typeof AVPictureInPictureControllerContentSource
 
 export type AVPictureInPictureControllerDelegate_t = AVPictureInPictureControllerDelegate
 export type AVPictureInPictureControllerDelegate_c = typeof AVPictureInPictureControllerDelegate
 export type AVPictureInPictureSampleBufferPlaybackDelegate_t =
-	AVPictureInPictureSampleBufferPlaybackDelegate
+  AVPictureInPictureSampleBufferPlaybackDelegate
 
 export type AVPictureInPictureSampleBufferPlaybackDelegate_c =
-	typeof AVPictureInPictureSampleBufferPlaybackDelegate
+  typeof AVPictureInPictureSampleBufferPlaybackDelegate
 
 export type AVPictureInPictureVideoCallViewController_t = AVPictureInPictureVideoCallViewController
 export type AVPictureInPictureVideoCallViewController_c =
-	typeof AVPictureInPictureVideoCallViewController
+  typeof AVPictureInPictureVideoCallViewController
 
 export type AVPixelAspectRatio_t = AVPixelAspectRatio
 export type AVPixelAspectRatio_c = typeof AVPixelAspectRatio
@@ -3168,7 +3168,7 @@ export type AVPlannedSegmentWritingRequest_t = AVPlannedSegmentWritingRequest
 export type AVPlannedSegmentWritingRequest_c = typeof AVPlannedSegmentWritingRequest
 export type AVPlannedVideoSegmentBoundaryGuidelines_t = AVPlannedVideoSegmentBoundaryGuidelines
 export type AVPlannedVideoSegmentBoundaryGuidelines_c =
-	typeof AVPlannedVideoSegmentBoundaryGuidelines
+  typeof AVPlannedVideoSegmentBoundaryGuidelines
 
 export type AVPlannedVideoSegmentConfiguration_t = AVPlannedVideoSegmentConfiguration
 export type AVPlannedVideoSegmentConfiguration_c = typeof AVPlannedVideoSegmentConfiguration
@@ -3179,16 +3179,16 @@ export type AVPlaybackCoordinationMedium_c = typeof AVPlaybackCoordinationMedium
 export type AVPlaybackCoordinator_t = AVPlaybackCoordinator
 export type AVPlaybackCoordinator_c = typeof AVPlaybackCoordinator
 export type AVPlaybackCoordinatorOtherParticipantsDidChangeNotification_c =
-	typeof AVPlaybackCoordinatorOtherParticipantsDidChangeNotification
+  typeof AVPlaybackCoordinatorOtherParticipantsDidChangeNotification
 
 export type AVPlaybackCoordinatorPlaybackControlDelegate_t =
-	AVPlaybackCoordinatorPlaybackControlDelegate
+  AVPlaybackCoordinatorPlaybackControlDelegate
 
 export type AVPlaybackCoordinatorPlaybackControlDelegate_c =
-	typeof AVPlaybackCoordinatorPlaybackControlDelegate
+  typeof AVPlaybackCoordinatorPlaybackControlDelegate
 
 export type AVPlaybackCoordinatorSuspensionReasonsDidChangeNotification_c =
-	typeof AVPlaybackCoordinatorSuspensionReasonsDidChangeNotification
+  typeof AVPlaybackCoordinatorSuspensionReasonsDidChangeNotification
 
 export type AVPlaybackSpeed_t = AVPlaybackSpeed
 export type AVPlaybackSpeed_c = typeof AVPlaybackSpeed
@@ -3197,111 +3197,111 @@ export type AVPlaybackUserInterfaceContentArtwork_c = typeof AVPlaybackUserInter
 export type AVPlaybackUserInterfaceContentMetadata_t = AVPlaybackUserInterfaceContentMetadata
 export type AVPlaybackUserInterfaceContentMetadata_c = typeof AVPlaybackUserInterfaceContentMetadata
 export type AVPlaybackUserInterfaceContentMetadataTemplate_t =
-	AVPlaybackUserInterfaceContentMetadataTemplate
+  AVPlaybackUserInterfaceContentMetadataTemplate
 
 export type AVPlaybackUserInterfaceContentMetadataTemplate_c =
-	typeof AVPlaybackUserInterfaceContentMetadataTemplate
+  typeof AVPlaybackUserInterfaceContentMetadataTemplate
 
 export type AVPlaybackUserInterfaceContentURLArtwork_t = AVPlaybackUserInterfaceContentURLArtwork
 export type AVPlaybackUserInterfaceContentURLArtwork_c =
-	typeof AVPlaybackUserInterfaceContentURLArtwork
+  typeof AVPlaybackUserInterfaceContentURLArtwork
 
 export type AVPlaybackUserInterfaceContentVideoProperties_t =
-	AVPlaybackUserInterfaceContentVideoProperties
+  AVPlaybackUserInterfaceContentVideoProperties
 
 export type AVPlaybackUserInterfaceContentVideoProperties_c =
-	typeof AVPlaybackUserInterfaceContentVideoProperties
+  typeof AVPlaybackUserInterfaceContentVideoProperties
 
 export type AVPlaybackUserInterfaceControllable_t = AVPlaybackUserInterfaceControllable
 export type AVPlaybackUserInterfaceControllable_c = typeof AVPlaybackUserInterfaceControllable
 export type AVPlaybackUserInterfaceMediaSelectionControllable_t =
-	AVPlaybackUserInterfaceMediaSelectionControllable
+  AVPlaybackUserInterfaceMediaSelectionControllable
 
 export type AVPlaybackUserInterfaceMediaSelectionControllable_c =
-	typeof AVPlaybackUserInterfaceMediaSelectionControllable
+  typeof AVPlaybackUserInterfaceMediaSelectionControllable
 
 export type AVPlaybackUserInterfaceMediaSelectionOption_t =
-	AVPlaybackUserInterfaceMediaSelectionOption
+  AVPlaybackUserInterfaceMediaSelectionOption
 
 export type AVPlaybackUserInterfaceMediaSelectionOption_c =
-	typeof AVPlaybackUserInterfaceMediaSelectionOption
+  typeof AVPlaybackUserInterfaceMediaSelectionOption
 
 export type AVPlaybackUserInterfaceMetadataProviding_t = AVPlaybackUserInterfaceMetadataProviding
 export type AVPlaybackUserInterfaceMetadataProviding_c =
-	typeof AVPlaybackUserInterfaceMetadataProviding
+  typeof AVPlaybackUserInterfaceMetadataProviding
 
 export type AVPlaybackUserInterfacePlaybackControllable_t =
-	AVPlaybackUserInterfacePlaybackControllable
+  AVPlaybackUserInterfacePlaybackControllable
 
 export type AVPlaybackUserInterfacePlaybackControllable_c =
-	typeof AVPlaybackUserInterfacePlaybackControllable
+  typeof AVPlaybackUserInterfacePlaybackControllable
 
 export type AVPlaybackUserInterfacePlaybackPosition_t = AVPlaybackUserInterfacePlaybackPosition
 export type AVPlaybackUserInterfacePlaybackPosition_c =
-	typeof AVPlaybackUserInterfacePlaybackPosition
+  typeof AVPlaybackUserInterfacePlaybackPosition
 
 export type AVPlaybackUserInterfacePlaybackState_t = AVPlaybackUserInterfacePlaybackState
 export type AVPlaybackUserInterfacePlaybackState_c = typeof AVPlaybackUserInterfacePlaybackState
 export type AVPlaybackUserInterfaceSeekCapabilities_t = AVPlaybackUserInterfaceSeekCapabilities
 export type AVPlaybackUserInterfaceSeekCapabilities_c =
-	typeof AVPlaybackUserInterfaceSeekCapabilities
+  typeof AVPlaybackUserInterfaceSeekCapabilities
 
 export type AVPlaybackUserInterfaceTimeControllable_t = AVPlaybackUserInterfaceTimeControllable
 export type AVPlaybackUserInterfaceTimeControllable_c =
-	typeof AVPlaybackUserInterfaceTimeControllable
+  typeof AVPlaybackUserInterfaceTimeControllable
 
 export type AVPlaybackUserInterfaceTimelineSegment_t = AVPlaybackUserInterfaceTimelineSegment
 export type AVPlaybackUserInterfaceTimelineSegment_c = typeof AVPlaybackUserInterfaceTimelineSegment
 export type AVPlaybackUserInterfaceTimelineSegmentType_t =
-	AVPlaybackUserInterfaceTimelineSegmentType
+  AVPlaybackUserInterfaceTimelineSegmentType
 
 export type AVPlaybackUserInterfaceTimelineSegmentType_c =
-	typeof AVPlaybackUserInterfaceTimelineSegmentType
+  typeof AVPlaybackUserInterfaceTimelineSegmentType
 
 export type AVPlaybackUserInterfaceVolumeControllable_t = AVPlaybackUserInterfaceVolumeControllable
 export type AVPlaybackUserInterfaceVolumeControllable_c =
-	typeof AVPlaybackUserInterfaceVolumeControllable
+  typeof AVPlaybackUserInterfaceVolumeControllable
 
 export type AVPlayer_t = AVPlayer
 export type AVPlayer_c = typeof AVPlayer
 export type AVPlayerActionAtItemEnd_t = AVPlayerActionAtItemEnd
 export type AVPlayerActionAtItemEnd_c = typeof AVPlayerActionAtItemEnd
 export type AVPlayerAudiovisualBackgroundPlaybackPolicy_t =
-	AVPlayerAudiovisualBackgroundPlaybackPolicy
+  AVPlayerAudiovisualBackgroundPlaybackPolicy
 
 export type AVPlayerAudiovisualBackgroundPlaybackPolicy_c =
-	typeof AVPlayerAudiovisualBackgroundPlaybackPolicy
+  typeof AVPlayerAudiovisualBackgroundPlaybackPolicy
 
 export type AVPlayerAvailableHDRModesDidChangeNotification_c =
-	typeof AVPlayerAvailableHDRModesDidChangeNotification
+  typeof AVPlayerAvailableHDRModesDidChangeNotification
 
 export type AVPlayerEligibleForHDRPlaybackDidChangeNotification_c =
-	typeof AVPlayerEligibleForHDRPlaybackDidChangeNotification
+  typeof AVPlayerEligibleForHDRPlaybackDidChangeNotification
 
 export type AVPlayerHDRMode_t = AVPlayerHDRMode
 export type AVPlayerHDRMode_c = typeof AVPlayerHDRMode
 export type AVPlayerIntegratedTimelineSnapshotsOutOfSyncNotification_c =
-	typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncNotification
+  typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncNotification
 
 export type AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonCurrentSegmentChanged_c =
-	typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonCurrentSegmentChanged
+  typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonCurrentSegmentChanged
 
 export type AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonKey_c =
-	typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonKey
+  typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonKey
 
 export type AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonLoadedTimeRangesChanged_c =
-	typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonLoadedTimeRangesChanged
+  typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonLoadedTimeRangesChanged
 
 export type AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonSegmentsChanged_c =
-	typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonSegmentsChanged
+  typeof AVPlayerIntegratedTimelineSnapshotsOutOfSyncReasonSegmentsChanged
 
 export type AVPlayerInterstitialEvent_t = AVPlayerInterstitialEvent
 export type AVPlayerInterstitialEvent_c = typeof AVPlayerInterstitialEvent
 export type AVPlayerInterstitialEventAssetListResponseStatus_t =
-	AVPlayerInterstitialEventAssetListResponseStatus
+  AVPlayerInterstitialEventAssetListResponseStatus
 
 export type AVPlayerInterstitialEventAssetListResponseStatus_c =
-	typeof AVPlayerInterstitialEventAssetListResponseStatus
+  typeof AVPlayerInterstitialEventAssetListResponseStatus
 
 export type AVPlayerInterstitialEventController_t = AVPlayerInterstitialEventController
 export type AVPlayerInterstitialEventController_c = typeof AVPlayerInterstitialEventController
@@ -3310,88 +3310,88 @@ export type AVPlayerInterstitialEventLeaveCue_c = typeof AVPlayerInterstitialEve
 export type AVPlayerInterstitialEventMonitor_t = AVPlayerInterstitialEventMonitor
 export type AVPlayerInterstitialEventMonitor_c = typeof AVPlayerInterstitialEventMonitor
 export type AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeErrorKey_c =
-	typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeErrorKey
+  typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeErrorKey
 
 export type AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeEventKey
+  typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeEventKey
 
 export type AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeNotification_c =
-	typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeNotification
+  typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeNotification
 
 export type AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeStatusKey_c =
-	typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeStatusKey
+  typeof AVPlayerInterstitialEventMonitorAssetListResponseStatusDidChangeStatusKey
 
 export type AVPlayerInterstitialEventMonitorCurrentEventDidChangeNotification_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventDidChangeNotification
+  typeof AVPlayerInterstitialEventMonitorCurrentEventDidChangeNotification
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeEventKey
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeEventKey
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeNotification_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeNotification
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeNotification
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeSkipControlLabelKey_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeSkipControlLabelKey
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeSkipControlLabelKey
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeStateKey_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeStateKey
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippableStateDidChangeStateKey
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippedEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippedEventKey
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippedEventKey
 
 export type AVPlayerInterstitialEventMonitorCurrentEventSkippedNotification_c =
-	typeof AVPlayerInterstitialEventMonitorCurrentEventSkippedNotification
+  typeof AVPlayerInterstitialEventMonitorCurrentEventSkippedNotification
 
 export type AVPlayerInterstitialEventMonitorEventsDidChangeNotification_c =
-	typeof AVPlayerInterstitialEventMonitorEventsDidChangeNotification
+  typeof AVPlayerInterstitialEventMonitorEventsDidChangeNotification
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventDidFinishDidPlayEntireEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishDidPlayEntireEventKey
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishDidPlayEntireEventKey
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventDidFinishEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishEventKey
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishEventKey
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventDidFinishNotification_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishNotification
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishNotification
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventDidFinishPlayoutTimeKey_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishPlayoutTimeKey
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventDidFinishPlayoutTimeKey
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledErrorKey_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledErrorKey
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledErrorKey
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledEventKey_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledEventKey
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledEventKey
 
 export type AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledNotification_c =
-	typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledNotification
+  typeof AVPlayerInterstitialEventMonitorInterstitialEventWasUnscheduledNotification
 
 export type AVPlayerInterstitialEventMonitorScheduleRequestCompletedNotification_c =
-	typeof AVPlayerInterstitialEventMonitorScheduleRequestCompletedNotification
+  typeof AVPlayerInterstitialEventMonitorScheduleRequestCompletedNotification
 
 export type AVPlayerInterstitialEventMonitorScheduleRequestErrorKey_c =
-	typeof AVPlayerInterstitialEventMonitorScheduleRequestErrorKey
+  typeof AVPlayerInterstitialEventMonitorScheduleRequestErrorKey
 
 export type AVPlayerInterstitialEventMonitorScheduleRequestIdentifierKey_c =
-	typeof AVPlayerInterstitialEventMonitorScheduleRequestIdentifierKey
+  typeof AVPlayerInterstitialEventMonitorScheduleRequestIdentifierKey
 
 export type AVPlayerInterstitialEventMonitorScheduleRequestResponseKey_c =
-	typeof AVPlayerInterstitialEventMonitorScheduleRequestResponseKey
+  typeof AVPlayerInterstitialEventMonitorScheduleRequestResponseKey
 
 export type AVPlayerInterstitialEventNoCue_c = typeof AVPlayerInterstitialEventNoCue
 export type AVPlayerInterstitialEventRestrictions_t = AVPlayerInterstitialEventRestrictions
 export type AVPlayerInterstitialEventRestrictions_c = typeof AVPlayerInterstitialEventRestrictions
 export type AVPlayerInterstitialEventSkippableEventState_t =
-	AVPlayerInterstitialEventSkippableEventState
+  AVPlayerInterstitialEventSkippableEventState
 
 export type AVPlayerInterstitialEventSkippableEventState_c =
-	typeof AVPlayerInterstitialEventSkippableEventState
+  typeof AVPlayerInterstitialEventSkippableEventState
 
 export type AVPlayerInterstitialEventTimelineOccupancy_t =
-	AVPlayerInterstitialEventTimelineOccupancy
+  AVPlayerInterstitialEventTimelineOccupancy
 
 export type AVPlayerInterstitialEventTimelineOccupancy_c =
-	typeof AVPlayerInterstitialEventTimelineOccupancy
+  typeof AVPlayerInterstitialEventTimelineOccupancy
 
 export type AVPlayerItem_t = AVPlayerItem
 export type AVPlayerItem_c = typeof AVPlayerItem
@@ -3400,17 +3400,17 @@ export type AVPlayerItemAccessLog_c = typeof AVPlayerItemAccessLog
 export type AVPlayerItemAccessLogEvent_t = AVPlayerItemAccessLogEvent
 export type AVPlayerItemAccessLogEvent_c = typeof AVPlayerItemAccessLogEvent
 export type AVPlayerItemDidPlayToEndTimeNotification_c =
-	typeof AVPlayerItemDidPlayToEndTimeNotification
+  typeof AVPlayerItemDidPlayToEndTimeNotification
 
 export type AVPlayerItemErrorLog_t = AVPlayerItemErrorLog
 export type AVPlayerItemErrorLog_c = typeof AVPlayerItemErrorLog
 export type AVPlayerItemErrorLogEvent_t = AVPlayerItemErrorLogEvent
 export type AVPlayerItemErrorLogEvent_c = typeof AVPlayerItemErrorLogEvent
 export type AVPlayerItemFailedToPlayToEndTimeErrorKey_c =
-	typeof AVPlayerItemFailedToPlayToEndTimeErrorKey
+  typeof AVPlayerItemFailedToPlayToEndTimeErrorKey
 
 export type AVPlayerItemFailedToPlayToEndTimeNotification_c =
-	typeof AVPlayerItemFailedToPlayToEndTimeNotification
+  typeof AVPlayerItemFailedToPlayToEndTimeNotification
 
 export type AVPlayerItemIntegratedTimeline_t = AVPlayerItemIntegratedTimeline
 export type AVPlayerItemIntegratedTimeline_c = typeof AVPlayerItemIntegratedTimeline
@@ -3423,31 +3423,31 @@ export type AVPlayerItemLegibleOutput_c = typeof AVPlayerItemLegibleOutput
 export type AVPlayerItemLegibleOutputPushDelegate_t = AVPlayerItemLegibleOutputPushDelegate
 export type AVPlayerItemLegibleOutputPushDelegate_c = typeof AVPlayerItemLegibleOutputPushDelegate
 export type AVPlayerItemLegibleOutputTextStylingResolutionDefault_c =
-	typeof AVPlayerItemLegibleOutputTextStylingResolutionDefault
+  typeof AVPlayerItemLegibleOutputTextStylingResolutionDefault
 
 export type AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly_c =
-	typeof AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly
+  typeof AVPlayerItemLegibleOutputTextStylingResolutionSourceAndRulesOnly
 
 export type AVPlayerItemMediaDataCollector_t = AVPlayerItemMediaDataCollector
 export type AVPlayerItemMediaDataCollector_c = typeof AVPlayerItemMediaDataCollector
 export type AVPlayerItemMediaSelectionDidChangeNotification_c =
-	typeof AVPlayerItemMediaSelectionDidChangeNotification
+  typeof AVPlayerItemMediaSelectionDidChangeNotification
 
 export type AVPlayerItemMetadataCollector_t = AVPlayerItemMetadataCollector
 export type AVPlayerItemMetadataCollector_c = typeof AVPlayerItemMetadataCollector
 export type AVPlayerItemMetadataCollectorPushDelegate_t = AVPlayerItemMetadataCollectorPushDelegate
 export type AVPlayerItemMetadataCollectorPushDelegate_c =
-	typeof AVPlayerItemMetadataCollectorPushDelegate
+  typeof AVPlayerItemMetadataCollectorPushDelegate
 
 export type AVPlayerItemMetadataOutput_t = AVPlayerItemMetadataOutput
 export type AVPlayerItemMetadataOutput_c = typeof AVPlayerItemMetadataOutput
 export type AVPlayerItemMetadataOutputPushDelegate_t = AVPlayerItemMetadataOutputPushDelegate
 export type AVPlayerItemMetadataOutputPushDelegate_c = typeof AVPlayerItemMetadataOutputPushDelegate
 export type AVPlayerItemNewAccessLogEntryNotification_c =
-	typeof AVPlayerItemNewAccessLogEntryNotification
+  typeof AVPlayerItemNewAccessLogEntryNotification
 
 export type AVPlayerItemNewErrorLogEntryNotification_c =
-	typeof AVPlayerItemNewErrorLogEntryNotification
+  typeof AVPlayerItemNewErrorLogEntryNotification
 
 export type AVPlayerItemOutput_t = AVPlayerItemOutput
 export type AVPlayerItemOutput_c = typeof AVPlayerItemOutput
@@ -3456,32 +3456,32 @@ export type AVPlayerItemOutputPullDelegate_c = typeof AVPlayerItemOutputPullDele
 export type AVPlayerItemOutputPushDelegate_t = AVPlayerItemOutputPushDelegate
 export type AVPlayerItemOutputPushDelegate_c = typeof AVPlayerItemOutputPushDelegate
 export type AVPlayerItemPlaybackStalledNotification_c =
-	typeof AVPlayerItemPlaybackStalledNotification
+  typeof AVPlayerItemPlaybackStalledNotification
 
 export type AVPlayerItemRecommendedTimeOffsetFromLiveDidChangeNotification_c =
-	typeof AVPlayerItemRecommendedTimeOffsetFromLiveDidChangeNotification
+  typeof AVPlayerItemRecommendedTimeOffsetFromLiveDidChangeNotification
 
 export type AVPlayerItemRenderedLegibleOutput_t = AVPlayerItemRenderedLegibleOutput
 export type AVPlayerItemRenderedLegibleOutput_c = typeof AVPlayerItemRenderedLegibleOutput
 export type AVPlayerItemRenderedLegibleOutputPushDelegate_t =
-	AVPlayerItemRenderedLegibleOutputPushDelegate
+  AVPlayerItemRenderedLegibleOutputPushDelegate
 
 export type AVPlayerItemRenderedLegibleOutputPushDelegate_c =
-	typeof AVPlayerItemRenderedLegibleOutputPushDelegate
+  typeof AVPlayerItemRenderedLegibleOutputPushDelegate
 
 export type AVPlayerItemSampleBufferOutput_t = AVPlayerItemSampleBufferOutput
 export type AVPlayerItemSampleBufferOutput_c = typeof AVPlayerItemSampleBufferOutput
 export type AVPlayerItemSampleBufferOutputAudioConfiguration_t =
-	AVPlayerItemSampleBufferOutputAudioConfiguration
+  AVPlayerItemSampleBufferOutputAudioConfiguration
 
 export type AVPlayerItemSampleBufferOutputAudioConfiguration_c =
-	typeof AVPlayerItemSampleBufferOutputAudioConfiguration
+  typeof AVPlayerItemSampleBufferOutputAudioConfiguration
 
 export type AVPlayerItemSampleBufferOutputConfiguration_t =
-	AVPlayerItemSampleBufferOutputConfiguration
+  AVPlayerItemSampleBufferOutputConfiguration
 
 export type AVPlayerItemSampleBufferOutputConfiguration_c =
-	typeof AVPlayerItemSampleBufferOutputConfiguration
+  typeof AVPlayerItemSampleBufferOutputConfiguration
 
 export type AVPlayerItemSampleBufferOutputDelegate_t = AVPlayerItemSampleBufferOutputDelegate
 export type AVPlayerItemSampleBufferOutputDelegate_c = typeof AVPlayerItemSampleBufferOutputDelegate
@@ -3493,7 +3493,7 @@ export type AVPlayerItemStatus_t = AVPlayerItemStatus
 export type AVPlayerItemStatus_c = typeof AVPlayerItemStatus
 export type AVPlayerItemTimeJumpedNotification_c = typeof AVPlayerItemTimeJumpedNotification
 export type AVPlayerItemTimeJumpedOriginatingParticipantKey_c =
-	typeof AVPlayerItemTimeJumpedOriginatingParticipantKey
+  typeof AVPlayerItemTimeJumpedOriginatingParticipantKey
 
 export type AVPlayerItemTrack_t = AVPlayerItemTrack
 export type AVPlayerItemTrack_c = typeof AVPlayerItemTrack
@@ -3517,26 +3517,26 @@ export type AVPlayerPlaybackCoordinatorDelegate_t = AVPlayerPlaybackCoordinatorD
 export type AVPlayerPlaybackCoordinatorDelegate_c = typeof AVPlayerPlaybackCoordinatorDelegate
 export type AVPlayerRateDidChangeNotification_c = typeof AVPlayerRateDidChangeNotification
 export type AVPlayerRateDidChangeOriginatingParticipantKey_c =
-	typeof AVPlayerRateDidChangeOriginatingParticipantKey
+  typeof AVPlayerRateDidChangeOriginatingParticipantKey
 
 export type AVPlayerRateDidChangeReasonAppBackgrounded_c =
-	typeof AVPlayerRateDidChangeReasonAppBackgrounded
+  typeof AVPlayerRateDidChangeReasonAppBackgrounded
 
 export type AVPlayerRateDidChangeReasonAudioSessionInterrupted_c =
-	typeof AVPlayerRateDidChangeReasonAudioSessionInterrupted
+  typeof AVPlayerRateDidChangeReasonAudioSessionInterrupted
 
 export type AVPlayerRateDidChangeReasonKey_c = typeof AVPlayerRateDidChangeReasonKey
 export type AVPlayerRateDidChangeReasonPlayheadReachedLiveEdge_c =
-	typeof AVPlayerRateDidChangeReasonPlayheadReachedLiveEdge
+  typeof AVPlayerRateDidChangeReasonPlayheadReachedLiveEdge
 
 export type AVPlayerRateDidChangeReasonReversePlaybackReachedStartOfSeekableRange_c =
-	typeof AVPlayerRateDidChangeReasonReversePlaybackReachedStartOfSeekableRange
+  typeof AVPlayerRateDidChangeReasonReversePlaybackReachedStartOfSeekableRange
 
 export type AVPlayerRateDidChangeReasonSetRateCalled_c =
-	typeof AVPlayerRateDidChangeReasonSetRateCalled
+  typeof AVPlayerRateDidChangeReasonSetRateCalled
 
 export type AVPlayerRateDidChangeReasonSetRateFailed_c =
-	typeof AVPlayerRateDidChangeReasonSetRateFailed
+  typeof AVPlayerRateDidChangeReasonSetRateFailed
 
 export type AVPlayerStatus_t = AVPlayerStatus
 export type AVPlayerStatus_c = typeof AVPlayerStatus
@@ -3551,14 +3551,14 @@ export type AVPlayerViewController_c = typeof AVPlayerViewController
 export type AVPlayerViewControllerDelegate_t = AVPlayerViewControllerDelegate
 export type AVPlayerViewControllerDelegate_c = typeof AVPlayerViewControllerDelegate
 export type AVPlayerWaitingDuringInterstitialEventReason_c =
-	typeof AVPlayerWaitingDuringInterstitialEventReason
+  typeof AVPlayerWaitingDuringInterstitialEventReason
 
 export type AVPlayerWaitingForCoordinatedPlaybackReason_c =
-	typeof AVPlayerWaitingForCoordinatedPlaybackReason
+  typeof AVPlayerWaitingForCoordinatedPlaybackReason
 
 export type AVPlayerWaitingToMinimizeStallsReason_c = typeof AVPlayerWaitingToMinimizeStallsReason
 export type AVPlayerWaitingWhileEvaluatingBufferingRateReason_c =
-	typeof AVPlayerWaitingWhileEvaluatingBufferingRateReason
+  typeof AVPlayerWaitingWhileEvaluatingBufferingRateReason
 
 export type AVPlayerWaitingWithNoItemToPlayReason_c = typeof AVPlayerWaitingWithNoItemToPlayReason
 export type AVPortraitEffectsMatte_t = AVPortraitEffectsMatte
@@ -3566,11 +3566,11 @@ export type AVPortraitEffectsMatte_c = typeof AVPortraitEffectsMatte
 export type AVProVideoStorage_t = AVProVideoStorage
 export type AVProVideoStorage_c = typeof AVProVideoStorage
 export type AVProVideoStorageBusyReasonAdjustingCapacity_c =
-	typeof AVProVideoStorageBusyReasonAdjustingCapacity
+  typeof AVProVideoStorageBusyReasonAdjustingCapacity
 
 export type AVProVideoStorageBusyReasonCapturing_c = typeof AVProVideoStorageBusyReasonCapturing
 export type AVProVideoStorageBusyReasonReplenishing_c =
-	typeof AVProVideoStorageBusyReasonReplenishing
+  typeof AVProVideoStorageBusyReasonReplenishing
 
 export type AVQueuePlayer_t = AVQueuePlayer
 export type AVQueuePlayer_c = typeof AVQueuePlayer
@@ -3583,7 +3583,7 @@ export type AVRenderedCaptionImage_c = typeof AVRenderedCaptionImage
 export type AVRouteDetector_t = AVRouteDetector
 export type AVRouteDetector_c = typeof AVRouteDetector
 export type AVRouteDetectorMultipleRoutesDetectedDidChangeNotification_c =
-	typeof AVRouteDetectorMultipleRoutesDetectedDidChangeNotification
+  typeof AVRouteDetectorMultipleRoutesDetectedDidChangeNotification
 
 export type AVRoutePickerView_t = AVRoutePickerView
 export type AVRoutePickerView_c = typeof AVRoutePickerView
@@ -3593,30 +3593,30 @@ export type AVSampleBufferAttachContentKey_c = typeof AVSampleBufferAttachConten
 export type AVSampleBufferAudioRenderer_t = AVSampleBufferAudioRenderer
 export type AVSampleBufferAudioRenderer_c = typeof AVSampleBufferAudioRenderer
 export type AVSampleBufferAudioRendererFlushTimeKey_c =
-	typeof AVSampleBufferAudioRendererFlushTimeKey
+  typeof AVSampleBufferAudioRendererFlushTimeKey
 
 export type AVSampleBufferAudioRendererOutputConfigurationDidChangeNotification_c =
-	typeof AVSampleBufferAudioRendererOutputConfigurationDidChangeNotification
+  typeof AVSampleBufferAudioRendererOutputConfigurationDidChangeNotification
 
 export type AVSampleBufferAudioRendererWasFlushedAutomaticallyNotification_c =
-	typeof AVSampleBufferAudioRendererWasFlushedAutomaticallyNotification
+  typeof AVSampleBufferAudioRendererWasFlushedAutomaticallyNotification
 
 export type AVSampleBufferDisplayLayer_t = AVSampleBufferDisplayLayer
 export type AVSampleBufferDisplayLayer_c = typeof AVSampleBufferDisplayLayer
 export type AVSampleBufferDisplayLayerFailedToDecodeNotification_c =
-	typeof AVSampleBufferDisplayLayerFailedToDecodeNotification
+  typeof AVSampleBufferDisplayLayerFailedToDecodeNotification
 
 export type AVSampleBufferDisplayLayerFailedToDecodeNotificationErrorKey_c =
-	typeof AVSampleBufferDisplayLayerFailedToDecodeNotificationErrorKey
+  typeof AVSampleBufferDisplayLayerFailedToDecodeNotificationErrorKey
 
 export type AVSampleBufferDisplayLayerOutputObscuredDueToInsufficientExternalProtectionDidChangeNotification_c =
-	typeof AVSampleBufferDisplayLayerOutputObscuredDueToInsufficientExternalProtectionDidChangeNotification
+  typeof AVSampleBufferDisplayLayerOutputObscuredDueToInsufficientExternalProtectionDidChangeNotification
 
 export type AVSampleBufferDisplayLayerReadyForDisplayDidChangeNotification_c =
-	typeof AVSampleBufferDisplayLayerReadyForDisplayDidChangeNotification
+  typeof AVSampleBufferDisplayLayerReadyForDisplayDidChangeNotification
 
 export type AVSampleBufferDisplayLayerRequiresFlushToResumeDecodingDidChangeNotification_c =
-	typeof AVSampleBufferDisplayLayerRequiresFlushToResumeDecodingDidChangeNotification
+  typeof AVSampleBufferDisplayLayerRequiresFlushToResumeDecodingDidChangeNotification
 
 export type AVSampleBufferGenerator_t = AVSampleBufferGenerator
 export type AVSampleBufferGenerator_c = typeof AVSampleBufferGenerator
@@ -3625,7 +3625,7 @@ export type AVSampleBufferGeneratorBatch_c = typeof AVSampleBufferGeneratorBatch
 export type AVSampleBufferRenderSynchronizer_t = AVSampleBufferRenderSynchronizer
 export type AVSampleBufferRenderSynchronizer_c = typeof AVSampleBufferRenderSynchronizer
 export type AVSampleBufferRenderSynchronizerRateDidChangeNotification_c =
-	typeof AVSampleBufferRenderSynchronizerRateDidChangeNotification
+  typeof AVSampleBufferRenderSynchronizerRateDidChangeNotification
 
 export type AVSampleBufferRequest_t = AVSampleBufferRequest
 export type AVSampleBufferRequest_c = typeof AVSampleBufferRequest
@@ -3636,16 +3636,16 @@ export type AVSampleBufferRequestMode_c = typeof AVSampleBufferRequestMode
 export type AVSampleBufferVideoRenderer_t = AVSampleBufferVideoRenderer
 export type AVSampleBufferVideoRenderer_c = typeof AVSampleBufferVideoRenderer
 export type AVSampleBufferVideoRendererDidFailToDecodeNotification_c =
-	typeof AVSampleBufferVideoRendererDidFailToDecodeNotification
+  typeof AVSampleBufferVideoRendererDidFailToDecodeNotification
 
 export type AVSampleBufferVideoRendererDidFailToDecodeNotificationErrorKey_c =
-	typeof AVSampleBufferVideoRendererDidFailToDecodeNotificationErrorKey
+  typeof AVSampleBufferVideoRendererDidFailToDecodeNotificationErrorKey
 
 export type AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotification_c =
-	typeof AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotification
+  typeof AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotification
 
 export type AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotificationRequiresFlushKey_c =
-	typeof AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotificationRequiresFlushKey
+  typeof AVSampleBufferVideoRendererRequiresFlushToResumeDecodingDidChangeNotificationRequiresFlushKey
 
 export type AVSampleCursor_t = AVSampleCursor
 export type AVSampleCursor_c = typeof AVSampleCursor
@@ -3661,10 +3661,10 @@ export type AVSampleCursorSyncInfo_t = AVSampleCursorSyncInfo
 export type AVSampleCursorSyncInfo_c = typeof AVSampleCursorSyncInfo
 export type AVSampleRateConverterAlgorithmKey_c = typeof AVSampleRateConverterAlgorithmKey
 export type AVSampleRateConverterAlgorithm_Mastering_c =
-	typeof AVSampleRateConverterAlgorithm_Mastering
+  typeof AVSampleRateConverterAlgorithm_Mastering
 
 export type AVSampleRateConverterAlgorithm_MinimumPhase_c =
-	typeof AVSampleRateConverterAlgorithm_MinimumPhase
+  typeof AVSampleRateConverterAlgorithm_MinimumPhase
 
 export type AVSampleRateConverterAlgorithm_Normal_c = typeof AVSampleRateConverterAlgorithm_Normal
 export type AVSampleRateConverterAudioQualityKey_c = typeof AVSampleRateConverterAudioQualityKey
@@ -3676,17 +3676,17 @@ export type AVSemanticSegmentationMatteTypeHair_c = typeof AVSemanticSegmentatio
 export type AVSemanticSegmentationMatteTypeSkin_c = typeof AVSemanticSegmentationMatteTypeSkin
 export type AVSemanticSegmentationMatteTypeTeeth_c = typeof AVSemanticSegmentationMatteTypeTeeth
 export type AVSpatialCaptureDiscomfortReasonNotEnoughLight_c =
-	typeof AVSpatialCaptureDiscomfortReasonNotEnoughLight
+  typeof AVSpatialCaptureDiscomfortReasonNotEnoughLight
 
 export type AVSpatialCaptureDiscomfortReasonSubjectTooClose_c =
-	typeof AVSpatialCaptureDiscomfortReasonSubjectTooClose
+  typeof AVSpatialCaptureDiscomfortReasonSubjectTooClose
 
 export type AVSpatialVideoConfiguration_t = AVSpatialVideoConfiguration
 export type AVSpatialVideoConfiguration_c = typeof AVSpatialVideoConfiguration
 export type AVSpeechBoundary_t = AVSpeechBoundary
 export type AVSpeechBoundary_c = typeof AVSpeechBoundary
 export type AVSpeechSynthesisAvailableVoicesDidChangeNotification_c =
-	typeof AVSpeechSynthesisAvailableVoicesDidChangeNotification
+  typeof AVSpeechSynthesisAvailableVoicesDidChangeNotification
 
 export type AVSpeechSynthesisIPANotationAttribute_c = typeof AVSpeechSynthesisIPANotationAttribute
 export type AVSpeechSynthesisMarker_t = AVSpeechSynthesisMarker
@@ -3694,10 +3694,10 @@ export type AVSpeechSynthesisMarker_c = typeof AVSpeechSynthesisMarker
 export type AVSpeechSynthesisMarkerMark_t = AVSpeechSynthesisMarkerMark
 export type AVSpeechSynthesisMarkerMark_c = typeof AVSpeechSynthesisMarkerMark
 export type AVSpeechSynthesisPersonalVoiceAuthorizationStatus_t =
-	AVSpeechSynthesisPersonalVoiceAuthorizationStatus
+  AVSpeechSynthesisPersonalVoiceAuthorizationStatus
 
 export type AVSpeechSynthesisPersonalVoiceAuthorizationStatus_c =
-	typeof AVSpeechSynthesisPersonalVoiceAuthorizationStatus
+  typeof AVSpeechSynthesisPersonalVoiceAuthorizationStatus
 
 export type AVSpeechSynthesisProviderAudioUnit_t = AVSpeechSynthesisProviderAudioUnit
 export type AVSpeechSynthesisProviderAudioUnit_c = typeof AVSpeechSynthesisProviderAudioUnit
@@ -3725,7 +3725,7 @@ export type AVSpeechUtteranceMaximumSpeechRate_c = typeof AVSpeechUtteranceMaxim
 export type AVSpeechUtteranceMinimumSpeechRate_c = typeof AVSpeechUtteranceMinimumSpeechRate
 export type AVStreamingKeyDeliveryContentKeyType_c = typeof AVStreamingKeyDeliveryContentKeyType
 export type AVStreamingKeyDeliveryPersistentContentKeyType_c =
-	typeof AVStreamingKeyDeliveryPersistentContentKeyType
+  typeof AVStreamingKeyDeliveryPersistentContentKeyType
 
 export type AVSynchronizedLayer_t = AVSynchronizedLayer
 export type AVSynchronizedLayer_c = typeof AVSynchronizedLayer
@@ -3736,35 +3736,35 @@ export type AVTimedMetadataGroup_c = typeof AVTimedMetadataGroup
 export type AVTrackAssociationTypeAudioFallback_c = typeof AVTrackAssociationTypeAudioFallback
 export type AVTrackAssociationTypeChapterList_c = typeof AVTrackAssociationTypeChapterList
 export type AVTrackAssociationTypeForcedSubtitlesOnly_c =
-	typeof AVTrackAssociationTypeForcedSubtitlesOnly
+  typeof AVTrackAssociationTypeForcedSubtitlesOnly
 
 export type AVTrackAssociationTypeMetadataReferent_c = typeof AVTrackAssociationTypeMetadataReferent
 export type AVTrackAssociationTypeRenderMetadataSource_c =
-	typeof AVTrackAssociationTypeRenderMetadataSource
+  typeof AVTrackAssociationTypeRenderMetadataSource
 
 export type AVTrackAssociationTypeSelectionFollower_c =
-	typeof AVTrackAssociationTypeSelectionFollower
+  typeof AVTrackAssociationTypeSelectionFollower
 
 export type AVTrackAssociationTypeTimecode_c = typeof AVTrackAssociationTypeTimecode
 export type AVURLAsset_t = AVURLAsset
 export type AVURLAsset_c = typeof AVURLAsset
 export type AVURLAssetAllowsCellularAccessKey_c = typeof AVURLAssetAllowsCellularAccessKey
 export type AVURLAssetAllowsConstrainedNetworkAccessKey_c =
-	typeof AVURLAssetAllowsConstrainedNetworkAccessKey
+  typeof AVURLAssetAllowsConstrainedNetworkAccessKey
 
 export type AVURLAssetAllowsExpensiveNetworkAccessKey_c =
-	typeof AVURLAssetAllowsExpensiveNetworkAccessKey
+  typeof AVURLAssetAllowsExpensiveNetworkAccessKey
 
 export type AVURLAssetHTTPCookiesKey_c = typeof AVURLAssetHTTPCookiesKey
 export type AVURLAssetHTTPUserAgentKey_c = typeof AVURLAssetHTTPUserAgentKey
 export type AVURLAssetOverrideMIMETypeKey_c = typeof AVURLAssetOverrideMIMETypeKey
 export type AVURLAssetPreferPreciseDurationAndTimingKey_c =
-	typeof AVURLAssetPreferPreciseDurationAndTimingKey
+  typeof AVURLAssetPreferPreciseDurationAndTimingKey
 
 export type AVURLAssetPrimarySessionIdentifierKey_c = typeof AVURLAssetPrimarySessionIdentifierKey
 export type AVURLAssetReferenceRestrictionsKey_c = typeof AVURLAssetReferenceRestrictionsKey
 export type AVURLAssetShouldParseExternalSphericalTagsKey_c =
-	typeof AVURLAssetShouldParseExternalSphericalTagsKey
+  typeof AVURLAssetShouldParseExternalSphericalTagsKey
 
 export type AVURLAssetURLRequestAttributionKey_c = typeof AVURLAssetURLRequestAttributionKey
 export type AVVariantPreferences_t = AVVariantPreferences
@@ -3779,7 +3779,7 @@ export type AVVideoAverageBitRateKey_c = typeof AVVideoAverageBitRateKey
 export type AVVideoAverageNonDroppableFrameRateKey_c = typeof AVVideoAverageNonDroppableFrameRateKey
 export type AVVideoCleanApertureHeightKey_c = typeof AVVideoCleanApertureHeightKey
 export type AVVideoCleanApertureHorizontalOffsetKey_c =
-	typeof AVVideoCleanApertureHorizontalOffsetKey
+  typeof AVVideoCleanApertureHorizontalOffsetKey
 
 export type AVVideoCleanApertureKey_c = typeof AVVideoCleanApertureKey
 export type AVVideoCleanApertureVerticalOffsetKey_c = typeof AVVideoCleanApertureVerticalOffsetKey
@@ -3820,10 +3820,10 @@ export type AVVideoCompositionInstructionProtocol_c = typeof AVVideoCompositionI
 export type AVVideoCompositionLayerInstruction_t = AVVideoCompositionLayerInstruction
 export type AVVideoCompositionLayerInstruction_c = typeof AVVideoCompositionLayerInstruction
 export type AVVideoCompositionPerFrameHDRDisplayMetadataPolicyGenerate_c =
-	typeof AVVideoCompositionPerFrameHDRDisplayMetadataPolicyGenerate
+  typeof AVVideoCompositionPerFrameHDRDisplayMetadataPolicyGenerate
 
 export type AVVideoCompositionPerFrameHDRDisplayMetadataPolicyPropagate_c =
-	typeof AVVideoCompositionPerFrameHDRDisplayMetadataPolicyPropagate
+  typeof AVVideoCompositionPerFrameHDRDisplayMetadataPolicyPropagate
 
 export type AVVideoCompositionRenderContext_t = AVVideoCompositionRenderContext
 export type AVVideoCompositionRenderContext_c = typeof AVVideoCompositionRenderContext
@@ -3850,17 +3850,17 @@ export type AVVideoOutputSpecification_c = typeof AVVideoOutputSpecification
 export type AVVideoPerformanceMetrics_t = AVVideoPerformanceMetrics
 export type AVVideoPerformanceMetrics_c = typeof AVVideoPerformanceMetrics
 export type AVVideoPixelAspectRatioHorizontalSpacingKey_c =
-	typeof AVVideoPixelAspectRatioHorizontalSpacingKey
+  typeof AVVideoPixelAspectRatioHorizontalSpacingKey
 
 export type AVVideoPixelAspectRatioKey_c = typeof AVVideoPixelAspectRatioKey
 export type AVVideoPixelAspectRatioVerticalSpacingKey_c =
-	typeof AVVideoPixelAspectRatioVerticalSpacingKey
+  typeof AVVideoPixelAspectRatioVerticalSpacingKey
 
 export type AVVideoProfileLevelH264Baseline30_c = typeof AVVideoProfileLevelH264Baseline30
 export type AVVideoProfileLevelH264Baseline31_c = typeof AVVideoProfileLevelH264Baseline31
 export type AVVideoProfileLevelH264Baseline41_c = typeof AVVideoProfileLevelH264Baseline41
 export type AVVideoProfileLevelH264BaselineAutoLevel_c =
-	typeof AVVideoProfileLevelH264BaselineAutoLevel
+  typeof AVVideoProfileLevelH264BaselineAutoLevel
 
 export type AVVideoProfileLevelH264High40_c = typeof AVVideoProfileLevelH264High40
 export type AVVideoProfileLevelH264High41_c = typeof AVVideoProfileLevelH264High41
@@ -3886,7 +3886,7 @@ export type AVVideoTransferFunction_ITU_R_2100_HLG_c = typeof AVVideoTransferFun
 export type AVVideoTransferFunction_ITU_R_709_2_c = typeof AVVideoTransferFunction_ITU_R_709_2
 export type AVVideoTransferFunction_Linear_c = typeof AVVideoTransferFunction_Linear
 export type AVVideoTransferFunction_SMPTE_ST_2084_PQ_c =
-	typeof AVVideoTransferFunction_SMPTE_ST_2084_PQ
+  typeof AVVideoTransferFunction_SMPTE_ST_2084_PQ
 
 export type AVVideoWidthKey_c = typeof AVVideoWidthKey
 export type AVVideoYCbCrMatrixKey_c = typeof AVVideoYCbCrMatrixKey
@@ -3999,7 +3999,7 @@ export type CFAbsoluteTimeGetCurrent_c = typeof CFAbsoluteTimeGetCurrent
 export type CFAbsoluteTimeGetDayOfWeek_c = typeof CFAbsoluteTimeGetDayOfWeek
 export type CFAbsoluteTimeGetDayOfYear_c = typeof CFAbsoluteTimeGetDayOfYear
 export type CFAbsoluteTimeGetDifferenceAsGregorianUnits_c =
-	typeof CFAbsoluteTimeGetDifferenceAsGregorianUnits
+  typeof CFAbsoluteTimeGetDifferenceAsGregorianUnits
 
 export type CFAbsoluteTimeGetGregorianDate_c = typeof CFAbsoluteTimeGetGregorianDate
 export type CFAbsoluteTimeGetWeekOfYear_c = typeof CFAbsoluteTimeGetWeekOfYear
@@ -4052,25 +4052,25 @@ export type CFAttributedStringCreateWithSubstring_c = typeof CFAttributedStringC
 export type CFAttributedStringEndEditing_c = typeof CFAttributedStringEndEditing
 export type CFAttributedStringGetAttribute_c = typeof CFAttributedStringGetAttribute
 export type CFAttributedStringGetAttributeAndLongestEffectiveRange_c =
-	typeof CFAttributedStringGetAttributeAndLongestEffectiveRange
+  typeof CFAttributedStringGetAttributeAndLongestEffectiveRange
 
 export type CFAttributedStringGetAttributes_c = typeof CFAttributedStringGetAttributes
 export type CFAttributedStringGetAttributesAndLongestEffectiveRange_c =
-	typeof CFAttributedStringGetAttributesAndLongestEffectiveRange
+  typeof CFAttributedStringGetAttributesAndLongestEffectiveRange
 
 export type CFAttributedStringGetBidiLevelsAndResolvedDirections_c =
-	typeof CFAttributedStringGetBidiLevelsAndResolvedDirections
+  typeof CFAttributedStringGetBidiLevelsAndResolvedDirections
 
 export type CFAttributedStringGetLength_c = typeof CFAttributedStringGetLength
 export type CFAttributedStringGetMutableString_c = typeof CFAttributedStringGetMutableString
 export type CFAttributedStringGetStatisticalWritingDirections_c =
-	typeof CFAttributedStringGetStatisticalWritingDirections
+  typeof CFAttributedStringGetStatisticalWritingDirections
 
 export type CFAttributedStringGetString_c = typeof CFAttributedStringGetString
 export type CFAttributedStringGetTypeID_c = typeof CFAttributedStringGetTypeID
 export type CFAttributedStringRemoveAttribute_c = typeof CFAttributedStringRemoveAttribute
 export type CFAttributedStringReplaceAttributedString_c =
-	typeof CFAttributedStringReplaceAttributedString
+  typeof CFAttributedStringReplaceAttributedString
 
 export type CFAttributedStringReplaceString_c = typeof CFAttributedStringReplaceString
 export type CFAttributedStringSetAttribute_c = typeof CFAttributedStringSetAttribute
@@ -4138,21 +4138,21 @@ export type CFBundleCopyBundleLocalizations_c = typeof CFBundleCopyBundleLocaliz
 export type CFBundleCopyBundleURL_c = typeof CFBundleCopyBundleURL
 export type CFBundleCopyExecutableArchitectures_c = typeof CFBundleCopyExecutableArchitectures
 export type CFBundleCopyExecutableArchitecturesForURL_c =
-	typeof CFBundleCopyExecutableArchitecturesForURL
+  typeof CFBundleCopyExecutableArchitecturesForURL
 
 export type CFBundleCopyExecutableURL_c = typeof CFBundleCopyExecutableURL
 export type CFBundleCopyInfoDictionaryForURL_c = typeof CFBundleCopyInfoDictionaryForURL
 export type CFBundleCopyInfoDictionaryInDirectory_c = typeof CFBundleCopyInfoDictionaryInDirectory
 export type CFBundleCopyLocalizationsForPreferences_c =
-	typeof CFBundleCopyLocalizationsForPreferences
+  typeof CFBundleCopyLocalizationsForPreferences
 
 export type CFBundleCopyLocalizationsForURL_c = typeof CFBundleCopyLocalizationsForURL
 export type CFBundleCopyLocalizedString_c = typeof CFBundleCopyLocalizedString
 export type CFBundleCopyLocalizedStringForLocalizations_c =
-	typeof CFBundleCopyLocalizedStringForLocalizations
+  typeof CFBundleCopyLocalizedStringForLocalizations
 
 export type CFBundleCopyPreferredLocalizationsFromArray_c =
-	typeof CFBundleCopyPreferredLocalizationsFromArray
+  typeof CFBundleCopyPreferredLocalizationsFromArray
 
 export type CFBundleCopyPrivateFrameworksURL_c = typeof CFBundleCopyPrivateFrameworksURL
 export type CFBundleCopyResourceURL_c = typeof CFBundleCopyResourceURL
@@ -4160,10 +4160,10 @@ export type CFBundleCopyResourceURLForLocalization_c = typeof CFBundleCopyResour
 export type CFBundleCopyResourceURLInDirectory_c = typeof CFBundleCopyResourceURLInDirectory
 export type CFBundleCopyResourceURLsOfType_c = typeof CFBundleCopyResourceURLsOfType
 export type CFBundleCopyResourceURLsOfTypeForLocalization_c =
-	typeof CFBundleCopyResourceURLsOfTypeForLocalization
+  typeof CFBundleCopyResourceURLsOfTypeForLocalization
 
 export type CFBundleCopyResourceURLsOfTypeInDirectory_c =
-	typeof CFBundleCopyResourceURLsOfTypeInDirectory
+  typeof CFBundleCopyResourceURLsOfTypeInDirectory
 
 export type CFBundleCopyResourcesDirectoryURL_c = typeof CFBundleCopyResourcesDirectoryURL
 export type CFBundleCopySharedFrameworksURL_c = typeof CFBundleCopySharedFrameworksURL
@@ -4215,20 +4215,20 @@ export type CFCalendarUnit_c = typeof CFCalendarUnit
 export type CFCharacterSetAddCharactersInRange_c = typeof CFCharacterSetAddCharactersInRange
 export type CFCharacterSetAddCharactersInString_c = typeof CFCharacterSetAddCharactersInString
 export type CFCharacterSetCreateBitmapRepresentation_c =
-	typeof CFCharacterSetCreateBitmapRepresentation
+  typeof CFCharacterSetCreateBitmapRepresentation
 
 export type CFCharacterSetCreateCopy_c = typeof CFCharacterSetCreateCopy
 export type CFCharacterSetCreateInvertedSet_c = typeof CFCharacterSetCreateInvertedSet
 export type CFCharacterSetCreateMutable_c = typeof CFCharacterSetCreateMutable
 export type CFCharacterSetCreateMutableCopy_c = typeof CFCharacterSetCreateMutableCopy
 export type CFCharacterSetCreateWithBitmapRepresentation_c =
-	typeof CFCharacterSetCreateWithBitmapRepresentation
+  typeof CFCharacterSetCreateWithBitmapRepresentation
 
 export type CFCharacterSetCreateWithCharactersInRange_c =
-	typeof CFCharacterSetCreateWithCharactersInRange
+  typeof CFCharacterSetCreateWithCharactersInRange
 
 export type CFCharacterSetCreateWithCharactersInString_c =
-	typeof CFCharacterSetCreateWithCharactersInString
+  typeof CFCharacterSetCreateWithCharactersInString
 
 export type CFCharacterSetGetPredefined_c = typeof CFCharacterSetGetPredefined
 export type CFCharacterSetGetTypeID_c = typeof CFCharacterSetGetTypeID
@@ -4271,16 +4271,16 @@ export type CFDateCreate_c = typeof CFDateCreate
 export type CFDateFormatterCopyProperty_c = typeof CFDateFormatterCopyProperty
 export type CFDateFormatterCreate_c = typeof CFDateFormatterCreate
 export type CFDateFormatterCreateDateFormatFromTemplate_c =
-	typeof CFDateFormatterCreateDateFormatFromTemplate
+  typeof CFDateFormatterCreateDateFormatFromTemplate
 
 export type CFDateFormatterCreateDateFromString_c = typeof CFDateFormatterCreateDateFromString
 export type CFDateFormatterCreateISO8601Formatter_c = typeof CFDateFormatterCreateISO8601Formatter
 export type CFDateFormatterCreateStringWithAbsoluteTime_c =
-	typeof CFDateFormatterCreateStringWithAbsoluteTime
+  typeof CFDateFormatterCreateStringWithAbsoluteTime
 
 export type CFDateFormatterCreateStringWithDate_c = typeof CFDateFormatterCreateStringWithDate
 export type CFDateFormatterGetAbsoluteTimeFromString_c =
-	typeof CFDateFormatterGetAbsoluteTimeFromString
+  typeof CFDateFormatterGetAbsoluteTimeFromString
 
 export type CFDateFormatterGetDateStyle_c = typeof CFDateFormatterGetDateStyle
 export type CFDateFormatterGetFormat_c = typeof CFDateFormatterGetFormat
@@ -4374,7 +4374,7 @@ export type CFLocaleCopyAvailableLocaleIdentifiers_c = typeof CFLocaleCopyAvaila
 export type CFLocaleCopyCommonISOCurrencyCodes_c = typeof CFLocaleCopyCommonISOCurrencyCodes
 export type CFLocaleCopyCurrent_c = typeof CFLocaleCopyCurrent
 export type CFLocaleCopyDisplayNameForPropertyValue_c =
-	typeof CFLocaleCopyDisplayNameForPropertyValue
+  typeof CFLocaleCopyDisplayNameForPropertyValue
 
 export type CFLocaleCopyISOCountryCodes_c = typeof CFLocaleCopyISOCountryCodes
 export type CFLocaleCopyISOCurrencyCodes_c = typeof CFLocaleCopyISOCurrencyCodes
@@ -4382,23 +4382,23 @@ export type CFLocaleCopyISOLanguageCodes_c = typeof CFLocaleCopyISOLanguageCodes
 export type CFLocaleCopyPreferredLanguages_c = typeof CFLocaleCopyPreferredLanguages
 export type CFLocaleCreate_c = typeof CFLocaleCreate
 export type CFLocaleCreateCanonicalLanguageIdentifierFromString_c =
-	typeof CFLocaleCreateCanonicalLanguageIdentifierFromString
+  typeof CFLocaleCreateCanonicalLanguageIdentifierFromString
 
 export type CFLocaleCreateCanonicalLocaleIdentifierFromScriptManagerCodes_c =
-	typeof CFLocaleCreateCanonicalLocaleIdentifierFromScriptManagerCodes
+  typeof CFLocaleCreateCanonicalLocaleIdentifierFromScriptManagerCodes
 
 export type CFLocaleCreateCanonicalLocaleIdentifierFromString_c =
-	typeof CFLocaleCreateCanonicalLocaleIdentifierFromString
+  typeof CFLocaleCreateCanonicalLocaleIdentifierFromString
 
 export type CFLocaleCreateComponentsFromLocaleIdentifier_c =
-	typeof CFLocaleCreateComponentsFromLocaleIdentifier
+  typeof CFLocaleCreateComponentsFromLocaleIdentifier
 
 export type CFLocaleCreateCopy_c = typeof CFLocaleCreateCopy
 export type CFLocaleCreateLocaleIdentifierFromComponents_c =
-	typeof CFLocaleCreateLocaleIdentifierFromComponents
+  typeof CFLocaleCreateLocaleIdentifierFromComponents
 
 export type CFLocaleCreateLocaleIdentifierFromWindowsLocaleCode_c =
-	typeof CFLocaleCreateLocaleIdentifierFromWindowsLocaleCode
+  typeof CFLocaleCreateLocaleIdentifierFromWindowsLocaleCode
 
 export type CFLocaleGetIdentifier_c = typeof CFLocaleGetIdentifier
 export type CFLocaleGetLanguageCharacterDirection_c = typeof CFLocaleGetLanguageCharacterDirection
@@ -4407,7 +4407,7 @@ export type CFLocaleGetSystem_c = typeof CFLocaleGetSystem
 export type CFLocaleGetTypeID_c = typeof CFLocaleGetTypeID
 export type CFLocaleGetValue_c = typeof CFLocaleGetValue
 export type CFLocaleGetWindowsLocaleCodeFromLocaleIdentifier_c =
-	typeof CFLocaleGetWindowsLocaleCodeFromLocaleIdentifier
+  typeof CFLocaleGetWindowsLocaleCodeFromLocaleIdentifier
 
 export type CFLocaleLanguageDirection_t = CFLocaleLanguageDirection
 export type CFLocaleLanguageDirection_c = typeof CFLocaleLanguageDirection
@@ -4442,16 +4442,16 @@ export type CFMessagePortSetInvalidationCallBack_c = typeof CFMessagePortSetInva
 export type CFMessagePortSetName_c = typeof CFMessagePortSetName
 export type CFNotificationCenterAddObserver_c = typeof CFNotificationCenterAddObserver
 export type CFNotificationCenterGetDarwinNotifyCenter_c =
-	typeof CFNotificationCenterGetDarwinNotifyCenter
+  typeof CFNotificationCenterGetDarwinNotifyCenter
 
 export type CFNotificationCenterGetLocalCenter_c = typeof CFNotificationCenterGetLocalCenter
 export type CFNotificationCenterGetTypeID_c = typeof CFNotificationCenterGetTypeID
 export type CFNotificationCenterPostNotification_c = typeof CFNotificationCenterPostNotification
 export type CFNotificationCenterPostNotificationWithOptions_c =
-	typeof CFNotificationCenterPostNotificationWithOptions
+  typeof CFNotificationCenterPostNotificationWithOptions
 
 export type CFNotificationCenterRemoveEveryObserver_c =
-	typeof CFNotificationCenterRemoveEveryObserver
+  typeof CFNotificationCenterRemoveEveryObserver
 
 export type CFNotificationCenterRemoveObserver_c = typeof CFNotificationCenterRemoveObserver
 export type CFNotificationSuspensionBehavior_t = CFNotificationSuspensionBehavior
@@ -4462,14 +4462,14 @@ export type CFNumberCreate_c = typeof CFNumberCreate
 export type CFNumberFormatterCopyProperty_c = typeof CFNumberFormatterCopyProperty
 export type CFNumberFormatterCreate_c = typeof CFNumberFormatterCreate
 export type CFNumberFormatterCreateNumberFromString_c =
-	typeof CFNumberFormatterCreateNumberFromString
+  typeof CFNumberFormatterCreateNumberFromString
 
 export type CFNumberFormatterCreateStringWithNumber_c =
-	typeof CFNumberFormatterCreateStringWithNumber
+  typeof CFNumberFormatterCreateStringWithNumber
 
 export type CFNumberFormatterCreateStringWithValue_c = typeof CFNumberFormatterCreateStringWithValue
 export type CFNumberFormatterGetDecimalInfoForCurrencyCode_c =
-	typeof CFNumberFormatterGetDecimalInfoForCurrencyCode
+  typeof CFNumberFormatterGetDecimalInfoForCurrencyCode
 
 export type CFNumberFormatterGetFormat_c = typeof CFNumberFormatterGetFormat
 export type CFNumberFormatterGetLocale_c = typeof CFNumberFormatterGetLocale
@@ -4497,18 +4497,18 @@ export type CFPlugInAddInstanceForFactory_c = typeof CFPlugInAddInstanceForFacto
 export type CFPlugInCreate_c = typeof CFPlugInCreate
 export type CFPlugInFindFactoriesForPlugInType_c = typeof CFPlugInFindFactoriesForPlugInType
 export type CFPlugInFindFactoriesForPlugInTypeInPlugIn_c =
-	typeof CFPlugInFindFactoriesForPlugInTypeInPlugIn
+  typeof CFPlugInFindFactoriesForPlugInTypeInPlugIn
 
 export type CFPlugInGetBundle_c = typeof CFPlugInGetBundle
 export type CFPlugInGetTypeID_c = typeof CFPlugInGetTypeID
 export type CFPlugInInstanceCreate_c = typeof CFPlugInInstanceCreate
 export type CFPlugInInstanceCreateWithInstanceDataSize_c =
-	typeof CFPlugInInstanceCreateWithInstanceDataSize
+  typeof CFPlugInInstanceCreateWithInstanceDataSize
 
 export type CFPlugInInstanceGetFactoryName_c = typeof CFPlugInInstanceGetFactoryName
 export type CFPlugInInstanceGetInstanceData_c = typeof CFPlugInInstanceGetInstanceData
 export type CFPlugInInstanceGetInterfaceFunctionTable_c =
-	typeof CFPlugInInstanceGetInterfaceFunctionTable
+  typeof CFPlugInInstanceGetInterfaceFunctionTable
 
 export type CFPlugInInstanceGetTypeID_c = typeof CFPlugInInstanceGetTypeID
 export type CFPlugInIsLoadOnDemand_c = typeof CFPlugInIsLoadOnDemand
@@ -4530,7 +4530,7 @@ export type CFPreferencesCopyValue_c = typeof CFPreferencesCopyValue
 export type CFPreferencesGetAppBooleanValue_c = typeof CFPreferencesGetAppBooleanValue
 export type CFPreferencesGetAppIntegerValue_c = typeof CFPreferencesGetAppIntegerValue
 export type CFPreferencesRemoveSuitePreferencesFromApp_c =
-	typeof CFPreferencesRemoveSuitePreferencesFromApp
+  typeof CFPreferencesRemoveSuitePreferencesFromApp
 
 export type CFPreferencesSetAppValue_c = typeof CFPreferencesSetAppValue
 export type CFPreferencesSetMultiple_c = typeof CFPreferencesSetMultiple
@@ -4667,7 +4667,7 @@ export type CFSocketCopyRegisteredSocketSignature_c = typeof CFSocketCopyRegiste
 export type CFSocketCopyRegisteredValue_c = typeof CFSocketCopyRegisteredValue
 export type CFSocketCreate_c = typeof CFSocketCreate
 export type CFSocketCreateConnectedToSocketSignature_c =
-	typeof CFSocketCreateConnectedToSocketSignature
+  typeof CFSocketCreateConnectedToSocketSignature
 
 export type CFSocketCreateRunLoopSource_c = typeof CFSocketCreateRunLoopSource
 export type CFSocketCreateWithNative_c = typeof CFSocketCreateWithNative
@@ -4678,7 +4678,7 @@ export type CFSocketError_t = CFSocketError
 export type CFSocketError_c = typeof CFSocketError
 export type CFSocketGetContext_c = typeof CFSocketGetContext
 export type CFSocketGetDefaultNameRegistryPortNumber_c =
-	typeof CFSocketGetDefaultNameRegistryPortNumber
+  typeof CFSocketGetDefaultNameRegistryPortNumber
 
 export type CFSocketGetNative_c = typeof CFSocketGetNative
 export type CFSocketGetSocketFlags_c = typeof CFSocketGetSocketFlags
@@ -4690,7 +4690,7 @@ export type CFSocketRegisterValue_c = typeof CFSocketRegisterValue
 export type CFSocketSendData_c = typeof CFSocketSendData
 export type CFSocketSetAddress_c = typeof CFSocketSetAddress
 export type CFSocketSetDefaultNameRegistryPortNumber_c =
-	typeof CFSocketSetDefaultNameRegistryPortNumber
+  typeof CFSocketSetDefaultNameRegistryPortNumber
 
 export type CFSocketSetSocketFlags_c = typeof CFSocketSetSocketFlags
 export type CFSocketSignature_t = CFSocketSignature
@@ -4700,7 +4700,7 @@ export type CFStreamClientContext_t = CFStreamClientContext
 export type CFStreamClientContext_c = typeof CFStreamClientContext
 export type CFStreamCreateBoundPair_c = typeof CFStreamCreateBoundPair
 export type CFStreamCreatePairWithPeerSocketSignature_c =
-	typeof CFStreamCreatePairWithPeerSocketSignature
+  typeof CFStreamCreatePairWithPeerSocketSignature
 
 export type CFStreamCreatePairWithSocket_c = typeof CFStreamCreatePairWithSocket
 export type CFStreamCreatePairWithSocketToHost_c = typeof CFStreamCreatePairWithSocketToHost
@@ -4725,22 +4725,22 @@ export type CFStringCompareFlags_c = typeof CFStringCompareFlags
 export type CFStringCompareWithOptions_c = typeof CFStringCompareWithOptions
 export type CFStringCompareWithOptionsAndLocale_c = typeof CFStringCompareWithOptionsAndLocale
 export type CFStringConvertEncodingToIANACharSetName_c =
-	typeof CFStringConvertEncodingToIANACharSetName
+  typeof CFStringConvertEncodingToIANACharSetName
 
 export type CFStringConvertEncodingToNSStringEncoding_c =
-	typeof CFStringConvertEncodingToNSStringEncoding
+  typeof CFStringConvertEncodingToNSStringEncoding
 
 export type CFStringConvertEncodingToWindowsCodepage_c =
-	typeof CFStringConvertEncodingToWindowsCodepage
+  typeof CFStringConvertEncodingToWindowsCodepage
 
 export type CFStringConvertIANACharSetNameToEncoding_c =
-	typeof CFStringConvertIANACharSetNameToEncoding
+  typeof CFStringConvertIANACharSetNameToEncoding
 
 export type CFStringConvertNSStringEncodingToEncoding_c =
-	typeof CFStringConvertNSStringEncodingToEncoding
+  typeof CFStringConvertNSStringEncodingToEncoding
 
 export type CFStringConvertWindowsCodepageToEncoding_c =
-	typeof CFStringConvertWindowsCodepageToEncoding
+  typeof CFStringConvertWindowsCodepageToEncoding
 
 export type CFStringCreateArrayBySeparatingStrings_c = typeof CFStringCreateArrayBySeparatingStrings
 export type CFStringCreateArrayWithFindResults_c = typeof CFStringCreateArrayWithFindResults
@@ -4748,12 +4748,12 @@ export type CFStringCreateByCombiningStrings_c = typeof CFStringCreateByCombinin
 export type CFStringCreateCopy_c = typeof CFStringCreateCopy
 export type CFStringCreateExternalRepresentation_c = typeof CFStringCreateExternalRepresentation
 export type CFStringCreateFromExternalRepresentation_c =
-	typeof CFStringCreateFromExternalRepresentation
+  typeof CFStringCreateFromExternalRepresentation
 
 export type CFStringCreateMutable_c = typeof CFStringCreateMutable
 export type CFStringCreateMutableCopy_c = typeof CFStringCreateMutableCopy
 export type CFStringCreateMutableWithExternalCharactersNoCopy_c =
-	typeof CFStringCreateMutableWithExternalCharactersNoCopy
+  typeof CFStringCreateMutableWithExternalCharactersNoCopy
 
 export type CFStringCreateWithBytes_c = typeof CFStringCreateWithBytes
 export type CFStringCreateWithBytesNoCopy_c = typeof CFStringCreateWithBytesNoCopy
@@ -4762,7 +4762,7 @@ export type CFStringCreateWithCStringNoCopy_c = typeof CFStringCreateWithCString
 export type CFStringCreateWithCharacters_c = typeof CFStringCreateWithCharacters
 export type CFStringCreateWithCharactersNoCopy_c = typeof CFStringCreateWithCharactersNoCopy
 export type CFStringCreateWithFileSystemRepresentation_c =
-	typeof CFStringCreateWithFileSystemRepresentation
+  typeof CFStringCreateWithFileSystemRepresentation
 
 export type CFStringCreateWithPascalString_c = typeof CFStringCreateWithPascalString
 export type CFStringCreateWithPascalStringNoCopy_c = typeof CFStringCreateWithPascalStringNoCopy
@@ -4786,7 +4786,7 @@ export type CFStringGetDoubleValue_c = typeof CFStringGetDoubleValue
 export type CFStringGetFastestEncoding_c = typeof CFStringGetFastestEncoding
 export type CFStringGetFileSystemRepresentation_c = typeof CFStringGetFileSystemRepresentation
 export type CFStringGetHyphenationLocationBeforeIndex_c =
-	typeof CFStringGetHyphenationLocationBeforeIndex
+  typeof CFStringGetHyphenationLocationBeforeIndex
 
 export type CFStringGetIntValue_c = typeof CFStringGetIntValue
 export type CFStringGetLength_c = typeof CFStringGetLength
@@ -4794,17 +4794,17 @@ export type CFStringGetLineBounds_c = typeof CFStringGetLineBounds
 export type CFStringGetListOfAvailableEncodings_c = typeof CFStringGetListOfAvailableEncodings
 export type CFStringGetMaximumSizeForEncoding_c = typeof CFStringGetMaximumSizeForEncoding
 export type CFStringGetMaximumSizeOfFileSystemRepresentation_c =
-	typeof CFStringGetMaximumSizeOfFileSystemRepresentation
+  typeof CFStringGetMaximumSizeOfFileSystemRepresentation
 
 export type CFStringGetMostCompatibleMacStringEncoding_c =
-	typeof CFStringGetMostCompatibleMacStringEncoding
+  typeof CFStringGetMostCompatibleMacStringEncoding
 
 export type CFStringGetNameOfEncoding_c = typeof CFStringGetNameOfEncoding
 export type CFStringGetParagraphBounds_c = typeof CFStringGetParagraphBounds
 export type CFStringGetPascalString_c = typeof CFStringGetPascalString
 export type CFStringGetPascalStringPtr_c = typeof CFStringGetPascalStringPtr
 export type CFStringGetRangeOfComposedCharactersAtIndex_c =
-	typeof CFStringGetRangeOfComposedCharactersAtIndex
+  typeof CFStringGetRangeOfComposedCharactersAtIndex
 
 export type CFStringGetSmallestEncoding_c = typeof CFStringGetSmallestEncoding
 export type CFStringGetSystemEncoding_c = typeof CFStringGetSystemEncoding
@@ -4816,7 +4816,7 @@ export type CFStringInlineBuffer_c = typeof CFStringInlineBuffer
 export type CFStringInsert_c = typeof CFStringInsert
 export type CFStringIsEncodingAvailable_c = typeof CFStringIsEncodingAvailable
 export type CFStringIsHyphenationAvailableForLocale_c =
-	typeof CFStringIsHyphenationAvailableForLocale
+  typeof CFStringIsHyphenationAvailableForLocale
 
 export type CFStringLowercase_c = typeof CFStringLowercase
 export type CFStringNormalizationForm_t = CFStringNormalizationForm
@@ -4828,10 +4828,10 @@ export type CFStringReplaceAll_c = typeof CFStringReplaceAll
 export type CFStringSetExternalCharactersNoCopy_c = typeof CFStringSetExternalCharactersNoCopy
 export type CFStringTokenizerAdvanceToNextToken_c = typeof CFStringTokenizerAdvanceToNextToken
 export type CFStringTokenizerCopyBestStringLanguage_c =
-	typeof CFStringTokenizerCopyBestStringLanguage
+  typeof CFStringTokenizerCopyBestStringLanguage
 
 export type CFStringTokenizerCopyCurrentTokenAttribute_c =
-	typeof CFStringTokenizerCopyCurrentTokenAttribute
+  typeof CFStringTokenizerCopyCurrentTokenAttribute
 
 export type CFStringTokenizerCreate_c = typeof CFStringTokenizerCreate
 export type CFStringTokenizerGetCurrentSubTokens_c = typeof CFStringTokenizerGetCurrentSubTokens
@@ -4858,13 +4858,13 @@ export type CFTimeZoneCopySystem_c = typeof CFTimeZoneCopySystem
 export type CFTimeZoneCreate_c = typeof CFTimeZoneCreate
 export type CFTimeZoneCreateWithName_c = typeof CFTimeZoneCreateWithName
 export type CFTimeZoneCreateWithTimeIntervalFromGMT_c =
-	typeof CFTimeZoneCreateWithTimeIntervalFromGMT
+  typeof CFTimeZoneCreateWithTimeIntervalFromGMT
 
 export type CFTimeZoneGetData_c = typeof CFTimeZoneGetData
 export type CFTimeZoneGetDaylightSavingTimeOffset_c = typeof CFTimeZoneGetDaylightSavingTimeOffset
 export type CFTimeZoneGetName_c = typeof CFTimeZoneGetName
 export type CFTimeZoneGetNextDaylightSavingTimeTransition_c =
-	typeof CFTimeZoneGetNextDaylightSavingTimeTransition
+  typeof CFTimeZoneGetNextDaylightSavingTimeTransition
 
 export type CFTimeZoneGetSecondsFromGMT_c = typeof CFTimeZoneGetSecondsFromGMT
 export type CFTimeZoneGetTypeID_c = typeof CFTimeZoneGetTypeID
@@ -4927,42 +4927,42 @@ export type CFURLCreateByResolvingBookmarkData_c = typeof CFURLCreateByResolving
 export type CFURLCreateCopyAppendingPathComponent_c = typeof CFURLCreateCopyAppendingPathComponent
 export type CFURLCreateCopyAppendingPathExtension_c = typeof CFURLCreateCopyAppendingPathExtension
 export type CFURLCreateCopyDeletingLastPathComponent_c =
-	typeof CFURLCreateCopyDeletingLastPathComponent
+  typeof CFURLCreateCopyDeletingLastPathComponent
 
 export type CFURLCreateCopyDeletingPathExtension_c = typeof CFURLCreateCopyDeletingPathExtension
 export type CFURLCreateData_c = typeof CFURLCreateData
 export type CFURLCreateDataAndPropertiesFromResource_c =
-	typeof CFURLCreateDataAndPropertiesFromResource
+  typeof CFURLCreateDataAndPropertiesFromResource
 
 export type CFURLCreateFilePathURL_c = typeof CFURLCreateFilePathURL
 export type CFURLCreateFileReferenceURL_c = typeof CFURLCreateFileReferenceURL
 export type CFURLCreateFromFSRef_c = typeof CFURLCreateFromFSRef
 export type CFURLCreateFromFileSystemRepresentation_c =
-	typeof CFURLCreateFromFileSystemRepresentation
+  typeof CFURLCreateFromFileSystemRepresentation
 
 export type CFURLCreateFromFileSystemRepresentationRelativeToBase_c =
-	typeof CFURLCreateFromFileSystemRepresentationRelativeToBase
+  typeof CFURLCreateFromFileSystemRepresentationRelativeToBase
 
 export type CFURLCreatePropertyFromResource_c = typeof CFURLCreatePropertyFromResource
 export type CFURLCreateResourcePropertiesForKeysFromBookmarkData_c =
-	typeof CFURLCreateResourcePropertiesForKeysFromBookmarkData
+  typeof CFURLCreateResourcePropertiesForKeysFromBookmarkData
 
 export type CFURLCreateResourcePropertyForKeyFromBookmarkData_c =
-	typeof CFURLCreateResourcePropertyForKeyFromBookmarkData
+  typeof CFURLCreateResourcePropertyForKeyFromBookmarkData
 
 export type CFURLCreateStringByAddingPercentEscapes_c =
-	typeof CFURLCreateStringByAddingPercentEscapes
+  typeof CFURLCreateStringByAddingPercentEscapes
 
 export type CFURLCreateStringByReplacingPercentEscapes_c =
-	typeof CFURLCreateStringByReplacingPercentEscapes
+  typeof CFURLCreateStringByReplacingPercentEscapes
 
 export type CFURLCreateStringByReplacingPercentEscapesUsingEncoding_c =
-	typeof CFURLCreateStringByReplacingPercentEscapesUsingEncoding
+  typeof CFURLCreateStringByReplacingPercentEscapesUsingEncoding
 
 export type CFURLCreateWithBytes_c = typeof CFURLCreateWithBytes
 export type CFURLCreateWithFileSystemPath_c = typeof CFURLCreateWithFileSystemPath
 export type CFURLCreateWithFileSystemPathRelativeToBase_c =
-	typeof CFURLCreateWithFileSystemPathRelativeToBase
+  typeof CFURLCreateWithFileSystemPathRelativeToBase
 
 export type CFURLCreateWithString_c = typeof CFURLCreateWithString
 export type CFURLDestroyResource_c = typeof CFURLDestroyResource
@@ -4995,13 +4995,13 @@ export type CFURLResourceIsReachable_c = typeof CFURLResourceIsReachable
 export type CFURLSetResourcePropertiesForKeys_c = typeof CFURLSetResourcePropertiesForKeys
 export type CFURLSetResourcePropertyForKey_c = typeof CFURLSetResourcePropertyForKey
 export type CFURLSetTemporaryResourcePropertyForKey_c =
-	typeof CFURLSetTemporaryResourcePropertyForKey
+  typeof CFURLSetTemporaryResourcePropertyForKey
 
 export type CFURLStartAccessingSecurityScopedResource_c =
-	typeof CFURLStartAccessingSecurityScopedResource
+  typeof CFURLStartAccessingSecurityScopedResource
 
 export type CFURLStopAccessingSecurityScopedResource_c =
-	typeof CFURLStopAccessingSecurityScopedResource
+  typeof CFURLStopAccessingSecurityScopedResource
 
 export type CFURLWriteBookmarkDataToFile_c = typeof CFURLWriteBookmarkDataToFile
 export type CFURLWriteDataAndPropertiesToResource_c = typeof CFURLWriteDataAndPropertiesToResource
@@ -5021,7 +5021,7 @@ export type CFWriteStreamCopyDispatchQueue_c = typeof CFWriteStreamCopyDispatchQ
 export type CFWriteStreamCopyError_c = typeof CFWriteStreamCopyError
 export type CFWriteStreamCopyProperty_c = typeof CFWriteStreamCopyProperty
 export type CFWriteStreamCreateWithAllocatedBuffers_c =
-	typeof CFWriteStreamCreateWithAllocatedBuffers
+  typeof CFWriteStreamCreateWithAllocatedBuffers
 
 export type CFWriteStreamCreateWithBuffer_c = typeof CFWriteStreamCreateWithBuffer
 export type CFWriteStreamCreateWithFile_c = typeof CFWriteStreamCreateWithFile
@@ -5082,7 +5082,7 @@ export type CGColorBufferFormat_c = typeof CGColorBufferFormat
 export type CGColorConversionInfoConvertData_c = typeof CGColorConversionInfoConvertData
 export type CGColorConversionInfoCreate_c = typeof CGColorConversionInfoCreate
 export type CGColorConversionInfoCreateForToneMapping_c =
-	typeof CGColorConversionInfoCreateForToneMapping
+  typeof CGColorConversionInfoCreateForToneMapping
 
 export type CGColorConversionInfoCreateWithOptions_c = typeof CGColorConversionInfoCreateWithOptions
 export type CGColorConversionInfoGetTypeID_c = typeof CGColorConversionInfoGetTypeID
@@ -5091,7 +5091,7 @@ export type CGColorConversionInfoTransformType_c = typeof CGColorConversionInfoT
 export type CGColorCreate_c = typeof CGColorCreate
 export type CGColorCreateCopy_c = typeof CGColorCreateCopy
 export type CGColorCreateCopyByMatchingToColorSpace_c =
-	typeof CGColorCreateCopyByMatchingToColorSpace
+  typeof CGColorCreateCopyByMatchingToColorSpace
 
 export type CGColorCreateCopyWithAlpha_c = typeof CGColorCreateCopyWithAlpha
 export type CGColorCreateGenericCMYK_c = typeof CGColorCreateGenericCMYK
@@ -5126,7 +5126,7 @@ export type CGColorSpaceCopyPropertyList_c = typeof CGColorSpaceCopyPropertyList
 export type CGColorSpaceCreateCalibratedGray_c = typeof CGColorSpaceCreateCalibratedGray
 export type CGColorSpaceCreateCalibratedRGB_c = typeof CGColorSpaceCreateCalibratedRGB
 export type CGColorSpaceCreateCopyWithStandardRange_c =
-	typeof CGColorSpaceCreateCopyWithStandardRange
+  typeof CGColorSpaceCreateCopyWithStandardRange
 
 export type CGColorSpaceCreateDeviceCMYK_c = typeof CGColorSpaceCreateDeviceCMYK
 export type CGColorSpaceCreateDeviceGray_c = typeof CGColorSpaceCreateDeviceGray
@@ -5143,7 +5143,7 @@ export type CGColorSpaceCreateWithICCData_c = typeof CGColorSpaceCreateWithICCDa
 export type CGColorSpaceCreateWithICCProfile_c = typeof CGColorSpaceCreateWithICCProfile
 export type CGColorSpaceCreateWithName_c = typeof CGColorSpaceCreateWithName
 export type CGColorSpaceCreateWithPlatformColorSpace_c =
-	typeof CGColorSpaceCreateWithPlatformColorSpace
+  typeof CGColorSpaceCreateWithPlatformColorSpace
 
 export type CGColorSpaceCreateWithPropertyList_c = typeof CGColorSpaceCreateWithPropertyList
 export type CGColorSpaceGetBaseColorSpace_c = typeof CGColorSpaceGetBaseColorSpace
@@ -5184,7 +5184,7 @@ export type CGContextBeginPage_c = typeof CGContextBeginPage
 export type CGContextBeginPath_c = typeof CGContextBeginPath
 export type CGContextBeginTransparencyLayer_c = typeof CGContextBeginTransparencyLayer
 export type CGContextBeginTransparencyLayerWithRect_c =
-	typeof CGContextBeginTransparencyLayerWithRect
+  typeof CGContextBeginTransparencyLayerWithRect
 
 export type CGContextClearRect_c = typeof CGContextClearRect
 export type CGContextClip_c = typeof CGContextClip
@@ -5231,7 +5231,7 @@ export type CGContextGetTextMatrix_c = typeof CGContextGetTextMatrix
 export type CGContextGetTextPosition_c = typeof CGContextGetTextPosition
 export type CGContextGetTypeID_c = typeof CGContextGetTypeID
 export type CGContextGetUserSpaceToDeviceSpaceTransform_c =
-	typeof CGContextGetUserSpaceToDeviceSpaceTransform
+  typeof CGContextGetUserSpaceToDeviceSpaceTransform
 
 export type CGContextIsPathEmpty_c = typeof CGContextIsPathEmpty
 export type CGContextMoveToPoint_c = typeof CGContextMoveToPoint
@@ -5248,10 +5248,10 @@ export type CGContextSelectFont_c = typeof CGContextSelectFont
 export type CGContextSetAllowsAntialiasing_c = typeof CGContextSetAllowsAntialiasing
 export type CGContextSetAllowsFontSmoothing_c = typeof CGContextSetAllowsFontSmoothing
 export type CGContextSetAllowsFontSubpixelPositioning_c =
-	typeof CGContextSetAllowsFontSubpixelPositioning
+  typeof CGContextSetAllowsFontSubpixelPositioning
 
 export type CGContextSetAllowsFontSubpixelQuantization_c =
-	typeof CGContextSetAllowsFontSubpixelQuantization
+  typeof CGContextSetAllowsFontSubpixelQuantization
 
 export type CGContextSetAlpha_c = typeof CGContextSetAlpha
 export type CGContextSetBlendMode_c = typeof CGContextSetBlendMode
@@ -5284,10 +5284,10 @@ export type CGContextSetShadowWithColor_c = typeof CGContextSetShadowWithColor
 export type CGContextSetShouldAntialias_c = typeof CGContextSetShouldAntialias
 export type CGContextSetShouldSmoothFonts_c = typeof CGContextSetShouldSmoothFonts
 export type CGContextSetShouldSubpixelPositionFonts_c =
-	typeof CGContextSetShouldSubpixelPositionFonts
+  typeof CGContextSetShouldSubpixelPositionFonts
 
 export type CGContextSetShouldSubpixelQuantizeFonts_c =
-	typeof CGContextSetShouldSubpixelQuantizeFonts
+  typeof CGContextSetShouldSubpixelQuantizeFonts
 
 export type CGContextSetStrokeColor_c = typeof CGContextSetStrokeColor
 export type CGContextSetStrokeColorSpace_c = typeof CGContextSetStrokeColorSpace
@@ -5393,22 +5393,22 @@ export type CGImageAnimationStatus_c = typeof CGImageAnimationStatus
 export type CGImageByteOrderInfo_t = CGImageByteOrderInfo
 export type CGImageByteOrderInfo_c = typeof CGImageByteOrderInfo
 export type CGImageCalculateContentAverageLightLevel_c =
-	typeof CGImageCalculateContentAverageLightLevel
+  typeof CGImageCalculateContentAverageLightLevel
 
 export type CGImageCalculateContentHeadroom_c = typeof CGImageCalculateContentHeadroom
 export type CGImageComponentInfo_t = CGImageComponentInfo
 export type CGImageComponentInfo_c = typeof CGImageComponentInfo
 export type CGImageContainsImageSpecificToneMappingMetadata_c =
-	typeof CGImageContainsImageSpecificToneMappingMetadata
+  typeof CGImageContainsImageSpecificToneMappingMetadata
 
 export type CGImageCreate_c = typeof CGImageCreate
 export type CGImageCreateCopy_c = typeof CGImageCreateCopy
 export type CGImageCreateCopyWithCalculatedHDRStats_c =
-	typeof CGImageCreateCopyWithCalculatedHDRStats
+  typeof CGImageCreateCopyWithCalculatedHDRStats
 
 export type CGImageCreateCopyWithColorSpace_c = typeof CGImageCreateCopyWithColorSpace
 export type CGImageCreateCopyWithContentAverageLightLevel_c =
-	typeof CGImageCreateCopyWithContentAverageLightLevel
+  typeof CGImageCreateCopyWithContentAverageLightLevel
 
 export type CGImageCreateCopyWithContentHeadroom_c = typeof CGImageCreateCopyWithContentHeadroom
 export type CGImageCreateWithContentHeadroom_c = typeof CGImageCreateWithContentHeadroom
@@ -5425,7 +5425,7 @@ export type CGImageDestinationCopyImageSource_c = typeof CGImageDestinationCopyI
 export type CGImageDestinationCopyTypeIdentifiers_c = typeof CGImageDestinationCopyTypeIdentifiers
 export type CGImageDestinationCreateWithData_c = typeof CGImageDestinationCreateWithData
 export type CGImageDestinationCreateWithDataConsumer_c =
-	typeof CGImageDestinationCreateWithDataConsumer
+  typeof CGImageDestinationCreateWithDataConsumer
 
 export type CGImageDestinationCreateWithURL_c = typeof CGImageDestinationCreateWithURL
 export type CGImageDestinationFinalize_c = typeof CGImageDestinationFinalize
@@ -5453,7 +5453,7 @@ export type CGImageIsMask_c = typeof CGImageIsMask
 export type CGImageMaskCreate_c = typeof CGImageMaskCreate
 export type CGImageMetadataCopyStringValueWithPath_c = typeof CGImageMetadataCopyStringValueWithPath
 export type CGImageMetadataCopyTagMatchingImageProperty_c =
-	typeof CGImageMetadataCopyTagMatchingImageProperty
+  typeof CGImageMetadataCopyTagMatchingImageProperty
 
 export type CGImageMetadataCopyTagWithPath_c = typeof CGImageMetadataCopyTagWithPath
 export type CGImageMetadataCopyTags_c = typeof CGImageMetadataCopyTags
@@ -5466,12 +5466,12 @@ export type CGImageMetadataErrors_t = CGImageMetadataErrors
 export type CGImageMetadataErrors_c = typeof CGImageMetadataErrors
 export type CGImageMetadataGetTypeID_c = typeof CGImageMetadataGetTypeID
 export type CGImageMetadataRegisterNamespaceForPrefix_c =
-	typeof CGImageMetadataRegisterNamespaceForPrefix
+  typeof CGImageMetadataRegisterNamespaceForPrefix
 
 export type CGImageMetadataRemoveTagWithPath_c = typeof CGImageMetadataRemoveTagWithPath
 export type CGImageMetadataSetTagWithPath_c = typeof CGImageMetadataSetTagWithPath
 export type CGImageMetadataSetValueMatchingImageProperty_c =
-	typeof CGImageMetadataSetValueMatchingImageProperty
+  typeof CGImageMetadataSetValueMatchingImageProperty
 
 export type CGImageMetadataSetValueWithPath_c = typeof CGImageMetadataSetValueWithPath
 export type CGImageMetadataTagCopyName_c = typeof CGImageMetadataTagCopyName
@@ -5494,7 +5494,7 @@ export type CGImageRelease_c = typeof CGImageRelease
 export type CGImageRetain_c = typeof CGImageRetain
 export type CGImageShouldToneMap_c = typeof CGImageShouldToneMap
 export type CGImageSourceCopyAuxiliaryDataInfoAtIndex_c =
-	typeof CGImageSourceCopyAuxiliaryDataInfoAtIndex
+  typeof CGImageSourceCopyAuxiliaryDataInfoAtIndex
 
 export type CGImageSourceCopyMetadataAtIndex_c = typeof CGImageSourceCopyMetadataAtIndex
 export type CGImageSourceCopyProperties_c = typeof CGImageSourceCopyProperties
@@ -5557,7 +5557,7 @@ export type CGPDFContextAddDocumentMetadata_c = typeof CGPDFContextAddDocumentMe
 export type CGPDFContextAddStructureTreeRootChild_c = typeof CGPDFContextAddStructureTreeRootChild
 export type CGPDFContextBeginMarkedContentSequence_c = typeof CGPDFContextBeginMarkedContentSequence
 export type CGPDFContextBeginNonStructuralMarkedContentSequence_c =
-	typeof CGPDFContextBeginNonStructuralMarkedContentSequence
+  typeof CGPDFContextBeginNonStructuralMarkedContentSequence
 
 export type CGPDFContextBeginObjectReference_c = typeof CGPDFContextBeginObjectReference
 export type CGPDFContextBeginPage_c = typeof CGPDFContextBeginPage
@@ -5648,21 +5648,21 @@ export type CGPDFStringCopyTextString_c = typeof CGPDFStringCopyTextString
 export type CGPDFStringGetBytePtr_c = typeof CGPDFStringGetBytePtr
 export type CGPDFStringGetLength_c = typeof CGPDFStringGetLength
 export type CGPDFStructureElementAddMarkedContentItem_c =
-	typeof CGPDFStructureElementAddMarkedContentItem
+  typeof CGPDFStructureElementAddMarkedContentItem
 
 export type CGPDFStructureElementAddStructureElement_c =
-	typeof CGPDFStructureElementAddStructureElement
+  typeof CGPDFStructureElementAddStructureElement
 
 export type CGPDFStructureElementCreate_c = typeof CGPDFStructureElementCreate
 export type CGPDFStructureElementRelease_c = typeof CGPDFStructureElementRelease
 export type CGPDFStructureElementRetain_c = typeof CGPDFStructureElementRetain
 export type CGPDFStructureElementSetActualText_c = typeof CGPDFStructureElementSetActualText
 export type CGPDFStructureElementSetAlternativeText_c =
-	typeof CGPDFStructureElementSetAlternativeText
+  typeof CGPDFStructureElementSetAlternativeText
 
 export type CGPDFStructureElementSetExpansionText_c = typeof CGPDFStructureElementSetExpansionText
 export type CGPDFStructureElementSetLanguageIdentifier_c =
-	typeof CGPDFStructureElementSetLanguageIdentifier
+  typeof CGPDFStructureElementSetLanguageIdentifier
 
 export type CGPDFStructureElementSetTitle_c = typeof CGPDFStructureElementSetTitle
 export type CGPDFTagType_t = CGPDFTagType
@@ -5692,20 +5692,20 @@ export type CGPathCreateCopyByNormalizing_c = typeof CGPathCreateCopyByNormalizi
 export type CGPathCreateCopyByStrokingPath_c = typeof CGPathCreateCopyByStrokingPath
 export type CGPathCreateCopyBySubtractingPath_c = typeof CGPathCreateCopyBySubtractingPath
 export type CGPathCreateCopyBySymmetricDifferenceOfPath_c =
-	typeof CGPathCreateCopyBySymmetricDifferenceOfPath
+  typeof CGPathCreateCopyBySymmetricDifferenceOfPath
 
 export type CGPathCreateCopyByTransformingPath_c = typeof CGPathCreateCopyByTransformingPath
 export type CGPathCreateCopyByUnioningPath_c = typeof CGPathCreateCopyByUnioningPath
 export type CGPathCreateCopyOfLineByIntersectingPath_c =
-	typeof CGPathCreateCopyOfLineByIntersectingPath
+  typeof CGPathCreateCopyOfLineByIntersectingPath
 
 export type CGPathCreateCopyOfLineBySubtractingPath_c =
-	typeof CGPathCreateCopyOfLineBySubtractingPath
+  typeof CGPathCreateCopyOfLineBySubtractingPath
 
 export type CGPathCreateMutable_c = typeof CGPathCreateMutable
 export type CGPathCreateMutableCopy_c = typeof CGPathCreateMutableCopy
 export type CGPathCreateMutableCopyByTransformingPath_c =
-	typeof CGPathCreateMutableCopyByTransformingPath
+  typeof CGPathCreateMutableCopyByTransformingPath
 
 export type CGPathCreateSeparateComponents_c = typeof CGPathCreateSeparateComponents
 export type CGPathCreateWithEllipseInRect_c = typeof CGPathCreateWithEllipseInRect
@@ -5744,7 +5744,7 @@ export type CGPointEqualToPoint_c = typeof CGPointEqualToPoint
 export type CGPointFromString_c = typeof CGPointFromString
 export type CGPointMake_c = typeof CGPointMake
 export type CGPointMakeWithDictionaryRepresentation_c =
-	typeof CGPointMakeWithDictionaryRepresentation
+  typeof CGPointMakeWithDictionaryRepresentation
 
 export type CGPointZero_c = typeof CGPointZero
 export type CGRect_t = CGRect
@@ -5784,18 +5784,18 @@ export type CGRectZero_c = typeof CGRectZero
 export type CGRenderingBufferLockBytePtr_c = typeof CGRenderingBufferLockBytePtr
 export type CGRenderingBufferProviderCreate_c = typeof CGRenderingBufferProviderCreate
 export type CGRenderingBufferProviderCreateWithCFData_c =
-	typeof CGRenderingBufferProviderCreateWithCFData
+  typeof CGRenderingBufferProviderCreateWithCFData
 
 export type CGRenderingBufferProviderGetSize_c = typeof CGRenderingBufferProviderGetSize
 export type CGRenderingBufferProviderGetTypeID_c = typeof CGRenderingBufferProviderGetTypeID
 export type CGRenderingBufferUnlockBytePtr_c = typeof CGRenderingBufferUnlockBytePtr
 export type CGShadingCreateAxial_c = typeof CGShadingCreateAxial
 export type CGShadingCreateAxialWithContentHeadroom_c =
-	typeof CGShadingCreateAxialWithContentHeadroom
+  typeof CGShadingCreateAxialWithContentHeadroom
 
 export type CGShadingCreateRadial_c = typeof CGShadingCreateRadial
 export type CGShadingCreateRadialWithContentHeadroom_c =
-	typeof CGShadingCreateRadialWithContentHeadroom
+  typeof CGShadingCreateRadialWithContentHeadroom
 
 export type CGShadingGetContentHeadroom_c = typeof CGShadingGetContentHeadroom
 export type CGShadingGetTypeID_c = typeof CGShadingGetTypeID
@@ -5821,7 +5821,7 @@ export type CGVector_c = typeof CGVector
 export type CGVectorFromString_c = typeof CGVectorFromString
 export type CGVectorMake_c = typeof CGVectorMake
 export type CMTagCollectionCreateWithVideoOutputPreset_c =
-	typeof CMTagCollectionCreateWithVideoOutputPreset
+  typeof CMTagCollectionCreateWithVideoOutputPreset
 
 export type CMTagCollectionVideoOutputPreset_t = CMTagCollectionVideoOutputPreset
 export type CMTagCollectionVideoOutputPreset_c = typeof CMTagCollectionVideoOutputPreset
@@ -5932,7 +5932,7 @@ export type MFComposeAssistantViewController_t = MFComposeAssistantViewControlle
 export type MFComposeAssistantViewController_c = typeof MFComposeAssistantViewController
 export type MFComposeAssistantViewControllerDelegate_t = MFComposeAssistantViewControllerDelegate
 export type MFComposeAssistantViewControllerDelegate_c =
-	typeof MFComposeAssistantViewControllerDelegate
+  typeof MFComposeAssistantViewControllerDelegate
 
 export type MFMailComposeControllerDeferredAction_t = MFMailComposeControllerDeferredAction
 export type MFMailComposeControllerDeferredAction_c = typeof MFMailComposeControllerDeferredAction
@@ -5950,18 +5950,18 @@ export type MFMailDraft_c = typeof MFMailDraft
 export type MFMessageComposeViewController_t = MFMessageComposeViewController
 export type MFMessageComposeViewController_c = typeof MFMessageComposeViewController
 export type MFMessageComposeViewControllerAttachmentAlternateFilename_c =
-	typeof MFMessageComposeViewControllerAttachmentAlternateFilename
+  typeof MFMessageComposeViewControllerAttachmentAlternateFilename
 
 export type MFMessageComposeViewControllerAttachmentURL_c =
-	typeof MFMessageComposeViewControllerAttachmentURL
+  typeof MFMessageComposeViewControllerAttachmentURL
 
 export type MFMessageComposeViewControllerDelegate_t = MFMessageComposeViewControllerDelegate
 export type MFMessageComposeViewControllerDelegate_c = typeof MFMessageComposeViewControllerDelegate
 export type MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification_c =
-	typeof MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification
+  typeof MFMessageComposeViewControllerTextMessageAvailabilityDidChangeNotification
 
 export type MFMessageComposeViewControllerTextMessageAvailabilityKey_c =
-	typeof MFMessageComposeViewControllerTextMessageAvailabilityKey
+  typeof MFMessageComposeViewControllerTextMessageAvailabilityKey
 
 export type MPAdTimeRange_t = MPAdTimeRange
 export type MPAdTimeRange_c = typeof MPAdTimeRange
@@ -5995,34 +5995,34 @@ export type MPFeedbackCommand_c = typeof MPFeedbackCommand
 export type MPFeedbackCommandEvent_t = MPFeedbackCommandEvent
 export type MPFeedbackCommandEvent_c = typeof MPFeedbackCommandEvent
 export type MPLanguageOptionCharacteristicContainsOnlyForcedSubtitles_c =
-	typeof MPLanguageOptionCharacteristicContainsOnlyForcedSubtitles
+  typeof MPLanguageOptionCharacteristicContainsOnlyForcedSubtitles
 
 export type MPLanguageOptionCharacteristicDescribesMusicAndSound_c =
-	typeof MPLanguageOptionCharacteristicDescribesMusicAndSound
+  typeof MPLanguageOptionCharacteristicDescribesMusicAndSound
 
 export type MPLanguageOptionCharacteristicDescribesVideo_c =
-	typeof MPLanguageOptionCharacteristicDescribesVideo
+  typeof MPLanguageOptionCharacteristicDescribesVideo
 
 export type MPLanguageOptionCharacteristicDubbedTranslation_c =
-	typeof MPLanguageOptionCharacteristicDubbedTranslation
+  typeof MPLanguageOptionCharacteristicDubbedTranslation
 
 export type MPLanguageOptionCharacteristicEasyToRead_c =
-	typeof MPLanguageOptionCharacteristicEasyToRead
+  typeof MPLanguageOptionCharacteristicEasyToRead
 
 export type MPLanguageOptionCharacteristicIsAuxiliaryContent_c =
-	typeof MPLanguageOptionCharacteristicIsAuxiliaryContent
+  typeof MPLanguageOptionCharacteristicIsAuxiliaryContent
 
 export type MPLanguageOptionCharacteristicIsMainProgramContent_c =
-	typeof MPLanguageOptionCharacteristicIsMainProgramContent
+  typeof MPLanguageOptionCharacteristicIsMainProgramContent
 
 export type MPLanguageOptionCharacteristicLanguageTranslation_c =
-	typeof MPLanguageOptionCharacteristicLanguageTranslation
+  typeof MPLanguageOptionCharacteristicLanguageTranslation
 
 export type MPLanguageOptionCharacteristicTranscribesSpokenDialog_c =
-	typeof MPLanguageOptionCharacteristicTranscribesSpokenDialog
+  typeof MPLanguageOptionCharacteristicTranscribesSpokenDialog
 
 export type MPLanguageOptionCharacteristicVoiceOverTranslation_c =
-	typeof MPLanguageOptionCharacteristicVoiceOverTranslation
+  typeof MPLanguageOptionCharacteristicVoiceOverTranslation
 
 export type MPMediaEntity_t = MPMediaEntity
 export type MPMediaEntity_c = typeof MPMediaEntity
@@ -6039,7 +6039,7 @@ export type MPMediaItemCollection_t = MPMediaItemCollection
 export type MPMediaItemCollection_c = typeof MPMediaItemCollection
 export type MPMediaItemPropertyAlbumArtist_c = typeof MPMediaItemPropertyAlbumArtist
 export type MPMediaItemPropertyAlbumArtistPersistentID_c =
-	typeof MPMediaItemPropertyAlbumArtistPersistentID
+  typeof MPMediaItemPropertyAlbumArtistPersistentID
 
 export type MPMediaItemPropertyAlbumPersistentID_c = typeof MPMediaItemPropertyAlbumPersistentID
 export type MPMediaItemPropertyAlbumTitle_c = typeof MPMediaItemPropertyAlbumTitle
@@ -6054,7 +6054,7 @@ export type MPMediaItemPropertyBookmarkTime_c = typeof MPMediaItemPropertyBookma
 export type MPMediaItemPropertyComments_c = typeof MPMediaItemPropertyComments
 export type MPMediaItemPropertyComposer_c = typeof MPMediaItemPropertyComposer
 export type MPMediaItemPropertyComposerPersistentID_c =
-	typeof MPMediaItemPropertyComposerPersistentID
+  typeof MPMediaItemPropertyComposerPersistentID
 
 export type MPMediaItemPropertyDateAdded_c = typeof MPMediaItemPropertyDateAdded
 export type MPMediaItemPropertyDiscCount_c = typeof MPMediaItemPropertyDiscCount
@@ -6092,7 +6092,7 @@ export type MPMediaPickerControllerDelegate_c = typeof MPMediaPickerControllerDe
 export type MPMediaPlayback_t = MPMediaPlayback
 export type MPMediaPlayback_c = typeof MPMediaPlayback
 export type MPMediaPlaybackIsPreparedToPlayDidChangeNotification_c =
-	typeof MPMediaPlaybackIsPreparedToPlayDidChangeNotification
+  typeof MPMediaPlaybackIsPreparedToPlayDidChangeNotification
 
 export type MPMediaPlaylist_t = MPMediaPlaylist
 export type MPMediaPlaylist_c = typeof MPMediaPlaylist
@@ -6101,14 +6101,14 @@ export type MPMediaPlaylistAttribute_c = typeof MPMediaPlaylistAttribute
 export type MPMediaPlaylistCreationMetadata_t = MPMediaPlaylistCreationMetadata
 export type MPMediaPlaylistCreationMetadata_c = typeof MPMediaPlaylistCreationMetadata
 export type MPMediaPlaylistPropertyAuthorDisplayName_c =
-	typeof MPMediaPlaylistPropertyAuthorDisplayName
+  typeof MPMediaPlaylistPropertyAuthorDisplayName
 
 export type MPMediaPlaylistPropertyCloudGlobalID_c = typeof MPMediaPlaylistPropertyCloudGlobalID
 export type MPMediaPlaylistPropertyDescriptionText_c = typeof MPMediaPlaylistPropertyDescriptionText
 export type MPMediaPlaylistPropertyName_c = typeof MPMediaPlaylistPropertyName
 export type MPMediaPlaylistPropertyPersistentID_c = typeof MPMediaPlaylistPropertyPersistentID
 export type MPMediaPlaylistPropertyPlaylistAttributes_c =
-	typeof MPMediaPlaylistPropertyPlaylistAttributes
+  typeof MPMediaPlaylistPropertyPlaylistAttributes
 
 export type MPMediaPlaylistPropertySeedItems_c = typeof MPMediaPlaylistPropertySeedItems
 export type MPMediaPredicate_t = MPMediaPredicate
@@ -6142,72 +6142,72 @@ export type MPMovieMediaTypeMask_t = MPMovieMediaTypeMask
 export type MPMovieMediaTypeMask_c = typeof MPMovieMediaTypeMask
 export type MPMovieMediaTypesAvailableNotification_c = typeof MPMovieMediaTypesAvailableNotification
 export type MPMovieNaturalSizeAvailableNotification_c =
-	typeof MPMovieNaturalSizeAvailableNotification
+  typeof MPMovieNaturalSizeAvailableNotification
 
 export type MPMoviePlaybackState_t = MPMoviePlaybackState
 export type MPMoviePlaybackState_c = typeof MPMoviePlaybackState
 export type MPMoviePlayerController_t = MPMoviePlayerController
 export type MPMoviePlayerController_c = typeof MPMoviePlayerController
 export type MPMoviePlayerDidEnterFullscreenNotification_c =
-	typeof MPMoviePlayerDidEnterFullscreenNotification
+  typeof MPMoviePlayerDidEnterFullscreenNotification
 
 export type MPMoviePlayerDidExitFullscreenNotification_c =
-	typeof MPMoviePlayerDidExitFullscreenNotification
+  typeof MPMoviePlayerDidExitFullscreenNotification
 
 export type MPMoviePlayerFullscreenAnimationCurveUserInfoKey_c =
-	typeof MPMoviePlayerFullscreenAnimationCurveUserInfoKey
+  typeof MPMoviePlayerFullscreenAnimationCurveUserInfoKey
 
 export type MPMoviePlayerFullscreenAnimationDurationUserInfoKey_c =
-	typeof MPMoviePlayerFullscreenAnimationDurationUserInfoKey
+  typeof MPMoviePlayerFullscreenAnimationDurationUserInfoKey
 
 export type MPMoviePlayerIsAirPlayVideoActiveDidChangeNotification_c =
-	typeof MPMoviePlayerIsAirPlayVideoActiveDidChangeNotification
+  typeof MPMoviePlayerIsAirPlayVideoActiveDidChangeNotification
 
 export type MPMoviePlayerLoadStateDidChangeNotification_c =
-	typeof MPMoviePlayerLoadStateDidChangeNotification
+  typeof MPMoviePlayerLoadStateDidChangeNotification
 
 export type MPMoviePlayerNowPlayingMovieDidChangeNotification_c =
-	typeof MPMoviePlayerNowPlayingMovieDidChangeNotification
+  typeof MPMoviePlayerNowPlayingMovieDidChangeNotification
 
 export type MPMoviePlayerPlaybackDidFinishNotification_c =
-	typeof MPMoviePlayerPlaybackDidFinishNotification
+  typeof MPMoviePlayerPlaybackDidFinishNotification
 
 export type MPMoviePlayerPlaybackDidFinishReasonUserInfoKey_c =
-	typeof MPMoviePlayerPlaybackDidFinishReasonUserInfoKey
+  typeof MPMoviePlayerPlaybackDidFinishReasonUserInfoKey
 
 export type MPMoviePlayerPlaybackStateDidChangeNotification_c =
-	typeof MPMoviePlayerPlaybackStateDidChangeNotification
+  typeof MPMoviePlayerPlaybackStateDidChangeNotification
 
 export type MPMoviePlayerReadyForDisplayDidChangeNotification_c =
-	typeof MPMoviePlayerReadyForDisplayDidChangeNotification
+  typeof MPMoviePlayerReadyForDisplayDidChangeNotification
 
 export type MPMoviePlayerScalingModeDidChangeNotification_c =
-	typeof MPMoviePlayerScalingModeDidChangeNotification
+  typeof MPMoviePlayerScalingModeDidChangeNotification
 
 export type MPMoviePlayerThumbnailErrorKey_c = typeof MPMoviePlayerThumbnailErrorKey
 export type MPMoviePlayerThumbnailImageKey_c = typeof MPMoviePlayerThumbnailImageKey
 export type MPMoviePlayerThumbnailImageRequestDidFinishNotification_c =
-	typeof MPMoviePlayerThumbnailImageRequestDidFinishNotification
+  typeof MPMoviePlayerThumbnailImageRequestDidFinishNotification
 
 export type MPMoviePlayerThumbnailTimeKey_c = typeof MPMoviePlayerThumbnailTimeKey
 export type MPMoviePlayerTimedMetadataKeyDataType_c = typeof MPMoviePlayerTimedMetadataKeyDataType
 export type MPMoviePlayerTimedMetadataKeyInfo_c = typeof MPMoviePlayerTimedMetadataKeyInfo
 export type MPMoviePlayerTimedMetadataKeyLanguageCode_c =
-	typeof MPMoviePlayerTimedMetadataKeyLanguageCode
+  typeof MPMoviePlayerTimedMetadataKeyLanguageCode
 
 export type MPMoviePlayerTimedMetadataKeyMIMEType_c = typeof MPMoviePlayerTimedMetadataKeyMIMEType
 export type MPMoviePlayerTimedMetadataKeyName_c = typeof MPMoviePlayerTimedMetadataKeyName
 export type MPMoviePlayerTimedMetadataUpdatedNotification_c =
-	typeof MPMoviePlayerTimedMetadataUpdatedNotification
+  typeof MPMoviePlayerTimedMetadataUpdatedNotification
 
 export type MPMoviePlayerTimedMetadataUserInfoKey_c = typeof MPMoviePlayerTimedMetadataUserInfoKey
 export type MPMoviePlayerViewController_t = MPMoviePlayerViewController
 export type MPMoviePlayerViewController_c = typeof MPMoviePlayerViewController
 export type MPMoviePlayerWillEnterFullscreenNotification_c =
-	typeof MPMoviePlayerWillEnterFullscreenNotification
+  typeof MPMoviePlayerWillEnterFullscreenNotification
 
 export type MPMoviePlayerWillExitFullscreenNotification_c =
-	typeof MPMoviePlayerWillExitFullscreenNotification
+  typeof MPMoviePlayerWillExitFullscreenNotification
 
 export type MPMovieRepeatMode_t = MPMovieRepeatMode
 export type MPMovieRepeatMode_c = typeof MPMovieRepeatMode
@@ -6227,28 +6227,28 @@ export type MPMusicPlayerController_c = typeof MPMusicPlayerController
 export type MPMusicPlayerControllerMutableQueue_t = MPMusicPlayerControllerMutableQueue
 export type MPMusicPlayerControllerMutableQueue_c = typeof MPMusicPlayerControllerMutableQueue
 export type MPMusicPlayerControllerNowPlayingItemDidChangeNotification_c =
-	typeof MPMusicPlayerControllerNowPlayingItemDidChangeNotification
+  typeof MPMusicPlayerControllerNowPlayingItemDidChangeNotification
 
 export type MPMusicPlayerControllerPlaybackStateDidChangeNotification_c =
-	typeof MPMusicPlayerControllerPlaybackStateDidChangeNotification
+  typeof MPMusicPlayerControllerPlaybackStateDidChangeNotification
 
 export type MPMusicPlayerControllerQueue_t = MPMusicPlayerControllerQueue
 export type MPMusicPlayerControllerQueue_c = typeof MPMusicPlayerControllerQueue
 export type MPMusicPlayerControllerQueueDidChangeNotification_c =
-	typeof MPMusicPlayerControllerQueueDidChangeNotification
+  typeof MPMusicPlayerControllerQueueDidChangeNotification
 
 export type MPMusicPlayerControllerVolumeDidChangeNotification_c =
-	typeof MPMusicPlayerControllerVolumeDidChangeNotification
+  typeof MPMusicPlayerControllerVolumeDidChangeNotification
 
 export type MPMusicPlayerMediaItemQueueDescriptor_t = MPMusicPlayerMediaItemQueueDescriptor
 export type MPMusicPlayerMediaItemQueueDescriptor_c = typeof MPMusicPlayerMediaItemQueueDescriptor
 export type MPMusicPlayerPlayParameters_t = MPMusicPlayerPlayParameters
 export type MPMusicPlayerPlayParameters_c = typeof MPMusicPlayerPlayParameters
 export type MPMusicPlayerPlayParametersQueueDescriptor_t =
-	MPMusicPlayerPlayParametersQueueDescriptor
+  MPMusicPlayerPlayParametersQueueDescriptor
 
 export type MPMusicPlayerPlayParametersQueueDescriptor_c =
-	typeof MPMusicPlayerPlayParametersQueueDescriptor
+  typeof MPMusicPlayerPlayParametersQueueDescriptor
 
 export type MPMusicPlayerQueueDescriptor_t = MPMusicPlayerQueueDescriptor
 export type MPMusicPlayerQueueDescriptor_c = typeof MPMusicPlayerQueueDescriptor
@@ -6270,62 +6270,62 @@ export type MPNowPlayingInfoLanguageOptionType_c = typeof MPNowPlayingInfoLangua
 export type MPNowPlayingInfoMediaType_t = MPNowPlayingInfoMediaType
 export type MPNowPlayingInfoMediaType_c = typeof MPNowPlayingInfoMediaType
 export type MPNowPlayingInfoProperty1x1AnimatedArtwork_c =
-	typeof MPNowPlayingInfoProperty1x1AnimatedArtwork
+  typeof MPNowPlayingInfoProperty1x1AnimatedArtwork
 
 export type MPNowPlayingInfoProperty3x4AnimatedArtwork_c =
-	typeof MPNowPlayingInfoProperty3x4AnimatedArtwork
+  typeof MPNowPlayingInfoProperty3x4AnimatedArtwork
 
 export type MPNowPlayingInfoPropertyAdTimeRanges_c = typeof MPNowPlayingInfoPropertyAdTimeRanges
 export type MPNowPlayingInfoPropertyAppEntityIdentifiers_c =
-	typeof MPNowPlayingInfoPropertyAppEntityIdentifiers
+  typeof MPNowPlayingInfoPropertyAppEntityIdentifiers
 
 export type MPNowPlayingInfoPropertyAssetURL_c = typeof MPNowPlayingInfoPropertyAssetURL
 export type MPNowPlayingInfoPropertyAvailableLanguageOptions_c =
-	typeof MPNowPlayingInfoPropertyAvailableLanguageOptions
+  typeof MPNowPlayingInfoPropertyAvailableLanguageOptions
 
 export type MPNowPlayingInfoPropertyChapterCount_c = typeof MPNowPlayingInfoPropertyChapterCount
 export type MPNowPlayingInfoPropertyChapterNumber_c = typeof MPNowPlayingInfoPropertyChapterNumber
 export type MPNowPlayingInfoPropertyCreditsStartTime_c =
-	typeof MPNowPlayingInfoPropertyCreditsStartTime
+  typeof MPNowPlayingInfoPropertyCreditsStartTime
 
 export type MPNowPlayingInfoPropertyCurrentLanguageOptions_c =
-	typeof MPNowPlayingInfoPropertyCurrentLanguageOptions
+  typeof MPNowPlayingInfoPropertyCurrentLanguageOptions
 
 export type MPNowPlayingInfoPropertyCurrentPlaybackDate_c =
-	typeof MPNowPlayingInfoPropertyCurrentPlaybackDate
+  typeof MPNowPlayingInfoPropertyCurrentPlaybackDate
 
 export type MPNowPlayingInfoPropertyDefaultPlaybackRate_c =
-	typeof MPNowPlayingInfoPropertyDefaultPlaybackRate
+  typeof MPNowPlayingInfoPropertyDefaultPlaybackRate
 
 export type MPNowPlayingInfoPropertyElapsedPlaybackTime_c =
-	typeof MPNowPlayingInfoPropertyElapsedPlaybackTime
+  typeof MPNowPlayingInfoPropertyElapsedPlaybackTime
 
 export type MPNowPlayingInfoPropertyExcludeFromSuggestions_c =
-	typeof MPNowPlayingInfoPropertyExcludeFromSuggestions
+  typeof MPNowPlayingInfoPropertyExcludeFromSuggestions
 
 export type MPNowPlayingInfoPropertyExternalContentIdentifier_c =
-	typeof MPNowPlayingInfoPropertyExternalContentIdentifier
+  typeof MPNowPlayingInfoPropertyExternalContentIdentifier
 
 export type MPNowPlayingInfoPropertyExternalUserProfileIdentifier_c =
-	typeof MPNowPlayingInfoPropertyExternalUserProfileIdentifier
+  typeof MPNowPlayingInfoPropertyExternalUserProfileIdentifier
 
 export type MPNowPlayingInfoPropertyInternationalStandardRecordingCode_c =
-	typeof MPNowPlayingInfoPropertyInternationalStandardRecordingCode
+  typeof MPNowPlayingInfoPropertyInternationalStandardRecordingCode
 
 export type MPNowPlayingInfoPropertyIsLiveStream_c = typeof MPNowPlayingInfoPropertyIsLiveStream
 export type MPNowPlayingInfoPropertyMediaType_c = typeof MPNowPlayingInfoPropertyMediaType
 export type MPNowPlayingInfoPropertyPlaybackProgress_c =
-	typeof MPNowPlayingInfoPropertyPlaybackProgress
+  typeof MPNowPlayingInfoPropertyPlaybackProgress
 
 export type MPNowPlayingInfoPropertyPlaybackQueueCount_c =
-	typeof MPNowPlayingInfoPropertyPlaybackQueueCount
+  typeof MPNowPlayingInfoPropertyPlaybackQueueCount
 
 export type MPNowPlayingInfoPropertyPlaybackQueueIndex_c =
-	typeof MPNowPlayingInfoPropertyPlaybackQueueIndex
+  typeof MPNowPlayingInfoPropertyPlaybackQueueIndex
 
 export type MPNowPlayingInfoPropertyPlaybackRate_c = typeof MPNowPlayingInfoPropertyPlaybackRate
 export type MPNowPlayingInfoPropertyServiceIdentifier_c =
-	typeof MPNowPlayingInfoPropertyServiceIdentifier
+  typeof MPNowPlayingInfoPropertyServiceIdentifier
 
 export type MPNowPlayingPlaybackState_t = MPNowPlayingPlaybackState
 export type MPNowPlayingPlaybackState_c = typeof MPNowPlayingPlaybackState
@@ -6375,10 +6375,10 @@ export type MPVolumeSettingsAlertShow_c = typeof MPVolumeSettingsAlertShow
 export type MPVolumeView_t = MPVolumeView
 export type MPVolumeView_c = typeof MPVolumeView
 export type MPVolumeViewWirelessRouteActiveDidChangeNotification_c =
-	typeof MPVolumeViewWirelessRouteActiveDidChangeNotification
+  typeof MPVolumeViewWirelessRouteActiveDidChangeNotification
 
 export type MPVolumeViewWirelessRoutesAvailableDidChangeNotification_c =
-	typeof MPVolumeViewWirelessRoutesAvailableDidChangeNotification
+  typeof MPVolumeViewWirelessRoutesAvailableDidChangeNotification
 
 export type MessageComposeResult_t = MessageComposeResult
 export type MessageComposeResult_c = typeof MessageComposeResult
@@ -6409,24 +6409,24 @@ export type NSAttributedStringEnumerationOptions_c = typeof NSAttributedStringEn
 export type NSAttributedStringFormattingOptions_t = NSAttributedStringFormattingOptions
 export type NSAttributedStringFormattingOptions_c = typeof NSAttributedStringFormattingOptions
 export type NSAttributedStringMarkdownInterpretedSyntax_t =
-	NSAttributedStringMarkdownInterpretedSyntax
+  NSAttributedStringMarkdownInterpretedSyntax
 
 export type NSAttributedStringMarkdownInterpretedSyntax_c =
-	typeof NSAttributedStringMarkdownInterpretedSyntax
+  typeof NSAttributedStringMarkdownInterpretedSyntax
 
 export type NSAttributedStringMarkdownParsingFailurePolicy_t =
-	NSAttributedStringMarkdownParsingFailurePolicy
+  NSAttributedStringMarkdownParsingFailurePolicy
 
 export type NSAttributedStringMarkdownParsingFailurePolicy_c =
-	typeof NSAttributedStringMarkdownParsingFailurePolicy
+  typeof NSAttributedStringMarkdownParsingFailurePolicy
 
 export type NSAttributedStringMarkdownParsingOptions_t = NSAttributedStringMarkdownParsingOptions
 export type NSAttributedStringMarkdownParsingOptions_c =
-	typeof NSAttributedStringMarkdownParsingOptions
+  typeof NSAttributedStringMarkdownParsingOptions
 
 export type NSAttributedStringMarkdownSourcePosition_t = NSAttributedStringMarkdownSourcePosition
 export type NSAttributedStringMarkdownSourcePosition_c =
-	typeof NSAttributedStringMarkdownSourcePosition
+  typeof NSAttributedStringMarkdownSourcePosition
 
 export type NSAutoreleasePool_t = NSAutoreleasePool
 export type NSAutoreleasePool_c = typeof NSAutoreleasePool
@@ -6450,21 +6450,21 @@ export type NSBundleExecutableArchitecturePPC_c = typeof NSBundleExecutableArchi
 export type NSBundleExecutableArchitecturePPC64_c = typeof NSBundleExecutableArchitecturePPC64
 export type NSBundleExecutableArchitectureX86_64_c = typeof NSBundleExecutableArchitectureX86_64
 export type NSBundleOnDemandResourceExceededMaximumSizeError_c =
-	typeof NSBundleOnDemandResourceExceededMaximumSizeError
+  typeof NSBundleOnDemandResourceExceededMaximumSizeError
 
 export type NSBundleOnDemandResourceInvalidTagError_c =
-	typeof NSBundleOnDemandResourceInvalidTagError
+  typeof NSBundleOnDemandResourceInvalidTagError
 
 export type NSBundleOnDemandResourceOutOfSpaceError_c =
-	typeof NSBundleOnDemandResourceOutOfSpaceError
+  typeof NSBundleOnDemandResourceOutOfSpaceError
 
 export type NSBundleResourceRequest_t = NSBundleResourceRequest
 export type NSBundleResourceRequest_c = typeof NSBundleResourceRequest
 export type NSBundleResourceRequestLoadingPriorityUrgent_c =
-	typeof NSBundleResourceRequestLoadingPriorityUrgent
+  typeof NSBundleResourceRequestLoadingPriorityUrgent
 
 export type NSBundleResourceRequestLowDiskSpaceNotification_c =
-	typeof NSBundleResourceRequestLowDiskSpaceNotification
+  typeof NSBundleResourceRequestLowDiskSpaceNotification
 
 export type NSByteCountFormatter_t = NSByteCountFormatter
 export type NSByteCountFormatter_c = typeof NSByteCountFormatter
@@ -6490,7 +6490,7 @@ export type NSCalendarIdentifierCoptic_c = typeof NSCalendarIdentifierCoptic
 export type NSCalendarIdentifierDangi_c = typeof NSCalendarIdentifierDangi
 export type NSCalendarIdentifierEthiopicAmeteAlem_c = typeof NSCalendarIdentifierEthiopicAmeteAlem
 export type NSCalendarIdentifierEthiopicAmeteMihret_c =
-	typeof NSCalendarIdentifierEthiopicAmeteMihret
+  typeof NSCalendarIdentifierEthiopicAmeteMihret
 
 export type NSCalendarIdentifierGregorian_c = typeof NSCalendarIdentifierGregorian
 export type NSCalendarIdentifierGujarati_c = typeof NSCalendarIdentifierGujarati
@@ -6547,10 +6547,10 @@ export type NSCollectionChangeType_c = typeof NSCollectionChangeType
 export type NSCollectionLayoutAnchor_t = NSCollectionLayoutAnchor
 export type NSCollectionLayoutAnchor_c = typeof NSCollectionLayoutAnchor
 export type NSCollectionLayoutBoundarySupplementaryItem_t =
-	NSCollectionLayoutBoundarySupplementaryItem
+  NSCollectionLayoutBoundarySupplementaryItem
 
 export type NSCollectionLayoutBoundarySupplementaryItem_c =
-	typeof NSCollectionLayoutBoundarySupplementaryItem
+  typeof NSCollectionLayoutBoundarySupplementaryItem
 
 export type NSCollectionLayoutContainer_t = NSCollectionLayoutContainer
 export type NSCollectionLayoutContainer_c = typeof NSCollectionLayoutContainer
@@ -6609,7 +6609,7 @@ export type NSControlCharacterLineBreakAction_c = typeof NSControlCharacterLineB
 export type NSControlCharacterParagraphBreakAction_c = typeof NSControlCharacterParagraphBreakAction
 export type NSControlCharacterWhitespaceAction_c = typeof NSControlCharacterWhitespaceAction
 export type NSControlCharacterZeroAdvancementAction_c =
-	typeof NSControlCharacterZeroAdvancementAction
+  typeof NSControlCharacterZeroAdvancementAction
 
 export type NSCopyHashTableWithZone_c = typeof NSCopyHashTableWithZone
 export type NSCopyMapTableWithZone_c = typeof NSCopyMapTableWithZone
@@ -6656,10 +6656,10 @@ export type NSDateComponentsFormatter_c = typeof NSDateComponentsFormatter
 export type NSDateComponentsFormatterUnitsStyle_t = NSDateComponentsFormatterUnitsStyle
 export type NSDateComponentsFormatterUnitsStyle_c = typeof NSDateComponentsFormatterUnitsStyle
 export type NSDateComponentsFormatterZeroFormattingBehavior_t =
-	NSDateComponentsFormatterZeroFormattingBehavior
+  NSDateComponentsFormatterZeroFormattingBehavior
 
 export type NSDateComponentsFormatterZeroFormattingBehavior_c =
-	typeof NSDateComponentsFormatterZeroFormattingBehavior
+  typeof NSDateComponentsFormatterZeroFormattingBehavior
 
 export type NSDateFormatter_t = NSDateFormatter
 export type NSDateFormatter_c = typeof NSDateFormatter
@@ -6715,19 +6715,19 @@ export type NSDictionary_t<KeyType, ObjectType> = NSDictionary<KeyType, ObjectTy
 export type NSDictionary_c = typeof NSDictionary
 export type NSDidBecomeSingleThreadedNotification_c = typeof NSDidBecomeSingleThreadedNotification
 export type NSDiffableDataSourceSectionSnapshot_t<ItemIdentifierType> =
-	NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>
+  NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>
 
 export type NSDiffableDataSourceSectionSnapshot_c = typeof NSDiffableDataSourceSectionSnapshot
 export type NSDiffableDataSourceSectionTransaction_t<SectionIdentifierType, ItemIdentifierType> =
-	NSDiffableDataSourceSectionTransaction<SectionIdentifierType, ItemIdentifierType>
+  NSDiffableDataSourceSectionTransaction<SectionIdentifierType, ItemIdentifierType>
 
 export type NSDiffableDataSourceSectionTransaction_c = typeof NSDiffableDataSourceSectionTransaction
 export type NSDiffableDataSourceSnapshot_t<SectionIdentifierType, ItemIdentifierType> =
-	NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
+  NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
 
 export type NSDiffableDataSourceSnapshot_c = typeof NSDiffableDataSourceSnapshot
 export type NSDiffableDataSourceTransaction_t<SectionIdentifierType, ItemIdentifierType> =
-	NSDiffableDataSourceTransaction<SectionIdentifierType, ItemIdentifierType>
+  NSDiffableDataSourceTransaction<SectionIdentifierType, ItemIdentifierType>
 
 export type NSDiffableDataSourceTransaction_c = typeof NSDiffableDataSourceTransaction
 export type NSDimension_t = NSDimension
@@ -6745,10 +6745,10 @@ export type NSDirectoryEnumerator_c = typeof NSDirectoryEnumerator
 export type NSDiscardableContent_t = NSDiscardableContent
 export type NSDiscardableContent_c = typeof NSDiscardableContent
 export type NSDistinctUnionOfArraysKeyValueOperator_c =
-	typeof NSDistinctUnionOfArraysKeyValueOperator
+  typeof NSDistinctUnionOfArraysKeyValueOperator
 
 export type NSDistinctUnionOfObjectsKeyValueOperator_c =
-	typeof NSDistinctUnionOfObjectsKeyValueOperator
+  typeof NSDistinctUnionOfObjectsKeyValueOperator
 
 export type NSDistinctUnionOfSetsKeyValueOperator_c = typeof NSDistinctUnionOfSetsKeyValueOperator
 export type NSDocumentTypeDocumentAttribute_c = typeof NSDocumentTypeDocumentAttribute
@@ -6785,30 +6785,30 @@ export type NSExpressionType_c = typeof NSExpressionType
 export type NSExtensionContext_t = NSExtensionContext
 export type NSExtensionContext_c = typeof NSExtensionContext
 export type NSExtensionHostDidBecomeActiveNotification_c =
-	typeof NSExtensionHostDidBecomeActiveNotification
+  typeof NSExtensionHostDidBecomeActiveNotification
 
 export type NSExtensionHostDidEnterBackgroundNotification_c =
-	typeof NSExtensionHostDidEnterBackgroundNotification
+  typeof NSExtensionHostDidEnterBackgroundNotification
 
 export type NSExtensionHostWillEnterForegroundNotification_c =
-	typeof NSExtensionHostWillEnterForegroundNotification
+  typeof NSExtensionHostWillEnterForegroundNotification
 
 export type NSExtensionHostWillResignActiveNotification_c =
-	typeof NSExtensionHostWillResignActiveNotification
+  typeof NSExtensionHostWillResignActiveNotification
 
 export type NSExtensionItem_t = NSExtensionItem
 export type NSExtensionItem_c = typeof NSExtensionItem
 export type NSExtensionItemAttachmentsKey_c = typeof NSExtensionItemAttachmentsKey
 export type NSExtensionItemAttributedContentTextKey_c =
-	typeof NSExtensionItemAttributedContentTextKey
+  typeof NSExtensionItemAttributedContentTextKey
 
 export type NSExtensionItemAttributedTitleKey_c = typeof NSExtensionItemAttributedTitleKey
 export type NSExtensionItemsAndErrorsKey_c = typeof NSExtensionItemsAndErrorsKey
 export type NSExtensionJavaScriptFinalizeArgumentKey_c =
-	typeof NSExtensionJavaScriptFinalizeArgumentKey
+  typeof NSExtensionJavaScriptFinalizeArgumentKey
 
 export type NSExtensionJavaScriptPreprocessingResultsKey_c =
-	typeof NSExtensionJavaScriptPreprocessingResultsKey
+  typeof NSExtensionJavaScriptPreprocessingResultsKey
 
 export type NSExtensionRequestHandling_t = NSExtensionRequestHandling
 export type NSExtensionRequestHandling_c = typeof NSExtensionRequestHandling
@@ -6840,7 +6840,7 @@ export type NSFileHFSTypeCode_c = typeof NSFileHFSTypeCode
 export type NSFileHandle_t = NSFileHandle
 export type NSFileHandle_c = typeof NSFileHandle
 export type NSFileHandleConnectionAcceptedNotification_c =
-	typeof NSFileHandleConnectionAcceptedNotification
+  typeof NSFileHandleConnectionAcceptedNotification
 
 export type NSFileHandleDataAvailableNotification_c = typeof NSFileHandleDataAvailableNotification
 export type NSFileHandleNotificationDataItem_c = typeof NSFileHandleNotificationDataItem
@@ -6849,7 +6849,7 @@ export type NSFileHandleNotificationMonitorModes_c = typeof NSFileHandleNotifica
 export type NSFileHandleOperationException_c = typeof NSFileHandleOperationException
 export type NSFileHandleReadCompletionNotification_c = typeof NSFileHandleReadCompletionNotification
 export type NSFileHandleReadToEndOfFileCompletionNotification_c =
-	typeof NSFileHandleReadToEndOfFileCompletionNotification
+  typeof NSFileHandleReadToEndOfFileCompletionNotification
 
 export type NSFileImmutable_c = typeof NSFileImmutable
 export type NSFileLockingError_c = typeof NSFileLockingError
@@ -6864,10 +6864,10 @@ export type NSFileManagerResumeSyncBehavior_c = typeof NSFileManagerResumeSyncBe
 export type NSFileManagerSupportedSyncControls_t = NSFileManagerSupportedSyncControls
 export type NSFileManagerSupportedSyncControls_c = typeof NSFileManagerSupportedSyncControls
 export type NSFileManagerUploadLocalVersionConflictPolicy_t =
-	NSFileManagerUploadLocalVersionConflictPolicy
+  NSFileManagerUploadLocalVersionConflictPolicy
 
 export type NSFileManagerUploadLocalVersionConflictPolicy_c =
-	typeof NSFileManagerUploadLocalVersionConflictPolicy
+  typeof NSFileManagerUploadLocalVersionConflictPolicy
 
 export type NSFileModificationDate_c = typeof NSFileModificationDate
 export type NSFileNoSuchFileError_c = typeof NSFileNoSuchFileError
@@ -6880,10 +6880,10 @@ export type NSFilePresenter_c = typeof NSFilePresenter
 export type NSFileProtectionComplete_c = typeof NSFileProtectionComplete
 export type NSFileProtectionCompleteUnlessOpen_c = typeof NSFileProtectionCompleteUnlessOpen
 export type NSFileProtectionCompleteUntilFirstUserAuthentication_c =
-	typeof NSFileProtectionCompleteUntilFirstUserAuthentication
+  typeof NSFileProtectionCompleteUntilFirstUserAuthentication
 
 export type NSFileProtectionCompleteWhenUserInactive_c =
-	typeof NSFileProtectionCompleteWhenUserInactive
+  typeof NSFileProtectionCompleteWhenUserInactive
 
 export type NSFileProtectionKey_c = typeof NSFileProtectionKey
 export type NSFileProtectionNone_c = typeof NSFileProtectionNone
@@ -6891,7 +6891,7 @@ export type NSFileProviderService_t = NSFileProviderService
 export type NSFileProviderService_c = typeof NSFileProviderService
 export type NSFileReadCorruptFileError_c = typeof NSFileReadCorruptFileError
 export type NSFileReadInapplicableStringEncodingError_c =
-	typeof NSFileReadInapplicableStringEncodingError
+  typeof NSFileReadInapplicableStringEncodingError
 
 export type NSFileReadInvalidFileNameError_c = typeof NSFileReadInvalidFileNameError
 export type NSFileReadNoPermissionError_c = typeof NSFileReadNoPermissionError
@@ -6932,7 +6932,7 @@ export type NSFileWrapperWritingOptions_t = NSFileWrapperWritingOptions
 export type NSFileWrapperWritingOptions_c = typeof NSFileWrapperWritingOptions
 export type NSFileWriteFileExistsError_c = typeof NSFileWriteFileExistsError
 export type NSFileWriteInapplicableStringEncodingError_c =
-	typeof NSFileWriteInapplicableStringEncodingError
+  typeof NSFileWriteInapplicableStringEncodingError
 
 export type NSFileWriteInvalidFileNameError_c = typeof NSFileWriteInvalidFileNameError
 export type NSFileWriteNoPermissionError_c = typeof NSFileWriteNoPermissionError
@@ -6990,10 +6990,10 @@ export type NSHTTPCookieDiscard_c = typeof NSHTTPCookieDiscard
 export type NSHTTPCookieDomain_c = typeof NSHTTPCookieDomain
 export type NSHTTPCookieExpires_c = typeof NSHTTPCookieExpires
 export type NSHTTPCookieManagerAcceptPolicyChangedNotification_c =
-	typeof NSHTTPCookieManagerAcceptPolicyChangedNotification
+  typeof NSHTTPCookieManagerAcceptPolicyChangedNotification
 
 export type NSHTTPCookieManagerCookiesChangedNotification_c =
-	typeof NSHTTPCookieManagerCookiesChangedNotification
+  typeof NSHTTPCookieManagerCookiesChangedNotification
 
 export type NSHTTPCookieMaximumAge_c = typeof NSHTTPCookieMaximumAge
 export type NSHTTPCookieName_c = typeof NSHTTPCookieName
@@ -7048,15 +7048,15 @@ export type NSIndexSet_t = NSIndexSet
 export type NSIndexSet_c = typeof NSIndexSet
 export type NSIndianCalendar_c = typeof NSIndianCalendar
 export type NSInflectionAgreementArgumentAttributeName_c =
-	typeof NSInflectionAgreementArgumentAttributeName
+  typeof NSInflectionAgreementArgumentAttributeName
 
 export type NSInflectionAgreementConceptAttributeName_c =
-	typeof NSInflectionAgreementConceptAttributeName
+  typeof NSInflectionAgreementConceptAttributeName
 
 export type NSInflectionAlternativeAttributeName_c = typeof NSInflectionAlternativeAttributeName
 export type NSInflectionConceptsKey_c = typeof NSInflectionConceptsKey
 export type NSInflectionReferentConceptAttributeName_c =
-	typeof NSInflectionReferentConceptAttributeName
+  typeof NSInflectionReferentConceptAttributeName
 
 export type NSInflectionRule_t = NSInflectionRule
 export type NSInflectionRule_c = typeof NSInflectionRule
@@ -7066,7 +7066,7 @@ export type NSInflectionRuleExplicit_c = typeof NSInflectionRuleExplicit
 export type NSInlinePresentationIntent_t = NSInlinePresentationIntent
 export type NSInlinePresentationIntent_c = typeof NSInlinePresentationIntent
 export type NSInlinePresentationIntentAttributeName_c =
-	typeof NSInlinePresentationIntentAttributeName
+  typeof NSInlinePresentationIntentAttributeName
 
 export type NSInputStream_t = NSInputStream
 export type NSInputStream_c = typeof NSInputStream
@@ -7084,10 +7084,10 @@ export type NSInvocation_c = typeof NSInvocation
 export type NSInvocationOperation_t = NSInvocationOperation
 export type NSInvocationOperation_c = typeof NSInvocationOperation
 export type NSInvocationOperationCancelledException_c =
-	typeof NSInvocationOperationCancelledException
+  typeof NSInvocationOperationCancelledException
 
 export type NSInvocationOperationVoidResultException_c =
-	typeof NSInvocationOperationVoidResultException
+  typeof NSInvocationOperationVoidResultException
 
 export type NSIsNilTransformerName_c = typeof NSIsNilTransformerName
 export type NSIsNotNilTransformerName_c = typeof NSIsNotNilTransformerName
@@ -7138,7 +7138,7 @@ export type NSKeyedArchiver_c = typeof NSKeyedArchiver
 export type NSKeyedArchiverDelegate_t = NSKeyedArchiverDelegate
 export type NSKeyedArchiverDelegate_c = typeof NSKeyedArchiverDelegate
 export type NSKeyedUnarchiveFromDataTransformerName_c =
-	typeof NSKeyedUnarchiveFromDataTransformerName
+  typeof NSKeyedUnarchiveFromDataTransformerName
 
 export type NSKeyedUnarchiver_t = NSKeyedUnarchiver
 export type NSKeyedUnarchiver_c = typeof NSKeyedUnarchiver
@@ -7205,7 +7205,7 @@ export type NSLinguisticTagSchemeLemma_c = typeof NSLinguisticTagSchemeLemma
 export type NSLinguisticTagSchemeLexicalClass_c = typeof NSLinguisticTagSchemeLexicalClass
 export type NSLinguisticTagSchemeNameType_c = typeof NSLinguisticTagSchemeNameType
 export type NSLinguisticTagSchemeNameTypeOrLexicalClass_c =
-	typeof NSLinguisticTagSchemeNameTypeOrLexicalClass
+  typeof NSLinguisticTagSchemeNameTypeOrLexicalClass
 
 export type NSLinguisticTagSchemeScript_c = typeof NSLinguisticTagSchemeScript
 export type NSLinguisticTagSchemeTokenType_c = typeof NSLinguisticTagSchemeTokenType
@@ -7228,10 +7228,10 @@ export type NSLoadedClasses_c = typeof NSLoadedClasses
 export type NSLocale_t = NSLocale
 export type NSLocale_c = typeof NSLocale
 export type NSLocaleAlternateQuotationBeginDelimiterKey_c =
-	typeof NSLocaleAlternateQuotationBeginDelimiterKey
+  typeof NSLocaleAlternateQuotationBeginDelimiterKey
 
 export type NSLocaleAlternateQuotationEndDelimiterKey_c =
-	typeof NSLocaleAlternateQuotationEndDelimiterKey
+  typeof NSLocaleAlternateQuotationEndDelimiterKey
 
 export type NSLocaleCalendar_c = typeof NSLocaleCalendar
 export type NSLocaleCollationIdentifier_c = typeof NSLocaleCollationIdentifier
@@ -7327,105 +7327,105 @@ export type NSMetadataItemURLKey_c = typeof NSMetadataItemURLKey
 export type NSMetadataQuery_t = NSMetadataQuery
 export type NSMetadataQuery_c = typeof NSMetadataQuery
 export type NSMetadataQueryAccessibleUbiquitousExternalDocumentsScope_c =
-	typeof NSMetadataQueryAccessibleUbiquitousExternalDocumentsScope
+  typeof NSMetadataQueryAccessibleUbiquitousExternalDocumentsScope
 
 export type NSMetadataQueryAttributeValueTuple_t = NSMetadataQueryAttributeValueTuple
 export type NSMetadataQueryAttributeValueTuple_c = typeof NSMetadataQueryAttributeValueTuple
 export type NSMetadataQueryDelegate_t = NSMetadataQueryDelegate
 export type NSMetadataQueryDelegate_c = typeof NSMetadataQueryDelegate
 export type NSMetadataQueryDidFinishGatheringNotification_c =
-	typeof NSMetadataQueryDidFinishGatheringNotification
+  typeof NSMetadataQueryDidFinishGatheringNotification
 
 export type NSMetadataQueryDidStartGatheringNotification_c =
-	typeof NSMetadataQueryDidStartGatheringNotification
+  typeof NSMetadataQueryDidStartGatheringNotification
 
 export type NSMetadataQueryDidUpdateNotification_c = typeof NSMetadataQueryDidUpdateNotification
 export type NSMetadataQueryGatheringProgressNotification_c =
-	typeof NSMetadataQueryGatheringProgressNotification
+  typeof NSMetadataQueryGatheringProgressNotification
 
 export type NSMetadataQueryResultContentRelevanceAttribute_c =
-	typeof NSMetadataQueryResultContentRelevanceAttribute
+  typeof NSMetadataQueryResultContentRelevanceAttribute
 
 export type NSMetadataQueryResultGroup_t = NSMetadataQueryResultGroup
 export type NSMetadataQueryResultGroup_c = typeof NSMetadataQueryResultGroup
 export type NSMetadataQueryUbiquitousDataScope_c = typeof NSMetadataQueryUbiquitousDataScope
 export type NSMetadataQueryUbiquitousDocumentsScope_c =
-	typeof NSMetadataQueryUbiquitousDocumentsScope
+  typeof NSMetadataQueryUbiquitousDocumentsScope
 
 export type NSMetadataQueryUpdateAddedItemsKey_c = typeof NSMetadataQueryUpdateAddedItemsKey
 export type NSMetadataQueryUpdateChangedItemsKey_c = typeof NSMetadataQueryUpdateChangedItemsKey
 export type NSMetadataQueryUpdateRemovedItemsKey_c = typeof NSMetadataQueryUpdateRemovedItemsKey
 export type NSMetadataUbiquitousItemContainerDisplayNameKey_c =
-	typeof NSMetadataUbiquitousItemContainerDisplayNameKey
+  typeof NSMetadataUbiquitousItemContainerDisplayNameKey
 
 export type NSMetadataUbiquitousItemDownloadRequestedKey_c =
-	typeof NSMetadataUbiquitousItemDownloadRequestedKey
+  typeof NSMetadataUbiquitousItemDownloadRequestedKey
 
 export type NSMetadataUbiquitousItemDownloadingErrorKey_c =
-	typeof NSMetadataUbiquitousItemDownloadingErrorKey
+  typeof NSMetadataUbiquitousItemDownloadingErrorKey
 
 export type NSMetadataUbiquitousItemDownloadingStatusCurrent_c =
-	typeof NSMetadataUbiquitousItemDownloadingStatusCurrent
+  typeof NSMetadataUbiquitousItemDownloadingStatusCurrent
 
 export type NSMetadataUbiquitousItemDownloadingStatusDownloaded_c =
-	typeof NSMetadataUbiquitousItemDownloadingStatusDownloaded
+  typeof NSMetadataUbiquitousItemDownloadingStatusDownloaded
 
 export type NSMetadataUbiquitousItemDownloadingStatusKey_c =
-	typeof NSMetadataUbiquitousItemDownloadingStatusKey
+  typeof NSMetadataUbiquitousItemDownloadingStatusKey
 
 export type NSMetadataUbiquitousItemDownloadingStatusNotDownloaded_c =
-	typeof NSMetadataUbiquitousItemDownloadingStatusNotDownloaded
+  typeof NSMetadataUbiquitousItemDownloadingStatusNotDownloaded
 
 export type NSMetadataUbiquitousItemHasUnresolvedConflictsKey_c =
-	typeof NSMetadataUbiquitousItemHasUnresolvedConflictsKey
+  typeof NSMetadataUbiquitousItemHasUnresolvedConflictsKey
 
 export type NSMetadataUbiquitousItemIsDownloadedKey_c =
-	typeof NSMetadataUbiquitousItemIsDownloadedKey
+  typeof NSMetadataUbiquitousItemIsDownloadedKey
 
 export type NSMetadataUbiquitousItemIsDownloadingKey_c =
-	typeof NSMetadataUbiquitousItemIsDownloadingKey
+  typeof NSMetadataUbiquitousItemIsDownloadingKey
 
 export type NSMetadataUbiquitousItemIsExternalDocumentKey_c =
-	typeof NSMetadataUbiquitousItemIsExternalDocumentKey
+  typeof NSMetadataUbiquitousItemIsExternalDocumentKey
 
 export type NSMetadataUbiquitousItemIsSharedKey_c = typeof NSMetadataUbiquitousItemIsSharedKey
 export type NSMetadataUbiquitousItemIsUploadedKey_c = typeof NSMetadataUbiquitousItemIsUploadedKey
 export type NSMetadataUbiquitousItemIsUploadingKey_c = typeof NSMetadataUbiquitousItemIsUploadingKey
 export type NSMetadataUbiquitousItemPercentDownloadedKey_c =
-	typeof NSMetadataUbiquitousItemPercentDownloadedKey
+  typeof NSMetadataUbiquitousItemPercentDownloadedKey
 
 export type NSMetadataUbiquitousItemPercentUploadedKey_c =
-	typeof NSMetadataUbiquitousItemPercentUploadedKey
+  typeof NSMetadataUbiquitousItemPercentUploadedKey
 
 export type NSMetadataUbiquitousItemURLInLocalContainerKey_c =
-	typeof NSMetadataUbiquitousItemURLInLocalContainerKey
+  typeof NSMetadataUbiquitousItemURLInLocalContainerKey
 
 export type NSMetadataUbiquitousItemUploadingErrorKey_c =
-	typeof NSMetadataUbiquitousItemUploadingErrorKey
+  typeof NSMetadataUbiquitousItemUploadingErrorKey
 
 export type NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey_c =
-	typeof NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey
+  typeof NSMetadataUbiquitousSharedItemCurrentUserPermissionsKey
 
 export type NSMetadataUbiquitousSharedItemCurrentUserRoleKey_c =
-	typeof NSMetadataUbiquitousSharedItemCurrentUserRoleKey
+  typeof NSMetadataUbiquitousSharedItemCurrentUserRoleKey
 
 export type NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey_c =
-	typeof NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey
+  typeof NSMetadataUbiquitousSharedItemMostRecentEditorNameComponentsKey
 
 export type NSMetadataUbiquitousSharedItemOwnerNameComponentsKey_c =
-	typeof NSMetadataUbiquitousSharedItemOwnerNameComponentsKey
+  typeof NSMetadataUbiquitousSharedItemOwnerNameComponentsKey
 
 export type NSMetadataUbiquitousSharedItemPermissionsReadOnly_c =
-	typeof NSMetadataUbiquitousSharedItemPermissionsReadOnly
+  typeof NSMetadataUbiquitousSharedItemPermissionsReadOnly
 
 export type NSMetadataUbiquitousSharedItemPermissionsReadWrite_c =
-	typeof NSMetadataUbiquitousSharedItemPermissionsReadWrite
+  typeof NSMetadataUbiquitousSharedItemPermissionsReadWrite
 
 export type NSMetadataUbiquitousSharedItemRoleOwner_c =
-	typeof NSMetadataUbiquitousSharedItemRoleOwner
+  typeof NSMetadataUbiquitousSharedItemRoleOwner
 
 export type NSMetadataUbiquitousSharedItemRoleParticipant_c =
-	typeof NSMetadataUbiquitousSharedItemRoleParticipant
+  typeof NSMetadataUbiquitousSharedItemRoleParticipant
 
 export type NSMethodSignature_t = NSMethodSignature
 export type NSMethodSignature_c = typeof NSMethodSignature
@@ -7533,7 +7533,7 @@ export type NSOperation_c = typeof NSOperation
 export type NSOperationQueue_t = NSOperationQueue
 export type NSOperationQueue_c = typeof NSOperationQueue
 export type NSOperationQueueDefaultMaxConcurrentOperationCount_c =
-	typeof NSOperationQueueDefaultMaxConcurrentOperationCount
+  typeof NSOperationQueueDefaultMaxConcurrentOperationCount
 
 export type NSOperationQueuePriority_t = NSOperationQueuePriority
 export type NSOperationQueuePriority_c = typeof NSOperationQueuePriority
@@ -7542,10 +7542,10 @@ export type NSOrderedCollectionChange_c = typeof NSOrderedCollectionChange
 export type NSOrderedCollectionDifference_t<ObjectType> = NSOrderedCollectionDifference<ObjectType>
 export type NSOrderedCollectionDifference_c = typeof NSOrderedCollectionDifference
 export type NSOrderedCollectionDifferenceCalculationOptions_t =
-	NSOrderedCollectionDifferenceCalculationOptions
+  NSOrderedCollectionDifferenceCalculationOptions
 
 export type NSOrderedCollectionDifferenceCalculationOptions_c =
-	typeof NSOrderedCollectionDifferenceCalculationOptions
+  typeof NSOrderedCollectionDifferenceCalculationOptions
 
 export type NSOrderedSet_t<ObjectType> = NSOrderedSet<ObjectType>
 export type NSOrderedSet_c = typeof NSOrderedSet
@@ -7615,17 +7615,17 @@ export type NSPresentationIntentKind_t = NSPresentationIntentKind
 export type NSPresentationIntentKind_c = typeof NSPresentationIntentKind
 export type NSPresentationIntentTableColumnAlignment_t = NSPresentationIntentTableColumnAlignment
 export type NSPresentationIntentTableColumnAlignment_c =
-	typeof NSPresentationIntentTableColumnAlignment
+  typeof NSPresentationIntentTableColumnAlignment
 
 export type NSProcessInfo_t = NSProcessInfo
 export type NSProcessInfo_c = typeof NSProcessInfo
 export type NSProcessInfoPowerStateDidChangeNotification_c =
-	typeof NSProcessInfoPowerStateDidChangeNotification
+  typeof NSProcessInfoPowerStateDidChangeNotification
 
 export type NSProcessInfoThermalState_t = NSProcessInfoThermalState
 export type NSProcessInfoThermalState_c = typeof NSProcessInfoThermalState
 export type NSProcessInfoThermalStateDidChangeNotification_c =
-	typeof NSProcessInfoThermalStateDidChangeNotification
+  typeof NSProcessInfoThermalStateDidChangeNotification
 
 export type NSProgress_t = NSProgress
 export type NSProgress_c = typeof NSProgress
@@ -7633,7 +7633,7 @@ export type NSProgressEstimatedTimeRemainingKey_c = typeof NSProgressEstimatedTi
 export type NSProgressFileCompletedCountKey_c = typeof NSProgressFileCompletedCountKey
 export type NSProgressFileOperationKindCopying_c = typeof NSProgressFileOperationKindCopying
 export type NSProgressFileOperationKindDecompressingAfterDownloading_c =
-	typeof NSProgressFileOperationKindDecompressingAfterDownloading
+  typeof NSProgressFileOperationKindDecompressingAfterDownloading
 
 export type NSProgressFileOperationKindDownloading_c = typeof NSProgressFileOperationKindDownloading
 export type NSProgressFileOperationKindDuplicating_c = typeof NSProgressFileOperationKindDuplicating
@@ -7716,7 +7716,7 @@ export type NSSecureCoding_c = typeof NSSecureCoding
 export type NSSecureUnarchiveFromDataTransformer_t = NSSecureUnarchiveFromDataTransformer
 export type NSSecureUnarchiveFromDataTransformer_c = typeof NSSecureUnarchiveFromDataTransformer
 export type NSSecureUnarchiveFromDataTransformerName_c =
-	typeof NSSecureUnarchiveFromDataTransformerName
+  typeof NSSecureUnarchiveFromDataTransformerName
 
 export type NSSelectorFromString_c = typeof NSSelectorFromString
 export type NSSet_t<ObjectType> = NSSet<ObjectType>
@@ -7750,7 +7750,7 @@ export type NSStreamFileCurrentOffsetKey_c = typeof NSStreamFileCurrentOffsetKey
 export type NSStreamNetworkServiceType_c = typeof NSStreamNetworkServiceType
 export type NSStreamNetworkServiceTypeBackground_c = typeof NSStreamNetworkServiceTypeBackground
 export type NSStreamNetworkServiceTypeCallSignaling_c =
-	typeof NSStreamNetworkServiceTypeCallSignaling
+  typeof NSStreamNetworkServiceTypeCallSignaling
 
 export type NSStreamNetworkServiceTypeVideo_c = typeof NSStreamNetworkServiceTypeVideo
 export type NSStreamNetworkServiceTypeVoIP_c = typeof NSStreamNetworkServiceTypeVoIP
@@ -7767,7 +7767,7 @@ export type NSStreamSOCKSProxyVersionKey_c = typeof NSStreamSOCKSProxyVersionKey
 export type NSStreamSocketSSLErrorDomain_c = typeof NSStreamSocketSSLErrorDomain
 export type NSStreamSocketSecurityLevelKey_c = typeof NSStreamSocketSecurityLevelKey
 export type NSStreamSocketSecurityLevelNegotiatedSSL_c =
-	typeof NSStreamSocketSecurityLevelNegotiatedSSL
+  typeof NSStreamSocketSecurityLevelNegotiatedSSL
 
 export type NSStreamSocketSecurityLevelNone_c = typeof NSStreamSocketSecurityLevelNone
 export type NSStreamSocketSecurityLevelSSLv2_c = typeof NSStreamSocketSecurityLevelSSLv2
@@ -7789,22 +7789,22 @@ export type NSStringEncodingConversionOptions_t = NSStringEncodingConversionOpti
 export type NSStringEncodingConversionOptions_c = typeof NSStringEncodingConversionOptions
 export type NSStringEncodingDetectionAllowLossyKey_c = typeof NSStringEncodingDetectionAllowLossyKey
 export type NSStringEncodingDetectionDisallowedEncodingsKey_c =
-	typeof NSStringEncodingDetectionDisallowedEncodingsKey
+  typeof NSStringEncodingDetectionDisallowedEncodingsKey
 
 export type NSStringEncodingDetectionFromWindowsKey_c =
-	typeof NSStringEncodingDetectionFromWindowsKey
+  typeof NSStringEncodingDetectionFromWindowsKey
 
 export type NSStringEncodingDetectionLikelyLanguageKey_c =
-	typeof NSStringEncodingDetectionLikelyLanguageKey
+  typeof NSStringEncodingDetectionLikelyLanguageKey
 
 export type NSStringEncodingDetectionLossySubstitutionKey_c =
-	typeof NSStringEncodingDetectionLossySubstitutionKey
+  typeof NSStringEncodingDetectionLossySubstitutionKey
 
 export type NSStringEncodingDetectionSuggestedEncodingsKey_c =
-	typeof NSStringEncodingDetectionSuggestedEncodingsKey
+  typeof NSStringEncodingDetectionSuggestedEncodingsKey
 
 export type NSStringEncodingDetectionUseOnlySuggestedEncodingsKey_c =
-	typeof NSStringEncodingDetectionUseOnlySuggestedEncodingsKey
+  typeof NSStringEncodingDetectionUseOnlySuggestedEncodingsKey
 
 export type NSStringEncodingErrorKey_c = typeof NSStringEncodingErrorKey
 export type NSStringEnumerationOptions_t = NSStringEnumerationOptions
@@ -7908,7 +7908,7 @@ export type NSTextContentStorage_c = typeof NSTextContentStorage
 export type NSTextContentStorageDelegate_t = NSTextContentStorageDelegate
 export type NSTextContentStorageDelegate_c = typeof NSTextContentStorageDelegate
 export type NSTextContentStorageUnsupportedAttributeAddedNotification_c =
-	typeof NSTextContentStorageUnsupportedAttributeAddedNotification
+  typeof NSTextContentStorageUnsupportedAttributeAddedNotification
 
 export type NSTextEffectAttributeName_c = typeof NSTextEffectAttributeName
 export type NSTextEffectLetterpressStyle_c = typeof NSTextEffectLetterpressStyle
@@ -7917,7 +7917,7 @@ export type NSTextElement_c = typeof NSTextElement
 export type NSTextElementProvider_t = NSTextElementProvider
 export type NSTextElementProvider_c = typeof NSTextElementProvider
 export type NSTextHighlightColorSchemeAttributeName_c =
-	typeof NSTextHighlightColorSchemeAttributeName
+  typeof NSTextHighlightColorSchemeAttributeName
 
 export type NSTextHighlightColorSchemeBlue_c = typeof NSTextHighlightColorSchemeBlue
 export type NSTextHighlightColorSchemeDefault_c = typeof NSTextHighlightColorSchemeDefault
@@ -7928,7 +7928,7 @@ export type NSTextHighlightColorSchemePurple_c = typeof NSTextHighlightColorSche
 export type NSTextHighlightStyleAttributeName_c = typeof NSTextHighlightStyleAttributeName
 export type NSTextHighlightStyleDefault_c = typeof NSTextHighlightStyleDefault
 export type NSTextKit1ListMarkerFormatDocumentOption_c =
-	typeof NSTextKit1ListMarkerFormatDocumentOption
+  typeof NSTextKit1ListMarkerFormatDocumentOption
 
 export type NSTextLayoutFragment_t = NSTextLayoutFragment
 export type NSTextLayoutFragment_c = typeof NSTextLayoutFragment
@@ -8000,30 +8000,30 @@ export type NSTextSelectionNavigationDestination_c = typeof NSTextSelectionNavig
 export type NSTextSelectionNavigationDirection_t = NSTextSelectionNavigationDirection
 export type NSTextSelectionNavigationDirection_c = typeof NSTextSelectionNavigationDirection
 export type NSTextSelectionNavigationLayoutOrientation_t =
-	NSTextSelectionNavigationLayoutOrientation
+  NSTextSelectionNavigationLayoutOrientation
 
 export type NSTextSelectionNavigationLayoutOrientation_c =
-	typeof NSTextSelectionNavigationLayoutOrientation
+  typeof NSTextSelectionNavigationLayoutOrientation
 
 export type NSTextSelectionNavigationModifier_t = NSTextSelectionNavigationModifier
 export type NSTextSelectionNavigationModifier_c = typeof NSTextSelectionNavigationModifier
 export type NSTextSelectionNavigationWritingDirection_t = NSTextSelectionNavigationWritingDirection
 export type NSTextSelectionNavigationWritingDirection_c =
-	typeof NSTextSelectionNavigationWritingDirection
+  typeof NSTextSelectionNavigationWritingDirection
 
 export type NSTextStorage_t = NSTextStorage
 export type NSTextStorage_c = typeof NSTextStorage
 export type NSTextStorageDelegate_t = NSTextStorageDelegate
 export type NSTextStorageDelegate_c = typeof NSTextStorageDelegate
 export type NSTextStorageDidProcessEditingNotification_c =
-	typeof NSTextStorageDidProcessEditingNotification
+  typeof NSTextStorageDidProcessEditingNotification
 
 export type NSTextStorageEditActions_t = NSTextStorageEditActions
 export type NSTextStorageEditActions_c = typeof NSTextStorageEditActions
 export type NSTextStorageObserving_t = NSTextStorageObserving
 export type NSTextStorageObserving_c = typeof NSTextStorageObserving
 export type NSTextStorageWillProcessEditingNotification_c =
-	typeof NSTextStorageWillProcessEditingNotification
+  typeof NSTextStorageWillProcessEditingNotification
 
 export type NSTextTab_t = NSTextTab
 export type NSTextTab_c = typeof NSTextTab
@@ -8063,7 +8063,7 @@ export type NSURLAuthenticationChallenge_c = typeof NSURLAuthenticationChallenge
 export type NSURLAuthenticationChallengeSender_t = NSURLAuthenticationChallengeSender
 export type NSURLAuthenticationChallengeSender_c = typeof NSURLAuthenticationChallengeSender
 export type NSURLAuthenticationMethodClientCertificate_c =
-	typeof NSURLAuthenticationMethodClientCertificate
+  typeof NSURLAuthenticationMethodClientCertificate
 
 export type NSURLAuthenticationMethodDefault_c = typeof NSURLAuthenticationMethodDefault
 export type NSURLAuthenticationMethodHTMLForm_c = typeof NSURLAuthenticationMethodHTMLForm
@@ -8102,42 +8102,42 @@ export type NSURLCredentialPersistence_c = typeof NSURLCredentialPersistence
 export type NSURLCredentialStorage_t = NSURLCredentialStorage
 export type NSURLCredentialStorage_c = typeof NSURLCredentialStorage
 export type NSURLCredentialStorageChangedNotification_c =
-	typeof NSURLCredentialStorageChangedNotification
+  typeof NSURLCredentialStorageChangedNotification
 
 export type NSURLCredentialStorageRemoveSynchronizableCredentials_c =
-	typeof NSURLCredentialStorageRemoveSynchronizableCredentials
+  typeof NSURLCredentialStorageRemoveSynchronizableCredentials
 
 export type NSURLCustomIconKey_c = typeof NSURLCustomIconKey
 export type NSURLDirectoryEntryCountKey_c = typeof NSURLDirectoryEntryCountKey
 export type NSURLDocumentIdentifierKey_c = typeof NSURLDocumentIdentifierKey
 export type NSURLEffectiveIconKey_c = typeof NSURLEffectiveIconKey
 export type NSURLErrorAppTransportSecurityRequiresSecureConnection_c =
-	typeof NSURLErrorAppTransportSecurityRequiresSecureConnection
+  typeof NSURLErrorAppTransportSecurityRequiresSecureConnection
 
 export type NSURLErrorBackgroundSessionInUseByAnotherProcess_c =
-	typeof NSURLErrorBackgroundSessionInUseByAnotherProcess
+  typeof NSURLErrorBackgroundSessionInUseByAnotherProcess
 
 export type NSURLErrorBackgroundSessionRequiresSharedContainer_c =
-	typeof NSURLErrorBackgroundSessionRequiresSharedContainer
+  typeof NSURLErrorBackgroundSessionRequiresSharedContainer
 
 export type NSURLErrorBackgroundSessionWasDisconnected_c =
-	typeof NSURLErrorBackgroundSessionWasDisconnected
+  typeof NSURLErrorBackgroundSessionWasDisconnected
 
 export type NSURLErrorBackgroundTaskCancelledReasonKey_c =
-	typeof NSURLErrorBackgroundTaskCancelledReasonKey
+  typeof NSURLErrorBackgroundTaskCancelledReasonKey
 
 export type NSURLErrorBadServerResponse_c = typeof NSURLErrorBadServerResponse
 export type NSURLErrorBadURL_c = typeof NSURLErrorBadURL
 export type NSURLErrorCallIsActive_c = typeof NSURLErrorCallIsActive
 export type NSURLErrorCancelled_c = typeof NSURLErrorCancelled
 export type NSURLErrorCancelledReasonBackgroundUpdatesDisabled_c =
-	typeof NSURLErrorCancelledReasonBackgroundUpdatesDisabled
+  typeof NSURLErrorCancelledReasonBackgroundUpdatesDisabled
 
 export type NSURLErrorCancelledReasonInsufficientSystemResources_c =
-	typeof NSURLErrorCancelledReasonInsufficientSystemResources
+  typeof NSURLErrorCancelledReasonInsufficientSystemResources
 
 export type NSURLErrorCancelledReasonUserForceQuitApplication_c =
-	typeof NSURLErrorCancelledReasonUserForceQuitApplication
+  typeof NSURLErrorCancelledReasonUserForceQuitApplication
 
 export type NSURLErrorCannotCloseFile_c = typeof NSURLErrorCannotCloseFile
 export type NSURLErrorCannotConnectToHost_c = typeof NSURLErrorCannotConnectToHost
@@ -8158,10 +8158,10 @@ export type NSURLErrorDataLengthExceedsMaximum_c = typeof NSURLErrorDataLengthEx
 export type NSURLErrorDataNotAllowed_c = typeof NSURLErrorDataNotAllowed
 export type NSURLErrorDomain_c = typeof NSURLErrorDomain
 export type NSURLErrorDownloadDecodingFailedMidStream_c =
-	typeof NSURLErrorDownloadDecodingFailedMidStream
+  typeof NSURLErrorDownloadDecodingFailedMidStream
 
 export type NSURLErrorDownloadDecodingFailedToComplete_c =
-	typeof NSURLErrorDownloadDecodingFailedToComplete
+  typeof NSURLErrorDownloadDecodingFailedToComplete
 
 export type NSURLErrorFailingURLErrorKey_c = typeof NSURLErrorFailingURLErrorKey
 export type NSURLErrorFailingURLPeerTrustErrorKey_c = typeof NSURLErrorFailingURLPeerTrustErrorKey
@@ -8179,14 +8179,14 @@ export type NSURLErrorNetworkUnavailableReasonKey_c = typeof NSURLErrorNetworkUn
 export type NSURLErrorNoPermissionsToReadFile_c = typeof NSURLErrorNoPermissionsToReadFile
 export type NSURLErrorNotConnectedToInternet_c = typeof NSURLErrorNotConnectedToInternet
 export type NSURLErrorRedirectToNonExistentLocation_c =
-	typeof NSURLErrorRedirectToNonExistentLocation
+  typeof NSURLErrorRedirectToNonExistentLocation
 
 export type NSURLErrorRequestBodyStreamExhausted_c = typeof NSURLErrorRequestBodyStreamExhausted
 export type NSURLErrorResourceUnavailable_c = typeof NSURLErrorResourceUnavailable
 export type NSURLErrorSecureConnectionFailed_c = typeof NSURLErrorSecureConnectionFailed
 export type NSURLErrorServerCertificateHasBadDate_c = typeof NSURLErrorServerCertificateHasBadDate
 export type NSURLErrorServerCertificateHasUnknownRoot_c =
-	typeof NSURLErrorServerCertificateHasUnknownRoot
+  typeof NSURLErrorServerCertificateHasUnknownRoot
 
 export type NSURLErrorServerCertificateNotYetValid_c = typeof NSURLErrorServerCertificateNotYetValid
 export type NSURLErrorServerCertificateUntrusted_c = typeof NSURLErrorServerCertificateUntrusted
@@ -8202,10 +8202,10 @@ export type NSURLFileIdentifierKey_c = typeof NSURLFileIdentifierKey
 export type NSURLFileProtectionComplete_c = typeof NSURLFileProtectionComplete
 export type NSURLFileProtectionCompleteUnlessOpen_c = typeof NSURLFileProtectionCompleteUnlessOpen
 export type NSURLFileProtectionCompleteUntilFirstUserAuthentication_c =
-	typeof NSURLFileProtectionCompleteUntilFirstUserAuthentication
+  typeof NSURLFileProtectionCompleteUntilFirstUserAuthentication
 
 export type NSURLFileProtectionCompleteWhenUserInactive_c =
-	typeof NSURLFileProtectionCompleteWhenUserInactive
+  typeof NSURLFileProtectionCompleteWhenUserInactive
 
 export type NSURLFileProtectionKey_c = typeof NSURLFileProtectionKey
 export type NSURLFileProtectionNone_c = typeof NSURLFileProtectionNone
@@ -8316,14 +8316,14 @@ export type NSURLSessionTaskDelegate_c = typeof NSURLSessionTaskDelegate
 export type NSURLSessionTaskMetrics_t = NSURLSessionTaskMetrics
 export type NSURLSessionTaskMetrics_c = typeof NSURLSessionTaskMetrics
 export type NSURLSessionTaskMetricsDomainResolutionProtocol_t =
-	NSURLSessionTaskMetricsDomainResolutionProtocol
+  NSURLSessionTaskMetricsDomainResolutionProtocol
 
 export type NSURLSessionTaskMetricsDomainResolutionProtocol_c =
-	typeof NSURLSessionTaskMetricsDomainResolutionProtocol
+  typeof NSURLSessionTaskMetricsDomainResolutionProtocol
 
 export type NSURLSessionTaskMetricsResourceFetchType_t = NSURLSessionTaskMetricsResourceFetchType
 export type NSURLSessionTaskMetricsResourceFetchType_c =
-	typeof NSURLSessionTaskMetricsResourceFetchType
+  typeof NSURLSessionTaskMetricsResourceFetchType
 
 export type NSURLSessionTaskPriorityDefault_c = typeof NSURLSessionTaskPriorityDefault
 export type NSURLSessionTaskPriorityHigh_c = typeof NSURLSessionTaskPriorityHigh
@@ -8351,71 +8351,71 @@ export type NSURLTotalFileAllocatedSizeKey_c = typeof NSURLTotalFileAllocatedSiz
 export type NSURLTotalFileSizeKey_c = typeof NSURLTotalFileSizeKey
 export type NSURLTypeIdentifierKey_c = typeof NSURLTypeIdentifierKey
 export type NSURLUbiquitousItemContainerDisplayNameKey_c =
-	typeof NSURLUbiquitousItemContainerDisplayNameKey
+  typeof NSURLUbiquitousItemContainerDisplayNameKey
 
 export type NSURLUbiquitousItemDownloadRequestedKey_c =
-	typeof NSURLUbiquitousItemDownloadRequestedKey
+  typeof NSURLUbiquitousItemDownloadRequestedKey
 
 export type NSURLUbiquitousItemDownloadingErrorKey_c = typeof NSURLUbiquitousItemDownloadingErrorKey
 export type NSURLUbiquitousItemDownloadingStatusCurrent_c =
-	typeof NSURLUbiquitousItemDownloadingStatusCurrent
+  typeof NSURLUbiquitousItemDownloadingStatusCurrent
 
 export type NSURLUbiquitousItemDownloadingStatusDownloaded_c =
-	typeof NSURLUbiquitousItemDownloadingStatusDownloaded
+  typeof NSURLUbiquitousItemDownloadingStatusDownloaded
 
 export type NSURLUbiquitousItemDownloadingStatusKey_c =
-	typeof NSURLUbiquitousItemDownloadingStatusKey
+  typeof NSURLUbiquitousItemDownloadingStatusKey
 
 export type NSURLUbiquitousItemDownloadingStatusNotDownloaded_c =
-	typeof NSURLUbiquitousItemDownloadingStatusNotDownloaded
+  typeof NSURLUbiquitousItemDownloadingStatusNotDownloaded
 
 export type NSURLUbiquitousItemHasUnresolvedConflictsKey_c =
-	typeof NSURLUbiquitousItemHasUnresolvedConflictsKey
+  typeof NSURLUbiquitousItemHasUnresolvedConflictsKey
 
 export type NSURLUbiquitousItemIsDownloadedKey_c = typeof NSURLUbiquitousItemIsDownloadedKey
 export type NSURLUbiquitousItemIsDownloadingKey_c = typeof NSURLUbiquitousItemIsDownloadingKey
 export type NSURLUbiquitousItemIsExcludedFromSyncKey_c =
-	typeof NSURLUbiquitousItemIsExcludedFromSyncKey
+  typeof NSURLUbiquitousItemIsExcludedFromSyncKey
 
 export type NSURLUbiquitousItemIsSharedKey_c = typeof NSURLUbiquitousItemIsSharedKey
 export type NSURLUbiquitousItemIsSyncPausedKey_c = typeof NSURLUbiquitousItemIsSyncPausedKey
 export type NSURLUbiquitousItemIsUploadedKey_c = typeof NSURLUbiquitousItemIsUploadedKey
 export type NSURLUbiquitousItemIsUploadingKey_c = typeof NSURLUbiquitousItemIsUploadingKey
 export type NSURLUbiquitousItemPercentDownloadedKey_c =
-	typeof NSURLUbiquitousItemPercentDownloadedKey
+  typeof NSURLUbiquitousItemPercentDownloadedKey
 
 export type NSURLUbiquitousItemPercentUploadedKey_c = typeof NSURLUbiquitousItemPercentUploadedKey
 export type NSURLUbiquitousItemSupportedSyncControlsKey_c =
-	typeof NSURLUbiquitousItemSupportedSyncControlsKey
+  typeof NSURLUbiquitousItemSupportedSyncControlsKey
 
 export type NSURLUbiquitousItemUploadingErrorKey_c = typeof NSURLUbiquitousItemUploadingErrorKey
 export type NSURLUbiquitousSharedItemCurrentUserPermissionsKey_c =
-	typeof NSURLUbiquitousSharedItemCurrentUserPermissionsKey
+  typeof NSURLUbiquitousSharedItemCurrentUserPermissionsKey
 
 export type NSURLUbiquitousSharedItemCurrentUserRoleKey_c =
-	typeof NSURLUbiquitousSharedItemCurrentUserRoleKey
+  typeof NSURLUbiquitousSharedItemCurrentUserRoleKey
 
 export type NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey_c =
-	typeof NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey
+  typeof NSURLUbiquitousSharedItemMostRecentEditorNameComponentsKey
 
 export type NSURLUbiquitousSharedItemOwnerNameComponentsKey_c =
-	typeof NSURLUbiquitousSharedItemOwnerNameComponentsKey
+  typeof NSURLUbiquitousSharedItemOwnerNameComponentsKey
 
 export type NSURLUbiquitousSharedItemPermissionsReadOnly_c =
-	typeof NSURLUbiquitousSharedItemPermissionsReadOnly
+  typeof NSURLUbiquitousSharedItemPermissionsReadOnly
 
 export type NSURLUbiquitousSharedItemPermissionsReadWrite_c =
-	typeof NSURLUbiquitousSharedItemPermissionsReadWrite
+  typeof NSURLUbiquitousSharedItemPermissionsReadWrite
 
 export type NSURLUbiquitousSharedItemRoleOwner_c = typeof NSURLUbiquitousSharedItemRoleOwner
 export type NSURLUbiquitousSharedItemRoleParticipant_c =
-	typeof NSURLUbiquitousSharedItemRoleParticipant
+  typeof NSURLUbiquitousSharedItemRoleParticipant
 
 export type NSURLVolumeAvailableCapacityForImportantUsageKey_c =
-	typeof NSURLVolumeAvailableCapacityForImportantUsageKey
+  typeof NSURLVolumeAvailableCapacityForImportantUsageKey
 
 export type NSURLVolumeAvailableCapacityForOpportunisticUsageKey_c =
-	typeof NSURLVolumeAvailableCapacityForOpportunisticUsageKey
+  typeof NSURLVolumeAvailableCapacityForOpportunisticUsageKey
 
 export type NSURLVolumeAvailableCapacityKey_c = typeof NSURLVolumeAvailableCapacityKey
 export type NSURLVolumeCreationDateKey_c = typeof NSURLVolumeCreationDateKey
@@ -8431,7 +8431,7 @@ export type NSURLVolumeIsReadOnlyKey_c = typeof NSURLVolumeIsReadOnlyKey
 export type NSURLVolumeIsRemovableKey_c = typeof NSURLVolumeIsRemovableKey
 export type NSURLVolumeIsRootFileSystemKey_c = typeof NSURLVolumeIsRootFileSystemKey
 export type NSURLVolumeLocalizedFormatDescriptionKey_c =
-	typeof NSURLVolumeLocalizedFormatDescriptionKey
+  typeof NSURLVolumeLocalizedFormatDescriptionKey
 
 export type NSURLVolumeLocalizedNameKey_c = typeof NSURLVolumeLocalizedNameKey
 export type NSURLVolumeMaximumFileSizeKey_c = typeof NSURLVolumeMaximumFileSizeKey
@@ -8440,20 +8440,20 @@ export type NSURLVolumeNameKey_c = typeof NSURLVolumeNameKey
 export type NSURLVolumeResourceCountKey_c = typeof NSURLVolumeResourceCountKey
 export type NSURLVolumeSubtypeKey_c = typeof NSURLVolumeSubtypeKey
 export type NSURLVolumeSupportsAccessPermissionsKey_c =
-	typeof NSURLVolumeSupportsAccessPermissionsKey
+  typeof NSURLVolumeSupportsAccessPermissionsKey
 
 export type NSURLVolumeSupportsAdvisoryFileLockingKey_c =
-	typeof NSURLVolumeSupportsAdvisoryFileLockingKey
+  typeof NSURLVolumeSupportsAdvisoryFileLockingKey
 
 export type NSURLVolumeSupportsCasePreservedNamesKey_c =
-	typeof NSURLVolumeSupportsCasePreservedNamesKey
+  typeof NSURLVolumeSupportsCasePreservedNamesKey
 
 export type NSURLVolumeSupportsCaseSensitiveNamesKey_c =
-	typeof NSURLVolumeSupportsCaseSensitiveNamesKey
+  typeof NSURLVolumeSupportsCaseSensitiveNamesKey
 
 export type NSURLVolumeSupportsCompressionKey_c = typeof NSURLVolumeSupportsCompressionKey
 export type NSURLVolumeSupportsExclusiveRenamingKey_c =
-	typeof NSURLVolumeSupportsExclusiveRenamingKey
+  typeof NSURLVolumeSupportsExclusiveRenamingKey
 
 export type NSURLVolumeSupportsExtendedSecurityKey_c = typeof NSURLVolumeSupportsExtendedSecurityKey
 export type NSURLVolumeSupportsFileCloningKey_c = typeof NSURLVolumeSupportsFileCloningKey
@@ -8464,7 +8464,7 @@ export type NSURLVolumeSupportsJournalingKey_c = typeof NSURLVolumeSupportsJourn
 export type NSURLVolumeSupportsPersistentIDsKey_c = typeof NSURLVolumeSupportsPersistentIDsKey
 export type NSURLVolumeSupportsRenamingKey_c = typeof NSURLVolumeSupportsRenamingKey
 export type NSURLVolumeSupportsRootDirectoryDatesKey_c =
-	typeof NSURLVolumeSupportsRootDirectoryDatesKey
+  typeof NSURLVolumeSupportsRootDirectoryDatesKey
 
 export type NSURLVolumeSupportsSparseFilesKey_c = typeof NSURLVolumeSupportsSparseFilesKey
 export type NSURLVolumeSupportsSwapRenamingKey_c = typeof NSURLVolumeSupportsSwapRenamingKey
@@ -8488,42 +8488,42 @@ export type NSUUID_c = typeof NSUUID
 export type NSUbiquitousFileErrorMaximum_c = typeof NSUbiquitousFileErrorMaximum
 export type NSUbiquitousFileErrorMinimum_c = typeof NSUbiquitousFileErrorMinimum
 export type NSUbiquitousFileNotUploadedDueToQuotaError_c =
-	typeof NSUbiquitousFileNotUploadedDueToQuotaError
+  typeof NSUbiquitousFileNotUploadedDueToQuotaError
 
 export type NSUbiquitousFileUbiquityServerNotAvailable_c =
-	typeof NSUbiquitousFileUbiquityServerNotAvailable
+  typeof NSUbiquitousFileUbiquityServerNotAvailable
 
 export type NSUbiquitousFileUnavailableError_c = typeof NSUbiquitousFileUnavailableError
 export type NSUbiquitousKeyValueStore_t = NSUbiquitousKeyValueStore
 export type NSUbiquitousKeyValueStore_c = typeof NSUbiquitousKeyValueStore
 export type NSUbiquitousKeyValueStoreAccountChange_c = typeof NSUbiquitousKeyValueStoreAccountChange
 export type NSUbiquitousKeyValueStoreChangeReasonKey_c =
-	typeof NSUbiquitousKeyValueStoreChangeReasonKey
+  typeof NSUbiquitousKeyValueStoreChangeReasonKey
 
 export type NSUbiquitousKeyValueStoreChangedKeysKey_c =
-	typeof NSUbiquitousKeyValueStoreChangedKeysKey
+  typeof NSUbiquitousKeyValueStoreChangedKeysKey
 
 export type NSUbiquitousKeyValueStoreDidChangeExternallyNotification_c =
-	typeof NSUbiquitousKeyValueStoreDidChangeExternallyNotification
+  typeof NSUbiquitousKeyValueStoreDidChangeExternallyNotification
 
 export type NSUbiquitousKeyValueStoreInitialSyncChange_c =
-	typeof NSUbiquitousKeyValueStoreInitialSyncChange
+  typeof NSUbiquitousKeyValueStoreInitialSyncChange
 
 export type NSUbiquitousKeyValueStoreQuotaViolationChange_c =
-	typeof NSUbiquitousKeyValueStoreQuotaViolationChange
+  typeof NSUbiquitousKeyValueStoreQuotaViolationChange
 
 export type NSUbiquitousKeyValueStoreServerChange_c = typeof NSUbiquitousKeyValueStoreServerChange
 export type NSUbiquitousUserDefaultsCompletedInitialSyncNotification_c =
-	typeof NSUbiquitousUserDefaultsCompletedInitialSyncNotification
+  typeof NSUbiquitousUserDefaultsCompletedInitialSyncNotification
 
 export type NSUbiquitousUserDefaultsDidChangeAccountsNotification_c =
-	typeof NSUbiquitousUserDefaultsDidChangeAccountsNotification
+  typeof NSUbiquitousUserDefaultsDidChangeAccountsNotification
 
 export type NSUbiquitousUserDefaultsNoCloudAccountNotification_c =
-	typeof NSUbiquitousUserDefaultsNoCloudAccountNotification
+  typeof NSUbiquitousUserDefaultsNoCloudAccountNotification
 
 export type NSUbiquityIdentityDidChangeNotification_c =
-	typeof NSUbiquityIdentityDidChangeNotification
+  typeof NSUbiquityIdentityDidChangeNotification
 
 export type NSUnarchiveFromDataTransformerName_c = typeof NSUnarchiveFromDataTransformerName
 export type NSUndefinedDateComponent_c = typeof NSUndefinedDateComponent
@@ -8544,22 +8544,22 @@ export type NSUndoManager_t = NSUndoManager
 export type NSUndoManager_c = typeof NSUndoManager
 export type NSUndoManagerCheckpointNotification_c = typeof NSUndoManagerCheckpointNotification
 export type NSUndoManagerDidCloseUndoGroupNotification_c =
-	typeof NSUndoManagerDidCloseUndoGroupNotification
+  typeof NSUndoManagerDidCloseUndoGroupNotification
 
 export type NSUndoManagerDidOpenUndoGroupNotification_c =
-	typeof NSUndoManagerDidOpenUndoGroupNotification
+  typeof NSUndoManagerDidOpenUndoGroupNotification
 
 export type NSUndoManagerDidRedoChangeNotification_c = typeof NSUndoManagerDidRedoChangeNotification
 export type NSUndoManagerDidUndoChangeNotification_c = typeof NSUndoManagerDidUndoChangeNotification
 export type NSUndoManagerGroupIsDiscardableKey_c = typeof NSUndoManagerGroupIsDiscardableKey
 export type NSUndoManagerWillCloseUndoGroupNotification_c =
-	typeof NSUndoManagerWillCloseUndoGroupNotification
+  typeof NSUndoManagerWillCloseUndoGroupNotification
 
 export type NSUndoManagerWillRedoChangeNotification_c =
-	typeof NSUndoManagerWillRedoChangeNotification
+  typeof NSUndoManagerWillRedoChangeNotification
 
 export type NSUndoManagerWillUndoChangeNotification_c =
-	typeof NSUndoManagerWillUndoChangeNotification
+  typeof NSUndoManagerWillUndoChangeNotification
 
 export type NSUnicodeStringEncoding_c = typeof NSUnicodeStringEncoding
 export type NSUnionOfArraysKeyValueOperator_c = typeof NSUnionOfArraysKeyValueOperator
@@ -8619,7 +8619,7 @@ export type NSUnitVolume_c = typeof NSUnitVolume
 export type NSUserActivity_t = NSUserActivity
 export type NSUserActivity_c = typeof NSUserActivity
 export type NSUserActivityConnectionUnavailableError_c =
-	typeof NSUserActivityConnectionUnavailableError
+  typeof NSUserActivityConnectionUnavailableError
 
 export type NSUserActivityDelegate_t = NSUserActivityDelegate
 export type NSUserActivityDelegate_c = typeof NSUserActivityDelegate
@@ -8628,10 +8628,10 @@ export type NSUserActivityErrorMaximum_c = typeof NSUserActivityErrorMaximum
 export type NSUserActivityErrorMinimum_c = typeof NSUserActivityErrorMinimum
 export type NSUserActivityHandoffFailedError_c = typeof NSUserActivityHandoffFailedError
 export type NSUserActivityHandoffUserInfoTooLargeError_c =
-	typeof NSUserActivityHandoffUserInfoTooLargeError
+  typeof NSUserActivityHandoffUserInfoTooLargeError
 
 export type NSUserActivityRemoteApplicationTimedOutError_c =
-	typeof NSUserActivityRemoteApplicationTimedOutError
+  typeof NSUserActivityRemoteApplicationTimedOutError
 
 export type NSUserActivityTypeBrowsingWeb_c = typeof NSUserActivityTypeBrowsingWeb
 export type NSUserCancelledError_c = typeof NSUserCancelledError
@@ -8639,7 +8639,7 @@ export type NSUserDefaults_t = NSUserDefaults
 export type NSUserDefaults_c = typeof NSUserDefaults
 export type NSUserDefaultsDidChangeNotification_c = typeof NSUserDefaultsDidChangeNotification
 export type NSUserDefaultsSizeLimitExceededNotification_c =
-	typeof NSUserDefaultsSizeLimitExceededNotification
+  typeof NSUserDefaultsSizeLimitExceededNotification
 
 export type NSUserName_c = typeof NSUserName
 export type NSValidationErrorMaximum_c = typeof NSValidationErrorMaximum
@@ -8678,14 +8678,14 @@ export type NSXMLParserError_c = typeof NSXMLParserError
 export type NSXMLParserErrorDomain_c = typeof NSXMLParserErrorDomain
 export type NSXMLParserExternalEntityResolvingPolicy_t = NSXMLParserExternalEntityResolvingPolicy
 export type NSXMLParserExternalEntityResolvingPolicy_c =
-	typeof NSXMLParserExternalEntityResolvingPolicy
+  typeof NSXMLParserExternalEntityResolvingPolicy
 
 export type NSXPCCoder_t = NSXPCCoder
 export type NSXPCCoder_c = typeof NSXPCCoder
 export type NSXPCConnection_t = NSXPCConnection
 export type NSXPCConnection_c = typeof NSXPCConnection
 export type NSXPCConnectionCodeSigningRequirementFailure_c =
-	typeof NSXPCConnectionCodeSigningRequirementFailure
+  typeof NSXPCConnectionCodeSigningRequirementFailure
 
 export type NSXPCConnectionErrorMaximum_c = typeof NSXPCConnectionErrorMaximum
 export type NSXPCConnectionErrorMinimum_c = typeof NSXPCConnectionErrorMinimum
@@ -8851,7 +8851,7 @@ export type PHContentEditingInputErrorKey_c = typeof PHContentEditingInputErrorK
 export type PHContentEditingInputRequestOptions_t = PHContentEditingInputRequestOptions
 export type PHContentEditingInputRequestOptions_c = typeof PHContentEditingInputRequestOptions
 export type PHContentEditingInputResultIsInCloudKey_c =
-	typeof PHContentEditingInputResultIsInCloudKey
+  typeof PHContentEditingInputResultIsInCloudKey
 
 export type PHContentEditingOutput_t = PHContentEditingOutput
 export type PHContentEditingOutput_c = typeof PHContentEditingOutput
@@ -8933,7 +8933,7 @@ export type PHPhotoLibraryChangeObserver_t = PHPhotoLibraryChangeObserver
 export type PHPhotoLibraryChangeObserver_c = typeof PHPhotoLibraryChangeObserver
 export type PHPhotoLibraryPersistentChangesObserver_t = PHPhotoLibraryPersistentChangesObserver
 export type PHPhotoLibraryPersistentChangesObserver_c =
-	typeof PHPhotoLibraryPersistentChangesObserver
+  typeof PHPhotoLibraryPersistentChangesObserver
 
 export type PHPhotosError_t = PHPhotosError
 export type PHPhotosError_c = typeof PHPhotosError
@@ -8943,10 +8943,10 @@ export type PHPickerCapabilities_c = typeof PHPickerCapabilities
 export type PHPickerConfiguration_t = PHPickerConfiguration
 export type PHPickerConfiguration_c = typeof PHPickerConfiguration
 export type PHPickerConfigurationAssetRepresentationMode_t =
-	PHPickerConfigurationAssetRepresentationMode
+  PHPickerConfigurationAssetRepresentationMode
 
 export type PHPickerConfigurationAssetRepresentationMode_c =
-	typeof PHPickerConfigurationAssetRepresentationMode
+  typeof PHPickerConfigurationAssetRepresentationMode
 
 export type PHPickerConfigurationSelection_t = PHPickerConfigurationSelection
 export type PHPickerConfigurationSelection_c = typeof PHPickerConfigurationSelection
@@ -8975,28 +8975,28 @@ export type PHSharedAlbumCreationSharingPolicy_c = typeof PHSharedAlbumCreationS
 export type PHSharedAlbumCreationViewController_t = PHSharedAlbumCreationViewController
 export type PHSharedAlbumCreationViewController_c = typeof PHSharedAlbumCreationViewController
 export type PHSharedAlbumCreationViewControllerDelegate_t =
-	PHSharedAlbumCreationViewControllerDelegate
+  PHSharedAlbumCreationViewControllerDelegate
 
 export type PHSharedAlbumCreationViewControllerDelegate_c =
-	typeof PHSharedAlbumCreationViewControllerDelegate
+  typeof PHSharedAlbumCreationViewControllerDelegate
 
 export type PHSharedAlbumCustomizationViewController_t = PHSharedAlbumCustomizationViewController
 export type PHSharedAlbumCustomizationViewController_c =
-	typeof PHSharedAlbumCustomizationViewController
+  typeof PHSharedAlbumCustomizationViewController
 
 export type PHSharedAlbumCustomizationViewControllerDelegate_t =
-	PHSharedAlbumCustomizationViewControllerDelegate
+  PHSharedAlbumCustomizationViewControllerDelegate
 
 export type PHSharedAlbumCustomizationViewControllerDelegate_c =
-	typeof PHSharedAlbumCustomizationViewControllerDelegate
+  typeof PHSharedAlbumCustomizationViewControllerDelegate
 
 export type PHSharedAlbumPostingViewController_t = PHSharedAlbumPostingViewController
 export type PHSharedAlbumPostingViewController_c = typeof PHSharedAlbumPostingViewController
 export type PHSharedAlbumPostingViewControllerDelegate_t =
-	PHSharedAlbumPostingViewControllerDelegate
+  PHSharedAlbumPostingViewControllerDelegate
 
 export type PHSharedAlbumPostingViewControllerDelegate_c =
-	typeof PHSharedAlbumPostingViewControllerDelegate
+  typeof PHSharedAlbumPostingViewControllerDelegate
 
 export type PHVideoRequestOptions_t = PHVideoRequestOptions
 export type PHVideoRequestOptions_c = typeof PHVideoRequestOptions
@@ -9019,7 +9019,7 @@ export type SCNetworkReachabilityContext_t = SCNetworkReachabilityContext
 export type SCNetworkReachabilityContext_c = typeof SCNetworkReachabilityContext
 export type SCNetworkReachabilityCreateWithAddress_c = typeof SCNetworkReachabilityCreateWithAddress
 export type SCNetworkReachabilityCreateWithAddressPair_c =
-	typeof SCNetworkReachabilityCreateWithAddressPair
+  typeof SCNetworkReachabilityCreateWithAddressPair
 
 export type SCNetworkReachabilityCreateWithName_c = typeof SCNetworkReachabilityCreateWithName
 export type SCNetworkReachabilityFlags_t = SCNetworkReachabilityFlags
@@ -9027,12 +9027,12 @@ export type SCNetworkReachabilityFlags_c = typeof SCNetworkReachabilityFlags
 export type SCNetworkReachabilityGetFlags_c = typeof SCNetworkReachabilityGetFlags
 export type SCNetworkReachabilityGetTypeID_c = typeof SCNetworkReachabilityGetTypeID
 export type SCNetworkReachabilityScheduleWithRunLoop_c =
-	typeof SCNetworkReachabilityScheduleWithRunLoop
+  typeof SCNetworkReachabilityScheduleWithRunLoop
 
 export type SCNetworkReachabilitySetCallback_c = typeof SCNetworkReachabilitySetCallback
 export type SCNetworkReachabilitySetDispatchQueue_c = typeof SCNetworkReachabilitySetDispatchQueue
 export type SCNetworkReachabilityUnscheduleFromRunLoop_c =
-	typeof SCNetworkReachabilityUnscheduleFromRunLoop
+  typeof SCNetworkReachabilityUnscheduleFromRunLoop
 
 export type SCPreferencesContext_t = SCPreferencesContext
 export type SCPreferencesContext_c = typeof SCPreferencesContext
@@ -9081,7 +9081,7 @@ export type SFSafariViewControllerDelegate_t = SFSafariViewControllerDelegate
 export type SFSafariViewControllerDelegate_c = typeof SFSafariViewControllerDelegate
 export type SFSafariViewControllerDismissButtonStyle_t = SFSafariViewControllerDismissButtonStyle
 export type SFSafariViewControllerDismissButtonStyle_c =
-	typeof SFSafariViewControllerDismissButtonStyle
+  typeof SFSafariViewControllerDismissButtonStyle
 
 export type SFSafariViewControllerPrewarmingToken_t = SFSafariViewControllerPrewarmingToken
 export type SFSafariViewControllerPrewarmingToken_c = typeof SFSafariViewControllerPrewarmingToken
@@ -9137,7 +9137,7 @@ export type SKArcadeService_c = typeof SKArcadeService
 export type SKCloudServiceAuthorizationStatus_t = SKCloudServiceAuthorizationStatus
 export type SKCloudServiceAuthorizationStatus_c = typeof SKCloudServiceAuthorizationStatus
 export type SKCloudServiceCapabilitiesDidChangeNotification_c =
-	typeof SKCloudServiceCapabilitiesDidChangeNotification
+  typeof SKCloudServiceCapabilitiesDidChangeNotification
 
 export type SKCloudServiceCapability_t = SKCloudServiceCapability
 export type SKCloudServiceCapability_c = typeof SKCloudServiceCapability
@@ -9145,35 +9145,35 @@ export type SKCloudServiceController_t = SKCloudServiceController
 export type SKCloudServiceController_c = typeof SKCloudServiceController
 export type SKCloudServiceSetupActionSubscribe_c = typeof SKCloudServiceSetupActionSubscribe
 export type SKCloudServiceSetupMessageIdentifierAddMusic_c =
-	typeof SKCloudServiceSetupMessageIdentifierAddMusic
+  typeof SKCloudServiceSetupMessageIdentifierAddMusic
 
 export type SKCloudServiceSetupMessageIdentifierConnect_c =
-	typeof SKCloudServiceSetupMessageIdentifierConnect
+  typeof SKCloudServiceSetupMessageIdentifierConnect
 
 export type SKCloudServiceSetupMessageIdentifierJoin_c =
-	typeof SKCloudServiceSetupMessageIdentifierJoin
+  typeof SKCloudServiceSetupMessageIdentifierJoin
 
 export type SKCloudServiceSetupMessageIdentifierPlayMusic_c =
-	typeof SKCloudServiceSetupMessageIdentifierPlayMusic
+  typeof SKCloudServiceSetupMessageIdentifierPlayMusic
 
 export type SKCloudServiceSetupOptionsActionKey_c = typeof SKCloudServiceSetupOptionsActionKey
 export type SKCloudServiceSetupOptionsAffiliateTokenKey_c =
-	typeof SKCloudServiceSetupOptionsAffiliateTokenKey
+  typeof SKCloudServiceSetupOptionsAffiliateTokenKey
 
 export type SKCloudServiceSetupOptionsCampaignTokenKey_c =
-	typeof SKCloudServiceSetupOptionsCampaignTokenKey
+  typeof SKCloudServiceSetupOptionsCampaignTokenKey
 
 export type SKCloudServiceSetupOptionsITunesItemIdentifierKey_c =
-	typeof SKCloudServiceSetupOptionsITunesItemIdentifierKey
+  typeof SKCloudServiceSetupOptionsITunesItemIdentifierKey
 
 export type SKCloudServiceSetupOptionsMessageIdentifierKey_c =
-	typeof SKCloudServiceSetupOptionsMessageIdentifierKey
+  typeof SKCloudServiceSetupOptionsMessageIdentifierKey
 
 export type SKCloudServiceSetupViewController_t = SKCloudServiceSetupViewController
 export type SKCloudServiceSetupViewController_c = typeof SKCloudServiceSetupViewController
 export type SKCloudServiceSetupViewControllerDelegate_t = SKCloudServiceSetupViewControllerDelegate
 export type SKCloudServiceSetupViewControllerDelegate_c =
-	typeof SKCloudServiceSetupViewControllerDelegate
+  typeof SKCloudServiceSetupViewControllerDelegate
 
 export type SKDownload_t = SKDownload
 export type SKDownload_c = typeof SKDownload
@@ -9247,40 +9247,40 @@ export type SKRequest_c = typeof SKRequest
 export type SKRequestDelegate_t = SKRequestDelegate
 export type SKRequestDelegate_c = typeof SKRequestDelegate
 export type SKStoreProductParameterAdNetworkAttributionSignature_c =
-	typeof SKStoreProductParameterAdNetworkAttributionSignature
+  typeof SKStoreProductParameterAdNetworkAttributionSignature
 
 export type SKStoreProductParameterAdNetworkCampaignIdentifier_c =
-	typeof SKStoreProductParameterAdNetworkCampaignIdentifier
+  typeof SKStoreProductParameterAdNetworkCampaignIdentifier
 
 export type SKStoreProductParameterAdNetworkIdentifier_c =
-	typeof SKStoreProductParameterAdNetworkIdentifier
+  typeof SKStoreProductParameterAdNetworkIdentifier
 
 export type SKStoreProductParameterAdNetworkNonce_c = typeof SKStoreProductParameterAdNetworkNonce
 export type SKStoreProductParameterAdNetworkSourceAppStoreIdentifier_c =
-	typeof SKStoreProductParameterAdNetworkSourceAppStoreIdentifier
+  typeof SKStoreProductParameterAdNetworkSourceAppStoreIdentifier
 
 export type SKStoreProductParameterAdNetworkSourceIdentifier_c =
-	typeof SKStoreProductParameterAdNetworkSourceIdentifier
+  typeof SKStoreProductParameterAdNetworkSourceIdentifier
 
 export type SKStoreProductParameterAdNetworkTimestamp_c =
-	typeof SKStoreProductParameterAdNetworkTimestamp
+  typeof SKStoreProductParameterAdNetworkTimestamp
 
 export type SKStoreProductParameterAdNetworkVersion_c =
-	typeof SKStoreProductParameterAdNetworkVersion
+  typeof SKStoreProductParameterAdNetworkVersion
 
 export type SKStoreProductParameterAdvertisingPartnerToken_c =
-	typeof SKStoreProductParameterAdvertisingPartnerToken
+  typeof SKStoreProductParameterAdvertisingPartnerToken
 
 export type SKStoreProductParameterAffiliateToken_c = typeof SKStoreProductParameterAffiliateToken
 export type SKStoreProductParameterCampaignToken_c = typeof SKStoreProductParameterCampaignToken
 export type SKStoreProductParameterCustomProductPageIdentifier_c =
-	typeof SKStoreProductParameterCustomProductPageIdentifier
+  typeof SKStoreProductParameterCustomProductPageIdentifier
 
 export type SKStoreProductParameterITunesItemIdentifier_c =
-	typeof SKStoreProductParameterITunesItemIdentifier
+  typeof SKStoreProductParameterITunesItemIdentifier
 
 export type SKStoreProductParameterProductIdentifier_c =
-	typeof SKStoreProductParameterProductIdentifier
+  typeof SKStoreProductParameterProductIdentifier
 
 export type SKStoreProductParameterProviderToken_c = typeof SKStoreProductParameterProviderToken
 export type SKStoreProductViewController_t = SKStoreProductViewController
@@ -9292,10 +9292,10 @@ export type SKStoreReviewController_c = typeof SKStoreReviewController
 export type SKStorefront_t = SKStorefront
 export type SKStorefront_c = typeof SKStorefront
 export type SKStorefrontCountryCodeDidChangeNotification_c =
-	typeof SKStorefrontCountryCodeDidChangeNotification
+  typeof SKStorefrontCountryCodeDidChangeNotification
 
 export type SKStorefrontIdentifierDidChangeNotification_c =
-	typeof SKStorefrontIdentifierDidChangeNotification
+  typeof SKStorefrontIdentifierDidChangeNotification
 
 export type SKTerminateForInvalidReceipt_c = typeof SKTerminateForInvalidReceipt
 export type SLComposeServiceViewController_t = SLComposeServiceViewController
@@ -9331,30 +9331,30 @@ export type UIAccelerometer_c = typeof UIAccelerometer
 export type UIAccelerometerDelegate_t = UIAccelerometerDelegate
 export type UIAccelerometerDelegate_c = typeof UIAccelerometerDelegate
 export type UIAccessibilityAnnouncementDidFinishNotification_c =
-	typeof UIAccessibilityAnnouncementDidFinishNotification
+  typeof UIAccessibilityAnnouncementDidFinishNotification
 
 export type UIAccessibilityAnnouncementKeyStringValue_c =
-	typeof UIAccessibilityAnnouncementKeyStringValue
+  typeof UIAccessibilityAnnouncementKeyStringValue
 
 export type UIAccessibilityAnnouncementKeyWasSuccessful_c =
-	typeof UIAccessibilityAnnouncementKeyWasSuccessful
+  typeof UIAccessibilityAnnouncementKeyWasSuccessful
 
 export type UIAccessibilityAnnouncementNotification_c =
-	typeof UIAccessibilityAnnouncementNotification
+  typeof UIAccessibilityAnnouncementNotification
 
 export type UIAccessibilityAssistiveTechnologyKey_c = typeof UIAccessibilityAssistiveTechnologyKey
 export type UIAccessibilityAssistiveTouchStatusDidChangeNotification_c =
-	typeof UIAccessibilityAssistiveTouchStatusDidChangeNotification
+  typeof UIAccessibilityAssistiveTouchStatusDidChangeNotification
 
 export type UIAccessibilityBoldTextStatusDidChangeNotification_c =
-	typeof UIAccessibilityBoldTextStatusDidChangeNotification
+  typeof UIAccessibilityBoldTextStatusDidChangeNotification
 
 export type UIAccessibilityButtonShapesEnabled_c = typeof UIAccessibilityButtonShapesEnabled
 export type UIAccessibilityButtonShapesEnabledStatusDidChangeNotification_c =
-	typeof UIAccessibilityButtonShapesEnabledStatusDidChangeNotification
+  typeof UIAccessibilityButtonShapesEnabledStatusDidChangeNotification
 
 export type UIAccessibilityClosedCaptioningStatusDidChangeNotification_c =
-	typeof UIAccessibilityClosedCaptioningStatusDidChangeNotification
+  typeof UIAccessibilityClosedCaptioningStatusDidChangeNotification
 
 export type UIAccessibilityContainerDataTable_t = UIAccessibilityContainerDataTable
 export type UIAccessibilityContainerDataTable_c = typeof UIAccessibilityContainerDataTable
@@ -9363,23 +9363,23 @@ export type UIAccessibilityContainerDataTableCell_c = typeof UIAccessibilityCont
 export type UIAccessibilityContainerType_t = UIAccessibilityContainerType
 export type UIAccessibilityContainerType_c = typeof UIAccessibilityContainerType
 export type UIAccessibilityContentSizeCategoryImageAdjusting_t =
-	UIAccessibilityContentSizeCategoryImageAdjusting
+  UIAccessibilityContentSizeCategoryImageAdjusting
 
 export type UIAccessibilityContentSizeCategoryImageAdjusting_c =
-	typeof UIAccessibilityContentSizeCategoryImageAdjusting
+  typeof UIAccessibilityContentSizeCategoryImageAdjusting
 
 export type UIAccessibilityContrast_t = UIAccessibilityContrast
 export type UIAccessibilityContrast_c = typeof UIAccessibilityContrast
 export type UIAccessibilityConvertFrameToScreenCoordinates_c =
-	typeof UIAccessibilityConvertFrameToScreenCoordinates
+  typeof UIAccessibilityConvertFrameToScreenCoordinates
 
 export type UIAccessibilityConvertPathToScreenCoordinates_c =
-	typeof UIAccessibilityConvertPathToScreenCoordinates
+  typeof UIAccessibilityConvertPathToScreenCoordinates
 
 export type UIAccessibilityCustomAction_t = UIAccessibilityCustomAction
 export type UIAccessibilityCustomAction_c = typeof UIAccessibilityCustomAction
 export type UIAccessibilityCustomActionCategoryEdit_c =
-	typeof UIAccessibilityCustomActionCategoryEdit
+  typeof UIAccessibilityCustomActionCategoryEdit
 
 export type UIAccessibilityCustomRotor_t = UIAccessibilityCustomRotor
 export type UIAccessibilityCustomRotor_c = typeof UIAccessibilityCustomRotor
@@ -9389,59 +9389,59 @@ export type UIAccessibilityCustomRotorItemResult_t = UIAccessibilityCustomRotorI
 export type UIAccessibilityCustomRotorItemResult_c = typeof UIAccessibilityCustomRotorItemResult
 export type UIAccessibilityCustomRotorSearchPredicate_t = UIAccessibilityCustomRotorSearchPredicate
 export type UIAccessibilityCustomRotorSearchPredicate_c =
-	typeof UIAccessibilityCustomRotorSearchPredicate
+  typeof UIAccessibilityCustomRotorSearchPredicate
 
 export type UIAccessibilityCustomSystemRotorType_t = UIAccessibilityCustomSystemRotorType
 export type UIAccessibilityCustomSystemRotorType_c = typeof UIAccessibilityCustomSystemRotorType
 export type UIAccessibilityDarkerSystemColorsEnabled_c =
-	typeof UIAccessibilityDarkerSystemColorsEnabled
+  typeof UIAccessibilityDarkerSystemColorsEnabled
 
 export type UIAccessibilityDarkerSystemColorsStatusDidChangeNotification_c =
-	typeof UIAccessibilityDarkerSystemColorsStatusDidChangeNotification
+  typeof UIAccessibilityDarkerSystemColorsStatusDidChangeNotification
 
 export type UIAccessibilityDirectTouchOptions_t = UIAccessibilityDirectTouchOptions
 export type UIAccessibilityDirectTouchOptions_c = typeof UIAccessibilityDirectTouchOptions
 export type UIAccessibilityElement_t = UIAccessibilityElement
 export type UIAccessibilityElement_c = typeof UIAccessibilityElement
 export type UIAccessibilityElementFocusedNotification_c =
-	typeof UIAccessibilityElementFocusedNotification
+  typeof UIAccessibilityElementFocusedNotification
 
 export type UIAccessibilityExpandedStatus_t = UIAccessibilityExpandedStatus
 export type UIAccessibilityExpandedStatus_c = typeof UIAccessibilityExpandedStatus
 export type UIAccessibilityFocusedElement_c = typeof UIAccessibilityFocusedElement
 export type UIAccessibilityFocusedElementKey_c = typeof UIAccessibilityFocusedElementKey
 export type UIAccessibilityGrayscaleStatusDidChangeNotification_c =
-	typeof UIAccessibilityGrayscaleStatusDidChangeNotification
+  typeof UIAccessibilityGrayscaleStatusDidChangeNotification
 
 export type UIAccessibilityGuidedAccessStatusDidChangeNotification_c =
-	typeof UIAccessibilityGuidedAccessStatusDidChangeNotification
+  typeof UIAccessibilityGuidedAccessStatusDidChangeNotification
 
 export type UIAccessibilityHearingDeviceEar_t = UIAccessibilityHearingDeviceEar
 export type UIAccessibilityHearingDeviceEar_c = typeof UIAccessibilityHearingDeviceEar
 export type UIAccessibilityHearingDevicePairedEar_c = typeof UIAccessibilityHearingDevicePairedEar
 export type UIAccessibilityHearingDevicePairedEarDidChangeNotification_c =
-	typeof UIAccessibilityHearingDevicePairedEarDidChangeNotification
+  typeof UIAccessibilityHearingDevicePairedEarDidChangeNotification
 
 export type UIAccessibilityIdentification_t = UIAccessibilityIdentification
 export type UIAccessibilityIdentification_c = typeof UIAccessibilityIdentification
 export type UIAccessibilityInvertColorsStatusDidChangeNotification_c =
-	typeof UIAccessibilityInvertColorsStatusDidChangeNotification
+  typeof UIAccessibilityInvertColorsStatusDidChangeNotification
 
 export type UIAccessibilityIsAssistiveTouchRunning_c = typeof UIAccessibilityIsAssistiveTouchRunning
 export type UIAccessibilityIsBoldTextEnabled_c = typeof UIAccessibilityIsBoldTextEnabled
 export type UIAccessibilityIsClosedCaptioningEnabled_c =
-	typeof UIAccessibilityIsClosedCaptioningEnabled
+  typeof UIAccessibilityIsClosedCaptioningEnabled
 
 export type UIAccessibilityIsGrayscaleEnabled_c = typeof UIAccessibilityIsGrayscaleEnabled
 export type UIAccessibilityIsGuidedAccessEnabled_c = typeof UIAccessibilityIsGuidedAccessEnabled
 export type UIAccessibilityIsInvertColorsEnabled_c = typeof UIAccessibilityIsInvertColorsEnabled
 export type UIAccessibilityIsMonoAudioEnabled_c = typeof UIAccessibilityIsMonoAudioEnabled
 export type UIAccessibilityIsOnOffSwitchLabelsEnabled_c =
-	typeof UIAccessibilityIsOnOffSwitchLabelsEnabled
+  typeof UIAccessibilityIsOnOffSwitchLabelsEnabled
 
 export type UIAccessibilityIsReduceMotionEnabled_c = typeof UIAccessibilityIsReduceMotionEnabled
 export type UIAccessibilityIsReduceTransparencyEnabled_c =
-	typeof UIAccessibilityIsReduceTransparencyEnabled
+  typeof UIAccessibilityIsReduceTransparencyEnabled
 
 export type UIAccessibilityIsShakeToUndoEnabled_c = typeof UIAccessibilityIsShakeToUndoEnabled
 export type UIAccessibilityIsSpeakScreenEnabled_c = typeof UIAccessibilityIsSpeakScreenEnabled
@@ -9450,36 +9450,36 @@ export type UIAccessibilityIsSwitchControlRunning_c = typeof UIAccessibilityIsSw
 export type UIAccessibilityIsVideoAutoplayEnabled_c = typeof UIAccessibilityIsVideoAutoplayEnabled
 export type UIAccessibilityIsVoiceOverRunning_c = typeof UIAccessibilityIsVoiceOverRunning
 export type UIAccessibilityLayoutChangedNotification_c =
-	typeof UIAccessibilityLayoutChangedNotification
+  typeof UIAccessibilityLayoutChangedNotification
 
 export type UIAccessibilityLocationDescriptor_t = UIAccessibilityLocationDescriptor
 export type UIAccessibilityLocationDescriptor_c = typeof UIAccessibilityLocationDescriptor
 export type UIAccessibilityMonoAudioStatusDidChangeNotification_c =
-	typeof UIAccessibilityMonoAudioStatusDidChangeNotification
+  typeof UIAccessibilityMonoAudioStatusDidChangeNotification
 
 export type UIAccessibilityNavigationStyle_t = UIAccessibilityNavigationStyle
 export type UIAccessibilityNavigationStyle_c = typeof UIAccessibilityNavigationStyle
 export type UIAccessibilityNotificationSwitchControlIdentifier_c =
-	typeof UIAccessibilityNotificationSwitchControlIdentifier
+  typeof UIAccessibilityNotificationSwitchControlIdentifier
 
 export type UIAccessibilityNotificationVoiceOverIdentifier_c =
-	typeof UIAccessibilityNotificationVoiceOverIdentifier
+  typeof UIAccessibilityNotificationVoiceOverIdentifier
 
 export type UIAccessibilityOnOffSwitchLabelsDidChangeNotification_c =
-	typeof UIAccessibilityOnOffSwitchLabelsDidChangeNotification
+  typeof UIAccessibilityOnOffSwitchLabelsDidChangeNotification
 
 export type UIAccessibilityPageScrolledNotification_c =
-	typeof UIAccessibilityPageScrolledNotification
+  typeof UIAccessibilityPageScrolledNotification
 
 export type UIAccessibilityPauseAssistiveTechnologyNotification_c =
-	typeof UIAccessibilityPauseAssistiveTechnologyNotification
+  typeof UIAccessibilityPauseAssistiveTechnologyNotification
 
 export type UIAccessibilityPostNotification_c = typeof UIAccessibilityPostNotification
 export type UIAccessibilityPrefersCrossFadeTransitions_c =
-	typeof UIAccessibilityPrefersCrossFadeTransitions
+  typeof UIAccessibilityPrefersCrossFadeTransitions
 
 export type UIAccessibilityPrefersCrossFadeTransitionsStatusDidChangeNotification_c =
-	typeof UIAccessibilityPrefersCrossFadeTransitionsStatusDidChangeNotification
+  typeof UIAccessibilityPrefersCrossFadeTransitionsStatusDidChangeNotification
 
 export type UIAccessibilityPriorityDefault_c = typeof UIAccessibilityPriorityDefault
 export type UIAccessibilityPriorityHigh_c = typeof UIAccessibilityPriorityHigh
@@ -9487,81 +9487,81 @@ export type UIAccessibilityPriorityLow_c = typeof UIAccessibilityPriorityLow
 export type UIAccessibilityReadingContent_t = UIAccessibilityReadingContent
 export type UIAccessibilityReadingContent_c = typeof UIAccessibilityReadingContent
 export type UIAccessibilityReduceMotionStatusDidChangeNotification_c =
-	typeof UIAccessibilityReduceMotionStatusDidChangeNotification
+  typeof UIAccessibilityReduceMotionStatusDidChangeNotification
 
 export type UIAccessibilityReduceTransparencyStatusDidChangeNotification_c =
-	typeof UIAccessibilityReduceTransparencyStatusDidChangeNotification
+  typeof UIAccessibilityReduceTransparencyStatusDidChangeNotification
 
 export type UIAccessibilityRegisterGestureConflictWithZoom_c =
-	typeof UIAccessibilityRegisterGestureConflictWithZoom
+  typeof UIAccessibilityRegisterGestureConflictWithZoom
 
 export type UIAccessibilityRequestGuidedAccessSession_c =
-	typeof UIAccessibilityRequestGuidedAccessSession
+  typeof UIAccessibilityRequestGuidedAccessSession
 
 export type UIAccessibilityResumeAssistiveTechnologyNotification_c =
-	typeof UIAccessibilityResumeAssistiveTechnologyNotification
+  typeof UIAccessibilityResumeAssistiveTechnologyNotification
 
 export type UIAccessibilityScreenChangedNotification_c =
-	typeof UIAccessibilityScreenChangedNotification
+  typeof UIAccessibilityScreenChangedNotification
 
 export type UIAccessibilityScrollDirection_t = UIAccessibilityScrollDirection
 export type UIAccessibilityScrollDirection_c = typeof UIAccessibilityScrollDirection
 export type UIAccessibilityShakeToUndoDidChangeNotification_c =
-	typeof UIAccessibilityShakeToUndoDidChangeNotification
+  typeof UIAccessibilityShakeToUndoDidChangeNotification
 
 export type UIAccessibilityShouldDifferentiateWithoutColor_c =
-	typeof UIAccessibilityShouldDifferentiateWithoutColor
+  typeof UIAccessibilityShouldDifferentiateWithoutColor
 
 export type UIAccessibilityShouldDifferentiateWithoutColorDidChangeNotification_c =
-	typeof UIAccessibilityShouldDifferentiateWithoutColorDidChangeNotification
+  typeof UIAccessibilityShouldDifferentiateWithoutColorDidChangeNotification
 
 export type UIAccessibilitySpeakScreenStatusDidChangeNotification_c =
-	typeof UIAccessibilitySpeakScreenStatusDidChangeNotification
+  typeof UIAccessibilitySpeakScreenStatusDidChangeNotification
 
 export type UIAccessibilitySpeakSelectionStatusDidChangeNotification_c =
-	typeof UIAccessibilitySpeakSelectionStatusDidChangeNotification
+  typeof UIAccessibilitySpeakSelectionStatusDidChangeNotification
 
 export type UIAccessibilitySpeechAttributeAnnouncementPriority_c =
-	typeof UIAccessibilitySpeechAttributeAnnouncementPriority
+  typeof UIAccessibilitySpeechAttributeAnnouncementPriority
 
 export type UIAccessibilitySpeechAttributeIPANotation_c =
-	typeof UIAccessibilitySpeechAttributeIPANotation
+  typeof UIAccessibilitySpeechAttributeIPANotation
 
 export type UIAccessibilitySpeechAttributeLanguage_c = typeof UIAccessibilitySpeechAttributeLanguage
 export type UIAccessibilitySpeechAttributePitch_c = typeof UIAccessibilitySpeechAttributePitch
 export type UIAccessibilitySpeechAttributePunctuation_c =
-	typeof UIAccessibilitySpeechAttributePunctuation
+  typeof UIAccessibilitySpeechAttributePunctuation
 
 export type UIAccessibilitySpeechAttributeQueueAnnouncement_c =
-	typeof UIAccessibilitySpeechAttributeQueueAnnouncement
+  typeof UIAccessibilitySpeechAttributeQueueAnnouncement
 
 export type UIAccessibilitySpeechAttributeSpellOut_c = typeof UIAccessibilitySpeechAttributeSpellOut
 export type UIAccessibilitySwitchControlStatusDidChangeNotification_c =
-	typeof UIAccessibilitySwitchControlStatusDidChangeNotification
+  typeof UIAccessibilitySwitchControlStatusDidChangeNotification
 
 export type UIAccessibilityTextAttributeContext_c = typeof UIAccessibilityTextAttributeContext
 export type UIAccessibilityTextAttributeCustom_c = typeof UIAccessibilityTextAttributeCustom
 export type UIAccessibilityTextAttributeHeadingLevel_c =
-	typeof UIAccessibilityTextAttributeHeadingLevel
+  typeof UIAccessibilityTextAttributeHeadingLevel
 
 export type UIAccessibilityTextualContextConsole_c = typeof UIAccessibilityTextualContextConsole
 export type UIAccessibilityTextualContextFileSystem_c =
-	typeof UIAccessibilityTextualContextFileSystem
+  typeof UIAccessibilityTextualContextFileSystem
 
 export type UIAccessibilityTextualContextMessaging_c = typeof UIAccessibilityTextualContextMessaging
 export type UIAccessibilityTextualContextNarrative_c = typeof UIAccessibilityTextualContextNarrative
 export type UIAccessibilityTextualContextSourceCode_c =
-	typeof UIAccessibilityTextualContextSourceCode
+  typeof UIAccessibilityTextualContextSourceCode
 
 export type UIAccessibilityTextualContextSpreadsheet_c =
-	typeof UIAccessibilityTextualContextSpreadsheet
+  typeof UIAccessibilityTextualContextSpreadsheet
 
 export type UIAccessibilityTextualContextWordProcessing_c =
-	typeof UIAccessibilityTextualContextWordProcessing
+  typeof UIAccessibilityTextualContextWordProcessing
 
 export type UIAccessibilityTraitAdjustable_c = typeof UIAccessibilityTraitAdjustable
 export type UIAccessibilityTraitAllowsDirectInteraction_c =
-	typeof UIAccessibilityTraitAllowsDirectInteraction
+  typeof UIAccessibilityTraitAllowsDirectInteraction
 
 export type UIAccessibilityTraitButton_c = typeof UIAccessibilityTraitButton
 export type UIAccessibilityTraitCausesPageTurn_c = typeof UIAccessibilityTraitCausesPageTurn
@@ -9583,11 +9583,11 @@ export type UIAccessibilityTraitToggleButton_c = typeof UIAccessibilityTraitTogg
 export type UIAccessibilityTraitUpdatesFrequently_c = typeof UIAccessibilityTraitUpdatesFrequently
 export type UIAccessibilityUnfocusedElementKey_c = typeof UIAccessibilityUnfocusedElementKey
 export type UIAccessibilityVideoAutoplayStatusDidChangeNotification_c =
-	typeof UIAccessibilityVideoAutoplayStatusDidChangeNotification
+  typeof UIAccessibilityVideoAutoplayStatusDidChangeNotification
 
 export type UIAccessibilityVoiceOverStatusChanged_c = typeof UIAccessibilityVoiceOverStatusChanged
 export type UIAccessibilityVoiceOverStatusDidChangeNotification_c =
-	typeof UIAccessibilityVoiceOverStatusDidChangeNotification
+  typeof UIAccessibilityVoiceOverStatusDidChangeNotification
 
 export type UIAccessibilityZoomFocusChanged_c = typeof UIAccessibilityZoomFocusChanged
 export type UIAccessibilityZoomType_t = UIAccessibilityZoomType
@@ -9624,31 +9624,31 @@ export type UIActivityItemSource_c = typeof UIActivityItemSource
 export type UIActivityItemsConfiguration_t = UIActivityItemsConfiguration
 export type UIActivityItemsConfiguration_c = typeof UIActivityItemsConfiguration
 export type UIActivityItemsConfigurationInteractionCopy_c =
-	typeof UIActivityItemsConfigurationInteractionCopy
+  typeof UIActivityItemsConfigurationInteractionCopy
 
 export type UIActivityItemsConfigurationInteractionShare_c =
-	typeof UIActivityItemsConfigurationInteractionShare
+  typeof UIActivityItemsConfigurationInteractionShare
 
 export type UIActivityItemsConfigurationMetadataKeyCollaborationModeRestrictions_c =
-	typeof UIActivityItemsConfigurationMetadataKeyCollaborationModeRestrictions
+  typeof UIActivityItemsConfigurationMetadataKeyCollaborationModeRestrictions
 
 export type UIActivityItemsConfigurationMetadataKeyLinkPresentationMetadata_c =
-	typeof UIActivityItemsConfigurationMetadataKeyLinkPresentationMetadata
+  typeof UIActivityItemsConfigurationMetadataKeyLinkPresentationMetadata
 
 export type UIActivityItemsConfigurationMetadataKeyMessageBody_c =
-	typeof UIActivityItemsConfigurationMetadataKeyMessageBody
+  typeof UIActivityItemsConfigurationMetadataKeyMessageBody
 
 export type UIActivityItemsConfigurationMetadataKeyShareRecipients_c =
-	typeof UIActivityItemsConfigurationMetadataKeyShareRecipients
+  typeof UIActivityItemsConfigurationMetadataKeyShareRecipients
 
 export type UIActivityItemsConfigurationMetadataKeyTitle_c =
-	typeof UIActivityItemsConfigurationMetadataKeyTitle
+  typeof UIActivityItemsConfigurationMetadataKeyTitle
 
 export type UIActivityItemsConfigurationPreviewIntentFullSize_c =
-	typeof UIActivityItemsConfigurationPreviewIntentFullSize
+  typeof UIActivityItemsConfigurationPreviewIntentFullSize
 
 export type UIActivityItemsConfigurationPreviewIntentThumbnail_c =
-	typeof UIActivityItemsConfigurationPreviewIntentThumbnail
+  typeof UIActivityItemsConfigurationPreviewIntentThumbnail
 
 export type UIActivityItemsConfigurationProviding_t = UIActivityItemsConfigurationProviding
 export type UIActivityItemsConfigurationProviding_c = typeof UIActivityItemsConfigurationProviding
@@ -9662,7 +9662,7 @@ export type UIActivityTypeAirDrop_c = typeof UIActivityTypeAirDrop
 export type UIActivityTypeAssignToContact_c = typeof UIActivityTypeAssignToContact
 export type UIActivityTypeCollaborationCopyLink_c = typeof UIActivityTypeCollaborationCopyLink
 export type UIActivityTypeCollaborationInviteWithLink_c =
-	typeof UIActivityTypeCollaborationInviteWithLink
+  typeof UIActivityTypeCollaborationInviteWithLink
 
 export type UIActivityTypeCopyToPasteboard_c = typeof UIActivityTypeCopyToPasteboard
 export type UIActivityTypeMail_c = typeof UIActivityTypeMail
@@ -9682,7 +9682,7 @@ export type UIActivityViewController_t = UIActivityViewController
 export type UIActivityViewController_c = typeof UIActivityViewController
 export type UIAdaptivePresentationControllerDelegate_t = UIAdaptivePresentationControllerDelegate
 export type UIAdaptivePresentationControllerDelegate_c =
-	typeof UIAdaptivePresentationControllerDelegate
+  typeof UIAdaptivePresentationControllerDelegate
 
 export type UIAlertAction_t = UIAlertAction
 export type UIAlertAction_c = typeof UIAlertAction
@@ -9707,124 +9707,124 @@ export type UIAppearanceContainer_c = typeof UIAppearanceContainer
 export type UIApplication_t = UIApplication
 export type UIApplication_c = typeof UIApplication
 export type UIApplicationBackgroundFetchIntervalMinimum_c =
-	typeof UIApplicationBackgroundFetchIntervalMinimum
+  typeof UIApplicationBackgroundFetchIntervalMinimum
 
 export type UIApplicationBackgroundFetchIntervalNever_c =
-	typeof UIApplicationBackgroundFetchIntervalNever
+  typeof UIApplicationBackgroundFetchIntervalNever
 
 export type UIApplicationBackgroundRefreshStatusDidChangeNotification_c =
-	typeof UIApplicationBackgroundRefreshStatusDidChangeNotification
+  typeof UIApplicationBackgroundRefreshStatusDidChangeNotification
 
 export type UIApplicationCategory_t = UIApplicationCategory
 export type UIApplicationCategory_c = typeof UIApplicationCategory
 export type UIApplicationCategoryDefaultErrorCode_t = UIApplicationCategoryDefaultErrorCode
 export type UIApplicationCategoryDefaultErrorCode_c = typeof UIApplicationCategoryDefaultErrorCode
 export type UIApplicationCategoryDefaultErrorDomain_c =
-	typeof UIApplicationCategoryDefaultErrorDomain
+  typeof UIApplicationCategoryDefaultErrorDomain
 
 export type UIApplicationCategoryDefaultRetryAvailabilityDateErrorKey_c =
-	typeof UIApplicationCategoryDefaultRetryAvailabilityDateErrorKey
+  typeof UIApplicationCategoryDefaultRetryAvailabilityDateErrorKey
 
 export type UIApplicationCategoryDefaultStatus_t = UIApplicationCategoryDefaultStatus
 export type UIApplicationCategoryDefaultStatus_c = typeof UIApplicationCategoryDefaultStatus
 export type UIApplicationCategoryDefaultStatusLastProvidedDateErrorKey_c =
-	typeof UIApplicationCategoryDefaultStatusLastProvidedDateErrorKey
+  typeof UIApplicationCategoryDefaultStatusLastProvidedDateErrorKey
 
 export type UIApplicationDelegate_t = UIApplicationDelegate
 export type UIApplicationDelegate_c = typeof UIApplicationDelegate
 export type UIApplicationDidBecomeActiveNotification_c =
-	typeof UIApplicationDidBecomeActiveNotification
+  typeof UIApplicationDidBecomeActiveNotification
 
 export type UIApplicationDidChangeStatusBarFrameNotification_c =
-	typeof UIApplicationDidChangeStatusBarFrameNotification
+  typeof UIApplicationDidChangeStatusBarFrameNotification
 
 export type UIApplicationDidChangeStatusBarOrientationNotification_c =
-	typeof UIApplicationDidChangeStatusBarOrientationNotification
+  typeof UIApplicationDidChangeStatusBarOrientationNotification
 
 export type UIApplicationDidEnterBackgroundNotification_c =
-	typeof UIApplicationDidEnterBackgroundNotification
+  typeof UIApplicationDidEnterBackgroundNotification
 
 export type UIApplicationDidFinishLaunchingNotification_c =
-	typeof UIApplicationDidFinishLaunchingNotification
+  typeof UIApplicationDidFinishLaunchingNotification
 
 export type UIApplicationDidReceiveMemoryWarningNotification_c =
-	typeof UIApplicationDidReceiveMemoryWarningNotification
+  typeof UIApplicationDidReceiveMemoryWarningNotification
 
 export type UIApplicationInvalidInterfaceOrientationException_c =
-	typeof UIApplicationInvalidInterfaceOrientationException
+  typeof UIApplicationInvalidInterfaceOrientationException
 
 export type UIApplicationKeyboardExtensionPointIdentifier_c =
-	typeof UIApplicationKeyboardExtensionPointIdentifier
+  typeof UIApplicationKeyboardExtensionPointIdentifier
 
 export type UIApplicationLaunchOptionsAnnotationKey_c =
-	typeof UIApplicationLaunchOptionsAnnotationKey
+  typeof UIApplicationLaunchOptionsAnnotationKey
 
 export type UIApplicationLaunchOptionsBluetoothCentralsKey_c =
-	typeof UIApplicationLaunchOptionsBluetoothCentralsKey
+  typeof UIApplicationLaunchOptionsBluetoothCentralsKey
 
 export type UIApplicationLaunchOptionsBluetoothPeripheralsKey_c =
-	typeof UIApplicationLaunchOptionsBluetoothPeripheralsKey
+  typeof UIApplicationLaunchOptionsBluetoothPeripheralsKey
 
 export type UIApplicationLaunchOptionsCloudKitShareMetadataKey_c =
-	typeof UIApplicationLaunchOptionsCloudKitShareMetadataKey
+  typeof UIApplicationLaunchOptionsCloudKitShareMetadataKey
 
 export type UIApplicationLaunchOptionsEventAttributionKey_c =
-	typeof UIApplicationLaunchOptionsEventAttributionKey
+  typeof UIApplicationLaunchOptionsEventAttributionKey
 
 export type UIApplicationLaunchOptionsLocalNotificationKey_c =
-	typeof UIApplicationLaunchOptionsLocalNotificationKey
+  typeof UIApplicationLaunchOptionsLocalNotificationKey
 
 export type UIApplicationLaunchOptionsLocationKey_c = typeof UIApplicationLaunchOptionsLocationKey
 export type UIApplicationLaunchOptionsNewsstandDownloadsKey_c =
-	typeof UIApplicationLaunchOptionsNewsstandDownloadsKey
+  typeof UIApplicationLaunchOptionsNewsstandDownloadsKey
 
 export type UIApplicationLaunchOptionsRemoteNotificationKey_c =
-	typeof UIApplicationLaunchOptionsRemoteNotificationKey
+  typeof UIApplicationLaunchOptionsRemoteNotificationKey
 
 export type UIApplicationLaunchOptionsShortcutItemKey_c =
-	typeof UIApplicationLaunchOptionsShortcutItemKey
+  typeof UIApplicationLaunchOptionsShortcutItemKey
 
 export type UIApplicationLaunchOptionsSourceApplicationKey_c =
-	typeof UIApplicationLaunchOptionsSourceApplicationKey
+  typeof UIApplicationLaunchOptionsSourceApplicationKey
 
 export type UIApplicationLaunchOptionsURLKey_c = typeof UIApplicationLaunchOptionsURLKey
 export type UIApplicationLaunchOptionsUserActivityDictionaryKey_c =
-	typeof UIApplicationLaunchOptionsUserActivityDictionaryKey
+  typeof UIApplicationLaunchOptionsUserActivityDictionaryKey
 
 export type UIApplicationLaunchOptionsUserActivityTypeKey_c =
-	typeof UIApplicationLaunchOptionsUserActivityTypeKey
+  typeof UIApplicationLaunchOptionsUserActivityTypeKey
 
 export type UIApplicationMain_c = typeof UIApplicationMain
 export type UIApplicationOpenDefaultApplicationsSettingsURLString_c =
-	typeof UIApplicationOpenDefaultApplicationsSettingsURLString
+  typeof UIApplicationOpenDefaultApplicationsSettingsURLString
 
 export type UIApplicationOpenExternalURLOptionsEventAttributionKey_c =
-	typeof UIApplicationOpenExternalURLOptionsEventAttributionKey
+  typeof UIApplicationOpenExternalURLOptionsEventAttributionKey
 
 export type UIApplicationOpenNotificationSettingsURLString_c =
-	typeof UIApplicationOpenNotificationSettingsURLString
+  typeof UIApplicationOpenNotificationSettingsURLString
 
 export type UIApplicationOpenSettingsURLString_c = typeof UIApplicationOpenSettingsURLString
 export type UIApplicationOpenURLOptionUniversalLinksOnly_c =
-	typeof UIApplicationOpenURLOptionUniversalLinksOnly
+  typeof UIApplicationOpenURLOptionUniversalLinksOnly
 
 export type UIApplicationOpenURLOptionsAnnotationKey_c =
-	typeof UIApplicationOpenURLOptionsAnnotationKey
+  typeof UIApplicationOpenURLOptionsAnnotationKey
 
 export type UIApplicationOpenURLOptionsEventAttributionKey_c =
-	typeof UIApplicationOpenURLOptionsEventAttributionKey
+  typeof UIApplicationOpenURLOptionsEventAttributionKey
 
 export type UIApplicationOpenURLOptionsOpenInPlaceKey_c =
-	typeof UIApplicationOpenURLOptionsOpenInPlaceKey
+  typeof UIApplicationOpenURLOptionsOpenInPlaceKey
 
 export type UIApplicationOpenURLOptionsSourceApplicationKey_c =
-	typeof UIApplicationOpenURLOptionsSourceApplicationKey
+  typeof UIApplicationOpenURLOptionsSourceApplicationKey
 
 export type UIApplicationProtectedDataDidBecomeAvailable_c =
-	typeof UIApplicationProtectedDataDidBecomeAvailable
+  typeof UIApplicationProtectedDataDidBecomeAvailable
 
 export type UIApplicationProtectedDataWillBecomeUnavailable_c =
-	typeof UIApplicationProtectedDataWillBecomeUnavailable
+  typeof UIApplicationProtectedDataWillBecomeUnavailable
 
 export type UIApplicationShortcutIcon_t = UIApplicationShortcutIcon
 export type UIApplicationShortcutIcon_c = typeof UIApplicationShortcutIcon
@@ -9833,43 +9833,43 @@ export type UIApplicationShortcutIconType_c = typeof UIApplicationShortcutIconTy
 export type UIApplicationShortcutItem_t = UIApplicationShortcutItem
 export type UIApplicationShortcutItem_c = typeof UIApplicationShortcutItem
 export type UIApplicationSignificantTimeChangeNotification_c =
-	typeof UIApplicationSignificantTimeChangeNotification
+  typeof UIApplicationSignificantTimeChangeNotification
 
 export type UIApplicationState_t = UIApplicationState
 export type UIApplicationState_c = typeof UIApplicationState
 export type UIApplicationStateRestorationBundleVersionKey_c =
-	typeof UIApplicationStateRestorationBundleVersionKey
+  typeof UIApplicationStateRestorationBundleVersionKey
 
 export type UIApplicationStateRestorationSystemVersionKey_c =
-	typeof UIApplicationStateRestorationSystemVersionKey
+  typeof UIApplicationStateRestorationSystemVersionKey
 
 export type UIApplicationStateRestorationTimestampKey_c =
-	typeof UIApplicationStateRestorationTimestampKey
+  typeof UIApplicationStateRestorationTimestampKey
 
 export type UIApplicationStateRestorationUserInterfaceIdiomKey_c =
-	typeof UIApplicationStateRestorationUserInterfaceIdiomKey
+  typeof UIApplicationStateRestorationUserInterfaceIdiomKey
 
 export type UIApplicationStatusBarFrameUserInfoKey_c = typeof UIApplicationStatusBarFrameUserInfoKey
 export type UIApplicationStatusBarOrientationUserInfoKey_c =
-	typeof UIApplicationStatusBarOrientationUserInfoKey
+  typeof UIApplicationStatusBarOrientationUserInfoKey
 
 export type UIApplicationSystemPrefersReducedResourceUsageDidChangeNotification_c =
-	typeof UIApplicationSystemPrefersReducedResourceUsageDidChangeNotification
+  typeof UIApplicationSystemPrefersReducedResourceUsageDidChangeNotification
 
 export type UIApplicationUserDidTakeScreenshotNotification_c =
-	typeof UIApplicationUserDidTakeScreenshotNotification
+  typeof UIApplicationUserDidTakeScreenshotNotification
 
 export type UIApplicationWillChangeStatusBarFrameNotification_c =
-	typeof UIApplicationWillChangeStatusBarFrameNotification
+  typeof UIApplicationWillChangeStatusBarFrameNotification
 
 export type UIApplicationWillChangeStatusBarOrientationNotification_c =
-	typeof UIApplicationWillChangeStatusBarOrientationNotification
+  typeof UIApplicationWillChangeStatusBarOrientationNotification
 
 export type UIApplicationWillEnterForegroundNotification_c =
-	typeof UIApplicationWillEnterForegroundNotification
+  typeof UIApplicationWillEnterForegroundNotification
 
 export type UIApplicationWillResignActiveNotification_c =
-	typeof UIApplicationWillResignActiveNotification
+  typeof UIApplicationWillResignActiveNotification
 
 export type UIApplicationWillTerminateNotification_c = typeof UIApplicationWillTerminateNotification
 export type UIAttachmentBehavior_t = UIAttachmentBehavior
@@ -9908,7 +9908,7 @@ export type UIBarButtonItemStyle_c = typeof UIBarButtonItemStyle
 export type UIBarButtonItemVisibilityPriorityHigh_c = typeof UIBarButtonItemVisibilityPriorityHigh
 export type UIBarButtonItemVisibilityPriorityLow_c = typeof UIBarButtonItemVisibilityPriorityLow
 export type UIBarButtonItemVisibilityPriorityStandard_c =
-	typeof UIBarButtonItemVisibilityPriorityStandard
+  typeof UIBarButtonItemVisibilityPriorityStandard
 
 export type UIBarButtonSystemItem_t = UIBarButtonSystemItem
 export type UIBarButtonSystemItem_c = typeof UIBarButtonSystemItem
@@ -10015,10 +10015,10 @@ export type UICellAccessoryPlacement_c = typeof UICellAccessoryPlacement
 export type UICellAccessoryPopUpMenu_t = UICellAccessoryPopUpMenu
 export type UICellAccessoryPopUpMenu_c = typeof UICellAccessoryPopUpMenu
 export type UICellAccessoryPositionAfterAccessoryOfClass_c =
-	typeof UICellAccessoryPositionAfterAccessoryOfClass
+  typeof UICellAccessoryPositionAfterAccessoryOfClass
 
 export type UICellAccessoryPositionBeforeAccessoryOfClass_c =
-	typeof UICellAccessoryPositionBeforeAccessoryOfClass
+  typeof UICellAccessoryPositionBeforeAccessoryOfClass
 
 export type UICellAccessoryReorder_t = UICellAccessoryReorder
 export type UICellAccessoryReorder_c = typeof UICellAccessoryReorder
@@ -10044,41 +10044,41 @@ export type UICollectionLayoutListAppearance_c = typeof UICollectionLayoutListAp
 export type UICollectionLayoutListConfiguration_t = UICollectionLayoutListConfiguration
 export type UICollectionLayoutListConfiguration_c = typeof UICollectionLayoutListConfiguration
 export type UICollectionLayoutListContentHuggingElements_t =
-	UICollectionLayoutListContentHuggingElements
+  UICollectionLayoutListContentHuggingElements
 
 export type UICollectionLayoutListContentHuggingElements_c =
-	typeof UICollectionLayoutListContentHuggingElements
+  typeof UICollectionLayoutListContentHuggingElements
 
 export type UICollectionLayoutListFooterMode_t = UICollectionLayoutListFooterMode
 export type UICollectionLayoutListFooterMode_c = typeof UICollectionLayoutListFooterMode
 export type UICollectionLayoutListHeaderMode_t = UICollectionLayoutListHeaderMode
 export type UICollectionLayoutListHeaderMode_c = typeof UICollectionLayoutListHeaderMode
 export type UICollectionLayoutSectionOrthogonalScrollingBehavior_t =
-	UICollectionLayoutSectionOrthogonalScrollingBehavior
+  UICollectionLayoutSectionOrthogonalScrollingBehavior
 
 export type UICollectionLayoutSectionOrthogonalScrollingBehavior_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingBehavior
+  typeof UICollectionLayoutSectionOrthogonalScrollingBehavior
 
 export type UICollectionLayoutSectionOrthogonalScrollingBounce_t =
-	UICollectionLayoutSectionOrthogonalScrollingBounce
+  UICollectionLayoutSectionOrthogonalScrollingBounce
 
 export type UICollectionLayoutSectionOrthogonalScrollingBounce_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingBounce
+  typeof UICollectionLayoutSectionOrthogonalScrollingBounce
 
 export type UICollectionLayoutSectionOrthogonalScrollingDecelerationRateAutomatic_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateAutomatic
+  typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateAutomatic
 
 export type UICollectionLayoutSectionOrthogonalScrollingDecelerationRateFast_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateFast
+  typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateFast
 
 export type UICollectionLayoutSectionOrthogonalScrollingDecelerationRateNormal_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateNormal
+  typeof UICollectionLayoutSectionOrthogonalScrollingDecelerationRateNormal
 
 export type UICollectionLayoutSectionOrthogonalScrollingProperties_t =
-	UICollectionLayoutSectionOrthogonalScrollingProperties
+  UICollectionLayoutSectionOrthogonalScrollingProperties
 
 export type UICollectionLayoutSectionOrthogonalScrollingProperties_c =
-	typeof UICollectionLayoutSectionOrthogonalScrollingProperties
+  typeof UICollectionLayoutSectionOrthogonalScrollingProperties
 
 export type UICollectionReusableView_t = UICollectionReusableView
 export type UICollectionReusableView_c = typeof UICollectionReusableView
@@ -10095,10 +10095,10 @@ export type UICollectionViewCellRegistration_c = typeof UICollectionViewCellRegi
 export type UICollectionViewCompositionalLayout_t = UICollectionViewCompositionalLayout
 export type UICollectionViewCompositionalLayout_c = typeof UICollectionViewCompositionalLayout
 export type UICollectionViewCompositionalLayoutConfiguration_t =
-	UICollectionViewCompositionalLayoutConfiguration
+  UICollectionViewCompositionalLayoutConfiguration
 
 export type UICollectionViewCompositionalLayoutConfiguration_c =
-	typeof UICollectionViewCompositionalLayoutConfiguration
+  typeof UICollectionViewCompositionalLayoutConfiguration
 
 export type UICollectionViewController_t = UICollectionViewController
 export type UICollectionViewController_c = typeof UICollectionViewController
@@ -10111,20 +10111,20 @@ export type UICollectionViewDelegate_c = typeof UICollectionViewDelegate
 export type UICollectionViewDelegateFlowLayout_t = UICollectionViewDelegateFlowLayout
 export type UICollectionViewDelegateFlowLayout_c = typeof UICollectionViewDelegateFlowLayout
 export type UICollectionViewDiffableDataSource_t<SectionIdentifierType, ItemIdentifierType> =
-	UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
+  UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
 
 export type UICollectionViewDiffableDataSource_c = typeof UICollectionViewDiffableDataSource
 export type UICollectionViewDiffableDataSourceReorderingHandlers_t<SectionType, ItemType> =
-	UICollectionViewDiffableDataSourceReorderingHandlers<SectionType, ItemType>
+  UICollectionViewDiffableDataSourceReorderingHandlers<SectionType, ItemType>
 
 export type UICollectionViewDiffableDataSourceReorderingHandlers_c =
-	typeof UICollectionViewDiffableDataSourceReorderingHandlers
+  typeof UICollectionViewDiffableDataSourceReorderingHandlers
 
 export type UICollectionViewDiffableDataSourceSectionSnapshotHandlers_t<ItemType> =
-	UICollectionViewDiffableDataSourceSectionSnapshotHandlers<ItemType>
+  UICollectionViewDiffableDataSourceSectionSnapshotHandlers<ItemType>
 
 export type UICollectionViewDiffableDataSourceSectionSnapshotHandlers_c =
-	typeof UICollectionViewDiffableDataSourceSectionSnapshotHandlers
+  typeof UICollectionViewDiffableDataSourceSectionSnapshotHandlers
 
 export type UICollectionViewDragDelegate_t = UICollectionViewDragDelegate
 export type UICollectionViewDragDelegate_c = typeof UICollectionViewDragDelegate
@@ -10145,19 +10145,19 @@ export type UICollectionViewDropProposal_c = typeof UICollectionViewDropProposal
 export type UICollectionViewFlowLayout_t = UICollectionViewFlowLayout
 export type UICollectionViewFlowLayout_c = typeof UICollectionViewFlowLayout
 export type UICollectionViewFlowLayoutAutomaticSize_c =
-	typeof UICollectionViewFlowLayoutAutomaticSize
+  typeof UICollectionViewFlowLayoutAutomaticSize
 
 export type UICollectionViewFlowLayoutInvalidationContext_t =
-	UICollectionViewFlowLayoutInvalidationContext
+  UICollectionViewFlowLayoutInvalidationContext
 
 export type UICollectionViewFlowLayoutInvalidationContext_c =
-	typeof UICollectionViewFlowLayoutInvalidationContext
+  typeof UICollectionViewFlowLayoutInvalidationContext
 
 export type UICollectionViewFlowLayoutSectionInsetReference_t =
-	UICollectionViewFlowLayoutSectionInsetReference
+  UICollectionViewFlowLayoutSectionInsetReference
 
 export type UICollectionViewFlowLayoutSectionInsetReference_c =
-	typeof UICollectionViewFlowLayoutSectionInsetReference
+  typeof UICollectionViewFlowLayoutSectionInsetReference
 
 export type UICollectionViewFocusUpdateContext_t = UICollectionViewFocusUpdateContext
 export type UICollectionViewFocusUpdateContext_c = typeof UICollectionViewFocusUpdateContext
@@ -10166,11 +10166,11 @@ export type UICollectionViewLayout_c = typeof UICollectionViewLayout
 export type UICollectionViewLayoutAttributes_t = UICollectionViewLayoutAttributes
 export type UICollectionViewLayoutAttributes_c = typeof UICollectionViewLayoutAttributes
 export type UICollectionViewLayoutAutomaticDimension_c =
-	typeof UICollectionViewLayoutAutomaticDimension
+  typeof UICollectionViewLayoutAutomaticDimension
 
 export type UICollectionViewLayoutInvalidationContext_t = UICollectionViewLayoutInvalidationContext
 export type UICollectionViewLayoutInvalidationContext_c =
-	typeof UICollectionViewLayoutInvalidationContext
+  typeof UICollectionViewLayoutInvalidationContext
 
 export type UICollectionViewListCell_t = UICollectionViewListCell
 export type UICollectionViewListCell_c = typeof UICollectionViewListCell
@@ -10186,7 +10186,7 @@ export type UICollectionViewSelfSizingInvalidation_t = UICollectionViewSelfSizin
 export type UICollectionViewSelfSizingInvalidation_c = typeof UICollectionViewSelfSizingInvalidation
 export type UICollectionViewSupplementaryRegistration_t = UICollectionViewSupplementaryRegistration
 export type UICollectionViewSupplementaryRegistration_c =
-	typeof UICollectionViewSupplementaryRegistration
+  typeof UICollectionViewSupplementaryRegistration
 
 export type UICollectionViewTransitionLayout_t = UICollectionViewTransitionLayout
 export type UICollectionViewTransitionLayout_c = typeof UICollectionViewTransitionLayout
@@ -10216,13 +10216,13 @@ export type UICommandAlternate_t = UICommandAlternate
 export type UICommandAlternate_c = typeof UICommandAlternate
 export type UICommandTagShare_c = typeof UICommandTagShare
 export type UIConfigurationColorTransformerGrayscale_c =
-	typeof UIConfigurationColorTransformerGrayscale
+  typeof UIConfigurationColorTransformerGrayscale
 
 export type UIConfigurationColorTransformerMonochromeTint_c =
-	typeof UIConfigurationColorTransformerMonochromeTint
+  typeof UIConfigurationColorTransformerMonochromeTint
 
 export type UIConfigurationColorTransformerPreferredTint_c =
-	typeof UIConfigurationColorTransformerPreferredTint
+  typeof UIConfigurationColorTransformerPreferredTint
 
 export type UIConfigurationState_t = UIConfigurationState
 export type UIConfigurationState_c = typeof UIConfigurationState
@@ -10233,34 +10233,34 @@ export type UIContentContainer_c = typeof UIContentContainer
 export type UIContentInsetsReference_t = UIContentInsetsReference
 export type UIContentInsetsReference_c = typeof UIContentInsetsReference
 export type UIContentSizeCategoryAccessibilityExtraExtraExtraLarge_c =
-	typeof UIContentSizeCategoryAccessibilityExtraExtraExtraLarge
+  typeof UIContentSizeCategoryAccessibilityExtraExtraExtraLarge
 
 export type UIContentSizeCategoryAccessibilityExtraExtraLarge_c =
-	typeof UIContentSizeCategoryAccessibilityExtraExtraLarge
+  typeof UIContentSizeCategoryAccessibilityExtraExtraLarge
 
 export type UIContentSizeCategoryAccessibilityExtraLarge_c =
-	typeof UIContentSizeCategoryAccessibilityExtraLarge
+  typeof UIContentSizeCategoryAccessibilityExtraLarge
 
 export type UIContentSizeCategoryAccessibilityLarge_c =
-	typeof UIContentSizeCategoryAccessibilityLarge
+  typeof UIContentSizeCategoryAccessibilityLarge
 
 export type UIContentSizeCategoryAccessibilityMedium_c =
-	typeof UIContentSizeCategoryAccessibilityMedium
+  typeof UIContentSizeCategoryAccessibilityMedium
 
 export type UIContentSizeCategoryAdjusting_t = UIContentSizeCategoryAdjusting
 export type UIContentSizeCategoryAdjusting_c = typeof UIContentSizeCategoryAdjusting
 export type UIContentSizeCategoryCompareToCategory_c = typeof UIContentSizeCategoryCompareToCategory
 export type UIContentSizeCategoryDidChangeNotification_c =
-	typeof UIContentSizeCategoryDidChangeNotification
+  typeof UIContentSizeCategoryDidChangeNotification
 
 export type UIContentSizeCategoryExtraExtraExtraLarge_c =
-	typeof UIContentSizeCategoryExtraExtraExtraLarge
+  typeof UIContentSizeCategoryExtraExtraExtraLarge
 
 export type UIContentSizeCategoryExtraExtraLarge_c = typeof UIContentSizeCategoryExtraExtraLarge
 export type UIContentSizeCategoryExtraLarge_c = typeof UIContentSizeCategoryExtraLarge
 export type UIContentSizeCategoryExtraSmall_c = typeof UIContentSizeCategoryExtraSmall
 export type UIContentSizeCategoryIsAccessibilityCategory_c =
-	typeof UIContentSizeCategoryIsAccessibilityCategory
+  typeof UIContentSizeCategoryIsAccessibilityCategory
 
 export type UIContentSizeCategoryLarge_c = typeof UIContentSizeCategoryLarge
 export type UIContentSizeCategoryMedium_c = typeof UIContentSizeCategoryMedium
@@ -10295,7 +10295,7 @@ export type UIContextMenuInteractionAppearance_t = UIContextMenuInteractionAppea
 export type UIContextMenuInteractionAppearance_c = typeof UIContextMenuInteractionAppearance
 export type UIContextMenuInteractionCommitAnimating_t = UIContextMenuInteractionCommitAnimating
 export type UIContextMenuInteractionCommitAnimating_c =
-	typeof UIContextMenuInteractionCommitAnimating
+  typeof UIContextMenuInteractionCommitAnimating
 
 export type UIContextMenuInteractionCommitStyle_t = UIContextMenuInteractionCommitStyle
 export type UIContextMenuInteractionCommitStyle_c = typeof UIContextMenuInteractionCommitStyle
@@ -10350,20 +10350,20 @@ export type UIDeferredMenuElementProvider_c = typeof UIDeferredMenuElementProvid
 export type UIDevice_t = UIDevice
 export type UIDevice_c = typeof UIDevice
 export type UIDeviceBatteryLevelDidChangeNotification_c =
-	typeof UIDeviceBatteryLevelDidChangeNotification
+  typeof UIDeviceBatteryLevelDidChangeNotification
 
 export type UIDeviceBatteryState_t = UIDeviceBatteryState
 export type UIDeviceBatteryState_c = typeof UIDeviceBatteryState
 export type UIDeviceBatteryStateDidChangeNotification_c =
-	typeof UIDeviceBatteryStateDidChangeNotification
+  typeof UIDeviceBatteryStateDidChangeNotification
 
 export type UIDeviceOrientation_t = UIDeviceOrientation
 export type UIDeviceOrientation_c = typeof UIDeviceOrientation
 export type UIDeviceOrientationDidChangeNotification_c =
-	typeof UIDeviceOrientationDidChangeNotification
+  typeof UIDeviceOrientationDidChangeNotification
 
 export type UIDeviceProximityStateDidChangeNotification_c =
-	typeof UIDeviceProximityStateDidChangeNotification
+  typeof UIDeviceProximityStateDidChangeNotification
 
 export type UIDictationPhrase_t = UIDictationPhrase
 export type UIDictationPhrase_c = typeof UIDictationPhrase
@@ -10390,22 +10390,22 @@ export type UIDocumentBrowserViewController_t = UIDocumentBrowserViewController
 export type UIDocumentBrowserViewController_c = typeof UIDocumentBrowserViewController
 export type UIDocumentBrowserViewControllerDelegate_t = UIDocumentBrowserViewControllerDelegate
 export type UIDocumentBrowserViewControllerDelegate_c =
-	typeof UIDocumentBrowserViewControllerDelegate
+  typeof UIDocumentBrowserViewControllerDelegate
 
 export type UIDocumentChangeKind_t = UIDocumentChangeKind
 export type UIDocumentChangeKind_c = typeof UIDocumentChangeKind
 export type UIDocumentCreationIntentDefault_c = typeof UIDocumentCreationIntentDefault
 export type UIDocumentDidMoveToWritableLocationNotification_c =
-	typeof UIDocumentDidMoveToWritableLocationNotification
+  typeof UIDocumentDidMoveToWritableLocationNotification
 
 export type UIDocumentDidMoveToWritableLocationOldURLKey_c =
-	typeof UIDocumentDidMoveToWritableLocationOldURLKey
+  typeof UIDocumentDidMoveToWritableLocationOldURLKey
 
 export type UIDocumentInteractionController_t = UIDocumentInteractionController
 export type UIDocumentInteractionController_c = typeof UIDocumentInteractionController
 export type UIDocumentInteractionControllerDelegate_t = UIDocumentInteractionControllerDelegate
 export type UIDocumentInteractionControllerDelegate_c =
-	typeof UIDocumentInteractionControllerDelegate
+  typeof UIDocumentInteractionControllerDelegate
 
 export type UIDocumentMenuDelegate_t = UIDocumentMenuDelegate
 export type UIDocumentMenuDelegate_c = typeof UIDocumentMenuDelegate
@@ -10417,7 +10417,7 @@ export type UIDocumentPickerDelegate_t = UIDocumentPickerDelegate
 export type UIDocumentPickerDelegate_c = typeof UIDocumentPickerDelegate
 export type UIDocumentPickerExtensionViewController_t = UIDocumentPickerExtensionViewController
 export type UIDocumentPickerExtensionViewController_c =
-	typeof UIDocumentPickerExtensionViewController
+  typeof UIDocumentPickerExtensionViewController
 
 export type UIDocumentPickerMode_t = UIDocumentPickerMode
 export type UIDocumentPickerMode_c = typeof UIDocumentPickerMode
@@ -10575,7 +10575,7 @@ export type UIFontDescriptorCharacterSetAttribute_c = typeof UIFontDescriptorCha
 export type UIFontDescriptorFaceAttribute_c = typeof UIFontDescriptorFaceAttribute
 export type UIFontDescriptorFamilyAttribute_c = typeof UIFontDescriptorFamilyAttribute
 export type UIFontDescriptorFeatureSettingsAttribute_c =
-	typeof UIFontDescriptorFeatureSettingsAttribute
+  typeof UIFontDescriptorFeatureSettingsAttribute
 
 export type UIFontDescriptorFixedAdvanceAttribute_c = typeof UIFontDescriptorFixedAdvanceAttribute
 export type UIFontDescriptorMatrixAttribute_c = typeof UIFontDescriptorMatrixAttribute
@@ -10598,7 +10598,7 @@ export type UIFontPickerViewController_t = UIFontPickerViewController
 export type UIFontPickerViewController_c = typeof UIFontPickerViewController
 export type UIFontPickerViewControllerConfiguration_t = UIFontPickerViewControllerConfiguration
 export type UIFontPickerViewControllerConfiguration_c =
-	typeof UIFontPickerViewControllerConfiguration
+  typeof UIFontPickerViewControllerConfiguration
 
 export type UIFontPickerViewControllerDelegate_t = UIFontPickerViewControllerDelegate
 export type UIFontPickerViewControllerDelegate_c = typeof UIFontPickerViewControllerDelegate
@@ -10648,7 +10648,7 @@ export type UIGlassEffect_c = typeof UIGlassEffect
 export type UIGlassEffectStyle_t = UIGlassEffectStyle
 export type UIGlassEffectStyle_c = typeof UIGlassEffectStyle
 export type UIGraphicsAddPDFContextDestinationAtPoint_c =
-	typeof UIGraphicsAddPDFContextDestinationAtPoint
+  typeof UIGraphicsAddPDFContextDestinationAtPoint
 
 export type UIGraphicsBeginImageContext_c = typeof UIGraphicsBeginImageContext
 export type UIGraphicsBeginImageContextWithOptions_c = typeof UIGraphicsBeginImageContextWithOptions
@@ -10660,7 +10660,7 @@ export type UIGraphicsEndImageContext_c = typeof UIGraphicsEndImageContext
 export type UIGraphicsEndPDFContext_c = typeof UIGraphicsEndPDFContext
 export type UIGraphicsGetCurrentContext_c = typeof UIGraphicsGetCurrentContext
 export type UIGraphicsGetImageFromCurrentImageContext_c =
-	typeof UIGraphicsGetImageFromCurrentImageContext
+  typeof UIGraphicsGetImageFromCurrentImageContext
 
 export type UIGraphicsGetPDFContextBounds_c = typeof UIGraphicsGetPDFContextBounds
 export type UIGraphicsImageRenderer_t = UIGraphicsImageRenderer
@@ -10686,7 +10686,7 @@ export type UIGraphicsRendererContext_c = typeof UIGraphicsRendererContext
 export type UIGraphicsRendererFormat_t = UIGraphicsRendererFormat
 export type UIGraphicsRendererFormat_c = typeof UIGraphicsRendererFormat
 export type UIGraphicsSetPDFContextDestinationForRect_c =
-	typeof UIGraphicsSetPDFContextDestinationForRect
+  typeof UIGraphicsSetPDFContextDestinationForRect
 
 export type UIGraphicsSetPDFContextURLForRect_c = typeof UIGraphicsSetPDFContextURLForRect
 export type UIGravityBehavior_t = UIGravityBehavior
@@ -10694,7 +10694,7 @@ export type UIGravityBehavior_c = typeof UIGravityBehavior
 export type UIGuidedAccessAccessibilityFeature_t = UIGuidedAccessAccessibilityFeature
 export type UIGuidedAccessAccessibilityFeature_c = typeof UIGuidedAccessAccessibilityFeature
 export type UIGuidedAccessConfigureAccessibilityFeatures_c =
-	typeof UIGuidedAccessConfigureAccessibilityFeatures
+  typeof UIGuidedAccessConfigureAccessibilityFeatures
 
 export type UIGuidedAccessErrorCode_t = UIGuidedAccessErrorCode
 export type UIGuidedAccessErrorCode_c = typeof UIGuidedAccessErrorCode
@@ -10704,7 +10704,7 @@ export type UIGuidedAccessRestrictionDelegate_c = typeof UIGuidedAccessRestricti
 export type UIGuidedAccessRestrictionState_t = UIGuidedAccessRestrictionState
 export type UIGuidedAccessRestrictionState_c = typeof UIGuidedAccessRestrictionState
 export type UIGuidedAccessRestrictionStateForIdentifier_c =
-	typeof UIGuidedAccessRestrictionStateForIdentifier
+  typeof UIGuidedAccessRestrictionStateForIdentifier
 
 export type UIHDRHeadroomUsageLimit_t = UIHDRHeadroomUsageLimit
 export type UIHDRHeadroomUsageLimit_c = typeof UIHDRHeadroomUsageLimit
@@ -10737,7 +10737,7 @@ export type UIImagePickerController_t = UIImagePickerController
 export type UIImagePickerController_c = typeof UIImagePickerController
 export type UIImagePickerControllerCameraCaptureMode_t = UIImagePickerControllerCameraCaptureMode
 export type UIImagePickerControllerCameraCaptureMode_c =
-	typeof UIImagePickerControllerCameraCaptureMode
+  typeof UIImagePickerControllerCameraCaptureMode
 
 export type UIImagePickerControllerCameraDevice_t = UIImagePickerControllerCameraDevice
 export type UIImagePickerControllerCameraDevice_c = typeof UIImagePickerControllerCameraDevice
@@ -10749,10 +10749,10 @@ export type UIImagePickerControllerDelegate_c = typeof UIImagePickerControllerDe
 export type UIImagePickerControllerEditedImage_c = typeof UIImagePickerControllerEditedImage
 export type UIImagePickerControllerImageURL_c = typeof UIImagePickerControllerImageURL
 export type UIImagePickerControllerImageURLExportPreset_t =
-	UIImagePickerControllerImageURLExportPreset
+  UIImagePickerControllerImageURLExportPreset
 
 export type UIImagePickerControllerImageURLExportPreset_c =
-	typeof UIImagePickerControllerImageURLExportPreset
+  typeof UIImagePickerControllerImageURLExportPreset
 
 export type UIImagePickerControllerLivePhoto_c = typeof UIImagePickerControllerLivePhoto
 export type UIImagePickerControllerMediaMetadata_c = typeof UIImagePickerControllerMediaMetadata
@@ -10817,19 +10817,19 @@ export type UIInterpolatingMotionEffectType_t = UIInterpolatingMotionEffectType
 export type UIInterpolatingMotionEffectType_c = typeof UIInterpolatingMotionEffectType
 export type UIItemProviderPresentationSizeProviding_t = UIItemProviderPresentationSizeProviding
 export type UIItemProviderPresentationSizeProviding_c =
-	typeof UIItemProviderPresentationSizeProviding
+  typeof UIItemProviderPresentationSizeProviding
 
 export type UIItemProviderReadingAugmentationDesignating_t =
-	UIItemProviderReadingAugmentationDesignating
+  UIItemProviderReadingAugmentationDesignating
 
 export type UIItemProviderReadingAugmentationDesignating_c =
-	typeof UIItemProviderReadingAugmentationDesignating
+  typeof UIItemProviderReadingAugmentationDesignating
 
 export type UIItemProviderReadingAugmentationProviding_t =
-	UIItemProviderReadingAugmentationProviding
+  UIItemProviderReadingAugmentationProviding
 
 export type UIItemProviderReadingAugmentationProviding_c =
-	typeof UIItemProviderReadingAugmentationProviding
+  typeof UIItemProviderReadingAugmentationProviding
 
 export type UIKey_t = UIKey
 export type UIKey_c = typeof UIKey
@@ -10892,10 +10892,10 @@ export type UILargeContentViewerInteraction_t = UILargeContentViewerInteraction
 export type UILargeContentViewerInteraction_c = typeof UILargeContentViewerInteraction
 export type UILargeContentViewerInteractionDelegate_t = UILargeContentViewerInteractionDelegate
 export type UILargeContentViewerInteractionDelegate_c =
-	typeof UILargeContentViewerInteractionDelegate
+  typeof UILargeContentViewerInteractionDelegate
 
 export type UILargeContentViewerInteractionEnabledStatusDidChangeNotification_c =
-	typeof UILargeContentViewerInteractionEnabledStatusDidChangeNotification
+  typeof UILargeContentViewerInteractionEnabledStatusDidChangeNotification
 
 export type UILargeContentViewerItem_t = UILargeContentViewerItem
 export type UILargeContentViewerItem_c = typeof UILargeContentViewerItem
@@ -10911,7 +10911,7 @@ export type UILayoutPriorityDefaultHigh_c = typeof UILayoutPriorityDefaultHigh
 export type UILayoutPriorityDefaultLow_c = typeof UILayoutPriorityDefaultLow
 export type UILayoutPriorityDragThatCanResizeScene_c = typeof UILayoutPriorityDragThatCanResizeScene
 export type UILayoutPriorityDragThatCannotResizeScene_c =
-	typeof UILayoutPriorityDragThatCannotResizeScene
+  typeof UILayoutPriorityDragThatCannotResizeScene
 
 export type UILayoutPriorityFittingSizeLevel_c = typeof UILayoutPriorityFittingSizeLevel
 export type UILayoutPriorityRequired_c = typeof UILayoutPriorityRequired
@@ -10988,19 +10988,19 @@ export type UIMenuController_c = typeof UIMenuController
 export type UIMenuControllerArrowDirection_t = UIMenuControllerArrowDirection
 export type UIMenuControllerArrowDirection_c = typeof UIMenuControllerArrowDirection
 export type UIMenuControllerDidHideMenuNotification_c =
-	typeof UIMenuControllerDidHideMenuNotification
+  typeof UIMenuControllerDidHideMenuNotification
 
 export type UIMenuControllerDidShowMenuNotification_c =
-	typeof UIMenuControllerDidShowMenuNotification
+  typeof UIMenuControllerDidShowMenuNotification
 
 export type UIMenuControllerMenuFrameDidChangeNotification_c =
-	typeof UIMenuControllerMenuFrameDidChangeNotification
+  typeof UIMenuControllerMenuFrameDidChangeNotification
 
 export type UIMenuControllerWillHideMenuNotification_c =
-	typeof UIMenuControllerWillHideMenuNotification
+  typeof UIMenuControllerWillHideMenuNotification
 
 export type UIMenuControllerWillShowMenuNotification_c =
-	typeof UIMenuControllerWillShowMenuNotification
+  typeof UIMenuControllerWillShowMenuNotification
 
 export type UIMenuDisplayPreferences_t = UIMenuDisplayPreferences
 export type UIMenuDisplayPreferences_c = typeof UIMenuDisplayPreferences
@@ -11061,13 +11061,13 @@ export type UIMenuSystemElementGroupPreference_t = UIMenuSystemElementGroupPrefe
 export type UIMenuSystemElementGroupPreference_c = typeof UIMenuSystemElementGroupPreference
 export type UIMenuSystemFindElementGroupConfiguration_t = UIMenuSystemFindElementGroupConfiguration
 export type UIMenuSystemFindElementGroupConfiguration_c =
-	typeof UIMenuSystemFindElementGroupConfiguration
+  typeof UIMenuSystemFindElementGroupConfiguration
 
 export type UIMenuSystemFindElementGroupConfigurationStyle_t =
-	UIMenuSystemFindElementGroupConfigurationStyle
+  UIMenuSystemFindElementGroupConfigurationStyle
 
 export type UIMenuSystemFindElementGroupConfigurationStyle_c =
-	typeof UIMenuSystemFindElementGroupConfigurationStyle
+  typeof UIMenuSystemFindElementGroupConfigurationStyle
 
 export type UIMenuText_c = typeof UIMenuText
 export type UIMenuTextColor_c = typeof UIMenuTextColor
@@ -11120,7 +11120,7 @@ export type UINavigationController_c = typeof UINavigationController
 export type UINavigationControllerDelegate_t = UINavigationControllerDelegate
 export type UINavigationControllerDelegate_c = typeof UINavigationControllerDelegate
 export type UINavigationControllerHideShowBarDuration_c =
-	typeof UINavigationControllerHideShowBarDuration
+  typeof UINavigationControllerHideShowBarDuration
 
 export type UINavigationControllerOperation_t = UINavigationControllerOperation
 export type UINavigationControllerOperation_c = typeof UINavigationControllerOperation
@@ -11178,17 +11178,17 @@ export type UIPageViewControllerDelegate_t = UIPageViewControllerDelegate
 export type UIPageViewControllerDelegate_c = typeof UIPageViewControllerDelegate
 export type UIPageViewControllerNavigationDirection_t = UIPageViewControllerNavigationDirection
 export type UIPageViewControllerNavigationDirection_c =
-	typeof UIPageViewControllerNavigationDirection
+  typeof UIPageViewControllerNavigationDirection
 
 export type UIPageViewControllerNavigationOrientation_t = UIPageViewControllerNavigationOrientation
 export type UIPageViewControllerNavigationOrientation_c =
-	typeof UIPageViewControllerNavigationOrientation
+  typeof UIPageViewControllerNavigationOrientation
 
 export type UIPageViewControllerOptionInterPageSpacingKey_c =
-	typeof UIPageViewControllerOptionInterPageSpacingKey
+  typeof UIPageViewControllerOptionInterPageSpacingKey
 
 export type UIPageViewControllerOptionSpineLocationKey_c =
-	typeof UIPageViewControllerOptionSpineLocationKey
+  typeof UIPageViewControllerOptionSpineLocationKey
 
 export type UIPageViewControllerSpineLocation_t = UIPageViewControllerSpineLocation
 export type UIPageViewControllerSpineLocation_c = typeof UIPageViewControllerSpineLocation
@@ -11212,33 +11212,33 @@ export type UIPasteboardChangedNotification_c = typeof UIPasteboardChangedNotifi
 export type UIPasteboardChangedTypesAddedKey_c = typeof UIPasteboardChangedTypesAddedKey
 export type UIPasteboardChangedTypesRemovedKey_c = typeof UIPasteboardChangedTypesRemovedKey
 export type UIPasteboardDetectionPatternCalendarEvent_c =
-	typeof UIPasteboardDetectionPatternCalendarEvent
+  typeof UIPasteboardDetectionPatternCalendarEvent
 
 export type UIPasteboardDetectionPatternEmailAddress_c =
-	typeof UIPasteboardDetectionPatternEmailAddress
+  typeof UIPasteboardDetectionPatternEmailAddress
 
 export type UIPasteboardDetectionPatternFlightNumber_c =
-	typeof UIPasteboardDetectionPatternFlightNumber
+  typeof UIPasteboardDetectionPatternFlightNumber
 
 export type UIPasteboardDetectionPatternLink_c = typeof UIPasteboardDetectionPatternLink
 export type UIPasteboardDetectionPatternMoneyAmount_c =
-	typeof UIPasteboardDetectionPatternMoneyAmount
+  typeof UIPasteboardDetectionPatternMoneyAmount
 
 export type UIPasteboardDetectionPatternNumber_c = typeof UIPasteboardDetectionPatternNumber
 export type UIPasteboardDetectionPatternPhoneNumber_c =
-	typeof UIPasteboardDetectionPatternPhoneNumber
+  typeof UIPasteboardDetectionPatternPhoneNumber
 
 export type UIPasteboardDetectionPatternPostalAddress_c =
-	typeof UIPasteboardDetectionPatternPostalAddress
+  typeof UIPasteboardDetectionPatternPostalAddress
 
 export type UIPasteboardDetectionPatternProbableWebSearch_c =
-	typeof UIPasteboardDetectionPatternProbableWebSearch
+  typeof UIPasteboardDetectionPatternProbableWebSearch
 
 export type UIPasteboardDetectionPatternProbableWebURL_c =
-	typeof UIPasteboardDetectionPatternProbableWebURL
+  typeof UIPasteboardDetectionPatternProbableWebURL
 
 export type UIPasteboardDetectionPatternShipmentTrackingNumber_c =
-	typeof UIPasteboardDetectionPatternShipmentTrackingNumber
+  typeof UIPasteboardDetectionPatternShipmentTrackingNumber
 
 export type UIPasteboardNameFind_c = typeof UIPasteboardNameFind
 export type UIPasteboardNameGeneral_c = typeof UIPasteboardNameGeneral
@@ -11309,7 +11309,7 @@ export type UIPointerLiftEffect_c = typeof UIPointerLiftEffect
 export type UIPointerLockState_t = UIPointerLockState
 export type UIPointerLockState_c = typeof UIPointerLockState
 export type UIPointerLockStateDidChangeNotification_c =
-	typeof UIPointerLockStateDidChangeNotification
+  typeof UIPointerLockStateDidChangeNotification
 
 export type UIPointerLockStateSceneUserInfoKey_c = typeof UIPointerLockStateSceneUserInfoKey
 export type UIPointerRegion_t = UIPointerRegion
@@ -11334,11 +11334,11 @@ export type UIPopoverPresentationController_t = UIPopoverPresentationController
 export type UIPopoverPresentationController_c = typeof UIPopoverPresentationController
 export type UIPopoverPresentationControllerDelegate_t = UIPopoverPresentationControllerDelegate
 export type UIPopoverPresentationControllerDelegate_c =
-	typeof UIPopoverPresentationControllerDelegate
+  typeof UIPopoverPresentationControllerDelegate
 
 export type UIPopoverPresentationControllerSourceItem_t = UIPopoverPresentationControllerSourceItem
 export type UIPopoverPresentationControllerSourceItem_c =
-	typeof UIPopoverPresentationControllerSourceItem
+  typeof UIPopoverPresentationControllerSourceItem
 
 export type UIPreferredPresentationStyle_t = UIPreferredPresentationStyle
 export type UIPreferredPresentationStyle_c = typeof UIPreferredPresentationStyle
@@ -11484,7 +11484,7 @@ export type UISceneSessionActivationRequest_c = typeof UISceneSessionActivationR
 export type UISceneSizeRestrictions_t = UISceneSizeRestrictions
 export type UISceneSizeRestrictions_c = typeof UISceneSizeRestrictions
 export type UISceneSystemProtectionDidChangeNotification_c =
-	typeof UISceneSystemProtectionDidChangeNotification
+  typeof UISceneSystemProtectionDidChangeNotification
 
 export type UISceneSystemProtectionManager_t = UISceneSystemProtectionManager
 export type UISceneSystemProtectionManager_c = typeof UISceneSystemProtectionManager
@@ -11498,7 +11498,7 @@ export type UISceneWindowingControlStyle_c = typeof UISceneWindowingControlStyle
 export type UIScreen_t = UIScreen
 export type UIScreen_c = typeof UIScreen
 export type UIScreenBrightnessDidChangeNotification_c =
-	typeof UIScreenBrightnessDidChangeNotification
+  typeof UIScreenBrightnessDidChangeNotification
 
 export type UIScreenCapturedDidChangeNotification_c = typeof UIScreenCapturedDidChangeNotification
 export type UIScreenDidConnectNotification_c = typeof UIScreenDidConnectNotification
@@ -11513,7 +11513,7 @@ export type UIScreenOverscanCompensation_c = typeof UIScreenOverscanCompensation
 export type UIScreenReferenceDisplayModeStatus_t = UIScreenReferenceDisplayModeStatus
 export type UIScreenReferenceDisplayModeStatus_c = typeof UIScreenReferenceDisplayModeStatus
 export type UIScreenReferenceDisplayModeStatusDidChangeNotification_c =
-	typeof UIScreenReferenceDisplayModeStatusDidChangeNotification
+  typeof UIScreenReferenceDisplayModeStatusDidChangeNotification
 
 export type UIScreenshotService_t = UIScreenshotService
 export type UIScreenshotService_c = typeof UIScreenshotService
@@ -11529,7 +11529,7 @@ export type UIScrollEdgeEffectStyle_t = UIScrollEdgeEffectStyle
 export type UIScrollEdgeEffectStyle_c = typeof UIScrollEdgeEffectStyle
 export type UIScrollEdgeElementContainerInteraction_t = UIScrollEdgeElementContainerInteraction
 export type UIScrollEdgeElementContainerInteraction_c =
-	typeof UIScrollEdgeElementContainerInteraction
+  typeof UIScrollEdgeElementContainerInteraction
 
 export type UIScrollType_t = UIScrollType
 export type UIScrollType_c = typeof UIScrollType
@@ -11540,10 +11540,10 @@ export type UIScrollView_c = typeof UIScrollView
 export type UIScrollViewAccessibilityDelegate_t = UIScrollViewAccessibilityDelegate
 export type UIScrollViewAccessibilityDelegate_c = typeof UIScrollViewAccessibilityDelegate
 export type UIScrollViewContentInsetAdjustmentBehavior_t =
-	UIScrollViewContentInsetAdjustmentBehavior
+  UIScrollViewContentInsetAdjustmentBehavior
 
 export type UIScrollViewContentInsetAdjustmentBehavior_c =
-	typeof UIScrollViewContentInsetAdjustmentBehavior
+  typeof UIScrollViewContentInsetAdjustmentBehavior
 
 export type UIScrollViewDecelerationRateFast_c = typeof UIScrollViewDecelerationRateFast
 export type UIScrollViewDecelerationRateNormal_c = typeof UIScrollViewDecelerationRateNormal
@@ -11613,26 +11613,26 @@ export type UIShapeResolutionContext_c = typeof UIShapeResolutionContext
 export type UISheetPresentationController_t = UISheetPresentationController
 export type UISheetPresentationController_c = typeof UISheetPresentationController
 export type UISheetPresentationControllerAutomaticDimension_c =
-	typeof UISheetPresentationControllerAutomaticDimension
+  typeof UISheetPresentationControllerAutomaticDimension
 
 export type UISheetPresentationControllerDelegate_t = UISheetPresentationControllerDelegate
 export type UISheetPresentationControllerDelegate_c = typeof UISheetPresentationControllerDelegate
 export type UISheetPresentationControllerDetent_t = UISheetPresentationControllerDetent
 export type UISheetPresentationControllerDetent_c = typeof UISheetPresentationControllerDetent
 export type UISheetPresentationControllerDetentIdentifierLarge_c =
-	typeof UISheetPresentationControllerDetentIdentifierLarge
+  typeof UISheetPresentationControllerDetentIdentifierLarge
 
 export type UISheetPresentationControllerDetentIdentifierMedium_c =
-	typeof UISheetPresentationControllerDetentIdentifierMedium
+  typeof UISheetPresentationControllerDetentIdentifierMedium
 
 export type UISheetPresentationControllerDetentInactive_c =
-	typeof UISheetPresentationControllerDetentInactive
+  typeof UISheetPresentationControllerDetentInactive
 
 export type UISheetPresentationControllerDetentResolutionContext_t =
-	UISheetPresentationControllerDetentResolutionContext
+  UISheetPresentationControllerDetentResolutionContext
 
 export type UISheetPresentationControllerDetentResolutionContext_c =
-	typeof UISheetPresentationControllerDetentResolutionContext
+  typeof UISheetPresentationControllerDetentResolutionContext
 
 export type UISheetPresentationControllerPlacement_t = UISheetPresentationControllerPlacement
 export type UISheetPresentationControllerPlacement_c = typeof UISheetPresentationControllerPlacement
@@ -11653,7 +11653,7 @@ export type UISnapBehavior_c = typeof UISnapBehavior
 export type UISplitViewController_t = UISplitViewController
 export type UISplitViewController_c = typeof UISplitViewController
 export type UISplitViewControllerAutomaticDimension_c =
-	typeof UISplitViewControllerAutomaticDimension
+  typeof UISplitViewControllerAutomaticDimension
 
 export type UISplitViewControllerBackgroundStyle_t = UISplitViewControllerBackgroundStyle
 export type UISplitViewControllerBackgroundStyle_c = typeof UISplitViewControllerBackgroundStyle
@@ -11664,10 +11664,10 @@ export type UISplitViewControllerDelegate_c = typeof UISplitViewControllerDelega
 export type UISplitViewControllerDisplayMode_t = UISplitViewControllerDisplayMode
 export type UISplitViewControllerDisplayMode_c = typeof UISplitViewControllerDisplayMode
 export type UISplitViewControllerDisplayModeButtonVisibility_t =
-	UISplitViewControllerDisplayModeButtonVisibility
+  UISplitViewControllerDisplayModeButtonVisibility
 
 export type UISplitViewControllerDisplayModeButtonVisibility_c =
-	typeof UISplitViewControllerDisplayModeButtonVisibility
+  typeof UISplitViewControllerDisplayModeButtonVisibility
 
 export type UISplitViewControllerLayoutEnvironment_t = UISplitViewControllerLayoutEnvironment
 export type UISplitViewControllerLayoutEnvironment_c = typeof UISplitViewControllerLayoutEnvironment
@@ -11702,7 +11702,7 @@ export type UIStackViewSpacingUseSystem_c = typeof UIStackViewSpacingUseSystem
 export type UIStandardTextCursorView_t = UIStandardTextCursorView
 export type UIStandardTextCursorView_c = typeof UIStandardTextCursorView
 export type UIStateRestorationViewControllerStoryboardKey_c =
-	typeof UIStateRestorationViewControllerStoryboardKey
+  typeof UIStateRestorationViewControllerStoryboardKey
 
 export type UIStateRestoring_t = UIStateRestoring
 export type UIStateRestoring_c = typeof UIStateRestoring
@@ -11824,7 +11824,7 @@ export type UITableViewDataSourcePrefetching_c = typeof UITableViewDataSourcePre
 export type UITableViewDelegate_t = UITableViewDelegate
 export type UITableViewDelegate_c = typeof UITableViewDelegate
 export type UITableViewDiffableDataSource_t<SectionIdentifierType, ItemIdentifierType> =
-	UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
+  UITableViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
 
 export type UITableViewDiffableDataSource_c = typeof UITableViewDiffableDataSource
 export type UITableViewDragDelegate_t = UITableViewDragDelegate
@@ -11859,7 +11859,7 @@ export type UITableViewRowAnimation_c = typeof UITableViewRowAnimation
 export type UITableViewScrollPosition_t = UITableViewScrollPosition
 export type UITableViewScrollPosition_c = typeof UITableViewScrollPosition
 export type UITableViewSelectionDidChangeNotification_c =
-	typeof UITableViewSelectionDidChangeNotification
+  typeof UITableViewSelectionDidChangeNotification
 
 export type UITableViewSelfSizingInvalidation_t = UITableViewSelfSizingInvalidation
 export type UITableViewSelfSizingInvalidation_c = typeof UITableViewSelfSizingInvalidation
@@ -11879,7 +11879,7 @@ export type UITextAlternativeStyle_t = UITextAlternativeStyle
 export type UITextAlternativeStyle_c = typeof UITextAlternativeStyle
 export type UITextAttachmentViewProviderReusePolicy_t = UITextAttachmentViewProviderReusePolicy
 export type UITextAttachmentViewProviderReusePolicy_c =
-	typeof UITextAttachmentViewProviderReusePolicy
+  typeof UITextAttachmentViewProviderReusePolicy
 
 export type UITextAttributeFont_c = typeof UITextAttributeFont
 export type UITextAttributeTextColor_c = typeof UITextAttributeTextColor
@@ -11908,10 +11908,10 @@ export type UITextContentTypeCellularNAL_c = typeof UITextContentTypeCellularNAL
 export type UITextContentTypeCountryName_c = typeof UITextContentTypeCountryName
 export type UITextContentTypeCreditCardExpiration_c = typeof UITextContentTypeCreditCardExpiration
 export type UITextContentTypeCreditCardExpirationMonth_c =
-	typeof UITextContentTypeCreditCardExpirationMonth
+  typeof UITextContentTypeCreditCardExpirationMonth
 
 export type UITextContentTypeCreditCardExpirationYear_c =
-	typeof UITextContentTypeCreditCardExpirationYear
+  typeof UITextContentTypeCreditCardExpirationYear
 
 export type UITextContentTypeCreditCardFamilyName_c = typeof UITextContentTypeCreditCardFamilyName
 export type UITextContentTypeCreditCardGivenName_c = typeof UITextContentTypeCreditCardGivenName
@@ -11919,7 +11919,7 @@ export type UITextContentTypeCreditCardMiddleName_c = typeof UITextContentTypeCr
 export type UITextContentTypeCreditCardName_c = typeof UITextContentTypeCreditCardName
 export type UITextContentTypeCreditCardNumber_c = typeof UITextContentTypeCreditCardNumber
 export type UITextContentTypeCreditCardSecurityCode_c =
-	typeof UITextContentTypeCreditCardSecurityCode
+  typeof UITextContentTypeCreditCardSecurityCode
 
 export type UITextContentTypeCreditCardType_c = typeof UITextContentTypeCreditCardType
 export type UITextContentTypeDateTime_c = typeof UITextContentTypeDateTime
@@ -11941,7 +11941,7 @@ export type UITextContentTypeOrganizationName_c = typeof UITextContentTypeOrgani
 export type UITextContentTypePassword_c = typeof UITextContentTypePassword
 export type UITextContentTypePostalCode_c = typeof UITextContentTypePostalCode
 export type UITextContentTypeShipmentTrackingNumber_c =
-	typeof UITextContentTypeShipmentTrackingNumber
+  typeof UITextContentTypeShipmentTrackingNumber
 
 export type UITextContentTypeStreetAddressLine1_c = typeof UITextContentTypeStreetAddressLine1
 export type UITextContentTypeStreetAddressLine2_c = typeof UITextContentTypeStreetAddressLine2
@@ -11989,11 +11989,11 @@ export type UITextFieldDidEndEditingReason_t = UITextFieldDidEndEditingReason
 export type UITextFieldDidEndEditingReason_c = typeof UITextFieldDidEndEditingReason
 export type UITextFieldDidEndEditingReasonKey_c = typeof UITextFieldDidEndEditingReasonKey
 export type UITextFieldTextDidBeginEditingNotification_c =
-	typeof UITextFieldTextDidBeginEditingNotification
+  typeof UITextFieldTextDidBeginEditingNotification
 
 export type UITextFieldTextDidChangeNotification_c = typeof UITextFieldTextDidChangeNotification
 export type UITextFieldTextDidEndEditingNotification_c =
-	typeof UITextFieldTextDidEndEditingNotification
+  typeof UITextFieldTextDidEndEditingNotification
 
 export type UITextFieldViewMode_t = UITextFieldViewMode
 export type UITextFieldViewMode_c = typeof UITextFieldViewMode
@@ -12005,190 +12005,190 @@ export type UITextFormattingViewController_t = UITextFormattingViewController
 export type UITextFormattingViewController_c = typeof UITextFormattingViewController
 export type UITextFormattingViewControllerChangeValue_t = UITextFormattingViewControllerChangeValue
 export type UITextFormattingViewControllerChangeValue_c =
-	typeof UITextFormattingViewControllerChangeValue
+  typeof UITextFormattingViewControllerChangeValue
 
 export type UITextFormattingViewControllerComponent_t = UITextFormattingViewControllerComponent
 export type UITextFormattingViewControllerComponent_c =
-	typeof UITextFormattingViewControllerComponent
+  typeof UITextFormattingViewControllerComponent
 
 export type UITextFormattingViewControllerComponentGroup_t =
-	UITextFormattingViewControllerComponentGroup
+  UITextFormattingViewControllerComponentGroup
 
 export type UITextFormattingViewControllerComponentGroup_c =
-	typeof UITextFormattingViewControllerComponentGroup
+  typeof UITextFormattingViewControllerComponentGroup
 
 export type UITextFormattingViewControllerComponentSize_t =
-	UITextFormattingViewControllerComponentSize
+  UITextFormattingViewControllerComponentSize
 
 export type UITextFormattingViewControllerComponentSize_c =
-	typeof UITextFormattingViewControllerComponentSize
+  typeof UITextFormattingViewControllerComponentSize
 
 export type UITextFormattingViewControllerConfiguration_t =
-	UITextFormattingViewControllerConfiguration
+  UITextFormattingViewControllerConfiguration
 
 export type UITextFormattingViewControllerConfiguration_c =
-	typeof UITextFormattingViewControllerConfiguration
+  typeof UITextFormattingViewControllerConfiguration
 
 export type UITextFormattingViewControllerDecreaseFontSizeChangeType_c =
-	typeof UITextFormattingViewControllerDecreaseFontSizeChangeType
+  typeof UITextFormattingViewControllerDecreaseFontSizeChangeType
 
 export type UITextFormattingViewControllerDecreaseIndentationChangeType_c =
-	typeof UITextFormattingViewControllerDecreaseIndentationChangeType
+  typeof UITextFormattingViewControllerDecreaseIndentationChangeType
 
 export type UITextFormattingViewControllerDelegate_t = UITextFormattingViewControllerDelegate
 export type UITextFormattingViewControllerDelegate_c = typeof UITextFormattingViewControllerDelegate
 export type UITextFormattingViewControllerFontAttributesComponentKey_c =
-	typeof UITextFormattingViewControllerFontAttributesComponentKey
+  typeof UITextFormattingViewControllerFontAttributesComponentKey
 
 export type UITextFormattingViewControllerFontChangeType_c =
-	typeof UITextFormattingViewControllerFontChangeType
+  typeof UITextFormattingViewControllerFontChangeType
 
 export type UITextFormattingViewControllerFontPickerComponentKey_c =
-	typeof UITextFormattingViewControllerFontPickerComponentKey
+  typeof UITextFormattingViewControllerFontPickerComponentKey
 
 export type UITextFormattingViewControllerFontPointSizeComponentKey_c =
-	typeof UITextFormattingViewControllerFontPointSizeComponentKey
+  typeof UITextFormattingViewControllerFontPointSizeComponentKey
 
 export type UITextFormattingViewControllerFontSizeChangeType_c =
-	typeof UITextFormattingViewControllerFontSizeChangeType
+  typeof UITextFormattingViewControllerFontSizeChangeType
 
 export type UITextFormattingViewControllerFontSizeComponentKey_c =
-	typeof UITextFormattingViewControllerFontSizeComponentKey
+  typeof UITextFormattingViewControllerFontSizeComponentKey
 
 export type UITextFormattingViewControllerFormattingDescriptor_t =
-	UITextFormattingViewControllerFormattingDescriptor
+  UITextFormattingViewControllerFormattingDescriptor
 
 export type UITextFormattingViewControllerFormattingDescriptor_c =
-	typeof UITextFormattingViewControllerFormattingDescriptor
+  typeof UITextFormattingViewControllerFormattingDescriptor
 
 export type UITextFormattingViewControllerFormattingStyle_t =
-	UITextFormattingViewControllerFormattingStyle
+  UITextFormattingViewControllerFormattingStyle
 
 export type UITextFormattingViewControllerFormattingStyle_c =
-	typeof UITextFormattingViewControllerFormattingStyle
+  typeof UITextFormattingViewControllerFormattingStyle
 
 export type UITextFormattingViewControllerFormattingStyleChangeType_c =
-	typeof UITextFormattingViewControllerFormattingStyleChangeType
+  typeof UITextFormattingViewControllerFormattingStyleChangeType
 
 export type UITextFormattingViewControllerFormattingStylesComponentKey_c =
-	typeof UITextFormattingViewControllerFormattingStylesComponentKey
+  typeof UITextFormattingViewControllerFormattingStylesComponentKey
 
 export type UITextFormattingViewControllerHighlightBlue_c =
-	typeof UITextFormattingViewControllerHighlightBlue
+  typeof UITextFormattingViewControllerHighlightBlue
 
 export type UITextFormattingViewControllerHighlightChangeType_c =
-	typeof UITextFormattingViewControllerHighlightChangeType
+  typeof UITextFormattingViewControllerHighlightChangeType
 
 export type UITextFormattingViewControllerHighlightComponentKey_c =
-	typeof UITextFormattingViewControllerHighlightComponentKey
+  typeof UITextFormattingViewControllerHighlightComponentKey
 
 export type UITextFormattingViewControllerHighlightDefault_c =
-	typeof UITextFormattingViewControllerHighlightDefault
+  typeof UITextFormattingViewControllerHighlightDefault
 
 export type UITextFormattingViewControllerHighlightMint_c =
-	typeof UITextFormattingViewControllerHighlightMint
+  typeof UITextFormattingViewControllerHighlightMint
 
 export type UITextFormattingViewControllerHighlightOrange_c =
-	typeof UITextFormattingViewControllerHighlightOrange
+  typeof UITextFormattingViewControllerHighlightOrange
 
 export type UITextFormattingViewControllerHighlightPickerComponentKey_c =
-	typeof UITextFormattingViewControllerHighlightPickerComponentKey
+  typeof UITextFormattingViewControllerHighlightPickerComponentKey
 
 export type UITextFormattingViewControllerHighlightPink_c =
-	typeof UITextFormattingViewControllerHighlightPink
+  typeof UITextFormattingViewControllerHighlightPink
 
 export type UITextFormattingViewControllerHighlightPurple_c =
-	typeof UITextFormattingViewControllerHighlightPurple
+  typeof UITextFormattingViewControllerHighlightPurple
 
 export type UITextFormattingViewControllerIncreaseFontSizeChangeType_c =
-	typeof UITextFormattingViewControllerIncreaseFontSizeChangeType
+  typeof UITextFormattingViewControllerIncreaseFontSizeChangeType
 
 export type UITextFormattingViewControllerIncreaseIndentationChangeType_c =
-	typeof UITextFormattingViewControllerIncreaseIndentationChangeType
+  typeof UITextFormattingViewControllerIncreaseIndentationChangeType
 
 export type UITextFormattingViewControllerLineHeightComponentKey_c =
-	typeof UITextFormattingViewControllerLineHeightComponentKey
+  typeof UITextFormattingViewControllerLineHeightComponentKey
 
 export type UITextFormattingViewControllerLineHeightPointSizeChangeType_c =
-	typeof UITextFormattingViewControllerLineHeightPointSizeChangeType
+  typeof UITextFormattingViewControllerLineHeightPointSizeChangeType
 
 export type UITextFormattingViewControllerListStylesComponentKey_c =
-	typeof UITextFormattingViewControllerListStylesComponentKey
+  typeof UITextFormattingViewControllerListStylesComponentKey
 
 export type UITextFormattingViewControllerRemoveBoldChangeType_c =
-	typeof UITextFormattingViewControllerRemoveBoldChangeType
+  typeof UITextFormattingViewControllerRemoveBoldChangeType
 
 export type UITextFormattingViewControllerRemoveItalicChangeType_c =
-	typeof UITextFormattingViewControllerRemoveItalicChangeType
+  typeof UITextFormattingViewControllerRemoveItalicChangeType
 
 export type UITextFormattingViewControllerRemoveStrikethroughChangeType_c =
-	typeof UITextFormattingViewControllerRemoveStrikethroughChangeType
+  typeof UITextFormattingViewControllerRemoveStrikethroughChangeType
 
 export type UITextFormattingViewControllerRemoveUnderlineChangeType_c =
-	typeof UITextFormattingViewControllerRemoveUnderlineChangeType
+  typeof UITextFormattingViewControllerRemoveUnderlineChangeType
 
 export type UITextFormattingViewControllerSetBoldChangeType_c =
-	typeof UITextFormattingViewControllerSetBoldChangeType
+  typeof UITextFormattingViewControllerSetBoldChangeType
 
 export type UITextFormattingViewControllerSetItalicChangeType_c =
-	typeof UITextFormattingViewControllerSetItalicChangeType
+  typeof UITextFormattingViewControllerSetItalicChangeType
 
 export type UITextFormattingViewControllerSetStrikethroughChangeType_c =
-	typeof UITextFormattingViewControllerSetStrikethroughChangeType
+  typeof UITextFormattingViewControllerSetStrikethroughChangeType
 
 export type UITextFormattingViewControllerSetUnderlineChangeType_c =
-	typeof UITextFormattingViewControllerSetUnderlineChangeType
+  typeof UITextFormattingViewControllerSetUnderlineChangeType
 
 export type UITextFormattingViewControllerTextAlignmentAndJustificationComponentKey_c =
-	typeof UITextFormattingViewControllerTextAlignmentAndJustificationComponentKey
+  typeof UITextFormattingViewControllerTextAlignmentAndJustificationComponentKey
 
 export type UITextFormattingViewControllerTextAlignmentCenter_c =
-	typeof UITextFormattingViewControllerTextAlignmentCenter
+  typeof UITextFormattingViewControllerTextAlignmentCenter
 
 export type UITextFormattingViewControllerTextAlignmentChangeType_c =
-	typeof UITextFormattingViewControllerTextAlignmentChangeType
+  typeof UITextFormattingViewControllerTextAlignmentChangeType
 
 export type UITextFormattingViewControllerTextAlignmentComponentKey_c =
-	typeof UITextFormattingViewControllerTextAlignmentComponentKey
+  typeof UITextFormattingViewControllerTextAlignmentComponentKey
 
 export type UITextFormattingViewControllerTextAlignmentJustified_c =
-	typeof UITextFormattingViewControllerTextAlignmentJustified
+  typeof UITextFormattingViewControllerTextAlignmentJustified
 
 export type UITextFormattingViewControllerTextAlignmentLeft_c =
-	typeof UITextFormattingViewControllerTextAlignmentLeft
+  typeof UITextFormattingViewControllerTextAlignmentLeft
 
 export type UITextFormattingViewControllerTextAlignmentNatural_c =
-	typeof UITextFormattingViewControllerTextAlignmentNatural
+  typeof UITextFormattingViewControllerTextAlignmentNatural
 
 export type UITextFormattingViewControllerTextAlignmentRight_c =
-	typeof UITextFormattingViewControllerTextAlignmentRight
+  typeof UITextFormattingViewControllerTextAlignmentRight
 
 export type UITextFormattingViewControllerTextColorChangeType_c =
-	typeof UITextFormattingViewControllerTextColorChangeType
+  typeof UITextFormattingViewControllerTextColorChangeType
 
 export type UITextFormattingViewControllerTextColorComponentKey_c =
-	typeof UITextFormattingViewControllerTextColorComponentKey
+  typeof UITextFormattingViewControllerTextColorComponentKey
 
 export type UITextFormattingViewControllerTextIndentationComponentKey_c =
-	typeof UITextFormattingViewControllerTextIndentationComponentKey
+  typeof UITextFormattingViewControllerTextIndentationComponentKey
 
 export type UITextFormattingViewControllerTextListChangeType_c =
-	typeof UITextFormattingViewControllerTextListChangeType
+  typeof UITextFormattingViewControllerTextListChangeType
 
 export type UITextFormattingViewControllerTextListDecimal_c =
-	typeof UITextFormattingViewControllerTextListDecimal
+  typeof UITextFormattingViewControllerTextListDecimal
 
 export type UITextFormattingViewControllerTextListDisc_c =
-	typeof UITextFormattingViewControllerTextListDisc
+  typeof UITextFormattingViewControllerTextListDisc
 
 export type UITextFormattingViewControllerTextListHyphen_c =
-	typeof UITextFormattingViewControllerTextListHyphen
+  typeof UITextFormattingViewControllerTextListHyphen
 
 export type UITextFormattingViewControllerTextListOther_c =
-	typeof UITextFormattingViewControllerTextListOther
+  typeof UITextFormattingViewControllerTextListOther
 
 export type UITextFormattingViewControllerUndefinedChangeType_c =
-	typeof UITextFormattingViewControllerUndefinedChangeType
+  typeof UITextFormattingViewControllerUndefinedChangeType
 
 export type UITextGrammarCheckingType_t = UITextGrammarCheckingType
 export type UITextGrammarCheckingType_c = typeof UITextGrammarCheckingType
@@ -12203,7 +12203,7 @@ export type UITextInputAssistantItem_c = typeof UITextInputAssistantItem
 export type UITextInputContext_t = UITextInputContext
 export type UITextInputContext_c = typeof UITextInputContext
 export type UITextInputCurrentInputModeDidChangeNotification_c =
-	typeof UITextInputCurrentInputModeDidChangeNotification
+  typeof UITextInputCurrentInputModeDidChangeNotification
 
 export type UITextInputDelegate_t = UITextInputDelegate
 export type UITextInputDelegate_c = typeof UITextInputDelegate
@@ -12271,7 +12271,7 @@ export type UITextSelectionDisplayInteraction_t = UITextSelectionDisplayInteract
 export type UITextSelectionDisplayInteraction_c = typeof UITextSelectionDisplayInteraction
 export type UITextSelectionDisplayInteractionDelegate_t = UITextSelectionDisplayInteractionDelegate
 export type UITextSelectionDisplayInteractionDelegate_c =
-	typeof UITextSelectionDisplayInteractionDelegate
+  typeof UITextSelectionDisplayInteractionDelegate
 
 export type UITextSelectionHandleView_t = UITextSelectionHandleView
 export type UITextSelectionHandleView_c = typeof UITextSelectionHandleView
@@ -12296,11 +12296,11 @@ export type UITextViewBorderStyle_c = typeof UITextViewBorderStyle
 export type UITextViewDelegate_t = UITextViewDelegate
 export type UITextViewDelegate_c = typeof UITextViewDelegate
 export type UITextViewTextDidBeginEditingNotification_c =
-	typeof UITextViewTextDidBeginEditingNotification
+  typeof UITextViewTextDidBeginEditingNotification
 
 export type UITextViewTextDidChangeNotification_c = typeof UITextViewTextDidChangeNotification
 export type UITextViewTextDidEndEditingNotification_c =
-	typeof UITextViewTextDidEndEditingNotification
+  typeof UITextViewTextDidEndEditingNotification
 
 export type UITextWritingDirectionLeftToRight_c = typeof UITextWritingDirectionLeftToRight
 export type UITextWritingDirectionNatural_c = typeof UITextWritingDirectionNatural
@@ -12371,22 +12371,22 @@ export type UITraitOverrides_c = typeof UITraitOverrides
 export type UITraitPreferredContentSizeCategory_t = UITraitPreferredContentSizeCategory
 export type UITraitPreferredContentSizeCategory_c = typeof UITraitPreferredContentSizeCategory
 export type UITraitResolvesNaturalAlignmentWithBaseWritingDirection_t =
-	UITraitResolvesNaturalAlignmentWithBaseWritingDirection
+  UITraitResolvesNaturalAlignmentWithBaseWritingDirection
 
 export type UITraitResolvesNaturalAlignmentWithBaseWritingDirection_c =
-	typeof UITraitResolvesNaturalAlignmentWithBaseWritingDirection
+  typeof UITraitResolvesNaturalAlignmentWithBaseWritingDirection
 
 export type UITraitSceneCaptureState_t = UITraitSceneCaptureState
 export type UITraitSceneCaptureState_c = typeof UITraitSceneCaptureState
 export type UITraitSplitViewControllerLayoutEnvironment_t =
-	UITraitSplitViewControllerLayoutEnvironment
+  UITraitSplitViewControllerLayoutEnvironment
 
 export type UITraitSplitViewControllerLayoutEnvironment_c =
-	typeof UITraitSplitViewControllerLayoutEnvironment
+  typeof UITraitSplitViewControllerLayoutEnvironment
 
 export type UITraitSystemPrefersReducedResourceUsage_t = UITraitSystemPrefersReducedResourceUsage
 export type UITraitSystemPrefersReducedResourceUsage_c =
-	typeof UITraitSystemPrefersReducedResourceUsage
+  typeof UITraitSystemPrefersReducedResourceUsage
 
 export type UITraitTabAccessoryEnvironment_t = UITraitTabAccessoryEnvironment
 export type UITraitTabAccessoryEnvironment_c = typeof UITraitTabAccessoryEnvironment
@@ -12403,7 +12403,7 @@ export type UITraitUserInterfaceStyle_c = typeof UITraitUserInterfaceStyle
 export type UITraitVerticalSizeClass_t = UITraitVerticalSizeClass
 export type UITraitVerticalSizeClass_c = typeof UITraitVerticalSizeClass
 export type UITransitionContextFromViewControllerKey_c =
-	typeof UITransitionContextFromViewControllerKey
+  typeof UITransitionContextFromViewControllerKey
 
 export type UITransitionContextFromViewKey_c = typeof UITransitionContextFromViewKey
 export type UITransitionContextToViewControllerKey_c = typeof UITransitionContextToViewControllerKey
@@ -12435,7 +12435,7 @@ export type UIUserNotificationActionBehavior_c = typeof UIUserNotificationAction
 export type UIUserNotificationActionContext_t = UIUserNotificationActionContext
 export type UIUserNotificationActionContext_c = typeof UIUserNotificationActionContext
 export type UIUserNotificationActionResponseTypedTextKey_c =
-	typeof UIUserNotificationActionResponseTypedTextKey
+  typeof UIUserNotificationActionResponseTypedTextKey
 
 export type UIUserNotificationActivationMode_t = UIUserNotificationActivationMode
 export type UIUserNotificationActivationMode_c = typeof UIUserNotificationActivationMode
@@ -12444,7 +12444,7 @@ export type UIUserNotificationCategory_c = typeof UIUserNotificationCategory
 export type UIUserNotificationSettings_t = UIUserNotificationSettings
 export type UIUserNotificationSettings_c = typeof UIUserNotificationSettings
 export type UIUserNotificationTextInputActionButtonTitleKey_c =
-	typeof UIUserNotificationTextInputActionButtonTitleKey
+  typeof UIUserNotificationTextInputActionButtonTitleKey
 
 export type UIUserNotificationType_t = UIUserNotificationType
 export type UIUserNotificationType_c = typeof UIUserNotificationType
@@ -12453,7 +12453,7 @@ export type UIVibrancyEffect_c = typeof UIVibrancyEffect
 export type UIVibrancyEffectStyle_t = UIVibrancyEffectStyle
 export type UIVibrancyEffectStyle_c = typeof UIVibrancyEffectStyle
 export type UIVideoAtPathIsCompatibleWithSavedPhotosAlbum_c =
-	typeof UIVideoAtPathIsCompatibleWithSavedPhotosAlbum
+  typeof UIVideoAtPathIsCompatibleWithSavedPhotosAlbum
 
 export type UIVideoEditorController_t = UIVideoEditorController
 export type UIVideoEditorController_c = typeof UIVideoEditorController
@@ -12486,11 +12486,11 @@ export type UIViewControllerAnimatedTransitioning_c = typeof UIViewControllerAni
 export type UIViewControllerContextTransitioning_t = UIViewControllerContextTransitioning
 export type UIViewControllerContextTransitioning_c = typeof UIViewControllerContextTransitioning
 export type UIViewControllerHierarchyInconsistencyException_c =
-	typeof UIViewControllerHierarchyInconsistencyException
+  typeof UIViewControllerHierarchyInconsistencyException
 
 export type UIViewControllerInteractiveTransitioning_t = UIViewControllerInteractiveTransitioning
 export type UIViewControllerInteractiveTransitioning_c =
-	typeof UIViewControllerInteractiveTransitioning
+  typeof UIViewControllerInteractiveTransitioning
 
 export type UIViewControllerPreviewing_t = UIViewControllerPreviewing
 export type UIViewControllerPreviewing_c = typeof UIViewControllerPreviewing
@@ -12499,17 +12499,17 @@ export type UIViewControllerPreviewingDelegate_c = typeof UIViewControllerPrevie
 export type UIViewControllerRestoration_t = UIViewControllerRestoration
 export type UIViewControllerRestoration_c = typeof UIViewControllerRestoration
 export type UIViewControllerShowDetailTargetDidChangeNotification_c =
-	typeof UIViewControllerShowDetailTargetDidChangeNotification
+  typeof UIViewControllerShowDetailTargetDidChangeNotification
 
 export type UIViewControllerTransition_t = UIViewControllerTransition
 export type UIViewControllerTransition_c = typeof UIViewControllerTransition
 export type UIViewControllerTransitionCoordinator_t = UIViewControllerTransitionCoordinator
 export type UIViewControllerTransitionCoordinator_c = typeof UIViewControllerTransitionCoordinator
 export type UIViewControllerTransitionCoordinatorContext_t =
-	UIViewControllerTransitionCoordinatorContext
+  UIViewControllerTransitionCoordinatorContext
 
 export type UIViewControllerTransitionCoordinatorContext_c =
-	typeof UIViewControllerTransitionCoordinatorContext
+  typeof UIViewControllerTransitionCoordinatorContext
 
 export type UIViewControllerTransitioningDelegate_t = UIViewControllerTransitioningDelegate
 export type UIViewControllerTransitioningDelegate_c = typeof UIViewControllerTransitioningDelegate
@@ -12585,13 +12585,13 @@ export type UIWindowSceneProminentPlacement_t = UIWindowSceneProminentPlacement
 export type UIWindowSceneProminentPlacement_c = typeof UIWindowSceneProminentPlacement
 export type UIWindowSceneSessionRoleApplication_c = typeof UIWindowSceneSessionRoleApplication
 export type UIWindowSceneSessionRoleAssistiveAccessApplication_c =
-	typeof UIWindowSceneSessionRoleAssistiveAccessApplication
+  typeof UIWindowSceneSessionRoleAssistiveAccessApplication
 
 export type UIWindowSceneSessionRoleExternalDisplay_c =
-	typeof UIWindowSceneSessionRoleExternalDisplay
+  typeof UIWindowSceneSessionRoleExternalDisplay
 
 export type UIWindowSceneSessionRoleExternalDisplayNonInteractive_c =
-	typeof UIWindowSceneSessionRoleExternalDisplayNonInteractive
+  typeof UIWindowSceneSessionRoleExternalDisplayNonInteractive
 
 export type UIWindowSceneStandardPlacement_t = UIWindowSceneStandardPlacement
 export type UIWindowSceneStandardPlacement_c = typeof UIWindowSceneStandardPlacement
@@ -12600,10 +12600,10 @@ export type UIWritingToolsBehavior_c = typeof UIWritingToolsBehavior
 export type UIWritingToolsCoordinator_t = UIWritingToolsCoordinator
 export type UIWritingToolsCoordinator_c = typeof UIWritingToolsCoordinator
 export type UIWritingToolsCoordinatorAnimationParameters_t =
-	UIWritingToolsCoordinatorAnimationParameters
+  UIWritingToolsCoordinatorAnimationParameters
 
 export type UIWritingToolsCoordinatorAnimationParameters_c =
-	typeof UIWritingToolsCoordinatorAnimationParameters
+  typeof UIWritingToolsCoordinatorAnimationParameters
 
 export type UIWritingToolsCoordinatorContext_t = UIWritingToolsCoordinatorContext
 export type UIWritingToolsCoordinatorContext_c = typeof UIWritingToolsCoordinatorContext
@@ -12616,21 +12616,21 @@ export type UIWritingToolsCoordinatorState_c = typeof UIWritingToolsCoordinatorS
 export type UIWritingToolsCoordinatorTextAnimation_t = UIWritingToolsCoordinatorTextAnimation
 export type UIWritingToolsCoordinatorTextAnimation_c = typeof UIWritingToolsCoordinatorTextAnimation
 export type UIWritingToolsCoordinatorTextAnimationDebugDescription_c =
-	typeof UIWritingToolsCoordinatorTextAnimationDebugDescription
+  typeof UIWritingToolsCoordinatorTextAnimationDebugDescription
 
 export type UIWritingToolsCoordinatorTextDecoration_t = UIWritingToolsCoordinatorTextDecoration
 export type UIWritingToolsCoordinatorTextDecoration_c =
-	typeof UIWritingToolsCoordinatorTextDecoration
+  typeof UIWritingToolsCoordinatorTextDecoration
 
 export type UIWritingToolsCoordinatorTextReplacementReason_t =
-	UIWritingToolsCoordinatorTextReplacementReason
+  UIWritingToolsCoordinatorTextReplacementReason
 
 export type UIWritingToolsCoordinatorTextReplacementReason_c =
-	typeof UIWritingToolsCoordinatorTextReplacementReason
+  typeof UIWritingToolsCoordinatorTextReplacementReason
 
 export type UIWritingToolsCoordinatorTextUpdateReason_t = UIWritingToolsCoordinatorTextUpdateReason
 export type UIWritingToolsCoordinatorTextUpdateReason_c =
-	typeof UIWritingToolsCoordinatorTextUpdateReason
+  typeof UIWritingToolsCoordinatorTextUpdateReason
 
 export type UIWritingToolsResultOptions_t = UIWritingToolsResultOptions
 export type UIWritingToolsResultOptions_c = typeof UIWritingToolsResultOptions
@@ -12642,7 +12642,7 @@ export type UIZoomTransitionOptions_t = UIZoomTransitionOptions
 export type UIZoomTransitionOptions_c = typeof UIZoomTransitionOptions
 export type UIZoomTransitionSourceViewProviderContext_t = UIZoomTransitionSourceViewProviderContext
 export type UIZoomTransitionSourceViewProviderContext_c =
-	typeof UIZoomTransitionSourceViewProviderContext
+  typeof UIZoomTransitionSourceViewProviderContext
 
 export type UNAlertStyle_t = UNAlertStyle
 export type UNAlertStyle_c = typeof UNAlertStyle
@@ -12672,16 +12672,16 @@ export type UNNotificationActionOptions_c = typeof UNNotificationActionOptions
 export type UNNotificationAttachment_t = UNNotificationAttachment
 export type UNNotificationAttachment_c = typeof UNNotificationAttachment
 export type UNNotificationAttachmentOptionsThumbnailClippingRectKey_c =
-	typeof UNNotificationAttachmentOptionsThumbnailClippingRectKey
+  typeof UNNotificationAttachmentOptionsThumbnailClippingRectKey
 
 export type UNNotificationAttachmentOptionsThumbnailHiddenKey_c =
-	typeof UNNotificationAttachmentOptionsThumbnailHiddenKey
+  typeof UNNotificationAttachmentOptionsThumbnailHiddenKey
 
 export type UNNotificationAttachmentOptionsThumbnailTimeKey_c =
-	typeof UNNotificationAttachmentOptionsThumbnailTimeKey
+  typeof UNNotificationAttachmentOptionsThumbnailTimeKey
 
 export type UNNotificationAttachmentOptionsTypeHintKey_c =
-	typeof UNNotificationAttachmentOptionsTypeHintKey
+  typeof UNNotificationAttachmentOptionsTypeHintKey
 
 export type UNNotificationAttributedMessageContext_t = UNNotificationAttributedMessageContext
 export type UNNotificationAttributedMessageContext_c = typeof UNNotificationAttributedMessageContext
@@ -12695,16 +12695,16 @@ export type UNNotificationContent_c = typeof UNNotificationContent
 export type UNNotificationContentExtension_t = UNNotificationContentExtension
 export type UNNotificationContentExtension_c = typeof UNNotificationContentExtension
 export type UNNotificationContentExtensionMediaPlayPauseButtonType_t =
-	UNNotificationContentExtensionMediaPlayPauseButtonType
+  UNNotificationContentExtensionMediaPlayPauseButtonType
 
 export type UNNotificationContentExtensionMediaPlayPauseButtonType_c =
-	typeof UNNotificationContentExtensionMediaPlayPauseButtonType
+  typeof UNNotificationContentExtensionMediaPlayPauseButtonType
 
 export type UNNotificationContentExtensionResponseOption_t =
-	UNNotificationContentExtensionResponseOption
+  UNNotificationContentExtensionResponseOption
 
 export type UNNotificationContentExtensionResponseOption_c =
-	typeof UNNotificationContentExtensionResponseOption
+  typeof UNNotificationContentExtensionResponseOption
 
 export type UNNotificationContentProviding_t = UNNotificationContentProviding
 export type UNNotificationContentProviding_c = typeof UNNotificationContentProviding
@@ -12985,7 +12985,7 @@ export type WKPreferences_c = typeof WKPreferences
 export type WKPreviewActionItem_t = WKPreviewActionItem
 export type WKPreviewActionItem_c = typeof WKPreviewActionItem
 export type WKPreviewActionItemIdentifierAddToReadingList_c =
-	typeof WKPreviewActionItemIdentifierAddToReadingList
+  typeof WKPreviewActionItemIdentifierAddToReadingList
 
 export type WKPreviewActionItemIdentifierCopy_c = typeof WKPreviewActionItemIdentifierCopy
 export type WKPreviewActionItemIdentifierOpen_c = typeof WKPreviewActionItemIdentifierOpen
@@ -13029,42 +13029,42 @@ export type WKWebExtensionCommand_c = typeof WKWebExtensionCommand
 export type WKWebExtensionContext_t = WKWebExtensionContext
 export type WKWebExtensionContext_c = typeof WKWebExtensionContext
 export type WKWebExtensionContextDeniedPermissionMatchPatternsWereRemovedNotification_c =
-	typeof WKWebExtensionContextDeniedPermissionMatchPatternsWereRemovedNotification
+  typeof WKWebExtensionContextDeniedPermissionMatchPatternsWereRemovedNotification
 
 export type WKWebExtensionContextDeniedPermissionsWereRemovedNotification_c =
-	typeof WKWebExtensionContextDeniedPermissionsWereRemovedNotification
+  typeof WKWebExtensionContextDeniedPermissionsWereRemovedNotification
 
 export type WKWebExtensionContextError_t = WKWebExtensionContextError
 export type WKWebExtensionContextError_c = typeof WKWebExtensionContextError
 export type WKWebExtensionContextErrorDomain_c = typeof WKWebExtensionContextErrorDomain
 export type WKWebExtensionContextErrorsDidUpdateNotification_c =
-	typeof WKWebExtensionContextErrorsDidUpdateNotification
+  typeof WKWebExtensionContextErrorsDidUpdateNotification
 
 export type WKWebExtensionContextGrantedPermissionMatchPatternsWereRemovedNotification_c =
-	typeof WKWebExtensionContextGrantedPermissionMatchPatternsWereRemovedNotification
+  typeof WKWebExtensionContextGrantedPermissionMatchPatternsWereRemovedNotification
 
 export type WKWebExtensionContextGrantedPermissionsWereRemovedNotification_c =
-	typeof WKWebExtensionContextGrantedPermissionsWereRemovedNotification
+  typeof WKWebExtensionContextGrantedPermissionsWereRemovedNotification
 
 export type WKWebExtensionContextNotificationUserInfoKeyMatchPatterns_c =
-	typeof WKWebExtensionContextNotificationUserInfoKeyMatchPatterns
+  typeof WKWebExtensionContextNotificationUserInfoKeyMatchPatterns
 
 export type WKWebExtensionContextNotificationUserInfoKeyPermissions_c =
-	typeof WKWebExtensionContextNotificationUserInfoKeyPermissions
+  typeof WKWebExtensionContextNotificationUserInfoKeyPermissions
 
 export type WKWebExtensionContextPermissionMatchPatternsWereDeniedNotification_c =
-	typeof WKWebExtensionContextPermissionMatchPatternsWereDeniedNotification
+  typeof WKWebExtensionContextPermissionMatchPatternsWereDeniedNotification
 
 export type WKWebExtensionContextPermissionMatchPatternsWereGrantedNotification_c =
-	typeof WKWebExtensionContextPermissionMatchPatternsWereGrantedNotification
+  typeof WKWebExtensionContextPermissionMatchPatternsWereGrantedNotification
 
 export type WKWebExtensionContextPermissionStatus_t = WKWebExtensionContextPermissionStatus
 export type WKWebExtensionContextPermissionStatus_c = typeof WKWebExtensionContextPermissionStatus
 export type WKWebExtensionContextPermissionsWereDeniedNotification_c =
-	typeof WKWebExtensionContextPermissionsWereDeniedNotification
+  typeof WKWebExtensionContextPermissionsWereDeniedNotification
 
 export type WKWebExtensionContextPermissionsWereGrantedNotification_c =
-	typeof WKWebExtensionContextPermissionsWereGrantedNotification
+  typeof WKWebExtensionContextPermissionsWereGrantedNotification
 
 export type WKWebExtensionController_t = WKWebExtensionController
 export type WKWebExtensionController_c = typeof WKWebExtensionController
@@ -13101,23 +13101,23 @@ export type WKWebExtensionPermissionClipboardWrite_c = typeof WKWebExtensionPerm
 export type WKWebExtensionPermissionContextMenus_c = typeof WKWebExtensionPermissionContextMenus
 export type WKWebExtensionPermissionCookies_c = typeof WKWebExtensionPermissionCookies
 export type WKWebExtensionPermissionDeclarativeNetRequest_c =
-	typeof WKWebExtensionPermissionDeclarativeNetRequest
+  typeof WKWebExtensionPermissionDeclarativeNetRequest
 
 export type WKWebExtensionPermissionDeclarativeNetRequestFeedback_c =
-	typeof WKWebExtensionPermissionDeclarativeNetRequestFeedback
+  typeof WKWebExtensionPermissionDeclarativeNetRequestFeedback
 
 export type WKWebExtensionPermissionDeclarativeNetRequestWithHostAccess_c =
-	typeof WKWebExtensionPermissionDeclarativeNetRequestWithHostAccess
+  typeof WKWebExtensionPermissionDeclarativeNetRequestWithHostAccess
 
 export type WKWebExtensionPermissionMenus_c = typeof WKWebExtensionPermissionMenus
 export type WKWebExtensionPermissionNativeMessaging_c =
-	typeof WKWebExtensionPermissionNativeMessaging
+  typeof WKWebExtensionPermissionNativeMessaging
 
 export type WKWebExtensionPermissionScripting_c = typeof WKWebExtensionPermissionScripting
 export type WKWebExtensionPermissionStorage_c = typeof WKWebExtensionPermissionStorage
 export type WKWebExtensionPermissionTabs_c = typeof WKWebExtensionPermissionTabs
 export type WKWebExtensionPermissionUnlimitedStorage_c =
-	typeof WKWebExtensionPermissionUnlimitedStorage
+  typeof WKWebExtensionPermissionUnlimitedStorage
 
 export type WKWebExtensionPermissionWebNavigation_c = typeof WKWebExtensionPermissionWebNavigation
 export type WKWebExtensionPermissionWebRequest_c = typeof WKWebExtensionPermissionWebRequest
@@ -13145,7 +13145,7 @@ export type WKWebpagePreferences_t = WKWebpagePreferences
 export type WKWebpagePreferences_c = typeof WKWebpagePreferences
 export type WKWebpagePreferencesUpgradeToHTTPSPolicy_t = WKWebpagePreferencesUpgradeToHTTPSPolicy
 export type WKWebpagePreferencesUpgradeToHTTPSPolicy_c =
-	typeof WKWebpagePreferencesUpgradeToHTTPSPolicy
+  typeof WKWebpagePreferencesUpgradeToHTTPSPolicy
 
 export type WKWebsiteDataRecord_t = WKWebsiteDataRecord
 export type WKWebsiteDataRecord_c = typeof WKWebsiteDataRecord
@@ -13161,14 +13161,14 @@ export type WKWebsiteDataTypeLocalStorage_c = typeof WKWebsiteDataTypeLocalStora
 export type WKWebsiteDataTypeMediaKeys_c = typeof WKWebsiteDataTypeMediaKeys
 export type WKWebsiteDataTypeMemoryCache_c = typeof WKWebsiteDataTypeMemoryCache
 export type WKWebsiteDataTypeOfflineWebApplicationCache_c =
-	typeof WKWebsiteDataTypeOfflineWebApplicationCache
+  typeof WKWebsiteDataTypeOfflineWebApplicationCache
 
 export type WKWebsiteDataTypeScreenTime_c = typeof WKWebsiteDataTypeScreenTime
 export type WKWebsiteDataTypeSearchFieldRecentSearches_c =
-	typeof WKWebsiteDataTypeSearchFieldRecentSearches
+  typeof WKWebsiteDataTypeSearchFieldRecentSearches
 
 export type WKWebsiteDataTypeServiceWorkerRegistrations_c =
-	typeof WKWebsiteDataTypeServiceWorkerRegistrations
+  typeof WKWebsiteDataTypeServiceWorkerRegistrations
 
 export type WKWebsiteDataTypeSessionStorage_c = typeof WKWebsiteDataTypeSessionStorage
 export type WKWebsiteDataTypeWebSQLDatabases_c = typeof WKWebsiteDataTypeWebSQLDatabases
@@ -13309,13 +13309,13 @@ export type dispatch_main_c = typeof dispatch_main
 export type dispatch_once_c = typeof dispatch_once
 export type dispatch_once_f_c = typeof dispatch_once_f
 export type dispatch_queue_attr_make_initially_inactive_c =
-	typeof dispatch_queue_attr_make_initially_inactive
+  typeof dispatch_queue_attr_make_initially_inactive
 
 export type dispatch_queue_attr_make_with_autorelease_frequency_c =
-	typeof dispatch_queue_attr_make_with_autorelease_frequency
+  typeof dispatch_queue_attr_make_with_autorelease_frequency
 
 export type dispatch_queue_attr_make_with_qos_class_c =
-	typeof dispatch_queue_attr_make_with_qos_class
+  typeof dispatch_queue_attr_make_with_qos_class
 
 export type dispatch_queue_create_c = typeof dispatch_queue_create
 export type dispatch_queue_create_with_target_c = typeof dispatch_queue_create_with_target
@@ -13345,10 +13345,10 @@ export type dispatch_source_set_cancel_handler_f_c = typeof dispatch_source_set_
 export type dispatch_source_set_event_handler_c = typeof dispatch_source_set_event_handler
 export type dispatch_source_set_event_handler_f_c = typeof dispatch_source_set_event_handler_f
 export type dispatch_source_set_registration_handler_c =
-	typeof dispatch_source_set_registration_handler
+  typeof dispatch_source_set_registration_handler
 
 export type dispatch_source_set_registration_handler_f_c =
-	typeof dispatch_source_set_registration_handler_f
+  typeof dispatch_source_set_registration_handler_f
 
 export type dispatch_source_set_timer_c = typeof dispatch_source_set_timer
 export type dispatch_source_testcancel_c = typeof dispatch_source_testcancel
@@ -13360,7 +13360,7 @@ export type dispatch_walltime_c = typeof dispatch_walltime
 export type dispatch_workloop_create_c = typeof dispatch_workloop_create
 export type dispatch_workloop_create_inactive_c = typeof dispatch_workloop_create_inactive
 export type dispatch_workloop_set_autorelease_frequency_c =
-	typeof dispatch_workloop_set_autorelease_frequency
+  typeof dispatch_workloop_set_autorelease_frequency
 
 export type dispatch_workloop_set_os_workgroup_c = typeof dispatch_workloop_set_os_workgroup
 export type dispatch_write_c = typeof dispatch_write
@@ -13511,7 +13511,7 @@ export type kCFDateFormatterCalendarName_c = typeof kCFDateFormatterCalendarName
 export type kCFDateFormatterDefaultDate_c = typeof kCFDateFormatterDefaultDate
 export type kCFDateFormatterDefaultFormat_c = typeof kCFDateFormatterDefaultFormat
 export type kCFDateFormatterDoesRelativeDateFormattingKey_c =
-	typeof kCFDateFormatterDoesRelativeDateFormattingKey
+  typeof kCFDateFormatterDoesRelativeDateFormattingKey
 
 export type kCFDateFormatterEraSymbols_c = typeof kCFDateFormatterEraSymbols
 export type kCFDateFormatterGregorianStartDate_c = typeof kCFDateFormatterGregorianStartDate
@@ -13523,33 +13523,33 @@ export type kCFDateFormatterQuarterSymbols_c = typeof kCFDateFormatterQuarterSym
 export type kCFDateFormatterShortMonthSymbols_c = typeof kCFDateFormatterShortMonthSymbols
 export type kCFDateFormatterShortQuarterSymbols_c = typeof kCFDateFormatterShortQuarterSymbols
 export type kCFDateFormatterShortStandaloneMonthSymbols_c =
-	typeof kCFDateFormatterShortStandaloneMonthSymbols
+  typeof kCFDateFormatterShortStandaloneMonthSymbols
 
 export type kCFDateFormatterShortStandaloneQuarterSymbols_c =
-	typeof kCFDateFormatterShortStandaloneQuarterSymbols
+  typeof kCFDateFormatterShortStandaloneQuarterSymbols
 
 export type kCFDateFormatterShortStandaloneWeekdaySymbols_c =
-	typeof kCFDateFormatterShortStandaloneWeekdaySymbols
+  typeof kCFDateFormatterShortStandaloneWeekdaySymbols
 
 export type kCFDateFormatterShortWeekdaySymbols_c = typeof kCFDateFormatterShortWeekdaySymbols
 export type kCFDateFormatterStandaloneMonthSymbols_c = typeof kCFDateFormatterStandaloneMonthSymbols
 export type kCFDateFormatterStandaloneQuarterSymbols_c =
-	typeof kCFDateFormatterStandaloneQuarterSymbols
+  typeof kCFDateFormatterStandaloneQuarterSymbols
 
 export type kCFDateFormatterStandaloneWeekdaySymbols_c =
-	typeof kCFDateFormatterStandaloneWeekdaySymbols
+  typeof kCFDateFormatterStandaloneWeekdaySymbols
 
 export type kCFDateFormatterTimeZone_c = typeof kCFDateFormatterTimeZone
 export type kCFDateFormatterTwoDigitStartDate_c = typeof kCFDateFormatterTwoDigitStartDate
 export type kCFDateFormatterVeryShortMonthSymbols_c = typeof kCFDateFormatterVeryShortMonthSymbols
 export type kCFDateFormatterVeryShortStandaloneMonthSymbols_c =
-	typeof kCFDateFormatterVeryShortStandaloneMonthSymbols
+  typeof kCFDateFormatterVeryShortStandaloneMonthSymbols
 
 export type kCFDateFormatterVeryShortStandaloneWeekdaySymbols_c =
-	typeof kCFDateFormatterVeryShortStandaloneWeekdaySymbols
+  typeof kCFDateFormatterVeryShortStandaloneWeekdaySymbols
 
 export type kCFDateFormatterVeryShortWeekdaySymbols_c =
-	typeof kCFDateFormatterVeryShortWeekdaySymbols
+  typeof kCFDateFormatterVeryShortWeekdaySymbols
 
 export type kCFDateFormatterWeekdaySymbols_c = typeof kCFDateFormatterWeekdaySymbols
 export type kCFErrorDescriptionKey_c = typeof kCFErrorDescriptionKey
@@ -13580,10 +13580,10 @@ export type kCFIslamicUmmAlQuraCalendar_c = typeof kCFIslamicUmmAlQuraCalendar
 export type kCFJapaneseCalendar_c = typeof kCFJapaneseCalendar
 export type kCFKannadaCalendar_c = typeof kCFKannadaCalendar
 export type kCFLocaleAlternateQuotationBeginDelimiterKey_c =
-	typeof kCFLocaleAlternateQuotationBeginDelimiterKey
+  typeof kCFLocaleAlternateQuotationBeginDelimiterKey
 
 export type kCFLocaleAlternateQuotationEndDelimiterKey_c =
-	typeof kCFLocaleAlternateQuotationEndDelimiterKey
+  typeof kCFLocaleAlternateQuotationEndDelimiterKey
 
 export type kCFLocaleCalendar_c = typeof kCFLocaleCalendar
 export type kCFLocaleCalendarIdentifier_c = typeof kCFLocaleCalendarIdentifier
@@ -13593,7 +13593,7 @@ export type kCFLocaleCountryCode_c = typeof kCFLocaleCountryCode
 export type kCFLocaleCurrencyCode_c = typeof kCFLocaleCurrencyCode
 export type kCFLocaleCurrencySymbol_c = typeof kCFLocaleCurrencySymbol
 export type kCFLocaleCurrentLocaleDidChangeNotification_c =
-	typeof kCFLocaleCurrentLocaleDidChangeNotification
+  typeof kCFLocaleCurrentLocaleDidChangeNotification
 
 export type kCFLocaleDecimalSeparator_c = typeof kCFLocaleDecimalSeparator
 export type kCFLocaleExemplarCharacterSet_c = typeof kCFLocaleExemplarCharacterSet
@@ -13619,14 +13619,14 @@ export type kCFNotificationDeliverImmediately_c = typeof kCFNotificationDeliverI
 export type kCFNotificationPostToAllSessions_c = typeof kCFNotificationPostToAllSessions
 export type kCFNull_c = typeof kCFNull
 export type kCFNumberFormatterAlwaysShowDecimalSeparator_c =
-	typeof kCFNumberFormatterAlwaysShowDecimalSeparator
+  typeof kCFNumberFormatterAlwaysShowDecimalSeparator
 
 export type kCFNumberFormatterCurrencyCode_c = typeof kCFNumberFormatterCurrencyCode
 export type kCFNumberFormatterCurrencyDecimalSeparator_c =
-	typeof kCFNumberFormatterCurrencyDecimalSeparator
+  typeof kCFNumberFormatterCurrencyDecimalSeparator
 
 export type kCFNumberFormatterCurrencyGroupingSeparator_c =
-	typeof kCFNumberFormatterCurrencyGroupingSeparator
+  typeof kCFNumberFormatterCurrencyGroupingSeparator
 
 export type kCFNumberFormatterCurrencySymbol_c = typeof kCFNumberFormatterCurrencySymbol
 export type kCFNumberFormatterDecimalSeparator_c = typeof kCFNumberFormatterDecimalSeparator
@@ -13637,7 +13637,7 @@ export type kCFNumberFormatterGroupingSeparator_c = typeof kCFNumberFormatterGro
 export type kCFNumberFormatterGroupingSize_c = typeof kCFNumberFormatterGroupingSize
 export type kCFNumberFormatterInfinitySymbol_c = typeof kCFNumberFormatterInfinitySymbol
 export type kCFNumberFormatterInternationalCurrencySymbol_c =
-	typeof kCFNumberFormatterInternationalCurrencySymbol
+  typeof kCFNumberFormatterInternationalCurrencySymbol
 
 export type kCFNumberFormatterIsLenient_c = typeof kCFNumberFormatterIsLenient
 export type kCFNumberFormatterMaxFractionDigits_c = typeof kCFNumberFormatterMaxFractionDigits
@@ -13662,7 +13662,7 @@ export type kCFNumberFormatterPositiveSuffix_c = typeof kCFNumberFormatterPositi
 export type kCFNumberFormatterRoundingIncrement_c = typeof kCFNumberFormatterRoundingIncrement
 export type kCFNumberFormatterRoundingMode_c = typeof kCFNumberFormatterRoundingMode
 export type kCFNumberFormatterSecondaryGroupingSize_c =
-	typeof kCFNumberFormatterSecondaryGroupingSize
+  typeof kCFNumberFormatterSecondaryGroupingSize
 
 export type kCFNumberFormatterUseGroupingSeparator_c = typeof kCFNumberFormatterUseGroupingSeparator
 export type kCFNumberFormatterUseSignificantDigits_c = typeof kCFNumberFormatterUseSignificantDigits
@@ -13691,16 +13691,16 @@ export type kCFRepublicOfChinaCalendar_c = typeof kCFRepublicOfChinaCalendar
 export type kCFRunLoopCommonModes_c = typeof kCFRunLoopCommonModes
 export type kCFRunLoopDefaultMode_c = typeof kCFRunLoopDefaultMode
 export type kCFSocketAutomaticallyReenableAcceptCallBack_c =
-	typeof kCFSocketAutomaticallyReenableAcceptCallBack
+  typeof kCFSocketAutomaticallyReenableAcceptCallBack
 
 export type kCFSocketAutomaticallyReenableDataCallBack_c =
-	typeof kCFSocketAutomaticallyReenableDataCallBack
+  typeof kCFSocketAutomaticallyReenableDataCallBack
 
 export type kCFSocketAutomaticallyReenableReadCallBack_c =
-	typeof kCFSocketAutomaticallyReenableReadCallBack
+  typeof kCFSocketAutomaticallyReenableReadCallBack
 
 export type kCFSocketAutomaticallyReenableWriteCallBack_c =
-	typeof kCFSocketAutomaticallyReenableWriteCallBack
+  typeof kCFSocketAutomaticallyReenableWriteCallBack
 
 export type kCFSocketCloseOnInvalidate_c = typeof kCFSocketCloseOnInvalidate
 export type kCFSocketCommandKey_c = typeof kCFSocketCommandKey
@@ -13723,18 +13723,18 @@ export type kCFStreamPropertySOCKSProxyPort_c = typeof kCFStreamPropertySOCKSPro
 export type kCFStreamPropertySOCKSUser_c = typeof kCFStreamPropertySOCKSUser
 export type kCFStreamPropertySOCKSVersion_c = typeof kCFStreamPropertySOCKSVersion
 export type kCFStreamPropertyShouldCloseNativeSocket_c =
-	typeof kCFStreamPropertyShouldCloseNativeSocket
+  typeof kCFStreamPropertyShouldCloseNativeSocket
 
 export type kCFStreamPropertySocketNativeHandle_c = typeof kCFStreamPropertySocketNativeHandle
 export type kCFStreamPropertySocketRemoteHostName_c = typeof kCFStreamPropertySocketRemoteHostName
 export type kCFStreamPropertySocketRemotePortNumber_c =
-	typeof kCFStreamPropertySocketRemotePortNumber
+  typeof kCFStreamPropertySocketRemotePortNumber
 
 export type kCFStreamPropertySocketSecurityLevel_c = typeof kCFStreamPropertySocketSecurityLevel
 export type kCFStreamSocketSOCKSVersion4_c = typeof kCFStreamSocketSOCKSVersion4
 export type kCFStreamSocketSOCKSVersion5_c = typeof kCFStreamSocketSOCKSVersion5
 export type kCFStreamSocketSecurityLevelNegotiatedSSL_c =
-	typeof kCFStreamSocketSecurityLevelNegotiatedSSL
+  typeof kCFStreamSocketSecurityLevelNegotiatedSSL
 
 export type kCFStreamSocketSecurityLevelNone_c = typeof kCFStreamSocketSecurityLevelNone
 export type kCFStreamSocketSecurityLevelSSLv2_c = typeof kCFStreamSocketSecurityLevelSSLv2
@@ -13743,7 +13743,7 @@ export type kCFStreamSocketSecurityLevelTLSv1_c = typeof kCFStreamSocketSecurity
 export type kCFStringBinaryHeapCallBacks_c = typeof kCFStringBinaryHeapCallBacks
 export type kCFStringTokenizerAttributeLanguage_c = typeof kCFStringTokenizerAttributeLanguage
 export type kCFStringTokenizerAttributeLatinTranscription_c =
-	typeof kCFStringTokenizerAttributeLatinTranscription
+  typeof kCFStringTokenizerAttributeLatinTranscription
 
 export type kCFStringTokenizerUnitLineBreak_c = typeof kCFStringTokenizerUnitLineBreak
 export type kCFStringTokenizerUnitParagraph_c = typeof kCFStringTokenizerUnitParagraph
@@ -13769,7 +13769,7 @@ export type kCFStringTransformToXMLHex_c = typeof kCFStringTransformToXMLHex
 export type kCFTamilCalendar_c = typeof kCFTamilCalendar
 export type kCFTeluguCalendar_c = typeof kCFTeluguCalendar
 export type kCFTimeZoneSystemTimeZoneDidChangeNotification_c =
-	typeof kCFTimeZoneSystemTimeZoneDidChangeNotification
+  typeof kCFTimeZoneSystemTimeZoneDidChangeNotification
 
 export type kCFTypeArrayCallBacks_c = typeof kCFTypeArrayCallBacks
 export type kCFTypeBagCallBacks_c = typeof kCFTypeBagCallBacks
@@ -13798,10 +13798,10 @@ export type kCFURLFilePOSIXMode_c = typeof kCFURLFilePOSIXMode
 export type kCFURLFileProtectionComplete_c = typeof kCFURLFileProtectionComplete
 export type kCFURLFileProtectionCompleteUnlessOpen_c = typeof kCFURLFileProtectionCompleteUnlessOpen
 export type kCFURLFileProtectionCompleteUntilFirstUserAuthentication_c =
-	typeof kCFURLFileProtectionCompleteUntilFirstUserAuthentication
+  typeof kCFURLFileProtectionCompleteUntilFirstUserAuthentication
 
 export type kCFURLFileProtectionCompleteWhenUserInactive_c =
-	typeof kCFURLFileProtectionCompleteWhenUserInactive
+  typeof kCFURLFileProtectionCompleteWhenUserInactive
 
 export type kCFURLFileProtectionKey_c = typeof kCFURLFileProtectionKey
 export type kCFURLFileProtectionNone_c = typeof kCFURLFileProtectionNone
@@ -13856,44 +13856,44 @@ export type kCFURLTotalFileAllocatedSizeKey_c = typeof kCFURLTotalFileAllocatedS
 export type kCFURLTotalFileSizeKey_c = typeof kCFURLTotalFileSizeKey
 export type kCFURLTypeIdentifierKey_c = typeof kCFURLTypeIdentifierKey
 export type kCFURLUbiquitousItemDownloadingErrorKey_c =
-	typeof kCFURLUbiquitousItemDownloadingErrorKey
+  typeof kCFURLUbiquitousItemDownloadingErrorKey
 
 export type kCFURLUbiquitousItemDownloadingStatusCurrent_c =
-	typeof kCFURLUbiquitousItemDownloadingStatusCurrent
+  typeof kCFURLUbiquitousItemDownloadingStatusCurrent
 
 export type kCFURLUbiquitousItemDownloadingStatusDownloaded_c =
-	typeof kCFURLUbiquitousItemDownloadingStatusDownloaded
+  typeof kCFURLUbiquitousItemDownloadingStatusDownloaded
 
 export type kCFURLUbiquitousItemDownloadingStatusKey_c =
-	typeof kCFURLUbiquitousItemDownloadingStatusKey
+  typeof kCFURLUbiquitousItemDownloadingStatusKey
 
 export type kCFURLUbiquitousItemDownloadingStatusNotDownloaded_c =
-	typeof kCFURLUbiquitousItemDownloadingStatusNotDownloaded
+  typeof kCFURLUbiquitousItemDownloadingStatusNotDownloaded
 
 export type kCFURLUbiquitousItemHasUnresolvedConflictsKey_c =
-	typeof kCFURLUbiquitousItemHasUnresolvedConflictsKey
+  typeof kCFURLUbiquitousItemHasUnresolvedConflictsKey
 
 export type kCFURLUbiquitousItemIsDownloadedKey_c = typeof kCFURLUbiquitousItemIsDownloadedKey
 export type kCFURLUbiquitousItemIsDownloadingKey_c = typeof kCFURLUbiquitousItemIsDownloadingKey
 export type kCFURLUbiquitousItemIsExcludedFromSyncKey_c =
-	typeof kCFURLUbiquitousItemIsExcludedFromSyncKey
+  typeof kCFURLUbiquitousItemIsExcludedFromSyncKey
 
 export type kCFURLUbiquitousItemIsSyncPausedKey_c = typeof kCFURLUbiquitousItemIsSyncPausedKey
 export type kCFURLUbiquitousItemIsUploadedKey_c = typeof kCFURLUbiquitousItemIsUploadedKey
 export type kCFURLUbiquitousItemIsUploadingKey_c = typeof kCFURLUbiquitousItemIsUploadingKey
 export type kCFURLUbiquitousItemPercentDownloadedKey_c =
-	typeof kCFURLUbiquitousItemPercentDownloadedKey
+  typeof kCFURLUbiquitousItemPercentDownloadedKey
 
 export type kCFURLUbiquitousItemPercentUploadedKey_c = typeof kCFURLUbiquitousItemPercentUploadedKey
 export type kCFURLUbiquitousItemSupportedSyncControlsKey_c =
-	typeof kCFURLUbiquitousItemSupportedSyncControlsKey
+  typeof kCFURLUbiquitousItemSupportedSyncControlsKey
 
 export type kCFURLUbiquitousItemUploadingErrorKey_c = typeof kCFURLUbiquitousItemUploadingErrorKey
 export type kCFURLVolumeAvailableCapacityForImportantUsageKey_c =
-	typeof kCFURLVolumeAvailableCapacityForImportantUsageKey
+  typeof kCFURLVolumeAvailableCapacityForImportantUsageKey
 
 export type kCFURLVolumeAvailableCapacityForOpportunisticUsageKey_c =
-	typeof kCFURLVolumeAvailableCapacityForOpportunisticUsageKey
+  typeof kCFURLVolumeAvailableCapacityForOpportunisticUsageKey
 
 export type kCFURLVolumeAvailableCapacityKey_c = typeof kCFURLVolumeAvailableCapacityKey
 export type kCFURLVolumeCreationDateKey_c = typeof kCFURLVolumeCreationDateKey
@@ -13909,7 +13909,7 @@ export type kCFURLVolumeIsReadOnlyKey_c = typeof kCFURLVolumeIsReadOnlyKey
 export type kCFURLVolumeIsRemovableKey_c = typeof kCFURLVolumeIsRemovableKey
 export type kCFURLVolumeIsRootFileSystemKey_c = typeof kCFURLVolumeIsRootFileSystemKey
 export type kCFURLVolumeLocalizedFormatDescriptionKey_c =
-	typeof kCFURLVolumeLocalizedFormatDescriptionKey
+  typeof kCFURLVolumeLocalizedFormatDescriptionKey
 
 export type kCFURLVolumeLocalizedNameKey_c = typeof kCFURLVolumeLocalizedNameKey
 export type kCFURLVolumeMaximumFileSizeKey_c = typeof kCFURLVolumeMaximumFileSizeKey
@@ -13918,23 +13918,23 @@ export type kCFURLVolumeNameKey_c = typeof kCFURLVolumeNameKey
 export type kCFURLVolumeResourceCountKey_c = typeof kCFURLVolumeResourceCountKey
 export type kCFURLVolumeSubtypeKey_c = typeof kCFURLVolumeSubtypeKey
 export type kCFURLVolumeSupportsAccessPermissionsKey_c =
-	typeof kCFURLVolumeSupportsAccessPermissionsKey
+  typeof kCFURLVolumeSupportsAccessPermissionsKey
 
 export type kCFURLVolumeSupportsAdvisoryFileLockingKey_c =
-	typeof kCFURLVolumeSupportsAdvisoryFileLockingKey
+  typeof kCFURLVolumeSupportsAdvisoryFileLockingKey
 
 export type kCFURLVolumeSupportsCasePreservedNamesKey_c =
-	typeof kCFURLVolumeSupportsCasePreservedNamesKey
+  typeof kCFURLVolumeSupportsCasePreservedNamesKey
 
 export type kCFURLVolumeSupportsCaseSensitiveNamesKey_c =
-	typeof kCFURLVolumeSupportsCaseSensitiveNamesKey
+  typeof kCFURLVolumeSupportsCaseSensitiveNamesKey
 
 export type kCFURLVolumeSupportsCompressionKey_c = typeof kCFURLVolumeSupportsCompressionKey
 export type kCFURLVolumeSupportsExclusiveRenamingKey_c =
-	typeof kCFURLVolumeSupportsExclusiveRenamingKey
+  typeof kCFURLVolumeSupportsExclusiveRenamingKey
 
 export type kCFURLVolumeSupportsExtendedSecurityKey_c =
-	typeof kCFURLVolumeSupportsExtendedSecurityKey
+  typeof kCFURLVolumeSupportsExtendedSecurityKey
 
 export type kCFURLVolumeSupportsFileCloningKey_c = typeof kCFURLVolumeSupportsFileCloningKey
 export type kCFURLVolumeSupportsFileProtectionKey_c = typeof kCFURLVolumeSupportsFileProtectionKey
@@ -13944,7 +13944,7 @@ export type kCFURLVolumeSupportsJournalingKey_c = typeof kCFURLVolumeSupportsJou
 export type kCFURLVolumeSupportsPersistentIDsKey_c = typeof kCFURLVolumeSupportsPersistentIDsKey
 export type kCFURLVolumeSupportsRenamingKey_c = typeof kCFURLVolumeSupportsRenamingKey
 export type kCFURLVolumeSupportsRootDirectoryDatesKey_c =
-	typeof kCFURLVolumeSupportsRootDirectoryDatesKey
+  typeof kCFURLVolumeSupportsRootDirectoryDatesKey
 
 export type kCFURLVolumeSupportsSparseFilesKey_c = typeof kCFURLVolumeSupportsSparseFilesKey
 export type kCFURLVolumeSupportsSwapRenamingKey_c = typeof kCFURLVolumeSupportsSwapRenamingKey
@@ -13964,7 +13964,7 @@ export type kCGBitmapByteOrder32Host_c = typeof kCGBitmapByteOrder32Host
 export type kCGColorBlack_c = typeof kCGColorBlack
 export type kCGColorClear_c = typeof kCGColorClear
 export type kCGColorConversionBlackPointCompensation_c =
-	typeof kCGColorConversionBlackPointCompensation
+  typeof kCGColorConversionBlackPointCompensation
 
 export type kCGColorConversionTRCSize_c = typeof kCGColorConversionTRCSize
 export type kCGColorSpaceACESCGLinear_c = typeof kCGColorSpaceACESCGLinear
@@ -14032,7 +14032,7 @@ export type kCGImageAnimationStartIndex_c = typeof kCGImageAnimationStartIndex
 export type kCGImageAuxiliaryDataInfoColorSpace_c = typeof kCGImageAuxiliaryDataInfoColorSpace
 export type kCGImageAuxiliaryDataInfoData_c = typeof kCGImageAuxiliaryDataInfoData
 export type kCGImageAuxiliaryDataInfoDataDescription_c =
-	typeof kCGImageAuxiliaryDataInfoDataDescription
+  typeof kCGImageAuxiliaryDataInfoDataDescription
 
 export type kCGImageAuxiliaryDataInfoMetadata_c = typeof kCGImageAuxiliaryDataInfoMetadata
 export type kCGImageAuxiliaryDataTypeDepth_c = typeof kCGImageAuxiliaryDataTypeDepth
@@ -14040,49 +14040,49 @@ export type kCGImageAuxiliaryDataTypeDisparity_c = typeof kCGImageAuxiliaryDataT
 export type kCGImageAuxiliaryDataTypeHDRGainMap_c = typeof kCGImageAuxiliaryDataTypeHDRGainMap
 export type kCGImageAuxiliaryDataTypeISOGainMap_c = typeof kCGImageAuxiliaryDataTypeISOGainMap
 export type kCGImageAuxiliaryDataTypePortraitEffectsMatte_c =
-	typeof kCGImageAuxiliaryDataTypePortraitEffectsMatte
+  typeof kCGImageAuxiliaryDataTypePortraitEffectsMatte
 
 export type kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte_c =
-	typeof kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte
+  typeof kCGImageAuxiliaryDataTypeSemanticSegmentationGlassesMatte
 
 export type kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte_c =
-	typeof kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte
+  typeof kCGImageAuxiliaryDataTypeSemanticSegmentationHairMatte
 
 export type kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte_c =
-	typeof kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte
+  typeof kCGImageAuxiliaryDataTypeSemanticSegmentationSkinMatte
 
 export type kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte_c =
-	typeof kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte
+  typeof kCGImageAuxiliaryDataTypeSemanticSegmentationSkyMatte
 
 export type kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte_c =
-	typeof kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte
+  typeof kCGImageAuxiliaryDataTypeSemanticSegmentationTeethMatte
 
 export type kCGImageDestinationBackgroundColor_c = typeof kCGImageDestinationBackgroundColor
 export type kCGImageDestinationDateTime_c = typeof kCGImageDestinationDateTime
 export type kCGImageDestinationEmbedThumbnail_c = typeof kCGImageDestinationEmbedThumbnail
 export type kCGImageDestinationEncodeAlternateColorSpace_c =
-	typeof kCGImageDestinationEncodeAlternateColorSpace
+  typeof kCGImageDestinationEncodeAlternateColorSpace
 
 export type kCGImageDestinationEncodeBaseColorSpace_c =
-	typeof kCGImageDestinationEncodeBaseColorSpace
+  typeof kCGImageDestinationEncodeBaseColorSpace
 
 export type kCGImageDestinationEncodeBaseIsSDR_c = typeof kCGImageDestinationEncodeBaseIsSDR
 export type kCGImageDestinationEncodeBasePixelFormatRequest_c =
-	typeof kCGImageDestinationEncodeBasePixelFormatRequest
+  typeof kCGImageDestinationEncodeBasePixelFormatRequest
 
 export type kCGImageDestinationEncodeGainMapPixelFormatRequest_c =
-	typeof kCGImageDestinationEncodeGainMapPixelFormatRequest
+  typeof kCGImageDestinationEncodeGainMapPixelFormatRequest
 
 export type kCGImageDestinationEncodeGainMapSubsampleFactor_c =
-	typeof kCGImageDestinationEncodeGainMapSubsampleFactor
+  typeof kCGImageDestinationEncodeGainMapSubsampleFactor
 
 export type kCGImageDestinationEncodeGenerateGainMapWithBaseImage_c =
-	typeof kCGImageDestinationEncodeGenerateGainMapWithBaseImage
+  typeof kCGImageDestinationEncodeGenerateGainMapWithBaseImage
 
 export type kCGImageDestinationEncodeIsBaseImage_c = typeof kCGImageDestinationEncodeIsBaseImage
 export type kCGImageDestinationEncodeRequest_c = typeof kCGImageDestinationEncodeRequest
 export type kCGImageDestinationEncodeRequestOptions_c =
-	typeof kCGImageDestinationEncodeRequestOptions
+  typeof kCGImageDestinationEncodeRequestOptions
 
 export type kCGImageDestinationEncodeToISOGainmap_c = typeof kCGImageDestinationEncodeToISOGainmap
 export type kCGImageDestinationEncodeToISOHDR_c = typeof kCGImageDestinationEncodeToISOHDR
@@ -14090,12 +14090,12 @@ export type kCGImageDestinationEncodeToSDR_c = typeof kCGImageDestinationEncodeT
 export type kCGImageDestinationEncodeTonemapMode_c = typeof kCGImageDestinationEncodeTonemapMode
 export type kCGImageDestinationImageMaxPixelSize_c = typeof kCGImageDestinationImageMaxPixelSize
 export type kCGImageDestinationLossyCompressionQuality_c =
-	typeof kCGImageDestinationLossyCompressionQuality
+  typeof kCGImageDestinationLossyCompressionQuality
 
 export type kCGImageDestinationMergeMetadata_c = typeof kCGImageDestinationMergeMetadata
 export type kCGImageDestinationMetadata_c = typeof kCGImageDestinationMetadata
 export type kCGImageDestinationOptimizeColorForSharing_c =
-	typeof kCGImageDestinationOptimizeColorForSharing
+  typeof kCGImageDestinationOptimizeColorForSharing
 
 export type kCGImageDestinationOrientation_c = typeof kCGImageDestinationOrientation
 export type kCGImageDestinationPreserveGainMap_c = typeof kCGImageDestinationPreserveGainMap
@@ -14174,14 +14174,14 @@ export type kCGImagePropertyDNGAntiAliasStrength_c = typeof kCGImagePropertyDNGA
 export type kCGImagePropertyDNGAsShotICCProfile_c = typeof kCGImagePropertyDNGAsShotICCProfile
 export type kCGImagePropertyDNGAsShotNeutral_c = typeof kCGImagePropertyDNGAsShotNeutral
 export type kCGImagePropertyDNGAsShotPreProfileMatrix_c =
-	typeof kCGImagePropertyDNGAsShotPreProfileMatrix
+  typeof kCGImagePropertyDNGAsShotPreProfileMatrix
 
 export type kCGImagePropertyDNGAsShotProfileName_c = typeof kCGImagePropertyDNGAsShotProfileName
 export type kCGImagePropertyDNGAsShotWhiteXY_c = typeof kCGImagePropertyDNGAsShotWhiteXY
 export type kCGImagePropertyDNGBackwardVersion_c = typeof kCGImagePropertyDNGBackwardVersion
 export type kCGImagePropertyDNGBaselineExposure_c = typeof kCGImagePropertyDNGBaselineExposure
 export type kCGImagePropertyDNGBaselineExposureOffset_c =
-	typeof kCGImagePropertyDNGBaselineExposureOffset
+  typeof kCGImagePropertyDNGBaselineExposureOffset
 
 export type kCGImagePropertyDNGBaselineNoise_c = typeof kCGImagePropertyDNGBaselineNoise
 export type kCGImagePropertyDNGBaselineSharpness_c = typeof kCGImagePropertyDNGBaselineSharpness
@@ -14194,26 +14194,26 @@ export type kCGImagePropertyDNGBlackLevelRepeatDim_c = typeof kCGImagePropertyDN
 export type kCGImagePropertyDNGCFALayout_c = typeof kCGImagePropertyDNGCFALayout
 export type kCGImagePropertyDNGCFAPlaneColor_c = typeof kCGImagePropertyDNGCFAPlaneColor
 export type kCGImagePropertyDNGCalibrationIlluminant1_c =
-	typeof kCGImagePropertyDNGCalibrationIlluminant1
+  typeof kCGImagePropertyDNGCalibrationIlluminant1
 
 export type kCGImagePropertyDNGCalibrationIlluminant2_c =
-	typeof kCGImagePropertyDNGCalibrationIlluminant2
+  typeof kCGImagePropertyDNGCalibrationIlluminant2
 
 export type kCGImagePropertyDNGCameraCalibration1_c = typeof kCGImagePropertyDNGCameraCalibration1
 export type kCGImagePropertyDNGCameraCalibration2_c = typeof kCGImagePropertyDNGCameraCalibration2
 export type kCGImagePropertyDNGCameraCalibrationSignature_c =
-	typeof kCGImagePropertyDNGCameraCalibrationSignature
+  typeof kCGImagePropertyDNGCameraCalibrationSignature
 
 export type kCGImagePropertyDNGCameraSerialNumber_c = typeof kCGImagePropertyDNGCameraSerialNumber
 export type kCGImagePropertyDNGChromaBlurRadius_c = typeof kCGImagePropertyDNGChromaBlurRadius
 export type kCGImagePropertyDNGColorMatrix1_c = typeof kCGImagePropertyDNGColorMatrix1
 export type kCGImagePropertyDNGColorMatrix2_c = typeof kCGImagePropertyDNGColorMatrix2
 export type kCGImagePropertyDNGColorimetricReference_c =
-	typeof kCGImagePropertyDNGColorimetricReference
+  typeof kCGImagePropertyDNGColorimetricReference
 
 export type kCGImagePropertyDNGCurrentICCProfile_c = typeof kCGImagePropertyDNGCurrentICCProfile
 export type kCGImagePropertyDNGCurrentPreProfileMatrix_c =
-	typeof kCGImagePropertyDNGCurrentPreProfileMatrix
+  typeof kCGImagePropertyDNGCurrentPreProfileMatrix
 
 export type kCGImagePropertyDNGDefaultBlackRender_c = typeof kCGImagePropertyDNGDefaultBlackRender
 export type kCGImagePropertyDNGDefaultCropOrigin_c = typeof kCGImagePropertyDNGDefaultCropOrigin
@@ -14229,70 +14229,70 @@ export type kCGImagePropertyDNGLensInfo_c = typeof kCGImagePropertyDNGLensInfo
 export type kCGImagePropertyDNGLinearResponseLimit_c = typeof kCGImagePropertyDNGLinearResponseLimit
 export type kCGImagePropertyDNGLinearizationTable_c = typeof kCGImagePropertyDNGLinearizationTable
 export type kCGImagePropertyDNGLocalizedCameraModel_c =
-	typeof kCGImagePropertyDNGLocalizedCameraModel
+  typeof kCGImagePropertyDNGLocalizedCameraModel
 
 export type kCGImagePropertyDNGMakerNoteSafety_c = typeof kCGImagePropertyDNGMakerNoteSafety
 export type kCGImagePropertyDNGMaskedAreas_c = typeof kCGImagePropertyDNGMaskedAreas
 export type kCGImagePropertyDNGNewRawImageDigest_c = typeof kCGImagePropertyDNGNewRawImageDigest
 export type kCGImagePropertyDNGNoiseProfile_c = typeof kCGImagePropertyDNGNoiseProfile
 export type kCGImagePropertyDNGNoiseReductionApplied_c =
-	typeof kCGImagePropertyDNGNoiseReductionApplied
+  typeof kCGImagePropertyDNGNoiseReductionApplied
 
 export type kCGImagePropertyDNGOpcodeList1_c = typeof kCGImagePropertyDNGOpcodeList1
 export type kCGImagePropertyDNGOpcodeList2_c = typeof kCGImagePropertyDNGOpcodeList2
 export type kCGImagePropertyDNGOpcodeList3_c = typeof kCGImagePropertyDNGOpcodeList3
 export type kCGImagePropertyDNGOriginalBestQualityFinalSize_c =
-	typeof kCGImagePropertyDNGOriginalBestQualityFinalSize
+  typeof kCGImagePropertyDNGOriginalBestQualityFinalSize
 
 export type kCGImagePropertyDNGOriginalDefaultCropSize_c =
-	typeof kCGImagePropertyDNGOriginalDefaultCropSize
+  typeof kCGImagePropertyDNGOriginalDefaultCropSize
 
 export type kCGImagePropertyDNGOriginalDefaultFinalSize_c =
-	typeof kCGImagePropertyDNGOriginalDefaultFinalSize
+  typeof kCGImagePropertyDNGOriginalDefaultFinalSize
 
 export type kCGImagePropertyDNGOriginalRawFileData_c = typeof kCGImagePropertyDNGOriginalRawFileData
 export type kCGImagePropertyDNGOriginalRawFileDigest_c =
-	typeof kCGImagePropertyDNGOriginalRawFileDigest
+  typeof kCGImagePropertyDNGOriginalRawFileDigest
 
 export type kCGImagePropertyDNGOriginalRawFileName_c = typeof kCGImagePropertyDNGOriginalRawFileName
 export type kCGImagePropertyDNGPreviewApplicationName_c =
-	typeof kCGImagePropertyDNGPreviewApplicationName
+  typeof kCGImagePropertyDNGPreviewApplicationName
 
 export type kCGImagePropertyDNGPreviewApplicationVersion_c =
-	typeof kCGImagePropertyDNGPreviewApplicationVersion
+  typeof kCGImagePropertyDNGPreviewApplicationVersion
 
 export type kCGImagePropertyDNGPreviewColorSpace_c = typeof kCGImagePropertyDNGPreviewColorSpace
 export type kCGImagePropertyDNGPreviewDateTime_c = typeof kCGImagePropertyDNGPreviewDateTime
 export type kCGImagePropertyDNGPreviewSettingsDigest_c =
-	typeof kCGImagePropertyDNGPreviewSettingsDigest
+  typeof kCGImagePropertyDNGPreviewSettingsDigest
 
 export type kCGImagePropertyDNGPreviewSettingsName_c = typeof kCGImagePropertyDNGPreviewSettingsName
 export type kCGImagePropertyDNGPrivateData_c = typeof kCGImagePropertyDNGPrivateData
 export type kCGImagePropertyDNGProfileCalibrationSignature_c =
-	typeof kCGImagePropertyDNGProfileCalibrationSignature
+  typeof kCGImagePropertyDNGProfileCalibrationSignature
 
 export type kCGImagePropertyDNGProfileCopyright_c = typeof kCGImagePropertyDNGProfileCopyright
 export type kCGImagePropertyDNGProfileEmbedPolicy_c = typeof kCGImagePropertyDNGProfileEmbedPolicy
 export type kCGImagePropertyDNGProfileHueSatMapData1_c =
-	typeof kCGImagePropertyDNGProfileHueSatMapData1
+  typeof kCGImagePropertyDNGProfileHueSatMapData1
 
 export type kCGImagePropertyDNGProfileHueSatMapData2_c =
-	typeof kCGImagePropertyDNGProfileHueSatMapData2
+  typeof kCGImagePropertyDNGProfileHueSatMapData2
 
 export type kCGImagePropertyDNGProfileHueSatMapDims_c =
-	typeof kCGImagePropertyDNGProfileHueSatMapDims
+  typeof kCGImagePropertyDNGProfileHueSatMapDims
 
 export type kCGImagePropertyDNGProfileHueSatMapEncoding_c =
-	typeof kCGImagePropertyDNGProfileHueSatMapEncoding
+  typeof kCGImagePropertyDNGProfileHueSatMapEncoding
 
 export type kCGImagePropertyDNGProfileLookTableData_c =
-	typeof kCGImagePropertyDNGProfileLookTableData
+  typeof kCGImagePropertyDNGProfileLookTableData
 
 export type kCGImagePropertyDNGProfileLookTableDims_c =
-	typeof kCGImagePropertyDNGProfileLookTableDims
+  typeof kCGImagePropertyDNGProfileLookTableDims
 
 export type kCGImagePropertyDNGProfileLookTableEncoding_c =
-	typeof kCGImagePropertyDNGProfileLookTableEncoding
+  typeof kCGImagePropertyDNGProfileLookTableEncoding
 
 export type kCGImagePropertyDNGProfileName_c = typeof kCGImagePropertyDNGProfileName
 export type kCGImagePropertyDNGProfileToneCurve_c = typeof kCGImagePropertyDNGProfileToneCurve
@@ -14317,14 +14317,14 @@ export type kCGImagePropertyExifApertureValue_c = typeof kCGImagePropertyExifApe
 export type kCGImagePropertyExifAuxDictionary_c = typeof kCGImagePropertyExifAuxDictionary
 export type kCGImagePropertyExifAuxFirmware_c = typeof kCGImagePropertyExifAuxFirmware
 export type kCGImagePropertyExifAuxFlashCompensation_c =
-	typeof kCGImagePropertyExifAuxFlashCompensation
+  typeof kCGImagePropertyExifAuxFlashCompensation
 
 export type kCGImagePropertyExifAuxImageNumber_c = typeof kCGImagePropertyExifAuxImageNumber
 export type kCGImagePropertyExifAuxLensID_c = typeof kCGImagePropertyExifAuxLensID
 export type kCGImagePropertyExifAuxLensInfo_c = typeof kCGImagePropertyExifAuxLensInfo
 export type kCGImagePropertyExifAuxLensModel_c = typeof kCGImagePropertyExifAuxLensModel
 export type kCGImagePropertyExifAuxLensSerialNumber_c =
-	typeof kCGImagePropertyExifAuxLensSerialNumber
+  typeof kCGImagePropertyExifAuxLensSerialNumber
 
 export type kCGImagePropertyExifAuxOwnerName_c = typeof kCGImagePropertyExifAuxOwnerName
 export type kCGImagePropertyExifAuxSerialNumber_c = typeof kCGImagePropertyExifAuxSerialNumber
@@ -14334,18 +14334,18 @@ export type kCGImagePropertyExifCFAPattern_c = typeof kCGImagePropertyExifCFAPat
 export type kCGImagePropertyExifCameraOwnerName_c = typeof kCGImagePropertyExifCameraOwnerName
 export type kCGImagePropertyExifColorSpace_c = typeof kCGImagePropertyExifColorSpace
 export type kCGImagePropertyExifComponentsConfiguration_c =
-	typeof kCGImagePropertyExifComponentsConfiguration
+  typeof kCGImagePropertyExifComponentsConfiguration
 
 export type kCGImagePropertyExifCompositeImage_c = typeof kCGImagePropertyExifCompositeImage
 export type kCGImagePropertyExifCompressedBitsPerPixel_c =
-	typeof kCGImagePropertyExifCompressedBitsPerPixel
+  typeof kCGImagePropertyExifCompressedBitsPerPixel
 
 export type kCGImagePropertyExifContrast_c = typeof kCGImagePropertyExifContrast
 export type kCGImagePropertyExifCustomRendered_c = typeof kCGImagePropertyExifCustomRendered
 export type kCGImagePropertyExifDateTimeDigitized_c = typeof kCGImagePropertyExifDateTimeDigitized
 export type kCGImagePropertyExifDateTimeOriginal_c = typeof kCGImagePropertyExifDateTimeOriginal
 export type kCGImagePropertyExifDeviceSettingDescription_c =
-	typeof kCGImagePropertyExifDeviceSettingDescription
+  typeof kCGImagePropertyExifDeviceSettingDescription
 
 export type kCGImagePropertyExifDictionary_c = typeof kCGImagePropertyExifDictionary
 export type kCGImagePropertyExifDigitalZoomRatio_c = typeof kCGImagePropertyExifDigitalZoomRatio
@@ -14362,22 +14362,22 @@ export type kCGImagePropertyExifFlashPixVersion_c = typeof kCGImagePropertyExifF
 export type kCGImagePropertyExifFocalLenIn35mmFilm_c = typeof kCGImagePropertyExifFocalLenIn35mmFilm
 export type kCGImagePropertyExifFocalLength_c = typeof kCGImagePropertyExifFocalLength
 export type kCGImagePropertyExifFocalPlaneResolutionUnit_c =
-	typeof kCGImagePropertyExifFocalPlaneResolutionUnit
+  typeof kCGImagePropertyExifFocalPlaneResolutionUnit
 
 export type kCGImagePropertyExifFocalPlaneXResolution_c =
-	typeof kCGImagePropertyExifFocalPlaneXResolution
+  typeof kCGImagePropertyExifFocalPlaneXResolution
 
 export type kCGImagePropertyExifFocalPlaneYResolution_c =
-	typeof kCGImagePropertyExifFocalPlaneYResolution
+  typeof kCGImagePropertyExifFocalPlaneYResolution
 
 export type kCGImagePropertyExifGainControl_c = typeof kCGImagePropertyExifGainControl
 export type kCGImagePropertyExifGamma_c = typeof kCGImagePropertyExifGamma
 export type kCGImagePropertyExifISOSpeed_c = typeof kCGImagePropertyExifISOSpeed
 export type kCGImagePropertyExifISOSpeedLatitudeyyy_c =
-	typeof kCGImagePropertyExifISOSpeedLatitudeyyy
+  typeof kCGImagePropertyExifISOSpeedLatitudeyyy
 
 export type kCGImagePropertyExifISOSpeedLatitudezzz_c =
-	typeof kCGImagePropertyExifISOSpeedLatitudezzz
+  typeof kCGImagePropertyExifISOSpeedLatitudezzz
 
 export type kCGImagePropertyExifISOSpeedRatings_c = typeof kCGImagePropertyExifISOSpeedRatings
 export type kCGImagePropertyExifImageUniqueID_c = typeof kCGImagePropertyExifImageUniqueID
@@ -14392,13 +14392,13 @@ export type kCGImagePropertyExifMeteringMode_c = typeof kCGImagePropertyExifMete
 export type kCGImagePropertyExifOECF_c = typeof kCGImagePropertyExifOECF
 export type kCGImagePropertyExifOffsetTime_c = typeof kCGImagePropertyExifOffsetTime
 export type kCGImagePropertyExifOffsetTimeDigitized_c =
-	typeof kCGImagePropertyExifOffsetTimeDigitized
+  typeof kCGImagePropertyExifOffsetTimeDigitized
 
 export type kCGImagePropertyExifOffsetTimeOriginal_c = typeof kCGImagePropertyExifOffsetTimeOriginal
 export type kCGImagePropertyExifPixelXDimension_c = typeof kCGImagePropertyExifPixelXDimension
 export type kCGImagePropertyExifPixelYDimension_c = typeof kCGImagePropertyExifPixelYDimension
 export type kCGImagePropertyExifRecommendedExposureIndex_c =
-	typeof kCGImagePropertyExifRecommendedExposureIndex
+  typeof kCGImagePropertyExifRecommendedExposureIndex
 
 export type kCGImagePropertyExifRelatedSoundFile_c = typeof kCGImagePropertyExifRelatedSoundFile
 export type kCGImagePropertyExifSaturation_c = typeof kCGImagePropertyExifSaturation
@@ -14409,19 +14409,19 @@ export type kCGImagePropertyExifSensitivityType_c = typeof kCGImagePropertyExifS
 export type kCGImagePropertyExifSharpness_c = typeof kCGImagePropertyExifSharpness
 export type kCGImagePropertyExifShutterSpeedValue_c = typeof kCGImagePropertyExifShutterSpeedValue
 export type kCGImagePropertyExifSourceExposureTimesOfCompositeImage_c =
-	typeof kCGImagePropertyExifSourceExposureTimesOfCompositeImage
+  typeof kCGImagePropertyExifSourceExposureTimesOfCompositeImage
 
 export type kCGImagePropertyExifSourceImageNumberOfCompositeImage_c =
-	typeof kCGImagePropertyExifSourceImageNumberOfCompositeImage
+  typeof kCGImagePropertyExifSourceImageNumberOfCompositeImage
 
 export type kCGImagePropertyExifSpatialFrequencyResponse_c =
-	typeof kCGImagePropertyExifSpatialFrequencyResponse
+  typeof kCGImagePropertyExifSpatialFrequencyResponse
 
 export type kCGImagePropertyExifSpectralSensitivity_c =
-	typeof kCGImagePropertyExifSpectralSensitivity
+  typeof kCGImagePropertyExifSpectralSensitivity
 
 export type kCGImagePropertyExifStandardOutputSensitivity_c =
-	typeof kCGImagePropertyExifStandardOutputSensitivity
+  typeof kCGImagePropertyExifStandardOutputSensitivity
 
 export type kCGImagePropertyExifSubjectArea_c = typeof kCGImagePropertyExifSubjectArea
 export type kCGImagePropertyExifSubjectDistRange_c = typeof kCGImagePropertyExifSubjectDistRange
@@ -14429,7 +14429,7 @@ export type kCGImagePropertyExifSubjectDistance_c = typeof kCGImagePropertyExifS
 export type kCGImagePropertyExifSubjectLocation_c = typeof kCGImagePropertyExifSubjectLocation
 export type kCGImagePropertyExifSubsecTime_c = typeof kCGImagePropertyExifSubsecTime
 export type kCGImagePropertyExifSubsecTimeDigitized_c =
-	typeof kCGImagePropertyExifSubsecTimeDigitized
+  typeof kCGImagePropertyExifSubsecTimeDigitized
 
 export type kCGImagePropertyExifSubsecTimeOrginal_c = typeof kCGImagePropertyExifSubsecTimeOrginal
 export type kCGImagePropertyExifSubsecTimeOriginal_c = typeof kCGImagePropertyExifSubsecTimeOriginal
@@ -14482,28 +14482,28 @@ export type kCGImagePropertyGPSTrackRef_c = typeof kCGImagePropertyGPSTrackRef
 export type kCGImagePropertyGPSVersion_c = typeof kCGImagePropertyGPSVersion
 export type kCGImagePropertyGroupImageBaseline_c = typeof kCGImagePropertyGroupImageBaseline
 export type kCGImagePropertyGroupImageDisparityAdjustment_c =
-	typeof kCGImagePropertyGroupImageDisparityAdjustment
+  typeof kCGImagePropertyGroupImageDisparityAdjustment
 
 export type kCGImagePropertyGroupImageIndexLeft_c = typeof kCGImagePropertyGroupImageIndexLeft
 export type kCGImagePropertyGroupImageIndexMonoscopic_c =
-	typeof kCGImagePropertyGroupImageIndexMonoscopic
+  typeof kCGImagePropertyGroupImageIndexMonoscopic
 
 export type kCGImagePropertyGroupImageIndexRight_c = typeof kCGImagePropertyGroupImageIndexRight
 export type kCGImagePropertyGroupImageIsAlternateImage_c =
-	typeof kCGImagePropertyGroupImageIsAlternateImage
+  typeof kCGImagePropertyGroupImageIsAlternateImage
 
 export type kCGImagePropertyGroupImageIsLeftImage_c = typeof kCGImagePropertyGroupImageIsLeftImage
 export type kCGImagePropertyGroupImageIsMonoscopicImage_c =
-	typeof kCGImagePropertyGroupImageIsMonoscopicImage
+  typeof kCGImagePropertyGroupImageIsMonoscopicImage
 
 export type kCGImagePropertyGroupImageIsRightImage_c = typeof kCGImagePropertyGroupImageIsRightImage
 export type kCGImagePropertyGroupImageStereoAggressors_c =
-	typeof kCGImagePropertyGroupImageStereoAggressors
+  typeof kCGImagePropertyGroupImageStereoAggressors
 
 export type kCGImagePropertyGroupImagesAlternate_c = typeof kCGImagePropertyGroupImagesAlternate
 export type kCGImagePropertyGroupIndex_c = typeof kCGImagePropertyGroupIndex
 export type kCGImagePropertyGroupMonoscopicImageLocation_c =
-	typeof kCGImagePropertyGroupMonoscopicImageLocation
+  typeof kCGImagePropertyGroupMonoscopicImageLocation
 
 export type kCGImagePropertyGroupType_c = typeof kCGImagePropertyGroupType
 export type kCGImagePropertyGroupTypeAlternate_c = typeof kCGImagePropertyGroupTypeAlternate
@@ -14516,7 +14516,7 @@ export type kCGImagePropertyHEICSDictionary_c = typeof kCGImagePropertyHEICSDict
 export type kCGImagePropertyHEICSFrameInfoArray_c = typeof kCGImagePropertyHEICSFrameInfoArray
 export type kCGImagePropertyHEICSLoopCount_c = typeof kCGImagePropertyHEICSLoopCount
 export type kCGImagePropertyHEICSUnclampedDelayTime_c =
-	typeof kCGImagePropertyHEICSUnclampedDelayTime
+  typeof kCGImagePropertyHEICSUnclampedDelayTime
 
 export type kCGImagePropertyHEIFDictionary_c = typeof kCGImagePropertyHEIFDictionary
 export type kCGImagePropertyHasAlpha_c = typeof kCGImagePropertyHasAlpha
@@ -14534,34 +14534,34 @@ export type kCGImagePropertyIPTCContactInfoCountry_c = typeof kCGImagePropertyIP
 export type kCGImagePropertyIPTCContactInfoEmails_c = typeof kCGImagePropertyIPTCContactInfoEmails
 export type kCGImagePropertyIPTCContactInfoPhones_c = typeof kCGImagePropertyIPTCContactInfoPhones
 export type kCGImagePropertyIPTCContactInfoPostalCode_c =
-	typeof kCGImagePropertyIPTCContactInfoPostalCode
+  typeof kCGImagePropertyIPTCContactInfoPostalCode
 
 export type kCGImagePropertyIPTCContactInfoStateProvince_c =
-	typeof kCGImagePropertyIPTCContactInfoStateProvince
+  typeof kCGImagePropertyIPTCContactInfoStateProvince
 
 export type kCGImagePropertyIPTCContactInfoWebURLs_c = typeof kCGImagePropertyIPTCContactInfoWebURLs
 export type kCGImagePropertyIPTCContentLocationCode_c =
-	typeof kCGImagePropertyIPTCContentLocationCode
+  typeof kCGImagePropertyIPTCContentLocationCode
 
 export type kCGImagePropertyIPTCContentLocationName_c =
-	typeof kCGImagePropertyIPTCContentLocationName
+  typeof kCGImagePropertyIPTCContentLocationName
 
 export type kCGImagePropertyIPTCCopyrightNotice_c = typeof kCGImagePropertyIPTCCopyrightNotice
 export type kCGImagePropertyIPTCCountryPrimaryLocationCode_c =
-	typeof kCGImagePropertyIPTCCountryPrimaryLocationCode
+  typeof kCGImagePropertyIPTCCountryPrimaryLocationCode
 
 export type kCGImagePropertyIPTCCountryPrimaryLocationName_c =
-	typeof kCGImagePropertyIPTCCountryPrimaryLocationName
+  typeof kCGImagePropertyIPTCCountryPrimaryLocationName
 
 export type kCGImagePropertyIPTCCreatorContactInfo_c = typeof kCGImagePropertyIPTCCreatorContactInfo
 export type kCGImagePropertyIPTCCredit_c = typeof kCGImagePropertyIPTCCredit
 export type kCGImagePropertyIPTCDateCreated_c = typeof kCGImagePropertyIPTCDateCreated
 export type kCGImagePropertyIPTCDictionary_c = typeof kCGImagePropertyIPTCDictionary
 export type kCGImagePropertyIPTCDigitalCreationDate_c =
-	typeof kCGImagePropertyIPTCDigitalCreationDate
+  typeof kCGImagePropertyIPTCDigitalCreationDate
 
 export type kCGImagePropertyIPTCDigitalCreationTime_c =
-	typeof kCGImagePropertyIPTCDigitalCreationTime
+  typeof kCGImagePropertyIPTCDigitalCreationTime
 
 export type kCGImagePropertyIPTCEditStatus_c = typeof kCGImagePropertyIPTCEditStatus
 export type kCGImagePropertyIPTCEditorialUpdate_c = typeof kCGImagePropertyIPTCEditorialUpdate
@@ -14572,151 +14572,151 @@ export type kCGImagePropertyIPTCExtAboutCvTermCvId_c = typeof kCGImagePropertyIP
 export type kCGImagePropertyIPTCExtAboutCvTermId_c = typeof kCGImagePropertyIPTCExtAboutCvTermId
 export type kCGImagePropertyIPTCExtAboutCvTermName_c = typeof kCGImagePropertyIPTCExtAboutCvTermName
 export type kCGImagePropertyIPTCExtAboutCvTermRefinedAbout_c =
-	typeof kCGImagePropertyIPTCExtAboutCvTermRefinedAbout
+  typeof kCGImagePropertyIPTCExtAboutCvTermRefinedAbout
 
 export type kCGImagePropertyIPTCExtAddlModelInfo_c = typeof kCGImagePropertyIPTCExtAddlModelInfo
 export type kCGImagePropertyIPTCExtArtworkCircaDateCreated_c =
-	typeof kCGImagePropertyIPTCExtArtworkCircaDateCreated
+  typeof kCGImagePropertyIPTCExtArtworkCircaDateCreated
 
 export type kCGImagePropertyIPTCExtArtworkContentDescription_c =
-	typeof kCGImagePropertyIPTCExtArtworkContentDescription
+  typeof kCGImagePropertyIPTCExtArtworkContentDescription
 
 export type kCGImagePropertyIPTCExtArtworkContributionDescription_c =
-	typeof kCGImagePropertyIPTCExtArtworkContributionDescription
+  typeof kCGImagePropertyIPTCExtArtworkContributionDescription
 
 export type kCGImagePropertyIPTCExtArtworkCopyrightNotice_c =
-	typeof kCGImagePropertyIPTCExtArtworkCopyrightNotice
+  typeof kCGImagePropertyIPTCExtArtworkCopyrightNotice
 
 export type kCGImagePropertyIPTCExtArtworkCopyrightOwnerID_c =
-	typeof kCGImagePropertyIPTCExtArtworkCopyrightOwnerID
+  typeof kCGImagePropertyIPTCExtArtworkCopyrightOwnerID
 
 export type kCGImagePropertyIPTCExtArtworkCopyrightOwnerName_c =
-	typeof kCGImagePropertyIPTCExtArtworkCopyrightOwnerName
+  typeof kCGImagePropertyIPTCExtArtworkCopyrightOwnerName
 
 export type kCGImagePropertyIPTCExtArtworkCreator_c = typeof kCGImagePropertyIPTCExtArtworkCreator
 export type kCGImagePropertyIPTCExtArtworkCreatorID_c =
-	typeof kCGImagePropertyIPTCExtArtworkCreatorID
+  typeof kCGImagePropertyIPTCExtArtworkCreatorID
 
 export type kCGImagePropertyIPTCExtArtworkDateCreated_c =
-	typeof kCGImagePropertyIPTCExtArtworkDateCreated
+  typeof kCGImagePropertyIPTCExtArtworkDateCreated
 
 export type kCGImagePropertyIPTCExtArtworkLicensorID_c =
-	typeof kCGImagePropertyIPTCExtArtworkLicensorID
+  typeof kCGImagePropertyIPTCExtArtworkLicensorID
 
 export type kCGImagePropertyIPTCExtArtworkLicensorName_c =
-	typeof kCGImagePropertyIPTCExtArtworkLicensorName
+  typeof kCGImagePropertyIPTCExtArtworkLicensorName
 
 export type kCGImagePropertyIPTCExtArtworkOrObject_c = typeof kCGImagePropertyIPTCExtArtworkOrObject
 export type kCGImagePropertyIPTCExtArtworkPhysicalDescription_c =
-	typeof kCGImagePropertyIPTCExtArtworkPhysicalDescription
+  typeof kCGImagePropertyIPTCExtArtworkPhysicalDescription
 
 export type kCGImagePropertyIPTCExtArtworkSource_c = typeof kCGImagePropertyIPTCExtArtworkSource
 export type kCGImagePropertyIPTCExtArtworkSourceInvURL_c =
-	typeof kCGImagePropertyIPTCExtArtworkSourceInvURL
+  typeof kCGImagePropertyIPTCExtArtworkSourceInvURL
 
 export type kCGImagePropertyIPTCExtArtworkSourceInventoryNo_c =
-	typeof kCGImagePropertyIPTCExtArtworkSourceInventoryNo
+  typeof kCGImagePropertyIPTCExtArtworkSourceInventoryNo
 
 export type kCGImagePropertyIPTCExtArtworkStylePeriod_c =
-	typeof kCGImagePropertyIPTCExtArtworkStylePeriod
+  typeof kCGImagePropertyIPTCExtArtworkStylePeriod
 
 export type kCGImagePropertyIPTCExtArtworkTitle_c = typeof kCGImagePropertyIPTCExtArtworkTitle
 export type kCGImagePropertyIPTCExtAudioBitrate_c = typeof kCGImagePropertyIPTCExtAudioBitrate
 export type kCGImagePropertyIPTCExtAudioBitrateMode_c =
-	typeof kCGImagePropertyIPTCExtAudioBitrateMode
+  typeof kCGImagePropertyIPTCExtAudioBitrateMode
 
 export type kCGImagePropertyIPTCExtAudioChannelCount_c =
-	typeof kCGImagePropertyIPTCExtAudioChannelCount
+  typeof kCGImagePropertyIPTCExtAudioChannelCount
 
 export type kCGImagePropertyIPTCExtCircaDateCreated_c =
-	typeof kCGImagePropertyIPTCExtCircaDateCreated
+  typeof kCGImagePropertyIPTCExtCircaDateCreated
 
 export type kCGImagePropertyIPTCExtContainerFormat_c = typeof kCGImagePropertyIPTCExtContainerFormat
 export type kCGImagePropertyIPTCExtContainerFormatIdentifier_c =
-	typeof kCGImagePropertyIPTCExtContainerFormatIdentifier
+  typeof kCGImagePropertyIPTCExtContainerFormatIdentifier
 
 export type kCGImagePropertyIPTCExtContainerFormatName_c =
-	typeof kCGImagePropertyIPTCExtContainerFormatName
+  typeof kCGImagePropertyIPTCExtContainerFormatName
 
 export type kCGImagePropertyIPTCExtContributor_c = typeof kCGImagePropertyIPTCExtContributor
 export type kCGImagePropertyIPTCExtContributorIdentifier_c =
-	typeof kCGImagePropertyIPTCExtContributorIdentifier
+  typeof kCGImagePropertyIPTCExtContributorIdentifier
 
 export type kCGImagePropertyIPTCExtContributorName_c = typeof kCGImagePropertyIPTCExtContributorName
 export type kCGImagePropertyIPTCExtContributorRole_c = typeof kCGImagePropertyIPTCExtContributorRole
 export type kCGImagePropertyIPTCExtControlledVocabularyTerm_c =
-	typeof kCGImagePropertyIPTCExtControlledVocabularyTerm
+  typeof kCGImagePropertyIPTCExtControlledVocabularyTerm
 
 export type kCGImagePropertyIPTCExtCopyrightYear_c = typeof kCGImagePropertyIPTCExtCopyrightYear
 export type kCGImagePropertyIPTCExtCreator_c = typeof kCGImagePropertyIPTCExtCreator
 export type kCGImagePropertyIPTCExtCreatorIdentifier_c =
-	typeof kCGImagePropertyIPTCExtCreatorIdentifier
+  typeof kCGImagePropertyIPTCExtCreatorIdentifier
 
 export type kCGImagePropertyIPTCExtCreatorName_c = typeof kCGImagePropertyIPTCExtCreatorName
 export type kCGImagePropertyIPTCExtCreatorRole_c = typeof kCGImagePropertyIPTCExtCreatorRole
 export type kCGImagePropertyIPTCExtDataOnScreen_c = typeof kCGImagePropertyIPTCExtDataOnScreen
 export type kCGImagePropertyIPTCExtDataOnScreenRegion_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegion
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegion
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionD_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionD
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionD
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionH_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionH
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionH
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionText_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionText
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionText
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionUnit_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionUnit
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionUnit
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionW_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionW
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionW
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionX_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionX
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionX
 
 export type kCGImagePropertyIPTCExtDataOnScreenRegionY_c =
-	typeof kCGImagePropertyIPTCExtDataOnScreenRegionY
+  typeof kCGImagePropertyIPTCExtDataOnScreenRegionY
 
 export type kCGImagePropertyIPTCExtDigitalImageGUID_c =
-	typeof kCGImagePropertyIPTCExtDigitalImageGUID
+  typeof kCGImagePropertyIPTCExtDigitalImageGUID
 
 export type kCGImagePropertyIPTCExtDigitalSourceFileType_c =
-	typeof kCGImagePropertyIPTCExtDigitalSourceFileType
+  typeof kCGImagePropertyIPTCExtDigitalSourceFileType
 
 export type kCGImagePropertyIPTCExtDigitalSourceType_c =
-	typeof kCGImagePropertyIPTCExtDigitalSourceType
+  typeof kCGImagePropertyIPTCExtDigitalSourceType
 
 export type kCGImagePropertyIPTCExtDopesheet_c = typeof kCGImagePropertyIPTCExtDopesheet
 export type kCGImagePropertyIPTCExtDopesheetLink_c = typeof kCGImagePropertyIPTCExtDopesheetLink
 export type kCGImagePropertyIPTCExtDopesheetLinkLink_c =
-	typeof kCGImagePropertyIPTCExtDopesheetLinkLink
+  typeof kCGImagePropertyIPTCExtDopesheetLinkLink
 
 export type kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier_c =
-	typeof kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier
+  typeof kCGImagePropertyIPTCExtDopesheetLinkLinkQualifier
 
 export type kCGImagePropertyIPTCExtEmbdEncRightsExpr_c =
-	typeof kCGImagePropertyIPTCExtEmbdEncRightsExpr
+  typeof kCGImagePropertyIPTCExtEmbdEncRightsExpr
 
 export type kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr_c =
-	typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr
+  typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExpr
 
 export type kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID_c =
-	typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID
+  typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprLangID
 
 export type kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType_c =
-	typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType
+  typeof kCGImagePropertyIPTCExtEmbeddedEncodedRightsExprType
 
 export type kCGImagePropertyIPTCExtEpisode_c = typeof kCGImagePropertyIPTCExtEpisode
 export type kCGImagePropertyIPTCExtEpisodeIdentifier_c =
-	typeof kCGImagePropertyIPTCExtEpisodeIdentifier
+  typeof kCGImagePropertyIPTCExtEpisodeIdentifier
 
 export type kCGImagePropertyIPTCExtEpisodeName_c = typeof kCGImagePropertyIPTCExtEpisodeName
 export type kCGImagePropertyIPTCExtEpisodeNumber_c = typeof kCGImagePropertyIPTCExtEpisodeNumber
 export type kCGImagePropertyIPTCExtEvent_c = typeof kCGImagePropertyIPTCExtEvent
 export type kCGImagePropertyIPTCExtExternalMetadataLink_c =
-	typeof kCGImagePropertyIPTCExtExternalMetadataLink
+  typeof kCGImagePropertyIPTCExtExternalMetadataLink
 
 export type kCGImagePropertyIPTCExtFeedIdentifier_c = typeof kCGImagePropertyIPTCExtFeedIdentifier
 export type kCGImagePropertyIPTCExtGenre_c = typeof kCGImagePropertyIPTCExtGenre
@@ -14724,260 +14724,260 @@ export type kCGImagePropertyIPTCExtGenreCvId_c = typeof kCGImagePropertyIPTCExtG
 export type kCGImagePropertyIPTCExtGenreCvTermId_c = typeof kCGImagePropertyIPTCExtGenreCvTermId
 export type kCGImagePropertyIPTCExtGenreCvTermName_c = typeof kCGImagePropertyIPTCExtGenreCvTermName
 export type kCGImagePropertyIPTCExtGenreCvTermRefinedAbout_c =
-	typeof kCGImagePropertyIPTCExtGenreCvTermRefinedAbout
+  typeof kCGImagePropertyIPTCExtGenreCvTermRefinedAbout
 
 export type kCGImagePropertyIPTCExtHeadline_c = typeof kCGImagePropertyIPTCExtHeadline
 export type kCGImagePropertyIPTCExtIPTCLastEdited_c = typeof kCGImagePropertyIPTCExtIPTCLastEdited
 export type kCGImagePropertyIPTCExtLinkedEncRightsExpr_c =
-	typeof kCGImagePropertyIPTCExtLinkedEncRightsExpr
+  typeof kCGImagePropertyIPTCExtLinkedEncRightsExpr
 
 export type kCGImagePropertyIPTCExtLinkedEncodedRightsExpr_c =
-	typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExpr
+  typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExpr
 
 export type kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID_c =
-	typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID
+  typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExprLangID
 
 export type kCGImagePropertyIPTCExtLinkedEncodedRightsExprType_c =
-	typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExprType
+  typeof kCGImagePropertyIPTCExtLinkedEncodedRightsExprType
 
 export type kCGImagePropertyIPTCExtLocationCity_c = typeof kCGImagePropertyIPTCExtLocationCity
 export type kCGImagePropertyIPTCExtLocationCountryCode_c =
-	typeof kCGImagePropertyIPTCExtLocationCountryCode
+  typeof kCGImagePropertyIPTCExtLocationCountryCode
 
 export type kCGImagePropertyIPTCExtLocationCountryName_c =
-	typeof kCGImagePropertyIPTCExtLocationCountryName
+  typeof kCGImagePropertyIPTCExtLocationCountryName
 
 export type kCGImagePropertyIPTCExtLocationCreated_c = typeof kCGImagePropertyIPTCExtLocationCreated
 export type kCGImagePropertyIPTCExtLocationGPSAltitude_c =
-	typeof kCGImagePropertyIPTCExtLocationGPSAltitude
+  typeof kCGImagePropertyIPTCExtLocationGPSAltitude
 
 export type kCGImagePropertyIPTCExtLocationGPSLatitude_c =
-	typeof kCGImagePropertyIPTCExtLocationGPSLatitude
+  typeof kCGImagePropertyIPTCExtLocationGPSLatitude
 
 export type kCGImagePropertyIPTCExtLocationGPSLongitude_c =
-	typeof kCGImagePropertyIPTCExtLocationGPSLongitude
+  typeof kCGImagePropertyIPTCExtLocationGPSLongitude
 
 export type kCGImagePropertyIPTCExtLocationIdentifier_c =
-	typeof kCGImagePropertyIPTCExtLocationIdentifier
+  typeof kCGImagePropertyIPTCExtLocationIdentifier
 
 export type kCGImagePropertyIPTCExtLocationLocationId_c =
-	typeof kCGImagePropertyIPTCExtLocationLocationId
+  typeof kCGImagePropertyIPTCExtLocationLocationId
 
 export type kCGImagePropertyIPTCExtLocationLocationName_c =
-	typeof kCGImagePropertyIPTCExtLocationLocationName
+  typeof kCGImagePropertyIPTCExtLocationLocationName
 
 export type kCGImagePropertyIPTCExtLocationProvinceState_c =
-	typeof kCGImagePropertyIPTCExtLocationProvinceState
+  typeof kCGImagePropertyIPTCExtLocationProvinceState
 
 export type kCGImagePropertyIPTCExtLocationShown_c = typeof kCGImagePropertyIPTCExtLocationShown
 export type kCGImagePropertyIPTCExtLocationSublocation_c =
-	typeof kCGImagePropertyIPTCExtLocationSublocation
+  typeof kCGImagePropertyIPTCExtLocationSublocation
 
 export type kCGImagePropertyIPTCExtLocationWorldRegion_c =
-	typeof kCGImagePropertyIPTCExtLocationWorldRegion
+  typeof kCGImagePropertyIPTCExtLocationWorldRegion
 
 export type kCGImagePropertyIPTCExtMaxAvailHeight_c = typeof kCGImagePropertyIPTCExtMaxAvailHeight
 export type kCGImagePropertyIPTCExtMaxAvailWidth_c = typeof kCGImagePropertyIPTCExtMaxAvailWidth
 export type kCGImagePropertyIPTCExtModelAge_c = typeof kCGImagePropertyIPTCExtModelAge
 export type kCGImagePropertyIPTCExtOrganisationInImageCode_c =
-	typeof kCGImagePropertyIPTCExtOrganisationInImageCode
+  typeof kCGImagePropertyIPTCExtOrganisationInImageCode
 
 export type kCGImagePropertyIPTCExtOrganisationInImageName_c =
-	typeof kCGImagePropertyIPTCExtOrganisationInImageName
+  typeof kCGImagePropertyIPTCExtOrganisationInImageName
 
 export type kCGImagePropertyIPTCExtPersonHeard_c = typeof kCGImagePropertyIPTCExtPersonHeard
 export type kCGImagePropertyIPTCExtPersonHeardIdentifier_c =
-	typeof kCGImagePropertyIPTCExtPersonHeardIdentifier
+  typeof kCGImagePropertyIPTCExtPersonHeardIdentifier
 
 export type kCGImagePropertyIPTCExtPersonHeardName_c = typeof kCGImagePropertyIPTCExtPersonHeardName
 export type kCGImagePropertyIPTCExtPersonInImage_c = typeof kCGImagePropertyIPTCExtPersonInImage
 export type kCGImagePropertyIPTCExtPersonInImageCharacteristic_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageCharacteristic
+  typeof kCGImagePropertyIPTCExtPersonInImageCharacteristic
 
 export type kCGImagePropertyIPTCExtPersonInImageCvTermCvId_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageCvTermCvId
+  typeof kCGImagePropertyIPTCExtPersonInImageCvTermCvId
 
 export type kCGImagePropertyIPTCExtPersonInImageCvTermId_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageCvTermId
+  typeof kCGImagePropertyIPTCExtPersonInImageCvTermId
 
 export type kCGImagePropertyIPTCExtPersonInImageCvTermName_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageCvTermName
+  typeof kCGImagePropertyIPTCExtPersonInImageCvTermName
 
 export type kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout
+  typeof kCGImagePropertyIPTCExtPersonInImageCvTermRefinedAbout
 
 export type kCGImagePropertyIPTCExtPersonInImageDescription_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageDescription
+  typeof kCGImagePropertyIPTCExtPersonInImageDescription
 
 export type kCGImagePropertyIPTCExtPersonInImageId_c = typeof kCGImagePropertyIPTCExtPersonInImageId
 export type kCGImagePropertyIPTCExtPersonInImageName_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageName
+  typeof kCGImagePropertyIPTCExtPersonInImageName
 
 export type kCGImagePropertyIPTCExtPersonInImageWDetails_c =
-	typeof kCGImagePropertyIPTCExtPersonInImageWDetails
+  typeof kCGImagePropertyIPTCExtPersonInImageWDetails
 
 export type kCGImagePropertyIPTCExtProductInImage_c = typeof kCGImagePropertyIPTCExtProductInImage
 export type kCGImagePropertyIPTCExtProductInImageDescription_c =
-	typeof kCGImagePropertyIPTCExtProductInImageDescription
+  typeof kCGImagePropertyIPTCExtProductInImageDescription
 
 export type kCGImagePropertyIPTCExtProductInImageGTIN_c =
-	typeof kCGImagePropertyIPTCExtProductInImageGTIN
+  typeof kCGImagePropertyIPTCExtProductInImageGTIN
 
 export type kCGImagePropertyIPTCExtProductInImageName_c =
-	typeof kCGImagePropertyIPTCExtProductInImageName
+  typeof kCGImagePropertyIPTCExtProductInImageName
 
 export type kCGImagePropertyIPTCExtPublicationEvent_c =
-	typeof kCGImagePropertyIPTCExtPublicationEvent
+  typeof kCGImagePropertyIPTCExtPublicationEvent
 
 export type kCGImagePropertyIPTCExtPublicationEventDate_c =
-	typeof kCGImagePropertyIPTCExtPublicationEventDate
+  typeof kCGImagePropertyIPTCExtPublicationEventDate
 
 export type kCGImagePropertyIPTCExtPublicationEventIdentifier_c =
-	typeof kCGImagePropertyIPTCExtPublicationEventIdentifier
+  typeof kCGImagePropertyIPTCExtPublicationEventIdentifier
 
 export type kCGImagePropertyIPTCExtPublicationEventName_c =
-	typeof kCGImagePropertyIPTCExtPublicationEventName
+  typeof kCGImagePropertyIPTCExtPublicationEventName
 
 export type kCGImagePropertyIPTCExtRating_c = typeof kCGImagePropertyIPTCExtRating
 export type kCGImagePropertyIPTCExtRatingRatingRegion_c =
-	typeof kCGImagePropertyIPTCExtRatingRatingRegion
+  typeof kCGImagePropertyIPTCExtRatingRatingRegion
 
 export type kCGImagePropertyIPTCExtRatingRegionCity_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionCity
+  typeof kCGImagePropertyIPTCExtRatingRegionCity
 
 export type kCGImagePropertyIPTCExtRatingRegionCountryCode_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionCountryCode
+  typeof kCGImagePropertyIPTCExtRatingRegionCountryCode
 
 export type kCGImagePropertyIPTCExtRatingRegionCountryName_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionCountryName
+  typeof kCGImagePropertyIPTCExtRatingRegionCountryName
 
 export type kCGImagePropertyIPTCExtRatingRegionGPSAltitude_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionGPSAltitude
+  typeof kCGImagePropertyIPTCExtRatingRegionGPSAltitude
 
 export type kCGImagePropertyIPTCExtRatingRegionGPSLatitude_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionGPSLatitude
+  typeof kCGImagePropertyIPTCExtRatingRegionGPSLatitude
 
 export type kCGImagePropertyIPTCExtRatingRegionGPSLongitude_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionGPSLongitude
+  typeof kCGImagePropertyIPTCExtRatingRegionGPSLongitude
 
 export type kCGImagePropertyIPTCExtRatingRegionIdentifier_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionIdentifier
+  typeof kCGImagePropertyIPTCExtRatingRegionIdentifier
 
 export type kCGImagePropertyIPTCExtRatingRegionLocationId_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionLocationId
+  typeof kCGImagePropertyIPTCExtRatingRegionLocationId
 
 export type kCGImagePropertyIPTCExtRatingRegionLocationName_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionLocationName
+  typeof kCGImagePropertyIPTCExtRatingRegionLocationName
 
 export type kCGImagePropertyIPTCExtRatingRegionProvinceState_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionProvinceState
+  typeof kCGImagePropertyIPTCExtRatingRegionProvinceState
 
 export type kCGImagePropertyIPTCExtRatingRegionSublocation_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionSublocation
+  typeof kCGImagePropertyIPTCExtRatingRegionSublocation
 
 export type kCGImagePropertyIPTCExtRatingRegionWorldRegion_c =
-	typeof kCGImagePropertyIPTCExtRatingRegionWorldRegion
+  typeof kCGImagePropertyIPTCExtRatingRegionWorldRegion
 
 export type kCGImagePropertyIPTCExtRatingScaleMaxValue_c =
-	typeof kCGImagePropertyIPTCExtRatingScaleMaxValue
+  typeof kCGImagePropertyIPTCExtRatingScaleMaxValue
 
 export type kCGImagePropertyIPTCExtRatingScaleMinValue_c =
-	typeof kCGImagePropertyIPTCExtRatingScaleMinValue
+  typeof kCGImagePropertyIPTCExtRatingScaleMinValue
 
 export type kCGImagePropertyIPTCExtRatingSourceLink_c =
-	typeof kCGImagePropertyIPTCExtRatingSourceLink
+  typeof kCGImagePropertyIPTCExtRatingSourceLink
 
 export type kCGImagePropertyIPTCExtRatingValue_c = typeof kCGImagePropertyIPTCExtRatingValue
 export type kCGImagePropertyIPTCExtRatingValueLogoLink_c =
-	typeof kCGImagePropertyIPTCExtRatingValueLogoLink
+  typeof kCGImagePropertyIPTCExtRatingValueLogoLink
 
 export type kCGImagePropertyIPTCExtRegistryEntryRole_c =
-	typeof kCGImagePropertyIPTCExtRegistryEntryRole
+  typeof kCGImagePropertyIPTCExtRegistryEntryRole
 
 export type kCGImagePropertyIPTCExtRegistryID_c = typeof kCGImagePropertyIPTCExtRegistryID
 export type kCGImagePropertyIPTCExtRegistryItemID_c = typeof kCGImagePropertyIPTCExtRegistryItemID
 export type kCGImagePropertyIPTCExtRegistryOrganisationID_c =
-	typeof kCGImagePropertyIPTCExtRegistryOrganisationID
+  typeof kCGImagePropertyIPTCExtRegistryOrganisationID
 
 export type kCGImagePropertyIPTCExtReleaseReady_c = typeof kCGImagePropertyIPTCExtReleaseReady
 export type kCGImagePropertyIPTCExtSeason_c = typeof kCGImagePropertyIPTCExtSeason
 export type kCGImagePropertyIPTCExtSeasonIdentifier_c =
-	typeof kCGImagePropertyIPTCExtSeasonIdentifier
+  typeof kCGImagePropertyIPTCExtSeasonIdentifier
 
 export type kCGImagePropertyIPTCExtSeasonName_c = typeof kCGImagePropertyIPTCExtSeasonName
 export type kCGImagePropertyIPTCExtSeasonNumber_c = typeof kCGImagePropertyIPTCExtSeasonNumber
 export type kCGImagePropertyIPTCExtSeries_c = typeof kCGImagePropertyIPTCExtSeries
 export type kCGImagePropertyIPTCExtSeriesIdentifier_c =
-	typeof kCGImagePropertyIPTCExtSeriesIdentifier
+  typeof kCGImagePropertyIPTCExtSeriesIdentifier
 
 export type kCGImagePropertyIPTCExtSeriesName_c = typeof kCGImagePropertyIPTCExtSeriesName
 export type kCGImagePropertyIPTCExtShownEvent_c = typeof kCGImagePropertyIPTCExtShownEvent
 export type kCGImagePropertyIPTCExtShownEventIdentifier_c =
-	typeof kCGImagePropertyIPTCExtShownEventIdentifier
+  typeof kCGImagePropertyIPTCExtShownEventIdentifier
 
 export type kCGImagePropertyIPTCExtShownEventName_c = typeof kCGImagePropertyIPTCExtShownEventName
 export type kCGImagePropertyIPTCExtStorylineIdentifier_c =
-	typeof kCGImagePropertyIPTCExtStorylineIdentifier
+  typeof kCGImagePropertyIPTCExtStorylineIdentifier
 
 export type kCGImagePropertyIPTCExtStreamReady_c = typeof kCGImagePropertyIPTCExtStreamReady
 export type kCGImagePropertyIPTCExtStylePeriod_c = typeof kCGImagePropertyIPTCExtStylePeriod
 export type kCGImagePropertyIPTCExtSupplyChainSource_c =
-	typeof kCGImagePropertyIPTCExtSupplyChainSource
+  typeof kCGImagePropertyIPTCExtSupplyChainSource
 
 export type kCGImagePropertyIPTCExtSupplyChainSourceIdentifier_c =
-	typeof kCGImagePropertyIPTCExtSupplyChainSourceIdentifier
+  typeof kCGImagePropertyIPTCExtSupplyChainSourceIdentifier
 
 export type kCGImagePropertyIPTCExtSupplyChainSourceName_c =
-	typeof kCGImagePropertyIPTCExtSupplyChainSourceName
+  typeof kCGImagePropertyIPTCExtSupplyChainSourceName
 
 export type kCGImagePropertyIPTCExtTemporalCoverage_c =
-	typeof kCGImagePropertyIPTCExtTemporalCoverage
+  typeof kCGImagePropertyIPTCExtTemporalCoverage
 
 export type kCGImagePropertyIPTCExtTemporalCoverageFrom_c =
-	typeof kCGImagePropertyIPTCExtTemporalCoverageFrom
+  typeof kCGImagePropertyIPTCExtTemporalCoverageFrom
 
 export type kCGImagePropertyIPTCExtTemporalCoverageTo_c =
-	typeof kCGImagePropertyIPTCExtTemporalCoverageTo
+  typeof kCGImagePropertyIPTCExtTemporalCoverageTo
 
 export type kCGImagePropertyIPTCExtTranscript_c = typeof kCGImagePropertyIPTCExtTranscript
 export type kCGImagePropertyIPTCExtTranscriptLink_c = typeof kCGImagePropertyIPTCExtTranscriptLink
 export type kCGImagePropertyIPTCExtTranscriptLinkLink_c =
-	typeof kCGImagePropertyIPTCExtTranscriptLinkLink
+  typeof kCGImagePropertyIPTCExtTranscriptLinkLink
 
 export type kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier_c =
-	typeof kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier
+  typeof kCGImagePropertyIPTCExtTranscriptLinkLinkQualifier
 
 export type kCGImagePropertyIPTCExtVideoBitrate_c = typeof kCGImagePropertyIPTCExtVideoBitrate
 export type kCGImagePropertyIPTCExtVideoBitrateMode_c =
-	typeof kCGImagePropertyIPTCExtVideoBitrateMode
+  typeof kCGImagePropertyIPTCExtVideoBitrateMode
 
 export type kCGImagePropertyIPTCExtVideoDisplayAspectRatio_c =
-	typeof kCGImagePropertyIPTCExtVideoDisplayAspectRatio
+  typeof kCGImagePropertyIPTCExtVideoDisplayAspectRatio
 
 export type kCGImagePropertyIPTCExtVideoEncodingProfile_c =
-	typeof kCGImagePropertyIPTCExtVideoEncodingProfile
+  typeof kCGImagePropertyIPTCExtVideoEncodingProfile
 
 export type kCGImagePropertyIPTCExtVideoShotType_c = typeof kCGImagePropertyIPTCExtVideoShotType
 export type kCGImagePropertyIPTCExtVideoShotTypeIdentifier_c =
-	typeof kCGImagePropertyIPTCExtVideoShotTypeIdentifier
+  typeof kCGImagePropertyIPTCExtVideoShotTypeIdentifier
 
 export type kCGImagePropertyIPTCExtVideoShotTypeName_c =
-	typeof kCGImagePropertyIPTCExtVideoShotTypeName
+  typeof kCGImagePropertyIPTCExtVideoShotTypeName
 
 export type kCGImagePropertyIPTCExtVideoStreamsCount_c =
-	typeof kCGImagePropertyIPTCExtVideoStreamsCount
+  typeof kCGImagePropertyIPTCExtVideoStreamsCount
 
 export type kCGImagePropertyIPTCExtVisualColor_c = typeof kCGImagePropertyIPTCExtVisualColor
 export type kCGImagePropertyIPTCExtWorkflowTag_c = typeof kCGImagePropertyIPTCExtWorkflowTag
 export type kCGImagePropertyIPTCExtWorkflowTagCvId_c = typeof kCGImagePropertyIPTCExtWorkflowTagCvId
 export type kCGImagePropertyIPTCExtWorkflowTagCvTermId_c =
-	typeof kCGImagePropertyIPTCExtWorkflowTagCvTermId
+  typeof kCGImagePropertyIPTCExtWorkflowTagCvTermId
 
 export type kCGImagePropertyIPTCExtWorkflowTagCvTermName_c =
-	typeof kCGImagePropertyIPTCExtWorkflowTagCvTermName
+  typeof kCGImagePropertyIPTCExtWorkflowTagCvTermName
 
 export type kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout_c =
-	typeof kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout
+  typeof kCGImagePropertyIPTCExtWorkflowTagCvTermRefinedAbout
 
 export type kCGImagePropertyIPTCFixtureIdentifier_c = typeof kCGImagePropertyIPTCFixtureIdentifier
 export type kCGImagePropertyIPTCHeadline_c = typeof kCGImagePropertyIPTCHeadline
@@ -14986,15 +14986,15 @@ export type kCGImagePropertyIPTCImageType_c = typeof kCGImagePropertyIPTCImageTy
 export type kCGImagePropertyIPTCKeywords_c = typeof kCGImagePropertyIPTCKeywords
 export type kCGImagePropertyIPTCLanguageIdentifier_c = typeof kCGImagePropertyIPTCLanguageIdentifier
 export type kCGImagePropertyIPTCObjectAttributeReference_c =
-	typeof kCGImagePropertyIPTCObjectAttributeReference
+  typeof kCGImagePropertyIPTCObjectAttributeReference
 
 export type kCGImagePropertyIPTCObjectCycle_c = typeof kCGImagePropertyIPTCObjectCycle
 export type kCGImagePropertyIPTCObjectName_c = typeof kCGImagePropertyIPTCObjectName
 export type kCGImagePropertyIPTCObjectTypeReference_c =
-	typeof kCGImagePropertyIPTCObjectTypeReference
+  typeof kCGImagePropertyIPTCObjectTypeReference
 
 export type kCGImagePropertyIPTCOriginalTransmissionReference_c =
-	typeof kCGImagePropertyIPTCOriginalTransmissionReference
+  typeof kCGImagePropertyIPTCOriginalTransmissionReference
 
 export type kCGImagePropertyIPTCOriginatingProgram_c = typeof kCGImagePropertyIPTCOriginatingProgram
 export type kCGImagePropertyIPTCProgramVersion_c = typeof kCGImagePropertyIPTCProgramVersion
@@ -15008,13 +15008,13 @@ export type kCGImagePropertyIPTCRightsUsageTerms_c = typeof kCGImagePropertyIPTC
 export type kCGImagePropertyIPTCScene_c = typeof kCGImagePropertyIPTCScene
 export type kCGImagePropertyIPTCSource_c = typeof kCGImagePropertyIPTCSource
 export type kCGImagePropertyIPTCSpecialInstructions_c =
-	typeof kCGImagePropertyIPTCSpecialInstructions
+  typeof kCGImagePropertyIPTCSpecialInstructions
 
 export type kCGImagePropertyIPTCStarRating_c = typeof kCGImagePropertyIPTCStarRating
 export type kCGImagePropertyIPTCSubLocation_c = typeof kCGImagePropertyIPTCSubLocation
 export type kCGImagePropertyIPTCSubjectReference_c = typeof kCGImagePropertyIPTCSubjectReference
 export type kCGImagePropertyIPTCSupplementalCategory_c =
-	typeof kCGImagePropertyIPTCSupplementalCategory
+  typeof kCGImagePropertyIPTCSupplementalCategory
 
 export type kCGImagePropertyIPTCTimeCreated_c = typeof kCGImagePropertyIPTCTimeCreated
 export type kCGImagePropertyIPTCUrgency_c = typeof kCGImagePropertyIPTCUrgency
@@ -15032,44 +15032,44 @@ export type kCGImagePropertyJFIFXDensity_c = typeof kCGImagePropertyJFIFXDensity
 export type kCGImagePropertyJFIFYDensity_c = typeof kCGImagePropertyJFIFYDensity
 export type kCGImagePropertyMakerAppleDictionary_c = typeof kCGImagePropertyMakerAppleDictionary
 export type kCGImagePropertyMakerCanonAspectRatioInfo_c =
-	typeof kCGImagePropertyMakerCanonAspectRatioInfo
+  typeof kCGImagePropertyMakerCanonAspectRatioInfo
 
 export type kCGImagePropertyMakerCanonCameraSerialNumber_c =
-	typeof kCGImagePropertyMakerCanonCameraSerialNumber
+  typeof kCGImagePropertyMakerCanonCameraSerialNumber
 
 export type kCGImagePropertyMakerCanonContinuousDrive_c =
-	typeof kCGImagePropertyMakerCanonContinuousDrive
+  typeof kCGImagePropertyMakerCanonContinuousDrive
 
 export type kCGImagePropertyMakerCanonDictionary_c = typeof kCGImagePropertyMakerCanonDictionary
 export type kCGImagePropertyMakerCanonFirmware_c = typeof kCGImagePropertyMakerCanonFirmware
 export type kCGImagePropertyMakerCanonFlashExposureComp_c =
-	typeof kCGImagePropertyMakerCanonFlashExposureComp
+  typeof kCGImagePropertyMakerCanonFlashExposureComp
 
 export type kCGImagePropertyMakerCanonImageSerialNumber_c =
-	typeof kCGImagePropertyMakerCanonImageSerialNumber
+  typeof kCGImagePropertyMakerCanonImageSerialNumber
 
 export type kCGImagePropertyMakerCanonLensModel_c = typeof kCGImagePropertyMakerCanonLensModel
 export type kCGImagePropertyMakerCanonOwnerName_c = typeof kCGImagePropertyMakerCanonOwnerName
 export type kCGImagePropertyMakerFujiDictionary_c = typeof kCGImagePropertyMakerFujiDictionary
 export type kCGImagePropertyMakerMinoltaDictionary_c = typeof kCGImagePropertyMakerMinoltaDictionary
 export type kCGImagePropertyMakerNikonCameraSerialNumber_c =
-	typeof kCGImagePropertyMakerNikonCameraSerialNumber
+  typeof kCGImagePropertyMakerNikonCameraSerialNumber
 
 export type kCGImagePropertyMakerNikonColorMode_c = typeof kCGImagePropertyMakerNikonColorMode
 export type kCGImagePropertyMakerNikonDictionary_c = typeof kCGImagePropertyMakerNikonDictionary
 export type kCGImagePropertyMakerNikonDigitalZoom_c = typeof kCGImagePropertyMakerNikonDigitalZoom
 export type kCGImagePropertyMakerNikonFlashExposureComp_c =
-	typeof kCGImagePropertyMakerNikonFlashExposureComp
+  typeof kCGImagePropertyMakerNikonFlashExposureComp
 
 export type kCGImagePropertyMakerNikonFlashSetting_c = typeof kCGImagePropertyMakerNikonFlashSetting
 export type kCGImagePropertyMakerNikonFocusDistance_c =
-	typeof kCGImagePropertyMakerNikonFocusDistance
+  typeof kCGImagePropertyMakerNikonFocusDistance
 
 export type kCGImagePropertyMakerNikonFocusMode_c = typeof kCGImagePropertyMakerNikonFocusMode
 export type kCGImagePropertyMakerNikonISOSelection_c = typeof kCGImagePropertyMakerNikonISOSelection
 export type kCGImagePropertyMakerNikonISOSetting_c = typeof kCGImagePropertyMakerNikonISOSetting
 export type kCGImagePropertyMakerNikonImageAdjustment_c =
-	typeof kCGImagePropertyMakerNikonImageAdjustment
+  typeof kCGImagePropertyMakerNikonImageAdjustment
 
 export type kCGImagePropertyMakerNikonLensAdapter_c = typeof kCGImagePropertyMakerNikonLensAdapter
 export type kCGImagePropertyMakerNikonLensInfo_c = typeof kCGImagePropertyMakerNikonLensInfo
@@ -15079,7 +15079,7 @@ export type kCGImagePropertyMakerNikonSharpenMode_c = typeof kCGImagePropertyMak
 export type kCGImagePropertyMakerNikonShootingMode_c = typeof kCGImagePropertyMakerNikonShootingMode
 export type kCGImagePropertyMakerNikonShutterCount_c = typeof kCGImagePropertyMakerNikonShutterCount
 export type kCGImagePropertyMakerNikonWhiteBalanceMode_c =
-	typeof kCGImagePropertyMakerNikonWhiteBalanceMode
+  typeof kCGImagePropertyMakerNikonWhiteBalanceMode
 
 export type kCGImagePropertyMakerOlympusDictionary_c = typeof kCGImagePropertyMakerOlympusDictionary
 export type kCGImagePropertyMakerPentaxDictionary_c = typeof kCGImagePropertyMakerPentaxDictionary
@@ -15130,10 +15130,10 @@ export type kCGImagePropertyTIFFMake_c = typeof kCGImagePropertyTIFFMake
 export type kCGImagePropertyTIFFModel_c = typeof kCGImagePropertyTIFFModel
 export type kCGImagePropertyTIFFOrientation_c = typeof kCGImagePropertyTIFFOrientation
 export type kCGImagePropertyTIFFPhotometricInterpretation_c =
-	typeof kCGImagePropertyTIFFPhotometricInterpretation
+  typeof kCGImagePropertyTIFFPhotometricInterpretation
 
 export type kCGImagePropertyTIFFPrimaryChromaticities_c =
-	typeof kCGImagePropertyTIFFPrimaryChromaticities
+  typeof kCGImagePropertyTIFFPrimaryChromaticities
 
 export type kCGImagePropertyTIFFResolutionUnit_c = typeof kCGImagePropertyTIFFResolutionUnit
 export type kCGImagePropertyTIFFSoftware_c = typeof kCGImagePropertyTIFFSoftware
@@ -15158,20 +15158,20 @@ export type kCGImageProviderPreferredTileHeight_c = typeof kCGImageProviderPrefe
 export type kCGImageProviderPreferredTileWidth_c = typeof kCGImageProviderPreferredTileWidth
 export type kCGImageSourceAllowableTypes_c = typeof kCGImageSourceAllowableTypes
 export type kCGImageSourceCreateThumbnailFromImageAlways_c =
-	typeof kCGImageSourceCreateThumbnailFromImageAlways
+  typeof kCGImageSourceCreateThumbnailFromImageAlways
 
 export type kCGImageSourceCreateThumbnailFromImageIfAbsent_c =
-	typeof kCGImageSourceCreateThumbnailFromImageIfAbsent
+  typeof kCGImageSourceCreateThumbnailFromImageIfAbsent
 
 export type kCGImageSourceCreateThumbnailWithTransform_c =
-	typeof kCGImageSourceCreateThumbnailWithTransform
+  typeof kCGImageSourceCreateThumbnailWithTransform
 
 export type kCGImageSourceDecodeRequest_c = typeof kCGImageSourceDecodeRequest
 export type kCGImageSourceDecodeRequestOptions_c = typeof kCGImageSourceDecodeRequestOptions
 export type kCGImageSourceDecodeToHDR_c = typeof kCGImageSourceDecodeToHDR
 export type kCGImageSourceDecodeToSDR_c = typeof kCGImageSourceDecodeToSDR
 export type kCGImageSourceGenerateImageSpecificLumaScaling_c =
-	typeof kCGImageSourceGenerateImageSpecificLumaScaling
+  typeof kCGImageSourceGenerateImageSpecificLumaScaling
 
 export type kCGImageSourcePrioritizeQuality_c = typeof kCGImageSourcePrioritizeQuality
 export type kCGImageSourceShouldAllowFloat_c = typeof kCGImageSourceShouldAllowFloat
@@ -15223,7 +15223,7 @@ export type kCNNetworkInfoKeyBSSID_c = typeof kCNNetworkInfoKeyBSSID
 export type kCNNetworkInfoKeySSID_c = typeof kCNNetworkInfoKeySSID
 export type kCNNetworkInfoKeySSIDData_c = typeof kCNNetworkInfoKeySSIDData
 export type kIIOCameraExtrinsics_CoordinateSystemID_c =
-	typeof kIIOCameraExtrinsics_CoordinateSystemID
+  typeof kIIOCameraExtrinsics_CoordinateSystemID
 
 export type kIIOCameraExtrinsics_Position_c = typeof kIIOCameraExtrinsics_Position
 export type kIIOCameraExtrinsics_Rotation_c = typeof kIIOCameraExtrinsics_Rotation
@@ -15237,7 +15237,7 @@ export type kIIOMonoscopicImageLocation_Center_c = typeof kIIOMonoscopicImageLoc
 export type kIIOMonoscopicImageLocation_Left_c = typeof kIIOMonoscopicImageLocation_Left
 export type kIIOMonoscopicImageLocation_Right_c = typeof kIIOMonoscopicImageLocation_Right
 export type kIIOMonoscopicImageLocation_Unspecified_c =
-	typeof kIIOMonoscopicImageLocation_Unspecified
+  typeof kIIOMonoscopicImageLocation_Unspecified
 
 export type kIIOStereoAggressors_Severity_c = typeof kIIOStereoAggressors_Severity
 export type kIIOStereoAggressors_SubTypeURI_c = typeof kIIOStereoAggressors_SubTypeURI
@@ -15494,7 +15494,7 @@ export type object_isClass_c = typeof object_isClass
 export type object_setClass_c = typeof object_setClass
 export type object_setInstanceVariable_c = typeof object_setInstanceVariable
 export type object_setInstanceVariableWithStrongDefault_c =
-	typeof object_setInstanceVariableWithStrongDefault
+  typeof object_setInstanceVariableWithStrongDefault
 
 export type object_setIvar_c = typeof object_setIvar
 export type object_setIvarWithStrongDefault_c = typeof object_setIvarWithStrongDefault

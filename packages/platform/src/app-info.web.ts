@@ -4,8 +4,8 @@ import type { AppInfo } from './types'
 import { desktopHostBootstrap } from './host-runtime.web'
 
 export const appInfo: AppInfo = desktopHostBootstrap()?.appInfo ?? {
-	supported: false,
-	version: null,
-	build: null,
-	bundleId: null,
+  supported: false,
+  version: null,
+  build: null,
+  bundleId: null,
 }

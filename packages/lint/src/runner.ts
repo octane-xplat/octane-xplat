@@ -24,85 +24,85 @@ Exit codes: 0 no errors · 1 lint errors · 2 command/setup failure
 `
 
 export async function runLint(argv: string[]) {
-	let fix = false
-	const inputs: string[] = []
-	for (let index = 0; index < argv.length; index++) {
-		const arg = argv[index]
-		if (arg === '--') {
-			inputs.push(...argv.slice(index + 1))
-			break
-		}
+  let fix = false
+  const inputs: string[] = []
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index]
+    if (arg === '--') {
+      inputs.push(...argv.slice(index + 1))
+      break
+    }
 
-		if (arg === '--fix') {
-			fix = true
-		} else if (arg === '-h' || arg === '--help') {
-			process.stdout.write(USAGE)
-			return 0
-		} else if (arg.startsWith('-')) {
-			console.error(`lint: unknown option "${arg}"\n\n${USAGE}`)
-			return 2
-		} else {
-			inputs.push(arg)
-		}
-	}
+    if (arg === '--fix') {
+      fix = true
+    } else if (arg === '-h' || arg === '--help') {
+      process.stdout.write(USAGE)
+      return 0
+    } else if (arg.startsWith('-')) {
+      console.error(`lint: unknown option "${arg}"\n\n${USAGE}`)
+      return 2
+    } else {
+      inputs.push(arg)
+    }
+  }
 
-	let temporary: string | undefined
-	try {
-		const cwd = process.cwd()
-		const config = readConfig(cwd)
-		const files = collectFiles(cwd, inputs, config.ignorePatterns)
-		const tsrx = files.filter((file) => file.endsWith('.tsrx'))
-		const regular = files.filter((file) => !file.endsWith('.tsrx'))
-		// Resolve all companion rules before allowing --fix to write anything.
-		const tsrxResult = await lintTsrxFiles(tsrx, config.rulesFor, cwd)
-		let oxlintStatus = 0
-		if (regular.length) {
-			let configPath = config.path
-			if (!configPath) {
-				temporary = mkdtempSync(join(tmpdir(), 'xplat-lint-'))
-				configPath = join(temporary, '.oxlintrc.json')
-				writeFileSync(configPath, JSON.stringify(config.defaults))
-			}
+  let temporary: string | undefined
+  try {
+    const cwd = process.cwd()
+    const config = readConfig(cwd)
+    const files = collectFiles(cwd, inputs, config.ignorePatterns)
+    const tsrx = files.filter((file) => file.endsWith('.tsrx'))
+    const regular = files.filter((file) => !file.endsWith('.tsrx'))
+    // Resolve all companion rules before allowing --fix to write anything.
+    const tsrxResult = await lintTsrxFiles(tsrx, config.rulesFor, cwd)
+    let oxlintStatus = 0
+    if (regular.length) {
+      let configPath = config.path
+      if (!configPath) {
+        temporary = mkdtempSync(join(tmpdir(), 'xplat-lint-'))
+        configPath = join(temporary, '.oxlintrc.json')
+        writeFileSync(configPath, JSON.stringify(config.defaults))
+      }
 
-			// Resolve the owned binary first. Consumers need neither an Oxlint
-			// dependency nor a populated node_modules/.bin on PATH.
-			const bin = resolveBin('oxlint', [import.meta.url])
-			if (!bin) {
-				throw new Error('could not resolve the bundled oxlint binary; reinstall @octane-xplat/cli')
-			}
+      // Resolve the owned binary first. Consumers need neither an Oxlint
+      // dependency nor a populated node_modules/.bin on PATH.
+      const bin = resolveBin('oxlint', [import.meta.url])
+      if (!bin) {
+        throw new Error('could not resolve the bundled oxlint binary; reinstall @octane-xplat/cli')
+      }
 
-			const result = spawnSync(
-				process.execPath,
-				[
-					bin,
-					'--config',
-					configPath,
-					'--no-ignore',
-					...(fix ? ['--fix'] : []),
-					'--',
-					...regular.map((file) => relative(cwd, file)),
-				],
-				{ cwd, stdio: 'inherit' },
-			)
+      const result = spawnSync(
+        process.execPath,
+        [
+          bin,
+          '--config',
+          configPath,
+          '--no-ignore',
+          ...(fix ? ['--fix'] : []),
+          '--',
+          ...regular.map((file) => relative(cwd, file)),
+        ],
+        { cwd, stdio: 'inherit' },
+      )
 
-			if (result.error) {
-				throw result.error
-			}
+      if (result.error) {
+        throw result.error
+      }
 
-			if (result.status === null) {
-				throw new Error(`oxlint stopped by ${result.signal}`)
-			}
+      if (result.status === null) {
+        throw new Error(`oxlint stopped by ${result.signal}`)
+      }
 
-			oxlintStatus = result.status
-		}
+      oxlintStatus = result.status
+    }
 
-		return Math.min(2, Math.max(oxlintStatus, tsrxResult))
-	} catch (error) {
-		console.error(`lint: ${error.message ?? error}`)
-		return 2
-	} finally {
-		if (temporary) {
-			rmSync(temporary, { recursive: true, force: true })
-		}
-	}
+    return Math.min(2, Math.max(oxlintStatus, tsrxResult))
+  } catch (error) {
+    console.error(`lint: ${error.message ?? error}`)
+    return 2
+  } finally {
+    if (temporary) {
+      rmSync(temporary, { recursive: true, force: true })
+    }
+  }
 }

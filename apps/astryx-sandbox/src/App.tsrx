@@ -11,15 +11,15 @@ import { SandboxLink } from './shell/SandboxLink.tsrx'
 import './routes'
 
 export function App() @{
-	const theme = themeFor(useThemeName())
-	const mode = useThemePreference()
-	return (
-		<Theme theme={theme} mode={mode}>
-			<LayerProvider>
-				<LinkProvider component={SandboxLink}>
-					<RouteOutlet />
-				</LinkProvider>
-			</LayerProvider>
-		</Theme>
-	)
+  const theme = themeFor(useThemeName())
+  const mode = useThemePreference()
+  return (
+    <Theme theme={theme} mode={mode}>
+      <LayerProvider>
+        <LinkProvider component={SandboxLink}>
+          <RouteOutlet />
+        </LinkProvider>
+      </LayerProvider>
+    </Theme>
+  )
 }

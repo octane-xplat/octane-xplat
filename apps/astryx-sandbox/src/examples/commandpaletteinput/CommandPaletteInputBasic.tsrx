@@ -5,22 +5,22 @@ import { useMemo } from 'octane'
 import { CommandPalette, createStaticSource, Kbd } from '@octane-xplat/ui'
 
 export function CommandPaletteInputBasic() @{
-	const source = useMemo(
-		() =>
-			createStaticSource([
-				{ id: 'home', label: 'Home' },
-				{ id: 'settings', label: 'Settings' },
-				{ id: 'profile', label: 'Profile' },
-				{ id: 'help', label: 'Help' },
-			]),
-		[],
-	)
+  const source = useMemo(
+    () =>
+      createStaticSource([
+        { id: 'home', label: 'Home' },
+        { id: 'settings', label: 'Settings' },
+        { id: 'profile', label: 'Profile' },
+        { id: 'help', label: 'Help' },
+      ]),
+    [],
+  )
 
-	<CommandPalette
-		open
-		onOpenChange={() => {}}
-		searchSource={source}
-		placeholder="Search commands, files, or actions..."
-		footer={<Kbd keys="mod+k" />}
-	/>
+  <CommandPalette
+    open
+    onOpenChange={() => {}}
+    searchSource={source}
+    placeholder="Search commands, files, or actions..."
+    footer={<Kbd keys="mod+k" />}
+  />
 }

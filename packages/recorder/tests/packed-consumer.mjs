@@ -3,15 +3,15 @@ import { loadSource } from '../../../scripts/load-source.ts'
 import { pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import {
-	cpSync,
-	existsSync,
-	mkdirSync,
-	mkdtempSync,
-	readdirSync,
-	readFileSync,
-	rmSync,
-	symlinkSync,
-	writeFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { tmpdir } from 'node:os'
@@ -27,35 +27,35 @@ mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
-	const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
-	if (result.stdout) {
-		process.stdout.write(result.stdout)
-	}
+  const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+  if (result.stdout) {
+    process.stdout.write(result.stdout)
+  }
 
-	if (result.stderr) {
-		process.stderr.write(result.stderr)
-	}
+  if (result.stderr) {
+    process.stderr.write(result.stderr)
+  }
 
-	if (result.error) {
-		throw result.error
-	}
+  if (result.error) {
+    throw result.error
+  }
 
-	if (result.status !== 0) {
-		throw new Error(`${command} exited with ${result.status}`)
-	}
+  if (result.status !== 0) {
+    throw new Error(`${command} exited with ${result.status}`)
+  }
 }
 
 // Deps the consumer needs in scope — the package's declared dependencies and
 // peers plus the renderer's jsx-runtime source.
 const dependencies = [
-	'octane',
-	'@nativescript-community/octane',
-	'@nativescript/core',
-	'@nativescript/types',
+  'octane',
+  '@nativescript-community/octane',
+  '@nativescript/core',
+  '@nativescript/types',
 ]
 
 const consumers = {
-	web: `import { createAudioRecorder, type AudioRecorder, type RecordingResult } from '@octane-xplat/recorder'
+  web: `import { createAudioRecorder, type AudioRecorder, type RecordingResult } from '@octane-xplat/recorder'
 const recorder: AudioRecorder = createAudioRecorder()
 const permission: Promise<import('@octane-xplat/recorder').RecorderPermissionState> =
 	recorder.requestPermission()
@@ -81,7 +81,7 @@ void run
 const bad: RecordingResult['mimeType'] = 'audio/mp3'
 void bad
 `,
-	native: `import { createAudioRecorder, type AudioRecorder, type RecordingResult } from '@octane-xplat/recorder'
+  native: `import { createAudioRecorder, type AudioRecorder, type RecordingResult } from '@octane-xplat/recorder'
 const recorder: AudioRecorder = createAudioRecorder()
 const permission: Promise<import('@octane-xplat/recorder').RecorderPermissionState> =
 	recorder.requestPermission()
@@ -111,7 +111,7 @@ void bad
 
 consumers.macos = consumers.native
 const extraFiles = {
-	'voice-memo.ts': readFileSync(join(repoRoot, 'examples/recorder/voice-memo.ts'), 'utf8'),
+  'voice-memo.ts': readFileSync(join(repoRoot, 'examples/recorder/voice-memo.ts'), 'utf8'),
 }
 
 // Mirrors the create template's per-target tsconfig: suffix typing selects
@@ -119,111 +119,111 @@ const extraFiles = {
 // ambient globals, and skipLibCheck stays on — NativeScript's third-party
 // ambient declarations carry upstream lib conflicts.
 const targetConfig = {
-	macos: {
-		moduleSuffixes: ['.macos', ''],
-		customConditions: ['macos'],
-		types: [],
-	},
-	web: {
-		moduleSuffixes: ['.web', ''],
-		customConditions: ['web'],
-		types: [],
-	},
-	native: {
-		moduleSuffixes: ['.ios', '.android', '.mobile', ''],
-		customConditions: ['native'],
-		types: ['@nativescript/types'],
-	},
+  macos: {
+    moduleSuffixes: ['.macos', ''],
+    customConditions: ['macos'],
+    types: [],
+  },
+  web: {
+    moduleSuffixes: ['.web', ''],
+    customConditions: ['web'],
+    types: [],
+  },
+  native: {
+    moduleSuffixes: ['.ios', '.android', '.mobile', ''],
+    customConditions: ['native'],
+    types: ['@nativescript/types'],
+  },
 }
 
 function typecheck(packagePath, target, mode, exportMapIndex) {
-	const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
-	const modules = join(consumerRoot, 'node_modules')
-	const packageLink = join(modules, '@octane-xplat/recorder')
-	mkdirSync(dirname(packageLink), { recursive: true })
-	cpSync(packagePath, packageLink, { recursive: true })
-	for (const dependency of dependencies) {
-		const source = join(packageRoot, 'node_modules', dependency)
-		const fallback = join(repoRoot, 'node_modules', dependency)
-		const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
-		if (!resolved) {
-			continue
-		}
+  const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
+  const modules = join(consumerRoot, 'node_modules')
+  const packageLink = join(modules, '@octane-xplat/recorder')
+  mkdirSync(dirname(packageLink), { recursive: true })
+  cpSync(packagePath, packageLink, { recursive: true })
+  for (const dependency of dependencies) {
+    const source = join(packageRoot, 'node_modules', dependency)
+    const fallback = join(repoRoot, 'node_modules', dependency)
+    const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+    if (!resolved) {
+      continue
+    }
 
-		const targetPath = join(modules, dependency)
-		mkdirSync(dirname(targetPath), { recursive: true })
-		symlinkSync(resolved, targetPath, 'dir')
-	}
+    const targetPath = join(modules, dependency)
+    mkdirSync(dirname(targetPath), { recursive: true })
+    symlinkSync(resolved, targetPath, 'dir')
+  }
 
-	// ESM consumer — NodeNext treats extensionless .tsx as CJS without it,
-	// which would let an ESM-only package slip type checks its runtime
-	// resolution can't satisfy.
-	writeFileSync(
-		join(consumerRoot, 'package.json'),
-		JSON.stringify({ name: `consumer-${exportMapIndex}-${target}-${mode.name}`, type: 'module' }),
-	)
+  // ESM consumer — NodeNext treats extensionless .tsx as CJS without it,
+  // which would let an ESM-only package slip type checks its runtime
+  // resolution can't satisfy.
+  writeFileSync(
+    join(consumerRoot, 'package.json'),
+    JSON.stringify({ name: `consumer-${exportMapIndex}-${target}-${mode.name}`, type: 'module' }),
+  )
 
-	writeFileSync(join(consumerRoot, 'consumer.ts'), consumers[target])
-	for (const [name, contents] of Object.entries(extraFiles)) {
-		writeFileSync(join(consumerRoot, name), contents)
-	}
+  writeFileSync(join(consumerRoot, 'consumer.ts'), consumers[target])
+  for (const [name, contents] of Object.entries(extraFiles)) {
+    writeFileSync(join(consumerRoot, name), contents)
+  }
 
-	const config = targetConfig[target]
-	const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
-	writeFileSync(
-		configPath,
-		JSON.stringify(
-			{
-				compilerOptions: {
-					strict: true,
-					noEmit: true,
-					module: mode.module,
-					moduleResolution: mode.moduleResolution,
-					target: 'esnext',
-					moduleSuffixes: config.moduleSuffixes,
-					customConditions: config.customConditions,
-					types: config.types.filter((name) => {
-						const segments = name.split('/')
-						const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
-						return existsSync(join(modules, ...pkg, 'package.json'))
-					}),
-					skipLibCheck: true,
-				},
-				files: ['consumer.ts', ...Object.keys(extraFiles)],
-			},
-			null,
-			2,
-		),
-	)
+  const config = targetConfig[target]
+  const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+  writeFileSync(
+    configPath,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          strict: true,
+          noEmit: true,
+          module: mode.module,
+          moduleResolution: mode.moduleResolution,
+          target: 'esnext',
+          moduleSuffixes: config.moduleSuffixes,
+          customConditions: config.customConditions,
+          types: config.types.filter((name) => {
+            const segments = name.split('/')
+            const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
+            return existsSync(join(modules, ...pkg, 'package.json'))
+          }),
+          skipLibCheck: true,
+        },
+        files: ['consumer.ts', ...Object.keys(extraFiles)],
+      },
+      null,
+      2,
+    ),
+  )
 
-	run(
-		process.execPath,
-		[join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath],
-		consumerRoot,
-	)
+  run(
+    process.execPath,
+    [join(repoRoot, 'node_modules/typescript/bin/tsc'), '--project', configPath],
+    consumerRoot,
+  )
 }
 
 try {
-	run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
-	const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
-	assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
-	run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
-	const packedRoot = join(extractedRoot, 'package')
-	assert.ok(
-		!existsSync(join(packedRoot, 'platforms/macos')),
-		'macOS backend ships no native leaf — TypeScript drives the ObjC bridge',
-	)
+  run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+  const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+  assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
+  run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+  const packedRoot = join(extractedRoot, 'package')
+  assert.ok(
+    !existsSync(join(packedRoot, 'platforms/macos')),
+    'macOS backend ships no native leaf — TypeScript drives the ObjC bridge',
+  )
 
-	assert.ok(existsSync(join(packedRoot, 'src/recorder-host.macos.ts')))
-	// Resolve and execute the actual public condition with no mobile modules
-	// installed. A missing native bridge must be a safe unsupported recorder.
-	const importRoot = join(temporary, 'macos-import')
-	const packageLink = join(importRoot, 'node_modules/@octane-xplat/recorder')
-	mkdirSync(dirname(packageLink), { recursive: true })
-	cpSync(packedRoot, packageLink, { recursive: true })
-	writeFileSync(
-		join(importRoot, 'consumer.mjs'),
-		`
+  assert.ok(existsSync(join(packedRoot, 'src/recorder-host.macos.ts')))
+  // Resolve and execute the actual public condition with no mobile modules
+  // installed. A missing native bridge must be a safe unsupported recorder.
+  const importRoot = join(temporary, 'macos-import')
+  const packageLink = join(importRoot, 'node_modules/@octane-xplat/recorder')
+  mkdirSync(dirname(packageLink), { recursive: true })
+  cpSync(packedRoot, packageLink, { recursive: true })
+  writeFileSync(
+    join(importRoot, 'consumer.mjs'),
+    `
 import assert from 'node:assert/strict'
 import { createAudioRecorder } from '@octane-xplat/recorder'
 const recorder = createAudioRecorder()
@@ -232,68 +232,68 @@ assert.equal(await recorder.requestPermission(), 'unsupported')
 await assert.rejects(recorder.start(), /unsupported/)
 recorder.dispose()
 `,
-	)
+  )
 
-	await loadSource(pathToFileURL(join(importRoot, 'consumer.mjs')), {
-		resolve: { conditions: ['macos'] },
-		ssr: { noExternal: ['@octane-xplat/recorder'], resolve: { conditions: ['macos'] } },
-	})
+  await loadSource(pathToFileURL(join(importRoot, 'consumer.mjs')), {
+    resolve: { conditions: ['macos'] },
+    ssr: { noExternal: ['@octane-xplat/recorder'], resolve: { conditions: ['macos'] } },
+  })
 
-	const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
-	const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+  const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
+  const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
-	const exportMaps = [
-		workspaceManifest.exports,
-		workspaceManifest.publishConfig?.exports ?? packedManifest.exports,
-	]
+  const exportMaps = [
+    workspaceManifest.exports,
+    workspaceManifest.publishConfig?.exports ?? packedManifest.exports,
+  ]
 
-	const uniqueExportMaps = exportMaps.filter(
-		(exportsMap, index) =>
-			exportsMap &&
-			exportMaps.findIndex(
-				(candidate) => JSON.stringify(candidate) === JSON.stringify(exportsMap),
-			) === index,
-	)
+  const uniqueExportMaps = exportMaps.filter(
+    (exportsMap, index) =>
+      exportsMap &&
+      exportMaps.findIndex(
+        (candidate) => JSON.stringify(candidate) === JSON.stringify(exportsMap),
+      ) === index,
+  )
 
-	for (const [index, exportsMap] of uniqueExportMaps.entries()) {
-		const consumerPackage = join(temporary, `package-${index}`)
-		cpSync(packedRoot, consumerPackage, { recursive: true })
-		const consumerManifestPath = join(consumerPackage, 'package.json')
-		const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
-		consumerManifest.exports = exportsMap
-		writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
+  for (const [index, exportsMap] of uniqueExportMaps.entries()) {
+    const consumerPackage = join(temporary, `package-${index}`)
+    cpSync(packedRoot, consumerPackage, { recursive: true })
+    const consumerManifestPath = join(consumerPackage, 'package.json')
+    const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+    consumerManifest.exports = exportsMap
+    writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
-		for (const target of Object.keys(consumers)) {
-			// Subpath exports absent from a map (e.g. ./macos only exists in the
-			// workspace map) cannot resolve — skip that lane for that map.
-			const targetSubpaths = targetConfig[target].subpaths ?? ['.']
-			if (!targetSubpaths.every((subpath) => exportsMap[subpath])) {
-				continue
-			}
+    for (const target of Object.keys(consumers)) {
+      // Subpath exports absent from a map (e.g. ./macos only exists in the
+      // workspace map) cannot resolve — skip that lane for that map.
+      const targetSubpaths = targetConfig[target].subpaths ?? ['.']
+      if (!targetSubpaths.every((subpath) => exportsMap[subpath])) {
+        continue
+      }
 
-			for (const mode of [
-				{
-					name: 'bundler',
-					module: 'esnext',
-					moduleResolution: 'bundler',
-				},
-				{
-					name: 'nodenext',
-					module: 'nodenext',
-					moduleResolution: 'nodenext',
-				},
-			]) {
-				typecheck(consumerPackage, target, mode, index)
-			}
-		}
-	}
+      for (const mode of [
+        {
+          name: 'bundler',
+          module: 'esnext',
+          moduleResolution: 'bundler',
+        },
+        {
+          name: 'nodenext',
+          module: 'nodenext',
+          moduleResolution: 'nodenext',
+        },
+      ]) {
+        typecheck(consumerPackage, target, mode, index)
+      }
+    }
+  }
 
-	if (process.argv.includes('--macos-native')) {
-		const { checkMacOSNative } = await import('./macos-native.mjs')
-		await checkMacOSNative(packedRoot)
-	}
+  if (process.argv.includes('--macos-native')) {
+    const { checkMacOSNative } = await import('./macos-native.mjs')
+    await checkMacOSNative(packedRoot)
+  }
 
-	console.log('recorder packed consumer: exports typecheck in Bundler and NodeNext modes')
+  console.log('recorder packed consumer: exports typecheck in Bundler and NodeNext modes')
 } finally {
-	rmSync(temporary, { recursive: true, force: true })
+  rmSync(temporary, { recursive: true, force: true })
 }

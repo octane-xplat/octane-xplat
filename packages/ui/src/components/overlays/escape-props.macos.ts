@@ -3,11 +3,11 @@
 export function applyEscapeProps(_view: unknown, _props: unknown): void {}
 
 export function nativeAccessibilityRole(role?: string): string | undefined {
-	return role
+  return role
 }
 
 export function nativeAccessibilityState(
-	state?: Record<string, boolean | undefined>,
+  state?: Record<string, boolean | undefined>,
 ): Record<string, boolean | undefined> | undefined {
-	return state
+  return state
 }

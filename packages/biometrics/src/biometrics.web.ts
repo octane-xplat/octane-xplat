@@ -7,15 +7,15 @@ import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capabil
 import type { BiometricsImpl } from './types'
 
 const UNSUPPORTED: PermissionResponse = {
-	status: 'unsupported',
-	granted: false,
-	canAskAgain: false,
+  status: 'unsupported',
+  granted: false,
+  canAskAgain: false,
 }
 
 export const biometrics: Permissioned<BiometricsImpl> = {
-	supported: false,
-	isAvailable: async () => false,
-	getPermissions: async () => UNSUPPORTED,
-	requestPermissions: async () => UNSUPPORTED,
-	verify: () => Promise.reject(new UnavailabilityError('biometrics')),
+  supported: false,
+  isAvailable: async () => false,
+  getPermissions: async () => UNSUPPORTED,
+  requestPermissions: async () => UNSUPPORTED,
+  verify: () => Promise.reject(new UnavailabilityError('biometrics')),
 }

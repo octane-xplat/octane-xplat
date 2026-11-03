@@ -3,11 +3,11 @@
 // these on globalThis; AppKit/ObjC bridge globals are out of scope here —
 // leaves that use them declare their own ambient surface.
 declare var console: {
-	log(...args: unknown[]): void
-	info(...args: unknown[]): void
-	warn(...args: unknown[]): void
-	error(...args: unknown[]): void
-	debug(...args: unknown[]): void
+  log(...args: unknown[]): void
+  info(...args: unknown[]): void
+  warn(...args: unknown[]): void
+  error(...args: unknown[]): void
+  debug(...args: unknown[]): void
 }
 
 declare function setTimeout(callback: (...args: unknown[]) => void, delay?: number): number

@@ -16,13 +16,13 @@ export function useUser(id: string) {
 }`
 
 export function CodeBlockHighlightedLines() {
-	return (
-		<CodeBlock
-			code={code}
-			language="typescript"
-			title="useUser.ts"
-			hasLineNumbers
-			highlightLines={[8, 9, 10]}
-		/>
-	)
+  return (
+    <CodeBlock
+      code={code}
+      language="typescript"
+      title="useUser.ts"
+      hasLineNumbers
+      highlightLines={[8, 9, 10]}
+    />
+  )
 }

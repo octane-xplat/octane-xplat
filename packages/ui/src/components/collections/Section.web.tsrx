@@ -16,66 +16,66 @@ import type { JSX } from 'octane/jsx-runtime'
  *  structure is inert, so the outer/inner split is forward-compatible
  *  rather than dead code. */
 export function Section(props: SectionProps): JSX.Element @{
-	const variant = props.variant ?? 'section'
-	const dividers = new Set(props.dividers ?? [])
-	const padding = spacingPx(props.padding) ?? 16
-	const pInlineStart = spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding
-	const pInlineEnd = spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding
-	const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding
-	const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding
+  const variant = props.variant ?? 'section'
+  const dividers = new Set(props.dividers ?? [])
+  const padding = spacingPx(props.padding) ?? 16
+  const pInlineStart = spacingPx(props.paddingInlineStart ?? props.paddingInline) ?? padding
+  const pInlineEnd = spacingPx(props.paddingInlineEnd ?? props.paddingInline) ?? padding
+  const pBlockStart = spacingPx(props.paddingBlockStart ?? props.paddingBlock) ?? padding
+  const pBlockEnd = spacingPx(props.paddingBlockEnd ?? props.paddingBlock) ?? padding
 
-	const forwardedRef = useMemo(
-		() =>
-			refList((e: any) => {
-				if (e) {
-					applyEscapeProps(e, props)
-					applyWebProps(e, props.web)
-				}
-			}, props.ref),
-		[props.ref, props.ios, props.android, props.web],
-	)
+  const forwardedRef = useMemo(
+    () =>
+      refList((e: any) => {
+        if (e) {
+          applyEscapeProps(e, props)
+          applyWebProps(e, props.web)
+        }
+      }, props.ref),
+    [props.ref, props.ios, props.android, props.web],
+  )
 
-	<div
-		id={props.id}
-		ref={forwardedRef}
-		className={['vx-section', `vx-section--${variant}`, props.className]}
-		style={mergeStyle(
-			{
-				marginInlineStart: 'calc(-1 * var(--container-padding-inline-start, 0px))',
-				marginInlineEnd: 'calc(-1 * var(--container-padding-inline-end, 0px))',
-			},
-			props.style,
-		)}
-		role={props.accessibilityRole}
-		aria-label={props.accessibilityLabel}
-		aria-hidden={props.accessible === false ? true : undefined}
-		aria-description={props.accessibilityHint}
-		aria-valuetext={props.accessibilityValue}
-		aria-disabled={props.accessibilityState?.disabled}
-		aria-selected={props.accessibilityState?.selected}
-		aria-checked={props.accessibilityState?.checked}
-		aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
-	>
-		<div
-			className={[
-				'vx-section-inner',
-				dividers.has('top') ? 'vx-section--divider-top' : undefined,
-				dividers.has('bottom') ? 'vx-section--divider-bottom' : undefined,
-				dividers.has('start') ? 'vx-section--divider-start' : undefined,
-				dividers.has('end') ? 'vx-section--divider-end' : undefined,
-			]}
-			style={{
-				paddingInlineStart: pInlineStart,
-				paddingInlineEnd: pInlineEnd,
-				paddingBlockStart: pBlockStart,
-				paddingBlockEnd: pBlockEnd,
-				...(props.width != null ? { width: props.width } : {}),
-				...(props.height != null ? { height: props.height } : {}),
-				...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
-				...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
-			}}
-		>
-			{props.children}
-		</div>
-	</div>
+  <div
+    id={props.id}
+    ref={forwardedRef}
+    className={['vx-section', `vx-section--${variant}`, props.className]}
+    style={mergeStyle(
+      {
+        marginInlineStart: 'calc(-1 * var(--container-padding-inline-start, 0px))',
+        marginInlineEnd: 'calc(-1 * var(--container-padding-inline-end, 0px))',
+      },
+      props.style,
+    )}
+    role={props.accessibilityRole}
+    aria-label={props.accessibilityLabel}
+    aria-hidden={props.accessible === false ? true : undefined}
+    aria-description={props.accessibilityHint}
+    aria-valuetext={props.accessibilityValue}
+    aria-disabled={props.accessibilityState?.disabled}
+    aria-selected={props.accessibilityState?.selected}
+    aria-checked={props.accessibilityState?.checked}
+    aria-live={props.accessibilityLiveRegion === 'none' ? 'off' : props.accessibilityLiveRegion}
+  >
+    <div
+      className={[
+        'vx-section-inner',
+        dividers.has('top') ? 'vx-section--divider-top' : undefined,
+        dividers.has('bottom') ? 'vx-section--divider-bottom' : undefined,
+        dividers.has('start') ? 'vx-section--divider-start' : undefined,
+        dividers.has('end') ? 'vx-section--divider-end' : undefined,
+      ]}
+      style={{
+        paddingInlineStart: pInlineStart,
+        paddingInlineEnd: pInlineEnd,
+        paddingBlockStart: pBlockStart,
+        paddingBlockEnd: pBlockEnd,
+        ...(props.width != null ? { width: props.width } : {}),
+        ...(props.height != null ? { height: props.height } : {}),
+        ...(props.maxWidth != null ? { maxWidth: props.maxWidth } : {}),
+        ...(props.minHeight != null ? { minHeight: props.minHeight } : {}),
+      }}
+    >
+      {props.children}
+    </div>
+  </div>
 }

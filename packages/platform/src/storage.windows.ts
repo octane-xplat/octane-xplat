@@ -20,39 +20,39 @@ const entries = new Map<string, string>()
 let writeTail: Promise<unknown> = Promise.resolve()
 
 const storePath = (): string =>
-	nsPath.join(knownFolders.documents().path, 'octane-preferences.json')
+  nsPath.join(knownFolders.documents().path, 'octane-preferences.json')
 
 const load: Promise<unknown> = (async () => {
-	try {
-		const path = storePath()
-		if (File.exists(path)) {
-			const text = await File.fromPath(path).readText()
-			for (const pair of JSON.parse(text) as [string, string][]) {
-				entries.set(pair[0], String(pair[1]))
-			}
-		}
-	} catch {}
+  try {
+    const path = storePath()
+    if (File.exists(path)) {
+      const text = await File.fromPath(path).readText()
+      for (const pair of JSON.parse(text) as [string, string][]) {
+        entries.set(pair[0], String(pair[1]))
+      }
+    }
+  } catch {}
 })()
 
 const persist = (): void => {
-	const snapshot = JSON.stringify([...entries])
-	writeTail = load.then(() => File.fromPath(storePath()).writeText(snapshot)).catch(() => {})
+  const snapshot = JSON.stringify([...entries])
+  writeTail = load.then(() => File.fromPath(storePath()).writeText(snapshot)).catch(() => {})
 }
 
 export const storage = {
-	getString: (key: string): string | null => {
-		const value = entries.get(key)
-		return value === undefined ? null : value
-	},
-	setString: (key: string, value: string): void => {
-		entries.set(key, value)
-		persist()
-	},
-	remove: (key: string): void => {
-		if (entries.delete(key)) {
-			persist()
-		}
-	},
-	/** False: persistence is asynchronous; no blocking commit is exposed. */
-	flush: (): boolean => false,
+  getString: (key: string): string | null => {
+    const value = entries.get(key)
+    return value === undefined ? null : value
+  },
+  setString: (key: string, value: string): void => {
+    entries.set(key, value)
+    persist()
+  },
+  remove: (key: string): void => {
+    if (entries.delete(key)) {
+      persist()
+    }
+  },
+  /** False: persistence is asynchronous; no blocking commit is exposed. */
+  flush: (): boolean => false,
 }

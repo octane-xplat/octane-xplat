@@ -8,5 +8,5 @@ import { addBackInterceptor } from './back-interceptors.web'
  *  the browser owns back — so this registers a never-firing handler and
  *  addBackInterceptor warns once. */
 export function useBackInterceptor(fn: () => boolean): void {
-	useEffect(() => addBackInterceptor(fn), [fn])
+  useEffect(() => addBackInterceptor(fn), [fn])
 }

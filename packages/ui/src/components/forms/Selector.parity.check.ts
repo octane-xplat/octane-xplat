@@ -2,11 +2,11 @@ import type { ParityCheck } from '../../parity/check-helpers.ts'
 import { controlEqual, controlRows } from '../../parity/check-helpers.ts'
 
 export const CHECKS: ParityCheck[] = [
-	{
-		fixture: 'select-value',
-		targets: ['web', 'ios', 'android', 'macos', 'windows'],
-		elements: { control: 'parity-select-root' },
-		equal: controlEqual,
-		check: (m) => controlRows(m, 160, 40),
-	},
+  {
+    fixture: 'select-value',
+    targets: ['web', 'ios', 'android', 'macos', 'windows'],
+    elements: { control: 'parity-select-root' },
+    equal: controlEqual,
+    check: (m) => controlRows(m, 160, 40),
+  },
 ]

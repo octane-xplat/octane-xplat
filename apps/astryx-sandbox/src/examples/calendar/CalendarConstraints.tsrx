@@ -9,7 +9,7 @@ const min = iso(now)
 const max = iso(new Date(now.getTime() + 60 * 86400000))
 
 export function CalendarConstraints() @{
-	const [value, setValue] = useState<ISODateString | null>(null)
+  const [value, setValue] = useState<ISODateString | null>(null)
 
-	<Calendar value={value} onChange={setValue} min={min} max={max} />
+  <Calendar value={value} onChange={setValue} min={min} max={max} />
 }

@@ -11,31 +11,31 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
  *  The camera path needs a real capture device and granted TCC state for the
  *  capture lanes; every lane still verifies the permission contract. */
 export async function checkMacOSNative(packedRoot) {
-	assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
-	assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
-	const app = await mkdtemp(join(tmpdir(), 'xplat-camera-native-'))
-	try {
-		await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
-		await cp(packedRoot, join(app, 'node_modules/@octane-xplat/camera'), { recursive: true })
-		await symlink(
-			fileURLToPath(new URL('../../platform', import.meta.url)),
-			join(app, 'node_modules/@octane-xplat/platform'),
-		)
+  assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
+  assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
+  const app = await mkdtemp(join(tmpdir(), 'xplat-camera-native-'))
+  try {
+    await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
+    await cp(packedRoot, join(app, 'node_modules/@octane-xplat/camera'), { recursive: true })
+    await symlink(
+      fileURLToPath(new URL('../../platform', import.meta.url)),
+      join(app, 'node_modules/@octane-xplat/platform'),
+    )
 
-		await writeFile(
-			join(app, 'package.json'),
-			JSON.stringify({
-				name: 'camera-native-consumer',
-				type: 'module',
-				private: true,
-				dependencies: { '@octane-xplat/camera': '0.0.0' },
-			}),
-		)
+    await writeFile(
+      join(app, 'package.json'),
+      JSON.stringify({
+        name: 'camera-native-consumer',
+        type: 'module',
+        private: true,
+        dependencies: { '@octane-xplat/camera': '0.0.0' },
+      }),
+    )
 
-		const source = join(app, 'consumer.ts')
-		await writeFile(
-			source,
-			`
+    const source = join(app, 'consumer.ts')
+    await writeFile(
+      source,
+      `
 import { createCameraHost } from 'camera-host-impl'
 import { XplatPhotoCaptureSheet } from '@octane-xplat/camera/photo-sheet.macos'
 const check = (value, message) => { if (!value) throw Error(message) }
@@ -250,68 +250,68 @@ setTimeout(() => globalThis.__xplatStopHost(), 0)
 }
 run().catch((error) => { console.error(String(error)); throw error })
 `,
-		)
+    )
 
-		await build({
-			configFile: false,
-			root: app,
-			resolve: {
-				conditions: ['macos'],
-				alias: {
-					'camera-host-impl': join(
-						app,
-						'node_modules/@octane-xplat/camera/src/camera-host.macos.ts',
-					),
-				},
-			},
-			build: {
-				outDir: join(app, 'dist'),
-				minify: false,
-				lib: { entry: source, formats: ['cjs'], fileName: () => 'consumer.cjs' },
-				rollupOptions: { external: ['@nativescript/macos-node-api'] },
-			},
-		})
+    await build({
+      configFile: false,
+      root: app,
+      resolve: {
+        conditions: ['macos'],
+        alias: {
+          'camera-host-impl': join(
+            app,
+            'node_modules/@octane-xplat/camera/src/camera-host.macos.ts',
+          ),
+        },
+      },
+      build: {
+        outDir: join(app, 'dist'),
+        minify: false,
+        lib: { entry: source, formats: ['cjs'], fileName: () => 'consumer.cjs' },
+        rollupOptions: { external: ['@nativescript/macos-node-api'] },
+      },
+    })
 
-		// Bundle.main reads a sibling Info.plist for flat binaries: one host
-		// copy declares camera+microphone usage strings, the other does not.
-		const nsMetadata = join(hostBundle, `metadata.macos.${process.arch}.nsmd`)
-		const shim = fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url))
-		const framework = join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript')
-		const variants = [
-			{ name: 'undeclared', plist: null },
-			{
-				name: 'declared',
-				plist:
-					'<?xml version="1.0" encoding="UTF-8"?>\n' +
-					'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
-					'<plist version="1.0"><dict>' +
-					'<key>NSCameraUsageDescription</key><string>Camera host checks.</string>' +
-					'<key>NSMicrophoneUsageDescription</key><string>Camera host checks.</string>' +
-					'</dict></plist>\n',
-			},
-		]
+    // Bundle.main reads a sibling Info.plist for flat binaries: one host
+    // copy declares camera+microphone usage strings, the other does not.
+    const nsMetadata = join(hostBundle, `metadata.macos.${process.arch}.nsmd`)
+    const shim = fileURLToPath(new URL('../../cli/src/macos/jsc-host/shim.js', import.meta.url))
+    const framework = join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript')
+    const variants = [
+      { name: 'undeclared', plist: null },
+      {
+        name: 'declared',
+        plist:
+          '<?xml version="1.0" encoding="UTF-8"?>\n' +
+          '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+          '<plist version="1.0"><dict>' +
+          '<key>NSCameraUsageDescription</key><string>Camera host checks.</string>' +
+          '<key>NSMicrophoneUsageDescription</key><string>Camera host checks.</string>' +
+          '</dict></plist>\n',
+      },
+    ]
 
-		for (const variant of variants) {
-			const dir = join(app, `host-${variant.name}`)
-			await mkdir(dir, { recursive: true })
-			await cp(join(hostBundle, 'host'), join(dir, 'host'))
-			if (variant.plist) {
-				await writeFile(join(dir, 'Info.plist'), variant.plist)
-			}
+    for (const variant of variants) {
+      const dir = join(app, `host-${variant.name}`)
+      await mkdir(dir, { recursive: true })
+      await cp(join(hostBundle, 'host'), join(dir, 'host'))
+      if (variant.plist) {
+        await writeFile(join(dir, 'Info.plist'), variant.plist)
+      }
 
-			const result = spawnSync(
-				join(dir, 'host'),
-				[framework, join(app, 'dist/consumer.cjs'), nsMetadata, shim],
-				{ encoding: 'utf8', timeout: 60_000 },
-			)
+      const result = spawnSync(
+        join(dir, 'host'),
+        [framework, join(app, 'dist/consumer.cjs'), nsMetadata, shim],
+        { encoding: 'utf8', timeout: 60_000 },
+      )
 
-			const output = `${result.stdout}\n${result.stderr}`
-			assert.equal(result.status, 0, `${variant.name}\n${output}`)
-			assert.match(output, /MACOS_CAMERA_HOST_OK/, `${variant.name}\n${output}`)
-		}
+      const output = `${result.stdout}\n${result.stderr}`
+      assert.equal(result.status, 0, `${variant.name}\n${output}`)
+      assert.match(output, /MACOS_CAMERA_HOST_OK/, `${variant.name}\n${output}`)
+    }
 
-		console.log('macOS packed camera: TypeScript host dispatch passed')
-	} finally {
-		await rm(app, { recursive: true, force: true })
-	}
+    console.log('macOS packed camera: TypeScript host dispatch passed')
+  } finally {
+    await rm(app, { recursive: true, force: true })
+  }
 }

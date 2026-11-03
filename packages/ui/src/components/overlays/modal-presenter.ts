@@ -9,16 +9,16 @@
  *  rather than presenting blind. `frame` is structural: `Frame.topmost()`
  *  types as FrameBase while stack registration hands over Frame. */
 export function modalPresenter(
-	frame: { currentPage?: any; isLoaded?: boolean } | undefined | null,
+  frame: { currentPage?: any; isLoaded?: boolean } | undefined | null,
 ): any {
-	if (!frame) {
-		return null
-	}
+  if (!frame) {
+    return null
+  }
 
-	const page = frame.currentPage
-	if (page && page.isLoaded && page.frame === frame) {
-		return page
-	}
+  const page = frame.currentPage
+  if (page && page.isLoaded && page.frame === frame) {
+    return page
+  }
 
-	return frame.isLoaded ? frame : null
+  return frame.isLoaded ? frame : null
 }
