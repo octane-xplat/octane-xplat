@@ -1,5 +1,5 @@
-## Owned argv-only POSIX children; no shell or JS runtime bridge.
-## Completion includes pipe EOF; stop still owns the group after its leader exits.
+## Owned argv-only children; no shell or JS runtime bridge.
+## Completion includes pipe EOF and release of the POSIX group or Windows job.
 import std/[asyncdispatch, os, strtabs, strutils, tables, options, monotimes, times, exitprocs]
 import ./process_lines, ./js_text
 export process_lines
@@ -30,6 +30,7 @@ type
     onData: proc(stream, bytes: string) {.closure.}
     onNote: proc(line: string) {.closure.}
     stopFuture: Future[void]
+    nativeProcess: pointer
 
 proc newProcessCancel*(): ProcessCancel = ProcessCancel()
 proc cancel*(signal: ProcessCancel) =
@@ -313,6 +314,8 @@ when defined(macosx) or defined(linux):
     var pending: seq[Future[void]]
     for child in manager.children.values: pending.add(child.stop())
     for task in pending: await task
+elif defined(windows):
+  include ./managed_process_windows
 else:
   proc interruptedSignal*(): int = 0
   proc installProcessSignalHandlers*() = raise newException(OSError,"Managed processes are not yet implemented on this host")

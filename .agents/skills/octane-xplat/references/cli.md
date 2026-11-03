@@ -55,8 +55,9 @@ the Nim tarball. Help is native. The engine owns its rules, ignores and safe
 fixes; Nim owns process cleanup. Native `fmt` is still pending.
 On Ubuntu x64, the native owner and web build workflow are qualified with the
 project-installed route/baking worker and Vite, including job cancellation and
-child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows native
-HTTP/process/owner adapters and its representative workflow remain unqualified.
+child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process
+jobs have separate descendant-cleanup checks; native HTTP/private owner/RPC and
+its representative project workflow remain unqualified.
 
 ```sh
 # On a qualified host, from the selected app with its build tools installed:

@@ -262,9 +262,21 @@ separate `/proc` process-group adapter; tests include unusual process names and
 require kernel identities to be gone before native completion. It requires glibc
 2.34+ and ordinary OS orphan reaping; non-reaping container init processes remain
 unqualified. Native no-shebang text is deliberately rejected with `ENOEXEC`,
-while the actual Linux Node reference uses a shell fallback. Windows process
-control and the joined Windows owner/worker workflow still need
-qualification.
+while the actual Linux Node reference uses a shell fallback. Windows HTTP/private owner/RPC and the joined Windows worker workflow still
+need qualification.
+
+The separate Windows process gate uses actual SDK job handles, explicit
+inherited stdio handles, UTF-16 command/environment input and bounded pipe
+polling. It compares literal argv/cwd/environment, raw streams and ordinary exit
+status with Node, then requires job/descendant release after cancellation,
+capture failure, leader-first exit and abrupt supervisor death. Windows job
+termination is immediate; the POSIX graceful-signal/escalation cases stay skipped.
+The job is assigned during process creation with `PROC_THREAD_ATTRIBUTE_JOB_LIST`
+and has kill-on-close enabled, closing the suspended-child ownership gap. This
+requires Windows10 APIs; actual execution is on Windows11 x64 with MSVC.
+It is noninteractive process evidence, not Windows HTTP, private host/RPC,
+project-worker, console-event or full app qualification. The gate rejects batch
+scripts without an explicit interpreter; it never adds an implicit shell.
 
 For focused process iteration use `build:nim-process --filter=@octane-xplat/cli
 --only` through Turbo under a build reservation, then `test:nim-process` with

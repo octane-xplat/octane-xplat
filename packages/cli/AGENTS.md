@@ -425,6 +425,24 @@ also distinguishes an ordinary exit code of 143 from termination by SIGTERM.
 Keep the leader's PID reserved while inherited pipes remain open so delayed
 group cleanup cannot target a subsequently reused PID.
 
+Windows child-tree ownership needs a private job handle, not a PID walk. Set
+`JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE`, keep that handle non-inheritable, and pass
+`PROC_THREAD_ATTRIBUTE_JOB_LIST` during `CreateProcessW`; assigning after creation
+leaves a supervisor-death gap, even if the child was suspended. Explicitly list
+inherited stdio handles with `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`. Retain the
+process/job handles until leader exit, job `ActiveProcesses == 0` and both pipe
+EOFs. A successful termination request alone is not completed cleanup.
+Calling `CreateProcessW` directly does not guarantee shell-free execution:
+Windows can dispatch `.cmd`/`.bat` files through `cmd.exe`; see
+[the MSRC explanation](https://www.microsoft.com/en-us/msrc/blog/2014/04/ms14-019-fixing-a-binary-hijacking-via-cmd-or-bat-file).
+Reject their normalized
+names explicitly and require a real Windows executable image with `GetBinaryTypeW`
+before launch. Test ordinary, case-varied and trailing-dot/space aliases against
+an observable script marker; do not infer safety from literal argv alone.
+Windows job termination is immediate; do not describe it as cooperative POSIX
+SIGTERM or promise a grace period. Keep console callbacks in C with an atomic
+flag; perform Nim allocation, logging and cancellation on the event loop.
+
 POSIX spawn extensions differ by host. Keep macOS close-by-default flags and
 Linux close-from file actions in separate platform modules; run the close-from
 action after explicit stdio duplication. The current GNU adapter requires glibc

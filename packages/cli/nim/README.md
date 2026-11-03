@@ -193,7 +193,9 @@ the production owner, with worker cancellation, last-good artifact preservation
 and authenticated shutdown/restart. This does not qualify Linux native app
 engines or the full command surface. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
-the process-group cleanup guarantee. Windows process/host adapters are unimplemented.
+the process-group cleanup guarantee. Windows managed-process jobs pass a separate actual Windows11 x64 gate for
+arguments, pipes, exit status and descendant cleanup, including abrupt supervisor
+death. Windows HTTP and private owner/RPC adapters remain unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
@@ -439,8 +441,8 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
 Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
 cleanup pass their separate gates. The representative canonical project-worker
-and web-build workflow also passes on Linux. Windows native providers and its
-joined workflow remain unqualified. Windows TLS, remaining command contracts,
+and web-build workflow also passes on Linux. Windows managed-process jobs pass their separate gate; HTTP/private owner/RPC
+and the joined workflow remain unqualified. Windows TLS, remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
