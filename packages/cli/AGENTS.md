@@ -519,8 +519,29 @@ stdlib binding names `<stdlib.h>` and fails C compilation with SDK 27.0; see the
 [toolchain constraint](../../.agents/docs/toolchain.md#cli-runtime-and-executable-packaging).
 Keep a mutable Nim string alive while C changes its suffix. Verify the active
 worker directory's permissions, and await process cleanup before removing it.
-Windows needs an explicit private-directory/ACL adapter, not an assumed POSIX
-mode translation.
+Windows uses `private_windows.nim` and its SDK adapter for local NTFS storage.
+Create private directories/files with an explicit current-user owner and protected
+user-only DACL; never infer privacy from POSIX mode bits or silently repair an
+existing broad/foreign ACL. Reject reparse ancestors, nonregular files and
+hardlinks. Hold ancestor handles without delete sharing during path operations;
+a lifetime lock retains them plus its exact locked file until release. Keep
+handle-based deletion bound to the recorded volume/file identity. The shared
+stamp uses NTFS's 64-bit index; ReFS, UNC/device paths and junction-based cache
+roots need separate adapters/qualification.
+
+An inherited private DACL does not establish a newly created file's owner.
+Windows uses the creator token's default owner, which can be a group rather than
+its user. Precreate worker sidecars natively with explicit ownership and have the
+project writer update them in place; revalidate the result. The canonical build
+worker uses `writeFileSync`, which preserves an existing file's owner/DACL.
+Do not broaden owner acceptance to hide this mismatch, and verify an actual
+installed worker separately from the storage primitive.
+
+Windows legacy `FileRenameInfo` replacement can fail while a reader holds the
+old target. The NTFS adapter uses `FileRenameInfoEx` with replacement/POSIX flags:
+old handles keep their bytes and new opens see the replacement. Qualify both held
+readers and concurrent reads, and require active lifetime locks to resist native
+publication too. A passing ordinary rename case does not establish these rules.
 
 Hash explicit UTF-8 bytes with a pinned implementation and compare lowercase
 hex digests against independent vectors. Do not add a runtime crypto-library

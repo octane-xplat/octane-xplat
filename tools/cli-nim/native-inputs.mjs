@@ -53,6 +53,13 @@ export function rpcProbeInputs(root) {
  return { files, sha256: hash.digest('hex') }
 }
 
+export function storageProbeInputs(root) {
+ const files = [...nativeInputs(root).files, 'tools/cli-nim/storage_probe.nim', 'tools/cli-nim/build-probe.mjs'].sort()
+ const hash = createHash('sha256')
+ for (const file of files) {hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')}
+ return { files, sha256: hash.digest('hex') }
+}
+
 export function hostProbeInputs(root) {
  const files = [...nativeInputs(root).files, 'tools/cli-nim/host_probe.nim', 'tools/cli-nim/build-probe.mjs'].sort()
  const hash = createHash('sha256')

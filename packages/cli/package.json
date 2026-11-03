@@ -126,6 +126,8 @@
 		"test:nim-runtime-build": "node --test ../../tools/cli-nim/runtime-build.test.mjs",
 		"test:nim-runtime-logs": "node --test ../../tools/cli-nim/runtime-logs.test.mjs",
 		"test:nim-jobs": "node --test ../../tools/cli-nim/jobs.test.mjs",
+		"build:nim-storage": "node ../../tools/cli-nim/build-probe.mjs storage",
+		"test:nim-storage": "node --test ../../tools/cli-nim/storage-windows.test.mjs",
 		"build:nim-rpc": "node ../../tools/cli-nim/build-probe.mjs rpc",
 		"test:nim-rpc": "node --test ../../tools/cli-nim/rpc.test.mjs",
 		"build:nim-host": "node ../../tools/cli-nim/build-probe.mjs host",

@@ -100,6 +100,15 @@ when defined(macosx) or defined(linux):
     if closed != 0: raiseOSError(osLastError())
     if renameNative(cstring(utf8ForWrite(temporary)),cstring(utf8ForWrite(path))) != 0: raiseOSError(osLastError())
     owned
+elif defined(windows):
+  import ./private_windows
+  proc existingPrivateHostDirectory*(path: string): bool = windowsPrivateDirectory(path,false)
+  proc privateHostDirectory*(path: string) =
+    if not windowsPrivateDirectory(path,true): raise newException(OSError,"Native private directory disappeared during creation")
+  proc prepareHostPaths*(paths: HostPaths) = privateHostDirectory(paths.directory)
+  proc readHostFile*(path: string, maximum = 16384): Option[string] = windowsReadPrivate(path,maximum)
+  proc removeHostFile*(path: string, owned: FileStamp) = windowsRemovePrivate(path,owned)
+  proc publishHostFile*(path, bytes: string): FileStamp = windowsPublishPrivate(path,bytes)
 else:
   proc existingPrivateHostDirectory*(path: string): bool = raise newException(OSError,"Native host storage is not implemented on this host")
   proc privateHostDirectory*(path: string) = raise newException(OSError,"Native host storage is not implemented on this host")

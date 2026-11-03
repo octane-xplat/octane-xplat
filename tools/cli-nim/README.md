@@ -524,8 +524,26 @@ empty PATH and exact native/Node response hashes. It never installs a test CA.
 Windows loopback TLS tests use Git's existing OpenSSL only to generate disposable
 certificates; Unicode/spaced explicit CA paths are exercised too. These Windows
 checks currently use the isolated snapshot driver, not the root workspace's full
-multi-probe build. Private host storage/ACLs, local RPC and the joined Windows
-worker workflow remain unqualified.
+multi-probe build. Local RPC, detached owner launch and the joined Windows worker
+workflow remain unqualified.
+
+A separate Windows storage gate exercises actual current-user-only SDK ACLs,
+local NTFS volume/file identities and nonblocking lifetime locks. It refuses
+broad/foreign ACLs, hardlinks, reparse ancestors, UNC/device paths and ambiguous
+Windows filename aliases. The lock pins its file and ancestor handles until
+release, including cleanup after process death. Identity-bound cleanup preserves
+a replacement file; POSIX-style NTFS rename keeps open readers on the old bytes
+while new readers observe complete publications. Node's token-default owner can
+differ from the current user, so private worker responses must be precreated
+natively and written in place; ordinary inherited ACLs alone do not prove ownership.
+These primitive checks do not enable a Windows host or installed-worker workflow.
+
+```sh
+# In the isolated snapshot, compile under native_builds plus device:windy:
+bun run turbo run build:portability-storage --filter=@xplat/nim-portability-source --concurrency=1
+# Release native_builds and retain the host reservation for actual execution:
+bun run turbo run test:portability-storage --filter=@xplat/nim-portability-source --only
+```
 
 The current Linux build dynamically needs glibc and the C++ runtime in addition
 to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols through

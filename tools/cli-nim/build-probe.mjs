@@ -4,8 +4,8 @@ import { spawnSync } from 'node:child_process'
 import { getToolchain } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { computeProbeInputs, httpProbeInputs, processProbeInputs, envProbeInputs, rpcProbeInputs, hostProbeInputs, artifactFingerprint } from './native-inputs.mjs'
-const probes = { 'docs-compute': { entry: 'docs_compute_probe.nim', inputs: computeProbeInputs }, http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs }, rpc: { entry: 'rpc_probe.nim', inputs: rpcProbeInputs }, host: { entry: 'host_probe.nim', inputs: hostProbeInputs } }
+import { computeProbeInputs, httpProbeInputs, processProbeInputs, envProbeInputs, rpcProbeInputs, hostProbeInputs, storageProbeInputs, artifactFingerprint } from './native-inputs.mjs'
+const probes = { storage: { entry: 'storage_probe.nim', inputs: storageProbeInputs }, 'docs-compute': { entry: 'docs_compute_probe.nim', inputs: computeProbeInputs }, http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs }, rpc: { entry: 'rpc_probe.nim', inputs: rpcProbeInputs }, host: { entry: 'host_probe.nim', inputs: hostProbeInputs } }
 const selected = process.argv[2]
 if (!Object.hasOwn(probes, selected)) {throw Error(`Choose a probe: ${Object.keys(probes).join(', ')}`)}
 const root = resolve(import.meta.dirname, '../..')

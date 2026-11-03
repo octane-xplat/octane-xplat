@@ -41,6 +41,15 @@ SDK, with active-directory permissions covered by the
 macOS adapter when the pinned binding compiles against the SDK and the same
 permission/cancellation gate passes; do not suppress the C diagnostic.
 
+Pinned NimCrypto 0.7.3 emits GCC ISA flags (`-mavx2`, `-msha`, SSE flags) even
+for its MSVC-specific intrinsic declarations. MSVC reports ignored-option warnings;
+a cold AVX2 probe translation can spend several minutes optimizing generated C.
+The actual Windows storage probe completed after sustained compiler CPU activity.
+Keep build/probe caches task-local, and inspect the exact owned compiler and CPU
+before classifying a quiet build as stuck or retrying over it. This is a source
+and build constraint, not evidence of a digest mismatch; retain independent hash
+checks when changing this dependency or backend.
+
 For the isolated native-TypeScript alternative, use the
 [Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host
 checks compare real catalog/discovery code with Node and measure the combined

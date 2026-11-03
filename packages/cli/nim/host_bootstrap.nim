@@ -6,6 +6,7 @@ import ./js_text
 type
   HostLock* = ref object
     fd: cint
+    windowsHandle: pointer
     owned: bool
   DetachedLaunch* = ref object
     processId: int
@@ -132,6 +133,21 @@ when defined(macosx) or defined(linux):
       waited += 5
     if not launch.pollLaunch(): launch.signalLaunch(SIGKILL)
     while not launch.pollLaunch(): await sleepAsync(5)
+elif defined(windows):
+  import ./private_windows
+  proc tryHostLock*(path: string): HostLock =
+    let handle = windowsTryLock(path)
+    if handle != nil: HostLock(windowsHandle: handle,owned: true)
+    else: nil
+  proc closeHostLock*(lock: HostLock) =
+    if lock != nil and lock.owned:
+      lock.owned = false
+      windowsUnlock(lock.windowsHandle)
+      lock.windowsHandle = nil
+  proc launchDetached*(executable: string, args: seq[string], cwd, logPath: string, environment: StringTableRef): DetachedLaunch =
+    raise newException(OSError,"Native host launch is not implemented on this host")
+  proc pollLaunch*(launch: DetachedLaunch): bool = true
+  proc stopUnpublishedLaunch*(launch: DetachedLaunch, graceMs = 500): Future[void] {.async.} = discard
 else:
   proc tryHostLock*(path: string): HostLock = raise newException(OSError,"Native host bootstrap is not implemented on this host")
   proc closeHostLock*(lock: HostLock) = discard

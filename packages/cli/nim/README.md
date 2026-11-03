@@ -195,7 +195,10 @@ engines or the full command surface. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
 the process-group cleanup guarantee. Windows managed-process jobs pass a separate actual Windows11 x64 gate for
 arguments, pipes, exit status and descendant cleanup, including abrupt supervisor
-death. Windows private owner/RPC adapters remain unimplemented.
+death. Windows private NTFS storage and lifetime locks pass their separate gate,
+including current-user ACLs, reparse/hardlink refusal, identity-bound cleanup,
+open-reader atomic publication and native-precreated Node sidecars. Detached
+owner launch, local RPC and the joined Windows worker workflow remain unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem

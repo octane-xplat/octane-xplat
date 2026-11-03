@@ -59,7 +59,7 @@ try {
  for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'windows-http-build.mjs', 'portability-build.mjs', 'portability-smoke.mjs', 'portability-proof.mjs',
   'http_probe.nim', 'http.test.mjs', 'http-reference.mjs', 'http-live.mjs', 'native-inputs.mjs',
   'process_probe.nim', 'process.test.mjs', 'process-windows.test.mjs', 'process-reference.mjs',
-  'rpc_probe.nim', 'rpc.test.mjs', 'host_probe.nim', 'host-bootstrap.test.mjs', 'host-integration.test.mjs', 'scratch.mjs',
+  'storage_probe.nim', 'storage-windows.test.mjs', 'rpc_probe.nim', 'rpc.test.mjs', 'host_probe.nim', 'host-bootstrap.test.mjs', 'host-integration.test.mjs', 'scratch.mjs',
   'portability-workflow.mjs',
   'licenses/tokenizers-js.txt', 'licenses/onnxruntime.txt']) {copy('tools/cli-nim/'+file)}
  copy('packages/cli/src/mcp/actions/bridge.ts')
@@ -78,6 +78,7 @@ try {
   'build:portability-http': 'node portability-build.mjs http', 'test:portability-http': 'node --test http.test.mjs',
   'test:portability-http-live': 'node http-live.mjs',
   'build:portability-process': 'node portability-build.mjs process', 'test:portability-process': 'node --test process.test.mjs process-windows.test.mjs',
+  'build:portability-storage': 'node portability-build.mjs storage', 'test:portability-storage': 'node --test storage-windows.test.mjs',
   'build:portability-rpc': 'node portability-build.mjs rpc', 'test:portability-rpc': 'node --test rpc.test.mjs',
   'build:portability-host': 'node portability-build.mjs host', 'test:portability-host': 'node --test --test-concurrency=1 host-bootstrap.test.mjs host-integration.test.mjs',
   ...(withProjectWorker ? { 'test:portability-workflow': 'node portability-workflow.mjs' } : {}) }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
@@ -88,6 +89,8 @@ try {
   'test:portability-http-live': { cache: false, dependsOn: ['build:portability-http'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'build:portability-process': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
   'test:portability-process': { cache: false, dependsOn: ['build:portability-process'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
+  'build:portability-storage': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'test:portability-storage': { cache: false, dependsOn: ['build:portability-storage'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'build:portability-rpc': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
   'test:portability-rpc': { cache: false, dependsOn: ['build:portability-rpc'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'build:portability-host': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },

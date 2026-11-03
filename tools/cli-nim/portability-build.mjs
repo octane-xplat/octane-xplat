@@ -19,6 +19,7 @@ const entries = {
  process: ['tools/cli-nim/process_probe.nim', 'process-probe'],
  rpc: ['tools/cli-nim/rpc_probe.nim', 'rpc-probe'],
  host: ['tools/cli-nim/host_probe.nim', 'host-probe'],
+ storage: ['tools/cli-nim/storage_probe.nim', 'storage-probe'],
 }
 assert.ok(Object.hasOwn(entries, selected), `Choose ${Object.keys(entries).join(', ')}`)
 const [entry, name] = entries[selected]
