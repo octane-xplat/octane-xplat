@@ -1,0 +1,33 @@
+{
+	"version": "1.31.1",
+	"source": "https://api.github.com/repos/microsoft/onnxruntime/releases/tags/v1.31.1",
+	"targets": {
+		"linux-amd64": {
+			"url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-linux-x64-1.31.1.tgz",
+			"bytes": 11413655,
+			"sha256": "c849e36a1ef3e22d4ff217b9d1ce4a3cf5b9467b975610913ae959ad5b16bdc9",
+			"directory": "onnxruntime-linux-x64-1.31.1",
+			"library": "lib/libonnxruntime.so.1.31.1",
+			"librarySha256": "a96f132e5eb5ca04e23a7d2fc1078fb95aa591e8d71d0f237702ece3a1e0f4ea",
+			"libraryBytes": 29345384
+		},
+		"windows-amd64": {
+			"url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-win-x64-1.31.1.zip",
+			"bytes": 82929944,
+			"sha256": "5869e26bb25314375f2d5ef1877e3ea06b1543d6c710e6e4a1ec2f7177ab4b2c",
+			"directory": "onnxruntime-win-x64-1.31.1",
+			"library": "lib/onnxruntime.dll",
+			"librarySha256": "cb2fa518b18356617f6f9f460c012501da2819ec7e5c1d80bd8f5de20492db0c",
+			"libraryBytes": 17253728
+		},
+		"darwin-arm64": {
+			"url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-osx-arm64-1.31.1.tgz",
+			"bytes": 36936435,
+			"sha256": "2e1344a1926ee50eb25b38153cb6992c3567515aef0e677a1a520a1798896d6f",
+			"directory": "onnxruntime-osx-arm64-1.31.1",
+			"library": "lib/libonnxruntime.1.31.1.dylib",
+			"librarySha256": "17500d6b1e37e70f43a2c57d94233a1bc29fbcb297be0a5f8c7c13184f3307ba",
+			"libraryBytes": 44797256
+		}
+	}
+}

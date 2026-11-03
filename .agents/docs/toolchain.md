@@ -5,6 +5,11 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 ## CLI runtime and executable packaging
 
+A bounded parallel [Go feasibility probe](../../tools/cli-go/README.md) retains
+the Nim implementation while comparing native orchestration, project workers,
+inference, size and startup. Its pinned Go/Zig builds and disposable host
+snapshots do not change the production CLI or the `nim` package channel.
+
 A parallel Nim implementation lives in [packages/cli/nim](../../packages/cli/nim/README.md).
 Keep TypeScript as the behavioral reference while migrating; native commands
 must not execute the old CLI as a fallback. Its separate package staging omits

@@ -1,0 +1,99 @@
+# Parallel Go CLI feasibility
+
+This private probe tests Go as an alternative to the retained
+[Nim implementation](../../packages/cli/nim/README.md). It does not replace the
+CLI, change the npm channel, or fall back to the TypeScript CLI. Build-time
+metadata comes from the TypeScript reference. Its catalog describes reference
+contracts, not the probe's implemented command coverage; `--help` lists the
+bounded probe operations.
+
+Use Go **1.27.3**, Bun **1.4.4**, and Node with TypeScript stripping. The core
+build disables cgo. The optional `onnx` build uses
+`github.com/yalue/onnxruntime_go@v1.38.0`; native ONNX Runtime **1.31.1** and the
+existing pinned MiniLM model are separate local inputs. Checksums and compiler
+pins are explicit. Caches and artifacts stay in ignored `research/go-cli`.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go CLI feasibility"}' -- bun run turbo run test:go-unit test:go build:go-onnx --filter=@xplat/cli-go-probe
+bun run turbo run test:go-model --filter=@xplat/cli-go-probe --only
+```
+
+The optional model gate currently prepares and compares on macOS arm64. It
+reuses checksummed Nim evaluation assets without modifying Nim source. It runs
+native inference without network access or a runtime PATH, compares token IDs
+and vectors with the Node reference, and checks relevance on maintained-guide
+sections. Exact native/WASM ranking equality is not a requirement. The portable
+model gate consumes the resulting reference cases and verifies actual native
+inference on the destination host.
+
+## Boundaries
+
+The probe covers command/schema metadata, selected-project JSON and installed
+worker discovery, lockfile inventories, HTTP/TLS, captured child streams and
+exit status, native host bootstrap/authenticated loopback RPC, cancellation,
+and a real project-installed route/baking worker. The worker fixture retains
+curated CLI plugin/worker exports and declares Vite, with no old CLI runtime or
+separate build-package installation. All 18 planned route artifacts are compared
+with the canonical Node worker. The probe does not publish those plans or
+implement the full CLI command/provider surface.
+
+Go owns timeouts, bounded streams, operation directories and process cleanup.
+Unix uses a dedicated process group; Windows uses a job with a gate that blocks
+project execution until assignment. Owner and operation storage use private
+permissions or explicit current-user Windows ownership/DACLs. These bounded
+checks do not establish production-grade path-race resistance, descendant
+containment against deliberately escaping children, persisted-job recovery,
+or owner survival across every shell/SSH/task-runner teardown.
+
+The pnpm/Bun lock command reports inventory and version conflicts. It does not
+yet implement the reference's importer selection, installed-version binding,
+or package-manager precedence. Bun JSONC accepts comments/trailing commas;
+project JSON remains strict. Do not relabel these inventories as doctor parity.
+
+HTTP uses Go's transport and URL semantics. The tests exercise trust, hostnames,
+task CA, redirects, proxy CONNECT, limits and cancellation, not the full existing
+WHATWG/Fetch corpus. A Go migration should preserve meaningful public behavior
+without reproducing every incidental JavaScript encoding or ordering choice.
+
+Inference is native. ONNX/model libraries are never silently downloaded by the
+executable, and Node is used only by the test reference and explicit project
+workers. The model command is single-operation, with native termination on
+context cancellation; production cache identities, persistent model sessions,
+index integration and the broader tokenizer corpus remain migration work.
+
+## Cross-compilation and execution
+
+The Go core needs no C cross-compiler. For inference builds, the qualified
+cross-compiler configuration is pinned Zig **0.17.0**; use explicit C targets.
+The wrapper dynamically loads a separately pinned CPU runtime, so these commands
+compile the Go/cgo wrapper, not ONNX Runtime itself.
+
+```sh
+GOOS=windows GOARCH=amd64 CC='zig cc -target x86_64-windows-gnu' CXX='zig c++ -target x86_64-windows-gnu' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Windows cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@xplat/cli-go-probe --concurrency=1
+GOOS=linux GOARCH=amd64 CC='zig cc -target x86_64-linux-gnu.2.28' CXX='zig c++ -target x86_64-linux-gnu.2.28' goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Linux cross-build"}' -- bun run turbo run build:go build:go-onnx --filter=@xplat/cli-go-probe --concurrency=1
+bun run turbo run snapshot:go --filter=@xplat/cli-go-probe
+```
+
+`snapshot.mjs` verifies source/artifact hashes and prepares a disposable runtime
+snapshot containing both targets, fixtures, and pinned model/runtime assets.
+Run its root Turbo tasks `test:go:portable` and `test:go-model:portable` on the
+actual target under a host reservation. Use `ssh andromeda.local` and its
+existing `octane-linux` OrbStack guest for Linux, and `ssh windy` for Windows.
+No compiler or shared-checkout mutation is required on the destination.
+Cross-compilation itself does not qualify execution or distribution.
+
+Zig supplies the C cross-compiler for the wrapper; it does not remove dependencies
+from Microsoft's prebuilt ONNX library. That Windows library still requires the
+[Visual C++ runtime](https://onnxruntime.ai/docs/install/#requirements). Keep that
+optional feature's installation check and assets separate from the pure-Go core.
+A pass on a developer host does not establish clean-machine installation, older
+OS support, or an npm installer. Linux runtime libraries and deployment baselines
+also need qualification beyond the selected Ubuntu guest.
+
+Each build records stripped bytes, executable gzip6 bytes, and the actual
+binary/notices/license download archive. Qualification records five warmups,
+20 process-start samples, median and p95, separately from the goals of under
+5,000,000 compressed bytes and under 50 ms median. Model/runtime assets have
+separate costs; neither executable measurements nor one target's archive
+establish all-platform npm package size. Reports and structured current status
+live outside Git in the project's report directory and Silo.

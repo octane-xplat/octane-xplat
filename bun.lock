@@ -2919,6 +2919,9 @@
         "typescript": "catalog:",
       },
     },
+    "tools/cli-go": {
+      "name": "@xplat/cli-go-probe",
+    },
     "tools/cli-nim": {
       "name": "@xplat/cli-nim-probe",
       "devDependencies": {
@@ -4639,6 +4642,8 @@
     "@xplat/astryx-sandbox": ["@xplat/astryx-sandbox@workspace:apps/astryx-sandbox"],
 
     "@xplat/auth-guide": ["@xplat/auth-guide@workspace:tools/auth-guide"],
+
+    "@xplat/cli-go-probe": ["@xplat/cli-go-probe@workspace:tools/cli-go"],
 
     "@xplat/cli-nim-probe": ["@xplat/cli-nim-probe@workspace:tools/cli-nim"],
 

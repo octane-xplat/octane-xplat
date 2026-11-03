@@ -1,0 +1,13 @@
+{
+	"name": "@xplat/cli-go-probe",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build:go": "node build.mjs",
+		"build:go-onnx": "node build.mjs --onnx",
+		"test:go": "node qualify.mjs",
+		"test:go-unit": "node build.mjs --test",
+		"test:go-model": "node model.test.mjs",
+		"snapshot:go": "node snapshot.mjs"
+	}
+}
