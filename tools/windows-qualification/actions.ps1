@@ -1738,19 +1738,19 @@ function Check-ServiceActions{
    'secure-depth' {
     Assert ($result.supported -eq $true -and $result.available -eq $true) 'Credential Locker resolves on the packaged host' $result
     Assert ($result.wroteEmpty -eq $true -and $result.readEmpty -eq '') 'Secure depth keeps empty values' $result
-    Assert ($result.readCtrl -like 'ctrl*') 'Secure depth keeps control characters' $result
-    Assert ($result.readOver -eq 'second') 'Secure depth overwrites an existing key' $result
+    Assert ($result.wroteCtrl -eq $true -and $result.readCtrl -ceq ('ctrl-' + [char]1)) 'Secure depth round-trips the exact control-character value' $result
+    Assert ($result.wroteOver -eq $true -and $result.readOver -ceq 'second') 'Secure depth overwrites an existing key' $result
     Assert ($result.removed -eq $true -and $null -eq $result.readAfterRemove) 'Secure depth remove clears the key' $result
    }
    'files-pickers' {
-    Assert ($result.pickError -ne '') 'files.pick reports explicit unavailability' $result
-    Assert ($result.pickMultiError -ne '') 'files.pickMultiple reports explicit unavailability' $result
-    Assert ($result.exportResult -eq 'unavailable') 'files.export reports bounded unavailability' $result
+    Assert ($result.pickError -ceq 'UnavailabilityError') 'files.pick reports explicit unavailability' $result
+    Assert ($result.pickMultiError -ceq 'UnavailabilityError') 'files.pickMultiple reports explicit unavailability' $result
+    Assert ($result.exportResult -ceq 'unavailable' -and $result.exportError -ceq '') 'files.export reports bounded unavailability' $result
    }
    'files-identity' {
     Assert ($result.sameNameDistinct -eq $true) 'Repeated sandbox writes keep distinct URIs' $result
     Assert ($result.readALength -eq 1 -and $result.readBLength -eq 1) 'Sandbox writes read back their own bytes' $result
-    Assert ($result.releaseA -eq $true -or $result.releaseA -is [bool]) 'Release accepts owned sandbox refs' $result
+    Assert ($result.releaseA -eq $true) 'Release accepts owned sandbox refs' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result
