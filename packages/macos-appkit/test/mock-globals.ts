@@ -175,6 +175,15 @@ if (typeof shallowEqualStyle === 'undefined') var shallowEqualStyle = (a, b) => 
 	const keys = Object.keys(a)
 	return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
 }
+// Mirrors src/index.ts — the shared primary-click boundary check recognizers
+// are configured with; slices without the function keep its real behavior.
+if (typeof primaryClickBoundary === 'undefined') var primaryClickBoundary = (_node) => (view) => {
+	const target = cssNodesByView.get(view)
+	return target != null && isPrimaryClickBoundary(target.type, target.props?.accessibilityRole, typeof actionHandlers.get(target.actionId ?? -1) === 'function')
+}
+// Mirrors src/index.ts — link-run recognizer + glyph hit-test for folded text.
+if (typeof syncTextLinks === 'undefined') var syncTextLinks = () => {}
+if (typeof textLinkCharacterIndex === 'undefined') var textLinkCharacterIndex = () => null
 `
 
 /** Names CSS_SLICE_STUBS may install — a spy context leaves them alone so the

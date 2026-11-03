@@ -2,13 +2,14 @@ import type { HostHandler, NativeEvent } from '@octane-xplat/jsx/intrinsics'
 
 /**
  * Driver-scoped props that the shared facade contract deliberately does not
- * carry: each is consumed by exactly one driver.
+ * carry: each is consumed by the native drivers, not the shared props layer.
  *
- * NativeScript-only (the AppKit renderer does not handle these prop names):
+ * NativeScript-first (absent from the shared facade contract):
  * `isUserInteractionEnabled` and `textAlignment` are real NativeScript View /
  * TextBase properties; `iosEstimatedRowHeight` and `onLoadMoreItems` are NS
  * ListView members; `iosIgnoreSafeArea` on masonview is consumed by the NS
- * masonry view; `onLinkTap` is the NS FormattedString span event.
+ * masonry view. `onLinkTap` is the NS FormattedString span event, also
+ * consumed by the AppKit and GTK per-run text folds.
  *
  * AppKit + GTK (consumed by macos-appkit and linux-gtk-renderer, not by the
  * NativeScript drivers): scrollview `horizontal` (AppKit index.ts ~4882/5164 —

@@ -146,7 +146,7 @@ import type {
   UniversalRoot,
 } from 'octane/universal/native'
 
-import { composeAttributedText, validateTextStyle } from './formatted-text'
+import { composeAttributedText, validateTextStyle, type TextLinkRun } from './formatted-text'
 import {
   composeTransform,
   computeCascade,
@@ -209,6 +209,7 @@ import {
   NSImageView,
   NSKernAttributeName,
   NSLayoutAttribute,
+  NSLayoutManager,
   NSLineBreakMode,
   NSMenu,
   NSMenuItem,
@@ -235,9 +236,11 @@ import {
   NSSegmentSwitchTracking,
   NSSlider,
   NSTextAlignment,
+  NSTextContainer,
   NSTextField,
   NSTextFieldCell,
   NSTextFieldDelegate,
+  NSTextStorage,
   NSTextView,
   NSTextViewDelegate,
   NSTrackingArea,
@@ -315,6 +318,10 @@ export interface ElementNode {
   appliedFontFamily: string | undefined
   actionId?: number
   clickGestureRecognizer?: NSGestureRecognizer
+  /** Character-range activation table folded out of span handlers, and the
+   *  click recognizer that hit-tests taps against it (labels only). */
+  textLinks?: TextLinkRun[]
+  linkClickRecognizer?: NSGestureRecognizer
   scrollObserverInstalled: boolean
   text: string
   // CSS adapter: cssType/cssClasses/cssPseudoClasses/computedStyle/
@@ -599,6 +606,7 @@ class ButtonActionTarget extends NSObject {
     // The prototype may use its supported JS spelling; metadata needs colons.
     'buttonPressed:': { params: [NSButton], returns: interop.types.void },
     'viewPressed:': { params: [NSObject], returns: interop.types.void },
+    'linkPressed:': { params: [NSObject], returns: interop.types.void },
     'viewPanned:': { params: [NSPanGestureRecognizer], returns: interop.types.void },
     'controlChanged:': { params: [NSObject], returns: interop.types.void },
     'controlTextDidChange:': { params: [NSNotification], returns: interop.types.void },
@@ -620,6 +628,51 @@ class ButtonActionTarget extends NSObject {
 
   ['viewPressed:'](sender: NSClickGestureRecognizer) {
     invokeAction(actionIdsByView.get(sender.view))
+  }
+
+  ['linkPressed:'](sender: NSClickGestureRecognizer) {
+    this.linkPressed(sender)
+  }
+
+  // Per-run link activation for folded text: the click's character index
+  // selects one entry in the label's textLinks table. Anything outside every
+  // run — including plain text between links — is a no-op.
+  linkPressed(sender: NSClickGestureRecognizer) {
+    const view = sender.view
+    const node = view ? cssNodesByView.get(view) : undefined
+    const links = node?.textLinks
+    if (
+      !node ||
+      node.type !== 'label' ||
+      !links?.length ||
+      node.props.disabled === true ||
+      node.props.isEnabled === false ||
+      node.props.enabled === false ||
+      !node.container.root
+    ) {
+      return
+    }
+
+    const index = textLinkCharacterIndex(view as unknown as NSTextField, {
+      x: Number(sender.locationInView(view)?.x ?? NaN),
+      y: Number(sender.locationInView(view)?.y ?? NaN),
+    })
+    const link =
+      index == null
+        ? undefined
+        : links.find(
+            (entry) => index >= entry.location && index < entry.location + entry.length,
+          )
+
+    if (!link) {
+      return
+    }
+
+    try {
+      node.container.root.eventScope('discrete', link.handler)
+    } catch (error) {
+      console.error('[macos-event] link handler failed', error)
+    }
   }
 
   controlChanged(sender: NSControl) {
@@ -6998,6 +7051,117 @@ function setLabelText(node: ElementNode, text: any) {
   }
 }
 
+/** Character index under `point` (view coordinates) inside a label's drawn
+ *  text — mirrors the cell's text rect, break mode and line cap so the tapped
+ *  glyph maps back into the composed string. Points off every glyph rect
+ *  (padding, line tails, empty space below the text) return null instead of
+ *  the nearest character. */
+function textLinkCharacterIndex(
+  view: NSTextField,
+  point: { x: number; y: number },
+): number | null {
+  const text = view.attributedStringValue
+  const cell = view.cell as NSTextFieldCell | undefined
+  const bounds = view.bounds
+  if (!text || Number(text.length ?? 0) === 0 || !cell || !bounds) {
+    return null
+  }
+
+  const rect = cell.titleRectForBounds(bounds)
+  const local = {
+    x: point.x - Number(rect.origin?.x ?? 0),
+    y: point.y - Number(rect.origin?.y ?? 0),
+  }
+  if (
+    !Number.isFinite(local.x) ||
+    !Number.isFinite(local.y) ||
+    local.x < 0 ||
+    local.y < 0 ||
+    local.x > Number(rect.size?.width ?? 0) ||
+    local.y > Number(rect.size?.height ?? 0)
+  ) {
+    return null
+  }
+
+  try {
+    const container = NSTextContainer.alloc().initWithContainerSize(rect.size)
+    container.lineFragmentPadding = 0
+    container.lineBreakMode = cell.lineBreakMode
+    container.maximumNumberOfLines = Number(view.maximumNumberOfLines ?? 0)
+    const layout = NSLayoutManager.alloc().init()
+    layout.addTextContainer(container)
+    const storage = NSTextStorage.alloc().initWithAttributedString(text)
+    storage.addLayoutManager(layout)
+
+    const glyph = layout.glyphIndexForPointInTextContainer(local, container)
+    if (!Number.isFinite(glyph) || glyph < 0 || glyph >= Number(layout.numberOfGlyphs)) {
+      return null
+    }
+
+    // glyphIndexForPoint reports the nearest glyph even off its ink — require
+    // the point inside that glyph's bounds so line tails and paragraph edges
+    // cannot activate a link.
+    const glyphRect = layout.boundingRectForGlyphRangeInTextContainer(
+      { location: glyph, length: 1 },
+      container,
+    )
+    if (
+      local.x < Number(glyphRect.origin.x) ||
+      local.y < Number(glyphRect.origin.y) ||
+      local.x > Number(glyphRect.origin.x) + Number(glyphRect.size.width) ||
+      local.y > Number(glyphRect.origin.y) + Number(glyphRect.size.height)
+    ) {
+      return null
+    }
+
+    const index = layout.characterIndexForGlyphAtIndex(glyph)
+    return Number.isFinite(index) ? index : null
+  } catch (error) {
+    console.error('[macos-event] link hit-test failed', error)
+    return null
+  }
+}
+
+/** The primary-click gate shared by view taps and label link taps — a click
+ *  only counts when the deepest hit view belongs to this node and no nearer
+ *  interactive boundary owns the sequence. */
+function primaryClickBoundary(_node: ElementNode) {
+  return (view: NSView) => {
+    const target = cssNodesByView.get(view)
+    return (
+      target != null &&
+      isPrimaryClickBoundary(
+        target.type,
+        target.props.accessibilityRole,
+        typeof actionHandlers.get(target.actionId ?? -1) === 'function',
+      )
+    )
+  }
+}
+
+/** Labels with folded link runs own one click recognizer; hits are resolved
+ *  per glyph in `linkPressed` so a mixed paragraph never fires as one action. */
+function syncTextLinks(node: ElementNode) {
+  const active =
+    node.type === 'label' &&
+    (node.textLinks?.length ?? 0) > 0 &&
+    node.props.disabled !== true &&
+    node.props.isEnabled !== false &&
+    node.props.enabled !== false
+
+  if (active && !node.linkClickRecognizer && node.view) {
+    node.linkClickRecognizer = configureGesture(
+      NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'linkPressed:'),
+      (event) => shouldReceivePrimaryClick(node.view, event, primaryClickBoundary(node)),
+    )
+    node.view.addGestureRecognizer(node.linkClickRecognizer)
+  }
+
+  if (node.linkClickRecognizer) {
+    node.linkClickRecognizer.enabled = active
+  }
+}
+
 function syncText(parent: ElementNode | null | undefined) {
   while (parent && ['span', 'formattedstring'].includes(parent.type)) {
     parent = parent.parent
@@ -7013,6 +7177,7 @@ function syncText(parent: ElementNode | null | undefined) {
 
   if (rich) {
     const view = parent.view!
+    const links: TextLinkRun[] = []
     const attributed = composeAttributedText(
       parent.children,
       view,
@@ -7027,6 +7192,7 @@ function syncText(parent: ElementNode | null | undefined) {
         letterSpacing: (parent.computedStyle ?? parent.props.style ?? {}).letterSpacing,
         lineHeight: (parent.computedStyle ?? parent.props.style ?? {}).lineHeight,
       },
+      links,
     )
 
     if (parent.type === 'button') {
@@ -7041,6 +7207,8 @@ function syncText(parent: ElementNode | null | undefined) {
       syncHeadingAccessibility(view, parent.props)
     }
 
+    parent.textLinks = parent.type === 'label' && links.length ? links : undefined
+    syncTextLinks(parent)
     parent.formattedTextActive = true
     view.invalidateIntrinsicContentSize()
     if (parent.type === 'textview') {
@@ -7056,6 +7224,8 @@ function syncText(parent: ElementNode | null | undefined) {
   }
 
   parent.formattedTextActive = false
+  parent.textLinks = undefined
+  syncTextLinks(parent)
   const text = parent.children.length
     ? parent.children.map(textContent).join('')
     : String(parent.props?.text ?? '')
@@ -7623,18 +7793,7 @@ function setAction(node: ElementNode, value: any) {
   if (active && !node.clickGestureRecognizer) {
     node.clickGestureRecognizer = configureGesture(
       NSClickGestureRecognizer.alloc().initWithTargetAction(buttonActionTarget, 'viewPressed:'),
-      (event) =>
-        shouldReceivePrimaryClick(node.view, event, (view) => {
-          const target = cssNodesByView.get(view)
-          return (
-            target != null &&
-            isPrimaryClickBoundary(
-              target.type,
-              target.props.accessibilityRole,
-              typeof actionHandlers.get(target.actionId ?? -1) === 'function',
-            )
-          )
-        }),
+      (event) => shouldReceivePrimaryClick(node.view, event, primaryClickBoundary(node)),
     )
 
     node.view!.addGestureRecognizer(node.clickGestureRecognizer)
@@ -8021,6 +8180,12 @@ function applyProps(node: ElementNode, props: PropBag) {
   if ('disabled' in props && node.clickGestureRecognizer) {
     node.clickGestureRecognizer.enabled =
       !node.props.disabled && typeof actionHandlers.get(node.actionId!) === 'function'
+  }
+  if (
+    ('disabled' in props || 'isEnabled' in props || 'enabled' in props) &&
+    node.linkClickRecognizer
+  ) {
+    syncTextLinks(node)
   }
   if ('id' in props) {
     setNodeId(node, props.id)
@@ -9828,6 +9993,12 @@ function destroy(node: ElementNode) {
     node.view?.removeGestureRecognizer(node.clickGestureRecognizer)
     node.clickGestureRecognizer = undefined
   }
+  if (node.linkClickRecognizer) {
+    node.linkClickRecognizer.enabled = false
+    node.view?.removeGestureRecognizer(node.linkClickRecognizer)
+    node.linkClickRecognizer = undefined
+  }
+  node.textLinks = undefined
   node.cssHoverDispose?.()
   node.cssHoverDispose = undefined
   setVisualStateTracking(node, null)

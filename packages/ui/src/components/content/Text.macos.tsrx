@@ -75,8 +75,14 @@ export function RichText(props: RichTextProps): unknown @{
 }
 
 export function RichTextSpan(props: RichTextSpanProps): unknown @{
-  // Per-run onPress still needs a native glyph hit-testing path.
-  <span text={props.text} className={cx(props.className)} style={props.style}>
+  // The host folds onLinkTap into the label's per-run activation table and
+  // hit-tests the tapped glyph, so only this run's range activates.
+  <span
+    text={props.text}
+    className={cx(props.className)}
+    style={props.style}
+    {...(props.onPress ? { onLinkTap: props.onPress } : {})}
+  >
     {props.text != null ? null : props.children}
   </span>
 }

@@ -65,18 +65,34 @@ export function validateTextStyle(props: Record<string, any>, color: (value: any
   }
 }
 
+/** One activation entry inside a composed string — a character range plus the
+ *  span's tap handler. The label hit-tests the tapped glyph against these. */
+export interface TextLinkRun {
+  location: number
+  length: number
+  handler: () => void
+}
+
 /** Fold inherited values without mutating authored props. Removed values fall
- * through to the ancestor; style wins over the direct property. */
+ * through to the ancestor; style wins over the direct property. `onLinkTap`
+ * (or `onPress`) on a span activates every run it folds into, descendant runs
+ * included — an inner span's own handler wins. */
 export function textRuns(
   node: TextNode,
   inherited: Record<string, any> = {},
-): Array<{ text: string; style: Record<string, any> }> {
+  link: (() => void) | null = null,
+): Array<{ text: string; style: Record<string, any>; link: (() => void) | null }> {
   const style = { ...inherited }
   for (const key of TEXT_STYLE_KEYS) {
     const value = node.computedStyle?.[key] ?? node.props.style?.[key] ?? node.props[key]
     if (value != null) {
       style[key] = value
     }
+  }
+
+  const tap = node.props?.onLinkTap ?? node.props?.onPress
+  if (typeof tap === 'function') {
+    link = tap as () => void
   }
 
   const own =
@@ -89,11 +105,15 @@ export function textRuns(
         : ''
 
   return [
-    ...(own ? [{ text: own, style }] : []),
-    ...node.children.flatMap((child) => textRuns(child, style)),
+    ...(own ? [{ text: own, style, link }] : []),
+    ...node.children.flatMap((child) => textRuns(child, style, link)),
   ]
 }
 
+/** Compose the folded runs into an attributed string. When `links` is given it
+ *  is filled with the activation table (range + handler) for every run whose
+ *  span carried a tap handler; those runs also get `NSLinkAttributeName` so
+ *  the attributed string itself marks them as links for accessibility. */
 export function composeAttributedText(
   children: TextNode[],
   view: any,
@@ -101,6 +121,7 @@ export function composeAttributedText(
   font: (size: number, weight: number | string, family?: string) => any,
   color: (value: any) => any,
   defaults: Record<string, any>,
+  links?: TextLinkRun[],
 ) {
   const native = globalThis as any
   const result = native.NSMutableAttributedString.alloc().initWithString('')
@@ -113,6 +134,7 @@ export function composeAttributedText(
     paragraph.maximumLineHeight = lineHeight
   }
 
+  let location = 0
   for (const run of children.flatMap((child) => textRuns(child, defaults))) {
     const style = run.style
     let face = font(style.fontSize, style.fontWeight, style.fontFamily)
@@ -126,6 +148,14 @@ export function composeAttributedText(
     const attributes: Record<string, any> = {
       [native.NSFontAttributeName]: face,
       [native.NSParagraphStyleAttributeName]: paragraph,
+    }
+
+    if (typeof run.link === 'function') {
+      // Synthetic scheme mirroring the GTK fold's octane-span:// URIs — the
+      // index addresses the entry in `links`, never a navigable destination.
+      const index = links?.length ?? 0
+      links?.push({ location, length: run.text.length, handler: run.link })
+      attributes[native.NSLinkAttributeName ?? 'NSLink'] = `octane-span://${index}`
     }
 
     if (style.color != null) {
@@ -158,6 +188,7 @@ export function composeAttributedText(
     result.appendAttributedString(
       native.NSAttributedString.alloc().initWithStringAttributes(run.text, attributes),
     )
+    location += run.text.length
   }
 
   return result

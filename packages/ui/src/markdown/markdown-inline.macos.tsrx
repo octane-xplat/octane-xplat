@@ -4,13 +4,26 @@ import { sanitizeUrl } from '../routing/safe-url'
 import { useFadeRunColor } from './markdown-fade.tsrx'
 import { getColorScheme } from '../theme/colorScheme.macos'
 import { accentColor } from '../theme/scheme-colors'
+import { appKitHost } from '../internal/platform/host-bridge'
 import type { NavigationActivationEvent } from '../props'
 
 /**
- * Inline Markdown leaves — macOS (AppKit attributed-string fold). Per-run
- * link taps have no native glyph hit-testing path yet, so `MdLinkRun` and
- * `MdCitation` render styled runs without activation (recorded host gap).
+ * Inline Markdown leaves — macOS (AppKit attributed-string fold). `onLinkTap`
+ * on a span folds into the host's per-run activation table; the label's click
+ * recognizer hit-tests the tapped glyph against it, so `MdLinkRun` and
+ * `MdCitation` activate their own range only.
  */
+
+function activationEvent(): NavigationActivationEvent & { defaultPrevented: boolean } {
+  const event = {
+    defaultPrevented: false,
+    preventDefault() {
+      event.defaultPrevented = true
+    },
+  }
+
+  return event
+}
 
 export function MdStrong(props: { children?: unknown }): unknown @{
   return <Text weight="semibold">{props.children}</Text>
@@ -32,14 +45,27 @@ export function MdBreak(): unknown {
   return '\n'
 }
 
+/** Tappable link run. Activation honors `onLinkClick` cancellation, then
+ *  opens the destination through the `__xplatAppKit` host bridge (inert when
+ *  the host publishes no URL handler). */
 export function MdLinkRun(props: {
   href: string
   onLinkClick?: (href: string, event: NavigationActivationEvent) => void | false
   children?: unknown
 }): unknown @{
+  const href = props.href
   return (
     <span
       style={{ color: accentColor(getColorScheme()), textDecorationLine: 'underline' }}
+      onLinkTap={() => {
+        const event = activationEvent()
+        const result = props.onLinkClick?.(href, event)
+        if (result === false || event.defaultPrevented) {
+          return
+        }
+
+        appKitHost()?.openUrl?.(href)
+      }}
     >
       {props.children}
     </span>
@@ -56,9 +82,15 @@ export function MdCitation(props: {
   variant: 'label' | 'number'
 }): unknown @{
   const safe = props.source.url == null ? null : sanitizeUrl(props.source.url)
-  void safe
   const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
-  return <span style={{ color: accentColor(getColorScheme()) }}>{text}</span>
+  return (
+    <span
+      style={{ color: accentColor(getColorScheme()) }}
+      {...(safe != null ? { onLinkTap: () => appKitHost()?.openUrl?.(safe) } : {})}
+    >
+      {text}
+    </span>
+  )
 }
 
 export function MdParagraph(props: { style?: unknown; children?: unknown }): unknown @{
