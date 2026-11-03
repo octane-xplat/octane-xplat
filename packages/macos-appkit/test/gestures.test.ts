@@ -201,7 +201,7 @@ test('swipe directions preserve NativeScript values and require a completed thre
   assert.equal(swipeDirection({ state: 3, deltaX: 29, deltaY: 29 }), null)
 })
 
-const renderer = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const renderer = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 function rendererFunction(name) {
   const start = renderer.indexOf('function ' + name + '(')

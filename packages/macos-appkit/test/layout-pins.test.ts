@@ -9,7 +9,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // root/content fill) must express each computed rect as parent-anchored
 // constraints — an imperative frame write is discarded by the next Auto
 // Layout solve.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const layout =
   source.slice(source.indexOf('function layoutView('), source.indexOf('function setMarginStyle')) +

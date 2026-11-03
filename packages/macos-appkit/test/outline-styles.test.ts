@@ -10,7 +10,7 @@ import {
   darkBorderComponents,
 } from '../src/border-styles.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const SLICE =
   source.slice(
     source.indexOf('function outlineSpec'),

@@ -9,7 +9,7 @@ import {
   tileRects,
 } from '../src/background-layers.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const SLICE =
   source.slice(source.indexOf('// ---- Background layers'), source.indexOf('const BORDER_SIDES')) +
   '\n({ syncBackgrounds, paintBackgrounds, clearBackgrounds })'

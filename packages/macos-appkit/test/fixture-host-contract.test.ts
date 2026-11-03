@@ -10,7 +10,7 @@ const STACK_VIEW_API =
   /\b(?:viewsInGravity|NSStackViewGravity|NSUserInterfaceLayoutOrientation|edgeInsets)\b|\.orientation\b/
 
 test('renderer creates no NSStackView layout hosts', async () => {
-  const source = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8')
+  const source = await readFile(new URL('../src/runtime.ts', import.meta.url), 'utf8')
   assert.doesNotMatch(source, /NSStackView\.alloc|extends NSStackView\b/)
 })
 

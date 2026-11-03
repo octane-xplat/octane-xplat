@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 test('native image bindings use current callbacks in the root scope and reject retired node/view owners', () => {
-  const source = readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  const source = readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
     start = source.indexOf('function setImageActions('),
     end = source.indexOf('function setKeyActions(', start)
   const view = {},

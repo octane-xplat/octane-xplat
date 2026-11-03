@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const chrome = source.slice(
   source.indexOf('function syncInputChrome('),
   source.indexOf('// CSS owns the theme palette.'),

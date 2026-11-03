@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { sourceWithoutImports, runSlice } from './mock-globals.ts'
 
 function fixture(add: (...args: any[]) => unknown) {
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
     begin = source.indexOf('let accessibilityDisplayObserver'),
     end = source.indexOf('// Appearance flips', begin)
   assert.ok(begin >= 0 && end > begin)

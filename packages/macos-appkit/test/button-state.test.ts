@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
-const start = source.indexOf("case 'button':\n\t\t\t\tif (name === 'title'")
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const start = source.search(/case 'button':\s+if \(name === 'title'/)
 const end = source.indexOf("case 'scrollview':", start)
 assert.ok(start >= 0 && end > start)
 const branch = source.slice(start, end)
@@ -26,7 +26,7 @@ function fixture() {
     },
   }
   const apply = runSlice(
-    `(patch) => { node.props = { ...node.props, ...patch }; for (const [name, value] of Object.entries(patch)) { switch(node.type) { ${branch} } } }`,
+    `;(patch) => { node.props = { ...node.props, ...patch }; for (const [name, value] of Object.entries(patch)) { switch(node.type) { ${branch} } } }`,
     {
       node,
       actionHandlers: actions,

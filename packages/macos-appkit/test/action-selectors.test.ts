@@ -6,7 +6,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // NAPI registers metadata keys verbatim. Check action-site strings directly;
 // inventing colons from params hides broken declarations. Native delivery and
 // JS-spelled prototype lookup still require actual framework qualification.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const context = {
   elementBehaviors: new Map(),

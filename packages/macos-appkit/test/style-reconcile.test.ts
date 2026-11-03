@@ -19,15 +19,17 @@ import {
 // Removed style keys and dropped classes must put back the native state they
 // installed — a stale alphaValue, input-transparency, size constraint, or
 // background color survives on the view otherwise.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
+const paritySource = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(/^  /gm, '')
 const projectionStart = source.indexOf('function setLayoutProjectionScale')
 const slices = [
+  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(/^export /gm, ''),
   source.slice(projectionStart, source.indexOf('\n}', projectionStart) + 2),
   source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function wireViewAction')),
   source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
   source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
-  source.slice(source.indexOf('function nodeClasses'), source.indexOf('function colorValue')),
+  paritySource.slice(paritySource.indexOf('function nodeClasses'), paritySource.indexOf('function colorValue')),
   source.slice(source.indexOf('function setLabelText'), source.indexOf('function syncText')),
   source.slice(
     source.indexOf('function syncLabelOverflow'),

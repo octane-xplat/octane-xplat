@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 import { createTabStopSuppression } from '../src/tab-stop.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const view = source.slice(
   source.indexOf('class AccessibleHostView'),
   source.indexOf('const masonElementRegistration'),

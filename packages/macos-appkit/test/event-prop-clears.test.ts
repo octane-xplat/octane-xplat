@@ -7,7 +7,7 @@ import { runSlice, sourceWithoutImports, spySliceContext } from './mock-globals.
 // layout observers, and sync readers all consult node.props). The update path
 // injects explicit undefined clears for every dropped prop so removal restores
 // the documented default; `on*` drops additionally reach the unbind setters.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
 const fn = (name: string) =>

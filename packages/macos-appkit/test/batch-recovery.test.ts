@@ -8,7 +8,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // Exercise the production creation/command paths without the Objective-C
 // bridge. Failed commands must not leak action registrations, observers, or
 // WebView delegates, and invalid batches must reject before mutating.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
 const fn = (name: string) =>
@@ -23,7 +23,7 @@ const slices = [
   fn('typeHasView'),
   fn('assertSupportedType'),
   fn('validateNodeProps'),
-  fn('nativeColor'),
+  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(/^export /gm, ''),
   fn('parseGridTracks'),
   fn('observeContentGeometry'),
   fn('makeNode'),
@@ -36,7 +36,7 @@ const slices = [
   fn('validateBatch'),
   source.slice(at('function droppedPropClears('), at('\nfunction applyProps(')),
   source.slice(at('function applyCommand('), at('\nconst macOSDriver')),
-  source.slice(at('const macOSDriver'), at('\nconst round')),
+  source.slice(at('const macOSDriver'), at('\n// Pointer-intent plumbing:')),
 ].join('\n')
 
 const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16\n'

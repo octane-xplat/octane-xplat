@@ -416,7 +416,7 @@ test('inline scheduler completion releases the late handle once and repeated cal
   }
 })
 
-const nativeSource = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const nativeSource = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 function nativeFixture() {
   let adapter: any, acquired: any
   const center: any = {

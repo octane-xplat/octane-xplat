@@ -100,7 +100,7 @@ test('HTML import uses UTF8 and the HTML document type, clears empty content and
 })
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const fn = (name: string) => {

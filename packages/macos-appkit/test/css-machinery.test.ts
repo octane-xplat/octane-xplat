@@ -19,7 +19,7 @@ import {
   onStylesheetsChanged,
 } from '@octane-xplat/css-engine'
 
-const FULL_SOURCE = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const FULL_SOURCE = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const MACHINERY = FULL_SOURCE.slice(
   FULL_SOURCE.indexOf('// ---- CSS cascade'),
   FULL_SOURCE.indexOf('function syncNativeColors'),

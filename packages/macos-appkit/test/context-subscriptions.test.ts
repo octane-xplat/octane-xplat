@@ -1,7 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
   start = source.indexOf('const contextSubscriptionsByNode =')
 
 const slice = source.slice(start, source.indexOf('function setKeyActions(', start))

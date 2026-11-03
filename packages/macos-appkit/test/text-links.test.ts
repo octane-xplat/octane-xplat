@@ -114,7 +114,7 @@ test('composed runs carry per-range link entries and NSLink tokens in order', ()
 })
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const fn = (name: string) => {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
 test('real scroll prop branch applies and clears native descriptions/visibility without changing content, role or geometry', () => {
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
     axStart = source.indexOf('function applyAccessibility('),
     axEnd = source.indexOf('/** Host updates carry', axStart)
   const branchStart = source.indexOf("case 'scrollview':", source.indexOf('function applyProps(')),

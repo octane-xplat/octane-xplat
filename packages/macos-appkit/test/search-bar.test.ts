@@ -6,7 +6,7 @@ import { runSlice } from './mock-globals.ts'
 import { createTextValueWriter } from '../src/text-value.ts'
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const slice = (a: string, b: string) => source.slice(source.indexOf(a), source.indexOf(b))

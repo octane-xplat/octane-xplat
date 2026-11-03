@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const slice = (start, end) => source.slice(source.indexOf(start), source.indexOf(end))
 const modes = { WordWrapping: 0, Clipping: 2, TruncatingTail: 4 }

@@ -62,7 +62,7 @@ test('removing heading restores original role/title and a text-following value t
 })
 
 test('real readable-host accessibility dispatch updates level and releases heading metadata', () => {
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
     start = source.indexOf('function applyAccessibility('),
     end = source.indexOf('/** Host updates carry', start)
   assert.ok(start >= 0 && end > start)
@@ -85,7 +85,7 @@ test('real readable-host accessibility dispatch updates level and releases headi
 })
 
 test('real plain and formatted text writers refresh heading titles on the existing native owner', () => {
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
     start = source.indexOf('function setLabelText('),
     end = source.indexOf('const keyboardSubscriptionsByNode', start)
   assert.ok(start >= 0 && end > start)

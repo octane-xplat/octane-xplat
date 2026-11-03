@@ -8,7 +8,7 @@ import assert from 'node:assert/strict'
 // AXProgressIndicator on both stack and grid hosts, each reporting a numeric
 // value within the declared range plus the human-readable description.
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const stack = source.slice(

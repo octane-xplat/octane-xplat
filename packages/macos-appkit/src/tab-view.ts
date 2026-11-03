@@ -1,4 +1,4 @@
-import type { ElementNode, AppKitView } from './index'
+import type { ElementNode, AppKitView } from './model'
 import {
   NSAttributedString,
   NSBundle,

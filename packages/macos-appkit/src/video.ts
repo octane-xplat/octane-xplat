@@ -206,7 +206,7 @@ export function makeVideoView(): AVPlayerView {
   return view
 }
 
-export function updateVideoView(node: import('./index').ElementNode, props: Record<string, any>) {
+export function updateVideoView(node: import('./model').ElementNode, props: Record<string, any>) {
   const view = node.view as any
   let state = states.get(view)
   if (!state) {

@@ -4,7 +4,7 @@ import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the production factory, event and validation paths, not replicas.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)

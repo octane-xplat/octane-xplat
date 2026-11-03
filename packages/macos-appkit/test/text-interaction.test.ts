@@ -10,7 +10,7 @@ import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const helpers = source.slice(
   source.indexOf('function dispatchTextEvent('),

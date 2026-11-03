@@ -83,7 +83,7 @@ test('drawing restores graphics state after native failure and ignores pending o
 })
 
 test('native image subclass retains hit testing and redraws after a real frame-size change', () => {
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
   const slice = source.slice(
     source.indexOf('class InputImageView'),
     source.indexOf('function makeImageView'),

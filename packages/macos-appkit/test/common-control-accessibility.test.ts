@@ -4,7 +4,7 @@ import { createDisabledFocusTargets } from '../src/disabled-focus.ts'
 import { createTabStopSuppression } from '../src/tab-stop.ts'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const host = source.slice(
   source.indexOf('class AccessibleHostView'),
   source.indexOf('const masonElementRegistration'),

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 const labelColor = { semantic: 'label' }
 const placeholderColor = { semantic: 'placeholder' }
 const { syncNativeColors, setTextFieldPlaceholder } = runSlice(

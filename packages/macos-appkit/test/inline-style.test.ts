@@ -22,7 +22,7 @@ test('host style normalization snapshots declaration/array props and preserves i
 test('formatted-node validation receives normalized string declarations and still rejects invalid numeric attributes', async () => {
   const { sourceWithoutImports, runSlice } = await import('./mock-globals.ts')
   const { validateTextStyle } = await import('../src/formatted-text.ts')
-  const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url)),
+  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
     start = source.indexOf('function validateNodeProps('),
     end = source.indexOf('function makeNode(', start)
   const validate = runSlice(source.slice(start, end) + '\n;validateNodeProps', {

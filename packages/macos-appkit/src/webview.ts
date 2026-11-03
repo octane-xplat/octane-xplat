@@ -166,7 +166,7 @@ export function makeWebView(): WKWebView {
 }
 
 export function updateWebView(
-  node: import('./index').ElementNode,
+  node: import('./model').ElementNode,
   changed: Record<string, any>,
   resize: (height: number) => void,
 ) {

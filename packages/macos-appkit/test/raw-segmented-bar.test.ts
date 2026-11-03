@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const fn = (name: string) => {

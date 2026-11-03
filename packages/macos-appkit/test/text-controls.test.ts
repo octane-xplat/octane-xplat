@@ -19,7 +19,7 @@ import { runSlice } from './mock-globals.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the text-control paths without loading the Objective-C bridge.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const slice = (startMarker, endMarker) =>
   source.slice(source.indexOf(startMarker), source.indexOf(endMarker))

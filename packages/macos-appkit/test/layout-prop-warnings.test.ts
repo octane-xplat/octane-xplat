@@ -6,7 +6,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // applyProps warns `ignored <type> prop <name>` for any prop outside its
 // per-type whitelist, but LayoutChildProps are consumed by the PARENT's
 // mason child-prop bridge — the warning fires only when no parent claims them.
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 
 const applyPropsSrc = source.slice(
   source.indexOf('function applyProps'),

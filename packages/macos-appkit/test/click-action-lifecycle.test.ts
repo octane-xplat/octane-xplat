@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from '../src/primary-click.ts'
 
-const source = sourceWithoutImports(new URL('../src/index.ts', import.meta.url))
+const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
 function fn(name: string) {
   const start = source.indexOf('function ' + name + '(')
   return source.slice(start, source.indexOf('\nfunction ', start + 1))

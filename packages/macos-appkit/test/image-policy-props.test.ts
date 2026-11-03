@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
-const source = readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8')
+const source = readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8')
 test('native image creation receives the final policy before its first source load', () => {
   const start = source.indexOf('function makeImageView('),
     end = source.indexOf('/** Types whose views arrange child views', start),
@@ -20,8 +20,8 @@ test('native image creation receives the final policy before its first source lo
 })
 
 test('image mutation dispatch reads the final prop bag for simultaneous changes and policy removal', () => {
-  const start = source.indexOf("\t\t\tcase 'image':", source.indexOf('function applyProps(')),
-    end = source.indexOf("\n\t\t\tcase 'placeholder':", start),
+  const start = source.indexOf("case 'image':", source.indexOf('function applyProps(')),
+    end = source.indexOf("case 'placeholder':", start),
     calls: any[] = []
   // Exercise the real image branch under applyProps' observed complete-bag
   // protocol. This is source dispatch evidence, not native batch execution.

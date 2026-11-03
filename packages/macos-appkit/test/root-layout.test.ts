@@ -6,7 +6,7 @@ import { runSlice } from './mock-globals.ts'
 
 // Exercise the production slot and placement paths, not a replica of them.
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/index.ts', import.meta.url), 'utf8'),
+  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
 )
 
 const fn = (name: string) => {
