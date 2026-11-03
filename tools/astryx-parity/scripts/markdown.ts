@@ -519,7 +519,10 @@ async function runPerformanceMode() {
       cand.parseMdDoc(source)
     }
 
-    const n = bytes > 50 * 1024 ? 15 : 30
+    // Small docs parse in <1ms, so p95 of a short run is dominated by a
+    // couple of scheduler/GC outliers — raise n there to keep the 1.2×
+    // budget gate stable across runs.
+    const n = bytes > 50 * 1024 ? 30 : 100
     const r = samples(() => ref.parseMarkdownAst(source), n)
     const c = samples(() => cand.parseMdDoc(source), n)
     const p95Ratio = c.p95 / Math.max(r.p95, 1e-6)
@@ -592,8 +595,8 @@ async function runPerformanceMode() {
     ref.parseMarkdownAst(pluginDoc, refPluginOpts as any)
     cand.parseMdDoc(pluginDoc, candPluginOpts as any)
   }
-  const rp = samples(() => ref.parseMarkdownAst(pluginDoc, refPluginOpts as any), 20)
-  const cp = samples(() => cand.parseMdDoc(pluginDoc, candPluginOpts as any), 20)
+  const rp = samples(() => ref.parseMarkdownAst(pluginDoc, refPluginOpts as any), 100)
+  const cp = samples(() => cand.parseMdDoc(pluginDoc, candPluginOpts as any), 100)
   results.push({
     key: 'perf-plugin-softbreaks',
     status: 'match',
@@ -712,7 +715,7 @@ async function runPerformanceMode() {
       host: `${process.env.HOSTNAME ?? 'local'} (darwin arm64 — recorded host)`,
       budgets: PERF_BUDGETS,
       method:
-        'warmup 3, n=15–30 sorted samples → p50/p95/mean; incremental variants n=12; plugin profile n=20; deterministic corpus, same process both sides',
+        'warmup 3, n=30–100 sorted samples → p50/p95/mean; incremental variants n=12; plugin profile n=100; deterministic corpus, same process both sides',
     },
   }
 }

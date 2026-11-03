@@ -230,8 +230,14 @@ test('linkPressed dispatches only the handler owning the tapped character', () =
 test('syncTextLinks attaches one gated recognizer and follows link/disabled state', () => {
   const recognizers: any[] = []
   const slice = runSlice(
-    fn('primaryClickBoundary') + '\n' + fn('syncTextLinks') + '\n({syncTextLinks})',
+    fn('primaryClickBoundary') +
+      '\n' +
+      fn('axLinkActionSlot') +
+      '\n' +
+      fn('syncTextLinks') +
+      '\n({syncTextLinks})',
     {
+      axLinkActionPool: new Map(),
       configureGesture: (recognizer: any) => recognizer,
       NSClickGestureRecognizer: {
         alloc: () => ({
@@ -276,8 +282,13 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
   assert.equal(view.accessibilityCustomActions.length, 1)
   assert.equal(view.accessibilityCustomActions[0].name, 'Open link ab')
 
+  const firstAction = view.accessibilityCustomActions[0]
   slice.syncTextLinks(control)
   assert.equal(recognizers.length, 1, 'the recognizer is reused across re-syncs')
+  // Pooled: the same name resolves to the same action object. Fresh objects
+  // per fold would let JS-backed blocks die inside a GC finalizer, where the
+  // bridge cannot delete their references — a fatal release path.
+  assert.equal(view.accessibilityCustomActions[0], firstAction)
 
   control.props.disabled = true
   slice.syncTextLinks(control)
