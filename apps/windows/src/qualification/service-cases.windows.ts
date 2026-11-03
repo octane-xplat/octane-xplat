@@ -13,7 +13,7 @@ import {
 
 import { files } from '@octane-xplat/files'
 import { secureStorage } from '@octane-xplat/secure-storage'
-import { Windows } from '@octane-xplat/platform/windows'
+import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 import { Screen } from '@nativescript/core'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
@@ -203,6 +203,23 @@ async function filesSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/**
+ * Delete a file or folder through the awaited WinRT path. Upstream
+ * `File.remove()`/`removeSync()`/`Folder.remove()` is broken on Windows:
+ * `FileSystemAccess.deleteFile` calls `DeleteAsync` on the pending
+ * `IAsyncOperation` rather than the entity, and the unprojected member
+ * access throws `HRESULT 0x80004005` into `onError` — nothing is deleted.
+ */
+async function deleteItemByPath(path: string): Promise<void> {
+  try {
+    const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(path))
+    await NSWinRT.toPromise(file.DeleteAsync())
+  } catch {
+    const folder = await NSWinRT.toPromise(Windows.Storage.StorageFolder.GetFolderFromPathAsync(path))
+    await NSWinRT.toPromise(folder.DeleteAsync())
+  }
+}
+
 async function coreFsSpec(): Promise<Record<string, unknown>> {
   const documents = knownFolders.documents().path
   const dir = nsPath.join(documents, 'core20-service-fs')
@@ -222,12 +239,11 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
   const tempFile = temp.getFile('core20-temp-unique.txt')
   const tempPath = tempFile.path
   const tempExists = File.exists(tempPath)
-  try {
-    target.removeSync()
-    nested.removeSync()
-    folder.removeSync()
-    tempFile.removeSync()
-  } catch {}
+  for (const entity of [target, tempFile, nested, folder]) {
+    try {
+      await deleteItemByPath(entity.path)
+    } catch {}
+  }
   return {
     documentsPresent: typeof documents === 'string' && documents.length > 0,
     existsBefore,
@@ -523,9 +539,8 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
 
     if (foreign) {
       try {
-        if (exists(foreign.path)) {
-          await foreign.remove()
-        }
+        if (exists(foreign.path)) await deleteItemByPath(foreign.path)
+        result.foreignRemoved = !exists(foreign.path)
       } catch (error) {
         result.removeError = error instanceof Error ? error.message : String(error)
       }

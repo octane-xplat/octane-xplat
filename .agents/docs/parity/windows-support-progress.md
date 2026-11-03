@@ -139,15 +139,32 @@ picker initialization, suspend/resume, physical sleep, pointer-variant
 predicates, reduced motion, hotplug, secondary windows and the
 architecture matrix.
 
+## File-identity depth result (1.0.0.205)
+
+The deeper `files-identity` spec passed on `org.octanexplat.windows61`
+1.0.0.205 (sha256 `7241b1bc447748b448ba68e8aca3a77dcef8883cabcff65d338ba21f9f83436d`,
+source `f2ec154f5`, frozen install + strict native build gate): same-name
+writes keep distinct URIs with each payload intact, both files exist before
+release and are deleted by it, and an unowned sentinel file is preserved with
+its contents — 12/12 assertions on launch `mw165fr3`, re-verified inside the
+20-spec service run `mw165tvb` (70/70). `storage-verify` (`mw166egy`, 8/8)
+and `secure-verify` (`mw166r5x`, 9/9) passed on the same package.
+
+The first attempt (1.0.0.204) threw `HRESULT 0x80004005` with no result; the
+instrumented 205 spec isolated it to `File.remove()` — upstream
+`FileSystemAccess.deleteFile` calls `DeleteAsync` on the pending
+`IAsyncOperation`, not the entity — so `File.remove`/`removeSync` never
+deletes on Windows. Recorded in
+[upstream-limitations.md](../upstream-limitations.md); fixture cleanup now
+deletes through the awaited `toPromise` path and reports `foreignRemoved`.
+
 ## Service qualification boundaries
 
 The packaged Credential Locker path handles empty strings, an exact U+0001
-control-character value, overwrite, remove and fresh-launch persistence. Same-name
-sandbox writes produce distinct URIs, and releasing the first owned reference
-does not throw. That evidence checks byte lengths; it does not prove that the two files retain
-distinct contents, clean up both references, or reject foreign references.
-Require exact payloads, both completed deletions and preservation of an unowned
-file before advancing those requirements.
+control-character value, overwrite, remove and fresh-launch persistence.
+Same-name sandbox writes produce distinct URIs with exact payloads, both
+owned references are deleted by release, and a foreign file survives release
+untouched (1.0.0.205 evidence above).
 
 Picker calls still throw `UnavailabilityError`, and export returns `unavailable`.
 Require that exact error class in qualification; an unrelated native failure must

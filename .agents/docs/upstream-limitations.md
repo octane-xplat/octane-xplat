@@ -112,6 +112,20 @@ reading:
   service fixture records `syncText` as limitation evidence and qualifies
   content IO through the async APIs.
 
+- `FileSystemAccess.deleteFile`/`deleteFolder` (and the entity calls built on
+  them — `File.remove`/`removeSync`, `Folder.remove`/`removeSync`) never
+  delete: `Windows.Storage.StorageFile.GetFileFromPathAsync(path)` returns a
+  pending `IAsyncOperation`, and the next line calls `DeleteAsync` on the
+  *operation* rather than the resolved entity. The unprojected member access
+  throws `Error: Unspecified error (HRESULT 0x80004005)` into `onError`, so
+  `await File.remove()` rejects and `removeSync()` silently swallows it; when
+  it does not throw, the op is never awaited either way. Verified on 1.0.0.204
+  (files-identity `foreign.remove()` rejection) and 1.0.0.205 (`removeError`
+  field, both launches); `rename`/`getLastModified`/`getFileSize` share the
+  same sync-op shape and need the same suspicion. Qualification fixtures delete
+  through `toPromise(GetFileFromPathAsync(path))` +
+  `toPromise(file.DeleteAsync())` — the path `files.windows.ts` already
+  relies on.
 - `AbortController`/`AbortSignal` are not projected in the packaged runtime —
   `new AbortController()` throws `ReferenceError` inside the app process
   (observed on 1.0.0.201, files-chunk spec). Cancellation contracts that take
