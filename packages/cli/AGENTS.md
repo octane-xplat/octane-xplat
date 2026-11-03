@@ -186,6 +186,19 @@ Use `const metadata = staticRead("metadata.json")` for embedded generated data;
 argument expression. Generate metadata from the canonical descriptors instead of
 maintaining another command-contract copy. Keep generated data out of Git.
 
+An imported module's unconditional `staticRead` inputs are compile dependencies
+even when its feature reports unsupported on the destination OS. Include those
+small manifests in source snapshots and hash them independently from optional
+runtime/model bodies. Compile the snapshot itself to verify its input closure.
+
+Nim's pinned Visual C++ configuration uses `vccexe.exe`, a wrapper that prepares
+the Visual Studio environment. In an already configured developer shell, select
+`cl.exe` for `vcc.exe`, `vcc.cpp.exe` and both linker keys in the task's compiler
+arguments. Keep SDK setup process-local; do not edit the shared compiler config.
+Forward `INCLUDE`, `LIB` and `LIBPATH` explicitly through Turbo's strict task
+environment, and check the effective child environment before compiling. Finding
+`cl.exe` on PATH does not establish that the C headers and libraries are visible.
+
 Route planning and rendering share `src/route-generator.ts` between the reference
 CLI and the selected project's build worker. The worker returns an artifact plan;
 Nim validates its schema, complete expected destination set and unchanged inputs

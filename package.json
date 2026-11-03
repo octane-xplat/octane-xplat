@@ -5,6 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"test:perry-cli": "node tools/cli-perry/verify.mjs",
+		"snapshot:nim-portability": "node tools/cli-nim/portability-snapshot.mjs",
 		"probe": "node scripts/probe.ts",
 		"test:query-cache-runtime": "node scripts/query-cache-runtime.ts",
 		"dev:web": "bun run --filter @xplat/web dev",

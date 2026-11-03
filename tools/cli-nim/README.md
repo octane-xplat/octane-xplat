@@ -408,9 +408,11 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 bun run turbo run test:routes --filter=@octane-xplat/cli
 ```
 
-Build flags now select macOS dead stripping, Linux section collection, or the
-Windows compiler defaults; only macOS has been executed locally. Native Linux and Windows
-build jobs, libc baselines, TLS libraries, Windows process control, signing,
+Build flags select macOS dead stripping, Linux section collection, or the
+Windows compiler defaults. Complete host-operation qualification remains
+macOS-only; the isolated portability smoke below distinguishes native compilation
+and help/catalog execution from usable host adapters. Native Linux and Windows
+workflow qualification, libc baselines, TLS libraries, Windows process control, signing,
 notarization, archive checksums, and installer/update behavior remain distribution
 work. Nim emits C requiring a target C compiler and SDK; cross-compilation alone
 would not qualify those hosts. The compiler wrapper supports Darwin arm64/x64,
@@ -421,6 +423,47 @@ Retain the differential harness as a migration gate during the full rewrite:
 compile success and low size do not prove Node semantics. Qualify remaining host
 adapters and complete app ownership before production workflows. Operational measurements belong
 in local reports and Silo rather than this guide.
+
+## Isolated native portability builds
+
+`portability-snapshot.mjs` verifies the current local native build record and
+archives its source, generated command metadata, compile-time asset manifests
+and pinned build tools. It does not copy a platform's `node_modules`, change a
+shared remote checkout, include model bodies, or prepare a publishable package.
+The archive and its checksums stay under ignored `research/nim-cli`.
+
+```sh
+bun run turbo run snapshot:nim-portability
+```
+
+Extract the archive into a task-owned run folder on the destination host, install
+its minimal dependency tree with Bun 1.4.4, and reserve native build capacity
+before compiling. `XPLAT_NIM_PORTABILITY_CACHE` selects a task-owned shared cache
+for repeated source snapshots; its path must satisfy nim-toolchain's no-spaces
+constraint. On Windows, configure the existing Visual C++ environment and set
+`XPLAT_NIM_CC=vcc`; the compiler package does not install a C compiler or SDK.
+The task invokes `cl.exe` directly in that prepared environment, avoiding Nim's
+per-compilation Visual Studio setup wrapper, and bounds parallel C compilation.
+Its Turbo task explicitly forwards `INCLUDE`, `LIB` and `LIBPATH`; a developer
+shell alone does not preserve those variables through Turbo's strict environment.
+
+```sh
+# From the extracted snapshot root, under the destination host's reservation:
+bun install --ignore-scripts --linker isolated
+bun run turbo run build:portability --filter=@xplat/nim-portability-source --concurrency=1
+```
+
+The build rechecks source hashes, uses the exact Nim/compiler-library pins, and
+records compilation separately from native help/catalog execution. Linux ELF and
+Windows PE signatures are checked. Linux is stripped; the Visual C++ baseline
+does not claim stripping. A successful baseline does not qualify HTTP/TLS,
+bootstrap/RPC, project workers, cancellation or descendant cleanup. Those are the
+next required actual-host gates before expanding the CLI further. Use
+`ssh andromeda.local` with its reserved Linux guest and `ssh windy` for these
+checks; preserve existing checkouts and machine-wide tools.
+An SSH supervisor's cancellation does not establish remote descendant cleanup.
+Keep ownership on the remote host, await its release, and verify that the exact
+owned compiler phase has ended before replacing its source or starting a retry.
 
 
 ## Real web build jobs and logs
