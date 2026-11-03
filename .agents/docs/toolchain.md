@@ -8,7 +8,7 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 A parallel Nim implementation lives in [packages/cli/nim](../../packages/cli/nim/README.md).
 Keep TypeScript as the behavioral reference while migrating; native commands
 must not execute the old CLI as a fallback. Its separate package staging omits
-the old JS CLI, its exports and heavy runtime dependencies, and targets only
+the old JS CLI and heavy runtime dependencies, and targets only
 the explicit `nim` prerelease channel. Read the owning README for implemented
 scope and qualification limits, [tools/cli-nim](../../tools/cli-nim/README.md) for
 task-local compiler/dependency pins and differential checks, and
@@ -25,8 +25,11 @@ the CLI tarball and web-only build installations. Nim owns staging and final
 publication after the worker finishes.
 
 The existing TypeScript CLI exports remain available during the parallel
-migration; the Nim tarball has none of those JS exports. See the
-[build-plugin guide](../../docs/packages/package-build.md) for import migration.
+migration. The Nim tarball preserves Vite exports and the bounded `./worker`
+operation through the curated plugin closure; heavy engines are optional peers.
+Native-only installs fetch none of those peers. Native worker lookup still uses
+`@octane-xplat/build` during consolidation; do not claim that split is removed.
+See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
 
 Nim 2.2.12's `posix_utils.mkdtemp` uses a `posix.nim` declaration naming
 `<stdlib.h>`. The qualified macOS SDK 27.0 declares it in `<unistd.h>`;

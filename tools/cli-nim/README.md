@@ -55,7 +55,11 @@ bun run turbo run build typecheck test:packed --filter=@octane-xplat/build
 ```
 
 The native variant also installs a host-only native CLI tarball, checks its
-empty-PATH catalog, and verifies that the old CLI JS plugin import is absent.
+empty-PATH catalog, bounded plugin/worker exports and absent old CLI runtime.
+A native-only Bun installation must leave optional engine peers uninstalled;
+the engine-enabled packed consumer separately checks CLI-owned Vite imports,
+Node declarations, actual build/server behavior and direct worker operations.
+Native worker/declaration lookup migration remains outstanding.
 On macOS, the native HTTP probe calls the real packed Vite bridge: registry,
 submit, poll and outcome waiting use simulated app messages. This does not
 establish a browser, mobile renderer or live macOS app session. Desktop preset

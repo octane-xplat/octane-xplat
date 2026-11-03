@@ -9,8 +9,13 @@ import { xplatMacOS } from '@octane-xplat/build/macos/vite'
 import { xplatLinuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 
 assert.equal(typeof xplatMacOS,'function'); assert.equal(typeof xplatLinuxGtk,'function')
-try { await import('@octane-xplat/cli/vite'); assert.fail('CLI JS plugin unexpectedly available') }
-catch (error) { assert.equal(error.code,'ERR_MODULE_NOT_FOUND') }
+if (process.env.XPLAT_TEST_CLI_EXPORTS === '1') {
+ const cliPlugins = await import('@octane-xplat/cli/vite')
+ assert.deepEqual(Object.keys(cliPlugins).sort(),Object.keys(plugins).sort())
+} else {
+ try { await import('@octane-xplat/cli/vite'); assert.fail('Unexpected CLI installation in plugin-only fixture') }
+ catch (error) { assert.equal(error.code,'ERR_MODULE_NOT_FOUND') }
+}
 
 const root = process.cwd(), cache = join(root,'node_modules/.cache/xplat/dev-bridge')
 const result = { exports: Object.keys(plugins).sort(), nativeExtensions: plugins.nativeExtensions,

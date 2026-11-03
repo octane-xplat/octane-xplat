@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, httpProbeInputs } from './native-inputs.mjs'
@@ -45,7 +45,8 @@ try {
  let nativeVersion
  if (withNative) {
   deps['@tsrx/typescript-plugin'] = root.workspaces.catalog['@tsrx/typescript-plugin']
-  deps['@tsrx/core'] = JSON.parse(readFileSync(join(repo,'packages/build/package.json'))).dependencies['@tsrx/core']
+  Object.assign(deps, JSON.parse(readFileSync(join(repo,'packages/build/package.json'))).dependencies)
+  deps['@octane-xplat/lib'] = `file:${lib}`
   assertCurrentNativeBuild(repo, JSON.parse(readFileSync(join(repo,'research/nim-cli/native/build.json'))),
    readFileSync(join(repo,`research/nim-cli/native/xplat${process.platform === 'win32' ? '.exe' : ''}`)))
   if (process.platform === 'darwin') {assertCurrentNativeBuild(repo,
@@ -68,7 +69,7 @@ try {
  const request = { protocol: 'octane-build-worker', version: 1, id: 'packed-analysis', project: consumer,
   operation: 'route-analyze', files: [{ file: 'src/page.tsrx', source: 'throw new Error("must not execute"); export const loader = () => 42; export default function Page() @{ return <label>Page</label> }' }] }
  writeFileSync(join(consumer, 'worker-request.json'), JSON.stringify(request))
- const worker = join(consumer, 'node_modules/@octane-xplat/build/dist/build-worker.js')
+ const worker = join(consumer, `node_modules/@octane-xplat/${withNative ? 'cli' : 'build'}/dist/build-worker.js`)
  run(process.execPath, [worker, 'worker-request.json', 'worker-result.json'], consumer)
  const analyzed = JSON.parse(readFileSync(join(consumer, 'worker-result.json')))
  assert.equal(analyzed.id, request.id)
@@ -103,8 +104,9 @@ try {
  if (withNative) {
   const path = join(consumer,'node_modules/@octane-xplat/cli')
   const cli = JSON.parse(readFileSync(join(path,'package.json')))
-  assert.equal(cli.exports, undefined); assert.equal(cli.dependencies, undefined)
-  for (const folder of ['src','dist','node_modules']) {assert.equal(existsSync(join(path,folder)),false)}
+  assert.ok(cli.exports['./vite']); assert.ok(cli.exports['./worker']); assert.equal(cli.dependencies, undefined)
+  assert.ok(Object.values(cli.peerDependenciesMeta).every(value => value.optional))
+  for (const folder of ['src','standalone','nim']) {assert.equal(existsSync(join(path,folder)),false)}
   run(process.execPath,[join(path,'install-native.mjs')],consumer)
   const catalog = JSON.parse(run(join(path,'bin/xplat.exe'),['catalog','--json'],consumer,
    { env: { ...environment, PATH: '' } }).stdout)
@@ -130,7 +132,7 @@ try {
   assert.match(readFileSync(join(consumer,'routes.gen.data.ts'),'utf8'),/packedNativeRoute/)
   assert.equal(JSON.parse(readFileSync(join(consumer,'routes.gen.manifest.json'))).routes.length,1)
  }
- cpSync(join(repo,'packages/build/test/typecheck.ts'),join(consumer,'typecheck.ts'))
+ writeFileSync(join(consumer,'typecheck.ts'),readFileSync(join(repo,'packages/build/test/typecheck.ts'),'utf8').replaceAll('@octane-xplat/build',withNative ? '@octane-xplat/cli' : '@octane-xplat/build'))
  writeFileSync(join(consumer,'tsconfig.json'),JSON.stringify({ compilerOptions: {
   strict: true, skipLibCheck: true, noEmit: true, target: 'ESNext', module: 'NodeNext', moduleResolution: 'NodeNext', types: ['node']
  }, include: ['typecheck.ts'] }))
@@ -142,9 +144,10 @@ try {
  writeFileSync(join(consumer,'src/theme.web.css'),'@platform web { .packed-web { color: rgb(11, 22, 33); --packed-existing: unprocessed } } @platform mobile { .must-not-ship { color: red } }')
  writeFileSync(join(consumer,'postcss.config.mjs'),"export default { plugins: [{ postcssPlugin: 'packed-app-postcss', Declaration(decl) { if (decl.prop === '--packed-existing') decl.value = 'preserved' } }] }\n")
  writeFileSync(join(consumer,'vite.config.mjs'),"import { defineConfig } from 'vite'\nimport { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/build/vite'\nexport default defineConfig(({ mode }) => ({ define: xplatNodeEnvDefine(mode), plugins: [xplatCss('web'), xplatBoundary('web'), xplatDevBridge()], server: { host: '127.0.0.1', port: 0 } }))\n")
- cpSync(join(import.meta.dirname,'build-tools-live.mjs'),join(consumer,'verify.mjs'))
+ if (withNative) {writeFileSync(join(consumer,'vite.config.mjs'),readFileSync(join(consumer,'vite.config.mjs'),'utf8').replaceAll('@octane-xplat/build','@octane-xplat/cli'))}
+ writeFileSync(join(consumer,'verify.mjs'),readFileSync(join(import.meta.dirname,'build-tools-live.mjs'),'utf8').replaceAll('@octane-xplat/build',withNative ? '@octane-xplat/cli' : '@octane-xplat/build'))
  const nativeProbe = withNative && process.platform === 'darwin' ? join(repo,'research/nim-cli/native/http-probe') : ''
- const result = run(process.execPath,['verify.mjs'],consumer,{ env: { ...environment, XPLAT_TEST_HTTP_PROBE: nativeProbe } })
+ const result = run(process.execPath,['verify.mjs'],consumer,{ env: { ...environment, XPLAT_TEST_HTTP_PROBE: nativeProbe, XPLAT_TEST_CLI_EXPORTS: withNative ? '1' : '0' } })
  const live = JSON.parse(result.stdout.trim())
  const original = await import('../../packages/cli/src/vite.ts')
  assert.deepEqual(live.exports,Object.keys(original).sort())

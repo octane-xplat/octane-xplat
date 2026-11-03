@@ -49,6 +49,10 @@ live instance/revision, follow the job, and preserve unknown/partial outcomes.
 The native host owns admission workers too; shutdown awaits them. This host-side
 qualification does not expand the app runtime transport limits in the
 [development-actions reference](development-actions.md).
+The Nim package retains its Vite subpaths and a bounded worker export. Engine
+packages are optional peers, and native-only installs do not fetch them. The
+current native build-worker/declaration lookup still needs `@octane-xplat/build`;
+restored exports alone do not remove that remaining setup step.
 Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
 with Node >=22.22.2. Install that package in the project; it is not bundled with
 the Nim tarball. Help is native. The engine owns its rules, ignores and safe

@@ -8,7 +8,11 @@ Node/Bun or an old-CLI fallback. Small operation workers and Vite exports may
 live in this package; language boundaries do not require npm package boundaries.
 Keep heavy engine dependencies opt-in and large platform host assets separate.
 
-Project-installed plugins live in `@octane-xplat/build`. That package compiles
+The Nim tarball retains the small Vite/worker exports in this package using
+the curated `@octane-xplat/build` output closure and optional engine peers.
+Native-only installs must not fetch those peers. Native worker/declaration
+lookup still uses `@octane-xplat/build` until its separate migration lands.
+Project-installed plugins also remain in `@octane-xplat/build`. That package compiles
 the Vite plugin closure from the TypeScript reference at build time; its published
 code has no CLI runtime dependency. Those current package locations are not a
 requirement for future worker/plugin placement. For native commands, invoke the

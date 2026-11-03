@@ -444,12 +444,15 @@ small install-time selector. It excludes the old JavaScript CLI and its
 runtime dependency tree; a bounded formatter operation is embedded as data
 and runs only when formatting is requested. TypeScript remains in the
 repository as the migration reference; stable/nightly packaging is unchanged.
-Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
-experimental tarball. Project build plugins are separately packaged as
-[`@octane-xplat/build`](../../build/README.md); web builds invoke the selected project
-toolchain; macOS packaging uses a separate project-installed
-[`@octane-xplat/macos-build`](../../macos-build/README.md) worker. Other build/dev commands and complete app workflows still require
-migration and qualification.
+The tarball retains `@octane-xplat/cli/vite`, `./macos/vite`, `./linux-gtk/vite`
+and the bounded `./worker` export using the curated plugin closure. Heavy JS
+engines are optional peers; native-only installs do not fetch them. Existing MCP
+JS service exports and the old CLI command implementation are excluded. The
+current native worker/declaration lookup still uses `@octane-xplat/build` during
+consolidation, so the full package split has not yet been removed. macOS host
+assets remain in the optional project-installed
+[`@octane-xplat/macos-build`](../../macos-build/README.md) package. Other commands
+and complete app workflows still require migration and qualification.
 
 ```sh
 # After a Nim prerelease is published:

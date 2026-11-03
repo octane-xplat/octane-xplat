@@ -138,6 +138,29 @@ xplat diagnostics --job JOB_ID --json
 xplat job cancel JOB_ID --json
 ```
 
+The experimental npm tarball keeps the small Vite plugins and worker alongside
+the native binary. Projects using those JS exports install their engine packages
+separately; a native-only installation does not download them. Existing native
+build commands still require `@octane-xplat/build` while worker lookup is being
+consolidated. For projects using the CLI Vite imports directly, install the
+currently supported engines:
+
+```sh
+bun add --dev vite@8.3.0 @tsrx/core@0.5.5 @octane-xplat/lib@0.19.0 \
+  postcss@8.5.32 postcss-load-config@6.0.1 marked@18.1.2 \
+  @babel/core@8.0.9 @babel/plugin-transform-unicode-property-regex@8.0.1 \
+  @babel/plugin-transform-unicode-sets-regex@8.0.1
+```
+
+Keep the existing Vite import when using the Nim package. The large macOS host
+assets remain a separate optional installation:
+
+```ts
+import { xplatCss } from '@octane-xplat/cli/vite'
+
+const cssPlugin = xplatCss('web')
+```
+
 Native `status` discovers apps, installed framework versions, project guidance,
 source coverage and tools on your PATH without needing Node or Bun to run the
 report. Missing tools are reported with installation hints. Use `capabilities`
