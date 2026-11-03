@@ -753,10 +753,19 @@ async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
   }
   const unicode = 'clip--\u{1F600}-\u{1F1EF}\u{1F1F5}-e\u0301-\u0000-end'
   result.wroteUni = await clipboard.writeText(unicode)
-  result.uniRead = (await clipboard.readText()) === unicode
+  const uniBack = await clipboard.readText()
+  result.uniRead = uniBack === unicode
+  result.uniReadBack = uniBack
   const empty = await clipboard.writeText('')
   result.wroteEmpty = empty
   result.emptyRead = await clipboard.readText()
+  // Probe where reads diverge: truncation at the first U+0000, or emoji loss.
+  const nulPayload = 'before' + '\u0000' + 'after'
+  await clipboard.writeText(nulPayload)
+  result.nulReadBack = await clipboard.readText()
+  const emojiOnly = '\u{1F600}'
+  await clipboard.writeText(emojiOnly)
+  result.emojiReadBack = await clipboard.readText()
   const first = await clipboard.writeText('clip-first')
   const overwrite = await clipboard.writeText('clip-second')
   result.overwrite = overwrite && (await clipboard.readText()) === 'clip-second'
