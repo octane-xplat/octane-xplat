@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1781,6 +1781,18 @@ function Check-ServiceActions{
     Assert ($result.stateShape -eq $true) 'getState reports a connected boolean' $result
     Assert ($result.eventsMatch -eq $true -and $result.eventCountA -eq $result.eventCountB) 'Concurrent subscribers observe identical event sequences' $result
     Assert ($result.resubWorked -eq $true) 'Resubscription after unsubscribe works' $result
+   }
+   'storage-depth' {
+    Assert ($result.uniRead -eq $true) 'Supplementary-plane and control characters round-trip' $result
+    Assert ($result.longLength -eq 8193 -and $result.longTail -eq $true) 'An 8 KiB+1 value persists intact' $result
+    Assert ($result.isolation -eq $true -and $result.overwrite -eq $true) 'Keys stay isolated and overwrite wins' $result
+    Assert ($result.removedMissing -eq 'no-throw' -and $result.missingRead -eq $null) 'Removing an unset key is a benign no-op' $result
+    Assert ($result.flushFalse -eq $true) 'flush keeps its documented false contract' $result
+   }
+   'clipboard-depth' {
+    Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $true) 'Supplementary-plane unicode round-trips through the OS clipboard' $result
+    Assert (($result.wroteEmpty -eq $true -and $result.emptyRead -eq '') -or $result.wroteEmpty -eq $false) 'Empty-string write is either accepted and readable or rejected' $result
+    Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result

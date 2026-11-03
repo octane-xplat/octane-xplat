@@ -708,6 +708,66 @@ async function connectivityDepthSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/** Value-type breadth: unicode/long strings, key isolation, remove-missing. */
+async function storageDepthSpec(): Promise<Record<string, unknown>> {
+  const keys = { uni: 'core20-depth-uni', long: 'core20-depth-long', a: 'core20-depth-a', b: 'core20-depth-b' }
+  const result: Record<string, unknown> = {}
+  try {
+    const unicode = 'depth--\u{1F600}-\u0301-\u0000-end'
+    storage.setString(keys.uni, unicode)
+    result.uniRead = storage.getString(keys.uni) === unicode
+    const long = 'x'.repeat(8192) + 'Ω'
+    storage.setString(keys.long, long)
+    const longBack = storage.getString(keys.long)
+    result.longLength = longBack === null ? -1 : longBack.length
+    result.longTail = longBack === null ? false : longBack.endsWith('Ω')
+    storage.setString(keys.a, 'first')
+    storage.setString(keys.b, 'second')
+    storage.setString(keys.a, 'overwritten')
+    result.isolation = storage.getString(keys.b) === 'second'
+    result.overwrite = storage.getString(keys.a) === 'overwritten'
+    let removedMissing = 'no-throw'
+    try {
+      storage.remove('core20-depth-never-set')
+    } catch (error) {
+      removedMissing = `throw: ${error instanceof Error ? error.message : String(error)}`
+    }
+    result.removedMissing = removedMissing
+    result.missingRead = storage.getString('core20-depth-never-set')
+    result.flushFalse = storage.flush() === false
+  } finally {
+    for (const key of Object.values(keys)) {
+      try {
+        storage.remove(key)
+      } catch {}
+    }
+  }
+  return result
+}
+
+/** Text breadth: supplementary-plane unicode, empty write, overwrite. */
+async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
+  const result: Record<string, unknown> = { canCopy: clipboard.canCopy }
+  if (!clipboard.canCopy) {
+    return result
+  }
+  const unicode = 'clip--\u{1F600}-\u{1F1EF}\u{1F1F5}-e\u0301-\u0000-end'
+  result.wroteUni = await clipboard.writeText(unicode)
+  result.uniRead = (await clipboard.readText()) === unicode
+  const empty = await clipboard.writeText('')
+  result.wroteEmpty = empty
+  result.emptyRead = await clipboard.readText()
+  const first = await clipboard.writeText('clip-first')
+  const overwrite = await clipboard.writeText('clip-second')
+  result.overwrite = overwrite && (await clipboard.readText()) === 'clip-second'
+  result.first = first
+  // Restore a harmless payload so later specs and manual use see clean state.
+  try {
+    await clipboard.writeText('')
+  } catch {}
+  return result
+}
+
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
@@ -797,6 +857,12 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'connectivity-depth':
         result = await connectivityDepthSpec()
+        break
+      case 'storage-depth':
+        result = await storageDepthSpec()
+        break
+      case 'clipboard-depth':
+        result = await clipboardDepthSpec()
         break
       case 'keepawake-depth':
         result = await keepAwakeDepthSpec()
