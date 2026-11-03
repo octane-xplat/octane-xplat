@@ -52,3 +52,15 @@ workers in `@octane-xplat/cli`; language boundaries do not require package split
 Go owns argv, cwd, environment, timeouts, publication, sessions, logs, cancellation
 and cleanup. Use small workers for operations requiring the project's JavaScript
 compiler, plugin or configuration execution, never a general CLI fallback.
+
+Source search/read keeps app files separate from installed framework packages and
+labels checkout content as development source. Intent search builds a bounded
+local identifier/TF-IDF index in Go; exact search reads current files. Reads check
+both an alias name and its canonical target, reject private/generated/binary
+content and return a continuation offset for larger files. Search results are
+leads to open before changing code.
+
+```sh
+research/go-cli/xplat-go-darwin-arm64-cli code search Button --project . --app apps/web --mode exact --corpus framework --package @octane-xplat/ui --json
+research/go-cli/xplat-go-darwin-arm64-cli code read --project . --app apps/web --ref xplat-code://framework/@octane-xplat/ui/chat/ChatDictationButton.tsrx --json
+```

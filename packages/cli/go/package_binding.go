@@ -363,6 +363,9 @@ func bunImporterVersions(ctx context.Context, path string) (map[string]any, bool
 	return versions, true, nil
 }
 func installedRoot(path, name string) string {
+	if !validPackageName(name) {
+		return ""
+	}
 	for at := path; ; at = filepath.Dir(at) {
 		candidate := filepath.Join(at, "node_modules", filepath.FromSlash(name), "package.json")
 		if pathExists(candidate) {

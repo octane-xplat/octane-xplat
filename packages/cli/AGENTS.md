@@ -760,6 +760,28 @@ declared pnpm project must not require Bun merely because the CLI also supports
 Bun. Clear Node injection variables for bounded diagnostic workers and keep
 unavailable, timed-out and satisfied observations distinct from build readiness.
 
+Keep source retrieval bounded at every stage: file bytes, corpus traversal,
+retained exact hits, index bytes/files/chunks and result length. Keeping full
+source strings in every matching hit defeats a bounded output limit; retain only
+the best requested excerpts plus hashes and revalidate before serving. Inspect
+the opened descriptor's regular-file type and size. Unix source opens use
+nonblocking mode so a raced-in FIFO cannot block before that check.
+
+Check source exclusions against both the requested path and canonical target,
+and use an `os.Root` handle for the actual bounded read. A harmless alias inside
+a corpus can work, while an alias to private data or another workspace must fail.
+Recheck file identity, size, mtime and alias target around the read. This does not
+make a user-owned checkout an adversarial filesystem sandbox or rule out hardlink
+aliases; keep that claim separate from ordinary scope enforcement.
+
+Source continuation offsets count UTF-16 units in the existing JSON contract.
+Go rune and byte offsets differ. A page can split a surrogate pair; encode that
+unit as a JSON escape rather than replacing it and losing source on continuation.
+Treat human excerpts separately. Retrieval rank and Unicode tokenization may
+differ while results remain useful; do not port a JS runtime merely for those
+incidental ordering differences. Native code intent search uses a bounded local
+TF-IDF snapshot; docs model inference remains a separate native ONNX boundary.
+
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
 reference descriptor's status. Keep permission checks, selection precedence and

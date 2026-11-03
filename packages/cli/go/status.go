@@ -55,6 +55,12 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "guidance":
 				entry["status"] = "partial"
 				entry["detail"] = "Project status inventories guidance sources; tailored guidance retrieval is pending."
+			case "code_search":
+				if workspace.codeSelection() == nil {
+					entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native current-source search/read and a bounded local intent index; results retain corpus, version provenance and freshness."}
+				} else {
+					entry["detail"] = "Select an app before retrieving its source and installed framework packages."
+				}
 			case "screenshot":
 				entry["requiresPermission"] = "visual-capture"
 				entry["detail"] = "The Go screenshot provider is pending. Capture requires explicit per-task developer approval when supported."
@@ -212,7 +218,7 @@ func projectStatus(ctx context.Context, workspace *workspaceContext) (any, *cliE
 		"identity":      map[string]any{"workspace": workspace.Discovery.Workspace, "apps": workspace.Discovery.Apps, "selection": selection, "framework": binding},
 		"guidance":      map[string]any{"sources": workspace.guidance()},
 		"docs":          map[string]any{"state": "not_provided"},
-		"codeIndex":     map[string]any{"state": "not_provided"},
+		"codeIndex":     workspace.codeIndexStatus(ctx),
 		"prerequisites": prerequisites, "capabilities": workspace.capabilityMatrix(platforms),
 		"permissions": permissionGrants(), "boundaries": metadata.Boundaries, "nextSteps": steps,
 	}, nil

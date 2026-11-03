@@ -71,9 +71,15 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 		const actual = cli([...command.path, '--schema'])
 		assert.equal(actual.status, 0)
 		const expected = commandSchema(command)
-		expected.status = ['catalog', 'permissions', 'app select', 'status', 'capabilities'].includes(
-			command.name,
-		)
+		expected.status = [
+			'catalog',
+			'permissions',
+			'app select',
+			'status',
+			'capabilities',
+			'code search',
+			'code read',
+		].includes(command.name)
 			? 'implemented'
 			: 'pending'
 		assert.deepEqual(actual.value.data, expected)
@@ -86,7 +92,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		5,
+		7,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
@@ -141,14 +147,14 @@ test('status preserves identity, guidance and actual package bindings without cl
 	assert.equal(data.prerequisites.find((check) => check.id === 'node').status, 'missing')
 	assert.equal(data.prerequisites.find((check) => check.id === 'chromium').status, 'unknown')
 	assert.deepEqual(data.docs, { state: 'not_provided' })
-	assert.deepEqual(data.codeIndex, { state: 'not_provided' })
+	assert.equal(data.codeIndex.state, 'ready')
 	for (const matrix of data.capabilities) {
 		assert.equal(matrix.declared, true)
 		assert.deepEqual(
 			matrix.capabilities
 				.filter((entry) => entry.status === 'supported')
 				.map((entry) => entry.capability),
-			['project_status'],
+			['project_status', 'code_search'],
 		)
 		assert.equal(
 			matrix.capabilities.find((entry) => entry.capability === 'screenshot').requiresPermission,
