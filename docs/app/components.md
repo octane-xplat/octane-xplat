@@ -135,7 +135,7 @@ shared styling options.
 | `Heading`                                           | Section heading (shared typography)                       |                                         |
 | `Kbd`                                               | Keyboard-key glyph (⌘K styling hook)                      |                                         |
 | `Link`, `NavLink`                                   | Route navigation as text                                  | `href`, `route`                         |
-| [`Markdown`](content-display.md#markdown-documents) | Markdown doc — baked AST or runtime text, streaming-ready | `data`, `text`, `isStreaming`, `fadeIn` |
+| [`Markdown`](markdown.md) | Markdown doc — baked AST or runtime text, streaming-ready | `children`, `data`, `isStreaming`, `components`, `plugins` |
 
 On experimental AppKit, Text and Heading now preserve inline declaration strings
 and runtime style arrays beneath authored override order. Heading root and

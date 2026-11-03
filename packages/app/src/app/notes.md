@@ -16,4 +16,4 @@ renders through the shared vocabulary on web and native.
 code blocks stay mono
 ```
 
-> Blockquotes flatten to muted text in v1.
+> Blockquotes keep their quote chrome and nested content.

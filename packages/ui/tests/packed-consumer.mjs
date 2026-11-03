@@ -433,11 +433,13 @@ void typedQueries.runOptimistic(typedUsers, '42', (operation, view$) => {
 // @ts-expect-error the global default cache was removed
 import { cachedQuery$ } from '@octane-xplat/ui/data'
 void typedUser
-const mdProps: MarkdownProps = { text: '# hi' }
+const mdProps: MarkdownProps = { children: '# hi' }
+// @ts-expect-error the raw source is children, not text
+const mdTextProps: MarkdownProps = { text: '# hi' }
 const mdDoc: MdDoc = parseMdDoc('# hi')
 const tokens: TokenLine[] = tokenize('let x = 1', 'ts')
 const msgProps: ChatMessageProps = { sender: 'assistant', children: 'hello' }
-void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, defineQuery, createQueryClient, useQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, rootRouter, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdDoc, tokens, msgProps]
+void [subpathRouter, useRouter, getRouteApi, useListData, useAsyncList, defineQuery, createQueryClient, useQuery$, Markdown, ChatMessage, ChatComposer, useChatComposerContext, rootRouter, rootUseStore, MarkdownScreen, ChatLayout, mdProps, mdTextProps, mdDoc, tokens, msgProps]
 `
 
   source += `

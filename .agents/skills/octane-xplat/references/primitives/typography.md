@@ -98,16 +98,20 @@ export function AccountTitle({ title }: { title: string }) {
 
 Use `@octane-xplat/ui/markdown` for `Markdown` and `useStreamingText`; chat
 components live at `@octane-xplat/ui/chat`. Markdown accepts exactly one of
-`text` or `data`. Tables, task markers, strike, code fences and `[id]` citations
-are supported. `sources` maps ids to public Citation sources; these are individual labelled links, matching the pinned example.
-Keep source keys in first-citation order for consistent numbering. See the [content guide](../../../../../docs/app/content-display.md#markdown-documents).
+`children` (raw source) or `data` (a baked `MdDoc`). Tables, task markers,
+strike, code fences and `[id]` citations are supported. `sources` maps ids to
+public Citation sources; citation numbers follow first-citation order in the
+text. `isStreaming` smooths internally — pass the raw accumulated string;
+composing `useStreamingText` into it reveals twice. Renderer overrides
+(`components`), ordered `inlinePlugins`, and the `plugins` extension protocol
+customize output; see the [Markdown guide](../../../../../docs/app/markdown.md)
+and [content guide](../../../../../docs/app/content-display.md#markdown-documents).
 
 ```tsx
-import { Markdown, useStreamingText } from '@octane-xplat/ui/markdown'
+import { Markdown } from '@octane-xplat/ui/markdown'
 
 function Response(props: { text: string; streaming: boolean }) {
-	const displayed = useStreamingText(props.text, props.streaming, { speed: 'fast' })
-	return <Markdown isStreaming={props.streaming} children={displayed} density="compact" headingLevelStart={3} />
+	return <Markdown isStreaming={props.streaming} children={props.text} density="compact" headingLevelStart={3} />
 }
 ```
 

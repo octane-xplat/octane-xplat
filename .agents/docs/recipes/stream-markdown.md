@@ -30,7 +30,7 @@ rendering, a heading outline, or syntax highlighting.
 
 - AC1: [Streaming text](../../../docs/app/content-display.md#streaming-text).
 - AC2: [Streaming text](../../../docs/app/content-display.md#streaming-text).
-- AC3: [Streaming text](../../../docs/app/content-display.md#streaming-text).
+- AC3: [Documents and outlines](../../../docs/app/markdown.md#documents-and-outlines).
 - AC4: [Custom renderer migration](../../../docs/app/content-display.md#migrate-custom-streaming-renderers).
 
 ## Verification

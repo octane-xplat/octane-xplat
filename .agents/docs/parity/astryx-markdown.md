@@ -232,3 +232,35 @@ before `toText` (matching the reference), failed boundaries retry on node or
 renderer identity change via keyed remount, and `MdHeadingPermalink` uses
 `useContainerReveal` hover/focus-within reveal with the reference's 1500 ms
 feedback window and layout-preserving control slot.
+
+## Milestone 6 — host qualification (landed `f2fb48b48`)
+
+Native nested-mark styling and sibling text flow are fixed and qualified on
+real hosts. Marks (strong/emphasis/delete/link) compose through `MdRunContext`
+so leaf `MdTextRun` emits flat styled spans; the patched
+`@nativescript-community/octane@0.2.5` driver folds mixed `#text`/span
+children into one ordered `FormattedString` (decision #25), so
+`display="inline"` runs join surrounding sibling text. The AppKit children-path
+table gap closed earlier via a horizontal scroll region.
+
+Qualified: **iOS** sim `BE8C45B4` 8/8 spec cases; **Android** physical
+`905d3a9e` (OnePlus CPH2551) 8/8 — first actual `ns test android` lane;
+**AppKit** markdown probe 23/23 + wide-table probe 7/7 on real AppKit/JSC
+(activation is AX-action dispatch, not OS input); **web** parser 466/466,
+behavior and layout 3/3 engines, performance 10/10 budgets.
+
+Remaining gates (not waived): **GTK** and **WinUI** — no authorized
+environments; **visual parity** — not authorized; Android evidence is one
+physical device. Pre-existing `@xplat/mobile` typecheck failure reproduces on
+the pristine parent (39 errors outside markdown). Evidence:
+`~/dev/reports/octane-xplat/astryx-markdown-m6-evidence.md`.
+
+## Milestone 7 — documentation and migration
+
+`docs/app/markdown.md` documents the rendering surface (layout props, links,
+citations, `components`, `inlinePlugins`, plugin protocol and helpers,
+migration, limits); `content-display.md` keeps grammar/streaming and points
+to it. The skill typography reference, component table, recipes, and this
+note were reconciled to the `children` source convention and internal
+smoothing. Recipe coverage vs verification is recorded in Silo at the
+landing commit.

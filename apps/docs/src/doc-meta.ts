@@ -25,6 +25,7 @@ export const GROUPS = [
       'menus',
       'tables',
       'content-display',
+      'markdown',
       'navigation',
       'navigation-ui',
       'drawer',

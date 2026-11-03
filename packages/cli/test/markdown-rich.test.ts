@@ -10,7 +10,9 @@ for (const source of [
   '# Title\n\n~~replaced~~ and **current**',
 ]) {
   test(`rich Markdown baked/runtime parity: ${source.split('\n')[0]}`, () => {
-    const doc = parseMdDoc(source)
+    // The baked literal is JSON — normalize the runtime doc the same way so
+    // explicit `undefined` fields (absent keys after JSON) compare equal.
+    const doc = JSON.parse(JSON.stringify(parseMdDoc(source)))
     assert.deepEqual(mdToDoc(source), doc)
   })
 }

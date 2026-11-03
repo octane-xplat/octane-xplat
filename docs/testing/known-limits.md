@@ -503,6 +503,15 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `useSpeechRecognition`, `useChatDictation`) moved to
   `@octane-xplat/ui/chat`. `xplat routes` codegen emits the new paths; rerun
   `xplat routes --dir src/app` after upgrading. — post-0.14.0·desk.
+- **Markdown rendering has platform bounds** — `Markdown` takes `children`
+  (raw source) or `data` (baked `MdDoc`), never `text`; `isStreaming`
+  smooths internally, so composing `useStreamingText` into it reveals twice.
+  `display="inline"` embeds text runs only on native — view-bearing inline
+  content throws, and inline images show their alt text. Extension nodes
+  carry typed data; the reference container node model is not ported. AppKit
+  link/citation activation dispatches through accessibility actions, not OS
+  input; GTK and WinUI targets remain unverified. See
+  [Markdown limits](../app/markdown.md#limits). — post-0.14.0·desk.
 - **`SearchSource`/`ChatComposerSearchSource` cancellation is request-scoped**
   — `search(query)` and `bootstrap()` now take an optional second argument
   `request` whose `signal` aborts when the call is superseded or abandoned.

@@ -77,9 +77,9 @@ the Astryx 0.7.4 grammar).
 `Markdown` and its document helpers live at `@octane-xplat/ui/markdown` —
 the package root keeps general UI only. `Markdown` renders either a `data`
 prop — the `MdDoc` AST that `xplat routes` bakes at codegen with the shared
-parser (no parser needed in the bundle) — or a `text` prop of raw Markdown
+parser (no parser needed in the bundle) — or `children`, raw Markdown
 parsed at runtime. Set exactly one: the sources are mutually exclusive, and
-`isStreaming` applies to `text` only.
+`isStreaming` applies to `children` only.
 
 ```tsx
 import { Markdown } from '@octane-xplat/ui/markdown'
@@ -98,7 +98,7 @@ escapes, `&entity;` character references, and hard breaks; inline code spans,
 links. `javascript:`/`vbscript:`/`data:text/html` destinations stay literal
 text instead of becoming links or images. Tables render through `Table`,
 fenced code through `CodeBlock`, task lists show read-only checked/unchecked
-markers, and images render as their alt text. HTML blocks are literal text.
+markers, and block images render the shared `Image` component. HTML blocks are literal text.
 
 ```tsx
 <Markdown>{'| Task | Status |\n| --- | --- |\n| Review | **Ready** |\n\n- [x] Parser\n- [ ] Stories\n\n~~Old plan~~'}</Markdown>
@@ -106,24 +106,25 @@ markers, and images render as their alt text. HTML blocks are literal text.
 
 Use `density="compact"` for shorter gaps and `headingLevelStart={3}` to shift
 `#` headings to level 3, `##` to level 4, up to level 6. A `sources` map turns
-known `[id]` markers into labelled `Citation` links; unknown markers stay as
-text. This composes the public Citation component. Source numbers follow the map's
-key order; keep sources in first-citation order. Text with `sources` renders
-settled rather than using the streaming fade.
+known `[id]` markers into labelled `Citation` links; markers without a matching
+source stay as text. This composes the public Citation component. Citation
+numbers follow first-citation order in the text. `citationStyle="number"`
+renders compact numbered badges instead.
 
 ```tsx
 <Markdown
-	text={'# Tokyo\n\nPopulation facts[tokyo].'}
 	density="compact"
 	headingLevelStart={3}
 	sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
-/>
+>
+	{'# Tokyo\n\nPopulation facts[tokyo].'}
+</Markdown>
 ```
 
 ### Streaming text
 
-For chat/AI-style output where `text` is a cumulative snapshot that grows in
-chunks — often ending mid-token — set `isStreaming`. `Markdown` smooths
+For chat/AI-style output where `children` is a cumulative snapshot that grows
+in chunks — often ending mid-token — set `isStreaming`. `Markdown` smooths
 bursty chunks internally through the same `useStreamingText` reveal the
 reference uses, so pass the raw accumulated string — never text you already
 smoothed yourself (that would reveal twice).
@@ -136,8 +137,10 @@ To smooth bursts of incoming text outside `Markdown` — a plain `Text`
 label, a typewriter caption — use `useStreamingText`. Pass the whole
 accumulated string each time. `natural` reveals 10 UTF-16 units per tick,
 `fast` reveals 4 per tick, and `instant` returns all text; the tick interval
-derives from the theme's `--duration-fast-min` motion token (50 ms/8 ms
-with no theme). Finished streams settle immediately. Emoji clusters stay
+derives from the theme's `--duration-fast-min` motion token (`natural`
+ticks at base/10, `fast` at base/20 — 13 ms/6 ms under the default 130 ms
+token — with 50 ms/8 ms fallbacks when no theme is in scope). Finished
+streams settle immediately. Emoji clusters stay
 whole where `Intl.Segmenter` is available; other runtimes protect surrogate
 pairs. Reduced-motion preferences skip the reveal on web and native.
 
@@ -188,6 +191,10 @@ recursive, JSON-serializable tree whose nodes use `type` to identify their
 kind. Treat returned nodes as immutable: settled blocks can be shared between
 snapshots. Each parser owns one independent stream; an empty append returns
 the current snapshot.
+
+The [Markdown guide](markdown.md) continues with layout controls, link and
+citation options, renderer overrides, inline matching, and the plugin
+protocol.
 
 ```ts
 import { parseMdDoc, type MdDoc } from '@octane-xplat/ui/markdown'
