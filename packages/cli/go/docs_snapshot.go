@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -100,6 +101,11 @@ func (git snapshotGit) command(ctx context.Context, args ...string) *exec.Cmd {
 	flags := []string{"-c", "core.hooksPath=" + git.Empty, "-c", "credential.helper=", "-c", "credential.interactive=false",
 		"-c", "protocol.allow=never", "-c", "protocol.https.allow=always", "-c", "protocol.file.allow=always",
 		"-c", "core.attributesFile=" + os.DevNull, "-c", "core.autocrlf=false", "-c", "submodule.recurse=false"}
+	if runtime.GOOS == "windows" {
+		// Owned staging can be short enough for Win32 directory creation while
+		// Git's object filenames exceed MAX_PATH. Keep this process-local.
+		flags = append(flags, "-c", "core.longpaths=true")
+	}
 	cmd := exec.CommandContext(ctx, "git", append(flags, args...)...)
 	cmd.Dir, cmd.Env, cmd.WaitDelay = git.Directory, git.Env, 500*time.Millisecond
 	return cmd

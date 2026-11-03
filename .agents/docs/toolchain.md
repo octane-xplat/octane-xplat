@@ -119,6 +119,27 @@ Run `test:executable` through Turbo for concurrent extraction, native formatting
 and helper-process checks. The release workflow attaches executable/checksum
 pairs; npm still ships the Node-compatible ESM exports and Bun bin launcher.
 
+### Go Windows junction identity
+
+Go 1.27.3 follows the [Go 1.23 Windows symlink behavior](https://go.dev/doc/godebug#go-123):
+`filepath.EvalSymlinks` does not resolve mount-point reparse points, including
+directory junctions. Workspace package links use these on Windows. Treating the
+lexical link as a physical package root makes checkout docs discovery walk the
+consumer's `node_modules` instead of the framework repository. The
+[Windows canonical-path adapter](../../packages/cli/go/canonical_windows.go)
+opens the target and uses `GetFinalPathNameByHandle`, handling extended DOS and
+UNC names. Keep this local to physical identity instead of changing the process's
+global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mjs)
+checks linked checkout discovery and rejects an external docs junction; build
+success alone does not establish either runtime property.
+
+Windows Git object paths can exceed `MAX_PATH` even when the owned staging
+directory fits. An actual bare fetch at a 216-character staging path failed with
+`Filename too long`; process-local `-c core.longpaths=true` succeeded. The native
+snapshot service passes that flag on Windows and qualifies a long-cache-path
+fixture. Do not shorten a failing fixture or change the user's global Git config
+to hide this boundary.
+
 ## Runtime dependency compatibility
 
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and

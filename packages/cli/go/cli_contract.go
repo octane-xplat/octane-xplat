@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"math/big"
@@ -41,9 +43,34 @@ type cliError struct {
 	Message  string `json:"message"`
 	Recovery any    `json:"recovery,omitempty"`
 	Context  any    `json:"context,omitempty"`
+	cause    error
 }
 
 func (e *cliError) Error() string { return e.Message }
+func (e *cliError) Unwrap() error { return e.cause }
+
+func executionFailure(err error) *cliError {
+	code := "execution_failure"
+	var cleanup *processCleanupError
+	if !errors.As(err, &cleanup) {
+		if errors.Is(err, context.Canceled) {
+			code = "cancelled"
+		} else if errors.Is(err, context.DeadlineExceeded) {
+			code = "timeout"
+		}
+	}
+	return &cliError{Code: code, Message: err.Error(), cause: err}
+}
+func contextualFailure(ctx context.Context, failure *cliError) *cliError {
+	if ctx.Err() == nil {
+		return failure
+	}
+	var cleanup *processCleanupError
+	if failure != nil && errors.As(failure, &cleanup) {
+		return failure
+	}
+	return executionFailure(ctx.Err())
+}
 func invalid(message string, recovery ...string) *cliError {
 	err := &cliError{Code: "invalid_selection", Message: message}
 	if len(recovery) > 0 {

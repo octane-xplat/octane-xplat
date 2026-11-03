@@ -75,10 +75,9 @@ The documentation snapshot service pins exact release tags and package metadata
 under a separate `go-v1` cache. It extracts bounded Markdown blobs without a Git
 checkout, validates cached raw bytes before reuse, and reports offline reads,
 moved/deleted tags and corrupt caches explicitly. An owned native compute child
-contains binding, Git work and retrieval. Public read/search use this boundary;
-index preparation remains pending. Hybrid requests currently disclose lexical
-fallback. Ordinary search and page reads do not download optional model/runtime
-assets. Project Markdown guidance is returned separately from release results.
+contains binding, Git work and retrieval. Public read/search use this boundary.
+Ordinary search and page reads do not download optional model/runtime assets.
+Project Markdown guidance is returned separately from release results.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go documentation snapshots"}' -- bun run turbo run test:go-doc-snapshot --filter=@octane-xplat/cli
@@ -86,3 +85,27 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 research/go-cli/xplat-go-darwin-arm64-cli docs search dictation --project . --app apps/web --package @octane-xplat/ui --mode exact --json
 research/go-cli/xplat-go-darwin-arm64-cli docs read --project . --app apps/web --package @octane-xplat/ui --path docs/app/components.md --json
 ```
+
+The inference-enabled entry supports explicit index preparation and native hybrid
+retrieval. Index preparation downloads checksum-pinned MiniLM and ONNX Runtime
+assets into the private cache. On macOS arm64 those first-use downloads total
+60,621,482 bytes, separate from the executable. The core entry omits this optional
+feature. Missing or invalid assets/index data produce a labeled lexical fallback
+during search; preparing the index explicitly repairs invalid cached vectors.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation index"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
+research/go-cli/xplat-go-darwin-arm64-cli-onnx docs index --project . --app apps/web --package @octane-xplat/ui --json
+research/go-cli/xplat-go-darwin-arm64-cli-onnx docs search dictation --project . --app apps/web --package @octane-xplat/ui --mode hybrid --json
+```
+
+Completed vector batches survive cancellation. Model, runtime, inference settings
+and tokenizer dependencies contribute to cache identity; fresh document inventory
+keeps edited or deleted content from returning stale hits. The compute child
+reuses one native model session per operation. Large fenced sections keep their
+full text for lexical search and reads; model previews are bounded to 64 KiB,
+with `truncatedInputs` reported alongside the model's 512-token context limit.
+The prototype RPC owner can run
+and cancel this work while responding to other requests; public CLI integration
+with the persistent owner remains migration work. Direct CLI process ownership
+and prototype RPC qualification are separate from that pending integration.

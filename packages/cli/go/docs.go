@@ -25,6 +25,9 @@ type docsBound struct {
 func init() {
 	commandHandlers["docs read"] = docsCommand("docs-read")
 	commandHandlers["docs search"] = docsCommand("docs-search")
+	if nativeIndexSupported() {
+		commandHandlers["docs index"] = docsCommand("docs-index")
+	}
 }
 func docsCacheRoot() (string, error) {
 	if value := os.Getenv("XPLAT_MCP_CACHE"); value != "" {
@@ -47,13 +50,17 @@ func docsCommand(operation string) commandHandler {
 		}
 		cache, err := docsCacheRoot()
 		if err != nil {
-			return nil, &cliError{Code: "execution_failure", Message: err.Error()}
+			return nil, executionFailure(err)
 		}
-		ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+		timeout := 2 * time.Minute
+		if operation == "docs-index" {
+			timeout = 10 * time.Minute
+		}
+		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 		data, err := nativeCompute(ctx, cache, operation, docsRequest{Workspace: workspace.Root, App: app.Root, Values: values, Repository: os.Getenv("XPLAT_DOCS_REPO")})
 		if err != nil {
-			return nil, &cliError{Code: "execution_failure", Message: err.Error()}
+			return nil, executionFailure(err)
 		}
 		return data, nil
 	}
@@ -133,6 +140,9 @@ func executeDocs(ctx context.Context, operation, method string, input docsReques
 	}
 	if method == "docs-read" {
 		return readBoundDoc(ctx, operation, input, install)
+	}
+	if method == "docs-index" {
+		return indexBoundDocs(ctx, operation, input, install)
 	}
 	return searchBoundDocs(ctx, operation, input, install)
 }
@@ -307,6 +317,8 @@ func scoreDocs(ctx context.Context, documents []docFile, query, mode, platform, 
 }
 
 func searchBoundDocs(ctx context.Context, operation string, input docsRequest, install docsInstallation) (any, error) {
+	embedder := &docsEmbedder{cache: filepath.Dir(operation), operation: operation}
+	defer embedder.close()
 	values := input.Values
 	query, mode := stringValue(values["query"]), stringValue(values["mode"])
 	if mode == "" {
@@ -349,16 +361,14 @@ func searchBoundDocs(ctx context.Context, operation string, input docsRequest, i
 			group = stringValue(bound.Provenance["repo"]) + "\x00" + commit
 		}
 		groups[group], packageGroup[pkg.Name] = append(groups[group], pkg.Name), group
-		used := "exact"
-		if mode != "exact" {
-			used = "lexical"
-		}
-		entry := map[string]any{"package": pkg.Name, "requested": mode, "used": used}
-		if mode == "hybrid" {
-			entry["reason"] = "index-not-ready"
+		entry := map[string]any{"package": pkg.Name, "requested": mode, "used": "exact"}
+		var hits []docsHit
+		if mode == "exact" {
+			hits, err = scoreDocs(ctx, lastDocuments, query, mode, stringValue(values["platform"]), stringValue(values["corpus"]), pkg.Name, limit)
+		} else {
+			hits, entry, err = indexedDocsHits(ctx, embedder, bound, lastDocuments, pkg, values, limit)
 		}
 		retrieval = append(retrieval, entry)
-		hits, err := scoreDocs(ctx, lastDocuments, query, mode, stringValue(values["platform"]), stringValue(values["corpus"]), pkg.Name, limit)
 		if err != nil {
 			return nil, err
 		}

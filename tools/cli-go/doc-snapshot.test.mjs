@@ -181,6 +181,7 @@ test('cache corruption, missing pages and extra files never become verified offl
 	for (const mutation of ['bytes', 'missing', 'extra', 'metadata']) {
 		const input = remote('corrupt-' + mutation),
 			first = native(input)
+		assert.equal(first.status, 'bound', JSON.stringify(first))
 		if (mutation === 'bytes') {
 			put(join(first.dir, 'docs/raw.md'), Buffer.from([35, 32, 82, 97, 119, 10, 254]))
 		}
@@ -204,6 +205,16 @@ test('cache corruption, missing pages and extra files never become verified offl
 		assert.equal(native(input).reason, 'cache-invalid', mutation)
 		noOperations(input)
 	}
+})
+
+test('Windows snapshots fetch long object paths without changing global Git configuration', { skip: process.platform !== 'win32' }, () => {
+	const input = remote('long-path'),
+		base = join(scratch, 'long-cache')
+	input.cache = join(base, 'x'.repeat(Math.max(1, 146 - base.length - 1)))
+	const result = native(input)
+	assert.equal(result.status, 'bound', JSON.stringify(result))
+	assert.equal(readFileSync(join(result.dir, 'docs/camera.md'), 'utf8'), '# Camera\n\nUse capture() on web and ios.\n')
+	noOperations(input)
 })
 
 test('ambient Git config cannot execute filters/hooks or change repository identity', () => {

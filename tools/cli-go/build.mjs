@@ -89,6 +89,10 @@ writeFileSync(
 	join(import.meta.dirname, 'catalog.json'),
 	readFileSync(join(moduleDirectory, 'catalog.json')),
 )
+writeFileSync(
+	join(moduleDirectory, 'native-assets.json'),
+	readFileSync(join(import.meta.dirname, 'native-assets.json')),
+)
 run('go', ['mod', 'download'], { stdio: 'inherit' })
 if (flags.includes('--test')) {
 	run(

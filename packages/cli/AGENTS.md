@@ -824,6 +824,10 @@ package and version; per-binding files and locks avoid shared-map lost updates.
 Verify raw-byte hashes, the complete file inventory and manifest on reuse,
 including offline reads. Moved or deleted tags require explicit resolution;
 corrupt cache data must not become a verified offline snapshot or latest docs.
+On Windows, give Git process-local `core.longpaths=true`: Go can handle a cache
+directory while Git rejects its longer object filenames. A `remote-unavailable`
+result does not establish a network failure; preserve an initial bound assertion
+before mutating a fixture's cache and retain direct Git diagnostics locally.
 
 Native compute sidecars use a versioned request identity. Allocate their private
 operation root on the destination cache filesystem before starting the owned
@@ -831,6 +835,28 @@ same-executable child. Git children inherit that group/job. Await cleanup before
 removing operation data, and retain it when cleanup cannot be confirmed. This
 boundary is separate from registering public docs commands or qualifying the
 persistent host's index/inference lifecycle.
+
+Prepare optional model/runtime assets only for explicit indexing. Stream bounded
+downloads through exact byte/hash checks, extract only named ordinary library and
+license members, and publish verified manifests last. Search may verify existing
+assets but must not fetch or repair them implicitly. Reuse one native session per
+owned compute child; include model/runtime, inference settings and tokenizer
+dependencies in vector cache identities. Validate dimension, finiteness, norm and
+raw vector checksum on reuse. Completed batches remain reusable after cancellation;
+corrupt vectors require explicit preparation. Re-inventory current documents
+before retrieval so cached embeddings cannot preserve deleted content. Keep native
+and WASM relevance checks useful without requiring identical rankings.
+Large fenced examples are valid documentation. Keep complete bounded sections for
+lexical retrieval and reads, while limiting model previews independently of corpus
+coverage. Report truncated previews and include that policy in cache identity;
+one long section must not prevent preparing an otherwise valid real inventory.
+
+On Windows, `filepath.EvalSymlinks` deliberately leaves junctions unresolved in
+current Go. Resolve package/scope identity through an opened handle's final path;
+otherwise workspace junctions can appear to belong to `node_modules` and lose
+their checkout docs. See the [toolchain constraint](../../.agents/docs/toolchain.md#go-windows-junction-identity)
+before changing this adapter. Qualify linked-package discovery and external-docs
+junction rejection on Windows, including paths containing spaces and Unicode.
 
 Keep project Markdown instructions separate from framework release results and
 apply canonical scope checks to both. Explicit comparisons for an uninstalled
@@ -874,6 +900,10 @@ These adapters keep core builds free of C dependencies. Process groups cover
 ordinary inherited descendants, not an adversarial daemonization sandbox.
 If cleanup cannot be confirmed, preserve private worker data and fail the job;
 do not erase its directory or label the outcome a successful cancellation.
+Preserve typed error causes through CLI envelopes too: a root cancellation must
+not overwrite an unconfirmed-cleanup failure or its retained-data diagnostics.
+Distinguish operation deadlines from generic execution failures even when the
+outer CLI context remains live.
 
 ## Native HTTP and C interop
 

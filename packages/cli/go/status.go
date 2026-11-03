@@ -66,7 +66,10 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				}
 			case "docs":
 				if selection.State == "bound" {
-					entry = map[string]any{"capability": capability, "status": "partial", "detail": "Native version-bound docs read/search with explicit lexical fallback. Native docs index preparation is pending."}
+					entry = map[string]any{"capability": capability, "status": "partial", "detail": "Native version-bound docs read/search with explicit lexical fallback. Embeddings require the inference-enabled build and a pinned host runtime."}
+					if nativeIndexSupported() {
+						entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native version-bound docs read/search/index; hybrid uses prepared native embeddings. Downloads require explicit docs index."}
+					}
 				}
 			case "screenshot":
 				entry["requiresPermission"] = "visual-capture"
@@ -222,7 +225,10 @@ func projectStatus(ctx context.Context, workspace *workspaceContext) (any, *cliE
 	}
 	docsStatus := map[string]any{"state": "unavailable", "detail": "Select an app before retrieving installed-version documentation."}
 	if selection.State == "bound" {
-		docsStatus = map[string]any{"state": "ready", "detail": "Native read/search provider; release snapshot availability is checked on retrieval. Index preparation is pending."}
+		docsStatus = map[string]any{"state": "ready", "detail": "Native read/search provider; release snapshot availability is checked on retrieval. Embeddings require the inference-enabled build and a pinned host runtime."}
+		if nativeIndexSupported() {
+			docsStatus = map[string]any{"state": "ready", "detail": "Native read/search/index provider; snapshot and prepared embedding availability are checked on retrieval. No latest-version fallback."}
+		}
 	}
 	return map[string]any{
 		"server":        map[string]any{"name": "@octane-xplat/cli", "version": metadata.Version},

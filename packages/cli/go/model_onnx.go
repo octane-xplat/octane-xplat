@@ -10,10 +10,14 @@ import (
 	"math"
 )
 
-func embedModel(ctx context.Context, input modelRequest, sequences [][]int64) (any, error) {
-	if len(sequences) == 0 {
-		return [][]float64{}, nil
-	}
+const nativeInferenceAvailable = true
+
+type ortEmbeddingSession struct {
+	session *ort.DynamicAdvancedSession
+	engine  string
+}
+
+func newEmbeddingSession(input modelRequest) (_ embeddingSession, failure error) {
 	if len(input.LibrarySHA256) != 64 {
 		return nil, errors.New("an explicit pinned native runtime SHA256 is required")
 	}
@@ -25,7 +29,11 @@ func embedModel(ctx context.Context, input modelRequest, sequences [][]int64) (a
 	if err = ort.InitializeEnvironment(); err != nil {
 		return nil, err
 	}
-	defer ort.DestroyEnvironment()
+	defer func() {
+		if failure != nil {
+			_ = ort.DestroyEnvironment()
+		}
+	}()
 	options, err := ort.NewSessionOptions()
 	if err != nil {
 		return nil, err
@@ -44,19 +52,26 @@ func embedModel(ctx context.Context, input modelRequest, sequences [][]int64) (a
 	if err != nil {
 		return nil, err
 	}
-	defer session.Destroy()
+	return &ortEmbeddingSession{session, fmt.Sprintf("onnxruntime-%s:cpu:basic:threads-1:single-sequence:go", ort.GetVersion())}, nil
+}
+func (session *ortEmbeddingSession) Engine() string { return session.engine }
+func (session *ortEmbeddingSession) Close() {
+	_ = session.session.Destroy()
+	_ = ort.DestroyEnvironment()
+}
+func (session *ortEmbeddingSession) Embed(ctx context.Context, sequences [][]int64) ([][]float64, error) {
 	vectors := [][]float64{}
 	for _, ids := range sequences {
-		if err = ctx.Err(); err != nil {
+		if err := ctx.Err(); err != nil {
 			return nil, err
 		}
-		vector, err := inferSequence(ctx, session, ids)
+		vector, err := inferSequence(ctx, session.session, ids)
 		if err != nil {
 			return nil, err
 		}
 		vectors = append(vectors, vector)
 	}
-	return map[string]any{"engine": fmt.Sprintf("onnxruntime-%s:cpu:basic:threads-1:single-sequence:go", ort.GetVersion()), "vectors": vectors}, nil
+	return vectors, nil
 }
 func inferSequence(ctx context.Context, session *ort.DynamicAdvancedSession, ids []int64) ([]float64, error) {
 	mask, types := make([]int64, len(ids)), make([]int64, len(ids))

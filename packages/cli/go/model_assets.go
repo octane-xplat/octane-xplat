@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -14,12 +15,37 @@ var modelHashes = map[string]string{
 	"onnx/model_quantized.onnx": "afdb6f1a0e45b715d0bb9b11772f032c399babd23bfc31fed1c170afc848bdb1",
 }
 
+const modelName = "Xenova/all-MiniLM-L6-v2"
+const modelRevision = "751bff37182d3f1213fa05d7196b954e230abad9"
+
 func fileHash(path string) (string, error) {
-	bytes, err := os.ReadFile(path)
+	root, err := os.OpenRoot(filepath.Dir(path))
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%x", sha256.Sum256(bytes)), nil
+	defer root.Close()
+	file, err := openSourceFile(root, filepath.Base(path))
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil {
+		return "", err
+	}
+	const limit = 256 << 20
+	if !info.Mode().IsRegular() || info.Size() > limit {
+		return "", fmt.Errorf("asset must be a regular file within 256 MiB")
+	}
+	hash := sha256.New()
+	n, err := io.Copy(hash, io.LimitReader(file, limit+1))
+	if err != nil {
+		return "", err
+	}
+	if n > limit {
+		return "", fmt.Errorf("asset grew beyond 256 MiB")
+	}
+	return fmt.Sprintf("%x", hash.Sum(nil)), nil
 }
 func verifyModelAssets(directory string) error {
 	for file, expected := range modelHashes {

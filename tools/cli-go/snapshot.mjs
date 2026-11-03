@@ -55,6 +55,20 @@ try {
 				copy('research/go-cli/' + file + suffix)
 			}
 		}
+		const cli = `xplat-go-${target}-cli-onnx${target.startsWith('windows') ? '.exe' : ''}`
+		const cliRecord = JSON.parse(readFileSync(join(work, cli + '.json')))
+		assert.equal(sha(readFileSync(join(work, cli))), cliRecord.sha256)
+		for (const [input, hash] of Object.entries(cliRecord.inputs)) {
+			assert.equal(
+				sha(readFileSync(join(root, input))),
+				hash,
+				'Stale public native source: ' + input,
+			)
+			inputs.add(input)
+		}
+		for (const suffix of ['', '.json', '.tgz']) {
+			copy('research/go-cli/' + cli + suffix)
+		}
 		const pin = JSON.parse(readFileSync(join(import.meta.dirname, 'native-assets.json'))).targets[
 			target
 		]
@@ -89,6 +103,7 @@ try {
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
 		'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
 		'test:go-doc-snapshot:portable': 'node --test tools/cli-go/doc-snapshot.test.mjs',
+		'test:go-doc-index:portable': 'node --test tools/cli-go/docs-index-portable.mjs',
 	}
 	writeFileSync(join(source, 'package.json'), JSON.stringify(manifest))
 	writeFileSync(
@@ -99,6 +114,7 @@ try {
 				'//#test:go:portable': { cache: false },
 				'//#test:go-model:portable': { cache: false },
 				'//#test:go-doc-snapshot:portable': { cache: false },
+				'//#test:go-doc-index:portable': { cache: false },
 			},
 		}),
 	)

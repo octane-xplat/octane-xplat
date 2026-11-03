@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -231,13 +230,7 @@ func runCLI(argv []string) int {
 	if workspace != nil {
 		envelopeContext = workspace.envelopeContext(name, parsed.Values)
 	}
-	if ctx.Err() != nil {
-		code := "cancelled"
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			code = "timeout"
-		}
-		failure = &cliError{Code: code, Message: ctx.Err().Error()}
-	}
+	failure = contextualFailure(ctx, failure)
 	return finishCLI(name, envelopeContext, data, failure, jsonOutput)
 }
 func executeCommand(ctx context.Context, name string, workspace *workspaceContext, values map[string]any) (any, *cliError) {

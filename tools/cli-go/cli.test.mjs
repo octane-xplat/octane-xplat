@@ -150,7 +150,7 @@ test('status preserves identity, guidance and actual package bindings without cl
 	assert.equal(data.prerequisites.find((check) => check.id === 'node').status, 'missing')
 	assert.equal(data.prerequisites.find((check) => check.id === 'chromium').status, 'unknown')
 	assert.equal(data.docs.state, 'ready')
-	assert.match(data.docs.detail, /Index preparation is pending/)
+	assert.match(data.docs.detail, /Embeddings require the inference-enabled build/)
 	assert.equal(data.codeIndex.state, 'ready')
 	for (const matrix of data.capabilities) {
 		assert.equal(matrix.declared, true)

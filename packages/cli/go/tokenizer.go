@@ -10,7 +10,6 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"golang.org/x/text/unicode/norm"
-	"os"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -27,7 +26,7 @@ type tokenizer struct{ vocab map[string]int64 }
 var specials = []string{"[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"}
 
 func newTokenizer(directory string) (*tokenizer, error) {
-	bytes, err := os.ReadFile(filepath.Join(directory, "tokenizer.json"))
+	bytes, err := metadataBytes(filepath.Join(directory, "tokenizer.json"), 4<<20)
 	if err != nil {
 		return nil, err
 	}

@@ -25,10 +25,10 @@ type hostDescriptor struct {
 	Project    string `json:"project"`
 }
 type hostJob struct {
-	ID     string        `json:"id"`
-	State  string        `json:"state"`
-	Result *workerResult `json:"result,omitempty"`
-	Error  string        `json:"error,omitempty"`
+	ID     string `json:"id"`
+	State  string `json:"state"`
+	Result any    `json:"result,omitempty"`
+	Error  string `json:"error,omitempty"`
 	cancel context.CancelFunc
 	done   chan struct{}
 }
@@ -114,14 +114,42 @@ func serveHost(parent context.Context, directory, project string) error {
 		case "host.shutdown":
 			value = map[string]bool{"stopping": true}
 			defer cancel()
-		case "worker.start":
+		case "worker.start", "native.start":
 			operation, _ := request.Params["operation"].(string)
 			payload, _ := request.Params["payload"].(map[string]any)
 			if operation == "" {
 				operationErr = errors.New("worker operation is required")
 				break
 			}
-			jobCtx, jobCancel := context.WithTimeout(ctx, 2*time.Minute)
+			var nativeInput docsRequest
+			cache := ""
+			native := request.Method == "native.start"
+			timeout := 2 * time.Minute
+			if native {
+				if operation != "docs-index" && operation != "docs-read" && operation != "docs-search" {
+					operationErr = errors.New("unknown native operation")
+					break
+				}
+				workspace, err := newWorkspaceContext(map[string]any{"project": project, "app": stringValue(request.Params["app"])})
+				if err != nil {
+					operationErr = err
+					break
+				}
+				app, failure := workspace.docsSelection()
+				if failure != nil {
+					operationErr = failure
+					break
+				}
+				nativeInput = docsRequest{Workspace: workspace.Root, App: app.Root, Values: payload, Repository: os.Getenv("XPLAT_DOCS_REPO")}
+				cache, operationErr = docsCacheRoot()
+				if operationErr != nil {
+					break
+				}
+				if operation == "docs-index" {
+					timeout = 10 * time.Minute
+				}
+			}
+			jobCtx, jobCancel := context.WithTimeout(ctx, timeout)
 			job := &hostJob{ID: identity(), State: "running", cancel: jobCancel, done: make(chan struct{})}
 			mutex.Lock()
 			if len(jobs) >= 64 {
@@ -136,10 +164,18 @@ func serveHost(parent context.Context, directory, project string) error {
 			go func() {
 				defer close(job.done)
 				defer jobCancel()
-				result, err := runWorker(jobCtx, project, operation, payload)
+				var result any
+				var err error
+				if native {
+					var data json.RawMessage
+					data, err = nativeCompute(jobCtx, cache, operation, nativeInput)
+					result = map[string]any{"data": data, "warnings": []string{}}
+				} else {
+					result, err = runWorker(jobCtx, project, operation, payload)
+				}
 				mutex.Lock()
 				defer mutex.Unlock()
-				job.Result = &result
+				job.Result = result
 				job.State = "succeeded"
 				if err != nil {
 					job.State = "failed"

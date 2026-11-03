@@ -35,6 +35,11 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/docs-snapshots.ts',
 		'packages/cli/src/mcp/docs-service.ts',
 		'packages/docs-search/src/chunks.ts',
+		'packages/docs-search/src/model.ts',
+		'packages/docs-search/src/inference.ts',
+		'tools/cli-nim/model-fixtures.mjs',
+		'tools/cli-nim/ort-fixtures.mjs',
+		'tools/cli-nim/ort-runtime.json',
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',
 	)

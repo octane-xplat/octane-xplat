@@ -109,7 +109,7 @@ func computeChild(argv []string) int {
 	defer cancel()
 	var data any
 	switch request.Operation {
-	case "docs-read", "docs-search":
+	case "docs-read", "docs-search", "docs-index":
 		var input docsRequest
 		if err = json.Unmarshal(request.Data, &input); err == nil {
 			data, err = executeDocs(ctx, directory, request.Operation, input)

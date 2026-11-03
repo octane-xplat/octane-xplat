@@ -56,11 +56,27 @@ task CA, redirects, proxy CONNECT, limits and cancellation, not the full existin
 WHATWG/Fetch corpus. A Go migration should preserve meaningful public behavior
 without reproducing every incidental JavaScript encoding or ordering choice.
 
-Inference is native. ONNX/model libraries are never silently downloaded by the
-executable, and Node is used only by the test reference and explicit project
-workers. The model command is single-operation, with native termination on
-context cancellation; production cache identities, persistent model sessions,
-index integration and the broader tokenizer corpus remain migration work.
+Inference is native. The public inference-enabled CLI downloads pinned model and
+runtime assets only during explicit index preparation. Ordinary queries never
+download those assets; Node is used only by the test reference and explicit
+project workers. Each owned compute child reuses one native session across
+bounded batches. Its cache identities include the model/runtime pins, inference
+settings and tokenizer dependencies. Public integration with the persistent owner
+and the broader tokenizer corpus remain migration work.
+
+The index gate covers empty inventories, useful guide retrieval, long fenced
+sections with disclosed model previews and searchable tails, vector corruption
+and repair, edited/deleted documents, offline queries, cancellation/resumption and
+responsive prototype-owner RPC during native inference. Set
+`XPLAT_GO_DOCS_DOWNLOAD=1` for fresh native HTTPS asset preparation; the default
+test seeds checksum-verified assets and runs offline on macOS using a network
+sandbox. Portable tests use invalid proxy settings rather than an OS network
+sandbox. The optional assets are measured separately from the executable.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation index"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
+XPLAT_GO_DOCS_DOWNLOAD=1 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation downloads"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
+```
 
 ## Cross-compilation and execution
 
@@ -77,7 +93,9 @@ bun run turbo run snapshot:go --filter=@xplat/cli-go-probe
 
 `snapshot.mjs` verifies source/artifact hashes and prepares a disposable runtime
 snapshot containing both targets, fixtures, and pinned model/runtime assets.
-Run its root Turbo tasks `test:go:portable` and `test:go-model:portable` on the
+Run its root Turbo tasks `test:go-unit:portable`, `test:go:portable`,
+`test:go-model:portable`, `test:go-doc-snapshot:portable` and
+`test:go-doc-index:portable` on the
 actual target under a host reservation. Use `ssh andromeda.local` and its
 existing `octane-linux` OrbStack guest for Linux, and `ssh windy` for Windows.
 No compiler or shared-checkout mutation is required on the destination.
