@@ -37,7 +37,7 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const bytes = readFileSync(binary)
 assert.equal(sha(bytes), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
-	assert.equal(sha(readFileSync(join(import.meta.dirname, file))), hash, `Stale source: ${file}`)
+	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
 }
 if (existsSync(join(root, 'packages/build/package.json'))) {
 	prepareFixtures(root, work)

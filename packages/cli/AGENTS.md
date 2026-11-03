@@ -1,8 +1,11 @@
 # CLI implementation guidance
 
-The Nim rewrite lives in `nim/`. Keep the TypeScript implementation as the
-behavioral reference during migration. Native commands must not fall back to
-executing the old CLI. Project-installed JavaScript build engines remain a
+The full Go migration lives in `go/`; retain the Nim implementation in `nim/`
+until the replacement is ready. Keep the TypeScript implementation as the
+behavioral reference during migration. Node is an assumed prerequisite for explicit
+JavaScript workers; do not bundle or download it. Inference remains native.
+See [the Go entry](go/README.md) for build and ownership boundaries. Native
+commands must not fall back to executing the old CLI. Project-installed JavaScript build engines remain a
 separate execution boundary. Keep the executable native, without embedded
 Node/Bun or an old-CLI fallback. Small operation workers and Vite exports may
 live in this package; language boundaries do not require npm package boundaries.
@@ -733,6 +736,27 @@ identities. Evaluate useful retrieval quality; exact native/WASM ranking equalit
 is not required. Normalization and plausible vectors alone are insufficient.
 Validate every pinned asset required by the reference, including metadata that
 the native computation does not directly consume.
+
+## Go implementation boundaries
+
+Use descriptor metadata generated from the TypeScript source for parsing and
+schemas. Execution coverage belongs to the Go handler registration, not the
+reference descriptor's status. Keep permission checks, selection precedence and
+exit groups explicit; a sole discovered app need not create the same persistent
+binding or envelope identity as an explicit selection.
+
+For writes scoped to a workspace, prefer `os.Root` directory handles to a
+canonical-path check followed by an ordinary path write. Root confinement is not
+an ownership/privacy guarantee and does not exclude Unix bind mounts or device
+files. Private host/request storage still needs its explicit mode or Windows
+owner/DACL adapter. Do not reuse cache-metadata publication for source files
+without preserving source modes and stale-input checks.
+
+Go context cancellation alone does not own a descendant tree. Retain the native
+process-group/Windows-job manager, and on Windows assign the gate before project
+code can run. Keep operation results separate from diagnostics and await cleanup
+before removing their private directory. The `probe` entry is compile-time
+separate from the public CLI; keep its protocol out of the published surface.
 
 ## Native HTTP and C interop
 

@@ -31,17 +31,14 @@ try {
 			copy('tools/cli-go/' + file)
 		}
 	}
+	copy('packages/cli/go')
 	for (const target of ['linux-amd64', 'windows-amd64']) {
 		for (const onnx of [false, true]) {
 			const file = `xplat-go-${target}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`
 			const record = JSON.parse(readFileSync(join(work, file + '.json')))
 			assert.equal(sha(readFileSync(join(work, file))), record.sha256)
 			for (const [input, hash] of Object.entries(record.inputs)) {
-				assert.equal(
-					sha(readFileSync(join(import.meta.dirname, input))),
-					hash,
-					'Stale snapshot source: ' + input,
-				)
+				assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale snapshot source: ' + input)
 			}
 			for (const suffix of ['', '.json', '.tgz']) {
 				copy('research/go-cli/' + file + suffix)
@@ -71,6 +68,7 @@ try {
 			},
 		}),
 	)
+	copy(input)
 	// Runtime tasks belong at the disposable root; hashed source stays unchanged.
 	const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
 	manifest.scripts = {

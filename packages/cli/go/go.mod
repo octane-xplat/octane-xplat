@@ -1,4 +1,4 @@
-module github.com/octane-xplat/octane-xplat/tools/cli-go
+module github.com/octane-xplat/octane-xplat/packages/cli/go
 
 go 1.27.3
 

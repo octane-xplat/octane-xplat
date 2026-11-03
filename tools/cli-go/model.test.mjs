@@ -27,7 +27,7 @@ const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 assert.equal(build.onnx, true)
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
-	assert.equal(sha(readFileSync(join(import.meta.dirname, file))), hash, `Stale source: ${file}`)
+	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
 }
 await prepareModelFixtures({ tokenizerOnly: false })
 // Reuse the pinned immutable runtime/model source; preparation affects ignored

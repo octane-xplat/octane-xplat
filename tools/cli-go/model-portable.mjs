@@ -17,7 +17,7 @@ const cases = JSON.parse(readFileSync(join(work, 'model-cases.json')))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
-	assert.equal(sha(readFileSync(join(import.meta.dirname, file))), hash, `Stale source: ${file}`)
+	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
 }
 const library = join(work, 'runtime-assets', pins.directory, pins.library)
 assert.equal(sha(readFileSync(library)), pins.librarySha256)

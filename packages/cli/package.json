@@ -140,7 +140,10 @@
 		"test:nim-fmt": "node --test ../../tools/cli-nim/fmt-command.test.mjs",
 		"test:fmt": "node --test test/fmt.test.mjs",
 		"test:nim-compatibility": "node --test ../../tools/cli-nim/compatibility.test.mjs",
-		"test:compatibility": "node --test test/compatibility.test.mjs"
+		"test:compatibility": "node --test test/compatibility.test.mjs",
+		"build:go": "node ../../tools/cli-go/build.mjs --cli",
+		"build:go-onnx": "node ../../tools/cli-go/build.mjs --cli --onnx",
+		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

@@ -1,9 +1,10 @@
 # Parallel Go CLI feasibility
 
-This private probe tests Go as an alternative to the retained
+These evaluation tools support the [full Go migration](../../packages/cli/go/README.md)
+and retain the feasibility probe alongside the retained
 [Nim implementation](../../packages/cli/nim/README.md). It does not replace the
 CLI, change the npm channel, or fall back to the TypeScript CLI. Build-time
-metadata comes from the TypeScript reference. Its catalog describes reference
+metadata comes from the TypeScript reference. The primitive probe catalog describes reference
 contracts, not the probe's implemented command coverage; `--help` lists the
 bounded probe operations.
 

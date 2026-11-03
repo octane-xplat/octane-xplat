@@ -3,7 +3,6 @@ import {
 	readFileSync,
 	writeFileSync,
 	mkdirSync,
-	readdirSync,
 	mkdtempSync,
 	rmSync,
 	existsSync,
@@ -14,13 +13,30 @@ import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
+import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
+const moduleDirectory = join(root, 'packages/cli/go')
 mkdirSync(work, { recursive: true })
 const flags = process.argv.slice(2)
-assert.ok(flags.every((value) => ['--test', '--onnx'].includes(value)))
+assert.ok(flags.every((value) => ['--test', '--onnx', '--cli'].includes(value)))
 const onnx = flags.includes('--onnx')
+const cli = flags.includes('--cli')
+const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
+const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
+assert.equal(
+	sourceVersion,
+	JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json'))).frameworkVersion,
+	'Synchronize CLI/framework source versions',
+)
+const version = process.env.XPLAT_GO_VERSION ?? sourceVersion + '-nim.0'
+assert.equal(
+	nativeCliPin(version, sourceVersion),
+	version,
+	'Use the exact same-release native prerelease pin',
+)
 const zig = onnx && process.env.CC?.startsWith('zig ')
 const env = {
 	...process.env,
@@ -35,7 +51,7 @@ const env = {
 }
 function run(command, args, options = {}) {
 	const result = spawnSync(command, args, {
-		cwd: import.meta.dirname,
+		cwd: moduleDirectory,
 		env,
 		encoding: 'utf8',
 		...options,
@@ -60,33 +76,38 @@ if (zig) {
 	)
 }
 writeFileSync(
-	join(import.meta.dirname, 'catalog.json'),
+	join(moduleDirectory, 'catalog.json'),
 	JSON.stringify({
 		catalog: catalogPayload(),
+		descriptors: AGENT_COMMANDS,
+		version,
 		schemas: Object.fromEntries(
 			AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
 		),
 	}),
 )
+// Preserve the probe harness's generated reference input beside its runner.
+writeFileSync(
+	join(import.meta.dirname, 'catalog.json'),
+	readFileSync(join(moduleDirectory, 'catalog.json')),
+)
 run('go', ['mod', 'download'], { stdio: 'inherit' })
 if (flags.includes('--test')) {
-	run('go', ['test', '-mod=readonly', ...(onnx ? ['-tags=onnx'] : []), './...'], {
-		stdio: 'inherit',
-	})
+	run(
+		'go',
+		['test', '-mod=readonly', ...(tags.length ? ['-tags=' + tags.join(',')] : []), './...'],
+		{
+			stdio: 'inherit',
+		},
+	)
 } else {
 	const target = `${env.GOOS ?? (process.platform === 'win32' ? 'windows' : process.platform)}-${env.GOARCH ?? (process.arch === 'x64' ? 'amd64' : process.arch)}`
 	const binary = join(
 		work,
-		`xplat-go-${target}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
+		`xplat-go-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
 	)
 	const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
-	const inputs = () =>
-		Object.fromEntries(
-			readdirSync(import.meta.dirname, { recursive: true })
-				.filter((file) => /\.(go|mod|sum|json|mjs|txt)$/.test(file))
-				.sort()
-				.map((file) => [file, sha(readFileSync(join(import.meta.dirname, file)))]),
-		)
+	const inputs = () => nativeInputs(root)
 	const before = inputs()
 	run(
 		'go',
@@ -96,7 +117,7 @@ if (flags.includes('--test')) {
 			'-trimpath',
 			'-buildvcs=false',
 			'-ldflags=-s -w',
-			...(onnx ? ['-tags=onnx'] : []),
+			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'-o',
 			binary,
 			'.',
@@ -116,8 +137,8 @@ if (flags.includes('--test')) {
 			: join(dirname(goroot), 'LICENSE')
 		const notices = ['Go standard library\n' + readFileSync(goLicense, 'utf8')]
 		notices.push(
-			readFileSync(join(import.meta.dirname, 'NOTICE.txt'), 'utf8'),
-			readFileSync(join(import.meta.dirname, 'licenses/tokenizers-js.txt'), 'utf8'),
+			readFileSync(join(moduleDirectory, 'NOTICE.txt'), 'utf8'),
+			readFileSync(join(moduleDirectory, 'licenses/tokenizers-js.txt'), 'utf8'),
 		)
 		for (const [name, version, license] of [
 			['golang.org/x/sys', 'v0.49.0', 'LICENSE'],
@@ -156,7 +177,9 @@ if (flags.includes('--test')) {
 		rmSync(stage, { recursive: true, force: true })
 	}
 	const record = {
-		version: 1,
+		version: 2,
+		cli,
+		cliVersion: version,
 		compiler: run('go', ['version']).trim(),
 		target,
 		onnx,

@@ -1,15 +1,13 @@
-// A bounded feasibility executable; it is not the production CLI.
+//go:build probe
+
 package main
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
-	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -17,39 +15,7 @@ import (
 	"time"
 )
 
-func identity() string {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		panic(err)
-	}
-	return hex.EncodeToString(b)
-}
-
-func readJSON(path string, target any) error {
-	f, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	info, err := f.Stat()
-	if err != nil {
-		return err
-	}
-	if !info.Mode().IsRegular() || info.Size() > 64<<20 {
-		return errors.New("JSON input must be a regular file within 64 MiB")
-	}
-	d := json.NewDecoder(io.LimitReader(f, 64<<20))
-	if err = d.Decode(target); err != nil {
-		return err
-	}
-	var extra any
-	if err = d.Decode(&extra); err != io.EOF {
-		return errors.New("expected one JSON value within 64 MiB")
-	}
-	return nil
-}
-
-func main() {
+func probeMain() {
 	if len(os.Args) > 1 && os.Args[1] == "_gate" {
 		childGate(os.Args[2:])
 		return
@@ -95,6 +61,34 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 		return nil, err
 	}
 	switch command {
+	case "parse":
+		var requests []struct {
+			Command commandDescriptor `json:"command"`
+			Argv    []string          `json:"argv"`
+		}
+		if err = readJSON(*request, &requests); err != nil {
+			return nil, err
+		}
+		replies := []any{}
+		for _, input := range requests {
+			parsed := parseCommand(input.Command, input.Argv)
+			if len(parsed.Errors) > 0 {
+				replies = append(replies, map[string]any{"errors": parsed.Errors})
+			} else {
+				replies = append(replies, map[string]any{"values": parsed.Values, "help": parsed.Help})
+			}
+		}
+		return replies, nil
+	case "workspace-context":
+		values := map[string]any{}
+		if err = readJSON(*request, &values); err != nil {
+			return nil, err
+		}
+		workspace, err := newWorkspaceContext(values)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{"discovery": workspace.Discovery, "selection": workspace.selection(), "context": workspace.envelopeContext("status", values)}, nil
 	case "catalog":
 		return metadata.Catalog, nil
 	case "schema":

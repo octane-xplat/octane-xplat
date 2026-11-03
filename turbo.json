@@ -2,8 +2,9 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
-		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX"] },
-		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX"] },
+		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go"] },
+		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
+		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"snapshot:go": { "cache": false },
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_BINARY"] },
