@@ -2,17 +2,21 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn, execFile } from 'node:child_process'
 import { createServer, connect } from 'node:net'
-import { readFileSync, writeFileSync, unlinkSync, rmSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, unlinkSync, rmSync, existsSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { promisify } from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, rpcProbeInputs } from './native-inputs.mjs'
+import { assertPortabilityArtifact } from './portability-proof.mjs'
 const root = resolve(import.meta.dirname, '../..')
-const binary = join(root, `research/nim-cli/native/rpc-probe${process.platform === 'win32' ? '.exe' : ''}`)
-assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/rpc-build.json'))), readFileSync(binary), rpcProbeInputs)
+const portable = existsSync(join(root, 'portability-source.json'))
+const work = portable ? resolve(process.env.XPLAT_NIM_PORTABILITY_CACHE ?? join(root, 'research/nim-portability')) : join(root, 'research/nim-cli')
+const binary = join(work, `${portable ? 'bin' : 'native'}/rpc-probe${process.platform === 'win32' ? '.exe' : ''}`)
+if (portable) {assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'rpc-build-result.json'))), readFileSync(binary), 'tools/cli-nim/rpc_probe.nim')}
+else {assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/rpc-build.json'))), readFileSync(binary), rpcProbeInputs)}
 const scratch = scratchRun(root, 'rpc'), owned = new Set()
-const macOnly = { skip: process.platform !== 'darwin' }
+const posixHost = { skip: !['darwin', 'linux'].includes(process.platform) }
 let sequence = 0
 const socketPath = () => join(scratch, `${++sequence}.sock`)
 function probe(request) {
@@ -24,7 +28,7 @@ function probe(request) {
   child.once('error', error => { clearTimeout(timer); readyReject(error); reject(error) })
   child.once('close', (code, signal) => {
    clearTimeout(timer)
-   if (!stdout.includes('ready\n')) readyReject(Error(stderr || `Native process exited ${code}`))
+   if (!stdout.includes('ready\n')) {readyReject(Error(stderr || `Native process exited ${code}`))}
    resolve({ code, signal, stdout, stderr })
   })
  })
@@ -36,7 +40,7 @@ function probe(request) {
  child.stderr.on('data', chunk => { stderr += chunk })
  child.stdin.end(JSON.stringify(request) + '\n')
  const fixture = { child, ready, closed, stop: async () => {
-  if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM')
+  if (child.exitCode === null && child.signalCode === null) {child.kill('SIGTERM')}
   let timeout
   try {
    return await Promise.race([closed, new Promise((_, reject) => { timeout = setTimeout(() => { child.kill('SIGKILL'); reject(Error('Native server did not close')) }, 2000) })])
@@ -47,7 +51,7 @@ function probe(request) {
  return fixture
 }
 after(async () => {
- for (const fixture of owned) await fixture.stop()
+ for (const fixture of owned) {await fixture.stop()}
  rmSync(scratch, { recursive: true, force: true })
 })
 async function nativeClient(path, payload, options = {}) {
@@ -75,17 +79,17 @@ function nodeCall(path, data) {
   let pending = '', settled = false
   const timer = setTimeout(() => finish(Error('Node peer timed out')), 3000)
   function finish(error, value) {
-   if (settled) return
+   if (settled) {return}
    settled = true; clearTimeout(timer); socket.destroy()
-   if (error) reject(error); else resolve(value)
+   if (error) {reject(error);} else {resolve(value)}
   }
   socket.setEncoding('utf8')
   socket.once('error', error => finish(error))
   socket.once('end', () => finish(Error('Peer ended before a reply')))
   socket.once('connect', async () => {
    try {
-    if (Array.isArray(data)) for (const part of data) { socket.write(part); await new Promise(resolve => setImmediate(resolve)) }
-    else socket.write(data)
+    if (Array.isArray(data)) {for (const part of data) { socket.write(part); await new Promise(resolve => setImmediate(resolve)) }}
+    else {socket.write(data)}
    } catch (error) { finish(error) }
   })
   socket.on('data', chunk => {
@@ -103,10 +107,10 @@ async function withNodeServer(handler, run, path = socketPath()) {
  })
  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(path, resolve) })
  try { return await run(path, server) }
- finally { for (const peer of peers) peer.destroy(); await new Promise(resolve => server.close(resolve)) }
+ finally { for (const peer of peers) {peer.destroy();} await new Promise(resolve => server.close(resolve)) }
 }
 
-test('native client and server interoperate with Node over fragmented UTF-8 NDJSON', macOnly, async () => {
+test('native client and server interoperate with Node over fragmented UTF-8 NDJSON', posixHost, async () => {
  const payload = { method: 'echo', params: { text: '🛰️ café\u0000\nline', lone: '\ud800' } }
  await withNativeServer({}, async path => {
   const encoded = Buffer.from(JSON.stringify(payload) + '\n')
@@ -121,12 +125,12 @@ test('native client and server interoperate with Node over fragmented UTF-8 NDJS
   peer.setEncoding('utf8'); let input = ''
   peer.on('data', chunk => {
    input += chunk
-   if (input.includes('\n')) peer.end(JSON.stringify({ ok: true, result: JSON.parse(input.trim()) }) + '\n')
+   if (input.includes('\n')) {peer.end(JSON.stringify({ ok: true, result: JSON.parse(input.trim()) }) + '\n')}
   })
  }, async path => assert.deepEqual(await nativeClient(path, payload), { ok: true, result: payload }))
 })
 
-test('request framing rejects malformed, primitive and oversized input while the listener stays usable', macOnly, async () => {
+test('request framing rejects malformed, primitive and oversized input while the listener stays usable', posixHost, async () => {
  await withNativeServer({ requestLimit: 1024 }, async path => {
   for (const data of ['{bad}\n', 'null\n', '[]\n', '42\n', JSON.stringify({ text: 'x'.repeat(2048) }) + '\n']) {
    const reply = await nodeCall(path, data)
@@ -142,7 +146,7 @@ test('request framing rejects malformed, primitive and oversized input while the
  })
 })
 
-test('native client reports bad replies, byte bounds, missing endpoints and read deadlines', macOnly, async () => {
+test('native client reports bad replies, byte bounds, missing endpoints and read deadlines', posixHost, async () => {
  for (const body of ['{bad}\n', 'null\n', '{"ok":"true"}\n', 'x'.repeat(2048) + '\n']) {
   await withNodeServer(peer => peer.once('data', () => peer.end(body)), async path => {
    const reply = await nativeClient(path, { method: 'ping' }, { responseLimit: 1024 })
@@ -162,7 +166,7 @@ test('native client reports bad replies, byte bounds, missing endpoints and read
  assert.equal(nul.error.code, 'invalid_selection')
 })
 
-test('pending peers and connection pressure are bounded and shutdown drains idle reads', macOnly, async () => {
+test('pending peers and connection pressure are bounded and shutdown drains idle reads', posixHost, async () => {
  await withNativeServer({ peerLimit: 1, timeoutMs: 5000 }, async (path, fixture) => {
   const held = connect(path); held.on('error', () => {})
   await new Promise((resolve, reject) => { held.once('connect', resolve); held.once('error', reject) })
@@ -180,7 +184,7 @@ test('pending peers and connection pressure are bounded and shutdown drains idle
  })
 })
 
-test('listener ownership preserves existing files, live sockets and replacement inodes', macOnly, async () => {
+test('listener ownership preserves existing files, live sockets and replacement inodes', posixHost, async () => {
  const regular = socketPath(); writeFileSync(regular, 'user-owned data')
  const failure = probe({ operation: 'server', path: regular })
  const failed = await failure.closed
@@ -201,9 +205,10 @@ test('listener ownership preserves existing files, live sockets and replacement 
  })
 })
 
-test('repeated and concurrent peers close their descriptors without listener growth', macOnly, async () => {
+test('repeated and concurrent peers close their descriptors without listener growth', posixHost, async () => {
  const exec = promisify(execFile)
  const count = async pid => {
+  if (process.platform === 'linux') {return readdirSync(`/proc/${pid}/fd`).length}
   const { stdout } = await exec('/usr/sbin/lsof', ['-nP', '-p', String(pid), '-Ff'])
   return stdout.split('\n').filter(line => /^f\d+$/.test(line)).length
  }

@@ -2,7 +2,7 @@
 import std/[asyncdispatch, asyncnet, nativesockets, os, json, strutils, monotimes, times]
 import ./host_storage, ./host_bootstrap, ./unix_rpc, ./native_identity
 import ./jobs, ./sessions, ./managed_process, ./contract_failure, ./jsonutil, ./json_wire
-when defined(macosx): import std/posix
+when defined(macosx) or defined(linux): import std/posix
 
 type
   NativeHost* = ref object
@@ -42,7 +42,7 @@ proc hasLiveWork(host: NativeHost): bool =
     if text(session["state"]) notin ["stopped","failed"] or host.sessions.cleanupPending(text(session["sessionId"])): return true
 
 proc removeStaleSocket(path: string): Future[void] {.async.} =
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     var info: Stat
     if lstat(cstring(path),info) != 0:
       if errno == ENOENT: return

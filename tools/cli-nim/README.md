@@ -368,7 +368,9 @@ request/reply deadlines, connection limits, shutdown with idle reads, existing
 files/listeners, replacement socket identities and descriptor growth across 160
 requests. Incomplete stalled frames are disconnected without dispatch; complete
 client requests waiting too long receive a timeout result. This is transport
-evidence on macOS, not authenticated daemon or runtime-command qualification.
+evidence on macOS arm64 and Ubuntu 24.04 x64, separately from authenticated
+daemon or runtime-command qualification. Descriptor-growth checks use the host's
+actual descriptor inventory: lsof on macOS and procfs on Linux.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native RPC qualification"}' -- bun run turbo run test:nim-rpc --filter=@octane-xplat/cli
@@ -384,8 +386,9 @@ Fixtures self-terminate. `test:nim-host` additionally qualifies the authenticate
 persistent host through separate native invocations: concurrent startup, private
 credentials, idle exit, cross-invocation session/job control, crash recovery,
 child/descendant cleanup, foreign/replacement path preservation, FIFO refusal,
-and discovery surviving project cache cleanup. These are lifecycle checks on
-macOS, not application build/launch qualification.
+and discovery surviving project cache cleanup. These lifecycle checks run on
+macOS arm64 and Ubuntu 24.04 x64. They do not qualify a project build/launch
+engine, or recovery of app resources after abrupt owner death.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native host bootstrap qualification"}' -- bun run turbo run test:nim-host-bootstrap --filter=@octane-xplat/cli
@@ -505,6 +508,19 @@ workflow by itself.
 ```sh
 # From the extracted snapshot, under the Linux guest/build reservation:
 bun run turbo run test:portability-process --filter=@xplat/nim-portability-source --concurrency=1
+```
+
+The snapshot's RPC and host gates build the native probes and full CLI, then
+exercise independent Node peers, private lifetime locks and authenticated
+cross-invocation ownership. Runtime checks use empty PATH for the native control
+plane. Detached launches reuse the same platform spawn options as managed
+children, so unlisted descriptors, including the launcher's lifetime lock, stay
+out of the daemon. These gates preserve the existing 104-byte socket-path bound;
+other procfs/container configurations and Linux project workers remain pending.
+
+```sh
+# From the extracted snapshot, under the Linux guest/build reservation:
+bun run turbo run test:portability-rpc test:portability-host --filter=@xplat/nim-portability-source --concurrency=1
 ```
 
 `portability-smoke.mjs` independently checks the actual native binary with empty

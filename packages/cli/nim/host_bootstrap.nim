@@ -1,4 +1,4 @@
-## macOS lifetime lock and explicit detached daemon launch.
+## POSIX lifetime lock and explicit detached daemon launch.
 ## A published daemon is not a disposable child of the invoking CLI process.
 import std/[asyncdispatch, os, options, strtabs]
 import ./js_text
@@ -17,18 +17,16 @@ proc pid*(launch: DetachedLaunch): int =
 proc exitCode*(launch: DetachedLaunch): Option[int] =
   if launch == nil: none(int) else: launch.code
 
-when defined(macosx):
+when defined(macosx) or defined(linux):
   import std/posix
+  when defined(macosx): import ./process_spawn_macos
+  else: import ./process_spawn_linux
   var openNoFollow {.importc: "O_NOFOLLOW", header: "<fcntl.h>".}: cint
   var openCloseExec {.importc: "O_CLOEXEC", header: "<fcntl.h>".}: cint
   var duplicateCloseExec {.importc: "F_DUPFD_CLOEXEC", header: "<fcntl.h>".}: cint
   var lockExclusive {.importc: "LOCK_EX", header: "<sys/file.h>".}: cint
   var lockNonblocking {.importc: "LOCK_NB", header: "<sys/file.h>".}: cint
-  var spawnCloseDefault {.importc: "POSIX_SPAWN_CLOEXEC_DEFAULT", header: "<spawn.h>".}: cint
-  var spawnSession {.importc: "POSIX_SPAWN_SETSID", header: "<spawn.h>".}: cint
   proc fileLock(fd, operation: cint): cint {.importc: "flock", header: "<sys/file.h>".}
-  proc addChdir(actions: var Tposix_spawn_file_actions, path: cstring): cint {.
-    importc: "posix_spawn_file_actions_addchdir_np", header: "<spawn.h>".}
 
   proc osBytes(value: string): string =
     if '\0' in value: raise newException(ValueError,"Host bootstrap path or argument contains NUL")
@@ -92,12 +90,13 @@ when defined(macosx):
     check sigdelset(defaults,SIGSTOP)
     check posix_spawnattr_setsigmask(attributes,mask)
     check posix_spawnattr_setsigdefault(attributes,defaults)
-    check posix_spawnattr_setflags(attributes,spawnSession or spawnCloseDefault or POSIX_SPAWN_SETSIGMASK or POSIX_SPAWN_SETSIGDEF)
-    check addChdir(actions,cstring(childCwd))
+    check posix_spawnattr_setflags(attributes,nativeSpawnFlags() or POSIX_SPAWN_SETSIGMASK or POSIX_SPAWN_SETSIGDEF)
+    check addWorkingDirectory(actions,cstring(childCwd))
     check posix_spawn_file_actions_addopen(actions,0,"/dev/null",O_RDONLY,Mode(0))
     check posix_spawn_file_actions_adddup2(actions,log,1)
     check posix_spawn_file_actions_adddup2(actions,log,2)
     if log > 2: check posix_spawn_file_actions_addclose(actions,log)
+    check closeUnlistedDescriptors(actions)
     let argvC = allocCStringArray(argv)
     defer: deallocCStringArray(argvC)
     let envC = allocCStringArray(env)

@@ -1,5 +1,5 @@
 ## Bounded one-request/one-response NDJSON over an owned Unix socket.
-## macOS execution is qualified separately from other host transports.
+## POSIX socket execution is qualified separately from owner/worker workflows.
 import std/[asyncdispatch, asyncnet, nativesockets, json, os, strutils, tables]
 import ./strictjson, ./json_wire, ./js_text, ./jsonutil, ./contract_failure
 
@@ -62,7 +62,7 @@ proc sendRpc*(path: string, request: JsonNode, connectMs = 1500, readMs = 60000,
     maxRequestBytes = 1024*1024, maxResponseBytes = 8*1024*1024): Future[JsonNode] {.async.} =
   if connectMs <= 0 or readMs <= 0 or maxRequestBytes < 1 or maxResponseBytes < 1:
     raise newException(ValueError,"RPC deadlines and byte limits must be positive")
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     if '\0' in path: return %*{"ok": false,"error": {"code": "invalid_selection","message": "RPC socket path contains NUL."}}
     if request == nil or request.kind != JObject:
       return %*{"ok": false,"error": {"code": "invalid_selection","message": "RPC requests must be objects."}}
@@ -137,7 +137,7 @@ proc acceptPeers(server: RpcServer): Future[void] {.async.} =
 
 proc listenRpc*(path: string, handler: RpcHandler, maxPeers = 32, maxRequestBytes = 1024*1024,
     maxResponseBytes = 8*1024*1024, ioMs = 5000): RpcServer =
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     if handler == nil or maxPeers < 1 or maxRequestBytes < 1 or maxResponseBytes < 512 or ioMs < 1:
       raise newException(ValueError,"Invalid native RPC limits or handler")
     if '\0' in path: raise newException(ValueError,"RPC socket path contains NUL")
@@ -165,7 +165,7 @@ proc closeRpc*(server: RpcServer): Future[void] {.async.} =
   if server.loop != nil: await server.loop
   for peer in peers:
     if peer.work != nil: await peer.work
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     try:
       if getFileInfo(utf8ForWrite(server.path),followSymlink=false).id == server.inode:
         removeFile(utf8ForWrite(server.path))

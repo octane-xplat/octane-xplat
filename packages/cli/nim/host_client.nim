@@ -1,7 +1,7 @@
 ## Read-only discovery never starts a host; creation launches the same executable.
 import std/[asyncdispatch, json, os, strtabs, monotimes, times]
 import ./host_storage, ./host_bootstrap, ./unix_rpc, ./jsonutil, ./contract_failure
-when defined(macosx): import std/posix
+when defined(macosx) or defined(linux): import std/posix
 
 type HostConnection* = ref object
   descriptor: JsonNode
@@ -9,7 +9,7 @@ type HostConnection* = ref object
   pid*: int
 
 proc processAlive(pid: int): bool =
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     posix.kill(Pid(pid),0) == 0 or errno == EPERM
   else: false
 

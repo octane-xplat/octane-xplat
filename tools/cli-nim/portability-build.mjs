@@ -12,8 +12,14 @@ const root = resolve(import.meta.dirname, '../..')
 const source = verifyPortabilitySource(root)
 const manifest = source.manifest
 const selected = process.argv[2] ?? 'cli'
-const entries = { cli: ['packages/cli/nim/main.nim', 'xplat'], http: ['tools/cli-nim/http_probe.nim', 'http-probe'], process: ['tools/cli-nim/process_probe.nim', 'process-probe'] }
-assert.ok(Object.hasOwn(entries, selected), 'Choose cli, http or process')
+const entries = {
+ cli: ['packages/cli/nim/main.nim', 'xplat'],
+ http: ['tools/cli-nim/http_probe.nim', 'http-probe'],
+ process: ['tools/cli-nim/process_probe.nim', 'process-probe'],
+ rpc: ['tools/cli-nim/rpc_probe.nim', 'rpc-probe'],
+ host: ['tools/cli-nim/host_probe.nim', 'host-probe'],
+}
+assert.ok(Object.hasOwn(entries, selected), `Choose ${Object.keys(entries).join(', ')}`)
 const [entry, name] = entries[selected]
 assert.equal(nimVersion, '2.2.12')
 const cache = resolve(process.env.XPLAT_NIM_PORTABILITY_CACHE ?? join(root, 'research/nim-portability'))

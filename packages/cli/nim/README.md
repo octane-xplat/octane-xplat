@@ -166,7 +166,7 @@ no JS microtask schedule is assumed. `contract_failure.nim` carries structured
 errors across async boundaries with a fallback for ordinary/uninitialized errors.
 Public job status/cancel and web/macOS build creation use the native host. Other application
 job creators still need their project-engine adapters.
-`unix_rpc.nim` supplies bounded one-request NDJSON over macOS Unix sockets, with
+`unix_rpc.nim` supplies bounded one-request NDJSON over macOS and Linux Unix sockets, with
 Node interoperability, input/output byte limits, I/O deadlines and draining close.
 It preserves existing/replacement socket paths and never owns an application's
 process merely because its client disconnects. `host_bootstrap.nim` provides the
@@ -184,9 +184,12 @@ this native owner. Web/macOS builds use project-installed engines. macOS develop
 versioned readiness metadata. Other build/launch/attach engines remain pending.
 Spawn readiness does not establish application rendering or input behavior.
 These boundaries are exercised through independent CLI invocations and actual
-native child/descendant processes on macOS. Descendants
+native child/descendant processes on macOS. The same bootstrap, RPC and private
+host fixture gates execute on Ubuntu 24.04 x64, including public job/session
+control of test-owned native resources. Real Linux project-worker integration
+remains pending; these fixtures do not qualify a Linux application engine. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
-the process-group cleanup guarantee. Other process host adapters are unimplemented.
+the process-group cleanup guarantee. Windows process/host adapters are unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
@@ -430,9 +433,10 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 ```
 
 Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
-Linux HTTP/TLS also passes the transport differential gate; authenticated owner
-bootstrap/RPC, project workers and descendant cleanup remain unqualified on both
-hosts. Windows TLS, remaining command contracts,
+Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
+cleanup pass their separate gates. The joined canonical project-worker workflow
+is still pending on Linux; Windows native providers and its joined workflow
+remain unqualified. Windows TLS, remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,

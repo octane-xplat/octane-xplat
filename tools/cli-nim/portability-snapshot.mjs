@@ -36,6 +36,7 @@ try {
  for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'portability-build.mjs', 'portability-smoke.mjs', 'portability-proof.mjs',
   'http_probe.nim', 'http.test.mjs', 'http-reference.mjs', 'native-inputs.mjs',
   'process_probe.nim', 'process.test.mjs', 'process-reference.mjs',
+  'rpc_probe.nim', 'rpc.test.mjs', 'host_probe.nim', 'host-bootstrap.test.mjs', 'host-integration.test.mjs', 'scratch.mjs',
   'licenses/tokenizers-js.txt', 'licenses/onnxruntime.txt']) {copy('tools/cli-nim/'+file)}
  copy('packages/cli/src/mcp/actions/bridge.ts')
  copy('packages/cli/src/mcp/runtime/process.ts')
@@ -47,13 +48,19 @@ try {
  json('package.json', { name: 'xplat-nim-portability-snapshot', private: true, type: 'module', packageManager: 'bun@1.4.4', workspaces: ['tools/cli-nim'], devDependencies: { turbo } })
  json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs', 'benchmark:portability': 'node portability-smoke.mjs',
   'build:portability-http': 'node portability-build.mjs http', 'test:portability-http': 'node --test http.test.mjs',
-  'build:portability-process': 'node portability-build.mjs process', 'test:portability-process': 'node --test process.test.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
+  'build:portability-process': 'node portability-build.mjs process', 'test:portability-process': 'node --test process.test.mjs',
+  'build:portability-rpc': 'node portability-build.mjs rpc', 'test:portability-rpc': 'node --test rpc.test.mjs',
+  'build:portability-host': 'node portability-build.mjs host', 'test:portability-host': 'node --test --test-concurrency=1 host-bootstrap.test.mjs host-integration.test.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
  json('turbo.json', { tasks: {
   'build:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
   'build:portability-http': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
   'test:portability-http': { cache: false, dependsOn: ['build:portability-http'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'build:portability-process': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
   'test:portability-process': { cache: false, dependsOn: ['build:portability-process'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
+  'build:portability-rpc': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'test:portability-rpc': { cache: false, dependsOn: ['build:portability-rpc'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
+  'build:portability-host': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'test:portability-host': { cache: false, dependsOn: ['build:portability-host', 'build:portability'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'benchmark:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_SMOKE_BINARY', 'XPLAT_NIM_SMOKE_RECORD'] },
  } })
  const commit = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' })

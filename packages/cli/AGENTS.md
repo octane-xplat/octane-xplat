@@ -411,6 +411,11 @@ assemble one byte-bounded frame, then decode/parse it. Do not require EOF to fin
 a request/response exchange. Close and drain pending I/O during shutdown. Preserve
 OS `DeviceId`/`FileId` types for path ownership checks; remove an owned socket path
 only if its identity still matches, since another listener can replace its name.
+Nim's `std/asyncnet` Unix-socket API is qualified on macOS and Linux for this
+bounded protocol; reuse it before adding a separate socket engine. Keep transport
+interoperability separate from authenticated owner and project-worker evidence.
+Reuse platform spawn options for detached host launch as well as managed children:
+explicit stdio inheritance must not leak the launcher's lifetime-lock descriptor.
 
 Keep process exit and pipe closure separate. Descendants can retain a pipe after
 the group leader exits, or close their pipes and keep running. Retain ownership

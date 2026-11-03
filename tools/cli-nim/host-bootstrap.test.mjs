@@ -6,11 +6,15 @@ import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, hostProbeInputs } from './native-inputs.mjs'
+import { assertPortabilityArtifact } from './portability-proof.mjs'
 const root = resolve(import.meta.dirname, '../..')
-const binary = join(root, `research/nim-cli/native/host-probe${process.platform === 'win32' ? '.exe' : ''}`)
-assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/host-build.json'))), readFileSync(binary), hostProbeInputs)
+const portable = existsSync(join(root, 'portability-source.json'))
+const work = portable ? resolve(process.env.XPLAT_NIM_PORTABILITY_CACHE ?? join(root, 'research/nim-portability')) : join(root, 'research/nim-cli')
+const binary = join(work, `${portable ? 'bin' : 'native'}/host-probe${process.platform === 'win32' ? '.exe' : ''}`)
+if (portable) {assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'host-build-result.json'))), readFileSync(binary), 'tools/cli-nim/host_probe.nim')}
+else {assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/host-build.json'))), readFileSync(binary), hostProbeInputs)}
 const scratch = scratchRun(root, 'bootstrap'), holders = new Set(), guests = new Set()
-const macOnly = { skip: process.platform !== 'darwin' }
+const posixHost = { skip: !['darwin', 'linux'].includes(process.platform) }
 let sequence = 0
 function fixture() {
  const dir = join(scratch, String(++sequence))
@@ -51,22 +55,22 @@ async function run(request, argumentsForPid) {
  return { value: JSON.parse(closed.stdout), parentPid: holder.child.pid }
 }
 async function stop(holder) {
- if (holder.child.exitCode === null && holder.child.signalCode === null) holder.child.kill('SIGTERM')
+ if (holder.child.exitCode === null && holder.child.signalCode === null) {holder.child.kill('SIGTERM')}
  return await holder.closed
 }
-const alive = pid => { try { process.kill(pid, 0); return true } catch (error) { if (error.code === 'ESRCH') return false; throw error } }
+const alive = pid => { try { process.kill(pid, 0); return true } catch (error) { if (error.code === 'ESRCH') {return false;} throw error } }
 async function waitFor(condition, description, timeoutMs = 6000) {
  const deadline = Date.now() + timeoutMs
- while (!condition() && Date.now() < deadline) await delay(5)
+ while (!condition() && Date.now() < deadline) {await delay(5)}
  assert.ok(condition(), description)
 }
 after(async () => {
- for (const holder of holders) await stop(holder)
- for (const pid of guests) await waitFor(() => !alive(pid), 'The self-terminating native fixture must exit', 7000)
+ for (const holder of holders) {await stop(holder)}
+ for (const pid of guests) {await waitFor(() => !alive(pid), 'The self-terminating native fixture must exit', 7000)}
  rmSync(scratch, { recursive: true, force: true })
 })
 
-test('lifetime lock excludes another process and keeps a reusable inode after release', macOnly, async () => {
+test('lifetime lock excludes another process and keeps a reusable inode after release', posixHost, async () => {
  const f = fixture(), holder = probe({ operation: 'lock', path: f.lock, hold: true })
  try {
   assert.equal((await holder.ready).acquired, true)
@@ -79,7 +83,7 @@ test('lifetime lock excludes another process and keeps a reusable inode after re
  } finally { await stop(holder) }
 })
 
-test('lock and log paths reject symlinks and unsafe existing files without changing user data', macOnly, async () => {
+test('lock and log paths reject symlinks and unsafe existing files without changing user data', posixHost, async () => {
  const f = fixture(), original = join(f.dir, 'user.txt'), link = join(f.dir, 'link')
  writeFileSync(original, 'preserve me', { mode: 0o644 })
  symlinkSync(original, link)
@@ -93,7 +97,7 @@ test('lock and log paths reject symlinks and unsafe existing files without chang
  assert.equal(statSync(original).mode & 0o777, 0o644)
 })
 
-test('same native executable survives its launcher with isolated session, stdio, cwd and environment', macOnly, async () => {
+test('same native executable survives its launcher with isolated session, stdio, cwd and environment', posixHost, async () => {
  for (const closeStdin of [false, true]) {
   const f = fixture(), cwd = join(f.dir, 'project with spaces')
   mkdirSync(cwd)
@@ -121,7 +125,7 @@ test('same native executable survives its launcher with isolated session, stdio,
  }
 })
 
-test('unpublished startup can be stopped and reaped without signalling a reused descriptor PID', macOnly, async () => {
+test('unpublished startup can be stopped and reaped without signalling a reused descriptor PID', posixHost, async () => {
  const f = fixture()
  const { value } = await run({ operation: 'launch', command: binary, args: ['identity', f.marker, '0', '', '10000', 'ignore'],
   cwd: f.dir, log: f.log, marker: f.marker, stop: true, env: {} })
@@ -132,7 +136,7 @@ test('unpublished startup can be stopped and reaped without signalling a reused 
  assert.equal(alive(value.pid), false)
 })
 
-test('invalid arguments fail before log creation and empty native ownership handles are harmless', macOnly, async () => {
+test('invalid arguments fail before log creation and empty native ownership handles are harmless', posixHost, async () => {
  const f = fixture()
  for (const invalid of [
   { command: 'relative-command' }, { cwd: 'relative-project' }, { args: ['bad\0argument'] },

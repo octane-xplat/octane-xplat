@@ -9,14 +9,22 @@ import { join, resolve, dirname } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, hostProbeInputs } from './native-inputs.mjs'
+import { assertPortabilityArtifact } from './portability-proof.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const suffix = process.platform === 'win32' ? '.exe' : ''
-const probe = join(root, 'research/nim-cli/native/host-probe'+suffix)
-const binary = join(root, 'research/nim-cli/native/xplat'+suffix)
-assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/host-build.json'))), readFileSync(probe), hostProbeInputs)
-assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(root, 'research/nim-cli/native/build.json'))), readFileSync(binary))
+const portable = existsSync(join(root, 'portability-source.json'))
+const work = portable ? resolve(process.env.XPLAT_NIM_PORTABILITY_CACHE ?? join(root, 'research/nim-portability')) : join(root, 'research/nim-cli')
+const probe = join(work, `${portable ? 'bin' : 'native'}/host-probe`+suffix)
+const binary = join(work, `${portable ? 'bin' : 'native'}/xplat`+suffix)
+if (portable) {
+ assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'host-build-result.json'))), readFileSync(probe), 'tools/cli-nim/host_probe.nim')
+ assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'build-result.json'))), readFileSync(binary), 'packages/cli/nim/main.nim')
+} else {
+ assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/host-build.json'))), readFileSync(probe), hostProbeInputs)
+ assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/build.json'))), readFileSync(binary))
+}
 const scratch = scratchRun(root, 'host-integration'), owned = new Map(), runtimeDirectories = new Set()
-const macOnly = { skip: process.platform !== 'darwin', timeout: 20000 }
+const posixHost = { skip: !['darwin', 'linux'].includes(process.platform), timeout: 20000 }
 let sequence = 0
 function fixture() {
  const dir = join(scratch, String(++sequence))
@@ -92,7 +100,7 @@ after(async () => {
  rmSync(scratch, { recursive: true, force: true })
 })
 
-test('read-only public session/job commands do not create a host or its cache', macOnly, () => {
+test('read-only public session/job commands do not create a host or its cache', posixHost, () => {
  const dir = fixture(), p = paths(dir)
  assert.equal(call({ operation: 'connect', root: dir }).absent, true)
  const empty = cli(dir, ['session','list'])
@@ -106,7 +114,7 @@ test('read-only public session/job commands do not create a host or its cache', 
  assert.equal(existsSync(p.directory), false)
 })
 
-test('concurrent native invocations converge on a private same-executable host with PATH empty', macOnly, async () => {
+test('concurrent native invocations converge on a private same-executable host with PATH empty', posixHost, async () => {
  const dir = fixture()
  const replies = await Promise.all(Array.from({ length: 6 }, () => concurrent({ operation: 'ensure', root: dir })))
  const { p, d } = remember(dir)
@@ -125,7 +133,7 @@ test('concurrent native invocations converge on a private same-executable host w
  assert.equal(existsSync(p.lock), true)
 })
 
-test('token authentication and request validation preserve a usable native host', macOnly, async () => {
+test('token authentication and request validation preserve a usable native host', posixHost, async () => {
  const dir = fixture()
  assert.equal(call({ operation: 'ensure', root: dir }).ok, true)
  const { p, d } = remember(dir)
@@ -137,7 +145,7 @@ test('token authentication and request validation preserve a usable native host'
  await until(() => !alive(d.pid), 'Authenticated shutdown must finish')
 })
 
-test('cross-invocation jobs and sessions survive idle time and cancellation reaps the armed child', macOnly, async () => {
+test('cross-invocation jobs and sessions survive idle time and cancellation reaps the armed child', posixHost, async () => {
  const dir = fixture(), marker = join(dir,'child.json')
  assert.equal(call({ operation: 'ensure', root: dir }).ok, true)
  const { d } = remember(dir)
@@ -163,7 +171,7 @@ test('cross-invocation jobs and sessions survive idle time and cancellation reap
  await until(() => !alive(d.pid), 'No retained live work should keep an idle host running')
 })
 
-test('a crashed native host is replaced without signalling a PID from its stale descriptor', macOnly, async () => {
+test('a crashed native host is replaced without signalling a PID from its stale descriptor', posixHost, async () => {
  const dir = fixture()
  assert.equal(call({ operation: 'ensure', root: dir }).ok, true)
  const before = remember(dir)
@@ -177,7 +185,7 @@ test('a crashed native host is replaced without signalling a PID from its stale 
  await until(() => !alive(next.d.pid), 'Replacement host must stop')
 })
 
-test('session end cancels its live job before completing owned process cleanup', macOnly, async () => {
+test('session end cancels its live job before completing owned process cleanup', posixHost, async () => {
  const dir = fixture(), marker = join(dir,'end-child.json')
  assert.equal(call({ operation: 'ensure', root: dir }).ok, true)
  remember(dir)
@@ -190,7 +198,7 @@ test('session end cancels its live job before completing owned process cleanup',
  await until(() => !alive(child) && !alive(descendant), 'Session end must complete owned cleanup')
 })
 
-test('shutdown releases live work and preserves replaced descriptor and socket identities', macOnly, async () => {
+test('shutdown releases live work and preserves replaced descriptor and socket identities', posixHost, async () => {
  const dir = fixture(), marker = join(dir,'shutdown-child.json')
  assert.equal(call({ operation: 'ensure', root: dir }).ok, true)
  const { p, d } = remember(dir)
@@ -224,7 +232,7 @@ test('shutdown releases live work and preserves replaced descriptor and socket i
  }
 })
 
-test('startup preserves foreign live listeners, regular files and unrecognized descriptors', macOnly, async () => {
+test('startup preserves foreign live listeners, regular files and unrecognized descriptors', posixHost, async () => {
  const dir = fixture(), p = paths(dir)
  mkdirSync(p.directory,{ recursive: true, mode: 0o700 })
  mkdirSync(dirname(p.socket),{ recursive: true, mode: 0o700 })
@@ -246,7 +254,7 @@ test('startup preserves foreign live listeners, regular files and unrecognized d
  assert.equal(readFileSync(p.descriptor,'utf8'),'user-owned foreign contents')
 })
 
-test('private descriptor and launch-log validation cannot block opening a FIFO', macOnly, () => {
+test('private descriptor and launch-log validation cannot block opening a FIFO', posixHost, () => {
  for (const name of ['host.json','host.log']) {
   const dir = fixture(), p = paths(dir)
   mkdirSync(p.directory,{ recursive: true, mode: 0o700 })
@@ -258,7 +266,7 @@ test('private descriptor and launch-log validation cannot block opening a FIFO',
  }
 })
 
-test('clean and dependency replacement preserve discovery of a live native owner', macOnly, async () => {
+test('clean and dependency replacement preserve discovery of a live native owner', posixHost, async () => {
  const dir = fixture(), marker = join(dir,'clean-child.json')
  assert.equal(call({ operation: 'ensure', root: dir }).ok,true)
  remember(dir)

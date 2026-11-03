@@ -21,9 +21,9 @@ proc hostPaths*(workspace: string): HostPaths =
   result.socket = getHomeDir() / ".cache/octane-xplat/nim-ipc" /
     (key & ".sock")
   if utf8ForWrite(result.socket).len >= 104:
-    raise newException(ValueError,"Native host socket path exceeds the macOS path limit")
+    raise newException(ValueError,"Native host socket path exceeds the native Unix path limit")
 
-when defined(macosx):
+when defined(macosx) or defined(linux):
   import std/posix
   proc renameNative(source, destination: cstring): cint {.importc: "rename", header: "<stdio.h>".}
 

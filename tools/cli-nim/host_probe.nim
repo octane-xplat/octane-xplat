@@ -3,10 +3,10 @@ import std/[asyncdispatch, json, os, strutils, strtabs, options, monotimes, time
 import std/osproc
 import ../../packages/cli/nim/[host_bootstrap, managed_process, strictjson, json_wire, jsonutil]
 import ../../packages/cli/nim/[agent_host, host_client, host_storage, jobs, sessions, contract_failure]
-when defined(macosx): import std/posix
+when defined(macosx) or defined(linux): import std/posix
 
 proc identity(args: seq[string]): Future[void] {.async.} =
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     installProcessSignalHandlers()
     let expectedParent = parseInt(args[2])
     var waited = 0
@@ -33,7 +33,7 @@ proc identity(args: seq[string]): Future[void] {.async.} =
       while (getMonoTime()-started).inMilliseconds < duration and
           (args.len > 5 and args[5] == "ignore" or interruptedSignal() == 0): await sleepAsync(5)
     finally: lock.closeHostLock()
-  else: raise newException(OSError,"Host fixture requires macOS")
+  else: raise newException(OSError,"Host fixture requires a qualified POSIX host")
 
 proc operation(request: JsonNode): Future[JsonNode] {.async.} =
   case text(request["operation"])
@@ -69,7 +69,7 @@ proc operation(request: JsonNode): Future[JsonNode] {.async.} =
     for value in request["args"]: args.add(value.getStr())
     let before = getCurrentDir()
     let parentLock = if field(request,"lockPath") == nil: nil else: tryHostLock(text(request["lockPath"]))
-    when defined(macosx):
+    when defined(macosx) or defined(linux):
       if field(request,"closeStdin") == %true: discard posix.close(0)
     try:
       let launch = launchDetached(text(request["command"]),args,text(request["cwd"]),text(request["log"]),environment)
@@ -84,7 +84,7 @@ proc operation(request: JsonNode): Future[JsonNode] {.async.} =
         "finished": launch.pollLaunch(),"exitCode": (if launch.exitCode.isSome: %launch.exitCode.get() else: newJNull())}
     finally: parentLock.closeHostLock()
   of "empty-handles":
-    when defined(macosx):
+    when defined(macosx) or defined(linux):
       var before, after: Stat
       let validBefore = fstat(0,before) == 0
       var lock: HostLock
@@ -94,7 +94,7 @@ proc operation(request: JsonNode): Future[JsonNode] {.async.} =
       new(launch)
       await launch.stopUnpublishedLaunch()
       return %*{"ok": true,"safe": validBefore and fstat(0,after) == 0 and before.st_ino == after.st_ino and launch.pollLaunch()}
-    else: raise newException(OSError,"Host fixture requires macOS")
+    else: raise newException(OSError,"Host fixture requires a qualified POSIX host")
   else: raise newException(ValueError,"Unknown bootstrap fixture operation")
 
 try:
