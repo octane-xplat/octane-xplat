@@ -456,44 +456,76 @@ async function secureDepthSpec(): Promise<Record<string, unknown>> {
 
 /** Sandbox identity: unique write names, cleanup and release ownership. */
 async function filesIdentitySpec(): Promise<Record<string, unknown>> {
+  const result: Record<string, unknown> = {}
   const owned: Awaited<ReturnType<typeof files.writeBytes>>[] = []
   const foreignPath = nsPath.join(knownFolders.temp().path, `core20-foreign-${Date.now()}.dat`)
-  const foreign = File.fromPath(foreignPath)
+  let foreign: File | undefined
+  let step = 'foreign-fromPath'
+  const exists = (path: string) => {
+    try {
+      return File.exists(path)
+    } catch {
+      return false
+    }
+  }
   async function releaseOwned(): Promise<void> {
     for (const ref of owned) files.release(ref)
     const deadline = Date.now() + 5000
-    while (owned.some((ref) => File.exists(ref.uri)) && Date.now() < deadline) {
+    while (owned.some((ref) => exists(ref.uri)) && Date.now() < deadline) {
       await new Promise<void>((resolve) => setTimeout(resolve, 50))
     }
   }
   try {
+    foreign = File.fromPath(foreignPath)
+    step = 'foreign-writeText'
     await foreign.writeText('foreign-sentinel')
+    step = 'write-a'
     const a = await files.writeBytes('core20-id-a.dat', new Uint8Array([7]))
     owned.push(a)
+    step = 'write-b'
     const b = await files.writeBytes('core20-id-a.dat', new Uint8Array([8]))
     owned.push(b)
+    step = 'read-a'
     const readA = await files.readBytes(a)
+    step = 'read-b'
     const readB = await files.readBytes(b)
-    const existedBeforeRelease = File.exists(a.uri) && File.exists(b.uri)
+    step = 'exists-before-release'
+    const existedBeforeRelease = exists(a.uri) && exists(b.uri)
+    step = 'release-foreign'
     files.release({ name: foreign.name, uri: foreign.path })
+    step = 'release-owned'
     await releaseOwned()
-    const foreignSurvived = await foreign.readText() === 'foreign-sentinel'
-    return {
+    step = 'foreign-readText'
+    const foreignSurvived = (await foreign.readText()) === 'foreign-sentinel'
+    step = 'exists-after-release'
+    Object.assign(result, {
       sameNameDistinct: a.uri !== b.uri,
       exactBytes: readA.length === 1 && readA[0] === 7 && readB.length === 1 && readB[0] === 8,
       existedBeforeRelease,
-      removedA: !File.exists(a.uri),
-      removedB: !File.exists(b.uri),
+      removedA: !exists(a.uri),
+      removedB: !exists(b.uri),
       foreignSurvived,
-    }
+    })
+    step = 'done'
+  } catch (error) {
+    result.failedStep = step
+    result.specError = error instanceof Error ? error.message : String(error)
   } finally {
     // Also clean the first output if creating or reading the second one fails.
     try {
       await releaseOwned()
-    } finally {
-      if (File.exists(foreign.path)) await foreign.remove()
+    } catch (error) {
+      result.releaseError = error instanceof Error ? error.message : String(error)
+    }
+    if (foreign) {
+      try {
+        if (exists(foreign.path)) await foreign.remove()
+      } catch (error) {
+        result.removeError = error instanceof Error ? error.message : String(error)
+      }
     }
   }
+  return result
 }
 
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
