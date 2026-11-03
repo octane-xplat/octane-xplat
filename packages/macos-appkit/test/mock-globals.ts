@@ -184,6 +184,8 @@ if (typeof primaryClickBoundary === 'undefined') var primaryClickBoundary = (_no
 // Mirrors src/index.ts — link-run recognizer + glyph hit-test for folded text.
 if (typeof syncTextLinks === 'undefined') var syncTextLinks = () => {}
 if (typeof textLinkCharacterIndex === 'undefined') var textLinkCharacterIndex = () => null
+if (typeof NSAccessibilityCustomAction === 'undefined')
+	var NSAccessibilityCustomAction = { alloc: () => ({ initWithNameHandler: (name, handler) => ({ name, handler }) }) }
 `
 
 /** Names CSS_SLICE_STUBS may install — a spy context leaves them alone so the

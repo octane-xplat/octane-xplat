@@ -247,10 +247,16 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
       cssNodesByView: new WeakMap(),
       isPrimaryClickBoundary: () => false,
       actionHandlers: new Map(),
+      NSAccessibilityCustomAction: {
+        alloc: () => ({
+          initWithNameHandler: (name: string, handler: () => boolean) => ({ name, handler }),
+        }),
+      },
     },
   )
 
   const view: any = {
+    attributedStringValue: { string: 'ab cd' },
     addGestureRecognizer(recognizer: any) {
       recognizer.addedTo.push(this)
     },
@@ -260,11 +266,15 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
   slice.syncTextLinks(control)
   assert.equal(recognizers.length, 0, 'no link table — nothing attaches')
 
-  control.textLinks = [{ location: 0, length: 1, handler() {} }]
+  control.textLinks = [{ location: 0, length: 2, handler() {} }]
   slice.syncTextLinks(control)
   assert.equal(recognizers.length, 1)
   assert.deepEqual(recognizers[0].addedTo, [view])
   assert.equal(recognizers[0].enabled, true)
+  // The same run becomes a named AX action — the label cannot vend AXLink
+  // children, so assistive tech activates through the action rotor.
+  assert.equal(view.accessibilityCustomActions.length, 1)
+  assert.equal(view.accessibilityCustomActions[0].name, 'Open link ab')
 
   slice.syncTextLinks(control)
   assert.equal(recognizers.length, 1, 'the recognizer is reused across re-syncs')
@@ -272,6 +282,7 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
   control.props.disabled = true
   slice.syncTextLinks(control)
   assert.equal(recognizers[0].enabled, false)
+  assert.equal(view.accessibilityCustomActions.length, 0)
 
   control.props.disabled = false
   control.textLinks = undefined

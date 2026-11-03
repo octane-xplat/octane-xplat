@@ -183,6 +183,7 @@ import {
   CGPathCloseSubpath,
   CGPathCreateMutable,
   CGPathMoveToPoint,
+  NSAccessibilityCustomAction,
   NSAccessibilityPostNotification,
   NSAttributedString,
   NSAutoresizingMaskOptions,
@@ -7159,6 +7160,28 @@ function syncTextLinks(node: ElementNode) {
 
   if (node.linkClickRecognizer) {
     node.linkClickRecognizer.enabled = active
+  }
+
+  // Per-run activation through assistive tech: NSTextField cannot vend AXLink
+  // children, so each link run becomes a named custom action — VoiceOver's
+  // action rotor can invoke the same handler a click would.
+  const view = node.view as NSTextField | undefined
+  if (view) {
+    const links = active ? (node.textLinks ?? []) : []
+    const string = String(view.attributedStringValue?.string ?? '')
+    ;(view as any).accessibilityCustomActions = links.map((run) =>
+      NSAccessibilityCustomAction.alloc().initWithNameHandler(
+        `Open link ${string.substring(run.location, run.location + run.length)}`,
+        () => {
+          try {
+            node.container.root?.eventScope('discrete', run.handler)
+          } catch (error) {
+            console.error('[macos-ax] link action failed', error)
+          }
+          return true
+        },
+      ),
+    )
   }
 }
 

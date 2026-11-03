@@ -12,4 +12,7 @@ export const mdBorderColor = (): string =>
 export const mdTextPrimary = (): string => textColor(getColorScheme())
 export const mdBodyFontFamily = (): string => 'inherit'
 export const mdBodyFontSize = (): string => '14px'
-export const mdBodyLineHeight = (): string => '1.4286'
+// --text-body-leading is a unitless CSS multiplier; AppKit consumers read
+// style.lineHeight as points, so the leaf resolves it against the 14px body
+// size the same way text-scale's lineHeightPxOf does.
+export const mdBodyLineHeight = (): string => '20'
