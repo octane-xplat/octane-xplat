@@ -5,7 +5,7 @@
  *  and the body type ramp (--text-body-size 14px, --text-body-leading
  *  1.4286); body/heading family follows the system font. */
 import { getColorScheme } from '../theme/colorScheme.macos'
-import { accentColor, textColor } from '../theme/scheme-colors'
+import { accentColor, mutedColor, textColor } from '../theme/scheme-colors'
 
 export const mdBorderColor = (): string =>
   getColorScheme() === 'dark' ? '#f2f4f619' : '#05365919'
@@ -17,4 +17,5 @@ export const mdBodyFontSize = (): string => '14px'
 // size the same way text-scale's lineHeightPxOf does.
 export const mdBodyLineHeight = (): string => '20'
 export const mdAccentColor = (): string => accentColor(getColorScheme())
+export const mdMutedColor = (): string => mutedColor(getColorScheme())
 export const mdImageRadius = (): string => '4px'

@@ -3,7 +3,7 @@ import { Utils } from '@nativescript/core'
 import { Text } from '../components/content/Text.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
 import { useFadeRunColor } from './markdown-fade.tsrx'
-import { mdAccentColor } from './markdown-tokens'
+import { mdAccentColor, mdMutedColor } from './markdown-tokens'
 import type { NavigationActivationEvent } from '../props'
 
 /**
@@ -25,26 +25,45 @@ function activationEvent(): NavigationActivationEvent & { defaultPrevented: bool
   return event
 }
 
-/** Styled run: strong — semibold (Astryx `--font-weight-semibold`). */
-export function MdStrong(props: { children?: unknown }): unknown @{
-  return <Text weight="semibold">{props.children}</Text>
-}
-
-export function MdEmphasis(props: { children?: unknown }): unknown @{
-  return <Text style={{ fontStyle: 'italic' }}>{props.children}</Text>
-}
-
-export function MdDelete(props: { children?: unknown }): unknown @{
+/** Styled run: strong — semibold (Astryx `--font-weight-semibold`). A
+ *  FormattedString run is flat — a Span cannot host children on native, so
+ *  nested marks flatten to text through `mdRunText` (recorded deviation:
+ *  inner styling drops, the text survives). */
+export function MdStrong(props: { text?: string; children?: unknown }): unknown @{
   return (
-    <Text color="secondary" style={{ textDecorationLine: 'line-through' }}>
-      {props.children}
-    </Text>
+    <span text={props.text ?? mdRunText(props.children)} style={{ fontWeight: '600' }} />
+  )
+}
+
+export function MdEmphasis(props: { text?: string; children?: unknown }): unknown @{
+  return (
+    <span text={props.text ?? mdRunText(props.children)} style={{ fontStyle: 'italic' }} />
+  )
+}
+
+export function MdDelete(props: { text?: string; children?: unknown }): unknown @{
+  return (
+    <span
+      text={props.text ?? mdRunText(props.children)}
+      style={{ color: mdMutedColor(), textDecorationLine: 'line-through' }}
+    />
+  )
+}
+
+/** Inline code run — the `vx-code` chrome needs a label, so native carries
+ *  the monospace family only. */
+export function MdCodeRun(props: { style?: unknown; children?: unknown }): unknown @{
+  return (
+    <span
+      text={mdRunText(props.children)}
+      style={{ fontFamily: 'monospace', ...(props.style as Record<string, unknown> | undefined) }}
+    />
   )
 }
 
 /** Hard break — a newline run inside the formatted string. */
 export function MdBreak(): unknown {
-  return '\n'
+  return <span text={'\n'} />
 }
 
 /** Fold a run's children to its text — a Span is not a TextBase host on
@@ -71,13 +90,14 @@ export function mdRunText(children: unknown): string {
  *  opens the destination through the platform URL handler. */
 export function MdLinkRun(props: {
   href: string
+  text?: string
   onLinkClick?: (href: string, event: NavigationActivationEvent) => void | false
   children?: unknown
 }): unknown @{
   const href = props.href
   return (
     <span
-      text={mdRunText(props.children)}
+      text={props.text ?? mdRunText(props.children)}
       style={{ color: mdAccentColor(), textDecorationLine: 'underline' }}
       onLinkTap={() => {
         const event = activationEvent()
@@ -95,7 +115,7 @@ export function MdLinkRun(props: {
 /** Inline image — no view-bearing attachment exists inside native text
  *  runs, so the alt text stands in (recorded deviation from `<img>`). */
 export function MdInlineImage(props: { src: string; alt: string }): unknown {
-  return props.alt
+  return <span text={props.alt} />
 }
 
 /** Citation run — a styled, tappable span replacing the chip inside text.
@@ -115,13 +135,6 @@ export function MdCitation(props: {
       {...(safe != null ? { onLinkTap: () => Utils.openUrl(safe) } : {})}
     />
   )
-}
-
-/** Label-level host for inline runs: the driver only parents `<span>` under a
- *  `<formattedstring>` (Label.formattedText), never under a bare label or
- *  another span. */
-export function MdRuns(props: { children?: unknown }): unknown {
-  return <formattedstring>{props.children}</formattedstring>
 }
 
 /** Block paragraph host on native — the text label carries the runs. */

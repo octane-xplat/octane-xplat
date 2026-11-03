@@ -5,7 +5,7 @@
  *  spans match web's rendered fallback (#3b82f6); `--radius-element` is
  *  likewise undefined and falls back to 4px. */
 import { getColorScheme } from '../theme/colorScheme'
-import { textColor } from '../theme/scheme-colors'
+import { mutedColor, textColor } from '../theme/scheme-colors'
 
 export const mdBorderColor = (): string =>
   getColorScheme() === 'dark' ? '#f2f4f619' : '#05365919'
@@ -16,4 +16,5 @@ export const mdBodyFontSize = (): string => '14px'
 // points, so resolve it against the 14px body size like the AppKit leaf.
 export const mdBodyLineHeight = (): string => '20'
 export const mdAccentColor = (): string => '#3b82f6'
+export const mdMutedColor = (): string => mutedColor(getColorScheme())
 export const mdImageRadius = (): string => '4px'

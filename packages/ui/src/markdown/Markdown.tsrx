@@ -7,7 +7,6 @@ import { Heading } from '../components/content/Heading.tsrx'
 import { View } from '../components/layout/View.tsrx'
 import { Blockquote } from '../components/content/Blockquote.tsrx'
 import { Image } from '../components/media/Image.tsrx'
-import { Code } from '../components/content/Code.tsrx'
 import { CodeBlock } from '../components/content/CodeBlock.tsrx'
 import { ListMarkerScope } from '../components/collections/ListMarkerScope.tsrx'
 import { MdRowList, MdRowItem, MdCheckList, MdCheckItem } from './markdown-list.tsrx'
@@ -60,6 +59,7 @@ import {
 import { projectMdHeadings } from '../components/collections/outline-utils'
 import {
   MdBreak,
+  MdCodeRun,
   MdCitation,
   MdDelete,
   MdEmphasis,
@@ -209,21 +209,19 @@ interface StreamCursor {
 function SegmentedText(props: { text: string; pos: number; stream: StreamCursor; segKey: string }) {
   const segs = computeSegments(props.text, props.pos, props.stream.boundaries, props.segKey)
   if (!segs) {
-    return props.text
+    return <span text={props.text} />
   }
 
-  return (
-    <span key={`wrap-${props.segKey}`}>
-      {segs.map((seg) =>
-        seg.fading ? (
-          <MdFadeRun key={seg.key} runColor={props.stream.runColor}>
-            {seg.text}
-          </MdFadeRun>
-        ) : (
-          <span key={seg.key}>{seg.text}</span>
-        ),
-      )}
-    </span>
+  // Native FormattedString runs are flat siblings — a Span cannot host
+  // children, so the segments emit text-carrying spans directly.
+  return segs.map((seg) =>
+    seg.fading ? (
+      <MdFadeRun key={seg.key} runColor={props.stream.runColor}>
+        {seg.text}
+      </MdFadeRun>
+    ) : (
+      <span key={seg.key} text={seg.text} />
+    ),
   )
 }
 
@@ -538,7 +536,7 @@ function Inlines(props: {
                       segKey={key}
                     />
                   ) : (
-                    seg.content
+                    <span text={seg.content} />
                   ),
                 )
 
@@ -558,7 +556,7 @@ function Inlines(props: {
           props.ctx.stream ? (
             <SegmentedText text={n.value} pos={at} stream={streamOf(at)!} segKey={key} />
           ) : (
-            n.value
+            <span text={n.value} />
           ),
         )
 
@@ -566,39 +564,23 @@ function Inlines(props: {
         break
       }
       case 'strong':
-        out.push(
-          <MdStrong>
-            <Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
-          </MdStrong>,
-        )
+        out.push(<MdStrong text={mdInlineText(n.children)} />)
 
         pos += mdInlineLen(n.children)
         break
       case 'emphasis':
-        out.push(
-          <MdEmphasis>
-            <Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
-          </MdEmphasis>,
-        )
+        out.push(<MdEmphasis text={mdInlineText(n.children)} />)
 
         pos += mdInlineLen(n.children)
         break
       case 'delete':
-        out.push(
-          <MdDelete>
-            <Inlines
-              nodes={n.children}
-              ctx={{ ...props.ctx, stream: streamOf(at, '--color-text-secondary') }}
-              segKey={key}
-            />
-          </MdDelete>,
-        )
+        out.push(<MdDelete text={mdInlineText(n.children)} />)
 
         pos += mdInlineLen(n.children)
         break
       case 'inlineCode': {
         const Comp = props.ctx.components?.inlineCode as any
-        out.push(Comp ? <Comp>{n.value}</Comp> : <Code>{n.value}</Code>)
+        out.push(Comp ? <Comp>{n.value}</Comp> : <MdCodeRun>{n.value}</MdCodeRun>)
         pos += n.value.length
         break
       }
@@ -609,7 +591,7 @@ function Inlines(props: {
             props.ctx.stream ? (
               <SegmentedText text={`$${n.value}$`} pos={at} stream={streamOf(at)!} segKey={key} />
             ) : (
-              `$${n.value}$`
+              <span text={`$${n.value}$`} />
             ),
           )
         } else {
@@ -637,9 +619,11 @@ function Inlines(props: {
             Comp ? (
               <Comp href={safe}>{kids}</Comp>
             ) : (
-              <MdLinkRun href={safe} onLinkClick={props.ctx.onLinkClick}>
-                {kids}
-              </MdLinkRun>
+              <MdLinkRun
+                href={safe}
+                text={mdInlineText(n.children)}
+                onLinkClick={props.ctx.onLinkClick}
+              />
             ),
           )
         }
@@ -652,7 +636,7 @@ function Inlines(props: {
         const Comp = props.ctx.components?.image as any
         out.push(
           safe == null ? (
-            `[${n.alt}]`
+            <span text={`[${n.alt}]`} />
           ) : Comp ? (
             <Comp src={safe} alt={n.alt} />
           ) : (
@@ -667,7 +651,7 @@ function Inlines(props: {
         pos += 1
         const cctx = props.ctx.citations
         if (!cctx) {
-          out.push(`[${n.sourceId}]`)
+          out.push(<span text={`[${n.sourceId}]`} />)
           break
         }
 
@@ -694,7 +678,7 @@ function Inlines(props: {
         const fallback = props.ctx.stream ? (
           <SegmentedText text={fallbackText} pos={at} stream={streamOf(at)!} segKey={key} />
         ) : (
-          fallbackText
+          <span text={fallbackText} />
         )
 
         out.push(renderMdPluginNode(props.ctx.plugins, n, fallback))
@@ -711,7 +695,7 @@ function Inlines(props: {
               segKey={key}
             />
           ) : (
-            ((n as any).value ?? '')
+            <span text={(n as any).value ?? ''} />
           ),
         )
 
@@ -740,7 +724,7 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
           // Inline code inside a cell keeps its token whole — the same
           // override point the reference reserves inside tables.
           inlineCode: (p: { children?: unknown }) => (
-            <Code style={{ wordBreak: 'normal' }}>{p.children}</Code>
+            <MdCodeRun style={{ wordBreak: 'normal' }}>{p.children}</MdCodeRun>
           ),
         } as Partial<MarkdownComponents>,
       }
@@ -1064,7 +1048,9 @@ function Blocks(props: {
             {Comp ? (
               <Comp value={node.value} display="block" sourceLines={sl} />
             ) : (
-              <MdParagraph style={margin as never}>{`$$${node.value}$$`}</MdParagraph>
+              <MdParagraph style={margin as never}>
+                <span text={`$$${node.value}$$`} />
+              </MdParagraph>
             )}
           </MdSourceLines>,
         )
@@ -1152,7 +1138,9 @@ function Blocks(props: {
         blocks.push(
           <MdSourceLines lines={sl}>
             {safe == null ? (
-              <MdParagraph style={margin as never}>{`[${node.alt}]`}</MdParagraph>
+              <MdParagraph style={margin as never}>
+                <span text={`[${node.alt}]`} />
+              </MdParagraph>
             ) : Comp ? (
               <Comp src={safe} alt={node.alt} sourceLines={sl} />
             ) : (
