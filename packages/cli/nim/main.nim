@@ -9,8 +9,22 @@ import ./runtime_service
 import ./docs_compute
 import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
 
-const metadata = staticRead("metadata.json")
-let data = parseJson(metadata)
+# MSVC rejects one large generated C string literal. Keep each embedded part
+# bounded, then reconstruct the same JSON before any command is dispatched.
+const metadataParts = block:
+  let contents = staticRead("metadata.json")
+  var parts: seq[string]
+  var offset = 0
+  while offset < contents.len:
+    let finish = min(contents.len,offset+2048)
+    parts.add(contents[offset..<finish])
+    offset = finish
+  parts
+const metadataLength = staticRead("metadata.json").len
+let data = block:
+  var contents = newStringOfCap(metadataLength)
+  for part in metadataParts: contents.add(part)
+  parseJson(contents)
 let argv = block:
   var decoded: seq[string]
   for arg in commandLineParams(): decoded.add(decodeUtf8(arg))

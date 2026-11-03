@@ -191,6 +191,11 @@ even when its feature reports unsupported on the destination OS. Include those
 small manifests in source snapshots and hash them independently from optional
 runtime/model bodies. Compile the snapshot itself to verify its input closure.
 
+Large `staticRead` strings can pass Nim and GCC/Clang while failing MSVC's
+generated-C literal limit (`C2026`). Embed bounded compile-time chunks and join
+them at runtime when the data exceeds that backend limit. Preserve the exact
+bytes and verify the actual target compiler, then remeasure startup.
+
 Nim's pinned Visual C++ configuration uses `vccexe.exe`, a wrapper that prepares
 the Visual Studio environment. In an already configured developer shell, select
 `cl.exe` for `vcc.exe`, `vcc.cpp.exe` and both linker keys in the task's compiler
