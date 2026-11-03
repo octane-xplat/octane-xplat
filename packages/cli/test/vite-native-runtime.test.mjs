@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
+import { resolveConfig } from 'vite'
 import { xplatNative } from '../dist/vite.js'
 
 test('native preset loads without alien-signals in the app or Octane dependency graph', async (t) => {
@@ -71,6 +72,16 @@ test('native preset loads without alien-signals in the app or Octane dependency 
       const config = await xplatNative(env, { deps: ['app-extra'] })
       assert.equal(process.env.NS_VENDOR_EXCLUDE, 'app-owned')
       assert.deepEqual(config.optimizeDeps.exclude, ['app-extra'])
+      const resolved = await resolveConfig(
+        { ...config, configFile: false, logLevel: 'silent' },
+        'serve',
+      )
+      assert.deepEqual(resolved.environments.client.resolve.extensions, resolved.resolve.extensions)
+      assert.deepEqual(
+        resolved.environments.client.optimizeDeps.rolldownOptions.resolve.extensions,
+        resolved.resolve.extensions,
+      )
+      assert.equal(resolved.resolve.extensions[0], '.ios.tsrx')
       const alias = config.resolve.alias.find(({ find }) => find.test('octane'))
       assert.equal(alias.replacement, 'octane/universal/native')
       assert.ok(!alias.find.test('octane/universal/native'))

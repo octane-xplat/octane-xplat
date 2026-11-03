@@ -83,6 +83,7 @@
 		"test:patches-pnpm": "node --test standalone/patches-pnpm.test.mjs",
 		"test:patches-install": "node --test test/patches-*.test.mjs standalone/patches-install.test.mjs",
 		"test:toolchain": "node --test test/package-root.test.mjs test/compatibility.test.mjs test/build.test.mjs test/dev-selection.test.mjs test/web-targets.test.mjs",
+		"test:optimizer": "node --test test/vite-optimizer.test.mjs",
 		"test:typescript": "node --test test/tsrx-leaf.test.ts test/typescript-native.test.mjs test/vite-platform-resolution.test.mjs test/tsconfig-envs.test.mjs"
 	},
 	"dependencies": {

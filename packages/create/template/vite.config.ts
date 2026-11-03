@@ -18,6 +18,7 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     conditions: ['web'],
     // Suffix chain (first match wins): .web → shared → fallback.
+    // xplatBoundary also uses this order for dependency optimization in dev.
     extensions: [
       '.web.tsrx',
       '.tsrx',

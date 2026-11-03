@@ -28,7 +28,26 @@ import { defineConfig, octane, xplatCss, xplatBoundary } from 'octane-xplat/vite
 
 export default defineConfig({
   plugins: [xplatCss('web'), ...octane(), xplatBoundary('web')],
+  resolve: {
+    conditions: ['web'],
+    extensions: [
+      '.web.tsrx', '.tsrx', '.web.tsx', '.tsx', '.web.ts',
+      '.mjs', '.mts', '.ts', '.jsx', '.js', '.json',
+    ],
+  },
 })
+```
+
+The platform resolver included by `xplatBoundary('web')` also applies this
+extension order when Vite prepares dependencies for development. This keeps
+a dependency's browser file ahead of its native sibling. Custom optimizer
+extension lists take precedence; only set one when you need a different order:
+
+```ts
+// Optional addition to the Vite config above:
+const optimizeDeps = {
+  rolldownOptions: { resolve: { extensions: ['.web.ts', '.ts', '.js'] } },
+}
 ```
 
 Run the configured app with these commands. The build creates a `dist/`

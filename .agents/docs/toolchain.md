@@ -14,6 +14,25 @@ Keep app runtime/target dependencies explicit. Tool execution may resolve
 compiler tools through the installed umbrella, but ordinary app imports do
 not gain access to those transitive packages.
 
+## Vite dependency optimizer resolution
+
+Vite 8.3.0's Rolldown optimizer uses a separate extension list rather than
+inheriting `resolve.extensions` ([optimizer source](https://github.com/vitejs/vite/blob/v8.3.0/packages/vite/src/node/optimizer/index.ts),
+[option contract](https://vite.dev/config/dep-optimization-options.html#optimizedeps-rolldownoptions)).
+A source package importing `./db` can therefore select native `db.ts` while
+ordinary web resolution selects `db.web.ts`; a production build does not
+exercise the optimizer.
+
+Xplat's platform resolution plugin (`xplatTsrx`, composed into `xplatBoundary`)
+defaults each environment's optimizer extensions to its resolved extension
+order after normal config hooks. Explicit optimizer extension lists win.
+Native extension ordering updates environment resolvers as well as the root
+resolver, since Vite creates these separately. No dependencies are excluded.
+The maintained `packages/cli/test/vite-optimizer.test.mjs` exercises a real
+Vite dev server, optimized web/native siblings and a transformed worker URL.
+Reassess this default when upgrading Vite; remove the local alignment if
+upstream starts inheriting platform extensions itself.
+
 ## CLI runtime and executable packaging
 
 `xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;

@@ -63,6 +63,22 @@ webview uses `.web`; `.macos` and `.windows` are reserved for native frontends.
 Existing Linux `.linux` overrides remain for compatibility and take
 precedence over `.web` while the Linux target migrates to the shared contract.
 
+## Dependencies during web development
+
+Keep the starter's platform resolver when customizing Vite. It also makes
+Vite's development dependency optimizer use the configured extension order,
+so a dependency's `./db` import can select `db.web.ts` before `db.ts`.
+Production builds alone do not exercise this step. The
+[web configuration example](../packages/package-toolchain.md#configure-a-web-app)
+includes the extension order:
+
+```ts
+import { xplatBoundary } from 'octane-xplat/vite'
+
+// Keep this plugin in your existing Vite plugins array:
+const platformResolver = xplatBoundary('web')
+```
+
 ## CSS file variants
 
 Stylesheets can use the same replacement rule. Import `./card.css`; on web,

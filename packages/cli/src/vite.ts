@@ -36,6 +36,17 @@ export { xplatDevBridge } from './mcp/dev-bridge.ts'
 export function xplatTsrx(platform = 'native') {
   return {
     name: 'xplat-tsrx-resolution',
+    enforce: 'post',
+    // Vite 8's Rolldown optimizer has its own extension defaults. Run after
+    // normal configResolved hooks (including nativeExtensionOrder), and keep
+    // explicitly configured optimizer lists, including [], authoritative.
+    configResolved(config) {
+      for (const environment of Object.values(config.environments)) {
+        const options = (environment.optimizeDeps.rolldownOptions ??= {})
+        const resolve = (options.resolve ??= {})
+        resolve.extensions ??= [...environment.resolve.extensions]
+      }
+    },
     resolveId: {
       order: 'pre',
       handler(source, importer) {
@@ -268,8 +279,14 @@ function nativeExtensionOrder() {
     name: 'xplat-native-extension-order',
     configResolved(config) {
       const ours = new Set(nativePlatformExtensions())
-      const rest = (config.resolve?.extensions ?? []).filter((ext) => !ours.has(ext))
-      config.resolve = { ...config.resolve, extensions: [...ours, ...rest] }
+      // Vite creates separate environment resolver settings before this hook.
+      for (const resolve of [
+        config.resolve,
+        ...Object.values(config.environments).map((env) => env.resolve),
+      ]) {
+        const rest = resolve.extensions.filter((ext) => !ours.has(ext))
+        resolve.extensions = [...ours, ...rest]
+      }
     },
   }
 }
@@ -533,6 +550,7 @@ function platformTag(id) {
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
 export function xplatBoundary(platform = 'native') {
+  const resolver = xplatTsrx(platform)
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
   let command = 'build'
   let root = ''
@@ -562,9 +580,10 @@ export function xplatBoundary(platform = 'native') {
 
   return {
     ...serverBoundary(),
+    ...resolver,
     name: 'xplat-platform-boundary',
-    resolveId: xplatTsrx(platform).resolveId,
     configResolved(config) {
+      resolver.configResolved(config)
       command = config.command
       root = config.root
     },

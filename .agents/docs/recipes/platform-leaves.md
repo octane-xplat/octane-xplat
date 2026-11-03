@@ -23,6 +23,8 @@ outside this recipe's scope.
 - AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using explicit `.tsrx` imports and an unsuffixed contract.
 - AC4: Existing Linux WebKitGTK apps retain `.linux` precedence over `.web` during migration; new DOM webview frontends use `.web`.
 
+- AC6: Web development dependency optimization selects browser siblings using the configured extension order and serves referenced workers; explicit optimizer extension overrides remain authoritative.
+
 - AC5: CSS imports select one platform sibling with fallback, while explicit imports allow shared-plus-platform composition.
 
 ## Documentation
@@ -37,3 +39,5 @@ outside this recipe's scope.
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
 
 - AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mjs).
+
+- AC6: [Development dependencies](../../../docs/platform/module-resolution.md#dependencies-during-web-development), [web setup](../../../docs/packages/package-toolchain.md#configure-a-web-app), and maintained `packages/cli/test/vite-optimizer.test.mjs`.

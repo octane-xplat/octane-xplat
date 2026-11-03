@@ -11,7 +11,9 @@ import type { Plugin, UserConfig } from 'vite'
 export function xplatCss(platform?: CssPlatform): Plugin
 
 /** Select platform implementations for explicit TSRX paths in a custom
- * compiler or test setup. Standard platform presets and xplatBoundary include it. */
+ * compiler or test setup. Standard platform presets and xplatBoundary include it.
+ * Vite 8 dependency optimization defaults to each environment's resolved extension
+ * order. Explicit optimizeDeps.rolldownOptions.resolve.extensions take precedence. */
 export function xplatTsrx(
   platform?:
     | 'web'
@@ -29,6 +31,7 @@ export const nativeExtensions: string[]
 
 /** Selects platform implementations for unsuffixed explicit `.tsrx` imports.
  * Declaration-only contracts require a target implementation.
+ * Includes xplatTsrx and its platform-aware dependency optimization defaults.
  * Fails `vite build` when a platform-suffixed module foreign to the target
  *  is reachable in the graph (e.g. a `.web` leaf pulled into a mobile
  *  bundle transitively — lint catches direct imports, this catches the

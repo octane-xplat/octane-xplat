@@ -410,3 +410,11 @@ Custom compiler and Vitest configurations that bypass a platform preset need
 list alone does not redirect explicit TSRX paths. Standard presets and
 `xplatBoundary` already perform that resolution. Declaration-only defaults do
 not count as implementations during route discovery.
+
+
+The platform resolver (`xplatTsrx`, also included by `xplatBoundary`) defaults
+Vite 8's `optimizeDeps.rolldownOptions.resolve.extensions` from each environment's
+resolved extension order. Keep it in custom web configs; an explicit optimizer
+extension list, including an empty list, takes precedence. Test dependency
+prebundling with a dev server and fetch worker URLs when relevant: production
+builds bypass this path. See [web setup](../../../../docs/packages/package-toolchain.md#configure-a-web-app).
