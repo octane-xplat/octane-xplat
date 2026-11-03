@@ -2,6 +2,8 @@
 import std/[os, json, strutils, strtabs, asyncdispatch, monotimes, times]
 when defined(macosx): import ./private_temp_macos
 elif defined(linux): import ./private_temp_linux
+elif defined(windows): import ./private_windows
+when defined(windows): import std/options
 import ./managed_process, ./jsonutil, ./strictjson, ./js_json, ./js_text, ./pathutil
 import ./digests, ./route_metadata
 import ./contract_failure
@@ -12,6 +14,7 @@ proc privateWorkerDirectory(): string =
     # createTempDir follows the caller's umask. mkdtemp creates 0700 atomically,
     # before any project source, request data or result can enter the directory.
     createPrivateTempDirectory(getTempDir() / "xplat-worker-")
+  elif defined(windows): windowsPrivateTempDirectory(getTempDir(),"xplat-worker-")
   else:
     raise contractFailure("unavailable","Private project-worker storage is not implemented on this host.")
 
@@ -66,7 +69,12 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     if encoded.len > 64*1024*1024: raise newException(ValueError,"Build worker request exceeds 64 MiB")
     let input = temporary / "request.json"
     let output = temporary / "result.json"
-    writeFile(input,encoded)
+    when defined(windows):
+      # Node writes in place. Precreation preserves the explicit user owner/DACL,
+      # independently of its token-default owner for newly created files.
+      discard windowsPublishPrivate(input,encoded)
+      discard windowsPublishPrivate(output,"")
+    else: writeFile(input,encoded)
     var diagnostics: string
     let workerEnvironment = newStringTable(modeCaseSensitive)
     if environment != nil:
@@ -90,10 +98,17 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     if timedOut: raise contractFailure("timeout","Project build worker timed out")
     if cancellation.cancelled: raise contractFailure("cancelled","Build operation cancelled")
     if status.errorCode == "ENOENT": raise contractFailure("prerequisite_missing","Node >=22.22.2 is required for project build operations; install Node and retry.")
-    if not fileExists(output):
+    var responseBytes: string
+    when defined(windows):
+      let saved = windowsReadPrivate(output,64*1024*1024)
+      if saved.isSome: responseBytes = saved.get()
+    else:
+      if fileExists(output):
+        if getFileSize(output) > 64*1024*1024: raise newException(ValueError,"Build worker result exceeds 64 MiB")
+        responseBytes = readFile(output)
+    if responseBytes.len == 0:
       raise newException(ValueError,"Project build worker exited " & $status.exitStatus() & " without a result" & (if diagnostics.len > 0: ": " & decodeUtf8(diagnostics).strip() else: ""))
-    if getFileSize(output) > 64*1024*1024: raise newException(ValueError,"Build worker result exceeds 64 MiB")
-    let response = parseStrictJson(decodeUtf8(readFile(output)))
+    let response = parseStrictJson(decodeUtf8(responseBytes))
     if text(field(response,"protocol")) != workerProtocol or field(response,"version") != %1 or text(field(response,"id")) != id or
         field(response,"ok") == nil or response["ok"].kind != JBool:
       raise newException(ValueError,"Unsupported or mismatched project build worker response")

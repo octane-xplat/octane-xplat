@@ -225,8 +225,10 @@ int xplat_private_directory(const char *input, int create, uint32_t *error) {
   security=xplat_private_security(error);
   if (!security) goto done;
   if (guard_parent(path,&guard,create?security:NULL,error)<0) { if (!create && absent(*error)) result=1; goto done; }
-  if (create && !CreateDirectoryW(path,&security->attributes) && GetLastError()!=ERROR_ALREADY_EXISTS) {
-    failure(error,GetLastError()); goto done;
+  if (create && !CreateDirectoryW(path,&security->attributes)) {
+    DWORD code=GetLastError();
+    if (create==2 && code==ERROR_ALREADY_EXISTS) { result=2; goto done; }
+    if (code!=ERROR_ALREADY_EXISTS) { failure(error,code); goto done; }
   }
   handle=CreateFileW(path,READ_CONTROL|FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE,
     NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,NULL);

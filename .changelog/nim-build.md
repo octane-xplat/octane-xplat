@@ -1,9 +1,12 @@
 ### Build web apps with the experimental Nim CLI
 
-The experimental Nim CLI can build web apps on macOS and Linux using the project's
-installed Vite and plugins. Run a foreground build or start a background job,
+The experimental Nim CLI can build web apps on macOS, Linux and Windows 11 x64
+using the project’s installed build package, Vite and plugins. Windows is qualified
+with Bun 1.4.4. Run a foreground build or start a background job,
 then inspect its status and captured output. Cancellation releases the owned
-build processes. Linux native app engines and Windows host operations remain in progress.
+build processes and preserves previous route files. On Windows, launch from
+PowerShell or a Bun script; background owners are not qualified to survive a
+Windows Turbo task finishing. Other native platform engines remain in progress.
 
 ```sh
 xplat build --targets web

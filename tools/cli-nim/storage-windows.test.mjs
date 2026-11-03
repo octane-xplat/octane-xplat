@@ -102,6 +102,15 @@ test('private directory creation is atomic, recursive, current-user only and Uni
  assert.equal(statSync(path, { bigint: true }).ino, before)
  assert.deepEqual(await client.send({ operation: 'existing', path: join(path, 'absent') }), { ok: true, private: false })
 })
+test('exclusive private directory allocation preserves an existing collision unchanged', host, async () => {
+ const client = probe(), parent = await directory(client, 'exclusive'), path = join(parent, 'operation')
+ assert.deepEqual(await client.send({ operation: 'exclusive-directory', path }), { ok: true, created: true })
+ assert.deepEqual(acl(path), { currentOwner: true, protected: true, rules: 1, onlyCurrentUser: true })
+ const marker = join(path, 'preserve.txt'); writeFileSync(marker, 'existing operation data')
+ const identity = statSync(path, { bigint: true }).ino
+ assert.deepEqual(await client.send({ operation: 'exclusive-directory', path }), { ok: true, created: false })
+ assert.equal(statSync(path, { bigint: true }).ino, identity); assert.equal(readFileSync(marker, 'utf8'), 'existing operation data')
+})
 test('binary publication, exact read bounds and identity-bound removal preserve replacement files', host, async () => {
  const client = probe(), parent = await directory(client, 'bytes')
  const path = join(parent, 'data.json'), bytes = Buffer.from([0,255,128,1,10,195,169])

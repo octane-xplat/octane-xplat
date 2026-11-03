@@ -59,8 +59,10 @@ child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process
 jobs have separate descendant-cleanup checks, and HTTP/TLS has a separate native
 transport gate. Private owner/bootstrap/RPC also pass with PowerShell ancestry
 and Bun script-run cross-SSH handoff. Windows Turbo task teardown ends the owner
-in the observed context; that invocation and the representative installed-worker
-workflow remain unqualified. Passing owner fixtures does not qualify Windows app commands.
+in the observed context; survival after that task remains unqualified. The
+representative Windows 11 x64 web-build workflow now passes with Bun 1.4.4, the
+canonical project worker and Vite, including private sidecars, cancellation and
+last-good artifacts. Other Windows commands/engines still require their own gates.
 
 ```sh
 # On a qualified host, from the selected app with its build tools installed:

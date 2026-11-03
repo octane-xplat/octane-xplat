@@ -10,7 +10,7 @@ import { scratchRun } from './scratch.mjs'
 import { assertPortabilityArtifact, verifyPortabilitySource, sha256 } from './portability-proof.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
-assert.ok(['darwin', 'linux'].includes(process.platform), 'Execute Windows transport and owner qualification before enabling this workflow there')
+assert.ok(['darwin', 'linux', 'win32'].includes(process.platform))
 const source = verifyPortabilitySource(root)
 assert.ok(existsSync(join(root, 'project-packages.json')), 'Create the snapshot with snapshot:nim-portability-worker')
 const fixture = JSON.parse(readFileSync(join(root, 'project-packages.json')))
@@ -113,6 +113,19 @@ async function shutdown() {
  descriptor = undefined
  ownersStopped++
 }
+function assertWindowsPrivate(path) {
+ const literal = "'"+path.replaceAll("'", "''")+"'"
+ const code = `$ErrorActionPreference='Stop'; $acl=Get-Acl -LiteralPath ${literal};
+$user=[Security.Principal.WindowsIdentity]::GetCurrent().User;
+$rules=$acl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]);
+@{currentOwner=($acl.GetOwner([Security.Principal.SecurityIdentifier]).Value -eq $user.Value);
+protected=$acl.AreAccessRulesProtected;rules=$rules.Count;
+onlyCurrentUser=(@($rules | Where-Object {$_.IdentityReference.Value -ne $user.Value}).Count -eq 0)} | ConvertTo-Json -Compress`
+ const result = run('powershell.exe', ['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(code,'utf16le').toString('base64')])
+ const security = JSON.parse(result.stdout)
+ assert.deepEqual(security, { currentOwner: true, protected: true, rules: 1, onlyCurrentUser: true })
+ return security
+}
 function workerTemps() {return readdirSync(temporary).filter(name => name.startsWith('xplat-worker-'))}
 function generated(files) {
  return Object.fromEntries(files.map(path => [relative(project, path), sha256(readFileSync(path))]))
@@ -143,6 +156,7 @@ try {
  const manifest = JSON.parse(readFileSync(join(project, 'node_modules/@octane-xplat/build/package.json')))
  assert.equal(manifest.dependencies['@octane-xplat/cli'], undefined)
  assert.equal(existsSync(join(project, 'node_modules/@octane-xplat/cli')), false)
+ record.projectExecutables = readdirSync(join(project, 'node_modules/.bin')).sort()
  record.packages = fixture
  record.lockSha256 = sha256(readFileSync(join(project, 'bun.lock')))
  record.steps.push({ operation: 'install-project-tools', passed: true, summary: installed.stdout.trim().slice(-1000) })
@@ -206,6 +220,9 @@ export const loader = async () => {
  assert.equal(armed.cwd, selected)
  assert.ok(armed.requestFile.startsWith(temporary+sep))
  if (process.platform !== 'win32') {assert.equal(statSync(dirname(armed.requestFile)).mode & 0o777, 0o700)}
+ else {
+  record.workerPrivacy = Object.fromEntries([dirname(armed.requestFile), armed.requestFile, join(dirname(armed.requestFile), 'result.json')].map(path => [path, assertWindowsPrivate(path)]))
+ }
  const repeated = cli(['runtime', 'build', '--platform', 'web', '--request-key', 'portable-cancel'])
  assert.equal(repeated.deduplicated, true); assert.equal(repeated.job.jobId, pending.job.jobId)
  const cancelledAt = Date.now()

@@ -28,6 +28,17 @@ proc windowsPrivateDirectory*(path: string, create: bool): bool =
   let status = directory(cstring(bytes),cint(create),addr error)
   if status < 0: raiseOSError(OSErrorCode(error),"Native storage needs a private current-user NTFS directory")
   status == 0
+proc windowsExclusivePrivateDirectory*(path: string): bool =
+  var error: uint32
+  let status = directory(cstring(pathBytes(path)),2,addr error)
+  if status < 0: raiseOSError(OSErrorCode(error),"Cannot exclusively create the private native directory")
+  status == 0
+proc windowsPrivateTempDirectory*(parent, prefix: string): string =
+  for attempt in 0..<20:
+    let candidate = parent / freshId(prefix)
+    if windowsExclusivePrivateDirectory(candidate): return candidate
+  raise newException(OSError,"Unable to allocate a fresh private native directory")
+
 proc windowsReadPrivate*(path: string, maximum: int): Option[string] =
   if maximum < 0: raise newException(ValueError,"Native file byte limit cannot be negative")
   var bytes: cstring

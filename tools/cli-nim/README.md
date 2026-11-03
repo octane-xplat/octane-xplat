@@ -229,7 +229,7 @@ HTTP uses the host transport's trust store; explicit per-request CA files do not
 change that store. Ambient proxy variables are disabled by default, matching
 the reference without Node's environment-proxy opt-in; explicit proxy settings
 are qualified. Compression negotiation advertises gzip/deflate; Brotli/zstd and
-other platform backends remain unqualified. This is a CLI transport boundary,
+other transport backends remain unqualified. This is a CLI transport boundary,
 not a replacement for every browser Fetch API or Node runtime option.
 
 Invalid JSON retains the reference's null fallback. Body transport failures
@@ -273,8 +273,9 @@ separate `/proc` process-group adapter; tests include unusual process names and
 require kernel identities to be gone before native completion. It requires glibc
 2.34+ and ordinary OS orphan reaping; non-reaping container init processes remain
 unqualified. Native no-shebang text is deliberately rejected with `ENOEXEC`,
-while the actual Linux Node reference uses a shell fallback. Windows private owner/RPC and the joined Windows worker workflow still
-need qualification.
+while the actual Linux Node reference uses a shell fallback. Windows private
+owner/RPC and the canonical installed-worker workflow have their separate gates
+below; this process probe alone does not establish them.
 
 The separate Windows process gate uses actual SDK job handles, explicit
 inherited stdio handles, UTF-16 command/environment input and bounded pipe
@@ -284,7 +285,7 @@ capture failure, leader-first exit and abrupt supervisor death. Windows job
 termination is immediate; the POSIX graceful-signal/escalation cases stay skipped.
 The job is assigned during process creation with `PROC_THREAD_ATTRIBUTE_JOB_LIST`
 and has kill-on-close enabled, closing the suspended-child ownership gap. This
-requires Windows10 APIs; actual execution is on Windows11 x64 with MSVC.
+requires Windows10 APIs; actual execution is on Windows 11 x64 with MSVC.
 It is noninteractive process evidence, not private host/RPC,
 project-worker, console-event or full app qualification. The gate rejects batch
 scripts without an explicit interpreter; it never adds an implicit shell.
@@ -448,8 +449,9 @@ bun run turbo run test:routes --filter=@octane-xplat/cli
 Build flags select macOS dead stripping, Linux section collection, or the
 Windows compiler defaults. The isolated portability gates below distinguish
 help/catalog execution from usable host adapters. A representative Linux
-HTTP/TLS, owner, project-worker and cancellation workflow passes on Ubuntu x64;
-full Linux command coverage, deployment baselines, Windows native providers, signing,
+HTTP/TLS, owner, project-worker and cancellation workflow passes on Ubuntu x64
+and Windows 11 x64 with Bun 1.4.4. Full command coverage, deployment baselines, other
+Windows native providers, signing,
 notarization, archive checksums, and installer/update behavior remain distribution
 work. Nim emits C requiring a target C compiler and SDK; cross-compilation alone
 would not qualify those hosts. The compiler wrapper supports Darwin arm64/x64,
@@ -525,7 +527,7 @@ Windows loopback TLS tests use Git's existing OpenSSL only to generate disposabl
 certificates; Unicode/spaced explicit CA paths are exercised too. These Windows
 checks currently use the isolated snapshot driver, not the root workspace's full
 multi-probe build. Detached owner/authenticated RPC have their separate gate;
-the joined Windows installed-worker workflow remains unqualified.
+the joined Windows installed-worker workflow has its separate gate below.
 
 A separate Windows storage gate exercises actual current-user-only SDK ACLs,
 local NTFS volume/file identities and nonblocking lifetime locks. It refuses
@@ -560,7 +562,7 @@ The gate covers fragmented UTF-8, malformed/bounded frames, deadlines, connectio
 pressure, repeated handles, stalled writes, and shutdown while a client stays
 paused. Windows-only stop markers control the test probe, not production CLI
 commands or console events. Production Windows owner bootstrap has its separate
-detached-launch/RPC gate; installed-worker proof remains pending.
+detached-launch/RPC gate; the installed-worker workflow is qualified separately.
 
 ```sh
 # In the snapshot, build under the destination's native build reservation:
@@ -616,7 +618,7 @@ goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"
 ```
 
 Use the optional worker snapshot to exercise the production owner and actual
-project-installed JavaScript tools on macOS or Linux. It packs the current build
+project-installed JavaScript tools on macOS, Ubuntu x64 or Windows 11 x64 with Bun 1.4.4. It packs the current build
 and lib leaf packages through Bun, records their hashes and the exact Vite pin,
 and installs them in a disposable project with spaces in its path. These fixture
 packages belong to the selected project, never the native CLI download.
@@ -632,7 +634,14 @@ module variables. Cancellation must release a resistant worker and descendant
 before their failure-cleanup expiry, remove private sidecars and preserve the
 last-good artifacts. It then authenticates owner shutdown and restart. The
 worker directory must be private while active, not only empty after cleanup.
-Windows stays explicitly disabled until its native adapters are qualified.
+On Windows, the directory and both sidecars must have an explicit current-user
+owner and protected user-only ACL while the worker is active. Exclusive allocation
+preserves existing collisions; Node writes the native-precreated response in
+place. Windows uses actual package-manager executable shims, such as Bun
+1.4.4’s `vite.exe`/`vite.bunx`, rather than requiring a Unix shim filename.
+The HTTP header-only gate withholds body bytes indefinitely; a client must return
+and cancel without waiting for body completion. Process startup timing has its
+separate benchmark instead of a mixed Node/native wall-clock assertion.
 
 ```sh
 # In the extracted snapshot, reserve native capacity only for compilation:

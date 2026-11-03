@@ -2,10 +2,15 @@
 import std/[os, json, options, strutils, base64]
 import ../../packages/cli/nim/[host_storage, host_bootstrap, strictjson, json_wire, jsonutil]
 
+when defined(windows): import ../../packages/cli/nim/private_windows
+
 var held: HostLock
 proc run(request: JsonNode): JsonNode =
   let path = text(field(request,"path"))
   case text(request["operation"])
+  of "exclusive-directory":
+    when defined(windows): %*{"ok": true,"created": windowsExclusivePrivateDirectory(path)}
+    else: raise newException(ValueError,"Exclusive SDK fixture requires Windows")
   of "directory":
     privateHostDirectory(path)
     %*{"ok": true,"private": existingPrivateHostDirectory(path)}

@@ -111,13 +111,31 @@ this for macOS and Linux arm64/x64 and Windows x64.
 The parallel Nim rewrite is being prepared for the `nim` prerelease channel.
 Contributors with this repository installed can build it locally. macOS Apple
 Silicon has the broadest coverage. A representative web build and cancellation
-workflow also runs on Ubuntu 24.04 x64. Windows x64 has help/catalog, child-process
-and HTTP/TLS checks; private host/RPC and application workflows remain unqualified. Check the
-native catalog before using a command:
+workflow also runs on Ubuntu 24.04 x64 and Windows 11 x64 with Bun 1.4.4. These
+checks include installed project tools, cancellation and owner restart; other
+commands and platform engines still have separate limits. Windows qualification
+currently uses an isolated build, rather than a published installer. The local
+build command below is the macOS path; the [portability runner](../../tools/cli-nim/README.md#isolated-native-portability-builds)
+owns the Linux and Windows source builds. Check the native catalog before using
+a command:
 
 ```sh
 bun run turbo run build:nim --filter=@octane-xplat/cli
 research/nim-cli/native/xplat catalog --json
+```
+
+On Windows, start the preview CLI from PowerShell or a Bun script. Background
+owners are not qualified to survive a Windows Turbo task finishing. Keep the
+project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/build` package installed;
+the native executable does not include those tools. A web build returns a job
+that you can inspect and cancel:
+
+```sh
+xplat runtime build --platform web --json
+# Replace JOB_ID with the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+xplat job cancel JOB_ID --json
 ```
 
 Native `status` discovers apps, installed framework versions, project guidance,

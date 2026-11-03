@@ -12,6 +12,7 @@ typedef struct XplatPrivateStamp {
 void *xplat_private_security(uint32_t *error);
 void xplat_private_security_free(void *security);
 int xplat_private_security_check(void *handle, uint32_t *error);
+/* create: 0=validate, 1=ensure, 2=exclusive. Return 2 is an exclusive collision. */
 int xplat_private_directory(const char *path, int create, uint32_t *error);
 int xplat_private_read(const char *path, size_t maximum, char **bytes,
   size_t *length, uint32_t *error);

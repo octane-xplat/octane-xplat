@@ -7,7 +7,11 @@ import ./macos_build, ./build_worker
 proc requireProjectVite*(root: string) =
   for modules in nodeModulesDirs(root):
     let manifest = readJson(modules / "vite/package.json")
-    if field(manifest,"name") == %"vite" and fileExists(modules / ".bin/vite"): return
+    if field(manifest,"name") == %"vite":
+      # Installed Windows package managers publish executable/batch shims.
+      # This is discovery only; the owned process engine still rejects batches.
+      for name in ["vite","vite.exe","vite.cmd"]:
+        if fileExists(modules / ".bin" / name): return
   raise contractFailure("prerequisite_missing","Install Vite in the selected project before building.",
     %*{"recovery": {"action": "Install the app's dependencies with its selected package manager."}})
 
@@ -22,7 +26,7 @@ proc runProjectBuild*(app: JsonNode, platform: string, logs: RuntimeLogs, signal
     report: proc(progress: JsonNode) {.closure.} = nil, timeoutMs = 900000): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Build deadline must be positive")
   if platform notin ["web","macos"]: raise contractFailure("unavailable","Native " & platform & " build engine integration is pending.")
-  when not (defined(macosx) or defined(linux)):
+  when not (defined(macosx) or defined(linux) or defined(windows)):
     raise contractFailure("unavailable","Native process ownership is not implemented on this host.")
   when not defined(macosx):
     if platform == "macos": raise contractFailure("unavailable","macOS builds require a Mac.")

@@ -589,6 +589,18 @@ worker uses `writeFileSync`, which preserves an existing file's owner/DACL.
 Do not broaden owner acceptance to hide this mismatch, and verify an actual
 installed worker separately from the storage primitive.
 
+Allocate operation directories exclusively; ensuring an existing directory is
+private does not establish that this operation owns it. Treat name collisions as
+retryable allocation failures and preserve their contents. On Windows, precreate
+both request and response sidecars with the native owner/DACL, read results through
+the bounded private-file adapter, and await the worker job before removing its
+directory. An untouched empty response placeholder means no result was written.
+
+Installed executable discovery must account for package-manager shim formats.
+Bun 1.4.4 on Windows publishes `vite.exe` plus `vite.bunx`, without a bare `vite`
+file. Preserve actual installed-package checks and the process engine's separate
+batch-file refusal; recognizing a shim is not permission to invoke an implicit shell.
+
 Windows legacy `FileRenameInfo` replacement can fail while a reader holds the
 old target. The NTFS adapter uses `FileRenameInfoEx` with replacement/POSIX flags:
 old handles keep their bytes and new opens see the replacement. Qualify both held

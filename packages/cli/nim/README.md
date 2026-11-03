@@ -197,7 +197,7 @@ the production owner, with worker cancellation, last-good artifact preservation
 and authenticated shutdown/restart. This does not qualify Linux native app
 engines or the full command surface. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
-the process-group cleanup guarantee. Windows managed-process jobs pass a separate actual Windows11 x64 gate for
+the process-group cleanup guarantee. Windows managed-process jobs pass a separate actual Windows 11 x64 gate for
 arguments, pipes, exit status and descendant cleanup, including abrupt supervisor
 death. Windows private NTFS storage and lifetime locks pass their separate gate,
 including current-user ACLs, reparse/hardlink refusal, identity-bound cleanup,
@@ -205,9 +205,12 @@ open-reader atomic publication and native-precreated Node sidecars. Same-executa
 Windows owner launch, concurrent startup, authentication, shutdown/restart and
 fixture-job cancellation now pass. Direct PowerShell and Bun script-run launches
 preserve an owner across separate SSH connections; abrupt root exit releases its
-longer-lived descendant through the retained job guard. Windows Turbo task teardown
-ends the detached owner in the observed context; that invocation remains
-unqualified. The joined Windows installed-worker workflow remains pending.
+longer-lived descendant through the retained job guard. The canonical installed
+route/baking worker and Vite web-build workflow also pass on Windows 11 x64 with
+Bun 1.4.4: active sidecar ACLs, exact route outputs, cancellation, last-good
+preservation and owner restart are exercised. Windows Turbo task teardown ends
+the detached owner in the observed context; survival after that task remains
+unqualified. The joined gate finishes its owners before task teardown.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
@@ -455,8 +458,9 @@ Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
 cleanup pass their separate gates. The representative canonical project-worker
 and web-build workflow also passes on Linux. Windows managed-process jobs and
 HTTP/TLS pass separate actual-host gates. Private owner/bootstrap/RPC also pass,
-including PowerShell ancestry and Bun script-run cross-SSH handoff. The joined
-installed-worker workflow and Windows Turbo owner survival remain unqualified. Remaining command contracts,
+including PowerShell ancestry and Bun script-run cross-SSH handoff. The canonical
+installed-worker/web-build/cancellation workflow now passes on Windows 11 x64
+with Bun 1.4.4. Windows Turbo owner survival remains unqualified. Remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,

@@ -76,6 +76,10 @@ function handler(request, response) {
   response.writeHead(302, { Location: '/loop' }); response.end()
  } else if (url.pathname === '/slow-headers') {
   const timer = setTimeout(() => { pending.delete(timer); response.end('late') }, 500); pending.add(timer)
+ } else if (url.pathname === '/held-body') {
+  // A successful header-only client must return/cancel without body completion.
+  // No timer releases these bytes; the child deadline detects an awaited body.
+  response.writeHead(200, { 'Content-Type': 'text/plain', 'Content-Length': '4' }); response.flushHeaders()
  } else if (url.pathname === '/slow-body') {
   response.writeHead(200, { 'Content-Type': 'text/plain' }); response.flushHeaders()
   const timer = setTimeout(() => { pending.delete(timer); response.end('late') }, 500); pending.add(timer)
@@ -286,9 +290,8 @@ test('redirects preserve or rewrite methods and remove credentials across origin
  await compare(cases)
 })
 test('headers resolve before delayed bodies, with phase-specific abort and timeout errors', transportHost, async () => {
- const start = performance.now()
- await compare([{ url: `${origin}/slow-body`, consume: 'none' }])
- assert.ok(performance.now() - start < 450)
+ const headers = await compare([{ url: `${origin}/held-body`, consume: 'none' }])
+ assert.equal(headers[0].success, true)
  const values = await compare([{ url: `${origin}/slow-headers`, abortMs: 50 }, { url: `${origin}/slow-body`, abortAfterHeadersMs: 50 },
   { url: `${origin}/slow-headers`, timeoutMs: 50 }, { url: `${origin}/slow-body`, timeoutMs: 50 },
   { url: `${origin}/echo`, preabort: true }, { url: `${origin}/truncated` }])

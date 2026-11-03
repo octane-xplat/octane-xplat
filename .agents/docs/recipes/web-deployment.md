@@ -31,7 +31,7 @@ and controls its build, HTTPS, routing and cache settings.
   [Separate project build plugins](../../../docs/packages/package-build.md) documents the optional Vite import migration; the [packed plugin consumer](../../../tools/cli-nim/build-tools-consumer.mjs) checks the installed build/server boundary, not publication or browser behavior.
   The [experimental native CLI](../../../docs/packages/package-cli.md#experimental-nim-executable)
   can run the project's checker on macOS and web build jobs on macOS and the
-  qualified Ubuntu x64 host. The [portable worker gate](../../../tools/cli-nim/portability-workflow.mjs)
+  qualified Ubuntu x64 and Windows 11 x64 hosts (Bun 1.4.4 on Windows). The [portable worker gate](../../../tools/cli-nim/portability-workflow.mjs)
   exercises canonical route/baking, Vite output and cancellation; it does not
   qualify browser preview, deployment or all of AC1. Its catalog still owns
   command availability for the rest of this workflow.
