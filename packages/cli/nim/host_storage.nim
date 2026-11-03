@@ -18,10 +18,14 @@ proc hostPaths*(workspace: string): HostPaths =
   result.descriptor = result.directory / "host.json"
   result.lock = result.directory / "host.lock"
   result.log = result.directory / "host.log"
-  result.socket = getHomeDir() / ".cache/octane-xplat/nim-ipc" /
-    (key & ".sock")
-  if utf8ForWrite(result.socket).len >= 104:
-    raise newException(ValueError,"Native host socket path exceeds the native Unix path limit")
+  when defined(windows):
+    let user = sha256Hex(utf8ForWrite(getHomeDir()))[0..<16]
+    result.socket = "\\\\.\\pipe\\octane-xplat-nim-" & user & "-" & key
+  else:
+    result.socket = getHomeDir() / ".cache/octane-xplat/nim-ipc" /
+      (key & ".sock")
+    if utf8ForWrite(result.socket).len >= 104:
+      raise newException(ValueError,"Native host socket path exceeds the native Unix path limit")
 
 when defined(macosx) or defined(linux):
   import std/posix

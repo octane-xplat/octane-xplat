@@ -57,8 +57,10 @@ On Ubuntu x64, the native owner and web build workflow are qualified with the
 project-installed route/baking worker and Vite, including job cancellation and
 child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process
 jobs have separate descendant-cleanup checks, and HTTP/TLS has a separate native
-transport gate. Private owner/RPC and its representative project workflow remain
-unqualified; passing those primitives does not qualify Windows app commands.
+transport gate. Private owner/bootstrap/RPC also pass with PowerShell ancestry
+and Bun script-run cross-SSH handoff. Windows Turbo task teardown ends the owner
+in the observed context; that invocation and the representative installed-worker
+workflow remain unqualified. Passing owner fixtures does not qualify Windows app commands.
 
 ```sh
 # On a qualified host, from the selected app with its build tools installed:

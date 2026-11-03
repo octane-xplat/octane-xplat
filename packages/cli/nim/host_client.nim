@@ -1,7 +1,8 @@
 ## Read-only discovery never starts a host; creation launches the same executable.
 import std/[asyncdispatch, json, os, strtabs, monotimes, times]
-import ./host_storage, ./host_bootstrap, ./unix_rpc, ./jsonutil, ./contract_failure
+import ./host_storage, ./host_bootstrap, ./local_rpc, ./jsonutil, ./contract_failure
 when defined(macosx) or defined(linux): import std/posix
+when defined(windows): import ./windows_bootstrap, ./windows_environment
 
 type HostConnection* = ref object
   descriptor: JsonNode
@@ -11,13 +12,18 @@ type HostConnection* = ref object
 proc processAlive(pid: int): bool =
   when defined(macosx) or defined(linux):
     posix.kill(Pid(pid),0) == 0 or errno == EPERM
+  elif defined(windows): bootstrapProcessAlive(pid)
   else: false
+
+proc sendHostRpc(path: string, request: JsonNode, readMs = 60000): Future[JsonNode] =
+  when defined(windows): sendRpc(path,request,readMs=readMs,ownerOnly=true)
+  else: sendRpc(path,request,readMs=readMs)
 
 proc connectNativeHost*(workspace: string): Future[HostConnection] {.async.} =
   let paths = hostPaths(workspace)
   let descriptor = readHostDescriptor(paths)
   if descriptor == nil or not processAlive(descriptor["pid"].getInt()): return nil
-  let response = await sendRpc(paths.socket,%*{"token": descriptor["token"],"method": "host.ping","params": {}},readMs=1500)
+  let response = await sendHostRpc(paths.socket,%*{"token": descriptor["token"],"method": "host.ping","params": {}},readMs=1500)
   if field(response,"ok") != %true:
     raise contractFailure("disconnected_runtime","The native host descriptor exists but its owner did not answer.",%*{"retryable": true})
   let ping = field(response,"result")
@@ -33,7 +39,7 @@ proc callNativeHost*(host: HostConnection, methodName: string, params: JsonNode,
   let request = %*{"token": host.descriptor["token"],"method": methodName,"params": params}
   if appId != nil: request["appId"] = appId.copy()
   if grants != nil: request["grants"] = grants.copy()
-  return await sendRpc(host.descriptor["socketPath"].getStr(),request)
+  return await sendHostRpc(host.descriptor["socketPath"].getStr(),request)
 
 proc ensureNativeHost*(workspace: string, executable = "", timeoutMs = 8000): Future[HostConnection] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Native host startup timeout must be positive")
@@ -41,8 +47,11 @@ proc ensureNativeHost*(workspace: string, executable = "", timeoutMs = 8000): Fu
   if live != nil: return live
   let paths = hostPaths(workspace)
   prepareHostPaths(paths)
-  let environment = newStringTable(modeCaseSensitive)
-  for key,value in envPairs(): environment[key] = value
+  let environment = newStringTable(when defined(windows): modeCaseInsensitive else: modeCaseSensitive)
+  when defined(windows):
+    for key,value in windowsEnvironmentPairs(): environment[key] = value
+  else:
+    for key,value in envPairs(): environment[key] = value
   let launch = launchDetached((if executable.len == 0: getAppFilename() else: executable),
     @["--internal-agent-host",paths.workspace],paths.workspace,paths.log,environment)
   let started = getMonoTime()
@@ -59,12 +68,14 @@ proc ensureNativeHost*(workspace: string, executable = "", timeoutMs = 8000): Fu
       %*{"retryable": true,"context": {"log": paths.log}})
   finally:
     # Descriptor publication transfers ownership even if this caller's ping fails.
-    if not published:
-      # Hold the publication lock across the final check and signal. A plain
-      # descriptor check races a child publishing immediately before termination.
-      let publication = tryHostLock(paths.lock)
-      if publication != nil:
-        try:
-          let descriptor = readHostDescriptor(paths)
-          if descriptor == nil or descriptor["pid"] != %launch.pid: await launch.stopUnpublishedLaunch()
-        finally: publication.closeHostLock()
+    try:
+      if not published:
+        # Hold the publication lock across the final check and signal. A plain
+        # descriptor check races a child publishing immediately before termination.
+        let publication = tryHostLock(paths.lock)
+        if publication != nil:
+          try:
+            let descriptor = readHostDescriptor(paths)
+            if descriptor == nil or descriptor["pid"] != %launch.pid: await launch.stopUnpublishedLaunch()
+          finally: publication.closeHostLock()
+    finally: launch.releaseLaunch()

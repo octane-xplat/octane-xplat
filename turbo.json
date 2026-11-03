@@ -2,6 +2,7 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"//#test:nim-portability-handoff": { "cache": false, "passThroughEnv": ["XPLAT_NIM_HANDOFF_CONFIG"] },
 		"//#snapshot:nim-portability": { "cache": false },
 		"//#snapshot:nim-portability-worker": { "cache": false, "dependsOn": ["@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"//#benchmark:nim-portability": { "cache": false, "passThroughEnv": ["XPLAT_NIM_SMOKE_BINARY", "XPLAT_NIM_SMOKE_RECORD"] },

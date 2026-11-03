@@ -366,6 +366,26 @@ done:
   if (handle!=INVALID_HANDLE_VALUE) CloseHandle(handle);
   xplat_private_security_free(security); unguard(&guard); free(path); return result;
 }
+void *xplat_private_append(const char *input,uint32_t *error) {
+  wchar_t *path=local_path(input,error);
+  PrivateSecurity *security=NULL;
+  PathGuard guard={0};
+  HANDLE handle=INVALID_HANDLE_VALUE;
+  int success=0;
+  if (!path) return NULL;
+  security=xplat_private_security(error); if (!security) goto done;
+  if (private_parent(path,&guard,security,error)<0) goto done;
+  handle=CreateFileW(path,FILE_APPEND_DATA|FILE_READ_ATTRIBUTES|READ_CONTROL,
+    FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,&security->attributes,
+    OPEN_ALWAYS,FILE_FLAG_OPEN_REPARSE_POINT,NULL);
+  if (handle==INVALID_HANDLE_VALUE) { failure(error,GetLastError()); goto done; }
+  if (private_handle(handle,security,0,NULL,error)<0) goto done;
+  success=1;
+done:
+  if (!success && handle!=INVALID_HANDLE_VALUE) CloseHandle(handle);
+  xplat_private_security_free(security); unguard(&guard); free(path);
+  return success?handle:NULL;
+}
 void *xplat_private_lock(const char *input,uint32_t *error) {
   wchar_t *path=local_path(input,error);
   PrivateSecurity *security=NULL;

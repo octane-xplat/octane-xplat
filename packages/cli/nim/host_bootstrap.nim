@@ -10,6 +10,7 @@ type
     owned: bool
   DetachedLaunch* = ref object
     processId: int
+    windowsLaunch: pointer
     owned, finished: bool
     code: Option[int]
 
@@ -134,7 +135,8 @@ when defined(macosx) or defined(linux):
     if not launch.pollLaunch(): launch.signalLaunch(SIGKILL)
     while not launch.pollLaunch(): await sleepAsync(5)
 elif defined(windows):
-  import ./private_windows
+  import ./private_windows, ./windows_bootstrap, ./windows_argv, ./windows_environment
+  import std/strutils
   proc tryHostLock*(path: string): HostLock =
     let handle = windowsTryLock(path)
     if handle != nil: HostLock(windowsHandle: handle,owned: true)
@@ -145,9 +147,41 @@ elif defined(windows):
       windowsUnlock(lock.windowsHandle)
       lock.windowsHandle = nil
   proc launchDetached*(executable: string, args: seq[string], cwd, logPath: string, environment: StringTableRef): DetachedLaunch =
-    raise newException(OSError,"Native host launch is not implemented on this host")
-  proc pollLaunch*(launch: DetachedLaunch): bool = true
-  proc stopUnpublishedLaunch*(launch: DetachedLaunch, graceMs = 500): Future[void] {.async.} = discard
+    if not isAbsolute(executable) or not isAbsolute(cwd):
+      raise newException(ValueError,"Detached host executable and cwd must be absolute")
+    if environment == nil: raise newException(ValueError,"Detached host environment must be explicit")
+    proc bytes(value: string): string =
+      if '\0' in value: raise newException(ValueError,"Host bootstrap path or argument contains NUL")
+      utf8ForWrite(value)
+    var line = windowsQuoted(bytes(executable))
+    for arg in args: line.add(" " & windowsQuoted(bytes(arg)))
+    var values: seq[string]
+    for key,value in environment:
+      if not windowsDriveVariable(key) and ('=' in key or key.len == 0):
+        raise newException(ValueError,"Invalid Windows environment name")
+      if key.toUpperAscii() == bootstrapJobVariable: continue
+      values.add(bytes(key) & "=" & bytes(value))
+    let nativeEnvironment = allocCStringArray(values)
+    defer: deallocCStringArray(nativeEnvironment)
+    var pid, error: uint32
+    let native = windowsLaunch(cstring(bytes(executable)),cstring(line),cstring(bytes(cwd)),
+      cstring(bytes(logPath)),nativeEnvironment,csize_t(values.len),addr pid,addr error)
+    if native == nil: raiseOSError(OSErrorCode(error),"Detached native owner launch failed; its invoking job must permit breakaway")
+    DetachedLaunch(processId: int(pid),windowsLaunch: native,owned: true,code: none(int))
+  proc pollLaunch*(launch: DetachedLaunch): bool =
+    if launch == nil or not launch.owned or launch.windowsLaunch == nil or launch.finished: return true
+    var code, active, error: uint32
+    let status = windowsLaunchPoll(launch.windowsLaunch,addr code,addr active,addr error)
+    if status < 0: raiseOSError(OSErrorCode(error))
+    if status == 1:
+      launch.finished = true
+      launch.code = some(int(code))
+    launch.finished
+  proc stopUnpublishedLaunch*(launch: DetachedLaunch, graceMs = 500): Future[void] {.async.} =
+    if launch.pollLaunch(): return
+    var error: uint32
+    if windowsLaunchStop(launch.windowsLaunch,addr error) == 0: raiseOSError(OSErrorCode(error))
+    while not launch.pollLaunch(): await sleepAsync(5)
 else:
   proc tryHostLock*(path: string): HostLock = raise newException(OSError,"Native host bootstrap is not implemented on this host")
   proc closeHostLock*(lock: HostLock) = discard
@@ -155,3 +189,12 @@ else:
     raise newException(OSError,"Native host bootstrap is not implemented on this host")
   proc pollLaunch*(launch: DetachedLaunch): bool = true
   proc stopUnpublishedLaunch*(launch: DetachedLaunch, graceMs = 500): Future[void] {.async.} = discard
+
+proc releaseLaunch*(launch: DetachedLaunch) =
+  when defined(windows):
+    if launch != nil and launch.owned:
+      launch.owned = false
+      windowsLaunchRelease(launch.windowsLaunch)
+      launch.windowsLaunch = nil
+  else:
+    if launch != nil: discard launch.pollLaunch()

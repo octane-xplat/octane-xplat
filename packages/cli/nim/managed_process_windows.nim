@@ -1,5 +1,6 @@
 ## Included only by managed_process.nim; share its public types and line decoder.
 ## SDK handles and foreign-thread console callbacks stay inside the C adapter.
+import ./windows_argv, ./windows_environment
 {.compile: "process_windows.c".}
 const windowsProcessHeader = currentSourcePath().parentDir / "process_windows.h"
 proc nativeSpawn(executable, commandLine, cwd: cstring, environment: cstringArray, count: csize_t,
@@ -23,19 +24,6 @@ proc installProcessSignalHandlers*() =
 proc windowsBytes(value: string): string =
   if '\0' in value: raise newException(ValueError,"Child arguments and environment must not contain NUL")
   utf8ForWrite(value)
-proc windowsQuoted(value: string): string =
-  # The CRT/CommandLineToArgvW convention: backslashes before quotes/end double.
-  result = "\""
-  var slashes = 0
-  for ch in value:
-    if ch == '\\': inc slashes
-    else:
-      result.add(repeat('\\',slashes*(if ch == '"': 2 else: 1)))
-      if ch == '"': result.add('\\')
-      result.add(ch)
-      slashes = 0
-  result.add(repeat('\\',slashes*2))
-  result.add('"')
 proc windowsExecutable(command, cwd: string, env: StringTableRef): string =
   var directories: seq[string]
   if '\\' in command or '/' in command or ':' in command:
@@ -140,7 +128,7 @@ proc spawnManaged*(manager: ProcessManager, command: string, args: seq[string] =
   for arg in args: arguments.add(windowsQuoted(windowsBytes(arg)))
   let base = windowsBytes(if cwd == "": getCurrentDir() else: absolutePath(cwd))
   let environment = newStringTable(modeCaseInsensitive)
-  for key,value in envPairs(): environment[key] = value
+  for key,value in windowsEnvironmentPairs(): environment[key] = value
   if env != nil:
     for key,value in env:
       if '=' in key or key == "": raise newException(ValueError,"Invalid child environment name")

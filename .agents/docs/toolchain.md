@@ -41,6 +41,17 @@ SDK, with active-directory permissions covered by the
 macOS adapter when the pinned binding compiles against the SDK and the same
 permission/cancellation gate passes; do not suppress the C diagnostic.
 
+Nim 2.2.12's Windows `envPairs` splits hidden drive-current-directory entries
+such as `=C:=C:\project` at their first equals sign, producing an empty key.
+The [native environment adapter](../../packages/cli/nim/windows_environment.nim)
+reconstructs those drive keys for owner and engine inheritance. Preserve separate
+drives and case-insensitive names; ordinary explicit overlays still reject
+invalid names. Node-parent tests can hide these entries, so removal requires an
+upgraded compiler plus the direct PowerShell/bootstrap and two-drive fixture gates.
+See [CLI agent guidance](../../packages/cli/AGENTS.md) for OS environment and
+owner-job handoff constraints; parent-client exit alone does not qualify SSH
+or task-runner teardown.
+
 Pinned NimCrypto 0.7.3 emits GCC ISA flags (`-mavx2`, `-msha`, SSE flags) even
 for its MSVC-specific intrinsic declarations. MSVC reports ignored-option warnings;
 a cold AVX2 probe translation can spend several minutes optimizing generated C.

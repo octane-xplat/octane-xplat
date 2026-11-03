@@ -1,6 +1,6 @@
 ## Native persistent owner. Authentication/publication precede runtime composition.
 import std/[asyncdispatch, asyncnet, nativesockets, os, json, strutils, monotimes, times]
-import ./host_storage, ./host_bootstrap, ./unix_rpc, ./native_identity
+import ./host_storage, ./host_bootstrap, ./local_rpc, ./native_identity
 import ./jobs, ./sessions, ./managed_process, ./contract_failure, ./jsonutil, ./json_wire
 when defined(macosx) or defined(linux): import std/posix
 

@@ -448,6 +448,37 @@ leaves a supervisor-death gap, even if the child was suspended. Explicitly list
 inherited stdio handles with `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`. Retain the
 process/job handles until leader exit, job `ActiveProcesses == 0` and both pipe
 EOFs. A successful termination request alone is not completed cleanup.
+
+A persistent Windows owner has a different lifetime from an engine job. Detaching
+its console does not escape a kill-on-close SSH job. Query the invoking job's
+policy, require explicit permitted breakaway, and assign the new private owner job
+at creation. Transfer exactly one inherited job keeper to the owner, verify its
+membership/limits and clear inheritance before any project work; remove the
+reserved bootstrap environment value too. Retain that keeper until owner exit.
+This exception belongs only to the explicit owner handoff: engine jobs retain
+non-inheritable handles and cannot break away. Do not suspend this root launch;
+parent death before resume would leave a suspended child holding its own keeper.
+Release the invoking client's process/job handles after publication without
+terminating the transferred owner. Before publication, cancellation must await
+both leader exit and zero active job members. Qualify survival across separate
+SSH connections and longer-lived descendants on owner exit.
+
+Windows environment blocks include hidden drive-current-directory entries such
+as `=C:=C:\project`. Nim 2.2.12's `envPairs` splits at the first equals sign,
+yielding an empty key and `C:=C:\project` as the value. Reconstruct the documented
+`=C:` key at the inherited-environment boundary, preserve each drive separately,
+and use case-insensitive names. Explicit ordinary environment overlays still
+reject empty/equals-containing names. Node's environment object can hide these
+entries, so qualify normal PowerShell/cmd launches as well as Node test parents.
+
+Keep required OS variables when qualifying an explicit child environment. On the
+qualified Windows host, importing Nim's async dispatcher without `SystemRoot`
+fails during Winsock initialization before the program's exception handler runs,
+with a misleading “not a socket” error. An empty `PATH` still proves runtime
+independence; an invalid OS environment does not. Preserve the caller's normal
+OS environment for production owners and supply `SystemRoot` explicitly in
+minimal native fixtures rather than silently adding variables in the launcher.
+
 Calling `CreateProcessW` directly does not guarantee shell-free execution:
 Windows can dispatch `.cmd`/`.bat` files through `cmd.exe`; see
 [the MSRC explanation](https://www.microsoft.com/en-us/msrc/blog/2014/04/ms14-019-fixing-a-binary-hijacking-via-cmd-or-bat-file).

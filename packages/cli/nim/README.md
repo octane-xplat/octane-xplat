@@ -169,9 +169,9 @@ Public job status/cancel and web/macOS build creation use the native host. Other
 job creators still need their project-engine adapters.
 `local_rpc.nim` selects the raw transport. Its Windows named-pipe probe qualifies
 private SDK endpoint ownership, bounded framing/deadlines and pending-I/O cleanup,
-including stalled writes and independent Node peers. The production Windows owner
-still awaits detached bootstrap integration; transport proof does not enable its
-commands. `unix_rpc.nim` supplies bounded one-request NDJSON over macOS and Linux Unix sockets, with
+including stalled writes and independent Node peers. Windows detached owner
+bootstrap and authenticated control pass their actual-host gate, including
+separate SSH connections; this foundation does not qualify project build commands. `unix_rpc.nim` supplies bounded one-request NDJSON over macOS and Linux Unix sockets, with
 Node interoperability, input/output byte limits, I/O deadlines and draining close.
 It preserves existing/replacement socket paths and never owns an application's
 process merely because its client disconnects. `host_bootstrap.nim` provides the
@@ -201,9 +201,13 @@ the process-group cleanup guarantee. Windows managed-process jobs pass a separat
 arguments, pipes, exit status and descendant cleanup, including abrupt supervisor
 death. Windows private NTFS storage and lifetime locks pass their separate gate,
 including current-user ACLs, reparse/hardlink refusal, identity-bound cleanup,
-open-reader atomic publication and native-precreated Node sidecars. Detached
-owner launch, production RPC integration and the joined Windows worker workflow
-remain unimplemented.
+open-reader atomic publication and native-precreated Node sidecars. Same-executable
+Windows owner launch, concurrent startup, authentication, shutdown/restart and
+fixture-job cancellation now pass. Direct PowerShell and Bun script-run launches
+preserve an owner across separate SSH connections; abrupt root exit releases its
+longer-lived descendant through the retained job guard. Windows Turbo task teardown
+ends the detached owner in the observed context; that invocation remains
+unqualified. The joined Windows installed-worker workflow remains pending.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
@@ -450,8 +454,9 @@ Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
 Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
 cleanup pass their separate gates. The representative canonical project-worker
 and web-build workflow also passes on Linux. Windows managed-process jobs and
-HTTP/TLS pass separate actual-host gates; private owner/RPC and the joined
-workflow remain unqualified. Remaining command contracts,
+HTTP/TLS pass separate actual-host gates. Private owner/bootstrap/RPC also pass,
+including PowerShell ancestry and Bun script-run cross-SSH handoff. The joined
+installed-worker workflow and Windows Turbo owner survival remain unqualified. Remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,

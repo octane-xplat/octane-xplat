@@ -8,6 +8,7 @@ import ./agent_host
 import ./runtime_service
 import ./docs_compute
 import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
+when defined(windows): import ./windows_bootstrap
 
 # MSVC rejects one large generated C string literal. Keep each embedded part
 # bounded, then reconstruct the same JSON before any command is dispatched.
@@ -43,6 +44,7 @@ if argv.len > 0 and argv[0] == "--internal-agent-host":
   try: idleMs = max(250,parseInt(getEnv("XPLAT_AGENT_HOST_IDLE_MS","120000")))
   except ValueError: discard
   try:
+    when defined(windows): adoptBootstrapOwner()
     waitFor runNativeHost(argv[1],%*{"name": "@octane-xplat/cli","version": data["version"]},runtimeDispatcher(argv[1]),idleMs=idleMs)
     exitProcess(0)
   except CatchableError as error:

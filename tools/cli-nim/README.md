@@ -524,8 +524,8 @@ empty PATH and exact native/Node response hashes. It never installs a test CA.
 Windows loopback TLS tests use Git's existing OpenSSL only to generate disposable
 certificates; Unicode/spaced explicit CA paths are exercised too. These Windows
 checks currently use the isolated snapshot driver, not the root workspace's full
-multi-probe build. Detached owner launch/authenticated RPC and the joined Windows
-worker workflow remain unqualified.
+multi-probe build. Detached owner/authenticated RPC have their separate gate;
+the joined Windows installed-worker workflow remains unqualified.
 
 A separate Windows storage gate exercises actual current-user-only SDK ACLs,
 local NTFS volume/file identities and nonblocking lifetime locks. It refuses
@@ -536,7 +536,7 @@ a replacement file; POSIX-style NTFS rename keeps open readers on the old bytes
 while new readers observe complete publications. Node's token-default owner can
 differ from the current user, so private worker responses must be precreated
 natively and written in place; ordinary inherited ACLs alone do not prove ownership.
-These primitive checks do not enable a Windows host or installed-worker workflow.
+These primitive checks alone do not qualify an owner or installed-worker workflow.
 
 ```sh
 # In the isolated snapshot, compile under native_builds plus device:windy:
@@ -559,8 +559,8 @@ private-owner requests validate the connected handle before transmitting data.
 The gate covers fragmented UTF-8, malformed/bounded frames, deadlines, connection
 pressure, repeated handles, stalled writes, and shutdown while a client stays
 paused. Windows-only stop markers control the test probe, not production CLI
-commands or console events. Production Windows owner bootstrap still awaits
-its separate detached-launch/RPC integration and installed-worker proof.
+commands or console events. Production Windows owner bootstrap has its separate
+detached-launch/RPC gate; installed-worker proof remains pending.
 
 ```sh
 # In the snapshot, build under the destination's native build reservation:
@@ -592,6 +592,27 @@ workflow below is separate from these owner fixtures.
 ```sh
 # From the extracted snapshot, under the Linux guest/build reservation:
 bun run turbo run test:portability-rpc test:portability-host --filter=@xplat/nim-portability-source --concurrency=1
+```
+
+Windows owner qualification adds private job-guard handoff, concurrent startup,
+token validation, shutdown/restart, unpublished-startup cancellation and abrupt
+root death with a longer-lived descendant. Minimal async fixtures retain
+`SystemRoot` while leaving `PATH` empty. Normal PowerShell launches also exercise
+hidden drive-directory environment entries; Node parents can hide those entries.
+
+For SSH lifetime proof, run `test:nim-portability-handoff` on the controlling Mac
+under the Windows host lease. Set `XPLAT_NIM_HANDOFF_CONFIG` to task-local JSON
+containing `host`, absolute Windows `source`, `cache`, `bun`, `temporary` paths and
+the exact source `manifestSha256`. The gate first starts/stops a native owner
+directly from PowerShell, then uses the pinned Bun script runner to start and
+verify the production owner over separate SSH connections. Credentials remain in
+the private native descriptor. Windows Turbo task teardown ends the owner in the
+observed context; that invocation is unqualified, rather than equivalent to the
+qualified direct/Bun launch. The teardown mechanism still needs investigation.
+
+```sh
+# From the authoritative repository on the controlling Mac:
+goddard-agent resource run --json '{"resources":{"exclusive":["device:windy"]},"purpose":"Native owner SSH handoff"}' -- env XPLAT_NIM_HANDOFF_CONFIG=/path/to/task-local-handoff.json bun run turbo run test:nim-portability-handoff --only
 ```
 
 Use the optional worker snapshot to exercise the production owner and actual

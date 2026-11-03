@@ -14,6 +14,7 @@
 #include <wchar.h>
 #include <stdint.h>
 #include "process_windows.h"
+#include "windows_process_util.h"
 
 typedef struct {
   HANDLE process, job, output, error;
@@ -24,51 +25,6 @@ static void close_handle(HANDLE *handle) {
   *handle = NULL;
 }
 
-static wchar_t *wide(const char *value) {
-  int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, value, -1, NULL, 0);
-  wchar_t *result;
-  if (!length) return NULL;
-  result = (wchar_t *)calloc((size_t)length, sizeof(wchar_t));
-  if (!result) { SetLastError(ERROR_NOT_ENOUGH_MEMORY); return NULL; }
-  if (!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, value, -1, result, length)) {
-    DWORD error = GetLastError(); free(result); SetLastError(error); return NULL;
-  }
-  return result;
-}
-
-static int compare_environment(const void *a, const void *b) {
-  /* Windows environment names use ordinal case-insensitive comparison. */
-  return CompareStringOrdinal(*(const wchar_t *const *)a, -1,
-    *(const wchar_t *const *)b, -1, TRUE) - CSTR_EQUAL;
-}
-
-static wchar_t *environment_block(const char *const *values, size_t count) {
-  wchar_t **items = (wchar_t **)calloc(count ? count : 1, sizeof(wchar_t *));
-  wchar_t *result = NULL, *cursor;
-  size_t index, length = 1;
-  DWORD error = ERROR_NOT_ENOUGH_MEMORY;
-  if (!items) goto done;
-  for (index = 0; index < count; ++index) {
-    items[index] = wide(values[index]);
-    if (!items[index]) { error = GetLastError(); goto done; }
-    if (wcslen(items[index]) > 32766 || length > SIZE_MAX / sizeof(wchar_t) - wcslen(items[index]) - 2) {
-      error = ERROR_BAD_ENVIRONMENT; goto done;
-    }
-    length += wcslen(items[index]) + 1;
-  }
-  qsort(items, count, sizeof(wchar_t *), compare_environment);
-  result = (wchar_t *)calloc(length + 1, sizeof(wchar_t));
-  if (!result) goto done;
-  cursor = result;
-  for (index = 0; index < count; ++index) {
-    size_t size = wcslen(items[index]) + 1;
-    memcpy(cursor, items[index], size * sizeof(wchar_t)); cursor += size;
-  }
-done:
-  if (items) { for (index = 0; index < count; ++index) free(items[index]); free(items); }
-  if (!result) SetLastError(error);
-  return result;
-}
 
 void *xplat_windows_spawn(const char *executable, const char *command_line,
   const char *cwd, const char *const *environment, size_t count,
@@ -84,8 +40,6 @@ void *xplat_windows_spawn(const char *executable, const char *command_line,
   SIZE_T attribute_size = 0;
   int attributes_initialized = 0, succeeded = 0;
   DWORD failure = ERROR_NOT_ENOUGH_MEMORY;
-  DWORD binary_type;
-  size_t executable_length;
   memset(&startup, 0, sizeof(startup)); memset(&process, 0, sizeof(process));
   memset(&limits, 0, sizeof(limits));
   *error = 0; *pid = 0;
@@ -94,20 +48,7 @@ void *xplat_windows_spawn(const char *executable, const char *command_line,
   block = environment_block(environment, count);
   if (!exe || !line || !directory || !block) { failure = GetLastError(); goto done; }
   if (wcslen(line) >= 32767) { failure = ERROR_FILENAME_EXCED_RANGE; goto done; }
-  /* CreateProcessW can dispatch batch files through cmd even without an
-   * explicit shell call. Refuse their Win32-normalized names and require an
-   * actual Windows executable image before creating any process or job. */
-  executable_length = wcslen(exe);
-  while (executable_length && (exe[executable_length-1] == L'.' || exe[executable_length-1] == L' ')) --executable_length;
-  if (executable_length >= 4 &&
-      (CompareStringOrdinal(exe + executable_length - 4, 4, L".cmd", 4, TRUE) == CSTR_EQUAL ||
-       CompareStringOrdinal(exe + executable_length - 4, 4, L".bat", 4, TRUE) == CSTR_EQUAL)) {
-    failure = ERROR_BAD_EXE_FORMAT; goto done;
-  }
-  if (!GetBinaryTypeW(exe, &binary_type)) goto failed;
-  if (binary_type != SCS_32BIT_BINARY && binary_type != SCS_64BIT_BINARY) {
-    failure = ERROR_BAD_EXE_FORMAT; goto done;
-  }
+  if (!executable_image(exe,&failure)) goto done;
   result->job = CreateJobObjectW(NULL, NULL);
   if (!result->job) goto failed;
   limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;

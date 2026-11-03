@@ -19,6 +19,8 @@ void xplat_private_free(void *bytes);
 int xplat_private_publish(const char *path, const char *temporary,
   const char *bytes, size_t length, XplatPrivateStamp *stamp, uint32_t *error);
 int xplat_private_remove(const char *path, XplatPrivateStamp stamp, uint32_t *error);
+/* Returns a non-inheritable append-only regular-file handle, or NULL. */
+void *xplat_private_append(const char *path, uint32_t *error);
 void *xplat_private_lock(const char *path, uint32_t *error);
 void xplat_private_unlock(void *lock);
 #endif
