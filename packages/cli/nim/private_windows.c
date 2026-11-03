@@ -84,7 +84,10 @@ static int reserved(const wchar_t *name, size_t length) {
   while (base < length && name[base] != L'.') ++base;
   if (base == 3 && (!_wcsnicmp(name,L"CON",3) || !_wcsnicmp(name,L"PRN",3) ||
       !_wcsnicmp(name,L"AUX",3) || !_wcsnicmp(name,L"NUL",3))) return 1;
-  return base == 4 && name[3] >= L'1' && name[3] <= L'9' &&
+  if ((base==6 && !_wcsnicmp(name,L"CONIN$",6)) ||
+      (base==7 && !_wcsnicmp(name,L"CONOUT$",7))) return 1;
+  return base == 4 && ((name[3]>=L'1' && name[3]<=L'9') ||
+      name[3]==0x00b9 || name[3]==0x00b2 || name[3]==0x00b3) &&
     (!_wcsnicmp(name,L"COM",3) || !_wcsnicmp(name,L"LPT",3));
 }
 static wchar_t *local_path(const char *input, uint32_t *error) {
@@ -124,6 +127,15 @@ static int directory_handle(HANDLE handle, uint32_t *error) {
       (info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT)) return failure(error,ERROR_ACCESS_DENIED);
   return 0;
 }
+static int ntfs_handle(HANDLE handle,uint32_t *error) {
+  wchar_t filesystem[32];
+  /* The shared stamp carries NTFS's 64-bit index. Do not infer local NTFS
+   * from drive-letter syntax: a drive letter can designate a network share. */
+  if (!GetVolumeInformationByHandleW(handle,NULL,0,NULL,NULL,NULL,filesystem,32))
+    return failure(error,GetLastError());
+  if (_wcsicmp(filesystem,L"NTFS")) return failure(error,ERROR_NOT_SUPPORTED);
+  return 0;
+}
 /* Pin every ancestor without FILE_SHARE_DELETE while operating on a path. This
  * prevents a junction/rename swap between validation and the final SDK open. */
 static int guard_parent(wchar_t *path, PathGuard *guard, PrivateSecurity *create, uint32_t *error) {
@@ -131,6 +143,19 @@ static int guard_parent(wchar_t *path, PathGuard *guard, PrivateSecurity *create
   memset(guard,0,sizeof(*guard));
   guard->handles = calloc(length,sizeof(HANDLE));
   if (!guard->handles) return failure(error,ERROR_NOT_ENOUGH_MEMORY);
+  /* Validate/pin the volume before creating any missing directory. */
+  wchar_t next=path[3];
+  path[3]=0;
+  if (GetDriveTypeW(path)==DRIVE_REMOTE) {
+    path[3]=next; unguard(guard); return failure(error,ERROR_NOT_SUPPORTED);
+  }
+  HANDLE root=CreateFileW(path,FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE,
+    NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,NULL);
+  DWORD rootError=GetLastError();
+  path[3]=next;
+  if (root==INVALID_HANDLE_VALUE) { unguard(guard); return failure(error,rootError); }
+  guard->handles[guard->count++]=root;
+  if (directory_handle(root,error)<0 || ntfs_handle(root,error)<0) { unguard(guard); return -1; }
   for (index=3; index<length; ++index) if (path[index]==L'\\') {
     HANDLE handle;
     path[index]=0;
@@ -148,25 +173,12 @@ static int guard_parent(wchar_t *path, PathGuard *guard, PrivateSecurity *create
   }
   return 0;
 }
-static int private_handle(HANDLE handle, PrivateSecurity *security, int directory,
-    XplatPrivateStamp *stamp, uint32_t *error) {
-  BY_HANDLE_FILE_INFORMATION info;
+static int security_handle(HANDLE handle, PrivateSecurity *security, uint32_t *error) {
   PSECURITY_DESCRIPTOR descriptor=NULL;
   PSID owner=NULL;
   PACL acl=NULL;
   ACCESS_ALLOWED_ACE *ace=NULL;
-  wchar_t filesystem[32];
   DWORD code;
-  if (GetFileType(handle)!=FILE_TYPE_DISK || !GetFileInformationByHandle(handle,&info))
-    return failure(error,GetLastError());
-  if ((info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ||
-      (!!(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != !!directory) ||
-      (!directory && info.nNumberOfLinks!=1)) return failure(error,ERROR_ACCESS_DENIED);
-  /* The shared FileStamp contract carries NTFS's 64-bit file index. ReFS's
-   * 128-bit identity and network/filesystem ACL semantics need separate proof. */
-  if (!GetVolumeInformationByHandleW(handle,NULL,0,NULL,NULL,NULL,filesystem,32))
-    return failure(error,GetLastError());
-  if (_wcsicmp(filesystem,L"NTFS")) return failure(error,ERROR_NOT_SUPPORTED);
   code=GetSecurityInfo(handle,SE_FILE_OBJECT,OWNER_SECURITY_INFORMATION|DACL_SECURITY_INFORMATION,
     &owner,NULL,&acl,NULL,&descriptor);
   if (code!=ERROR_SUCCESS) return failure(error,code);
@@ -178,6 +190,25 @@ static int private_handle(HANDLE handle, PrivateSecurity *security, int director
       !EqualSid(&ace->SidStart,security->user->User.Sid)) code=ERROR_ACCESS_DENIED;
   LocalFree(descriptor);
   if (code!=ERROR_SUCCESS) return failure(error,code);
+  return 0;
+}
+int xplat_private_security_check(void *handle, uint32_t *error) {
+  PrivateSecurity *security=xplat_private_security(error);
+  if (!security) return -1;
+  int result=security_handle(handle,security,error);
+  xplat_private_security_free(security);
+  return result;
+}
+static int private_handle(HANDLE handle, PrivateSecurity *security, int directory,
+    XplatPrivateStamp *stamp, uint32_t *error) {
+  BY_HANDLE_FILE_INFORMATION info;
+  if (GetFileType(handle)!=FILE_TYPE_DISK || !GetFileInformationByHandle(handle,&info))
+    return failure(error,GetLastError());
+  if ((info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) ||
+      (!!(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != !!directory) ||
+      (!directory && info.nNumberOfLinks!=1)) return failure(error,ERROR_ACCESS_DENIED);
+  if (ntfs_handle(handle,error)<0) return -1;
+  if (security_handle(handle,security,error)<0) return -1;
   if (stamp) {
     stamp->device=info.dwVolumeSerialNumber;
     stamp->file=((uint64_t)info.nFileIndexHigh<<32) | info.nFileIndexLow;
@@ -212,11 +243,14 @@ static int private_parent(wchar_t *path, PathGuard *guard, PrivateSecurity *secu
   /* Ancestor handles were opened for attributes only. Open the final parent
    * again with READ_CONTROL; the retained first handle prevents replacement. */
   wchar_t *last=wcsrchr(path,L'\\');
+  /* Preserve the root separator: bare C: is not the directory C:\. */
+  wchar_t *end=(last==path+2)?path+3:last;
+  wchar_t saved=*end;
   HANDLE handle;
-  *last=0;
+  *end=0;
   handle=CreateFileW(path,READ_CONTROL|FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE,
     NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS|FILE_FLAG_OPEN_REPARSE_POINT,NULL);
-  *last=L'\\';
+  *end=saved;
   if (handle==INVALID_HANDLE_VALUE) return failure(error,GetLastError());
   int result=private_handle(handle,security,1,NULL,error);
   CloseHandle(handle); return result;

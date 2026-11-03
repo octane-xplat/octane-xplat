@@ -6,7 +6,8 @@ import { once } from 'node:events'
 import { createInterface } from 'node:readline'
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync,
  readdirSync, statSync, linkSync, unlinkSync, symlinkSync, renameSync, openSync, closeSync } from 'node:fs'
-import { resolve, join } from 'node:path'
+import { resolve, join, parse } from 'node:path'
+import { randomUUID } from 'node:crypto'
 import { assertCurrentNativeBuild, storageProbeInputs } from './native-inputs.mjs'
 import { assertPortabilityArtifact } from './portability-proof.mjs'
 
@@ -25,8 +26,8 @@ if (windows) {
  if (portable) {assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'storage-build-result.json'))), bytes, 'tools/cli-nim/storage_probe.nim')}
  else {assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/storage-build.json'))), bytes, storageProbeInputs)}
 }
-function probe() {
- const child = spawn(binary, [], { env: { ...process.env, PATH: '', NODE_PATH: '', NODE_OPTIONS: '' }, stdio: ['pipe','pipe','pipe'] })
+function probe(options = {}) {
+ const child = spawn(binary, [], { cwd: options.cwd, env: { ...process.env, PATH: '', NODE_PATH: '', NODE_OPTIONS: '' }, stdio: ['pipe','pipe','pipe'] })
  const lines = createInterface({ input: child.stdout })
  let errors = ''
  child.stderr.setEncoding('utf8'); child.stderr.on('data', text => {errors += text})
@@ -180,8 +181,21 @@ test('NUL, ADS, device aliases and ambiguous path components fail before storage
  for (const invalid of [path+'\0suffix',path+':stream',path+'.',path+' ',join(parent,'NUL.txt'),join(parent,'COM1'),join(parent,'..','invalid')+'\\.\\other', 'relative-native-file']) {
   rejected(await client.send({ operation: 'publish', path: invalid, base64: Buffer.from('bad').toString('base64') }))
  }
+ for (const name of ['COM¹.txt','COM²','COM³','LPT¹','LPT².txt','LPT³','CONIN$','CONOUT$']) {
+  const value = await client.send({ operation: 'publish', path: join(parent, name), base64: '' })
+  rejected(value); assert.equal(value.code, 123, 'Device names must fail preflight, before an SDK open')
+ }
  assert.equal(readFileSync(path, 'utf8'), 'safe')
  assert.deepEqual(readdirSync(parent), ['file.txt'])
+})
+test('drive-root parents are validated as roots rather than drive-relative current directories', host, async () => {
+ const client = probe(), parent = await directory(client, 'root-parent')
+ const inPrivateCwd = probe({ cwd: parent })
+ const absent = join(parse(parent).root, `xplat-absent-${randomUUID()}.json`)
+ assert.equal(existsSync(absent), false)
+ const value = await inPrivateCwd.send({ operation: 'read', path: absent })
+ rejected(value); assert.equal(value.code, 5)
+ assert.equal(existsSync(absent), false)
 })
 test('lifetime locks contend without blocking and pin file plus ancestor identities until release', host, async () => {
  const owner = probe(), other = probe(), parent = await directory(owner, 'lock'), path = join(parent, 'host.lock')

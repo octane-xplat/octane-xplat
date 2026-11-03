@@ -167,7 +167,11 @@ no JS microtask schedule is assumed. `contract_failure.nim` carries structured
 errors across async boundaries with a fallback for ordinary/uninitialized errors.
 Public job status/cancel and web/macOS build creation use the native host. Other application
 job creators still need their project-engine adapters.
-`unix_rpc.nim` supplies bounded one-request NDJSON over macOS and Linux Unix sockets, with
+`local_rpc.nim` selects the raw transport. Its Windows named-pipe probe qualifies
+private SDK endpoint ownership, bounded framing/deadlines and pending-I/O cleanup,
+including stalled writes and independent Node peers. The production Windows owner
+still awaits detached bootstrap integration; transport proof does not enable its
+commands. `unix_rpc.nim` supplies bounded one-request NDJSON over macOS and Linux Unix sockets, with
 Node interoperability, input/output byte limits, I/O deadlines and draining close.
 It preserves existing/replacement socket paths and never owns an application's
 process merely because its client disconnects. `host_bootstrap.nim` provides the
@@ -198,7 +202,8 @@ arguments, pipes, exit status and descendant cleanup, including abrupt superviso
 death. Windows private NTFS storage and lifetime locks pass their separate gate,
 including current-user ACLs, reparse/hardlink refusal, identity-bound cleanup,
 open-reader atomic publication and native-precreated Node sidecars. Detached
-owner launch, local RPC and the joined Windows worker workflow remain unimplemented.
+owner launch, production RPC integration and the joined Windows worker workflow
+remain unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem

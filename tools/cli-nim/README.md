@@ -524,8 +524,8 @@ empty PATH and exact native/Node response hashes. It never installs a test CA.
 Windows loopback TLS tests use Git's existing OpenSSL only to generate disposable
 certificates; Unicode/spaced explicit CA paths are exercised too. These Windows
 checks currently use the isolated snapshot driver, not the root workspace's full
-multi-probe build. Local RPC, detached owner launch and the joined Windows worker
-workflow remain unqualified.
+multi-probe build. Detached owner launch/authenticated RPC and the joined Windows
+worker workflow remain unqualified.
 
 A separate Windows storage gate exercises actual current-user-only SDK ACLs,
 local NTFS volume/file identities and nonblocking lifetime locks. It refuses
@@ -550,6 +550,24 @@ to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols throug
 `GLIBC_2.38` and `GLIBCXX_3.4.31`; this is build evidence, not qualification of
 older distributions or musl. Define and execute a supported deployment baseline
 before treating a small compressed ELF as a self-contained Linux distribution.
+
+The snapshot's RPC probe selects `local_rpc`: qualified Unix sockets on POSIX,
+and Windows SDK local byte pipes with private current-user ACLs and first-instance
+ownership. The Windows event loop polls C-owned OVERLAPPED buffers; cancellation
+awaits kernel completion before release. Generic requests interoperate with Node;
+private-owner requests validate the connected handle before transmitting data.
+The gate covers fragmented UTF-8, malformed/bounded frames, deadlines, connection
+pressure, repeated handles, stalled writes, and shutdown while a client stays
+paused. Windows-only stop markers control the test probe, not production CLI
+commands or console events. Production Windows owner bootstrap still awaits
+its separate detached-launch/RPC integration and installed-worker proof.
+
+```sh
+# In the snapshot, build under the destination's native build reservation:
+bun run turbo run build:portability-rpc --filter=@xplat/nim-portability-source --concurrency=1
+# Release native_builds before the runtime gate:
+bun run turbo run test:portability-rpc --filter=@xplat/nim-portability-source --only
+```
 
 The snapshot also exposes the real TypeScript managed-process reference and
 native process probe. The gate checks literal arguments/environment, descriptor

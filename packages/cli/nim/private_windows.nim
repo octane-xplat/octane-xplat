@@ -1,11 +1,9 @@
 ## Windows SDK storage boundary; only imported on Windows.
 ## Private NTFS objects use explicit owner/DACLs, never POSIX mode emulation.
 import std/[os, options]
-import ./js_text, ./native_identity
+import ./js_text, ./native_identity, ./windows_security
 
-{.compile: "private_windows.c".}
-{.passL: "advapi32.lib".}
-const header = currentSourcePath().parentDir / "private_windows.h"
+const header = windowsPrivateHeader
 type
   PrivateStamp {.importc: "XplatPrivateStamp", header: header, bycopy.} = object
     device: uint32

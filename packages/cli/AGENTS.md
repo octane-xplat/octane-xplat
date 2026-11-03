@@ -414,6 +414,22 @@ only if its identity still matches, since another listener can replace its name.
 Nim's `std/asyncnet` Unix-socket API is qualified on macOS and Linux for this
 bounded protocol; reuse it before adding a separate socket engine. Keep transport
 interoperability separate from authenticated owner and project-worker evidence.
+For Windows, use the explicit `local_rpc` platform boundary. Keep SDK OVERLAPPED
+records, events and pending buffers in C-owned memory. `CancelIoEx` requests
+cancellation; it does not release that memory. Poll terminal completion before
+closing handles/freeing buffers, and share one release future across repeated
+close calls. Reinitialize an OVERLAPPED record only after its prior I/O completes.
+A timed-out Nim future alone cannot establish kernel cleanup.
+
+A completed pipe write can still be buffered. Let ordinary clients consume the
+reply and disconnect with a bounded asynchronous drain; blocking
+`FlushFileBuffers` lets an unresponsive client freeze the host. Bound rejection
+work as well as admitted peers. Check private endpoint owner/DACLs on the same
+connected handle before sending credentials; checking, closing and reopening
+introduces a replacement race. Generic Node interoperability is separate from
+private-owner authentication. Qualify stalled writes and shutdown after observed
+reply bytes, in addition to idle reads and repeated handle counts.
+
 Reuse platform spawn options for detached host launch as well as managed children:
 explicit stdio inheritance must not leak the launcher's lifetime-lock descriptor.
 
@@ -528,6 +544,11 @@ a lifetime lock retains them plus its exact locked file until release. Keep
 handle-based deletion bound to the recorded volume/file identity. The shared
 stamp uses NTFS's 64-bit index; ReFS, UNC/device paths and junction-based cache
 roots need separate adapters/qualification.
+Preserve `C:\` when extracting a root parent: bare `C:` has different Windows
+semantics. Validate/pin the volume before creating missing directories, since a
+drive letter can map to a network share. Reserved device aliases include
+superscript-digit COM/LPT names and CONIN$/CONOUT$; reject them before opening a
+handle, rather than relying only on a later regular-file check.
 
 An inherited private DACL does not establish a newly created file's owner.
 Windows uses the creator token's default owner, which can be a group rather than
