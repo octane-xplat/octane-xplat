@@ -61,6 +61,41 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 		return nil, err
 	}
 	switch command {
+	case "doc-data":
+		var input struct {
+			Operation, Root, Path, Content, Corpus, Ref string
+			Values                                      map[string]any
+		}
+		if err = readJSON(*request, &input); err != nil {
+			return nil, err
+		}
+		switch input.Operation {
+		case "list":
+			documents, err := listDocuments(ctx, input.Root)
+			if err != nil {
+				return nil, err
+			}
+			result := []any{}
+			for _, doc := range documents {
+				result = append(result, map[string]any{"path": doc.Path, "corpus": doc.Corpus})
+			}
+			return result, nil
+		case "page":
+			page, reason := docPage(input.Root, input.Path, input.Values)
+			if reason != "" {
+				return map[string]any{"error": reason}, nil
+			}
+			return page, nil
+		case "chunks":
+			return markdownChunks(docFile{input.Path, input.Corpus, input.Content}), nil
+		case "ref":
+			name, version, path, valid := parseDocReference(input.Ref)
+			if !valid {
+				return json.RawMessage("null"), nil
+			}
+			return map[string]string{"package": name, "version": version, "path": path}, nil
+		}
+		return nil, errors.New("unknown document-data probe operation")
 	case "package-manager":
 		var input struct {
 			Operation string  `json:"operation"`

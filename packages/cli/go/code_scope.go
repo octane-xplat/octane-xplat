@@ -105,7 +105,9 @@ func validPackageName(name string) bool {
 
 // Installed sources include hoisted packages, not only direct declarations.
 // Follow pnpm links, but label actual checkout content as development source.
-func installedCodeCorpora(app string) []codeCorpus {
+type installedPackage struct{ Name, Version, Kind, Root string }
+
+func installedPackages(app string) []installedPackage {
 	candidates := map[string]bool{"tsrx-typegen": true, "create-octane-xplat": true}
 	pkg := jsonObject(filepath.Join(app, "package.json"))
 	specs := dependencies(pkg)
@@ -133,7 +135,7 @@ func installedCodeCorpora(app string) []codeCorpus {
 		names = append(names, name)
 	}
 	slices.Sort(names)
-	result := []codeCorpus{}
+	result := []installedPackage{}
 	for _, name := range names {
 		if !mappedPackage(name) {
 			continue
@@ -159,11 +161,19 @@ func installedCodeCorpora(app string) []codeCorpus {
 				kind = "linked"
 			}
 		}
-		source := root
-		if info, err := os.Stat(filepath.Join(root, "src")); err == nil && info.IsDir() {
-			source = filepath.Join(root, "src")
+		result = append(result, installedPackage{Name: name, Version: version, Kind: kind, Root: root})
+	}
+	return result
+}
+
+func installedCodeCorpora(app string) []codeCorpus {
+	result := []codeCorpus{}
+	for _, pkg := range installedPackages(app) {
+		source := pkg.Root
+		if info, err := os.Stat(filepath.Join(pkg.Root, "src")); err == nil && info.IsDir() {
+			source = filepath.Join(pkg.Root, "src")
 		}
-		result = append(result, codeCorpus{Corpus: "framework", Package: name, Version: version, Kind: kind, Root: source, PackageRoot: root})
+		result = append(result, codeCorpus{Corpus: "framework", Package: pkg.Name, Version: pkg.Version, Kind: pkg.Kind, Root: source, PackageRoot: pkg.Root})
 	}
 	return result
 }
@@ -266,22 +276,24 @@ type sourceData struct {
 }
 
 func scopedSource(corpus codeCorpus, path string) (sourceData, string) {
-	if !inside(corpus.Root, path) {
+	return scopedText(corpus.Root, corpus.PackageRoot, path, maxCodeBytes, func(rel string) bool { return codeExclusion(rel) == "" })
+}
+func scopedText(rootPath, exclusionRoot, path string, byteLimit int64, accept func(string) bool) (sourceData, string) {
+	if !inside(rootPath, path) {
 		return sourceData{}, "out-of-scope"
 	}
-	exclusionRoot := corpus.PackageRoot
 	if exclusionRoot == "" {
-		exclusionRoot = corpus.Root
+		exclusionRoot = rootPath
 	}
 	rel, err := filepath.Rel(exclusionRoot, path)
 	if err != nil {
 		return sourceData{}, "out-of-scope"
 	}
-	if reason := codeExclusion(rel); reason != "" {
+	if !accept(filepath.ToSlash(rel)) {
 		return sourceData{}, "excluded"
 	}
 	real, err := canonical(path)
-	root, rootErr := canonical(corpus.Root)
+	root, rootErr := canonical(rootPath)
 	exclusion, exclusionErr := canonical(exclusionRoot)
 	if err != nil || rootErr != nil || exclusionErr != nil {
 		return sourceData{}, "unavailable"
@@ -290,7 +302,7 @@ func scopedSource(corpus codeCorpus, path string) (sourceData, string) {
 		return sourceData{}, "out-of-scope"
 	}
 	rel, _ = filepath.Rel(exclusion, real)
-	if codeExclusion(rel) != "" {
+	if !accept(filepath.ToSlash(rel)) {
 		return sourceData{}, "excluded"
 	}
 	directory, err := os.OpenRoot(root)
@@ -305,11 +317,11 @@ func scopedSource(corpus codeCorpus, path string) (sourceData, string) {
 	}
 	defer file.Close()
 	before, err := file.Stat()
-	if err != nil || !before.Mode().IsRegular() || before.Size() > maxCodeBytes {
+	if err != nil || !before.Mode().IsRegular() || before.Size() > byteLimit {
 		return sourceData{}, "unavailable"
 	}
-	data, err := io.ReadAll(io.LimitReader(file, maxCodeBytes+1))
-	if err != nil || len(data) > maxCodeBytes || strings.ContainsRune(string(data), '\x00') {
+	data, err := io.ReadAll(io.LimitReader(file, byteLimit+1))
+	if err != nil || int64(len(data)) > byteLimit || strings.ContainsRune(string(data), '\x00') {
 		return sourceData{}, "unavailable"
 	}
 	after, err := file.Stat()

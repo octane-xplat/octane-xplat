@@ -782,6 +782,15 @@ differ while results remain useful; do not port a JS runtime merely for those
 incidental ordering differences. Native code intent search uses a bounded local
 TF-IDF snapshot; docs model inference remains a separate native ONNX boundary.
 
+Native document reads use an explicit Markdown corpus allow-list, not every `.md`
+file under a checkout. Keep guide, recipe, design/implementation-note, readme and
+changelog labels distinct, including canonical targets of aliases. Skip directory
+cycles, reject external/private targets, and fail explicitly when traversal or
+inventory limits are exceeded. Fenced examples must not create headings or reset
+release ownership in changelog chunks. Share the bounded opened-file reader and
+UTF-16 continuation handling with code retrieval while keeping each corpus policy
+separate.
+
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
 reference descriptor's status. Keep permission checks, selection precedence and

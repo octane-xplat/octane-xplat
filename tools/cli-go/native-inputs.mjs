@@ -30,6 +30,8 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/code-index.ts',
 		'packages/cli/src/mcp/docs-binding.ts',
 		'packages/cli/src/mcp/release-map.ts',
+		'packages/cli/src/mcp/docs-retrieval.ts',
+		'packages/docs-search/src/chunks.ts',
 	)
 	return Object.fromEntries(
 		files.sort().map((file) => [file, sha256(readFileSync(join(root, file)))]),
