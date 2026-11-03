@@ -321,6 +321,55 @@ legitimately unimplemented on class-cluster declaring classes.
   upstream fix for the reversed property synthesis; recheck after a
   runtimes pin bump.
 
+## WKWebView media-capture delegate gate (checked 2026-11-03)
+
+`navigator.mediaDevices.getUserMedia` in this host was never observed
+reaching any `WKUIDelegate`
+(`webView:requestMediaCapturePermissionForOrigin:initiatedByFrame:
+type:decisionHandler:`): the promise stays pending forever while the
+WebContent main thread idles on the IPC reply and the UI process shows
+no capture work on any thread. Instrumentation confirmed the delegate
+was installed and answered `respondsToSelector:`. That is consistent
+with a gate upstream of the delegate in WebKit's capture-availability
+path, but it does not establish the cause — and because the call never
+arrives, it exercises nothing of the delegate's decision path, so no
+implementation of that path has been qualified by real delivery.
+
+Checked lanes (real relocated .app, instrumented host):
+
+- ad-hoc `xplat://app` origin, with and without camera/mic usage
+  descriptions, and `http://127.0.0.1` dev origin — never delivers.
+- ad-hoc signature + `com.apple.security.device.{camera,audio-input}`
+  entitlements (no sandbox) — never delivers.
+- app-sandbox + device entitlements + `network.client` +
+  `temporary-exception.mach-lookup` for the WebKit XPC services —
+  WebContent launches and the channel works, still never delivers.
+- TCC itself answers `Allowed (User Consent)` for the mic; it is not
+  the blocker. A Developer-signed bundle is the remaining untested
+  variable; treat real `getUserMedia` delivery as unqualified until then.
+
+Secondary trap: on an occluded window the WebContent suspends ~4 s
+after load (`ProcessThrottler`), which kills page timers — earlier
+proof runs went totally silent and mis-attributed the wedge. Ordering
+the window front keeps the renderer alive and the failure observable.
+
+Because the TypeScript replacement delegate (an exposedMethods
+signature feeding a `_Block_copy`/`NSInvocation` decision path) could
+not be qualified by real delivery, the media delegate stays on the
+retained native leaf
+(`packages/desktop-webview/platforms/macos/src/XplatWebViewNative.swift`):
+the same trusted-origin gate and per-type AVFoundation access the
+boundary shipped before. UserNotifications stay in TypeScript — that
+path IS runtime-qualified (the packaged proof resolves completions in
+1-4 ms). `test:macos-media-delegate` exercises the boundary on the real
+host: delegate installed, survives GC under the state pin, answers
+untrusted/nil origins with deterministic denial, and uninstalls on
+dispose.
+
+`WKWebView.UIDelegate` is a weak property, so the delegate must still
+be pinned JS-side — `createMacOSWebView` stores it in the channel state
+and drops the pin on dispose (fix in `macos.macos.ts`, 2026-11-03).
+
 ## Other verified host quirks
 
 Recorded where they were found rather than repeated here:

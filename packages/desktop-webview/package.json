@@ -9,6 +9,7 @@
 		"directory": "packages/desktop-webview"
 	},
 	"files": [
+		"platforms",
 		"src",
 		"types"
 	],
@@ -20,10 +21,19 @@
 		}
 	},
 	"scripts": {
-		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs"
+		"test:macos-movie-storage": "node tests/movie-storage.macos.mjs",
+		"test:macos-media-delegate": "node tests/media-delegate.macos.mjs"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
 		"@octane-xplat/platform": "workspace:*"
+	},
+	"xplat": {
+		"macos": {
+			"frameworks": [
+				"AVFoundation",
+				"WebKit"
+			]
+		}
 	}
 }

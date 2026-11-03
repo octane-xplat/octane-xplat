@@ -125,6 +125,10 @@
 			"dependsOn": ["^typegen"],
 			"cache": false
 		},
+		"@octane-xplat/desktop-webview#test:macos-media-delegate": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
 		// Packs the package and installs the tarball in a temp consumer — side
 		// effects outside outputs/, keep uncached.
 		"test:packed": {
