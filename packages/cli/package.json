@@ -147,7 +147,8 @@
 		"test:go-binding": "node --test ../../tools/cli-go/package-binding.test.mjs",
 		"test:go-code": "node --test ../../tools/cli-go/code.test.mjs",
 		"test:go-doc-data": "node --test ../../tools/cli-go/doc-data.test.mjs",
-		"test:go-doc-snapshot": "node --test ../../tools/cli-go/doc-snapshot.test.mjs"
+		"test:go-doc-snapshot": "node --test ../../tools/cli-go/doc-snapshot.test.mjs",
+		"test:go-docs": "node --test ../../tools/cli-go/docs.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

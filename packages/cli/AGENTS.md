@@ -832,6 +832,19 @@ removing operation data, and retain it when cleanup cannot be confirmed. This
 boundary is separate from registering public docs commands or qualifying the
 persistent host's index/inference lifecycle.
 
+Keep project Markdown instructions separate from framework release results and
+apply canonical scope checks to both. Explicit comparisons for an uninstalled
+package are outside the installed binding even when a synthetic package record
+has the same requested version. Preserve `XPLAT_DOCS_REPO` for explicit offline
+mirrors/fixtures. Status reports provider readiness without acquiring snapshots.
+
+Bound Markdown chunk production before allocating result maps, including the
+total chunk count across pages. Reuse one current inventory for shared checkouts
+without retaining every release's full inventory in a multi-package request.
+Clone bounded Go substring excerpts so a small hit does not retain a large source
+buffer. Human excerpt boundaries may differ; version provenance, scope and UTF-16
+page continuation remain meaningful contracts to compare independently.
+
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
 reference descriptor's status. Keep permission checks, selection precedence and

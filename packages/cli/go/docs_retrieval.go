@@ -13,6 +13,7 @@ import (
 
 const maxDocBytes = 4 << 20
 const maxDocsBytes = 32 << 20
+const maxDocChunks = 20000
 
 type docFile struct{ Path, Corpus, Content string }
 type docChunk struct {
@@ -197,19 +198,23 @@ func docPlatforms(path, content string) []string {
 	}
 	return result
 }
-func markdownChunks(doc docFile) []docChunk {
+func markdownChunks(doc docFile) ([]docChunk, error) {
 	lines := strings.Split(doc.Content, "\n")
 	chunks := []docChunk{}
 	title, heading, fence, version, date := doc.Path, "", "", "", ""
 	start, size := 0, 0
-	emit := func(end int) {
+	emit := func(end int) error {
 		content := strings.TrimSpace(strings.Join(lines[start:end], "\n"))
 		if content != "" {
+			if len(chunks) >= maxDocChunks {
+				return fmt.Errorf("documentation exceeds 20000 chunks")
+			}
 			hash := sha256.Sum256([]byte(fmt.Sprintf("%s:%d:%s", doc.Path, start, content)))
 			chunks = append(chunks, docChunk{fmt.Sprintf("%x", hash), doc.Path, doc.Corpus, title, heading, content, start + 1, end, version, date})
 		}
 		start = end
 		size = 0
+		return nil
 	}
 	for index, line := range lines {
 		if marker := docFencePattern.FindStringSubmatch(line); len(marker) > 0 {
@@ -220,7 +225,9 @@ func markdownChunks(doc docFile) []docChunk {
 			}
 		} else if fence == "" {
 			if h := docHeadingPattern.FindStringSubmatch(line); len(h) > 0 {
-				emit(index)
+				if err := emit(index); err != nil {
+					return nil, err
+				}
 				heading = h[2]
 				if len(h[1]) == 1 {
 					title = heading
@@ -232,13 +239,17 @@ func markdownChunks(doc docFile) []docChunk {
 					}
 				}
 			} else if size >= 900 && strings.TrimSpace(line) == "" {
-				emit(index + 1)
+				if err := emit(index + 1); err != nil {
+					return nil, err
+				}
 			}
 		}
 		size += len(textUnits(line)) + 1
 	}
-	emit(len(lines))
-	return chunks
+	if err := emit(len(lines)); err != nil {
+		return nil, err
+	}
+	return chunks, nil
 }
 
 func docReference(name, version, path string) string {

@@ -33,6 +33,7 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/docs-retrieval.ts',
 		'packages/cli/src/mcp/docs-guidance.ts',
 		'packages/cli/src/mcp/docs-snapshots.ts',
+		'packages/cli/src/mcp/docs-service.ts',
 		'packages/docs-search/src/chunks.ts',
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',

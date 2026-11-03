@@ -80,6 +80,8 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'code search',
 			'code read',
 			'guidance',
+			'docs read',
+			'docs search',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -93,7 +95,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		8,
+		10,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
@@ -147,7 +149,8 @@ test('status preserves identity, guidance and actual package bindings without cl
 	assert.equal(data.server.name, '@octane-xplat/cli')
 	assert.equal(data.prerequisites.find((check) => check.id === 'node').status, 'missing')
 	assert.equal(data.prerequisites.find((check) => check.id === 'chromium').status, 'unknown')
-	assert.deepEqual(data.docs, { state: 'not_provided' })
+	assert.equal(data.docs.state, 'ready')
+	assert.match(data.docs.detail, /Index preparation is pending/)
 	assert.equal(data.codeIndex.state, 'ready')
 	for (const matrix of data.capabilities) {
 		assert.equal(matrix.declared, true)

@@ -64,6 +64,10 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				} else {
 					entry["detail"] = "Select an app before retrieving its source and installed framework packages."
 				}
+			case "docs":
+				if selection.State == "bound" {
+					entry = map[string]any{"capability": capability, "status": "partial", "detail": "Native version-bound docs read/search with explicit lexical fallback. Native docs index preparation is pending."}
+				}
 			case "screenshot":
 				entry["requiresPermission"] = "visual-capture"
 				entry["detail"] = "The Go screenshot provider is pending. Capture requires explicit per-task developer approval when supported."
@@ -216,11 +220,15 @@ func projectStatus(ctx context.Context, workspace *workspaceContext) (any, *cliE
 		}
 		steps = append(steps, "Run `xplat capabilities --json` before promising runtime support.")
 	}
+	docsStatus := map[string]any{"state": "unavailable", "detail": "Select an app before retrieving installed-version documentation."}
+	if selection.State == "bound" {
+		docsStatus = map[string]any{"state": "ready", "detail": "Native read/search provider; release snapshot availability is checked on retrieval. Index preparation is pending."}
+	}
 	return map[string]any{
 		"server":        map[string]any{"name": "@octane-xplat/cli", "version": metadata.Version},
 		"identity":      map[string]any{"workspace": workspace.Discovery.Workspace, "apps": workspace.Discovery.Apps, "selection": selection, "framework": binding},
 		"guidance":      map[string]any{"sources": workspace.guidance()},
-		"docs":          map[string]any{"state": "not_provided"},
+		"docs":          docsStatus,
 		"codeIndex":     workspace.codeIndexStatus(ctx),
 		"prerequisites": prerequisites, "capabilities": workspace.capabilityMatrix(platforms),
 		"permissions": permissionGrants(), "boundaries": metadata.Boundaries, "nextSteps": steps,

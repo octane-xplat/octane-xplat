@@ -385,7 +385,16 @@ func ensureDocSnapshot(ctx context.Context, operation string, input snapshotRequ
 	bound := func(record snapshotRecord, offline bool) map[string]any {
 		return map[string]any{"status": "bound", "dir": filepath.Join(cache, filepath.FromSlash(record.Snapshot)), "commit": record.Commit, "tag": tag, "offline": offline}
 	}
-	git := newSnapshotGit(operation)
+	stage, err := privateDirectory(operation, "snapshot-")
+	if err != nil {
+		return nil, err
+	}
+	for _, name := range []string{"git", "content", "empty"} {
+		if err = os.Mkdir(filepath.Join(stage, name), 0700); err != nil {
+			return nil, err
+		}
+	}
+	git := newSnapshotGit(stage)
 	if _, err = exec.LookPath("git"); err != nil {
 		if haveCache {
 			return bound(cached, true), nil
@@ -444,7 +453,7 @@ func ensureDocSnapshot(ctx context.Context, operation string, input snapshotRequ
 	if !slices.ContainsFunc(files, func(file snapshotBlob) bool { return file.Path == manifest }) {
 		return snapshotUnavailable(input, tag, "metadata-mismatch"), nil
 	}
-	content := filepath.Join(operation, "content")
+	content := filepath.Join(stage, "content")
 	stored, err := git.extract(ctx, files, content)
 	if err != nil {
 		return nil, err
@@ -474,10 +483,10 @@ func ensureDocSnapshot(ctx context.Context, operation string, input snapshotRequ
 	if err != nil {
 		return nil, err
 	}
-	if err = privateFile(filepath.Join(operation, "binding.json"), data); err != nil {
+	if err = privateFile(filepath.Join(stage, "binding.json"), data); err != nil {
 		return nil, err
 	}
-	relative, _ := filepath.Rel(cache, filepath.Join(operation, "binding.json"))
+	relative, _ := filepath.Rel(cache, filepath.Join(stage, "binding.json"))
 	if err = root.Rename(relative, metadata); err != nil {
 		return nil, err
 	}

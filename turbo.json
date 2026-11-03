@@ -2,6 +2,7 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:go-docs": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/docs-search#build"] },
 		"test:go-doc-snapshot": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
 		"test:go-doc-data": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go", "@octane-xplat/docs-search#build"] },
 		"test:go-code": { "cache": false, "dependsOn": ["build:go"] },

@@ -35,12 +35,8 @@ func nativeCompute(ctx context.Context, cache, operation string, payload any) (j
 			_ = os.RemoveAll(directory)
 		}
 	}()
-	// Register all snapshot staging on its destination filesystem before launch.
-	for _, name := range []string{"git", "content", "empty"} {
-		if err = os.Mkdir(filepath.Join(directory, name), 0700); err != nil {
-			return nil, err
-		}
-	}
+	// The registered root contains every snapshot stage on its destination
+	// filesystem. Its lifetime covers all inherited children in this request.
 	data, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
@@ -113,6 +109,11 @@ func computeChild(argv []string) int {
 	defer cancel()
 	var data any
 	switch request.Operation {
+	case "docs-read", "docs-search":
+		var input docsRequest
+		if err = json.Unmarshal(request.Data, &input); err == nil {
+			data, err = executeDocs(ctx, directory, request.Operation, input)
+		}
 	case "docs-snapshot":
 		var input snapshotRequest
 		if err = json.Unmarshal(request.Data, &input); err == nil {

@@ -101,7 +101,7 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 			}
 			return page, nil
 		case "chunks":
-			return markdownChunks(docFile{input.Path, input.Corpus, input.Content}), nil
+			return markdownChunks(docFile{input.Path, input.Corpus, input.Content})
 		case "ref":
 			name, version, path, valid := parseDocReference(input.Ref)
 			if !valid {
