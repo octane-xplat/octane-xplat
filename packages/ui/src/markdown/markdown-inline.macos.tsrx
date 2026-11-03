@@ -2,6 +2,8 @@
 import { Text } from '../components/content/Text.macos.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
 import { useFadeRunColor } from './markdown-fade.tsrx'
+import { getColorScheme } from '../theme/colorScheme.macos'
+import { accentColor } from '../theme/scheme-colors'
 import type { NavigationActivationEvent } from '../props'
 
 /**
@@ -36,7 +38,9 @@ export function MdLinkRun(props: {
   children?: unknown
 }): unknown @{
   return (
-    <span style={{ color: 'var(--color-text-accent, #3b82f6)', textDecorationLine: 'underline' }}>
+    <span
+      style={{ color: accentColor(getColorScheme()), textDecorationLine: 'underline' }}
+    >
       {props.children}
     </span>
   )
@@ -54,7 +58,7 @@ export function MdCitation(props: {
   const safe = props.source.url == null ? null : sanitizeUrl(props.source.url)
   void safe
   const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
-  return <span style={{ color: 'var(--color-text-accent, #3b82f6)' }}>{text}</span>
+  return <span style={{ color: accentColor(getColorScheme()) }}>{text}</span>
 }
 
 export function MdParagraph(props: { style?: unknown; children?: unknown }): unknown @{

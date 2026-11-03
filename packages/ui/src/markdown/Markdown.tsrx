@@ -36,6 +36,13 @@ import {
 
 import { getMarkdownFenceProposal, projectMarkdownHeadingLinks } from './markdown-plugin-helpers'
 import { MdSourceLines } from './markdown-source-lines.tsrx'
+import {
+  mdBodyFontFamily,
+  mdBodyFontSize,
+  mdBodyLineHeight,
+  mdBorderColor,
+  mdTextPrimary,
+} from './markdown-tokens'
 import { useClipboard } from '../internal/platform/use-clipboard.tsrx'
 import { useContainerReveal } from '../components/layout/use-container-reveal.tsrx'
 import { Button } from '../components/actions/Button.tsrx'
@@ -748,7 +755,7 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
     <Table
       dividers="grid"
       textOverflow="wrap"
-      style={{ borderWidth: 1, borderColor: 'var(--color-border)', borderStyle: 'solid' }}
+      style={{ borderWidth: 1, borderColor: mdBorderColor(), borderStyle: 'solid' }}
     >
       <TableHeader>
         <TableRow>
@@ -767,7 +774,9 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
                 ...(cellAlign(i) != null ? { textAlign: cellAlign(i) } : {}),
               }}
             >
-              <Inlines nodes={h.children} ctx={cellCtx} segKey={`th${i}`} />
+              <Text style={cellAlign(i) != null ? ({ textAlign: cellAlign(i) } as never) : undefined}>
+                <Inlines nodes={h.children} ctx={cellCtx} segKey={`th${i}`} />
+              </Text>
             </TableHeaderCell>
           ))}
         </TableRow>
@@ -787,7 +796,13 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
                   ...(cellAlign(j) != null ? { textAlign: cellAlign(j) } : {}),
                 }}
               >
-                <Inlines nodes={cell.children} ctx={cellCtx} segKey={`tr${i}c${j}`} />
+                <Text
+                  style={
+                    cellAlign(j) != null ? ({ textAlign: cellAlign(j) } as never) : undefined
+                  }
+                >
+                  <Inlines nodes={cell.children} ctx={cellCtx} segKey={`tr${i}c${j}`} />
+                </Text>
               </TableCell>
             ))}
           </TableRow>
@@ -813,7 +828,11 @@ function ListItems(props: {
     const first = item.children[0]
     const isInline = item.children.length === 1 && first?.type === 'paragraph'
     return isInline ? (
-      <Inlines nodes={first.children} ctx={props.ctx} segKey={`${props.segKey}.${j}`} />
+      // Runs need a text host on native — bare spans inside a view fold to
+      // text-only children, which AppKit's spike rejects outright.
+      <Text>
+        <Inlines nodes={first.children} ctx={props.ctx} segKey={`${props.segKey}.${j}`} />
+      </Text>
     ) : (
       <Blocks
         nodes={item.children}
@@ -1106,7 +1125,7 @@ function Blocks(props: {
                     ...margin,
                     height: 1,
                     borderTopWidth: 1,
-                    borderTopColor: 'var(--color-border)',
+                    borderTopColor: mdBorderColor(),
                   } as never
                 }
               />
@@ -1387,10 +1406,10 @@ export function Markdown(props: MarkdownProps): unknown @{
               typeof contentWidthValue === 'number' ? `${contentWidthValue}px` : contentWidthValue,
           }
         : {}),
-      fontFamily: 'var(--font-family-body, inherit)',
-      color: 'var(--color-text-primary, inherit)',
-      lineHeight: 'var(--text-body-leading, 1.4286)',
-      fontSize: 'var(--text-body-size, 14px)',
+      fontFamily: mdBodyFontFamily(),
+      color: mdTextPrimary(),
+      lineHeight: mdBodyLineHeight(),
+      fontSize: mdBodyFontSize(),
       ...(props.style as object),
     }}
   >

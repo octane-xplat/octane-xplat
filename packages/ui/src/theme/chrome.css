@@ -2394,6 +2394,14 @@
 		color: var(--color-text);
 	}
 
+	/* The UA stylesheet pins `code` to the generic `monospace` family; without
+	   an author rule that beats the inherited `--font-mono` on the pre and the
+	   rendered metrics diverge from the theme token. The Astryx-named token
+	   wins so a Theme override restyles code blocks too. */
+	.vx-codeblock-code {
+		font-family: var(--font-family-code, var(--font-mono));
+	}
+
 	.vx-codeblock--sm .vx-codeblock-pre {
 		font-size: var(--text-supporting-size, 12px);
 	}

@@ -3483,7 +3483,10 @@
 	   vx-codeblock--wrap */
 	.vx-codeblock--wrap .vx-codeblock-line {
 		white-space: pre-wrap;
-		word-break: break-word;
+		/* Astryx wraps code lines with break-all packing: every character is a
+		   break opportunity, so a settled long token fills each line greedily.
+		   break-word leaves ragged line ends and an extra wrapped line. */
+		word-break: break-all;
 	}
 
 	.vx-codeblock--wrap .vx-codeblock-row,

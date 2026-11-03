@@ -19,6 +19,20 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
+/* Controlled shared fonts for geometry comparison: pin one stack through
+   each library's public font tokens so text metrics measure the components,
+   not per-library or UA font defaults. The reference reads --font-family-*;
+   Octane chrome reads --font-sans/--font-mono (with --font-family-code as the
+   Astryx-named override). This file is unlayered and imported last on both
+   sides, so it wins over astryx.css :root rules and the xplat-chrome layer. */
+:root {
+	--font-family-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-family-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-family-code: "SF Mono", Monaco, Consolas, monospace;
+	--font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+	--font-mono: "SF Mono", Monaco, Consolas, monospace;
+}
+
 .parity-grid {
 	display: grid;
 	grid-template-columns: repeat(4, 240px);
