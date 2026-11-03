@@ -83,6 +83,11 @@ stale-input rejection, publication and lifecycle ownership explicit at the bound
 Preserve user-visible contracts and data/process safety without expanding a
 general JavaScript compatibility layer to reproduce incidental coercion behavior.
 
+When a child environment table overlays inherited variables, omitting a key
+does not unset it. Pass explicit empty `NODE_PATH` and `NODE_OPTIONS` values for
+selected-project tool operations that must ignore global resolution or preloads.
+Keep ordinary project variables intact, and qualify the effective child values.
+
 An `async` caller does not make synchronous CPU work nonblocking. Native model
 inference and index preparation need an execution boundary with cancellation and
 bounded work before joining a responsive persistent host; qualifying model outputs
@@ -337,6 +342,11 @@ Drain stdout and stderr concurrently when capturing a child. Reading one pipe
 to EOF first can block forever when the other pipe fills. Bound retained output,
 close unused stdin, and kill/reap the owned child on timeout or capture failure.
 Direct-child cleanup does not establish process-tree cancellation.
+
+For forced-escalation tests, install the child's termination resistance before
+emitting readiness. A TERM-then-KILL cleanup can validly finish with TERM when
+the child has its default handler; two immediate signals do not guarantee KILL
+wins. Keep forced-exit and cooperative-exit fixtures distinct.
 
 Treat detached daemon handoff separately from disposable tool children. An
 invocation's ordinary process manager must not kill a successfully published

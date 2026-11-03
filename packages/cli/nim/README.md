@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-status, capabilities, clean, typecheck, routes, web/macOS builds, app selection, permissions, code search, code read, guidance
+status, capabilities, clean, typecheck, routes, lint, web/macOS builds, app selection, permissions, code search, code read, guidance
 and docs read/search/index, actions list/invoke/status, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
@@ -209,6 +209,21 @@ adapter queues C-owned bytes; the Nim event loop drains them. Input fingerprints
 before publication and a periodic backstop reject stale work even when an OS
 event arrives late. Publication is atomic per file. Other watcher hosts remain
 unimplemented; no runtime is bundled.
+`lint_command.nim` resolves the selected project's `@octane-xplat/lint/bin`
+export through its app/ancestor installation, then runs it with Node and owned
+process-group cleanup. A broken nearer installation never falls back to a farther
+one or a global module path. Nim preserves argv, cwd, output bytes and ordinary
+exit status; the engine owns rules, selection, ignores and safe fixes. Help is
+embedded at build time and needs no runtime. Lint execution requires the project
+lint package and Node >=22.22.2; the core tarball bundles neither. Native `fmt`
+is still pending.
+
+```sh
+research/nim-cli/native/xplat lint --help
+research/nim-cli/native/xplat lint src
+research/nim-cli/native/xplat lint --fix src
+```
+
 `metadata.json` is generated from the TypeScript descriptors and excluded from
 Git. Build-time JavaScript is allowed; native startup does not require Node/Bun.
 Installed versions drive guidance and documentation reads; advanced workspace

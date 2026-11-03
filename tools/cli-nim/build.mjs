@@ -30,7 +30,7 @@ delete catalog.requestId
 catalog.data.cli.version=version
 const nativeCommands=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','docs search','docs index','actions list','actions invoke','actions status','session list','session status','session end','session start','session attach','targets','diagnostics','job status','job cancel','runtime build']
 for(const c of catalog.data.commands) {c.status=nativeCommands.includes(c.command)?'implemented':'pending'}
-for(const c of catalog.data.orchestration) {c.status=['clean','typecheck','routes','build'].includes(c.name)?'implemented':'pending'}
+for(const c of catalog.data.orchestration) {c.status=['clean','typecheck','routes','build','lint'].includes(c.name)?'implemented':'pending'}
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
@@ -38,7 +38,7 @@ for(const c of AGENT_COMMANDS) {
  schema.data.status=nativeCommands.includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
-writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,capabilityIds:CAPABILITY_IDS,boundaries:PRODUCT_BOUNDARIES,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),
+writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,capabilityIds:CAPABILITY_IDS,boundaries:PRODUCT_BOUNDARIES,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),lintHelp:reference(['lint','--help']),
  buildHelp:reference(['build','--help']),buildDescriptor:buildCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/build.ts'),'utf8')),
  routesHelp:reference(['routes','--help']),routeDescriptor:routeCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/routes.ts'),'utf8'))}))
 mkdirSync(resolve(work,'native'),{recursive:true})

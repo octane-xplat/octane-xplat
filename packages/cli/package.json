@@ -112,6 +112,7 @@
 		"test:nim-route-command": "node --test --test-concurrency=2 ../../tools/cli-nim/routes-command.test.mjs ../../tools/cli-nim/routes-watch.test.mjs",
 		"test:nim-prerequisites": "node --test ../../tools/cli-nim/prerequisites.test.mjs",
 		"test:nim-actions": "node --test ../../tools/cli-nim/actions-command.test.mjs ../../tools/cli-nim/actions-worker.test.mjs",
+		"test:nim-lint": "node --test ../../tools/cli-nim/lint-command.test.mjs",
 		"test:nim-status": "node --test ../../tools/cli-nim/status.test.mjs",
 		"test:nim-targets": "node --test ../../tools/cli-nim/targets.test.mjs",
 		"test:nim-sessions": "node --test ../../tools/cli-nim/sessions.test.mjs",

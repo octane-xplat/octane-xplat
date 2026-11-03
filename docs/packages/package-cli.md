@@ -129,6 +129,19 @@ research/nim-cli/native/xplat status --project "$PWD" --json
 research/nim-cli/native/xplat capabilities --project "$PWD" --json
 ```
 
+Native lint runs the project's installed lint engine on macOS Apple Silicon.
+Install `@octane-xplat/lint` in that project and provide Node >=22.22.2 on PATH;
+the native download includes neither. The engine keeps its regular-source and
+TSRX rules, project ignores, and opt-in safe fixes. Help works without Node.
+Native formatting remains pending; use the existing TypeScript CLI for `fmt`:
+
+```sh
+bun add --dev @octane-xplat/lint
+research/nim-cli/native/xplat lint --help
+research/nim-cli/native/xplat lint src
+research/nim-cli/native/xplat lint --fix src
+```
+
 Native docs search and reads work without Node or Bun on macOS Apple Silicon.
 Search follows the selected app's installed versions, reports conflicts or missing
 snapshots, and labels local project guidance separately. Start with lexical search

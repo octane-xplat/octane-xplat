@@ -17,12 +17,12 @@ after(() => {
  writeFileSync(join(root, 'research/nim-cli/process-differential.json'), JSON.stringify(evidence))
  rmSync(base, { recursive: true, force: true })
 })
-if (process.platform === 'darwin') assertCurrentNativeBuild(root,
- JSON.parse(readFileSync(join(root, 'research/nim-cli/native/process-build.json'))), readFileSync(binary), processProbeInputs)
+if (process.platform === 'darwin') {assertCurrentNativeBuild(root,
+ JSON.parse(readFileSync(join(root, 'research/nim-cli/native/process-build.json'))), readFileSync(binary), processProbeInputs)}
 function file(name, text, executable = false) {
  const path = join(base, name)
  mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, text)
- if (executable) chmodSync(path, 0o755)
+ if (executable) {chmodSync(path, 0o755)}
  return path
 }
 async function run(requests, node = false) {
@@ -68,14 +68,14 @@ function active(pid) {
  return result.status === 0 && result.stdout.trim() && !result.stdout.trim().startsWith('Z')
 }
 async function assertGone(pid) {
- for (let attempt = 0; attempt < 100 && active(pid); attempt++) await pause(10)
+ for (let attempt = 0; attempt < 100 && active(pid); attempt++) {await pause(10)}
  assert.equal(Boolean(active(pid)), false, `owned process ${pid} is still running`)
 }
 
 test('incremental UTF-8 and bounded UTF-16 line framing match actual TypeScript pipeLines', macOnly, async () => {
  const cases = []
  const add = chunks => cases.push({ operation: 'lines', chunks: chunks.map(chunk => Buffer.from(chunk).toString('base64')) })
- for (let byte = 0; byte < 256; byte++) add([[byte]])
+ for (let byte = 0; byte < 256; byte++) {add([[byte]])}
  const buffers = [Buffer.from('😀α\r\n\npartial\r'), Buffer.from([0xf0,0x9f,0x98]),
   Buffer.from([0xe0,0x80,0x80,0x0a]), Buffer.from([0xed,0xa0,0x80,0xf4,0x90,0x80,0x80]),
   Buffer.from([0x61,0xe2,0x82,0x0a,0xef,0xbb,0xbf,0x62]),
@@ -85,7 +85,7 @@ test('incremental UTF-8 and bounded UTF-16 line framing match actual TypeScript 
   add([bytes])
   for (const size of [1,2,3,7,8192]) {
    const chunks = []
-   for (let at = 0; at < bytes.length; at += size) chunks.push(bytes.subarray(at,at+size))
+   for (let at = 0; at < bytes.length; at += size) {chunks.push(bytes.subarray(at,at+size))}
    add(chunks)
   }
  }
@@ -100,7 +100,7 @@ test('incremental UTF-8 and bounded UTF-16 line framing match actual TypeScript 
   add(chunks)
  }
  const expected = await run(cases, true), actual = await run(cases)
- for (const [at, request] of cases.entries()) assert.deepEqual(actual[at], expected[at], JSON.stringify(request))
+ for (const [at, request] of cases.entries()) {assert.deepEqual(actual[at], expected[at], JSON.stringify(request))}
  evidence.push({ operation: 'lines', cases: cases.length, passed: true })
 })
 
@@ -169,7 +169,7 @@ test('one manager drains independent children while a slow child is cancelled', 
   { ...nodeRequest("console.log('slow');setInterval(()=>{},1000)"), abortMs: 350 }, nodeRequest("console.log('fast')")
  ] }
  const [expected] = await run([request], true), [actual] = await run([request])
- for (let at = 0; at < actual.length; at++) assert.deepEqual(comparable(actual[at]), comparable(expected[at]))
+ for (let at = 0; at < actual.length; at++) {assert.deepEqual(comparable(actual[at]), comparable(expected[at]))}
  assert.ok(actual[1].elapsedMs < actual[0].elapsedMs-100, JSON.stringify(actual))
  evidence.push({ request, expected, actual })
 })
@@ -189,9 +189,12 @@ test('stop, repeated stop and cancellation preserve cooperative exit and forced 
 
 test('manager close and output callback failure kill and reap their owned child', macOnly, async () => {
  for (const extra of [{ closeOnLine: 'ready' }, { sinkError: true }]) {
-  const [result] = await run([{ ...nodeRequest("console.log('ready');setInterval(()=>{},1000)"), ...extra }])
+  // The failure path sends TERM before immediate KILL. Install resistance
+  // before readiness so the forced-exit assertion is independent of scheduling.
+  const resist = extra.sinkError ? "process.on('SIGTERM',()=>{});" : ''
+  const [result] = await run([{ ...nodeRequest(resist+"console.log('ready');setInterval(()=>{},1000)"), ...extra }])
   assert.equal(result.exit.signal, extra.sinkError ? 'SIGKILL' : 'SIGTERM')
-  if (extra.sinkError) assert.equal(result.exit.error, 'fixture sink failure')
+  if (extra.sinkError) {assert.equal(result.exit.error, 'fixture sink failure')}
   await assertGone(result.pid)
  }
 })
@@ -239,7 +242,7 @@ test('normal owner exit and handled SIGINT/SIGTERM clean their isolated groups',
   const closed = once(child, 'close')
   const ready = new Promise(resolve => child.stdout.on('data', chunk => {
    output += chunk
-   if (output.includes('\n')) resolve(JSON.parse(output.slice(0, output.indexOf('\n'))))
+   if (output.includes('\n')) {resolve(JSON.parse(output.slice(0, output.indexOf('\n'))))}
   }))
   const timer = setTimeout(() => child.kill('SIGKILL'), 5000)
   child.stdin.end(JSON.stringify({ ...nodeRequest("console.log('ready');setInterval(()=>{},1000)"), ownerReady: true,
@@ -247,7 +250,7 @@ test('normal owner exit and handled SIGINT/SIGTERM clean their isolated groups',
   let owned
   try {
    owned = await Promise.race([ready,closed.then(() => { throw Error('Owner exited before readiness: '+error) })])
-   if (signal) child.kill(signal)
+   if (signal) {child.kill(signal)}
    const [code] = await closed
    assert.equal(error, '')
    assert.equal(code, signal === 'SIGINT' ? 130 : signal === 'SIGTERM' ? 143 : 0)
@@ -255,7 +258,7 @@ test('normal owner exit and handled SIGINT/SIGTERM clean their isolated groups',
   } finally {
    clearTimeout(timer)
    if (owned && active(owned.pid)) { try { process.kill(-owned.pid, 'SIGKILL') } catch {} }
-   if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+   if (child.exitCode === null && child.signalCode === null) {child.kill('SIGKILL')}
   }
  }
 })

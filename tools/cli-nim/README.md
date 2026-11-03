@@ -588,3 +588,16 @@ null at the transport boundary and is rejected as an invalid registry by the ser
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native development actions"}' -- bun run turbo run test:nim-actions test:nim-http test:nim-host test:nim-build-tools --filter=@octane-xplat/cli
 ```
+
+## Project lint engine
+
+`test:nim-lint` installs a packed lint leaf into an isolated disposable consumer,
+then exercises the public native entry against the TypeScript/Node reference.
+It checks real regular/TSRX diagnostics and safe fixes, project tool resolution,
+clean Node environment, byte streams, exit status and owned descendant cleanup.
+It is a host-side source check, not an app UI/device check. Native `fmt` remains
+pending. No lint/formatter runtime is added to the standalone download.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native lint qualification"}' -- bun run turbo run test:nim-lint --filter=@octane-xplat/cli
+```
