@@ -13,7 +13,12 @@ func lockCache(ctx context.Context, root *os.Root, path string) (func(), error) 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	file, err := root.OpenFile(path, os.O_RDWR|os.O_CREATE, 0600)
+	// Separate first creation from opening an existing identity. On the tested
+	// Darwin filesystem, concurrent O_CREATE opens can report transient ENOENT.
+	file, err := root.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
+	if os.IsExist(err) {
+		file, err = root.OpenFile(path, os.O_RDWR, 0)
+	}
 	if err != nil {
 		return nil, err
 	}

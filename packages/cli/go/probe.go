@@ -16,6 +16,9 @@ import (
 )
 
 func probeMain() {
+	if len(os.Args) > 1 && os.Args[1] == "_compute" {
+		os.Exit(computeChild(os.Args[2:]))
+	}
 	if len(os.Args) > 1 && os.Args[1] == "_gate" {
 		childGate(os.Args[2:])
 		return
@@ -61,6 +64,12 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 		return nil, err
 	}
 	switch command {
+	case "doc-snapshot":
+		var input snapshotRequest
+		if err = readJSON(*request, &input); err != nil {
+			return nil, err
+		}
+		return snapshotOperation(ctx, input)
 	case "doc-data":
 		var input struct {
 			Operation, Root, App, Path, Content, Corpus, Ref string

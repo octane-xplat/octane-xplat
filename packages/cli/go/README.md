@@ -70,3 +70,14 @@ leads to open before changing code.
 research/go-cli/xplat-go-darwin-arm64-cli code search Button --project . --app apps/web --mode exact --corpus framework --package @octane-xplat/ui --json
 research/go-cli/xplat-go-darwin-arm64-cli code read --project . --app apps/web --ref xplat-code://framework/@octane-xplat/ui/chat/ChatDictationButton.tsrx --json
 ```
+
+The documentation snapshot service pins exact release tags and package metadata
+under a separate `go-v1` cache. It extracts bounded Markdown blobs without a Git
+checkout, validates cached raw bytes before reuse, and reports offline reads,
+moved/deleted tags and corrupt caches explicitly. An owned native compute child
+contains Git work and cancellation. Public docs read/search/index integration is
+still pending; the snapshot test qualifies the underlying service.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go documentation snapshots"}' -- bun run turbo run test:go-doc-snapshot --filter=@octane-xplat/cli
+```

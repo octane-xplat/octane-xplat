@@ -10,19 +10,27 @@ import (
 )
 
 func privateSecurity() (*windows.SecurityAttributes, error) {
+	return userSecurity("")
+}
+
+func privateDirectorySecurity() (*windows.SecurityAttributes, error) {
+	return userSecurity("OICI")
+}
+
+func userSecurity(inheritance string) (*windows.SecurityAttributes, error) {
 	user, err := windows.GetCurrentProcessToken().GetTokenUser()
 	if err != nil {
 		return nil, err
 	}
 	sid := user.User.Sid.String()
-	sd, err := windows.SecurityDescriptorFromString("O:" + sid + "D:P(A;;FA;;;" + sid + ")")
+	sd, err := windows.SecurityDescriptorFromString("O:" + sid + "D:P(A;" + inheritance + ";FA;;;" + sid + ")")
 	if err != nil {
 		return nil, err
 	}
 	return &windows.SecurityAttributes{Length: uint32(unsafe.Sizeof(windows.SecurityAttributes{})), SecurityDescriptor: sd}, nil
 }
 func privateDirectory(parent, prefix string) (string, error) {
-	sa, err := privateSecurity()
+	sa, err := privateDirectorySecurity()
 	if err != nil {
 		return "", err
 	}

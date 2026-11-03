@@ -806,9 +806,31 @@ death instead of trusting PID files. Honor cancellation while waiting and never
 rename/delete the lock file during publication. The Go cache root checks Unix
 ownership/private modes or a Windows current-user owner and protected user-only
 DACL; reject a broad or foreign existing namespace instead of repairing it.
+Windows directory ACEs must inherit to files and subdirectories (`OICI`): a
+private root alone does not establish private contents. Qualify nested default
+file creation as well as explicit sidecars. Create lock identities exclusively
+before opening an existing file; simultaneous initial `O_CREATE` opens produced
+`ENOENT` on the qualified macOS filesystem. Keep first-use concurrency coverage.
 Cross-compiled Go test executables can exercise these OS contracts on a host
 without installing a compiler there. Record compilation and actual host execution
 separately; a passing primitive suite is not a public workflow qualification.
+
+Release docs snapshots extract allow-listed ordinary Git blobs without a
+checkout, so fetched hooks, content filters, submodules and package scripts do
+not run. Clear Git config injection and prompt variables, and keep repository
+protocols explicit. Pin the actual commit and validate the requested package's
+manifest before atomic publication. Cache identity includes repository,
+package and version; per-binding files and locks avoid shared-map lost updates.
+Verify raw-byte hashes, the complete file inventory and manifest on reuse,
+including offline reads. Moved or deleted tags require explicit resolution;
+corrupt cache data must not become a verified offline snapshot or latest docs.
+
+Native compute sidecars use a versioned request identity. Allocate their private
+operation root on the destination cache filesystem before starting the owned
+same-executable child. Git children inherit that group/job. Await cleanup before
+removing operation data, and retain it when cleanup cannot be confirmed. This
+boundary is separate from registering public docs commands or qualifying the
+persistent host's index/inference lifecycle.
 
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the

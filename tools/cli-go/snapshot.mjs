@@ -88,6 +88,7 @@ try {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
 		'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
+		'test:go-doc-snapshot:portable': 'node --test tools/cli-go/doc-snapshot.test.mjs',
 	}
 	writeFileSync(join(source, 'package.json'), JSON.stringify(manifest))
 	writeFileSync(
@@ -97,11 +98,17 @@ try {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go:portable': { cache: false },
 				'//#test:go-model:portable': { cache: false },
+				'//#test:go-doc-snapshot:portable': { cache: false },
 			},
 		}),
 	)
 	const archive = join(work, 'portability-source.tgz')
-	const packed = spawnSync('tar', ['-czf', archive, '-C', stage, 'source'], { encoding: 'utf8' })
+	// AppleDouble/xattrs are host metadata, not hashed source. They must not
+	// materialize as extra ._*.go files on Linux or Windows extraction.
+	const packed = spawnSync('tar', ['--no-xattrs', '-czf', archive, '-C', stage, 'source'], {
+		encoding: 'utf8',
+		env: { ...process.env, COPYFILE_DISABLE: '1' },
+	})
 	assert.equal(packed.status, 0, packed.stderr)
 	const bytes = readFileSync(archive),
 		record = {

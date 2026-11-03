@@ -178,16 +178,21 @@ if (flags.includes('--test')) {
 			'Experimental bounded Go CLI feasibility probe, not the production CLI.\nNo Node/Bun or old CLI runtime is bundled. Project workers and ONNX/model assets are separate.\n',
 		)
 		const archive = binary + '.tgz'
-		run('tar', [
-			'-czf',
-			archive,
-			'-C',
-			stage,
-			executable,
-			'THIRD-PARTY-NOTICES.txt',
-			'LICENSE',
-			'README.txt',
-		])
+		run(
+			'tar',
+			[
+				'--no-xattrs',
+				'-czf',
+				archive,
+				'-C',
+				stage,
+				executable,
+				'THIRD-PARTY-NOTICES.txt',
+				'LICENSE',
+				'README.txt',
+			],
+			{ env: { ...env, COPYFILE_DISABLE: '1' } },
+		)
 		const packed = readFileSync(archive)
 		download = { file: archive, bytes: packed.length, sha256: sha(packed) }
 	} finally {
