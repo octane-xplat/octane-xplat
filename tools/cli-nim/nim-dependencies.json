@@ -50,5 +50,15 @@
     "sourceDir": "include",
     "license": "MIT",
     "licenseFile": "LICENSE-MIT"
+  },
+  "curlHeaders": {
+    "url": "https://github.com/curl/curl.git",
+    "revision": "7161cb17c01dcff1dc5bf89a18437d9d729f1ecd",
+    "tag": "curl-8_5_0",
+    "version": "8.5.0",
+    "platforms": ["linux"],
+    "sourceDir": "include",
+    "license": "curl",
+    "licenseFile": "COPYING"
   }
 }

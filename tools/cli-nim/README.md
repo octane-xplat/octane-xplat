@@ -195,8 +195,11 @@ Node is absent from PATH. Those are open compatibility requirements for the full
 rewrite. They are not implied by the passing common-pattern corpus. Project
 metadata is read as data; JavaScript configuration is not evaluated.
 
-The HTTP gate uses native asynchronous macOS libcurl with SecureTransport and
-the pinned Ada 4.0.0 WHATWG parser. Ada is compiled as C++20 with URLPattern
+The HTTP gate uses native asynchronous host libcurl: SecureTransport on macOS
+and OpenSSL on the qualified Ubuntu 24.04 x64 host. Linux loads `libcurl.so.4`;
+the build fetches only pinned curl 8.5 public headers into its task-local cache.
+It does not install system packages or compile/bundle a curl runtime. Both hosts
+use the pinned Ada 4.0.0 WHATWG parser. Ada is compiled as C++20 with URLPattern
 disabled; its exact source revision and MIT notice follow the same task-local
 dependency conventions as the Nim libraries. No JS runtime is embedded. The
 gate checks real loopback TLS, explicit CA files, hostname rejection, proxies
@@ -211,15 +214,16 @@ bun run turbo run test:nim-http-live --filter=@octane-xplat/cli --only
 
 The separate live task fetches only pinned public JSON and checks its exact
 bytes against Node and the model's SHA-256. It is excluded from offline gates.
-HTTP uses the OS certificate store; explicit per-request CA files do not change
-the user's keychain. Ambient proxy variables are disabled by default, matching
+HTTP uses the host transport's trust store; explicit per-request CA files do not
+change that store. Ambient proxy variables are disabled by default, matching
 the reference without Node's environment-proxy opt-in; explicit proxy settings
 are qualified. Compression negotiation advertises gzip/deflate; Brotli/zstd and
 other platform backends remain unqualified. This is a CLI transport boundary,
 not a replacement for every browser Fetch API or Node runtime option.
 
-The bridge port preserves the reference's successful null payload when body or
-JSON parsing fails after headers. Pre-aborted waits keep the same response but
+Invalid JSON retains the reference's null fallback. Body transport failures
+remain failures instead of becoming successful null registries; the gate records
+that deliberate difference. Pre-aborted waits keep the same response but
 avoid the reference's timer retention tracked in
 [issue #99](https://github.com/octane-xplat/octane-xplat/issues/99). These transport
 and envelope checks do not qualify app ownership or full runtime workflows.
@@ -430,6 +434,8 @@ in local reports and Silo rather than this guide.
 archives its source, generated command metadata, compile-time asset manifests
 and pinned build tools. It does not copy a platform's `node_modules`, change a
 shared remote checkout, include model bodies, or prepare a publishable package.
+The transport snapshot also includes the actual TypeScript bridge and its
+independent Node comparison harness.
 The archive and its checksums stay under ignored `research/nim-cli`.
 
 ```sh
@@ -464,6 +470,24 @@ checks; preserve existing checkouts and machine-wide tools.
 An SSH supervisor's cancellation does not establish remote descendant cleanup.
 Keep ownership on the remote host, await its release, and verify that the exact
 owned compiler phase has ended before replacing its source or starting a retry.
+
+The extracted snapshot can build and execute the HTTP differential gate on
+Linux. It verifies the source manifest and native probe hash before running;
+native requests have an empty PATH. This qualifies the transport and bridge
+envelopes, separately from owner bootstrap, workers and process cleanup. The
+proxy fixture supports both forward requests and CONNECT tunnels, including
+CONNECT for plaintext HTTP, and asserts traversal independently for each client.
+
+```sh
+# From the extracted snapshot, under the Linux guest/build reservation:
+bun run turbo run test:portability-http --filter=@xplat/nim-portability-source --concurrency=1
+```
+
+The current Linux build dynamically needs glibc and the C++ runtime in addition
+to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols through
+`GLIBC_2.34` and `GLIBCXX_3.4.31`; this is build evidence, not qualification of
+older distributions or musl. Define and execute a supported deployment baseline
+before treating a small compressed ELF as a self-contained Linux distribution.
 
 `portability-smoke.mjs` independently checks the actual native binary with empty
 PATH and measures warm help startup (five warmups, twenty launches). Its record

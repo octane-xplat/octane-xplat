@@ -70,13 +70,17 @@ indexed inventory/project guidance to 32 MiB; limit failures are explicit. Searc
 refs retain lexical names while scope checks use canonical targets.
 Complete pinned public C API headers are build inputs; no ONNX runtime is linked or
 loaded during ordinary help/status startup.
-`native_http.nim` provides asynchronous HTTP/TLS through the macOS system libcurl,
+`native_http.nim` provides asynchronous HTTP/TLS through the host libcurl on macOS
+and Linux,
 with header/body readiness, cancellation, byte streaming and explicit proxy/CA
 options. `http_url.nim` statically compiles pinned Ada URL parsing for the
 reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
-ownership, action execution or a qualified app session. Other HTTP host adapters
-remain unimplemented.
+ownership, action execution or a qualified app session. The Linux transport is
+qualified on Ubuntu 24.04 x64 with libcurl 8.5/OpenSSL; it requires `libcurl.so.4`
+at runtime. Pinned task-local curl headers are build inputs, not a bundled engine.
+Windows HTTP remains unimplemented. The Linux owner/worker workflow still needs
+qualification.
 The bridge accepts an explicit fetch procedure; the ordinary client adapter and
 header-controlled test transport share the same envelope/cancellation logic.
 
@@ -419,8 +423,10 @@ node node_modules/@octane-xplat/cli/install-native.mjs
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Nim package check"}' -- bun run turbo run pack:nim --filter=@octane-xplat/cli -- --host-only
 ```
 
-Linux/Windows build flags and native jobs are supplied but remain unqualified
-until those jobs execute. Other host TLS adapters, remaining command contracts,
+Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
+Linux HTTP/TLS also passes the transport differential gate; authenticated owner
+bootstrap/RPC, project workers and descendant cleanup remain unqualified on both
+hosts. Windows TLS, remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,

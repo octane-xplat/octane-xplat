@@ -3,10 +3,11 @@
 import std/[os, json]
 import ./js_text
 
-when defined(macosx):
+when defined(macosx) or defined(linux):
   const pin = parseJson(staticRead("../../../tools/cli-nim/nim-dependencies.json"))["ada"]["revision"].getStr()
   const repository = currentSourcePath().parentDir.parentDir.parentDir.parentDir
-  const adaDirectory = repository / "research" / "nim-cli" / "dependencies" / ("ada-" & pin)
+  const xplatNimDependencyRoot {.strdefine.} = repository / "research" / "nim-cli" / "dependencies"
+  const adaDirectory = xplatNimDependencyRoot / ("ada-" & pin)
   const adaHeader = adaDirectory / "include" / "ada_c.h"
   {.compile(adaDirectory / "src" / "ada.cpp", "-std=c++20 -DADA_INCLUDE_URL_PATTERN=0 -I" & quoteShell(adaDirectory / "include")).}
   type
@@ -34,11 +35,11 @@ when defined(macosx):
     if length > 0: copyMem(addr result[0],data,int(length))
 
 proc httpUrlVersion*(): string =
-  when defined(macosx): $version()
+  when defined(macosx) or defined(linux): $version()
   else: "unimplemented"
 
 proc normalizeHttpUrl*(value: string, base = ""): tuple[url,origin,port: string] =
-  when defined(macosx):
+  when defined(macosx) or defined(linux):
     let input = utf8ForWrite(value)
     let against = utf8ForWrite(base)
     let url = if base == "": parse(cstring(input),csize_t(input.len))

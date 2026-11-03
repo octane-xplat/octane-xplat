@@ -33,17 +33,22 @@ try {
  for (const file of readdirSync(join(root, 'packages/cli/nim')).sort()) {
   if (/\.(nim|c|h)$/.test(file) || file === 'metadata.json') {copy('packages/cli/nim/'+file)}
  }
- for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'portability-build.mjs', 'portability-smoke.mjs',
+ for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'portability-build.mjs', 'portability-smoke.mjs', 'portability-proof.mjs',
+  'http_probe.nim', 'http.test.mjs', 'http-reference.mjs', 'native-inputs.mjs',
   'licenses/tokenizers-js.txt', 'licenses/onnxruntime.txt']) {copy('tools/cli-nim/'+file)}
+ copy('packages/cli/src/mcp/actions/bridge.ts')
  const repository = JSON.parse(readFileSync(join(root, 'package.json')))
  const tool = JSON.parse(readFileSync(join(root, 'tools/cli-nim/package.json')))
  assert.equal(tool.devDependencies['nim-toolchain'], '0.1.0')
  const turbo = repository.devDependencies.turbo
  assert.match(turbo, /^\d+\.\d+\.\d+$/)
  json('package.json', { name: 'xplat-nim-portability-snapshot', private: true, type: 'module', packageManager: 'bun@1.4.4', workspaces: ['tools/cli-nim'], devDependencies: { turbo } })
- json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs', 'benchmark:portability': 'node portability-smoke.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
+ json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs', 'benchmark:portability': 'node portability-smoke.mjs',
+  'build:portability-http': 'node portability-build.mjs http', 'test:portability-http': 'node --test http.test.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
  json('turbo.json', { tasks: {
   'build:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'build:portability-http': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'test:portability-http': { cache: false, dependsOn: ['build:portability-http'], passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE'] },
   'benchmark:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_SMOKE_BINARY', 'XPLAT_NIM_SMOKE_RECORD'] },
  } })
  const commit = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' })

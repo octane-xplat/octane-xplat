@@ -562,6 +562,19 @@ the native computation does not directly consume.
 
 ## Native HTTP and C interop
 
+Separate build headers from runtime libraries. A host can have `libcurl.so.4`
+without curl development headers. Pin public headers in task-local dependencies
+and compile the typed shim against them; do not install system packages or claim
+that the resulting executable bundles the runtime. Record the library actually
+loaded and the ELF's glibc/C++ symbol requirements. `ldd` alone misses libraries
+loaded lazily, and compiling on one distribution does not qualify older hosts.
+
+Proxy engines can use forward requests or CONNECT tunnels even for plaintext
+HTTP. Support both in qualification fixtures and assert each client's actual
+proxy traversal. Compare response/cancellation contracts without forcing the
+engines to use an identical handshake. Control both uppercase and lowercase
+ambient proxy variables in subprocess tests.
+
 Call C variadic functions with their real ABI. Casting a variadic function to a
 fixed-argument proc pointer is unsafe on macOS arm64. A small typed C shim using
 the SDK header can marshal `long`, size types and callbacks correctly. C callback

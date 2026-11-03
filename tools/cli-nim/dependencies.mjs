@@ -10,11 +10,12 @@ export function prepareDependencies(cache, toolchain) {
  notices.push('ONNX Runtime public C API (MIT)\nhttps://github.com/microsoft/onnxruntime\n\n'+readFileSync(new URL('./licenses/onnxruntime.txt',import.meta.url),'utf8'))
  for(const [name, dependency] of Object.entries(pin)) {
   if(name==='compiler'){continue}
+  if(dependency.platforms && !dependency.platforms.includes(process.platform)){continue}
   const directory=resolve(cache,'dependencies',`${name}-${dependency.revision}`)
   mkdirSync(resolve(cache,'dependencies'),{recursive:true})
   function git(args) {const r=spawnSync('git',args,{encoding:'utf8'});if(r.status!==0){throw Error(r.stderr);}return r.stdout.trim()}
   if(!existsSync(directory)) {
-   git(['clone','--no-checkout',dependency.url,directory])
+   git(['clone','--no-checkout',...(dependency.tag ? ['--depth','1','--branch',dependency.tag] : []),dependency.url,directory])
    git(['-C',directory,'checkout','--detach',dependency.revision])
   }
   if(git(['-C',directory,'rev-parse','HEAD'])!==dependency.revision){throw Error(`Dependency revision mismatch: ${name}`)}
