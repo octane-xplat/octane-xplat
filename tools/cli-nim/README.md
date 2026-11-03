@@ -878,3 +878,18 @@ publication or an app runtime.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native formatter qualification"}' -- bun run turbo run test:nim-fmt test:fmt --filter=@octane-xplat/cli
 ```
+
+## Native doctor compatibility foundation
+
+`test:nim-compatibility` compares the metadata-only Nim compatibility engine
+with the canonical Node inspector using injected tool versions, the creator's
+release manifest and Node builtin inventory. It covers pins versus installed
+versions, physical singleton copies, optional edges, catalogs/profiles and the
+real installed CLI workspace. Dependency code is not executed. Empty-PATH
+inspection qualifies the native engine, not complete host-tool diagnosis.
+The public native `doctor` command remains pending until platform checks,
+warning aggregation and the explicit Nim prerelease pin policy are integrated.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native doctor compatibility qualification"}' -- bun run turbo run test:nim-compatibility --filter=@octane-xplat/cli
+```

@@ -194,6 +194,25 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
   encode non-finite numbers as `null`. Do not rewrite literal strings with those
   spellings. Keep negative-zero handling at the same serialization boundary.
 
+## Read installed dependency graphs without executing code
+
+`compatibility_check.nim` inspects metadata against the creator's canonical
+compatibility manifest. Preserve direct app pins separately from installed
+versions: a matching declaration does not establish a matching runtime graph.
+Count singleton copies by canonical physical package root, using the installed
+manifest identity so aliases count correctly. Use `OrderedTable` where Node Map
+insertion order contributes to diagnostics, and a visited set to bound cycles.
+
+Keep root dependency/dev/optional declarations separate from root consumer peers;
+library peer ranges are app-owned. Traverse transitive dependency, optional and
+peer edges, while carrying requiredness independently: an absent optional peer
+must not create a missing-required-package warning. Private nested tool versions
+are implementation details unless the package is a singleton. Receive Node's
+builtin-name inventory as data; metadata in an on-disk package named `fs` must
+not create a graph that Node would never resolve. Bound metadata and graph size,
+and keep cancellation checks at each graph step. Never import dependency code
+merely to discover its version.
+
 ## Compile-time data and module boundaries
 
 Use `const metadata = staticRead("metadata.json")` for embedded generated data;

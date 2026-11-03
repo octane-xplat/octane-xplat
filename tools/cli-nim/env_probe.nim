@@ -14,6 +14,7 @@ import ./jobs_scenario
 import ./history_scenario
 import ../../packages/cli/nim/[runtime_logs, runtime_build]
 import ../../packages/cli/nim/contract_failure
+import ../../packages/cli/nim/compatibility_check
 import ../../packages/cli/nim/macos_build
 import ../../packages/cli/nim/process_observation
 import ../../packages/cli/nim/[native_reports, report_time, app_process_identity]
@@ -74,6 +75,8 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "compatibility": value = inspectCompatibility(dir,request["pins"],request["tools"],request["builtins"],
+      maxPackages=(if field(request,"limit") == nil: 100000 else: request["limit"].getInt()))
     of "reports": value = waitFor discoverNativeReports(dir,request["run"],text(request["home"]))
     of "report-read": value = readNativeReport(dir,text(request["id"]))
     of "report-time":
