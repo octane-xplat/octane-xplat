@@ -14,6 +14,8 @@ import {
   createMarkdownPlugin,
   markdownSoftBreaksPlugin,
   markdownSourceLinesPlugin,
+  type MarkdownExtensionNode,
+  type MarkdownSyntaxPluginDefinition,
 } from '@astryxdesign/core/Markdown/plugins'
 
 import {
@@ -24,6 +26,8 @@ import {
   textAreaScenarios,
   checkboxListScenarios,
   markdownScenarios,
+  mentionsContribution,
+  mentionsToText,
   BOUNDARY_FIXTURE_SOURCE,
   CITATION_SOURCES,
   CITATION_SOURCES_LOCAL,
@@ -287,6 +291,21 @@ function SwitchBehavior() {
   )
 }
 
+const mentionsDef: MarkdownSyntaxPluginDefinition<
+  'mentions',
+  MarkdownExtensionNode<'mentions'>
+> = {
+  name: 'mentions',
+  apiVersion: 1,
+  parseKey: 'mentions@1',
+  syntax: { inline: [{ ...mentionsContribution }] },
+  renderers: {
+    mention: {
+      render: (p: any) => <mark>{`@${p.node.data.handle}`}</mark>,
+      toText: mentionsToText,
+    },
+  },
+}
 const frontmatter = createMarkdownFrontmatter({ name: 'meta', parse: (fields) => fields })
 const markdownPlugins = (profiles?: readonly string[]) =>
   profiles?.map((p) => {
@@ -299,6 +318,8 @@ const markdownPlugins = (profiles?: readonly string[]) =>
         return markdownSourceLinesPlugin
       case 'heading-links':
         return createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })
+      case 'mentions':
+        return createMarkdownPlugin(mentionsDef)
       default:
         throw new RangeError(`unknown plugin profile ${p}`)
     }

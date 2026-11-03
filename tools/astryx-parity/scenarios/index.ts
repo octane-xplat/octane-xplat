@@ -13,6 +13,8 @@ export type { CheckboxListScenario } from './checkbox-list.ts'
 export {
   markdownScenarios,
   markdownCapabilities,
+  mentionsContribution,
+  mentionsToText,
   streamSchedules,
   CITATION_SOURCES,
   CITATION_SOURCES_LOCAL,

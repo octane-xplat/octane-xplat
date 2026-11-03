@@ -13,7 +13,13 @@
 
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { markdownScenarios, streamSchedules, type MarkdownScenario } from '../scenarios/markdown.ts'
+import {
+  markdownScenarios,
+  mentionsContribution,
+  mentionsToText,
+  streamSchedules,
+  type MarkdownScenario,
+} from '../scenarios/markdown.ts'
 
 const appDir = fileURLToPath(new URL('..', import.meta.url))
 const artifacts = `${appDir}/artifacts/markdown`
@@ -169,6 +175,14 @@ function pluginEntries(mod: any, scenario: MarkdownScenario): unknown[] | undefi
         return mod.markdownSourceLinesPlugin
       case 'heading-links':
         return mod.createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })
+      case 'mentions':
+        return mod.createMarkdownPlugin({
+          name: 'mentions',
+          apiVersion: 1,
+          parseKey: 'mentions@1',
+          syntax: { inline: [mentionsContribution] },
+          renderers: { mention: { render: () => null, toText: mentionsToText } },
+        })
     }
   })
 }
@@ -179,6 +193,8 @@ async function runParserMode() {
   const cand = await import('../../../packages/ui/src/markdown/markdown-parse.ts')
   const candStream = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
   const candHelpers = await import('../../../packages/ui/src/markdown/markdown-plugin-helpers.ts')
+  const candProtocol = await import('../../../packages/ui/src/markdown/markdown-plugins.ts')
+  const candPluginEntries = { ...candHelpers, createMarkdownPlugin: candProtocol.createMarkdownPlugin }
   // The streaming internals (trim + canonical incremental parse) are not in
   // the published export map, so they come from the shipped source tree —
   // byte-identical to tag v0.7.4 (milestone-0 provenance).
@@ -210,7 +226,7 @@ async function runParserMode() {
     if (scenario.options?.plugins != null) {
       // Full entries on both sides — each parser applies transforms internally.
       opts.plugins = pluginEntries(refPlugins, scenario)
-      candOpts.plugins = pluginEntries(candHelpers, scenario)
+      candOpts.plugins = pluginEntries(candPluginEntries, scenario)
     }
 
     // pluginsAt: stream steps before the index run without plugins; the

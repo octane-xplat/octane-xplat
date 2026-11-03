@@ -316,10 +316,11 @@ documents only. See [route a Markdown file](navigation.md#route-a-markdown-file)
 - Inline `display` embeds text-run content only on native — view-bearing
   inline content throws rather than silently dropping, and inline images
   show their alt text. Block images render through `Image`.
-- Extension nodes carry typed, frozen data. The reference's container node
-  model (extension nodes that own phrasing/flow children with content
-  counts) is not ported; plugins express custom structure through
-  extension nodes and their renderers.
+- Extension nodes carry typed, frozen data and source provenance. The
+  Astryx 0.7.4 spec describes container extension nodes (phrasing/flow
+  children), but the shipped 0.7.4 package does not implement them, so
+  there is no reference behavior to match; plugins express custom
+  structure through extension nodes and their renderers.
 - A `math` renderer slot is not a math engine, and a semantic fence does
   not evaluate its payload — both hand data to your renderer.
 - AppKit link and citation activation dispatches through accessibility

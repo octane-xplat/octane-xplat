@@ -27,7 +27,7 @@ Export map (all under `@astryxdesign/core`): `./Markdown` (client component + pa
 
 **Post-0.7.4 upstream** (separate inventory, not target): `codeLanguages` prop (feat #8489, also RichText/DiffViewer), Outline spec restructure, list-marker fix, i18n string moves.
 
-**Spec-only at 0.7.4** (declared in `Markdown.spec.md` but absent from the artifact): `onPluginDiagnostic` channel (FR19). Tracked as a qualification question, not a shipped capability.
+**Spec-only at 0.7.4** (declared in `Markdown.spec.md` but absent from the artifact): extension containers (`content: 'none'|'phrasing'|'flow'|{allow,min,max}`, Core-parsed inner spans, children renderers — FR17), `dependsOn` transform ordering (FR18), and the `onPluginDiagnostic` channel (FR19). Verified against the hash-verified 0.7.4 `src/` tree: `MarkdownAstExtensionNode` has no `children`/`content`, `validateAst` rejects children on extension nodes, no `dependsOn` or diagnostic field exists on definitions, and upstream main (`e0548a64`, 0.7.6-canary) still lacks all three. Tracked as spec-only capabilities, not shipped surface.
 
 ## Capability denominator
 
@@ -264,3 +264,19 @@ to it. The skill typography reference, component table, recipes, and this
 note were reconciled to the `children` source convention and internal
 smoothing. Recipe coverage vs verification is recorded in Silo at the
 landing commit.
+
+## Gap reconciliation (issue #111)
+
+Two issue-#111 items resolved on verification, no code change required:
+
+- **Extension container node model** — spec-only at 0.7.4 (see above):
+  the shipped artifact has no container capability, so the candidate's
+  typed frozen-data + provenance model already matches the released
+  surface. New `mentions` profile/`plugin-mentions`/`stream-mentions`
+  fixtures give the shipped node shape a real differential case.
+- **`unbroken-tokens@480` layout residual** — already fixed by
+  `4de6a7f35` (mono font token + `break-all` wrap) and `7baab72f2`
+  (harness pins shared font tokens); the stale `milestone-6:layout`
+  Silo rows predate the fix. Re-verified at HEAD: all three engines
+  report identical geometry — 253px block, `large-table@480` scroll
+  594px/114px overflow — `render:table-floors` covered.

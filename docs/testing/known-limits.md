@@ -508,7 +508,8 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   smooths internally, so composing `useStreamingText` into it reveals twice.
   `display="inline"` embeds text runs only on native — view-bearing inline
   content throws, and inline images show their alt text. Extension nodes
-  carry typed data; the reference container node model is not ported. AppKit
+  carry typed data (the 0.7.4 spec's container model is spec-only — not
+  in the shipped artifact). AppKit
   link/citation activation dispatches through accessibility actions, not OS
   input; GTK and WinUI targets remain unverified. See
   [Markdown limits](../app/markdown.md#limits). — post-0.14.0·desk.

@@ -1,6 +1,6 @@
 import { createRoot } from 'octane'
 import { use, useState } from 'octane'
-import { Button, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
+import { Button, Text, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
 import {
   createMarkdownFrontmatter,
@@ -9,6 +9,8 @@ import {
   createMarkdownPlugin,
   markdownSoftBreaksPlugin,
   markdownSourceLinesPlugin,
+  type MarkdownExtensionNode,
+  type MarkdownSyntaxPluginDefinition,
 } from '@octane-xplat/ui/markdown'
 
 import {
@@ -19,6 +21,8 @@ import {
   textAreaScenarios,
   checkboxListScenarios,
   markdownScenarios,
+  mentionsContribution,
+  mentionsToText,
   BOUNDARY_FIXTURE_SOURCE,
   CITATION_SOURCES,
   CITATION_SOURCES_LOCAL,
@@ -267,6 +271,21 @@ function SwitchBehavior() {
   )
 }
 
+const mentionsDef: MarkdownSyntaxPluginDefinition<
+  'mentions',
+  MarkdownExtensionNode<'mentions'>
+> = {
+  name: 'mentions',
+  apiVersion: 1,
+  parseKey: 'mentions@1',
+  syntax: { inline: [{ ...mentionsContribution }] },
+  renderers: {
+    mention: {
+      render: (p: any) => <Text>{`@${p.node.data.handle}`}</Text>,
+      toText: mentionsToText,
+    },
+  },
+}
 const frontmatter = createMarkdownFrontmatter({ name: 'meta', parse: (fields) => fields })
 const markdownPlugins = (profiles?: readonly string[]) =>
   profiles?.map((p) => {
@@ -279,6 +298,8 @@ const markdownPlugins = (profiles?: readonly string[]) =>
         return markdownSourceLinesPlugin
       case 'heading-links':
         return createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })
+      case 'mentions':
+        return createMarkdownPlugin(mentionsDef)
       default:
         throw new RangeError(`unknown plugin profile ${p}`)
     }

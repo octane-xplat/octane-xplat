@@ -714,18 +714,46 @@ export const markdownCapabilities: MarkdownCapability[] = [
     id: 'protocol:extension-nodes',
     kind: 'protocol',
     summary:
-      "Extension nodes {type:'extension', plugin, name, data, display, source?}; container content 'none'|'phrasing'|'flow'|{allow,min,max}; inner spans parse under the same grammar.",
+      "Extension nodes {type:'extension', plugin, name, data, display, source?} — typed frozen data + provenance; syntax contributions mint them and transforms validate them.",
     sourceRef: `${MD}/ast.ts`,
     status: 'shipped',
     milestone: 5,
-    coverage: { question: 'How do extension containers map to Octane recursive rendering leaves?' },
+    coverage: { fixture: 'plugin-mentions' },
     local: 'partial',
+  }),
+  cap({
+    id: 'protocol:extension-containers',
+    kind: 'protocol',
+    summary:
+      "Extension containers declare content 'none'|'phrasing'|'flow'|{allow,min,max}; Core parses inner spans and renders children — declared by the 0.7.4 spec (FR17), absent from the 0.7.4 artifact and upstream main.",
+    sourceRef: `${MD}/Markdown.spec.md`,
+    status: 'spec-only',
+    milestone: 5,
+    coverage: {
+      question:
+        'Confirmed spec-only at 0.7.4: no content/children on extension nodes (validateAst rejects children), no Core-parsed inner span, no container renderers.',
+    },
+    local: 'present',
+  }),
+  cap({
+    id: 'protocol:transform-dependsOn',
+    kind: 'protocol',
+    summary:
+      'dependsOn transform ordering validated at preparation; unmet/misordered dependencies skip that transform — declared by the 0.7.4 spec (FR18), absent from the 0.7.4 artifact.',
+    sourceRef: `${MD}/Markdown.spec.md`,
+    status: 'spec-only',
+    milestone: 5,
+    coverage: {
+      question:
+        'Confirmed spec-only at 0.7.4: no dependsOn field on definitions or preparation; ownership enforcement ships without ordering declarations.',
+    },
+    local: 'present',
   }),
   cap({
     id: 'protocol:fallbacks',
     kind: 'protocol',
     summary:
-      'Plugin failures keep the last valid document and readable authored source; semantic-fence claims fall back to components.code/default CodeBlock; a failed container renderer shows children.',
+      'Plugin failures keep the last valid document and readable authored source; semantic-fence claims fall back to components.code/default CodeBlock; a failed renderer shows node.source/toText.',
     sourceRef: `${MD}/plugins/protocol.ts`,
     status: 'shipped',
     milestone: 5,
@@ -1174,7 +1202,64 @@ export type MarkdownScenario = {
 
 /** Named plugin profiles shared by the parser runner and both vite apps —
  *  each side maps a profile to its own first-party plugin entry. */
-export type MarkdownPluginProfile = 'soft-breaks' | 'frontmatter' | 'source-lines' | 'heading-links'
+export type MarkdownPluginProfile =
+  | 'soft-breaks'
+  | 'frontmatter'
+  | 'source-lines'
+  | 'heading-links'
+  | 'mentions'
+
+/** Shared 'mentions' syntax-plugin profile — one inline contribution
+ *  `@handle` → a typed extension node, identical on both sides. Each side
+ *  wraps it in its own `createMarkdownPlugin` call and render callback;
+ *  the parser runner stubs `render`. */
+export const mentionsContribution = {
+  startsWith: ['@'],
+  maxSpan: 24,
+  tokenize(input: {
+    source: string
+    offset: number
+    end: number
+    isFinal: boolean
+    context: 'inline' | 'block'
+    lineStart: number
+    column: number
+  }) {
+    const span = input.source.slice(input.offset, input.end)
+    const match = /^@[a-z][a-z0-9-]{0,15}/.exec(span)
+    if (
+      !input.isFinal &&
+      (span === '@' || (match != null && match[0].length === span.length))
+    ) {
+      return { status: 'defer' as const }
+    }
+    if (match == null) {
+      return { status: 'no-match' as const }
+    }
+    return {
+      status: 'match' as const,
+      end: input.offset + match[0].length,
+      node: {
+        type: 'extension' as const,
+        plugin: 'mentions' as const,
+        name: 'mention' as const,
+        display: 'inline' as const,
+        data: { handle: match[0].slice(1) },
+      },
+    }
+  },
+} as const
+
+/** Shared `toText` for the mentions renderer — `@handle` text projection.
+ *  Accepts the generic extension-node data field each side's renderer type
+ *  passes; the fixture always mints `{handle}`. */
+export function mentionsToText(node: { data: unknown }): string {
+  const handle =
+    typeof node.data === 'object' && node.data !== null
+      ? Reflect.get(node.data, 'handle')
+      : undefined
+  return `@${typeof handle === 'string' ? handle : ''}`
+}
 
 /** Deterministic ~40 KB mixed-grammar document — modelled on the upstream
  *  parser.perf.test.ts `generateAIResponse` section cycle (same six-block
@@ -1484,6 +1569,16 @@ export const markdownScenarios: MarkdownScenario[] = [
     capabilities: ['helper:headingLinks', 'render:heading-ids'],
   },
   {
+    // Ordered syntax contribution: '@handle' → a typed inline extension
+    // node carried through the canonical tree. Differentially exercises
+    // the shipped extension-node shape (plugin/name/display/data).
+    key: 'plugin-mentions',
+    source:
+      'Ping @alec and @yolanda-dev on **this**.\n\nNot mentions: @ alone, @1digit, email a@b.c.\n',
+    options: { plugins: ['mentions'] },
+    capabilities: ['protocol:syntax', 'protocol:extension-nodes'],
+  },
+  {
     key: 'inline-plugin',
     source: 'Call @ivan or #urgent inside **styled** text.\n',
     options: { inlinePlugin: true },
@@ -1701,6 +1796,15 @@ export const markdownScenarios: MarkdownScenario[] = [
     chunks: ['Claim [do', 'cs] mid sent', 'ence.\n\nMore [ap', 'i].\n'],
     options: { sourceIds: ['docs', 'api'] },
     capabilities: ['grammar:citations', 'stream:settlement'],
+  },
+  {
+    // Syntax plugin under incremental parsing: every '@' split position
+    // must defer or match identically on both sides.
+    key: 'stream-mentions',
+    source: 'Ping @alec now.\n',
+    chunks: ['Ping @al', 'ec now.\n'],
+    options: { plugins: ['mentions'] },
+    capabilities: ['protocol:syntax', 'protocol:extension-nodes', 'stream:settlement'],
   },
   {
     key: 'stream-nested',
