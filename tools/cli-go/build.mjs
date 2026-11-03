@@ -16,9 +16,10 @@ const work = join(root, 'research/go-cli')
 const moduleDirectory = join(root, 'packages/cli/go')
 mkdirSync(work, { recursive: true })
 const flags = process.argv.slice(2)
-assert.ok(flags.every((value) => ['--test', '--onnx', '--cli'].includes(value)))
+assert.ok(flags.every((value) => ['--test', '--test-binary', '--onnx', '--cli'].includes(value)))
 const onnx = flags.includes('--onnx')
 const cli = flags.includes('--cli')
+const testBinary = flags.includes('--test-binary')
 const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
 assert.equal(
@@ -101,7 +102,7 @@ if (flags.includes('--test')) {
 	const target = `${env.GOOS ?? (process.platform === 'win32' ? 'windows' : process.platform)}-${env.GOARCH ?? (process.arch === 'x64' ? 'amd64' : process.arch)}`
 	const binary = join(
 		work,
-		`xplat-go-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
+		`${testBinary ? 'go-tests' : 'xplat-go'}-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
 	)
 	const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 	const inputs = () => nativeInputs(root)
@@ -109,7 +110,7 @@ if (flags.includes('--test')) {
 	run(
 		'go',
 		[
-			'build',
+			...(testBinary ? ['test', '-c'] : ['build']),
 			'-mod=readonly',
 			'-trimpath',
 			'-buildvcs=false',
@@ -123,6 +124,25 @@ if (flags.includes('--test')) {
 	)
 	assert.deepEqual(inputs(), before, 'Source changed during build')
 	const bytes = readFileSync(binary)
+	if (testBinary) {
+		const record = {
+			version: 2,
+			kind: 'test-executable',
+			compiler: run('go', ['version']).trim(),
+			target,
+			sourceCommit: spawnSync('git', ['rev-parse', 'HEAD'], {
+				cwd: root,
+				encoding: 'utf8',
+			}).stdout.trim(),
+			inputs: before,
+			bytes: bytes.length,
+			sha256: sha(bytes),
+			binary,
+		}
+		writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
+		console.log(JSON.stringify({ ...record, inputs: undefined }))
+		process.exit(0)
+	}
 	const stage = mkdtempSync(join(work, 'download-'))
 	let download
 	try {

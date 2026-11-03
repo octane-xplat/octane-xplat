@@ -4,6 +4,7 @@
 	"type": "module",
 	"scripts": {
 		"build:go": "node build.mjs",
+		"build:go-tests": "node build.mjs --test-binary",
 		"build:go-onnx": "node build.mjs --onnx",
 		"test:go": "node qualify.mjs",
 		"test:go-unit": "node build.mjs --test",

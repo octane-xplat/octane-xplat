@@ -6,6 +6,7 @@
 		"test:go-code": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-binding": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
 		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go"] },
+		"build:go-tests": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"snapshot:go": { "cache": false },

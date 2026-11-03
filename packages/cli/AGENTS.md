@@ -791,6 +791,16 @@ release ownership in changelog chunks. Share the bounded opened-file reader and
 UTF-16 continuation handling with code retrieval while keeping each corpus policy
 separate.
 
+Mutable native caches need a separate namespace and a stable lock-file identity.
+Use kernel locks (`flock` on Unix, `LockFileEx` on Windows) that release on process
+death instead of trusting PID files. Honor cancellation while waiting and never
+rename/delete the lock file during publication. The Go cache root checks Unix
+ownership/private modes or a Windows current-user owner and protected user-only
+DACL; reject a broad or foreign existing namespace instead of repairing it.
+Cross-compiled Go test executables can exercise these OS contracts on a host
+without installing a compiler there. Record compilation and actual host execution
+separately; a passing primitive suite is not a public workflow qualification.
+
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
 reference descriptor's status. Keep permission checks, selection precedence and

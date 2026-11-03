@@ -98,3 +98,22 @@ binary/notices/license download archive. Qualification records five warmups,
 separate costs; neither executable measurements nor one target's archive
 establish all-platform npm package size. Reports and structured current status
 live outside Git in the project's report directory and Silo.
+
+## Native unit executables on another host
+
+The pinned builder can produce a standalone Go test executable and its source-input
+record. This needs no Go compiler on the destination host. It tests the native
+primitives, including cache ownership/kernel-lock release and HTTP/TLS; it is
+separate from public CLI and full workflow qualification.
+
+```sh
+GOOS=linux GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Linux Go unit executable"}' -- bun run turbo run build:go-tests --filter=@xplat/cli-go-probe
+GOOS=windows GOARCH=amd64 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Compile Windows Go unit executable"}' -- bun run turbo run build:go-tests --filter=@xplat/cli-go-probe
+```
+
+Copy `research/go-cli/go-tests-<os>-<arch>` (with `.exe` on Windows) into an owned
+host scratch run. Verify the adjacent record's SHA-256, set that process's temp
+directory to the run, and execute the binary with `-test.v`. Reserve the host for
+execution, retain stdout/stderr and the exact executable hash, then remove the
+owned upload/run. These test executables include Go's test runner and do not
+represent CLI download or startup size.
