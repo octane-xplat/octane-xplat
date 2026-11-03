@@ -1,11 +1,11 @@
-## Owned development-engine lifetime. The worker owns compiler/HMR semantics.
+## Development session lifetime. Only owned sessions start/stop engine processes.
 import std/[os, json, asyncdispatch, strtabs, strutils, monotimes, times]
 import ./managed_process, ./runtime_logs, ./sessions, ./host_storage, ./native_identity
 import ./build_worker, ./runtime_build, ./route_operation, ./strictjson, ./js_text
 import ./contract_failure, ./jsonutil, ./json_wire
-import ./session_history
+import ./session_history, ./process_observation
 
-type OwnedDevRun* = ref object
+type DevSessionRun* = ref object
   logs*: RuntimeLogs
   signal: ProcessCancel
   pending: Future[void]
@@ -14,22 +14,31 @@ type OwnedDevRun* = ref object
   history*: HistoryCapture
   registry: SessionRegistry
   sessionWatch: int
+  attached: bool
+  observed: seq[ObservedProcess]
 
-proc newOwnedDevRun*(logs: RuntimeLogs): OwnedDevRun =
-  OwnedDevRun(logs: logs,signal: newProcessCancel(),launching: true)
+proc newDevSessionRun*(logs: RuntimeLogs): DevSessionRun =
+  DevSessionRun(logs: logs,signal: newProcessCancel(),launching: true)
 
-proc stopDevRun*(run: OwnedDevRun): Future[JsonNode] {.async.} =
+proc newAttachedDevRun*(logs: RuntimeLogs, observed: seq[ObservedProcess]): DevSessionRun =
+  if observed.len == 0: raise newException(ValueError,"An attachment needs an observed process identity")
+  result = DevSessionRun(logs: logs,signal: newProcessCancel(),attached: true)
+  for process in observed:
+    result.observed.add(ObservedProcess(pid: process.pid,parent: process.parent,birth: process.birth))
+
+proc stopDevRun*(run: DevSessionRun): Future[JsonNode] {.async.} =
   run.ending = true
   run.signal.cancel()
   if run.pending != nil: await run.pending
   if run.sessionWatch > 0:
     run.registry.unwatchSessions(run.sessionWatch)
     run.sessionWatch = 0
+  if run.attached: return %*{"released": ["native attachment observer and lifecycle capture"]}
   return %*{"released": ["owned development engine and process group", "native session resource directory"]}
 
-proc cancelled(run: OwnedDevRun): bool = run.signal.cancelled or interruptedSignal() != 0
+proc cancelled(run: DevSessionRun): bool = run.signal.cancelled or interruptedSignal() != 0
 
-proc work(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
+proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     parent, workspace, owner: string, timeoutMs: int): Future[void] {.async.} =
   let id = text(session["sessionId"])
   let root = text(app["root"])
@@ -45,6 +54,26 @@ proc work(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
       if value["sessionId"] == %id: retained.updateHistory(value))
     logWatch = run.logs.watchLogs(proc(value: JsonNode) = retained.appendHistory(value))
     if run.cancelled(): raise contractFailure("cancelled","Session launch cancelled")
+    if run.attached:
+      var processes = newJArray()
+      for process in run.observed:
+        processes.add(%*{"pid": process.pid,"startTimeUs": $process.birth})
+      retained.updateHistory(%*{"attachment": {"processes": processes,"identity": "inferred from cwd and command arguments",
+        "output": "lifecycle-only","cleanupScope": "native observer and capture; external processes remain user-owned"}})
+      discard run.logs.noteLog("Attached to existing development processes; application output stays in the user's terminal. Only lifecycle events are captured.")
+      while not run.cancelled():
+        var live = false
+        try: live = sameObservedProcess(run.observed[0])
+        except OSError as error:
+          discard registry.markSessionDisconnected(id,%("Process observation is unavailable; attached data is historical: " & error.msg))
+          discard run.logs.noteLog("Attachment observation unavailable; external processes were not signalled.")
+          break
+        if not live:
+          discard registry.markSessionDisconnected(id,%"The observed development process identity is unavailable; attached data is historical.")
+          discard run.logs.noteLog("Observed development process exited or changed identity; external processes were not signalled.")
+          break
+        await sleepAsync(200)
+      return
     requireProjectVite(root)
     let worker = projectWorker(root,"@octane-xplat/macos-build","./dev-worker")
     privateHostDirectory(parent)
@@ -128,7 +157,7 @@ proc work(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
     if run.history != nil: run.history.finishHistory(registry.getSession(id))
     if logWatch > 0: run.logs.unwatchLogs(logWatch)
 
-proc startDevRun*(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
+proc startDevRun*(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     parent, workspace, owner: string, timeoutMs = 300000) =
   if run.pending != nil: raise newException(ValueError,"Development runner already started")
   run.pending = newFuture[void]("Development runner ownership")
@@ -139,8 +168,8 @@ proc startDevRun*(run: OwnedDevRun, registry: SessionRegistry, app, session: Jso
     except CatchableError as error: run.pending.fail(error)
   asyncCheck advance()
 
-proc devRunFinished*(run: OwnedDevRun): bool = run.pending != nil and run.pending.finished
-proc forgetDevLogs*(run: OwnedDevRun) =
+proc devRunFinished*(run: DevSessionRun): bool = run.pending != nil and run.pending.finished
+proc forgetDevLogs*(run: DevSessionRun) =
   if run.devRunFinished():
     if run.sessionWatch > 0:
       run.registry.unwatchSessions(run.sessionWatch)

@@ -44,14 +44,15 @@ async function until(read,message,timeout=180000,id) {
 function start(key) {const reply=call(['session','start','macos','--request-key',key]).data;sessions.push(reply.session.sessionId);return reply}
 let cache
 let crashHost,crashEngine,crashDescendant
+let externalEngine,externalExit
 function resources(id) {return join(cache,'sessions',id)}
 async function end(id) {assert.equal(call(['session','end',id]).ok,true);await until(()=>!existsSync(resources(id)),'Owned session resources must be released',15000)}
-async function rpc(method,params) {
+async function rpc(method,params,grants) {
  const descriptor=JSON.parse(readFileSync(join(cache,'host.json')))
  return await new Promise((resolve,reject)=>{
   const socket=createConnection(descriptor.socketPath),timer=setTimeout(()=>socket.destroy(Error('RPC deadline')),10000)
   let bytes=''
-  socket.once('connect',()=>socket.write(JSON.stringify({token:descriptor.token,method,params,appId:'.'})+'\n'))
+  socket.once('connect',()=>socket.write(JSON.stringify({token:descriptor.token,method,params,appId:'.',...(grants===undefined?{}:{grants})})+'\n'))
   socket.on('data',chunk=>{bytes+=chunk.toString();if(bytes.includes('\n')){socket.destroy();try{resolve(JSON.parse(bytes.split('\n')[0]))}catch(error){reject(error)}}})
   socket.once('error',reject);socket.once('close',()=>clearTimeout(timer))
  })
@@ -67,6 +68,15 @@ async function stopHost(removeCache=true) {
  })
  await until(()=>!alive(descriptor.pid),'Owned workspace host must end',20000)
  if(removeCache){rmSync(cache,{recursive:true,force:true})}
+}
+async function stopExternal() {
+ if(!externalEngine){return}
+ if(externalEngine.exitCode===null&&externalEngine.signalCode===null){
+  const timer=setTimeout(()=>{try{process.kill(-externalEngine.pid,'SIGKILL')}catch(error){if(error.code!=='ESRCH'){throw error}}},15000)
+  externalEngine.kill('SIGTERM')
+  try{await externalExit}finally{clearTimeout(timer)}
+ }
+ externalEngine=null;externalExit=null
 }
 try {
  assertCurrentNativeBuild(root,JSON.parse(readFileSync(join(root,'research/nim-cli/native/build.json'))),readFileSync(join(root,'research/nim-cli/native/xplat')))
@@ -111,7 +121,10 @@ try {
  const manifestPath=join(app,'package.json'),savedManifest=readFileSync(manifestPath,'utf8')
  const multiple=JSON.parse(savedManifest);multiple.xplat.targets.web={};write(manifestPath,multiple)
  write(join(app,'vite.config.mjs'),'export default {}\n')
- try{assert.equal(call(['session','start'],2).error.code,'ambiguous_selection')}
+ try{
+  assert.equal(call(['session','start'],2).error.code,'ambiguous_selection')
+  assert.equal(call(['session','attach','--platform','web'],3).error.code,'unsupported_capability')
+ }
  finally{write(manifestPath,savedManifest);rmSync(join(app,'vite.config.mjs'))}
  write(join(app,'hold'),'')
  const first=start('first'),id=first.session.sessionId
@@ -242,7 +255,82 @@ try {
  assert.equal(call(['targets','--platform','macos']).data.platforms[0].targets[0].session.sessionId,replacement)
  await end(replacement)
  checked('a replacement authenticated owner keeps prior sessions historical and gives fresh ownership to a new identity')
+ // Synthetic engines exercise selection only; actual app behavior is below.
+ const selectionFixture=join(app,'macos/dev-worker.js')
+ write(selectionFixture,'process.stdout.write("ready");setInterval(()=>{},1000)\n')
+ const selectors=[]
+ try {
+  for(let i=0;i<2;i++){
+   const child=spawn(process.execPath,[selectionFixture],{cwd:app,env,stdio:['ignore','pipe','ignore']}),exit=once(child,'exit')
+   selectors.push({child,exit});await once(child.stdout,'data')
+  }
+  const ambiguous=call(['session','attach','--platform','macos'],2)
+  assert.equal(ambiguous.error.code,'ambiguous_selection')
+  const candidates=ambiguous.error.context.candidates
+  assert.equal(candidates.length,2)
+  assert.deepEqual(candidates.flatMap(value=>value.pids).sort((a,b)=>a-b),selectors.map(value=>value.child.pid).sort((a,b)=>a-b))
+  const selected=call(['session','attach','--platform','macos','--target',candidates[0].targetId]).data.session
+  sessions.push(selected.sessionId);assert.equal(selected.targetId,candidates[0].targetId)
+  await end(selected.sessionId)
+  for(const {child} of selectors){assert.equal(alive(child.pid),true)}
+ } finally {
+  for(const {child,exit} of selectors){if(child.exitCode===null&&child.signalCode===null){child.kill('SIGTERM');await exit}}
+  rmSync(join(app,'macos'),{recursive:true,force:true})
+ }
+ checked('independent observed engines require an explicit returned target id; ending the selected observer preserves both fixture processes')
+ // Start the actual project-installed engine outside native ownership. The test
+ // owns its ChildProcess handle; the native attachment must never signal it.
+ const externalResources=join(scratch,'external-resources'),request=join(scratch,'external-request.json'),ready=join(scratch,'external-ready.json')
+ mkdirSync(externalResources)
+ write(request,{protocol:'octane-dev-worker',version:1,id:'external-engine',operation:'macos-dev',project:app,resourceRoot:externalResources})
+ externalEngine=spawn(process.execPath,[join(app,'node_modules/@octane-xplat/macos-build/dist/macos/dev-worker.js'),request,ready],{cwd:app,env,detached:true,stdio:['ignore','pipe','pipe']})
+ externalExit=once(externalEngine,'exit')
+ let externalOutput=''
+ for(const stream of [externalEngine.stdout,externalEngine.stderr]){stream.on('data',chunk=>{externalOutput=(externalOutput+chunk).slice(-65536)})}
+ await until(()=>existsSync(ready),'External canonical engine must publish readiness',180000)
+ assert.equal(JSON.parse(readFileSync(ready)).ok,true,externalOutput)
+ await until(()=>externalOutput.includes('NIM_DEV_TWO=41'),'External app must execute native C',30000)
+ const externalPid=Number(readFileSync(join(app,'app.pid')))
+ assert.equal(alive(externalPid),true)
+ assert.equal(call(['session','attach'],2).error.code,'invalid_selection')
+ assert.equal(call(['session','attach','--platform','macos','--target','wrong'],2).error.code,'invalid_selection')
+ function attach() {const value=call(['session','attach','--platform','macos']).data;sessions.push(value.session.sessionId);assert.equal(value.session.ownership,'attached');assert.equal(value.session.state,'ready');return value.session.sessionId}
+ const attached=attach()
+ const denied=await rpc('runtime.attach',{platform:'macos'},[])
+ assert.equal(denied.ok,false);assert.equal(denied.error.code,'permission_denied')
+ assert.equal(session(attached).processKind,'warm')
+ assert.equal(call(['session','attach','--platform','macos'],3).error.code,'target_busy')
+ assert.equal(call(['session','start','macos'],3).error.code,'target_busy')
+ const attachedDiagnostics=call(['diagnostics','--session',attached]).data
+ assert.equal(attachedDiagnostics.coverage.applicationOutput,'not-captured')
+ assert.ok(attachedDiagnostics.session.attachment.processes.some(value=>value.pid===externalEngine.pid))
+ assert.ok(logs(attached).length>0);assert.ok(logs(attached).every(value=>!value.line.includes('NIM_DEV_')))
+ const detached=call(['session','end',attached]).data.result
+ assert.match(detached.preserved[0],/user-owned/);assert.match(detached.released[0],/observer/)
+ assert.equal(alive(externalEngine.pid),true);assert.equal(alive(externalPid),true)
+ assert.deepEqual(call(['session','end',attached]).data.result,detached)
+ checked('native attach discovers an actual external macOS engine, captures lifecycle only, rejects conflicts and releases only its observer')
+ const observed=attach()
+ externalOutput='';write(join(app,'src/main.macos.js'),source('ATTACHED'))
+ await until(()=>externalOutput.includes('NIM_DEV_ATTACHED=41'),'External engine must rebuild while attached',30000)
+ const rebuiltPid=Number(readFileSync(join(app,'app.pid')))
+ assert.notEqual(rebuiltPid,externalPid);assert.equal(session(observed).state,'ready')
+ await stopHost(false)
+ assert.equal(alive(externalEngine.pid),true);assert.equal(alive(rebuiltPid),true)
+ assert.equal(session(observed).cleanupConfirmed,true)
+ assert.match(session(observed).attachment.cleanupScope,/external processes remain user-owned/)
+ assert.ok(logs(observed).every(value=>!value.line.includes('NIM_DEV_')))
+ checked('external engine HMR preserves the attachment; native host shutdown leaves its engine and app running with retained lifecycle evidence')
+ const departed=attach()
+ await stopExternal()
+ await until(()=>!alive(rebuiltPid),'Test-owned external engine must clean its app',15000)
+ await until(()=>session(departed).state==='disconnected','External engine exit must disconnect the observer',10000)
+ assert.ok(logs(departed).some(value=>value.line.includes('exited or changed identity')))
+ await end(departed)
+ assert.equal(call(['session','attach','--platform','macos'],2).error.code,'not_found')
+ checked('a replacement owner can reattach; external engine exit becomes disconnected and retained without signalling observed process identities')
 } finally {
+ await stopExternal()
  if(crashHost&&crashHost.exitCode===null&&crashHost.signalCode===null){
   const stopped=once(crashHost,'exit'),timer=setTimeout(()=>crashHost.kill('SIGKILL'),20000)
   crashHost.kill('SIGTERM')

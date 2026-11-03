@@ -26,7 +26,7 @@ delete catalog.requestId
 // Version denotes this native build; execution coverage must never be inferred
 // from the reference schemas' implemented status.
 catalog.data.cli.version=version
-const nativeCommands=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','session start','targets','diagnostics','job status','job cancel','runtime build']
+const nativeCommands=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','session list','session status','session end','session start','session attach','targets','diagnostics','job status','job cancel','runtime build']
 for(const c of catalog.data.commands) {c.status=nativeCommands.includes(c.command)?'implemented':'pending'}
 for(const c of catalog.data.orchestration) {c.status=['clean','typecheck','routes','build'].includes(c.name)?'implemented':'pending'}
 const commands={}

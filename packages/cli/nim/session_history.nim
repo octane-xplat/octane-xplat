@@ -223,7 +223,8 @@ proc readHistoryLogs*(workspace: string, app: JsonNode, id: string, owner = "",
   let next = if matching.len > page.len: page[page.len-1]["seq"].getInt() else: newest
   %*{"session": run,"records": page,"nextCursor": next,"oldestSeq": oldest,"newestSeq": newest,
     "truncated": (if cursor.isSome: cursor.get() else: 0) < oldest-1,"dropped": oldest-1,
-    "incompleteTail": incomplete,"historical": run["historical"],"capturedFrom": run["startedAt"],"coverage": historyCoverage}
+    "incompleteTail": incomplete,"historical": run["historical"],"capturedFrom": run["startedAt"],
+    "coverage": (if run["ownership"] == %"attached": "Lifecycle events only. External process output stays in the user's terminal, including output before attachment." else: historyCoverage)}
 
 proc historyDiagnostics*(workspace: string, app, params: JsonNode, owner = ""): JsonNode =
   let id = text(field(params,"sessionId"))
@@ -249,3 +250,4 @@ proc historyDiagnostics*(workspace: string, app, params: JsonNode, owner = ""): 
     "coverage": {"logs": "captured","nativeReports": {"status": "unavailable","detail": "Native report lookup for development sessions is pending."}}}
   if truthy(field(session,"retentionError")):
     result["coverage"]["retention"] = %*{"status": "unavailable","detail": session["retentionError"]}
+  if session["ownership"] == %"attached": result["coverage"]["applicationOutput"] = %"not-captured"

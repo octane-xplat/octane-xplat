@@ -12,15 +12,15 @@ const scratch = scratchRun(root, 'sessions')
 after(() => rmSync(scratch, { recursive: true, force: true }))
 const input = (sessionId, extra = {}) => ({ appId: '.', platform: 'web', targetId: 'web', sessionId, ...extra })
 function normalize(value) {
- if (Array.isArray(value)) return value.map(normalize)
- if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => {
+ if (Array.isArray(value)) {return value.map(normalize)}
+ if (value && typeof value === 'object') {return Object.fromEntries(Object.entries(value).map(([key, item]) => {
   if (key === 'createdAt') {
    assert.match(item, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)
    assert.ok(Math.abs(Date.parse(item) - Date.now()) < 60000)
    return [key, '<current-utc>']
   }
   return [key, normalize(item)]
- }))
+ }))}
  return value
 }
 function query(steps, native = true, extra = {}) {
@@ -106,6 +106,21 @@ test('retired/duplicate identities and shutdown cannot orphan or replace owned c
  assert.deepEqual(result.cleanupCalls, ['one'])
 })
 
+test('attached end awaits its own observer cleanup once while preserving external ownership', () => {
+ const result = query([
+  { op: 'attach', input: input('external'), cleanup: { delayMs: 40, released: ['native observer'] } },
+  { op: 'concurrent-end', id: 'external' }, { op: 'end', id: 'external' },
+ ])
+ const end = result.replies[1].value
+ assert.equal(end.waited, true)
+ assert.equal(end.pendingAfter, false)
+ assert.deepEqual(end.first, end.second)
+ assert.deepEqual(end.first, result.replies[2].value)
+ assert.deepEqual(end.first.released, ['native observer'])
+ assert.match(end.first.preserved[0], /user-owned/)
+ assert.deepEqual(result.cleanupCalls, ['external'])
+})
+
 test('snapshot mutation, throwing observers and reentrant end cannot bypass cleanup', () => {
  const result = query([
   { op: 'attach', input: input('user', { buildIdentity: { label: 'actual' } }) },
@@ -126,7 +141,7 @@ test('generated identities are distinct UUIDv4 and rejected inputs never create 
   { op: 'bind', input: input('') }, { op: 'bind', input: input('bad', { appId: '' }) }, { op: 'list' }, { op: 'shutdown' },
  ])
  const ids = result.replies.slice(0, 2).map(row => row.value.sessionId)
- for (const id of ids) assert.match(id, /^sess_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+ for (const id of ids) {assert.match(id, /^sess_[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)}
  assert.notEqual(ids[0], ids[1])
  assert.equal(result.replies[2].ok, false)
  assert.equal(result.replies[3].ok, false)
@@ -148,5 +163,5 @@ setInterval(()=>{},1000);`
  assert.deepEqual(value.first, value.second)
  assert.equal(value.exitFinishedBeforeManagerClose, true)
  assert.deepEqual(value.aliveBeforeManagerClose, [false, false])
- for (const pid of JSON.parse(readFileSync(marker))) assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })
+ for (const pid of JSON.parse(readFileSync(marker))) {assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })}
 })

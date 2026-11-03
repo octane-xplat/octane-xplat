@@ -32,7 +32,9 @@ proc sessionScenario*(request: JsonNode): Future[JsonNode] {.async.} =
     try:
       case text(step["op"])
       of "bind": value = registry.bindOwnedSession(step["input"],makeCleanup(field(step,"cleanup"),calls,text(field(step["input"],"sessionId"))))
-      of "attach": value = registry.attachSession(step["input"])
+      of "attach":
+        let cleanup = if field(step,"cleanup") == nil: nil else: makeCleanup(step["cleanup"],calls,text(field(step["input"],"sessionId")))
+        value = registry.attachSession(step["input"],cleanup)
       of "get": value = registry.getSession(id)
       of "list": value = registry.listSessions()
       of "usable": value = registry.requireUsableSession(id)

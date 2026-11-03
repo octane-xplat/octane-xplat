@@ -15,6 +15,7 @@ import ./history_scenario
 import ../../packages/cli/nim/[runtime_logs, runtime_build]
 import ../../packages/cli/nim/contract_failure
 import ../../packages/cli/nim/macos_build
+import ../../packages/cli/nim/process_observation
 
 proc logsScenario(request: JsonNode): JsonNode =
   let logs = newRuntimeLogs((if field(request,"limit") == nil: 2000 else: request["limit"].getInt()),
@@ -72,6 +73,24 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "process-observations":
+      value = newJArray()
+      for process in observeProjectProcesses(dir):
+        value.add(%*{"pid": process.pid,"parent": process.parent,"birth": $process.birth,
+          "executable": process.executable,"cwd": process.cwd})
+    of "same-process":
+      value = %sameObservedProcess(ObservedProcess(pid: request["pid"].getInt(),birth: parseBiggestUInt(text(request["birth"]))))
+    of "attach-groups", "discover-attach":
+      var processes: seq[ObservedProcess]
+      var groups: seq[seq[ObservedProcess]]
+      if text(request["operation"]) == "discover-attach": groups = waitFor discoverMacAttachGroups(request["app"])
+      else:
+        for process in request["processes"]:
+          processes.add(ObservedProcess(pid: process["pid"].getInt(),parent: process["parent"].getInt(),
+            cwd: text(process["cwd"]),executable: text(process["executable"]),command: text(process["command"])))
+        groups = macAttachGroups(request["app"],processes)
+      value = newJArray()
+      for group in groups: value.add(attachCandidate(group,request["app"],groups.len > 1))
     of "history": value = historyScenario(request)
     of "runtime-logs": value = logsScenario(request)
     of "native-build":

@@ -46,7 +46,7 @@ proc nativeTargetReport*(app, sessions, selected: JsonNode): JsonNode =
       var target = %*{"targetId": "macos","name": "macOS AppKit/WKWebView dev host","kind": "host","availability": "available","busy": false}
       for session in sessions:
         if session["appId"] == app["id"] and session["platform"] == platform and
-            session["targetId"] == %"macos" and text(session["state"]) notin ["stopped","failed"]:
+            text(session["state"]) notin ["stopped","failed"]:
           target["busy"] = %true
           target["session"] = %*{"sessionId": session["sessionId"],"ownership": session["ownership"],"state": session["state"]}
           break

@@ -3,6 +3,17 @@ import std/[json, os, asyncdispatch, tables, options, math]
 import ./agent_host, ./runtime_build, ./runtime_logs, ./jobs, ./managed_process, ./core, ./contract_failure
 import ./sessions, ./macos_session, ./host_storage, ./diagnostic_selection
 import ./session_history
+import ./process_observation
+
+proc retireRuns(runs: var OrderedTable[string,DevSessionRun], keys: var Table[string,JsonNode]) =
+  var retired: seq[string]
+  for id,run in runs:
+    if run.devRunFinished(): retired.add(id)
+  for id in retired:
+    if runs.len < 40: break
+    runs[id].forgetDevLogs()
+    runs.del(id)
+    keys.del(id)
 
 proc selectedApp(root: string, request: JsonNode): JsonNode =
   let inventory = discover(root)
@@ -35,12 +46,55 @@ proc integral(node: JsonNode, minimum, maximum, default: int): int =
 proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostDispatch =
   let root = expandFilename(absolutePath(workspace))
   var captures = initOrderedTable[string,RuntimeLogs]()
-  var sessionRuns = initOrderedTable[string,OwnedDevRun]()
+  var sessionRuns = initOrderedTable[string,DevSessionRun]()
   var launchKeys = initTable[string,JsonNode]()
   result = proc(host: NativeHost, request: JsonNode): Future[JsonNode] {.async.} =
     let methodName = text(request["method"])
     let params = request["params"]
     case methodName
+    of "runtime.attach":
+      for key in params.keys:
+        if key notin ["platform","targetId"]: raise contractFailure("invalid_selection","Unknown attach option: " & key)
+      requireRuntimeGrant(request)
+      let app = selectedApp(root,request)
+      let platform = field(params,"platform")
+      if platform == nil or platform.kind != JString or platform.getStr().len == 0:
+        raise contractFailure("invalid_selection","--platform is required for attachment.")
+      var declared = false
+      for candidate in app["platforms"]:
+        if candidate == platform: declared = true
+      if not declared: raise contractFailure("invalid_selection","The selected app does not declare this platform.")
+      if platform != %"macos": raise contractFailure("unsupported_capability","Native attach for this platform is pending.")
+      when not defined(macosx): raise contractFailure("unsupported_capability","macOS attachment requires a Mac.")
+      let selector = field(params,"targetId")
+      if selector != nil and selector.kind notin [JNull,JString]: raise contractFailure("invalid_selection","targetId must be a string.")
+      let groups = await discoverMacAttachGroups(app)
+      var candidates = newJArray()
+      for group in groups: candidates.add(attachCandidate(group,app,groups.len > 1))
+      var picked = -1
+      if truthy(selector):
+        for index in 0..<candidates.len:
+          if candidates[index]["targetId"] == selector: picked = index
+        if picked < 0: raise contractFailure("invalid_selection","No compatible development process matches this target.",%*{"context": {"candidates": candidates}})
+      elif groups.len == 1: picked = 0
+      elif groups.len == 0: raise contractFailure("not_found","No compatible running macOS development processes were found for this app.")
+      else: raise contractFailure("ambiguous_selection","Several independent development engines are running; choose a returned target id.",%*{"context": {"candidates": candidates}})
+      for current in host.sessions.listSessions():
+        if current["appId"] == app["id"] and current["platform"] == platform and text(current["state"]) notin ["stopped","failed"]:
+          raise contractFailure("target_busy","A live native session already binds this app's macOS target.",%*{"context": {"sessionId": current["sessionId"]}})
+      if not sameObservedProcess(groups[picked][0]):
+        raise contractFailure("not_found","The selected process changed identity during discovery; retry.",%*{"retryable": true})
+      let logs = newRuntimeLogs()
+      let run = newAttachedDevRun(logs,groups[picked])
+      let cleanup: SessionCleanup = proc(): Future[JsonNode] {.async.} = return await run.stopDevRun()
+      let candidate = candidates[picked]
+      let session = host.sessions.attachSession(%*{"appId": app["id"],"platform": "macos","targetId": candidate["targetId"],
+        "processKind": "warm","detail": candidate["detail"]},cleanup)
+      let id = text(session["sessionId"])
+      retireRuns(sessionRuns,launchKeys)
+      sessionRuns[id] = run
+      run.startDevRun(host.sessions,app,session,hostPaths(root).directory / "sessions",root,host.generation)
+      return %*{"session": host.sessions.getSession(id),"detail": candidate["detail"]}
     of "runtime.launch":
       for key in params.keys:
         if key notin ["target","requestKey","browserMode"]: raise contractFailure("invalid_selection","Unknown launch option: " & key)
@@ -69,19 +123,12 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
               return %*{"session": current,"deduplicated": true}
           raise contractFailure("target_busy","A live session already owns this app's macos target.",%*{"context": {"sessionId": id}})
       let logs = newRuntimeLogs()
-      let run = newOwnedDevRun(logs)
+      let run = newDevSessionRun(logs)
       let cleanup: SessionCleanup = proc(): Future[JsonNode] {.async.} = return await run.stopDevRun()
       let session = host.sessions.bindOwnedSession(%*{"appId": app["id"],"platform": "macos","targetId": "macos",
         "detail": "launch on macOS development host"},cleanup)
       let id = text(session["sessionId"])
-      var retired: seq[string]
-      for old, entry in sessionRuns:
-        if entry.devRunFinished(): retired.add(old)
-      for old in retired:
-        if sessionRuns.len < 40: break
-        sessionRuns[old].forgetDevLogs()
-        sessionRuns.del(old)
-        launchKeys.del(old)
+      retireRuns(sessionRuns,launchKeys)
       sessionRuns[id] = run
       launchKeys[id] = if key == nil: newJNull() else: key.copy()
       host.sessions.setSessionLaunch(id,%*{"phase": "starting"})
@@ -153,6 +200,9 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       if truthy(sessionId):
         payload["sessionId"] = sessionId
         payload["session"] = host.sessions.getSession(sessionId.getStr())
+        if payload["session"]["ownership"] == %"attached":
+          payload["coverage"]["applicationOutput"] = %"not-captured"
+          payload["logs"]["coverage"] = %"Lifecycle events only. External process output stays in the user's terminal, including output before attachment."
         payload["coverage"]["retention"] = %*{"status": "unavailable","detail": "No retained session capture is available; only host-memory logs are readable."}
       return payload
     else: raise contractFailure("invalid_selection","Unknown native runtime method.")

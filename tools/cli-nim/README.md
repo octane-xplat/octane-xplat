@@ -329,8 +329,9 @@ shutdown, isolate nested snapshot mutation, contain observer exceptions, seriali
 reentrant notifications and wait for a single cleanup on concurrent end calls.
 The macOS process case arms both a child and descendant against SIGTERM, verifies
 attached end preserves them, then verifies owned end releases both before the
-outer test process manager closes. The native host composes public session state;
-real app launch/attach remains pending.
+outer test process manager closes. Attached bindings can also own an observer
+cleanup: concurrent end calls wait for it once while preserving external ownership.
+The packed macOS workflow below qualifies actual launch and attachment.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native session ownership qualification"}' -- bun run turbo run test:nim-sessions --filter=@octane-xplat/cli
@@ -476,7 +477,12 @@ The session directory is outside project dependency caches and is removed after
 owned process cleanup. Session history also covers reads after graceful shutdown, abrupt owner loss
 and authenticated owner replacement. Lost-owner cleanup is explicitly unconfirmed;
 the qualification harness releases its own deliberately orphaned fixture group.
-Native reports, attach and automatic abrupt owner-death recovery remain unqualified. The worker's optional WKWebView path is not exercised by this test.
+The same test starts an external canonical engine and verifies native attachment,
+external HMR, lifecycle-only logs, conflicts, observer cleanup, owner shutdown and
+reattachment. Its synthetic independent-engine fixtures qualify explicit target
+selection separately from real app execution. Native reports and automatic abrupt
+owner-death recovery remain unqualified. The worker's optional WKWebView path is
+not exercised by this test.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
@@ -492,4 +498,16 @@ the executable. Retained diagnostic reads are app-scoped and never start a host.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native session history qualification"}' -- bun run turbo run test:nim-history test:nim-macos-dev test:nim-host --filter=@octane-xplat/cli
+```
+
+
+`test:nim-attach` exercises same-user/canonical-cwd SDK observations, process birth
+identity, command classification, ancestry grouping and independent selectors.
+It compares the single-engine DTO and lifecycle-only contract with TypeScript,
+rejects unrelated/eval/suffix lookalikes and checks argument privacy. A directly
+owned Node fixture verifies discovery with an empty PATH and stale birth/exit
+rejection; it is process-discovery evidence, not actual app readiness.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native attachment qualification"}' -- bun run turbo run test:nim-attach test:nim-sessions test:nim-macos-dev --filter=@octane-xplat/cli
 ```

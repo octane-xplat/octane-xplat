@@ -31,6 +31,14 @@ Do not require global history enumeration before releasing a known live session:
 validate its selected-app ownership from the live registry, so an unrelated
 corrupt retained record cannot prevent process cleanup.
 
+An attachment owns its observer and lifecycle capture, never the observed
+process. Await that observer's cleanup on end/shutdown while preserving external
+processes. Read-only process observations need same-user, canonical-cwd and
+birth-time checks; a matching PID alone is insufficient even for continued
+observation. Keep command arguments transient and out of public/retained metadata.
+Disclose inferred identity and lifecycle-only coverage instead of claiming app
+readiness or captured output from an external terminal.
+
 After an append failure, stop adding bytes to that JSONL stream. A failed write
 may leave an incomplete final record; appending another record can turn that tail
 into an invalid complete line and hide a readable prefix. Preserve the complete
@@ -74,6 +82,10 @@ in a standalone probe does not establish that host behavior.
 - `JsonNode` is a reference type: assignment shares mutable data. Return deep
   copies at snapshot boundaries, including nested build identities and cached
   async results, so caller mutation cannot alter private ownership/state records.
+- Sequence iteration can yield borrowed (`lent`) values. A closure comparator
+  cannot safely capture such a loop variable. Use indexed iteration and copy
+  the value into a local before creating the closure; preserve the compiler's
+  borrow checks instead of disabling them.
 - `for key, value in jsonNode` is object iteration: the key is a string.
   For an array with numeric positions, use `for i in 0..<node.len` and
   `let value = node[i]`. Do not assume a two-variable loop means array indices.

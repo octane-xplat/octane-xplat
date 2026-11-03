@@ -81,7 +81,7 @@ proc bindSession(registry: SessionRegistry, input: JsonNode, owned: bool, cleanu
   registry.entries[id].value.copy()
 proc bindOwnedSession*(registry: SessionRegistry, input: JsonNode, cleanup: SessionCleanup = nil): JsonNode =
   registry.bindSession(input,true,cleanup)
-proc attachSession*(registry: SessionRegistry, input: JsonNode): JsonNode = registry.bindSession(input,false,nil)
+proc attachSession*(registry: SessionRegistry, input: JsonNode, cleanup: SessionCleanup = nil): JsonNode = registry.bindSession(input,false,cleanup)
 
 proc requireUsableSession*(registry: SessionRegistry, id: string): JsonNode =
   let session = registry.getSession(id)
@@ -145,7 +145,7 @@ proc finishEnd(registry: SessionRegistry, entry: SessionEntry, id: string): Futu
   var response = %*{"sessionId": id,"ended": true}
   if text(entry.value["ownership"]) == "attached":
     response["preserved"] = %*["attached user-owned session left running"]
-  else:
+  if text(entry.value["ownership"]) != "attached" or entry.cleanup != nil:
     let cleanup = entry.cleanup
     entry.cleanup = nil
     var released = newJArray()

@@ -3,7 +3,7 @@
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
 status, capabilities, clean, typecheck, routes, web/macOS builds, app selection, permissions, code search, code read, guidance
-and docs read, macOS targets/session start, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
+and docs read, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -79,7 +79,13 @@ owned cleanup. Concurrent ends share completion; attached bindings preserve thei
 external process. Snapshot mutation and observer exceptions cannot change private
 ownership or bypass cleanup. Its process fixture verifies cleanup before the outer
 test owner closes. The native host now retains these records across CLI invocations. macOS development launch composes the installed engine with this registry;
-attach and other launch engines remain pending.
+macOS attachment instead observes same-user compatible engines in the selected
+app's canonical working directory, using SDK process birth times to detect exit
+or PID reuse. It infers identity, captures lifecycle events only and leaves
+external processes untouched on end/shutdown. Other launch/attach engines remain
+pending. `process_observation.nim` keeps bounded command-line observations
+transient; `process_snapshot.c` uses SDK declarations without decoding kernel
+argument buffers.
 `jobs.nim` adds request deduplication, progress, bounded terminal history and
 cooperative cancellation. It retains runner ownership until completion and drains
 runners on close. Immediate completed futures can produce a terminal start result;

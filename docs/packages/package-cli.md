@@ -154,10 +154,11 @@ before generating files:
 /path/to/octane-xplat/research/nim-cli/native/xplat routes --watch
 ```
 
-Native session and job commands read retained state from a background owner for
-the workspace. A read does not start that process; with no owner, the session list
-is empty. Each CLI implementation owns its runtime state. macOS development
-sessions and web/macOS builds are available; other engines remain migration work:
+Native session and job commands connect to a background owner for the workspace.
+A read does not start that process. With no owner, session reads use retained
+history when available; build-job state requires its live owner. Each CLI
+implementation owns its runtime state. macOS development sessions and web/macOS
+builds are available; other engines remain migration work:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat session list --json
@@ -197,6 +198,19 @@ the native owner exits; build-job log captures still last only while it runs:
 xplat targets --platform macos --json
 xplat session start macos --json
 xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
+If you already run a compatible macOS development engine from the app's directory,
+attach without transferring ownership. The returned session describes inferred
+process identity, not confirmed UI readiness. Only lifecycle events are captured;
+app output stays in its existing terminal. Ending the attachment or shutting down
+the native owner leaves the external engine and app running. If several engines
+match, choose a returned candidate with `--target TARGET_ID`:
+
+```sh
+xplat session attach --platform macos --json
 xplat diagnostics --session SESSION_ID --json
 xplat session end SESSION_ID --json
 ```

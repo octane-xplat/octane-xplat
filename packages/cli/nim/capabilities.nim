@@ -29,13 +29,14 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
                 (if capability == "build": "Web and macOS builds invoke project-installed tools; other build engines are pending. Install the app's dependencies first."
                 elif capability == "logs": "macOS session logs remain readable after host exit. Build-job captures last while the host lives; native reports are pending."
                 else: "Web and macOS build jobs support status and cancellation; other application job creators are pending.")}
-        of "target_discovery", "launch", "session_end":
+        of "target_discovery", "launch", "attach", "session_end":
           when defined(macosx):
             if platform == %"macos":
               entry = %*{"capability": id,"status": "partial","detail":
                 (if capability == "target_discovery": "The macOS host target includes native session ownership and busy state; other target composition is pending."
-                elif capability == "launch": "macOS development invokes the project's installed engine with native readiness, logs and cleanup. Other launch engines and attach are pending."
-                else: "Owned macOS sessions release their engine, app processes and private resources. Lost owners leave historical evidence with cleanup unconfirmed; attach remains pending.")}
+                elif capability == "launch": "macOS development invokes the project's installed engine with native readiness, logs and cleanup. Other launch engines are pending."
+                elif capability == "attach": "macOS attachment observes compatible same-user processes in the app's working directory. Identity is inferred; only lifecycle events are captured. Other platforms are pending."
+                else: "Owned macOS sessions release their engine, app processes and private resources. Attached end releases only the native observer/capture and leaves external processes user-owned. Lost owners leave historical evidence with cleanup unconfirmed.")}
         else: discard
       elif capability in ["guidance","docs","code_search"]:
         entry["detail"] = %"Select an app before retrieving its guidance, installed-version documents or source."

@@ -223,15 +223,16 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
   try:
     if name == "diagnostics": validateDiagnosticSelection(values)
     var requestedApp: JsonNode
-    if name in ["runtime build","session start","targets"] or (name == "diagnostics" and not truthy(field(values,"jobId"))):
+    if name in ["runtime build","session start","session attach","targets"] or (name == "diagnostics" and not truthy(field(values,"jobId"))):
       if name == "runtime build" and not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for a build.")
+      if name == "session attach" and not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for attachment.")
       let selected = context.selection()
       if selected["state"] != %"bound":
         raise contractFailure((if context.selector.len == 0 and context.discovery["apps"].len > 1: "ambiguous_selection" else: "invalid_selection"),
           "Select an app. Pass --app or run from the app directory.")
       requestedApp = selected["app"]["id"]
     var host: HostConnection
-    if name in ["runtime build","session start"]: host = await ensureNativeHost(context.root)
+    if name in ["runtime build","session start","session attach"]: host = await ensureNativeHost(context.root)
     else:
       try: host = await connectNativeHost(context.root)
       except ContractFailure as error:
@@ -280,6 +281,10 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     var methodName: string
     var params = newJObject()
     case name
+    of "session attach":
+      methodName = "runtime.attach"
+      for key in ["platform","targetId"]:
+        if field(values,key) != nil: params[key] = values[key]
     of "targets": methodName = "sessions.list"
     of "session start":
       methodName = "runtime.launch"
@@ -316,6 +321,7 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     result["error"] = failureData(error)
 
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "session attach": return "Attached session " & text(payload["session"]["sessionId"]) & " (" & text(payload["session"]["state"]) & ")\nOnly lifecycle events are captured; application output stays in its existing terminal."
   if name == "targets":
     var lines: seq[string]
     for platform in payload["platforms"]:
