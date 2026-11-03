@@ -55,6 +55,9 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "guidance":
 				entry["status"] = "partial"
 				entry["detail"] = "Project status inventories guidance sources; tailored guidance retrieval is pending."
+				if selection.State == "bound" {
+					entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native guidance follows the selected app's installed versions and current provider availability."}
+				}
 			case "code_search":
 				if workspace.codeSelection() == nil {
 					entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native current-source search/read and a bounded local intent index; results retain corpus, version provenance and freshness."}

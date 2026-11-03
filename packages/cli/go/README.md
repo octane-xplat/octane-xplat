@@ -42,8 +42,14 @@ patterns such as `apps/*`, literal paths, and leading `!` exclusions are matched
 natively. Advanced glob expressions are rejected with an instruction to simplify
 the workspace configuration; workspace matching does not start a Node worker.
 
+Native project guidance uses the same installed-package identity as source
+retrieval. It labels linked checkouts and installation/lockfile conflicts, and
+describes the providers available in this Go build. Guidance does not download
+assets or prepare documentation snapshots.
+
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go package binding verification"}' -- bun run turbo run test:go-binding --filter=@octane-xplat/cli
+research/go-cli/xplat-go-darwin-arm64-cli guidance --project . --app apps/web --json
 ```
 
 Inference remains native. Optional ONNX/model assets and project compiler engines

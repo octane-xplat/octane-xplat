@@ -754,6 +754,15 @@ conflict warnings were retained. Compare serialized output with the reference:
 an omitted optional JSON field differs from an explicit null, while a JavaScript
 property containing `undefined` disappears during serialization.
 
+Share installed-package discovery between source and documentation services.
+Classify `file:` dependencies by their actual directory type before treating an
+archive suffix as a tarball; directory names can end in `.tgz`, and absolute
+paths must resolve independently of the app root. Documentation identity uses
+actual manifests before provisional lockfile data and retains every conflict.
+Tailored guidance must describe the current native providers rather than copy
+claims from a more complete reference implementation. Identity and guidance
+reads do not prepare snapshots, models or mutable documentation caches.
+
 Probe prerequisites on the native process's actual PATH. A standalone executable
 cannot inherit the Node reference's assumption that Node is already running. A
 declared pnpm project must not require Bun merely because the CLI also supports

@@ -73,6 +73,12 @@ func jsonObject(path string) map[string]any {
 	return value
 }
 func pathExists(path string) bool { _, err := os.Stat(path); return err == nil }
+func resolveFrom(base, path string) string {
+	if filepath.IsAbs(path) {
+		return filepath.Clean(path)
+	}
+	return filepath.Join(base, path)
+}
 func webProject(path string) bool {
 	for _, suffix := range []string{"js", "mjs", "ts", "cjs", "mts", "cts"} {
 		if pathExists(filepath.Join(path, "vite.config."+suffix)) {

@@ -31,6 +31,7 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/docs-binding.ts',
 		'packages/cli/src/mcp/release-map.ts',
 		'packages/cli/src/mcp/docs-retrieval.ts',
+		'packages/cli/src/mcp/docs-guidance.ts',
 		'packages/docs-search/src/chunks.ts',
 	)
 	return Object.fromEntries(

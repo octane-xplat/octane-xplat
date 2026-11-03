@@ -79,6 +79,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'capabilities',
 			'code search',
 			'code read',
+			'guidance',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -92,7 +93,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		7,
+		8,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
@@ -154,7 +155,7 @@ test('status preserves identity, guidance and actual package bindings without cl
 			matrix.capabilities
 				.filter((entry) => entry.status === 'supported')
 				.map((entry) => entry.capability),
-			['project_status', 'code_search'],
+			['project_status', 'guidance', 'code_search'],
 		)
 		assert.equal(
 			matrix.capabilities.find((entry) => entry.capability === 'screenshot').requiresPermission,
@@ -162,7 +163,7 @@ test('status preserves identity, guidance and actual package bindings without cl
 		)
 		assert.equal(
 			matrix.capabilities.find((entry) => entry.capability === 'guidance').status,
-			'partial',
+			'supported',
 		)
 	}
 	assert.deepEqual(
@@ -183,6 +184,60 @@ test('status preserves identity, guidance and actual package bindings without cl
 	const bound = cli(['status', '--project', project, '--app', app.id, '--json'])
 	assert.equal(bound.value.context.projectId, app.id)
 	assert.equal(bound.value.data.identity.selection.reason, 'explicit')
+})
+
+test('native guidance binds actual installed versions, link labels and conflict warnings without Node', () => {
+	const project = join(scratch, 'guidance')
+	put(join(project, 'package.json'), {
+		name: 'app',
+		xplat: { targets: {} },
+		dependencies: { '@octane-xplat/ui': '0.19.0', '@octane-xplat/cli': 'workspace:*' },
+	})
+	put(join(project, 'node_modules/@octane-xplat/ui/package.json'), {
+		name: '@octane-xplat/ui',
+		version: '0.19.0',
+	})
+	put(join(project, 'node_modules/@octane-xplat/cli/package.json'), {
+		name: '@octane-xplat/cli',
+		version: '0.19.0',
+	})
+	put(
+		join(project, 'pnpm-lock.yaml'),
+		"importers: {'.': {dependencies: {'@octane-xplat/ui': {version: '0.18.0'}}}}",
+	)
+	const cache = join(scratch, 'unused-guidance-cache')
+	const result = cli(['guidance', '--project', project, '--json'], {
+		env: { XPLAT_MCP_CACHE: cache },
+	})
+	assert.equal(result.status, 0)
+	assert.equal(result.value.data.bindingRevision, 1)
+	const entries = result.value.data.entries
+	assert.deepEqual(
+		entries.slice(0, 5).map((entry) => entry.id),
+		['capabilities', 'target', 'inspect', 'iterate', 'claims'],
+	)
+	assert.match(entries[0].body, /@octane-xplat\/ui@0\.19\.0/)
+	assert.match(entries.find((entry) => entry.id === 'linked').body, /@octane-xplat\/cli@0\.19\.0/)
+	assert.match(
+		entries.find((entry) => entry.id === 'discrepancy').body,
+		/lockfile records 0\.18\.0 but 0\.19\.0 is installed/,
+	)
+	assert.ok(
+		entries.every(
+			(entry) =>
+				entry.provenance.source === 'project-guidance' && entry.provenance.scope === 'project',
+		),
+	)
+	assert.equal(
+		existsSync(cache),
+		false,
+		'Reading guidance must not prepare snapshots or model assets',
+	)
+	put(join(project, 'apps/second/package.json'), { name: 'second', xplat: { targets: {} } })
+	assert.equal(
+		cli(['guidance', '--project', project, '--json']).value.error.code,
+		'ambiguous_selection',
+	)
 })
 
 test('native prerequisite probes inspect actual Node availability and clear injected Node options', () => {

@@ -63,13 +63,18 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 	switch command {
 	case "doc-data":
 		var input struct {
-			Operation, Root, Path, Content, Corpus, Ref string
-			Values                                      map[string]any
+			Operation, Root, App, Path, Content, Corpus, Ref string
+			Values                                           map[string]any
 		}
 		if err = readJSON(*request, &input); err != nil {
 			return nil, err
 		}
 		switch input.Operation {
+		case "identity":
+			if input.App == "" {
+				input.App = input.Root
+			}
+			return resolveDocsInstallation(ctx, input.Root, input.App)
 		case "list":
 			documents, err := listDocuments(ctx, input.Root)
 			if err != nil {

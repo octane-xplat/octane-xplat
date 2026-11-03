@@ -25,7 +25,7 @@ func projectManifest(root string) (map[string]any, error) {
 	return pkg, err
 }
 func yamlObject(path string) (map[string]any, error) {
-	data, err := os.ReadFile(path)
+	data, err := metadataBytes(path, 64<<20)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func projectPackageManager(ctx context.Context, path string, explicit *string) (
 }
 func bunLock(root string) (map[string]any, error) {
 	path := filepath.Join(root, "bun.lock")
-	data, err := os.ReadFile(path)
+	data, err := metadataBytes(path, 64<<20)
 	if os.IsNotExist(err) {
 		if pathExists(filepath.Join(root, "bun.lockb")) {
 			return nil, errors.New("xplat patches needs bun.lock. Run bun install --save-text-lockfile --lockfile-only to convert bun.lockb.")

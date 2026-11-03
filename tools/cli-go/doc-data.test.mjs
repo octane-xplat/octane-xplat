@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, rmSync, symlinkSync } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { listDocs, readPage, parseDocRef } from '../../packages/cli/src/mcp/docs-retrieval.ts'
+import { resolveInstallations } from '../../packages/cli/src/mcp/docs-binding.ts'
 import { chunkMarkdown } from '../../packages/docs-search/src/chunks.ts'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
@@ -98,6 +99,44 @@ test('Markdown chunks preserve fences, heading ranges and release metadata', () 
 		}
 	}
 })
+test('installed documentation identity follows actual versions, links and conflicts', () => {
+	const app = join(scratch, 'identity')
+	put(
+		join(app, 'package.json'),
+		JSON.stringify({
+			name: 'app',
+			xplat: { targets: {} },
+			dependencies: { '@octane-xplat/ui': '0.19.0', '@octane-xplat/cli': 'workspace:*' },
+		}),
+	)
+	put(
+		join(app, 'node_modules/@octane-xplat/ui/package.json'),
+		JSON.stringify({ name: '@octane-xplat/ui', version: '0.19.0' }),
+	)
+	put(
+		join(app, 'node_modules/@octane-xplat/cli/package.json'),
+		JSON.stringify({ name: '@octane-xplat/cli', version: '0.19.0' }),
+	)
+	put(
+		join(app, 'pnpm-lock.yaml'),
+		"importers: {'.': {dependencies: {'@octane-xplat/ui': {version: '0.18.0(peer@1)'}, '@octane-xplat/cli': {version: '0.19.0'}}}}",
+	)
+	assert.deepEqual(native({ operation: 'identity', root: app }), resolveInstallations(app))
+	const linked = join(scratch, 'directory.tgz')
+	mkdirSync(linked)
+	put(
+		join(app, 'package.json'),
+		JSON.stringify({
+			name: 'app',
+			xplat: { targets: {} },
+			dependencies: { '@octane-xplat/ui': `file:${linked}`, '@octane-xplat/cli': 'workspace:*' },
+		}),
+	)
+	assert.deepEqual(native({ operation: 'identity', root: app }), resolveInstallations(app))
+	rmSync(join(app, 'node_modules'), { recursive: true })
+	assert.deepEqual(native({ operation: 'identity', root: app }), resolveInstallations(app))
+})
+
 test('document aliases stay within an eligible corpus and directory cycles are skipped', () => {
 	const outside = put(join(scratch, 'outside.md'), 'Outside sentinel')
 	put(join(fixture, 'private/secret.md'), 'Private sentinel')
