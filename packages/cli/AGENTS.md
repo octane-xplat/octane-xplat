@@ -64,6 +64,16 @@ Keep catalog, discovery, permissions, source/document reads, HTTP control and
 process ownership native. Inference stays in Nim; useful retrieval quality takes
 precedence over incidental equality with WASM search ranking.
 
+Development-action input/output validation uses the selected project's
+`@octane-xplat/build/worker` (`action-validate`). Reuse the existing JS field
+validator: its RegExp and default semantics belong to that runtime; do not add a
+third validator or a partial native regex translation. Listing, HTTP, policy,
+queues and job outcomes remain native. Treat pre-job admission workers as owned
+resources too: register cancellation/completion before starting them, and await
+their teardown during host shutdown. Cancelling a queued FIFO ticket removes
+only that ticket; it must not release the running owner's slot. Preserve partial
+effect evidence when cancellation races a runner exception.
+
 Choose language boundaries by the operation's existing requirements and semantic
 ownership. When compiler work already starts Node, keeping its renderer in the
 same project-installed worker can remove duplicated language-specific logic.
@@ -108,6 +118,10 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 - `JsonNode` is a reference type: assignment shares mutable data. Return deep
   copies at snapshot boundaries, including nested build identities and cached
   async results, so caller mutation cannot alter private ownership/state records.
+  Before copying a constructed JSON object, omit absent properties or insert
+  `newJNull()` explicitly. A nested nil reference is not a JSON null and can
+  crash the standard deep-copy path. Exercise errors with optional metadata
+  absent; an ambiguity report must not take down a persistent owner.
 - Sequence iteration can yield borrowed (`lent`) values. A closure comparator
   cannot safely capture such a loop variable. Use indexed iteration and copy
   the value into a local before creating the closure; preserve the compiler's

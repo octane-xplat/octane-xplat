@@ -564,3 +564,27 @@ outside the ordinary offline/PR gate. Run them under a build reservation:
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native inference qualification"}' -- bun run turbo run test:nim-docs-compute test:nim-model --filter=@octane-xplat/cli
 ```
+
+Native action control is composed in `action_service.nim` and
+`action_endpoints.nim`. `test:nim-actions` runs public commands against the built
+project Vite plugin and canonical app registry, loaded with its macOS leaf in a
+headless Node realm. It qualifies host-side discovery, input/defaults, real state
+mutation, job results, permission/revision rejection, scoped live dedupe, queues,
+cooperative cancellation, partial/unknown outcomes and result validation. Its
+PID-recording Node shim is test instrumentation around the actual Node executable,
+not part of the native package. A pathological JavaScript regex exercises the real
+five-second worker bound and responsive native host shutdown, including pre-job
+admission cleanup. These checks do not establish AppKit/NativeScript fetch or UI.
+
+The `action-validate` project worker reuses the existing reference JS field validator;
+no native RegExp translation is maintained. The packed build-tools consumer also
+executes that operation outside repository dependency resolution. Listing/status,
+HTTP, queues, permissions and jobs remain native. Bridge credentials stay within
+same-app loopback requests: redirects are refused and response bodies are bounded.
+Body transfer failures remain failures, deliberately strengthening the reference's
+successful-null fallback after header/body errors. Malformed JSON still maps to
+null at the transport boundary and is rejected as an invalid registry by the service.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native development actions"}' -- bun run turbo run test:nim-actions test:nim-http test:nim-host test:nim-build-tools --filter=@octane-xplat/cli
+```

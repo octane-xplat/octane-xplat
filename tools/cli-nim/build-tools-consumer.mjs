@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { scratchRun } from './scratch.mjs'
 import { assertCurrentNativeBuild, httpProbeInputs } from './native-inputs.mjs'
@@ -36,8 +36,8 @@ try {
  const inventory = run('tar',['-tzf',plugins]).stdout.trim().split('\n')
  for (const file of ['dist/vite.js','dist/vite.d.ts','dist/macos/vite.js','dist/macos/vite.d.ts',
   'dist/linux-gtk/vite.js','dist/linux-gtk/vite.d.ts','dist/css-platform.types.d.ts','dist/build-worker.js',
-  'dist/typecheck-globals/native.d.ts','dist/typecheck-globals/macos.d.ts','LICENSE'])
-  assert.ok(inventory.includes(`package/${file}`), `Missing packed ${file}`)
+  'dist/typecheck-globals/native.d.ts','dist/typecheck-globals/macos.d.ts','dist/mcp/contracts/actions.js','LICENSE'])
+  {assert.ok(inventory.includes(`package/${file}`), `Missing packed ${file}`)}
  assert.ok(inventory.every(file => !/\/(node_modules|src|nim|bin|standalone)\//.test(file)), inventory.join('\n'))
  const root = JSON.parse(readFileSync(join(repo,'package.json')))
  const deps = { '@octane-xplat/build': `file:${plugins}`, '@octane-xplat/lib': `file:${lib}`,
@@ -48,9 +48,9 @@ try {
   deps['@tsrx/core'] = JSON.parse(readFileSync(join(repo,'packages/build/package.json'))).dependencies['@tsrx/core']
   assertCurrentNativeBuild(repo, JSON.parse(readFileSync(join(repo,'research/nim-cli/native/build.json'))),
    readFileSync(join(repo,`research/nim-cli/native/xplat${process.platform === 'win32' ? '.exe' : ''}`)))
-  if (process.platform === 'darwin') assertCurrentNativeBuild(repo,
+  if (process.platform === 'darwin') {assertCurrentNativeBuild(repo,
    JSON.parse(readFileSync(join(repo,'research/nim-cli/native/http-build.json'))),
-   readFileSync(join(repo,'research/nim-cli/native/http-probe')), httpProbeInputs)
+   readFileSync(join(repo,'research/nim-cli/native/http-probe')), httpProbeInputs)}
   const nativeOutput = join(packs,'native')
   run(process.execPath,[join(repo,'tools/cli-nim/pack.mjs'),'--host-only','--destination',nativeOutput])
   nativeVersion = JSON.parse(readFileSync(join(nativeOutput,'stage.json'))).version
@@ -93,11 +93,18 @@ try {
  assert.equal(planned.data.outputs.length, 18)
  assert.ok(planned.data.outputs.every(entry => typeof entry.source === 'string' && entry.file.startsWith(join(consumer, 'worker-generated/routes.'))))
  assert.equal(existsSync(join(consumer, 'worker-generated')), false, 'Planning must not publish or create output directories')
+ writeFileSync(join(consumer, 'worker-request.json'), JSON.stringify({ ...request, operation: 'action-validate', phase: 'input',
+  action: { id: 'fixture.regex', title: 'Check input', description: 'Validation only', effects: { summary: 'none' },
+   input: { fields: { word: { type: 'string', pattern: String.raw`^(a+)\1$` }, count: { type: 'integer', default: 1 } } } }, value: { word: 'aaaa' } }))
+ run(process.execPath, [worker, 'worker-request.json', 'worker-result.json'], consumer)
+ const validated = JSON.parse(readFileSync(join(consumer, 'worker-result.json')))
+ assert.equal(validated.ok, true)
+ assert.deepEqual(validated.data, { declaration: [], checked: { ok: true, value: { word: 'aaaa', count: 1 } } })
  if (withNative) {
   const path = join(consumer,'node_modules/@octane-xplat/cli')
   const cli = JSON.parse(readFileSync(join(path,'package.json')))
   assert.equal(cli.exports, undefined); assert.equal(cli.dependencies, undefined)
-  for (const folder of ['src','dist','node_modules']) assert.equal(existsSync(join(path,folder)),false)
+  for (const folder of ['src','dist','node_modules']) {assert.equal(existsSync(join(path,folder)),false)}
   run(process.execPath,[join(path,'install-native.mjs')],consumer)
   const catalog = JSON.parse(run(join(path,'bin/xplat.exe'),['catalog','--json'],consumer,
    { env: { ...environment, PATH: '' } }).stdout)
@@ -150,7 +157,7 @@ try {
  assert.equal(live.nativeRegexMatches.length,4)
  assert.equal(live.foreignModuleRejected,true)
  assert.equal(live.sessionRemoved,true)
- if (nativeProbe) assert.equal(live.nativeBridgeRoundtrip,true)
+ if (nativeProbe) {assert.equal(live.nativeBridgeRoundtrip,true)}
  const bytes = readFileSync(plugins)
  const evidence = { platform: process.platform, arch: process.arch, node: process.version, withNative,
   nativeVersion, package: { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), files: inventory }, live }

@@ -3,7 +3,7 @@
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
 status, capabilities, clean, typecheck, routes, web/macOS builds, app selection, permissions, code search, code read, guidance
-and docs read/search/index, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
+and docs read/search/index, actions list/invoke/status, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -76,9 +76,45 @@ options. `http_url.nim` statically compiles pinned Ada URL parsing for the
 reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. Other HTTP host adapters
-remain unimplemented; action command composition is still pending.
+remain unimplemented.
 The bridge accepts an explicit fetch procedure; the ordinary client adapter and
 header-controlled test transport share the same envelope/cancellation logic.
+
+`action_endpoints.nim` scans bounded same-user regular sidecars, checks canonical
+app ownership and loopback origins, and excludes external/symlink destinations.
+Bridge calls refuse redirects and bound response bodies; body transfer failures
+remain failures rather than becoming successful null registries. Tokens stay out
+of public instance/job metadata. `action_service.nim` owns live instance refresh,
+permissions, bounded FIFO/overlap admission, revision checks before dispatch,
+scoped request identities, jobs and cooperative cancellation/unknown outcomes.
+Read-only listing never starts a host. Invocation is owned by the native host;
+status requires that owner and its bounded history.
+
+The selected project's build worker validates action input/output through the
+existing JS field validator, including JavaScript regex/default semantics. This
+operation neither executes project config nor invokes an action. Native ownership
+bounds validation CPU time and awaits worker teardown, including pre-job admission
+during shutdown. Node and a compatible `@octane-xplat/build` installation are
+required for invocation; listing/status remain native. Inference stays Nim.
+
+```sh
+research/nim-cli/native/xplat actions list --project "$PWD" --app apps/web --json
+# Replace these values with an action/instance/revision from the live listing.
+research/nim-cli/native/xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
+research/nim-cli/native/xplat actions status JOB_ID --project "$PWD" --json
+```
+
+Serialized admission is bounded to eight live jobs per instance; declared overlap
+uses a sixteen-job cap. Queued cancellation never dispatches that action or releases
+another ticket's slot. Registry changes reject queued work before dispatch. A live
+request key returns its job even at capacity; changed input/revision is rejected.
+Request IDs are scoped and URL-safe, including across independent instances.
+Bridge outcome retention is bounded; keys do not promise indefinite exactly-once
+execution. Inspect unknown outcomes before retrying. Cancellation is best-effort
+and preserves reported effects; app-reported output received during cancellation
+is labeled as not revalidated. A failed result contract never undoes an action.
+Headless macOS-host qualification uses the actual Vite middleware and canonical app
+registry; it does not establish AppKit/NativeScript fetch or UI/input coverage.
 `managed_process.nim` owns macOS child sessions and process groups, with explicit
 argv/cwd/environment, independent pipe draining, byte passthrough, bounded UTF-16
 log lines and cooperative/forced stop. Its manager exposes explicit close and

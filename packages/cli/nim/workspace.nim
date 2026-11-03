@@ -7,6 +7,7 @@ import ./project_status, ./command_probe
 import ./host_client, ./contract_failure, ./target_discovery, ./diagnostic_selection
 import ./session_history
 import ./docs_compute, ./docs_snapshots, ./inference_assets
+import ./action_service, ./jobs, ./strictjson
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -175,6 +176,24 @@ proc workspaceDocsCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     result["ok"] = %true
   except CatchableError as error: result["error"] = failureData(error)
 
+proc workspaceActionsList*(values: JsonNode): Future[JsonNode] {.async.} =
+  var context: WorkspaceContext
+  try: context = makeContext(values)
+  except CatchableError as error:
+    return %*{"contractVersion": 1,"ok": false,"context": {"command": "actions list","projectId": newJNull()},"error": failureData(error)}
+  result = %*{"contractVersion": 1,"ok": false,"context": envelopeContext(context,"actions list",values)}
+  try:
+    when not defined(macosx): raise contractFailure("unsupported_capability","Native development action HTTP control is not yet implemented on this host.")
+    let selected = context.selection()
+    if selected["state"] != %"bound":
+      raise contractFailure((if selected["state"] == %"ambiguous": "ambiguous_selection" else: "invalid_selection"),"No app is bound.",
+        %*{"recovery": {"action": "Bind an app first — `xplat app select` (CLI) or xplat_select_app (MCP)."}})
+    let service = newActionService(newJobRegistry())
+    try: result["data"] = await service.listActions(selected["app"])
+    finally: service.closeActionService()
+    result["ok"] = %true
+  except CatchableError as error: result["error"] = failureData(error)
+
 proc workspaceStatusCommand*(name: string, values, metadata: JsonNode): Future[JsonNode] {.async.} =
   var context: WorkspaceContext
   try: context = makeContext(values)
@@ -234,8 +253,19 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
   result = %*{"contractVersion": 1,"ok": true,"context": envelopeContext(context,name,values)}
   try:
     if name == "diagnostics": validateDiagnosticSelection(values)
+    var actionInput: JsonNode
+    if name == "actions invoke":
+      if not truthy(field(values,"actionId")):
+        raise contractFailure("invalid_selection","Pass --action — an action id from `xplat actions list`.",
+          %*{"recovery": {"action": "Run the command with --help or --schema for its contract."}})
+      actionInput = newJObject()
+      if field(values,"input") != nil:
+        try: actionInput = parseStrictJson(text(values["input"]))
+        except CatchableError:
+          raise contractFailure("invalid_selection","--input must be a JSON object.",%*{"recovery": {"action": "Match the declared input contract from `xplat actions list`."}})
+        if actionInput.kind != JObject: raise contractFailure("invalid_selection","--input must be a JSON object.")
     var requestedApp: JsonNode
-    if name in ["runtime build","session start","session attach","targets"] or (name == "diagnostics" and not truthy(field(values,"jobId"))):
+    if name in ["runtime build","session start","session attach","targets","actions invoke"] or (name == "diagnostics" and not truthy(field(values,"jobId"))):
       if name == "runtime build" and not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for a build.")
       if name == "session attach" and not truthy(field(values,"platform")): raise contractFailure("invalid_selection","--platform is required for attachment.")
       let selected = context.selection()
@@ -244,7 +274,7 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
           "Select an app. Pass --app or run from the app directory.")
       requestedApp = selected["app"]["id"]
     var host: HostConnection
-    if name in ["runtime build","session start","session attach"]: host = await ensureNativeHost(context.root)
+    if name in ["runtime build","session start","session attach","actions invoke"]: host = await ensureNativeHost(context.root)
     else:
       try: host = await connectNativeHost(context.root)
       except ContractFailure as error:
@@ -293,6 +323,14 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     var methodName: string
     var params = newJObject()
     case name
+    of "actions invoke":
+      methodName = "devActions.invoke"
+      for key in ["actionId","appInstanceId","registryRevision","requestKey"]:
+        if field(values,key) != nil: params[key] = values[key]
+      params["input"] = actionInput
+    of "actions status":
+      methodName = "devActions.describeJob"
+      params["jobId"] = values["jobId"]
     of "session attach":
       methodName = "runtime.attach"
       for key in ["platform","targetId"]:
@@ -333,6 +371,18 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
     result["error"] = failureData(error)
 
 proc workspaceHuman*(name: string, payload: JsonNode): string =
+  if name == "actions list":
+    var lines = @[text(payload["state"]) & ": " & (if field(payload,"detail") == nil: "undefined" else: text(payload["detail"]))]
+    for instance in payload["instances"]:
+      lines.add(text(instance["appInstanceId"]) & " — " & text(instance["platform"]) & " rev " & scalarString(instance["revision"]) & " (" & text(instance["state"]) & ")")
+      for action in instance["actions"]:
+        let availability = field(action,"liveAvailability")
+        lines.add("  " & text(action["id"]) & " — " & text(field(action,"title")) & (if field(availability,"ready") == %false: " (unavailable: " & text(field(availability,"reason")) & ")" else: ""))
+    return lines.join("\n")
+  if name == "actions invoke":
+    let job = payload["job"]
+    return text(job["kind"]) & " job " & text(job["jobId"]) & " — " & text(job["state"]) & (if field(payload,"deduplicated") == %true: " (deduplicated: the live job was returned)" else: "") & "\nPoll: xplat job status " & text(job["jobId"])
+  if name == "actions status": return wireJson(payload["job"],pretty=true)
   if name == "session attach": return "Attached session " & text(payload["session"]["sessionId"]) & " (" & text(payload["session"]["state"]) & ")\nOnly lifecycle events are captured; application output stays in its existing terminal."
   if name == "targets":
     var lines: seq[string]

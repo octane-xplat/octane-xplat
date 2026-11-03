@@ -4,6 +4,7 @@ import ./agent_host, ./runtime_build, ./runtime_logs, ./jobs, ./managed_process,
 import ./sessions, ./macos_session, ./host_storage, ./diagnostic_selection
 import ./session_history
 import ./process_observation
+import ./action_service
 
 proc retireRuns(runs: var OrderedTable[string,DevSessionRun], keys: var Table[string,JsonNode]) =
   var retired: seq[string]
@@ -48,10 +49,23 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
   var captures = initOrderedTable[string,RuntimeLogs]()
   var sessionRuns = initOrderedTable[string,DevSessionRun]()
   var launchKeys = initTable[string,JsonNode]()
+  var actions: ActionService
   result = proc(host: NativeHost, request: JsonNode): Future[JsonNode] {.async.} =
     let methodName = text(request["method"])
     let params = request["params"]
     case methodName
+    of "devActions.list", "devActions.invoke", "devActions.describeJob":
+      when not defined(macosx): raise contractFailure("unsupported_capability","Native development action control is not yet implemented on this host.")
+      if actions == nil:
+        actions = newActionService(host.jobs)
+        host.addHostCleanup(proc(): Future[void] {.async.} = await actions.shutdownActionService())
+      if methodName == "devActions.describeJob":
+        let id = field(params,"jobId")
+        if id == nil or id.kind != JString: raise contractFailure("invalid_selection","A jobId is required.")
+        return actions.describeActionJob(id.getStr())
+      let app = selectedApp(root,request)
+      if methodName == "devActions.list": return await actions.listActions(app)
+      return await actions.invokeAction(app,params,field(request,"grants"))
     of "runtime.attach":
       for key in params.keys:
         if key notin ["platform","targetId"]: raise contractFailure("invalid_selection","Unknown attach option: " & key)

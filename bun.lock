@@ -2923,6 +2923,7 @@
       "name": "@xplat/cli-nim-probe",
       "devDependencies": {
         "nim-toolchain": "0.1.0",
+        "vite": "catalog:",
       },
     },
     "tools/feedback-worker": {

@@ -3,7 +3,7 @@
 import std/[json, strutils]
 import ./jsonutil
 
-proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode =
+proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode, actions: JsonNode = nil): JsonNode =
   result = newJArray()
   for platform in platforms:
     var entries = newJArray()
@@ -25,6 +25,17 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
         of "code_search":
           entry = %*{"capability": id,"status": "partial",
             "detail": "Exact search reads current app and installed framework source; public native semantic inference integration is pending."}
+        of "dev_actions":
+          if actions != nil:
+            var count = 0
+            for instance in actions["instances"]:
+              if instance["platform"] == platform: inc count
+            if count > 0:
+              entry = %*{"capability": id,"status": "supported","detail": $count & " live app instance(s) announcing a registry. Invocation validation uses the selected project's @octane-xplat/build worker and Node; discovery/status remain native."}
+            elif field(actions,"state") in [%"live",%"no-instance"]:
+              entry = %*{"capability": id,"status": "partial","detail": "A development bridge is reachable, but no instance on this platform has announced a registry."}
+            else:
+              entry["detail"] = if field(actions,"detail") == nil: %"No development bridge is running for this app." else: actions["detail"]
         of "build", "logs", "job_control":
           when defined(macosx):
             if platform in [%"web",%"macos"]:
@@ -41,7 +52,7 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
                 elif capability == "attach": "macOS attachment observes compatible same-user processes in the app's working directory. Identity is inferred; only lifecycle events are captured. Other platforms are pending."
                 else: "Owned macOS sessions release their engine, app processes and private resources. Attached end releases only the native observer/capture and leaves external processes user-owned. Lost owners leave historical evidence with cleanup unconfirmed.")}
         else: discard
-      elif capability in ["guidance","docs","code_search"]:
+      elif capability in ["guidance","docs","code_search","dev_actions"]:
         entry["detail"] = %"Select an app before retrieving its guidance, installed-version documents or source."
       if capability == "screenshot":
         entry["requiresPermission"] = %"visual-capture"

@@ -16,6 +16,7 @@ type
     headers*: seq[HttpHeader]
     body*: Option[string]
     binaryBody*: bool
+    refuseRedirects*: bool
     timeoutMs*: int
     signal*: HttpCancel
     caFile*, proxy*: string
@@ -376,6 +377,9 @@ proc fetch*(client: HttpClient, url: string, options: HttpOptions = nil): Future
     for redirects in 0..20:
       if deadline.isSome and getMonoTime() >= deadline.get(): raise problem(hfTimeout,"The operation was aborted due to timeout","TimeoutError")
       let response = await client.start(current.url,httpMethod,headers,body,settings,deadline)
+      if settings.refuseRedirects and response.status in [301,302,303,307,308]:
+        response.cancel()
+        raise problem(hfTransport,"HTTP redirect refused")
       let location = response.header("location")
       if response.status notin [301,302,303,307,308] or location == "":
         response.redirected = redirects > 0

@@ -101,13 +101,13 @@ function handler(request, response) {
   response.statusCode = Number(url.searchParams.get('code')); response.end(response.statusCode === 204 || response.statusCode === 304 ? undefined : 'status')
  } else if (url.pathname === '/stream') {
   response.setHeader('Content-Type', 'application/octet-stream')
-  for (let at = 0; at < 100; at++) response.write(Buffer.alloc(4096, at))
+  for (let at = 0; at < 100; at++) {response.write(Buffer.alloc(4096, at))}
   response.end()
  } else { response.statusCode = 404; response.end('not found') }
 }
 async function listen(instance) { instance.listen(0, '127.0.0.1'); await once(instance, 'listening'); return `http://127.0.0.1:${instance.address().port}` }
 before(async () => {
- if (process.platform !== 'darwin') return
+ if (process.platform !== 'darwin') {return}
  mkdirSync(join(work, 'http-fixtures'), { recursive: true })
  directory = mkdtempSync(join(work, 'http-fixtures/run-'))
  const config = join(directory, 'openssl.cnf')
@@ -129,7 +129,7 @@ before(async () => {
   if (request.url !== expected) { socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return }
   const upstream = connect(tls.address().port, '127.0.0.1', () => {
    socket.write('HTTP/1.1 200 Connection Established\r\n\r\n')
-   if (head.length) upstream.write(head)
+   if (head.length) {upstream.write(head)}
    socket.pipe(upstream); upstream.pipe(socket)
   })
   for (const channel of [socket, upstream]) {
@@ -140,11 +140,11 @@ before(async () => {
  proxyUrl = await listen(proxy)
 })
 after(async () => {
- if (process.platform === 'darwin') writeFileSync(join(work, 'http-differential.json'), JSON.stringify(evidence))
- for (const timer of pending) clearTimeout(timer)
- for (const channel of tunnels) channel.destroy()
- for (const instance of [server, second, tls, proxy]) if (instance) { instance.closeAllConnections(); await new Promise(resolve => instance.close(resolve)) }
- if (directory) rmSync(directory, { recursive: true, force: true })
+ if (process.platform === 'darwin') {writeFileSync(join(work, 'http-differential.json'), JSON.stringify(evidence))}
+ for (const timer of pending) {clearTimeout(timer)}
+ for (const channel of tunnels) {channel.destroy()}
+ for (const instance of [server, second, tls, proxy]) {if (instance) { instance.closeAllConnections(); await new Promise(resolve => instance.close(resolve)) }}
+ if (directory) {rmSync(directory, { recursive: true, force: true })}
 })
 async function run(native, cases, ca) {
  const start = performance.now()
@@ -163,19 +163,19 @@ async function run(native, cases, ca) {
  if (!native && cases.some(request => request.method === 'patch')) {
   assert.match(stderr, /\[UNDICI-FETCH-patch\] Warning:/)
   evidence.push({ referenceWarning: stderr })
- } else assert.equal(stderr, '')
+ } else {assert.equal(stderr, '')}
  return stdout.trim().split('\n').map(line => JSON.parse(line))
 }
 function comparable(result) {
- if (result.success) return result
- const { kind, detail, ...value } = result
+ if (result.success) {return result}
+ const { kind: _kind, detail: _detail, ...value } = result
  return value
 }
 async function compare(cases, ca) {
  const [reference, actual] = await Promise.all([run(false, cases, ca), run(true, cases)])
  evidence.push({ cases, reference, actual })
  assert.equal(actual.length, cases.length)
- for (const [at, request] of cases.entries()) assert.deepEqual(comparable(actual[at]), reference[at], `HTTP case ${at}: ${JSON.stringify(request)}`)
+ for (const [at, request] of cases.entries()) {assert.deepEqual(comparable(actual[at]), reference[at], `HTTP case ${at}: ${JSON.stringify(request)}`)}
  return actual
 }
 
@@ -189,8 +189,8 @@ test('system transport reports its real TLS backend and asynchronous DNS capabil
 })
 test('HTTP methods, explicit headers, Latin-1 bytes and UTF-8 or binary bodies match Node', macOnly, async () => {
  const cases = []
- for (const method of ['GET','get','HEAD','POST','PUT','PATCH','DELETE','OPTIONS']) cases.push({ url: `${origin}/echo`, method, consume: method === 'HEAD' ? 'text' : 'json' })
- for (const method of ['patch','pAtCh']) cases.push({ url: `${origin}/echo`, method, consume: 'text' })
+ for (const method of ['GET','get','HEAD','POST','PUT','PATCH','DELETE','OPTIONS']) {cases.push({ url: `${origin}/echo`, method, consume: method === 'HEAD' ? 'text' : 'json' })}
+ for (const method of ['patch','pAtCh']) {cases.push({ url: `${origin}/echo`, method, consume: 'text' })}
  cases.push({ url: `${origin}/echo`, method: 'POST', headers: [['X-Test',' first '],['x-test','second'],['x-empty',''],['x-latin','é'],['Cookie','a=1'],['cookie','b=2']], body: 'Café 😀\ud800', consume: 'json' })
  cases.push({ url: `${origin}/echo`, method: 'PATCH', bodyBase64: Buffer.from([0,255,128,1]).toString('base64'), consume: 'json' })
  await compare(cases)
@@ -211,7 +211,7 @@ test('WHATWG URL corpus matches Node through native Ada, including IDNs and UTF-
   .map(value => ({ operation: 'normalize', url: value.input, base: value.base ?? '' }))
  const [actual, expected] = await Promise.all([run(true, cases), run(false, cases)])
  assert.equal(actual.length, cases.length)
- for (const [at, request] of cases.entries()) assert.deepEqual(actual[at], expected[at], `URL case ${at}: ${JSON.stringify(request).slice(0, 200)}`)
+ for (const [at, request] of cases.entries()) {assert.deepEqual(actual[at], expected[at], `URL case ${at}: ${JSON.stringify(request).slice(0, 200)}`)}
  console.log(`${cases.length} native WHATWG URL cases checked; Ada ${nativePins.ada.version}; Node Ada ${process.versions.ada}`)
 })
 test('gzip/deflate decompression preserves bytes and response headers', macOnly, async () => {
@@ -228,8 +228,8 @@ test('Fetch blocked ports fail before transport work and preserve reference erro
 })
 test('redirects preserve or rewrite methods and remove credentials across origins', macOnly, async () => {
  const cases = []
- for (const status of [301,302,303,307,308]) for (const method of ['POST','PUT']) cases.push({ url: `${origin}/redirect?status=${status}&to=/echo`, method, body: 'redirect payload', consume: 'json' })
- for (const target of [`${origin}/echo`, `${other}/echo`]) cases.push({ url: `${origin}/redirect?to=${encodeURIComponent(target)}`, method: 'POST', body: 'payload', headers: [['authorization','Bearer fixture'],['cookie','a=1'],['x-xplat-dev-token','fixture-token']], consume: 'json' })
+ for (const status of [301,302,303,307,308]) {for (const method of ['POST','PUT']) {cases.push({ url: `${origin}/redirect?status=${status}&to=/echo`, method, body: 'redirect payload', consume: 'json' })}}
+ for (const target of [`${origin}/echo`, `${other}/echo`]) {cases.push({ url: `${origin}/redirect?to=${encodeURIComponent(target)}`, method: 'POST', body: 'payload', headers: [['authorization','Bearer fixture'],['cookie','a=1'],['x-xplat-dev-token','fixture-token']], consume: 'json' })}
  cases.push({ url: `${origin}/loop` })
  await compare(cases)
 })
@@ -275,7 +275,7 @@ test('authenticated bridge registry, submit, cancel and wait calls match real Ty
  const cases = [{ ...endpoint, call: 'registry' }, { ...endpoint, call: 'submit' },
   ...[null,false,0,[],{ requestId: 'request-one', args: { text: 'Café 😀\ud800', flag: false } }].map(invocation => ({ ...endpoint, call: 'submit', invocation })),
   { ...endpoint, call: 'cancel', requestId: 'request-one' }]
- for (const waitMs of [undefined,null,0,1,1000,1234.5,31000]) cases.push({ ...endpoint, call: 'await', requestId: 'request-one', waitMs })
+ for (const waitMs of [undefined,null,0,1,1000,1234.5,31000]) {cases.push({ ...endpoint, call: 'await', requestId: 'request-one', waitMs })}
  await compare(cases)
 })
 test('bridge nullish error fallbacks and invalid JSON preserve reference behavior', macOnly, async () => {
@@ -288,18 +288,28 @@ test('bridge nullish error fallbacks and invalid JSON preserve reference behavio
 test('bridge wait cancellation leaves the action alive until explicit cooperative cancellation', macOnly, async () => {
  const endpoint = { operation: 'bridge', url: `${origin}/bridge/wait-body`, token: 'fixture-token' }
  const first = requests.length
- const result = await compare([{ ...endpoint, call: 'await', requestId: 'request-one', abortAfterHeadersMs: 50 },
+ const cases = [{ ...endpoint, call: 'await', requestId: 'request-one', abortAfterHeadersMs: 50 },
   { ...endpoint, url: `${origin}/bridge/slow-headers`, call: 'await', requestId: 'request-one', abortMs: 50 },
   { ...endpoint, call: 'await', requestId: 'request-one', waitMs: 1000, preabort: true },
-  { ...endpoint, url: `${origin}/bridge/ok`, call: 'cancel', requestId: 'request-one' }])
+  { ...endpoint, url: `${origin}/bridge/ok`, call: 'cancel', requestId: 'request-one' }]
+ const [reference, result] = await Promise.all([run(false, cases), run(true, cases)])
+ evidence.push({ cases, reference, actual: result, deliberateDifference: 'Native body transport failures remain failures; only malformed JSON maps to null.' })
+ assert.deepEqual(reference[0], { ok: true, data: null })
+ assert.deepEqual(result.slice(1), reference.slice(1))
  const sent = requests.slice(first).filter(request => request.url.startsWith('/bridge/'))
  assert.equal(sent.filter(request => request.url.endsWith('/invoke/cancel')).length, 2)
  assert.equal(sent.filter(request => request.url.includes('/invoke/request-one')).length, 4)
- assert.deepEqual(result[0], { ok: true, data: null })
+ assert.equal(result[0].ok, false)
+ assert.equal(result[0].error.code, 'unreachable')
  assert.equal(result[1].ok, false)
  assert.equal(result[1].error.code, 'unreachable')
 })
-test('bridge body timeout retains the reference\'s successful null payload fallback', macOnly, async () => {
- const result = await compare([{ operation: 'bridge', url: `${origin}/bridge/slow`, token: 'fixture-token', call: 'registry' }])
- assert.deepEqual(result[0], { ok: true, data: null })
+test('native bridge body timeout reports transport failure while recording the reference null fallback', macOnly, async () => {
+ const cases = [{ operation: 'bridge', url: `${origin}/bridge/slow`, token: 'fixture-token', call: 'registry' }]
+ const [reference, result] = await Promise.all([run(false, cases), run(true, cases)])
+ evidence.push({ cases, reference, actual: result, deliberateDifference: 'Timeout after headers is not a successful null registry.' })
+ assert.deepEqual(reference[0], { ok: true, data: null })
+ assert.equal(result[0].ok, false)
+ assert.equal(result[0].status, 0)
+ assert.equal(result[0].error.code, 'unreachable')
 })

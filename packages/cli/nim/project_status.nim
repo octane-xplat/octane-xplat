@@ -1,6 +1,7 @@
 ## Fresh discovery report using native providers and bounded owned tool queries.
 import std/[asyncdispatch, json, os, options, strutils]
 import ./core, ./code_service, ./docs_service, ./prerequisites, ./capabilities, ./docs_snapshots
+import ./action_service, ./jobs
 import ./command_probe, ./managed_process, ./package_manager
 import ./js_text
 from ./args import jsTrim
@@ -84,11 +85,17 @@ proc buildNativeStatus*(root: string, discovery, selected, server, grants,
       "detail": "Provider ready; snapshot availability is checked on retrieval. No latest-version fallback.","binding": binding}
   let freshness = await codeFreshness(root,signal)
   let code = newCodeService(root)
+  var actions: JsonNode
+  when defined(macosx):
+    if app != nil:
+      let service = newActionService(newJobRegistry())
+      try: actions = await service.listActions(app,signal)
+      finally: service.closeActionService()
   result = %*{"server": server,"identity": {"workspace": discovery["workspace"],"apps": discovery["apps"],
       "selection": selected,"framework": (if app == nil: newJNull() else: binding(root,directory))},
     "guidance": {"sources": projectGuidance(root,discovery,app)},"docs": docs,
     "codeIndex": code.codeStatus(app,discovery["workspace"]["kind"],some(freshness)),
-    "prerequisites": prerequisites,"capabilities": nativeCapabilityMatrix(app,declared,capabilityIds),
+    "prerequisites": prerequisites,"capabilities": nativeCapabilityMatrix(app,declared,capabilityIds,actions),
     "permissions": grants,"boundaries": boundaries}
   result["nextSteps"] = statusNextSteps(result)
   result["codeIndex"]["detail"] = %"Exact search reads current source; public native semantic inference integration is pending."

@@ -12,7 +12,21 @@ type
     closing: bool
     touched: MonoTime
     active: int
+    cleanups: seq[proc(): Future[void] {.closure.}]
   NativeHostDispatch* = proc(host: NativeHost, request: JsonNode): Future[JsonNode] {.closure.}
+
+proc addHostCleanup*(host: NativeHost, cleanup: proc(): Future[void] {.closure.}) =
+  if host.closing: raise contractFailure("unavailable","The native host is shutting down.")
+  host.cleanups.add(cleanup)
+
+proc closeHostServices(host: NativeHost): Future[void] {.async.} =
+  var failure: ref CatchableError
+  for cleanup in host.cleanups:
+    try: await cleanup()
+    except CatchableError as error:
+      if failure == nil: failure = error
+  host.cleanups.setLen(0)
+  if failure != nil: raise failure
 
 proc sameToken(actual, expected: string): bool =
   if actual.len != expected.len: return false
@@ -132,7 +146,9 @@ proc runNativeHost*(workspace: string, identity: JsonNode, extension: NativeHost
     host.closing = true
     try: await host.jobs.closeJobs()
     finally:
-      try: discard await host.sessions.shutdownSessions()
+      try:
+        try: await host.closeHostServices()
+        finally: discard await host.sessions.shutdownSessions()
       finally:
         # Allow already-computed replies (including shutdown acknowledgement)
         # to flush. Incomplete peers cannot hold shutdown open indefinitely.

@@ -42,6 +42,13 @@ Native docs read/search/index are available on macOS arm64 without Node/Bun.
 downloads; ordinary search never downloads them. Check its reported retrieval
 mode and provenance, keep returned refs, and re-index edited linked docs. Native
 cache state is separate from TypeScript; backend vector caches are not interchangeable.
+Native development-action listing/status and HTTP control are available on macOS.
+Invocation validates JS field contracts in the selected project's compatible
+`@octane-xplat/build/worker`, so it needs that package and Node >=22.22.2. Use the
+live instance/revision, follow the job, and preserve unknown/partial outcomes.
+The native host owns admission workers too; shutdown awaits them. This host-side
+qualification does not expand the app runtime transport limits in the
+[development-actions reference](development-actions.md).
 Keep using the TypeScript CLI for unported workflows.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the

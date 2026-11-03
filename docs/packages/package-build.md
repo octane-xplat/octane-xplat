@@ -75,6 +75,18 @@ bun run xplat catalog --json
 
 See the [API reference](https://octane-xplat.goddardai.org/api-build) for options.
 
+The experimental native CLI also uses this package's worker to check development
+action input and output. This preserves JavaScript regex/default behavior without
+another validator in the native executable. Use a build package compatible with
+your native CLI; a missing or older worker reports an installation/update hint.
+Listing live actions stays native and does not require Node:
+
+```sh
+xplat actions list --json
+# Use an action and instance from the listing, then follow the returned job.
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --input '{}' --json
+```
+
 For native macOS packaging with the Nim CLI, install the separate
 [macOS build worker](package-macos-build.md). Its host assets are not part of
 this package.

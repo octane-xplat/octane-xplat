@@ -1,1 +1,1 @@
-{"name":"@xplat/cli-nim-probe","private":true,"type":"module","scripts":{"test":"node verify.mjs","test:build-record":"node --test build-record.test.mjs"},"devDependencies":{"nim-toolchain":"0.1.0"}}
+{"name":"@xplat/cli-nim-probe","private":true,"type":"module","scripts":{"test":"node verify.mjs","test:build-record":"node --test build-record.test.mjs"},"devDependencies":{"nim-toolchain":"0.1.0","vite":"catalog:"}}

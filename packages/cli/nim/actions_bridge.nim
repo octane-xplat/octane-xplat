@@ -31,12 +31,16 @@ proc request(fetch: BridgeFetch, endpoint: BridgeEndpoint, httpMethod, path: str
     settings.httpMethod = httpMethod
     settings.headers = @[("x-xplat-dev-token",endpoint.token)]
     settings.signal = signal
+    # Bridge credentials belong to the selected local server, never a redirect.
+    settings.refuseRedirects = true
+    settings.maxBodyBytes = 1024*1024
     if body != nil:
       settings.headers.add(("content-type","application/json"))
       settings.body = some(wireJson(body))
     let response = await fetch(endpoint.url & "/__xplat_dev__" & path,settings)
     var payload: JsonNode
     try: payload = await response.readJson()
+    except HttpFailure: raise
     except CatchableError: payload = newJNull()
     if not response.ok():
       var error = field(payload,"error")
@@ -49,8 +53,8 @@ proc request(fetch: BridgeFetch, endpoint: BridgeEndpoint, httpMethod, path: str
     stop.cancel()
     if not timer.finished: await timer
 
-proc fetchBridgeRegistry*(fetch: BridgeFetch, endpoint: BridgeEndpoint): Future[JsonNode] =
-  request(fetch,endpoint,"GET","/registry")
+proc fetchBridgeRegistry*(fetch: BridgeFetch, endpoint: BridgeEndpoint, signal: HttpCancel = nil): Future[JsonNode] =
+  request(fetch,endpoint,"GET","/registry",caller=signal)
 proc submitInvocation*(fetch: BridgeFetch, endpoint: BridgeEndpoint, invocation: JsonNode): Future[JsonNode] =
   request(fetch,endpoint,"POST","/invoke",invocation)
 proc awaitInvocation*(fetch: BridgeFetch, endpoint: BridgeEndpoint, requestId: string,
@@ -60,8 +64,8 @@ proc awaitInvocation*(fetch: BridgeFetch, endpoint: BridgeEndpoint, requestId: s
 proc cancelInvocation*(fetch: BridgeFetch, endpoint: BridgeEndpoint, requestId: string): Future[JsonNode] =
   request(fetch,endpoint,"POST","/invoke/cancel",%*{"requestId": requestId})
 
-proc fetchBridgeRegistry*(client: HttpClient, endpoint: BridgeEndpoint): Future[JsonNode] =
-  fetchBridgeRegistry(transport(client),endpoint)
+proc fetchBridgeRegistry*(client: HttpClient, endpoint: BridgeEndpoint, signal: HttpCancel = nil): Future[JsonNode] =
+  fetchBridgeRegistry(transport(client),endpoint,signal)
 proc submitInvocation*(client: HttpClient, endpoint: BridgeEndpoint, invocation: JsonNode): Future[JsonNode] =
   submitInvocation(transport(client),endpoint,invocation)
 proc awaitInvocation*(client: HttpClient, endpoint: BridgeEndpoint, requestId: string,

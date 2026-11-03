@@ -156,3 +156,18 @@ bun run xplat actions list --json
 bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
 bun run xplat actions status JOB_ID --json
 ```
+
+With the experimental Nim CLI on macOS, listing/status and HTTP/job orchestration
+are native. Invocation uses the selected project's compatible build worker and
+Node to validate JavaScript field/regex contracts.
+Native queues reject stale registries before dispatch, cancelled waiting tickets
+never execute, and changed input/revision cannot reuse a known request key.
+Cancellation preserves effect evidence and is not rollback. Headless testing with
+the real Vite bridge and app registry does not qualify AppKit/NativeScript fetch
+or UI behavior beyond the runtime coverage described above.
+
+```sh
+xplat actions list --json
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
+xplat job status JOB_ID --json
+```

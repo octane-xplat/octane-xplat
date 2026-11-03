@@ -162,6 +162,40 @@ targets and bound traversal; docs larger than 4 MiB produce an explicit error:
 XPLAT_NIM_INFERENCE_CACHE="$HOME/.cache/xplat-models" research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
 ```
 
+Native action discovery reads the running app's development bridge without
+starting Node itself. Start the app with its existing development workflow, then list its
+instances and declared actions. An empty registry is different from an unreachable
+bridge; use the returned instance and revision when invoking:
+
+```sh
+research/nim-cli/native/xplat actions list --project "$PWD" --app apps/web --json
+```
+
+Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/build` worker
+installed in the selected project. During this migration, use the matching
+checkout/prerelease build package; an older worker reports an update requirement.
+The worker checks JavaScript field contracts, including regexes and defaults.
+Nim owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
+the returned job through completion and inspect reported effects before retrying:
+
+```sh
+# Replace these values with exact identities from the live listing.
+research/nim-cli/native/xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
+research/nim-cli/native/xplat actions status JOB_ID --project "$PWD" --json
+research/nim-cli/native/xplat job cancel JOB_ID --project "$PWD" --json
+```
+
+Request keys recover live jobs within their app instance/action. Reusing a key
+with different input or a changed revision fails explicitly. Outcome history is
+bounded, so keys do not promise indefinite protection against reruns. Queued
+cancellation prevents dispatch; cancellation after dispatch is best-effort and
+does not undo changes. A result-contract failure also leaves completed effects
+in place. Read the job's structured result or failure:
+
+```sh
+research/nim-cli/native/xplat job status JOB_ID --project "$PWD" --json
+```
+
 Native `typecheck` uses the selected project's installed package manager and
 TSRX checker. The project must already contain compatible `@octane-xplat/build`,
 `@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
