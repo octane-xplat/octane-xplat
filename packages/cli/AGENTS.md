@@ -19,6 +19,24 @@ process group. Keep readiness separate from printed diagnostics. Put owned sessi
 resources in the host's private cache, outside dependency caches removed by clean,
 so cancellation before worker readiness can still release them.
 
+Session evidence is separate from disposable session resources. Keep retained
+metadata/logs in the native history namespace; use authenticated owner generations
+to distinguish live records from historical evidence. PID existence alone cannot
+establish ownership or authorize cleanup. Publish a cleanup-confirmed checkpoint
+only after awaiting process/resource release, rather than inferring it from a
+stopped state emitted before an async cleanup finishes. Keep terminal-state
+metadata observers until explicit end or capture retirement so later state changes
+remain visible after the host exits.
+Do not require global history enumeration before releasing a known live session:
+validate its selected-app ownership from the live registry, so an unrelated
+corrupt retained record cannot prevent process cleanup.
+
+After an append failure, stop adding bytes to that JSONL stream. A failed write
+may leave an incomplete final record; appending another record can turn that tail
+into an invalid complete line and hide a readable prefix. Preserve the complete
+prefix, disclose incomplete tails and retention errors, and use a new capture
+identity when restarting. Bound disk retention separately from memory retention.
+
 Project operations that already need JavaScript use small, versioned workers
 from the selected project's `@octane-xplat/build/worker` or platform-specific
 `@octane-xplat/macos-build/worker`. Keep parser/compiler

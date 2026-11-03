@@ -8,6 +8,7 @@ type
   NativeHost* = ref object
     jobs*: JobRegistry
     sessions*: SessionRegistry
+    generation*: string
     closing: bool
     touched: MonoTime
     active: int
@@ -54,7 +55,7 @@ proc dispatchBase(host: NativeHost, request, identity: JsonNode, paths: HostPath
   let methodName = text(request["method"])
   let params = request["params"]
   case methodName
-  of "host.ping": return %*{"identity": identity,"pid": getCurrentProcessId(),"startedAt": startedAt,"workspaceRoot": paths.workspace}
+  of "host.ping": return %*{"identity": identity,"pid": getCurrentProcessId(),"startedAt": startedAt,"workspaceRoot": paths.workspace,"ownerId": host.generation}
   of "host.shutdown":
     host.closing = true
     return %*{"stopping": true}
@@ -95,7 +96,7 @@ proc runNativeHost*(workspace: string, identity: JsonNode, extension: NativeHost
   installProcessSignalHandlers()
   let token = freshId("").replace("-","") & freshId("").replace("-","")
   let startedAt = utcTimestamp()
-  let host = NativeHost(jobs: newJobRegistry(),sessions: newSessionRegistry(),touched: getMonoTime())
+  let host = NativeHost(jobs: newJobRegistry(),sessions: newSessionRegistry(),generation: freshId("owner_"),touched: getMonoTime())
   let handler: RpcHandler = proc(request: JsonNode): Future[JsonNode] {.async.} =
     if not sameToken(text(field(request,"token")),token):
       raise contractFailure("permission_denied","The request did not carry this host's token.")

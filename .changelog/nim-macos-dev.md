@@ -3,8 +3,7 @@
 The Nim CLI can start an existing macOS app through its project-installed
 development tools, capture output and stop its owned processes. JavaScript and
 native source edits use the same development engine as the TypeScript CLI.
-Session logs currently last only while the native workspace host runs; attaching
-to an existing app and native crash reports remain in migration.
+Attaching to an existing app and native crash reports remain in migration.
 
 ```sh
 xplat targets --platform macos --json

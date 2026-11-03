@@ -177,8 +177,14 @@ The worker reuses the canonical Vite/compiler/HMR engine, with atomic versioned
 readiness metadata instead of parsing diagnostic text. Native resources live
 under the private host cache, outside dependency caches removed by `clean`.
 Ending a session awaits process cleanup and removes only its owned directory.
-Logs remain readable while the host lives. Attach, native reports, durable
-history and abrupt owner-death recovery remain migration work.
+Session metadata and bounded logs remain readable after the host exits.
+`session_history.nim` owns private atomic metadata and rotating JSONL captures,
+retaining the newest historical runs per app and preserving active captures.
+Authenticated owner generations distinguish live records from historical data;
+retained PIDs never authorize signals. A cleanup-confirmed checkpoint follows
+actual owned process/resource release. Owner loss leaves disconnected evidence
+with cleanup unconfirmed, not a recovered live session. Attach, native reports
+and automatic abrupt owner-death recovery remain migration work.
 
 ```sh
 xplat targets --platform macos --json
@@ -193,7 +199,11 @@ cursors and explicit retention gaps. Captures are bounded to 2,000 records and
 2 MiB of encoded JSON per capture. The host retains 40 build captures and prunes
 finished session captures when creating sessions beyond 40; live session captures
 remain until their work ends.
-Records disappear when that host exits; this is not durable session history.
+Build-job memory captures disappear when the host exits. Development sessions
+also write the bounded native history store; disk retention and its cursor
+semantics are qualified against the TypeScript reader. A failed append stops
+further disk appends, preserving the complete prefix and exposing retention
+errors. Retained reads do not create a host or cache. Job history is not persisted.
 `runtime_service.nim` applies request permissions and app selection. Live request
 keys deduplicate within an app/platform; public request keys remain unchanged.
 `runtime_build.nim` owns route generation, managed engine execution, output and
@@ -322,7 +332,7 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 
 Linux/Windows build flags and native jobs are supplied but remain unqualified
 until those jobs execute. Other host TLS adapters, remaining command contracts,
-launch/attach engines, durable history, inference delivery and updates remain
+launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
 real project journeys and native OS behavior have equivalent coverage.

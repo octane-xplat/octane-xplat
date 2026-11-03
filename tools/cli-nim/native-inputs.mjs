@@ -31,7 +31,7 @@ export function processProbeInputs(root) {
 }
 
 export function envProbeInputs(root) {
- const files = [...nativeInputs(root).files, 'tools/cli-nim/env_probe.nim', 'tools/cli-nim/sessions_scenario.nim', 'tools/cli-nim/jobs_scenario.nim', 'tools/cli-nim/build-probe.mjs'].sort()
+ const files = [...nativeInputs(root).files, 'tools/cli-nim/env_probe.nim', 'tools/cli-nim/sessions_scenario.nim', 'tools/cli-nim/jobs_scenario.nim', 'tools/cli-nim/history_scenario.nim', 'tools/cli-nim/build-probe.mjs'].sort()
  const hash = createHash('sha256')
  for (const file of files) {hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')}
  return { files, sha256: hash.digest('hex') }

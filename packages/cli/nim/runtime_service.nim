@@ -2,6 +2,7 @@
 import std/[json, os, asyncdispatch, tables, options, math]
 import ./agent_host, ./runtime_build, ./runtime_logs, ./jobs, ./managed_process, ./core, ./contract_failure
 import ./sessions, ./macos_session, ./host_storage, ./diagnostic_selection
+import ./session_history
 
 proc selectedApp(root: string, request: JsonNode): JsonNode =
   let inventory = discover(root)
@@ -84,7 +85,7 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       sessionRuns[id] = run
       launchKeys[id] = if key == nil: newJNull() else: key.copy()
       host.sessions.setSessionLaunch(id,%*{"phase": "starting"})
-      run.startDevRun(host.sessions,app,session,hostPaths(root).directory / "sessions")
+      run.startDevRun(host.sessions,app,session,hostPaths(root).directory / "sessions",root,host.generation)
       return %*{"session": host.sessions.getSession(id),"deduplicated": false}
     of "runtime.build":
       requireRuntimeGrant(request)
@@ -118,12 +119,16 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       let sessionId = field(params,"sessionId")
       var selected: JsonNode
       if not truthy(id): selected = selectedApp(root,request)
-      if not truthy(id) and not truthy(sessionId):
-        var records = newJArray()
-        for record in host.sessions.listSessions():
-          if record["appId"] == selected["id"] and
-              (not truthy(field(params,"platform")) or record["platform"] == params["platform"]): records.add(record)
-        return %*{"sessions": records,"note": "Select --session SESSION_ID to read logs. Native captures currently last only while the workspace host lives."}
+      if not truthy(id):
+        try:
+          let retained = historyDiagnostics(root,selected,params,host.generation)
+          if truthy(sessionId) and sessionRuns.hasKey(text(sessionId)):
+            let run = sessionRuns[text(sessionId)]
+            if run.history != nil and run.history.error.len > 0:
+              retained["coverage"]["retention"] = %*{"status": "unavailable","detail": run.history.error}
+          return retained
+        except ContractFailure as error:
+          if text(error.detail["code"]) != "not_found" or not sessionRuns.hasKey(text(sessionId)): raise
       var capture: RuntimeLogs
       if sessionId != nil and sessionId.kind == JString and sessionRuns.hasKey(sessionId.getStr()):
         let session = host.sessions.getSession(sessionId.getStr())
@@ -148,5 +153,6 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       if truthy(sessionId):
         payload["sessionId"] = sessionId
         payload["session"] = host.sessions.getSession(sessionId.getStr())
+        payload["coverage"]["retention"] = %*{"status": "unavailable","detail": "No retained session capture is available; only host-memory logs are readable."}
       return payload
     else: raise contractFailure("invalid_selection","Unknown native runtime method.")

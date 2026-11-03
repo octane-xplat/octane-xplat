@@ -435,7 +435,8 @@ qualify a development server, browser UI or native app package.
 `test:nim-runtime-logs` compares cursor/filter/reset behavior against the real
 TypeScript log store. Native checks additionally enforce a byte bound, private
 snapshots and containment of throwing observers. Public job logs are retained
-only for the host lifetime; persisted session history remains migration work.
+only for the host lifetime for build jobs; development sessions also retain
+app-scoped metadata and logs in the private native history namespace.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native web build qualification"}' -- bun run turbo run test:nim-runtime-build test:nim-runtime-logs --filter=@octane-xplat/cli
@@ -472,10 +473,23 @@ shared dependency-store source. The development worker reuses the canonical
 Vite/compiler/HMR engine with structured readiness metadata; Nim owns the outer
 process group and session. Spawn readiness does not prove UI rendering or input.
 The session directory is outside project dependency caches and is removed after
-owned process cleanup. Logs are bounded and currently live only with the host;
-durable history, native reports, attach and abrupt owner-death recovery remain
-unqualified. The worker's optional WKWebView path is not exercised by this test.
+owned process cleanup. Session history also covers reads after graceful shutdown, abrupt owner loss
+and authenticated owner replacement. Lost-owner cleanup is explicitly unconfirmed;
+the qualification harness releases its own deliberately orphaned fixture group.
+Native reports, attach and automatic abrupt owner-death recovery remain unqualified. The worker's optional WKWebView path is not exercised by this test.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
+```
+
+
+`test:nim-history` exercises the native-only retained store independently of app
+engines. It compares log records, tail/filter pagination and cursor progress with
+the TypeScript reader, checks concurrent rotation, incomplete append handling,
+app isolation, owner generations, active/historical retention, file safety and
+explicit persistence failures. The adapter is test-only and is not shipped in
+the executable. Retained diagnostic reads are app-scoped and never start a host.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native session history qualification"}' -- bun run turbo run test:nim-history test:nim-macos-dev test:nim-host --filter=@octane-xplat/cli
 ```

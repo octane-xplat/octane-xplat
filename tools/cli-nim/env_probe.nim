@@ -11,6 +11,7 @@ import ../../packages/cli/nim/[prerequisites, command_probe]
 import ../../packages/cli/nim/target_discovery
 import ./sessions_scenario
 import ./jobs_scenario
+import ./history_scenario
 import ../../packages/cli/nim/[runtime_logs, runtime_build]
 import ../../packages/cli/nim/contract_failure
 import ../../packages/cli/nim/macos_build
@@ -71,6 +72,7 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "history": value = historyScenario(request)
     of "runtime-logs": value = logsScenario(request)
     of "native-build":
       let logs = newRuntimeLogs()

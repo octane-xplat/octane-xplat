@@ -107,7 +107,7 @@ try:
       let cleanup: SessionCleanup = proc(): Future[JsonNode] {.async.} =
         await manager.close()
         return %*{"released": ["fixture process"]}
-      let session = host.sessions.bindOwnedSession(%*{"appId": "fixture","platform": "macos","targetId": "macos"},cleanup)
+      let session = host.sessions.bindOwnedSession(%*{"appId": ".","platform": "macos","targetId": "macos"},cleanup)
       let id = text(session["sessionId"])
       let runner: JobRunner = proc(signal: ProcessCancel, progress: JobProgress): Future[JsonNode] {.async.} =
         let marker = text(request["params"]["marker"])

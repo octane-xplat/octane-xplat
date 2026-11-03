@@ -27,9 +27,12 @@ before publication preserves the previous artifacts. Overlapping native builds
 for one app report target busy. Native macOS target discovery includes live
 session ownership. `session start macos` uses the project's installed development
 worker for Vite/compiler/HMR; Nim owns readiness, logs and process cleanup.
-End the returned identity with `session end SESSION_ID`. Logs last only while
-the native host lives; durable history, attach, native reports and other launch
-engines remain pending. Keep using the TypeScript CLI for those workflows.
+End the returned identity with `session end SESSION_ID`. App-scoped retained
+session logs survive host exit; build-job captures still last only while the
+host lives. An unavailable owner makes uncompleted history disconnected and
+cleanup unconfirmed: historical end never signals recorded PIDs. Attach, native
+reports, other launch engines and automatic owner-death recovery remain pending.
+Keep using the TypeScript CLI for unported workflows.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the
 [native migration boundaries](../../../../packages/cli/nim/README.md).

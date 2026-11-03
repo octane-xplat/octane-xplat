@@ -21,7 +21,7 @@ let sequence = 0
 function fixture() {
  const dir = join(scratch, String(++sequence))
  mkdirSync(dir)
- writeFileSync(join(dir, 'package.json'), '{"private":true}')
+ writeFileSync(join(dir, 'package.json'), JSON.stringify({private:true,xplat:{targets:{macos:{runtime:'appkit-node-api'}}}}))
  return dir
 }
 function call(request, extraEnv = {}) {
@@ -56,10 +56,10 @@ function remember(dir) {
  owned.set(dir, { p, d })
  return { p, d }
 }
-const alive = pid => { try { process.kill(pid, 0); return true } catch (error) { if (error.code === 'ESRCH') return false; throw error } }
+const alive = pid => { try { process.kill(pid, 0); return true } catch (error) { if (error.code === 'ESRCH') {return false} throw error } }
 async function until(predicate, text, timeout = 6000) {
  const end = Date.now()+timeout
- while (!predicate() && Date.now()<end) await delay(10)
+ while (!predicate() && Date.now()<end) {await delay(10)}
  assert.ok(predicate(), text)
 }
 function rpc(p, d, method, params = {}, token = d.token) {
@@ -88,7 +88,7 @@ after(async () => {
   if (alive(d.pid)) { try { await rpc(p,d,'host.shutdown') } catch {} }
   await until(() => !alive(d.pid), 'Test-owned native host must terminate', 8000)
  }
- for (const directory of runtimeDirectories) rmSync(directory, { recursive: true, force: true })
+ for (const directory of runtimeDirectories) {rmSync(directory, { recursive: true, force: true })}
  rmSync(scratch, { recursive: true, force: true })
 })
 
@@ -218,9 +218,9 @@ test('shutdown releases live work and preserves replaced descriptor and socket i
   assert.equal(readFileSync(p.descriptor,'utf8'),'preserve descriptor replacement')
   assert.equal(readFileSync(p.socket,'utf8'),'preserve socket replacement')
  } finally {
-  if (!socket.destroyed) socket.write(JSON.stringify({ token: d.token, method: 'host.shutdown', params: {} })+'\n')
+  if (!socket.destroyed) {socket.write(JSON.stringify({ token: d.token, method: 'host.shutdown', params: {} })+'\n')}
   await reply.catch(() => {})
-  if (existsSync(p.socket) && statSync(p.socket).isFile() && readFileSync(p.socket,'utf8') === 'preserve socket replacement') unlinkSync(p.socket)
+  if (existsSync(p.socket) && statSync(p.socket).isFile() && readFileSync(p.socket,'utf8') === 'preserve socket replacement') {unlinkSync(p.socket)}
  }
 })
 

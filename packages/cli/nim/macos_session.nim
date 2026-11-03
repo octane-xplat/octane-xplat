@@ -3,6 +3,7 @@ import std/[os, json, asyncdispatch, strtabs, strutils, monotimes, times]
 import ./managed_process, ./runtime_logs, ./sessions, ./host_storage, ./native_identity
 import ./build_worker, ./runtime_build, ./route_operation, ./strictjson, ./js_text
 import ./contract_failure, ./jsonutil, ./json_wire
+import ./session_history
 
 type OwnedDevRun* = ref object
   logs*: RuntimeLogs
@@ -10,6 +11,9 @@ type OwnedDevRun* = ref object
   pending: Future[void]
   ending: bool
   launching*: bool
+  history*: HistoryCapture
+  registry: SessionRegistry
+  sessionWatch: int
 
 proc newOwnedDevRun*(logs: RuntimeLogs): OwnedDevRun =
   OwnedDevRun(logs: logs,signal: newProcessCancel(),launching: true)
@@ -18,18 +22,28 @@ proc stopDevRun*(run: OwnedDevRun): Future[JsonNode] {.async.} =
   run.ending = true
   run.signal.cancel()
   if run.pending != nil: await run.pending
+  if run.sessionWatch > 0:
+    run.registry.unwatchSessions(run.sessionWatch)
+    run.sessionWatch = 0
   return %*{"released": ["owned development engine and process group", "native session resource directory"]}
 
 proc cancelled(run: OwnedDevRun): bool = run.signal.cancelled or interruptedSignal() != 0
 
 proc work(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
-    parent: string, timeoutMs: int): Future[void] {.async.} =
+    parent, workspace, owner: string, timeoutMs: int): Future[void] {.async.} =
   let id = text(session["sessionId"])
   let root = text(app["root"])
   let manager = newProcessManager()
   var directory: string
   var stamp: FileStamp
+  var logWatch: int
   try:
+    run.history = newHistoryCapture(workspace,app,session,owner)
+    let retained = run.history
+    run.registry = registry
+    run.sessionWatch = registry.watchSessions(proc(value: JsonNode) =
+      if value["sessionId"] == %id: retained.updateHistory(value))
+    logWatch = run.logs.watchLogs(proc(value: JsonNode) = retained.appendHistory(value))
     if run.cancelled(): raise contractFailure("cancelled","Session launch cancelled")
     requireProjectVite(root)
     let worker = projectWorker(root,"@octane-xplat/macos-build","./dev-worker")
@@ -111,18 +125,26 @@ proc work(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
     if directory.len > 0 and dirExists(directory) and not symlinkExists(directory) and
         getFileInfo(directory,followSymlink=false).id == stamp:
       removeDir(directory)
+    if run.history != nil: run.history.finishHistory(registry.getSession(id))
+    if logWatch > 0: run.logs.unwatchLogs(logWatch)
 
 proc startDevRun*(run: OwnedDevRun, registry: SessionRegistry, app, session: JsonNode,
-    parent: string, timeoutMs = 300000) =
+    parent, workspace, owner: string, timeoutMs = 300000) =
   if run.pending != nil: raise newException(ValueError,"Development runner already started")
   run.pending = newFuture[void]("Development runner ownership")
   proc advance(): Future[void] {.async.} =
     try:
-      await run.work(registry,app,session,parent,timeoutMs)
+      await run.work(registry,app,session,parent,workspace,owner,timeoutMs)
       run.pending.complete()
     except CatchableError as error: run.pending.fail(error)
   asyncCheck advance()
 
 proc devRunFinished*(run: OwnedDevRun): bool = run.pending != nil and run.pending.finished
 proc forgetDevLogs*(run: OwnedDevRun) =
-  if run.devRunFinished(): run.logs = nil
+  if run.devRunFinished():
+    if run.sessionWatch > 0:
+      run.registry.unwatchSessions(run.sessionWatch)
+      run.sessionWatch = 0
+    run.logs = nil
+    run.history = nil
+    run.registry = nil

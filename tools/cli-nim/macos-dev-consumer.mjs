@@ -1,6 +1,7 @@
 // Real packed development engine, headless app and native ownership. No images.
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { spawn,spawnSync } from 'node:child_process'
+import { once } from 'node:events'
 import { createHash } from 'node:crypto'
 import { createConnection } from 'node:net'
 import { homedir } from 'node:os'
@@ -42,6 +43,7 @@ async function until(read,message,timeout=180000,id) {
 }
 function start(key) {const reply=call(['session','start','macos','--request-key',key]).data;sessions.push(reply.session.sessionId);return reply}
 let cache
+let crashHost,crashEngine,crashDescendant
 function resources(id) {return join(cache,'sessions',id)}
 async function end(id) {assert.equal(call(['session','end',id]).ok,true);await until(()=>!existsSync(resources(id)),'Owned session resources must be released',15000)}
 async function rpc(method,params) {
@@ -54,8 +56,9 @@ async function rpc(method,params) {
   socket.once('error',reject);socket.once('close',()=>clearTimeout(timer))
  })
 }
-async function stopHost() {
- if(!cache||!existsSync(join(cache,'host.json'))){return}
+async function stopHost(removeCache=true) {
+ if(!cache){return}
+ if(!existsSync(join(cache,'host.json'))){if(removeCache){rmSync(cache,{recursive:true,force:true})}return}
  const descriptor=JSON.parse(readFileSync(join(cache,'host.json')))
  await new Promise(resolve=>{
   const socket=createConnection(descriptor.socketPath),timer=setTimeout(()=>{socket.destroy();resolve()},10000)
@@ -63,7 +66,7 @@ async function stopHost() {
   socket.on('data',()=>socket.destroy());socket.once('error',()=>{});socket.once('close',()=>{clearTimeout(timer);resolve()})
  })
  await until(()=>!alive(descriptor.pid),'Owned workspace host must end',20000)
- rmSync(cache,{recursive:true,force:true})
+ if(removeCache){rmSync(cache,{recursive:true,force:true})}
 }
 try {
  assertCurrentNativeBuild(root,JSON.parse(readFileSync(join(root,'research/nim-cli/native/build.json'))),readFileSync(join(root,'research/nim-cli/native/xplat')))
@@ -132,6 +135,16 @@ try {
  await until(()=>session(live).state==='ready','Real macOS development host must become ready',180000,live)
  await until(()=>logs(live).some(record=>record.line.includes('NIM_DEV_ONE=40')),'Run the initial native C value',30000,live)
  const initialPid=Number(readFileSync(join(app,'app.pid'))),workerPid=Number(readFileSync(join(app,'engine.pid')))
+ const other=join(app,'apps/b')
+ write(join(other,'package.json'),{name:'other',private:true,xplat:{targets:{web:{}}}})
+ write(join(other,'vite.config.mjs'),'throw Error("Discovery must not execute this config")\n')
+ try{
+  assert.deepEqual(call(['session','list','--app','apps/b']).data.sessions,[])
+  for(const args of [['session','status',live],['session','end',live],['diagnostics','--session',live]]){
+   assert.equal(call([...args,'--app','apps/b'],2).error.code,'not_found')
+  }
+  assert.equal(alive(initialPid),true,'Another selected app must not end this session')
+ }finally{rmSync(join(app,'apps'),{recursive:true,force:true})}
  assert.equal(call(['session','start','macos','--request-key','second'],3).error.code,'target_busy')
  assert.ok(call(['diagnostics','--platform','macos']).data.sessions.some(record=>record.sessionId===live))
  assert.equal(call(['diagnostics','--session',live,'--platform','web'],2).error.code,'invalid_selection')
@@ -153,7 +166,10 @@ try {
  const nativePid=Number(readFileSync(join(app,'app.pid')))
  assert.notEqual(nativePid,jsPid);await until(()=>!alive(jsPid),'Previous native app must retire',10000)
  checked('JavaScript/native rebuild failures preserve the app; fixes recover and retire old processes after actual C recompilation')
- await end(live)
+ const historyRoot=join(cache,'history',createHash('sha256').update(realpathSync(app)).digest('hex'))
+ const unrelated=join(historyRoot,'sess_'+'f'.repeat(36))
+ mkdirSync(unrelated,{mode:0o700});writeFileSync(join(unrelated,'session.json'),'{}',{mode:0o600})
+ try{await end(live)}finally{rmSync(unrelated,{recursive:true,force:true})}
  assert.equal(call(['targets','--platform','macos']).data.platforms[0].targets[0].busy,false)
  assert.equal(alive(workerPid),false);assert.equal(alive(nativePid),false)
  assert.ok(logs(live).some(record=>record.line.includes('NIM_DEV_TWO=41')))
@@ -187,7 +203,52 @@ try {
   await end(failed)
  }finally{renameSync(hidden,worker)}
  checked('missing project worker retains a structured failed session identity and readable diagnostics')
+ const retained=logs(live)
+ await stopHost(false)
+ assert.deepEqual(logs(live),retained)
+ const historical=session(live)
+ assert.equal(historical.state,'stopped');assert.equal(historical.historical,true);assert.equal(historical.cleanupConfirmed,true)
+ run(binary,['clean'])
+ assert.deepEqual(logs(live),retained,'Project cache cleanup must preserve native retained evidence')
+ assert.equal(call(['session','end',live]).data.result.ended,true)
+ assert.ok(call(['session','list']).data.sessions.some(record=>record.sessionId===live))
+ assert.equal(existsSync(join(cache,'host.json')),false,'Retained reads/end must not start a host')
+ checked('retained session identity, completed cleanup, exact logs and repeated end survive host shutdown and project cache cleanup without starting another owner')
+ // Own this disposable daemon through a real ChildProcess handle. Production
+ // never signals a PID read from history; fixture cleanup uses the armed engine
+ // known to remain alive in its owned build gate until explicitly killed here.
+ rmSync(join(app,'engine.pid'),{force:true});rmSync(join(app,'child.pid'),{force:true});write(join(app,'hold'),'')
+ crashHost=spawn(binary,['--internal-agent-host',app],{cwd:app,env,stdio:'ignore'})
+ await until(async()=>existsSync(join(cache,'host.json'))&&(await rpc('host.ping',{})).result.pid===crashHost.pid,'Directly owned daemon must publish',10000)
+ const abandoned=start('owner-loss').session.sessionId
+ await until(()=>existsSync(join(app,'child.pid')),'Arm the engine before owner loss',180000,abandoned)
+ crashEngine=Number(readFileSync(join(app,'engine.pid')));crashDescendant=Number(readFileSync(join(app,'child.pid')))
+ const died=once(crashHost,'exit');crashHost.kill('SIGKILL');await died
+ const abandonedStatus=session(abandoned),abandonedLogs=logs(abandoned)
+ assert.equal(abandonedStatus.state,'disconnected');assert.equal(abandonedStatus.historical,true);assert.equal(abandonedStatus.cleanupConfirmed,false)
+ assert.ok(abandonedLogs.length>0)
+ assert.equal(call(['session','end',abandoned]).data.result.ended,false)
+ assert.match(run(binary,['session','end',abandoned,'--project',app]),/cleanup not confirmed/)
+ assert.equal(alive(crashEngine),true);assert.equal(alive(crashDescendant),true,'Historical end must not signal stored identities')
+ process.kill(-crashEngine,'SIGKILL')
+ await until(()=>!alive(crashEngine)&&!alive(crashDescendant),'Explicit fixture cleanup must release orphaned engine/group',15000)
+ crashEngine=null;crashDescendant=null;rmSync(join(app,'hold'))
+ checked('abrupt owner loss preserves logs and marks cleanup unconfirmed; historical end signals no stored PID')
+ const replacement=start('new-owner').session.sessionId
+ await until(()=>session(replacement).state==='ready','A replacement owner must launch a fresh session',180000,replacement)
+ assert.notEqual(replacement,abandoned)
+ assert.notEqual(session(replacement).ownerId,abandonedStatus.ownerId)
+ assert.equal(session(abandoned).state,'disconnected');assert.equal(session(abandoned).cleanupConfirmed,false)
+ assert.equal(call(['targets','--platform','macos']).data.platforms[0].targets[0].session.sessionId,replacement)
+ await end(replacement)
+ checked('a replacement authenticated owner keeps prior sessions historical and gives fresh ownership to a new identity')
 } finally {
+ if(crashHost&&crashHost.exitCode===null&&crashHost.signalCode===null){
+  const stopped=once(crashHost,'exit'),timer=setTimeout(()=>crashHost.kill('SIGKILL'),20000)
+  crashHost.kill('SIGTERM')
+  try{await stopped}finally{clearTimeout(timer)}
+ }
+ if(crashEngine&&alive(crashEngine)){process.kill(-crashEngine,'SIGKILL');await until(()=>!alive(crashEngine)&&(!crashDescendant||!alive(crashDescendant)),'Release fixture-owned orphan processes',15000)}
  if(cache&&existsSync(binary)){for(const id of new Set(sessions)){try{call(['session','end',id])}catch(error){console.error('Session cleanup: '+error.message)}}}
  await stopHost()
  rmSync(scratch,{recursive:true,force:true})

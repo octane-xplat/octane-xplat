@@ -25,6 +25,16 @@ proc hostPaths*(workspace: string): HostPaths =
 
 when defined(macosx):
   import std/posix
+  proc renameNative(source, destination: cstring): cint {.importc: "rename", header: "<stdio.h>".}
+
+  proc existingPrivateHostDirectory*(path: string): bool =
+    var info: Stat
+    if lstat(cstring(utf8ForWrite(path)),info) != 0:
+      if errno == ENOENT: return false
+      raiseOSError(osLastError())
+    if not S_ISDIR(info.st_mode) or info.st_uid != geteuid() or (info.st_mode and Mode(0o077)) != Mode(0):
+      raise newException(OSError,"Native host directories must be private and owned by the current user")
+    true
 
   proc privateHostDirectory*(path: string) =
     createDir(parentDir(path))
@@ -88,9 +98,11 @@ when defined(macosx):
     let closed = posix.close(fd)
     open = false
     if closed != 0: raiseOSError(osLastError())
-    moveFile(temporary,path)
+    if renameNative(cstring(utf8ForWrite(temporary)),cstring(utf8ForWrite(path))) != 0: raiseOSError(osLastError())
     owned
 else:
+  proc existingPrivateHostDirectory*(path: string): bool = raise newException(OSError,"Native host storage is not implemented on this host")
+  proc privateHostDirectory*(path: string) = raise newException(OSError,"Native host storage is not implemented on this host")
   proc prepareHostPaths*(paths: HostPaths) = raise newException(OSError,"Native host storage is not implemented on this host")
   proc readHostFile*(path: string, maximum = 16384): Option[string] = none(string)
   proc removeHostFile*(path: string, owned: FileStamp) = discard

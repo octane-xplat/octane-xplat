@@ -25,6 +25,7 @@
 		"test:nim-status": { "dependsOn": ["build:nim"], "cache": false },
 		"test:nim-targets": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:nim-sessions": { "dependsOn": ["build:nim-env"], "cache": false },
+		"test:nim-history": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:macos-packaging": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:nim-macos-publication": { "dependsOn": ["build:nim-env"], "cache": false },
 		"test:nim-macos-build": { "dependsOn": ["build:nim", "@octane-xplat/macos-build#build"], "cache": false },

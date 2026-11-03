@@ -77,13 +77,25 @@ xplat session status SESSION_ID --json
 xplat diagnostics --session SESSION_ID --limit 100 --json
 ```
 
-End the session to stop its engine and owned app processes. Captured logs remain
-readable while the native workspace host lives. Durable history, attaching to an
-existing app, native crash reports and other launch platforms remain in migration:
+End the session to stop its engine and owned app processes. Retained diagnostics
+remain readable after the native workspace host exits. The native cache keeps
+the newest 20 historical sessions per app and two log segments of up to 512 KiB
+per session; older output is dropped with an indication in the log cursor result:
 
 ```sh
 xplat session end SESSION_ID --json
 xplat diagnostics --session SESSION_ID --json
+```
+
+If the owner disappears before confirming cleanup, status reports historical
+data with `cleanupConfirmed: false`. Ending that historical session cannot stop
+its old processes or confirm their cleanup. Check the surviving app/tool processes
+before starting another session. Attaching to an existing app, native crash
+reports and other launch platforms remain in migration:
+
+```sh
+xplat session status SESSION_ID --json
+xplat session end SESSION_ID --json
 ```
 
 ## Contributor boundary

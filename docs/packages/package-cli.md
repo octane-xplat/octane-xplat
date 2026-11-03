@@ -190,7 +190,8 @@ For an app with macOS development configuration, start its installed development
 engine and inspect the returned session. Nim owns the session and process cleanup;
 Vite and the native compiler handle rebuilds in the project toolchain. See the
 [development workflow](package-macos-build.md#start-a-development-session) for
-prerequisites and current limits. Logs last only while the native owner lives:
+prerequisites and current limits. Retained session logs remain readable after
+the native owner exits; build-job log captures still last only while it runs:
 
 ```sh
 xplat targets --platform macos --json

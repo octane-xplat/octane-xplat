@@ -1,10 +1,11 @@
 ## Per-invocation discovery, explicit binding, client preference and task policy.
 ## Retains the TypeScript envelope/selection distinction:
 ## a sole-app selection does not mutate boundApp or the envelope's projectId.
-import std/[times, json, os, strutils, asyncdispatch]
+import std/[times, json, os, strutils, asyncdispatch, tables, algorithm]
 import ./core, ./args, ./code_service, ./json_wire, ./docs_service
 import ./project_status, ./command_probe
 import ./host_client, ./contract_failure, ./target_discovery, ./diagnostic_selection
+import ./session_history
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -183,6 +184,36 @@ proc workspaceStatusCommand*(name: string, values, metadata: JsonNode): Future[J
     result["ok"] = %false
     result["error"] = %*{"code": (if error of ProbeCancelledError: "cancelled" else: "execution_failure"),"message": error.msg}
 
+proc sessionApps(context: WorkspaceContext): JsonNode =
+  if context.selector.len > 0 and context.boundApp == nil:
+    raise contractFailure("invalid_selection","The selected app does not exist in this workspace.")
+  let selected = context.selection()
+  if selected["state"] == %"bound": %*[selected["app"]] else: context.discovery["apps"]
+
+proc visibleSessions(context: WorkspaceContext, current: JsonNode, owner: string): JsonNode =
+  let apps = context.sessionApps()
+  var records = initTable[string,JsonNode]()
+  for app in apps:
+    for retained in listHistorySessions(context.root,app,owner): records[text(retained["sessionId"])] = retained
+  for live in current:
+    var allowed = false
+    for app in apps:
+      if app["id"] == live["appId"]: allowed = true
+    if not allowed: continue
+    let id = text(live["sessionId"])
+    let merged = if records.hasKey(id): records[id].copy() else: newJObject()
+    for key,value in live: merged[key] = value.copy()
+    records[id] = merged
+  var ordered: seq[JsonNode]
+  for record in records.values: ordered.add(record)
+  ordered.sort(proc(a,b: JsonNode): int =
+    proc stamp(record: JsonNode): string =
+      if field(record,"startedAt") != nil: text(record["startedAt"]) else: text(record["createdAt"])
+    let order = cmp(stamp(b),stamp(a))
+    if order == 0: cmp(text(a["sessionId"]),text(b["sessionId"])) else: order)
+  result = newJArray()
+  for record in ordered: result.add(record)
+
 proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.async.} =
   var context: WorkspaceContext
   try: context = makeContext(values)
@@ -199,13 +230,52 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
         raise contractFailure((if context.selector.len == 0 and context.discovery["apps"].len > 1: "ambiguous_selection" else: "invalid_selection"),
           "Select an app. Pass --app or run from the app directory.")
       requestedApp = selected["app"]["id"]
-    let host = if name in ["runtime build","session start"]: await ensureNativeHost(context.root) else: await connectNativeHost(context.root)
+    var host: HostConnection
+    if name in ["runtime build","session start"]: host = await ensureNativeHost(context.root)
+    else:
+      try: host = await connectNativeHost(context.root)
+      except ContractFailure as error:
+        if text(error.detail["code"]) != "disconnected_runtime" or
+            name notin ["session list","session status","session end","diagnostics"] or
+            (name == "diagnostics" and truthy(field(values,"jobId"))): raise
+    let owner = if host == nil: "" else: text(field(host.identity,"ownerId"))
+    if name in ["session list","session status","session end"]:
+      var current = newJArray()
+      if host != nil:
+        let reply = await host.callNativeHost("sessions.list",newJObject())
+        if field(reply,"ok") != %true: raise contractFailure("disconnected_runtime","The native owner did not answer the session read.")
+        current = reply["result"]["sessions"]
+      var visible = newJArray()
+      if name == "session end":
+        # Known live ownership is sufficient. Unrelated retained corruption
+        # must not prevent releasing this app's active session resources.
+        let apps = context.sessionApps()
+        for record in current:
+          if record["sessionId"] != field(values,"sessionId"): continue
+          for app in apps:
+            if app["id"] == record["appId"]: visible.add(record)
+      if visible.len == 0: visible = context.visibleSessions(current,owner)
+      if name == "session list": result["data"] = %*{"sessions": visible}; return
+      let id = text(field(values,"sessionId"))
+      var selected: JsonNode
+      for record in visible:
+        if record["sessionId"] == %id: selected = record
+      if selected == nil: raise contractFailure("not_found","No retained session with this id for the selected app.")
+      if name == "session status": result["data"] = %*{"session": selected}; return
+      var live = false
+      for record in current:
+        if record["sessionId"] == %id: live = true
+      if not live:
+        let confirmed = field(selected,"cleanupConfirmed") == %true
+        result["data"] = %*{"result": {"sessionId": id,"ended": confirmed}}
+        if not confirmed:
+          result["data"]["result"]["note"] = %"Session owner is unavailable; retained diagnostics remain readable, but live process cleanup cannot be confirmed. No recorded PID was signalled."
+        return
     if host == nil:
-      if name == "session list": result["data"] = %*{"sessions": []}; return
       if name == "targets":
         result["data"] = nativeTargetReport(context.selection()["app"],newJArray(),field(values,"platform")); return
-      if name == "diagnostics" and not truthy(field(values,"sessionId")) and not truthy(field(values,"jobId")):
-        result["data"] = %*{"sessions": [],"note": "No native workspace host is running. Native captures currently last only while that host lives."}; return
+      if name == "diagnostics" and not truthy(field(values,"jobId")):
+        result["data"] = historyDiagnostics(context.root,context.selection()["app"],values); return
       raise contractFailure("not_found","No agent runtime host is running — no sessions or jobs exist for this workspace.")
     var methodName: string
     var params = newJObject()
@@ -275,11 +345,12 @@ proc workspaceHuman*(name: string, payload: JsonNode): string =
   if name in ["job status","job cancel"]: return wireJson(payload["job"],pretty=true)
   if name == "session end":
     let ended = payload["result"]
-    var lines = @[text(ended["sessionId"]) & ": " & (if ended["ended"].getBool(): "ended" else: "not found")]
+    var lines = @[text(ended["sessionId"]) & ": " & (if ended["ended"].getBool(): "ended" elif truthy(field(ended,"note")): "cleanup not confirmed" else: "not found")]
     for key in ["released","preserved"]:
       let items = field(ended,key)
       if items != nil:
         for item in items: lines.add("  " & key & ": " & text(item))
+    if truthy(field(ended,"note")): lines.add(text(ended["note"]))
     return lines.join("\n")
   if name == "status":
     var lines = @["Workspace: " & text(payload["identity"]["workspace"]["root"]) & " (" & text(payload["identity"]["workspace"]["kind"]) & ")",
