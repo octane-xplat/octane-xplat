@@ -382,7 +382,7 @@ describe('streaming + deferral', () => {
 			isFinal: false,
 		})
 		expect(
-			late.some((b) => b.type === 'paragraph' &&
+			late.children.some((b) => b.type === 'paragraph' &&
 				(b as { children: { type: string }[] }).children.some(
 					(c) => c.type === 'extension',
 				)),
@@ -393,10 +393,10 @@ describe('streaming + deferral', () => {
 		const state = createMarkdownIncrementalState()
 		const first = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
 			plugins: [blockPlugin()],
-		})
+		}).children
 		expect(first[0].type).toBe('extension')
 		// Removing the plugin flips the identity → settled nodes re-parse.
-		const second = parseMarkdownIncremental('!!! a\n\ntail\n', state, {})
+		const second = parseMarkdownIncremental('!!! a\n\ntail\n', state, {}).children
 		expect(second[0].type).toBe('paragraph')
 	})
 
@@ -434,13 +434,13 @@ describe('streaming + deferral', () => {
 		const state = createMarkdownIncrementalState()
 		const settled = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
 			plugins: [keyed('v1')],
-		})
+		}).children
 		expect(settled[0].type).toBe('extension')
 		// A new parseKey reinterprets the same source — the settled extension
 		// must not survive the configuration change.
 		const reparsed = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
 			plugins: [keyed('v2')],
-		})
+		}).children
 		expect(reparsed[0].type).toBe('extension')
 		expect(reparsed[0]).not.toBe(settled[0])
 	})
@@ -459,12 +459,12 @@ describe('streaming + deferral', () => {
 		const state = createMarkdownIncrementalState()
 		const first = parseMarkdownIncremental('alpha\n\ntail', state, {
 			plugins: [counting()],
-		})
+		}).children
 		// Same syntax identity, different transform instance → settled block
 		// objects stay shared while transforms re-observe the document.
 		const second = parseMarkdownIncremental('alpha\n\ntail', state, {
 			plugins: [counting()],
-		})
+		}).children
 		expect(second[0]).toBe(first[0])
 		expect(seen.length).toBeGreaterThanOrEqual(2)
 	})
@@ -829,7 +829,7 @@ describe('markdownSourceLinesPlugin', () => {
 		const state = createMarkdownIncrementalState()
 		const plugins = [markdownSourceLinesPlugin]
 		parseMarkdownIncremental('- a\n- b\n\n', state, { plugins })
-		const nodes = parseMarkdownIncremental('- a\n- b\n\ntail', state, { plugins })
+		const nodes = parseMarkdownIncremental('- a\n- b\n\ntail', state, { plugins }).children
 		const list = nodes[0] as MdNode & { children: { children: MdNode[] }[] }
 		expect(list.type).toBe('list')
 		expect(list.position?.start.line).toBe(1)

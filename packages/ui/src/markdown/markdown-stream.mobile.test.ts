@@ -10,7 +10,7 @@ describe('markdown streaming (native renderer)', () => {
 		const state = createMarkdownIncrementalState()
 		let out = []
 		for (let i = 1; i <= doc.length; i++) {
-			out = parseMarkdownIncremental(doc.slice(0, i), state)
+			out = parseMarkdownIncremental(doc.slice(0, i), state).children
 		}
 
 		expect(out).toEqual(parseMdNodes(doc))
@@ -18,11 +18,11 @@ describe('markdown streaming (native renderer)', () => {
 
 	it('withholds incomplete constructs identically under the native toolchain', () => {
 		const state = createMarkdownIncrementalState()
-		expect(parseMarkdownIncremental('intro\n\n- ', state).map((n) => n.type)).toEqual([
+		expect(parseMarkdownIncremental('intro\n\n- ', state).children.map((n) => n.type)).toEqual([
 			'paragraph',
 			'paragraph',
 		])
-		expect(parseMarkdownIncremental('intro\n\n- item', state).map((n) => n.type)).toEqual([
+		expect(parseMarkdownIncremental('intro\n\n- item', state).children.map((n) => n.type)).toEqual([
 			'paragraph',
 			'list',
 		])

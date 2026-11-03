@@ -41,7 +41,7 @@ function streamByChar(doc: string) {
 	const state = createMarkdownIncrementalState()
 	const outputs: MdNode[][] = []
 	for (let i = 1; i <= doc.length; i++) {
-		outputs.push(parseMarkdownIncremental(doc.slice(0, i), state))
+		outputs.push(parseMarkdownIncremental(doc.slice(0, i), state).children)
 	}
 
 	return outputs
@@ -207,8 +207,8 @@ describe('parseMarkdownIncremental', () => {
 		// next block arrives. Once settled, the same object is reused.
 		const state = createMarkdownIncrementalState()
 		parseMarkdownIncremental('# Title\n\nfirst para\n\n', state)
-		const second = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\n', state)
-		const third = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\nthird', state)
+		const second = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\n', state).children
+		const third = parseMarkdownIncremental('# Title\n\nfirst para\n\nsecond para\n\nthird', state).children
 		expect(third[0]).toBe(second[0])
 		expect(third[1]).toBe(second[1])
 		expect(third[2]).not.toBe(second[2])
@@ -227,7 +227,7 @@ describe('parseMarkdownIncremental', () => {
 	it('resets when input is replaced rather than appended', () => {
 		const state = createMarkdownIncrementalState()
 		parseMarkdownIncremental('aaa\n\nbbb\n\n', state)
-		const out = parseMarkdownIncremental('zzz different\n\n', state)
+		const out = parseMarkdownIncremental('zzz different\n\n', state).children
 		expect(out).toEqual(parseMdNodes('zzz different\n\n'))
 	})
 
@@ -235,11 +235,11 @@ describe('parseMarkdownIncremental', () => {
 		// Matches the reference: `- ` alone parses as a paragraph, and becomes
 		// a list once item text streams in.
 		const state = createMarkdownIncrementalState()
-		expect(parseMarkdownIncremental('intro\n\n- ', state).map((n) => n.type)).toEqual([
+		expect(parseMarkdownIncremental('intro\n\n- ', state).children.map((n) => n.type)).toEqual([
 			'paragraph',
 			'paragraph',
 		])
-		expect(parseMarkdownIncremental('intro\n\n- item', state).map((n) => n.type)).toEqual([
+		expect(parseMarkdownIncremental('intro\n\n- item', state).children.map((n) => n.type)).toEqual([
 			'paragraph',
 			'list',
 		])
@@ -265,19 +265,19 @@ describe('parseMarkdownIncremental', () => {
 
 	it('shows an open code fence as a growing code block, not literal backticks', () => {
 		const state = createMarkdownIncrementalState()
-		expect(parseMarkdownIncremental('before\n\n```ts\ncons', state).map((n) => n.type)).toEqual([
+		expect(parseMarkdownIncremental('before\n\n```ts\ncons', state).children.map((n) => n.type)).toEqual([
 			'paragraph',
 			'code',
 		])
 
-		const later = parseMarkdownIncremental('before\n\n```ts\nconst x = 1\n```', state)
+		const later = parseMarkdownIncremental('before\n\n```ts\nconst x = 1\n```', state).children
 		expect(later[1]).toMatchObject({ type: 'code', lang: 'ts', value: 'const x = 1' })
 	})
 
 	it('merges a loose list split across the settled boundary', () => {
 		const state = createMarkdownIncrementalState()
 		parseMarkdownIncremental('- a\n\n', state)
-		const out = parseMarkdownIncremental('- a\n\n- b\n\n', state)
+		const out = parseMarkdownIncremental('- a\n\n- b\n\n', state).children
 		expect(out).toEqual(parseMdNodes('- a\n\n- b\n\n'))
 		expect(out).toHaveLength(1)
 		expect((out[0] as { children: unknown[] }).children).toHaveLength(2)
@@ -368,7 +368,7 @@ it.each([
 	const state = createMarkdownIncrementalState()
 	let output: MdNode[] = []
 	for (let i = 1; i <= source.length; i++) {
-		output = parseMarkdownIncremental(source.slice(0, i), state)
+		output = parseMarkdownIncremental(source.slice(0, i), state).children
 	}
 	expect(output).toEqual(parseMdNodes(source))
 })

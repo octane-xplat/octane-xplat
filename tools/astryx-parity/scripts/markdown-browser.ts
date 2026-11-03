@@ -26,6 +26,19 @@ async function settle(page: Page) {
 	)
 }
 
+/** Wait until a locator's textContent stops changing (stream smoothing drain). */
+async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 8000) {
+	const start = Date.now()
+	let last = ''
+	for (;;) {
+		const cur = (await page.locator(sel).textContent().catch(() => '')) ?? ''
+		if (cur === last && Date.now() - start > idleMs) return cur
+		if (Date.now() - start > timeoutMs) return cur
+		last = cur
+		await page.waitForTimeout(60)
+	}
+}
+
 /** DOM/event parity probes on /markdown/behavior. */
 export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) {
 	const context = await browser.newContext(CONTEXT_OPTIONS)
@@ -84,6 +97,133 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 			record(`${key}/events`, await page.evaluate(() => [...window.__parity.events]))
 			void count
 		}
+
+		// DOM probes on the extended fixtures.
+		for (const key of [
+			'citation-activate',
+			'heading-shift',
+			'empty-repeated-headings',
+			'image-ok',
+			'image-fail',
+			'custom-renderers',
+			'plugin-error',
+			'plugin-decline',
+		]) {
+			const sel = `[data-parity-key="${key}"]`
+			if ((await page.locator(sel).count()) === 0) {
+				record(`${key}/missing`, true)
+				continue
+			}
+			record(
+				`${key}/dom`,
+				await page.locator(sel).evaluate((el) => {
+					const img = el.querySelector('img')
+					return {
+						text: el.textContent,
+						headings: [...el.querySelectorAll('h1,h2,h3,h4,h5,h6,[role="heading"]')].map((h) => ({
+							tag: h.tagName,
+							id: h.id,
+							level: h.getAttribute('aria-level'),
+						})),
+						links: [...el.querySelectorAll('a')].map((a) => a.getAttribute('href')),
+						customs: [...el.querySelectorAll('[data-custom]')].map((n) => n.getAttribute('data-custom')),
+						img: img
+							? { alt: img.getAttribute('alt'), complete: img.complete, w: img.naturalWidth }
+							: null,
+						citeLinks: [...el.querySelectorAll('a[href^="#cite"]')].map((a) => a.getAttribute('href')),
+					}
+				}),
+			)
+		}
+
+		// Citation activation: hash navigation stays on-page.
+		const citeSel = `[data-parity-key="citation-activate"] a[href^="#cite"]`
+		if ((await page.locator(citeSel).count()) > 0) {
+			await page.locator(citeSel).first().click()
+			await settle(page)
+			record('citation-activate/hash', await page.evaluate(() => window.location.hash))
+		} else {
+			record('citation-activate/hash', null)
+		}
+
+		// Source/document changes through component state.
+		await page.locator('[data-parity-action="source-swap"] button, [data-parity-action="source-swap"]').first().click()
+		await settle(page)
+		record(
+			'source-swap/text',
+			await page.locator('[data-parity-key="source-swap"]').textContent(),
+		)
+		await page.locator('[data-parity-action="source-id-change"] button, [data-parity-action="source-id-change"]').first().click()
+		await settle(page)
+		record(
+			'source-id-change/dom',
+			await page.locator('[data-parity-key="source-id-change"]').evaluate((el) => ({
+				text: el.textContent,
+				cites: el.querySelectorAll('a[href^="#cite"]').length,
+			})),
+		)
+
+		// Streaming pump: append each chunk, wait for the smoothing drain, then
+		// record final text + fade spans + their computed transition duration
+		// (reduced motion is set on the context → duration collapses to 0s).
+		for (let i = 0; i < 4; i++) {
+			await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+		}
+		await waitStable(page, '[data-parity-key="stream-pump"]')
+		record(
+			'stream-pump/drained',
+			await page.locator('[data-parity-key="stream-pump"]').evaluate((el) => {
+				const fade = el.querySelector('[class*="fade"]')
+				return {
+					text: el.textContent,
+					fadeSpans: el.querySelectorAll('[class*="fade"]').length,
+					fadeDuration: fade ? getComputedStyle(fade).transitionDuration : null,
+				}
+			}),
+		)
+
+		// Reset mid-stream, then a different document parses clean.
+		await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+		await page.locator('[data-parity-action="stream-pump/reset"] button, [data-parity-action="stream-pump/reset"]').first().click()
+		await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+		await waitStable(page, '[data-parity-key="stream-pump"]')
+		record(
+			'stream-pump/after-reset',
+			await page.locator('[data-parity-key="stream-pump"]').textContent(),
+		)
+
+		// Unmount mid-stream (navigation away), remount, re-pump to the end.
+		await page.locator('[data-parity-action="stream-pump/mount"] button, [data-parity-action="stream-pump/mount"]').first().click()
+		await settle(page)
+		record(
+			'stream-pump/unmounted',
+			await page.locator('[data-parity-key="stream-pump"]').textContent(),
+		)
+		await page.locator('[data-parity-action="stream-pump/mount"] button, [data-parity-action="stream-pump/mount"]').first().click()
+		for (let i = 0; i < 4; i++) {
+			await page.locator('[data-parity-action="stream-pump/next"] button, [data-parity-action="stream-pump/next"]').first().click()
+		}
+		await waitStable(page, '[data-parity-key="stream-pump"]')
+		record(
+			'stream-pump/remounted',
+			await page.locator('[data-parity-key="stream-pump"]').textContent(),
+		)
+
+		// Two simultaneous streams: pump A fully, B once — outputs stay
+		// independent.
+		for (let i = 0; i < 4; i++) {
+			await page.locator('[data-parity-action="stream-a/next"] button, [data-parity-action="stream-a/next"]').first().click()
+		}
+		await page.locator('[data-parity-action="stream-b/next"] button, [data-parity-action="stream-b/next"]').first().click()
+		await waitStable(page, '[data-parity-key="stream-a"]')
+		await waitStable(page, '[data-parity-key="stream-b"]')
+		record(
+			'stream-multi',
+			await Promise.all([
+				page.locator('[data-parity-key="stream-a"]').textContent(),
+				page.locator('[data-parity-key="stream-b"]').textContent(),
+			]),
+		)
 	} finally {
 		await context.close()
 	}

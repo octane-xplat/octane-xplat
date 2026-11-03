@@ -9,7 +9,9 @@ import { createRoot } from 'react-dom/client'
 import { Markdown } from '@astryxdesign/core/Markdown'
 import {
 	createMarkdownFrontmatter,
+	createMarkdownFenceTransform,
 	createMarkdownHeadingLinks,
+	createMarkdownPlugin,
 	markdownSoftBreaksPlugin,
 	markdownSourceLinesPlugin,
 } from '@astryxdesign/core/Markdown/plugins'
@@ -21,7 +23,10 @@ import {
 	textAreaScenarios,
 	checkboxListScenarios,
 	markdownScenarios,
+	BOUNDARY_FIXTURE_SOURCE,
 	CITATION_SOURCES,
+	CITATION_SOURCES_LOCAL,
+	STREAM_FIXTURE_CHUNKS,
 } from '../scenarios/index.ts'
 
 import '@astryxdesign/core/reset.css'
@@ -324,6 +329,115 @@ function MarkdownGrid() {
 	)
 }
 
+// --- Boundary fixture: plugin renderers that throw / decline ---
+const boomNode =
+	(plugin: string) =>
+	(ctx: { code: string }) => ({
+		type: 'extension' as const,
+		plugin,
+		name: 'boom',
+		display: 'block' as const,
+		data: { code: ctx.code },
+	})
+const boundaryPlugins = {
+	error: createMarkdownPlugin({
+		name: 'x-error',
+		apiVersion: 1,
+		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-error') }),
+		renderers: {
+			boom: {
+				render: () => {
+					throw new Error('renderer boom')
+				},
+				toText: () => 'error',
+			},
+		},
+	}),
+	decline: createMarkdownPlugin({
+		name: 'x-decline',
+		apiVersion: 1,
+		transform: createMarkdownFenceTransform({ languages: ['boom'], createNode: boomNode('x-decline') }),
+		renderers: { boom: { render: () => null, toText: () => 'decline' } },
+	}),
+	},
+
+// Interactive stream fixtures — identical controls both sides.
+function StreamPump({ id }: { id: string }) {
+	const [idx, setIdx] = useState(0)
+	const [mounted, setMounted] = useState(true)
+	const text = STREAM_FIXTURE_CHUNKS.slice(0, idx).join('')
+	return (
+		<span data-parity-key={id}>
+			<button
+				data-parity-action={`${id}/next`}
+				onClick={() => {
+					setIdx((i) => Math.min(i + 1, STREAM_FIXTURE_CHUNKS.length))
+					window.__parity.events.push(`${id}:next`)
+				}}
+			>
+				next
+			</button>
+			<button
+				data-parity-action={`${id}/reset`}
+				onClick={() => {
+					setIdx(0)
+					window.__parity.events.push(`${id}:reset`)
+				}}
+			>
+				reset
+			</button>
+			<button
+				data-parity-action={`${id}/mount`}
+				onClick={() => {
+					setMounted((m) => !m)
+					window.__parity.events.push(`${id}:mount`)
+				}}
+			>
+				mount
+			</button>
+			{mounted && text !== '' ? <Markdown isStreaming>{text}</Markdown> : <i>gone</i>}
+		</span>
+	)
+}
+
+function SourceSwap() {
+	const [alt, setAlt] = useState(false)
+	return (
+		<span data-parity-key="source-swap">
+			<button
+				data-parity-action="source-swap"
+				onClick={() => {
+					setAlt((a) => !a)
+					window.__parity.events.push('swap')
+				}}
+			>
+				swap
+			</button>
+			<Markdown>{alt ? '## Second doc\n\nbeta text' : '# First doc\n\nalpha text'}</Markdown>
+		</span>
+	)
+}
+
+function SourceIdChange() {
+	const [withApi, setWithApi] = useState(false)
+	return (
+		<span data-parity-key="source-id-change">
+			<button
+				data-parity-action="source-id-change"
+				onClick={() => {
+					setWithApi((v) => !v)
+					window.__parity.events.push('sourceIdChange')
+				}}
+			>
+				sources
+			</button>
+			<Markdown sources={withApi ? CITATION_SOURCES_LOCAL : { docs: CITATION_SOURCES_LOCAL.docs }}>
+				{'Claim [docs] and 【api】.'}
+			</Markdown>
+		</span>
+	)
+}
+
 function MarkdownBehavior() {
 	const doc = '[internal](/docs/page) and [external](https://example.com)'
 	return (
@@ -365,19 +479,75 @@ function MarkdownBehavior() {
 					{'[allow](/go)'}
 				</Markdown>
 			</span>
+			<span data-parity-key="citation-activate">
+				<Markdown sources={CITATION_SOURCES_LOCAL}>{'Cite [docs] here.'}</Markdown>
+			</span>
+			<span data-parity-key="heading-shift">
+				<Markdown headingLevelStart={3}>{'# A\n\n## B'}</Markdown>
+			</span>
+			<span data-parity-key="empty-repeated-headings">
+				<Markdown>{'# \n\n## Dup\n\n## Dup\n\n#'}</Markdown>
+			</span>
+			<span data-parity-key="image-ok">
+				<Markdown>{'![ok alt](/tiny.svg)'}</Markdown>
+			</span>
+			<span data-parity-key="image-fail">
+				<Markdown>{'![fail alt](/missing.png)'}</Markdown>
+			</span>
+			<span data-parity-key="custom-renderers">
+				<Markdown
+					components={{
+						paragraph: (p: any) => <p data-custom="paragraph">{p.children}</p>,
+						code: (p: any) => <pre data-custom="code">{p.code}</pre>,
+						link: (p: any) => (
+							<a data-custom="link" href={p.href}>
+								{p.children}
+							</a>
+						),
+					}}
+				>
+					{'Para [l](/x).\n\n```js\nx=1\n```'}
+				</Markdown>
+			</span>
+			<span data-parity-key="plugin-error">
+				<Markdown plugins={[boundaryPlugins.error]}>{BOUNDARY_FIXTURE_SOURCE}</Markdown>
+			</span>
+			<span data-parity-key="plugin-decline">
+				<Markdown plugins={[boundaryPlugins.decline]}>{BOUNDARY_FIXTURE_SOURCE}</Markdown>
+			</span>
+			<SourceSwap />
+			<SourceIdChange />
+			<StreamPump id="stream-pump" />
+			<span data-parity-key="stream-multi">
+				<StreamPump id="stream-a" />
+				<StreamPump id="stream-b" />
+			</span>
 		</>
 	)
 }
 
 function MarkdownLayout() {
-	const keys = ['prose-basic', 'table-layout', 'content-width', 'density-compact'] as const
+	const cells: readonly { key: string; width: number; density?: 'compact'; contentAlign?: 'center' }[] = [
+		{ key: 'prose-basic', width: 480 },
+		{ key: 'table-layout', width: 480 },
+		{ key: 'content-width', width: 480 },
+		{ key: 'density-compact', width: 480, density: 'compact' },
+		{ key: 'content-width', width: 320 },
+		{ key: 'content-width', width: 1200, contentAlign: 'center' },
+		{ key: 'unbroken-tokens', width: 480 },
+		{ key: 'large-table', width: 480 },
+	]
 	return (
 		<>
-			{keys.map((key) => {
-				const s = markdownScenarios.find((x) => x.key === key)!
+			{cells.map((cell, i) => {
+				const s = markdownScenarios.find((x) => x.key === cell.key)!
 				return (
-					<div key={key} data-parity-key={key} style={{ width: 480, marginBottom: 24 }}>
-						<Markdown density={key === 'density-compact' ? 'compact' : 'default'}>
+					<div
+						key={`${cell.key}-${i}`}
+						data-parity-key={`${cell.key}@${cell.width}${cell.contentAlign ? ':center' : ''}`}
+						style={{ width: cell.width, marginBottom: 24 }}
+					>
+						<Markdown density={cell.density ?? 'default'} contentAlign={cell.contentAlign}>
 							{s.source}
 						</Markdown>
 					</div>

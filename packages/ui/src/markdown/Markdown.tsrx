@@ -1137,7 +1137,7 @@ export function Markdown(props: MarkdownProps): unknown @{
 			incRef.current ??= createMarkdownIncrementalState()
 			const input = trimStreamingArtifacts(smoothedText, options)
 			nodes = applyMarkdownTransforms(
-				mdDoc(parseMarkdownIncremental(input, incRef.current, options)),
+				parseMarkdownIncremental(input, incRef.current, options),
 				preparedPlugins,
 				input,
 				false,

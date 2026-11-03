@@ -3960,19 +3960,21 @@ function resetIncrementalCache(state: MarkdownIncrementalState, cache: Increment
 /**
  * Parse one cumulative snapshot of a streaming Markdown document.
  *
- * Every call returns a fresh array, and later calls never mutate a
- * previously returned array or the block nodes inside it, so results are
+ * Every call returns a fresh `MdDoc`, and later calls never mutate a
+ * previously returned document or the block nodes inside it, so results are
  * stable snapshots. Settled block objects are shared across calls by
  * reference, which is safe because they are replaced — never edited in
  * place — when adjacent content changes them. When the input no longer
  * starts with the settled prefix (a replacement rather than an append),
- * the cache is discarded and the whole document is re-parsed.
+ * the cache is discarded and the whole document is re-parsed. Plugin
+ * transforms run on the returned document, so `data` (e.g. frontmatter
+ * metadata) is populated mid-stream just like a full parse.
  */
 export function parseMarkdownIncremental(
 	input: string,
 	state: MarkdownIncrementalState,
 	options?: MdParseOptions & { readonly isFinal?: boolean },
-): MdNode[] {
+): MdDoc {
 	const opts = resolveOptions(options, true)
 	const cache = incrementalCaches.get(state) ?? makeIncrementalCache(state)
 	let reparseSettled = false
@@ -3993,7 +3995,13 @@ export function parseMarkdownIncremental(
 	}
 	if (input === '') {
 		resetIncrementalCache(state, cache)
-		return []
+		return applyMarkdownTransforms(
+			{ kind: 'octane-xplat/md', v: 2, children: [] },
+			opts.plugins,
+			input,
+			opts.isFinal,
+			'block',
+		)
 	}
 	// The settled prefix is only reusable while the input still contains it
 	// verbatim. `startsWith` is a memcmp-speed scan with no allocation and is
@@ -4138,5 +4146,5 @@ export function parseMarkdownIncremental(
 		input,
 		opts.isFinal,
 		'block',
-	).children as MdNode[]
+	)
 }

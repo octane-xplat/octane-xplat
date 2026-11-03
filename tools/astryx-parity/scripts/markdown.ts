@@ -190,6 +190,13 @@ async function runParserMode() {
 			opts.plugins = pluginEntries(refPlugins, scenario)
 			candOpts.plugins = pluginEntries(candHelpers, scenario)
 		}
+		// pluginsAt: stream steps before the index run without plugins; the
+		// config flips mid-stream and the settled prefix must invalidate.
+		const pluginsAt = scenario.options?.pluginsAt
+		const stepOpts = (step: number) =>
+			pluginsAt != null && step < pluginsAt ? { ...opts, plugins: undefined } : opts
+		const stepCandOpts = (step: number) =>
+			pluginsAt != null && step < pluginsAt ? { ...candOpts, plugins: undefined } : candOpts
 
 		let refRoot: Canon
 		try {
@@ -231,6 +238,12 @@ async function runParserMode() {
 					let step = 0
 					for (const chunk of schedule) {
 						acc += chunk
+						// The schedule's final step always sees the full option set so
+						// pluginsAt flips mid-stream on every replayed schedule.
+						const so = stepOpts(step === schedule.length - 1 ? Number.MAX_SAFE_INTEGER : step)
+						const sco = stepCandOpts(
+							step === schedule.length - 1 ? Number.MAX_SAFE_INTEGER : step,
+						)
 						// Both sides parse the production-trimmed snapshot: the
 						// component trims before the incremental parse in each stack.
 						const refTrim = refSrc.trimStreamingArtifacts(acc, { math: opts.math === true })
@@ -238,11 +251,11 @@ async function runParserMode() {
 							math: opts.math === true,
 						})
 						const refStep = canonRef(
-							refSrc.parseMarkdownAstIncremental(refTrim, refState, opts as any),
+							refSrc.parseMarkdownAstIncremental(refTrim, refState, so as any),
 						)
-						const candStep = canonCandDoc({
-							children: candStream.parseMarkdownIncremental(candTrim, candState, candOpts as any),
-						})
+						const candStep = canonCandDoc(
+							candStream.parseMarkdownIncremental(candTrim, candState, sco as any),
+						)
 						diffCanon(refStep, candStep, `step${step}`, stepDiffs)
 						step++
 					}
@@ -262,6 +275,72 @@ async function runParserMode() {
 				} catch (e) {
 					results.push({ key, status: 'harness-error', error: String(e) })
 				}
+			}
+
+			// Simultaneous streams: two independent incremental states
+			// interleaved in one process must not contaminate each other.
+			try {
+				const ra = refSrc.createIncrementalState()
+				const rb = refSrc.createIncrementalState()
+				const ca = candStream.createMarkdownIncrementalState()
+				const cb = candStream.createMarkdownIncrementalState()
+				const half = Math.floor(scenario.source.length / 2)
+				const diffs: Diff[] = []
+				let accA = ''
+				for (const [i, chunk] of [
+					scenario.source.slice(0, half),
+					scenario.source.slice(half),
+				].entries()) {
+					accA += chunk
+					diffCanon(
+						canonRef(refSrc.parseMarkdownAstIncremental(accA, ra, opts as any)),
+						canonCandDoc(candStream.parseMarkdownIncremental(accA, ca, candOpts as any)),
+						`a${i}`,
+						diffs,
+					)
+				}
+				// B accumulates the halves in reverse order — a different
+				// document that both sides must still parse identically.
+				let accB = ''
+				for (const [i, chunk] of [
+					scenario.source.slice(half),
+					scenario.source.slice(0, half),
+				].entries()) {
+					accB += chunk
+					diffCanon(
+						canonRef(refSrc.parseMarkdownAstIncremental(accB, rb, opts as any)),
+						canonCandDoc(candStream.parseMarkdownIncremental(accB, cb, candOpts as any)),
+						`b${i}`,
+						diffs,
+					)
+				}
+				results.push({
+					key: `${scenario.key}/multi-stream`,
+					status: diffs.length === 0 ? 'match' : 'candidate-diff',
+					diffs: diffs.slice(0, 20),
+				})
+			} catch (e) {
+				results.push({ key: `${scenario.key}/multi-stream`, status: 'harness-error', error: String(e) })
+			}
+
+			// Reset/disposal: after reset(), appended text must parse exactly
+			// like a fresh document — no residue from the discarded prefix.
+			try {
+				const other = '# Reset doc\n\npara **x**\n'
+				const candParser = candStream.createMarkdownStreamParser(candOpts as any)
+				candParser.append(scenario.source.slice(0, Math.min(16, scenario.source.length)))
+				candParser.reset()
+				candParser.append(other)
+				const candReset = canonCandDoc(candParser.finish())
+				const diffs: Diff[] = []
+				diffCanon(canonRef(ref.parseMarkdownAst(other, opts as any)), candReset, 'reset', diffs)
+				results.push({
+					key: `${scenario.key}/reset`,
+					status: diffs.length === 0 ? 'match' : 'candidate-diff',
+					diffs: diffs.slice(0, 20),
+				})
+			} catch (e) {
+				results.push({ key: `${scenario.key}/reset`, status: 'harness-error', error: String(e) })
 			}
 		}
 	}
@@ -294,48 +373,49 @@ async function serveBoth() {
 	return servers
 }
 
+const ENGINES = ['chromium', 'firefox', 'webkit'] as const
+
 async function runBrowserMode(mode: 'behavior' | 'layout') {
-	const { chromium } = await import('playwright')
+	const pw = await import('playwright')
 	const { markdownBehaviorProbes, markdownLayoutProbes } = await import('./markdown-browser.ts')
 	const servers = await serveBoth()
-	const browser = await chromium.launch()
+	const results: ScenarioResult[] = []
 	try {
-		const [reference, candidate] = await Promise.all([
-			mode === 'behavior'
-				? markdownBehaviorProbes(browser, `http://127.0.0.1:${SIDES[0].port}`)
-				: markdownLayoutProbes(browser, `http://127.0.0.1:${SIDES[0].port}`),
-			mode === 'behavior'
-				? markdownBehaviorProbes(browser, `http://127.0.0.1:${SIDES[1].port}`)
-				: markdownLayoutProbes(browser, `http://127.0.0.1:${SIDES[1].port}`),
-		])
-		const diffs: Diff[] = []
-		const candIndex = new Map(candidate.map((o: any) => [o.step, o.value]))
-		for (const { step, value } of reference) {
-			const other = candIndex.get(step)
-			candIndex.delete(step)
-			if (JSON.stringify(value) !== JSON.stringify(other)) {
-				diffs.push({ path: step, kind: `${mode}-diff`, reference: value, candidate: other })
+		for (const engine of ENGINES) {
+			const browser = await pw[engine].launch()
+			try {
+				const probe = mode === 'behavior' ? markdownBehaviorProbes : markdownLayoutProbes
+				const [reference, candidate] = await Promise.all([
+					probe(browser, `http://127.0.0.1:${SIDES[0].port}`),
+					probe(browser, `http://127.0.0.1:${SIDES[1].port}`),
+				])
+				const diffs: Diff[] = []
+				const candIndex = new Map(candidate.map((o: any) => [o.step, o.value]))
+				for (const { step, value } of reference) {
+					const other = candIndex.get(step)
+					candIndex.delete(step)
+					if (JSON.stringify(value) !== JSON.stringify(other)) {
+						diffs.push({ path: step, kind: `${mode}-diff`, reference: value, candidate: other })
+					}
+				}
+				for (const [step, value] of candIndex) {
+					diffs.push({ path: step, kind: `${mode}-diff`, reference: undefined, candidate: value })
+				}
+				results.push({
+					key: `${mode}-${engine}`,
+					status: diffs.length === 0 ? 'match' : 'candidate-diff',
+					diffs,
+				})
+			} catch (e) {
+				results.push({ key: `${mode}-${engine}`, status: 'harness-error', error: String(e) })
+			} finally {
+				await browser.close()
 			}
 		}
-		for (const [step, value] of candIndex) {
-			diffs.push({ path: step, kind: `${mode}-diff`, reference: undefined, candidate: value })
-		}
-		return {
-			mode,
-			results: [
-				{
-					key: mode,
-					status: diffs.length === 0 ? ('match' as const) : ('candidate-diff' as const),
-					diffs,
-				},
-			],
-			reference,
-			candidate,
-		}
 	} finally {
-		await browser.close()
 		for (const s of servers) await s.httpServer.close()
 	}
+	return { mode, results }
 }
 
 // ---------------------------------------------------------------------------
@@ -361,6 +441,8 @@ function makeDoc(bytes: number): string {
 async function runPerformanceMode() {
 	const ref = await import('@astryxdesign/core/Markdown/parser')
 	const cand = await import('../../../packages/ui/src/markdown/markdown-parse.ts')
+	const candHelpers = await import('../../../packages/ui/src/markdown/markdown-plugin-helpers.ts')
+	const refPlugins = await import('@astryxdesign/core/Markdown/plugins')
 	const { performance } = await import('node:perf_hooks')
 
 	const workloads = [1024, 10 * 1024, 100 * 1024].map((bytes) => ({
@@ -452,7 +534,138 @@ async function runPerformanceMode() {
 		})
 	}
 
-	return { mode: 'performance' as const, results }
+	// Plugin profile: the upstream soft-breaks helper workload (the restored
+	// markdown-perf route profile) — full parse+transform per side.
+	const pluginDoc = Array.from({ length: 50 }, (_, i) => `claim ${i} with **bold**\nsoft line\nmore`).join('\n\n')
+	const refPluginOpts = { plugins: [refPlugins.markdownSoftBreaksPlugin] }
+	const candPluginOpts = { plugins: [candHelpers.markdownSoftBreaksPlugin] }
+	for (let i = 0; i < 3; i++) {
+		ref.parseMarkdownAst(pluginDoc, refPluginOpts as any)
+		cand.parseMdDoc(pluginDoc, candPluginOpts as any)
+	}
+	const rp = samples(() => ref.parseMarkdownAst(pluginDoc, refPluginOpts as any), 20)
+	const cp = samples(() => cand.parseMdDoc(pluginDoc, candPluginOpts as any), 20)
+	results.push({
+		key: 'perf-plugin-softbreaks',
+		status: 'match',
+		diffs: [
+			{
+				path: 'p95',
+				kind: 'metric',
+				reference: rp,
+				candidate: cp,
+			},
+			{
+				path: 'budgets',
+				kind: 'metric',
+				reference: PERF_BUDGETS,
+				candidate: {
+					p95Ratio: cp.p95 / Math.max(rp.p95, 1e-6),
+					p95Within: cp.p95 / Math.max(rp.p95, 1e-6) <= PERF_BUDGETS.p95RatioMax,
+				},
+			},
+		],
+	})
+
+	// Unchanged-prefix repeated updates: the settled prefix is re-supplied
+	// verbatim and only a small tail changes — the cache should dominate.
+	const unchanged = workloads[2].source
+	const refState = ref.createIncrementalState()
+	const candStateMod = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
+	const cState = candStateMod.createMarkdownIncrementalState()
+	ref.parseMarkdownIncremental(unchanged, refState as any, {} as any)
+	candStateMod.parseMarkdownIncremental(unchanged, cState)
+	const suffix = (i: number) => `tail ${i}`
+	const rU = samples(() => {
+		ref.parseMarkdownIncremental(unchanged + suffix(1), refState as any, {} as any)
+		const s = ref.createIncrementalState()
+		ref.parseMarkdownIncremental(unchanged, s as any, {} as any)
+		Object.assign(refState, s)
+	}, 12)
+	const cU = samples(() => {
+		candStateMod.parseMarkdownIncremental(unchanged + suffix(1), cState)
+		const s = candStateMod.createMarkdownIncrementalState()
+		candStateMod.parseMarkdownIncremental(unchanged, s)
+		Object.assign(cState, s)
+	}, 12)
+	results.push({
+		key: 'perf-unchanged-prefix',
+		status: 'match',
+		diffs: [{ path: 'p95', kind: 'metric', reference: rU, candidate: cU }],
+	})
+
+	// Simultaneous messages: 8 independent stream states fed the same 10 KB
+	// doc in 256-char chunks — one pass per side.
+	const simDoc = workloads[1].source
+	const simRun = (
+		makeState: () => unknown,
+		step: (text: string, state: unknown) => void,
+	) => {
+		const t0 = performance.now()
+		const states = Array.from({ length: 8 }, makeState)
+		for (let i = 0; i < simDoc.length; i += 256) {
+			const snap = simDoc.slice(0, i + 256)
+			for (const s of states) step(snap, s)
+		}
+		return performance.now() - t0
+	}
+	const rS = simRun(
+		() => ref.createIncrementalState(),
+		(t, s) => ref.parseMarkdownIncremental(t, s as any, {} as any),
+	)
+	const cS = simRun(
+		() => candStateMod.createMarkdownIncrementalState(),
+		(t, s) => candStateMod.parseMarkdownIncremental(t, s as any),
+	)
+	results.push({
+		key: 'perf-simultaneous-8',
+		status: 'match',
+		diffs: [{ path: 'totalMs', kind: 'metric', reference: rS, candidate: cS }],
+	})
+
+	// Retained memory: 60 mount/parse/drop cycles — heap must not grow
+	// monotonically. Bun.gc makes the comparison deterministic.
+	const gc = (globalThis as { Bun?: { gc?: (full: boolean) => void } }).Bun?.gc
+	if (gc) {
+		const cycle = (parse: (s: string) => unknown) => {
+			gc(true)
+			const before = process.memoryUsage().heapUsed
+			for (let i = 0; i < 60; i++) {
+				const parser = candStateMod.createMarkdownStreamParser()
+				parser.append(simDoc)
+				void parse(simDoc)
+			}
+			gc(true)
+			return process.memoryUsage().heapUsed - before
+		}
+		const rDelta = cycle((s) => ref.parseMarkdownAst(s))
+		const cDelta = cycle((s) => cand.parseMdDoc(s))
+		results.push({
+			key: 'perf-retained-heap',
+			status: cDelta <= Math.max(rDelta, 0) + 4 * 1024 * 1024 ? 'match' : 'candidate-diff',
+			diffs: [
+				{
+					path: 'heapDeltaBytes',
+					kind: 'metric',
+					reference: rDelta,
+					candidate: cDelta,
+				},
+			],
+		})
+	}
+
+	return {
+		mode: 'performance' as const,
+		results,
+		environment: {
+			runtime: `bun ${(globalThis as { Bun?: { version?: string } }).Bun?.version ?? 'unknown'}`,
+			platform: `${process.platform}/${process.arch}`,
+			host: `${process.env.HOSTNAME ?? 'local'} (darwin arm64 — recorded host)`,
+			budgets: PERF_BUDGETS,
+			method:
+				'warmup 3, n=15–30 sorted samples → p50/p95/mean; incremental variants n=12; plugin profile n=20; deterministic corpus, same process both sides',
+		},
+	}
 }
 
 // ---------------------------------------------------------------------------

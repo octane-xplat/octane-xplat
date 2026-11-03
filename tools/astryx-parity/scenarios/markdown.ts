@@ -1054,6 +1054,9 @@ export type MarkdownScenario = {
 		 *  entries on each side (see markdownPlugins in the vite apps and the
 		 *  parser runner). */
 		readonly plugins?: readonly MarkdownPluginProfile[]
+		/** Chunked scenarios only: install `plugins` starting at this chunk
+		 *  index — exercises mid-stream configuration invalidation. */
+		readonly pluginsAt?: number
 		/** Exercise the legacy inlinePlugins prop with an @mention matcher. */
 		readonly inlinePlugin?: boolean
 	}
@@ -1065,10 +1068,68 @@ export type MarkdownScenario = {
  *  each side maps a profile to its own first-party plugin entry. */
 export type MarkdownPluginProfile = 'soft-breaks' | 'frontmatter' | 'source-lines' | 'heading-links'
 
+/** Deterministic ~40 KB mixed-grammar document — modelled on the upstream
+ *  parser.perf.test.ts `generateAIResponse` section cycle (same six-block
+ *  rotation), scaled down for differential runs rather than timing. */
+const longDocument = (() => {
+	const sections: string[] = []
+	for (let i = 0; i < 120; i++) {
+		switch (i % 6) {
+			case 0:
+				sections.push(`## Section ${i + 1}\n\nParagraph ${i + 1} of the long document with context and analysis prose.`)
+				break
+			case 1:
+				sections.push('```typescript\nfunction process(data: unknown[]) {\n  return data.filter(Boolean)\n}\n```')
+				break
+			case 2:
+				sections.push(`- First point ${i}\n- Second **finding**\n- Third observation`)
+				break
+			case 3:
+				sections.push(`| Metric | Value |\n| :--- | ---: |\n| Accuracy | ${90 + (i % 10)}% |`)
+				break
+			case 4:
+				sections.push(`> Note ${i}: an observation.\n> Spanning two lines with *italic*.`)
+				break
+			default:
+				sections.push(`1. Step one\n2. Step two with \`code\`\n3. [link](https://example.com/${i})`)
+		}
+	}
+	return sections.join('\n\n') + '\n'
+})()
+
+/** Deterministic 8-column × 40-row table for cell-floor and overflow checks. */
+const largeTable = (() => {
+	const head = '| ' + Array.from({ length: 8 }, (_, i) => `col-${i}`).join(' | ') + ' |'
+	const align = '| ' + Array.from({ length: 8 }, (_, i) => (i % 3 === 0 ? ':---' : i % 3 === 1 ? ':--:' : '---:')).join(' | ') + ' |'
+	const rows = Array.from({ length: 40 }, (_, r) => '| ' + Array.from({ length: 8 }, (_, c) => `r${r}c${c}${c === 3 ? '-unbroken-longer-token' : ''}`).join(' | ') + ' |')
+	return [head, align, ...rows].join('\n') + '\n'
+})()
+
 export const CITATION_SOURCES = {
 	docs: { title: 'Octane docs', url: 'https://docs.example/octane' },
 	api: { title: 'API reference', url: 'https://api.example/ref' },
 } as const
+
+/** Citation sources that navigate only within the page (hash urls), so
+ *  activation probes can observe the click without leaving the route. */
+export const CITATION_SOURCES_LOCAL = {
+	docs: { title: 'Octane docs', url: '#cite-docs' },
+	api: { title: 'API reference', url: '#cite-api' },
+} as const
+
+/** Stream pump fixture: cumulative chunk pieces replayed by the
+ *  `/markdown/behavior` stream controls in both apps. */
+export const STREAM_FIXTURE_CHUNKS = [
+	'# Stream\n\nPara one with **bo',
+	'ld** and `co',
+	'de`.\n\n- a\n- b',
+	'\n\n```ts\nx()\n```\n',
+] as const
+export const STREAM_FIXTURE_SOURCE = STREAM_FIXTURE_CHUNKS.join('')
+
+/** Fence source claimed by the boundary fixture plugins — language `boom`
+ *  resolves to an extension node whose renderer throws/declines/suspends. */
+export const BOUNDARY_FIXTURE_SOURCE = '```boom\nsecret payload\n```\n'
 
 export const markdownScenarios: MarkdownScenario[] = [
 	{ key: 'empty', source: '', capabilities: ['grammar:paragraphs', 'parser:parseMarkdown'] },
@@ -1299,6 +1360,164 @@ export const markdownScenarios: MarkdownScenario[] = [
 		key: 'link-policy',
 		source: '[external](https://example.com)\n\n[internal-relative](/docs)\n\n[anchor](#section)\n',
 		capabilities: ['render:link-policy'],
+	},
+
+	// ------------------------------------------------------------------
+	// Milestone-6 corpus: document-shape, presentation, and stream edges
+	// ------------------------------------------------------------------
+	{
+		key: 'long-document',
+		source: longDocument,
+		capabilities: ['grammar:paragraphs', 'grammar:lists', 'grammar:tables', 'grammar:fences', 'parser:parseMarkdown'],
+	},
+	{
+		// Malformed constructs must degrade identically — unclosed link/fence/
+		// emphasis runs, a stray `]`, an empty marker, a `>` line end.
+		key: 'malformed',
+		source:
+			'[unclosed link](https://example.com\n\n![unclosed image\n\n**unclosed bold\n\nstray ] bracket [ and |\n\n>\n\n- \n\n```ts\ndangling fence\n',
+		capabilities: ['grammar:links', 'grammar:images', 'grammar:emphasis', 'grammar:fences', 'grammar:blockquotes', 'grammar:lists'],
+	},
+	{
+		key: 'deep-nesting',
+		source:
+			'> l1\n> > l2\n> > > l3\n> > > > l4\n\n- a\n  - b\n    - c\n      - d\n        - e\n          - f\n\n> - q\n>   - q2\n>     > deep quote\n',
+		capabilities: ['grammar:blockquotes', 'grammar:lists', 'grammar:paragraphs'],
+	},
+	{
+		// Combining marks, RTL, ZWJ emoji, astral plane, fullwidth, zero-width.
+		key: 'unicode-rich',
+		source:
+			'Café combining and éacute\n\nעברית و العربية مختلط RTL\n\nFamily: 👨‍👩‍👧 flag 🇺🇸\n\nＦｕｌｌｗｉｄｔｈ and a​zero​width\n\nSurrogate pair 😀 and math 𝒜\n',
+		capabilities: ['grammar:paragraphs', 'grammar:escapes', 'parser:decodeMarkdownCharacterReferences'],
+	},
+	{
+		// CRLF endings and trailing-space breaks — upstream parser.test.ts
+		// 'hard breaks in CRLF documents' + 'streams to the same result when
+		// chunks split the line ending'.
+		key: 'crlf-doc',
+		source: 'line one  \r\nline two\\\r\nline three\r\n\r\n- a\r\n- b\r\n',
+		chunks: ['line one  \r', '\nline two\\\r\nline three', '\r\n\r\n- a\r\n- b\r\n'],
+		capabilities: ['grammar:breaks', 'grammar:lists', 'stream:settlement'],
+	},
+	{
+		key: 'bom-doc',
+		source: '\uFEFF# After BOM\n\ntext\n',
+		capabilities: ['grammar:headings', 'grammar:paragraphs'],
+	},
+	{
+		// Large table — exercises alignment parsing and cell floors at scale.
+		key: 'large-table',
+		source: largeTable,
+		capabilities: ['grammar:tables', 'render:table-floors'],
+	},
+	{
+		// Unknown + missing languages and fence info strings — upstream
+		// fenceInfo.test.tsx (info string + meta).
+		key: 'unknown-language',
+		source:
+			'```klingon-lang extra=meta\ntlhIngan maH\n```\n\n```\nbare fence\n```\n\n```c++\nint x = 0;\n```\n',
+		capabilities: ['grammar:fences', 'renderer:code'],
+	},
+	{
+		// Unbreakable tokens in prose, code, and table cells.
+		key: 'unbroken-tokens',
+		source:
+			'A verylongunbrokentokenthatcannotbewrappedatanypointhttps://example.com/also/quite/long/path?with=query&more=params and tail.\n\n```\nconst veryLongUnbrokenCodeTokenThatExceedsTheProseColumnWidthAndMustEitherWrapOrScrollDependingOnTheContract = true;\n```\n\n| cell |\n| --- |\n| anotherverylongunbrokentablecelltoken |\n',
+		capabilities: ['grammar:paragraphs', 'grammar:fences', 'grammar:tables', 'render:code-diff-wrap', 'render:table-floors'],
+	},
+	{
+		// Empty and repeated headings — slug/id allocation edges (upstream
+		// headingProjection + Markdown.test heading-id cases).
+		key: 'empty-repeated-headings',
+		source: '# \n\n## Dup\n\n## Dup\n\n#\n\n### trailing ###\n',
+		capabilities: ['grammar:headings', 'render:heading-ids'],
+	},
+	{
+		// Reference-definition edges — upstream parser.test.ts link-
+		// definition cases: case-insensitive match, duplicate defs (first
+		// wins), collapsed and shortcut forms.
+		key: 'reference-edge',
+		source:
+			'[full][Docs] and [collapsed][] and [shortcut].\n\n[docs]: https://example.com/one\n[DOCS]: https://example.com/two\n[collapsed]: /c\n[shortcut]: /s\n\n[later] resolves late.\n\n[later]: /late\n',
+		capabilities: ['grammar:reference-links', 'grammar:links'],
+	},
+	{
+		// Math inside formatting + currency pairs — upstream parser.test.ts
+		// 'does not mistake paired currency amounts for inline math' and
+		// 'math in link labels stays opaque to code/links'.
+		key: 'math-mixed',
+		source:
+			'Cost is $5 and $6, not math.\n\n**bold $x+y$ inside** and [link $z$](/u)\n\n`code $not math$` tail $ok$\n',
+		options: { math: true },
+		capabilities: ['grammar:math', 'grammar:code-spans', 'grammar:links'],
+	},
+	{
+		// HTML is not a grammar construct — both sides keep it literal text.
+		key: 'html-literal',
+		source: '<div class="x">not markup</div>\n\n<a href="https://x">tag</a> and <em>inline</em>\n',
+		capabilities: ['grammar:paragraphs'],
+	},
+	{
+		// Ordered-list delimiter change starts a new list — upstream
+		// parser.test.ts 'starts a new list when the ordered delimiter
+		// changes' + custom start cases.
+		key: 'list-delimiter-change',
+		source: '1. one\n2. two\n\n3) three\n4) four\n\n7. seven\n8. eight\n',
+		capabilities: ['grammar:lists'],
+	},
+	{
+		// Option coverage: sourceRanges positions on.
+		key: 'source-ranges',
+		source: '# T\n\npara **b**\n\n- l\n',
+		options: { sourceRanges: true },
+		capabilities: ['parser:options', 'parser:ast'],
+	},
+	{
+		// Plugins only take effect partway through the stream — the settled
+		// prefix must invalidate and both sides converge on the plugin view.
+		key: 'plugin-midstream',
+		source: 'plain one\nplain two\nplain three\n',
+		chunks: ['plain one\n', 'plain two\n', 'plain three\n'],
+		options: { plugins: ['soft-breaks'], pluginsAt: 2 },
+		capabilities: ['helper:softBreaks', 'parser:incremental', 'stream:settlement'],
+	},
+	{
+		// M5-flagged seam: claim-split transform accumulation under the
+		// soft-breaks plugin vs one full parse.
+		key: 'stream-softbreaks',
+		source: 'alpha\nbeta\ngamma\ndelta\n',
+		chunks: ['alpha\nb', 'eta\ngam', 'ma\ndelta\n'],
+		options: { plugins: ['soft-breaks'] },
+		capabilities: ['helper:softBreaks', 'stream:settlement', 'parser:incremental'],
+	},
+	{
+		// Frontmatter withheld while incomplete, then released — streams
+		// never flash raw --- syntax.
+		key: 'stream-frontmatter',
+		source: '---\ntitle: Doc\n---\n\n# Body\n\ntext\n',
+		chunks: ['---\nt', 'itle: Doc\n', '---\n\n# Body\n\nt', 'ext\n'],
+		options: { plugins: ['frontmatter'] },
+		capabilities: ['helper:frontmatter', 'stream:withholding', 'parser:incremental'],
+	},
+	{
+		key: 'stream-table',
+		source: '| a | b |\n| - | - |\n| 1 | 2 |\n\nafter\n',
+		chunks: ['| a |', ' b |\n| - ', '| - |\n| 1 | 2 |\n\naf', 'ter\n'],
+		capabilities: ['grammar:tables', 'stream:settlement'],
+	},
+	{
+		key: 'stream-citation',
+		source: 'Claim [docs] mid sentence.\n\nMore [api].\n',
+		chunks: ['Claim [do', 'cs] mid sent', 'ence.\n\nMore [ap', 'i].\n'],
+		options: { sourceIds: ['docs', 'api'] },
+		capabilities: ['grammar:citations', 'stream:settlement'],
+	},
+	{
+		key: 'stream-nested',
+		source: '> - q\n>   - q2\n\n1. a\n   1. b\n',
+		chunks: ['> -', ' q\n>   -', ' q2\n\n1.', ' a\n   1. b\n'],
+		capabilities: ['grammar:blockquotes', 'grammar:lists', 'stream:settlement'],
 	},
 ]
 

@@ -191,7 +191,7 @@ export function createMarkdownStreamParser(options?: MdParseOptions): MarkdownSt
 			// Incomplete trailing constructs are withheld before the incremental
 			// parse so intermediate snapshots show no raw markup.
 			const trimmed = trimStreamingArtifacts(source, { math: options?.math === true })
-			document = mdDoc(parseMarkdownIncremental(trimmed, state, options))
+			document = parseMarkdownIncremental(trimmed, state, options)
 
 			return document
 		},
