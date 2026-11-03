@@ -1,19 +1,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import {
-	readFileSync,
-	writeFileSync,
-	mkdirSync,
-	rmSync,
-	existsSync,
-	symlinkSync,
-} from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, symlinkSync } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { parseArgs } from '../../packages/cli/src/agent/parse.ts'
 import { commandSchema } from '../../packages/cli/src/agent/catalog.ts'
-import { discoverWorkspace } from '../../packages/cli/src/mcp/discovery.ts'
+import {
+	discoverWorkspace,
+	detectGuidance,
+	resolveFrameworkBinding,
+} from '../../packages/cli/src/mcp/discovery.ts'
 import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
@@ -74,7 +71,9 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 		const actual = cli([...command.path, '--schema'])
 		assert.equal(actual.status, 0)
 		const expected = commandSchema(command)
-		expected.status = ['catalog', 'permissions', 'app select'].includes(command.name)
+		expected.status = ['catalog', 'permissions', 'app select', 'status', 'capabilities'].includes(
+			command.name,
+		)
 			? 'implemented'
 			: 'pending'
 		assert.deepEqual(actual.value.data, expected)
@@ -87,7 +86,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		3,
+		5,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
@@ -99,6 +98,106 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 		assert.equal(actual.value.ok, false)
 		assert.equal(actual.value.error.code, code)
 	}
+})
+
+test('status preserves identity, guidance and actual package bindings without claiming pending providers', () => {
+	const project = join(scratch, 'status')
+	put(join(project, 'package.json'), { name: 'workspace', workspaces: ['apps/*'] })
+	put(join(project, 'AGENTS.md'), 'Workspace guidance')
+	put(join(project, 'apps/one/package.json'), {
+		name: 'one',
+		dependencies: { '@octane-xplat/ui': '^0.18.0' },
+	})
+	put(join(project, 'apps/one/vite.config.ts'), 'export default {}')
+	put(join(project, 'apps/one/CLAUDE.md'), 'App guidance')
+	put(join(project, 'apps/one/node_modules/@octane-xplat/ui/package.json'), {
+		name: '@octane-xplat/ui',
+		version: '0.19.0',
+	})
+	put(
+		join(project, 'pnpm-lock.yaml'),
+		"importers: {apps/one: {dependencies: {'@octane-xplat/ui': {version: '0.18.0'}}}}",
+	)
+	const status = cli(['status', '--project', project, '--json'])
+	assert.equal(status.status, 0)
+	assert.equal(
+		status.value.context.projectId,
+		null,
+		'Sole selection does not persist an explicit binding',
+	)
+	const data = status.value.data,
+		discovery = discoverWorkspace(project),
+		app = discovery.apps[0]
+	assert.deepEqual(data.identity, {
+		...discovery,
+		selection: { state: 'bound', app, reason: 'sole-app' },
+		framework: JSON.parse(JSON.stringify(resolveFrameworkBinding(project, app.root))),
+	})
+	assert.deepEqual(data.guidance.sources, [
+		...detectGuidance(project),
+		...detectGuidance(app.root).map((source) => ({ ...source, path: `${app.id}/${source.path}` })),
+	])
+	assert.equal(data.server.name, '@octane-xplat/cli')
+	assert.equal(data.prerequisites.find((check) => check.id === 'node').status, 'missing')
+	assert.equal(data.prerequisites.find((check) => check.id === 'chromium').status, 'unknown')
+	assert.deepEqual(data.docs, { state: 'not_provided' })
+	assert.deepEqual(data.codeIndex, { state: 'not_provided' })
+	for (const matrix of data.capabilities) {
+		assert.equal(matrix.declared, true)
+		assert.deepEqual(
+			matrix.capabilities
+				.filter((entry) => entry.status === 'supported')
+				.map((entry) => entry.capability),
+			['project_status'],
+		)
+		assert.equal(
+			matrix.capabilities.find((entry) => entry.capability === 'screenshot').requiresPermission,
+			'visual-capture',
+		)
+		assert.equal(
+			matrix.capabilities.find((entry) => entry.capability === 'guidance').status,
+			'partial',
+		)
+	}
+	assert.deepEqual(
+		cli(['capabilities', '--project', project, '--json']).value.data.capabilities,
+		data.capabilities,
+	)
+	assert.deepEqual(
+		cli(['capabilities', '--project', project, '--platform', 'ios', '--json']).value.data
+			.capabilities,
+		[],
+	)
+	put(join(project, 'apps/two/package.json'), { name: 'two', xplat: { targets: {} } })
+	const ambiguous = cli(['status', '--project', project, '--json']).value.data
+	assert.equal(ambiguous.identity.selection.state, 'ambiguous')
+	assert.equal(ambiguous.identity.framework, null)
+	assert.equal(ambiguous.capabilities[0].declared, false)
+	assert.deepEqual(ambiguous.guidance.sources, data.guidance.sources)
+	const bound = cli(['status', '--project', project, '--app', app.id, '--json'])
+	assert.equal(bound.value.context.projectId, app.id)
+	assert.equal(bound.value.data.identity.selection.reason, 'explicit')
+})
+
+test('native prerequisite probes inspect actual Node availability and clear injected Node options', () => {
+	const project = join(scratch, 'prerequisites')
+	put(join(project, 'package.json'), {
+		name: 'app',
+		packageManager: 'pnpm@11.0.0',
+		xplat: { targets: {} },
+	})
+	const result = cli(['status', '--project', project, '--json'], {
+		env: { PATH: process.env.PATH, NODE_OPTIONS: '--not-a-real-option', NODE_PATH: '/missing' },
+	})
+	assert.equal(result.status, 0)
+	const checks = result.value.data.prerequisites
+	assert.equal(checks.find((check) => check.id === 'node').detail, process.version)
+	assert.equal(checks.find((check) => check.id === 'node').status, 'satisfied')
+	assert.ok(checks.some((check) => check.id === 'pnpm'))
+	assert.ok(
+		!checks.some((check) => check.id === 'bun'),
+		'Do not require Bun for a declared pnpm project',
+	)
 })
 
 test('descriptor parser matches independent Node across the existing native argument corpus', () => {

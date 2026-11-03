@@ -1,18 +1,13 @@
 import assert from 'node:assert/strict'
-import {
-	readFileSync,
-	writeFileSync,
-	mkdirSync,
-	mkdtempSync,
-	rmSync,
-	existsSync,
-} from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync } from 'node:fs'
 import { resolve, join, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
+import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
 
@@ -81,6 +76,8 @@ writeFileSync(
 		catalog: catalogPayload(),
 		descriptors: AGENT_COMMANDS,
 		version,
+		capabilityIds: CAPABILITY_IDS,
+		boundaries: PRODUCT_BOUNDARIES,
 		schemas: Object.fromEntries(
 			AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
 		),

@@ -1,0 +1,219 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+	"slices"
+	"strings"
+	"sync"
+	"time"
+)
+
+func init() {
+	commandHandlers["status"] = func(ctx context.Context, workspace *workspaceContext, _ map[string]any) (any, *cliError) {
+		return projectStatus(ctx, workspace)
+	}
+	commandHandlers["capabilities"] = func(_ context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
+		platforms := workspace.platforms()
+		if selected := stringValue(values["platform"]); selected != "" {
+			platforms = slices.DeleteFunc(platforms, func(value string) bool { return value != selected })
+		}
+		return map[string]any{"capabilities": workspace.capabilityMatrix(platforms)}, nil
+	}
+}
+
+func (workspace *workspaceContext) platforms() []string {
+	selection := workspace.selection()
+	if selection.State == "bound" {
+		return slices.Clone(selection.App.Platforms)
+	}
+	platforms := []string{}
+	for _, app := range workspace.Discovery.Apps {
+		for _, platform := range app.Platforms {
+			if !slices.Contains(platforms, platform) {
+				platforms = append(platforms, platform)
+			}
+		}
+	}
+	return platforms
+}
+
+// A registered command can report unavailable services. Do not copy the Node
+// registry's server-side defaults: those services must be ported independently.
+func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
+	matrices := []any{}
+	selection := workspace.selection()
+	for _, platform := range platforms {
+		entries := []any{}
+		for _, capability := range metadata.CapabilityIDs {
+			entry := map[string]any{"capability": capability, "status": "unavailable", "detail": "The Go " + strings.ReplaceAll(capability, "_", " ") + " provider is pending."}
+			switch capability {
+			case "project_status":
+				entry = map[string]any{"capability": capability, "status": "supported"}
+			case "guidance":
+				entry["status"] = "partial"
+				entry["detail"] = "Project status inventories guidance sources; tailored guidance retrieval is pending."
+			case "screenshot":
+				entry["requiresPermission"] = "visual-capture"
+				entry["detail"] = "The Go screenshot provider is pending. Capture requires explicit per-task developer approval when supported."
+			}
+			entries = append(entries, entry)
+		}
+		matrices = append(matrices, map[string]any{"platform": platform, "declared": selection.State == "bound" && slices.Contains(selection.App.Platforms, platform), "capabilities": entries})
+	}
+	return matrices
+}
+
+func guidanceSources(root string) []map[string]any {
+	sources := []map[string]any{}
+	for _, candidate := range [][2]string{{"AGENTS.md", "agents-md"}, {"CLAUDE.md", "claude-md"}, {".devin", "devin"}, {"docs/", "framework"}} {
+		if pathExists(filepath.Join(root, candidate[0])) {
+			sources = append(sources, map[string]any{"kind": candidate[1], "path": candidate[0]})
+		}
+	}
+	return sources
+}
+func (workspace *workspaceContext) guidance() []map[string]any {
+	sources := guidanceSources(workspace.Root)
+	apps := workspace.Discovery.Apps
+	if selection := workspace.selection(); selection.State == "bound" {
+		apps = []appIdentity{*selection.App}
+		if selection.App.RelativeRoot == "." {
+			return sources
+		}
+	}
+	for _, app := range apps {
+		for _, source := range guidanceSources(app.Root) {
+			source["path"] = app.ID + "/" + stringValue(source["path"])
+			sources = append(sources, source)
+		}
+	}
+	return sources
+}
+
+type prerequisiteCheck struct {
+	ID, Name  string
+	Argv      []string
+	Platforms []string
+	Remedy    string
+}
+
+func diagnosticEnvironment() []string {
+	result := []string{}
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if !strings.EqualFold(key, "NODE_PATH") && !strings.EqualFold(key, "NODE_OPTIONS") && !strings.EqualFold(key, "COREPACK_ENABLE_NETWORK") && !strings.EqualFold(key, "COREPACK_ENABLE_DOWNLOAD_PROMPT") {
+			result = append(result, entry)
+		}
+	}
+	// Prerequisite inspection must not let a package-manager shim install itself.
+	return append(result, "NODE_PATH=", "NODE_OPTIONS=", "COREPACK_ENABLE_NETWORK=0", "COREPACK_ENABLE_DOWNLOAD_PROMPT=0")
+}
+
+func (workspace *workspaceContext) prerequisites(ctx context.Context, platforms []string) []any {
+	checks := []prerequisiteCheck{
+		{"node", "Node.js", []string{"node", "--version"}, nil, "Install Node.js 22.18 or newer for project JavaScript workers."},
+		{"git", "Git", []string{"git", "--version"}, nil, "Install Git for version-matched documentation checkouts."},
+		{"xcode", "Xcode command line tools", []string{"xcodebuild", "-version"}, []string{"ios", "macos"}, "Install Xcode and run `xcode-select --install`."},
+		{"adb", "Android Debug Bridge", []string{"adb", "--version"}, []string{"android"}, "Install Android platform-tools (adb on PATH)."},
+	}
+	// Package-manager selection is configuration, not an instruction to install
+	// every supported manager. Engine availability is distinct from readiness.
+	directory := workspace.Root
+	if selection := workspace.selection(); selection.State == "bound" {
+		directory = selection.App.Root
+	}
+	manager, err := projectPackageManager(ctx, directory, nil)
+	if err == nil {
+		managerCheck := prerequisiteCheck{manager, manager, []string{manager, "--version"}, nil, "Install the project's declared " + manager + " package manager for build/dev operations."}
+		checks = append([]prerequisiteCheck{checks[0], managerCheck}, checks[1:]...)
+	}
+	filtered := []prerequisiteCheck{}
+	for _, check := range checks {
+		if len(check.Platforms) == 0 || slices.ContainsFunc(check.Platforms, func(platform string) bool { return slices.Contains(platforms, platform) }) {
+			filtered = append(filtered, check)
+		}
+	}
+	result := make([]any, len(filtered))
+	var group sync.WaitGroup
+	for index, check := range filtered {
+		group.Go(func() {
+			entry := map[string]any{"id": check.ID, "name": check.Name, "status": "missing", "remedy": check.Remedy}
+			if len(check.Platforms) > 0 {
+				entry["platforms"] = check.Platforms
+			}
+			probeContext, cancel := context.WithTimeout(ctx, 3*time.Second)
+			defer cancel()
+			process, err := runProcess(probeContext, check.Argv, directory, diagnosticEnvironment())
+			if err == nil && !process.Cancelled && process.ExitCode == 0 && strings.TrimSpace(process.Stdout) != "" {
+				entry["status"] = "satisfied"
+				entry["detail"] = strings.Split(strings.TrimSpace(process.Stdout), "\n")[0]
+				delete(entry, "remedy")
+				if check.ID == "node" {
+					var major, minor, patch int
+					count, _ := fmt.Sscanf(strings.TrimSpace(process.Stdout), "v%d.%d.%d", &major, &minor, &patch)
+					if count != 3 || major < 22 || (major == 22 && minor < 18) {
+						entry["status"] = "missing"
+						entry["remedy"] = check.Remedy
+					}
+				}
+			} else if probeContext.Err() != nil {
+				entry["status"] = "unknown"
+				entry["detail"] = "The prerequisite probe was cancelled or exceeded three seconds."
+			}
+			result[index] = entry
+		})
+	}
+	group.Wait()
+	if err != nil {
+		result = append(result, map[string]any{"id": "package-manager", "name": "Project package manager", "status": "missing", "remedy": err.Error()})
+	}
+	if slices.Contains(platforms, "web") {
+		result = append(result, map[string]any{"id": "chromium", "name": "Chromium browser", "platforms": []string{"web"}, "status": "unknown", "remedy": "Install Chromium before browser verification runs; browser availability has not been probed."})
+	}
+	return result
+}
+
+func projectStatus(ctx context.Context, workspace *workspaceContext) (any, *cliError) {
+	selection := workspace.selection()
+	var binding any
+	if selection.State == "bound" {
+		value, err := resolveFrameworkBinding(ctx, workspace.Root, selection.App.Root)
+		if err != nil {
+			return nil, &cliError{Code: "execution_failure", Message: "Framework binding failed: " + err.Error()}
+		}
+		binding = value
+	}
+	platforms := workspace.platforms()
+	prerequisites := workspace.prerequisites(ctx, platforms)
+	steps := []string{}
+	switch selection.State {
+	case "none":
+		steps = append(steps, "No Octane Xplat app was detected. Run `xplat status --project <directory>` with an app workspace.")
+	case "ambiguous":
+		steps = append(steps, "Several apps are available or the selector did not match. Select an exact app id with `xplat app select <id>`.")
+	default:
+		missing := []string{}
+		for _, check := range prerequisites {
+			entry := object(check)
+			if entry["status"] == "missing" {
+				missing = append(missing, fmt.Sprintf("%s — %s", entry["name"], entry["remedy"]))
+			}
+		}
+		if len(missing) > 0 {
+			steps = append(steps, "Missing prerequisites: "+strings.Join(missing, "; ")+".")
+		}
+		steps = append(steps, "Run `xplat capabilities --json` before promising runtime support.")
+	}
+	return map[string]any{
+		"server":        map[string]any{"name": "@octane-xplat/cli", "version": metadata.Version},
+		"identity":      map[string]any{"workspace": workspace.Discovery.Workspace, "apps": workspace.Discovery.Apps, "selection": selection, "framework": binding},
+		"guidance":      map[string]any{"sources": workspace.guidance()},
+		"docs":          map[string]any{"state": "not_provided"},
+		"codeIndex":     map[string]any{"state": "not_provided"},
+		"prerequisites": prerequisites, "capabilities": workspace.capabilityMatrix(platforms),
+		"permissions": permissionGrants(), "boundaries": metadata.Boundaries, "nextSteps": steps,
+	}, nil
+}

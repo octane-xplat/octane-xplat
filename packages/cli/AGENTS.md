@@ -739,6 +739,27 @@ the native computation does not directly consume.
 
 ## Go implementation boundaries
 
+Keep workspace matching simple and native: literal paths, a single `*` within
+one path segment, and leading `!` exclusions. Reject advanced patterns with an
+actionable configuration error rather than maintaining another glob engine or
+launching Node merely to interpret workspace metadata. Do not expand this grammar
+for incidental parity with the TypeScript reference. Project compiler/plugin
+execution still belongs in explicit Node workers.
+
+Decode dependency objects in declaration order when producing ordered diagnostics.
+Installed versions take precedence over provisional lockfile versions. Preserve
+the importer path and package owner, including scoped Bun importer keys and pnpm
+nullish fallbacks; parsing YAML successfully does not establish that versions or
+conflict warnings were retained. Compare serialized output with the reference:
+an omitted optional JSON field differs from an explicit null, while a JavaScript
+property containing `undefined` disappears during serialization.
+
+Probe prerequisites on the native process's actual PATH. A standalone executable
+cannot inherit the Node reference's assumption that Node is already running. A
+declared pnpm project must not require Bun merely because the CLI also supports
+Bun. Clear Node injection variables for bounded diagnostic workers and keep
+unavailable, timed-out and satisfied observations distinct from build readiness.
+
 Use descriptor metadata generated from the TypeScript source for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
 reference descriptor's status. Keep permission checks, selection precedence and

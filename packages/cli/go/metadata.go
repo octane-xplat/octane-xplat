@@ -10,10 +10,12 @@ import (
 //go:embed catalog.json
 var catalogBytes []byte
 var metadata struct {
-	Catalog     json.RawMessage            `json:"catalog"`
-	Schemas     map[string]json.RawMessage `json:"schemas"`
-	Descriptors []commandDescriptor        `json:"descriptors"`
-	Version     string                     `json:"version"`
+	Catalog       json.RawMessage            `json:"catalog"`
+	Schemas       map[string]json.RawMessage `json:"schemas"`
+	Descriptors   []commandDescriptor        `json:"descriptors"`
+	Version       string                     `json:"version"`
+	CapabilityIDs []string                   `json:"capabilityIds"`
+	Boundaries    []string                   `json:"boundaries"`
 }
 
 func init() {

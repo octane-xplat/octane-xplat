@@ -61,6 +61,40 @@ func dispatch(ctx context.Context, argv []string) (any, error) {
 		return nil, err
 	}
 	switch command {
+	case "package-manager":
+		var input struct {
+			Operation string  `json:"operation"`
+			Directory string  `json:"directory"`
+			Root      string  `json:"root"`
+			Manager   *string `json:"manager"`
+			Name      string  `json:"name"`
+		}
+		if err = readJSON(*request, &input); err != nil {
+			return nil, err
+		}
+		switch input.Operation {
+		case "workspace":
+			return projectWorkspace(input.Directory, input.Manager)
+		case "root":
+			return projectManagerRoot(ctx, input.Directory)
+		case "manager":
+			return projectPackageManager(ctx, input.Directory, input.Manager)
+		case "bun":
+			return bunLock(input.Directory)
+		case "versions":
+			versions, _, err := bunImporterVersions(ctx, input.Directory)
+			return versions, err
+		case "installed":
+			value := installedRoot(input.Directory, input.Name)
+			if value == "" {
+				return nil, nil
+			}
+			return value, nil
+		case "binding":
+			return resolveFrameworkBinding(ctx, input.Root, input.Directory)
+		default:
+			return nil, errors.New("unknown package-manager probe operation")
+		}
 	case "parse":
 		var requests []struct {
 			Command commandDescriptor `json:"command"`

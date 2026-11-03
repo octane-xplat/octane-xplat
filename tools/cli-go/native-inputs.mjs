@@ -20,6 +20,10 @@ export function nativeInputs(root) {
 		'packages/cli/package.json',
 		'packages/create/compatibility.json',
 		'packages/cli/src/cli-channel.ts',
+		'packages/cli/src/package-manager.ts',
+		'packages/cli/src/package-root.ts',
+		'packages/cli/src/mcp/discovery.ts',
+		'packages/cli/src/mcp/status.ts',
 	)
 	return Object.fromEntries(
 		files.sort().map((file) => [file, sha256(readFileSync(join(root, file)))]),

@@ -12,7 +12,8 @@ Go does not bundle, download, or manage a Node installation.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go CLI build and contracts"}' -- bun run turbo run test:go-cli --filter=@octane-xplat/cli
 research/go-cli/xplat-go-darwin-arm64-cli catalog --json
-research/go-cli/xplat-go-darwin-arm64-cli permissions --json
+research/go-cli/xplat-go-darwin-arm64-cli status --project . --app apps/web --json
+research/go-cli/xplat-go-darwin-arm64-cli capabilities --project . --app apps/web --json
 ```
 
 The catalog and schemas report execution coverage for this build. Pending
@@ -34,6 +35,16 @@ without granting visual capture, retention or external effects. Workspace cache
 writes use Go's directory-root API rather than a check followed by an unbounded
 path operation. Host/request secrets still require separate private permissions
 and Windows ownership/DACLs.
+
+Package binding reads the selected app's installed manifests before lockfile
+versions, and reports installation/lockfile conflicts. Ordinary workspace
+patterns such as `apps/*`, literal paths, and leading `!` exclusions are matched
+natively. Advanced glob expressions are rejected with an instruction to simplify
+the workspace configuration; workspace matching does not start a Node worker.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go package binding verification"}' -- bun run turbo run test:go-binding --filter=@octane-xplat/cli
+```
 
 Inference remains native. Optional ONNX/model assets and project compiler engines
 have separate costs from the executable. Keep project Vite plugins and small

@@ -143,7 +143,8 @@
 		"test:compatibility": "node --test test/compatibility.test.mjs",
 		"build:go": "node ../../tools/cli-go/build.mjs --cli",
 		"build:go-onnx": "node ../../tools/cli-go/build.mjs --cli --onnx",
-		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs"
+		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs",
+		"test:go-binding": "node --test ../../tools/cli-go/package-binding.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",
