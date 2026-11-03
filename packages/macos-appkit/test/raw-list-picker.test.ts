@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
@@ -6,7 +7,7 @@ import { runSlice } from './mock-globals.ts'
 import { readGridCells } from '../src/grid-cells.ts'
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
+  rendererSource(),
 )
 
 const fn = (name: string) => {

@@ -1,10 +1,11 @@
+import { rendererSource } from './renderer-source.ts'
 import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { NSDatePicker } from '@octane-xplat/platform/macos'
 import { sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const slice = source.slice(
   source.indexOf('function attachDatePicker('),

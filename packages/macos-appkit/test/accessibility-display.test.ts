@@ -1,9 +1,10 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { sourceWithoutImports, runSlice } from './mock-globals.ts'
 
 function fixture(add: (...args: any[]) => unknown) {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
+  const source = rendererSource(),
     begin = source.indexOf('let accessibilityDisplayObserver'),
     end = source.indexOf('// Appearance flips', begin)
   assert.ok(begin >= 0 && end > begin)

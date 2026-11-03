@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -100,7 +101,7 @@ test('AppKit busy rules remove and restore tracks when the reduced-motion enviro
 
 test('AppKit playback advances a percent slide and subtree stop restores base and retires ticking', async () => {
   const { sourceWithoutImports, runSlice } = await import('./mock-globals.ts')
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
+  const source = rendererSource(),
     start = source.indexOf('const ANIMATION_FRAME_MS'),
     end = source.indexOf('let cssWarnedProps', start)
   let now = 0

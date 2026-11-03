@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { retireTextViewLayout } from '../src/text-view-layout.ts'
@@ -8,7 +9,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // Exercise the production creation/command paths without the Objective-C
 // bridge. Failed commands must not leak action registrations, observers, or
 // WebView delegates, and invalid batches must reject before mutating.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const at = (marker: string, from = 0) => source.indexOf(marker, from)
 const fn = (name: string) =>

@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -8,7 +9,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // dispatches on the child's own type. Under a masonview parent the props
 // should apply silently and queue a layout reconcile; under other parents
 // they are genuinely dead and the warning should remain.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const slice = source.slice(
   source.indexOf('function applyProps'),

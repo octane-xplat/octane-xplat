@@ -1,8 +1,9 @@
+import { rendererSource } from './renderer-source.ts'
 // Real renderer prop/action branch with fake native objects; no OS input/AX proof.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const start = source.search(/case 'button':\s+if \(name === 'title'/)
 const end = source.indexOf("case 'scrollview':", start)
 assert.ok(start >= 0 && end > start)

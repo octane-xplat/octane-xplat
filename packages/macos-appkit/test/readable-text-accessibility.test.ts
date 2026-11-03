@@ -1,9 +1,10 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { sourceWithoutImports, runSlice } from './mock-globals.ts'
 
 test('readable native hosts apply and clear help/value descriptions and element visibility without rewriting visible text', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
+  const source = rendererSource(),
     start = source.indexOf('function applyAccessibility('),
     end = source.indexOf('/** Host updates carry', start)
   assert.ok(start >= 0 && end > start)

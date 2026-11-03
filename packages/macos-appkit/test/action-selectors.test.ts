@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -6,7 +7,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // NAPI registers metadata keys verbatim. Check action-site strings directly;
 // inventing colons from params hides broken declarations. Native delivery and
 // JS-spelled prototype lookup still require actual framework qualification.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const context = {
   elementBehaviors: new Map(),

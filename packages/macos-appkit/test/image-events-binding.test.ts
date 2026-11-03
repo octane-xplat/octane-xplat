@@ -1,10 +1,11 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 test('native image bindings use current callbacks in the root scope and reject retired node/view owners', () => {
-  const source = readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
+  const source = rendererSource(),
     start = source.indexOf('function setImageActions('),
     end = source.indexOf('function setKeyActions(', start)
   const view = {},

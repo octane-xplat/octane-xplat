@@ -1,9 +1,10 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
 // Fake native center / actual private helpers, not native frame/layer proof.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const start = source.indexOf('function removeBoxFrameToken(')
 const code = source.slice(start, source.indexOf('// borderRadius styles', start))
 function fixture() {

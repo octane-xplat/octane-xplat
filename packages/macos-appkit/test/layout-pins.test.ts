@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { createStickyPlacements } from '../src/sticky-placement.ts'
 import { test } from 'node:test'
@@ -9,7 +10,7 @@ import { sourceWithoutImports } from './mock-globals.ts'
 // root/content fill) must express each computed rect as parent-anchored
 // constraints — an imperative frame write is discarded by the next Auto
 // Layout solve.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const layout =
   source.slice(source.indexOf('function layoutView('), source.indexOf('function setMarginStyle')) +

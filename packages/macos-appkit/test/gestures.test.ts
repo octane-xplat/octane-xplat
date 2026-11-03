@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -201,7 +202,7 @@ test('swipe directions preserve NativeScript values and require a completed thre
   assert.equal(swipeDirection({ state: 3, deltaX: 29, deltaY: 29 }), null)
 })
 
-const renderer = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const renderer = rendererSource()
 
 function rendererFunction(name) {
   const start = renderer.indexOf('function ' + name + '(')

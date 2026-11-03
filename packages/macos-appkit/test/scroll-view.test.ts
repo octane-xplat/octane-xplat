@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { configureScrollAxes, observeScrollGeometry } from '../src/scroll-view.ts'
@@ -437,7 +438,7 @@ test('renderer layout unbinding preserves a newer subscription acquired during n
   node.type = 'scrollview'
   node.view.bounds = { size: { width: 100, height: 100 } }
   node.container = { root: { eventScope: (_scope: string, run: () => void) => run() } }
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const start = source.indexOf('function syncLayoutObserver(')
   const code = source.slice(start, source.indexOf('function setTextFieldPlaceholder(', start))
   const setLayoutAction = runSlice(code + '\nsetLayoutAction', {
@@ -483,7 +484,7 @@ import { runSlice } from './mock-globals.ts'
 
 test('existing onScroll event shape and latest callback survive replacement and removal', () => {
   const { node, clip, observers } = fixture()
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
 
   const start = source.indexOf('function setScrollAction(')
   const code = source.slice(start, source.indexOf('\nconst layoutHandlers', start))

@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
@@ -9,7 +10,7 @@ import {
   tileRects,
 } from '../src/background-layers.ts'
 
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const SLICE =
   source.slice(source.indexOf('// ---- Background layers'), source.indexOf('const BORDER_SIDES')) +
   '\n({ syncBackgrounds, paintBackgrounds, clearBackgrounds })'

@@ -1,7 +1,8 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url)),
+const source = rendererSource(),
   start = source.indexOf('const fileDropSubscriptionsByNode =')
 
 const slice = source.slice(start, source.indexOf('const contextSubscriptionsByNode =', start))

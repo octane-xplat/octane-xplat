@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runSlice } from './mock-globals.ts'
@@ -8,7 +9,7 @@ import assert from 'node:assert/strict'
 // AXProgressIndicator on both stack and grid hosts, each reporting a numeric
 // value within the declared range plus the human-readable description.
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
+  rendererSource(),
 )
 
 const stack = source.slice(

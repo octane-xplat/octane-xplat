@@ -1,10 +1,11 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createDisabledFocusTargets } from '../src/disabled-focus.ts'
 import { createTabStopSuppression } from '../src/tab-stop.ts'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const host = source.slice(
   source.indexOf('class AccessibleHostView'),
   source.indexOf('const masonElementRegistration'),

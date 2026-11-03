@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
@@ -416,7 +417,7 @@ test('inline scheduler completion releases the late handle once and repeated cal
   }
 })
 
-const nativeSource = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const nativeSource = rendererSource()
 function nativeFixture() {
   let adapter: any, acquired: any
   const center: any = {

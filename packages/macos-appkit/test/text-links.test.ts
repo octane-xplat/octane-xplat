@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
@@ -114,7 +115,7 @@ test('composed runs carry per-range link entries and NSLink tokens in order', ()
 })
 
 const source = stripTypeScriptTypes(
-  readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8'),
+  rendererSource(),
 )
 
 const fn = (name: string) => {

@@ -1,9 +1,10 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
-const source = readFileSync(new URL('../src/runtime.ts', import.meta.url), 'utf8')
+const source = rendererSource()
 test('native image creation receives the final policy before its first source load', () => {
   const start = source.indexOf('function makeImageView('),
     end = source.indexOf('/** Types whose views arrange child views', start),

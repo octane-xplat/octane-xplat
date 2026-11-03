@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
@@ -163,7 +164,7 @@ test('ordinary external writes are immediate, equal values skip setters, and fai
 })
 
 test('native adapters read the field editor, clamp selection and scope commit observers to their window', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const body = source.slice(
     source.indexOf('function updateNativeTextValue('),
     source.indexOf('function syncTextControlState('),
@@ -263,7 +264,7 @@ test('nested controlled writes keep notification suppression active until the ou
 })
 
 test('programmatic native change notifications do not call public onChange during a write', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const body = source.slice(
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),
@@ -306,7 +307,7 @@ test('programmatic native change notifications do not call public onChange durin
 })
 
 test('single-line and native search submit leave marked confirmation to the input context', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const body = source.slice(
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),

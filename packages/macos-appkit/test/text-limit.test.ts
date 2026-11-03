@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import {
   disposeTextValue,
   isWritingTextValue,
@@ -124,7 +125,7 @@ test('programmatic values may exceed the cap; native vetoes/failures release the
 })
 
 test('native subclass unmark applies a deferred cap once', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const body = source.slice(
     source.indexOf('class InteractionTextView'),
     source.indexOf('class InteractionTextFieldCell'),
@@ -160,7 +161,7 @@ test('native subclass unmark applies a deferred cap once', () => {
 })
 
 test('delegate normalization exposes the corrected text once despite a nested native change notification', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const body = source.slice(
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),

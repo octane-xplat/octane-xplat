@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { drawImageContent, setImageDrawingStyle } from '../src/image-drawing.ts'
@@ -83,7 +84,7 @@ test('drawing restores graphics state after native failure and ignores pending o
 })
 
 test('native image subclass retains hit testing and redraws after a real frame-size change', () => {
-  const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+  const source = rendererSource()
   const slice = source.slice(
     source.indexOf('class InputImageView'),
     source.indexOf('function makeImageView'),

@@ -1,10 +1,11 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
 // Actual renderer branch with native stand-ins. No tracking loop, responder
 // propagation, pointer/key/AX delivery or native class registration is exercised.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const slice = source.slice(
   source.indexOf('const contextMenuAttachments'),
   source.indexOf('const DATE_PICKER_STYLES'),

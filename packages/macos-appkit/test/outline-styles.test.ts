@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
@@ -10,7 +11,7 @@ import {
   darkBorderComponents,
 } from '../src/border-styles.ts'
 
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 const SLICE =
   source.slice(
     source.indexOf('function outlineSpec'),

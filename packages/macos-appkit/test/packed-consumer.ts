@@ -49,6 +49,7 @@ const cssEngine = await pack(join(repo, 'packages/css-engine'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
 const cli = await pack(join(repo, 'packages/cli'))
+const docsSearch = await pack(join(repo, 'packages/docs-search'))
 const lib = await pack(join(repo, 'packages/lib'))
 const lint = await pack(join(repo, 'packages/lint'))
 const create = await pack(join(repo, 'packages/create'))
@@ -208,6 +209,7 @@ await writeFile(
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
+  '@octane-xplat/docs-search': docsSearch,
   'create-octane-xplat': create,
   '@octane-xplat/lib': lib,
   '@octane-xplat/lint': lint,

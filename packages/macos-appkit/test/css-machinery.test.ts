@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 // The cascade machinery (markStyleDirty → flushStyleDirty → restyleNode →
 // applyStyle) is sliced out of src/index.ts and run against the REAL
 // @octane-xplat/css-engine computeCascade/stylesheetScope, mirroring
@@ -19,7 +20,7 @@ import {
   onStylesheetsChanged,
 } from '@octane-xplat/css-engine'
 
-const FULL_SOURCE = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const FULL_SOURCE = rendererSource()
 const MACHINERY = FULL_SOURCE.slice(
   FULL_SOURCE.indexOf('// ---- CSS cascade'),
   FULL_SOURCE.indexOf('function syncNativeColors'),

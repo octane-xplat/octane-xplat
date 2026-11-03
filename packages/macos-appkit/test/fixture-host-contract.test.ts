@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { readdir, readFile } from 'node:fs/promises'
 import { test } from 'node:test'
@@ -10,7 +11,7 @@ const STACK_VIEW_API =
   /\b(?:viewsInGravity|NSStackViewGravity|NSUserInterfaceLayoutOrientation|edgeInsets)\b|\.orientation\b/
 
 test('renderer creates no NSStackView layout hosts', async () => {
-  const source = await readFile(new URL('../src/runtime.ts', import.meta.url), 'utf8')
+  const source = rendererSource()
   assert.doesNotMatch(source, /NSStackView\.alloc|extends NSStackView\b/)
 })
 

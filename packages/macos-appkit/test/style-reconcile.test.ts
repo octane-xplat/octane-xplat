@@ -1,3 +1,4 @@
+import { rendererSource } from './renderer-source.ts'
 import { setProjectionScale } from '../src/projection-paint.ts'
 import { borderBands, borderBandPoints, darkBorderComponents } from '../src/border-styles.ts'
 import assert from 'node:assert/strict'
@@ -19,7 +20,7 @@ import {
 // Removed style keys and dropped classes must put back the native state they
 // installed — a stale alphaValue, input-transparency, size constraint, or
 // background color survives on the view otherwise.
-const source = sourceWithoutImports(new URL('../src/runtime.ts', import.meta.url))
+const source = rendererSource()
 
 const paritySource = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(/^  /gm, '')
 const projectionStart = source.indexOf('function setLayoutProjectionScale')
