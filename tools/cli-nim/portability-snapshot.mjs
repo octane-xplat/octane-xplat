@@ -33,7 +33,7 @@ try {
  for (const file of readdirSync(join(root, 'packages/cli/nim')).sort()) {
   if (/\.(nim|c|h)$/.test(file) || file === 'metadata.json') {copy('packages/cli/nim/'+file)}
  }
- for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'portability-build.mjs',
+ for (const file of ['dependencies.mjs', 'nim-dependencies.json', 'model-assets.json', 'ort-runtime.json', 'portability-build.mjs', 'portability-smoke.mjs',
   'licenses/tokenizers-js.txt', 'licenses/onnxruntime.txt']) {copy('tools/cli-nim/'+file)}
  const repository = JSON.parse(readFileSync(join(root, 'package.json')))
  const tool = JSON.parse(readFileSync(join(root, 'tools/cli-nim/package.json')))
@@ -41,8 +41,11 @@ try {
  const turbo = repository.devDependencies.turbo
  assert.match(turbo, /^\d+\.\d+\.\d+$/)
  json('package.json', { name: 'xplat-nim-portability-snapshot', private: true, type: 'module', packageManager: 'bun@1.4.4', workspaces: ['tools/cli-nim'], devDependencies: { turbo } })
- json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
- json('turbo.json', { tasks: { 'build:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] } } })
+ json('tools/cli-nim/package.json', { name: '@xplat/nim-portability-source', private: true, type: 'module', scripts: { 'build:portability': 'node portability-build.mjs', 'benchmark:portability': 'node portability-smoke.mjs' }, devDependencies: { 'nim-toolchain': tool.devDependencies['nim-toolchain'] } })
+ json('turbo.json', { tasks: {
+  'build:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_PORTABILITY_CACHE', 'XPLAT_NIM_CC', 'INCLUDE', 'LIB', 'LIBPATH'] },
+  'benchmark:portability': { cache: false, passThroughEnv: ['XPLAT_NIM_SMOKE_BINARY', 'XPLAT_NIM_SMOKE_RECORD'] },
+ } })
  const commit = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' })
  assert.equal(commit.status, 0, commit.stderr)
  const manifest = { version: 1, sourceCommit: commit.stdout.trim(), sourceNativeInputs: build.nativeInputs,

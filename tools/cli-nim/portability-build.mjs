@@ -61,13 +61,15 @@ try {
  record.artifact = { bytes: bytes.length, gzipBytes: gzipSync(bytes, { level: 6 }).length, sha256: sha256(bytes) }
  if (process.platform === 'linux') {assert.equal(bytes.subarray(0, 4).toString('hex'), '7f454c46')}
  if (process.platform === 'win32') {assert.equal(bytes.subarray(0, 2).toString(), 'MZ')}
- const help = run(binary, ['--help'], { encoding: 'utf8', stdio: 'pipe', timeout: 10000 })
+ const standaloneEnv = { ...Object.fromEntries(Object.entries(process.env).filter(([key]) => key.toUpperCase() !== 'PATH')), PATH: '' }
+ const help = run(binary, ['--help'], { encoding: 'utf8', stdio: 'pipe', timeout: 10000, env: standaloneEnv })
  assert.match(help.stdout, /experimental Nim CLI/)
- const catalog = run(binary, ['catalog', '--json'], { encoding: 'utf8', stdio: 'pipe', timeout: 10000 })
+ const catalog = run(binary, ['catalog', '--json'], { encoding: 'utf8', stdio: 'pipe', timeout: 10000, env: standaloneEnv })
  const result = JSON.parse(catalog.stdout)
  assert.equal(result.contractVersion, 1)
  assert.equal(result.ok, true)
  record.runtime = 'help-and-catalog-only'
+ record.runtimePath = ''
  record.cliVersion = result.data.cli.version
  record.qualification = 'No HTTP/TLS, RPC, worker, cancellation or descendant cleanup qualified by this smoke'
  console.log(JSON.stringify(record, null, 2))

@@ -3,6 +3,7 @@
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
 		"//#snapshot:nim-portability": { "cache": false },
+		"//#benchmark:nim-portability": { "cache": false, "passThroughEnv": ["XPLAT_NIM_SMOKE_BINARY", "XPLAT_NIM_SMOKE_RECORD"] },
 		"test:typecheck-envs": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:routes": { "dependsOn": ["build", "^build"], "cache": false },
 		"build:nim": { "dependsOn": ["build", "^build"], "cache": false, "passThroughEnv": ["XPLAT_NIM_VERSION"] },

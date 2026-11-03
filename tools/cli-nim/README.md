@@ -465,6 +465,16 @@ An SSH supervisor's cancellation does not establish remote descendant cleanup.
 Keep ownership on the remote host, await its release, and verify that the exact
 owned compiler phase has ended before replacing its source or starting a retry.
 
+`portability-smoke.mjs` independently checks the actual native binary with empty
+PATH and measures warm help startup (five warmups, twenty launches). Its record
+identifies the executable hash and keeps those limited runtime checks separate
+from the required provider workflow. In this repository use the root task; a
+prepared snapshot exposes the same script as `benchmark:portability`.
+
+```sh
+XPLAT_NIM_SMOKE_BINARY="$PWD/research/nim-cli/native/xplat" XPLAT_NIM_SMOKE_RECORD="$PWD/research/nim-cli/standalone-smoke.json" bun run turbo run benchmark:nim-portability
+```
+
 
 ## Real web build jobs and logs
 
