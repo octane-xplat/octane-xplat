@@ -4,6 +4,7 @@ import { join, relative, resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { packageManagerFor } from './package-manager.ts'
 import { dependencySections, projectProfile } from 'create-octane-xplat/compatibility'
+import { nativeCliPin } from './cli-channel.ts'
 import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
 
 import {
@@ -104,6 +105,13 @@ export function inspectCompatibility(
 
 	const local = new Set<string>()
 	const declared = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
+	const cliPin =
+		typeof declared['@octane-xplat/cli'] === 'string'
+			? nativeCliPin(
+					resolveCatalog(declared['@octane-xplat/cli'], '@octane-xplat/cli', config),
+					compatibility.frameworkVersion,
+				)
+			: undefined
 	// Core is the only mobile Mason engine; the Windows preview still needs
 	// full MasonKit. Report the pins the core cutover replaced.
 	const engine = profile === 'windows' ? masonFullPackage : masonCorePackage
@@ -131,7 +139,9 @@ export function inspectCompatibility(
 			continue
 		}
 
-		const expected = managedSpecifier(name, profile)
+		const expected =
+			name === '@octane-xplat/cli' && cliPin ? cliPin : managedSpecifier(name, profile)
+
 		row(`compatibility pin ${name}`, resolved === expected, `${resolved}; expected ${expected}`)
 	}
 	if (declared.octane && !declared['@tsrx/oxc'] && !local.has('octane')) {
@@ -208,10 +218,11 @@ export function inspectCompatibility(
 			// copy pinned by an upstream package (e.g. nativescript's own
 			// typescript) is that package's implementation detail.
 			if (from === dir || managed.singleton) {
+				const expected = identity === '@octane-xplat/cli' && cliPin ? cliPin : managed.version
 				row(
 					`compatibility installed ${identity}`,
-					dependency.version === managed.version,
-					`${dependency.version} at ${relative(dir, location) || '.'}; expected ${managed.version}`,
+					dependency.version === expected,
+					`${dependency.version} at ${relative(dir, location) || '.'}; expected ${expected}`,
 				)
 			}
 		}

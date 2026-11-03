@@ -26,6 +26,16 @@ proc localSpecifier(spec: JsonNode): bool =
   for prefix in ["workspace:","link:","file:","portal:"]:
     if value.startsWith(prefix): return true
 
+proc nativeCliPin(spec: JsonNode, frameworkVersion: string): string =
+  let value = text(spec)
+  let prefix = frameworkVersion & "-nim."
+  if not value.startsWith(prefix): return ""
+  let number = value[prefix.len..^1]
+  if number.len == 0 or (number.len > 1 and number[0] == '0'): return ""
+  for ch in number:
+    if ch notin {'0'..'9'}: return ""
+  value
+
 proc atLeast(actual, minimum: string): bool =
   proc parts(value: string): seq[int] =
     let clean = if value.startsWith("v"): value[1..^1] else: value
@@ -57,6 +67,14 @@ proc inspectCompatibility*(directory: string, pins, tools, builtinNames: JsonNod
   if windows and (truthy(field(declared,"@nativescript/ios")) or truthy(field(declared,"@nativescript/android"))):
     raise newException(ValueError,"Windows preview and mobile need separate workspace packages: their NativeScript pins differ")
   let profile = if windows: "windows" else: "default"
+  proc catalogSpec(spec: JsonNode, name: string): JsonNode =
+    result = spec
+    if text(spec).startsWith("catalog:"):
+      let catalog = text(spec)[8..^1]
+      let value = if catalog.len > 0 and catalog != "default": field(field(field(config,"catalogs"),catalog),name)
+        else: field(field(config,"catalog"),name)
+      if value != nil and value.kind != JNull: result = value
+  let cliPin = nativeCliPin(catalogSpec(field(declared,"@octane-xplat/cli"),"@octane-xplat/cli"),text(field(pins,"frameworkVersion")))
   if builtinNames == nil or builtinNames.kind != JArray:
     raise newException(ValueError,"Compatibility inspection requires the canonical Node builtin-name inventory")
   var builtins = initHashSet[string]()
@@ -73,7 +91,8 @@ proc inspectCompatibility*(directory: string, pins, tools, builtinNames: JsonNod
     let framework = field(pins,"frameworkPackages")
     if framework != nil and framework.kind == JArray:
       for item in framework:
-        if item == %name: return %*{"version":pins["frameworkVersion"],"group":"framework","singleton":name == "@octane-xplat/ui"}
+        if item == %name:
+          return %*{"version":(if name == "@octane-xplat/cli" and cliPin.len > 0: %cliPin else: pins["frameworkVersion"]),"group":"framework","singleton":name == "@octane-xplat/ui"}
     let base = field(field(pins,"packages"),name)
     if base == nil: return nil
     result = base.copy()
@@ -107,12 +126,7 @@ proc inspectCompatibility*(directory: string, pins, tools, builtinNames: JsonNod
     if entry == nil: continue
     let raw = declared[name]
     if raw.kind != JString: raise newException(ValueError,"Managed dependency specifier must be a string: " & name)
-    var resolved = raw
-    if text(raw).startsWith("catalog:"):
-      let catalog = text(raw)[8..^1]
-      let value = if catalog.len > 0 and catalog != "default": field(field(field(config,"catalogs"),catalog),name)
-        else: field(field(config,"catalog"),name)
-      if value != nil and value.kind != JNull: resolved = value
+    let resolved = catalogSpec(raw,name)
     if localSpecifier(resolved): local.incl(name); continue
     let expected = specifier(entry)
     row("compatibility pin " & name,resolved == expected,scalarString(resolved) & "; expected " & scalarString(expected))

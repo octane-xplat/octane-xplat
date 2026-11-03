@@ -82,6 +82,7 @@ try {
   'storage_probe.nim', 'storage-windows.test.mjs', 'rpc_probe.nim', 'rpc.test.mjs', 'host_probe.nim', 'host-bootstrap.test.mjs', 'host-integration.test.mjs', 'host-windows.test.mjs', 'scratch.mjs',
   'portability-workflow.mjs', 'portability-owner-handoff.mjs',
   'licenses/tokenizers-js.txt', 'licenses/onnxruntime.txt']) {copy('tools/cli-nim/'+file)}
+ for (const path of ['packages/cli/package.json','packages/create/compatibility.json','packages/cli/src/cli-channel.ts']) {copy(path)}
  copy('packages/cli/src/mcp/actions/bridge.ts')
  copy('packages/cli/src/mcp/runtime/process.ts')
  const repository = JSON.parse(readFileSync(join(root, 'package.json')))

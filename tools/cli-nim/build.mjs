@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { resolve, dirname } from 'node:path'
 import { createRequire } from 'node:module'
+import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { getToolchain } from 'nim-toolchain'
 import { prepareOrtHeaders } from './ort-headers.mjs'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
@@ -12,8 +13,11 @@ import { nativeInputs, artifactFingerprint, httpProbeInputs, processProbeInputs 
 import { routeCommandDescriptor, buildCommandDescriptor } from './route-templates.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const work = resolve(root, 'research/nim-cli')
-const version = process.env.XPLAT_NIM_VERSION ?? JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version + '-nim.0'
-if (!/^\d+\.\d+\.\d+-nim\.[0-9]+$/.test(version)) {throw Error('Require an exact x.y.z-nim.N prerelease')}
+const sourceVersion = JSON.parse(readFileSync(resolve(root, 'packages/cli/package.json'))).version
+const frameworkVersion = JSON.parse(readFileSync(resolve(root,'packages/create/compatibility.json'))).frameworkVersion
+if(sourceVersion !== frameworkVersion) {throw Error('CLI source and framework compatibility versions differ; synchronize the release metadata first')}
+const version = process.env.XPLAT_NIM_VERSION ?? sourceVersion + '-nim.0'
+if (nativeCliPin(version,sourceVersion) !== version) {throw Error(`Require an exact ${sourceVersion}-nim.N prerelease for this source release`)}
 // Reuse the checksum-verified compiler/YAML preparation and source pins.
 const { dependencyPaths } = await import('./prepare.mjs')
 const compiler = await getToolchain({cacheDir:resolve(work,'toolchain')})

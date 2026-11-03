@@ -199,6 +199,12 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 `compatibility_check.nim` inspects metadata against the creator's canonical
 compatibility manifest. Preserve direct app pins separately from installed
 versions: a matching declaration does not establish a matching runtime graph.
+Keep the native CLI release suffix as a validated ASCII string, not a machine
+integer: it needs identity comparison, and conversion would truncate large valid
+identifiers. An exact same-framework `nim.N` CLI declaration selects its exact
+installed-version expectation; it does not exempt other framework pins. Upgrade
+preflight must validate the completed catalog plan so later apps cannot silently
+replace an earlier app's preserved CLI choice.
 Count singleton copies by canonical physical package root, using the installed
 manifest identity so aliases count correctly. Use `OrderedTable` where Node Map
 insertion order contributes to diagnostics, and a visited set to bound cycles.

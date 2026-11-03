@@ -10,8 +10,13 @@ tag. Its installed catalog distinguishes implemented commands from schema-only
 discovery. Native `status` reports actual installed bindings, tool observations,
 guidance and source coverage; `capabilities` describes the providers wired into
 that build. Tool presence does not qualify an SDK/device or runtime check.
+Canonical compatibility checks accept an exact same-release `@octane-xplat/cli`
+Nim prerelease; its installed version must match. The reference upgrade planner
+preserves this choice and rejects shared-catalog or override conflicts before
+writes. Keep other framework pins strict. Native doctor/upgrade execution is
+still pending; the compatibility core alone does not qualify those commands.
 Native `typecheck` is available on macOS using the project-installed
-TSRX checker and build package; it never executes baked loaders. Native `routes`
+TSRX checker and CLI-owned worker; it never executes baked loaders. Native `routes`
 bakes data and watches route/configuration edits on macOS, with owned worker
 cancellation and last-good publication. Keep generated output paths stable while
 watching. Route planning/rendering runs in the selected project's build worker;

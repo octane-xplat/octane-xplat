@@ -22,6 +22,7 @@ import {
 
 import { canonicalPatchesDir, loadPatchManifest, specifierPackage } from './patches.ts'
 import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
+import { nativeCliPin } from './cli-channel.ts'
 
 export { compatibility, managedPackage, managedSpecifier }
 
@@ -113,6 +114,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 	const expected = new Map<string, Set<string>>()
 	const expectedSpecs = new Map<string, Set<string>>()
 	const applicable = new Set<string>()
+	const nativeCatalogs: { declared: string; version: string; label: string }[] = []
 	const packages = paths.map((path) => {
 		const file = join(path, 'package.json')
 		const raw = readFileSync(file, 'utf8')
@@ -183,6 +185,31 @@ export function planUpgrade(dir: string): UpgradePlan {
 					continue
 				}
 
+				if (name === '@octane-xplat/cli' && (spec === 'nim' || spec.includes('-nim.'))) {
+					const native = nativeCliPin(spec, compatibility.frameworkVersion)
+					if (!native) {
+						throw new Error(
+							`CLI nim channel requires an exact ${compatibility.frameworkVersion}-nim.N pin; install a compatible CLI prerelease before upgrading`,
+						)
+					}
+
+					// Keep explicit per-project/catalog choice. A shared stable catalog
+					// must not switch another app's CLI implementation or native build.
+					plan.skipped.push(`${label}: keep ${name} ${declared} (nim channel)`)
+					if (declared.startsWith('catalog:')) {
+						nativeCatalogs.push({ declared, version: native, label })
+					}
+
+					applicable.add(name)
+					const versions = expected.get(name) ?? new Set<string>()
+					versions.add(native)
+					expected.set(name, versions)
+					const specs = expectedSpecs.get(name) ?? new Set<string>()
+					specs.add(native)
+					expectedSpecs.set(name, specs)
+					continue
+				}
+
 				const desired = managedSpecifier(name, profile)!
 				if ((/^[\w+.-]+:/.test(spec) || spec.includes('/')) && spec !== desired) {
 					throw new Error(
@@ -223,6 +250,17 @@ export function planUpgrade(dir: string): UpgradePlan {
 			if (manager === 'bun') {
 				pkg.engines.bun ??= `>=${compatibility.tools.bun}`
 			}
+		}
+	}
+
+	// A later stable app can rewrite a managed catalog shared by an earlier
+	// native app. Validate the completed plan, independent of traversal order.
+	const alignedConfig = ws.toJS() ?? {}
+	for (const choice of nativeCatalogs) {
+		if (resolveCatalog(choice.declared, '@octane-xplat/cli', alignedConfig) !== choice.version) {
+			throw new Error(
+				`${choice.label}: CLI ${choice.declared} would switch the nim channel; give stable and native CLI choices separate catalogs before upgrading`,
+			)
 		}
 	}
 
@@ -299,6 +337,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 	for (const patch of wanted) {
 		oldPatches[patch.specifier] ??=
 			manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
+
 		if (manager === 'bun') {
 			change(
 				join(root, oldPatches[patch.specifier]),
@@ -323,6 +362,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 		if (Array.isArray(owner.workspaces)) {
 			owner.workspaces = { packages: owner.workspaces }
 		}
+
 		owner.workspaces ??= { packages: [] }
 		for (const key of ['catalog', 'catalogs']) {
 			if (result[key]) {
@@ -333,6 +373,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 				}
 			}
 		}
+
 		for (const key of ['overrides', 'patchedDependencies']) {
 			if (result[key]) {
 				owner[key] = result[key]

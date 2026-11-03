@@ -6,7 +6,7 @@ import { join } from 'node:path'
 export function nativeInputs(root) {
  const files = [...readdirSync(join(root, 'packages/cli/nim')).filter(file => /\.(nim|c|h)$/.test(file)).map(file => `packages/cli/nim/${file}`),
   'packages/cli/nim/metadata.json', 'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts',
-  'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts',
+  'packages/cli/package.json', 'packages/create/compatibility.json', 'packages/cli/src/cli-channel.ts', 'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts',
   'packages/cli/src/commands/lint.ts', 'packages/lint/src/runner.ts', 'packages/lint/bin/lint.mjs',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts',
   'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json', 'tools/cli-nim/build.mjs',

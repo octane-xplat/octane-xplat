@@ -563,3 +563,79 @@ test('Bun upgrade retains top-level named catalog ownership', (t) => {
 	assert.equal(json(join(root, 'package.json')).catalogs.xplat.octane, managedSpecifier('octane'))
 	assert.equal(planUpgrade(root).files.length, 0)
 })
+
+test('doctor and upgrade preserve exact native CLI choices alongside stable framework pins',t=>{
+ const name='@octane-xplat/cli',version=compatibility.frameworkVersion+'-nim.7'
+ const root=project(t,{devDependencies:{[name]:version}})
+ install(root,name,version)
+ assert.ok(inspectCompatibility(root,tools).every(row=>row.ok))
+ const plan=planUpgrade(root)
+ assert.ok(plan.skipped.some(message=>message.includes('nim channel')))
+ applyUpgrade(plan)
+ assert.equal(json(join(root,'package.json')).devDependencies[name],version)
+ assert.ok(inspectCompatibility(root,tools).every(row=>row.ok))
+ assert.equal(planUpgrade(root).files.length,0)
+})
+
+test('native CLI catalog selection survives workspace alignment without switching stable apps',t=>{
+ const name='@octane-xplat/cli',version=compatibility.frameworkVersion+'-nim.4'
+ const root=project(t,{}, {packages:['apps/*'],catalogs:{native:{[name]:version}}})
+ writeJson(join(root,'apps/native/package.json'),{devDependencies:{[name]:'catalog:native'}})
+ writeJson(join(root,'apps/stable/package.json'),{devDependencies:{[name]:compatibility.frameworkVersion}})
+ applyUpgrade(planUpgrade(root))
+ assert.equal(json(join(root,'apps/native/package.json')).devDependencies[name],'catalog:native')
+ assert.equal(yaml(root).catalogs.native[name],version)
+ assert.equal(json(join(root,'apps/stable/package.json')).devDependencies[name],'catalog:xplat')
+ assert.equal(yaml(root).catalogs.xplat[name],compatibility.frameworkVersion)
+})
+
+test('foreign or ranged native CLI requests fail upgrade preflight without writes',t=>{
+ for(const value of ['0.0.1-nim.0','^'+compatibility.frameworkVersion+'-nim.1','nim']){
+  const root=project(t,{devDependencies:{'@octane-xplat/cli':value}})
+  const before=readFileSync(join(root,'package.json'),'utf8')
+  assert.throws(()=>planUpgrade(root),/nim channel requires an exact/)
+  assert.equal(readFileSync(join(root,'package.json'),'utf8'),before)
+  assert.equal(existsSync(join(root,'pnpm-workspace.yaml')),false)
+ }
+})
+
+test('shared stable/native CLI catalog conflicts fail before writes in either project order',t=>{
+ const name='@octane-xplat/cli',version=compatibility.frameworkVersion+'-nim.2'
+ for(const manager of ['bun','pnpm']) {
+ for(const nativeFirst of [true,false]){
+  const config={packages:['apps/*'],catalogs:{xplat:{[name]:version}}}
+  const root=project(t,manager==='bun'?{packageManager:'bun@'+compatibility.tools.bun,workspaces:config}:{},manager==='pnpm'?config:undefined)
+  const native=join(root,`apps/${nativeFirst?'a':'z'}-native/package.json`)
+  const stable=join(root,`apps/${nativeFirst?'z':'a'}-stable/package.json`)
+  writeJson(native,{devDependencies:{[name]:'catalog:xplat'}})
+  writeJson(stable,{devDependencies:{[name]:compatibility.frameworkVersion}})
+  const paths=[join(root,'package.json'),native,stable,...(manager==='pnpm'?[join(root,'pnpm-workspace.yaml')]:[])]
+  const before=paths.map(path=>readFileSync(path,'utf8'))
+  assert.throws(()=>planUpgrade(root),/would switch the nim channel/)
+  assert.deepEqual(paths.map(path=>readFileSync(path,'utf8')),before)
+ }
+ }
+})
+
+test('a global CLI override cannot silently choose between stable and native apps',t=>{
+ const name='@octane-xplat/cli',version=compatibility.frameworkVersion+'-nim.2'
+ const root=project(t,{}, {packages:['apps/*'],overrides:{[name]:version}})
+ writeJson(join(root,'apps/native/package.json'),{devDependencies:{[name]:version}})
+ writeJson(join(root,'apps/stable/package.json'),{devDependencies:{[name]:compatibility.frameworkVersion}})
+ const before=readFileSync(join(root,'pnpm-workspace.yaml'),'utf8')
+ assert.throws(()=>planUpgrade(root),/Override.*incompatible profiles/)
+ assert.equal(readFileSync(join(root,'pnpm-workspace.yaml'),'utf8'),before)
+})
+
+test('Bun native CLI catalogs survive alignment and remain idempotent',t=>{
+ const name='@octane-xplat/cli',version=compatibility.frameworkVersion+'-nim.8'
+ const root=project(t,{packageManager:'bun@'+compatibility.tools.bun,workspaces:{packages:['apps/*'],catalogs:{native:{[name]:version}}}})
+ writeJson(join(root,'apps/native/package.json'),{devDependencies:{[name]:'catalog:native'}})
+ writeJson(join(root,'apps/stable/package.json'),{devDependencies:{[name]:compatibility.frameworkVersion}})
+ applyUpgrade(planUpgrade(root))
+ const catalogs=json(join(root,'package.json')).workspaces.catalogs
+ assert.equal(catalogs.native[name],version);assert.equal(catalogs.xplat[name],compatibility.frameworkVersion)
+ assert.equal(json(join(root,'apps/native/package.json')).devDependencies[name],'catalog:native')
+ assert.equal(existsSync(join(root,'pnpm-workspace.yaml')),false)
+ assert.equal(planUpgrade(root).files.length,0)
+})

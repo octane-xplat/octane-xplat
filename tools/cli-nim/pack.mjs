@@ -3,6 +3,7 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
+import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { scratchRun } from './scratch.mjs'
 const root=resolve(import.meta.dirname,'../..')
 const hostOnly=process.argv.includes('--host-only') // local qualification, never publication
@@ -10,10 +11,13 @@ const destination=process.argv.indexOf('--destination')
 if(destination>=0&&(!process.argv[destination+1]||process.argv[destination+1].startsWith('--'))){throw Error('--destination needs a directory')}
 const build=JSON.parse(readFileSync(resolve(root,'research/nim-cli/native/build.json')))
 const version=process.env.XPLAT_NIM_VERSION ?? build.version
-if (!/^\d+\.\d+\.\d+-nim\.[0-9]+$/.test(version)) {throw Error('Require x.y.z-nim.N')}
-const stage=scratchRun(root,'npm-stage')
 const source=resolve(root,'packages/cli')
 const pkg=JSON.parse(readFileSync(join(source,'package.json')))
+const frameworkVersion=JSON.parse(readFileSync(resolve(root,'packages/create/compatibility.json'))).frameworkVersion
+if(pkg.version!==frameworkVersion){throw Error('CLI source and framework compatibility versions differ; synchronize the release metadata first')}
+if(nativeCliPin(version,pkg.version)!==version){throw Error(`Require an exact ${pkg.version}-nim.N prerelease for this source release`)}
+if(version!==build.version){throw Error('Nim package version must match the built executable; rebuild with XPLAT_NIM_VERSION first')}
+const stage=scratchRun(root,'npm-stage')
 // Avoid a runtime wrapper: npm links directly to the binary copied at install.
 for (const key of ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies", "exports", "types", "main", "module"]) {delete pkg[key]}
 pkg.version=version;pkg.bin={xplat:'bin/xplat.exe'};pkg.scripts={postinstall:'node install-native.mjs'}

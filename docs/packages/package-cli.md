@@ -449,6 +449,18 @@ bun install --no-frozen-lockfile
 bun run xplat doctor
 ```
 
+The experimental native CLI is the one channel exception: an exact CLI pin
+whose base matches this framework release may use the `nim.N` suffix. Its
+installed version must match that exact pin. The reference upgrade planner
+preserves the CLI choice and rejects catalog/override conflicts before writing;
+other framework and compiler pins keep their release rules. After a Nim release
+is published, save its exact version when opting in. Native `doctor` and `upgrade`
+execution remain pending during the rewrite:
+
+```sh
+bun add --dev --exact @octane-xplat/cli@nim
+```
+
 | Managed together when declared                                      | Kept under application/library ownership                              |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Lockstep Xplat packages, Octane and NativeScript renderers          | App-specific libraries and plugins outside the compatibility manifest |

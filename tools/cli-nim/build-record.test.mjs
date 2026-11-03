@@ -10,7 +10,7 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  t.after(() => rmSync(root, { recursive: true, force: true }))
  const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json',
   'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts',
-  'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts',
+  'packages/cli/package.json', 'packages/create/compatibility.json', 'packages/cli/src/cli-channel.ts', 'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts',
   'packages/cli/src/commands/lint.ts', 'packages/lint/src/runner.ts', 'packages/lint/bin/lint.mjs',
   'tools/cli-nim/windows-http-build.mjs', 'tools/cli-nim/ort-headers.mjs', 'tools/cli-nim/model-assets.json',
   'tools/cli-nim/licenses/onnxruntime.txt', 'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json',
@@ -23,7 +23,7 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
   nativeInputs: nativeInputs(root), nativeArtifact: artifactFingerprint(bytes) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
- for (const file of ['packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts', 'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts', 'tools/cli-nim/route-templates.mjs',
+ for (const file of ['packages/cli/package.json', 'packages/create/compatibility.json', 'packages/cli/src/cli-channel.ts', 'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts', 'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts', 'tools/cli-nim/route-templates.mjs',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts']) {
   writeFileSync(join(root, file), 'changed embedded contract or rendering input')
   assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)

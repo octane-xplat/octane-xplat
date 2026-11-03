@@ -1,10 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, writeFileSync, readdirSync, mkdtempSync, rmSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, readdirSync, mkdtempSync, rmSync, mkdirSync, existsSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { gzipSync } from 'node:zlib'
+import { scratchRun } from './scratch.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const run = (command, args, options = {}) => {
  const result = spawnSync(command, args, { cwd: root, encoding: 'utf8', ...options })
@@ -56,4 +57,24 @@ test('packed npm consumer keeps a native bin, bounded exports and opt-in engines
  assert.notEqual(bad.status, 0)
  assert.match(bad.stderr, /checksum mismatch/)
  console.log(`Native npm tarball: ${readFileSync(tarball).length} bytes; standalone gzip: ${gzipSync(readFileSync(binary)).length} bytes`)
+})
+
+test('invalid release pins and package/binary version mismatches fail before staging',t=>{
+ const source=JSON.parse(readFileSync(join(root,'packages/cli/package.json'))).version
+ const build=JSON.parse(readFileSync(join(root,'research/nim-cli/native/build.json')))
+ const before=readFileSync(join(root,'research/nim-cli/native/build.json'),'utf8')
+ const invalid=scratchRun(root,'invalid-native-version'),destination=join(invalid,'package')
+ t.after(()=>rmSync(invalid,{recursive:true,force:true}))
+ for(const version of ['0.0.1-nim.0',source+'-nim.00',source+'-nim.1\n','^'+source+'-nim.1']){
+  for(const script of ['pack.mjs']){
+   const result=spawnSync(process.execPath,[join(import.meta.dirname,script),'--host-only','--destination',destination],{cwd:root,env:{...process.env,XPLAT_NIM_VERSION:version},encoding:'utf8',timeout:15000})
+   assert.notEqual(result.status,0);assert.match(result.stderr,/Require an exact/)
+   assert.equal(existsSync(destination),false)
+   assert.equal(readFileSync(join(root,'research/nim-cli/native/build.json'),'utf8'),before)
+  }
+ }
+ const other=build.version===source+'-nim.999'?source+'-nim.998':source+'-nim.999'
+ const result=spawnSync(process.execPath,[join(import.meta.dirname,'pack.mjs'),'--host-only','--destination',destination],{cwd:root,env:{...process.env,XPLAT_NIM_VERSION:other},encoding:'utf8',timeout:15000})
+ assert.notEqual(result.status,0);assert.match(result.stderr,/must match the built executable/)
+ assert.equal(existsSync(destination),false)
 })

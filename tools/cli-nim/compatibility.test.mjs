@@ -116,3 +116,35 @@ test('builtin names cannot introduce a fake package graph; native metadata inspe
 test('the real installed CLI workspace graph matches Node without dependency execution or metadata writes',()=>{
  compare(join(root,'packages/cli'))
 })
+
+test('only exact current-base CLI Nim pins select a native version contract',()=>{
+ const base=compatibility.frameworkVersion, cli='@octane-xplat/cli'
+ for(const spec of [base+'-nim.0',base+'-nim.12',base+'-nim.'+'9'.repeat(40)]){
+  const dir=project({devDependencies:{[cli]:spec}});install(dir,cli,spec)
+  assert.ok(compare(dir).every(row=>row.ok))
+ }
+ for(const spec of ['0.0.1-nim.0',base+'-next.0','^'+base+'-nim.1','nim',base+'-nim.00',base+'-nim.1\n',base+'-nim.-1',base+'-nim.1+build']){
+  const dir=project({devDependencies:{[cli]:spec}});install(dir,cli,spec)
+  const rows=compare(dir)
+  assert.equal(rows.find(row=>row.name==='compatibility pin '+cli).ok,false)
+  assert.equal(rows.find(row=>row.name==='compatibility installed '+cli).ok,false)
+ }
+ const dir=project({devDependencies:{[cli]:base+'-nim.1'}});install(dir,cli,base+'-nim.2')
+ const rows=compare(dir);assert.equal(rows.find(row=>row.name==='compatibility pin '+cli).ok,true)
+ assert.equal(rows.find(row=>row.name==='compatibility installed '+cli).ok,false)
+ const unrelated=project({dependencies:{'@octane-xplat/ui':base+'-nim.1'},devDependencies:{[cli]:base+'-nim.1'}})
+ install(unrelated,cli,base+'-nim.1');install(unrelated,'@octane-xplat/ui',base+'-nim.1')
+ assert.equal(compare(unrelated).find(row=>row.name==='compatibility pin @octane-xplat/ui').ok,false)
+})
+
+test('CLI native catalog choices and explicit local overrides keep their contracts',()=>{
+ const cli='@octane-xplat/cli', version=compatibility.frameworkVersion+'-nim.3'
+ for(const manager of ['bun','pnpm']){
+  const dir=project({packageManager:manager+'@'+tools[manager],workspaces:{packages:['apps/*'],catalogs:{native:{[cli]:version}}}})
+  const app=join(dir,'apps/app');write(app,'package.json',{devDependencies:{[cli]:'catalog:native'}})
+  if(manager==='pnpm'){write(dir,'pnpm-workspace.yaml',`packages:\n  - apps/*\ncatalogs:\n  native:\n    '${cli}': ${version}\n`)}
+  install(dir,cli,version);assert.ok(compare(app).every(row=>row.ok))
+ }
+ const local=project({devDependencies:{[cli]:'file:../private'}});install(local,cli,'private-label')
+ assert.ok(compare(local).every(row=>row.ok))
+})

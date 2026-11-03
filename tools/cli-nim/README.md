@@ -887,8 +887,12 @@ release manifest and Node builtin inventory. It covers pins versus installed
 versions, physical singleton copies, optional edges, catalogs/profiles and the
 real installed CLI workspace. Dependency code is not executed. Empty-PATH
 inspection qualifies the native engine, not complete host-tool diagnosis.
-The public native `doctor` command remains pending until platform checks,
-warning aggregation and the explicit Nim prerelease pin policy are integrated.
+The public native `doctor` command remains pending until platform checks
+and warning aggregation are integrated. The compatibility engine and canonical
+reference planner preserve exact current-framework Nim CLI pins; installed
+versions must match, and shared catalog/override conflicts fail before writes.
+Build/package version validation uses the same CLI pin syntax, requires source
+release metadata agreement, and prevents package/binary version drift.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native doctor compatibility qualification"}' -- bun run turbo run test:nim-compatibility --filter=@octane-xplat/cli
