@@ -17,9 +17,10 @@ import { textScaleStyle } from '../forms/text-scale'
 import type { JSX } from 'octane/jsx-runtime'
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
- * label/formattedstring. Note: span-under-TextBase parenting needs the
- * driver extension from .agents/design/decisions.md #25 — bare-text-only usage is
- * safe today.
+ * label/formattedstring. The patched NativeScript driver folds `#text` and
+ * span children of a text host into one ordered FormattedString (decisions
+ * #25), so sibling text and nested runs compose; a Span still cannot host
+ * child views, so keep nested runs text-bearing only.
  */
 // The 'octane' import is compiler-retargeted to the universal runtime on
 // native; its DOM Context type signature (2-3 args) doesn't match the

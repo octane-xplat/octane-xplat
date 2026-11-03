@@ -23,6 +23,28 @@ export function MdDelete(props: { children?: unknown }): JSX.Element @{
   return <del style={{ color: 'var(--color-text-secondary)' }}>{props.children}</del>
 }
 
+/** Leaf run — a plain `<span>` in text; `onLinkTap` maps to click for the
+ *  shared leaf signature (link/citation runs own their own handlers). */
+export function MdTextRun(props: {
+  text: string
+  style?: Record<string, unknown>
+  onLinkTap?: () => void
+}): JSX.Element @{
+  return (
+    <span
+      style={props.style as any}
+      {...(props.onLinkTap ? { onClick: () => props.onLinkTap!() } : {})}
+    >
+      {props.text}
+    </span>
+  )
+}
+
+/** Inline code — a real `<code>` element in text, matching the reference. */
+export function MdCodeRun(props: { style?: unknown; children?: unknown }): JSX.Element @{
+  return <code style={props.style as any}>{props.children}</code>
+}
+
 export function MdBreak(): JSX.Element @{
   return <br />
 }
@@ -140,6 +162,9 @@ export function MdInlineRoot(props: { children?: unknown }): JSX.Element @{
 /** Newly arrived streaming run — the stylesheet animates `vx-md-fade`
  *  (`--duration-medium`, `--ease-standard`, collapsed under reduced motion),
  *  the reference's reveal. `runColor` is a native-only input. */
-export function MdFadeRun(props: { runColor?: string; children?: unknown }): JSX.Element @{
+export function MdFadeRun(props: {
+  runColor?: string
+  children?: unknown
+}): JSX.Element @{
   return <span className="vx-md-fade">{props.children}</span>
 }

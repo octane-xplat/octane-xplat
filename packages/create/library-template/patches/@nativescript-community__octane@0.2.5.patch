@@ -35,7 +35,7 @@ index 80e30299c44e889e3a066ce2c9a8feb6b7ceaa42..85c447ecf9952d28019f3093faab1600
   * Mount an Octane component into an existing NativeScript view.
   *
 diff --git a/dist/driver.js b/dist/driver.js
-index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad06226494 100644
+index 8bc563add4cb675a12651184b63805b10224274d..0f0e395ce195862db32ef5539e086de84b8828d2 100644
 --- a/dist/driver.js
 +++ b/dist/driver.js
 @@ -1,8 +1,11 @@
@@ -166,7 +166,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      if (typeof value === 'string')
          return value;
      if (Array.isArray(value))
-@@ -147,16 +190,309 @@ function normalizeClass(value) {
+@@ -147,23 +190,397 @@ function normalizeClass(value) {
              .join(' ');
      return '';
  }
@@ -296,7 +296,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
 +function warnStyleOnlyProp(node, name) {
 +    const key = node.type + ':' + name;
 +    if (warnedStyleOnlyProps.has(key))
-+        return;
+         return;
 +    warnedStyleOnlyProps.add(key);
 +    console.warn(`[xplat] <${node.type} ${name}=...> is a layout key — move it into style={{ ${name}: ... }} or a class.`);
 +}
@@ -376,8 +376,11 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
 +            style.overflowX = enabled ? 'scroll' : 'hidden';
 +            style.overflowY = enabled ? 'scroll' : 'hidden';
 +        }
-+    }
-+}
+     }
+-    if (typeof value === 'object')
+-        Object.assign(view.style, value);
+ }
+-/** Recompute a text host's `text` from its `#text` children. */
 +
 +/** Keep foreign leaves in sync with the effective NativeScript cascade.
 + * MasonKit's property handlers only forward to its own _styleHelper views.
@@ -390,10 +393,8 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
 +        return;
 +    if (masonLeafBindings.has(view)) {
 +        masonLeafBindings.get(view).sync();
-         return;
-     }
--    if (typeof value === 'object')
--        Object.assign(view.style, value);
++        return;
++    }
 +    let native;
 +    let leaf;
 +    let defaultDisplay;
@@ -470,7 +471,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
 +        },
 +    });
 +    sync();
- }
++}
 +function releaseMasonChildLayout(view) {
 +    if (!view)
 +        return;
@@ -478,10 +479,98 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
 +    masonLeafBindings.delete(view);
 +}
 +
- /** Recompute a text host's `text` from its `#text` children. */
++/** Mint (or reuse) the driver-owned Span a `#text` child folds into when it
++ *  shares its text host with run elements, then apply its current text. */
++function foldedSpan(parent, child) {
++    const spans = (parent.textSpans ??= new Map());
++    for (const key of [...spans.keys()])
++        if (!parent.children.includes(key))
++            spans.delete(key);
++    let span = spans.get(child);
++    if (span === undefined) {
++        span = new Span();
++        spans.set(child, span);
++    }
++    span.text = child.text;
++    return span;
++}
++/** Assign a FormattedString's run list in place. Removed spans leave the
++ *  collection before any re-add — a span re-enters only after its parent
++ *  clears, so reorder/growth never re-adds a still-parented span. */
++function replaceSpans(fs, runs) {
++    const spans = fs.spans;
++    let i = 0;
++    while (i < spans.length && i < runs.length && spans[i] === runs[i])
++        i++;
++    if (i === spans.length && i === runs.length)
++        return;
++    if (i < spans.length)
++        spans.splice(i, spans.length - i);
++    if (i < runs.length)
++        spans.splice(i, 0, ...runs.slice(i));
++}
++/** Recompute a text host's text from its `#text` children, folding mixed
++ *  text/run children into a single FormattedString in child order. `Span`
++ *  under a TextBase auto-wraps into `formattedText`; `#text` under
++ *  FormattedString/Span folds to text (octane-xplat decisions #25). */
  function syncText(parent) {
      if (parent === null || isPortalTarget(parent))
-@@ -190,6 +526,15 @@ function addViewChild(parentView, view, index) {
+         return;
+     const view = parent.view;
++    if (view instanceof Span) {
++        // A Span can't host views; its `#text` children fold into `text`.
++        let text = '';
++        for (const child of parent.children)
++            if (child.view === null)
++                text += child.text;
++        view.text = text;
++        return;
++    }
++    if (view instanceof FormattedString) {
++        // Span children splice through add/removeViewChild; `#text` children
++        // fold into minted spans interleaved in child order.
++        if (!parent.children.some((child) => child.view === null))
++            return;
++        const runs = [];
++        for (const child of parent.children) {
++            if (child.view === null)
++                runs.push(foldedSpan(parent, child));
++            else if (child.view instanceof Span)
++                runs.push(child.view);
++        }
++        replaceSpans(view, runs);
++        return;
++    }
+     if (!(view instanceof TextBase))
+         return;
++    const elementChildren = parent.children.filter((child) => child.view !== null);
++    if (elementChildren.length > 0 &&
++        elementChildren.every((child) => child.view instanceof Span)) {
++        // Mixed text/span children fold into one driver-owned FormattedString
++        // in child order. An explicit formattedstring child or another view
++        // type keeps its own attach path instead of joining the fold.
++        const folded = (parent.foldedText ??= { fs: new FormattedString() });
++        const runs = [];
++        for (const child of parent.children)
++            runs.push(child.view === null ? foldedSpan(parent, child) : child.view);
++        replaceSpans(folded.fs, runs);
++        if (view.formattedText !== folded.fs)
++            view.formattedText = folded.fs;
++        if (parent.textApplied || view.text !== '') {
++            parent.textApplied = false;
++            view.text = '';
++        }
++        return;
++    }
++    if (parent.foldedText != null) {
++        if (view.formattedText === parent.foldedText.fs)
++            view.formattedText = CLEARED;
++        parent.foldedText = null;
++    }
+     let text = '';
+     let found = false;
+     for (const child of parent.children) {
+@@ -190,6 +607,15 @@ function addViewChild(parentView, view, index) {
          parentView.insertChild(view, Math.min(index, parentView.getChildrenCount()));
          return;
      }
@@ -497,7 +586,32 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      if (parentView instanceof ContentView) {
          parentView.content = view;
          return;
-@@ -234,6 +579,13 @@ function removeViewChild(parentView, view) {
+@@ -203,9 +629,24 @@ function addViewChild(parentView, view, index) {
+         return;
+     }
+     if (parentView instanceof FormattedString && view instanceof Span) {
++        // When the formattedstring mixes `#text` and span children, syncText
++        // owns the whole ordered run list.
++        const owner = viewOwners.get(parentView)?.node;
++        if (owner != null && owner.children.some((child) => child.view === null)) {
++            syncText(owner);
++            return;
++        }
+         parentView.spans.splice(Math.min(index, parentView.spans.length), 0, view);
+         return;
+     }
++    if (parentView instanceof TextBase && view instanceof Span) {
++        // A span run under a text host joins its folded FormattedString;
++        // syncText rebuilds the ordered run list.
++        const owner = viewOwners.get(parentView)?.node;
++        if (owner != null)
++            syncText(owner);
++        return;
++    }
+     if (parentView instanceof TextBase && view instanceof FormattedString) {
+         parentView.formattedText = view;
+         return;
+@@ -234,6 +675,13 @@ function removeViewChild(parentView, view) {
              parentView.removeChild(view);
          return;
      }
@@ -511,7 +625,30 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      if (parentView instanceof ContentView) {
          if (parentView.content === view)
              parentView.content = CLEARED;
-@@ -315,6 +667,7 @@ function tabViewOwning(node) {
+@@ -248,11 +696,22 @@ function removeViewChild(parentView, view) {
+         return;
+     }
+     if (parentView instanceof FormattedString && view instanceof Span) {
++        const owner = viewOwners.get(parentView)?.node;
++        if (owner != null && owner.children.some((child) => child.view === null)) {
++            syncText(owner);
++            return;
++        }
+         const index = parentView.spans.indexOf(view);
+         if (index !== -1)
+             parentView.spans.splice(index, 1);
+         return;
+     }
++    if (parentView instanceof TextBase && view instanceof Span) {
++        const owner = viewOwners.get(parentView)?.node;
++        if (owner != null)
++            syncText(owner);
++        return;
++    }
+     if (parentView instanceof TextBase && parentView.formattedText === view) {
+         parentView.formattedText = CLEARED;
+         return;
+@@ -315,6 +774,7 @@ function tabViewOwning(node) {
      return null;
  }
  function detach(container, node) {
@@ -519,7 +656,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      const parent = node.parent;
      const siblings = childrenOf(container, parent);
      const index = siblings.indexOf(node);
-@@ -370,6 +723,12 @@ function attach(container, node) {
+@@ -370,6 +830,12 @@ function attach(container, node) {
          }
      }
      addViewChild(parentView, node.view, index);
@@ -532,7 +669,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      markTabView(tabViewOwning(node));
  }
  function insert(container, parent, node, before) {
-@@ -395,6 +754,23 @@ function insert(container, parent, node, before) {
+@@ -395,6 +861,23 @@ function insert(container, parent, node, before) {
   * nests an apply, so this is a depth rather than a flag.
   */
  let applyingDepth = 0;
@@ -556,7 +693,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
  function setEvent(container, node, type, listener) {
      const view = node.view;
      if (view === null)
-@@ -429,6 +805,7 @@ function setEvent(container, node, type, listener) {
+@@ -429,6 +912,7 @@ function setEvent(container, node, type, listener) {
      view.on(type, handler);
  }
  function disposeListeners(node) {
@@ -564,7 +701,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      const view = node.view;
      if (view !== null) {
          for (const [type, handler] of node.listeners)
-@@ -460,6 +837,7 @@ function recreateView(container, node) {
+@@ -460,6 +944,7 @@ function recreateView(container, node) {
          // no longer host them.
          throw new Error(`NativeScript driver: re-registered <${node.type}> is a <${view.typeName}>, which cannot host portal children; the registration stays on the previous view.`);
      }
@@ -572,7 +709,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      const parentView = hostViewOf(container, node.parent);
      for (const child of node.children) {
          if (child.view !== null)
-@@ -480,6 +858,9 @@ function recreateView(container, node) {
+@@ -480,6 +965,9 @@ function recreateView(container, node) {
      viewOwners.set(view, { container, node });
      node.view = view;
      node.textApplied = false;
@@ -582,7 +719,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      applyProps(node, node.props);
      for (const [type, handler] of node.listeners)
          view.on(type, handler);
-@@ -500,6 +881,12 @@ function recreateView(container, node) {
+@@ -500,6 +988,12 @@ function recreateView(container, node) {
                  addViewChild(view, child.view, index++);
          }
      }
@@ -595,7 +732,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      syncText(node);
      markTabView(node);
      attach(container, node);
-@@ -548,7 +935,7 @@ function preparePortalTarget(context) {
+@@ -548,7 +1042,7 @@ function preparePortalTarget(context) {
      }
      const target = owner?.node.view ?? suppliedTarget;
      if (!(target instanceof LayoutBase)) {
@@ -604,7 +741,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      }
      let id = portalTargetIds.get(target);
      if (id === undefined) {
-@@ -641,7 +1028,7 @@ function applyCommand(container, command) {
+@@ -641,7 +1135,7 @@ function applyCommand(container, command) {
  }
  export const nativeScriptDriver = {
      id: NATIVESCRIPT_RENDERER_ID,
@@ -613,7 +750,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
      events: {
          classify(name) {
              if (!EVENT_PROP.test(name))
-@@ -656,6 +1043,7 @@ export const nativeScriptDriver = {
+@@ -656,6 +1150,7 @@ export const nativeScriptDriver = {
          }
          return {
              apply() {
@@ -621,7 +758,7 @@ index 8bc563add4cb675a12651184b63805b10224274d..494acc783b1608485e640e157ee9d9ad
                  applyingDepth++;
                  pendingTabViews.push(new Set());
                  try {
-@@ -670,6 +1058,7 @@ export const nativeScriptDriver = {
+@@ -670,6 +1165,7 @@ export const nativeScriptDriver = {
                          applyingDepth--;
                      }
                  }

@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@octane-xplat/ui/theme/tokens.css'
 import { expect, it } from 'vitest'
-import { isIOS, type ViewBase } from '@nativescript/core'
+import { isIOS, Trace, type ViewBase } from '@nativescript/core'
 import { Pressable, Screen, Text } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
 import {
@@ -88,13 +88,27 @@ function DocFixture(): unknown {
   )
 }
 
-/** Observe `Utils.openUrl` destinations by shadowing the bridged
- *  `UIApplication` instance methods it calls — the `Utils` namespace is
- *  getter-only, so the call sites can't be patched directly. iOS-only; on
- *  other hosts `opened` stays empty. */
+/** Observe `Utils.openUrl` destinations. iOS shadows the bridged
+ *  `UIApplication` instance methods `openUrl` calls — the `Utils` namespace
+ *  is getter-only, so the call sites can't be patched directly. Android has
+ *  no cancelable open path: a `#…` destination matches no installed handler,
+ *  so the attempt always surfaces as an error Trace carrying the exact URL. */
 function interceptOpenUrl(opened: string[]): () => void {
+  if (!isIOS) {
+    const writer = {
+      write(message: unknown) {
+        const match = /handling URL: (.*)$/.exec(String(message))
+        if (match != null) {
+          opened.push(match[1])
+        }
+      },
+    }
+    Trace.addWriter(writer)
+    return () => Trace.removeWriter(writer)
+  }
+
   const app = (globalThis as any).UIApplication?.sharedApplication
-  if (!isIOS || app == null) {
+  if (app == null) {
     return () => {}
   }
 
@@ -157,6 +171,63 @@ it('flows inline markdown inside surrounding text', async () => {
   const text = allText(view).join(' ')
   expect(text).toContain('bold run')
   expect(text).toContain('code run')
+
+  // The patched driver folds the label's mixed children into one ordered
+  // FormattedString: sibling #text must survive as spans beside the markdown
+  // runs, not drop behind formattedText (decision #25 fold).
+  const folded = allText(view).join(' ')
+  expect(folded).toContain('before')
+  expect(folded).toContain('after')
+  const label = (function find(v: any): any {
+    if (v.formattedText?.spans?.length) {
+      return v
+    }
+    let hit: any
+    v.eachChildView?.((c: any) => {
+      hit ??= find(c)
+      return !hit
+    })
+    return hit
+  })(view)
+  const ordered = (label?.formattedText?.spans ?? []).map((s: any) => s.text).join('')
+  expect(ordered).toBe('before bold run and code run after')
+})
+
+it('keeps nested mark styling in flat runs', async () => {
+  function NestedFixture(): unknown {
+    return (
+      <Screen>
+        <Markdown>{'para **bold _deep_ tail** end'}</Markdown>
+      </Screen>
+    )
+  }
+
+  const { view } = await mountXplat(NestedFixture)
+
+  await waitUntil(() => allText(view).some((t) => t.includes('deep')), {
+    message: 'nested mark run never rendered',
+  })
+
+  const spans: any[] = []
+  const walk = (v: any) => {
+    v.formattedText?.spans?.forEach((s: any) => spans.push(s))
+    v.eachChildView?.((c: any) => {
+      walk(c)
+      return true
+    })
+  }
+  walk(view)
+
+  const deep = spans.find((s) => s.text === 'deep')
+  // The flat FormattedString run carries the union of enclosing marks —
+  // strong's weight plus emphasis's italic (reference nested-element
+  // styling), not the dropped-inner-style fold.
+  expect(deep).toBeTruthy()
+  expect(String(deep.fontStyle)).toBe('italic')
+  expect(String(deep.fontWeight)).toBe('600')
+  const bold = spans.find((s) => s.text === 'bold ')
+  expect(bold).toBeTruthy()
+  expect(String(bold.fontWeight)).toBe('600')
 })
 
 it('dispatches link taps to onLinkClick and honors cancellation', async () => {
@@ -291,9 +362,9 @@ it('re-renders cleanly when the document source changes', async () => {
   expect(allText(view).join('\n')).not.toContain('alpha text')
 })
 
-// iOS-only: the layout assertions rely on UIKit text measurement; Android
-// shares the mount path but its host is qualified separately.
-it.skipIf(!isIOS)('lays out a wide table inside its scroll region', async () => {
+// The layout assertion walks for a scroll-region host by typeName — portable
+// across UIKit and Android widgets (qualified on both).
+it('lays out a wide table inside its scroll region', async () => {
   function WideTableFixture(): unknown {
     return (
       <Screen>

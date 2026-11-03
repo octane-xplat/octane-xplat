@@ -41,6 +41,29 @@ export function MdDelete(props: { children?: unknown }): unknown @{
   )
 }
 
+/** Leaf run — a styled span folding its text into the enclosing attributed
+ *  string. Nested style and tap come from real span nesting on AppKit, so
+ *  this run only carries its own props. */
+export function MdTextRun(props: {
+  text: string
+  style?: Record<string, unknown>
+  onLinkTap?: () => void
+}): unknown {
+  return (
+    <span style={props.style} {...(props.onLinkTap ? { onLinkTap: props.onLinkTap } : {})}>
+      {props.text}
+    </span>
+  )
+}
+
+/** Inline code run — the `vx-code` chrome needs a label, so the AppKit fold
+ *  carries the monospace family only. */
+export function MdCodeRun(props: { style?: unknown; children?: unknown }): unknown {
+  return (
+    <span style={{ fontFamily: 'monospace', ...(props.style as object) }}>{props.children}</span>
+  )
+}
+
 export function MdBreak(): unknown {
   return '\n'
 }
