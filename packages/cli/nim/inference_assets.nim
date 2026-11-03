@@ -92,6 +92,8 @@ proc prepareNativeAssets*(root, operation: string, download = false, signal: Pro
     resolver: AssetUrlResolver = nil): Future[NativeAssets] {.async.} =
   when not (defined(macosx) and defined(arm64)):
     raise contractFailure("unsupported_capability","Native inference currently supports macOS arm64 only")
+  if not isAbsolute(root) or not isAbsolute(operation) or '\0' in root or '\0' in operation:
+    raise contractFailure("invalid_selection","Native asset paths must be absolute and contain no NUL")
   signal.check()
   let model = parseStrictJson(modelManifest)
   let runtime = parseStrictJson(runtimeManifest)

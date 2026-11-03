@@ -29,7 +29,8 @@ proc nativeDocsComputeChild*(operationDirectory: string): Future[void] {.async.}
         if field(document,key) == nil or document[key].kind != JString: raise contractFailure("invalid_selection","Invalid documentation record")
     let cache = text(field(request,"cacheDir"))
     let assets = text(field(request,"assetRoot"))
-    if not isAbsolute(cache) or not isAbsolute(assets): raise contractFailure("invalid_selection","Compute caches must be absolute paths")
+    if not isAbsolute(cache) or not isAbsolute(assets) or '\0' in cache or '\0' in assets:
+      raise contractFailure("invalid_selection","Compute caches must be absolute paths without NUL")
     var embedder: DocsEmbedder
     let mode = if field(request,"mode") == nil: "hybrid" else: text(request["mode"])
     if mode notin ["hybrid","lexical"]: raise contractFailure("invalid_selection","Invalid documentation retrieval mode")
@@ -63,7 +64,8 @@ proc nativeDocsComputeChild*(operationDirectory: string): Future[void] {.async.}
 proc runNativeDocsCompute*(operation: JsonNode, signal: ProcessCancel = nil, timeoutMs = 900000,
     observer: ComputeObserver = nil): Future[JsonNode] {.async.} =
   let root = text(field(operation,"assetRoot"))
-  if not isAbsolute(root): raise newException(ValueError,"Native asset root must be absolute")
+  if not isAbsolute(root) or '\0' in root:
+    raise contractFailure("invalid_selection","Native asset root must be absolute and contain no NUL")
   privateHostDirectory(root)
   let operations = root / "operations"
   privateHostDirectory(operations)

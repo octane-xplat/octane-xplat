@@ -134,7 +134,7 @@ test('cancellation and deadlines await native child cleanup and leave SQLite rea
 })
 
 test('malformed inventories and unsafe cache roots fail with structured errors',async()=>{
- for(const changed of [{documents:{}},{cacheDir:'relative'},{operation:'unknown'},{query:'',operation:'search'}]){
+ for(const changed of [{documents:{}},{cacheDir:'relative'},{cacheDir:index+'\0suffix'},{assetRoot:cache+'\0suffix'},{assetRoot:'relative'},{operation:'unknown'},{query:'',operation:'search'}]){
   const result=await invoke({request:request('search',documents,{query:'navigation',...changed})})
   assert.equal(result.ok,false);assert.equal(result.error.code,'invalid_selection')
   assert.deepEqual(readdirSync(join(cache,'operations')),[])
