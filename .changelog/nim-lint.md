@@ -11,6 +11,7 @@ xplat lint src
 xplat lint --fix src
 ```
 
-This applies to the experimental `nim` channel. Native `fmt` remains pending.
+This applies to the experimental `nim` channel. Formatting uses its separately
+installed project formatter; see the native CLI setup for that prerequisite.
 See [native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
 and [lint configuration](https://octane-xplat.goddardai.org/package-lint#project-configuration).

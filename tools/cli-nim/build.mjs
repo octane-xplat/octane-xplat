@@ -1,7 +1,8 @@
 // Build native production entry with real TypeScript command metadata.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
-import { resolve } from 'node:path'
+import { resolve, dirname } from 'node:path'
+import { createRequire } from 'node:module'
 import { getToolchain } from 'nim-toolchain'
 import { prepareOrtHeaders } from './ort-headers.mjs'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
@@ -23,6 +24,16 @@ function reference(args) {
  if(r.status!==0) {throw Error(r.stderr)}
  return r.stdout
 }
+// Bundle only the bounded operation and its small ignore engine. The actual
+// formatter/native binding is resolved from the selected project at runtime.
+const fmtWorker = resolve(work,'fmt-worker.mjs')
+if(spawnSync('bun',['--version'],{encoding:'utf8'}).stdout?.trim() !== '1.4.4') {throw Error('Format worker bundling requires Bun 1.4.4')}
+const bundled = spawnSync('bun',['build',resolve(root,'packages/cli/src/fmt-worker.ts'),'--target=node','--format=esm','--minify',`--outfile=${fmtWorker}`],{cwd:root,stdio:'inherit'})
+if(bundled.status !== 0) {throw Error('Formatter operation build failed')}
+const cliRequire = createRequire(resolve(root,'packages/cli/package.json'))
+const ignoreManifest = cliRequire.resolve('ignore/package.json')
+if(JSON.parse(readFileSync(ignoreManifest)).version !== '7.0.14') {throw Error('Format worker ignore dependency pin mismatch')}
+const ignoreLicense = readFileSync(resolve(dirname(ignoreManifest),'LICENSE-MIT'),'utf8')
 const catalog=JSON.parse(reference(['catalog','--json']))
 delete catalog.requestId
 // Version denotes this native build; execution coverage must never be inferred
@@ -30,7 +41,7 @@ delete catalog.requestId
 catalog.data.cli.version=version
 const nativeCommands=['catalog','status','capabilities','permissions','app select','code search','code read','guidance','docs read','docs search','docs index','actions list','actions invoke','actions status','session list','session status','session end','session start','session attach','targets','diagnostics','job status','job cancel','runtime build']
 for(const c of catalog.data.commands) {c.status=nativeCommands.includes(c.command)?'implemented':'pending'}
-for(const c of catalog.data.orchestration) {c.status=['clean','typecheck','routes','build','lint'].includes(c.name)?'implemented':'pending'}
+for(const c of catalog.data.orchestration) {c.status=['clean','typecheck','routes','build','lint','fmt'].includes(c.name)?'implemented':'pending'}
 const commands={}
 for(const c of AGENT_COMMANDS) {
  const schema=JSON.parse(reference([...c.path,'--schema']))
@@ -38,7 +49,7 @@ for(const c of AGENT_COMMANDS) {
  schema.data.status=nativeCommands.includes(c.name)?'implemented':'pending'
  commands[c.name]={descriptor:c,schema,help:reference([...c.path,'--help'])}
 }
-writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,capabilityIds:CAPABILITY_IDS,boundaries:PRODUCT_BOUNDARIES,catalogHuman:"",typecheckHelp:reference(['typecheck','--help']),lintHelp:reference(['lint','--help']),
+writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({version,commands,catalog,capabilityIds:CAPABILITY_IDS,boundaries:PRODUCT_BOUNDARIES,catalogHuman:"",fmtWorkerSource:readFileSync(fmtWorker,'utf8'),fmtHelp:reference(['fmt','--help']),typecheckHelp:reference(['typecheck','--help']),lintHelp:reference(['lint','--help']),
  buildHelp:reference(['build','--help']),buildDescriptor:buildCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/build.ts'),'utf8')),
  routesHelp:reference(['routes','--help']),routeDescriptor:routeCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/routes.ts'),'utf8'))}))
 mkdirSync(resolve(work,'native'),{recursive:true})
@@ -51,7 +62,7 @@ for(const [cmd,args] of [[compiler.nim,flags],...(process.platform==='win32'?[]:
 if(nativeInputs(root).sha256!==inputs.sha256){throw Error('Native sources changed during compilation; rebuild before qualifying this artifact')}
 writeFileSync(resolve(work,'native/build.json'),JSON.stringify({version,platform:process.platform,arch:process.arch,flags,stripped:process.platform!=='win32',nativeInputs:inputs,nativeArtifact:artifactFingerprint(readFileSync(binary))}))
 
-writeFileSync(resolve(work,'native/NOTICE.txt'), readFileSync(resolve(work,'NOTICE.txt')))
+writeFileSync(resolve(work,'native/NOTICE.txt'), readFileSync(resolve(work,'NOTICE.txt'),'utf8')+'\n\nignore 7.0.14 (bundled format operation)\n\n'+ignoreLicense)
 
 const parser=resolve(work,process.platform==='win32'?'native/args-probe.exe':'native/args-probe')
 const parserBuild=spawnSync(compiler.nim,['c','-d:release',`--nimcache:${work}/args-cache`,`-o:${parser}`,resolve(import.meta.dirname,'args_probe.nim')],{stdio:'inherit'})

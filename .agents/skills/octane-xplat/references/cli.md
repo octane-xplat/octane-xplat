@@ -52,7 +52,10 @@ qualification does not expand the app runtime transport limits in the
 Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
 with Node >=22.22.2. Install that package in the project; it is not bundled with
 the Nim tarball. Help is native. The engine owns its rules, ignores and safe
-fixes; Nim owns process cleanup. Native `fmt` is still pending.
+fixes; Nim owns process cleanup. Native `fmt` on macOS uses the project's
+`@octane-xplat/fmt@0.1.1` and Node; check mode writes nothing, and transform
+errors leave the whole batch untouched. Help remains native. The small formatter
+operation shares the reference planner; it is not a second formatter engine.
 On Ubuntu x64, the native owner and web build workflow are qualified with the
 project-installed route/baking worker and Vite, including job cancellation and
 child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process

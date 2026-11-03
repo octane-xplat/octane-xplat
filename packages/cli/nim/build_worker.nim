@@ -46,17 +46,22 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
     onDiagnostic: proc(bytes: string) {.closure.} = nil,
     onWarning: proc(message: string) {.closure.} = nil,
     packageName = "@octane-xplat/build",
-    onOutput: proc(stream, bytes: string) {.closure.} = nil): Future[JsonNode] {.async.} =
+    onOutput: proc(stream, bytes: string) {.closure.} = nil,
+    workerSource = ""): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Worker timeout must be positive")
   if signal != nil and signal.cancelled: raise contractFailure("cancelled","Build operation cancelled")
   let root = absolutePath(project)
-  let worker = projectWorker(root,packageName)
+  var worker = if workerSource.len == 0: projectWorker(root,packageName) else: ""
   let temporary = privateWorkerDirectory()
   let manager = newProcessManager()
   let cancellation = newProcessCancel()
   let started = getMonoTime()
   let id = $getCurrentProcessId() & "-" & $started.ticks
   try:
+    if workerSource.len > 0:
+      worker = temporary / "operation.mjs"
+      when defined(windows): discard windowsPublishPrivate(worker,workerSource)
+      else: writeFile(worker,workerSource)
     let request = newJObject()
     if payload != nil and payload.kind == JObject:
       for key,value in payload: request[key] = value

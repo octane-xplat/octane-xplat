@@ -2,7 +2,7 @@
 
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
-status, capabilities, clean, typecheck, routes, lint, web/macOS builds, app selection, permissions, code search, code read, guidance
+status, capabilities, clean, typecheck, routes, lint, fmt, web/macOS builds, app selection, permissions, code search, code read, guidance
 and docs read/search/index, actions list/invoke/status, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
@@ -249,13 +249,30 @@ process-group cleanup. A broken nearer installation never falls back to a farthe
 one or a global module path. Nim preserves argv, cwd, output bytes and ordinary
 exit status; the engine owns rules, selection, ignores and safe fixes. Help is
 embedded at build time and needs no runtime. Lint execution requires the project
-lint package and Node >=22.22.2; the core tarball bundles neither. Native `fmt`
-is still pending.
+lint package and Node >=22.22.2; the core tarball bundles neither.
 
 ```sh
 research/nim-cli/native/xplat lint --help
 research/nim-cli/native/xplat lint src
 research/nim-cli/native/xplat lint --fix src
+```
+
+`fmt_command.nim` uses the canonical formatter planner through a bounded Node
+operation. Install `@octane-xplat/fmt@0.1.1` in the selected project and provide
+Node >=22.22.2. The operation shares file discovery and Git ignore behavior with
+the reference command, but never writes source files. Nim validates the whole
+plan and unchanged raw inputs before publishing adjacent temporary files with
+preserved permissions. Parse/configuration errors write no source files; check
+returns 1 for differences, errors return 2, and stdin formatting writes only
+formatted text to stdout. The executable embeds only the small operation/ignore
+helper, not Node, the formatter or its native binding. macOS Apple Silicon is the
+qualified formatting host; Linux/Windows formatting publication is unqualified.
+
+```sh
+bun add --dev @octane-xplat/fmt@0.1.1
+xplat fmt src --check
+xplat fmt src
+printf 'const x=1\n' | xplat fmt --stdin-filepath src/example.ts
 ```
 
 `metadata.json` is generated from the TypeScript descriptors and excluded from
@@ -423,8 +440,9 @@ gh workflow run release.yml -f track=nim -f nim_version=0.19.0-nim.1
 ```
 
 The Nim npm tarball contains native executables, their checksum manifest, and a
-small install-time selector. It has no JavaScript implementation payload,
-JavaScript exports, or runtime dependency tree. TypeScript remains in the
+small install-time selector. It excludes the old JavaScript CLI and its
+runtime dependency tree; a bounded formatter operation is embedded as data
+and runs only when formatting is requested. TypeScript remains in the
 repository as the migration reference; stable/nightly packaging is unchanged.
 Existing `@octane-xplat/cli/vite` and MCP imports are not provided by this
 experimental tarball. Project build plugins are separately packaged as
@@ -440,7 +458,7 @@ bun add --dev @octane-xplat/cli@nim
 
 Postinstall verifies the matching bundled binary and copies it to
 `bin/xplat.exe`; npm links directly to the native file on Unix and Windows.
-Node runs only the installer. The `.exe` suffix lets npm use one bin path across
+Node runs the installer and requested project-tool operations. The `.exe` suffix lets npm use one bin path across
 OSes. Disabling install scripts leaves a diagnostic placeholder; run the
 selector explicitly if needed. There is no executable download during install.
 

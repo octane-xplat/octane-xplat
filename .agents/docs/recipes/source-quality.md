@@ -13,8 +13,10 @@ do not establish runtime behavior on a browser or device.
 
 The experimental Nim executable has a separate, partial migration path: native
 lint requires Node and a project-installed `@octane-xplat/lint`; native formatting
-is pending. This does not satisfy AC1's CLI-only installation or the native part
-of AC5. Keep those gaps explicit rather than treating the smaller download as
+on macOS requires Node and project-installed `@octane-xplat/fmt@0.1.1`. Native
+format/check/stdin have a [formatter gate](../../../tools/cli-nim/fmt-command.test.mjs);
+complete starter-script workflow verification remains separate. The extra engine
+installation still does not satisfy AC1's CLI-only installation. Keep those gaps explicit rather than treating the smaller download as
 full workflow coverage. See the [native CLI setup](../../../docs/packages/package-cli.md#experimental-nim-executable)
 and [packed-engine qualification](../../../tools/cli-nim/lint-command.test.mjs).
 

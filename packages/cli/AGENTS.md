@@ -3,14 +3,16 @@
 The Nim rewrite lives in `nim/`. Keep the TypeScript implementation as the
 behavioral reference during migration. Native commands must not fall back to
 executing the old CLI. Project-installed JavaScript build engines remain a
-separate boundary. The Nim npm package contains no JS implementation payload,
-JS exports, or runtime dependency tree; the small installer runs only at install.
+separate execution boundary. Keep the executable native, without embedded
+Node/Bun or an old-CLI fallback. Small operation workers and Vite exports may
+live in this package; language boundaries do not require npm package boundaries.
+Keep heavy engine dependencies opt-in and large platform host assets separate.
 
 Project-installed plugins live in `@octane-xplat/build`. That package compiles
 the Vite plugin closure from the TypeScript reference at build time; its published
-code has no CLI runtime dependency. Preserve this boundary when wiring native
-commands: invoke the app's installed compiler/build tools with explicit argv,
-cwd and environment, and keep command/session orchestration in Nim.
+code has no CLI runtime dependency. Those current package locations are not a
+requirement for future worker/plugin placement. For native commands, invoke the
+app's installed compiler/build tools with explicit argv, cwd and environment, and keep command/session orchestration in Nim.
 
 The macOS development worker is `@octane-xplat/macos-build/dev-worker`.
 It runs the canonical Vite/compiler/HMR engine and publishes versioned readiness
@@ -78,7 +80,13 @@ Choose language boundaries by the operation's existing requirements and semantic
 ownership. When compiler work already starts Node, keeping its renderer in the
 same project-installed worker can remove duplicated language-specific logic.
 Fast native help startup does not establish an end-to-end speed benefit for that
-renderer. Prefer one canonical implementation; keep validated artifact plans,
+renderer. Formatting follows this rule too: share discovery, Git ignore and
+formatter planning with the reference command; let the project's formatter engine
+load its configuration and native binding. Nim validates the complete plan before
+any source publication, then stages adjacent files and performs native rename.
+Keep raw-byte source digests and permissions in stale-input checks; decoding two
+different invalid UTF-8 byte sequences can yield the same text. Worker/library
+stdout belongs on stderr when stdout carries formatted stdin text. Prefer one canonical implementation; keep validated artifact plans,
 stale-input rejection, publication and lifecycle ownership explicit at the boundary.
 Preserve user-visible contracts and data/process safety without expanding a
 general JavaScript compatibility layer to reproduce incidental coercion behavior.

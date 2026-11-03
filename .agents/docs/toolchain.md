@@ -8,7 +8,7 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 A parallel Nim implementation lives in [packages/cli/nim](../../packages/cli/nim/README.md).
 Keep TypeScript as the behavioral reference while migrating; native commands
 must not execute the old CLI as a fallback. Its separate package staging omits
-JS implementation payloads, exports and runtime dependencies and targets only
+the old JS CLI, its exports and heavy runtime dependencies, and targets only
 the explicit `nim` prerelease channel. Read the owning README for implemented
 scope and qualification limits, [tools/cli-nim](../../tools/cli-nim/README.md) for
 task-local compiler/dependency pins and differential checks, and

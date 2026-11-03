@@ -8,28 +8,11 @@
 // Exit codes: 0 clean, 1 when --check found differences, 2 for usage,
 // configuration, parse, transformation, or I/O failure. Errors take
 // precedence over check differences; diagnostics go to stderr.
-import { lstatSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
-import { join, relative, resolve } from 'node:path'
-import ignore from 'ignore'
+import { readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { relative } from 'node:path'
+import { planFormat, sourceDigest } from '../fmt-plan.ts'
 
-const EXTENSIONS = new Set(['js', 'mjs', 'cjs', 'jsx', 'ts', 'mts', 'cts', 'tsx', 'tsrx'])
-
-// Mirrors packages/lint's companion-pass inventory.
-const IGNORED_DIRS = new Set([
-	'.git',
-	'.next',
-	'.nx',
-	'.turbo',
-	'build',
-	'coverage',
-	'dist',
-	'graft',
-	'node_modules',
-	'out',
-	'prior-art',
-	'release',
-	'tmp',
-])
+const EXTENSIONS = ['js', 'mjs', 'cjs', 'jsx', 'ts', 'mts', 'cts', 'tsx', 'tsrx']
 
 const USAGE = `xplat fmt — format Octane Xplat source in place
 
@@ -79,43 +62,22 @@ export async function runFmt(argv) {
 		return runStdin(cwd, stdinFilepath, check)
 	}
 
-	let formatter
+	let plan
 	try {
-		const { createFormatter } = await import('@octane-xplat/fmt')
-		formatter = await createFormatter({ cwd })
+		plan = await planFormat(cwd, inputs, null, async () => {
+			const { createFormatter } = await import('@octane-xplat/fmt')
+			return createFormatter({ cwd })
+		})
 	} catch (error) {
 		return fail(`fmt: ${error.message ?? error}`)
 	}
-
-	let files
-	try {
-		files = collectFiles(cwd, inputs, formatter)
-	} catch (error) {
-		return fail(`fmt: ${error.message ?? error}`)
+	for (const diagnostic of plan.diagnostics) {
+		console.error(diagnostic)
 	}
-
-	// Transform the whole batch before any write: a transformation error must
-	// produce zero source-file writes.
-	const results = []
-	for (const file of files) {
-		const source = readFileSync(file, 'utf8')
-		const stat = statSync(file)
-		const result = await formatter.formatText({ path: relative(cwd, file) || file, source })
-		results.push({ file, source, stat, result })
-	}
-
-	const failed = results.filter((r) => !r.result.ok)
-	for (const { result } of failed) {
-		for (const d of result.diagnostics) {
-			const at = d.line === undefined ? '' : `:${d.line}:${d.column ?? 1}`
-			console.error(`${d.path}${at}: ${d.stage} ${d.code} — ${d.message}`)
-		}
-	}
-	if (failed.length) {
+	if (plan.diagnostics.length) {
 		return 2
 	}
-
-	const changed = results.filter((r) => r.result.changed)
+	const changed = plan.files.filter((file) => file.changed)
 	if (check) {
 		for (const { file } of changed) {
 			console.error(`${relative(cwd, file)}: would reformat`)
@@ -123,12 +85,10 @@ export async function runFmt(argv) {
 
 		return changed.length ? 1 : 0
 	}
-
 	const written = []
-	for (const { file, source, stat, result } of changed) {
-		// Bail rather than overwrite: the file moved between read and transform.
-		if (readFileSync(file, 'utf8') !== source) {
-			console.error(`${relative(cwd, file)}: changed since it was read — left untouched`)
+	for (const entry of changed) {
+		if (sourceDigest(readFileSync(entry.file)) !== entry.sourceSha256) {
+			console.error(`${relative(cwd, entry.file)}: changed since it was read — left untouched`)
 			if (written.length) {
 				console.error(`fmt: already wrote ${written.join(', ')}`)
 			}
@@ -136,8 +96,8 @@ export async function runFmt(argv) {
 			return 2
 		}
 
-		writeFileAtomic(file, result.code, stat.mode)
-		written.push(relative(cwd, file))
+		writeFileAtomic(entry.file, entry.code, entry.mode)
+		written.push(relative(cwd, entry.file))
 	}
 	if (written.length) {
 		console.error(`fmt: wrote ${written.length} file(s)`)
@@ -146,152 +106,35 @@ export async function runFmt(argv) {
 }
 
 async function runStdin(cwd, filepath, check) {
-	const source = await readStdin()
-	let formatter
-	try {
-		const { createFormatter } = await import('@octane-xplat/fmt')
-		formatter = await createFormatter({ cwd })
-	} catch (error) {
-		return fail(`fmt: ${error.message ?? error}`)
+	const plan = await planFormat(
+		cwd,
+		[],
+		{ path: filepath, source: await readStdin() },
+		async () => {
+			const { createFormatter } = await import('@octane-xplat/fmt')
+			return createFormatter({ cwd })
+		},
+	).catch((error) => {
+		fail(`fmt: ${error.message ?? error}`)
+		return null
+	})
+	if (!plan) {
+		return 2
 	}
-	const result = await formatter.formatText({ path: filepath, source })
-	if (!result.ok) {
-		for (const d of result.diagnostics) {
-			const at = d.line === undefined ? '' : `:${d.line}:${d.column ?? 1}`
-			console.error(`${d.path}${at}: ${d.stage} ${d.code} — ${d.message}`)
-		}
-
+	for (const diagnostic of plan.diagnostics) {
+		console.error(diagnostic)
+	}
+	if (plan.diagnostics.length) {
 		return 2
 	}
 	if (check) {
-		return result.changed ? 1 : 0
+		return plan.changed ? 1 : 0
 	}
-	process.stdout.write(result.code)
+	process.stdout.write(plan.code)
 	return 0
 }
 
 // ---------------------------------------------------------------------------
-
-function collectFiles(cwd, inputs, formatter) {
-	const ignores = new Gitignores()
-	ignores.load(cwd)
-	const files = new Set()
-
-	const walkInto = function* (dir) {
-		for (const entry of readdirSync(dir, { withFileTypes: true })) {
-			const abs = join(dir, entry.name)
-			if (entry.isSymbolicLink()) {
-				continue
-			}
-
-			if (entry.isDirectory()) {
-				if (IGNORED_DIRS.has(entry.name)) {
-					continue
-				}
-
-				// A nested repository carries its own config — `.git` is a dir in
-				// a clone and a file in worktrees/submodules; either bounds it.
-				// The scan root itself is always scanned.
-				if (hasGitBoundary(abs)) {
-					continue
-				}
-
-				if (ignores.isIgnored(abs)) {
-					continue
-				}
-
-				ignores.load(abs)
-				yield* walkInto(abs)
-			} else if (entry.isFile()) {
-				const ext = entry.name.split('.').pop()
-				if (EXTENSIONS.has(ext) && !ignores.isIgnored(abs)) {
-					yield abs
-				}
-			}
-		}
-	}
-
-	if (inputs.length === 0) {
-		for (const file of walkInto(cwd)) {
-			if (!formatter.shouldIgnore(file)) {
-				files.add(file)
-			}
-		}
-	} else {
-		for (const input of inputs) {
-			const abs = resolve(cwd, input)
-			let stat
-			try {
-				stat = lstatSync(abs)
-			} catch {
-				throw new Error(`no such file or directory: ${input}`)
-			}
-
-			if (stat.isSymbolicLink()) {
-				throw new Error(`not following symlink: ${input}`)
-			}
-
-			if (stat.isDirectory()) {
-				for (const file of walkInto(abs)) {
-					if (!formatter.shouldIgnore(file)) {
-						files.add(file)
-					}
-				}
-			} else {
-				const ext = abs.split('.').pop()
-				if (!EXTENSIONS.has(ext)) {
-					throw new Error(`unsupported extension .${ext}: ${input}`)
-				}
-
-				if (!formatter.shouldIgnore(abs)) {
-					files.add(abs)
-				}
-			}
-		}
-	}
-	return [...files].sort()
-}
-
-function hasGitBoundary(dir) {
-	try {
-		return readdirSync(dir).some((name) => name === '.git')
-	} catch {
-		return false
-	}
-}
-
-// One `ignore` matcher per directory that carries a .gitignore, evaluated
-// against the candidate's path relative to that directory.
-class Gitignores {
-	constructor() {
-		this.matchers = new Map()
-	}
-	load(dir) {
-		if (this.matchers.has(dir)) {
-			return
-		}
-		let matcher = null
-		try {
-			matcher = ignore().add(readFileSync(join(dir, '.gitignore'), 'utf8'))
-		} catch {
-			matcher = null
-		}
-		this.matchers.set(dir, matcher)
-	}
-	isIgnored(abs) {
-		for (const [dir, matcher] of this.matchers) {
-			if (!matcher) {
-				continue
-			}
-
-			const rel = relative(dir, abs)
-			if (rel && !rel.startsWith('..') && matcher.ignores(rel)) {
-				return true
-			}
-		}
-		return false
-	}
-}
 
 // Write beside the target so rename stays on one filesystem; mode carries over.
 function writeFileAtomic(file, code, mode) {

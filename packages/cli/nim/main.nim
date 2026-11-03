@@ -4,6 +4,7 @@ import ./typecheck_command, ./managed_process
 import ./routes_command
 import ./build_command
 import ./lint_command
+import ./fmt_command
 import ./agent_host
 import ./runtime_service
 import ./docs_compute
@@ -84,7 +85,7 @@ proc errorExit(code: string): int =
 
 if argv.len == 0 or argv == @["--help"] or argv == @["-h"]:
   echo "xplat — experimental Nim CLI"
-  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, lint, build (web/macos), permissions, app select, code search, code read, guidance, docs read/search/index, actions list/invoke/status, targets (macos), session start/attach (macos)/list/status/end, job status/cancel, runtime build (web/macos); all agent commands expose --help and --schema."
+  echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, lint, fmt, build (web/macos), permissions, app select, code search, code read, guidance, docs read/search/index, actions list/invoke/status, targets (macos), session start/attach (macos)/list/status/end, job status/cancel, runtime build (web/macos); all agent commands expose --help and --schema."
   echo "Other command execution is pending. Install @octane-xplat/cli@latest for the TypeScript CLI."
   quit(0)
 if argv == @["--version"]:
@@ -126,7 +127,7 @@ if data["commands"].hasKey(name):
     stdout.write(text(cmd["help"])); quit(0)
   if name == "catalog":
     if "--json" in argv: emit(data["catalog"])
-    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, lint, build (web/macos), permissions, app select, code search, code read, guidance, docs read/search/index, actions list/invoke/status, targets (macos), session start/attach (macos)/list/status/end, diagnostics, job status/cancel, runtime build (web/macos). Other command execution is pending; use --json for contracts and coverage."
+    else: echo "Native commands: catalog, status, capabilities, clean, typecheck, routes, lint, fmt, build (web/macos), permissions, app select, code search, code read, guidance, docs read/search/index, actions list/invoke/status, targets (macos), session start/attach (macos)/list/status/end, diagnostics, job status/cancel, runtime build (web/macos). Other command execution is pending; use --json for contracts and coverage."
     quit(0)
   var reply: JsonNode
   if name == "actions list":
@@ -149,6 +150,12 @@ if data["commands"].hasKey(name):
     let code = text(reply["error"]["code"])
     quit(errorExit(code))
   failure(name, "unavailable", "Command execution is not yet ported to Nim: " & name, 3)
+if name == "fmt":
+  try: exitProcess(waitFor runFmt(getCurrentDir(),argv[1..^1],text(data["fmtHelp"]),text(data["fmtWorkerSource"])))
+  except CatchableError as error:
+    if interruptedSignal() != 0: exitProcess(128+interruptedSignal())
+    stderr.writeLine(utf8ForWrite("fmt: " & error.msg))
+    exitProcess(2)
 if name == "lint":
   if lintHelpRequested(argv[1..^1]):
     stdout.write(text(data["lintHelp"]))

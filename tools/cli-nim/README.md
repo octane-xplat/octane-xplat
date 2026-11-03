@@ -840,9 +840,26 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 then exercises the public native entry against the TypeScript/Node reference.
 It checks real regular/TSRX diagnostics and safe fixes, project tool resolution,
 clean Node environment, byte streams, exit status and owned descendant cleanup.
-It is a host-side source check, not an app UI/device check. Native `fmt` remains
-pending. No lint/formatter runtime is added to the standalone download.
+It is a host-side source check, not an app UI/device check. No lint/formatter
+runtime is added to the standalone download.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native lint qualification"}' -- bun run turbo run test:nim-lint --filter=@octane-xplat/cli
+```
+
+## Project formatter engine
+
+`test:nim-fmt` installs `@octane-xplat/fmt@0.1.1` in an isolated consumer and
+compares the native command with the Node reference. The planner is canonical
+TypeScript: Node owns formatter/configuration/ignore semantics, while Nim owns
+arguments, private bounded sidecars, cancellation, plan validation and atomic
+source publication. A small bundled operation/ignore helper is embedded in
+metadata; it resolves the formatter from the selected project and contains no
+old CLI command or runtime. Host-side macOS qualification covers actual source
+bytes and permissions, stdin/check/error behavior, malformed/stale plans and
+resistant child/descendant cleanup. It does not qualify Windows/Linux formatting
+publication or an app runtime.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native formatter qualification"}' -- bun run turbo run test:nim-fmt test:fmt --filter=@octane-xplat/cli
 ```

@@ -153,13 +153,27 @@ Native lint runs the project's installed lint engine on macOS Apple Silicon.
 Install `@octane-xplat/lint` in that project and provide Node >=22.22.2 on PATH;
 the native download includes neither. The engine keeps its regular-source and
 TSRX rules, project ignores, and opt-in safe fixes. Help works without Node.
-Native formatting remains pending; use the existing TypeScript CLI for `fmt`:
 
 ```sh
 bun add --dev @octane-xplat/lint
 research/nim-cli/native/xplat lint --help
 research/nim-cli/native/xplat lint src
 research/nim-cli/native/xplat lint --fix src
+```
+
+Native formatting on macOS Apple Silicon uses the project's installed
+`@octane-xplat/fmt@0.1.1` and Node >=22.22.2. Run from your app or library folder.
+Check mode reports differences without writes; ordinary formatting updates the
+selected files. Configuration or parse errors leave the entire batch unchanged.
+Help works without Node, and the native download includes neither Node nor the
+formatter engine:
+
+```sh
+bun add --dev @octane-xplat/fmt@0.1.1
+xplat fmt --help
+xplat fmt src --check
+xplat fmt src
+printf 'const x=1\n' | xplat fmt --stdin-filepath src/example.ts
 ```
 
 Native docs search and reads work without Node or Bun on macOS Apple Silicon.

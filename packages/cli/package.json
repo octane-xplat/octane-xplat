@@ -135,7 +135,9 @@
 		"test:nim-host-bootstrap": "node --test ../../tools/cli-nim/host-bootstrap.test.mjs",
 		"test:nim-typecheck": "node --test ../../tools/cli-nim/typecheck-command.test.mjs",
 		"test:nim-worker": "node --test ../../tools/cli-nim/build-worker.test.mjs",
-		"test:nim-routes": "node --test ../../tools/cli-nim/route-path.test.mjs ../../tools/cli-nim/route-generation.test.mjs ../../tools/cli-nim/route-templates.test.mjs"
+		"test:nim-routes": "node --test ../../tools/cli-nim/route-path.test.mjs ../../tools/cli-nim/route-generation.test.mjs ../../tools/cli-nim/route-templates.test.mjs",
+		"test:nim-fmt": "node --test ../../tools/cli-nim/fmt-command.test.mjs",
+		"test:fmt": "node --test test/fmt.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

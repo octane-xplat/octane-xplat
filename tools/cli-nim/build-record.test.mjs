@@ -9,7 +9,11 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const root = mkdtempSync(join(tmpdir(), 'xplat-nim-record-'))
  t.after(() => rmSync(root, { recursive: true, force: true }))
  const files = ['packages/cli/nim/main.nim', 'packages/cli/nim/metadata.json',
-  'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts', 'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json',
+  'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts',
+  'packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts',
+  'packages/cli/src/commands/lint.ts', 'packages/lint/src/runner.ts', 'packages/lint/bin/lint.mjs',
+  'tools/cli-nim/windows-http-build.mjs', 'tools/cli-nim/ort-headers.mjs', 'tools/cli-nim/model-assets.json',
+  'tools/cli-nim/licenses/onnxruntime.txt', 'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts',
   'tools/cli-nim/build.mjs', 'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
   'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/ort-runtime.json',
@@ -19,14 +23,14 @@ test('benchmark records bind source bytes, host and the exact executable rather 
  const record = { version: '0.19.0-nim.0', platform: process.platform, arch: process.arch,
   nativeInputs: nativeInputs(root), nativeArtifact: artifactFingerprint(bytes) }
  assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
- for (const file of ['packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts', 'tools/cli-nim/route-templates.mjs',
+ for (const file of ['packages/cli/src/commands/fmt.ts', 'packages/cli/src/fmt-plan.ts', 'packages/cli/src/fmt-worker.ts', 'packages/cli/src/commands/routes.ts', 'packages/cli/src/commands/build.ts', 'tools/cli-nim/route-templates.mjs',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts']) {
   writeFileSync(join(root, file), 'changed embedded contract or rendering input')
   assert.throws(() => assertCurrentNativeBuild(root, record, bytes), /Sources differ/)
   writeFileSync(join(root, file), file)
   assert.doesNotThrow(() => assertCurrentNativeBuild(root, record, bytes))
  }
- for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/env_probe.nim','tools/cli-nim/sessions_scenario.nim','tools/cli-nim/jobs_scenario.nim','tools/cli-nim/rpc_probe.nim','tools/cli-nim/host_probe.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) {writeFileSync(join(root,file),file)}
+ for (const file of ['tools/cli-nim/build-probe.mjs','tools/cli-nim/process_probe.nim','tools/cli-nim/env_probe.nim','tools/cli-nim/sessions_scenario.nim','tools/cli-nim/jobs_scenario.nim','tools/cli-nim/history_scenario.nim','tools/cli-nim/rpc_probe.nim','tools/cli-nim/host_probe.nim','tools/cli-nim/core.nim','tools/cli-nim/catalog.json','tools/cli-nim/prepare.mjs']) {writeFileSync(join(root,file),file)}
  const processRecord = { ...record, nativeInputs: processProbeInputs(root) }
  const coreRecord = { ...record, nativeInputs: coreInputs(root) }
  const envRecord = { ...record, nativeInputs: envProbeInputs(root) }
