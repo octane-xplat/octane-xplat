@@ -1768,9 +1768,14 @@ function Check-ServiceActions{
     Assert ($result.reacquire -eq $true -and $result.releaseRe -eq $true) 'A fresh request re-acquires after full release' $result
    }
    'corefs-depth' {
-    Assert ($result.entities -contains 'alpha.txt' -and $result.entities -contains 'beta.txt') 'Folder.getEntities lists both files' $result
-    Assert ($result.eachEntity -contains 'alpha.txt' -and $result.eachEntity -contains 'beta.txt') 'Folder.eachEntity iterates both files' $result
-    Assert ($result.size -eq 13) 'File.size reads the exact byte count' $result
+    # Verified-broken upstream surface (1.0.0.209, mw1aw1lh): listing members
+    # throw the `.done is not a function` fake-sync error, rename/remove throw
+    # the IAsyncOperation E_FAIL, and File.size silently returns 0. If any of
+    # these shapes change, upstream landed a fix — re-investigate.
+    Assert ($result.lastModified -eq $true) 'File.lastModified returns a Date' $result
+    Assert ($result.size -eq 0) 'File.size reports the upstream wrong-zero' $result
+    Assert ($result.entities -match 'done is not a function' -and $result.eachEntity -match 'done is not a function') 'Folder enumeration hits the fake-sync .done gap' $result
+    Assert ($result.rename -match 'HRESULT 0x80004005' -and $result.removeFile -match 'HRESULT 0x80004005') 'rename and removeFile hit the IAsyncOperation E_FAIL' $result
    }
    'connectivity-depth' {
     Assert ($result.stateShape -eq $true) 'getState reports a connected boolean' $result

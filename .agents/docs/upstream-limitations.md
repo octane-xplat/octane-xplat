@@ -121,11 +121,22 @@ reading:
   `await File.remove()` rejects and `removeSync()` silently swallows it; when
   it does not throw, the op is never awaited either way. Verified on 1.0.0.204
   (files-identity `foreign.remove()` rejection) and 1.0.0.205 (`removeError`
-  field, both launches); `rename`/`getLastModified`/`getFileSize` share the
-  same sync-op shape and need the same suspicion. Qualification fixtures delete
-  through `toPromise(GetFileFromPathAsync(path))` +
-  `toPromise(file.DeleteAsync())` — the path `files.windows.ts` already
-  relies on.
+  field, both launches). Qualification fixtures delete through
+  `toPromise(GetFileFromPathAsync(path))` + `toPromise(file.DeleteAsync())` —
+  the path `files.windows.ts` already relies on.
+- The rest of the entity-member surface shares the defect classes, verified
+  on 1.0.0.209 (`corefs-depth` probe, launch `mw1aw1lh`): `File.rename` throws
+  the same `HRESULT 0x80004005` (RenameAsync invoked on the pending
+  `IAsyncOperation`); `File.size` silently returns `0` (GetFileFromPathAsync +
+  BasicProperties read off the operation); `Folder.getEntities`/`eachEntity`
+  throw `GetFolderFromPathAsync(...).done is not a function` — the
+  enumeration path uses the `.done()` fake-sync pattern on a projection that
+  only exposes `then`. Only `File.lastModified` returns a real value (Date
+  lands inside a try/catch that hides `Date.now()` on failure, so even that
+  cannot distinguish epoch from the fallback). Net: on the pinned runtime,
+  upstream `File`/`Folder` covers only path joins, `exists`, and async
+  `readText`/`writeText`/`readBuffer`/`writeBuffer`/`appendText` — every
+  delete, rename, size, and enumeration member is broken or silent-wrong.
 - `AbortController`/`AbortSignal` are not projected in the packaged runtime —
   `new AbortController()` throws `ReferenceError` inside the app process
   (observed on 1.0.0.201, files-chunk spec). Cancellation contracts that take
