@@ -1,7 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@octane-xplat/ui/theme/tokens.css'
 import { expect, it } from 'vitest'
-import { isIOS, Utils, type ViewBase } from '@nativescript/core'
+import { isIOS, type ViewBase } from '@nativescript/core'
 import { Pressable, Screen, Text } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
 import {
@@ -80,12 +80,39 @@ const DOC = [
   '| alpha | beta |',
 ].join('\n')
 
-it('renders block and inline content on the real host', async () => {
-  const { view } = await mountXplat(() => (
+function DocFixture(): unknown {
+  return (
     <Screen>
       <Markdown>{DOC}</Markdown>
     </Screen>
-  ))
+  )
+}
+
+/** Observe `Utils.openUrl` destinations by shadowing the bridged
+ *  `UIApplication` instance methods it calls — the `Utils` namespace is
+ *  getter-only, so the call sites can't be patched directly. iOS-only; on
+ *  other hosts `opened` stays empty. */
+function interceptOpenUrl(opened: string[]): () => void {
+  const app = (globalThis as any).UIApplication?.sharedApplication
+  if (!isIOS || app == null) {
+    return () => {}
+  }
+
+  const origCan = app.canOpenURL
+  const origOpen = app.openURLOptionsCompletionHandler
+  app.canOpenURL = () => true
+  app.openURLOptionsCompletionHandler = (url: any, _options: any, done: any) => {
+    opened.push(String(url?.absoluteString ?? url))
+    done?.(true)
+  }
+  return () => {
+    app.canOpenURL = origCan
+    app.openURLOptionsCompletionHandler = origOpen
+  }
+}
+
+it('renders block and inline content on the real host', async () => {
+  const { view } = await mountXplat(DocFixture)
 
   await waitUntil(() => allText(view).some((t) => t.includes('Parity Title')), {
     message: 'markdown heading never rendered',
@@ -109,15 +136,19 @@ it('renders block and inline content on the real host', async () => {
 })
 
 it('flows inline markdown inside surrounding text', async () => {
-  const { view } = await mountXplat(() => (
-    <Screen>
-      <Text>
-        {'before '}
-        <Markdown display="inline">{'**bold run** and `code run`'}</Markdown>
-        {' after'}
-      </Text>
-    </Screen>
-  ))
+  function InlineFixture(): unknown {
+    return (
+      <Screen>
+        <Text>
+          {'before '}
+          <Markdown display="inline">{'**bold run** and `code run`'}</Markdown>
+          {' after'}
+        </Text>
+      </Screen>
+    )
+  }
+
+  const { view } = await mountXplat(InlineFixture)
 
   await waitUntil(() => allText(view).some((t) => t.includes('bold run')), {
     message: 'inline markdown runs never rendered',
@@ -131,14 +162,10 @@ it('flows inline markdown inside surrounding text', async () => {
 it('dispatches link taps to onLinkClick and honors cancellation', async () => {
   const events: string[] = []
   const opened: string[] = []
-  const original = Utils.openUrl
-  ;(Utils as any).openUrl = (url: string) => {
-    opened.push(url)
-    return true
-  }
+  const restore = interceptOpenUrl(opened)
 
-  try {
-    const { view } = await mountXplat(() => (
+  function LinkFixture(): unknown {
+    return (
       <Screen>
         <Markdown
           onLinkClick={(href: string) => {
@@ -149,7 +176,11 @@ it('dispatches link taps to onLinkClick and honors cancellation', async () => {
           {'Visit [the link](https://example.com/dest) now.'}
         </Markdown>
       </Screen>
-    ))
+    )
+  }
+
+  try {
+    const { view } = await mountXplat(LinkFixture)
 
     await waitUntil(() => findLinkSpan(view, 'the link') != null, {
       message: 'link span never rendered',
@@ -161,26 +192,26 @@ it('dispatches link taps to onLinkClick and honors cancellation', async () => {
     expect(events).toEqual(['click:https://example.com/dest'])
     expect(opened).toEqual([])
   } finally {
-    ;(Utils as any).openUrl = original
+    restore()
   }
 })
 
 it('dispatches citation taps through the resolved source url', async () => {
   const opened: string[] = []
-  const original = Utils.openUrl
-  ;(Utils as any).openUrl = (url: string) => {
-    opened.push(url)
-    return true
-  }
+  const restore = interceptOpenUrl(opened)
 
-  try {
-    const { view } = await mountXplat(() => (
+  function CiteFixture(): unknown {
+    return (
       <Screen>
         <Markdown sources={{ docs: { title: 'Octane docs', url: '#cite-docs' } }}>
           {'Claim [docs] here.'}
         </Markdown>
       </Screen>
-    ))
+    )
+  }
+
+  try {
+    const { view } = await mountXplat(CiteFixture)
 
     await waitUntil(
       () => allText(view).some((t) => t.includes('Octane docs')),
@@ -192,7 +223,7 @@ it('dispatches citation taps through the resolved source url', async () => {
     span.notify({ eventName: 'linkTap', object: span })
     expect(opened).toEqual(['#cite-docs'])
   } finally {
-    ;(Utils as any).openUrl = original
+    restore()
   }
 })
 
@@ -263,13 +294,17 @@ it('re-renders cleanly when the document source changes', async () => {
 // iOS-only: the layout assertions rely on UIKit text measurement; Android
 // shares the mount path but its host is qualified separately.
 it.skipIf(!isIOS)('lays out a wide table inside its scroll region', async () => {
-  const { view } = await mountXplat(() => (
-    <Screen>
-      <Markdown>
-        {'| verylongcolumnheaderone | verylongcolumnheadertwo | verylongcolumnheaderthree |\n| --- | --- | --- |\n| aaaa | bbbb | cccc |'}
-      </Markdown>
-    </Screen>
-  ))
+  function WideTableFixture(): unknown {
+    return (
+      <Screen>
+        <Markdown>
+          {'| verylongcolumnheaderone | verylongcolumnheadertwo | verylongcolumnheaderthree |\n| --- | --- | --- |\n| aaaa | bbbb | cccc |'}
+        </Markdown>
+      </Screen>
+    )
+  }
+
+  const { view } = await mountXplat(WideTableFixture)
 
   await waitUntil(() => allText(view).some((t) => t.includes('aaaa')), {
     message: 'table never rendered',

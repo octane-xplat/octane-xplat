@@ -99,17 +99,23 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
     } as any)
 
     const node = (
-      <masonview
-        ref={forwardedRef}
-        id={id}
-        className={cx(tableClasses, table.classes)}
-        style={mergeStyle(
-          { display: 'flex', flexDirection: 'column' },
-          mergeStyle(table.htmlProps?.style ?? {}, style),
-        )}
+      <scrollview
+        orientation="horizontal"
+        className="vx-table-scroll"
+        style={{ display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%' }}
       >
-        {children}
-      </masonview>
+        <masonview
+          ref={forwardedRef}
+          id={id}
+          className={cx(tableClasses, table.classes)}
+          style={mergeStyle(
+            { display: 'flex', flexDirection: 'column', flexShrink: 0 },
+            mergeStyle(table.htmlProps?.style ?? {}, style),
+          )}
+        >
+          {children}
+        </masonview>
+      </scrollview>
     )
 
     return (

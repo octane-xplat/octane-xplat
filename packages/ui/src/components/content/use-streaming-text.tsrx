@@ -38,11 +38,23 @@ const CHARS_PER_TICK = {
 } as const
 
 // One shared segmenter — granularity is fixed and locale does not affect
-// grapheme-cluster boundaries (Astryx useStreamingText).
-const graphemeSegmenter =
-  typeof Intl.Segmenter === 'function'
-    ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
-    : null
+// grapheme-cluster boundaries (Astryx useStreamingText). The class resolves
+// per call: `Intl` is absent entirely on NativeScript JSC, and per the
+// intl-capabilities convention a segmenter installed later must be picked up.
+let cachedSegmenter: Intl.Segmenter | null = null
+
+function graphemeSegmenter(): Intl.Segmenter | null {
+  const Segmenter = typeof Intl === 'undefined' ? undefined : Intl.Segmenter
+  if (typeof Segmenter !== 'function') {
+    return null
+  }
+
+  if (cachedSegmenter == null || !(cachedSegmenter instanceof Segmenter)) {
+    cachedSegmenter = new Segmenter(undefined, { granularity: 'grapheme' })
+  }
+
+  return cachedSegmenter
+}
 
 function isLowSurrogate(codeUnit: number): boolean {
   return codeUnit >= 0xdc00 && codeUnit <= 0xdfff
@@ -58,8 +70,9 @@ export function snapToGraphemeBoundary(text: string, offset: number): number {
     return offset
   }
 
-  if (graphemeSegmenter) {
-    return graphemeSegmenter.segment(text).containing(offset)?.index ?? offset
+  const segmenter = graphemeSegmenter()
+  if (segmenter) {
+    return segmenter.segment(text).containing(offset)?.index ?? offset
   }
 
   return isLowSurrogate(text.charCodeAt(offset)) ? offset - 1 : offset

@@ -3,6 +3,7 @@ import { Utils } from '@nativescript/core'
 import { Text } from '../components/content/Text.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
 import { useFadeRunColor } from './markdown-fade.tsrx'
+import { mdAccentColor } from './markdown-tokens'
 import type { NavigationActivationEvent } from '../props'
 
 /**
@@ -46,6 +47,26 @@ export function MdBreak(): unknown {
   return '\n'
 }
 
+/** Fold a run's children to its text — a Span is not a TextBase host on
+ *  native, so styled run content inside links/citations/fade runs flattens to
+ *  its string (rich label children are a recorded deviation). */
+export function mdRunText(children: unknown): string {
+  if (children == null) {
+    return ''
+  }
+
+  if (typeof children === 'string' || typeof children === 'number') {
+    return String(children)
+  }
+
+  if (Array.isArray(children)) {
+    return children.map(mdRunText).join('')
+  }
+
+  const props = (children as { props?: any }).props
+  return props != null ? mdRunText(props.text ?? props.children) : ''
+}
+
 /** Tappable link run. Activation honors `onLinkClick` cancellation, then
  *  opens the destination through the platform URL handler. */
 export function MdLinkRun(props: {
@@ -56,7 +77,8 @@ export function MdLinkRun(props: {
   const href = props.href
   return (
     <span
-      style={{ color: 'var(--color-text-accent, #3b82f6)', textDecorationLine: 'underline' }}
+      text={mdRunText(props.children)}
+      style={{ color: mdAccentColor(), textDecorationLine: 'underline' }}
       onLinkTap={() => {
         const event = activationEvent()
         const result = props.onLinkClick?.(href, event)
@@ -66,9 +88,7 @@ export function MdLinkRun(props: {
 
         Utils.openUrl(href)
       }}
-    >
-      {props.children}
-    </span>
+    />
   )
 }
 
@@ -90,26 +110,34 @@ export function MdCitation(props: {
   const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
   return (
     <span
-      style={{ color: 'var(--color-text-accent, #3b82f6)' }}
+      text={text}
+      style={{ color: mdAccentColor() }}
       {...(safe != null ? { onLinkTap: () => Utils.openUrl(safe) } : {})}
-    >
-      {text}
-    </span>
+    />
   )
+}
+
+/** Label-level host for inline runs: the driver only parents `<span>` under a
+ *  `<formattedstring>` (Label.formattedText), never under a bare label or
+ *  another span. */
+export function MdRuns(props: { children?: unknown }): unknown {
+  return <formattedstring>{props.children}</formattedstring>
 }
 
 /** Block paragraph host on native — the text label carries the runs. */
 export function MdParagraph(props: { style?: unknown; children?: unknown }): unknown @{
   return (
     <Text accessibilityRole="paragraph" style={props.style as never}>
-      {props.children}
+      <formattedstring>{props.children}</formattedstring>
     </Text>
   )
 }
 
-/** `display="inline"` root — a plain text host on native. */
+/** `display="inline"` root — contributes the runs to the enclosing label's
+ *  FormattedString (sibling text outside a TextBase is not foldable on
+ *  native). */
 export function MdInlineRoot(props: { children?: unknown }): unknown @{
-  return <Text>{props.children}</Text>
+  return <formattedstring>{props.children}</formattedstring>
 }
 
 /** Newly arrived streaming run — fades its foreground alpha in over
@@ -118,5 +146,10 @@ export function MdInlineRoot(props: { children?: unknown }): unknown @{
  *  colors render settled instead of skipping the reveal silently. */
 export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
   const color = useFadeRunColor(props.runColor)
-  return <span style={color == null ? undefined : { color }}>{props.children}</span>
+  return (
+    <span
+      text={mdRunText(props.children)}
+      style={color == null ? undefined : { color }}
+    />
+  )
 }

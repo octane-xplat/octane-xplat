@@ -134,17 +134,37 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
     } as any)
 
     const node = (
-      <masonview
-        ref={ref}
-        id={id}
-        className={cx(tableClasses, table.classes)}
-        style={mergeStyle(
-          { display: 'flex', flexDirection: 'column' },
-          mergeStyle(table.htmlProps?.style ?? {}, style),
-        )}
+      <scrollview
+        ref={refList<NSScrollView>(bindViewport, (view) => applyEscapeProps(view, props))}
+        orientation="horizontal"
+        onLayoutChanged={measureViewport}
+        accessibilityLabel="Table"
+        className="vx-table-scroll"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          maxWidth: '100%',
+          minWidth: 0,
+        }}
       >
-        {children}
-      </masonview>
+        <masonview
+          ref={ref}
+          id={id}
+          className={cx(tableClasses, table.classes)}
+          style={mergeStyle(
+            {
+              display: 'flex',
+              flexDirection: 'column',
+              flexShrink: 0,
+              minWidth: viewportWidth || undefined,
+            },
+            mergeStyle(table.htmlProps?.style ?? {}, style),
+          )}
+        >
+          {children}
+        </masonview>
+      </scrollview>
     )
 
     return (

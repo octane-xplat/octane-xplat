@@ -41,6 +41,7 @@ import {
   mdBodyFontSize,
   mdBodyLineHeight,
   mdBorderColor,
+  mdImageRadius,
   mdTextPrimary,
 } from './markdown-tokens'
 import { useClipboard } from '../internal/platform/use-clipboard.tsrx'
@@ -775,7 +776,9 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
               }}
             >
               <Text style={cellAlign(i) != null ? ({ textAlign: cellAlign(i) } as never) : undefined}>
-                <Inlines nodes={h.children} ctx={cellCtx} segKey={`th${i}`} />
+                <formattedstring>
+                  <Inlines nodes={h.children} ctx={cellCtx} segKey={`th${i}`} />
+                </formattedstring>
               </Text>
             </TableHeaderCell>
           ))}
@@ -801,7 +804,9 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
                     cellAlign(j) != null ? ({ textAlign: cellAlign(j) } as never) : undefined
                   }
                 >
-                  <Inlines nodes={cell.children} ctx={cellCtx} segKey={`tr${i}c${j}`} />
+                  <formattedstring>
+                    <Inlines nodes={cell.children} ctx={cellCtx} segKey={`tr${i}c${j}`} />
+                  </formattedstring>
                 </Text>
               </TableCell>
             ))}
@@ -831,7 +836,9 @@ function ListItems(props: {
       // Runs need a text host on native — bare spans inside a view fold to
       // text-only children, which AppKit's spike rejects outright.
       <Text>
-        <Inlines nodes={first.children} ctx={props.ctx} segKey={`${props.segKey}.${j}`} />
+        <formattedstring>
+          <Inlines nodes={first.children} ctx={props.ctx} segKey={`${props.segKey}.${j}`} />
+        </formattedstring>
       </Text>
     ) : (
       <Blocks
@@ -935,7 +942,11 @@ function Blocks(props: {
           | 5
           | 6
 
-        const kids = <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
+        const kids = (
+          <formattedstring>
+            <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
+          </formattedstring>
+        )
         const headingId = props.ctx.headingIds?.get(node)
         const permalinkUrl = props.ctx.permalinkUrls?.get(node)
         const Comp = props.ctx.components?.heading as any
@@ -1149,7 +1160,7 @@ function Blocks(props: {
                 <Image
                   src={safe}
                   alt={node.alt}
-                  style={{ maxWidth: '100%', borderRadius: 'var(--radius-element, 4px)' }}
+                  style={{ maxWidth: '100%', borderRadius: mdImageRadius() }}
                 />
               </View>
             )}
