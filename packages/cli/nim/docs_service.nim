@@ -1,6 +1,7 @@
-## Installed-version docs binding and page reads. Index/search wiring is separate.
-import std/[json, os, strtabs, options]
+## Installed-version documentation service. Call blocking work in an owned child.
+import std/[json, os, strtabs, options, asyncdispatch]
 import ./jsonutil, ./docs_binding, ./docs_snapshots, ./docs_retrieval, ./docs_guidance, ./provenance
+import ./js_text, ./docs_files, ./contract_failure
 
 type DocsService* = ref object
   root: string
@@ -12,8 +13,8 @@ type DocsService* = ref object
 
 proc newDocsService*(root: string, cacheDir = defaultDocsCacheDir(), repo: JsonNode = nil,
     gitPath = "git", timeoutMs = 60000, environment: StringTableRef = nil,
-    runner: SnapshotGitRunner = nil): DocsService =
-  DocsService(root: root,repo: repo,snapshots: newSnapshotContext(cacheDir,gitPath,timeoutMs,environment,runner))
+    runner: SnapshotGitRunner = nil, stagingDir = ""): DocsService =
+  DocsService(root: root,repo: repo,snapshots: newSnapshotContext(cacheDir,gitPath,timeoutMs,environment,runner,stagingDir))
 proc refreshInstallation(service: DocsService): JsonNode =
   let found = resolveInstallations(service.root)
   let fingerprint = text(found["fingerprint"])
@@ -130,3 +131,131 @@ proc resolveDocsTagConflict*(service: DocsService, name, version, resolution: Js
       return
     return bound
   %*{"status": "invalid-resolution","resolution": resolution}
+
+type DocsCompute* = proc(request: JsonNode): Future[JsonNode] {.closure.}
+
+proc targets(service: DocsService, options: JsonNode): JsonNode =
+  let installation = service.refreshInstallation()
+  let name = field(options,"package")
+  result = newJArray()
+  for package in installation["packages"]:
+    if not truthy(name) or jsStrictEqual(field(package,"name"),name): result.add(package)
+  let version = field(options,"version")
+  if truthy(name) and truthy(version) and result.len == 0:
+    result.add(%*{"name": name,"version": version,"kind": "registry","installPath": newJNull(),"source": "explicit-request"})
+
+proc searchBinding(bound: JsonNode): string =
+  let repo = field(bound["prov"],"repo")
+  (if repo == nil or repo.kind == JNull: "" else: scalarString(repo)) & ":" &
+    scalarString(nullish(field(bound,"commit"),bound["dir"]))
+
+proc documents(service: DocsService, bound, package, options: JsonNode): JsonNode =
+  let mapping = releaseMapping(text(field(package,"name")),text(field(package,"version")),service.repo)
+  let packageDir = text(field(mapping,"dir"))
+  result = newJArray()
+  var bytes = 0
+  for document in listDocs(text(bound["dir"])):
+    let path = text(document["path"])
+    let corpus = text(document["corpus"])
+    if truthy(field(options,"corpus")) and options["corpus"] != document["corpus"]: continue
+    if corpus == "readme" and path != packageDir & "/README.md": continue
+    if path == "packages/tsrx-typegen/CHANGELOG.md" and field(package,"name") != %"tsrx-typegen": continue
+    if field(package,"name") == %"tsrx-typegen" and corpus == "changelog" and path != "packages/tsrx-typegen/CHANGELOG.md": continue
+    if result.len >= 10000: raise contractFailure("unavailable","Documentation inventory exceeds 10000 files")
+    let content = readDocumentationText(text(document["file"]))
+    bytes += content.len
+    if bytes > 32*1024*1024: raise contractFailure("unavailable","Documentation inventory exceeds 32 MiB")
+    if truthy(field(options,"platform")) and options["platform"] notin platformsOf(path,content): continue
+    result.add(%*{"path": path,"corpus": corpus,"content": content})
+
+proc docsIndex*(service: DocsService, options: JsonNode, compute: DocsCompute): Future[JsonNode] {.async.} =
+  var results = newJArray()
+  var unavailablePackages = newJArray()
+  for package in service.targets(options):
+    let bound = service.bindDocsPackage(package,nullish(field(options,"version"),field(package,"version")))
+    if field(bound,"status") != %"bound": unavailablePackages.add(bound); continue
+    try:
+      let prepared = await compute(%*{"operation": "index","documents": service.documents(bound,package,newJObject()),
+        "binding": searchBinding(bound)})
+      let value = prepared.copy()
+      value["provenance"] = bound["prov"].copy()
+      results.add(value)
+    except CatchableError:
+      results.add(%*{"status": "unavailable","reason": "index-preparation-failed",
+        "recovery": "Check model download access and cache permissions, then run docs index again. Completed batches are reusable.",
+        "provenance": bound["prov"]})
+  return %*{"results": results,"unavailable": unavailablePackages}
+
+proc exactHits(service: DocsService, bound, package, options: JsonNode): JsonNode =
+  let mapping = releaseMapping(text(field(package,"name")),text(field(package,"version")),service.repo)
+  searchDocs(text(bound["dir"]),text(field(options,"query")),text(field(options,"corpus")),
+    text(field(options,"platform")),(if field(options,"limit") == nil: 10 else: int(options["limit"].getFloat())),text(field(mapping,"dir")))
+
+proc docHit(package, bound, hit: JsonNode): JsonNode =
+  result = newJObject()
+  for key in ["title","path","corpus","platforms","excerpt","line"]:
+    result[key] = hit[key].copy()
+  if truthy(field(hit,"endLine")):
+    result["endLine"] = hit["endLine"].copy()
+    result["heading"] = hit["heading"].copy()
+  for key in ["releaseVersion","releaseDate"]:
+    if truthy(field(hit,key)): result[key] = hit[key].copy()
+  result["ref"] = %docRef(text(package["name"]),text(bound["prov"]["servedVersion"]),text(hit["path"]))
+  result["provenance"] = bound["prov"].copy()
+  if field(package,"source") == %"lockfile-provisional": result["provisional"] = %true
+
+proc docsSearch*(service: DocsService, options: JsonNode, compute: DocsCompute): Future[JsonNode] {.async.} =
+  let packages = service.targets(options)
+  let started = service.revision
+  let mode = if field(options,"mode") == nil: "hybrid" else: text(options["mode"])
+  if mode notin ["exact","lexical","hybrid"]: raise contractFailure("invalid_selection","Invalid documentation search mode")
+  var results = newJArray()
+  var retrieval = newJArray()
+  var failures = newJArray()
+  var commits = newJObject()
+  for package in packages:
+    let bound = service.bindDocsPackage(package,nullish(field(options,"version"),field(package,"version")))
+    if field(bound,"status") != %"bound": failures.add(bound); continue
+    commits[text(package["name"])] = nullish(field(bound,"commit"),bound["dir"]).copy()
+    var hits: JsonNode
+    if mode == "exact":
+      hits = service.exactHits(bound,package,options)
+      retrieval.add(%*{"package": package["name"],"requested": mode,"used": "exact"})
+    else:
+      try:
+        let request = %*{"operation": "search","documents": service.documents(bound,package,options),
+          "binding": searchBinding(bound),"query": options["query"],"mode": mode}
+        if field(options,"limit") != nil: request["limit"] = options["limit"]
+        let found = await compute(request)
+        hits = found["results"].copy()
+        for hit in hits:
+          hit["excerpt"] = %utf16Slice(text(hit["content"]),0,900)
+          hit["platforms"] = platformsOf(text(hit["path"]),text(hit["content"]))
+        let used = found["retrieval"].copy()
+        used["package"] = package["name"]
+        retrieval.add(used)
+      except CatchableError:
+        hits = service.exactHits(bound,package,options)
+        retrieval.add(%*{"package": package["name"],"requested": mode,"used": "exact","reason": "index-unavailable"})
+    if hits.len == 0 and not dirExists(text(bound["dir"]) / "docs"):
+      let fields = %*{"package": package["name"],"requestedVersion": nullish(field(options,"version"),field(package,"version"))}
+      for key in ["repo","tag"]:
+        let value = field(bound["prov"],key)
+        if value != nil: fields[key] = value
+      failures.add(attachFallback(unavailable("docs-absent",fields),package))
+      continue
+    for hit in hits: results.add(docHit(package,bound,hit))
+  for hit in results:
+    let key = commits[text(hit["provenance"]["package"])]
+    var compatible = newJArray()
+    for name, commit in commits:
+      if commit == key: compatible.add(%name)
+    if compatible.len > 1: hit["provenance"]["verifiedCompatibleSet"] = compatible
+  var unavailablePackages = newJArray()
+  var conflicts = newJArray()
+  for failure in failures:
+    if field(failure,"status") == %"unavailable": unavailablePackages.add(failure)
+    elif field(failure,"status") == %"tag-conflict": conflicts.add(failure)
+  return %*{"retrieval": retrieval,"bindingRevision": service.revision,"bindingChangedDuring": service.revision != started,
+    "results": results,"unavailable": unavailablePackages,"conflicts": conflicts,
+    "projectGuidance": projectDocsGuidance(service.root,text(field(options,"query")))}

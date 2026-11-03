@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import { test, after } from 'node:test'
 import { once } from 'node:events'
 import { createServer } from 'node:http'
-import { createReadStream, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { createReadStream, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, symlinkSync, chmodSync } from 'node:fs'
 import { spawn } from 'node:child_process'
-import { resolve, join } from 'node:path'
+import { resolve, join, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { DatabaseSync } from 'node:sqlite'
 import { scratchRun } from './scratch.mjs'
@@ -160,4 +160,66 @@ test('the production executable executes native inference with no JS runtime or 
   if(child.exitCode===null&&child.signalCode===null){child.kill('SIGKILL');await exited}
   rmSync(directory,{recursive:true,force:true})
  }
+})
+
+test('public native index and hybrid search use real assets without Node or network access',async()=>{
+ const base=join(scratch,'public-service'),app=join(base,'app'),checkout=join(base,'framework')
+ function file(path,bytes){mkdirSync(dirname(path),{recursive:true});writeFileSync(path,bytes)}
+ file(join(app,'package.json'),JSON.stringify({name:'inference-app',dependencies:{'@octane-xplat/ui':'workspace:*'}}))
+ file(join(app,'vite.config.ts'),'export default {}\n')
+ file(join(checkout,'bun.lock'),'{}')
+ file(join(checkout,'packages/ui/package.json'),JSON.stringify({name:'@octane-xplat/ui',version:'0.19.0'}))
+ for(const document of documents){file(join(checkout,document.path),document.content)}
+ mkdirSync(join(app,'node_modules/@octane-xplat'),{recursive:true})
+ symlinkSync(join(checkout,'packages/ui'),join(app,'node_modules/@octane-xplat/ui'))
+ const main=join(root,'research/nim-cli/native/xplat')
+ async function command(args){
+  const child=spawn('/usr/bin/sandbox-exec',['-p','(version 1)(allow default)(deny network*)',main,...args,'--project',app,'--json'],
+   {env:{...process.env,PATH:'',XPLAT_MCP_CACHE:join(base,'docs-cache'),XPLAT_NIM_INFERENCE_CACHE:cache},stdio:['ignore','pipe','pipe']})
+  let stdout='',stderr='';child.stdout.on('data',bytes=>{stdout+=bytes});child.stderr.on('data',bytes=>{stderr+=bytes})
+  const exited=once(child,'exit'),timer=setTimeout(()=>child.kill('SIGKILL'),30000)
+  try{
+   const [code]=await exited;assert.equal(code,0,stderr);assert.equal(stderr,'')
+   const reply=JSON.parse(stdout);assert.equal(reply.ok,true,JSON.stringify(reply.error));return reply.data
+  }finally{
+   clearTimeout(timer)
+   if(child.exitCode===null&&child.signalCode===null){child.kill('SIGKILL');await exited}
+  }
+ }
+ const prepared=await command(['docs','index'])
+ assert.equal(prepared.results[0].status,'ready')
+ assert.equal(prepared.results[0].embedded,6)
+ assert.match(prepared.results[0].model,/:native-/)
+ assert.equal((await command(['docs','index'])).results[0].embedded,0)
+ const found=await command(['docs','search','capture microphone speech to an audio file'])
+ assert.equal(found.retrieval[0].used,'hybrid')
+ assert.equal(found.results[0].path,'docs/audio.md')
+ assert.equal(found.results[0].provenance.servedVersion,'development')
+ const read=await command(['docs','read','--ref',found.results[0].ref])
+ assert.ok(read.content.includes('voice memo'))
+ assert.deepEqual(readdirSync(join(base,'docs-cache/nim-v1/operations')),[])
+ assert.deepEqual(readdirSync(join(cache,'operations')),[])
+})
+
+test('cancellation reaps an in-flight Git descendant before removing registered snapshot staging',async()=>{
+ const base=join(scratch,'cancel-snapshot'),app=join(base,'app'),docsCache=join(base,'docs-cache')
+ mkdirSync(join(app,'node_modules/@octane-xplat/ui'),{recursive:true})
+ writeFileSync(join(app,'package.json'),JSON.stringify({dependencies:{'@octane-xplat/ui':'0.19.0'}}))
+ writeFileSync(join(app,'node_modules/@octane-xplat/ui/package.json'),JSON.stringify({name:'@octane-xplat/ui',version:'0.19.0'}))
+ const script=join(base,'git-fixture'),marker=join(base,'fetch-pid')
+ const quote=value=>"'"+value.replaceAll("'","'\\''")+"'"
+ writeFileSync(script,`#!/bin/sh\ncase "$1" in\n--version) printf 'git version fixture\\n';;\nls-remote) printf '0123456789012345678901234567890123456789\\trefs/tags/v0.19.0\\n';;\ninit) /usr/bin/touch "$3/started";;\n-c) printf '%s' "$$" > ${quote(marker)}; exec /bin/sleep 60;;\n*) exit 1;;\nesac\n`)
+ chmodSync(script,0o700)
+ const result=await invoke({request:{operation:'service-search',root:app,cacheDir:docsCache,assetRoot:cache,gitPath:script,
+  options:{query:'camera',mode:'exact'}},cancelAfterMs:1500})
+ assert.equal(result.ok,false);assert.equal(result.error.code,'cancelled');assert.ok(result.ticks>10)
+ const descendant=Number(readFileSync(marker,'utf8'))
+ assert.equal(alive(descendant),false)
+ assert.equal(alive(result.pid),false)
+ assert.deepEqual(readdirSync(join(docsCache,'operations')),[])
+ assert.deepEqual(readdirSync(join(cache,'operations')),[])
+ const retry=await invoke({request:{operation:'service-search',root:app,cacheDir:docsCache,assetRoot:cache,
+  options:{query:'camera',mode:'exact'}}})
+ assert.equal(retry.ok,true,JSON.stringify(retry.error))
+ assert.equal(retry.value.unavailable[0].reason,'git-unavailable')
 })

@@ -1,6 +1,45 @@
 ## Installation-scoped guidance; versions come from discovery, never guesses.
-import std/[json, strutils, sets]
+import std/[json, strutils, sets, os, algorithm, unicode]
 import ./jsonutil, ./provenance
+import ./docs_files, ./js_text, ./markdown_chunks, ./contract_failure
+from ./args import jsTrim
+
+proc projectDocsGuidance*(root, query: string, limit = 5): JsonNode =
+  let needle = jsLower(jsTrim(query))
+  var tokens: seq[string]
+  var token = ""
+  for rune in needle.runes:
+    if jsTrim(rune.toUTF8()) == "":
+      if token != "": tokens.add(token); token = ""
+    else: token.add(rune.toUTF8())
+  if token != "": tokens.add(token)
+  var files: seq[string]
+  for path in documentationFiles(root,root,false):
+    let name = lastPathPart(path)
+    if name.startsWith("AGENTS") or name.startsWith("README") or name.startsWith("CLAUDE"): files.add(path)
+  for directory in ["docs",".agents/docs"]:
+    for path in documentationFiles(root,root / directory): files.add(path)
+  var scored: seq[tuple[path,content: string,score: int]]
+  var total = 0
+  for path in files:
+    let content = readDocumentationText(path)
+    total += content.len
+    if total > 32*1024*1024: raise contractFailure("unavailable","Project guidance exceeds 32 MiB")
+    let relative = relativePath(path,root).replace(DirSep,'/')
+    let hay = jsLower(relative & "\n" & content)
+    var hits = 0
+    for term in tokens:
+      if utf16Contains(hay,term): inc hits
+    if needle != "" and hits == 0: continue
+    scored.add((relative,content,hits+(if utf16Contains(hay,needle): 100 else: 0)))
+  scored.sort(proc(a,b: typeof(scored[0])): int = cmp(b.score,a.score))
+  result = newJArray()
+  for at in 0..<min(limit,scored.len):
+    let entry = scored[at]
+    let start = max(0,utf16Find(jsLower(entry.content),needle))
+    result.add(%*{"title": titleOf(entry.content,entry.path,true),"path": entry.path,
+      "excerpt": jsTrim(utf16Slice(entry.content,start,start+480)),"provenance":
+      provenance(%*{"source": "project-guidance","scope": "project","match": "exact"})})
 
 proc tailoredGuidance*(installation: JsonNode): JsonNode =
   var versions, linked: seq[string]

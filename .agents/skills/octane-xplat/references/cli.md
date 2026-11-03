@@ -37,6 +37,11 @@ observer while preserving external processes. Native macOS diagnostics retain
 complete local .ips originals separately from logs and disclose report availability
 and confirmed/candidate association. Other report platforms, launch/attach engines
 and automatic owner-death recovery remain pending.
+Native docs read/search/index are available on macOS arm64 without Node/Bun.
+`docs index` explicitly prepares about 61 MB of optional pinned model/runtime
+downloads; ordinary search never downloads them. Check its reported retrieval
+mode and provenance, keep returned refs, and re-index edited linked docs. Native
+cache state is separate from TypeScript; backend vector caches are not interchangeable.
 Keep using the TypeScript CLI for unported workflows.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the

@@ -3,7 +3,7 @@
 This directory owns the native CLI implementation. The TypeScript entry and
 package exports remain in place. The native command currently implements catalog,
 status, capabilities, clean, typecheck, routes, web/macOS builds, app selection, permissions, code search, code read, guidance
-and docs read, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
+and docs read/search/index, macOS targets/session start/attach, session list/status/end, job status/cancel and diagnostics; other agent commands provide help and schemas with execution marked
 `pending`. Pending operations exit 3 and never invoke the old CLI.
 
 ```sh
@@ -25,30 +25,49 @@ sections. Their macOS locale-order adapter is exercised independently.
 `docs_snapshots.nim` acquires exact Git tags into commit-pinned caches, validates
 package metadata, preserves offline bindings and reports moved/deleted tags.
 It never executes fetched package scripts. `docs_service.nim` owns installation
-refresh, version-bound reads, provenance and tag-conflict resolution. Public docs
-search and local embedding/index integration remain migration work.
+refresh, version-bound reads/search/index, provenance and tag-conflict resolution.
+Exact and lexical search need no model; hybrid search uses prepared native vectors
+and discloses its fallback. Project guidance stays separately labeled.
 `docs_index.nim` now owns the FTS5 and embedding-cache algorithm behind an
 explicit embedding-provider boundary. Its macOS system SQLite adapter and
-fixture-embedding comparisons do not qualify actual tokenizer/model inference;
-public docs search/index remain pending until that provider is connected.
+fixture-embedding comparisons are complemented by the real-model and public
+compute-boundary gates. Native and WASM vector caches retain separate identities.
 `minilm_tokenizer.nim` implements the pinned single-sequence BERT/WordPiece
 encoding path, using checksummed model metadata and lazy macOS ICU normalization.
-Its differential gate covers exact token IDs and Unicode normalization; it does
-not yet provide native ONNX inference. The Apache-2.0 port attribution is included
+Its differential gate covers exact token IDs and Unicode normalization;
+`minilm_model.nim` connects its output to the native ONNX C API. The Apache-2.0 port attribution is included
 in the native package notices.
 `minilm_model.nim` and its ONNX C adapter are exercised by a separate real-model
 qualification task. CPU graph optimizations and quantized rounding can change
 embeddings and retrieval order relative to WASM. Inference stays in Nim. Evaluate
 useful retrieval quality rather than exact native/WASM ranking equality; the
 observed ranking difference alone is not a blocker. Preserve distinct engine/cache
-identities and qualify meaningful query results and explicit model/runtime
-delivery before enabling public search.
+identities; the optional model gate checks meaningful queries on maintained guides.
 `inference_assets.nim` prepares optional checksummed model/runtime files explicitly;
 ordinary search and empty inventories do not download them. `docs_compute.nim`
 isolates blocking model/index execution in an owned same-executable child, with
 bounded private messages, timeouts/cancellation and staging cleanup. The production
-binary includes its internal entry, but public docs index/search integration is
-still pending. Runtime/model download and disk costs are separate from CLI size.
+binary runs the entire public docs binding/Git/inventory/index pipeline in that
+child. Native docs caches live at `XPLAT_MCP_CACHE/nim-v1` (the parent defaults to
+`~/.cache/octane-xplat/mcp-docs`); status reports that namespace. An OS lock serializes
+mutations. The owner registers snapshot staging on the snapshot cache filesystem
+and asset staging on the asset filesystem, then awaits group cleanup before
+removing either. Model/runtime assets default to
+`~/.cache/octane-xplat/nim-inference`; `XPLAT_NIM_INFERENCE_CACHE` can select an
+absolute private directory. Optional pinned download bodies total about 61 MB,
+with about 69 MB retained; these costs are separate from the CLI size. Only macOS
+arm64 execution is qualified. No Node/Bun is required for these docs operations.
+
+```sh
+research/nim-cli/native/xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+research/nim-cli/native/xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+```
+
+Markdown discovery rejects external symlink targets, skips directory cycles, and
+bounds traversal depth/entries/files. Individual docs are limited to 4 MiB and
+indexed inventory/project guidance to 32 MiB; limit failures are explicit. Search
+refs retain lexical names while scope checks use canonical targets.
 Complete pinned public C API headers are build inputs; no ONNX runtime is linked or
 loaded during ordinary help/status startup.
 `native_http.nim` provides asynchronous HTTP/TLS through the macOS system libcurl,
@@ -57,7 +76,7 @@ options. `http_url.nim` statically compiles pinned Ada URL parsing for the
 reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. Other HTTP host adapters
-remain unimplemented. The current public command coverage is unchanged.
+remain unimplemented; action command composition is still pending.
 The bridge accepts an explicit fetch procedure; the ordinary client adapter and
 header-controlled test transport share the same envelope/cancellation logic.
 `managed_process.nim` owns macOS child sessions and process groups, with explicit

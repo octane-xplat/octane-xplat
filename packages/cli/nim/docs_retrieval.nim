@@ -1,6 +1,7 @@
 ## Exact documentation retrieval over a caller-bound snapshot or development root.
 import std/[json, os, strutils, algorithm, unicode]
 import ./jsonutil, ./js_text, ./markdown_chunks, ./locale_sort, ./file_text
+import ./docs_files, ./contract_failure
 from ./args import jsTrim
 
 const corpora = [(".agents/design","design-note"),(".agents/docs/notes","implementation-note"),
@@ -14,32 +15,25 @@ proc names(directory: string): seq[string] =
 
 proc listDocs*(root: string): JsonNode =
   var documents: seq[JsonNode]
-  proc walk(directory, corpusRoot, corpus: string) =
-    var entries: seq[string]
-    try: entries = names(directory)
-    except OSError: return
-    for name in entries:
-      if name.startsWith('.') or name == "node_modules": continue
-      let path = directory / name
-      if not exists(path): continue
-      if dirExists(path): walk(path,corpusRoot,corpus)
-      elif name.endsWith(".md"):
-        let relative = posix(relativePath(path,root))
-        if corpus != "guide" or not relative.startsWith("docs/notes/"):
-          documents.add(%*{"path": relative,"corpus": corpus,"root": corpusRoot,"file": path})
   for (directory, corpus) in corpora:
     let path = root / directory
-    if exists(path): walk(path,path,corpus)
+    for file in documentationFiles(root,path):
+      let relative = posix(relativePath(file,root))
+      if corpus != "guide" or not relative.startsWith("docs/notes/"):
+        documents.add(%*{"path": relative,"corpus": corpus,"root": path,"file": file})
   for path in ["CHANGELOG.md","FIXLOG.md","packages/tsrx-typegen/CHANGELOG.md"]:
-    if exists(root / path): documents.add(%*{"path": path,"corpus": "changelog","root": root,"file": root / path})
-  if exists(root / "packages"):
+    if fileExists(root / path) and documentationTargetWithin(root,root / path):
+      documents.add(%*{"path": path,"corpus": "changelog","root": root,"file": root / path})
+  if dirExists(root / "packages") and documentationTargetWithin(root,root / "packages"):
     for name in names(root / "packages"):
       let path = "packages/" & name & "/README.md"
-      if exists(root / path): documents.add(%*{"path": path,"corpus": "readme","root": root,"file": root / path})
+      if fileExists(root / path) and documentationTargetWithin(root,root / path):
+        documents.add(%*{"path": path,"corpus": "readme","root": root,"file": root / path})
   var sorter = newLocaleSorter()
   defer: sorter.close()
   documents.sort(proc(a,b: JsonNode): int = sorter.compare(text(a["path"]),text(b["path"])))
   result = newJArray()
+  if documents.len > 10000: raise contractFailure("unavailable","Documentation inventory exceeds 10000 files")
   for document in documents: result.add(document)
 
 proc asciiWord(ch: char): bool = ch in {'a'..'z','A'..'Z','0'..'9','_'}
@@ -88,7 +82,7 @@ proc searchDocs*(root, query: string, corpus = "", platform = "", limit = 10, pa
       if (packageDir == "packages/tsrx-typegen") != (path == "packages/tsrx-typegen/CHANGELOG.md"): continue
     if packageDir != "" and category == "readme" and path != packageDir & "/README.md": continue
     if corpus != "" and category != corpus: continue
-    let content = readTextFile(text(doc["file"]))
+    let content = readDocumentationText(text(doc["file"]))
     if category == "changelog":
       for chunk in chunkMarkdown(%*{"path": path,"corpus": category,"content": content}):
         let region = text(chunk["content"])
@@ -126,6 +120,9 @@ proc readPage*(root, path: string, offset = 0.0, limit = 24000.0): JsonNode =
   if not path.endsWith(".md") or path.startsWith('/') or ".." in path.split('/'): return nil
   let file = normalizedPath(root / path)
   if not exists(utf8ForWrite(file)): return nil
+  if not documentationTargetWithin(root,file): return nil
+  if fileExists(file) and getFileSize(file) > maxDocumentationBytes:
+    raise contractFailure("unavailable","Documentation file exceeds 4 MiB")
   let content = readTextFile(file)
   var corpus = "guide"
   for doc in listDocs(root):

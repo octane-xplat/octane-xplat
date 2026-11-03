@@ -6,17 +6,18 @@ from ./args import jsTrim
 type
   SnapshotGitRunner* = proc(args: seq[string], cwd: string): string {.closure.}
   SnapshotContext* = object
-    cacheDir*, gitPath*: string
+    cacheDir*, gitPath*, stagingDir*: string
     environment*: StringTableRef
     timeoutMs*: int
     runner*: SnapshotGitRunner
 
 proc defaultDocsCacheDir*(): string =
   getEnv("XPLAT_MCP_CACHE",getHomeDir() / ".cache" / "octane-xplat" / "mcp-docs")
+proc nativeDocsCacheDir*(): string = absolutePath(defaultDocsCacheDir()) / "nim-v1"
 proc newSnapshotContext*(cacheDir = defaultDocsCacheDir(), gitPath = "git", timeoutMs = 60000,
-    environment: StringTableRef = nil, runner: SnapshotGitRunner = nil): SnapshotContext =
+    environment: StringTableRef = nil, runner: SnapshotGitRunner = nil, stagingDir = ""): SnapshotContext =
   SnapshotContext(cacheDir: cacheDir,
-    gitPath: gitPath,timeoutMs: timeoutMs,environment: environment,runner: runner)
+    gitPath: gitPath,timeoutMs: timeoutMs,environment: environment,runner: runner,stagingDir: stagingDir)
 
 proc git(ctx: SnapshotContext, args: seq[string], cwd = ""): string =
   if ctx.runner != nil: return ctx.runner(args,cwd)
@@ -55,7 +56,9 @@ proc remoteTagSha*(ctx: SnapshotContext, repo, tag: string): JsonNode =
 proc exists(path: string): bool = fileExists(path) or dirExists(path)
 proc acquire(ctx: SnapshotContext, options: JsonNode): JsonNode =
   createDir(ctx.cacheDir)
-  let temporary = createTempDir("tmp-","",ctx.cacheDir)
+  # An outer process owner can register staging on this cache's filesystem,
+  # then remove incomplete clones after cancellation has reaped the Git group.
+  let temporary = createTempDir("tmp-","",(if ctx.stagingDir == "": ctx.cacheDir else: ctx.stagingDir))
   defer:
     if dirExists(temporary): removeDir(temporary)
   discard ctx.git(@["init","-q",temporary])
@@ -84,7 +87,8 @@ proc readBindings(ctx: SnapshotContext): JsonNode =
 proc writeBindings(ctx: SnapshotContext, bindings: JsonNode) =
   createDir(ctx.cacheDir)
   let path = ctx.cacheDir / "bindings.json"
-  let temporary = path & "." & $getCurrentProcessId() & ".tmp"
+  let temporary = if ctx.stagingDir == "": path & "." & $getCurrentProcessId() & ".tmp"
+    else: ctx.stagingDir / "bindings.tmp"
   var lines: seq[string]
   for line in wireJson(bindings,pretty=true,indent=1).splitLines():
     var prefix = 0

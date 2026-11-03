@@ -129,6 +129,39 @@ research/nim-cli/native/xplat status --project "$PWD" --json
 research/nim-cli/native/xplat capabilities --project "$PWD" --json
 ```
 
+Native docs search and reads work without Node or Bun on macOS Apple Silicon.
+Search follows the selected app's installed versions, reports conflicts or missing
+snapshots, and labels local project guidance separately. Start with lexical search
+(matching words); use a returned `ref` to read the same versioned page:
+
+```sh
+# In this repository, select the web app; in another workspace, select its app id.
+research/nim-cli/native/xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+# Replace DOC_REF with a ref returned by the search.
+research/nim-cli/native/xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
+```
+
+For semantic search (matching meaning), explicitly prepare the optional native
+model first. Its pinned model/runtime download is about 61 MB, with about 69 MB
+retained locally, separately from the executable. Indexing and queries stay on
+your computer. Ordinary search never downloads these assets and reports a lexical
+fallback when embeddings are unavailable; re-index after editing linked docs:
+
+```sh
+research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+research/nim-cli/native/xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+```
+
+The native docs cache is separate from the TypeScript cache. Status reports its
+location under `XPLAT_MCP_CACHE/nim-v1`. Optional model files default to
+`~/.cache/octane-xplat/nim-inference`; set `XPLAT_NIM_INFERENCE_CACHE` to an absolute
+private directory to store them elsewhere. Searches reject external symlink
+targets and bound traversal; docs larger than 4 MiB produce an explicit error:
+
+```sh
+XPLAT_NIM_INFERENCE_CACHE="$HOME/.cache/xplat-models" research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+```
+
 Native `typecheck` uses the selected project's installed package manager and
 TSRX checker. The project must already contain compatible `@octane-xplat/build`,
 `@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,

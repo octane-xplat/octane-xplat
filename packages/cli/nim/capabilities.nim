@@ -18,7 +18,10 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode): JsonNode 
         of "guidance": entry = %*{"capability": id,"status": "supported"}
         of "docs":
           entry = %*{"capability": id,"status": "partial",
-            "detail": "Installed-version document reads are available; public semantic search and model delivery are pending. No latest-version fallback."}
+            "detail": "Native documentation retrieval is qualified on macOS arm64; other hosts remain pending."}
+          when defined(macosx) and defined(arm64):
+            entry = %*{"capability": id,"status": "supported",
+              "detail": "Installed-version reads and exact/lexical/hybrid search are available. Explicit docs index prepares optional local model/runtime assets; search reports fallback without downloading them. No latest-version fallback."}
         of "code_search":
           entry = %*{"capability": id,"status": "partial",
             "detail": "Exact search reads current app and installed framework source; public native semantic inference integration is pending."}

@@ -79,6 +79,7 @@ function normalize(value) {
 }
 function compareReport(project, args = [], extra = {}) {
  const actual = json(true, project, 'status', args, extra), expected = json(false, project, 'status', args, extra)
+ if (expected.data.docs.binding) {expected.data.docs.binding.cacheDir = join(expected.data.docs.binding.cacheDir, 'nim-v1')}
  assert.deepEqual(normalize(actual.context), normalize(expected.context))
  for (const key of ['identity', 'guidance', 'docs', 'permissions', 'boundaries', 'prerequisites']) {
   assert.deepEqual(normalize(actual.data[key]), normalize(expected.data[key]), key)
@@ -96,7 +97,7 @@ function verifyCapabilities(matrices, bound) {
   assert.equal(matrix.declared, bound)
   assert.deepEqual(matrix.capabilities.map(row => row.capability), CAPABILITY_IDS)
   for (const row of matrix.capabilities) {
-   const wanted = row.capability === 'project_status' || (bound && row.capability === 'guidance') ? 'supported'
+   const wanted = row.capability === 'project_status' || (bound && (row.capability === 'guidance' || (process.platform==='darwin' && process.arch==='arm64' && row.capability==='docs'))) ? 'supported'
     : bound && (['docs', 'code_search'].includes(row.capability) || (process.platform==='darwin' && ['web','macos'].includes(matrix.platform) && ['build','logs','job_control'].includes(row.capability)) || (process.platform==='darwin' && matrix.platform==='macos' && ['target_discovery','launch','attach','session_end'].includes(row.capability))) ? 'partial' : 'unavailable'
    assert.equal(row.status, wanted, row.capability)
    if (row.capability === 'screenshot') {assert.equal(row.requiresPermission, 'visual-capture')}

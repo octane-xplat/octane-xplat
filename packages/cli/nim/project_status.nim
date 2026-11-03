@@ -1,6 +1,6 @@
 ## Fresh discovery report using native providers and bounded owned tool queries.
 import std/[asyncdispatch, json, os, options, strutils]
-import ./core, ./code_service, ./docs_service, ./prerequisites, ./capabilities
+import ./core, ./code_service, ./docs_service, ./prerequisites, ./capabilities, ./docs_snapshots
 import ./command_probe, ./managed_process, ./package_manager
 import ./js_text
 from ./args import jsTrim
@@ -77,7 +77,7 @@ proc buildNativeStatus*(root: string, discovery, selected, server, grants,
   let prerequisites = await checkPrerequisites(platformNames,query,manager)
   var docs = %*{"state": "unavailable","detail": "Select an app before retrieving installed-version documentation."}
   if app != nil:
-    let service = newDocsService(directory)
+    let service = newDocsService(directory,nativeDocsCacheDir())
     discard service.docsRefresh()
     let binding = service.docsStatus(some(gitVersion.isSome))
     docs = %*{"state": (if binding["identity"]["packages"].len > 0: "ready" else: "unavailable"),

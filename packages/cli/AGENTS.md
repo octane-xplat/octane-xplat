@@ -86,6 +86,16 @@ them; a nested detached process manager would require separate ownership transfe
 Downloads belong to explicit preparation; empty inventories and ordinary search
 must not fetch optional model/runtime assets.
 
+Keep version binding, Git and document enumeration inside that same owned child,
+not just the C inference call. Register temporary snapshot clones on the snapshot
+cache filesystem and asset staging on the asset filesystem before starting the
+child; cancellation must reap the inherited Git group before deleting either.
+Keep native mutable caches private and separate from reference caches, and report
+the namespace actually used. A kernel lock released on process exit can serialize
+cache mutation without trusting stored PIDs. Scope document reads by canonical
+targets while preserving lexical reference names; bound traversal, reject external
+symlinks, and skip directory cycles instead of reproducing unsafe reference walks.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node
@@ -115,6 +125,10 @@ must not fetch optional model/runtime assets.
   string lengths count UTF-16 code units. Choose deliberately when porting length
   limits or offsets; one non-BMP character counts as two JS code units.
 - Number parsing and formatting are contracts, not mechanical substitutions.
+  A validated integer can still be a `JFloat` node after argument parsing.
+  `getInt()` silently returns its default for that storage kind. Accept validated
+  numeric kinds, check finite/integer/range constraints, then convert explicitly;
+  exercise public options as well as low-level probes supplied with `JInt` inputs.
   JavaScript `Number()` accepts empty/whitespace strings and unsigned base-prefixed
   integers. Port accepted syntax, finite/integer checks, bounds, and diagnostics
   explicitly. Nim floating-point parsing accepts separators such as `1_0` that

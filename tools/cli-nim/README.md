@@ -534,8 +534,12 @@ blocking tokenization/model/index work. Requests and results are private, versio
 and bounded; cancellation/deadlines await process cleanup and remove owned staging.
 Runtime extraction inherits that worker's process group. Completed verified assets
 and index batches remain reusable. Ordinary search and empty inventories never
-download optional assets. The public docs index/search commands remain in migration;
-this boundary is not an availability claim for those commands.
+download optional assets. Public docs index/search/read and guidance use this same
+boundary, including version binding, Git and corpus enumeration. The owner registers
+separate snapshot staging on the docs cache filesystem and awaits group cleanup
+before deleting either staging root. Native docs state uses `XPLAT_MCP_CACHE/nim-v1`;
+model/runtime assets use the absolute `XPLAT_NIM_INFERENCE_CACHE` override or its
+default private inference cache. A native lock serializes cache mutation.
 
 Build headers come from the complete checksummed ONNX public C API closure under
 `ort-headers.mjs`. Normal CLI builds prepare only these small headers, not the
@@ -547,8 +551,12 @@ executable/tarball measurements. The ONNX API license is included in native noti
 server, checks explicit preparation, corruption and interrupted downloads, exercises
 real native retrieval under a network-denying sandbox, and qualifies the owner's
 responsive dispatcher, cancellation, deadlines, SQLite integrity and staging
-cleanup. It also executes the production binary's internal compute entry with an
-empty PATH. `test:nim-model` separately checks numerical behavior and useful
+cleanup. It executes both the production internal entry and public index/search/read
+with an empty PATH and actual model assets, and cancels an in-flight Git descendant
+before confirming snapshot cleanup. `test:nim-docs` compares public exact/lexical/
+cold-hybrid contracts, real Git release tags, conflicts, offline refs and project
+guidance against TypeScript. Safety cases cover external symlinks, cycles and
+oversized files without asking the reference to follow unsafe input. `test:nim-model` separately checks numerical behavior and useful
 retrieval on maintained guides; exact native/WASM ranking equality is not required.
 These optional tests prepare about 61 MB of model/runtime download inputs and stay
 outside the ordinary offline/PR gate. Run them under a build reservation:

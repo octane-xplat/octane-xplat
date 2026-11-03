@@ -2,10 +2,11 @@
 ## Retains the TypeScript envelope/selection distinction:
 ## a sole-app selection does not mutate boundApp or the envelope's projectId.
 import std/[times, json, os, strutils, asyncdispatch, tables, algorithm]
-import ./core, ./args, ./code_service, ./json_wire, ./docs_service
+import ./core, ./args, ./code_service, ./json_wire
 import ./project_status, ./command_probe
 import ./host_client, ./contract_failure, ./target_discovery, ./diagnostic_selection
 import ./session_history
+import ./docs_compute, ./docs_snapshots, ./inference_assets
 
 const scopes = ["workspace", "runtime-actions", "visual-capture", "evidence-retain", "external-effects"]
 const taskNote = "Covered by the task authorization the developer already gave; not re-requested per tool call."
@@ -86,7 +87,7 @@ proc policyCheck(grant: JsonNode): JsonNode =
   else: %*{"action": "Ask the developer to grant this permission for the current task"}
   %*{"granted": false, "error": {"code": "permission_denied", "message": "Permission \"" & scope & "\" has not been granted.", "recovery": recovery, "context": {"scope": scope, "state": grant["state"]}}}
 proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
-  if name notin ["app select", "permissions", "code read", "code search", "guidance", "docs read"]: return nil
+  if name notin ["app select", "permissions", "code read", "code search"]: return nil
   var context: WorkspaceContext
   try: context = makeContext(values)
   except CatchableError as error:
@@ -120,19 +121,6 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
           createDir(cacheDir(context.root))
           writeFile(path, preferenceJson(%*{"client": context.client, "appId": context.boundApp["id"], "appName": context.boundApp["name"], "selectedAt": isoNow()}))
           payload = %*{"bound": context.boundApp, "reason": "explicit", "preference": {"client": context.client, "path": path}}
-    elif name in ["guidance","docs read"]:
-      let selected = context.selection()
-      if name == "docs read" and not truthy(field(values,"ref")) and
-          not (truthy(field(values,"package")) and truthy(field(values,"path"))):
-        failure = %*{"code": "invalid_selection","message": "Pass --ref from docs search, or --package with --path.",
-          "recovery": {"action": "Run `xplat docs search` to get a versioned ref."}}
-      elif text(selected["state"]) != "bound":
-        failure = %*{"code": (if text(selected["state"]) == "ambiguous": "ambiguous_selection" else: "invalid_selection"),
-          "message": "Bind an app before retrieving docs.",
-          "recovery": {"action": "Bind an app first — `xplat app select` (CLI) or xplat_select_app (MCP)."}}
-      else:
-        let service = newDocsService(text(selected["app"]["root"]))
-        payload = if name == "guidance": service.docsGuidance() else: service.docsRead(values)
     else:
       let selected = context.selection()
       if text(selected["state"]) == "ambiguous":
@@ -163,6 +151,30 @@ proc workspaceCommand*(name: string, values: JsonNode): JsonNode =
   result = %*{"contractVersion": 1, "ok": failure == nil, "context": envelopeContext(context, name, values)}
   if failure != nil: result["error"] = failure
   else: result["data"] = payload
+proc workspaceDocsCommand*(name: string, values: JsonNode): Future[JsonNode] {.async.} =
+  var context: WorkspaceContext
+  try: context = makeContext(values)
+  except CatchableError as error:
+    return %*{"contractVersion": 1,"ok": false,"context": {"command": name,"projectId": newJNull()},
+      "error": {"code": "execution_failure","message": "Workspace discovery failed: " & error.msg}}
+  result = %*{"contractVersion": 1,"ok": false,"context": envelopeContext(context,name,values)}
+  try:
+    let selected = context.selection()
+    if name == "docs read" and not truthy(field(values,"ref")) and
+        not (truthy(field(values,"package")) and truthy(field(values,"path"))):
+      raise contractFailure("invalid_selection","Pass --ref from docs search, or --package with --path.",
+        %*{"recovery": {"action": "Run `xplat docs search` to get a versioned ref."}})
+    if text(selected["state"]) != "bound":
+      raise contractFailure((if text(selected["state"]) == "ambiguous": "ambiguous_selection" else: "invalid_selection"),
+        "Bind an app before retrieving docs.",%*{"recovery": {"action": "Bind an app first — `xplat app select` (CLI) or xplat_select_app (MCP)."}})
+    # Native mutable/private data has its own namespace beside the reference
+    # cache. Read/search/index share the exact same version-pinned snapshots.
+    let operation = if name == "guidance": "service-guidance" else: "service-" & name[5..^1]
+    result["data"] = await runNativeDocsCompute(%*{"operation": operation,"root": selected["app"]["root"],
+      "cacheDir": nativeDocsCacheDir(),"assetRoot": nativeAssetRoot(),"options": values})
+    result["ok"] = %true
+  except CatchableError as error: result["error"] = failureData(error)
+
 proc workspaceStatusCommand*(name: string, values, metadata: JsonNode): Future[JsonNode] {.async.} =
   var context: WorkspaceContext
   try: context = makeContext(values)
@@ -394,6 +406,35 @@ proc workspaceHuman*(name: string, payload: JsonNode): string =
         var line = "  " & text(capability["capability"]) & ": " & text(capability["status"])
         if truthy(field(capability,"detail")): line.add(" — " & text(capability["detail"]))
         lines.add(line)
+    return lines.join("\n")
+  if name == "docs index":
+    var lines: seq[string]
+    for entry in payload["results"]:
+      var line = text(field(entry["provenance"],"package")) & ": " & text(entry["status"])
+      if truthy(field(entry,"reason")): line.add(" (" & text(entry["reason"]) & ")")
+      else: line.add(" — " & $entry["chunks"].getInt() & " chunks, " & $entry["embedded"].getInt() & " new embeddings")
+      lines.add(line)
+    for entry in payload["unavailable"]:
+      lines.add("unavailable: " & text(if field(entry,"reason") == nil: field(entry,"status") else: entry["reason"]))
+    return lines.join("\n")
+  if name == "docs search":
+    var lines: seq[string]
+    for retrieval in payload["retrieval"]:
+      var line = text(retrieval["package"]) & ": " & text(retrieval["used"])
+      if truthy(field(retrieval,"reason")): line.add(" (" & text(retrieval["reason"]) & "; run xplat docs index)")
+      lines.add(line)
+    for hit in payload["results"]:
+      let provenance = hit["provenance"]
+      var label = " [" & text(if field(provenance,"servedVersion") == nil: field(provenance,"source") else: provenance["servedVersion"])
+      if truthy(field(provenance,"match")): label.add(", " & text(provenance["match"]))
+      if truthy(field(provenance,"offline")): label.add(", offline")
+      label.add("]")
+      lines.add(text(hit["title"]) & " — " & text(hit["path"]) & label)
+      lines.add("  ref: " & text(hit["ref"]))
+    for entry in payload["unavailable"]:
+      let package = field(field(entry,"provenance"),"package")
+      lines.add("unavailable: " & text(if package == nil: field(entry,"package") else: package) & " — " & text(entry["reason"]))
+    if payload["results"].len == 0: lines.add("No hits.")
     return lines.join("\n")
   if name == "docs read":
     if truthy(field(payload,"status")): return text(payload["status"]) & ": " & text(field(payload,"reason"))

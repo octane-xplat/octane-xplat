@@ -13,7 +13,7 @@ type
     key, path, url, digest: string
     bytes: int
 
-proc nativeAssetRoot*(): string = getHomeDir() / ".cache/octane-xplat/nim-inference"
+proc nativeAssetRoot*(): string = getEnv("XPLAT_NIM_INFERENCE_CACHE",getHomeDir() / ".cache/octane-xplat/nim-inference")
 proc nativeAssetLocations*(root: string): NativeAssets =
   let model = parseStrictJson(modelManifest)
   let runtime = parseStrictJson(runtimeManifest)

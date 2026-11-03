@@ -19,9 +19,10 @@ proc regexText(value: string): string =
   for rune in value.runes:
     result.add(if int(rune) in 0xd800..0xdfff: "\uE000" else: rune.toUTF8())
 
-proc titleOf*(content, path: string): string =
+proc titleOf*(content, path: string, fullPathFallback = false): string =
   var matched: RegexMatch2
   if regexText(content).find(titlePattern,matched): return jsTrim(content[matched.group(0)])
+  if fullPathFallback: return path
   let name = path.split('/')[^1]
   if name.endsWith(".md"): name[0..<name.len-3] else: name
 
