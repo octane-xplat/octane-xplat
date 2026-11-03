@@ -1225,6 +1225,7 @@
       "dependencies": {
         "@nativescript-community/ui-image": "5.0.18",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/platform": "workspace:*",
       },
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",

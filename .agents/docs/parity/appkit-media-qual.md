@@ -75,13 +75,17 @@ Research probes (gitignored `research/probes-cases/`):
    sibling-removal reuse all verified. Cache APIs (prefetch/isCached/
    evict/clear) and HTTP loads remain unqualified (manual fixture).
 
-4. **AnimatedImage — partial** (2026-11-01, `research/gif-runtime/
-   swift-restore-verify.macos.tsrx`, 19/19 assertions through the mounted
-   `<AnimatedImage>` path): remote HTTP(S) GIF loads and animates (16×12
-   then 32×24 replacement), intrinsic size follows the image, hitTest stays
-   nil, hide/unhide gates `animates`, a cleared source drops the in-flight
-   remote result, 404 leaves the surface empty, absolute-file and `data:`
-   sources install, and mid-flight `dispose()` prevents late installs.
+4. **AnimatedImage — partial** (requalified 2026-11-02 on the TypeScript
+   backend after the host env-loop pump; `research/gif-runtime/
+   animated-image-runtime.macos.ts` 24/24 and `ts-port-verify.macos.tsrx`
+   18/18 through the mounted `<AnimatedImage>` path, plus maintained
+   `packages/gif/tests/appkit-runtime.mjs` 20 assertions): remote HTTP(S)
+   GIF loads and animates (16×12 then 32×24 replacement), intrinsic size
+   follows the image, hitTest stays nil, hide/unhide gates `animates`, a
+   cleared source drops the in-flight remote result, 404 leaves the surface
+   empty, absolute-file and `data:` sources install, window attach starts
+   animation, aspectFit geometry holds, and `dispose()` prevents late
+   installs.
    Remaining unqualified: `~/` bundle-resource sources, reduced-motion ON,
    VoiceOver, sandbox/packaged profile, WebP/OS-format decode, and actual
    frame progression/loop counts.

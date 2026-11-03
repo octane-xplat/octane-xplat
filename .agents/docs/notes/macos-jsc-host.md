@@ -141,8 +141,11 @@ Still **not** delivered (distinct upstream questions, not loop starvation):
 - `Worker` remains `undefined` — embedder capability boundary
   (`RuntimeModules::Init` never runs in this host), unaffected by the pump.
 
-The gif retention reason (starved `NSURLSession` completions) is removed;
-requalify the TS port's remote HTTP(S) path separately.
+The gif retention reason (starved `NSURLSession` completions) is removed and
+the TS port is requalified 2026-11-02: remote HTTP(S), file and `data:` loads
+deliver through the mounted `<AnimatedImage>` path (24/24 + 18/18 probe
+assertions) and the maintained `packages/gif/tests/appkit-runtime.mjs` host
+check. The Swift leaf is gone.
 
 ## Foreign-thread method/function IMPs (upstream, patched)
 

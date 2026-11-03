@@ -1,5 +1,7 @@
 import '@nativescript/macos-node-api'
 import {
+  _Block_copy,
+  _Block_release,
   AVAuthorizationStatus,
   AVCaptureDevice,
   AVMediaTypeAudio,
@@ -12,6 +14,8 @@ import {
   NSError,
   NSFileHandle,
   NSFileManager,
+  NSInvocation,
+  NSMethodSignature,
   NSMutableDictionary,
   NSNumber,
   NSObject,
@@ -34,6 +38,11 @@ import {
   SecItemCopyMatching,
   SecItemDelete,
   SecItemUpdate,
+  UNAuthorizationOptions,
+  UNAuthorizationStatus,
+  UNMutableNotificationContent,
+  UNNotificationRequest,
+  UNUserNotificationCenter,
   UTType,
   WKNavigationActionPolicy,
   WKNavigationDelegate,
@@ -115,23 +124,6 @@ interface ChannelState {
   stagedMovies: Map<string, NSURL>
 }
 
-// UserNotifications completions run on an internal XPC queue and WebKit
-// delivers the media-capture delegate call off the JS thread. The host's
-// 2026-11-02 env loop pump delivers such foreign-queue JS blocks on the main
-// thread, but these paths were qualified under the retained Swift leaf and
-// stay there pending requalification — see platforms/macos.
-declare const XplatWebViewNative: {
-  alloc(): {
-    init(): {
-      mediaUIDelegate(): NSObject
-      setMediaTrustedOrigin(origin: TrustedOrigin | null): void
-      notificationPermission(): string
-      requestNotificationPermission(): boolean
-      notify(options: { title: string; body: string }): boolean
-    }
-  }
-}
-
 // The bridge can hand back a different JS wrapper for the same native
 // receiver on a later callback, so channel state is keyed by the WKWebView —
 // an object this host creates and holds, whose wrapper identity is stable.
@@ -164,6 +156,43 @@ const trusted = (origin: TrustedOrigin | null, allowed: TrustedOrigin | undefine
   origin.scheme === allowed.scheme &&
   origin.host === allowed.host &&
   (allowed.port == null || origin.port === allowed.port)
+
+// WebKit completion blocks arrive either as callable FunctionPointers (a
+// metadata-signature path) or as opaque CallbackObjects (exposedMethods `id`).
+// The FunctionPointer invoke path dies with the delegate frame, so async
+// decisions go through a retained _Block_copy invoked via NSInvocation.
+const blockPointer = (handler: unknown): unknown =>
+  (handler as { __ns_native_ptr?: unknown })?.__ns_native_ptr ?? handler
+
+const callBlock = (block: unknown, argEncoding: string, ...args: interop.Reference[]): void => {
+  const signature = NSMethodSignature.signatureWithObjCTypes('v@:' + argEncoding)
+  const invocation = NSInvocation.invocationWithMethodSignature(signature)
+  invocation.selector = 'invoke'
+  for (let i = 0; i < args.length; i++) {
+    invocation.setArgumentAtIndex(args[i], i + 2)
+  }
+  invocation.invokeWithTarget(block)
+}
+
+const blockArg = (type: number, value: unknown): interop.Reference => {
+  const ref = new interop.Reference(type)
+  ;(ref as { value: unknown }).value = value
+  return ref
+}
+
+/** Deliver a WKPermissionDecision (NSInteger) to a signature-less handler. */
+const decidePermission = (handler: unknown, decision: number): void => {
+  if (typeof handler === 'function') {
+    ;(handler as (value: number) => void)(decision)
+    return
+  }
+  callBlock(blockPointer(handler), 'q', blockArg(interop.types.int64, decision))
+}
+
+const copyBlock = (handler: unknown): interop.Pointer | null => {
+  const ptr = blockPointer(handler)
+  return ptr === handler ? null : _Block_copy(ptr as interop.PointerConvertible)
+}
 
 let ChannelClass: { alloc(): { init(): NSObject } } | undefined
 
@@ -276,6 +305,34 @@ const requestMediaTypeAccess = (mediaType: string, deadlineSeconds: number | nul
   }
 }
 
+/** Sequential per-type access, mirroring the Swift requestMediaAccess. */
+const requestMediaAccess = (mediaTypes: string[]): boolean => {
+  let grantedAll = true
+  for (const mediaType of mediaTypes) {
+    if (!mediaDeclared(mediaType)) {
+      grantedAll = false
+      continue
+    }
+    switch (Number(AVCaptureDevice.authorizationStatusForMediaType(mediaType))) {
+      case AVAuthorizationStatus.Authorized:
+        continue
+      case AVAuthorizationStatus.NotDetermined: {
+        requestMediaTypeAccess(mediaType, null)
+        if (
+          Number(AVCaptureDevice.authorizationStatusForMediaType(mediaType)) !==
+          AVAuthorizationStatus.Authorized
+        ) {
+          grantedAll = false
+        }
+        continue
+      }
+      default:
+        grantedAll = false
+    }
+  }
+  return grantedAll
+}
+
 const mimeTypes: Record<string, string> = {
   html: 'text/html',
   js: 'application/javascript',
@@ -310,6 +367,72 @@ const schemeError = (task: WKURLSchemeTask, code: number): void => {
 
 const NSErrorFor = (domain: string, code: number): NSError =>
   NSError.errorWithDomainCodeUserInfo(domain, code, null)
+
+const WKPermissionDecisionGrant = 1
+const WKPermissionDecisionDeny = 2
+
+let UIDelegateClass: { alloc(): { init(): NSObject } } | undefined
+
+function uiDelegateClass(): { alloc(): { init(): NSObject } } {
+  UIDelegateClass ??= NSObject.extend(
+    {
+      // Media capture is granted only to the app's own trusted origin and
+      // only when the host app holds the matching macOS privacy permission.
+      webViewRequestMediaCapturePermissionForOriginInitiatedByFrameTypeDecisionHandler(
+        webView: object,
+        origin: unknown,
+        frame: { securityOrigin?: unknown },
+        type: number,
+        decisionHandler: unknown,
+      ): void {
+        const state = states.get(webView)
+        const deny = () => decidePermission(decisionHandler, WKPermissionDecisionDeny)
+        if (
+          state == null ||
+          state.disposed ||
+          !trusted(originParts(origin), state.trustedOrigin) ||
+          !trusted(originParts(frame?.securityOrigin), state.trustedOrigin)
+        ) {
+          deny()
+          return
+        }
+
+        // The handler is one-shot but async — retain the block past this
+        // delegate frame and release it once the decision is delivered.
+        const kept = copyBlock(decisionHandler)
+        const mediaTypes =
+          Number(type) === 1
+            ? [AVMediaTypeAudio]
+            : Number(type) === 2
+              ? [AVMediaTypeVideo, AVMediaTypeAudio]
+              : [AVMediaTypeVideo]
+        try {
+          const granted = requestMediaAccess(mediaTypes)
+          decidePermission(
+            decisionHandler,
+            granted ? WKPermissionDecisionGrant : WKPermissionDecisionDeny,
+          )
+        } finally {
+          if (kept != null) _Block_release(kept)
+        }
+      },
+    },
+    {
+      name: 'XplatWebViewUIDelegate',
+      protocols: [WKUIDelegate],
+      exposedMethods: {
+        // Absent from the generated runtime metadata, so the signature is
+        // declared explicitly; the decision handler arrives as an opaque
+        // block and is invoked through NSInvocation.
+        'webView:requestMediaCapturePermissionForOrigin:initiatedByFrame:type:decisionHandler:': {
+          params: [WKWebView, NSObject, NSObject, interop.types.int64, interop.types.id],
+          returns: interop.types.void,
+        },
+      },
+    },
+  )
+  return UIDelegateClass as { alloc(): { init(): NSObject } }
+}
 
 let SchemeHandlerClass: { alloc(): { init(): NSObject } } | undefined
 
@@ -459,8 +582,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
     configuration,
   )
   const channel = channelClass().alloc().init()
-  const native = XplatWebViewNative.alloc().init()
-  const uiDelegate = native.mediaUIDelegate()
+  const uiDelegate = uiDelegateClass().alloc().init()
   controller.addScriptMessageHandlerName(channel, 'xplat')
   webView.navigationDelegate = channel as unknown as WKNavigationDelegate
   webView.UIDelegate = uiDelegate as unknown as WKUIDelegate
@@ -528,6 +650,24 @@ export function createMacOSWebView(parent: object): MacOSWebView {
     } catch {}
   }
 
+  // UN completions arrive on an internal XPC queue; the host's env loop
+  // pump now delivers them on the main thread, so the Swift leaf's
+  // wait-for-result pattern is preserved in TypeScript — spin the run loop
+  // until the completion lands or the deadline expires.
+  const waitForResult = <T>(operation: (done: (value: T) => void) => void): T | null => {
+    let result: T | null = null
+    let finished = false
+    operation((value) => {
+      result = value
+      finished = true
+    })
+    const deadline = Date.now() + 5000
+    while (!finished && Date.now() < deadline) {
+      runLoopSpin(0.01)
+    }
+    return result
+  }
+
   let disposed = false
   const live = () => !disposed && !state.disposed
 
@@ -553,7 +693,6 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         host: String(url.host),
         port: Number(url.port),
       }
-      native.setMediaTrustedOrigin(state.trustedOrigin)
       webView.loadRequest(NSURLRequest.requestWithURL(url))
       return true
     },
@@ -578,7 +717,6 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       }
 
       state.trustedOrigin = { scheme: 'xplat', host: 'app', port: null }
-      native.setMediaTrustedOrigin(state.trustedOrigin)
       webView.loadRequest(NSURLRequest.requestWithURL(components.URL))
       return true
     },
@@ -713,15 +851,65 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       return written ? fileRef(panel.URL) : null
     },
     notificationPermission() {
-      return live()
-        ? (native.notificationPermission() as 'granted' | 'denied' | 'unsupported')
-        : 'unsupported'
+      if (!live()) {
+        return 'unsupported'
+      }
+      const status = waitForResult<number | null>((done) =>
+        UNUserNotificationCenter.currentNotificationCenter().getNotificationSettingsWithCompletionHandler(
+          (settings) => done(settings == null ? null : Number(settings.authorizationStatus)),
+        ),
+      )
+      switch (status) {
+        case UNAuthorizationStatus.Authorized:
+        case UNAuthorizationStatus.Provisional:
+        case UNAuthorizationStatus.Ephemeral:
+          return 'granted'
+        case UNAuthorizationStatus.Denied:
+          return 'denied'
+        default:
+          return 'unsupported'
+      }
     },
     requestNotificationPermission() {
-      return live() && native.requestNotificationPermission()
+      if (!live()) {
+        return false
+      }
+      const current = this.notificationPermission()
+      if (current === 'granted') {
+        return true
+      }
+      if (current === 'denied') {
+        return false
+      }
+      return (
+        waitForResult<boolean>((done) =>
+          UNUserNotificationCenter.currentNotificationCenter().requestAuthorizationWithOptionsCompletionHandler(
+            UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound,
+            (granted, error) => done(Boolean(granted) && error == null),
+          ),
+        ) ?? false
+      )
     },
     notify(title, body) {
-      return live() && native.notify({ title: title ?? '', body: body ?? '' })
+      if (!live() || !this.requestNotificationPermission()) {
+        return false
+      }
+      const content = UNMutableNotificationContent.new()
+      content.title = title ?? ''
+      content.body = body ?? ''
+      const request = UNNotificationRequest.requestWithIdentifierContentTrigger(
+        NSUUID.UUID().UUIDString,
+        content,
+        null,
+      )
+      return (
+        waitForResult<boolean>((done) =>
+          UNUserNotificationCenter.currentNotificationCenter().addNotificationRequestWithCompletionHandler(
+            request,
+            (error) => done(error == null),
+          ),
+        ) ?? false
+      )
     },
     secureStorageGet(key) {
       if (!live()) {
