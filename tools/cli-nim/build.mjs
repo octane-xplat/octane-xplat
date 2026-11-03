@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { resolve } from 'node:path'
 import { getToolchain } from 'nim-toolchain'
+import { prepareOrtHeaders } from './ort-headers.mjs'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
 import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
@@ -15,6 +16,7 @@ if (!/^\d+\.\d+\.\d+-nim\.[0-9]+$/.test(version)) {throw Error('Require an exact
 // Reuse the checksum-verified compiler/YAML preparation and source pins.
 const { dependencyPaths } = await import('./prepare.mjs')
 const compiler = await getToolchain({cacheDir:resolve(work,'toolchain')})
+const ortHeaders=process.platform==='darwin'&&process.arch==='arm64' ? await prepareOrtHeaders() : null
 const cli = resolve(root, 'packages/cli/src/cli.ts')
 function reference(args) {
  const r=spawnSync(process.execPath,[cli,...args],{encoding:'utf8',cwd:root})
@@ -41,7 +43,7 @@ writeFileSync(resolve(root,'packages/cli/nim/metadata.json'),JSON.stringify({ver
  routesHelp:reference(['routes','--help']),routeDescriptor:routeCommandDescriptor(readFileSync(resolve(root,'packages/cli/src/commands/routes.ts'),'utf8'))}))
 mkdirSync(resolve(work,'native'),{recursive:true})
 const binary=resolve(work,process.platform==='win32'?'native/xplat.exe':'native/xplat')
-const flags=['c','-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
+const flags=['c',...(ortHeaders?[`--cincludes:${ortHeaders}`]:[]),'-d:release','--opt:size','--mm:orc',...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),...dependencyPaths.map(path=>`--path:${path}`),`--nimcache:${work}/native-cache`,`-o:${binary}`,resolve(root,'packages/cli/nim/main.nim')]
 const inputs=nativeInputs(root)
 for(const [cmd,args] of [[compiler.nim,flags],...(process.platform==='win32'?[]:[['strip',[binary]]])]) {
  const r=spawnSync(cmd,args,{stdio:'inherit'});if(r.status!==0){throw Error('Native build failed')}

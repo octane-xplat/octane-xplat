@@ -9,8 +9,16 @@ export function nativeInputs(root) {
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts',
   'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json', 'tools/cli-nim/build.mjs',
   'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
-  'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/ort-runtime.json',
+  'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/licenses/onnxruntime.txt', 'tools/cli-nim/ort-runtime.json',
+  'tools/cli-nim/ort-headers.mjs', 'tools/cli-nim/model-assets.json',
   'tools/cli-nim/build-model.mjs', 'tools/cli-nim/model_probe.nim', 'tools/cli-nim/package.json'].sort()
+ const hash = createHash('sha256')
+ for (const file of files) {hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')}
+ return { files, sha256: hash.digest('hex') }
+}
+
+export function computeProbeInputs(root) {
+ const files = [...nativeInputs(root).files, 'tools/cli-nim/docs_compute_probe.nim', 'tools/cli-nim/build-probe.mjs'].sort()
  const hash = createHash('sha256')
  for (const file of files) {hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0')}
  return { files, sha256: hash.digest('hex') }

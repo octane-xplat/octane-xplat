@@ -43,6 +43,14 @@ useful retrieval quality rather than exact native/WASM ranking equality; the
 observed ranking difference alone is not a blocker. Preserve distinct engine/cache
 identities and qualify meaningful query results and explicit model/runtime
 delivery before enabling public search.
+`inference_assets.nim` prepares optional checksummed model/runtime files explicitly;
+ordinary search and empty inventories do not download them. `docs_compute.nim`
+isolates blocking model/index execution in an owned same-executable child, with
+bounded private messages, timeouts/cancellation and staging cleanup. The production
+binary includes its internal entry, but public docs index/search integration is
+still pending. Runtime/model download and disk costs are separate from CLI size.
+Complete pinned public C API headers are build inputs; no ONNX runtime is linked or
+loaded during ordinary help/status startup.
 `native_http.nim` provides asynchronous HTTP/TLS through the macOS system libcurl,
 with header/body readiness, cancellation, byte streaming and explicit proxy/CA
 options. `http_url.nim` statically compiles pinned Ada URL parsing for the

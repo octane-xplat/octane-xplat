@@ -5,6 +5,7 @@ import ./routes_command
 import ./build_command
 import ./agent_host
 import ./runtime_service
+import ./docs_compute
 import std/[sysrand, terminal, json, os, strutils, asyncdispatch]
 
 const metadata = staticRead("metadata.json")
@@ -13,6 +14,14 @@ let argv = block:
   var decoded: seq[string]
   for arg in commandLineParams(): decoded.add(decodeUtf8(arg))
   decoded
+if argv.len > 0 and argv[0] == "--internal-docs-compute":
+  if argv.len != 2: exitProcess(2)
+  try:
+    waitFor nativeDocsComputeChild(argv[1])
+    exitProcess(0)
+  except CatchableError:
+    stderr.writeLine("Native docs compute failed before publishing a response")
+    exitProcess(1)
 if argv.len > 0 and argv[0] == "--internal-agent-host":
   if argv.len != 2: exitProcess(2)
   var idleMs = 120000

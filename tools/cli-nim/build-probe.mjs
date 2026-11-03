@@ -4,20 +4,21 @@ import { spawnSync } from 'node:child_process'
 import { getToolchain } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { httpProbeInputs, processProbeInputs, envProbeInputs, rpcProbeInputs, hostProbeInputs, artifactFingerprint } from './native-inputs.mjs'
-const probes = { http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs }, rpc: { entry: 'rpc_probe.nim', inputs: rpcProbeInputs }, host: { entry: 'host_probe.nim', inputs: hostProbeInputs } }
+import { computeProbeInputs, httpProbeInputs, processProbeInputs, envProbeInputs, rpcProbeInputs, hostProbeInputs, artifactFingerprint } from './native-inputs.mjs'
+const probes = { 'docs-compute': { entry: 'docs_compute_probe.nim', inputs: computeProbeInputs }, http: { entry: 'http_probe.nim', inputs: httpProbeInputs }, process: { entry: 'process_probe.nim', inputs: processProbeInputs }, env: { entry: 'env_probe.nim', inputs: envProbeInputs }, rpc: { entry: 'rpc_probe.nim', inputs: rpcProbeInputs }, host: { entry: 'host_probe.nim', inputs: hostProbeInputs } }
 const selected = process.argv[2]
-if (!Object.hasOwn(probes, selected)) throw Error(`Choose a probe: ${Object.keys(probes).join(', ')}`)
+if (!Object.hasOwn(probes, selected)) {throw Error(`Choose a probe: ${Object.keys(probes).join(', ')}`)}
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/nim-cli')
 const compiler = await getToolchain({ cacheDir: join(work, 'toolchain') })
 const paths = prepareDependencies(work, compiler)
+const ortHeaders=selected==='docs-compute' && process.platform==='darwin' && process.arch==='arm64' ? await (await import('./ort-headers.mjs')).prepareOrtHeaders() : null
 const inputs = probes[selected].inputs(root)
 const binary = join(work, `native/${selected}-probe${process.platform === 'win32' ? '.exe' : ''}`)
-const run = spawnSync(compiler.nim, ['c','-d:release','--opt:size','--mm:orc', ...(process.argv.includes('--debug') ? ['--stackTrace:on', '--lineTrace:on'] : []), ...paths.map(path => `--path:${path}`),
+const run = spawnSync(compiler.nim, ['c',...(ortHeaders?[`--cincludes:${ortHeaders}`]:[]),'-d:release','--opt:size','--mm:orc', ...(process.argv.includes('--debug') ? ['--stackTrace:on', '--lineTrace:on'] : []), ...paths.map(path => `--path:${path}`),
  `--nimcache:${join(work, `${selected}-cache`)}`, `-o:${binary}`,
  join(import.meta.dirname, probes[selected].entry)], { stdio: 'inherit' })
-if (run.status !== 0) process.exit(run.status ?? 1)
-if (probes[selected].inputs(root).sha256 !== inputs.sha256) throw Error('Probe sources changed during compilation')
+if (run.status !== 0) {process.exit(run.status ?? 1)}
+if (probes[selected].inputs(root).sha256 !== inputs.sha256) {throw Error('Probe sources changed during compilation')}
 writeFileSync(join(work, `native/${selected}-build.json`), JSON.stringify({ platform: process.platform, arch: process.arch,
  nativeInputs: inputs, nativeArtifact: artifactFingerprint(readFileSync(binary)) }))

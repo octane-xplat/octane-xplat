@@ -77,6 +77,14 @@ An `async` caller does not make synchronous CPU work nonblocking. Native model
 inference and index preparation need an execution boundary with cancellation and
 bounded work before joining a responsive persistent host; qualifying model outputs
 in a standalone probe does not establish that host behavior.
+Use an owned same-executable process for blocking native model/index work when
+cooperative cancellation inside a C call is unavailable. Keep its request/result
+files private and bounded, await process/group cleanup before removing its owned
+operation directory, and leave completed cache batches reusable. Child processes
+started inside that worker must inherit its group so outer cancellation can reach
+them; a nested detached process manager would require separate ownership transfer.
+Downloads belong to explicit preparation; empty inventories and ordinary search
+must not fetch optional model/runtime assets.
 
 ## Write Nim with explicit data semantics
 
@@ -266,6 +274,12 @@ C-imported constants can be runtime values in Nim's bindings. For example,
 macOS POSIX errno values cannot be used as Nim compile-time `case` labels.
 Use runtime comparisons when the binding is not a Nim `const`; do not replace
 platform error constants with hardcoded numeric values.
+
+Compile C function-table adapters against the complete pinned public-header
+closure. A cached C object can hide missing transitive headers; verify a fresh
+compile when changing header preparation. Version the include directory and hash
+each header instead of hand-maintaining ABI offsets or trusting one top-level
+header checksum. Keep build headers separate from optional runtime downloads.
 
 Preserve synchronous and asynchronous spawn failure boundaries separately. The
 Node reference returns a failed child for ENOENT/EACCES and several resource

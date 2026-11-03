@@ -105,6 +105,8 @@
 		"build:nim-process": "node ../../tools/cli-nim/build-probe.mjs process",
 		"test:nim-process": "node --test ../../tools/cli-nim/process.test.mjs",
 		"test:nim-build-tools": "node ../../tools/cli-nim/build-tools-consumer.mjs --with-native-cli",
+		"build:nim-docs-compute": "node ../../tools/cli-nim/build-probe.mjs docs-compute",
+		"test:nim-docs-compute": "node --test ../../tools/cli-nim/docs-compute.test.mjs",
 		"build:nim-env": "node ../../tools/cli-nim/build-probe.mjs env",
 		"test:nim-env": "node --test ../../tools/cli-nim/env.test.mjs",
 		"test:nim-route-command": "node --test --test-concurrency=2 ../../tools/cli-nim/routes-command.test.mjs ../../tools/cli-nim/routes-watch.test.mjs",
