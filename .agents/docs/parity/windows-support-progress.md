@@ -139,6 +139,28 @@ picker initialization, suspend/resume, physical sleep, pointer-variant
 predicates, reduced motion, hotplug, secondary windows and the
 architecture matrix.
 
+## Service qualification boundaries
+
+The packaged Credential Locker path handles empty strings, an exact U+0001
+control-character value, overwrite, remove and fresh-launch persistence. Same-name
+sandbox writes produce distinct URIs, and releasing the first owned reference
+does not throw. The identity fixture checks byte lengths; it does not prove
+that the two files retain distinct contents, clean up both references, or reject
+foreign references. Keep those requirements open.
+
+Picker calls still throw `UnavailabilityError`, and export returns `unavailable`.
+Require that exact error class in qualification; an unrelated native failure must
+not count as explicit unavailability. This result does not qualify owner-window
+initialization or a working picker. `PointerDevice` and `UISettings` project on
+the host, but their presence does not qualify input predicates, reduced-motion
+sampling or notifications.
+
+Look up `scenario:windows-service-adapters`, `scenario:windows-secure-storage`,
+`scenario:windows-file-io`, `scenario:windows-picker-host` and
+`scenario:windows-media-query` in Silo for retained artifact identities and the
+remaining requirements. All five scenarios remain pending. Raw driver results
+are indexed under `windows-service203/` in `local_artifacts`.
+
 ## Continue qualification
 
 Start from the current pinned dependencies and the maintained host runbook.
