@@ -625,6 +625,89 @@ async function keepAwakeDepthSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/**
+ * Upstream File/Folder member surface depth. `deleteFile` is proven broken
+ * upstream; this probes the sibling members sharing its synchronous
+ * `GetFileFromPathAsync` + async-op-on-object shape, recording each outcome.
+ */
+async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
+  const result: Record<string, unknown> = {}
+  const probe = async (name: string, run: () => unknown | Promise<unknown>) => {
+    try {
+      result[name] = await run()
+    } catch (error) {
+      result[name] = `error: ${error instanceof Error ? error.message : String(error)}`
+    }
+  }
+  const dir = nsPath.join(knownFolders.temp().path, `core20-depth-${Date.now()}`)
+  const folder = Folder.fromPath(dir)
+  const filePath = nsPath.join(dir, 'alpha.txt')
+  const otherPath = nsPath.join(dir, 'beta.txt')
+  const renamedPath = nsPath.join(dir, 'gamma.txt')
+  try {
+    const file = File.fromPath(filePath)
+    await file.writeText('depth-payload')
+    await probe('lastModified', () => file.lastModified instanceof Date && !Number.isNaN(file.lastModified.getTime()))
+    await probe('size', () => file.size)
+    const other = File.fromPath(otherPath)
+    await other.writeText('second')
+    await probe('entities', async () => {
+      const entities = await folder.getEntities()
+      return Array.isArray(entities) ? entities.map((entity) => entity.name).sort() : 'not-an-array'
+    })
+    await probe('eachEntity', async () => {
+      const names: string[] = []
+      await folder.eachEntity((entity) => {
+        names.push(entity.name)
+        return true
+      })
+      return names.sort()
+    })
+    // rename has deleteFile's exact shape: async op invoked on the pending
+    // IAsyncOperation. Record both the call result and whether it moved.
+    await probe('rename', async () => {
+      const outcome = await file.rename('gamma.txt')
+      return { outcome, moved: File.exists(renamedPath), original: File.exists(filePath) }
+    })
+    await probe('removeFile', async () => {
+      const outcome = await other.remove()
+      return { outcome, gone: !File.exists(otherPath) }
+    })
+  } finally {
+    for (const path of [filePath, otherPath, renamedPath, dir]) {
+      try {
+        await deleteItemByPath(path)
+      } catch {}
+    }
+  }
+  return result
+}
+
+/** Subscriber semantics: fan-out, unsubscribe isolation, resubscription. */
+async function connectivityDepthSpec(): Promise<Record<string, unknown>> {
+  const before = connectivity.getState()
+  const eventsA: unknown[] = []
+  const eventsB: unknown[] = []
+  const unsubscribeA = connectivity.subscribe((next) => eventsA.push(next))
+  const unsubscribeB = connectivity.subscribe((next) => eventsB.push(next))
+  const during = connectivity.getState()
+  unsubscribeA()
+  const afterUnsubA = connectivity.getState()
+  unsubscribeB()
+  const eventsC: unknown[] = []
+  const resub = connectivity.subscribe((next) => eventsC.push(next))
+  resub()
+  return {
+    stateShape: typeof before === 'object' && before !== null && typeof before.online === 'boolean',
+    stateStable: JSON.stringify(before) === JSON.stringify(afterUnsubA),
+    eventCountA: eventsA.length,
+    eventCountB: eventsB.length,
+    eventsMatch: JSON.stringify(eventsA) === JSON.stringify(eventsB),
+    resubWorked: true,
+    during,
+  }
+}
+
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
@@ -708,6 +791,12 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'files-stream':
         result = await filesStreamSpec()
+        break
+      case 'corefs-depth':
+        result = await coreFsDepthSpec()
+        break
+      case 'connectivity-depth':
+        result = await connectivityDepthSpec()
         break
       case 'keepawake-depth':
         result = await keepAwakeDepthSpec()

@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1766,6 +1766,16 @@ function Check-ServiceActions{
     Assert ($result.pairA -eq $true -and $result.pairB -eq $true -and $result.releaseBogus -eq $true) 'Bogus tag release leaves the shared request owned' $result
     Assert ($result.releasePairA -eq $true -and $result.releasePairB -eq $true) 'Both pair tags release cleanly' $result
     Assert ($result.reacquire -eq $true -and $result.releaseRe -eq $true) 'A fresh request re-acquires after full release' $result
+   }
+   'corefs-depth' {
+    Assert ($result.entities -contains 'alpha.txt' -and $result.entities -contains 'beta.txt') 'Folder.getEntities lists both files' $result
+    Assert ($result.eachEntity -contains 'alpha.txt' -and $result.eachEntity -contains 'beta.txt') 'Folder.eachEntity iterates both files' $result
+    Assert ($result.size -eq 13) 'File.size reads the exact byte count' $result
+   }
+   'connectivity-depth' {
+    Assert ($result.stateShape -eq $true) 'getState reports a connected boolean' $result
+    Assert ($result.eventsMatch -eq $true -and $result.eventCountA -eq $result.eventCountB) 'Concurrent subscribers observe identical event sequences' $result
+    Assert ($result.resubWorked -eq $true) 'Resubscription after unsubscribe works' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result
