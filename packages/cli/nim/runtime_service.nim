@@ -168,14 +168,14 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       if not truthy(id): selected = selectedApp(root,request)
       if not truthy(id):
         try:
-          let retained = historyDiagnostics(root,selected,params,host.generation)
+          let retained = await historyDiagnostics(root,selected,params,host.generation)
           if truthy(sessionId) and sessionRuns.hasKey(text(sessionId)):
             let run = sessionRuns[text(sessionId)]
-            if run.history != nil and run.history.error.len > 0:
+            if field(retained,"coverage") != nil and run.history != nil and run.history.error.len > 0:
               retained["coverage"]["retention"] = %*{"status": "unavailable","detail": run.history.error}
           return retained
         except ContractFailure as error:
-          if text(error.detail["code"]) != "not_found" or not sessionRuns.hasKey(text(sessionId)): raise
+          if truthy(field(params,"reportId")) or text(error.detail["code"]) != "not_found" or not sessionRuns.hasKey(text(sessionId)): raise
       var capture: RuntimeLogs
       if sessionId != nil and sessionId.kind == JString and sessionRuns.hasKey(sessionId.getStr()):
         let session = host.sessions.getSession(sessionId.getStr())
@@ -196,7 +196,7 @@ proc runtimeDispatcher*(workspace: string, buildTimeoutMs = 900000): NativeHostD
       if stream != nil and stream notin [%"stdout",%"stderr",%"lifecycle"]: raise contractFailure("invalid_selection","Invalid log stream.")
       let logs = capture.readLogs(cursor,limit,text(stream))
       var payload = %*{"logs": logs,"reports": [],"coverage": {"logs": "captured","nativeReports": {"status": "unavailable",
-        "detail": (if sessionId != nil: "Native report lookup for development sessions is pending." else: "Build jobs have output captures but no development session or native report lookup.")}}}
+        "detail": (if sessionId != nil: "No retained app-process/report store is available for this session." else: "Build jobs have output captures but no development session or native report lookup.")}}}
       if truthy(sessionId):
         payload["sessionId"] = sessionId
         payload["session"] = host.sessions.getSession(sessionId.getStr())

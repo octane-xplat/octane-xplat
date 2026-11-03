@@ -215,6 +215,16 @@ xplat diagnostics --session SESSION_ID --json
 xplat session end SESSION_ID --json
 ```
 
+Native macOS diagnostics also retain complete local crash reports separately
+from logs. Read their availability and association in the diagnostic result, then
+select a returned report id. See [macOS session diagnostics](package-macos-build.md#start-a-development-session)
+for limits and interpretation:
+
+```sh
+xplat diagnostics --session SESSION_ID --json
+xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+```
+
 Inspect the native catalog before using another workflow:
 
 ```sh

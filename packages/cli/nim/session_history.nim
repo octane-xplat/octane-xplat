@@ -1,14 +1,15 @@
 ## Native-only durable evidence. A retained owner identity never authorizes signals.
-import std/[os, json, options, strutils, algorithm, tables, math]
+import std/[os, json, options, strutils, algorithm, tables, math, asyncdispatch]
 import ./host_storage, ./host_bootstrap, ./native_identity, ./digests
 import ./strictjson, ./json_wire, ./js_text, ./jsonutil, ./contract_failure
+import ./native_reports
 when defined(macosx):
   import std/posix
   proc renameNative(source, destination: cstring): cint {.importc: "rename", header: "<stdio.h>".}
 
 const segmentBytes* = 512*1024
 const retainedRuns* = 20
-const historyCoverage = "Forwarded tool/host output. This stream excludes output before capture and OS report files. Native report lookup remains pending."
+const historyCoverage = "Forwarded tool/host output. This stream excludes output before capture and OS report files. Native reports are returned separately."
 type HistoryCapture* = ref object
   directory, root, appRoot, owner: string
   session: JsonNode
@@ -226,11 +227,17 @@ proc readHistoryLogs*(workspace: string, app: JsonNode, id: string, owner = "",
     "incompleteTail": incomplete,"historical": run["historical"],"capturedFrom": run["startedAt"],
     "coverage": (if run["ownership"] == %"attached": "Lifecycle events only. External process output stays in the user's terminal, including output before attachment." else: historyCoverage)}
 
-proc historyDiagnostics*(workspace: string, app, params: JsonNode, owner = ""): JsonNode =
+proc historyDiagnostics*(workspace: string, app, params: JsonNode, owner = ""): Future[JsonNode] {.async.} =
   let id = text(field(params,"sessionId"))
   if id.len == 0:
     return %*{"sessions": listHistorySessions(workspace,app,owner,text(field(params,"platform"))),
       "note": "Select --session SESSION_ID to read retained logs. Native session history is app-scoped and remains readable without its owner."}
+  let run = readHistorySession(workspace,app,id,owner)
+  if truthy(field(params,"platform")) and run["platform"] != params["platform"]:
+    raise contractFailure("invalid_selection","The selected run belongs to another platform.")
+  let reportsDirectory = historyRoot(workspace,app) / id / "reports"
+  if truthy(field(params,"reportId")):
+    return %*{"sessionId": id,"report": readNativeReport(reportsDirectory,text(params["reportId"]))}
   proc integer(key: string, minimum, maximum, default: int): int =
     let value = field(params,key)
     if value == nil: return default
@@ -246,8 +253,12 @@ proc historyDiagnostics*(workspace: string, app, params: JsonNode, owner = ""): 
   if truthy(field(params,"platform")) and session["platform"] != params["platform"]:
     raise contractFailure("invalid_selection","The selected run belongs to another platform.")
   logs.delete("session")
-  result = %*{"sessionId": id,"session": session,"logs": logs,"reports": [],
-    "coverage": {"logs": "captured","nativeReports": {"status": "unavailable","detail": "Native report lookup for development sessions is pending."}}}
+  var native: JsonNode
+  try: native = await discoverNativeReports(reportsDirectory,session)
+  except CatchableError:
+    native = %*{"reports": [],"coverage": {"status": "unavailable","detail": "Native report discovery or retention failed. Log capture remains readable."}}
+  result = %*{"sessionId": id,"session": session,"logs": logs,"reports": native["reports"],
+    "coverage": {"logs": "captured","nativeReports": native["coverage"]}}
   if truthy(field(session,"retentionError")):
     result["coverage"]["retention"] = %*{"status": "unavailable","detail": session["retentionError"]}
   if session["ownership"] == %"attached": result["coverage"]["applicationOutput"] = %"not-captured"

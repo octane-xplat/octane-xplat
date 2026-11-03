@@ -16,6 +16,7 @@ import ../../packages/cli/nim/[runtime_logs, runtime_build]
 import ../../packages/cli/nim/contract_failure
 import ../../packages/cli/nim/macos_build
 import ../../packages/cli/nim/process_observation
+import ../../packages/cli/nim/[native_reports, report_time, app_process_identity]
 
 proc logsScenario(request: JsonNode): JsonNode =
   let logs = newRuntimeLogs((if field(request,"limit") == nil: 2000 else: request["limit"].getInt()),
@@ -73,6 +74,12 @@ for line in stdin.lines:
     let dir = text(request["dir"])
     var value: JsonNode
     case text(request["operation"])
+    of "reports": value = waitFor discoverNativeReports(dir,request["run"],text(request["home"]))
+    of "report-read": value = readNativeReport(dir,text(request["id"]))
+    of "report-time":
+      let stamp = reportTime(text(request["value"]))
+      value = if stamp.isSome: %reportTimestamp(stamp.get()) else: newJNull()
+    of "worker-app-identity": value = workerAppIdentity(text(request["appId"]),text(request["resource"]),request["data"])
     of "process-observations":
       value = newJArray()
       for process in observeProjectProcesses(dir):

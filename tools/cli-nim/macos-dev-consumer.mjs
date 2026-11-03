@@ -148,6 +148,7 @@ try {
  await until(()=>session(live).state==='ready','Real macOS development host must become ready',180000,live)
  await until(()=>logs(live).some(record=>record.line.includes('NIM_DEV_ONE=40')),'Run the initial native C value',30000,live)
  const initialPid=Number(readFileSync(join(app,'app.pid'))),workerPid=Number(readFileSync(join(app,'engine.pid')))
+ assert.ok(session(live).nativeIdentity.processes.some(process=>process.pid===initialPid),'Structured readiness must retain the actual app PID')
  const other=join(app,'apps/b')
  write(join(other,'package.json'),{name:'other',private:true,xplat:{targets:{web:{}}}})
  write(join(other,'vite.config.mjs'),'throw Error("Discovery must not execute this config")\n')
@@ -168,6 +169,7 @@ try {
  write(join(app,'src/main.macos.js'),source('TWO'))
  await until(()=>logs(live).some(record=>record.line.includes('NIM_DEV_TWO=40')),'JavaScript edit must restart the app',30000,live)
  const jsPid=Number(readFileSync(join(app,'app.pid')))
+ await until(()=>session(live).nativeIdentity.processes.some(process=>process.pid===jsPid),'JavaScript restart identity must be retained',10000,live)
  assert.notEqual(jsPid,initialPid);await until(()=>!alive(initialPid),'Previous app must retire',10000)
  const cFile=join(app,'native-leaf/platforms/macos/src/XplatC.c')
  const previous=readFileSync(cFile,'utf8');assert.match(previous,/XPLAT_VALUE/)
@@ -177,6 +179,7 @@ try {
  write(cFile,previous.replace('return XPLAT_VALUE','return XPLAT_VALUE + 1'))
  await until(()=>logs(live).some(record=>record.line.includes('NIM_DEV_TWO=41')),'Native source edit must compile and restart the app',180000,live)
  const nativePid=Number(readFileSync(join(app,'app.pid')))
+ await until(()=>session(live).nativeIdentity.processes.some(process=>process.pid===nativePid),'Native restart identity must be retained',10000,live)
  assert.notEqual(nativePid,jsPid);await until(()=>!alive(jsPid),'Previous native app must retire',10000)
  checked('JavaScript/native rebuild failures preserve the app; fixes recover and retire old processes after actual C recompilation')
  const historyRoot=join(cache,'history',createHash('sha256').update(realpathSync(app)).digest('hex'))
@@ -187,17 +190,31 @@ try {
  assert.equal(alive(workerPid),false);assert.equal(alive(nativePid),false)
  assert.ok(logs(live).some(record=>record.line.includes('NIM_DEV_TWO=41')))
  checked('ending a ready session releases the real engine, current app and private resource directory while logs remain readable')
- const third=start('unexpected'),lost=third.session.sessionId
+ // A prior pruning warning must not prevent reading a complete crash original.
+ mkdirSync(unrelated,{mode:0o700});writeFileSync(join(unrelated,'session.json'),'{}',{mode:0o600})
+ let third
+ try {third=start('unexpected')}finally{rmSync(unrelated,{recursive:true,force:true})}
+ const lost=third.session.sessionId
  await until(()=>session(lost).state==='ready','A new session must launch',180000,lost)
  await until(()=>logs(lost).some(record=>record.line.includes('NIM_DEV_TWO=41')),'New app must actually run',30000,lost)
  const lostPid=Number(readFileSync(join(app,'app.pid'))),lostWorker=Number(readFileSync(join(app,'engine.pid')))
- process.kill(lostPid,'SIGTERM')
+ assert.ok(session(lost).nativeIdentity.processes.some(process=>process.pid===lostPid))
+ process.kill(lostPid,'SIGABRT')
  await until(()=>session(lost).state==='disconnected','Unexpected app exit must become historical',15000)
  await until(()=>!alive(lostWorker)&&!existsSync(resources(lost)),'Unexpected exit must release engine/resources',15000)
  assert.equal(call(['targets','--platform','macos']).data.platforms[0].targets[0].busy,true,'Historical ownership must be explicitly ended')
  assert.ok(logs(lost).length>0)
+ const nativeReport=await until(()=>call(['diagnostics','--session',lost]).data.reports.find(report=>report.association==='confirmed'),'macOS must deliver an associated .ips report for the deliberately aborted fixture',90000)
+ const originalReport=call(['diagnostics','--session',lost,'--report',nativeReport.id]).data.report
+ assert.equal(call(['diagnostics','--session',lost]).data.coverage.retention.status,'unavailable')
+ assert.equal(originalReport.id,nativeReport.id);assert.match(originalReport.summary,/SIGABRT/)
+ assert.equal('report_'+createHash('sha256').update(originalReport.content).digest('hex'),nativeReport.id)
+ assert.equal(run(binary,['diagnostics','--session',lost,'--report',nativeReport.id,'--project',app]),`${nativeReport.id} — ${nativeReport.kind} (${nativeReport.association})\n${originalReport.content}\n`)
+ assert.ok(run(binary,['diagnostics','--session',lost,'--project',app]).includes(nativeReport.id))
+ assert.equal(call(['diagnostics','--session',lost,'--report','../session.json'],2).error.code,'invalid_selection')
+ assert.equal(call(['diagnostics','--session',lost,'--report','report_'+'0'.repeat(64)],2).error.code,'not_found','Missing originals must not silently fall back to log results')
  await end(lost)
- checked('unexpected app exit becomes historical, releases engine/resources and keeps diagnostics until explicit session end')
+ checked('actual app SIGABRT becomes historical, releases engine/resources, associates the OS .ips report and retains its complete original')
  write(join(app,'src/main.macos.js'),'export const invalid = ;\n')
  const broken=start('broken').session.sessionId
  const failure=await until(()=>{const current=session(broken);return current.state==='failed'?current:false},'Invalid initial source must retain a failed launch',30000)
@@ -216,8 +233,20 @@ try {
   await end(failed)
  }finally{renameSync(hidden,worker)}
  checked('missing project worker retains a structured failed session identity and readable diagnostics')
+ renameSync(worker,hidden)
+ try {
+  write(join(worker,'package.json'),{name:'@octane-xplat/macos-build',version:'0.0.0',type:'module',exports:{'./dev-worker':'./dev-worker.js'}})
+  write(join(worker,'dev-worker.js'),`import{readFileSync,writeFileSync}from 'node:fs';const request=JSON.parse(readFileSync(process.argv[2]));writeFileSync(process.argv[3],JSON.stringify({protocol:'octane-dev-worker',version:1,id:request.id,ok:true,data:{}}),{mode:0o600});\n`)
+  const incompatible=start('incompatible-worker').session.sessionId
+  const record=await until(()=>{const current=session(incompatible);return current.state==='failed'?current:false},'Old worker protocol must retain a failed session',10000)
+  assert.equal(record.launch.error.code,'prerequisite_missing')
+  assert.ok(logs(incompatible).some(value=>value.line.includes('protocol 2')))
+  await end(incompatible)
+ } finally {rmSync(worker,{recursive:true,force:true});renameSync(hidden,worker)}
+ checked('incompatible project-worker protocol fails with a matching-toolchain installation hint and releases its owned resources')
  const retained=logs(live)
  await stopHost(false)
+ assert.deepEqual(call(['diagnostics','--session',lost,'--report',nativeReport.id]).data.report,originalReport,'Retained native reports must remain readable without their owner')
  assert.deepEqual(logs(live),retained)
  const historical=session(live)
  assert.equal(historical.state,'stopped');assert.equal(historical.historical,true);assert.equal(historical.cleanupConfirmed,true)
@@ -282,7 +311,7 @@ try {
  // owns its ChildProcess handle; the native attachment must never signal it.
  const externalResources=join(scratch,'external-resources'),request=join(scratch,'external-request.json'),ready=join(scratch,'external-ready.json')
  mkdirSync(externalResources)
- write(request,{protocol:'octane-dev-worker',version:1,id:'external-engine',operation:'macos-dev',project:app,resourceRoot:externalResources})
+ write(request,{protocol:'octane-dev-worker',version:2,id:'external-engine',operation:'macos-dev',project:app,resourceRoot:externalResources})
  externalEngine=spawn(process.execPath,[join(app,'node_modules/@octane-xplat/macos-build/dist/macos/dev-worker.js'),request,ready],{cwd:app,env,detached:true,stdio:['ignore','pipe','pipe']})
  externalExit=once(externalEngine,'exit')
  let externalOutput=''
@@ -304,6 +333,7 @@ try {
  const attachedDiagnostics=call(['diagnostics','--session',attached]).data
  assert.equal(attachedDiagnostics.coverage.applicationOutput,'not-captured')
  assert.ok(attachedDiagnostics.session.attachment.processes.some(value=>value.pid===externalEngine.pid))
+ await until(()=>session(attached).nativeIdentity?.processes.some(process=>process.pid===externalPid),'SDK observation must retain the externally running app identity',10000,attached)
  assert.ok(logs(attached).length>0);assert.ok(logs(attached).every(value=>!value.line.includes('NIM_DEV_')))
  const detached=call(['session','end',attached]).data.result
  assert.match(detached.preserved[0],/user-owned/);assert.match(detached.released[0],/observer/)
@@ -314,6 +344,7 @@ try {
  externalOutput='';write(join(app,'src/main.macos.js'),source('ATTACHED'))
  await until(()=>externalOutput.includes('NIM_DEV_ATTACHED=41'),'External engine must rebuild while attached',30000)
  const rebuiltPid=Number(readFileSync(join(app,'app.pid')))
+ await until(()=>session(observed).nativeIdentity?.processes.some(process=>process.pid===rebuiltPid),'SDK observation must follow the external app restart',10000,observed)
  assert.notEqual(rebuiltPid,externalPid);assert.equal(session(observed).state,'ready')
  await stopHost(false)
  assert.equal(alive(externalEngine.pid),true);assert.equal(alive(rebuiltPid),true)

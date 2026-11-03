@@ -276,7 +276,7 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
       if name == "targets":
         result["data"] = nativeTargetReport(context.selection()["app"],newJArray(),field(values,"platform")); return
       if name == "diagnostics" and not truthy(field(values,"jobId")):
-        result["data"] = historyDiagnostics(context.root,context.selection()["app"],values); return
+        result["data"] = await historyDiagnostics(context.root,context.selection()["app"],values); return
       raise contractFailure("not_found","No agent runtime host is running — no sessions or jobs exist for this workspace.")
     var methodName: string
     var params = newJObject()
@@ -296,7 +296,7 @@ proc workspaceHostCommand*(name: string, values: JsonNode): Future[JsonNode] {.a
       if field(values,"requestKey") != nil: params["requestKey"] = values["requestKey"]
     of "diagnostics":
       methodName = "runtime.readDiagnostics"
-      for key in ["jobId","sessionId","cursor","limit","stream","platform"]:
+      for key in ["jobId","sessionId","reportId","cursor","limit","stream","platform"]:
         if field(values,key) != nil: params[key] = values[key]
     of "session list": methodName = "sessions.list"
     of "session status", "session end":
@@ -332,12 +332,18 @@ proc workspaceHuman*(name: string, payload: JsonNode): string =
   if name == "runtime build":
     return "Build job " & text(payload["job"]["jobId"]) & " (" & text(payload["job"]["state"]) & ")\nPoll: xplat job status " & text(payload["job"]["jobId"])
   if name == "diagnostics":
+    if field(payload,"report") != nil:
+      let report = payload["report"]
+      return text(report["id"]) & " — " & text(report["kind"]) & " (" & text(report["association"]) & ")\n" & text(report["content"])
     if field(payload,"sessions") != nil:
       var lines = @[text(payload["note"])]
       for session in payload["sessions"]: lines.add(text(session["sessionId"]) & " — " & text(session["platform"]) & " (" & text(session["state"]) & ")")
       if payload["sessions"].len == 0: lines.add("No retained sessions.")
       return lines.join("\n")
-    var lines = @["Native reports: unavailable. " & text(payload["coverage"]["nativeReports"]["detail"])]
+    let native = payload["coverage"]["nativeReports"]
+    var lines = @["Native reports: " & text(native["status"]) & ". " & text(native["detail"])]
+    for report in payload["reports"]:
+      lines.add(text(report["id"]) & " — " & text(report["kind"]) & " (" & text(report["association"]) & "): " & text(report["summary"]))
     for record in payload["logs"]["records"]: lines.add("[" & text(record["stream"]) & "] " & text(record["line"]))
     if payload["logs"]["records"].len == 0: lines.add("No records.")
     return lines.join("\n")

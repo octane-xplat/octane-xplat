@@ -1,9 +1,10 @@
 ## Development session lifetime. Only owned sessions start/stop engine processes.
-import std/[os, json, asyncdispatch, strtabs, strutils, monotimes, times]
+import std/[os, json, asyncdispatch, strtabs, strutils, monotimes, times, options]
 import ./managed_process, ./runtime_logs, ./sessions, ./host_storage, ./native_identity
 import ./build_worker, ./runtime_build, ./route_operation, ./strictjson, ./js_text
 import ./contract_failure, ./jsonutil, ./json_wire
 import ./session_history, ./process_observation
+import ./app_process_identity
 
 type DevSessionRun* = ref object
   logs*: RuntimeLogs
@@ -55,6 +56,10 @@ proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     logWatch = run.logs.watchLogs(proc(value: JsonNode) = retained.appendHistory(value))
     if run.cancelled(): raise contractFailure("cancelled","Session launch cancelled")
     if run.attached:
+      let appIdentity = newAppIdentity(root)
+      var identitySnapshot: JsonNode
+      var identityCheck = getMonoTime()-initDuration(seconds=2)
+      var identityWarning = false
       var processes = newJArray()
       for process in run.observed:
         processes.add(%*{"pid": process.pid,"startTimeUs": $process.birth})
@@ -72,6 +77,18 @@ proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
           discard registry.markSessionDisconnected(id,%"The observed development process identity is unavailable; attached data is historical.")
           discard run.logs.noteLog("Observed development process exited or changed identity; external processes were not signalled.")
           break
+        if (getMonoTime()-identityCheck).inMilliseconds >= 1000:
+          identityCheck = getMonoTime()
+          try:
+            appIdentity.observeAttachedApps(root,run.observed[0])
+            if appIdentity != identitySnapshot:
+              retained.updateHistory(%*{"nativeIdentity": appIdentity})
+              identitySnapshot = appIdentity.copy()
+            identityWarning = false
+          except CatchableError:
+            if not identityWarning:
+              discard run.logs.noteLog("App-process observations unavailable; exact native report association cannot be established for new processes.")
+              identityWarning = true
         await sleepAsync(200)
       return
     requireProjectVite(root)
@@ -86,7 +103,7 @@ proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     privateHostDirectory(resource)
     let input = directory / "request.json"
     let output = directory / "ready.json"
-    writeFile(input,wireJson(%*{"protocol": "octane-dev-worker","version": 1,"id": id,
+    writeFile(input,wireJson(%*{"protocol": "octane-dev-worker","version": 2,"id": id,
       "operation": "macos-dev","project": root,"resourceRoot": resource}))
     registry.setSessionLaunch(id,%*{"phase": "generating routes"})
     var routeLines: ProcessLines
@@ -108,28 +125,37 @@ proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     registry.setSessionLaunch(id,%*{"phase": "starting dev host"})
     let started = getMonoTime()
     var ready = false
+    let appId = macDevAppId(root)
+    var lastReadiness: string
+    var readiness: JsonNode
+    proc observeReadiness(): JsonNode =
+      let bytes = readHostFile(output,65536)
+      if bytes.isNone: return nil
+      if bytes.get() == lastReadiness: return readiness
+      let response = parseStrictJson(decodeUtf8(bytes.get()))
+      if field(response,"protocol") != %"octane-dev-worker" or field(response,"version") != %2:
+        raise contractFailure("prerequisite_missing","Install a compatible @octane-xplat/macos-build worker (development protocol 2).")
+      if field(response,"id") != %id or field(response,"ok") == nil or response["ok"].kind != JBool:
+        raise newException(ValueError,"Invalid development readiness response")
+      let data = field(response,"data")
+      if data != nil: retained.updateHistory(%*{"nativeIdentity": workerAppIdentity(appId,resource,data)})
+      elif response["ok"] == %true: raise newException(ValueError,"Incomplete development readiness metadata")
+      readiness = response
+      lastReadiness = bytes.get()
+      response
     while not child.exit.finished:
       if run.cancelled(): raise contractFailure("cancelled","Session launch cancelled")
       if (getMonoTime()-started).inMilliseconds >= timeoutMs:
         raise contractFailure("timeout","macOS development engine did not become ready before its deadline")
-      if fileExists(output):
-        if getFileSize(output) > 65536: raise newException(ValueError,"Development readiness exceeds 64 KiB")
-        let response = parseStrictJson(decodeUtf8(readFile(output)))
-        if field(response,"protocol") != %"octane-dev-worker" or field(response,"version") != %1 or
-            field(response,"id") != %id or field(response,"ok") == nil or response["ok"].kind != JBool:
-          raise newException(ValueError,"Invalid development readiness response")
+      let response = observeReadiness()
+      if response != nil:
         if response["ok"] != %true:
           raise contractFailure("execution_failure",text(field(field(response,"error"),"message")))
-        let data = field(response,"data")
-        let pid = field(data,"pid")
-        let executable = text(field(data,"executable"))
-        if pid == nil or pid.kind != JInt or pid.getInt() <= 0 or
-            not fileExists(executable) or not expandFilename(executable).startsWith(expandFilename(resource) & "/bundle/"):
-          raise newException(ValueError,"Incomplete development readiness metadata")
         ready = true
         break
       await sleepAsync(10)
     if not ready:
+      discard observeReadiness()
       let status = await child.exit
       raise contractFailure((if status.errorCode == "ENOENT": "prerequisite_missing" else: "execution_failure"),
         "macOS development engine exited before readiness (" & $status.exitStatus() & "): " & status.error)
@@ -140,6 +166,10 @@ proc work(run: DevSessionRun, registry: SessionRegistry, app, session: JsonNode,
     registry.setSessionLaunch(id,%*{"phase": "ready","readiness": "confirmed"})
     discard registry.markSessionReady(id,%*{"processKind": "fresh","buildIdentity": identity})
     discard run.logs.noteLog("macOS development session ready")
+    while not child.exit.finished:
+      discard observeReadiness()
+      await sleepAsync(50)
+    discard observeReadiness()
     let status = await child.exit
     if not run.ending:
       discard registry.markSessionDisconnected(id,%("Development engine exited (" & $status.exitStatus() & ")"))

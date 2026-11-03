@@ -18,6 +18,5 @@ proc validateDiagnosticSelection*(values: JsonNode) =
   if truthy(field(values,"reportId")):
     if not truthy(field(values,"sessionId")) or paginated:
       raise contractFailure("invalid_selection","--report requires --session and cannot be combined with log pagination or stream filters.")
-    raise contractFailure("unavailable","Native report lookup for development sessions is pending.")
   if paginated and not truthy(field(values,"sessionId")) and not truthy(field(values,"jobId")):
     raise contractFailure("invalid_selection","Log pagination and stream filters require --session or --job.")

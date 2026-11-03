@@ -33,8 +33,10 @@ host lives. An unavailable owner makes uncompleted history disconnected and
 cleanup unconfirmed: historical end never signals recorded PIDs. macOS attachment
 observes compatible same-user engines in the selected app's working directory.
 It infers identity and captures lifecycle events only; end/shutdown releases its
-observer while preserving external processes. Native reports, other launch/attach
-engines and automatic owner-death recovery remain pending.
+observer while preserving external processes. Native macOS diagnostics retain
+complete local .ips originals separately from logs and disclose report availability
+and confirmed/candidate association. Other report platforms, launch/attach engines
+and automatic owner-death recovery remain pending.
 Keep using the TypeScript CLI for unported workflows.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the

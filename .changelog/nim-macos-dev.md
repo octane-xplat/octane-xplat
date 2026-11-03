@@ -4,8 +4,7 @@ The Nim CLI can start an existing macOS app through its project-installed
 development tools, capture output and stop its owned processes. JavaScript and
 native source edits use the same development engine as the TypeScript CLI.
 It can also attach to an existing compatible macOS engine, capture lifecycle
-events and leave external processes running when the attachment ends. Native
-crash reports remain in migration.
+events and leave external processes running when the attachment ends.
 
 ```sh
 xplat targets --platform macos --json

@@ -189,8 +189,13 @@ retaining the newest historical runs per app and preserving active captures.
 Authenticated owner generations distinguish live records from historical data;
 retained PIDs never authorize signals. A cleanup-confirmed checkpoint follows
 actual owned process/resource release. Owner loss leaves disconnected evidence
-with cleanup unconfirmed, not a recovered live session. Attach, native reports
-and automatic abrupt owner-death recovery remain migration work.
+with cleanup unconfirmed, not a recovered live session. Attachment preserves
+external engines while observing app-process births through the SDK. Native
+macOS report lookup retains complete .ips originals independently of rotating
+logs, with bounded reads, content hashes and explicit confirmed/candidate
+association. Worker readiness protocol 2 retains bounded app PID/time history
+across rebuilds and final cleanup. Other report platforms and automatic abrupt
+owner-death recovery remain migration work.
 
 ```sh
 xplat targets --platform macos --json

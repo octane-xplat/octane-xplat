@@ -98,6 +98,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 
 	const launch = async () => {
 		await writeNativeBootstrap(artifact, bootstrap)
+		const observedAt = new Date().toISOString()
 		host = spawn(
 			hostExecutable,
 			[
@@ -140,7 +141,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 			host.once('spawn', resolve)
 			host.once('error', reject)
 		})
-		options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable })
+		options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable, observedAt })
 
 		console.log(
 			`[macos-native] host started pid=${host.pid}; ${artifact.libraries.length} leaf libraries`,

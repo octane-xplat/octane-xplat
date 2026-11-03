@@ -129,6 +129,18 @@ test('a failed append preserves the valid prefix, stops appending to a partial t
  assert.equal(retained.logs.historical,true)
 })
 
+test('native report cache failure preserves readable logs with explicit unavailability',macOnly,()=>{
+ const f=fixture()
+ query(f,[create(1),{op:'append',id:id(1),record:record(1,'captured before report lookup')},{op:'finish',id:id(1),session:{state:'stopped'}}])
+ const reports=join(f.history,id(1),'reports');mkdirSync(reports,{mode:0o700})
+ writeFileSync(join(reports,'report_'+'a'.repeat(64)+'.json'),'{}',{mode:0o600})
+ const read=query(f,[{op:'read',id:id(1)}])[0]
+ assert.equal(read.ok,true)
+ assert.deepEqual(read.value.logs.records.map(row=>row.line),['captured before report lookup'])
+ assert.equal(read.value.coverage.nativeReports.status,'unavailable')
+ assert.deepEqual(read.value.reports,[])
+})
+
 test('independent processes read bounded, contiguous snapshots during append and rotation',macOnly,async()=>{
  const f=fixture(),steps=[create(1)]
  for(let seq=1;seq<=500;seq++){

@@ -114,6 +114,7 @@
 		"test:nim-sessions": "node --test ../../tools/cli-nim/sessions.test.mjs",
 		"test:nim-attach": "node --test ../../tools/cli-nim/attach.test.mjs",
 		"test:nim-history": "node --test ../../tools/cli-nim/history.test.mjs",
+		"test:nim-reports": "node --test ../../tools/cli-nim/reports.test.mjs",
 		"test:macos-packaging": "node --test test/macos-config.test.mjs test/macos-native.test.mjs test/macos-dev-bundle.test.mjs",
 		"test:nim-macos-publication": "node --test ../../tools/cli-nim/macos-publication.test.mjs",
 		"test:nim-macos-build": "node ../../tools/cli-nim/macos-build-consumer.mjs --with-native-cli",

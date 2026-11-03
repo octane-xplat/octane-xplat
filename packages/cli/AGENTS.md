@@ -19,6 +19,14 @@ process group. Keep readiness separate from printed diagnostics. Put owned sessi
 resources in the host's private cache, outside dependency caches removed by clean,
 so cancellation before worker readiness can still release them.
 
+Keep bounded app-process launch history in the versioned readiness sidecar and
+consume updates after every rebuild, including the final worker response. The
+worker's engine PID is not the app PID. Launch evidence outlives temporary bundle
+cleanup: validate its recorded path boundary without requiring that executable
+to exist after exit. Process observation/report association never grants signal
+ownership. Keep complete report originals separate from rotating log captures;
+a report-cache failure must disclose unavailability without hiding readable logs.
+
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations
 to distinguish live records from historical evidence. PID existence alone cannot
@@ -163,6 +171,9 @@ If matching a tab-indented file contract, convert only the generated line prefix
 replacing spaces globally would corrupt string values. For UTC timestamps, convert
 with `.utc` before formatting a trailing `Z`: formatting a zone marker alone does
 not change the instant's timezone.
+Nim integer division truncates toward zero. When formatting timestamps before the
+Unix epoch, normalize seconds and a nonnegative millisecond remainder explicitly;
+ordinary `div`/`mod` can otherwise print an invalid negative fractional component.
 
 ## Verify behavior across language boundaries
 

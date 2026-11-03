@@ -1,5 +1,5 @@
 ## Test-only retained-history adapter. Production command entry points stay separate.
-import std/[json, tables, os]
+import std/[json, tables, os, asyncdispatch]
 import ../../packages/cli/nim/[session_history, jsonutil, contract_failure]
 import ../../packages/cli/nim/[host_storage, json_wire]
 
@@ -30,7 +30,7 @@ proc historyScenario*(request: JsonNode): JsonNode =
       of "read":
         var params = if field(step,"params") == nil: newJObject() else: step["params"].copy()
         params["sessionId"] = %id
-        value = historyDiagnostics(workspace,app,params,owner)
+        value = waitFor historyDiagnostics(workspace,app,params,owner)
       else: raise newException(ValueError,"Unknown history operation")
       result.add(%*{"ok": true,"value": value})
     except CatchableError as error: result.add(%*{"ok": false,"error": failureData(error)})

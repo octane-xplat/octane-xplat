@@ -90,12 +90,33 @@ xplat diagnostics --session SESSION_ID --json
 If the owner disappears before confirming cleanup, status reports historical
 data with `cleanupConfirmed: false`. Ending that historical session cannot stop
 its old processes or confirm their cleanup. Check the surviving app/tool processes
-before starting another session. Attaching to an existing app, native crash
-reports and other launch platforms remain in migration:
+before starting another session. Attachment preserves existing engines and apps;
+other launch platforms remain in migration:
 
 ```sh
 xplat session status SESSION_ID --json
 xplat session end SESSION_ID --json
+xplat session attach --platform macos --json
+```
+
+Native diagnostics can find local macOS .ips crash reports and retain their complete
+originals separately from rotating logs. A confirmed association matches an observed
+app PID and launch time; a candidate matches only the bundle id and report window.
+Reports may arrive after app exit, so retry diagnostics if none are found. Use a
+returned report id to read the original, including after the workspace owner exits:
+
+```sh
+xplat diagnostics --session SESSION_ID --json
+xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+```
+
+Retention is limited to ten reports per session, at most 4 MiB each and 16 MiB
+total. Oversized/excess reports are omitted intact with partial coverage; a report
+lookup failure leaves captured logs readable. Other OS report sources remain in
+migration. Inspect the reported coverage with the same command:
+
+```sh
+xplat diagnostics --session SESSION_ID --json
 ```
 
 ## Contributor boundary
