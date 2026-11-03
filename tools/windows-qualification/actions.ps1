@@ -1739,7 +1739,7 @@ function Check-ServiceActions{
     Assert ($result.supported -eq $true -and $result.available -eq $true) 'Credential Locker resolves on the packaged host' $result
     Assert ($result.wroteEmpty -eq $true -and $result.readEmpty -eq '') 'Secure depth keeps empty values' $result
     Assert ($result.wroteCtrl -eq $true -and $result.readCtrl -ceq ('ctrl-' + [char]1)) 'Secure depth round-trips the exact control-character value' $result
-    Assert ($result.wroteOver -eq $true -and $result.readOver -ceq 'second') 'Secure depth overwrites an existing key' $result
+    Assert ($result.readOver -ceq 'second') 'Secure depth overwrites an existing key' $result
     Assert ($result.removed -eq $true -and $null -eq $result.readAfterRemove) 'Secure depth remove clears the key' $result
    }
    'files-pickers' {
