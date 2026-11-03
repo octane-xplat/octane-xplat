@@ -155,8 +155,12 @@ instrumented 205 spec isolated it to `File.remove()` — upstream
 `FileSystemAccess.deleteFile` calls `DeleteAsync` on the pending
 `IAsyncOperation`, not the entity — so `File.remove`/`removeSync` never
 deletes on Windows. Recorded in
-[upstream-limitations.md](../upstream-limitations.md); fixture cleanup now
-deletes through the awaited `toPromise` path and reports `foreignRemoved`.
+[upstream-limitations.md](../upstream-limitations.md). Fixture cleanup now
+deletes through the awaited `toPromise` path; verified on 1.0.0.206 (source
+`83e7f2e68`, sha256 `7a221ac038910319b8181797d97c9de565c1b5a605b3d016be4cc2432284b357`)
+— `foreignRemoved: true`, no `removeError`, and the full suite passed again
+(files-identity 12/12 `mw1708lm`, service 70/70 `mw170ohw`, storage-verify
+8/8 `mw171bud`, secure-verify 9/9 `mw171p6y`).
 
 ## Service qualification boundaries
 
