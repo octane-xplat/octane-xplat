@@ -2,7 +2,7 @@
 import std/[asyncdispatch, json, strtabs, options, base64, os, monotimes, times]
 import ../../packages/cli/nim/[managed_process, strictjson, json_wire, jsonutil]
 import ../../packages/cli/nim/process_exit
-when defined(macosx): import std/posix
+when defined(macosx) or defined(linux): import std/posix
 
 proc lineJson(line: ProcessLine): JsonNode =
   result = %*{"stream": line.stream,"line": line.line}
@@ -52,7 +52,7 @@ proc execute(request: JsonNode, owner: ProcessManager = nil): Future[JsonNode] {
   if field(request,"signals") == %true: installProcessSignalHandlers()
   var extraFd = -1.cint
   try:
-    when defined(macosx):
+    when defined(macosx) or defined(linux):
       if field(request,"leakFile") != nil:
         let original = posix.open(cstring(text(request["leakFile"])),O_RDONLY)
         if original < 0: raiseOSError(osLastError())
@@ -102,7 +102,7 @@ proc execute(request: JsonNode, owner: ProcessManager = nil): Future[JsonNode] {
       result["stderrBase64"] = %encode(errors)
     if field(request,"repeatStop") == %true: await child.stop()
   finally:
-    when defined(macosx):
+    when defined(macosx) or defined(linux):
       if extraFd >= 0: discard posix.close(extraFd)
     done.cancel()
     if cancellation != nil: await cancellation

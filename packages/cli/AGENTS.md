@@ -420,6 +420,20 @@ also distinguishes an ordinary exit code of 143 from termination by SIGTERM.
 Keep the leader's PID reserved while inherited pipes remain open so delayed
 group cleanup cannot target a subsequently reused PID.
 
+POSIX spawn extensions differ by host. Keep macOS close-by-default flags and
+Linux close-from file actions in separate platform modules; run the close-from
+action after explicit stdio duplication. The current GNU adapter requires glibc
+2.34 or newer. Test unrelated inheritable descriptors, not just normal pipes.
+For Linux group observation, parse `/proc/<pid>/stat` after the last closing
+parenthesis: a process name can contain spaces, parentheses and newlines.
+Count zombies until the OS reaps them. A native completion assertion should
+check that the kernel identity is gone, rather than accepting a zombie as stopped.
+
+Require a valid executable or explicit shebang at the native launch boundary.
+Node on Linux can execute no-shebang text through a shell while Node on macOS
+rejects it. Keep the native `ENOEXEC` rejection explicit and tested instead of
+silently selecting an interpreter to reproduce that platform-specific fallback.
+
 Sending SIGKILL is not confirmation that every group member has exited or been
 reaped. On macOS, observe leader exit with `waitid(..., WNOWAIT)` and keep its PID
 reserved while checking the group's remaining members through the SDK API. Only

@@ -119,10 +119,16 @@ and preserves reported effects; app-reported output received during cancellation
 is labeled as not revalidated. A failed result contract never undoes an action.
 Headless macOS-host qualification uses the actual Vite middleware and canonical app
 registry; it does not establish AppKit/NativeScript fetch or UI/input coverage.
-`managed_process.nim` owns macOS child sessions and process groups, with explicit
+`managed_process.nim` owns macOS and Linux child sessions and process groups, with explicit
 argv/cwd/environment, independent pipe draining, byte passthrough, bounded UTF-16
 log lines and cooperative/forced stop. Its manager exposes explicit close and
 opt-in SIGINT/SIGTERM handling; normal owner exit also releases its groups.
+Linux uses GNU spawn close-from actions (glibc 2.34+) and `/proc` group
+observation. Qualified Ubuntu cancellation waits for both leader and descendants
+to be reaped, including leader-first exits. Deliberately detached descendants,
+non-reaping container init processes and abrupt owner death remain unqualified.
+Native launches reject no-shebang executable text with `ENOEXEC`; declare the
+interpreter instead of relying on Node/Linux's implicit shell fallback.
 `process_exit.nim` preserves native exit status bytes beyond Nim's `quit` range.
 `command_probe.nim` supplies bounded, read-only version queries using that process
 owner. Missing tools, nonzero exits, output overflow and deadlines produce absent

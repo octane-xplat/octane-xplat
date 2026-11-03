@@ -256,8 +256,15 @@ return can skip descendant escalation and leave inherited pipes open, tracked in
 [issue #100](https://github.com/octane-xplat/octane-xplat/issues/100). The gate
 records that reference observation with bounded cleanup while requiring native
 shutdown to pass. A descendant that deliberately starts another session can
-escape the owned group; owner SIGKILL cannot run cleanup. Windows/Linux control,
-full session shutdown/IPC and real app workflows still need qualification.
+escape the owned group; owner SIGKILL cannot run cleanup. The same process gate
+also runs on Ubuntu 24.04 x64. Linux uses GNU spawn close-from actions and a
+separate `/proc` process-group adapter; tests include unusual process names and
+require kernel identities to be gone before native completion. It requires glibc
+2.34+ and ordinary OS orphan reaping; non-reaping container init processes remain
+unqualified. Native no-shebang text is deliberately rejected with `ENOEXEC`,
+while the actual Linux Node reference uses a shell fallback. Windows process
+control, full Linux/Windows owner/IPC and joined project workflows still need
+qualification.
 
 For focused process iteration use `build:nim-process --filter=@octane-xplat/cli
 --only` through Turbo under a build reservation, then `test:nim-process` with
@@ -488,6 +495,17 @@ to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols throug
 `GLIBC_2.34` and `GLIBCXX_3.4.31`; this is build evidence, not qualification of
 older distributions or musl. Define and execute a supported deployment baseline
 before treating a small compressed ELF as a self-contained Linux distribution.
+
+The snapshot also exposes the real TypeScript managed-process reference and
+native process probe. The gate checks literal arguments/environment, descriptor
+inheritance, raw bytes, exit status, cooperative and forced stop, owner signal
+handling and descendant reaping. It does not qualify a persistent host or worker
+workflow by itself.
+
+```sh
+# From the extracted snapshot, under the Linux guest/build reservation:
+bun run turbo run test:portability-process --filter=@xplat/nim-portability-source --concurrency=1
+```
 
 `portability-smoke.mjs` independently checks the actual native binary with empty
 PATH and measures warm help startup (five warmups, twenty launches). Its record

@@ -1,4 +1,4 @@
-## Owned argv-only children. macOS implementation; no shell or JS runtime bridge.
+## Owned argv-only POSIX children; no shell or JS runtime bridge.
 ## Completion includes pipe EOF; stop still owns the group after its leader exits.
 import std/[asyncdispatch, os, strtabs, strutils, tables, options, monotimes, times, exitprocs]
 import ./process_lines, ./js_text
@@ -42,16 +42,18 @@ proc newProcessManager*(): ProcessManager =
   discard getGlobalDispatcher()
   ProcessManager()
 
-when defined(macosx):
+when defined(macosx) or defined(linux):
   import std/posix
   {.compile: "process_group.c".}
+  when defined(macosx):
+    import ./process_spawn_macos
+    {.compile: "process_group_macos.c".}
+  else:
+    import ./process_spawn_linux
+    {.compile: "process_group_linux.c".}
   const groupHeader = currentSourcePath().parentDir / "process_group.h"
   proc exitObserved(pid: cint): cint {.importc: "xplat_exit_observed", header: groupHeader.}
   proc groupDescendants(pid: cint): cint {.importc: "xplat_group_descendants", header: groupHeader.}
-  var spawnCloseDefault {.importc: "POSIX_SPAWN_CLOEXEC_DEFAULT", header: "<spawn.h>".}: cint
-  var spawnSession {.importc: "POSIX_SPAWN_SETSID", header: "<spawn.h>".}: cint
-  proc addChdir(actions: var Tposix_spawn_file_actions, path: cstring): cint {.
-    importc: "posix_spawn_file_actions_addchdir_np", header: "<spawn.h>".}
   var live: Table[int, ManagedProcess]
   var exitHooked = false
   var interrupted {.volatile.}: cint
@@ -127,13 +129,14 @@ when defined(macosx):
     spawnCheck sigdelset(defaults,SIGSTOP)
     spawnCheck posix_spawnattr_setsigmask(attributes,mask)
     spawnCheck posix_spawnattr_setsigdefault(attributes,defaults)
-    spawnCheck posix_spawnattr_setflags(attributes,spawnSession or spawnCloseDefault or POSIX_SPAWN_SETSIGMASK or POSIX_SPAWN_SETSIGDEF)
-    spawnCheck addChdir(actions,cstring(cwd))
+    spawnCheck posix_spawnattr_setflags(attributes,nativeSpawnFlags() or POSIX_SPAWN_SETSIGMASK or POSIX_SPAWN_SETSIGDEF)
+    spawnCheck addWorkingDirectory(actions,cstring(cwd))
     spawnCheck posix_spawn_file_actions_addopen(actions,0,"/dev/null",O_RDONLY,Mode(0))
     spawnCheck posix_spawn_file_actions_adddup2(actions,output[1],1)
     spawnCheck posix_spawn_file_actions_adddup2(actions,error[1],2)
     for fd in [output[0],output[1],error[0],error[1]]:
       spawnCheck posix_spawn_file_actions_addclose(actions,fd)
+    spawnCheck closeUnlistedDescriptors(actions)
     var argv = @[command] & args
     var envp: seq[string]
     for key,value in env: envp.add(key & "=" & value)
