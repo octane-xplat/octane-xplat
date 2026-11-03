@@ -7,6 +7,7 @@ import { gzipSync } from 'node:zlib'
 import { getToolchain, nimVersion } from 'nim-toolchain'
 import { prepareDependencies } from './dependencies.mjs'
 import { verifyPortabilitySource, sha256 } from './portability-proof.mjs'
+import { prepareWindowsHttp } from './windows-http-build.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const source = verifyPortabilitySource(root)
@@ -39,6 +40,8 @@ try {
  const compiler = await getToolchain({ cacheDir: join(cache, 'toolchain') })
  assert.equal(compiler.version, nimVersion)
  const paths = prepareDependencies(cache, compiler)
+ const windowsHttp = ['cli','http'].includes(selected) ? prepareWindowsHttp(cache, compiler.env) : { flags: [] }
+ if (windowsHttp.record) {record.windowsHttp = windowsHttp.record}
  const ort = JSON.parse(readFileSync(join(root, 'tools/cli-nim/ort-runtime.json')))
  const binary = join(cache, 'bin', `${name}${process.platform === 'win32' ? '.exe' : ''}`)
  mkdirSync(dirname(binary), { recursive: true })
@@ -49,6 +52,7 @@ try {
   ...(process.env.XPLAT_NIM_CC ? [`--cc:${process.env.XPLAT_NIM_CC}`] : []),
   ...(process.platform === 'win32' && process.env.XPLAT_NIM_CC === 'vcc' ?
    ['--vcc.exe:cl.exe', '--vcc.cpp.exe:cl.exe', '--vcc.linkerexe:cl.exe', '--vcc.cpp.linkerexe:cl.exe'] : []),
+  ...windowsHttp.flags,
   ...(process.platform === 'linux' ? ['--passL:-Wl,--gc-sections'] : []),
   `-d:xplatNimDependencyRoot:${join(cache, 'dependencies')}`,
   ...paths.map(path => `--path:${path}`), `--nimcache:${join(cache, selected === 'cli' ? 'nimcache' : `nimcache-${selected}`)}`, `-o:${binary}`,

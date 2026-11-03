@@ -618,6 +618,18 @@ that the resulting executable bundles the runtime. Record the library actually
 loaded and the ELF's glibc/C++ symbol requirements. `ldd` alone misses libraries
 loaded lazily, and compiling on one distribution does not qualify older hosts.
 
+Windows can reuse the typed curl shim with a pinned static HTTP/HTTPS-only curl
+and zlib, while Schannel supplies OS TLS and trust. Keep the static CRT consistent
+with Nim's MSVC objects. Record exact source/tool/link identities and include the
+licenses. A static curl security fix needs a new executable; do not describe this
+as an OS-serviced curl runtime. Configure existing MSVC/CMake/Ninja tools only in
+the build process and forward SDK environment variables through Turbo explicitly.
+Normalize CMake library paths to forward slashes before its pkg-config generator
+runs; otherwise an absolute Windows library path can become a malformed `-lC:...`.
+Validate the generated protocol and link closure rather than guessing SDK libs.
+Use short task-cache roots on Windows: deeply nested CMake try-compile object
+paths can exceed its path budget even when the final build succeeds.
+
 Proxy engines can use forward requests or CONNECT tunnels even for plaintext
 HTTP. Support both in qualification fixtures and assert each client's actual
 proxy traversal. Compare response/cancellation contracts without forcing the
@@ -633,7 +645,9 @@ callback parameter type from `const char*` for the C compiler.
 For per-source C/C++ flags, use `.compile("source.cpp", "-std=c++20 ...")`.
 The tuple form of `compile` uses its second value as an output-name formatter,
 not compiler flags. Nim recognizes C++ sources; inspect its link command before
-adding a duplicate C++ runtime library flag.
+adding a duplicate C++ runtime library flag. MSVC needs `/std:c++20` and
+`/Zc:__cplusplus` for Ada's language-version checks, `/EHsc` for its C++ exception
+boundary, and `/MT` for the chosen static CRT; Unix compiler flags are not portable.
 
 Foreign callbacks should copy data and record state. Complete futures and call
 user sinks after returning from the C operation and draining its messages. User
@@ -670,6 +684,12 @@ transport mismatch.
 
 RFC 3986 and WHATWG URL normalization differ. Use the pinned native Ada engine
 for Node-compatible URL behavior, rather than patching the transport parser.
+A Node reference version can embed an older Ada engine. Preserve exact comparison
+for ordinary cases and retain any narrowly named, version-bound divergence with
+independent pinned WPT expectations; never turn a corpus into a broad mismatch
+allowance. Ada 3.4.2 rejects seven punycode hosts accepted by Ada 4.0.0 and its WPT
+fixtures. That is a reference-version difference, not transport evidence or a
+reason to replace correct native normalization.
 Ada getter slices have explicit lengths and may not end at NUL; mutation can
 invalidate them. Copy borrowed slices after the final mutation, and release
 separately owned getter results with their matching function.

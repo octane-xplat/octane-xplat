@@ -198,14 +198,25 @@ metadata is read as data; JavaScript configuration is not evaluated.
 The HTTP gate uses native asynchronous host libcurl: SecureTransport on macOS
 and OpenSSL on the qualified Ubuntu 24.04 x64 host. Linux loads `libcurl.so.4`;
 the build fetches only pinned curl 8.5 public headers into its task-local cache.
-It does not install system packages or compile/bundle a curl runtime. Both hosts
-use the pinned Ada 4.0.0 WHATWG parser. Ada is compiled as C++20 with URLPattern
+It does not install system packages or compile/bundle a curl runtime on Unix.
+The isolated Windows x64 build statically links commit-pinned curl 8.23.0 and
+zlib 1.3.2, with only HTTP/HTTPS enabled, threaded DNS and Schannel for OS TLS and
+trust. Its Git-tag build identifies itself as `libcurl/8.23.0-DEV Schannel
+zlib/1.3.2`; that is the actual version string. The existing MSVC/CMake/Ninja tools
+build into a task-local cache, using static CRT and a recorded SDK link closure.
+No curl/OpenSSL/JS runtime DLL is shipped. Updating static curl/zlib requires a
+new CLI binary; their notices are included with the other native dependencies.
+All three qualified hosts use the pinned Ada 4.0.0 WHATWG parser. Ada is compiled as C++20 with URLPattern
 disabled; its exact source revision and MIT notice follow the same task-local
 dependency conventions as the Nim libraries. No JS runtime is embedded. The
 gate checks real loopback TLS, explicit CA files, hostname rejection, proxies
 and CONNECT, redirects, Latin-1 headers, UTF-8 bodies, gzip/deflate, cancellation,
 streaming and authenticated bridge envelopes against TypeScript/Node. Its URL
-corpus also covers IDNs, escaped dot segments and UTF-16 edge cases.
+corpus also covers IDNs, escaped dot segments and UTF-16 edge cases. Windy's
+Node 24.13.1 embeds Ada 3.4.2: 913 of 920 cases match Node exactly, and seven
+explicit punycode-host cases require Ada 4.0.0's pinned WPT results while recording
+Node's rejection. Modern Node/Ada 4.0.0 matches all 920. This exception is bound to
+that exact reference version and input set, with both outputs retained.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native HTTP qualification"}' -- bun run turbo run test:nim-http --filter=@octane-xplat/cli
@@ -262,7 +273,7 @@ separate `/proc` process-group adapter; tests include unusual process names and
 require kernel identities to be gone before native completion. It requires glibc
 2.34+ and ordinary OS orphan reaping; non-reaping container init processes remain
 unqualified. Native no-shebang text is deliberately rejected with `ENOEXEC`,
-while the actual Linux Node reference uses a shell fallback. Windows HTTP/private owner/RPC and the joined Windows worker workflow still
+while the actual Linux Node reference uses a shell fallback. Windows private owner/RPC and the joined Windows worker workflow still
 need qualification.
 
 The separate Windows process gate uses actual SDK job handles, explicit
@@ -274,7 +285,7 @@ termination is immediate; the POSIX graceful-signal/escalation cases stay skippe
 The job is assigned during process creation with `PROC_THREAD_ATTRIBUTE_JOB_LIST`
 and has kill-on-close enabled, closing the suspended-child ownership gap. This
 requires Windows10 APIs; actual execution is on Windows11 x64 with MSVC.
-It is noninteractive process evidence, not Windows HTTP, private host/RPC,
+It is noninteractive process evidence, not private host/RPC,
 project-worker, console-event or full app qualification. The gate rejects batch
 scripts without an explicit interpreter; it never adds an implicit shell.
 
@@ -494,16 +505,27 @@ Keep ownership on the remote host, await its release, and verify that the exact
 owned compiler phase has ended before replacing its source or starting a retry.
 
 The extracted snapshot can build and execute the HTTP differential gate on
-Linux. It verifies the source manifest and native probe hash before running;
+Linux and Windows x64. It verifies the source manifest and native probe hash before running;
 native requests have an empty PATH. This qualifies the transport and bridge
 envelopes, separately from owner bootstrap, workers and process cleanup. The
 proxy fixture supports both forward requests and CONNECT tunnels, including
 CONNECT for plaintext HTTP, and asserts traversal independently for each client.
 
 ```sh
-# From the extracted snapshot, under the Linux guest/build reservation:
-bun run turbo run test:portability-http --filter=@xplat/nim-portability-source --concurrency=1
+# From the extracted snapshot, under the destination build reservation:
+bun run turbo run build:portability-http --filter=@xplat/nim-portability-source --concurrency=1
+# Release native_builds before these runtime gates; retain the host reservation:
+bun run turbo run test:portability-http --filter=@xplat/nim-portability-source --only
+bun run turbo run test:portability-http-live --filter=@xplat/nim-portability-source --only
 ```
+
+The live gate checks pinned public JSON over HTTPS using the OS trust path, with
+empty PATH and exact native/Node response hashes. It never installs a test CA.
+Windows loopback TLS tests use Git's existing OpenSSL only to generate disposable
+certificates; Unicode/spaced explicit CA paths are exercised too. These Windows
+checks currently use the isolated snapshot driver, not the root workspace's full
+multi-probe build. Private host storage/ACLs, local RPC and the joined Windows
+worker workflow remain unqualified.
 
 The current Linux build dynamically needs glibc and the C++ runtime in addition
 to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols through

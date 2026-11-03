@@ -56,8 +56,9 @@ fixes; Nim owns process cleanup. Native `fmt` is still pending.
 On Ubuntu x64, the native owner and web build workflow are qualified with the
 project-installed route/baking worker and Vite, including job cancellation and
 child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process
-jobs have separate descendant-cleanup checks; native HTTP/private owner/RPC and
-its representative project workflow remain unqualified.
+jobs have separate descendant-cleanup checks, and HTTP/TLS has a separate native
+transport gate. Private owner/RPC and its representative project workflow remain
+unqualified; passing those primitives does not qualify Windows app commands.
 
 ```sh
 # On a qualified host, from the selected app with its build tools installed:

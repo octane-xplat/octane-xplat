@@ -3,13 +3,16 @@
 import std/[os, json]
 import ./js_text
 
-when defined(macosx) or defined(linux):
+when defined(macosx) or defined(linux) or defined(windows):
   const pin = parseJson(staticRead("../../../tools/cli-nim/nim-dependencies.json"))["ada"]["revision"].getStr()
   const repository = currentSourcePath().parentDir.parentDir.parentDir.parentDir
   const xplatNimDependencyRoot {.strdefine.} = repository / "research" / "nim-cli" / "dependencies"
   const adaDirectory = xplatNimDependencyRoot / ("ada-" & pin)
   const adaHeader = adaDirectory / "include" / "ada_c.h"
-  {.compile(adaDirectory / "src" / "ada.cpp", "-std=c++20 -DADA_INCLUDE_URL_PATTERN=0 -I" & quoteShell(adaDirectory / "include")).}
+  when defined(windows):
+    {.compile(adaDirectory / "src" / "ada.cpp", "/std:c++20 /Zc:__cplusplus /EHsc /MT /DADA_INCLUDE_URL_PATTERN=0 /I" & quoteShell(adaDirectory / "include")).}
+  else:
+    {.compile(adaDirectory / "src" / "ada.cpp", "-std=c++20 -DADA_INCLUDE_URL_PATTERN=0 -I" & quoteShell(adaDirectory / "include")).}
   type
     AdaString {.importc: "ada_string", header: adaHeader, bycopy.} = object
       data: cstring
@@ -35,11 +38,11 @@ when defined(macosx) or defined(linux):
     if length > 0: copyMem(addr result[0],data,int(length))
 
 proc httpUrlVersion*(): string =
-  when defined(macosx) or defined(linux): $version()
+  when defined(macosx) or defined(linux) or defined(windows): $version()
   else: "unimplemented"
 
 proc normalizeHttpUrl*(value: string, base = ""): tuple[url,origin,port: string] =
-  when defined(macosx) or defined(linux):
+  when defined(macosx) or defined(linux) or defined(windows):
     let input = utf8ForWrite(value)
     let against = utf8ForWrite(base)
     let url = if base == "": parse(cstring(input),csize_t(input.len))

@@ -64,17 +64,23 @@ proc newHttpCancel*(): HttpCancel = HttpCancel()
 proc cancel*(token: HttpCancel) =
   if token != nil: token.cancelled = true
 
-when defined(macosx) or defined(linux):
+when defined(macosx) or defined(linux) or defined(windows):
   # Resolver threads can outlive curl_global_cleanup. Keep this one system
   # library mapping until process exit; per-client handles still close normally.
-  var processCurlLibrary: LibHandle
+  when defined(macosx) or defined(linux):
+    var processCurlLibrary: LibHandle
   const shimHeader = currentSourcePath().parentDir / "curl_shim.h"
-  when defined(linux):
-    # Only the public headers are build inputs; load the host's libcurl at runtime.
-    const curlPin = parseJson(staticRead("../../../tools/cli-nim/nim-dependencies.json"))["curlHeaders"]["revision"].getStr()
+  when defined(linux) or defined(windows):
+    const curlName = when defined(windows): "curlWindows" else: "curlHeaders"
+    const curlPin = parseJson(staticRead("../../../tools/cli-nim/nim-dependencies.json"))[curlName]["revision"].getStr()
     const repository = currentSourcePath().parentDir.parentDir.parentDir.parentDir
     const xplatNimDependencyRoot {.strdefine.} = repository / "research" / "nim-cli" / "dependencies"
-    {.compile("curl_shim.c", "-I" & quoteShell(xplatNimDependencyRoot / ("curlHeaders-" & curlPin) / "include")).}
+    when defined(windows):
+      const xplatNimWindowsCurlLink {.strdefine.} = ""
+      when xplatNimWindowsCurlLink == "":
+        {.error: "Prepare pinned static Windows HTTP libraries with windows-http-build.mjs before compiling this entry.".}
+      {.passL: xplatNimWindowsCurlLink.}
+    {.compile("curl_shim.c", "-I" & quoteShell(xplatNimDependencyRoot / (curlName & "-" & curlPin) / "include")).}
   else:
     {.compile: "curl_shim.c".}
   type Lookup = proc(library: pointer, name: cstring): pointer {.cdecl.}
@@ -93,7 +99,8 @@ when defined(macosx) or defined(linux):
   proc apiNext(api: pointer, code: ptr cint): pointer {.cdecl, importc: "xplat_curl_next", header: shimHeader.}
   proc apiError(request: pointer): cstring {.cdecl, importc: "xplat_curl_error", header: shimHeader.}
   proc apiTimeout(code: cint): cint {.cdecl, importc: "xplat_curl_is_timeout", header: shimHeader.}
-  proc lookup(library: pointer, name: cstring): pointer {.cdecl.} = symAddr(cast[LibHandle](library),$name)
+  when defined(macosx) or defined(linux):
+    proc lookup(library: pointer, name: cstring): pointer {.cdecl.} = symAddr(cast[LibHandle](library),$name)
 else:
   proc apiClose(api: pointer) = discard
   proc apiRemove(api, request: pointer) = discard
@@ -153,15 +160,19 @@ proc close*(client: HttpClient) =
 
 proc newHttpClient*(): HttpClient =
   discard getGlobalDispatcher()
-  when defined(macosx) or defined(linux):
-    if processCurlLibrary == nil:
-      when defined(macosx): processCurlLibrary = loadLib("/usr/lib/libcurl.4.dylib")
-      else: processCurlLibrary = loadLib("libcurl.so.4")
-    result = HttpClient(library: processCurlLibrary)
-    if result.library == nil: raise problem(hfTransport,"System HTTP transport is unavailable")
+  when defined(macosx) or defined(linux) or defined(windows):
+    when defined(windows):
+      result = HttpClient()
+    else:
+      if processCurlLibrary == nil:
+        when defined(macosx): processCurlLibrary = loadLib("/usr/lib/libcurl.4.dylib")
+        else: processCurlLibrary = loadLib("libcurl.so.4")
+      result = HttpClient(library: processCurlLibrary)
+      if result.library == nil: raise problem(hfTransport,"System HTTP transport is unavailable")
     try:
       var error: cstring
-      result.api = apiOpen(cast[pointer](result.library),lookup,addr error)
+      when defined(windows): result.api = apiOpen(nil,nil,addr error)
+      else: result.api = apiOpen(cast[pointer](result.library),lookup,addr error)
       if result.api == nil:
         let detail = if error == nil: "" else: $error
         apiFree(error)
@@ -200,7 +211,7 @@ proc normalizedHeaders(headers: seq[HttpHeader]): seq[HttpHeader] =
   for name, value in grouped: result.add((name,value))
   result.sort(proc(a,b: HttpHeader): int = cmp(a.name,b.name))
 
-when defined(macosx) or defined(linux):
+when defined(macosx) or defined(linux) or defined(windows):
   proc received(data: cstring, size, count: csize_t): string =
     if size != 0 and count > csize_t(high(int)) div size: raise problem(hfTransport,"HTTP receive size overflow")
     result = newString(int(size*count))
@@ -381,7 +392,7 @@ proc fetch*(client: HttpClient, url: string, options: HttpOptions = nil): Future
     body = some(utf8ForWrite(body.get()))
     if not headers.hasHeader("content-type"): headers.add(("content-type","text/plain;charset=UTF-8"))
   let deadline = if settings.timeoutMs < 0: none(MonoTime) else: some(getMonoTime()+initDuration(milliseconds=settings.timeoutMs))
-  when defined(macosx) or defined(linux):
+  when defined(macosx) or defined(linux) or defined(windows):
     var current = client.resolveUrl(url)
     for redirects in 0..20:
       if deadline.isSome and getMonoTime() >= deadline.get(): raise problem(hfTimeout,"The operation was aborted due to timeout","TimeoutError")

@@ -9,7 +9,7 @@ export function nativeInputs(root) {
   'packages/cli/src/commands/lint.ts', 'packages/lint/src/runner.ts', 'packages/lint/bin/lint.mjs',
   'packages/cli/src/mcp/contracts/capabilities.ts', 'packages/cli/src/mcp/contracts/boundaries.ts',
   'tools/cli-nim/route-templates.mjs', 'tools/cli-nim/nim-dependencies.json', 'tools/cli-nim/build.mjs',
-  'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs',
+  'tools/cli-nim/native-inputs.mjs', 'tools/cli-nim/dependencies.mjs', 'tools/cli-nim/windows-http-build.mjs',
   'tools/cli-nim/licenses/tokenizers-js.txt', 'tools/cli-nim/licenses/onnxruntime.txt', 'tools/cli-nim/ort-runtime.json',
   'tools/cli-nim/ort-headers.mjs', 'tools/cli-nim/model-assets.json',
   'tools/cli-nim/build-model.mjs', 'tools/cli-nim/model_probe.nim', 'tools/cli-nim/package.json'].sort()

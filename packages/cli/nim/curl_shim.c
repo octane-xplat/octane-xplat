@@ -1,7 +1,11 @@
-/* Typed entry points over the system libcurl. Calling a variadic function
+/* Typed entry points over libcurl. Calling a variadic function
  * through a fixed-arity pointer is ABI-incorrect on macOS arm64. Let the SDK's
- * C declarations marshal setopt/getinfo arguments and callback pointers. */
+ * C declarations marshal setopt/getinfo arguments and callback pointers.
+ * Unix loads the system library; Windows links the pinned static library. */
 #include "curl_shim.h"
+#if defined(_WIN32)
+#define CURL_STATICLIB
+#endif
 #include <curl/curl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,16 +54,20 @@ void xplat_curl_close(void *opaque) {
 void *xplat_curl_open(void *library, XplatCurlLookup lookup, char **error) {
   XplatCurlApi *api = (XplatCurlApi *)calloc(1, sizeof(XplatCurlApi));
   if (api == NULL) { *error = copy_text("Unable to allocate HTTP transport"); return NULL; }
-#define LOAD(member, name) do { *(void **)(&api->member) = lookup(library, name); if (api->member == NULL) { *error = copy_text(name); goto failure; } } while (0)
-  LOAD(global_init, "curl_global_init"); LOAD(global_cleanup, "curl_global_cleanup");
-  LOAD(easy_init, "curl_easy_init"); LOAD(easy_cleanup, "curl_easy_cleanup");
-  LOAD(easy_setopt, "curl_easy_setopt"); LOAD(easy_getinfo, "curl_easy_getinfo");
-  LOAD(easy_strerror, "curl_easy_strerror"); LOAD(multi_init, "curl_multi_init");
-  LOAD(multi_cleanup, "curl_multi_cleanup"); LOAD(multi_add_handle, "curl_multi_add_handle");
-  LOAD(multi_remove_handle, "curl_multi_remove_handle"); LOAD(multi_perform, "curl_multi_perform");
-  LOAD(multi_info_read, "curl_multi_info_read"); LOAD(slist_append, "curl_slist_append");
-  LOAD(slist_free_all, "curl_slist_free_all"); LOAD(version, "curl_version");
-  LOAD(version_info, "curl_version_info");
+#if defined(_WIN32)
+#define LOAD(member, name) api->member = name
+#else
+#define LOAD(member, name) do { *(void **)(&api->member) = lookup(library, #name); if (api->member == NULL) { *error = copy_text(#name); goto failure; } } while (0)
+#endif
+  LOAD(global_init, curl_global_init); LOAD(global_cleanup, curl_global_cleanup);
+  LOAD(easy_init, curl_easy_init); LOAD(easy_cleanup, curl_easy_cleanup);
+  LOAD(easy_setopt, curl_easy_setopt); LOAD(easy_getinfo, curl_easy_getinfo);
+  LOAD(easy_strerror, curl_easy_strerror); LOAD(multi_init, curl_multi_init);
+  LOAD(multi_cleanup, curl_multi_cleanup); LOAD(multi_add_handle, curl_multi_add_handle);
+  LOAD(multi_remove_handle, curl_multi_remove_handle); LOAD(multi_perform, curl_multi_perform);
+  LOAD(multi_info_read, curl_multi_info_read); LOAD(slist_append, curl_slist_append);
+  LOAD(slist_free_all, curl_slist_free_all); LOAD(version, curl_version);
+  LOAD(version_info, curl_version_info);
 #undef LOAD
   if (api->global_init(CURL_GLOBAL_DEFAULT) != CURLE_OK) { *error = copy_text("HTTP global initialization failed"); goto failure; }
   api->initialized = 1;

@@ -111,8 +111,8 @@ this for macOS and Linux arm64/x64 and Windows x64.
 The parallel Nim rewrite is being prepared for the `nim` prerelease channel.
 Contributors with this repository installed can build it locally. macOS Apple
 Silicon has the broadest coverage. A representative web build and cancellation
-workflow also runs on Ubuntu 24.04 x64. Windows x64 has help/catalog and separate
-child-process checks; its application workflows remain unqualified. Check the
+workflow also runs on Ubuntu 24.04 x64. Windows x64 has help/catalog, child-process
+and HTTP/TLS checks; private host/RPC and application workflows remain unqualified. Check the
 native catalog before using a command:
 
 ```sh

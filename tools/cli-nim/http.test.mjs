@@ -4,7 +4,7 @@ import { createServer, request as httpRequest } from 'node:http'
 import { createServer as createSecureServer } from 'node:https'
 import { spawn, spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync, existsSync } from 'node:fs'
-import { resolve, join } from 'node:path'
+import { resolve, join, dirname } from 'node:path'
 import { gzipSync, deflateSync } from 'node:zlib'
 import { once } from 'node:events'
 import { connect } from 'node:net'
@@ -19,7 +19,7 @@ const binary = join(work, `${portable ? 'bin' : 'native'}/http-probe${process.pl
 const nativePins = JSON.parse(readFileSync(join(import.meta.dirname, 'nim-dependencies.json')))
 if (portable) {assertPortabilityArtifact(root, JSON.parse(readFileSync(join(work, 'http-build-result.json'))), readFileSync(binary), 'tools/cli-nim/http_probe.nim')}
 else {assertCurrentNativeBuild(root, JSON.parse(readFileSync(join(work, 'native/http-build.json'))), readFileSync(binary), httpProbeInputs)}
-const supported = ['darwin', 'linux'].includes(process.platform)
+const supported = ['darwin', 'linux', 'win32'].includes(process.platform)
 const transportHost = { skip: !supported }
 let directory, origin, other, secure, caFile, server, second, tls, proxy, proxyUrl
 const tunnels = new Set()
@@ -111,6 +111,19 @@ function handler(request, response) {
  } else { response.statusCode = 404; response.end('not found') }
 }
 async function listen(instance) { instance.listen(0, '127.0.0.1'); await once(instance, 'listening'); return `http://127.0.0.1:${instance.address().port}` }
+function fixtureOpenSsl() {
+ if (process.platform !== 'win32') {return '/usr/bin/openssl'}
+ const git = spawnSync('where.exe', ['git.exe'], { encoding: 'utf8' })
+ assert.equal(git.status, 0, 'The Windows TLS fixture needs the existing Git/OpenSSL tools')
+ const executable = git.stdout.trim().split(/\r?\n/)[0]
+ for (const root of [resolve(dirname(executable), '..'), resolve(dirname(executable), '../..')]) {
+  for (const path of ['usr/bin/openssl.exe','mingw64/bin/openssl.exe']) {
+   const candidate = join(root, path)
+   if (existsSync(candidate)) {return candidate}
+  }
+ }
+ assert.fail('The Windows TLS fixture needs the OpenSSL executable bundled with Git for Windows')
+}
 before(async () => {
  if (!supported) {return}
  mkdirSync(join(work, 'http-fixtures'), { recursive: true })
@@ -119,8 +132,8 @@ before(async () => {
  caFile = join(directory, 'certificate.pem')
  const key = join(directory, 'key.pem')
  writeFileSync(config, '[req]\nprompt=no\ndistinguished_name=dn\nx509_extensions=ext\n[dn]\nCN=localhost\n[ext]\nsubjectAltName=DNS:localhost\nbasicConstraints=critical,CA:TRUE\nkeyUsage=critical,digitalSignature,keyEncipherment,keyCertSign\n')
- const generated = spawnSync('/usr/bin/openssl', ['req','-x509','-newkey','rsa:2048','-nodes','-days','1','-config',config,'-keyout',key,'-out',caFile], { encoding: 'utf8' })
- assert.equal(generated.status, 0, 'Could not create task-local TLS fixture')
+ const generated = spawnSync(fixtureOpenSsl(), ['req','-x509','-newkey','rsa:2048','-nodes','-days','1','-config',config,'-keyout',key,'-out',caFile], { encoding: 'utf8' })
+ assert.equal(generated.status, 0, `Could not create task-local TLS fixture: ${generated.error?.message ?? generated.stderr}`)
  server = createServer(handler); second = createServer(handler)
  origin = await listen(server); other = await listen(second)
  tls = createSecureServer({ key: readFileSync(key), cert: readFileSync(caFile) }, handler)
@@ -192,10 +205,15 @@ async function compare(cases, ca) {
  return actual
 }
 
-test('system transport reports its real TLS backend and asynchronous DNS capability', transportHost, async () => {
+test('native transport reports its real TLS backend and asynchronous DNS capability', transportHost, async () => {
  const [version] = await run(true, [{ operation: 'version' }])
  assert.match(version.version, /libcurl\//)
  if (process.platform === 'darwin') {assert.match(version.version, /SecureTransport/)}
+ else if (process.platform === 'win32') {
+  assert.ok(version.version.includes('libcurl/'+nativePins.curlWindows.version))
+  assert.match(version.version, /Schannel/)
+  assert.ok(version.version.includes('zlib/'+nativePins.zlibWindows.version))
+ }
  else {assert.match(version.version, /OpenSSL\//)}
  assert.equal(version.asyncDns, true)
  assert.equal(version.threadSafeGlobals, true)
@@ -219,15 +237,34 @@ test('HTTP URL normalization preserves Unicode paths, queries, fragments and dot
  const paths = ['/echo?q=café', '/echo?q=a b', '/a/../echo?x=%2f#fragment', '/a/%2e%2e/echo', '/echo?q=\ud800', '/echo?q=\'`{}[]^']
  await compare(paths.map(path => ({ url: origin + path, consume: 'json' })))
 })
-test('WHATWG URL corpus matches Node through native Ada, including IDNs and UTF-16 edge cases', transportHost, async () => {
+test('WHATWG URL corpus validates native Ada with bounded reference-version differences', transportHost, async () => {
  const source = join(work, 'dependencies', `ada-${nativePins.ada.revision}`, 'tests/wpt')
- const cases = ['urltestdata.json','urltestdata-javascript-only.json','ada_extra_urltestdata.json'].flatMap(file => JSON.parse(readFileSync(join(source, file))))
+ const fixtures = ['urltestdata.json','urltestdata-javascript-only.json','ada_extra_urltestdata.json'].flatMap(file => JSON.parse(readFileSync(join(source, file))))
   .filter(value => typeof value === 'object' && value && typeof value.input === 'string')
-  .map(value => ({ operation: 'normalize', url: value.input, base: value.base ?? '' }))
+ const cases = fixtures.map(value => ({ operation: 'normalize', url: value.input, base: value.base ?? '' }))
  const [actual, expected] = await Promise.all([run(true, cases), run(false, cases)])
  assert.equal(actual.length, cases.length)
- for (const [at, request] of cases.entries()) {assert.deepEqual(actual[at], expected[at], `URL case ${at}: ${JSON.stringify(request).slice(0, 200)}`)}
- console.log(`${cases.length} native WHATWG URL cases checked; Ada ${nativePins.ada.version}; Node Ada ${process.versions.ada}`)
+ assert.equal(expected.length, cases.length)
+ // Node/Ada 3.4.2 rejects these seven ASCII ACE hosts. Native Ada 4 follows
+ // the pinned WPT expected href/origin; newer Node versions agree with it.
+ // Keep this exact-version/input exception bounded and retain both outcomes.
+ const olderNodeInputs = new Set(['http://a.b.c.xn--pokxncvks','http://10.0.0.xn--pokxncvks',
+  'http://a.b.c.XN--pokxncvks','http://a.b.c.Xn--pokxncvks','http://10.0.0.XN--pokxncvks','http://10.0.0.xN--pokxncvks','https://xn--/'])
+ const variations = []
+ for (const [at, request] of cases.entries()) {
+  if (process.versions.ada === '3.4.2' && request.base === '' && olderNodeInputs.has(request.url)) {
+   assert.equal(nativePins.ada.version, '4.0.0', 'Review the reference differences when updating Ada')
+   const fixture = fixtures[at]
+   assert.deepEqual(expected[at], { valid: false })
+   const pinned = { valid: true, url: fixture.href, origin: fixture.origin }
+   assert.deepEqual(actual[at], pinned, `Pinned WPT case ${at}`)
+   variations.push({ request, native: actual[at], reference: expected[at], pinned })
+  } else {assert.deepEqual(actual[at], expected[at], `URL case ${at}: ${JSON.stringify(request).slice(0, 200)}`)}
+ }
+ assert.equal(variations.length, process.versions.ada === '3.4.2' ? olderNodeInputs.size : 0)
+ evidence.push({ operation: 'url-corpus', cases: cases.length, nativeAda: nativePins.ada.version,
+  node: process.version, nodeAda: process.versions.ada, exactNodeMatches: cases.length-variations.length, referenceVariations: variations })
+ console.log(`${cases.length} native WHATWG cases checked; Ada ${nativePins.ada.version}; Node Ada ${process.versions.ada}; ${variations.length} recorded reference differences`)
 })
 test('gzip/deflate decompression preserves bytes and response headers', transportHost, async () => {
  await compare(['/gzip','/deflate','/bytes'].flatMap(path => ['text','bytes'].map(consume => ({ url: origin + path, consume }))))
@@ -261,6 +298,9 @@ test('headers resolve before delayed bodies, with phase-specific abort and timeo
 test('TLS rejects untrusted and wrong-host certificates and accepts an explicit task-local CA', transportHost, async () => {
  await compare([{ url: `${secure}/json-bom`, consume: 'json' }])
  await compare([{ url: `${secure}/json-bom`, caFile, consume: 'json' }], caFile)
+ const unicodeCa = join(directory, 'CA space π😀.pem')
+ writeFileSync(unicodeCa, readFileSync(caFile))
+ await compare([{ url: `${secure}/json-bom`, caFile: unicodeCa, consume: 'json' }], unicodeCa)
  await compare([{ url: `${secure.replace('localhost','127.0.0.1')}/json-bom`, caFile, consume: 'json' }], caFile)
 })
 test('explicit HTTP proxy and TLS CONNECT work while ambient proxies stay disabled', transportHost, async () => {

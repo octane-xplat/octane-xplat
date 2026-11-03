@@ -71,15 +71,15 @@ refs retain lexical names while scope checks use canonical targets.
 Complete pinned public C API headers are build inputs; no ONNX runtime is linked or
 loaded during ordinary help/status startup.
 `native_http.nim` provides asynchronous HTTP/TLS through the host libcurl on macOS
-and Linux,
-with header/body readiness, cancellation, byte streaming and explicit proxy/CA
+and Linux, and pinned static curl/zlib with Schannel on Windows x64, with header/body readiness, cancellation, byte streaming and explicit proxy/CA
 options. `http_url.nim` statically compiles pinned Ada URL parsing for the
 reference's WHATWG behavior. `actions_bridge.nim` ports authenticated registry,
 submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. The Linux transport is
 qualified on Ubuntu 24.04 x64 with libcurl 8.5/OpenSSL; it requires `libcurl.so.4`
 at runtime. Pinned task-local curl headers are build inputs, not a bundled engine.
-Windows HTTP remains unimplemented. The representative Linux workflow runs the
+Windows HTTP/TLS passes the isolated differential and public HTTPS gates; its
+static curl/zlib updates require rebuilding the executable. The representative Linux workflow runs the
 production native owner, installed route/baking worker and Vite web build, then
 cancels a resistant worker and descendant while preserving generated output.
 The bridge accepts an explicit fetch procedure; the ordinary client adapter and
@@ -195,7 +195,7 @@ engines or the full command surface. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
 the process-group cleanup guarantee. Windows managed-process jobs pass a separate actual Windows11 x64 gate for
 arguments, pipes, exit status and descendant cleanup, including abrupt supervisor
-death. Windows HTTP and private owner/RPC adapters remain unimplemented.
+death. Windows private owner/RPC adapters remain unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
 ambient precedence, root-file union, compiler-option checks and generated JSON
 bytes. Its differential gate exercises real repository manifests and filesystem
@@ -441,8 +441,9 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
 Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
 cleanup pass their separate gates. The representative canonical project-worker
-and web-build workflow also passes on Linux. Windows managed-process jobs pass their separate gate; HTTP/private owner/RPC
-and the joined workflow remain unqualified. Windows TLS, remaining command contracts,
+and web-build workflow also passes on Linux. Windows managed-process jobs and
+HTTP/TLS pass separate actual-host gates; private owner/RPC and the joined
+workflow remain unqualified. Remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,
