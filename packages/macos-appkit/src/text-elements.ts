@@ -1,4 +1,17 @@
+import type { createNativeStyle } from './native-style'
+import type { createCssCascade } from './css-cascade'
+import type { createInputElements } from './input-elements'
+import type { createLayout } from './layout'
+import type { createRegistry } from './registry'
+import type { createActions } from './actions'
+import type { createAccessibility } from './accessibility'
+import type { createTree } from './tree'
+import type { PropBag, ElementNode } from './model'
 import {
+  NSColor,
+  NSTextField,
+  NSView,
+  NSTextAlignment,
   NSAccessibilityCustomAction,
   NSAttributedString,
   NSClickGestureRecognizer,
@@ -10,27 +23,18 @@ import {
   NSMutableParagraphStyle,
   NSParagraphStyleAttributeName,
   NSTextContainer,
-  NSTextField,
   NSTextFieldCell,
   NSTextStorage,
-  NSView,
   NativeClass,
 } from '@octane-xplat/platform/macos'
-import type { ElementNode } from './model'
+import { nativeColor } from './native-colors'
 import { parseHtmlText } from './html-text'
+import { composeAttributedText } from './formatted-text'
+import type { TextLinkRun } from './formatted-text'
+import { resolveFont as fontForFamilyStyle } from './fonts'
+import { configureGesture } from './gestures'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from './primary-click'
-import { configureGesture } from './gestures'
-import { composeAttributedText, type TextLinkRun } from './formatted-text'
-import { resolveFont as fontForFamilyStyle } from './fonts'
-import { nativeColor } from './native-colors'
-
-import type { createNativeStyle } from './native-style'
-import type { createCssCascade } from './css-cascade'
-import type { createInputElements } from './input-elements'
-import type { createLayout } from './layout'
-import type { createRegistry } from './registry'
-import type { createActions } from './actions'
 
 export type AxLinkSlot = {
   action: NSAccessibilityCustomAction
@@ -38,8 +42,14 @@ export type AxLinkSlot = {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle' | 'setSizeConstraint'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'warnUnsupportedCssProp'>
+  nativeStyle: Pick<
+    ReturnType<typeof createNativeStyle>,
+    'effectiveStyle' | 'setSizeConstraint' | 'fontForStyle' | 'syncNodeFont'
+  >
+  cssCascade: Pick<
+    ReturnType<typeof createCssCascade>,
+    'warnUnsupportedCssProp' | 'setNodeInlineStyle' | 'applyClassName'
+  >
   inputElements: Pick<
     ReturnType<typeof createInputElements>,
     'DEFAULT_TEXT_LINE_HEIGHT_RATIO' | 'fitTextView'
@@ -47,6 +57,8 @@ interface Dependencies {
   layout: Pick<ReturnType<typeof createLayout>, 'queueLayoutReconcile'>
   registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
   actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'buttonActionTarget'>
+  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
+  tree: Pick<ReturnType<typeof createTree>, 'detach'>
 }
 
 export function createTextElements(deps: Dependencies) {
@@ -422,7 +434,9 @@ export function createTextElements(deps: Dependencies) {
       // Runs that vanished keep their pooled action but lose the dispatch — a
       // stale closure would otherwise retain this node and its run handler.
       for (const stale of node.axLinkSlots ?? []) {
-        if (!slots.includes(stale as AxLinkSlot)) stale.dispatch = null
+        if (!slots.includes(stale as AxLinkSlot)) {
+          stale.dispatch = null
+        }
       }
       node.axLinkSlots = slots
       ;(view as any).accessibilityCustomActions = slots.map((slot) => slot.action)
@@ -512,6 +526,75 @@ export function createTextElements(deps: Dependencies) {
 
     parent.view!.invalidateIntrinsicContentSize()
   }
+
+  function makeLabel(): NSTextField {
+    const label = NSTextField.alloc().initWithFrame({
+      origin: { x: 0, y: 0 },
+      size: { width: 400, height: 32 },
+    })
+
+    label.cell = PaddedLabelCell.alloc().initTextCell('')
+    label.bezeled = false
+    label.drawsBackground = false
+    label.editable = false
+    label.selectable = false
+    label.alignment = NSTextAlignment.Left
+    label.cell.wraps = true
+    label.cell.usesSingleLineMode = false
+    label.translatesAutoresizingMaskIntoConstraints = false
+    label.font = deps.nativeStyle.fontForStyle(16)
+    label.textColor = NSColor.labelColor
+    return label
+  }
+  function applyBuiltinHtmlViewProp(node: ElementNode, name: string, value: PropBag[string]) {
+    if (name === 'html' || name === 'id') {
+      return // parse once after all font/color sources reconcile
+    } else if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name === 'accessible' || name.startsWith('accessibility')) {
+      deps.accessibility.applyAccessibility(node, name, value)
+    } else if (name.startsWith('on') && value == null) {
+      return
+    } else if (value !== undefined) {
+      console.warn('[macos-host] ignored htmlview prop ' + name)
+    }
+  }
+
+  function applyBuiltinLabelProp(node: ElementNode, name: string, value: PropBag[string]) {
+    if (name === 'text') {
+      setLabelText(node, String(value ?? ''))
+    } else if (name === 'fontSize') {
+      node.propFontSize = Number(value ?? 16)
+      deps.nativeStyle.syncNodeFont(node)
+    } else if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+      syncText(node)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name === 'id') {
+      return
+    } else if (['maxLines', 'whiteSpace', 'textOverflow'].includes(name)) {
+      return
+    } else if (name === 'accessible' || name.startsWith('accessibility')) {
+      deps.accessibility.applyAccessibility(node, name, value)
+    } else if (name.startsWith('on') && value == null) {
+      return
+    } else if (value !== undefined) {
+      console.warn('[macos-host] ignored label prop ' + name)
+    }
+  }
+
+  function disposeBuiltinFormattedText(node: ElementNode) {
+    if (node.type === 'formattedstring' || node.type === 'span') {
+      deps.tree.detach(node.container, node)
+      for (const child of node.children.slice()) {
+        deps.tree.detach(node.container, child)
+      }
+    }
+  }
+
   return {
     labelPaddings,
     PaddedLabelCell,
@@ -522,5 +605,9 @@ export function createTextElements(deps: Dependencies) {
     primaryClickBoundary,
     syncTextLinks,
     syncText,
+    makeLabel,
+    applyBuiltinHtmlViewProp,
+    applyBuiltinLabelProp,
+    disposeBuiltinFormattedText,
   }
 }

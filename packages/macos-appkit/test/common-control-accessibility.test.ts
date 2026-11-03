@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createDisabledFocusTargets } from '../src/disabled-focus.ts'
 import { createTabStopSuppression } from '../src/tab-stop.ts'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 const source = rendererSource()
 const host = source.slice(

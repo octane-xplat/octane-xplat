@@ -1,3 +1,5 @@
+import type { createActions } from './actions'
+import type { createContextMenu } from './context-menu'
 import { createAppKitPointerMotion } from './pointer-motion'
 import {
   NSCursor,
@@ -10,9 +12,6 @@ import {
   interop,
 } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
-
-import type { createActions } from './actions'
-import type { createContextMenu } from './context-menu'
 
 interface Dependencies {
   actions: Pick<ReturnType<typeof createActions>, 'invokeAction'>

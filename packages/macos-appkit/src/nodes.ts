@@ -1,81 +1,63 @@
-import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
-import { normalizeHostStyleProps } from './inline-style.ts'
-import {
-  NSAutoresizingMaskOptions,
-  NSBorderType,
-  NSColor,
-  NSImageView,
-  NSNotificationCenter,
-  NSScrollView,
-  NSTextField,
-  NSTextView,
-  NSView,
-  WKWebView,
-  AVPlayerView,
-} from '@octane-xplat/platform/macos'
-import { validateListProps } from './list-template'
-import { nativeColor } from './native-colors'
-import {
-  makeTabView,
-  makeTabItem,
-  validateTabProps,
-  releaseTabView,
-  releaseTabItem,
-} from './tab-view'
-import { validateHtmlProps } from './html-text'
-import { validateTextStyle } from './formatted-text'
-import { makeListView, disposeListView } from './list-view'
-import { makeWebView, disposeWebView } from './webview'
-import { makePagerView, disposePagerView } from './pager'
-import { makeVideoView, disposeVideoView } from './video'
-import { resolveFont as fontForFamilyStyle } from './fonts'
-import { observeTextViewLayout, retireTextViewLayout } from './text-view-layout.ts'
-import { disposePressGestures, setVisualStateTracking } from './gestures'
-import { disposeTextValue } from './text-value.ts'
-import { setImageGeometryHandler } from './image-geometry.ts'
-import { disposeImage } from './image'
-
+import type { createCssAnimations } from './css-animations'
 import type { createRegistry } from './registry'
 import type { createTree } from './tree'
-import type { createControls } from './controls'
+import type { createPickerElements } from './picker-elements'
 import type { createCssCascade } from './css-cascade'
 import type { createContainerElements } from './container-elements'
 import type { createRoots } from './roots'
+import type { createControls } from './controls'
+import type { createTextElements } from './text-elements'
 import type { createInputElements } from './input-elements'
 import type { createImageElements } from './image-elements'
 import type { createActions } from './actions'
 import type { createElementProps } from './element-props'
 import type { createCssPseudoState } from './css-pseudo-state'
 import type { createSubscriptions } from './subscriptions'
-import type { createLayout } from './layout'
+import type { createHostedElements } from './hosted-elements'
+import type { createProjection } from './projection'
 import type { createBackgroundPaint } from './background-paint'
 import type { createBorderPaint } from './border-paint'
+import type { createLayout } from './layout'
 import type { createAccessibleHost } from './accessible-host'
+import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
+import { normalizeHostStyleProps } from './inline-style.ts'
+import { NSNotificationCenter, NSTextField, NSTextView, NSView } from '@octane-xplat/platform/macos'
+import { validateListProps } from './list-template'
+import { nativeColor } from './native-colors'
+import { makeTabView, makeTabItem, validateTabProps } from './tab-view'
+import { validateHtmlProps } from './html-text'
+import { validateTextStyle } from './formatted-text'
+import { makeListView } from './list-view'
+import { makeWebView } from './webview'
+import { makePagerView } from './pager'
+import { makeVideoView } from './video'
+import { resolveFont as fontForFamilyStyle } from './fonts'
+
+import { disposePressGestures, setVisualStateTracking } from './gestures'
 
 interface Dependencies {
+  cssAnimations: Pick<ReturnType<typeof createCssAnimations>, 'cancelKeyframeAnimations'>
   registry: Pick<
     ReturnType<typeof createRegistry>,
     'elementBehaviors' | 'behaviorOf' | 'nodeContainersByView' | 'cssNodesByView'
   >
   tree: Pick<ReturnType<typeof createTree>, 'validateTextNesting' | 'detach'>
-  controls: Pick<
-    ReturnType<typeof createControls>,
+  pickerElements: Pick<
+    ReturnType<typeof createPickerElements>,
     | 'timeOfDay'
     | 'calendarDate'
     | 'makeSegmentedBar'
     | 'makeListPicker'
     | 'makeTimePicker'
     | 'makeDatePicker'
-    | 'makeProgress'
-    | 'makeActivityIndicator'
-    | 'makeLabel'
-    | 'makeButton'
-    | 'makeScrollView'
-    | 'makeSwitch'
-    | 'makeSlider'
-    | 'scrollHandlers'
+    | 'disposeBuiltinSegmentedItem'
+    | 'disposeBuiltinSegmentedChildren'
+    | 'disposeBuiltinSegmentedControl'
+    | 'disposeBuiltinListPicker'
+    | 'disposeBuiltinTimePicker'
+    | 'disposeBuiltinDatePicker'
   >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'cssChildren' | 'cancelKeyframeAnimations'>
+  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'cssChildren'>
   containerElements: Pick<
     ReturnType<typeof createContainerElements>,
     | 'makeRootLayout'
@@ -86,22 +68,39 @@ interface Dependencies {
     | 'makeLiquidGlass'
     | 'makePlaceholder'
     | 'gridLayoutNodesByView'
-    | 'rootLayoutNodesByView'
-    | 'placeholderContentOwners'
-    | 'placeholderNodesByView'
+    | 'disposeBuiltinRootLayout'
+    | 'disposeBuiltinLiquidGlass'
+    | 'disposeBuiltinContentHost'
+    | 'disposeBuiltinPlaceholder'
   >
   roots: Pick<ReturnType<typeof createRoots>, 'createMacOSRoot' | 'ownedRoots'>
+  controls: Pick<
+    ReturnType<typeof createControls>,
+    | 'makeProgress'
+    | 'makeActivityIndicator'
+    | 'makeButton'
+    | 'makeScrollView'
+    | 'makeSwitch'
+    | 'makeSlider'
+    | 'disposeBuiltinActivityIndicator'
+    | 'disposeBuiltinScrollView'
+  >
+  textElements: Pick<
+    ReturnType<typeof createTextElements>,
+    'makeLabel' | 'disposeBuiltinFormattedText'
+  >
   inputElements: Pick<
     ReturnType<typeof createInputElements>,
     | 'makeSearchBar'
     | 'makeTextField'
     | 'textNodesByView'
-    | 'fitTextView'
-    | 'DEFAULT_TEXT_LINE_HEIGHT_RATIO'
+    | 'initializeTextViewport'
+    | 'disposeBuiltinTextViewLayout'
+    | 'disposeBuiltinTextInput'
   >
   imageElements: Pick<
     ReturnType<typeof createImageElements>,
-    'makeImageView' | 'makeAnimatedImageView'
+    'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'
   >
   actions: Pick<
     ReturnType<typeof createActions>,
@@ -117,9 +116,19 @@ interface Dependencies {
     ReturnType<typeof createSubscriptions>,
     'focusWithinDispatcher' | 'keyboardDispatcher'
   >
-  layout: Pick<ReturnType<typeof createLayout>, 'releasePlacementPins' | 'layoutHandlers'>
+  hostedElements: Pick<
+    ReturnType<typeof createHostedElements>,
+    | 'disposeBuiltinListView'
+    | 'disposeBuiltinPager'
+    | 'disposeBuiltinVideo'
+    | 'disposeBuiltinTabView'
+    | 'disposeBuiltinTabItem'
+    | 'disposeBuiltinWebView'
+  >
+  projection: Pick<ReturnType<typeof createProjection>, 'disposeBuiltinProxyChildren'>
   backgroundPaint: Pick<ReturnType<typeof createBackgroundPaint>, 'clearBackgrounds'>
   borderPaint: Pick<ReturnType<typeof createBorderPaint>, 'clearBoxFrameObserver'>
+  layout: Pick<ReturnType<typeof createLayout>, 'layoutHandlers'>
   accessibleHost: Pick<
     ReturnType<typeof createAccessibleHost>,
     'accessibilityLabels' | 'accessibilityRoles'
@@ -281,7 +290,7 @@ export function createNodes(deps: Dependencies) {
 
     if (type === 'timepicker') {
       if (props?.time != null) {
-        deps.controls.timeOfDay(props.time)
+        deps.pickerElements.timeOfDay(props.time)
       }
 
       for (const name of ['hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute']) {
@@ -302,7 +311,7 @@ export function createNodes(deps: Dependencies) {
             throw new Error('AppKit datepicker ' + name + ' must be Date or string')
           }
 
-          deps.controls.calendarDate(props[name])
+          deps.pickerElements.calendarDate(props[name])
         }
       }
 
@@ -474,7 +483,7 @@ export function createNodes(deps: Dependencies) {
             makeTabItem(node)
             break
           case 'segmentedbar': {
-            const control = deps.controls.makeSegmentedBar(node)
+            const control = deps.pickerElements.makeSegmentedBar(node)
             node.view = control.view
             node.actionId = control.actionId
             break
@@ -489,19 +498,19 @@ export function createNodes(deps: Dependencies) {
 
             break
           case 'listpicker': {
-            const control = deps.controls.makeListPicker(node)
+            const control = deps.pickerElements.makeListPicker(node)
             node.view = control.view
             node.actionId = control.actionId
             break
           }
           case 'timepicker': {
-            const control = deps.controls.makeTimePicker(node)
+            const control = deps.pickerElements.makeTimePicker(node)
             node.view = control.view
             node.actionId = control.actionId
             break
           }
           case 'datepicker': {
-            const control = deps.controls.makeDatePicker(node)
+            const control = deps.pickerElements.makeDatePicker(node)
             node.view = control.view
             node.actionId = control.actionId
             break
@@ -513,12 +522,12 @@ export function createNodes(deps: Dependencies) {
             node.view = deps.controls.makeActivityIndicator()
             break
           case 'htmlview':
-            node.view = deps.controls.makeLabel()
+            node.view = deps.textElements.makeLabel()
             // @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
             node.view.selectable = true
             break
           case 'label':
-            node.view = deps.controls.makeLabel()
+            node.view = deps.textElements.makeLabel()
             break
           case '#text':
             break
@@ -631,47 +640,7 @@ export function createNodes(deps: Dependencies) {
       }
 
       if (type === 'textview') {
-        const textView = node.view! as NSTextView
-        const viewport = NSScrollView.alloc().initWithFrame(textView.frame)
-        viewport.translatesAutoresizingMaskIntoConstraints = false
-        viewport.drawsBackground = false
-        viewport.borderType = NSBorderType.No
-        viewport.hasVerticalScroller = true
-        viewport.autohidesScrollers = true
-        textView.translatesAutoresizingMaskIntoConstraints = true
-        textView.autoresizingMask = NSAutoresizingMaskOptions.WidthSizable
-        textView.verticallyResizable = true
-        textView.horizontallyResizable = false
-        textView.maxSize = { width: Number.MAX_SAFE_INTEGER, height: Number.MAX_SAFE_INTEGER }
-        textView.textContainer.widthTracksTextView = true
-        viewport.documentView = textView
-        node.textViewport = viewport
-        observeTextViewLayout(node, () => deps.inputElements.fitTextView(node))
-
-        const placeholder = deps.controls.makeLabel()
-        placeholder.font = fontForFamilyStyle(14, 400, node.appliedFontFamily)
-        placeholder.textColor = NSColor.placeholderTextColor
-        placeholder.stringValue = String(props.placeholder ?? '')
-        placeholder.translatesAutoresizingMaskIntoConstraints = false
-        node.placeholderHeight = placeholder.heightAnchor.constraintEqualToConstant(
-          Math.ceil(14 * deps.inputElements.DEFAULT_TEXT_LINE_HEIGHT_RATIO),
-        )
-
-        node.placeholderHeight.active = true
-
-        placeholder.hidden = String(props.value ?? '').length > 0
-        node.view!.addSubview(placeholder)
-        node.placeholderLeading = placeholder.leadingAnchor.constraintEqualToAnchorConstant(
-          node.view!.leadingAnchor,
-          0,
-        )
-
-        node.placeholderLeading.active = true
-
-        node.placeholderTop = placeholder.topAnchor.constraintEqualToAnchor(node.view!.topAnchor)
-        node.placeholderTop.active = true
-        node.placeholderView = placeholder
-        deps.inputElements.textNodesByView.set(node.view!, node)
+        deps.inputElements.initializeTextViewport(node, props)
       }
 
       deps.elementProps.applyProps(node, props)
@@ -696,9 +665,8 @@ export function createNodes(deps: Dependencies) {
   }
 
   function destroy(node: ElementNode) {
-    if (node.type === 'textview') {
-      retireTextViewLayout(node)
-    }
+    deps.inputElements.disposeBuiltinTextViewLayout(node)
+
     if (
       node.view &&
       (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')
@@ -712,128 +680,36 @@ export function createNodes(deps: Dependencies) {
       deps.subscriptions.keyboardDispatcher.set(node.view)
     }
     node.container?.cssDirty?.delete(node)
-    deps.cssCascade.cancelKeyframeAnimations(node)
+    deps.cssAnimations.cancelKeyframeAnimations(node)
     for (const hook of node.destroyHooks ?? []) {
       hook()
     }
     deps.registry.behaviorOf(node.type)?.destroy?.(node)
+    deps.hostedElements.disposeBuiltinListView(node)
 
-    if (node.type === 'listview' && node.view) {
-      disposeListView(node.view)
-    }
+    deps.hostedElements.disposeBuiltinPager(node)
 
-    if (node.type === 'pager' && node.view) {
-      disposePagerView(node.view)
-    }
+    deps.hostedElements.disposeBuiltinVideo(node)
 
-    if (node.type === 'xplatvideo' && node.view) {
-      disposeVideoView(node.view as AVPlayerView)
-    }
+    deps.hostedElements.disposeBuiltinTabView(node)
 
-    if (node.type === 'tabview') {
-      releaseTabView(node)
-    }
+    deps.hostedElements.disposeBuiltinTabItem(node)
 
-    if (node.type === 'tabviewitem') {
-      deps.tree.detach(node.container, node)
-      releaseTabItem(node)
-    }
+    deps.pickerElements.disposeBuiltinSegmentedItem(node)
 
-    if (node.type === 'segmentedbaritem') {
-      deps.tree.detach(node.container, node)
-      node.props.title = undefined
-    }
+    deps.pickerElements.disposeBuiltinSegmentedChildren(node)
 
-    if (node.type === 'segmentedbar') {
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-    }
+    deps.textElements.disposeBuiltinFormattedText(node)
 
-    if (node.type === 'formattedstring' || node.type === 'span') {
-      deps.tree.detach(node.container, node)
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-    }
+    deps.projection.disposeBuiltinProxyChildren(node)
 
-    if (node.type === 'proxyviewcontainer') {
-      deps.tree.detach(node.container, node)
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-    }
+    deps.containerElements.disposeBuiltinRootLayout(node)
 
-    if (node.type === 'rootlayout') {
-      if (node.rootGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.rootGeometryObserver)
-        node.rootGeometryObserver = null
-      }
+    deps.containerElements.disposeBuiltinLiquidGlass(node)
 
-      if (node.view) {
-        deps.containerElements.rootLayoutNodesByView.delete(node.view)
-      }
+    deps.containerElements.disposeBuiltinContentHost(node)
 
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-    }
-
-    if (node.type === 'liquidglass') {
-      if (node.glassGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.glassGeometryObserver)
-        node.glassGeometryObserver = null
-      }
-
-      // The material backdrop is not a node view, so nothing else detaches it.
-      node.glassBackdrop?.removeFromSuperview()
-      node.glassBackdrop = null
-    }
-
-    // Removing an ancestor does not detach its native descendants. Every
-    // destroyed view releases its own edge, including retained ContentView refs.
-    if (['contentview', 'actionbar'].includes(node.type ?? '')) {
-      if (node.contentGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.contentGeometryObserver)
-        node.contentGeometryObserver = null
-      }
-
-      if (node.type === 'actionbar') {
-        if (node.actionBarDisplay) {
-          deps.layout.releasePlacementPins(node.actionBarDisplay)
-          node.actionBarDisplay.view.removeFromSuperview()
-        }
-
-        node.actionBarExternal = null
-        node.actionBarDisplay = null
-        node.actionBarTitle = null
-      }
-
-      // Detaching mutates children; iterate a snapshot.
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-
-      if (node.view) {
-        deps.containerElements.contentViewNodesByView.delete(node.view)
-      }
-    }
-
-    if (node.type === 'placeholder') {
-      if (node.placeholderContent) {
-        deps.containerElements.placeholderContentOwners.delete(node.placeholderContent)
-        if (deps.registry.nodeContainersByView.get(node.placeholderContent) === node.container) {
-          deps.registry.nodeContainersByView.delete(node.placeholderContent)
-        }
-
-        node.placeholderContent.removeFromSuperview()
-        node.placeholderContent = null
-      }
-
-      if (node.view) {
-        deps.containerElements.placeholderNodesByView.delete(node.view)
-      }
-    }
+    deps.containerElements.disposeBuiltinPlaceholder(node)
 
     if (node.view) {
       deps.tree.detach(node.container, node)
@@ -861,76 +737,23 @@ export function createNodes(deps: Dependencies) {
     if (node.panGestureRecognizer) {
       node.panGestureRecognizer.enabled = false
     }
+    deps.inputElements.disposeBuiltinTextInput(node)
 
-    if (['textfield', 'textview', 'searchbar'].includes(node.type) && node.view) {
-      disposeTextValue(node.view)
-      deps.inputElements.textNodesByView.delete(node.view)
-      deps.actions.actionIdsByView.delete(node.view)
-      node.view.delegate = null
-      if (node.type === 'searchbar') {
-        node.view.target = null
-        node.view.action = null
-        node.submitHandler = null
-      }
-    }
+    deps.hostedElements.disposeBuiltinWebView(node)
 
-    // Nodes destroyed by a failed makeNode may have a null view — every
-    // branch below must tolerate partial construction.
-    if (node.type === 'webview' && node.view) {
-      disposeWebView(node.view as WKWebView)
-    }
+    deps.pickerElements.disposeBuiltinSegmentedControl(node)
 
-    if (node.type === 'segmentedbar' && node.view) {
-      node.view.target = null
-      node.view.action = null
-      node.view.segmentCount = 0
-      node.segmentedBarTitles = null
-      node.props.items = undefined
-      node.props.onSelectedIndexChange = undefined
-    }
+    deps.pickerElements.disposeBuiltinListPicker(node)
 
-    if (node.type === 'listpicker' && node.view) {
-      node.view.target = null
-      node.view.action = null
-      node.view.removeAllItems()
-      node.listPickerTitles = null
-      node.props.onSelectedIndexChange = undefined
-    }
+    deps.pickerElements.disposeBuiltinTimePicker(node)
 
-    if (node.type === 'timepicker' && node.view) {
-      node.view.target = null
-      node.view.action = null
-      node.props.onTimeChange = undefined
-      node.timePickerInputs = undefined
-    }
+    deps.pickerElements.disposeBuiltinDatePicker(node)
 
-    if (node.type === 'datepicker' && node.view) {
-      node.view.target = null
-      node.view.action = null
-      node.props.onDateChange = undefined
-    }
+    deps.controls.disposeBuiltinActivityIndicator(node)
 
-    if (node.type === 'activityindicator' && node.view) {
-      node.view.stopAnimation(null)
-      node.view.alphaValue = 0
-      node.view.hidden = true
-    }
+    deps.imageElements.disposeBuiltinImage(node)
 
-    if ((node.type === 'image' || node.type === 'animatedimage') && node.view) {
-      if (node.type === 'image') {
-        setImageGeometryHandler(node.view as NSImageView, undefined)
-      }
-
-      disposeImage(node.view as NSImageView)
-    }
-
-    if (node.type === 'scrollview' && node.scrollObserverInstalled && node.view) {
-      const clipView = node.view.contentView
-      deps.controls.scrollHandlers.delete(clipView)
-      NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
-      node.scrollObserver = null
-      node.scrollObserverInstalled = false
-    }
+    deps.controls.disposeBuiltinScrollView(node)
 
     const detachScrollGeometry = node.scrollGeometryDetach
     node.scrollGeometryDetach = null

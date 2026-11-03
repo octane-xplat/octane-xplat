@@ -1,6 +1,6 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
@@ -55,10 +55,9 @@ test('dropped span handlers clear the inherited link; re-added handlers reappear
   )
 })
 
-const composed = sourceWithoutImports(new URL('../src/formatted-text.ts', import.meta.url)).replaceAll(
-  'export ',
-  '',
-)
+const composed = sourceWithoutImports(
+  new URL('../src/formatted-text.ts', import.meta.url),
+).replaceAll('export ', '')
 
 const composeContext = {
   NSFontAttributeName: 'font',
@@ -76,7 +75,9 @@ const composeContext = {
     }),
   },
   NSAttributedString: {
-    alloc: () => ({ initWithStringAttributes: (text: string, attributes: any) => ({ text, attributes }) }),
+    alloc: () => ({
+      initWithStringAttributes: (text: string, attributes: any) => ({ text, attributes }),
+    }),
   },
 }
 
@@ -114,9 +115,7 @@ test('composed runs carry per-range link entries and NSLink tokens in order', ()
   assert.equal(runs[3].attributes.NSLink, undefined)
 })
 
-const source = stripTypeScriptTypes(
-  rendererSource(),
-)
+const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
@@ -126,7 +125,15 @@ const fn = (name: string) => {
 test('rich labels keep the folded link table; plain text drops it', () => {
   const calls: any[] = []
   const slice = runSlice(fn('syncText') + '\nsyncText', {
-    composeAttributedText: (children: any[], _v: any, _p: any, _f: any, _c: any, _d: any, links: any[]) => {
+    composeAttributedText: (
+      children: any[],
+      _v: any,
+      _p: any,
+      _f: any,
+      _c: any,
+      _d: any,
+      links: any[],
+    ) => {
       children
         .flatMap((child) => textRuns(child))
         .reduce((offset, run) => {
@@ -149,10 +156,7 @@ test('rich labels keep the folded link table; plain text drops it', () => {
   const tap = () => {}
   const parent: any = {
     type: 'label',
-    children: [
-      node('span', { text: 'ab' }),
-      node('span', { text: 'cd', onLinkTap: tap }),
-    ],
+    children: [node('span', { text: 'ab' }), node('span', { text: 'cd', onLinkTap: tap })],
     props: {},
     view: { font: { pointSize: 16 }, invalidateIntrinsicContentSize() {} },
     container: {},

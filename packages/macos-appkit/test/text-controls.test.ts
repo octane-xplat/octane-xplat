@@ -17,7 +17,6 @@ import {
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
-import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the text-control paths without loading the Objective-C bridge.
 const source = rendererSource()

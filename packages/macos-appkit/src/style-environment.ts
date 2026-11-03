@@ -1,3 +1,6 @@
+import type { createCssPseudoState } from './css-pseudo-state'
+import type { createCssCascade } from './css-cascade'
+import type { createRoots } from './roots'
 import type { RootContainer } from './model'
 import {
   evalMediaQuery,
@@ -12,10 +15,6 @@ import {
   NSWorkspace,
   NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
 } from '@octane-xplat/platform/macos'
-
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createCssCascade } from './css-cascade'
-import type { createRoots } from './roots'
 
 interface Dependencies {
   cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncContainerPseudoState'>

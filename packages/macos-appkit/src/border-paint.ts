@@ -1,3 +1,6 @@
+import type { createNativeStyle } from './native-style'
+import type { createTransformPaint } from './transform-paint'
+import type { createShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { splitStyleTokens } from './css-text.ts'
 import {
@@ -25,10 +28,6 @@ import {
 import { nativeColor } from './native-colors'
 import { correctProjectionRadii } from './projection-paint'
 import { srgbComponents } from './color-components'
-
-import type { createNativeStyle } from './native-style'
-import type { createTransformPaint } from './transform-paint'
-import type { createShadowPaint } from './shadow-paint'
 
 export type BorderSide = 'top' | 'right' | 'bottom' | 'left'
 

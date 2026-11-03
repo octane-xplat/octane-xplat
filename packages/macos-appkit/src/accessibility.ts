@@ -1,8 +1,7 @@
+import type { createAccessibleHost } from './accessible-host'
 import type { ElementNode } from './model'
 import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
-
-import type { createAccessibleHost } from './accessible-host'
 
 interface Dependencies {
   accessibleHost: Pick<

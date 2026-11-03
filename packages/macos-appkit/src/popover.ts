@@ -1,3 +1,4 @@
+import type { createRoots } from './roots'
 import {
   NSNotificationCenter,
   NSPopover,
@@ -8,8 +9,6 @@ import {
   NSViewController,
 } from '@octane-xplat/platform/macos'
 import type { PropBag, PopupOptions } from './model'
-
-import type { createRoots } from './roots'
 
 interface Dependencies {
   roots: Pick<ReturnType<typeof createRoots>, 'createMacOSRoot' | 'fontFamilyForView'>

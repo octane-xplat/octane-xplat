@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 const source = rendererSource(),
   start = source.indexOf('const contextSubscriptionsByNode =')
 

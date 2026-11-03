@@ -1,3 +1,12 @@
+import type { createRegistry } from './registry'
+import type { createNativeStyle } from './native-style'
+import type { createLayout } from './layout'
+import type { createTextElements } from './text-elements'
+import type { createRoots } from './roots'
+import type { createCssCascade } from './css-cascade'
+import type { createActions } from './actions'
+import type { createAccessibility } from './accessibility'
+import type { createTree } from './tree'
 import type { PropBag, AppKitView, ElementNode } from './model'
 import {
   NSNotificationCenter,
@@ -8,12 +17,6 @@ import {
   NSVisualEffectView,
   NativeClass,
 } from '@octane-xplat/platform/macos'
-
-import type { createRegistry } from './registry'
-import type { createNativeStyle } from './native-style'
-import type { createLayout } from './layout'
-import type { createControls } from './controls'
-import type { createRoots } from './roots'
 
 interface Dependencies {
   registry: Pick<ReturnType<typeof createRegistry>, 'behaviorOf' | 'nodeContainersByView'>
@@ -27,8 +30,12 @@ interface Dependencies {
     | 'queueLayoutReconcile'
     | 'releasePlacementPins'
   >
-  controls: Pick<ReturnType<typeof createControls>, 'makeLabel'>
+  textElements: Pick<ReturnType<typeof createTextElements>, 'makeLabel'>
   roots: Pick<ReturnType<typeof createRoots>, 'ownedRoots'>
+  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
+  actions: Pick<ReturnType<typeof createActions>, 'setPanAction'>
+  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
+  tree: Pick<ReturnType<typeof createTree>, 'detach'>
 }
 
 export function createContainerElements(deps: Dependencies) {
@@ -229,7 +236,7 @@ export function createContainerElements(deps: Dependencies) {
     })
 
     view.translatesAutoresizingMaskIntoConstraints = false
-    node.actionBarTitle = deps.controls.makeLabel()
+    node.actionBarTitle = deps.textElements.makeLabel()
     node.actionBarTitleViewProp = node.props.titleView
     node.actionBarExternal = node.props.titleView ?? null
     return view
@@ -489,6 +496,141 @@ export function createContainerElements(deps: Dependencies) {
     node.glassBackdrop = backdrop
     return view
   }
+  function applyBuiltinContentHostProp(node: ElementNode, name: string, value: PropBag[string]) {
+    if (node.type === 'actionbar' && ['title', 'titleView', 'flat'].includes(name)) {
+      return
+    }
+
+    if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name !== 'id' && value !== undefined) {
+      console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
+    }
+  }
+
+  function applyBuiltinLiquidGlassProp(node: ElementNode, name: string, value: PropBag[string]) {
+    if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name === 'id') {
+      return
+    } else if (name === 'overlayChildren') {
+      return
+    } else if (name === 'disabled') {
+      return
+    } else if (name === 'onPan') {
+      deps.actions.setPanAction(node, value)
+    } else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
+      return
+    } else if (name.startsWith('on') && value == null) {
+      return
+    } else if (name === 'accessible' || name.startsWith('accessibility')) {
+      deps.accessibility.applyAccessibility(node, name, value)
+    } else if (value !== undefined) {
+      console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
+    }
+  }
+
+  function applyBuiltinPlaceholderProp(node: ElementNode, name: string, value: PropBag[string]) {
+    // creatingView fires once on attach (insert); the prop only
+    // registers the handler — re-applying it never refires.
+    if (name === 'onCreatingView' || name === 'id') {
+      return
+    } else if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name === 'accessible' || name.startsWith('accessibility')) {
+      deps.accessibility.applyAccessibility(node, name, value)
+    } else if (name.startsWith('on') && value == null) {
+      return
+    } else if (value !== undefined) {
+      console.warn('[macos-host] ignored placeholder prop ' + name)
+    }
+  }
+
+  function disposeBuiltinRootLayout(node: ElementNode) {
+    if (node.type === 'rootlayout') {
+      if (node.rootGeometryObserver) {
+        NSNotificationCenter.defaultCenter.removeObserver(node.rootGeometryObserver)
+        node.rootGeometryObserver = null
+      }
+
+      if (node.view) {
+        rootLayoutNodesByView.delete(node.view)
+      }
+
+      for (const child of node.children.slice()) {
+        deps.tree.detach(node.container, child)
+      }
+    }
+  }
+
+  function disposeBuiltinLiquidGlass(node: ElementNode) {
+    if (node.type === 'liquidglass') {
+      if (node.glassGeometryObserver) {
+        NSNotificationCenter.defaultCenter.removeObserver(node.glassGeometryObserver)
+        node.glassGeometryObserver = null
+      }
+
+      // The material backdrop is not a node view, so nothing else detaches it.
+      node.glassBackdrop?.removeFromSuperview()
+      node.glassBackdrop = null
+    }
+  }
+
+  function disposeBuiltinContentHost(node: ElementNode) {
+    // Removing an ancestor does not detach its native descendants. Every
+    // destroyed view releases its own edge, including retained ContentView refs.
+    if (['contentview', 'actionbar'].includes(node.type ?? '')) {
+      if (node.contentGeometryObserver) {
+        NSNotificationCenter.defaultCenter.removeObserver(node.contentGeometryObserver)
+        node.contentGeometryObserver = null
+      }
+
+      if (node.type === 'actionbar') {
+        if (node.actionBarDisplay) {
+          deps.layout.releasePlacementPins(node.actionBarDisplay)
+          node.actionBarDisplay.view.removeFromSuperview()
+        }
+
+        node.actionBarExternal = null
+        node.actionBarDisplay = null
+        node.actionBarTitle = null
+      }
+
+      // Detaching mutates children; iterate a snapshot.
+      for (const child of node.children.slice()) {
+        deps.tree.detach(node.container, child)
+      }
+
+      if (node.view) {
+        contentViewNodesByView.delete(node.view)
+      }
+    }
+  }
+
+  function disposeBuiltinPlaceholder(node: ElementNode) {
+    if (node.type === 'placeholder') {
+      if (node.placeholderContent) {
+        placeholderContentOwners.delete(node.placeholderContent)
+        if (deps.registry.nodeContainersByView.get(node.placeholderContent) === node.container) {
+          deps.registry.nodeContainersByView.delete(node.placeholderContent)
+        }
+
+        node.placeholderContent.removeFromSuperview()
+        node.placeholderContent = null
+      }
+
+      if (node.view) {
+        placeholderNodesByView.delete(node.view)
+      }
+    }
+  }
+
   return {
     gridLayoutNodesByView,
     rootLayoutNodesByView,
@@ -504,5 +646,12 @@ export function createContainerElements(deps: Dependencies) {
     fireCreatingView,
     observeContentGeometry,
     makeLiquidGlass,
+    applyBuiltinContentHostProp,
+    applyBuiltinLiquidGlassProp,
+    applyBuiltinPlaceholderProp,
+    disposeBuiltinRootLayout,
+    disposeBuiltinLiquidGlass,
+    disposeBuiltinContentHost,
+    disposeBuiltinPlaceholder,
   }
 }

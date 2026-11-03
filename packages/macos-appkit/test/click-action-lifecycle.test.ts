@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from '../src/primary-click.ts'
 
 const source = rendererSource()

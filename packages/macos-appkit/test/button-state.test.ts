@@ -1,13 +1,11 @@
-import { rendererSource } from './renderer-source.ts'
 // Real renderer prop/action branch with fake native objects; no OS input/AX proof.
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
-const source = rendererSource()
-const start = source.search(/case 'button':\s+if \(name === 'title'/)
-const end = source.indexOf("case 'scrollview':", start)
-assert.ok(start >= 0 && end > start)
-const branch = source.slice(start, end)
+const source = sourceWithoutImports(new URL('../src/controls.ts', import.meta.url)).replace(
+  /^export /gm,
+  '',
+)
 function fixture() {
   const events: string[] = [],
     warnings: string[] = []
@@ -26,18 +24,22 @@ function fixture() {
       } as any,
     },
   }
-  const apply = runSlice(
-    `;(patch) => { node.props = { ...node.props, ...patch }; for (const [name, value] of Object.entries(patch)) { switch(node.type) { ${branch} } } }`,
-    {
-      node,
-      actionHandlers: actions,
-      accessibilityLabels: new Map(),
-      console: {
-        warn: (text: string) => warnings.push(text),
-        error: (text: string) => warnings.push(text),
-      },
+  const controls = runSlice(source + '\n;createControls(deps)', {
+    deps: {
+      actions: { actionHandlers: actions },
+      accessibleHost: { accessibilityLabels: new Map() },
     },
-  )
+    console: {
+      warn: (text: string) => warnings.push(text),
+      error: (text: string) => warnings.push(text),
+    },
+  })
+  const apply = (patch: Record<string, unknown>) => {
+    node.props = { ...node.props, ...patch }
+    for (const [name, value] of Object.entries(patch)) {
+      controls.applyBuiltinButtonProp(node, name, value)
+    }
+  }
   return { node, apply, events, warnings, press: () => actions.get(1)?.() }
 }
 

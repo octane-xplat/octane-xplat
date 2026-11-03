@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { sourceWithoutImports, runSlice } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 function fixture(add: (...args: any[]) => unknown) {
   const source = rendererSource(),

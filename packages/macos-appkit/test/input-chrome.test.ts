@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 const source = rendererSource()
 const chrome = source.slice(

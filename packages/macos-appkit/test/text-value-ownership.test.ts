@@ -8,7 +8,7 @@ import {
   setTextValue,
 } from '../src/text-value.ts'
 
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 // Actual writer/registry and native adapter source models; no SDK/IME execution.
 function fixture() {

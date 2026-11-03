@@ -1,14 +1,12 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
 import { createTextValueWriter } from '../src/text-value.ts'
 
-const source = stripTypeScriptTypes(
-  rendererSource(),
-)
+const source = stripTypeScriptTypes(rendererSource())
 
 const slice = (a: string, b: string) => source.slice(source.indexOf(a), source.indexOf(b))
 function fixture() {

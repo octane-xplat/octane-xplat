@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { createStickyPlacements } from '../src/sticky-placement.ts'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
-import { sourceWithoutImports } from './mock-globals.ts'
 
 // Exercise the placement-pin contract without the Objective-C bridge.
 // Children are translates=false views, so every layout path (mason apply,

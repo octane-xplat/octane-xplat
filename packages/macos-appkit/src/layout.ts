@@ -1,3 +1,7 @@
+import type { createRegistry } from './registry'
+import type { createNativeStyle } from './native-style'
+import type { createProjection } from './projection'
+import type { createContainerElements } from './container-elements'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotificationCenter,
@@ -6,11 +10,6 @@ import {
 } from '@octane-xplat/platform/macos'
 import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
-
-import type { createRegistry } from './registry'
-import type { createNativeStyle } from './native-style'
-import type { createProjection } from './projection'
-import type { createContainerElements } from './container-elements'
 
 interface Dependencies {
   registry: Pick<

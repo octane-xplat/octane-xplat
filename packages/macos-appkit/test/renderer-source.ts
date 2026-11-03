@@ -76,7 +76,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['layout', 'layoutView'],
   ['layout', 'setMarginStyle'],
   ['controls', 'wireViewAction'],
-  ['controls', 'makeLabel'],
+  ['text-elements', 'makeLabel'],
   ['controls', 'makeButton'],
   ['controls', 'makeScrollView'],
   ['controls', 'setScrollAction'],
@@ -86,25 +86,26 @@ const declarations: readonly (readonly [string, string])[] = [
   ['input-elements', 'placeholderSignatureByField'],
   ['input-elements', 'setTextFieldPlaceholder'],
   ['input-elements', 'makeTextField'],
+  ['input-elements', 'initializeTextViewport'],
   ['input-elements', 'makeSearchBar'],
   ['input-elements', 'notifySearchTextChange'],
   ['input-elements', 'syncSearchBar'],
   ['controls', 'makeSwitch'],
-  ['controls', 'makePopUpControl'],
-  ['controls', 'makeListPicker'],
-  ['controls', 'notifyListPickerChange'],
-  ['controls', 'syncListPicker'],
-  ['controls', 'makeSegmentedBar'],
-  ['controls', 'notifySegmentedBarChange'],
-  ['controls', 'syncSegmentedBar'],
-  ['controls', 'timeOfDay'],
-  ['controls', 'makeTimePicker'],
-  ['controls', 'notifyTimeChange'],
-  ['controls', 'syncTimePicker'],
-  ['controls', 'calendarDate'],
-  ['controls', 'makeDatePicker'],
-  ['controls', 'notifyDateChange'],
-  ['controls', 'syncDatePicker'],
+  ['picker-elements', 'makePopUpControl'],
+  ['picker-elements', 'makeListPicker'],
+  ['picker-elements', 'notifyListPickerChange'],
+  ['picker-elements', 'syncListPicker'],
+  ['picker-elements', 'makeSegmentedBar'],
+  ['picker-elements', 'notifySegmentedBarChange'],
+  ['picker-elements', 'syncSegmentedBar'],
+  ['picker-elements', 'timeOfDay'],
+  ['picker-elements', 'makeTimePicker'],
+  ['picker-elements', 'notifyTimeChange'],
+  ['picker-elements', 'syncTimePicker'],
+  ['picker-elements', 'calendarDate'],
+  ['picker-elements', 'makeDatePicker'],
+  ['picker-elements', 'notifyDateChange'],
+  ['picker-elements', 'syncDatePicker'],
   ['controls', 'makeProgress'],
   ['controls', 'syncProgress'],
   ['controls', 'makeActivityIndicator'],
@@ -145,19 +146,19 @@ const declarations: readonly (readonly [string, string])[] = [
   ['css-cascade', 'largestWindowSize'],
   ['css-cascade', 'envForNode'],
   ['css-cascade', 'restyleNode'],
-  ['css-cascade', 'CssAnimationPlayback'],
-  ['css-cascade', 'ANIMATION_FRAME_MS'],
-  ['css-cascade', 'animatedNodes'],
-  ['css-cascade', 'playingNodes'],
-  ['css-cascade', 'animationTimer'],
-  ['css-cascade', 'animationBase'],
-  ['css-cascade', 'sameAnimations'],
-  ['css-cascade', 'playKeyframeAnimations'],
-  ['css-cascade', 'tickKeyframeAnimations'],
-  ['css-cascade', 'advanceKeyframeAnimation'],
-  ['css-cascade', 'applyAnimationFrame'],
-  ['css-cascade', 'cancelKeyframeAnimations'],
-  ['css-cascade', 'stopSubtreeAnimations'],
+  ['css-animations', 'CssAnimationPlayback'],
+  ['css-animations', 'ANIMATION_FRAME_MS'],
+  ['css-animations', 'animatedNodes'],
+  ['css-animations', 'playingNodes'],
+  ['css-animations', 'animationTimer'],
+  ['css-animations', 'animationBase'],
+  ['css-animations', 'sameAnimations'],
+  ['css-animations', 'playKeyframeAnimations'],
+  ['css-animations', 'tickKeyframeAnimations'],
+  ['css-animations', 'advanceKeyframeAnimation'],
+  ['css-animations', 'applyAnimationFrame'],
+  ['css-animations', 'cancelKeyframeAnimations'],
+  ['css-animations', 'stopSubtreeAnimations'],
   ['css-cascade', 'cssWarnedProps'],
   ['css-cascade', 'warnUnsupportedCssProp'],
   ['css-cascade', 'setNodeInlineStyle'],
@@ -393,18 +394,72 @@ const declarations: readonly (readonly [string, string])[] = [
   ['automation', 'installAutomation'],
   ['roots', 'createMacOSRoot'],
   ['measurements', 'round'],
+  ['image-elements', 'applyBuiltinImageProp'],
+  ['image-elements', 'disposeBuiltinImage'],
+  ['projection', 'disposeBuiltinProxyChildren'],
+  ['text-elements', 'applyBuiltinHtmlViewProp'],
+  ['text-elements', 'applyBuiltinLabelProp'],
+  ['text-elements', 'disposeBuiltinFormattedText'],
+  ['container-elements', 'applyBuiltinContentHostProp'],
+  ['container-elements', 'applyBuiltinLiquidGlassProp'],
+  ['container-elements', 'applyBuiltinPlaceholderProp'],
+  ['container-elements', 'disposeBuiltinRootLayout'],
+  ['container-elements', 'disposeBuiltinLiquidGlass'],
+  ['container-elements', 'disposeBuiltinContentHost'],
+  ['container-elements', 'disposeBuiltinPlaceholder'],
+  ['hosted-elements', 'applyBuiltinTabViewProp'],
+  ['hosted-elements', 'applyBuiltinListViewProp'],
+  ['hosted-elements', 'applyBuiltinWebViewProp'],
+  ['hosted-elements', 'disposeBuiltinListView'],
+  ['hosted-elements', 'disposeBuiltinPager'],
+  ['hosted-elements', 'disposeBuiltinVideo'],
+  ['hosted-elements', 'disposeBuiltinTabView'],
+  ['hosted-elements', 'disposeBuiltinTabItem'],
+  ['hosted-elements', 'disposeBuiltinWebView'],
+  ['picker-elements', 'applyBuiltinSegmentedBarProp'],
+  ['picker-elements', 'applyBuiltinListPickerProp'],
+  ['picker-elements', 'applyBuiltinTimePickerProp'],
+  ['picker-elements', 'applyBuiltinDatePickerProp'],
+  ['picker-elements', 'disposeBuiltinSegmentedItem'],
+  ['picker-elements', 'disposeBuiltinSegmentedChildren'],
+  ['picker-elements', 'disposeBuiltinSegmentedControl'],
+  ['picker-elements', 'disposeBuiltinListPicker'],
+  ['picker-elements', 'disposeBuiltinTimePicker'],
+  ['picker-elements', 'disposeBuiltinDatePicker'],
+  ['input-elements', 'applyBuiltinSearchBarProp'],
+  ['input-elements', 'applyBuiltinTextInputProp'],
+  ['input-elements', 'disposeBuiltinTextViewLayout'],
+  ['input-elements', 'disposeBuiltinTextInput'],
+  ['controls', 'applyBuiltinProgressProp'],
+  ['controls', 'applyBuiltinActivityIndicatorProp'],
+  ['controls', 'applyBuiltinButtonProp'],
+  ['controls', 'applyBuiltinScrollViewProp'],
+  ['controls', 'applyBuiltinSwitchProp'],
+  ['controls', 'applyBuiltinSliderProp'],
+  ['controls', 'disposeBuiltinActivityIndicator'],
+  ['controls', 'disposeBuiltinScrollView'],
 ]
 
 const services = new Set(
   declarations.map(([module]) => module.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())),
 )
 let cached: string | undefined
+const builtinHelpers = new Map<string, string>()
+
+export function builtinFixtureHelpers(): string {
+  rendererSource()
+  return [...builtinHelpers.values()].join('\n')
+}
 
 export function rendererSource(): string {
-  if (cached !== undefined) return cached
+  if (cached !== undefined) {
+    return cached
+  }
   const modules = new Map<string, Map<string, string>>()
   for (const [module] of declarations) {
-    if (modules.has(module)) continue
+    if (modules.has(module)) {
+      continue
+    }
     const raw = readFileSync(new URL('../src/' + module + '.ts', import.meta.url), 'utf8')
     const stripped = stripTypeScriptTypes(raw)
     const moduleAst = parse(stripped, { ecmaVersion: 'latest', sourceType: 'module' })
@@ -412,20 +467,26 @@ export function rendererSource(): string {
       if (
         statement.type === 'ExportNamedDeclaration' &&
         statement.declaration?.type === 'FunctionDeclaration'
-      )
+      ) {
         return [statement.declaration]
+      }
       if (
         module === 'runtime' &&
         statement.type === 'FunctionDeclaration' &&
         statement.id?.name === 'initializeRuntime'
-      )
+      ) {
         return [statement]
+      }
       return []
     })[0]
-    if (!factory?.body) throw new Error('Missing renderer fixture factory: ' + module)
+    if (!factory?.body) {
+      throw new Error('Missing renderer fixture factory: ' + module)
+    }
     const last = factory.body.body.at(-1)
     const end = module === 'runtime' ? factory.body.end - 1 : last?.start
-    if (end === undefined) throw new Error('Missing renderer fixture body: ' + module)
+    if (end === undefined) {
+      throw new Error('Missing renderer fixture body: ' + module)
+    }
     const body = stripped.slice(factory.body.start + 1, end).replace(/^ {2}/gm, '')
     const ast = parse(body, { ecmaVersion: 'latest', sourceType: 'script' })
     const found = new Map<string, string>()
@@ -448,9 +509,14 @@ export function rendererSource(): string {
           (match, owner: string, member: string) => (services.has(owner) ? member : match),
         )
       }
+      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$)/.test(key)) {
+        builtinHelpers.set(key, text)
+      }
       found.set(key, text)
       previous = statement.end
-      if (module === 'runtime') anonymous++
+      if (module === 'runtime') {
+        anonymous++
+      }
     }
     modules.set(module, found)
   }

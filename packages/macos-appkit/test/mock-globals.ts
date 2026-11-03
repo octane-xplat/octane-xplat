@@ -1,3 +1,4 @@
+import { builtinFixtureHelpers } from './renderer-source.ts'
 import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
 import { normalizeHostStyleProps } from '../src/inline-style.ts'
 import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle } from '../src/border-styles.ts'
@@ -72,9 +73,12 @@ export function runSlice(code: string, context?: Record<string, any>) {
       }
     }
 
-    return runInNewContext(CSS_SLICE_STUBS + code, context)
+    return runInNewContext(CSS_SLICE_STUBS + '\n' + builtinFixtureHelpers() + '\n' + code, context)
   }
-  return runInNewContext(CSS_SLICE_STUBS + code, { ...SLICE_BASE, ...context })
+  return runInNewContext(CSS_SLICE_STUBS + '\n' + builtinFixtureHelpers() + '\n' + code, {
+    ...SLICE_BASE,
+    ...context,
+  })
 }
 
 /** Sandbox for slices that need recording spies: every referenced name not in

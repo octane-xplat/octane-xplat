@@ -1,12 +1,3 @@
-import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
-import type {
-  UniversalHostCommand,
-  UniversalHostDriver,
-  UniversalHostParent,
-} from 'octane/universal/native'
-import { flushTabViews } from './tab-view'
-import { notifyLayoutCommit } from './layout-observers'
-
 import type { createRegistry } from './registry'
 import type { createNodes } from './nodes'
 import type { createTree } from './tree'
@@ -15,6 +6,14 @@ import type { createElementProps } from './element-props'
 import type { createCssCascade } from './css-cascade'
 import type { createCssPseudoState } from './css-pseudo-state'
 import type { createLayout } from './layout'
+import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
+import type {
+  UniversalHostCommand,
+  UniversalHostDriver,
+  UniversalHostParent,
+} from 'octane/universal/native'
+import { flushTabViews } from './tab-view'
+import { notifyLayoutCommit } from './layout-observers'
 
 interface Dependencies {
   registry: Pick<

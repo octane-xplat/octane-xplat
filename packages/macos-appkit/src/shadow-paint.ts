@@ -1,13 +1,12 @@
+import type { createBorderPaint, BorderCorner } from './border-paint'
 import { splitStyleTokens, splitTopLevelCommas } from './css-text.ts'
 import type { ElementNode } from './model'
 import { CALayer, CAShapeLayer, CGPathCreateMutable, NSView } from '@octane-xplat/platform/macos'
 import { correctProjectionRadii, correctProjectionShadows } from './projection-paint'
-import type { BorderCorner } from './border-paint'
-import type { createBorderPaint } from './border-paint'
 
-export // ---- box-shadow --------------------------------------------------------------
+// ---- box-shadow --------------------------------------------------------------
 
-interface ParsedBoxShadow {
+export interface ParsedBoxShadow {
   inset: boolean
   dx: number
   dy: number

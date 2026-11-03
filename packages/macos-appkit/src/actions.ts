@@ -1,3 +1,7 @@
+import type { createRegistry } from './registry'
+import type { createTextElements } from './text-elements'
+import type { createCssPseudoState } from './css-pseudo-state'
+import type { createInputElements } from './input-elements'
 import type { PanEvent, ElementNode } from './model'
 import {
   NSButton,
@@ -11,8 +15,8 @@ import {
   NSTextViewDelegate,
   interop,
 } from '@octane-xplat/platform/macos'
-import { configureGesture, swipeDirection, registerGestureClass } from './gestures'
 import type { NSControl } from '@octane-xplat/platform/macos'
+import { configureGesture, swipeDirection, registerGestureClass } from './gestures'
 import { isWritingTextValue, notifyTextValueCommit } from './text-value.ts'
 import {
   enforceTextLimit,
@@ -21,11 +25,6 @@ import {
   reportTextLimitChange,
 } from './text-limit.ts'
 import { shouldReceivePrimaryClick } from './primary-click'
-
-import type { createRegistry } from './registry'
-import type { createTextElements } from './text-elements'
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createInputElements } from './input-elements'
 
 interface Dependencies {
   registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>

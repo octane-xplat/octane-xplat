@@ -1,55 +1,64 @@
-import type { PropBag, ElementNode } from './model'
-import { normalizeHostStyleProps } from './inline-style.ts'
-import { syncTabView, syncTabItem } from './tab-view'
-import { setImageGeometryHandler } from './image-geometry.ts'
-import { NSImageView, NSTextField, NSTextView } from '@octane-xplat/platform/macos'
-import { setPressGesture } from './gestures'
-import { configureScrollAxes } from './scroll-view'
-import { rememberTextLimitValue } from './text-limit.ts'
-import { updateImage } from './image'
-import { updateWebView } from './webview'
-import { updateListView } from './list-view'
-import { updatePagerView } from './pager'
-import { updateVideoView } from './video'
-
 import type { createNodes } from './nodes'
 import type { createContainerElements } from './container-elements'
 import type { createActions } from './actions'
 import type { createTextElements } from './text-elements'
 import type { createCssCascade } from './css-cascade'
-import type { createControls } from './controls'
+import type { createPickerElements } from './picker-elements'
 import type { createLayout } from './layout'
 import type { createSubscriptions } from './subscriptions'
 import type { createRegistry } from './registry'
 import type { createAccessibleHost } from './accessible-host'
 import type { createAccessibility } from './accessibility'
-import type { createNativeStyle } from './native-style'
+import type { createHostedElements } from './hosted-elements'
+import type { createControls } from './controls'
 import type { createInputElements } from './input-elements'
+import type { createImageElements } from './image-elements'
+import type { createNativeStyle } from './native-style'
+import type { PropBag, ElementNode } from './model'
+import { normalizeHostStyleProps } from './inline-style.ts'
+import { syncTabView, syncTabItem } from './tab-view'
+import { setImageGeometryHandler } from './image-geometry.ts'
+import { NSImageView, NSTextField } from '@octane-xplat/platform/macos'
+import { setPressGesture } from './gestures'
+import { configureScrollAxes } from './scroll-view'
+import { updateWebView } from './webview'
+import { updateListView } from './list-view'
+import { updatePagerView } from './pager'
+import { updateVideoView } from './video'
 
 interface Dependencies {
   nodes: Pick<ReturnType<typeof createNodes>, 'validateNodeProps'>
-  containerElements: Pick<ReturnType<typeof createContainerElements>, 'setActionBarTitleView'>
-  actions: Pick<
-    ReturnType<typeof createActions>,
-    'actionHandlers' | 'setPanAction' | 'setTextSubmitAction' | 'setControlAction'
+  containerElements: Pick<
+    ReturnType<typeof createContainerElements>,
+    | 'setActionBarTitleView'
+    | 'applyBuiltinContentHostProp'
+    | 'applyBuiltinLiquidGlassProp'
+    | 'applyBuiltinPlaceholderProp'
   >
+  actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'setPanAction'>
   textElements: Pick<
     ReturnType<typeof createTextElements>,
-    'syncTextLinks' | 'syncText' | 'setLabelText' | 'syncLabelOverflow' | 'syncHtmlView'
+    | 'syncTextLinks'
+    | 'syncText'
+    | 'applyBuiltinHtmlViewProp'
+    | 'applyBuiltinLabelProp'
+    | 'syncLabelOverflow'
+    | 'syncHtmlView'
   >
   cssCascade: Pick<
     ReturnType<typeof createCssCascade>,
     'setNodeId' | 'setPseudoClass' | 'syncNormalState' | 'setNodeInlineStyle' | 'applyClassName'
   >
-  controls: Pick<
-    ReturnType<typeof createControls>,
+  pickerElements: Pick<
+    ReturnType<typeof createPickerElements>,
     | 'syncSegmentedBar'
-    | 'setScrollAction'
+    | 'applyBuiltinSegmentedBarProp'
+    | 'applyBuiltinListPickerProp'
+    | 'applyBuiltinTimePickerProp'
+    | 'applyBuiltinDatePickerProp'
     | 'syncListPicker'
     | 'syncDatePicker'
     | 'syncTimePicker'
-    | 'syncActivityIndicator'
-    | 'syncProgress'
   >
   layout: Pick<ReturnType<typeof createLayout>, 'queueLayoutReconcile' | 'setLayoutAction'>
   subscriptions: Pick<
@@ -57,22 +66,34 @@ interface Dependencies {
     'setKeyActions' | 'setFocusActions' | 'setImageActions'
   >
   registry: Pick<ReturnType<typeof createRegistry>, 'behaviorOf'>
-  accessibleHost: Pick<
-    ReturnType<typeof createAccessibleHost>,
-    'AccessibleHostView' | 'accessibilityLabels'
-  >
+  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'AccessibleHostView'>
   accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'syncNodeFont' | 'setSizeConstraint'>
+  hostedElements: Pick<
+    ReturnType<typeof createHostedElements>,
+    'applyBuiltinTabViewProp' | 'applyBuiltinListViewProp' | 'applyBuiltinWebViewProp'
+  >
+  controls: Pick<
+    ReturnType<typeof createControls>,
+    | 'applyBuiltinProgressProp'
+    | 'applyBuiltinActivityIndicatorProp'
+    | 'applyBuiltinButtonProp'
+    | 'applyBuiltinScrollViewProp'
+    | 'applyBuiltinSwitchProp'
+    | 'applyBuiltinSliderProp'
+    | 'syncActivityIndicator'
+    | 'syncProgress'
+  >
   inputElements: Pick<
     ReturnType<typeof createInputElements>,
-    | 'updateNativeTextValue'
-    | 'syncTextViewPlaceholder'
-    | 'syncTextControlState'
+    | 'applyBuiltinSearchBarProp'
+    | 'applyBuiltinTextInputProp'
     | 'syncSecureTextField'
     | 'setTextFieldPlaceholder'
     | 'syncSearchBar'
     | 'fitTextView'
   >
+  imageElements: Pick<ReturnType<typeof createImageElements>, 'applyBuiltinImageProp'>
+  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'setSizeConstraint'>
 }
 
 export function createElementProps(deps: Dependencies) {
@@ -160,7 +181,7 @@ export function createElementProps(deps: Dependencies) {
 
     if (node.type === 'segmentedbaritem') {
       if (node.parent) {
-        deps.controls.syncSegmentedBar(node.parent)
+        deps.pickerElements.syncSegmentedBar(node.parent)
       }
 
       return
@@ -325,517 +346,72 @@ export function createElementProps(deps: Dependencies) {
       }
 
       switch (node.type) {
-        // Common styling uses the same reconciliation as ContentView.
         case 'rootlayout':
         case 'actionbar':
         case 'contentview':
-          if (node.type === 'actionbar' && ['title', 'titleView', 'flat'].includes(name)) {
-            continue
-          }
-
-          if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name !== 'id' && value !== undefined) {
-            console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
-          }
-
+          deps.containerElements.applyBuiltinContentHostProp(node, name, value)
           break
         case 'liquidglass':
-          if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (name === 'overlayChildren') {
-            continue
-          } else if (name === 'disabled') {
-            continue
-          } else if (name === 'onPan') {
-            deps.actions.setPanAction(node, value)
-          } else if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
-            continue
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
-          }
-
+          deps.containerElements.applyBuiltinLiquidGlassProp(node, name, value)
           break
         case 'tabview':
-          if (
-            [
-              'items',
-              'selectedIndex',
-              'onSelectedIndexChange',
-              'onSelectedIndexChanged',
-              'id',
-            ].includes(name)
-          ) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored tabview prop ' + name)
-          }
-
+          deps.hostedElements.applyBuiltinTabViewProp(node, name, value)
           break
         case 'segmentedbar':
-          if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored segmentedbar prop ' + name)
-          }
-
+          deps.pickerElements.applyBuiltinSegmentedBarProp(node, name, value)
           break
         case 'listview':
-          if (
-            [
-              'items',
-              'renderItem',
-              'itemTemplate',
-              'itemTemplates',
-              'separatorColor',
-              'onItemTap',
-              'onItemLoading',
-              'onLoadMoreItems',
-              'id',
-            ].includes(name)
-          ) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored listview prop ' + name)
-          }
-
+          deps.hostedElements.applyBuiltinListViewProp(node, name, value)
           break
         case 'listpicker':
-          if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored listpicker prop ' + name)
-          }
-
+          deps.pickerElements.applyBuiltinListPickerProp(node, name, value)
           break
         case 'timepicker':
-          if (
-            [
-              'time',
-              'hour',
-              'minute',
-              'minHour',
-              'minMinute',
-              'maxHour',
-              'maxMinute',
-              'isEnabled',
-              'onTimeChange',
-              'id',
-            ].includes(name)
-          ) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored timepicker prop ' + name)
-          }
-
+          deps.pickerElements.applyBuiltinTimePickerProp(node, name, value)
           break
         case 'datepicker':
-          if (
-            [
-              'date',
-              'minDate',
-              'maxDate',
-              'year',
-              'month',
-              'day',
-              'isEnabled',
-              'onDateChange',
-              'id',
-            ].includes(name)
-          ) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored datepicker prop ' + name)
-          }
-
+          deps.pickerElements.applyBuiltinDatePickerProp(node, name, value)
           break
         case 'progress':
-          if (['value', 'maxValue', 'id'].includes(name)) {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored progress prop ' + name)
-          }
-
+          deps.controls.applyBuiltinProgressProp(node, name, value)
           break
         case 'activityindicator':
-          if (name === 'busy' || name === 'id') {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored activityindicator prop ' + name)
-          }
-
+          deps.controls.applyBuiltinActivityIndicatorProp(node, name, value)
           break
         case 'htmlview':
-          if (name === 'html' || name === 'id') {
-            continue // parse once after all font/color sources reconcile
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored htmlview prop ' + name)
-          }
-
+          deps.textElements.applyBuiltinHtmlViewProp(node, name, value)
           break
         case 'label':
-          if (name === 'text') {
-            deps.textElements.setLabelText(node, String(value ?? ''))
-          } else if (name === 'fontSize') {
-            node.propFontSize = Number(value ?? 16)
-            deps.nativeStyle.syncNodeFont(node)
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-            deps.textElements.syncText(node)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (['maxLines', 'whiteSpace', 'textOverflow'].includes(name)) {
-            continue
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored label prop ' + name)
-          }
-
+          deps.textElements.applyBuiltinLabelProp(node, name, value)
           break
         case 'button':
-          if (name === 'title' || name === 'text') {
-            node.view!.title = String(value ?? '')
-          } else if (name === 'accessibilityLabel') {
-            deps.accessibleHost.accessibilityLabels.set(node.actionId!, String(value ?? ''))
-            node.view!.setAccessibilityLabel?.(String(value ?? ''))
-          } else if (name === 'isEnabled' || name === 'enabled') {
-            node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
-          } else if (name === 'onPress' || name === 'onTap') {
-            deps.actions.actionHandlers.set(
-              node.actionId!,
-              typeof value === 'function'
-                ? () => {
-                    if (
-                      !node.container.root ||
-                      node.props.isEnabled === false ||
-                      node.props.enabled === false
-                    ) {
-                      return
-                    }
-                    try {
-                      node.container.root.eventScope('discrete', value)
-                    } catch (error) {
-                      console.error('[macos-event] button handler failed', error)
-                    }
-                  }
-                : null,
-            )
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored button prop ' + name)
-          }
-
+          deps.controls.applyBuiltinButtonProp(node, name, value)
           break
         case 'scrollview':
-          if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name === 'scrollBarIndicatorVisible') {
-            configureScrollAxes(node)
-          } else if (
-            name === 'id' ||
-            name === 'horizontal' ||
-            name === 'orientation' ||
-            name === 'showsVerticalScrollIndicator'
-          ) {
-            continue
-          } else if (name === 'onScroll') {
-            deps.controls.setScrollAction(node, value)
-          } else if (name.startsWith('on')) {
-            if (typeof value === 'function') {
-              console.warn('[macos-host] ' + name + ' is unsupported on ScrollView')
-            }
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored scrollview prop ' + name)
-          }
-
+          deps.controls.applyBuiltinScrollViewProp(node, name, value)
           break
         case 'searchbar':
-          if (name === 'text' || name === 'hint' || name === 'onTextChange') {
-            continue // reconciled after binding the entire next prop bag
-          } else if (name === 'onSubmit') {
-            deps.actions.setTextSubmitAction(
-              node,
-              typeof value === 'function'
-                ? () => value({ eventName: 'submit', object: node.view })
-                : null,
-            )
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored searchbar prop ' + name)
-          }
-
+          deps.inputElements.applyBuiltinSearchBarProp(node, name, value)
           break
         case 'textfield':
         case 'textview':
-          if (name === 'value') {
-            deps.inputElements.updateNativeTextValue(
-              node,
-              value === undefined ? undefined : String(value ?? ''),
-            )
-          } else if (name === 'placeholder') {
-            if (node.type === 'textfield') {
-              continue
-            } else if (node.placeholderView) {
-              node.placeholderView.stringValue = String(value ?? '')
-              deps.inputElements.syncTextViewPlaceholder(node)
-            }
-          } else if (name === 'placeholderTextColor' && node.type === 'textfield') {
-            continue
-          } else if (name === 'onTextChange') {
-            deps.actions.setControlAction(node, value, () =>
-              String(node.type === 'textview' ? node.view!.string : (node.view!.stringValue ?? '')),
-            )
-          } else if (name === 'onSubmit') {
-            if (node.type === 'textfield') {
-              deps.actions.setTextSubmitAction(node, value)
-            }
-          } else if (name === 'editable' || name === 'isEnabled' || name === 'enabled') {
-            deps.inputElements.syncTextControlState(node)
-          } else if (name === 'secure') {
-            if (node.type !== 'textfield' && value) {
-              console.warn(
-                '[macos-host] secure is unsupported on <' + node.type + '>; rendering plain text',
-              )
-            }
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (['onFocus', 'onBlur', 'onSubmit'].includes(name)) {
-            continue
-          } else if (name === 'maxLength' && node.type === 'textview') {
-            rememberTextLimitValue(node.view as NSTextView, true)
-          } else if (name === 'rows' && node.type === 'textview') {
-            continue
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (['keyboardType', 'returnKeyType', 'autoGrow', 'maxRows'].includes(name)) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored text control prop ' + name)
-          }
-
+          deps.inputElements.applyBuiltinTextInputProp(node, name, value)
           break
         case 'switch':
-          if (name === 'checked') {
-            node.view!.state = value ? 1 : 0
-          } else if (name === 'onCheckedChange') {
-            deps.actions.setControlAction(node, value, () => node.view!.state === 1)
-          } else if (name === 'disabled') {
-            node.view!.enabled = value !== true
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored switch prop ' + name)
-          }
-
+          deps.controls.applyBuiltinSwitchProp(node, name, value)
           break
         case 'slider':
-          if (name === 'value') {
-            node.view!.doubleValue = Number(value ?? 0)
-          } else if (name === 'minValue') {
-            node.view!.minValue = Number(value ?? 0)
-          } else if (name === 'maxValue') {
-            node.view!.maxValue = Number(value ?? 1)
-          } else if (name === 'onValueChange') {
-            deps.actions.setControlAction(node, value, () => Number(node.view!.doubleValue))
-          } else if (name === 'disabled') {
-            node.view!.enabled = value !== true
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id') {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored slider prop ' + name)
-          }
-
+          deps.controls.applyBuiltinSliderProp(node, name, value)
           break
         case 'webview':
-          if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessibilityLabel') {
-            node.view!.accessibilityLabel = String(value ?? '')
-          } else if (name === 'accessible') {
-            node.view!.accessibilityElement = value !== false
-          } else if (name === 'accessibilityHint') {
-            node.view!.accessibilityHelp = String(value ?? '')
-          }
-
+          deps.hostedElements.applyBuiltinWebViewProp(node, name, value)
           break
         case 'image':
         case 'animatedimage':
-          if (name === 'src' || name === 'placeholder' || name === 'imageCachePolicy') {
-            updateImage(
-              node.view as NSImageView,
-              node.props.src,
-              node.props.placeholder,
-              node.props.imageCachePolicy,
-            )
-          } else if (name === 'stretch' && node.type === 'animatedimage') {
-            // NSImageScaling — same constants as the objectFit writer.
-            // 'aspectFill' degrades to scale-down: AppKit has no crop
-            // mode (documented on the shared 'cover' mapping too).
-            const scaling: Record<string, number> = {
-              aspectFit: 3,
-              aspectFill: 0,
-              fill: 1,
-              none: 2,
-            }
-
-            node.view!.imageScaling = scaling[String(value)] ?? 0
-          } else if (name === 'autoPlayAnimations' && node.type === 'animatedimage') {
-            node.view!.animates = value !== false
-          } else if (name === 'animatedImageView' && node.type === 'animatedimage') {
-            // The AppKit host is always the animated view.
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'id' || name === 'alt') {
-            continue
-          } else if (name === 'accessibilityLabel') {
-            node.view!.accessibilityLabel = String(value ?? '')
-            node.view!.accessibilityElement = !!value
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
-          }
-
+          deps.imageElements.applyBuiltinImageProp(node, name, value)
           break
         case 'placeholder':
-          // creatingView fires once on attach (insert); the prop only
-          // registers the handler — re-applying it never refires.
-          if (name === 'onCreatingView' || name === 'id') {
-            continue
-          } else if (name === 'style') {
-            deps.cssCascade.setNodeInlineStyle(node, value)
-          } else if (name === 'className') {
-            deps.cssCascade.applyClassName(node, value)
-          } else if (name === 'accessible' || name.startsWith('accessibility')) {
-            deps.accessibility.applyAccessibility(node, name, value)
-          } else if (name.startsWith('on') && value == null) {
-            continue
-          } else if (value !== undefined) {
-            console.warn('[macos-host] ignored placeholder prop ' + name)
-          }
-
+          deps.containerElements.applyBuiltinPlaceholderProp(node, name, value)
           break
         default: {
           const behavior = deps.registry.behaviorOf(node.type)
@@ -876,11 +452,11 @@ export function createElementProps(deps: Dependencies) {
     }
 
     if (node.type === 'segmentedbar') {
-      deps.controls.syncSegmentedBar(node)
+      deps.pickerElements.syncSegmentedBar(node)
     }
 
     if (node.type === 'listpicker') {
-      deps.controls.syncListPicker(node)
+      deps.pickerElements.syncListPicker(node)
     }
 
     if (node.type === 'listview') {
@@ -896,11 +472,11 @@ export function createElementProps(deps: Dependencies) {
     }
 
     if (node.type === 'datepicker') {
-      deps.controls.syncDatePicker(node, props)
+      deps.pickerElements.syncDatePicker(node, props)
     }
 
     if (node.type === 'timepicker') {
-      deps.controls.syncTimePicker(node, props)
+      deps.pickerElements.syncTimePicker(node, props)
     }
 
     if (node.type === 'activityindicator') {

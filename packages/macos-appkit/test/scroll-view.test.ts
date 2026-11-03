@@ -2,7 +2,7 @@ import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { configureScrollAxes, observeScrollGeometry } from '../src/scroll-view.ts'
-import { mockGlobals, sourceWithoutImports } from './mock-globals.ts'
+import { mockGlobals } from './mock-globals.ts'
 
 function fixture(flipped = false) {
   const constraints: any[] = []

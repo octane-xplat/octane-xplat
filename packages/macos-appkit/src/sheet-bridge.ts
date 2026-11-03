@@ -1,3 +1,4 @@
+import type { createPopover } from './popover'
 import {
   NSBackingStoreType,
   NSNotificationCenter,
@@ -11,8 +12,6 @@ import {
 import { registerGestureClass } from './gestures'
 import type { PropBag } from './model'
 import { createNativeSheet } from './sheet.macos'
-
-import type { createPopover } from './popover'
 
 interface Dependencies {
   popover: Pick<ReturnType<typeof createPopover>, 'popupFittingSize'>

@@ -2,7 +2,7 @@ import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { drawImageContent, setImageDrawingStyle } from '../src/image-drawing.ts'
-import { mockGlobals, runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { mockGlobals, runSlice } from './mock-globals.ts'
 
 function fixture() {
   const events: any[] = []

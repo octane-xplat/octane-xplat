@@ -10,7 +10,9 @@ test('root services own registration, font inheritance and retirement independen
     resolve(specifier, context, nextResolve) {
       if (specifier.startsWith('.') && context.parentURL) {
         const candidate = new URL(specifier + '.ts', context.parentURL)
-        if (existsSync(candidate)) return nextResolve(candidate.href, context)
+        if (existsSync(candidate)) {
+          return nextResolve(candidate.href, context)
+        }
       }
       return nextResolve(specifier, context)
     },

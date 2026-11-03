@@ -1,3 +1,6 @@
+import type { createBorderPaint } from './border-paint'
+import type { createShadowPaint } from './shadow-paint'
+import type { createBackgroundPaint } from './background-paint'
 import type { ElementNode } from './model'
 import {
   CATransform3DIdentity,
@@ -6,10 +9,6 @@ import {
   CATransform3DTranslate,
 } from '@octane-xplat/platform/macos'
 import { composeTransform, transformToParts } from '@octane-xplat/css-engine'
-
-import type { createBorderPaint } from './border-paint'
-import type { createShadowPaint } from './shadow-paint'
-import type { createBackgroundPaint } from './background-paint'
 
 interface Dependencies {
   borderPaint: Pick<ReturnType<typeof createBorderPaint>, 'syncBorderBox'>

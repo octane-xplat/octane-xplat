@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runSlice, sourceWithoutImports, spySliceContext } from './mock-globals.ts'
+import { runSlice, spySliceContext } from './mock-globals.ts'
 
 // applyProps merges each update into node.props — a prop dropped by a host
 // update kept its last value forever (recognizers, action handlers, scroll/

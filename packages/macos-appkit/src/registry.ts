@@ -1,8 +1,7 @@
+import type { createNodes } from './nodes'
 import type { ElementNode, RootContainer, ElementBehavior } from './model'
 import type { UniversalHostParent, UniversalPortalTargetHandle } from 'octane/universal/native'
 import { NSView } from '@octane-xplat/platform/macos'
-
-import type { createNodes } from './nodes'
 
 interface Dependencies {
   nodes: Pick<ReturnType<typeof createNodes>, 'VIEW_PARENT_TYPES'>
@@ -65,9 +64,8 @@ export function createRegistry(deps: Dependencies) {
     )
   }
 
-  /** Optional per-type behavior — the extension seam for element types that
-   *  extend the renderer's builtin dispatch (Mason containers and plugin
-   *  elements once the @nativescript/core compat slice lands). */
+  /** Per-type behavior for Mason containers and compatibility/plugin elements.
+   *  Generic renderer dispatch checks this registry before builtin handlers. */
   const elementBehaviors = new Map<string, ElementBehavior>()
 
   function registerElementType(type: string, behavior: ElementBehavior) {

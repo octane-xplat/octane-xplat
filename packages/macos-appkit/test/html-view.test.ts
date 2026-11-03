@@ -1,6 +1,6 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
@@ -100,9 +100,7 @@ test('HTML import uses UTF8 and the HTML document type, clears empty content and
   }
 })
 
-const source = stripTypeScriptTypes(
-  rendererSource(),
-)
+const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)

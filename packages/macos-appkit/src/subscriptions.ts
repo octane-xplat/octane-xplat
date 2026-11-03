@@ -1,3 +1,5 @@
+import type { createRegistry } from './registry'
+import type { createAccessibleHost } from './accessible-host'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import {
   NSEvent,
@@ -13,9 +15,6 @@ import { createAppKitFocusWithinDispatcher } from './focus-within'
 import type { ElementNode } from './model'
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { setImageEventHandlers } from './image'
-
-import type { createRegistry } from './registry'
-import type { createAccessibleHost } from './accessible-host'
 
 interface Dependencies {
   registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>

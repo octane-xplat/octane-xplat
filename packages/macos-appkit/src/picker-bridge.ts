@@ -1,3 +1,5 @@
+import type { createActions } from './actions'
+import type { createPickerElements } from './picker-elements'
 import {
   NSDate,
   NSDatePicker,
@@ -8,15 +10,12 @@ import {
 } from '@octane-xplat/platform/macos'
 import type { PropBag } from './model'
 
-import type { createActions } from './actions'
-import type { createControls } from './controls'
-
 interface Dependencies {
   actions: Pick<
     ReturnType<typeof createActions>,
     'buttonActionTarget' | 'actionHandlers' | 'nextActionId'
   >
-  controls: Pick<ReturnType<typeof createControls>, 'makePopUpControl'>
+  pickerElements: Pick<ReturnType<typeof createPickerElements>, 'makePopUpControl'>
 }
 
 export function createPickerBridge(deps: Dependencies) {
@@ -48,9 +47,9 @@ export function createPickerBridge(deps: Dependencies) {
     if (!view || typeof view.addSubview !== 'function' || !deps.actions.buttonActionTarget) {
       return null
     }
-    let control: ReturnType<typeof deps.controls.makePopUpControl>
+    let control: ReturnType<typeof deps.pickerElements.makePopUpControl>
     try {
-      control = deps.controls.makePopUpControl()
+      control = deps.pickerElements.makePopUpControl()
     } catch {
       return null
     }

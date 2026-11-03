@@ -1,5 +1,5 @@
 import { rendererSource } from './renderer-source.ts'
-import { readFileSync } from 'node:fs'
+
 import { stripTypeScriptTypes } from 'node:module'
 import { runSlice } from './mock-globals.ts'
 import { test } from 'node:test'
@@ -8,9 +8,7 @@ import assert from 'node:assert/strict'
 // ARIA 'meter' maps to AXLevelIndicator and 'progressbar' to
 // AXProgressIndicator on both stack and grid hosts, each reporting a numeric
 // value within the declared range plus the human-readable description.
-const source = stripTypeScriptTypes(
-  rendererSource(),
-)
+const source = stripTypeScriptTypes(rendererSource())
 
 const stack = source.slice(
   source.indexOf('class AccessibleHostView'),

@@ -1,13 +1,14 @@
-import { NSImageView, NativeClass } from '@octane-xplat/platform/macos'
-import { drawImageContent } from './image-drawing'
-import { notifyImageGeometry } from './image-geometry.ts'
-import type { PropBag } from './model'
-import { updateImage } from './image'
-
 import type { createAccessibleHost } from './accessible-host'
+import type { createCssCascade } from './css-cascade'
+import type { PropBag, ElementNode } from './model'
+import { NSImageView, NativeClass } from '@octane-xplat/platform/macos'
+import { setImageGeometryHandler, notifyImageGeometry } from './image-geometry.ts'
+import { disposeImage, updateImage } from './image'
+import { drawImageContent } from './image-drawing'
 
 interface Dependencies {
   accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'inputTransparentViews'>
+  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
 }
 
 export function createImageElements(deps: Dependencies) {
@@ -68,8 +69,54 @@ export function createImageElements(deps: Dependencies) {
     image.animates = true
     return image
   }
-  return {
-    makeImageView,
-    makeAnimatedImageView,
+  function applyBuiltinImageProp(node: ElementNode, name: string, value: PropBag[string]) {
+    if (name === 'src' || name === 'placeholder' || name === 'imageCachePolicy') {
+      updateImage(
+        node.view as NSImageView,
+        node.props.src,
+        node.props.placeholder,
+        node.props.imageCachePolicy,
+      )
+    } else if (name === 'stretch' && node.type === 'animatedimage') {
+      // NSImageScaling — same constants as the objectFit writer.
+      // 'aspectFill' degrades to scale-down: AppKit has no crop
+      // mode (documented on the shared 'cover' mapping too).
+      const scaling: Record<string, number> = {
+        aspectFit: 3,
+        aspectFill: 0,
+        fill: 1,
+        none: 2,
+      }
+
+      node.view!.imageScaling = scaling[String(value)] ?? 0
+    } else if (name === 'autoPlayAnimations' && node.type === 'animatedimage') {
+      node.view!.animates = value !== false
+    } else if (name === 'animatedImageView' && node.type === 'animatedimage') {
+      // The AppKit host is always the animated view.
+      return
+    } else if (name === 'style') {
+      deps.cssCascade.setNodeInlineStyle(node, value)
+    } else if (name === 'className') {
+      deps.cssCascade.applyClassName(node, value)
+    } else if (name === 'id' || name === 'alt') {
+      return
+    } else if (name === 'accessibilityLabel') {
+      node.view!.accessibilityLabel = String(value ?? '')
+      node.view!.accessibilityElement = !!value
+    } else if (value !== undefined) {
+      console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
+    }
   }
+
+  function disposeBuiltinImage(node: ElementNode) {
+    if ((node.type === 'image' || node.type === 'animatedimage') && node.view) {
+      if (node.type === 'image') {
+        setImageGeometryHandler(node.view as NSImageView, undefined)
+      }
+
+      disposeImage(node.view as NSImageView)
+    }
+  }
+
+  return { makeImageView, makeAnimatedImageView, applyBuiltinImageProp, disposeBuiltinImage }
 }

@@ -1,5 +1,5 @@
 import { rendererSource } from './renderer-source.ts'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {

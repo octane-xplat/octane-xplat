@@ -1,3 +1,6 @@
+import { createCssAnimations } from './css-animations'
+import { createPickerElements } from './picker-elements'
+import { createHostedElements } from './hosted-elements'
 import { configureTabContentRoots } from './tab-view'
 import { nativeColor } from './native-colors'
 import { installCompat } from './ns-compat'
@@ -115,11 +118,20 @@ const actions = createActions({
 })
 
 const inputElements = createInputElements({
+  get textElements() {
+    return textElements
+  },
   get nativeStyle() {
     return nativeStyle
   },
   get actions() {
     return actions
+  },
+  get cssCascade() {
+    return cssCascade
+  },
+  get accessibility() {
+    return accessibility
   },
 })
 
@@ -133,11 +145,23 @@ const containerElements = createContainerElements({
   get layout() {
     return layout
   },
-  get controls() {
-    return controls
+  get textElements() {
+    return textElements
   },
   get roots() {
     return roots
+  },
+  get cssCascade() {
+    return cssCascade
+  },
+  get actions() {
+    return actions
+  },
+  get accessibility() {
+    return accessibility
+  },
+  get tree() {
+    return tree
   },
 })
 
@@ -154,14 +178,14 @@ const controls = createControls({
   get actions() {
     return actions
   },
-  get textElements() {
-    return textElements
+  get cssCascade() {
+    return cssCascade
   },
-  get nativeStyle() {
-    return nativeStyle
+  get accessibility() {
+    return accessibility
   },
-  get layout() {
-    return layout
+  get accessibleHost() {
+    return accessibleHost
   },
 })
 
@@ -184,23 +208,35 @@ const textElements = createTextElements({
   get actions() {
     return actions
   },
+  get accessibility() {
+    return accessibility
+  },
+  get tree() {
+    return tree
+  },
 })
 
 const imageElements = createImageElements({
   get accessibleHost() {
     return accessibleHost
   },
+  get cssCascade() {
+    return cssCascade
+  },
 })
 
 const nodes = createNodes({
+  get cssAnimations() {
+    return cssAnimations
+  },
   get registry() {
     return registry
   },
   get tree() {
     return tree
   },
-  get controls() {
-    return controls
+  get pickerElements() {
+    return pickerElements
   },
   get cssCascade() {
     return cssCascade
@@ -210,6 +246,12 @@ const nodes = createNodes({
   },
   get roots() {
     return roots
+  },
+  get controls() {
+    return controls
+  },
+  get textElements() {
+    return textElements
   },
   get inputElements() {
     return inputElements
@@ -229,14 +271,20 @@ const nodes = createNodes({
   get subscriptions() {
     return subscriptions
   },
-  get layout() {
-    return layout
+  get hostedElements() {
+    return hostedElements
+  },
+  get projection() {
+    return projection
   },
   get backgroundPaint() {
     return backgroundPaint
   },
   get borderPaint() {
     return borderPaint
+  },
+  get layout() {
+    return layout
   },
   get accessibleHost() {
     return accessibleHost
@@ -286,6 +334,9 @@ const nativeStyle = createNativeStyle({
 })
 
 const cssCascade = createCssCascade({
+  get cssAnimations() {
+    return cssAnimations
+  },
   get hostBridge() {
     return hostBridge
   },
@@ -385,8 +436,8 @@ const elementProps = createElementProps({
   get cssCascade() {
     return cssCascade
   },
-  get controls() {
-    return controls
+  get pickerElements() {
+    return pickerElements
   },
   get layout() {
     return layout
@@ -403,11 +454,20 @@ const elementProps = createElementProps({
   get accessibility() {
     return accessibility
   },
-  get nativeStyle() {
-    return nativeStyle
+  get hostedElements() {
+    return hostedElements
+  },
+  get controls() {
+    return controls
   },
   get inputElements() {
     return inputElements
+  },
+  get imageElements() {
+    return imageElements
+  },
+  get nativeStyle() {
+    return nativeStyle
   },
 })
 
@@ -427,9 +487,15 @@ const projection = createProjection({
   get nodes() {
     return nodes
   },
+  get tree() {
+    return tree
+  },
 })
 
 const tree = createTree({
+  get cssAnimations() {
+    return cssAnimations
+  },
   get cssCascade() {
     return cssCascade
   },
@@ -445,8 +511,8 @@ const tree = createTree({
   get textElements() {
     return textElements
   },
-  get controls() {
-    return controls
+  get pickerElements() {
+    return pickerElements
   },
   get registry() {
     return registry
@@ -526,8 +592,8 @@ const pickerBridge = createPickerBridge({
   get actions() {
     return actions
   },
-  get controls() {
-    return controls
+  get pickerElements() {
+    return pickerElements
   },
 })
 
@@ -591,6 +657,44 @@ const measurements = createMeasurements({
 })
 
 /** Install shared adapters only after every service has been constructed. */
+const pickerElements = createPickerElements({
+  get actions() {
+    return actions
+  },
+  get layout() {
+    return layout
+  },
+  get cssCascade() {
+    return cssCascade
+  },
+  get accessibility() {
+    return accessibility
+  },
+  get tree() {
+    return tree
+  },
+})
+const hostedElements = createHostedElements({
+  get cssCascade() {
+    return cssCascade
+  },
+  get accessibility() {
+    return accessibility
+  },
+  get tree() {
+    return tree
+  },
+})
+
+const cssAnimations = createCssAnimations({
+  get nativeStyle() {
+    return nativeStyle
+  },
+  get cssCascade() {
+    return cssCascade
+  },
+})
+
 function initializeRuntime() {
   configureTabContentRoots(
     (host, fontFamily) => roots.createMacOSRoot(host, { fontFamily }),

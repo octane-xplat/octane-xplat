@@ -1,19 +1,20 @@
-import type { PropBag, ElementNode, RootContainer } from './model'
-import { syncTabView, detachTabItem } from './tab-view'
-import type { UniversalHostParent } from 'octane/universal/native'
-import { stylesheetScope } from '@octane-xplat/css-engine'
-
+import type { createCssAnimations } from './css-animations'
 import type { createCssCascade } from './css-cascade'
 import type { createProjection } from './projection'
 import type { createNativeStyle } from './native-style'
 import type { createLayout } from './layout'
 import type { createTextElements } from './text-elements'
-import type { createControls } from './controls'
+import type { createPickerElements } from './picker-elements'
 import type { createRegistry } from './registry'
 import type { createContainerElements } from './container-elements'
+import type { PropBag, ElementNode, RootContainer } from './model'
+import { syncTabView, detachTabItem } from './tab-view'
+import type { UniversalHostParent } from 'octane/universal/native'
+import { stylesheetScope } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'stopSubtreeAnimations' | 'markStyleDirty'>
+  cssAnimations: Pick<ReturnType<typeof createCssAnimations>, 'stopSubtreeAnimations'>
+  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'markStyleDirty'>
   projection: Pick<ReturnType<typeof createProjection>, 'releaseProjectedView' | 'projectedViews'>
   nativeStyle: Pick<
     ReturnType<typeof createNativeStyle>,
@@ -24,7 +25,7 @@ interface Dependencies {
     'releasePlacementPins' | 'layoutView' | 'queueLayoutReconcile' | 'setLayoutAction'
   >
   textElements: Pick<ReturnType<typeof createTextElements>, 'syncText'>
-  controls: Pick<ReturnType<typeof createControls>, 'syncSegmentedBar'>
+  pickerElements: Pick<ReturnType<typeof createPickerElements>, 'syncSegmentedBar'>
   registry: Pick<
     ReturnType<typeof createRegistry>,
     'resolveParentNode' | 'canContainView' | 'isManualLayoutParent'
@@ -35,7 +36,7 @@ interface Dependencies {
 export function createTree(deps: Dependencies) {
   function detach(container: RootContainer, node: ElementNode, preserveTab = false) {
     const previousParent = node.parent
-    deps.cssCascade.stopSubtreeAnimations(node)
+    deps.cssAnimations.stopSubtreeAnimations(node)
     if (node.type === 'tabviewitem' && !preserveTab) {
       detachTabItem(node)
     }
@@ -87,7 +88,7 @@ export function createTree(deps: Dependencies) {
     }
 
     if (previousParent?.type === 'segmentedbar') {
-      deps.controls.syncSegmentedBar(previousParent)
+      deps.pickerElements.syncSegmentedBar(previousParent)
     }
 
     node.parent = null
@@ -363,7 +364,7 @@ export function createTree(deps: Dependencies) {
       if (parent?.type === 'tabview') {
         syncTabView(parent)
       } else if (parent?.type === 'segmentedbar') {
-        deps.controls.syncSegmentedBar(parent)
+        deps.pickerElements.syncSegmentedBar(parent)
       } else {
         deps.textElements.syncText(parent)
       }
@@ -438,7 +439,7 @@ export function createTree(deps: Dependencies) {
     }
 
     if (expectedParent?.type === 'segmentedbar') {
-      deps.controls.syncSegmentedBar(expectedParent)
+      deps.pickerElements.syncSegmentedBar(expectedParent)
     }
   }
   return {

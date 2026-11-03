@@ -1,19 +1,17 @@
-import {
-  observeLayoutCommits as subscribeLayoutCommits,
-  type LayoutCommit,
-} from './layout-observers'
-import { setProjectionScale, type ProjectionScale } from './projection-paint'
-import type { NSView } from '@octane-xplat/platform/macos'
-import type { UniversalRoot } from 'octane/universal/native'
-import type { RootContainer } from './model'
-import { createUniversalRoot } from 'octane/universal/native'
-
 import type { createRegistry } from './registry'
 import type { createBorderPaint } from './border-paint'
 import type { createShadowPaint } from './shadow-paint'
 import type { createDriver } from './driver'
 import type { createStyleEnvironment } from './style-environment'
 import type { createAutomation } from './automation'
+import { observeLayoutCommits as subscribeLayoutCommits } from './layout-observers'
+import type { LayoutCommit } from './layout-observers'
+import { setProjectionScale } from './projection-paint'
+import type { ProjectionScale } from './projection-paint'
+import type { NSView } from '@octane-xplat/platform/macos'
+import { createUniversalRoot } from 'octane/universal/native'
+import type { UniversalRoot } from 'octane/universal/native'
+import type { RootContainer } from './model'
 
 export interface MacOSRootOptions {
   /** Default font family for this root and its renderer-hosted overlays. */

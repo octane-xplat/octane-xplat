@@ -1,10 +1,5 @@
 import { rendererSource } from './renderer-source.ts'
-import {
-  disposeTextValue,
-  isWritingTextValue,
-  notifyTextValueCommit,
-  setTextValue,
-} from '../src/text-value.ts'
+import { isWritingTextValue, notifyTextValueCommit } from '../src/text-value.ts'
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
@@ -18,7 +13,7 @@ import {
   type TextRange,
 } from '../src/text-limit.ts'
 
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 const remove = (text: string, range: TextRange | null) =>
   range ? text.slice(0, range.location) + text.slice(range.location + range.length) : text

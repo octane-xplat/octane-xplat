@@ -2,7 +2,7 @@ import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { createNativeSheet } from '../src/sheet.macos.ts'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 // Execute the actual renderer factory/classes against fakes, not native AppKit.
 const source = rendererSource()

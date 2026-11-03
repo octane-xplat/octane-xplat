@@ -1,19 +1,4 @@
-import type { PropBag, ElementNode, RootContainer } from './model'
-import { notifyLayoutCommit } from './layout-observers'
-import { NSWorkspace } from '@octane-xplat/platform/macos'
-import {
-  computeCascade,
-  INHERITED_CSS_PROPERTIES,
-  type CssHostNode,
-  resolveTranslate,
-  sampleKeyframeAnimation,
-  type KeyframeAnimationInfo,
-  type SampledValues,
-  stylesheetPseudoClasses,
-  stylesheetScope,
-  transformToParts,
-} from '@octane-xplat/css-engine'
-
+import type { createCssAnimations } from './css-animations'
 import type { createHostBridge } from './host-bridge'
 import type { createLayout } from './layout'
 import type { createRoots } from './roots'
@@ -21,22 +6,22 @@ import type { createNativeStyle } from './native-style'
 import type { createControls } from './controls'
 import type { createTextElements } from './text-elements'
 import type { createInputElements } from './input-elements'
-
-export // ---- Keyframe animations ----------------------------------------------------
-// NS CssState.playKeyframeAnimations over the shared sampler — the GTK
-// renderer's model: every matched `animation` plays from its rule's start on
-// each selector re-match, later animations override earlier ones per
-// property, and the overlay sits above the computed style. One shared ~60 Hz
-// timer drives every playing node; Core Animation groups are not used — they
-// do not complete through the bridge (.agents/docs/notes/routing-transitions.md).
-
-interface CssAnimationPlayback {
-  infos: KeyframeAnimationInfo[]
-  startMs: number
-  base: Partial<SampledValues>
-}
+import type { PropBag, ElementNode, RootContainer } from './model'
+import { notifyLayoutCommit } from './layout-observers'
+import { NSWorkspace } from '@octane-xplat/platform/macos'
+import {
+  computeCascade,
+  INHERITED_CSS_PROPERTIES,
+  stylesheetPseudoClasses,
+  stylesheetScope,
+} from '@octane-xplat/css-engine'
+import type { CssHostNode } from '@octane-xplat/css-engine'
 
 interface Dependencies {
+  cssAnimations: Pick<
+    ReturnType<typeof createCssAnimations>,
+    'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'
+  >
   hostBridge: Pick<ReturnType<typeof createHostBridge>, 'appKitBridge'>
   layout: Pick<ReturnType<typeof createLayout>, 'drainLayoutDirty'>
   roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
@@ -254,9 +239,10 @@ export function createCssCascade(deps: Dependencies) {
     // the keyframe layer), apply the new values, then play what now matches.
     const playable = (animations ?? []).filter((info) => info.keyframes?.length)
     const replay =
-      node.cssMatchDirty === true || !sameAnimations(node.cssAnimation?.infos ?? [], playable)
+      node.cssMatchDirty === true ||
+      !deps.cssAnimations.sameAnimations(node.cssAnimation?.infos ?? [], playable)
     node.cssMatchDirty = false
-    const droppedOverlay = replay && cancelKeyframeAnimations(node)
+    const droppedOverlay = replay && deps.cssAnimations.cancelKeyframeAnimations(node)
 
     // Unchanged effective styles skip the native apply: most restyles (class or
     // sibling marks, ancestor cascades) resolve to the same bag.
@@ -280,145 +266,12 @@ export function createCssCascade(deps: Dependencies) {
 
     // Only cascade to children when values they could inherit moved.
     if (replay && playable.length > 0) {
-      playKeyframeAnimations(node, playable)
+      deps.cssAnimations.playKeyframeAnimations(node, playable)
     }
     if (customChanged || inheritedChanged) {
       for (const child of cssChildren(node)) {
         restyleNode(child)
       }
-    }
-  }
-
-  const ANIMATION_FRAME_MS = 16
-
-  /** Nodes holding a playback (playing or forwards-filled). */
-  const animatedNodes = new Set<ElementNode>()
-
-  const playingNodes = new Set<ElementNode>()
-
-  let animationTimer: ReturnType<typeof setTimeout> | null = null
-
-  /** Values a property animates from when no earlier keyframe declares it —
-   *  the node's current (pre-animation) computed value. */
-  function animationBase(node: ElementNode): Partial<SampledValues> {
-    const style = node.computedStyle ?? {}
-    const frame = node.view?.frame?.size
-    const opacity = Number(style.opacity ?? node.props.opacity)
-    const parts =
-      typeof style.transform === 'string' ? transformToParts(style.transform) : undefined
-    return {
-      opacity: Number.isFinite(opacity) ? opacity : 1,
-      backgroundColor:
-        typeof style.backgroundColor === 'string' ? style.backgroundColor : 'rgba(0,0,0,0)',
-      translateX: parts?.translateX ?? style.translateX ?? 0,
-      translateY: parts?.translateY ?? style.translateY ?? 0,
-      scaleX: parts?.scaleX ?? 1,
-      scaleY: parts?.scaleY ?? 1,
-      rotate: parts?.rotate ?? 0,
-      rotateX: parts?.rotateX ?? 0,
-      rotateY: parts?.rotateY ?? 0,
-      width: typeof style.width === 'number' ? style.width : Number(frame?.width ?? 0),
-      height: typeof style.height === 'number' ? style.height : Number(frame?.height ?? 0),
-    }
-  }
-
-  function sameAnimations(a: KeyframeAnimationInfo[], b: KeyframeAnimationInfo[]): boolean {
-    return a.length === b.length && a.every((info, i) => info === b[i])
-  }
-
-  function playKeyframeAnimations(node: ElementNode, infos: KeyframeAnimationInfo[]) {
-    if (!node.view) {
-      return
-    }
-    node.cssAnimation = { infos, startMs: Date.now(), base: animationBase(node) }
-    animatedNodes.add(node)
-    // Segment 0 lands synchronously, like NS `animate(view, 0)` at play.
-    if (advanceKeyframeAnimation(node, node.cssAnimation.startMs)) {
-      playingNodes.add(node)
-      animationTimer ??= setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
-    }
-  }
-
-  function tickKeyframeAnimations() {
-    const now = Date.now()
-    for (const node of playingNodes) {
-      if (!advanceKeyframeAnimation(node, now)) {
-        playingNodes.delete(node)
-      }
-    }
-    animationTimer = playingNodes.size
-      ? setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
-      : null
-  }
-
-  /** Writes one frame; false once every animation on the node has finished. */
-  function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
-    const play = node.cssAnimation
-    const view = node.view
-    if (!play || !view) {
-      return false
-    }
-    const size = view.frame?.size ?? {}
-    const box = { width: Number(size.width) || 0, height: Number(size.height) || 0 }
-    const overlay: PropBag = {}
-    let done = true
-    for (const info of play.infos) {
-      const sample = sampleKeyframeAnimation(info, now - play.startMs, { base: play.base, box })
-      Object.assign(overlay, sample.values)
-      done &&= sample.done
-    }
-    // % translates arrive as TranslateAxis objects — resolve to points.
-    for (const key of ['translateX', 'translateY'] as const) {
-      const value = overlay[key]
-      if (value !== null && typeof value === 'object') {
-        overlay[key] = resolveTranslate(value, key === 'translateX' ? box.width : box.height)
-      }
-    }
-    const prev = node.animatedStyle
-    node.animatedStyle = Object.keys(overlay).length > 0 ? overlay : undefined
-    if (prev !== undefined || node.animatedStyle !== undefined) {
-      applyAnimationFrame(node)
-    }
-    return !done
-  }
-
-  /** Per-frame write through the full style apply — the overlay merges above
-   *  the computed style inside applyStyle; a no-op frame skips the write. */
-  function applyAnimationFrame(node: ElementNode) {
-    const merged = node.animatedStyle
-      ? { ...node.computedStyle, ...node.animatedStyle }
-      : (node.computedStyle ?? {})
-    if (node.appliedStyle && shallowEqualStyle(node.appliedStyle, merged)) {
-      return
-    }
-    deps.nativeStyle.applyStyle(node, node.computedStyle ?? {})
-  }
-
-  /** Stops the node's animations and drops the keyframe layer without
-   *  re-applying; returns true when an overlay was showing. */
-  function cancelKeyframeAnimations(node: ElementNode): boolean {
-    if (node.cssAnimation === undefined) {
-      return false
-    }
-    node.cssAnimation = undefined
-    animatedNodes.delete(node)
-    playingNodes.delete(node)
-    const hadOverlay = node.animatedStyle !== undefined
-    node.animatedStyle = undefined
-    return hadOverlay
-  }
-
-  /** NS onUnloaded: removal from the tree stops the subtree's animations and
-   *  restores the underlying style. */
-  function stopSubtreeAnimations(node: ElementNode) {
-    if (animatedNodes.size === 0) {
-      return
-    }
-    if (cancelKeyframeAnimations(node) && node.view) {
-      deps.nativeStyle.applyStyle(node, node.computedStyle ?? {})
-    }
-    for (const child of node.children) {
-      stopSubtreeAnimations(child)
     }
   }
 
@@ -541,6 +394,7 @@ export function createCssCascade(deps: Dependencies) {
     }
   }
   return {
+    shallowEqualStyle,
     cssChildren,
     cssSchemeName,
     markStyleDirty,
@@ -555,8 +409,6 @@ export function createCssCascade(deps: Dependencies) {
     windowMediaSize,
     largestWindowSize,
     envForNode,
-    cancelKeyframeAnimations,
-    stopSubtreeAnimations,
     warnUnsupportedCssProp,
     setNodeInlineStyle,
     applyClassName,

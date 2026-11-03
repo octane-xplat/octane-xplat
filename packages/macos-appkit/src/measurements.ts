@@ -1,9 +1,8 @@
-import { createParityMeasurements } from './parity'
-
 import type { createNativeStyle } from './native-style'
 import type { createTextElements } from './text-elements'
 import type { createBorderPaint } from './border-paint'
 import type { createRoots } from './roots'
+import { createParityMeasurements } from './parity'
 
 interface Dependencies {
   nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'normalizeClass' | 'effectiveStyle'>

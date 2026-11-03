@@ -1,4 +1,4 @@
-import { rendererSource } from './renderer-source.ts'
+import { createCssAnimations } from '../src/css-animations.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -99,32 +99,18 @@ test('AppKit busy rules remove and restore tracks when the reduced-motion enviro
   }
 })
 
-test('AppKit playback advances a percent slide and subtree stop restores base and retires ticking', async () => {
-  const { sourceWithoutImports, runSlice } = await import('./mock-globals.ts')
-  const source = rendererSource(),
-    start = source.indexOf('const ANIMATION_FRAME_MS'),
-    end = source.indexOf('let cssWarnedProps', start)
-  let now = 0
-  const timers: (() => void)[] = [],
-    frames: any[] = []
-  const api = runSlice(
-    source.slice(start, end) +
-      '\n;({ playKeyframeAnimations, stopSubtreeAnimations, playing: () => playingNodes.size })',
-    {
-      Date: { now: () => now },
-      setTimeout: (callback: () => void) => {
-        timers.push(callback)
-        return timers.length
-      },
-      sampleKeyframeAnimation,
-      resolveTranslate,
-      transformToParts: () => ({}),
-      applyStyle: (node: any, base: any) => {
+test('AppKit playback advances a percent slide and subtree stop restores base and retires ticking', (context) => {
+  context.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 0 })
+  const frames: any[] = []
+  const api = createCssAnimations({
+    cssCascade: { shallowEqualStyle: () => false },
+    nativeStyle: {
+      applyStyle(node, base) {
         node.appliedStyle = { ...base, ...node.animatedStyle }
         frames.push({ ...node.appliedStyle })
       },
     },
-  )
+  })
   setStyleEnvironment(() => ({
     width: 400,
     height: 300,
@@ -146,16 +132,15 @@ test('AppKit playback advances a percent slide and subtree stop restores base an
     )
 
     const first = frames.at(-1).translateX
-    now = 600
-    timers.shift()!()
+    context.mock.timers.tick(600)
     assert.ok(frames.at(-1).translateX > first)
-    assert.equal(api.playing(), 1)
+    assert.ok(Reflect.get(node, 'cssAnimation'))
     api.stopSubtreeAnimations(node)
-    assert.equal(api.playing(), 0)
+    assert.equal(Reflect.get(node, 'cssAnimation'), undefined)
     assert.equal(frames.at(-1).translateX, 0)
-    const queued = timers.shift()
-    queued?.()
-    assert.equal(timers.length, 0)
+    const stoppedFrames = frames.length
+    context.mock.timers.tick(100)
+    assert.equal(frames.length, stoppedFrames)
   } finally {
     unregisterStylesheet('appkit-busy-playback')
   }

@@ -1,7 +1,6 @@
+import type { createHover } from './hover'
 import type { ElementNode } from './model'
 import { NSCursor } from '@octane-xplat/platform/macos'
-
-import type { createHover } from './hover'
 
 interface Dependencies {
   hover: Pick<

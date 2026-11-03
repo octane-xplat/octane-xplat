@@ -1,12 +1,13 @@
+import type { createNativeStyle } from './native-style'
+import type { createBorderPaint } from './border-paint'
 import {
   collectBackground,
   positioningBox,
   resolveImageSize,
   resolveStops,
   tileRects,
-  type BackgroundSpec,
-  type BgGradient,
 } from './background-layers.ts'
+import type { BackgroundSpec, BgGradient } from './background-layers.ts'
 import type { ElementNode } from './model'
 import { borderStyleSides, hiddenBorderStyle } from './border-styles.ts'
 import {
@@ -19,9 +20,6 @@ import {
 import { nativeColor } from './native-colors'
 import { correctProjectionRadii } from './projection-paint'
 import { requestImage } from './image'
-
-import type { createNativeStyle } from './native-style'
-import type { createBorderPaint } from './border-paint'
 
 export interface BgPainted {
   layer: any

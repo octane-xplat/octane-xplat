@@ -2,7 +2,7 @@ import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { syncHeadingAccessibility } from '../src/heading-accessibility.ts'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 function view(text = 'Account') {
   return {

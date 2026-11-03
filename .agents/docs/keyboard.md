@@ -430,10 +430,10 @@ scroll-relative helper reports visible window coordinates. Browser spring
 integration retains a fractional position so rounded scrollTop cannot stall it
 several pixels before the end.
 
-The AppKit renderer's grid overlay measures non-stretched children using
-intrinsicContentSize (`packages/macos-appkit/src/index.ts`, layoutGridChildren).
-The chat dock measured zero while its editing field measured96 points in the
-runtime probe. ChatLayout's macOS leaf therefore uses a flexing viewport and an
+The recorded AppKit grid-overlay probe measured non-stretched children using
+intrinsicContentSize. The chat dock measured zero while its editing field
+measured 96 points in that probe. See [renderer internals](appkit-renderer.md)
+for current source ownership. ChatLayout's macOS leaf therefore uses a flexing viewport and an
 in-flow dock. This local composition avoids depending on an intrinsic grid
 measurement fix; reevaluate it if that renderer contract changes. AppKit's
 unflipped document also changes its normalized top offset when its range grows

@@ -1,10 +1,9 @@
+import type { createActions } from './actions'
+import type { createSubscriptions } from './subscriptions'
 import type { PropBag } from './model'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
 import { NSNumber, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
-
-import type { createActions } from './actions'
-import type { createSubscriptions } from './subscriptions'
 
 interface Dependencies {
   actions: Pick<

@@ -1,7 +1,6 @@
+import type { createActions } from './actions'
 import { NSMenu, NSMenuItem, NSView } from '@octane-xplat/platform/macos'
 import type { ContextMenuOptions } from './model'
-
-import type { createActions } from './actions'
 
 interface Dependencies {
   actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'nextActionId'>

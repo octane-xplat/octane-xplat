@@ -1,3 +1,5 @@
+import type { createNativeStyle } from './native-style'
+import type { createBorderPaint, BorderCorner } from './border-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -18,9 +20,6 @@ import {
   darkBorderComponents,
 } from './border-styles.ts'
 import { srgbComponents } from './color-components'
-import type { BorderCorner } from './border-paint'
-import type { createNativeStyle } from './native-style'
-import type { createBorderPaint } from './border-paint'
 
 interface Dependencies {
   nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>

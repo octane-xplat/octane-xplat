@@ -1,12 +1,12 @@
-import type { PropBag, ElementNode, RootContainer } from './model'
-import { NSView, NSWindowOrderingMode } from '@octane-xplat/platform/macos'
-import type { UniversalHostCommand, UniversalHostParent } from 'octane/universal/native'
-
 import type { createNativeStyle } from './native-style'
 import type { createLayout } from './layout'
 import type { createCssCascade } from './css-cascade'
 import type { createRegistry } from './registry'
 import type { createNodes } from './nodes'
+import type { createTree } from './tree'
+import type { PropBag, ElementNode, RootContainer } from './model'
+import { NSView, NSWindowOrderingMode } from '@octane-xplat/platform/macos'
+import type { UniversalHostCommand, UniversalHostParent } from 'octane/universal/native'
 
 interface Dependencies {
   nativeStyle: Pick<
@@ -20,6 +20,7 @@ interface Dependencies {
   cssCascade: Pick<ReturnType<typeof createCssCascade>, 'markStyleDirty' | 'setNodeInlineStyle'>
   registry: Pick<ReturnType<typeof createRegistry>, 'isManualLayoutParent' | 'parentReference'>
   nodes: Pick<ReturnType<typeof createNodes>, 'typeHasView'>
+  tree: Pick<ReturnType<typeof createTree>, 'detach'>
 }
 
 export function createProjection(deps: Dependencies) {
@@ -335,10 +336,20 @@ export function createProjection(deps: Dependencies) {
       }
     }
   }
+  function disposeBuiltinProxyChildren(node: ElementNode) {
+    if (node.type === 'proxyviewcontainer') {
+      deps.tree.detach(node.container, node)
+      for (const child of node.children.slice()) {
+        deps.tree.detach(node.container, child)
+      }
+    }
+  }
+
   return {
     projectedViews,
     releaseProjectedView,
     syncProxyProjection,
     validateProxyTree,
+    disposeBuiltinProxyChildren,
   }
 }

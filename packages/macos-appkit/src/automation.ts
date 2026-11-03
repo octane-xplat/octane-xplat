@@ -1,7 +1,3 @@
-import type { UniversalRoot } from 'octane/universal/native'
-import type { PanEvent, PropBag, ElementNode, RootContainer } from './model'
-import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/macos'
-
 import type { createRoots } from './roots'
 import type { createMeasurements } from './measurements'
 import type { createCssCascade } from './css-cascade'
@@ -9,6 +5,9 @@ import type { createAccessibleHost } from './accessible-host'
 import type { createActions } from './actions'
 import type { createHover } from './hover'
 import type { createPopover } from './popover'
+import type { UniversalRoot } from 'octane/universal/native'
+import type { PanEvent, PropBag, ElementNode, RootContainer } from './model'
+import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
   roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>

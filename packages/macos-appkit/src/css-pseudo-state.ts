@@ -1,3 +1,8 @@
+import type { createHover } from './hover'
+import type { createCssCascade } from './css-cascade'
+import type { createRegistry } from './registry'
+import type { createSubscriptions } from './subscriptions'
+import type { createRoots } from './roots'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotification,
@@ -7,12 +12,6 @@ import {
 } from '@octane-xplat/platform/macos'
 import { stylesheetPseudoClasses } from '@octane-xplat/css-engine'
 import { setVisualStateTracking } from './gestures'
-
-import type { createHover } from './hover'
-import type { createCssCascade } from './css-cascade'
-import type { createRegistry } from './registry'
-import type { createSubscriptions } from './subscriptions'
-import type { createRoots } from './roots'
 
 interface Dependencies {
   hover: Pick<

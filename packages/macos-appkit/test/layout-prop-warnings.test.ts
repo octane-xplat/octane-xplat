@@ -2,7 +2,6 @@ import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
-import { sourceWithoutImports } from './mock-globals.ts'
 
 // applyProps warns `ignored <type> prop <name>` for any prop outside its
 // per-type whitelist, but LayoutChildProps are consumed by the PARENT's

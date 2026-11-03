@@ -1,7 +1,7 @@
 import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+import { runSlice } from './mock-globals.ts'
 
 // Fake native center / actual private helpers, not native frame/layer proof.
 const source = rendererSource()
