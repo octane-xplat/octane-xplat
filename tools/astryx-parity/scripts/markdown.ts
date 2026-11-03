@@ -39,7 +39,7 @@ function canonRef(node: any): Canon {
 	const kids = node.children?.map(canonRef)
 	switch (node.type) {
 		case 'root':
-			return { type: 'root', children: kids }
+			return { type: 'root', data: node.data ?? null, children: kids }
 		case 'heading':
 			return { type: 'heading', depth: node.depth, children: kids }
 		case 'paragraph':
@@ -87,7 +87,13 @@ function canonRef(node: any): Canon {
 		case 'break':
 			return { type: 'break' }
 		case 'extension':
-			return { type: 'extension', plugin: node.plugin, name: node.name, display: node.display }
+			return {
+				type: 'extension',
+				plugin: node.plugin,
+				name: node.name,
+				display: node.display,
+				data: node.data ?? null,
+			}
 		default:
 			return { type: `unknown:${node.type}` }
 	}
@@ -97,7 +103,7 @@ function canonRef(node: any): Canon {
  *  canonical Md* vocabulary, so the reference canonicalizer applies after
  *  wrapping children in a root node. */
 function canonCandDoc(doc: any): Canon {
-	return canonRef({ type: 'root', children: doc.children })
+	return canonRef({ type: 'root', data: doc.data, children: doc.children })
 }
 
 // ---------------------------------------------------------------------------
@@ -137,10 +143,32 @@ const candType = (c: Canon | undefined) => c?.type ?? 'missing'
 // parser mode
 // ---------------------------------------------------------------------------
 
+/** Named plugin profiles resolved to each side's real first-party entries —
+ *  `createMarkdownFrontmatter` gets the same `{name:'meta', parse: fields =>
+ *  fields}` decoder on both so doc.data envelopes compare verbatim. */
+function pluginEntries(mod: any, scenario: MarkdownScenario): unknown[] | undefined {
+	const profiles = scenario.options?.plugins
+	if (profiles == null) return undefined
+	return profiles.map((p) => {
+		switch (p) {
+			case 'soft-breaks':
+				return mod.markdownSoftBreaksPlugin
+			case 'frontmatter':
+				return mod.createMarkdownFrontmatter({ name: 'meta', parse: (fields: any) => fields }).plugin
+			case 'source-lines':
+				return mod.markdownSourceLinesPlugin
+			case 'heading-links':
+				return mod.createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })
+		}
+	})
+}
+
 async function runParserMode() {
 	const ref = await import('@astryxdesign/core/Markdown/parser')
+	const refPlugins = await import('@astryxdesign/core/Markdown/plugins')
 	const cand = await import('../../../packages/ui/src/markdown/markdown-parse.ts')
 	const candStream = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
+	const candHelpers = await import('../../../packages/ui/src/markdown/markdown-plugin-helpers.ts')
 	// The streaming internals (trim + canonical incremental parse) are not in
 	// the published export map, so they come from the shipped source tree —
 	// byte-identical to tag v0.7.4 (milestone-0 provenance).
@@ -156,6 +184,12 @@ async function runParserMode() {
 		if (scenario.options?.sourceIds) opts.sourceIds = new Set(scenario.options.sourceIds)
 		if (scenario.options?.math) opts.math = true
 		if (scenario.options?.sourceRanges) opts.sourceRanges = true
+		const candOpts: Record<string, unknown> = { ...opts }
+		if (scenario.options?.plugins != null) {
+			// Full entries on both sides — each parser applies transforms internally.
+			opts.plugins = pluginEntries(refPlugins, scenario)
+			candOpts.plugins = pluginEntries(candHelpers, scenario)
+		}
 
 		let refRoot: Canon
 		try {
@@ -167,7 +201,7 @@ async function runParserMode() {
 
 		let candRoot: Canon
 		try {
-			candRoot = canonCandDoc(cand.parseMdDoc(scenario.source, opts as any))
+			candRoot = canonCandDoc(cand.parseMdDoc(scenario.source, candOpts as any))
 		} catch (e) {
 			results.push({ key: scenario.key, status: 'candidate-error', error: String(e) })
 			continue
@@ -207,14 +241,14 @@ async function runParserMode() {
 							refSrc.parseMarkdownAstIncremental(refTrim, refState, opts as any),
 						)
 						const candStep = canonCandDoc({
-							children: candStream.parseMarkdownIncremental(candTrim, candState, opts as any),
+							children: candStream.parseMarkdownIncremental(candTrim, candState, candOpts as any),
 						})
 						diffCanon(refStep, candStep, `step${step}`, stepDiffs)
 						step++
 					}
 					// Final documents converge to the same full parse.
 					const refFinal = canonRef(ref.parseMarkdownAst(scenario.source, opts as any))
-					const candParser = candStream.createMarkdownStreamParser(opts as any)
+					const candParser = candStream.createMarkdownStreamParser(candOpts as any)
 					for (const chunk of schedule) candParser.append(chunk)
 					const candFinish = canonCandDoc(candParser.finish())
 					const finishDiffs: Diff[] = []

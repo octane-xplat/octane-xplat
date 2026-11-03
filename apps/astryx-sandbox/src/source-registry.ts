@@ -47,6 +47,7 @@ const pageSourceFiles: Record<string, string> = {
 
 	'/pages/documentation/': 'DocumentationPage',
 	'/pages/codeblock-perf/': 'CodeBlockPerfPage',
+	'/pages/markdown-perf/': 'MarkdownPerfPage',
 	'/pages/polymorphic-link/': 'PolymorphicLinkPage',
 	'/pages/topnav-menu/': 'TopNavMenuPage',
 	'/pages/mega-menu/': 'MegaMenuPage',

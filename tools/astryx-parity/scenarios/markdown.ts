@@ -179,7 +179,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'plugin-frontmatter' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'prop:inlinePlugins',
@@ -190,7 +190,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'inline-plugin' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'prop:autolink',
@@ -624,7 +624,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Which validation failures throw vs degrade when plugins are malformed?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:syntax',
@@ -635,7 +635,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Which bounded-progress and deferral semantics must Octane tokenizers honor?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:transform',
@@ -646,7 +646,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'How does Octane enforce readonly/freeze without a structuredClone cost per transform?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:renderers',
@@ -657,7 +657,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Which Octane boundary reproduces throw/pending/decline fallback on web and native?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:extension-nodes',
@@ -668,7 +668,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'How do extension containers map to Octane recursive rendering leaves?' },
-		local: 'missing',
+		local: 'partial',
 	}),
 	cap({
 		id: 'protocol:fallbacks',
@@ -679,7 +679,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Does the spec-unshipped onPluginDiagnostic change observable 0.7.4 fallback behavior?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:capabilities-introspection',
@@ -689,7 +689,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Do Octane rich-text surfaces need these guards for milestone-5 plugin adoption?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:onPluginDiagnostic',
@@ -699,7 +699,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'spec-only',
 		milestone: 5,
 		coverage: { question: 'Confirm upstream shipped no diagnostic channel in 0.7.4; decide whether parity tracks spec or artifact.' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'protocol:plugin-renderer',
@@ -709,7 +709,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Is a single-node plugin renderer required for Octane surfaces (Chat/rich text)?' },
-		local: 'missing',
+		local: 'present',
 	}),
 
 	// ------------------------------------------------------------------
@@ -723,7 +723,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Which upstream textTransform fixtures port to Octane helpers unchanged?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:semanticFence',
@@ -733,7 +733,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'How do semantic-fence claims interact with baked-route precompiled docs?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:sourceDecoration',
@@ -743,7 +743,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { question: 'Where do decorations live on Octane nodes (data field vs external map)?' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:frontmatter',
@@ -753,7 +753,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'plugin-frontmatter' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:softBreaks',
@@ -763,7 +763,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'soft-breaks' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:sourceLines',
@@ -773,7 +773,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'source-lines' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:headingLinks',
@@ -783,7 +783,7 @@ export const markdownCapabilities: MarkdownCapability[] = [
 		status: 'shipped',
 		milestone: 5,
 		coverage: { fixture: 'heading-links' },
-		local: 'missing',
+		local: 'present',
 	}),
 	cap({
 		id: 'helper:remark',
@@ -1050,10 +1050,20 @@ export type MarkdownScenario = {
 		readonly sourceIds?: readonly string[]
 		readonly math?: boolean
 		readonly sourceRanges?: boolean
+		/** Named plugin profiles resolved to real `createMarkdownPlugin`
+		 *  entries on each side (see markdownPlugins in the vite apps and the
+		 *  parser runner). */
+		readonly plugins?: readonly MarkdownPluginProfile[]
+		/** Exercise the legacy inlinePlugins prop with an @mention matcher. */
+		readonly inlinePlugin?: boolean
 	}
 	/** Streaming: chunk boundaries (UTF-16 offsets) replayed incrementally. */
 	readonly chunks?: readonly string[]
 }
+
+/** Named plugin profiles shared by the parser runner and both vite apps —
+ *  each side maps a profile to its own first-party plugin entry. */
+export type MarkdownPluginProfile = 'soft-breaks' | 'frontmatter' | 'source-lines' | 'heading-links'
 
 export const CITATION_SOURCES = {
 	docs: { title: 'Octane docs', url: 'https://docs.example/octane' },
@@ -1238,26 +1248,31 @@ export const markdownScenarios: MarkdownScenario[] = [
 	{
 		key: 'plugin-frontmatter',
 		source: '---\ntitle: Doc\ndate: 2026-01-01\n---\n\n# Body\n\nText.\n',
+		options: { plugins: ['frontmatter'] },
 		capabilities: ['helper:frontmatter', 'prop:plugins'],
 	},
 	{
 		key: 'soft-breaks',
 		source: 'line one\nline two\nline three\n',
+		options: { plugins: ['soft-breaks'] },
 		capabilities: ['helper:softBreaks'],
 	},
 	{
 		key: 'source-lines',
 		source: '# A\n\npara one\n\n- list\n',
+		options: { plugins: ['source-lines'] },
 		capabilities: ['helper:sourceLines'],
 	},
 	{
 		key: 'heading-links',
 		source: '# Alpha\n\n## Beta\n\n# Alpha\n\n> ## Quoted\n',
+		options: { plugins: ['heading-links'] },
 		capabilities: ['helper:headingLinks', 'render:heading-ids'],
 	},
 	{
 		key: 'inline-plugin',
 		source: 'Call @ivan or #urgent inside **styled** text.\n',
+		options: { inlinePlugin: true },
 		capabilities: ['prop:inlinePlugins'],
 	},
 	{

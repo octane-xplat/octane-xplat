@@ -27,6 +27,7 @@ import { ColorStudioPage } from './color-studio/ColorStudioPage.tsrx'
 import { PaletteGeneratorPage } from './palette-generator/PaletteGeneratorPage.tsrx'
 import { PolymorphicLinkPage } from './authored/PolymorphicLinkPage.tsrx'
 import { CodeBlockPerfPage } from './performance/CodeBlockPerfPage.tsrx'
+import { MarkdownPerfPage } from './performance/MarkdownPerfPage.tsrx'
 import { DocumentationPage } from './docs/DocumentationPage.tsrx'
 import { DictationLabPage } from './dictation/DictationLabPage.tsrx'
 import { ExampleCardsPage } from './authored/ExampleCardsPage.tsrx'
@@ -85,6 +86,7 @@ const pages: Record<string, () => any> = {
 
 	'/pages/documentation/': DocumentationPage,
 	'/pages/codeblock-perf/': CodeBlockPerfPage,
+	'/pages/markdown-perf/': MarkdownPerfPage,
 	'/pages/polymorphic-link/': PolymorphicLinkPage,
 	'/pages/topnav-menu/': TopNavMenuPage,
 	'/pages/mega-menu/': MegaMenuPage,

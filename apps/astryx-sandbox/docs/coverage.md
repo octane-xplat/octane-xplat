@@ -18,7 +18,7 @@ never dropped; the ledger at `/templates/` renders this data live.
 | fixed (`/`, `/404/`) | 2 | `(sandbox)/page.tsx`, generated | both ported |
 | category indexes | 3 | `[category]/CategoryContent.tsx` | all ported |
 | template index (`/templates/`) | 1 | `(sandbox)/templates/page.tsx` | ported as coverage ledger |
-| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 47 ported, 4 blocked (theme-family, markdown-perf, layout-dsl, doc-preview) |
+| authored pages (`/pages/*`) | 51 | `(sandbox\|fullscreen\|raw)/pages/**/page.tsx` | 48 ported, 3 blocked (theme-family, layout-dsl, doc-preview) |
 | block templates | 659 | `cli/assets/templates/blocks/components/<Family>/<Name>.tsx` | 656 ported, 3 blocked (PaginationDotsCarousel, PaginationPageSize, PaginationVariants) |
 | page templates | 55 | `cli/assets/templates/pages/<slug>/page.tsx` | all 55 ported |
 
@@ -493,7 +493,7 @@ No screenshots were captured or inspected.
 | U13-1: `/pages/layout-dsl/` | Validate compact/outline expressions, expand Octane source, report token counts and copy output | Pinned `layout-dsl/page.tsx` imports `@astryxdesign/cli/xle`, generated `xle-registry.json` and a generated tokenizer bundle. Generated artifacts are absent at the pin; supervisor explicitly authorized recording this blocker and did not authorize a replacement compiler. | blocked; Chromium confirms visible reason |
 | U13-2: `/pages/doc-preview/` | Load foundational authoring docs and render their topic/token examples | Pinned page loads generated `foundationDocs.json` and private `DocPreview` authoring rendering. Generated JSON is absent at the pin; supervisor explicitly authorized this blocker. | blocked; Chromium confirms visible reason |
 | U13-3: `/pages/theme-family/` | Inherited component overrides, typography, responsive adaptations, media overrides and nested family identity | Pinned `src/themes/theme-family/ocean.ts` uses `components`, `typography`, `adaptations` and `onDark`; current `DefineThemeInput` only accepts name, extends, tokens and localTokens. Token flattening alone does not satisfy the page. Local feedback `2fe792d6-5693-4081-882b-eb82c734a5f8`. | blocked; source evidence only |
-| U13-4: `/pages/markdown-perf/` | Compare baseline versus public soft-break plugin at selectable claim densities | Pinned `benchmarkProfiles.ts` imports `markdownSoftBreaksPlugin` and `MarkdownPluginEntry`; the current public Markdown entrypoint exposes parsing/streaming/outline/syntax but no equivalent plugin registry. | blocked; source evidence only; shared prerequisite for unit 10 |
+| U13-4: `/pages/markdown-perf/` | Compare baseline versus public soft-break plugin at selectable claim densities | Pinned `benchmarkProfiles.ts` imports `markdownSoftBreaksPlugin` and `MarkdownPluginEntry`. Resolved: the Markdown extension-protocol milestone added the public plugin registry (`plugins` prop, `markdownSoftBreaksPlugin`); `src/pages/performance/` now carries the ported page, `markdown-benchmark.ts`, and `markdown-benchmark-profiles.ts`. | ported; equivalent soft-breaks workloads verified through parse + incremental streaming |
 | U13-5: Motion Lab before/after rigs | Preserve proposed TabList behavior and its input/overflow contracts | Pinned `motion-lab/LabDemos.tsx` imports its proposed TabList fork; that fork imports private `packages/core/src/hooks/isRtlElement.ts` and `DropdownMenu/menuItemRoles.ts`. A public mapping or explicit private-integration disposition remains required. | pending; no Motion Lab route qualified by this delivery |
 | Shared dependencies: `/pages/table-overview/`, `/pages/table-lab/` | Table page contracts owned by unit 7 | Rows are preserved for that owner. This unit adds no app-local table engine. | pending in this worktree |
 | Shared layout consumers: `/pages/mobile-type/`, `/pages/motion-examples/` | Exercised `LayoutPanel` / `LayoutFooter` regions | F-3: LayoutPanel is absent from public UI exports and blocks mobile-type; motion-examples also needs LayoutFooter. No local substitute is authorized. | blocked; source evidence only |
@@ -557,8 +557,9 @@ specific disposition without claiming runtime success.
   is absent from public UI exports. The shared MotionLabShell consumes it,
   so even static Motion Lab screens are blocked. `motion-examples` also
   needs LayoutFooter. No stub, private re-export or local substitute was added.
-- **Blocked:** `theme-family` needs the generative overrides/media contract;
-  `markdown-perf` needs public plugin hooks.
+- **Blocked:** `theme-family` needs the generative overrides/media contract.
+  `markdown-perf`'s public-plugin-hooks prerequisite was resolved by the
+  Markdown extension-protocol milestone; the route is now ported.
 - **Sanctioned blocked:** `layout-dsl` and `doc-preview` retain U13-1/U13-2
   evidence and visible notices; no replacement compiler was added.
 - **Reserved:** `table-overview` and `table-lab` remain owned by unit 7.
@@ -1013,8 +1014,8 @@ the hand-maintained tables, which had lagged. At sign-off:
 
 | Status | Count | Rows |
 | --- | --- | --- |
-| ported | 764 | every fixed, category, index, page-template and authored-page route except the blockers at right |
-| blocked | 7 | `/pages/theme-family/`, `/pages/markdown-perf/`, `/pages/layout-dsl/`, `/pages/doc-preview/` (pre-existing) + `/templates/PaginationDotsCarousel/`, `/templates/PaginationPageSize/`, `/templates/PaginationVariants/` |
+| ported | 765 | every fixed, category, index, page-template and authored-page route except the blockers at right |
+| blocked | 6 | `/pages/theme-family/`, `/pages/layout-dsl/`, `/pages/doc-preview/` (pre-existing) + `/templates/PaginationDotsCarousel/`, `/templates/PaginationPageSize/`, `/templates/PaginationVariants/` |
 | pending | 0 | — |
 | **total** | **771** | — |
 
@@ -1075,5 +1076,5 @@ flake in that check, not a route defect.
    assert `'Hello Octane' !== ''`). Pre-existing; engine-specific.
 3. **External font fetch noise** — Firefox logged transient `fonts.gstatic.com`
    download failures under load; environmental, not an app defect.
-4. **Four pre-existing authored-page blockers** — theme-family, markdown-perf,
+4. **Three pre-existing authored-page blockers** — theme-family,
    layout-dsl, doc-preview (upstream-private toolchains; recorded).

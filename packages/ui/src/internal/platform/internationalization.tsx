@@ -22,6 +22,8 @@ const english: Record<string, string> = {
 	'@astryx.selector.clearLabel': 'Clear selection',
 	'@astryx.checkboxList.item.checkbox': 'Checkbox',
 	'@astryx.markdown.taskList': 'Task list',
+	'@astryx.markdownHeadingLinks.copied': 'Link copied',
+	'@astryx.markdownHeadingLinks.copy': 'Copy link to {heading}',
 	'@astryx.pagination.label': 'Pagination',
 	'@astryx.pagination.previous': 'Previous page',
 	'@astryx.pagination.next': 'Next page',

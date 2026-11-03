@@ -16234,6 +16234,12 @@ export interface MarkdownPresentationProps {
 	contentAlign?: 'start' | 'center'
 	/** Renderer overrides per node kind. */
 	components?: Partial<MarkdownComponents>
+	/** Ordered opt-in Markdown extensions (`createMarkdownPlugin` entries):
+	 *  syntax contributions, immutable document transforms, and typed
+	 *  extension renderers. With `data`, entries supply renderers for
+	 *  extension nodes in the baked document; parsing and transforms are
+	 *  source-only. */
+	plugins?: readonly import('./markdown/markdown-plugins.ts').MdPluginEntry[]
 	/** Text-match renderers applied to parsed text nodes, in order. */
 	inlinePlugins?: MarkdownInlinePlugin[]
 	/** Opt-in autolinking of bare URLs and emails inside text — `'gfm'` rules:

@@ -5,11 +5,10 @@
 // Scope of this port: the canonical immutable AST and the full grammar —
 // nested containers, escapes/entities, emphasis delimiter resolution,
 // fences, tables/escaped pipes, reference links/images, autolinks, breaks,
-// citations, and opt-in math — plus the incremental parse machinery used by
-// markdown-stream.ts. Deliberately not ported: the legacy node projections
-// (Octane ships one document model) and the plugin extension protocol
-// (milestone 5), so parse options carry no `plugins` entry and extension
-// nodes only ever arrive through baked data.
+// citations, opt-in math, and the plugin extension protocol (syntax
+// contributions, ordered transforms, source lines) — plus the incremental
+// parse machinery used by markdown-stream.ts. Deliberately not ported: the
+// legacy node projections (Octane ships one document model).
 
 import {
 	decodeLiteralText,
@@ -18,6 +17,16 @@ import {
 } from './markdown-character-references.ts'
 import { mdInlineText } from './markdown-ast.ts'
 import { isSafeMdParserUrl } from './markdown-url.ts'
+import {
+	applyMarkdownTransforms,
+	freezeMarkdownPluginData,
+	isMarkdownPluginData,
+	prepareMarkdownPlugins,
+	reportMarkdownPluginFailure,
+	type MarkdownExtensionNode,
+	type PreparedMarkdownPlugins,
+	type PreparedSyntaxContribution,
+} from './markdown-plugins.ts'
 import type {
 	MdExtension,
 	MdInline,
@@ -64,7 +73,6 @@ type ResolvedOptions = {
 	/** Ordered syntax-plugin identity — internal plumbing for the extension
 	 *  protocol; invalidates the settled cache on change. */
 	readonly pluginSyntaxIdentity?: string
-	/** Whether the caller asked for the released `range` projection. */
 	/**
 	 * Whether this parse authors canonical `position` offsets on its blocks.
 	 * Internal only, and independent of `sourceRanges`: the canonical tree
@@ -72,7 +80,9 @@ type ResolvedOptions = {
 	 * decides whether the released projection exposes it as `range`.
 	 */
 	readonly astPositions?: boolean
+	readonly plugins?: PreparedMarkdownPlugins
 	readonly isFinal: boolean
+	readonly allowBlockSyntax?: boolean
 	/**
 	 * Offset of this parse's input within the document the ranges are reported
 	 * against. Internal only — the incremental parser parses slices and needs
@@ -106,6 +116,23 @@ type ResolvedOptions = {
 	}
 	/** Whether this parse runs inside a lazy-continuation probe. */
 	readonly probing?: boolean
+	/**
+	 * Whether blocks record their source lines (`markdownSourceLinesPlugin`).
+	 * Set only by the source-lines plugin; otherwise no line work runs.
+	 */
+	readonly sourceLines?: boolean
+	/**
+	 * 0-based document line of this parse's first input line. Internal only —
+	 * the incremental parser parses slices whose lines must come out absolute.
+	 */
+	readonly baseLine?: number
+	/**
+	 * 0-based document line of each input line of a nested parse. Internal only
+	 * — a list item's or a blockquote's content is reassembled one line per
+	 * source line, so its lines map back to the document through this table.
+	 * A nested parse without it records no lines.
+	 */
+	readonly lineOrigin?: ReadonlyArray<number | undefined>
 }
 
 /**
@@ -137,12 +164,17 @@ function makeResolvedOptions(
 		math: fields.math,
 		pluginSyntaxIdentity: fields.pluginSyntaxIdentity,
 		astPositions: fields.astPositions ?? true,
+		plugins: fields.plugins,
 		isFinal: fields.isFinal,
+		allowBlockSyntax: fields.allowBlockSyntax ?? true,
 		baseOffset: fields.baseOffset,
 		linkDefs: fields.linkDefs,
 		blockDepth: fields.blockDepth ?? 0,
 		nestedParses: fields.nestedParses,
 		probing: fields.probing,
+		sourceLines: fields.sourceLines,
+		baseLine: fields.baseLine,
+		lineOrigin: fields.lineOrigin,
 	}
 }
 
@@ -158,12 +190,18 @@ function resolveOptions(
 	if (arg == null) {
 		return incremental ? EMPTY_INCREMENTAL_OPTS : EMPTY_OPTS
 	}
+	const plugins =
+		arg.plugins != null && arg.plugins.length > 0
+			? prepareMarkdownPlugins(arg.plugins)
+			: undefined
 	return makeResolvedOptions({
 		sourceIds: arg.sourceIds,
 		autolink: arg.autolink,
 		math: arg.math === true ? true : undefined,
-		pluginSyntaxIdentity: arg.pluginSyntaxIdentity,
+		pluginSyntaxIdentity: plugins?.syntaxIdentity ?? arg.pluginSyntaxIdentity,
+		plugins,
 		isFinal: incremental ? arg.isFinal === true : true,
+		sourceLines: plugins?.sourceLines === true ? true : undefined,
 	})
 }
 
@@ -1543,6 +1581,144 @@ function matchBracketCitation(
 	return { sourceId: id, end: closeIndex + 1 }
 }
 
+type ExtensionMatch =
+	| { readonly status: 'none' }
+	| { readonly status: 'defer' }
+	| {
+			readonly status: 'match'
+			readonly node: MdExtension
+			readonly end: number
+	  }
+
+function currentLineStart(source: string, offset: number): number {
+	return source.lastIndexOf('\n', offset - 1) + 1
+}
+
+function matchExtensionSyntax(
+	source: string,
+	offset: number,
+	context: 'inline' | 'block',
+	opts: ResolvedOptions,
+): ExtensionMatch {
+	const byFirstCharacter =
+		context === 'inline'
+			? opts.plugins?.inlineByFirstCharacter
+			: opts.allowBlockSyntax === false
+				? undefined
+				: opts.plugins?.blockByFirstCharacter
+	const candidates = byFirstCharacter?.get(source[offset])
+	if (candidates == null) {
+		return { status: 'none' }
+	}
+
+	const seen = new Set<PreparedSyntaxContribution>()
+	for (const candidate of candidates) {
+		if (seen.has(candidate)) {
+			continue
+		}
+		seen.add(candidate)
+		let fullPrefix = false
+		for (const prefix of candidate.contribution.startsWith) {
+			if (source.startsWith(prefix, offset)) {
+				fullPrefix = true
+				break
+			}
+			if (!opts.isFinal) {
+				const remaining = source.slice(offset)
+				if (remaining.length < prefix.length && prefix.startsWith(remaining)) {
+					return { status: 'defer' }
+				}
+			}
+		}
+		if (!fullPrefix) {
+			continue
+		}
+
+		const end = Math.min(source.length, offset + candidate.contribution.maxSpan)
+		let result: ReturnType<typeof candidate.contribution.tokenize>
+		try {
+			result = candidate.contribution.tokenize({
+				source: end === source.length ? source : source.slice(0, end),
+				offset,
+				end,
+				isFinal: opts.isFinal,
+				context,
+				lineStart: currentLineStart(source, offset),
+				column: offset - currentLineStart(source, offset),
+			})
+		} catch (error) {
+			reportMarkdownPluginFailure(candidate.pluginName, 'syntax', error)
+			continue
+		}
+		if (
+			result == null ||
+			typeof result !== 'object' ||
+			typeof (result as { then?: unknown }).then === 'function'
+		) {
+			reportMarkdownPluginFailure(
+				candidate.pluginName,
+				'syntax',
+				new TypeError('Tokenizer returned an invalid result'),
+			)
+			continue
+		}
+		if (result.status === 'no-match') {
+			continue
+		}
+		if (result.status === 'defer') {
+			return !opts.isFinal &&
+				end === source.length &&
+				source.length - offset < candidate.contribution.maxSpan
+				? { status: 'defer' }
+				: { status: 'none' }
+		}
+		if (
+			result.status !== 'match' ||
+			!Number.isInteger(result.end) ||
+			result.end <= offset ||
+			result.end > end ||
+			result.node.type !== 'extension' ||
+			result.node.plugin !== candidate.pluginName ||
+			result.node.display !== context ||
+			result.node.name.trim() === '' ||
+			!isMarkdownPluginData(result.node.data) ||
+			!opts.plugins?.renderers.has(`${candidate.pluginName}\0${result.node.name}`)
+		) {
+			reportMarkdownPluginFailure(
+				candidate.pluginName,
+				'syntax',
+				new TypeError('Tokenizer returned an invalid extension node'),
+			)
+			continue
+		}
+		const rawNode = result.node as typeof result.node & {
+			readonly source?: unknown
+			readonly position?: unknown
+		}
+		const { source: _ignoredSource, position: _ignoredPosition, ...safeNode } = rawNode
+		const absoluteStart = (opts.baseOffset ?? 0) + offset
+		const absoluteEnd = (opts.baseOffset ?? 0) + result.end
+		return {
+			status: 'match',
+			end: result.end,
+			node: Object.freeze({
+				...safeNode,
+				data: freezeMarkdownPluginData(result.node.data),
+				source: source.slice(offset, result.end),
+				...(opts.astPositions === true && context === 'block'
+					? {
+							position: Object.freeze({
+								start: Object.freeze({ offset: absoluteStart }),
+								end: Object.freeze({ offset: absoluteEnd }),
+							}),
+						}
+					: null),
+			}) as MdExtension,
+		}
+	}
+	return { status: 'none' }
+}
+
 /**
  * The length of the line ending at `index` in inline text: 1 for LF, 2 for
  * CRLF (the parser keeps a CRLF line's `\r`), or 0 when none starts there.
@@ -1557,7 +1733,19 @@ function lineEndingLengthAt(text: string, index: number): number {
 /** Parse inline Markdown into the canonical immutable AST. */
 export function parseMdInline(text: string, options?: MdParseOptions): MdInline[] {
 	const opts = resolveOptions(options)
-	return parseInlineEntry(text, opts)
+	const nodes = parseInlineEntry(text, opts)
+	if ((opts.plugins?.transforms.length ?? 0) === 0) {
+		return nodes
+	}
+	const transformed = applyMarkdownTransforms(
+		{ kind: 'octane-xplat/md', v: 2, children: [{ type: 'paragraph', children: nodes }] },
+		opts.plugins,
+		text,
+		opts.isFinal,
+		'inline',
+	)
+	const paragraph = transformed.children[0]
+	return paragraph?.type === 'paragraph' ? [...paragraph.children] : nodes
 }
 
 /**
@@ -1591,6 +1779,10 @@ function parseInlineImpl(
 	// Code-span closers and link-text closers, each indexed when first asked,
 	// so neither code spans nor link text rescan the text.
 	const inlineIndex = inlineIndexOf(text, opts.linkDefs)
+	const inlineExtensionStarts =
+		(opts.plugins?.inlineByFirstCharacter.size ?? 0) > 0
+			? opts.plugins?.inlineByFirstCharacter
+			: undefined
 	let i = 0
 
 	while (i < text.length) {
@@ -1757,11 +1949,14 @@ function parseInlineImpl(
 				i = runEnd
 				continue
 			}
-			// A run that can neither open nor close is text; a plugin that starts
-			// with it may still read it below.
-			appendInlineText(nodes, delimiterNodes, text.slice(i, runEnd))
-			i = runEnd
-			continue
+			// A run that can neither open nor close is text unless plugin syntax
+			// can start on the character — then fall through to the extension
+			// check below.
+			if (inlineExtensionStarts?.has(character) !== true) {
+				appendInlineText(nodes, delimiterNodes, text.slice(i, runEnd))
+				i = runEnd
+				continue
+			}
 		}
 
 		// --- Strikethrough: ~~ ---
@@ -1774,6 +1969,22 @@ function parseInlineImpl(
 				})
 				i = closeIndex + 2
 				continue
+			}
+		}
+
+		// --- Plugin syntax: every built-in construct has already declined, so
+		// plugins are consulted only at ordinary characters they indexed. ---
+		if (inlineExtensionStarts !== undefined) {
+			const extension = matchExtensionSyntax(text, i, 'inline', opts)
+			if (extension.status === 'match') {
+				nodes.push(extension.node as MdInline)
+				i = extension.end
+				continue
+			}
+			if (extension.status === 'defer') {
+				// The rest of the text may still complete plugin syntax; leave it
+				// for the next snapshot rather than committing it as plain text.
+				break
 			}
 		}
 
@@ -1792,7 +2003,8 @@ function parseInlineImpl(
 		while (
 			end < text.length &&
 			!'*_~`[!\\\n\u3010&'.includes(text[end]) &&
-			!(opts.math && text[end] === '$')
+			!(opts.math && text[end] === '$') &&
+			!(inlineExtensionStarts !== undefined && inlineExtensionStarts.has(text[end]))
 		) {
 			end++
 		}
@@ -2187,9 +2399,29 @@ function isTableSeparator(line: string): boolean {
 function nested(opts: ResolvedOptions): ResolvedOptions {
 	return {
 		...opts,
+		allowBlockSyntax: false,
 		astPositions: false,
 		blockDepth: opts.blockDepth + 1,
+		baseLine: undefined,
+		lineOrigin: undefined,
 	}
+}
+
+/**
+ * The same options for content parsed out of an enclosing block whose input
+ * lines came from the document lines `origin` names. Without source lines,
+ * exactly `nested(opts)`.
+ */
+function nestedAt(
+	opts: ResolvedOptions,
+	origin: ReadonlyArray<number | undefined> | null,
+): ResolvedOptions {
+	return origin == null ? nested(opts) : { ...nested(opts), lineOrigin: origin }
+}
+
+function blockExtensionColumn(line: string): number | null {
+	const indentation = line.length - line.trimStart().length
+	return indentation <= 3 ? indentation : null
 }
 
 /**
@@ -2411,6 +2643,7 @@ function parseList(
 	ordered: boolean,
 	opts: ResolvedOptions,
 	interruptsLazyContinuation: (lineIndex: number) => boolean,
+	documentLineOf: ((loopLine: number) => number | undefined) | undefined,
 ): { node: MdNode; nextIndex: number } {
 	const items: MdListItem[] = []
 	const baseIndent = getIndent(lines[startIndex])
@@ -2523,10 +2756,21 @@ function parseList(
 
 		const source = listItemSource(itemText, subLines, lazyLineIndexes)
 
+		// Reassembled item text line j+1 came from loop line `itemStart + 1 + j`
+		// — line 0 is the marker line. `lineOrigin` maps them back to the
+		// document so a nested parse can still record source lines.
+		let itemOrigin: (number | undefined)[] | null = null
+		if (documentLineOf != null) {
+			itemOrigin = [documentLineOf(itemStart)]
+			for (let j = 0; j < subLines.length; j++) {
+				itemOrigin.push(documentLineOf(itemStart + 1 + j))
+			}
+		}
+
 		items.push({
 			type: 'listItem',
 			checked,
-			children: parseMarkdownImpl(source, nested(opts)),
+			children: parseMarkdownImpl(source, nestedAt(opts, itemOrigin)),
 		})
 
 		// CommonMark loose list: blank line(s) between items of the same style
@@ -2564,7 +2808,14 @@ export function parseMdNodes(input: string, options?: MdParseOptions): MdNode[] 
 
 /** Parse block Markdown into a versioned `MdDoc` envelope. */
 export function parseMdDoc(input: string, options?: MdParseOptions): MdDoc {
-	return { kind: 'octane-xplat/md', v: 2, children: parseMdNodes(input, options) }
+	const resolved = resolveOptions(options)
+	return applyMarkdownTransforms(
+		{ kind: 'octane-xplat/md', v: 2, children: parseMarkdownImpl(input, resolved) },
+		resolved.plugins,
+		input,
+		resolved.isFinal,
+		'block',
+	)
 }
 
 /** @internal Full-parse entry point with streaming finality for Outline. */
@@ -2575,7 +2826,13 @@ function parseMdInternal(
 ): MdNode[] {
 	const resolved = resolveOptions(arg)
 	const opts = isFinal ? resolved : { ...resolved, isFinal: false }
-	return parseMarkdownImpl(input, opts)
+	return applyMarkdownTransforms(
+		{ kind: 'octane-xplat/md', v: 2, children: parseMarkdownImpl(input, opts) },
+		opts.plugins,
+		input,
+		opts.isFinal,
+		'block',
+	).children as MdNode[]
 }
 
 function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[] {
@@ -2607,10 +2864,14 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 	}
 	const opts: ResolvedOptions = linkDefs != null ? { ...baseOpts, linkDefs } : baseOpts
 	const lines = cleaned.split('\n')
+	// Whether block-level plugin syntax may interrupt paragraphs, quotes, and
+	// lazy continuations here — top-level parses only.
+	const hasBlockExtensionSyntax =
+		opts.allowBlockSyntax !== false && (opts.plugins?.blockByFirstCharacter.size ?? 0) > 0
 	// Derived from the already-split lines rather than a second character
 	// scan: every line contributes its own length plus the newline it ended on.
 	const lineOffsets = [0]
-	if (opts.astPositions === true) {
+	if (opts.astPositions === true || hasBlockExtensionSyntax) {
 		let offset = 0
 		for (let index = 0; index < lines.length; index++) {
 			offset += lines[index].length + 1
@@ -2618,12 +2879,52 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 		}
 	}
 	const blocks: MdNode[] = []
+	// Maps a line of this parse's block loop to its 0-based document line, or
+	// `undefined` when this parse records no lines. Stripped definition lines
+	// go through `lineMap` first; nested parses then apply `lineOrigin`, and
+	// top-level slice parses add `baseLine`.
+	const documentLineOf =
+		opts.sourceLines !== true ||
+		(opts.lineOrigin == null && opts.baseLine == null && opts.blockDepth > 0)
+			? undefined
+			: opts.sourceLines === true
+				? (loopLine: number): number | undefined => {
+						const inputLine = lineMap != null ? lineMap[loopLine] : loopLine
+						return opts.lineOrigin != null
+							? opts.lineOrigin[inputLine]
+							: (opts.baseLine ?? 0) + inputLine
+					}
+				: undefined
+	// Extension match results for the block parser, keyed to the loop line
+	// each was computed at so paragraph/lazy-continuation checks can ask the
+	// same question without re-tokenizing.
+	const blockExtensionMatches = new Map<number, ExtensionMatch>()
+	const joinedLines = hasBlockExtensionSyntax ? lines.join('\n') : ''
+	const blockExtensionMatchAt = (lineIndex: number): ExtensionMatch => {
+		let match = blockExtensionMatches.get(lineIndex)
+		if (match === undefined) {
+			match = matchExtensionSyntax(joinedLines, lineOffsets[lineIndex], 'block', opts)
+			blockExtensionMatches.set(lineIndex, match)
+		}
+		return match
+	}
+	const interruptsWithBlockExtension = (lineIndex: number): boolean => {
+		if (!hasBlockExtensionSyntax || lineIndex >= lines.length) {
+			return false
+		}
+		if (blockExtensionColumn(lines[lineIndex]) == null) {
+			return false
+		}
+		const match = blockExtensionMatchAt(lineIndex)
+		return match.status === 'match' || match.status === 'defer'
+	}
 	// The line each block started on, parallel to `blocks`. Only collected when
 	// ranges were asked for; a block's end is resolved after the loop, since the
 	// branch that produced it has already moved `index` past whatever it read.
 	// A parse records lines only when it can place them in the document: at
 	// the top level, or nested with a table of its lines' origins.
-	const blockStartLines: number[] | null = opts.astPositions === true ? [] : null
+	const blockStartLines: number[] | null =
+		opts.astPositions === true || documentLineOf != null ? [] : null
 	// Set only by a block that consumes blank lines as content, where the
 	// positional end derivation would trim them away.
 	const blockEndLines: (number | undefined)[] | null = blockStartLines != null ? [] : null
@@ -2746,12 +3047,16 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 		// --- Blockquote ---
 		if (QUOTE_MARKER.test(line)) {
 			const quoteLines: string[] = []
+			const quoteOrigin: (number | undefined)[] = []
 			let lazyParagraphOpen: boolean | undefined
 			while (index < lines.length) {
 				const quoteLine = lines[index]
 				if (QUOTE_MARKER.test(quoteLine)) {
 					const content = quotedContent(quoteLine)
 					quoteLines.push(content)
+					if (documentLineOf != null) {
+						quoteOrigin.push(documentLineOf(index))
+					}
 					if (content.trim() === '') {
 						lazyParagraphOpen = false
 					} else if (
@@ -2765,6 +3070,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 				}
 				if (
 					quoteLines[quoteLines.length - 1]?.trim() === '' ||
+					interruptsWithBlockExtension(index) ||
 					!canContinueParagraphLazily(lines, index)
 				) {
 					break
@@ -2776,18 +3082,31 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 					break
 				}
 				quoteLines.push(quoteLine)
+				if (documentLineOf != null) {
+					quoteOrigin.push(documentLineOf(index))
+				}
 				index++
 			}
 			pushBlock({
 				type: 'blockquote',
-				children: parseMarkdownImpl(quoteLines.join('\n'), nested(opts)),
+				children: parseMarkdownImpl(
+					quoteLines.join('\n'),
+					nestedAt(opts, documentLineOf != null ? quoteOrigin : null),
+				),
 			})
 			continue
 		}
 
 		// --- Unordered list ---
 		if (/^ {0,9}[-*+] /.test(line)) {
-			const listResult = parseList(lines, index, false, opts, () => false)
+			const listResult = parseList(
+				lines,
+				index,
+				false,
+				opts,
+				interruptsWithBlockExtension,
+				documentLineOf,
+			)
 			pushBlock(listResult.node)
 			index = listResult.nextIndex
 			continue
@@ -2795,10 +3114,38 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 
 		// --- Ordered list ---
 		if (/^ {0,9}\d+[.)] /.test(line)) {
-			const listResult = parseList(lines, index, true, opts, () => false)
+			const listResult = parseList(
+				lines,
+				index,
+				true,
+				opts,
+				interruptsWithBlockExtension,
+				documentLineOf,
+			)
 			pushBlock(listResult.node)
 			index = listResult.nextIndex
 			continue
+		}
+
+		// --- Plugin block syntax: every built-in construct has declined, so
+		// plugins are consulted only at a line start they indexed. ---
+		if (hasBlockExtensionSyntax && blockExtensionColumn(line) != null) {
+			const extension = blockExtensionMatchAt(index)
+			if (extension.status === 'match') {
+				const matchedLines = extension.node.source?.split('\n').length ?? 1
+				const consumedLines = lines.slice(index, index + matchedLines)
+				if (consumedLines.join('\n') !== extension.node.source) {
+					reportMarkdownPluginFailure(
+						extension.node.plugin,
+						'syntax',
+						new TypeError('Block syntax must consume complete lines'),
+					)
+				} else {
+					pushBlock(extension.node as MdNode)
+					index += matchedLines
+					continue
+				}
+			}
 		}
 
 		// --- Paragraph ---
@@ -2808,6 +3155,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 			const nextLine = lines[index]
 			if (
 				isBlockStart(nextLine) ||
+				interruptsWithBlockExtension(index) ||
 				(opts.math && matchDisplayMathBlock(lines, index) != null) ||
 				nextLine.trim() === ''
 			) {
@@ -2822,7 +3170,16 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 		})
 	}
 	if (blockStartLines != null) {
-		stampSourceRanges(blocks, blockStartLines, blockEndLines ?? [], lines, lineMap, input, opts)
+		stampSourceRanges(
+			blocks,
+			blockStartLines,
+			blockEndLines ?? [],
+			lines,
+			lineMap,
+			input,
+			opts,
+			documentLineOf,
+		)
 	}
 	const nestedParses = baseOpts.nestedParses?.map
 	if (baseOpts.probing === true && nestedParses != null) {
@@ -2848,6 +3205,7 @@ function stampSourceRanges(
 	lineMap: number[] | undefined,
 	input: string,
 	opts: ResolvedOptions,
+	documentLineOf?: (loopLine: number) => number | undefined,
 ): void {
 	const withOffsets = opts.astPositions === true
 	const base = opts.baseOffset ?? 0
@@ -2881,9 +3239,17 @@ function stampSourceRanges(
 		// differently.
 		// Each point is built as one literal so a parse without source lines
 		// produces exactly the `{offset}` points it always has.
+		const startDocLine = documentLineOf?.(startLine)
+		const endDocLine = documentLineOf?.(endLine)
 		const position: MdPosition = {
-			start: { offset: lineStart(startLine) },
-			end: { offset: lineStart(endLine) + lines[endLine].length },
+			start: {
+				...(withOffsets ? { offset: lineStart(startLine) } : null),
+				...(startDocLine != null ? { line: startDocLine + 1 } : null),
+			},
+			end: {
+				...(withOffsets ? { offset: lineStart(endLine) + lines[endLine].length } : null),
+				...(endDocLine != null ? { line: endDocLine + 1 } : null),
+			},
 		}
 		blocks[i] = withMarkerShapeOf(blocks[i], { ...blocks[i], position })
 	}
@@ -2919,8 +3285,8 @@ export interface MarkdownIncrementalState {
 	math?: boolean
 	/** Identity of citation sources used by settled nodes. */
 	sourceIdsKey?: string
-	/** Ordered syntax-plugin identity used by settled nodes — populated by
-	 *  the extension protocol (milestone 5); unset options never flip it. */
+	/** Ordered syntax-plugin identity used by settled nodes — populated from
+	 *  the prepared plugin list; unset options never flip it. */
 	pluginSyntaxIdentity?: string
 	/**
 	 * Signature of the link reference definitions the cached `settledBlocks`
@@ -2935,6 +3301,11 @@ export interface MarkdownIncrementalState {
 type IncrementalCache = {
 	/** Character offset immediately after the immutable settled prefix. */
 	settledEnd: number
+	/**
+	 * Line breaks before `settledEnd`, kept only while source lines are
+	 * recorded; `undefined` when unknown, counted once from the settled text.
+	 */
+	settledEndLine: number | undefined
 	/** Definitions whose complete block is in the settled prefix. */
 	settledLinkDefs: Map<string, string>
 	/** Definitions still in the mutable tail on the preceding call. */
@@ -2972,6 +3343,7 @@ function makeIncrementalCache(state: MarkdownIncrementalState): IncrementalCache
 	const { defs } = extractLinkDefinitions(state.settledText, state.math)
 	const cache: IncrementalCache = {
 		settledEnd: state.settledText.length,
+		settledEndLine: undefined,
 		settledLinkDefs: new Map(defs),
 		tailLinkDefs: new Map(),
 		linkDefs: defs,
@@ -3532,6 +3904,23 @@ function appendSettledBlocks(prev: MdNode[], delta: MdNode[]): boolean {
 	return false
 }
 
+/** Line breaks in `text` — O(n), counted once per parse segment. */
+function countNewlines(text: string): number {
+	let count = 0
+	for (let i = text.indexOf('\n'); i !== -1; i = text.indexOf('\n', i + 1)) {
+		count++
+	}
+	return count
+}
+
+/**
+ * The same options, with the 0-based document line the slice starts on —
+ * so a slice parse under the source-lines plugin stamps absolute lines.
+ */
+function atLine(opts: ResolvedOptions, baseLine: number): ResolvedOptions {
+	return opts.sourceLines === true ? { ...opts, baseLine } : opts
+}
+
 function sameUnsettledDefinitions(
 	previous: ReadonlyMap<string, string>,
 	next: ReadonlyMap<string, string>,
@@ -3560,6 +3949,7 @@ function resetIncrementalCache(state: MarkdownIncrementalState, cache: Increment
 	state.pluginSyntaxIdentity = undefined
 	state.math = undefined
 	cache.settledEnd = 0
+	cache.settledEndLine = undefined
 	cache.settledLinkDefs.clear()
 	cache.tailLinkDefs = new Map()
 	cache.linkDefs = new Map()
@@ -3657,6 +4047,13 @@ export function parseMarkdownIncremental(
 	const parseOpts: ResolvedOptions =
 		cache.linkDefs.size > 0 ? { ...opts, linkDefs: cache.linkDefs } : opts
 
+	// Document line (0-based) the delta starts on — the newline count before
+	// the old settled end. Counted once and cached while source lines record.
+	const deltaBaseLine =
+		opts.sourceLines === true
+			? (cache.settledEndLine ??= countNewlines(state.settledText))
+			: undefined
+
 	if (settledDelta !== '') {
 		state.settledText += settledDelta
 		state.settledUpTo += settledDelta.split('\n').length - 1
@@ -3664,6 +4061,9 @@ export function parseMarkdownIncremental(
 			state.settledUpTo++
 		}
 		cache.settledEnd = nextSettledEnd
+		if (opts.sourceLines === true && settledDelta !== '') {
+			cache.settledEndLine = (deltaBaseLine ?? 0) + countNewlines(settledDelta)
+		}
 	}
 
 	// Blank lines before the tail and whitespace after it carry nothing, but
@@ -3691,7 +4091,10 @@ export function parseMarkdownIncremental(
 		state.settledBlocks = state.settledText ? parseMarkdownImpl(state.settledText, parseOpts) : []
 		parsedSettledBlocks = state.settledBlocks.length
 	} else if (settledDelta !== '') {
-		const deltaBlocks = parseMarkdownImpl(settledDelta, atOffset(parseOpts, oldSettledEnd))
+		const deltaBlocks = parseMarkdownImpl(
+			settledDelta,
+			atLine(atOffset(parseOpts, oldSettledEnd), deltaBaseLine ?? 0),
+		)
 		appendSettledBlocks(state.settledBlocks, deltaBlocks)
 		parsedSettledBlocks = deltaBlocks.length
 	}
@@ -3701,13 +4104,20 @@ export function parseMarkdownIncremental(
 	// which is a line index. If it cannot be located, parse it without
 	// positions rather than report wrong ones.
 	const unsettledStart =
-		unsettledText && opts.astPositions === true
+		unsettledText && (opts.astPositions === true || opts.sourceLines === true)
 			? input.indexOf(unsettledText, cache.settledEnd)
 			: -1
+	const unsettledBaseLine =
+		unsettledStart >= 0 && opts.sourceLines === true
+			? (cache.settledEndLine ?? 0) +
+				countNewlines(input.slice(cache.settledEnd, unsettledStart))
+			: 0
 	const unsettledBlocks = unsettledText
 		? parseMarkdownImpl(
 				unsettledText,
-				unsettledStart >= 0 ? atOffset(parseOpts, unsettledStart) : nested(parseOpts),
+				unsettledStart >= 0
+					? atLine(atOffset(parseOpts, unsettledStart), unsettledBaseLine)
+					: nested(parseOpts),
 			)
 		: []
 
@@ -3718,5 +4128,15 @@ export function parseMarkdownIncremental(
 		definitionCharacters: settledDelta.length + unsettledInput.length,
 		renderedBlocks: parsedSettledBlocks + unsettledBlocks.length,
 	}
-	return mergeSettledBlocks(state.settledBlocks, unsettledBlocks)
+	return applyMarkdownTransforms(
+		{
+			kind: 'octane-xplat/md',
+			v: 2,
+			children: mergeSettledBlocks(state.settledBlocks, unsettledBlocks),
+		},
+		opts.plugins,
+		input,
+		opts.isFinal,
+		'block',
+	).children as MdNode[]
 }

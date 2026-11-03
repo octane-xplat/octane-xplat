@@ -24,7 +24,7 @@ export interface MdPosition {
 	readonly end: MdPoint
 }
 
-interface MdNodeBase {
+export interface MdNodeBase {
 	/** Where the node sits in the source it was parsed from. Present on
 	 *  top-level blocks; nested blocks do not carry one. */
 	readonly position?: MdPosition
@@ -33,13 +33,20 @@ interface MdNodeBase {
 
 /** Data a Markdown extension contributes to the document. Renderers learn
  *  which extension produced it from `plugin`/`name`; `source` is the
- *  exact text the node was parsed from when known. */
-export interface MdExtension extends MdNodeBase {
+ *  exact text the node was parsed from when known. The generic parameters
+ *  let a plugin carry its own node names, payloads, and display through the
+ *  public types (`MarkdownExtensionNode` in the plugin protocol). */
+export interface MdExtension<
+	Plugin extends string = string,
+	Name extends string = string,
+	Data extends MdDataValue = MdDataValue,
+	Display extends 'inline' | 'block' = 'inline' | 'block',
+> extends MdNodeBase {
 	readonly type: 'extension'
-	readonly plugin: string
-	readonly name: string
-	readonly data: MdDataValue
-	readonly display: 'inline' | 'block'
+	readonly plugin: Plugin
+	readonly name: Name
+	readonly data: Data
+	readonly display: Display
 	readonly source?: string
 }
 
@@ -202,6 +209,9 @@ export interface MdDoc {
 	kind: 'octane-xplat/md'
 	/** Format version — always 2. */
 	v: 2
+	/** Document-level JSON data — reserved for Core-owned envelopes such as
+	 *  the frontmatter transform's metadata record. */
+	readonly data?: MdDataValue
 	/** Top-level markdown blocks. */
 	children: readonly MdNode[]
 }
@@ -226,6 +236,10 @@ export interface MdParseOptions {
 	readonly autolink?: 'gfm'
 	/** Parse `$…$` / `$$…$$` into math node types. Off by default. */
 	readonly math?: boolean
+	/** Ordered opt-in Markdown extensions (`createMarkdownPlugin` entries).
+	 *  Syntax contributions parse into extension nodes; transforms run after
+	 *  the parse in registration order. */
+	readonly plugins?: readonly import('./markdown-plugins.ts').MdPluginEntry[]
 }
 
 /** Wrap top-level blocks in the versioned document envelope. */
@@ -463,6 +477,9 @@ export function assertMdDoc(value: unknown): asserts value is MdDoc {
 			`unsupported version ${JSON.stringify((doc as { v?: unknown }).v)} — expected ${MD_DOC_VERSION}`,
 		)
 	}
+	if (doc.data !== undefined && !isDataValue(doc.data)) {
+		fail('$', 'data must be JSON-compatible')
+	}
 	if (!Array.isArray(doc.children)) {
 		fail('$', 'children must be an array')
 	}
@@ -515,7 +532,11 @@ export function mdInlineText(
 }
 
 /** Rendered length of an inline run — `mdInlineText` without allocating. */
-export function mdInlineLen(nodes: readonly MdInline[] | undefined): number {
+export function mdInlineLen(
+	nodes: readonly MdInline[] | undefined,
+	extensionText: (node: MdExtension & { readonly display: 'inline' }) => string = (node) =>
+		node.source ?? '',
+): number {
 	let n = 0
 	for (const node of nodes ?? []) {
 		switch (node.type) {
@@ -528,7 +549,7 @@ export function mdInlineLen(nodes: readonly MdInline[] | undefined): number {
 			case 'emphasis':
 			case 'delete':
 			case 'link':
-				n += mdInlineLen(node.children)
+				n += mdInlineLen(node.children, extensionText)
 				break
 			case 'image':
 				n += node.alt.length
@@ -540,7 +561,7 @@ export function mdInlineLen(nodes: readonly MdInline[] | undefined): number {
 				n += 1
 				break
 			case 'extension':
-				n += (node.source ?? '').length
+				n += extensionText(node).length
 				break
 			default:
 				break

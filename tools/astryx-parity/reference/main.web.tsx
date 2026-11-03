@@ -8,6 +8,12 @@ import { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Markdown } from '@astryxdesign/core/Markdown'
 import {
+	createMarkdownFrontmatter,
+	createMarkdownHeadingLinks,
+	markdownSoftBreaksPlugin,
+	markdownSourceLinesPlugin,
+} from '@astryxdesign/core/Markdown/plugins'
+import {
 	buttonScenarios,
 	textInputScenarios,
 	checkboxScenarios,
@@ -275,6 +281,30 @@ function SwitchBehavior() {
 	)
 }
 
+const frontmatter = createMarkdownFrontmatter({ name: 'meta', parse: (fields) => fields })
+const markdownPlugins = (profiles?: readonly string[]) =>
+	profiles?.map((p) => {
+		switch (p) {
+			case 'soft-breaks':
+				return markdownSoftBreaksPlugin
+			case 'frontmatter':
+				return frontmatter.plugin
+			case 'source-lines':
+				return markdownSourceLinesPlugin
+			case 'heading-links':
+				return createMarkdownHeadingLinks({ permalinkBaseUrl: 'https://docs.example' })
+			default:
+				throw new RangeError(`unknown plugin profile ${p}`)
+		}
+	})
+
+const inlinePlugins = [
+	{
+		pattern: /@(\w+)/g,
+		render: (match: RegExpMatchArray, key: string) => <mark key={key}>{match[0]}</mark>,
+	},
+]
+
 function MarkdownGrid() {
 	return (
 		<div className="parity-grid">
@@ -283,6 +313,8 @@ function MarkdownGrid() {
 					<Markdown
 						autolink={s.options?.autolink}
 						sources={s.options?.sourceIds ? CITATION_SOURCES : undefined}
+						plugins={markdownPlugins(s.options?.plugins)}
+						inlinePlugins={s.options?.inlinePlugin ? inlinePlugins : undefined}
 					>
 						{s.source}
 					</Markdown>

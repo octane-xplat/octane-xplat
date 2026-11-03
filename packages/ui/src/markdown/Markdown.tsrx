@@ -21,8 +21,25 @@ import {
 	TableRow,
 } from '../table/Table.tsrx'
 import { sanitizeUrl } from '../routing/safe-url'
-import { mdInlineLen, mdInlineText } from './markdown-ast'
+import { mdInlineLen, mdInlineText, mdDoc } from './markdown-ast'
 import { parseMdInline, parseMdNodes } from './markdown-parse'
+import {
+	applyMarkdownTransforms,
+	getMarkdownExtensionRenderer,
+	markdownExtensionText,
+	prepareMarkdownPlugins,
+	reportMarkdownPluginFailure,
+	type MdPluginEntry,
+	type PreparedMarkdownPlugins,
+} from './markdown-plugins'
+import {
+	getMarkdownFenceProposal,
+	projectMarkdownHeadingLinks,
+} from './markdown-plugin-helpers'
+import { MdSourceLines } from './markdown-source-lines.tsrx'
+import { useClipboard } from '../internal/platform/use-clipboard.tsrx'
+import { useContainerReveal } from '../components/layout/use-container-reveal.tsrx'
+import { Button } from '../components/actions/Button.tsrx'
 import {
 	computeBoundaries,
 	computeSegments,
@@ -56,6 +73,7 @@ import type {
 	MarkdownProps,
 	MarkdownScreenProps,
 	MarkdownComponents,
+	MdExtension,
 	MdInline,
 	MdList,
 	MdNode,
@@ -199,9 +217,173 @@ interface RenderCtx {
 	}
 	inlinePlugins?: MarkdownInlinePlugin[]
 	components?: Partial<MarkdownComponents>
+	plugins?: PreparedMarkdownPlugins
 	headingIds?: ReadonlyMap<MdNode, string>
+	headingLabels?: ReadonlyMap<MdNode, string>
+	permalinkUrls?: ReadonlyMap<MdNode, string>
 	headingLevelStart?: 1 | 2 | 3 | 4 | 5 | 6
 	listDepth: number
+}
+
+/** The 1-based inclusive source lines a block carries while the
+ *  `markdownSourceLinesPlugin` is installed; `undefined` otherwise. */
+function blockSourceLines(
+	ctx: RenderCtx,
+	node: MdNode,
+): { readonly start: number; readonly end: number } | undefined {
+	if (ctx.plugins?.sourceLines !== true) {
+		return undefined
+	}
+	const start = node.position?.start.line
+	const end = node.position?.end.line
+	return start != null && end != null ? { start, end } : undefined
+}
+
+// ---------------------------------------------------------------------------
+// Plugin node rendering (extension protocol boundary semantics)
+// ---------------------------------------------------------------------------
+
+/**
+ * Per-extension-node failure boundary — the reference's
+ * `MarkdownErrorBoundary`/`MarkdownNodePendingBoundary` pair. A renderer that
+ * throws lands in `@catch`; one that suspends (`use(promise)`) sits in
+ * `@pending` until it settles; both show the caller's readable fallback.
+ */
+function MdPluginBoundary(props: { fallback: unknown; children?: unknown }): unknown @{
+	@try {
+		<>{props.children}</>
+	} @pending {
+		<>{props.fallback}</>
+	} @catch (error) {
+		<>{props.fallback}</>
+	}
+}
+
+/** Numeric identities for the boundary reset keys — the reference retries a
+ *  failed boundary when the node or its renderer changes
+ *  (`resetKey`/`resetRenderer`), which a keyed remount expresses here. */
+const pluginBoundaryIds = new WeakMap<object, number>()
+let nextPluginBoundaryId = 0
+function pluginBoundaryId(value: object): number {
+	let id = pluginBoundaryIds.get(value)
+	if (id == null) {
+		id = ++nextPluginBoundaryId
+		pluginBoundaryIds.set(value, id)
+	}
+	return id
+}
+
+/**
+ * Render an extension node through its plugin renderer — synchronous throws
+ * and missing renderers take the fallback immediately; everything else is
+ * wrapped in the node boundary so a throw or pending promise inside the
+ * rendered subtree also resolves to the fallback. The boundary is keyed on
+ * the node and renderer identities, so a new node or a changed renderer
+ * retries after a failure instead of sticking on the fallback.
+ */
+function renderMdPluginNode(
+	prepared: PreparedMarkdownPlugins | undefined,
+	node: MdExtension,
+	fallback: unknown,
+): unknown {
+	const renderer = getMarkdownExtensionRenderer(prepared, node)
+	if (renderer == null) {
+		return fallback
+	}
+	let rendered: unknown
+	try {
+		rendered = renderer.render({ node })
+	} catch (error) {
+		reportMarkdownPluginFailure(node.plugin, 'render', error)
+		return fallback
+	}
+	return (
+		<MdPluginBoundary
+			key={`${pluginBoundaryId(node)}-${pluginBoundaryId(renderer.render)}`}
+			fallback={fallback}
+		>
+			{rendered}
+		</MdPluginBoundary>
+	)
+}
+
+/** The copy-link feedback window — the reference's COPY_FEEDBACK_MS. */
+const COPY_FEEDBACK_MS = 1500
+
+/**
+ * Heading-permalink copy button — `createMarkdownHeadingLinks`'s rendered
+ * half (the reference's HeadingLinksRenderer). The heading stays an incoming
+ * fragment target; the ghost `#` copies the canonical permalink URL and
+ * flips to a check with a live announcement for the feedback window. The
+ * control reveals on container hover/focus (staying mounted and tabbable)
+ * while a hidden `#` probe reserves its slot, so the heading's layout never
+ * shifts — the reference's `isLayoutPreserved` reveal.
+ */
+function MdHeadingPermalink(props: {
+	url: string
+	label: string
+	children?: unknown
+}): unknown @{
+	const t = useTranslator()
+	const copiedLabel = t('@astryx.markdownHeadingLinks.copied')
+	const copyLabel = t('@astryx.markdownHeadingLinks.copy').replace(
+		'{heading}',
+		props.label,
+	)
+	const { copy, isCopied } = useClipboard({
+		announce: copiedLabel,
+		resetAfterMs: COPY_FEEDBACK_MS,
+	})
+	const { getContainerProps, getContentRevealProps } = useContainerReveal()
+	return (
+		<View
+			className="vx-md-heading-links"
+			{...getContainerProps()}
+			style={{ flexDirection: 'row', alignItems: 'baseline', minWidth: 0, maxWidth: '100%' }}
+		>
+			{props.children}
+			<View
+				className="vx-md-heading-permalink-slot"
+				style={{ position: 'relative', flexShrink: 0, marginInlineStart: 6 }}
+			>
+				<Text accessible={false} style={{ visibility: 'hidden' }}>
+					#
+				</Text>
+				<Button
+					variant="ghost"
+					size="sm"
+					isIconOnly
+					label={isCopied ? copiedLabel : copyLabel}
+					clickAction={() => {
+						void copy(props.url)
+					}}
+					{...getContentRevealProps()}
+					style={{ position: 'absolute', insetBlockStart: '50%', transform: 'translateY(-50%)' }}
+				>
+					{isCopied ? '✓' : '#'}
+				</Button>
+			</View>
+		</View>
+	)
+}
+
+/** Syntax entries must keep their identity across chunk updates when the
+ *  plugin list's syntax identity is unchanged — otherwise every memo
+ *  downstream of parse options re-parses a document the caller did not
+ *  change. Mirrors the reference's useStableMarkdownSyntaxEntries. */
+function useStableMdSyntaxEntries(
+	prepared: PreparedMarkdownPlugins | undefined,
+): PreparedMarkdownPlugins | undefined {
+	const prevRef = useRef<PreparedMarkdownPlugins | undefined>(undefined)
+	if (
+		prepared !== prevRef.current &&
+		(prepared == null ||
+			prevRef.current == null ||
+			prepared.syntaxIdentity !== prevRef.current.syntaxIdentity)
+	) {
+		prevRef.current = prepared
+	}
+	return prevRef.current
 }
 
 function citationNumber(ctx: NonNullable<RenderCtx['citations']>, sourceId: string): number {
@@ -433,16 +615,17 @@ function Inlines(props: {
 				pos += 1
 				out.push(<MdBreak />)
 				break
-			case 'extension':
-				out.push(
-					props.ctx.stream ? (
-						<SegmentedText text={n.source ?? ''} pos={at} stream={streamOf(at)!} segKey={key} />
-					) : (
-						(n.source ?? '')
-					),
+			case 'extension': {
+				const fallbackText = n.source ?? markdownExtensionText(props.ctx.plugins, n)
+				const fallback = props.ctx.stream ? (
+					<SegmentedText text={fallbackText} pos={at} stream={streamOf(at)!} segKey={key} />
+				) : (
+					fallbackText
 				)
-				pos += (n.source ?? '').length
+				out.push(renderMdPluginNode(props.ctx.plugins, n, fallback))
+				pos += fallbackText.length
 				break
+			}
 			default:
 				out.push(
 					props.ctx.stream ? (
@@ -634,21 +817,35 @@ function Blocks(props: {
 	for (const [i, node] of props.nodes.entries()) {
 		const segKey = `${props.segKey}.${i}`
 		const margin = props.margin !== undefined ? props.margin : seamStyle(props.nodes, i, props.compact)
+		const sl = blockSourceLines(props.ctx, node)
 		switch (node.type) {
 			case 'heading': {
 				const level = Math.min(6, node.depth + (props.ctx.headingLevelStart ?? 1) - 1) as
 					| 1 | 2 | 3 | 4 | 5 | 6
 				const kids = <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
 				const headingId = props.ctx.headingIds?.get(node)
+				const permalinkUrl = props.ctx.permalinkUrls?.get(node)
 				const Comp = props.ctx.components?.heading as any
+				const rendered = Comp ? (
+					<Comp level={level} id={headingId} sourceLines={sl}>{kids}</Comp>
+				) : (
+					<Heading level={level} id={headingId} style={{ ...margin, ...proseStyle() } as never}>
+						{kids}
+					</Heading>
+				)
 				blocks.push(
-					Comp ? (
-						<Comp level={level} id={headingId}>{kids}</Comp>
-					) : (
-						<Heading level={level} id={headingId} style={{ ...margin, ...proseStyle() } as never}>
-							{kids}
-						</Heading>
-					),
+					<MdSourceLines lines={sl}>
+						{permalinkUrl != null ? (
+							<MdHeadingPermalink
+								url={permalinkUrl}
+								label={props.ctx.headingLabels?.get(node) ?? headingId ?? ''}
+							>
+								{rendered}
+							</MdHeadingPermalink>
+						) : (
+							rendered
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
@@ -656,11 +853,13 @@ function Blocks(props: {
 				const kids = <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
 				const Comp = props.ctx.components?.paragraph as any
 				blocks.push(
-					Comp ? (
-						<Comp>{kids}</Comp>
-					) : (
-						<MdParagraph style={{ ...margin, ...proseStyle() } as never}>{kids}</MdParagraph>
-					),
+					<MdSourceLines lines={sl}>
+						{Comp ? (
+							<Comp sourceLines={sl}>{kids}</Comp>
+						) : (
+							<MdParagraph style={{ ...margin, ...proseStyle() } as never}>{kids}</MdParagraph>
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
@@ -672,50 +871,87 @@ function Blocks(props: {
 					: undefined
 				const language = diffLanguage ?? legacyLanguage
 				const Comp = props.ctx.components?.code as any
-				blocks.push(
-					Comp ? (
-						<Comp code={node.value} language={legacyLanguage} />
-					) : (
-						<View
-							className="vx-md-codeblock"
-							style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}
-						>
-							<CodeBlock
-								code={node.value}
-								language={language}
-								isDiff={fence.isDiff}
-								isCollapsible
-								isWrapped
-								width="100%"
-							/>
-						</View>
-					),
+				const fallback = Comp ? (
+					<Comp code={node.value} language={legacyLanguage} sourceLines={sl} />
+				) : (
+					<View
+						className="vx-md-codeblock"
+						style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}
+					>
+						<CodeBlock
+							code={node.value}
+							language={language}
+							isDiff={fence.isDiff}
+							isCollapsible
+							isWrapped
+							width="100%"
+						/>
+					</View>
 				)
+				// A semantic-fence transform proposes an extension node in place of
+				// this code block; its renderer may decline (null/boolean →
+				// fallback), throw, or suspend — all land on the same fallback.
+				const proposal = getMarkdownFenceProposal(node)
+				if (proposal != null) {
+					const renderer = getMarkdownExtensionRenderer(props.ctx.plugins, proposal.node)
+					if (renderer != null) {
+						let rendered: unknown
+						let failed = false
+						try {
+							rendered = renderer.render({ node: proposal.node })
+						} catch (error) {
+							reportMarkdownPluginFailure(proposal.node.plugin, 'render', error)
+							failed = true
+						}
+						blocks.push(
+							<MdSourceLines lines={sl}>
+								{failed || rendered == null || typeof rendered === 'boolean' ? (
+									fallback
+								) : (
+									<MdPluginBoundary
+										key={`fence-${pluginBoundaryId(proposal.node)}-${pluginBoundaryId(renderer.render)}`}
+										fallback={fallback}
+									>
+										{rendered}
+									</MdPluginBoundary>
+								)}
+							</MdSourceLines>,
+						)
+						break
+					}
+				}
+				blocks.push(<MdSourceLines lines={sl}>{fallback}</MdSourceLines>)
 				break
 			}
 			case 'math': {
 				const Comp = props.ctx.components?.math as any
 				blocks.push(
-					Comp ? (
-						<Comp value={node.value} display="block" />
-					) : (
-						<MdParagraph style={margin as never}>{`$$${node.value}$$`}</MdParagraph>
-					),
+					<MdSourceLines lines={sl}>
+						{Comp ? (
+							<Comp value={node.value} display="block" sourceLines={sl} />
+						) : (
+							<MdParagraph style={margin as never}>{`$$${node.value}$$`}</MdParagraph>
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
 			case 'table':
 				blocks.push(
-					<View style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}>
-						<MarkdownTable node={node} ctx={props.ctx} />
-					</View>,
+					<MdSourceLines lines={sl}>
+						<View style={{ ...margin, ...blockAlignStyle(), maxWidth: '100%' } as never}>
+							<MarkdownTable node={node} ctx={props.ctx} />
+						</View>
+					</MdSourceLines>,
 				)
 				break
 			case 'list':
 				blocks.push(
-					<View style={{ ...margin, ...proseStyle() } as never}>
-						<ListItems node={node} segKey={segKey} ctx={props.ctx} contentWidth={props.contentWidth} contentAlign={props.contentAlign} compact={props.compact} />
-					</View>,
+					<MdSourceLines lines={sl}>
+						<View style={{ ...margin, ...proseStyle() } as never}>
+							<ListItems node={node} segKey={segKey} ctx={props.ctx} contentWidth={props.contentWidth} contentAlign={props.contentAlign} compact={props.compact} />
+						</View>
+					</MdSourceLines>,
 				)
 				break
 			case 'blockquote': {
@@ -731,29 +967,33 @@ function Blocks(props: {
 				)
 				const Comp = props.ctx.components?.blockquote as any
 				blocks.push(
-					Comp ? (
-						<Comp>{kids}</Comp>
-					) : (
-						<Blockquote style={{ ...margin, ...proseStyle() } as never}>{kids}</Blockquote>
-					),
+					<MdSourceLines lines={sl}>
+						{Comp ? (
+							<Comp sourceLines={sl}>{kids}</Comp>
+						) : (
+							<Blockquote style={{ ...margin, ...proseStyle() } as never}>{kids}</Blockquote>
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
 			case 'thematicBreak': {
 				const Comp = props.ctx.components?.hr as any
 				blocks.push(
-					Comp ? (
-						<Comp />
-					) : (
-						<View
-							style={{
-								...margin,
-								height: 1,
-								borderTopWidth: 1,
-								borderTopColor: 'var(--color-border)',
-							} as never}
-						/>
-					),
+					<MdSourceLines lines={sl}>
+						{Comp ? (
+							<Comp sourceLines={sl} />
+						) : (
+							<View
+								style={{
+									...margin,
+									height: 1,
+									borderTopWidth: 1,
+									borderTopColor: 'var(--color-border)',
+								} as never}
+							/>
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
@@ -761,31 +1001,38 @@ function Blocks(props: {
 				const safe = sanitizeUrl(node.url)
 				const Comp = props.ctx.components?.image as any
 				blocks.push(
-					safe == null ? (
-						<MdParagraph style={margin as never}>{`[${node.alt}]`}</MdParagraph>
-					) : Comp ? (
-						<Comp src={safe} alt={node.alt} />
-					) : (
-						<View style={margin as never}>
-							<Image
-								src={safe}
-								alt={node.alt}
-								style={{ maxWidth: '100%', borderRadius: 'var(--radius-element, 4px)' }}
-							/>
-						</View>
-					),
+					<MdSourceLines lines={sl}>
+						{safe == null ? (
+							<MdParagraph style={margin as never}>{`[${node.alt}]`}</MdParagraph>
+						) : Comp ? (
+							<Comp src={safe} alt={node.alt} sourceLines={sl} />
+						) : (
+							<View style={margin as never}>
+								<Image
+									src={safe}
+									alt={node.alt}
+									style={{ maxWidth: '100%', borderRadius: 'var(--radius-element, 4px)' }}
+								/>
+							</View>
+						)}
+					</MdSourceLines>,
 				)
 				break
 			}
-			case 'extension':
-				// Extension renderers land with the extension system; until then
-				// the source text is the fallback, wrapped like a paragraph.
+			case 'extension': {
+				// The reference wraps every block extension in its own div with
+				// paragraph spacing and prose width/align; the readable fallback
+				// is the node's source (or its plugin's text projection).
+				const fallback = node.source ?? markdownExtensionText(props.ctx.plugins, node)
 				blocks.push(
-					<MdParagraph style={{ ...margin, ...proseStyle() } as never}>
-						{node.source ?? ''}
-					</MdParagraph>,
+					<MdSourceLines lines={sl}>
+						<View style={{ ...margin, ...proseStyle() } as never}>
+							{renderMdPluginNode(props.ctx.plugins, node, fallback)}
+						</View>
+					</MdSourceLines>,
 				)
 				break
+			}
 			default:
 				blocks.push(null)
 		}
@@ -815,6 +1062,21 @@ export function Markdown(props: MarkdownProps): unknown @{
 	const streaming = props.isStreaming === true && props.data == null
 	const sourceText = props.data ? '' : typeof props.children === 'string' ? props.children : ''
 
+	// Ordered plugin list — prepared once per list instance (WeakMap-cached by
+	// the protocol); a malformed entry reports once and degrades to no plugins.
+	const preparedPlugins = useMemo(() => {
+		if (props.plugins == null || props.plugins.length === 0) {
+			return undefined
+		}
+		try {
+			return prepareMarkdownPlugins(props.plugins)
+		} catch (error) {
+			reportMarkdownPluginFailure('plugin-list', 'transform', error)
+			return undefined
+		}
+	}, [props.plugins])
+	const syntaxPlugins = useStableMdSyntaxEntries(preparedPlugins)
+
 	// Bursty chunks drain through a steady character reveal before parsing
 	// (the reference's internal useStreamingText call): raw markup never
 	// reaches the renderer mid-token and the reveal pace matches the theme.
@@ -832,12 +1094,24 @@ export function Markdown(props: MarkdownProps): unknown @{
 
 	const view = useMemo(() => {
 		const sourceIds = props.sources == null ? undefined : new Set(Object.keys(props.sources))
-		const options = { sourceIds, autolink: props.autolink, math: hasMathRenderer }
+		// Syntax-only entries drive the parse so plugin transforms never run
+		// twice; the full prepared list applies them below with the right
+		// finality, matching the reference's split.
+		const options = {
+			sourceIds,
+			autolink: props.autolink,
+			math: hasMathRenderer,
+			plugins: syntaxPlugins?.syntaxEntries,
+		}
+		const extensionText = (n: MdExtension) =>
+			markdownExtensionText(preparedPlugins, n)
 
 		let nodes: MdNode[]
 		let inlineNodes: MdInline[]
 		const inline = props.display === 'inline'
 		if (props.data) {
+			// A baked document is already transformed; entries only supply the
+			// renderers its extension nodes resolve against.
 			nodes = [...props.data.children]
 			inlineNodes = []
 		} else if (streaming && smoothedText === '') {
@@ -848,19 +1122,37 @@ export function Markdown(props: MarkdownProps): unknown @{
 		} else if (inline) {
 			const input = streaming ? trimStreamingArtifacts(smoothedText, options) : smoothedText
 			incRef.current = undefined
-			inlineNodes = parseMdInline(input, options)
+			const parsed = parseMdInline(input, options)
+			const transformed = applyMarkdownTransforms(
+				mdDoc([{ type: 'paragraph', children: parsed }]),
+				preparedPlugins,
+				input,
+				!streaming,
+				'inline',
+			)
+			const paragraph = transformed.children[0]
+			inlineNodes = paragraph?.type === 'paragraph' ? [...paragraph.children] : parsed
 			nodes = []
 		} else if (streaming) {
 			incRef.current ??= createMarkdownIncrementalState()
-			nodes = parseMarkdownIncremental(
-				trimStreamingArtifacts(smoothedText, options),
-				incRef.current,
-				options,
-			)
+			const input = trimStreamingArtifacts(smoothedText, options)
+			nodes = applyMarkdownTransforms(
+				mdDoc(parseMarkdownIncremental(input, incRef.current, options)),
+				preparedPlugins,
+				input,
+				false,
+				'block',
+			).children as MdNode[]
 			inlineNodes = []
 		} else {
 			incRef.current = undefined
-			nodes = parseMdNodes(smoothedText, options)
+			nodes = applyMarkdownTransforms(
+				mdDoc(parseMdNodes(smoothedText, options)),
+				preparedPlugins,
+				smoothedText,
+				true,
+				'block',
+			).children as MdNode[]
 			inlineNodes = []
 		}
 
@@ -878,13 +1170,33 @@ export function Markdown(props: MarkdownProps): unknown @{
 		let acc = 0
 		for (let i = 0; i < nodes.length; i++) {
 			offsets[i] = acc
-			acc += markdownTextLength([nodes[i]])
+			const node = nodes[i]
+			acc +=
+				node.type === 'extension'
+					? extensionText(node).length
+					: markdownTextLength([node])
 		}
-		prevLenRef.current = inline ? mdInlineLen(inlineNodes) : acc
+		prevLenRef.current = inline ? mdInlineLen(inlineNodes, extensionText) : acc
 
-		const headingIds = inline ? undefined : projectMdHeadings(nodes).ids
-		return { nodes, inlineNodes, boundaries, offsets, fade: streaming, headingIds }
-	}, [props.data, smoothedText, streaming, props.sources, props.display, props.autolink, hasMathRenderer, maxSpans])
+		// The heading-links module owns all-depth heading identity once
+		// installed; otherwise the root-only outline projection allocates ids.
+		const headingLinks = inline
+			? undefined
+			: projectMarkdownHeadingLinks(mdDoc(nodes), preparedPlugins)
+		const headingIds = inline
+			? undefined
+			: (headingLinks?.ids ?? projectMdHeadings(nodes).ids)
+		return {
+			nodes,
+			inlineNodes,
+			boundaries,
+			offsets,
+			fade: streaming,
+			headingIds,
+			headingLabels: headingLinks?.labels,
+			permalinkUrls: headingLinks?.permalinkUrls,
+		}
+	}, [props.data, smoothedText, streaming, props.sources, props.display, props.autolink, hasMathRenderer, maxSpans, preparedPlugins, syntaxPlugins])
 
 	const ctxBase: RenderCtx = {
 		onLinkClick: props.onLinkClick,
@@ -899,7 +1211,10 @@ export function Markdown(props: MarkdownProps): unknown @{
 					},
 		inlinePlugins: props.inlinePlugins,
 		components: props.components,
+		plugins: preparedPlugins,
 		headingIds: view.headingIds,
+		headingLabels: view.headingLabels,
+		permalinkUrls: view.permalinkUrls,
 		headingLevelStart: props.headingLevelStart,
 		listDepth: 0,
 	}
@@ -961,6 +1276,28 @@ export function Markdown(props: MarkdownProps): unknown @{
 			/>
 		))}
 	</View>
+}
+
+/**
+ * Renders exactly one Markdown extension node the way `Markdown` renders it
+ * inline — the reference's `MarkdownPluginNodeRenderer`: the plugin's own
+ * renderer inside the same failure boundary, or the node's `toText`/`source`
+ * projection when no renderer is available. No wrapper element is added.
+ */
+export function MarkdownPluginNodeRenderer(props: {
+	plugins: readonly MdPluginEntry[]
+	node: MdExtension
+}): unknown @{
+	const prepared = useMemo(() => {
+		try {
+			return prepareMarkdownPlugins(props.plugins)
+		} catch (error) {
+			reportMarkdownPluginFailure('plugin-list', 'transform', error)
+			return undefined
+		}
+	}, [props.plugins])
+	const fallback = <>{props.node.source ?? markdownExtensionText(prepared, props.node)}</>
+	return <>{renderMdPluginNode(prepared, props.node, fallback)}</>
 }
 
 /** Route screen for `.md` files — the codegen emits specs with this as

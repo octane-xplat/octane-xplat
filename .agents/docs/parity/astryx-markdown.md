@@ -200,3 +200,35 @@ Verification (2026-11-02, macOS, bun 1.4.4): `parity:markdown behavior`
 away, still open). Typecheck: ui tree clean for changed files; the
 pre-existing workshop `chrome.tsrx` and content-mapper failures are
 unchanged on main.
+
+## Milestone-5 extension system status (2026-11-02)
+
+Full 0.7.4 plugin protocol ported: `createMarkdownPlugin` registration
+validation, ordered syntax contributions (bounded `maxSpan` tokenizer
+window, `match`/`defer`/`no-match`, first-character indexing, thrown-tokenizer
+recovery), immutable transforms (trusted/claim fast paths, deep-freeze before
+untrusted input, `validateAst` content-category checks — phrasing/flow
+parents, link nesting, cycles, 100k bound, position invariants, extension
+ownership, per-type fields, inline single-paragraph root), typed renderers
+with `toText`, and `getMarkdownPluginCapabilities`. Extension nodes carry
+`display: 'inline' | 'block'`; phrasing parents admit `display:'inline'`
+extensions only, block containers `display:'block'` — enforced at parse,
+transform validation, and helper adoption (`adoptMarkdownHelperNode[s]`).
+
+Helpers: all eight 0.7.4 modules — `createMarkdownTextTransform`,
+`createMarkdownFenceTransform`/`getMarkdownFenceProposal`,
+`createMarkdownSourceDecoration`/`getMarkdownSourceDecorations`,
+`createMarkdownFrontmatter`, `markdownSoftBreaksPlugin`,
+`markdownSourceLinesPlugin`, `createMarkdownHeadingLinks`, and
+`createMarkdownRemarkTransform` (`markdown-remark.ts`, the synchronous
+transform-only Remark adapter: fresh mutable MDAST copy per run, constrained
+file/processor guards, provenance-by-marker round trip, fail-closed with one
+adapter-vocabulary diagnostic). The benchmark route `pages/markdown-perf`
+is restored on `markdownSoftBreaksPlugin`; the workload runs through the
+plugin pipeline (50 dense-claim breaks; full 23 KB fixture ≈ 9 ms parse).
+
+Renderer deltas vs the first port: extension fallback shows `node.source`
+before `toText` (matching the reference), failed boundaries retry on node or
+renderer identity change via keyed remount, and `MdHeadingPermalink` uses
+`useContainerReveal` hover/focus-within reveal with the reference's 1500 ms
+feedback window and layout-preserving control slot.
