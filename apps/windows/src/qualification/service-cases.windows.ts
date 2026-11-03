@@ -572,20 +572,26 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
     } catch (error) {
       underError = String(error)
     }
-    // Mid-read abort: the duck-typed signal throws after several chunk
-    // boundaries have already resolved, inside the read loop.
+    // Mid-read abort: the leaf registers one cancel listener per chunk and
+    // only reads the `aborted` flag — flip it after several chunks stream.
     let calls = 0
+    let aborted = false
+    const listeners = new Set<() => void>()
     const signal = {
-      aborted: false,
-      addEventListener() {},
-      removeEventListener() {},
-      throwIfAborted() {
-        if (++calls === 7) {
-          const error = new Error('The operation was aborted')
-          error.name = 'AbortError'
-          throw error
+      get aborted() {
+        return aborted
+      },
+      addEventListener(_type: string, listener: () => void) {
+        listeners.add(listener)
+        if (++calls === 3) {
+          aborted = true
+          for (const fire of listeners) fire()
         }
       },
+      removeEventListener(_type: string, listener: () => void) {
+        listeners.delete(listener)
+      },
+      throwIfAborted() {},
     }
     let midAbort = ''
     try {

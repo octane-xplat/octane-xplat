@@ -1757,7 +1757,7 @@ function Check-ServiceActions{
     Assert ($result.fullMatch -eq $true) 'A 512 KiB write reads back byte-exact across chunk boundaries' $result
     Assert ($result.exactLength -eq 524288) 'maxBytes equal to size passes' $result
     Assert ($result.underError -match 'file exceeds the 524287-byte limit') 'maxBytes one under rejects with the byte-limit error' $result
-    Assert ($result.midAbort -eq 'AbortError' -and $result.calls -ge 7) 'Aborting mid-read rejects with AbortError after streamed chunks' $result
+    Assert ($result.midAbort -eq 'AbortError' -and $result.calls -ge 3) 'Aborting mid-read rejects with AbortError after streamed chunks' $result
    }
    'keepawake-depth' {
     Assert ($result.first -eq $true -and $result.again -eq $true) 'Duplicate tag activation stays true' $result
