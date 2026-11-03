@@ -1749,8 +1749,9 @@ function Check-ServiceActions{
    }
    'files-identity' {
     Assert ($result.sameNameDistinct -eq $true) 'Repeated sandbox writes keep distinct URIs' $result
-    Assert ($result.readALength -eq 1 -and $result.readBLength -eq 1) 'Sandbox writes read back their own bytes' $result
-    Assert ($result.releaseA -eq $true) 'Release accepts owned sandbox refs' $result
+    Assert ($result.exactBytes -eq $true) 'Sandbox writes preserve each distinct byte payload' $result
+    Assert ($result.existedBeforeRelease -eq $true -and $result.removedA -eq $true -and $result.removedB -eq $true) 'Release deletes both previously existing owned files' $result
+    Assert ($result.foreignSurvived -eq $true) 'Release preserves the unowned file and its contents' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result

@@ -144,9 +144,10 @@ architecture matrix.
 The packaged Credential Locker path handles empty strings, an exact U+0001
 control-character value, overwrite, remove and fresh-launch persistence. Same-name
 sandbox writes produce distinct URIs, and releasing the first owned reference
-does not throw. The identity fixture checks byte lengths; it does not prove
-that the two files retain distinct contents, clean up both references, or reject
-foreign references. Keep those requirements open.
+does not throw. That evidence checks byte lengths; it does not prove that the two files retain
+distinct contents, clean up both references, or reject foreign references.
+Require exact payloads, both completed deletions and preservation of an unowned
+file before advancing those requirements.
 
 Picker calls still throw `UnavailabilityError`, and export returns `unavailable`.
 Require that exact error class in qualification; an unrelated native failure must

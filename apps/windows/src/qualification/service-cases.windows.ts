@@ -456,22 +456,43 @@ async function secureDepthSpec(): Promise<Record<string, unknown>> {
 
 /** Sandbox identity: unique write names, cleanup and release ownership. */
 async function filesIdentitySpec(): Promise<Record<string, unknown>> {
-  const a = await files.writeBytes('core20-id-a.dat', new Uint8Array([7]))
-  const b = await files.writeBytes('core20-id-a.dat', new Uint8Array([8]))
-  const readA = await files.readBytes(a)
-  const readB = await files.readBytes(b)
-  let releaseA: boolean | string = false
-  try {
-    files.release(a)
-    releaseA = true
-  } catch (error) {
-    releaseA = error instanceof Error ? error.name : String(error)
+  const owned: Awaited<ReturnType<typeof files.writeBytes>>[] = []
+  const foreignPath = nsPath.join(knownFolders.temp().path, `core20-foreign-${Date.now()}.dat`)
+  const foreign = File.fromPath(foreignPath)
+  async function releaseOwned(): Promise<void> {
+    for (const ref of owned) files.release(ref)
+    const deadline = Date.now() + 5000
+    while (owned.some((ref) => File.exists(ref.uri)) && Date.now() < deadline) {
+      await new Promise<void>((resolve) => setTimeout(resolve, 50))
+    }
   }
-  return {
-    sameNameDistinct: a.uri !== b.uri,
-    readALength: readA.length,
-    readBLength: readB.length,
-    releaseA,
+  try {
+    await foreign.writeText('foreign-sentinel')
+    const a = await files.writeBytes('core20-id-a.dat', new Uint8Array([7]))
+    owned.push(a)
+    const b = await files.writeBytes('core20-id-a.dat', new Uint8Array([8]))
+    owned.push(b)
+    const readA = await files.readBytes(a)
+    const readB = await files.readBytes(b)
+    const existedBeforeRelease = File.exists(a.uri) && File.exists(b.uri)
+    files.release({ name: foreign.name, uri: foreign.path })
+    await releaseOwned()
+    const foreignSurvived = await foreign.readText() === 'foreign-sentinel'
+    return {
+      sameNameDistinct: a.uri !== b.uri,
+      exactBytes: readA.length === 1 && readA[0] === 7 && readB.length === 1 && readB[0] === 8,
+      existedBeforeRelease,
+      removedA: !File.exists(a.uri),
+      removedB: !File.exists(b.uri),
+      foreignSurvived,
+    }
+  } finally {
+    // Also clean the first output if creating or reading the second one fails.
+    try {
+      await releaseOwned()
+    } finally {
+      if (File.exists(foreign.path)) await foreign.remove()
+    }
   }
 }
 
