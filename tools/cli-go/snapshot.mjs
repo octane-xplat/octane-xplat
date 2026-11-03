@@ -32,13 +32,24 @@ try {
 		}
 	}
 	copy('packages/cli/go')
+	const inputs = new Set()
 	for (const target of ['linux-amd64', 'windows-amd64']) {
+		const unit = `go-tests-${target}${target.startsWith('windows') ? '.exe' : ''}`
+		const unitRecord = JSON.parse(readFileSync(join(work, unit + '.json')))
+		assert.equal(sha(readFileSync(join(work, unit))), unitRecord.sha256)
+		for (const [input, hash] of Object.entries(unitRecord.inputs)) {
+			assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale unit source: ' + input)
+			inputs.add(input)
+		}
+		copy('research/go-cli/' + unit)
+		copy('research/go-cli/' + unit + '.json')
 		for (const onnx of [false, true]) {
 			const file = `xplat-go-${target}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`
 			const record = JSON.parse(readFileSync(join(work, file + '.json')))
 			assert.equal(sha(readFileSync(join(work, file))), record.sha256)
 			for (const [input, hash] of Object.entries(record.inputs)) {
 				assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale snapshot source: ' + input)
+				inputs.add(input)
 			}
 			for (const suffix of ['', '.json', '.tgz']) {
 				copy('research/go-cli/' + file + suffix)
@@ -68,10 +79,13 @@ try {
 			},
 		}),
 	)
-	copy(input)
+	for (const input of inputs) {
+		copy(input)
+	}
 	// Runtime tasks belong at the disposable root; hashed source stays unchanged.
 	const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
 	manifest.scripts = {
+		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
 		'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
 	}
@@ -80,6 +94,7 @@ try {
 		join(source, 'turbo.json'),
 		JSON.stringify({
 			tasks: {
+				'//#test:go-unit:portable': { cache: false },
 				'//#test:go:portable': { cache: false },
 				'//#test:go-model:portable': { cache: false },
 			},

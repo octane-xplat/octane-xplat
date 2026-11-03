@@ -28,18 +28,25 @@ func (c *processContainment) kill() {
 	}
 }
 func (c *processContainment) wait() error {
-	// Reaping grandchildren is the OS reaper's job. Require disappearance of the
-	// group, with a bounded grace for reaping; never report cleanup early.
+	// The unreaped leader intentionally remains in the group. Require every
+	// other kernel identity to disappear before releasing that reservation.
 	deadline := time.Now().Add(4 * time.Second)
 	for time.Now().Before(deadline) {
-		if errors.Is(syscall.Kill(-c.pid, 0), syscall.ESRCH) {
+		others, err := groupHasOthers(c.pid)
+		if err != nil {
+			return err
+		}
+		if !others {
 			return nil
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
 	return errors.New("owned process group did not disappear after termination")
 }
-func (c *processContainment) close() {}
+func (c *processContainment) observeExit(*exec.Cmd) error      { return observeUnixExit(c.pid) }
+func (c *processContainment) observationFailed(err error) bool { return err != nil }
+func (c *processContainment) reap(cmd *exec.Cmd) error         { return cmd.Wait() }
+func (c *processContainment) close()                           {}
 func ownerCommand(exe string, argv []string) *exec.Cmd {
 	cmd := exec.Command(exe, argv...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setsid: true}

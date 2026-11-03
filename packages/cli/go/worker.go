@@ -25,7 +25,12 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if err != nil {
 		return workerResult{}, err
 	}
-	defer os.RemoveAll(directory)
+	cleanupSafe := true
+	defer func() {
+		if cleanupSafe {
+			_ = os.RemoveAll(directory)
+		}
+	}()
 	id := identity()
 	request := map[string]any{}
 	for key, value := range payload {
@@ -61,6 +66,11 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	process, err := runProcess(ctx, []string{"node", worker, input, output}, project, env)
 	result := workerResult{Process: process}
 	if err != nil {
+		var cleanup *processCleanupError
+		if errors.As(err, &cleanup) {
+			cleanupSafe = false
+			return result, fmt.Errorf("%w; private worker data retained at %s", err, directory)
+		}
 		return result, err
 	}
 	if process.Cancelled {

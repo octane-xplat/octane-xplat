@@ -40,6 +40,13 @@ type processResult struct {
 	Cancelled bool   `json:"cancelled"`
 }
 
+type processCleanupError struct{ Err error }
+
+func (err *processCleanupError) Error() string {
+	return "process cleanup not confirmed: " + err.Err.Error()
+}
+func (err *processCleanupError) Unwrap() error { return err.Err }
+
 // Every started operation owns a process group/job until cleanup completes.
 // WaitDelay bounds pipes inherited by a descendant after its parent exits.
 func runProcess(ctx context.Context, argv []string, cwd string, env []string) (processResult, error) {
@@ -66,7 +73,7 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 		return processResult{}, err
 	}
 	done := make(chan error, 1)
-	go func() { done <- cmd.Wait() }()
+	go func() { done <- containment.observeExit(cmd) }()
 	cancelled := false
 	select {
 	case err = <-done:
@@ -80,12 +87,23 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 			err = <-done
 		}
 	}
-	// Successful workers must not leave daemonized descendants behind either.
-	containment.kill()
-	if cleanupErr := containment.wait(); cleanupErr != nil {
-		return processResult{}, cleanupErr
+	// Unix observes termination without reaping: its leader reserves the group
+	// identity until all group signals and descendant checks have finished.
+	// Windows retains a job handle independently of the leader's process handle.
+	if containment.observationFailed(err) {
+		_ = containment.reap(cmd)
+		return processResult{}, &processCleanupError{fmt.Errorf("could not reserve child identity: %w", err)}
 	}
-	result := processResult{ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated, Cancelled: cancelled}
+	// Successful workers must not leave ordinary group/job descendants behind.
+	containment.kill()
+	cleanupErr := containment.wait()
+	if reapErr := containment.reap(cmd); reapErr != nil {
+		err = reapErr
+	}
+	if cleanupErr != nil {
+		return processResult{}, &processCleanupError{cleanupErr}
+	}
+	result := processResult{ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated || err == exec.ErrWaitDelay, Cancelled: cancelled}
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok && err != exec.ErrWaitDelay {
 			return result, fmt.Errorf("process wait: %w", err)

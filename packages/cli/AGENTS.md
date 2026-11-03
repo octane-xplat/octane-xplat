@@ -820,6 +820,17 @@ code can run. Keep operation results separate from diagnostics and await cleanup
 before removing their private directory. The `probe` entry is compile-time
 separate from the public CLI; keep its protocol out of the published surface.
 
+Do not call `Cmd.Wait` before Unix group cleanup: reaping releases the leader's
+PID/group reservation. Linux observes exit with `Waitid`/`WNOWAIT`; Darwin uses
+the typed x/sys process record and SIGCHLD notification to observe zombie state.
+Keep the leader unreaped through group signals and disappearance checks for all
+other members, then call `Cmd.Wait` once to collect exit and streams. Windows
+retains a job handle and can reap the leader before checking that job's members.
+These adapters keep core builds free of C dependencies. Process groups cover
+ordinary inherited descendants, not an adversarial daemonization sandbox.
+If cleanup cannot be confirmed, preserve private worker data and fail the job;
+do not erase its directory or label the outcome a successful cancellation.
+
 ## Native HTTP and C interop
 
 Separate build headers from runtime libraries. A host can have `libcurl.so.4`

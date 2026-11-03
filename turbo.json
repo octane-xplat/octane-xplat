@@ -12,7 +12,7 @@
 		"snapshot:go": { "cache": false },
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_BINARY"] },
-		"test:go-model": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },
+		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },
 		"//#test:nim-portability-handoff": { "cache": false, "passThroughEnv": ["XPLAT_NIM_HANDOFF_CONFIG"] },
 		"//#snapshot:nim-portability": { "cache": false },
 		"//#snapshot:nim-portability-worker": { "cache": false, "dependsOn": ["@octane-xplat/build#build", "@octane-xplat/lib#build"] },

@@ -55,8 +55,11 @@ func (c *processContainment) attach(cmd *exec.Cmd) error {
 	_ = c.gate.Close()
 	return err
 }
-func (c *processContainment) terminate() { c.kill() }
-func (c *processContainment) kill()      { _ = windows.TerminateJobObject(c.job, 1) }
+func (c *processContainment) terminate()                      { c.kill() }
+func (c *processContainment) observeExit(cmd *exec.Cmd) error { return cmd.Wait() }
+func (c *processContainment) observationFailed(error) bool    { return false }
+func (c *processContainment) reap(*exec.Cmd) error            { return nil }
+func (c *processContainment) kill()                           { _ = windows.TerminateJobObject(c.job, 1) }
 func (c *processContainment) wait() error {
 	var accounting struct {
 		User, Kernel, PeriodUser, PeriodKernel int64

@@ -145,7 +145,8 @@ func serveHost(parent context.Context, directory, project string) error {
 					job.State = "failed"
 					job.Error = err.Error()
 				}
-				if jobCtx.Err() != nil {
+				var cleanup *processCleanupError
+				if jobCtx.Err() != nil && !errors.As(err, &cleanup) {
 					job.State = "cancelled"
 				}
 			}()
