@@ -30,8 +30,11 @@ and controls its build, HTTPS, routing and cache settings.
   [Explicit build selection](../../../docs/packages/package-cli.md) fails before code generation or builds when any requested kind is unavailable; [command regressions](../../../packages/cli/test/build.test.mjs) cover mixed selections and valid multi-target dispatch.
   [Separate project build plugins](../../../docs/packages/package-build.md) documents the optional Vite import migration; the [packed plugin consumer](../../../tools/cli-nim/build-tools-consumer.mjs) checks the installed build/server boundary, not publication or browser behavior.
   The [experimental native CLI](../../../docs/packages/package-cli.md#experimental-nim-executable)
-  can run the project's checker; its catalog still owns command availability
-  for the rest of this workflow.
+  can run the project's checker on macOS and web build jobs on macOS and the
+  qualified Ubuntu x64 host. The [portable worker gate](../../../tools/cli-nim/portability-workflow.mjs)
+  exercises canonical route/baking, Vite output and cancellation; it does not
+  qualify browser preview, deployment or all of AC1. Its catalog still owns
+  command availability for the rest of this workflow.
 - AC2: [Host output, HTTPS and navigation](../../../docs/start/toolchain.md#preview-and-publish-web); the [production browser smoke](../../../apps/web/scripts/smoke.ts) exercises direct screen links locally. The app's host configuration needs its own deployment check.
 - AC3: [Cache and deployment updates](../../../docs/start/toolchain.md#preview-and-publish-web). No configured public-host deployment is qualified by the repository's local checks.
 - AC4: [Published-site checks](../../../docs/start/toolchain.md#preview-and-publish-web), [Web support boundary](../../../docs/start/spec.md#choose-your-targets), [input evidence](../notes/input-readiness-notes.md), and [optional service qualification](../notes/optional-service-qualification.md).

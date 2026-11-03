@@ -43,6 +43,12 @@ proc nativeCapabilityMatrix*(app, platforms, capabilityIds: JsonNode, actions: J
                 (if capability == "build": "Web and macOS builds invoke project-installed tools; other build engines are pending. Install the app's dependencies first."
                 elif capability == "logs": "macOS session logs and retained native crash reports remain readable after host exit. Report availability/association are disclosed per run; other platforms are pending. Build-job captures last while the host lives."
                 else: "Web and macOS build jobs support status and cancellation; other application job creators are pending.")}
+          elif defined(linux):
+            if platform == %"web":
+              entry = %*{"capability": id,"status": "partial","detail":
+                (if capability == "build": "Web builds invoke project-installed tools; other build engines are pending. Install the app's dependencies first."
+                elif capability == "logs": "Web build-job captures last while the native host lives; app sessions and native report lookup are pending."
+                else: "Web build jobs support status and cancellation; other application job creators are pending.")}
         of "target_discovery", "launch", "attach", "session_end":
           when defined(macosx):
             if platform == %"macos":

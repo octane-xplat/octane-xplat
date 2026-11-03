@@ -492,6 +492,18 @@ temporary file exclusively with mode `0666` so the OS applies the caller's umask
 Do not chmod to `0666` afterward or query umask by briefly changing process state.
 Handle partial writes, close the descriptor, and clean up only a file you created.
 
+Do not infer directory privacy from `createTempFile`: Nim 2.2.12's
+`createTempDir` follows the caller's umask and creates `0755` under `0022`.
+For private operation/request directories, use the native `mkdtemp` boundary
+with the chosen parent/prefix; it creates `0700` atomically. Linux uses
+`std/posix_utils.mkdtemp`. The macOS adapter names `<unistd.h>` because the pinned
+stdlib binding names `<stdlib.h>` and fails C compilation with SDK 27.0; see the
+[toolchain constraint](../../.agents/docs/toolchain.md#cli-runtime-and-executable-packaging).
+Keep a mutable Nim string alive while C changes its suffix. Verify the active
+worker directory's permissions, and await process cleanup before removing it.
+Windows needs an explicit private-directory/ACL adapter, not an assumed POSIX
+mode translation.
+
 Hash explicit UTF-8 bytes with a pinned implementation and compare lowercase
 hex digests against independent vectors. Do not add a runtime crypto-library
 dependency just to calculate local content fingerprints. For filesystem time

@@ -28,6 +28,19 @@ The existing TypeScript CLI exports remain available during the parallel
 migration; the Nim tarball has none of those JS exports. See the
 [build-plugin guide](../../docs/packages/package-build.md) for import migration.
 
+Nim 2.2.12's `posix_utils.mkdtemp` uses a `posix.nim` declaration naming
+`<stdlib.h>`. The qualified macOS SDK 27.0 declares it in `<unistd.h>`;
+generated C fails with an undeclared-function error and integer-to-pointer
+conversion. The native worker uses a narrow
+[macOS header adapter](../../packages/cli/nim/private_temp_macos.nim), while
+Linux keeps the standard utility. Both request atomic `0700` creation for
+private request/result directories; `createTempDir` creates `0755` under a
+normal `0022` umask. This is source/build evidence for the pinned binding and
+SDK, with active-directory permissions covered by the
+[portable worker gate](../../tools/cli-nim/portability-workflow.mjs). Remove the
+macOS adapter when the pinned binding compiles against the SDK and the same
+permission/cancellation gate passes; do not suppress the C diagnostic.
+
 For the isolated native-TypeScript alternative, use the
 [Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host
 checks compare real catalog/discovery code with Node and measure the combined

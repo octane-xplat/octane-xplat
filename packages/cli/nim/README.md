@@ -79,8 +79,9 @@ submit, wait and cooperative-cancel envelopes; it does not establish runtime
 ownership, action execution or a qualified app session. The Linux transport is
 qualified on Ubuntu 24.04 x64 with libcurl 8.5/OpenSSL; it requires `libcurl.so.4`
 at runtime. Pinned task-local curl headers are build inputs, not a bundled engine.
-Windows HTTP remains unimplemented. The Linux owner/worker workflow still needs
-qualification.
+Windows HTTP remains unimplemented. The representative Linux workflow runs the
+production native owner, installed route/baking worker and Vite web build, then
+cancels a resistant worker and descendant while preserving generated output.
 The bridge accepts an explicit fetch procedure; the ordinary client adapter and
 header-controlled test transport share the same envelope/cancellation logic.
 
@@ -186,8 +187,11 @@ Spawn readiness does not establish application rendering or input behavior.
 These boundaries are exercised through independent CLI invocations and actual
 native child/descendant processes on macOS. The same bootstrap, RPC and private
 host fixture gates execute on Ubuntu 24.04 x64, including public job/session
-control of test-owned native resources. Real Linux project-worker integration
-remains pending; these fixtures do not qualify a Linux application engine. Descendants
+control of test-owned native resources. The separate representative workflow also
+runs the actual project-installed route/baking worker and Vite web build through
+the production owner, with worker cancellation, last-good artifact preservation
+and authenticated shutdown/restart. This does not qualify Linux native app
+engines or the full command surface. Descendants
 that deliberately create a new session and abrupt owner SIGKILL remain outside
 the process-group cleanup guarantee. Windows process/host adapters are unimplemented.
 `typecheck_envs.nim` expands the combined environment program natively, preserving
@@ -434,9 +438,9 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"N
 
 Actual Linux x64 and Windows x64 binaries pass standalone help/catalog checks.
 Linux HTTP/TLS, authenticated owner bootstrap/RPC and fixture-owned descendant
-cleanup pass their separate gates. The joined canonical project-worker workflow
-is still pending on Linux; Windows native providers and its joined workflow
-remain unqualified. Windows TLS, remaining command contracts,
+cleanup pass their separate gates. The representative canonical project-worker
+and web-build workflow also passes on Linux. Windows native providers and its
+joined workflow remain unqualified. Windows TLS, remaining command contracts,
 launch/attach engines, automatic owner-loss recovery, inference delivery and updates remain
 migration work. Do not
 promote the `nim` tag to `latest` until command contracts, separately installed project build tools,

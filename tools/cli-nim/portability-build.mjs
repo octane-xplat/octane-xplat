@@ -39,9 +39,12 @@ try {
  const compiler = await getToolchain({ cacheDir: join(cache, 'toolchain') })
  assert.equal(compiler.version, nimVersion)
  const paths = prepareDependencies(cache, compiler)
+ const ort = JSON.parse(readFileSync(join(root, 'tools/cli-nim/ort-runtime.json')))
  const binary = join(cache, 'bin', `${name}${process.platform === 'win32' ? '.exe' : ''}`)
  mkdirSync(dirname(binary), { recursive: true })
  const flags = ['c', '-d:release', '--opt:size', '--mm:orc',
+  ...(process.platform === 'darwin' ? ['--passL:-dead_strip'] : []),
+  ...(process.platform === 'darwin' && process.arch === 'arm64' ? [`--cincludes:${join(root, 'research/nim-cli/ort-headers', ort.version)}`] : []),
   ...(process.platform === 'win32' ? ['--parallelBuild:4'] : []),
   ...(process.env.XPLAT_NIM_CC ? [`--cc:${process.env.XPLAT_NIM_CC}`] : []),
   ...(process.platform === 'win32' && process.env.XPLAT_NIM_CC === 'vcc' ?

@@ -53,6 +53,19 @@ Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
 with Node >=22.22.2. Install that package in the project; it is not bundled with
 the Nim tarball. Help is native. The engine owns its rules, ignores and safe
 fixes; Nim owns process cleanup. Native `fmt` is still pending.
+On Ubuntu x64, the native owner and web build workflow are qualified with the
+project-installed route/baking worker and Vite, including job cancellation and
+child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows native
+HTTP/process/owner adapters and its representative workflow remain unqualified.
+
+```sh
+# On a qualified host, from the selected app with its build tools installed:
+xplat runtime build --platform web --json
+# Substitute the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+```
+
 Keep using the TypeScript CLI for unported workflows.
 Project-installed plugins are available separately as
 `@octane-xplat/build`. See the

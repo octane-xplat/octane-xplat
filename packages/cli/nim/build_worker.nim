@@ -1,10 +1,20 @@
 ## Selected-project Node operations, owned and bounded by the native process manager.
-import std/[os, json, strutils, strtabs, asyncdispatch, monotimes, times, tempfiles]
+import std/[os, json, strutils, strtabs, asyncdispatch, monotimes, times]
+when defined(macosx): import ./private_temp_macos
+elif defined(linux): import ./private_temp_linux
 import ./managed_process, ./jsonutil, ./strictjson, ./js_json, ./js_text, ./pathutil
 import ./digests, ./route_metadata
 import ./contract_failure
 
 const workerProtocol = "octane-build-worker"
+proc privateWorkerDirectory(): string =
+  when defined(macosx) or defined(linux):
+    # createTempDir follows the caller's umask. mkdtemp creates 0700 atomically,
+    # before any project source, request data or result can enter the directory.
+    createPrivateTempDirectory(getTempDir() / "xplat-worker-")
+  else:
+    raise contractFailure("unavailable","Private project-worker storage is not implemented on this host.")
+
 proc projectBuildRoot*(project: string, packageName = "@octane-xplat/build"): string =
   if packageName notin ["@octane-xplat/build","@octane-xplat/macos-build"]:
     raise newException(ValueError,"Unsupported project worker package")
@@ -38,7 +48,7 @@ proc runBuildWorker*(project, operation: string, payload: JsonNode,
   if signal != nil and signal.cancelled: raise contractFailure("cancelled","Build operation cancelled")
   let root = absolutePath(project)
   let worker = projectWorker(root,packageName)
-  let temporary = createTempDir("xplat-worker-","")
+  let temporary = privateWorkerDirectory()
   let manager = newProcessManager()
   let cancellation = newProcessCancel()
   let started = getMonoTime()

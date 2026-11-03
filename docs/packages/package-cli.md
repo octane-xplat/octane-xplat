@@ -109,9 +109,10 @@ this for macOS and Linux arm64/x64 and Windows x64.
 ## Experimental Nim executable
 
 The parallel Nim rewrite is being prepared for the `nim` prerelease channel.
-Contributors with this repository installed can build it locally. Only macOS
-Apple Silicon has been exercised; check its catalog for implemented commands
-before using it for a workflow:
+Contributors with this repository installed can build it locally. macOS Apple
+Silicon has the broadest coverage. A representative web build and cancellation
+workflow also runs on Ubuntu 24.04 x64; Windows x64 currently has help/catalog
+checks only. Check the native catalog before using a command:
 
 ```sh
 bun run turbo run build:nim --filter=@octane-xplat/cli
@@ -237,14 +238,17 @@ before generating files:
 Native session and job commands connect to a background owner for the workspace.
 A read does not start that process. With no owner, session reads use retained
 history when available; build-job state requires its live owner. Each CLI
-implementation owns its runtime state. macOS development sessions and web/macOS
-builds are available; other engines remain migration work:
+implementation owns its runtime state. Web builds run on macOS and the qualified
+Ubuntu x64 host; development sessions and native app builds require macOS.
+Other engines remain migration work:
 
 ```sh
 /path/to/octane-xplat/research/nim-cli/native/xplat session list --json
 ```
 
-Native web builds use your project's installed Vite and package manager. Run
+Native web builds use your project's installed Vite and package manager. The
+Linux executable also needs the host's glibc, matching C++ runtime and
+`libcurl.so.4`; other Linux distributions remain unqualified. Run
 `build` from the app directory for foreground output, or use `runtime build` for
 a background job. Poll its returned job id and read captured output. Job logs
 are bounded and disappear when the background owner exits:

@@ -263,7 +263,7 @@ require kernel identities to be gone before native completion. It requires glibc
 2.34+ and ordinary OS orphan reaping; non-reaping container init processes remain
 unqualified. Native no-shebang text is deliberately rejected with `ENOEXEC`,
 while the actual Linux Node reference uses a shell fallback. Windows process
-control, full Linux/Windows owner/IPC and joined project workflows still need
+control and the joined Windows owner/worker workflow still need
 qualification.
 
 For focused process iteration use `build:nim-process --filter=@octane-xplat/cli
@@ -423,10 +423,10 @@ bun run turbo run test:routes --filter=@octane-xplat/cli
 ```
 
 Build flags select macOS dead stripping, Linux section collection, or the
-Windows compiler defaults. Complete host-operation qualification remains
-macOS-only; the isolated portability smoke below distinguishes native compilation
-and help/catalog execution from usable host adapters. Native Linux and Windows
-workflow qualification, libc baselines, TLS libraries, Windows process control, signing,
+Windows compiler defaults. The isolated portability gates below distinguish
+help/catalog execution from usable host adapters. A representative Linux
+HTTP/TLS, owner, project-worker and cancellation workflow passes on Ubuntu x64;
+full Linux command coverage, deployment baselines, Windows native providers, signing,
 notarization, archive checksums, and installer/update behavior remain distribution
 work. Nim emits C requiring a target C compiler and SDK; cross-compilation alone
 would not qualify those hosts. The compiler wrapper supports Darwin arm64/x64,
@@ -495,7 +495,7 @@ bun run turbo run test:portability-http --filter=@xplat/nim-portability-source -
 
 The current Linux build dynamically needs glibc and the C++ runtime in addition
 to libcurl's own dependency closure. The Ubuntu-built ELF imports symbols through
-`GLIBC_2.34` and `GLIBCXX_3.4.31`; this is build evidence, not qualification of
+`GLIBC_2.38` and `GLIBCXX_3.4.31`; this is build evidence, not qualification of
 older distributions or musl. Define and execute a supported deployment baseline
 before treating a small compressed ELF as a self-contained Linux distribution.
 
@@ -516,12 +516,46 @@ cross-invocation ownership. Runtime checks use empty PATH for the native control
 plane. Detached launches reuse the same platform spawn options as managed
 children, so unlisted descriptors, including the launcher's lifetime lock, stay
 out of the daemon. These gates preserve the existing 104-byte socket-path bound;
-other procfs/container configurations and Linux project workers remain pending.
+other procfs/container configurations remain unqualified. The production worker
+workflow below is separate from these owner fixtures.
 
 ```sh
 # From the extracted snapshot, under the Linux guest/build reservation:
 bun run turbo run test:portability-rpc test:portability-host --filter=@xplat/nim-portability-source --concurrency=1
 ```
+
+Use the optional worker snapshot to exercise the production owner and actual
+project-installed JavaScript tools on macOS or Linux. It packs the current build
+and lib leaf packages through Bun, records their hashes and the exact Vite pin,
+and installs them in a disposable project with spaces in its path. These fixture
+packages belong to the selected project, never the native CLI download.
+
+```sh
+# From the authoritative repository, after the local native build is current:
+bun run turbo run snapshot:nim-portability-worker
+```
+
+The workflow verifies canonical route parsing/baking, all generated artifact
+bytes, real Vite/CSS output, separate diagnostics and cleared Node preload/global
+module variables. Cancellation must release a resistant worker and descendant
+before their failure-cleanup expiry, remove private sidecars and preserve the
+last-good artifacts. It then authenticates owner shutdown and restart. The
+worker directory must be private while active, not only empty after cleanup.
+Windows stays explicitly disabled until its native adapters are qualified.
+
+```sh
+# In the extracted snapshot, reserve native capacity only for compilation:
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native portability workflow build"}' -- bun run turbo run build:portability build:portability-http --filter=@xplat/nim-portability-source --concurrency=1
+# Keep the host/device reservation, release build capacity, then execute:
+bun run turbo run test:portability-http --filter=@xplat/nim-portability-source --only --concurrency=1
+bun run turbo run test:portability-workflow --filter=@xplat/nim-portability-source --only --concurrency=1
+```
+
+The HTTP predecessor qualifies the real transport probe and TypeScript bridge;
+it does not claim an additional public HTTPS command. Source manifests and
+artifact hashes bind these separate runtime gates to the same native source.
+They establish this representative workflow, not full Linux app, inference,
+owner-loss recovery or deployment qualification.
 
 `portability-smoke.mjs` independently checks the actual native binary with empty
 PATH and measures warm help startup (five warmups, twenty launches). Its record

@@ -22,7 +22,10 @@ proc runProjectBuild*(app: JsonNode, platform: string, logs: RuntimeLogs, signal
     report: proc(progress: JsonNode) {.closure.} = nil, timeoutMs = 900000): Future[JsonNode] {.async.} =
   if timeoutMs <= 0: raise newException(ValueError,"Build deadline must be positive")
   if platform notin ["web","macos"]: raise contractFailure("unavailable","Native " & platform & " build engine integration is pending.")
-  when not defined(macosx): raise contractFailure("unavailable","Native process ownership is not implemented on this host.")
+  when not (defined(macosx) or defined(linux)):
+    raise contractFailure("unavailable","Native process ownership is not implemented on this host.")
+  when not defined(macosx):
+    if platform == "macos": raise contractFailure("unavailable","macOS builds require a Mac.")
   let root = text(app["root"])
   if report != nil: report(%*{"phase": "starting","platform": platform})
   requireProjectVite(root)
