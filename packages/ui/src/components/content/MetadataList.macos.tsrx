@@ -4,7 +4,7 @@ import { useState } from 'octane'
 import type { MetadataListProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { MetadataListProvider } from './metadata-list-context'
-import { Grid } from '../layout/layout.macos.tsrx'
+import { Grid } from '../layout/appkit-layout.macos.tsrx'
 import { Pressable } from '../actions/Pressable.macos.tsrx'
 import { toChildArray } from '../../internal/rendering/child-array'
 

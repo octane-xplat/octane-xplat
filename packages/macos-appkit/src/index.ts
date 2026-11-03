@@ -7232,7 +7232,9 @@ function syncTextLinks(node: ElementNode) {
     // Runs that vanished keep their pooled action but lose the dispatch — a
     // stale closure would otherwise retain this node and its run handler.
     for (const stale of node.axLinkSlots ?? []) {
-      if (!slots.includes(stale as AxLinkSlot)) stale.dispatch = null
+      if (!slots.includes(stale as AxLinkSlot)) {
+        stale.dispatch = null
+      }
     }
     node.axLinkSlots = slots
     ;(view as any).accessibilityCustomActions = slots.map((slot) => slot.action)

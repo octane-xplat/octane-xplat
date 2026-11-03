@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { HStackProps } from '../../props'
-import { Stack } from './layout.macos.tsrx'
+import { Stack } from './appkit-layout.macos.tsrx'
 
 /** Horizontal flow stack — `Stack` with `direction="horizontal"`. */
 export function HStack(props: HStackProps): unknown @{

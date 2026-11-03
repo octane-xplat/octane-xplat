@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { VStackProps } from '../../props'
-import { Stack } from './layout.macos.tsrx'
+import { Stack } from './appkit-layout.macos.tsrx'
 
 /** Vertical flow stack — `Stack` with `direction="vertical"`. */
 export function VStack(props: VStackProps): unknown @{

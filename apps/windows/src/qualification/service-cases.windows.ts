@@ -469,7 +469,9 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
     }
   }
   async function releaseOwned(): Promise<void> {
-    for (const ref of owned) files.release(ref)
+    for (const ref of owned) {
+      files.release(ref)
+    }
     const deadline = Date.now() + 5000
     while (owned.some((ref) => exists(ref.uri)) && Date.now() < deadline) {
       await new Promise<void>((resolve) => setTimeout(resolve, 50))
@@ -506,6 +508,7 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
       removedB: !exists(b.uri),
       foreignSurvived,
     })
+
     step = 'done'
   } catch (error) {
     result.failedStep = step
@@ -517,9 +520,12 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
     } catch (error) {
       result.releaseError = error instanceof Error ? error.message : String(error)
     }
+
     if (foreign) {
       try {
-        if (exists(foreign.path)) await foreign.remove()
+        if (exists(foreign.path)) {
+          await foreign.remove()
+        }
       } catch (error) {
         result.removeError = error instanceof Error ? error.message : String(error)
       }
