@@ -58,6 +58,7 @@
 				"@octane-xplat/lint#build",
 				"@octane-xplat/linux-gtk#typegen",
 				"@octane-xplat/linux-gtk#build",
+				"@octane-xplat/macos-build#build",
 				"@octane-xplat/lottie#typegen",
 				"@octane-xplat/maps#typegen",
 				"@octane-xplat/mcp#build",

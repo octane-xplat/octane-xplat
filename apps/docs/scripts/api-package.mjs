@@ -243,11 +243,26 @@ export async function packageMarkdown(manifestPath) {
 			)
 		}
 		writeFileSync(join(staging, 'package.json'), JSON.stringify(manifest))
-		const result = await generateMarkdownForModule(join(staging, 'package.json'), {
-			followImports: false,
-			followReExports: true,
-			propertyDocs: 'list',
-		})
+		// All code entries may be executable JavaScript workers. Their existence
+		// was checked above; list them without inventing declarations or importing
+		// code. Any explicit type target or remaining code export still uses the
+		// renderer, so missing library declarations continue to fail.
+		const onlyJavaScript =
+			untyped.size > 0 &&
+			!Object.hasOwn(manifest, 'types') &&
+			!Object.hasOwn(manifest, 'typings') &&
+			Object.entries(manifest.exports ?? {}).every(
+				([entry, value]) => entry === './package.json' && value === './package.json',
+			)
+		const markdown = onlyJavaScript
+			? ''
+			: (
+					await generateMarkdownForModule(join(staging, 'package.json'), {
+						followImports: false,
+						followReExports: true,
+						propertyDocs: 'list',
+					})
+				).markdown
 		const note = untyped.size
 			? `\nJavaScript-only entry points without TypeScript declarations: ${[...untyped].map((entry) => `\`${manifest.name}${entry === '.' ? '' : entry.slice(1)}\``).join(', ')}. See the package guide for usage.\n`
 			: ''
@@ -257,7 +272,7 @@ export async function packageMarkdown(manifestPath) {
 		const sdk = sdkAliases.length
 			? '\nGenerated OS SDK aliases (`/ios`, `/android`, `/macos`, `/windows`) are not expanded here. See the [native API type guidance](https://docs.nativescript.org/guide/native-code/generate-typings) and the declarations in your installed package.\n'
 			: ''
-		return scope + sdk + declarationFences(result.markdown) + note
+		return scope + sdk + declarationFences(markdown) + note
 	} finally {
 		rmSync(staging, { recursive: true, force: true })
 	}

@@ -95,7 +95,37 @@ test('source-only tooling exports retain inferred signatures and list JavaScript
 	assert.match(markdown, /JavaScript-only entry points[^\n]+source-widget\/bin/)
 })
 
-test('missing explicit declarations fail instead of dropping the entry point', async (t) => {
+test('JavaScript-only packages list every worker without importing executable code', async (t) => {
+	const { packageMarkdown } = await import('./scripts/api-package.mjs')
+	const root = mkdtempSync(join(tmpdir(), 'xplat-api-workers-'))
+	t.after(() => rmSync(root, { recursive: true, force: true }))
+	writeFileSync(
+		join(root, 'package.json'),
+		JSON.stringify({
+			name: 'worker-package',
+			exports: {
+				'./worker': './run.mjs',
+				'./diagnostics': { node: './run.cjs', default: './run.js' },
+				'./package.json': './package.json',
+			},
+		}),
+	)
+	for (const file of ['run.mjs', 'run.cjs', 'run.js']) {
+		writeFileSync(join(root, file), 'throw new Error("Do not execute a worker to document it")\n')
+	}
+	const markdown = await packageMarkdown(join(root, 'package.json'))
+	assert.match(markdown, /JavaScript-only entry points without TypeScript declarations/)
+	assert.match(markdown, /`worker-package\/worker`/)
+	assert.match(markdown, /`worker-package\/diagnostics`/)
+	assert.match(markdown, /See the package guide for usage/)
+	assert.doesNotMatch(markdown, /worker-package\/package\.json/)
+	const manifest = JSON.parse(readFileSync(join(root, 'package.json')))
+	manifest.exports['./missing-worker'] = './missing.mjs'
+	writeFileSync(join(root, 'package.json'), JSON.stringify(manifest))
+	await assert.rejects(packageMarkdown(join(root, 'package.json')))
+})
+
+test('missing explicit declarations fail even beside an existing JavaScript-only worker', async (t) => {
 	const { packageMarkdown } = await import('./scripts/api-package.mjs')
 	const root = mkdtempSync(join(tmpdir(), 'xplat-api-missing-'))
 	t.after(() => rmSync(root, { recursive: true, force: true }))
@@ -103,9 +133,10 @@ test('missing explicit declarations fail instead of dropping the entry point', a
 		join(root, 'package.json'),
 		JSON.stringify({
 			name: 'missing-widget',
-			exports: { '.': { types: './missing.d.ts' } },
+			exports: { '.': { types: './missing.d.ts' }, './worker': './run.mjs' },
 		}),
 	)
+	writeFileSync(join(root, 'run.mjs'), 'console.log("Run the command")\n')
 	await assert.rejects(packageMarkdown(join(root, 'package.json')), /Module not found/)
 })
 
