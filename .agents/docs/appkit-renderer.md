@@ -12,8 +12,8 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | --- | --- |
 | Composition and host adapters | `runtime.ts`, `host-bridge.ts` |
 | Node contracts, element capabilities and identities | `model.ts`, `registry.ts` |
-| Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts` |
-| Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts` |
+| Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts`, `root-directory.ts` |
+| Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts`, `layout-projection.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
 | Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `box-paint.ts`, `box-paint-state.ts`, `box-geometry.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
@@ -82,6 +82,31 @@ adapters, font registrations and image caches also have module/process scope.
 Per-root `nodes`, portal registrations and pending work live on `RootContainer`.
 Do not infer whole-renderer isolation from tests that construct one service
 twice with stand-ins.
+
+`root-directory.ts` owns live container and host/font membership. Its reader
+returns snapshots, membership/font queries and scoped observation; it exposes
+no registration or retirement operation. Only root lifecycle receives the writer.
+CSS, focus, environment, diagnostics and measurements never depend on root
+creation. Lists receive create/release operations; tab/popup/layer factories
+receive creation and the font reader they need. Keep these operational callbacks
+separate from membership readers.
+
+`roots.ts` creates the universal root, registers before the first render, and
+retires its exact membership lease before unmounting. Setup failure unwinds
+membership and acquired observations; retirement attempts unmount even if debug
+cleanup fails. It clears the container's root reference on failure too. Old
+retirement cannot remove a reused host's new membership. A root retired during
+setup cannot escape as a live result. These are cleanup guarantees, not rollback
+of native writes or recovery from an unreleasable OS resource.
+
+Environment observers install once during runtime activation, after services
+exist. Environment media seeding and optional automation subscribe to directory
+membership, including already-live roots. Each debug seam has an identity-scoped
+release; retiring the newest selects the most recently registered remaining live
+root, while root-specific debug objects keep their own measurement selection.
+Layout-commit observation still visits all already-live hosts immediately and
+unsubscribes if that initial visit fails. Projection compensation has its own
+thin facade over the registry/box owner and does not depend on root lifecycle.
 
 The element modules group creation, prop handlers and disposal, but generic
 dispatch and cleanup ordering still live in `nodes.ts` and `element-props.ts`.

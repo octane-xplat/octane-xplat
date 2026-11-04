@@ -28,6 +28,16 @@ Observer acquisition/reentry/failing-release balances use the production
 coordinator with native-boundary stand-ins; this is not a global native observer
 inventory or whole-process leak-freedom check.
 
+The packed root-directory fixture checks native main, retained-tab and
+list-template roots, compiler tab portals, an external portal target, popup and
+window-layer roots. It asserts inherited Menlo fonts, immediate visits to live
+hosts, duplicate-host rejection, newest-debug-root fallback, host reuse and
+retirement. A setup failure is injected through the host boundary in the real
+runtime; this is not a failing OS-release test. Retained-root HMR separately
+checks debug identity and old-root retirement after host reuse. Process observer
+installation counts and failing observation cleanup use production constructors
+with native-boundary stand-ins, not a native observer inventory.
+
 ```sh
 bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
 ```
