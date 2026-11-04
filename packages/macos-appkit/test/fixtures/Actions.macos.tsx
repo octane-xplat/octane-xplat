@@ -2,12 +2,7 @@
 export default function Actions(props: any) {
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column', width: 240 }}>
-      <button
-        id="lease-native"
-        text="Action"
-        isEnabled={props.nativeEnabled}
-        onTap={props.press}
-      />
+      <button id="lease-native" text="Action" isEnabled={props.nativeEnabled} onTap={props.press} />
       <textfield
         id="lease-field"
         text="Editing"
@@ -36,10 +31,10 @@ export default function Actions(props: any) {
         style={{ width: 120, height: 24 }}
       />
       <label id="lease-link-a">
-        <span text="Same" onTap={props.firstLink} />
+        <span text="Same" onLinkTap={props.firstLink} />
       </label>
       <label id="lease-link-b">
-        <span text="Same" onTap={props.secondLink} />
+        <span text="Same" onLinkTap={props.secondLink} />
       </label>
     </masonview>
   )

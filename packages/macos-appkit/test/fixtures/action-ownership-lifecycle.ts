@@ -106,6 +106,11 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     check(calls.length === beforeReadonly, 'Readonly native text submitted')
     const a = debug.findId('lease-link-a'),
       b = debug.findId('lease-link-b')
+    check(
+      Number(a.accessibilityCustomActions.count) === 1 &&
+        Number(b.accessibilityCustomActions.count) === 1,
+      'Folded link AX action missing',
+    )
     const firstAction = a.accessibilityCustomActions.objectAtIndex(0),
       secondAction = b.accessibilityCustomActions.objectAtIndex(0)
     check(
