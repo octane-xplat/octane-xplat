@@ -47,6 +47,16 @@ to exist after exit. Process observation/report association never grants signal
 ownership. Keep complete report originals separate from rotating log captures;
 a report-cache failure must disclose unavailability without hiding readable logs.
 
+Persistent-owner admission and shutdown must share a synchronization barrier:
+close admission before waiting for registered operations or request handlers.
+Register an operation before starting it and release its claim only after awaited
+cleanup. An idle timer may retire an owner only with no active operations or RPC
+handlers; client disconnects do not end admitted work. Hold a kernel lifetime
+lease across descriptor publication and teardown. Retain a cleanup-unknown
+descriptor when resource release fails. An existing running descriptor after
+lease release can be crash evidence too: reject automatic replacement rather
+than treating a dead PID or released lock as cleanup proof.
+
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations
 to distinguish live records from historical evidence. PID existence alone cannot

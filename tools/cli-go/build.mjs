@@ -34,10 +34,12 @@ const work = join(root, 'research/go-cli')
 const moduleDirectory = join(root, 'packages/cli/go')
 mkdirSync(work, { recursive: true })
 const flags = process.argv.slice(2)
-assert.ok(flags.every((value) => ['--test', '--test-binary', '--onnx', '--cli'].includes(value)))
+assert.ok(flags.every((value) => ['--test', '--test-binary', '--onnx', '--cli', '--test-owner-race'].includes(value)))
 const onnx = flags.includes('--onnx')
 const cli = flags.includes('--cli')
 const testBinary = flags.includes('--test-binary')
+const ownerRace = flags.includes('--test-owner-race')
+assert.ok(!ownerRace || flags.length === 1, 'Owner race qualification is a host-only standalone test mode')
 const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
 assert.equal(
@@ -63,7 +65,7 @@ const env = {
 	GOWORK: 'off',
 	GOCACHE: join(work, 'build-cache'),
 	GOMODCACHE: join(work, 'module-cache'),
-	CGO_ENABLED: onnx ? '1' : '0',
+	CGO_ENABLED: onnx || ownerRace ? '1' : '0',
 	ZIG_GLOBAL_CACHE_DIR: join(work, 'zig-global-cache'),
 	ZIG_LOCAL_CACHE_DIR: join(work, 'zig-local-cache'),
 }
@@ -198,12 +200,13 @@ writeFileSync(
 )
 
 run('go', ['mod', 'download'], { stdio: 'inherit' })
-if (flags.includes('--test')) {
+if (flags.includes('--test') || ownerRace) {
 	run(
 		'go',
 		[
 			'test',
 			'-count=1',
+			...(ownerRace ? ['-race', '-run=^TestAgentOwner'] : []),
 			'-mod=readonly',
 			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'./...',

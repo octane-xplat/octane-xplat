@@ -126,6 +126,16 @@ Frozen core snapshots expose `test:go-dev:portable` through root Turbo tasks,
 alongside the portable native unit gate. These execute actual host binaries;
 cross-compilation alone does not qualify a host.
 
+The persistent-owner foundation has a focused race-detector gate. It uses the
+host Go race runtime and C compiler for qualification; ordinary core release
+builds still disable CGO. This exercises authenticated local HTTP, lifetime lease,
+admission/shutdown races, idle retirement and actual managed descendant cleanup.
+It does not establish detached bootstrap or public session API support.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go owner race qualification"}' -- bun run turbo run test:go-unit test:go-owner-race --filter=@xplat/cli-go-probe --concurrency=1
+```
+
 ## Cross-compilation and execution
 
 The Go core needs no C cross-compiler. For inference builds, the qualified

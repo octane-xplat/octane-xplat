@@ -87,6 +87,14 @@ pagination, discloses rotation/incomplete tails and keeps cleanup confirmation
 separate from stopped state or stored PIDs. Foreground captures do not register a
 live persistent-owner session or grant authority to signal stored PIDs.
 
+`agent_owner.go` is the internal persistent transport foundation, separate from the
+primitive probe host. It authenticates token and generation, holds a kernel
+lifetime lease, separates idle retirement from active operations, joins shutdown
+and preserves cleanup-unknown evidence. It does not yet register a public owner
+entry, client bootstrap or session/job command handlers. Qualifying the transport
+inside a native test process does not qualify detached owner startup or recovery.
+
+
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes
 with the project's Vite. JSON discovery diagnostics remain data with exit zero;
