@@ -71,6 +71,21 @@ commit, so a failed native style write cannot leave subsequent work waiting on
 a batch that will never finish. This is batching, not rollback: successful
 native writes before a failure remain applied.
 
+The composition is one process runtime with many roots, not a factory for
+independent renderers. Native class registration, Mason and compatibility
+adapters, font registrations and image caches also have module/process scope.
+Per-root `nodes`, portal registrations and pending work live on `RootContainer`.
+Do not infer whole-renderer isolation from tests that construct one service
+twice with stand-ins.
+
+The element modules group creation, prop handlers and disposal, but generic
+dispatch and cleanup ordering still live in `nodes.ts` and `element-props.ts`.
+Preserve those phases when changing the dispatch model: text layout retires
+before destruction hooks, nested content detaches before native hosts disappear,
+and every cleanup path must tolerate partially constructed nodes. The paint
+services likewise still share geometry coordination and node-owned layer fields;
+their module boundaries do not establish independent lifecycles.
+
 ## Verify a change
 
 The Node suite includes direct factory tests and older VM fixtures. The legacy
@@ -95,3 +110,6 @@ package exports and do not introduce a public recipe or API.
 Its native menu check also verifies registration, attachment and programmatic
 Objective-C selector dispatch; physical right-click/responder behavior remains
 a separate qualification.
+Raw date/time picker lifecycle checks do not qualify `picker-bridge.ts`'s
+separate native attachment path. Its `NSDate`/`NSDatePicker` callable-class
+guards still need targeted native qualification.
