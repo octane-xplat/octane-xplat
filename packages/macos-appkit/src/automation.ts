@@ -1,35 +1,28 @@
-import type { createRoots } from './roots'
-import type { createMeasurements } from './measurements'
-import type { createCssCascade } from './css-cascade'
-import type { createAccessibleHost } from './accessible-host'
-import type { createActions } from './actions'
-import type { createHover } from './hover'
-import type { createPopover } from './popover'
+import type { Roots } from './roots'
+import type { Measurements } from './measurements'
+import type { CssCascade } from './css-cascade'
+import type { AccessibleHost } from './accessible-host'
+import type { Actions } from './actions'
+import type { Hover } from './hover'
+import type { Popover } from './popover'
 import type { UniversalRoot } from 'octane/universal/native'
 import type { PanEvent, PropBag, ElementNode, RootContainer } from './model'
 import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
+  roots: Pick<Roots, 'appKitContainers'>
   measurements: Pick<
-    ReturnType<typeof createMeasurements>,
+    Measurements,
     'measureParity' | 'descendants' | 'nodeClasses' | 'colorValue' | 'round'
   >
-  cssCascade: Pick<
-    ReturnType<typeof createCssCascade>,
-    'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'
-  >
-  accessibleHost: Pick<
-    ReturnType<typeof createAccessibleHost>,
-    'accessibilityRoles' | 'accessibilityLabels'
-  >
-  actions: Pick<
-    ReturnType<typeof createActions>,
-    'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'
-  >
-  hover: Pick<ReturnType<typeof createHover>, 'hoverRecordByView'>
-  popover: Pick<ReturnType<typeof createPopover>, 'openPopups'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'>
+  accessibleHost: Pick<AccessibleHost, 'accessibilityRoles' | 'accessibilityLabels'>
+  actions: Pick<Actions, 'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'>
+  hover: Pick<Hover, 'hoverRecordByView'>
+  popover: Pick<Popover, 'openPopups'>
 }
+
+export type Automation = ReturnType<typeof createAutomation>
 
 export function createAutomation(deps: Dependencies) {
   function installAutomation(root: UniversalRoot, container: RootContainer) {

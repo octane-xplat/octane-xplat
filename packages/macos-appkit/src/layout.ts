@@ -1,7 +1,7 @@
-import type { createRegistry } from './registry'
-import type { createNativeStyle } from './native-style'
-import type { createProjection } from './projection'
-import type { createContainerElements } from './container-elements'
+import type { Registry } from './registry'
+import type { NativeStyle } from './native-style'
+import type { Projection } from './projection'
+import type { ContainerElements } from './container-elements'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotificationCenter,
@@ -12,14 +12,13 @@ import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
 
 interface Dependencies {
-  registry: Pick<
-    ReturnType<typeof createRegistry>,
-    'cssNodesByView' | 'isManualLayoutParent' | 'behaviorOf'
-  >
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
-  projection: Pick<ReturnType<typeof createProjection>, 'syncProxyProjection'>
-  containerElements: Pick<ReturnType<typeof createContainerElements>, 'syncActionBar'>
+  registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'behaviorOf'>
+  nativeStyle: Pick<NativeStyle, 'effectiveStyle'>
+  projection: Pick<Projection, 'syncProxyProjection'>
+  containerElements: Pick<ContainerElements, 'syncActionBar'>
 }
+
+export type Layout = ReturnType<typeof createLayout>
 
 export function createLayout(deps: Dependencies) {
   function orderStickySiblings(node: ElementNode) {

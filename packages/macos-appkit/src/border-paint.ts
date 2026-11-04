@@ -1,6 +1,6 @@
-import type { createNativeStyle } from './native-style'
-import type { createTransformPaint } from './transform-paint'
-import type { createShadowPaint } from './shadow-paint'
+import type { NativeStyle } from './native-style'
+import type { TransformPaint } from './transform-paint'
+import type { ShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { splitStyleTokens } from './css-text.ts'
 import {
@@ -34,13 +34,12 @@ export type BorderSide = 'top' | 'right' | 'bottom' | 'left'
 export type BorderCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
-  transformPaint: Pick<
-    ReturnType<typeof createTransformPaint>,
-    'syncBoxGeometry' | 'hasPercentTranslate'
-  >
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'outsetShadowOnSelf'>
+  nativeStyle: Pick<NativeStyle, 'effectiveStyle'>
+  transformPaint: Pick<TransformPaint, 'syncBoxGeometry' | 'hasPercentTranslate'>
+  shadowPaint: Pick<ShadowPaint, 'outsetShadowOnSelf'>
 }
+
+export type BorderPaint = ReturnType<typeof createBorderPaint>
 
 export function createBorderPaint(deps: Dependencies) {
   const BORDER_SIDES: readonly BorderSide[] = ['top', 'right', 'bottom', 'left']

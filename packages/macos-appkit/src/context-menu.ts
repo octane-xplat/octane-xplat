@@ -1,10 +1,12 @@
-import type { createActions } from './actions'
+import type { Actions } from './actions'
 import { NSMenu, NSMenuItem, NSView } from '@octane-xplat/platform/macos'
 import type { ContextMenuOptions } from './model'
 
 interface Dependencies {
-  actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'nextActionId'>
+  actions: Pick<Actions, 'actionHandlers' | 'nextActionId'>
 }
+
+export type ContextMenu = ReturnType<typeof createContextMenu>
 
 export function createContextMenu(deps: Dependencies) {
   // Leaf-native controls for the @octane-xplat leaf packages (context-menu,

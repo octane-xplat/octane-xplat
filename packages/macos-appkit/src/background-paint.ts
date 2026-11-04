@@ -1,5 +1,5 @@
-import type { createNativeStyle } from './native-style'
-import type { createBorderPaint } from './border-paint'
+import type { NativeStyle } from './native-style'
+import type { BorderPaint } from './border-paint'
 import {
   collectBackground,
   positioningBox,
@@ -33,9 +33,9 @@ export interface BgPainted {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle' | 'parseEdgeInsets'>
+  nativeStyle: Pick<NativeStyle, 'effectiveStyle' | 'parseEdgeInsets'>
   borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
+    BorderPaint,
     | 'borderLength'
     | 'scaleBorderRadii'
     | 'resolveBorderRadii'
@@ -43,6 +43,8 @@ interface Dependencies {
     | 'roundedBoxCGPath'
   >
 }
+
+export type BackgroundPaint = ReturnType<typeof createBackgroundPaint>
 
 export function createBackgroundPaint(deps: Dependencies) {
   // ---- Background layers -----------------------------------------------------

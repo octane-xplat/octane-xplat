@@ -1,5 +1,5 @@
-import type { createActions } from './actions'
-import type { createContextMenu } from './context-menu'
+import type { Actions } from './actions'
+import type { ContextMenu } from './context-menu'
 import { createAppKitPointerMotion } from './pointer-motion'
 import {
   NSCursor,
@@ -14,9 +14,11 @@ import {
 import { registerGestureClass } from './gestures'
 
 interface Dependencies {
-  actions: Pick<ReturnType<typeof createActions>, 'invokeAction'>
-  contextMenu: Pick<ReturnType<typeof createContextMenu>, 'menuActionTarget'>
+  actions: Pick<Actions, 'invokeAction'>
+  contextMenu: Pick<ContextMenu, 'menuActionTarget'>
 }
+
+export type Hover = ReturnType<typeof createHover>
 
 export function createHover(deps: Dependencies) {
   // Pointer-intent plumbing: NSTrackingArea-backed hover observation and an

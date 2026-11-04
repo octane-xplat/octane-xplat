@@ -1,19 +1,19 @@
-import type { createNodes } from './nodes'
-import type { createContainerElements } from './container-elements'
-import type { createActions } from './actions'
-import type { createTextElements } from './text-elements'
-import type { createCssCascade } from './css-cascade'
-import type { createPickerElements } from './picker-elements'
-import type { createLayout } from './layout'
-import type { createSubscriptions } from './subscriptions'
-import type { createRegistry } from './registry'
-import type { createAccessibleHost } from './accessible-host'
-import type { createAccessibility } from './accessibility'
-import type { createHostedElements } from './hosted-elements'
-import type { createControls } from './controls'
-import type { createInputElements } from './input-elements'
-import type { createImageElements } from './image-elements'
-import type { createNativeStyle } from './native-style'
+import type { Nodes } from './nodes'
+import type { ContainerElements } from './container-elements'
+import type { Actions } from './actions'
+import type { TextElements } from './text-elements'
+import type { CssCascade } from './css-cascade'
+import type { PickerElements } from './picker-elements'
+import type { Layout } from './layout'
+import type { Subscriptions } from './subscriptions'
+import type { Registry } from './registry'
+import type { AccessibleHost } from './accessible-host'
+import type { Accessibility } from './accessibility'
+import type { HostedElements } from './hosted-elements'
+import type { Controls } from './controls'
+import type { InputElements } from './input-elements'
+import type { ImageElements } from './image-elements'
+import type { NativeStyle } from './native-style'
 import type { PropBag, ElementNode } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { syncTabView, syncTabItem } from './tab-view'
@@ -27,17 +27,17 @@ import { updatePagerView } from './pager'
 import { updateVideoView } from './video'
 
 interface Dependencies {
-  nodes: Pick<ReturnType<typeof createNodes>, 'validateNodeProps'>
+  nodes: Pick<Nodes, 'validateNodeProps'>
   containerElements: Pick<
-    ReturnType<typeof createContainerElements>,
+    ContainerElements,
     | 'setActionBarTitleView'
     | 'applyBuiltinContentHostProp'
     | 'applyBuiltinLiquidGlassProp'
     | 'applyBuiltinPlaceholderProp'
   >
-  actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'setPanAction'>
+  actions: Pick<Actions, 'actionHandlers' | 'setPanAction'>
   textElements: Pick<
-    ReturnType<typeof createTextElements>,
+    TextElements,
     | 'syncTextLinks'
     | 'syncText'
     | 'applyBuiltinHtmlViewProp'
@@ -46,11 +46,11 @@ interface Dependencies {
     | 'syncHtmlView'
   >
   cssCascade: Pick<
-    ReturnType<typeof createCssCascade>,
+    CssCascade,
     'setNodeId' | 'setPseudoClass' | 'syncNormalState' | 'setNodeInlineStyle' | 'applyClassName'
   >
   pickerElements: Pick<
-    ReturnType<typeof createPickerElements>,
+    PickerElements,
     | 'syncSegmentedBar'
     | 'applyBuiltinSegmentedBarProp'
     | 'applyBuiltinListPickerProp'
@@ -60,20 +60,17 @@ interface Dependencies {
     | 'syncDatePicker'
     | 'syncTimePicker'
   >
-  layout: Pick<ReturnType<typeof createLayout>, 'queueLayoutReconcile' | 'setLayoutAction'>
-  subscriptions: Pick<
-    ReturnType<typeof createSubscriptions>,
-    'setKeyActions' | 'setFocusActions' | 'setImageActions'
-  >
-  registry: Pick<ReturnType<typeof createRegistry>, 'behaviorOf'>
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'AccessibleHostView'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
+  layout: Pick<Layout, 'queueLayoutReconcile' | 'setLayoutAction'>
+  subscriptions: Pick<Subscriptions, 'setKeyActions' | 'setFocusActions' | 'setImageActions'>
+  registry: Pick<Registry, 'behaviorOf'>
+  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
   hostedElements: Pick<
-    ReturnType<typeof createHostedElements>,
+    HostedElements,
     'applyBuiltinTabViewProp' | 'applyBuiltinListViewProp' | 'applyBuiltinWebViewProp'
   >
   controls: Pick<
-    ReturnType<typeof createControls>,
+    Controls,
     | 'applyBuiltinProgressProp'
     | 'applyBuiltinActivityIndicatorProp'
     | 'applyBuiltinButtonProp'
@@ -84,7 +81,7 @@ interface Dependencies {
     | 'syncProgress'
   >
   inputElements: Pick<
-    ReturnType<typeof createInputElements>,
+    InputElements,
     | 'applyBuiltinSearchBarProp'
     | 'applyBuiltinTextInputProp'
     | 'syncSecureTextField'
@@ -92,9 +89,11 @@ interface Dependencies {
     | 'syncSearchBar'
     | 'fitTextView'
   >
-  imageElements: Pick<ReturnType<typeof createImageElements>, 'applyBuiltinImageProp'>
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'setSizeConstraint'>
+  imageElements: Pick<ImageElements, 'applyBuiltinImageProp'>
+  nativeStyle: Pick<NativeStyle, 'setSizeConstraint'>
 }
+
+export type ElementProps = ReturnType<typeof createElementProps>
 
 export function createElementProps(deps: Dependencies) {
   /** Host updates carry the complete next prop bag, but applyProps merges — a

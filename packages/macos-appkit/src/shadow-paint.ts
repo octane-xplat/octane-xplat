@@ -1,4 +1,4 @@
-import type { createBorderPaint, BorderCorner } from './border-paint'
+import type { BorderPaint, BorderCorner } from './border-paint'
 import { splitStyleTokens, splitTopLevelCommas } from './css-text.ts'
 import type { ElementNode } from './model'
 import { CALayer, CAShapeLayer, CGPathCreateMutable, NSView } from '@octane-xplat/platform/macos'
@@ -17,10 +17,12 @@ export interface ParsedBoxShadow {
 
 interface Dependencies {
   borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
+    BorderPaint,
     'scaleBorderRadii' | 'resolveBorderRadii' | 'roundedBoxCGPath' | 'borderNSColor'
   >
 }
+
+export type ShadowPaint = ReturnType<typeof createShadowPaint>
 
 export function createShadowPaint(deps: Dependencies) {
   const SHADOW_LENGTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$/

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { stripTypeScriptTypes } from 'node:module'
 import { test } from 'node:test'
 import { runSlice } from './mock-globals.ts'
-import { createTextValueWriter } from '../src/text-value.ts'
+import { createTextValueWriter, type TextValueWriter } from '../src/text-value.ts'
 
 const source = stripTypeScriptTypes(rendererSource())
 
@@ -14,7 +14,7 @@ function fixture() {
     textNodesByView = new WeakMap(),
     scopes: string[] = []
 
-  const writers = new Map<object, ReturnType<typeof createTextValueWriter>>()
+  const writers = new Map<object, TextValueWriter>()
   const jobs: (() => void)[] = [],
     cancelled = new Set<unknown>()
   const observers = new Map<object, () => void>()

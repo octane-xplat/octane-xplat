@@ -1,8 +1,8 @@
-import type { createActions } from './actions'
-import type { createLayout } from './layout'
-import type { createCssCascade } from './css-cascade'
-import type { createAccessibility } from './accessibility'
-import type { createTree } from './tree'
+import type { Actions } from './actions'
+import type { Layout } from './layout'
+import type { CssCascade } from './css-cascade'
+import type { Accessibility } from './accessibility'
+import type { Tree } from './tree'
 import type { PropBag, ElementNode } from './model'
 import {
   NSDate,
@@ -19,14 +19,16 @@ import { nativeColor } from './native-colors'
 
 interface Dependencies {
   actions: Pick<
-    ReturnType<typeof createActions>,
+    Actions,
     'buttonActionTarget' | 'nextActionId' | 'actionHandlers' | 'setControlAction'
   >
-  layout: Pick<ReturnType<typeof createLayout>, 'queueLayoutReconcile'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  tree: Pick<ReturnType<typeof createTree>, 'detach'>
+  layout: Pick<Layout, 'queueLayoutReconcile'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
+  tree: Pick<Tree, 'detach'>
 }
+export type PickerElements = ReturnType<typeof createPickerElements>
+
 export function createPickerElements(deps: Dependencies) {
   /** Native control/action allocation shared by raw indices and authentic ID pickers. */
   function makePopUpControl() {

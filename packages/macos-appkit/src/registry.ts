@@ -1,11 +1,13 @@
-import type { createNodes } from './nodes'
+import type { Nodes } from './nodes'
 import type { ElementNode, RootContainer, ElementBehavior } from './model'
 import type { UniversalHostParent, UniversalPortalTargetHandle } from 'octane/universal/native'
 import { NSView } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  nodes: Pick<ReturnType<typeof createNodes>, 'VIEW_PARENT_TYPES'>
+  nodes: Pick<Nodes, 'VIEW_PARENT_TYPES'>
 }
+
+export type Registry = ReturnType<typeof createRegistry>
 
 export function createRegistry(deps: Dependencies) {
   const nodeContainersByView = new WeakMap<object, RootContainer>()

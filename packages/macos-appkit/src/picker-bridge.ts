@@ -1,5 +1,5 @@
-import type { createActions } from './actions'
-import type { createPickerElements } from './picker-elements'
+import type { Actions } from './actions'
+import type { PickerElements } from './picker-elements'
 import {
   NSDate,
   NSDatePicker,
@@ -11,11 +11,8 @@ import {
 import type { PropBag } from './model'
 
 interface Dependencies {
-  actions: Pick<
-    ReturnType<typeof createActions>,
-    'buttonActionTarget' | 'actionHandlers' | 'nextActionId'
-  >
-  pickerElements: Pick<ReturnType<typeof createPickerElements>, 'makePopUpControl'>
+  actions: Pick<Actions, 'buttonActionTarget' | 'actionHandlers' | 'nextActionId'>
+  pickerElements: Pick<PickerElements, 'makePopUpControl'>
 }
 
 export function createPickerBridge(deps: Dependencies) {

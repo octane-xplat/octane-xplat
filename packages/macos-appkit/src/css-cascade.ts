@@ -1,11 +1,11 @@
-import type { createCssAnimations } from './css-animations'
-import type { createHostBridge } from './host-bridge'
-import type { createLayout } from './layout'
-import type { createRoots } from './roots'
-import type { createNativeStyle } from './native-style'
-import type { createControls } from './controls'
-import type { createTextElements } from './text-elements'
-import type { createInputElements } from './input-elements'
+import type { CssAnimations } from './css-animations'
+import type { HostBridge } from './host-bridge'
+import type { Layout } from './layout'
+import type { Roots } from './roots'
+import type { NativeStyle } from './native-style'
+import type { Controls } from './controls'
+import type { TextElements } from './text-elements'
+import type { InputElements } from './input-elements'
 import type { PropBag, ElementNode, RootContainer } from './model'
 import { notifyLayoutCommit } from './layout-observers'
 import { NSWorkspace } from '@octane-xplat/platform/macos'
@@ -19,20 +19,22 @@ import type { CssHostNode } from '@octane-xplat/css-engine'
 
 interface Dependencies {
   cssAnimations: Pick<
-    ReturnType<typeof createCssAnimations>,
+    CssAnimations,
     'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'
   >
-  hostBridge: Pick<ReturnType<typeof createHostBridge>, 'appKitBridge'>
-  layout: Pick<ReturnType<typeof createLayout>, 'drainLayoutDirty'>
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
+  hostBridge: Pick<HostBridge, 'appKitBridge'>
+  layout: Pick<Layout, 'drainLayoutDirty'>
+  roots: Pick<Roots, 'appKitContainers'>
   nativeStyle: Pick<
-    ReturnType<typeof createNativeStyle>,
+    NativeStyle,
     'applyStyle' | 'normalizeClass' | 'effectiveStyle' | 'parseEdgeInsets'
   >
-  controls: Pick<ReturnType<typeof createControls>, 'syncActivityIndicator'>
-  textElements: Pick<ReturnType<typeof createTextElements>, 'syncHtmlView' | 'syncText'>
-  inputElements: Pick<ReturnType<typeof createInputElements>, 'fitTextView'>
+  controls: Pick<Controls, 'syncActivityIndicator'>
+  textElements: Pick<TextElements, 'syncHtmlView' | 'syncText'>
+  inputElements: Pick<InputElements, 'fitTextView'>
 }
+
+export type CssCascade = ReturnType<typeof createCssCascade>
 
 export function createCssCascade(deps: Dependencies) {
   // ---- CSS cascade ------------------------------------------------------------

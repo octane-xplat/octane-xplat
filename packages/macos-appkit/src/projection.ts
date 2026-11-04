@@ -1,27 +1,23 @@
-import type { createNativeStyle } from './native-style'
-import type { createLayout } from './layout'
-import type { createCssCascade } from './css-cascade'
-import type { createRegistry } from './registry'
-import type { createNodes } from './nodes'
-import type { createTree } from './tree'
+import type { NativeStyle } from './native-style'
+import type { Layout } from './layout'
+import type { CssCascade } from './css-cascade'
+import type { Registry } from './registry'
+import type { Nodes } from './nodes'
+import type { Tree } from './tree'
 import type { PropBag, ElementNode, RootContainer } from './model'
 import { NSView, NSWindowOrderingMode } from '@octane-xplat/platform/macos'
 import type { UniversalHostCommand, UniversalHostParent } from 'octane/universal/native'
 
 interface Dependencies {
-  nativeStyle: Pick<
-    ReturnType<typeof createNativeStyle>,
-    'isCollapsed' | 'deactivateSizeConstraints' | 'effectiveStyle'
-  >
-  layout: Pick<
-    ReturnType<typeof createLayout>,
-    'releasePlacementPins' | 'layoutView' | 'pinLayoutChild'
-  >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'markStyleDirty' | 'setNodeInlineStyle'>
-  registry: Pick<ReturnType<typeof createRegistry>, 'isManualLayoutParent' | 'parentReference'>
-  nodes: Pick<ReturnType<typeof createNodes>, 'typeHasView'>
-  tree: Pick<ReturnType<typeof createTree>, 'detach'>
+  nativeStyle: Pick<NativeStyle, 'isCollapsed' | 'deactivateSizeConstraints' | 'effectiveStyle'>
+  layout: Pick<Layout, 'releasePlacementPins' | 'layoutView' | 'pinLayoutChild'>
+  cssCascade: Pick<CssCascade, 'markStyleDirty' | 'setNodeInlineStyle'>
+  registry: Pick<Registry, 'isManualLayoutParent' | 'parentReference'>
+  nodes: Pick<Nodes, 'typeHasView'>
+  tree: Pick<Tree, 'detach'>
 }
+
+export type Projection = ReturnType<typeof createProjection>
 
 export function createProjection(deps: Dependencies) {
   // NativeScript ProxyViewContainer's attached layout-property inventory.

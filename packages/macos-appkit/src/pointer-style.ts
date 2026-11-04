@@ -1,13 +1,12 @@
-import type { createHover } from './hover'
+import type { Hover } from './hover'
 import type { ElementNode } from './model'
 import { NSCursor } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  hover: Pick<
-    ReturnType<typeof createHover>,
-    'hoverRecordByView' | 'unobserveHover' | 'observeHover'
-  >
+  hover: Pick<Hover, 'hoverRecordByView' | 'unobserveHover' | 'observeHover'>
 }
+
+export type PointerStyle = ReturnType<typeof createPointerStyle>
 
 export function createPointerStyle(deps: Dependencies) {
   // CSS cursor keywords → the AppKit cursor pushed while the pointer is inside

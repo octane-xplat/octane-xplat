@@ -16,6 +16,8 @@ const defaultScheduler: Scheduler = {
   cancel: (handle) => clearTimeout(handle as ReturnType<typeof setTimeout>),
 }
 
+export type TextValueWriter = ReturnType<typeof createTextValueWriter>
+
 export function createTextValueWriter(adapter: TextValueAdapter, scheduler = defaultScheduler) {
   type Intent = { value: string; revision: number }
   type Observation = { active: boolean; ready: boolean; release?: () => void }
@@ -251,7 +253,7 @@ export function createTextValueWriter(adapter: TextValueAdapter, scheduler = def
 type WriterOwner = {
   active: boolean
   initial?: string
-  writer?: ReturnType<typeof createTextValueWriter>
+  writer?: TextValueWriter
 }
 
 const writers = new WeakMap<object, WriterOwner>()

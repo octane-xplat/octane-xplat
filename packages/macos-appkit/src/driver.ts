@@ -1,11 +1,11 @@
-import type { createRegistry } from './registry'
-import type { createNodes } from './nodes'
-import type { createTree } from './tree'
-import type { createProjection } from './projection'
-import type { createElementProps } from './element-props'
-import type { createCssCascade } from './css-cascade'
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createLayout } from './layout'
+import type { Registry } from './registry'
+import type { Nodes } from './nodes'
+import type { Tree } from './tree'
+import type { Projection } from './projection'
+import type { ElementProps } from './element-props'
+import type { CssCascade } from './css-cascade'
+import type { CssPseudoState } from './css-pseudo-state'
+import type { Layout } from './layout'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
 import type {
   UniversalHostCommand,
@@ -17,7 +17,7 @@ import { notifyLayoutCommit } from './layout-observers'
 
 interface Dependencies {
   registry: Pick<
-    ReturnType<typeof createRegistry>,
+    Registry,
     | 'parentReference'
     | 'resolveParentNode'
     | 'canContainView'
@@ -27,19 +27,18 @@ interface Dependencies {
     | 'portalHandlesByNode'
   >
   nodes: Pick<
-    ReturnType<typeof createNodes>,
+    Nodes,
     'assertSupportedType' | 'validateNodeProps' | 'typeHasView' | 'destroy' | 'makeNode'
   >
-  tree: Pick<
-    ReturnType<typeof createTree>,
-    'validateTextNesting' | 'textOnlyChildError' | 'detach' | 'insert' | 'remove'
-  >
-  projection: Pick<ReturnType<typeof createProjection>, 'validateProxyTree'>
-  elementProps: Pick<ReturnType<typeof createElementProps>, 'applyProps' | 'droppedPropClears'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'cssChildren' | 'flushStyleDirty'>
-  cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncPseudoTracking'>
-  layout: Pick<ReturnType<typeof createLayout>, 'drainLayoutDirty'>
+  tree: Pick<Tree, 'validateTextNesting' | 'textOnlyChildError' | 'detach' | 'insert' | 'remove'>
+  projection: Pick<Projection, 'validateProxyTree'>
+  elementProps: Pick<ElementProps, 'applyProps' | 'droppedPropClears'>
+  cssCascade: Pick<CssCascade, 'cssChildren' | 'flushStyleDirty'>
+  cssPseudoState: Pick<CssPseudoState, 'syncPseudoTracking'>
+  layout: Pick<Layout, 'drainLayoutDirty'>
 }
+
+export type Driver = ReturnType<typeof createDriver>
 
 export function createDriver(deps: Dependencies) {
   /** Pre-flight a whole batch without mutating, so a deterministic failure —

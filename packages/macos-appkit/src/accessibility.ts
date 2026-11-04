@@ -1,17 +1,19 @@
-import type { createAccessibleHost } from './accessible-host'
+import type { AccessibleHost } from './accessible-host'
 import type { ElementNode } from './model'
 import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 
 interface Dependencies {
   accessibleHost: Pick<
-    ReturnType<typeof createAccessibleHost>,
+    AccessibleHost,
     | 'AccessibleHostView'
     | 'stackAccessibilityPropsByView'
     | 'accessibilityLabels'
     | 'accessibilityRoles'
   >
 }
+
+export type Accessibility = ReturnType<typeof createAccessibility>
 
 export function createAccessibility(deps: Dependencies) {
   function applyAccessibility(node: ElementNode, name: string, value: any) {

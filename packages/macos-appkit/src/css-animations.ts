@@ -1,6 +1,6 @@
 import type { ElementNode, PropBag } from './model'
-import type { createCssCascade } from './css-cascade'
-import type { createNativeStyle } from './native-style'
+import type { CssCascade } from './css-cascade'
+import type { NativeStyle } from './native-style'
 import {
   sampleKeyframeAnimation,
   resolveTranslate,
@@ -24,9 +24,11 @@ export interface CssAnimationPlayback {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'applyStyle'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'shallowEqualStyle'>
+  nativeStyle: Pick<NativeStyle, 'applyStyle'>
+  cssCascade: Pick<CssCascade, 'shallowEqualStyle'>
 }
+export type CssAnimations = ReturnType<typeof createCssAnimations>
+
 export function createCssAnimations(deps: Dependencies) {
   const ANIMATION_FRAME_MS = 16
 

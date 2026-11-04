@@ -1,5 +1,5 @@
-import type { createRegistry } from './registry'
-import type { createAccessibleHost } from './accessible-host'
+import type { Registry } from './registry'
+import type { AccessibleHost } from './accessible-host'
 import { createAppKitKeyboardDispatcher } from './keyboard'
 import {
   NSEvent,
@@ -17,9 +17,11 @@ import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 import { setImageEventHandlers } from './image'
 
 interface Dependencies {
-  registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'AccessibleHostView'>
+  registry: Pick<Registry, 'cssNodesByView'>
+  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView'>
 }
+
+export type Subscriptions = ReturnType<typeof createSubscriptions>
 
 export function createSubscriptions(deps: Dependencies) {
   const keyboardDispatcher = createAppKitKeyboardDispatcher(() => ({ NSEvent }))

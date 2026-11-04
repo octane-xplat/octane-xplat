@@ -1,18 +1,17 @@
-import type { createNativeStyle } from './native-style'
-import type { createTextElements } from './text-elements'
-import type { createBorderPaint } from './border-paint'
-import type { createRoots } from './roots'
+import type { NativeStyle } from './native-style'
+import type { TextElements } from './text-elements'
+import type { BorderPaint } from './border-paint'
+import type { Roots } from './roots'
 import { createParityMeasurements } from './parity'
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'normalizeClass' | 'effectiveStyle'>
-  textElements: Pick<ReturnType<typeof createTextElements>, 'labelPaddings'>
-  borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
-    'borderLength' | 'borderRadiusPoints' | 'borderNSColor'
-  >
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
+  nativeStyle: Pick<NativeStyle, 'normalizeClass' | 'effectiveStyle'>
+  textElements: Pick<TextElements, 'labelPaddings'>
+  borderPaint: Pick<BorderPaint, 'borderLength' | 'borderRadiusPoints' | 'borderNSColor'>
+  roots: Pick<Roots, 'appKitContainers'>
 }
+
+export type Measurements = ReturnType<typeof createMeasurements>
 
 export function createMeasurements(deps: Dependencies) {
   const { round, nodeClasses, descendants, colorValue, measureParity } = createParityMeasurements({

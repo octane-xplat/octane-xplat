@@ -1,5 +1,5 @@
-import type { createAccessibleHost } from './accessible-host'
-import type { createCssCascade } from './css-cascade'
+import type { AccessibleHost } from './accessible-host'
+import type { CssCascade } from './css-cascade'
 import type { PropBag, ElementNode } from './model'
 import { NSImageView, NativeClass } from '@octane-xplat/platform/macos'
 import { setImageGeometryHandler, notifyImageGeometry } from './image-geometry.ts'
@@ -7,9 +7,11 @@ import { disposeImage, updateImage } from './image'
 import { drawImageContent } from './image-drawing'
 
 interface Dependencies {
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'inputTransparentViews'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
+  accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
 }
+
+export type ImageElements = ReturnType<typeof createImageElements>
 
 export function createImageElements(deps: Dependencies) {
   class InputImageView extends NSImageView {

@@ -1,16 +1,16 @@
-import type { createTextElements } from './text-elements'
-import type { createInputElements } from './input-elements'
-import type { createRegistry } from './registry'
-import type { createLayout } from './layout'
-import type { createCssCascade } from './css-cascade'
-import type { createMeasurements } from './measurements'
-import type { createBackgroundPaint } from './background-paint'
-import type { createAccessibleHost } from './accessible-host'
-import type { createPointerStyle } from './pointer-style'
-import type { createOutlines } from './outlines'
-import type { createBorderPaint } from './border-paint'
-import type { createTransformPaint } from './transform-paint'
-import type { createShadowPaint } from './shadow-paint'
+import type { TextElements } from './text-elements'
+import type { InputElements } from './input-elements'
+import type { Registry } from './registry'
+import type { Layout } from './layout'
+import type { CssCascade } from './css-cascade'
+import type { Measurements } from './measurements'
+import type { BackgroundPaint } from './background-paint'
+import type { AccessibleHost } from './accessible-host'
+import type { PointerStyle } from './pointer-style'
+import type { Outlines } from './outlines'
+import type { BorderPaint } from './border-paint'
+import type { TransformPaint } from './transform-paint'
+import type { ShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -28,26 +28,20 @@ import { INHERITED_CSS_PROPERTIES } from '@octane-xplat/css-engine'
 
 interface Dependencies {
   textElements: Pick<
-    ReturnType<typeof createTextElements>,
+    TextElements,
     'setLabelText' | 'labelPaddings' | 'syncLabelOverflow' | 'syncText'
   >
-  inputElements: Pick<ReturnType<typeof createInputElements>, 'setTextFieldPlaceholder'>
-  registry: Pick<ReturnType<typeof createRegistry>, 'isManualLayoutParent' | 'behaviorOf'>
-  layout: Pick<
-    ReturnType<typeof createLayout>,
-    'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'
-  >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'warnUnsupportedCssProp' | 'applyClassName'>
-  measurements: Pick<ReturnType<typeof createMeasurements>, 'nodeClasses'>
-  backgroundPaint: Pick<
-    ReturnType<typeof createBackgroundPaint>,
-    'BACKGROUND_STYLE_KEYS' | 'syncBackgrounds'
-  >
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'inputTransparentViews'>
-  pointerStyle: Pick<ReturnType<typeof createPointerStyle>, 'syncCursor' | 'syncUserSelect'>
-  outlines: Pick<ReturnType<typeof createOutlines>, 'syncOutline'>
+  inputElements: Pick<InputElements, 'setTextFieldPlaceholder'>
+  registry: Pick<Registry, 'isManualLayoutParent' | 'behaviorOf'>
+  layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'>
+  cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'applyClassName'>
+  measurements: Pick<Measurements, 'nodeClasses'>
+  backgroundPaint: Pick<BackgroundPaint, 'BACKGROUND_STYLE_KEYS' | 'syncBackgrounds'>
+  accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
+  pointerStyle: Pick<PointerStyle, 'syncCursor' | 'syncUserSelect'>
+  outlines: Pick<Outlines, 'syncOutline'>
   borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
+    BorderPaint,
     | 'BORDER_RADIUS_KEYS'
     | 'clearBorderSlot'
     | 'BORDER_WIDTH_KEYS'
@@ -60,11 +54,13 @@ interface Dependencies {
     | 'setBorderEdge'
   >
   transformPaint: Pick<
-    ReturnType<typeof createTransformPaint>,
+    TransformPaint,
     'syncBoxGeometry' | 'TRANSFORM_KEYS' | 'TRANSFORM_SLOT' | 'translateAxisValue'
   >
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'parseBoxShadow'>
+  shadowPaint: Pick<ShadowPaint, 'parseBoxShadow'>
 }
+
+export type NativeStyle = ReturnType<typeof createNativeStyle>
 
 export function createNativeStyle(deps: Dependencies) {
   const EDGE_INSET_PROPS = new Map([

@@ -1,6 +1,6 @@
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createCssCascade } from './css-cascade'
-import type { createRoots } from './roots'
+import type { CssPseudoState } from './css-pseudo-state'
+import type { CssCascade } from './css-cascade'
+import type { Roots } from './roots'
 import type { RootContainer } from './model'
 import {
   evalMediaQuery,
@@ -17,13 +17,15 @@ import {
 } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncContainerPseudoState'>
+  cssPseudoState: Pick<CssPseudoState, 'syncContainerPseudoState'>
   cssCascade: Pick<
-    ReturnType<typeof createCssCascade>,
+    CssCascade,
     'markStyleDirty' | 'flushStyleDirty' | 'windowMediaSize' | 'mediaSharedEnv'
   >
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
+  roots: Pick<Roots, 'appKitContainers'>
 }
+
+export type StyleEnvironment = ReturnType<typeof createStyleEnvironment>
 
 export function createStyleEnvironment(deps: Dependencies) {
   // Stylesheet and appearance changes restyle every live container.
