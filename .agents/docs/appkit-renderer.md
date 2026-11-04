@@ -182,7 +182,9 @@ subsequent setup; menus and picker attachments retain their own leases and
 release them from their attachment disposer. Common node teardown calls the
 feature disposer, never a remote map deletion. Pan payloads retain their own
 typed event path. Gesture release uses the acquired view and current handler
-identity, so old cleanup cannot remove a newer pan binding. Held submit and
+identity, so old cleanup cannot remove a newer pan binding. Native click,
+link and pan dispatch also verifies the current recognizer sender; a held old
+recognizer cannot dispatch through a reused view. Held submit and
 adjustment callbacks check their current slot before entering the event scope.
 
 `accessibility-state.ts` owns typed, immutable semantic snapshots by view;
@@ -193,7 +195,8 @@ adjustments without changing another view owner's metadata.
 
 Folded text owns its click recognizer and AX custom-action dispatch in
 `text-elements.ts`. Each node/view lifetime has distinct slots, including when
-several labels have identical link names. Refolding reuses that owner's native
+several labels have identical link names. A view owner retires the old node
+binding before reuse; old cleanup cannot clear its successor. Refolding reuses that owner's native
 objects; retirement clears JS dispatch before native cleanup. The existing
 macos-node-api 0.4.4-next.2026-08-09-31292056208 bridge workaround still retains
 native custom-action objects for the process: prior host evidence found that
