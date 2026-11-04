@@ -148,6 +148,11 @@ reading:
   to `null` — that mapping is our leaf's contract, not upstream loss.
   Storage through the JSON-document path round-trips the same characters
   exactly, so the loss is specific to WinRT string marshalling, not file IO.
+  Clipboard commits are also racy across the same launches: `SetContent` +
+  `Flush` does not settle before an immediate `GetTextAsync` — one launch
+  read the just-written payload, the next read `null` then the payload on
+  the *following* call, and an empty write was rejected while a flush was
+  in flight. Callers must tolerate a commit window after `writeText`.
 - `AbortController`/`AbortSignal` are not projected in the packaged runtime —
   `new AbortController()` throws `ReferenceError` inside the app process
   (observed on 1.0.0.201, files-chunk spec). Cancellation contracts that take

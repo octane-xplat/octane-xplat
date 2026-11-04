@@ -755,23 +755,32 @@ async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
   if (!clipboard.canCopy) {
     return result
   }
+  // SetContent+Flush commits asynchronously — an immediate read can see a
+  // stale or empty payload (verified racy across 1.0.0.211 launches). Settle
+  // before reading to model the real contract.
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 350))
   const unicode = 'clip--\u{1F600}-\u{1F1EF}\u{1F1F5}-e\u0301-\u0000-end'
   result.wroteUni = await clipboard.writeText(unicode)
+  await settle()
   const uniBack = await clipboard.readText()
   result.uniRead = uniBack === unicode
   result.uniReadBack = uniBack
   const empty = await clipboard.writeText('')
   result.wroteEmpty = empty
+  await settle()
   result.emptyRead = await clipboard.readText()
   // Probe where reads diverge: truncation at the first U+0000, or emoji loss.
   const nulPayload = 'before' + '\u0000' + 'after'
   await clipboard.writeText(nulPayload)
+  await settle()
   result.nulReadBack = await clipboard.readText()
   const emojiOnly = '\u{1F600}'
   await clipboard.writeText(emojiOnly)
+  await settle()
   result.emojiReadBack = await clipboard.readText()
   const first = await clipboard.writeText('clip-first')
   const overwrite = await clipboard.writeText('clip-second')
+  await settle()
   result.overwrite = overwrite && (await clipboard.readText()) === 'clip-second'
   result.first = first
   // Restore a harmless payload so later specs and manual use see clean state.
