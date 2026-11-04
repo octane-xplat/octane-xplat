@@ -59,7 +59,7 @@ try {
 
 		copy('research/go-cli/' + unit)
 		copy('research/go-cli/' + unit + '.json')
-		for (const onnx of routesOnly ? [] : [false, true]) {
+		for (const onnx of routesOnly ? [false] : [false, true]) {
 			const file = `xplat-go-${target}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`
 			const record = JSON.parse(readFileSync(join(work, file + '.json')))
 			assert.equal(sha(readFileSync(join(work, file))), record.sha256)
@@ -141,6 +141,7 @@ try {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mjs',
 		'test:go-patches:portable': 'node --test tools/cli-go/patches.test.mjs',
+		'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
 		'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
 		'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mjs',
@@ -162,6 +163,7 @@ try {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go-clean:portable': { cache: false },
 				'//#test:go-patches:portable': { cache: false },
+				'//#test:go-doctor:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
 				'//#test:go-linux-build:portable': { cache: false },
 				'//#test:go-build:portable': { cache: false },

@@ -24,6 +24,19 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/build.ts',
 		'packages/cli/src/commands/clean.ts',
 		'packages/cli/src/commands/patches.ts',
+		'packages/cli/src/commands/doctor.ts',
+		'packages/cli/src/doctor-checks.ts',
+		'packages/cli/src/doctor-tool.ts',
+		'packages/cli/src/compatibility.ts',
+		'packages/cli/src/compatibility-check.ts',
+		'packages/cli/src/mason-engine.ts',
+		'packages/cli/src/targets.ts',
+		'packages/create/compatibility.ts',
+		'packages/macos-build/package.json',
+		'packages/macos-build/vite.package.config.ts',
+		'packages/macos-build/runtime-paths.ts',
+		'packages/macos-build/project-package-root.ts',
+		'packages/cli/src/macos/jsc-host/prebuilt/manifest.json',
 		'packages/cli/src/patches.ts',
 		'packages/cli/src/fmt-plan.ts',
 		'packages/cli/src/tsconfig-envs.ts',
@@ -63,6 +76,18 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',
 	)
+	for (const file of readdirSync(join(root, 'packages/cli/src/macos'), { recursive: true })) {
+		if (/\.(ts|js)$/.test(file)) {
+			files.push('packages/cli/src/macos/' + file.replaceAll('\\', '/'))
+		}
+	}
+	for (const file of readdirSync(join(root, 'packages/cli/test/fixtures/macos-native-leaves/c'), {
+		recursive: true,
+	})) {
+		if (/\.(json|c|h)$/.test(file)) {
+			files.push('packages/cli/test/fixtures/macos-native-leaves/c/' + file.replaceAll('\\', '/'))
+		}
+	}
 	for (const file of readdirSync(join(root, 'packages/cli/patches'))) {
 		if (/\.(json|patch)$/.test(file)) {
 			files.push('packages/cli/patches/' + file)

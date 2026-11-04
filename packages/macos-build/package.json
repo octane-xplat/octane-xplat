@@ -16,6 +16,7 @@
 	],
 	"exports": {
 		"./worker": "./dist/macos/package-worker.js",
+		"./doctor-worker": "./dist/macos/doctor-worker.js",
 		"./dev-worker": "./dist/macos/dev-worker.js"
 	},
 	"engines": {

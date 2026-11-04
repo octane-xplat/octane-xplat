@@ -218,7 +218,7 @@ func formatCommand(ctx context.Context, values map[string]any) error {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
-		return writeFormatStdout(ctx, os.Stdout, *plan.Code)
+		return writeCommandText(ctx, os.Stdout, *plan.Code)
 	}
 	changed := 0
 	for _, file := range plan.Files {
@@ -290,18 +290,5 @@ func readFormatStdin(ctx context.Context, input *os.File) ([]byte, error) {
 			return nil, errors.New("format stdin exceeds 16 MiB")
 		}
 		return value.bytes, value.err
-	}
-}
-
-// As with stdin, the lifetime of a blocked OS write ends at the one-shot CLI's
-// process exit. Never use this helper inside the persistent host.
-func writeFormatStdout(ctx context.Context, output *os.File, code string) error {
-	done := make(chan error, 1)
-	go func() { _, err := io.WriteString(output, code); done <- err }()
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-done:
-		return err
 	}
 }

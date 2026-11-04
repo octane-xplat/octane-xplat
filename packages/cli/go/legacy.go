@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type legacyHandler func(context.Context, map[string]any) error
@@ -75,7 +76,13 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	var clean *cleanFailure
 	var mutation *workspaceMutationError
 	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) || errors.As(err, &clean) || errors.As(err, &mutation) {
-		fmt.Fprintf(os.Stderr, "xplat %s: %v\n", command.Name, err)
+		outputContext := ctx
+		if ctx.Err() != nil || errors.Is(err, context.DeadlineExceeded) {
+			var cancel context.CancelFunc
+			outputContext, cancel = context.WithTimeout(context.WithoutCancel(ctx), 250*time.Millisecond)
+			defer cancel()
+		}
+		_ = writeCommandText(outputContext, os.Stderr, fmt.Sprintf("xplat %s: %v\n", command.Name, err))
 	}
 	if requiresFailureEvidence(err) {
 		return failureExit

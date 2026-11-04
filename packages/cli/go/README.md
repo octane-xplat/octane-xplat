@@ -172,7 +172,7 @@ preserves case variants of the macOS directory name.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup contracts"}' -- bun run turbo run test:go-clean --filter=@octane-xplat/cli --concurrency=1
 ```
 
-Build, clean and `patches apply` share a kernel lease in the OS user cache, keyed by physical
+Build, clean, doctor and `patches apply` share a kernel lease in the OS user cache, keyed by physical
 project identity so directory aliases share ownership. The cache must live outside
 the selected project. Keep its lock files in place after release; deleting a live
 lock would let another process acquire a different identity. This coordinates Go
@@ -204,6 +204,31 @@ project code; this preflight and cooperative lease do not isolate it from unrela
 concurrent writers. Application copies files and updates configuration sequentially,
 so failure or cancellation can leave partial changes. Inspect those changes and
 rerun `patches check`; the CLI preserves this uncertainty in its error and exit.
+
+`doctor` runs the shared diagnostic report through the selected project's CLI
+worker. Go owns the native help/schema, process lifecycle and presentation. The
+worker owns compatibility pins, dependency/source analysis, declaration checks
+and tool observations. Its small compatibility module is compiled from the
+creator's canonical source and JSON; creator templates, Vite and a compiler are
+not prerequisites for ordinary diagnostics.
+
+```sh
+# From the project whose configuration and tools should be checked:
+/absolute/path/to/xplat-go doctor
+/absolute/path/to/xplat-go doctor --schema
+```
+
+Mac targets also need the selected project's `@octane-xplat/macos-build` diagnostic
+worker. It owns host-payload verification and native-leaf SDK inspection. Those
+assets stay outside the CLI download. Inspection may materialize a tool cache;
+Go holds the project output lease until worker cleanup finishes. Each worker has
+a three-minute deadline within a five-minute overall operation.
+
+The report preserves the reference severity policy: ordinary SDK failures appear
+as warnings, while compatibility, declaration and Linux checks can return exit 1.
+Tool presence and verified host files do not establish an app/device runtime pass.
+Go rejects missing observation states and omitted required checks, and preserves
+repeated dependency labels that describe distinct physical copies.
 
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded

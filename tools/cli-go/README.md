@@ -134,8 +134,9 @@ existing `octane-linux` OrbStack guest for Linux, and `ssh windy` for Windows.
 No compiler or shared-checkout mutation is required on the destination.
 Cross-compilation itself does not qualify execution or distribution.
 
-For a smaller route-only snapshot, cross-build `build:go` for `@octane-xplat/cli`
-and `build:go-tests` for `@xplat/cli-go-probe` on both targets, then run
+For a smaller project-command snapshot, cross-build `build:go` for both
+`@octane-xplat/cli` and `@xplat/cli-go-probe`, plus `build:go-tests` for
+`@xplat/cli-go-probe` on both targets, then run
 `snapshot:go-routes`. The resulting `routes-source.tgz` carries the public core,
 native unit executables and curated project workers without model/runtime assets.
 Run its root Turbo tasks `test:go-unit:portable` and `test:go-routes:portable`
@@ -235,6 +236,23 @@ destinations, an actual patched Bun install and frozen reinstall, partial effect
 and cancellation with descendant cleanup. Windows forced termination qualifies
 job cleanup, not graceful console cancellation or its partial-effect diagnostic.
 The runtime snapshot includes this fixture as `test:go-patches:portable`.
+
+`test:go-doctor` compares native diagnostic rows, warnings and exit policy with
+the actual shared engine in the minimally installed worker. It covers omitted or
+foreign reports, multiple singleton copies, the separate macOS handoff, and
+cancellation/descendant cleanup during both worker phases. The differential
+reference runs in process containment: installed tool
+probes can leave descendants even after a successful report. The test-only Go
+probe owns that reference tree; the public executable has no test dispatch.
+A source-host macOS case packs the real platform worker, verifies its payloads and loads the installed
+C leaf metadata generator; it does not compile, package or launch an application.
+Portable snapshots expose `test:go-doctor:portable`; they skip that real macOS
+asset case on Linux/Windows, while testing ordinary diagnostics and the platform
+protocol. Forced Windows termination establishes job cleanup, not console delivery.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go doctor verification"}' -- bun run turbo run test:go-doctor --filter=@octane-xplat/cli --concurrency=1
+```
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go patch management"}' -- bun run turbo run test:go-patches --filter=@octane-xplat/cli --concurrency=1

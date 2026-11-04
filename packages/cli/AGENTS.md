@@ -131,10 +131,36 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 ## Go project orchestration
 
+Reuse `inspectDoctor` in `src/doctor-checks.ts` for diagnostic policy; command
+presentation stays in `commands/doctor.ts`. Its explicit exit code is independent
+of failed-row count: compatibility/declaration/Linux checks can fail the command,
+while ordinary SDK observations remain warnings. Preserve repeated check names:
+they can describe different physical copies of a singleton dependency. Keep
+boolean presence explicit across Go/JSON handoffs so missing/null states cannot
+silently become a failed or successful observation.
+
+The common project worker receives macOS observations from the selected project's
+`@octane-xplat/macos-build/doctor-worker`; it must not inspect absent host assets
+relative to the curated CLI. The canonical platform helper is
+`src/macos/doctor-checks.ts`. SDK inspection can materialize a project-local tool
+cache, so the Go doctor holds the shared output lease through worker cleanup.
+Required tool/platform observations are part of the report contract; reject
+omitted rows instead of reporting an empty inventory as healthy.
+Keep large one-shot reports and diagnostics cancellable through
+`go/command_io.go`. A blocked downstream pipe must not retain the output lease
+after cancellation. Give critical final error evidence a brief independent write
+attempt when the root is cancelled, while retaining its failure exit. This helper
+can leave a blocked writer until process exit; never reuse it in the persistent
+host.
 Do not embed `bytes.Buffer` in a bounded capture writer: its promoted `ReadFrom`
 lets `io.Copy`/`os/exec` bypass an overridden `Write` and silently remove the cap.
 Keep the buffer private and test through an actual subprocess pipe. Captured
 worker diagnostics must disclose truncation independently of the result sidecar.
+
+The curated worker compiles only the creator's canonical compatibility module
+into `dist/compatibility-data`, with its JSON beside it. Keep those pins and
+functions sourced from the creator; do not copy their policy into Go or require
+creator templates at runtime. Route/parser/Vite dependencies stay lazy.
 
 Keep build/clean/patch-application leases outside generated outputs and dependency caches. Use the
 physical directory identity for the key: canonical path text alone can retain
@@ -430,6 +456,12 @@ qualified. Compare structured results, errors, exit codes and stream ownership;
 compilation or a successful happy path does not prove semantic parity. For pure
 logic, a test-only native program reading NDJSON can exercise a large case corpus
 in one process. Do not ship test-only entry points in the production binary.
+
+Contain differential reference processes that invoke installed tools, too.
+Successful synchronous Node version probes can leave descendants holding a
+Windows working directory open; retries or unlinking fixture packages do not
+establish cleanup. Use the test-only Go process probe for the Doctor reference
+and assert its exit, capture and cancellation state before reading the report.
 
 Publish an ownership future before starting async work that can notify observers.
 Nim async procedures can execute synchronously until their first pending await;

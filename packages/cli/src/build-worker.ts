@@ -95,6 +95,41 @@ try {
 			count: plan.count,
 			outputs: [...plan.outputs].map(([file, source]) => ({ file, source })),
 		}
+	} else if (request.operation === 'doctor') {
+		const platform = request.macosReport
+		if (platform !== null && platform !== undefined) {
+			if (
+				platform.version !== 1 ||
+				typeof platform.root !== 'string' ||
+				realpathSync(platform.root) !== realpathSync(process.cwd()) ||
+				!Array.isArray(platform.rows) ||
+				platform.rows.length > 512 ||
+				!platform.rows.every(
+					(row) =>
+						row &&
+						typeof row.name === 'string' &&
+						typeof row.ok === 'boolean' &&
+						(row.detail === undefined || typeof row.detail === 'string') &&
+						(row.hint === undefined || typeof row.hint === 'string'),
+				)
+			) {
+				throw new Error('Invalid selected-project macOS diagnostic report')
+			}
+		}
+
+		const { inspectDoctor } = await import('./doctor-checks.ts')
+		const report = await inspectDoctor({
+			macosChecks: async () => {
+				// Curated CLI workers have no platform payload. The native caller
+				// supplies observations from the separately installed platform worker.
+				if (!platform) {
+					throw new Error('Install or update @octane-xplat/macos-build for macOS diagnostics')
+				}
+				return platform.rows
+			},
+		})
+
+		data = { version: 1, root: realpathSync(process.cwd()), ...report }
 	} else if (request.operation === 'patches-check' || request.operation === 'patches-apply') {
 		if (
 			request.packageManager !== null &&

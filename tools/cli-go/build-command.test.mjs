@@ -382,7 +382,7 @@ test(
 			assert.ok(existsSync(join(dir, 'macos-worker-ready')))
 			const second = run(dir, ['--targets', 'macos'])
 			status(second, 1)
-			assert.match(second.stderr, /another Go build, clean or patches apply owns/)
+			assert.match(second.stderr, /another Go project operation owns/)
 			child.kill('SIGTERM')
 			assert.deepEqual(await exited, [143, null])
 			assert.equal(

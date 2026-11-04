@@ -309,7 +309,7 @@ test('clean refuses an active native build, then succeeds after cancellation rel
 	for (const location of [dir, alias]) {
 		const busy = run(location)
 		assert.notEqual(busy.status, 0)
-		assert.match(busy.stderr, /another Go build, clean or patches apply/)
+		assert.match(busy.stderr, /another Go project operation/)
 	}
 	assert.equal(readFileSync(join(dir, 'dist/previous'), 'utf8'), 'old build')
 	child.kill('SIGTERM')

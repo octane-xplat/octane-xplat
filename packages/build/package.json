@@ -48,6 +48,7 @@
 	},
 	"peerDependencies": { "vite": "^8.3.0" },
 	"devDependencies": {
+		"create-octane-xplat": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",
 		"@types/node": "24.10.1",
 		"typescript": "catalog:",

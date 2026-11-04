@@ -383,7 +383,7 @@ test('apply owns its lease through cancellation and cleans ordinary descendant w
 	assert.ok(existsSync(join(dir, 'ready.json')), text)
 	const busy = run(dir, ['apply'])
 	assert.notEqual(busy.status, 0)
-	assert.match(busy.stderr, /another Go build, clean or patches apply/)
+	assert.match(busy.stderr, /another Go project operation/)
 	const clean = spawnSync(binary, ['clean'], { cwd: dir, env, encoding: 'utf8', timeout: 10000 })
 	assert.notEqual(clean.status, 0)
 	child.kill('SIGTERM')
