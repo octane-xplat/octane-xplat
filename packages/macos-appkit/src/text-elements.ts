@@ -4,6 +4,7 @@ import type { CssCascade } from './css-cascade'
 import type { InputElements } from './input-elements'
 import type { Layout } from './layout'
 import type { Registry } from './registry'
+import { FailureCollector } from './failures'
 import type { Actions } from './actions'
 import type { Accessibility } from './accessibility'
 import type { Tree } from './tree'
@@ -341,39 +342,41 @@ export function createTextElements(deps: Dependencies) {
     }
   }
 
-  /** Process-lifetime pool for folded-link AX actions. Each action's handler
-   *  block wraps a JS function, and the bridge cannot delete that reference
-   *  inside a GC finalizer — a released action's block_release reenters JSC
-   *  during the sweep that finalized its wrapper and traps (EXC_BREAKPOINT on
-   *  host OctaneProbe). Pooling by run name and re-pointing dispatch per sync
-   *  means re-folded labels reuse the same objects and nothing ever reaches
-   *  the fatal release path. Two live labels with identical run names share a
-   *  slot; the last sync's dispatch wins (same text usually resolves to the
-   *  same destination anyway). */
-  const axLinkActionPool = new Map<string, AxLinkSlot>()
+  // Native handler blocks cannot safely finalize during the bridge's GC sweep.
+  // Retain action objects for the process, but give each node/view lifetime its
+  // own slots. Sharing by link text redirects another live label's action.
+  const axLinkActionPool = new Set<AxLinkSlot>()
+  const linkOwners = new WeakMap<ElementNode, {
+    view: NSView; active: boolean; slots: Map<string, AxLinkSlot>
+  }>()
+
+  function retireTextLinks(node: ElementNode) {
+    const owner = linkOwners.get(node)
+    linkOwners.delete(node)
+    if (owner) {
+      owner.active = false
+      for (const slot of owner.slots.values()) { slot.dispatch = null }
+    }
+    return owner
+  }
 
   function axLinkActionSlot(name: string): AxLinkSlot {
-    let slot = axLinkActionPool.get(name)
-    if (!slot) {
-      slot = {
-        action: NSAccessibilityCustomAction.alloc().initWithNameHandler(name, () => {
-          try {
-            slot?.dispatch?.()
-          } catch (error) {
-            console.error('[macos-ax] link action failed', error)
-          }
-          return true
-        }),
-        dispatch: null,
-      }
-      axLinkActionPool.set(name, slot)
+    const slot: AxLinkSlot = {
+      action: NSAccessibilityCustomAction.alloc().initWithNameHandler(name, () => {
+        try { return slot.dispatch?.() ?? false }
+        catch (error) { console.error('[macos-ax] link action failed', error); return false }
+      }),
+      dispatch: null,
     }
+    axLinkActionPool.add(slot)
     return slot
   }
 
   /** Labels with folded link runs own one click recognizer; hits are resolved
    *  per glyph in `linkPressed` so a mixed paragraph never fires as one action. */
   function syncTextLinks(node: ElementNode) {
+    const previous = linkOwners.get(node)
+    if (previous && previous.view !== node.view) { releaseTextLinkView(node) }
     const active =
       node.type === 'label' &&
       (node.textLinks?.length ?? 0) > 0 &&
@@ -396,45 +399,59 @@ export function createTextElements(deps: Dependencies) {
       node.linkClickRecognizer.enabled = active
     }
 
-    // Per-run activation through assistive tech: NSTextField cannot vend AXLink
-    // children, so each link run becomes a named custom action — VoiceOver's
-    // action rotor can invoke the same handler a click would. Actions come from
-    // a process-lifetime pool: each handler block wraps a JS function, and the
-    // bridge cannot delete that reference inside a GC finalizer — a released
-    // action's block_release reenters JSC during the sweep that finalized its
-    // wrapper and traps (EXC_BREAKPOINT on host OctaneProbe). Pooling by run
-    // name and re-pointing dispatch per sync means a re-folded label reuses the
-    // same objects and nothing ever reaches the fatal release path. Two live
-    // labels with identical run names share a slot; the last sync's dispatch
-    // wins (same text usually resolves to the same destination anyway).
     const view = node.view as NSTextField | undefined
-    if (view) {
-      const links = active ? (node.textLinks ?? []) : []
-      const string = String(view.attributedStringValue?.string ?? '')
-      const slots = links.map((run) => {
-        const slot = axLinkActionSlot(
-          `Open link ${string.substring(run.location, run.location + run.length)}`,
-        )
-        slot.dispatch = () => {
-          try {
-            node.container.root?.eventScope('discrete', run.handler)
-          } catch (error) {
-            console.error('[macos-ax] link action failed', error)
-          }
-          return true
-        }
-        return slot
-      })
-      // Runs that vanished keep their pooled action but lose the dispatch — a
-      // stale closure would otherwise retain this node and its run handler.
-      for (const stale of node.axLinkSlots ?? []) {
-        if (!slots.includes(stale as AxLinkSlot)) {
-          stale.dispatch = null
-        }
-      }
-      node.axLinkSlots = slots
-      ;(view as any).accessibilityCustomActions = slots.map((slot) => slot.action)
+    let owner = linkOwners.get(node)
+    if (!view) { return }
+    if (!owner) {
+      owner = { view, active: true, slots: new Map() }
+      linkOwners.set(node, owner)
     }
+    const currentOwner = owner
+    const links = active ? (node.textLinks ?? []) : []
+    const string = String(view.attributedStringValue?.string ?? '')
+    const slots = links.map((run, index) => {
+      const name = `Open link ${string.substring(run.location, run.location + run.length)}`
+      const key = `${index}:${name}`
+      let slot = currentOwner.slots.get(key)
+      if (!slot) {
+        slot = axLinkActionSlot(name)
+        currentOwner.slots.set(key, slot)
+      }
+      const currentSlot = slot
+      const dispatch = () => {
+        if (!currentOwner.active || linkOwners.get(node) !== currentOwner || node.view !== view ||
+            currentSlot.dispatch !== dispatch || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
+            node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false ||
+            !node.container.root) { return false }
+        try { node.container.root.eventScope('discrete', run.handler) }
+        catch (error) { console.error('[macos-ax] link action failed', error); return false }
+        return true
+      }
+      slot.dispatch = dispatch
+      return slot
+    })
+    for (const slot of currentOwner.slots.values()) {
+      if (!slots.includes(slot)) { slot.dispatch = null }
+    }
+    view.accessibilityCustomActions = slots.map(slot => slot.action)
+  }
+
+  function releaseTextLinkView(node: ElementNode) {
+    const owner = retireTextLinks(node)
+    const recognizer = node.linkClickRecognizer
+    node.linkClickRecognizer = undefined
+    const failures = new FailureCollector()
+    if (recognizer) {
+      failures.run('link disable', () => { recognizer.enabled = false })
+      failures.run('link detach', () => (owner?.view ?? node.view)?.removeGestureRecognizer(recognizer))
+    }
+    if (owner) { failures.run('AX links', () => { owner.view.accessibilityCustomActions = [] }) }
+    failures.throwIfFailed()
+  }
+
+  function disposeTextLinks(node: ElementNode) {
+    node.textLinks = undefined
+    releaseTextLinkView(node)
   }
 
   function syncText(parent: ElementNode | null | undefined) {
@@ -598,6 +615,7 @@ export function createTextElements(deps: Dependencies) {
     textLinkCharacterIndex,
     primaryClickBoundary,
     syncTextLinks,
+    disposeTextLinks,
     syncText,
     makeLabel,
     applyBuiltinHtmlViewProp,

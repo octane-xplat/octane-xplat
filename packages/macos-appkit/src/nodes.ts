@@ -91,7 +91,7 @@ interface Dependencies {
     | 'disposeBuiltinActivityIndicator'
     | 'disposeBuiltinScrollView'
   >
-  textElements: Pick<TextElements, 'makeLabel' | 'disposeBuiltinFormattedText'>
+  textElements: Pick<TextElements, 'makeLabel' | 'disposeBuiltinFormattedText' | 'disposeTextLinks'>
   inputElements: Pick<
     InputElements,
     | 'makeSearchBar'
@@ -648,15 +648,7 @@ export function createNodes(deps: Dependencies) {
 
     release('detach', () => deps.tree.detach(node.container, node))
     release('press gestures', () => disposePressGestures(node))
-    for (const name of ['linkClickRecognizer']) {
-      const recognizer = node[name]
-      node[name] = undefined
-      if (recognizer) {
-        release(name + ' disable', () => { recognizer.enabled = false })
-        release(name + ' detach', () => node.view?.removeGestureRecognizer(recognizer))
-      }
-    }
-    node.textLinks = undefined
+    release('text links', () => deps.textElements.disposeTextLinks(node))
     const hover = node.cssHoverDispose
     node.cssHoverDispose = undefined
     release('hover', () => hover?.())

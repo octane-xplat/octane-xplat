@@ -164,3 +164,26 @@ test('replaced click/pan views and older pan cleanup cannot dispatch or retire n
   f.actions.disposeActions(replacement)
 })
 
+test('pooled native AX links keep simultaneous same-name owners separate and retire held callbacks', () => {
+  const f = fixture()
+  const text = createTextElements({ actions: f.actions, registry: f.registry } as any)
+  const view = () => ({ attributedStringValue: { string: 'Same' }, addGestureRecognizer() {}, removeGestureRecognizer() {} })
+  const first = f.node('label', view()), second = f.node('label', view())
+  first.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('first') }]
+  second.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('second') }]
+  text.syncTextLinks(first); text.syncTextLinks(second)
+  const a = first.view.accessibilityCustomActions[0], b = second.view.accessibilityCustomActions[0]
+  assert.notEqual(a, b)
+  a.handler(); b.handler()
+  text.syncTextLinks(first)
+  assert.equal(first.view.accessibilityCustomActions[0], a)
+  text.disposeTextLinks(first); a.handler(); b.handler()
+  const oldView = second.view
+  second.view = view()
+  text.syncTextLinks(second)
+  b.handler()
+  assert.deepEqual(oldView.accessibilityCustomActions, [])
+  second.view.accessibilityCustomActions[0].handler()
+  text.disposeTextLinks(second)
+  assert.deepEqual(f.events, ['first', 'second', 'second', 'second'])
+})

@@ -52,9 +52,6 @@ export interface ElementNode {
    *  click recognizer that hit-tests taps against it (labels only). */
   textLinks?: TextLinkRun[]
   linkClickRecognizer?: NSGestureRecognizer
-  /** Pooled AX actions this label last vended — lets syncTextLinks drop
-   *  stale dispatch closures without releasing the action objects. */
-  axLinkSlots?: { dispatch: (() => boolean) | null }[]
   scrollObserverInstalled: boolean
   text: string
   // CSS adapter: cssType/cssClasses/cssPseudoClasses/computedStyle/

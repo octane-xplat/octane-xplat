@@ -243,7 +243,7 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
       fn('syncTextLinks') +
       '\n({syncTextLinks})',
     {
-      axLinkActionPool: new Map(),
+      axLinkActionPool: new Set(),
       configureGesture: (recognizer: any) => recognizer,
       NSClickGestureRecognizer: {
         alloc: () => ({
