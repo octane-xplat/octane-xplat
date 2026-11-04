@@ -81,7 +81,7 @@ function fixture({ workshop = true } = {}) {
 				put(destination, path.slice(source.length + 1), readFileSync(path))
 			}
 		}
-		link(join(source, 'node_modules/tinyglobby'), join(dir, 'node_modules/tinyglobby'))
+		link(join(tools.nodeModules, 'tinyglobby'), join(dir, 'node_modules/tinyglobby'))
 	}
 	return dir
 }
@@ -591,8 +591,14 @@ test('native workshop service uses actual Vite HTTP/catalog updates and releases
 		assert.match(updated, /counter\/changed/)
 		child.kill('SIGTERM')
 		const [code, signal] = await exited
-		assert.equal(signal, null)
-		assert.equal(code, 143, output)
+		if (process.platform === 'win32') {
+			// Node force-terminates Windows owners: this tests kill-on-close Job
+			// cleanup, not console Ctrl-C delivery or graceful owner shutdown.
+			assert.equal(signal, 'SIGTERM', output)
+		} else {
+			assert.equal(signal, null)
+			assert.equal(code, 143, output)
+		}
 		await assert.rejects(fetch(address))
 	} finally {
 		if (child.exitCode === null && child.signalCode === null) {

@@ -58,7 +58,11 @@ export function projectToolFixture(
 			devDependencies: {
 				...deps,
 				...(workshopCompiler
-					? { ...packages.workshopCompiler, storybook: packages.workshopStorybook }
+					? {
+							...packages.workshopCompiler,
+							storybook: packages.workshopStorybook,
+							tinyglobby: packages.workshopGlob,
+						}
 					: {}),
 				...(fontConverter ? { wawoff2: packages.fontConverter } : {}),
 				...(formatter ? { '@octane-xplat/fmt': packages.formatter } : {}),

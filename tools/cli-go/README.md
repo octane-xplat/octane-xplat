@@ -409,3 +409,10 @@ races, engine streams and resistant descendant cleanup.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"Go workshop services"}' -- bun run turbo run test:go-workshop test:go-workshop-macos test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
 ```
+
+The runtime-only host snapshot includes workshop source payloads and built Node
+engines. `test:go-workshop:portable` runs the actual web service on Linux/Windows
+with host-installed Node. Windows Node `child.kill('SIGTERM')` force-terminates
+the owner: that gate checks listener release through Job kill-on-close, not
+console Ctrl-C or graceful shutdown. Native units separately cancel through the
+owned-process context. Keep Windows console delivery pending until exercised.

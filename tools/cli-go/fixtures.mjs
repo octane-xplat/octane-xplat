@@ -93,6 +93,8 @@ export function prepareFixtures(
 				),
 				workshopStorybook: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
 					.dependencies.storybook,
+				workshopGlob: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
+					.dependencies.tinyglobby,
 				fontConverter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json')))
 					.dependencies.wawoff2,
 				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[
