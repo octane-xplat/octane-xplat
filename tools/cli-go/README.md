@@ -416,3 +416,13 @@ with host-installed Node. Windows Node `child.kill('SIGTERM')` force-terminates
 the owner: that gate checks listener release through Job kill-on-close, not
 console Ctrl-C or graceful shutdown. Native units separately cancel through the
 owned-process context. Keep Windows console delivery pending until exercised.
+
+Native session-store units exercise log pagination against the actual Node
+reader, bounded rotation, valid Unicode prefixes, incomplete append recovery,
+private namespaces, symlink/hardlink refusal, active-record retention and owner
+loss. Concurrent reader/writer cases permit explicit retryable read races, never
+partial metadata or writer failure. Portable unit binaries run from their Go
+package directory to match `go test` fixture resolution. The complete portable
+unit suite has a 90-second deadline, with a 105-second outer watchdog; individual
+SDK/process deadlines remain unchanged. These are store/transport
+checks; main dev and persistent session integration remain separate gates.

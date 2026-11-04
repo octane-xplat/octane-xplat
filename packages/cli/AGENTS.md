@@ -1197,6 +1197,23 @@ sort; Go map iteration changes equal-priority device order. A single `dev ios`
 selects one uniquely booted match; `--targets ios` includes every detected device.
 Do not collapse platform buckets and device selections into one build selector.
 
+Go retained session history uses its own versioned private namespace outside the
+app and dependency caches. Reject in-project cache aliases before creating any
+folders; resolving only the lexical path misses macOS /var aliases. Keep app and
+owner identities in every metadata record. Live-owner generations, not stored
+PIDs, distinguish active sessions from historical evidence. End times and cleanup
+confirmation are published together only after owned resource release.
+
+Keep log pagination compatible with the canonical Node contract: no cursor reads
+the newest matching tail; a cursor reads forward; filtered pages still advance
+past the newest observed record when exhausted. Re-read the previous segment
+around rotation and disclose gaps or incomplete tails. Never resume appending
+after a failed write. Create new segments exclusively and verify their owned file
+identity/size before reopening; an ordinary pre-existing file may be a hardlink
+to a user original. Prune only validated cleanup-confirmed Go records, retain
+unfinished evidence, and allow known-session finalization despite an unrelated
+corrupt retention entry. Record any retention failure without hiding readable logs.
+
 Foreground project services use a versioned private startup sidecar, separate from
 human output and the operation-admission receipt. Bound startup, then allow the
 owned service lifetime until exit/cancellation; always await group/job cleanup.

@@ -72,10 +72,7 @@ func TestDevTargetParsersAgainstNode(t *testing.T) {
 		request, _ := json.Marshal(map[string]string{"ios": data.ios, "android": data.android})
 		command := exec.Command(node, "--input-type=module", "-e", `import cp from 'node:child_process';import{syncBuiltinESMExports}from'node:module';import{pathToFileURL}from'node:url';const input=JSON.parse(process.env.XPLAT_DEV_TARGET_FIXTURE);cp.execFileSync=(cmd)=>cmd==='xcrun'?input.ios:input.android;syncBuiltinESMExports();const api=await import(pathToFileURL(process.argv[1]).href);console.log(JSON.stringify({ios:api.iosTargets(),android:api.androidTargets()}));`, source)
 		command.Env = append(os.Environ(), "NODE_OPTIONS=", "NODE_PATH=", "XPLAT_DEV_TARGET_FIXTURE="+string(request))
-		output, err := command.CombinedOutput()
-		if err != nil {
-			t.Fatalf("%v: %s", err, output)
-		}
+		output := testNodeOutput(t, context.Background(), command)
 		var expected struct{ IOS, Android []devTarget }
 		if err = json.Unmarshal(output, &expected); err != nil {
 			t.Fatal(err)
@@ -107,10 +104,7 @@ func TestDevDiscoveryAgainstActualHostReference(t *testing.T) {
 		t.Fatal(err)
 	}
 	command := exec.CommandContext(ctx, node, "--input-type=module", "-e", `import{pathToFileURL}from'node:url';const api=await import(pathToFileURL(process.argv[1]).href);console.log(JSON.stringify(api.discoverTargets(process.argv[2])));`, source, root)
-	output, err := command.CombinedOutput()
-	if err != nil {
-		t.Fatalf("%v: %s", err, output)
-	}
+	output := testNodeOutput(t, ctx, command)
 	var expected []devTarget
 	if err = json.Unmarshal(output, &expected); err != nil {
 		t.Fatal(err)
@@ -151,4 +145,30 @@ func TestDevDiscoveryWithoutProjectRuntime(t *testing.T) {
 	if _, err := discoverDevTargets(context.Background(), root); err == nil {
 		t.Fatal("malformed manifest must be actionable")
 	}
+}
+
+// Reference code can start SDK descendants. Give it the same owned kernel
+// boundary as production tools rather than waiting only for its Node leader.
+func testNodeOutput(t *testing.T, ctx context.Context, command *exec.Cmd) []byte {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(ctx, 45*time.Second)
+	defer cancel()
+	cwd := command.Dir
+	if cwd == "" {
+		var err error
+		cwd, err = os.Getwd()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	env := command.Env
+	if env == nil {
+		env = os.Environ()
+	}
+	env = append(env, "NODE_OPTIONS=", "NODE_PATH=")
+	result, err := runProcess(ctx, command.Args, cwd, env)
+	if err != nil || result.ExitCode != 0 || result.Cancelled || result.Truncated {
+		t.Fatalf("owned reference: %v, exit=%d, cancelled=%v, truncated=%v: %s", err, result.ExitCode, result.Cancelled, result.Truncated, result.Stderr)
+	}
+	return []byte(result.Stdout)
 }

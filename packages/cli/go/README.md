@@ -59,6 +59,12 @@ Go owns argv, cwd, environment, timeouts, publication, sessions, logs, cancellat
 and cleanup. Use small workers for operations requiring the project's JavaScript
 compiler, plugin or configuration execution, never a general CLI fallback.
 
+Main `dev` and public persistent sessions remain pending. Their native foundation
+includes SDK target discovery/selection and a separate versioned retained-history
+store. Its bounded logs preserve Node pagination, disclose rotation/incomplete
+tails, and keep cleanup confirmation separate from stopped state or stored PIDs.
+These internal providers do not register the unfinished public commands.
+
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes
 with the project's Vite. JSON discovery diagnostics remain data with exit zero;
