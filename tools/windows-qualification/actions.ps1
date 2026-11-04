@@ -1790,11 +1790,14 @@ function Check-ServiceActions{
     Assert ($result.flushFalse -eq $true) 'flush keeps its documented false contract' $result
    }
    'clipboard-depth' {
-    # 1.0.0.210 verified: unicode write accepts but does not round-trip exactly;
-    # empty write accepts and reads back null. Read-back fields are emitted for
-    # diagnosis; asserts encode the verified contract.
-    Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but does not round-trip exactly (verified on 1.0.0.210)' $result
-    Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null (verified on 1.0.0.210)' $result
+    # 1.0.0.211 verified the exact projection-loss shapes: non-BMP reads back
+    # as '?' per UTF-16 unit, combining marks mangle to codepage chars, text
+    # truncates at the first U+0000, and empty writes read back null. If any
+    # shape changes, upstream landed a marshalling fix — re-investigate.
+    Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but does not round-trip exactly' $result
+    Assert ($result.uniReadBack -ceq 'clip--??-????-e''-') 'Unicode read-back shows the verified projection-loss shape' $result
+    Assert ($result.nulReadBack -ceq 'before' -and $result.emojiReadBack -ceq '??') 'Clipboard truncates at U+0000 and mangles non-BMP' $result
+    Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null' $result
     Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
    }
    'media-depth' {

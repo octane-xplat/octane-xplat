@@ -137,6 +137,17 @@ reading:
   upstream `File`/`Folder` covers only path joins, `exists`, and async
   `readText`/`writeText`/`readBuffer`/`writeBuffer`/`appendText` — every
   delete, rename, size, and enumeration member is broken or silent-wrong.
+- Clipboard text marshalling is lossy past BMP ASCII, verified on 1.0.0.210
+  and 1.0.0.211 (`clipboard-depth`, launches `mw1bskqo`/`mw1iafcb`):
+  `DataPackage.SetText` accepts any JS string, but
+  `GetTextAsync`/`SetText` through the projection mangles non-BMP code points
+  to `?` per UTF-16 unit (`'😀'` reads back `'??'`, `'🇯🇵'` reads back
+  `'????'`), maps `U+0301` combining acute to `'`, and truncates the payload
+  at the first `U+0000` (`'before after'` reads back `'before'`). BMP ASCII
+  text round-trips exactly. `readText` also maps an empty/undelivered payload
+  to `null` — that mapping is our leaf's contract, not upstream loss.
+  Storage through the JSON-document path round-trips the same characters
+  exactly, so the loss is specific to WinRT string marshalling, not file IO.
 - `AbortController`/`AbortSignal` are not projected in the packaged runtime —
   `new AbortController()` throws `ReferenceError` inside the app process
   (observed on 1.0.0.201, files-chunk spec). Cancellation contracts that take
