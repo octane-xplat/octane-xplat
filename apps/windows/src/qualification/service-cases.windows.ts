@@ -848,6 +848,44 @@ async function mediaLiveReadSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/**
+ * Picker surface probe: does FileOpenPicker project, and is an owner-window
+ * initializer reachable? Emits the WinRT surface; driver asserts nothing
+ * (evidence only — bounded availability is a valid result).
+ */
+async function pickerProbeSpec(): Promise<Record<string, unknown>> {
+  const pickers = Windows?.Storage?.Pickers
+  const out: Record<string, unknown> = {
+    pickersNs: pickers !== null && typeof pickers === 'object',
+    fileOpenPicker: typeof pickers?.FileOpenPicker,
+    fileSavePicker: typeof pickers?.FileSavePicker,
+    folderPicker: typeof pickers?.FolderPicker,
+  }
+  try {
+    const picker = pickers?.FileOpenPicker ? new pickers.FileOpenPicker() : null
+    out.ctorOk = picker !== null
+    if (picker) {
+      out.pickSingleFileAsync = typeof picker.PickSingleFileAsync
+      out.fileTypeFilter = typeof picker.FileTypeFilter
+      // IInitializeWithWindow is how a desktop picker gets an owner HWND —
+      // check whether the projected object exposes it.
+      out.initWithWindow = typeof picker.InitializeWithWindow ?? typeof picker.initializeWithWindow
+      out.as = typeof picker.as
+    }
+  } catch (error) {
+    out.ctorError = error instanceof Error ? error.message : String(error)
+  }
+  // Owner-window reachability probe: can we get an HWND from the app?
+  try {
+    const win32 = Windows?.Win32
+    out.win32Ns = typeof win32 === 'object' && win32 !== null
+    out.getWindowIdFromWindow = typeof win32?.UI?.Interop?.Win32Interop?.GetWindowIdFromWindow
+  } catch (error) {
+    out.win32Error = error instanceof Error ? error.message : String(error)
+  }
+  return out
+}
+
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
@@ -943,6 +981,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'media-live-read':
         result = await mediaLiveReadSpec()
+        break
+      case 'picker-probe':
+        result = await pickerProbeSpec()
         break
       case 'storage-depth':
         result = await storageDepthSpec()
