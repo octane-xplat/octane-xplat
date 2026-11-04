@@ -353,3 +353,30 @@ Service suite: 105/105 assertions (launch `mw2ekg6j`); files-identity
 12/12, storage-verify 8/8, secure-verify 9/9. Build 1.0.0.214 (source
 `dabf5be01`, sha `e0edd7a6`) passed the same gate at 104/104 with the
 first-round probe.
+
+## Picker owner-window probe results (1.0.0.216-221)
+
+On `org.octanexplat.windows61` 1.0.0.221 (source `df288fd3c`, bounded): the
+owner-window chain is reachable end-to-end except one marshalling step.
+`NSWinRT.win32.call` reaches `GetActiveWindow`/`GetForegroundWindow`/
+`GetGUIThreadInfo` for a real owner HWND, `NSWinRT.dotnet.invoke` calls a
+managed helper compiled into the app
+(`App_Resources/Windows/Interop/ServiceInterop.cs` via `app.csproj`), and
+`FileTypeFilter` accepts `Append('*')` while `'*.*'` throws `E_INVALIDARG`.
+The blocker: the projected picker crosses `dotnet.invoke` as `System.String`
+rather than a `WinRtRef`-backed RCW — `ServiceInterop.Describe` reported
+`System.String|IsInitWithWindow=False`, and every `InitializeWithWindow`
+assembly path fails with `InvalidCastException` on the CCW for the string.
+`PickSingleFileAsync` still rejects (`WinRT async operation failed`) pending
+a working carrier (`picker.handle`, `interop.handleOf` wrappers,
+`dotnet.wrap`, `interop.pointer` under probe). Prior rounds: 1.0.0.216
+(source `d9d7e2949`) mapped the `NSWinRT.win32`/`dotnet`/`proxy` surfaces;
+1.0.0.217 (`c7fddeee9`) proved the win32 HWND chain and resolved
+`WinRT.Interop.InitializeWithWindow.Initialize` (blocked only on `IntPtr`
+arg marshalling); 1.0.0.219 (`3d922b051`) confirmed `System.IntPtr` is
+unprojected and `Convert.ChangeType` cannot coerce JS numbers; 1.0.0.220
+(`ba2b8077e`) proved `dotnet.invoke` reaches the managed helper. WASDK 1.8
+`Microsoft.Windows.Storage.Pickers` is absent on pinned WASDK 1.6 —
+confirmed dead end. Service suite: 105/105 assertions across all rounds
+(launch `mw2r2pwt`); files-identity 12/12, storage-verify 8/8,
+secure-verify 9/9.
