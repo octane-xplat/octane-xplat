@@ -330,7 +330,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['popover', 'popupFittingSize'],
   ['popover', 'showAnchoredPopup'],
   ['context-menu', 'menuActionTarget'],
-  ['hover', '#try'],
+  ['context-menu', '#try'],
   ['context-menu', 'contextMenuAttachments'],
   ['context-menu', 'attachContextMenu'],
   ['picker-bridge', 'DATE_PICKER_STYLES'],

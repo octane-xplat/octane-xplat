@@ -370,12 +370,7 @@ const driver = createDriver({
   layout,
 })
 
-const hover = createHover({
-  actions,
-  get contextMenu() {
-    return contextMenu
-  },
-})
+const hover = createHover()
 
 const popover = createPopover({
   roots,

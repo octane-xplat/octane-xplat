@@ -309,6 +309,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   } else if (liquidGlassOnly) {
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
+    assert.match(output, /PACKED_CONTEXTMENU_OK/)
     assert.match(output, /PACKED_STACKLAYOUT_OK/)
     assert.match(output, /PACKED_CONTENTVIEW_OK/)
     assert.match(output, /PACKED_DOCKLAYOUT_OK/)
@@ -333,7 +334,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   }
 
-  assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error|\[macos-mason\]/)
+  assert.doesNotMatch(output, /PACKED_RENDERER_FAIL|uncaught render error|target registration failed|\[macos-mason\]/)
   console.log(
     actionBarOnly
       ? '[packed renderer] ActionBar lifecycle assertions pass'

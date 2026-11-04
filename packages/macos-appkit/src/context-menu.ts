@@ -1,9 +1,10 @@
+import { registerGestureClass } from './gestures'
 import type { Actions } from './actions'
-import { NSMenu, NSMenuItem, NSView } from '@octane-xplat/platform/macos'
+import { NSMenu, NSMenuItem, NSView, NSObject, interop } from '@octane-xplat/platform/macos'
 import type { ContextMenuOptions } from './model'
 
 interface Dependencies {
-  actions: Pick<Actions, 'actionHandlers' | 'nextActionId'>
+  actions: Pick<Actions, 'actionHandlers' | 'nextActionId' | 'invokeAction'>
 }
 
 export type ContextMenu = ReturnType<typeof createContextMenu>
@@ -14,6 +15,26 @@ export function createContextMenu(deps: Dependencies) {
   // leaves reach AppKit through __xplatAppKit, never macos-node-api directly.
 
   let menuActionTarget: any = null
+
+  try {
+    class MenuActionTarget extends NSObject {
+      static ObjCExposedMethods = {
+        'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
+      }
+
+      static {
+        registerGestureClass(this)
+      }
+
+      menuItemSelected(sender: NSMenuItem) {
+        deps.actions.invokeAction(sender.tag)
+      }
+    }
+
+    menuActionTarget = MenuActionTarget.new()
+  } catch (error) {
+    console.error('[macos-leaf] menu target registration failed — context menus disabled', error)
+  }
 
   const contextMenuAttachments = new WeakMap<NSMenu, { active: boolean; previous: NSMenu | null }>()
 
@@ -28,8 +49,8 @@ export function createContextMenu(deps: Dependencies) {
     if (
       !view ||
       !menuActionTarget ||
-      typeof NSMenu !== 'function' ||
-      typeof NSMenuItem !== 'function'
+      typeof NSMenu?.alloc !== 'function' ||
+      typeof NSMenuItem?.alloc !== 'function'
     ) {
       return null
     }
@@ -132,12 +153,6 @@ export function createContextMenu(deps: Dependencies) {
     }
   }
   return {
-    get menuActionTarget() {
-      return menuActionTarget
-    },
-    set menuActionTarget(value: typeof menuActionTarget) {
-      menuActionTarget = value
-    },
     attachContextMenu,
   }
 }

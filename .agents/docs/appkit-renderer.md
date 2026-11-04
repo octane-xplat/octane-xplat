@@ -56,6 +56,14 @@ host bridges. Native classes must be registered before Mason subclasses the
 accessible host. Preserve per-process services and per-root state when moving
 code; a module split must not create a second renderer registry or timer.
 
+Native class registration is itself a constructor effect. A native service
+registers its own target: `context-menu.ts` owns the menu action target, and
+`hover.ts` owns tracking targets. A getter does not defer a dependency read made
+inside the factory; never initialize another service by writing through one.
+Check native class availability through the required methods, such as `alloc`,
+instead of `typeof === 'function'`: the macOS NAPI host exposes `NSMenu` and
+`NSMenuItem` as object handles.
+
 ## Verify a change
 
 The Node suite includes direct factory tests and older VM fixtures. The legacy
@@ -63,6 +71,9 @@ adapter in `test/renderer-source.ts` reads declarations from their production
 modules; it carries no copied implementation. New tests should exercise the
 factory interface with explicit adapters, as `test/root-ownership.test.ts` does.
 VM fixtures establish branch behavior, not native input or drawing.
+They flatten service references and cannot verify initialization order. Keep
+constructor composition coverage alongside them; the native-service test runs
+the production hover/menu constructors with only the native platform replaced.
 
 ```sh
 bun run turbo run test --filter=@octane-xplat/macos-appkit
@@ -74,3 +85,6 @@ The packed consumer covers real AppKit lifecycle and retained-root HMR. Follow
 [AppKit verification](appkit-verification.md) for its limits and host setup;
 reserve build resources before running it. Internal file moves preserve the
 package exports and do not introduce a public recipe or API.
+Its native menu check also verifies registration, attachment and programmatic
+Objective-C selector dispatch; physical right-click/responder behavior remains
+a separate qualification.
