@@ -42,7 +42,7 @@ const slices = [
 
 const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16\n'
 
-function fixture({ applyProps }: { applyProps?: any } = {}) {
+function fixture({ applyProps, flushStyleDirty }: { applyProps?: any; flushStyleDirty?: () => void } = {}) {
   const actionHandlers = new Map()
   const accessibilityLabels = new Map()
   const accessibilityRoles = new Map()
@@ -119,6 +119,8 @@ function fixture({ applyProps }: { applyProps?: any } = {}) {
     disposeWebView: (view: any) => disposedWebViews.push(view),
     disposeImage: () => {},
     applyProps: applyProps ?? (() => {}),
+    flushStyleDirty: flushStyleDirty ?? (() => {}),
+    flushTabViews: () => {},
     insert: () => {},
     remove: () => {},
     detach: (container: any, node: any) => {
@@ -564,4 +566,20 @@ test('textview destruction retires sizing before hooks even after partial constr
   ]
   fx.destroy(node)
   assert.deepEqual(events, ['observer', 'hook'])
+})
+
+
+test('a failed batch style flush releases layout ownership before the next command batch', () => {
+  let fail = true
+  const fx = fixture({ flushStyleDirty() {
+    if (fail) {
+      throw new Error('style flush failed')
+    }
+  } })
+  const first = fx.macOSDriver.prepareBatch(fx.container, { commands: [] })
+  assert.throws(() => first.apply(), /style flush failed/)
+  assert.equal(fx.container.layoutDirty, null)
+  fail = false
+  fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
+  assert.equal(fx.container.layoutDirty, null)
 })

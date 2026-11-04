@@ -12,7 +12,7 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | --- | --- |
 | Composition and host adapters | `runtime.ts`, `host-bridge.ts` |
 | Node contracts, element capabilities and identities | `model.ts`, `registry.ts` |
-| Construction, batches and roots | `nodes.ts`, `driver.ts`, `roots.ts` |
+| Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts` |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
@@ -63,6 +63,13 @@ inside the factory; never initialize another service by writing through one.
 Check native class availability through the required methods, such as `alloc`,
 instead of `typeof === 'function'`: the macOS NAPI host exposes `NSMenu` and
 `NSMenuItem` as object handles.
+
+`withLayoutBatch` is the owner of temporary `RootContainer.layoutDirty` state.
+Host commands and standalone CSS restyles enter that same scope; nested work
+joins its owner. It resets ownership in `finally` before running the caller's
+commit, so a failed native style write cannot leave subsequent work waiting on
+a batch that will never finish. This is batching, not rollback: successful
+native writes before a failure remain applied.
 
 ## Verify a change
 

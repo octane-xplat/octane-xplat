@@ -267,6 +267,27 @@ test('(k) an out-of-batch flush queues style-driven layout into one drain', asyn
   assert.equal(container.layoutDirty, null, 'the flush closes the layout batch it opened')
 })
 
+test('a failed style write releases its layout batch so later restyles can run', async () => {
+  let fail = true
+  const { api } = machineryApi({
+    applyStyle(node: any, style: any) {
+      if (fail) {
+        throw new Error('native style failed')
+      }
+      node.appliedStyle = style
+    },
+  })
+  const node = sliceNode('label', { style: { opacity: 0.5 } })
+  node.container.cssDirty = new Set([node])
+  assert.throws(() => api.flushStyleDirty(node.container), /native style failed/)
+  assert.equal(node.container.layoutDirty, null)
+  fail = false
+  api.markStyleDirty(node)
+  await tick()
+  assert.equal(node.appliedStyle.opacity, 0.5)
+  assert.equal(node.container.layoutDirty, null)
+})
+
 test('(e) root classes follow the appearance bridge', async () => {
   const { api, ctx } = machineryApi()
   const container = { nodes: new Map(), layoutDirty: null, children: [], portalTargets: new Map() }

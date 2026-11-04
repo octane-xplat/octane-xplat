@@ -1,3 +1,4 @@
+import { withLayoutBatch } from './layout-batch.ts'
 import type { Registry } from './registry'
 import type { Nodes } from './nodes'
 import type { Tree } from './tree'
@@ -440,41 +441,38 @@ export function createDriver(deps: Dependencies) {
       validateBatch(container, batch.commands)
       return {
         apply() {
-          container.layoutDirty = new Set()
-          try {
-            for (const command of batch.commands) {
-              try {
-                applyCommand(container, command)
-              } catch (error) {
-                // The universal root can swallow a mid-batch failure when it
-                // retries or aborts the attempt — log it here so an
-                // unsupported element cannot silently stall the mount.
-                console.error(
-                  '[macos-host] command ' +
-                    command.op +
-                    ' failed for <' +
-                    ((command as { type?: string }).type ?? '?') +
-                    '> id=' +
-                    ('id' in command ? command.id : '?'),
-                  error,
-                )
+          withLayoutBatch(container, () => {
+            try {
+              for (const command of batch.commands) {
+                try {
+                  applyCommand(container, command)
+                } catch (error) {
+                  // The universal root can swallow a mid-batch failure when it
+                  // retries or aborts the attempt — log it here so an
+                  // unsupported element cannot silently stall the mount.
+                  console.error(
+                    '[macos-host] command ' +
+                      command.op +
+                      ' failed for <' +
+                      ((command as { type?: string }).type ?? '?') +
+                      '> id=' +
+                      ('id' in command ? command.id : '?'),
+                    error,
+                  )
 
-                throw error
+                  throw error
+                }
               }
+            } finally {
+              // Restyle while the layout batch is open so style-driven layout
+              // work joins the batch's single drain.
+              deps.cssCascade.flushStyleDirty(container!)
             }
-          } finally {
-            // Restyle while the layout batch is open so style-driven layout
-            // work joins the batch's single drain.
-            deps.cssCascade.flushStyleDirty(container!)
-            const dirty = container.layoutDirty
-            container.layoutDirty = null
+          }, (dirty) => {
             flushTabViews(container)
-            if (dirty) {
-              deps.layout.drainLayoutDirty(dirty)
-            }
-
+            deps.layout.drainLayoutDirty(dirty)
             notifyLayoutCommit(container.hostView)
-          }
+          })
         },
         abort() {},
       }

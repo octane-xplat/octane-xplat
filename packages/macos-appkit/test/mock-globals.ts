@@ -1,3 +1,4 @@
+import { withLayoutBatch } from '../src/layout-batch.ts'
 import { builtinFixtureHelpers } from './renderer-source.ts'
 import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
 import { normalizeHostStyleProps } from '../src/inline-style.ts'
@@ -51,6 +52,7 @@ export function sourceWithoutImports(url: URL) {
 }
 
 const SLICE_BASE = {
+  withLayoutBatch,
   normalizeHostStyleProps,
   borderStyleSides,
   hiddenBorderStyle,

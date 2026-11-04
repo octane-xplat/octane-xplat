@@ -1,3 +1,4 @@
+import { withLayoutBatch } from './layout-batch.ts'
 import { parseEdgeInsets, normalizeClass, effectiveStyle, shallowEqualStyle } from './style-values.ts'
 import type { CssAnimations } from './css-animations'
 import type { HostBridge } from './host-bridge'
@@ -103,32 +104,25 @@ export function createCssCascade(deps: Dependencies) {
     // Style applies queue layout work. Inside a command batch the batch drains
     // it; outside one, open a layout batch so each apply doesn't reconcile
     // its parent synchronously.
-    const ownsLayoutBatch = container.layoutDirty == null
-    if (ownsLayoutBatch) {
-      container.layoutDirty = new Set()
-    }
+    withLayoutBatch(container, () => {
+      // Top-down: parents must compute before children that inherit from them.
+      const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
+      for (const node of nodes) {
+        // Dead nodes (destroyed/detached before the flush) skip the restyle.
+        if (
+          node.container.nodes &&
+          !node.container.nodes.has(node.id) &&
+          node.type !== 'portalroot'
+        ) {
+          continue
+        }
 
-    // Top-down: parents must compute before children that inherit from them.
-    const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
-    for (const node of nodes) {
-      // Dead nodes (destroyed/detached before the flush) skip the restyle.
-      if (
-        node.container.nodes &&
-        !node.container.nodes.has(node.id) &&
-        node.type !== 'portalroot'
-      ) {
-        continue
+        restyleNode(node)
       }
-
-      restyleNode(node)
-    }
-
-    if (ownsLayoutBatch) {
-      const layoutDirty = container.layoutDirty!
-      container.layoutDirty = null
+    }, (layoutDirty) => {
       deps.layout.drainLayoutDirty(layoutDirty)
       notifyLayoutCommit(container.hostView)
-    }
+    })
   }
 
   function cssDepth(node: ElementNode): number {
