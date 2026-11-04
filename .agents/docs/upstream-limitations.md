@@ -170,6 +170,21 @@ reading:
   repeat itself still enters the focused control. Held/repeat payload
   fidelity stays an uncovered dimension.
 
+Packaged picker surface, verified on 1.0.0.215 (`picker-probe`/`picker-invoke`,
+launch `mw2ekg6j`): `Windows.Storage.Pickers.FileOpenPicker`/`FileSavePicker`/
+`FolderPicker` all project and construct, `PickSingleFileAsync` resolves, and
+the root `XamlRoot.ContentIslandEnvironment.AppWindowId` -> `AppWindow` chain
+works — but `Microsoft.UI.Win32Interop` (HWND conversion) is unprojected, the
+projected picker exposes no `IInitializeWithWindow` member or interface-cast
+escape hatch (`as` undefined; proto carries only the WinRT contract), and a
+bounded invoke rejected synchronously: `FileTypeFilter.Append('*.*')` threw
+`E_INVALIDARG (0x80070057)` and `PickSingleFileAsync` threw `E_FAIL
+(0x80004005)`. Untested escape hatches at the time of writing: `NSWinRT.win32`,
+`NSWinRT.dotnet`/`proxy`, and the picker's `handle` own-property via
+`interop.handleOf` — all surfaced by the same probe. Consumers must treat
+`files.pick`/`pickMultiple`/`export` as bounded-unavailable until an owner
+window or a working invoke path is proven on packaged Windows.
+
 Upstream status: reported — [NativeScript/NativeScript#11613](https://github.com/NativeScript/NativeScript/issues/11613)
 (file-system-access member matrix) and
 [NativeScript/NativeScript#11614](https://github.com/NativeScript/NativeScript/issues/11614)

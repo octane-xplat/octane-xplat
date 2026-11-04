@@ -332,3 +332,24 @@ rotation. The spec subscribes on the primitives `observeWindowsMediaTraits`
 uses, not the internal host function itself. Service suite: 103/103
 assertions (launch `mw1ku7j8`); files-identity 12/12, storage-verify 8/8,
 secure-verify 9/9.
+
+## Picker surface probe results (1.0.0.214-215)
+
+On `org.octanexplat.windows61` 1.0.0.215 (source `4521ec1ed`, bounded): the
+WinRT picker surface projects fully —
+`FileOpenPicker`/`FileSavePicker`/`FolderPicker` construct and
+`PickSingleFileAsync` resolves — but no owner-window path reaches JS:
+`IInitializeWithWindow` is unprojected on the picker (no `as`/cast member),
+`Microsoft.UI.Win32Interop` is absent so `GetHwndFromWindowId` is
+unreachable, and a bounded `PickSingleFileAsync` invoke rejected
+synchronously (`FileTypeFilter.Append('*.*')` -> `E_INVALIDARG`,
+`PickSingleFileAsync` -> `E_FAIL`). The root
+`XamlRoot.ContentIslandEnvironment.AppWindowId` -> `AppWindow` chain does
+work, and `NSWinRT` exposes a `win32` member plus `interop.handleOf` that
+remain to be probed; the projected picker's `handle` own-property may carry
+the `IInspectable` pointer. `files.pick`/`pickMultiple`/`export` stay
+bounded-unavailable until an owner window or working invoke is proven.
+Service suite: 105/105 assertions (launch `mw2ekg6j`); files-identity
+12/12, storage-verify 8/8, secure-verify 9/9. Build 1.0.0.214 (source
+`dabf5be01`, sha `e0edd7a6`) passed the same gate at 104/104 with the
+first-round probe.
