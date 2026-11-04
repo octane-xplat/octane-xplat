@@ -304,3 +304,19 @@ isolation, resubscription, and a stable `online: true, type: "wifi"` state —
 real network transitions are not triggerable in-app and stay uncovered.
 Service suite: 87/87 assertions (launch `mw1b15su`, rerun with the corrected
 driver); files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
+
+## Storage depth and clipboard contract result (1.0.0.210-212)
+
+On `org.octanexplat.windows61` 1.0.0.212 (source `ec8b27728`, bounded; driver
+`a7b96646`): storage qualifies deeper — supplementary-plane + `U+0000`
+round-trips exactly, an 8 KiB+1 value persists intact, keys stay isolated,
+overwrite wins, removing an unset key is a no-op, `flush() === false`.
+The WinRT clipboard is verified lossy past BMP ASCII: non-BMP text never
+round-trips exactly (ASCII prefix survives, `U+0000` truncates the tail,
+mojibake varies across launches — a lone emoji returned `??` on some
+launches and the real `😀` on others), `SetContent`+`Flush` commits are racy
+(a 350 ms settle models the window), and an empty write reads back `null`
+(our leaf's contract). All recorded in
+[upstream-limitations.md](../upstream-limitations.md). Service suite: 98/98
+assertions (launch `mw1jucpo`); files-identity 12/12, storage-verify 8/8,
+secure-verify 9/9.
