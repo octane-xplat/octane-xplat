@@ -15,13 +15,30 @@ namespace OctaneXplat.Interop
 
     public static class ServiceInterop
     {
-        // Callable through NSWinRT.dotnet.invoke: numeric args marshal cleanly,
-        // projected WinRT objects arrive as real RCWs (WinRtRef coercion).
-        public static bool InitializeWithWindow(object picker, long hwnd)
+        // Diagnostic: what does the bridge hand us for a projected WinRT object?
+        public static string Describe(object arg)
         {
-            if (picker is not IInitializeWithWindow owner) return false;
-            owner.Initialize(new IntPtr(hwnd));
-            return true;
+            return arg == null ? "null" : arg.GetType().FullName + "|IsInitWithWindow=" + (arg is IInitializeWithWindow);
+        }
+
+        // Callable through NSWinRT.dotnet.invoke: numeric args marshal cleanly,
+        // projected WinRT objects should arrive as real RCWs (WinRtRef coercion).
+        public static string InitializeWithWindow(object picker, long hwnd)
+        {
+            if (picker is IInitializeWithWindow owner)
+            {
+                owner.Initialize(new IntPtr(hwnd));
+                return "ok-comimport";
+            }
+            try
+            {
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                return "ok-winrt-interop";
+            }
+            catch (Exception e)
+            {
+                return "fail:" + e.GetType().Name + ":" + e.Message;
+            }
         }
     }
 }

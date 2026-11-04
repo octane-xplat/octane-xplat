@@ -1031,7 +1031,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   let hwnd: number | null = null
   const hwndAttempts: string[] = []
   if (typeof win32?.call === 'function') {
-    for (const fn of ['GetForegroundWindow', 'GetActiveWindow']) {
+    for (const fn of ['GetActiveWindow', 'GetForegroundWindow']) {
       try {
         const v = win32.call('user32.dll', fn, 'pointer')
         hwndAttempts.push(`${fn}=${String(v)}`)
@@ -1081,6 +1081,16 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   // (compiled into the app assembly via App_Resources\Windows\Interop)
   // takes (object picker, long hwnd) — both marshal cleanly.
   if (hwnd !== null && typeof dotnet?.invoke === 'function') {
+    try {
+      out.pickerDescribe = dotnet.invoke(
+        '',
+        'OctaneXplat.Interop.ServiceInterop',
+        'Describe',
+        [picker],
+      )
+    } catch (error) {
+      out.pickerDescribeError = error instanceof Error ? error.message : String(error)
+    }
     const initAttempts: string[] = []
     for (const asm of ['', 'windows', 'app']) {
       try {
@@ -1091,7 +1101,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
           [picker, hwnd],
         )
         initAttempts.push(`${asm || 'auto'}: ${String(result)}`)
-        if (result === true) {
+        if (typeof result === 'string' && result.startsWith('ok')) {
           out.initVia = asm || 'auto'
           out.initialized = true
           break
