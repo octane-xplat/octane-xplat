@@ -1,15 +1,51 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
 	"time"
 )
+
+// Windows containment starts this executable as a gated child. Go's generated
+// test main bypasses both production entries, so route fixtures need the same
+// internal gate dispatch instead of accidentally rerunning the unit suite.
+func TestMain(m *testing.M) {
+	if len(os.Args) > 1 && os.Args[1] == "_gate" {
+		childGate(os.Args[2:])
+		os.Exit(0)
+	}
+	os.Exit(m.Run())
+}
+
+func TestGateChild(t *testing.T) {
+	if os.Getenv("XPLAT_GO_TEST_GATE") != "1" {
+		t.Skip("subprocess helper")
+	}
+	_, _ = os.Stdout.WriteString("native-test-gate-child\n")
+}
+
+func TestNativeTestExecutableDispatchesGate(t *testing.T) {
+	exe, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, exe, "_gate", exe, "-test.run=^TestGateChild$")
+	cmd.Stdin = bytes.NewReader([]byte{1})
+	cmd.Env = append(os.Environ(), "XPLAT_GO_TEST_GATE=1")
+	output, err := cmd.CombinedOutput()
+	if err != nil || !bytes.Contains(output, []byte("native-test-gate-child")) {
+		t.Fatalf("native test gate did not dispatch its child: %v\n%s", err, output)
+	}
+}
 
 // A runtime-only portable fixture can cancel the real watcher without pretending
 // that Node's Windows kill(SIGTERM) delivers a graceful console interrupt. It

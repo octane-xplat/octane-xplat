@@ -15,6 +15,7 @@
 		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"snapshot:go": { "cache": false },
+		"snapshot:go-routes": { "cache": false },
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_BINARY"] },
 		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },

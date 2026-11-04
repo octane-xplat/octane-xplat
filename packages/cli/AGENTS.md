@@ -152,6 +152,9 @@ graceful native console cancellation. Distinguish public console input from dire
 context-cancellation fixtures, and verify child/job teardown separately. A JSON
 `null` also decodes successfully into a Go integer's zero value; decode nullable
 wire fields into pointers when zero and absence have different contracts.
+Go test executables bypass production `main` functions. If an ownership fixture
+relaunches `os.Executable()` for an internal child command, dispatch that command
+from `TestMain` too; otherwise a Windows job gate can rerun the tests recursively.
 
 ## Write Nim with explicit data semantics
 
