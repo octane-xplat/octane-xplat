@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-invoke')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1832,6 +1832,14 @@ function Check-ServiceActions{
     # the spec ran; values decide implementation vs bounded unavailability.
     $names=$result.PSObject.Properties.Name
     Assert ($names -contains 'pickersNs' -and $names -contains 'fileOpenPicker') 'Probe emits the picker-surface fields' $result
+   }
+   'picker-invoke' {
+    # Evidence-only bounded call: kind=resolved/rejected/timeout-pending is
+    # the datum. A real dialog may remain open; dismiss it after capture.
+    $names=$result.PSObject.Properties.Name
+    Assert ($names -contains 'available') 'Invoke probe emits its outcome fields' $result
+    Start-Sleep -Milliseconds 400
+    try{[Core20ActionInput]::Press(0x1B,$false);[Core20ActionInput]::Press(0x1B,$false)}catch{}
    }
   }
   }catch{

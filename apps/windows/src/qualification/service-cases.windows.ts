@@ -867,22 +867,110 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     if (picker) {
       out.pickSingleFileAsync = typeof picker.PickSingleFileAsync
       out.fileTypeFilter = typeof picker.FileTypeFilter
+      out.filterAppend = typeof picker.FileTypeFilter?.Append
+      out.filterAppendLower = typeof picker.FileTypeFilter?.append
+      out.filterAdd = typeof picker.FileTypeFilter?.Add
       // IInitializeWithWindow is how a desktop picker gets an owner HWND —
-      // check whether the projected object exposes it.
+      // enumerate every member on the instance and its prototype chain for a
+      // projected initializer or interface-cast escape hatch.
       out.initWithWindow = typeof picker.InitializeWithWindow
       out.initWithWindowLower = typeof picker.initializeWithWindow
       out.as = typeof picker.as
+      out.pickerOwn = Object.getOwnPropertyNames(picker)
+      const proto = Object.getPrototypeOf(picker)
+      out.pickerProto = proto ? Object.getOwnPropertyNames(proto) : []
+      const proto2 = proto ? Object.getPrototypeOf(proto) : null
+      out.pickerProto2 = proto2 ? Object.getOwnPropertyNames(proto2) : []
     }
   } catch (error) {
     out.ctorError = error instanceof Error ? error.message : String(error)
   }
-  // Owner-window reachability probe: can we get an HWND from the app?
+  // Full NSWinRT helper surface — an unreferenced cast/QI helper may exist.
   try {
-    const win32 = Windows?.Win32
-    out.win32Ns = typeof win32 === 'object' && win32 !== null
-    out.getWindowIdFromWindow = typeof win32?.UI?.Interop?.Win32Interop?.GetWindowIdFromWindow
+    out.nswinrtKeys = Object.getOwnPropertyNames(NSWinRT).sort()
+    const interop = NSWinRT?.interop
+    out.nswinrtInteropKeys = interop ? Object.getOwnPropertyNames(interop).sort() : []
   } catch (error) {
-    out.win32Error = error instanceof Error ? error.message : String(error)
+    out.nswinrtError = error instanceof Error ? error.message : String(error)
+  }
+  // Owner-window reachability: Microsoft.UI.Win32Interop +
+  // root XamlRoot.ContentIslandEnvironment.AppWindowId -> GetHwndFromWindowId.
+  const runtime = globalThis as Record<string, any>
+  const ms = runtime.Microsoft
+  out.microsoftNs = typeof ms === 'object' && ms !== null
+  out.win32Interop = typeof ms?.UI?.Win32Interop
+  out.getHwndFromWindowId = typeof ms?.UI?.Win32Interop?.GetHwndFromWindowId
+  out.getWindowIdFromWindow = typeof ms?.UI?.Win32Interop?.GetWindowIdFromWindow
+  out.appWindowNs = typeof ms?.UI?.Windowing?.AppWindow
+  try {
+    const root = Application.getRootView()
+    const nv = root?.nativeViewProtected ?? root?.nativeView
+    const xr = nv?.XamlRoot
+    out.rootView = nv !== null && nv !== undefined
+    out.xamlRoot = typeof xr === 'object' && xr !== null
+    out.contentIslandEnv = typeof xr?.ContentIslandEnvironment === 'object'
+    const appWindowId = xr?.ContentIslandEnvironment?.AppWindowId
+    out.appWindowId = typeof appWindowId === 'object' && appWindowId !== null
+    if (appWindowId && typeof ms?.UI?.Windowing?.AppWindow?.GetFromWindowId === 'function') {
+      const appWindow = ms.UI.Windowing.AppWindow.GetFromWindowId(appWindowId)
+      out.appWindow = appWindow !== null && appWindow !== undefined
+    }
+    if (appWindowId && typeof ms?.UI?.Win32Interop?.GetHwndFromWindowId === 'function') {
+      const hwnd = ms.UI.Win32Interop.GetHwndFromWindowId(appWindowId)
+      out.hwndType = typeof hwnd
+      out.hwndPresent = hwnd !== null && hwnd !== undefined && String(hwnd) !== '0'
+    }
+  } catch (error) {
+    out.hwndError = error instanceof Error ? error.message : String(error)
+  }
+  return out
+}
+
+/**
+ * Bounded real PickSingleFileAsync attempt. Without an owner HWND a desktop
+ * picker normally rejects immediately; if it actually shows a dialog the
+ * 8-second race reports timeout-pending and the driver dismisses it. Runs
+ * last in the spec list so a lingering dialog cannot affect other specs.
+ */
+async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = { available: false }
+  const pickers = Windows?.Storage?.Pickers
+  if (!pickers?.FileOpenPicker) return out
+  out.available = true
+  const picker = new pickers.FileOpenPicker()
+  const filter = picker.FileTypeFilter
+  for (const name of ['Append', 'append', 'Add']) {
+    if (typeof filter?.[name] === 'function') {
+      try {
+        filter[name]('*.*')
+        out.filterVia = name
+        break
+      } catch (error) {
+        out.filterError = error instanceof Error ? error.message : String(error)
+      }
+    }
+  }
+  try {
+    const op = picker.PickSingleFileAsync()
+    out.opType = typeof op
+    const result = await Promise.race([
+      NSWinRT.toPromise(op)
+        .then((file: { Name?: string } | null) => ({
+          kind: 'resolved',
+          fileName: file?.Name ?? null,
+          nullFile: file === null || file === undefined,
+        }))
+        .catch((error: unknown) => ({
+          kind: 'rejected',
+          error: error instanceof Error ? error.message : String(error),
+        })),
+      new Promise<{ kind: string }>((resolve) =>
+        setTimeout(() => resolve({ kind: 'timeout-pending' }), 8000),
+      ),
+    ])
+    Object.assign(out, result)
+  } catch (error) {
+    out.invokeError = error instanceof Error ? error.message : String(error)
   }
   return out
 }
@@ -985,6 +1073,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'picker-probe':
         result = await pickerProbeSpec()
+        break
+      case 'picker-invoke':
+        result = await pickerInvokeSpec()
         break
       case 'storage-depth':
         result = await storageDepthSpec()
