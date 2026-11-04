@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import { AGENT_COMMANDS, LEGACY_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
-import { routeCommandDescriptor } from '../cli-nim/route-templates.mjs'
+import { routeCommandDescriptor, typecheckCommandDescriptor } from '../cli-nim/route-templates.mjs'
 import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
 import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
@@ -83,19 +83,20 @@ writeFileSync(
 	JSON.stringify({
 		catalog: catalogPayload(),
 		descriptors: AGENT_COMMANDS,
-		orchestrationDescriptors: [
-			{
-				...routeCommandDescriptor(
-					readFileSync(join(root, 'packages/cli/src/commands/routes.ts'), 'utf8'),
-				),
-				path: ['routes'],
+		orchestrationDescriptors: Object.entries({
+			routes: routeCommandDescriptor,
+			typecheck: typecheckCommandDescriptor,
+		})
+			.map(([name, descriptor]) => ({
+				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),
+				path: [name],
 				context: 'none',
-				summary: LEGACY_COMMANDS.find((command) => command.name === 'routes').summary,
-			},
-		].map((command) => ({
-			...command,
-			flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
-		})),
+				summary: LEGACY_COMMANDS.find((command) => command.name === name).summary,
+			}))
+			.map((command) => ({
+				...command,
+				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
+			})),
 		version,
 		capabilityIds: CAPABILITY_IDS,
 		boundaries: PRODUCT_BOUNDARIES,

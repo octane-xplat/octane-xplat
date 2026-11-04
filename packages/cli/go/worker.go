@@ -17,6 +17,17 @@ type workerResult struct {
 	Process  processResult   `json:"process"`
 }
 
+func projectToolEnvironment() []string {
+	env := []string{}
+	for _, entry := range os.Environ() {
+		key, _, _ := strings.Cut(entry, "=")
+		if !strings.EqualFold(key, "NODE_PATH") && !strings.EqualFold(key, "NODE_OPTIONS") {
+			env = append(env, entry)
+		}
+	}
+	return append(env, "NODE_PATH=", "NODE_OPTIONS=")
+}
+
 func runWorker(ctx context.Context, project, operation string, payload map[string]any) (workerResult, error) {
 	worker, err := projectWorker(project)
 	if err != nil {
@@ -59,15 +70,7 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if err = privateFile(output, nil); err != nil {
 		return workerResult{}, err
 	}
-	env := []string{}
-	for _, entry := range os.Environ() {
-		key, _, _ := strings.Cut(entry, "=")
-		if !strings.EqualFold(key, "NODE_PATH") && !strings.EqualFold(key, "NODE_OPTIONS") {
-			env = append(env, entry)
-		}
-	}
-	env = append(env, "NODE_PATH=", "NODE_OPTIONS=")
-	process, err := runProcess(ctx, []string{"node", worker, input, output}, project, env)
+	process, err := runProcess(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment())
 	result := workerResult{Process: process}
 	if err != nil {
 		var cleanup *processCleanupError

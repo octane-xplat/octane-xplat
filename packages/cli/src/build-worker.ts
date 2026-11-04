@@ -1,13 +1,14 @@
 // Explicit project-toolchain operations. No CLI selection or orchestration.
 import { readFileSync, writeFileSync, statSync, realpathSync, existsSync } from 'node:fs'
 import { resolve, join, relative, dirname, sep } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { pathToFileURL, fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
 import { Console } from 'node:console'
 import { planRoutes } from './route-generator.ts'
 import { routeSourceMetadata } from './route-source.ts'
 import { assertRouteDataJson } from './route-data.ts'
+import { srcUrl } from './env.ts'
 
 const protocol = 'octane-build-worker'
 const version = 1
@@ -55,6 +56,42 @@ try {
 			onSource: source => { file = source },
 		})
 		data = { version: 1, count: plan.count, outputs: [...plan.outputs].map(([file, source]) => ({ file, source })) }
+	} else if (request.operation === 'typecheck-config') {
+		// Program expansion is the compiler's existing Node/JSONC/glob contract.
+		// Its disposable cache writes stay with that engine; CLI process ownership
+		// and source/artifact publication do not move into this worker.
+		const { loadEnvManifest, expandEnvPrograms } = await import('./tsconfig-envs.ts')
+		const project = process.cwd()
+		const configs = ['tsconfig.json']
+			.filter((name) => existsSync(join(project, name)))
+			.map((name) => join(project, name))
+
+		const loaded = loadEnvManifest(project)
+		if (loaded) {
+			const required = ['native', 'macos'].filter((name) => loaded.manifest.environments[name])
+			const roots = [
+				fileURLToPath(srcUrl(import.meta.url, '')),
+				fileURLToPath(new URL('.', import.meta.url)),
+			]
+
+			const ambientRoot = roots.find((root) =>
+				required.every((name) => existsSync(join(root, 'typecheck-globals', name + '.d.ts'))),
+			)
+
+			if (!ambientRoot) {
+				throw new Error(
+					"Update the project's @octane-xplat/cli: required typecheck declarations are missing",
+				)
+			}
+
+			configs.push(
+				...expandEnvPrograms(project, loaded, { ambientRoot }).map((program) => program.configPath),
+			)
+		} else if (existsSync(join(project, 'tsconfig.native.json'))) {
+			configs.push(join(project, 'tsconfig.native.json'))
+		}
+
+		data = { version: 1, configs }
 	} else if (request.operation === 'route-analyze') {
 		if (!Array.isArray(request.files)) {throw new Error('route-analyze requires files')}
 		data = request.files.map((entry: { file: string; source: string }) => {

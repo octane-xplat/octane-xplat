@@ -39,7 +39,7 @@ assert.equal(sha(bytes), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
 	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
 }
-if (existsSync(join(root, 'packages/build/package.json'))) {
+if (existsSync(join(root, 'packages/build/dist/build-worker.js'))) {
 	prepareFixtures(root, work)
 }
 const packages = JSON.parse(readFileSync(join(work, 'project-packages.json')))

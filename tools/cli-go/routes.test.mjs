@@ -23,7 +23,7 @@ import {
 import { join, resolve, dirname, relative, sep } from 'node:path'
 import { homedir } from 'node:os'
 import { setTimeout as delay } from 'node:timers/promises'
-import { prepareFixtures } from './fixtures.mjs'
+import { projectToolFixture } from './project-fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
@@ -40,11 +40,6 @@ for (const [file, hash] of Object.entries(build.inputs)) {
 	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale route source: ${file}`)
 }
 
-if (existsSync(join(root, 'packages/build/package.json'))) {
-	prepareFixtures(root, work)
-}
-
-const packages = JSON.parse(readFileSync(join(work, 'project-packages.json')))
 const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge')
 mkdirSync(base, { recursive: true })
 writeFileSync(
@@ -61,32 +56,7 @@ function put(project, file, value) {
 	return path
 }
 
-const dependencies = Object.fromEntries(
-	packages.packages.map((item) => {
-		const archive = join(work, 'project-packages', item.file),
-			data = readFileSync(archive)
-		assert.equal(sha(data), item.sha256)
-		return [item.name, `file:${archive.replaceAll('\\', '/')}`]
-	}),
-)
-
-const installed = join(scratch, 'installed')
-put(installed, 'package.json', {
-	name: 'go-route-worker-consumer',
-	private: true,
-	type: 'module',
-	devDependencies: { ...dependencies, vite: packages.vite },
-	overrides: { '@octane-xplat/lib': dependencies['@octane-xplat/lib'] },
-})
-
-const install = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
-	cwd: installed,
-	encoding: 'utf8',
-	timeout: 120000,
-})
-
-assert.equal(install.status, 0, install.stderr)
-const worker = realpathSync(join(installed, 'node_modules/@octane-xplat/cli/dist/build-worker.js'))
+const { nodeModules, worker } = projectToolFixture(root, work, scratch)
 let next = 0
 const screen = 'export default () => null;\n'
 function project(files = {}, tools = true) {
@@ -94,7 +64,7 @@ function project(files = {}, tools = true) {
 	put(directory, 'package.json', { name: 'route-fixture', private: true, type: 'module' })
 	if (tools) {
 		symlinkSync(
-			join(installed, 'node_modules'),
+			nodeModules,
 			join(directory, 'node_modules'),
 			process.platform === 'win32' ? 'junction' : 'dir',
 		)

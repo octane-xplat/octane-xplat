@@ -41,4 +41,5 @@ function commandDescriptor(source, name) {
  return { name, flags, positionals: [] }
 }
 export const routeCommandDescriptor = source => commandDescriptor(source, 'routes')
+export const typecheckCommandDescriptor = source => commandDescriptor(source, 'typecheck')
 export const buildCommandDescriptor = source => commandDescriptor(source, 'build')

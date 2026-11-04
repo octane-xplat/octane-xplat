@@ -160,6 +160,22 @@ Record signal identity before cancelling the root context when human exit codes
 depend on it. Independent signal-notification channels can race on an idle
 handler and turn SIGTERM's 143 into SIGINT's 130 even though cleanup succeeds.
 
+Keep typecheck environment expansion in the canonical Node `tsconfig-envs`
+helper, including JSONC, compiler file-pattern expansion and disposable cache
+writes. Pass its ambient asset root explicitly: full CLI installs keep inert
+declarations under `src/`, while curated workers carry them under `dist/`.
+Do not silently omit required native/macOS declarations when switching layouts.
+Keep native workspace globs simple; compiler configuration is a separate engine
+contract. Resolve the installed checker's declared package bin and reject a
+nearer broken install or escaping entry; package-manager auto-download/global
+PATH fallback is not tool selection.
+
+For human compiler output, inherit OS file handles through the existing process
+owner. A Go forwarding goroutine can block on an unread downstream pipe and
+prevent cleanup from returning. Keep captured workers bounded and separate from
+live terminal streams; print final diagnostics only after group/job cleanup.
+Qualify cancellation with both resistant descendants and an unread output pipe.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

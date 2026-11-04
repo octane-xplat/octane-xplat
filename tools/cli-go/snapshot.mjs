@@ -8,17 +8,25 @@ import {
 	readdirSync,
 	mkdtempSync,
 	rmSync,
+	existsSync,
 } from 'node:fs'
 
 import { join, resolve, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
 import { modelFixtureDir } from '../cli-nim/model-fixtures.mjs'
+import { prepareFixtures } from './fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
 
 const routesOnly = process.argv.includes('--routes')
+assert.ok(
+	existsSync(join(root, 'packages/build/dist/build-worker.js')),
+	'Build the canonical project worker before preparing a snapshot',
+)
+
+prepareFixtures(root, work)
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const stage = mkdtempSync(join(work, 'snapshot-')),
 	source = join(stage, 'source')
@@ -129,6 +137,7 @@ try {
 	manifest.scripts = {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
+		'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mjs',
 		'measure:go-cli:portable': 'node tools/cli-go/measure.mjs',
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
 		'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
@@ -143,6 +152,7 @@ try {
 			tasks: {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
+				'//#test:go-typecheck:portable': { cache: false },
 				'//#measure:go-cli:portable': { cache: false },
 				'//#test:go:portable': { cache: false },
 				'//#test:go-model:portable': { cache: false },

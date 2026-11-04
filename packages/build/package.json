@@ -34,6 +34,7 @@
 		"test:packed": "node ../../tools/cli-nim/build-tools-consumer.mjs"
 	},
 	"dependencies": {
+		"jsonc-parser": "3.3.1",
 		"marked": "18.1.2",
 		"@babel/core": "8.0.9",
 		"@babel/plugin-transform-unicode-property-regex": "8.0.1",

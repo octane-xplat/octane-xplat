@@ -50,6 +50,13 @@ func (err *processCleanupError) Unwrap() error { return err.Err }
 // Every started operation owns a process group/job until cleanup completes.
 // WaitDelay bounds pipes inherited by a descendant after its parent exits.
 func runProcess(ctx context.Context, argv []string, cwd string, env []string) (processResult, error) {
+	return runProcessIO(ctx, argv, cwd, env, nil, nil)
+}
+
+// Inherited OS streams keep compiler output live without a Go forwarding
+// goroutine blocked on a downstream reader. Group/job ownership is identical
+// to captured workers; final diagnostics are printed only after cleanup.
+func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, output, diagnostic *os.File) (processResult, error) {
 	if err := ctx.Err(); err != nil {
 		return processResult{}, err
 	}
@@ -64,6 +71,12 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 	var stdout, stderr limitedCapture
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	if output != nil {
+		cmd.Stdout = output
+	}
+	if diagnostic != nil {
+		cmd.Stderr = diagnostic
+	}
 	if err = cmd.Start(); err != nil {
 		return processResult{}, err
 	}

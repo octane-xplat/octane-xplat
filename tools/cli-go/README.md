@@ -50,6 +50,27 @@ delivery. POSIX fixtures exercise public SIGTERM and its 143 exit.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go route workflow"}' -- bun run turbo run test:go-unit test:go-cli test:go-routes --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 ```
 
+The typecheck gate installs its own declared TSRX checker/TypeScript pins, compares
+canonical environment expansion, verifies non-baked route preparation, malformed
+and stale plan rejection, compiler diagnostics/exits and cancellation. Project
+worker archives are private to each source-host test run; portable snapshots
+consume already-frozen archives. The snapshot producer refreshes those fixtures
+after its worker/library build prerequisites instead of carrying an older worker
+from an unrelated qualification run.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go typecheck workflow"}' -- bun run turbo run test:go-unit test:go-typecheck --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Actual project Go typecheck"}' -- bun run turbo run test:go-typecheck-real --filter=@octane-xplat/cli
+```
+
+The actual-project gate checks the web/macOS host programs, the combined Lightbox
+library program and shared application route preparation. The source-only library
+normally invokes a relative repository script, so the fixture supplies a temporary
+workspace CLI worker link and removes only that link afterward. This is explicit
+test installation; the native command itself must continue rejecting an absent
+selected-project worker. No GUI execution or OS renderer qualification follows
+from a TypeScript check.
+
 Go owns timeouts, bounded streams, operation directories and process cleanup.
 Unix uses a dedicated process group; Windows uses a job with a gate that blocks
 project execution until assignment. Owner and operation storage use private

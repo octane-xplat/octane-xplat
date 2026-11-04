@@ -267,7 +267,7 @@ const LIB_ORDER = ['ESNext', 'DOM', 'DOM.Iterable']
  * Everything else program-wide (paths, target, a different default
  * jsxImportSource) belongs in the manifest's top-level compilerOptions.
  */
-export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
+export function expandEnvPrograms(dir, { path: manifestPath, manifest }, { ambientRoot = MODULE_DIR } = {}): Array<{ env: string; configPath: string; files: string[] }> {
 	const errors = []
 	const resolved = {}
 	const files = new Set()
@@ -312,7 +312,7 @@ export function expandEnvPrograms(dir, { path: manifestPath, manifest }) {
 		}
 
 		for (const rel of preset.ambient ?? []) {
-			const abs = resolve(MODULE_DIR, rel)
+			const abs = resolve(ambientRoot, rel)
 			// Consumer installs won't have the repo-relative renderer source —
 			// they get these globals through the package's types instead.
 			if (existsSync(abs)) {

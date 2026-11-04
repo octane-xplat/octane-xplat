@@ -83,6 +83,26 @@ printed after completion. Route traversal rejects cycles and bounds entries,
 depth and text bytes. Authorized external route/output directories are supported;
 an output alias cannot overwrite route inputs or leave its authorized output scope.
 
+`typecheck` prepares those route contracts without executing baked loaders or
+replacing existing baked data. The selected project's worker reuses canonical
+JSONC/environment expansion, including its disposable combined-program cache.
+Go validates program selection and starts the installed
+`@tsrx/typescript-plugin` checker with Node. Missing tools produce installation
+instructions; Go does not invoke a package manager to download them.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go typecheck workflow"}' -- bun run turbo run test:go-typecheck --filter=@octane-xplat/cli
+# From a project with its CLI worker, TSRX checker and TypeScript installed:
+/absolute/path/to/xplat-go typecheck
+```
+
+Each program prints a heading and inherits stdout/stderr directly, preserving
+live compiler diagnostics without buffering them into a worker response. The
+same native process group/job owns cancellation and descendant cleanup. Compiler
+runs have the command's cancellation context; the short configuration worker
+has a two-minute deadline. Programs run in reference order and stop on the first
+failure. An empty project with no routes or programs needs no Node worker.
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

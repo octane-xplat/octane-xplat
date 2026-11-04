@@ -18,6 +18,13 @@ export function nativeInputs(root) {
 	}
 	files.push(
 		'packages/cli/src/commands/routes.ts',
+		'packages/cli/src/commands/typecheck.ts',
+		'packages/cli/src/tsconfig-envs.ts',
+		'packages/cli/src/env.ts',
+		'packages/cli/src/typecheck-globals/native.d.ts',
+		'packages/cli/src/typecheck-globals/macos.d.ts',
+		'packages/build/package.json',
+		'packages/build/vite.package.config.ts',
 		'tools/cli-nim/route-templates.mjs',
 		'packages/cli/package.json',
 		'packages/create/compatibility.json',

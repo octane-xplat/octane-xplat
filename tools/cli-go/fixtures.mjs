@@ -16,6 +16,12 @@ export function prepareFixtures(root, work) {
 		manifest.private = true
 		delete manifest.scripts
 		delete manifest.devDependencies
+		// Native CLI installs keep compiler/build engines opt-in, matching the
+		// curated native package rather than the Vite-specific build package.
+		manifest.peerDependenciesMeta = Object.fromEntries(
+			Object.keys(manifest.peerDependencies ?? {}).map((name) => [name, { optional: true }]),
+		)
+
 		for (const [name, range] of Object.entries(manifest.dependencies)) {
 			if (range === 'workspace:*') {
 				manifest.dependencies[name] = JSON.parse(
@@ -23,6 +29,7 @@ export function prepareFixtures(root, work) {
 				).version
 			}
 		}
+
 		writeFileSync(join(temporary, 'package.json'), JSON.stringify(manifest))
 		cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
 		cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
@@ -42,11 +49,19 @@ export function prepareFixtures(root, work) {
 				sha256: createHash('sha256').update(bytes).digest('hex'),
 			}
 		})
+
 		writeFileSync(
 			join(work, 'project-packages.json'),
 			JSON.stringify({
 				version: 1,
 				vite: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.vite,
+				checker: {
+					plugin: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[
+						'@tsrx/typescript-plugin'
+					],
+					typescript: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog
+						.typescript,
+				},
 				packages,
 			}),
 		)
