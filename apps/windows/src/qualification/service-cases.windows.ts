@@ -1068,17 +1068,65 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   }
   out.hwndAttempts = hwndAttempts
   out.hwnd = hwnd
+  // The picker's native pointer identity — the bridge marshals __native_ptr
+  // objects back into real WinRT RCWs (WinRtRef tag).
+  out.pickerNativePtrType = typeof picker.__native_ptr
+  out.handleMembers = picker.handle ? Object.getOwnPropertyNames(picker.handle) : []
+  try {
+    const h = interop?.handleOf?.(picker)
+    out.handleOfMembers = h ? Object.getOwnPropertyNames(h) : []
+    out.handleOfNativePtr = typeof h?.__native_ptr
+  } catch {}
+  // IntPtr marshalling: op_Explicit(long) or a System.IntPtr proxy ctor.
+  let intPtr: unknown = null
+  const intPtrAttempts: string[] = []
+  if (typeof dotnet?.invoke === 'function' && hwnd !== null) {
+    for (const asm of ['System.Private.CoreLib', 'mscorlib', '']) {
+      try {
+        const v = dotnet.invoke(asm, 'System.IntPtr', 'op_Explicit', [hwnd])
+        intPtrAttempts.push(`${asm || 'auto'} op_Explicit: ${typeof v}`)
+        if (v !== null && v !== undefined) {
+          intPtr = v
+          out.intPtrVia = `${asm || 'auto'} op_Explicit`
+          break
+        }
+      } catch (error) {
+        intPtrAttempts.push(`${asm || 'auto'} op_Explicit: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+    if (intPtr === null) {
+      try {
+        out.systemNs = typeof (globalThis as Record<string, any>).System
+        if (typeof dotnet.registerNamespace === 'function') {
+          dotnet.registerNamespace('System', 'System.Private.CoreLib')
+        }
+        const sys = (globalThis as Record<string, any>).System
+        if (sys?.IntPtr) {
+          const v = new sys.IntPtr(hwnd)
+          if (v !== null && v !== undefined) {
+            intPtr = v
+            out.intPtrVia = 'new System.IntPtr'
+          }
+        }
+      } catch (error) {
+        intPtrAttempts.push(`ctor: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+  }
+  out.intPtrAttempts = intPtrAttempts
+  out.intPtr = typeof intPtr
   // IInitializeWithWindow::Initialize(picker, hwnd) through the dotnet bridge.
-  if (hwnd !== null && typeof dotnet?.invoke === 'function') {
+  if (intPtr !== null && typeof dotnet?.invoke === 'function') {
     const initAttempts: string[] = []
     for (const asm of ['WinRT.Runtime', 'Microsoft.Windows.SDK.NET', '']) {
       try {
         const result = dotnet.invoke(asm, 'WinRT.Interop.InitializeWithWindow', 'Initialize', [
           picker,
-          hwnd,
+          intPtr,
         ])
         initAttempts.push(`${asm || 'auto'}: ok=${String(result)}`)
         out.initVia = asm || 'auto'
+        out.initialized = true
         break
       } catch (error) {
         initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
