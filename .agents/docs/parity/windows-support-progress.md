@@ -320,3 +320,15 @@ launches and the real `😀` on others), `SetContent`+`Flush` commits are racy
 [upstream-limitations.md](../upstream-limitations.md). Service suite: 98/98
 assertions (launch `mw1jucpo`); files-identity 12/12, storage-verify 8/8,
 secure-verify 9/9.
+
+## Live media-trait delivery result (1.0.0.213)
+
+On `org.octanexplat.windows61` 1.0.0.213 (source `92b4828da`, bounded): real
+OS-driven trait-change events deliver — two driver window resizes produced 5
+samples (`widthDIPs` 405↔747, `scale` 2) through both `layoutChanged` and
+`orientationChangedEvent`, and the observer releases cleanly. Notable: on this
+runtime `orientationChangedEvent` fires on any window resize, not only
+rotation. The spec subscribes on the primitives `observeWindowsMediaTraits`
+uses, not the internal host function itself. Service suite: 103/103
+assertions (launch `mw1ku7j8`); files-identity 12/12, storage-verify 8/8,
+secure-verify 9/9.
