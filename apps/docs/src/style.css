@@ -419,6 +419,8 @@ body {
 }
 
 .nav {
+	display: flex;
+	flex-direction: column;
 	gap: 4px;
 	margin-bottom: 18px;
 	flex-shrink: 0;
@@ -1470,6 +1472,7 @@ body {
 }
 
 .li {
+	display: flex;
 	font-size: 16px;
 	font-weight: 300;
 	line-height: 1.8;

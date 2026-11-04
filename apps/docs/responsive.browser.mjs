@@ -182,6 +182,42 @@ try {
         )
       }
 
+      // Web .vx-view computes display: block, so a .li authored as a flex row
+      // collapses to inline text — marker and text run together with no gap.
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: 812 })
+        await page.goto(`${base}/toolchain`)
+        await page.locator('.doc .h1').waitFor()
+        await page.evaluate(() => document.fonts.ready)
+        const items = await page.evaluate(() =>
+          Array.from(document.querySelectorAll('.li'), (li) => {
+            const marker = li.querySelector('.li-marker').getBoundingClientRect()
+            const text = li.querySelector('.li-text')
+            const rect = text.getBoundingClientRect()
+            const line = parseFloat(getComputedStyle(text).lineHeight)
+            return {
+              gap: rect.left - marker.right,
+              row: Math.abs(rect.top - marker.top),
+              lines: rect.height / line,
+            }
+          }),
+        )
+
+        assert.ok(items.length > 0, `${engine.name()} /toolchain at ${width}px: no .li items`)
+        for (const item of items) {
+          assert.ok(
+            item.gap >= 8 && item.row <= 2,
+            `${engine.name()} /toolchain at ${width}px: list marker and text overlap/stack`,
+          )
+        }
+        if (width === 390) {
+          assert.ok(
+            items.some((item) => item.lines > 1.5),
+            `${engine.name()} /toolchain at ${width}px: no wrapped .li-text`,
+          )
+        }
+      }
+
       for (const width of [320, 390, 768, 1024, 1100]) {
         await page.setViewportSize({ width, height: 812 })
         await page.goto(base)
