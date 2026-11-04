@@ -1790,13 +1790,15 @@ function Check-ServiceActions{
     Assert ($result.flushFalse -eq $true) 'flush keeps its documented false contract' $result
    }
    'clipboard-depth' {
-    # 1.0.0.211 verified the exact projection-loss shapes: non-BMP reads back
-    # as '?' per UTF-16 unit, combining marks mangle to codepage chars, text
-    # truncates at the first U+0000, and empty writes read back null. If any
-    # shape changes, upstream landed a marshalling fix — re-investigate.
-    Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but does not round-trip exactly' $result
-    Assert ($result.uniReadBack -clike 'clip--??-????-e?-') 'Unicode read-back shows the verified projection-loss shape' $result
-    Assert ($result.nulReadBack -ceq 'before' -and $result.emojiReadBack -ceq '??') 'Clipboard truncates at U+0000 and mangles non-BMP' $result
+    # 1.0.0.210-212 verified: non-BMP text never round-trips exactly; the ASCII
+    # prefix survives; a U+0000 truncates the tail; a lone emoji never returns
+    # itself. The exact mojibake VARIES across launches (e.g. '?' U+003F vs
+    # U+FFFD render alike), so asserts cover only the stable invariants — the
+    # emitted read-backs document per-launch shapes.
+    Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but never round-trips exactly' $result
+    Assert ($result.uniReadBack -clike 'clip--*' -and $result.uniReadBack -cnotlike '*-end') 'Unicode read-back keeps the ASCII prefix and drops the post-NUL tail' $result
+    Assert ($result.nulReadBack -clike 'before*' -and $result.nulReadBack -cnotlike '*after*') 'Clipboard truncates at U+0000' $result
+    Assert ($result.emojiReadBack -cne [char]0x1F600 -and $null -ne $result.emojiReadBack) 'A lone emoji never reads back as itself' $result
     Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null' $result
     Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
    }
