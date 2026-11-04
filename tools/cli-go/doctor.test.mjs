@@ -32,6 +32,7 @@ assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
 	assert.equal(sha(readFileSync(join(root, file))), hash, `Stale doctor source: ${file}`)
 }
+
 const probeBuild = JSON.parse(readFileSync(probe + '.json'))
 assert.equal(sha(readFileSync(probe)), probeBuild.sha256)
 assert.deepEqual(probeBuild.inputs, build.inputs, 'Reference containment must use the same source')
@@ -304,6 +305,34 @@ test('malformed/foreign reports and silently omitted platform observations canno
 	ownModules(mac)
 	fake(mac, '@octane-xplat/macos-build', 'macos-doctor', 'data.rows=[]')
 	assert.match(run(mac).stderr, /omitted required check/)
+})
+
+test('required diagnostic response roots reject omission, null and empty paths', () => {
+	for (const phase of ['common', 'macos']) {
+		for (const body of ['delete data.root', 'data.root=null', "data.root=''"]) {
+			const dir = fixture(
+				phase === 'macos' ? { xplat: { targets: { macos: { runtime: 'appkit-node-api' } } } } : {},
+				{},
+				false,
+			)
+
+			if (phase === 'macos') {
+				ownModules(dir)
+			}
+
+			fake(
+				dir,
+				phase === 'macos' ? '@octane-xplat/macos-build' : '@octane-xplat/cli',
+				phase === 'macos' ? 'macos-doctor' : 'doctor',
+				(phase === 'macos' ? `data.rows=${JSON.stringify(macRows)};` : '') + body,
+			)
+
+			const result = run(dir)
+			assert.equal(result.status, 1)
+			assert.match(result.stderr, /identity mismatch/)
+			assert.doesNotMatch(result.stdout, /fixture healthy/)
+		}
+	}
 })
 
 for (const phase of ['common', 'macos']) {

@@ -46,6 +46,9 @@ func validateDoctorChecks(rows []doctorCheck) error {
 	return nil
 }
 func validateDoctorRoot(project, root string, version int) error {
+	if root == "" {
+		return errors.New("diagnostic worker project/version identity mismatch")
+	}
 	expected, err := projectLockIdentity(project)
 	if err != nil {
 		return err

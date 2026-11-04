@@ -147,6 +147,7 @@
 		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs",
 		"test:go-clean": "node --test ../../tools/cli-go/clean.test.mjs",
 		"test:go-patches": "node --test ../../tools/cli-go/patches.test.mjs",
+		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
 		"test:go-upgrade": "node --test ../../tools/cli-go/upgrade.test.mjs",

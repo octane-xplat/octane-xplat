@@ -86,6 +86,9 @@ func patchWorker(ctx context.Context, project, root, manager, entry, operation s
 	if err = json.Unmarshal(result.Data, &data); err != nil {
 		return data, err
 	}
+	if data.Root == "" {
+		return data, errors.New("patch worker workspace/manager identity mismatch")
+	}
 	expected, err := projectLockIdentity(root)
 	if err != nil {
 		return data, err

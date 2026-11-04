@@ -4,6 +4,7 @@
 	"tasks": {
 		"test:doctor": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_DOCTOR_REFERENCE_CLI"] },
 		"test:go-doctor": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
+		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-release-worker": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-upgrade": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build"] },
 		"test:go-clean": { "cache": false, "dependsOn": ["build:go", "build"] },

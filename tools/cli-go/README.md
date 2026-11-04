@@ -278,6 +278,12 @@ build-exclusion and kernel-lease cases. Its Node-triggered termination checks
 forced-exit/job cleanup, not graceful public console delivery.
 
 
+`test:go-response-roots` (portable: `test:go-response-roots:portable`) checks
+required Doctor and patch report roots for omission, null and empty paths. It
+uses the existing worker fixtures, including both Doctor phases and patch checks
+before mutation; native units run separately. Empty user path defaults do not
+supply a missing required provider-response identity.
+
 `test:go-upgrade` uses canonical Node plans for Bun/pnpm catalog and patch edits,
 then runs actual Bun 1.4.4 and task-local pnpm 11.24.0 installations. The pnpm
 case serves the source-owned config package through a private loopback registry;

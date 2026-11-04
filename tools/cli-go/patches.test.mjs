@@ -340,6 +340,25 @@ function fake(dir, body) {
 	)
 }
 
+test('required patch response roots reject omission, null and empty paths before mutation', () => {
+	for (const body of ['delete data.root', 'data.root=null', "data.root=''"]) {
+		const dir = fixture({}, {}, false)
+		fake(
+			dir,
+			`if(r.operation==='patches-apply'){writeFileSync('mutation-ran','unexpected')};${body}`,
+		)
+
+		const before = readFileSync(join(dir, 'package.json'))
+		for (const args of [['check'], ['apply']]) {
+			const result = run(dir, args)
+			assert.equal(result.status, 1)
+			assert.match(result.stderr, /identity mismatch/)
+			assert.equal(existsSync(join(dir, 'mutation-ran')), false)
+			assert.deepEqual(readFileSync(join(dir, 'package.json')), before)
+		}
+	}
+})
+
 test('worker identity mismatch fails before writes; partial-effect errors remain explicit', () => {
 	const bad = fixture({}, {}, false)
 	fake(bad, `data.manager='npm'`)
