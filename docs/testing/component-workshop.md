@@ -37,6 +37,16 @@ bun run xplat workshop doctor
 bun run xplat workshop list
 ```
 
+Initialization checks the saved files before writing. Use ordinary files and
+folders rather than symbolic links (paths pointing elsewhere); each input file
+must be no larger than 1 MiB. If a file changes while initialization runs, inspect that edit
+and run the command again. To add only the configuration and example, leave your
+package scripts alone with `--no-scripts`.
+
+```sh
+bun run xplat workshop init --no-scripts
+```
+
 ## Declaring stories
 
 Once the generated counter works, add a component example of your own. The

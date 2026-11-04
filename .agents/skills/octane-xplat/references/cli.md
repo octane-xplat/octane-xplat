@@ -16,7 +16,9 @@ Go workshop inspection calls the selected project's workshop Node engine. JSON
 discovery diagnostics are data with exit zero; human diagnostics fail. Static
 story discovery does not execute story modules, though Vite configuration does
 execute. Doctor availability does not qualify a native host. Consult the group
-schema before using initialization or service launching in the parallel CLI.
+schema before using service launching in the parallel CLI. Initialization shares
+a read-only plan with the reference: preserve custom files/scripts, use ordinary
+paths under the 1 MiB input bound, and rerun after inspecting a stale-input error.
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only

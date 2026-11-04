@@ -114,3 +114,17 @@ export async function workshopInspection(request: Record<string, any>) {
 		globalThis.console = previous
 	}
 }
+
+export async function workshopInitPlan(request: Record<string, any>) {
+	if (typeof request.scripts !== 'boolean') {
+		throw new Error('Expected scripts boolean')
+	}
+	const project = realpathSync(process.cwd())
+	const api = await import(pathToFileURL(workshopEntry(project)).href)
+	if (typeof api.planWorkshopInit !== 'function') {
+		throw new Error(
+			'Update @octane-xplat/workshop in the selected project to provide initialization plan v1',
+		)
+	}
+	return api.planWorkshopInit({ cwd: project, scripts: request.scripts })
+}

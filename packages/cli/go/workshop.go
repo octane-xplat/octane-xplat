@@ -2,14 +2,19 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
 	"time"
 )
 
 func init() {
+	nativeLegacyCommands["workshop init"] = workshopInitCommand
 	for _, operation := range []string{"list", "doctor"} {
 		nativeLegacyCommands["workshop "+operation] = func(ctx context.Context, values map[string]any) error {
 			return workshopInspection(ctx, operation, values)
@@ -130,4 +135,199 @@ func workshopInspection(ctx context.Context, operation string, values map[string
 		return writeCommandText(operationContext, os.Stdout, string(bytes)+"\n")
 	}
 	return nil
+}
+
+type workshopInitPlan struct {
+	Version int
+	Project string
+	Files   []encodedArtifact
+	Inputs  []struct {
+		Path   string
+		Before *string
+		Mode   *uint32
+	}
+	Report *struct {
+		Created, Skipped []string
+		HasWorkshop      *bool
+	}
+}
+
+func workshopInitPaths(project string) []string {
+	return []string{filepath.Join(project, "package.json"), filepath.Join(project, "workshop.config.ts"), filepath.Join(project, "src", "workshop", "counter.stories.tsrx")}
+}
+
+func workshopInitStates(ctx context.Context, scope artifactScope, project string) (map[string]artifactState, error) {
+	states := map[string]artifactState{}
+	for _, path := range workshopInitPaths(project) {
+		state, err := snapshotArtifact(ctx, scope, path)
+		if err != nil {
+			return nil, err
+		}
+		if state.Alias || state.Target != path || (state.Exists && state.Info.Size() > 1<<20) {
+			return nil, fmt.Errorf("workshop init requires an ordinary unaliased file under 1 MiB: %s", path)
+		}
+		states[path] = state
+	}
+	return states, nil
+}
+
+func workshopManifestPreserved(before, after []byte) bool {
+	var original, result map[string]any
+	if json.Unmarshal(before, &original) != nil || json.Unmarshal(after, &result) != nil || original == nil || result == nil {
+		return false
+	}
+	// Only the missing/falsy workshop script may change. All other manifest data
+	// must survive; templates and formatting remain owned by the Node engine.
+	scripts, ok := original["scripts"].(map[string]any)
+	if !ok {
+		if original["scripts"] != nil {
+			return false
+		}
+		scripts = map[string]any{}
+		original["scripts"] = scripts
+	}
+	if existing := scripts["workshop"]; existing != nil && existing != "" && existing != false && existing != float64(0) {
+		return false
+	}
+	candidateScripts, ok := result["scripts"].(map[string]any)
+	if !ok {
+		return false
+	}
+	script, ok := candidateScripts["workshop"].(string)
+	if !ok || script == "" {
+		return false
+	}
+	// The selected project engine owns the script text, just like the templates.
+	scripts["workshop"] = script
+	return reflect.DeepEqual(original, result)
+}
+
+func validateWorkshopInit(ctx context.Context, scope artifactScope, project string, scripts bool, states map[string]artifactState, plan workshopInitPlan) ([]plannedArtifact, error) {
+	if plan.Version != 1 || plan.Project != project || plan.Files == nil || len(plan.Files) > 3 || len(plan.Inputs) != 3 || plan.Report == nil || plan.Report.Created == nil || plan.Report.Skipped == nil || plan.Report.HasWorkshop == nil || len(plan.Report.Created) != len(plan.Files) || len(plan.Report.Skipped) > 3 {
+		return nil, errors.New("invalid workshop initialization plan")
+	}
+	for _, values := range [][]string{plan.Report.Created, plan.Report.Skipped} {
+		for _, value := range values {
+			if len(value) > 8192 {
+				return nil, errors.New("oversized workshop initialization report")
+			}
+		}
+	}
+	seen := map[string]bool{}
+	for _, input := range plan.Inputs {
+		before, ok := states[input.Path]
+		if !ok || seen[input.Path] || before.Exists != (input.Before != nil) || before.Exists != (input.Mode != nil) || (before.Exists && (before.Hash != *input.Before || uint32(before.Info.Mode().Perm()) != *input.Mode)) {
+			return nil, errors.New("workshop initialization input changed or identity is invalid")
+		}
+		seen[input.Path] = true
+	}
+	seen = map[string]bool{}
+	artifacts := []plannedArtifact{}
+	for _, file := range plan.Files {
+		before, ok := states[file.Path]
+		if !ok || seen[file.Path] || file.Content == nil || file.Mode == nil || *file.Mode == 0 || *file.Mode > 0777 || before.Exists != (file.Before != nil) || (before.Exists && before.Hash != *file.Before) {
+			return nil, errors.New("invalid workshop initialization output")
+		}
+		isManifest := file.Path == filepath.Join(project, "package.json")
+		if (!isManifest && before.Exists) || (isManifest && !scripts) {
+			return nil, errors.New("workshop initialization must preserve existing files and disabled scripts")
+		}
+		bytes, err := base64.StdEncoding.Strict().DecodeString(*file.Content)
+		if err != nil || len(bytes) > 1<<20 {
+			return nil, errors.New("invalid workshop initialization output encoding/size")
+		}
+		if before.Exists {
+			if uint32(before.Info.Mode().Perm()) != *file.Mode {
+				return nil, errors.New("workshop initialization changed existing file permissions")
+			}
+			original, err := readArtifactBytes(scope, before)
+			if err != nil {
+				return nil, err
+			}
+			if !workshopManifestPreserved(original, bytes) {
+				return nil, errors.New("workshop initialization changed unrelated manifest data or an existing script")
+			}
+		} else if *file.Mode != 0644 {
+			return nil, errors.New("invalid workshop template permissions")
+		}
+		artifacts = append(artifacts, plannedArtifact{File: file.Path, Source: string(bytes), Before: before, Mode: os.FileMode(*file.Mode)})
+		seen[file.Path] = true
+	}
+	return artifacts, nil
+}
+
+func workshopInitCommand(ctx context.Context, values map[string]any) error {
+	project, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	project, err = canonical(project)
+	if err != nil {
+		return err
+	}
+	if _, err = projectManifest(project); err != nil {
+		return err
+	}
+	release, err := lockProjectOutputs(project)
+	if err != nil {
+		return err
+	}
+	defer release()
+	scope, err := outputScope(project, project)
+	if err != nil {
+		return err
+	}
+	states, err := workshopInitStates(ctx, scope, project)
+	if err != nil {
+		return err
+	}
+	noScripts, _ := values["noScripts"].(bool)
+	child, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	result, err := runWorker(child, project, "workshop-init-plan", map[string]any{"scripts": !noScripts})
+	if writeErr := writeCommandText(child, os.Stderr, result.Process.Stdout+result.Process.Stderr); writeErr != nil {
+		return errors.Join(err, writeErr)
+	}
+	for _, warning := range result.Warnings {
+		if writeErr := writeCommandText(child, os.Stderr, warning+"\n"); writeErr != nil {
+			return errors.Join(err, writeErr)
+		}
+	}
+	if err != nil {
+		return err
+	}
+	var plan workshopInitPlan
+	if err = json.Unmarshal(result.Data, &plan); err != nil {
+		return err
+	}
+	artifacts, err := validateWorkshopInit(child, scope, project, !noScripts, states, plan)
+	if err != nil {
+		return err
+	}
+	unchanged := func() error {
+		for _, before := range states {
+			if e := unchangedArtifact(child, scope, before); e != nil {
+				return e
+			}
+		}
+		return nil
+	}
+	if err = unchanged(); err != nil {
+		return err
+	}
+	if err = publishArtifacts(child, scope, artifacts, unchanged); err != nil {
+		return &workspaceMutationError{Operation: "workshop initialization", Root: project, Hint: "Inspect generated files and the workshop script before retrying", Err: err}
+	}
+	var output strings.Builder
+	for _, item := range plan.Report.Created {
+		fmt.Fprintf(&output, "  created %s\n", item)
+	}
+	for _, item := range plan.Report.Skipped {
+		fmt.Fprintf(&output, "  skipped %s\n", item)
+	}
+	if !*plan.Report.HasWorkshop {
+		fmt.Fprintln(&output, "  next: bun add -D @octane-xplat/workshop")
+	}
+	fmt.Fprintln(&output, "  run: bun run xplat workshop dev --target web")
+	return writeCommandText(child, os.Stdout, output.String())
 }

@@ -45,6 +45,22 @@ export declare function workshopDoctor(options?: {
 	json?: boolean
 }): Promise<WorkshopDoctorReport>
 
+/** Read-only scaffold policy. Frontends validate before-images and own publication. */
+export interface WorkshopInitPlan {
+	version: 1
+	project: string
+	/** Absolute destinations, SHA-256 before-images (null means absent), base64 content and permission bits. */
+	files: { path: string; before: string | null; content: string; mode: number }[]
+	/** All three observed inputs, including skipped files; absent inputs have null digest and mode. */
+	inputs: { path: string; before: string | null; mode: number | null }[]
+	report: { created: string[]; skipped: string[]; hasWorkshop: boolean }
+}
+/** Plan initialization without creating directories, editing files or executing configuration. */
+export declare function planWorkshopInit(options?: {
+	cwd?: string
+	scripts?: boolean
+}): Promise<WorkshopInitPlan>
+
 /** `xplat workshop init` — scaffolds workshop.config.ts and a sample story; existing files are never overwritten. */
 export declare function workshopInit(options?: {
 	/** Consumer package root; defaults to process.cwd(). */

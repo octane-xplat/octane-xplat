@@ -73,6 +73,9 @@ try {
 	if (['add-targets', 'add-plan', 'add-install'].includes(request.operation)) {
 		const { addOperation } = await import('./add-worker.ts')
 		data = await addOperation(request)
+	} else if (request.operation === 'workshop-init-plan') {
+		const { workshopInitPlan } = await import('./workshop-worker.ts')
+		data = await workshopInitPlan(request)
 	} else if (['workshop-list', 'workshop-doctor'].includes(request.operation)) {
 		const { workshopInspection } = await import('./workshop-worker.ts')
 		data = await workshopInspection(request)

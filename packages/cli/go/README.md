@@ -63,8 +63,11 @@ Workshop inspection delegates to the selected project's `@octane-xplat/workshop/
 through that small worker. Story discovery is static; project configuration executes
 with the project's Vite. JSON discovery diagnostics remain data with exit zero;
 human diagnostics fail after printing the inventory. Doctor reports prerequisites,
-not qualified platform support. Initialization and service launching remain pending
-in their schemas until their publication and lifecycle work is implemented.
+not qualified platform support. Initialization uses its shared read-only plan: Go validates raw before-images,
+preserves existing templates and scripts, and publishes under an app output lease.
+Only the missing workshop package script may change in the manifest. Publication
+is atomic per file, with partial effects disclosed on interruption. Service
+launching remains pending in its schema until its lifecycle work is implemented.
 
 ```sh
 # From a project with its CLI worker and workshop package installed:

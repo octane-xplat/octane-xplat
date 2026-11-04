@@ -5,7 +5,8 @@
  */
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync, lstatSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 
 import { dirname, join, relative, resolve } from 'node:path'
 import { gtkDoctor } from './gtk-node.ts'
@@ -239,60 +240,148 @@ export const Basic = defineStory<Props, State, Fixture>({
 })
 `
 
-export async function workshopInit({ cwd, scripts = true } = {}) {
-	const root = consumerRoot(cwd)
-	const created = []
-	const skipped = []
-
-	const writeIfAbsent = (file, contents) => {
-		if (existsSync(file)) {
-			const existing = readFileSync(file, 'utf8')
-			skipped.push(
-				existing === contents
-					? `${relative(root, file)} already up to date`
-					: `${relative(root, file)} exists with different content — left untouched; reconcile it manually`,
-			)
-
-			return false
+// Plans contain raw before-images; frontends own publication and process lifetime.
+function initInput(root, name) {
+	const path = join(root, name)
+	for (let at = path; at !== root; at = dirname(at)) {
+		try {
+			const info = lstatSync(at)
+			if (info.isSymbolicLink()) {
+				throw new WorkshopUsageError(`workshop init refuses aliased paths: ${name}`)
+			}
+			if (at === path && (!info.isFile() || info.size > 1024 * 1024)) {
+				throw new WorkshopUsageError(`workshop init requires an ordinary file under 1 MiB: ${name}`)
+			}
+			if (at !== path && !info.isDirectory()) {
+				throw new WorkshopUsageError(`workshop init parent is not a directory: ${name}`)
+			}
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
 		}
-
-		mkdirSync(dirname(file), { recursive: true })
-		writeFileSync(file, contents)
-		created.push(relative(root, file))
-		return true
 	}
+	let bytes = null,
+		mode = null
+	try {
+		const info = lstatSync(path)
+		bytes = readFileSync(path)
+		if (bytes.length > 1024 * 1024) {
+			throw new WorkshopUsageError(`workshop init file exceeds 1 MiB: ${name}`)
+		}
+		mode = info.mode & 0o777
+	} catch (error) {
+		if (error.code !== 'ENOENT') {
+			throw error
+		}
+	}
+	return {
+		path,
+		before: bytes === null ? null : createHash('sha256').update(bytes).digest('hex'),
+		mode,
+		bytes,
+	}
+}
 
-	writeIfAbsent(join(root, 'workshop.config.ts'), CONFIG_TEMPLATE)
-	writeIfAbsent(join(root, 'src', 'workshop', 'counter.stories.tsrx'), STORY_TEMPLATE)
-
+/** Read-only initialization policy shared by the TypeScript and native frontends. */
+export async function planWorkshopInit({ cwd = process.cwd(), scripts = true } = {}) {
+	const root = realpathSync(consumerRoot(cwd))
+	if (typeof scripts !== 'boolean') {
+		throw new WorkshopUsageError('Expected scripts boolean')
+	}
+	const inputs = ['package.json', 'workshop.config.ts', 'src/workshop/counter.stories.tsrx'].map(
+		(name) => initInput(root, name),
+	)
+	const [pkg, config, story] = inputs
+	const files = [],
+		created = [],
+		skipped = []
+	for (const [input, text] of [
+		[config, CONFIG_TEMPLATE],
+		[story, STORY_TEMPLATE],
+	]) {
+		const name = relative(root, input.path)
+		if (input.before !== null) {
+			skipped.push(
+				input.bytes.toString('utf8') === text
+					? `${name} already up to date`
+					: `${name} exists with different content — left untouched; reconcile it manually`,
+			)
+		} else {
+			files.push({
+				path: input.path,
+				before: null,
+				mode: 0o644,
+				content: Buffer.from(text).toString('base64'),
+			})
+			created.push(name)
+		}
+	}
 	if (scripts) {
-		const manifestPath = join(root, 'package.json')
-		const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-		manifest.scripts = manifest.scripts ?? {}
+		const manifest = JSON.parse(pkg.bytes.toString('utf8'))
+		if (
+			!manifest ||
+			typeof manifest !== 'object' ||
+			Array.isArray(manifest) ||
+			(manifest.scripts != null &&
+				(typeof manifest.scripts !== 'object' || Array.isArray(manifest.scripts)))
+		) {
+			throw new WorkshopUsageError('package.json and scripts must be objects')
+		}
+		manifest.scripts ??= {}
 		if (!manifest.scripts.workshop) {
 			manifest.scripts.workshop = 'xplat workshop dev --target web'
-			writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n')
+			files.push({
+				path: pkg.path,
+				before: pkg.before,
+				mode: pkg.mode,
+				content: Buffer.from(JSON.stringify(manifest, null, 2) + '\n').toString('base64'),
+			})
 			created.push('package.json script "workshop"')
 		} else {
 			skipped.push('package.json script "workshop" already exists')
 		}
 	}
+	return {
+		version: 1,
+		project: root,
+		files,
+		inputs: inputs.map(({ path, before, mode }) => ({ path, before, mode })),
+		report: { created, skipped, hasWorkshop: Boolean(resolveFrom(root, '@octane-xplat/workshop')) },
+	}
+}
 
-	const hasWorkshop = Boolean(resolveFrom(root, '@octane-xplat/workshop'))
-	for (const item of created) {
+export async function workshopInit(options = {}) {
+	const plan = await planWorkshopInit(options)
+	// Validate every observation before publication, then again before each write.
+	const unchanged = (input) => {
+		const actual = initInput(plan.project, relative(plan.project, input.path))
+		if (actual.before !== input.before || actual.mode !== input.mode) {
+			throw new WorkshopUsageError(`workshop init input changed: ${input.path}`)
+		}
+	}
+	for (const input of plan.inputs) {
+		unchanged(input)
+	}
+	for (const file of plan.files) {
+		unchanged(plan.inputs.find((input) => input.path === file.path))
+		mkdirSync(dirname(file.path), { recursive: true })
+		writeFileSync(file.path, Buffer.from(file.content, 'base64'), {
+			flag: file.before === null ? 'wx' : 'w',
+			mode: file.mode,
+		})
+	}
+	for (const item of plan.report.created) {
 		console.log(`  created ${item}`)
 	}
-
-	for (const item of skipped) {
+	for (const item of plan.report.skipped) {
 		console.log(`  skipped ${item}`)
 	}
-
-	if (!hasWorkshop) {
+	if (!plan.report.hasWorkshop) {
 		console.log('  next: bun add -D @octane-xplat/workshop')
 	}
-
 	console.log('  run: bun run xplat workshop dev --target web')
-	return { created, skipped }
+	return { created: plan.report.created, skipped: plan.report.skipped }
 }
 
 // ---------- dev ----------

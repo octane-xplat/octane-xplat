@@ -1186,8 +1186,12 @@ static: executing workshop configuration is intentional; executing story modules
 is not. Preserve JSON discovery diagnostics as data with a successful exit, while
 human discovery diagnostics fail after printing the inventory. Keep configuration
 logs on stderr when stdout carries JSON. Prerequisite reports describe availability,
-not platform qualification. Workshop init/service launching have separate ownership
-and publication work; inspection support must not mark the whole group complete.
+not platform qualification. Workshop initialization shares the read-only `planWorkshopInit` policy with the
+TypeScript frontend. Go validates the fixed destination set, raw bytes, modes and
+manifest preservation under an output lease before per-file atomic publication.
+Keep skipped files in input observations too. Existing templates and custom scripts
+remain user-owned. Service lifecycle support is separate; initialization and
+inspection support must not mark the whole group complete.
 Stage project engine fixtures beside the curated CLI. A symlink into the source
 workspace can resolve that workspace’s full old CLI through real paths and hide a
 missing export or dependency in the native package.

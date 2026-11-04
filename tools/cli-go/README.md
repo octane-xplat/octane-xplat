@@ -375,7 +375,11 @@ diagnostic exit behavior, package boundaries, malformed responses with a valid
 control, and POSIX cancellation of a config-started descendant. The fixture uses
 the actual built workshop manifest/backend staged beside an installed curated
 CLI worker, with its real pinned scanner dependency. It is not a released
-workshop tarball or a running native workshop host.
+workshop tarball or a running native workshop host. Initialization also compares
+raw output bytes, modes and reports with the pre-refactor Node engine at a fixed
+Git revision; portable snapshots explicitly skip that one comparison when the
+Git object is unavailable. Plan controls cover custom files/scripts, manifest
+preservation, stale observations and read-only planning.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go workshop inspection"}' -- bun run turbo run test:go-workshop test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
