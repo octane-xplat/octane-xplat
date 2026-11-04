@@ -1652,7 +1652,7 @@ function Check-ServiceActions{
   if($spec -eq 'clipboard-nontext'){Set-Clipboard -LiteralPath $PSCommandPath}
   if($spec -eq 'media-live-read'){
    # Resize the owned window twice so the app's layoutChanged subscriber sees transitions.
-   $rect=[System.Windows.Rect]::new()
+   $rect=[Core20Desktop+Rect]::new()
    if(-not [Core20Desktop]::GetWindowRect($script:WindowHandle,[ref]$rect)){throw 'Cannot read the owned window rect'}
    $liveLeft=[int]$rect.Left;$liveTop=[int]$rect.Top;$liveWidth=[int]($rect.Right-$rect.Left);$liveHeight=[int]($rect.Bottom-$rect.Top)
    $smallWidth=[Math]::Max(420,[int]($liveWidth*0.55))
