@@ -2,6 +2,7 @@ import { rendererSource } from './renderer-source.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { retireTextViewLayout } from '../src/text-view-layout.ts'
+import { disposeTextValue } from '../src/text-value.ts'
 import { runSlice } from './mock-globals.ts'
 import { validateTextStyle } from '../src/formatted-text.ts'
 import { sourceWithoutImports } from './mock-globals.ts'
@@ -82,6 +83,7 @@ function fixture({ applyProps, flushStyleDirty }: { applyProps?: any; flushStyle
 
     validateTextStyle,
     retireTextViewLayout,
+    disposeTextValue,
     nextMockActionId: 500,
     actionHandlers,
     accessibilityLabels,
@@ -162,6 +164,7 @@ function fixture({ applyProps, flushStyleDirty }: { applyProps?: any; flushStyle
     geometryObservers,
     geometryReconciles,
     nodeContainersByView: sandbox.nodeContainersByView,
+    elementBehaviors: sandbox.elementBehaviors,
     fakeView,
   }
 }
@@ -381,6 +384,63 @@ test('a failed update restores the recorded props', () => {
   )
 
   assert.deepEqual(node.props, { text: 'old' })
+})
+
+test('failed recreate construction preserves the live original and retires the partial replacement', () => {
+  const failure = Error('replacement prop failed')
+  const fx = fixture({ applyProps(_node, props) {
+    if (props.fail) {
+      throw failure
+    }
+  } })
+  const original = fx.makeNode(fx.container, 8, 'button', {})
+  fx.container.nodes.set(8, original)
+  const registered = fx.actionHandlers.size
+  assert.throws(() => fx.applyCommand(fx.container, {
+    op: 'recreate', id: 8, type: 'button', props: { fail: true },
+  }), error => error === failure)
+  assert.equal(fx.container.nodes.get(8), original)
+  assert.equal(fx.actionHandlers.size, registered)
+  assert.equal(fx.nodeContainersByView.get(original.view), fx.container)
+})
+
+test('P0 teardown trace keeps sizing before hooks and native detach before common release', () => {
+  const fx = fixture()
+  const node = fx.makeNode(fx.container, 90, 'button', {})
+  const events: string[] = []
+  fx.container.children.push(node)
+  node.textLayoutDetach = () => events.push('retire-sizing')
+  node.destroyHooks = [() => {
+    assert.ok(fx.container.children.includes(node))
+    events.push('hook-with-host')
+  }]
+  node.cssHoverDispose = () => {
+    assert.equal(fx.container.children.includes(node), false)
+    assert.equal(fx.actionHandlers.has(node.actionId), true)
+    events.push('common-after-detach')
+  }
+  // The sizing helper's type guard admits only textview nodes.
+  node.type = 'textview'
+  fx.destroy(node)
+  assert.deepEqual(events, ['retire-sizing', 'hook-with-host', 'common-after-detach'])
+  assert.equal(fx.actionHandlers.has(node.actionId), false)
+  assert.equal(fx.nodeContainersByView.has(node.view), false)
+})
+
+test('P0 behavior replacement currently redirects existing-node cleanup to the latest registration', () => {
+  const fx = fixture()
+  const events: string[] = []
+  fx.elementBehaviors.set('plugin-host', {
+    make(node) { node.view = fx.fakeView('plugin') },
+    destroy() { events.push('original') },
+  })
+  const node = fx.makeNode(fx.container, 92, 'plugin-host', {})
+  fx.elementBehaviors.set('plugin-host', {
+    destroy() { events.push('replacement') },
+  })
+  fx.destroy(node)
+  // P5/P6 must deliberately change this characterization to acquired-definition cleanup.
+  assert.deepEqual(events, ['replacement'])
 })
 
 test('recreate rejects a view replacement under a non-container parent', () => {
