@@ -84,6 +84,8 @@ export function prepareFixtures(
 			join(work, flavor + '.json'),
 			JSON.stringify({
 				version: 1,
+				fontConverter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json')))
+					.dependencies.wawoff2,
 				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[
 					'@octane-xplat/fmt'
 				],

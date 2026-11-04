@@ -26,12 +26,6 @@ type addInput struct {
 	Path, Kind, SHA256 string
 	Mode               *uint32
 }
-type addFile struct {
-	Path    string
-	Before  *string
-	Content *string
-	Mode    *uint32
-}
 type addDirectory struct {
 	Path string
 	Mode *uint32
@@ -39,7 +33,7 @@ type addDirectory struct {
 type addPlan struct {
 	Version           int
 	Root, AppRoot, ID string
-	Files             []addFile
+	Files             []encodedArtifact
 	Directories       []addDirectory
 	Inputs            []addInput
 	Report            *addReport

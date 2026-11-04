@@ -40,6 +40,17 @@ bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts 
 bun run xplat fonts add @fontsource-variable/inter --install  # Fontsource package
 ```
 
+Font registration keeps its saved family data in `src/fonts/fonts.json` (or the
+configured app source directory). If that file contains invalid JSON, repair it
+before retrying; keep its existing registrations rather than deleting the file.
+Each input, converted font, or managed output is limited to 16 MiB; one
+registration plan is limited to 32 MiB. Use smaller files or Fontsource subsets,
+and split large collections across separate registrations.
+
+```sh
+bun run xplat fonts add ./Inter.ttf
+```
+
 The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts drive
 the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.

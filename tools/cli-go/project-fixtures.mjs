@@ -17,6 +17,7 @@ export function projectToolFixture(
 		linter = false,
 		packageManagement = false,
 		creator = false,
+		fontConverter = false,
 	} = {},
 ) {
 	// Source-host test tasks may run concurrently. Never replace a shared archive
@@ -55,6 +56,7 @@ export function projectToolFixture(
 			type: 'module',
 			devDependencies: {
 				...deps,
+				...(fontConverter ? { wawoff2: packages.fontConverter } : {}),
 				...(formatter ? { '@octane-xplat/fmt': packages.formatter } : {}),
 				...(vite ? { vite: packages.vite } : {}),
 				...(checker

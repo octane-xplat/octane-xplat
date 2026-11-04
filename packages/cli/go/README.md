@@ -374,3 +374,25 @@ preserved; repeat initialization leaves unchanged file timestamps intact. This
 includes preserving invalid UTF-8 bytes rather than decoding/re-encoding them.
 Partial file effects can remain after a publication failure; inspect both files
 before retrying. The command does not download or install optional packages.
+
+
+`fonts add` uses the selected project's small Node worker for the canonical font
+metadata, WOFF/WOFF2 conversion, Fontsource selection and CSS registration engine.
+Go owns command selection, output leases, bounded plan validation, native file
+publication and process cleanup. The standalone binary embeds no converter or JS
+runtime. TTF/OTF and WOFF use the existing engine; WOFF2 needs its optional codec.
+Inputs and individual outputs are limited to 16 MiB, with a 32 MiB total plan.
+Use subsets or separate registrations for larger collections.
+
+```sh
+bun add --dev wawoff2@2.0.1
+/absolute/path/to/xplat-go fonts add ./Inter.woff2 --token sans
+/absolute/path/to/xplat-go fonts add @fontsource-variable/inter --install
+```
+
+`--install` invokes the selected project's Bun/pnpm to add a missing Fontsource
+package and can change dependencies before conversion fails. Inspect those changes
+before retrying. Conversion staging is private to the managed worker operation;
+source files are published only after the complete plan validates. Existing font
+files are retained. Repair invalid saved registration JSON instead of discarding
+it. These checks qualify generated files, not rendered typography or SDK builds.

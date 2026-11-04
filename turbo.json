@@ -8,6 +8,8 @@
 		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-foreground-input": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-release-worker": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_RELEASE_BINARY"] },
+		"test:go-fonts":{"cache":false,"dependsOn":["build:go","build","@octane-xplat/build#build"]},
+		"test:fonts": {"cache": false, "dependsOn":["build"]},
 		"test:updates": {"cache": false,"dependsOn": ["build"]},
 		"test:go-updates": {"cache": false, "dependsOn": ["build:go", "build", "@octane-xplat/build#build"]},
 		"test:go-add": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "create-octane-xplat#build"] },

@@ -556,9 +556,11 @@
       "peerDependencies": {
         "create-octane-xplat": "*",
         "vite": "^8.3.0",
+        "wawoff2": "2.0.1",
       },
       "optionalPeers": [
         "create-octane-xplat",
+        "wawoff2",
       ],
     },
     "packages/calendar": {

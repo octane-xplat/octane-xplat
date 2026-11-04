@@ -1165,6 +1165,19 @@ Keep simple hook/ignore publication native, preserve raw user bytes and modes,
 and validate both outputs before writing. Hook initialization is not evidence of
 NativeScript preparation, app boot, or delivered OTA updates.
 
+
+Keep font parsing/conversion and CSS registration policy in the canonical Node
+engine. Both frontends use its read-only plan; Go validates explicit app/source
+identity, bounded base64 artifacts and raw-byte before-images before publishing.
+Keep converter and Fontsource staging beneath the private request lifetime, and
+await group/job cleanup before removing it. WOFF2 is an optional project codec,
+not an executable payload. Preserve existing font binaries and reject malformed
+saved registration JSON; resetting it silently discards user state. Fontsource
+installation has separate dependency side effects before publication, which must
+remain visible on failure. Package specs passed to a Windows shell need a closed
+valid package-name grammar. Do not resolve Fontsource from a global installation
+or bypass a nearer broken package.
+
 ## Native HTTP and C interop
 
 Separate build headers from runtime libraries. A host can have `libcurl.so.4`

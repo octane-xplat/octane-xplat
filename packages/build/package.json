@@ -46,8 +46,8 @@
 		"postcss": "8.5.32",
 		"postcss-load-config": "6.0.1"
 	},
-	"peerDependencies": { "vite": "^8.3.0", "create-octane-xplat": "*" },
-	"peerDependenciesMeta": { "create-octane-xplat": { "optional": true } },
+	"peerDependencies": { "vite": "^8.3.0", "create-octane-xplat": "*", "wawoff2": "2.0.1" },
+	"peerDependenciesMeta": { "create-octane-xplat": { "optional": true }, "wawoff2": { "optional": true } },
 	"devDependencies": {
 		"create-octane-xplat": "workspace:*",
 		"@octane-xplat/cli": "workspace:*",

@@ -1,20 +1,23 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { packageManagerFor } from './package-manager.ts'
 import {
-	copyFileSync,
 	existsSync,
 	mkdirSync,
 	mkdtempSync,
+	lstatSync,
+	statSync,
+	realpathSync,
+	rmSync,
 	readFileSync,
 	readdirSync,
 	writeFileSync,
 } from 'node:fs'
 
-import { basename, extname, join } from 'node:path'
+import { basename, extname, join, relative, resolve, isAbsolute, sep, dirname } from 'node:path'
 import { tmpdir } from 'node:os'
 import { inflateSync } from 'node:zlib'
 import { spawnSync } from 'node:child_process'
-import { installedPackageRoot } from './package-root.ts'
+import { createHash } from 'node:crypto'
 
 export const FONT_EXTENSIONS = new Set(['.ttf', '.otf'])
 const CONVERTIBLE_EXTENSIONS = new Set(['.woff', '.woff2'])
@@ -332,8 +335,15 @@ const sanitizeFileBase = (name) => name.replace(/[^A-Za-z0-9._-]/g, '-')
 // the font's PostScript name so Android's filename-based lookup stays
 // readable; local file inputs keep their own basename instead.
 async function stageAsTtf(sourcePath, stagingDir, destName) {
+	const sourceInfo = statSync(sourcePath)
+	if (!sourceInfo.isFile() || sourceInfo.size > 16 * 1024 * 1024) {
+		throw new Error('Font source must be an ordinary file within 16 MiB')
+	}
 	const ext = extname(sourcePath).toLowerCase()
 	const sfnt = FONT_EXTENSIONS.has(ext) ? readFileSync(sourcePath) : await toSfnt(sourcePath)
+	if (sfnt.length > 16 * 1024 * 1024) {
+		throw new Error('Converted font exceeds 16 MiB')
+	}
 	const info = parseFontBuffer(sfnt)
 	const name = destName ?? sanitizeFileBase(info.postscript ?? basename(sourcePath, ext)) + '.ttf'
 	const staged = join(stagingDir, name)
@@ -350,12 +360,37 @@ const webFamilyFromCss = (cssPath) => {
 	return match?.[1]
 }
 
-const isFontsourceSpec = (input) => /^@fontsource(-variable)?\/[^/\s]+$/.test(input)
+const isFontsourceSpec = (input) => /^@fontsource(-variable)?\/[a-z0-9][a-z0-9._-]*$/.test(input)
+
+function fontsourceRoot(appDir, spec) {
+	for (let at = resolve(appDir); ; at = dirname(at)) {
+		const path = join(at, 'node_modules', spec)
+		let present = false
+		try {
+			lstatSync(path)
+			present = true
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
+		}
+		if (present) {
+			return realpathSync(path)
+		}
+		if (dirname(at) === at) {
+			return null
+		}
+	}
+}
 
 // Resolves a Fontsource package (installing it when absent), selects the
 // faces for the requested subset/weights, and stages converted .ttf copies.
 // Returns null-ish { error } on failure.
-export async function prepareFontsource(appDir, spec, { subset = 'latin', weights, install } = {}) {
+export async function prepareFontsource(
+	appDir,
+	spec,
+	{ subset = 'latin', weights, install, stagingRoot } = {},
+) {
 	const variable = spec.startsWith('@fontsource-variable/')
 	if (!isFontsourceSpec(spec)) {
 		return { error: `unsupported package ${spec} — only @fontsource/* and @fontsource-variable/*` }
@@ -364,8 +399,7 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 	// Resolve through Node's walk-up (hoisted workspaces install at the
 	// workspace root) — Fontsource `exports` maps don't always re-export
 	// ./package.json, so probe the package dir rather than requiring it.
-	let pkgDir =
-		installedPackageRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
+	let pkgDir = fontsourceRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
 	let wasInstalled = false
 	if (!existsSync(join(pkgDir, 'package.json'))) {
 		if (!install) {
@@ -382,6 +416,7 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 			return { error: `bun add ${spec} failed` }
 		}
 
+		pkgDir = fontsourceRoot(appDir, spec) ?? pkgDir
 		if (!existsSync(join(pkgDir, 'package.json'))) {
 			return { error: `${spec} still not resolvable after install` }
 		}
@@ -414,7 +449,7 @@ export async function prepareFontsource(appDir, spec, { subset = 'latin', weight
 	}
 
 	const listing = readdirSync(filesDir).map(parts).filter(Boolean)
-	const stagingDir = mkdtempSync(join(tmpdir(), 'xplat-fonts-'))
+	const stagingDir = mkdtempSync(join(stagingRoot ?? tmpdir(), 'xplat-fonts-'))
 
 	if (variable) {
 		// 'wght' is the weight-axis file; 'standard'/'full' carry every axis.
@@ -548,10 +583,11 @@ function ensureWebImport(entrySource) {
 	return { source: `import './fonts.css';\n${entrySource}`, changed: true }
 }
 
-function appSourceDir(appDir) {
+function appSourceDir(appDir, read) {
 	const configPath = join(appDir, 'nativescript.config.ts')
-	if (existsSync(configPath)) {
-		const match = readFileSync(configPath, 'utf8').match(/appPath:\s*['"]([^'"]+)['"]/)
+	const config = read(configPath)
+	if (config !== null) {
+		const match = config.toString('utf8').match(/appPath:\s*['"]([^'"]+)['"]/)
 		if (match) {
 			return join(appDir, match[1])
 		}
@@ -560,16 +596,19 @@ function appSourceDir(appDir) {
 	return join(appDir, 'src')
 }
 
-const readManifest = (fontsDir) => {
+const readManifest = (fontsDir, read) => {
 	const manifestPath = join(fontsDir, MANIFEST)
-	if (!existsSync(manifestPath)) {
+	const bytes = read(manifestPath)
+	if (bytes === null) {
 		return { tokens: {} }
 	}
 
 	try {
-		return JSON.parse(readFileSync(manifestPath, 'utf8'))
+		return JSON.parse(bytes.toString('utf8'))
 	} catch {
-		return { tokens: {} }
+		throw new Error(
+			`Existing font manifest ${manifestPath} is invalid JSON; reconcile it before adding fonts`,
+		)
 	}
 }
 
@@ -579,7 +618,56 @@ const readManifest = (fontsDir) => {
 // of everything registered so far. `xplat fonts add` drives both callers:
 // local files stage through stageAsTtf; Fontsource packages through
 // prepareFontsource.
-export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], webFamily } = {}) {
+export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [], webFamily } = {}) {
+	appDir = realpathSync(appDir)
+	const files = new Map(),
+		inputs = new Map(),
+		contents = new Map()
+	const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+	const read = (path) => {
+		path = resolve(path)
+		const rel = relative(appDir, path)
+		if (rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) {
+			throw new Error(`Font registration leaves the selected app: ${path}`)
+		}
+		if (contents.has(path)) {
+			return contents.get(path)
+		}
+		let bytes = null
+		try {
+			const info = lstatSync(path)
+			if (!info.isFile() || info.size > 16 * 1024 * 1024 || realpathSync(path) !== path) {
+				throw new Error(
+					`Font registration input must be an ordinary app file within 16 MiB: ${path}`,
+				)
+			}
+			bytes = readFileSync(path)
+			if (bytes.length > 16 * 1024 * 1024) {
+				throw new Error('Font input grew beyond 16 MiB')
+			}
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
+		}
+		contents.set(path, bytes)
+		inputs.set(path, { path, before: bytes === null ? null : hash(bytes) })
+		return bytes
+	}
+	const present = (path) => files.has(path) || read(path) !== null
+	const write = (path, data, mode) => {
+		const before = read(path),
+			bytes = Buffer.isBuffer(data) ? data : Buffer.from(data)
+		if (bytes.length > 16 * 1024 * 1024) {
+			throw new Error('Font output exceeds 16 MiB')
+		}
+		files.set(path, {
+			path,
+			before: before === null ? null : hash(before),
+			content: bytes.toString('base64'),
+			mode: before === null ? (mode ?? 0o666 & ~process.umask()) : lstatSync(path).mode & 0o777,
+		})
+	}
 	const report = {
 		copied: [],
 		faces: [],
@@ -588,11 +676,11 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 		warnings: [],
 	}
 
-	if (!existsSync(join(appDir, 'package.json'))) {
+	if (!present(join(appDir, 'package.json'))) {
 		return { error: `no package.json in ${appDir} — pass --dir <app root>` }
 	}
 
-	const srcDir = appSourceDir(appDir)
+	const srcDir = appSourceDir(appDir, read)
 	if (!existsSync(srcDir)) {
 		return { error: `no app source directory at ${srcDir}` }
 	}
@@ -601,20 +689,26 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 		return { error: 'nothing to register' }
 	}
 
+	if (
+		!statSync(srcDir).isDirectory() ||
+		realpathSync(srcDir) !== srcDir ||
+		relative(appDir, srcDir).split(sep).includes('..')
+	) {
+		throw new Error('Font source directory must be ordinary and inside the selected app')
+	}
 	const family = stagedFaces[0].info.family
 	report.names.family = family
 
 	const fontsDir = join(srcDir, 'fonts')
-	mkdirSync(fontsDir, { recursive: true })
 
-	const manifest = readManifest(fontsDir)
+	const manifest = readManifest(fontsDir, read)
 	manifest.tokens[token] ??= { faces: [], webImports: [] }
 	const state = manifest.tokens[token]
 
 	for (const face of stagedFaces) {
 		const target = join(fontsDir, face.destName)
-		if (!existsSync(target)) {
-			copyFileSync(face.staged, target)
+		if (!present(target)) {
+			write(target, readFileSync(face.staged), statSync(face.staged).mode & 0o777)
 			report.copied.push(face.destName)
 		}
 
@@ -647,14 +741,14 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 		}
 	}
 
-	writeFileSync(join(fontsDir, MANIFEST), JSON.stringify(manifest, null, '\t') + '\n')
+	write(join(fontsDir, MANIFEST), JSON.stringify(manifest, null, '\t') + '\n')
 	report.edited.push(`fonts/${MANIFEST}`)
 
 	// Web faces — package adds import the package's own CSS (it already emits
 	// per-subset @font-face with unicode-range); local files get our block.
 	const fontsCssPath = join(srcDir, 'fonts.css')
-	let fontsCss = existsSync(fontsCssPath)
-		? readFileSync(fontsCssPath, 'utf8')
+	let fontsCss = present(fontsCssPath)
+		? read(fontsCssPath).toString('utf8')
 		: '/* @font-face faces generated by `xplat fonts add`. Web-only — the native\n * bundles resolve the same families from src/fonts. */\n'
 
 	let fontsCssChanged = false
@@ -691,17 +785,17 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 		fontsCssChanged = true
 	}
 
-	if (fontsCssChanged || !existsSync(fontsCssPath)) {
-		writeFileSync(fontsCssPath, fontsCss)
+	if (fontsCssChanged || !present(fontsCssPath)) {
+		write(fontsCssPath, fontsCss)
 		report.edited.push('fonts.css')
 	}
 
 	// Import the faces from the web entry — native never sees this file.
-	const entry = WEB_ENTRIES.map((e) => join(srcDir, e)).find((e) => existsSync(e))
+	const entry = WEB_ENTRIES.map((e) => join(srcDir, e)).find((e) => present(e))
 	if (entry) {
-		const { source, changed } = ensureWebImport(readFileSync(entry, 'utf8'))
+		const { source, changed } = ensureWebImport(read(entry).toString('utf8'))
 		if (changed) {
-			writeFileSync(entry, source)
+			write(entry, source)
 			report.edited.push(basename(entry))
 		}
 	} else {
@@ -712,15 +806,15 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 
 	if (token !== 'none') {
 		const stylePath = join(srcDir, 'style.css')
-		if (!existsSync(stylePath)) {
+		if (!present(stylePath)) {
 			report.warnings.push(`no ${stylePath} — add the token + font-family rules manually`)
 		} else {
 			const generic = GENERIC_FALLBACKS[token] ?? ['sans-serif']
 			const block = managedBlock(token, state.faces, generic)
-			const styleCss = readFileSync(stylePath, 'utf8')
+			const styleCss = read(stylePath).toString('utf8')
 			const next = upsertManagedBlock(styleCss, token, block)
 			if (next !== styleCss) {
-				writeFileSync(stylePath, next)
+				write(stylePath, next)
 				report.edited.push('style.css')
 			}
 		}
@@ -728,66 +822,125 @@ export function addFont(appDir, stagedFaces, { token = 'sans', webImports = [], 
 
 	report.names.ios = [...new Set(report.names.ios.filter(Boolean))]
 	report.names.android = [...new Set(report.names.android)]
-	return report
+	let total = 0
+	for (const file of files.values()) {
+		total += Buffer.from(file.content, 'base64').length
+	}
+	if (files.size > 512 || inputs.size > 2048 || total > 32 * 1024 * 1024) {
+		throw new Error('Font plan exceeds inventory/byte limits')
+	}
+	return {
+		version: 1,
+		project: appDir,
+		sourceDirectory: srcDir,
+		files: [...files.values()],
+		inputs: [...inputs.values()],
+		report,
+	}
 }
 
 // Splits the command's positional inputs into local files (staged to .ttf)
 // and Fontsource package specs, then runs addFont once.
-export async function addFontInputs(
+export async function planFontInputs(
 	appDir,
 	inputs,
 	{ name, token, subset, weights, install } = {},
 ) {
 	const stagingDir = mkdtempSync(join(tmpdir(), 'xplat-fonts-'))
-	const staged = []
-	const webImports = []
-	let webFamily
-	const installed = []
+	try {
+		const staged = []
+		const webImports = []
+		let webFamily
+		const installed = []
 
-	for (const input of inputs) {
-		if (isFontsourceSpec(input)) {
-			const prepared = await prepareFontsource(appDir, input, { subset, weights, install })
-			if (prepared.error) {
-				return { error: prepared.error }
-			}
+		for (const input of inputs) {
+			if (isFontsourceSpec(input)) {
+				const prepared = await prepareFontsource(appDir, input, {
+					subset,
+					weights,
+					install,
+					stagingRoot: stagingDir,
+				})
+				if (prepared.error) {
+					return { error: prepared.error }
+				}
 
-			for (const f of prepared.faces) {
-				staged.push({ ...f, fromPackage: true })
-			}
+				for (const f of prepared.faces) {
+					staged.push({ ...f, fromPackage: true })
+				}
 
-			webImports.push(...prepared.webImports)
-			webFamily ??= prepared.webFamily
-			if (prepared.installed) {
-				installed.push(prepared.installed)
-			}
-		} else {
-			if (!existsSync(input)) {
-				return { error: `no such file: ${input}` }
-			}
+				webImports.push(...prepared.webImports)
+				webFamily ??= prepared.webFamily
+				if (prepared.installed) {
+					installed.push(prepared.installed)
+				}
+			} else {
+				if (!existsSync(input)) {
+					return { error: `no such file: ${input}` }
+				}
 
-			const ext = extname(input).toLowerCase()
-			if (!FONT_EXTENSIONS.has(ext) && !CONVERTIBLE_EXTENSIONS.has(ext)) {
-				return { error: `${basename(input)} — expected .ttf, .otf, .woff, or .woff2` }
-			}
+				const ext = extname(input).toLowerCase()
+				if (!FONT_EXTENSIONS.has(ext) && !CONVERTIBLE_EXTENSIONS.has(ext)) {
+					return { error: `${basename(input)} — expected .ttf, .otf, .woff, or .woff2` }
+				}
 
-			staged.push(await stageAsTtf(input, stagingDir, basename(input, ext) + '.ttf'))
+				staged.push(await stageAsTtf(input, stagingDir, basename(input, ext) + '.ttf'))
+			}
+		}
+
+		const families = new Set(staged.map((f) => f.info.family).filter(Boolean))
+		if (families.size > 1 && token !== 'none' && !name) {
+			return {
+				error: `inputs resolve to multiple families (${[...families].join(', ')}) — run one family per token or pass --token none`,
+			}
+		}
+
+		if (name) {
+			for (const f of staged) {
+				f.info.family = name
+			}
+		}
+
+		const plan = planFont(appDir, staged, { token, webImports, webFamily })
+		if (plan.error) {
+			return plan
+		}
+		plan.report.installed = installed
+		return plan
+	} finally {
+		rmSync(stagingDir, { recursive: true, force: true })
+	}
+}
+
+function applyFontPlan(plan) {
+	if (plan.error) {
+		return plan
+	}
+	for (const input of plan.inputs) {
+		let bytes = null
+		try {
+			bytes = readFileSync(input.path)
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
+		}
+		const before = bytes === null ? null : createHash('sha256').update(bytes).digest('hex')
+		if (before !== input.before) {
+			throw new Error(`Font input changed before publication: ${input.path}`)
 		}
 	}
-
-	const families = new Set(staged.map((f) => f.info.family).filter(Boolean))
-	if (families.size > 1 && token !== 'none' && !name) {
-		return {
-			error: `inputs resolve to multiple families (${[...families].join(', ')}) — run one family per token or pass --token none`,
-		}
+	mkdirSync(join(plan.sourceDirectory, 'fonts'), { recursive: true })
+	for (const file of plan.files) {
+		writeFileSync(file.path, Buffer.from(file.content, 'base64'), { mode: file.mode })
 	}
+	return plan.report
+}
 
-	if (name) {
-		for (const f of staged) {
-			f.info.family = name
-		}
-	}
+export function addFont(appDir, stagedFaces, options = {}) {
+	return applyFontPlan(planFont(appDir, stagedFaces, options))
+}
 
-	const report = addFont(appDir, staged, { token, webImports, webFamily })
-	report.installed = installed
-	return report
+export async function addFontInputs(appDir, inputs, options = {}) {
+	return applyFontPlan(await planFontInputs(appDir, inputs, options))
 }

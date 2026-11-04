@@ -151,6 +151,8 @@
 		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
+		"test:go-fonts": "node --test ../../tools/cli-go/fonts.test.mjs",
+		"test:fonts": "node --test test/fonts.test.mjs",
 		"test:go-updates": "node --test ../../tools/cli-go/updates.test.mjs",
 		"test:go-add": "node --test ../../tools/cli-go/add.test.mjs",
 		"test:go-upgrade": "node --test ../../tools/cli-go/upgrade.test.mjs",

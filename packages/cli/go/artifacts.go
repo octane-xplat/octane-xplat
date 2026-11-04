@@ -14,6 +14,13 @@ import (
 const maxArtifactBytes = 16 << 20
 const maxArtifactPlanBytes = 64 << 20
 
+type encodedArtifact struct {
+	Path    string
+	Before  *string
+	Content *string
+	Mode    *uint32
+}
+
 type artifactScope struct {
 	Allowed, Anchor string
 	AnchorInfo      os.FileInfo

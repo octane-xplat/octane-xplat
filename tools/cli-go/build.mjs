@@ -125,7 +125,7 @@ writeFileSync(
 				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
 			}))
 			.concat([
-				...Object.entries({ patches: ['apply', 'check'], updates: ['init'] })
+				...Object.entries({ patches: ['apply', 'check'], updates: ['init'], fonts: ['add'] })
 					.flatMap(([group, children]) =>
 						children.map((child) => ({
 							...commandDescriptor(

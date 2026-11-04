@@ -236,6 +236,14 @@ bun run xplat routes --help
 bun run xplat add --help
 ```
 
+When font registration rejects an invalid `fonts/fonts.json` in the app source
+directory, repair the existing file. Do not delete it to make registration pass:
+that discards saved family/token registrations.
+
+```sh
+bun run xplat fonts add ./Inter.ttf
+```
+
 Run platform additions from the intended app directory. In a monorepo, `add`
 fills missing catalogs and patch configuration in the owning Bun
 workspace while preserving existing settings. Review that shared file along

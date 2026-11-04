@@ -354,3 +354,17 @@ only protocol rejection and blocked-worker cancellation.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go update-hook initialization"}' -- bun run turbo run test:go-updates test:go-unit test:updates --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
 ```
+
+
+`test:go-fonts` (portable: `test:go-fonts:portable`) runs real Geist TTF/WOFF and
+Inter WOFF2 data through the project engine. It checks Fontsource static/variable
+selection, subset/weights, names/tokens, custom source paths, existing fonts,
+output aliases, malformed/stale plans with a positive control, cancellation and
+actual Bun installation through a private loopback package registry. Only the
+source-host test imports the built TypeScript reference; snapshots label that
+case skipped. Fonts are parsed and hashed without visual analysis. The converter
+peer is installed only for this fixture; its absence has an actionable diagnostic.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go font registration"}' -- bun run turbo run test:go-fonts test:go-unit test:fonts --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```
