@@ -170,7 +170,11 @@ reading:
   repeat itself still enters the focused control. Held/repeat payload
   fidelity stays an uncovered dimension.
 
-Upstream status: open; revisit all when the Windows core runtime rev changes.
+Upstream status: reported — [NativeScript/NativeScript#11613](https://github.com/NativeScript/NativeScript/issues/11613)
+(file-system-access member matrix) and
+[NativeScript/NativeScript#11614](https://github.com/NativeScript/NativeScript/issues/11614)
+(HSTRING marshalling loss + `Values` IMap unprojected). Revisit all when the
+Windows core runtime rev changes.
 
 ## @nativescript-community/octane driver: text-run parenting gaps (0.2.5)
 
