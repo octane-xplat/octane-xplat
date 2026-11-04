@@ -43,7 +43,13 @@ const slices = [
 
 const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16\n'
 
-function fixture({ applyProps, flushStyleDirty }: { applyProps?: any; flushStyleDirty?: () => void } = {}) {
+function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty, notifyLayoutCommit }: {
+  applyProps?: any
+  flushStyleDirty?: () => void
+  flushTabViews?: () => void
+  drainLayoutDirty?: () => void
+  notifyLayoutCommit?: () => void
+} = {}) {
   const actionHandlers = new Map()
   const accessibilityLabels = new Map()
   const accessibilityRoles = new Map()
@@ -122,7 +128,9 @@ function fixture({ applyProps, flushStyleDirty }: { applyProps?: any; flushStyle
     disposeImage: () => {},
     applyProps: applyProps ?? (() => {}),
     flushStyleDirty: flushStyleDirty ?? (() => {}),
-    flushTabViews: () => {},
+    flushTabViews: flushTabViews ?? (() => {}),
+    drainLayoutDirty: drainLayoutDirty ?? (() => {}),
+    notifyLayoutCommit: notifyLayoutCommit ?? (() => {}),
     insert: () => {},
     remove: () => {},
     detach: (container: any, node: any) => {
@@ -641,5 +649,48 @@ test('a failed batch style flush releases layout ownership before the next comma
   assert.equal(fx.container.layoutDirty, null)
   fail = false
   fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
+  assert.equal(fx.container.layoutDirty, null)
+})
+
+for (const stage of ['css', 'tabs', 'layout'] as const) {
+  test('failed ' + stage + ' commit stage skips dependent writes and success observation; next batch succeeds', () => {
+    const calls: string[] = []
+    let fail = true
+    const failure = Error(stage)
+    const run = (name: string) => {
+      calls.push(name)
+      if (fail && name === stage) { throw failure }
+    }
+    const fx = fixture({
+      flushStyleDirty: () => run('css'),
+      flushTabViews: () => run('tabs'),
+      drainLayoutDirty: () => run('layout'),
+      notifyLayoutCommit: () => run('observe'),
+    })
+    assert.throws(() => fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply(), error => error === failure)
+    assert.equal(fx.container.layoutDirty, null)
+    assert.deepEqual(calls, ['css', 'tabs', 'layout'].slice(0, ['css', 'tabs', 'layout'].indexOf(stage) + 1))
+    calls.length = 0
+    fail = false
+    fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
+    assert.deepEqual(calls, ['css', 'tabs', 'layout', 'observe'])
+  })
+}
+
+test('command and CSS failure remain identifiable and never emit a successful commit', () => {
+  const primary = Error('command'), css = Error('css')
+  const fx = fixture({
+    applyProps() { throw primary },
+    flushStyleDirty() { throw css },
+    flushTabViews() { assert.fail('tabs after failed update') },
+    notifyLayoutCommit() { assert.fail('success after failed update') },
+  })
+  const node = { id: 1, type: 'span', props: {}, children: [] }
+  fx.container.nodes.set(1, node)
+  assert.throws(() => fx.macOSDriver.prepareBatch(fx.container, { commands: [{ op: 'update', id: 1, props: {} }] }).apply(), error => {
+    assert.ok(error instanceof AggregateError)
+    assert.deepEqual(error.errors, [primary, css])
+    return true
+  })
   assert.equal(fx.container.layoutDirty, null)
 })

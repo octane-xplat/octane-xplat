@@ -119,7 +119,10 @@ export function createCssCascade(deps: Dependencies) {
 
         restyleNode(node)
       }
-    }, (layoutDirty) => {
+    }, (layoutDirty, outcome) => {
+      if (outcome === 'failed') {
+        return
+      }
       deps.layout.drainLayoutDirty(layoutDirty)
       notifyLayoutCommit(container.hostView)
     })

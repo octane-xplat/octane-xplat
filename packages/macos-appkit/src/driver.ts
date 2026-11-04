@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import { withLayoutBatch } from './layout-batch.ts'
 import type { Registry } from './registry'
 import type { Nodes } from './nodes'
@@ -442,7 +443,8 @@ export function createDriver(deps: Dependencies) {
       return {
         apply() {
           withLayoutBatch(container, () => {
-            try {
+            const failures = new FailureCollector()
+            failures.run('commands', () => {
               for (const command of batch.commands) {
                 try {
                   applyCommand(container, command)
@@ -463,12 +465,19 @@ export function createDriver(deps: Dependencies) {
                   throw error
                 }
               }
-            } finally {
+            })
+            failures.run('css', () => {
               // Restyle while the layout batch is open so style-driven layout
               // work joins the batch's single drain.
               deps.cssCascade.flushStyleDirty(container!)
+            })
+            failures.throwIfFailed()
+          }, (dirty, outcome) => {
+            // Tab/layout writes depend on a complete command + CSS pass. Do not
+            // publish or continue a partial commit; later batches remain usable.
+            if (outcome === 'failed') {
+              return
             }
-          }, (dirty) => {
             flushTabViews(container)
             deps.layout.drainLayoutDirty(dirty)
             notifyLayoutCommit(container.hostView)

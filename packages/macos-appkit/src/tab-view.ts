@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import type { ElementNode, AppKitView } from './model'
 import {
   NSAttributedString,
@@ -382,25 +383,24 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 export function flushTabViews(container: any) {
   const dirty = container.tabDirty
   container.tabDirty = undefined
-  if (!dirty) {
-    return
-  }
-
+  if (!dirty) { return }
+  const failures = new FailureCollector()
   const releases = (container.tabReleases = new Set<ElementNode>())
-  try {
+  failures.run('tab synchronization', () => {
     for (const node of dirty) {
       syncTabView(node)
     }
-  } finally {
-    container.tabReleases = undefined
-    for (const item of releases) {
-      if (!owners.has(item)) {
-        item.tabContentRoot?.unmount()
-        item.tabContentRoot = null
-        notifyContentTarget(item)
-      }
+  })
+  container.tabReleases = undefined
+  for (const item of releases) {
+    if (!owners.has(item)) {
+      const root = item.tabContentRoot
+      item.tabContentRoot = null
+      failures.run('tab nested root', () => root?.unmount())
+      failures.run('tab content target', () => notifyContentTarget(item))
     }
   }
+  failures.throwIfFailed()
 }
 
 export function syncTabView(node: ElementNode) {

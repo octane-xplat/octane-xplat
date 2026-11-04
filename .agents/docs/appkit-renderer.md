@@ -68,8 +68,13 @@ instead of `typeof === 'function'`: the macOS NAPI host exposes `NSMenu` and
 Host commands and standalone CSS restyles enter that same scope; nested work
 joins its owner. It resets ownership in `finally` before running the caller's
 commit, so a failed native style write cannot leave subsequent work waiting on
-a batch that will never finish. This is batching, not rollback: successful
-native writes before a failure remain applied.
+a batch that will never finish. The finalizer receives an explicit update
+outcome. CSS still flushes inside the open batch after command failure; both
+errors remain identifiable. Tabs and layout require a complete command/CSS pass;
+a tab failure stops layout, and a layout failure stops success notification.
+No incomplete commit emits a layout observation. This is batching, not rollback:
+successful native writes before a failure remain applied; no automatic retry
+of an incomplete native write is promised.
 
 The composition is one process runtime with many roots, not a factory for
 independent renderers. Native class registration, Mason and compatibility

@@ -1,3 +1,4 @@
+import { FailureCollector } from '../src/failures.ts'
 import { withLayoutBatch } from '../src/layout-batch.ts'
 import { builtinFixtureHelpers } from './renderer-source.ts'
 import { correctProjectionRadii, correctProjectionShadows } from '../src/projection-paint.ts'
@@ -53,6 +54,7 @@ export function sourceWithoutImports(url: URL) {
 
 const SLICE_BASE = {
   withLayoutBatch,
+  FailureCollector,
   normalizeHostStyleProps,
   borderStyleSides,
   hiddenBorderStyle,

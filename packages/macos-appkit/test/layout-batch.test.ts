@@ -39,3 +39,32 @@ test('a failing commit releases ownership and other roots keep independent batch
   assert.equal(first.layoutDirty, null)
   assert.equal(second.layoutDirty, null)
 })
+
+test('outcomes distinguish empty failed updates and preserve update plus finalizer failures', () => {
+  const root: LayoutBatchState<string> = { layoutDirty: null }
+  const primary = Error('update'), cleanup = Error('commit')
+  assert.throws(() => withLayoutBatch(root, () => { throw primary }, (dirty, outcome) => {
+    assert.equal(dirty.size, 0)
+    assert.equal(outcome, 'failed')
+    assert.equal(root.layoutDirty, null)
+    throw cleanup
+  }), error => {
+    assert.ok(error instanceof AggregateError)
+    assert.deepEqual(error.errors, [primary, cleanup])
+    return true
+  })
+  withLayoutBatch(root, () => {}, (_dirty, outcome) => assert.equal(outcome, 'succeeded'))
+})
+
+test('throwing undefined is a failed update and is not mistaken for success', () => {
+  const root: LayoutBatchState<string> = { layoutDirty: null }
+  let thrown = false
+  try {
+    withLayoutBatch(root, () => { throw undefined }, (_dirty, outcome) => assert.equal(outcome, 'failed'))
+  } catch (error) {
+    thrown = true
+    assert.equal(error, undefined)
+  }
+  assert.equal(thrown, true)
+  assert.equal(root.layoutDirty, null)
+})
