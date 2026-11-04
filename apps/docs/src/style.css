@@ -1565,6 +1565,9 @@ body {
 	margin-bottom: 12px;
 	border-radius: 26px;
 	corner-shape: squircle;
+	/* Chromium measures tab-size in the block's font, so the slab needs the mono face itself */
+	font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+	font-size: 13px;
 	tab-size: 2;
 	white-space: pre-wrap;
 }
@@ -1862,6 +1865,7 @@ body {
 
 	.code {
 		padding: 16px;
+		font-size: 1rem;
 	}
 
 	.code .mono,

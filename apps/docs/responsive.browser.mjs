@@ -122,6 +122,66 @@ try {
         assert.ok(coveredText.has(selector), `Missing reading-scale coverage for ${selector}`)
       }
 
+      // Chromium resolves tab-size in the block's font; .code itself must carry
+      // the mono face or a tab collapses to ~7px instead of two glyph widths.
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: 812 })
+        await page.goto(base)
+        await page.locator('.doc .h1').waitFor()
+        await page.evaluate(() => document.fonts.ready)
+        const step = await page.evaluate(() => {
+          for (const code of document.querySelectorAll('.code')) {
+            const nodes = []
+            const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT)
+            let node
+            while ((node = walker.nextNode())) {
+              nodes.push(node)
+            }
+
+            const starts = new Map()
+            let offset = 0
+            for (const line of nodes.map((n) => n.data).join('').split('\n')) {
+              const tabs = line.match(/^\t+/)?.[0].length
+              const glyph = /\S/.exec(line)?.index
+              if (tabs && glyph != null && !starts.has(tabs)) {
+                let rest = offset + glyph
+                let target
+                for (const n of nodes) {
+                  if (rest < n.data.length) {
+                    target = [n, rest]
+                    break
+                  }
+                  rest -= n.data.length
+                }
+
+                if (target) {
+                  const range = document.createRange()
+                  range.setStart(target[0], target[1])
+                  range.setEnd(target[0], target[1] + 1)
+                  starts.set(tabs, range.getBoundingClientRect().left)
+                }
+              }
+              offset += line.length + 1
+            }
+
+            if (starts.has(1) && starts.has(2)) {
+              const probe = document.createElement('span')
+              probe.textContent = '0000000000'
+              code.querySelector('span').append(probe)
+              const ch = probe.getBoundingClientRect().width / 10
+              probe.remove()
+              return { step: starts.get(2) - starts.get(1), expected: 2 * ch }
+            }
+          }
+        })
+
+        assert.ok(step, `${engine.name()} at ${width}px: no tab-indented .code lines`)
+        assert.ok(
+          Math.abs(step.step - step.expected) <= 1.5,
+          `${engine.name()} at ${width}px: code tab step is ${step.step.toFixed(1)}px, expected ~${step.expected.toFixed(1)}px`,
+        )
+      }
+
       for (const width of [320, 390, 768, 1024, 1100]) {
         await page.setViewportSize({ width, height: 812 })
         await page.goto(base)
