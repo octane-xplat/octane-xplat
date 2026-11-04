@@ -43,6 +43,11 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
+  <!-- Managed interop helpers compiled into the app assembly so the
+       NSWinRT.dotnet bridge can reach them (picker owner HWND, etc.). -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\*.cs" />
+  </ItemGroup>
   <Target Name="XplatVerifyPaddedWidgets" BeforeTargets="BeforeBuild"
           Condition="'$(NSLibPlatform)' == 'x64'">
     <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)Widgets\verify.ps1&quot; -UpstreamDirectory &quot;$(MSBuildProjectDirectory)\plugins\@nativescript\core\x64&quot;" />

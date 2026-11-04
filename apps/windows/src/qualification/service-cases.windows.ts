@@ -1077,65 +1077,25 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
     out.handleOfMembers = h ? Object.getOwnPropertyNames(h) : []
     out.handleOfNativePtr = typeof h?.__native_ptr
   } catch {}
-  // IntPtr marshalling: only a real .NET proxy (with __handle) marshals back
-  // as IntPtr — primitive returns (op_Explicit) unwrap to plain numbers.
-  let intPtr: unknown = null
-  const intPtrAttempts: string[] = []
-  const isHandleProxy = (v: unknown) =>
-    typeof v === 'object' && v !== null && typeof (v as { __handle?: number }).__handle === 'number'
-  if (hwnd !== null) {
-    out.systemNsBefore = typeof (globalThis as Record<string, any>).System
-    try {
-      if (typeof dotnet?.registerNamespace === 'function') {
-        dotnet.registerNamespace('System', 'System.Private.CoreLib')
-      }
-      const sys = (globalThis as Record<string, any>).System
-      out.systemNsAfter = typeof sys
-      out.intPtrType = typeof sys?.IntPtr
-      if (typeof sys?.IntPtr === 'function' || (typeof sys?.IntPtr === 'object' && sys.IntPtr !== null)) {
-        const v = new sys.IntPtr(hwnd)
-        intPtrAttempts.push(`ctor: ${typeof v} handle=${String((v as { __handle?: number }).__handle)}`)
-        if (isHandleProxy(v)) {
-          intPtr = v
-          out.intPtrVia = 'new System.IntPtr'
-        }
-      }
-    } catch (error) {
-      intPtrAttempts.push(`ctor: ${error instanceof Error ? error.message : String(error)}`)
-    }
-    if (intPtr === null && typeof dotnet?.invoke === 'function') {
-      // Marshal.GetIUnknownForObject-style helpers that RETURN IntPtr also
-      // unwrap to number; but a static returning a handle-boxed IntPtr or a
-      // void(out IntPtr) shape may exist — probe the obvious candidates.
-      for (const [asm, type, method] of [
-        ['System.Private.CoreLib', 'System.IntPtr', 'op_Explicit'],
-        ['System.Private.CoreLib', 'System.IntPtr', 'op_Implicit'],
-        ['', 'System.IntPtr', 'FromInt64'],
-      ] as const) {
-        try {
-          const v = dotnet.invoke(asm, type, method, [hwnd])
-          intPtrAttempts.push(`${type}.${method}: ${typeof v}`)
-        } catch (error) {
-          intPtrAttempts.push(`${type}.${method}: ${error instanceof Error ? error.message : String(error)}`)
-        }
-      }
-    }
-  }
-  out.intPtrAttempts = intPtrAttempts
-  out.intPtr = typeof intPtr
-  // IInitializeWithWindow::Initialize(picker, hwnd) through the dotnet bridge.
-  if (intPtr !== null && typeof dotnet?.invoke === 'function') {
+  // Managed interop: OctaneXplat.Interop.ServiceInterop.InitializeWithWindow
+  // (compiled into the app assembly via App_Resources\Windows\Interop)
+  // takes (object picker, long hwnd) — both marshal cleanly.
+  if (hwnd !== null && typeof dotnet?.invoke === 'function') {
     const initAttempts: string[] = []
-    for (const asm of ['WinRT.Runtime', 'Microsoft.Windows.SDK.NET', '']) {
+    for (const asm of ['', 'windows', 'app']) {
       try {
-        const result = dotnet.invoke(asm, 'WinRT.Interop.InitializeWithWindow', 'Initialize', [
-          picker,
-          intPtr,
-        ])
-        initAttempts.push(`${asm || 'auto'}: ok=${String(result)}`)
-        out.initVia = asm || 'auto'
-        out.initialized = true
-        break
+        const result = dotnet.invoke(
+          asm,
+          'OctaneXplat.Interop.ServiceInterop',
+          'InitializeWithWindow',
+          [picker, hwnd],
+        )
+        initAttempts.push(`${asm || 'auto'}: ${String(result)}`)
+        if (result === true) {
+          out.initVia = asm || 'auto'
+          out.initialized = true
+          break
+        }
       } catch (error) {
         initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
       }
