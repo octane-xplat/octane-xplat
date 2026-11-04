@@ -131,6 +131,11 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 ## Go project orchestration
 
+Do not embed `bytes.Buffer` in a bounded capture writer: its promoted `ReadFrom`
+lets `io.Copy`/`os/exec` bypass an overridden `Write` and silently remove the cap.
+Keep the buffer private and test through an actual subprocess pipe. Captured
+worker diagnostics must disclose truncation independently of the result sidecar.
+
 Keep build/clean/patch-application leases outside generated outputs and dependency caches. Use the
 physical directory identity for the key: canonical path text alone can retain
 case aliases on macOS, while Windows junctions need handle-based identity. Never

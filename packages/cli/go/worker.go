@@ -76,6 +76,9 @@ func runWorkerEntry(ctx context.Context, project, worker, operation string, payl
 	}
 	process, err := runProcessIO(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment(), outputStream, diagnosticStream)
 	result := workerResult{Process: process}
+	if process.Truncated {
+		result.Warnings = append(result.Warnings, fmt.Sprintf("Project worker diagnostics exceeded the %d MiB capture limit per stream; output is truncated.", captureLimit>>20))
+	}
 	if err != nil {
 		var cleanup *processCleanupError
 		if errors.As(err, &cleanup) {
@@ -109,7 +112,7 @@ func runWorkerEntry(ctx context.Context, project, worker, operation string, payl
 	if response.Protocol != "octane-build-worker" || response.Version != 1 || response.ID != id || response.OK == nil {
 		return result, errors.New("mismatched worker protocol/version/request identity")
 	}
-	result.Warnings = response.Warnings
+	result.Warnings = append(result.Warnings, response.Warnings...)
 	if !*response.OK {
 		return result, fmt.Errorf("project worker: %s", response.Error.Message)
 	}

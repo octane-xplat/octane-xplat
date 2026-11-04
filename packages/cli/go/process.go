@@ -15,7 +15,7 @@ const captureLimit = 4 << 20
 
 type limitedCapture struct {
 	sync.Mutex
-	bytes.Buffer
+	buffer    bytes.Buffer
 	Truncated bool
 }
 
@@ -23,13 +23,19 @@ func (b *limitedCapture) Write(p []byte) (int, error) {
 	b.Lock()
 	defer b.Unlock()
 	n := len(p)
-	remaining := captureLimit - b.Len()
+	remaining := captureLimit - b.buffer.Len()
 	if len(p) > remaining {
 		p = p[:remaining]
 		b.Truncated = true
 	}
-	_, _ = b.Buffer.Write(p)
+	_, _ = b.buffer.Write(p)
 	return n, nil
+}
+
+func (b *limitedCapture) String() string {
+	b.Lock()
+	defer b.Unlock()
+	return b.buffer.String()
 }
 
 type processResult struct {
