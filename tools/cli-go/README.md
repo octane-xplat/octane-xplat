@@ -192,3 +192,12 @@ using remote evidence; a matching filename or base Git revision is insufficient.
 Vite. It checks known clean/error TypeScript and TSRX cases, canonical config and
 ignore behavior, an actual fix, raw argv/environment/exit handling and live
 cancellation. Other project-worker fixtures do not install this optional engine.
+
+Foreground build qualification uses `test:go-build` (actual Vite config/plugins
+and baked routes, engine preflight, NativeScript argv/failure adapter, macOS pair
+publication and cancellation) and `test:go-build-macos-real` (packed macOS worker,
+compiled native C leaf, signed universal executable, verified app/DMG). The latter
+requires macOS arm64 and a native-build reservation. It never launches an app or
+performs visual analysis, retains failed fixtures for diagnosis, and records
+structured package evidence under `research/go-cli/`. NativeScript SDK execution
+and Linux packaging remain separate work; help/schema disclose pending engines.

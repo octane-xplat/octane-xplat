@@ -6,7 +6,12 @@ import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import { AGENT_COMMANDS, LEGACY_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
-import { routeCommandDescriptor, typecheckCommandDescriptor } from '../cli-nim/route-templates.mjs'
+import {
+	routeCommandDescriptor,
+	typecheckCommandDescriptor,
+	buildCommandDescriptor,
+} from '../cli-nim/route-templates.mjs'
+
 import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
 import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
@@ -86,6 +91,7 @@ writeFileSync(
 		orchestrationDescriptors: Object.entries({
 			routes: routeCommandDescriptor,
 			typecheck: typecheckCommandDescriptor,
+			build: buildCommandDescriptor,
 		})
 			.map(([name, descriptor]) => ({
 				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),

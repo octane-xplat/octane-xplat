@@ -132,6 +132,26 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 /absolute/path/to/xplat-go lint --fix src
 ```
 
+`build` preflights selected project engines before baked-route generation and
+runs targets in declaration order. Web uses the installed Vite executable;
+NativeScript targets invoke the installed `nativescript` bin with `--release`
+when requested. macOS uses the separate project packaging worker and a native
+locked staging/publication boundary for its app and DMG. Interactive terminals
+use a bounded comma-list selection; noninteractive commands select all available
+targets. Missing tools are installation errors, never permission to download them.
+Projects with routes also need their installed `@octane-xplat/cli` worker for
+automatic baking. Linux packaging is still pending. NativeScript SDK builds need separate target
+qualification; invoking a fixture engine only proves the adapter contract.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go build workflows"}' -- bun run turbo run test:go-build --filter=@octane-xplat/cli
+# From a project with the selected build engine installed:
+/absolute/path/to/xplat-go build --targets web
+/absolute/path/to/xplat-go build --targets macos
+# On macOS arm64, compile a native C leaf and verify actual app/DMG packaging:
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go macOS packaging"}' -- bun run turbo run test:go-build-macos-real --filter=@octane-xplat/cli
+```
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

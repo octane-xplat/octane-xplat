@@ -33,7 +33,11 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if err != nil {
 		return workerResult{}, err
 	}
-	if _, err = exec.LookPath("node"); err != nil {
+	return runWorkerEntry(ctx, project, worker, operation, payload, nil, nil)
+}
+
+func runWorkerEntry(ctx context.Context, project, worker, operation string, payload map[string]any, outputStream, diagnosticStream *os.File) (workerResult, error) {
+	if _, err := exec.LookPath("node"); err != nil {
 		return workerResult{}, errors.New("Node is required for this project worker; install the Node version required by the selected project and put it on PATH")
 	}
 	directory, err := privateDirectory(os.TempDir(), "xplat-go-worker-")
@@ -70,7 +74,7 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if err = privateFile(output, nil); err != nil {
 		return workerResult{}, err
 	}
-	process, err := runProcess(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment())
+	process, err := runProcessIO(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment(), outputStream, diagnosticStream)
 	result := workerResult{Process: process}
 	if err != nil {
 		var cleanup *processCleanupError

@@ -99,6 +99,9 @@ func nativeCatalog() map[string]any {
 		if nativeLegacyCommands[stringValue(command["name"])] != nil {
 			command["status"] = "implemented"
 		}
+		if stringValue(command["name"]) == "build" {
+			command["engines"] = buildEngineContracts()
+		}
 	}
 	return catalog
 }
@@ -135,6 +138,9 @@ func commandHelp(command commandDescriptor) string {
 		}
 	}
 	fmt.Fprintf(&out, "\nRun `xplat %s --schema` for the machine-readable contract without executing the command.\n", command.Name)
+	if command.Name == "build" {
+		out.WriteString("\nEngines: project Vite, NativeScript, and the macOS packaging worker.\nLinux packaging is pending in this parallel Go build. Node must be installed.\n")
+	}
 	return out.String()
 }
 func runCLI(argv []string) int {

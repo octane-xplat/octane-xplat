@@ -193,6 +193,26 @@ companion TSRX rules and explicit `--fix` mutations belong to that engine; do no
 add a second lint parser or apply native formatter publication rules to an engine
 that already owns fixes. Native schema/help must respect the argument delimiter.
 
+Build preflight validates every selected installed engine before baked-route or
+compiler side effects. Invoke the selected project's Vite/NativeScript executable
+with Node; do not use package-manager exec to supply absent/global tools. Keep
+TTY detection at OS file boundaries, and bounded interactive reads limited to the
+one-shot foreground CLI. Noninteractive selection uses all declared available
+kinds in declaration order. A native command entry does not qualify every target;
+keep pending integrations visible in its schema/help and track runtime evidence
+separately. Quiet discovery probes must propagate root cancellation before
+classifying a cancelled probe as a missing toolchain; preserve cleanup failure
+evidence before that cancellation decision.
+
+macOS package workers construct into an empty native-owned directory beneath the
+release directory. Hold a stable kernel lock through worker cleanup/publication,
+validate returned app/DMG paths and critical ordinary files, and keep recoverable
+backups for both artifacts. Reserve backup names that cannot equal any valid
+worker output name (for example, an executable named `previous`). A failed second
+rename must restore both old outputs;
+a failed rollback must retain staging and disclose recovery paths. Never delete a
+staging name whose directory identity changed or whose worker cleanup is unknown.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

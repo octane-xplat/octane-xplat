@@ -30,11 +30,15 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		return 1
 	}
 	if legacySchemaRequested(argv) {
-		return writeEnvelope(command.Name, nil, map[string]any{
+		schema := map[string]any{
 			"contractVersion": 1, "command": command.Name, "summary": command.Summary,
 			"status": "implemented", "output": "human",
 			"input": map[string]any{"flags": descriptor.Flags, "positionals": descriptor.Positionals},
-		}, nil)
+		}
+		if command.Name == "build" {
+			schema["engines"] = buildEngineContracts()
+		}
+		return writeEnvelope(command.Name, nil, schema, nil)
 	}
 	failureExit := 1
 	if command.Name == "fmt" || command.Name == "lint" {

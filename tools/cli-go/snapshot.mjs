@@ -137,6 +137,7 @@ try {
 	manifest.scripts = {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
+		'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mjs',
 		'test:go-lint:portable': 'node --test tools/cli-go/lint.test.mjs',
 		'test:go-fmt:portable': 'node --test tools/cli-go/format.test.mjs',
 		'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mjs',
@@ -154,6 +155,7 @@ try {
 			tasks: {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
+				'//#test:go-build:portable': {cache:false},
 				'//#test:go-lint:portable': {cache:false},
 				'//#test:go-fmt:portable': { cache: false },
 				'//#test:go-typecheck:portable': { cache: false },
