@@ -88,6 +88,8 @@ writeFileSync(
 	join(moduleDirectory, 'catalog.json'),
 	JSON.stringify({
 		catalog: catalogPayload(),
+		frameworkVersion: JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json')))
+			.frameworkVersion,
 		descriptors: AGENT_COMMANDS,
 		orchestrationDescriptors: Object.entries({
 			routes: routeCommandDescriptor,
@@ -95,6 +97,7 @@ writeFileSync(
 			build: buildCommandDescriptor,
 			clean: (source) => commandDescriptor(source, 'clean'),
 			doctor: (source) => commandDescriptor(source, 'doctor'),
+			upgrade: (source) => commandDescriptor(source, 'upgrade'),
 		})
 			.map(([name, descriptor]) => ({
 				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),

@@ -52,7 +52,13 @@ const atLeast = (actual: string, minimum: string) => {
 
 function commandVersion(command: string, cwd: string) {
 	try {
-		return execFileSync(command, ['--version'], { cwd, encoding: 'utf8', timeout: 10000 }).trim()
+		const shell = process.platform === 'win32' && ['bun', 'pnpm'].includes(command)
+		return execFileSync(shell ? `${command} --version` : command, shell ? [] : ['--version'], {
+			cwd,
+			encoding: 'utf8',
+			timeout: 10000,
+			shell,
+		}).trim()
 	} catch {
 		return 'unavailable'
 	}

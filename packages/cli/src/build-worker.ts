@@ -95,6 +95,13 @@ try {
 			count: plan.count,
 			outputs: [...plan.outputs].map(([file, source]) => ({ file, source })),
 		}
+	} else if (
+		['upgrade-plan', 'upgrade-apply', 'upgrade-install', 'upgrade-verify'].includes(
+			request.operation,
+		)
+	) {
+		const { upgradeOperation } = await import('./upgrade-worker.ts')
+		data = upgradeOperation(request)
 	} else if (request.operation === 'doctor') {
 		const platform = request.macosReport
 		if (platform !== null && platform !== undefined) {

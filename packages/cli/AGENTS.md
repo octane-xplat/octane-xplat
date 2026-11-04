@@ -131,6 +131,32 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 ## Go project orchestration
 
+Upgrade uses the canonical compatibility planner/apply/inspection engine through
+explicit operations in `src/upgrade-worker.ts`. Preserve the invoked framework
+release: reject a project worker with different compatibility data rather than
+silently aligning to its release. Final distribution must provide a matching
+worker/bootstrap path for an older project's upgrade; the guard is not that
+bootstrap. Keep authored engine ranges unchanged, as the canonical planner does.
+
+The plan includes every workspace package for native output leases, not only
+packages with managed dependencies. Validate the complete file inventory before
+mutation and require a freshly recomputed plan digest before canonical apply.
+Reject omitted/null/empty response roots: canonicalizing an empty path resolves
+to cwd and does not establish response identity.
+Apply retains its own stale-preview checks and rollback; abrupt cancellation can
+still interrupt several writes, so retain possible-partial-effect errors through
+installation, verification and final output. The fixed Bun/pnpm install operation
+uses Node's platform launcher for Windows command shims; Go still owns its entire
+process tree and live stdout/stderr. Never interpolate project paths or arbitrary
+arguments into that Windows shell. Refuse an aliased workspace `node_modules`
+before installation, and re-resolve the project worker after installation.
+
+For pnpm 11 fixtures, use `pnpm_config_*` environment settings, not
+`npm_config_*`; the older prefix is ignored for registry/store selection. Keep
+tool installation and state task-local, serve the source release's config package
+from the private fixture registry, and assert its tarball was actually requested.
+A successful install alone can otherwise conceal use of published assets.
+
 Reuse `inspectDoctor` in `src/doctor-checks.ts` for diagnostic policy; command
 presentation stays in `commands/doctor.ts`. Its explicit exit code is independent
 of failed-row count: compatibility/declaration/Linux checks can fail the command,

@@ -32,11 +32,16 @@ type patchData struct {
 // that uncertainty visible even when root cancellation races its response.
 type workspaceMutationError struct {
 	Operation, Root string
+	Hint            string
 	Err             error
 }
 
 func (e *workspaceMutationError) Error() string {
-	return fmt.Sprintf("%s failed; workspace files may have changed in %s. Inspect changes and rerun patches check: %v", e.Operation, e.Root, e.Err)
+	hint := e.Hint
+	if hint == "" {
+		hint = "Inspect changes and rerun patches check"
+	}
+	return fmt.Sprintf("%s failed; workspace files may have changed in %s. %s: %v", e.Operation, e.Root, hint, e.Err)
 }
 func (e *workspaceMutationError) Unwrap() error { return e.Err }
 

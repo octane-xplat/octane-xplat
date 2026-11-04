@@ -83,6 +83,7 @@ export type FileChange = { path: string; before: string | null; after: string }
 export type UpgradePlan = {
 	root: string
 	version: string
+	packages: string[]
 	files: FileChange[]
 	updates: string[]
 	skipped: string[]
@@ -106,6 +107,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 	const plan: UpgradePlan = {
 		root,
 		version: compatibility.frameworkVersion,
+		packages: paths,
 		files: [],
 		updates: [],
 		skipped: [],

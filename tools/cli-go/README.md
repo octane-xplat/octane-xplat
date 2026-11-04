@@ -276,3 +276,22 @@ case; the native command needs neither Python nor Node. Windows skips terminal
 input and broken-symlink cases explicitly while running junction, filesystem,
 build-exclusion and kernel-lease cases. Its Node-triggered termination checks
 forced-exit/job cleanup, not graceful public console delivery.
+
+
+`test:go-upgrade` uses canonical Node plans for Bun/pnpm catalog and patch edits,
+then runs actual Bun 1.4.4 and task-local pnpm 11.24.0 installations. The pnpm
+case serves the source-owned config package through a private loopback registry;
+it asserts the tarball request instead of depending on a published framework
+release. Registry fixtures and install hooks are owned and removed with the test.
+Windows exercises an actual `.cmd` shim; forced termination proves job cleanup,
+not graceful console delivery. The test covers failed installs, both streams,
+resistant descendants, stale/escaping plans and lease recovery.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go upgrade verification"}' -- bun run turbo run test:go-upgrade test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```
+
+Portable snapshots expose the same fixture as `test:go-upgrade:portable`. Ordinary
+workspace discovery still uses the small native glob matcher; upgrade policy
+reuses its existing Node workspace expansion. A matching project worker is a
+current prerequisite; cross-release worker bootstrap remains distribution work.

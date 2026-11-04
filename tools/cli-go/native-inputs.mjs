@@ -25,6 +25,8 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/clean.ts',
 		'packages/cli/src/commands/patches.ts',
 		'packages/cli/src/commands/doctor.ts',
+		'packages/cli/src/commands/upgrade.ts',
+		'packages/cli/src/upgrade-worker.ts',
 		'packages/cli/src/doctor-checks.ts',
 		'packages/cli/src/doctor-tool.ts',
 		'packages/cli/src/compatibility.ts',

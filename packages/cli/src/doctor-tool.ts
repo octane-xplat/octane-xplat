@@ -3,9 +3,18 @@ import { execFileSync } from 'node:child_process'
 
 export const runDoctorTool = (cmd, args, cwd = process.cwd(), timeout = 15000) => {
 	try {
+		// Windows package managers commonly expose .cmd shims. Keep this shell
+		// exception limited to fixed version commands; other argv stays literal.
+		const shell =
+			process.platform === 'win32' &&
+			['bun', 'pnpm'].includes(cmd) &&
+			args.length === 1 &&
+			args[0] === '--version'
+
 		return {
 			ok: true,
-			out: execFileSync(cmd, args, {
+			out: execFileSync(shell ? `${cmd} --version` : cmd, shell ? [] : args, {
+				shell,
 				encoding: 'utf8',
 				cwd,
 				timeout,

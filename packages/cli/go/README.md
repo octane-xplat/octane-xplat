@@ -172,7 +172,7 @@ preserves case variants of the macOS directory name.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup contracts"}' -- bun run turbo run test:go-clean --filter=@octane-xplat/cli --concurrency=1
 ```
 
-Build, clean, doctor and `patches apply` share a kernel lease in the OS user cache, keyed by physical
+Build, clean, doctor, upgrade and `patches apply` share a kernel lease in the OS user cache, keyed by physical
 project identity so directory aliases share ownership. The cache must live outside
 the selected project. Keep its lock files in place after release; deleting a live
 lock would let another process acquire a different identity. This coordinates Go
@@ -204,6 +204,39 @@ project code; this preflight and cooperative lease do not isolate it from unrela
 concurrent writers. Application copies files and updates configuration sequentially,
 so failure or cancellation can leave partial changes. Inspect those changes and
 rerun `patches check`; the CLI preserves this uncertainty in its error and exit.
+
+`upgrade` uses the selected project's canonical compatibility engine for catalog,
+patch and manifest policy. Go validates the complete rooted plan, holds the
+workspace and every package's output lease, and requires a fresh plan digest
+before apply. Preview writes nothing; ordinary apply retains the canonical
+rollback behavior. Abrupt cancellation can interrupt several writes, so failures
+disclose possible changed files instead of implying a workspace transaction.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go upgrade qualification"}' -- bun run turbo run test:go-upgrade --filter=@octane-xplat/cli --concurrency=1
+/absolute/path/to/xplat-go upgrade --check
+/absolute/path/to/xplat-go upgrade --no-install
+/absolute/path/to/xplat-go upgrade
+```
+
+Default installation runs the actual Bun/pnpm engine with live stdout/stderr in
+the native process group/job, followed by compatibility and patch inspection.
+The fixed Windows launcher supports package-manager command shims; it accepts no
+caller-supplied shell fragments. Install has a 15-minute deadline; other upgrade
+workers have a two-minute deadline. Use `--no-install` to manage installation
+separately. The tool worker currently has no interactive stdin forwarding.
+
+```sh
+/absolute/path/to/xplat-go upgrade --no-install
+bun install --no-frozen-lockfile
+/absolute/path/to/xplat-go doctor
+```
+
+This parallel build requires a project worker with the invoked framework release.
+An older worker fails explicitly; silently using its older compatibility set is
+not an upgrade. The mismatch guard does not supply cross-release bootstrap for
+older projects. Final distribution must provide that matching release worker
+before this migration can replace the production CLI.
 
 `doctor` runs the shared diagnostic report through the selected project's CLI
 worker. Go owns the native help/schema, process lifecycle and presentation. The
