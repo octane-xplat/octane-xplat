@@ -1189,6 +1189,14 @@ remain visible on failure. Package specs passed to a Windows shell need a closed
 valid package-name grammar. Do not resolve Fontsource from a global installation
 or bypass a nearer broken package.
 
+Development target discovery stays native and never executes project configs.
+Query SDK device inventories through owned processes with bounded output/deadlines;
+unavailable SDKs yield no devices, but cancellation and uncertain process cleanup
+must remain errors. Preserve simctl runtime-group order before the stable booted
+sort; Go map iteration changes equal-priority device order. A single `dev ios`
+selects one uniquely booted match; `--targets ios` includes every detected device.
+Do not collapse platform buckets and device selections into one build selector.
+
 Foreground project services use a versioned private startup sidecar, separate from
 human output and the operation-admission receipt. Bound startup, then allow the
 owned service lifetime until exit/cancellation; always await group/job cleanup.
