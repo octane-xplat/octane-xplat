@@ -21,7 +21,7 @@ type processContainment struct {
 	interrupted                           chan struct{}
 }
 
-func containedCommand(argv []string, input *os.File) (*exec.Cmd, *processContainment, error) {
+func containedCommand(argv []string, input *os.File, helper string) (*exec.Cmd, *processContainment, error) {
 	c := &processContainment{}
 	cmd := exec.Command(argv[0], argv[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
@@ -55,7 +55,7 @@ func containedCommand(argv []string, input *os.File) (*exec.Cmd, *processContain
 		c.close()
 		return nil, nil, err
 	}
-	exe, err := os.Executable()
+	exe, err := helperExecutable(helper)
 	if err != nil {
 		c.close()
 		return nil, nil, err

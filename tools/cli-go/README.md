@@ -302,8 +302,9 @@ workspace discovery still uses the small native glob matcher; upgrade policy
 reuses its existing Node workspace expansion. `test:go-release-worker` (portable:
 `test:go-release-worker:portable`) qualifies the invoked release policy sidecar:
 older projects with no installed worker, corrupt inventory rejection, native help
-without Node, a real install deleting the original policy, and the actual standalone
-archive. `release-worker.mjs` builds only upgrade operations plus the reviewed
+without Node, real installs deleting the original policy or replacing both it and the native
+executable path, and the actual standalone archive. `release-worker.mjs` builds
+only upgrade operations plus the reviewed
 YAML/JSONC module closure and licenses. No JS runtime or old CLI is included.
 Final npm consumer packaging and Windows real-console events remain separate gates.
 
@@ -316,3 +317,14 @@ and input settings are restored.
 Native unit tests cover explicit input grants, default EOF, blocked readers and
 cancellation cleanup. These are non-visual terminal fixtures. Windows pipe/job
 coverage is distinct from actual Windows console qualification.
+
+For a prebuilt ONNX-enabled CLI, set `XPLAT_GO_RELEASE_BINARY` to that exact binary
+when running `test:go-release-worker` through Turbo. The gate checks its binary
+and source fingerprints before executing the same replacement cases. This tests
+native-helper compatibility, not inference accuracy or model installation.
+
+```sh
+# macOS arm64 example; select the artifact actually built for your host.
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go ONNX helper build"}' -- bun run turbo run build:go-onnx --filter=@octane-xplat/cli
+XPLAT_GO_RELEASE_BINARY="$PWD/research/go-cli/xplat-go-darwin-arm64-cli-onnx" goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go ONNX helper replacement"}' -- bun run turbo run test:go-release-worker --filter=@octane-xplat/cli
+```

@@ -242,7 +242,11 @@ bun install --no-frozen-lockfile
 Experimental standalone archives include `native-worker` beside the executable.
 An invoked CLI package supplies the same sidecar from its own release; Go verifies
 its bounded inventory and stages it privately before upgrading an older project.
-Replacing the original worker during installation does not prevent verification.
+Default installation also stages a bounded copy of the invoked native executable
+for containment gates. Replacing both the executable path and original worker
+during installation does not prevent verification. Preview and `--no-install`
+do not copy a native helper; normal completion removes the private copy, while
+uncertain cleanup retains both helper and policy with a diagnostic.
 Node must be installed, but the project need not already have this release's worker.
 Loose development binaries still require a matching project worker. An invalid
 invoked package fails without falling back to an older policy. This qualification

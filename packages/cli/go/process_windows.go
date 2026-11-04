@@ -19,8 +19,8 @@ type processContainment struct {
 	reader *os.File
 }
 
-func containedCommand(argv []string, _ *os.File) (*exec.Cmd, *processContainment, error) {
-	exe, err := os.Executable()
+func containedCommand(argv []string, _ *os.File, helper string) (*exec.Cmd, *processContainment, error) {
+	exe, err := helperExecutable(helper)
 	if err != nil {
 		return nil, nil, err
 	}

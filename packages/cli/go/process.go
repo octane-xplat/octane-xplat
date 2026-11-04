@@ -68,6 +68,7 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 // Only one-shot CLI dispatch supplies this capability. Owner/service contexts
 // have no terminal input, even when they call the same command handlers.
 type foregroundInputKey struct{}
+type processHelperKey struct{}
 
 func foregroundCommandContext(ctx context.Context, input *os.File) context.Context {
 	return context.WithValue(ctx, foregroundInputKey{}, input)
@@ -88,7 +89,8 @@ func runProcessStdio(ctx context.Context, argv []string, cwd string, env []strin
 	if err := ctx.Err(); err != nil {
 		return processResult{}, err
 	}
-	cmd, containment, err := containedCommand(argv, input)
+	helper, _ := ctx.Value(processHelperKey{}).(string)
+	cmd, containment, err := containedCommand(argv, input, helper)
 	if err != nil {
 		return processResult{}, err
 	}
@@ -214,4 +216,11 @@ func childGate(argv []string) {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(127)
 	}
+}
+
+func helperExecutable(path string) (string, error) {
+	if path != "" {
+		return path, nil
+	}
+	return os.Executable()
 }

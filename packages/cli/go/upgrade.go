@@ -202,6 +202,12 @@ func upgradeCommand(ctx context.Context, values map[string]any) (result error) {
 	entry := worker.Entry
 	check, _ := values["check"].(bool)
 	noInstall, _ := values["noInstall"].(bool)
+	if !check && !noInstall && worker.Directory != "" {
+		if err = stageUpgradeHelper(&worker); err != nil {
+			return err
+		}
+		ctx = context.WithValue(ctx, processHelperKey{}, worker.Helper)
+	}
 	releases := []func(){}
 	defer func() {
 		for i := len(releases) - 1; i >= 0; i-- {

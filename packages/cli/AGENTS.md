@@ -165,8 +165,14 @@ release: packaged native builds use the invoked CLI package's checksum-inventori
 `native-worker` policy, not an older project's worker. Stage that bounded closure
 privately before mutation so replacing the package during installation cannot
 remove the running policy or its verification code. Remove it after confirmed
-child cleanup; retain it with a diagnostic when cleanup is unknown. Loose development
-binaries may use a matching project worker; broken invoked packages fail explicitly.
+child cleanup; retain it with a diagnostic when cleanup is unknown. Before an
+installation can replace its invoked native package, also stage a bounded,
+readback-verified copy of the executable and bind containment gates to that copy
+for the operation. `os.Executable()` names a mutable path, not a stable loaded
+image: a Windows install-hook fixture renamed it and later verification tried
+the replacement. Stage the helper only for default installation, not preview or
+`--no-install`; retain helper and policy together if cleanup is uncertain.
+Loose development binaries may use a matching project worker; broken invoked packages fail explicitly.
 Keep build/compiler workers project-resolved and authored engine ranges unchanged.
 
 The release worker bundles only compatibility operations; YAML and JSONC remain

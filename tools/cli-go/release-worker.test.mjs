@@ -18,7 +18,10 @@ const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
 
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
-const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? '.exe' : ''}`)
+const binary =
+	process.env.XPLAT_GO_RELEASE_BINARY ??
+	join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? '.exe' : ''}`)
+
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 assert.equal(sha(readFileSync(binary)), build.sha256)
@@ -176,4 +179,26 @@ test('the actual standalone archive upgrades without a project worker or npm lau
 	const exe = join(dir, process.platform === 'win32' ? 'xplat-go.exe' : 'xplat-go')
 	success(run(exe, app, ['--no-install']))
 	success(run(exe, app, ['--check']))
+})
+
+test('a real install can replace the native executable and policy before verification', () => {
+	const { dir: install, exe } = pkg(),
+		dir = join(scratch, 'native replacement ' + sequence++ + ' π')
+	put(dir, 'package.json', {
+		name: 'native-replacement',
+		private: true,
+		packageManager: 'bun@1.4.4',
+		scripts: { postinstall: 'node replace-native.mjs' },
+	})
+	put(
+		dir,
+		'replace-native.mjs',
+		`import{renameSync,writeFileSync,rmSync}from'node:fs';renameSync(${JSON.stringify(exe)},${JSON.stringify(exe + '.previous')});writeFileSync(${JSON.stringify(exe)},${JSON.stringify('replacement native image must never run\n')},{mode:0o755});rmSync(${JSON.stringify(join(install, 'native-worker'))},{recursive:true});writeFileSync('native-replaced','yes')`,
+	)
+	const r = run(exe, dir)
+	success(r)
+	assert.equal(readFileSync(join(dir, 'native-replaced'), 'utf8'), 'yes')
+	assert.match(readFileSync(exe, 'utf8'), /replacement native image/)
+	assert.equal(existsSync(join(install, 'native-worker')), false)
+	assert.match(r.stdout, /Installed and checked the compatibility set/)
 })
