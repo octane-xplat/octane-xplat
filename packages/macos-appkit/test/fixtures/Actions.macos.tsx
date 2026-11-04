@@ -30,11 +30,12 @@ export default function Actions(props: any) {
         accessibilityState={props.state}
         style={{ width: 120, height: 24 }}
       />
+      {/* Match the private span transport used by ui/Text on AppKit. */}
       <label id="lease-link-a">
-        <span text="Same" onLinkTap={props.firstLink} />
+        <span text="Same" {...{ onLinkTap: props.firstLink }} />
       </label>
       <label id="lease-link-b">
-        <span text="Same" onLinkTap={props.secondLink} />
+        <span text="Same" {...{ onLinkTap: props.secondLink }} />
       </label>
     </masonview>
   )
