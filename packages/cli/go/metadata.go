@@ -13,6 +13,7 @@ var metadata struct {
 	Catalog       json.RawMessage            `json:"catalog"`
 	Schemas       map[string]json.RawMessage `json:"schemas"`
 	Descriptors   []commandDescriptor        `json:"descriptors"`
+	Orchestration []commandDescriptor        `json:"orchestrationDescriptors"`
 	Version       string                     `json:"version"`
 	CapabilityIDs []string                   `json:"capabilityIds"`
 	Boundaries    []string                   `json:"boundaries"`

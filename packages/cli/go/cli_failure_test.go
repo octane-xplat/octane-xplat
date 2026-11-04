@@ -43,3 +43,17 @@ func TestOperationAndOuterDeadlinesUseTheTimeoutExit(t *testing.T) {
 		t.Fatalf("outer timeout lost its exit contract: %#v", failure)
 	}
 }
+
+func TestCancellationPreservesPartialPublicationAndRetainedStaging(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	for _, publication := range []*artifactPublicationError{
+		{Published: []string{"contracts.ts"}, Err: context.Canceled},
+		{Retained: []string{"contracts.ts.tmp-owned"}, Err: context.Canceled},
+	} {
+		failure := contextualFailure(ctx, executionFailure(publication))
+		if failure.Code != "execution_failure" || !strings.Contains(failure.Message, "artifact") {
+			t.Fatalf("publication evidence was erased by cancellation: %#v", failure)
+		}
+	}
+}

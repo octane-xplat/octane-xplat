@@ -59,6 +59,30 @@ Go owns argv, cwd, environment, timeouts, publication, sessions, logs, cancellat
 and cleanup. Use small workers for operations requiring the project's JavaScript
 compiler, plugin or configuration execution, never a general CLI fallback.
 
+`routes` uses that boundary: the selected project's `@octane-xplat/cli/worker`
+parses source, runs baked loaders through its Vite installation, and renders the
+canonical 18-artifact plan. Go validates the complete destination set, checks raw
+input/output bytes for concurrent edits, and stages adjacent files before native
+rename. Unchanged files keep their timestamps; changed existing files retain
+their permissions. Each rename is atomic; the complete set is not a transaction.
+An interrupted publication reports partial effects and any retained staging.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go route workflow"}' -- bun run turbo run test:go-routes --filter=@octane-xplat/cli
+# From an application directory with its CLI worker and Vite installed:
+/absolute/path/to/xplat-go routes --dir app --out routes.gen
+/absolute/path/to/xplat-go routes --watch
+```
+
+Watch uses a bounded 500 ms poll with one active generation. Changes cancel and
+await the old worker before starting another; stale results cannot publish.
+The generated output path stays fixed until watch restarts. Fingerprints cover
+the route tree, configured source references and common project configuration,
+not arbitrary files read by user JavaScript. Worker diagnostics are bounded and
+printed after completion. Route traversal rejects cycles and bounds entries,
+depth and text bytes. Authorized external route/output directories are supported;
+an output alias cannot overwrite route inputs or leave its authorized output scope.
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

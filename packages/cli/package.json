@@ -144,6 +144,8 @@
 		"build:go": "node ../../tools/cli-go/build.mjs --cli",
 		"build:go-onnx": "node ../../tools/cli-go/build.mjs --cli --onnx",
 		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs",
+		"test:go-routes": "node --test ../../tools/cli-go/routes.test.mjs",
+		"measure:go-cli": "node ../../tools/cli-go/measure.mjs",
 		"test:go-binding": "node --test ../../tools/cli-go/package-binding.test.mjs",
 		"test:go-code": "node --test ../../tools/cli-go/code.test.mjs",
 		"test:go-doc-data": "node --test ../../tools/cli-go/doc-data.test.mjs",

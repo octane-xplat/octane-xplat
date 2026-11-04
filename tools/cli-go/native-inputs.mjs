@@ -17,6 +17,8 @@ export function nativeInputs(root) {
 		}
 	}
 	files.push(
+		'packages/cli/src/commands/routes.ts',
+		'tools/cli-nim/route-templates.mjs',
 		'packages/cli/package.json',
 		'packages/create/compatibility.json',
 		'packages/cli/src/cli-channel.ts',
@@ -43,6 +45,11 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',
 	)
+	for (const file of readdirSync(join(root, 'packages/cli/src'))) {
+		if (/^(?:route.*|build-worker|markdown)\.ts$/.test(file)) {
+			files.push('packages/cli/src/' + file)
+		}
+	}
 	return Object.fromEntries(
 		files.sort().map((file) => [file, sha256(readFileSync(join(root, file)))]),
 	)

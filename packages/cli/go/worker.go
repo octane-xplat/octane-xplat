@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -20,6 +21,9 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	worker, err := projectWorker(project)
 	if err != nil {
 		return workerResult{}, err
+	}
+	if _, err = exec.LookPath("node"); err != nil {
+		return workerResult{}, errors.New("Node is required for this project worker; install the Node version required by the selected project and put it on PATH")
 	}
 	directory, err := privateDirectory(os.TempDir(), "xplat-go-worker-")
 	if err != nil {
@@ -80,6 +84,9 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if err != nil || !info.Mode().IsRegular() || info.Size() > 64<<20 {
 		return result, errors.New("worker result must be a bounded regular file")
 	}
+	if info.Size() == 0 {
+		return result, fmt.Errorf("project worker exited without a result (exit %d); run bun install in the selected project and ensure its CLI build dependencies are declared", process.ExitCode)
+	}
 	var response struct {
 		Protocol string
 		Version  int
@@ -95,6 +102,7 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 	if response.Protocol != "octane-build-worker" || response.Version != 1 || response.ID != id || response.OK == nil {
 		return result, errors.New("mismatched worker protocol/version/request identity")
 	}
+	result.Warnings = response.Warnings
 	if !*response.OK {
 		return result, fmt.Errorf("project worker: %s", response.Error.Message)
 	}
@@ -105,6 +113,5 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 		return result, errors.New("worker omitted result data")
 	}
 	result.Data = response.Data
-	result.Warnings = response.Warnings
 	return result, nil
 }

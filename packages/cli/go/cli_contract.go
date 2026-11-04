@@ -15,6 +15,7 @@ import (
 
 type flagDescriptor struct {
 	Flag    string          `json:"flag"`
+	Short   string          `json:"short"`
 	Key     string          `json:"key"`
 	Type    string          `json:"type"`
 	Desc    string          `json:"desc"`
@@ -49,10 +50,17 @@ type cliError struct {
 func (e *cliError) Error() string { return e.Message }
 func (e *cliError) Unwrap() error { return e.cause }
 
+func requiresFailureEvidence(err error) bool {
+	var cleanup *processCleanupError
+	if errors.As(err, &cleanup) {
+		return true
+	}
+	var publication *artifactPublicationError
+	return errors.As(err, &publication) && (len(publication.Published) > 0 || len(publication.Retained) > 0)
+}
 func executionFailure(err error) *cliError {
 	code := "execution_failure"
-	var cleanup *processCleanupError
-	if !errors.As(err, &cleanup) {
+	if !requiresFailureEvidence(err) {
 		if errors.Is(err, context.Canceled) {
 			code = "cancelled"
 		} else if errors.Is(err, context.DeadlineExceeded) {
@@ -65,8 +73,7 @@ func contextualFailure(ctx context.Context, failure *cliError) *cliError {
 	if ctx.Err() == nil {
 		return failure
 	}
-	var cleanup *processCleanupError
-	if failure != nil && errors.As(failure, &cleanup) {
+	if failure != nil && requiresFailureEvidence(failure) {
 		return failure
 	}
 	return executionFailure(ctx.Err())
@@ -153,6 +160,9 @@ func parseCommand(command commandDescriptor, argv []string) parsedCommand {
 	declared := map[string]flagDescriptor{}
 	for _, def := range command.Flags {
 		declared[def.Flag] = def
+		if def.Short != "" {
+			declared[def.Short] = def
+		}
 	}
 	fail := func(err *cliError) parsedCommand { return parsedCommand{Errors: []*cliError{err}} }
 	for i := 0; i < len(argv); i++ {

@@ -38,6 +38,18 @@ separate build-package installation. All 18 planned route artifacts are compared
 with the canonical Node worker. The probe does not publish those plans or
 implement the full CLI command/provider surface.
 
+The public entry separately implements `routes` and `routes --watch`, reusing
+that canonical worker for rendering and baking. Its gate compares all18 output
+bytes, including seven copied application trees on the source host, and exercises
+complete-plan validation, concurrent edits, permissions, aliases, watch recovery
+and worker cleanup. Windows watch fixtures cancel the real native watcher through
+a Go test context; that proves worker/job cleanup, not public console interrupt
+delivery. POSIX fixtures exercise public SIGTERM and its 143 exit.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go route workflow"}' -- bun run turbo run test:go-unit test:go-cli test:go-routes --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+```
+
 Go owns timeouts, bounded streams, operation directories and process cleanup.
 Unix uses a dedicated process group; Windows uses a job with a gate that blocks
 project execution until assignment. Owner and operation storage use private
@@ -100,6 +112,13 @@ actual target under a host reservation. Use `ssh andromeda.local` and its
 existing `octane-linux` OrbStack guest for Linux, and `ssh windy` for Windows.
 No compiler or shared-checkout mutation is required on the destination.
 Cross-compilation itself does not qualify execution or distribution.
+
+For a smaller route-only snapshot, cross-build `build:go` for `@octane-xplat/cli`
+and `build:go-tests` for `@xplat/cli-go-probe` on both targets, then run
+`snapshot:go-routes`. The resulting `routes-source.tgz` carries the public core,
+native unit executables and curated project workers without model/runtime assets.
+Run its root Turbo tasks `test:go-unit:portable` and `test:go-routes:portable`
+on the destination host. The real application copies remain source-host evidence.
 
 Zig supplies the C cross-compiler for the wrapper; it does not remove dependencies
 from Microsoft's prebuilt ONNX library. That Windows library still requires the

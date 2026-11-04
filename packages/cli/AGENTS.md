@@ -129,6 +129,30 @@ cache mutation without trusting stored PIDs. Scope document reads by canonical
 targets while preserving lexical reference names; bound traversal, reject external
 symlinks, and skip directory cycles instead of reproducing unsafe reference walks.
 
+## Go project orchestration
+
+Keep compiler parsing, JS configuration, loaders and route rendering in the
+selected project's canonical worker. Native generation owns a complete validated
+artifact plan, raw-byte stale checks, adjacent staging, publication and cleanup.
+Validate every expected destination before writing any; include outputs omitted
+by a type-only plan in stale checks. Preserve existing modes and unchanged mtimes.
+Individual renames do not make a multi-file transaction: preserve partial-effect
+and retained-staging evidence even when root cancellation races an I/O failure.
+
+Canonicalize project identity before comparing output/source paths (macOS temp
+aliases and Windows junctions otherwise disagree). Preserve authorized output
+aliases while rejecting targets that overwrite inputs or escape the output scope.
+Exclude generated files and their temporary siblings from watch fingerprints;
+directory mtimes can invalidate a generation merely because it staged outputs.
+One active watch worker must be cancelled and awaited before replacement. Recheck
+inputs immediately before publication; a polling observation alone is insufficient.
+
+Node's Windows `kill('SIGTERM')` forcibly terminates a process. It cannot qualify
+graceful native console cancellation. Distinguish public console input from direct
+context-cancellation fixtures, and verify child/job teardown separately. A JSON
+`null` also decodes successfully into a Go integer's zero value; decode nullable
+wire fields into pointers when zero and absence have different contracts.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

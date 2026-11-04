@@ -14,7 +14,7 @@ import (
 type commandHandler func(context.Context, *workspaceContext, map[string]any) (any, *cliError)
 
 var commandHandlers = map[string]commandHandler{}
-var nativeLegacyCommands = map[string]bool{}
+var nativeLegacyCommands = map[string]legacyHandler{}
 
 func init() {
 	commandHandlers["catalog"] = func(context.Context, *workspaceContext, map[string]any) (any, *cliError) { return nativeCatalog(), nil }
@@ -98,7 +98,7 @@ func nativeCatalog() map[string]any {
 	for _, entry := range catalog["orchestration"].([]any) {
 		command := object(entry)
 		command["status"] = "pending"
-		if nativeLegacyCommands[stringValue(command["name"])] {
+		if nativeLegacyCommands[stringValue(command["name"])] != nil {
 			command["status"] = "implemented"
 		}
 	}
@@ -148,6 +148,14 @@ func runCLI(argv []string) int {
 			}
 			fmt.Printf("  %-20s %s [%s]\n", command.Name, command.Summary, status)
 		}
+		fmt.Println("\nProject commands:")
+		for _, command := range legacyCommands() {
+			status := "pending"
+			if nativeLegacyCommands[command.Name] != nil {
+				status = "implemented"
+			}
+			fmt.Printf("  %-20s %s [%s]\n", command.Name, command.Summary, status)
+		}
 		fmt.Println("\nUse `xplat catalog --json` for contracts and migration coverage.")
 		return 0
 	}
@@ -157,6 +165,11 @@ func runCLI(argv []string) int {
 	}
 	jsonOutput := slices.Contains(argv, "--json")
 	head := argv[0]
+	for _, command := range legacyCommands() {
+		if command.Name == head {
+			return runLegacyCLI(ctx, command, argv[1:])
+		}
+	}
 	members := []commandDescriptor{}
 	for _, command := range metadata.Descriptors {
 		if len(command.Path) > 1 && command.Path[0] == head {

@@ -5,7 +5,8 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
-import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { AGENT_COMMANDS, LEGACY_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
+import { routeCommandDescriptor } from '../cli-nim/route-templates.mjs'
 import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
 import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
@@ -27,12 +28,14 @@ assert.equal(
 	JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json'))).frameworkVersion,
 	'Synchronize CLI/framework source versions',
 )
+
 const version = process.env.XPLAT_GO_VERSION ?? sourceVersion + '-nim.0'
 assert.equal(
 	nativeCliPin(version, sourceVersion),
 	version,
 	'Use the exact same-release native prerelease pin',
 )
+
 const zig = onnx && process.env.CC?.startsWith('zig ')
 const env = {
 	...process.env,
@@ -45,6 +48,7 @@ const env = {
 	ZIG_GLOBAL_CACHE_DIR: join(work, 'zig-global-cache'),
 	ZIG_LOCAL_CACHE_DIR: join(work, 'zig-local-cache'),
 }
+
 function run(command, args, options = {}) {
 	const result = spawnSync(command, args, {
 		cwd: moduleDirectory,
@@ -59,11 +63,13 @@ function run(command, args, options = {}) {
 	)
 	return result.stdout
 }
+
 assert.match(
 	run('go', ['version']),
 	/^go version go1\.27\.3 /,
 	'Install the pinned Go 1.27.3 compiler',
 )
+
 if (zig) {
 	assert.equal(
 		run('zig', ['version']).trim(),
@@ -71,11 +77,25 @@ if (zig) {
 		'Use the pinned Zig 0.17.0 C cross-compiler',
 	)
 }
+
 writeFileSync(
 	join(moduleDirectory, 'catalog.json'),
 	JSON.stringify({
 		catalog: catalogPayload(),
 		descriptors: AGENT_COMMANDS,
+		orchestrationDescriptors: [
+			{
+				...routeCommandDescriptor(
+					readFileSync(join(root, 'packages/cli/src/commands/routes.ts'), 'utf8'),
+				),
+				path: ['routes'],
+				context: 'none',
+				summary: LEGACY_COMMANDS.find((command) => command.name === 'routes').summary,
+			},
+		].map((command) => ({
+			...command,
+			flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
+		})),
 		version,
 		capabilityIds: CAPABILITY_IDS,
 		boundaries: PRODUCT_BOUNDARIES,
@@ -84,15 +104,18 @@ writeFileSync(
 		),
 	}),
 )
+
 // Preserve the probe harness's generated reference input beside its runner.
 writeFileSync(
 	join(import.meta.dirname, 'catalog.json'),
 	readFileSync(join(moduleDirectory, 'catalog.json')),
 )
+
 writeFileSync(
 	join(moduleDirectory, 'native-assets.json'),
 	readFileSync(join(import.meta.dirname, 'native-assets.json')),
 )
+
 run('go', ['mod', 'download'], { stdio: 'inherit' })
 if (flags.includes('--test')) {
 	run(
@@ -108,6 +131,7 @@ if (flags.includes('--test')) {
 		work,
 		`${testBinary ? 'go-tests' : 'xplat-go'}-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
 	)
+
 	const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 	const inputs = () => nativeInputs(root)
 	const before = inputs()
@@ -126,6 +150,7 @@ if (flags.includes('--test')) {
 		],
 		{ stdio: 'inherit' },
 	)
+
 	assert.deepEqual(inputs(), before, 'Source changed during build')
 	const bytes = readFileSync(binary)
 	if (testBinary) {
@@ -143,10 +168,12 @@ if (flags.includes('--test')) {
 			sha256: sha(bytes),
 			binary,
 		}
+
 		writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
 		console.log(JSON.stringify({ ...record, inputs: undefined }))
 		process.exit(0)
 	}
+
 	const stage = mkdtempSync(join(work, 'download-'))
 	let download
 	try {
@@ -156,11 +183,13 @@ if (flags.includes('--test')) {
 		const goLicense = existsSync(join(goroot, 'LICENSE'))
 			? join(goroot, 'LICENSE')
 			: join(dirname(goroot), 'LICENSE')
+
 		const notices = ['Go standard library\n' + readFileSync(goLicense, 'utf8')]
 		notices.push(
 			readFileSync(join(moduleDirectory, 'NOTICE.txt'), 'utf8'),
 			readFileSync(join(moduleDirectory, 'licenses/tokenizers-js.txt'), 'utf8'),
 		)
+
 		for (const [name, version, license] of [
 			['golang.org/x/sys', 'v0.49.0', 'LICENSE'],
 			['golang.org/x/text', 'v0.43.0', 'LICENSE'],
@@ -175,12 +204,14 @@ if (flags.includes('--test')) {
 					readFileSync(join(env.GOMODCACHE, name + '@' + version, license), 'utf8'),
 			)
 		}
+
 		writeFileSync(join(stage, 'THIRD-PARTY-NOTICES.txt'), notices.join('\n\n'))
 		writeFileSync(join(stage, 'LICENSE'), readFileSync(join(root, 'LICENSE')))
 		writeFileSync(
 			join(stage, 'README.txt'),
 			'Experimental bounded Go CLI feasibility probe, not the production CLI.\nNo Node/Bun or old CLI runtime is bundled. Project workers and ONNX/model assets are separate.\n',
 		)
+
 		const archive = binary + '.tgz'
 		run(
 			'tar',
@@ -197,11 +228,13 @@ if (flags.includes('--test')) {
 			],
 			{ env: { ...env, COPYFILE_DISABLE: '1' } },
 		)
+
 		const packed = readFileSync(archive)
 		download = { file: archive, bytes: packed.length, sha256: sha(packed) }
 	} finally {
 		rmSync(stage, { recursive: true, force: true })
 	}
+
 	const record = {
 		version: 2,
 		cli,
@@ -222,6 +255,7 @@ if (flags.includes('--test')) {
 		binary,
 		download,
 	}
+
 	writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
 	console.log(JSON.stringify(record))
 }
