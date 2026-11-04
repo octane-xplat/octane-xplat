@@ -890,6 +890,30 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     out.nswinrtKeys = Object.getOwnPropertyNames(NSWinRT).sort()
     const interop = NSWinRT?.interop
     out.nswinrtInteropKeys = interop ? Object.getOwnPropertyNames(interop).sort() : []
+    for (const name of ['win32', 'dotnet', 'proxy', 'import', 'getStatus', 'getResults']) {
+      const member = NSWinRT?.[name]
+      out['nswinrt_' + name] = typeof member
+      if (typeof member === 'object' && member !== null) {
+        try {
+          out['nswinrt_' + name + 'Keys'] = Object.getOwnPropertyNames(member).sort()
+        } catch {}
+      }
+    }
+    // The projected picker carries a native `handle` own-property — check its
+    // type and whether interop.handleOf can read the IInspectable pointer.
+    const picker2 = pickers?.FileOpenPicker ? new pickers.FileOpenPicker() : null
+    if (picker2) {
+      out.handleType = typeof picker2.handle
+      if (typeof interop?.handleOf === 'function') {
+        try {
+          const h = interop.handleOf(picker2)
+          out.handleOf = typeof h
+          out.handleOfValue = String(h)
+        } catch (error) {
+          out.handleOfError = error instanceof Error ? error.message : String(error)
+        }
+      }
+    }
   } catch (error) {
     out.nswinrtError = error instanceof Error ? error.message : String(error)
   }
@@ -939,17 +963,43 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   out.available = true
   const picker = new pickers.FileOpenPicker()
   const filter = picker.FileTypeFilter
-  for (const name of ['Append', 'append', 'Add']) {
+  out.filterMembers = filter ? Object.getOwnPropertyNames(Object.getPrototypeOf(filter)) : []
+  const filterAttempts: string[] = []
+  for (const [name, arg] of [
+    ['Append', '*.*'],
+    ['Append', '*'],
+    ['append', '*.*'],
+    ['Add', '*.*'],
+    ['Insert', '*.*'],
+    ['SetAt', '*.*'],
+  ] as const) {
     if (typeof filter?.[name] === 'function') {
       try {
-        filter[name]('*.*')
-        out.filterVia = name
+        if (name === 'SetAt' || name === 'Insert') {
+          filter[name](0, arg)
+        } else {
+          filter[name](arg)
+        }
+        out.filterVia = `${name}(${JSON.stringify(arg)})`
         break
       } catch (error) {
-        out.filterError = error instanceof Error ? error.message : String(error)
+        filterAttempts.push(`${name}: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
   }
+  out.filterAttempts = filterAttempts
+  try {
+    const loc = pickers.PickerLocationId
+    out.locationIdType = typeof loc
+    if (loc && typeof picker.SuggestedStartLocation !== 'undefined') {
+      try {
+        picker.SuggestedStartLocation = loc.DocumentsLibrary ?? loc.ComputerFolder ?? loc.Desktop
+        out.startLocationSet = true
+      } catch (error) {
+        out.startLocationError = error instanceof Error ? error.message : String(error)
+      }
+    }
+  } catch {}
   try {
     const op = picker.PickSingleFileAsync()
     out.opType = typeof op
