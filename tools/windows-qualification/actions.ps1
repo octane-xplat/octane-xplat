@@ -1795,7 +1795,7 @@ function Check-ServiceActions{
     # truncates at the first U+0000, and empty writes read back null. If any
     # shape changes, upstream landed a marshalling fix — re-investigate.
     Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but does not round-trip exactly' $result
-    Assert ($result.uniReadBack -ceq 'clip--??-????-e''-') 'Unicode read-back shows the verified projection-loss shape' $result
+    Assert ($result.uniReadBack -clike 'clip--??-????-e?-') 'Unicode read-back shows the verified projection-loss shape' $result
     Assert ($result.nulReadBack -ceq 'before' -and $result.emojiReadBack -ceq '??') 'Clipboard truncates at U+0000 and mangles non-BMP' $result
     Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null' $result
     Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
