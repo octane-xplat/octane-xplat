@@ -9,21 +9,34 @@ const { createActions } = await import('../src/actions.ts')
 hooks.deregister()
 
 function fixture() {
-  const store = createActionStore(), recognizers: any[] = [], calls: string[] = []
+  const store = createActionStore(),
+    recognizers: any[] = [],
+    calls: string[] = []
   const cssNodesByView = new WeakMap()
   const actions = createActions({
     store,
     registry: { cssNodesByView },
-    textElements: { primaryClickBoundary: () => view => {
-      const target = cssNodesByView.get(view)
-      return target != null && isPrimaryClickBoundary(target.type, target.props.accessibilityRole, store.hasHandler(view))
-    }, textLinkCharacterIndex: () => null },
+    textElements: {
+      primaryClickBoundary: () => (view) => {
+        const target = cssNodesByView.get(view)
+        return (
+          target != null &&
+          isPrimaryClickBoundary(
+            target.type,
+            target.props.accessibilityRole,
+            store.hasHandler(view),
+          )
+        )
+      },
+      textLinkCharacterIndex: () => null,
+    },
     cssPseudoState: { syncPseudoState() {} },
     inputElements: {} as any,
   })
   const view = { addGestureRecognizer: (recognizer: object) => recognizers.push(recognizer) }
   const node: any = {
-    view, props: {},
+    view,
+    props: {},
     container: { root: { eventScope: (_: string, callback: () => void) => callback() } },
   }
   return { ...actions, store, recognizers, calls, view, node, cssNodesByView }
@@ -84,19 +97,37 @@ test('primary click wiring reads current descendant semantics and action ownersh
   f.setAction(f.node, () => {})
   const recognizer = f.node.clickGestureRecognizer
   const event = { type: 1, window, locationInWindow: { x: 10, y: 10 } }
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), true)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    true,
+  )
   target.props = { accessibilityRole: 'button', disabled: true }
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    false,
+  )
   target.props = {}
   const childAction = f.store.allocate(child)
   childAction.setHandler(() => {})
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    false,
+  )
   childAction.setHandler(undefined)
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), true)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    true,
+  )
   target.type = 'textfield'
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    false,
+  )
   f.setAction(f.node, undefined)
   f.setAction(f.node, () => {})
   assert.equal(f.node.clickGestureRecognizer, recognizer)
-  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
+  assert.equal(
+    recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
+    false,
+  )
 })

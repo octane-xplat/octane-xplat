@@ -280,16 +280,12 @@ export function createAccessibleHost(deps: Dependencies) {
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityMinValue() {
-      return NSNumber.numberWithDouble(
-        Number(deps.state.get(this)?.accessibilityMinValue ?? 0),
-      )
+      return NSNumber.numberWithDouble(Number(deps.state.get(this)?.accessibilityMinValue ?? 0))
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityMaxValue() {
-      return NSNumber.numberWithDouble(
-        Number(deps.state.get(this)?.accessibilityMaxValue ?? 100),
-      )
+      return NSNumber.numberWithDouble(Number(deps.state.get(this)?.accessibilityMaxValue ?? 100))
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.

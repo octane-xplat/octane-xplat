@@ -23,21 +23,35 @@ export function createActionStore() {
     const lease: ActionRegistration = {
       id,
       setHandler(next) {
-        if (current()) { handler = next }
+        if (current()) {
+          handler = next
+        }
       },
       release() {
-        if (!active) { return }
+        if (!active) {
+          return
+        }
         active = false
         handler = undefined
         slots.delete(id)
-        if (view && views.get(view) === lease) { views.delete(view) }
+        if (view && views.get(view) === lease) {
+          views.delete(view)
+        }
       },
     }
     slots.set(id, {
-      run() { if (current()) { handler?.() } },
-      hasHandler() { return current() && typeof handler === 'function' },
+      run() {
+        if (current()) {
+          handler?.()
+        }
+      },
+      hasHandler() {
+        return current() && typeof handler === 'function'
+      },
     })
-    if (view) { views.set(view, lease) }
+    if (view) {
+      views.set(view, lease)
+    }
     return lease
   }
 
@@ -47,7 +61,9 @@ export function createActionStore() {
     }
   }
 
-  function idForView(view: object): number | undefined { return views.get(view)?.id }
+  function idForView(view: object): number | undefined {
+    return views.get(view)?.id
+  }
   function hasHandler(view: object): boolean {
     const id = idForView(view)
     return id !== undefined && (slots.get(id)?.hasHandler() ?? false)

@@ -346,16 +346,23 @@ export function createTextElements(deps: Dependencies) {
   // Retain action objects for the process, but give each node/view lifetime its
   // own slots. Sharing by link text redirects another live label's action.
   const axLinkActionPool = new Set<AxLinkSlot>()
-  const linkOwners = new WeakMap<ElementNode, {
-    view: NSView; active: boolean; slots: Map<string, AxLinkSlot>
-  }>()
+  const linkOwners = new WeakMap<
+    ElementNode,
+    {
+      view: NSView
+      active: boolean
+      slots: Map<string, AxLinkSlot>
+    }
+  >()
 
   function retireTextLinks(node: ElementNode) {
     const owner = linkOwners.get(node)
     linkOwners.delete(node)
     if (owner) {
       owner.active = false
-      for (const slot of owner.slots.values()) { slot.dispatch = null }
+      for (const slot of owner.slots.values()) {
+        slot.dispatch = null
+      }
     }
     return owner
   }
@@ -363,8 +370,12 @@ export function createTextElements(deps: Dependencies) {
   function axLinkActionSlot(name: string): AxLinkSlot {
     const slot: AxLinkSlot = {
       action: NSAccessibilityCustomAction.alloc().initWithNameHandler(name, () => {
-        try { return slot.dispatch?.() ?? false }
-        catch (error) { console.error('[macos-ax] link action failed', error); return false }
+        try {
+          return slot.dispatch?.() ?? false
+        } catch (error) {
+          console.error('[macos-ax] link action failed', error)
+          return false
+        }
       }),
       dispatch: null,
     }
@@ -376,7 +387,9 @@ export function createTextElements(deps: Dependencies) {
    *  per glyph in `linkPressed` so a mixed paragraph never fires as one action. */
   function syncTextLinks(node: ElementNode) {
     const previous = linkOwners.get(node)
-    if (previous && previous.view !== node.view) { releaseTextLinkView(node) }
+    if (previous && previous.view !== node.view) {
+      releaseTextLinkView(node)
+    }
     const active =
       node.type === 'label' &&
       (node.textLinks?.length ?? 0) > 0 &&
@@ -401,7 +414,9 @@ export function createTextElements(deps: Dependencies) {
 
     const view = node.view as NSTextField | undefined
     let owner = linkOwners.get(node)
-    if (!view) { return }
+    if (!view) {
+      return
+    }
     if (!owner) {
       owner = { view, active: true, slots: new Map() }
       linkOwners.set(node, owner)
@@ -419,21 +434,37 @@ export function createTextElements(deps: Dependencies) {
       }
       const currentSlot = slot
       const dispatch = () => {
-        if (!currentOwner.active || linkOwners.get(node) !== currentOwner || node.view !== view ||
-            currentSlot.dispatch !== dispatch || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
-            node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false ||
-            !node.container.root) { return false }
-        try { node.container.root.eventScope('discrete', run.handler) }
-        catch (error) { console.error('[macos-ax] link action failed', error); return false }
+        if (
+          !currentOwner.active ||
+          linkOwners.get(node) !== currentOwner ||
+          node.view !== view ||
+          currentSlot.dispatch !== dispatch ||
+          node.lifecycle === 'disposing' ||
+          node.lifecycle === 'disposed' ||
+          node.props.disabled === true ||
+          node.props.isEnabled === false ||
+          node.props.enabled === false ||
+          !node.container.root
+        ) {
+          return false
+        }
+        try {
+          node.container.root.eventScope('discrete', run.handler)
+        } catch (error) {
+          console.error('[macos-ax] link action failed', error)
+          return false
+        }
         return true
       }
       slot.dispatch = dispatch
       return slot
     })
     for (const slot of currentOwner.slots.values()) {
-      if (!slots.includes(slot)) { slot.dispatch = null }
+      if (!slots.includes(slot)) {
+        slot.dispatch = null
+      }
     }
-    view.accessibilityCustomActions = slots.map(slot => slot.action)
+    view.accessibilityCustomActions = slots.map((slot) => slot.action)
   }
 
   function releaseTextLinkView(node: ElementNode) {
@@ -442,10 +473,18 @@ export function createTextElements(deps: Dependencies) {
     node.linkClickRecognizer = undefined
     const failures = new FailureCollector()
     if (recognizer) {
-      failures.run('link disable', () => { recognizer.enabled = false })
-      failures.run('link detach', () => (owner?.view ?? node.view)?.removeGestureRecognizer(recognizer))
+      failures.run('link disable', () => {
+        recognizer.enabled = false
+      })
+      failures.run('link detach', () =>
+        (owner?.view ?? node.view)?.removeGestureRecognizer(recognizer),
+      )
     }
-    if (owner) { failures.run('AX links', () => { owner.view.accessibilityCustomActions = [] }) }
+    if (owner) {
+      failures.run('AX links', () => {
+        owner.view.accessibilityCustomActions = []
+      })
+    }
     failures.throwIfFailed()
   }
 

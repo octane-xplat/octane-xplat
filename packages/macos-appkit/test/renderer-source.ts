@@ -528,7 +528,7 @@ export function rendererSource(): string {
       }
       let text = body
         .slice(previous, statement.end)
-        .replace(/const prior = nodeActions.get\(node\)[\s\S]*?releaseNodeAction\(node\) }/g, '')
+        .replace(/const prior = nodeActions.get\(node\)\s*if\s*\(prior && prior.view !== node.view\)\s*{\s*releaseNodeAction\(node\)\s*}/g, '')
         .replace(/!nodeActions.has\(node\)/g, 'node.actionId === undefined')
         .replace(/deps\.state\.get\(/g, 'getAccessibilityProps(')
         .replace(/deps\.directory\.containers\(\)/g, '[...appKitContainers]')

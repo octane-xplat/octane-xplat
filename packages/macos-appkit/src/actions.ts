@@ -46,12 +46,22 @@ interface Dependencies {
 export type Actions = ReturnType<typeof createActions>
 
 export function createActions(deps: Dependencies) {
-  const nodeActions = new WeakMap<ElementNode, { action: ActionRegistration; view: object | null }>()
+  const nodeActions = new WeakMap<
+    ElementNode,
+    { action: ActionRegistration; view: object | null }
+  >()
   const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | undefined>()
-  const panViewsByNode = new WeakMap<ElementNode, { view: object; handler: ((event: PanEvent) => void) | undefined }>()
+  const panViewsByNode = new WeakMap<
+    ElementNode,
+    { view: object; handler: ((event: PanEvent) => void) | undefined }
+  >()
   const { allocate, dispatch: invokeAction, idForView, hasHandler } = deps.store
 
-  function adoptAction(node: ElementNode, action: ActionRegistration, view: object | null = node.view) {
+  function adoptAction(
+    node: ElementNode,
+    action: ActionRegistration,
+    view: object | null = node.view,
+  ) {
     nodeActions.get(node)?.action.release()
     nodeActions.set(node, { action, view })
     node.actionId = action.id
@@ -63,20 +73,36 @@ export function createActions(deps: Dependencies) {
   }
 
   function canDispatch(node: ElementNode) {
-    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !node.container.root ||
-        node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false ||
-        node.props.accessibilityState?.disabled || node.props.accessibilityState?.readonly) { return false }
+    if (
+      node.lifecycle === 'disposing' ||
+      node.lifecycle === 'disposed' ||
+      !node.container.root ||
+      node.props.disabled === true ||
+      node.props.isEnabled === false ||
+      node.props.enabled === false ||
+      node.props.accessibilityState?.disabled ||
+      node.props.accessibilityState?.readonly
+    ) {
+      return false
+    }
     const view = node.view
     const enabled = view?.isEnabled
-    const nativeEnabled = typeof enabled === 'function' ? enabled.call(view) : (enabled ?? view?.enabled)
+    const nativeEnabled =
+      typeof enabled === 'function' ? enabled.call(view) : (enabled ?? view?.enabled)
     return nativeEnabled !== false && nativeEnabled !== 0
   }
 
   function setNodeHandler(node: ElementNode, handler: (() => void) | undefined) {
     const view = node.view
-    nodeActions.get(node)?.action.setHandler(handler ? () => {
-      if (node.view === view && canDispatch(node)) { handler() }
-    } : undefined)
+    nodeActions.get(node)?.action.setHandler(
+      handler
+        ? () => {
+            if (node.view === view && canDispatch(node)) {
+              handler()
+            }
+          }
+        : undefined,
+    )
   }
 
   class ButtonActionTarget extends NSObject {
@@ -123,7 +149,10 @@ export function createActions(deps: Dependencies) {
       const node = view ? deps.registry.cssNodesByView.get(view) : undefined
       const links = node?.textLinks
       if (
-        !node || node.view !== view || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
+        !node ||
+        node.view !== view ||
+        node.lifecycle === 'disposing' ||
+        node.lifecycle === 'disposed' ||
         node.type !== 'label' ||
         !links?.length ||
         node.props.disabled === true ||
@@ -171,7 +200,9 @@ export function createActions(deps: Dependencies) {
       }
       notifyTextValueCommit(notification.object)
       const node = deps.inputElements.textNodesByView.get(notification.object)
-      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return }
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') {
+        return
+      }
       if (node?.type === 'searchbar') {
         deps.inputElements.notifySearchTextChange(node)
       } else {
@@ -236,7 +267,9 @@ export function createActions(deps: Dependencies) {
       }
       notifyTextValueCommit(notification.object)
       const node = deps.inputElements.textNodesByView.get(notification.object)
-      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return }
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') {
+        return
+      }
       if (node) {
         enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)
       }
@@ -273,7 +306,9 @@ export function createActions(deps: Dependencies) {
     // Return in the field-editor delegate so clearing cannot emit submit.
     controlTextViewDoCommandBySelector(control: NSControl, _editor: NSTextView, selector: string) {
       const node = deps.inputElements.textNodesByView.get(control)
-      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return false }
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') {
+        return false
+      }
       if (node?.type !== 'searchbar' || String(selector) !== 'insertNewline:') {
         return false
       }
@@ -299,7 +334,9 @@ export function createActions(deps: Dependencies) {
 
     textViewDoCommandBySelector(view: NSTextView, selector: string) {
       const node = deps.inputElements.textNodesByView.get(view)
-      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return false }
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') {
+        return false
+      }
       if (
         String(selector) !== 'insertNewline:' ||
         !node ||
@@ -326,9 +363,13 @@ export function createActions(deps: Dependencies) {
   function setAction(node: ElementNode, value: any) {
     const active = typeof value === 'function'
     const prior = nodeActions.get(node)
-    if (prior && prior.view !== node.view) { releaseNodeAction(node) }
+    if (prior && prior.view !== node.view) {
+      releaseNodeAction(node)
+    }
     if (!nodeActions.has(node)) {
-      if (!active || !node.view) { return }
+      if (!active || !node.view) {
+        return
+      }
       acquireAction(node, node.view)
     }
     if (active && !node.clickGestureRecognizer) {
@@ -365,7 +406,9 @@ export function createActions(deps: Dependencies) {
 
   function setPanAction(node: ElementNode, _value: any) {
     const prior = panViewsByNode.get(node)
-    if (prior && prior.view !== node.view) { releasePanAction(node) }
+    if (prior && prior.view !== node.view) {
+      releasePanAction(node)
+    }
     const enabled =
       !node.props.disabled &&
       (typeof node.props.onPan === 'function' || typeof node.props.onSwipe === 'function')
@@ -387,18 +430,28 @@ export function createActions(deps: Dependencies) {
     if (previous && panHandlersByView.get(previous.view) === previous.handler) {
       panHandlersByView.delete(previous.view)
     }
-    const handler = enabled ? (event: PanEvent) => {
-      if (node.view !== view || panHandlersByView.get(view) !== handler || !canDispatch(node)) { return }
-      try {
-        node.container.root!.eventScope('discrete', () => {
-          node.props.onPan?.(event)
-          const direction = swipeDirection(event)
-          if (direction !== null && canDispatch(node) && panHandlersByView.get(view) === handler) {
-            node.props.onSwipe?.({ direction })
+    const handler = enabled
+      ? (event: PanEvent) => {
+          if (node.view !== view || panHandlersByView.get(view) !== handler || !canDispatch(node)) {
+            return
           }
-        })
-      } catch (error) { console.error('[macos-event] pan/swipe handler failed', error) }
-    } : undefined
+          try {
+            node.container.root!.eventScope('discrete', () => {
+              node.props.onPan?.(event)
+              const direction = swipeDirection(event)
+              if (
+                direction !== null &&
+                canDispatch(node) &&
+                panHandlersByView.get(view) === handler
+              ) {
+                node.props.onSwipe?.({ direction })
+              }
+            })
+          } catch (error) {
+            console.error('[macos-event] pan/swipe handler failed', error)
+          }
+        }
+      : undefined
     panViewsByNode.set(node, { view, handler })
     panHandlersByView.set(view, handler)
   }
@@ -412,7 +465,9 @@ export function createActions(deps: Dependencies) {
       node,
       typeof value === 'function'
         ? () => {
-            if (!canDispatch(node) || node.props.editable === false) { return }
+            if (!canDispatch(node) || node.props.editable === false) {
+              return
+            }
             try {
               node.container.root!.eventScope('discrete', () => value(readValue()))
             } catch (error) {
@@ -426,17 +481,31 @@ export function createActions(deps: Dependencies) {
   /** Return-key submission for single-line fields, invoked by the field's
    *  target/action — kept distinct from per-edit `onTextChange`. */
   function setTextSubmitAction(node: ElementNode, value: any) {
-    const handler = typeof value === 'function' ? () => {
-      if (node.submitHandler !== handler || !canDispatch(node) || node.props.editable === false) { return }
-      try { node.container.root!.eventScope('discrete', value) }
-      catch (error) { console.error('[macos-event] text submit handler failed', error) }
-    } : null
+    const handler =
+      typeof value === 'function'
+        ? () => {
+            if (
+              node.submitHandler !== handler ||
+              !canDispatch(node) ||
+              node.props.editable === false
+            ) {
+              return
+            }
+            try {
+              node.container.root!.eventScope('discrete', value)
+            } catch (error) {
+              console.error('[macos-event] text submit handler failed', error)
+            }
+          }
+        : null
     node.submitHandler = handler
   }
 
   function dispatchPan(view: object, event: PanEvent): boolean {
     const handler = panHandlersByView.get(view)
-    if (!handler) { return false }
+    if (!handler) {
+      return false
+    }
     handler(event)
     return true
   }
@@ -449,10 +518,16 @@ export function createActions(deps: Dependencies) {
     node.clickGestureRecognizer = undefined
     const failures = new FailureCollector()
     if (recognizer) {
-      failures.run('click disable', () => { recognizer.enabled = false })
+      failures.run('click disable', () => {
+        recognizer.enabled = false
+      })
       failures.run('click detach', () => {
         const view = owned?.view ?? node.view
-        if (view && 'removeGestureRecognizer' in view && typeof view.removeGestureRecognizer === 'function') {
+        if (
+          view &&
+          'removeGestureRecognizer' in view &&
+          typeof view.removeGestureRecognizer === 'function'
+        ) {
           view.removeGestureRecognizer(recognizer)
         }
       })
@@ -463,15 +538,23 @@ export function createActions(deps: Dependencies) {
   function releasePanAction(node: ElementNode) {
     const pan = panViewsByNode.get(node)
     panViewsByNode.delete(node)
-    if (pan && panHandlersByView.get(pan.view) === pan.handler) { panHandlersByView.delete(pan.view) }
+    if (pan && panHandlersByView.get(pan.view) === pan.handler) {
+      panHandlersByView.delete(pan.view)
+    }
     const recognizer = node.panGestureRecognizer
     node.panGestureRecognizer = undefined
     const failures = new FailureCollector()
     if (recognizer) {
-      failures.run('pan disable', () => { recognizer.enabled = false })
+      failures.run('pan disable', () => {
+        recognizer.enabled = false
+      })
       failures.run('pan detach', () => {
         const view = pan?.view ?? node.view
-        if (view && 'removeGestureRecognizer' in view && typeof view.removeGestureRecognizer === 'function') {
+        if (
+          view &&
+          'removeGestureRecognizer' in view &&
+          typeof view.removeGestureRecognizer === 'function'
+        ) {
           view.removeGestureRecognizer(recognizer)
         }
       })
@@ -488,8 +571,15 @@ export function createActions(deps: Dependencies) {
   }
 
   return {
-    allocate, invokeAction, idForView, hasHandler, acquireAction, adoptAction, setNodeHandler,
-    dispatchPan, disposeActions,
+    allocate,
+    invokeAction,
+    idForView,
+    hasHandler,
+    acquireAction,
+    adoptAction,
+    setNodeHandler,
+    dispatchPan,
+    disposeActions,
     buttonActionTarget,
     setAction,
     setPanAction,
