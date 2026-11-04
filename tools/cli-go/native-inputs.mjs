@@ -33,6 +33,10 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/fonts.ts',
 		'packages/cli/src/fonts.ts',
 		'packages/cli/src/fonts-worker.ts',
+		'packages/cli/src/commands/workshop.ts',
+		'packages/cli/src/workshop-worker.ts',
+		'packages/workshop/package.json',
+		'packages/workshop/vite.config.ts',
 		'packages/app/src/assets/fonts/Geist-Variable.ttf',
 		'packages/app/src/assets/fonts/OFL.txt',
 		'packages/cli/test/fixtures/inter-latin-wght-normal.woff2',
@@ -91,6 +95,11 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',
 	)
+	for (const file of readdirSync(join(root, 'packages/workshop/src/build'), { recursive: true })) {
+		if (/\.(ts|js)$/.test(file)) {
+			files.push('packages/workshop/src/build/' + file.replaceAll('\\', '/'))
+		}
+	}
 	for (const file of readdirSync(join(root, 'packages/cli/src/macos'), { recursive: true })) {
 		if (/\.(ts|js)$/.test(file)) {
 			files.push('packages/cli/src/macos/' + file.replaceAll('\\', '/'))

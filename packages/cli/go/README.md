@@ -59,6 +59,19 @@ Go owns argv, cwd, environment, timeouts, publication, sessions, logs, cancellat
 and cleanup. Use small workers for operations requiring the project's JavaScript
 compiler, plugin or configuration execution, never a general CLI fallback.
 
+Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
+through that small worker. Story discovery is static; project configuration executes
+with the project's Vite. JSON discovery diagnostics remain data with exit zero;
+human diagnostics fail after printing the inventory. Doctor reports prerequisites,
+not qualified platform support. Initialization and service launching remain pending
+in their schemas until their publication and lifecycle work is implemented.
+
+```sh
+# From a project with its CLI worker and workshop package installed:
+/absolute/path/to/xplat-go workshop list --json --target web
+/absolute/path/to/xplat-go workshop doctor --json
+```
+
 `routes` uses that boundary: the selected project's `@octane-xplat/cli/worker`
 parses source, runs baked loaders through its Vite installation, and renders the
 canonical 18-artifact plan. Go validates the complete destination set, checks raw

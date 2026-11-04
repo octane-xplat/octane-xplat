@@ -368,3 +368,15 @@ peer is installed only for this fixture; its absence has an actionable diagnosti
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go font registration"}' -- bun run turbo run test:go-fonts test:go-unit test:fonts --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
 ```
+
+`test:go-workshop` compares native inspection against the actual workshop Node
+engine and project Vite configuration, including static story discovery, JSON/human
+diagnostic exit behavior, package boundaries, malformed responses with a valid
+control, and POSIX cancellation of a config-started descendant. The fixture uses
+the actual built workshop manifest/backend staged beside an installed curated
+CLI worker, with its real pinned scanner dependency. It is not a released
+workshop tarball or a running native workshop host.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go workshop inspection"}' -- bun run turbo run test:go-workshop test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```

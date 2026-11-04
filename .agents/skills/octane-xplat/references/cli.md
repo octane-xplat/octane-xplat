@@ -12,6 +12,12 @@ staged privately across installation. This release-policy exception does not mov
 compiler/plugin resolution away from the selected project, embed Node, or invoke
 the old CLI. Consult that entry and Silo for actual command/target qualification.
 
+Go workshop inspection calls the selected project's workshop Node engine. JSON
+discovery diagnostics are data with exit zero; human diagnostics fail. Static
+story discovery does not execute story modules, though Vite configuration does
+execute. Doctor availability does not qualify a native host. Consult the group
+schema before using initialization or service launching in the parallel CLI.
+
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
 discovery. Native `status` reports actual installed bindings, tool observations,

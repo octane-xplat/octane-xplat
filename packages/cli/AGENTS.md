@@ -1180,6 +1180,18 @@ remain visible on failure. Package specs passed to a Windows shell need a closed
 valid package-name grammar. Do not resolve Fontsource from a global installation
 or bypass a nearer broken package.
 
+Workshop inspection uses the selected project's `@octane-xplat/workshop/node`
+through the small CLI worker, with no old command-parser fallback. Keep discovery
+static: executing workshop configuration is intentional; executing story modules
+is not. Preserve JSON discovery diagnostics as data with a successful exit, while
+human discovery diagnostics fail after printing the inventory. Keep configuration
+logs on stderr when stdout carries JSON. Prerequisite reports describe availability,
+not platform qualification. Workshop init/service launching have separate ownership
+and publication work; inspection support must not mark the whole group complete.
+Stage project engine fixtures beside the curated CLI. A symlink into the source
+workspace can resolve that workspace’s full old CLI through real paths and hide a
+missing export or dependency in the native package.
+
 ## Native HTTP and C interop
 
 Separate build headers from runtime libraries. A host can have `libcurl.so.4`
