@@ -28,7 +28,7 @@ export function createPickerBridge(deps: Dependencies) {
 
   function dateFromMillis(millis: number | undefined) {
     if (
-      typeof NSDate !== 'function' ||
+      typeof NSDate?.dateWithTimeIntervalSince1970 !== 'function' ||
       typeof millis !== 'number' ||
       !Number.isFinite(millis) ||
       !Number.isFinite(new Date(millis).getTime())
@@ -256,7 +256,7 @@ export function createPickerBridge(deps: Dependencies) {
     if (
       !view ||
       typeof view.addSubview !== 'function' ||
-      typeof NSDatePicker !== 'function' ||
+      typeof NSDatePicker?.alloc !== 'function' ||
       !deps.actions.buttonActionTarget
     ) {
       return null

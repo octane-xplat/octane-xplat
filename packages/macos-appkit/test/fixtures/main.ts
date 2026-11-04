@@ -9,6 +9,7 @@ import { checkListLifecycle } from './list-lifecycle'
 import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
+import { checkPickerBridgeLifecycle } from './picker-bridge-lifecycle'
 import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
@@ -103,6 +104,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
         detachMenu()
       }
       console.log('PACKED_CONTEXTMENU_OK')
+      checkPickerBridgeLifecycle(app, nativeWindow.contentView)
 
       nativeWindow.contentView.layoutSubtreeIfNeeded()
       check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')

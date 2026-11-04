@@ -90,6 +90,7 @@ for (const file of [
   'activity-lifecycle.ts',
   'Html.macos.tsx',
   'html-lifecycle.ts',
+  'picker-bridge-lifecycle.ts',
   'Formatted.macos.tsx',
   'formatted-lifecycle.ts',
   'Search.macos.tsx',
@@ -310,6 +311,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
     assert.match(output, /PACKED_CONTEXTMENU_OK/)
+    assert.match(output, /PACKED_PICKER_BRIDGE_OK/)
     assert.match(output, /PACKED_STACKLAYOUT_OK/)
     assert.match(output, /PACKED_CONTENTVIEW_OK/)
     assert.match(output, /PACKED_DOCKLAYOUT_OK/)

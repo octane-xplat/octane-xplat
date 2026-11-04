@@ -111,5 +111,12 @@ Its native menu check also verifies registration, attachment and programmatic
 Objective-C selector dispatch; physical right-click/responder behavior remains
 a separate qualification.
 Raw date/time picker lifecycle checks do not qualify `picker-bridge.ts`'s
-separate native attachment path. Its `NSDate`/`NSDatePicker` callable-class
-guards still need targeted native qualification.
+separate native attachment path. The packed bridge fixture checks date, time
+and combined components, initial selection/bounds, complete bound removal,
+programmatic updates without echoes, selector dispatch, disabled dispatch and
+retirement (constraints, target, selector and held-target dispatch). Both
+`NSDate` and `NSDatePicker` are object handles on this host; check the date
+factory method and `alloc` capability respectively. This evidence does not
+establish physical picker input, visual appearance or accessibility behavior.
+Track the bridge defect through [#117](https://github.com/octane-xplat/octane-xplat/issues/117)
+until normal integration.
