@@ -1081,36 +1081,59 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   // (compiled into the app assembly via App_Resources\Windows\Interop)
   // takes (object picker, long hwnd) — both marshal cleanly.
   if (hwnd !== null && typeof dotnet?.invoke === 'function') {
+    // The picker's JS proxy marshals to managed code as System.String — the
+    // bridge only materializes an RCW when the runtime writes a WinRtRef arg.
+    // Sweep the candidate carriers (tracked handle / handleOf wrappers) to
+    // find which one crosses as a real object.
+    const carriers: Array<[string, unknown]> = [['picker', picker]]
+    try { carriers.push(['picker.handle', (picker as { handle?: unknown }).handle]) } catch {}
     try {
-      out.pickerDescribe = dotnet.invoke(
-        '',
-        'OctaneXplat.Interop.ServiceInterop',
-        'Describe',
-        [picker],
-      )
-    } catch (error) {
-      out.pickerDescribeError = error instanceof Error ? error.message : String(error)
-    }
-    const initAttempts: string[] = []
-    for (const asm of ['', 'windows', 'app']) {
+      const h = interop?.handleOf?.(picker)
+      carriers.push(['handleOf', h])
+      carriers.push(['handleOf.handle', (h as { handle?: unknown } | null)?.handle])
+    } catch {}
+    try { carriers.push(['dotnet.wrap', dotnet.wrap?.(picker)]) } catch {}
+    try { carriers.push(['interop.pointer', interop?.pointer?.(picker)]) } catch {}
+    const describeAttempts: string[] = []
+    let carrier: unknown = null
+    let carrierName = ''
+    for (const [name, candidate] of carriers) {
+      if (candidate === undefined || candidate === null) continue
       try {
-        const result = dotnet.invoke(
-          asm,
-          'OctaneXplat.Interop.ServiceInterop',
-          'InitializeWithWindow',
-          [picker, hwnd],
-        )
-        initAttempts.push(`${asm || 'auto'}: ${String(result)}`)
-        if (typeof result === 'string' && result.startsWith('ok')) {
-          out.initVia = asm || 'auto'
-          out.initialized = true
-          break
+        const desc = dotnet.invoke('', 'OctaneXplat.Interop.ServiceInterop', 'Describe', [candidate])
+        describeAttempts.push(`${name}=${String(desc)}`)
+        if (typeof desc === 'string' && !desc.startsWith('System.String') && desc !== 'null' && !carrier) {
+          carrier = candidate
+          carrierName = name
         }
       } catch (error) {
-        initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
+        describeAttempts.push(`${name}: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
-    out.initAttempts = initAttempts
+    out.describeAttempts = describeAttempts
+    out.carrier = carrierName || null
+    if (carrier !== null) {
+      const initAttempts: string[] = []
+      for (const asm of ['', 'windows', 'app']) {
+        try {
+          const result = dotnet.invoke(
+            asm,
+            'OctaneXplat.Interop.ServiceInterop',
+            'InitializeWithWindow',
+            [carrier, hwnd],
+          )
+          initAttempts.push(`${asm || 'auto'}: ${String(result)}`)
+          if (typeof result === 'string' && result.startsWith('ok')) {
+            out.initVia = asm || 'auto'
+            out.initialized = true
+            break
+          }
+        } catch (error) {
+          initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      }
+      out.initAttempts = initAttempts
+    }
   }
   try {
     const op = picker.PickSingleFileAsync()
