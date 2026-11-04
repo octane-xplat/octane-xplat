@@ -1,8 +1,6 @@
 ### Restore native macOS date-picker attachment
 
-Native macOS date pickers no longer disappear when the AppKit host exposes
-native classes as object handles. Date, time and combined pickers can attach
-and receive selection and range updates through the renderer bridge.
+Native macOS date pickers no longer disappear when the AppKit host exposes native classes as object handles. Date, time and combined pickers can attach and receive selection and range updates through the renderer bridge.
 
 ```tsx
 // Appointment.macos.tsx

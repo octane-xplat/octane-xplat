@@ -21,9 +21,7 @@ export function Roster({ people, start, setStart }) {
 
 [Linux GTK guide](https://octane-xplat.goddardai.org/linux-gtk)
 
-The public tooltip hook supports separate position and interaction refs,
-controlled visibility, and placement overrides on GTK. Embedded WebView pages
-can send JSON values through `postToHost` to the host's `onMessage` callback.
+The public tooltip hook supports separate position and interaction refs, controlled visibility, and placement overrides on GTK. Embedded WebView pages can send JSON values through `postToHost` to the host's `onMessage` callback.
 
 ```tsx
 import { View, Text, WebView, useTooltip } from '@octane-xplat/ui'

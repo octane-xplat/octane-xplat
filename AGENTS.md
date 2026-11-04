@@ -213,6 +213,10 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
   plain language, a minimal usage/fix snippet for API changes, and official
   documentation links. Internal-only work needs no note. Conventional Commits
   determine versions; the Markdown files determine release notes.
+- In pending `.changelog/**/*.md` entries, keep each prose paragraph on one
+  source line; do not insert soft line breaks to wrap text. Preserve blank
+  lines between paragraphs and structural line breaks in code fences, lists,
+  tables, and YAML headers.
 - `CHANGELOG.md` and `FIXLOG.md` are assembled at release time. Do not edit
   them during feature/fix work. Explain project-specific terms and unusual
   meanings in their owning topic, following [terminology guidance](.agents/docs/documentation.md#terminology).
