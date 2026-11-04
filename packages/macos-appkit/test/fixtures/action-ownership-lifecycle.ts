@@ -58,12 +58,23 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     const press = debug.findId('lease-press'),
       ax = debug.findId('lease-ax-only')
     check(press.accessibilityPerformPress(), 'AX press missing')
-    check(
-      ax.accessibilityRole === 'AXSlider' && ax.accessibilityLabel === 'Volume',
-      'AX-only semantics missing',
+    const role =
+      typeof ax.accessibilityRole === 'function' ? ax.accessibilityRole() : ax.accessibilityRole
+    const label =
+      typeof ax.accessibilityLabel === 'function' ? ax.accessibilityLabel() : ax.accessibilityLabel
+    console.log(
+      'PACKED_AX_GETTER_SHAPES',
+      typeof ax.accessibilityRole,
+      typeof ax.accessibilityLabel,
     )
     check(
-      !ax.acceptsFirstResponder && !ax.accessibilityPerformPress(),
+      role === 'AXSlider' && label === 'Volume',
+      'AX-only semantics missing: ' + String(role) + '/' + String(label),
+    )
+    check(
+      !(typeof ax.acceptsFirstResponder === 'function'
+        ? ax.acceptsFirstResponder()
+        : ax.acceptsFirstResponder) && !ax.accessibilityPerformPress(),
       'AX-only view manufactured a press action',
     )
     check(
