@@ -1077,39 +1077,47 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
     out.handleOfMembers = h ? Object.getOwnPropertyNames(h) : []
     out.handleOfNativePtr = typeof h?.__native_ptr
   } catch {}
-  // IntPtr marshalling: op_Explicit(long) or a System.IntPtr proxy ctor.
+  // IntPtr marshalling: only a real .NET proxy (with __handle) marshals back
+  // as IntPtr — primitive returns (op_Explicit) unwrap to plain numbers.
   let intPtr: unknown = null
   const intPtrAttempts: string[] = []
-  if (typeof dotnet?.invoke === 'function' && hwnd !== null) {
-    for (const asm of ['System.Private.CoreLib', 'mscorlib', '']) {
-      try {
-        const v = dotnet.invoke(asm, 'System.IntPtr', 'op_Explicit', [hwnd])
-        intPtrAttempts.push(`${asm || 'auto'} op_Explicit: ${typeof v}`)
-        if (v !== null && v !== undefined) {
-          intPtr = v
-          out.intPtrVia = `${asm || 'auto'} op_Explicit`
-          break
-        }
-      } catch (error) {
-        intPtrAttempts.push(`${asm || 'auto'} op_Explicit: ${error instanceof Error ? error.message : String(error)}`)
+  const isHandleProxy = (v: unknown) =>
+    typeof v === 'object' && v !== null && typeof (v as { __handle?: number }).__handle === 'number'
+  if (hwnd !== null) {
+    out.systemNsBefore = typeof (globalThis as Record<string, any>).System
+    try {
+      if (typeof dotnet?.registerNamespace === 'function') {
+        dotnet.registerNamespace('System', 'System.Private.CoreLib')
       }
+      const sys = (globalThis as Record<string, any>).System
+      out.systemNsAfter = typeof sys
+      out.intPtrType = typeof sys?.IntPtr
+      if (typeof sys?.IntPtr === 'function' || (typeof sys?.IntPtr === 'object' && sys.IntPtr !== null)) {
+        const v = new sys.IntPtr(hwnd)
+        intPtrAttempts.push(`ctor: ${typeof v} handle=${String((v as { __handle?: number }).__handle)}`)
+        if (isHandleProxy(v)) {
+          intPtr = v
+          out.intPtrVia = 'new System.IntPtr'
+        }
+      }
+    } catch (error) {
+      intPtrAttempts.push(`ctor: ${error instanceof Error ? error.message : String(error)}`)
     }
-    if (intPtr === null) {
-      try {
-        out.systemNs = typeof (globalThis as Record<string, any>).System
-        if (typeof dotnet.registerNamespace === 'function') {
-          dotnet.registerNamespace('System', 'System.Private.CoreLib')
+    if (intPtr === null && typeof dotnet?.invoke === 'function') {
+      // Marshal.GetIUnknownForObject-style helpers that RETURN IntPtr also
+      // unwrap to number; but a static returning a handle-boxed IntPtr or a
+      // void(out IntPtr) shape may exist — probe the obvious candidates.
+      for (const [asm, type, method] of [
+        ['System.Private.CoreLib', 'System.IntPtr', 'op_Explicit'],
+        ['System.Private.CoreLib', 'System.IntPtr', 'op_Implicit'],
+        ['', 'System.IntPtr', 'FromInt64'],
+      ] as const) {
+        try {
+          const v = dotnet.invoke(asm, type, method, [hwnd])
+          intPtrAttempts.push(`${type}.${method}: ${typeof v}`)
+        } catch (error) {
+          intPtrAttempts.push(`${type}.${method}: ${error instanceof Error ? error.message : String(error)}`)
         }
-        const sys = (globalThis as Record<string, any>).System
-        if (sys?.IntPtr) {
-          const v = new sys.IntPtr(hwnd)
-          if (v !== null && v !== undefined) {
-            intPtr = v
-            out.intPtrVia = 'new System.IntPtr'
-          }
-        }
-      } catch (error) {
-        intPtrAttempts.push(`ctor: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
   }
