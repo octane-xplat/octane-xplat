@@ -17,7 +17,7 @@ import {
   NSTextViewDelegate,
   interop,
 } from '@octane-xplat/platform/macos'
-import type { NSControl } from '@octane-xplat/platform/macos'
+import type { NSControl, NSGestureRecognizer } from '@octane-xplat/platform/macos'
 import { configureGesture, swipeDirection, registerGestureClass } from './gestures'
 import { isWritingTextValue, notifyTextValueCommit } from './text-value.ts'
 import {
@@ -50,6 +50,8 @@ export function createActions(deps: Dependencies) {
     ElementNode,
     { action: ActionRegistration; view: object | null }
   >()
+  const clickRecognizersByView = new WeakMap<object, NSGestureRecognizer>()
+  const panRecognizersByView = new WeakMap<object, NSGestureRecognizer>()
   const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | undefined>()
   const panViewsByNode = new WeakMap<
     ElementNode,
@@ -134,6 +136,9 @@ export function createActions(deps: Dependencies) {
     }
 
     ['viewPressed:'](sender: NSClickGestureRecognizer) {
+      if (clickRecognizersByView.get(sender.view) !== sender) {
+        return
+      }
       invokeAction(idForView(sender.view))
     }
 
@@ -151,6 +156,7 @@ export function createActions(deps: Dependencies) {
       if (
         !node ||
         node.view !== view ||
+        node.linkClickRecognizer !== sender ||
         node.lifecycle === 'disposing' ||
         node.lifecycle === 'disposed' ||
         node.type !== 'label' ||
@@ -229,6 +235,9 @@ export function createActions(deps: Dependencies) {
     }
 
     viewPanned(sender: NSPanGestureRecognizer) {
+      if (panRecognizersByView.get(sender.view) !== sender) {
+        return
+      }
       const handler = panHandlersByView.get(sender.view)
       if (!handler) {
         return
@@ -383,6 +392,7 @@ export function createActions(deps: Dependencies) {
     }
     if (node.clickGestureRecognizer) {
       node.clickGestureRecognizer.enabled = active && !node.props.disabled
+      clickRecognizersByView.set(node.view!, node.clickGestureRecognizer)
     }
 
     setNodeHandler(
@@ -423,6 +433,7 @@ export function createActions(deps: Dependencies) {
 
     if (node.panGestureRecognizer) {
       node.panGestureRecognizer.enabled = enabled
+      panRecognizersByView.set(node.view!, node.panGestureRecognizer)
     }
 
     const view = node.view!
@@ -516,6 +527,9 @@ export function createActions(deps: Dependencies) {
     owned?.action.release()
     const recognizer = node.clickGestureRecognizer
     node.clickGestureRecognizer = undefined
+    if (owned?.view && clickRecognizersByView.get(owned.view) === recognizer) {
+      clickRecognizersByView.delete(owned.view)
+    }
     const failures = new FailureCollector()
     if (recognizer) {
       failures.run('click disable', () => {
@@ -543,6 +557,9 @@ export function createActions(deps: Dependencies) {
     }
     const recognizer = node.panGestureRecognizer
     node.panGestureRecognizer = undefined
+    if (pan && panRecognizersByView.get(pan.view) === recognizer) {
+      panRecognizersByView.delete(pan.view)
+    }
     const failures = new FailureCollector()
     if (recognizer) {
       failures.run('pan disable', () => {

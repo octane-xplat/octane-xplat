@@ -141,10 +141,13 @@ const CSS_SLICE_STUBS = `
 if (typeof canDispatch === 'undefined') var canDispatch = (n) => n.lifecycle !== 'disposing' && n.lifecycle !== 'disposed' && !n.props?.disabled && n.props?.isEnabled !== false && n.props?.enabled !== false
 globalThis.actionIdsByView ??= new WeakMap()
 globalThis.linkOwners ??= new WeakMap()
+globalThis.linkOwnersByView ??= new WeakMap()
 if (typeof disposeTextLinks === 'undefined') var disposeTextLinks = () => {}
 globalThis.nodeActions ??= new WeakMap()
 globalThis.panViewsByNode ??= new WeakMap()
 globalThis.panHandlersByView ??= new WeakMap()
+globalThis.clickRecognizersByView ??= new WeakMap()
+globalThis.panRecognizersByView ??= new WeakMap()
 globalThis.legacyAxState ??= createAccessibilityState()
 globalThis.leases ??= new WeakMap()
 if (typeof getAccessibilityProps === 'undefined') var getAccessibilityProps = (view) => legacyAxState.get(view)

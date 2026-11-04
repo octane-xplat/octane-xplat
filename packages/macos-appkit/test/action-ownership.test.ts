@@ -214,13 +214,15 @@ test('production pan delegate preserves local coordinates, velocity, swipe and s
     })
   node.props = { onPan: (event) => f.events.push(event), onSwipe: (event) => f.events.push(event) }
   f.actions.setPanAction(node, node.props.onPan)
-  f.actions.buttonActionTarget.viewPanned({
-    view: node.view,
-    state: 2,
-    translationInView: () => ({ x: 4, y: 5 }),
-    velocityInView: () => ({ x: 6, y: 7 }),
-    locationInView: () => ({ x: 12, y: 13 }),
-  } as any)
+  f.actions.buttonActionTarget.viewPanned(
+    Object.assign(node.panGestureRecognizer, {
+      view: node.view,
+      state: 2,
+      translationInView: () => ({ x: 4, y: 5 }),
+      velocityInView: () => ({ x: 6, y: 7 }),
+      locationInView: () => ({ x: 12, y: 13 }),
+    }),
+  )
   assert.deepEqual(f.events[0], {
     x: 10,
     y: 80,
@@ -263,9 +265,14 @@ test('replaced click/pan views and older pan cleanup cannot dispatch or retire n
   assert.equal(f.actions.dispatchPan(oldView, {} as any), false)
   assert.deepEqual(oldView.removed, [oldClick, oldPan])
   f.actions.invokeAction(node.actionId)
+  const heldClick = node.clickGestureRecognizer,
+    heldPan = node.panGestureRecognizer
   const replacement = f.node('masonview', currentView)
   replacement.props.onPan = () => f.events.push('replacement')
   f.actions.setPanAction(replacement, replacement.props.onPan)
+  f.actions.setAction(replacement, () => f.events.push('new-click'))
+  f.actions.buttonActionTarget['viewPressed:'](Object.assign(heldClick, { view: currentView }))
+  f.actions.buttonActionTarget.viewPanned(Object.assign(heldPan, { view: currentView }))
   f.actions.disposeActions(node)
   assert.equal(f.actions.dispatchPan(currentView, {} as any), true)
   assert.deepEqual(f.events, ['current', 'replacement'])
@@ -302,6 +309,16 @@ test('pooled native AX links keep simultaneous same-name owners separate and ret
   b.handler()
   assert.deepEqual(oldView.accessibilityCustomActions, [])
   second.view.accessibilityCustomActions[0].handler()
+  const replacement = f.node('label', second.view)
+  replacement.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('replacement') }]
+  const staleAction = second.view.accessibilityCustomActions[0]
+  text.syncTextLinks(replacement)
+  const currentAction = replacement.view.accessibilityCustomActions[0]
+  staleAction.handler()
   text.disposeTextLinks(second)
-  assert.deepEqual(f.events, ['first', 'second', 'second', 'second'])
+  assert.equal(replacement.view.accessibilityCustomActions[0], currentAction)
+  currentAction.handler()
+  text.disposeTextLinks(replacement)
+  text.disposeTextLinks(second)
+  assert.deepEqual(f.events, ['first', 'second', 'second', 'second', 'replacement'])
 })

@@ -269,13 +269,13 @@ function panFixture() {
 
   api.setPanAction(f.node)
   f.node.view.bounds = { origin: { x: 10, y: 20 }, size: { width: 100, height: 100 } }
-  const sender = {
+  const sender = Object.assign(f.node.panGestureRecognizer, {
     view: f.node.view,
     state: 3,
     locationInView: () => ({ x: 30, y: 50 }),
     translationInView: () => ({ x: 10, y: 40 }),
     velocityInView: () => ({ x: 2, y: 3 }),
-  }
+  })
 
   return { ...f, ...api, events, sender, handlers }
 }

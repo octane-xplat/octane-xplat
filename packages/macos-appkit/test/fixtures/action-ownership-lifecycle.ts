@@ -1,5 +1,10 @@
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import { NSApplication, NSView, NSButton } from '@octane-xplat/platform/macos'
+import {
+  NSApplication,
+  NSView,
+  NSButton,
+  NSClickGestureRecognizer,
+} from '@octane-xplat/platform/macos'
 import Actions from './Actions'
 
 export async function checkActionOwnershipLifecycle(nativeWindow: any) {
@@ -58,6 +63,18 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     const press = debug.findId('lease-press'),
       ax = debug.findId('lease-ax-only')
     check(press.accessibilityPerformPress(), 'AX press missing')
+    let click: any
+    for (let index = 0; index < Number(press.gestureRecognizers.count); index++) {
+      const recognizer = press.gestureRecognizers.objectAtIndex(index)
+      if (recognizer instanceof NSClickGestureRecognizer) {
+        click = recognizer
+        break
+      }
+    }
+    check(click, 'Native click recognizer missing')
+    const beforeClick = calls.length
+    check(app.sendActionToFrom('viewPressed:', target, click), 'Native click selector unavailable')
+    check(calls.length === beforeClick + 1, 'Native recognizer identity did not dispatch')
     const role =
       typeof ax.accessibilityRole === 'function' ? ax.accessibilityRole() : ax.accessibilityRole
     const label =
@@ -122,6 +139,7 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     const before = calls.length
     root.unmount()
     app.sendActionToFrom('buttonPressed:', target, button)
+    app.sendActionToFrom('viewPressed:', target, click)
     app.sendActionToFrom('textFieldSubmitted:', fieldTarget, field)
     firstAction.handler()
     secondAction.handler()

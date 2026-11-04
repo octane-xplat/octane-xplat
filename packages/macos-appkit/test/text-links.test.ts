@@ -212,6 +212,7 @@ test('linkPressed dispatches only the handler owning the tapped character', () =
   }
   nodes.set(view, control)
   const sender = { view, locationInView: () => ({ x: 0, y: 0 }) }
+  control.linkClickRecognizer = sender
   const target = new ButtonActionTarget()
 
   tapped.index = 2

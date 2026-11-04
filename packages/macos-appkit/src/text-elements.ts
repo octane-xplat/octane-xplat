@@ -346,20 +346,23 @@ export function createTextElements(deps: Dependencies) {
   // Retain action objects for the process, but give each node/view lifetime its
   // own slots. Sharing by link text redirects another live label's action.
   const axLinkActionPool = new Set<AxLinkSlot>()
-  const linkOwners = new WeakMap<
-    ElementNode,
-    {
-      view: NSView
-      active: boolean
-      slots: Map<string, AxLinkSlot>
-    }
-  >()
+  type TextLinkOwner = {
+    node: ElementNode
+    view: NSView
+    active: boolean
+    slots: Map<string, AxLinkSlot>
+  }
+  const linkOwners = new WeakMap<ElementNode, TextLinkOwner>()
+  const linkOwnersByView = new WeakMap<object, TextLinkOwner>()
 
   function retireTextLinks(node: ElementNode) {
     const owner = linkOwners.get(node)
     linkOwners.delete(node)
     if (owner) {
       owner.active = false
+      if (linkOwnersByView.get(owner.view) === owner) {
+        linkOwnersByView.delete(owner.view)
+      }
       for (const slot of owner.slots.values()) {
         slot.dispatch = null
       }
@@ -386,6 +389,13 @@ export function createTextElements(deps: Dependencies) {
   /** Labels with folded link runs own one click recognizer; hits are resolved
    *  per glyph in `linkPressed` so a mixed paragraph never fires as one action. */
   function syncTextLinks(node: ElementNode) {
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+      return
+    }
+    const viewOwner = node.view ? linkOwnersByView.get(node.view) : undefined
+    if (viewOwner && viewOwner.node !== node) {
+      releaseTextLinkView(viewOwner.node)
+    }
     const previous = linkOwners.get(node)
     if (previous && previous.view !== node.view) {
       releaseTextLinkView(node)
@@ -418,8 +428,9 @@ export function createTextElements(deps: Dependencies) {
       return
     }
     if (!owner) {
-      owner = { view, active: true, slots: new Map() }
+      owner = { node, view, active: true, slots: new Map() }
       linkOwners.set(node, owner)
+      linkOwnersByView.set(view, owner)
     }
     const currentOwner = owner
     const links = active ? (node.textLinks ?? []) : []
@@ -437,6 +448,7 @@ export function createTextElements(deps: Dependencies) {
         if (
           !currentOwner.active ||
           linkOwners.get(node) !== currentOwner ||
+          linkOwnersByView.get(view) !== currentOwner ||
           node.view !== view ||
           currentSlot.dispatch !== dispatch ||
           node.lifecycle === 'disposing' ||
@@ -482,7 +494,9 @@ export function createTextElements(deps: Dependencies) {
     }
     if (owner) {
       failures.run('AX links', () => {
-        owner.view.accessibilityCustomActions = []
+        if (!linkOwnersByView.has(owner.view)) {
+          owner.view.accessibilityCustomActions = []
+        }
       })
     }
     failures.throwIfFailed()
