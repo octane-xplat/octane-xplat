@@ -199,8 +199,24 @@ publication and cancellation) and `test:go-build-macos-real` (packed macOS worke
 compiled native C leaf, signed universal executable, verified app/DMG). The latter
 requires macOS arm64 and a native-build reservation. It never launches an app or
 performs visual analysis, retains failed fixtures for diagnosis, and records
-structured package evidence under `research/go-cli/`. NativeScript SDK execution
-remains separate work; help/schema disclose pending engines.
+structured package evidence under `research/go-cli/`.
+
+`test:go-nativescript-real` runs the selected installed NativeScript CLI against
+the repository's actual mobile app and retains its engine/runtime versions,
+source-bound executable identity, diagnostic tails, exit and produced artifacts.
+It compiles only: no device, simulator or app is launched. The SDK and project
+dependencies must already be installed. The default target is iOS on macOS;
+select Android explicitly. A passed adapter fixture does not establish an SDK
+build, and SDK compilation does not establish application runtime behavior.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go iOS SDK build"}' -- bun run turbo run test:go-nativescript-real --filter=@octane-xplat/cli --concurrency=1
+XPLAT_GO_NS_TARGET=android goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go Android SDK build"}' -- bun run turbo run test:go-nativescript-real --filter=@octane-xplat/cli --concurrency=1
+```
+
+The runner forwards interruption to the native CLI and awaits its owned engine
+cleanup before writing the qualification record. On Windows, Node signal delivery
+is forced termination; it cannot qualify graceful console cancellation.
 
 `test:go-linux-build` compares the packed worker's actual GTK/GJS and WebKitGTK
 output to canonical Node construction, extracts and compares each tar archive,

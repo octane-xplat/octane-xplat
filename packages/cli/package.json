@@ -146,6 +146,7 @@
 		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs",
 		"test:go-routes": "node --test ../../tools/cli-go/routes.test.mjs",
 		"test:go-build-macos-real": "node --test ../../tools/cli-go/build-macos-real.test.mjs",
+		"test:go-nativescript-real": "node ../../tools/cli-go/nativescript-real.mjs",
 		"test:go-linux-build": "node --test ../../tools/cli-go/linux-build.test.mjs",
 		"test:go-build": "node --test ../../tools/cli-go/build-command.test.mjs",
 		"test:go-lint": "node --test ../../tools/cli-go/lint.test.mjs",
