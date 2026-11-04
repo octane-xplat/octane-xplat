@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/signal"
 	"slices"
 	"strings"
-	"syscall"
 )
 
 type commandHandler func(context.Context, *workspaceContext, map[string]any) (any, *cliError)
@@ -137,7 +135,7 @@ func commandHelp(command commandDescriptor) string {
 	return out.String()
 }
 func runCLI(argv []string) int {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, stop := cliSignalContext(context.Background())
 	defer stop()
 	if len(argv) == 0 || slices.Equal(argv, []string{"--help"}) || slices.Equal(argv, []string{"-h"}) {
 		fmt.Printf("xplat — parallel Go CLI %s\n\n", metadata.Version)

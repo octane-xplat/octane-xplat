@@ -156,6 +156,10 @@ Go test executables bypass production `main` functions. If an ownership fixture
 relaunches `os.Executable()` for an internal child command, dispatch that command
 from `TestMain` too; otherwise a Windows job gate can rerun the tests recursively.
 
+Record signal identity before cancelling the root context when human exit codes
+depend on it. Independent signal-notification channels can race on an idle
+handler and turn SIGTERM's 143 into SIGINT's 130 even though cleanup succeeds.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

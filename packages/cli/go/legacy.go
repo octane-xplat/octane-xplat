@@ -6,9 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/signal"
 	"slices"
-	"syscall"
 )
 
 type legacyHandler func(context.Context, map[string]any) error
@@ -49,11 +47,6 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		fmt.Print(commandHelp(*descriptor))
 		return 0
 	}
-	// The root context owns cancellation. Keep the observed signal only for the
-	// established human command exits (130/143), distinct from agent exit 8.
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
-	defer signal.Stop(signals)
 	err := handler(ctx, parsed.Values)
 	if err == nil {
 		err = ctx.Err()
@@ -70,14 +63,7 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		return 1
 	}
 	if errors.Is(err, context.Canceled) {
-		select {
-		case received := <-signals:
-			if received == syscall.SIGTERM {
-				return 143
-			}
-		default:
-		}
-		return 130
+		return legacyCancellationExit(ctx)
 	}
 	return 1
 }
