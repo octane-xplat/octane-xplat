@@ -225,11 +225,9 @@ test('valid synthetic plans publish and forged plans cannot broaden ownership', 
 	assert.equal(existsSync(join(stale.source, 'fonts.css')), false)
 	const data = fixture()
 	put(data.dir, 'src/fonts/Geist-Variable.ttf', 'user-owned-font')
-	success(run(data.dir, ['add', ...args(data)]))
-	assert.equal(
-		readFileSync(join(data.source, 'fonts/Geist-Variable.ttf'), 'utf8'),
-		'user-owned-font',
-	)
+	const userBefore = fontTree(data.dir)
+	assert.notEqual(run(data.dir, ['add', ...args(data)]).status, 0)
+	assert.deepEqual(fontTree(data.dir), userBefore)
 })
 test('cancelling an unresponsive font worker cleans descendants and permits retry', async (t) => {
 	const data = fixture(),
@@ -416,4 +414,64 @@ test('an invalid existing registration manifest is preserved rather than reset',
 	assert.notEqual(r.status, 0)
 	assert.match(r.stderr, /font manifest/)
 	assert.deepEqual(fontTree(data.dir), before)
+})
+
+test('registered font replacement refreshes bytes and managed family metadata', () => {
+	const replacement = fixture('woff2')
+	success(run(replacement.dir, ['add', ...args(replacement)]))
+	const next = readFileSync(join(replacement.source, 'fonts/inter.ttf')),
+		expected = JSON.parse(readFileSync(join(replacement.source, 'fonts/fonts.json'))).tokens.sans
+			.faces[0]
+	const data = fixture()
+	success(run(data.dir, ['add', ...args(data)]))
+	success(run(data.dir, ['add', ...args(data), '--token', 'mono']))
+	put(data.dir, 'inputs/Geist-Variable.ttf', next)
+	success(run(data.dir, ['add', ...args(data)]))
+	assert.deepEqual(readFileSync(join(data.source, 'fonts/Geist-Variable.ttf')), next)
+	const registered = JSON.parse(readFileSync(join(data.source, 'fonts/fonts.json'))).tokens.sans
+		.faces
+	assert.equal(registered.length, 1)
+	assert.equal(registered[0].names[0], expected.names[0])
+	assert.equal(registered[0].names[1], expected.names[1])
+	const mono = JSON.parse(readFileSync(join(data.source, 'fonts/fonts.json'))).tokens.mono.faces
+	assert.equal(mono[0].names[0], expected.names[0])
+	assert.ok(
+		readFileSync(join(data.source, 'style.css'), 'utf8')
+			.split('/* xplat-fonts:mono:start */')[1]
+			.includes(expected.names[0]),
+	)
+	assert.ok(
+		readFileSync(join(data.source, 'fonts.css'), 'utf8').includes(
+			"font-family: '" + expected.names[0] + "'",
+		),
+	)
+	const before = fontTree(data.dir)
+	success(run(data.dir, ['add', ...args(data)]))
+	assert.deepEqual(fontTree(data.dir), before)
+})
+
+test('different local fonts with the same destination name fail without publication', () => {
+	const other = fixture('woff2')
+	success(run(other.dir, ['add', ...args(other)]))
+	const data = fixture(),
+		second = put(
+			data.dir,
+			'more/Geist-Variable.ttf',
+			readFileSync(join(other.source, 'fonts/inter.ttf')),
+		),
+		before = fontTree(data.dir)
+	const r = run(data.dir, ['add', ...data.inputs, second, '--token', 'none'])
+	assert.notEqual(r.status, 0)
+	assert.match(r.stderr, /Conflicting font inputs/)
+	assert.deepEqual(fontTree(data.dir), before)
+})
+
+test('a custom unchanged web face remains intact on repeat registration', () => {
+	const data = fixture()
+	success(run(data.dir, ['add', ...args(data)]))
+	const path = join(data.source, 'fonts.css'),
+		custom = readFileSync(path, 'utf8').replace('font-display: swap;', 'font-display: block;')
+	writeFileSync(path, custom)
+	success(run(data.dir, ['add', ...args(data)]))
+	assert.equal(readFileSync(path, 'utf8'), custom)
 })

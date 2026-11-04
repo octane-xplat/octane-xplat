@@ -8,7 +8,10 @@ Related APIs: `xplat fonts add`, `font-family`, `--font-sans`, `--font-mono`, `f
 
 A scaffolded app with `@octane-xplat/cli` installed, a `src/` app path, a
 `main.web.tsrx` web entry, and a shared `style.css`. System fonts are the
-default; custom faces are opt-in.
+default; custom faces are opt-in. Registration accepts up to 16 MiB per font or
+managed output and 32 MiB per plan. Keep saved `src/fonts/fonts.json` valid;
+registration fails before writing if that data needs repair. Previously registered
+files can be refreshed, while conflicting unregistered files remain protected.
 
 ## Requirements
 

@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,41 +61,6 @@ func updatesDependencies(ctx context.Context, project string) error {
 	return nil
 }
 
-// Read source bytes through the selected app handle, preserving invalid UTF-8
-// rather than normalizing user-owned ignore data during an append.
-func updatesSource(scope artifactScope, before artifactState) ([]byte, error) {
-	if !before.Exists {
-		return nil, nil
-	}
-	directory, err := os.OpenRoot(scope.Anchor)
-	if err != nil {
-		return nil, err
-	}
-	defer directory.Close()
-	key, err := scope.relative(before.Path)
-	if err != nil {
-		return nil, err
-	}
-	file, err := openSourceFile(directory, key)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	info, err := file.Stat()
-	if err != nil || !info.Mode().IsRegular() || info.Size() > maxArtifactBytes {
-		return nil, errors.New("updates input must be an ordinary file within 16 MiB")
-	}
-	bytes, err := io.ReadAll(io.LimitReader(file, maxArtifactBytes+1))
-	if err != nil {
-		return nil, err
-	}
-	after, err := file.Stat()
-	if err != nil || len(bytes) > maxArtifactBytes || !sameArtifactInfo(info, after) || fmt.Sprintf("%x", sha256.Sum256(bytes)) != before.Hash {
-		return nil, errors.New("updates input changed while reading")
-	}
-	return bytes, nil
-}
-
 func updatesCommand(ctx context.Context, values map[string]any) error {
 	project := stringValue(values["dir"])
 	if project == "" {
@@ -140,7 +103,7 @@ func updatesCommand(ctx context.Context, values map[string]any) error {
 		if before.Alias || before.Target != path {
 			return fmt.Errorf("updates output contains aliases: %s", path)
 		}
-		bytes, err := updatesSource(scope, before)
+		bytes, err := readArtifactBytes(scope, before)
 		if err != nil {
 			return err
 		}

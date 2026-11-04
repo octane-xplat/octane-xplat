@@ -538,6 +538,15 @@ bun run xplat fonts add @fontsource-variable/inter --install    # Fontsource pac
 bun run xplat fonts add @fontsource/roboto --weights 400,700    # static family, chosen weights
 ```
 
+Font registration limits each input, converted font, and managed output to 16 MiB;
+one plan can contain up to 32 MiB. Use Fontsource subsets or register smaller
+collections in separate calls. If saved `src/fonts/fonts.json` data is invalid,
+repair it before retrying so existing registrations are retained.
+
+```sh
+bun run xplat fonts add @fontsource/roboto --subset latin --weights 400,700 --install
+```
+
 It reads the font's own metadata (family, PostScript name, `fvar` weight range),
 stages a `.ttf` in `src/fonts` — `.woff`/`.woff2` inputs are decompressed since
 NativeScript registers only `.ttf`/`.otf` — writes the web `@font-face` into
@@ -631,7 +640,14 @@ There is no `fonts remove` yet. To unregister a font, delete its file from
 `src/fonts`, drop its `@font-face`/`@import` line from `src/fonts.css` and its
 entry in `src/fonts/fonts.json`, and edit or delete the `xplat-fonts:*` block
 in `style.css`. Swapping in a new file is easier: replace the input and re-run
-`fonts add` — the managed block updates in place.
+`fonts add` — a file already listed in `fonts.json` is refreshed along with its
+managed web face and every token that references it. A conflicting unregistered
+file is preserved and produces an error; choose another input filename or
+reconcile that file first.
+
+```sh
+bun run xplat fonts add ./downloads/AcmeSans-Variable.ttf
+```
 
 For a bundled face with different file and internal names, put both native
 names in the platform-specific family list. NativeScript's `ns fonts` command

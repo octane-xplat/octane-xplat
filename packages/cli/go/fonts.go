@@ -108,6 +108,25 @@ func validateFontPlan(ctx context.Context, project string, plan *fontPlan) (arti
 			return fail("font plan omitted a required input observation")
 		}
 	}
+	ownedFonts := map[string]bool{}
+	manifestState := states[filepath.Join(source, "fonts", "fonts.json")]
+	if manifestState.Exists {
+		bytes, e := readArtifactBytes(scope, manifestState)
+		if e != nil {
+			return scope, nil, nil, e
+		}
+		var saved struct {
+			Tokens map[string]struct{ Faces []struct{ File string } }
+		}
+		if json.Unmarshal(bytes, &saved) != nil {
+			return fail("existing font manifest is invalid")
+		}
+		for _, token := range saved.Tokens {
+			for _, face := range token.Faces {
+				ownedFonts[face.File] = true
+			}
+		}
+	}
 	seen := map[string]bool{}
 	artifacts := []plannedArtifact{}
 	total := 0
@@ -119,8 +138,8 @@ func validateFontPlan(ctx context.Context, project string, plan *fontPlan) (arti
 		if !found || before.Exists != (file.Before != nil) || (before.Exists && before.Hash != *file.Before) {
 			return fail("font output omitted or mismatched its before-image")
 		}
-		if strings.EqualFold(filepath.Ext(file.Path), ".ttf") && before.Exists {
-			return fail("font plan cannot overwrite an existing font")
+		if strings.EqualFold(filepath.Ext(file.Path), ".ttf") && before.Exists && !ownedFonts[filepath.Base(file.Path)] {
+			return fail("font plan cannot overwrite an unregistered existing font")
 		}
 		bytes, e := base64.StdEncoding.Strict().DecodeString(*file.Content)
 		total += len(bytes)

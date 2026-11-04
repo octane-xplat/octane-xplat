@@ -282,3 +282,38 @@ func publishArtifacts(ctx context.Context, scope artifactScope, artifacts []plan
 	}
 	return nil
 }
+
+// Read source bytes through the selected app handle, preserving invalid UTF-8
+// rather than normalizing user-owned ignore data during an append.
+func readArtifactBytes(scope artifactScope, before artifactState) ([]byte, error) {
+	if !before.Exists {
+		return nil, nil
+	}
+	directory, err := os.OpenRoot(scope.Anchor)
+	if err != nil {
+		return nil, err
+	}
+	defer directory.Close()
+	key, err := scope.relative(before.Path)
+	if err != nil {
+		return nil, err
+	}
+	file, err := openSourceFile(directory, key)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil || !info.Mode().IsRegular() || info.Size() > maxArtifactBytes {
+		return nil, errors.New("artifact input must be an ordinary file within 16 MiB")
+	}
+	bytes, err := io.ReadAll(io.LimitReader(file, maxArtifactBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	after, err := file.Stat()
+	if err != nil || len(bytes) > maxArtifactBytes || !sameArtifactInfo(info, after) || fmt.Sprintf("%x", sha256.Sum256(bytes)) != before.Hash {
+		return nil, errors.New("artifact input changed while reading")
+	}
+	return bytes, nil
+}

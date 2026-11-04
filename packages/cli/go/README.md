@@ -393,6 +393,6 @@ bun add --dev wawoff2@2.0.1
 `--install` invokes the selected project's Bun/pnpm to add a missing Fontsource
 package and can change dependencies before conversion fails. Inspect those changes
 before retrying. Conversion staging is private to the managed worker operation;
-source files are published only after the complete plan validates. Existing font
-files are retained. Repair invalid saved registration JSON instead of discarding
+source files are published only after the complete plan validates. An existing font file is refreshed only when the previous saved manifest
+registers it; conflicting unregistered files are preserved and rejected. Repair invalid saved registration JSON instead of discarding
 it. These checks qualify generated files, not rendered typography or SDK builds.

@@ -704,11 +704,32 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 	const manifest = readManifest(fontsDir, read)
 	manifest.tokens[token] ??= { faces: [], webImports: [] }
 	const state = manifest.tokens[token]
+	const changedTokens = new Set([token])
+	const changedFaces = new Set()
+	const registered = new Set(
+		Object.values(manifest.tokens).flatMap((value) => value.faces.map((face) => face.file)),
+	)
 
 	for (const face of stagedFaces) {
 		const target = join(fontsDir, face.destName)
-		if (!present(target)) {
-			write(target, readFileSync(face.staged), statSync(face.staged).mode & 0o777)
+		const stagedBytes = readFileSync(face.staged)
+		const existing = read(target)
+		const pending = files.get(target)
+		if (pending && !Buffer.from(pending.content, 'base64').equals(stagedBytes)) {
+			throw new Error(
+				`Conflicting font inputs use the same filename ${face.destName}; rename one input`,
+			)
+		}
+		if (existing !== null && !existing.equals(stagedBytes) && !registered.has(face.destName)) {
+			throw new Error(
+				`Existing font ${face.destName} is not registered; choose a different filename or reconcile the existing file`,
+			)
+		}
+		if (existing === null || !existing.equals(stagedBytes)) {
+			write(target, stagedBytes, statSync(face.staged).mode & 0o777)
+			if (existing !== null) {
+				changedFaces.add(face.destName)
+			}
 			report.copied.push(face.destName)
 		}
 
@@ -721,7 +742,26 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 			names,
 		}
 
-		if (!state.faces.some((f) => f.file === entry.file && f.weight === entry.weight)) {
+		for (const [savedToken, savedState] of Object.entries(manifest.tokens)) {
+			for (const savedFace of savedState.faces) {
+				if (savedFace.file === entry.file) {
+					if (
+						JSON.stringify(savedFace.names) !== JSON.stringify(entry.names) ||
+						savedFace.variable !== entry.variable
+					) {
+						changedFaces.add(entry.file)
+					}
+					savedFace.names = entry.names
+					savedFace.variable = entry.variable
+					changedTokens.add(savedToken)
+				}
+			}
+		}
+
+		const previous = state.faces.find((f) => f.file === entry.file && f.weight === entry.weight)
+		if (previous) {
+			Object.assign(previous, entry)
+		} else {
 			state.faces.push(entry)
 		}
 
@@ -765,23 +805,31 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 			continue
 		}
 
-		if (fontsCss.includes(`./fonts/${face.destName}`)) {
-			report.warnings.push(`${face.destName} — @font-face already registered`)
-			continue
-		}
-
 		const weightCss = face.info.wght
 			? `${face.info.wght.min} ${face.info.wght.max}`
 			: String(face.weight ?? face.info.weightClass ?? 400)
 
-		fontsCss = `${fontsCss.trimEnd()}\n\n@font-face {
+		const faceCss = `@font-face {
 	font-family: '${(face.info.family ?? '').replace(/'/g, "\\'")}';
 	src: url('./fonts/${face.destName}') format('truetype');
 	font-style: normal;
 	font-weight: ${weightCss};
 	font-display: swap;
-}\n`
-
+}`
+		const existingFace = fontsCss
+			.match(/@font-face\s*\{[^}]*\}/g)
+			?.find((block) => block.includes(`./fonts/${face.destName}`))
+		if (existingFace === faceCss) {
+			report.warnings.push(`${face.destName} — @font-face already registered`)
+			continue
+		}
+		if (existingFace && !changedFaces.has(face.destName)) {
+			report.warnings.push(`${face.destName} — custom @font-face already registered; keeping it`)
+			continue
+		}
+		fontsCss = existingFace
+			? fontsCss.replace(existingFace, faceCss)
+			: `${fontsCss.trimEnd()}\n\n${faceCss}\n`
 		fontsCssChanged = true
 	}
 
@@ -804,15 +852,22 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 		)
 	}
 
-	if (token !== 'none') {
+	const styleTokens = [...changedTokens].filter((value) => value !== 'none')
+	if (styleTokens.length) {
 		const stylePath = join(srcDir, 'style.css')
 		if (!present(stylePath)) {
 			report.warnings.push(`no ${stylePath} — add the token + font-family rules manually`)
 		} else {
-			const generic = GENERIC_FALLBACKS[token] ?? ['sans-serif']
-			const block = managedBlock(token, state.faces, generic)
 			const styleCss = read(stylePath).toString('utf8')
-			const next = upsertManagedBlock(styleCss, token, block)
+			let next = styleCss
+			for (const savedToken of styleTokens) {
+				const generic = GENERIC_FALLBACKS[savedToken] ?? ['sans-serif']
+				next = upsertManagedBlock(
+					next,
+					savedToken,
+					managedBlock(savedToken, manifest.tokens[savedToken].faces, generic),
+				)
+			}
 			if (next !== styleCss) {
 				write(stylePath, next)
 				report.edited.push('style.css')
@@ -884,7 +939,8 @@ export async function planFontInputs(
 					return { error: `${basename(input)} — expected .ttf, .otf, .woff, or .woff2` }
 				}
 
-				staged.push(await stageAsTtf(input, stagingDir, basename(input, ext) + '.ttf'))
+				const localStage = mkdtempSync(join(stagingDir, 'local-'))
+				staged.push(await stageAsTtf(input, localStage, basename(input, ext) + '.ttf'))
 			}
 		}
 

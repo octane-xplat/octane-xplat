@@ -1171,8 +1171,10 @@ engine. Both frontends use its read-only plan; Go validates explicit app/source
 identity, bounded base64 artifacts and raw-byte before-images before publishing.
 Keep converter and Fontsource staging beneath the private request lifetime, and
 await group/job cleanup before removing it. WOFF2 is an optional project codec,
-not an executable payload. Preserve existing font binaries and reject malformed
-saved registration JSON; resetting it silently discards user state. Fontsource
+not an executable payload. Replace existing font binaries only when the before-image manifest registers
+them; validate this ownership independently of the proposed new manifest. Refresh
+all referring token names and managed CSS together. Preserve conflicting
+unregistered files and unchanged custom CSS. Reject malformed saved registration JSON; resetting it silently discards user state. Fontsource
 installation has separate dependency side effects before publication, which must
 remain visible on failure. Package specs passed to a Windows shell need a closed
 valid package-name grammar. Do not resolve Fontsource from a global installation
