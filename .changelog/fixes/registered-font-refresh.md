@@ -9,4 +9,11 @@ preserved and produce an error instead of being overwritten.
 bun run xplat fonts add ./downloads/AcmeSans-Variable.ttf
 ```
 
+Fontsource registration also reports the imported CSS family as the web name,
+while retaining the font's internal names for iOS.
+
+```sh
+bun run xplat fonts add @fontsource-variable/inter --install
+```
+
 See [font-family tokens](https://octane-xplat.goddardai.org/styling#font-family-tokens).

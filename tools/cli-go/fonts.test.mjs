@@ -96,8 +96,11 @@ test('font help/schema and no-input errors remain native', () => {
 test('real TTF/WOFF/WOFF2 and Fontsource registration preserves existing files', () => {
 	for (const id of fontCases) {
 		const data = fixture(id)
-		success(run(data.dir, ['add', ...args(data)]))
+		const result = run(data.dir, ['add', ...args(data)])
+		success(result)
 		const manifest = JSON.parse(readFileSync(join(data.source, 'fonts/fonts.json')))
+		const family = Object.values(manifest.tokens)[0].faces[0].names[0]
+		assert.ok(result.stdout.includes('web ' + JSON.stringify(family)), result.stdout)
 		assert.ok(Object.keys(manifest.tokens).length)
 		assert.ok(existsSync(join(data.source, 'fonts.css')))
 		if (id === 'woff' || id === 'woff2') {

@@ -697,7 +697,7 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 		throw new Error('Font source directory must be ordinary and inside the selected app')
 	}
 	const family = stagedFaces[0].info.family
-	report.names.family = family
+	report.names.family = webFamily ?? family
 
 	const fontsDir = join(srcDir, 'fonts')
 
