@@ -51,7 +51,7 @@ export function createPickerElements(deps: Dependencies) {
   /** A noneditable AppKit picker for the shared NativeScript item/index API. */
   function makeListPicker(node: ElementNode) {
     const control = makePopUpControl()
-    deps.actions.adoptAction(node, control.action)
+    deps.actions.adoptAction(node, control.action, control.view)
     node.listPickerIndex = -1
     node.listPickerRequested = -1
     return control

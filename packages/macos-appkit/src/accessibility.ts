@@ -36,22 +36,16 @@ export function createAccessibility(deps: Dependencies) {
       const props = deps.state.get(node.view!) ?? {}
       if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
         const handler = value
-        value =
-          typeof handler === 'function'
-            ? () => {
-                if (!lease.current() || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.props.disabled || node.props.isEnabled === false || node.props.enabled === false ||
-                    node.props.accessibilityState?.disabled || node.props.accessibilityState?.readonly || !node.container.root) {
-                  return false
-                }
-                try {
-                  node.container.root.eventScope('discrete', handler)
-                  return true
-                } catch (error) {
-                  console.error('[macos-event] accessibility adjustment failed', error)
-                  return false
-                }
-              }
-            : undefined
+        const adjustment = name
+        const callback = typeof handler === 'function' ? () => {
+          if (!lease.current() || deps.state.get(node.view!)?.[adjustment] !== callback ||
+              node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
+              node.props.disabled || node.props.isEnabled === false || node.props.enabled === false ||
+              node.props.accessibilityState?.disabled || node.props.accessibilityState?.readonly || !node.container.root) { return false }
+          try { node.container.root.eventScope('discrete', handler); return true }
+          catch (error) { console.error('[macos-event] accessibility adjustment failed', error); return false }
+        } : undefined
+        value = callback
       }
 
       // Native props are normalized by the owning prop handlers; only semantic

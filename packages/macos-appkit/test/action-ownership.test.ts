@@ -71,8 +71,11 @@ test('production text delegate separates editing/submission and leaves IME confi
   target.textFieldSubmitted(node.view)
   target.controlTextDidChange({ object: node.view } as any)
   const held = node.submitHandler
+  f.actions.setTextSubmitAction(node, () => f.events.push('new-submit'))
+  node.props.editable = true
+  held()
   f.actions.disposeActions(node)
-  node.lifecycle = 'disposing'; held()
+  held()
   assert.deepEqual(f.events, ['edit', 'submit'])
 })
 
@@ -89,6 +92,8 @@ test('AX-only hosts own semantic leases without click IDs and scoped adjustments
   assert.equal(view.accessibilityRole(), 'AXSlider')
   assert.equal(view.accessibilityPerformIncrement(), true)
   const held = f.state.get(view)!.onAccessibilityIncrement!
+  f.accessibility.applyAccessibility(node, 'onAccessibilityIncrement', () => f.events.push('current-increment'))
+  held()
   f.accessibility.applyAccessibility(node, 'accessibilityState', { readonly: true })
   assert.equal(view.accessibilityPerformIncrement(), false)
   f.accessibility.applyAccessibility(node, 'accessibilityState', { disabled: true })
@@ -132,5 +137,30 @@ test('production pan delegate preserves local coordinates, velocity, swipe and s
   assert.deepEqual(f.events[0], { x: 10, y: 80, deltaX: 4, deltaY: -5, velocityX: 6, velocityY: -7, state: 2, view: node.view })
   f.actions.disposeActions(node)
   assert.equal(f.actions.dispatchPan(node.view, {} as any), false)
+})
+
+test('replaced click/pan views and older pan cleanup cannot dispatch or retire newer bindings', () => {
+  const f = fixture()
+  const makeView = () => ({ added: [] as any[], removed: [] as any[], addGestureRecognizer(value) { this.added.push(value) }, removeGestureRecognizer(value) { this.removed.push(value) } })
+  const oldView = makeView(), currentView = makeView(), node = f.node('masonview', oldView)
+  f.actions.setAction(node, () => f.events.push('old'))
+  const oldId = node.actionId, oldClick = node.clickGestureRecognizer
+  node.props.onPan = () => f.events.push('pan')
+  f.actions.setPanAction(node, node.props.onPan)
+  const oldPan = node.panGestureRecognizer
+  node.view = currentView
+  f.actions.setAction(node, () => f.events.push('current'))
+  f.actions.setPanAction(node, node.props.onPan)
+  f.actions.invokeAction(oldId)
+  assert.equal(f.actions.dispatchPan(oldView, {} as any), false)
+  assert.deepEqual(oldView.removed, [oldClick, oldPan])
+  f.actions.invokeAction(node.actionId)
+  const replacement = f.node('masonview', currentView)
+  replacement.props.onPan = () => f.events.push('replacement')
+  f.actions.setPanAction(replacement, replacement.props.onPan)
+  f.actions.disposeActions(node)
+  assert.equal(f.actions.dispatchPan(currentView, {} as any), true)
+  assert.deepEqual(f.events, ['current', 'replacement'])
+  f.actions.disposeActions(replacement)
 })
 

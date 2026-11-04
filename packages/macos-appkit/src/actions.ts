@@ -46,20 +46,20 @@ interface Dependencies {
 export type Actions = ReturnType<typeof createActions>
 
 export function createActions(deps: Dependencies) {
-  const nodeActions = new WeakMap<ElementNode, ActionRegistration>()
+  const nodeActions = new WeakMap<ElementNode, { action: ActionRegistration; view: object | null }>()
   const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | undefined>()
   const panViewsByNode = new WeakMap<ElementNode, { view: object; handler: ((event: PanEvent) => void) | undefined }>()
   const { allocate, dispatch: invokeAction, idForView, hasHandler } = deps.store
 
-  function adoptAction(node: ElementNode, action: ActionRegistration) {
-    nodeActions.get(node)?.release()
-    nodeActions.set(node, action)
+  function adoptAction(node: ElementNode, action: ActionRegistration, view: object | null = node.view) {
+    nodeActions.get(node)?.action.release()
+    nodeActions.set(node, { action, view })
     node.actionId = action.id
     return action.id
   }
 
   function acquireAction(node: ElementNode, view: object) {
-    return adoptAction(node, allocate(view))
+    return adoptAction(node, allocate(view), view)
   }
 
   function canDispatch(node: ElementNode) {
@@ -74,7 +74,7 @@ export function createActions(deps: Dependencies) {
 
   function setNodeHandler(node: ElementNode, handler: (() => void) | undefined) {
     const view = node.view
-    nodeActions.get(node)?.setHandler(handler ? () => {
+    nodeActions.get(node)?.action.setHandler(handler ? () => {
       if (node.view === view && canDispatch(node)) { handler() }
     } : undefined)
   }
@@ -123,7 +123,7 @@ export function createActions(deps: Dependencies) {
       const node = view ? deps.registry.cssNodesByView.get(view) : undefined
       const links = node?.textLinks
       if (
-        !node || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
+        !node || node.view !== view || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         node.type !== 'label' ||
         !links?.length ||
         node.props.disabled === true ||
@@ -325,6 +325,8 @@ export function createActions(deps: Dependencies) {
 
   function setAction(node: ElementNode, value: any) {
     const active = typeof value === 'function'
+    const prior = nodeActions.get(node)
+    if (prior && prior.view !== node.view) { releaseNodeAction(node) }
     if (!nodeActions.has(node)) {
       if (!active || !node.view) { return }
       acquireAction(node, node.view)
@@ -362,6 +364,8 @@ export function createActions(deps: Dependencies) {
   }
 
   function setPanAction(node: ElementNode, _value: any) {
+    const prior = panViewsByNode.get(node)
+    if (prior && prior.view !== node.view) { releasePanAction(node) }
     const enabled =
       !node.props.disabled &&
       (typeof node.props.onPan === 'function' || typeof node.props.onSwipe === 'function')
@@ -422,20 +426,14 @@ export function createActions(deps: Dependencies) {
   /** Return-key submission for single-line fields, invoked by the field's
    *  target/action — kept distinct from per-edit `onTextChange`. */
   function setTextSubmitAction(node: ElementNode, value: any) {
-    node.submitHandler =
-      typeof value === 'function'
-        ? () => {
-            if (!canDispatch(node) || node.props.editable === false) {
-              return
-            }
-            try {
-              node.container.root!.eventScope('discrete', value)
-            } catch (error) {
-              console.error('[macos-event] text submit handler failed', error)
-            }
-          }
-        : null
+    const handler = typeof value === 'function' ? () => {
+      if (node.submitHandler !== handler || !canDispatch(node) || node.props.editable === false) { return }
+      try { node.container.root!.eventScope('discrete', value) }
+      catch (error) { console.error('[macos-event] text submit handler failed', error) }
+    } : null
+    node.submitHandler = handler
   }
+
   function dispatchPan(view: object, event: PanEvent): boolean {
     const handler = panHandlersByView.get(view)
     if (!handler) { return false }
@@ -443,23 +441,49 @@ export function createActions(deps: Dependencies) {
     return true
   }
 
-  function disposeActions(node: ElementNode) {
-    const action = nodeActions.get(node)
+  function releaseNodeAction(node: ElementNode) {
+    const owned = nodeActions.get(node)
     nodeActions.delete(node)
-    action?.release()
-    node.submitHandler = null
+    owned?.action.release()
+    const recognizer = node.clickGestureRecognizer
+    node.clickGestureRecognizer = undefined
+    const failures = new FailureCollector()
+    if (recognizer) {
+      failures.run('click disable', () => { recognizer.enabled = false })
+      failures.run('click detach', () => {
+        const view = owned?.view ?? node.view
+        if (view && 'removeGestureRecognizer' in view && typeof view.removeGestureRecognizer === 'function') {
+          view.removeGestureRecognizer(recognizer)
+        }
+      })
+    }
+    failures.throwIfFailed()
+  }
+
+  function releasePanAction(node: ElementNode) {
     const pan = panViewsByNode.get(node)
     panViewsByNode.delete(node)
     if (pan && panHandlersByView.get(pan.view) === pan.handler) { panHandlersByView.delete(pan.view) }
+    const recognizer = node.panGestureRecognizer
+    node.panGestureRecognizer = undefined
     const failures = new FailureCollector()
-    for (const name of ['clickGestureRecognizer', 'panGestureRecognizer'] as const) {
-      const recognizer = node[name]
-      node[name] = undefined
-      if (recognizer) {
-        failures.run(name + ' disable', () => { recognizer.enabled = false })
-        failures.run(name + ' detach', () => node.view?.removeGestureRecognizer(recognizer))
-      }
+    if (recognizer) {
+      failures.run('pan disable', () => { recognizer.enabled = false })
+      failures.run('pan detach', () => {
+        const view = pan?.view ?? node.view
+        if (view && 'removeGestureRecognizer' in view && typeof view.removeGestureRecognizer === 'function') {
+          view.removeGestureRecognizer(recognizer)
+        }
+      })
     }
+    failures.throwIfFailed()
+  }
+
+  function disposeActions(node: ElementNode) {
+    node.submitHandler = null
+    const failures = new FailureCollector()
+    failures.run('click action', () => releaseNodeAction(node))
+    failures.run('pan action', () => releasePanAction(node))
     failures.throwIfFailed()
   }
 

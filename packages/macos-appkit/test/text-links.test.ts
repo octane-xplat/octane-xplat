@@ -199,8 +199,10 @@ test('linkPressed dispatches only the handler owning the tapped character', () =
 
   const calls: string[] = []
   const tapped: { index: number | null } = { index: null }
+  const view = {}
   const control: any = {
     type: 'label',
+    view,
     props: {},
     container: { root: { eventScope: (_kind: string, run: () => void) => run() } },
     textLinks: [
@@ -208,7 +210,6 @@ test('linkPressed dispatches only the handler owning the tapped character', () =
       { location: 9, length: 3, handler: () => calls.push('second') },
     ],
   }
-  const view = {}
   nodes.set(view, control)
   const sender = { view, locationInView: () => ({ x: 0, y: 0 }) }
   const target = new ButtonActionTarget()
