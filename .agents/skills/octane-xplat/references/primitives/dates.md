@@ -297,7 +297,10 @@ export function ClosingTime() {
 ```
 
 The maintained native-date demo replaces its placeholder; an idle probe mounts
-that same demo.
+that same demo. The renderer's packed consumer separately checks its native
+bridge in date/time/combined modes, programmatic selection/range updates,
+selector dispatch and retirement. That check does not mount AppKitDatePicker
+from the date-picker package or qualify its complete consumer lifecycle.
 Native NSDatePicker editing/IME/Tab/VoiceOver, focus/layout, calendar/clock settings,
 actual callback timing and clean installed consumers require separate target qualification. Renderer
 bridge returns update/detach (its ambient signature was previously void). No new
