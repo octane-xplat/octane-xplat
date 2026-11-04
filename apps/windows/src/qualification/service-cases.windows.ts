@@ -869,7 +869,8 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
       out.fileTypeFilter = typeof picker.FileTypeFilter
       // IInitializeWithWindow is how a desktop picker gets an owner HWND —
       // check whether the projected object exposes it.
-      out.initWithWindow = typeof picker.InitializeWithWindow ?? typeof picker.initializeWithWindow
+      out.initWithWindow = typeof picker.InitializeWithWindow
+      out.initWithWindowLower = typeof picker.initializeWithWindow
       out.as = typeof picker.as
     }
   } catch (error) {

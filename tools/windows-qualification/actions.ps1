@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1824,6 +1824,14 @@ function Check-ServiceActions{
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result
+   }
+   'picker-probe' {
+    # Evidence-only probe (no shape asserts): the emitted JSON records which
+    # picker types project, whether ctor/PickSingleFileAsync resolve, and
+    # whether an owner-window initializer is reachable. Field presence proves
+    # the spec ran; values decide implementation vs bounded unavailability.
+    $names=$result.PSObject.Properties.Name
+    Assert ($names -contains 'pickersNs' -and $names -contains 'fileOpenPicker') 'Probe emits the picker-surface fields' $result
    }
   }
   }catch{
