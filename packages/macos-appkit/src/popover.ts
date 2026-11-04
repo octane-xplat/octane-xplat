@@ -1,4 +1,4 @@
-import type { createRoots } from './roots'
+import type { Roots } from './roots'
 import {
   NSNotificationCenter,
   NSPopover,
@@ -11,8 +11,10 @@ import {
 import type { PropBag, PopupOptions } from './model'
 
 interface Dependencies {
-  roots: Pick<ReturnType<typeof createRoots>, 'createMacOSRoot' | 'fontFamilyForView'>
+  roots: Pick<Roots, 'createMacOSRoot' | 'fontFamilyForView'>
 }
+
+export type Popover = ReturnType<typeof createPopover>
 
 export function createPopover(deps: Dependencies) {
   const openPopups = new Set<any>()

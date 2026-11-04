@@ -1,17 +1,16 @@
-import type { createActions } from './actions'
-import type { createSubscriptions } from './subscriptions'
+import type { Actions } from './actions'
+import type { Subscriptions } from './subscriptions'
 import type { PropBag } from './model'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
 import { NSNumber, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  actions: Pick<
-    ReturnType<typeof createActions>,
-    'actionHandlers' | 'actionIdsByView' | 'invokeAction'
-  >
-  subscriptions: Pick<ReturnType<typeof createSubscriptions>, 'fileDropRegistry'>
+  actions: Pick<Actions, 'actionHandlers' | 'actionIdsByView' | 'invokeAction'>
+  subscriptions: Pick<Subscriptions, 'fileDropRegistry'>
 }
+
+export type AccessibleHost = ReturnType<typeof createAccessibleHost>
 
 export function createAccessibleHost(deps: Dependencies) {
   const accessibilityLabels = new Map<number, string>()

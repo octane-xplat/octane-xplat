@@ -30,7 +30,7 @@ const slices = [
   source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function wireViewAction')),
   source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
   source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
-  paritySource.slice(paritySource.indexOf('function nodeClasses'), paritySource.indexOf('function colorValue')),
+  paritySource.slice(paritySource.indexOf('function descendants'), paritySource.indexOf('function colorValue')),
   source.slice(source.indexOf('function setLabelText'), source.indexOf('function syncText')),
   source.slice(
     source.indexOf('function syncLabelOverflow'),

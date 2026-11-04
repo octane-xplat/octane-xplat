@@ -1,4 +1,4 @@
-import type { createPopover } from './popover'
+import type { Popover } from './popover'
 import {
   NSBackingStoreType,
   NSNotificationCenter,
@@ -14,7 +14,7 @@ import type { PropBag } from './model'
 import { createNativeSheet } from './sheet.macos'
 
 interface Dependencies {
-  popover: Pick<ReturnType<typeof createPopover>, 'popupFittingSize'>
+  popover: Pick<Popover, 'popupFittingSize'>
 }
 
 export function createSheetBridge(deps: Dependencies) {

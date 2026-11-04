@@ -1,8 +1,8 @@
-import type { createHover } from './hover'
-import type { createCssCascade } from './css-cascade'
-import type { createRegistry } from './registry'
-import type { createSubscriptions } from './subscriptions'
-import type { createRoots } from './roots'
+import type { Hover } from './hover'
+import type { CssCascade } from './css-cascade'
+import type { Registry } from './registry'
+import type { Subscriptions } from './subscriptions'
+import type { Roots } from './roots'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotification,
@@ -14,18 +14,14 @@ import { stylesheetPseudoClasses } from '@octane-xplat/css-engine'
 import { setVisualStateTracking } from './gestures'
 
 interface Dependencies {
-  hover: Pick<
-    ReturnType<typeof createHover>,
-    'hoverTrackingTarget' | 'HOVER_TRACKING_OPTIONS' | 'hoverRecordsByArea'
-  >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setPseudoClass' | 'syncNormalState'>
-  registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
-  subscriptions: Pick<
-    ReturnType<typeof createSubscriptions>,
-    'keyboardDispatcher' | 'contextPointerDispatcher'
-  >
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
+  hover: Pick<Hover, 'hoverTrackingTarget' | 'HOVER_TRACKING_OPTIONS' | 'hoverRecordsByArea'>
+  cssCascade: Pick<CssCascade, 'setPseudoClass' | 'syncNormalState'>
+  registry: Pick<Registry, 'cssNodesByView'>
+  subscriptions: Pick<Subscriptions, 'keyboardDispatcher' | 'contextPointerDispatcher'>
+  roots: Pick<Roots, 'appKitContainers'>
 }
+
+export type CssPseudoState = ReturnType<typeof createCssPseudoState>
 
 export function createCssPseudoState(deps: Dependencies) {
   // ---- CSS pseudo-classes -----------------------------------------------------

@@ -1,6 +1,6 @@
-import type { createCssCascade } from './css-cascade'
-import type { createAccessibility } from './accessibility'
-import type { createTree } from './tree'
+import type { CssCascade } from './css-cascade'
+import type { Accessibility } from './accessibility'
+import type { Tree } from './tree'
 import type { PropBag, ElementNode } from './model'
 import { WKWebView, AVPlayerView } from '@octane-xplat/platform/macos'
 import { releaseTabView, releaseTabItem } from './tab-view'
@@ -10,10 +10,12 @@ import { disposePagerView } from './pager'
 import { disposeVideoView } from './video'
 
 interface Dependencies {
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  tree: Pick<ReturnType<typeof createTree>, 'detach'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
+  tree: Pick<Tree, 'detach'>
 }
+export type HostedElements = ReturnType<typeof createHostedElements>
+
 export function createHostedElements(deps: Dependencies) {
   function applyBuiltinTabViewProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (

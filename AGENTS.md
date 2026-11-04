@@ -114,6 +114,9 @@ Standing criteria for judgment calls; the critical rules encode the mechanics.
 
 ## Critical rules
 
+- Factory modules export named result type aliases. Consumers import those
+  types instead of applying `ReturnType` to imported factory functions; keep
+  inferred `ReturnType` aliases beside the factory that owns them.
 - Prefer narrowing, annotations, and owning declarations over inline
   `as { ... }` object assertions. Branch on a union's distinguishing property;
   preserve a producer's generic instead of re-asserting it; annotate the

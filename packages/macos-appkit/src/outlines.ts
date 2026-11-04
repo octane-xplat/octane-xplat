@@ -1,5 +1,5 @@
-import type { createNativeStyle } from './native-style'
-import type { createBorderPaint, BorderCorner } from './border-paint'
+import { effectiveStyle } from './style-values.ts'
+import type { BorderPaint, BorderCorner } from './border-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -22,9 +22,8 @@ import {
 import { srgbComponents } from './color-components'
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
   borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
+    BorderPaint,
     | 'scaleBorderRadii'
     | 'resolveBorderRadii'
     | 'BORDER_CORNERS'
@@ -35,6 +34,8 @@ interface Dependencies {
     | 'borderBandCGPath'
   >
 }
+
+export type Outlines = ReturnType<typeof createOutlines>
 
 export function createOutlines(deps: Dependencies) {
   // `outline`/`outline-*` draws a stroked ring outside the border edge — a
@@ -106,7 +107,7 @@ export function createOutlines(deps: Dependencies) {
       NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
       node.outlineObserver = null
     }
-    const spec = outlineSpec(deps.nativeStyle.effectiveStyle(node))
+    const spec = outlineSpec(effectiveStyle(node))
     if (!spec || !view.layer) {
       return
     }

@@ -1,6 +1,6 @@
-import type { createNativeStyle } from './native-style'
-import type { createTransformPaint } from './transform-paint'
-import type { createShadowPaint } from './shadow-paint'
+import { effectiveStyle } from './style-values.ts'
+import type { TransformPaint } from './transform-paint'
+import type { ShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { splitStyleTokens } from './css-text.ts'
 import {
@@ -34,13 +34,11 @@ export type BorderSide = 'top' | 'right' | 'bottom' | 'left'
 export type BorderCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
-  transformPaint: Pick<
-    ReturnType<typeof createTransformPaint>,
-    'syncBoxGeometry' | 'hasPercentTranslate'
-  >
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'outsetShadowOnSelf'>
+  transformPaint: Pick<TransformPaint, 'syncBoxGeometry' | 'hasPercentTranslate'>
+  shadowPaint: Pick<ShadowPaint, 'outsetShadowOnSelf'>
 }
+
+export type BorderPaint = ReturnType<typeof createBorderPaint>
 
 export function createBorderPaint(deps: Dependencies) {
   const BORDER_SIDES: readonly BorderSide[] = ['top', 'right', 'bottom', 'left']
@@ -290,7 +288,7 @@ export function createBorderPaint(deps: Dependencies) {
   // Unparseable colors (color-mix, unknown functions) read as no color rather
   // than throwing mid-apply — nativeColor is strict by design elsewhere.
   function borderNSColor(node: ElementNode, value: any): NSColor | null {
-    const raw = value ?? deps.nativeStyle.effectiveStyle(node).color ?? '#000'
+    const raw = value ?? effectiveStyle(node).color ?? '#000'
     try {
       return nativeColor(raw)
     } catch {
@@ -504,7 +502,7 @@ export function createBorderPaint(deps: Dependencies) {
     const w = Number.isFinite(Number(size.width)) ? Math.max(0, Number(size.width)) : 0
     const h = Number.isFinite(Number(size.height)) ? Math.max(0, Number(size.height)) : 0
     const spec = node.borderSpec
-    const resolvedStyle = deps.nativeStyle.effectiveStyle(node)
+    const resolvedStyle = effectiveStyle(node)
     const sideStyles = borderStyleSides(resolvedStyle)
 
     const radii = correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h), spec?.radii)
@@ -784,7 +782,7 @@ export function createBorderPaint(deps: Dependencies) {
     if (node.boxFrameOwner && node.boxFrameOwner.view !== view) {
       clearBoxFrameObserver(node)
     }
-    if (node.view !== view || deps.nativeStyle.effectiveStyle(node) !== resolvedStyle) {
+    if (node.view !== view || effectiveStyle(node) !== resolvedStyle) {
       return
     }
     if (needsSync && !node.boxFrameOwner) {

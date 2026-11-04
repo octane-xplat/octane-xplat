@@ -1,12 +1,12 @@
-import type { createRegistry } from './registry'
-import type { createNativeStyle } from './native-style'
-import type { createLayout } from './layout'
-import type { createTextElements } from './text-elements'
-import type { createRoots } from './roots'
-import type { createCssCascade } from './css-cascade'
-import type { createActions } from './actions'
-import type { createAccessibility } from './accessibility'
-import type { createTree } from './tree'
+import { effectiveStyle } from './style-values.ts'
+import type { Registry } from './registry'
+import type { Layout } from './layout'
+import type { TextElements } from './text-elements'
+import type { Roots } from './roots'
+import type { CssCascade } from './css-cascade'
+import type { Actions } from './actions'
+import type { Accessibility } from './accessibility'
+import type { Tree } from './tree'
 import type { PropBag, AppKitView, ElementNode } from './model'
 import {
   NSNotificationCenter,
@@ -19,10 +19,9 @@ import {
 } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  registry: Pick<ReturnType<typeof createRegistry>, 'behaviorOf' | 'nodeContainersByView'>
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
+  registry: Pick<Registry, 'behaviorOf' | 'nodeContainersByView'>
   layout: Pick<
-    ReturnType<typeof createLayout>,
+    Layout,
     | 'layoutView'
     | 'layoutContentChild'
     | 'rootNaturalSize'
@@ -30,13 +29,15 @@ interface Dependencies {
     | 'queueLayoutReconcile'
     | 'releasePlacementPins'
   >
-  textElements: Pick<ReturnType<typeof createTextElements>, 'makeLabel'>
-  roots: Pick<ReturnType<typeof createRoots>, 'ownedRoots'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
-  actions: Pick<ReturnType<typeof createActions>, 'setPanAction'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  tree: Pick<ReturnType<typeof createTree>, 'detach'>
+  textElements: Pick<TextElements, 'makeLabel'>
+  roots: Pick<Roots, 'ownedRoots'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
+  actions: Pick<Actions, 'setPanAction'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
+  tree: Pick<Tree, 'detach'>
 }
+
+export type ContainerElements = ReturnType<typeof createContainerElements>
 
 export function createContainerElements(deps: Dependencies) {
   const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
@@ -89,7 +90,7 @@ export function createContainerElements(deps: Dependencies) {
         Math.max(
           0,
           Number(
-            deps.nativeStyle.effectiveStyle(child)?.[axis] ??
+            effectiveStyle(child)?.[axis] ??
               (Number(size?.[axis]) >= 0 ? size?.[axis] : child?.view?.fittingSize?.[axis]),
           ) || 0,
         )
@@ -124,7 +125,7 @@ export function createContainerElements(deps: Dependencies) {
         Math.max(
           0,
           Number(
-            deps.nativeStyle.effectiveStyle(child)[axis] ??
+            effectiveStyle(child)[axis] ??
               (Number(intrinsic?.[axis]) >= 0 ? intrinsic?.[axis] : fitting?.[axis]) ??
               0,
           ) || 0,

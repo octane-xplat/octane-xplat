@@ -122,15 +122,15 @@ const declarations: readonly (readonly [string, string])[] = [
   ['image-elements', 'InputImageView'],
   ['image-elements', 'makeImageView'],
   ['image-elements', 'makeAnimatedImageView'],
-  ['nodes', 'VIEW_PARENT_TYPES'],
-  ['nodes', 'SUPPORTED_TYPES'],
-  ['nodes', 'typeHasView'],
-  ['nodes', 'assertSupportedType'],
+  ['registry', 'VIEW_PARENT_TYPES'],
+  ['registry', 'SUPPORTED_TYPES'],
+  ['registry', 'typeHasView'],
+  ['registry', 'assertSupportedType'],
   ['nodes', 'validateNodeProps'],
   ['nodes', 'makeNode'],
   ['native-style', 'EDGE_INSET_PROPS'],
   ['native-style', 'OUTLINE_PROPS'],
-  ['native-style', 'parseEdgeInsets'],
+  ['style-values', 'parseEdgeInsets'],
   ['css-cascade', 'cssChildren'],
   ['css-cascade', 'cssParentOf'],
   ['css-cascade', 'isCssRootNode'],
@@ -138,7 +138,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['css-cascade', 'markStyleDirty'],
   ['css-cascade', 'flushStyleDirty'],
   ['css-cascade', 'cssDepth'],
-  ['css-cascade', 'shallowEqualStyle'],
+  ['style-values', 'shallowEqualStyle'],
   ['css-cascade', 'activeMediaNode'],
   ['css-cascade', 'nodeHostWindow'],
   ['css-cascade', 'mediaSharedEnv'],
@@ -181,7 +181,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['native-style', 'syncEdgeInsets'],
   ['native-style', 'syncLabelPadding'],
   ['native-style', 'syncVisibility'],
-  ['native-style', 'isCollapsed'],
+  ['style-values', 'isCollapsed'],
   ['pointer-style', 'CSS_CURSORS'],
   ['pointer-style', 'syncCursor'],
   ['pointer-style', 'syncUserSelect'],
@@ -247,8 +247,9 @@ const declarations: readonly (readonly [string, string])[] = [
   ['native-style', 'syncLabelAlignment'],
   ['native-style', 'resetStyle'],
   ['native-style', 'applyStyle'],
-  ['native-style', 'normalizeClass'],
-  ['native-style', 'effectiveStyle'],
+  ['style-values', 'normalizeClass'],
+  ['style-values', 'nodeClasses'],
+  ['style-values', 'effectiveStyle'],
   ['native-style', 'applyClassNameProp'],
   ['text-elements', 'textContent'],
   ['text-elements', 'syncLabelOverflow'],
@@ -329,7 +330,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['popover', 'popupFittingSize'],
   ['popover', 'showAnchoredPopup'],
   ['context-menu', 'menuActionTarget'],
-  ['hover', '#try'],
+  ['context-menu', '#try'],
   ['context-menu', 'contextMenuAttachments'],
   ['context-menu', 'attachContextMenu'],
   ['picker-bridge', 'DATE_PICKER_STYLES'],
@@ -466,7 +467,8 @@ export function rendererSource(): string {
     const factory = moduleAst.body.flatMap((statement) => {
       if (
         statement.type === 'ExportNamedDeclaration' &&
-        statement.declaration?.type === 'FunctionDeclaration'
+        statement.declaration?.type === 'FunctionDeclaration' &&
+        statement.declaration.id?.name.startsWith('create')
       ) {
         return [statement.declaration]
       }
@@ -479,15 +481,16 @@ export function rendererSource(): string {
       }
       return []
     })[0]
-    if (!factory?.body) {
-      throw new Error('Missing renderer fixture factory: ' + module)
-    }
-    const last = factory.body.body.at(-1)
-    const end = module === 'runtime' ? factory.body.end - 1 : last?.start
-    if (end === undefined) {
-      throw new Error('Missing renderer fixture body: ' + module)
-    }
-    const body = stripped.slice(factory.body.start + 1, end).replace(/^ {2}/gm, '')
+    // Stateless leaf modules expose declarations directly, without a service factory.
+    const last = factory?.body.body.at(-1)
+    const end = module === 'runtime' ? factory!.body.end - 1 : last?.start
+    const body = factory && end !== undefined
+      ? stripped.slice(factory.body.start + 1, end).replace(/^ {2}/gm, '')
+      : moduleAst.body.flatMap((statement) =>
+          statement.type === 'ExportNamedDeclaration' && statement.declaration
+            ? [stripped.slice(statement.declaration.start, statement.declaration.end)]
+            : [],
+        ).join('\n')
     const ast = parse(body, { ecmaVersion: 'latest', sourceType: 'script' })
     const found = new Map<string, string>()
     let previous = 0,

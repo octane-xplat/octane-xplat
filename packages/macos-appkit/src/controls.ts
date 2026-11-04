@@ -1,7 +1,7 @@
-import type { createActions } from './actions'
-import type { createCssCascade } from './css-cascade'
-import type { createAccessibility } from './accessibility'
-import type { createAccessibleHost } from './accessible-host'
+import type { Actions } from './actions'
+import type { CssCascade } from './css-cascade'
+import type { Accessibility } from './accessibility'
+import type { AccessibleHost } from './accessible-host'
 import type { PropBag, ElementNode } from './model'
 import {
   NSBorderType,
@@ -22,17 +22,19 @@ import { makeMasonHostView } from './mason'
 
 interface Dependencies {
   actions: Pick<
-    ReturnType<typeof createActions>,
+    Actions,
     | 'nextActionId'
     | 'actionIdsByView'
     | 'actionHandlers'
     | 'buttonActionTarget'
     | 'setControlAction'
   >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'setNodeInlineStyle' | 'applyClassName'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'accessibilityLabels'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
+  accessibleHost: Pick<AccessibleHost, 'accessibilityLabels'>
 }
+
+export type Controls = ReturnType<typeof createControls>
 
 export function createControls(deps: Dependencies) {
   const scrollHandlers = new WeakMap<object, () => void>()

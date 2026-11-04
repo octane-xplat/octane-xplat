@@ -1,10 +1,7 @@
-import type { createActions } from './actions'
-import type { createContextMenu } from './context-menu'
 import { createAppKitPointerMotion } from './pointer-motion'
 import {
   NSCursor,
   NSEvent,
-  NSMenuItem,
   NSObject,
   NSTrackingArea,
   NSTrackingAreaOptions,
@@ -13,12 +10,9 @@ import {
 } from '@octane-xplat/platform/macos'
 import { registerGestureClass } from './gestures'
 
-interface Dependencies {
-  actions: Pick<ReturnType<typeof createActions>, 'invokeAction'>
-  contextMenu: Pick<ReturnType<typeof createContextMenu>, 'menuActionTarget'>
-}
+export type Hover = ReturnType<typeof createHover>
 
-export function createHover(deps: Dependencies) {
+export function createHover() {
   // Pointer-intent plumbing: NSTrackingArea-backed hover observation and an
   // NSPopover surface for anchored hint layers (Tooltip/Hoverable). Reached by
   // packages/ui macOS leaves through the __xplatAppKit host global — ui never
@@ -181,25 +175,6 @@ export function createHover(deps: Dependencies) {
     )
   }
 
-  try {
-    class MenuActionTarget extends NSObject {
-      static ObjCExposedMethods = {
-        'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
-      }
-
-      static {
-        registerGestureClass(this)
-      }
-
-      menuItemSelected(sender: NSMenuItem) {
-        deps.actions.invokeAction(sender.tag)
-      }
-    }
-
-    deps.contextMenu.menuActionTarget = MenuActionTarget.new()
-  } catch (error) {
-    console.error('[macos-leaf] menu target registration failed — context menus disabled', error)
-  }
   return {
     hoverRecordsByArea,
     hoverRecordByView,

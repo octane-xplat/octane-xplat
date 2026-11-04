@@ -1,13 +1,70 @@
-import type { createNodes } from './nodes'
 import type { ElementNode, RootContainer, ElementBehavior } from './model'
 import type { UniversalHostParent, UniversalPortalTargetHandle } from 'octane/universal/native'
-import { NSView } from '@octane-xplat/platform/macos'
+import type { NSView } from '@octane-xplat/platform/macos'
 
-interface Dependencies {
-  nodes: Pick<ReturnType<typeof createNodes>, 'VIEW_PARENT_TYPES'>
-}
+export type Registry = ReturnType<typeof createRegistry>
 
-export function createRegistry(deps: Dependencies) {
+export function createRegistry() {
+  /** Types whose views arrange child views; mirrors the check in insert(). */
+  const VIEW_PARENT_TYPES = new Set([
+    'rootlayout',
+    'contentview',
+    'actionbar',
+    'proxyviewcontainer',
+    'masonview',
+    'scrollview',
+    'liquidglass',
+  ])
+
+  /** Builtin types implemented by the node and element factories. */
+  const SUPPORTED_TYPES = new Set([
+    ...VIEW_PARENT_TYPES,
+    'label',
+    'htmlview',
+    '#text',
+    'button',
+    'textfield',
+    'textview',
+    'searchbar',
+    'switch',
+    'slider',
+    'activityindicator',
+    'progress',
+    'datepicker',
+    'timepicker',
+    'listpicker',
+    'listview',
+    'segmentedbar',
+    'tabview',
+    'tabviewitem',
+    'segmentedbaritem',
+    'webview',
+    'image',
+    'animatedimage',
+    'pager',
+    'xplatvideo',
+    'placeholder',
+    'span',
+    'formattedstring',
+  ])
+
+  function typeHasView(type: string) {
+    return (
+      type !== 'tabviewitem' &&
+      type !== 'segmentedbaritem' &&
+      type !== '#text' &&
+      type !== 'span' &&
+      type !== 'formattedstring' &&
+      type !== 'proxyviewcontainer'
+    )
+  }
+
+  function assertSupportedType(type: string) {
+    if (!SUPPORTED_TYPES.has(type) && !elementBehaviors.has(type)) {
+      throw new Error('AppKit spike does not support <' + type + '>')
+    }
+  }
+
   const nodeContainersByView = new WeakMap<object, RootContainer>()
 
   const portalHandlesByNode = new WeakMap<ElementNode, UniversalPortalTargetHandle>()
@@ -43,7 +100,7 @@ export function createRegistry(deps: Dependencies) {
 
   function canContainView(type: string): boolean {
     return (
-      deps.nodes.VIEW_PARENT_TYPES.has(type) ||
+      VIEW_PARENT_TYPES.has(type) ||
       type === 'portalroot' ||
       behaviorOf(type)?.container === true
     )
@@ -85,6 +142,9 @@ export function createRegistry(deps: Dependencies) {
     )
   }
   return {
+    VIEW_PARENT_TYPES,
+    typeHasView,
+    assertSupportedType,
     nodeContainersByView,
     portalHandlesByNode,
     cssNodesByView,

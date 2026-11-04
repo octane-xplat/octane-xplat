@@ -103,7 +103,6 @@ test('AppKit playback advances a percent slide and subtree stop restores base an
   context.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 0 })
   const frames: any[] = []
   const api = createCssAnimations({
-    cssCascade: { shallowEqualStyle: () => false },
     nativeStyle: {
       applyStyle(node, base) {
         node.appliedStyle = { ...base, ...node.animatedStyle }

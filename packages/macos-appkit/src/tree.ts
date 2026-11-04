@@ -1,37 +1,33 @@
-import type { createCssAnimations } from './css-animations'
-import type { createCssCascade } from './css-cascade'
-import type { createProjection } from './projection'
-import type { createNativeStyle } from './native-style'
-import type { createLayout } from './layout'
-import type { createTextElements } from './text-elements'
-import type { createPickerElements } from './picker-elements'
-import type { createRegistry } from './registry'
-import type { createContainerElements } from './container-elements'
+import type { CssAnimations } from './css-animations'
+import type { CssCascade } from './css-cascade'
+import type { Projection } from './projection'
+import type { NativeStyle } from './native-style'
+import type { Layout } from './layout'
+import type { TextElements } from './text-elements'
+import type { PickerElements } from './picker-elements'
+import type { Registry } from './registry'
+import type { ContainerElements } from './container-elements'
 import type { PropBag, ElementNode, RootContainer } from './model'
 import { syncTabView, detachTabItem } from './tab-view'
 import type { UniversalHostParent } from 'octane/universal/native'
 import { stylesheetScope } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  cssAnimations: Pick<ReturnType<typeof createCssAnimations>, 'stopSubtreeAnimations'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'markStyleDirty'>
-  projection: Pick<ReturnType<typeof createProjection>, 'releaseProjectedView' | 'projectedViews'>
-  nativeStyle: Pick<
-    ReturnType<typeof createNativeStyle>,
-    'deactivateSizeConstraints' | 'applySizeConstraints'
-  >
+  cssAnimations: Pick<CssAnimations, 'stopSubtreeAnimations'>
+  cssCascade: Pick<CssCascade, 'markStyleDirty'>
+  projection: Pick<Projection, 'releaseProjectedView' | 'projectedViews'>
+  nativeStyle: Pick<NativeStyle, 'deactivateSizeConstraints' | 'applySizeConstraints'>
   layout: Pick<
-    ReturnType<typeof createLayout>,
+    Layout,
     'releasePlacementPins' | 'layoutView' | 'queueLayoutReconcile' | 'setLayoutAction'
   >
-  textElements: Pick<ReturnType<typeof createTextElements>, 'syncText'>
-  pickerElements: Pick<ReturnType<typeof createPickerElements>, 'syncSegmentedBar'>
-  registry: Pick<
-    ReturnType<typeof createRegistry>,
-    'resolveParentNode' | 'canContainView' | 'isManualLayoutParent'
-  >
-  containerElements: Pick<ReturnType<typeof createContainerElements>, 'fireCreatingView'>
+  textElements: Pick<TextElements, 'syncText'>
+  pickerElements: Pick<PickerElements, 'syncSegmentedBar'>
+  registry: Pick<Registry, 'resolveParentNode' | 'canContainView' | 'isManualLayoutParent'>
+  containerElements: Pick<ContainerElements, 'fireCreatingView'>
 }
+
+export type Tree = ReturnType<typeof createTree>
 
 export function createTree(deps: Dependencies) {
   function detach(container: RootContainer, node: ElementNode, preserveTab = false) {

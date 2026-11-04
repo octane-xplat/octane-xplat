@@ -79,6 +79,31 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
         Number(rect(view).origin.y) -
         Number(rect(view).size.height)
 
+      // Exercise the real registered Objective-C selector and composed host
+      // service, rather than a source slice with an injected menu target.
+      const bridge: unknown = Reflect.get(globalThis, '__xplatAppKit')
+      if (
+        typeof bridge !== 'object' || bridge === null ||
+        !('attachContextMenu' in bridge) || typeof bridge.attachContextMenu !== 'function'
+      ) {
+        throw new Error('Packed context-menu service unavailable')
+      }
+      const selected: string[] = []
+      const detachMenu: unknown = bridge.attachContextMenu(
+        a, { items: [{ id: 'open', title: 'Open' }] }, (id: string) => selected.push(id),
+      )
+      if (typeof detachMenu !== 'function') {
+        throw new Error('Packed context-menu target was not initialized')
+      }
+      try {
+        const item = a.menu.itemAtIndex(0)
+        check(app.sendActionToFrom('menuItemSelected:', item.target, item), 'Menu selector did not dispatch')
+        check(selected.join(',') === 'open', 'Menu selection missed its action handler')
+      } finally {
+        detachMenu()
+      }
+      console.log('PACKED_CONTEXTMENU_OK')
+
       nativeWindow.contentView.layoutSubtreeIfNeeded()
       check(stackRefs.length === 1 && stackRefs[0] === stack, 'Stack ref assignment failed')
       check(childRefs.a.current === a, 'Object ref assignment failed')

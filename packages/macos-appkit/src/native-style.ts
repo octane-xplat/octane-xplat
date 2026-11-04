@@ -1,16 +1,16 @@
-import type { createTextElements } from './text-elements'
-import type { createInputElements } from './input-elements'
-import type { createRegistry } from './registry'
-import type { createLayout } from './layout'
-import type { createCssCascade } from './css-cascade'
-import type { createMeasurements } from './measurements'
-import type { createBackgroundPaint } from './background-paint'
-import type { createAccessibleHost } from './accessible-host'
-import type { createPointerStyle } from './pointer-style'
-import type { createOutlines } from './outlines'
-import type { createBorderPaint } from './border-paint'
-import type { createTransformPaint } from './transform-paint'
-import type { createShadowPaint } from './shadow-paint'
+import { parseEdgeInsets, effectiveStyle, nodeClasses } from './style-values.ts'
+import type { TextElements } from './text-elements'
+import type { InputElements } from './input-elements'
+import type { Registry } from './registry'
+import type { Layout } from './layout'
+import type { CssCascade } from './css-cascade'
+import type { BackgroundPaint } from './background-paint'
+import type { AccessibleHost } from './accessible-host'
+import type { PointerStyle } from './pointer-style'
+import type { Outlines } from './outlines'
+import type { BorderPaint } from './border-paint'
+import type { TransformPaint } from './transform-paint'
+import type { ShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -27,27 +27,17 @@ import { setImageDrawingStyle } from './image-drawing'
 import { INHERITED_CSS_PROPERTIES } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  textElements: Pick<
-    ReturnType<typeof createTextElements>,
-    'setLabelText' | 'labelPaddings' | 'syncLabelOverflow' | 'syncText'
-  >
-  inputElements: Pick<ReturnType<typeof createInputElements>, 'setTextFieldPlaceholder'>
-  registry: Pick<ReturnType<typeof createRegistry>, 'isManualLayoutParent' | 'behaviorOf'>
-  layout: Pick<
-    ReturnType<typeof createLayout>,
-    'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'
-  >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'warnUnsupportedCssProp' | 'applyClassName'>
-  measurements: Pick<ReturnType<typeof createMeasurements>, 'nodeClasses'>
-  backgroundPaint: Pick<
-    ReturnType<typeof createBackgroundPaint>,
-    'BACKGROUND_STYLE_KEYS' | 'syncBackgrounds'
-  >
-  accessibleHost: Pick<ReturnType<typeof createAccessibleHost>, 'inputTransparentViews'>
-  pointerStyle: Pick<ReturnType<typeof createPointerStyle>, 'syncCursor' | 'syncUserSelect'>
-  outlines: Pick<ReturnType<typeof createOutlines>, 'syncOutline'>
+  textElements: Pick<TextElements, 'setLabelText' | 'labelPaddings' | 'syncLabelOverflow' | 'syncText'>
+  inputElements: Pick<InputElements, 'setTextFieldPlaceholder'>
+  registry: Pick<Registry, 'isManualLayoutParent' | 'behaviorOf'>
+  layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'>
+  cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'applyClassName'>
+  backgroundPaint: Pick<BackgroundPaint, 'BACKGROUND_STYLE_KEYS' | 'syncBackgrounds'>
+  accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
+  pointerStyle: Pick<PointerStyle, 'syncCursor' | 'syncUserSelect'>
+  outlines: Pick<Outlines, 'syncOutline'>
   borderPaint: Pick<
-    ReturnType<typeof createBorderPaint>,
+    BorderPaint,
     | 'BORDER_RADIUS_KEYS'
     | 'clearBorderSlot'
     | 'BORDER_WIDTH_KEYS'
@@ -60,11 +50,13 @@ interface Dependencies {
     | 'setBorderEdge'
   >
   transformPaint: Pick<
-    ReturnType<typeof createTransformPaint>,
+    TransformPaint,
     'syncBoxGeometry' | 'TRANSFORM_KEYS' | 'TRANSFORM_SLOT' | 'translateAxisValue'
   >
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'parseBoxShadow'>
+  shadowPaint: Pick<ShadowPaint, 'parseBoxShadow'>
 }
+
+export type NativeStyle = ReturnType<typeof createNativeStyle>
 
 export function createNativeStyle(deps: Dependencies) {
   const EDGE_INSET_PROPS = new Map([
@@ -83,24 +75,6 @@ export function createNativeStyle(deps: Dependencies) {
     'outlineColor',
     'outlineOffset',
   ])
-
-  // number | 'N' | 'V H' | 'T R B L' → NSEdgeInsets (top/left/bottom/right).
-  function parseEdgeInsets(value: any) {
-    if (typeof value === 'number' || !isNaN(Number(value))) {
-      const n = Number(value)
-      return { top: n, left: n, bottom: n, right: n }
-    }
-
-    const parts = String(value)
-      .split(/\s+/)
-      .map((p) => parseFloat(p) || 0)
-
-    const top = parts[0] ?? 0
-    const right = parts.length > 1 ? parts[1] : top
-    const bottom = parts.length > 2 ? parts[2] : top
-    const left = parts.length > 3 ? parts[3] : right
-    return { top, left, bottom, right }
-  }
 
   // CSS owns the theme palette. Unstyled controls use AppKit semantic colors,
   // which follow the application's appearance without a second class cascade.
@@ -343,10 +317,6 @@ export function createNativeStyle(deps: Dependencies) {
     deps.layout.queueLayoutReconcile(node.container, node.parent)
   }
 
-  function isCollapsed(node: any) {
-    return node?.props?.visibility === 'collapse' || node?.styleVisibility === 'collapse'
-  }
-
   // Zero the margin sides a removed style owned and re-queue the mason pass.
   function clearMarginStyle(node: ElementNode, name: string) {
     const insets = node.marginInsets
@@ -377,8 +347,7 @@ export function createNativeStyle(deps: Dependencies) {
     }
     const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
     const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
-    let alignment: interop.Enum<typeof NSTextAlignment> = deps.measurements
-      .nodeClasses(node)
+    let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node)
       .includes('vx-sheet-grabber')
       ? NSTextAlignment.Center
       : start
@@ -847,65 +816,15 @@ export function createNativeStyle(deps: Dependencies) {
     }
   }
 
-  // `className` composes clsx-style on the DOM renderer and the NativeScript
-  // driver; this mirrors octane's `normalizeClass` (native dist must not import
-  // bare `octane`, and peers older than 0.11 predate the export) so a
-  // declarative array or object reaches the tokenizer instead of String(value)'s
-  // comma-join.
-  function normalizeClass(value: any): string {
-    if (typeof value === 'string') {
-      return value
-    }
-
-    if (typeof value !== 'object') {
-      return typeof value === 'number' && value ? '' + value : ''
-    }
-
-    if (value === null) {
-      return ''
-    }
-
-    let str = ''
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (item) {
-          const inner = normalizeClass(item)
-          if (inner) {
-            str = str ? str + ' ' + inner : inner
-          }
-        }
-      }
-    } else {
-      for (const key in value) {
-        if (value[key]) {
-          str = str ? str + ' ' + key : key
-        }
-      }
-    }
-
-    return str
-  }
-
-  // className now only feeds the selector engine (cssClasses) and marks the
-  // subtree for restyle — the hardcoded token tables are gone.
-  /** Effective style for readers that used to consult props.style. */
-  function effectiveStyle(node: ElementNode | null | undefined): PropBag {
-    return node?.computedStyle ?? node?.props?.style ?? {}
-  }
-
   function applyClassNameProp(node: ElementNode, value: any) {
     deps.cssCascade.applyClassName(node, value)
   }
   return {
-    parseEdgeInsets,
     fontForStyle,
     setSizeConstraint,
     applySizeConstraints,
     deactivateSizeConstraints,
     syncNodeFont,
-    isCollapsed,
     applyStyle,
-    normalizeClass,
-    effectiveStyle,
   }
 }

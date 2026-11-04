@@ -1,11 +1,12 @@
-import type { createNativeStyle } from './native-style'
-import type { createCssCascade } from './css-cascade'
-import type { createInputElements } from './input-elements'
-import type { createLayout } from './layout'
-import type { createRegistry } from './registry'
-import type { createActions } from './actions'
-import type { createAccessibility } from './accessibility'
-import type { createTree } from './tree'
+import { effectiveStyle } from './style-values.ts'
+import type { NativeStyle } from './native-style'
+import type { CssCascade } from './css-cascade'
+import type { InputElements } from './input-elements'
+import type { Layout } from './layout'
+import type { Registry } from './registry'
+import type { Actions } from './actions'
+import type { Accessibility } from './accessibility'
+import type { Tree } from './tree'
 import type { PropBag, ElementNode } from './model'
 import {
   NSColor,
@@ -42,24 +43,17 @@ export type AxLinkSlot = {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<
-    ReturnType<typeof createNativeStyle>,
-    'effectiveStyle' | 'setSizeConstraint' | 'fontForStyle' | 'syncNodeFont'
-  >
-  cssCascade: Pick<
-    ReturnType<typeof createCssCascade>,
-    'warnUnsupportedCssProp' | 'setNodeInlineStyle' | 'applyClassName'
-  >
-  inputElements: Pick<
-    ReturnType<typeof createInputElements>,
-    'DEFAULT_TEXT_LINE_HEIGHT_RATIO' | 'fitTextView'
-  >
-  layout: Pick<ReturnType<typeof createLayout>, 'queueLayoutReconcile'>
-  registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
-  actions: Pick<ReturnType<typeof createActions>, 'actionHandlers' | 'buttonActionTarget'>
-  accessibility: Pick<ReturnType<typeof createAccessibility>, 'applyAccessibility'>
-  tree: Pick<ReturnType<typeof createTree>, 'detach'>
+  nativeStyle: Pick<NativeStyle, 'setSizeConstraint' | 'fontForStyle' | 'syncNodeFont'>
+  cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'setNodeInlineStyle' | 'applyClassName'>
+  inputElements: Pick<InputElements, 'DEFAULT_TEXT_LINE_HEIGHT_RATIO' | 'fitTextView'>
+  layout: Pick<Layout, 'queueLayoutReconcile'>
+  registry: Pick<Registry, 'cssNodesByView'>
+  actions: Pick<Actions, 'actionHandlers' | 'buttonActionTarget'>
+  accessibility: Pick<Accessibility, 'applyAccessibility'>
+  tree: Pick<Tree, 'detach'>
 }
+
+export type TextElements = ReturnType<typeof createTextElements>
 
 export function createTextElements(deps: Dependencies) {
   /** Label cell carrying CSS padding — drawing insets by the edges and the
@@ -126,7 +120,7 @@ export function createTextElements(deps: Dependencies) {
   }
 
   // Keep the native value intact: AppKit truncates only when drawing in the frame.
-  function syncLabelOverflow(node: ElementNode, style = deps.nativeStyle.effectiveStyle(node)) {
+  function syncLabelOverflow(node: ElementNode, style = effectiveStyle(node)) {
     const { maxLines } = node.props
     let { whiteSpace, textOverflow } = node.props
     if (whiteSpace != null && !['normal', 'nowrap'].includes(whiteSpace)) {
@@ -197,7 +191,7 @@ export function createTextElements(deps: Dependencies) {
       fontWeight: node.appliedFontWeight ?? '400',
       color: view.textColor,
       appearance: view.effectiveAppearance,
-      style: deps.nativeStyle.effectiveStyle(node),
+      style: effectiveStyle(node),
     })
 
     view.invalidateIntrinsicContentSize()
@@ -205,7 +199,7 @@ export function createTextElements(deps: Dependencies) {
   }
 
   function setLabelText(node: ElementNode, text: any) {
-    const style = deps.nativeStyle.effectiveStyle(node)
+    const style = effectiveStyle(node)
     const lineHeight = Number(style.lineHeight)
     const decoration = String(style.textDecoration ?? '')
     const kern = Number(style.letterSpacing)

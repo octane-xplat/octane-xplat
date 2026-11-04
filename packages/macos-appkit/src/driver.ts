@@ -1,11 +1,12 @@
-import type { createRegistry } from './registry'
-import type { createNodes } from './nodes'
-import type { createTree } from './tree'
-import type { createProjection } from './projection'
-import type { createElementProps } from './element-props'
-import type { createCssCascade } from './css-cascade'
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createLayout } from './layout'
+import { withLayoutBatch } from './layout-batch.ts'
+import type { Registry } from './registry'
+import type { Nodes } from './nodes'
+import type { Tree } from './tree'
+import type { Projection } from './projection'
+import type { ElementProps } from './element-props'
+import type { CssCascade } from './css-cascade'
+import type { CssPseudoState } from './css-pseudo-state'
+import type { Layout } from './layout'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
 import type {
   UniversalHostCommand,
@@ -17,7 +18,9 @@ import { notifyLayoutCommit } from './layout-observers'
 
 interface Dependencies {
   registry: Pick<
-    ReturnType<typeof createRegistry>,
+    Registry,
+    | 'typeHasView'
+    | 'assertSupportedType'
     | 'parentReference'
     | 'resolveParentNode'
     | 'canContainView'
@@ -26,20 +29,16 @@ interface Dependencies {
     | 'cssNodesByView'
     | 'portalHandlesByNode'
   >
-  nodes: Pick<
-    ReturnType<typeof createNodes>,
-    'assertSupportedType' | 'validateNodeProps' | 'typeHasView' | 'destroy' | 'makeNode'
-  >
-  tree: Pick<
-    ReturnType<typeof createTree>,
-    'validateTextNesting' | 'textOnlyChildError' | 'detach' | 'insert' | 'remove'
-  >
-  projection: Pick<ReturnType<typeof createProjection>, 'validateProxyTree'>
-  elementProps: Pick<ReturnType<typeof createElementProps>, 'applyProps' | 'droppedPropClears'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'cssChildren' | 'flushStyleDirty'>
-  cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncPseudoTracking'>
-  layout: Pick<ReturnType<typeof createLayout>, 'drainLayoutDirty'>
+  nodes: Pick<Nodes, 'validateNodeProps' | 'destroy' | 'makeNode'>
+  tree: Pick<Tree, 'validateTextNesting' | 'textOnlyChildError' | 'detach' | 'insert' | 'remove'>
+  projection: Pick<Projection, 'validateProxyTree'>
+  elementProps: Pick<ElementProps, 'applyProps' | 'droppedPropClears'>
+  cssCascade: Pick<CssCascade, 'cssChildren' | 'flushStyleDirty'>
+  cssPseudoState: Pick<CssPseudoState, 'syncPseudoTracking'>
+  layout: Pick<Layout, 'drainLayoutDirty'>
 }
+
+export type Driver = ReturnType<typeof createDriver>
 
 export function createDriver(deps: Dependencies) {
   /** Pre-flight a whole batch without mutating, so a deterministic failure —
@@ -77,7 +76,7 @@ export function createDriver(deps: Dependencies) {
     for (const command of commands) {
       switch (command.op) {
         case 'create':
-          deps.nodes.assertSupportedType(command.type)
+          deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
           pending.set(command.id, { type: command.type, props: command.props })
           parents.set(command.id, null)
@@ -89,7 +88,7 @@ export function createDriver(deps: Dependencies) {
             throw new Error('Unknown AppKit node ' + command.id)
           }
 
-          deps.nodes.assertSupportedType(command.type)
+          deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
           const existing = container.nodes.get(command.id)
           const parentId = parentOf(command.id) ?? null
@@ -99,7 +98,7 @@ export function createDriver(deps: Dependencies) {
             ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
               parent?.type ?? '',
             ) &&
-            !deps.nodes.typeHasView(command.type) &&
+            !deps.registry.typeHasView(command.type) &&
             command.type !== 'proxyviewcontainer'
           ) {
             throw deps.tree.textOnlyChildError(parent, command.type, { props: command.props })
@@ -107,7 +106,7 @@ export function createDriver(deps: Dependencies) {
 
           if (
             existing?.parent &&
-            (deps.nodes.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
+            (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
             !deps.registry.canContainView(existing.parent.type)
           ) {
             throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
@@ -153,14 +152,14 @@ export function createDriver(deps: Dependencies) {
                 'rootlayout',
                 'proxyviewcontainer',
               ].includes(parent.type) &&
-              !deps.nodes.typeHasView(entry.type) &&
+              !deps.registry.typeHasView(entry.type) &&
               entry.type !== 'proxyviewcontainer'
             ) {
               throw deps.tree.textOnlyChildError(parent, entry.type, { props: entry.props })
             }
 
             if (
-              (deps.nodes.typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
+              (deps.registry.typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
               !deps.registry.canContainView(parent.type)
             ) {
               throw new Error('AppKit <' + parent.type + '> cannot contain child views')
@@ -219,7 +218,7 @@ export function createDriver(deps: Dependencies) {
           ['masonview', 'contentview', 'actionbar', 'rootlayout'].includes(
             existing?.parent?.type ?? '',
           ) &&
-          !deps.nodes.typeHasView(command.type) &&
+          !deps.registry.typeHasView(command.type) &&
           command.type !== 'proxyviewcontainer'
         ) {
           throw deps.tree.textOnlyChildError(existing!.parent, command.type, {
@@ -309,7 +308,7 @@ export function createDriver(deps: Dependencies) {
           ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
             parent?.type ?? '',
           ) &&
-          !deps.nodes.typeHasView(command.type) &&
+          !deps.registry.typeHasView(command.type) &&
           command.type !== 'proxyviewcontainer'
         ) {
           throw deps.tree.textOnlyChildError(parent, command.type, { props: command.props })
@@ -317,7 +316,7 @@ export function createDriver(deps: Dependencies) {
 
         if (
           parent &&
-          (deps.nodes.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
+          (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
           !deps.registry.canContainView(parent.type)
         ) {
           // insert would reject the replacement after the original was
@@ -442,41 +441,38 @@ export function createDriver(deps: Dependencies) {
       validateBatch(container, batch.commands)
       return {
         apply() {
-          container.layoutDirty = new Set()
-          try {
-            for (const command of batch.commands) {
-              try {
-                applyCommand(container, command)
-              } catch (error) {
-                // The universal root can swallow a mid-batch failure when it
-                // retries or aborts the attempt — log it here so an
-                // unsupported element cannot silently stall the mount.
-                console.error(
-                  '[macos-host] command ' +
-                    command.op +
-                    ' failed for <' +
-                    ((command as { type?: string }).type ?? '?') +
-                    '> id=' +
-                    ('id' in command ? command.id : '?'),
-                  error,
-                )
+          withLayoutBatch(container, () => {
+            try {
+              for (const command of batch.commands) {
+                try {
+                  applyCommand(container, command)
+                } catch (error) {
+                  // The universal root can swallow a mid-batch failure when it
+                  // retries or aborts the attempt — log it here so an
+                  // unsupported element cannot silently stall the mount.
+                  console.error(
+                    '[macos-host] command ' +
+                      command.op +
+                      ' failed for <' +
+                      ((command as { type?: string }).type ?? '?') +
+                      '> id=' +
+                      ('id' in command ? command.id : '?'),
+                    error,
+                  )
 
-                throw error
+                  throw error
+                }
               }
+            } finally {
+              // Restyle while the layout batch is open so style-driven layout
+              // work joins the batch's single drain.
+              deps.cssCascade.flushStyleDirty(container!)
             }
-          } finally {
-            // Restyle while the layout batch is open so style-driven layout
-            // work joins the batch's single drain.
-            deps.cssCascade.flushStyleDirty(container!)
-            const dirty = container.layoutDirty
-            container.layoutDirty = null
+          }, (dirty) => {
             flushTabViews(container)
-            if (dirty) {
-              deps.layout.drainLayoutDirty(dirty)
-            }
-
+            deps.layout.drainLayoutDirty(dirty)
             notifyLayoutCommit(container.hostView)
-          }
+          })
         },
         abort() {},
       }

@@ -1,7 +1,7 @@
-import type { createRegistry } from './registry'
-import type { createTextElements } from './text-elements'
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createInputElements } from './input-elements'
+import type { Registry } from './registry'
+import type { TextElements } from './text-elements'
+import type { CssPseudoState } from './css-pseudo-state'
+import type { InputElements } from './input-elements'
 import type { PanEvent, ElementNode } from './model'
 import {
   NSButton,
@@ -27,14 +27,11 @@ import {
 import { shouldReceivePrimaryClick } from './primary-click'
 
 interface Dependencies {
-  registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
-  textElements: Pick<
-    ReturnType<typeof createTextElements>,
-    'textLinkCharacterIndex' | 'primaryClickBoundary'
-  >
-  cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncPseudoState'>
+  registry: Pick<Registry, 'cssNodesByView'>
+  textElements: Pick<TextElements, 'textLinkCharacterIndex' | 'primaryClickBoundary'>
+  cssPseudoState: Pick<CssPseudoState, 'syncPseudoState'>
   inputElements: Pick<
-    ReturnType<typeof createInputElements>,
+    InputElements,
     | 'textNodesByView'
     | 'notifySearchTextChange'
     | 'syncTextViewPlaceholder'
@@ -42,6 +39,8 @@ interface Dependencies {
     | 'dispatchTextEvent'
   >
 }
+
+export type Actions = ReturnType<typeof createActions>
 
 export function createActions(deps: Dependencies) {
   const actionHandlers = new Map<number, (() => void) | null>()

@@ -1,7 +1,7 @@
-import type { createRegistry } from './registry'
-import type { createNativeStyle } from './native-style'
-import type { createProjection } from './projection'
-import type { createContainerElements } from './container-elements'
+import { effectiveStyle } from './style-values.ts'
+import type { Registry } from './registry'
+import type { Projection } from './projection'
+import type { ContainerElements } from './container-elements'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotificationCenter,
@@ -12,14 +12,12 @@ import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
 
 interface Dependencies {
-  registry: Pick<
-    ReturnType<typeof createRegistry>,
-    'cssNodesByView' | 'isManualLayoutParent' | 'behaviorOf'
-  >
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'effectiveStyle'>
-  projection: Pick<ReturnType<typeof createProjection>, 'syncProxyProjection'>
-  containerElements: Pick<ReturnType<typeof createContainerElements>, 'syncActionBar'>
+  registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'behaviorOf'>
+  projection: Pick<Projection, 'syncProxyProjection'>
+  containerElements: Pick<ContainerElements, 'syncActionBar'>
 }
+
+export type Layout = ReturnType<typeof createLayout>
 
 export function createLayout(deps: Dependencies) {
   function orderStickySiblings(node: ElementNode) {
@@ -322,7 +320,7 @@ export function createLayout(deps: Dependencies) {
     basis: number,
   ) {
     const spec = child.sizeConstraintSpecs?.[axis]
-    const desired = deps.nativeStyle.effectiveStyle(child)[axis]
+    const desired = effectiveStyle(child)[axis]
     const intrinsic = layoutView(child).intrinsicContentSize?.[axis]
     const fitting = layoutView(child).fittingSize?.[axis]
     const natural = Math.max(0, Number(Number(intrinsic) >= 0 ? intrinsic : fitting) || 0)
@@ -422,7 +420,7 @@ export function createLayout(deps: Dependencies) {
 
     const width = Number(parent.view.bounds.size.width)
     const height = Number(parent.view.bounds.size.height)
-    const style = deps.nativeStyle.effectiveStyle(child)
+    const style = effectiveStyle(child)
     const intrinsic = layoutView(child).intrinsicContentSize ?? { width: 0, height: 0 }
     const alignment = (value: any, start: string, end: string, fallback: string) => {
       if (value == null || value === 'auto' || value === 'normal') {

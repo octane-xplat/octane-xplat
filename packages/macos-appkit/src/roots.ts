@@ -1,9 +1,9 @@
-import type { createRegistry } from './registry'
-import type { createBorderPaint } from './border-paint'
-import type { createShadowPaint } from './shadow-paint'
-import type { createDriver } from './driver'
-import type { createStyleEnvironment } from './style-environment'
-import type { createAutomation } from './automation'
+import type { Registry } from './registry'
+import type { BorderPaint } from './border-paint'
+import type { ShadowPaint } from './shadow-paint'
+import type { Driver } from './driver'
+import type { StyleEnvironment } from './style-environment'
+import type { Automation } from './automation'
 import { observeLayoutCommits as subscribeLayoutCommits } from './layout-observers'
 import type { LayoutCommit } from './layout-observers'
 import { setProjectionScale } from './projection-paint'
@@ -19,16 +19,18 @@ export interface MacOSRootOptions {
 }
 
 interface Dependencies {
-  registry: Pick<ReturnType<typeof createRegistry>, 'cssNodesByView'>
-  borderPaint: Pick<ReturnType<typeof createBorderPaint>, 'syncBorderBox'>
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'syncBoxShadow'>
-  driver: Pick<ReturnType<typeof createDriver>, 'macOSDriver'>
+  registry: Pick<Registry, 'cssNodesByView'>
+  borderPaint: Pick<BorderPaint, 'syncBorderBox'>
+  shadowPaint: Pick<ShadowPaint, 'syncBoxShadow'>
+  driver: Pick<Driver, 'macOSDriver'>
   styleEnvironment: Pick<
-    ReturnType<typeof createStyleEnvironment>,
+    StyleEnvironment,
     'installResizeObserver' | 'installAccessibilityDisplayObserver' | 'seedContainerMedia'
   >
-  automation: Pick<ReturnType<typeof createAutomation>, 'installAutomation'>
+  automation: Pick<Automation, 'installAutomation'>
 }
+
+export type Roots = ReturnType<typeof createRoots>
 
 export function createRoots(deps: Dependencies) {
   /** Observe renderer layout batches and visit existing roots immediately. Returns an unsubscribe function. */

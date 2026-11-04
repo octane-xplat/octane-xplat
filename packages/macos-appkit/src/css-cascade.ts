@@ -1,12 +1,14 @@
-import type { createCssAnimations } from './css-animations'
-import type { createHostBridge } from './host-bridge'
-import type { createLayout } from './layout'
-import type { createRoots } from './roots'
-import type { createNativeStyle } from './native-style'
-import type { createControls } from './controls'
-import type { createTextElements } from './text-elements'
-import type { createInputElements } from './input-elements'
-import type { PropBag, ElementNode, RootContainer } from './model'
+import { withLayoutBatch } from './layout-batch.ts'
+import { parseEdgeInsets, normalizeClass, effectiveStyle, shallowEqualStyle } from './style-values.ts'
+import type { CssAnimations } from './css-animations'
+import type { HostBridge } from './host-bridge'
+import type { Layout } from './layout'
+import type { Roots } from './roots'
+import type { NativeStyle } from './native-style'
+import type { Controls } from './controls'
+import type { TextElements } from './text-elements'
+import type { InputElements } from './input-elements'
+import type { ElementNode, RootContainer } from './model'
 import { notifyLayoutCommit } from './layout-observers'
 import { NSWorkspace } from '@octane-xplat/platform/macos'
 import {
@@ -18,21 +20,17 @@ import {
 import type { CssHostNode } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  cssAnimations: Pick<
-    ReturnType<typeof createCssAnimations>,
-    'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'
-  >
-  hostBridge: Pick<ReturnType<typeof createHostBridge>, 'appKitBridge'>
-  layout: Pick<ReturnType<typeof createLayout>, 'drainLayoutDirty'>
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
-  nativeStyle: Pick<
-    ReturnType<typeof createNativeStyle>,
-    'applyStyle' | 'normalizeClass' | 'effectiveStyle' | 'parseEdgeInsets'
-  >
-  controls: Pick<ReturnType<typeof createControls>, 'syncActivityIndicator'>
-  textElements: Pick<ReturnType<typeof createTextElements>, 'syncHtmlView' | 'syncText'>
-  inputElements: Pick<ReturnType<typeof createInputElements>, 'fitTextView'>
+  cssAnimations: Pick<CssAnimations, 'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'>
+  hostBridge: Pick<HostBridge, 'appKitBridge'>
+  layout: Pick<Layout, 'drainLayoutDirty'>
+  roots: Pick<Roots, 'appKitContainers'>
+  nativeStyle: Pick<NativeStyle, 'applyStyle'>
+  controls: Pick<Controls, 'syncActivityIndicator'>
+  textElements: Pick<TextElements, 'syncHtmlView' | 'syncText'>
+  inputElements: Pick<InputElements, 'fitTextView'>
 }
+
+export type CssCascade = ReturnType<typeof createCssCascade>
 
 export function createCssCascade(deps: Dependencies) {
   // ---- CSS cascade ------------------------------------------------------------
@@ -106,32 +104,25 @@ export function createCssCascade(deps: Dependencies) {
     // Style applies queue layout work. Inside a command batch the batch drains
     // it; outside one, open a layout batch so each apply doesn't reconcile
     // its parent synchronously.
-    const ownsLayoutBatch = container.layoutDirty == null
-    if (ownsLayoutBatch) {
-      container.layoutDirty = new Set()
-    }
+    withLayoutBatch(container, () => {
+      // Top-down: parents must compute before children that inherit from them.
+      const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
+      for (const node of nodes) {
+        // Dead nodes (destroyed/detached before the flush) skip the restyle.
+        if (
+          node.container.nodes &&
+          !node.container.nodes.has(node.id) &&
+          node.type !== 'portalroot'
+        ) {
+          continue
+        }
 
-    // Top-down: parents must compute before children that inherit from them.
-    const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
-    for (const node of nodes) {
-      // Dead nodes (destroyed/detached before the flush) skip the restyle.
-      if (
-        node.container.nodes &&
-        !node.container.nodes.has(node.id) &&
-        node.type !== 'portalroot'
-      ) {
-        continue
+        restyleNode(node)
       }
-
-      restyleNode(node)
-    }
-
-    if (ownsLayoutBatch) {
-      const layoutDirty = container.layoutDirty!
-      container.layoutDirty = null
+    }, (layoutDirty) => {
       deps.layout.drainLayoutDirty(layoutDirty)
       notifyLayoutCommit(container.hostView)
-    }
+    })
   }
 
   function cssDepth(node: ElementNode): number {
@@ -140,11 +131,6 @@ export function createCssCascade(deps: Dependencies) {
       depth++
     }
     return depth
-  }
-
-  function shallowEqualStyle(a: PropBag, b: PropBag) {
-    const keys = Object.keys(a)
-    return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
   }
 
   // ---- Per-window media environment -------------------------------------------
@@ -303,7 +289,7 @@ export function createCssCascade(deps: Dependencies) {
 
   function applyClassName(node: ElementNode, value: any) {
     node.cssBaseClasses = new Set(
-      deps.nativeStyle.normalizeClass(value).split(/\s+/).filter(Boolean),
+      normalizeClass(value).split(/\s+/).filter(Boolean),
     )
     refreshCssClasses(node)
     markStyleDirty(node, true)
@@ -369,8 +355,8 @@ export function createCssCascade(deps: Dependencies) {
     // CSS paints the layer; it must not change the control's native bezel or
     // background configuration. Shared controls reset those at construction.
     if (node.type === 'textview') {
-      const style = deps.nativeStyle.effectiveStyle(node)
-      const inset = deps.nativeStyle.parseEdgeInsets(style.padding ?? 0)
+      const style = effectiveStyle(node)
+      const inset = parseEdgeInsets(style.padding ?? 0)
       view.textContainerInset = {
         width: Number(style.paddingLeft ?? inset.left) || 0,
         height: Number(style.paddingTop ?? inset.top) || 0,
@@ -394,7 +380,6 @@ export function createCssCascade(deps: Dependencies) {
     }
   }
   return {
-    shallowEqualStyle,
     cssChildren,
     cssSchemeName,
     markStyleDirty,

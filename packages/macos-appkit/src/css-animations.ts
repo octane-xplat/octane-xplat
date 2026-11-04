@@ -1,6 +1,6 @@
+import { shallowEqualStyle } from './style-values.ts'
 import type { ElementNode, PropBag } from './model'
-import type { createCssCascade } from './css-cascade'
-import type { createNativeStyle } from './native-style'
+import type { NativeStyle } from './native-style'
 import {
   sampleKeyframeAnimation,
   resolveTranslate,
@@ -24,9 +24,10 @@ export interface CssAnimationPlayback {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<ReturnType<typeof createNativeStyle>, 'applyStyle'>
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'shallowEqualStyle'>
+  nativeStyle: Pick<NativeStyle, 'applyStyle'>
 }
+export type CssAnimations = ReturnType<typeof createCssAnimations>
+
 export function createCssAnimations(deps: Dependencies) {
   const ANIMATION_FRAME_MS = 16
 
@@ -127,7 +128,7 @@ export function createCssAnimations(deps: Dependencies) {
     const merged = node.animatedStyle
       ? { ...node.computedStyle, ...node.animatedStyle }
       : (node.computedStyle ?? {})
-    if (node.appliedStyle && deps.cssCascade.shallowEqualStyle(node.appliedStyle, merged)) {
+    if (node.appliedStyle && shallowEqualStyle(node.appliedStyle, merged)) {
       return
     }
     deps.nativeStyle.applyStyle(node, node.computedStyle ?? {})

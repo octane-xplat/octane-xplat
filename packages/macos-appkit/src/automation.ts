@@ -1,35 +1,26 @@
-import type { createRoots } from './roots'
-import type { createMeasurements } from './measurements'
-import type { createCssCascade } from './css-cascade'
-import type { createAccessibleHost } from './accessible-host'
-import type { createActions } from './actions'
-import type { createHover } from './hover'
-import type { createPopover } from './popover'
+import { nodeClasses } from './style-values.ts'
+import type { Roots } from './roots'
+import type { Measurements } from './measurements'
+import type { CssCascade } from './css-cascade'
+import type { AccessibleHost } from './accessible-host'
+import type { Actions } from './actions'
+import type { Hover } from './hover'
+import type { Popover } from './popover'
 import type { UniversalRoot } from 'octane/universal/native'
 import type { PanEvent, PropBag, ElementNode, RootContainer } from './model'
 import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  roots: Pick<ReturnType<typeof createRoots>, 'appKitContainers'>
-  measurements: Pick<
-    ReturnType<typeof createMeasurements>,
-    'measureParity' | 'descendants' | 'nodeClasses' | 'colorValue' | 'round'
-  >
-  cssCascade: Pick<
-    ReturnType<typeof createCssCascade>,
-    'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'
-  >
-  accessibleHost: Pick<
-    ReturnType<typeof createAccessibleHost>,
-    'accessibilityRoles' | 'accessibilityLabels'
-  >
-  actions: Pick<
-    ReturnType<typeof createActions>,
-    'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'
-  >
-  hover: Pick<ReturnType<typeof createHover>, 'hoverRecordByView'>
-  popover: Pick<ReturnType<typeof createPopover>, 'openPopups'>
+  roots: Pick<Roots, 'appKitContainers'>
+  measurements: Pick<Measurements, 'measureParity' | 'descendants' | 'colorValue' | 'round'>
+  cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'>
+  accessibleHost: Pick<AccessibleHost, 'accessibilityRoles' | 'accessibilityLabels'>
+  actions: Pick<Actions, 'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'>
+  hover: Pick<Hover, 'hoverRecordByView'>
+  popover: Pick<Popover, 'openPopups'>
 }
+
+export type Automation = ReturnType<typeof createAutomation>
 
 export function createAutomation(deps: Dependencies) {
   function installAutomation(root: UniversalRoot, container: RootContainer) {
@@ -291,7 +282,7 @@ export function createAutomation(deps: Dependencies) {
             chain.push({
               id: cur.props.id ?? null,
               type: cur.type,
-              classes: deps.measurements.nodeClasses(cur),
+              classes: nodeClasses(cur),
               frame: cur.view
                 ? {
                     x: Number(cur.view.frame.origin.x),
@@ -333,7 +324,7 @@ export function createAutomation(deps: Dependencies) {
           const flipped = Boolean(doc.flipped)
           const cells = []
           for (const cell of stage.children) {
-            if (!cell.view || !deps.measurements.nodeClasses(cell).includes('parity-cell')) {
+            if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {
               continue
             }
 
@@ -398,7 +389,7 @@ export function createAutomation(deps: Dependencies) {
           const nativeWindow = view.window
           return {
             type: node.type,
-            classes: deps.measurements.nodeClasses(node),
+            classes: nodeClasses(node),
             scheme: deps.cssCascade.cssSchemeName(node),
             color: view.textColor
               ? (deps.measurements.colorValue(view.textColor, appearance) ?? null)

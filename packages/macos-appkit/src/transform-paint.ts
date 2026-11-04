@@ -1,6 +1,6 @@
-import type { createBorderPaint } from './border-paint'
-import type { createShadowPaint } from './shadow-paint'
-import type { createBackgroundPaint } from './background-paint'
+import type { BorderPaint } from './border-paint'
+import type { ShadowPaint } from './shadow-paint'
+import type { BackgroundPaint } from './background-paint'
 import type { ElementNode } from './model'
 import {
   CATransform3DIdentity,
@@ -11,10 +11,12 @@ import {
 import { composeTransform, transformToParts } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  borderPaint: Pick<ReturnType<typeof createBorderPaint>, 'syncBorderBox'>
-  shadowPaint: Pick<ReturnType<typeof createShadowPaint>, 'syncBoxShadow'>
-  backgroundPaint: Pick<ReturnType<typeof createBackgroundPaint>, 'paintBackgrounds'>
+  borderPaint: Pick<BorderPaint, 'syncBorderBox'>
+  shadowPaint: Pick<ShadowPaint, 'syncBoxShadow'>
+  backgroundPaint: Pick<BackgroundPaint, 'paintBackgrounds'>
 }
+
+export type TransformPaint = ReturnType<typeof createTransformPaint>
 
 export function createTransformPaint(deps: Dependencies) {
   // ---- transforms --------------------------------------------------------------

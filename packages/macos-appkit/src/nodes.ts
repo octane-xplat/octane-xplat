@@ -1,24 +1,24 @@
-import type { createCssAnimations } from './css-animations'
-import type { createRegistry } from './registry'
-import type { createTree } from './tree'
-import type { createPickerElements } from './picker-elements'
-import type { createCssCascade } from './css-cascade'
-import type { createContainerElements } from './container-elements'
-import type { createRoots } from './roots'
-import type { createControls } from './controls'
-import type { createTextElements } from './text-elements'
-import type { createInputElements } from './input-elements'
-import type { createImageElements } from './image-elements'
-import type { createActions } from './actions'
-import type { createElementProps } from './element-props'
-import type { createCssPseudoState } from './css-pseudo-state'
-import type { createSubscriptions } from './subscriptions'
-import type { createHostedElements } from './hosted-elements'
-import type { createProjection } from './projection'
-import type { createBackgroundPaint } from './background-paint'
-import type { createBorderPaint } from './border-paint'
-import type { createLayout } from './layout'
-import type { createAccessibleHost } from './accessible-host'
+import type { CssAnimations } from './css-animations'
+import type { Registry } from './registry'
+import type { Tree } from './tree'
+import type { PickerElements } from './picker-elements'
+import type { CssCascade } from './css-cascade'
+import type { ContainerElements } from './container-elements'
+import type { Roots } from './roots'
+import type { Controls } from './controls'
+import type { TextElements } from './text-elements'
+import type { InputElements } from './input-elements'
+import type { ImageElements } from './image-elements'
+import type { Actions } from './actions'
+import type { ElementProps } from './element-props'
+import type { CssPseudoState } from './css-pseudo-state'
+import type { Subscriptions } from './subscriptions'
+import type { HostedElements } from './hosted-elements'
+import type { Projection } from './projection'
+import type { BackgroundPaint } from './background-paint'
+import type { BorderPaint } from './border-paint'
+import type { Layout } from './layout'
+import type { AccessibleHost } from './accessible-host'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { NSNotificationCenter, NSTextField, NSTextView, NSView } from '@octane-xplat/platform/macos'
@@ -36,14 +36,19 @@ import { resolveFont as fontForFamilyStyle } from './fonts'
 import { disposePressGestures, setVisualStateTracking } from './gestures'
 
 interface Dependencies {
-  cssAnimations: Pick<ReturnType<typeof createCssAnimations>, 'cancelKeyframeAnimations'>
+  cssAnimations: Pick<CssAnimations, 'cancelKeyframeAnimations'>
   registry: Pick<
-    ReturnType<typeof createRegistry>,
-    'elementBehaviors' | 'behaviorOf' | 'nodeContainersByView' | 'cssNodesByView'
+    Registry,
+    | 'VIEW_PARENT_TYPES'
+    | 'typeHasView'
+    | 'assertSupportedType'
+    | 'behaviorOf'
+    | 'nodeContainersByView'
+    | 'cssNodesByView'
   >
-  tree: Pick<ReturnType<typeof createTree>, 'validateTextNesting' | 'detach'>
+  tree: Pick<Tree, 'validateTextNesting' | 'detach'>
   pickerElements: Pick<
-    ReturnType<typeof createPickerElements>,
+    PickerElements,
     | 'timeOfDay'
     | 'calendarDate'
     | 'makeSegmentedBar'
@@ -57,9 +62,9 @@ interface Dependencies {
     | 'disposeBuiltinTimePicker'
     | 'disposeBuiltinDatePicker'
   >
-  cssCascade: Pick<ReturnType<typeof createCssCascade>, 'cssChildren'>
+  cssCascade: Pick<CssCascade, 'cssChildren'>
   containerElements: Pick<
-    ReturnType<typeof createContainerElements>,
+    ContainerElements,
     | 'makeRootLayout'
     | 'makeActionBar'
     | 'makeContentView'
@@ -73,9 +78,9 @@ interface Dependencies {
     | 'disposeBuiltinContentHost'
     | 'disposeBuiltinPlaceholder'
   >
-  roots: Pick<ReturnType<typeof createRoots>, 'createMacOSRoot' | 'ownedRoots'>
+  roots: Pick<Roots, 'createMacOSRoot' | 'ownedRoots'>
   controls: Pick<
-    ReturnType<typeof createControls>,
+    Controls,
     | 'makeProgress'
     | 'makeActivityIndicator'
     | 'makeButton'
@@ -85,12 +90,9 @@ interface Dependencies {
     | 'disposeBuiltinActivityIndicator'
     | 'disposeBuiltinScrollView'
   >
-  textElements: Pick<
-    ReturnType<typeof createTextElements>,
-    'makeLabel' | 'disposeBuiltinFormattedText'
-  >
+  textElements: Pick<TextElements, 'makeLabel' | 'disposeBuiltinFormattedText'>
   inputElements: Pick<
-    ReturnType<typeof createInputElements>,
+    InputElements,
     | 'makeSearchBar'
     | 'makeTextField'
     | 'textNodesByView'
@@ -98,26 +100,20 @@ interface Dependencies {
     | 'disposeBuiltinTextViewLayout'
     | 'disposeBuiltinTextInput'
   >
-  imageElements: Pick<
-    ReturnType<typeof createImageElements>,
-    'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'
-  >
+  imageElements: Pick<ImageElements, 'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'>
   actions: Pick<
-    ReturnType<typeof createActions>,
+    Actions,
     | 'nextActionId'
     | 'actionIdsByView'
     | 'actionHandlers'
     | 'buttonActionTarget'
     | 'panHandlersByView'
   >
-  elementProps: Pick<ReturnType<typeof createElementProps>, 'applyProps'>
-  cssPseudoState: Pick<ReturnType<typeof createCssPseudoState>, 'syncPseudoTracking'>
-  subscriptions: Pick<
-    ReturnType<typeof createSubscriptions>,
-    'focusWithinDispatcher' | 'keyboardDispatcher'
-  >
+  elementProps: Pick<ElementProps, 'applyProps'>
+  cssPseudoState: Pick<CssPseudoState, 'syncPseudoTracking'>
+  subscriptions: Pick<Subscriptions, 'focusWithinDispatcher' | 'keyboardDispatcher'>
   hostedElements: Pick<
-    ReturnType<typeof createHostedElements>,
+    HostedElements,
     | 'disposeBuiltinListView'
     | 'disposeBuiltinPager'
     | 'disposeBuiltinVideo'
@@ -125,77 +121,16 @@ interface Dependencies {
     | 'disposeBuiltinTabItem'
     | 'disposeBuiltinWebView'
   >
-  projection: Pick<ReturnType<typeof createProjection>, 'disposeBuiltinProxyChildren'>
-  backgroundPaint: Pick<ReturnType<typeof createBackgroundPaint>, 'clearBackgrounds'>
-  borderPaint: Pick<ReturnType<typeof createBorderPaint>, 'clearBoxFrameObserver'>
-  layout: Pick<ReturnType<typeof createLayout>, 'layoutHandlers'>
-  accessibleHost: Pick<
-    ReturnType<typeof createAccessibleHost>,
-    'accessibilityLabels' | 'accessibilityRoles'
-  >
+  projection: Pick<Projection, 'disposeBuiltinProxyChildren'>
+  backgroundPaint: Pick<BackgroundPaint, 'clearBackgrounds'>
+  borderPaint: Pick<BorderPaint, 'clearBoxFrameObserver'>
+  layout: Pick<Layout, 'layoutHandlers'>
+  accessibleHost: Pick<AccessibleHost, 'accessibilityLabels' | 'accessibilityRoles'>
 }
 
+export type Nodes = ReturnType<typeof createNodes>
+
 export function createNodes(deps: Dependencies) {
-  /** Types whose views arrange child views; mirrors the check in insert(). */
-  const VIEW_PARENT_TYPES = new Set([
-    'rootlayout',
-    'contentview',
-    'actionbar',
-    'proxyviewcontainer',
-    'masonview',
-    'scrollview',
-    'liquidglass',
-  ])
-
-  /** Every type the factory switch below can build. */
-  const SUPPORTED_TYPES = new Set([
-    ...VIEW_PARENT_TYPES,
-    'label',
-    'htmlview',
-    '#text',
-    'button',
-    'textfield',
-    'textview',
-    'searchbar',
-    'switch',
-    'slider',
-    'activityindicator',
-    'progress',
-    'datepicker',
-    'timepicker',
-    'listpicker',
-    'listview',
-    'segmentedbar',
-    'tabview',
-    'tabviewitem',
-    'segmentedbaritem',
-    'webview',
-    'image',
-    'animatedimage',
-    'pager',
-    'xplatvideo',
-    'placeholder',
-    'span',
-    'formattedstring',
-  ])
-
-  function typeHasView(type: string) {
-    return (
-      type !== 'tabviewitem' &&
-      type !== 'segmentedbaritem' &&
-      type !== '#text' &&
-      type !== 'span' &&
-      type !== 'formattedstring' &&
-      type !== 'proxyviewcontainer'
-    )
-  }
-
-  function assertSupportedType(type: string) {
-    if (!SUPPORTED_TYPES.has(type) && !deps.registry.elementBehaviors.has(type)) {
-      throw new Error('AppKit spike does not support <' + type + '>')
-    }
-  }
-
   /** Deterministic prop failures that would otherwise throw after views and
    *  registrations exist. `baseProps` supplies already-applied props for
    *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
@@ -210,7 +145,7 @@ export function createNodes(deps: Dependencies) {
         template.validate(
           (tag, values) => {
             try {
-              assertSupportedType(tag)
+              deps.registry.assertSupportedType(tag)
               validateNodeProps(tag, values)
             } catch (error) {
               throw new TypeError('[macos-host] listview itemTemplate: ' + String(error))
@@ -220,9 +155,9 @@ export function createNodes(deps: Dependencies) {
             deps.tree.validateTextNesting(parent, child)
             if (
               parent &&
-              (typeHasView(child) || child === 'proxyviewcontainer') &&
+              (deps.registry.typeHasView(child) || child === 'proxyviewcontainer') &&
               !(
-                VIEW_PARENT_TYPES.has(parent) ||
+                deps.registry.VIEW_PARENT_TYPES.has(parent) ||
                 deps.registry.behaviorOf(parent)?.container === true
               )
             ) {
@@ -429,7 +364,7 @@ export function createNodes(deps: Dependencies) {
     // Reject malformed props before factories allocate views or register
     // actions — the node only reaches container.nodes after this returns, so
     // a throwing prop below must unwind whatever was already acquired.
-    assertSupportedType(type)
+    deps.registry.assertSupportedType(type)
     validateNodeProps(type, props)
 
     const node: ElementNode = {
@@ -813,9 +748,6 @@ export function createNodes(deps: Dependencies) {
     }
   }
   return {
-    VIEW_PARENT_TYPES,
-    typeHasView,
-    assertSupportedType,
     validateNodeProps,
     makeNode,
     destroy,
