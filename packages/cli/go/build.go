@@ -189,6 +189,11 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
+	releaseOutputs, err := lockProjectOutputs(project)
+	if err != nil {
+		return err
+	}
+	defer releaseOutputs()
 	// Reject unavailable engines before route baking or compiler side effects.
 	location, err := locateRoutes(project, routeOptions{}, "")
 	if err != nil {

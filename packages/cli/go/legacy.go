@@ -76,7 +76,8 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	}
 	var cleanup *processCleanupError
 	var publication *artifactPublicationError
-	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) {
+	var clean *cleanFailure
+	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) || errors.As(err, &clean) {
 		fmt.Fprintf(os.Stderr, "xplat %s: %v\n", command.Name, err)
 	}
 	if requiresFailureEvidence(err) {

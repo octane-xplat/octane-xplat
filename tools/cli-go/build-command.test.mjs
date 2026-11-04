@@ -211,7 +211,8 @@ test(
 			errors = ''
 		child.stdout.on('data', (b) => (output += b))
 		child.stderr.on('data', (b) => (errors += b))
-		const timer = setTimeout(() => child.kill('SIGKILL'), 5000)
+		const exited = once(child, 'close')
+		const timer = setTimeout(() => child.kill('SIGTERM'), 5000)
 		try {
 			for (let i = 0; i < 100 && !output.includes('build engine ready'); i++) {
 				await new Promise((r) => setTimeout(r, 20))
@@ -219,10 +220,15 @@ test(
 
 			assert.match(output, /build engine ready/)
 			child.kill('SIGTERM')
-			assert.deepEqual(await once(child, 'close'), [143, null])
+			assert.deepEqual(await exited, [143, null])
 			assert.match(errors, /live build diagnostic/)
 		} finally {
 			clearTimeout(timer)
+			if (child.exitCode === null && child.signalCode === null) {
+				child.kill('SIGTERM')
+			}
+
+			await exited
 		}
 	},
 )
@@ -284,7 +290,8 @@ test(
 		let errors = ''
 		child.stderr.on('data', (bytes) => (errors += bytes))
 		child.stdout.resume()
-		const timer = setTimeout(() => child.kill('SIGKILL'), 5000)
+		const exited = once(child, 'close')
+		const timer = setTimeout(() => child.kill('SIGTERM'), 5000)
 		try {
 			for (let i = 0; i < 100 && !existsSync(join(dir, 'apple-probe-ready')); i++) {
 				await new Promise((resolve) => setTimeout(resolve, 20))
@@ -292,10 +299,15 @@ test(
 
 			assert.ok(existsSync(join(dir, 'apple-probe-ready')))
 			child.kill('SIGTERM')
-			assert.deepEqual(await once(child, 'close'), [143, null], errors)
+			assert.deepEqual(await exited, [143, null], errors)
 			assert.doesNotMatch(errors, /Unavailable build target/)
 		} finally {
 			clearTimeout(timer)
+			if (child.exitCode === null && child.signalCode === null) {
+				child.kill('SIGTERM')
+			}
+
+			await exited
 		}
 	},
 )
@@ -360,7 +372,8 @@ test(
 		})
 		child.stdout.resume()
 		child.stderr.resume()
-		const timer = setTimeout(() => child.kill('SIGKILL'), 5000)
+		const exited = once(child, 'close')
+		const timer = setTimeout(() => child.kill('SIGTERM'), 5000)
 		try {
 			for (let i = 0; i < 100 && !existsSync(join(dir, 'macos-worker-ready')); i++) {
 				await new Promise((resolve) => setTimeout(resolve, 20))
@@ -369,9 +382,9 @@ test(
 			assert.ok(existsSync(join(dir, 'macos-worker-ready')))
 			const second = run(dir, ['--targets', 'macos'])
 			status(second, 1)
-			assert.match(second.stderr, /another macOS build owns/)
+			assert.match(second.stderr, /another Go build or clean owns/)
 			child.kill('SIGTERM')
-			assert.deepEqual(await once(child, 'close'), [143, null])
+			assert.deepEqual(await exited, [143, null])
 			assert.equal(
 				readdirSync(join(dir, 'artifacts/macos-universal')).some((name) =>
 					name.startsWith('.xplat-macos-'),
@@ -380,6 +393,11 @@ test(
 			)
 		} finally {
 			clearTimeout(timer)
+			if (child.exitCode === null && child.signalCode === null) {
+				child.kill('SIGTERM')
+			}
+
+			await exited
 		}
 	},
 )

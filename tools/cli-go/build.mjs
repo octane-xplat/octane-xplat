@@ -10,6 +10,7 @@ import {
 	routeCommandDescriptor,
 	typecheckCommandDescriptor,
 	buildCommandDescriptor,
+	commandDescriptor,
 } from '../cli-nim/route-templates.mjs'
 
 import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
@@ -92,6 +93,7 @@ writeFileSync(
 			routes: routeCommandDescriptor,
 			typecheck: typecheckCommandDescriptor,
 			build: buildCommandDescriptor,
+			clean: (source) => commandDescriptor(source, 'clean'),
 		})
 			.map(([name, descriptor]) => ({
 				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),

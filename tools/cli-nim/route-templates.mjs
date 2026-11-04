@@ -20,7 +20,7 @@ function single(values, label) {
  if (values.length !== 1) {throw Error(`Expected one canonical route ${label}, got ${values.length}`)}
  return values[0]
 }
-function commandDescriptor(source, name) {
+export function commandDescriptor(source, name) {
  const ast = parseModule(source, `${name}.ts`)
  const declaration = single(nodes(ast, node => node.type === 'VariableDeclarator' && node.id?.name === name), 'command').init
  const property = (node, key) => single(node.properties.filter(item => (item.key?.name ?? item.key?.value) === key), key).value

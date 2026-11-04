@@ -40,7 +40,7 @@ function copy(file) {
 
 try {
 	for (const file of readdirSync(import.meta.dirname)) {
-		if (/\.(go|mod|sum|mjs|json|md|txt)$/.test(file) || file === 'licenses') {
+		if (/\.(go|mod|sum|mjs|py|json|md|txt)$/.test(file) || file === 'licenses') {
 			copy('tools/cli-go/' + file)
 		}
 	}
@@ -136,6 +136,7 @@ try {
 	const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
 	manifest.scripts = {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
+		'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
 		'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
 		'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mjs',
@@ -155,6 +156,7 @@ try {
 		JSON.stringify({
 			tasks: {
 				'//#test:go-unit:portable': { cache: false },
+				'//#test:go-clean:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
 				'//#test:go-linux-build:portable': {cache:false},
 				'//#test:go-build:portable': {cache:false},

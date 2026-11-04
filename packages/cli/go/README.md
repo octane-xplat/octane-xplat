@@ -157,6 +157,31 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go macOS packaging"}' -- bun run turbo run test:go-build-macos-real --filter=@octane-xplat/cli
 ```
 
+`clean` needs no Node. It removes `dist`, `.ns-vite-build`, `node_modules/.vite`,
+`node_modules/.cache/xplat` and generated application children under `platforms/`,
+following the reference command's selection. It preserves NativeScript plugins'
+authored platform trees and the app's authored macOS tree.
+A present `package.json` must be a valid JSON object. Cleanup validates the whole
+plan before removing anything, rejects linked ancestors, and unlinks output leaf
+links without traversing their targets. It also removes broken output links and
+preserves case variants of the macOS directory name.
+
+```sh
+# From the project whose generated outputs should be removed:
+/absolute/path/to/xplat-go clean
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup contracts"}' -- bun run turbo run test:go-clean --filter=@octane-xplat/cli --concurrency=1
+```
+
+Build and clean share a kernel lease in the OS user cache, keyed by physical
+project identity so directory aliases share ownership. The cache must live outside
+the selected project. Keep its lock files in place after release; deleting a live
+lock would let another process acquire a different identity. This coordinates Go
+invocations sharing that cache. Separate Nim/TypeScript or direct engine runs need
+their own coordination. Cleanup checks cancellation between output trees;
+individual recursive removals may finish before cancellation is observed. A failed
+or interrupted cleanup reports removed/attempted outputs and preserves the failure
+cause. Removal across multiple outputs is not a transaction.
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

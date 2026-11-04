@@ -6,7 +6,7 @@ export const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex'
 export function nativeInputs(root) {
 	const files = ['packages/cli/go', 'tools/cli-go'].flatMap((directory) =>
 		readdirSync(join(root, directory), { recursive: true })
-			.filter((file) => /\.(go|mod|sum|json|mjs|txt)$/.test(file))
+			.filter((file) => /\.(go|mod|sum|json|mjs|py|txt)$/.test(file))
 			.map((file) => directory + '/' + file.replaceAll('\\', '/')),
 	)
 	for (const directory of ['packages/cli/src/agent', 'packages/cli/src/mcp/contracts']) {
@@ -22,6 +22,7 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/fmt.ts',
 		'packages/cli/src/commands/lint.ts',
 		'packages/cli/src/commands/build.ts',
+		'packages/cli/src/commands/clean.ts',
 		'packages/cli/src/fmt-plan.ts',
 		'packages/cli/src/tsconfig-envs.ts',
 		'packages/cli/src/env.ts',

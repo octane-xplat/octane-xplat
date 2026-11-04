@@ -225,3 +225,22 @@ preflight of both destinations, output locking and cancellation. The worker's sm
 Linux host scripts ship beside its emitted modules; system GJS/GTK/WebKit libraries
 are not bundled. Packaging verification does not establish app/window runtime or
 visual qualification. Windows executes only the explicit unsupported-host case.
+
+`test:go-clean` compares ordinary app/plugin cleanup with the actual TypeScript
+command on the source host and exercises native filesystem contracts on portable
+hosts. Fixtures include strict metadata rejection, output aliases, Windows
+junctions, unsafe ancestors, cancellation and the shared native build/clean lease.
+The native unit gate checks stale plans, replaced parents and partial-effect
+reporting. All cases use disposable projects; never point this gate at a proving
+app with valuable generated outputs or local recovery state.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup verification"}' -- bun run turbo run test:go-clean test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```
+
+The POSIX terminal fixture uses Python's standard-library PTY support to exercise
+yes/no/EOF and public SIGTERM. Python is an evaluation-tool prerequisite for that
+case; the native command needs neither Python nor Node. Windows skips terminal
+input and broken-symlink cases explicitly while running junction, filesystem,
+build-exclusion and kernel-lease cases. Its Node-triggered termination checks
+forced-exit/job cleanup, not graceful public console delivery.

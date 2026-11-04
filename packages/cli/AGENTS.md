@@ -131,6 +131,19 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 ## Go project orchestration
 
+Keep build/clean leases outside generated outputs and dependency caches. Use the
+physical directory identity for the key: canonical path text alone can retain
+case aliases on macOS, while Windows junctions need handle-based identity. Never
+unlink a reusable kernel-lock file. Cleanup uses retained parent-directory handles,
+validates metadata and every planned target before deletion, and reports partial
+effects when later removal fails or cancellation arrives between trees. Keep this
+foreground terminal flow out of a persistent host's event loop. See
+[native cleanup](go/clean.go) and [output ownership](go/project_lock.go).
+
+Cancellation fixtures must stop and await their owned process in `finally`, even
+when an earlier assertion fails. A timer cleared on assertion failure can otherwise
+leave the fixture engine alive and block the next qualification run.
+
 Keep compiler parsing, JS configuration, loaders and route rendering in the
 selected project's canonical worker. Native generation owns a complete validated
 artifact plan, raw-byte stale checks, adjacent staging, publication and cleanup.

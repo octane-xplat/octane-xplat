@@ -267,7 +267,8 @@ test(
 		})
 		child.stdout.resume()
 		child.stderr.resume()
-		const timer = setTimeout(() => child.kill('SIGKILL'), 5000)
+		const exited = once(child, 'close')
+		const timer = setTimeout(() => child.kill('SIGTERM'), 5000)
 		try {
 			for (let i = 0; i < 100 && !existsSync(join(dir, 'linux-ready')); i++) {
 				await new Promise((resolve) => setTimeout(resolve, 20))
@@ -276,15 +277,20 @@ test(
 			assert.ok(existsSync(join(dir, 'linux-ready')))
 			const second = run(dir)
 			status(second, 1)
-			assert.match(second.stderr, /another Linux build owns/)
+			assert.match(second.stderr, /another Go build or clean owns/)
 			child.kill('SIGTERM')
-			assert.deepEqual(await once(child, 'close'), [143, null])
+			assert.deepEqual(await exited, [143, null])
 			assert.equal(
 				readdirSync(join(dir, 'dist/linux')).some((name) => name.startsWith('.xplat-linux-')),
 				false,
 			)
 		} finally {
 			clearTimeout(timer)
+			if (child.exitCode === null && child.signalCode === null) {
+				child.kill('SIGTERM')
+			}
+
+			await exited
 		}
 	},
 )

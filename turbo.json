@@ -2,6 +2,7 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:go-clean": { "cache": false, "dependsOn": ["build:go", "build"] },
 		"test:go-typecheck-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/web#typecheck", "@xplat/macos#typecheck", "@octane-xplat/lightbox#typecheck"] },
 		"test:go-build-macos-real": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/macos-build#build"] },
 		"test:go-nativescript-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/app#gen", "@xplat/mobile#typecheck"], "passThroughEnv": ["XPLAT_GO_NS_TARGET", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "DEVELOPER_DIR"] },

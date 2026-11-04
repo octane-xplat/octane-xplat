@@ -4,11 +4,29 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"golang.org/x/sys/windows"
 )
+
+func projectLockIdentity(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+	var info windows.ByHandleFileInformation
+	if err = windows.GetFileInformationByHandle(windows.Handle(file.Fd()), &info); err != nil {
+		return "", err
+	}
+	if info.FileAttributes&windows.FILE_ATTRIBUTE_DIRECTORY == 0 {
+		return "", errors.New("project lock requires an ordinary directory identity")
+	}
+	return fmt.Sprintf("%x:%x:%x", info.VolumeSerialNumber, info.FileIndexHigh, info.FileIndexLow), nil
+}
 
 // Go 1.23+ EvalSymlinks deliberately leaves mount points/junctions unresolved.
 // Installed package identity and scope checks need the target actually opened.

@@ -52,6 +52,10 @@ func (e *cliError) Error() string { return e.Message }
 func (e *cliError) Unwrap() error { return e.cause }
 
 func requiresFailureEvidence(err error) bool {
+	var clean *cleanFailure
+	if errors.As(err, &clean) && (len(clean.Removed) > 0 || len(clean.Attempted) > 0) {
+		return true
+	}
 	var cleanup *processCleanupError
 	if errors.As(err, &cleanup) {
 		return true
