@@ -13,9 +13,9 @@ its own match when reading through `getRouteApi`.
 import { Pressable, Text } from '@octane-xplat/ui'
 import { useCanGoBack, useRouter } from '@octane-xplat/ui/routing'
 export function Back() {
-	const navigation = useRouter()
-	const available = useCanGoBack()
-	return <Pressable disabled={!available} onPress={() => navigation.back()}><Text>Back</Text></Pressable>
+  const navigation = useRouter()
+  const available = useCanGoBack()
+  return <Pressable disabled={!available} onPress={() => navigation.back()}><Text>Back</Text></Pressable>
 }
 ```
 
@@ -41,11 +41,11 @@ blocked declaration cancels it; proceed ends with navigation, not animation.
 import { Button, View } from '@octane-xplat/ui'
 import { useNavigationBlocker } from '@octane-xplat/ui/routing'
 export function ConfirmLeave(props: { dirty: boolean }) {
-	const blocker = useNavigationBlocker({ when: props.dirty })
-	return blocker.status === 'blocked' ? <View>
-		<Button label="Keep editing" clickAction={blocker.reset} />
-		<Button label="Leave screen" clickAction={blocker.proceed} />
-	</View> : null
+  const blocker = useNavigationBlocker({ when: props.dirty })
+  return blocker.status === 'blocked' ? <View>
+    <Button label="Keep editing" clickAction={blocker.reset} />
+    <Button label="Leave screen" clickAction={blocker.proceed} />
+  </View> : null
 }
 ```
 
@@ -79,8 +79,8 @@ import { RouteOutlet, Tabs, Text } from '@octane-xplat/ui'
 function Library() { return <Text>Library</Text> }
 function Settings() { return <Text>Settings</Text> }
 const tabs = [
-	{ key: 'library', title: 'Library', stack: 'library', render: Library },
-	{ key: 'settings', title: 'Settings', stack: 'settings', render: Settings },
+  { key: 'library', title: 'Library', stack: 'library', render: Library },
+  { key: 'settings', title: 'Settings', stack: 'settings', render: Settings },
 ]
 export function Sections() { return <RouteOutlet><Tabs tabs={tabs} /></RouteOutlet> }
 ```
@@ -97,7 +97,7 @@ update alone does not invalidate retained prepared entries.
 import { RouteOutlet, Text } from '@octane-xplat/ui'
 function OwnedScreens() { return <RouteOutlet><Text>Choose a screen.</Text></RouteOutlet> }
 export function App(props: { ownershipVersion: number }) {
-	return <OwnedScreens key={props.ownershipVersion} />
+  return <OwnedScreens key={props.ownershipVersion} />
 }
 ```
 
@@ -123,16 +123,16 @@ for toolbars, named flows and lifetime cleanup.
 import { Text } from '@octane-xplat/ui'
 import { createPaneRouterHost, createRouter, defineRoute, defineRoutes, RouterPane } from '@octane-xplat/ui/routing'
 export function createPaneNavigation() {
-	const host = createPaneRouterHost()
-	const catalog = defineRoutes([defineRoute({ path: '/help' }).screen(() => null)])
-	const navigation = createRouter({ catalog, host: host.host, stacks: ['library', 'settings'] })
-	host.attach(navigation)
-	return { host, navigation, dispose: () => navigation.dispose() }
+  const host = createPaneRouterHost()
+  const catalog = defineRoutes([defineRoute({ path: '/help' }).screen(() => null)])
+  const navigation = createRouter({ catalog, host: host.host, stacks: ['library', 'settings'] })
+  host.attach(navigation)
+  return { host, navigation, dispose: () => navigation.dispose() }
 }
 export function Library(props: { workspace: ReturnType<typeof createPaneNavigation> }) {
-	return <RouterPane host={props.workspace.host} router={props.workspace.navigation} stack="library">
-		<Text>Library base</Text>
-	</RouterPane>
+  return <RouterPane host={props.workspace.host} router={props.workspace.navigation} stack="library">
+    <Text>Library base</Text>
+  </RouterPane>
 }
 ```
 
@@ -160,8 +160,8 @@ or editing metadata.
 import { defineRoute, defineRuntimeRoutes } from '@octane-xplat/ui/routing/core'
 import type { RouterInstance } from '@octane-xplat/ui/routing'
 export function installContent(navigation: RouterInstance, paths: readonly string[]) {
-	const catalog = defineRuntimeRoutes(paths.map(path => defineRoute({ path }).screen(() => null)))
-	return navigation.addRoutes(catalog, { id: 'content', conflict: 'replace' })
+  const catalog = defineRuntimeRoutes(paths.map(path => defineRoute({ path }).screen(() => null)))
+  return navigation.addRoutes(catalog, { id: 'content', conflict: 'replace' })
 }
 ```
 
@@ -179,8 +179,8 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import type { createPaneNavigation } from './pane-navigation'
 type Navigation = ReturnType<typeof createPaneNavigation>['navigation']
 export function OpenHelp(props: { navigation: Navigation }) {
-	const navigation = useRouter(props.navigation)
-	return <Pressable onPress={() => navigation.push({ to: '/help' })}><Text>Help</Text></Pressable>
+  const navigation = useRouter(props.navigation)
+  return <Pressable onPress={() => navigation.push({ to: '/help' })}><Text>Help</Text></Pressable>
 }
 ```
 
@@ -217,10 +217,10 @@ implied.
 import { defineTransitions } from '@octane-xplat/ui/routing/core'
 import { defineAppKitTransition } from '@octane-xplat/ui/macos'
 export const transitions = defineTransitions({
-	detail: defineAppKitTransition({
-		from: ({ direction }) => ({ opacity: 0, translateX: direction === 'back' ? -24 : 24 }),
-		duration: 240,
-	}),
+  detail: defineAppKitTransition({
+    from: ({ direction }) => ({ opacity: 0, translateX: direction === 'back' ? -24 : 24 }),
+    duration: 240,
+  }),
 })
 ```
 
@@ -265,7 +265,7 @@ and assistive-technology input require their own qualification.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */
 export default function Help() {
-	return <main><h1>Packing help</h1><button id="packing-action">Pack</button></main>
+  return <main><h1>Packing help</h1><button id="packing-action">Pack</button></main>
 }
 ```
 
@@ -284,7 +284,7 @@ import './routes.gen'
 import { defineTransitions } from '@octane-xplat/ui/routing/core'
 import { defineNativeTransition } from '@octane-xplat/ui/nativescript'
 export const transitions = defineTransitions({
-	detail: defineNativeTransition({ page: () => ({ name: 'slideLeft', duration: 240 }) }),
+  detail: defineNativeTransition({ page: () => ({ name: 'slideLeft', duration: 240 }) }),
 })
 ```
 

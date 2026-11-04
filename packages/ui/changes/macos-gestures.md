@@ -8,19 +8,19 @@ callbacks. Press cancellation reports press-out; it does not activate the contro
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Action() {
-	return (
-		<Pressable
-			onPress={() => console.log('Pressed')}
-			onLongPress={() => console.log('Held')}
-			onDoublePress={() => console.log('Double press')}
-			onPressIn={() => console.log('Down')}
-			onPressOut={() => console.log('Released or cancelled')}
-			onPan={(event) => console.log(event.state, event.dx, event.dy)}
-			onSwipe={(event) => console.log(event.direction)}
-		>
-			<Text>Try an action</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable
+      onPress={() => console.log('Pressed')}
+      onLongPress={() => console.log('Held')}
+      onDoublePress={() => console.log('Double press')}
+      onPressIn={() => console.log('Down')}
+      onPressOut={() => console.log('Released or cancelled')}
+      onPan={(event) => console.log(event.state, event.dx, event.dy)}
+      onSwipe={(event) => console.log(event.direction)}
+    >
+      <Text>Try an action</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -34,11 +34,11 @@ to swipe by this change.
 import { View, Text } from '@octane-xplat/ui'
 
 export function SwipeArea() {
-	return (
-		<View onSwipe={({ direction }) => console.log('Swipe direction', direction)}>
-			<Text>Drag at least 30 points, then release</Text>
-		</View>
-	)
+  return (
+    <View onSwipe={({ direction }) => console.log('Swipe direction', direction)}>
+      <Text>Drag at least 30 points, then release</Text>
+    </View>
+  )
 }
 ```
 

@@ -80,7 +80,7 @@ an inline override restores matching class CSS.
 import { View } from '@octane-xplat/ui'
 
 export function Preview({ expanded }: { expanded: boolean }) {
-	return <View className="preview" style={expanded ? { width: 240 } : undefined} />
+  return <View className="preview" style={expanded ? { width: 240 } : undefined} />
 }
 // With expanded=false, width comes from the matching .preview class again.
 ```
@@ -99,7 +99,7 @@ needs more lines; use `maxLines={1}` or `whiteSpace="nowrap"` for one line.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-appkit */
 export function Caption() {
-	return <label text="A caption that can wrap onto another line" style={{ width: 160 }} />
+  return <label text="A caption that can wrap onto another line" style={{ width: 160 }} />
 }
 ```
 
@@ -118,8 +118,8 @@ to make owned prototype methods discoverable in its JSC host before registration
 ```ts
 import { NSObject, NSMenuItem, interop } from '@octane-xplat/platform/macos'
 const exposedMethods = {
-	'controlChanged:': { params: [NSObject], returns: interop.types.void },
-	'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
+  'controlChanged:': { params: [NSObject], returns: interop.types.void },
+  'menuItemSelected:': { params: [NSMenuItem], returns: interop.types.void },
 }
 ```
 
@@ -146,11 +146,11 @@ import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { GridLayout } from '@nativescript/core'
 
 function Content() {
-	return <label text="Trip details" />
+  return <label text="Trip details" />
 }
 export function mountContent(hostView: GridLayout) {
-	const root = renderNativeScriptApp(hostView, Content, {})
-	return () => root.unmount()
+  const root = renderNativeScriptApp(hostView, Content, {})
+  return () => root.unmount()
 }
 ```
 
@@ -164,8 +164,8 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const packedCount = createStore(0)
 export function Count() {
-	const count = useStore(packedCount)
-	return <Text>{count} packed</Text>
+  const count = useStore(packedCount)
+  return <Text>{count} packed</Text>
 }
 packedCount.set(1) // Every mounted Count subscribes independently.
 ```
@@ -193,8 +193,8 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const trip = createStore({ packed: 0 })
 export function PackedCount() {
-	const packed = useStore(trip, (state) => state.packed)
-	return <Text>{packed}</Text>
+  const packed = useStore(trip, (state) => state.packed)
+  return <Text>{packed}</Text>
 }
 trip.update((state) => ({ ...state, packed: state.packed + 1 }))
 ```

@@ -15,14 +15,14 @@ bun add @octane-xplat/camera
 import { CameraView } from '@octane-xplat/camera'
 
 export function Preview() {
-	return (
-		<CameraView
-			facing="back"
-			active
-			onReady={() => console.log('Preview running')}
-			onError={(error) => console.log(error.message)}
-		/>
-	)
+  return (
+    <CameraView
+      facing="back"
+      active
+      onReady={() => console.log('Preview running')}
+      onError={(error) => console.log(error.message)}
+    />
+  )
 }
 ```
 
@@ -41,13 +41,13 @@ audio) declared through `xplat.targets.macos.package.infoPlist`.
 import { CameraView } from '@octane-xplat/camera'
 
 export function Preview() {
-	return (
-		<CameraView
-			web={{ playsInline: true }}
-			ref={(handle) => console.log(handle?.native)}
-			onError={(error) => console.log(error.message)}
-		/>
-	)
+  return (
+    <CameraView
+      web={{ playsInline: true }}
+      ref={(handle) => console.log(handle?.native)}
+      onError={(error) => console.log(error.message)}
+    />
+  )
 }
 ```
 
@@ -67,7 +67,7 @@ import { CameraView, createCameraSession } from '@octane-xplat/camera'
 const session = createCameraSession()
 
 export function FocusablePreview() {
-	return <CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
+  return <CameraView session={session} onTap={(point) => session.focusAtPoint(point)} />
 }
 ```
 
@@ -93,7 +93,7 @@ import { CameraView, createCameraSession } from '@octane-xplat/camera'
 const session = createCameraSession({ camera: 'default' })
 
 export function Recorder() {
-	return <CameraView session={session} />
+  return <CameraView session={session} />
 }
 ```
 
@@ -107,8 +107,8 @@ const take = session.startRecording({ maximumDurationMs: 30_000 })
 // … later, on a stop press or a maximum-duration limit:
 const outcome = await take.stop()
 if (outcome.kind === 'clip') {
-	const clip = outcome.clip
-	console.log(clip.durationMs, clip.width, clip.height, clip.output)
+  const clip = outcome.clip
+  console.log(clip.durationMs, clip.width, clip.height, clip.output)
 }
 ```
 
@@ -130,7 +130,7 @@ for state, failure handling and qualification limits.
 
 ```ts
 if ((await session.capabilities()).cameraSwitchDuringRecording) {
-	await session.switchCamera('front') // During recording; no stop/restart.
+  await session.switchCamera('front') // During recording; no stop/restart.
 }
 ```
 

@@ -16,12 +16,12 @@ import { TiptapEditor, supported } from '@octane-xplat/tiptap'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	const [html, setHtml] = useState('<p>Trip notes</p>')
-	return supported ? (
-		<TiptapEditor value={html} onChange={setHtml} />
-	) : (
-		<Text>Editing is unavailable on this target</Text>
-	)
+  const [html, setHtml] = useState('<p>Trip notes</p>')
+  return supported ? (
+    <TiptapEditor value={html} onChange={setHtml} />
+  ) : (
+    <Text>Editing is unavailable on this target</Text>
+  )
 }
 ```
 
@@ -39,13 +39,13 @@ import { TiptapEditor } from '@octane-xplat/tiptap'
 import { Mark } from '@tiptap/core'
 
 const Spoiler = Mark.create({
-	name: 'spoiler',
-	parseHTML: () => [{ tag: 'span[data-spoiler]' }],
-	renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
+  name: 'spoiler',
+  parseHTML: () => [{ tag: 'span[data-spoiler]' }],
+  renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
 })
 
 export function Notes() {
-	return <TiptapEditor web={{ extensions: [Spoiler] }} />
+  return <TiptapEditor web={{ extensions: [Spoiler] }} />
 }
 ```
 
@@ -83,31 +83,31 @@ import { TiptapEditor, type TiptapEditorHandle } from '@octane-xplat/tiptap'
 import { Button } from '@octane-xplat/ui'
 
 export function DocumentCopy() {
-	const editor = useRef<TiptapEditorHandle | null>(null)
-	const [html, setHtml] = useState('<p>Trip notes</p>')
-	const [jsonReady, setJsonReady] = useState(false)
-	return (
-		<>
-			<TiptapEditor
-				value={html}
-				onChange={setHtml}
-				ref={(handle) => {
-					editor.current = handle
-				}}
-				onReady={() => setJsonReady(editor.current?.getJSON() != null)}
-				onJSONReady={setJsonReady}
-			/>
-			<Button
-				isDisabled={!jsonReady}
-				clickAction={() => {
-					const document = editor.current?.getJSON()
-					if (document) editor.current?.setJSON(document)
-				}}
-			>
-				Round-trip document
-			</Button>
-		</>
-	)
+  const editor = useRef<TiptapEditorHandle | null>(null)
+  const [html, setHtml] = useState('<p>Trip notes</p>')
+  const [jsonReady, setJsonReady] = useState(false)
+  return (
+    <>
+      <TiptapEditor
+        value={html}
+        onChange={setHtml}
+        ref={(handle) => {
+          editor.current = handle
+        }}
+        onReady={() => setJsonReady(editor.current?.getJSON() != null)}
+        onJSONReady={setJsonReady}
+      />
+      <Button
+        isDisabled={!jsonReady}
+        clickAction={() => {
+          const document = editor.current?.getJSON()
+          if (document) editor.current?.setJSON(document)
+        }}
+      >
+        Round-trip document
+      </Button>
+    </>
+  )
 }
 ```
 
@@ -145,11 +145,11 @@ regression coverage, separate from native keyboard-input qualification.
 import { TiptapEditor, type TiptapJSON, type TiptapEditorHandle } from '@octane-xplat/tiptap'
 
 export function Notes({ json }: { json?: TiptapJSON }) {
-	return <TiptapEditor json={json} value="<p>HTML when JSON is absent</p>" />
+  return <TiptapEditor json={json} value="<p>HTML when JSON is absent</p>" />
 }
 
 export function replaceHTML(editor: TiptapEditorHandle) {
-	editor.setHTML('<p>Replacement, including before JSON readiness</p>')
+  editor.setHTML('<p>Replacement, including before JSON readiness</p>')
 }
 ```
 
@@ -163,6 +163,6 @@ HTML and cannot preserve arbitrary caller nodes or run engine plugins.
 import type { TiptapEditorHandle } from '@octane-xplat/tiptap'
 
 export function insertLink(editor: TiptapEditorHandle) {
-	editor.linkTo('https://example.com', 'Example')
+  editor.linkTo('https://example.com', 'Example')
 }
 ```

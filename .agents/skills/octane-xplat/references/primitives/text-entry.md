@@ -14,7 +14,7 @@ see [text entry](../../../../../docs/app/primitives.md#text-and-keyboard-actions
 import { TextArea } from '@octane-xplat/ui'
 
 export function Composer() {
-	return <TextArea returnKeyType="send" onSubmit={() => console.log('Send')} />
+  return <TextArea returnKeyType="send" onSubmit={() => console.log('Send')} />
 }
 ```
 
@@ -29,9 +29,9 @@ interaction and VoiceOver still require qualification.
 import { Field, TextInput } from '@octane-xplat/ui'
 
 export function AccountName() {
-	return <Field label="Name" description="Shown publicly">
-		<TextInput />
-	</Field>
+  return <Field label="Name" description="Shown publicly">
+    <TextInput />
+  </Field>
 }
 ```
 
@@ -48,10 +48,10 @@ see [search fields](../../../../../docs/app/primitives.md#when-a-screen-needs-mo
 import { SearchInput, TextArea } from '@octane-xplat/ui'
 
 export function Search() {
-	return <>
-		<SearchInput label="Find" icon={false} placeholder="Search by name" />
-		<TextArea label="Note" placeholder="Add a note" placeholderTextColor="#68707e" />
-	</>
+  return <>
+    <SearchInput label="Find" icon={false} placeholder="Search by name" />
+    <TextArea label="Note" placeholder="Add a note" placeholderTextColor="#68707e" />
+  </>
 }
 ```
 
@@ -68,7 +68,7 @@ undo/redo, selection and correction-event timing require separate target qualifi
 import { TextArea } from '@octane-xplat/ui'
 
 export function ShortNote() {
-	return <TextArea label="Short note" maxLength={80} />
+  return <TextArea label="Short note" maxLength={80} />
 }
 ```
 
@@ -86,8 +86,8 @@ notification flags during cleanup. Initial applyProps performs the initial fit.
 ```tsx
 import { TextArea } from '@octane-xplat/ui'
 export function NoteEditor(props: { shown: boolean; value: string; change(value: string): void }) {
-	return props.shown ? <TextArea label="Note" value={props.value} onChange={props.change}
-		autoGrow rows={2} maxRows={4} /> : null
+  return props.shown ? <TextArea label="Note" value={props.value} onChange={props.change}
+    autoGrow rows={2} maxRows={4} /> : null
 }
 ```
 
@@ -114,7 +114,7 @@ window changes and packaging still require qualification; see
 import { TextArea } from '@octane-xplat/ui'
 
 export function Draft({ value, onChange }: { value: string; onChange(value: string): void }) {
-	return <TextArea label="Draft" value={value} onChange={onChange} />
+  return <TextArea label="Draft" value={value} onChange={onChange} />
 }
 ```
 
@@ -122,7 +122,7 @@ export function Draft({ value, onChange }: { value: string; onChange(value: stri
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function RawSearch({ query, onQuery }: { query: string; onQuery(value: string): void }) {
-	return <searchbar text={query} onTextChange={(event) => onQuery(event.value)} />
+  return <searchbar text={query} onTextChange={(event) => onQuery(event.value)} />
 }
 ```
 
@@ -165,8 +165,8 @@ See [AppKit number fields](../../../../../docs/app/components.md#number-fields-o
 import { NumberInput } from '@octane-xplat/ui'
 
 export function Quantity() {
-	return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
-		units="kg" hasClear hasNumberSteppers={false} />
+  return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
+    units="kg" hasClear hasNumberSteppers={false} />
 }
 ```
 
@@ -183,7 +183,7 @@ clear hit testing require separate target qualification. See
 import { SearchInput } from '@octane-xplat/ui'
 
 export function Search() {
-	return <SearchInput label="Find records" hasClear defaultValue="recent" />
+  return <SearchInput label="Find records" hasClear defaultValue="recent" />
 }
 ```
 
@@ -202,7 +202,7 @@ VoiceOver qualification remain open. See
 import { PinInput } from '@octane-xplat/ui'
 
 export function Code() {
-	return <PinInput label="Account code" description="Enter four characters" length={4} />
+  return <PinInput label="Account code" description="Enter four characters" length={4} />
 }
 ```
 
@@ -217,7 +217,7 @@ including the NSTextView itself and the NSTextField's current editor.
 
 ```tsx
 <TextInput label="Name" defaultValue="Ada" hasClear onChange={saveDraft}
-	onClear={recordClear} onSubmit={submitName} />
+  onClear={recordClear} onSubmit={submitName} />
 <TextArea label="Message" defaultValue="Hello" returnKeyType="send" onSubmit={send} />
 ```
 

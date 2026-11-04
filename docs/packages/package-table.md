@@ -18,17 +18,17 @@ import { DataGrid } from '@octane-xplat/table'
 
 const rows = [{ name: 'Passport', count: 1 }]
 export function PackingGrid() {
-	return (
-		<DataGrid
-			className="packing-grid"
-			data={rows}
-			columns={[
-				{ accessorKey: 'name', header: 'Name' },
-				{ accessorKey: 'count', header: 'Count', size: 120 },
-			]}
-			onRowPress={(row) => row.toggleSelected()}
-		/>
-	)
+  return (
+    <DataGrid
+      className="packing-grid"
+      data={rows}
+      columns={[
+        { accessorKey: 'name', header: 'Name' },
+        { accessorKey: 'count', header: 'Count', size: 120 },
+      ]}
+      onRowPress={(row) => row.toggleSelected()}
+    />
+  )
 }
 ```
 
@@ -41,7 +41,7 @@ Give the grid a bounded height or a bounded flex parent.
 ```css
 /* App stylesheet; keep the body viewport bounded. */
 .packing-grid {
-	height: 400px;
+  height: 400px;
 }
 ```
 
@@ -52,15 +52,15 @@ import { useTable } from '@octane-xplat/table'
 import { Text } from '@octane-xplat/ui'
 
 export function CustomRows() {
-	const { table, state } = useTable({
-		data: [{ name: 'Passport' }],
-		columns: [{ accessorKey: 'name', header: 'Name' }],
-	})
-	return (
-		<Text>
-			{table.getRowModel().rows.length} rows; {state.sorting.length} sorts
-		</Text>
-	)
+  const { table, state } = useTable({
+    data: [{ name: 'Passport' }],
+    columns: [{ accessorKey: 'name', header: 'Name' }],
+  })
+  return (
+    <Text>
+      {table.getRowModel().rows.length} rows; {state.sorting.length} sorts
+    </Text>
+  )
 }
 ```
 
@@ -70,8 +70,8 @@ export function CustomRows() {
 import { createTable } from '@octane-xplat/table'
 
 const table = createTable({
-	data: [{ name: 'Passport' }],
-	columns: [{ accessorKey: 'name', header: 'Name' }],
+  data: [{ name: 'Passport' }],
+  columns: [{ accessorKey: 'name', header: 'Name' }],
 })
 console.log(table.getRowModel().rows.length)
 ```
@@ -91,40 +91,40 @@ import { Text } from '@octane-xplat/ui'
 const orders = [{ id: 'order-1', name: 'Passport case', total: 12 }]
 
 export function Orders() {
-	return (
-		<DataGrid
-			id="orders"
-			className="orders-grid"
-			data={orders}
-			getRowId={(order) => order.id}
-			columns={[
-				{
-					accessorKey: 'name',
-					header: 'Name',
-					size: 180,
-					minSize: 100,
-					maxSize: 300,
-					enableHiding: false,
-				},
-				{ accessorKey: 'total', header: 'Total', size: 120 },
-			]}
-			showGlobalFilter
-			showColumnFilters
-			showPagination
-			showRowSelection
-			showColumnSettings
-			resizableColumns
-			reorderableColumns
-			initialState={{ pagination: { pageIndex: 0, pageSize: 10 } }}
-			renderEmpty={() => <Text>No matching orders</Text>}
-		/>
-	)
+  return (
+    <DataGrid
+      id="orders"
+      className="orders-grid"
+      data={orders}
+      getRowId={(order) => order.id}
+      columns={[
+        {
+          accessorKey: 'name',
+          header: 'Name',
+          size: 180,
+          minSize: 100,
+          maxSize: 300,
+          enableHiding: false,
+        },
+        { accessorKey: 'total', header: 'Total', size: 120 },
+      ]}
+      showGlobalFilter
+      showColumnFilters
+      showPagination
+      showRowSelection
+      showColumnSettings
+      resizableColumns
+      reorderableColumns
+      initialState={{ pagination: { pageIndex: 0, pageSize: 10 } }}
+      renderEmpty={() => <Text>No matching orders</Text>}
+    />
+  )
 }
 ```
 
 ```css
 .orders-grid {
-	height: 600px;
+  height: 600px;
 }
 ```
 
@@ -186,15 +186,15 @@ navigation between cells.
 
 ```tsx
 export function SelectableOrders() {
-	return (
-		<DataGrid
-			data={orders}
-			getRowId={(order) => order.id}
-			columns={[{ accessorKey: 'name', header: 'Name' }]}
-			showRowSelection
-			options={{ enableRowSelection: (row) => row.original.total > 0 }}
-		/>
-	)
+  return (
+    <DataGrid
+      data={orders}
+      getRowId={(order) => order.id}
+      columns={[{ accessorKey: 'name', header: 'Name' }]}
+      showRowSelection
+      options={{ enableRowSelection: (row) => row.original.total > 0 }}
+    />
+  )
 }
 ```
 
@@ -206,17 +206,17 @@ version does not add a horizontally synchronized scroll owner.
 
 ```tsx
 export function SizedOrders() {
-	return (
-		<DataGrid
-			data={orders}
-			columns={[
-				{ accessorKey: 'name', header: 'Name', size: 180, minSize: 100, maxSize: 300 },
-				{ accessorKey: 'total', header: 'Total', size: 100 },
-			]}
-			resizableColumns
-			reorderableColumns
-		/>
-	)
+  return (
+    <DataGrid
+      data={orders}
+      columns={[
+        { accessorKey: 'name', header: 'Name', size: 180, minSize: 100, maxSize: 300 },
+        { accessorKey: 'total', header: 'Total', size: 100 },
+      ]}
+      resizableColumns
+      reorderableColumns
+    />
+  )
 }
 ```
 
@@ -233,9 +233,9 @@ slots.
 import { createTable, dataGridFeatures } from '@octane-xplat/table'
 
 const table = createTable({
-	features: dataGridFeatures,
-	data: orders,
-	columns: [{ accessorKey: 'name', header: 'Name' }],
+  features: dataGridFeatures,
+  data: orders,
+  columns: [{ accessorKey: 'name', header: 'Name' }],
 })
 table.setSorting([{ id: 'name', desc: false }])
 console.log(table.getRowModel().rows)
@@ -257,13 +257,13 @@ import { columnResizingFeature } from '@tanstack/table-core'
 import { DataGrid } from '@octane-xplat/table'
 
 export function WebGrid() {
-	return (
-		<DataGrid
-			data={[{ name: 'Passport' }]}
-			columns={[{ accessorKey: 'name', header: 'Name' }]}
-			features={{ columnResizingFeature }}
-		/>
-	)
+  return (
+    <DataGrid
+      data={[{ name: 'Passport' }]}
+      columns={[{ accessorKey: 'name', header: 'Name' }]}
+      features={{ columnResizingFeature }}
+    />
+  )
 }
 ```
 
@@ -282,14 +282,14 @@ import type { DataGridFeatures, TableState } from '@octane-xplat/table'
 
 // useTable and Text are imported in CustomRows above. Call within a component.
 export function ControlledRows() {
-	const [sorting, setSorting] = useState<TableState<DataGridFeatures>['sorting']>([])
-	const { table } = useTable({
-		data: orders,
-		columns: [{ accessorKey: 'name', header: 'Name' }],
-		state: { sorting },
-		onSortingChange: setSorting,
-	})
-	return <Text>{table.getRowModel().rows.length} rows</Text>
+  const [sorting, setSorting] = useState<TableState<DataGridFeatures>['sorting']>([])
+  const { table } = useTable({
+    data: orders,
+    columns: [{ accessorKey: 'name', header: 'Name' }],
+    state: { sorting },
+    onSortingChange: setSorting,
+  })
+  return <Text>{table.getRowModel().rows.length} rows</Text>
 }
 ```
 
@@ -300,15 +300,15 @@ import { useState } from 'octane'
 import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/table'
 
 export function SortedOrders() {
-	const [sorting, setSorting] = useState<TableState<DataGridFeatures>['sorting']>([])
-	return (
-		<DataGrid
-			data={orders}
-			columns={[{ accessorKey: 'name', header: 'Name' }]}
-			state={{ sorting }}
-			options={{ onSortingChange: setSorting }}
-		/>
-	)
+  const [sorting, setSorting] = useState<TableState<DataGridFeatures>['sorting']>([])
+  return (
+    <DataGrid
+      data={orders}
+      columns={[{ accessorKey: 'name', header: 'Name' }]}
+      state={{ sorting }}
+      options={{ onSortingChange: setSorting }}
+    />
+  )
 }
 ```
 
@@ -324,14 +324,14 @@ import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/
 
 const selectableOrders = [{ id: 'passport', name: 'Passport' }]
 export function SelectableOrders() {
-	const [rowSelection, setRowSelection] =
-		useState<TableState<DataGridFeatures>['rowSelection']>({})
-	return (
-		<DataGrid data={selectableOrders} columns={[{ accessorKey: 'name', header: 'Name' }]}
-			getRowId={row => row.id} showRowSelection
-			getRowLabel={row => row.original.name}
-			state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
-	)
+  const [rowSelection, setRowSelection] =
+    useState<TableState<DataGridFeatures>['rowSelection']>({})
+  return (
+    <DataGrid data={selectableOrders} columns={[{ accessorKey: 'name', header: 'Name' }]}
+      getRowId={row => row.id} showRowSelection
+      getRowLabel={row => row.original.name}
+      state={{ rowSelection }} options={{ onRowSelectionChange: setRowSelection }} />
+  )
 }
 ```
 
@@ -357,35 +357,35 @@ import { DataGrid, type DataGridFeatures, type TableState } from '@octane-xplat/
 
 // The parent fetches pageRows whenever pagination changes.
 export function ServerPage({
-	pageRows,
-	rowCount,
-	requestPage,
+  pageRows,
+  rowCount,
+  requestPage,
 }: {
-	pageRows: { id: string; name: string }[]
-	rowCount: number
-	requestPage: (pageIndex: number, pageSize: number) => void
+  pageRows: { id: string; name: string }[]
+  rowCount: number
+  requestPage: (pageIndex: number, pageSize: number) => void
 }) {
-	const [pagination, setPagination] = useState<TableState<DataGridFeatures>['pagination']>({
-		pageIndex: 0,
-		pageSize: 10,
-	})
-	return (
-		<DataGrid
-			data={pageRows}
-			columns={[{ accessorKey: 'name', header: 'Name' }]}
-			showPagination
-			state={{ pagination }}
-			options={{
-				manualPagination: true,
-				rowCount,
-				onPaginationChange: (updater) => {
-					const next = typeof updater === 'function' ? updater(pagination) : updater
-					setPagination(next)
-					requestPage(next.pageIndex, next.pageSize)
-				},
-			}}
-		/>
-	)
+  const [pagination, setPagination] = useState<TableState<DataGridFeatures>['pagination']>({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+  return (
+    <DataGrid
+      data={pageRows}
+      columns={[{ accessorKey: 'name', header: 'Name' }]}
+      showPagination
+      state={{ pagination }}
+      options={{
+        manualPagination: true,
+        rowCount,
+        onPaginationChange: (updater) => {
+          const next = typeof updater === 'function' ? updater(pagination) : updater
+          setPagination(next)
+          requestPage(next.pageIndex, next.pageSize)
+        },
+      }}
+    />
+  )
 }
 ```
 

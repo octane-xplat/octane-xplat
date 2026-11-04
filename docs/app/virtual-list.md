@@ -10,14 +10,14 @@ how many rows exist at once. This is called **virtualization**.
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<VirtualList
-			className="item-viewport"
-			items={[{ id: 'coat', title: 'Coat' }]}
-			keyExtractor={(item) => item.id}
-			renderItem={(item) => <Text>{item.title}</Text>}
-		/>
-	)
+  return (
+    <VirtualList
+      className="item-viewport"
+      items={[{ id: 'coat', title: 'Coat' }]}
+      keyExtractor={(item) => item.id}
+      renderItem={(item) => <Text>{item.title}</Text>}
+    />
+  )
 }
 ```
 
@@ -29,7 +29,7 @@ array and a container with a limited height.
 
 ```css
 .item-viewport {
-	height: 320px;
+  height: 320px;
 }
 ```
 
@@ -43,18 +43,18 @@ implementation that recycles native cells.
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	const items = [{ id: 'coat', title: 'Coat' }]
-	const keyFor = (item: (typeof items)[number]) => item.id
-	const renderRow = (item: (typeof items)[number]) => <Text>{item.title}</Text>
+  const items = [{ id: 'coat', title: 'Coat' }]
+  const keyFor = (item: (typeof items)[number]) => item.id
+  const renderRow = (item: (typeof items)[number]) => <Text>{item.title}</Text>
 
-	return (
-		<VirtualList
-			className="item-viewport"
-			items={items}
-			keyExtractor={keyFor}
-			renderItem={renderRow}
-		/>
-	)
+  return (
+    <VirtualList
+      className="item-viewport"
+      items={items}
+      keyExtractor={keyFor}
+      renderItem={renderRow}
+    />
+  )
 }
 ```
 
@@ -70,25 +70,25 @@ import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [items, setItems] = useState([
-		{ id: 'coat', title: 'Coat', kind: 'note' },
-		{ id: 'shoes', title: 'Shoes', kind: 'note' },
-	])
+  const [items, setItems] = useState([
+    { id: 'coat', title: 'Coat', kind: 'note' },
+    { id: 'shoes', title: 'Shoes', kind: 'note' },
+  ])
 
-	return (
-		<>
-			<Pressable onPress={() => setItems([...items].reverse())}>
-				<Text>Reverse order</Text>
-			</Pressable>
-			<VirtualList
-				className="item-viewport"
-				items={items}
-				keyExtractor={(item) => item.id}
-				getItemType={(item) => item.kind}
-				renderItem={(item) => <Text>{item.title}</Text>}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => setItems([...items].reverse())}>
+        <Text>Reverse order</Text>
+      </Pressable>
+      <VirtualList
+        className="item-viewport"
+        items={items}
+        keyExtractor={(item) => item.id}
+        getItemType={(item) => item.kind}
+        renderItem={(item) => <Text>{item.title}</Text>}
+      />
+    </>
+  )
 }
 ```
 
@@ -111,29 +111,29 @@ const selected = createStore<Record<string, boolean>>({})
 const items = [{ id: 'coat', title: 'Coat' }]
 
 function Row(props: { id: string; title: string }) {
-	const selections = useStore(selected)
+  const selections = useStore(selected)
 
-	return (
-		<Pressable onPress={() => selected.update((s) => ({ ...s, [props.id]: !s[props.id] }))}>
-			<Text>
-				{selections[props.id] ? 'Packed: ' : ''}
-				{props.title}
-			</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => selected.update((s) => ({ ...s, [props.id]: !s[props.id] }))}>
+      <Text>
+        {selections[props.id] ? 'Packed: ' : ''}
+        {props.title}
+      </Text>
+    </Pressable>
+  )
 }
 
 const renderRow = (item: (typeof items)[number]) => <Row id={item.id} title={item.title} />
 
 export function Items() {
-	return (
-		<VirtualList
-			className="item-viewport"
-			items={items}
-			keyExtractor={(item) => item.id}
-			renderItem={renderRow}
-		/>
-	)
+  return (
+    <VirtualList
+      className="item-viewport"
+      items={items}
+      keyExtractor={(item) => item.id}
+      renderItem={renderRow}
+    />
+  )
 }
 ```
 
@@ -152,21 +152,21 @@ import { VirtualList, Text, Pressable } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [items, setItems] = useState([{ id: 'coat', title: 'Coat' }])
+  const [items, setItems] = useState([{ id: 'coat', title: 'Coat' }])
 
-	return (
-		<>
-			<Pressable onPress={() => setItems([{ id: 'shoes', title: 'Shoes' }, ...items])}>
-				<Text>Prepend shoes</Text>
-			</Pressable>
-			<VirtualList
-				className="item-viewport"
-				items={items}
-				keyExtractor={(item) => item.id}
-				renderItem={(item) => <Text>{item.title}</Text>}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => setItems([{ id: 'shoes', title: 'Shoes' }, ...items])}>
+        <Text>Prepend shoes</Text>
+      </Pressable>
+      <VirtualList
+        className="item-viewport"
+        items={items}
+        keyExtractor={(item) => item.id}
+        renderItem={(item) => <Text>{item.title}</Text>}
+      />
+    </>
+  )
 }
 ```
 
@@ -186,23 +186,23 @@ import { VirtualList, Text, Pressable, type VirtualListHandle } from '@octane-xp
 import { useRef } from 'octane'
 
 export function Example() {
-	const list = useRef<VirtualListHandle | null>(null)
-	const items = [{ id: 'coat', title: 'Coat' }]
+  const list = useRef<VirtualListHandle | null>(null)
+  const items = [{ id: 'coat', title: 'Coat' }]
 
-	return (
-		<>
-			<Pressable onPress={() => list.current?.scrollToOffset(0, { animated: true })}>
-				<Text>Back to top</Text>
-			</Pressable>
-			<VirtualList
-				ref={list}
-				className="item-viewport"
-				items={items}
-				keyExtractor={(item) => item.id}
-				renderItem={(item) => <Text>{item.title}</Text>}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => list.current?.scrollToOffset(0, { animated: true })}>
+        <Text>Back to top</Text>
+      </Pressable>
+      <VirtualList
+        ref={list}
+        className="item-viewport"
+        items={items}
+        keyExtractor={(item) => item.id}
+        renderItem={(item) => <Text>{item.title}</Text>}
+      />
+    </>
+  )
 }
 ```
 
@@ -225,23 +225,23 @@ import { VirtualList, Text, Pressable, type VirtualListHandle } from '@octane-xp
 import { useRef } from 'octane'
 
 export function Example() {
-	const list = useRef<VirtualListHandle | null>(null)
-	const items = [{ id: 'coat', title: 'Coat' }]
+  const list = useRef<VirtualListHandle | null>(null)
+  const items = [{ id: 'coat', title: 'Coat' }]
 
-	return (
-		<>
-			<Pressable onPress={() => list.current?.scrollToItem('coat', { align: 'center' })}>
-				<Text>Find the coat</Text>
-			</Pressable>
-			<VirtualList
-				ref={list}
-				className="item-viewport"
-				items={items}
-				keyExtractor={(item) => item.id}
-				renderItem={(item) => <Text>{item.title}</Text>}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => list.current?.scrollToItem('coat', { align: 'center' })}>
+        <Text>Find the coat</Text>
+      </Pressable>
+      <VirtualList
+        ref={list}
+        className="item-viewport"
+        items={items}
+        keyExtractor={(item) => item.id}
+        renderItem={(item) => <Text>{item.title}</Text>}
+      />
+    </>
+  )
 }
 ```
 
@@ -253,18 +253,18 @@ Header, footer, separator, and empty content use the corresponding render slots.
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<VirtualList
-			className="item-viewport"
-			items={[]}
-			keyExtractor={(item: { id: string }) => item.id}
-			renderItem={(item) => <Text>{item.id}</Text>}
-			renderHeader={() => <Text>Packing list</Text>}
-			renderFooter={() => <Text>End of list</Text>}
-			renderSeparator={() => <Text>—</Text>}
-			renderEmpty={() => <Text>Add your first item</Text>}
-		/>
-	)
+  return (
+    <VirtualList
+      className="item-viewport"
+      items={[]}
+      keyExtractor={(item: { id: string }) => item.id}
+      renderItem={(item) => <Text>{item.id}</Text>}
+      renderHeader={() => <Text>Packing list</Text>}
+      renderFooter={() => <Text>End of list</Text>}
+      renderSeparator={() => <Text>—</Text>}
+      renderEmpty={() => <Text>Add your first item</Text>}
+    />
+  )
 }
 ```
 

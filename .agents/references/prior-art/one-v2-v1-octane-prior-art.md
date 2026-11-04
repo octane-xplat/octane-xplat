@@ -41,7 +41,7 @@ A typed import is the new user-facing boundary; this example assumes the app’s
 import { Device } from './native/Showcase/Device.swift'
 
 export async function hashGreeting(): Promise<string> {
-	return Device.sha256('hello')
+  return Device.sha256('hello')
 }
 ```
 
@@ -60,14 +60,14 @@ The announcement’s “100%” access claim includes the escape hatch of writin
 import { One, useNativeState } from 'one'
 
 export function NotificationSetting() {
-	const enabled = useNativeState(false)
-	return (
-		<One.iOS.Toggle
-			label="Notifications"
-			isOn={enabled}
-			onIsOnChange={(next) => enabled.set(next)}
-		/>
-	)
+  const enabled = useNativeState(false)
+  return (
+    <One.iOS.Toggle
+      label="Notifications"
+      isOn={enabled}
+      onIsOnChange={(next) => enabled.set(next)}
+    />
+  )
 }
 ```
 

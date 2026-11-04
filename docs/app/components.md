@@ -33,13 +33,13 @@ import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return (
-		<KeyboardAvoiding>
-			<TextInput label="Name" value={name} onChange={setName} />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <TextInput label="Name" value={name} onChange={setName} />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -52,14 +52,14 @@ made visible through component styling.
 import { View, VisuallyHidden, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<View id="summary" className="summary" web={{ 'data-testid': 'summary' }}>
-			<Text>Packing progress</Text>
-			<VisuallyHidden>
-				<Text>Two items packed</Text>
-			</VisuallyHidden>
-		</View>
-	)
+  return (
+    <View id="summary" className="summary" web={{ 'data-testid': 'summary' }}>
+      <Text>Packing progress</Text>
+      <VisuallyHidden>
+        <Text>Two items packed</Text>
+      </VisuallyHidden>
+    </View>
+  )
 }
 ```
 
@@ -83,19 +83,19 @@ insets from container tokens on web only.
 import { Stack, Center, AspectRatio, VisuallyHidden, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Stack as="section" isScrollable>
-			<Center isInline>
-				<Text>Summary</Text>
-			</Center>
-			<AspectRatio ratio={16 / 9}>
-				<Text>Preview</Text>
-			</AspectRatio>
-			<VisuallyHidden>
-				<Text>Packing progress</Text>
-			</VisuallyHidden>
-		</Stack>
-	)
+  return (
+    <Stack as="section" isScrollable>
+      <Center isInline>
+        <Text>Summary</Text>
+      </Center>
+      <AspectRatio ratio={16 / 9}>
+        <Text>Preview</Text>
+      </AspectRatio>
+      <VisuallyHidden>
+        <Text>Packing progress</Text>
+      </VisuallyHidden>
+    </Stack>
+  )
 }
 ```
 
@@ -149,10 +149,10 @@ qualification; forwarding is source evidence.
 ```tsx
 import { Heading, Text } from '@octane-xplat/ui'
 export function Summary({ points }: { points: number }) {
-	return <>
-		<Heading level={2} style={{ fontSize: points }}>Summary</Heading>
-		<Text type="body" style={`font-size:${points}px`}>Ready to review</Text>
-	</>
+  return <>
+    <Heading level={2} style={{ fontSize: points }}>Summary</Heading>
+    <Text type="body" style={`font-size:${points}px`}>Ready to review</Text>
+  </>
 }
 ```
 
@@ -168,11 +168,11 @@ shaping, layout, truncation and accessibility remain unqualified.
 ```tsx
 import { Heading, RichText, RichTextSpan, Text } from '@octane-xplat/ui'
 export function Notice() {
-	return <>
-		<Heading level={2}>Your <Text weight="bold">account</Text></Heading>
-		<Text>Read the <Text style={{ fontWeight: 600 }}>latest update</Text>.</Text>
-		<RichText><RichTextSpan text="Ready to review" /></RichText>
-	</>
+  return <>
+    <Heading level={2}>Your <Text weight="bold">account</Text></Heading>
+    <Text>Read the <Text style={{ fontWeight: 600 }}>latest update</Text>.</Text>
+    <RichText><RichTextSpan text="Ready to review" /></RichText>
+  </>
 }
 ```
 
@@ -188,10 +188,10 @@ and native update/removal still need qualification.
 ```tsx
 import { Text } from '@octane-xplat/ui'
 export function Count({ count }: { count: number }) {
-	return <Text testID="item-count" accessibilityLabel="Items"
-		accessibilityHint="Review the collection." accessibilityValue={`${count} items`}>
-		{count}
-	</Text>
+  return <Text testID="item-count" accessibilityLabel="Items"
+    accessibilityHint="Review the collection." accessibilityValue={`${count} items`}>
+    {count}
+  </Text>
 }
 ```
 
@@ -205,7 +205,7 @@ announcements and dynamic updates remain unqualified.
 ```tsx
 import { Heading, Text } from '@octane-xplat/ui'
 export function AccountTitle({ title }: { title: string }) {
-	return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
+  return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
 }
 ```
 
@@ -239,9 +239,9 @@ callback. When both are set, the controlled prop wins.
 import { Switch } from '@octane-xplat/ui'
 
 export function Example() {
-	// Uncontrolled — the switch owns its on state and reports each toggle.
+  // Uncontrolled — the switch owns its on state and reports each toggle.
 
-	return <Switch defaultValue onChange={(next) => console.log(next)} />
+  return <Switch defaultValue onChange={(next) => console.log(next)} />
 }
 ```
 
@@ -250,19 +250,19 @@ import { Field, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return (
-		<Field
-			label="Name"
-			description="Shown on your profile"
-			inputID="name"
-			isRequired
-			status={{ type: 'warning', message: 'Check the spelling' }}
-		>
-			<TextInput id="name" value={name} onChange={setName} hasClear isLoading size="sm" />
-		</Field>
-	)
+  return (
+    <Field
+      label="Name"
+      description="Shown on your profile"
+      inputID="name"
+      isRequired
+      status={{ type: 'warning', message: 'Check the spelling' }}
+    >
+      <TextInput id="name" value={name} onChange={setName} hasClear isLoading size="sm" />
+    </Field>
+  )
 }
 ```
 
@@ -279,14 +279,14 @@ matching accessibility group role.
 import { FormLayout, InputGroup, InputGroupText, TextInput } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<FormLayout direction="horizontal-labels">
-			<InputGroup label="Website" size="sm" isDisabled>
-				<InputGroupText>https://</InputGroupText>
-				<TextInput value="example.com" size="md" />
-			</InputGroup>
-		</FormLayout>
-	)
+  return (
+    <FormLayout direction="horizontal-labels">
+      <InputGroup label="Website" size="sm" isDisabled>
+        <InputGroupText>https://</InputGroupText>
+        <TextInput value="example.com" size="md" />
+      </InputGroup>
+    </FormLayout>
+  )
 }
 ```
 
@@ -343,9 +343,9 @@ import { useState } from 'octane'
 import { Slider } from '@octane-xplat/ui'
 
 export function Volume() {
-	const [volume, setVolume] = useState(0.5)
+  const [volume, setVolume] = useState(0.5)
 
-	return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
+  return <Slider value={volume} minValue={0} maxValue={1} onValueChange={setVolume} />
 }
 ```
 
@@ -363,7 +363,7 @@ unqualified.
 import { Spinner } from '@octane-xplat/ui'
 
 export function Saving() {
-	return <Spinner id="saving" size="sm" label="Saving settings" accessibilityLabel="Saving" />
+  return <Spinner id="saving" size="sm" label="Saving settings" accessibilityLabel="Saving" />
 }
 ```
 
@@ -376,7 +376,7 @@ still need qualification.
 import { Switch } from '@octane-xplat/ui'
 
 export function Alerts({ save }: { save(next: boolean): Promise<void> }) {
-	return <Switch label="Alerts" defaultValue changeAction={save} />
+  return <Switch label="Alerts" defaultValue changeAction={save} />
 }
 ```
 
@@ -392,8 +392,8 @@ layout and VoiceOver remain unqualified.
 ```tsx
 import { ProgressBar } from '@octane-xplat/ui'
 export function Upload({ percent }: { percent?: number }) {
-	return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
-		hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
+  return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
+    hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
 }
 ```
 
@@ -407,8 +407,8 @@ qualification is separate from this import and metadata repair.
 ```tsx
 import { Meter, Text } from '@octane-xplat/ui'
 export function Storage() {
-	return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage"
-		valueLabel="6 GB of 10 GB used" style="margin-left:8px"><Text>6 GB</Text></Meter>
+  return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage"
+    valueLabel="6 GB of 10 GB used" style="margin-left:8px"><Text>6 GB</Text></Meter>
 }
 ```
 
@@ -424,10 +424,10 @@ onValueChange feedback; disabled/read-only groups block both item forms.
 import { RadioList, RadioListItem } from '@octane-xplat/ui'
 
 export function Plan() {
-	return <RadioList label="Plan" defaultValue="free"
-		options={[{ value: 'free', label: 'Free', description: 'Personal use' }]}>
-		<RadioListItem value="team" label="Team" description="Shared projects" />
-	</RadioList>
+  return <RadioList label="Plan" defaultValue="free"
+    options={[{ value: 'free', label: 'Free', description: 'Personal use' }]}>
+    <RadioListItem value="team" label="Team" description="Shared projects" />
+  </RadioList>
 }
 ```
 
@@ -442,11 +442,11 @@ select. Changing a child value updates its native registration.
 import { useState } from 'octane'
 import { RadioList, RadioListItem } from '@octane-xplat/ui'
 export function CurrentPlan({ locked }: { locked: boolean }) {
-	const [value, setValue] = useState('free')
-	return <RadioList label="Plan" value={value} onValueChange={setValue} isReadOnly={locked}>
-		<RadioListItem value="free" label="Free" />
-		<RadioListItem value="team" label="Team" />
-	</RadioList>
+  const [value, setValue] = useState('free')
+  return <RadioList label="Plan" value={value} onValueChange={setValue} isReadOnly={locked}>
+    <RadioListItem value="free" label="Free" />
+    <RadioListItem value="team" label="Team" />
+  </RadioList>
 }
 ```
 
@@ -468,9 +468,9 @@ qualification.
 import { Field, RadioList, RadioListItem } from '@octane-xplat/ui'
 
 export function LockedPlan() {
-	return <Field label="Plan" isReadOnly>
-		<RadioList defaultValue="free"><RadioListItem value="free" label="Free" /></RadioList>
-	</Field>
+  return <Field label="Plan" isReadOnly>
+    <RadioList defaultValue="free"><RadioListItem value="free" label="Free" /></RadioList>
+  </Field>
 }
 ```
 
@@ -488,11 +488,11 @@ import { useState } from 'octane'
 import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
 
 export function Notifications() {
-	const [value, setValue] = useState<string[]>([])
-	return <CheckboxList label="Notifications" value={value} onValueChange={setValue}
-		options={[{ value: 'email', label: 'Email', description: 'A daily summary' }]}>
-		<CheckboxListItem value="alerts" label="Alerts" description="Immediate updates" />
-	</CheckboxList>
+  const [value, setValue] = useState<string[]>([])
+  return <CheckboxList label="Notifications" value={value} onValueChange={setValue}
+    options={[{ value: 'email', label: 'Email', description: 'A daily summary' }]}>
+    <CheckboxListItem value="alerts" label="Alerts" description="Immediate updates" />
+  </CheckboxList>
 }
 ```
 
@@ -505,7 +505,7 @@ layout appearance and packaging remain unqualified.
 import { CheckboxListItem } from '@octane-xplat/ui'
 
 export function SelectAll({ onCheck }: { onCheck(checked: boolean): void }) {
-	return <CheckboxListItem label="All notifications" isChecked="indeterminate" onCheck={onCheck} />
+  return <CheckboxListItem label="All notifications" isChecked="indeterminate" onCheck={onCheck} />
 }
 ```
 
@@ -525,8 +525,8 @@ The AppKit leaf still ignores `changeAction`; use controlled state and save in
 import { Checkbox } from '@octane-xplat/ui'
 
 export function IncludeArchived() {
-	return <Checkbox label="Include archived records" description="Search older entries"
-		labelTooltip="Include records saved in the archive" defaultValue="indeterminate" status={{ type: 'warning', message: 'Some records are selected' }} />
+  return <Checkbox label="Include archived records" description="Search older entries"
+    labelTooltip="Include records saved in the archive" defaultValue="indeterminate" status={{ type: 'warning', message: 'Some records are selected' }} />
 }
 ```
 
@@ -543,8 +543,8 @@ import { useState } from 'octane'
 import { CheckboxInput } from '@octane-xplat/ui'
 
 export function ArchiveFilter() {
-	const [include, setInclude] = useState(false)
-	return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
+  const [include, setInclude] = useState(false)
+  return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
 }
 ```
 
@@ -566,8 +566,8 @@ unqualified; four additional regression cases are authored and unrun.
 import { Switch } from '@octane-xplat/ui'
 
 export function Notifications({ save }: { save(enabled: boolean): Promise<void> }) {
-	return <Switch accessibilityLabel="Notifications" defaultValue={false}
-		changeAction={save} />
+  return <Switch accessibilityLabel="Notifications" defaultValue={false}
+    changeAction={save} />
 }
 ```
 
@@ -582,7 +582,7 @@ source cases remain unrun; native event/ref timing is still unqualified.
 import { Switch } from '@octane-xplat/ui'
 
 export function ArchiveFlag({ change }: { change(enabled: boolean): void }) {
-	return <Switch label="Include archived" defaultValue={false} onChange={change} />
+  return <Switch label="Include archived" defaultValue={false} onChange={change} />
 }
 ```
 
@@ -600,9 +600,9 @@ order, layout and accessibility still need native qualification.
 import { Switch } from '@octane-xplat/ui'
 
 export function EmailAlerts() {
-	return <Switch label="Email alerts" description="Send a daily summary"
-		defaultValue labelPosition="start" labelSpacing="spread" width={280}
-		status={{ type: 'error', message: 'Try saving again' }} />
+  return <Switch label="Email alerts" description="Send a daily summary"
+    defaultValue labelPosition="start" labelSpacing="spread" width={280}
+    status={{ type: 'error', message: 'Try saving again' }} />
 }
 ```
 
@@ -618,9 +618,9 @@ of the full range when omitted); Home/End request that thumb's allowed bounds.
 import { Slider } from '@octane-xplat/ui'
 
 export function PriceRange() {
-	return <Slider label="Price range" defaultValue={[20, 80]} min={0} max={100}
-		step={5} valueDisplay="text" formatValue={(value) => `$${value}`}
-		marks={[{ value: 0, label: 'Low' }, { value: 100, label: 'High' }]} />
+  return <Slider label="Price range" defaultValue={[20, 80]} min={0} max={100}
+    step={5} valueDisplay="text" formatValue={(value) => `$${value}`}
+    marks={[{ value: 0, label: 'Low' }, { value: 100, label: 'High' }]} />
 }
 ```
 
@@ -644,9 +644,9 @@ coverage only. `valueDisplay="tooltip"` uses AppKit's hover tooltip timing.
 import { Field, Slider } from '@octane-xplat/ui'
 
 export function LockedVolume() {
-	return <Field label="Volume" isReadOnly>
-		<Slider defaultValue={0.5} min={0} max={1} valueDisplay="tooltip" />
-	</Field>
+  return <Field label="Volume" isReadOnly>
+    <Slider defaultValue={0.5} min={0} max={1} valueDisplay="tooltip" />
+  </Field>
 }
 ```
 
@@ -665,13 +665,13 @@ import { useState } from 'octane'
 import { ColorPicker, ColorSwatch } from '@octane-xplat/ui'
 
 export function FavoriteColor() {
-	const [color, setColor] = useState('#4488ff')
-	return (
-		<>
-			<ColorPicker value={color} onChange={setColor} />
-			<ColorSwatch color={color} />
-		</>
-	)
+  const [color, setColor] = useState('#4488ff')
+  return (
+    <>
+      <ColorPicker value={color} onChange={setColor} />
+      <ColorSwatch color={color} />
+    </>
+  )
 }
 ```
 
@@ -687,8 +687,8 @@ import { useState } from 'octane'
 import { ColorSlider } from '@octane-xplat/ui'
 
 export function AccentHue() {
-	const [color, setColor] = useState('#4488ff')
-	return <ColorSlider channel="hue" value={color} onChange={setColor} accessibilityLabel="Accent hue" />
+  const [color, setColor] = useState('#4488ff')
+  return <ColorSlider channel="hue" value={color} onChange={setColor} accessibilityLabel="Accent hue" />
 }
 ```
 
@@ -711,27 +711,27 @@ contracts and the native picker package boundary.
 import { DateInput, TimeInput, DateTimeInput } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<>
-			<DateInput
-				label="Date"
-				value="2026-10-02"
-				onChange={(value) => console.log(value)}
-				presentation="native"
-			/>
-			<TimeInput
-				label="Time"
-				value="14:30"
-				onChange={(value) => console.log(value)}
-				presentation="bottom-sheet"
-			/>
-			<DateTimeInput
-				label="Departure"
-				value="2026-10-02T14:30"
-				onChange={(value) => console.log(value)}
-			/>
-		</>
-	)
+  return (
+    <>
+      <DateInput
+        label="Date"
+        value="2026-10-02"
+        onChange={(value) => console.log(value)}
+        presentation="native"
+      />
+      <TimeInput
+        label="Time"
+        value="14:30"
+        onChange={(value) => console.log(value)}
+        presentation="bottom-sheet"
+      />
+      <DateTimeInput
+        label="Departure"
+        value="2026-10-02T14:30"
+        onChange={(value) => console.log(value)}
+      />
+    </>
+  )
 }
 ```
 
@@ -751,9 +751,9 @@ import type { FileInputFile } from '@octane-xplat/files'
 import { useState } from 'octane'
 
 export function Attachments() {
-	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+  const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
 
-	return <FileInput label="Attachments" value={files} onChange={setFiles} isMultiple />
+  return <FileInput label="Attachments" value={files} onChange={setFiles} isMultiple />
 }
 ```
 
@@ -771,10 +771,10 @@ import { useState } from 'octane'
 import { NumberInput } from '@octane-xplat/ui'
 
 export function Mass() {
-	const [value, setValue] = useState<number | null>(2)
-	return <NumberInput label="Mass" value={value} onValueChange={setValue}
-		min={0} max={9} step={0.5} units="kg" width={280}
-		formatValue={(number) => number.toFixed(1)} hasClear hasNumberSteppers={false} />
+  const [value, setValue] = useState<number | null>(2)
+  return <NumberInput label="Mass" value={value} onValueChange={setValue}
+    min={0} max={9} step={0.5} units="kg" width={280}
+    formatValue={(number) => number.toFixed(1)} hasClear hasNumberSteppers={false} />
 }
 ```
 
@@ -790,8 +790,8 @@ the guard; an error in `onValueChange` prevents the following `onClear` call.
 import { NumberInput } from '@octane-xplat/ui'
 
 export function LocalQuantity() {
-	return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
-		step={1} hasClear />
+  return <NumberInput label="Quantity" defaultValue={2} min={0} max={9}
+    step={1} hasClear />
 }
 ```
 
@@ -814,11 +814,11 @@ pixel parity still require qualification.
 import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
 
 export function MailboxFilter() {
-	return <SegmentedControl defaultValue="inbox" layout="fill" accessibilityLabel="Mailbox">
-		<SegmentedControlItem value="inbox" label="Inbox" />
-		<SegmentedControlItem value="sent" label="Sent" />
-		<SegmentedControlItem value="archived" label="Archived" isDisabled />
-	</SegmentedControl>
+  return <SegmentedControl defaultValue="inbox" layout="fill" accessibilityLabel="Mailbox">
+    <SegmentedControlItem value="inbox" label="Inbox" />
+    <SegmentedControlItem value="sent" label="Sent" />
+    <SegmentedControlItem value="archived" label="Archived" isDisabled />
+  </SegmentedControl>
 }
 ```
 
@@ -837,9 +837,9 @@ packaged-app qualification remain pending.
 import { Text, useMediaQuery } from '@octane-xplat/ui'
 
 export function LayoutHint() {
-	const wide = useMediaQuery('(min-width: 800px)')
-	const hover = useMediaQuery('(pointer: fine) and (hover: hover)')
-	return <Text>{wide ? 'Wide layout' : 'Compact layout'}{hover ? ' with pointer actions' : ''}</Text>
+  const wide = useMediaQuery('(min-width: 800px)')
+  const hover = useMediaQuery('(pointer: fine) and (hover: hover)')
+  return <Text>{wide ? 'Wide layout' : 'Compact layout'}{hover ? ' with pointer actions' : ''}</Text>
 }
 ```
 
@@ -885,13 +885,13 @@ import { registerIcon, Icon, Alert } from '@octane-xplat/ui'
 registerIcon('logo', { svg: 'M4 4h16v16H4z' })
 
 export function Brand() {
-	return (
-		<>
-			<Icon name="logo" size={20} accessibilityLabel="Company logo" />
-			<Icon name="logo" /> {/* decorative second use */}
-			<Alert tone="info" icon="xplat-warning" title="Heads up" />
-		</>
-	)
+  return (
+    <>
+      <Icon name="logo" size={20} accessibilityLabel="Company logo" />
+      <Icon name="logo" /> {/* decorative second use */}
+      <Alert tone="info" icon="xplat-warning" title="Heads up" />
+    </>
+  )
 }
 ```
 
@@ -910,12 +910,12 @@ const brandIcons = createIconRegistry()
 brandIcons.registerIcon('logo', { svg: 'M4 4h16v16H4z' })
 
 export function BrandArea() {
-	return (
-		<IconRegistryProvider value={brandIcons}>
-			<Icon name="logo" accessibilityLabel="Company logo" />
-			<Icon name="logo" registry={brandIcons} />
-		</IconRegistryProvider>
-	)
+  return (
+    <IconRegistryProvider value={brandIcons}>
+      <Icon name="logo" accessibilityLabel="Company logo" />
+      <Icon name="logo" registry={brandIcons} />
+    </IconRegistryProvider>
+  )
 }
 ```
 
@@ -929,11 +929,11 @@ import { registerIndicators, Text, View } from '@octane-xplat/ui'
 import type { IndicatorProps } from '@octane-xplat/ui'
 
 function SelectionMark(props: IndicatorProps<'singleSelection'>) {
-	return (
-		<View>
-			<Text>{props.state === 'checked' ? '✓' : ''}</Text>
-		</View>
-	)
+  return (
+    <View>
+      <Text>{props.state === 'checked' ? '✓' : ''}</Text>
+    </View>
+  )
 }
 registerIndicators({ check: SelectionMark })
 ```
@@ -978,15 +978,15 @@ import { useState } from 'octane'
 import { TabList, Tab, Text } from '@octane-xplat/ui'
 
 export function Sections() {
-	const [value, setValue] = useState('overview')
-	return <>
-		<TabList role="tablist" value={value} onChange={setValue}>
-			<Tab value="overview" label="Overview" />
-			<Tab value="details" label="Details" />
-			<Tab value="unavailable" label="Unavailable" isDisabled />
-		</TabList>
-		<Text>{value}</Text>
-	</>
+  const [value, setValue] = useState('overview')
+  return <>
+    <TabList role="tablist" value={value} onChange={setValue}>
+      <Tab value="overview" label="Overview" />
+      <Tab value="details" label="Details" />
+      <Tab value="unavailable" label="Unavailable" isDisabled />
+    </TabList>
+    <Text>{value}</Text>
+  </>
 }
 ```
 
@@ -1002,10 +1002,10 @@ support from source presence. See the [native fixture](https://github.com/octane
 import { TabList, Tab } from '@octane-xplat/ui'
 
 export function ControlledStrip({ value, onChange }: { value: string; onChange(value: string): void }) {
-	return <TabList role="tablist" value={value} onChange={onChange} overflow="scroll">
-		<Tab value="overview" label="Overview" />
-		<Tab value="details" label="Details" isLabelHidden icon="xplat-search" />
-	</TabList>
+  return <TabList role="tablist" value={value} onChange={onChange} overflow="scroll">
+    <Tab value="overview" label="Overview" />
+    <Tab value="details" label="Details" isLabelHidden icon="xplat-search" />
+  </TabList>
 }
 ```
 
@@ -1021,21 +1021,21 @@ boundaries, overflow, and resizing.
 import { TabList, Tab, AppShell, SideNav, SideNavItem, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<AppShell
-			sideNav={
-				<SideNav>
-					<SideNavItem label="Projects" href="/projects" />
-				</SideNav>
-			}
-			mobileNav={{ breakpoint: 'md' }}
-		>
-			<TabList value="projects" onChange={(value) => console.log(value)}>
-				<Tab value="projects" label="Projects" href="/projects" />
-			</TabList>
-			<Text>Projects</Text>
-		</AppShell>
-	)
+  return (
+    <AppShell
+      sideNav={
+        <SideNav>
+          <SideNavItem label="Projects" href="/projects" />
+        </SideNav>
+      }
+      mobileNav={{ breakpoint: 'md' }}
+    >
+      <TabList value="projects" onChange={(value) => console.log(value)}>
+        <Tab value="projects" label="Projects" href="/projects" />
+      </TabList>
+      <Text>Projects</Text>
+    </AppShell>
+  )
 }
 ```
 
@@ -1053,17 +1053,17 @@ import { useState } from 'octane'
 import { TabList, Tab, TabMenu, Text } from '@octane-xplat/ui'
 
 export function Sections() {
-	const [value, setValue] = useState('overview')
-	return <>
-		<TabList role="tablist" value={value} onChange={setValue}>
-			<Tab value="overview" label="Overview" />
-			<TabMenu label="More" options={[
-				{ value: 'settings', label: 'Settings' },
-				{ value: 'support', label: 'Support' },
-			]} />
-		</TabList>
-		<Text>{value}</Text>
-	</>
+  const [value, setValue] = useState('overview')
+  return <>
+    <TabList role="tablist" value={value} onChange={setValue}>
+      <Tab value="overview" label="Overview" />
+      <TabMenu label="More" options={[
+        { value: 'settings', label: 'Settings' },
+        { value: 'support', label: 'Support' },
+      ]} />
+    </TabList>
+    <Text>{value}</Text>
+  </>
 }
 ```
 
@@ -1077,8 +1077,8 @@ trigger and close an open popup. Older bridges retain pointer selection:
 
 ```tsx
 <TabList value={section} onChange={setSection}>
-	<Tab value="home" label="Home" />
-	<TabMenu label="More" options={extraSections} />
+  <Tab value="home" label="Home" />
+  <TabMenu label="More" options={extraSections} />
 </TabList>
 ```
 
@@ -1118,19 +1118,19 @@ import { Table, Text } from '@octane-xplat/ui'
 type Product = { name: string; stock: number }
 
 export function Example() {
-	const rows: Product[] = [{ name: 'Notebook', stock: 4 }]
+  const rows: Product[] = [{ name: 'Notebook', stock: 4 }]
 
-	return (
-		<Table
-			columns={[{ key: 'name' }, { key: 'stock' }]}
-			rows={rows}
-			renderCell={({ row, column, rowIndex }) => (
-				<Text>
-					{rowIndex + 1}. {String(row[column.key])}
-				</Text>
-			)}
-		/>
-	)
+  return (
+    <Table
+      columns={[{ key: 'name' }, { key: 'stock' }]}
+      rows={rows}
+      renderCell={({ row, column, rowIndex }) => (
+        <Text>
+          {rowIndex + 1}. {String(row[column.key])}
+        </Text>
+      )}
+    />
+  )
 }
 ```
 
@@ -1153,17 +1153,17 @@ import { TreeList } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [expanded, setExpanded] = useState<ReadonlySet<string | number>>(new Set(['src']))
+  const [expanded, setExpanded] = useState<ReadonlySet<string | number>>(new Set(['src']))
 
-	return (
-		<TreeList
-			nodes={[{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }] }]}
-			expandedKeys={expanded}
-			onExpandedChange={setExpanded}
-			selectionMode="single"
-			onAction={(key) => console.log('activated', key)}
-		/>
-	)
+  return (
+    <TreeList
+      nodes={[{ key: 'src', label: 'src', children: [{ key: 'app', label: 'App.tsrx' }] }]}
+      expandedKeys={expanded}
+      onExpandedChange={setExpanded}
+      selectionMode="single"
+      onAction={(key) => console.log('activated', key)}
+    />
+  )
 }
 ```
 
@@ -1181,15 +1181,15 @@ the selection from the anchor key and skips disabled keys.
 import { GridList, Text } from '@octane-xplat/ui'
 
 export function Documents() {
-	return <GridList
-		items={[{ id: 'notes' }, { id: 'budget' }, { id: 'draft' }]}
-		columns={2}
-		selectionMode="multiple"
-		disabledKeys={['budget']}
-		renderItem={(item) => <Text>{item.id}</Text>}
-		onAction={(key) => console.log('open', key)}
-		onSelectionChange={(keys) => console.log('selected', keys)}
-	/>
+  return <GridList
+    items={[{ id: 'notes' }, { id: 'budget' }, { id: 'draft' }]}
+    columns={2}
+    selectionMode="multiple"
+    disabledKeys={['budget']}
+    renderItem={(item) => <Text>{item.id}</Text>}
+    onAction={(key) => console.log('open', key)}
+    onSelectionChange={(keys) => console.log('selected', keys)}
+  />
 }
 ```
 
@@ -1205,12 +1205,12 @@ scrolling, IME, accessibility and packaging remain unqualified.
 import { GridList, TextInput } from '@octane-xplat/ui'
 
 export function EditableRows() {
-	return <GridList
-		items={[{ id: 'first' }, { id: 'second' }]}
-		layout="stack"
-		keyboardNavigationBehavior="tab"
-		renderItem={(item) => <TextInput label={item.id} />}
-	/>
+  return <GridList
+    items={[{ id: 'first' }, { id: 'second' }]}
+    layout="stack"
+    keyboardNavigationBehavior="tab"
+    renderItem={(item) => <TextInput label={item.id} />}
+  />
 }
 ```
 
@@ -1245,18 +1245,18 @@ Movement clamps at the first/last cell; item activation stays with the cell.
 import { useState } from 'octane'
 import { Text, View, useGridFocus } from '@octane-xplat/ui'
 export function Palette() {
-	const [chosen, setChosen] = useState('none')
-	const grid = useGridFocus<NSView>({ rows: 2, columns: 2 })
-	return <View className="gap-2">
-		<masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row flex-wrap gap-2 w-72">
-			{['Red', 'Blue', 'Green', 'Gold'].map((name) =>
-				<masonview key={name} data-grid-cell className="w-32 p-2" accessible accessibilityRole="button"
-					onTap={() => setChosen(name)}>
-					<label text={name} />
-				</masonview>)}
-		</masonview>
-		<Text>{`Chosen: ${chosen}`}</Text>
-	</View>
+  const [chosen, setChosen] = useState('none')
+  const grid = useGridFocus<NSView>({ rows: 2, columns: 2 })
+  return <View className="gap-2">
+    <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row flex-wrap gap-2 w-72">
+      {['Red', 'Blue', 'Green', 'Gold'].map((name) =>
+        <masonview key={name} data-grid-cell className="w-32 p-2" accessible accessibilityRole="button"
+          onTap={() => setChosen(name)}>
+          <label text={name} />
+        </masonview>)}
+    </masonview>
+    <Text>{`Chosen: ${chosen}`}</Text>
+  </View>
 }
 ```
 
@@ -1271,15 +1271,15 @@ availability and valid dimensions, not native input qualification.
 // PaletteControls.macos.tsx
 import { Button, Text, View, useGridFocus } from '@octane-xplat/ui'
 export function PaletteControls() {
-	const grid = useGridFocus<NSView>({ rows: 1, columns: 2, onFocusChange: (index) => console.log(index) })
-	return <View className="gap-2">
-		<Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(1)} />
-		<masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
-			<button data-grid-cell text="First" onTap={() => console.log('First')} />
-			<button data-grid-cell text="Last" onTap={() => console.log('Last')} />
-		</masonview>
-		<Text>{`Hook index: ${grid.focusIndex}`}</Text>
-	</View>
+  const grid = useGridFocus<NSView>({ rows: 1, columns: 2, onFocusChange: (index) => console.log(index) })
+  return <View className="gap-2">
+    <Button label="Focus last cell" clickAction={() => grid.onFocusCell?.(1)} />
+    <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
+      <button data-grid-cell text="First" onTap={() => console.log('First')} />
+      <button data-grid-cell text="Last" onTap={() => console.log('Last')} />
+    </masonview>
+    <Text>{`Hook index: ${grid.focusIndex}`}</Text>
+  </View>
 }
 ```
 
@@ -1294,8 +1294,8 @@ false or empty value; omit it or pass `undefined` to remove it.
 ```tsx
 // OptionalCell.macos.tsx
 export function OptionalCell({ included }: { included: boolean }) {
-	return <button data-grid-cell={included ? '' : undefined} text="Optional"
-		onTap={() => console.log('Optional')} />
+  return <button data-grid-cell={included ? '' : undefined} text="Optional"
+    onTap={() => console.log('Optional')} />
 }
 ```
 
@@ -1322,9 +1322,9 @@ unqualified. Remote loading remains subject to system transport and sandbox poli
 import { Image } from '@octane-xplat/ui'
 
 export function Photo({ src }: { src: string }) {
-	return <Image src={src} alt="Photo" contentFit="contain" flexGrow={1}
-		className={['photo', { framed: true }]}
-		style={{ width: 120, height: 80 }} />
+  return <Image src={src} alt="Photo" contentFit="contain" flexGrow={1}
+    className={['photo', { framed: true }]}
+    style={{ width: 120, height: 80 }} />
 }
 ```
 
@@ -1342,9 +1342,9 @@ contracts: actual cropping, orientation, density and pixels remain unqualified.
 import { Image } from '@octane-xplat/ui'
 
 export function Portrait({ src }: { src: string }) {
-	return <Image src={src} alt="Portrait" contentFit="cover"
-		contentPosition={{ top: 0, right: '25%' }}
-		style={{ width: 120, height: 120 }} />
+  return <Image src={src} alt="Portrait" contentFit="cover"
+    contentPosition={{ top: 0, right: '25%' }}
+    style={{ width: 120, height: 120 }} />
 }
 ```
 
@@ -1359,10 +1359,10 @@ still need native qualification.
 import { Image } from '@octane-xplat/ui'
 
 export function Avatar() {
-	return <Image alt="Profile photo" style={{ width: 80, height: 80 }} src={[
-		{ uri: '~/avatar.png', width: 80, height: 80, scale: 1 },
-		{ uri: '~/avatar@2x.png', width: 80, height: 80, scale: 2 },
-	]} />
+  return <Image alt="Profile photo" style={{ width: 80, height: 80 }} src={[
+    { uri: '~/avatar.png', width: 80, height: 80, scale: 1 },
+    { uri: '~/avatar@2x.png', width: 80, height: 80, scale: 2 },
+  ]} />
 }
 ```
 
@@ -1385,10 +1385,10 @@ support is required, and older cached entries are not purged.
 import { Image } from '@octane-xplat/image'
 
 export function Photo({ src }: { src: string }) {
-	return <Image src={src} cachePolicy="none" alt="Photo" contentFit="contain"
-		placeholder="~/thumbnail.png" style={{ width: 120, height: 80 }}
-		onLoad={({ width, height, source }) => console.log(width, height, source)}
-		onError={({ error }) => console.warn(error.message)} />
+  return <Image src={src} cachePolicy="none" alt="Photo" contentFit="contain"
+    placeholder="~/thumbnail.png" style={{ width: 120, height: 80 }}
+    onLoad={({ width, height, source }) => console.log(width, height, source)}
+    onError={({ error }) => console.warn(error.message)} />
 }
 ```
 
@@ -1411,23 +1411,23 @@ import { ChatLayout, ChatComposer, ChatMessage, ChatMessageBubble } from '@octan
 import { useState } from 'octane'
 
 export function Example() {
-	const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('')
 
-	return (
-		<ChatLayout
-			composer={
-				<ChatComposer
-					value={message}
-					onChange={setMessage}
-					onSubmit={(value) => console.log(value)}
-				/>
-			}
-		>
-			<ChatMessage sender="assistant">
-				<ChatMessageBubble>Hello! Where are you traveling?</ChatMessageBubble>
-			</ChatMessage>
-		</ChatLayout>
-	)
+  return (
+    <ChatLayout
+      composer={
+        <ChatComposer
+          value={message}
+          onChange={setMessage}
+          onSubmit={(value) => console.log(value)}
+        />
+      }
+    >
+      <ChatMessage sender="assistant">
+        <ChatMessageBubble>Hello! Where are you traveling?</ChatMessageBubble>
+      </ChatMessage>
+    </ChatLayout>
+  )
 }
 ```
 
@@ -1464,24 +1464,24 @@ import { ChatComposerInput } from '@octane-xplat/ui/chat'
 import { useState, useRef } from 'octane'
 
 export function Example() {
-	const [message, setMessage] = useState('')
-	const composer = useRef<import('@octane-xplat/ui/chat').ChatComposerInputHandle | null>(null)
+  const [message, setMessage] = useState('')
+  const composer = useRef<import('@octane-xplat/ui/chat').ChatComposerInputHandle | null>(null)
 
-	return (
-		<>
-			<ChatComposerInput
-				value={message}
-				onChange={setMessage}
-				ref={(handle) => {
-					composer.current = handle
-				}}
-				onKeyDown={(event) => console.log(event.key)}
-			/>
-			<Pressable onPress={() => composer.current?.focus()}>
-				<Text>Write a message</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <ChatComposerInput
+        value={message}
+        onChange={setMessage}
+        ref={(handle) => {
+          composer.current = handle
+        }}
+        onKeyDown={(event) => console.log(event.key)}
+      />
+      <Pressable onPress={() => composer.current?.focus()}>
+        <Text>Write a message</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -1530,18 +1530,18 @@ import { Screen, Dialog, Text, Pressable, showToast } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<Screen>
-			<Dialog isOpen={open} onOpenChange={setOpen}>
-				<Text>Saved details</Text>
-			</Dialog>
-			<Pressable onPress={() => showToast({ body: 'Saved' })}>
-				<Text>Save</Text>
-			</Pressable>
-		</Screen>
-	)
+  return (
+    <Screen>
+      <Dialog isOpen={open} onOpenChange={setOpen}>
+        <Text>Saved details</Text>
+      </Dialog>
+      <Pressable onPress={() => showToast({ body: 'Saved' })}>
+        <Text>Save</Text>
+      </Pressable>
+    </Screen>
+  )
 }
 ```
 
@@ -1560,17 +1560,17 @@ pull-to-refresh remains unsupported on macOS. Use the
 import { Dialog, Toast, ScrollableArea, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<>
-			<Dialog isOpen onOpenChange={() => {}}>
-				<Text>Presented details on AppKit</Text>
-			</Dialog>
-			<Toast body="Saved" />
-			<ScrollableArea axis="both">
-				<Text>Content</Text>
-			</ScrollableArea>
-		</>
-	)
+  return (
+    <>
+      <Dialog isOpen onOpenChange={() => {}}>
+        <Text>Presented details on AppKit</Text>
+      </Dialog>
+      <Toast body="Saved" />
+      <ScrollableArea axis="both">
+        <Text>Content</Text>
+      </ScrollableArea>
+    </>
+  )
 }
 ```
 
@@ -1588,16 +1588,16 @@ import { Carousel, Button, Text } from '@octane-xplat/ui'
 import type { CarouselHandle } from '@octane-xplat/ui'
 
 export function Previews() {
-	const carousel = useRef<CarouselHandle | null>(null)
-	return <>
-		<Carousel ref={carousel} label="Trip previews" variant="proportional" hasButtons hasLoop
-			style={{ width: 320, height: 160 }}>
-			<Text>First preview</Text>
-			<Text>Second preview</Text>
-			<Text>Third preview</Text>
-		</Carousel>
-		<Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
-	</>
+  const carousel = useRef<CarouselHandle | null>(null)
+  return <>
+    <Carousel ref={carousel} label="Trip previews" variant="proportional" hasButtons hasLoop
+      style={{ width: 320, height: 160 }}>
+      <Text>First preview</Text>
+      <Text>Second preview</Text>
+      <Text>Third preview</Text>
+    </Carousel>
+    <Button label="Last preview" clickAction={() => carousel.current?.scrollTo(2)} />
+  </>
 }
 ```
 
@@ -1612,7 +1612,7 @@ teardown:
 
 ```tsx
 <Button label="Next preview" clickAction={() => {
-	if (carousel.current?.canScrollNext()) carousel.current.scrollNext()
+  if (carousel.current?.canScrollNext()) carousel.current.scrollNext()
 }} />
 ```
 
@@ -1635,9 +1635,9 @@ unbracketed user notifications use the same trailing quiet period:
 import { Carousel, Text } from '@octane-xplat/ui'
 
 export function Previews() {
-	return <Carousel label="Previews" hasButtons hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
-		<Text>First</Text><Text>Second</Text><Text>Third</Text>
-	</Carousel>
+  return <Carousel label="Previews" hasButtons hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
+    <Text>First</Text><Text>Second</Text><Text>Third</Text>
+  </Carousel>
 }
 ```
 
@@ -1751,7 +1751,7 @@ updates, while failures still reach the configured error path.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveButton({ save, report }: { save(): Promise<void>; report(error: unknown): void }) {
-	return <Button label="Save changes" clickAction={save} onActionError={report} />
+  return <Button label="Save changes" clickAction={save} onActionError={report} />
 }
 ```
 
@@ -1764,7 +1764,7 @@ Pressable layout/events and accessibility metadata reach the native host.
 import { Button } from '@octane-xplat/ui'
 
 export function HelpButton() {
-	return <Button href="https://example.com/help">Read help</Button>
+  return <Button href="https://example.com/help">Read help</Button>
 }
 ```
 
@@ -1782,10 +1782,10 @@ use the accepted `onActionError` handler.
 import { Button } from '@octane-xplat/ui'
 
 export function CurrentSave({ disabled, save, report }: {
-	disabled: boolean; save(): Promise<void>; report(error: unknown): void
+  disabled: boolean; save(): Promise<void>; report(error: unknown): void
 }) {
-	return <Button label="Save" isDisabled={disabled} clickAction={save}
-		onActionError={report} />
+  return <Button label="Save" isDisabled={disabled} clickAction={save}
+    onActionError={report} />
 }
 ```
 
@@ -1807,7 +1807,7 @@ focus, VoiceOver and appearance remain unqualified.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveHint() {
-	return <Button label="Save" tooltip="Save this document" />
+  return <Button label="Save" tooltip="Save this document" />
 }
 ```
 
@@ -1821,7 +1821,7 @@ input, busy sizing, VoiceOver and native pointer-hint presentation remain unqual
 import { IconButton } from '@octane-xplat/ui'
 
 export function Share({ share }: { share(): Promise<void> }) {
-	return <IconButton label="Share document" icon="share" clickAction={share} testID="document.share" />
+  return <IconButton label="Share document" icon="share" clickAction={share} testID="document.share" />
 }
 ```
 
@@ -1843,7 +1843,7 @@ flip remains, the save is skipped and Button reports the error.
 import { ToggleButton } from '@octane-xplat/ui'
 
 export function Pin({ save, report }: { save(pressed: boolean): Promise<void>; report(error: unknown): void }) {
-	return <ToggleButton label="Pin" pressedChangeAction={save} onActionError={report} />
+  return <ToggleButton label="Pin" pressedChangeAction={save} onActionError={report} />
 }
 ```
 
@@ -1856,10 +1856,10 @@ identifiers pass through the same AppKit Button path.
 import { ToggleButton, ToggleButtonGroup } from '@octane-xplat/ui'
 
 export function ViewMode({ value, onChange }: { value: string | null; onChange(value: string | null): void }) {
-	return <ToggleButtonGroup label="View mode" value={value} onChange={onChange}>
-		<ToggleButton value="list" label="List" />
-		<ToggleButton value="grid" label="Grid" />
-	</ToggleButtonGroup>
+  return <ToggleButtonGroup label="View mode" value={value} onChange={onChange}>
+    <ToggleButton value="list" label="List" />
+    <ToggleButton value="grid" label="Grid" />
+  </ToggleButtonGroup>
 }
 ```
 

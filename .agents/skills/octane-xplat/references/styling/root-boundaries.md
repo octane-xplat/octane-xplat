@@ -15,7 +15,7 @@ does not match a root that carries both classes.
 ```css
 .trip-host.ns-dark,
 .ns-dark .trip-host {
-	background-color: var(--color-surface, #171717);
+  background-color: var(--color-surface, #171717);
 }
 ```
 
@@ -25,20 +25,20 @@ to its root view. A native host created by app code needs the same treatment.
 
 ```tsx
 import {
-	useThemeScheme,
-	themeSchemeClasses,
-	setThemePreference,
-	View,
-	Button,
+  useThemeScheme,
+  themeSchemeClasses,
+  setThemePreference,
+  View,
+  Button,
 } from '@octane-xplat/ui'
 
 export function RootContent() {
-	useThemeScheme() // Subscribe so classes refresh with the preference/system scheme.
-	return (
-		<View className={themeSchemeClasses()}>
-			<Button clickAction={() => setThemePreference('dark')}>Use dark theme</Button>
-		</View>
-	)
+  useThemeScheme() // Subscribe so classes refresh with the preference/system scheme.
+  return (
+    <View className={themeSchemeClasses()}>
+      <Button clickAction={() => setThemePreference('dark')}>Use dark theme</Button>
+    </View>
+  )
 }
 ```
 
@@ -51,7 +51,7 @@ import { applyThemeClasses } from '@octane-xplat/ui'
 import type { View } from '@nativescript/core'
 
 export function bindHostTheme(host: View) {
-	return applyThemeClasses(host, 'trip-host')
+  return applyThemeClasses(host, 'trip-host')
 }
 ```
 
@@ -74,6 +74,6 @@ import { defineTheme, Theme, Text } from '@octane-xplat/ui'
 
 const travel = defineTheme({ name: 'travel', tokens: { '--color-primary': '#2463eb' } })
 export function TravelSection() {
-	return <Theme theme={travel}><Text>Upcoming trips</Text></Theme>
+  return <Theme theme={travel}><Text>Upcoming trips</Text></Theme>
 }
 ```

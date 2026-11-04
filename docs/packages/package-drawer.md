@@ -11,7 +11,7 @@ this package.
 import { Drawer } from '@octane-xplat/drawer'
 
 export function Example() {
-	return <Drawer defaultOpen main={null} drawer={null} />
+  return <Drawer defaultOpen main={null} drawer={null} />
 }
 ```
 

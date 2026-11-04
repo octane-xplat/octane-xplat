@@ -93,22 +93,22 @@ import type { ChartProps } from '@octane-xplat/charts'
 declare function ProposedChart(props: ChartProps): unknown
 
 export function ProposedTripsChart() {
-	return (
-		<ProposedChart
-			type="bar"
-			height={200}
-			accessibilityLabel="Items packed per trip"
-			data={[
-				{
-					name: 'Packed',
-					values: [
-						{ x: 'Summer', y: 5 },
-						{ x: 'Autumn', y: 8 },
-					],
-				},
-			]}
-		/>
-	)
+  return (
+    <ProposedChart
+      type="bar"
+      height={200}
+      accessibilityLabel="Items packed per trip"
+      data={[
+        {
+          name: 'Packed',
+          values: [
+            { x: 'Summer', y: 5 },
+            { x: 'Autumn', y: 8 },
+          ],
+        },
+      ]}
+    />
+  )
 }
 ```
 
@@ -119,23 +119,23 @@ semantic labels feeding `accessibilityLabel`.
 ```tsx
 // Proposed axis usage; continue with ProposedChart declared above.
 export function ProposedAxes() {
-	return (
-		<ProposedChart
-			type="line"
-			height={200}
-			data={[
-				{
-					name: 'Trips',
-					values: [
-						{ x: 1, y: 2 },
-						{ x: 2, y: 4 },
-					],
-				},
-			]}
-			xAxis={{ grid: true, ticks: false, labels: true }}
-			yAxis={{ format: (value) => String(value), tickCount: 4 }}
-		/>
-	)
+  return (
+    <ProposedChart
+      type="line"
+      height={200}
+      data={[
+        {
+          name: 'Trips',
+          values: [
+            { x: 1, y: 2 },
+            { x: 2, y: 4 },
+          ],
+        },
+      ]}
+      xAxis={{ grid: true, ticks: false, labels: true }}
+      yAxis={{ format: (value) => String(value), tickCount: 4 }}
+    />
+  )
 }
 ```
 
@@ -161,26 +161,26 @@ the public props and types match the web and mobile leaves.
 import { Chart } from '@octane-xplat/charts'
 
 export function Visits() {
-	return (
-		<Chart
-			type="bar"
-			width={320}
-			height={200}
-			data={[
-				{
-					name: 'Visits',
-					values: [
-						{ x: 'Mon', y: 2 },
-						{ x: 'Tue', y: 5 },
-					],
-				},
-			]}
-			legend
-			tooltip
-			crosshair
-			accessibilityLabel="Visits by day"
-		/>
-	)
+  return (
+    <Chart
+      type="bar"
+      width={320}
+      height={200}
+      data={[
+        {
+          name: 'Visits',
+          values: [
+            { x: 'Mon', y: 2 },
+            { x: 'Tue', y: 5 },
+          ],
+        },
+      ]}
+      legend
+      tooltip
+      crosshair
+      accessibilityLabel="Visits by day"
+    />
+  )
 }
 ```
 

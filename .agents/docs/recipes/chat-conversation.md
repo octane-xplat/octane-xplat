@@ -44,29 +44,29 @@ import { ChatComposer, ChatComposerInput, ChatTokenizedText } from '@octane-xpla
 
 const people = [{ id: 'u1', label: 'Ada Lovelace' }]
 const mention = {
-	character: '@',
-	searchSource: {
-		search: (query: string) =>
-			people
-				.filter((person) => person.label.toLowerCase().includes(query.toLowerCase()))
-				.map((person) => ({ id: person.id, label: person.label })),
-	},
-	onSelect: (person: { id: string; label: string }) => ({
-		value: `@${person.label}:${person.id}`,
-		label: person.label,
-		variant: 'info' as const,
-	}),
+  character: '@',
+  searchSource: {
+    search: (query: string) =>
+      people
+        .filter((person) => person.label.toLowerCase().includes(query.toLowerCase()))
+        .map((person) => ({ id: person.id, label: person.label })),
+  },
+  onSelect: (person: { id: string; label: string }) => ({
+    value: `@${person.label}:${person.id}`,
+    label: person.label,
+    variant: 'info' as const,
+  }),
 }
 
 export function ChatExample() @{
-	const [message, setMessage] = useState('')
-	const send = (value: string) => setMessage(value)
-	<View>
-		<ChatComposer onSubmit={send} input={<ChatComposerInput triggers={[mention]} />} />
-		<ChatTokenizedText tokens={[{ value: '@Ada Lovelace:u1', label: 'Ada Lovelace' }]}>
-			{message}
-		</ChatTokenizedText>
-	</View>
+  const [message, setMessage] = useState('')
+  const send = (value: string) => setMessage(value)
+  <View>
+    <ChatComposer onSubmit={send} input={<ChatComposerInput triggers={[mention]} />} />
+    <ChatTokenizedText tokens={[{ value: '@Ada Lovelace:u1', label: 'Ada Lovelace' }]}>
+      {message}
+    </ChatTokenizedText>
+  </View>
 }
 ```
 
@@ -75,28 +75,28 @@ editable:
 
 ```tsx
 import {
-	ChatComposer,
-	ChatComposerInput,
-	serializeChatComposerDraft,
-	deserializeChatComposerDraft,
-	type ChatComposerDraft,
+  ChatComposer,
+  ChatComposerInput,
+  serializeChatComposerDraft,
+  deserializeChatComposerDraft,
+  type ChatComposerDraft,
 } from '@octane-xplat/ui/chat'
 import { useState } from 'octane'
 
 export function DraftExample() {
-	const [draft, setDraft] = useState<ChatComposerDraft>({ text: '', tokens: [] })
-	const save = () =>
-		localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
-	const load = () => {
-		const raw = localStorage.getItem('draft')
-		if (raw) setDraft(deserializeChatComposerDraft(JSON.parse(raw)))
-	}
+  const [draft, setDraft] = useState<ChatComposerDraft>({ text: '', tokens: [] })
+  const save = () =>
+    localStorage.setItem('draft', JSON.stringify(serializeChatComposerDraft(draft)))
+  const load = () => {
+    const raw = localStorage.getItem('draft')
+    if (raw) setDraft(deserializeChatComposerDraft(JSON.parse(raw)))
+  }
 
-	return (
-		<ChatComposer draft={draft} onDraftChange={setDraft} onSend={() => save()}>
-			<ChatComposerInput />
-		</ChatComposer>
-	)
+  return (
+    <ChatComposer draft={draft} onDraftChange={setDraft} onSend={() => save()}>
+      <ChatComposerInput />
+    </ChatComposer>
+  )
 }
 ```
 
@@ -117,28 +117,28 @@ as `ChatMessageData[]` and a custom `renderMessage` if you need a different layo
 ```tsx
 import { Text } from '@octane-xplat/ui'
 import {
-	ChatLayout,
-	ChatMessageList,
-	ChatComposer,
-	type ChatMessageData,
+  ChatLayout,
+  ChatMessageList,
+  ChatComposer,
+  type ChatMessageData,
 } from '@octane-xplat/ui/chat'
 
 const messages: ChatMessageData[] = [
-	{ id: 'started', sender: 'system', content: <Text>Conversation started</Text> },
-	{ id: 'welcome', sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
+  { id: 'started', sender: 'system', content: <Text>Conversation started</Text> },
+  { id: 'welcome', sender: 'assistant', content: <Text>Welcome to your trip chat.</Text> },
 ]
 
 // loadOlder belongs to your app and updates its message collection.
 export function Conversation({ loadOlder }: { loadOlder: () => Promise<void> }) {
-	return (
-		<ChatLayout
-			followLatest
-			keyboardFollow="when-at-end"
-			composer={<ChatComposer onSend={(text) => console.log(text)} onCancel={() => {}} />}
-		>
-			<ChatMessageList messages={messages} scrollToTopAction={loadOlder} />
-		</ChatLayout>
-	)
+  return (
+    <ChatLayout
+      followLatest
+      keyboardFollow="when-at-end"
+      composer={<ChatComposer onSend={(text) => console.log(text)} onCancel={() => {}} />}
+    >
+      <ChatMessageList messages={messages} scrollToTopAction={loadOlder} />
+    </ChatLayout>
+  )
 }
 ```
 

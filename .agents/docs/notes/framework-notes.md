@@ -83,10 +83,10 @@ is the portable boundary). `.tsx` allowed for directive-free files.
 // apps/mobile/vite.config.mts
 import { octaneConfig } from '@nativescript-community/vite-octane'
 export default octaneConfig({
-	// + our config helper asserting:
-	//   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'
-	//   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
-	//   resolve.extensions: ['.ios.tsrx','.mobile.tsrx','.tsrx', …full chain…]
+  // + our config helper asserting:
+  //   renderers.rules include: 'src/**/*.{tsx,tsrx}', 'packages/**/*.{tsx,tsrx}'
+  //   nativescript.validation: { forbiddenGlobals, forbiddenImports, textHosts, hostProps }
+  //   resolve.extensions: ['.ios.tsrx','.mobile.tsrx','.tsrx', …full chain…]
 })
 // apps/web/vite.config.ts — @octanejs/vite-plugin + '.web' chain
 ```
@@ -123,15 +123,15 @@ import { useState } from 'octane'
 import { VStack, Text, Pressable } from '@octane-xplat/ui'
 
 export function Home() {
-	const [count, setCount] = useState(0)
-	return (
-		<VStack className="flex-1 items-center justify-center gap-4">
-			<Text className="text-xl font-bold">Count: {count}</Text>
-			<Pressable onPress={() => setCount(count + 1)} className="bg-primary rounded-lg px-4 py-2">
-				<Text className="text-onprimary">Increment</Text>
-			</Pressable>
-		</VStack>
-	)
+  const [count, setCount] = useState(0)
+  return (
+    <VStack className="flex-1 items-center justify-center gap-4">
+      <Text className="text-xl font-bold">Count: {count}</Text>
+      <Pressable onPress={() => setCount(count + 1)} className="bg-primary rounded-lg px-4 py-2">
+        <Text className="text-onprimary">Increment</Text>
+      </Pressable>
+    </VStack>
+  )
 }
 ```
 
@@ -213,12 +213,12 @@ The same element with a string `className`, or rendered without the `@if`, works
 
 ```tsx
 function If(props: { h?: boolean; children?: any }) @{
-	const node = <label className={['a']}>N</label>
-	@if (props.h) {
-		<div>x</div>
-	} @else {
-		<div>{node}{props.children}</div>
-	}
+  const node = <label className={['a']}>N</label>
+  @if (props.h) {
+    <div>x</div>
+  } @else {
+    <div>{node}{props.children}</div>
+  }
 }
 // act(() => root.render(<If><span>a</span></If>)); act(() => root.render(<If><span>b</span></If>)) → crash
 ```

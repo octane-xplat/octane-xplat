@@ -29,22 +29,22 @@ presentation. Each handle remains independent when multiple sheets are open.
 import { useImperativeBottomSheet, Button } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-	return <Button clickAction={() => props.close('saved')}>Save</Button>
+  return <Button clickAction={() => props.close('saved')}>Save</Button>
 }
 export function Actions() {
-	const sheet = useImperativeBottomSheet()
-	return (
-		<>
-			<Button
-				clickAction={() => {
-					void sheet.open(Picker)
-				}}
-			>
-				Choose
-			</Button>
-			{sheet.element}
-		</>
-	)
+  const sheet = useImperativeBottomSheet()
+  return (
+    <>
+      <Button
+        clickAction={() => {
+          void sheet.open(Picker)
+        }}
+      >
+        Choose
+      </Button>
+      {sheet.element}
+    </>
+  )
 }
 ```
 
@@ -59,9 +59,9 @@ presents shared sheets in that Frame's currently visible Screen.
 ```ts
 // Internal protocol; standalone roots commit synchronously.
 interface ContentRoot {
-	render(component: unknown, props?: unknown): void
-	unmount(): void
-	whenCommitted(callback: () => void): void
+  render(component: unknown, props?: unknown): void
+  unmount(): void
+  whenCommitted(callback: () => void): void
 }
 ```
 
@@ -77,13 +77,13 @@ above that branch leave with it. Keep app-wide outlets long-lived.
 ```tsx
 import { RouteOutlet, Screen, Text } from '@octane-xplat/ui'
 export function Shell() {
-	return (
-		<Screen>
-			<RouteOutlet stack="root">
-				<Text>Home</Text>
-			</RouteOutlet>
-		</Screen>
-	)
+  return (
+    <Screen>
+      <RouteOutlet stack="root">
+        <Text>Home</Text>
+      </RouteOutlet>
+    </Screen>
+  )
 }
 ```
 
@@ -96,15 +96,15 @@ infer a local provider around an arbitrary button.
 import { useNativeRouteNavigator } from '@octane-xplat/ui/nativescript'
 import { Button } from '@octane-xplat/ui'
 export function LocalActions() {
-	const navigation = useNativeRouteNavigator('root')
-	return (
-		<>
-			<Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>
-				Settings
-			</Button>
-			{navigation.element}
-		</>
-	)
+  const navigation = useNativeRouteNavigator('root')
+  return (
+    <>
+      <Button clickAction={() => navigation.push({ name: 'settings', params: {} })}>
+        Settings
+      </Button>
+      {navigation.element}
+    </>
+  )
 }
 ```
 
@@ -119,11 +119,11 @@ sizes and closure cleanup. It does not establish OS tap hit-testing.
 import { Button, Screen, Text, useLayer } from '@octane-xplat/ui'
 
 export function Actions() {
-	const layer = useLayer({ mode: 'fixed', lightDismiss: true })
-	return <Screen>
-		<Button clickAction={layer.show}>Open</Button>
-		{layer.render(<Text>Menu</Text>, { x: 12, y: 20 })}
-	</Screen>
+  const layer = useLayer({ mode: 'fixed', lightDismiss: true })
+  return <Screen>
+    <Button clickAction={layer.show}>Open</Button>
+    {layer.render(<Text>Menu</Text>, { x: 12, y: 20 })}
+  </Screen>
 }
 ```
 
@@ -149,13 +149,13 @@ driver protocol; the source-owned list wrapper handles `renderItem` content.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-appkit */
 export function NativeTabs() {
-	return (
-		<tabview>
-			<tabviewitem title="Home">
-				<label text="Home" />
-			</tabviewitem>
-		</tabview>
-	)
+  return (
+    <tabview>
+      <tabviewitem title="Home">
+        <label text="Home" />
+      </tabviewitem>
+    </tabview>
+  )
 }
 ```
 
@@ -177,7 +177,7 @@ and [AppKit lifecycle fixture](../../../packages/macos-appkit/test/fixtures/tab-
 ```tsx
 // Reordering ids retains each keyed component's state and native host.
 <masonview>
-	{ids.map((id) => <Row key={id} id={id} />)}
+  {ids.map((id) => <Row key={id} id={id} />)}
 </masonview>
 ```
 

@@ -19,14 +19,14 @@ it when its owner is finished:
 import { openDatabase, supported } from '@octane-xplat/sqlite'
 
 if (supported) {
-	const db = await openDatabase('trips.db')
-	try {
-		if (!db.persistent) throw new Error('Durable storage is unavailable.')
-		await db.execute('CREATE TABLE IF NOT EXISTS items(name TEXT)')
-		await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
-		const rows = await db.select<{ name: string }>('SELECT name FROM items')
-		console.log(rows.length)
-	} finally { await db.close() }
+  const db = await openDatabase('trips.db')
+  try {
+    if (!db.persistent) throw new Error('Durable storage is unavailable.')
+    await db.execute('CREATE TABLE IF NOT EXISTS items(name TEXT)')
+    await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+    const rows = await db.select<{ name: string }>('SELECT name FROM items')
+    console.log(rows.length)
+  } finally { await db.close() }
 }
 ```
 

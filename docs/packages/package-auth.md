@@ -20,11 +20,11 @@ import { appleAuth } from '@octane-xplat/auth'
 
 appleAuth.configure({ clientId: 'com.example.app.web' })
 if (appleAuth.supported) {
-	const result = await appleAuth.signIn({ scopes: ['email', 'name'] })
-	if (result.status === 'success') {
-		// Send this credential to your backend for verification.
-		const { idToken, user } = result.credential
-	}
+  const result = await appleAuth.signIn({ scopes: ['email', 'name'] })
+  if (result.status === 'success') {
+    // Send this credential to your backend for verification.
+    const { idToken, user } = result.credential
+  }
 }
 ```
 
@@ -50,15 +50,15 @@ The following component belongs in an `.ios.tsx` file.
 import { AppleSignInButton, appleAuth, googleAuth } from '@octane-xplat/auth'
 
 export function SignIn() {
-	return (
-		<AppleSignInButton
-			onResult={(result) => {
-				if (result.status === 'success') {
-					void appleAuth.getCredentialState(result.credential.user.id)
-				}
-			}}
-		/>
-	)
+  return (
+    <AppleSignInButton
+      onResult={(result) => {
+        if (result.status === 'success') {
+          void appleAuth.getCredentialState(result.credential.user.id)
+        }
+      }}
+    />
+  )
 }
 // When ending a Google session:
 await googleAuth.signOut()
@@ -85,8 +85,8 @@ result; it does not cancel an already-started native controller/browser.
 import { GoogleSignInButton } from '@octane-xplat/auth'
 
 export function GoogleEntry() {
-	return <GoogleSignInButton onPress={() => console.log('Sign-in requested')}
-		onResult={(result) => console.log(result.status)} />
+  return <GoogleSignInButton onPress={() => console.log('Sign-in requested')}
+    onResult={(result) => console.log(result.status)} />
 }
 ```
 
@@ -101,7 +101,7 @@ Google theme/variant props remain unimplemented; this is not shared pixel parity
 import { AppleSignInButton, GoogleSignInButton } from '@octane-xplat/auth'
 
 export function UnavailableEntries() {
-	return <><AppleSignInButton disabled /><GoogleSignInButton disabled /></>
+  return <><AppleSignInButton disabled /><GoogleSignInButton disabled /></>
 }
 ```
 
@@ -149,9 +149,9 @@ controller starts; partial class registration can retry.
 import { appleAuth } from '@octane-xplat/auth'
 
 export async function signInWithApple(backendAttemptNonce: string) {
-	const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
-	if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
-	return result
+  const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+  if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
+  return result
 }
 ```
 
@@ -166,8 +166,8 @@ success. Framework availability does not prove entitlements or a working consent
 ```ts
 const result = await appleAuth.signIn()
 if (result.status === 'success') {
-	// Send result.credential to your backend; validate the identity token,
-	// expected audience and per-attempt nonce before creating an app session.
+  // Send result.credential to your backend; validate the identity token,
+  // expected audience and per-attempt nonce before creating an app session.
 }
 ```
 
@@ -201,53 +201,53 @@ through the flow's `refresh`, and revokes through `revoke` on sign-out.
 import { createHostedAuth, postJson, queryParam } from '@octane-xplat/auth'
 
 export const auth = createHostedAuth({
-	apiOrigin: 'https://api.example.com',
-	flow: {
-		async begin({ fetch, pkce }) {
-			if (!pkce) throw new Error('PKCE is required')
-			const res = await postJson(fetch, 'https://api.example.com/oauth/attempt', {
-				code_challenge: pkce.challenge,
-				scheme: 'myapp',
-			})
-			if (!res.ok) throw new Error(`attempt rejected (${res.status})`)
-			const payload = await res.json()
-			if (!payload || typeof payload !== 'object' ||
-				!('attempt_id' in payload) || typeof payload.attempt_id !== 'string' ||
-				!('state' in payload) || typeof payload.state !== 'string') {
-				throw new Error('Invalid sign-in attempt response')
-			}
-			const { attempt_id, state } = payload
-			return {
-				url: `https://api.example.com/sign-in?attempt=${attempt_id}&state=${state}`,
-				callbackScheme: 'myapp',
-				state,
-			}
-		},
-		async complete(callbackUrl, attempt, { fetch, pkce }) {
-			const code = queryParam(callbackUrl, 'code')
-			if (!pkce || !attempt.state || !code) return null
-			const res = await postJson(fetch, 'https://api.example.com/oauth/exchange', {
-				code,
-				code_verifier: pkce.verifier,
-				state: attempt.state,
-			})
-			if (!res.ok) return null
-			const payload = await res.json()
-			if (!payload || typeof payload !== 'object' ||
-				!('token' in payload) || typeof payload.token !== 'string' ||
-				!('expires_at' in payload) || typeof payload.expires_at !== 'number' ||
-				!('session_token' in payload) || typeof payload.session_token !== 'string') {
-				return null
-			}
-			const { token, expires_at, session_token } = payload
-			return { expiresAt: expires_at * 1000, sessionToken: session_token, token }
-		},
-	},
+  apiOrigin: 'https://api.example.com',
+  flow: {
+    async begin({ fetch, pkce }) {
+      if (!pkce) throw new Error('PKCE is required')
+      const res = await postJson(fetch, 'https://api.example.com/oauth/attempt', {
+        code_challenge: pkce.challenge,
+        scheme: 'myapp',
+      })
+      if (!res.ok) throw new Error(`attempt rejected (${res.status})`)
+      const payload = await res.json()
+      if (!payload || typeof payload !== 'object' ||
+        !('attempt_id' in payload) || typeof payload.attempt_id !== 'string' ||
+        !('state' in payload) || typeof payload.state !== 'string') {
+        throw new Error('Invalid sign-in attempt response')
+      }
+      const { attempt_id, state } = payload
+      return {
+        url: `https://api.example.com/sign-in?attempt=${attempt_id}&state=${state}`,
+        callbackScheme: 'myapp',
+        state,
+      }
+    },
+    async complete(callbackUrl, attempt, { fetch, pkce }) {
+      const code = queryParam(callbackUrl, 'code')
+      if (!pkce || !attempt.state || !code) return null
+      const res = await postJson(fetch, 'https://api.example.com/oauth/exchange', {
+        code,
+        code_verifier: pkce.verifier,
+        state: attempt.state,
+      })
+      if (!res.ok) return null
+      const payload = await res.json()
+      if (!payload || typeof payload !== 'object' ||
+        !('token' in payload) || typeof payload.token !== 'string' ||
+        !('expires_at' in payload) || typeof payload.expires_at !== 'number' ||
+        !('session_token' in payload) || typeof payload.session_token !== 'string') {
+        return null
+      }
+      const { token, expires_at, session_token } = payload
+      return { expiresAt: expires_at * 1000, sessionToken: session_token, token }
+    },
+  },
 })
 
 const result = await auth.signIn() // opens the hosted sign-in page
 if (result.status === 'success') {
-	const response = await auth.fetch('/api/me') // Bearer attach + refresh-on-401
+  const response = await auth.fetch('/api/me') // Bearer attach + refresh-on-401
 }
 ```
 
@@ -287,8 +287,8 @@ claim a future restart cannot restore the stored credential.
 ```ts
 // Continue with the auth client defined above.
 try {
-	await auth.signOut()
+  await auth.signOut()
 } catch {
-	console.log('Stored sign-in could not be cleared. Try signing out again.')
+  console.log('Stored sign-in could not be cleared. Try signing out again.')
 }
 ```

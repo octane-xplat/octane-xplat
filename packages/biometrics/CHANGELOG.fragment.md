@@ -11,7 +11,7 @@ substituted for biometrics.
 import { biometrics } from '@octane-xplat/biometrics'
 
 if ((await biometrics.requestPermissions()).granted) {
-	const unlocked = await biometrics.verify('Unlock your saved trips')
-	console.log(unlocked ? 'Unlocked' : 'Still locked')
+  const unlocked = await biometrics.verify('Unlock your saved trips')
+  console.log(unlocked ? 'Unlocked' : 'Still locked')
 }
 ```

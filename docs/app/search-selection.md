@@ -11,19 +11,19 @@ as a selected person or tag. `ComplexSelector` lets you customize the popup.
 import { Selector, MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
-	const options = [{ value: 'sfo', label: 'San Francisco' }]
+  const options = [{ value: 'sfo', label: 'San Francisco' }]
 
-	return (
-		<>
-			<Selector selectionMode="single" label="Region" options={options} defaultValue="sfo" />
-			<MultiSelector
-				selectionMode="multiple"
-				label="Regions"
-				options={options}
-				defaultValue={['sfo']}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Selector selectionMode="single" label="Region" options={options} defaultValue="sfo" />
+      <MultiSelector
+        selectionMode="multiple"
+        label="Regions"
+        options={options}
+        defaultValue={['sfo']}
+      />
+    </>
+  )
 }
 ```
 
@@ -37,11 +37,11 @@ import { createStaticSource } from '@octane-xplat/ui'
 
 // regions-source.ts: share this source between the examples.
 export const source = createStaticSource(
-	[
-		{ id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
-		{ id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
-	],
-	{ keywords: (item) => [item.id] },
+  [
+    { id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
+    { id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
+  ],
+  { keywords: (item) => [item.id] },
 )
 ```
 
@@ -59,27 +59,27 @@ import { useState } from 'octane'
 import { Selector } from '@octane-xplat/ui'
 
 export function Example() {
-	const [region, setRegion] = useState<string | null>(null)
-	const options = [
-		{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' },
-		{ value: 'nyc', label: 'New York', group: 'East' },
-	]
+  const [region, setRegion] = useState<string | null>(null)
+  const options = [
+    { value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' },
+    { value: 'nyc', label: 'New York', group: 'East' },
+  ]
 
-	return (
-		<Selector
-			selectionMode="single"
-			label="Region"
-			options={options}
-			value={region}
-			onValueChange={setRegion}
-			searchable
-			changeAction={async (next) => {
-				console.log('Save', next)
-			}}
-			onChangeError={(error) => console.log(error)}
-			htmlName="region"
-		/>
-	)
+  return (
+    <Selector
+      selectionMode="single"
+      label="Region"
+      options={options}
+      value={region}
+      onValueChange={setRegion}
+      searchable
+      changeAction={async (next) => {
+        console.log('Save', next)
+      }}
+      onChangeError={(error) => console.log(error)}
+      htmlName="region"
+    />
+  )
 }
 ```
 
@@ -94,20 +94,20 @@ hidden and disabled selections remain intact. `formatValue` receives selected
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<MultiSelector
-			selectionMode="multiple"
-			label="Regions"
-			options={[{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' }]}
-			searchable
-			hasSelectAll
-			searchPlaceholder="Find a region"
-			emptyText="No regions yet"
-			emptySearchText="No matches"
-			onChangeQuery={(query) => console.log(query)}
-			formatValue={(items) => `${items.length} regions`}
-		/>
-	)
+  return (
+    <MultiSelector
+      selectionMode="multiple"
+      label="Regions"
+      options={[{ value: 'sfo', label: 'San Francisco', group: 'West', description: 'California' }]}
+      searchable
+      hasSelectAll
+      searchPlaceholder="Find a region"
+      emptyText="No regions yet"
+      emptySearchText="No matches"
+      onChangeQuery={(query) => console.log(query)}
+      formatValue={(items) => `${items.length} regions`}
+    />
+  )
 }
 ```
 
@@ -124,25 +124,25 @@ import { useState } from 'octane'
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
-	const [regions, setRegions] = useState<string[]>([])
+  const [regions, setRegions] = useState<string[]>([])
 
-	return (
-		<MultiSelector
-			selectionMode="multiple"
-			label="Regions"
-			options={[{ value: 'sfo', label: 'San Francisco' }]}
-			value={regions}
-			onValueChange={setRegions}
-			changeAction={async (next) => {
-				console.log('Save', next)
-			}}
-			onChangeError={(error) => console.log(error)}
-			isLoading={false}
-			isReadOnly={false}
-			isDisabled={false}
-			htmlName="regions"
-		/>
-	)
+  return (
+    <MultiSelector
+      selectionMode="multiple"
+      label="Regions"
+      options={[{ value: 'sfo', label: 'San Francisco' }]}
+      value={regions}
+      onValueChange={setRegions}
+      changeAction={async (next) => {
+        console.log('Save', next)
+      }}
+      onChangeError={(error) => console.log(error)}
+      isLoading={false}
+      isReadOnly={false}
+      isDisabled={false}
+      htmlName="regions"
+    />
+  )
 }
 ```
 
@@ -161,19 +161,19 @@ without a clear control; its packaged input qualification remains separate.
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<MultiSelector
-			selectionMode="multiple"
-			label="Regions"
-			options={[
-				{ value: 'sfo', label: 'San Francisco' },
-				{ value: 'nyc', label: 'New York', isDisabled: true },
-			]}
-			searchable
-			hasSelectAll
-			maxMenuHeight={280}
-		/>
-	)
+  return (
+    <MultiSelector
+      selectionMode="multiple"
+      label="Regions"
+      options={[
+        { value: 'sfo', label: 'San Francisco' },
+        { value: 'nyc', label: 'New York', isDisabled: true },
+      ]}
+      searchable
+      hasSelectAll
+      maxMenuHeight={280}
+    />
+  )
 }
 ```
 
@@ -186,11 +186,11 @@ leaves when an OS-native picker is the desired interaction.
 import { Field, Selector } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Field label="Region" status={{ type: 'error', message: 'Choose a region' }}>
-			<Selector options={[{ value: 'sfo', label: 'San Francisco' }]} />
-		</Field>
-	)
+  return (
+    <Field label="Region" status={{ type: 'error', message: 'Choose a region' }}>
+      <Selector options={[{ value: 'sfo', label: 'San Francisco' }]} />
+    </Field>
+  )
 }
 ```
 
@@ -205,11 +205,11 @@ keywords:
 import { createStaticSource } from '@octane-xplat/ui'
 
 const source = createStaticSource(
-	[
-		{ id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
-		{ id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
-	],
-	{ keywords: (item) => [item.id] },
+  [
+    { id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
+    { id: 'nyc', label: 'New York', auxiliaryData: { group: 'East' } },
+  ],
+  { keywords: (item) => [item.id] },
 )
 ```
 
@@ -228,31 +228,31 @@ import type { SearchableItem, SearchSource } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 const remote: SearchSource = {
-	bootstrap: () => [],
-	async search(query, request) {
-		const response = await fetch(`/api/people?q=${encodeURIComponent(query)}`, {
-			signal: request?.signal,
-		})
-		if (!response.ok) throw new Error('Search failed')
+  bootstrap: () => [],
+  async search(query, request) {
+    const response = await fetch(`/api/people?q=${encodeURIComponent(query)}`, {
+      signal: request?.signal,
+    })
+    if (!response.ok) throw new Error('Search failed')
 
-		return (await response.json()) as SearchableItem[]
-	},
+    return (await response.json()) as SearchableItem[]
+  },
 }
 
 export function People() {
-	const [person, setPerson] = useState<SearchableItem | null>(null)
+  const [person, setPerson] = useState<SearchableItem | null>(null)
 
-	return (
-		<Typeahead
-			label="Person"
-			searchSource={remote}
-			value={person}
-			onChange={setPerson}
-			minQueryLength={2}
-			maxMenuItems={8}
-			debounceMs={250}
-		/>
-	)
+  return (
+    <Typeahead
+      label="Person"
+      searchSource={remote}
+      value={person}
+      onChange={setPerson}
+      minQueryLength={2}
+      maxMenuItems={8}
+      debounceMs={250}
+    />
+  )
 }
 ```
 
@@ -264,18 +264,18 @@ import { source } from './regions-source'
 import { Typeahead } from '@octane-xplat/ui'
 
 export function Example() {
-	const [assignee, setAssignee] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
+  const [assignee, setAssignee] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
 
-	return (
-		<Typeahead
-			label="Assignee"
-			searchSource={source}
-			value={assignee}
-			onChange={setAssignee}
-			hasEntriesOnFocus
-			hasClear
-		/>
-	)
+  return (
+    <Typeahead
+      label="Assignee"
+      searchSource={source}
+      value={assignee}
+      onChange={setAssignee}
+      hasEntriesOnFocus
+      hasClear
+    />
+  )
 }
 ```
 
@@ -293,22 +293,22 @@ import { source } from './regions-source'
 import { Tokenizer } from '@octane-xplat/ui'
 
 export function Example() {
-	const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+  const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
 
-	return (
-		<Tokenizer
-			label="Regions"
-			searchSource={source}
-			value={regions}
-			onChange={(next, change) => {
-				setRegions(next)
-				console.log(change.type)
-			}}
-			hasCreate
-			maxEntries={5}
-			htmlName="regions"
-		/>
-	)
+  return (
+    <Tokenizer
+      label="Regions"
+      searchSource={source}
+      value={regions}
+      onChange={(next, change) => {
+        setRegions(next)
+        console.log(change.type)
+      }}
+      hasCreate
+      maxEntries={5}
+      htmlName="regions"
+    />
+  )
 }
 ```
 
@@ -331,17 +331,17 @@ import { source } from './regions-source'
 import { Tokenizer } from '@octane-xplat/ui'
 
 export function Example() {
-	const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+  const [regions, setRegions] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
 
-	return (
-		<Tokenizer
-			label="Regions"
-			searchSource={source}
-			value={regions}
-			onChange={setRegions}
-			htmlName="regions"
-		/>
-	)
+  return (
+    <Tokenizer
+      label="Regions"
+      searchSource={source}
+      value={regions}
+      onChange={setRegions}
+      htmlName="regions"
+    />
+  )
 }
 ```
 
@@ -358,31 +358,31 @@ import { ComplexSelector, Pressable, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [color, setColor] = useState('red')
+  const [color, setColor] = useState('red')
 
-	return (
-		<ComplexSelector
-			label="Color"
-			value={color}
-			onChange={setColor}
-			changeAction={async (next) => {
-				console.log('Save', next)
-			}}
-			triggerLabel={color}
-		>
-			{({ value, onChange, close, isBusy }) => (
-				<Pressable
-					disabled={isBusy}
-					onPress={() => {
-						onChange('blue')
-						close()
-					}}
-				>
-					<Text>{value} → blue</Text>
-				</Pressable>
-			)}
-		</ComplexSelector>
-	)
+  return (
+    <ComplexSelector
+      label="Color"
+      value={color}
+      onChange={setColor}
+      changeAction={async (next) => {
+        console.log('Save', next)
+      }}
+      triggerLabel={color}
+    >
+      {({ value, onChange, close, isBusy }) => (
+        <Pressable
+          disabled={isBusy}
+          onPress={() => {
+            onChange('blue')
+            close()
+          }}
+        >
+          <Text>{value} → blue</Text>
+        </Pressable>
+      )}
+    </ComplexSelector>
+  )
 }
 ```
 
@@ -399,30 +399,30 @@ import { ComplexSelector, Pressable, Text } from '@octane-xplat/ui'
 import { useState, useRef } from 'octane'
 
 export function Example() {
-	const [color, setColor] = useState('red')
-	const picker = useRef<import('@octane-xplat/ui').ComplexSelectorHandle | null>(null)
+  const [color, setColor] = useState('red')
+  const picker = useRef<import('@octane-xplat/ui').ComplexSelectorHandle | null>(null)
 
-	return (
-		<ComplexSelector
-			label="Color"
-			value={color}
-			onChange={setColor}
-			placement="bottom"
-			alignment="start"
-			ref={(handle) => {
-				picker.current = handle
-			}}
-			changeAction={async (next) => {
-				console.log(next)
-			}}
-		>
-			{({ value, onChange }) => (
-				<Pressable onPress={() => onChange('blue')}>
-					<Text>{value} → blue</Text>
-				</Pressable>
-			)}
-		</ComplexSelector>
-	)
+  return (
+    <ComplexSelector
+      label="Color"
+      value={color}
+      onChange={setColor}
+      placement="bottom"
+      alignment="start"
+      ref={(handle) => {
+        picker.current = handle
+      }}
+      changeAction={async (next) => {
+        console.log(next)
+      }}
+    >
+      {({ value, onChange }) => (
+        <Pressable onPress={() => onChange('blue')}>
+          <Text>{value} → blue</Text>
+        </Pressable>
+      )}
+    </ComplexSelector>
+  )
 }
 ```
 
@@ -445,25 +445,25 @@ import { source } from './regions-source'
 import { Typeahead, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	const [region, setRegion] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
-	const input = useRef<import('@octane-xplat/ui').TypeaheadInputHandle | null>(null)
+  const [region, setRegion] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
+  const input = useRef<import('@octane-xplat/ui').TypeaheadInputHandle | null>(null)
 
-	return (
-		<>
-			<Typeahead
-				label="Region"
-				searchSource={source}
-				value={region}
-				onChange={setRegion}
-				ref={(handle) => {
-					input.current = handle
-				}}
-			/>
-			<Pressable onPress={() => input.current?.focus()}>
-				<Text>Search</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <Typeahead
+        label="Region"
+        searchSource={source}
+        value={region}
+        onChange={setRegion}
+        ref={(handle) => {
+          input.current = handle
+        }}
+      />
+      <Pressable onPress={() => input.current?.focus()}>
+        <Text>Search</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -489,10 +489,10 @@ reject selection while the existing state owner coordinates saves and rollback.
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Channels() {
-	return <MultiSelector options={[
-		{ value: 'email', label: 'Email' },
-		{ value: 'push', label: 'Push notifications' },
-	]} defaultValue={['email']} hasSelectAll />
+  return <MultiSelector options={[
+    { value: 'email', label: 'Email' },
+    { value: 'push', label: 'Push notifications' },
+  ]} defaultValue={['email']} hasSelectAll />
 }
 ```
 
@@ -505,9 +505,9 @@ summary instead of passing undefined to the custom renderer.
 import { Selector, Text } from '@octane-xplat/ui'
 
 export function Region() {
-	return <Selector options={[{ value: 'west', label: 'West', description: 'Nearby region' }]}
-		renderOption={(option) => <Text>{option.label}</Text>}
-		renderValue={(option) => <Text>{option.label}</Text>} />
+  return <Selector options={[{ value: 'west', label: 'West', description: 'Nearby region' }]}
+    renderOption={(option) => <Text>{option.label}</Text>}
+    renderValue={(option) => <Text>{option.label}</Text>} />
 }
 ```
 
@@ -531,11 +531,11 @@ verification result.
 import { Selector } from '@octane-xplat/ui'
 
 export function Fruit() {
-	return <Selector options={[
-		{ value: 'apple', label: 'Apple' },
-		{ value: 'banana', label: 'Banana', isDisabled: true },
-		{ value: 'cherry', label: 'Cherry' },
-	]} defaultValue="apple" />
+  return <Selector options={[
+    { value: 'apple', label: 'Apple' },
+    { value: 'banana', label: 'Banana', isDisabled: true },
+    { value: 'cherry', label: 'Cherry' },
+  ]} defaultValue="apple" />
 }
 ```
 
@@ -550,8 +550,8 @@ normal text-selection meaning.
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Fruits() {
-	return <MultiSelector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
-		searchable hasSelectAll />
+  return <MultiSelector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
+    searchable hasSelectAll />
 }
 ```
 
@@ -580,9 +580,9 @@ testID reaches the interactive host. Hidden labels keep an accessible name.
 import { Selector } from '@octane-xplat/ui'
 
 export function Region() {
-	return <Selector label="Region" description="Choose the region for this profile" isRequired
-		options={[{ value: 'west', label: 'West' }, { value: 'east', label: 'East' }]}
-		testID="profile.region" status={{ type: 'error', message: 'Choose a region' }} />
+  return <Selector label="Region" description="Choose the region for this profile" isRequired
+    options={[{ value: 'west', label: 'West' }, { value: 'east', label: 'East' }]}
+    testID="profile.region" status={{ type: 'error', message: 'Choose a region' }} />
 }
 ```
 
@@ -595,7 +595,7 @@ described below; native pointer arbitration remains unqualified.
 import { Selector } from '@octane-xplat/ui'
 
 export function ToolbarRegion() {
-	return <Selector accessibilityLabel="Region" variant="ghost" options={[{ value: 'west', label: 'West' }]} />
+  return <Selector accessibilityLabel="Region" variant="ghost" options={[{ value: 'west', label: 'West' }]} />
 }
 ```
 
@@ -611,8 +611,8 @@ value label and an inert remove control until the option is available again.
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Channels() {
-	return <MultiSelector label="Channels" triggerDisplay="badges" defaultValue={['email']}
-		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
+  return <MultiSelector label="Channels" triggerDisplay="badges" defaultValue={['email']}
+    options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
 }
 ```
 
@@ -637,9 +637,9 @@ import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
 export function FindPerson() {
-	const [selected, setSelected] = useState<SearchableItem | null>(null)
-	return <BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
-		hasEntriesOnFocus hasAutoFocus accessibilityLabel="Find a person" />
+  const [selected, setSelected] = useState<SearchableItem | null>(null)
+  return <BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
+    hasEntriesOnFocus hasAutoFocus accessibilityLabel="Find a person" />
 }
 ```
 
@@ -656,11 +656,11 @@ import { BaseTypeahead, Button, createStaticSource } from '@octane-xplat/ui'
 import type { TypeaheadInputHandle } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
 export function SearchAction() {
-	const input = useRef<TypeaheadInputHandle | null>(null)
-	return <>
-		<BaseTypeahead ref={input} searchSource={people} value={null} onChange={() => {}} accessibilityLabel="Person" />
-		<Button label="Find Ada" clickAction={() => input.current?.setQuery('Ada')} />
-	</>
+  const input = useRef<TypeaheadInputHandle | null>(null)
+  return <>
+    <BaseTypeahead ref={input} searchSource={people} value={null} onChange={() => {}} accessibilityLabel="Person" />
+    <Button label="Find Ada" clickAction={() => input.current?.setQuery('Ada')} />
+  </>
 }
 ```
 
@@ -687,12 +687,12 @@ import { BaseTypeahead, Text, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
 export function ChoosePerson() {
-	const [selected, setSelected] = useState<SearchableItem | null>(null)
-	return <>
-		<BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
-			hasEntriesOnFocus accessibilityLabel="Person" />
-		<Text>Selected: {selected?.label ?? 'none'}</Text>
-	</>
+  const [selected, setSelected] = useState<SearchableItem | null>(null)
+  return <>
+    <BaseTypeahead searchSource={people} value={selected} onChange={setSelected}
+      hasEntriesOnFocus accessibilityLabel="Person" />
+    <Text>Selected: {selected?.label ?? 'none'}</Text>
+  </>
 }
 ```
 
@@ -706,11 +706,11 @@ focus. Consumer callbacks receive the composing flag and should respect it too.
 import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
 export function CustomNavigation() {
-	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
-		hasEntriesOnFocus accessibilityLabel="Person"
-		onKeyDown={(event) => {
-			if (!event.isComposing && event.key === 'ArrowDown') event.preventDefault()
-		}} />
+  return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+    hasEntriesOnFocus accessibilityLabel="Person"
+    onKeyDown={(event) => {
+      if (!event.isComposing && event.key === 'ArrowDown') event.preventDefault()
+    }} />
 }
 ```
 
@@ -737,8 +737,8 @@ import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
 const people = [{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }]
 const source = createStaticSource(people)
 export function PeopleTags() {
-	const [tags, setTags] = useState(people)
-	return <Tokenizer label="People" searchSource={source} value={tags} onChange={setTags} />
+  const [tags, setTags] = useState(people)
+  return <Tokenizer label="People" searchSource={source} value={tags} onChange={setTags} />
 }
 ```
 
@@ -763,9 +763,9 @@ import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
 const people = [{ id: 'ada', label: 'Ada Lovelace' }, { id: 'grace', label: 'Grace Hopper' }]
 const source = createStaticSource(people)
 export function CompactPeople() {
-	const [tags, setTags] = useState(people)
-	return <Tokenizer label="People" width={240} searchSource={source} value={tags}
-		onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
+  const [tags, setTags] = useState(people)
+  return <Tokenizer label="People" width={240} searchSource={source} value={tags}
+    onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
 }
 ```
 
@@ -795,9 +795,9 @@ import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
 const source = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
 export function AccessiblePeopleSearch() {
-	const [person, setPerson] = useState<SearchableItem | null>(null)
-	return <BaseTypeahead searchSource={source} value={person} onChange={setPerson}
-		hasEntriesOnFocus accessibilityLabel="Choose a person" />
+  const [person, setPerson] = useState<SearchableItem | null>(null)
+  return <BaseTypeahead searchSource={source} value={person} onChange={setPerson}
+    hasEntriesOnFocus accessibilityLabel="Choose a person" />
 }
 ```
 
@@ -832,9 +832,9 @@ import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }, { id: 'grace', label: 'Grace' }])
 export function FloatingPeople() {
-	const [person, setPerson] = useState<SearchableItem | null>(null)
-	return <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
-		hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
+  const [person, setPerson] = useState<SearchableItem | null>(null)
+  return <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
+    hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
 }
 ```
 
@@ -852,10 +852,10 @@ const Team = createContext('Personal'), TeamProvider: any = Team
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
 function PersonHint() { return <Text>{useContext(Team)}</Text> }
 export function TeamSearch() {
-	return <TeamProvider value="Design">
-		<BaseTypeahead searchSource={people} value={null} onChange={() => {}}
-			hasEntriesOnFocus accessibilityLabel="Teammate" renderItem={() => <PersonHint />} />
-	</TeamProvider>
+  return <TeamProvider value="Design">
+    <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+      hasEntriesOnFocus accessibilityLabel="Teammate" renderItem={() => <PersonHint />} />
+  </TeamProvider>
 }
 ```
 
@@ -885,15 +885,15 @@ import { useRef, useState } from 'octane'
 import type { NSView } from '@octane-xplat/platform/macos'
 import { Button, Popover, Text } from '@octane-xplat/ui'
 export function Details() {
-	const anchor = useRef<NSView | null>(null)
-	const [open, setOpen] = useState(false)
-	return <>
-		<Button ref={anchor} label="Details" clickAction={() => setOpen(!open)} />
-		<Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
-			placement="bottom" alignment="center" offset={12}>
-			<Text>Details for the current selection</Text>
-		</Popover>
-	</>
+  const anchor = useRef<NSView | null>(null)
+  const [open, setOpen] = useState(false)
+  return <>
+    <Button ref={anchor} label="Details" clickAction={() => setOpen(!open)} />
+    <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
+      placement="bottom" alignment="center" offset={12}>
+      <Text>Details for the current selection</Text>
+    </Popover>
+  </>
 }
 ```
 
@@ -908,8 +908,8 @@ cancelled by its native owner.
 
 ```tsx
 <Popover anchor={anchor} defaultOpen dismissOnEscape={false}
-	dismissOnOutsideTap={false} placement="right" offset="8px">
-	<Text>Close this panel through its owning application flow.</Text>
+  dismissOnOutsideTap={false} placement="right" offset="8px">
+  <Text>Close this panel through its owning application flow.</Text>
 </Popover>
 ```
 

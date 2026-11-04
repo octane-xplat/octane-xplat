@@ -21,21 +21,21 @@ import { Drawer } from '@octane-xplat/drawer'
 import { Button, Text, View } from '@octane-xplat/ui'
 
 export function NavigationDrawer() {
-	const [open, setOpen] = useState(false)
-	return (
-		<Drawer
-			open={open}
-			onOpenChange={setOpen}
-			accessibilityLabel="Main navigation"
-			main={<Button label="Open navigation" clickAction={() => setOpen(true)} />}
-			drawer={
-				<View>
-					<Text>Navigation</Text>
-					<Button label="Close navigation" clickAction={() => setOpen(false)} />
-				</View>
-			}
-		/>
-	)
+  const [open, setOpen] = useState(false)
+  return (
+    <Drawer
+      open={open}
+      onOpenChange={setOpen}
+      accessibilityLabel="Main navigation"
+      main={<Button label="Open navigation" clickAction={() => setOpen(true)} />}
+      drawer={
+        <View>
+          <Text>Navigation</Text>
+          <Button label="Close navigation" clickAction={() => setOpen(false)} />
+        </View>
+      }
+    />
+  )
 }
 ```
 
@@ -49,7 +49,7 @@ use gestures.
 import { Drawer } from '@octane-xplat/drawer'
 
 export function InitiallyOpenDrawer() {
-	return <Drawer defaultOpen main={null} drawer={null} onDismiss={() => console.log('Closed')} />
+  return <Drawer defaultOpen main={null} drawer={null} onDismiss={() => console.log('Closed')} />
 }
 ```
 
@@ -62,7 +62,7 @@ explicit controls. Mobile animation honors the OS reduced-motion setting, and
 import { Drawer } from '@octane-xplat/drawer'
 
 export function FixedPanel() {
-	return <Drawer width={320} isGestureEnabled={false} reducedMotion main={null} drawer={null} />
+  return <Drawer width={320} isGestureEnabled={false} reducedMotion main={null} drawer={null} />
 }
 ```
 
@@ -78,7 +78,7 @@ component. Keep your existing main and panel content, and connect
 import { Drawer, type DrawerProps } from '@octane-xplat/drawer'
 
 export function AppDrawer(props: DrawerProps) {
-	return <Drawer {...props} />
+  return <Drawer {...props} />
 }
 ```
 

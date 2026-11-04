@@ -11,13 +11,13 @@ haptics}` wrappers.
 
 ```ts
 import {
-	playPreset,
-	playCustomPattern,
-	setRealtime,
-	stopRealtime,
-	playUiTone,
-	stopUiTones,
-	createAudioPlayer,
+  playPreset,
+  playCustomPattern,
+  setRealtime,
+  stopRealtime,
+  playUiTone,
+  stopUiTones,
+  createAudioPlayer,
 } from '@xplat/media-probe'
 ```
 

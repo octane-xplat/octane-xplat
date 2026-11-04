@@ -17,14 +17,14 @@ bun add @octane-xplat/haptics
 import { createHaptics, haptics } from '@octane-xplat/haptics'
 
 if (haptics.supported) {
-	haptics.impact('medium') // simple path
-	haptics.notification('success')
+  haptics.impact('medium') // simple path
+  haptics.notification('success')
 }
 
 const engine = createHaptics() // advanced path
 if (engine.capabilities().presets) engine.play('success')
 if (engine.capabilities().patterns) {
-	engine.playPattern({ duration: 300, points: [{ at: 0, intensity: 1 }] })
+  engine.playPattern({ duration: 300, points: [{ at: 0, intensity: 1 }] })
 }
 ```
 
@@ -37,9 +37,9 @@ gesture changes and `stop()` when it ends or is cancelled.
 ```ts
 // engine is the createHaptics() instance above.
 if (engine.capabilities().realtime) {
-	const session = engine.startRealtime(0.2)
-	session.update(0.8, 0.5)
-	session.stop()
+  const session = engine.startRealtime(0.2)
+  session.update(0.8, 0.5)
+  session.stop()
 }
 engine.dispose() // after the owner has finished all feedback
 ```

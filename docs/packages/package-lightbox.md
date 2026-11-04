@@ -19,29 +19,29 @@ import { Lightbox } from '@octane-xplat/lightbox'
 import { Image, Text } from '@octane-xplat/ui'
 
 const photos = [
-	{ src: 'https://example.com/coast.jpg', alt: 'Rocky coast', width: 1200, height: 800 },
-	{ src: 'https://example.com/forest.jpg', alt: 'Forest trail', width: 800, height: 1200 },
+  { src: 'https://example.com/coast.jpg', alt: 'Rocky coast', width: 1200, height: 800 },
+  { src: 'https://example.com/forest.jpg', alt: 'Forest trail', width: 800, height: 1200 },
 ]
 
 export function Gallery() {
-	return (
-		<Lightbox.Root media={photos}>
-			<Lightbox.Trigger index={0}><Text>Open photos</Text></Lightbox.Trigger>
-			<Lightbox.Popup>
-				<Lightbox.Backdrop />
-				<Lightbox.Viewport />
-				<Lightbox.Close><Text>Close</Text></Lightbox.Close>
-				<Lightbox.Thumbnails className="gallery-thumbnails">
-					{photos.map((photo, index) => (
-						<Lightbox.Thumbnail key={photo.src} index={index} className="gallery-thumbnail">
-							<Image src={photo.src} alt={photo.alt} />
-						</Lightbox.Thumbnail>
-					))}
-					<Lightbox.ThumbnailIndicator className="gallery-selection" />
-				</Lightbox.Thumbnails>
-			</Lightbox.Popup>
-		</Lightbox.Root>
-	)
+  return (
+    <Lightbox.Root media={photos}>
+      <Lightbox.Trigger index={0}><Text>Open photos</Text></Lightbox.Trigger>
+      <Lightbox.Popup>
+        <Lightbox.Backdrop />
+        <Lightbox.Viewport />
+        <Lightbox.Close><Text>Close</Text></Lightbox.Close>
+        <Lightbox.Thumbnails className="gallery-thumbnails">
+          {photos.map((photo, index) => (
+            <Lightbox.Thumbnail key={photo.src} index={index} className="gallery-thumbnail">
+              <Image src={photo.src} alt={photo.alt} />
+            </Lightbox.Thumbnail>
+          ))}
+          <Lightbox.ThumbnailIndicator className="gallery-selection" />
+        </Lightbox.Thumbnails>
+      </Lightbox.Popup>
+    </Lightbox.Root>
+  )
 }
 ```
 
@@ -59,9 +59,9 @@ strip's placement with an app CSS class; the parts import their structural CSS.
 
 ```tsx
 <Lightbox.Thumbnails className="gallery-thumbnails">
-	<Lightbox.Thumbnail index={0}><Text>Coast</Text></Lightbox.Thumbnail>
-	<Lightbox.Thumbnail index={1}><Text>Forest</Text></Lightbox.Thumbnail>
-	<Lightbox.ThumbnailIndicator className="gallery-selection" />
+  <Lightbox.Thumbnail index={0}><Text>Coast</Text></Lightbox.Thumbnail>
+  <Lightbox.Thumbnail index={1}><Text>Forest</Text></Lightbox.Thumbnail>
+  <Lightbox.ThumbnailIndicator className="gallery-selection" />
 </Lightbox.Thumbnails>
 ```
 
@@ -86,8 +86,8 @@ content, without a qualified native dialog-description association.
 
 ```tsx
 <Lightbox.Popup>
-	<Lightbox.Title>Trip photos</Lightbox.Title>
-	<Lightbox.Description>Photos from the coast</Lightbox.Description>
-	<Lightbox.Viewport />
+  <Lightbox.Title>Trip photos</Lightbox.Title>
+  <Lightbox.Description>Photos from the coast</Lightbox.Description>
+  <Lightbox.Viewport />
 </Lightbox.Popup>
 ```

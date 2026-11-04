@@ -6,12 +6,12 @@ Use `@octane-xplat/media-converter` for GIF-to-MP4 jobs with progress, cancellat
 import { convertGif, releaseVideo } from '@octane-xplat/media-converter'
 
 export async function uploadAnimation(source: string, upload: (uri: string) => Promise<void>) {
-	const video = await convertGif(source, { format: 'mp4' }).result
-	try {
-		await upload(video.uri)
-	} finally {
-		releaseVideo(video)
-	}
+  const video = await convertGif(source, { format: 'mp4' }).result
+  try {
+    await upload(video.uri)
+  } finally {
+    releaseVideo(video)
+  }
 }
 ```
 
@@ -21,15 +21,15 @@ export async function uploadAnimation(source: string, upload: (uri: string) => P
 import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
 
 export async function toWebP(source: string) {
-	const context = ImageManipulator.manipulate(source)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: SaveFormat.WEBP })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(source)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: SaveFormat.WEBP })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 // The receiving owner releases the saved result after its last use.
 ```

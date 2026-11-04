@@ -76,7 +76,7 @@ automatic-width rows fill the available width; retain native resize checks.
 import { List, ListItem } from '@octane-xplat/ui'
 
 export function Rows() {
-	return <List><ListItem label="Inbox" onPress={() => console.log('Opened')} /></List>
+  return <List><ListItem label="Inbox" onPress={() => console.log('Opened')} /></List>
 }
 ```
 
@@ -96,11 +96,11 @@ Table plugin API:
 import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
 
 export function SortedRows() {
-	const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
-	const sortable = useTableSortable(state.sortConfig)
-	return <Table data={state.sortedData}
-		columns={[{ key: 'name', header: 'Name', sortable: true }]}
-		plugins={{ sortable }} />
+  const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
+  const sortable = useTableSortable(state.sortConfig)
+  return <Table data={state.sortedData}
+    columns={[{ key: 'name', header: 'Name', sortable: true }]}
+    plugins={{ sortable }} />
 }
 ```
 
@@ -157,7 +157,7 @@ do not replace it with a stock Windows widget to add keyboard input.
 import { Switch } from '@octane-xplat/ui'
 
 export function Notifications() {
-	return <Switch label="Notifications" defaultValue={false} />
+  return <Switch label="Notifications" defaultValue={false} />
 }
 ```
 
@@ -180,7 +180,7 @@ transparent WinUI CheckBox input. The public root name remains CheckboxInput:
 import { CheckboxInput } from '@octane-xplat/ui'
 
 export function SelectItems() {
-	return <CheckboxInput label="Select items" defaultValue="indeterminate" />
+  return <CheckboxInput label="Select items" defaultValue="indeterminate" />
 }
 ```
 

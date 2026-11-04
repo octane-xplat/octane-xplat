@@ -16,11 +16,11 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 
 // Call with a token issued by your app's backend; never log its value.
 async function saveSession(token: string) {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
-	try {
-		if (!(await secureStorage.set('session-token', token))) return null
-		return await secureStorage.get('session-token')
-	} catch { return null }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return null
+  try {
+    if (!(await secureStorage.set('session-token', token))) return null
+    return await secureStorage.get('session-token')
+  } catch { return null }
 }
 ```
 
@@ -32,7 +32,7 @@ probes the host, and the object itself is an async string key-value store
 
 ```ts
 if (secureStorage.supported) {
-	await secureStorage.remove('session-token')
+  await secureStorage.remove('session-token')
 }
 ```
 
@@ -77,11 +77,11 @@ import { secureStorage } from '@octane-xplat/secure-storage'
 
 type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
 export async function restoreSession(): Promise<Session> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
-	try {
-		const token = await secureStorage.get('session-token')
-		return token === null ? { status: 'missing' } : { status: 'restored', token }
-	} catch { return { status: 'unavailable' } }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
+  try {
+    const token = await secureStorage.get('session-token')
+    return token === null ? { status: 'missing' } : { status: 'restored', token }
+  } catch { return { status: 'unavailable' } }
 }
 ```
 
@@ -96,14 +96,14 @@ prompt opens. Use these results rather than a plaintext fallback:
 import { secureStorage } from '@octane-xplat/secure-storage'
 
 export async function saveSession(token: string): Promise<boolean> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
-	try { return await secureStorage.set('session-token', token) }
-	catch { return false }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  try { return await secureStorage.set('session-token', token) }
+  catch { return false }
 }
 export async function forgetSession(): Promise<boolean> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
-	try { return await secureStorage.remove('session-token') }
-	catch { return false }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  try { return await secureStorage.remove('session-token') }
+  catch { return false }
 }
 ```
 

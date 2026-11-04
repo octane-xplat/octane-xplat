@@ -6,7 +6,7 @@ On macOS, `webBrowser.openBrowser` now presents an owned in-app WebKit window wi
 import { openUrl } from '@octane-xplat/platform'
 
 export function showExternalPage(address: string) {
-	return openUrl(address)
+  return openUrl(address)
 }
 ```
 

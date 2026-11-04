@@ -19,9 +19,9 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
-	useKeepAwake()
+  useKeepAwake()
 
-	return <Text>Your reading screen stays awake while it is open.</Text>
+  return <Text>Your reading screen stays awake while it is open.</Text>
 }
 ```
 
@@ -36,13 +36,13 @@ tag twice does not require two deactivations. Omitting the tag uses
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function present(runPresentation: () => Promise<void>) {
-	const held = await keepAwake.activate('presentation')
-	if (!held) console.log('The screen may sleep')
-	try {
-		await runPresentation()
-	} finally {
-		await keepAwake.deactivate('presentation')
-	}
+  const held = await keepAwake.activate('presentation')
+  if (!held) console.log('The screen may sleep')
+  try {
+    await runPresentation()
+  } finally {
+    await keepAwake.deactivate('presentation')
+  }
 }
 ```
 
@@ -60,10 +60,10 @@ visible-tab retry, so always deactivate when the activity ends, even after a fal
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function checkScreenRequest() {
-	console.log('Available:', await keepAwake.isAvailable())
-	const requested = await keepAwake.activate('reading')
-	console.log('Accepted:', requested, 'Held:', await keepAwake.isActivated())
-	await keepAwake.deactivate('reading')
+  console.log('Available:', await keepAwake.isAvailable())
+  const requested = await keepAwake.activate('reading')
+  console.log('Accepted:', requested, 'Held:', await keepAwake.isActivated())
+  await keepAwake.deactivate('reading')
 }
 ```
 
@@ -80,13 +80,13 @@ on the last deactivation.
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function monitorReading() {
-	const stop = keepAwake.onRelease?.((tag) => console.log('Released:', tag))
-	await keepAwake.activate('reading')
+  const stop = keepAwake.onRelease?.((tag) => console.log('Released:', tag))
+  await keepAwake.activate('reading')
 
-	return async () => {
-		stop?.()
-		await keepAwake.deactivate('reading')
-	}
+  return async () => {
+    stop?.()
+    await keepAwake.deactivate('reading')
+  }
 }
 ```
 
@@ -99,12 +99,12 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function PresentationScreen() {
-	useKeepAwake(undefined, {
-		suppressDeactivateWarnings: true,
-		onRelease: (tag) => console.log('Screen lock released:', tag),
-	})
+  useKeepAwake(undefined, {
+    suppressDeactivateWarnings: true,
+    onRelease: (tag) => console.log('Screen lock released:', tag),
+  })
 
-	return <Text>Presentation</Text>
+  return <Text>Presentation</Text>
 }
 ```
 
@@ -120,7 +120,7 @@ an explicit retry. For work that needs that retry, use a named tag you own:
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function endPresentation(): Promise<boolean> {
-	return keepAwake.deactivate('presentation')
+  return keepAwake.deactivate('presentation')
 }
 // A false result means cleanup is unconfirmed; retain this tag for a later retry.
 ```
@@ -137,8 +137,8 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen(props: { quietCleanup: boolean }) {
-	useKeepAwake(undefined, { suppressDeactivateWarnings: props.quietCleanup })
-	return <Text>Reading</Text>
+  useKeepAwake(undefined, { suppressDeactivateWarnings: props.quietCleanup })
+  return <Text>Reading</Text>
 }
 ```
 
@@ -154,8 +154,8 @@ retry. Keep track of that result if your activity owns an explicit tag.
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function closePresentation(): Promise<boolean> {
-	// False means this tag still needs cleanup; call again when the host can release it.
-	return keepAwake.deactivate('presentation')
+  // False means this tag still needs cleanup; call again when the host can release it.
+  return keepAwake.deactivate('presentation')
 }
 ```
 ## Target limits and verification

@@ -33,19 +33,19 @@ import { Button, Text } from '@octane-xplat/ui'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 
 export function Details() {
-	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<Button clickAction={() => setOpen(true)}>Trip details</Button>
-			<SwiftUIBottomSheet
-				open={open}
-				detents={['medium', 'large']}
-				showDragIndicator
-				onDismissed={() => setOpen(false)}
-				content={() => <Text>Two bags packed</Text>}
-			/>
-		</>
-	)
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <Button clickAction={() => setOpen(true)}>Trip details</Button>
+      <SwiftUIBottomSheet
+        open={open}
+        detents={['medium', 'large']}
+        showDragIndicator
+        onDismissed={() => setOpen(false)}
+        content={() => <Text>Two bags packed</Text>}
+      />
+    </>
+  )
 }
 ```
 
@@ -103,14 +103,14 @@ import { useState } from 'octane'
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import { Button, Text, View } from '@octane-xplat/ui'
 export function TripDetails() {
-	const [open, setOpen] = useState(false)
-	return <View>
-		<Button label="Edit trip" clickAction={() => setOpen(true)} />
-		<AppKitSheet id="trip-details" open={open} className="gap-3 p-4"
-			onDismissed={() => setOpen(false)}
-			content={() => <Button label="Save and close" clickAction={() => setOpen(false)} />} />
-		<Text>Trip details</Text>
-	</View>
+  const [open, setOpen] = useState(false)
+  return <View>
+    <Button label="Edit trip" clickAction={() => setOpen(true)} />
+    <AppKitSheet id="trip-details" open={open} className="gap-3 p-4"
+      onDismissed={() => setOpen(false)}
+      content={() => <Button label="Save and close" clickAction={() => setOpen(false)} />} />
+    <Text>Trip details</Text>
+  </View>
 }
 ```
 

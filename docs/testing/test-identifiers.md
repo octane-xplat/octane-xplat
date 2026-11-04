@@ -10,14 +10,14 @@ when its visible text is translated. Keep useful spoken labels and roles.
 import { Pressable, Text, TextInput, VStack } from '@octane-xplat/ui'
 
 export function PackingForm() {
-	return (
-		<VStack>
-			<TextInput testID="packing.item-name" accessibilityLabel="Item name" />
-			<Pressable testID="packing.add-item" accessibilityLabel="Add item" accessibilityRole="button">
-				<Text>Add item</Text>
-			</Pressable>
-		</VStack>
-	)
+  return (
+    <VStack>
+      <TextInput testID="packing.item-name" accessibilityLabel="Item name" />
+      <Pressable testID="packing.add-item" accessibilityLabel="Add item" accessibilityRole="button">
+        <Text>Add item</Text>
+      </Pressable>
+    </VStack>
+  )
 }
 ```
 
@@ -31,19 +31,19 @@ the same durable item key for rendering and the automation name.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function PackingItems(props: { items: { key: string; name: string }[] }) {
-	return (
-		<>
-			{props.items.map((item) => (
-				<Pressable
-					key={item.key}
-					testID={`packing.item.${item.key}.open`}
-					accessibilityLabel={`Open ${item.name}`}
-				>
-					<Text>{item.name}</Text>
-				</Pressable>
-			))}
-		</>
-	)
+  return (
+    <>
+      {props.items.map((item) => (
+        <Pressable
+          key={item.key}
+          testID={`packing.item.${item.key}.open`}
+          accessibilityLabel={`Open ${item.name}`}
+        >
+          <Text>{item.name}</Text>
+        </Pressable>
+      ))}
+    </>
+  )
 }
 ```
 
@@ -61,12 +61,12 @@ formatted span, not a separately identifiable OS view.
 import { Button, Overlay, TextInput } from '@octane-xplat/ui'
 
 export function EditOverlay(props: { open: boolean; close: () => void }) {
-	return (
-		<Overlay open={props.open} testID="packing.editor">
-			<TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
-			<Button testID="packing.editor.save" label="Save" clickAction={props.close} />
-		</Overlay>
-	)
+  return (
+    <Overlay open={props.open} testID="packing.editor">
+      <TextInput testID="packing.editor.name" accessibilityLabel="Item name" />
+      <Button testID="packing.editor.save" label="Save" clickAction={props.close} />
+    </Overlay>
+  )
 }
 ```
 
@@ -97,7 +97,7 @@ platform escape props can override shared values when applied.
 import { TextInput } from '@octane-xplat/ui'
 
 export function NameField() {
-	return <TextInput id="name-field" testID="profile.name" accessibilityLabel="Your name" />
+  return <TextInput id="name-field" testID="profile.name" accessibilityLabel="Your name" />
 }
 ```
 
@@ -145,7 +145,7 @@ Viewless logical nodes receive no native identifier.
 import { Button } from '@octane-xplat/ui'
 
 export function SaveDraft({ save }: { save(): void }) {
-	return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+  return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
 }
 ```
 
@@ -161,8 +161,8 @@ identifier or a substitute for a spoken label.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function NamedAction({ run }: { run(): void }) {
-	return <Pressable testID="draft.preview" accessible accessibilityLabel="Preview draft" onPress={run}>
-		<Text>Preview</Text>
-	</Pressable>
+  return <Pressable testID="draft.preview" accessible accessibilityLabel="Preview draft" onPress={run}>
+    <Text>Preview</Text>
+  </Pressable>
 }
 ```

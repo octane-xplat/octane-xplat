@@ -19,12 +19,12 @@ import { Grid, Screen, Text, View } from '@octane-xplat/ui'
 import './screen-layers.css'
 
 export function RetainedLayers() {
-	return <Grid rows="*" columns="*" className="screen-layers-host">
-		<View row={0} col={0}><Text>Library</Text></View>
-		<View row={0} col={0}>
-			<Screen className="screen-layers-screen"><Text>Player</Text></Screen>
-		</View>
-	</Grid>
+  return <Grid rows="*" columns="*" className="screen-layers-host">
+    <View row={0} col={0}><Text>Library</Text></View>
+    <View row={0} col={0}>
+      <Screen className="screen-layers-screen"><Text>Player</Text></Screen>
+    </View>
+  </Grid>
 }
 ```
 
@@ -32,11 +32,11 @@ export function RetainedLayers() {
 /* screen-layers.css */
 .screen-layers-host { width: 100%; height: 100%; }
 .screen-layers-screen {
-	display: flex;
-	flex-direction: column;
-	width: 100%;
-	height: 100%;
-	flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1;
 }
 ```
 
@@ -73,11 +73,11 @@ import { useRef } from 'octane'
 import { Button, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export function Notes() {
-	const viewport = useRef<ScrollableAreaHandle | null>(null)
-	return <>
-		<Button label="Top" clickAction={() => viewport.current?.scrollToOffset({ block: 0 })} />
-		<ScrollableArea ref={viewport} height={200}>Notes</ScrollableArea>
-	</>
+  const viewport = useRef<ScrollableAreaHandle | null>(null)
+  return <>
+    <Button label="Top" clickAction={() => viewport.current?.scrollToOffset({ block: 0 })} />
+    <ScrollableArea ref={viewport} height={200}>Notes</ScrollableArea>
+  </>
 }
 ```
 
@@ -97,7 +97,7 @@ native phase/docking evidence. See [renderer ownership](../../../../../docs/pack
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 
 export function Notes(props: { height: number }) {
-	return <ScrollableArea height={props.height}><Text>Trip notes</Text></ScrollableArea>
+  return <ScrollableArea height={props.height}><Text>Trip notes</Text></ScrollableArea>
 }
 ```
 
@@ -113,9 +113,9 @@ pull-to-refresh are still separate gaps.
 ```tsx
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 export function Notes({ count }: { count: number }) {
-	return <ScrollableArea label="Notes" height={200} testID="notes"
-		accessibilityHint="Scroll to review." accessibilityValue={`${count} notes`}>
-		<Text>Trip details</Text>
-	</ScrollableArea>
+  return <ScrollableArea label="Notes" height={200} testID="notes"
+    accessibilityHint="Scroll to review." accessibilityValue={`${count} notes`}>
+    <Text>Trip details</Text>
+  </ScrollableArea>
 }
 ```

@@ -26,11 +26,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function TripCard() {
-	return (
-		<SmoothCorners className="trip-card" corners={{ radius: 24, curve: 'continuous' }}>
-			<Text>Weekend in Kyoto</Text>
-		</SmoothCorners>
-	)
+  return (
+    <SmoothCorners className="trip-card" corners={{ radius: 24, curve: 'continuous' }}>
+      <Text>Weekend in Kyoto</Text>
+    </SmoothCorners>
+  )
 }
 ```
 
@@ -39,9 +39,9 @@ space to occupy:
 
 ```css
 .trip-card {
-	width: 280px;
-	height: 120px;
-	background-color: #dbeafe;
+  width: 280px;
+  height: 120px;
+  background-color: #dbeafe;
 }
 ```
 

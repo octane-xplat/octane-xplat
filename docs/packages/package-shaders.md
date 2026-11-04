@@ -31,31 +31,31 @@ import { Canvas } from '@octane-xplat/canvas'
 import { createShader, type ShaderInstance } from '@octane-xplat/shaders'
 
 export function ShaderPreview() {
-	const [canvas, setCanvas] = useState<unknown>(null)
-	useEffect(() => {
-		if (!canvas) return
-		const controller = new AbortController()
-		let shader: ShaderInstance | undefined
-		void createShader(canvas, {
-			components: [{
-				id: 'background',
-				type: 'SimplexNoise',
-				props: { colorA: '#0f172a', colorB: '#7c3aed', scale: 2, seed: 7, speed: 0.5 },
-			}],
-		}, { signal: controller.signal }).then((instance) => {
-			if (controller.signal.aborted) instance.destroy()
-			else shader = instance
-		}).catch((error) => {
-			if (!controller.signal.aborted) console.warn('Shader initialization failed', error)
-		})
-		return () => {
-			controller.abort()
-			shader?.destroy()
-		}
-	}, [canvas])
+  const [canvas, setCanvas] = useState<unknown>(null)
+  useEffect(() => {
+    if (!canvas) return
+    const controller = new AbortController()
+    let shader: ShaderInstance | undefined
+    void createShader(canvas, {
+      components: [{
+        id: 'background',
+        type: 'SimplexNoise',
+        props: { colorA: '#0f172a', colorB: '#7c3aed', scale: 2, seed: 7, speed: 0.5 },
+      }],
+    }, { signal: controller.signal }).then((instance) => {
+      if (controller.signal.aborted) instance.destroy()
+      else shader = instance
+    }).catch((error) => {
+      if (!controller.signal.aborted) console.warn('Shader initialization failed', error)
+    })
+    return () => {
+      controller.abort()
+      shader?.destroy()
+    }
+  }, [canvas])
 
-	return <Canvas width={320} height={180} style={{ width: 320, height: 180 }}
-		onReady={({ canvas }) => setCanvas(canvas)} />
+  return <Canvas width={320} height={180} style={{ width: 320, height: 180 }}
+    onReady={({ canvas }) => setCanvas(canvas)} />
 }
 ```
 

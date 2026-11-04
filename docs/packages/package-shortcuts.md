@@ -26,10 +26,10 @@ import { createShortcuts } from '@octane-xplat/shortcuts'
 
 const shortcuts = createShortcuts({ target: document })
 shortcuts.bind({
-	combo: 'Mod+k',
-	editablePolicy: 'allow-if-meta',
-	preventDefault: true,
-	handler: () => console.log('Open commands'),
+  combo: 'Mod+k',
+  editablePolicy: 'allow-if-meta',
+  preventDefault: true,
+  handler: () => console.log('Open commands'),
 })
 
 // Call when this app owner closes or its module is replaced.

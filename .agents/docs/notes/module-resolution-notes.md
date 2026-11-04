@@ -86,24 +86,24 @@ the full ordered list per app:
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-	resolve: {
-		extensions: [
-			'.ios.tsrx',
-			'.native.tsrx',
-			'.tsrx',
-			'.ios.tsx',
-			'.native.tsx',
-			'.tsx',
-			'.ios.ts',
-			'.native.ts',
-			'.mjs',
-			'.mts',
-			'.ts',
-			'.jsx',
-			'.js',
-			'.json',
-		],
-	},
+  resolve: {
+    extensions: [
+      '.ios.tsrx',
+      '.native.tsrx',
+      '.tsrx',
+      '.ios.tsx',
+      '.native.tsx',
+      '.tsx',
+      '.ios.ts',
+      '.native.ts',
+      '.mjs',
+      '.mts',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.json',
+    ],
+  },
 })
 ```
 
@@ -121,16 +121,16 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-	plugins: [
-		{
-			name: 'platform-module',
-			enforce: 'pre',
-			resolveId(source) {
-				if (source === '#platform')
-					return fileURLToPath(new URL('./src/platform.native.ts', import.meta.url))
-			},
-		},
-	],
+  plugins: [
+    {
+      name: 'platform-module',
+      enforce: 'pre',
+      resolveId(source) {
+        if (source === '#platform')
+          return fileURLToPath(new URL('./src/platform.native.ts', import.meta.url))
+      },
+    },
+  ],
 })
 ```
 
@@ -204,14 +204,14 @@ claims per environment (`environments.<env>.files|include|exclude`) and
 ```jsonc
 // tsconfig.envs.json — environments claim files; the program is shared
 {
-	"extends": "../../tsconfig.base.json",
-	"environments": {
-		"web": { "files": ["src/index.web.ts"] },
-		"native": {
-			"files": ["src/index.ts", "src/index.ios.ts"],
-			"compilerOptions": { "types": ["@nativescript/types"] }, // only allowed per-env option
-		},
-	},
+  "extends": "../../tsconfig.base.json",
+  "environments": {
+    "web": { "files": ["src/index.web.ts"] },
+    "native": {
+      "files": ["src/index.ts", "src/index.ios.ts"],
+      "compilerOptions": { "types": ["@nativescript/types"] }, // only allowed per-env option
+    },
+  },
 }
 ```
 

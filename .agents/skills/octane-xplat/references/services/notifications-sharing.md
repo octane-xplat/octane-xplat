@@ -14,7 +14,7 @@ pasteboard access. See [AppKit clipboard access](../../../../../docs/app/keyboar
 import { clipboard } from '@octane-xplat/platform'
 
 export async function copyMessage(text: string) {
-	return clipboard.canCopy ? clipboard.writeText(text) : false
+  return clipboard.canCopy ? clipboard.writeText(text) : false
 }
 ```
 
@@ -33,12 +33,12 @@ See [copy feedback lifetime](../../../../../docs/app/keyboard-clipboard.md#keep-
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyAndClose(props: { text: string; close: () => void }) {
-	const { copy } = useClipboard({ announce: 'Copied' })
-	return <Pressable onPress={async () => {
-		const pending = copy(props.text)
-		props.close() // Parent unmounts this owner; pending still resolves.
-		await pending
-	}}><Text>Copy and close</Text></Pressable>
+  const { copy } = useClipboard({ announce: 'Copied' })
+  return <Pressable onPress={async () => {
+    const pending = copy(props.text)
+    props.close() // Parent unmounts this owner; pending still resolves.
+    await pending
+  }}><Text>Copy and close</Text></Pressable>
 }
 ```
 

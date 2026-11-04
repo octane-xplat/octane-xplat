@@ -81,12 +81,12 @@ tab regression checks that reorder retains the host window's height.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function FixedCells() {
-	return <masonview style={{ display: 'grid', gridTemplateColumns: '80px 80px', gridAutoRows: '30px' }}>
-		<label text="One" />
-		<proxyviewcontainer style={{ gridColumn: '2' }}>
-			<label text="Two" />
-		</proxyviewcontainer>
-	</masonview>
+  return <masonview style={{ display: 'grid', gridTemplateColumns: '80px 80px', gridAutoRows: '30px' }}>
+    <label text="One" />
+    <proxyviewcontainer style={{ gridColumn: '2' }}>
+      <label text="Two" />
+    </proxyviewcontainer>
+  </masonview>
 }
 ```
 

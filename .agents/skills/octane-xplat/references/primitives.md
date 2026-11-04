@@ -11,12 +11,12 @@ static import from loading.
 import { HStack, Text } from '@octane-xplat/ui'
 
 export function PackingRow() {
-	return (
-		<HStack>
-			<Text>Passport</Text>
-			<Text>Packed</Text>
-		</HStack>
-	)
+  return (
+    <HStack>
+      <Text>Passport</Text>
+      <Text>Packed</Text>
+    </HStack>
+  )
 }
 ```
 
@@ -53,7 +53,7 @@ For example, an iOS switch belongs in an `.ios` leaf:
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackingToggle() {
-	return <UISwitch value={false} onChange={console.log} />
+  return <UISwitch value={false} onChange={console.log} />
 }
 ```
 

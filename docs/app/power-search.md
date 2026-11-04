@@ -12,14 +12,14 @@ import { useState } from 'octane'
 import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
 
 export function Example() {
-	const { config } = createPowerSearchConfig([
-		{ key: 'year', type: 'number', label: 'Year' },
-	] as const)
-	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
-	>([])
+  const { config } = createPowerSearchConfig([
+    { key: 'year', type: 'number', label: 'Year' },
+  ] as const)
+  const [filters, setFilters] = useState<
+    ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
+  >([])
 
-	return <PowerSearch config={config} filters={filters} onChange={setFilters} />
+  return <PowerSearch config={config} filters={filters} onChange={setFilters} />
 }
 ```
 
@@ -38,25 +38,25 @@ import { PowerSearch, Text, createPowerSearchConfig } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 const { config, applyFilters } = createPowerSearchConfig([
-	{ key: 'title', type: 'string', label: 'Title' },
-	{ key: 'year', type: 'number', label: 'Year' },
+  { key: 'title', type: 'string', label: 'Title' },
+  { key: 'year', type: 'number', label: 'Year' },
 ] as const)
 
 function SearchBooks({ books }: { books: { title: string; year: number }[] }) {
-	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
-	>([])
+  const [filters, setFilters] = useState<
+    ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
+  >([])
 
-	return (
-		<>
-			<PowerSearch config={config} filters={filters} onChange={setFilters} />
-			<Text>
-				{applyFilters(filters, books)
-					.map((book) => book.title)
-					.join(', ')}
-			</Text>
-		</>
-	)
+  return (
+    <>
+      <PowerSearch config={config} filters={filters} onChange={setFilters} />
+      <Text>
+        {applyFilters(filters, books)
+          .map((book) => book.title)
+          .join(', ')}
+      </Text>
+    </>
+  )
 }
 ```
 
@@ -72,12 +72,12 @@ type.
 import { createPowerSearchConfig } from '@octane-xplat/ui'
 
 const { config } = createPowerSearchConfig([
-	{ key: 'title', type: 'string', label: 'Title' },
-	{ key: 'year', type: 'number', label: 'Year' },
-	{ key: 'available', type: 'boolean', label: 'Available' },
-	{ key: 'published', type: 'date', label: 'Published' },
-	{ key: 'genre', type: 'enum', enumValues: [{ value: 'travel', label: 'Travel' }] },
-	{ key: 'tags', type: 'string_list', label: 'Tags' },
+  { key: 'title', type: 'string', label: 'Title' },
+  { key: 'year', type: 'number', label: 'Year' },
+  { key: 'available', type: 'boolean', label: 'Available' },
+  { key: 'published', type: 'date', label: 'Published' },
+  { key: 'genre', type: 'enum', enumValues: [{ value: 'travel', label: 'Travel' }] },
+  { key: 'tags', type: 'string_list', label: 'Tags' },
 ] as const)
 ```
 
@@ -90,22 +90,22 @@ import { createPowerSearchConfig } from '@octane-xplat/ui'
 
 const { applyFilters } = createPowerSearchConfig([{ key: 'year', type: 'number' }] as const)
 const visible = applyFilters(
-	[{ field: 'year', operator: 'greater_than', value: { type: 'float', value: 2020 } }],
-	[{ year: 2019 }, { year: 2026 }],
+  [{ field: 'year', operator: 'greater_than', value: { type: 'float', value: 2020 } }],
+  [{ year: 2019 }, { year: 2026 }],
 )
 console.log(visible) // [{ year: 2026 }]
 
 // Filters written by hand are checked against the same union — both of
 // these fail to compile.
 const wrong = applyFilters(
-	// 'yeahr' is not a defined field
-	[{ field: 'yeahr', operator: 'greater_than', value: { type: 'float', value: 2020 } }],
-	[],
+  // 'yeahr' is not a defined field
+  [{ field: 'yeahr', operator: 'greater_than', value: { type: 'float', value: 2020 } }],
+  [],
 )
 const mismatch = applyFilters(
-	// 'contains' is not a number-field operator
-	[{ field: 'year', operator: 'contains', value: { type: 'string', value: 'x' } }],
-	[],
+  // 'contains' is not a number-field operator
+  [{ field: 'year', operator: 'contains', value: { type: 'string', value: 'x' } }],
+  [],
 )
 ```
 
@@ -135,22 +135,22 @@ import { useState } from 'octane'
 import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
 
 export function Example() {
-	const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
-	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
-	>([])
+  const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
+  const [filters, setFilters] = useState<
+    ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
+  >([])
 
-	return (
-		<PowerSearch
-			config={config}
-			filters={filters}
-			onChange={(next, action, index) => {
-				setFilters(next)
-				console.log(action, index)
-			}}
-			hasClear
-		/>
-	)
+  return (
+    <PowerSearch
+      config={config}
+      filters={filters}
+      onChange={(next, action, index) => {
+        setFilters(next)
+        console.log(action, index)
+      }}
+      hasClear
+    />
+  )
 }
 ```
 
@@ -175,28 +175,28 @@ import { useState, useRef } from 'octane'
 import { PowerSearch, createPowerSearchConfig, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
-	const [filters, setFilters] = useState<
-		ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
-	>([])
-	const input = useRef<import('@octane-xplat/ui').PowerSearchHandle | null>(null)
+  const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
+  const [filters, setFilters] = useState<
+    ReadonlyArray<import('@octane-xplat/ui').PowerSearchFilterFor<typeof config>>
+  >([])
+  const input = useRef<import('@octane-xplat/ui').PowerSearchHandle | null>(null)
 
-	return (
-		<>
-			<PowerSearch
-				config={config}
-				filters={filters}
-				onChange={setFilters}
-				statusVariant="detached"
-				handleRef={(handle) => {
-					input.current = handle
-				}}
-			/>
-			<Pressable onPress={() => input.current?.focusTypeahead()}>
-				<Text>Edit filters</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <PowerSearch
+        config={config}
+        filters={filters}
+        onChange={setFilters}
+        statusVariant="detached"
+        handleRef={(handle) => {
+          input.current = handle
+        }}
+      />
+      <Pressable onPress={() => input.current?.focusTypeahead()}>
+        <Text>Edit filters</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -212,7 +212,7 @@ requests focus again; merely unblocking the field does not.
 import { PowerSearch, createPowerSearchConfig } from '@octane-xplat/ui'
 const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
 export function InitialSearch() {
-	return <PowerSearch config={config} filters={[]} onChange={() => {}} hasAutoFocus />
+  return <PowerSearch config={config} filters={[]} onChange={() => {}} hasAutoFocus />
 }
 ```
 
@@ -238,20 +238,20 @@ import { PowerSearchFilterEditor, Text } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
 
 const config: PowerSearchConfig = { name: 'created', fields: [{
-	key: 'created', label: 'Created', operators: [{
-		key: 'between', label: 'Between', value: { type: 'date_range',
-			intervalDatePresets: [{ label: 'Last 7 days', value: {
-				start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
-			} }],
-		},
-	}],
+  key: 'created', label: 'Created', operators: [{
+    key: 'between', label: 'Between', value: { type: 'date_range',
+      intervalDatePresets: [{ label: 'Last 7 days', value: {
+        start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
+      } }],
+    },
+  }],
 }] }
 export function RangeForm() {
-	const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'between' })
-	return <><PowerSearchFilterEditor config={config} filter={filter} mode="edit"
-		onSave={(next) => { if (next) setFilter(next) }}
-		onCancel={() => setFilter({ field: 'created', operator: 'between' })} />
-		<Text>{JSON.stringify(filter.value)}</Text></>
+  const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'between' })
+  return <><PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+    onSave={(next) => { if (next) setFilter(next) }}
+    onCancel={() => setFilter({ field: 'created', operator: 'between' })} />
+    <Text>{JSON.stringify(filter.value)}</Text></>
 }
 ```
 
@@ -267,8 +267,8 @@ app-owned metadata; the built-in matcher does not resolve named anchors.
 ```ts
 import type { DateTimeRange } from '@octane-xplat/ui'
 const range: DateTimeRange = {
-	start: { type: 'RELATIVE', backValue: 7, unit: 'day' },
-	end: { type: 'NOW' },
+  start: { type: 'RELATIVE', backValue: 7, unit: 'day' },
+  end: { type: 'NOW' },
 }
 ```
 
@@ -281,8 +281,8 @@ actual attachment behavior still need qualification.
 
 ```tsx
 export function LockedRange() {
-	return <PowerSearchFilterEditor config={config} filter={{ field: 'created', operator: 'between' }}
-		mode="edit" isReadOnly onSave={() => {}} onCancel={() => {}} />
+  return <PowerSearchFilterEditor config={config} filter={{ field: 'created', operator: 'between' }}
+    mode="edit" isReadOnly onSave={() => {}} onCancel={() => {}} />
 }
 ```
 
@@ -315,26 +315,26 @@ import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
 
 const people = [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }]
 const config: PowerSearchConfig = { name: 'owners', fields: [{
-	key: 'owner', label: 'Owner', operators: [{ key: 'is', label: 'Is', value: {
-		type: 'entity_list',
-		searchSource: {
-			bootstrap: () => people,
-			search: (query) => people.filter((person) => person.id === query ||
-				person.label.toLowerCase().includes(query.toLowerCase())),
-		},
-		tokenization: { regex: '[,;\\r\\n]+', sort: true },
-	} }],
+  key: 'owner', label: 'Owner', operators: [{ key: 'is', label: 'Is', value: {
+    type: 'entity_list',
+    searchSource: {
+      bootstrap: () => people,
+      search: (query) => people.filter((person) => person.id === query ||
+        person.label.toLowerCase().includes(query.toLowerCase())),
+    },
+    tokenization: { regex: '[,;\\r\\n]+', sort: true },
+  } }],
 }] }
 export function OwnerForm() {
-	const [filter, setFilter] = useState<PartialFilter>({ field: 'owner', operator: 'is' })
-	const [editing, setEditing] = useState(true)
-	return <VStack gap={2}>
-		<Button label="Edit owners" clickAction={() => setEditing(true)} />
-		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
-			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
-			onCancel={() => setEditing(false)} /> : null}
-		<Text>{JSON.stringify(filter.value)}</Text>
-	</VStack>
+  const [filter, setFilter] = useState<PartialFilter>({ field: 'owner', operator: 'is' })
+  const [editing, setEditing] = useState(true)
+  return <VStack gap={2}>
+    <Button label="Edit owners" clickAction={() => setEditing(true)} />
+    {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+      onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+      onCancel={() => setEditing(false)} /> : null}
+    <Text>{JSON.stringify(filter.value)}</Text>
+  </VStack>
 }
 ```
 
@@ -351,7 +351,7 @@ leaves the selection and pasted text available for correction or retry.
 ```ts
 // Continuation of the config above: the batch resolves these labels to IDs.
 const savedOwnerValue = {
-	type: 'entity_list', value: [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }],
+  type: 'entity_list', value: [{ id: '1', label: 'Ada' }, { id: '2', label: 'Grace' }],
 } as const
 ```
 
@@ -365,7 +365,7 @@ app/backend matching: `applyFilters` does not evaluate them.
 ```ts
 import type { EntityListOperatorValue } from '@octane-xplat/ui'
 const tags: EntityListOperatorValue = {
-	type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
+  type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
 }
 ```
 
@@ -399,21 +399,21 @@ import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
 
 const config: PowerSearchConfig = { name: 'years', fields: [{
-	key: 'year', label: 'Year', defaultOperator: 'at_least', operators: [{
-		key: 'at_least', label: 'At least',
-		value: { type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year' },
-	}],
+  key: 'year', label: 'Year', defaultOperator: 'at_least', operators: [{
+    key: 'at_least', label: 'At least',
+    value: { type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year' },
+  }],
 }] }
 export function YearFilter() {
-	const [filter, setFilter] = useState<PartialFilter>({ field: 'year' })
-	const [editing, setEditing] = useState(true)
-	return <VStack gap={2}>
-		<Button label="Edit year" clickAction={() => setEditing(true)} />
-		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
-			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
-			onCancel={() => setEditing(false)} /> : null}
-		<Text>{JSON.stringify(filter.value)}</Text>
-	</VStack>
+  const [filter, setFilter] = useState<PartialFilter>({ field: 'year' })
+  const [editing, setEditing] = useState(true)
+  return <VStack gap={2}>
+    <Button label="Edit year" clickAction={() => setEditing(true)} />
+    {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+      onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+      onCancel={() => setEditing(false)} /> : null}
+    <Text>{JSON.stringify(filter.value)}</Text>
+  </VStack>
 }
 ```
 
@@ -444,7 +444,7 @@ coverage or custom editors.
 ```tsx
 // Inside YearFilter's return, use this editor to block editing and Apply while keeping Cancel.
 <PowerSearchFilterEditor config={config} filter={filter} mode="edit" isReadOnly
-	onSave={() => {}} onCancel={() => setEditing(false)} />
+  onSave={() => {}} onCancel={() => setEditing(false)} />
 ```
 
 Five numeric model and five mocked-control scalar cases plus a manual fixture are
@@ -471,24 +471,24 @@ import { Button, PowerSearchFilterEditor, Text, VStack } from '@octane-xplat/ui'
 import type { PartialFilter, PowerSearchConfig } from '@octane-xplat/ui'
 
 const config: PowerSearchConfig = { name: 'dates', fields: [{
-	key: 'created', label: 'Created', operators: [
-		{ key: 'before', label: 'Before', value: { type: 'date_absolute' } },
-		{ key: 'on_day', label: 'On day', value: { type: 'date_absolute', isDateOnly: true } },
-	],
+  key: 'created', label: 'Created', operators: [
+    { key: 'before', label: 'Before', value: { type: 'date_absolute' } },
+    { key: 'on_day', label: 'On day', value: { type: 'date_absolute', isDateOnly: true } },
+  ],
 }] }
 const original = { type: 'date_absolute', unixSeconds: 1234567890.12345 } as const
 export function DateFilter() {
-	const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'before', value: original })
-	const [editing, setEditing] = useState(true)
-	const open = (operator: string) => { setFilter({ field: 'created', operator, value: original }); setEditing(true) }
-	return <VStack gap={2}>
-		<Button label="Edit timestamp" clickAction={() => open('before')} />
-		<Button label="Edit calendar day" clickAction={() => open('on_day')} />
-		{editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
-			onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
-			onCancel={() => setEditing(false)} /> : null}
-		<Text>{JSON.stringify(filter.value)}</Text>
-	</VStack>
+  const [filter, setFilter] = useState<PartialFilter>({ field: 'created', operator: 'before', value: original })
+  const [editing, setEditing] = useState(true)
+  const open = (operator: string) => { setFilter({ field: 'created', operator, value: original }); setEditing(true) }
+  return <VStack gap={2}>
+    <Button label="Edit timestamp" clickAction={() => open('before')} />
+    <Button label="Edit calendar day" clickAction={() => open('on_day')} />
+    {editing ? <PowerSearchFilterEditor config={config} filter={filter} mode="edit"
+      onSave={(next) => { if (next) { setFilter(next); setEditing(false) } }}
+      onCancel={() => setEditing(false)} /> : null}
+    <Text>{JSON.stringify(filter.value)}</Text>
+  </VStack>
 }
 ```
 

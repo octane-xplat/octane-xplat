@@ -144,8 +144,8 @@ that's what the measured parity lane is for.
 ```css
 /* Prefer a layout primitive over unsupported position CSS. */
 .notice {
-	padding: 16px;
-	color: #222;
+  padding: 16px;
+  color: #222;
 }
 ```
 

@@ -17,15 +17,15 @@ bun add @octane-xplat/video
 import { Video } from '@octane-xplat/video'
 
 export function Preview() {
-	return (
-		<Video
-			src="https://example.com/clip.mp4"
-			controls
-			fit="contain"
-			onReady={(event) => console.log(event.duration)}
-			onEnded={() => console.log('Done')}
-		/>
-	)
+  return (
+    <Video
+      src="https://example.com/clip.mp4"
+      controls
+      fit="contain"
+      onReady={(event) => console.log(event.duration)}
+      onEnded={() => console.log('Done')}
+    />
+  )
 }
 ```
 
@@ -39,18 +39,18 @@ platform surface for anything the shared props don't cover, and the
 import { Video } from '@octane-xplat/video'
 
 export function Player() {
-	return (
-		<Video
-			src="https://example.com/clip.mp4"
-			web={{ preload: 'metadata' }}
-			onError={(event) => console.log(event.message)}
-			ref={(handle) => {
-				if (!handle) return
-				console.log(handle.duration(), handle.native)
-				handle.seekTo(1000)
-			}}
-		/>
-	)
+  return (
+    <Video
+      src="https://example.com/clip.mp4"
+      web={{ preload: 'metadata' }}
+      onError={(event) => console.log(event.message)}
+      ref={(handle) => {
+        if (!handle) return
+        console.log(handle.duration(), handle.native)
+        handle.seekTo(1000)
+      }}
+    />
+  )
 }
 ```
 
@@ -76,9 +76,9 @@ codecs, sandbox access, rendering and packaging have not yet been qualified.
 ```tsx
 import { Video } from '@octane-xplat/video'
 export function Preview({ source }: { source: string }) {
-	return <Video src={source} style={{ width: 320, height: 220 }} controls
-		fit="contain" onReady={({ duration }) => console.log(duration)}
-		onError={({ message }) => console.warn(message)} />
+  return <Video src={source} style={{ width: 320, height: 220 }} controls
+    fit="contain" onReady={({ duration }) => console.log(duration)}
+    onError={({ message }) => console.warn(message)} />
 }
 ```
 
@@ -94,12 +94,12 @@ import { useRef } from 'octane'
 import { Button } from '@octane-xplat/ui'
 import { Video, type VideoHandle } from '@octane-xplat/video'
 export function Clip({ source }: { source: string }) {
-	const player = useRef<VideoHandle | null>(null)
-	return <>
-		<Video ref={player} src={source} style={{ width: 320, height: 220 }} />
-		<Button label="Play / retry" clickAction={() => player.current?.play()} />
-		<Button label="Seek to one second" clickAction={() => player.current?.seekTo(1000)} />
-	</>
+  const player = useRef<VideoHandle | null>(null)
+  return <>
+    <Video ref={player} src={source} style={{ width: 320, height: 220 }} />
+    <Button label="Play / retry" clickAction={() => player.current?.play()} />
+    <Button label="Seek to one second" clickAction={() => player.current?.seekTo(1000)} />
+  </>
 }
 ```
 
@@ -118,9 +118,9 @@ to resume. Per-platform ios/android/web escape bags do not apply to AppKit.
 import { useState } from 'octane'
 import { Video } from '@octane-xplat/video'
 export function ControlledClip({ source }: { source: string }) {
-	const [playing, setPlaying] = useState(false)
-	return <Video src={source} playing={playing} onPlayingChange={setPlaying}
-		loop muted style={{ width: 320, height: 220 }} />
+  const [playing, setPlaying] = useState(false)
+  return <Video src={source} playing={playing} onPlayingChange={setPlaying}
+    loop muted style={{ width: 320, height: 220 }} />
 }
 ```
 

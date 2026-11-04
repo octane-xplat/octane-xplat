@@ -34,10 +34,10 @@ contains a heading and one paragraph.
 import { Print, printToFileAsync } from '@octane-xplat/print'
 
 export async function createReceipt() {
-	if (!Print.capabilities.printToFile) throw new Error('This host cannot export a PDF file')
-	return printToFileAsync({
-		html: '<html><body><h1>Receipt</h1><p>Total: $24.00</p></body></html>',
-	})
+  if (!Print.capabilities.printToFile) throw new Error('This host cannot export a PDF file')
+  return printToFileAsync({
+    html: '<html><body><h1>Receipt</h1><p>Total: $24.00</p></body></html>',
+  })
 }
 ```
 
@@ -50,12 +50,12 @@ page sizes and margins to its native units of one thousandth of an inch.
 import { printToFileAsync } from '@octane-xplat/print'
 
 export function landscapeReport(html: string) {
-	return printToFileAsync({
-		html,
-		width: 792,
-		height: 612,
-		margins: { top: 24, right: 24, bottom: 24, left: 24 },
-	})
+  return printToFileAsync({
+    html,
+    width: 792,
+    height: 612,
+    margins: { top: 24, right: 24, bottom: 24, left: 24 },
+  })
 }
 ```
 
@@ -67,12 +67,12 @@ off when your consumer can read a file URI. Omitting HTML creates a blank page.
 import { printToFileAsync, releasePrintFile } from '@octane-xplat/print'
 
 export async function encodedReceipt() {
-	const result = await printToFileAsync({ html: '<h1>Receipt</h1>', base64: true })
-	try {
-		return result.base64!
-	} finally {
-		releasePrintFile(result)
-	}
+  const result = await printToFileAsync({ html: '<h1>Receipt</h1>', base64: true })
+  try {
+    return result.base64!
+  } finally {
+    releasePrintFile(result)
+  }
 }
 ```
 
@@ -87,12 +87,12 @@ throwing and you can retry. It never deletes an input PDF.
 import { printToFileAsync, releasePrintFile } from '@octane-xplat/print'
 
 export async function withPdf<T>(html: string, consume: (uri: string) => Promise<T>) {
-	const result = await printToFileAsync({ html })
-	try {
-		return await consume(result.uri)
-	} finally {
-		releasePrintFile(result)
-	}
+  const result = await printToFileAsync({ html })
+  try {
+    return await consume(result.uri)
+  } finally {
+    releasePrintFile(result)
+  }
 }
 ```
 
@@ -109,7 +109,7 @@ import type { FilePrintResult } from '@octane-xplat/print'
 
 // Call after the preview has closed and no other reader needs its file.
 export function finishPreview(result: FilePrintResult) {
-	releasePrintFile(result)
+  releasePrintFile(result)
 }
 ```
 
@@ -124,11 +124,11 @@ Page settings for the physical job can also depend on the printer and OS dialog.
 import { Print, Orientation, printAsync } from '@octane-xplat/print'
 
 export async function printReceipt() {
-	if (!Print.capabilities.print) throw new Error('Printing is unavailable on this host')
-	await printAsync({
-		html: '<html><body><h1>Receipt</h1></body></html>',
-		orientation: Orientation.portrait,
-	})
+  if (!Print.capabilities.print) throw new Error('Printing is unavailable on this host')
+  await printAsync({
+    html: '<html><body><h1>Receipt</h1></body></html>',
+    orientation: Orientation.portrait,
+  })
 }
 ```
 
@@ -142,7 +142,7 @@ to 64 MiB. Printing reads or temporarily copies the source and preserves it.
 import { printAsync } from '@octane-xplat/print'
 
 export function printExistingPdf(uri: string) {
-	return printAsync({ uri })
+  return printAsync({ uri })
 }
 ```
 
@@ -158,19 +158,19 @@ promise never proves that paper came out of a physical printer.
 import { printAsync } from '@octane-xplat/print'
 
 export async function offerPrint(html: string) {
-	try {
-		await printAsync({ html })
-		return 'dispatched'
-	} catch (error) {
-		if (
-			error &&
-			typeof error === 'object' &&
-			'code' in error &&
-			error.code === 'ERR_PRINT_CANCELLED'
-		)
-			return 'canceled'
-		throw error
-	}
+  try {
+    await printAsync({ html })
+    return 'dispatched'
+  } catch (error) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'code' in error &&
+      error.code === 'ERR_PRINT_CANCELLED'
+    )
+      return 'canceled'
+    throw error
+  }
 }
 ```
 
@@ -184,8 +184,8 @@ on other platforms; their normal print dialogs still select destinations.
 import { selectPrinterAsync, printAsync } from '@octane-xplat/print'
 
 export async function chooseAndPrint(html: string) {
-	const printer = await selectPrinterAsync()
-	await printAsync({ html, printerUrl: printer.url })
+  const printer = await selectPrinterAsync()
+  await printAsync({ html, printerUrl: printer.url })
 }
 ```
 
@@ -199,15 +199,15 @@ still depend on networking, OS policy and the resource being ready at load.
 
 ```ts
 export function receiptHtml(customerName: string) {
-	const entities: Record<string, string> = {
-		'&': '&amp;',
-		'<': '&lt;',
-		'>': '&gt;',
-		'"': '&quot;',
-		"'": '&#39;',
-	}
-	const escaped = customerName.replace(/[&<>"']/g, (character) => entities[character]!)
-	return `<html><body><h1>Receipt</h1><p>${escaped}</p></body></html>`
+  const entities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  }
+  const escaped = customerName.replace(/[&<>"']/g, (character) => entities[character]!)
+  return `<html><body><h1>Receipt</h1><p>${escaped}</p></body></html>`
 }
 ```
 
@@ -221,7 +221,7 @@ text zoom on other hosts rejects rather than silently changing its meaning.
 import { printToFileAsync } from '@octane-xplat/print'
 
 export function textReceipt(html: string) {
-	return printToFileAsync({ html, useMarkupFormatter: true })
+  return printToFileAsync({ html, useMarkupFormatter: true })
 }
 ```
 
@@ -230,7 +230,7 @@ export function textReceipt(html: string) {
 import { printToFileAsync } from '@octane-xplat/print'
 
 export function largeTypeReport(html: string) {
-	return printToFileAsync({ html, textZoom: 125 })
+  return printToFileAsync({ html, textZoom: 125 })
 }
 ```
 
@@ -248,10 +248,10 @@ or inventing a file URI.
 import { printAsync } from '@octane-xplat/print'
 
 export function printCurrentPage() {
-	return printAsync({})
+  return printAsync({})
 }
 export function printBrowserHtml(html: string) {
-	return printAsync({ html })
+  return printAsync({ html })
 }
 ```
 
@@ -267,7 +267,7 @@ its dialog finishes.
 import { Print } from '@octane-xplat/print'
 
 export function availableDocumentActions() {
-	return Print.capabilities // { print, printToFile, selectPrinter }
+  return Print.capabilities // { print, printToFile, selectPrinter }
 }
 ```
 
@@ -292,7 +292,7 @@ file I/O can block the calling thread; avoid large reports during interaction.
 import { Print } from '@octane-xplat/print'
 
 export function canGeneratePdf() {
-	return Print.capabilities.printToFile
+  return Print.capabilities.printToFile
 }
 ```
 

@@ -25,9 +25,9 @@ git add -f hooks/after-prepare/xplat-updates.cjs
 import { createUpdates } from '@octane-xplat/updates'
 
 export const updates = createUpdates({
-	endpoint: 'https://updates.example.com',
-	embeddedVersion: '1.0.0',
-	channel: 'stable',
+  endpoint: 'https://updates.example.com',
+  embeddedVersion: '1.0.0',
+  channel: 'stable',
 })
 ```
 
@@ -38,10 +38,10 @@ The client is optional. Web, desktop and debug/LiveSync builds report
 import { updates } from './updates'
 
 export async function afterSuccessfulStartup() {
-	if (!updates.supported) return
-	updates.markHealthy()
-	const result = await updates.check()
-	if (result.available) await updates.install(result.manifest)
+  if (!updates.supported) return
+  updates.markHealthy()
+  const result = await updates.check()
+  if (result.available) await updates.install(result.manifest)
 }
 ```
 

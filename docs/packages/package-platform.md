@@ -35,12 +35,12 @@ Native restart/lifecycle and installed-app qualification remain pending. See
 import { storage } from '@octane-xplat/platform'
 
 export function saveDraft(text: string): boolean {
-	try {
-		storage.setString('draft', text)
-		return storage.flush()
-	} catch {
-		return false
-	}
+  try {
+    storage.setString('draft', text)
+    return storage.flush()
+  } catch {
+    return false
+  }
 }
 ```
 
@@ -55,8 +55,8 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
-	useKeepAwake()
-	return <Text>Reading</Text>
+  useKeepAwake()
+  return <Text>Reading</Text>
 }
 ```
 
@@ -84,8 +84,8 @@ Actual AppKit presentation and packaged behavior remain unqualified. See
 import { openSettings } from '@octane-xplat/platform'
 
 if (openSettings.supported && await openSettings.isAvailable()) {
-	const accepted = openSettings.open()
-	console.log(accepted)
+  const accepted = openSettings.open()
+  console.log(accepted)
 }
 ```
 

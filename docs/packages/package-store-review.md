@@ -17,7 +17,7 @@ import { storeReview } from '@octane-xplat/store-review'
 storeReview.configure({ iosAppStoreId: '123456789' })
 
 if (await storeReview.isAvailable()) {
-	await storeReview.requestReview() // resolves whether or not a prompt appeared
+  await storeReview.requestReview() // resolves whether or not a prompt appeared
 }
 
 storeReview.storeUrl() // 'https://apps.apple.com/app/id123456789'

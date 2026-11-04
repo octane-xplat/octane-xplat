@@ -37,14 +37,14 @@ import { Text } from '@octane-xplat/ui'
 import { SortableList } from '@octane-xplat/dnd-kit'
 
 export function Tasks() {
-	const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
-	return (
-		<SortableList
-			items={items}
-			onReorder={setItems}
-			renderItem={(id) => <Text>{String(id)}</Text>}
-		/>
-	)
+  const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
+  return (
+    <SortableList
+      items={items}
+      onReorder={setItems}
+      renderItem={(id) => <Text>{String(id)}</Text>}
+    />
+  )
 }
 ```
 
@@ -59,8 +59,8 @@ and uses a separate drag handle.
 ```tsx
 // Tasks above owns items; successful drops publish a replacement array.
 export function EmptyTasks() {
-	const [items, setItems] = useState<string[]>([])
-	return <SortableList items={items} onReorder={setItems} renderItem={(id) => <Text>{id}</Text>} />
+  const [items, setItems] = useState<string[]>([])
+  return <SortableList items={items} onReorder={setItems} renderItem={(id) => <Text>{id}</Text>} />
 }
 ```
 
@@ -79,41 +79,41 @@ import { View, Text } from '@octane-xplat/ui'
 import { DndContext, useDraggable, useDroppable } from '@octane-xplat/dnd-kit'
 
 function Card() {
-	const drag = useDraggable({ id: 'card', data: { container: 'inbox' }, activationDistance: 8 })
-	return (
-		<View ref={drag.ref} style={drag.style}>
-			<Text>Move me</Text>
-			<View onPan={drag.onPan}>
-				<Text>⠿</Text>
-			</View>
-		</View>
-	)
+  const drag = useDraggable({ id: 'card', data: { container: 'inbox' }, activationDistance: 8 })
+  return (
+    <View ref={drag.ref} style={drag.style}>
+      <Text>Move me</Text>
+      <View onPan={drag.onPan}>
+        <Text>⠿</Text>
+      </View>
+    </View>
+  )
 }
 function Target() {
-	const drop = useDroppable({ id: 'done' })
-	return (
-		<View ref={drop.ref} className="drop-target">
-			<Text>{drop.isOver ? 'Release here' : 'Done'}</Text>
-		</View>
-	)
+  const drop = useDroppable({ id: 'done' })
+  return (
+    <View ref={drop.ref} className="drop-target">
+      <Text>{drop.isOver ? 'Release here' : 'Done'}</Text>
+    </View>
+  )
 }
 export function Board() {
-	return (
-		<DndContext
-			onDragEnd={({ active, over }) => {
-				if (active && over) console.log(active.id, over.id)
-			}}
-		>
-			<Card />
-			<Target />
-		</DndContext>
-	)
+  return (
+    <DndContext
+      onDragEnd={({ active, over }) => {
+        if (active && over) console.log(active.id, over.id)
+      }}
+    >
+      <Card />
+      <Target />
+    </DndContext>
+  )
 }
 ```
 
 ```css
 .drop-target {
-	min-height: 100px;
+  min-height: 100px;
 }
 ```
 
@@ -132,17 +132,17 @@ import { useDndContext, useDroppable } from '@octane-xplat/dnd-kit'
 
 // Render inside the Board's DndContext above.
 export function Inbox() {
-	const context = useDndContext()
-	const drop = useDroppable({
-		id: 'inbox',
-		disabled: false,
-		accept: (source) => source.data.container === 'inbox',
-	})
-	return (
-		<View ref={drop.ref} className="drop-target">
-			<Text>{context.isDragging ? 'Dragging' : 'Ready'}</Text>
-		</View>
-	)
+  const context = useDndContext()
+  const drop = useDroppable({
+    id: 'inbox',
+    disabled: false,
+    accept: (source) => source.data.container === 'inbox',
+  })
+  return (
+    <View ref={drop.ref} className="drop-target">
+      <Text>{context.isDragging ? 'Dragging' : 'Ready'}</Text>
+    </View>
+  )
 }
 ```
 
@@ -156,20 +156,20 @@ import { Text, View } from '@octane-xplat/ui'
 import { SortableList } from '@octane-xplat/dnd-kit'
 
 export function TasksWithHandles() {
-	const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
-	return (
-		<SortableList
-			items={items}
-			activationDistance={8}
-			onReorder={setItems}
-			renderItem={(id) => <Text>{String(id)}</Text>}
-			renderHandle={(id, _index, onPan) => (
-				<View onPan={onPan}>
-					<Text>⠿ {String(id)}</Text>
-				</View>
-			)}
-		/>
-	)
+  const [items, setItems] = useState(['alpha', 'beta', 'gamma'])
+  return (
+    <SortableList
+      items={items}
+      activationDistance={8}
+      onReorder={setItems}
+      renderItem={(id) => <Text>{String(id)}</Text>}
+      renderHandle={(id, _index, onPan) => (
+        <View onPan={onPan}>
+          <Text>⠿ {String(id)}</Text>
+        </View>
+      )}
+    />
+  )
 }
 ```
 
@@ -188,40 +188,40 @@ stationary rows.
 import { useState } from 'octane'
 import { Text, View } from '@octane-xplat/ui'
 import {
-	DndContext,
-	SortableContext,
-	useSortable,
-	closestCenter,
-	arrayMove,
+  DndContext,
+  SortableContext,
+  useSortable,
+  closestCenter,
+  arrayMove,
 } from '@octane-xplat/dnd-kit'
 
 function SortableRow({ id }: { id: string }) {
-	const drag = useSortable({ id })
-	return (
-		<View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
-			<Text>{id}</Text>
-		</View>
-	)
+  const drag = useSortable({ id })
+  return (
+    <View ref={drag.ref} onPan={drag.onPan} style={drag.style}>
+      <Text>{id}</Text>
+    </View>
+  )
 }
 export function OrderedTasks() {
-	const [items, setItems] = useState(['alpha', 'beta'])
-	return (
-		<DndContext
-			collisionDetection={closestCenter}
-			onDragEnd={({ active, over }) => {
-				if (!active || !over) return
-				const from = items.indexOf(String(active.id))
-				const to = items.indexOf(String(over.id))
-				if (from >= 0 && to >= 0) setItems(arrayMove(items, from, to))
-			}}
-		>
-			<SortableContext items={items}>
-				{items.map((id) => (
-					<SortableRow id={id} />
-				))}
-			</SortableContext>
-		</DndContext>
-	)
+  const [items, setItems] = useState(['alpha', 'beta'])
+  return (
+    <DndContext
+      collisionDetection={closestCenter}
+      onDragEnd={({ active, over }) => {
+        if (!active || !over) return
+        const from = items.indexOf(String(active.id))
+        const to = items.indexOf(String(over.id))
+        if (from >= 0 && to >= 0) setItems(arrayMove(items, from, to))
+      }}
+    >
+      <SortableContext items={items}>
+        {items.map((id) => (
+          <SortableRow id={id} />
+        ))}
+      </SortableContext>
+    </DndContext>
+  )
 }
 ```
 
@@ -234,9 +234,9 @@ placeholder layout, and empty-container insertion are not built in.
 ```ts
 // Add to a cooperating Board's DndContext; app arrays own the transfer.
 function recordTransfer(event: import('@octane-xplat/dnd-kit').DragEvent) {
-	if (event.active && event.over) {
-		console.log(event.active.data.container, event.over.data.container)
-	}
+  if (event.active && event.over) {
+    console.log(event.active.data.container, event.over.data.container)
+  }
 }
 ```
 
@@ -250,24 +250,24 @@ import type { AutoScroll } from '@octane-xplat/dnd-kit'
 
 // Supply these live callbacks from the scroll owner in your app.
 export function scrollAdapter(owner: {
-	bounds: AutoScroll['bounds']
-	offsetRef: { current: number }
-	maxOffset: () => number
-	scrollTo: (offset: number) => void
+  bounds: AutoScroll['bounds']
+  offsetRef: { current: number }
+  maxOffset: () => number
+  scrollTo: (offset: number) => void
 }): AutoScroll {
-	return {
-		bounds: owner.bounds,
-		offsetRef: owner.offsetRef,
-		maxOffset: owner.maxOffset,
-		scrollTo: (offset) => {
-			const applied = Math.max(0, Math.min(owner.maxOffset(), offset))
-			owner.offsetRef.current = applied
-			owner.scrollTo(applied)
-		},
-		axis: 'y',
-		threshold: 40,
-		speed: 12,
-	}
+  return {
+    bounds: owner.bounds,
+    offsetRef: owner.offsetRef,
+    maxOffset: owner.maxOffset,
+    scrollTo: (offset) => {
+      const applied = Math.max(0, Math.min(owner.maxOffset(), offset))
+      owner.offsetRef.current = applied
+      owner.scrollTo(applied)
+    },
+    axis: 'y',
+    threshold: 40,
+    speed: 12,
+  }
 }
 ```
 
@@ -286,7 +286,7 @@ at the document top and handles flipped and unflipped document views.
 ```ts
 // Keep the scroll owner's offset ref in sync with ordinary scrolling too.
 function recordScroll(offsetRef: { current: number }, offset: number) {
-	offsetRef.current = offset
+  offsetRef.current = offset
 }
 ```
 
@@ -305,15 +305,15 @@ import { SortableList, type AutoScroll } from '@octane-xplat/dnd-kit'
 import { Text } from '@octane-xplat/ui'
 
 export function ScrollingTasks({ autoScroll }: { autoScroll: AutoScroll }) {
-	const [items, setItems] = useState(['alpha', 'beta'])
-	return (
-		<SortableList
-			items={items}
-			onReorder={setItems}
-			dnd={{ autoScroll }}
-			renderItem={(id) => <Text>{id}</Text>}
-		/>
-	)
+  const [items, setItems] = useState(['alpha', 'beta'])
+  return (
+    <SortableList
+      items={items}
+      onReorder={setItems}
+      dnd={{ autoScroll }}
+      renderItem={(id) => <Text>{id}</Text>}
+    />
+  )
 }
 ```
 

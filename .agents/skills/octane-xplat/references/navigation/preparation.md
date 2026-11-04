@@ -60,8 +60,8 @@ into otherwise successful screen props.
 import { redirect } from '@octane-xplat/ui/routing'
 import type { RouteGuardArgs } from '../../routes.gen.contracts'
 export function beforeLoad({ params }: RouteGuardArgs<'/items/:id'>) {
-	if (params.id === 'old') redirect({ to: '/items/:id', params: { id: 'coat' } })
-	return { checked: true }
+  if (params.id === 'old') redirect({ to: '/items/:id', params: { id: 'coat' } })
+  return { checked: true }
 }
 ```
 
@@ -74,8 +74,8 @@ a baked spec is supplied directly in the catalog's route list.
 
 ```ts
 const catalog = defineRoutes({
-	routes: [{ path: '/help', dataMode: 'baked', screen: Help }],
-	baked: { help: { title: 'Packing help' } },
+  routes: [{ path: '/help', dataMode: 'baked', screen: Help }],
+  baked: { help: { title: 'Packing help' } },
 })
 ```
 
@@ -89,16 +89,16 @@ parent context. Static head objects remain supported.
 ```ts
 import { defineRoute } from '@octane-xplat/ui/routing/core'
 const item = defineRoute({
-	path: '/items/:id',
-	loader: ({ params }) => ({ title: params.id }),
-	head: ({ data }) => ({ title: data.title }),
+  path: '/items/:id',
+  loader: ({ params }) => ({ title: params.id }),
+  head: ({ data }) => ({ title: data.title }),
 })
 ```
 
 ```ts
 import type { RouteHeadArgs } from '../../routes.gen.contracts'
 export function head({ data }: RouteHeadArgs<'/items/:id'>) {
-	return { title: data.title }
+  return { title: data.title }
 }
 ```
 
@@ -115,10 +115,10 @@ import { Button } from '@octane-xplat/ui'
 import { getRouteApi } from '@octane-xplat/ui/routing'
 const item = getRouteApi('/items/:id')
 export function ItemFilters() {
-	const updateSearch = item.useUpdateSearch()
-	return <Button label="Activity" clickAction={() => {
-		void updateSearch(previous => ({ ...previous, tab: 'activity' }))
-	}} />
+  const updateSearch = item.useUpdateSearch()
+  return <Button label="Activity" clickAction={() => {
+    void updateSearch(previous => ({ ...previous, tab: 'activity' }))
+  }} />
 }
 ```
 
@@ -130,7 +130,7 @@ Never recover typing by asserting a computed object to a destination union.
 ```ts
 import { router } from '@octane-xplat/ui/routing'
 export async function openIncoming(url: string) {
-	return router.navigateUrl(url)
+  return router.navigateUrl(url)
 }
 ```
 
@@ -148,12 +148,12 @@ import { NavLink } from '@octane-xplat/ui'
 import { router } from '@octane-xplat/ui/routing'
 import type { ValidatedDestination } from '@octane-xplat/ui/routing'
 export async function openFromData(value: unknown) {
-	const checked = await router.validateDestination(value)
-	if (checked.status === 'valid') return router.push(checked.destination)
-	return checked
+  const checked = await router.validateDestination(value)
+  if (checked.status === 'valid') return router.push(checked.destination)
+  return checked
 }
 export function CheckedLink(props: { destination: ValidatedDestination }) {
-	return <NavLink to={props.destination}>Open</NavLink>
+  return <NavLink to={props.destination}>Open</NavLink>
 }
 ```
 
@@ -169,7 +169,7 @@ route-specific accessors require that explicit instance under custom providers.
 import { Text } from '@octane-xplat/ui'
 import { useNavigation } from '@octane-xplat/ui/routing'
 function LoadingStatus() {
-	return <Text>{useNavigation().status === 'pending' ? 'Opening…' : ''}</Text>
+  return <Text>{useNavigation().status === 'pending' ? 'Opening…' : ''}</Text>
 }
 ```
 

@@ -17,11 +17,11 @@ import { createMacOSWebView } from '@octane-xplat/desktop-webview/macos'
 
 // The host owns contentView and implements the typed bridge dispatcher.
 export function attachFrontend(contentView: object, routeToHost: (message: string) => void) {
-	const webview = createMacOSWebView(contentView)
-	webview.installDispatcher(routeToHost)
-	webview.setBootstrap('globalThis.tripApp = true')
-	webview.load('http://localhost:5200')
-	return webview
+  const webview = createMacOSWebView(contentView)
+  webview.installDispatcher(routeToHost)
+  webview.setBootstrap('globalThis.tripApp = true')
+  webview.load('http://localhost:5200')
+  return webview
 }
 ```
 
@@ -36,7 +36,7 @@ dispatcher/`deliver` pair.
 const reply = JSON.stringify({ type: 'event', name: 'app.state', payload: 'active' })
 // Call with the webview returned by attachFrontend when the host emits an event.
 export function deliverReply(webview: ReturnType<typeof attachFrontend>) {
-	webview.deliver(reply)
+  webview.deliver(reply)
 }
 ```
 

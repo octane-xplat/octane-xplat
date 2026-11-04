@@ -52,12 +52,12 @@ same semantics through CSS-shaped styles.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function Example() {
-	return (
-		<masonview style={{ width: 240, height: 80, padding: 8, flexDirection: 'row' }}>
-			<label text="First" style={{ width: 40, height: 16, alignSelf: 'center' }} />
-			<label text="Second" style={{ width: 40, height: 16, alignSelf: 'start' }} />
-		</masonview>
-	)
+  return (
+    <masonview style={{ width: 240, height: 80, padding: 8, flexDirection: 'row' }}>
+      <label text="First" style={{ width: 40, height: 16, alignSelf: 'center' }} />
+      <label text="Second" style={{ width: 40, height: 16, alignSelf: 'start' }} />
+    </masonview>
+  )
 }
 ```
 
@@ -106,22 +106,22 @@ Use one child in authored JSX. Wrap several children in a layout first.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function ContentExample() {
-	const visible$ = useSignal$(true)
-	return (
-		<masonview>
-			<contentview style={{ width: 200, height: 80 }}>
-				{visible$.get() ? (
-					<label
-						text="Content"
-						style={{ width: 60, height: 20, alignSelf: 'center', justifySelf: 'center' }}
-					/>
-				) : null}
-			</contentview>
-			<masonview onTap={() => visible$.set(!visible$.get())}>
-				<label text="Toggle" />
-			</masonview>
-		</masonview>
-	)
+  const visible$ = useSignal$(true)
+  return (
+    <masonview>
+      <contentview style={{ width: 200, height: 80 }}>
+        {visible$.get() ? (
+          <label
+            text="Content"
+            style={{ width: 60, height: 20, alignSelf: 'center', justifySelf: 'center' }}
+          />
+        ) : null}
+      </contentview>
+      <masonview onTap={() => visible$.set(!visible$.get())}>
+        <label text="Toggle" />
+      </masonview>
+    </masonview>
+  )
 }
 ```
 
@@ -146,15 +146,15 @@ CSS-only.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function DockExample() {
-	return (
-		<masonview style={{ width: 300, height: 160, padding: 10, position: 'relative' }}>
-			<label text="Header" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20 }} />
-			<label text="Side" style={{ position: 'absolute', top: 20, right: 0, bottom: 0, width: 40 }} />
-			<contentview style={{ marginLeft: 0 }}>
-				<label text="Remaining space" />
-			</contentview>
-		</masonview>
-	)
+  return (
+    <masonview style={{ width: 300, height: 160, padding: 10, position: 'relative' }}>
+      <label text="Header" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 20 }} />
+      <label text="Side" style={{ position: 'absolute', top: 20, right: 0, bottom: 0, width: 40 }} />
+      <contentview style={{ marginLeft: 0 }}>
+        <label text="Remaining space" />
+      </contentview>
+    </masonview>
+  )
 }
 ```
 
@@ -176,17 +176,17 @@ come from each child's own style.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function WrapExample() {
-	return (
-		<masonview
-			style={{ flexDirection: 'column', flexWrap: 'wrap', width: 200, height: 100, padding: 10 }}
-		>
-			<label text="First" style={{ width: 80, height: 40 }} />
-			<label text="Second" />
-			<contentview>
-				<label text="Third" />
-			</contentview>
-		</masonview>
-	)
+  return (
+    <masonview
+      style={{ flexDirection: 'column', flexWrap: 'wrap', width: 200, height: 100, padding: 10 }}
+    >
+      <label text="First" style={{ width: 80, height: 40 }} />
+      <label text="Second" />
+      <contentview>
+        <label text="Third" />
+      </contentview>
+    </masonview>
+  )
 }
 ```
 
@@ -210,21 +210,21 @@ putting them in ContentView.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function ProxyExample() {
-	return (
-		<masonview
-			style={{
-				display: 'grid',
-				gridTemplateRows: '40px 40px',
-				gridTemplateColumns: '100px 100px',
-				width: 200,
-				height: 80,
-			}}
-		>
-			<proxyviewcontainer>
-				<label text="Projected into the second cell" style={{ gridRow: 2, gridColumn: 2 }} />
-			</proxyviewcontainer>
-		</masonview>
-	)
+  return (
+    <masonview
+      style={{
+        display: 'grid',
+        gridTemplateRows: '40px 40px',
+        gridTemplateColumns: '100px 100px',
+        width: 200,
+        height: 80,
+      }}
+    >
+      <proxyviewcontainer>
+        <label text="Projected into the second cell" style={{ gridRow: 2, gridColumn: 2 }} />
+      </proxyviewcontainer>
+    </masonview>
+  )
 }
 ```
 
@@ -239,11 +239,11 @@ import type { JSX, LogicalElement, Ref } from '@octane-xplat/jsx/jsx-runtime'
 
 const current = { current: null as LogicalElement | null }
 const refs: Ref<LogicalElement> = [
-	current,
-	(element) => {
-		if (element) console.log(element.id, element.type)
-		return () => {}
-	},
+  current,
+  (element) => {
+    if (element) console.log(element.id, element.type)
+    return () => {}
+  },
 ]
 const attributes: JSX.IntrinsicElements['proxyviewcontainer'] = { ref: refs }
 void attributes
@@ -267,16 +267,16 @@ without track configuration or imperative popup props.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function RootExample() {
-	return (
-		<rootlayout style={{ width: 200, height: 80, padding: 10 }}>
-			<label text="Background" />
-			<contentview
-				style={{ width: 40, height: 20, justifySelf: 'end', alignSelf: 'end' }}
-			>
-				<label text="Above" />
-			</contentview>
-		</rootlayout>
-	)
+  return (
+    <rootlayout style={{ width: 200, height: 80, padding: 10 }}>
+      <label text="Background" />
+      <contentview
+        style={{ width: 40, height: 20, justifySelf: 'end', alignSelf: 'end' }}
+      >
+        <label text="Above" />
+      </contentview>
+    </rootlayout>
+  )
 }
 ```
 
@@ -303,18 +303,18 @@ changes text without submitting. Put SearchBar inside a layout; child views belo
 import { useSignal$ } from 'octane/signals/client'
 
 export default function SearchExample() {
-	const query$ = useSignal$('')
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<searchbar
-				text={query$.get()}
-				hint="Find items"
-				onTextChange={(event) => query$.set(event.value)}
-				onSubmit={() => console.log(query$.get())}
-				style={{ width: 240, height: 28 }}
-			/>
-		</masonview>
-	)
+  const query$ = useSignal$('')
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <searchbar
+        text={query$.get()}
+        hint="Find items"
+        onTextChange={(event) => query$.set(event.value)}
+        onSubmit={() => console.log(query$.get())}
+        style={{ width: 240, height: 28 }}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -339,15 +339,15 @@ FormattedString and Span refs receive the macOS `LogicalElement` instance.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function FormattedExample() {
-	return (
-		<label text="Plain fallback">
-			<formattedstring fontFamily="system-ui" fontSize={20} color="#222222">
-				<span text="Hello " fontWeight="bold">
-					<span text="world" color="#2563eb" />
-				</span>
-			</formattedstring>
-		</label>
-	)
+  return (
+    <label text="Plain fallback">
+      <formattedstring fontFamily="system-ui" fontSize={20} color="#222222">
+        <span text="Hello " fontWeight="bold">
+          <span text="world" color="#2563eb" />
+        </span>
+      </formattedstring>
+    </label>
+  )
 }
 ```
 
@@ -371,14 +371,14 @@ Supply content through `html`, with no JSX children.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function HtmlExample() {
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<htmlview
-				html="<b>Hello</b> &amp; welcome"
-				style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }}
-			/>
-		</masonview>
-	)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <htmlview
+        html="<b>Hello</b> &amp; welcome"
+        style={{ fontSize: 20, color: '#2563eb', width: 240, height: 40 }}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -405,13 +405,13 @@ UI ActivityIndicator remains a separate normalized component.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function ActivityExample() {
-	const busy$ = useSignal$(true)
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<activityindicator busy={busy$.get()} style={{ width: 24, height: 24 }} />
-			<button text="Stop" onTap={() => busy$.set(false)} />
-		</masonview>
-	)
+  const busy$ = useSignal$(true)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <activityindicator busy={busy$.get()} style={{ width: 24, height: 24 }} />
+      <button text="Stop" onTap={() => busy$.set(false)} />
+    </masonview>
+  )
 }
 ```
 
@@ -441,17 +441,17 @@ bounds clears them. Put the picker alongside other children in a layout.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function DateExample() {
-	const date$ = useSignal$(new Date(2026, 4, 10))
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<datepicker
-				date={date$.get()}
-				minDate={new Date(2026, 4, 1)}
-				maxDate={new Date(2026, 4, 31)}
-				onDateChange={(event) => date$.set(event.value)}
-			/>
-		</masonview>
-	)
+  const date$ = useSignal$(new Date(2026, 4, 10))
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <datepicker
+        date={date$.get()}
+        minDate={new Date(2026, 4, 1)}
+        maxDate={new Date(2026, 4, 31)}
+        onDateChange={(event) => date$.set(event.value)}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -482,16 +482,16 @@ native actions emit `selectedIndexChange` with the numeric `value` and host
 import { useSignal$ } from 'octane/signals/client'
 
 export default function ListExample() {
-	const selected$ = useSignal$(0)
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<listpicker
-				items={['Small', 'Medium', 'Large']}
-				selectedIndex={selected$.get()}
-				onSelectedIndexChange={(event) => selected$.set(event.value)}
-			/>
-		</masonview>
-	)
+  const selected$ = useSignal$(0)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <listpicker
+        items={['Small', 'Medium', 'Large']}
+        selectedIndex={selected$.get()}
+        onSelectedIndexChange={(event) => selected$.set(event.value)}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -519,13 +519,13 @@ Supply no JSX children and put the bar alongside other children in a layout.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function ProgressExample() {
-	const value$ = useSignal$(25)
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<progress value={value$.get()} maxValue={100} style={{ width: 240, height: 16 }} />
-			<button text="Complete" onTap={() => value$.set(100)} />
-		</masonview>
-	)
+  const value$ = useSignal$(25)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <progress value={value$.get()} maxValue={100} style={{ width: 240, height: 16 }} />
+      <button text="Complete" onTap={() => value$.set(100)} />
+    </masonview>
+  )
 }
 ```
 
@@ -560,17 +560,17 @@ host `object`. Put the control alongside other views in a layout.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function SegmentExample() {
-	const selected$ = useSignal$(0)
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<segmentedbar
-				items={[{ title: 'Day' }, { title: 'Week' }]}
-				selectedIndex={selected$.get()}
-				style={{ selectedBackgroundColor: '#2563eb', width: 240, height: 32 }}
-				onSelectedIndexChange={(event) => selected$.set(event.value)}
-			/>
-		</masonview>
-	)
+  const selected$ = useSignal$(0)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <segmentedbar
+        items={[{ title: 'Day' }, { title: 'Week' }]}
+        selectedIndex={selected$.get()}
+        style={{ selectedBackgroundColor: '#2563eb', width: 240, height: 32 }}
+        onSelectedIndexChange={(event) => selected$.set(event.value)}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -604,16 +604,16 @@ is outside the canonical contract.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function SegmentItemExample() {
-	const title$ = useSignal$('Day')
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<segmentedbar selectedIndex={0} style={{ width: 240, height: 32 }}>
-				<segmentedbaritem title={title$.get()} />
-				<segmentedbaritem title="Week" />
-			</segmentedbar>
-			<button text="Rename" onTap={() => title$.set('Today')} />
-		</masonview>
-	)
+  const title$ = useSignal$('Day')
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <segmentedbar selectedIndex={0} style={{ width: 240, height: 32 }}>
+        <segmentedbaritem title={title$.get()} />
+        <segmentedbaritem title="Week" />
+      </segmentedbar>
+      <button text="Rename" onTap={() => title$.set('Today')} />
+    </masonview>
+  )
 }
 ```
 
@@ -644,19 +644,19 @@ other views in a layout, without JSX children.
 import { useSignal$ } from 'octane/signals/client'
 
 export default function TimeExample() {
-	const time$ = useSignal$(new Date(0, 0, 0, 10, 30))
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<timepicker
-				time={time$.get()}
-				minHour={9}
-				minMinute={15}
-				maxHour={17}
-				maxMinute={45}
-				onTimeChange={(event) => time$.set(event.value)}
-			/>
-		</masonview>
-	)
+  const time$ = useSignal$(new Date(0, 0, 0, 10, 30))
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <timepicker
+        time={time$.get()}
+        minHour={9}
+        minMinute={15}
+        maxHour={17}
+        maxMinute={45}
+        onTimeChange={(event) => time$.set(event.value)}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -669,16 +669,16 @@ Components apply in prop order, as with DatePicker.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function BoundedTimeExample() {
-	return (
-		<timepicker
-			time="08:00:59"
-			minHour={9}
-			minMinute={15}
-			maxHour={17}
-			maxMinute={45}
-			onTimeChange={(event) => console.log(event.value.getHours(), event.value.getMinutes())}
-		/>
-	)
+  return (
+    <timepicker
+      time="08:00:59"
+      minHour={9}
+      minMinute={15}
+      maxHour={17}
+      maxMinute={45}
+      onTimeChange={(event) => console.log(event.value.getHours(), event.value.getMinutes())}
+    />
+  )
 }
 ```
 
@@ -711,17 +711,17 @@ restores AppKit's default separator color.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function ListExample() {
-	return (
-		<listview
-			items={['First', 'Second']}
-			renderItem={(item, index) => <label text={index + ': ' + String(item)} />}
-			separatorColor="#cccccc"
-			onItemLoading={(event) => console.log(event.index, event.view)}
-			onItemTap={(event) => console.log('Tapped', event.index)}
-			onLoadMoreItems={() => console.log('Last row presented')}
-			style={{ width: 240, height: 160 }}
-		/>
-	)
+  return (
+    <listview
+      items={['First', 'Second']}
+      renderItem={(item, index) => <label text={index + ': ' + String(item)} />}
+      separatorColor="#cccccc"
+      onItemLoading={(event) => console.log(event.index, event.view)}
+      onItemTap={(event) => console.log('Tapped', event.index)}
+      onLoadMoreItems={() => console.log('Last row presented')}
+      style={{ width: 240, height: 160 }}
+    />
+  )
 }
 ```
 
@@ -739,13 +739,13 @@ import type { ListViewProps, HostObject } from '@octane-xplat/jsx/jsx-runtime'
 
 declare function createCellHost(): HostObject
 const xml: ListViewProps<HostObject> = {
-	items: [{ person: { name: 'Ada' }, count: 2 }],
-	itemTemplate:
-		'<MasonView><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></MasonView>',
+  items: [{ person: { name: 'Ada' }, count: 2 }],
+  itemTemplate:
+    '<MasonView><Label text="{{ person.name }}"/><Label text="{{ count + 1 }}"/></MasonView>',
 }
 const factory: ListViewProps<HostObject> = {
-	items: ['Ada'],
-	itemTemplates: [{ key: 'default', createView: createCellHost }],
+  items: ['Ada'],
+  itemTemplates: [{ key: 'default', createView: createCellHost }],
 }
 void xml
 void factory
@@ -766,8 +766,8 @@ OS input, visual parity and full-target acceptance remain open.
 ```ts
 import type { ListViewProps, HostObject } from '@octane-xplat/jsx/jsx-runtime'
 const options: ListViewProps<HostObject> = {
-	items: [{ count: 2, format: (value: number) => '#' + value }],
-	itemTemplate: '<Label text="{{ count | format }}"/>',
+  items: [{ count: 2, format: (value: number) => '#' + value }],
+  itemTemplate: '<Label text="{{ count | format }}"/>',
 }
 void options
 ```
@@ -785,21 +785,21 @@ mounts on assignment, updates in place, and unmounts on unassignment or teardown
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function TabsExample() {
-	return (
-		<tabview
-			selectedIndex={1}
-			style={{ width: 320, height: 180 }}
-			onSelectedIndexChange={(event) => console.log(event.value)}
-			onSelectedIndexChanged={(event) => console.log(event.oldIndex, event.newIndex)}
-		>
-			<tabviewitem title="Home">
-				<label text="Home content" />
-			</tabviewitem>
-			<tabviewitem title="Settings">
-				<label text="Settings content" />
-			</tabviewitem>
-		</tabview>
-	)
+  return (
+    <tabview
+      selectedIndex={1}
+      style={{ width: 320, height: 180 }}
+      onSelectedIndexChange={(event) => console.log(event.value)}
+      onSelectedIndexChanged={(event) => console.log(event.oldIndex, event.newIndex)}
+    >
+      <tabviewitem title="Home">
+        <label text="Home content" />
+      </tabviewitem>
+      <tabviewitem title="Settings">
+        <label text="Settings content" />
+      </tabviewitem>
+    </tabview>
+  )
 }
 ```
 
@@ -818,13 +818,13 @@ a separate qualification boundary.
 import type { JSX, TabViewItemHandle } from '@octane-xplat/jsx/jsx-runtime'
 const retained = { current: null as TabViewItemHandle | null }
 const itemAttributes: JSX.IntrinsicElements['tabviewitem'] = {
-	title: 'Home',
-	iconSource: 'res://Home',
-	ref: retained,
+  title: 'Home',
+  iconSource: 'res://Home',
+  ref: retained,
 }
 const attributes = (): JSX.IntrinsicElements['tabview'] => ({
-	items: retained.current ? [retained.current] : [],
-	selectedIndex: 0,
+  items: retained.current ? [retained.current] : [],
+  selectedIndex: 0,
 })
 void itemAttributes
 void attributes
@@ -857,17 +857,17 @@ layout) contract.
 import { NSTextField } from '@octane-xplat/platform/macos'
 
 export default function PlaceholderExample() {
-	return (
-		<masonview style={{ flexDirection: 'column' }}>
-			<placeholder
-				style={{ width: 200, height: 24 }}
-				onCreatingView={(event) => {
-					const field = NSTextField.labelWithString('Native clock')
-					event.view = field
-				}}
-			/>
-		</masonview>
-	)
+  return (
+    <masonview style={{ flexDirection: 'column' }}>
+      <placeholder
+        style={{ width: 200, height: 24 }}
+        onCreatingView={(event) => {
+          const field = NSTextField.labelWithString('Native clock')
+          event.view = field
+        }}
+      />
+    </masonview>
+  )
 }
 ```
 
@@ -900,11 +900,11 @@ size still apply. Removing `flat` restores the host shadow.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function BarExample() {
-	return (
-		<actionbar title="Library" flat={true} style={{ width: 240, height: 44 }}>
-			<label text="Custom title" style={{ width: 100, height: 20 }} />
-		</actionbar>
-	)
+  return (
+    <actionbar title="Library" flat={true} style={{ width: 240, height: 44 }}>
+      <label text="Custom title" style={{ width: 100, height: 20 }} />
+    </actionbar>
+  )
 }
 ```
 
@@ -944,14 +944,14 @@ would render no effect in the common empty-window case.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export default function GlassExample() {
-	return (
-		<liquidglass style={{ width: 200, height: 80 }}>
-			<label
-				text="Over glass"
-				style={{ fontSize: 14, justifySelf: 'center', alignSelf: 'center' }}
-			/>
-		</liquidglass>
-	)
+  return (
+    <liquidglass style={{ width: 200, height: 80 }}>
+      <label
+        text="Over glass"
+        style={{ fontSize: 14, justifySelf: 'center', alignSelf: 'center' }}
+      />
+    </liquidglass>
+  )
 }
 ```
 

@@ -14,13 +14,13 @@ import { KeyboardProvider } from '@octane-xplat/keyboard'
 import { Field, KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function MessageForm() {
-	return <KeyboardProvider>
-		<KeyboardAvoiding keyboardVerticalOffset={8}>
-			<Field label="Message">
-				<TextInput placeholder="Write a message" />
-			</Field>
-		</KeyboardAvoiding>
-	</KeyboardProvider>
+  return <KeyboardProvider>
+    <KeyboardAvoiding keyboardVerticalOffset={8}>
+      <Field label="Message">
+        <TextInput placeholder="Write a message" />
+      </Field>
+    </KeyboardAvoiding>
+  </KeyboardProvider>
 }
 ```
 
@@ -34,9 +34,9 @@ web and desktop retain neutral software-keyboard behavior.
 ```tsx
 // Pausing tracking retains the form's children and the UI wrapper's fallback.
 <KeyboardProvider enabled={false}>
-	<KeyboardAvoiding>
-		<TextInput placeholder="Write a message" />
-	</KeyboardAvoiding>
+  <KeyboardAvoiding>
+    <TextInput placeholder="Write a message" />
+  </KeyboardAvoiding>
 </KeyboardProvider>
 ```
 
@@ -50,7 +50,7 @@ that share a running window source reuse its available measurements.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function canFollowMeasuredFrames(host: object) {
-	return KeyboardController.getSnapshot(host).capabilities.nativeFrames
+  return KeyboardController.getSnapshot(host).capabilities.nativeFrames
 }
 ```
 
@@ -63,15 +63,15 @@ tracking for their own lifetime; a Provider is optional for these readers.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function observeHost(host: object) {
-	const stop = KeyboardController.subscribe(host, state => {
-		console.log(state.phase, state.capabilities.nativeFrames)
-	})
-	const stopMoving = KeyboardController.onMove(host, state => {
-		// Use measured geometry for native work; avoid rendering on every frame.
-		const top = state.currentFrame?.y
-		if (top !== undefined) updateNativeMeasurement(top)
-	})
-	return () => { stopMoving(); stop() }
+  const stop = KeyboardController.subscribe(host, state => {
+    console.log(state.phase, state.capabilities.nativeFrames)
+  })
+  const stopMoving = KeyboardController.onMove(host, state => {
+    // Use measured geometry for native work; avoid rendering on every frame.
+    const top = state.currentFrame?.y
+    if (top !== undefined) updateNativeMeasurement(top)
+  })
+  return () => { stopMoving(); stop() }
 }
 
 function updateNativeMeasurement(_top: number) {}
@@ -87,12 +87,12 @@ scroll host enables that gesture. No text contents are collected.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function readHost(host: object) {
-	const state = KeyboardController.getSnapshot(host)
-	return {
-		current: state.currentFrame,
-		destination: state.targetFrame,
-		canTrackMovement: state.capabilities.nativeFrames,
-	}
+  const state = KeyboardController.getSnapshot(host)
+  return {
+    current: state.currentFrame,
+    destination: state.targetFrame,
+    canTrackMovement: state.capabilities.nativeFrames,
+  }
 }
 ```
 
@@ -109,9 +109,9 @@ bounds without a caret rectangle. Release subscriptions when the host is removed
 import { FocusedInputController } from '@octane-xplat/keyboard'
 
 export function observeEditing(host: object) {
-	return FocusedInputController.subscribe(host, state => {
-		console.log(state.inputRect, state.capabilities.caretBounds)
-	})
+  return FocusedInputController.subscribe(host, state => {
+    console.log(state.inputRect, state.capabilities.caretBounds)
+  })
 }
 ```
 
@@ -127,9 +127,9 @@ import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
 import { Field, TextInput } from '@octane-xplat/ui'
 
 export function LongForm() {
-	return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
-		<Field label="Message"><TextInput placeholder="Write a message" /></Field>
-	</KeyboardAwareScrollView>
+  return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
+    <Field label="Message"><TextInput placeholder="Write a message" /></Field>
+  </KeyboardAwareScrollView>
 }
 ```
 
@@ -147,9 +147,9 @@ import { KeyboardStickyView } from '@octane-xplat/keyboard'
 import { TextInput } from '@octane-xplat/ui'
 
 export function Composer() {
-	return <KeyboardStickyView openOffset={8}>
-		<TextInput placeholder="Write a message" />
-	</KeyboardStickyView>
+  return <KeyboardStickyView openOffset={8}>
+    <TextInput placeholder="Write a message" />
+  </KeyboardStickyView>
 }
 ```
 

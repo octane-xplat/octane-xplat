@@ -159,7 +159,7 @@ opening and drag dismissal through the same Drawer API used on web/desktop.
 import { Drawer } from '@octane-xplat/drawer'
 
 export function Example() {
-	return <Drawer defaultOpen main={null} drawer={null} />
+  return <Drawer defaultOpen main={null} drawer={null} />
 }
 ```
 
@@ -235,17 +235,17 @@ implementation. Keep source and declaration targets separate:
 
 ```json
 {
-	"exports": {
-		".": {
-			"web": {
-				"types": "./types/generated/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"types": "./types/generated/index.d.ts",
-			"default": "./src/index.ts"
-		}
-	},
-	"files": ["src", "types"]
+  "exports": {
+    ".": {
+      "web": {
+        "types": "./types/generated/index.web.d.ts",
+        "default": "./src/index.web.ts"
+      },
+      "types": "./types/generated/index.d.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": ["src", "types"]
 }
 ```
 

@@ -20,13 +20,13 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
+  const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 
-	return (
-		<Field label="Travel date">
-			<DateInput value={date} onChange={setDate} />
-		</Field>
-	)
+  return (
+    <Field label="Travel date">
+      <DateInput value={date} onChange={setDate} />
+    </Field>
+  )
 }
 ```
 
@@ -48,24 +48,24 @@ it must include `Z` or a numeric UTC offset.
 import { DateInput, TimeInput, DateTimeInput, Calendar, DateRangeInput } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<>
-			<DateInput label="Date" value="2026-10-02" onChange={(value) => console.log(value)} />
-			<TimeInput label="Time" value="14:30" onChange={(value) => console.log(value)} />
-			<DateTimeInput
-				label="Departure"
-				value="2026-10-02T14:30"
-				onChange={(value) => console.log(value)}
-			/>
-			<Calendar
-				mode="range"
-				value={{ start: '2026-10-02', end: '2026-10-05' }}
-				onChange={(range) => console.log(range)}
-			/>
-			<Calendar value={null} />
-			<DateRangeInput label="Trip" value={null} onChange={(range) => console.log(range)} />
-		</>
-	)
+  return (
+    <>
+      <DateInput label="Date" value="2026-10-02" onChange={(value) => console.log(value)} />
+      <TimeInput label="Time" value="14:30" onChange={(value) => console.log(value)} />
+      <DateTimeInput
+        label="Departure"
+        value="2026-10-02T14:30"
+        onChange={(value) => console.log(value)}
+      />
+      <Calendar
+        mode="range"
+        value={{ start: '2026-10-02', end: '2026-10-05' }}
+        onChange={(range) => console.log(range)}
+      />
+      <Calendar value={null} />
+      <DateRangeInput label="Trip" value={null} onChange={(range) => console.log(range)} />
+    </>
+  )
 }
 ```
 
@@ -79,13 +79,13 @@ import { Field, DateInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
+  const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
 
-	return (
-		<Field label="Travel date">
-			<DateInput value={date} onChange={setDate} />
-		</Field>
-	)
+  return (
+    <Field label="Travel date">
+      <DateInput value={date} onChange={setDate} />
+    </Field>
+  )
 }
 ```
 
@@ -99,20 +99,20 @@ import { useRef } from 'octane'
 import { Calendar, Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	const calendar = useRef<import('@octane-xplat/ui').CalendarHandle | null>(null)
+  const calendar = useRef<import('@octane-xplat/ui').CalendarHandle | null>(null)
 
-	return (
-		<>
-			<Calendar
-				ref={(handle) => {
-					calendar.current = handle
-				}}
-			/>
-			<Pressable onPress={() => calendar.current?.navigateTo('2026-12-01')}>
-				<Text>Show December</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <Calendar
+        ref={(handle) => {
+          calendar.current = handle
+        }}
+      />
+      <Pressable onPress={() => calendar.current?.navigateTo('2026-12-01')}>
+        <Text>Show December</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -141,15 +141,15 @@ import { DateInput, TimeInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
-	const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | null>('14:30')
+  const [date, setDate] = useState<import('@octane-xplat/ui').ISODateString | null>('2026-10-02')
+  const [time, setTime] = useState<import('@octane-xplat/ui').ISOTimeString | null>('14:30')
 
-	return (
-		<>
-			<DateInput label="Date" presentation="native" value={date} onChange={setDate} />
-			<TimeInput label="Time" presentation="bottom-sheet" value={time} onChange={setTime} />
-		</>
-	)
+  return (
+    <>
+      <DateInput label="Date" presentation="native" value={date} onChange={setDate} />
+      <TimeInput label="Time" presentation="bottom-sheet" value={time} onChange={setTime} />
+    </>
+  )
 }
 ```
 
@@ -171,19 +171,19 @@ import type { FileInputFile } from '@octane-xplat/files'
 import { useState } from 'octane'
 
 export function Attachments() {
-	const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
+  const [files, setFiles] = useState<FileInputFile | FileInputFile[] | null>(null)
 
-	return (
-		<FileInput
-			label="Attachments"
-			value={files}
-			onChange={setFiles}
-			isMultiple
-			accept="image/*"
-			maxSize={5000000}
-			maxFiles={3}
-		/>
-	)
+  return (
+    <FileInput
+      label="Attachments"
+      value={files}
+      onChange={setFiles}
+      isMultiple
+      accept="image/*"
+      maxSize={5000000}
+      maxFiles={3}
+    />
+  )
 }
 ```
 
@@ -198,8 +198,8 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function SavedAttachments({ save }: { save(value: FileInputFile | FileInputFile[] | null): Promise<void> }) {
-	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
-	return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
+  const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+  return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
 }
 ```
 
@@ -213,8 +213,8 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Images(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
-	return <FileInput label="Images" value={props.value} onChange={props.change}
-		isMultiple accept="image/*" maxSize={5000000} />
+  return <FileInput label="Images" value={props.value} onChange={props.change}
+    isMultiple accept="image/*" maxSize={5000000} />
 }
 ```
 
@@ -240,8 +240,8 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Documents(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
-	return <FileInput label="Documents" value={props.value} onChange={props.change}
-		isMultiple accept=".pdf,.docx" />
+  return <FileInput label="Documents" value={props.value} onChange={props.change}
+    isMultiple accept=".pdf,.docx" />
 }
 ```
 
@@ -256,10 +256,10 @@ other than image/audio/video/text are unsupported.
 import { files } from '@octane-xplat/files'
 
 export async function chooseAttachment() {
-	return files.pick('*/*')
+  return files.pick('*/*')
 }
 export async function chooseCustomFormat() {
-	return files.pick('.mydoc')
+  return files.pick('.mydoc')
 }
 ```
 
@@ -304,18 +304,18 @@ setting `locale` alone does not translate those words.
 
 ```tsx
 <DateInput
-	value={date}
-	onChange={setDate}
-	locale="fr-FR"
-	presentation="popover"
-	messages={{
-		openCalendar: 'Ouvrir le calendrier',
-		closeCalendar: 'Fermer le calendrier',
-		previousMonth: 'Mois précédent',
-		nextMonth: 'Mois suivant',
-		invalidDate: 'Saisissez une date valide',
-		selected: (formattedDate) => `Sélection : ${formattedDate}`,
-	}}
+  value={date}
+  onChange={setDate}
+  locale="fr-FR"
+  presentation="popover"
+  messages={{
+    openCalendar: 'Ouvrir le calendrier',
+    closeCalendar: 'Fermer le calendrier',
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    invalidDate: 'Saisissez une date valide',
+    selected: (formattedDate) => `Sélection : ${formattedDate}`,
+  }}
 />
 ```
 
@@ -351,7 +351,7 @@ shared `DateInput` from `@octane-xplat/ui` on web and for portable forms.
 import { DateInput } from '@octane-xplat/ui'
 
 export function Example() {
-	return <DateInput label="Departure" value="2026-10-02" onChange={(value) => console.log(value)} />
+  return <DateInput label="Departure" value="2026-10-02" onChange={(value) => console.log(value)} />
 }
 ```
 
@@ -400,16 +400,16 @@ import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 const initial = new Date(2026, 9, 2)
 
 export function TravelDate() {
-	return (
-		<SwiftUIDatePicker
-			title="Travel date"
-			defaultSelection={initial}
-			minimumDate={initial}
-			displayedComponents={['date']}
-			pickerStyle="graphical"
-			onSelectionChange={(date) => console.log(date)}
-		/>
-	)
+  return (
+    <SwiftUIDatePicker
+      title="Travel date"
+      defaultSelection={initial}
+      minimumDate={initial}
+      displayedComponents={['date']}
+      pickerStyle="graphical"
+      onSelectionChange={(date) => console.log(date)}
+    />
+  )
 }
 ```
 
@@ -434,18 +434,18 @@ const initial = new Date(2026, 9, 2)
 const bounds = { start: initial, end: new Date(2026, 11, 31) }
 
 export function TravelDate() {
-	return (
-		<MaterialDatePicker
-			className="calendar-picker"
-			initialDate={initial}
-			selectableDates={bounds}
-			displayedComponents="date"
-			variant="picker"
-			showVariantToggle
-			elementColors={{ todayDateBorderColor: '#4f46e5' }}
-			onDateSelected={(date) => console.log(date?.toDateString())}
-		/>
-	)
+  return (
+    <MaterialDatePicker
+      className="calendar-picker"
+      initialDate={initial}
+      selectableDates={bounds}
+      displayedComponents="date"
+      variant="picker"
+      showVariantToggle
+      elementColors={{ todayDateBorderColor: '#4f46e5' }}
+      onDateSelected={(date) => console.log(date?.toDateString())}
+    />
+  )
 }
 ```
 
@@ -453,8 +453,8 @@ Runtime constraints on Android, learned on-device:
 
 ```css
 .calendar-picker {
-	width: 360px;
-	height: 400px;
+  width: 360px;
+  height: 400px;
 }
 ```
 
@@ -492,15 +492,15 @@ import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 const initial = new Date(2026, 9, 2)
 
 export function TravelDate() {
-	return (
-		<AppKitDatePicker
-			className="calendar-picker"
-			components="date"
-			pickerStyle="graphical"
-			defaultSelection={initial}
-			onSelectionChange={(date) => console.log(date)}
-		/>
-	)
+  return (
+    <AppKitDatePicker
+      className="calendar-picker"
+      components="date"
+      pickerStyle="graphical"
+      defaultSelection={initial}
+      onSelectionChange={(date) => console.log(date)}
+    />
+  )
 }
 ```
 
@@ -521,13 +521,13 @@ import { Text, VStack } from '@octane-xplat/ui'
 const minimum = new Date(2026, 0, 1)
 const maximum = new Date(2026, 11, 31, 23, 59, 59, 999)
 export function Departure() {
-	const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
-	return <VStack gap={2}>
-		<AppKitDatePicker components="dateAndTime" selection={selection}
-			minimumDate={minimum} maximumDate={maximum} onSelectionChange={setSelection}
-			accessibilityLabel="Departure time" />
-		<Text>{selection.toLocaleString()}</Text>
-	</VStack>
+  const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
+  return <VStack gap={2}>
+    <AppKitDatePicker components="dateAndTime" selection={selection}
+      minimumDate={minimum} maximumDate={maximum} onSelectionChange={setSelection}
+      accessibilityLabel="Departure time" />
+    <Text>{selection.toLocaleString()}</Text>
+  </VStack>
 }
 ```
 
@@ -544,9 +544,9 @@ and callbacks from replaced/unmounted controls do not report user changes.
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 const initial = new Date(2026, 9, 29)
 export function UncontrolledDeparture() {
-	return <AppKitDatePicker defaultSelection={initial} components="date"
-		pickerStyle="graphical" accessibilityLabel="Departure day"
-		onSelectionChange={(date) => console.log(date.toDateString())} />
+  return <AppKitDatePicker defaultSelection={initial} components="date"
+    pickerStyle="graphical" accessibilityLabel="Departure day"
+    onSelectionChange={(date) => console.log(date.toDateString())} />
 }
 ```
 
@@ -560,7 +560,7 @@ when removed. These messages do not expose native exception details.
 ```tsx
 // Inside Departure: keep a controlled value within its current bounds.
 <AppKitDatePicker selection={selection} minimumDate={minimum} maximumDate={maximum}
-	onSelectionChange={setSelection} disabled accessibilityLabel="Departure time" />
+  onSelectionChange={setSelection} disabled accessibilityLabel="Departure time" />
 ```
 
 Seven owner-model and six new renderer-branch cases are authored, all unrun.
@@ -608,9 +608,9 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments() {
-	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
-	return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
-		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+  const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+  return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
+    isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
 }
 ```
 
@@ -639,9 +639,9 @@ import { Calendar } from '@octane-xplat/ui'
 import type { DateRange } from '@octane-xplat/ui'
 
 export function StayDates() {
-	const [range, setRange] = useState<DateRange | null>(null)
-	return <Calendar mode="range" value={range} onChange={setRange}
-		numberOfMonths={2} min="2026-01-01" max="2026-12-31" maxRangeSpan={14} />
+  const [range, setRange] = useState<DateRange | null>(null)
+  return <Calendar mode="range" value={range} onChange={setRange}
+    numberOfMonths={2} min="2026-01-01" max="2026-12-31" maxRangeSpan={14} />
 }
 ```
 
@@ -673,14 +673,14 @@ import { useState } from 'octane'
 import { DateInput, TimeInput, DateTimeInput, VStack } from '@octane-xplat/ui'
 
 export function Appointment() {
-	const [date, setDate] = useState<string | null>('2026-03-05')
-	const [time, setTime] = useState<string | null>('14:30')
-	const [datetime, setDatetime] = useState<string | null>('2026-03-05T14:30')
-	return <VStack>
-		<DateInput label="Date" value={date} onChange={setDate} />
-		<TimeInput label="Time" value={time} onChange={setTime} />
-		<DateTimeInput label="Date and time" value={datetime} onChange={setDatetime} />
-	</VStack>
+  const [date, setDate] = useState<string | null>('2026-03-05')
+  const [time, setTime] = useState<string | null>('14:30')
+  const [datetime, setDatetime] = useState<string | null>('2026-03-05T14:30')
+  return <VStack>
+    <DateInput label="Date" value={date} onChange={setDate} />
+    <TimeInput label="Time" value={time} onChange={setTime} />
+    <DateTimeInput label="Date and time" value={datetime} onChange={setDatetime} />
+  </VStack>
 }
 ```
 
@@ -704,9 +704,9 @@ import { useState } from 'octane'
 import { DateTimeInput } from '@octane-xplat/ui'
 
 export function Appointment() {
-	const [value, setValue] = useState<string | null>('2026-03-05T14:30')
-	return <DateTimeInput label="Appointment" value={value} onChange={setValue}
-		min="2026-03-05T09:00" max="2026-03-05T17:00" timeOptionInterval={15} />
+  const [value, setValue] = useState<string | null>('2026-03-05T14:30')
+  return <DateTimeInput label="Appointment" value={value} onChange={setValue}
+    min="2026-03-05T09:00" max="2026-03-05T17:00" timeOptionInterval={15} />
 }
 ```
 
@@ -738,9 +738,9 @@ import { useState } from 'octane'
 import { TimeInput } from '@octane-xplat/ui'
 
 export function StartTime() {
-	const [time, setTime] = useState<string | null>('14:30')
-	return <TimeInput label="Start time" value={time} onChange={setTime}
-		increment={15} min="09:00" max="17:00" hourFormat="24h" />
+  const [time, setTime] = useState<string | null>('14:30')
+  return <TimeInput label="Start time" value={time} onChange={setTime}
+    increment={15} min="09:00" max="17:00" hourFormat="24h" />
 }
 ```
 
@@ -753,7 +753,7 @@ Use status for app-owned error feedback:
 
 ```tsx
 <TimeInput label="Start time" value={time} onChange={setTime} increment={15}
-	changeAction={saveTime} status={saveError ? { type: 'error', message: saveError } : undefined} />
+  changeAction={saveTime} status={saveError ? { type: 'error', message: saveError } : undefined} />
 ```
 
 Five object-driver cases and the maintained time-step fixture remain unrun.
@@ -775,10 +775,10 @@ import { useState } from 'octane'
 import { DateTimeInput } from '@octane-xplat/ui'
 
 export function Appointment() {
-	const [value, setValue] = useState<string | null>('2026-03-05T09:15:17')
-	return <DateTimeInput label="Appointment" value={value} onChange={setValue}
-		timeIncrement={5} timeOptionInterval={15} hasSeconds
-		min="2026-03-05T09:00:00" max="2026-03-05T17:00:00" />
+  const [value, setValue] = useState<string | null>('2026-03-05T09:15:17')
+  return <DateTimeInput label="Appointment" value={value} onChange={setValue}
+    timeIncrement={5} timeOptionInterval={15} hasSeconds
+    min="2026-03-05T09:00:00" max="2026-03-05T17:00:00" />
 }
 ```
 
@@ -790,7 +790,7 @@ outside stepping. Pending changeAction work guards both stepping and popup entry
 
 ```tsx
 <DateTimeInput label="Appointment" value={value} onChange={setValue}
-	timeIncrement={5} changeAction={saveAppointment} />
+  timeIncrement={5} changeAction={saveAppointment} />
 ```
 
 Four additional object-driver cases are authored and unrun; the existing nine
@@ -815,13 +815,13 @@ import { Button, DateInput, VStack } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function BookingDate() {
-	const input = useRef<TextInputHandle | null>(null)
-	const [date, setDate] = useState<string | null>('2026-03-05')
-	return <VStack>
-		<DateInput ref={input} label="Booking date" value={date} onChange={setDate} />
-		<Button label="Edit booking date" clickAction={() => input.current?.focus()} />
-		<Button label="Leave date field" clickAction={() => input.current?.blur()} />
-	</VStack>
+  const input = useRef<TextInputHandle | null>(null)
+  const [date, setDate] = useState<string | null>('2026-03-05')
+  return <VStack>
+    <DateInput ref={input} label="Booking date" value={date} onChange={setDate} />
+    <Button label="Edit booking date" clickAction={() => input.current?.focus()} />
+    <Button label="Leave date field" clickAction={() => input.current?.blur()} />
+  </VStack>
 }
 ```
 
@@ -838,11 +838,11 @@ import { Button, DateTimeInput } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function EditAppointment(props: { value: string | null; change(value: string | null): void }) {
-	const appointment = useRef<TextInputHandle | null>(null)
-	return <>
-		<DateTimeInput ref={appointment} label="Appointment" value={props.value} onChange={props.change} />
-		<Button label="Edit appointment date" clickAction={() => appointment.current?.focus()} />
-	</>
+  const appointment = useRef<TextInputHandle | null>(null)
+  return <>
+    <DateTimeInput ref={appointment} label="Appointment" value={props.value} onChange={props.change} />
+    <Button label="Edit appointment date" clickAction={() => appointment.current?.focus()} />
+  </>
 }
 ```
 
@@ -868,15 +868,15 @@ import { DateInput, DateRangeInput } from '@octane-xplat/ui'
 import type { DateRange } from '@octane-xplat/ui'
 
 export function Stay(props: {
-	saveDate(value: string | null): void | Promise<void>
-	saveRange(value: DateRange | null): void | Promise<void>
+  saveDate(value: string | null): void | Promise<void>
+  saveRange(value: DateRange | null): void | Promise<void>
 }) {
-	const [date, setDate] = useState<string | null>(null)
-	const [range, setRange] = useState<DateRange | null>(null)
-	return <>
-		<DateInput label="Arrival" value={date} onChange={setDate} changeAction={props.saveDate} min="2026-03-05" />
-		<DateRangeInput label="Stay" value={range} onChange={setRange} changeAction={props.saveRange} maxRangeSpan={14} />
-	</>
+  const [date, setDate] = useState<string | null>(null)
+  const [range, setRange] = useState<DateRange | null>(null)
+  return <>
+    <DateInput label="Arrival" value={date} onChange={setDate} changeAction={props.saveDate} min="2026-03-05" />
+    <DateRangeInput label="Stay" value={range} onChange={setRange} changeAction={props.saveRange} maxRangeSpan={14} />
+  </>
 }
 ```
 
@@ -890,7 +890,7 @@ ranges, since rendering can evaluate them too:
 
 ```tsx
 <DateRangeInput label="Stay" value={range} onChange={setRange} changeAction={saveRange}
-	maxRangeSpan={14} presets={[{ label: 'Short stay', getRange: () => ({ start: '2026-03-06', end: '2026-03-08' }) }]} />
+  maxRangeSpan={14} presets={[{ label: 'Short stay', getRange: () => ({ start: '2026-03-06', end: '2026-03-08' }) }]} />
 ```
 
 Seven object-driver cases and the maintained date-save fixture are authored and
@@ -909,7 +909,7 @@ window or opening a picker.
 ```tsx
 import { DateInput } from '@octane-xplat/ui'
 export function NewBooking() {
-	return <DateInput label="Booking date" hasAutoFocus />
+  return <DateInput label="Booking date" hasAutoFocus />
 }
 ```
 
@@ -923,11 +923,11 @@ teardown. Making a blocked field editable again does not rearm autofocus; toggle
 import { useState } from 'octane'
 import { Button, TimeInput } from '@octane-xplat/ui'
 export function BookingTime() {
-	const [requested, setRequested] = useState(false)
-	return <>
-		<TimeInput label="Start time" hasAutoFocus={requested} />
-		<Button label="Toggle focus request" clickAction={() => setRequested(!requested)} />
-	</>
+  const [requested, setRequested] = useState(false)
+  return <>
+    <TimeInput label="Start time" hasAutoFocus={requested} />
+    <Button label="Toggle focus request" clickAction={() => setRequested(!requested)} />
+  </>
 }
 ```
 
@@ -950,9 +950,9 @@ external parent corrections retain authority over the field.
 import { useState } from 'octane'
 import { TimeInput } from '@octane-xplat/ui'
 export function StartTime() {
-	const [time, setTime] = useState<string | null>('14:30')
-	return <TimeInput label="Start time" value={time} onChange={setTime}
-		min="09:00" max="18:00" hasClear />
+  const [time, setTime] = useState<string | null>('14:30')
+  return <TimeInput label="Start time" value={time} onChange={setTime}
+    min="09:00" max="18:00" hasClear />
 }
 ```
 
@@ -977,9 +977,9 @@ parent value.
 import { useState } from 'octane'
 import { DateTimeInput } from '@octane-xplat/ui'
 export function Appointment() {
-	const [appointment, setAppointment] = useState<string | null>(null)
-	return <DateTimeInput label="Appointment" value={appointment} onChange={setAppointment}
-		hasClear hasSeconds min="2026-03-05T09:00:00" max="2026-03-09T18:00:00" />
+  const [appointment, setAppointment] = useState<string | null>(null)
+  return <DateTimeInput label="Appointment" value={appointment} onChange={setAppointment}
+    hasClear hasSeconds min="2026-03-05T09:00:00" max="2026-03-09T18:00:00" />
 }
 ```
 

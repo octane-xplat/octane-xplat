@@ -49,8 +49,8 @@ belong in `src/props.ts`, so both implementations expose the same input:
 
 ```ts
 export interface BadgeProps {
-	label: string
-	className?: string
+  label: string
+  className?: string
 }
 ```
 
@@ -66,7 +66,7 @@ import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 import type { BadgeProps } from './props'
 
 export function Badge(props: BadgeProps): JSX.Element {
-	return <View className={props.className}><Text>{props.label.trim() || 'Badge'}</Text></View>
+  return <View className={props.className}><Text>{props.label.trim() || 'Badge'}</Text></View>
 }
 ```
 
@@ -114,7 +114,7 @@ In `travel-app/src/App.tsrx`, replace the starter component with:
 import { Badge } from '@acme/travel-controls'
 
 export function App() {
-	return <Badge label="Ready for the next trip" />
+  return <Badge label="Ready for the next trip" />
 }
 ```
 

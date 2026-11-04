@@ -15,7 +15,7 @@ bun add @octane-xplat/web-browser
 import { webBrowser } from '@octane-xplat/web-browser'
 
 export async function showHelp(address: string) {
-	return webBrowser.openBrowser(address)
+  return webBrowser.openBrowser(address)
 }
 ```
 
@@ -30,7 +30,7 @@ own the destination.
 import { openUrl } from '@octane-xplat/platform'
 
 export function showExternalPage(address: string) {
-	return openUrl(address)
+  return openUrl(address)
 }
 ```
 
@@ -53,11 +53,11 @@ observers, delegates and content. Invalid URLs or presentation failures return
 import { webBrowser } from '@octane-xplat/web-browser'
 
 export async function replaceHelpPage(address: string) {
-	const result = await webBrowser.openBrowser(address)
-	return result.type // 'opened' or 'cancel' on AppKit
+  const result = await webBrowser.openBrowser(address)
+  return result.type // 'opened' or 'cancel' on AppKit
 }
 export function closeHelpPage() {
-	webBrowser.dismissBrowser()
+  webBrowser.dismissBrowser()
 }
 ```
 
@@ -95,8 +95,8 @@ import { webBrowser } from '@octane-xplat/web-browser'
 
 // These options customize the mobile browser; AppKit uses its native chrome.
 await webBrowser.openBrowser('https://docs.example.com', {
-	toolbarColor: '#1a1a1a',
-	showTitle: true,
+  toolbarColor: '#1a1a1a',
+  showTitle: true,
 })
 ```
 

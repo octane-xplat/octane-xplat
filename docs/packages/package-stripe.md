@@ -33,9 +33,9 @@ checkout uses an HTTPS return route on your own site instead.
 import { initStripe, Stripe } from '@octane-xplat/stripe'
 
 export async function configurePayments(publishableKey: string) {
-	if (!Stripe.supported) return false
-	await initStripe({ publishableKey, urlScheme: 'myapp' })
-	return true
+  if (!Stripe.supported) return false
+  await initStripe({ publishableKey, urlScheme: 'myapp' })
+  return true
 }
 ```
 
@@ -51,61 +51,61 @@ import { Button, Text, VStack } from '@octane-xplat/ui'
 import { Stripe, useStripe } from '@octane-xplat/stripe'
 
 type CheckoutProps = {
-	returnURL: string
-	getCheckout: () => Promise<{ paymentIntentClientSecret: string }>
-	verifyOrder: () => Promise<'paid' | 'pending' | 'failed'>
+  returnURL: string
+  getCheckout: () => Promise<{ paymentIntentClientSecret: string }>
+  verifyOrder: () => Promise<'paid' | 'pending' | 'failed'>
 }
 
 export function Checkout({ returnURL, getCheckout, verifyOrder }: CheckoutProps) {
-	const { initPaymentSheet, presentPaymentSheet, resetPaymentSheet } = useStripe()
-	const [busy, setBusy] = useState(false)
-	const [message, setMessage] = useState('Ready for checkout')
-	async function pay() {
-		if (busy || !Stripe.supported) return
-		setBusy(true)
-		try {
-			const session = await getCheckout()
-			const initialized = await initPaymentSheet({
-				merchantDisplayName: 'Example store',
-				paymentIntentClientSecret: session.paymentIntentClientSecret,
-				returnURL,
-			})
-			if (initialized.error) {
-				setMessage(initialized.error.message)
-				return
-			}
-			const result = await presentPaymentSheet()
-			if (result.error?.code === 'Canceled') {
-				setMessage('Checkout canceled')
-				return
-			}
-			if (result.error) {
-				setMessage(result.error.message)
-				return
-			}
-			const status = await verifyOrder()
-			setMessage(
-				status === 'paid' ? 'Payment confirmed' : 'Check the order status before trying again',
-			)
-		} catch {
-			setMessage('Could not open checkout. Check the order status before retrying.')
-		} finally {
-			await resetPaymentSheet()
-			setBusy(false)
-		}
-	}
-	return (
-		<VStack>
-			<Button
-				label={busy ? 'Checkout open…' : 'Pay'}
-				isDisabled={busy || !Stripe.supported}
-				clickAction={() => {
-					void pay()
-				}}
-			/>
-			<Text>{Stripe.supported ? message : 'Checkout is unavailable on this host'}</Text>
-		</VStack>
-	)
+  const { initPaymentSheet, presentPaymentSheet, resetPaymentSheet } = useStripe()
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('Ready for checkout')
+  async function pay() {
+    if (busy || !Stripe.supported) return
+    setBusy(true)
+    try {
+      const session = await getCheckout()
+      const initialized = await initPaymentSheet({
+        merchantDisplayName: 'Example store',
+        paymentIntentClientSecret: session.paymentIntentClientSecret,
+        returnURL,
+      })
+      if (initialized.error) {
+        setMessage(initialized.error.message)
+        return
+      }
+      const result = await presentPaymentSheet()
+      if (result.error?.code === 'Canceled') {
+        setMessage('Checkout canceled')
+        return
+      }
+      if (result.error) {
+        setMessage(result.error.message)
+        return
+      }
+      const status = await verifyOrder()
+      setMessage(
+        status === 'paid' ? 'Payment confirmed' : 'Check the order status before trying again',
+      )
+    } catch {
+      setMessage('Could not open checkout. Check the order status before retrying.')
+    } finally {
+      await resetPaymentSheet()
+      setBusy(false)
+    }
+  }
+  return (
+    <VStack>
+      <Button
+        label={busy ? 'Checkout open…' : 'Pay'}
+        isDisabled={busy || !Stripe.supported}
+        clickAction={() => {
+          void pay()
+        }}
+      />
+      <Text>{Stripe.supported ? message : 'Checkout is unavailable on this host'}</Text>
+    </VStack>
+  )
 }
 ```
 
@@ -121,9 +121,9 @@ import { presentPaymentSheet } from '@octane-xplat/stripe'
 
 // After a successful initPaymentSheet:
 export async function presentPreparedCheckout() {
-	const result = await presentPaymentSheet()
-	if (result.error?.code === 'Canceled') return 'canceled'
-	return result.error ? 'failed' : 'verify-on-server'
+  const result = await presentPaymentSheet()
+  if (result.error?.code === 'Canceled') return 'canceled'
+  return result.error ? 'failed' : 'verify-on-server'
 }
 ```
 
@@ -155,7 +155,7 @@ every link directly into your router without giving Stripe a chance to handle it
 import { handleURLCallback } from '@octane-xplat/stripe'
 
 export async function dispatchIncomingURL(url: string, routeURL: (url: string) => void) {
-	if (!(await handleURLCallback(url))) routeURL(url)
+  if (!(await handleURLCallback(url))) routeURL(url)
 }
 ```
 
@@ -170,11 +170,11 @@ reopen the order and read its status from the server before another checkout.
 import { initPaymentSheet } from '@octane-xplat/stripe'
 
 export function prepareNativeCheckout(paymentIntentClientSecret: string) {
-	return initPaymentSheet({
-		merchantDisplayName: 'Example store',
-		paymentIntentClientSecret,
-		returnURL: 'myapp://stripe-redirect',
-	})
+  return initPaymentSheet({
+    merchantDisplayName: 'Example store',
+    paymentIntentClientSecret,
+    returnURL: 'myapp://stripe-redirect',
+  })
 }
 ```
 
@@ -194,17 +194,17 @@ the wallet UI; entitlement and payment-method eligibility remain app setup.
 import { initStripe, initPaymentSheet } from '@octane-xplat/stripe'
 
 export async function prepareApplePay(publishableKey: string, paymentIntentClientSecret: string) {
-	await initStripe({
-		publishableKey,
-		merchantIdentifier: 'merchant.com.example.store',
-		urlScheme: 'myapp',
-	})
-	return initPaymentSheet({
-		merchantDisplayName: 'Example store',
-		paymentIntentClientSecret,
-		returnURL: 'myapp://stripe-redirect',
-		applePay: { merchantCountryCode: 'US' },
-	})
+  await initStripe({
+    publishableKey,
+    merchantIdentifier: 'merchant.com.example.store',
+    urlScheme: 'myapp',
+  })
+  return initPaymentSheet({
+    merchantDisplayName: 'Example store',
+    paymentIntentClientSecret,
+    returnURL: 'myapp://stripe-redirect',
+    applePay: { merchantCountryCode: 'US' },
+  })
 }
 ```
 
@@ -219,12 +219,12 @@ platform and are ignored on the other hosts, following the SDK convention.
 import { initPaymentSheet } from '@octane-xplat/stripe'
 
 export function prepareGooglePay(paymentIntentClientSecret: string) {
-	return initPaymentSheet({
-		merchantDisplayName: 'Example store',
-		paymentIntentClientSecret,
-		returnURL: 'myapp://stripe-redirect',
-		googlePay: { merchantCountryCode: 'US', currencyCode: 'USD', testEnv: true },
-	})
+  return initPaymentSheet({
+    merchantDisplayName: 'Example store',
+    paymentIntentClientSecret,
+    returnURL: 'myapp://stripe-redirect',
+    googlePay: { merchantCountryCode: 'US', currencyCode: 'USD', testEnv: true },
+  })
 }
 ```
 
@@ -241,11 +241,11 @@ and allow Stripe.js and its secure frames to load.
 import { initPaymentSheet } from '@octane-xplat/stripe'
 
 export function prepareWebCheckout(paymentIntentClientSecret: string) {
-	return initPaymentSheet({
-		merchantDisplayName: 'Example store',
-		paymentIntentClientSecret,
-		returnURL: 'https://store.example.com/checkout-return',
-	})
+  return initPaymentSheet({
+    merchantDisplayName: 'Example store',
+    paymentIntentClientSecret,
+    returnURL: 'https://store.example.com/checkout-return',
+  })
 }
 ```
 
@@ -261,8 +261,8 @@ import { resetPaymentSheet } from '@octane-xplat/stripe'
 
 // After checkout finishes, or when abandoning an idle prepared checkout:
 export async function leaveIdleCheckout() {
-	const result = await resetPaymentSheet()
-	if (result.error) throw new Error(result.error.message)
+  const result = await resetPaymentSheet()
+  if (result.error) throw new Error(result.error.message)
 }
 ```
 
@@ -278,9 +278,9 @@ presentation of the earlier order. Do not store or log client secrets.
 import { initStripe, resetPaymentSheet } from '@octane-xplat/stripe'
 
 export async function switchIdleMerchant(publishableKey: string) {
-	const released = await resetPaymentSheet()
-	if (released.error) throw new Error(released.error.message)
-	await initStripe({ publishableKey })
+  const released = await resetPaymentSheet()
+  if (released.error) throw new Error(released.error.message)
+  await initStripe({ publishableKey })
 }
 ```
 
@@ -297,7 +297,7 @@ functions. `Stripe.supported` reports an adapter, not a ready merchant account.
 import { Stripe } from '@octane-xplat/stripe'
 
 export function canOfferCheckout() {
-	return Stripe.supported
+  return Stripe.supported
 }
 ```
 

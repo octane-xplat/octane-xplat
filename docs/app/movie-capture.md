@@ -28,14 +28,14 @@ import { CameraView, createCameraSession } from '@octane-xplat/camera'
 const session = createCameraSession({ camera: 'default', audio: false })
 
 export function RecorderPreview() {
-	return (
-		<CameraView
-			session={session}
-			style={{ width: 320, height: 240 }}
-			onReady={() => console.log('Preview is ready')}
-			onError={(error) => console.log(error.message)}
-		/>
-	)
+  return (
+    <CameraView
+      session={session}
+      style={{ width: 320, height: 240 }}
+      onReady={() => console.log('Preview is ready')}
+      onError={(error) => console.log(error.message)}
+    />
+  )
 }
 ```
 
@@ -49,11 +49,11 @@ to allow the `camera` and, for audio, `microphone` permissions policy.
 
 ```ts
 async function allowCamera() {
-	console.log(await session.permissions())
-	const permission = await session.requestPermission('camera')
-	if (permission !== 'granted') {
-		console.log('Camera access is unavailable:', permission)
-	}
+  console.log(await session.permissions())
+  const permission = await session.requestPermission('camera')
+  if (permission !== 'granted') {
+    console.log('Camera access is unavailable:', permission)
+  }
 }
 // Connect allowCamera to your app's Allow camera button.
 ```
@@ -72,15 +72,15 @@ than weakening retention silently.
 
 ```ts
 async function canRecord() {
-	const capabilities = await session.capabilities()
-	if (!capabilities.supported || !capabilities.available) {
-		console.log(capabilities.reason)
+  const capabilities = await session.capabilities()
+  if (!capabilities.supported || !capabilities.available) {
+    console.log(capabilities.reason)
 
-		return false
-	}
-	console.log(capabilities.output.mimeType, capabilities.output.container)
+    return false
+  }
+  console.log(capabilities.output.mimeType, capabilities.output.container)
 
-	return true
+  return true
 }
 ```
 
@@ -109,18 +109,18 @@ them:
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"package": {
-					"infoPlist": {
-						"NSCameraUsageDescription": "This app records video with the camera.",
-						"NSMicrophoneUsageDescription": "This app records audio with your video."
-					}
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "package": {
+          "infoPlist": {
+            "NSCameraUsageDescription": "This app records video with the camera.",
+            "NSMicrophoneUsageDescription": "This app records audio with your video."
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -133,9 +133,9 @@ app depends on `@octane-xplat/camera`.
 
 ```ts
 async function enableAudio() {
-	if ((await session.requestPermission('microphone')) === 'granted') {
-		await session.configure({ audio: true })
-	}
+  if ((await session.requestPermission('microphone')) === 'granted') {
+    await session.configure({ audio: true })
+  }
 }
 ```
 
@@ -154,24 +154,24 @@ import type { MovieTake } from '@octane-xplat/camera'
 let currentTake: MovieTake | undefined
 
 function record() {
-	try {
-		currentTake = session.startRecording({ maximumDurationMs: 30_000 })
-	} catch (error) {
-		if (!(error instanceof CameraCaptureError)) throw error
-		console.log('Cannot start:', error.kind)
-		return
-	}
-	void currentTake.completion.then((outcome) => {
-		if (outcome.kind === 'clip') {
-			console.log('Finished:', outcome.clip.durationMs, outcome.clip.output)
-		} else {
-			console.log('Recording failed:', outcome.stage, outcome.error.kind)
-		}
-	})
+  try {
+    currentTake = session.startRecording({ maximumDurationMs: 30_000 })
+  } catch (error) {
+    if (!(error instanceof CameraCaptureError)) throw error
+    console.log('Cannot start:', error.kind)
+    return
+  }
+  void currentTake.completion.then((outcome) => {
+    if (outcome.kind === 'clip') {
+      console.log('Finished:', outcome.clip.durationMs, outcome.clip.output)
+    } else {
+      console.log('Recording failed:', outcome.stage, outcome.error.kind)
+    }
+  })
 }
 
 async function stop() {
-	return currentTake?.stop()
+  return currentTake?.stop()
 }
 ```
 
@@ -196,9 +196,9 @@ Wait for disposal before replacing an owner that is still finishing.
 
 ```ts
 session.subscribe((event) => {
-	if (event.type === 'finished' && event.outcome.kind === 'clip') {
-		console.log(event.outcome.endReason, event.outcome.partial)
-	}
+  if (event.type === 'finished' && event.outcome.kind === 'clip') {
+    console.log(event.outcome.endReason, event.outcome.partial)
+  }
 })
 await session.dispose()
 ```
@@ -225,12 +225,12 @@ import { createCameraSession } from '@octane-xplat/camera'
 import type { MovieOutput } from '@octane-xplat/camera'
 
 async function reviewSavedMovie(output: MovieOutput) {
-	const owner = createCameraSession()
-	const access = await owner.openOutput(output)
-	console.log('Use this URL for playback:', access.url)
-	// Once the player has released the URL:
-	access.release()
-	await owner.dispose()
+  const owner = createCameraSession()
+  const access = await owner.openOutput(output)
+  console.log('Use this URL for playback:', access.url)
+  // Once the player has released the URL:
+  access.release()
+  await owner.dispose()
 }
 ```
 
@@ -248,10 +248,10 @@ showing that option.
 ```ts
 const capabilities = await session.capabilities()
 if (capabilities.output.destinationFileUrl) {
-	// newMovieFileUrl must be an app-owned, writable, unused file:// path.
-	const newMovieFileUrl = 'file:///data/user/0/com.example.app/files/new-take.mp4'
-	const take = session.startRecording({ destinationFileUrl: newMovieFileUrl })
-	console.log(take.id)
+  // newMovieFileUrl must be an app-owned, writable, unused file:// path.
+  const newMovieFileUrl = 'file:///data/user/0/com.example.app/files/new-take.mp4'
+  const take = session.startRecording({ destinationFileUrl: newMovieFileUrl })
+  console.log(take.id)
 }
 ```
 
@@ -267,7 +267,7 @@ pair and compatible recording profile are still required.
 // Continue with the session created above; call during recording.
 const capabilities = await session.capabilities()
 if (capabilities.cameraSwitchDuringRecording) {
-	await session.switchCamera('front')
+  await session.switchCamera('front')
 }
 ```
 
@@ -286,9 +286,9 @@ Subscribe to state changes so the controls update as the switch progresses.
 
 ```ts
 const unsubscribe = session.subscribe((event) => {
-	if (event.type === 'stateChanged') {
-		console.log(event.snapshot.switchingCamera, event.snapshot.activeCamera)
-	}
+  if (event.type === 'stateChanged') {
+    console.log(event.snapshot.switchingCamera, event.snapshot.activeCamera)
+  }
 })
 // Call unsubscribe when this screen's subscription is no longer needed.
 ```
@@ -311,7 +311,7 @@ responsible for saving and reporting partial results.
 ```ts
 const result = await take.completion
 if (result.kind === 'clip' && result.partial) {
-	console.warn('Saved the captured portion', result.endReason, result.warning)
+  console.warn('Saved the captured portion', result.endReason, result.warning)
 }
 ```
 
@@ -330,16 +330,16 @@ import type { CameraSelection } from '@octane-xplat/camera'
 
 // Continue with session. Connect this function to your selection control.
 async function changeRecordingCamera(camera: CameraSelection) {
-	const state = session.snapshot()
-	if (state.state !== 'recording' || state.switchingCamera) {
-		return
-	}
-	try {
-		await session.switchCamera(camera)
-		// Persist the selection here, after success.
-	} catch (error) {
-		console.error('Could not switch cameras', error)
-	}
+  const state = session.snapshot()
+  if (state.state !== 'recording' || state.switchingCamera) {
+    return
+  }
+  try {
+    await session.switchCamera(camera)
+    // Persist the selection here, after success.
+  } catch (error) {
+    console.error('Could not switch cameras', error)
+  }
 }
 // Keep saving and playback on the original take.completion handler.
 ```
@@ -353,7 +353,7 @@ browser cannot select and confirm that direction; listed device IDs remain usabl
 const devices = (await session.capabilities()).cameras
 // Call from the picker with the device the person selected:
 async function selectRecordingDevice(deviceId: string) {
-	await changeRecordingCamera({ deviceId })
+  await changeRecordingCamera({ deviceId })
 }
 console.log(devices)
 ```
@@ -389,8 +389,8 @@ the orientation before recording begins.
 ```ts
 const capabilities = await session.capabilities()
 if (capabilities.orientations.includes('landscapeRight')) {
-	const landscapeTake = session.startRecording({ orientation: 'landscapeRight' })
-	console.log(landscapeTake.id)
+  const landscapeTake = session.startRecording({ orientation: 'landscapeRight' })
+  console.log(landscapeTake.id)
 }
 ```
 
@@ -417,8 +417,8 @@ GStreamer ≥ 1.24.9.
 const take = session.startRecording()
 const outcome = await take.stop()
 if (outcome.kind === 'clip') {
-	console.log(outcome.clip.orientation, outcome.clip.width, outcome.clip.height)
-	console.log(outcome.clip.mimeType)
+  console.log(outcome.clip.orientation, outcome.clip.width, outcome.clip.height)
+  console.log(outcome.clip.mimeType)
 }
 ```
 

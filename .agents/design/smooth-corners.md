@@ -75,11 +75,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function Card() {
-	return (
-		<SmoothCorners corners={24}>
-			<Text>Packing list</Text>
-		</SmoothCorners>
-	)
+  return (
+    <SmoothCorners corners={24}>
+      <Text>Packing list</Text>
+    </SmoothCorners>
+  )
 }
 ```
 
@@ -92,11 +92,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function FigmaCard() {
-	return (
-		<SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
-			<Text>Trip details</Text>
-		</SmoothCorners>
-	)
+  return (
+    <SmoothCorners corners={{ radius: 24, curve: 'squircle', smoothing: 0.6 }}>
+      <Text>Trip details</Text>
+    </SmoothCorners>
+  )
 }
 ```
 
@@ -123,12 +123,12 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Text } from '@octane-xplat/ui'
 
 export function BadgedRow() {
-	return (
-		<SmoothCorners corners={16} left={12} top={8} flexDirection="row" alignItems="center" gap={8}>
-			<Text>Badge</Text>
-			<Text>Details</Text>
-		</SmoothCorners>
-	)
+  return (
+    <SmoothCorners corners={16} left={12} top={8} flexDirection="row" alignItems="center" gap={8}>
+      <Text>Badge</Text>
+      <Text>Details</Text>
+    </SmoothCorners>
+  )
 }
 ```
 
@@ -151,11 +151,11 @@ import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { View } from '@octane-xplat/ui'
 
 export function ClippedCard() {
-	return (
-		<SmoothCorners corners={24} className="bg-primary">
-			<View className="p-4" />
-		</SmoothCorners>
-	)
+  return (
+    <SmoothCorners corners={24} className="bg-primary">
+      <View className="p-4" />
+    </SmoothCorners>
+  )
 }
 ```
 
@@ -178,11 +178,11 @@ element is heavy.
 ```ts
 // NativeScript Android contributor example: caller supplies the generated native Path.
 export function curveOutline(path: unknown) {
-	const android = (globalThis as any).android
-	const outline = new android.graphics.Outline()
-	if (android.os.Build.VERSION.SDK_INT >= 30) outline.setPath(path)
-	else outline.setConvexPath(path) // the supplied path must be convex on older Android
-	return outline
+  const android = (globalThis as any).android
+  const outline = new android.graphics.Outline()
+  if (android.os.Build.VERSION.SDK_INT >= 30) outline.setPath(path)
+  else outline.setConvexPath(path) // the supplied path must be convex on older Android
+  return outline
 }
 ```
 

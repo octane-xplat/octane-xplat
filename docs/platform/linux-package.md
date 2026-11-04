@@ -26,22 +26,22 @@ Add the Linux target to `package.json`:
 
 ```json
 {
-	"version": "1.0.0",
-	"scripts": { "build": "xplat build --targets linux" },
-	"xplat": {
-		"targets": {
-			"linux": {
-				"runtime": "webkitgtk",
-				"host": { "scheme": "my-app" },
-				"package": {
-					"applicationId": "com.example.MyApp",
-					"productName": "My App",
-					"executableName": "my-app",
-					"viteConfig": "vite.linux.config.mjs"
-				}
-			}
-		}
-	}
+  "version": "1.0.0",
+  "scripts": { "build": "xplat build --targets linux" },
+  "xplat": {
+    "targets": {
+      "linux": {
+        "runtime": "webkitgtk",
+        "host": { "scheme": "my-app" },
+        "package": {
+          "applicationId": "com.example.MyApp",
+          "productName": "My App",
+          "executableName": "my-app",
+          "viteConfig": "vite.linux.config.mjs"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -59,10 +59,10 @@ the app directory. Invalid settings fail before the build starts.
 
 ```json
 {
-	"productName": "My App",
-	"executableName": "my-app",
-	"version": "1.0.0",
-	"viteConfig": "vite.linux.config.mjs"
+  "productName": "My App",
+  "executableName": "my-app",
+  "version": "1.0.0",
+  "viteConfig": "vite.linux.config.mjs"
 }
 ```
 
@@ -74,24 +74,24 @@ import { octane } from '@octanejs/vite-plugin'
 import { xplatBoundary } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-	plugins: [...octane(), xplatBoundary('linux')],
-	resolve: {
-		conditions: ['linux', 'web'],
-		extensions: [
-			'.linux.tsrx',
-			'.web.tsrx',
-			'.tsrx',
-			'.linux.tsx',
-			'.web.tsx',
-			'.tsx',
-			'.linux.ts',
-			'.web.ts',
-			'.ts',
-			'.mjs',
-			'.js',
-			'.json',
-		],
-	},
+  plugins: [...octane(), xplatBoundary('linux')],
+  resolve: {
+    conditions: ['linux', 'web'],
+    extensions: [
+      '.linux.tsrx',
+      '.web.tsrx',
+      '.tsrx',
+      '.linux.tsx',
+      '.web.tsx',
+      '.tsx',
+      '.linux.ts',
+      '.web.ts',
+      '.ts',
+      '.mjs',
+      '.js',
+      '.json',
+    ],
+  },
 })
 ```
 
@@ -139,8 +139,8 @@ import { desktopHost } from '@octane-xplat/platform/host/web'
 
 const host = desktopHost()
 if (host) {
-	const permission = await host.notifications.ensure()
-	if (permission === 'granted') await host.notifications.notify('Packing list ready')
+  const permission = await host.notifications.ensure()
+  if (permission === 'granted') await host.notifications.notify('Packing list ready')
 }
 ```
 

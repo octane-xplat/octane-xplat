@@ -21,11 +21,11 @@ import { share } from '@octane-xplat/share'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Pressable onPress={() => share({ text: 'Packing list' })}>
-			<Text>Share list</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => share({ text: 'Packing list' })}>
+      <Text>Share list</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -48,14 +48,14 @@ from `@octane-xplat/platform` or the [package for that feature](../platform/plat
 import { View, Text, Pressable } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<View>
-			<Text>Packing list</Text>
-			<Pressable onPress={() => console.log('Add item')}>
-				<Text>Add item</Text>
-			</Pressable>
-		</View>
-	)
+  return (
+    <View>
+      <Text>Packing list</Text>
+      <Pressable onPress={() => console.log('Add item')}>
+        <Text>Add item</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -97,13 +97,13 @@ import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return (
-		<KeyboardAvoiding>
-			<TextInput label="Name" value={name} onChange={setName} />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <TextInput label="Name" value={name} onChange={setName} />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -140,7 +140,7 @@ comes from `@octane-xplat/ui`.
 import { WebView } from '@octane-xplat/ui'
 
 export function Example() {
-	return <WebView src="https://example.com" />
+  return <WebView src="https://example.com" />
 }
 ```
 
@@ -194,11 +194,11 @@ import { packedCount$ } from './packing-state'
 import { Text, Pressable } from '@octane-xplat/ui'
 
 export function PackingCount() {
-	return (
-		<Pressable onPress={() => packedCount$.set(packedCount$.get() + 1)}>
-			<Text>Packed: {packedCount$.get()}</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => packedCount$.set(packedCount$.get() + 1)}>
+      <Text>Packed: {packedCount$.get()}</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -214,9 +214,9 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 const count = createStore(0)
 
 export function Count() {
-	const value = useStore(count)
+  const value = useStore(count)
 
-	return <Text>{value}</Text>
+  return <Text>{value}</Text>
 }
 ```
 

@@ -1165,14 +1165,14 @@ and allocation signals, including role recreation.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Notes() {
-	return (
-		<textview
-			text=""
-			hint="Write a note"
-			accessibilityLabel="Notes"
-			style={{ width: 260, height: 120, placeholderColor: '#777' }}
-		/>
-	)
+  return (
+    <textview
+      text=""
+      hint="Write a note"
+      accessibilityLabel="Notes"
+      style={{ width: 260, height: 120, placeholderColor: '#777' }}
+    />
+  )
 }
 ```
 
@@ -2721,15 +2721,15 @@ This demonstrates handled-editor precedence, not real IME cancellation.
 
 ```ts
 const detach = bindPopupEvents(window, popup, {
-	isPresent: () => popup.get_mapped(),
-	onEscape(event) {
-		dispatchLayerKey({ key: 'Escape', preventDefault: () => event.preventDefault() })
-	},
-	onOutside(event) {
-		if (!dismissOnOutsideTap || !shouldCloseLayer(token)) return
-		event.preventDefault()
-		requestDismiss()
-	},
+  isPresent: () => popup.get_mapped(),
+  onEscape(event) {
+    dispatchLayerKey({ key: 'Escape', preventDefault: () => event.preventDefault() })
+  },
+  onOutside(event) {
+    if (!dismissOnOutsideTap || !shouldCloseLayer(token)) return
+    event.preventDefault()
+    requestDismiss()
+  },
 })
 // Release this registration when the declaring session closes.
 detach()

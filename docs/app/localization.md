@@ -38,14 +38,14 @@ import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 
 export default defineConfig({
-	plugins: [
-		...octane(),
-		babel({
-			include: /\.(?:[cm]?[jt]sx?|tsrx)$/,
-			presets: [linguiTransformerBabelPreset()],
-		}),
-		lingui({ failOnCompileError: true }),
-	],
+  plugins: [
+    ...octane(),
+    babel({
+      include: /\.(?:[cm]?[jt]sx?|tsrx)$/,
+      presets: [linguiTransformerBabelPreset()],
+    }),
+    lingui({ failOnCompileError: true }),
+  ],
 })
 ```
 
@@ -61,18 +61,18 @@ import { formatter } from '@lingui/format-json'
 import { babelExtractor, tsrxExtractor } from '@octane-xplat/lingui/extractor'
 
 export default defineConfig({
-	sourceLocale: 'en',
-	locales: ['en', 'es'],
-	fallbackLocales: { default: 'en' },
-	catalogs: [
-		{
-			path: '<rootDir>/locales/{locale}/messages',
-			include: ['<rootDir>/src'],
-		},
-	],
-	extractors: [babelExtractor, tsrxExtractor],
-	compileNamespace: 'es',
-	format: formatter({ lineNumbers: false, style: 'lingui' }),
+  sourceLocale: 'en',
+  locales: ['en', 'es'],
+  fallbackLocales: { default: 'en' },
+  catalogs: [
+    {
+      path: '<rootDir>/locales/{locale}/messages',
+      include: ['<rootDir>/src'],
+    },
+  ],
+  extractors: [babelExtractor, tsrxExtractor],
+  compileNamespace: 'es',
+  format: formatter({ lineNumbers: false, style: 'lingui' }),
 })
 ```
 
@@ -80,8 +80,8 @@ Add the scripts:
 
 ```json
 {
-	"i18n:extract": "lingui extract",
-	"i18n:compile": "lingui compile"
+  "i18n:extract": "lingui extract",
+  "i18n:compile": "lingui compile"
 }
 ```
 
@@ -96,10 +96,10 @@ import { defineConfig } from '@lingui/conf'
 import { babelExtractor, tsrxExtractor } from '@octane-xplat/lingui/extractor'
 
 export default defineConfig({
-	locales: ['en', 'es'],
-	sourceLocale: 'en',
-	catalogs: [{ path: 'src/locales/{locale}/messages', include: ['src'] }],
-	extractors: [babelExtractor, tsrxExtractor],
+  locales: ['en', 'es'],
+  sourceLocale: 'en',
+  catalogs: [{ path: 'src/locales/{locale}/messages', include: ['src'] }],
+  extractors: [babelExtractor, tsrxExtractor],
 })
 ```
 
@@ -111,11 +111,11 @@ Core macros only, in `.ts`, `.tsx`, and `.tsrx` alike:
 import { t, plural, msg } from '@lingui/core/macro'
 
 export function inboxMessages(unread: number) {
-	return {
-		title: t`Inbox`,
-		count: plural(unread, { one: '# message', other: '# messages' }),
-		deferred: msg`Save`, // translate later with i18n._(deferred)
-	}
+  return {
+    title: t`Inbox`,
+    count: plural(unread, { one: '# message', other: '# messages' }),
+    deferred: msg`Save`, // translate later with i18n._(deferred)
+  }
 }
 ```
 
@@ -127,9 +127,9 @@ import { msg } from '@lingui/core/macro'
 import { i18n } from '@octane-xplat/lingui'
 
 export function saveLabel() {
-	const save = msg`Save`
+  const save = msg`Save`
 
-	return i18n._(save)
+  return i18n._(save)
 }
 ```
 
@@ -144,8 +144,8 @@ import { catalogsFromGlob, initLingui } from '@octane-xplat/lingui'
 const catalogs = catalogsFromGlob(import.meta.glob('../locales/*/messages', { query: '?lingui' }))
 
 await initLingui({
-	catalogs,
-	fallback: 'en',
+  catalogs,
+  fallback: 'en',
 })
 ```
 
@@ -163,8 +163,8 @@ const catalogs = catalogsFromGlob(import.meta.glob('../locales/*/messages', { qu
 defineCatalogs(catalogs)
 // Explicit alternative, with the same catalog files:
 defineCatalogs({
-	en: () => import('../locales/en/messages'),
-	es: () => import('../locales/es/messages'),
+  en: () => import('../locales/en/messages'),
+  es: () => import('../locales/es/messages'),
 })
 ```
 
@@ -190,9 +190,9 @@ import { useLingui } from '@octane-xplat/lingui'
 import { Text } from '@octane-xplat/ui'
 
 export function Header() @{
-	useLingui()
+  useLingui()
 
-	return <Text accessibilityRole="heading">{t`Inbox`}</Text>
+  return <Text accessibilityRole="heading">{t`Inbox`}</Text>
 }
 ```
 
@@ -204,11 +204,11 @@ import { useLocale, getLocale } from '@octane-xplat/lingui'
 import { Text } from '@octane-xplat/ui'
 
 export function LocaleLabel() {
-	return <Text>{useLocale()}</Text>
+  return <Text>{useLocale()}</Text>
 }
 
 export function logLocale() {
-	console.log(getLocale())
+  console.log(getLocale())
 }
 ```
 
@@ -234,12 +234,12 @@ on web):
 import { storage } from '@octane-xplat/platform'
 
 await initLingui({
-	catalogs,
-	fallback: 'en',
-	persist: {
-		load: () => storage.getString('app-locale'),
-		save: (locale) => storage.setString('app-locale', locale),
-	},
+  catalogs,
+  fallback: 'en',
+  persist: {
+    load: () => storage.getString('app-locale'),
+    save: (locale) => storage.setString('app-locale', locale),
+  },
 })
 ```
 
@@ -391,14 +391,14 @@ static strings for these two components; it is not a full Astryx catalog.
 import { InternationalizationProvider, Selector, frFR } from '@octane-xplat/ui'
 
 export function Region() {
-	return (
-		<InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
-			<Selector label="Billing region" hasClear options={[
-				{ value: 'emea', label: 'EMEA' },
-				{ value: 'apac', label: 'APAC' },
-			]} />
-		</InternationalizationProvider>
-	)
+  return (
+    <InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
+      <Selector label="Billing region" hasClear options={[
+        { value: 'emea', label: 'EMEA' },
+        { value: 'apac', label: 'APAC' },
+      ]} />
+    </InternationalizationProvider>
+  )
 }
 ```
 
@@ -412,13 +412,13 @@ formatted messages. Explicit Selector text props take precedence over catalogs.
 import { InternationalizationProvider, Selector } from '@octane-xplat/ui'
 
 export function Choice() {
-	return (
-		<InternationalizationProvider locale="en" overrides={{
-			en: { '@astryx.selector.placeholder': 'Choose...' },
-		}}>
-			<Selector label="Region" options={[]} />
-		</InternationalizationProvider>
-	)
+  return (
+    <InternationalizationProvider locale="en" overrides={{
+      en: { '@astryx.selector.placeholder': 'Choose...' },
+    }}>
+      <Selector label="Region" options={[]} />
+    </InternationalizationProvider>
+  )
 }
 ```
 
@@ -432,11 +432,11 @@ import { InternationalizationProvider, Pagination } from '@octane-xplat/ui'
 
 // A browser leaf, for example RtlPreview.web.tsx.
 export function RtlPreview() {
-	return (
-		<InternationalizationProvider locale="en" dir="rtl">
-			<div dir="rtl"><Pagination page={3} pageCount={20} /></div>
-		</InternationalizationProvider>
-	)
+  return (
+    <InternationalizationProvider locale="en" dir="rtl">
+      <div dir="rtl"><Pagination page={3} pageCount={20} /></div>
+    </InternationalizationProvider>
+  )
 }
 ```
 
@@ -448,10 +448,10 @@ entries and falls back to English, or to the key when no entry exists.
 import { Text, useLocale, useDirection, useTranslator } from '@octane-xplat/ui'
 
 export function LocaleStatus() {
-	const locale = useLocale()
-	const direction = useDirection()
-	const translate = useTranslator()
-	return <Text>{locale} / {direction}: {translate('@astryx.selector.placeholder')}</Text>
+  const locale = useLocale()
+  const direction = useDirection()
+  const translate = useTranslator()
+  return <Text>{locale} / {direction}: {translate('@astryx.selector.placeholder')}</Text>
 }
 ```
 
@@ -466,8 +466,8 @@ unqualified by these examples.
 import { Button, useAnnounce } from '@octane-xplat/ui'
 
 export function SaveStatus() {
-	const announce = useAnnounce()
-	return <Button label="Save" clickAction={() => announce('Saved')} />
+  const announce = useAnnounce()
+  return <Button label="Save" clickAction={() => announce('Saved')} />
 }
 ```
 
@@ -486,14 +486,14 @@ the web app and the NativeScript targets identically.
 import { t, plural, select, selectOrdinal, msg, defineMessage } from '@lingui/core/macro'
 
 export function labels(unread: number, role: string, place: number) {
-	return {
-		title: t`Inbox`,
-		count: plural(unread, { one: '# message', other: '# messages' }),
-		role: select(role, { admin: 'Administrator', other: 'Member' }),
-		place: selectOrdinal(place, { one: '#st', two: '#nd', few: '#rd', other: '#th' }),
-		save: msg`Save`,
-		cancel: defineMessage({ message: 'Cancel' }),
-	}
+  return {
+    title: t`Inbox`,
+    count: plural(unread, { one: '# message', other: '# messages' }),
+    role: select(role, { admin: 'Administrator', other: 'Member' }),
+    place: selectOrdinal(place, { one: '#st', two: '#nd', few: '#rd', other: '#th' }),
+    save: msg`Save`,
+    cancel: defineMessage({ message: 'Cancel' }),
+  }
 }
 ```
 
@@ -507,8 +507,8 @@ import { useLingui } from '@octane-xplat/lingui'
 import { Text } from '@octane-xplat/ui'
 
 export function InboxTitle() {
-	useLingui()
+  useLingui()
 
-	return <Text>{t`Inbox`}</Text>
+  return <Text>{t`Inbox`}</Text>
 }
 ```

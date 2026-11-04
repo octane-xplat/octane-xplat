@@ -28,12 +28,12 @@ bun add -D @octane-xplat/mcp
 
 ```json
 {
-	"mcpServers": {
-		"octane-xplat": {
-			"command": "xplat-mcp",
-			"args": ["--workspace", "/path/to/app-workspace"]
-		}
-	}
+  "mcpServers": {
+    "octane-xplat": {
+      "command": "xplat-mcp",
+      "args": ["--workspace", "/path/to/app-workspace"]
+    }
+  }
 }
 ```
 
@@ -92,8 +92,8 @@ Missing matching docs return an installed-source fallback instead of latest docs
 
 ```json
 {
-	"name": "xplat_docs_search",
-	"arguments": { "query": "testID", "package": "@octane-xplat/ui", "platform": "web" }
+  "name": "xplat_docs_search",
+  "arguments": { "query": "testID", "package": "@octane-xplat/ui", "platform": "web" }
 }
 ```
 
@@ -123,12 +123,12 @@ snapshot availability, so readiness alone is not a successful retrieval.
 
 ```json
 {
-	"name": "xplat_docs_read",
-	"arguments": {
-		"package": "@octane-xplat/ui",
-		"path": "docs/testing/test-identifiers.md",
-		"limit": 2000
-	}
+  "name": "xplat_docs_read",
+  "arguments": {
+    "package": "@octane-xplat/ui",
+    "path": "docs/testing/test-identifiers.md",
+    "limit": 2000
+  }
 }
 ```
 
@@ -257,11 +257,11 @@ shadow roots, frames, component ownership and signals are excluded.
 
 ```json
 {
-	"name": "xplat_inspect",
-	"arguments": {
-		"sessionId": "SESSION_FROM_LAUNCH",
-		"control": { "kind": "testID", "name": "counter.increment" }
-	}
+  "name": "xplat_inspect",
+  "arguments": {
+    "sessionId": "SESSION_FROM_LAUNCH",
+    "control": { "kind": "testID", "name": "counter.increment" }
+  }
 }
 ```
 
@@ -274,14 +274,14 @@ separately; sending input alone is not an assertion.
 
 ```json
 {
-	"name": "xplat_interact",
-	"arguments": {
-		"sessionId": "SESSION_FROM_LAUNCH",
-		"documentId": "DOCUMENT_FROM_INSPECTION",
-		"control": { "kind": "testID", "name": "counter.increment" },
-		"mechanism": "os-input",
-		"key": "Space"
-	}
+  "name": "xplat_interact",
+  "arguments": {
+    "sessionId": "SESSION_FROM_LAUNCH",
+    "documentId": "DOCUMENT_FROM_INSPECTION",
+    "control": { "kind": "testID", "name": "counter.increment" },
+    "mechanism": "os-input",
+    "key": "Space"
+  }
 }
 ```
 
@@ -346,15 +346,15 @@ no action-specific MCP tool definition is needed.
 
 ```ts
 if (import.meta.env.DEV) {
-	const { registerDevAction } = await import('@octane-xplat/platform/dev-actions')
-	registerDevAction({
-		id: 'fixture.describe-counter',
-		title: 'Describe the counter',
-		description: 'Identify this test fixture without external effects.',
-		result: { fields: { label: { type: 'string' } } },
-		effects: { summary: 'Read fixture identity.' },
-		run: () => ({ label: 'starter-counter' }),
-	})
+  const { registerDevAction } = await import('@octane-xplat/platform/dev-actions')
+  registerDevAction({
+    id: 'fixture.describe-counter',
+    title: 'Describe the counter',
+    description: 'Identify this test fixture without external effects.',
+    result: { fields: { label: { type: 'string' } } },
+    effects: { summary: 'Read fixture identity.' },
+    run: () => ({ label: 'starter-counter' }),
+  })
 }
 ```
 

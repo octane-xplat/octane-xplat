@@ -39,16 +39,16 @@ import { defineStory } from '@octane-xplat/workshop'
 
 type Props = { message: string }
 function Welcome(props: Props) {
-	return <Text>{props.message}</Text>
+  return <Text>{props.message}</Text>
 }
 
 export const Basic = defineStory<Props>({
-	id: 'welcome/basic',
-	title: 'Examples / Welcome',
-	targets: ['web'],
-	component: Welcome,
-	args: { message: 'Hello' },
-	controls: { message: { type: 'string' } },
+  id: 'welcome/basic',
+  title: 'Examples / Welcome',
+  targets: ['web'],
+  component: Welcome,
+  args: { message: 'Hello' },
+  controls: { message: { type: 'string' } },
 })
 ```
 

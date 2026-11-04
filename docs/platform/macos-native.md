@@ -39,10 +39,10 @@ For CLI-owned development, add the following to the app's existing
 
 ```json
 {
-	"dev": {
-		"viteConfig": "vite.dev.config.mjs",
-		"bundleFile": "dist/dev/main.cjs"
-	}
+  "dev": {
+    "viteConfig": "vite.dev.config.mjs",
+    "bundleFile": "dist/dev/main.cjs"
+  }
 }
 ```
 
@@ -71,16 +71,16 @@ native-math/
 
 ```json
 {
-	"name": "@example/native-math",
-	"version": "1.0.0",
-	"type": "module",
-	"files": ["src", "platforms"],
-	"exports": {
-		".": {
-			"types": "./src/index.macos.ts",
-			"macos": "./src/index.macos.ts"
-		}
-	}
+  "name": "@example/native-math",
+  "version": "1.0.0",
+  "type": "module",
+  "files": ["src", "platforms"],
+  "exports": {
+    ".": {
+      "types": "./src/index.macos.ts",
+      "macos": "./src/index.macos.ts"
+    }
+  }
 }
 ```
 
@@ -106,7 +106,7 @@ int xplat_math_add(int left, int right) { return left + right; }
 declare const xplat_math_add: (left: number, right: number) => number
 
 export function add(left: number, right: number) {
-	return xplat_math_add(left, right)
+  return xplat_math_add(left, right)
 }
 ```
 
@@ -185,16 +185,16 @@ An optional `xplat.macos` object customizes those conventions:
 
 ```json
 {
-	"xplat": {
-		"macos": {
-			"sources": ["platforms/macos/src/XplatMath.c"],
-			"headers": ["platforms/macos/include/*.h"],
-			"includePaths": ["platforms/macos/src"],
-			"frameworks": ["Foundation"],
-			"libraries": ["sqlite3"],
-			"defines": ["XPLAT_FEATURE=1"]
-		}
-	}
+  "xplat": {
+    "macos": {
+      "sources": ["platforms/macos/src/XplatMath.c"],
+      "headers": ["platforms/macos/include/*.h"],
+      "includePaths": ["platforms/macos/src"],
+      "frameworks": ["Foundation"],
+      "libraries": ["sqlite3"],
+      "defines": ["XPLAT_FEATURE=1"]
+    }
+  }
 }
 ```
 
@@ -221,12 +221,12 @@ declares `prebuiltLibraries`:
 
 ```json
 {
-	"xplat": {
-		"macos": {
-			"prebuiltLibraries": ["platforms/macos/prebuilt/libengine.dylib"],
-			"notices": "platforms/macos/licenses/engine.txt"
-		}
-	}
+  "xplat": {
+    "macos": {
+      "prebuiltLibraries": ["platforms/macos/prebuilt/libengine.dylib"],
+      "notices": "platforms/macos/licenses/engine.txt"
+    }
+  }
 }
 ```
 
@@ -237,7 +237,7 @@ and fails otherwise. Combine per-architecture builds with `lipo`:
 
 ```sh
 lipo -create libengine-arm64.dylib libengine-x86_64.dylib \
-	-output platforms/macos/prebuilt/libengine.dylib
+  -output platforms/macos/prebuilt/libengine.dylib
 lipo -archs platforms/macos/prebuilt/libengine.dylib # arm64 x86_64
 ```
 

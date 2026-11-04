@@ -19,7 +19,7 @@ import { createAudioRecorder } from '@octane-xplat/recorder'
 
 const recorder = createAudioRecorder()
 const off = recorder.subscribe((snapshot) => {
-	// { state, permission, durationSeconds, meterLevel, error }
+  // { state, permission, durationSeconds, meterLevel, error }
 })
 
 await recorder.start() // asks for the microphone if still undetermined
@@ -38,9 +38,9 @@ failed `start()` rejects _and_ updates the snapshot, never a silent no-op.
 
 ```ts
 if (recorder.capabilities().supported) {
-	await recorder.pause()
-	await recorder.resume() // also resumes a cleared interruption
-	await recorder.cancel() // discards the open take
+  await recorder.pause()
+  await recorder.resume() // also resumes a cleared interruption
+  await recorder.cancel() // discards the open take
 }
 ```
 
@@ -107,14 +107,14 @@ import { createAudioRecorder } from '@octane-xplat/recorder'
 
 const recorder = createAudioRecorder()
 try {
-	if (!recorder.capabilities().supported) throw new Error('Recorder bridge is unavailable')
-	await recorder.start() // default request: 44100 Hz, mono, 16-bit PCM
-	const take = await recorder.stop()
-	console.log(take.mimeType, take.sampleRate, take.channels, take.durationSeconds)
+  if (!recorder.capabilities().supported) throw new Error('Recorder bridge is unavailable')
+  await recorder.start() // default request: 44100 Hz, mono, 16-bit PCM
+  const take = await recorder.stop()
+  console.log(take.mimeType, take.sampleRate, take.channels, take.durationSeconds)
 } catch (error) {
-	console.log(recorder.snapshot().permission, error)
+  console.log(recorder.snapshot().permission, error)
 } finally {
-	recorder.dispose()
+  recorder.dispose()
 }
 ```
 

@@ -10,14 +10,14 @@ has progressed, and `Outline` lists a document's headings.
 import { Text, CodeBlock, ProgressBar, Outline } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<>
-			<Text>Upload report</Text>
-			<CodeBlock code="const ready = true" language="typescript" />
-			<ProgressBar label="Upload" value={68} />
-			<Outline items={[{ id: 'report', label: 'Report', level: 1 }]} hasScrollOnClick={false} />
-		</>
-	)
+  return (
+    <>
+      <Text>Upload report</Text>
+      <CodeBlock code="const ready = true" language="typescript" />
+      <ProgressBar label="Upload" value={68} />
+      <Outline items={[{ id: 'report', label: 'Report', level: 1 }]} hasScrollOnClick={false} />
+    </>
+  )
 }
 ```
 
@@ -28,40 +28,40 @@ real records.
 
 ```tsx
 import {
-	Blockquote,
-	Code,
-	CodeBlock,
-	MetadataList,
-	MetadataListItem,
-	Outline,
-	ProgressBar,
-	StatusDot,
-	Timestamp,
+  Blockquote,
+  Code,
+  CodeBlock,
+  MetadataList,
+  MetadataListItem,
+  Outline,
+  ProgressBar,
+  StatusDot,
+  Timestamp,
 } from '@octane-xplat/ui'
 import { useOutlineFromMarkdown } from '@octane-xplat/ui/markdown'
 
 const source = '# Release notes\n\n## Highlights\n\n## Fixes'
 
 function ArticleSummary() {
-	const items = useOutlineFromMarkdown(source)
+  const items = useOutlineFromMarkdown(source)
 
-	return (
-		<>
-			<Blockquote cite="Release notes">A portable quotation.</Blockquote>
-			<Code>bun add @octane-xplat/ui</Code>
-			<CodeBlock code="const ready = true" language="typescript" hasCopyButton={true} />
-			<MetadataList columns={2}>
-				<MetadataListItem label="Status">
-					<StatusDot variant="success" label="Ready" /> Ready
-				</MetadataListItem>
-				<MetadataListItem label="Updated">
-					<Timestamp value="2026-10-01T12:00:00Z" />
-				</MetadataListItem>
-			</MetadataList>
-			<ProgressBar label="Upload" value={68} hasValueLabel={true} />
-			<Outline items={items} hasScrollOnClick={false} />
-		</>
-	)
+  return (
+    <>
+      <Blockquote cite="Release notes">A portable quotation.</Blockquote>
+      <Code>bun add @octane-xplat/ui</Code>
+      <CodeBlock code="const ready = true" language="typescript" hasCopyButton={true} />
+      <MetadataList columns={2}>
+        <MetadataListItem label="Status">
+          <StatusDot variant="success" label="Ready" /> Ready
+        </MetadataListItem>
+        <MetadataListItem label="Updated">
+          <Timestamp value="2026-10-01T12:00:00Z" />
+        </MetadataListItem>
+      </MetadataList>
+      <ProgressBar label="Upload" value={68} hasValueLabel={true} />
+      <Outline items={items} hasScrollOnClick={false} />
+    </>
+  )
 }
 ```
 
@@ -85,7 +85,7 @@ parsed at runtime. Set exactly one: the sources are mutually exclusive, and
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 export function ReleaseNotes() {
-	return <Markdown>{'# Release notes\n\n- Faster lists'}</Markdown>
+  return <Markdown>{'# Release notes\n\n- Faster lists'}</Markdown>
 }
 ```
 
@@ -113,11 +113,11 @@ renders compact numbered badges instead.
 
 ```tsx
 <Markdown
-	density="compact"
-	headingLevelStart={3}
-	sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
+  density="compact"
+  headingLevelStart={3}
+  sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
 >
-	{'# Tokyo\n\nPopulation facts[tokyo].'}
+  {'# Tokyo\n\nPopulation facts[tokyo].'}
 </Markdown>
 ```
 
@@ -148,7 +148,7 @@ pairs. Reduced-motion preferences skip the reveal on web and native.
 import { Text, useStreamingText } from '@octane-xplat/ui'
 
 export function TypingCaption({ text, streaming }: { text: string; streaming: boolean }) {
-	return <Text>{useStreamingText(text, streaming, { speed: 'fast' })}</Text>
+  return <Text>{useStreamingText(text, streaming, { speed: 'fast' })}</Text>
 }
 ```
 
@@ -222,14 +222,14 @@ const parser = createMarkdownStreamParser()
 let previous = ''
 
 function update(source: string) {
-	if (!source.startsWith(previous)) {
-		parser.reset()
-		previous = ''
-	}
-	const document = parser.append(source.slice(previous.length))
-	previous = source
+  if (!source.startsWith(previous)) {
+    parser.reset()
+    previous = ''
+  }
+  const document = parser.append(source.slice(previous.length))
+  previous = source
 
-	return document
+  return document
 }
 ```
 
@@ -268,23 +268,23 @@ import { useOutlineFromDOM } from '@octane-xplat/ui/web'
 import { useRef } from 'octane'
 
 export function WebExample() {
-	const root = useRef(null)
-	const items = useOutlineFromDOM(root)
+  const root = useRef(null)
+  const items = useOutlineFromDOM(root)
 
-	return (
-		<>
-			<View
-				ref={(el) => {
-					root.current = el
-				}}
-			>
-				<Heading id="summary" level={2}>
-					Summary
-				</Heading>
-			</View>
-			<Outline items={items} />
-		</>
-	)
+  return (
+    <>
+      <View
+        ref={(el) => {
+          root.current = el
+        }}
+      >
+        <Heading id="summary" level={2}>
+          Summary
+        </Heading>
+      </View>
+      <Outline items={items} />
+    </>
+  )
 }
 ```
 
@@ -299,23 +299,23 @@ import { useOutlineFromView } from '@octane-xplat/ui/nativescript'
 import { useRef } from 'octane'
 
 export function Example() {
-	const root = useRef(null)
-	const items = useOutlineFromView(root)
+  const root = useRef(null)
+  const items = useOutlineFromView(root)
 
-	return (
-		<>
-			<View
-				ref={(view) => {
-					root.current = view
-				}}
-			>
-				<Heading id="summary" level={2}>
-					Summary
-				</Heading>
-			</View>
-			<Outline items={items} />
-		</>
-	)
+  return (
+    <>
+      <View
+        ref={(view) => {
+          root.current = view
+        }}
+      >
+        <Heading id="summary" level={2}>
+          Summary
+        </Heading>
+      </View>
+      <Outline items={items} />
+    </>
+  )
 }
 ```
 
@@ -332,12 +332,12 @@ import { useRef } from 'octane'
 import { Heading, Outline, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import { getOutlineFromViewCapabilities, useOutlineFromView } from '@octane-xplat/ui/macos'
 export function Guide() {
-	const content = useRef<ScrollableAreaHandle | null>(null)
-	const items = useOutlineFromView(content)
-	return <>
-		<ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
-		{getOutlineFromViewCapabilities().isSupported ? <Outline items={items} hasScrollOnClick={false} /> : null}
-	</>
+  const content = useRef<ScrollableAreaHandle | null>(null)
+  const items = useOutlineFromView(content)
+  return <>
+    <ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+    {getOutlineFromViewCapabilities().isSupported ? <Outline items={items} hasScrollOnClick={false} /> : null}
+  </>
 }
 ```
 
@@ -351,7 +351,7 @@ native behavior still needs qualification.
 ```tsx
 import { Heading } from '@octane-xplat/ui'
 export function GuideHeadings() {
-	return <><Heading id="intro" level={1}>Introduction</Heading><Heading id="setup" level={2}>Setup</Heading></>
+  return <><Heading id="intro" level={1}>Introduction</Heading><Heading id="setup" level={2}>Setup</Heading></>
 }
 ```
 
@@ -363,9 +363,9 @@ import { Outline } from '@octane-xplat/ui'
 import { useOutlineFromDoc } from '@octane-xplat/ui/markdown'
 
 export function MacOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
-	const items = useOutlineFromDoc(props.doc)
+  const items = useOutlineFromDoc(props.doc)
 
-	return <Outline items={items} hasScrollOnClick={false} />
+  return <Outline items={items} hasScrollOnClick={false} />
 }
 ```
 
@@ -381,12 +381,12 @@ selection/navigation callbacks while letting the app own scrolling.
 import { useCallback, useRef } from 'octane'
 import { Heading, Outline, ScrollableArea, type HostElement, type ScrollableAreaHandle } from '@octane-xplat/ui'
 export function NavigableGuide() {
-	const scroll = useRef<HostElement | null>(null)
-	const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
-	return <>
-		<ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
-		<Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} offset={24} />
-	</>
+  const scroll = useRef<HostElement | null>(null)
+  const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
+  return <>
+    <ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+    <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} offset={24} />
+  </>
 }
 ```
 
@@ -401,8 +401,8 @@ Prefer explicit IDs for headings whose text changes after a snapshot.
 ```tsx
 import { Outline } from '@octane-xplat/ui'
 export function ControlledContents({ active, setActive }: { active: string; setActive: (id: string) => void }) {
-	return <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]}
-		activeId={active} onActiveIdChange={setActive} hasScrollOnClick={false} />
+  return <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]}
+    activeId={active} onActiveIdChange={setActive} hasScrollOnClick={false} />
 }
 ```
 
@@ -420,15 +420,15 @@ successful write.
 import { CodeBlock } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<CodeBlock
-			code="const ready = true"
-			language="typescript"
-			isWrapped
-			hasCopyButton
-			onCopy={() => console.log('Copied')}
-		/>
-	)
+  return (
+    <CodeBlock
+      code="const ready = true"
+      language="typescript"
+      isWrapped
+      hasCopyButton
+      onCopy={() => console.log('Copied')}
+    />
+  )
 }
 ```
 
@@ -458,15 +458,15 @@ supplies a human-readable reading such as "6 GB of 10 GB used". The range is
 import { Meter } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Meter
-			value={6}
-			minValue={0}
-			maxValue={10}
-			accessibilityLabel="Storage used"
-			valueLabel="6 GB of 10 GB used"
-		/>
-	)
+  return (
+    <Meter
+      value={6}
+      minValue={0}
+      maxValue={10}
+      accessibilityLabel="Storage used"
+      valueLabel="6 GB of 10 GB used"
+    />
+  )
 }
 ```
 
@@ -482,21 +482,21 @@ with `valueUnit`. `Timer.startTimeMs` is Unix milliseconds, while
 import { Timestamp, Timer } from '@octane-xplat/ui'
 
 export function Example() {
-	const createdAtMs = Date.now()
-	const startedAtMs = Date.now()
+  const createdAtMs = Date.now()
+  const startedAtMs = Date.now()
 
-	return (
-		<>
-			<Timestamp
-				value="2026-10-01T12:00:00Z"
-				format="date_time"
-				tooltipEntries={[{ timezoneID: 'UTC', format: 'full', label: 'UTC' }]}
-			/>
-			<Timestamp value="2026-10-01T12:00:00Z" format="relative" isLive />
-			<Timestamp value={createdAtMs} valueUnit="unix-milliseconds" />
-			<Timer startTimeMs={startedAtMs} format="clock" />
-		</>
-	)
+  return (
+    <>
+      <Timestamp
+        value="2026-10-01T12:00:00Z"
+        format="date_time"
+        tooltipEntries={[{ timezoneID: 'UTC', format: 'full', label: 'UTC' }]}
+      />
+      <Timestamp value="2026-10-01T12:00:00Z" format="relative" isLive />
+      <Timestamp value={createdAtMs} valueUnit="unix-milliseconds" />
+      <Timer startTimeMs={startedAtMs} format="clock" />
+    </>
+  )
 }
 ```
 
@@ -509,7 +509,7 @@ currently have no system reduced-motion subscription, so set
 import { StatusDot } from '@octane-xplat/ui'
 
 export function Example() {
-	return <StatusDot variant="success" label="Connected" isPulsing={false} />
+  return <StatusDot variant="success" label="Connected" isPulsing={false} />
 }
 ```
 

@@ -12,27 +12,27 @@ import { useEffect } from 'octane'
 import { useAnimation, Button, View } from '@octane-xplat/ui'
 
 export function MovingCard() {
-	const x = useAnimation(0, 'translateX')
-	useEffect(() => () => x.stop(), [])
-	return (
-		<>
-			<View ref={x.ref} />
-			<Button
-				clickAction={() => {
-					void x.to(80, { duration: 300 })
-				}}
-			>
-				Move
-			</Button>
-			<Button
-				clickAction={() => {
-					void x.spring(0, { damping: 14, stiffness: 120 })
-				}}
-			>
-				Return
-			</Button>
-		</>
-	)
+  const x = useAnimation(0, 'translateX')
+  useEffect(() => () => x.stop(), [])
+  return (
+    <>
+      <View ref={x.ref} />
+      <Button
+        clickAction={() => {
+          void x.to(80, { duration: 300 })
+        }}
+      >
+        Move
+      </Button>
+      <Button
+        clickAction={() => {
+          void x.spring(0, { damping: 14, stiffness: 120 })
+        }}
+      >
+        Return
+      </Button>
+    </>
+  )
 }
 ```
 
@@ -53,9 +53,9 @@ overflow scroll offsets are detected automatically; do not add an unsupported
 import { motion } from '@octane-xplat/motion'
 
 export function ResizingCard({ wide }: { wide: boolean }) {
-	return <motion.View layout style={{ width: wide ? 240 : 120 }}>
-		<motion.View layout="position" style={{ width: 50, height: 50 }} />
-	</motion.View>
+  return <motion.View layout style={{ width: wide ? 240 : 120 }}>
+    <motion.View layout="position" style={{ width: 50, height: 50 }} />
+  </motion.View>
 }
 ```
 
@@ -96,16 +96,16 @@ import { LayoutGroup, Presence, motion } from '@octane-xplat/motion'
 import { View } from '@octane-xplat/ui'
 
 export function SharedCard({ expanded }: { expanded: boolean }) {
-	return <LayoutGroup id="card">
-		<View style={{ position: 'relative', height: 160 }}>
-			<Presence present={!expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
-				<motion.View layoutId="surface" style={{ width: 120, height: 80 }} />
-			</Presence>
-			<Presence present={expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
-				<motion.View layoutId="surface" style={{ width: 240, height: 160 }} />
-			</Presence>
-		</View>
-	</LayoutGroup>
+  return <LayoutGroup id="card">
+    <View style={{ position: 'relative', height: 160 }}>
+      <Presence present={!expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+        <motion.View layoutId="surface" style={{ width: 120, height: 80 }} />
+      </Presence>
+      <Presence present={expanded} style={{ position: 'absolute', left: 0, top: 0 }}>
+        <motion.View layoutId="surface" style={{ width: 240, height: 160 }} />
+      </Presence>
+    </View>
+  </LayoutGroup>
 }
 ```
 
@@ -121,14 +121,14 @@ dips per second.
 import { View, Text } from '@octane-xplat/ui'
 
 export function GestureArea() {
-	return (
-		<View
-			onPan={({ dx, dy, vx, vy, state }) => console.log(dx, dy, vx, vy, state)}
-			onSwipe={({ direction }) => console.log(direction)}
-		>
-			<Text>Drag here</Text>
-		</View>
-	)
+  return (
+    <View
+      onPan={({ dx, dy, vx, vy, state }) => console.log(dx, dy, vx, vy, state)}
+      onSwipe={({ direction }) => console.log(direction)}
+    >
+      <Text>Drag here</Text>
+    </View>
+  )
 }
 ```
 

@@ -20,9 +20,9 @@ import { defineConfig } from '@bamboocss/dev'
 import { xplatBambooConfig } from '@octane-xplat/bamboo'
 
 export default defineConfig({
-	...xplatBambooConfig,
-	include: ['src/**/*.{ts,tsx}'],
-	outdir: 'src/styled-system',
+  ...xplatBambooConfig,
+  include: ['src/**/*.{ts,tsx}'],
+  outdir: 'src/styled-system',
 })
 ```
 

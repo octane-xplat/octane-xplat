@@ -213,9 +213,9 @@ qualification limits.
 
 ```json
 {
-	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
-	}
+  "dependencies": {
+    "@octane-xplat/nativescript-mason-core": "catalog:xplat"
+  }
 }
 ```
 
@@ -229,8 +229,8 @@ are preserved.
 
 ```json
 {
-	"dependencies": { "octane": "catalog:xplat" },
-	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
+  "dependencies": { "octane": "catalog:xplat" },
+  "devDependencies": { "@tsrx/oxc": "catalog:xplat" }
 }
 ```
 

@@ -9,8 +9,8 @@ component layer; design tokens are CSS custom properties.
 ```css
 /* App stylesheet: one static class can reference shared tokens. */
 .trip-card {
-	background-color: var(--color-surface);
-	color: var(--color-text);
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 ```
 
@@ -77,12 +77,12 @@ Component-level layout props remain supported and are translated by their leaves
 /** @jsxImportSource @octane-xplat/jsx */
 // Columns.mobile.tsx — raw host example, not shared DOM JSX.
 export function Columns() {
-	return (
-		<masonview style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
-			<label text="Bag" style={{ gridColumn: '1' }} />
-			<label text="Packed" style={{ gridColumn: '2' }} />
-		</masonview>
-	)
+  return (
+    <masonview style={{ display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      <label text="Bag" style={{ gridColumn: '1' }} />
+      <label text="Packed" style={{ gridColumn: '2' }} />
+    </masonview>
+  )
 }
 ```
 
@@ -98,11 +98,11 @@ is a maintained example of this boundary.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function PreviewFrame() {
-	return (
-		<masonview className="preview-frame" style={{ display: 'flex', position: 'relative' }}>
-			<masonview className="preview-overlay" style={{ display: 'flex', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }} />
-		</masonview>
-	)
+  return (
+    <masonview className="preview-frame" style={{ display: 'flex', position: 'relative' }}>
+      <masonview className="preview-overlay" style={{ display: 'flex', position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }} />
+    </masonview>
+  )
 }
 ```
 
@@ -190,9 +190,9 @@ from the source cases; see the [renderer contract](../../../../docs/packages/pac
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Caption() {
-	return <label><formattedstring style={{ letterSpacing: 1 }}>
-		<span text="Spaced " /><span text="default" style={{ letterSpacing: 0 }} />
-	</formattedstring></label>
+  return <label><formattedstring style={{ letterSpacing: 1 }}>
+    <span text="Spaced " /><span text="default" style={{ letterSpacing: 0 }} />
+  </formattedstring></label>
 }
 ```
 
@@ -211,12 +211,12 @@ see `styling/root-boundaries.md` before building a theme toggle.
 import { useColorScheme, View, Text } from '@octane-xplat/ui'
 
 export function ThemedScreen() {
-	const scheme = useColorScheme()
-	return (
-		<View className={scheme === 'dark' ? 'dark ns-dark' : 'ns-light'}>
-			<Text>Trip notes</Text>
-		</View>
-	)
+  const scheme = useColorScheme()
+  return (
+    <View className={scheme === 'dark' ? 'dark ns-dark' : 'ns-light'}>
+      <Text>Trip notes</Text>
+    </View>
+  )
 }
 ```
 
@@ -228,7 +228,7 @@ native. Both sides' dead rules are expected.
 
 ```css
 .vx-pressable:pressed {
-	opacity: 0.7;
+  opacity: 0.7;
 }
 ```
 
@@ -242,8 +242,8 @@ inferred variant props; this example defines a boolean variant.
 import { styled, Pressable } from '@octane-xplat/ui'
 
 export const DangerButton = styled(Pressable, {
-	base: 'trip-button',
-	variants: { danger: 'bg-danger' },
+  base: 'trip-button',
+  variants: { danger: 'bg-danger' },
 })
 ```
 
@@ -257,11 +257,11 @@ failure claim; see the [native factory note](../../../docs/notes/styled-jsx-cont
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Remove() {
-	return (
-		<Pressable className="trip-button bg-danger extra">
-			<Text>Remove</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable className="trip-button bg-danger extra">
+      <Text>Remove</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -377,7 +377,7 @@ a new baseline. Rounded CALayer masks remain independent.
 
 ```tsx
 <masonview style={{ width: 160, height: 48, overflow: 'hidden' }}>
-	<label text="Content remains inside this native view's bounds" />
+  <label text="Content remains inside this native view's bounds" />
 </masonview>
 ```
 

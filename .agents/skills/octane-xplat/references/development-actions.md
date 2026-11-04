@@ -21,20 +21,20 @@ import { createStore } from '@octane-xplat/ui/data'
 export const counterState = createStore(0)
 
 if (import.meta.env.DEV) {
-	const action = registerDevAction({
-		id: 'fixtures.reset-counter',
-		title: 'Reset counter',
-		description: 'Set the counter to zero before checking the screen.',
-		input: {},
-		result: { fields: { count: { type: 'integer' } } },
-		effects: { summary: 'Resets the counter', appState: true },
-		execution: { retryable: true },
-		run() {
-			counterState.set(0)
-			return { count: 0 }
-		},
-	})
-	import.meta.hot?.dispose(() => action.dispose())
+  const action = registerDevAction({
+    id: 'fixtures.reset-counter',
+    title: 'Reset counter',
+    description: 'Set the counter to zero before checking the screen.',
+    input: {},
+    result: { fields: { count: { type: 'integer' } } },
+    effects: { summary: 'Resets the counter', appState: true },
+    execution: { retryable: true },
+    run() {
+      counterState.set(0)
+      return { count: 0 }
+    },
+  })
+  import.meta.hot?.dispose(() => action.dispose())
 }
 ```
 
@@ -63,10 +63,10 @@ without unmounting — use it for unfocused tabs.
 
 ```tsx
 if (import.meta.env.DEV) {
-	useDevActionHandler(saveDraft, async () => ({ note: draft.title }), {
-		enabled: isFocusedTab,
-		label: 'CheckoutForm',
-	})
+  useDevActionHandler(saveDraft, async () => ({ note: draft.title }), {
+    enabled: isFocusedTab,
+    label: 'CheckoutForm',
+  })
 }
 ```
 

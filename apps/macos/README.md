@@ -33,11 +33,11 @@ import { App } from '@xplat/app'
 import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
 
 export default function AppKitApp(props: Parameters<typeof App>[0]) {
-	useEffect(() => {
-		try { return bindAppKitRouteLinks() }
-		catch { console.warn('[macos] Incoming link setup failed') }
-	}, [])
-	return <App {...props} />
+  useEffect(() => {
+    try { return bindAppKitRouteLinks() }
+    catch { console.warn('[macos] Incoming link setup failed') }
+  }, [])
+  return <App {...props} />
 }
 ```
 
@@ -80,11 +80,11 @@ when no renderer is selected.
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": { "runtime": "appkit-node-api", "renderer": "webview" }
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": { "runtime": "appkit-node-api", "renderer": "webview" }
+    }
+  }
 }
 ```
 
@@ -410,16 +410,16 @@ signed with the matching entitlement.
 objc.import('AuthenticationServices')
 
 const CredentialObserver = NSObject.extend(
-	{
-		credentialRevoked() {
-			console.log('Credential revoked')
-		},
-	},
-	{
-		exposedMethods: {
-			credentialRevoked: { returns: interop.types.void, params: [] },
-		},
-	},
+  {
+    credentialRevoked() {
+      console.log('Credential revoked')
+    },
+  },
+  {
+    exposedMethods: {
+      credentialRevoked: { returns: interop.types.void, params: [] },
+    },
+  },
 )
 const observer = CredentialObserver.new()
 ```
@@ -447,11 +447,11 @@ include a custom app icon in packaging and development. The CLI validates the pa
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": { "package": { "icon": "assets/AppIcon.icns" } }
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": { "package": { "icon": "assets/AppIcon.icns" } }
+    }
+  }
 }
 ```
 

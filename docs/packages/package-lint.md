@@ -91,15 +91,15 @@ preset's directory. Set project ignore patterns in the root config:
 
 ```json
 {
-	"extends": ["./node_modules/@octane-xplat/lint/config.json"],
-	"ignorePatterns": [".agents/", "**/*.gen.*", "src/generated/"],
-	"rules": { "xplat/no-console-debug": "warn" },
-	"overrides": [
-		{
-			"files": ["**/*.spec.*"],
-			"rules": { "xplat/no-console-debug": "off" }
-		}
-	]
+  "extends": ["./node_modules/@octane-xplat/lint/config.json"],
+  "ignorePatterns": [".agents/", "**/*.gen.*", "src/generated/"],
+  "rules": { "xplat/no-console-debug": "warn" },
+  "overrides": [
+    {
+      "files": ["**/*.spec.*"],
+      "rules": { "xplat/no-console-debug": "off" }
+    }
+  ]
 }
 ```
 
@@ -109,8 +109,8 @@ severities (`0`, `1`, `2`) work in both passes:
 
 ```json
 {
-	"jsPlugins": ["@octane-xplat/lint/oxlint-plugin"],
-	"rules": { "xplat/no-dom-globals": "error" }
+  "jsPlugins": ["@octane-xplat/lint/oxlint-plugin"],
+  "rules": { "xplat/no-dom-globals": "error" }
 }
 ```
 

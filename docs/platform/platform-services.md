@@ -66,10 +66,10 @@ import { media } from '@octane-xplat/media'
 
 // Call from an Attach photo button; the caller owns preview and cleanup.
 export async function attachPhoto() {
-	const image = await media.capturePhoto()
-	if (!image) console.log('No photo attached')
+  const image = await media.capturePhoto()
+  if (!image) console.log('No photo attached')
 
-	return image
+  return image
 }
 ```
 
@@ -122,12 +122,12 @@ or an exception without telling the user the draft is safely on disk:
 import { storage } from '@octane-xplat/platform'
 
 export function savePackingDraft(text: string): boolean {
-	try {
-		storage.setString('packing-draft', text)
-		return storage.flush()
-	} catch {
-		return false // Keep the editor open so the user can retry.
-	}
+  try {
+    storage.setString('packing-draft', text)
+    return storage.flush()
+  } catch {
+    return false // Keep the editor open so the user can retry.
+  }
 }
 ```
 
@@ -143,12 +143,12 @@ an old setting. Use the same API in an event handler:
 import { storage } from '@octane-xplat/platform'
 
 export function clearPackingDraft(): boolean {
-	try {
-		storage.remove('packing-draft')
-		return storage.getString('packing-draft') === null && storage.flush()
-	} catch {
-		return false
-	}
+  try {
+    storage.remove('packing-draft')
+    return storage.getString('packing-draft') === null && storage.flush()
+  } catch {
+    return false
+  }
 }
 ```
 
@@ -203,13 +203,13 @@ import { media } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export async function pickAndShare() {
-	const image = await media.pickImage()
-	if (!image) return
-	try {
-		return await share.text(`Selected ${image.name}`)
-	} finally {
-		files.release(image)
-	}
+  const image = await media.pickImage()
+  if (!image) return
+  try {
+    return await share.text(`Selected ${image.name}`)
+  } finally {
+    files.release(image)
+  }
 }
 ```
 
@@ -223,9 +223,9 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen() {
-	useKeepAwake()
+  useKeepAwake()
 
-	return <Text>Reading</Text>
+  return <Text>Reading</Text>
 }
 ```
 
@@ -299,9 +299,9 @@ import { Text, View } from '@octane-xplat/ui'
 
 const thresholds = { wide: 900 }
 export function ResponsiveScreen() {
-	const size = useWindowSize()
-	const matches = useBreakpoints$(thresholds)
-	return <View><Text>{`${size.width}×${size.height}: ${matches.wide ? 'Wide' : 'Compact'}`}</Text></View>
+  const size = useWindowSize()
+  const matches = useBreakpoints$(thresholds)
+  return <View><Text>{`${size.width}×${size.height}: ${matches.wide ? 'Wide' : 'Compact'}`}</Text></View>
 }
 ```
 
@@ -318,9 +318,9 @@ import { useSafeAreaInsets } from '@octane-xplat/platform/safe-area'
 import { Text, View } from '@octane-xplat/ui'
 
 export function ActivityStatus() {
-	const state = useAppState()
-	const insets = useSafeAreaInsets()
-	return <View style={{ paddingTop: insets.top }}><Text>{state}</Text></View>
+  const state = useAppState()
+  const insets = useSafeAreaInsets()
+  return <View style={{ paddingTop: insets.top }}><Text>{state}</Text></View>
 }
 ```
 
@@ -334,8 +334,8 @@ import { useBackHandler } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function EditorScreen() {
-	useBackHandler(() => false)
-	return <Text>Editor</Text>
+  useBackHandler(() => false)
+  return <Text>Editor</Text>
 }
 ```
 
@@ -359,11 +359,11 @@ removed and the failed/unattempted URLs stay queued for a later retry:
 import { onDeepLink } from '@octane-xplat/platform'
 
 export function tryWatchIncomingLinks(onURL: (url: string) => void): (() => void) | null {
-	try {
-		return onDeepLink(onURL)
-	} catch {
-		return null // Initial delivery failed. Fix the handler before retrying.
-	}
+  try {
+    return onDeepLink(onURL)
+  } catch {
+    return null // Initial delivery failed. Fix the handler before retrying.
+  }
 }
 // Keep a successful cleanup function with the owner and call it when that owner ends.
 ```
@@ -455,26 +455,26 @@ Use it from a setup function or event handler:
 import { secureStorage } from '@octane-xplat/secure-storage'
 
 async function rememberSession(token: string): Promise<boolean> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	try { return await secureStorage.set('session-token', token) }
-	catch { return false }
+  try { return await secureStorage.set('session-token', token) }
+  catch { return false }
 }
 
 type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
 async function restoreSession(): Promise<Session> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
-	try {
-		const token = await secureStorage.get('session-token')
-		return token === null ? { status: 'missing' } : { status: 'restored', token }
-	} catch { return { status: 'unavailable' } }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
+  try {
+    const token = await secureStorage.get('session-token')
+    return token === null ? { status: 'missing' } : { status: 'restored', token }
+  } catch { return { status: 'unavailable' } }
 }
 
 async function forgetSession(): Promise<boolean> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return false
 
-	try { return await secureStorage.remove('session-token') }
-	catch { return false }
+  try { return await secureStorage.remove('session-token') }
+  catch { return false }
 }
 ```
 
@@ -500,7 +500,7 @@ the [Windows storage boundary](../packages/package-secure-storage.md#experimenta
 
 ```ts
 if (secureStorage.supported && await secureStorage.isAvailable()) {
-	const removed = await secureStorage.remove('session-token')
+  const removed = await secureStorage.remove('session-token')
 }
 ```
 
@@ -561,8 +561,8 @@ changed. Keep the action explicit so a capability check never launches it.
 import { openSettings } from '@octane-xplat/platform'
 
 export async function showSettings(): Promise<boolean> {
-	if (!openSettings.supported || !await openSettings.isAvailable()) return false
-	return openSettings.open()
+  if (!openSettings.supported || !await openSettings.isAvailable()) return false
+  return openSettings.open()
 }
 ```
 
@@ -614,10 +614,10 @@ import { media } from '@octane-xplat/media'
 // needs no browser permission — so the denial gate only binds on native
 // leaves.
 export async function webCapture() {
-	const status = await media.requestPermissions('camera')
-	if (status.status === 'denied') return null
+  const status = await media.requestPermissions('camera')
+  if (status.status === 'denied') return null
 
-	return media.capturePhoto()
+  return media.capturePhoto()
 }
 ```
 
@@ -654,10 +654,10 @@ import { files } from '@octane-xplat/files'
 
 const picked = await files.pick('image/*')
 if (picked) {
-	const bytes = await files.readBytes(picked, { maxBytes: 8 * 1024 * 1024 })
-	files.release(picked)
-	const result = await files.export(picked.name, bytes, { mimeType: 'image/png' })
-	if (result === 'saved') console.log('export committed')
+  const bytes = await files.readBytes(picked, { maxBytes: 8 * 1024 * 1024 })
+  files.release(picked)
+  const result = await files.export(picked.name, bytes, { mimeType: 'image/png' })
+  if (result === 'saved') console.log('export committed')
 }
 ```
 
@@ -743,10 +743,10 @@ import { media } from '@octane-xplat/media'
 
 // iOS Info.plist needs the usage descriptions described above.
 const image = await media.capturePhoto({
-	width: 800,
-	height: 600,
-	keepAspectRatio: true,
-	saveToGallery: false,
+  width: 800,
+  height: 600,
+  keepAspectRatio: true,
+  saveToGallery: false,
 })
 // The caller owns image until its preview/upload finishes, then files.release(image).
 ```
@@ -818,20 +818,20 @@ web, GTK and native Windows report unavailable.
 
 ```ts
 import {
-	AssetField,
-	MediaLibrary,
-	Query,
-	requestPermissionsAsync,
+  AssetField,
+  MediaLibrary,
+  Query,
+  requestPermissionsAsync,
 } from '@octane-xplat/media-library'
 
 export async function firstLibraryPage() {
-	if (!MediaLibrary.supported) return []
-	const permission = await requestPermissionsAsync(false, ['photo'])
-	if (!permission.granted) return []
-	return new Query()
-		.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
-		.limit(20)
-		.exeForMetadata()
+  if (!MediaLibrary.supported) return []
+  const permission = await requestPermissionsAsync(false, ['photo'])
+  if (!permission.granted) return []
+  return new Query()
+    .orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+    .limit(20)
+    .exeForMetadata()
 }
 ```
 
@@ -845,16 +845,16 @@ file is owned separately from the picked image and the editing context.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export async function smallerPhoto(sourceUri: string) {
-	const context = ImageManipulator.manipulate(sourceUri)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		context.resize({ width: 800 })
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(sourceUri)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    context.resize({ width: 800 })
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 ```
 
@@ -869,15 +869,15 @@ import { media } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export async function chooseImage() {
-	const image = await media.pickImage() // null on cancel
-	if (!image) return null
-	try {
-		// Bytes outlive the released temporary file; the uri does not.
+  const image = await media.pickImage() // null on cancel
+  if (!image) return null
+  try {
+    // Bytes outlive the released temporary file; the uri does not.
 
-		return await files.readBytes(image)
-	} finally {
-		files.release(image)
-	}
+    return await files.readBytes(image)
+  } finally {
+    files.release(image)
+  }
 }
 ```
 
@@ -894,17 +894,17 @@ import { files } from '@octane-xplat/files'
 
 const permission = await media.requestPermissions('camera')
 if (permission.granted) {
-	const image = await media.capturePhoto({ saveToGallery: false })
-	if (image) {
-		try {
-			// Upload before releasing the temporary reference.
-			const body = await files.readBytes(image)
-			const response = await fetch('/api/photos', { method: 'POST', body })
-			if (!response.ok) throw new Error('Photo upload failed')
-		} finally {
-			files.release(image)
-		}
-	}
+  const image = await media.capturePhoto({ saveToGallery: false })
+  if (image) {
+    try {
+      // Upload before releasing the temporary reference.
+      const body = await files.readBytes(image)
+      const response = await fetch('/api/photos', { method: 'POST', body })
+      if (!response.ok) throw new Error('Photo upload failed')
+    } finally {
+      files.release(image)
+    }
+  }
 }
 ```
 
@@ -925,21 +925,21 @@ import { media } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export async function readSelection() {
-	try {
-		const images = await media.pickImages()
-		try {
-			// Finish every read before releasing its temporary source.
-			const bytes: Uint8Array[] = []
-			for (const image of images) bytes.push(await files.readBytes(image))
-			return bytes
-		} finally {
-			for (const image of images) files.release(image)
-		}
-	} catch {
-		console.log('Could not read the selection')
+  try {
+    const images = await media.pickImages()
+    try {
+      // Finish every read before releasing its temporary source.
+      const bytes: Uint8Array[] = []
+      for (const image of images) bytes.push(await files.readBytes(image))
+      return bytes
+    } finally {
+      for (const image of images) files.release(image)
+    }
+  } catch {
+    console.log('Could not read the selection')
 
-		return []
-	}
+    return []
+  }
 }
 ```
 
@@ -976,7 +976,7 @@ the sheet before authorization. Checking permission never opens an OS prompt.
 import { media } from '@octane-xplat/media'
 
 export async function cameraPermissionAlreadyGranted() {
-	return (await media.getPermissions('camera')).granted
+  return (await media.getPermissions('camera')).granted
 }
 ```
 
@@ -1001,9 +1001,9 @@ import type { PickedImage } from '@octane-xplat/media'
 
 // Call from your app's capture button, not during screen mount.
 export async function takePhoto(current: PickedImage | null) {
-	const next = await media.capturePhoto({ saveToGallery: false })
+  const next = await media.capturePhoto({ saveToGallery: false })
 
-	return next ?? current
+  return next ?? current
 }
 ```
 
@@ -1019,17 +1019,17 @@ Movies use the separate [camera session workflow](../../.agents/docs/recipes/cam
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"package": {
-					"infoPlist": {
-						"NSCameraUsageDescription": "Take photos for your profile."
-					}
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "package": {
+          "infoPlist": {
+            "NSCameraUsageDescription": "Take photos for your profile."
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -1037,12 +1037,12 @@ Movies use the separate [camera session workflow](../../.agents/docs/recipes/cam
 import { media } from '@octane-xplat/media'
 
 export async function takeProfilePhoto() {
-	return media.capturePhoto({
-		width: 800,
-		height: 600,
-		keepAspectRatio: true,
-		saveToGallery: false,
-	})
+  return media.capturePhoto({
+    width: 800,
+    height: 600,
+    keepAspectRatio: true,
+    saveToGallery: false,
+  })
 }
 ```
 
@@ -1074,15 +1074,15 @@ import type { WebAuthnGetOptionsJSON } from '@octane-xplat/platform'
 import { webAuthn, authSession } from '@octane-xplat/platform'
 
 export async function signIn(options: WebAuthnGetOptionsJSON, signInUrl: string) {
-	if (webAuthn.supported) {
-		const credential = await webAuthn.get(options)
-		// post credential to the RP's verify endpoint
-	} else if (authSession.supported) {
-		const result = await authSession.open(signInUrl, { callbackScheme: 'myapp' })
-		if (result.type === 'success') {
-			// Validate the callback and finish the app-owned sign-in exchange.
-		}
-	}
+  if (webAuthn.supported) {
+    const credential = await webAuthn.get(options)
+    // post credential to the RP's verify endpoint
+  } else if (authSession.supported) {
+    const result = await authSession.open(signInUrl, { callbackScheme: 'myapp' })
+    if (result.type === 'success') {
+      // Validate the callback and finish the app-owned sign-in exchange.
+    }
+  }
 }
 ```
 
@@ -1103,8 +1103,8 @@ ceremony lifecycle, credential storage, and access-token transport:
 import { createHostedAuth } from '@octane-xplat/auth'
 
 const auth = createHostedAuth({
-	apiOrigin: 'https://api.example.com',
-	flow: myBackendAuthFlow, // see the @octane-xplat/auth README
+  apiOrigin: 'https://api.example.com',
+  flow: myBackendAuthFlow, // see the @octane-xplat/auth README
 })
 const result = await auth.signIn()
 ```
@@ -1113,16 +1113,16 @@ const result = await auth.signIn()
 import { authSession } from '@octane-xplat/platform'
 
 export async function hostedSignIn(url: string) {
-	if (!authSession.supported) return 'unavailable'
-	const result = await authSession.open(url, { callbackScheme: 'sample' })
-	if (result.type === 'error') {
-		console.log(result.message)
+  if (!authSession.supported) return 'unavailable'
+  const result = await authSession.open(url, { callbackScheme: 'sample' })
+  if (result.type === 'error') {
+    console.log(result.message)
 
-		return 'retry'
-	}
-	if (result.type === 'cancel') return 'signed-out'
+    return 'retry'
+  }
+  if (result.type === 'cancel') return 'signed-out'
 
-	return result.url // app backend must validate and redeem this callback
+  return result.url // app backend must validate and redeem this callback
 }
 ```
 
@@ -1139,10 +1139,10 @@ import { authSession } from '@octane-xplat/platform'
 // Android: register sample://auth/callback in the activity's intent filter.
 // Guard on supported — on web this call rejects with UnavailabilityError.
 if (authSession.supported) {
-	const result = await authSession.open('https://example.com/authorize', {
-		callbackScheme: 'sample',
-		prefersEphemeralSession: true,
-	})
+  const result = await authSession.open('https://example.com/authorize', {
+    callbackScheme: 'sample',
+    prefersEphemeralSession: true,
+  })
 }
 ```
 
@@ -1160,8 +1160,8 @@ screen alone does not cancel a session, and hiding a window is not window close.
 import { authSession } from '@octane-xplat/platform'
 
 const result = await authSession.open('https://example.com/authorize', {
-	callbackScheme: 'myapp',
-	prefersEphemeralSession: true,
+  callbackScheme: 'myapp',
+  prefersEphemeralSession: true,
 })
 if (result.type === 'cancel') console.log('Sign-in cancelled')
 ```
@@ -1225,13 +1225,13 @@ import { authSession } from '@octane-xplat/platform'
 
 // App-owned backend methods validate the URL, state, code, and replay.
 export async function exchange(
-	begin: () => Promise<{ url: string; attempt: string }>,
-	redeem: (attempt: string, callbackUrl: string) => Promise<void>,
+  begin: () => Promise<{ url: string; attempt: string }>,
+  redeem: (attempt: string, callbackUrl: string) => Promise<void>,
 ) {
-	const { url, attempt } = await begin()
-	if (!authSession.supported) return
-	const result = await authSession.open(url, { callbackScheme: 'sample' })
-	if (result.type === 'success') await redeem(attempt, result.url)
+  const { url, attempt } = await begin()
+  if (!authSession.supported) return
+  const result = await authSession.open(url, { callbackScheme: 'sample' })
+  if (result.type === 'success') await redeem(attempt, result.url)
 }
 ```
 
@@ -1275,14 +1275,14 @@ import { appleAuth, googleAuth } from '@octane-xplat/auth'
 
 // Supply your registered client ID and a fresh backend-issued nonce.
 export async function providerSignIn(clientId: string, nonce: string) {
-	googleAuth.configure({ clientId })
-	const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
-	if (result.status === 'success') {
-		// result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
-		// hand it to your backend — verification stays app-side
-	}
+  googleAuth.configure({ clientId })
+  const result = await appleAuth.signIn({ scopes: ['email', 'name'], nonce })
+  if (result.status === 'success') {
+    // result.credential = { idToken, authorizationCode?, user: { id, email?, name? } }
+    // hand it to your backend — verification stays app-side
+  }
 
-	return result
+  return result
 }
 ```
 
@@ -1297,13 +1297,13 @@ const result = await appleAuth.signIn()
 if (result.status === 'error') console.log(result.message)
 else if (result.status === 'cancelled') console.log('Still signed out')
 else {
-	// Pass to your backend verifier; do not log the credential.
-	const response = await fetch('/api/auth/apple', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(result.credential),
-	})
-	if (!response.ok) throw new Error('Sign-in verification failed')
+  // Pass to your backend verifier; do not log the credential.
+  const response = await fetch('/api/auth/apple', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(result.credential),
+  })
+  if (!response.ok) throw new Error('Sign-in verification failed')
 }
 ```
 
@@ -1337,9 +1337,9 @@ declare them (decision #51).
 import { appleAuth, googleAuth } from '@octane-xplat/auth'
 
 export async function checkAccount(userId: string) {
-	const state = await appleAuth.getCredentialState(userId)
-	if (state !== 'authorized') console.log('Ask the user to sign in again')
-	await googleAuth.signOut()
+  const state = await appleAuth.getCredentialState(userId)
+  if (state !== 'authorized') console.log('Ask the user to sign in again')
+  await googleAuth.signOut()
 }
 ```
 
@@ -1379,8 +1379,8 @@ import { googleAuth } from '@octane-xplat/auth'
 import { createGoogleHostedFlow } from '../auth/google-hosted.macos'
 
 await googleAuth.configure({
-	scopes: ['openid', 'email', 'profile'],
-	hostedFlow: createGoogleHostedFlow(backend),
+  scopes: ['openid', 'email', 'profile'],
+  hostedFlow: createGoogleHostedFlow(backend),
 })
 const result = await googleAuth.signIn({ nonce: serverIssuedNonce })
 ```
@@ -1439,9 +1439,9 @@ for observer, retry and verification limits.
 import { appleAuth } from '@octane-xplat/auth'
 
 export async function signInWithApple(backendAttemptNonce: string) {
-	const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
-	if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
-	return result
+  const result = await appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+  if (result.status === 'cancelled') console.log('Apple sign-in cancelled')
+  return result
 }
 ```
 
@@ -1473,9 +1473,9 @@ failures. Ordinary settings and secrets have separate storage owners.
 import { openDatabase, supported } from '@octane-xplat/sqlite'
 
 if (supported) {
-	const db = await openDatabase('app.db')
-	try { console.log(db.persistent ? 'Durable local storage' : 'Session-only storage') }
-	finally { await db.close() }
+  const db = await openDatabase('app.db')
+  try { console.log(db.persistent ? 'Durable local storage' : 'Session-only storage') }
+  finally { await db.close() }
 }
 ```
 
@@ -1513,10 +1513,10 @@ guarantee internet access or a successful request:
 import { connectivity } from '@octane-xplat/platform'
 
 export function watchRoute(showStatus: (text: string) => void): () => void {
-	return connectivity.subscribe((state) => {
-		showStatus(state.supported === false ? 'Network status unknown'
-			: state.online ? `Route available: ${state.type}` : 'No usable route')
-	})
+  return connectivity.subscribe((state) => {
+    showStatus(state.supported === false ? 'Network status unknown'
+      : state.online ? `Route available: ${state.type}` : 'No usable route')
+  })
 }
 // A screen calls watchRoute when mounted and its returned cleanup on unmount.
 ```
@@ -1566,7 +1566,7 @@ import { desktopHost } from '@octane-xplat/platform/host/web'
 
 const host = desktopHost()
 if (host && (await host.supports('clipboard', 'write'))) {
-	await host.clipboard.write('Hello from the webview')
+  await host.clipboard.write('Hello from the webview')
 }
 ```
 
@@ -1574,18 +1574,18 @@ Extend the framework service and event maps with app-owned entries:
 
 ```ts
 import type {
-	FrameworkHostEvents,
-	FrameworkHostServices,
+  FrameworkHostEvents,
+  FrameworkHostServices,
 } from '@octane-xplat/platform/host/services'
 
 interface InvoiceServices extends FrameworkHostServices {
-	invoices: {
-		load(id: string): Promise<{ id: string; total: number } | null>
-	}
+  invoices: {
+    load(id: string): Promise<{ id: string; total: number } | null>
+  }
 }
 
 interface InvoiceEvents extends FrameworkHostEvents {
-	'invoices.changed': { id: string }
+  'invoices.changed': { id: string }
 }
 ```
 
@@ -1601,32 +1601,32 @@ replace handling a failed service call.
 ```ts
 // Continue with InvoiceServices and InvoiceEvents above.
 import {
-	createHostClient,
-	createHostDispatcher,
-	type HostTransport,
-	type HostReplyPort,
+  createHostClient,
+  createHostDispatcher,
+  type HostTransport,
+  type HostReplyPort,
 } from '@octane-xplat/platform/host'
 
 // The webview adapter supplies transport and port; the host supplies services.
 export function frontend(transport: HostTransport) {
-	const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
-	const off = client.on('invoices.changed', (event) => console.log(event.id))
+  const client = createHostClient<InvoiceServices, InvoiceEvents>(transport)
+  const off = client.on('invoices.changed', (event) => console.log(event.id))
 
-	return {
-		load: (id: string) => client.call('invoices', 'load', id),
-		capabilities: () => client.capabilities(),
-		dispose: () => {
-			off()
-			client.dispose()
-		},
-	}
+  return {
+    load: (id: string) => client.call('invoices', 'load', id),
+    capabilities: () => client.capabilities(),
+    dispose: () => {
+      off()
+      client.dispose()
+    },
+  }
 }
 
 export function host(services: InvoiceServices, port: HostReplyPort) {
-	const dispatcher = createHostDispatcher<InvoiceServices, InvoiceEvents>(services, port)
-	dispatcher.emit('invoices.changed', { id: 'invoice-42' })
+  const dispatcher = createHostDispatcher<InvoiceServices, InvoiceEvents>(services, port)
+  dispatcher.emit('invoices.changed', { id: 'invoice-42' })
 
-	return dispatcher // adapter forwards incoming JSON to dispatcher.dispatch(message)
+  return dispatcher // adapter forwards incoming JSON to dispatcher.dispatch(message)
 }
 ```
 
@@ -1638,7 +1638,7 @@ import { desktopHost } from '@octane-xplat/platform/host/web'
 
 const host = desktopHost()
 if (host && (await host.supports('secureStorage', 'set'))) {
-	await host.secureStorage.set('preferred-language', 'es')
+  await host.secureStorage.set('preferred-language', 'es')
 }
 ```
 

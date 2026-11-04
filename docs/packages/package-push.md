@@ -18,23 +18,23 @@ bun add @octane-xplat/push
 import { push } from '@octane-xplat/push'
 
 await push.configure({
-	// web only — ignored on native, which reads google-services.json /
-	// GoogleService-Info.plist from App_Resources
-	firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
-	vapidKey: '…', // web only, required for getToken
+  // web only — ignored on native, which reads google-services.json /
+  // GoogleService-Info.plist from App_Resources
+  firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
+  vapidKey: '…', // web only, required for getToken
 })
 
 const permission = await push.requestPermission()
 const token = await push.getToken()
 
 push.onMessage((message) => {
-	/* foreground messages */
+  /* foreground messages */
 })
 push.onNotificationOpen((message) => {
-	/* taps, incl. cold-start */
+  /* taps, incl. cold-start */
 })
 push.onTokenRefresh((token) => {
-	/* rotated token — re-register server-side */
+  /* rotated token — re-register server-side */
 })
 ```
 
@@ -51,9 +51,9 @@ a user denial. Guard push registration with the availability check:
 import { push } from '@octane-xplat/push'
 
 export async function enablePush() {
-	if (!push.supported) return 'Push is unavailable on this platform'
-	await push.configure()
-	return await push.requestPermission()
+  if (!push.supported) return 'Push is unavailable on this platform'
+  await push.configure()
+  return await push.requestPermission()
 }
 ```
 

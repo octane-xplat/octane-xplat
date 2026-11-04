@@ -27,15 +27,15 @@ title and localized price; keep the connection for the billing owner's lifetime:
 import { billing } from '@octane-xplat/billing'
 
 export async function readProduct(productId: string) {
-	if (!billing.supported) return { status: 'unavailable' as const }
-	await billing.connect()
-	if (!billing.canMakePayments()) return { status: 'retry' as const }
-	const products = await billing.fetchProducts([productId], 'inapp')
-	return { status: 'loaded' as const, product: products[0] ?? null }
+  if (!billing.supported) return { status: 'unavailable' as const }
+  await billing.connect()
+  if (!billing.canMakePayments()) return { status: 'retry' as const }
+  const products = await billing.fetchProducts([productId], 'inapp')
+  return { status: 'loaded' as const, product: products[0] ?? null }
 }
 
 export function closeBillingOwner() {
-	billing.disconnect()
+  billing.disconnect()
 }
 ```
 
@@ -59,8 +59,8 @@ grant before the app finishes a purchased transaction:
 import { billing, type Purchase } from '@octane-xplat/billing'
 
 export async function finishVerifiedPurchase(purchase: Purchase) {
-	// Only after server verification and durable entitlement commit.
-	await billing.finishTransaction(purchase, { consume: false })
+  // Only after server verification and durable entitlement commit.
+  await billing.finishTransaction(purchase, { consume: false })
 }
 ```
 

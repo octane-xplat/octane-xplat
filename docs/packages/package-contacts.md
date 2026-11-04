@@ -25,8 +25,8 @@ action to open their picker:
 import { contacts } from '@octane-xplat/contacts'
 
 export async function chooseContacts() {
-	if (!contacts.supported || (await contacts.ensure()) !== 'granted') return []
-	return contacts.getAll({ fields: ['name', 'phoneNumbers'], sort: 'lastName' })
+  if (!contacts.supported || (await contacts.ensure()) !== 'granted') return []
+  return contacts.getAll({ fields: ['name', 'phoneNumbers'], sort: 'lastName' })
 }
 ```
 

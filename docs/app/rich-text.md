@@ -12,7 +12,7 @@ and AppKit editing surfaces.
 import { TextArea } from '@octane-xplat/ui'
 
 export function Example() {
-	return <TextArea label="Travel notes" autoGrow />
+  return <TextArea label="Travel notes" autoGrow />
 }
 ```
 
@@ -44,13 +44,13 @@ import { Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Notes() {
-	const [html, setHTML] = useState('<p>Travel notes</p>')
+  const [html, setHTML] = useState('<p>Travel notes</p>')
 
-	return supported ? (
-		<TiptapEditor value={html} onChange={setHTML} placeholder="Write a note" editable />
-	) : (
-		<Text>Rich text editing is unavailable here.</Text>
-	)
+  return supported ? (
+    <TiptapEditor value={html} onChange={setHTML} placeholder="Write a note" editable />
+  ) : (
+    <Text>Rich text editing is unavailable here.</Text>
+  )
 }
 ```
 
@@ -68,11 +68,11 @@ import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	return supported ? (
-		<RichTextEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
-	) : (
-		<Text>Editor unavailable</Text>
-	)
+  return supported ? (
+    <RichTextEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
+  ) : (
+    <Text>Editor unavailable</Text>
+  )
 }
 ```
 
@@ -90,11 +90,11 @@ import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	return supported ? (
-		<RichTextEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
-	) : (
-		<Text>Editor unavailable</Text>
-	)
+  return supported ? (
+    <RichTextEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
+  ) : (
+    <Text>Editor unavailable</Text>
+  )
 }
 ```
 
@@ -118,27 +118,27 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { useRef, useState } from 'octane'
 
 export function Notes() {
-	const [html, setHTML] = useState('<p>Travel notes</p>')
-	const editor = useRef<TiptapEditorHandle | null>(null)
+  const [html, setHTML] = useState('<p>Travel notes</p>')
+  const editor = useRef<TiptapEditorHandle | null>(null)
 
-	return (
-		<>
-			<TiptapEditor
-				value={html}
-				onChange={setHTML}
-				ref={(handle) => {
-					editor.current = handle
-				}}
-				onReady={() => console.log('Ready')}
-				onSelectionChange={(selection) => console.log(selection.active)}
-				onFocus={() => console.log('Editing')}
-				onBlur={() => console.log('Done')}
-			/>
-			<Pressable onPress={() => editor.current?.apply('bold')}>
-				<Text>Bold</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <TiptapEditor
+        value={html}
+        onChange={setHTML}
+        ref={(handle) => {
+          editor.current = handle
+        }}
+        onReady={() => console.log('Ready')}
+        onSelectionChange={(selection) => console.log(selection.active)}
+        onFocus={() => console.log('Editing')}
+        onBlur={() => console.log('Done')}
+      />
+      <Pressable onPress={() => editor.current?.apply('bold')}>
+        <Text>Bold</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -170,7 +170,7 @@ asynchronous; its transport logs rejected engine requests.
 import type { TiptapEditorHandle } from '@octane-xplat/tiptap'
 
 export function addLink(editor: TiptapEditorHandle) {
-	editor.linkTo('https://example.com', 'Example')
+  editor.linkTo('https://example.com', 'Example')
 }
 ```
 
@@ -193,7 +193,7 @@ HTML/JSON resets history rather than reproducing web transaction history.
 import { LexicalEditor } from '@octane-xplat/lexical'
 
 export function Notes() {
-	return <LexicalEditor value="<p>Travel notes</p>" editable />
+  return <LexicalEditor value="<p>Travel notes</p>" editable />
 }
 ```
 
@@ -206,15 +206,15 @@ inside the mounted facade receives the latest requested or edited content.
 import { TiptapEditor } from '@octane-xplat/tiptap'
 
 export function Notes() {
-	return (
-		<TiptapEditor
-			value="<p>Ignored while JSON is supplied</p>"
-			json={{
-				type: 'doc',
-				content: [{ type: 'paragraph', content: [{ type: 'text', text: 'JSON wins' }] }],
-			}}
-		/>
-	)
+  return (
+    <TiptapEditor
+      value="<p>Ignored while JSON is supplied</p>"
+      json={{
+        type: 'doc',
+        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'JSON wins' }] }],
+      }}
+    />
+  )
 }
 ```
 
@@ -248,7 +248,7 @@ not test OS input. This is not full Foxtrot-document support.
 import { LexicalEditor } from '@octane-xplat/lexical'
 
 export function AndroidNotes() {
-	return <LexicalEditor value="<p>Saved as HTML</p>" onChange={saveHtml} />
+  return <LexicalEditor value="<p>Saved as HTML</p>" onChange={saveHtml} />
 }
 
 declare function saveHtml(html: string): void
@@ -304,13 +304,13 @@ import { TiptapEditor } from '@octane-xplat/tiptap'
 import { Mark } from '@tiptap/core'
 
 const Spoiler = Mark.create({
-	name: 'spoiler',
-	parseHTML: () => [{ tag: 'span[data-spoiler]' }],
-	renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
+  name: 'spoiler',
+  parseHTML: () => [{ tag: 'span[data-spoiler]' }],
+  renderHTML: () => ['span', { 'data-spoiler': '' }, 0],
 })
 
 export function Notes() {
-	return <TiptapEditor web={{ extensions: [Spoiler] }} />
+  return <TiptapEditor web={{ extensions: [Spoiler] }} />
 }
 ```
 
@@ -325,9 +325,9 @@ is never registered twice.
 import { TiptapEditor } from '@octane-xplat/tiptap'
 
 export function Notes() {
-	// StarterKit minus the link mark, plus whatever the app adds.
+  // StarterKit minus the link mark, plus whatever the app adds.
 
-	return <TiptapEditor web={{ starterKit: { link: false } }} />
+  return <TiptapEditor web={{ starterKit: { link: false } }} />
 }
 ```
 
@@ -352,9 +352,9 @@ Use the same imports and give the editor a bounded height, for example:
 
 ```tsx
 <TiptapEditor
-	value="<p>Hello <strong>macOS</strong></p>"
-	style={{ height: 200 }}
-	onChange={(html) => saveDraft(html)}
+  value="<p>Hello <strong>macOS</strong></p>"
+  style={{ height: 200 }}
+  onChange={(html) => saveDraft(html)}
 />
 ```
 
@@ -429,16 +429,16 @@ import { TiptapEditor, ensureJSONBridge } from '@octane-xplat/tiptap'
 
 // Optional preloading on native, before showing the editor.
 export async function prepareEditor() {
-	return await ensureJSONBridge()
+  return await ensureJSONBridge()
 }
 
 export function Notes() {
-	return (
-		<TiptapEditor
-			json={{ type: 'doc', content: [{ type: 'paragraph' }] }}
-			onJSONReady={(ok) => console.log('JSON available:', ok)}
-		/>
-	)
+  return (
+    <TiptapEditor
+      json={{ type: 'doc', content: [{ type: 'paragraph' }] }}
+      onJSONReady={(ok) => console.log('JSON available:', ok)}
+    />
+  )
 }
 ```
 
@@ -453,13 +453,13 @@ that version lacks), so do not widen the pin.
 import { TiptapEditor } from '@octane-xplat/tiptap'
 
 export function Notes() {
-	return (
-		<TiptapEditor
-			value="<p>Travel notes</p>"
-			onChange={(html) => console.log('Save canonical HTML:', html)}
-			onJSONChange={(doc) => console.log('Interchange JSON:', doc)}
-		/>
-	)
+  return (
+    <TiptapEditor
+      value="<p>Travel notes</p>"
+      onChange={(html) => console.log('Save canonical HTML:', html)}
+      onJSONChange={(doc) => console.log('Interchange JSON:', doc)}
+    />
+  )
 }
 ```
 
@@ -474,11 +474,11 @@ import { LexicalEditor, supported } from '@octane-xplat/lexical'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	return supported ? (
-		<LexicalEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
-	) : (
-		<Text>Editor unavailable</Text>
-	)
+  return supported ? (
+    <LexicalEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
+  ) : (
+    <Text>Editor unavailable</Text>
+  )
 }
 ```
 
@@ -496,11 +496,11 @@ import { LexicalEditor, supported } from '@octane-xplat/lexical'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	return supported ? (
-		<LexicalEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
-	) : (
-		<Text>Editor unavailable</Text>
-	)
+  return supported ? (
+    <LexicalEditor value="<p>Travel notes</p>" onChange={(html) => console.log(html)} />
+  ) : (
+    <Text>Editor unavailable</Text>
+  )
 }
 ```
 
@@ -515,7 +515,7 @@ import { LexicalEditor } from '@octane-xplat/lexical'
 import { BadgeNode, BadgePlugin } from './lexical-extensions'
 
 export function Notes() {
-	return <LexicalEditor web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }} />
+  return <LexicalEditor web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }} />
 }
 ```
 
@@ -528,12 +528,12 @@ conversion detail.
 import { LexicalEditor } from '@octane-xplat/lexical'
 
 export function Notes() {
-	return (
-		<LexicalEditor
-			value="<p>Travel notes</p>"
-			onJSONChange={(state) => console.log('Lexical serialized state:', state)}
-		/>
-	)
+  return (
+    <LexicalEditor
+      value="<p>Travel notes</p>"
+      onJSONChange={(state) => console.log('Lexical serialized state:', state)}
+    />
+  )
 }
 ```
 

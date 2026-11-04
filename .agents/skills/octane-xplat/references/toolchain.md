@@ -73,9 +73,9 @@ bun run build:ios
 
 ```json
 {
-	"dependencies": {
-		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
-	}
+  "dependencies": {
+    "@octane-xplat/nativescript-mason-core": "catalog:xplat"
+  }
 }
 ```
 

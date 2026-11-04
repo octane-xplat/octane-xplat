@@ -18,19 +18,19 @@ web writes generally require a secure context and a user action.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyGreeting() {
-	const { clipboardProps, isCopied } = useClipboard({
-		getItems: () => 'Hello from Xplat',
-		announce: 'Copied',
-		onCopy: (success) => {
-			if (!success) console.log('Copy unavailable')
-		},
-	})
+  const { clipboardProps, isCopied } = useClipboard({
+    getItems: () => 'Hello from Xplat',
+    announce: 'Copied',
+    onCopy: (success) => {
+      if (!success) console.log('Copy unavailable')
+    },
+  })
 
-	return (
-		<Pressable {...clipboardProps}>
-			<Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable {...clipboardProps}>
+      <Text>{isCopied ? 'Copied' : 'Copy greeting'}</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -43,9 +43,9 @@ and a pending reset is cancelled when the component unmounts.
 
 ```tsx
 const { clipboardProps, isCopied } = useClipboard({
-	getItems: () => 'Hello',
-	announce: 'Copied to clipboard',
-	resetAfterMs: 2000,
+  getItems: () => 'Hello',
+  announce: 'Copied to clipboard',
+  resetAfterMs: 2000,
 })
 ```
 
@@ -63,13 +63,13 @@ wins over `getItems`, so one hook serves both paths.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function RowCopy({ text }: { text: string }) {
-	const { copy } = useClipboard({ announce: 'Copied' })
+  const { copy } = useClipboard({ announce: 'Copied' })
 
-	return (
-		<Pressable onPress={() => void copy(text)}>
-			<Text>Copy row</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => void copy(text)}>
+      <Text>Copy row</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -85,17 +85,17 @@ A retained route pane stays mounted and continues to own its feedback.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyAndClose(props: { text: string; close: () => void }) {
-	const { copy } = useClipboard({ announce: 'Copied' })
-	return (
-		<Pressable onPress={async () => {
-			const pending = copy(props.text)
-			props.close() // The parent removes this component.
-			const success = await pending
-			console.log(success ? 'Copy completed' : 'Copy unavailable')
-		}}>
-			<Text>Copy and close</Text>
-		</Pressable>
-	)
+  const { copy } = useClipboard({ announce: 'Copied' })
+  return (
+    <Pressable onPress={async () => {
+      const pending = copy(props.text)
+      props.close() // The parent removes this component.
+      const success = await pending
+      console.log(success ? 'Copy completed' : 'Copy unavailable')
+    }}>
+      <Text>Copy and close</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -111,7 +111,7 @@ not establish OS pasteboard or permission qualification.
 import { clipboard } from '@octane-xplat/platform'
 
 export async function copyMessage(text: string): Promise<boolean> {
-	return clipboard.canCopy ? clipboard.writeText(text) : false
+  return clipboard.canCopy ? clipboard.writeText(text) : false
 }
 ```
 
@@ -130,17 +130,17 @@ Software-keyboard layout belongs to `useKeyboardInset`, a separate API.
 import { useKeyboard } from '@octane-xplat/ui'
 
 export function KeyButton() {
-	const { keyboardProps, isSupported } = useKeyboard({
-		onKeyDown: (event) => {
-			if (!event.isComposing) console.log(event.key, event.code)
-		},
-	})
+  const { keyboardProps, isSupported } = useKeyboard({
+    onKeyDown: (event) => {
+      if (!event.isComposing) console.log(event.key, event.code)
+    },
+  })
 
-	return (
-		<button {...keyboardProps} disabled={!isSupported}>
-			Press a key
-		</button>
-	)
+  return (
+    <button {...keyboardProps} disabled={!isSupported}>
+      Press a key
+    </button>
+  )
 }
 ```
 
@@ -155,10 +155,10 @@ specific event handling in an explicit platform leaf.
 import type { KeyboardEvent } from '@octane-xplat/ui'
 
 export function handleKey(event: KeyboardEvent): void {
-	if (event.key === 'Enter' && !event.isComposing && !event.repeat) {
-		event.preventDefault()
-		event.stopPropagation()
-	}
+  if (event.key === 'Enter' && !event.isComposing && !event.repeat) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
 }
 ```
 
@@ -176,14 +176,14 @@ it does not qualify OS input or IME behavior.
 import { useKeyboard } from '@octane-xplat/ui'
 
 export function SearchField() {
-	const keyboard = useKeyboard({ onKeyDown: (event) => {
-		if (event.isComposing) return
-		if (event.metaKey && event.key.toLowerCase() === 'k') {
-			event.preventDefault()
-			console.log('Search command')
-		}
-	} })
-	return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
+  const keyboard = useKeyboard({ onKeyDown: (event) => {
+    if (event.isComposing) return
+    if (event.metaKey && event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+      console.log('Search command')
+    }
+  } })
+  return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
 }
 ```
 
@@ -199,9 +199,9 @@ keep composition keys with the native editor unless interception is intentional.
 import type { KeyboardEvent } from '@octane-xplat/ui'
 
 export function handleSearchKey(event: KeyboardEvent): void {
-	if (event.isComposing || !event.metaKey || event.key.toLowerCase() !== 'k') return
-	event.preventDefault()
-	event.stopPropagation()
+  if (event.isComposing || !event.metaKey || event.key.toLowerCase() !== 'k') return
+  event.preventDefault()
+  event.stopPropagation()
 }
 ```
 
@@ -227,9 +227,9 @@ than React Aria's full clipboard API.
 import { Text, useClipboard, useKeyboard } from '@octane-xplat/ui'
 
 export function InteractionBar() {
-	const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
-	const clipboard = useClipboard({ getItems: () => 'Hello' })
+  const keyboard = useKeyboard({ onKeyUp: (event) => console.log(event.code) })
+  const clipboard = useClipboard({ getItems: () => 'Hello' })
 
-	return <Text>{clipboard.isCopied ? 'Copied' : 'Ready'}</Text>
+  return <Text>{clipboard.isCopied ? 'Copied' : 'Ready'}</Text>
 }
 ```

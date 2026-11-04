@@ -14,10 +14,10 @@ import { providerVerification, hostedVerification } from './server-verification.
 
 // adapters must implement the checks described in the table below.
 export function signInEndpoints(adapters, callbackBase) {
-	return {
-		provider: providerVerification(adapters),
-		hosted: hostedVerification({ ...adapters, callbackBase }),
-	}
+  return {
+    provider: providerVerification(adapters),
+    hosted: hostedVerification({ ...adapters, callbackBase }),
+  }
 }
 ```
 
@@ -45,22 +45,22 @@ result from `authSession` means URL receipt, not server authentication.
 ```ts
 // Client .ts module; inputs come from the server attempt and successful SDK result.
 export async function exchangeProviderCredential(
-	attemptId: string,
-	provider: 'apple' | 'google',
-	idToken: string,
+  attemptId: string,
+  provider: 'apple' | 'google',
+  idToken: string,
 ) {
-	return fetch('/auth/provider', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ attemptId, provider, idToken }),
-	})
+  return fetch('/auth/provider', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ attemptId, provider, idToken }),
+  })
 }
 export async function exchangeHostedCallback(attemptId: string, callbackURL: string) {
-	return fetch('/auth/hosted', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ attemptId, callbackURL }),
-	})
+  return fetch('/auth/hosted', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ attemptId, callbackURL }),
+  })
 }
 ```
 
@@ -83,15 +83,15 @@ import { webAuthn } from '@octane-xplat/platform'
 
 // options are the RP's JSON request options, fetched for this attempt.
 export async function submitPasskey(
-	options: import('@octane-xplat/platform').WebAuthnGetOptionsJSON,
+  options: import('@octane-xplat/platform').WebAuthnGetOptionsJSON,
 ) {
-	if ((await webAuthn.ensure()) !== 'granted') return
-	const credential = await webAuthn.impl!.get(options)
-	return fetch('/auth/passkey/verify', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(credential),
-	})
+  if ((await webAuthn.ensure()) !== 'granted') return
+  const credential = await webAuthn.impl!.get(options)
+  return fetch('/auth/passkey/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credential),
+  })
 }
 ```
 

@@ -14,7 +14,7 @@ bun add @octane-xplat/notifications
 import { notifications } from '@octane-xplat/notifications'
 
 if ((await notifications.requestPermissions()).granted) {
-	notifications.notify('Trip saved', 'Your packing list is up to date')
+  notifications.notify('Trip saved', 'Your packing list is up to date')
 }
 ```
 

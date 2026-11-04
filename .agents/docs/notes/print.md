@@ -11,13 +11,13 @@ exports. See the [public contract](../../../docs/packages/package-print.md) and
 import { Print, printToFileAsync, releasePrintFile } from '@octane-xplat/print'
 
 export async function exportReport(read: (uri: string) => Promise<void>) {
-	if (!Print.capabilities.printToFile) return
-	const pdf = await printToFileAsync({ html: '<h1>Report</h1>' })
-	try {
-		await read(pdf.uri)
-	} finally {
-		releasePrintFile(pdf)
-	}
+  if (!Print.capabilities.printToFile) return
+  const pdf = await printToFileAsync({ html: '<h1>Report</h1>' })
+  try {
+    await read(pdf.uri)
+  } finally {
+    releasePrintFile(pdf)
+  }
 }
 ```
 

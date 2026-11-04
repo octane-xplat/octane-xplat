@@ -16,14 +16,14 @@ for each when you need to.
 import { View, Text, Pressable } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<View>
-			<Text>Packing list</Text>
-			<Pressable onPress={() => console.log('Add item')}>
-				<Text>Add item</Text>
-			</Pressable>
-		</View>
-	)
+  return (
+    <View>
+      <Text>Packing list</Text>
+      <Pressable onPress={() => console.log('Add item')}>
+        <Text>Add item</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 

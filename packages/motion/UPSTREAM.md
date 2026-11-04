@@ -74,7 +74,7 @@ bounds. Per-edge elasticity objects are excluded.
 import { motion } from '@octane-xplat/motion'
 
 export function DraggableCard() {
-	return <motion.View drag="x" dragConstraints={{ left: 0, right: 120 }} dragElastic={0.2} />
+  return <motion.View drag="x" dragConstraints={{ left: 0, right: 120 }} dragElastic={0.2} />
 }
 ```
 
@@ -89,14 +89,14 @@ input handlers and stops settlement without emitting an end callback.
 ```tsx
 // motion is imported above; callbacks report gesture movement before constraints.
 export function DragEvents() {
-	return (
-		<motion.View
-			drag
-			onDragStart={(_event, info) => console.log(info.point)}
-			onDrag={(_event, info) => console.log(info.delta, info.offset)}
-			onDragEnd={(_event, info) => console.log(info.velocity, info.cancelled)}
-		/>
-	)
+  return (
+    <motion.View
+      drag
+      onDragStart={(_event, info) => console.log(info.point)}
+      onDrag={(_event, info) => console.log(info.delta, info.offset)}
+      onDragEnd={(_event, info) => console.log(info.velocity, info.cancelled)}
+    />
+  )
 }
 ```
 
@@ -109,14 +109,14 @@ Reduced motion snaps release settlement; pointer tracking remains live.
 
 ```tsx
 export function BoundedCard() {
-	return (
-		<motion.View
-			drag="x"
-			dragConstraints={{ left: 0, right: 120 }}
-			dragElastic={false}
-			dragMomentum={false}
-		/>
-	)
+  return (
+    <motion.View
+      drag="x"
+      dragConstraints={{ left: 0, right: 120 }}
+      dragElastic={false}
+      dragMomentum={false}
+    />
+  )
 }
 ```
 
@@ -131,8 +131,8 @@ snap-to-origin, dragTransition, or onDragTransitionEnd is implemented. `drag` ax
 import { motion, useMotionValue } from '@octane-xplat/motion'
 
 export function LivePosition() {
-	const x = useMotionValue(0)
-	return <motion.View drag="x" style={{ x }} initial={{ x: 0 }} exit={{ x: -100 }} />
+  const x = useMotionValue(0)
+  return <motion.View drag="x" style={{ x }} initial={{ x: 0 }} exit={{ x: -100 }} />
 }
 ```
 
@@ -176,18 +176,18 @@ supported. Resolvers should be pure; they may be evaluated during validation.
 
 ```tsx
 export function LabelledMotion() {
-	return (
-		<motion.View
-			custom={80}
-			initial="hidden"
-			animate={['shown', 'offset']}
-			variants={{
-				hidden: { opacity: 0 },
-				shown: { opacity: 1 },
-				offset: (custom: number) => ({ x: custom, transition: { duration: 0.2 } }),
-			}}
-		/>
-	)
+  return (
+    <motion.View
+      custom={80}
+      initial="hidden"
+      animate={['shown', 'offset']}
+      variants={{
+        hidden: { opacity: 0 },
+        shown: { opacity: 1 },
+        offset: (custom: number) => ({ x: custom, transition: { duration: 0.2 } }),
+      }}
+    />
+  )
 }
 ```
 
@@ -204,11 +204,11 @@ import { motion } from '@octane-xplat/motion'
 
 const CustomMotionView = motion.create(View)
 export function InheritedMotion() {
-	return (
-		<CustomMotionView initial="hidden" animate="shown">
-			<motion.View variants={{ hidden: { opacity: 0 }, shown: { opacity: 1 } }} />
-		</CustomMotionView>
-	)
+  return (
+    <CustomMotionView initial="hidden" animate="shown">
+      <motion.View variants={{ hidden: { opacity: 0 }, shown: { opacity: 1 } }} />
+    </CustomMotionView>
+  )
 }
 ```
 
@@ -225,20 +225,20 @@ its own inherited run. Registration order does not track keyed visual reorders.
 
 ```tsx
 export function StaggeredCards() {
-	return (
-		<motion.View
-			animate="shown"
-			variants={{
-				shown: {
-					opacity: 1,
-					transition: { delayChildren: 0.1, staggerChildren: 0.05, when: 'beforeChildren' },
-				},
-			}}
-		>
-			<motion.View variants={{ shown: { x: 40 } }} />
-			<motion.View variants={{ shown: { x: 80 } }} />
-		</motion.View>
-	)
+  return (
+    <motion.View
+      animate="shown"
+      variants={{
+        shown: {
+          opacity: 1,
+          transition: { delayChildren: 0.1, staggerChildren: 0.05, when: 'beforeChildren' },
+        },
+      }}
+    >
+      <motion.View variants={{ shown: { x: 40 } }} />
+      <motion.View variants={{ shown: { x: 80 } }} />
+    </motion.View>
+  )
 }
 ```
 
@@ -255,15 +255,15 @@ transitions enter Controller unchanged, retaining existing delegation gates.
 import { Presence, motion } from '@octane-xplat/motion'
 
 export function ExitingCards({ present }: { present: boolean }) {
-	return (
-		<Presence present={present}>
-			<motion.View
-				exit="hidden"
-				variants={{ hidden: { opacity: 0 } }}
-				onAnimationComplete={() => console.log('This host completed')}
-			/>
-		</Presence>
-	)
+  return (
+    <Presence present={present}>
+      <motion.View
+        exit="hidden"
+        variants={{ hidden: { opacity: 0 } }}
+        onAnimationComplete={() => console.log('This host completed')}
+      />
+    </Presence>
+  )
 }
 ```
 
@@ -282,17 +282,17 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { Button, Text } from '@octane-xplat/ui'
 
 export function RetainedCard() {
-	const [present, setPresent] = useState(true)
-	return (
-		<>
-			<Button clickAction={() => setPresent(!present)}>Toggle card</Button>
-			<Presence present={present}>
-				<motion.View exit={{ opacity: 0 }}>
-					<Text>Trip card</Text>
-				</motion.View>
-			</Presence>
-		</>
-	)
+  const [present, setPresent] = useState(true)
+  return (
+    <>
+      <Button clickAction={() => setPresent(!present)}>Toggle card</Button>
+      <Presence present={present}>
+        <motion.View exit={{ opacity: 0 }}>
+          <Text>Trip card</Text>
+        </motion.View>
+      </Presence>
+    </>
+  )
 }
 ```
 
@@ -415,11 +415,11 @@ fallback is not OS evidence. Enable system policy explicitly:
 import { MotionConfig, motion } from '@octane-xplat/motion'
 
 export function SystemMotion() {
-	return (
-		<MotionConfig reducedMotion="user">
-			<motion.View initial={{ x: 0 }} animate={{ x: 40 }} />
-		</MotionConfig>
-	)
+  return (
+    <MotionConfig reducedMotion="user">
+      <motion.View initial={{ x: 0 }} animate={{ x: 40 }} />
+    </MotionConfig>
+  )
 }
 ```
 
@@ -437,7 +437,7 @@ The following request remains unsupported at this boundary:
 import { motion } from '@octane-xplat/motion'
 
 export function UnsupportedDrag() {
-	return <motion.View drag="x" />
+  return <motion.View drag="x" />
 }
 ```
 
@@ -525,9 +525,9 @@ inherited/global namespace, matching Motion's ID behavior.
 import { LayoutGroup, motion } from '@octane-xplat/motion'
 
 export function GroupNamespace() {
-	return <LayoutGroup id="tabs" inherit={false}>
-		<motion.View layoutId="underline" />
-	</LayoutGroup>
+  return <LayoutGroup id="tabs" inherit={false}>
+    <motion.View layoutId="underline" />
+  </LayoutGroup>
 }
 ```
 
@@ -549,9 +549,9 @@ re-entry cancels removal and promotes from the current presented box.
 import { Presence, motion } from '@octane-xplat/motion'
 
 export function SharedPresence({ present }: { present: boolean }) {
-	return <Presence present={present}>
-		<motion.View layoutId="card" layoutCrossfade={false} />
-	</Presence>
+  return <Presence present={present}>
+    <motion.View layoutId="card" layoutCrossfade={false} />
+  </Presence>
 }
 ```
 

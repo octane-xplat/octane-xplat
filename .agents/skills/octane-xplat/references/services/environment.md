@@ -18,7 +18,7 @@ proves physical sleep prevention or installed native behavior.
 import { keepAwake } from '@octane-xplat/platform'
 
 export async function finishReading(): Promise<boolean> {
-	return keepAwake.deactivate('reading')
+  return keepAwake.deactivate('reading')
 }
 ```
 
@@ -40,8 +40,8 @@ import { useAppState, useWindowSize } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function HostStatus() {
-	const size = useWindowSize(), state = useAppState()
-	return <Text>{`${state}: ${size.width}×${size.height}`}</Text>
+  const size = useWindowSize(), state = useAppState()
+  return <Text>{`${state}: ${size.width}×${size.height}`}</Text>
 }
 ```
 
@@ -59,8 +59,8 @@ import { useBackHandler } from '@octane-xplat/platform/lifecycle'
 import { Text } from '@octane-xplat/ui'
 
 export function SharedScreen() {
-	useBackHandler(() => false)
-	return <Text>Screen</Text>
+  useBackHandler(() => false)
+  return <Text>Screen</Text>
 }
 ```
 
@@ -80,7 +80,7 @@ policies; do not infer ObjC/OS delivery or native resource cleanup from the mode
 import { onDeepLink } from '@octane-xplat/platform'
 
 export function watchLinks(onURL: (url: string) => void): () => void {
-	return onDeepLink(onURL)
+  return onDeepLink(onURL)
 }
 ```
 
@@ -95,8 +95,8 @@ retry. See [incoming AppKit links](../../../../../docs/platform/platform-service
 import { onDeepLink } from '@octane-xplat/platform'
 
 export function tryWatchLinks(onURL: (url: string) => void): (() => void) | null {
-	try { return onDeepLink(onURL) }
-	catch { return null }
+  try { return onDeepLink(onURL) }
+  catch { return null }
 }
 ```
 
@@ -157,7 +157,7 @@ remain unsupported; AppKit runtime/packaged behavior is unqualified. See
 import { openSettings } from '@octane-xplat/platform'
 
 export async function showSettings() {
-	return openSettings.supported && await openSettings.isAvailable() && openSettings.open()
+  return openSettings.supported && await openSettings.isAvailable() && openSettings.open()
 }
 ```
 
@@ -216,8 +216,8 @@ import { getColorScheme, useColorScheme, Text } from '@octane-xplat/ui'
 
 console.log(getColorScheme())
 export function Appearance() {
-	const scheme = useColorScheme()
-	return <Text>{scheme}</Text>
+  const scheme = useColorScheme()
+  return <Text>{scheme}</Text>
 }
 ```
 

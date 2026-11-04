@@ -12,7 +12,7 @@ import './routes.gen'
 import { NavLink, RouteOutlet } from '@octane-xplat/ui'
 
 export function App() {
-	return <RouteOutlet><NavLink to="/items/:id" params={{ id: 'coat' }}>Coat</NavLink></RouteOutlet>
+  return <RouteOutlet><NavLink to="/items/:id" params={{ id: 'coat' }}>Coat</NavLink></RouteOutlet>
 }
 ```
 

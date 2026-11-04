@@ -22,11 +22,11 @@ Approved entrypoint names; these imports are not available yet:
 
 ```ts
 type ApprovedEntrypoint =
-	| '@octane-xplat/ui'
-	| '@octane-xplat/ui/routing'
-	| '@octane-xplat/ui/data'
-	| '@octane-xplat/ui/markdown'
-	| '@octane-xplat/ui/chat'
+  | '@octane-xplat/ui'
+  | '@octane-xplat/ui/routing'
+  | '@octane-xplat/ui/data'
+  | '@octane-xplat/ui/markdown'
+  | '@octane-xplat/ui/chat'
 ```
 
 Reasoning: these domains correspond to distinct implementation tasks, so an agent can infer where to look without inspecting the entire root barrel. Keep ordinary UI together because categories such as forms and overlays overlap. Separate packages would add installation and version coordination without being necessary for these boundaries.
@@ -47,9 +47,9 @@ Illustrative state roles; these are not approved prop spellings:
 
 ```ts
 type StateContract<T> = {
-	controlledValue?: T
-	initialValue?: T
-	changeNotification?: (value: T) => void
+  controlledValue?: T
+  initialValue?: T
+  changeNotification?: (value: T) => void
 }
 ```
 
@@ -63,7 +63,7 @@ Illustrative invariant:
 
 ```ts
 type SelectionState =
-	{ mode: 'single'; value: string | null } | { mode: 'multiple'; value: readonly string[] }
+  { mode: 'single'; value: string | null } | { mode: 'multiple'; value: readonly string[] }
 ```
 
 Reasoning: the compiler should catch invalid combinations before execution. Broad independent unions allow plausible-looking generated code to pass checks while expressing an impossible configuration.

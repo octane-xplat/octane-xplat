@@ -50,8 +50,8 @@ import { useRef } from 'octane'
 import type { View } from '@nativescript/core'
 
 export function NativeLabel() {
-	const labelRef = useRef<View | null>(null)
-	return <label ref={labelRef} text="Trip details" />
+  const labelRef = useRef<View | null>(null)
+  return <label ref={labelRef} text="Trip details" />
 }
 ```
 
@@ -99,7 +99,7 @@ presence does not imply another native driver's support. Apps should check
 import type { NativeKeyboardEvent } from '@octane-xplat/jsx/intrinsics'
 
 function handleKey(event: NativeKeyboardEvent<object>): void {
-	if (event.key === 'Enter' && !event.isComposing) event.preventDefault()
+  if (event.key === 'Enter' && !event.isComposing) event.preventDefault()
 }
 ```
 
@@ -110,9 +110,9 @@ Leaf packages that register elements augment `NativeElements` through
 import type { Attributes } from '@octane-xplat/jsx/intrinsics'
 
 declare module '@octane-xplat/jsx/intrinsics' {
-	interface NativeElements<TElement> {
-		camerapreview: Attributes<TElement, { src?: string }>
-	}
+  interface NativeElements<TElement> {
+    camerapreview: Attributes<TElement, { src?: string }>
+  }
 }
 ```
 
@@ -129,7 +129,7 @@ prop. Actual native accessibility behavior remains unqualified.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function NamedActions() {
-	return <masonview accessibilityRole="toolbar" accessibilityLabel="Actions"
-		accessibilityOrientation="horizontal" />
+  return <masonview accessibilityRole="toolbar" accessibilityLabel="Actions"
+    accessibilityOrientation="horizontal" />
 }
 ```

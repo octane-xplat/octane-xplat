@@ -23,7 +23,7 @@ their first line, as `src/main.web.tsrx` does:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */
 export function BrowserMessage() {
-	return <p>Ready</p>
+  return <p>Ready</p>
 }
 ```
 

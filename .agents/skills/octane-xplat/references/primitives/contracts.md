@@ -36,23 +36,23 @@ import { Switch, Slider, Spinner, TextInput } from '@octane-xplat/ui'
 import { Drawer } from '@octane-xplat/drawer'
 
 export function Controls() {
-	const [packed, setPacked] = useState(false)
-	const [volume, setVolume] = useState(50)
-	return (
-		<>
-			<Switch value={packed} onChange={setPacked} />
-			<Slider value={volume} onValueChange={(next) => {
-				if (typeof next === 'number') setVolume(next)
-			}} />
-			<Spinner />
-			<TextInput label="Bag name" />
-			<Drawer
-				open={false}
-				main={<TextInput label="Packing notes" />}
-				drawer={<TextInput label="Drawer notes" />}
-			/>
-		</>
-	)
+  const [packed, setPacked] = useState(false)
+  const [volume, setVolume] = useState(50)
+  return (
+    <>
+      <Switch value={packed} onChange={setPacked} />
+      <Slider value={volume} onValueChange={(next) => {
+        if (typeof next === 'number') setVolume(next)
+      }} />
+      <Spinner />
+      <TextInput label="Bag name" />
+      <Drawer
+        open={false}
+        main={<TextInput label="Packing notes" />}
+        drawer={<TextInput label="Drawer notes" />}
+      />
+    </>
+  )
 }
 ```
 

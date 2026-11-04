@@ -12,20 +12,20 @@ import { BottomSheet, Pressable, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<>
-			<Pressable onPress={() => setOpen(true)}>
-				<Text>Open actions</Text>
-			</Pressable>
-			<BottomSheet label="Actions" isOpen={open} onOpenChange={setOpen}>
-				<Pressable onPress={() => setOpen(false)}>
-					<Text>Close</Text>
-				</Pressable>
-			</BottomSheet>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => setOpen(true)}>
+        <Text>Open actions</Text>
+      </Pressable>
+      <BottomSheet label="Actions" isOpen={open} onOpenChange={setOpen}>
+        <Pressable onPress={() => setOpen(false)}>
+          <Text>Close</Text>
+        </Pressable>
+      </BottomSheet>
+    </>
+  )
 }
 ```
 
@@ -60,24 +60,24 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<>
-			<Pressable onPress={() => setOpen(true)}>
-				<Text>Open actions</Text>
-			</Pressable>
-			<MaterialBottomSheet
-				open={open}
-				onDismissed={() => setOpen(false)}
-				content={() => (
-					<Pressable onPress={() => setOpen(false)}>
-						<Text>Close</Text>
-					</Pressable>
-				)}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Pressable onPress={() => setOpen(true)}>
+        <Text>Open actions</Text>
+      </Pressable>
+      <MaterialBottomSheet
+        open={open}
+        onDismissed={() => setOpen(false)}
+        content={() => (
+          <Pressable onPress={() => setOpen(false)}>
+            <Text>Close</Text>
+          </Pressable>
+        )}
+      />
+    </>
+  )
 }
 ```
 
@@ -98,29 +98,29 @@ const AccountName = createContext('Guest')
 const AccountNameProvider: any = AccountName
 
 function AccountLabel() {
-	return <Text>{useContext(AccountName)}</Text>
+  return <Text>{useContext(AccountName)}</Text>
 }
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<AccountNameProvider value="Avery">
-			<MaterialBottomSheet
-				open={open}
-				onDismissed={() => setOpen(false)}
-				skipPartiallyExpanded={false}
-				content={() => (
-					<View className="sheet-content">
-						<AccountLabel />
-						<Pressable onPress={() => setOpen(false)}>
-							<Text>Close</Text>
-						</Pressable>
-					</View>
-				)}
-			/>
-		</AccountNameProvider>
-	)
+  return (
+    <AccountNameProvider value="Avery">
+      <MaterialBottomSheet
+        open={open}
+        onDismissed={() => setOpen(false)}
+        skipPartiallyExpanded={false}
+        content={() => (
+          <View className="sheet-content">
+            <AccountLabel />
+            <Pressable onPress={() => setOpen(false)}>
+              <Text>Close</Text>
+            </Pressable>
+          </View>
+        )}
+      />
+    </AccountNameProvider>
+  )
 }
 ```
 
@@ -147,23 +147,23 @@ import { Text, Pressable, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<MaterialBottomSheet
-			open={open}
-			onDismissed={() => setOpen(false)}
-			skipPartiallyExpanded={false}
-			content={() => (
-				<View className="sheet-content">
-					<Text>More</Text>
-					<Pressable onPress={() => setOpen(false)}>
-						<Text>Close</Text>
-					</Pressable>
-				</View>
-			)}
-		/>
-	)
+  return (
+    <MaterialBottomSheet
+      open={open}
+      onDismissed={() => setOpen(false)}
+      skipPartiallyExpanded={false}
+      content={() => (
+        <View className="sheet-content">
+          <Text>More</Text>
+          <Pressable onPress={() => setOpen(false)}>
+            <Text>Close</Text>
+          </Pressable>
+        </View>
+      )}
+    />
+  )
 }
 ```
 
@@ -181,23 +181,23 @@ import { Text, Pressable, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<MaterialBottomSheet
-			open={open}
-			onDismissed={() => setOpen(false)}
-			skipPartiallyExpanded={false}
-			content={() => (
-				<View className="sheet-content">
-					<Text>More</Text>
-					<Pressable onPress={() => setOpen(false)}>
-						<Text>Close</Text>
-					</Pressable>
-				</View>
-			)}
-		/>
-	)
+  return (
+    <MaterialBottomSheet
+      open={open}
+      onDismissed={() => setOpen(false)}
+      skipPartiallyExpanded={false}
+      content={() => (
+        <View className="sheet-content">
+          <Text>More</Text>
+          <Pressable onPress={() => setOpen(false)}>
+            <Text>Close</Text>
+          </Pressable>
+        </View>
+      )}
+    />
+  )
 }
 ```
 
@@ -224,20 +224,20 @@ import type { TextInputHandle } from '@octane-xplat/ui'
 import { SwiftUIBottomSheet } from '@octane-xplat/sheet/ios'
 
 export function EditorSheet() {
-	const [open, setOpen] = useState(false)
-	const editing = useRef<TextInputHandle | null>(null)
+  const [open, setOpen] = useState(false)
+  const editing = useRef<TextInputHandle | null>(null)
 
-	return <View>
-		<TextInput ref={editing} placeholder="Draft outside the sheet" />
-		<Button clickAction={() => setOpen(true)}>Edit in a sheet</Button>
-		<SwiftUIBottomSheet open={open} detents={['medium', 'large']}
-			onDismissed={() => { setOpen(false); editing.current?.focus() }}
-			content={() => <View>
-				<TextInput placeholder="Message in the sheet" />
-				<Button clickAction={() => setOpen(false)}>Done</Button>
-			</View>}
-		/>
-	</View>
+  return <View>
+    <TextInput ref={editing} placeholder="Draft outside the sheet" />
+    <Button clickAction={() => setOpen(true)}>Edit in a sheet</Button>
+    <SwiftUIBottomSheet open={open} detents={['medium', 'large']}
+      onDismissed={() => { setOpen(false); editing.current?.focus() }}
+      content={() => <View>
+        <TextInput placeholder="Message in the sheet" />
+        <Button clickAction={() => setOpen(false)}>Done</Button>
+      </View>}
+    />
+  </View>
 }
 ```
 
@@ -252,18 +252,18 @@ import type { TextInputHandle } from '@octane-xplat/ui'
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 
 export function AndroidEditorSheet({ open, close, editing }: {
-	open: boolean
-	close: () => void
-	editing: { current: TextInputHandle | null }
+  open: boolean
+  close: () => void
+  editing: { current: TextInputHandle | null }
 }) {
-	const finish = () => { close(); editing.current?.focus() }
+  const finish = () => { close(); editing.current?.focus() }
 
-	return <MaterialBottomSheet open={open} onDismissed={finish}
-		content={() => <View>
-			<TextInput placeholder="Message in the sheet" />
-			<Button clickAction={finish}>Done</Button>
-		</View>}
-	/>
+  return <MaterialBottomSheet open={open} onDismissed={finish}
+    content={() => <View>
+      <TextInput placeholder="Message in the sheet" />
+      <Button clickAction={finish}>Done</Button>
+    </View>}
+  />
 }
 ```
 
@@ -320,19 +320,19 @@ import { Button, Text, View } from '@octane-xplat/ui'
 const TripName = createContext('Weekend trip')
 const TripNameProvider: any = TripName
 function TripLabel() {
-	return <Text>{useContext(TripName)}</Text>
+  return <Text>{useContext(TripName)}</Text>
 }
 export function TripSheet() {
-	const [open, setOpen] = useState(false)
-	return <TripNameProvider value="Oslo trip">
-		<Button label="Edit trip" clickAction={() => setOpen(true)} />
-		<AppKitSheet open={open} className="gap-3 p-4"
-			onDismissed={() => setOpen(false)}
-			content={() => <View className="gap-3">
-				<TripLabel />
-				<Button label="Save and close" clickAction={() => setOpen(false)} />
-			</View>} />
-	</TripNameProvider>
+  const [open, setOpen] = useState(false)
+  return <TripNameProvider value="Oslo trip">
+    <Button label="Edit trip" clickAction={() => setOpen(true)} />
+    <AppKitSheet open={open} className="gap-3 p-4"
+      onDismissed={() => setOpen(false)}
+      content={() => <View className="gap-3">
+        <TripLabel />
+        <Button label="Save and close" clickAction={() => setOpen(false)} />
+      </View>} />
+  </TripNameProvider>
 }
 ```
 
@@ -347,11 +347,11 @@ to the sheet content host; the anchor carries `id`.
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import { Text } from '@octane-xplat/ui'
 export function RecordSheet({ trip, open, close }: {
-	trip: { id: string; name: string }; open: boolean; close: () => void
+  trip: { id: string; name: string }; open: boolean; close: () => void
 }) {
-	return <AppKitSheet id={`trip-${trip.id}`} open={open}
-		className="gap-3 p-4" style={{ minWidth: 420 }}
-		onDismissed={close} content={() => <Text>{trip.name}</Text>} />
+  return <AppKitSheet id={`trip-${trip.id}`} open={open}
+    className="gap-3 p-4" style={{ minWidth: 420 }}
+    onDismissed={close} content={() => <Text>{trip.name}</Text>} />
 }
 ```
 
@@ -433,14 +433,14 @@ function AccountActions() @{
   const trigger = useRef<HTMLButtonElement | null>(null)
 
   <>
-  	<button ref={trigger} onClick={() => setOpen(true)}>Open actions</button>
-  	<BottomSheet
-  		open={open}
-  		label="Account actions"
-  		finalFocusRef={trigger}
-  		onDismissed={() => setOpen(false)}
-  		content={() => <button onClick={() => setOpen(false)}>Close</button>}
-  	/>
+    <button ref={trigger} onClick={() => setOpen(true)}>Open actions</button>
+    <BottomSheet
+      open={open}
+      label="Account actions"
+      finalFocusRef={trigger}
+      onDismissed={() => setOpen(false)}
+      content={() => <button onClick={() => setOpen(false)}>Close</button>}
+    />
   </>
 }
 ```

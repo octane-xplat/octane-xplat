@@ -23,17 +23,17 @@ show a successful durable save after both steps succeed:
 import { storage } from '@octane-xplat/platform'
 
 export function saveBag(name: string): string {
-	try {
-		storage.setString('selected-bag', name)
-		if (!storage.flush()) return 'Could not confirm the save. Please retry.'
-		return 'Bag saved on this device.'
-	} catch {
-		return 'Storage is unavailable. The bag was not confirmed saved.'
-	}
+  try {
+    storage.setString('selected-bag', name)
+    if (!storage.flush()) return 'Could not confirm the save. Please retry.'
+    return 'Bag saved on this device.'
+  } catch {
+    return 'Storage is unavailable. The bag was not confirmed saved.'
+  }
 }
 export function readBag(): string {
-	try { return storage.getString('selected-bag') ?? 'Carry-on' }
-	catch { return 'Carry-on' }
+  try { return storage.getString('selected-bag') ?? 'Carry-on' }
+  catch { return 'Carry-on' }
 }
 ```
 
@@ -69,49 +69,49 @@ export type PackingItem = { id: number; label: string; packed: number }
 
 /** App-owned schema; a failed migration leaves the old schema/version intact. */
 export async function migratePackingList(db: SqliteDb) {
-	await db.transaction(async (tx) => {
-		let version = await tx.getUserVersion()
-		if (version > 2) throw new Error('This database needs a newer app version.')
-		if (version < 1) {
-			await tx.execute('CREATE TABLE packing_items (id INTEGER PRIMARY KEY, label TEXT NOT NULL)')
-			await tx.setUserVersion(1)
-			version = 1
-		}
-		if (version < 2) {
-			await tx.execute('ALTER TABLE packing_items ADD COLUMN packed INTEGER NOT NULL DEFAULT 0')
-			await tx.setUserVersion(2)
-		}
-	})
+  await db.transaction(async (tx) => {
+    let version = await tx.getUserVersion()
+    if (version > 2) throw new Error('This database needs a newer app version.')
+    if (version < 1) {
+      await tx.execute('CREATE TABLE packing_items (id INTEGER PRIMARY KEY, label TEXT NOT NULL)')
+      await tx.setUserVersion(1)
+      version = 1
+    }
+    if (version < 2) {
+      await tx.execute('ALTER TABLE packing_items ADD COLUMN packed INTEGER NOT NULL DEFAULT 0')
+      await tx.setUserVersion(2)
+    }
+  })
 }
 
 export async function openPackingList(name = 'packing.db', allowTransient = false) {
-	if (!supported) throw new Error('Local database storage is unavailable on this target.')
-	const db = await openDatabase(name)
-	try {
-		if (!db.persistent && !allowTransient) {
-			throw new Error('Durable storage is unavailable. Changes would be lost when this session ends.')
-		}
-		await migratePackingList(db)
-	} catch (error) {
-		await db.close()
-		throw error
-	}
-	function label(value: string) {
-		const result = value.trim()
-		if (!result) throw new Error('Enter an item name.')
-		return result
-	}
-	return {
-		persistent: db.persistent,
-		list: () => db.select<PackingItem>('SELECT id, label, packed FROM packing_items ORDER BY id'),
-		add: (value: string) => db.execute('INSERT INTO packing_items(label) VALUES (?)', [label(value)]),
-		rename: (id: number, value: string) =>
-			db.execute('UPDATE packing_items SET label = ? WHERE id = ?', [label(value), id]),
-		setPacked: (id: number, packed: boolean) =>
-			db.execute('UPDATE packing_items SET packed = ? WHERE id = ?', [packed ? 1 : 0, id]),
-		remove: (id: number) => db.execute('DELETE FROM packing_items WHERE id = ?', [id]),
-		close: () => db.close(),
-	}
+  if (!supported) throw new Error('Local database storage is unavailable on this target.')
+  const db = await openDatabase(name)
+  try {
+    if (!db.persistent && !allowTransient) {
+      throw new Error('Durable storage is unavailable. Changes would be lost when this session ends.')
+    }
+    await migratePackingList(db)
+  } catch (error) {
+    await db.close()
+    throw error
+  }
+  function label(value: string) {
+    const result = value.trim()
+    if (!result) throw new Error('Enter an item name.')
+    return result
+  }
+  return {
+    persistent: db.persistent,
+    list: () => db.select<PackingItem>('SELECT id, label, packed FROM packing_items ORDER BY id'),
+    add: (value: string) => db.execute('INSERT INTO packing_items(label) VALUES (?)', [label(value)]),
+    rename: (id: number, value: string) =>
+      db.execute('UPDATE packing_items SET label = ? WHERE id = ?', [label(value), id]),
+    setPacked: (id: number, packed: boolean) =>
+      db.execute('UPDATE packing_items SET packed = ? WHERE id = ?', [packed ? 1 : 0, id]),
+    remove: (id: number) => db.execute('DELETE FROM packing_items WHERE id = ?', [id]),
+    close: () => db.close(),
+  }
 }
 
 export type PackingList = Awaited<ReturnType<typeof openPackingList>>
@@ -136,108 +136,108 @@ import { useEffect, useMemo, useState } from 'octane'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import { createStore, useStore } from '@octane-xplat/ui/data'
 import {
-	openPackingList,
-	type PackingItem,
-	type PackingList,
+  openPackingList,
+  type PackingItem,
+  type PackingList,
 } from './packing-list'
 
 export function PackingScreen() {
-	const store = useMemo(
-		() => createStore({ items: [] as PackingItem[], message: 'Opening packing list…', busy: true }),
-		[],
-	)
-	const state = useStore(store)
-	const owner = useMemo(() => ({ list: null as PackingList | null, active: true }), [])
-	const [draft, setDraft] = useState('Passport')
-	useEffect(() => {
-		owner.active = true
-		void (async () => {
-			try {
-				const list = await openPackingList()
-				if (!owner.active) {
-					await list.close()
-					return
-				}
-				owner.list = list
-				const items = await list.list()
-				if (owner.active) {
-					store.set({ items, busy: false, message: 'Packing list loaded.' })
-				}
-			} catch {
-				if (owner.active) {
-					store.update((s) => ({
-						...s,
-						busy: false,
-						message: 'Could not open the saved list. Close and reopen this screen to retry.',
-					}))
-				}
-			}
-		})()
-		return () => {
-			owner.active = false
-			const list = owner.list
-			owner.list = null
-			if (list) {
-				void list.close().catch(() => console.error('Packing database close failed.'))
-			}
-		}
-	}, [])
-	async function change(action: (list: PackingList) => Promise<void>) {
-		if (store.getSnapshot().busy || !owner.list) {
-			return
-		}
-		store.update((s) => ({ ...s, busy: true }))
-		try {
-			await action(owner.list)
-			const items = await owner.list.list()
-			if (owner.active) {
-				store.set({ items, busy: false, message: 'Saved on this device.' })
-			}
-		} catch {
-			if (owner.active) {
-				store.update((s) => ({
-					...s,
-					busy: false,
-					message:
-						'Save or reload failed. Reopen the list before retrying; the write may have completed.',
-				}))
-			}
-		}
-	}
-	return (
-		<VStack>
-			<Text>Packing list</Text>
-			<TextInput label="Item name" value={draft} onChange={setDraft} />
-			<Button
-				label="Add item"
-				isDisabled={state.busy || !owner.list}
-				clickAction={() => change((list) => list.add(draft))}
-			/>
-			<Text>{state.message}</Text>
-			{state.items.map((item) => (
-				<VStack>
-					<Text>
-						{item.label}: {item.packed ? 'packed' : 'not packed'}
-					</Text>
-					<Button
-						label={item.packed ? 'Mark not packed' : 'Mark packed'}
-						isDisabled={state.busy}
-						clickAction={() => change((list) => list.setPacked(item.id, !item.packed))}
-					/>
-					<Button
-						label="Rename using item name"
-						isDisabled={state.busy}
-						clickAction={() => change((list) => list.rename(item.id, draft))}
-					/>
-					<Button
-						label="Remove item"
-						isDisabled={state.busy}
-						clickAction={() => change((list) => list.remove(item.id))}
-					/>
-				</VStack>
-			))}
-		</VStack>
-	)
+  const store = useMemo(
+    () => createStore({ items: [] as PackingItem[], message: 'Opening packing list…', busy: true }),
+    [],
+  )
+  const state = useStore(store)
+  const owner = useMemo(() => ({ list: null as PackingList | null, active: true }), [])
+  const [draft, setDraft] = useState('Passport')
+  useEffect(() => {
+    owner.active = true
+    void (async () => {
+      try {
+        const list = await openPackingList()
+        if (!owner.active) {
+          await list.close()
+          return
+        }
+        owner.list = list
+        const items = await list.list()
+        if (owner.active) {
+          store.set({ items, busy: false, message: 'Packing list loaded.' })
+        }
+      } catch {
+        if (owner.active) {
+          store.update((s) => ({
+            ...s,
+            busy: false,
+            message: 'Could not open the saved list. Close and reopen this screen to retry.',
+          }))
+        }
+      }
+    })()
+    return () => {
+      owner.active = false
+      const list = owner.list
+      owner.list = null
+      if (list) {
+        void list.close().catch(() => console.error('Packing database close failed.'))
+      }
+    }
+  }, [])
+  async function change(action: (list: PackingList) => Promise<void>) {
+    if (store.getSnapshot().busy || !owner.list) {
+      return
+    }
+    store.update((s) => ({ ...s, busy: true }))
+    try {
+      await action(owner.list)
+      const items = await owner.list.list()
+      if (owner.active) {
+        store.set({ items, busy: false, message: 'Saved on this device.' })
+      }
+    } catch {
+      if (owner.active) {
+        store.update((s) => ({
+          ...s,
+          busy: false,
+          message:
+            'Save or reload failed. Reopen the list before retrying; the write may have completed.',
+        }))
+      }
+    }
+  }
+  return (
+    <VStack>
+      <Text>Packing list</Text>
+      <TextInput label="Item name" value={draft} onChange={setDraft} />
+      <Button
+        label="Add item"
+        isDisabled={state.busy || !owner.list}
+        clickAction={() => change((list) => list.add(draft))}
+      />
+      <Text>{state.message}</Text>
+      {state.items.map((item) => (
+        <VStack>
+          <Text>
+            {item.label}: {item.packed ? 'packed' : 'not packed'}
+          </Text>
+          <Button
+            label={item.packed ? 'Mark not packed' : 'Mark packed'}
+            isDisabled={state.busy}
+            clickAction={() => change((list) => list.setPacked(item.id, !item.packed))}
+          />
+          <Button
+            label="Rename using item name"
+            isDisabled={state.busy}
+            clickAction={() => change((list) => list.rename(item.id, draft))}
+          />
+          <Button
+            label="Remove item"
+            isDisabled={state.busy}
+            clickAction={() => change((list) => list.remove(item.id))}
+          />
+        </VStack>
+      ))}
+    </VStack>
+  )
 }
 ```
 
@@ -265,15 +265,15 @@ its own `packing-check.db`:
 import { openPackingList } from './packing-list'
 
 export async function checkReopen(): Promise<string> {
-	const first = await openPackingList('packing-check.db')
-	try { await first.add('Reopen check') }
-	finally { await first.close() }
-	const second = await openPackingList('packing-check.db')
-	try {
-		const found = (await second.list()).some((item) => item.label === 'Reopen check')
-		if (!found) throw new Error('The saved item was not found after reopening.')
-		return 'Item found after closing and reopening the database.'
-	} finally { await second.close() }
+  const first = await openPackingList('packing-check.db')
+  try { await first.add('Reopen check') }
+  finally { await first.close() }
+  const second = await openPackingList('packing-check.db')
+  try {
+    const found = (await second.list()).some((item) => item.label === 'Reopen check')
+    if (!found) throw new Error('The saved item was not found after reopening.')
+    return 'Item found after closing and reopening the database.'
+  } finally { await second.close() }
 }
 ```
 
@@ -298,14 +298,14 @@ import type { SqliteDb } from '@octane-xplat/sqlite'
 import type { PackingItem } from './packing-list'
 
 export async function inspectPackingList(db: SqliteDb) {
-	const first = await db.get<PackingItem>('SELECT id, label, packed FROM packing_items ORDER BY id LIMIT 1')
-	const firstArray = await db.getArray('SELECT id, label FROM packing_items ORDER BY id LIMIT 1')
-	const arrays = await db.selectArray('SELECT id, label FROM packing_items ORDER BY id')
-	const labels: string[] = []
-	const count = await db.each('SELECT label FROM packing_items ORDER BY id', [],
-		(error, row) => { if (error) throw error; labels.push(String(row.label)) },
-		(error) => { if (error) throw error })
-	return { first, firstArray, arrays, labels, count }
+  const first = await db.get<PackingItem>('SELECT id, label, packed FROM packing_items ORDER BY id LIMIT 1')
+  const firstArray = await db.getArray('SELECT id, label FROM packing_items ORDER BY id LIMIT 1')
+  const arrays = await db.selectArray('SELECT id, label FROM packing_items ORDER BY id')
+  const labels: string[] = []
+  const count = await db.each('SELECT label FROM packing_items ORDER BY id', [],
+    (error, row) => { if (error) throw error; labels.push(String(row.label)) },
+    (error) => { if (error) throw error })
+  return { first, firstArray, arrays, labels, count }
 }
 ```
 
@@ -328,9 +328,9 @@ import { openPackingList } from './packing-list'
 
 const preview = await openPackingList('preview.db', true)
 try {
-	const notice = preview.persistent ? 'Saved locally.' : 'Session only: closing this page loses changes.'
-	await preview.add('Preview item')
-	console.log(notice, await preview.list())
+  const notice = preview.persistent ? 'Saved locally.' : 'Session only: closing this page loses changes.'
+  await preview.add('Preview item')
+  console.log(notice, await preview.list())
 } finally { await preview.close() }
 ```
 
@@ -354,10 +354,10 @@ avoid a migration error:
 import { deleteDatabase } from '@octane-xplat/sqlite'
 
 export async function eraseClosedPackingList(): Promise<string> {
-	try {
-		const removed = await deleteDatabase('packing.db')
-		return removed ? 'Local packing data removed.' : 'No persisted file removal was confirmed.'
-	} catch { return 'Could not remove local packing data. Retry after closing its screens.' }
+  try {
+    const removed = await deleteDatabase('packing.db')
+    return removed ? 'Local packing data removed.' : 'No persisted file removal was confirmed.'
+  } catch { return 'Could not remove local packing data. Retry after closing its screens.' }
 }
 ```
 

@@ -63,10 +63,10 @@ including numeric zero. The shared props remain unchanged:
 import { List, ListItem } from '@octane-xplat/ui'
 
 export function MessageRows() {
-	return <List>
-		<ListItem label="Inbox" onPress={() => console.log('Opened')} />
-		<ListItem label={0} description="Unread" />
-	</List>
+  return <List>
+    <ListItem label="Inbox" onPress={() => console.log('Opened')} />
+    <ListItem label={0} description="Unread" />
+  </List>
 }
 ```
 
@@ -97,11 +97,11 @@ Public props and plugin composition stay the same:
 import { Table, useTableSortable, useTableSortableState } from '@octane-xplat/ui'
 
 export function SortedRows() {
-	const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
-	const sortable = useTableSortable(state.sortConfig)
-	return <Table data={state.sortedData}
-		columns={[{ key: 'name', header: 'Name', sortable: true }]}
-		plugins={{ sortable }} />
+  const state = useTableSortableState({ data: [{ name: 'Inbox' }, { name: 'Archive' }] })
+  const sortable = useTableSortable(state.sortConfig)
+  return <Table data={state.sortedData}
+    columns={[{ key: 'name', header: 'Name', sortable: true }]}
+    plugins={{ sortable }} />
 }
 ```
 

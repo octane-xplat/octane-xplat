@@ -7,9 +7,9 @@ import { captureScreen, releaseCapture } from '@octane-xplat/view-shot'
 
 const uri = await captureScreen({ format: 'png' })
 try {
-	// Consume the temporary image.
+  // Consume the temporary image.
 } finally {
-	releaseCapture(uri)
+  releaseCapture(uri)
 }
 ```
 

@@ -15,8 +15,8 @@ bun add @octane-xplat/geolocation
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.requestPermissions()).granted) {
-	const pos = await geolocation.getCurrentPosition()
-	// { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
+  const pos = await geolocation.getCurrentPosition()
+  // { latitude, longitude, accuracy, altitude, heading, speed, timestamp }
 }
 ```
 
@@ -35,14 +35,14 @@ a numeric `code` is not guaranteed. Web and macOS failures use codes 1
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.requestPermissions()).granted) {
-	try {
-		const position = await geolocation.getCurrentPosition()
-		console.log(position.latitude, position.longitude)
-	} catch (error) {
-		const code =
-			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
-		console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
-	}
+  try {
+    const position = await geolocation.getCurrentPosition()
+    console.log(position.latitude, position.longitude)
+  } catch (error) {
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
+    console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
+  }
 }
 ```
 
@@ -86,18 +86,18 @@ without a deadline, and omitted maximumAge requires a fresh fix.
 import { geolocation } from '@octane-xplat/geolocation'
 
 if ((await geolocation.requestPermissions()).granted) {
-	try {
-		const position = await geolocation.getCurrentPosition({
-			enableHighAccuracy: true,
-			timeout: 10000,
-			maximumAge: 5000,
-		})
-		console.log(position.latitude, position.longitude)
-	} catch (error) {
-		const code =
-			typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
-		console.log('Location failed', code)
-	}
+  try {
+    const position = await geolocation.getCurrentPosition({
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 5000,
+    })
+    console.log(position.latitude, position.longitude)
+  } catch (error) {
+    const code =
+      typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
+    console.log('Location failed', code)
+  }
 }
 ```
 

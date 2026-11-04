@@ -39,12 +39,12 @@ its bound component:
 import { MyIcons, NanoIcon as MyIcon } from './icons-font/My'
 
 export function NextAction() {
-	return (
-		<>
-			<MyIcon name="arrow-right" size={24} color="#2563eb" label="Next" />
-			<MyIcons.Icon name="check" size={20} />
-		</>
-	)
+  return (
+    <>
+      <MyIcon name="arrow-right" size={24} color="#2563eb" label="Next" />
+      <MyIcons.Icon name="check" size={20} />
+    </>
+  )
 }
 ```
 
@@ -56,7 +56,7 @@ import { NanoIcon } from '@octane-xplat/nano-icons'
 import './icons-font/My' // registers on import
 
 export function Row() {
-	return <NanoIcon name="bell" size={24} />
+  return <NanoIcon name="bell" size={24} />
 }
 ```
 
@@ -93,10 +93,10 @@ import { buildNanoIconFont, iconifyCollectionToSvgs } from '@octane-xplat/nano-i
 import heroicons from '@iconify-json/heroicons/icons.json' with { type: 'json' }
 
 await buildNanoIconFont({
-	icons: iconifyCollectionToSvgs(heroicons),
-	outputDir: 'src/icons-font',
-	fontFamily: 'HeroIcons',
-	web: true,
+  icons: iconifyCollectionToSvgs(heroicons),
+  outputDir: 'src/icons-font',
+  fontFamily: 'HeroIcons',
+  web: true,
 })
 ```
 
@@ -105,14 +105,14 @@ For several sets or repeatable builds, put `.nanoicons.json` at the package root
 
 ```json
 {
-	"iconSets": [
-		{
-			"inputDir": "assets/icons",
-			"fontFamily": "My",
-			"outputDir": "src/icons-font",
-			"appFontsDir": "app/fonts"
-		}
-	]
+  "iconSets": [
+    {
+      "inputDir": "assets/icons",
+      "fontFamily": "My",
+      "outputDir": "src/icons-font",
+      "appFontsDir": "app/fonts"
+    }
+  ]
 }
 ```
 
@@ -125,12 +125,12 @@ family, drawn top-to-bottom in source order. `color` tints by `tintMode`:
 ```tsx
 // Inside the component that imports MyIcon from the generated module:
 <>
-	{/* Default: tint only layers authored with currentColor. */}
-	<MyIcon name="bell" color="#e11d48" />
-	{/* Tint every layer. */}
-	<MyIcon name="bell" color="#e11d48" tintMode="all" />
-	{/* Apply a palette in tintable-layer order. */}
-	<MyIcon name="bell" color={['#f59e0b', '#1d4ed8']} tintMode="all" />
+  {/* Default: tint only layers authored with currentColor. */}
+  <MyIcon name="bell" color="#e11d48" />
+  {/* Tint every layer. */}
+  <MyIcon name="bell" color="#e11d48" tintMode="all" />
+  {/* Apply a palette in tintable-layer order. */}
+  <MyIcon name="bell" color={['#f59e0b', '#1d4ed8']} tintMode="all" />
 </>
 ```
 
@@ -181,19 +181,19 @@ used `NanoIcon` with `addCollection` names:
 
 ```ts
 import {
-	buildNanoIconFont, // Node: run the pipeline
-	iconifyCollectionToSvgs, // Node: Iconify collection → svg inputs
-	type NanoIconFontOptions, // inputDir/icons, outputDir, fontFamily, web, appFontsDir…
+  buildNanoIconFont, // Node: run the pipeline
+  iconifyCollectionToSvgs, // Node: Iconify collection → svg inputs
+  type NanoIconFontOptions, // inputDir/icons, outputDir, fontFamily, web, appFontsDir…
 } from '@octane-xplat/nano-icons/build'
 import {
-	NanoIcon, // registry-resolving component
-	createNanoIconSet, // bind a glyph map (+ font source) to a set
-	registerNanoIconFont, // platform registration primitive
-	resolveNanoIcon, // name → { set, entry } lookup
-	type NanoIconProps,
-	NanoIconSet,
-	NanoGlyphMap,
-	NanoFontSource,
+  NanoIcon, // registry-resolving component
+  createNanoIconSet, // bind a glyph map (+ font source) to a set
+  registerNanoIconFont, // platform registration primitive
+  resolveNanoIcon, // name → { set, entry } lookup
+  type NanoIconProps,
+  NanoIconSet,
+  NanoGlyphMap,
+  NanoFontSource,
 } from '@octane-xplat/nano-icons'
 ```
 

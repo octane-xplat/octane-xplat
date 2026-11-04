@@ -30,7 +30,7 @@ replacement of unmatched UTF-16 surrogates.
 import { CryptoDigestAlgorithm, digestStringAsync } from '@octane-xplat/crypto'
 
 export function checksum(text: string) {
-	return digestStringAsync(CryptoDigestAlgorithm.SHA256, text)
+  return digestStringAsync(CryptoDigestAlgorithm.SHA256, text)
 }
 // await checksum('abc') starts with 'ba7816bf'.
 ```
@@ -43,10 +43,10 @@ copies it before asynchronous work, so later caller edits do not change the job.
 import { digest, digestStringAsync, CryptoEncoding } from '@octane-xplat/crypto'
 
 export async function binaryChecksum(bytes: Uint8Array) {
-	return new Uint8Array(await digest('SHA-256', bytes))
+  return new Uint8Array(await digest('SHA-256', bytes))
 }
 export function encodedChecksum(text: string) {
-	return digestStringAsync('SHA-256', text, { encoding: CryptoEncoding.BASE64 })
+  return digestStringAsync('SHA-256', text, { encoding: CryptoEncoding.BASE64 })
 }
 ```
 
@@ -60,7 +60,7 @@ reject as unavailable. No password hashing or key derivation API is included.
 import { Crypto } from '@octane-xplat/crypto'
 
 export function canHashReports() {
-	return Crypto.capabilities.digestAlgorithms.includes('SHA-256')
+  return Crypto.capabilities.digestAlgorithms.includes('SHA-256')
 }
 ```
 
@@ -73,19 +73,19 @@ and encrypted bytes so the caller can immediately demonstrate a round trip.
 
 ```ts
 import {
-	AESEncryptionKey,
-	AESSealedData,
-	aesEncryptAsync,
-	aesDecryptAsync,
+  AESEncryptionKey,
+  AESSealedData,
+  aesEncryptAsync,
+  aesDecryptAsync,
 } from '@octane-xplat/crypto'
 
 export async function tryEncryption(bytes: Uint8Array) {
-	const key = await AESEncryptionKey.generate() // 256 bits by default
-	const sealed = await aesEncryptAsync(bytes, key)
-	const savedBytes = await sealed.combined()
-	const restored = AESSealedData.fromCombined(savedBytes)
-	const reopened = await aesDecryptAsync(restored, key)
-	return { savedBytes, reopened }
+  const key = await AESEncryptionKey.generate() // 256 bits by default
+  const sealed = await aesEncryptAsync(bytes, key)
+  const savedBytes = await sealed.combined()
+  const restored = AESSealedData.fromCombined(savedBytes)
+  const reopened = await aesDecryptAsync(restored, key)
+  return { savedBytes, reopened }
 }
 ```
 
@@ -98,8 +98,8 @@ A string means encoded binary data, not text. Decryption returns bytes by defaul
 import { AESEncryptionKey, aesEncryptAsync, aesDecryptAsync } from '@octane-xplat/crypto'
 
 export async function encryptEncodedBytes(key: AESEncryptionKey) {
-	const sealed = await aesEncryptAsync('AAECAw==', key) // bytes 0, 1, 2, 3
-	return aesDecryptAsync(sealed, key, { output: 'base64' })
+  const sealed = await aesEncryptAsync('AAECAw==', key) // bytes 0, 1, 2, 3
+  return aesDecryptAsync(sealed, key, { output: 'base64' })
 }
 ```
 
@@ -113,7 +113,7 @@ reject rather than being ignored or shortened.
 import { AESEncryptionKey, aesEncryptAsync } from '@octane-xplat/crypto'
 
 export function encryptWithFreshNonce(bytes: Uint8Array, key: AESEncryptionKey) {
-	return aesEncryptAsync(bytes, key) // fresh 12-byte nonce, 16-byte tag
+  return aesEncryptAsync(bytes, key) // fresh 12-byte nonce, 16-byte tag
 }
 ```
 
@@ -126,12 +126,12 @@ no unauthenticated plaintext is returned.
 import { AESEncryptionKey, aesEncryptAsync, aesDecryptAsync } from '@octane-xplat/crypto'
 
 export async function encryptForRecord(
-	bytes: Uint8Array,
-	recordId: Uint8Array,
-	key: AESEncryptionKey,
+  bytes: Uint8Array,
+  recordId: Uint8Array,
+  key: AESEncryptionKey,
 ) {
-	const sealed = await aesEncryptAsync(bytes, key, { additionalData: recordId })
-	return aesDecryptAsync(sealed, key, { additionalData: recordId })
+  const sealed = await aesEncryptAsync(bytes, key, { additionalData: recordId })
+  return aesDecryptAsync(sealed, key, { additionalData: recordId })
 }
 ```
 
@@ -149,14 +149,14 @@ import { AESEncryptionKey } from '@octane-xplat/crypto'
 import { secureStorage } from '@octane-xplat/secure-storage'
 
 export async function saveNativeKey(key: AESEncryptionKey) {
-	if (!secureStorage.supported) throw new Error('Secure key storage is unavailable')
-	if (!(await secureStorage.set('notes-aes-key', await key.encoded('hex')))) {
-		throw new Error('Could not persist the encryption key')
-	}
+  if (!secureStorage.supported) throw new Error('Secure key storage is unavailable')
+  if (!(await secureStorage.set('notes-aes-key', await key.encoded('hex')))) {
+    throw new Error('Could not persist the encryption key')
+  }
 }
 export async function loadNativeKey() {
-	const encoded = await secureStorage.get('notes-aes-key')
-	return encoded === null ? null : AESEncryptionKey.import(encoded, 'hex')
+  const encoded = await secureStorage.get('notes-aes-key')
+  return encoded === null ? null : AESEncryptionKey.import(encoded, 'hex')
 }
 ```
 
@@ -170,8 +170,8 @@ them. Parsing sealed data does not authenticate it; successful decryption does.
 import { AESSealedData } from '@octane-xplat/crypto'
 
 export async function inspectEncryptedBytes(bytes: Uint8Array) {
-	const sealed = AESSealedData.fromCombined(bytes)
-	return { nonceBytes: sealed.ivSize, tagBytes: sealed.tagSize, totalBytes: sealed.combinedSize }
+  const sealed = AESSealedData.fromCombined(bytes)
+  return { nonceBytes: sealed.ivSize, tagBytes: sealed.tagSize, totalBytes: sealed.combinedSize }
 }
 ```
 
@@ -184,7 +184,7 @@ ciphertext-with-tag. These operations preserve the owner's stored bytes.
 import { AESSealedData } from '@octane-xplat/crypto'
 
 export async function separateAndRestore(data: AESSealedData) {
-	return AESSealedData.fromParts(await data.iv(), await data.ciphertext(), await data.tag())
+  return AESSealedData.fromParts(await data.iv(), await data.ciphertext(), await data.tag())
 }
 ```
 
@@ -198,17 +198,17 @@ fall back to `Math.random`.
 
 ```ts
 import {
-	getRandomBytes,
-	getRandomBytesAsync,
-	getRandomValues,
-	randomUUID,
+  getRandomBytes,
+  getRandomBytesAsync,
+  getRandomValues,
+  randomUUID,
 } from '@octane-xplat/crypto'
 
 export async function randomExample() {
-	const bytes = getRandomBytes(32)
-	const moreBytes = await getRandomBytesAsync(32)
-	const words = getRandomValues(new Uint32Array(8))
-	return { bytes, moreBytes, words, id: randomUUID() }
+  const bytes = getRandomBytes(32)
+  const moreBytes = await getRandomBytesAsync(32)
+  const words = getRandomValues(new Uint32Array(8))
+  return { bytes, moreBytes, words, id: randomUUID() }
 }
 ```
 
@@ -224,7 +224,7 @@ bytes everywhere, including explicit values and sealed-data parsing.
 import { Crypto, AESKeySize } from '@octane-xplat/crypto'
 
 export function canEncryptNotes() {
-	return Crypto.capabilities.random && Crypto.capabilities.aesKeySizes.includes(AESKeySize.AES256)
+  return Crypto.capabilities.random && Crypto.capabilities.aesKeySizes.includes(AESKeySize.AES256)
 }
 ```
 
@@ -248,7 +248,7 @@ where plaintext is not intended to persist.
 import { Crypto } from '@octane-xplat/crypto'
 
 export function encryptionSupport() {
-	return Crypto.capabilities
+  return Crypto.capabilities
 }
 ```
 

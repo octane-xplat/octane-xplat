@@ -14,18 +14,18 @@ bun add @octane-xplat/canvas
 import { Canvas } from '@octane-xplat/canvas'
 
 export function Drawing() {
-	return (
-		<Canvas
-			context="2d"
-			width={640}
-			height={480}
-			onReady={({ context }) => {
-				if (!context) return
-				context.fillStyle = '#2563eb'
-				context.fillRect(0, 0, 80, 80)
-			}}
-		/>
-	)
+  return (
+    <Canvas
+      context="2d"
+      width={640}
+      height={480}
+      onReady={({ context }) => {
+        if (!context) return
+        context.fillStyle = '#2563eb'
+        context.fillRect(0, 0, 80, 80)
+      }}
+    />
+  )
 }
 ```
 
@@ -39,14 +39,14 @@ iOS/Android (earlier `getContext` calls can return null). For WebGPU,
 import { Canvas, getGPU } from '@octane-xplat/canvas'
 
 export function DeferredCanvas() {
-	return (
-		<Canvas
-			onReady={({ canvas }) => {
-				const context = canvas.getContext('2d')
-				if (context) context.fillRect(0, 0, 20, 20)
-			}}
-		/>
-	)
+  return (
+    <Canvas
+      onReady={({ canvas }) => {
+        const context = canvas.getContext('2d')
+        if (context) context.fillRect(0, 0, 20, 20)
+      }}
+    />
+  )
 }
 const gpu = getGPU()
 const adapter = await gpu?.requestAdapter()
@@ -72,24 +72,24 @@ import { Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function DrawingWithFallback() {
-	const [drawn, setDrawn] = useState(false)
-	return (
-		<View>
-			{!drawn && <Text>Blue square illustration</Text>}
-			<Canvas
-				context="2d"
-				width={80}
-				height={80}
-				onReady={({ canvas, context }) => {
-					const drawing = context ?? canvas.getContext('2d')
-					if (!drawing) return
-					drawing.fillStyle = '#2563eb'
-					drawing.fillRect(0, 0, 80, 80)
-					setDrawn(true)
-				}}
-			/>
-		</View>
-	)
+  const [drawn, setDrawn] = useState(false)
+  return (
+    <View>
+      {!drawn && <Text>Blue square illustration</Text>}
+      <Canvas
+        context="2d"
+        width={80}
+        height={80}
+        onReady={({ canvas, context }) => {
+          const drawing = context ?? canvas.getContext('2d')
+          if (!drawing) return
+          drawing.fillStyle = '#2563eb'
+          drawing.fillRect(0, 0, 80, 80)
+          setDrawn(true)
+        }}
+      />
+    </View>
+  )
 }
 
 // AppKit returns null here, before adapter/device acquisition.

@@ -19,8 +19,8 @@ import { Calendar } from '@octane-xplat/ui'
 import type { DateRange } from '@octane-xplat/ui'
 
 export function StayDates() {
-	const [range, setRange] = useState<DateRange | null>(null)
-	return <Calendar mode="range" value={range} onChange={setRange} numberOfMonths={2} maxRangeSpan={14} />
+  const [range, setRange] = useState<DateRange | null>(null)
+  return <Calendar mode="range" value={range} onChange={setRange} numberOfMonths={2} maxRangeSpan={14} />
 }
 ```
 
@@ -45,7 +45,7 @@ public prop or independent key parser.
 import { TimeInput } from '@octane-xplat/ui'
 
 export function StartTime(props: { value: string | null; change(value: string | null): void }) {
-	return <TimeInput label="Start time" value={props.value} onChange={props.change} />
+  return <TimeInput label="Start time" value={props.value} onChange={props.change} />
 }
 ```
 
@@ -66,7 +66,7 @@ row focus/highlight is distinct from committed selection.
 import { DateTimeInput } from '@octane-xplat/ui'
 
 export function Appointment(props: { value: string | null; change(value: string | null): void }) {
-	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change} timeOptionInterval={15} />
+  return <DateTimeInput label="Appointment" value={props.value} onChange={props.change} timeOptionInterval={15} />
 }
 ```
 
@@ -97,7 +97,7 @@ settlement, and detached saves settle without UI state writes.
 import { TimeInput } from '@octane-xplat/ui'
 
 export function Starts(props: { value: string | null; change(value: string | null): void }) {
-	return <TimeInput label="Starts" value={props.value} onChange={props.change} increment={15} />
+  return <TimeInput label="Starts" value={props.value} onChange={props.change} increment={15} />
 }
 ```
 
@@ -119,8 +119,8 @@ composition and disabled/busy/detached guards preserve native editing commands.
 import { DateTimeInput } from '@octane-xplat/ui'
 
 export function Appointment(props: { value: string | null; change(value: string | null): void }) {
-	return <DateTimeInput label="Appointment" value={props.value} onChange={props.change}
-		timeIncrement={5} timeOptionInterval={15} />
+  return <DateTimeInput label="Appointment" value={props.value} onChange={props.change}
+    timeIncrement={5} timeOptionInterval={15} />
 }
 ```
 
@@ -147,11 +147,11 @@ import { Button, DateInput } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function Booking(props: { date: string | null; change(date: string | null): void }) {
-	const input = useRef<TextInputHandle | null>(null)
-	return <>
-		<DateInput ref={input} label="Booking date" value={props.date} onChange={props.change} />
-		<Button label="Edit date" clickAction={() => input.current?.focus()} />
-	</>
+  const input = useRef<TextInputHandle | null>(null)
+  return <>
+    <DateInput ref={input} label="Booking date" value={props.date} onChange={props.change} />
+    <Button label="Edit date" clickAction={() => input.current?.focus()} />
+  </>
 }
 ```
 
@@ -172,7 +172,7 @@ UI writes.
 
 ```tsx
 <DateRangeInput label="Stay" value={range} onChange={setRange}
-	changeAction={saveRange} maxRangeSpan={14} />
+  changeAction={saveRange} maxRangeSpan={14} />
 ```
 
  Native
@@ -191,7 +191,7 @@ unblocking alone does not. No window activation or picker opening is requested.
 ```tsx
 import { DateInput } from '@octane-xplat/ui'
 export function NewBooking() {
-	return <DateInput label="Booking date" hasAutoFocus />
+  return <DateInput label="Booking date" hasAutoFocus />
 }
 ```
 
@@ -214,9 +214,9 @@ do not infer missing AppKit support from the unsuffixed mobile helper.
 import { useState } from 'octane'
 import { TimeInput } from '@octane-xplat/ui'
 export function StartTime() {
-	const [time, setTime] = useState<string | null>('14:30')
-	return <TimeInput label="Start time" value={time} onChange={setTime}
-		min="09:00" max="18:00" hasClear />
+  const [time, setTime] = useState<string | null>('14:30')
+  return <TimeInput label="Start time" value={time} onChange={setTime}
+    min="09:00" max="18:00" hasClear />
 }
 ```
 
@@ -237,8 +237,8 @@ correction or teardown. Identical committed values do not repeat change/save.
 import { useState } from 'octane'
 import { DateTimeInput } from '@octane-xplat/ui'
 export function Appointment() {
-	const [value, setValue] = useState<string | null>(null)
-	return <DateTimeInput label="Appointment" value={value} onChange={setValue} hasClear />
+  const [value, setValue] = useState<string | null>(null)
+  return <DateTimeInput label="Appointment" value={value} onChange={setValue} hasClear />
 }
 ```
 
@@ -290,9 +290,9 @@ The renderer skips unchanged date/range writes to avoid disturbing native edits.
 import { useState } from 'octane'
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 export function ClosingTime() {
-	const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
-	return <AppKitDatePicker components="dateAndTime" selection={selection}
-		onSelectionChange={setSelection} accessibilityLabel="Poll closing time" />
+  const [selection, setSelection] = useState(new Date(2026, 9, 29, 12, 30))
+  return <AppKitDatePicker components="dateAndTime" selection={selection}
+    onSelectionChange={setSelection} accessibilityLabel="Poll closing time" />
 }
 ```
 

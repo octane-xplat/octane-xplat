@@ -14,15 +14,15 @@ import { Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [selected, setSelected] = useState('')
+  const [selected, setSelected] = useState('')
 
-	return (
-		<ContextMenu
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-			trigger={() => <Text>Right-click this item</Text>}
-		/>
-	)
+  return (
+    <ContextMenu
+      items={[{ id: 'rename', title: 'Rename' }]}
+      onItemSelected={(id) => console.log(id)}
+      trigger={() => <Text>Right-click this item</Text>}
+    />
+  )
 }
 ```
 
@@ -58,23 +58,23 @@ const AccountName = createContext('Guest')
 const AccountNameProvider: any = AccountName
 
 function AccountLabel() {
-	return <Text>{useContext(AccountName)}</Text>
+  return <Text>{useContext(AccountName)}</Text>
 }
 
 export function Actions() {
-	return (
-		<AccountNameProvider value="Avery">
-			<MaterialContextMenu
-				items={[{ id: 'rename', title: 'Rename' }]}
-				onItemSelected={(id) => console.log(id)}
-				trigger={() => (
-					<View className="menu-card">
-						<AccountLabel />
-					</View>
-				)}
-			/>
-		</AccountNameProvider>
-	)
+  return (
+    <AccountNameProvider value="Avery">
+      <MaterialContextMenu
+        items={[{ id: 'rename', title: 'Rename' }]}
+        onItemSelected={(id) => console.log(id)}
+        trigger={() => (
+          <View className="menu-card">
+            <AccountLabel />
+          </View>
+        )}
+      />
+    </AccountNameProvider>
+  )
 }
 ```
 
@@ -102,19 +102,19 @@ import { Text, View } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [selected, setSelected] = useState('')
+  const [selected, setSelected] = useState('')
 
-	return (
-		<MaterialContextMenu
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-			trigger={() => (
-				<View className="menu-card">
-					<Text>Post card — hold for actions</Text>
-				</View>
-			)}
-		/>
-	)
+  return (
+    <MaterialContextMenu
+      items={[{ id: 'rename', title: 'Rename' }]}
+      onItemSelected={(id) => console.log(id)}
+      trigger={() => (
+        <View className="menu-card">
+          <Text>Post card — hold for actions</Text>
+        </View>
+      )}
+    />
+  )
 }
 ```
 
@@ -134,19 +134,19 @@ import { Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Actions() {
-	const [selected, setSelected] = useState('')
+  const [selected, setSelected] = useState('')
 
-	return (
-		<MaterialContextMenu
-			items={[
-				{ id: 'rename', title: 'Rename' },
-				{ id: 'delete', title: 'Delete', destructive: true, divider: true },
-				{ id: 'archive', title: 'Archive', disabled: true },
-			]}
-			onItemSelected={(id) => console.log(id)}
-			trigger={() => <Text>Hold for actions</Text>}
-		/>
-	)
+  return (
+    <MaterialContextMenu
+      items={[
+        { id: 'rename', title: 'Rename' },
+        { id: 'delete', title: 'Delete', destructive: true, divider: true },
+        { id: 'archive', title: 'Archive', disabled: true },
+      ]}
+      onItemSelected={(id) => console.log(id)}
+      trigger={() => <Text>Hold for actions</Text>}
+    />
+  )
 }
 ```
 
@@ -182,15 +182,15 @@ import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 
 export function NoteActions() {
-	const [note, setNote] = useState('note-a'), [last, setLast] = useState('none')
-	return <VStack gap={2}>
-		<Button label="Switch note" clickAction={() => setNote(note === 'note-a' ? 'note-b' : 'note-a')} />
-		<AppKitContextMenu id={`note-actions-${note}`} accessibilityLabel={`Actions for ${note}`}
-			items={[{ id: 'rename', title: 'Rename' }, { id: 'archive', title: 'Archive', disabled: true }]}
-			trigger={() => <Text>{`Right-click ${note}`}</Text>}
-			onItemSelected={(id) => setLast(`${note}:${id}`)} />
-		<Text>{`Last action: ${last}`}</Text>
-	</VStack>
+  const [note, setNote] = useState('note-a'), [last, setLast] = useState('none')
+  return <VStack gap={2}>
+    <Button label="Switch note" clickAction={() => setNote(note === 'note-a' ? 'note-b' : 'note-a')} />
+    <AppKitContextMenu id={`note-actions-${note}`} accessibilityLabel={`Actions for ${note}`}
+      items={[{ id: 'rename', title: 'Rename' }, { id: 'archive', title: 'Archive', disabled: true }]}
+      trigger={() => <Text>{`Right-click ${note}`}</Text>}
+      onItemSelected={(id) => setLast(`${note}:${id}`)} />
+    <Text>{`Last action: ${last}`}</Text>
+  </VStack>
 }
 ```
 
@@ -208,7 +208,7 @@ a generic message while keeping the trigger content.
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Text } from '@octane-xplat/ui'
 export function EmptyActions() {
-	return <AppKitContextMenu items={[]} trigger={() => <Text>No custom actions</Text>} />
+  return <AppKitContextMenu items={[]} trigger={() => <Text>No custom actions</Text>} />
 }
 ```
 
@@ -226,11 +226,11 @@ AppKit row; the flat-item API does not add native submenus or previews.
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Text, VStack } from '@octane-xplat/ui'
 export function NestedActions() {
-	return <AppKitContextMenu items={[{ id: 'outer', title: 'Outer action' }]} trigger={() => <VStack gap={2}>
-		<Text>Outer actions</Text>
-		<AppKitContextMenu items={[{ id: 'inner', title: 'Inner action' }]}
-			trigger={() => <Text>Inner actions</Text>} onItemSelected={(id) => console.log(id)} />
-	</VStack>} onItemSelected={(id) => console.log(id)} />
+  return <AppKitContextMenu items={[{ id: 'outer', title: 'Outer action' }]} trigger={() => <VStack gap={2}>
+    <Text>Outer actions</Text>
+    <AppKitContextMenu items={[{ id: 'inner', title: 'Inner action' }]}
+      trigger={() => <Text>Inner actions</Text>} onItemSelected={(id) => console.log(id)} />
+  </VStack>} onItemSelected={(id) => console.log(id)} />
 }
 ```
 

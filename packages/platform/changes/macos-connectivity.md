@@ -28,8 +28,8 @@ The CLI builds the package's native Network.framework bridge automatically. An o
 import { connectivity } from '@octane-xplat/platform'
 
 const stop = connectivity.subscribe((state) => {
-	if (state.supported === false) console.log('Waiting for an available network status probe')
-	else console.log(state.online ? 'Route available' : 'Route unavailable')
+  if (state.supported === false) console.log('Waiting for an available network status probe')
+  else console.log(state.online ? 'Route available' : 'Route unavailable')
 })
 stop()
 ```

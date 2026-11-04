@@ -19,16 +19,16 @@ Keep the returned URI while your preview or upload uses it, then release it.
 import { ImageManipulator, SaveFormat, releaseImage } from '@octane-xplat/image-manipulator'
 
 export async function resizeAttachment(source: string) {
-	const context = ImageManipulator.manipulate(source)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		context.resize({ width: 800 })
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(source)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    context.resize({ width: 800 })
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 
 // Later, after a returned result is no longer being displayed or uploaded:
@@ -47,8 +47,8 @@ import { releaseImage } from '@octane-xplat/image-manipulator'
 import type { ImageResult } from '@octane-xplat/image-manipulator'
 
 export function AttachmentPreview({ result }: { result: ImageResult }) {
-	useEffect(() => () => releaseImage(result), [result])
-	return <Image src={result.uri} alt="Resized attachment" />
+  useEffect(() => () => releaseImage(result), [result])
+  return <Image src={result.uri} alt="Resized attachment" />
 }
 ```
 
@@ -83,17 +83,17 @@ Positive rotation angles turn clockwise.
 import { ImageManipulator, FlipType } from '@octane-xplat/image-manipulator'
 
 export async function transformPhoto(sourceUri: string) {
-	const context = ImageManipulator.manipulate(sourceUri)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		context.crop({ originX: 20, originY: 10, width: 100, height: 80 })
-		context.rotate(90).flip(FlipType.Horizontal)
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: 'png' })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(sourceUri)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    context.crop({ originX: 20, originY: 10, width: 100, height: 80 })
+    context.rotate(90).flip(FlipType.Horizontal)
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: 'png' })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 ```
 
@@ -109,15 +109,15 @@ use [media-converter](package-media-converter.md) to retain GIF animation in vid
 import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
 
 export async function toWebP(sourceUri: string) {
-	const context = ImageManipulator.manipulate(sourceUri)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: SaveFormat.WEBP, compress: 0.8 })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(sourceUri)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: SaveFormat.WEBP, compress: 0.8 })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 // The receiving owner calls releaseImage(result) after preview/upload finishes.
 ```
@@ -140,20 +140,20 @@ source of another context; the child retains its source independently.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export async function makeThumbnail(sourceUri: string) {
-	const original = ImageManipulator.manipulate(sourceUri)
-	const pixels = await original.renderAsync()
-	const thumbnail = ImageManipulator.manipulate(pixels)
-	pixels.release()
-	original.release()
-	let image: Awaited<ReturnType<typeof thumbnail.renderAsync>> | undefined
-	try {
-		thumbnail.resize({ width: 160 })
-		image = await thumbnail.renderAsync()
-		return await image.saveAsync({ format: 'png' })
-	} finally {
-		image?.release()
-		thumbnail.release()
-	}
+  const original = ImageManipulator.manipulate(sourceUri)
+  const pixels = await original.renderAsync()
+  const thumbnail = ImageManipulator.manipulate(pixels)
+  pixels.release()
+  original.release()
+  let image: Awaited<ReturnType<typeof thumbnail.renderAsync>> | undefined
+  try {
+    thumbnail.resize({ width: 160 })
+    image = await thumbnail.renderAsync()
+    return await image.saveAsync({ format: 'png' })
+  } finally {
+    image?.release()
+    thumbnail.release()
+  }
 }
 ```
 
@@ -169,7 +169,7 @@ import { releaseImage } from '@octane-xplat/image-manipulator'
 import type { ImageResult } from '@octane-xplat/image-manipulator'
 
 export function discardPreview(result: ImageResult) {
-	releaseImage(result)
+  releaseImage(result)
 }
 ```
 
@@ -188,36 +188,36 @@ import { useImageManipulator, releaseImage } from '@octane-xplat/image-manipulat
 import type { ImageResult } from '@octane-xplat/image-manipulator'
 
 export function ResizeAction(props: { source: string; onResult: (result: ImageResult) => void }) {
-	const context = useImageManipulator(props.source)
-	const [status, setStatus] = useState('Ready')
-	async function resize() {
-		let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-		let result: ImageResult | undefined
-		try {
-			context.reset().resize({ width: 800 })
-			image = await context.renderAsync()
-			result = await image.saveAsync({ format: 'jpeg', compress: 0.8 })
-			props.onResult(result) // The receiving owner must eventually release this result.
-			result = undefined // Ownership was accepted by the callback.
-			setStatus('Photo resized')
-		} catch {
-			setStatus('Could not resize this photo')
-		} finally {
-			if (result) releaseImage(result)
-			image?.release()
-		}
-	}
-	return (
-		<VStack>
-			<Button
-				label="Resize photo"
-				clickAction={() => {
-					void resize()
-				}}
-			/>
-			<Text>{status}</Text>
-		</VStack>
-	)
+  const context = useImageManipulator(props.source)
+  const [status, setStatus] = useState('Ready')
+  async function resize() {
+    let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+    let result: ImageResult | undefined
+    try {
+      context.reset().resize({ width: 800 })
+      image = await context.renderAsync()
+      result = await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+      props.onResult(result) // The receiving owner must eventually release this result.
+      result = undefined // Ownership was accepted by the callback.
+      setStatus('Photo resized')
+    } catch {
+      setStatus('Could not resize this photo')
+    } finally {
+      if (result) releaseImage(result)
+      image?.release()
+    }
+  }
+  return (
+    <VStack>
+      <Button
+        label="Resize photo"
+        clickAction={() => {
+          void resize()
+        }}
+      />
+      <Text>{status}</Text>
+    </VStack>
+  )
 }
 ```
 
@@ -231,7 +231,7 @@ than returning the original image or reporting a successful save.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export async function canTransformImages() {
-	return ImageManipulator.supported && (await ImageManipulator.isAvailable())
+  return ImageManipulator.supported && (await ImageManipulator.isAvailable())
 }
 ```
 
@@ -253,22 +253,22 @@ API is not exported. Extent is web-only, matching Expo's platform scope.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export async function addBorder(sourceUri: string) {
-	const context = ImageManipulator.manipulate(sourceUri)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		context.extent({
-			width: 400,
-			height: 400,
-			originX: 20,
-			originY: 20,
-			backgroundColor: '#ffffff',
-		})
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: 'png', base64: true })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(sourceUri)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    context.extent({
+      width: 400,
+      height: 400,
+      originX: 20,
+      originY: 20,
+      backgroundColor: '#ffffff',
+    })
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: 'png', base64: true })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 ```
 
@@ -282,7 +282,7 @@ it when you need to retain it.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export function boundedContext(sourceUri: string) {
-	return ImageManipulator.manipulate(sourceUri, { maxWidth: 1200, maxHeight: 1200 })
+  return ImageManipulator.manipulate(sourceUri, { maxWidth: 1200, maxHeight: 1200 })
 }
 ```
 

@@ -17,16 +17,16 @@ bun add @octane-xplat/lottie
 import { Lottie } from '@octane-xplat/lottie'
 
 export function Preview() {
-	return (
-		<Lottie
-			src="https://example.com/anim.json"
-			autoPlay
-			loop
-			fit="contain"
-			onLoaded={(event) => console.log(event.duration)}
-			onEnded={() => console.log('Done')}
-		/>
-	)
+  return (
+    <Lottie
+      src="https://example.com/anim.json"
+      autoPlay
+      loop
+      fit="contain"
+      onLoaded={(event) => console.log(event.duration)}
+      onEnded={() => console.log('Done')}
+    />
+  )
 }
 ```
 
@@ -47,7 +47,7 @@ for the complete boundary and runtime evidence.
 import { Lottie } from '@octane-xplat/lottie'
 
 export function InlineAnimation({ animation }: { animation: object }) {
-	return <Lottie data={animation} autoPlay loop={false} fit="contain" />
+  return <Lottie data={animation} autoPlay loop={false} fit="contain" />
 }
 ```
 

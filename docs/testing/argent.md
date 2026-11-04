@@ -18,13 +18,13 @@ so do not run it when global changes are prohibited.
 
 ```json
 {
-	"mcpServers": {
-		"argent": {
-			"command": "bunx",
-			"args": ["@swmansion/argent@0.27.0", "mcp"],
-			"env": { "DO_NOT_TRACK": "1" }
-		}
-	}
+  "mcpServers": {
+    "argent": {
+      "command": "bunx",
+      "args": ["@swmansion/argent@0.27.0", "mcp"],
+      "env": { "DO_NOT_TRACK": "1" }
+    }
+  }
 }
 ```
 

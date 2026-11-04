@@ -111,7 +111,7 @@ under the rule is _validated_ not compiled (see .agents/references/prior-art/oct
 
 ```ts
 Application.setWindowContentResolver(({ window, isPrimary }) =>
-	isPrimary ? undefined : createWindowContent(window),
+  isPrimary ? undefined : createWindowContent(window),
 ) // secondary windows
 Application.run({ create: () => createWindowContent(Application.primaryWindow) })
 // entry ends with import.meta.hot?.dispose(() => { …unmount all roots… })

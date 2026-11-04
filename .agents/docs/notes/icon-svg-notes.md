@@ -16,9 +16,9 @@ color, and sends raw markup to UI's macOS `Image`, which encodes it:
 import { Image } from '@octane-xplat/ui'
 
 const svg =
-	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4338ca" d="M4 4h16v16H4z"/></svg>'
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#4338ca" d="M4 4h16v16H4z"/></svg>'
 export function Mark() {
-	return <Image src={svg} className="w-6 h-6" alt="Trip marker" />
+  return <Image src={svg} className="w-6 h-6" alt="Trip marker" />
 }
 ```
 
@@ -34,8 +34,8 @@ Its public-API mechanism is:
 declare const NSString: any
 
 export function svgDataUri(markup: string): string {
-	const data = NSString.stringWithString(markup).dataUsingEncoding(4)
-	return `data:image/svg+xml;base64,${data.base64EncodedStringWithOptions(0)}`
+  const data = NSString.stringWithString(markup).dataUsingEncoding(4)
+  return `data:image/svg+xml;base64,${data.base64EncodedStringWithOptions(0)}`
 }
 ```
 
@@ -57,7 +57,7 @@ check. ImageIO did not advertise SVG decoding on this host, so a
 declare const NSImage: any
 declare const NSData: any
 const encoded = svgDataUri(
-	'<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24"/></svg>',
+  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24"/></svg>',
 )
 const data = NSData.alloc().initWithBase64EncodedStringOptions(encoded.split(',')[1], 0)
 const image = NSImage.alloc().initWithData(data)
@@ -112,13 +112,13 @@ and marks empty-label images decorative.
 import { Image } from '@octane-xplat/ui'
 
 export function DecorativeMark() {
-	return (
-		<Image
-			className="w-6 h-6"
-			alt=""
-			src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3C%2Fsvg%3E"
-		/>
-	)
+  return (
+    <Image
+      className="w-6 h-6"
+      alt=""
+      src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3C%2Fsvg%3E"
+    />
+  )
 }
 ```
 

@@ -69,9 +69,9 @@ use numeric `x.y.z`.
 import { createUpdates } from '@octane-xplat/updates'
 
 export const updates = createUpdates({
-	endpoint: 'https://updates.example.com',
-	embeddedVersion: '1.0.0',
-	channel: 'stable',
+  endpoint: 'https://updates.example.com',
+  embeddedVersion: '1.0.0',
+  channel: 'stable',
 })
 ```
 
@@ -83,7 +83,7 @@ Create `src/startup.ts` for the confirmation function below.
 import { updates } from './updates'
 
 export function confirmStartup() {
-	if (updates.supported) updates.markHealthy()
+  if (updates.supported) updates.markHealthy()
 }
 ```
 
@@ -98,9 +98,9 @@ settings are retained.
 import { confirmStartup } from './startup'
 
 export async function finishStartup(loadRequiredData: () => Promise<void>) {
-	await loadRequiredData()
-	// Call this after the essential screen has also reported that it loaded.
-	confirmStartup()
+  await loadRequiredData()
+  // Call this after the essential screen has also reported that it loaded.
+  confirmStartup()
 }
 ```
 
@@ -115,16 +115,16 @@ like a failed network request: keep the working app available and retry later.
 import { updates } from './updates'
 
 export async function checkAfterStartup() {
-	if (!updates.supported) return
-	try {
-		const result = await updates.check()
-		if (result.available) {
-			await updates.install(result.manifest)
-			console.log('Update ready for the next time the app opens')
-		}
-	} catch (error) {
-		console.warn('Update check or download failed', error)
-	}
+  if (!updates.supported) return
+  try {
+    const result = await updates.check()
+    if (result.available) {
+      await updates.install(result.manifest)
+      console.log('Update ready for the next time the app opens')
+    }
+  } catch (error) {
+    console.warn('Update check or download failed', error)
+  }
 }
 ```
 
@@ -210,8 +210,8 @@ The request discards any staged update. It never clears the user's app data.
 import { updates } from './updates'
 
 if (updates.supported) {
-	updates.rollback()
-	console.log('Previous version will return when the app next opens')
+  updates.rollback()
+  console.log('Previous version will return when the app next opens')
 }
 ```
 
@@ -224,11 +224,11 @@ cannot replace the newly installed embedded app.
 import { updates } from './updates'
 
 export async function inspectChannel() {
-	if (!updates.supported) return
-	const result = await updates.check()
-	if (!result.available && result.reason === 'rejected') {
-		console.log('This device already rejected that bundle; publish a fixed bundle')
-	}
+  if (!updates.supported) return
+  const result = await updates.check()
+  if (!result.available && result.reason === 'rejected') {
+    console.log('This device already rejected that bundle; publish a fixed bundle')
+  }
 }
 ```
 
@@ -251,11 +251,11 @@ fingerprints or payload build stamps fail before activation.
 import { createUpdates } from '@octane-xplat/updates'
 
 const updates = createUpdates({
-	endpoint: 'https://updates.example.com',
-	embeddedVersion: '1.0.0',
-	maxDownloadBytes: 16 * 1024 * 1024,
-	maxExpandedBytes: 64 * 1024 * 1024,
-	timeout: 30000,
+  endpoint: 'https://updates.example.com',
+  embeddedVersion: '1.0.0',
+  maxDownloadBytes: 16 * 1024 * 1024,
+  maxExpandedBytes: 64 * 1024 * 1024,
+  timeout: 30000,
 })
 ```
 

@@ -17,12 +17,12 @@ import { LexicalEditor, supported } from '@octane-xplat/lexical'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	const [html, setHtml] = useState('<p>Trip notes</p>')
-	return supported ? (
-		<LexicalEditor value={html} onChange={setHtml} />
-	) : (
-		<Text>Editing is unavailable on this target</Text>
-	)
+  const [html, setHtml] = useState('<p>Trip notes</p>')
+  return supported ? (
+    <LexicalEditor value={html} onChange={setHtml} />
+  ) : (
+    <Text>Editing is unavailable on this target</Text>
+  )
 }
 ```
 
@@ -39,7 +39,7 @@ a read-only document, `placeholder` shows hint text on an empty document, and
 import { LexicalEditor } from '@octane-xplat/lexical'
 
 export function ReadOnlyNote({ html }: { html: string }) {
-	return <LexicalEditor value={html} editable={false} />
+  return <LexicalEditor value={html} editable={false} />
 }
 ```
 
@@ -49,31 +49,31 @@ import { LexicalEditor, type LexicalEditorHandle } from '@octane-xplat/lexical'
 import { Button } from '@octane-xplat/ui'
 
 export function DocumentCopy() {
-	const editor = useRef<LexicalEditorHandle | null>(null)
-	const [html, setHtml] = useState('<p>Trip notes</p>')
-	const [jsonReady, setJsonReady] = useState(false)
-	return (
-		<>
-			<LexicalEditor
-				value={html}
-				onChange={setHtml}
-				ref={(handle) => {
-					editor.current = handle
-				}}
-				onReady={() => setJsonReady(editor.current?.getJSON() != null)}
-				onJSONReady={setJsonReady}
-			/>
-			<Button
-				isDisabled={!jsonReady}
-				clickAction={() => {
-					const document = editor.current?.getJSON()
-					if (document) editor.current?.setJSON(document)
-				}}
-			>
-				Round-trip document
-			</Button>
-		</>
-	)
+  const editor = useRef<LexicalEditorHandle | null>(null)
+  const [html, setHtml] = useState('<p>Trip notes</p>')
+  const [jsonReady, setJsonReady] = useState(false)
+  return (
+    <>
+      <LexicalEditor
+        value={html}
+        onChange={setHtml}
+        ref={(handle) => {
+          editor.current = handle
+        }}
+        onReady={() => setJsonReady(editor.current?.getJSON() != null)}
+        onJSONReady={setJsonReady}
+      />
+      <Button
+        isDisabled={!jsonReady}
+        clickAction={() => {
+          const document = editor.current?.getJSON()
+          if (document) editor.current?.setJSON(document)
+        }}
+      >
+        Round-trip document
+      </Button>
+    </>
+  )
 }
 ```
 
@@ -96,12 +96,12 @@ import { LexicalEditor } from '@octane-xplat/lexical'
 import { BadgeNode, BadgePlugin } from './lexical-extensions'
 
 export function NoteEditor() {
-	return (
-		<LexicalEditor
-			value="<p><span data-badge>Voyager</span></p>"
-			web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }}
-		/>
-	)
+  return (
+    <LexicalEditor
+      value="<p><span data-badge>Voyager</span></p>"
+      web={{ nodes: [BadgeNode], plugins: <BadgePlugin /> }}
+    />
+  )
 }
 ```
 
@@ -111,16 +111,16 @@ import { BadgeNode, BadgePlugin } from './lexical-extensions'
 
 // Full replacement: register every node class Lexical needs for your documents.
 export function CustomEditor() {
-	return (
-		<LexicalEditor
-			web={{
-				replaceNodes: true,
-				nodes: [BadgeNode],
-				replacePlugins: true,
-				plugins: <BadgePlugin />,
-			}}
-		/>
-	)
+  return (
+    <LexicalEditor
+      web={{
+        replaceNodes: true,
+        nodes: [BadgeNode],
+        replacePlugins: true,
+        plugins: <BadgePlugin />,
+      }}
+    />
+  )
 }
 ```
 
@@ -157,9 +157,9 @@ reports when the lazy conversion bridge settles.
 
 ```tsx
 <LexicalEditor
-	onJSONReady={(ready) => console.log('JSON ready:', ready)}
-	onFocus={() => console.log('Editor focused')}
-	onBlur={() => console.log('Editor blurred')}
+  onJSONReady={(ready) => console.log('JSON ready:', ready)}
+  onFocus={() => console.log('Editor focused')}
+  onBlur={() => console.log('Editor blurred')}
 />
 ```
 
@@ -198,11 +198,11 @@ regression coverage, separate from native keyboard-input qualification.
 import { LexicalEditor, type LexicalJSON, type LexicalEditorHandle } from '@octane-xplat/lexical'
 
 export function Notes({ json }: { json?: LexicalJSON }) {
-	return <LexicalEditor json={json} value="<p>HTML when JSON is absent</p>" />
+  return <LexicalEditor json={json} value="<p>HTML when JSON is absent</p>" />
 }
 
 export function replaceHTML(editor: LexicalEditorHandle) {
-	editor.setHTML('<p>Replacement, including before JSON readiness</p>')
+  editor.setHTML('<p>Replacement, including before JSON readiness</p>')
 }
 ```
 
@@ -216,6 +216,6 @@ HTML and cannot preserve arbitrary caller nodes or run engine plugins.
 import type { LexicalEditorHandle } from '@octane-xplat/lexical'
 
 export function insertLink(editor: LexicalEditorHandle) {
-	editor.linkTo('https://example.com', 'Example')
+  editor.linkTo('https://example.com', 'Example')
 }
 ```

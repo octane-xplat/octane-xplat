@@ -16,9 +16,9 @@ and [the public props](../../packages/ui/src/props.ts).
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function Form() {
-	return <KeyboardAvoiding keyboardVerticalOffset={12}>
-		<TextInput placeholder="Name" />
-	</KeyboardAvoiding>
+  return <KeyboardAvoiding keyboardVerticalOffset={12}>
+    <TextInput placeholder="Name" />
+  </KeyboardAvoiding>
 }
 ```
 
@@ -50,9 +50,9 @@ synchronized movement. Source:
 import { subscribeKeyboardInset, bindBottomInsetToKeyboard } from '../../packages/ui/src/internal/keyboard/keyboard-inset'
 
 function attach(host: unknown, notify: (inset: number) => void) {
-	const unsubscribe = subscribeKeyboardInset(notify)
-	const unbind = bindBottomInsetToKeyboard(host)
-	return () => { unbind(); unsubscribe() }
+  const unsubscribe = subscribeKeyboardInset(notify)
+  const unbind = bindBottomInsetToKeyboard(host)
+  return () => { unbind(); unsubscribe() }
 }
 ```
 
@@ -70,9 +70,9 @@ import { KeyboardProvider } from '@octane-xplat/keyboard'
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function NativeForm() {
-	return <KeyboardProvider>
-		<KeyboardAvoiding><TextInput /></KeyboardAvoiding>
-	</KeyboardProvider>
+  return <KeyboardProvider>
+    <KeyboardAvoiding><TextInput /></KeyboardAvoiding>
+  </KeyboardProvider>
 }
 ```
 
@@ -87,9 +87,9 @@ must avoid renderer updates per frame.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 function observe(host: object) {
-	return KeyboardController.onMove(host, state => {
-		console.log(state.currentFrame, state.targetFrame)
-	})
+  return KeyboardController.onMove(host, state => {
+    console.log(state.currentFrame, state.targetFrame)
+  })
 }
 ```
 
@@ -118,8 +118,8 @@ frames. No private keyboard-view lookup or fixed warmup timer is used.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 function hasCurrentMovement(host: object) {
-	const state = KeyboardController.getSnapshot(host)
-	return state.capabilities.nativeFrames && state.currentFrame !== null
+  const state = KeyboardController.getSnapshot(host)
+  return state.capabilities.nativeFrames && state.currentFrame !== null
 }
 ```
 
@@ -199,7 +199,7 @@ systems need an explicit destination-only fallback. See
 // Configure only the controller-owned view's guide.
 const guide = ownedView.keyboardLayoutGuide
 if (guide.respondsToSelector('setUsesBottomSafeArea:')) {
-	guide.usesBottomSafeArea = false
+  guide.usesBottomSafeArea = false
 }
 ```
 
@@ -229,10 +229,10 @@ remains unqualified.
 ```ts
 // Event values are native pixels. The owning adapter separately retains bars.
 function consumeIme(event: { inset?: { imeBottom: number; imeBottomConsumed: boolean } }) {
-	if (event.inset) {
-		event.inset.imeBottom = 0
-		event.inset.imeBottomConsumed = true
-	}
+  if (event.inset) {
+    event.inset.imeBottom = 0
+    event.inset.imeBottomConsumed = true
+  }
 }
 ```
 

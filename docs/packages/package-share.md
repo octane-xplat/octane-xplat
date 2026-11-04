@@ -30,9 +30,9 @@ than catching.
 
 ```ts
 if (result === 'copied') {
-	console.log('Trip update copied; paste it into your message app')
+  console.log('Trip update copied; paste it into your message app')
 } else if (result === 'unavailable') {
-	console.log('Sharing is unavailable on this target')
+  console.log('Sharing is unavailable on this target')
 }
 ```
 
@@ -50,12 +50,12 @@ import { share } from '@octane-xplat/share'
 
 // Pass the encoded movie bytes from your recorder or download.
 export async function shareClip(bytes: Uint8Array) {
-	const saved = await files.writeBytes('clip.mov', bytes)
-	try {
-		return await share.file(saved.uri, { subject: 'Share clip' })
-	} finally {
-		files.release(saved)
-	}
+  const saved = await files.writeBytes('clip.mov', bytes)
+  try {
+    return await share.file(saved.uri, { subject: 'Share clip' })
+  } finally {
+    files.release(saved)
+  }
 }
 ```
 

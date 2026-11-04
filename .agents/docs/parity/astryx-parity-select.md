@@ -57,13 +57,13 @@ are both aliases of `SelectProps`. See [shared exports](../../../packages/ui/src
 import { Selector, MultiSelector } from '@octane-xplat/ui'
 
 export function Example() {
-	const options = [{ value: 'sfo', label: 'San Francisco' }]
-	return (
-		<>
-			<Selector options={options} defaultValue="sfo" />
-			<MultiSelector options={options} defaultValue={['sfo']} />
-		</>
-	)
+  const options = [{ value: 'sfo', label: 'San Francisco' }]
+  return (
+    <>
+      <Selector options={options} defaultValue="sfo" />
+      <MultiSelector options={options} defaultValue={['sfo']} />
+    </>
+  )
 }
 ```
 
@@ -82,20 +82,20 @@ import { useState } from 'octane'
 import { Tokenizer, createStaticSource } from '@octane-xplat/ui'
 
 export function Example() {
-	const source = createStaticSource([
-		{ id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
-	])
-	const [items, setItems] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
-	return (
-		<Tokenizer
-			label="Regions"
-			searchSource={source}
-			value={items}
-			onChange={setItems}
-			hasCreate
-			maxEntries={5}
-		/>
-	)
+  const source = createStaticSource([
+    { id: 'sfo', label: 'San Francisco', auxiliaryData: { group: 'West' } },
+  ])
+  const [items, setItems] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+  return (
+    <Tokenizer
+      label="Regions"
+      searchSource={source}
+      value={items}
+      onChange={setItems}
+      hasCreate
+      maxEntries={5}
+    />
+  )
 }
 ```
 
@@ -157,8 +157,8 @@ import { useState } from 'octane'
 
 const source = createStaticSource([])
 export function Tags() {
-	const [tags, setTags] = useState<SearchableItem[]>([])
-	return <Tokenizer label="Tags" searchSource={source} value={tags} onChange={setTags} hasCreate />
+  const [tags, setTags] = useState<SearchableItem[]>([])
+  return <Tokenizer label="Tags" searchSource={source} value={tags} onChange={setTags} hasCreate />
 }
 ```
 
@@ -196,24 +196,24 @@ import { Screen, View, Pressable, Popover, Text } from '@octane-xplat/ui'
 import { useState, useRef } from 'octane'
 
 export function Example() {
-	const anchor = useRef(null)
-	const [open, setOpen] = useState(false)
-	return (
-		<Screen>
-			<View
-				ref={(view) => {
-					anchor.current = view
-				}}
-			>
-				<Pressable onPress={() => setOpen(true)}>
-					<Text>Open</Text>
-				</Pressable>
-			</View>
-			<Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)}>
-				<Text>Anchored content</Text>
-			</Popover>
-		</Screen>
-	)
+  const anchor = useRef(null)
+  const [open, setOpen] = useState(false)
+  return (
+    <Screen>
+      <View
+        ref={(view) => {
+          anchor.current = view
+        }}
+      >
+        <Pressable onPress={() => setOpen(true)}>
+          <Text>Open</Text>
+        </Pressable>
+      </View>
+      <Popover anchor={anchor} open={open} placement="bottom" onDismiss={() => setOpen(false)}>
+        <Text>Anchored content</Text>
+      </Popover>
+    </Screen>
+  )
 }
 ```
 
@@ -256,18 +256,18 @@ import { useState } from 'octane'
 import { Typeahead, Tokenizer, ComplexSelector, createStaticSource, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	const source = createStaticSource([{ id: '42', label: 'Alec' }])
-	const [person, setPerson] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
-	const [people, setPeople] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
-	return (
-		<>
-			<Typeahead label="Person" searchSource={source} value={person} onChange={setPerson} />
-			<Tokenizer label="People" searchSource={source} value={people} onChange={setPeople} />
-			<ComplexSelector label="Color" value="blue">
-				{(value) => <Text>{value}</Text>}
-			</ComplexSelector>
-		</>
-	)
+  const source = createStaticSource([{ id: '42', label: 'Alec' }])
+  const [person, setPerson] = useState<import('@octane-xplat/ui').SearchableItem | null>(null)
+  const [people, setPeople] = useState<import('@octane-xplat/ui').SearchableItem[]>([])
+  return (
+    <>
+      <Typeahead label="Person" searchSource={source} value={person} onChange={setPerson} />
+      <Tokenizer label="People" searchSource={source} value={people} onChange={setPeople} />
+      <ComplexSelector label="Color" value="blue">
+        {(value) => <Text>{value}</Text>}
+      </ComplexSelector>
+    </>
+  )
 }
 ```
 
@@ -324,13 +324,13 @@ UX, and plugin-backed functionality must stay outside dependency-free UI additio
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
 export function Region() {
-	return (
-		<SwiftUIPicker
-			label="Region"
-			options={[{ id: 'sfo', title: 'San Francisco' }]}
-			defaultSelection="sfo"
-		/>
-	)
+  return (
+    <SwiftUIPicker
+      label="Region"
+      options={[{ id: 'sfo', title: 'San Francisco' }]}
+      defaultSelection="sfo"
+    />
+  )
 }
 ```
 

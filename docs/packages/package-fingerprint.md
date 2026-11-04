@@ -34,9 +34,9 @@ reasons and hashes; they omit the configuration values and file contents.
 
 ```js
 import {
-	createFingerprintAsync,
-	createProjectHashAsync,
-	diffFingerprintChangesAsync,
+  createFingerprintAsync,
+  createProjectHashAsync,
+  diffFingerprintChangesAsync,
 } from '@octane-xplat/fingerprint'
 
 const before = await createFingerprintAsync('.', { platforms: ['ios'] })
@@ -89,14 +89,14 @@ can exclude extra inputs, but excluding an automatic native input is an error.
 
 ```json
 {
-	"extraSources": [
-		{
-			"type": "file",
-			"filePath": "native-options.json",
-			"reasons": ["custom native generator input"]
-		}
-	],
-	"toolchain": { "customGeneratorVersion": "1" }
+  "extraSources": [
+    {
+      "type": "file",
+      "filePath": "native-options.json",
+      "reasons": ["custom native generator input"]
+    }
+  ],
+  "toolchain": { "customGeneratorVersion": "1" }
 }
 ```
 

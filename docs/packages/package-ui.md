@@ -38,15 +38,15 @@ import { useState } from 'octane'
 import { Pressable, Text, VStack } from '@octane-xplat/ui'
 
 export function PackingCount() {
-	const [count, setCount] = useState(0)
-	return (
-		<VStack>
-			<Text>{count} items packed</Text>
-			<Pressable onPress={() => setCount(count + 1)}>
-				<Text>Pack an item</Text>
-			</Pressable>
-		</VStack>
-	)
+  const [count, setCount] = useState(0)
+  return (
+    <VStack>
+      <Text>{count} items packed</Text>
+      <Pressable onPress={() => setCount(count + 1)}>
+        <Text>Pack an item</Text>
+      </Pressable>
+    </VStack>
+  )
 }
 ```
 

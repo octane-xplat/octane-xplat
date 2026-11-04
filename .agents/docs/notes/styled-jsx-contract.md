@@ -22,7 +22,7 @@ import { styled, Pressable } from '@octane-xplat/ui'
 const DangerButton = styled(Pressable, { variants: { danger: 'bg-danger' } })
 // Compiled TS2786 before the facade accepted (props, scope); now compiles.
 export function Example() {
-	return <DangerButton danger />
+  return <DangerButton danger />
 }
 ```
 
@@ -34,11 +34,11 @@ changed as part of the skill correction, and no cast is recommended.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Remove() {
-	return (
-		<Pressable className="trip-button bg-danger">
-			<Text>Remove</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable className="trip-button bg-danger">
+      <Text>Remove</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -62,12 +62,12 @@ import { Text } from '@octane-xplat/ui'
 
 const Account = createContext('Guest')
 export function Example() {
-	// Compiled TS2786 before the facade accepted (props, scope); now compiles.
-	return (
-		<Account value="Avery">
-			<Text>Home</Text>
-		</Account>
-	)
+  // Compiled TS2786 before the facade accepted (props, scope); now compiles.
+  return (
+    <Account value="Avery">
+      <Text>Home</Text>
+    </Account>
+  )
 }
 ```
 

@@ -18,7 +18,7 @@ No native runtime behavior is qualified by the source/fake-host models.
 import { connectivity } from '@octane-xplat/platform'
 
 export function watchRoute(onOnline: (online: boolean | undefined) => void) {
-	return connectivity.subscribe(state => onOnline(state.supported === false ? undefined : state.online))
+  return connectivity.subscribe(state => onOnline(state.supported === false ? undefined : state.online))
 }
 ```
 

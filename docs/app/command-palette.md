@@ -15,23 +15,23 @@ results. Set `open` false before reopening it.
 import { CommandPalette, Text } from '@octane-xplat/ui'
 
 ;<CommandPalette
-	open={isOpen}
-	onOpenChange={setIsOpen}
-	label="Workspace commands"
-	items={[
-		{
-			key: 'settings',
-			label: 'Settings',
-			group: 'Navigation',
-			keywords: ['preferences'],
-			description: 'Manage workspace preferences',
-			onSelect: openSettings,
-		},
-		{ key: 'delete', label: 'Delete workspace', group: 'Actions', isDisabled: true },
-	]}
-	searchMode="fuzzy"
-	onValueChange={(id) => setLastCommand(id)}
-	footer={<Text>Choose a command</Text>}
+  open={isOpen}
+  onOpenChange={setIsOpen}
+  label="Workspace commands"
+  items={[
+    {
+      key: 'settings',
+      label: 'Settings',
+      group: 'Navigation',
+      keywords: ['preferences'],
+      description: 'Manage workspace preferences',
+      onSelect: openSettings,
+    },
+    { key: 'delete', label: 'Delete workspace', group: 'Actions', isDisabled: true },
+  ]}
+  searchMode="fuzzy"
+  onValueChange={(id) => setLastCommand(id)}
+  footer={<Text>Choose a command</Text>}
 />
 ```
 
@@ -62,13 +62,13 @@ Reuse the same `SearchSource` interface as Typeahead:
 import type { CommandPaletteItem, SearchSource } from '@octane-xplat/ui'
 
 const source: SearchSource<CommandPaletteItem> = {
-	bootstrap: () => [{ id: 'settings', label: 'Settings', auxiliaryData: { group: 'Recent' } }],
-	async search(query) {
-		const response = await fetch(`/api/commands?q=${encodeURIComponent(query)}`)
-		if (!response.ok) throw new Error('Command search failed')
+  bootstrap: () => [{ id: 'settings', label: 'Settings', auxiliaryData: { group: 'Recent' } }],
+  async search(query) {
+    const response = await fetch(`/api/commands?q=${encodeURIComponent(query)}`)
+    if (!response.ok) throw new Error('Command search failed')
 
-		return await response.json()
-	},
+    return await response.json()
+  },
 }
 ```
 

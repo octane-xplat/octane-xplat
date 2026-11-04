@@ -30,9 +30,9 @@ import { TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return <TextInput label="Name" value={name} onChange={setName} />
+  return <TextInput label="Name" value={name} onChange={setName} />
 }
 ```
 
@@ -47,22 +47,22 @@ import { Field, KeyboardAvoiding, Pressable, Text, TextInput } from '@octane-xpl
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function NameForm() {
-	const [name, setName] = useState('')
-	const input = useRef<TextInputHandle | null>(null)
+  const [name, setName] = useState('')
+  const input = useRef<TextInputHandle | null>(null)
 
-	return (
-		<KeyboardAvoiding>
-			<Field label="Name" isOptional>
-				<TextInput value={name} onChange={setName} ref={input} />
-			</Field>
-			<Pressable onPress={() => setName('')}>
-				<Text>Clear</Text>
-			</Pressable>
-			<Pressable onPress={() => input.current?.blur()}>
-				<Text>Done</Text>
-			</Pressable>
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <Field label="Name" isOptional>
+        <TextInput value={name} onChange={setName} ref={input} />
+      </Field>
+      <Pressable onPress={() => setName('')}>
+        <Text>Clear</Text>
+      </Pressable>
+      <Pressable onPress={() => input.current?.blur()}>
+        <Text>Done</Text>
+      </Pressable>
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -78,7 +78,7 @@ never calls it.
 import { SearchInput } from '@octane-xplat/ui'
 
 export function Example() {
-	return <SearchInput label="Search items" defaultValue="coat" />
+  return <SearchInput label="Search items" defaultValue="coat" />
 }
 ```
 
@@ -91,15 +91,15 @@ import { TextArea } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Note() {
-	const [note, setNote] = useState('')
-	return (
-		<TextArea
-			value={note}
-			onChange={(next) => {
-				if (!next.includes('#')) setNote(next)
-			}}
-		/>
-	)
+  const [note, setNote] = useState('')
+  return (
+    <TextArea
+      value={note}
+      onChange={(next) => {
+        if (!next.includes('#')) setNote(next)
+      }}
+    />
+  )
 }
 ```
 
@@ -119,18 +119,18 @@ import { Field, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return (
-		<Field
-			label="Name"
-			description="Shown on your profile"
-			isRequired
-			status={{ type: 'warning', message: 'Check the spelling' }}
-		>
-			<TextInput value={name} onChange={setName} hasClear isLoading size="sm" />
-		</Field>
-	)
+  return (
+    <Field
+      label="Name"
+      description="Shown on your profile"
+      isRequired
+      status={{ type: 'warning', message: 'Check the spelling' }}
+    >
+      <TextInput value={name} onChange={setName} hasClear isLoading size="sm" />
+    </Field>
+  )
 }
 ```
 
@@ -141,11 +141,11 @@ to the same value. This connects label activation to the intended control.
 import { Field, TextInput } from '@octane-xplat/ui'
 
 export function Account() {
-	return (
-		<Field label="Account" inputID="account">
-			<TextInput id="account" defaultValue="" />
-		</Field>
-	)
+  return (
+    <Field label="Account" inputID="account">
+      <TextInput id="account" defaultValue="" />
+    </Field>
+  )
 }
 ```
 
@@ -182,26 +182,26 @@ import { TextInput, SearchInput, TextArea } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
+  const [name, setName] = useState('')
 
-	return (
-		<>
-			<TextInput
-				label="Name"
-				value={name}
-				onChange={setName}
-				onSubmit={() => console.log('Submitted')}
-			/>
-			<SearchInput label="Search" onSubmit={() => console.log('Submitted')} />
-			<TextArea
-				label="Message"
-				value={name}
-				onChange={setName}
-				returnKeyType="send"
-				onSubmit={() => console.log('Submitted')}
-			/>
-		</>
-	)
+  return (
+    <>
+      <TextInput
+        label="Name"
+        value={name}
+        onChange={setName}
+        onSubmit={() => console.log('Submitted')}
+      />
+      <SearchInput label="Search" onSubmit={() => console.log('Submitted')} />
+      <TextArea
+        label="Message"
+        value={name}
+        onChange={setName}
+        returnKeyType="send"
+        onSubmit={() => console.log('Submitted')}
+      />
+    </>
+  )
 }
 ```
 
@@ -216,7 +216,7 @@ and maxHeight constraints still apply.
 import { TextArea } from '@octane-xplat/ui'
 
 export function Notes(props: { limited: boolean }) {
-	return <TextArea label="Notes" rows={2} autoGrow maxRows={props.limited ? 4 : undefined} />
+  return <TextArea label="Notes" rows={2} autoGrow maxRows={props.limited ? 4 : undefined} />
 }
 ```
 
@@ -253,27 +253,27 @@ import { TextInput, Pressable, Text } from '@octane-xplat/ui'
 import { useState, useRef } from 'octane'
 
 export function Example() {
-	const [name, setName] = useState('')
-	const input = useRef<import('@octane-xplat/ui').TextInputHandle | null>(null)
+  const [name, setName] = useState('')
+  const input = useRef<import('@octane-xplat/ui').TextInputHandle | null>(null)
 
-	return (
-		<>
-			<TextInput
-				label="Name"
-				value={name}
-				onChange={setName}
-				ref={(handle) => {
-					input.current = handle
-				}}
-			/>
-			<Pressable onPress={() => input.current?.focus()}>
-				<Text>Edit</Text>
-			</Pressable>
-			<Pressable onPress={() => input.current?.blur()}>
-				<Text>Done</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <TextInput
+        label="Name"
+        value={name}
+        onChange={setName}
+        ref={(handle) => {
+          input.current = handle
+        }}
+      />
+      <Pressable onPress={() => input.current?.focus()}>
+        <Text>Edit</Text>
+      </Pressable>
+      <Pressable onPress={() => input.current?.blur()}>
+        <Text>Done</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -298,13 +298,13 @@ import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [note, setNote] = useState('')
+  const [note, setNote] = useState('')
 
-	return (
-		<KeyboardAvoiding keyboardVerticalOffset={8}>
-			<TextInput label="Note" value={note} onChange={setNote} />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding keyboardVerticalOffset={8}>
+      <TextInput label="Note" value={note} onChange={setNote} />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -327,25 +327,25 @@ import { Screen, BottomSheet, Pressable, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return (
-		<Screen>
-			<Pressable onPress={() => setOpen(true)}>
-				<Text>Edit name</Text>
-			</Pressable>
-			<BottomSheet
-				label="Edit name"
-				isOpen={open}
-				onOpenChange={setOpen}
-				web={{ 'aria-label': 'Edit name' }}
-			>
-				<Pressable onPress={() => setOpen(false)}>
-					<Text>Close</Text>
-				</Pressable>
-			</BottomSheet>
-		</Screen>
-	)
+  return (
+    <Screen>
+      <Pressable onPress={() => setOpen(true)}>
+        <Text>Edit name</Text>
+      </Pressable>
+      <BottomSheet
+        label="Edit name"
+        isOpen={open}
+        onOpenChange={setOpen}
+        web={{ 'aria-label': 'Edit name' }}
+      >
+        <Pressable onPress={() => setOpen(false)}>
+          <Text>Close</Text>
+        </Pressable>
+      </BottomSheet>
+    </Screen>
+  )
 }
 ```
 
@@ -396,13 +396,13 @@ Web and desktop return zero; this hook does not measure a browser viewport.
 import { Text, View, useKeyboardInset } from '@octane-xplat/ui'
 
 export function KeyboardSpace() {
-	const inset = useKeyboardInset()
+  const inset = useKeyboardInset()
 
-	return (
-		<View>
-			<Text>Keyboard space: {inset}</Text>
-		</View>
-	)
+  return (
+    <View>
+      <Text>Keyboard space: {inset}</Text>
+    </View>
+  )
 }
 ```
 
@@ -419,11 +419,11 @@ if another owner has not changed it. If Android resumes a different Activity
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function MessageForm() {
-	return (
-		<KeyboardAvoiding>
-			<TextInput placeholder="Message" />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <TextInput placeholder="Message" />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -447,14 +447,14 @@ of a floating keyboard needs a rectangle-based visibility check.
 import { KeyboardAvoiding, Text, TextInput, useKeyboardInset } from '@octane-xplat/ui'
 
 export function Composer() {
-	const inset = useKeyboardInset()
+  const inset = useKeyboardInset()
 
-	return (
-		<KeyboardAvoiding>
-			<Text>Keyboard space: {inset}</Text>
-			<TextInput placeholder="Write a message" />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <Text>Keyboard space: {inset}</Text>
+      <TextInput placeholder="Write a message" />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -475,14 +475,14 @@ text is committed. TextArea still submits only for `done` or `send` return keys.
 ```tsx
 import { TextInput, TextArea } from '@octane-xplat/ui'
 export function DraftForm() {
-	return <>
-		<TextInput label="Name" defaultValue="Ada" hasClear
-			onChange={(text) => console.log('Draft:', text)}
-			onClear={() => console.log('Cleared')}
-			onSubmit={() => console.log('Submit name')} />
-		<TextArea label="Message" returnKeyType="send"
-			onSubmit={() => console.log('Send message')} />
-	</>
+  return <>
+    <TextInput label="Name" defaultValue="Ada" hasClear
+      onChange={(text) => console.log('Draft:', text)}
+      onClear={() => console.log('Cleared')}
+      onSubmit={() => console.log('Submit name')} />
+    <TextArea label="Message" returnKeyType="send"
+      onSubmit={() => console.log('Send message')} />
+  </>
 }
 ```
 
@@ -498,13 +498,13 @@ import { useRef, useState } from 'octane'
 import { TextInput } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 export function ClearAndMove() {
-	const [query, setQuery] = useState('recent')
-	const next = useRef<TextInputHandle | null>(null)
-	return <>
-		<TextInput label="Query" value={query} onChange={setQuery} hasClear
-			onClear={() => next.current?.focus()} />
-		<TextInput label="Next field" ref={next} />
-	</>
+  const [query, setQuery] = useState('recent')
+  const next = useRef<TextInputHandle | null>(null)
+  return <>
+    <TextInput label="Query" value={query} onChange={setQuery} hasClear
+      onClear={() => next.current?.focus()} />
+    <TextInput label="Next field" ref={next} />
+  </>
 }
 ```
 

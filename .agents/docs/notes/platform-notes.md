@@ -23,9 +23,9 @@ import { Text } from '@octane-xplat/ui'
 
 storage.setString('last-trip', '42')
 export function Status() {
-	const state = useAppState()
-	const insets = useSafeAreaInsets()
-	return <Text style={{ marginTop: insets.top }}>{state}</Text>
+  const state = useAppState()
+  const insets = useSafeAreaInsets()
+  return <Text style={{ marginTop: insets.top }}>{state}</Text>
 }
 ```
 
@@ -80,11 +80,11 @@ native `accessibilityRole="header"`).
 import { Text } from '@octane-xplat/ui'
 
 export function Heading() {
-	return (
-		<Text accessibilityRole="heading" accessibilityLabel="Packing list">
-			Packing list
-		</Text>
-	)
+  return (
+    <Text accessibilityRole="heading" accessibilityLabel="Packing list">
+      Packing list
+    </Text>
+  )
 }
 ```
 
@@ -93,21 +93,21 @@ export function Heading() {
 // calls on an absent capability reject UnavailabilityError. Shared contract
 // lives in @octane-xplat/lib/capability (#125).
 interface Service<T> {
-	supported: boolean
-	isAvailable(): Promise<boolean>
-	// + T's methods
+  supported: boolean
+  isAvailable(): Promise<boolean>
+  // + T's methods
 }
 
 // Permissioned leaves add the split pair — get never prompts, request may.
 interface Permissioned<T> extends Service<T> {
-	getPermissions(): Promise<PermissionResponse>
-	requestPermissions(): Promise<PermissionResponse>
+  getPermissions(): Promise<PermissionResponse>
+  requestPermissions(): Promise<PermissionResponse>
 }
 
 interface PermissionResponse {
-	status: 'granted' | 'denied' | 'undetermined' | 'unsupported'
-	granted: boolean
-	canAskAgain: boolean
+  status: 'granted' | 'denied' | 'undetermined' | 'unsupported'
+  granted: boolean
+  canAskAgain: boolean
 }
 
 // App lifecycle — shared event vocabulary
@@ -214,10 +214,10 @@ preservation still need a physical device.
 import { createSoundBank } from '@octane-xplat/sounds'
 
 export async function effect(source: string) {
-	const bank = createSoundBank({ maxVoices: 2 })
-	await bank.load('saved', source)
-	await bank.play('saved')
-	return () => bank.dispose() // call when the owning screen is finished
+  const bank = createSoundBank({ maxVoices: 2 })
+  await bank.load('saved', source)
+  await bank.play('saved')
+  return () => bank.dispose() // call when the owning screen is finished
 }
 ```
 
@@ -233,13 +233,13 @@ behavior. See [current qualification](optional-service-qualification.md).
 import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function queue(source: string) {
-	const player = createAudioPlayer()
-	try {
-		await player.setQueue([{ id: 'sample', source }])
-		console.log(player.snapshot())
-	} finally {
-		player.dispose()
-	}
+  const player = createAudioPlayer()
+  try {
+    await player.setQueue([{ id: 'sample', source }])
+    console.log(player.snapshot())
+  } finally {
+    player.dispose()
+  }
 }
 ```
 
@@ -279,15 +279,15 @@ function lookup and these observed unsafe value bindings until they are used:
 ```ts
 export const NSMakeCollectable: D.NSMakeCollectable_c = lazyGlobal('NSMakeCollectable')
 export const TNSWidgetsVersionString: D.TNSWidgetsVersionString_c =
-	lazyGlobal('TNSWidgetsVersionString')
+  lazyGlobal('TNSWidgetsVersionString')
 export const UIGraphicsImageRendererContext: D.UIGraphicsImageRendererContext_c = lazyGlobal(
-	'UIGraphicsImageRendererContext',
+  'UIGraphicsImageRendererContext',
 )
 export const UIGraphicsImageRendererFormat: D.UIGraphicsImageRendererFormat_c = lazyGlobal(
-	'UIGraphicsImageRendererFormat',
+  'UIGraphicsImageRendererFormat',
 )
 export const kCFAllocatorUseContext: D.kCFAllocatorUseContext_c =
-	lazyGlobal('kCFAllocatorUseContext')
+  lazyGlobal('kCFAllocatorUseContext')
 ```
 
 Importing the iOS type module no longer probes these globals. Calling a

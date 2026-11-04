@@ -25,23 +25,23 @@ an array of `{ x, y }` values; bars use category names for `x`:
 import { Chart } from '@octane-xplat/charts'
 
 export function PackingChart() {
-	return (
-		<Chart
-			type="bar"
-			width={320}
-			height={220}
-			accessibilityLabel="Packed items by bag: carry-on 4, day bag 2"
-			data={[
-				{
-					name: 'Packed items',
-					values: [
-						{ x: 'Carry-on', y: 4 },
-						{ x: 'Day bag', y: 2 },
-					],
-				},
-			]}
-		/>
-	)
+  return (
+    <Chart
+      type="bar"
+      width={320}
+      height={220}
+      accessibilityLabel="Packed items by bag: carry-on 4, day bag 2"
+      data={[
+        {
+          name: 'Packed items',
+          values: [
+            { x: 'Carry-on', y: 4 },
+            { x: 'Day bag', y: 2 },
+          ],
+        },
+      ]}
+    />
+  )
 }
 ```
 
@@ -60,14 +60,14 @@ before passing it to a chart:
 import type { SeriesSpec } from '@octane-xplat/charts'
 
 const progress: SeriesSpec[] = [
-	{
-		name: 'Items packed',
-		values: [
-			{ x: 1, y: 2 },
-			{ x: 2, y: 5 },
-			{ x: 3, y: 6 },
-		],
-	},
+  {
+    name: 'Items packed',
+    values: [
+      { x: 1, y: 2 },
+      { x: 2, y: 5 },
+      { x: 3, y: 6 },
+    ],
+  },
 ]
 ```
 
@@ -84,19 +84,19 @@ import { useState } from 'octane'
 import { Chart, type ChartHit } from '@octane-xplat/charts'
 
 export function StepsChart() {
-	const [picked, setPicked] = useState<ChartHit | null>(null)
-	return (
-		<Chart
-			type="line"
-			width={320}
-			height={200}
-			tooltip
-			crosshair
-			onPress={setPicked}
-			accessibilityLabel={picked ? `Picked ${picked.y} steps` : 'Steps per day'}
-			data={[{ name: 'Steps', values: [{ x: 1, y: 4200 }, { x: 2, y: 6100 }, { x: 3, y: 5300 }] }]}
-		/>
-	)
+  const [picked, setPicked] = useState<ChartHit | null>(null)
+  return (
+    <Chart
+      type="line"
+      width={320}
+      height={200}
+      tooltip
+      crosshair
+      onPress={setPicked}
+      accessibilityLabel={picked ? `Picked ${picked.y} steps` : 'Steps per day'}
+      data={[{ name: 'Steps', values: [{ x: 1, y: 4200 }, { x: 2, y: 6100 }, { x: 3, y: 5300 }] }]}
+    />
+  )
 }
 ```
 

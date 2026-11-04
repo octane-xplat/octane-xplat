@@ -32,8 +32,8 @@ registration. See [AppKit settings](../../../../../docs/platform/platform-servic
 import { storage } from '@octane-xplat/platform'
 
 export function saveDraft(text: string): boolean {
-	try { storage.setString('draft', text); return storage.flush() }
-	catch { return false }
+  try { storage.setString('draft', text); return storage.flush() }
+  catch { return false }
 }
 ```
 
@@ -50,8 +50,8 @@ import type { QueryClient } from '@octane-xplat/ui/data'
 
 // Pass the existing account client that owns persistent definitions.
 export async function purgeAccount(account: QueryClient): Promise<boolean> {
-	try { await account.dispose({ purgePersisted: true }); return true }
-	catch { return false }
+  try { await account.dispose({ purgePersisted: true }); return true }
+  catch { return false }
 }
 ```
 
@@ -72,11 +72,11 @@ no-prompt/update policy. Never infer OS qualification from these source guards.
 import { secureStorage } from '@octane-xplat/secure-storage'
 type Session = { status: 'restored'; token: string } | { status: 'missing' | 'unavailable' }
 export async function restoreSession(): Promise<Session> {
-	if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
-	try {
-		const token = await secureStorage.get('session-token')
-		return token === null ? { status: 'missing' } : { status: 'restored', token }
-	} catch { return { status: 'unavailable' } }
+  if (!secureStorage.supported || !(await secureStorage.isAvailable())) return { status: 'unavailable' }
+  try {
+    const token = await secureStorage.get('session-token')
+    return token === null ? { status: 'missing' } : { status: 'restored', token }
+  } catch { return { status: 'unavailable' } }
 }
 ```
 
@@ -102,7 +102,7 @@ The callback handle expires afterward and rejects nesting and close. See the
 
 ```ts
 await db.transaction(async (tx) => {
-	await tx.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+  await tx.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
 })
 ```
 

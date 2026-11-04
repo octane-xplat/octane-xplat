@@ -43,22 +43,22 @@ type ItemKey = string | number
 type AssignmentToken = object
 
 interface SlotAssignment<T> {
-	slotId: number
-	type: ItemKey
-	itemKey: ItemKey
-	item: T
-	index: number
-	assignment: AssignmentToken
-	/** Assigned to the rendered window, which includes overscan. */
-	active: boolean
+  slotId: number
+  type: ItemKey
+  itemKey: ItemKey
+  item: T
+  index: number
+  assignment: AssignmentToken
+  /** Assigned to the rendered window, which includes overscan. */
+  active: boolean
 }
 
 interface PendingMeasurement {
-	slotId: number
-	assignment: AssignmentToken
-	measurementVersion: number
-	width: number
-	height: number
+  slotId: number
+  assignment: AssignmentToken
+  measurementVersion: number
+  width: number
+  height: number
 }
 ```
 

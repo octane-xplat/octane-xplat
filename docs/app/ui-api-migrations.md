@@ -15,21 +15,21 @@ import { useState } from 'octane'
 import { Selector } from '@octane-xplat/ui'
 
 export function RegionPicker() {
-	const [region, setRegion] = useState<string | null>(null)
-	const [regions, setRegions] = useState<string[]>([])
-	const options = [{ value: 'sfo', label: 'San Francisco' }]
+  const [region, setRegion] = useState<string | null>(null)
+  const [regions, setRegions] = useState<string[]>([])
+  const options = [{ value: 'sfo', label: 'San Francisco' }]
 
-	return (
-		<>
-			<Selector selectionMode="single" options={options} value={region} onValueChange={setRegion} />
-			<Selector
-				selectionMode="multiple"
-				options={options}
-				value={regions}
-				onValueChange={setRegions}
-			/>
-		</>
-	)
+  return (
+    <>
+      <Selector selectionMode="single" options={options} value={region} onValueChange={setRegion} />
+      <Selector
+        selectionMode="multiple"
+        options={options}
+        value={regions}
+        onValueChange={setRegions}
+      />
+    </>
+  )
 }
 ```
 
@@ -51,15 +51,15 @@ semantic break. `checkbox`, `radio-group`, and `submenu` remain explicit kinds.
 import type { MenuOption } from '@octane-xplat/ui'
 
 const items: MenuOption[] = [
-	{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
-	{ type: 'link', key: 'settings', label: 'Settings', href: '/settings' },
-	{ type: 'separator', key: 'break' },
-	{
-		type: 'section',
-		key: 'export',
-		label: 'Export',
-		items: [{ type: 'action', key: 'csv', label: 'CSV', onSelect: exportCsv }],
-	},
+  { type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
+  { type: 'link', key: 'settings', label: 'Settings', href: '/settings' },
+  { type: 'separator', key: 'break' },
+  {
+    type: 'section',
+    key: 'export',
+    label: 'Export',
+    items: [{ type: 'action', key: 'csv', label: 'CSV', onSelect: exportCsv }],
+  },
 ]
 ```
 
@@ -69,8 +69,8 @@ In compound menus, replace `DropdownMenuDivider`, `ContextMenuDivider`, and
 
 ```tsx
 <DropdownMenu trigger={<Text>Actions</Text>}>
-	<DropdownMenuItem label="Rename" onSelect={rename} hasCloseOnSelect={false} />
-	<DropdownMenuSeparator />
+  <DropdownMenuItem label="Rename" onSelect={rename} hasCloseOnSelect={false} />
+  <DropdownMenuSeparator />
 </DropdownMenu>
 ```
 
@@ -87,7 +87,7 @@ const [quantity, setQuantity] = useState<number | null>(null)
 
 ;<>
 <DateInput label="Date" value={date} onChange={setDate} hasClear />
-		<Calendar value={date} onChange={setDate} />
+    <Calendar value={date} onChange={setDate} />
 <NumberInput label="Quantity" value={quantity} onValueChange={setQuantity} />
 </>
 ```
@@ -144,10 +144,10 @@ import { createQueryClient, defineQuery } from '@octane-xplat/ui/data'
 
 const queries = createQueryClient({ namespace: 'public-users' })
 const users = defineQuery(['users'], async (id: string, { signal }) => {
-	const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`/api/users/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<{ name: string }>
+  return response.json() as Promise<{ name: string }>
 }, { staleTimeMs: 60_000 })
 // Components call useQuery$(queries, users, props.userId).
 queries.invalidateQueries({ key: ['users'] })
@@ -175,8 +175,8 @@ is relative to the resize container.
 ```tsx
 ;<Stack gap={2} />
 const sidebar = useResizable({
-	defaultSize: pixel(280),
-	maxSize: percent(50, { max: pixel(480) }),
+  defaultSize: pixel(280),
+  maxSize: percent(50, { max: pixel(480) }),
 })
 ```
 
@@ -193,9 +193,9 @@ import { defineQuery, type QueryLoadContext } from '@octane-xplat/ui/data'
 type User = { name: string; revision: number }
 
 const users = defineQuery(['users'], async (id: string, { signal, previous }: QueryLoadContext<User>) => {
-	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<User>
+  return response.json() as Promise<User>
 }, { compareAuthority: (incoming, current) => incoming.revision - current.revision })
 ```

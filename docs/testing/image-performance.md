@@ -111,7 +111,7 @@ meta-data flag in `App_Resources/Android/src/main/AndroidManifest.xml`:
 
 ```xml
 <application ...>
-	<meta-data android:name="debugImageCache" android:value="true" />
+  <meta-data android:name="debugImageCache" android:value="true" />
 </application>
 ```
 
@@ -219,8 +219,8 @@ current screen is up:
 
 ```css
 .prefetch-bin {
-	height: 0;
-	overflow: hidden;
+  height: 0;
+  overflow: hidden;
 }
 ```
 
@@ -228,9 +228,9 @@ current screen is up:
 import { Image, View } from '@octane-xplat/ui'
 
 ;<View className="prefetch-bin">
-	{upcoming.map((photo) => (
-		<Image key={photo.id} src={photo.url} alt="" />
-	))}
+  {upcoming.map((photo) => (
+    <Image key={photo.id} src={photo.url} alt="" />
+  ))}
 </View>
 ```
 

@@ -5,9 +5,9 @@ On macOS, reading a bridged property an object does not implement — for exampl
 ```js
 const view = NSView.alloc().init()
 try {
-	view.autoscroll // declared on NSView but only implemented by NSMatrix
+  view.autoscroll // declared on NSView but only implemented by NSMatrix
 } catch (error) {
-	// "-[NSView isAutoscroll]: unrecognized selector sent to instance"
+  // "-[NSView isAutoscroll]: unrecognized selector sent to instance"
 }
 ```
 

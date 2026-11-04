@@ -37,9 +37,9 @@ import { haptics, createHaptics } from '@octane-xplat/haptics'
 if (haptics.supported) haptics.selection()
 const advanced = createHaptics()
 try {
-	if (advanced.capabilities().presets) advanced.play('success')
+  if (advanced.capabilities().presets) advanced.play('success')
 } finally {
-	advanced.dispose()
+  advanced.dispose()
 }
 ```
 
@@ -77,18 +77,18 @@ import { createHaptics } from '@octane-xplat/haptics'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveFeedback() {
-	const [haptics] = useState(() => createHaptics())
-	useEffect(() => () => haptics.dispose(), [])
+  const [haptics] = useState(() => createHaptics())
+  useEffect(() => () => haptics.dispose(), [])
 
-	return (
-		<Pressable
-			onPress={() => {
-				if (haptics.capabilities().presets) haptics.play('success')
-			}}
-		>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable
+      onPress={() => {
+        if (haptics.capabilities().presets) haptics.play('success')
+      }}
+    >
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -103,39 +103,39 @@ verification.
 import { createHaptics } from '@octane-xplat/haptics'
 
 export function patternExample() {
-	const haptics = createHaptics()
-	if (haptics.capabilities().patterns) {
-		haptics.playPattern({
-			duration: 200,
-			points: [
-				{ at: 0, intensity: 0.5 },
-				{ at: 150, intensity: 1 },
-			],
-		})
-	}
+  const haptics = createHaptics()
+  if (haptics.capabilities().patterns) {
+    haptics.playPattern({
+      duration: 200,
+      points: [
+        { at: 0, intensity: 0.5 },
+        { at: 150, intensity: 1 },
+      ],
+    })
+  }
 
-	return () => {
-		haptics.stop()
-		haptics.dispose()
-	}
+  return () => {
+    haptics.stop()
+    haptics.dispose()
+  }
 }
 // A gesture owner calls these callbacks on begin, move, and end OR cancel.
 export function realtimeExample() {
-	const haptics = createHaptics()
-	if (!haptics.capabilities().realtime) {
-		haptics.dispose()
+  const haptics = createHaptics()
+  if (!haptics.capabilities().realtime) {
+    haptics.dispose()
 
-		return null
-	}
-	const session = haptics.startRealtime(0.2)
+    return null
+  }
+  const session = haptics.startRealtime(0.2)
 
-	return {
-		move: (intensity: number) => session.update(intensity),
-		end: () => {
-			session.stop()
-			haptics.dispose()
-		},
-	}
+  return {
+    move: (intensity: number) => session.update(intensity),
+    end: () => {
+      session.stop()
+      haptics.dispose()
+    },
+  }
 }
 ```
 
@@ -159,20 +159,20 @@ import { createSoundBank } from '@octane-xplat/sounds'
 
 // Call from a user action; keep the bank until its owner ends.
 export async function prepareSounds(source: string) {
-	const bank = createSoundBank({ maxVoices: 2 })
-	try {
-		await bank.load('saved', source)
-	} catch (error) {
-		bank.dispose()
-		throw error
-	}
+  const bank = createSoundBank({ maxVoices: 2 })
+  try {
+    await bank.load('saved', source)
+  } catch (error) {
+    bank.dispose()
+    throw error
+  }
 
-	return {
-		play: () => bank.play('saved', { volume: 0.5 }),
-		stopSaved: () => bank.stop('saved'),
-		stopAll: () => bank.stop(),
-		dispose: () => bank.dispose(),
-	}
+  return {
+    play: () => bank.play('saved', { volume: 0.5 }),
+    stopSaved: () => bank.stop('saved'),
+    stopAll: () => bank.stop(),
+    dispose: () => bank.dispose(),
+  }
 }
 ```
 
@@ -186,9 +186,9 @@ long-form player's route.
 import type { SoundBank } from '@octane-xplat/sounds'
 
 export async function playSaved(bank: SoundBank) {
-	const needsGesture = bank.capabilities().userGestureRequired
-	const played = await bank.play('saved') // call from a button when needsGesture
-	if (!played) console.log(needsGesture ? 'Try again from a button' : 'Sound unavailable')
+  const needsGesture = bank.capabilities().userGestureRequired
+  const played = await bank.play('saved') // call from a button when needsGesture
+  if (!played) console.log(needsGesture ? 'Try again from a button' : 'Sound unavailable')
 }
 ```
 
@@ -202,20 +202,20 @@ long-form route coexistence still need the [integration checks](#check-your-inte
 import { createSoundBank } from '@octane-xplat/sounds'
 
 export async function prepareAppKitEffect(source: string) {
-	const bank = createSoundBank({ maxVoices: 2 })
-	try {
-		if (!bank.capabilities().supported) {
-			bank.dispose()
+  const bank = createSoundBank({ maxVoices: 2 })
+  try {
+    if (!bank.capabilities().supported) {
+      bank.dispose()
 
-			return undefined
-		}
-		await bank.load('saved', source)
+      return undefined
+    }
+    await bank.load('saved', source)
 
-		return bank // keep until the screen or service ends
-	} catch (error) {
-		bank.dispose()
-		throw error
-	}
+    return bank // keep until the screen or service ends
+  } catch (error) {
+    bank.dispose()
+    throw error
+  }
 }
 ```
 
@@ -238,33 +238,33 @@ On Web, `loading` covers a request or buffering wait; state returns to
 import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function preparePlayer(source: string) {
-	const player = createAudioPlayer()
-	const unsubscribe = player.subscribe((snapshot) =>
-		console.log(snapshot.state, snapshot.currentTime),
-	)
-	try {
-		await player.setQueue([{ id: 'sample', source, title: 'Sample' }])
-	} catch (error) {
-		unsubscribe()
-		player.dispose()
-		throw error
-	}
+  const player = createAudioPlayer()
+  const unsubscribe = player.subscribe((snapshot) =>
+    console.log(snapshot.state, snapshot.currentTime),
+  )
+  try {
+    await player.setQueue([{ id: 'sample', source, title: 'Sample' }])
+  } catch (error) {
+    unsubscribe()
+    player.dispose()
+    throw error
+  }
 
-	return {
-		play: async () => {
-			try {
-				await player.play()
-			} catch {
-				console.log('Playback unavailable')
-			}
-		},
-		pause: () => player.pause(),
-		seek: () => player.seek(10),
-		dispose: () => {
-			unsubscribe()
-			player.dispose()
-		},
-	}
+  return {
+    play: async () => {
+      try {
+        await player.play()
+      } catch {
+        console.log('Playback unavailable')
+      }
+    },
+    pause: () => player.pause(),
+    seek: () => player.seek(10),
+    dispose: () => {
+      unsubscribe()
+      player.dispose()
+    },
+  }
 }
 ```
 
@@ -374,15 +374,15 @@ item and rejects its pending load; an empty queue returns to `idle`.
 import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function loadMacAudio(source: string) {
-	const player = createAudioPlayer()
-	try {
-		await player.setQueue([{ id: 'first', source }])
+  const player = createAudioPlayer()
+  try {
+    await player.setQueue([{ id: 'first', source }])
 
-		return player
-	} catch (error) {
-		player.dispose()
-		throw error
-	}
+    return player
+  } catch (error) {
+    player.dispose()
+    throw error
+  }
 }
 ```
 
@@ -397,17 +397,17 @@ and removes its notifications and subscriptions.
 import type { AudioPlayer } from '@octane-xplat/audio'
 
 export async function playMacAudio(player: AudioPlayer) {
-	const unsubscribe = player.subscribe(({ state, currentTime, error }) => {
-		console.log(state, currentTime, error?.message)
-	})
-	try {
-		await player.play()
-		await player.seek(10)
-		await player.pause()
-	} finally {
-		unsubscribe()
-		player.dispose()
-	}
+  const unsubscribe = player.subscribe(({ state, currentTime, error }) => {
+    console.log(state, currentTime, error?.message)
+  })
+  try {
+    await player.play()
+    await player.seek(10)
+    await player.pause()
+  } finally {
+    unsubscribe()
+    player.dispose()
+  }
 }
 ```
 
@@ -465,16 +465,16 @@ import { createAudioRecorder } from '@octane-xplat/recorder'
 
 const recorder = createAudioRecorder()
 const off = recorder.subscribe((snapshot) => {
-	console.log(snapshot.state, snapshot.permission, snapshot.meterLevel)
+  console.log(snapshot.state, snapshot.permission, snapshot.meterLevel)
 })
 try {
-	await recorder.start()
+  await recorder.start()
 } catch (error) {
-	console.log(`Cannot record: ${recorder.snapshot().permission}`)
+  console.log(`Cannot record: ${recorder.snapshot().permission}`)
 }
 if (recorder.snapshot().state === 'recording') {
-	await recorder.pause()
-	await recorder.resume() // explicit; interruptions never resume themselves
+  await recorder.pause()
+  await recorder.resume() // explicit; interruptions never resume themselves
 }
 await recorder.cancel() // discards the take entirely
 off()
@@ -509,11 +509,11 @@ import { createAudioRecorder } from '@octane-xplat/recorder'
 
 const recorder = createAudioRecorder()
 try {
-	await recorder.start() // idle until authorized; default 44100 Hz, mono
-	const take = await recorder.stop() // rejects an empty or invalid take
-	console.log(take.sampleRate, take.channels, take.durationSeconds)
+  await recorder.start() // idle until authorized; default 44100 Hz, mono
+  const take = await recorder.stop() // rejects an empty or invalid take
+  console.log(take.sampleRate, take.channels, take.durationSeconds)
 } finally {
-	recorder.dispose() // keeps a successfully finished result's path
+  recorder.dispose() // keeps a successfully finished result's path
 }
 ```
 
@@ -531,10 +531,10 @@ and `realtime` independently and show a fallback for unavailable features.
 import type { AudioPlayer, AudioSnapshot } from '@octane-xplat/audio'
 
 export function observe(player: AudioPlayer, report: (snapshot: AudioSnapshot) => void) {
-	return player.subscribe((snapshot) => {
-		report(snapshot)
-		if (snapshot.state === 'error') console.log(snapshot.error?.message)
-	})
+  return player.subscribe((snapshot) => {
+    report(snapshot)
+    if (snapshot.state === 'error') console.log(snapshot.error?.message)
+  })
 }
 ```
 
@@ -552,7 +552,7 @@ media notification controls in the same way. Only offer system controls when
 import type { AudioPlayer } from '@octane-xplat/audio'
 
 export function hasSystemControls(player: AudioPlayer) {
-	return player.capabilities().systemControls
+  return player.capabilities().systemControls
 }
 ```
 

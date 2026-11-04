@@ -11,13 +11,13 @@ has its own name and options, so keep it in a matching
 import { Selector } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Selector
-			label="Region"
-			options={[{ value: 'sfo', label: 'San Francisco' }]}
-			defaultValue="sfo"
-		/>
-	)
+  return (
+    <Selector
+      label="Region"
+      options={[{ value: 'sfo', label: 'San Francisco' }]}
+      defaultValue="sfo"
+    />
+  )
 }
 ```
 
@@ -67,14 +67,14 @@ with `defaultSelection`.
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
 export function Region() {
-	return (
-		<SwiftUIPicker
-			label="Region"
-			options={[{ id: 'sfo', title: 'San Francisco' }]}
-			defaultSelection="sfo"
-			onSelectionChange={(id) => console.log(id)}
-		/>
-	)
+  return (
+    <SwiftUIPicker
+      label="Region"
+      options={[{ id: 'sfo', title: 'San Francisco' }]}
+      defaultSelection="sfo"
+      onSelectionChange={(id) => console.log(id)}
+    />
+  )
 }
 ```
 
@@ -89,15 +89,15 @@ seeded with `defaultSelectedKey`. The whole control uses `enabled`.
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 
 export function Region() {
-	return (
-		<MaterialDropdown
-			label="Region"
-			items={[{ key: 'sfo', text: 'San Francisco', enabled: true }]}
-			defaultSelectedKey="sfo"
-			enabled
-			onSelectedKeyChange={(key) => console.log(key)}
-		/>
-	)
+  return (
+    <MaterialDropdown
+      label="Region"
+      items={[{ key: 'sfo', text: 'San Francisco', enabled: true }]}
+      defaultSelectedKey="sfo"
+      enabled
+      onSelectedKeyChange={(key) => console.log(key)}
+    />
+  )
 }
 ```
 
@@ -111,14 +111,14 @@ controlled state uses `value` and `onChange`, and uncontrolled state uses
 import { Select } from '@octane-xplat/picker/web'
 
 export function Region() {
-	return (
-		<Select
-			label="Region"
-			options={[{ value: 'sfo', label: 'San Francisco' }]}
-			defaultValue="sfo"
-			onChange={(value) => console.log(value)}
-		/>
-	)
+  return (
+    <Select
+      label="Region"
+      options={[{ value: 'sfo', label: 'San Francisco' }]}
+      defaultValue="sfo"
+      onChange={(value) => console.log(value)}
+    />
+  )
 }
 ```
 
@@ -129,8 +129,8 @@ matches the web entry; it is separate from `AppKitPicker`'s owned pop-up path.
 ```tsx
 import { Select } from '@octane-xplat/picker/macos'
 export function Region() {
-	return <Select label="Region" defaultValue="sfo"
-		options={[{ value: 'sfo', label: 'San Francisco' }]} />
+  return <Select label="Region" defaultValue="sfo"
+    options={[{ value: 'sfo', label: 'San Francisco' }]} />
 }
 ```
 
@@ -143,16 +143,16 @@ and `style` props. These similarities do not imply a shared selection contract.
 import { Select } from '@octane-xplat/picker/web'
 
 export function Region() {
-	return (
-		<Select
-			id="region"
-			className="region-picker"
-			label="Region"
-			accessibilityLabel="Region"
-			disabled
-			options={[{ value: 'sfo', label: 'San Francisco' }]}
-		/>
-	)
+  return (
+    <Select
+      id="region"
+      className="region-picker"
+      label="Region"
+      accessibilityLabel="Region"
+      disabled
+      options={[{ value: 'sfo', label: 'San Francisco' }]}
+    />
+  )
 }
 ```
 
@@ -171,12 +171,12 @@ import { useState } from 'octane'
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 import { Text, View } from '@octane-xplat/ui'
 export function BagPicker() {
-	const [selection, setSelection] = useState('carry')
-	return <View className="gap-3">
-		<AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
-			options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
-		<Text>{`Bag: ${selection}`}</Text>
-	</View>
+  const [selection, setSelection] = useState('carry')
+  return <View className="gap-3">
+    <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+      options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+    <Text>{`Bag: ${selection}`}</Text>
+  </View>
 }
 ```
 
@@ -192,12 +192,12 @@ native selection.
 // Shipping.macos.tsx
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 export function Shipping() {
-	return <AppKitPicker label="Shipping" defaultSelection=""
-		options={[
-			{ id: '', title: 'Standard' },
-			{ id: 'economy', title: 'Standard' },
-			{ id: 'overnight', title: 'Overnight', disabled: true },
-		]} onSelectionChange={(id) => console.log(id)} />
+  return <AppKitPicker label="Shipping" defaultSelection=""
+    options={[
+      { id: '', title: 'Standard' },
+      { id: 'economy', title: 'Standard' },
+      { id: 'overnight', title: 'Overnight', disabled: true },
+    ]} onSelectionChange={(id) => console.log(id)} />
 }
 ```
 
@@ -212,7 +212,7 @@ types also show a generic message. Repair the options or selection to recover.
 // AsyncRegion.macos.tsx
 import { AppKitPicker, type AppKitPickerOption } from '@octane-xplat/picker/macos'
 export function AsyncRegion({ choices }: { choices: readonly AppKitPickerOption[] }) {
-	return <AppKitPicker label="Region" options={choices} defaultSelection="oslo" />
+  return <AppKitPicker label="Region" options={choices} defaultSelection="oslo" />
 }
 ```
 
@@ -227,9 +227,9 @@ label/control field; `accessibilityLabel` defaults to its visible label.
 // RecordBag.macos.tsx
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 export function RecordBag({ recordID }: { recordID: string }) {
-	return <AppKitPicker id={`bag-${recordID}`} label="Bag" className="gap-2"
-		style={{ minWidth: 240 }} defaultSelection="carry"
-		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+  return <AppKitPicker id={`bag-${recordID}`} label="Bag" className="gap-2"
+    style={{ minWidth: 240 }} defaultSelection="carry"
+    options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
 }
 ```
 

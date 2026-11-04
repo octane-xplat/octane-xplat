@@ -18,10 +18,10 @@ only; no `<Trans>`/`I18nProvider`. Guide: docs/app/localization.md, decision #85
 import { initLingui, catalogsFromGlob, setLocale, type CatalogModule } from '@octane-xplat/lingui'
 
 await initLingui({
-	catalogs: catalogsFromGlob(
-		import.meta.glob<CatalogModule>('../locales/*/messages.ts', { query: '?lingui' }),
-	),
-	fallback: 'en',
+  catalogs: catalogsFromGlob(
+    import.meta.glob<CatalogModule>('../locales/*/messages.ts', { query: '?lingui' }),
+  ),
+  fallback: 'en',
 })
 await setLocale('fr')
 ```
@@ -32,8 +32,8 @@ import { useLingui } from '@octane-xplat/lingui'
 import { Text } from '@octane-xplat/ui'
 
 export function PackedLabel() {
-	const i18n = useLingui()
-	return <Text>{i18n._('Packed')}</Text>
+  const i18n = useLingui()
+  return <Text>{i18n._('Packed')}</Text>
 }
 ```
 
@@ -48,9 +48,9 @@ The supported catalog subset and host qualification limits are in
 ```tsx
 import { InternationalizationProvider, Selector, frFR } from '@octane-xplat/ui'
 export function Region() {
-	return <InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
-		<Selector label="Region" options={[]} />
-	</InternationalizationProvider>
+  return <InternationalizationProvider locale="fr-FR" messages={{ 'fr-FR': frFR }}>
+    <Selector label="Region" options={[]} />
+  </InternationalizationProvider>
 }
 ```
 
@@ -66,8 +66,8 @@ unqualified. See [AppKit custom cells](../../../../../docs/app/components.md#cus
 ```tsx
 import { Button, useAnnounce } from '@octane-xplat/ui'
 export function Status() {
-	const announce = useAnnounce()
-	return <Button label="Report saved" clickAction={() => announce('Saved')} />
+  const announce = useAnnounce()
+  return <Button label="Report saved" clickAction={() => announce('Saved')} />
 }
 ```
 

@@ -62,20 +62,20 @@ Set these TypeScript options:
 
 ```json
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "Bundler",
-		"jsx": "react-jsx",
-		"jsxImportSource": "@octane-xplat/macos-appkit",
-		"customConditions": ["macos"],
-		"moduleSuffixes": [".macos", ""],
-		"lib": ["ESNext"],
-		"strict": true,
-		"skipLibCheck": true,
-		"noEmit": true
-	},
-	"include": ["src/**/*"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@octane-xplat/macos-appkit",
+    "customConditions": ["macos"],
+    "moduleSuffixes": [".macos", ""],
+    "lib": ["ESNext"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["src/**/*"]
 }
 ```
 
@@ -87,7 +87,7 @@ source by default. `rules` can override that selection.
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 
 export default await xplatMacOS('production', {
-	rules: [{ include: '**/*.tsx', renderer: 'macos' }],
+  rules: [{ include: '**/*.tsx', renderer: 'macos' }],
 })
 ```
 
@@ -186,23 +186,23 @@ const AccountName = createContext('Guest')
 const AccountNameProvider = AccountName
 
 function AccountLabel() {
-	return <label text={'Account: ' + useContext(AccountName)} />
+  return <label text={'Account: ' + useContext(AccountName)} />
 }
 
 export function AccountPage() {
-	const targetRef = useRef<HostElement | null>(null)
-	const [target, setTarget] = useState<HostElement | null>(null)
+  const targetRef = useRef<HostElement | null>(null)
+  const [target, setTarget] = useState<HostElement | null>(null)
 
-	useEffect(() => {
-		setTarget(targetRef.current)
-	}, [])
+  useEffect(() => {
+    setTarget(targetRef.current)
+  }, [])
 
-	return (
-		<AccountNameProvider value="Avery">
-			<rootlayout ref={targetRef} style={{ width: 280, height: 120 }} />
-			{target ? createPortal(<AccountLabel /> as UniversalRenderable, target) : null}
-		</AccountNameProvider>
-	)
+  return (
+    <AccountNameProvider value="Avery">
+      <rootlayout ref={targetRef} style={{ width: 280, height: 120 }} />
+      {target ? createPortal(<AccountLabel /> as UniversalRenderable, target) : null}
+    </AccountNameProvider>
+  )
 }
 ```
 
@@ -241,7 +241,7 @@ then fall back to the system font.
 ```tsx
 // Text.macos.tsx — the AppKit renderer is configured above.
 export function Title() {
-	return <label text="Trip notes" style={{ fontFamily: 'system-ui', fontWeight: 'bold' }} />
+  return <label text="Trip notes" style={{ fontFamily: 'system-ui', fontWeight: 'bold' }} />
 }
 ```
 
@@ -264,8 +264,8 @@ import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-appkit'
 
 // regularFace and boldFace are NSFontDescriptors created from your font asset.
 registerFontFamily('Acme Sans', [
-	{ weight: 400, descriptor: regularFace },
-	{ weight: 700, descriptor: boldFace },
+  { weight: 400, descriptor: regularFace },
+  { weight: 700, descriptor: boldFace },
 ])
 const root = createMacOSRoot(contentView, { fontFamily: 'Acme Sans' })
 ```
@@ -291,15 +291,15 @@ and accessibility; the renderer never replaces it with shortened text.
 
 ```tsx
 export function TabTitle(props: { title: string; width: number }) {
-	return (
-		<label
-			text={props.title}
-			maxLines={1}
-			whiteSpace="nowrap"
-			textOverflow="ellipsis"
-			style={{ width: props.width, height: 28 }}
-		/>
-	)
+  return (
+    <label
+      text={props.title}
+      maxLines={1}
+      whiteSpace="nowrap"
+      textOverflow="ellipsis"
+      style={{ width: props.width, height: 28 }}
+    />
+  )
 }
 ```
 
@@ -313,15 +313,15 @@ collapse/preservation modes are not implemented.
 
 ```tsx
 export function Suggestion(props: { title: string }) {
-	return (
-		<label
-			text={props.title}
-			whiteSpace="normal"
-			maxLines={2}
-			textOverflow="ellipsis"
-			style={{ width: 240 }}
-		/>
-	)
+  return (
+    <label
+      text={props.title}
+      whiteSpace="normal"
+      maxLines={2}
+      textOverflow="ellipsis"
+      style={{ width: 240 }}
+    />
+  )
 }
 ```
 
@@ -334,14 +334,14 @@ font-based line unless the application supplies its own height or line height.
 
 ```tsx
 export function UpdatingTitle(props: { title: string; compact: boolean }) {
-	return (
-		<label
-			text={props.title}
-			maxLines={props.compact ? 1 : 2}
-			textOverflow={props.compact ? 'ellipsis' : undefined}
-			style={{ width: 240 }}
-		/>
-	)
+  return (
+    <label
+      text={props.title}
+      maxLines={props.compact ? 1 : 2}
+      textOverflow={props.compact ? 'ellipsis' : undefined}
+      style={{ width: 240 }}
+    />
+  )
 }
 ```
 
@@ -353,12 +353,12 @@ This row places two labels 12 points apart and centers them vertically:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function Row() {
-	return (
-		<masonview style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-			<label text="Name" />
-			<label text="Value" />
-		</masonview>
-	)
+  return (
+    <masonview style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+      <label text="Name" />
+      <label text="Value" />
+    </masonview>
+  )
 }
 ```
 
@@ -397,9 +397,9 @@ shows the module mapping and retained-root HMR lifecycle.
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 
 export default await xplatMacOS('development', {
-	packaged: false,
-	hmr: true,
-	entry: 'src/App.macos.tsx',
+  packaged: false,
+  hmr: true,
+  entry: 'src/App.macos.tsx',
 })
 ```
 
@@ -414,14 +414,14 @@ the CLI watcher, as the maintained fixture does.
 import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 
 const config = await xplatMacOS('development', {
-	root: process.cwd(),
-	entry: 'src/App.macos.tsx',
-	outDir: 'dist/dev',
-	packaged: false,
+  root: process.cwd(),
+  entry: 'src/App.macos.tsx',
+  outDir: 'dist/dev',
+  packaged: false,
 })
 config.build = {
-	...config.build,
-	lib: { entry: 'src/App.macos.tsx', formats: ['cjs'], fileName: 'app' },
+  ...config.build,
+  lib: { entry: 'src/App.macos.tsx', formats: ['cjs'], fileName: 'app' },
 }
 export default config
 ```

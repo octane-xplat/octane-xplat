@@ -18,11 +18,11 @@ chrome are platform-authentic subpath exports.
 import { BottomSheet, Text } from '@octane-xplat/ui'
 
 export function BagDetails() {
-	return (
-		<BottomSheet label="Bag details" isOpen={false}>
-			<Text>Bag details</Text>
-		</BottomSheet>
-	)
+  return (
+    <BottomSheet label="Bag details" isOpen={false}>
+      <Text>Bag details</Text>
+    </BottomSheet>
+  )
 }
 ```
 
@@ -36,11 +36,11 @@ import { useRef } from 'octane'
 import { Overlay, Popover } from '@octane-xplat/ui'
 
 export function ModalChoice() {
-	const anchor = useRef<HTMLButtonElement | null>(null)
-	return <Overlay open shadeCover accessibilityLabel="Choose">
-		<button ref={anchor}>Options</button>
-		<Popover anchor={anchor} open><button>Pick</button></Popover>
-	</Overlay>
+  const anchor = useRef<HTMLButtonElement | null>(null)
+  return <Overlay open shadeCover accessibilityLabel="Choose">
+    <button ref={anchor}>Options</button>
+    <Popover anchor={anchor} open><button>Pick</button></Popover>
+  </Overlay>
 }
 ```
 
@@ -50,7 +50,7 @@ no dimmed backdrop. macOS ignores it.
 
 ```tsx
 <Overlay open={open} isModal accessibilityLabel="Photo viewer" onDismiss={close}>
-	<Text>Full-screen content</Text>
+  <Text>Full-screen content</Text>
 </Overlay>
 ```
 
@@ -60,8 +60,8 @@ implemented. Do not substitute an action hint for a dialog description.
 
 ```tsx
 <Overlay open isModal accessibilityLabelledBy="viewer-title" accessibilityDescribedBy="viewer-description">
-	<h2 id="viewer-title">Photos</h2>
-	<p id="viewer-description">Trip gallery</p>
+  <h2 id="viewer-title">Photos</h2>
+  <p id="viewer-description">Trip gallery</p>
 </Overlay>
 ```
 
@@ -89,11 +89,11 @@ import { UIModal } from '@octane-xplat/ui/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function Details() {
-	return (
-		<UIModal open={false}>
-			<Text>Trip details</Text>
-		</UIModal>
-	)
+  return (
+    <UIModal open={false}>
+      <Text>Trip details</Text>
+    </UIModal>
+  )
 }
 ```
 
@@ -118,11 +118,11 @@ and maintained `NativeSheetDemo.macos.tsrx` before claiming support.
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import { Text } from '@octane-xplat/ui'
 export function Details({ record, open, close }: {
-	record: { id: string; title: string }; open: boolean; close: () => void
+  record: { id: string; title: string }; open: boolean; close: () => void
 }) {
-	return <AppKitSheet id={`details-${record.id}`} open={open}
-		className="p-4" onDismissed={close}
-		content={() => <Text>{record.title}</Text>} />
+  return <AppKitSheet id={`details-${record.id}`} open={open}
+    className="p-4" onDismissed={close}
+    content={() => <Text>{record.title}</Text>} />
 }
 ```
 
@@ -138,23 +138,23 @@ the mounted element even when `open` is called elsewhere.
 import { useImperativeBottomSheet, Button, Text } from '@octane-xplat/ui'
 
 function Picker(props: { close: (value?: string) => void }) {
-	return <Button clickAction={() => props.close('saved')}>Save</Button>
+  return <Button clickAction={() => props.close('saved')}>Save</Button>
 }
 export function Actions() {
-	const sheet = useImperativeBottomSheet()
-	return (
-		<>
-			<Text>Choose a bag</Text>
-			<Button
-				clickAction={() => {
-					void sheet.open(Picker)
-				}}
-			>
-				Choose
-			</Button>
-			{sheet.element}
-		</>
-	)
+  const sheet = useImperativeBottomSheet()
+  return (
+    <>
+      <Text>Choose a bag</Text>
+      <Button
+        clickAction={() => {
+          void sheet.open(Picker)
+        }}
+      >
+        Choose
+      </Button>
+      {sheet.element}
+    </>
+  )
 }
 ```
 
@@ -168,22 +168,22 @@ import { useImperativeModal } from '@octane-xplat/ui/ios'
 import { Button, Text } from '@octane-xplat/ui'
 
 function Details() {
-	return <Text>Trip details</Text>
+  return <Text>Trip details</Text>
 }
 export function ModalActions() {
-	const modal = useImperativeModal()
-	return (
-		<>
-			<Button
-				clickAction={() => {
-					void modal.open(Details)
-				}}
-			>
-				Details
-			</Button>
-			{modal.element}
-		</>
-	)
+  const modal = useImperativeModal()
+  return (
+    <>
+      <Button
+        clickAction={() => {
+          void modal.open(Details)
+        }}
+      >
+        Details
+      </Button>
+      {modal.element}
+    </>
+  )
 }
 ```
 
@@ -207,11 +207,11 @@ recent). Content is parameterized, so any component can render in the sheet.
 import { openBottomSheet, Pressable, Text } from '@octane-xplat/ui'
 
 function Details({ params, close }: { params: { name: string }; close: () => void }) {
-	return (
-		<Pressable onPress={close}>
-			<Text>{params.name}: close</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={close}>
+      <Text>{params.name}: close</Text>
+    </Pressable>
+  )
 }
 // Call from an app action; the handle resolves when the sheet closes.
 await openBottomSheet(Details, { name: 'Carry-on' })
@@ -228,12 +228,12 @@ import { useState } from 'octane'
 import { Overlay, Text } from '@octane-xplat/ui'
 
 export function FloatingDetails() {
-	const [open, setOpen] = useState(false)
-	return (
-		<Overlay open={open} shadeCover onDismiss={() => setOpen(false)}>
-			<Text>Trip details</Text>
-		</Overlay>
-	)
+  const [open, setOpen] = useState(false)
+  return (
+    <Overlay open={open} shadeCover onDismiss={() => setOpen(false)}>
+      <Text>Trip details</Text>
+    </Overlay>
+  )
 }
 ```
 
@@ -249,14 +249,14 @@ do not need that reuse check.
 import { GridLayout, getRootLayout } from '@nativescript/core'
 
 async function openHost() {
-	const root = getRootLayout()
-	if (!root) return
-	const host = new GridLayout()
-	try {
-		await root.open(host)
-	} catch (error) {
-		console.error('Could not open host', error)
-	}
+  const root = getRootLayout()
+  if (!root) return
+  const host = new GridLayout()
+  try {
+    await root.open(host)
+  } catch (error) {
+    console.error('Could not open host', error)
+  }
 }
 ```
 
@@ -285,7 +285,7 @@ document-level live regions.
 
 ```tsx
 <LayerProvider toast={{ position: 'topEnd', maxVisible: 3 }}>
-	<App />
+  <App />
 </LayerProvider>
 ```
 
@@ -324,9 +324,9 @@ anchor exclusion from light dismissal is opt-in and does not consume events.
 
 ```ts
 const layer = bridge.showLayer({
-	anchor, createContentRoot, deferPresentation: true,
-	lightDismiss: true, excludeAnchorFromDismiss: true,
-	position: (bounds) => ({ left: bounds.left, top: bounds.top + bounds.height + 8 }),
+  anchor, createContentRoot, deferPresentation: true,
+  lightDismiss: true, excludeAnchorFromDismiss: true,
+  position: (bounds) => ({ left: bounds.left, top: bounds.top + bounds.height + 8 }),
 })
 layer?.show()
 // On source removal:
@@ -353,6 +353,6 @@ The eleven new owner/portal cases and manual fixture remain unrun; see the
 
 ```tsx
 <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}>
-	<Text>Provider-backed content</Text>
+  <Text>Provider-backed content</Text>
 </Popover>
 ```

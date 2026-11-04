@@ -121,10 +121,10 @@ a non-Tailwind name (`vx-*` or descriptive) instead.
 ```css
 :root,
 .ns-root {
-	--color-onprimary: #fff;
+  --color-onprimary: #fff;
 }
 .text-onprimary {
-	color: var(--color-onprimary);
+  color: var(--color-onprimary);
 }
 ```
 
@@ -148,14 +148,14 @@ the same API shape as the web. So:
 
 ```css
 @media (min-width: 768px) {
-	.workspace {
-		flex-direction: row;
-	}
+  .workspace {
+    flex-direction: row;
+  }
 }
 @media (prefers-color-scheme: dark) {
-	.workspace {
-		background-color: #222;
-	}
+  .workspace {
+    background-color: #222;
+  }
 }
 ```
 
@@ -172,12 +172,12 @@ The `ThemeProvider` discussion below is the earlier proposal.
 import { Text, Pressable, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
 
 export function Example() {
-	const scheme = useThemeScheme()
-	return (
-		<Pressable onPress={() => setThemePreference('dark')}>
-			<Text>Theme: {scheme}</Text>
-		</Pressable>
-	)
+  const scheme = useThemeScheme()
+  return (
+    <Pressable onPress={() => setThemePreference('dark')}>
+      <Text>Theme: {scheme}</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -191,11 +191,11 @@ a `ThemeProvider` that sets the root class, falling back to the media query.
 import { View, Text } from '@octane-xplat/ui'
 
 export function ProposedThemeRoot(props: { dark: boolean }) {
-	return (
-		<View className={props.dark ? 'dark ns-dark' : 'ns-light'}>
-			<Text>Preview theme</Text>
-		</View>
-	)
+  return (
+    <View className={props.dark ? 'dark ns-dark' : 'ns-light'}>
+      <Text>Preview theme</Text>
+    </View>
+  )
 }
 ```
 
@@ -220,8 +220,8 @@ view. A class on one root can never reach another.
 import { Text, useThemeScheme } from '@octane-xplat/ui'
 
 export function Example() {
-	const scheme = useThemeScheme()
-	return <Text>Theme in this root: {scheme}</Text>
+  const scheme = useThemeScheme()
+  return <Text>Theme in this root: {scheme}</Text>
 }
 ```
 
@@ -284,8 +284,8 @@ Tamagui-shaped, CSS-backed:
 import { View, styled } from '@octane-xplat/ui'
 
 const Card = styled(View, {
-	base: 'rounded-lg bg-surface p-4',
-	variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
+  base: 'rounded-lg bg-surface p-4',
+  variants: { elevated: 'shadow-2', destructive: 'bg-danger' },
 })
 ```
 
@@ -313,11 +313,11 @@ import { Pressable, Text, styled } from '@octane-xplat/ui'
 
 const DangerBtn = styled(Pressable, { base: 'btn', variants: { danger: 'bg-danger' } })
 export function Example() {
-	return (
-		<DangerBtn danger className="extra">
-			<Text>Delete</Text>
-		</DangerBtn>
-	)
+  return (
+    <DangerBtn danger className="extra">
+      <Text>Delete</Text>
+    </DangerBtn>
+  )
 }
 ```
 
@@ -334,14 +334,14 @@ rowGap/columnGap — the `.gap-*` utilities work); GridLayout has no gap.
 import { HStack, VStack, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<VStack gap={4}>
-			<HStack gap={2}>
-				<Text>Bag</Text>
-				<Text>Ready</Text>
-			</HStack>
-		</VStack>
-	)
+  return (
+    <VStack gap={4}>
+      <HStack gap={2}>
+        <Text>Bag</Text>
+        <Text>Ready</Text>
+      </HStack>
+    </VStack>
+  )
 }
 ```
 

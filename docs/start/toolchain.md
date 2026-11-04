@@ -232,11 +232,11 @@ and the scaffold's `patches/` directory in Git.
 
 ```json
 {
-	"dependencies": { "octane": "catalog:xplat" },
-	"workspaces": {
-		"packages": [],
-		"catalogs": { "xplat": { "octane": "0.16.3" } }
-	}
+  "dependencies": { "octane": "catalog:xplat" },
+  "workspaces": {
+    "packages": [],
+    "catalogs": { "xplat": { "octane": "0.16.3" } }
+  }
 }
 ```
 
@@ -247,8 +247,8 @@ root too, and copy the local patch files there. Paths are relative to the root.
 
 ```json
 {
-	"private": true,
-	"workspaces": { "packages": ["apps/*", "packages/*"] }
+  "private": true,
+  "workspaces": { "packages": ["apps/*", "packages/*"] }
 }
 ```
 
@@ -447,24 +447,24 @@ for signing, notarization, and icon setup.
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"runtime": "appkit-node-api",
-				"package": {
-					"productName": "Example",
-					"bundleIdentifier": "com.example.app",
-					"executableName": "Example",
-					"version": "1.0.0",
-					"minimumSystemVersion": "13.5",
-					"viteConfig": "vite.package.config.mjs",
-					"bundleFile": "dist/package-build/main.cjs",
-					"icon": "assets/AppIcon.icns",
-					"entitlements": "entitlements.plist"
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "runtime": "appkit-node-api",
+        "package": {
+          "productName": "Example",
+          "bundleIdentifier": "com.example.app",
+          "executableName": "Example",
+          "version": "1.0.0",
+          "minimumSystemVersion": "13.5",
+          "viteConfig": "vite.package.config.mjs",
+          "bundleFile": "dist/package-build/main.cjs",
+          "icon": "assets/AppIcon.icns",
+          "entitlements": "entitlements.plist"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -477,19 +477,19 @@ command after changing these settings. This applies to AppKit and WKWebView.
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"runtime": "appkit-node-api",
-				"dev": {
-					"viteConfig": "vite.dev.config.mjs",
-					"bundleFile": "dist/dev/app.cjs",
-					"productName": "Brim",
-					"icon": "assets/AppIcon.icns"
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "runtime": "appkit-node-api",
+        "dev": {
+          "viteConfig": "vite.dev.config.mjs",
+          "bundleFile": "dist/dev/app.cjs",
+          "productName": "Brim",
+          "icon": "assets/AppIcon.icns"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -554,17 +554,17 @@ and capabilities through `@octane-xplat/platform/host`; see the
 
 ```json
 {
-	"dev": {
-		"webViteConfig": "vite.webview.config.mjs",
-		"hostViteConfig": "vite.webview-host.config.mjs",
-		"hostBundleFile": "dist/webview-host/host.cjs"
-	},
-	"package": {
-		"webViteConfig": "vite.webview.config.mjs",
-		"hostViteConfig": "vite.webview-host.config.mjs",
-		"hostBundleFile": "dist/webview-host/host.cjs",
-		"webOutDir": "dist/web"
-	}
+  "dev": {
+    "webViteConfig": "vite.webview.config.mjs",
+    "hostViteConfig": "vite.webview-host.config.mjs",
+    "hostBundleFile": "dist/webview-host/host.cjs"
+  },
+  "package": {
+    "webViteConfig": "vite.webview.config.mjs",
+    "hostViteConfig": "vite.webview-host.config.mjs",
+    "hostBundleFile": "dist/webview-host/host.cjs",
+    "webOutDir": "dist/web"
+  }
 }
 ```
 
@@ -585,19 +585,19 @@ configuration, prerequisites, installation, URI handling, and verification flow.
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"linux": {
-				"runtime": "webkitgtk",
-				"package": {
-					"applicationId": "com.example.MyApp",
-					"productName": "My App",
-					"executableName": "my-app",
-					"viteConfig": "vite.linux.config.mjs"
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "linux": {
+        "runtime": "webkitgtk",
+        "package": {
+          "applicationId": "com.example.MyApp",
+          "productName": "My App",
+          "executableName": "my-app",
+          "viteConfig": "vite.linux.config.mjs"
+        }
+      }
+    }
+  }
 }
 ```
 

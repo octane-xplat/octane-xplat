@@ -17,7 +17,7 @@ accessibility are unqualified. See
 import { Spinner } from '@octane-xplat/ui'
 
 export function Saving() {
-	return <Spinner size="sm" label="Saving settings" />
+  return <Spinner size="sm" label="Saving settings" />
 }
 ```
 
@@ -34,8 +34,8 @@ unqualified; do not infer them from mounted metadata.
 ```tsx
 import { ProgressBar } from '@octane-xplat/ui'
 export function Upload({ percent }: { percent?: number }) {
-	return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
-		hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
+  return <ProgressBar label="Upload" value={percent} isIndeterminate={percent === undefined}
+    hasValueLabel accessibilityHint="Keep the app open" style="width:240px" />
 }
 ```
 
@@ -48,9 +48,9 @@ arc/color remain gaps; do not infer a filled gauge or native AX proof.
 ```tsx
 import { Meter, Text } from '@octane-xplat/ui'
 export function Storage() {
-	return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage">
-		<Text>6 GB</Text>
-	</Meter>
+  return <Meter value={6} maxValue={10} size={48} accessibilityLabel="Storage">
+    <Text>6 GB</Text>
+  </Meter>
 }
 ```
 
@@ -66,7 +66,7 @@ switching. See [native activation](../../../../../docs/packages/package-macos-ap
 import { Button } from '@octane-xplat/ui'
 
 export function Save({ save }: { save(): void }) {
-	return <Button label="Save" clickAction={save} />
+  return <Button label="Save" clickAction={save} />
 }
 ```
 
@@ -88,7 +88,7 @@ writes while accepted app work and its failure reporting continue.
 import { Button } from '@octane-xplat/ui'
 
 export function Save({ save }: { save(): Promise<void> }) {
-	return <Button label="Save" clickAction={save} />
+  return <Button label="Save" clickAction={save} />
 }
 ```
 
@@ -117,7 +117,7 @@ qualification is still open; focus-triggered tooltips remain a gap.
 import { IconButton } from '@octane-xplat/ui'
 
 export function Share({ share }: { share(): Promise<void> }) {
-	return <IconButton label="Share document" icon="share" clickAction={share} />
+  return <IconButton label="Share document" icon="share" clickAction={share} />
 }
 ```
 
@@ -137,7 +137,7 @@ path. Group value membership ignores member save actions.
 import { ToggleButton } from '@octane-xplat/ui'
 
 export function Pin({ save }: { save(value: boolean): Promise<void> }) {
-	return <ToggleButton label="Pin" pressedChangeAction={save} />
+  return <ToggleButton label="Pin" pressedChangeAction={save} />
 }
 ```
 
@@ -162,7 +162,7 @@ are not implemented. See [cards](../../../../../docs/app/interactive-actions.md#
 import { ClickableCard } from '@octane-xplat/ui'
 
 export function Help() {
-	return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Help</ClickableCard>
+  return <ClickableCard label="Open help" href="https://example.com/help" elevation="low">Help</ClickableCard>
 }
 ```
 
@@ -177,7 +177,7 @@ behavior; do not infer qualification from bridge presence alone.
 import { SelectableCard } from '@octane-xplat/ui'
 
 export function UnavailablePlan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
-	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
+  return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>Unavailable</SelectableCard>
 }
 ```
 
@@ -201,8 +201,8 @@ web helper's key direction; native RTL visual behavior requires separate target 
 import { Button, Toolbar } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <Toolbar label="Page actions" orientation="horizontal"
-		startContent={<Button label="Save" />} endContent={<Button label="Share" />} />
+  return <Toolbar label="Page actions" orientation="horizontal"
+    startContent={<Button label="Save" />} endContent={<Button label="Share" />} />
 }
 ```
 

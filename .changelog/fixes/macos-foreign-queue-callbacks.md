@@ -4,8 +4,8 @@ On macOS, JavaScript callbacks that AppKit invokes from background queues were s
 
 ```js
 const task = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(url, (data, response, error) => {
-	// Now fires — previously the request completed but this block never ran
-	console.log(response.statusCode)
+  // Now fires — previously the request completed but this block never ran
+  console.log(response.statusCode)
 })
 task.resume()
 ```

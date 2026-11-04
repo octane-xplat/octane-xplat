@@ -23,7 +23,7 @@ await player.setMuted(false)
 await player.play()
 
 const off = player.subscribe((snapshot) => {
-	// { state, currentTime, duration } — poll or subscribe, your choice
+  // { state, currentTime, duration } — poll or subscribe, your choice
 })
 ```
 
@@ -54,15 +54,15 @@ seconds. Real audible playback remains a separate qualification gate.
 import { createAudioPlayer } from '@octane-xplat/audio'
 
 export async function playTrack(source: string) {
-	const player = createAudioPlayer()
-	try {
-		await player.setQueue([{ id: 'track', source }])
-		await player.play()
-		await player.seek(2.5)
-		await player.pause()
-	} finally {
-		player.dispose()
-	}
+  const player = createAudioPlayer()
+  try {
+    await player.setQueue([{ id: 'track', source }])
+    await player.play()
+    await player.seek(2.5)
+    await player.pause()
+  } finally {
+    player.dispose()
+  }
 }
 ```
 
@@ -75,10 +75,10 @@ Creating a player throws; this import boundary does not provide Windows playback
 import { createAudioPlayer } from '@octane-xplat/audio'
 
 try {
-	const candidate = createAudioPlayer()
-	candidate.dispose()
+  const candidate = createAudioPlayer()
+  candidate.dispose()
 } catch (error) {
-	console.log('Audio unavailable:', String(error))
+  console.log('Audio unavailable:', String(error))
 }
 ```
 

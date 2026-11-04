@@ -11,7 +11,7 @@ uses a swapped pane rather than a `TabView`.
 import { Tabs, Text } from '@octane-xplat/ui'
 
 export function Sections() {
-	return <Tabs tabs={[{ title: 'Packing', render: () => <Text>Passport</Text> }]} />
+  return <Tabs tabs={[{ title: 'Packing', render: () => <Text>Passport</Text> }]} />
 }
 ```
 
@@ -73,7 +73,7 @@ frame.once('loaded', () => frame.navigate({ create: () => new Page() }))
 import type { Frame } from '@nativescript/core'
 
 function rearm(frame: Frame) {
-	if (!frame.isLoaded) frame.callLoaded?.()
+  if (!frame.isLoaded) frame.callLoaded?.()
 }
 ```
 
@@ -162,6 +162,6 @@ before stepping — that's why.
 import type { Frame } from '@nativescript/core'
 
 function inspectCommittedPage(frame: Frame) {
-	console.log(frame.currentPage, frame.backStack.length)
+  console.log(frame.currentPage, frame.backStack.length)
 }
 ```

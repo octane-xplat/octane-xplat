@@ -214,9 +214,9 @@ AppKit and GTK. Register after the native element attaches to its window.
 import { createShortcuts } from '@octane-xplat/shortcuts'
 
 export function attachDesktopShortcuts(target: object) {
-	const shortcuts = createShortcuts({ target })
-	shortcuts.bind('Mod+KeyK', () => console.log('Open commands'))
-	return () => shortcuts.dispose()
+  const shortcuts = createShortcuts({ target })
+  shortcuts.bind('Mod+KeyK', () => console.log('Open commands'))
+  return () => shortcuts.dispose()
 }
 ```
 

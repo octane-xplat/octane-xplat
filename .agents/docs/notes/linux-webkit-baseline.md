@@ -18,21 +18,21 @@ Use the [consumer setup guide](../../../docs/platform/linux-package.md) and its 
 
 ```json
 {
-	"version": "1.0.0",
-	"xplat": {
-		"targets": {
-			"linux": {
-				"runtime": "webkitgtk",
-				"host": { "scheme": "linux-proof" },
-				"package": {
-					"applicationId": "org.octane.LinuxProof",
-					"productName": "Linux Consumer Proof",
-					"executableName": "linux-proof",
-					"viteConfig": "vite.linux.config.mjs"
-				}
-			}
-		}
-	}
+  "version": "1.0.0",
+  "xplat": {
+    "targets": {
+      "linux": {
+        "runtime": "webkitgtk",
+        "host": { "scheme": "linux-proof" },
+        "package": {
+          "applicationId": "org.octane.LinuxProof",
+          "productName": "Linux Consumer Proof",
+          "executableName": "linux-proof",
+          "viteConfig": "vite.linux.config.mjs"
+        }
+      }
+    }
+  }
 }
 ```
 

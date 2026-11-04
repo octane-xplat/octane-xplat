@@ -28,27 +28,27 @@ import { createTable, dataGridFeatures, DataGrid } from '@octane-xplat/table'
 
 const rows = [{ id: 'apples', fruit: 'Apples', qty: 3 }]
 const columns = [
-	{ accessorKey: 'fruit', header: 'Fruit' },
-	{ accessorKey: 'qty', header: 'Qty' },
+  { accessorKey: 'fruit', header: 'Fruit' },
+  { accessorKey: 'qty', header: 'Qty' },
 ]
 const table = createTable({
-	data: rows,
-	columns,
-	features: dataGridFeatures,
-	getRowId: (row) => row.id,
+  data: rows,
+  columns,
+  features: dataGridFeatures,
+  getRowId: (row) => row.id,
 })
 table.setSorting([{ id: 'qty', desc: true }])
 console.log(table.getRowModel().rows.map((row) => row.original))
 
 export function FruitGrid() {
-	return (
-		<DataGrid
-			data={rows}
-			columns={columns}
-			getRowId={(row) => row.id}
-			onRowPress={(row) => console.log(row.original.fruit)}
-		/>
-	)
+  return (
+    <DataGrid
+      data={rows}
+      columns={columns}
+      getRowId={(row) => row.id}
+      onRowPress={(row) => console.log(row.original.fruit)}
+    />
+  )
 }
 ```
 
@@ -65,19 +65,19 @@ FR9–FR12 specify named plugin ordering (`columnSettings → sort → tree → 
 import { Table, useTableSortable, useTableSortableState } from '@astryxdesign/core/Table'
 
 export function SortedFruit() {
-	const { sortedData, sortConfig } = useTableSortableState({
-		data: [{ id: 'apples', fruit: 'Apples' }],
-		defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
-	})
-	const sort = useTableSortable(sortConfig)
-	return (
-		<Table
-			data={sortedData}
-			idKey="id"
-			columns={[{ key: 'fruit', sortable: true }]}
-			plugins={{ sort }}
-		/>
-	)
+  const { sortedData, sortConfig } = useTableSortableState({
+    data: [{ id: 'apples', fruit: 'Apples' }],
+    defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
+  })
+  const sort = useTableSortable(sortConfig)
+  return (
+    <Table
+      data={sortedData}
+      idKey="id"
+      columns={[{ key: 'fruit', sortable: true }]}
+      plugins={{ sort }}
+    />
+  )
 }
 ```
 
@@ -111,15 +111,15 @@ Other deferrable Astryx conveniences include row-index/status columns, aggregate
 import { Table } from '@astryxdesign/core/Table'
 
 export function StripedFruit() {
-	return (
-		<Table
-			data={[{ id: 'apples', fruit: 'Apples' }]}
-			idKey="id"
-			columns={[{ key: 'fruit' }]}
-			isStriped
-			hasHover
-		/>
-	)
+  return (
+    <Table
+      data={[{ id: 'apples', fruit: 'Apples' }]}
+      idKey="id"
+      columns={[{ key: 'fruit' }]}
+      isStriped
+      hasHover
+    />
+  )
 }
 ```
 
@@ -128,17 +128,17 @@ Astryx separates controls from data transforms: `useTableSortable` does not itse
 ```tsx
 // Continue inside SortedFruit above: transform rows before handing them to Table.
 const { sortedData, sortConfig } = useTableSortableState({
-	data: [{ id: 'apples', fruit: 'Apples' }],
-	defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
+  data: [{ id: 'apples', fruit: 'Apples' }],
+  defaultSort: [{ sortKey: 'fruit', direction: 'ascending' }],
 })
 const sort = useTableSortable(sortConfig)
 const view = (
-	<Table
-		data={sortedData}
-		idKey="id"
-		columns={[{ key: 'fruit', sortable: true }]}
-		plugins={{ sort }}
-	/>
+  <Table
+    data={sortedData}
+    idKey="id"
+    columns={[{ key: 'fruit', sortable: true }]}
+    plugins={{ sort }}
+  />
 )
 ```
 
@@ -183,16 +183,16 @@ import { useTable } from '@octane-xplat/table'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SortControl() {
-	const { table } = useTable({
-		data: [{ id: 'apples', qty: 3 }],
-		columns: [{ accessorKey: 'qty', header: 'Qty' }],
-		getRowId: (row) => row.id,
-	})
-	return (
-		<Pressable onPress={() => table.setSorting([{ id: 'qty', desc: true }])}>
-			<Text>Sort by quantity</Text>
-		</Pressable>
-	)
+  const { table } = useTable({
+    data: [{ id: 'apples', qty: 3 }],
+    columns: [{ accessorKey: 'qty', header: 'Qty' }],
+    getRowId: (row) => row.id,
+  })
+  return (
+    <Pressable onPress={() => table.setSorting([{ id: 'qty', desc: true }])}>
+      <Text>Sort by quantity</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -204,17 +204,17 @@ Xplat's `VirtualListProps<T>` supplies `items`, `keyExtractor`, `getItemType`, `
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function FruitList() {
-	return (
-		<VirtualList
-			items={[{ id: 'apples', name: 'Apples' }]}
-			keyExtractor={(item) => item.id}
-			getItemType={() => 'fruit'}
-			renderItem={(item) => <Text>{item.name}</Text>}
-			renderHeader={() => <Text>Fruit</Text>}
-			renderFooter={() => <Text>End of list</Text>}
-			renderEmpty={() => <Text>No fruit yet</Text>}
-		/>
-	)
+  return (
+    <VirtualList
+      items={[{ id: 'apples', name: 'Apples' }]}
+      keyExtractor={(item) => item.id}
+      getItemType={() => 'fruit'}
+      renderItem={(item) => <Text>{item.name}</Text>}
+      renderHeader={() => <Text>Fruit</Text>}
+      renderFooter={() => <Text>End of list</Text>}
+      renderEmpty={() => <Text>No fruit yet</Text>}
+    />
+  )
 }
 ```
 

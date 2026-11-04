@@ -21,8 +21,8 @@ hover timing and layout require separate target qualification. See [AppKit Slide
 import { Slider } from '@octane-xplat/ui'
 
 export function Budget() {
-	return <Slider label="Budget" defaultValue={[20, 80]} min={0} max={100}
-		step={5} valueDisplay="text" />
+  return <Slider label="Budget" defaultValue={[20, 80]} min={0} max={100}
+    step={5} valueDisplay="text" />
 }
 ```
 
@@ -42,7 +42,7 @@ parents must apply both forward and rollback callbacks. Four added cases require
 import { Switch } from '@octane-xplat/ui'
 
 export function Preference({ save }: { save(next: boolean): Promise<void> }) {
-	return <Switch accessibilityLabel="Preference" defaultValue changeAction={save} />
+  return <Switch accessibilityLabel="Preference" defaultValue changeAction={save} />
 }
 ```
 
@@ -60,7 +60,7 @@ dispatch, not the new local/save/controlled flows or physical input.
 ```tsx
 import { Switch } from '@octane-xplat/ui'
 export function ArchiveFlag({ change }: { change(enabled: boolean): void }) {
-	return <Switch label="Include archived" defaultValue={false} onChange={change} />
+  return <Switch label="Include archived" defaultValue={false} onChange={change} />
 }
 ```
 
@@ -79,8 +79,8 @@ testing, tooltip arbitration, Tab/focus/layout/VoiceOver are unqualified. See
 import { Switch } from '@octane-xplat/ui'
 
 export function Alerts() {
-	return <Switch label="Alerts" description="Daily summary" defaultValue
-		labelPosition="start" labelSpacing="spread" width={280} />
+  return <Switch label="Alerts" description="Daily summary" defaultValue
+    labelPosition="start" labelSpacing="spread" width={280} />
 }
 ```
 
@@ -99,7 +99,7 @@ Use controlled state and onChange for saves; see
 import { Checkbox } from '@octane-xplat/ui'
 
 export function IncludeArchived() {
-	return <Checkbox label="Include archived" labelTooltip="Include archived records" description="Search older records" defaultValue />
+  return <Checkbox label="Include archived" labelTooltip="Include archived records" description="Search older records" defaultValue />
 }
 ```
 
@@ -119,8 +119,8 @@ qualification remains separate.
 import { useState } from 'octane'
 import { CheckboxInput } from '@octane-xplat/ui'
 export function ArchiveFilter() {
-	const [include, setInclude] = useState(false)
-	return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
+  const [include, setInclude] = useState(false)
+  return <CheckboxInput label="Include archived" value={include} onChange={setInclude} />
 }
 ```
 
@@ -148,10 +148,10 @@ hook still checks direct selection only.
 import { RadioList, RadioListItem } from '@octane-xplat/ui'
 
 export function Plan() {
-	return <RadioList label="Plan" defaultValue="free">
-		<RadioListItem value="free" label="Free" description="Personal use" />
-		<RadioListItem value="team" label="Team" />
-	</RadioList>
+  return <RadioList label="Plan" defaultValue="free">
+    <RadioListItem value="free" label="Free" description="Personal use" />
+    <RadioListItem value="team" label="Team" />
+  </RadioList>
 }
 ```
 
@@ -169,10 +169,10 @@ controls, mixed VoiceOver and layout require separate target qualification; see
 import { CheckboxList, CheckboxListItem } from '@octane-xplat/ui'
 
 export function Features() {
-	return <CheckboxList label="Features" defaultValue={['email']}>
-		<CheckboxListItem value="email" label="Email" description="Daily summary" />
-		<CheckboxListItem value="alerts" label="Alerts" />
-	</CheckboxList>
+  return <CheckboxList label="Features" defaultValue={['email']}>
+    <CheckboxListItem value="email" label="Email" description="Daily summary" />
+    <CheckboxListItem value="alerts" label="Alerts" />
+  </CheckboxList>
 }
 ```
 
@@ -188,8 +188,8 @@ selected keys retain the summary fallback. Default option icons are rendered.
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Channels() {
-	return <MultiSelector options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]}
-		defaultValue={['email']} hasSelectAll />
+  return <MultiSelector options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]}
+    defaultValue={['email']} hasSelectAll />
 }
 ```
 
@@ -213,8 +213,8 @@ focus/return, containment, scrolling or AX qualification is implied.
 import { Selector } from '@octane-xplat/ui'
 
 export function Fruit() {
-	return <Selector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
-		searchable defaultValue="apple" />
+  return <Selector options={[{ value: 'apple', label: 'Apple' }, { value: 'cherry', label: 'Cherry' }]}
+    searchable defaultValue="apple" />
 }
 ```
 
@@ -229,8 +229,8 @@ AX relationships and identifier replay require separate target qualification; so
 import { Selector } from '@octane-xplat/ui'
 
 export function Region() {
-	return <Selector label="Region" description="Choose a region" testID="profile.region"
-		options={[{ value: 'west', label: 'West' }]} isRequired />
+  return <Selector label="Region" description="Choose a region" testID="profile.region"
+    options={[{ value: 'west', label: 'West' }]} isRequired />
 }
 ```
 
@@ -245,7 +245,7 @@ physical pointer delivery, foreign engine views or long-press arbitration.
 import { Button, ClickableCard } from '@octane-xplat/ui'
 
 export function Entry({ open, remove }: { open(): void; remove(): void }) {
-	return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
+  return <ClickableCard onPress={open}><Button clickAction={remove}>Remove</Button></ClickableCard>
 }
 ```
 
@@ -260,8 +260,8 @@ Native click isolation depends on the matching renderer gate and requires separa
 import { MultiSelector } from '@octane-xplat/ui'
 
 export function Channels() {
-	return <MultiSelector triggerDisplay="badges" defaultValue={['email']}
-		options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
+  return <MultiSelector triggerDisplay="badges" defaultValue={['email']}
+    options={[{ value: 'email', label: 'Email' }, { value: 'push', label: 'Push' }]} />
 }
 ```
 
@@ -275,7 +275,7 @@ mapping is source-present; native discovery/replay requires separate target qual
 import { TextInput } from '@octane-xplat/ui'
 
 export function Name() {
-	return <TextInput label="Name" testID="profile.name" defaultValue="Ada" />
+  return <TextInput label="Name" testID="profile.name" defaultValue="Ada" />
 }
 ```
 
@@ -298,9 +298,9 @@ paths remain. Use the current button prop, not the old trigger spelling. See the
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions({ disabled }: { disabled: boolean }) {
-	return <DropdownMenu isDisabled={disabled} button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
-	</DropdownMenu>
+  return <DropdownMenu isDisabled={disabled} button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
+  </DropdownMenu>
 }
 ```
 
@@ -321,7 +321,7 @@ Use string labels for typeahead; the private registry is not a public API.
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
 }
 ```
 
@@ -344,7 +344,7 @@ useKeyboard or Button API and adds no layout wrapper.
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions' }}><DropdownMenuItem label="Archive" /></DropdownMenu>
 }
 ```
 
@@ -367,10 +367,10 @@ import { useState } from 'octane'
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
-	return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-	</DropdownMenu>
+  const [open, setOpen] = useState(false)
+  return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+  </DropdownMenu>
 }
 ```
 
@@ -392,9 +392,9 @@ hosts while preserving explicitly focusable disabled-card claims.
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -414,9 +414,9 @@ clicks keep their existing path. Pointer modality is observed before consumption
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -434,9 +434,9 @@ Control, Option or Command combinations on the dedicated key.
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -453,10 +453,10 @@ feedback. Plain action dispatch does not change those values.
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-		<DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
-	</DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+    <DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
+  </DropdownMenu>
 }
 ```
 
@@ -479,8 +479,8 @@ an old focus request.
 
 ```tsx
 <DropdownMenu button={{ label: 'Actions' }}>
-	{show && <DropdownMenuItem label="Remove action" hasCloseOnSelect={false} onSelect={() => setShow(false)} />}
-	<DropdownMenuItem label="Continue" hasCloseOnSelect={false} />
+  {show && <DropdownMenuItem label="Remove action" hasCloseOnSelect={false} onSelect={() => setShow(false)} />}
+  <DropdownMenuItem label="Continue" hasCloseOnSelect={false} />
 </DropdownMenu>
 ```
 
@@ -504,8 +504,8 @@ shows a generic message. Ignore disabled/removed/unknown/stale/reentrant actions
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Text } from '@octane-xplat/ui'
 export function NoteActions({ noteID }: { noteID: string }) {
-	return <AppKitContextMenu id={`actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
-		trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
+  return <AppKitContextMenu id={`actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
+    trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
 }
 ```
 
@@ -538,9 +538,9 @@ still display. Classes/styles apply to the outer labeled field.
 import { useState } from 'octane'
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 export function BagPicker() {
-	const [selection, setSelection] = useState('carry')
-	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
-		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+  const [selection, setSelection] = useState('carry')
+  return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+    options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
 }
 ```
 
@@ -561,8 +561,8 @@ native lifecycle and installed consumers require separate target qualification. 
 // RecordPicker.macos.tsx
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 export function RecordPicker({ recordID }: { recordID: string }) {
-	return <AppKitPicker id={`bag-${recordID}`} label="Bag" defaultSelection="carry"
-		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+  return <AppKitPicker id={`bag-${recordID}`} label="Bag" defaultSelection="carry"
+    options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
 }
 ```
 
@@ -579,8 +579,8 @@ retired anchors cancel the current presentation; close/open rearms it.
 
 ```tsx
 <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
-	placement="bottom" alignment="center" offset={12}>
-	<Text>Current provider-backed details</Text>
+  placement="bottom" alignment="center" offset={12}>
+  <Text>Current provider-backed details</Text>
 </Popover>
 ```
 

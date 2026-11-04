@@ -16,7 +16,7 @@ bun add @octane-xplat/biometrics
 import { biometrics } from '@octane-xplat/biometrics'
 
 if ((await biometrics.requestPermissions()).granted) {
-	const ok = await biometrics.verify('Unlock your saved trips')
+  const ok = await biometrics.verify('Unlock your saved trips')
 }
 ```
 
@@ -40,8 +40,8 @@ import { biometrics } from '@octane-xplat/biometrics'
 
 const availability = await biometrics.requestPermissions()
 if (availability.granted) {
-	const verified = await biometrics.verify('Unlock your saved trips')
-	console.log(verified ? 'Unlocked' : 'Still locked')
+  const verified = await biometrics.verify('Unlock your saved trips')
+  console.log(verified ? 'Unlocked' : 'Still locked')
 }
 ```
 

@@ -48,11 +48,11 @@ A strict adapter must validate schema/version/types/attributes before any mutati
 
 ```json
 {
-	"ok": false,
-	"error": "unsupported-node",
-	"path": "root.children[0]",
-	"type": "toggleItem",
-	"documentChanged": false
+  "ok": false,
+  "error": "unsupported-node",
+  "path": "root.children[0]",
+  "type": "toggleItem",
+  "documentChanged": false
 }
 ```
 
@@ -79,22 +79,22 @@ A baseline Tiptap fixture makes supported meaning concrete; the Lexical fixture 
 
 ```json
 {
-	"type": "doc",
-	"content": [
-		{
-			"type": "paragraph",
-			"content": [
-				{ "type": "text", "text": "Ship ", "marks": [{ "type": "bold" }] },
-				{
-					"type": "text",
-					"text": "today",
-					"marks": [{ "type": "link", "attrs": { "href": "https://example.com" } }]
-				},
-				{ "type": "hardBreak" },
-				{ "type": "text", "text": "Check again" }
-			]
-		}
-	]
+  "type": "doc",
+  "content": [
+    {
+      "type": "paragraph",
+      "content": [
+        { "type": "text", "text": "Ship ", "marks": [{ "type": "bold" }] },
+        {
+          "type": "text",
+          "text": "today",
+          "marks": [{ "type": "link", "attrs": { "href": "https://example.com" } }]
+        },
+        { "type": "hardBreak" },
+        { "type": "text", "text": "Check again" }
+      ]
+    }
+  ]
 }
 ```
 
@@ -102,15 +102,15 @@ For native commands and a future WK transport, prefer acknowledged asynchronous 
 
 ```json
 {
-	"platform": "ios",
-	"surface": "native-textkit",
-	"engine": "lexical-ios",
-	"qualification": "unverified",
-	"ordinaryRichText": false,
-	"customNodes": "native-adapter-only",
-	"javascriptExtensions": false,
-	"foxtrotTaskTree": false,
-	"collaboration": false
+  "platform": "ios",
+  "surface": "native-textkit",
+  "engine": "lexical-ios",
+  "qualification": "unverified",
+  "ordinaryRichText": false,
+  "customNodes": "native-adapter-only",
+  "javascriptExtensions": false,
+  "foxtrotTaskTree": false,
+  "collaboration": false
 }
 ```
 

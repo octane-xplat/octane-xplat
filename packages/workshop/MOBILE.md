@@ -86,8 +86,8 @@ workshop configuration and wrap story-specific providers in declaration order:
 ```ts
 import { defineWorkshopConfig } from '@octane-xplat/workshop'
 export default defineWorkshopConfig({
-	providerModules: ['./src/demo-providers.tsrx'],
-	stories: { include: ['src/**/*.stories.tsrx'] },
+  providerModules: ['./src/demo-providers.tsrx'],
+  stories: { include: ['src/**/*.stories.tsrx'] },
 })
 ```
 
@@ -102,14 +102,14 @@ import { defineConfig } from 'vite'
 import { xplatNative } from '@octane-xplat/cli/vite'
 import { withWorkshopMobile } from '@octane-xplat/workshop/vite-mobile'
 export default defineConfig(async ({ mode }) =>
-	withWorkshopMobile(
-		await xplatNative(mode, {
-			rules: [
-				{ include: 'src/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },
-				{ include: 'stories/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },
-			],
-		}),
-	),
+  withWorkshopMobile(
+    await xplatNative(mode, {
+      rules: [
+        { include: 'src/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },
+        { include: 'stories/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },
+      ],
+    }),
+  ),
 )
 ```
 

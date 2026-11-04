@@ -45,12 +45,12 @@ type Rect = { x: number; y: number; width: number; height: number }
 type FrameSource = 'unknown' | 'destination' | 'native-frames'
 type Phase = 'idle' | 'start' | 'move' | 'interactive' | 'end'
 interface KeyboardMeasurement {
-	currentFrame: Rect | null
-	targetFrame: Rect | null
-	source: FrameSource
-	phase: Phase
-	timestampMs: number
-	durationMs: number | null
+  currentFrame: Rect | null
+  targetFrame: Rect | null
+  source: FrameSource
+  phase: Phase
+  timestampMs: number
+  durationMs: number | null
 }
 ```
 

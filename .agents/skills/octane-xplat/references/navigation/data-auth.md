@@ -12,7 +12,7 @@ contract proof. Rejected URLs retain the committed screen; inspect the result.
 ```ts
 import { router } from '@octane-xplat/ui/routing'
 export function returnAfterSignIn(returnUrl: string) {
-	return router.navigateUrl(returnUrl, { replace: true })
+  return router.navigateUrl(returnUrl, { replace: true })
 }
 ```
 
@@ -25,7 +25,7 @@ work. Application-owned caches and server authorization remain separate.
 ```tsx
 import { RouteOutlet } from '@octane-xplat/ui'
 export function App(props: { authorityVersion: number }) {
-	return <RouteOutlet authority={props.authorityVersion} />
+  return <RouteOutlet authority={props.authorityVersion} />
 }
 ```
 
@@ -39,8 +39,8 @@ cancelled or unmounted login attempt. See the [handoff guide](../../../../../doc
 ```tsx
 import { RouteOutlet } from '@octane-xplat/ui'
 export function SessionApp(props: { authorityVersion: number; returnUrl?: string }) {
-	return <RouteOutlet authority={props.authorityVersion} resumeUrl={props.returnUrl}
-		onResume={result => { if (result.status !== 'committed') console.info('Return failed') }} />
+  return <RouteOutlet authority={props.authorityVersion} resumeUrl={props.returnUrl}
+    onResume={result => { if (result.status !== 'committed') console.info('Return failed') }} />
 }
 ```
 
@@ -57,7 +57,7 @@ import { Text } from '@octane-xplat/ui'
 import type { RouteProps } from '../routes.gen.contracts'
 export const dataMode = 'baked'
 export default function Changelog(props: RouteProps<'/changelog'>) {
-	return <Text>{props.data.version}</Text>
+  return <Text>{props.data.version}</Text>
 }
 ```
 

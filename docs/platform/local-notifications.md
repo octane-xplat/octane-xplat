@@ -22,12 +22,12 @@ the person context for the permission prompt:
 import { notifications } from '@octane-xplat/notifications'
 
 export async function sendReminder() {
-	const result = await notifications.requestPermissions()
-	if (result.granted) {
-		notifications.notify('Reminder', 'Your break starts now.')
-	}
+  const result = await notifications.requestPermissions()
+  if (result.granted) {
+    notifications.notify('Reminder', 'Your break starts now.')
+  }
 
-	return result
+  return result
 }
 ```
 

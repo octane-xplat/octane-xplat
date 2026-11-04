@@ -28,7 +28,7 @@ for platform prerequisites. For web, initialize before mounting the map:
 import { maps } from '@octane-xplat/maps'
 
 export async function initializeMaps(apiKey: string) {
-	await maps.init({ apiKey })
+  await maps.init({ apiKey })
 }
 ```
 
@@ -38,15 +38,15 @@ Put this component in a `.tsx` or `.tsrx` screen with a sized parent:
 import { MapView } from '@octane-xplat/maps'
 
 export function HotelMap() {
-	const hotel = { latitude: 35.68, longitude: 139.69 }
-	return (
-		<MapView
-			className="hotel-map"
-			cameraPosition={{ coordinates: hotel, zoom: 12 }}
-			markers={[{ id: 'hotel', coordinates: hotel, title: 'Hotel' }]}
-			onError={({ message }) => console.log('Map failed:', message)}
-		/>
-	)
+  const hotel = { latitude: 35.68, longitude: 139.69 }
+  return (
+    <MapView
+      className="hotel-map"
+      cameraPosition={{ coordinates: hotel, zoom: 12 }}
+      markers={[{ id: 'hotel', coordinates: hotel, title: 'Hotel' }]}
+      onError={({ message }) => console.log('Map failed:', message)}
+    />
+  )
 }
 ```
 
@@ -54,7 +54,7 @@ Add a height in the app stylesheet:
 
 ```css
 .hotel-map {
-	height: 320px;
+  height: 320px;
 }
 ```
 

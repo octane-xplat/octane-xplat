@@ -42,7 +42,7 @@ unit for the current platform; use your provider's test unit while developing:
 import { BannerAd } from '@octane-xplat/ads'
 
 export function SponsorBanner({ adUnitId }: { adUnitId: string }) {
-	return <BannerAd adUnitId={adUnitId} size="anchoredAdaptive" />
+  return <BannerAd adUnitId={adUnitId} size="anchoredAdaptive" />
 }
 ```
 

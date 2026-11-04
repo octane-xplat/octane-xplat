@@ -15,11 +15,11 @@ bun add @octane-xplat/gif
 import { AnimatedImage } from '@octane-xplat/gif'
 
 ;<AnimatedImage
-	src="https://example.com/loader.gif"
-	alt="Loading"
-	stretch="aspectFit" // 'none' | 'fill' | 'aspectFit' | 'aspectFill'
-	width={96}
-	height={96}
+  src="https://example.com/loader.gif"
+  alt="Loading"
+  stretch="aspectFit" // 'none' | 'fill' | 'aspectFit' | 'aspectFill'
+  width={96}
+  height={96}
 />
 ```
 
@@ -43,8 +43,8 @@ const urls = feed.map((post) => post.imageUrl)
 await prefetch(urls) // false if any URL fails
 
 await prefetch(urls, {
-	headers: { Authorization: 'Bearer …' }, // Android only — see below
-	concurrency: 5, // max parallel fetches (default)
+  headers: { Authorization: 'Bearer …' }, // Android only — see below
+  concurrency: 5, // max parallel fetches (default)
 })
 ```
 
@@ -70,11 +70,11 @@ are reachable where the engine supports them:
 ```tsx
 // Continue with AnimatedImage imported above.
 export function Photo({ url }: { url: string }) {
-	return <AnimatedImage
-		src={url}
-		ios={{ noCache: true }}
-		android={{ decodeWidth: 288, decodeHeight: 288 }}
-	/>
+  return <AnimatedImage
+    src={url}
+    ios={{ noCache: true }}
+    android={{ decodeWidth: 288, decodeHeight: 288 }}
+  />
 }
 ```
 
@@ -92,8 +92,8 @@ throws with rebuild guidance instead of displaying an unsupported label.
 ```tsx
 import { AnimatedImage } from '@octane-xplat/gif'
 export function LoadingIllustration() {
-	return <AnimatedImage src="~/loading.gif" alt="Loading illustration"
-		width={160} height={120} stretch="aspectFit" />
+  return <AnimatedImage src="~/loading.gif" alt="Loading illustration"
+    width={160} height={120} stretch="aspectFit" />
 }
 ```
 
@@ -107,7 +107,7 @@ leaves an empty surface; the shared API has no load/error callbacks.
 
 ```tsx
 <AnimatedImage src="https://example.com/illustration.gif" alt="Illustration"
-	width={240} height={140} stretch="aspectFill" />
+  width={240} height={140} stretch="aspectFill" />
 ```
 
 Unchanged props preserve playback. Detachment/hidden ancestors and reduced

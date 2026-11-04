@@ -123,7 +123,7 @@ names on every target.
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle() {
-	return <UISwitch value={false} onChange={console.log} />
+  return <UISwitch value={false} onChange={console.log} />
 }
 ```
 
@@ -165,7 +165,7 @@ shared component props; OS-level divergence belongs in `.ios`/`.android` files, 
 import { isNative, Text } from '@octane-xplat/ui'
 
 export function HostLabel() {
-	return <Text>{isNative ? 'Native host' : 'Browser host'}</Text>
+  return <Text>{isNative ? 'Native host' : 'Browser host'}</Text>
 }
 ```
 

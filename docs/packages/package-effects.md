@@ -21,9 +21,9 @@ import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function DistortedTitle() @{
-	<ShaderEffect effect="heatHaze" args={{ intensity: 1 }}>
-		<Text>Distorted content</Text>
-	</ShaderEffect>
+  <ShaderEffect effect="heatHaze" args={{ intensity: 1 }}>
+    <Text>Distorted content</Text>
+  </ShaderEffect>
 }
 ```
 
@@ -47,16 +47,16 @@ import { ShaderEffect } from '@octane-xplat/effects/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function StaticEffect() {
-	return (
-		<ShaderEffect
-			effect="heatHaze"
-			args={{ intensity: 1 }}
-			animate={false}
-			maxSampleOffset={{ width: 10, height: 10 }}
-		>
-			<Text>Trip title</Text>
-		</ShaderEffect>
-	)
+  return (
+    <ShaderEffect
+      effect="heatHaze"
+      args={{ intensity: 1 }}
+      animate={false}
+      maxSampleOffset={{ width: 10, height: 10 }}
+    >
+      <Text>Trip title</Text>
+    </ShaderEffect>
+  )
 }
 ```
 

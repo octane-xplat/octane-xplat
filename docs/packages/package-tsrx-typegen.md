@@ -19,7 +19,7 @@ components on the signature:
 /** @jsxImportSource @octane-xplat/jsx */
 import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 export function Button(props: ButtonProps): JSX.Element @{
-	// ...
+  // ...
 }
 ```
 
@@ -47,20 +47,20 @@ declaration output directory, and public subpaths:
 
 ```json
 {
-	"targets": {
-		"octane": {
-			"renderer": "octane",
-			"project": "tsconfig.types.json",
-			"outDir": "types/generated",
-			"entrypoints": {
-				".": {
-					"source": "src/index.ts",
-					"runtime": "./src/index.ts",
-					"types": "./types/generated/index.d.ts"
-				}
-			}
-		}
-	}
+  "targets": {
+    "octane": {
+      "renderer": "octane",
+      "project": "tsconfig.types.json",
+      "outDir": "types/generated",
+      "entrypoints": {
+        ".": {
+          "source": "src/index.ts",
+          "runtime": "./src/index.ts",
+          "types": "./types/generated/index.d.ts"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -111,9 +111,9 @@ generated directory, then map their generated output path explicitly:
 
 ```json
 {
-	"overrides": {
-		"Button.d.ts": "types/overrides/Button.d.ts"
-	}
+  "overrides": {
+    "Button.d.ts": "types/overrides/Button.d.ts"
+  }
 }
 ```
 
@@ -139,17 +139,17 @@ pointed at declarations:
 
 ```json
 {
-	"exports": {
-		".": {
-			"types": "./types/generated/index.d.ts",
-			"default": "./src/index.ts"
-		},
-		"./*": {
-			"types": "./types/generated/*.d.ts",
-			"default": "./src/*"
-		}
-	},
-	"files": ["src", "types"]
+  "exports": {
+    ".": {
+      "types": "./types/generated/index.d.ts",
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./types/generated/*.d.ts",
+      "default": "./src/*"
+    }
+  },
+  "files": ["src", "types"]
 }
 ```
 
@@ -169,7 +169,7 @@ Packages with another runtime layout can override these mappings in
 
 ```json
 {
-	"sourceExtensions": { ".tsrx": ".js", ".mts": ".mjs", ".cts": ".cjs" }
+  "sourceExtensions": { ".tsrx": ".js", ".mts": ".mjs", ".cts": ".cjs" }
 }
 ```
 
@@ -203,21 +203,21 @@ for source-published packages, the `.ts` source itself.
 
 ```json
 {
-	"targets": {
-		"manual": {
-			"emit": false,
-			"renderer": "octane",
-			"project": "tsconfig.types.json",
-			"outDir": "types/generated",
-			"entrypoints": {
-				".": {
-					"source": "src/index.ts",
-					"runtime": "./src/index.ts",
-					"types": "./types/index.d.ts"
-				}
-			}
-		}
-	}
+  "targets": {
+    "manual": {
+      "emit": false,
+      "renderer": "octane",
+      "project": "tsconfig.types.json",
+      "outDir": "types/generated",
+      "entrypoints": {
+        ".": {
+          "source": "src/index.ts",
+          "runtime": "./src/index.ts",
+          "types": "./types/index.d.ts"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -225,10 +225,10 @@ Run the same gate from `prepack` so `bun pm pack` and publication share it:
 
 ```json
 {
-	"scripts": {
-		"typegen": "tsrx-typegen --target octane",
-		"prepack": "bun run typegen && tsrx-typegen --pack-check"
-	}
+  "scripts": {
+    "typegen": "tsrx-typegen --target octane",
+    "prepack": "bun run typegen && tsrx-typegen --pack-check"
+  }
 }
 ```
 
@@ -258,6 +258,6 @@ overrides outside the generated output directory.
 ```ts
 // Source of your component package; use an explicit return type for helpers.
 export function formatCount(count: number): string {
-	return `${count} packed`
+  return `${count} packed`
 }
 ```

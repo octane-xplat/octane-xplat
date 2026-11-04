@@ -8,7 +8,7 @@ import { Markdown } from '@octane-xplat/ui/markdown'
 // Before: <Markdown text={source} isStreaming />
 // After: pass the raw accumulated string — smoothing is built in.
 <Markdown isStreaming sources={{ a: { title: 'Docs', url: 'https://example.com' } }}>
-	{source}
+  {source}
 </Markdown>
 ```
 

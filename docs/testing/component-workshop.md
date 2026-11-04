@@ -62,31 +62,31 @@ type State = { count: number }
 type Fixture = { account: string }
 
 function Counter(p: Props & { state: Store<State>; fixture: Fixture }) {
-	const { count } = useStore(p.state)
-	return (
-		<Pressable
-			accessibilityLabel="Increment"
-			onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
-		>
-			<Text>
-				{p.label ?? p.fixture.account}: {count}
-			</Text>
-		</Pressable>
-	)
+  const { count } = useStore(p.state)
+  return (
+    <Pressable
+      accessibilityLabel="Increment"
+      onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
+    >
+      <Text>
+        {p.label ?? p.fixture.account}: {count}
+      </Text>
+    </Pressable>
+  )
 }
 
 export const Basic = defineStory<Props, State, Fixture>({
-	id: 'counter/basic',
-	title: 'Examples / Counter',
-	targets: 'all',
-	component: Counter,
-	args: { step: 1 },
-	controls: {
-		step: { type: 'number', min: 1, max: 10 },
-		label: { type: 'string', allowUnset: true },
-	},
-	state: () => ({ count: 0 }),
-	fixture: () => ({ account: 'Demo' }),
+  id: 'counter/basic',
+  title: 'Examples / Counter',
+  targets: 'all',
+  component: Counter,
+  args: { step: 1 },
+  controls: {
+    step: { type: 'number', min: 1, max: 10 },
+    label: { type: 'string', allowUnset: true },
+  },
+  state: () => ({ count: 0 }),
+  fixture: () => ({ account: 'Demo' }),
 })
 ```
 
@@ -113,8 +113,8 @@ To reuse the controls from `Basic`, declare them in the same file and set its
 import type { StoryControls } from '@octane-xplat/workshop'
 
 const controls: StoryControls<Props> = {
-	step: { type: 'number', min: 1, max: 10 },
-	label: { type: 'string', allowUnset: true },
+  step: { type: 'number', min: 1, max: 10 },
+  label: { type: 'string', allowUnset: true },
 }
 ```
 
@@ -133,11 +133,11 @@ In the same file, define this factory and set `Basic`'s `fixture` property to
 import type { FixtureFactory } from '@octane-xplat/workshop'
 
 const fixture: FixtureFactory<Fixture> = ({ signal, onCleanup }) => {
-	const timer = setInterval(() => {
-		if (!signal.aborted) console.log('Demo fixture is active')
-	}, 1000)
-	onCleanup(() => clearInterval(timer))
-	return { account: 'Demo' }
+  const timer = setInterval(() => {
+    if (!signal.aborted) console.log('Demo fixture is active')
+  }, 1000)
+  onCleanup(() => clearInterval(timer))
+  return { account: 'Demo' }
 }
 ```
 
@@ -152,7 +152,7 @@ shows an actual secondary Octane root, shared provider store, and disposal.
 import { SizeProvider } from '@octane-xplat/ui'
 
 function DemoProvider(p: { fixture: Fixture; children?: unknown }) {
-	return <SizeProvider size="lg">{p.children}</SizeProvider>
+  return <SizeProvider size="lg">{p.children}</SizeProvider>
 }
 // Use this array for Basic's providers field:
 const providers = [DemoProvider]
@@ -209,13 +209,13 @@ To make an iOS-only variant, save the earlier component, imports, and types in
 
 ```ts
 export const IOSOnly = defineStory<Props, State, Fixture>({
-	id: 'counter/ios-only',
-	title: 'Examples / iOS counter',
-	targets: ['ios'],
-	component: Counter,
-	args: { step: 1 },
-	state: () => ({ count: 0 }),
-	fixture: () => ({ account: 'Demo' }),
+  id: 'counter/ios-only',
+  title: 'Examples / iOS counter',
+  targets: ['ios'],
+  component: Counter,
+  args: { step: 1 },
+  state: () => ({ count: 0 }),
+  fixture: () => ({ account: 'Demo' }),
 })
 ```
 
@@ -292,11 +292,11 @@ Relative provider and asset paths resolve from the consuming app.
 import { defineWorkshopConfig } from '@octane-xplat/workshop'
 
 export default defineWorkshopConfig({
-	stories: {
-		include: ['src/**/*.stories.tsrx', 'src/**/*.stories.web.tsrx'],
-		exclude: ['src/private-fixtures/**'],
-	},
-	assets: { examples: './public' },
+  stories: {
+    include: ['src/**/*.stories.tsrx', 'src/**/*.stories.web.tsrx'],
+    exclude: ['src/private-fixtures/**'],
+  },
+  assets: { examples: './public' },
 })
 ```
 

@@ -19,13 +19,13 @@ import { KeyboardProvider } from '@octane-xplat/keyboard'
 import { Field, KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function MessageForm() {
-	return <KeyboardProvider>
-		<KeyboardAvoiding keyboardVerticalOffset={8}>
-			<Field label="Message">
-				<TextInput placeholder="Write a message" />
-			</Field>
-		</KeyboardAvoiding>
-	</KeyboardProvider>
+  return <KeyboardProvider>
+    <KeyboardAvoiding keyboardVerticalOffset={8}>
+      <Field label="Message">
+        <TextInput placeholder="Write a message" />
+      </Field>
+    </KeyboardAvoiding>
+  </KeyboardProvider>
 }
 ```
 
@@ -46,11 +46,11 @@ import { KeyboardProvider } from '@octane-xplat/keyboard'
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function PausedForm() {
-	return <KeyboardProvider enabled={false}>
-		<KeyboardAvoiding enabled={false}>
-			<TextInput placeholder="Write a message" />
-		</KeyboardAvoiding>
-	</KeyboardProvider>
+  return <KeyboardProvider enabled={false}>
+    <KeyboardAvoiding enabled={false}>
+      <TextInput placeholder="Write a message" />
+    </KeyboardAvoiding>
+  </KeyboardProvider>
 }
 ```
 
@@ -70,7 +70,7 @@ that share a running window source reuse its available measurements.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function canFollowMeasuredFrames(host: object) {
-	return KeyboardController.getSnapshot(host).capabilities.nativeFrames
+  return KeyboardController.getSnapshot(host).capabilities.nativeFrames
 }
 ```
 
@@ -86,16 +86,16 @@ tracking lifetime.
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function observeNativeHost(host: object) {
-	const stopState = KeyboardController.subscribe(host, state => {
-		console.log(state.phase, state.capabilities.nativeFrames)
-	})
-	const stopMovement = KeyboardController.onMove(host, state => {
-		// Native work can use this measurement. Avoid rendering each frame.
-		const measuredTop = state.currentFrame?.y
-		if (measuredTop !== undefined) updateNativeMeasurement(measuredTop)
-	})
+  const stopState = KeyboardController.subscribe(host, state => {
+    console.log(state.phase, state.capabilities.nativeFrames)
+  })
+  const stopMovement = KeyboardController.onMove(host, state => {
+    // Native work can use this measurement. Avoid rendering each frame.
+    const measuredTop = state.currentFrame?.y
+    if (measuredTop !== undefined) updateNativeMeasurement(measuredTop)
+  })
 
-	return () => { stopMovement(); stopState() }
+  return () => { stopMovement(); stopState() }
 }
 
 function updateNativeMeasurement(_top: number) {}
@@ -110,13 +110,13 @@ unknown geometry is represented by `null`. Cached reads do not start observation
 import { KeyboardController } from '@octane-xplat/keyboard'
 
 export function inspectNativeHost(host: object) {
-	const state = KeyboardController.getSnapshot(host)
+  const state = KeyboardController.getSnapshot(host)
 
-	return {
-		measured: state.currentFrame,
-		destination: state.targetFrame,
-		canTrackFrames: state.capabilities.nativeFrames,
-	}
+  return {
+    measured: state.currentFrame,
+    destination: state.targetFrame,
+    canTrackFrames: state.capabilities.nativeFrames,
+  }
 }
 ```
 
@@ -132,9 +132,9 @@ text. Release it when your host is removed.
 import { FocusedInputController } from '@octane-xplat/keyboard'
 
 export function observeEditing(host: object) {
-	return FocusedInputController.subscribe(host, state => {
-		console.log(state.inputRect, state.caretRect, state.selection)
-	})
+  return FocusedInputController.subscribe(host, state => {
+    console.log(state.inputRect, state.caretRect, state.selection)
+  })
 }
 ```
 
@@ -150,9 +150,9 @@ it has a measurable rectangle. Check the capability before relying on a caret.
 import { FocusedInputController } from '@octane-xplat/keyboard'
 
 export function inspectCaret(host: object) {
-	const state = FocusedInputController.getSnapshot(host)
+  const state = FocusedInputController.getSnapshot(host)
 
-	return { rect: state.caretRect, precision: state.capabilities.caretBounds }
+  return { rect: state.caretRect, precision: state.capabilities.caretBounds }
 }
 ```
 
@@ -165,7 +165,7 @@ independently of the software keyboard, including desktop editing.
 import { FocusedInputController } from '@octane-xplat/keyboard'
 
 export function refreshEditingGeometry(host: object) {
-	FocusedInputController.recheck(host)
+  FocusedInputController.recheck(host)
 }
 ```
 
@@ -181,10 +181,10 @@ import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
 import { Field, TextInput, TextArea } from '@octane-xplat/ui'
 
 export function ContactForm() {
-	return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
-		<Field label="Email"><TextInput keyboardType="email" /></Field>
-		<Field label="Message"><TextArea placeholder="How can we help?" /></Field>
-	</KeyboardAwareScrollView>
+  return <KeyboardAwareScrollView clearance={12} extraScrollSpace={40}>
+    <Field label="Email"><TextInput keyboardType="email" /></Field>
+    <Field label="Message"><TextArea placeholder="How can we help?" /></Field>
+  </KeyboardAwareScrollView>
 }
 ```
 
@@ -199,11 +199,11 @@ box because the browser does not expose their insertion rectangle.
 import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
 
 export function FormViewport({ children }: { children?: unknown }) {
-	return <KeyboardAwareScrollView
-		clearance={12}
-		extraScrollSpace={40}
-		keyboardVerticalOffset={0}
-	>{children}</KeyboardAwareScrollView>
+  return <KeyboardAwareScrollView
+    clearance={12}
+    extraScrollSpace={40}
+    keyboardVerticalOffset={0}
+  >{children}</KeyboardAwareScrollView>
 }
 ```
 
@@ -221,16 +221,16 @@ import type { KeyboardScrollBinding } from '@octane-xplat/keyboard'
 import { Button, TextInput } from '@octane-xplat/ui'
 
 export function RecheckedForm() {
-	const scrolling = useRef<KeyboardScrollBinding | null>(null)
+  const scrolling = useRef<KeyboardScrollBinding | null>(null)
 
-	return <KeyboardAwareScrollView
-		manualScroll="pause"
-		keyboardClose="preserve"
-		ref={binding => { scrolling.current = binding }}
-	>
-		<TextInput placeholder="Message" />
-		<Button clickAction={() => scrolling.current?.recheck()}>Show editing field</Button>
-	</KeyboardAwareScrollView>
+  return <KeyboardAwareScrollView
+    manualScroll="pause"
+    keyboardClose="preserve"
+    ref={binding => { scrolling.current = binding }}
+  >
+    <TextInput placeholder="Message" />
+    <Button clickAction={() => scrolling.current?.recheck()}>Show editing field</Button>
+  </KeyboardAwareScrollView>
 }
 ```
 
@@ -243,9 +243,9 @@ and keyboard avoidance. Release the binding when the viewport is removed.
 import { KeyboardScrollController } from '@octane-xplat/keyboard'
 
 export function attachFormViewport(host: object) {
-	const binding = KeyboardScrollController.bind(host, { clearance: 12 })
+  const binding = KeyboardScrollController.bind(host, { clearance: 12 })
 
-	return () => binding.release()
+  return () => binding.release()
 }
 ```
 
@@ -262,12 +262,12 @@ import { KeyboardStickyView } from '@octane-xplat/keyboard'
 import { Field, TextInput, View } from '@octane-xplat/ui'
 
 export function Composer() {
-	return <View flexGrow={1}>
-		<View flexGrow={1} />
-		<KeyboardStickyView openOffset={8} closedOffset={0}>
-			<Field label="Message"><TextInput placeholder="Write a message" /></Field>
-		</KeyboardStickyView>
-	</View>
+  return <View flexGrow={1}>
+    <View flexGrow={1} />
+    <KeyboardStickyView openOffset={8} closedOffset={0}>
+      <Field label="Message"><TextInput placeholder="Write a message" /></Field>
+    </KeyboardStickyView>
+  </View>
 }
 ```
 
@@ -284,9 +284,9 @@ import { KeyboardStickyView } from '@octane-xplat/keyboard'
 import { TextInput } from '@octane-xplat/ui'
 
 export function PausedComposer() {
-	return <KeyboardStickyView enabled={false} openOffset={8}>
-		<TextInput placeholder="Write a message" />
-	</KeyboardStickyView>
+  return <KeyboardStickyView enabled={false} openOffset={8}>
+    <TextInput placeholder="Write a message" />
+  </KeyboardStickyView>
 }
 ```
 
@@ -303,16 +303,16 @@ import { ChatComposer, ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat
 import type { ChatMessageData } from '@octane-xplat/ui/chat'
 
 const messages: ChatMessageData[] = [
-	{ id: 'welcome', sender: 'assistant', content: 'Where would you like to go?' },
+  { id: 'welcome', sender: 'assistant', content: 'Where would you like to go?' },
 ]
 
 export function Conversation() {
-	return <ChatLayout
-		keyboardFollow="when-at-end"
-		composer={<ChatComposer onSend={text => console.log(text)} />}
-	>
-		<ChatMessageList messages={messages} />
-	</ChatLayout>
+  return <ChatLayout
+    keyboardFollow="when-at-end"
+    composer={<ChatComposer onSend={text => console.log(text)} />}
+  >
+    <ChatMessageList messages={messages} />
+  </ChatLayout>
 }
 ```
 
@@ -326,13 +326,13 @@ neutral; ordinary scrolling and composer-size changes still work.
 import { ChatComposer, ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
 
 export function ManualConversation() {
-	return <ChatLayout
-		keyboardFollow="never"
-		followLatest={false}
-		composer={<ChatComposer onSend={text => console.log(text)} />}
-	>
-		<ChatMessageList messages={[]} />
-	</ChatLayout>
+  return <ChatLayout
+    keyboardFollow="never"
+    followLatest={false}
+    composer={<ChatComposer onSend={text => console.log(text)} />}
+  >
+    <ChatMessageList messages={[]} />
+  </ChatLayout>
 }
 ```
 
@@ -345,7 +345,7 @@ JSX children, give each retained `ChatMessage` a stable key.
 import type { ChatMessageData } from '@octane-xplat/ui/chat'
 
 export function prependHistory(older: ChatMessageData[], current: ChatMessageData[]) {
-	return [...older, ...current]
+  return [...older, ...current]
 }
 ```
 
@@ -365,15 +365,15 @@ import { View, TextInput } from '@octane-xplat/ui'
 import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
 
 export function PanelConversation({ panelHeight = 0 }: { panelHeight?: number }) {
-	return <ChatLayout
-		bottomPanelHeight={panelHeight}
-		composer={<View>
-			<TextInput placeholder="Write a message" />
-			{panelHeight > 0 ? <View style={{ height: panelHeight }} /> : null}
-		</View>}
-	>
-		<ChatMessageList messages={[]} />
-	</ChatLayout>
+  return <ChatLayout
+    bottomPanelHeight={panelHeight}
+    composer={<View>
+      <TextInput placeholder="Write a message" />
+      {panelHeight > 0 ? <View style={{ height: panelHeight }} /> : null}
+    </View>}
+  >
+    <ChatMessageList messages={[]} />
+  </ChatLayout>
 }
 ```
 
@@ -390,18 +390,18 @@ import { KeyboardAwareScrollView } from '@octane-xplat/keyboard'
 import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
 
 export function SheetForm() {
-	const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
 
-	return <Screen>
-		<Button clickAction={() => setOpen(true)}>Edit contact</Button>
-		<BottomSheet isOpen={open} onOpenChange={setOpen}
-			label="Edit contact" snapPoints={['50%', '90%']}>
-			<KeyboardAwareScrollView clearance={12}>
-				<TextInput placeholder="Name" />
-				<TextInput placeholder="Email" keyboardType="email" />
-			</KeyboardAwareScrollView>
-		</BottomSheet>
-	</Screen>
+  return <Screen>
+    <Button clickAction={() => setOpen(true)}>Edit contact</Button>
+    <BottomSheet isOpen={open} onOpenChange={setOpen}
+      label="Edit contact" snapPoints={['50%', '90%']}>
+      <KeyboardAwareScrollView clearance={12}>
+        <TextInput placeholder="Name" />
+        <TextInput placeholder="Email" keyboardType="email" />
+      </KeyboardAwareScrollView>
+    </BottomSheet>
+  </Screen>
 }
 ```
 
@@ -415,16 +415,16 @@ import { useRef, useState } from 'octane'
 import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
 
 export function ReturnToSearch() {
-	const [open, setOpen] = useState(false)
-	const search = useRef<any>(null)
+  const [open, setOpen] = useState(false)
+  const search = useRef<any>(null)
 
-	return <Screen>
-		<TextInput ref={search} placeholder="Search contacts" />
-		<Button clickAction={() => setOpen(true)}>Edit contact</Button>
-		<BottomSheet isOpen={open} onOpenChange={setOpen}
-			label="Edit contact" finalFocusRef={search}>
-			<TextInput placeholder="Name" />
-		</BottomSheet>
-	</Screen>
+  return <Screen>
+    <TextInput ref={search} placeholder="Search contacts" />
+    <Button clickAction={() => setOpen(true)}>Edit contact</Button>
+    <BottomSheet isOpen={open} onOpenChange={setOpen}
+      label="Edit contact" finalFocusRef={search}>
+      <TextInput placeholder="Name" />
+    </BottomSheet>
+  </Screen>
 }
 ```

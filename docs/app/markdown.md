@@ -12,7 +12,7 @@ and plugin helpers.
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 export function Notes() {
-	return <Markdown>{'# Notes\n\n- Pack the charger'}</Markdown>
+  return <Markdown>{'# Notes\n\n- Pack the charger'}</Markdown>
 }
 ```
 
@@ -30,8 +30,8 @@ applies to `children` only.
 
 ```tsx
 <>
-	<Markdown data={document} />
-	<Markdown isStreaming>{partialSource}</Markdown>
+  <Markdown data={document} />
+  <Markdown isStreaming>{partialSource}</Markdown>
 </>
 ```
 
@@ -55,7 +55,7 @@ than the available space.
 
 ```tsx
 <Markdown density="compact" headingLevelStart={3} contentWidth={520} contentAlign="center">
-	{response}
+  {response}
 </Markdown>
 ```
 
@@ -69,11 +69,11 @@ import { Text } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 export function Status() {
-	return (
-		<Text>
-			Status: <Markdown display="inline">{'`deploying` to **prod**'}</Markdown>
-		</Text>
-	)
+  return (
+    <Text>
+      Status: <Markdown display="inline">{'`deploying` to **prod**'}</Markdown>
+    </Text>
+  )
 }
 ```
 
@@ -87,14 +87,14 @@ themselves.
 
 ```tsx
 <Markdown
-	onLinkClick={(href, event) => {
-		if (href.startsWith('internal:')) {
-			event.preventDefault()
-			openRoute(href)
-		}
-	}}
+  onLinkClick={(href, event) => {
+    if (href.startsWith('internal:')) {
+      event.preventDefault()
+      openRoute(href)
+    }
+  }}
 >
-	{source}
+  {source}
 </Markdown>
 ```
 
@@ -114,10 +114,10 @@ numbered badges instead of the default labelled chips.
 
 ```tsx
 <Markdown
-	citationStyle="number"
-	sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
+  citationStyle="number"
+  sources={{ tokyo: { title: 'Tokyo facts', url: 'https://en.wikipedia.org/wiki/Tokyo' } }}
 >
-	{'Population facts[tokyo].'}
+  {'Population facts[tokyo].'}
 </Markdown>
 ```
 
@@ -133,16 +133,16 @@ functions should stay pure construction.
 import { CodeBlock, Link } from '@octane-xplat/ui'
 
 const components = {
-	code: (props: { code: string; language?: string }) => (
-		<CodeBlock code={props.code} language={props.language} isCollapsible />
-	),
-	link: (props: { href: string; children?: unknown }) => (
-		<Link href={props.href}>{props.children}</Link>
-	),
+  code: (props: { code: string; language?: string }) => (
+    <CodeBlock code={props.code} language={props.language} isCollapsible />
+  ),
+  link: (props: { href: string; children?: unknown }) => (
+    <Link href={props.href}>{props.children}</Link>
+  ),
 }
 
 export function Guide(props: { source: string }) {
-	return <Markdown components={components}>{props.source}</Markdown>
+  return <Markdown components={components}>{props.source}</Markdown>
 }
 ```
 
@@ -171,12 +171,12 @@ import { Text } from '@octane-xplat/ui'
 import { Markdown, type MarkdownInlinePlugin } from '@octane-xplat/ui/markdown'
 
 const mention: MarkdownInlinePlugin = {
-	pattern: /@([a-z]+)/g,
-	render: (match, key) => <Text key={key} weight="bold">{'@' + match[1]}</Text>,
+  pattern: /@([a-z]+)/g,
+  render: (match, key) => <Text key={key} weight="bold">{'@' + match[1]}</Text>,
 }
 
 export function Ping() {
-	return <Markdown inlinePlugins={[mention]}>{'Ping @ada when ready'}</Markdown>
+  return <Markdown inlinePlugins={[mention]}>{'Ping @ada when ready'}</Markdown>
 }
 ```
 
@@ -196,37 +196,37 @@ stays serializable, and renderer functions never enter `data`.
 import { createMarkdownPlugin, Markdown, type MarkdownTokenizerInput } from '@octane-xplat/ui/markdown'
 
 const angle = createMarkdownPlugin({
-	name: 'angle',
-	apiVersion: 1,
-	syntax: {
-		inline: [
-			{
-				startsWith: ['<<'],
-				maxSpan: 64,
-				tokenize: (input: MarkdownTokenizerInput) => {
-					const end = input.source.indexOf('>>', input.offset + 2)
-					return end === -1
-						? { status: 'no-match' as const }
-						: {
-								status: 'match' as const,
-								end: end + 2,
-								node: {
-									type: 'extension' as const,
-									plugin: 'angle',
-									name: 'angle',
-									display: 'inline' as const,
-									data: input.source.slice(input.offset + 2, end),
-								},
-							}
-				},
-			},
-		],
-	},
-	renderers: { angle: { render: (node) => <mark>{String(node.data)}</mark>, toText: (node) => String(node.data) } },
+  name: 'angle',
+  apiVersion: 1,
+  syntax: {
+    inline: [
+      {
+        startsWith: ['<<'],
+        maxSpan: 64,
+        tokenize: (input: MarkdownTokenizerInput) => {
+          const end = input.source.indexOf('>>', input.offset + 2)
+          return end === -1
+            ? { status: 'no-match' as const }
+            : {
+                status: 'match' as const,
+                end: end + 2,
+                node: {
+                  type: 'extension' as const,
+                  plugin: 'angle',
+                  name: 'angle',
+                  display: 'inline' as const,
+                  data: input.source.slice(input.offset + 2, end),
+                },
+              }
+        },
+      },
+    ],
+  },
+  renderers: { angle: { render: (node) => <mark>{String(node.data)}</mark>, toText: (node) => String(node.data) } },
 })
 
 export function Marked() {
-	return <Markdown plugins={[angle]}>{'Tag <<important>> inline'}</Markdown>
+  return <Markdown plugins={[angle]}>{'Tag <<important>> inline'}</Markdown>
 }
 ```
 
@@ -257,7 +257,7 @@ import { createMarkdownFrontmatter, Markdown, markdownSoftBreaksPlugin } from '@
 const meta = createMarkdownFrontmatter({ name: 'meta', parse: (fields) => fields })
 
 export function Page(props: { source: string }) {
-	return <Markdown plugins={[meta.plugin, markdownSoftBreaksPlugin]}>{props.source}</Markdown>
+  return <Markdown plugins={[meta.plugin, markdownSoftBreaksPlugin]}>{props.source}</Markdown>
 }
 ```
 

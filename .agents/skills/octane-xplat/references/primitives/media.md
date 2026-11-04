@@ -15,7 +15,7 @@ when changing the resolver or native peer binding.
 import { Avatar } from '@octane-xplat/ui'
 
 export function Person() {
-	return <Avatar name="Ada Lovelace" size="lg" />
+  return <Avatar name="Ada Lovelace" size="lg" />
 }
 
 ```
@@ -35,9 +35,9 @@ and [recorder constraints](../../../../docs/camera-recording-switch.md).
 ```ts
 import type { CameraSession } from '@octane-xplat/camera'
 async function faceFront(session: CameraSession): Promise<void> {
-	if ((await session.capabilities()).cameraSwitchDuringRecording) {
-		await session.switchCamera('front') // Requires recording state.
-	}
+  if ((await session.capabilities()).cameraSwitchDuringRecording) {
+    await session.switchCamera('front') // Requires recording state.
+  }
 }
 ```
 
@@ -68,8 +68,8 @@ See [AppKit image loading](../../../../../docs/app/components.md#image-loading-o
 import { Image } from '@octane-xplat/ui'
 
 export function Photo({ src }: { src: string }) {
-	return <Image src={src} alt="Photo" flexGrow={1} contentFit="contain"
-		className={['photo', { framed: true }]} style={{ width: 120, height: 80 }} />
+  return <Image src={src} alt="Photo" flexGrow={1} contentFit="contain"
+    className={['photo', { framed: true }]} style={{ width: 120, height: 80 }} />
 }
 ```
 
@@ -98,9 +98,9 @@ Native event timing, metadata, cache behavior and retention require separate tar
 ```tsx
 import { Image } from '@octane-xplat/image'
 export function FreshPhoto({ src }: { src: string }) {
-	return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }}
-		onLoad={(event) => console.log(event.width, event.height, event.source)}
-		onError={({ error }) => console.warn(error.message)} />
+  return <Image src={src} cachePolicy="none" alt="Photo" style={{ width: 120, height: 80 }}
+    onLoad={(event) => console.log(event.width, event.height, event.source)}
+    onError={({ error }) => console.warn(error.message)} />
 }
 ```
 
@@ -118,8 +118,8 @@ handles are inert. AppKit onError is generic, unlike the mobile plugin gap.
 ```tsx
 import { Video } from '@octane-xplat/video'
 export function Clip({ source }: { source: string }) {
-	return <Video src={source} controls style={{ width: 320, height: 220 }}
-		onReady={({ duration }) => console.log(duration)} onError={({ message }) => console.warn(message)} />
+  return <Video src={source} controls style={{ width: 320, height: 220 }}
+    onReady={({ duration }) => console.log(duration)} onError={({ message }) => console.warn(message)} />
 }
 ```
 
@@ -152,13 +152,13 @@ import { Carousel, Button, Text } from '@octane-xplat/ui'
 import type { CarouselHandle } from '@octane-xplat/ui'
 
 export function Previews() {
-	const carousel = useRef<CarouselHandle | null>(null)
-	return <>
-		<Carousel ref={carousel} label="Previews" hasButtons hasLoop variant="proportional" style={{ width: 320, height: 120 }}>
-			<Text>First</Text><Text>Second</Text>
-		</Carousel>
-		<Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
-	</>
+  const carousel = useRef<CarouselHandle | null>(null)
+  return <>
+    <Carousel ref={carousel} label="Previews" hasButtons hasLoop variant="proportional" style={{ width: 320, height: 120 }}>
+      <Text>First</Text><Text>Second</Text>
+    </Carousel>
+    <Button label="Next" clickAction={() => carousel.current?.scrollNext()} />
+  </>
 }
 ```
 
@@ -180,7 +180,7 @@ releases tokens/timers. User/handle intent retires late initial alignment.
 
 ```tsx
 <Carousel label="Previews" hasButtons hasSnap variant="proportional" style={{ width: 320, height: 120 }}>
-	<Text>First</Text><Text>Second</Text>
+  <Text>First</Text><Text>Second</Text>
 </Carousel>
 ```
 
@@ -205,8 +205,8 @@ ref/context ordering, focus/AX and packaged resolution require separate target q
 import { Pager } from '@octane-xplat/pager'
 import { Text } from '@octane-xplat/ui'
 export function TravelPages() {
-	return <Pager items={['Pack', 'Travel']} defaultPage={1}
-		style={{ width: 320, height: 160 }} renderItem={(title) => <Text>{title}</Text>} />
+  return <Pager items={['Pack', 'Travel']} defaultPage={1}
+    style={{ width: 320, height: 160 }} renderItem={(title) => <Text>{title}</Text>} />
 }
 ```
 
@@ -237,10 +237,10 @@ surface; decoding, playback, transport input and cleanup require separate target
 ```tsx
 import { Lightbox } from '@octane-xplat/ui'
 export function Gallery({ open, setOpen, first, second }: {
-	open: boolean; setOpen: (open: boolean) => void; first: string; second: string
+  open: boolean; setOpen: (open: boolean) => void; first: string; second: string
 }) {
-	return <Lightbox isOpen={open} onOpenChange={setOpen} hasZoom
-		media={[{ src: first, alt: 'First photo' }, { src: second, alt: 'Second photo' }]} />
+  return <Lightbox isOpen={open} onOpenChange={setOpen} hasZoom
+    media={[{ src: first, alt: 'First photo' }, { src: second, alt: 'Second photo' }]} />
 }
 ```
 
@@ -278,10 +278,10 @@ never import the entire generated native SDK merely to load this framework.
 // FileActions.macos.ts
 import { files } from '@octane-xplat/files'
 export async function chooseDocuments() {
-	return files.pickMultiple('.pdf,.docx')
+  return files.pickMultiple('.pdf,.docx')
 }
 export async function chooseImagesOrPDF() {
-	return files.pickMultiple('image/*,.pdf')
+  return files.pickMultiple('image/*,.pdf')
 }
 ```
 

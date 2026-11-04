@@ -29,15 +29,15 @@ import { useState } from 'octane'
 import { SwiftUIPicker } from '@octane-xplat/picker/ios'
 
 export function BagPicker() {
-	const [selection, setSelection] = useState('carry')
-	return (
-		<SwiftUIPicker
-			label="Bag"
-			selection={selection}
-			onSelectionChange={setSelection}
-			options={[{ id: 'carry', title: 'Carry-on' }]}
-		/>
-	)
+  const [selection, setSelection] = useState('carry')
+  return (
+    <SwiftUIPicker
+      label="Bag"
+      selection={selection}
+      onSelectionChange={setSelection}
+      options={[{ id: 'carry', title: 'Carry-on' }]}
+    />
+  )
 }
 ```
 
@@ -52,14 +52,14 @@ string selection IDs.
 import { MaterialDropdown } from '@octane-xplat/picker/android'
 
 export function Picker() {
-	return (
-		<MaterialDropdown
-			label="Bag"
-			items={[{ key: 'carry', text: 'Carry-on' }]}
-			defaultSelectedKey="carry"
-			onSelectedKeyChange={console.log}
-		/>
-	)
+  return (
+    <MaterialDropdown
+      label="Bag"
+      items={[{ key: 'carry', text: 'Carry-on' }]}
+      defaultSelectedKey="carry"
+      onSelectedKeyChange={console.log}
+    />
+  )
 }
 ```
 
@@ -68,14 +68,14 @@ export function Picker() {
 import { Select } from '@octane-xplat/picker/web'
 
 export function Picker() {
-	return (
-		<Select
-			label="Bag"
-			options={[{ value: 'carry', label: 'Carry-on' }]}
-			defaultValue="carry"
-			onChange={console.log}
-		/>
-	)
+  return (
+    <Select
+      label="Bag"
+      options={[{ value: 'carry', label: 'Carry-on' }]}
+      defaultValue="carry"
+      onChange={console.log}
+    />
+  )
 }
 ```
 
@@ -98,9 +98,9 @@ the current controlled value. No additional plugin is required on macOS.
 import { useState } from 'octane'
 import { AppKitPicker } from '@octane-xplat/picker/macos'
 export function BagPicker() {
-	const [selection, setSelection] = useState('carry')
-	return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
-		options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
+  const [selection, setSelection] = useState('carry')
+  return <AppKitPicker label="Bag" selection={selection} onSelectionChange={setSelection}
+    options={[{ id: 'carry', title: 'Carry-on' }, { id: 'checked', title: 'Checked bag' }]} />
 }
 ```
 
@@ -120,7 +120,7 @@ by this integration.
 ```tsx
 import { Select } from '@octane-xplat/picker/macos'
 export function Region() {
-	return <Select label="Region" defaultValue="sfo"
-		options={[{ value: 'sfo', label: 'San Francisco' }]} />
+  return <Select label="Region" defaultValue="sfo"
+    options={[{ value: 'sfo', label: 'San Francisco' }]} />
 }
 ```

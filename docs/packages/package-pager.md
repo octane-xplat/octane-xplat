@@ -15,16 +15,16 @@ import { Text } from '@octane-xplat/ui'
 import { Pager } from '@octane-xplat/pager'
 
 export function Onboarding() {
-	const [page, setPage] = useState(0)
-	return (
-		<Pager
-			items={['Pack', 'Travel']}
-			page={page}
-			onPageChange={setPage}
-			renderItem={(title) => <Text>{title}</Text>}
-			renderEmpty={() => <Text>No pages</Text>}
-		/>
-	)
+  const [page, setPage] = useState(0)
+  return (
+    <Pager
+      items={['Pack', 'Travel']}
+      page={page}
+      onPageChange={setPage}
+      renderItem={(title) => <Text>{title}</Text>}
+      renderEmpty={() => <Text>No pages</Text>}
+    />
+  )
 }
 ```
 
@@ -41,13 +41,13 @@ import { HStack, Text } from '@octane-xplat/ui'
 
 // Render alongside the Pager inside Onboarding, passing its current page.
 export function PageIndicator({ titles, page }: { titles: readonly string[]; page: number }) {
-	return (
-		<HStack>
-			{titles.map((title, index) => (
-				<Text key={index} accessibilityLabel={title}>{index === page ? '●' : '○'}</Text>
-			))}
-		</HStack>
-	)
+  return (
+    <HStack>
+      {titles.map((title, index) => (
+        <Text key={index} accessibilityLabel={title}>{index === page ? '●' : '○'}</Text>
+      ))}
+    </HStack>
+  )
 }
 ```
 
@@ -77,9 +77,9 @@ import { Pager } from '@octane-xplat/pager'
 import { Text } from '@octane-xplat/ui'
 
 export function TravelPages() {
-	return <Pager items={['Pack', 'Travel']} defaultPage={1}
-		style={{ width: 320, height: 160 }}
-		renderItem={(title) => <Text>{title}</Text>} />
+  return <Pager items={['Pack', 'Travel']} defaultPage={1}
+    style={{ width: 320, height: 160 }}
+    renderItem={(title) => <Text>{title}</Text>} />
 }
 ```
 

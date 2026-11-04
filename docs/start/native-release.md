@@ -37,13 +37,13 @@ configuration; preserve its paths, bundler settings, and platform options:
 import type { NativeScriptConfig } from '@nativescript/core'
 
 export default {
-	id: 'com.example.packing',
-	appPath: 'src',
-	appResourcesPath: 'App_Resources',
-	cli: { packageManager: 'bun' },
-	android: { v8Flags: '--expose_gc', markingMode: 'none' },
-	bundler: 'vite',
-	bundlerConfigPath: 'vite.config.native.mts',
+  id: 'com.example.packing',
+  appPath: 'src',
+  appResourcesPath: 'App_Resources',
+  cli: { packageManager: 'bun' },
+  android: { v8Flags: '--expose_gc', markingMode: 'none' },
+  bundler: 'vite',
+  bundlerConfigPath: 'vite.config.native.mts',
 } as NativeScriptConfig
 ```
 

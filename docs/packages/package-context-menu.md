@@ -31,13 +31,13 @@ import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function Menu() {
-	return (
-		<SwiftUIContextMenu
-			trigger={() => <Text>Trip actions</Text>}
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-		/>
-	)
+  return (
+    <SwiftUIContextMenu
+      trigger={() => <Text>Trip actions</Text>}
+      items={[{ id: 'rename', title: 'Rename' }]}
+      onItemSelected={(id) => console.log(id)}
+    />
+  )
 }
 ```
 
@@ -48,14 +48,14 @@ import { MaterialContextMenu } from '@octane-xplat/context-menu/android'
 import { Text } from '@octane-xplat/ui'
 
 export function Menu() {
-	return (
-		<MaterialContextMenu
-			activation="singlePress"
-			trigger={() => <Text>Trip actions</Text>}
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-		/>
-	)
+  return (
+    <MaterialContextMenu
+      activation="singlePress"
+      trigger={() => <Text>Trip actions</Text>}
+      items={[{ id: 'rename', title: 'Rename' }]}
+      onItemSelected={(id) => console.log(id)}
+    />
+  )
 }
 ```
 
@@ -65,14 +65,14 @@ import { ContextMenu } from '@octane-xplat/context-menu/web'
 import { Text } from '@octane-xplat/ui'
 
 export function Menu() {
-	return (
-		<ContextMenu
-			activation="singlePress"
-			trigger={() => <Text>Trip actions</Text>}
-			items={[{ id: 'rename', title: 'Rename' }]}
-			onItemSelected={(id) => console.log(id)}
-		/>
-	)
+  return (
+    <ContextMenu
+      activation="singlePress"
+      trigger={() => <Text>Trip actions</Text>}
+      items={[{ id: 'rename', title: 'Rename' }]}
+      onItemSelected={(id) => console.log(id)}
+    />
+  )
 }
 ```
 
@@ -83,18 +83,18 @@ import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Text, VStack } from '@octane-xplat/ui'
 
 export function Menu() {
-	const [last, setLast] = useState('none')
-	return (
-		<VStack gap={2}>
-			<AppKitContextMenu
-				id="trip-actions"
-				trigger={() => <Text>Trip actions</Text>}
-				items={[{ id: 'rename', title: 'Rename' }]}
-				onItemSelected={setLast}
-			/>
-			<Text>{`Last action: ${last}`}</Text>
-		</VStack>
-	)
+  const [last, setLast] = useState('none')
+  return (
+    <VStack gap={2}>
+      <AppKitContextMenu
+        id="trip-actions"
+        trigger={() => <Text>Trip actions</Text>}
+        items={[{ id: 'rename', title: 'Rename' }]}
+        onItemSelected={setLast}
+      />
+      <Text>{`Last action: ${last}`}</Text>
+    </VStack>
+  )
 }
 ```
 
@@ -109,14 +109,14 @@ import { SwiftUIContextMenu } from '@octane-xplat/context-menu/ios'
 import { Text } from '@octane-xplat/ui'
 
 export function Actions() {
-	return (
-		<SwiftUIContextMenu
-			trigger={() => <Text>Trip actions</Text>}
-			preview={() => <Text>Kyoto trip</Text>}
-			items={[{ id: 'delete', title: 'Delete', destructive: true, divider: true }]}
-			onItemSelected={(id) => console.log(id)}
-		/>
-	)
+  return (
+    <SwiftUIContextMenu
+      trigger={() => <Text>Trip actions</Text>}
+      preview={() => <Text>Kyoto trip</Text>}
+      items={[{ id: 'delete', title: 'Delete', destructive: true, divider: true }]}
+      onItemSelected={(id) => console.log(id)}
+    />
+  )
 }
 ```
 
@@ -143,8 +143,8 @@ and nested wrappers keep their own menu slots. See the
 import { AppKitContextMenu } from '@octane-xplat/context-menu/macos'
 import { Text } from '@octane-xplat/ui'
 export function NoteActions({ noteID }: { noteID: string }) {
-	return <AppKitContextMenu id={`note-actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
-		trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
+  return <AppKitContextMenu id={`note-actions-${noteID}`} items={[{ id: 'rename', title: 'Rename' }]}
+    trigger={() => <Text>Right-click this note</Text>} onItemSelected={(id) => console.log(noteID, id)} />
 }
 ```
 

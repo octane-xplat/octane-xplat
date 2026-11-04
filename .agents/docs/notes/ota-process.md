@@ -160,9 +160,9 @@ detect and degrade silently:
 
 ```ts
 if (typeof (globalThis as any).NativeScriptRuntime?.reloadApplication === 'function') {
-	// soft-apply: re-run the bundle against the staged baseDir
+  // soft-apply: re-run the bundle against the staged baseDir
 } else {
-	// contract: applied on next launch — tell the user, never force-restart
+  // contract: applied on next launch — tell the user, never force-restart
 }
 ```
 
@@ -176,7 +176,7 @@ remains valid):
 
 ```sh
 wrangler r2 object put octane-xplat-ota-bundles/channels/stable/ios/NATIVE_FINGERPRINT.json \
-	--file previous-pointer.json --content-type application/json
+  --file previous-pointer.json --content-type application/json
 ```
 
 This stops _new_ installs of the bad bundle. Devices that already installed it

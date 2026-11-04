@@ -116,19 +116,19 @@ touches, and reads what rendered:
 ```tsrx
 import { expect, it } from 'vitest'
 import {
-	findByTestId,
-	mountXplat,
-	tap,
-	viewText,
-	waitUntil,
+  findByTestId,
+  mountXplat,
+  tap,
+  viewText,
+  waitUntil,
 } from '@octane-xplat/platform/testing'
 import { App } from './App.tsrx'
 
 it('increments the counter', async () => {
-	const { view } = await mountXplat(App)
+  const { view } = await mountXplat(App)
 
-	await tap(findByTestId(view, 'counter.increment')!)
-	await waitUntil(() => viewText(view).includes('1'))
+  await tap(findByTestId(view, 'counter.increment')!)
+  await waitUntil(() => viewText(view).includes('1'))
 })
 ```
 

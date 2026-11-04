@@ -21,24 +21,24 @@ import { createStore } from '@octane-xplat/ui/data'
 export const counterState = createStore(0)
 
 if (import.meta.env.DEV) {
-	const action = registerDevAction({
-		id: 'fixtures.set-counter',
-		title: 'Set counter',
-		description: 'Set a known count before checking the counter screen.',
-		input: {
-			fields: { count: { type: 'integer', minimum: 0, default: 0 } },
-		},
-		result: { fields: { count: { type: 'integer' } } },
-		effects: { summary: 'Replaces the current counter value', appState: true },
-		execution: { concurrency: 'serialized', retryable: true },
-		run(input) {
-			const count = Number(input.count)
-			counterState.set(count)
+  const action = registerDevAction({
+    id: 'fixtures.set-counter',
+    title: 'Set counter',
+    description: 'Set a known count before checking the counter screen.',
+    input: {
+      fields: { count: { type: 'integer', minimum: 0, default: 0 } },
+    },
+    result: { fields: { count: { type: 'integer' } } },
+    effects: { summary: 'Replaces the current counter value', appState: true },
+    execution: { concurrency: 'serialized', retryable: true },
+    run(input) {
+      const count = Number(input.count)
+      counterState.set(count)
 
-			return { count }
-		},
-	})
-	import.meta.hot?.dispose(() => action.dispose())
+      return { count }
+    },
+  })
+  import.meta.hot?.dispose(() => action.dispose())
 }
 ```
 
@@ -60,9 +60,9 @@ import { useStore } from '@octane-xplat/ui/data'
 import { counterState } from './counter-state'
 
 export function CounterStatus() {
-	const count = useStore(counterState)
+  const count = useStore(counterState)
 
-	return <Text testID="counter.value">{count}</Text>
+  return <Text testID="counter.value">{count}</Text>
 }
 ```
 
@@ -80,10 +80,10 @@ screen is not mounted.
 import { defineDevAction } from '@octane-xplat/platform/dev-actions'
 
 export const saveDraft = defineDevAction({
-	id: 'form.save-draft',
-	title: 'Save form draft',
-	description: 'Persists the checkout form state that only exists in the screen.',
-	effects: { summary: 'Writes the form draft', appState: true },
+  id: 'form.save-draft',
+  title: 'Save form draft',
+  description: 'Persists the checkout form state that only exists in the screen.',
+  effects: { summary: 'Writes the form draft', appState: true },
 })
 ```
 
@@ -95,16 +95,16 @@ import { useDevActionHandler } from '@octane-xplat/platform/dev-actions'
 import { saveDraft } from './dev-actions'
 
 export function CheckoutForm() {
-	const draft = useStore(draftState)
-	if (import.meta.env.DEV) {
-		useDevActionHandler(saveDraft, async () => {
-			await persist(draft)
+  const draft = useStore(draftState)
+  if (import.meta.env.DEV) {
+    useDevActionHandler(saveDraft, async () => {
+      await persist(draft)
 
-			return {}
-		})
-	}
+      return {}
+    })
+  }
 
-	return <CheckoutFields />
+  return <CheckoutFields />
 }
 ```
 
@@ -119,14 +119,14 @@ instance unmounts.
 
 ```tsx
 if (import.meta.env.DEV) {
-	useDevAction({
-		id: 'cart.inspect',
-		title: 'Inspect cart',
-		description: 'Returns the cart contents for a quick sanity check.',
-		result: { fields: { items: { type: 'integer' } } },
-		effects: { summary: 'Reads local cart state; changes nothing' },
-		run: async () => ({ items: cart.items.length }),
-	})
+  useDevAction({
+    id: 'cart.inspect',
+    title: 'Inspect cart',
+    description: 'Returns the cart contents for a quick sanity check.',
+    result: { fields: { items: { type: 'integer' } } },
+    effects: { summary: 'Reads local cart state; changes nothing' },
+    run: async () => ({ items: cart.items.length }),
+  })
 }
 ```
 
@@ -146,16 +146,16 @@ Dev effects broadcast instead of picking one handler: `defineDevEffect` plus
 import { defineDevEffect } from '@octane-xplat/platform/dev-actions'
 
 export const resetUi = defineDevEffect({
-	id: 'fixtures.reset-ui',
-	title: 'Reset UI state',
-	description: 'Every mounted screen returns to its initial state.',
-	effects: { summary: 'Resets local UI state', appState: true },
+  id: 'fixtures.reset-ui',
+  title: 'Reset UI state',
+  description: 'Every mounted screen returns to its initial state.',
+  effects: { summary: 'Resets local UI state', appState: true },
 })
 ```
 
 ```tsx
 if (import.meta.env.DEV) {
-	useDevEffect(resetUi, () => setFilters(initialFilters))
+  useDevEffect(resetUi, () => setFilters(initialFilters))
 }
 ```
 
@@ -167,22 +167,22 @@ stack — so the agent can see which owner failed and why.
 
 ```json
 {
-	"status": "failed",
-	"error": {
-		"code": "execution_failure",
-		"message": "1 of 2 handlers failed: probe failure from FormScreen",
-		"failures": [
-			{
-				"handler": 0,
-				"label": "FormScreen",
-				"name": "TypeError",
-				"message": "probe failure from FormScreen",
-				"stack": "TypeError: probe failure from FormScreen\n    at FormScreen... (http://127.0.0.1:50466/@fs/.../FormScreen.tsrx?import:286:11)",
-				"sourceStack": "TypeError: probe failure from FormScreen\n    at FormScreen... (src/FormScreen.tsrx:47:10)"
-			}
-		]
-	},
-	"partialEffects": ["1 of 2 handlers completed"]
+  "status": "failed",
+  "error": {
+    "code": "execution_failure",
+    "message": "1 of 2 handlers failed: probe failure from FormScreen",
+    "failures": [
+      {
+        "handler": 0,
+        "label": "FormScreen",
+        "name": "TypeError",
+        "message": "probe failure from FormScreen",
+        "stack": "TypeError: probe failure from FormScreen\n    at FormScreen... (http://127.0.0.1:50466/@fs/.../FormScreen.tsrx?import:286:11)",
+        "sourceStack": "TypeError: probe failure from FormScreen\n    at FormScreen... (src/FormScreen.tsrx:47:10)"
+      }
+    ]
+  },
+  "partialEffects": ["1 of 2 handlers completed"]
 }
 ```
 
@@ -214,11 +214,11 @@ waits for the screen's handler to attach and report ready, then runs it.
 import { defineDevAction } from '@octane-xplat/platform/dev-actions'
 
 export const saveDraft = defineDevAction({
-	id: 'form.save-draft',
-	title: 'Save form draft',
-	description: 'Persists the checkout form state that only exists in the screen.',
-	effects: { summary: 'Writes the form draft', appState: true },
-	route: '/checkout',
+  id: 'form.save-draft',
+  title: 'Save form draft',
+  description: 'Persists the checkout form state that only exists in the screen.',
+  effects: { summary: 'Writes the form draft', appState: true },
+  route: '/checkout',
 })
 ```
 
@@ -227,12 +227,12 @@ depends on an argument, like opening a specific order.
 
 ```ts
 export const openOrder = defineDevAction({
-	id: 'orders.open',
-	title: 'Open order',
-	description: 'Navigates to the order detail screen for the given order id.',
-	input: { fields: { orderId: { type: 'string' } } },
-	effects: { summary: 'Shows an order', navigation: true },
-	route: (input) => `/orders/${input.orderId}`,
+  id: 'orders.open',
+  title: 'Open order',
+  description: 'Navigates to the order detail screen for the given order id.',
+  input: { fields: { orderId: { type: 'string' } } },
+  effects: { summary: 'Shows an order', navigation: true },
+  route: (input) => `/orders/${input.orderId}`,
 })
 ```
 
@@ -263,8 +263,8 @@ agents can check where the app is before deciding to navigate.
 
 ```json
 {
-	"appInstanceId": "inst_abc123",
-	"location": { "route": "/checkout", "modal": false }
+  "appInstanceId": "inst_abc123",
+  "location": { "route": "/checkout", "modal": false }
 }
 ```
 
@@ -293,7 +293,7 @@ import { octane } from '@octanejs/vite-plugin'
 import { xplatBoundary, xplatCss, xplatDevBridge } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-	plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
+  plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
 })
 ```
 
@@ -306,7 +306,7 @@ you need to announce a live app with an empty registry or set an app label.
 import { startDevActionBridge } from '@octane-xplat/platform/dev-actions'
 
 if (import.meta.env.DEV) {
-	startDevActionBridge({ appLabel: 'Counter dev app' })
+  startDevActionBridge({ appLabel: 'Counter dev app' })
 }
 ```
 
@@ -417,31 +417,31 @@ export const fixtureSession = createStore(false)
 export const notes = createStore<Record<string, string>>({})
 
 if (import.meta.env.DEV) {
-	const action = registerDevAction({
-		id: 'fixtures.delete-note',
-		title: 'Delete a fixture note',
-		description: 'Removes a dev-fixture note so a fresh-list check starts empty.',
-		input: { fields: { noteId: { type: 'string' } } },
-		effects: { summary: 'Deletes a fixture note', appState: true, testData: true },
-		run(input) {
-			if (!fixtureSession.getSnapshot()) {
-				throw new Error('fixture actions are off while a real account is signed in')
-			}
-			const noteId = String(input.noteId)
-			if (!noteId.startsWith('dev-')) {
-				throw new Error(`"${noteId}" is not a dev- fixture id`)
-			}
-			notes.update((all) => {
-				const next = { ...all }
-				delete next[noteId]
+  const action = registerDevAction({
+    id: 'fixtures.delete-note',
+    title: 'Delete a fixture note',
+    description: 'Removes a dev-fixture note so a fresh-list check starts empty.',
+    input: { fields: { noteId: { type: 'string' } } },
+    effects: { summary: 'Deletes a fixture note', appState: true, testData: true },
+    run(input) {
+      if (!fixtureSession.getSnapshot()) {
+        throw new Error('fixture actions are off while a real account is signed in')
+      }
+      const noteId = String(input.noteId)
+      if (!noteId.startsWith('dev-')) {
+        throw new Error(`"${noteId}" is not a dev- fixture id`)
+      }
+      notes.update((all) => {
+        const next = { ...all }
+        delete next[noteId]
 
-				return next
-			})
+        return next
+      })
 
-			return {}
-		},
-	})
-	import.meta.hot?.dispose(() => action.dispose())
+      return {}
+    },
+  })
+  import.meta.hot?.dispose(() => action.dispose())
 }
 ```
 
@@ -460,21 +460,21 @@ reads, navigation, and escape hatches.
 import { useDevAction } from '@octane-xplat/platform/dev-actions'
 
 export function Composer() {
-	if (import.meta.env.DEV) {
-		useDevAction({
-			id: 'composer.discard-draft',
-			title: 'Discard the open draft',
-			description: 'Closes the composer without sending; listed only while it is open.',
-			effects: { summary: 'Discards the composer draft', appState: true },
-			run: () => {
-				draftState.set(emptyDraft)
+  if (import.meta.env.DEV) {
+    useDevAction({
+      id: 'composer.discard-draft',
+      title: 'Discard the open draft',
+      description: 'Closes the composer without sending; listed only while it is open.',
+      effects: { summary: 'Discards the composer draft', appState: true },
+      run: () => {
+        draftState.set(emptyDraft)
 
-				return {}
-			},
-		})
-	}
+        return {}
+      },
+    })
+  }
 
-	return <ComposerFields />
+  return <ComposerFields />
 }
 ```
 
@@ -499,45 +499,45 @@ import { counterState } from './counter-state'
 const recording = createStore(false)
 
 if (import.meta.env.DEV) {
-	// Most fixture actions gate on the app being idle.
-	const reset = registerDevAction({
-		id: 'fixtures.reset-counter',
-		title: 'Reset counter',
-		description: 'Sets the counter to zero while the app is idle.',
-		input: {},
-		result: { fields: { count: { type: 'integer' } } },
-		effects: { summary: 'Resets the counter', appState: true },
-		availability: {
-			ready: () =>
-				recording.getSnapshot()
-					? { ready: false, reason: 'a capture is in progress' }
-					: { ready: true },
-		},
-		run() {
-			counterState.set(0)
+  // Most fixture actions gate on the app being idle.
+  const reset = registerDevAction({
+    id: 'fixtures.reset-counter',
+    title: 'Reset counter',
+    description: 'Sets the counter to zero while the app is idle.',
+    input: {},
+    result: { fields: { count: { type: 'integer' } } },
+    effects: { summary: 'Resets the counter', appState: true },
+    availability: {
+      ready: () =>
+        recording.getSnapshot()
+          ? { ready: false, reason: 'a capture is in progress' }
+          : { ready: true },
+    },
+    run() {
+      counterState.set(0)
 
-			return { count: 0 }
-		},
-	})
+      return { count: 0 }
+    },
+  })
 
-	// The escape hatch is ready because a capture is running, so the blocking
-	// state always has a way out.
-	const stop = registerDevAction({
-		id: 'capture.stop',
-		title: 'Stop capture',
-		description: 'Stops an in-progress capture so idle-gated actions answer again.',
-		effects: { summary: 'Stops the current capture', appState: true },
-		availability: { ready: () => recording.getSnapshot() },
-		run() {
-			recording.set(false)
+  // The escape hatch is ready because a capture is running, so the blocking
+  // state always has a way out.
+  const stop = registerDevAction({
+    id: 'capture.stop',
+    title: 'Stop capture',
+    description: 'Stops an in-progress capture so idle-gated actions answer again.',
+    effects: { summary: 'Stops the current capture', appState: true },
+    availability: { ready: () => recording.getSnapshot() },
+    run() {
+      recording.set(false)
 
-			return {}
-		},
-	})
-	import.meta.hot?.dispose(() => {
-		reset.dispose()
-		stop.dispose()
-	})
+      return {}
+    },
+  })
+  import.meta.hot?.dispose(() => {
+    reset.dispose()
+    stop.dispose()
+  })
 }
 ```
 

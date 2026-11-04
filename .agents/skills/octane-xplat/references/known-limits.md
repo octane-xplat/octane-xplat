@@ -67,16 +67,16 @@ behavior remain unqualified.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveAction(props: { disabled: boolean; save: () => void }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityLabel="Save"
-			disabled={props.disabled}
-			onPress={props.save}
-		>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Save"
+      disabled={props.disabled}
+      onPress={props.save}
+    >
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 

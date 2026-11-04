@@ -25,22 +25,22 @@ import { Button, ButtonGroup, IconButton, ToggleButton } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [pinned, setPinned] = useState(false)
+  const [pinned, setPinned] = useState(false)
 
-	return (
-		<ButtonGroup label="Document actions" size="sm">
-			<Button
-				label="Save"
-				variant="primary"
-				size="lg"
-				clickAction={async () => {
-					console.log('Saved')
-				}}
-			/>
-			<ToggleButton label="Pin" isPressed={pinned} onPressedChange={setPinned} />
-			<IconButton label="Share" icon="xplat-search" clickAction={() => console.log('Share')} />
-		</ButtonGroup>
-	)
+  return (
+    <ButtonGroup label="Document actions" size="sm">
+      <Button
+        label="Save"
+        variant="primary"
+        size="lg"
+        clickAction={async () => {
+          console.log('Saved')
+        }}
+      />
+      <ToggleButton label="Pin" isPressed={pinned} onPressedChange={setPinned} />
+      <IconButton label="Share" icon="xplat-search" clickAction={() => console.log('Share')} />
+    </ButtonGroup>
+  )
 }
 ```
 
@@ -62,18 +62,18 @@ import { ClickableCard, SelectableCard, Text } from '@octane-xplat/ui'
 import { useState } from 'octane'
 
 export function Example() {
-	const [selected, setSelected] = useState(false)
+  const [selected, setSelected] = useState(false)
 
-	return (
-		<>
-			<ClickableCard label="Open project" href="https://example.com" padding={4} variant="outlined">
-				<Text>Project</Text>
-			</ClickableCard>
-			<SelectableCard label="Pack coat" isSelected={selected} onChange={setSelected} padding={4}>
-				<Text>Coat</Text>
-			</SelectableCard>
-		</>
-	)
+  return (
+    <>
+      <ClickableCard label="Open project" href="https://example.com" padding={4} variant="outlined">
+        <Text>Project</Text>
+      </ClickableCard>
+      <SelectableCard label="Pack coat" isSelected={selected} onChange={setSelected} padding={4}>
+        <Text>Coat</Text>
+      </SelectableCard>
+    </>
+  )
 }
 ```
 
@@ -88,22 +88,22 @@ choices.
 import { MoreMenu } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<MoreMenu
-			label="Document actions"
-			presentation="adaptive"
-			placement="bottom"
-			alignment="end"
-			items={[
-				{
-					type: 'action',
-					key: 'duplicate',
-					label: 'Duplicate',
-					onSelect: () => console.log('Duplicated'),
-				},
-			]}
-		/>
-	)
+  return (
+    <MoreMenu
+      label="Document actions"
+      presentation="adaptive"
+      placement="bottom"
+      alignment="end"
+      items={[
+        {
+          type: 'action',
+          key: 'duplicate',
+          label: 'Duplicate',
+          onSelect: () => console.log('Duplicated'),
+        },
+      ]}
+    />
+  )
 }
 ```
 
@@ -134,22 +134,22 @@ way.
 import { Button, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Button
-			label="Fallback label"
-			isDisabled={false}
-			isLoading={false}
-			isInterruptible={false}
-			clickAction={async () => {
-				await Promise.resolve()
-			}}
-			onActionError={(error) => {
-				console.error('Save failed', error)
-			}}
-		>
-			<Text>Save</Text>
-		</Button>
-	)
+  return (
+    <Button
+      label="Fallback label"
+      isDisabled={false}
+      isLoading={false}
+      isInterruptible={false}
+      clickAction={async () => {
+        await Promise.resolve()
+      }}
+      onActionError={(error) => {
+        console.error('Save failed', error)
+      }}
+    >
+      <Text>Save</Text>
+    </Button>
+  )
 }
 ```
 
@@ -168,9 +168,9 @@ card leaves; native appearance remains unqualified.
 import { ClickableCard } from '@octane-xplat/ui'
 
 export function ProjectHelp() {
-	return <ClickableCard label="Open project help" href="https://example.com/help" elevation="low">
-		Read help
-	</ClickableCard>
+  return <ClickableCard label="Open project help" href="https://example.com/help" elevation="low">
+    Read help
+  </ClickableCard>
 }
 ```
 
@@ -191,8 +191,8 @@ Tab suppression and scope fallback exclusions still take precedence.
 import { SelectableCard } from '@octane-xplat/ui'
 
 export function Plan({ selected, onChange }: { selected: boolean; onChange(value: boolean): void }) {
-	return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
-		Team plan is currently unavailable
-	</SelectableCard>
+  return <SelectableCard label="Team plan" isSelected={selected} isDisabled onChange={onChange}>
+    Team plan is currently unavailable
+  </SelectableCard>
 }
 ```

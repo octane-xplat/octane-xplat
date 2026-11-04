@@ -663,14 +663,14 @@ UI tarball; a workspace-only check cannot catch this missing-parent failure.
 
 ```json
 {
-	"compilerOptions": {
-		"target": "ES2020",
-		"jsx": "preserve",
-		"verbatimModuleSyntax": true,
-		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
-		"noEmitHelpers": true
-	}
+  "compilerOptions": {
+    "target": "ES2020",
+    "jsx": "preserve",
+    "verbatimModuleSyntax": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "noEmitHelpers": true
+  }
 }
 ```
 
@@ -785,17 +785,17 @@ accepts the unparenthesized form.
 
 ```tsrx
 function Example(props: { visible: boolean }) @{
-	const content = (
-		<>
-			<button>Choose</button>
-		</>
-	)
+  const content = (
+    <>
+      <button>Choose</button>
+    </>
+  )
 
-	@if (props.visible) {
-		<div>{content}</div>
-	} @else {
-		<p>Hidden</p>
-	}
+  @if (props.visible) {
+    <div>{content}</div>
+  } @else {
+    <p>Hidden</p>
+  }
 }
 ```
 
@@ -884,7 +884,7 @@ The failing source was:
 // src/Example.web.tsrx
 import { css } from './styled-system/css'
 export function Example() @{
-	<div className={css({ padding: '8' })}>TSRX</div>
+  <div className={css({ padding: '8' })}>TSRX</div>
 }
 ```
 

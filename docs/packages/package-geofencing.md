@@ -26,24 +26,24 @@ successful setup returns cleanup for the listener and this region:
 import { geofencing } from '@octane-xplat/geofencing'
 
 export async function monitorOffice() {
-	if (!geofencing.supported) return null
-	if ((await geofencing.ensure()) !== 'granted') return null
-	if ((await geofencing.ensureBackground()) !== 'granted') return null
-	const off = geofencing.onRegionEvent(({ identifier, eventType }) => {
-		console.log(identifier, eventType)
-	})
-	try {
-		await geofencing.startMonitoring([
-			{ identifier: 'office', latitude: 37.33, longitude: -122.03, radius: 150 },
-		])
-	} catch (error) {
-		off()
-		throw error
-	}
-	return async () => {
-		off()
-		await geofencing.stopMonitoring(['office'])
-	}
+  if (!geofencing.supported) return null
+  if ((await geofencing.ensure()) !== 'granted') return null
+  if ((await geofencing.ensureBackground()) !== 'granted') return null
+  const off = geofencing.onRegionEvent(({ identifier, eventType }) => {
+    console.log(identifier, eventType)
+  })
+  try {
+    await geofencing.startMonitoring([
+      { identifier: 'office', latitude: 37.33, longitude: -122.03, radius: 150 },
+    ])
+  } catch (error) {
+    off()
+    throw error
+  }
+  return async () => {
+    off()
+    await geofencing.stopMonitoring(['office'])
+  }
 }
 ```
 

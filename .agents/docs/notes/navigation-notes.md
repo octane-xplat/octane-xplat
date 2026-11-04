@@ -124,14 +124,14 @@ import { Text } from '@octane-xplat/ui'
 import { defineRoutes, registerRoutes, hrefFor, pushRoute } from '@octane-xplat/ui/routing'
 
 function Demo(props: { id: string }) {
-	return <Text>{props.id}</Text>
+  return <Text>{props.id}</Text>
 }
 registerRoutes(defineRoutes({ routes: [{ path: 'demo/:id', screen: Demo }] }))
 const route = { stack: 'root', name: 'demo/:id', params: { id: 'counter' } }
 console.log(hrefFor(route))
 // Use in the app's navigation handler.
 export function openDemo() {
-	pushRoute(route)
+  pushRoute(route)
 }
 ```
 
@@ -174,12 +174,12 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { useCanGoBack, popRoute } from '@octane-xplat/ui/routing'
 
 export function Example() {
-	const back = useCanGoBack('root')
-	return (
-		<Pressable disabled={!back} onPress={() => popRoute('root')}>
-			<Text>Back</Text>
-		</Pressable>
-	)
+  const back = useCanGoBack('root')
+  return (
+    <Pressable disabled={!back} onPress={() => popRoute('root')}>
+      <Text>Back</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -221,16 +221,16 @@ import { NavLink, Pressable, Text } from '@octane-xplat/ui'
 import { popRoute, useRoute } from '@octane-xplat/ui/routing'
 
 export function Example() {
-	const route = useRoute('root')
-	return (
-		<>
-			<Text>{route?.name ?? 'Home'}</Text>
-			<NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
-			<Pressable onPress={() => popRoute('root')}>
-				<Text>Back</Text>
-			</Pressable>
-		</>
-	)
+  const route = useRoute('root')
+  return (
+    <>
+      <Text>{route?.name ?? 'Home'}</Text>
+      <NavLink route={{ stack: 'root', name: 'settings', params: {} }}>Settings</NavLink>
+      <Pressable onPress={() => popRoute('root')}>
+        <Text>Back</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -287,15 +287,15 @@ export function Example() {
 ```ts
 // Proposed shared window contract, not the current ui export.
 interface ProposedWindowController {
-	setTitle(title: string): void
-	setSize(width: number, height: number): void
-	close(): void
-	closed: Promise<void>
-	onCloseRequested(callback: () => boolean): () => void
+  setTitle(title: string): void
+  setSize(width: number, height: number): void
+  close(): void
+  closed: Promise<void>
+  onCloseRequested(callback: () => boolean): () => void
 }
 declare function proposedOpenWindow(options: {
-	data: unknown
-	kind: 'regular' | 'dialog' | 'popup'
+  data: unknown
+  kind: 'regular' | 'dialog' | 'popup'
 }): ProposedWindowController
 const proposed = proposedOpenWindow({ data: { listId: 'trip' }, kind: 'dialog' })
 proposed.setTitle('Packing list')

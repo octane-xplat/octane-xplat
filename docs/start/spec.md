@@ -94,14 +94,14 @@ and `ScrollableArea` for content that needs to scroll. These are
 import { Text, Pressable, ScrollableArea } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<ScrollableArea>
-			<Text>Packing list</Text>
-			<Pressable onPress={() => console.log('Packed')}>
-				<Text>Mark packed</Text>
-			</Pressable>
-		</ScrollableArea>
-	)
+  return (
+    <ScrollableArea>
+      <Text>Packing list</Text>
+      <Pressable onPress={() => console.log('Packed')}>
+        <Text>Mark packed</Text>
+      </Pressable>
+    </ScrollableArea>
+  )
 }
 ```
 

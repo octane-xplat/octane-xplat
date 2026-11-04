@@ -16,15 +16,15 @@ import { motion } from '@octane-xplat/motion'
 import { Text } from '@octane-xplat/ui'
 
 export function MovingCard() {
-	return (
-		<motion.View
-			initial={{ opacity: 0 }}
-			animate={{ opacity: 1 }}
-			transition={{ duration: 0.3 }}
-		>
-			<Text>Packing card</Text>
-		</motion.View>
-	)
+  return (
+    <motion.View
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Text>Packing card</Text>
+    </motion.View>
+  )
 }
 ```
 
@@ -54,11 +54,11 @@ inside a `.tsx` or `.tsrx` component; call `release` when the gesture ends:
 import { useMotionValue } from '@octane-xplat/motion'
 
 export function useHorizontalRelease() {
-	const x = useMotionValue(0)
-	const release = (velocity: number) => x.animate(x.get(), {
-		type: 'inertia', velocity, min: 0, max: 120, power: 0.5, timeConstant: 280,
-	})
-	return { x, release }
+  const x = useMotionValue(0)
+  const release = (velocity: number) => x.animate(x.get(), {
+    type: 'inertia', velocity, min: 0, max: 120, power: 0.5, timeConstant: 280,
+  })
+  return { x, release }
 }
 ```
 
@@ -68,7 +68,7 @@ Add `layout` to animate a resize when a prop changes:
 import { motion } from '@octane-xplat/motion'
 
 export function LayoutCard({ expanded }: { expanded: boolean }) {
-	return <motion.View layout style={{ width: expanded ? 240 : 120, height: 80 }} />
+  return <motion.View layout style={{ width: expanded ? 240 : 120, height: 80 }} />
 }
 ```
 

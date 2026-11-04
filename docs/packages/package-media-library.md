@@ -29,59 +29,59 @@ The browser and unsupported desktop hosts show an availability message.
 import { useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import {
-	AssetField,
-	MediaLibrary,
-	MediaType,
-	Query,
-	usePermissions,
+  AssetField,
+  MediaLibrary,
+  MediaType,
+  Query,
+  usePermissions,
 } from '@octane-xplat/media-library'
 import type { AssetMetadata } from '@octane-xplat/media-library'
 
 export function PhotoLibrary() {
-	const [permission, requestPermission] = usePermissions({
-		granularPermissions: ['photo', 'video'],
-	})
-	const [rows, setRows] = useState<AssetMetadata[]>([])
-	const [status, setStatus] = useState('Choose Show photos to begin')
-	async function load() {
-		if (!MediaLibrary.supported) {
-			setStatus('This host cannot browse the device library')
-			return
-		}
-		try {
-			const access = await requestPermission()
-			if (!access.granted) {
-				setStatus('Photo access was not granted')
-				return
-			}
-			const photos = await new Query()
-				.eq(AssetField.MEDIA_TYPE, MediaType.IMAGE)
-				.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
-				.limit(20)
-				.exeForMetadata()
-			setRows(photos)
-			setStatus(photos.length ? 'Your available photos' : 'No photos are available in this scope')
-		} catch {
-			setStatus('Could not read the photo library')
-		}
-	}
-	return (
-		<VStack>
-			<Button
-				label="Show photos"
-				clickAction={() => {
-					void load()
-				}}
-			/>
-			<Text>{status}</Text>
-			{permission?.accessPrivileges === 'limited' && (
-				<Text>Only selected photos are available</Text>
-			)}
-			{rows.map((row) => (
-				<Text key={row.id}>{row.filename ?? 'Untitled media'}</Text>
-			))}
-		</VStack>
-	)
+  const [permission, requestPermission] = usePermissions({
+    granularPermissions: ['photo', 'video'],
+  })
+  const [rows, setRows] = useState<AssetMetadata[]>([])
+  const [status, setStatus] = useState('Choose Show photos to begin')
+  async function load() {
+    if (!MediaLibrary.supported) {
+      setStatus('This host cannot browse the device library')
+      return
+    }
+    try {
+      const access = await requestPermission()
+      if (!access.granted) {
+        setStatus('Photo access was not granted')
+        return
+      }
+      const photos = await new Query()
+        .eq(AssetField.MEDIA_TYPE, MediaType.IMAGE)
+        .orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+        .limit(20)
+        .exeForMetadata()
+      setRows(photos)
+      setStatus(photos.length ? 'Your available photos' : 'No photos are available in this scope')
+    } catch {
+      setStatus('Could not read the photo library')
+    }
+  }
+  return (
+    <VStack>
+      <Button
+        label="Show photos"
+        clickAction={() => {
+          void load()
+        }}
+      />
+      <Text>{status}</Text>
+      {permission?.accessPrivileges === 'limited' && (
+        <Text>Only selected photos are available</Text>
+      )}
+      {rows.map((row) => (
+        <Text key={row.id}>{row.filename ?? 'Untitled media'}</Text>
+      ))}
+    </VStack>
+  )
 }
 ```
 
@@ -108,8 +108,8 @@ read access. Permission reads never prompt; requests belong in an app action.
 import { getPermissionsAsync, requestPermissionsAsync } from '@octane-xplat/media-library'
 
 export async function savePermission() {
-	const current = await getPermissionsAsync(true)
-	return current.granted ? current : requestPermissionsAsync(true)
+  const current = await getPermissionsAsync(true)
+  return current.granted ? current : requestPermissionsAsync(true)
 }
 ```
 
@@ -122,8 +122,8 @@ A full grant makes this method a no-op; older Android and AppKit reject it.
 import { getPermissionsAsync, presentPermissionsPicker } from '@octane-xplat/media-library'
 
 export async function changeSelectedPhotos() {
-	const current = await getPermissionsAsync(false, ['photo', 'video'])
-	if (current.accessPrivileges === 'limited') await presentPermissionsPicker(['photo', 'video'])
+  const current = await getPermissionsAsync(false, ['photo', 'video'])
+  if (current.accessPrivileges === 'limited') await presentPermissionsPicker(['photo', 'video'])
 }
 ```
 
@@ -138,15 +138,15 @@ import { Button } from '@octane-xplat/ui'
 import { usePermissions } from '@octane-xplat/media-library'
 
 export function RefreshLibraryAccess() {
-	const [permission, , refresh] = usePermissions({ granularPermissions: ['photo'] })
-	return (
-		<Button
-			label={permission?.granted ? 'Refresh photo access' : 'Check photo access'}
-			clickAction={() => {
-				void refresh().catch(() => console.error('Could not check photo access'))
-			}}
-		/>
-	)
+  const [permission, , refresh] = usePermissions({ granularPermissions: ['photo'] })
+  return (
+    <Button
+      label={permission?.granted ? 'Refresh photo access' : 'Check photo access'}
+      clickAction={() => {
+        void refresh().catch(() => console.error('Could not check photo access'))
+      }}
+    />
+  )
 }
 ```
 
@@ -162,19 +162,19 @@ durations use seconds; convert timestamps to milliseconds for JavaScript dates.
 import { AssetField, MediaType, Query } from '@octane-xplat/media-library'
 
 export function photoPage(offset: number) {
-	return new Query()
-		.eq(AssetField.MEDIA_TYPE, MediaType.IMAGE)
-		.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
-		.limit(20)
-		.offset(offset)
-		.exeForMetadata()
+  return new Query()
+    .eq(AssetField.MEDIA_TYPE, MediaType.IMAGE)
+    .orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+    .limit(20)
+    .offset(offset)
+    .exeForMetadata()
 }
 
 export function recentPhotos() {
-	return new Query()
-		.gt(AssetField.CREATION_TIME, Date.now() / 1000 - 7 * 24 * 60 * 60)
-		.limit(20)
-		.exe()
+  return new Query()
+    .gt(AssetField.CREATION_TIME, Date.now() / 1000 - 7 * 24 * 60 * 60)
+    .limit(20)
+    .exe()
 }
 ```
 
@@ -187,14 +187,14 @@ width/height getters reject when the store has no dimensions.
 import { Asset, Album, Query } from '@octane-xplat/media-library'
 
 export async function pageInSavedAlbum(albumId: string) {
-	const album = new Album(albumId)
-	const assets = await new Query().album(album).limit(20).exe()
-	return { count: await album.getAssetCount(), assets }
+  const album = new Album(albumId)
+  const assets = await new Query().album(album).limit(20).exe()
+  return { count: await album.getAssetCount(), assets }
 }
 
 export async function describeSavedPhoto(assetId: string) {
-	const asset = new Asset(assetId)
-	return { filename: await asset.getFilename(), shape: await asset.getShape() }
+  const asset = new Asset(assetId)
+  return { filename: await asset.getFilename(), shape: await asset.getShape() }
 }
 ```
 
@@ -209,9 +209,9 @@ Keep the returned IDs when you need to reopen the exact records.
 import { Asset, Album } from '@octane-xplat/media-library'
 
 export async function saveProjectImage(localImage: string) {
-	const asset = await Asset.create(localImage)
-	const album = await Album.create('Project images', [asset])
-	return { asset, album }
+  const asset = await Asset.create(localImage)
+  const album = await Album.create('Project images', [asset])
+  return { asset, album }
 }
 ```
 
@@ -226,12 +226,12 @@ import { Album } from '@octane-xplat/media-library'
 import type { Asset } from '@octane-xplat/media-library'
 
 export async function copyIntoAlbum(assets: Asset[]) {
-	return Album.create('Project copies', assets, false)
+  return Album.create('Project copies', assets, false)
 }
 
 // Apple-specific .ios.ts or .macos.ts action:
 export async function removeFromAlbum(album: Album, assets: Asset[]) {
-	await album.removeAssets(assets)
+  await album.removeAssets(assets)
 }
 ```
 
@@ -245,11 +245,11 @@ complete if a later provider operation fails; reload after an error.
 import { Asset, Album } from '@octane-xplat/media-library'
 
 export async function deleteSelectedAssets(selected: Asset[]) {
-	await Asset.delete(selected)
+  await Asset.delete(selected)
 }
 
 export async function deleteSelectedAlbums(selected: Album[]) {
-	await Album.delete(selected)
+  await Album.delete(selected)
 }
 ```
 
@@ -266,12 +266,12 @@ import { releaseAssetUri } from '@octane-xplat/media-library'
 import type { Asset } from '@octane-xplat/media-library'
 
 export async function withAssetUri<T>(asset: Asset, consume: (uri: string) => Promise<T>) {
-	const uri = await asset.getUri()
-	try {
-		return await consume(uri)
-	} finally {
-		releaseAssetUri(uri)
-	}
+  const uri = await asset.getUri()
+  try {
+    return await consume(uri)
+  } finally {
+    releaseAssetUri(uri)
+  }
 }
 ```
 
@@ -290,12 +290,12 @@ import { releaseImage } from '@octane-xplat/image-manipulator'
 import type { Asset } from '@octane-xplat/media-library'
 
 export async function attachPhoto(asset: Asset, upload: (uri: string) => Promise<void>) {
-	const result = await imageAttachment(asset)
-	try {
-		await upload(result.uri)
-	} finally {
-		releaseImage(result)
-	}
+  const result = await imageAttachment(asset)
+  try {
+    await upload(result.uri)
+  } finally {
+    releaseImage(result)
+  }
 }
 ```
 
@@ -311,11 +311,11 @@ import { useEffect } from 'octane'
 import { addListener } from '@octane-xplat/media-library'
 
 export function LibraryChanges({ reload }: { reload: () => void }) {
-	useEffect(() => {
-		const subscription = addListener(() => reload())
-		return () => subscription.remove()
-	}, [reload])
-	return null
+  useEffect(() => {
+    const subscription = addListener(() => reload())
+    return () => subscription.remove()
+  }, [reload])
+  return null
 }
 ```
 
@@ -335,18 +335,18 @@ into your app's entitlements file rather than replacing its other entries.
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"package": {
-					"infoPlist": {
-						"NSPhotoLibraryUsageDescription": "Choose photos for your project.",
-						"NSPhotoLibraryAddUsageDescription": "Save project images to Photos."
-					}
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "package": {
+          "infoPlist": {
+            "NSPhotoLibraryUsageDescription": "Choose photos for your project.",
+            "NSPhotoLibraryAddUsageDescription": "Save project images to Photos."
+          }
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -366,7 +366,7 @@ thread, so bound page sizes and avoid bulk work during interaction.
 import { AssetField, Query } from '@octane-xplat/media-library'
 
 export function favoritePage() {
-	return new Query().eq(AssetField.IS_FAVORITE, true).limit(20).exeForMetadata()
+  return new Query().eq(AssetField.IS_FAVORITE, true).limit(20).exeForMetadata()
 }
 ```
 

@@ -10,7 +10,7 @@ Annotation 1 rejected a weaker mobile shared Drawer.
 import { Drawer } from '@octane-xplat/drawer'
 
 export function Example() {
-	return <Drawer defaultOpen main={null} drawer={null} />
+  return <Drawer defaultOpen main={null} drawer={null} />
 }
 ```
 
@@ -100,7 +100,7 @@ The main/panel slot shape is retained in the current package API:
 import { Drawer } from '@octane-xplat/drawer'
 
 export function DrawerExample() {
-	return <Drawer defaultOpen main={null} drawer={null} />
+  return <Drawer defaultOpen main={null} drawer={null} />
 }
 ```
 
@@ -158,8 +158,8 @@ import { useState } from 'octane'
 import { Drawer } from '@octane-xplat/drawer'
 
 export function ControlledDrawer() {
-	const [open, setOpen] = useState(false)
-	return <Drawer open={open} onOpenChange={setOpen} main={null} drawer={null} />
+  const [open, setOpen] = useState(false)
+  return <Drawer open={open} onOpenChange={setOpen} main={null} drawer={null} />
 }
 ```
 
@@ -183,7 +183,7 @@ which concerns Vue3 component registration. No external report was submitted.
 import { Drawer } from '@octane-xplat/drawer'
 
 export function CheckedDrawer() {
-	return <Drawer main={null} drawer={null} onError={(error) => console.error(error)} />
+  return <Drawer main={null} drawer={null} onError={(error) => console.error(error)} />
 }
 ```
 

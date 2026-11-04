@@ -32,10 +32,10 @@ Prefer classes for static styles and objects for dynamic values.
 ```tsx
 import { Heading, Text } from '@octane-xplat/ui'
 export function Summary({ points }: { points: number }) {
-	return <>
-		<Heading level={2} style={{ fontSize: points }}>Summary</Heading>
-		<Text type="body" style={{ fontSize: points }}>Ready</Text>
-	</>
+  return <>
+    <Heading level={2} style={{ fontSize: points }}>Summary</Heading>
+    <Text type="body" style={{ fontSize: points }}>Ready</Text>
+  </>
 }
 ```
 
@@ -50,10 +50,10 @@ not prove glyph hit testing, native layout/AX or packed resolution.
 ```tsx
 import { RichText, RichTextSpan, Text } from '@octane-xplat/ui'
 export function Notice() {
-	return <>
-		<Text>Read <Text weight="bold">carefully</Text>.</Text>
-		<RichText><RichTextSpan text="Ready" /></RichText>
-	</>
+  return <>
+    <Text>Read <Text weight="bold">carefully</Text>.</Text>
+    <RichText><RichTextSpan text="Ready" /></RichText>
+  </>
 }
 ```
 
@@ -67,10 +67,10 @@ announcements or arbitrary role mappings, nor establish VoiceOver behavior.
 ```tsx
 import { Text } from '@octane-xplat/ui'
 export function Count({ count }: { count: number }) {
-	return <Text testID="item-count" accessibilityLabel="Items"
-		accessibilityValue={`${count} items`} accessibilityHint="Review the collection.">
-		{count}
-	</Text>
+  return <Text testID="item-count" accessibilityLabel="Items"
+    accessibilityValue={`${count} items`} accessibilityHint="Review the collection.">
+    {count}
+  </Text>
 }
 ```
 
@@ -90,7 +90,7 @@ unqualified. This does not add per-span owners, actions or live announcements.
 ```tsx
 import { Heading, Text } from '@octane-xplat/ui'
 export function AccountTitle({ title }: { title: string }) {
-	return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
+  return <Heading level={2} type="display-2">Your <Text>{title}</Text></Heading>
 }
 ```
 
@@ -111,7 +111,7 @@ and [content guide](../../../../../docs/app/content-display.md#markdown-document
 import { Markdown } from '@octane-xplat/ui/markdown'
 
 function Response(props: { text: string; streaming: boolean }) {
-	return <Markdown isStreaming={props.streaming} children={props.text} density="compact" headingLevelStart={3} />
+  return <Markdown isStreaming={props.streaming} children={props.text} density="compact" headingLevelStart={3} />
 }
 ```
 
@@ -125,10 +125,10 @@ import { ChatDictationButton, useChatDictation } from '@octane-xplat/ui/chat'
 import { Text } from '@octane-xplat/ui'
 
 function Dictation() {
-	const dictation = useChatDictation()
-	return dictation.isSupported
-		? <ChatDictationButton dictation={dictation} />
-		: <Text>Dictation is unavailable on this host.</Text>
+  const dictation = useChatDictation()
+  return dictation.isSupported
+    ? <ChatDictationButton dictation={dictation} />
+    : <Text>Dictation is unavailable on this host.</Text>
 }
 ```
 
@@ -150,11 +150,11 @@ import { useRef } from 'octane'
 import { Heading, Outline, ScrollableArea, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import { useOutlineFromView } from '@octane-xplat/ui/macos'
 export function Guide() {
-	const content = useRef<ScrollableAreaHandle | null>(null)
-	const items = useOutlineFromView(content)
-	return <>
-		<ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
-		<Outline items={items} hasScrollOnClick={false} />
-	</>
+  const content = useRef<ScrollableAreaHandle | null>(null)
+  const items = useOutlineFromView(content)
+  return <>
+    <ScrollableArea ref={content} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+    <Outline items={items} hasScrollOnClick={false} />
+  </>
 }
 ```

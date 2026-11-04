@@ -30,7 +30,7 @@ select DOM types on their first line; keep runtime imports from `octane`:
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx/dom */
 export function BrowserMessage() {
-	return <p>Ready</p>
+  return <p>Ready</p>
 }
 ```
 
@@ -61,7 +61,7 @@ distinguish document checks from browser layout or OS input checks. See the
 import { Button } from '@octane-xplat/ui'
 
 export function AddItem() {
-	return <Button testID="packing.add-item" label="Add item" accessibilityLabel="Add item" />
+  return <Button testID="packing.add-item" label="Add item" accessibilityLabel="Add item" />
 }
 ```
 

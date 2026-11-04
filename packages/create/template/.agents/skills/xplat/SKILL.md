@@ -55,7 +55,7 @@ import { signal$, derived$ } from 'octane/signals'
 export const travelers$ = signal$(1)
 export const seatsRemaining$ = derived$(() => 4 - travelers$.get())
 export function addTraveler() {
-	travelers$.set((count) => count + 1)
+  travelers$.set((count) => count + 1)
 }
 ```
 

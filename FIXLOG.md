@@ -33,7 +33,7 @@ to native buttons. Actual native input and lifecycle qualification remains pendi
 ```tsx
 import { GoogleSignInButton } from '@octane-xplat/auth'
 export function Entry() {
-	return <GoogleSignInButton onResult={(result) => console.log(result.status)} />
+  return <GoogleSignInButton onResult={(result) => console.log(result.status)} />
 }
 ```
 
@@ -49,7 +49,7 @@ Actual system-browser and callback behavior remains unqualified.
 ```ts
 import { authSession } from '@octane-xplat/platform'
 const result = await authSession.open('https://example.com/authorize', {
-	callbackScheme: 'myapp',
+  callbackScheme: 'myapp',
 })
 ```
 
@@ -73,7 +73,7 @@ subscribed for its screen lifetime.
 import { connectivity } from '@octane-xplat/platform'
 
 export function watchRoute(show: (online: boolean | undefined) => void) {
-	return connectivity.subscribe(state => show(state.supported === false ? undefined : state.online))
+  return connectivity.subscribe(state => show(state.supported === false ? undefined : state.online))
 }
 // Release the returned subscription when its screen ends.
 ```
@@ -93,9 +93,9 @@ opening unless the trigger is interruptible; an open menu remains visible.
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions({ saving }: { saving: boolean }) {
-	return <DropdownMenu button={{ label: 'Actions', isLoading: saving }}>
-		<DropdownMenuItem label="Archive" />
-	</DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions', isLoading: saving }}>
+    <DropdownMenuItem label="Archive" />
+  </DropdownMenu>
 }
 ```
 
@@ -131,8 +131,8 @@ import { useKeepAwake } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function ReadingScreen(props: { quiet: boolean }) {
-	useKeepAwake(undefined, { suppressDeactivateWarnings: props.quiet })
-	return <Text>Reading</Text>
+  useKeepAwake(undefined, { suppressDeactivateWarnings: props.quiet })
+  return <Text>Reading</Text>
 }
 ```
 
@@ -210,8 +210,8 @@ Placement, alignment, offset and controlled dismissal use current props.
 
 ```tsx
 <Popover anchor={anchor} open={open} onDismiss={() => setOpen(false)}
-	placement="bottom" alignment="center" offset={12}>
-	<Text>Details for the current selection</Text>
+  placement="bottom" alignment="center" offset={12}>
+  <Text>Details for the current selection</Text>
 </Popover>
 ```
 
@@ -244,7 +244,7 @@ qualification remains pending; pull-to-refresh is still unsupported.
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 
 export function Notes({ height }: { height: number }) {
-	return <ScrollableArea height={height}><Text>Trip notes</Text></ScrollableArea>
+  return <ScrollableArea height={height}><Text>Trip notes</Text></ScrollableArea>
 }
 ```
 
@@ -276,8 +276,8 @@ subscriptions follow the current host and retry failed registration.
 import { storage } from '@octane-xplat/platform'
 
 export function saveDraft(text: string): boolean {
-	try { storage.setString('draft', text); return storage.flush() }
-	catch { return false }
+  try { storage.setString('draft', text); return storage.flush() }
+  catch { return false }
 }
 ```
 
@@ -332,7 +332,7 @@ extra Tab stop.
 import { Button, Toolbar } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <Toolbar label="Page actions" startContent={<Button label="Save" />} />
+  return <Toolbar label="Page actions" startContent={<Button label="Save" />} />
 }
 ```
 
@@ -368,7 +368,7 @@ import { billing } from '@octane-xplat/billing'
 
 await billing.connect()
 if (billing.canMakePayments()) {
-	const products = await billing.fetchProducts(['com.example.premium'], 'inapp')
+  const products = await billing.fetchProducts(['com.example.premium'], 'inapp')
 }
 ```
 
@@ -412,8 +412,8 @@ pasteboard, effect and VoiceOver qualification remains pending.
 import { Pressable, Text, useClipboard } from '@octane-xplat/ui'
 
 export function CopyMessage({ text }: { text: string }) {
-	const { clipboardProps, isCopied } = useClipboard({ getItems: () => text, announce: 'Copied' })
-	return <Pressable {...clipboardProps}><Text>{isCopied ? 'Copied' : 'Copy'}</Text></Pressable>
+  const { clipboardProps, isCopied } = useClipboard({ getItems: () => text, announce: 'Copied' })
+  return <Pressable {...clipboardProps}><Text>{isCopied ? 'Copied' : 'Copy'}</Text></Pressable>
 }
 ```
 
@@ -521,15 +521,15 @@ import { useState } from 'octane'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function DetailsToggle() {
-	const [expanded, setExpanded] = useState(false)
-	return (
-		<Pressable
-			accessibilityState={{ expanded }}
-			onPress={() => setExpanded(!expanded)}
-		>
-			<Text>{expanded ? 'Hide details' : 'Show details'}</Text>
-		</Pressable>
-	)
+  const [expanded, setExpanded] = useState(false)
+  return (
+    <Pressable
+      accessibilityState={{ expanded }}
+      onPress={() => setExpanded(!expanded)}
+    >
+      <Text>{expanded ? 'Hide details' : 'Show details'}</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -571,7 +571,7 @@ const ref = useRef<VideoHandle | null>(null)
 
 // ref.current now always talks to the mounted player, whichever clip is live.
 <Video key={clip.id} src={clip.uri} ref={ref} autoPlay
-	onEnded={() => setClip(nextClip)} />
+  onEnded={() => setClip(nextClip)} />
 ```
 
 Applies to web, iOS, and Android. See
@@ -809,8 +809,8 @@ separate requirements.
 import { ChatDictationButton, useChatDictation } from '@octane-xplat/ui/chat'
 
 function DictationButton() {
-	const dictation = useChatDictation()
-	return <ChatDictationButton dictation={dictation} size="md" />
+  const dictation = useChatDictation()
+  return <ChatDictationButton dictation={dictation} size="md" />
 }
 ```
 
@@ -918,7 +918,7 @@ single-line height. An explicit height still controls the frame.
 ```tsx
 /** @jsxImportSource @octane-xplat/macos-renderer */
 export function Caption() {
-	return <label text="A longer caption that can occupy several lines" style={{ width: 160 }} />
+  return <label text="A longer caption that can occupy several lines" style={{ width: 160 }} />
 }
 ```
 
@@ -1013,14 +1013,14 @@ import { registerStack } from '@octane-xplat/ui/routing'
 import { App } from './App'
 
 Application.run({
-	create: () => {
-		const frame = new Frame()
-		const page = new Page()
-		renderNativeScriptApp(page, App)
-		frame.navigate({ create: () => page })
-		registerStack('root', frame)
-		return frame
-	},
+  create: () => {
+    const frame = new Frame()
+    const page = new Page()
+    renderNativeScriptApp(page, App)
+    frame.navigate({ create: () => page })
+    registerStack('root', frame)
+    return frame
+  },
 })
 ```
 
@@ -1041,9 +1041,9 @@ required beyond the aliases you already declare.
 ```ts
 // vite.config.native.mts
 export default {
-	resolve: {
-		alias: [{ find: '@octane-xplat/nativescript-masonkit', replacement: '/abs/path/to/mason-core/index.ios.js' }],
-	},
+  resolve: {
+    alias: [{ find: '@octane-xplat/nativescript-masonkit', replacement: '/abs/path/to/mason-core/index.ios.js' }],
+  },
 }
 ```
 
@@ -1059,12 +1059,12 @@ can also shrink with its parent without a fixed native height.
 import { Grid, Screen, Text, View } from '@octane-xplat/ui'
 
 export function PlayerLayer() {
-	return <Grid rows="*" columns="*" style={{ width: 300, height: 500 }}>
-		<View row={0} col={0}><Text>Library</Text></View>
-		<View row={0} col={0}>
-			<Screen><Text>Player</Text></Screen>
-		</View>
-	</Grid>
+  return <Grid rows="*" columns="*" style={{ width: 300, height: 500 }}>
+    <View row={0} col={0}><Text>Library</Text></View>
+    <View row={0} col={0}>
+      <Screen><Text>Player</Text></Screen>
+    </View>
+  </Grid>
 }
 ```
 
@@ -1080,10 +1080,10 @@ works when an image sits inside a flex-growing tile.
 import { Grid, Image } from '@octane-xplat/ui'
 
 export function ThumbnailPair({ src }: { src: string }) {
-	return <Grid columns="*,*" style={{ width: 402 }}>
-		<Image src={src} alt="" style={{ width: '100%', height: 402 }} />
-		<Image src={src} alt="" style={{ width: '100%', height: 402 }} />
-	</Grid>
+  return <Grid columns="*,*" style={{ width: 402 }}>
+    <Image src={src} alt="" style={{ width: '100%', height: 402 }} />
+    <Image src={src} alt="" style={{ width: '100%', height: 402 }} />
+  </Grid>
 }
 ```
 
@@ -1160,8 +1160,8 @@ a group, selection belongs to `value`/`onChange`.
 
 ```tsx
 <ToggleButtonGroup label="Filter" value={tab} onChange={setTab}>
-	<ToggleButton value="all" label="All" size="lg" />
-	<ToggleButton value="themes" label="Themes" size="lg" />
+  <ToggleButton value="all" label="All" size="lg" />
+  <ToggleButton value="themes" label="Themes" size="lg" />
 </ToggleButtonGroup>
 ```
 

@@ -37,7 +37,7 @@ import { Card } from './Card.tsrx'
 
 // Each Card variant exports the same component and props.
 export function Screen() {
-	return <Card />
+  return <Card />
 }
 ```
 
@@ -198,7 +198,7 @@ Put this pragma on the first line of each browser JSX file, such as
 /** @jsxImportSource @octane-xplat/jsx/dom */
 
 export function Card() {
-	return <div>Ready</div>
+  return <div>Ready</div>
 }
 ```
 
@@ -209,11 +209,11 @@ A renderer-specific pragma overrides the app default, so use the facade:
 /** @jsxImportSource @octane-xplat/jsx */
 
 export function Card() {
-	return (
-		<masonview style={{ display: 'grid' }}>
-			<label text="Ready" />
-		</masonview>
-	)
+  return (
+    <masonview style={{ display: 'grid' }}>
+      <label text="Ready" />
+    </masonview>
+  )
 }
 ```
 
@@ -228,8 +228,8 @@ import type { View } from '@nativescript/core'
 import { useRef } from 'octane'
 
 export function Spinner() {
-	const view = useRef<View | null>(null)
-	return <activityindicator ref={view} busy />
+  const view = useRef<View | null>(null)
+  return <activityindicator ref={view} busy />
 }
 ```
 
@@ -248,11 +248,11 @@ its environments; manifests without an explicit source resolve the facade defaul
 
 ```json
 {
-	"compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
-	"environments": {
-		"web": { "include": ["src/**/*.web.tsx"] },
-		"native": { "include": ["src/**/*.mobile.tsx"] }
-	}
+  "compilerOptions": { "jsxImportSource": "@octane-xplat/jsx" },
+  "environments": {
+    "web": { "include": ["src/**/*.web.tsx"] },
+    "native": { "include": ["src/**/*.mobile.tsx"] }
+  }
 }
 ```
 

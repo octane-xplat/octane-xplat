@@ -16,14 +16,14 @@ value; apply the theme class to each independent native host as described in
 
 ```css
 :root {
-	--trip-surface: #fff;
+  --trip-surface: #fff;
 }
 .dark,
 .ns-dark {
-	--trip-surface: #111827;
+  --trip-surface: #111827;
 }
 .trip-panel {
-	background-color: var(--trip-surface);
+  background-color: var(--trip-surface);
 }
 ```
 

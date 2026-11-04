@@ -134,9 +134,9 @@ measurement, indicator writes, and strip scrolling.
 
 ```tsx
 <Lightbox.Thumbnails>
-	<Lightbox.Thumbnail index={0}><Text>Coast</Text></Lightbox.Thumbnail>
-	<Lightbox.Thumbnail index={1}><Text>Forest</Text></Lightbox.Thumbnail>
-	<Lightbox.ThumbnailIndicator />
+  <Lightbox.Thumbnail index={0}><Text>Coast</Text></Lightbox.Thumbnail>
+  <Lightbox.Thumbnail index={1}><Text>Forest</Text></Lightbox.Thumbnail>
+  <Lightbox.ThumbnailIndicator />
 </Lightbox.Thumbnails>
 ```
 

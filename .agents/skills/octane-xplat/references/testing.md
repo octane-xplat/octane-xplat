@@ -23,7 +23,7 @@ an inherited interface alone does not prove target support.
 import { Button } from '@octane-xplat/ui'
 
 export function AddItem() {
-	return <Button testID="packing.add-item" label="Add item" accessibilityLabel="Add item" />
+  return <Button testID="packing.add-item" label="Add item" accessibilityLabel="Add item" />
 }
 ```
 
@@ -219,6 +219,6 @@ but unrun. See [AppKit identifiers](../../../../docs/testing/test-identifiers.md
 import { Button } from '@octane-xplat/ui'
 
 export function Save({ save }: { save(): void }) {
-	return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
+  return <Button id="save-control" testID="draft.save" label="Save changes" clickAction={save} />
 }
 ```

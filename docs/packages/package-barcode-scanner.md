@@ -27,9 +27,9 @@ phones, or a browser Blob/image element. It returns the first QR payload,
 import { barcodeScanner } from '@octane-xplat/barcode-scanner'
 
 export async function readQr(image: unknown): Promise<string | null> {
-	if (!barcodeScanner.supported) return null
-	const codes = await barcodeScanner.scanImage(image, ['qr'])
-	return codes[0]?.data ?? null
+  if (!barcodeScanner.supported) return null
+  const codes = await barcodeScanner.scanImage(image, ['qr'])
+  return codes[0]?.data ?? null
 }
 ```
 
@@ -46,8 +46,8 @@ corner. Live camera scanning is not available on macOS, so `ensure()` returns
 import { barcodeScanner } from '@octane-xplat/barcode-scanner'
 
 export async function readProductCode(path: string): Promise<string | null> {
-	const codes = await barcodeScanner.scanImage(path, ['ean13', 'upc_a'])
-	return codes[0]?.data ?? null
+  const codes = await barcodeScanner.scanImage(path, ['ean13', 'upc_a'])
+  return codes[0]?.data ?? null
 }
 ```
 
@@ -58,11 +58,11 @@ permission from a user action before mounting the scanner:
 import { BarcodeScanner, barcodeScanner } from '@octane-xplat/barcode-scanner'
 
 export async function canOpenScanner() {
-	return barcodeScanner.supported && (await barcodeScanner.ensure()) === 'granted'
+  return barcodeScanner.supported && (await barcodeScanner.ensure()) === 'granted'
 }
 
 export function QrScanner({ onCode }: { onCode: (data: string) => void }) {
-	return <BarcodeScanner formats={['qr']} onCodeScanned={({ data }) => onCode(data)} />
+  return <BarcodeScanner formats={['qr']} onCodeScanned={({ data }) => onCode(data)} />
 }
 ```
 

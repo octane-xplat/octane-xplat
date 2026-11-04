@@ -59,8 +59,8 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 
 const packedCount = createStore(0)
 export function PackingStatus() {
-	const count = useStore(packedCount)
-	return <Text>{count} packed</Text>
+  const count = useStore(packedCount)
+  return <Text>{count} packed</Text>
 }
 // An app action publishes an update with packedCount.set(nextCount).
 ```

@@ -131,14 +131,14 @@ synthesis, or format implementation is added.
 import { createSoundBank } from '@octane-xplat/sounds'
 
 export async function loadAppKitSound(source: string) {
-	const bank = createSoundBank({ maxVoices: 2 })
-	try {
-		await bank.load('saved', source)
-		return bank
-	} catch (error) {
-		bank.dispose()
-		throw error
-	}
+  const bank = createSoundBank({ maxVoices: 2 })
+  try {
+    await bank.load('saved', source)
+    return bank
+  } catch (error) {
+    bank.dispose()
+    throw error
+  }
 }
 ```
 

@@ -7,13 +7,13 @@ import { Drawer } from '@octane-xplat/drawer'
 import { Text } from '@octane-xplat/ui'
 
 export function Nav() {
-	return (
-		<Drawer
-			defaultOpen
-			main={<Text>Content</Text>}
-			drawer={<Text>Panel</Text>}
-		/>
-	)
+  return (
+    <Drawer
+      defaultOpen
+      main={<Text>Content</Text>}
+      drawer={<Text>Panel</Text>}
+    />
+  )
 }
 ```
 

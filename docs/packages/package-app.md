@@ -12,7 +12,7 @@ Exports the mounted root and the app contract:
 import { App } from '@xplat/app'
 
 export function Harness() {
-	return <App />
+  return <App />
 }
 ```
 

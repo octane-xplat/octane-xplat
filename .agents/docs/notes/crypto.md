@@ -11,9 +11,9 @@ always report unavailable. See the [public guide](../../../docs/packages/package
 import { Crypto, AESEncryptionKey, aesEncryptAsync } from '@octane-xplat/crypto'
 
 export async function encryptBytes(bytes: Uint8Array) {
-	if (!Crypto.capabilities.aesKeySizes.includes(256)) throw new Error('AES unavailable')
-	const key = await AESEncryptionKey.generate()
-	return { key, data: await aesEncryptAsync(bytes, key) }
+  if (!Crypto.capabilities.aesKeySizes.includes(256)) throw new Error('AES unavailable')
+  const key = await AESEncryptionKey.generate()
+  return { key, data: await aesEncryptAsync(bytes, key) }
 }
 ```
 

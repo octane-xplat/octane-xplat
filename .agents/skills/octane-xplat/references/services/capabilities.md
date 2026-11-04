@@ -108,16 +108,16 @@ decoder memory, and native operations currently run on the calling JS thread.
 import { ImageManipulator } from '@octane-xplat/image-manipulator'
 
 export async function resizePhoto(sourceUri: string) {
-	const context = ImageManipulator.manipulate(sourceUri)
-	let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-	try {
-		context.resize({ width: 800 })
-		image = await context.renderAsync()
-		return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
-	} finally {
-		image?.release()
-		context.release()
-	}
+  const context = ImageManipulator.manipulate(sourceUri)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    context.resize({ width: 800 })
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: 'jpeg', compress: 0.8 })
+  } finally {
+    image?.release()
+    context.release()
+  }
 }
 // The caller owns the returned result until releaseImage(result).
 ```
@@ -137,11 +137,11 @@ import { AssetField, Query } from '@octane-xplat/media-library'
 
 // Run after permission is granted; refresh from offset zero on library changes.
 export function photoPage(offset: number) {
-	return new Query()
-		.orderBy({ key: AssetField.CREATION_TIME, ascending: false })
-		.limit(20)
-		.offset(offset)
-		.exeForMetadata()
+  return new Query()
+    .orderBy({ key: AssetField.CREATION_TIME, ascending: false })
+    .limit(20)
+    .offset(offset)
+    .exeForMetadata()
 }
 ```
 

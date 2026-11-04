@@ -31,7 +31,7 @@ import { DEMOS, RENDER } from '@xplat/demos'
 
 const counter = DEMOS.find((demo) => demo.id === 'counter')
 export function CounterPreview() {
-	return counter ? RENDER[counter.id]() : null
+  return counter ? RENDER[counter.id]() : null
 }
 ```
 

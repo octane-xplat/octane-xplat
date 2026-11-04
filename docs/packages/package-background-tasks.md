@@ -33,12 +33,12 @@ import { backgroundTasks } from '@octane-xplat/background-tasks'
 import { storage } from '@octane-xplat/platform'
 
 backgroundTasks.defineTask('record-refresh', async () => {
-	try {
-		storage.setString('refresh.background-at', new Date().toISOString())
-		return storage.flush() ? 'success' : 'failed'
-	} catch {
-		return 'failed'
-	}
+  try {
+    storage.setString('refresh.background-at', new Date().toISOString())
+    return storage.flush() ? 'success' : 'failed'
+  } catch {
+    return 'failed'
+  }
 })
 ```
 

@@ -28,10 +28,10 @@ Pass that configured value at startup; shared code must not assume Node's
 import { sentry } from '@octane-xplat/sentry'
 
 export function initializeErrorReports(dsn: string) {
-	if (!sentry.supported) return
-	sentry.init({ dsn, environment: 'development' })
-	sentry.addBreadcrumb({ category: 'example', message: 'Sending a test report' })
-	sentry.captureException(new Error('Xplat documentation test'))
+  if (!sentry.supported) return
+  sentry.init({ dsn, environment: 'development' })
+  sentry.addBreadcrumb({ category: 'example', message: 'Sending a test report' })
+  sentry.captureException(new Error('Xplat documentation test'))
 }
 ```
 

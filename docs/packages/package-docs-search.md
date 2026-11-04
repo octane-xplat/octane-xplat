@@ -26,9 +26,9 @@ resolve package versions or fetch release snapshots.
 import { prepareIndex, searchIndex } from '@octane-xplat/docs-search'
 
 const snapshot = {
-	cacheDir: '/tmp/example-docs-search',
-	binding: 'example-repository:verified-commit',
-	documents: [{ path: 'docs/routes.md', corpus: 'guide', content: '# Routes\n\nRetain inactive screens.' }],
+  cacheDir: '/tmp/example-docs-search',
+  binding: 'example-repository:verified-commit',
+  documents: [{ path: 'docs/routes.md', corpus: 'guide', content: '# Routes\n\nRetain inactive screens.' }],
 }
 await prepareIndex(snapshot)
 const found = await searchIndex({ ...snapshot, query: 'remember page state' })

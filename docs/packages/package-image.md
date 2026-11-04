@@ -32,16 +32,16 @@ import { Image, initializeImageCache, prefetch } from '@octane-xplat/image'
 initializeImageCache({ memoryCacheScreens: 2 })
 
 ;<Image
-	src="https://example.com/photo.jpg"
-	alt="Trailhead"
-	contentFit="cover" // 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'
-	placeholder="blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj" // or res://, ~/, file, data:
-	cachePolicy="memory-disk" // or 'none' to bypass both caches (native)
-	failureImage="~/failed.png" // shown on load failure (native)
-	headers={{ Authorization: 'Bearer …' }} // extra request headers (native)
-	decodeWidth={600} // explicit decode bounds in device px; default = view size (native)
-	onLoad={(e) => console.log(e.width, e.height, e.source)} // 'network'|'memory'|'disk'|'local' (native)
-	onError={(e) => console.warn(e.error)}
+  src="https://example.com/photo.jpg"
+  alt="Trailhead"
+  contentFit="cover" // 'cover' | 'contain' | 'fill' | 'none' | 'scale-down'
+  placeholder="blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj" // or res://, ~/, file, data:
+  cachePolicy="memory-disk" // or 'none' to bypass both caches (native)
+  failureImage="~/failed.png" // shown on load failure (native)
+  headers={{ Authorization: 'Bearer …' }} // extra request headers (native)
+  decodeWidth={600} // explicit decode bounds in device px; default = view size (native)
+  onLoad={(e) => console.log(e.width, e.height, e.source)} // 'network'|'memory'|'disk'|'local' (native)
+  onError={(e) => console.warn(e.error)}
 />
 
 // Warm the disk cache ahead of a feed scroll (bytes only — decode at
@@ -49,11 +49,11 @@ initializeImageCache({ memoryCacheScreens: 2 })
 await prefetch('https://example.com/next.jpg')
 const feed = [{ imageUrl: 'https://example.com/next.jpg' }]
 await prefetch(
-	feed.map((post) => post.imageUrl),
-	{
-		headers: { Authorization: 'Bearer …' }, // iOS/Android only — see below
-		concurrency: 5, // max parallel fetches (default)
-	},
+  feed.map((post) => post.imageUrl),
+  {
+    headers: { Authorization: 'Bearer …' }, // iOS/Android only — see below
+    concurrency: 5, // max parallel fetches (default)
+  },
 )
 ```
 
@@ -127,8 +127,8 @@ and packaging remain unqualified.
 import { Image } from '@octane-xplat/image'
 
 export function Preview({ src }: { src: string }) {
-	return <Image src={src} alt="Photo" placeholder="~/thumbnail.png"
-		contentFit="contain" style={{ width: 120, height: 80 }} />
+  return <Image src={src} alt="Photo" placeholder="~/thumbnail.png"
+    contentFit="contain" style={{ width: 120, height: 80 }} />
 }
 ```
 
@@ -181,8 +181,8 @@ renderer support fails before a bypass load rather than silently caching it.
 ```tsx
 import { Image } from '@octane-xplat/image'
 export function UncachedPhoto({ src }: { src: string }) {
-	return <Image src={src} cachePolicy="none" alt="Photo"
-		contentFit="contain" style={{ width: 120, height: 80 }} />
+  return <Image src={src} cachePolicy="none" alt="Photo"
+    contentFit="contain" style={{ width: 120, height: 80 }} />
 }
 ```
 
@@ -206,9 +206,9 @@ not retry or replay events. Empty sources and placeholders emit neither event.
 ```tsx
 import { Image } from '@octane-xplat/image'
 export function Preview({ src }: { src: string }) {
-	return <Image src={src} alt="Preview" style={{ width: 120, height: 80 }}
-		onLoad={({ width, height, source }) => console.log(width, height, source)}
-		onError={({ error }) => console.warn(error.message)} />
+  return <Image src={src} alt="Preview" style={{ width: 120, height: 80 }}
+    onLoad={({ width, height, source }) => console.log(width, height, source)}
+    onError={({ error }) => console.warn(error.message)} />
 }
 ```
 
@@ -224,7 +224,7 @@ unrun; native event timing, metadata and rendering remain unqualified.
 ```ts
 import type { ImageLoadEvent } from '@octane-xplat/image'
 function reportLoad(event: ImageLoadEvent) {
-	console.log(event.width > 0 && event.height > 0 ? `${event.width}×${event.height}` : 'Size unavailable')
+  console.log(event.width > 0 && event.height > 0 ? `${event.width}×${event.height}` : 'Size unavailable')
 }
 ```
 

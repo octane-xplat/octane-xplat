@@ -24,20 +24,20 @@ End users can share/consume NativeScript plugins on macOS. Not by adopting
 
 ```ts
 interface ElementBehavior {
-	/** Factory — sets node.view (and actionId/childHost where relevant). */
-	make?: (node: ElementNode, props: PropBag) => void
-	/** Prop dispatch — return true when handled. Called before the warn path. */
-	applyProp?: (node: ElementNode, name: string, value: any) => boolean
-	/** Manual child layout, called from reconcileLayoutParent. */
-	layout?: (parent: ElementNode) => void
-	/** Natural size for intrinsicContentSize plumbing. */
-	naturalSize?: (node: ElementNode) => { width: number; height: number } | null
-	/** Teardown — called from destroy() before view teardown. */
-	destroy?: (node: ElementNode) => void
-	/** Can host view children (adds to VIEW_PARENT_TYPES semantics). */
-	container?: boolean
-	/** Style keys this element consumes (suppresses warn path). */
-	styleKeys?: ReadonlySet<string>
+  /** Factory — sets node.view (and actionId/childHost where relevant). */
+  make?: (node: ElementNode, props: PropBag) => void
+  /** Prop dispatch — return true when handled. Called before the warn path. */
+  applyProp?: (node: ElementNode, name: string, value: any) => boolean
+  /** Manual child layout, called from reconcileLayoutParent. */
+  layout?: (parent: ElementNode) => void
+  /** Natural size for intrinsicContentSize plumbing. */
+  naturalSize?: (node: ElementNode) => { width: number; height: number } | null
+  /** Teardown — called from destroy() before view teardown. */
+  destroy?: (node: ElementNode) => void
+  /** Can host view children (adds to VIEW_PARENT_TYPES semantics). */
+  container?: boolean
+  /** Style keys this element consumes (suppresses warn path). */
+  styleKeys?: ReadonlySet<string>
 }
 ```
 
@@ -59,26 +59,26 @@ A leaf package (working name `@octane-xplat/macos-ns-compat`) that apps alias
 
 ```ts
 class Observable {
-	on(event: string, cb: (...args: any[]) => void): void
-	off(event: string, cb?): void
-	notify({ eventName, object, ...data }): void
+  on(event: string, cb: (...args: any[]) => void): void
+  off(event: string, cb?): void
+  notify({ eventName, object, ...data }): void
 }
 
 class Property<Owner, T> {
-	constructor({ name, defaultValue, affectsLayout? , valueConverter? })
-	// registers get/set on the owner prototype chain
+  constructor({ name, defaultValue, affectsLayout? , valueConverter? })
+  // registers get/set on the owner prototype chain
 }
 
 class CssProperty<Owner extends Style, T> extends Property {
-	// + cssName, registered via static on the Style subclass
+  // + cssName, registered via static on the Style subclass
 }
 
 class ViewBase {
-	nativeView: NSView | null      // the bridged AppKit view
-	style: Style
-	className: string
-	on/off/notify (Observable)
-	layoutRequested hook -> renderer's queueLayoutReconcile
+  nativeView: NSView | null      // the bridged AppKit view
+  style: Style
+  className: string
+  on/off/notify (Observable)
+  layoutRequested hook -> renderer's queueLayoutReconcile
 }
 ```
 

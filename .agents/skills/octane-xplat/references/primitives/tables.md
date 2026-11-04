@@ -93,12 +93,12 @@ the discovery allocator but can change with text; prefer authored IDs.
 import { useCallback, useRef } from 'octane'
 import { Heading, Outline, ScrollableArea, type HostElement, type ScrollableAreaHandle } from '@octane-xplat/ui'
 export function Contents() {
-	const scroll = useRef<HostElement | null>(null)
-	const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
-	return <>
-		<ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
-		<Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} />
-	</>
+  const scroll = useRef<HostElement | null>(null)
+  const bind = useCallback((handle: ScrollableAreaHandle | null) => { scroll.current = handle?.native ?? null }, [])
+  return <>
+    <ScrollableArea ref={bind} height={200}><Heading id="intro" level={1}>Introduction</Heading></ScrollableArea>
+    <Outline items={[{ id: 'intro', label: 'Introduction', level: 1 }]} scrollContainerRef={scroll} />
+  </>
 }
 ```
 
@@ -126,11 +126,11 @@ Selection/activation stays with cells. Do not confuse it with the selector-based
 // Palette.macos.tsx
 import { useGridFocus } from '@octane-xplat/ui'
 export function Palette() {
-	const grid = useGridFocus<NSView>({ rows: 1, columns: 2 })
-	return <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
-		<button data-grid-cell text="Red" onTap={() => console.log('Red')} />
-		<button data-grid-cell text="Blue" onTap={() => console.log('Blue')} />
-	</masonview>
+  const grid = useGridFocus<NSView>({ rows: 1, columns: 2 })
+  return <masonview ref={grid.ref} onKeyDown={grid.onKeyDown} className="flex flex-row gap-2">
+    <button data-grid-cell text="Red" onTap={() => console.log('Red')} />
+    <button data-grid-cell text="Blue" onTap={() => console.log('Blue')} />
+  </masonview>
 }
 ```
 

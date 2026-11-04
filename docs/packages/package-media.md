@@ -39,36 +39,36 @@ import type { PickedImage } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export function PhotoPicker() {
-	const [preview, setPreview] = useState<PickedImage | null>(null)
-	const [error, setError] = useState('')
-	const mounted = useRef(true)
-	useEffect(() => {
-		mounted.current = true
-		return () => { mounted.current = false }
-	}, [])
-	useEffect(() => () => { if (preview) files.release(preview) }, [preview])
+  const [preview, setPreview] = useState<PickedImage | null>(null)
+  const [error, setError] = useState('')
+  const mounted = useRef(true)
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false }
+  }, [])
+  useEffect(() => () => { if (preview) files.release(preview) }, [preview])
 
-	async function pickPhoto() {
-		try {
-			const photo = await media.pickImage()
-			if (!photo) return
-			if (!mounted.current) {
-				files.release(photo)
-				return
-			}
-			setError('')
-			setPreview(photo)
-		} catch (error) {
-			if (mounted.current) setError(String(error))
-		}
-	}
-	return (
-		<>
-			<Button clickAction={pickPhoto}>Choose photo</Button>
-			{preview && <Image src={preview.uri} alt="Selected photo" />}
-			{error && <Text>{error}</Text>}
-		</>
-	)
+  async function pickPhoto() {
+    try {
+      const photo = await media.pickImage()
+      if (!photo) return
+      if (!mounted.current) {
+        files.release(photo)
+        return
+      }
+      setError('')
+      setPreview(photo)
+    } catch (error) {
+      if (mounted.current) setError(String(error))
+    }
+  }
+  return (
+    <>
+      <Button clickAction={pickPhoto}>Choose photo</Button>
+      {preview && <Image src={preview.uri} alt="Selected photo" />}
+      {error && <Text>{error}</Text>}
+    </>
+  )
 }
 ```
 
@@ -85,9 +85,9 @@ import { files } from '@octane-xplat/files'
 
 const images = await media.pickImages() // [] on cancel
 try {
-	console.log(images.map((image) => image.uri))
+  console.log(images.map((image) => image.uri))
 } finally {
-	for (const image of images) files.release(image)
+  for (const image of images) files.release(image)
 }
 ```
 
@@ -110,7 +110,7 @@ deterministic sheet and lifecycle checks use an injected camera backend.
 import { media } from '@octane-xplat/media'
 
 export async function onCapturePress() {
-	return media.capturePhoto({ width: 800, height: 600, saveToGallery: false })
+  return media.capturePhoto({ width: 800, height: 600, saveToGallery: false })
 }
 ```
 

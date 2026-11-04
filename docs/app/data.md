@@ -36,10 +36,10 @@ export interface User { id: string; name: string }
 export const queries = createQueryClient()
 
 export const users = defineQuery(['users'], async (id: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<User>
+  return response.json() as Promise<User>
 }, { staleTimeMs: 60_000 })
 ```
 
@@ -58,18 +58,18 @@ import { useQuery$ } from '@octane-xplat/ui/data'
 import { queries, users } from './queries'
 
 export function UserCard(props: { userId: string }) @{
-	const user = useQuery$(queries, users, props.userId)
-	@if (!user) {
-		<Text>Loading user…</Text>
-	} @else {
-		@try {
-			<Text>{user.data$.get().name}</Text>
-		} @pending {
-			<Text>Loading user…</Text>
-		} @catch (error) {
-			<Text>{String(error)}</Text>
-		}
-	}
+  const user = useQuery$(queries, users, props.userId)
+  @if (!user) {
+    <Text>Loading user…</Text>
+  } @else {
+    @try {
+      <Text>{user.data$.get().name}</Text>
+    } @pending {
+      <Text>Loading user…</Text>
+    } @catch (error) {
+      <Text>{String(error)}</Text>
+    }
+  }
 }
 ```
 
@@ -81,13 +81,13 @@ selections contain JSON values; object field order does not affect identity.
 ```ts
 // Add to src/queries.ts; each selection identifies one search result.
 export const searches = defineQuery(['users', 'search'], async (
-	selection: { text: string; limit: number }, { signal },
+  selection: { text: string; limit: number }, { signal },
 ) => {
-	const params = new URLSearchParams({ q: selection.text, limit: String(selection.limit) })
-	const response = await fetch(`https://api.example.com/api/users?${params}`, { signal })
-	if (!response.ok) throw new Error('Could not search users')
+  const params = new URLSearchParams({ q: selection.text, limit: String(selection.limit) })
+  const response = await fetch(`https://api.example.com/api/users?${params}`, { signal })
+  if (!response.ok) throw new Error('Could not search users')
 
-	return response.json() as Promise<User[]>
+  return response.json() as Promise<User[]>
 })
 ```
 
@@ -99,13 +99,13 @@ import { defineQuery, type QueryLoadContext } from '@octane-xplat/ui/data'
 import type { User } from './queries'
 
 export const refreshedUsers = defineQuery(['refreshed-users'], async (
-	id: string, { signal, previous }: QueryLoadContext<User>,
+  id: string, { signal, previous }: QueryLoadContext<User>,
 ) => {
-	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
-	if (response.status === 304 && previous) return previous
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+  if (response.status === 304 && previous) return previous
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<User>
+  return response.json() as Promise<User>
 })
 ```
 
@@ -121,10 +121,10 @@ that ignores cancellation cannot publish its late result.
 import { defineQuery } from '@octane-xplat/ui/data'
 
 export const headlines = defineQuery(['headlines'], async (topic: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/api/headlines?topic=${encodeURIComponent(topic)}`, { signal })
-	if (!response.ok) throw new Error('Could not load headlines')
+  const response = await fetch(`https://api.example.com/api/headlines?topic=${encodeURIComponent(topic)}`, { signal })
+  if (!response.ok) throw new Error('Could not load headlines')
 
-	return response.json() as Promise<string[]>
+  return response.json() as Promise<string[]>
 }, { staleTimeMs: 30_000, gcTimeMs: 300_000 })
 ```
 
@@ -153,10 +153,10 @@ and final-reader cancellation never start another retry.
 import { defineQuery } from '@octane-xplat/ui/data'
 
 export const weather = defineQuery(['weather'], async (city: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/api/weather?city=${encodeURIComponent(city)}`, { signal })
-	if (!response.ok) throw new Error('Could not load weather')
+  const response = await fetch(`https://api.example.com/api/weather?city=${encodeURIComponent(city)}`, { signal })
+  if (!response.ok) throw new Error('Could not load weather')
 
-	return response.json() as Promise<{ temperature: number }>
+  return response.json() as Promise<{ temperature: number }>
 }, { retryCount: 2, retryDelayMs: failureCount => Math.min(1000 * 2 ** (failureCount - 1), 30_000) })
 ```
 
@@ -170,10 +170,10 @@ resumes without replaying missed intervals. Set either lifecycle policy to
 import { defineQuery } from '@octane-xplat/ui/data'
 
 export const liveScores = defineQuery(['scores'], async (league: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/api/scores?league=${encodeURIComponent(league)}`, { signal })
-	if (!response.ok) throw new Error('Could not load scores')
+  const response = await fetch(`https://api.example.com/api/scores?league=${encodeURIComponent(league)}`, { signal })
+  if (!response.ok) throw new Error('Could not load scores')
 
-	return response.json() as Promise<number[]>
+  return response.json() as Promise<number[]>
 }, { refetchIntervalMs: 15_000, refetchOnResume: true, refetchOnReconnect: true })
 ```
 
@@ -216,11 +216,11 @@ in the current sequence, separately from whether the reader has usable data.
 import { createQueryClient, defineQuery, type QueryEnvironment } from '@octane-xplat/ui/data'
 
 export function queriesForHost(environment: QueryEnvironment) {
-	return createQueryClient({ environment })
+  return createQueryClient({ environment })
 }
 
 export const localNotes = defineQuery(['local-notes'], (folder: string) => [folder], {
-	networkMode: 'always', retryCount: 0,
+  networkMode: 'always', retryCount: 0,
 })
 ```
 
@@ -232,15 +232,15 @@ an arbitrary error; the loader gives your policy the information it needs.
 import { defineQuery } from '@octane-xplat/ui/data'
 
 class ApiReadError extends Error {
-	retryable: boolean
-	constructor(retryable: boolean) { super('Could not load record'); this.retryable = retryable }
+  retryable: boolean
+  constructor(retryable: boolean) { super('Could not load record'); this.retryable = retryable }
 }
 
 export const records = defineQuery(['records'], async (id: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/api/records/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new ApiReadError(response.status >= 500)
+  const response = await fetch(`https://api.example.com/api/records/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new ApiReadError(response.status >= 500)
 
-	return response.json() as Promise<{ title: string }>
+  return response.json() as Promise<{ title: string }>
 }, { shouldRetry: (_failureCount, error) => !(error instanceof ApiReadError) || error.retryable })
 ```
 
@@ -256,11 +256,11 @@ import type { QueryReader } from '@octane-xplat/ui/data'
 import type { User } from './queries'
 
 export async function refreshUser(reader: QueryReader<User>) {
-	try {
-		await reader.refetch()
-	} catch {
-		// Render reader.state$.get().error alongside the retained data.
-	}
+  try {
+    await reader.refetch()
+  } catch {
+    // Render reader.state$.get().error alongside the retained data.
+  }
 }
 ```
 
@@ -274,14 +274,14 @@ reconcile with the server again.
 import { queries, users, type User } from './queries'
 
 export async function renameUser(id: string, name: string) {
-	const response = await fetch(`https://api.example.com/api/users/${encodeURIComponent(id)}`, {
-		method: 'PATCH',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ name }),
-	})
-	if (!response.ok) throw new Error('Could not save user')
-	const saved = await response.json() as User
-	queries.setQueryData(users, id, saved)
+  const response = await fetch(`https://api.example.com/api/users/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+  if (!response.ok) throw new Error('Could not save user')
+  const saved = await response.json() as User
+  queries.setQueryData(users, id, saved)
 }
 ```
 
@@ -294,13 +294,13 @@ detail queries. Both operations infer their value types from the definition.
 import { queries, users, type User } from './queries'
 
 export function hasCachedUser(id: string) {
-	return queries.getQueryData(users, id) !== undefined
+  return queries.getQueryData(users, id) !== undefined
 }
 
 export function publishExistingUsers(receipts: readonly User[]) {
-	for (const saved of receipts) {
-		queries.setQueriesData(users, () => saved, { key: ['users', saved.id], exact: true })
-	}
+  for (const saved of receipts) {
+    queries.setQueriesData(users, () => saved, { key: ['users', saved.id], exact: true })
+  }
 }
 ```
 
@@ -314,7 +314,7 @@ action below.
 import { queries } from './queries'
 
 export function reloadUser(id: string) {
-	queries.invalidateQueries({ key: ['users', id], exact: true })
+  queries.invalidateQueries({ key: ['users', id], exact: true })
 }
 ```
 
@@ -336,10 +336,10 @@ export interface EditableUser { id: string; name: string; revision: number }
 export const userQueries = createQueryClient()
 
 export const editableUsers = defineQuery(['editable-users'], async (id: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<EditableUser>
+  return response.json() as Promise<EditableUser>
 }, { staleTimeMs: 60_000, compareAuthority: (incoming, current) => incoming.revision - current.revision })
 ```
 
@@ -354,16 +354,16 @@ automatically.
 import { userQueries, editableUsers, type EditableUser } from './editable-user-data'
 
 export async function renameUser(
-	id: string, name: string,
-	save: (input: { id: string; name: string; operationId: string; signal: AbortSignal }) => Promise<EditableUser>,
+  id: string, name: string,
+  save: (input: { id: string; name: string; operationId: string; signal: AbortSignal }) => Promise<EditableUser>,
 ) {
-	await userQueries.ensureData(editableUsers, id)
+  await userQueries.ensureData(editableUsers, id)
 
-	return userQueries.runOptimistic(editableUsers, id, async (operation, view$, { signal }) => {
-		operation.set(view$, previous => ({ ...previous, name }))
-		const confirmed = await save({ id, name, operationId: operation.id, signal })
-		operation.adopt(confirmed)
-	})
+  return userQueries.runOptimistic(editableUsers, id, async (operation, view$, { signal }) => {
+    operation.set(view$, previous => ({ ...previous, name }))
+    const confirmed = await save({ id, name, operationId: operation.id, signal })
+    operation.adopt(confirmed)
+  })
 }
 ```
 
@@ -379,11 +379,11 @@ this cache's contract.
 import { isActionUncertain } from 'octane/signals'
 
 export async function saveMessage(save: () => Promise<void>) {
-	try { await save(); return 'Saved' }
-	catch (error) {
-		if (isActionUncertain(error)) return 'Awaiting server confirmation'
-		throw error
-	}
+  try { await save(); return 'Saved' }
+  catch (error) {
+    if (isActionUncertain(error)) return 'Awaiting server confirmation'
+    throw error
+  }
 }
 ```
 
@@ -401,7 +401,7 @@ import { demoQueries, demoUsers } from '../shared-query-data'
 import type { RouteLoaderArgs } from '../routes.gen.contracts'
 
 export function loader({ search }: RouteLoaderArgs<'/cached-user'>) {
-	return demoQueries.ensureData(demoUsers, search.id)
+  return demoQueries.ensureData(demoUsers, search.id)
 }
 ```
 
@@ -415,14 +415,14 @@ operations release their temporary leases into normal inactive collection.
 import { queries, users } from './queries'
 
 export async function prepareUserHint(id: string, signal: AbortSignal) {
-	const result = await queries.prefetch(users, id, { signal })
-	if (result.status === 'error') return 'Could not prepare user'
+  const result = await queries.prefetch(users, id, { signal })
+  if (result.status === 'error') return 'Could not prepare user'
 
-	return result.status === 'cancelled' ? 'Preparation cancelled' : 'User ready'
+  return result.status === 'cancelled' ? 'Preparation cancelled' : 'User ready'
 }
 
 export async function requireUser(id: string, signal: AbortSignal) {
-	return queries.ensureData(users, id, { signal })
+  return queries.ensureData(users, id, { signal })
 }
 ```
 
@@ -438,12 +438,12 @@ A disposed client cannot be reused.
 import { createQueryClient } from '@octane-xplat/ui/data'
 
 export function createAccountQueries(accountId: string) {
-	return createQueryClient({ namespace: accountId })
+  return createQueryClient({ namespace: accountId })
 }
 
 export async function signOut(oldQueries: ReturnType<typeof createAccountQueries>) {
-	await oldQueries.dispose({ purgePersisted: true })
-	// Your authentication layer can now replace the session and screen tree.
+  await oldQueries.dispose({ purgePersisted: true })
+  // Your authentication layer can now replace the session and screen tree.
 }
 ```
 
@@ -456,13 +456,13 @@ disposal for sign-out rather than retaining a client with an old namespace.
 import { queries, users } from './queries'
 
 export async function readUserOnce(id: string) {
-	const reader = queries.observe$(users, id)
-	try { return await reader.refetch() }
-	finally { reader.dispose() }
+  const reader = queries.observe$(users, id)
+  try { return await reader.refetch() }
+  finally { reader.dispose() }
 }
 
 export function evictUser(id: string) {
-	return queries.evictQueries({ key: ['users', id], exact: true })
+  return queries.evictQueries({ key: ['users', id], exact: true })
 }
 ```
 
@@ -481,13 +481,13 @@ import type { User } from './queries'
 export const accountQueries = createQueryClient({ namespace: 'account:42' })
 
 export const persistentUsers = defineQuery(['users'], async (id: string, { signal }) => {
-	const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
-	if (!response.ok) throw new Error('Could not load user')
+  const response = await fetch(`https://api.example.com/users/${encodeURIComponent(id)}`, { signal })
+  if (!response.ok) throw new Error('Could not load user')
 
-	return response.json() as Promise<User>
+  return response.json() as Promise<User>
 }, {
-	staleTimeMs: 60_000,
-	persist: { storage: platformQueryStorage, version: 'user-v1', maxAgeMs: 86_400_000 },
+  staleTimeMs: 60_000,
+  persist: { storage: platformQueryStorage, version: 'user-v1', maxAgeMs: 86_400_000 },
 })
 ```
 
@@ -501,11 +501,11 @@ purge rejects if removal fails, so sign-out code can handle that outcome.
 import type { QueryStorageAdapter } from '@octane-xplat/ui/data'
 
 export function storageAdapter(store: {
-	read(key: string): Promise<string | null>
-	write(key: string, value: string): Promise<void>
-	delete(key: string): Promise<void>
+  read(key: string): Promise<string | null>
+  write(key: string, value: string): Promise<void>
+  delete(key: string): Promise<void>
 }): QueryStorageAdapter {
-	return { get: key => store.read(key), set: (key, value) => store.write(key, value), remove: key => store.delete(key) }
+  return { get: key => store.read(key), set: (key, value) => store.write(key, value), remove: key => store.delete(key) }
 }
 ```
 
@@ -519,12 +519,12 @@ Handle that outcome before reporting that saved account data was cleared:
 ```ts
 // Continue the accountQueries example above; run during sign-out.
 export async function clearSavedAccountQueries(): Promise<boolean> {
-	try {
-		await accountQueries.dispose({ purgePersisted: true })
-		return true
-	} catch {
-		return false // The client is retired, but saved records may remain.
-	}
+  try {
+    await accountQueries.dispose({ purgePersisted: true })
+    return true
+  } catch {
+    return false // The client is retired, but saved records may remain.
+  }
 }
 ```
 
@@ -544,11 +544,11 @@ import { defineCursorQuery, type CursorPage, type CursorPageContext } from '@oct
 export interface FeedItem { id: string; title: string }
 
 export async function loadFeed(tag: string, { cursor, signal }: CursorPageContext<string>): Promise<CursorPage<FeedItem, string>> {
-	const params = new URLSearchParams({ tag, cursor })
-	const response = await fetch(`https://api.example.com/api/feed?${params}`, { signal })
-	if (!response.ok) throw new Error('Could not load feed')
+  const params = new URLSearchParams({ tag, cursor })
+  const response = await fetch(`https://api.example.com/api/feed?${params}`, { signal })
+  if (!response.ok) throw new Error('Could not load feed')
 
-	return response.json()
+  return response.json()
 }
 
 export const feed = defineCursorQuery(['feed'], loadFeed, { initialCursor: '', maxPages: 3, staleTimeMs: 30_000 })
@@ -568,27 +568,27 @@ import { queries } from './queries'
 import { feed } from './feed'
 
 export function Feed() @{
-	const reader = useQuery$(queries, feed, 'news')
-	@if (!reader) {
-		<Text>Opening feed…</Text>
-	} @else {
-		@try {
-			const data = reader.data$.get()
-			<>
-				@for (const item of data.pages.flatMap(page => page.items); key item.id) {
-					<Text>{item.title}</Text>
-				}
-				@if (reader.state$.get().status === 'error') { <Text>Could not load more. Try again.</Text> }
-				<Pressable disabled={!data.hasNextPage || reader.state$.get().fetchStatus !== 'idle'} onPress={() => {
-					void queries.fetchNextPage(feed, 'news').catch(() => {})
-				}}><Text>Load more</Text></Pressable>
-			</>
-		} @pending {
-			<Text>Loading feed…</Text>
-		} @catch (error) {
-			<Pressable onPress={() => { void reader.refetch().catch(() => {}) }}><Text>Retry feed</Text></Pressable>
-		}
-	}
+  const reader = useQuery$(queries, feed, 'news')
+  @if (!reader) {
+    <Text>Opening feed…</Text>
+  } @else {
+    @try {
+      const data = reader.data$.get()
+      <>
+        @for (const item of data.pages.flatMap(page => page.items); key item.id) {
+          <Text>{item.title}</Text>
+        }
+        @if (reader.state$.get().status === 'error') { <Text>Could not load more. Try again.</Text> }
+        <Pressable disabled={!data.hasNextPage || reader.state$.get().fetchStatus !== 'idle'} onPress={() => {
+          void queries.fetchNextPage(feed, 'news').catch(() => {})
+        }}><Text>Load more</Text></Pressable>
+      </>
+    } @pending {
+      <Text>Loading feed…</Text>
+    } @catch (error) {
+      <Pressable onPress={() => { void reader.refetch().catch(() => {}) }}><Text>Retry feed</Text></Pressable>
+    }
+  }
 }
 ```
 
@@ -603,8 +603,8 @@ import { loadFeed } from './feed'
 
 const savedQueries = createQueryClient({ namespace: 'public-feed' })
 const savedFeed = defineCursorQuery(['feed'], loadFeed, {
-	initialCursor: '', maxPages: 3,
-	persist: { storage: platformQueryStorage, version: 'feed-window-v1', maxAgeMs: 86_400_000 },
+  initialCursor: '', maxPages: 3,
+  persist: { storage: platformQueryStorage, version: 'feed-window-v1', maxAgeMs: 86_400_000 },
 })
 await savedQueries.ensureData(savedFeed, 'news')
 ```
@@ -620,18 +620,18 @@ Snapshots include state, freshness and reader counts. The event history keeps
 ```ts
 // In the module that owns queries and the users definition:
 if (import.meta.env.DEV) {
-	const { inspectQueryClient, registerQueryInspection } =
-		await import('@octane-xplat/ui/data/dev')
-	const inspector = inspectQueryClient(queries, {
-		labels: [{ definition: users, label: 'users.detail' }],
-		eventLimit: 100,
-	})
-	const registration = registerQueryInspection(inspector)
-	console.log(inspector.snapshot())
-	import.meta.hot?.dispose(() => {
-		registration.dispose()
-		inspector.dispose()
-	})
+  const { inspectQueryClient, registerQueryInspection } =
+    await import('@octane-xplat/ui/data/dev')
+  const inspector = inspectQueryClient(queries, {
+    labels: [{ definition: users, label: 'users.detail' }],
+    eventLimit: 100,
+  })
+  const registration = registerQueryInspection(inspector)
+  console.log(inspector.snapshot())
+  import.meta.hot?.dispose(() => {
+    registration.dispose()
+    inspector.dispose()
+  })
 }
 ```
 
@@ -680,21 +680,21 @@ export type Post = { id: string; title: string }
 export type User = { id: string; name: string }
 
 async function request<T>(path: string, signal?: AbortSignal): Promise<T> {
-	const response = await fetch(`https://api.example.com${path}`, { signal })
-	if (!response.ok) throw new Error(`Request failed: ${response.status}`)
+  const response = await fetch(`https://api.example.com${path}`, { signal })
+  if (!response.ok) throw new Error(`Request failed: ${response.status}`)
 
-	return response.json() as Promise<T>
+  return response.json() as Promise<T>
 }
 
 export const api = {
-	posts: {
-		list: ({ mode, signal }: { mode: string; signal: AbortSignal }) =>
-			request<Post[]>(`/api/posts?mode=${encodeURIComponent(mode)}`, signal),
-	},
-	user: {
-		get: ({ id, signal }: { id: string; signal: AbortSignal }) =>
-			request<User>(`/api/users/${encodeURIComponent(id)}`, signal),
-	},
+  posts: {
+    list: ({ mode, signal }: { mode: string; signal: AbortSignal }) =>
+      request<Post[]>(`/api/posts?mode=${encodeURIComponent(mode)}`, signal),
+  },
+  user: {
+    get: ({ id, signal }: { id: string; signal: AbortSignal }) =>
+      request<User>(`/api/users/${encodeURIComponent(id)}`, signal),
+  },
 }
 ```
 
@@ -711,8 +711,8 @@ import { api } from './api'
 export const feedMode$ = signal$<'global' | 'following'>('global')
 
 export const feed$ = query$(
-	() => feedMode$.get(),
-	(mode, { signal }) => api.posts.list({ mode, signal }),
+  () => feedMode$.get(),
+  (mode, { signal }) => api.posts.list({ mode, signal }),
 )
 ```
 
@@ -728,7 +728,7 @@ import { Text } from '@octane-xplat/ui'
 import { feed$ } from './feed'
 
 export function FeedCount() {
-	return <Text>{feed$.latest([]).length} posts</Text>
+  return <Text>{feed$.latest([]).length} posts</Text>
 }
 ```
 
@@ -752,8 +752,8 @@ import { api } from './api'
 export const feedMode$ = signal$<'global' | 'following'>('global')
 
 export const feed$ = query$(
-	() => feedMode$.get(), // selection — re-runs reactively
-	(mode, { signal }) => api.posts.list({ mode, signal }),
+  () => feedMode$.get(), // selection — re-runs reactively
+  (mode, { signal }) => api.posts.list({ mode, signal }),
 )
 ```
 
@@ -768,8 +768,8 @@ import { api } from './api'
 
 const userId$ = signal$<string | null>(null)
 const user$ = query$(
-	() => userId$.get() ?? skip,
-	(id, { signal }) => api.user.get({ id, signal }),
+  () => userId$.get() ?? skip,
+  (id, { signal }) => api.user.get({ id, signal }),
 )
 ```
 
@@ -783,19 +783,19 @@ import { query$ } from 'octane/signals'
 import { api } from './api'
 
 const user$ = query$(
-	() => '42',
-	(id, { signal, previous }) => {
-		console.log('Refreshing a previous result:', previous !== undefined)
+  () => '42',
+  (id, { signal, previous }) => {
+    console.log('Refreshing a previous result:', previous !== undefined)
 
-		return api.user.get({ id, signal })
-	},
+    return api.user.get({ id, signal })
+  },
 )
 const updates$ = query$(
-	() => 'welcome',
-	async function* (message) {
-		yield message
-	},
-	{ kind: 'stream' },
+  () => 'welcome',
+  async function* (message) {
+    yield message
+  },
+  { kind: 'stream' },
 )
 ```
 
@@ -808,11 +808,11 @@ import { Text } from '@octane-xplat/ui'
 import { feed$ } from './feed'
 
 export function RefreshStatus() {
-	return (
-		<Text>
-			{feed$.latest([]).length} posts{feed$.snapshot().refreshing ? ' (refreshing)' : ''}
-		</Text>
-	)
+  return (
+    <Text>
+      {feed$.latest([]).length} posts{feed$.snapshot().refreshing ? ' (refreshing)' : ''}
+    </Text>
+  )
 }
 ```
 
@@ -830,13 +830,13 @@ import { Text, View } from '@octane-xplat/ui'
 import type { Post } from './api'
 
 export function Feed(props: { posts: Post[] }) {
-	return (
-		<View>
-			{props.posts.map((post) => (
-				<Text>{post.title}</Text>
-			))}
-		</View>
-	)
+  return (
+    <View>
+      {props.posts.map((post) => (
+        <Text>{post.title}</Text>
+      ))}
+    </View>
+  )
 }
 ```
 
@@ -859,12 +859,12 @@ import { Feed } from './Feed'
 
 export function FeedScreen() @{
 @try {
-	const posts = feed$.get()
-	<Feed posts={posts} />
+  const posts = feed$.get()
+  <Feed posts={posts} />
 } @pending {
-	<Spinner />
+  <Spinner />
 } @catch (e) {
-	<Text>Could not load the feed.</Text>
+  <Text>Could not load the feed.</Text>
 }
 }
 ```
@@ -885,21 +885,21 @@ import { feed$ } from './feed'
 import { Feed } from './Feed'
 
 export function RefreshableFeed() {
-	return (
-		<View>
-			<Feed posts={feed$.latest([])} />
-			<Text>{feed$.snapshot().refreshing ? 'Refreshing' : feed$.snapshot().status}</Text>
-			<Pressable onPress={() => feed$.refetch()}>
-				<Text>Refresh</Text>
-			</Pressable>
-			<Pressable onPress={() => feed$.reset()}>
-				<Text>Reset</Text>
-			</Pressable>
-			<Pressable onPress={() => feed$.retry({ pending: true })}>
-				<Text>Retry</Text>
-			</Pressable>
-		</View>
-	)
+  return (
+    <View>
+      <Feed posts={feed$.latest([])} />
+      <Text>{feed$.snapshot().refreshing ? 'Refreshing' : feed$.snapshot().status}</Text>
+      <Pressable onPress={() => feed$.refetch()}>
+        <Text>Refresh</Text>
+      </Pressable>
+      <Pressable onPress={() => feed$.reset()}>
+        <Text>Reset</Text>
+      </Pressable>
+      <Pressable onPress={() => feed$.retry({ pending: true })}>
+        <Text>Retry</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -914,14 +914,14 @@ import { Feed } from './Feed'
 
 export function RetryScreen() @{
 @try {
-	<Feed posts={feed$.get()} />
+  <Feed posts={feed$.get()} />
 } @pending {
-	<Spinner />
+  <Spinner />
 } @catch (error, resetBoundary) {
-	<Pressable onPress={() => {
-		feed$.retry({ pending: true })
-		resetBoundary()
-	}}><Text>Retry</Text></Pressable>
+  <Pressable onPress={() => {
+    feed$.retry({ pending: true })
+    resetBoundary()
+  }}><Text>Retry</Text></Pressable>
 }
 }
 ```
@@ -933,12 +933,12 @@ restart the failed request.
 ```tsx
 // Inside the @catch(error, resetBoundary) arm shown above:
 <Pressable
-	onPress={() => {
-		feed$.retry({ pending: true })
-		resetBoundary()
-	}}
+  onPress={() => {
+    feed$.retry({ pending: true })
+    resetBoundary()
+  }}
 >
-	<Text>Retry</Text>
+  <Text>Retry</Text>
 </Pressable>
 ```
 
@@ -953,13 +953,13 @@ data lives in the [shared query cache](#the-shared-query-cache).
 import { feed$ } from './feed'
 
 export async function savePost(id: string, title: string) {
-	const response = await fetch(`/api/posts/${encodeURIComponent(id)}`, {
-		method: 'PATCH',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ title }),
-	})
-	if (!response.ok) throw new Error('Could not save the post')
-	feed$.refetch()
+  const response = await fetch(`/api/posts/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  })
+  if (!response.ok) throw new Error('Could not save the post')
+  feed$.refetch()
 }
 ```
 
@@ -977,26 +977,26 @@ import { signal$, optimistic$, action$, isActionUncertain } from 'octane/signals
 const savedTitle$ = signal$('Packing list')
 const title$ = optimistic$(savedTitle$)
 const saveTitle$ = action$(async (operation, title: string) => {
-	operation.set(title$, title)
-	const response = await fetch('/api/title', {
-		method: 'PUT',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ title }),
-	})
-	if (!response.ok) {
-		operation.reject()
-		throw new Error('Save rejected')
-	}
-	operation.adopt(title) // this endpoint confirms the supplied title
+  operation.set(title$, title)
+  const response = await fetch('/api/title', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title }),
+  })
+  if (!response.ok) {
+    operation.reject()
+    throw new Error('Save rejected')
+  }
+  operation.adopt(title) // this endpoint confirms the supplied title
 })
 
 export async function rename(title: string) {
-	try {
-		await saveTitle$(title)
-	} catch (error) {
-		if (isActionUncertain(error)) console.log('Check the server before retrying')
-		else throw error
-	}
+  try {
+    await saveTitle$(title)
+  } catch (error) {
+    if (isActionUncertain(error)) console.log('Check the server before retrying')
+    else throw error
+  }
 }
 ```
 
@@ -1031,14 +1031,14 @@ import { Spinner, Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function Profile(props: { id: string }) @{
-	const profile$ = query$(
-		() => props.id,
-		(id, { signal }) => api.user.get({ id, signal }),
-	)
-	@try {
-		const user = profile$.get()
-		<Text>{user.name}</Text>
-	} @pending { <Spinner /> }
+  const profile$ = query$(
+    () => props.id,
+    (id, { signal }) => api.user.get({ id, signal }),
+  )
+  @try {
+    const user = profile$.get()
+    <Text>{user.name}</Text>
+  } @pending { <Spinner /> }
 }
 ```
 
@@ -1055,12 +1055,12 @@ import { Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function ProfileName(props: { id: string }) {
-	const profile$ = query$(
-		() => props.id,
-		(id, { signal }) => api.user.get({ id, signal }),
-	)
+  const profile$ = query$(
+    () => props.id,
+    (id, { signal }) => api.user.get({ id, signal }),
+  )
 
-	return <Text>{profile$.latest()?.name ?? 'Loading'}</Text>
+  return <Text>{profile$.latest()?.name ?? 'Loading'}</Text>
 }
 ```
 
@@ -1076,16 +1076,16 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function RefreshProfile(props: { id: string }) {
-	const profile$ = query$(
-		() => props.id,
-		(id, { signal }) => api.user.get({ id, signal }),
-	)
+  const profile$ = query$(
+    () => props.id,
+    (id, { signal }) => api.user.get({ id, signal }),
+  )
 
-	return (
-		<Pressable onPress={() => profile$.refetch()}>
-			<Text>Refresh this profile</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => profile$.refetch()}>
+      <Text>Refresh this profile</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -1103,18 +1103,18 @@ import { Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 function Name(props: {
-	profile$: ReturnType<typeof query$<string, { id: string; name: string }>>
+  profile$: ReturnType<typeof query$<string, { id: string; name: string }>>
 }) {
-	return <Text>{props.profile$.latest()?.name ?? 'Loading'}</Text>
+  return <Text>{props.profile$.latest()?.name ?? 'Loading'}</Text>
 }
 
 export function ProfileWithChild(props: { id: string }) {
-	const profile$ = query$(
-		() => props.id,
-		(id, { signal }) => api.user.get({ id, signal }),
-	)
+  const profile$ = query$(
+    () => props.id,
+    (id, { signal }) => api.user.get({ id, signal }),
+  )
 
-	return <Name profile$={profile$} />
+  return <Name profile$={profile$} />
 }
 ```
 
@@ -1134,20 +1134,20 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { api } from './api'
 
 export function EditableProfile(props: { id: string }) {
-	const id$ = useSignal$(props.id)
-	const profile$ = query$(
-		() => id$.get(),
-		(id, { signal }) => api.user.get({ id, signal }),
-	)
+  const id$ = useSignal$(props.id)
+  const profile$ = query$(
+    () => id$.get(),
+    (id, { signal }) => api.user.get({ id, signal }),
+  )
 
-	return (
-		<>
-			<Text>{profile$.latest()?.name ?? 'Loading'}</Text>
-			<Pressable onPress={() => id$.set('42')}>
-				<Text>Show user 42</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <Text>{profile$.latest()?.name ?? 'Loading'}</Text>
+      <Pressable onPress={() => id$.set('42')}>
+        <Text>Show user 42</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -1166,12 +1166,12 @@ import { useAppState } from '@octane-xplat/platform'
 import { feed$ } from './feed'
 
 export function ResumeRefresh() {
-	const state = useAppState()
-	useEffect(() => {
-		if (state === 'active') feed$.refetch()
-	}, [state])
+  const state = useAppState()
+  useEffect(() => {
+    if (state === 'active') feed$.refetch()
+  }, [state])
 
-	return null
+  return null
 }
 ```
 
@@ -1188,24 +1188,24 @@ import { Button, Text } from '@octane-xplat/ui'
 import { useAsyncList } from '@octane-xplat/ui/data'
 
 export function ItemPages() {
-	const rows = useAsyncList<{ id: string; name: string }>({
-		async load({ cursor, signal }) {
-			const response = await fetch(
-				`https://api.example.com/items?cursor=${encodeURIComponent(cursor ?? '')}`,
-				{ signal },
-			)
-			if (!response.ok) throw new Error('Could not load items')
+  const rows = useAsyncList<{ id: string; name: string }>({
+    async load({ cursor, signal }) {
+      const response = await fetch(
+        `https://api.example.com/items?cursor=${encodeURIComponent(cursor ?? '')}`,
+        { signal },
+      )
+      if (!response.ok) throw new Error('Could not load items')
 
-			return response.json() as Promise<{ items: { id: string; name: string }[]; cursor?: string }>
-		},
-	})
+      return response.json() as Promise<{ items: { id: string; name: string }[]; cursor?: string }>
+    },
+  })
 
-	return <>
-		<Text>{rows.items.map((item) => item.name).join(', ')}</Text>
-		<Button isDisabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
-			{rows.loadingState === 'error' ? 'Retry page' : 'Load more'}
-		</Button>
-	</>
+  return <>
+    <Text>{rows.items.map((item) => item.name).join(', ')}</Text>
+    <Button isDisabled={!rows.hasMore || rows.isLoading} clickAction={() => rows.loadMore()}>
+      {rows.loadingState === 'error' ? 'Retry page' : 'Load more'}
+    </Button>
+  </>
 }
 ```
 
@@ -1218,11 +1218,11 @@ import { Button } from '@octane-xplat/ui'
 import { useTreeData } from '@octane-xplat/ui/data'
 
 export function ArchiveDrafts() {
-	const folders = useTreeData({
-		initialItems: [{ id: 'archive' }, { id: 'drafts', children: [{ id: 'note' }] }],
-	})
+  const folders = useTreeData({
+    initialItems: [{ id: 'archive' }, { id: 'drafts', children: [{ id: 'note' }] }],
+  })
 
-	return <Button clickAction={() => folders.move('drafts', 'archive', 0)}>Archive drafts</Button>
+  return <Button clickAction={() => folders.move('drafts', 'archive', 0)}>Archive drafts</Button>
 }
 ```
 
@@ -1243,7 +1243,7 @@ import { Text } from '@octane-xplat/ui'
 export const user$ = signal$('Alex')
 
 export function UserName() {
-	return <Text>{user$.get()}</Text>
+  return <Text>{user$.get()}</Text>
 }
 ```
 
@@ -1258,7 +1258,7 @@ import { user$ } from './UserName'
 import { Text } from '@octane-xplat/ui'
 
 export function Welcome() {
-	return <Text>{user$.get()}</Text>
+  return <Text>{user$.get()}</Text>
 }
 ```
 
@@ -1270,13 +1270,13 @@ import { useSignal$ } from 'octane/signals/client'
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function Count() {
-	const count$ = useSignal$(0)
+  const count$ = useSignal$(0)
 
-	return (
-		<Pressable onPress={() => count$.set(count$.get() + 1)}>
-			<Text>{String(count$.get())}</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable onPress={() => count$.set(count$.get() + 1)}>
+      <Text>{String(count$.get())}</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -1296,9 +1296,9 @@ import { createStore, useStore } from '@octane-xplat/ui/data'
 const store = createStore({ name: 'Alex' })
 
 export function StoredName() {
-	const value = useStore(store)
+  const value = useStore(store)
 
-	return <Text>{value.name}</Text>
+  return <Text>{value.name}</Text>
 }
 // Renames the store and re-renders every subscriber.
 store.update((prev) => ({ ...prev, name: 'Sam' }))
@@ -1329,11 +1329,11 @@ a screen-owned `query$` fits independent requests. For loader behavior, see [rou
 import { Text } from '@octane-xplat/ui'
 
 export async function loader() {
-	return { title: 'Packing list' }
+  return { title: 'Packing list' }
 }
 
 export default function PackingPage(props: { data?: { title: string }; error?: unknown }) {
-	return <Text>{props.error ? 'Could not load the page' : (props.data?.title ?? 'Loading')}</Text>
+  return <Text>{props.error ? 'Could not load the page' : (props.data?.title ?? 'Loading')}</Text>
 }
 ```
 

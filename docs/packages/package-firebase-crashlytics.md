@@ -31,10 +31,10 @@ from a test action:
 import { crashlytics } from '@octane-xplat/firebase-crashlytics'
 
 export async function reportTestError() {
-	if (!crashlytics.supported) return
-	await crashlytics.setAttribute('scenario', 'documentation-example')
-	crashlytics.log('Sending a handled test error')
-	crashlytics.recordError(new Error('Xplat documentation test'))
+  if (!crashlytics.supported) return
+  await crashlytics.setAttribute('scenario', 'documentation-example')
+  crashlytics.log('Sending a handled test error')
+  crashlytics.recordError(new Error('Xplat documentation test'))
 }
 ```
 

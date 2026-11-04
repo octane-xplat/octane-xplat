@@ -15,8 +15,8 @@ click-to-edit reports the query once and readonly fields omit clear actions.
 import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
 export function Assignee() {
-	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
-		hasEntriesOnFocus accessibilityLabel="Assignee" />
+  return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+    hasEntriesOnFocus accessibilityLabel="Assignee" />
 }
 ```
 
@@ -42,8 +42,8 @@ ordinary input and closed Escape stay with the native/default layer owner.
 import { BaseTypeahead, createStaticSource } from '@octane-xplat/ui'
 const people = createStaticSource([{ id: 'ada', label: 'Ada' }])
 export function Person() {
-	return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
-		hasEntriesOnFocus accessibilityLabel="Person" />
+  return <BaseTypeahead searchSource={people} value={null} onChange={() => {}}
+    hasEntriesOnFocus accessibilityLabel="Person" />
 }
 ```
 
@@ -105,7 +105,7 @@ count from reserving its own space after resizing.
 
 ```tsx
 <Tokenizer label="Tags" width={240} searchSource={source} value={tags}
-	onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
+  onChange={setTags} tokenOverflowBehavior="unfocusedInline" />
 ```
 
 Requires the renderer's native overflow clipping path. Eight geometry/five
@@ -127,7 +127,7 @@ identity changes and never calls makeFirstResponder.
 
 ```tsx
 <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
-	hasEntriesOnFocus accessibilityLabel="Choose a person" />
+  hasEntriesOnFocus accessibilityLabel="Choose a person" />
 ```
 
 Unrelated baseline links are preserved; close/block/ref/window changes restore
@@ -151,7 +151,7 @@ reveal after rows mount, using current input/editor/window ownership.
 
 ```tsx
 <BaseTypeahead searchSource={people} value={person} onChange={setPerson}
-	hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
+  hasEntriesOnFocus menuWidth={280} placement="bottom" accessibilityLabel="Person" />
 ```
 
 Require the matching renderer source-outlet/staged-window-layer contract; do not
@@ -177,7 +177,7 @@ editors. Named anchors are preserved but not resolved by the built-in matcher.
 ```ts
 import type { DateTimeRange } from '@octane-xplat/ui'
 const range: DateTimeRange = {
-	start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
+  start: { type: 'RELATIVE', backValue: 7, unit: 'day' }, end: { type: 'NOW' },
 }
 ```
 
@@ -200,7 +200,7 @@ Client-side applyFilters still passes entity values through; apps own matching.
 ```ts
 import type { EntityListOperatorValue } from '@octane-xplat/ui'
 const tags: EntityListOperatorValue = {
-	type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
+  type: 'entity_list', isArbitraryStringAllowed: true, tokenization: {},
 }
 ```
 
@@ -235,7 +235,7 @@ displayed, with dot decimal notation (locale numeric parsing remains unsupported
 ```ts
 import type { IntegerOperatorValue } from '@octane-xplat/ui'
 const year: IntegerOperatorValue = {
-	type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year',
+  type: 'integer', minValue: 1800, maxValue: 2100, units: 'publication year',
 }
 ```
 

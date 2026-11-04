@@ -32,7 +32,7 @@ import { getTrackingPermissionsAsync, requestTrackingPermissionsAsync } from '@o
 
 const permission = await getTrackingPermissionsAsync()
 export async function requestFromButton() {
-	return requestTrackingPermissionsAsync()
+  return requestTrackingPermissionsAsync()
 }
 ```
 
@@ -46,7 +46,7 @@ and real ATT choices/device IDs require separate target qualification.
 import { getAdvertisingIdAsync } from '@octane-xplat/tracking-transparency'
 
 export async function withFreshIdentifier(consume: (id: string) => Promise<void>) {
-	const id = await getAdvertisingIdAsync()
-	if (id !== null) await consume(id)
+  const id = await getAdvertisingIdAsync()
+  if (id !== null) await consume(id)
 }
 ```

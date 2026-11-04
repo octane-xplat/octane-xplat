@@ -27,30 +27,30 @@ and host separate Vite builds. Paths are relative to the app root:
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"renderer": "webview",
-				"runtime": "appkit-node-api",
-				"dev": {
-					"webViteConfig": "vite.webview.config.mjs",
-					"hostViteConfig": "vite.webview-host.config.mjs",
-					"hostBundleFile": "dist/webview-host/host.cjs"
-				},
-				"package": {
-					"productName": "Example",
-					"bundleIdentifier": "com.example.app",
-					"executableName": "Example",
-					"version": "1.0.0",
-					"minimumSystemVersion": "13.5",
-					"webViteConfig": "vite.webview.config.mjs",
-					"hostViteConfig": "vite.webview-host.config.mjs",
-					"hostBundleFile": "dist/webview-host/host.cjs",
-					"webOutDir": "dist/web"
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "renderer": "webview",
+        "runtime": "appkit-node-api",
+        "dev": {
+          "webViteConfig": "vite.webview.config.mjs",
+          "hostViteConfig": "vite.webview-host.config.mjs",
+          "hostBundleFile": "dist/webview-host/host.cjs"
+        },
+        "package": {
+          "productName": "Example",
+          "bundleIdentifier": "com.example.app",
+          "executableName": "Example",
+          "version": "1.0.0",
+          "minimumSystemVersion": "13.5",
+          "webViteConfig": "vite.webview.config.mjs",
+          "hostViteConfig": "vite.webview-host.config.mjs",
+          "hostBundleFile": "dist/webview-host/host.cjs",
+          "webOutDir": "dist/web"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -84,18 +84,18 @@ interfaces. Extend the framework maps for app-defined services:
 
 ```ts
 import type {
-	FrameworkHostEvents,
-	FrameworkHostServices,
+  FrameworkHostEvents,
+  FrameworkHostServices,
 } from '@octane-xplat/platform/host/services'
 
 export interface AppServices extends FrameworkHostServices {
-	account: {
-		load(id: string): Promise<{ id: string; name: string } | null>
-	}
+  account: {
+    load(id: string): Promise<{ id: string; name: string } | null>
+  }
 }
 
 export interface AppEvents extends FrameworkHostEvents {
-	'account.changed': { id: string }
+  'account.changed': { id: string }
 }
 ```
 
@@ -112,31 +112,31 @@ rejected calls.
 ```ts
 // Continue with AppServices and AppEvents above.
 import {
-	createHostClient,
-	createHostDispatcher,
-	type HostTransport,
-	type HostReplyPort,
+  createHostClient,
+  createHostDispatcher,
+  type HostTransport,
+  type HostReplyPort,
 } from '@octane-xplat/platform/host'
 
 export function frontend(transport: HostTransport) {
-	const client = createHostClient<AppServices, AppEvents>(transport)
-	const off = client.on('account.changed', (event) => console.log(event.id))
+  const client = createHostClient<AppServices, AppEvents>(transport)
+  const off = client.on('account.changed', (event) => console.log(event.id))
 
-	return {
-		load: (id: string) => client.call('account', 'load', id),
-		capabilities: () => client.capabilities(),
-		dispose: () => {
-			off()
-			client.dispose()
-		},
-	}
+  return {
+    load: (id: string) => client.call('account', 'load', id),
+    capabilities: () => client.capabilities(),
+    dispose: () => {
+      off()
+      client.dispose()
+    },
+  }
 }
 
 export function host(services: AppServices, port: HostReplyPort) {
-	const dispatcher = createHostDispatcher<AppServices, AppEvents>(services, port)
-	dispatcher.emit('account.changed', { id: '42' })
+  const dispatcher = createHostDispatcher<AppServices, AppEvents>(services, port)
+  dispatcher.emit('account.changed', { id: '42' })
 
-	return dispatcher
+  return dispatcher
 }
 ```
 
@@ -175,11 +175,11 @@ const url = 'https://example.com'
 const accepted = openUrl(url)
 const client = desktopHostClient()
 if (client) {
-	try {
-		console.log(await client.call('system', 'openUrl', url))
-	} catch {
-		console.log('Could not open the link')
-	}
+  try {
+    console.log(await client.call('system', 'openUrl', url))
+  } catch {
+    console.log('Could not open the link')
+  }
 }
 ```
 
@@ -204,18 +204,18 @@ adapter reports `undeclared` honestly rather than crashing:
 
 ```json
 {
-	"xplat": {
-		"targets": {
-			"macos": {
-				"package": {
-					"infoPlist": {
-						"NSCameraUsageDescription": "This app records video with the camera.",
-						"NSMicrophoneUsageDescription": "This app records audio with your video."
-					}
-				}
-			}
-		}
-	}
+  "xplat": {
+    "targets": {
+      "macos": {
+        "package": {
+          "infoPlist": {
+            "NSCameraUsageDescription": "This app records video with the camera.",
+            "NSMicrophoneUsageDescription": "This app records audio with your video."
+          }
+        }
+      }
+    }
+  }
 }
 ```
 

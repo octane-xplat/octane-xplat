@@ -110,9 +110,9 @@ that its component model supplies Xplat's structured props.
 ```ts
 const parseSearch = (raw: { page?: unknown }) => ({ page: Number(raw.page ?? 1) })
 const paged = defineRoute({
-	path: '/pages',
-	loader: ({ search }) => search.page,
-	validateSearch: parseSearch,
+  path: '/pages',
+  loader: ({ search }) => search.page,
+  validateSearch: parseSearch,
 }).screen(({ data }) => String(data))
 ```
 
@@ -125,9 +125,9 @@ the impossible `never` value type of a dictionary with no allowed values.
 ```ts
 interface Owner { id: string }
 const owned = defineRoute({
-	path: '/owned',
-	beforeLoad: async (): Promise<Owner> => ({ id: 'local' }),
-	loader: ({ context }) => context.id,
+  path: '/owned',
+  beforeLoad: async (): Promise<Owner> => ({ id: 'local' }),
+  loader: ({ context }) => context.id,
 }).screen(({ data }) => data)
 ```
 
@@ -177,7 +177,7 @@ an ordinary callable signature. Async parsers preserve their awaited interface.
 ```ts
 interface Search { page: number }
 function validateSearch(raw: { page?: unknown }): Search {
-	return { page: Number(raw.page ?? 1) }
+  return { page: Number(raw.page ?? 1) }
 }
 ```
 
@@ -238,7 +238,7 @@ facade; explicit providers require their own instance in typed hooks.
 ```ts
 const match = navigation.getSnapshot().route
 if (match?.contract === 'declared' && match.to === '/items/:id') {
-	const title: string = match.data.title
+  const title: string = match.data.title
 }
 const item = getRouteApi('/items/:id', navigation)
 // Inside that screen: item.useLoaderData() returns the inferred DTO.
@@ -299,10 +299,10 @@ stack name into an escape from the owning flow.
 ```tsx
 const item = getRouteApi('/items/:id', navigation)
 function Filter() {
-	const updateSearch = item.useUpdateSearch()
-	return <Button label="Activity" clickAction={() => {
-		void updateSearch(previous => ({ ...previous, tab: 'activity' }))
-	}} />
+  const updateSearch = item.useUpdateSearch()
+  return <Button label="Activity" clickAction={() => {
+    void updateSearch(previous => ({ ...previous, tab: 'activity' }))
+  }} />
 }
 ```
 
@@ -345,8 +345,8 @@ is introduced. Real DOM/native link fixtures preserve this supported boundary.
 
 ```tsx
 checked.status === 'valid'
-	? <NavLink router={navigation} to={checked.destination}>Open</NavLink>
-	: null
+  ? <NavLink router={navigation} to={checked.destination}>Open</NavLink>
+  : null
 ```
 
 ## Composed navigation boundaries
@@ -364,7 +364,7 @@ and turn valid route params into `Record<string, never>`.
 import type { DestinationFor } from '@octane-xplat/ui/routing/core'
 // Internal type pattern; C is inferred only from an explicit router instance.
 type CheckedInputs<C, S extends string, T extends string> =
-	DestinationFor<NoInfer<C>, NoInfer<keyof C & string>, NoInfer<S>, NoInfer<T>>
+  DestinationFor<NoInfer<C>, NoInfer<keyof C & string>, NoInfer<S>, NoInfer<T>>
 ```
 
 Typed literal destinations under a custom provider require that instance as a
@@ -377,7 +377,7 @@ unchanged-prop native rows. URL/action items need no routing provider.
 import { SideNavItem } from '@octane-xplat/ui'
 import type { ValidatedDestination } from '@octane-xplat/ui/routing'
 function Suggested(props: { destination: ValidatedDestination }) {
-	return <SideNavItem label="Open" to={props.destination} />
+  return <SideNavItem label="Open" to={props.destination} />
 }
 ```
 
@@ -395,7 +395,7 @@ and `useCanGoBack()`; typed route-data UI passes its instance explicitly.
 import { Text } from '@octane-xplat/ui'
 import { useNavigation } from '@octane-xplat/ui/routing'
 function Status() {
-	return <Text>{useNavigation().status}</Text>
+  return <Text>{useNavigation().status}</Text>
 }
 ```
 
@@ -425,7 +425,7 @@ boundary by themselves.
 ```tsx
 import { RouteOutlet, Text } from '@octane-xplat/ui'
 function OwnedRoutes(props: { visible: boolean }) {
-	return props.visible ? <RouteOutlet /> : <Text>Closed</Text>
+  return props.visible ? <RouteOutlet /> : <Text>Closed</Text>
 }
 ```
 
@@ -442,7 +442,7 @@ existing bounded restoration timeout still applies.
 ```tsx
 // A component key gives the entire owned subtree a new lifetime.
 function OwnedRoutes(props: { version: number }) {
-	return <RouteOutlet key={props.version} />
+  return <RouteOutlet key={props.version} />
 }
 ```
 
@@ -651,8 +651,8 @@ and missing-data diagnostics retain their existing behavior.
 
 ```ts
 const catalog = defineRoutes({
-	routes: [{ path: '/help', dataMode: 'baked', screen: Help }],
-	baked: { help: { title: 'Help' } },
+  routes: [{ path: '/help', dataMode: 'baked', screen: Help }],
+  baked: { help: { title: 'Help' } },
 })
 // ContractsOf<typeof catalog>['/help']['data'] is inferred from baked.help.
 ```
@@ -724,7 +724,7 @@ Interactive sheets remain in the separate overlay API.
 import { router } from '@octane-xplat/ui/routing'
 const result = await router.dismiss()
 if (result.status === 'forbidden') {
-	// Keep the modal while the application restores access, then retry.
+  // Keep the modal while the application restores access, then retry.
 }
 ```
 
@@ -771,10 +771,10 @@ may have no known destination before the host selects it.
 import { Button } from '@octane-xplat/ui'
 import { useNavigationBlocker } from '@octane-xplat/ui/routing'
 function Confirmation(props: { dirty: boolean }) {
-	const blocker = useNavigationBlocker({ when: props.dirty })
-	return blocker.status === 'blocked'
-		? <Button label="Keep editing" clickAction={blocker.reset} />
-		: null
+  const blocker = useNavigationBlocker({ when: props.dirty })
+  return blocker.status === 'blocked'
+    ? <Button label="Keep editing" clickAction={blocker.reset} />
+    : null
 }
 ```
 
@@ -845,8 +845,8 @@ AppKit modal animations return an explicit skipped result.
 import { Button } from '@octane-xplat/ui'
 import { useRouter } from '@octane-xplat/ui/routing'
 function ModalClose() {
-	const navigation = useRouter()
-	return <Button label="Close" clickAction={() => { void navigation.dismiss() }} />
+  const navigation = useRouter()
+  return <Button label="Close" clickAction={() => { void navigation.dismiss() }} />
 }
 ```
 

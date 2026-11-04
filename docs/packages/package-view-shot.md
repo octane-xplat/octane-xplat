@@ -32,30 +32,30 @@ import { Button, Text, VStack } from '@octane-xplat/ui'
 import ViewShot, { releaseCapture, type ViewShotRef } from '@octane-xplat/view-shot'
 
 export function CaptureCard() {
-	const card = useRef<ViewShotRef | null>(null)
-	const [status, setStatus] = useState('Ready')
-	async function save() {
-		let uri: string | undefined
-		try {
-			if (!card.current) return
-			uri = await card.current.capture()
-			// Await your sharing or saving operation here, using uri.
-			setStatus('Card image created')
-		} catch (error) {
-			setStatus(String(error))
-		} finally {
-			if (uri) releaseCapture(uri)
-		}
-	}
-	return (
-		<VStack>
-			<ViewShot ref={card} options={{ format: 'png', result: 'tmpfile' }}>
-				<Text>Trip to the coast</Text>
-			</ViewShot>
-			<Button label="Capture card" clickAction={() => void save()} />
-			<Text>{status}</Text>
-		</VStack>
-	)
+  const card = useRef<ViewShotRef | null>(null)
+  const [status, setStatus] = useState('Ready')
+  async function save() {
+    let uri: string | undefined
+    try {
+      if (!card.current) return
+      uri = await card.current.capture()
+      // Await your sharing or saving operation here, using uri.
+      setStatus('Card image created')
+    } catch (error) {
+      setStatus(String(error))
+    } finally {
+      if (uri) releaseCapture(uri)
+    }
+  }
+  return (
+    <VStack>
+      <ViewShot ref={card} options={{ format: 'png', result: 'tmpfile' }}>
+        <Text>Trip to the coast</Text>
+      </ViewShot>
+      <Button label="Capture card" clickAction={() => void save()} />
+      <Text>{status}</Text>
+    </VStack>
+  )
 }
 ```
 
@@ -69,9 +69,9 @@ import { Text } from '@octane-xplat/ui'
 import ViewShot from '@octane-xplat/view-shot'
 
 export function SizedCard() {
-	return <ViewShot style={{ width: 320, height: 180 }}>
-		<Text>Ready to capture</Text>
-	</ViewShot>
+  return <ViewShot style={{ width: 320, height: 180 }}>
+    <Text>Ready to capture</Text>
+  </ViewShot>
 }
 ```
 
@@ -86,12 +86,12 @@ keeps an image alive until its consumer finishes.
 import { captureRef, releaseCapture, type CaptureTarget } from '@octane-xplat/view-shot'
 
 export async function exportCard(target: CaptureTarget) {
-	const uri = await captureRef(target, { format: 'png', width: 640, height: 360 })
-	try {
-		// Await the operation that reads uri here.
-	} finally {
-		releaseCapture(uri)
-	}
+  const uri = await captureRef(target, { format: 'png', width: 640, height: 360 })
+  try {
+    // Await the operation that reads uri here.
+  } finally {
+    releaseCapture(uri)
+  }
 }
 ```
 
@@ -106,7 +106,7 @@ hosts and an owned blob URL on web; it is temporary, not durable storage.
 import { captureRef, type CaptureTarget } from '@octane-xplat/view-shot'
 
 export function inlineCard(target: CaptureTarget) {
-	return captureRef(target, { format: 'png', result: 'data-uri' })
+  return captureRef(target, { format: 'png', result: 'data-uri' })
 }
 ```
 
@@ -119,13 +119,13 @@ screen capture action; any individual operation can still reject.
 import { captureScreen, releaseCapture, viewShot } from '@octane-xplat/view-shot'
 
 export async function consumeAppScreen(consume: (uri: string) => Promise<void>) {
-	if (!viewShot.capabilities.screen) return
-	const uri = await captureScreen({ format: 'png' })
-	try {
-		await consume(uri)
-	} finally {
-		releaseCapture(uri)
-	}
+  if (!viewShot.capabilities.screen) return
+  const uri = await captureScreen({ format: 'png' })
+  try {
+    await consume(uri)
+  } finally {
+    releaseCapture(uri)
+  }
 }
 ```
 
@@ -143,14 +143,14 @@ import { Text } from '@octane-xplat/ui'
 import ViewShot from '@octane-xplat/view-shot'
 
 export function AutomaticCard() {
-	return <ViewShot
-		captureMode="mount"
-		options={{ format: 'png' }}
-		onCapture={(uri) => console.log('Temporary card ready')}
-		onCaptureFailure={(error) => console.log(error.message)}
-	>
-		<Text>Ready on mount</Text>
-	</ViewShot>
+  return <ViewShot
+    captureMode="mount"
+    options={{ format: 'png' }}
+    onCapture={(uri) => console.log('Temporary card ready')}
+    onCaptureFailure={(error) => console.log(error.message)}
+  >
+    <Text>Ready on mount</Text>
+  </ViewShot>
 }
 ```
 
@@ -163,8 +163,8 @@ is released and the promise rejects. Inline strings need no resource cleanup.
 import { releaseCapture } from '@octane-xplat/view-shot'
 
 export function discardCapture(uri: string) {
-	releaseCapture(uri)
-	releaseCapture(uri) // Already released: safe.
+  releaseCapture(uri)
+  releaseCapture(uri) // Already released: safe.
 }
 ```
 
@@ -218,7 +218,7 @@ import { captureRef, type CaptureTarget } from '@octane-xplat/view-shot'
 
 // The receiving owner must eventually call releaseCapture on the returned URI.
 export function captureCardFile(target: CaptureTarget) {
-	return captureRef(target, { format: 'png', result: 'tmpfile' })
+  return captureRef(target, { format: 'png', result: 'tmpfile' })
 }
 ```
 

@@ -4,13 +4,13 @@ On macOS, an Objective-C method implemented in JavaScript — a delegate or `NSO
 
 ```js
 const Delegate = NSObject.extend(
-	{
-		didRun: function (success) {
-			// Now runs on the main thread even when AppKit invokes it on the
-			// spawned print thread — previously the process crashed here.
-		},
-	},
-	{ exposedMethods: { didRun: { returns: interop.types.void } } },
+  {
+    didRun: function (success) {
+      // Now runs on the main thread even when AppKit invokes it on the
+      // spawned print thread — previously the process crashed here.
+    },
+  },
+  { exposedMethods: { didRun: { returns: interop.types.void } } },
 )
 ```
 

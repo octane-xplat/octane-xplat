@@ -20,12 +20,12 @@ import { RichTextEditor, supported } from '@octane-xplat/richtext'
 import { Text } from '@octane-xplat/ui'
 
 export function Notes() {
-	const [html, setHtml] = useState('<p>Trip notes</p>')
-	return supported ? (
-		<RichTextEditor value={html} onChange={setHtml} />
-	) : (
-		<Text>Editing is unavailable on this target</Text>
-	)
+  const [html, setHtml] = useState('<p>Trip notes</p>')
+  return supported ? (
+    <RichTextEditor value={html} onChange={setHtml} />
+  ) : (
+    <Text>Editing is unavailable on this target</Text>
+  )
 }
 ```
 
@@ -51,34 +51,34 @@ import { RichTextEditor, type RichTextEditorHandle } from '@octane-xplat/richtex
 import { Button } from '@octane-xplat/ui'
 
 export function Formatting() {
-	const editor = useRef<RichTextEditorHandle | null>(null)
-	return (
-		<>
-			<RichTextEditor
-				ref={(handle) => {
-					editor.current = handle
-				}}
-				onSelectionChange={({ active }) => console.log(active)}
-			/>
-			<Button clickAction={() => editor.current?.apply('bold')}>Bold</Button>
-			<Button
-				clickAction={() => {
-					const handle = editor.current
-					if (!handle) return
-					handle.setHTML('<p>New note</p>')
-					console.log(handle.getHTML(), handle.isActive('bold'))
-					handle.linkTo('https://example.com')
-					handle.removeLink()
-					handle.undo()
-					handle.redo()
-					handle.focus()
-					handle.blur()
-				}}
-			>
-				Try editor commands
-			</Button>
-		</>
-	)
+  const editor = useRef<RichTextEditorHandle | null>(null)
+  return (
+    <>
+      <RichTextEditor
+        ref={(handle) => {
+          editor.current = handle
+        }}
+        onSelectionChange={({ active }) => console.log(active)}
+      />
+      <Button clickAction={() => editor.current?.apply('bold')}>Bold</Button>
+      <Button
+        clickAction={() => {
+          const handle = editor.current
+          if (!handle) return
+          handle.setHTML('<p>New note</p>')
+          console.log(handle.getHTML(), handle.isActive('bold'))
+          handle.linkTo('https://example.com')
+          handle.removeLink()
+          handle.undo()
+          handle.redo()
+          handle.focus()
+          handle.blur()
+        }}
+      >
+        Try editor commands
+      </Button>
+    </>
+  )
 }
 ```
 

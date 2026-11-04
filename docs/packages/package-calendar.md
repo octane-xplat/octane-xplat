@@ -24,10 +24,10 @@ example uses actual dates and performs no writes:
 import { calendar } from '@octane-xplat/calendar'
 
 export async function upcomingEvents() {
-	if (!calendar.supported || (await calendar.ensure()) !== 'granted') return []
-	const start = new Date()
-	const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000)
-	return calendar.getEvents(start, end)
+  if (!calendar.supported || (await calendar.ensure()) !== 'granted') return []
+  const start = new Date()
+  const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000)
+  return calendar.getEvents(start, end)
 }
 ```
 

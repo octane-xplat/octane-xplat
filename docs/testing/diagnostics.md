@@ -133,20 +133,20 @@ an empty log page with a candidate native crash report:
 
 ```json
 {
-	"sessionId": "sess_123",
-	"logs": { "records": [], "nextCursor": 42 },
-	"reports": [
-		{
-			"id": "report_456",
-			"kind": "native-crash",
-			"summary": "EXC_CRASH (SIGABRT)",
-			"association": "candidate"
-		}
-	],
-	"coverage": {
-		"logs": "captured",
-		"nativeReports": { "status": "available", "detail": "Local Apple .ips crash reports only." }
-	}
+  "sessionId": "sess_123",
+  "logs": { "records": [], "nextCursor": 42 },
+  "reports": [
+    {
+      "id": "report_456",
+      "kind": "native-crash",
+      "summary": "EXC_CRASH (SIGABRT)",
+      "association": "candidate"
+    }
+  ],
+  "coverage": {
+    "logs": "captured",
+    "nativeReports": { "status": "available", "detail": "Local Apple .ips crash reports only." }
+  }
 }
 ```
 

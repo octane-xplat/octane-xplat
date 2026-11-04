@@ -62,15 +62,15 @@ import { Text } from '@octane-xplat/ui'
 import type { RouteLoaderArgs, RouteProps } from '../../routes.gen.contracts'
 
 export function validateSearch(raw: { tab?: unknown }) {
-	const tab = raw.tab ?? 'details'
-	if (tab !== 'details' && tab !== 'activity') throw new TypeError('Invalid tab')
-	return { tab } as const
+  const tab = raw.tab ?? 'details'
+  if (tab !== 'details' && tab !== 'activity') throw new TypeError('Invalid tab')
+  return { tab } as const
 }
 export function loader({ params, search }: RouteLoaderArgs<'/items/:id'>) {
-	return { title: params.id, tab: search.tab }
+  return { title: params.id, tab: search.tab }
 }
 export function screen(props: RouteProps<'/items/:id'>) {
-	return <Text>{props.data.title}</Text>
+  return <Text>{props.data.title}</Text>
 }
 ```
 
@@ -85,7 +85,7 @@ Only scalar fields and arrays of scalars can be encoded in destinations.
 import { withSearchDecoder } from '@octane-xplat/ui/routing/core'
 import { pageSchema } from './schemas'
 export const validateSearch = withSearchDecoder(pageSchema, raw => ({
-	page: raw.page === undefined ? undefined : Number(raw.page),
+  page: raw.page === undefined ? undefined : Number(raw.page),
 }))
 ```
 
@@ -107,24 +107,24 @@ import { Text } from '@octane-xplat/ui'
 import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
 function Guide(props: { data: { title: string; page: number } }) { return <Text>{props.data.title}</Text> }
 export const guideRoutes = defineRoutes([
-	defineRoute({
-		path: '/guides/:slug',
-		validateSearch(raw: { page?: unknown }) {
-			const page = Number(raw.page ?? 1)
-			if (!Number.isInteger(page) || page < 1) throw new TypeError('Invalid page')
-			return { page }
-		},
-		beforeLoad: ({ params }) => ({ section: params.slug }),
-		loader: ({ search, context }) => ({ title: context.section, page: search.page }),
-	}).screen(Guide),
+  defineRoute({
+    path: '/guides/:slug',
+    validateSearch(raw: { page?: unknown }) {
+      const page = Number(raw.page ?? 1)
+      if (!Number.isInteger(page) || page < 1) throw new TypeError('Invalid page')
+      return { page }
+    },
+    beforeLoad: ({ params }) => ({ section: params.slug }),
+    loader: ({ search, context }) => ({ title: context.section, page: search.page }),
+  }).screen(Guide),
 ])
 ```
 
 ```json
 {
-	"directory": "src/app",
-	"manifests": [{ "module": "./src/guides.tsx", "export": "guideRoutes" }],
-	"stacks": ["library", "settings"]
+  "directory": "src/app",
+  "manifests": [{ "module": "./src/guides.tsx", "export": "guideRoutes" }],
+  "stacks": ["library", "settings"]
 }
 ```
 
@@ -154,7 +154,7 @@ import { routes } from './routes.gen.catalog.web'
 import { createRouter } from '@octane-xplat/ui/routing/core'
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
 export function createWebNavigation(host: RouterHost) {
-	return createRouter({ catalog: routes, host })
+  return createRouter({ catalog: routes, host })
 }
 ```
 
@@ -173,10 +173,10 @@ import { SideNavItem, DropdownMenu, TabList, Tab } from '@octane-xplat/ui'
 
 const item = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }} />
 const menu = <DropdownMenu button={{ label: 'Items' }} items={[
-	{ type: 'link', key: 'coat', label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
+  { type: 'link', key: 'coat', label: 'Coat', to: '/items/:id', params: { id: 'coat' } },
 ]} />
 const tabs = <TabList value="coat" onChange={() => {}}>
-	<Tab value="coat" label="Coat" to="/items/:id" params={{ id: 'coat' }} />
+  <Tab value="coat" label="Coat" to="/items/:id" params={{ id: 'coat' }} />
 </TabList>
 ```
 
@@ -190,5 +190,5 @@ owner's flow. Callback `preventDefault()` cancels activation and menu closing.
 import { SideNavItem } from '@octane-xplat/ui'
 
 const paused = <SideNavItem label="Coat" to="/items/:id" params={{ id: 'coat' }}
-	onClick={event => event.preventDefault()} />
+  onClick={event => event.preventDefault()} />
 ```

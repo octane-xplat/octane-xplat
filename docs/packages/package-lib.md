@@ -27,21 +27,21 @@ so accessibility state objects are compared by identity.
 
 ```ts
 import {
-	pickAccessibilityProps,
-	pickLayoutChildProps,
-	equalAccessibilityProps,
-	equalLayoutChildProps,
+  pickAccessibilityProps,
+  pickLayoutChildProps,
+  equalAccessibilityProps,
+  equalLayoutChildProps,
 } from '@octane-xplat/lib'
 
 const props = { accessibilityLabel: 'Pages', row: 0, style: { height: 200 } }
 const forwarded = {
-	...pickAccessibilityProps(props),
-	...pickLayoutChildProps(props),
-	style: props.style,
+  ...pickAccessibilityProps(props),
+  ...pickLayoutChildProps(props),
+  style: props.style,
 }
 const next = { ...props, row: 1 }
 const sameGroups =
-	equalAccessibilityProps(props, next) && equalLayoutChildProps(props, next)
+  equalAccessibilityProps(props, next) && equalLayoutChildProps(props, next)
 // sameGroups is false; forwarded.row remains 0.
 ```
 

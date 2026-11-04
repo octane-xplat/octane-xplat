@@ -4,12 +4,12 @@ On macOS, an Objective-C completion or decision handler passed into a JavaScript
 
 ```js
 const Delegate = NSObject.extend(
-	{
-		webViewDecidePolicyForNavigationActionDecisionHandler(wv, action, handler) {
-			pending = handler // Now safe to call later — previously it dangled
-		},
-	},
-	{ protocols: [WKNavigationDelegate] },
+  {
+    webViewDecidePolicyForNavigationActionDecisionHandler(wv, action, handler) {
+      pending = handler // Now safe to call later — previously it dangled
+    },
+  },
+  { protocols: [WKNavigationDelegate] },
 )
 ```
 

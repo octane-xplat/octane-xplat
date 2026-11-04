@@ -12,7 +12,7 @@ import { storage } from '@octane-xplat/platform'
 
 storage.setString('session-token', token)
 if (!storage.flush()) {
-	// The write is readable now but may not survive a hard kill — retry or warn.
+  // The write is readable now but may not survive a hard kill — retry or warn.
 }
 ```
 

@@ -38,21 +38,21 @@ Add the Linux target to `package.json` with the `gtk` runtime:
 
 ```json
 {
-	"version": "1.0.0",
-	"scripts": { "build": "xplat build --targets linux" },
-	"xplat": {
-		"targets": {
-			"linux": {
-				"runtime": "gtk",
-				"package": {
-					"applicationId": "com.example.MyApp",
-					"productName": "My App",
-					"executableName": "my-app",
-					"viteConfig": "vite.gtk.config.ts"
-				}
-			}
-		}
-	}
+  "version": "1.0.0",
+  "scripts": { "build": "xplat build --targets linux" },
+  "xplat": {
+    "targets": {
+      "linux": {
+        "runtime": "gtk",
+        "package": {
+          "applicationId": "com.example.MyApp",
+          "productName": "My App",
+          "executableName": "my-app",
+          "viteConfig": "vite.gtk.config.ts"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -174,7 +174,7 @@ control's identity; `testID` names are for automation and do not replace it.
 /** @jsxImportSource @octane-xplat/jsx */
 import { TextInput } from '@octane-xplat/ui'
 export function Account() {
-	return <TextInput id="account" testID="account-editor" label="Account" />
+  return <TextInput id="account" testID="account-editor" label="Account" />
 }
 ```
 
@@ -187,26 +187,26 @@ import type { HostElement } from '@octane-xplat/jsx/intrinsics'
 import { Pressable, Text, View } from '@octane-xplat/ui'
 
 export function FocusableField() {
-	const field = useRef<HostElement | null>(null)
-	return (
-		<View>
-			<textfield ref={field} text="Copy this text" editable={false} />
-			<Pressable
-				onPress={() => {
-					field.current?.focus()
-				}}
-			>
-				<Text>Focus the field</Text>
-			</Pressable>
-			<Pressable
-				onPress={() => {
-					field.current?.blur()
-				}}
-			>
-				<Text>Release focus</Text>
-			</Pressable>
-		</View>
-	)
+  const field = useRef<HostElement | null>(null)
+  return (
+    <View>
+      <textfield ref={field} text="Copy this text" editable={false} />
+      <Pressable
+        onPress={() => {
+          field.current?.focus()
+        }}
+      >
+        <Text>Focus the field</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          field.current?.blur()
+        }}
+      >
+        <Text>Release focus</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -675,15 +675,15 @@ unrelated top-level window has no bounds in this coordinate space.
 import { AspectRatio, Text, View, useMeasure } from '@octane-xplat/ui'
 
 export function Preview() {
-	const { ref, bounds } = useMeasure()
-	return (
-		<View ref={ref}>
-			<AspectRatio ratio={16 / 9}>
-				<Text>Preview</Text>
-			</AspectRatio>
-			<Text>{bounds ? `Width: ${bounds.width}` : 'Measuring…'}</Text>
-		</View>
-	)
+  const { ref, bounds } = useMeasure()
+  return (
+    <View ref={ref}>
+      <AspectRatio ratio={16 / 9}>
+        <Text>Preview</Text>
+      </AspectRatio>
+      <Text>{bounds ? `Width: ${bounds.width}` : 'Measuring…'}</Text>
+    </View>
+  )
 }
 ```
 
@@ -697,19 +697,19 @@ values rather than storing an inert widget property.
 import { Pressable, Text, View, useAnimation } from '@octane-xplat/ui'
 
 export function SlidePreview() {
-	const offset = useAnimation(0, 'translateX')
-	return (
-		<View>
-			<View ref={offset.ref} style={{ width: 40, height: 40, backgroundColor: 'royalblue' }} />
-			<Pressable
-				onPress={() => {
-					void offset.to(100, { duration: 300 })
-				}}
-			>
-				<Text>Slide</Text>
-			</Pressable>
-		</View>
-	)
+  const offset = useAnimation(0, 'translateX')
+  return (
+    <View>
+      <View ref={offset.ref} style={{ width: 40, height: 40, backgroundColor: 'royalblue' }} />
+      <Pressable
+        onPress={() => {
+          void offset.to(100, { duration: 300 })
+        }}
+      >
+        <Text>Slide</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -725,26 +725,26 @@ import { Pressable, ScrollableArea, Spinner, Text, View } from '@octane-xplat/ui
 import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export function Feed(props: { refreshing: boolean; refresh: () => void }) {
-	const area = useRef<ScrollableAreaHandle | null>(null)
-	return (
-		<View>
-			<ScrollableArea
-				ref={area}
-				width={240}
-				height={160}
-				refreshing={props.refreshing}
-				onRefresh={props.refresh}
-			>
-				<View style={{ height: 600 }}>
-					<Text>Feed content</Text>
-				</View>
-			</ScrollableArea>
-			<Pressable onPress={() => area.current?.scrollToOffset({ block: 0 }, { animated: true })}>
-				<Text>Back to top</Text>
-			</Pressable>
-			<Spinner busy={props.refreshing} size="sm" label="Refreshing" />
-		</View>
-	)
+  const area = useRef<ScrollableAreaHandle | null>(null)
+  return (
+    <View>
+      <ScrollableArea
+        ref={area}
+        width={240}
+        height={160}
+        refreshing={props.refreshing}
+        onRefresh={props.refresh}
+      >
+        <View style={{ height: 600 }}>
+          <Text>Feed content</Text>
+        </View>
+      </ScrollableArea>
+      <Pressable onPress={() => area.current?.scrollToOffset({ block: 0 }, { animated: true })}>
+        <Text>Back to top</Text>
+      </Pressable>
+      <Spinner busy={props.refreshing} size="sm" label="Refreshing" />
+    </View>
+  )
 }
 ```
 
@@ -760,18 +760,18 @@ import { Text, useScrollableArea } from '@octane-xplat/ui'
 import type { HostElement } from '@octane-xplat/jsx/intrinsics'
 
 export function FeedViewport() {
-	const area = useScrollableArea<HostElement>({ axis: 'block' })
-	return (
-		<scrollview
-			{...area.getViewportProps()}
-			orientation="vertical"
-			style={{ width: 200, height: 100 }}
-		>
-			<masonview {...area.getContentProps()} style={{ height: 600 }}>
-				<Text>{area.state.block.atEnd ? 'End of feed' : 'Scroll for more'}</Text>
-			</masonview>
-		</scrollview>
-	)
+  const area = useScrollableArea<HostElement>({ axis: 'block' })
+  return (
+    <scrollview
+      {...area.getViewportProps()}
+      orientation="vertical"
+      style={{ width: 200, height: 100 }}
+    >
+      <masonview {...area.getContentProps()} style={{ height: 600 }}>
+        <Text>{area.state.block.atEnd ? 'End of feed' : 'Scroll for more'}</Text>
+      </masonview>
+    </scrollview>
+  )
 }
 ```
 
@@ -803,9 +803,9 @@ import { runGtkApp } from '@octane-xplat/linux-gtk/host'
 import { App } from './App.gtk'
 
 export function main(): number {
-	return runGtkApp({ applicationId: 'com.example.MyApp', title: 'My App' }, ({ root }) => {
-		root.render(App, {})
-	})
+  return runGtkApp({ applicationId: 'com.example.MyApp', title: 'My App' }, ({ root }) => {
+    root.render(App, {})
+  })
 }
 
 main()
@@ -831,7 +831,7 @@ styles native widget chrome underneath your CSS.
 }
 
 .toast {
-	animation: fade-in 200ms ease-out forwards;
+  animation: fade-in 200ms ease-out forwards;
 }
 ```
 
@@ -934,14 +934,14 @@ it.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ShortNote() {
-	return (
-		<textview
-			text=""
-			hint="Short note"
-			maxLength={200}
-			onTextChange={(event) => console.log(event.value)}
-		/>
-	)
+  return (
+    <textview
+      text=""
+      hint="Short note"
+      maxLength={200}
+      onTextChange={(event) => console.log(event.value)}
+    />
+  )
 }
 ```
 
@@ -962,16 +962,16 @@ Build the app shell from the shared navigation family — `Screen`, `Tabs`,
 import { Screen, Tabs } from "@octane-xplat/ui"
 
 export function Workbench() {
-	return (
-		<Screen>
-			<Tabs
-				tabs={[
-					{ key: "files", title: "Files", render: () => <FilePane /> },
-					{ key: "search", title: "Search", render: () => <SearchPane /> },
-				]}
-			/>
-		</Screen>
-	)
+  return (
+    <Screen>
+      <Tabs
+        tabs={[
+          { key: "files", title: "Files", render: () => <FilePane /> },
+          { key: "search", title: "Search", render: () => <SearchPane /> },
+        ]}
+      />
+    </Screen>
+  )
 }
 ```
 
@@ -1014,29 +1014,29 @@ browser URL. Put it in `src/App.gtk.tsx`; the host entry shown above mounts `App
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
 import {
-	createPaneRouterHost,
-	createRouter,
-	defineRoute,
-	defineRoutes,
-	RouterPane,
-	type RouteScreenProps,
+  createPaneRouterHost,
+  createRouter,
+  defineRoute,
+  defineRoutes,
+  RouterPane,
+  type RouteScreenProps,
 } from '@octane-xplat/ui/routing'
 
 const detail = defineRoute({
-	path: '/probe/:id',
-	transition: 'none',
-	loader: ({ params }) => ({ id: params.id }),
+  path: '/probe/:id',
+  transition: 'none',
+  loader: ({ params }) => ({ id: params.id }),
 })
 
 function Detail(props: RouteScreenProps<typeof detail>) {
-	const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0)
 
-	return (
-		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
-			<label text={`${props.data.id}:${count}`} />
-			<button text={`Increment ${props.data.id}`} onTap={() => setCount(count + 1)} />
-		</masonview>
-	)
+  return (
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
+      <label text={`${props.data.id}:${count}`} />
+      <button text={`Increment ${props.data.id}`} onTap={() => setCount(count + 1)} />
+    </masonview>
+  )
 }
 
 const host = createPaneRouterHost()
@@ -1044,17 +1044,17 @@ const navigation = createRouter({ host: host.host, catalog: defineRoutes([detail
 host.attach(navigation)
 
 export function App() {
-	return (
-		<masonview style={{ display: 'flex', flexDirection: 'column' }}>
-			<button
-				text="Open coat"
-				onTap={() => {
-					void navigation.push({ to: '/probe/:id', params: { id: 'coat' } })
-				}}
-			/>
-			<RouterPane host={host} router={navigation} />
-		</masonview>
-	)
+  return (
+    <masonview style={{ display: 'flex', flexDirection: 'column' }}>
+      <button
+        text="Open coat"
+        onTap={() => {
+          void navigation.push({ to: '/probe/:id', params: { id: 'coat' } })
+        }}
+      />
+      <RouterPane host={host} router={navigation} />
+    </masonview>
+  )
 }
 
 export { navigation }
@@ -1170,10 +1170,10 @@ import { Text } from '@octane-xplat/ui'
 import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
 
 export function PortalContent(props: { target: unknown }) {
-	return createPortal(
-		(<Text>Content in the target container</Text>) as UniversalRenderable,
-		props.target,
-	)
+  return createPortal(
+    (<Text>Content in the target container</Text>) as UniversalRenderable,
+    props.target,
+  )
 }
 ```
 
@@ -1242,17 +1242,17 @@ while the larger control receives input.
 import { Pressable, Text, useTooltip } from '@octane-xplat/ui'
 
 export function DeliveryHelp() {
-	const hint = useTooltip({ delay: 200, focusTrigger: 'auto' })
-	return (
-		<>
-			<Pressable ref={hint.ref} accessibilityRole="button">
-				<Text>Delivery details</Text>
-			</Pressable>
-			{hint.renderTooltip('Orders ship on the next business day.', {
-				placement: 'below', alignment: 'start', offset: 8,
-			})}
-		</>
-	)
+  const hint = useTooltip({ delay: 200, focusTrigger: 'auto' })
+  return (
+    <>
+      <Pressable ref={hint.ref} accessibilityRole="button">
+        <Text>Delivery details</Text>
+      </Pressable>
+      {hint.renderTooltip('Orders ship on the next business day.', {
+        placement: 'below', alignment: 'start', offset: 8,
+      })}
+    </>
+  )
 }
 ```
 
@@ -1422,16 +1422,16 @@ Moving focus, disabling the action or removing it cancels a held key.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveAction(props: { disabled: boolean; save: () => void }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityLabel="Save"
-			disabled={props.disabled}
-			onPress={props.save}
-		>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Save"
+      disabled={props.disabled}
+      onPress={props.save}
+    >
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 
@@ -1643,21 +1643,21 @@ filtering, and column settings all behave as on other native platforms.
 import { Accordion, GridList, Text, View } from "@octane-xplat/ui"
 
 export function Inspector({ items }) {
-	return (
-		<View>
-			<Accordion
-				items={[{ key: "a", header: <Text>SECTION</Text>, content: <Text>Body</Text> }]}
-				onOpenChange={(open) => console.log(open)}
-			/>
-			<GridList
-				items={items}
-				columns={2}
-				selectionMode="single"
-				renderItem={(item) => <Text>{item.name}</Text>}
-				onAction={(key) => console.log(key)}
-			/>
-		</View>
-	)
+  return (
+    <View>
+      <Accordion
+        items={[{ key: "a", header: <Text>SECTION</Text>, content: <Text>Body</Text> }]}
+        onOpenChange={(open) => console.log(open)}
+      />
+      <GridList
+        items={items}
+        columns={2}
+        selectionMode="single"
+        renderItem={(item) => <Text>{item.name}</Text>}
+        onAction={(key) => console.log(key)}
+      />
+    </View>
+  )
 }
 ```
 
@@ -1686,24 +1686,24 @@ tappable runs.
 import { ColorField, DateInput, Tokenizer, createStaticSource } from "@octane-xplat/ui"
 
 const tagSource = createStaticSource([
-	{ id: "ui", label: "UI" },
-	{ id: "docs", label: "Docs" },
+  { id: "ui", label: "UI" },
+  { id: "docs", label: "Docs" },
 ])
 
 export function EventForm({ tags, setTags, date, setDate, accent, setAccent }) {
-	return (
-		<>
-			<Tokenizer
-				label="Tags"
-				searchSource={tagSource}
-				value={tags}
-				onChange={setTags}
-				hasCreate
-			/>
-			<DateInput label="Date" value={date} onChange={setDate} />
-			<ColorField label="Accent" value={accent} onChange={setAccent} />
-		</>
-	)
+  return (
+    <>
+      <Tokenizer
+        label="Tags"
+        searchSource={tagSource}
+        value={tags}
+        onChange={setTags}
+        hasCreate
+      />
+      <DateInput label="Date" value={date} onChange={setDate} />
+      <ColorField label="Accent" value={accent} onChange={setAccent} />
+    </>
+  )
 }
 ```
 
@@ -1729,18 +1729,18 @@ import { useRef } from 'octane'
 import { WebView, type WebViewHandle } from '@octane-xplat/ui'
 
 export function HelpPane() {
-	const view = useRef<WebViewHandle | null>(null)
-	return (
-		<WebView
-			ref={(handle) => {
-				view.current = handle
-			}}
-			src="https://example.com/docs"
-			onLoad={(e) => console.log('loaded', e.url)}
-			onError={(e) => console.log('failed', e.error)}
-			onMessage={(e) => console.log('message', e.data)}
-		/>
-	)
+  const view = useRef<WebViewHandle | null>(null)
+  return (
+    <WebView
+      ref={(handle) => {
+        view.current = handle
+      }}
+      src="https://example.com/docs"
+      onLoad={(e) => console.log('loaded', e.url)}
+      onError={(e) => console.log('failed', e.error)}
+      onMessage={(e) => console.log('message', e.data)}
+    />
+  )
 }
 ```
 

@@ -38,7 +38,7 @@ const db = openOrCreate('app.db')
 await db.execute('CREATE TABLE IF NOT EXISTS items(name TEXT)')
 const rows = await db.select('SELECT name FROM items')
 await db.transaction(async () => {
-	await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+  await db.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
 })
 await db.close()
 ```
@@ -52,9 +52,9 @@ import { openDatabase } from '@octane-xplat/sqlite'
 
 const db = await openDatabase('app.db', { threading: true })
 try {
-	console.log(await db.select('SELECT 1 AS ready'))
+  console.log(await db.select('SELECT 1 AS ready'))
 } finally {
-	await db.close()
+  await db.close()
 }
 ```
 
@@ -71,7 +71,7 @@ const db = await openDatabase('app.db')
 await db.execute('CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)')
 const rows = await db.select<{ id: number; name: string }>('SELECT * FROM items')
 await db.transaction(async (transaction) => {
-	await transaction.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
+  await transaction.execute('INSERT INTO items(name) VALUES (?)', ['Passport'])
 }) // throw to roll back
 await db.close()
 ```

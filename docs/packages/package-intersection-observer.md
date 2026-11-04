@@ -16,12 +16,12 @@ import { useIntersectionObserver } from '@octane-xplat/intersection-observer'
 import { View, Text } from '@octane-xplat/ui'
 
 export function VisibilityStatus() {
-	const observer = useIntersectionObserver()
-	return (
-		<View ref={observer.ref}>
-			<Text>{observer.isIntersecting ? 'Visible' : 'Not visible'}</Text>
-		</View>
-	)
+  const observer = useIntersectionObserver()
+  return (
+    <View ref={observer.ref}>
+      <Text>{observer.isIntersecting ? 'Visible' : 'Not visible'}</Text>
+    </View>
+  )
 }
 ```
 
@@ -45,9 +45,9 @@ export function VisibilityStatus() {
 
 ```ts
 import {
-	IntersectionObserver,
-	supported,
-	useIntersectionObserver,
+  IntersectionObserver,
+  supported,
+  useIntersectionObserver,
 } from '@octane-xplat/intersection-observer'
 ```
 
@@ -58,18 +58,18 @@ import { IntersectionObserver } from '@octane-xplat/intersection-observer'
 
 // Call with the actual host view/element supplied by your component binding.
 export function watchTarget(target: unknown, root: unknown = null) {
-	const observer = new IntersectionObserver(
-		(entries) => {
-			for (const entry of entries) console.log(entry.isIntersecting, entry.intersectionRatio)
-		},
-		{ root, rootMargin: '10% 0px', threshold: [0, 0.5, 1] },
-	)
-	observer.observe(target)
-	return () => {
-		observer.takeRecords()
-		observer.unobserve(target)
-		observer.disconnect()
-	}
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) console.log(entry.isIntersecting, entry.intersectionRatio)
+    },
+    { root, rootMargin: '10% 0px', threshold: [0, 0.5, 1] },
+  )
+  observer.observe(target)
+  return () => {
+    observer.takeRecords()
+    observer.unobserve(target)
+    observer.disconnect()
+  }
 }
 ```
 
@@ -87,18 +87,18 @@ import { ScrollableArea, View, Text } from '@octane-xplat/ui'
 import { useIntersectionObserver } from '@octane-xplat/intersection-observer'
 
 export function VisibleRow() {
-	const { ref, rootRef, entry, isIntersecting } = useIntersectionObserver({
-		threshold: 0.5,
-		onChange: (entry) => console.log(entry.isIntersecting),
-	})
-	return (
-		<ScrollableArea ref={rootRef}>
-			<View ref={ref}>
-				<Text>{isIntersecting ? 'Visible' : 'Outside viewport'}</Text>
-			</View>
-			<Text>{entry?.intersectionRatio ?? 0}</Text>
-		</ScrollableArea>
-	)
+  const { ref, rootRef, entry, isIntersecting } = useIntersectionObserver({
+    threshold: 0.5,
+    onChange: (entry) => console.log(entry.isIntersecting),
+  })
+  return (
+    <ScrollableArea ref={rootRef}>
+      <View ref={ref}>
+        <Text>{isIntersecting ? 'Visible' : 'Outside viewport'}</Text>
+      </View>
+      <Text>{entry?.intersectionRatio ?? 0}</Text>
+    </ScrollableArea>
+  )
 }
 ```
 

@@ -25,11 +25,11 @@ props are options supplied by the screen using it.
 import { View, Text } from '@octane-xplat/ui'
 
 export function Card(props: { title: string; disabled?: boolean }) {
-	return (
-		<View className="card" style={{ opacity: props.disabled ? 0.5 : 1 }}>
-			<Text className="card-title">{props.title}</Text>
-		</View>
-	)
+  return (
+    <View className="card" style={{ opacity: props.disabled ? 0.5 : 1 }}>
+      <Text className="card-title">{props.title}</Text>
+    </View>
+  )
 }
 ```
 
@@ -40,10 +40,10 @@ The title should be larger than ordinary text, with space around it.
 
 ```css
 .card {
-	padding: 16px;
+  padding: 16px;
 }
 .card-title {
-	font-size: 20px;
+  font-size: 20px;
 }
 ```
 
@@ -125,10 +125,10 @@ uses that name, so you don't have to find and replace the color in each card.
 ```css
 :root,
 .ns-root {
-	--color-surface: #fffdf5;
+  --color-surface: #fffdf5;
 }
 .card {
-	background-color: var(--color-surface);
+  background-color: var(--color-surface);
 }
 ```
 
@@ -139,15 +139,15 @@ on web and phones.
 ```css
 :root,
 .ns-root {
-	--color-surface: #fffdf5;
-	--color-ink: #000;
-	--space-4: 16px;
+  --color-surface: #fffdf5;
+  --color-ink: #000;
+  --space-4: 16px;
 }
 
 .card {
-	background: var(--color-surface);
-	color: var(--color-ink);
-	padding: var(--space-4);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  padding: var(--space-4);
 }
 ```
 
@@ -161,12 +161,12 @@ selector.
 ```css
 :root,
 .ns-root {
-	--color-surface: #fffdf5;
-	--color-ink: #222;
+  --color-surface: #fffdf5;
+  --color-ink: #222;
 }
 .card {
-	background-color: var(--color-surface);
-	color: var(--color-ink);
+  background-color: var(--color-surface);
+  color: var(--color-ink);
 }
 ```
 
@@ -248,16 +248,16 @@ side-specific styles keep separate widths and colors:
 
 ```css
 .attachment-target {
-	border-width: 2px;
-	border-color: #225588;
-	border-style: dashed;
-	border-radius: 8px;
+  border-width: 2px;
+  border-color: #225588;
+  border-style: dashed;
+  border-radius: 8px;
 }
 .mixed-edges {
-	border-width: 2px;
-	border-style: dotted solid;
-	border-right-width: 4px;
-	border-right-color: #b3261e;
+  border-width: 2px;
+  border-style: dotted solid;
+  border-right-width: 4px;
+  border-right-color: #b3261e;
 }
 ```
 
@@ -389,8 +389,8 @@ import { defineConfig } from '@bamboocss/dev'
 import { xplatBambooConfig } from '@octane-xplat/bamboo'
 
 export default defineConfig({
-	...xplatBambooConfig,
-	include: ['src/**/*.{ts,tsx,js,jsx}'],
+  ...xplatBambooConfig,
+  include: ['src/**/*.{ts,tsx,js,jsx}'],
 })
 ```
 
@@ -410,7 +410,7 @@ import { xplatNative } from '@octane-xplat/cli/vite'
 import { xplatBamboo } from '@octane-xplat/bamboo/vite'
 
 export default defineConfig(({ mode }) =>
-	xplatNative(mode, { extra: { plugins: xplatBamboo({ native: true }) } }),
+  xplatNative(mode, { extra: { plugins: xplatBamboo({ native: true }) } }),
 )
 ```
 
@@ -440,8 +440,8 @@ matching variable leaves its style without effect.
 /* app.css — define any theme tokens you don't get from chrome.css */
 :root,
 .ns-root {
-	--color-warning: #e9af08;
-	--radius-md: 8px;
+  --color-warning: #e9af08;
+  --radius-md: 8px;
 }
 ```
 
@@ -581,12 +581,12 @@ style value, which is also how a variable font selects its instance:
 import { Text } from '@octane-xplat/ui'
 
 export function FontWeightPreview() {
-	return (
-		<>
-			<Text className="font-semibold">Semi-bold</Text>
-			<Text style={{ fontWeight: 600 }}>Semi-bold</Text>
-		</>
-	)
+  return (
+    <>
+      <Text className="font-semibold">Semi-bold</Text>
+      <Text style={{ fontWeight: 600 }}>Semi-bold</Text>
+    </>
+  )
 }
 ```
 
@@ -595,7 +595,7 @@ it in your own rules:
 
 ```css
 .hero-title {
-	font-family: var(--font-display);
+  font-family: var(--font-display);
 }
 ```
 
@@ -608,16 +608,16 @@ What the command writes, by hand:
 
 ```css
 :root {
-	--font-sans: 'Acme Sans', system-ui, sans-serif;
+  --font-sans: 'Acme Sans', system-ui, sans-serif;
 }
 .ns-ios {
-	--font-sans: 'AcmeSans-Regular', sans-serif;
+  --font-sans: 'AcmeSans-Regular', sans-serif;
 }
 .ns-android {
-	--font-sans: 'acme-sans-regular', sans-serif;
+  --font-sans: 'acme-sans-regular', sans-serif;
 }
 .card-title {
-	font-family: var(--font-sans);
+  font-family: var(--font-sans);
 }
 ```
 
@@ -643,7 +643,7 @@ target. See the [NativeScript fonts guide](https://docs.nativescript.org/project
 /* Native stylesheet; the app bundles the matching .ttf file. */
 .ns-ios,
 .ns-android {
-	--font-sans: 'AcmeSans-Regular', 'acme-sans-regular', sans-serif;
+  --font-sans: 'AcmeSans-Regular', 'acme-sans-regular', sans-serif;
 }
 ```
 
@@ -656,9 +656,9 @@ applications do not need to ship Geist.
 
 ```css
 .card-title {
-	font-family: system-ui;
-	font-size: 20px;
-	font-weight: 700;
+  font-family: system-ui;
+  font-size: 20px;
+  font-weight: 700;
 }
 ```
 
@@ -673,7 +673,7 @@ Installed AppKit families can also be selected by name.
 import { registerFontFamily } from '@octane-xplat/macos-appkit'
 
 export function registerAppFont(regularDescriptor: NSFontDescriptor) {
-	registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularDescriptor }])
+  registerFontFamily('Acme Sans', [{ weight: 400, descriptor: regularDescriptor }])
 }
 ```
 
@@ -685,7 +685,7 @@ packaged app; the harness embeds its font bytes and license in the host bundle.
 
 ```css
 .card-title {
-	font-family: 'Geist';
+  font-family: 'Geist';
 }
 ```
 
@@ -699,12 +699,12 @@ browser width and on a native device before adding a platform split.
 import { HStack, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<HStack gap={2}>
-			<Text>Bag</Text>
-			<Text>Ready</Text>
-		</HStack>
-	)
+  return (
+    <HStack gap={2}>
+      <Text>Bag</Text>
+      <Text>Ready</Text>
+    </HStack>
+  )
 }
 ```
 
@@ -720,8 +720,8 @@ import { useWindowSize } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function WindowStatus() {
-	const size = useWindowSize()
-	return <Text>{size.width >= 900 ? 'Wide layout' : 'Compact layout'}</Text>
+  const size = useWindowSize()
+  return <Text>{size.width >= 900 ? 'Wide layout' : 'Compact layout'}</Text>
 }
 ```
 
@@ -737,14 +737,14 @@ wrapping, but does not preserve repeated spaces and newlines like web
 ```css
 /* style.mobile.css */
 .note {
-	white-space: wrap;
+  white-space: wrap;
 }
 ```
 
 ```css
 /* style.web.css */
 .note {
-	white-space: pre-wrap;
+  white-space: pre-wrap;
 }
 ```
 
@@ -774,9 +774,9 @@ app-wide and does not report a separate override on an individual window.
 import { Text, useColorScheme } from '@octane-xplat/ui'
 
 export function AppearanceStatus() {
-	const scheme = useColorScheme()
+  const scheme = useColorScheme()
 
-	return <Text>{scheme === 'dark' ? 'Dark appearance' : 'Light appearance'}</Text>
+  return <Text>{scheme === 'dark' ? 'Dark appearance' : 'Light appearance'}</Text>
 }
 ```
 
@@ -788,17 +788,17 @@ the current appearance. Hook subscriptions are released when consumers unmount.
 import { Text, useThemeScheme, setThemePreference } from '@octane-xplat/ui'
 
 export function ThemeStatus() {
-	const scheme = useThemeScheme()
+  const scheme = useThemeScheme()
 
-	return <Text>{scheme}</Text>
+  return <Text>{scheme}</Text>
 }
 
 export function followSystem() {
-	setThemePreference('system')
+  setThemePreference('system')
 }
 
 export function chooseDark() {
-	setThemePreference('dark')
+  setThemePreference('dark')
 }
 ```
 
@@ -813,22 +813,22 @@ getters.
 
 ```tsx
 import {
-	Text,
-	Pressable,
-	useThemePreference,
-	useThemeScheme,
-	setThemePreference,
+  Text,
+  Pressable,
+  useThemePreference,
+  useThemeScheme,
+  setThemePreference,
 } from '@octane-xplat/ui'
 
 export function ThemePicker() {
-	const preference = useThemePreference() // 'system' | 'light' | 'dark'
-	const scheme = useThemeScheme() // 'light' | 'dark'
+  const preference = useThemePreference() // 'system' | 'light' | 'dark'
+  const scheme = useThemeScheme() // 'light' | 'dark'
 
-	return (
-		<>
-			<Text>{`Mode: ${preference}, appearance: ${scheme}`}</Text>
-			<Pressable onPress={() => setThemePreference('system')}>Follow system</Pressable>
-		</>
-	)
+  return (
+    <>
+      <Text>{`Mode: ${preference}, appearance: ${scheme}`}</Text>
+      <Pressable onPress={() => setThemePreference('system')}>Follow system</Pressable>
+    </>
+  )
 }
 ```

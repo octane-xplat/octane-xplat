@@ -16,33 +16,33 @@ import { useState } from 'octane'
 import { Dialog, AlertDialog, BottomSheet, Button, Text } from '@octane-xplat/ui'
 
 export function Surfaces() {
-	const [surface, setSurface] = useState<'dialog' | 'alert' | 'sheet' | null>(null)
-	const onOpenChange = (open: boolean) => {
-		if (!open) setSurface(null)
-	}
-	return (
-		<>
-			<Button clickAction={() => setSurface('dialog')}>Trip details</Button>
-			<Button clickAction={() => setSurface('alert')}>Remove trip</Button>
-			<Button clickAction={() => setSurface('sheet')}>Bag details</Button>
-			<Dialog isOpen={surface === 'dialog'} onOpenChange={onOpenChange}>
-				<Text>Trip details</Text>
-			</Dialog>
-			<AlertDialog
-				isOpen={surface === 'alert'}
-				title="Remove trip?"
-				actionLabel="Remove"
-				onOpenChange={onOpenChange}
-				onAction={() => {
-					console.log('Confirmed')
-					setSurface(null)
-				}}
-			/>
-			<BottomSheet label="Bag details" isOpen={surface === 'sheet'} onOpenChange={onOpenChange}>
-				<Text>Carry-on</Text>
-			</BottomSheet>
-		</>
-	)
+  const [surface, setSurface] = useState<'dialog' | 'alert' | 'sheet' | null>(null)
+  const onOpenChange = (open: boolean) => {
+    if (!open) setSurface(null)
+  }
+  return (
+    <>
+      <Button clickAction={() => setSurface('dialog')}>Trip details</Button>
+      <Button clickAction={() => setSurface('alert')}>Remove trip</Button>
+      <Button clickAction={() => setSurface('sheet')}>Bag details</Button>
+      <Dialog isOpen={surface === 'dialog'} onOpenChange={onOpenChange}>
+        <Text>Trip details</Text>
+      </Dialog>
+      <AlertDialog
+        isOpen={surface === 'alert'}
+        title="Remove trip?"
+        actionLabel="Remove"
+        onOpenChange={onOpenChange}
+        onAction={() => {
+          console.log('Confirmed')
+          setSurface(null)
+        }}
+      />
+      <BottomSheet label="Bag details" isOpen={surface === 'sheet'} onOpenChange={onOpenChange}>
+        <Text>Carry-on</Text>
+      </BottomSheet>
+    </>
+  )
 }
 ```
 
@@ -55,21 +55,21 @@ notifications to a mounted viewport or the fallback viewport and return a
 import { Button, ToastViewport, useToast, showToast } from '@octane-xplat/ui'
 
 function SaveButton() {
-	const toast = useToast()
-	return <Button clickAction={() => toast({ body: 'Trip saved' })}>Save</Button>
+  const toast = useToast()
+  return <Button clickAction={() => toast({ body: 'Trip saved' })}>Save</Button>
 }
 
 export function SaveNotice() {
-	return (
-		<>
-			<ToastViewport>
-				<SaveButton />
-			</ToastViewport>
-			<Button clickAction={() => showToast({ body: 'Background save complete' })}>
-				Show background notice
-			</Button>
-		</>
-	)
+  return (
+    <>
+      <ToastViewport>
+        <SaveButton />
+      </ToastViewport>
+      <Button clickAction={() => showToast({ body: 'Background save complete' })}>
+        Show background notice
+      </Button>
+    </>
+  )
 }
 ```
 
@@ -80,11 +80,11 @@ export function SaveNotice() {
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 
 export function Details() {
-	return (
-		<ScrollableArea label="Trip details">
-			<Text>Two bags packed</Text>
-		</ScrollableArea>
-	)
+  return (
+    <ScrollableArea label="Trip details">
+      <Text>Two bags packed</Text>
+    </ScrollableArea>
+  )
 }
 ```
 
@@ -100,18 +100,18 @@ import { HoverCard, Carousel, Lightbox, Button, Text } from '@octane-xplat/ui'
 const media = [{ src: 'https://example.com/trip.jpg', alt: 'A mountain lake on our trip' }]
 
 export function TripPreview() {
-	const [open, setOpen] = useState(false)
-	return (
-		<>
-			<HoverCard content={<Text>Saved yesterday</Text>}>
-				<Text>Autumn trip</Text>
-			</HoverCard>
-			<Carousel label="Trip previews" hasButtons>
-				<Button clickAction={() => setOpen(true)}>View trip photo</Button>
-			</Carousel>
-			<Lightbox isOpen={open} onOpenChange={setOpen} media={media} />
-		</>
-	)
+  const [open, setOpen] = useState(false)
+  return (
+    <>
+      <HoverCard content={<Text>Saved yesterday</Text>}>
+        <Text>Autumn trip</Text>
+      </HoverCard>
+      <Carousel label="Trip previews" hasButtons>
+        <Button clickAction={() => setOpen(true)}>View trip photo</Button>
+      </Carousel>
+      <Lightbox isOpen={open} onOpenChange={setOpen} media={media} />
+    </>
+  )
 }
 ```
 

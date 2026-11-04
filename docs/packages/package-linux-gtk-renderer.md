@@ -174,26 +174,26 @@ import type { HostElement } from '@octane-xplat/jsx/intrinsics'
 import { Pressable, Text, View } from '@octane-xplat/ui'
 
 export function FocusableField() {
-	const field = useRef<HostElement | null>(null)
-	return (
-		<View>
-			<textfield ref={field} text="Copy this text" editable={false} />
-			<Pressable
-				onPress={() => {
-					field.current?.focus()
-				}}
-			>
-				<Text>Focus the field</Text>
-			</Pressable>
-			<Pressable
-				onPress={() => {
-					field.current?.blur()
-				}}
-			>
-				<Text>Release focus</Text>
-			</Pressable>
-		</View>
-	)
+  const field = useRef<HostElement | null>(null)
+  return (
+    <View>
+      <textfield ref={field} text="Copy this text" editable={false} />
+      <Pressable
+        onPress={() => {
+          field.current?.focus()
+        }}
+      >
+        <Text>Focus the field</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          field.current?.blur()
+        }}
+      >
+        <Text>Release focus</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -369,14 +369,14 @@ it.
 ```tsx
 /** @jsxImportSource @octane-xplat/jsx */
 export function ShortNote() {
-	return (
-		<textview
-			text=""
-			hint="Short note"
-			maxLength={200}
-			onTextChange={(event) => console.log(event.value)}
-		/>
-	)
+  return (
+    <textview
+      text=""
+      hint="Short note"
+      maxLength={200}
+      onTextChange={(event) => console.log(event.value)}
+    />
+  )
 }
 ```
 
@@ -566,10 +566,10 @@ import { Text } from '@octane-xplat/ui'
 import { createPortal, type UniversalRenderable } from '@octane-xplat/linux-gtk'
 
 export function PortalContent(props: { target: unknown }) {
-	return createPortal(
-		(<Text>Content in the target container</Text>) as UniversalRenderable,
-		props.target,
-	)
+  return createPortal(
+    (<Text>Content in the target container</Text>) as UniversalRenderable,
+    props.target,
+  )
 }
 ```
 
@@ -658,16 +658,16 @@ Moving focus, disabling the action or removing it cancels a held key.
 import { Pressable, Text } from '@octane-xplat/ui'
 
 export function SaveAction(props: { disabled: boolean; save: () => void }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityLabel="Save"
-			disabled={props.disabled}
-			onPress={props.save}
-		>
-			<Text>Save</Text>
-		</Pressable>
-	)
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Save"
+      disabled={props.disabled}
+      onPress={props.save}
+    >
+      <Text>Save</Text>
+    </Pressable>
+  )
 }
 ```
 

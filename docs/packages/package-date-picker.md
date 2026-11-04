@@ -20,8 +20,8 @@ import { useState } from 'octane'
 import { DateInput, type ISODateString } from '@octane-xplat/ui'
 
 export function DepartureDate() {
-	const [date, setDate] = useState<ISODateString | null>('2026-10-02')
-	return <DateInput value={date} onChange={setDate} label="Departure" />
+  const [date, setDate] = useState<ISODateString | null>('2026-10-02')
+  return <DateInput value={date} onChange={setDate} label="Departure" />
 }
 ```
 
@@ -48,14 +48,14 @@ bun add @octane-xplat/date-picker
 import { SwiftUIDatePicker } from '@octane-xplat/date-picker/ios'
 
 export function Picker() {
-	return (
-		<SwiftUIDatePicker
-			defaultSelection={new Date(2026, 9, 2)}
-			displayedComponents={['date']}
-			pickerStyle="graphical"
-			onSelectionChange={console.log}
-		/>
-	)
+  return (
+    <SwiftUIDatePicker
+      defaultSelection={new Date(2026, 9, 2)}
+      displayedComponents={['date']}
+      pickerStyle="graphical"
+      onSelectionChange={console.log}
+    />
+  )
 }
 ```
 
@@ -68,13 +68,13 @@ const initialDate = new Date(2026, 9, 2)
 const bounds = { start: new Date(2026, 0, 1), end: new Date(2026, 11, 31) }
 
 export function Picker() {
-	return (
-		<MaterialDatePicker
-			initialDate={initialDate}
-			selectableDates={bounds}
-			onDateSelected={console.log}
-		/>
-	)
+  return (
+    <MaterialDatePicker
+      initialDate={initialDate}
+      selectableDates={bounds}
+      onDateSelected={console.log}
+    />
+  )
 }
 ```
 
@@ -85,19 +85,19 @@ import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 import { Text } from '@octane-xplat/ui'
 
 export function Picker() {
-	const [selection, setSelection] = useState(new Date(2026, 9, 29))
-	return (
-		<>
-			<AppKitDatePicker
-				components="date"
-				pickerStyle="graphical"
-				selection={selection}
-				onSelectionChange={setSelection}
-				accessibilityLabel="Departure date"
-			/>
-			<Text>{selection.toLocaleString()}</Text>
-		</>
-	)
+  const [selection, setSelection] = useState(new Date(2026, 9, 29))
+  return (
+    <>
+      <AppKitDatePicker
+        components="date"
+        pickerStyle="graphical"
+        selection={selection}
+        onSelectionChange={setSelection}
+        accessibilityLabel="Departure date"
+      />
+      <Text>{selection.toLocaleString()}</Text>
+    </>
+  )
 }
 ```
 
@@ -115,15 +115,15 @@ import { useState } from 'octane'
 import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 
 export function Departure() {
-	const [selection, setSelection] = useState(new Date(2026, 9, 2))
-	return (
-		<AppKitDatePicker
-			components="date"
-			pickerStyle="graphical"
-			selection={selection}
-			onSelectionChange={setSelection}
-		/>
-	)
+  const [selection, setSelection] = useState(new Date(2026, 9, 2))
+  return (
+    <AppKitDatePicker
+      components="date"
+      pickerStyle="graphical"
+      selection={selection}
+      onSelectionChange={setSelection}
+    />
+  )
 }
 ```
 
@@ -142,8 +142,8 @@ import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
 const initial = new Date(2026, 9, 29)
 const minimum = new Date(2026, 0, 1)
 export function BoundedDate() {
-	return <AppKitDatePicker defaultSelection={initial} minimumDate={minimum}
-		accessibilityLabel="Departure date" onSelectionChange={(date) => console.log(date)} />
+  return <AppKitDatePicker defaultSelection={initial} minimumDate={minimum}
+    accessibilityLabel="Departure date" onSelectionChange={(date) => console.log(date)} />
 }
 ```
 
@@ -162,21 +162,21 @@ import { MaterialDatePicker } from '@octane-xplat/date-picker/android'
 const initialDate = new Date(2026, 9, 2)
 const selectableDates = { start: new Date(2026, 0, 1) }
 export function Departure() {
-	return (
-		<MaterialDatePicker
-			className="departure-calendar"
-			initialDate={initialDate}
-			selectableDates={selectableDates}
-			onDateSelected={console.log}
-		/>
-	)
+  return (
+    <MaterialDatePicker
+      className="departure-calendar"
+      initialDate={initialDate}
+      selectableDates={selectableDates}
+      onDateSelected={console.log}
+    />
+  )
 }
 ```
 
 ```css
 /* App stylesheet: give the Android calendar room for its grid. */
 .departure-calendar {
-	height: 480px;
+  height: 480px;
 }
 ```
 

@@ -39,8 +39,8 @@ so show the error through your screen's normal error handling.
 import { requestTrackingPermissionsAsync } from '@octane-xplat/tracking-transparency'
 
 export async function requestTrackingFromButton(): Promise<string> {
-	const permission = await requestTrackingPermissionsAsync()
-	return `Tracking authorization: ${permission.authorizationStatus}`
+  const permission = await requestTrackingPermissionsAsync()
+  return `Tracking authorization: ${permission.authorizationStatus}`
 }
 ```
 
@@ -54,7 +54,7 @@ import { getTrackingPermissionsAsync } from '@octane-xplat/tracking-transparency
 
 const permission = await getTrackingPermissionsAsync() // No prompt.
 if (permission.status === 'undetermined') {
-	// Offer your button; do not request from a startup effect.
+  // Offer your button; do not request from a startup effect.
 }
 ```
 
@@ -71,20 +71,20 @@ import { Button, Text, VStack } from '@octane-xplat/ui'
 import { useTrackingPermissions, type PermissionResponse } from '@octane-xplat/tracking-transparency'
 
 export function TrackingChoice() {
-	const [permission, request, refresh] = useTrackingPermissions()
-	const [error, setError] = useState('')
-	function run(action: () => Promise<PermissionResponse>) {
-		setError('')
-		void action().catch(error => setError(String(error)))
-	}
-	return (
-		<VStack>
-			<Text>{error}</Text>
-			<Text>{permission?.authorizationStatus ?? 'Reading permission…'}</Text>
-			<Button label="Request tracking choice" clickAction={() => run(request)} />
-			<Button label="Refresh permission" clickAction={() => run(refresh)} />
-		</VStack>
-	)
+  const [permission, request, refresh] = useTrackingPermissions()
+  const [error, setError] = useState('')
+  function run(action: () => Promise<PermissionResponse>) {
+    setError('')
+    void action().catch(error => setError(String(error)))
+  }
+  return (
+    <VStack>
+      <Text>{error}</Text>
+      <Text>{permission?.authorizationStatus ?? 'Reading permission…'}</Text>
+      <Button label="Request tracking choice" clickAction={() => run(request)} />
+      <Button label="Refresh permission" clickAction={() => run(refresh)} />
+    </VStack>
+  )
 }
 ```
 
@@ -108,7 +108,7 @@ import { getTrackingPermissionsAsync } from '@octane-xplat/tracking-transparency
 
 const permission = await getTrackingPermissionsAsync()
 if (permission.authorizationStatus === 'restricted') {
-	// The OS restriction cannot be changed through another request here.
+  // The OS restriction cannot be changed through another request here.
 }
 ```
 
@@ -125,8 +125,8 @@ persist an advertising identifier.
 import { getAdvertisingIdAsync } from '@octane-xplat/tracking-transparency'
 
 export async function useAdvertisingIdentifier(consume: (identifier: string) => Promise<void>) {
-	const identifier = await getAdvertisingIdAsync()
-	if (identifier !== null) await consume(identifier)
+  const identifier = await getAdvertisingIdAsync()
+  if (identifier !== null) await consume(identifier)
 }
 ```
 
@@ -178,7 +178,7 @@ import { getTrackingPermissionsAsync } from '@octane-xplat/tracking-transparency
 
 const permission = await getTrackingPermissionsAsync()
 if (permission.authorizationStatus === 'unavailable') {
-	// Continue your app's own consent flow; no ATT dialog exists here.
+  // Continue your app's own consent flow; no ATT dialog exists here.
 }
 ```
 
@@ -195,7 +195,7 @@ than granted.
 import { TrackingTransparency } from '@octane-xplat/tracking-transparency'
 
 if (!TrackingTransparency.capabilities.advertisingIdAsync) {
-	// Keep the feature usable without a native advertising identifier.
+  // Keep the feature usable without a native advertising identifier.
 }
 ```
 

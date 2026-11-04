@@ -31,7 +31,7 @@ The card uses the docs' font families, surface colors, and squircle corners.
 import { AgentPrompt } from './src/AgentPrompt.tsrx'
 
 export function SetupPrompt() {
-	return <AgentPrompt prompt="Read AGENTS.md, then add a packing checklist." />
+  return <AgentPrompt prompt="Read AGENTS.md, then add a packing checklist." />
 }
 ```
 
@@ -45,13 +45,13 @@ Copy failures expand the text for manual selection.
 import { MdDoc } from './src/MdDoc.tsrx'
 
 export function GuidePrompt() {
-	return (
-		<MdDoc
-			dir=""
-			md="# Pack for your trip\n\n> Build a packing checklist."
-			agentPrompt="Add a packing checklist."
-		/>
-	)
+  return (
+    <MdDoc
+      dir=""
+      md="# Pack for your trip\n\n> Build a packing checklist."
+      agentPrompt="Add a packing checklist."
+    />
+  )
 }
 ```
 
@@ -85,10 +85,10 @@ Author docs screens with `@octane-xplat/ui` components. For example, use
 import { Heading, NavLink } from '@octane-xplat/ui'
 
 export function GuideIntroduction() {
-	return <>
-		<Heading level={1}>Build your first app</Heading>
-		<NavLink to="/:slug?" params={{ slug: 'toolchain' }}>Create and run</NavLink>
-	</>
+  return <>
+    <Heading level={1}>Build your first app</Heading>
+    <NavLink to="/:slug?" params={{ slug: 'toolchain' }}>Create and run</NavLink>
+  </>
 }
 ```
 

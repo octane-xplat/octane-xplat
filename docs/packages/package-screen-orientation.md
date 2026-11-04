@@ -27,22 +27,22 @@ interface orientation; a refusal returns a message the app can show.
 
 ```ts
 import {
-	OrientationLock,
-	getOrientationAsync,
-	lockAsync,
-	supportsOrientationLockAsync,
+  OrientationLock,
+  getOrientationAsync,
+  lockAsync,
+  supportsOrientationLockAsync,
 } from '@octane-xplat/screen-orientation'
 
 export async function useWideLayout(): Promise<string> {
-	if (!(await supportsOrientationLockAsync(OrientationLock.LANDSCAPE))) {
-		return 'Landscape locking is unavailable in this window.'
-	}
-	try {
-		await lockAsync(OrientationLock.LANDSCAPE)
-		return `Current interface orientation: ${await getOrientationAsync()}`
-	} catch (error) {
-		return `Keep the flexible layout: ${String(error)}`
-	}
+  if (!(await supportsOrientationLockAsync(OrientationLock.LANDSCAPE))) {
+    return 'Landscape locking is unavailable in this window.'
+  }
+  try {
+    await lockAsync(OrientationLock.LANDSCAPE)
+    return `Current interface orientation: ${await getOrientationAsync()}`
+  } catch (error) {
+    return `Keep the flexible layout: ${String(error)}`
+  }
 }
 ```
 
@@ -87,13 +87,13 @@ and retain its other lifecycle and URL methods.
 // Keep this declaration first in this module.
 @NativeClass()
 class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
-	static ObjCProtocols = [UIApplicationDelegate]
-	applicationSupportedInterfaceOrientationsForWindow(
-		_app: UIApplication,
-		window: UIWindow,
-	): UIInterfaceOrientationMask {
-		return getIOSSupportedInterfaceOrientations(window)
-	}
+  static ObjCProtocols = [UIApplicationDelegate]
+  applicationSupportedInterfaceOrientationsForWindow(
+    _app: UIApplication,
+    window: UIWindow,
+  ): UIInterfaceOrientationMask {
+    return getIOSSupportedInterfaceOrientations(window)
+  }
 }
 import { Application } from '@nativescript/core'
 import { getIOSSupportedInterfaceOrientations } from '@octane-xplat/screen-orientation'
@@ -124,12 +124,12 @@ system chooses the orientation. In a browser, unlock releases the native lock.
 import { unlockAsync } from '@octane-xplat/screen-orientation'
 
 export async function leaveWideLayout(): Promise<string> {
-	try {
-		await unlockAsync()
-		return 'The default orientation policy is active.'
-	} catch (error) {
-		return `Could not restore orientation: ${String(error)}`
-	}
+  try {
+    await unlockAsync()
+    return 'The default orientation policy is active.'
+  } catch (error) {
+    return `Could not restore orientation: ${String(error)}`
+  }
 }
 ```
 
@@ -142,8 +142,8 @@ axis does not emit. Removing a subscription twice is safe.
 import { addOrientationChangeListener } from '@octane-xplat/screen-orientation'
 
 const subscription = addOrientationChangeListener((event) => {
-	console.log('Interface orientation:', event.orientationInfo.orientation)
-	console.log('Active policy:', event.orientationLock)
+  console.log('Interface orientation:', event.orientationInfo.orientation)
+  console.log('Active policy:', event.orientationLock)
 })
 // In the owning page's unload handler or effect cleanup:
 subscription.remove()
@@ -157,9 +157,9 @@ available space. They are not device-model or physical-orientation readings.
 import { SizeClassIOS, addOrientationChangeListener } from '@octane-xplat/screen-orientation'
 
 const layoutSubscription = addOrientationChangeListener((event) => {
-	if (event.orientationInfo.horizontalSizeClass === SizeClassIOS.COMPACT) {
-		console.log('Use the compact layout.')
-	}
+  if (event.orientationInfo.horizontalSizeClass === SizeClassIOS.COMPACT) {
+    console.log('Use the compact layout.')
+  }
 })
 // In the same owning page/component's cleanup:
 layoutSubscription.remove()
@@ -175,23 +175,23 @@ belong in separate platform handlers:
 
 ```ts
 import {
-	Orientation,
-	WebOrientationLock,
-	lockPlatformAsync,
+  Orientation,
+  WebOrientationLock,
+  lockPlatformAsync,
 } from '@octane-xplat/screen-orientation'
 
 export const uprightIOS = () =>
-	lockPlatformAsync({
-		screenOrientationArrayIOS: [Orientation.PORTRAIT_UP],
-	})
+  lockPlatformAsync({
+    screenOrientationArrayIOS: [Orientation.PORTRAIT_UP],
+  })
 export const followUserAndroid = () =>
-	lockPlatformAsync({
-		screenOrientationConstantAndroid: 13, // ActivityInfo.SCREEN_ORIENTATION_FULL_USER
-	})
+  lockPlatformAsync({
+    screenOrientationConstantAndroid: 13, // ActivityInfo.SCREEN_ORIENTATION_FULL_USER
+  })
 export const naturalWeb = () =>
-	lockPlatformAsync({
-		screenOrientationLockWeb: WebOrientationLock.NATURAL,
-	})
+  lockPlatformAsync({
+    screenOrientationLockWeb: WebOrientationLock.NATURAL,
+  })
 ```
 
 Policy queries read native UIKit/Activity state on phones. Browsers have no
@@ -202,8 +202,8 @@ or an external fullscreen exit cannot be inferred from that cached request.
 
 ```ts
 import {
-	getOrientationLockAsync,
-	getPlatformOrientationLockAsync,
+  getOrientationLockAsync,
+  getPlatformOrientationLockAsync,
 } from '@octane-xplat/screen-orientation'
 
 console.log(await getOrientationLockAsync())
@@ -227,7 +227,7 @@ Deprecated Expo listener-removal aliases are omitted; use `subscription.remove()
 import { ScreenOrientation, getOrientationAsync } from '@octane-xplat/screen-orientation'
 
 if (await ScreenOrientation.isAvailable()) {
-	console.log(await getOrientationAsync())
+  console.log(await getOrientationAsync())
 }
 ```
 

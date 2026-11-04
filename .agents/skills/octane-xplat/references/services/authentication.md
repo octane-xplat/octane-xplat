@@ -44,7 +44,7 @@ store is used; there is no app-shell JS bridge or Safari-profile promise.
 ```ts
 import { webBrowser } from '@octane-xplat/web-browser'
 export async function openHelp(address: string) {
-	return webBrowser.openBrowser(address)
+  return webBrowser.openBrowser(address)
 }
 export const closeHelp = () => webBrowser.dismissBrowser()
 ```
@@ -82,7 +82,7 @@ thread; actual native thread behavior is unqualified.
 ```ts
 import { authSession } from '@octane-xplat/platform'
 const result = await authSession.open('https://example.com/authorize', {
-	callbackScheme: 'myapp', prefersEphemeralSession: true,
+  callbackScheme: 'myapp', prefersEphemeralSession: true,
 })
 ```
 
@@ -111,7 +111,7 @@ required before establishing an app session.
 ```ts
 import { appleAuth } from '@octane-xplat/auth'
 export async function beginAppleSignIn(backendAttemptNonce: string) {
-	return appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
+  return appleAuth.signIn({ scopes: ['email'], nonce: backendAttemptNonce })
 }
 ```
 
@@ -135,7 +135,7 @@ style/type attachment changes keep the component's pending result ownership.
 ```tsx
 import { GoogleSignInButton } from '@octane-xplat/auth'
 export function Entry() {
-	return <GoogleSignInButton onResult={(result) => console.log(result.status)} />
+  return <GoogleSignInButton onResult={(result) => console.log(result.status)} />
 }
 ```
 

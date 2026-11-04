@@ -16,11 +16,11 @@ now include an explicit kind; mark command rows as `action`:
 
 ```tsx
 <DropdownMenu
-	button={{ label: 'Actions' }}
-	items={[
-		{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
-		{ type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
-	]}
+  button={{ label: 'Actions' }}
+  items={[
+    { type: 'action', key: 'rename', label: 'Rename', onSelect: rename },
+    { type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
+  ]}
 />
 ```
 
@@ -99,7 +99,7 @@ The inherited macOS Popover does not guarantee custom alignment or offset.
 
 ```tsx
 <DropdownMenu button={{ label: 'Actions' }}>
-	<DropdownMenuItem label="Save draft" onSelect={saveDraft} hasCloseOnSelect={false} />
+  <DropdownMenuItem label="Save draft" onSelect={saveDraft} hasCloseOnSelect={false} />
 </DropdownMenu>
 ```
 
@@ -113,11 +113,11 @@ implementations and state ownership.
 
 ```tsx
 <ContextMenu
-	trigger={<Text>Actions</Text>}
-	accessibilityLabel="Open file actions"
-	items={[{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename }]}
+  trigger={<Text>Actions</Text>}
+  accessibilityLabel="Open file actions"
+  items={[{ type: 'action', key: 'rename', label: 'Rename', onSelect: rename }]}
 >
-	<Text>report.txt</Text>
+  <Text>report.txt</Text>
 </ContextMenu>
 ```
 
@@ -148,13 +148,13 @@ menu trigger. The current page remains visible.
 
 ```tsx
 <Breadcrumbs
-	maxVisibleItems={2}
-	items={[
-		{ label: 'Home', onSelect: openHome },
-		{ label: 'Projects', onSelect: openProjects },
-		{ label: 'Reports', onSelect: openReports },
-		{ label: 'Current report' },
-	]}
+  maxVisibleItems={2}
+  items={[
+    { label: 'Home', onSelect: openHome },
+    { label: 'Projects', onSelect: openProjects },
+    { label: 'Reports', onSelect: openReports },
+    { label: 'Current report' },
+  ]}
 />
 ```
 
@@ -181,9 +181,9 @@ class; this does not qualify native paint.
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions({ disabled }: { disabled: boolean }) {
-	return <DropdownMenu isDisabled={disabled} button={{ id: 'actions', label: 'Actions' }}>
-		<DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
-	</DropdownMenu>
+  return <DropdownMenu isDisabled={disabled} button={{ id: 'actions', label: 'Actions' }}>
+    <DropdownMenuItem label="Remove" variant="destructive" isDisabled={disabled} />
+  </DropdownMenu>
 }
 ```
 
@@ -198,10 +198,10 @@ import { useState } from 'octane'
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function ControlledActions({ disabled }: { disabled: boolean }) {
-	const [open, setOpen] = useState(false)
-	return <DropdownMenu isOpen={open} onOpenChange={setOpen} isDisabled={disabled} button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-	</DropdownMenu>
+  const [open, setOpen] = useState(false)
+  return <DropdownMenu isOpen={open} onOpenChange={setOpen} isDisabled={disabled} button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+  </DropdownMenu>
 }
 ```
 
@@ -220,9 +220,9 @@ dismissal retains its existing error path.
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function LocalActions({ saving }: { saving: boolean }) {
-	return <DropdownMenu button={{ label: 'Actions', isLoading: saving }}>
-		<DropdownMenuItem label="Archive" />
-	</DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions', isLoading: saving }}>
+    <DropdownMenuItem label="Archive" />
+  </DropdownMenu>
 }
 ```
 
@@ -247,13 +247,13 @@ the popup attaches. IME and modified shortcuts keep their existing ownership.
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />
-		<DropdownMenuItem label="Remove" isDisabled />
-		<DropdownMenuSubMenu label="Export">
-			<DropdownMenuItem label="Text" onSelect={() => console.log('export')} />
-		</DropdownMenuSubMenu>
-	</DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />
+    <DropdownMenuItem label="Remove" isDisabled />
+    <DropdownMenuSubMenu label="Export">
+      <DropdownMenuItem label="Text" onSelect={() => console.log('export')} />
+    </DropdownMenuSubMenu>
+  </DropdownMenu>
 }
 ```
 
@@ -282,10 +282,10 @@ ownership. Ordinary pointer/Enter/Space opening resets focus intent to the first
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ id: 'actions', label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-		<DropdownMenuItem label="Export" />
-	</DropdownMenu>
+  return <DropdownMenu button={{ id: 'actions', label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+    <DropdownMenuItem label="Export" />
+  </DropdownMenu>
 }
 ```
 
@@ -310,10 +310,10 @@ import { useState } from 'octane'
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	const [open, setOpen] = useState(false)
-	return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-	</DropdownMenu>
+  const [open, setOpen] = useState(false)
+  return <DropdownMenu isOpen={open} onOpenChange={setOpen} button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+  </DropdownMenu>
 }
 ```
 
@@ -344,10 +344,10 @@ trigger, so provide its content with trigger; DropdownMenu uses button instead.
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu label="Document actions" trigger="Actions"
-		menu={<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu label="Document actions" trigger="Actions"
+    menu={<DropdownMenuItem label="Archive" onSelect={() => console.log('archive')} />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -374,9 +374,9 @@ opening:
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu label="Document actions" trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -404,9 +404,9 @@ No special keyboard prop is required:
 import { Button, ContextMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Document() {
-	return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
-		<Button label="report.txt" clickAction={() => console.log('select')} />
-	</ContextMenu>
+  return <ContextMenu trigger="Actions" menu={<DropdownMenuItem label="Archive" />}>
+    <Button label="report.txt" clickAction={() => console.log('select')} />
+  </ContextMenu>
 }
 ```
 
@@ -429,10 +429,10 @@ when an action fires. Keep meaningful text labels on menu actions:
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu } from '@octane-xplat/ui'
 
 export function Actions() {
-	return <DropdownMenu button={{ label: 'Actions' }}>
-		<DropdownMenuItem label="Archive" />
-		<DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
-	</DropdownMenu>
+  return <DropdownMenu button={{ label: 'Actions' }}>
+    <DropdownMenuItem label="Archive" />
+    <DropdownMenuSubMenu label="More"><DropdownMenuItem label="Export" /></DropdownMenuSubMenu>
+  </DropdownMenu>
 }
 ```
 
@@ -458,12 +458,12 @@ import { useState } from 'octane'
 import { DropdownMenu, DropdownMenuItem } from '@octane-xplat/ui'
 
 export function Actions() {
-	const [show, setShow] = useState(true)
-	return <DropdownMenu button={{ label: 'Actions' }}>
-		{show && <DropdownMenuItem label="Remove this action" hasCloseOnSelect={false}
-			onSelect={() => setShow(false)} />}
-		<DropdownMenuItem label="Keep working" hasCloseOnSelect={false} />
-	</DropdownMenu>
+  const [show, setShow] = useState(true)
+  return <DropdownMenu button={{ label: 'Actions' }}>
+    {show && <DropdownMenuItem label="Remove this action" hasCloseOnSelect={false}
+      onSelect={() => setShow(false)} />}
+    <DropdownMenuItem label="Keep working" hasCloseOnSelect={false} />
+  </DropdownMenu>
 }
 ```
 
@@ -477,7 +477,7 @@ this owner:
 
 ```tsx
 <DropdownMenuItem label="Export" isDisabled={!canExport} hasCloseOnSelect={false}
-	onSelect={exportDocument} />
+  onSelect={exportDocument} />
 ```
 
 Five policy, three object-driver surface cases and one appended TabMenu case are

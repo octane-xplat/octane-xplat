@@ -4,7 +4,7 @@ Web, iOS and Android can now switch cameras during a take while keeping audio ac
 
 ```ts
 if ((await session.capabilities()).cameraSwitchDuringRecording) {
-	await session.switchCamera('front') // While the take is recording.
+  await session.switchCamera('front') // While the take is recording.
 }
 ```
 

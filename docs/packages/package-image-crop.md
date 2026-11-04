@@ -31,36 +31,36 @@ import { ImageCrop, toNaturalCrop } from '@octane-xplat/image-crop'
 import type { Crop } from '@octane-xplat/image-crop'
 
 export function PhotoSelection() {
-	const [crop, setCrop] = useState<Crop>({
-		unit: '%',
-		x: 25,
-		y: 25,
-		width: 50,
-		height: 50,
-	})
-	return (
-		<ImageCrop
-			src="https://example.com/photo.jpg"
-			alt="Photo to crop"
-			imageWidth={1600}
-			imageHeight={1200}
-			width={400}
-			height={300}
-			crop={crop}
-			aspect={4 / 3}
-			minWidth={40}
-			ruleOfThirds
-			onChange={(_, percent) => setCrop(percent)}
-			onComplete={(pixel) => {
-				const natural = toNaturalCrop(
-					pixel,
-					{ width: 400, height: 300 },
-					{ width: 1600, height: 1200 },
-				)
-				console.log(natural)
-			}}
-		/>
-	)
+  const [crop, setCrop] = useState<Crop>({
+    unit: '%',
+    x: 25,
+    y: 25,
+    width: 50,
+    height: 50,
+  })
+  return (
+    <ImageCrop
+      src="https://example.com/photo.jpg"
+      alt="Photo to crop"
+      imageWidth={1600}
+      imageHeight={1200}
+      width={400}
+      height={300}
+      crop={crop}
+      aspect={4 / 3}
+      minWidth={40}
+      ruleOfThirds
+      onChange={(_, percent) => setCrop(percent)}
+      onComplete={(pixel) => {
+        const natural = toNaturalCrop(
+          pixel,
+          { width: 400, height: 300 },
+          { width: 1600, height: 1200 },
+        )
+        console.log(natural)
+      }}
+    />
+  )
 }
 ```
 
@@ -114,10 +114,10 @@ calls `releaseImage(result)` afterward.
 import { exportCrop } from './export-crop'
 
 export function saveSelection(
-	sourceUri: string,
-	natural: { x: number; y: number; width: number; height: number },
+  sourceUri: string,
+  natural: { x: number; y: number; width: number; height: number },
 ) {
-	return exportCrop(sourceUri, natural)
+  return exportCrop(sourceUri, natural)
 }
 ```
 

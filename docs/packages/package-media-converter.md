@@ -28,19 +28,19 @@ picked content into an app-owned local file first when necessary.
 import { convertGif, isAvailable, releaseVideo } from '@octane-xplat/media-converter'
 
 export async function uploadAnimation(
-	sourceUri: string,
-	upload: (videoUri: string) => Promise<void>,
+  sourceUri: string,
+  upload: (videoUri: string) => Promise<void>,
 ) {
-	if (!(await isAvailable('mp4'))) {
-		throw new Error('MP4 conversion is unavailable on this device')
-	}
-	const job = convertGif(sourceUri, { format: 'mp4' })
-	const video = await job.result
-	try {
-		await upload(video.uri)
-	} finally {
-		releaseVideo(video)
-	}
+  if (!(await isAvailable('mp4'))) {
+    throw new Error('MP4 conversion is unavailable on this device')
+  }
+  const job = convertGif(sourceUri, { format: 'mp4' })
+  const video = await job.result
+  try {
+    await upload(video.uri)
+  } finally {
+    releaseVideo(video)
+  }
 }
 ```
 
@@ -54,12 +54,12 @@ must survive the current page or temporary directory. The maintained
 import { convertGif, releaseVideo } from '@octane-xplat/media-converter'
 
 export async function inspectConversion(sourceUri: string) {
-	const video = await convertGif(sourceUri).result
-	try {
-		return { width: video.width, height: video.height, durationMs: video.duration }
-	} finally {
-		releaseVideo(video)
-	}
+  const video = await convertGif(sourceUri).result
+  try {
+    return { width: video.width, height: video.height, durationMs: video.duration }
+  } finally {
+    releaseVideo(video)
+  }
 }
 ```
 
@@ -75,13 +75,13 @@ and rejects its promise. This helper gives the UI both operations.
 import { convertGif } from '@octane-xplat/media-converter'
 
 export function startAttachment(sourceUri: string, updateProgress: (value: number) => void) {
-	const job = convertGif(sourceUri, {
-		format: 'mp4',
-		backgroundColor: '#ffffff',
-		bitrate: 2_000_000,
-		onProgress: updateProgress,
-	})
-	return { cancel: () => job.cancel(), result: job.result }
+  const job = convertGif(sourceUri, {
+    format: 'mp4',
+    backgroundColor: '#ffffff',
+    bitrate: 2_000_000,
+    onProgress: updateProgress,
+  })
+  return { cancel: () => job.cancel(), result: job.result }
 }
 ```
 
@@ -97,7 +97,7 @@ next even pixel. The default target bitrate is 2,000,000 bits per second.
 import { convertGif } from '@octane-xplat/media-converter'
 
 export function whiteBackgroundVideo(sourceUri: string) {
-	return convertGif(sourceUri, { backgroundColor: '#ffffff', bitrate: 2_000_000 })
+  return convertGif(sourceUri, { backgroundColor: '#ffffff', bitrate: 2_000_000 })
 }
 ```
 
@@ -120,8 +120,8 @@ between frames; native conversions run on background threads.
 import { convertGif, isAvailable } from '@octane-xplat/media-converter'
 
 export async function startWebM(sourceUri: string) {
-	if (!(await isAvailable('webm'))) throw new Error('WebM encoding is unavailable')
-	return convertGif(sourceUri, { format: 'webm' })
+  if (!(await isAvailable('webm'))) throw new Error('WebM encoding is unavailable')
+  return convertGif(sourceUri, { format: 'webm' })
 }
 ```
 

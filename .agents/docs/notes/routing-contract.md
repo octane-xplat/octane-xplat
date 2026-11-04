@@ -48,9 +48,9 @@ linear browser history uses one request scope.
 
 ```ts
 const preparation = createRoutePreparation({
-	catalog,
-	history: 'linear',
-	createCancellationController: hostCancellationFactory,
+  catalog,
+  history: 'linear',
+  createCancellationController: hostCancellationFactory,
 })
 ```
 
@@ -79,11 +79,11 @@ migration before these preparation callbacks become ordinary navigation hooks.
 import { defineRoute, defineRoutes, createRoutePreparation } from '@octane-xplat/ui/routing/core'
 
 const item = defineRoute({
-	path: '/items/:id',
-	validateSearch(raw: { page?: unknown }) {
-		return { page: Number(raw.page ?? 1) }
-	},
-	loader: ({ params, search }) => ({ title: params.id, page: search.page }),
+  path: '/items/:id',
+  validateSearch(raw: { page?: unknown }) {
+    return { page: Number(raw.page ?? 1) }
+  },
+  loader: ({ params, search }) => ({ title: params.id, page: search.page }),
 }).screen(({ data }) => data.title)
 const preparation = createRoutePreparation({ catalog: defineRoutes([item]) })
 const result = await preparation.prepare('/items/coat?page=2')
@@ -108,7 +108,7 @@ augmentation.
 
 ```json
 {
-	"manifests": [{ "module": "./src/guides.tsrx", "export": "guideRoutes" }]
+  "manifests": [{ "module": "./src/guides.tsrx", "export": "guideRoutes" }]
 }
 ```
 
@@ -174,10 +174,10 @@ claiming a flow after a newer navigation has already finished there.
 import type { RouterHostChange, RouterHostCommand } from '@octane-xplat/ui/routing/core'
 
 function onBrowserBack(notifyRouter: (change?: RouterHostChange) => void) {
-	notifyRouter({ external: true, flow: 'root' })
+  notifyRouter({ external: true, flow: 'root' })
 }
 function mayCommit(command: RouterHostCommand) {
-	return command.beginCommit()
+  return command.beginCommit()
 }
 ```
 
@@ -204,14 +204,14 @@ supply the minimal cancellation protocol or omit cooperative cancellation.
 
 ```ts
 const accountRoute = defineRoute.withContext<{ account: { id: string } }>()({
-	path: '/account',
-	beforeLoad: ({ context }) => ({ owner: context.account.id }),
-	loader: ({ context, signal }) => fetch('/api/account', { signal }).then(() => context.owner),
+  path: '/account',
+  beforeLoad: ({ context }) => ({ owner: context.account.id }),
+  loader: ({ context, signal }) => fetch('/api/account', { signal }).then(() => context.owner),
 }).screen(({ data }) => data)
 const accountNavigation = createRouter({
-	catalog: defineRoutes([accountRoute]),
-	host: createHost(),
-	context: { account: { id: 'a' } },
+  catalog: defineRoutes([accountRoute]),
+  host: createHost(),
+  context: { account: { id: 'a' } },
 })
 accountNavigation.dispose()
 ```
@@ -240,8 +240,8 @@ loaders and navigation started synchronously from their abort callbacks.
 
 ```ts
 const registration = navigation.addRoutes(pluginRoutes, {
-	id: 'guides',
-	conflict: 'replace', // deliberate override; omitted means collision error
+  id: 'guides',
+  conflict: 'replace', // deliberate override; omitted means collision error
 })
 registration.dispose()
 ```
@@ -326,7 +326,7 @@ scope is an error while default client wiring is still being migrated.
 
 ```tsx
 <RouterProvider router={navigation}>
-	<CustomHostContent />
+  <CustomHostContent />
 </RouterProvider>
 ```
 
@@ -416,12 +416,12 @@ or explicit loader-data type arguments are needed.
 ```ts
 const withAccount = defineRoute.withContext<{ account: { id: string } }>()
 function NamedDetail(_props: { params: { id: string }; data: { title: string } }) {
-	return null
+  return null
 }
 const detail = withAccount({
-	path: '/detail/:id',
-	beforeLoad: ({ context }) => ({ owner: context.account.id }),
-	loader: ({ params, context }) => ({ title: context.owner + params.id }),
+  path: '/detail/:id',
+  beforeLoad: ({ context }) => ({ owner: context.account.id }),
+  loader: ({ params, context }) => ({ title: context.owner + params.id }),
 }).screen(NamedDetail)
 ```
 
@@ -549,10 +549,10 @@ retain their existing visibility behavior.
 ```tsx
 // Inside the internal AppKit pane leaf:
 <View
-	ref={(view) => {
-		if (view) view.hidden = !active
-	}}
-	style={{ display: active ? 'flex' : 'none', flexGrow: 1 }}
+  ref={(view) => {
+    if (view) view.hidden = !active
+  }}
+  style={{ display: active ? 'flex' : 'none', flexGrow: 1 }}
 />
 ```
 
@@ -602,7 +602,7 @@ installed Octane 0.11.0; it is not a claim about every mapped JSX list.
 ```tsrx
 // Inside the internal owned-content outlet:
 @for (const entry of entries; key entry.id) {
-	<OwnedEntry entry={entry} />
+  <OwnedEntry entry={entry} />
 }
 ```
 
@@ -652,10 +652,10 @@ currently return skipped/unsupported rather than claiming a custom animation.
 
 ```ts
 const result = await navigation.push({
-	to: '/refined/:id',
-	params: { id: 'coat' },
-	presentation: 'modal',
-	transition: 'none',
+  to: '/refined/:id',
+  params: { id: 'coat' },
+  presentation: 'modal',
+  transition: 'none',
 })
 if (result.status === 'committed') await result.finished
 ```
@@ -705,8 +705,8 @@ declaring Page even when the native Frame has older unowned entries.
 ```ts
 // Internal host composition; the application's shell owns these dependencies.
 const platform = createNativeModalRouterHost({
-	getFrame,
-	isFlowActive: (flow) => flow === 'root' || flow === selectedPane,
+  getFrame,
+  isFlowActive: (flow) => flow === 'root' || flow === selectedPane,
 })
 ```
 
@@ -743,8 +743,8 @@ on AppKit.
 ```ts
 // Internal native composition; getFrame belongs to the owning app/window.
 const platform = createNativeModalRouterHost({
-	getFrame,
-	frameFlows: ['root'], // named flows use retained rendered panes
+  getFrame,
+  frameFlows: ['root'], // named flows use retained rendered panes
 })
 ```
 
@@ -757,10 +757,10 @@ still complete while another flow awaits native presentation.
 ```tsx
 // The same explicit instance owns both outlets and their modal descendants.
 <ClientRouteOutlet host={platform}>
-	<AppShell />
-	<ClientRouteOutlet host={platform} flow="detail-pane">
-		<DetailPaneBase />
-	</ClientRouteOutlet>
+  <AppShell />
+  <ClientRouteOutlet host={platform} flow="detail-pane">
+    <DetailPaneBase />
+  </ClientRouteOutlet>
 </ClientRouteOutlet>
 ```
 
@@ -787,16 +787,16 @@ import type { RouterHostCommand } from '@octane-xplat/ui/routing'
 
 // Internal adapter composition; the base host controls candidate staging.
 function withSurfaceCleanup(
-	command: RouterHostCommand,
-	closeSurfaces: () => Promise<void>,
+  command: RouterHostCommand,
+  closeSurfaces: () => Promise<void>,
 ): RouterHostCommand {
-	return {
-		...command,
-		async beforeMutation() {
-			await command.beforeMutation?.()
-			await closeSurfaces()
-		},
-	}
+  return {
+    ...command,
+    async beforeMutation() {
+      await command.beforeMutation?.()
+      await closeSurfaces()
+    },
+  }
 }
 ```
 
@@ -814,15 +814,15 @@ candidate checks do not establish rollback for those operations.
 ```ts
 // Example helper inside an adapter, after host-specific candidate staging.
 async function mutateIfCurrent(
-	command: RouterHostCommand,
-	isOwnerMounted: () => boolean,
-	mutate: () => void,
+  command: RouterHostCommand,
+  isOwnerMounted: () => boolean,
+  mutate: () => void,
 ): Promise<boolean> {
-	if (!command.beginCommit()) return false
-	await command.beforeMutation?.()
-	if (!command.isCurrent() || !isOwnerMounted()) return false
-	mutate()
-	return true
+  if (!command.beginCommit()) return false
+  await command.beforeMutation?.()
+  if (!command.isCurrent() || !isOwnerMounted()) return false
+  mutate()
+  return true
 }
 ```
 
@@ -876,9 +876,9 @@ import { createRouter, defineRoute, defineRoutes } from '@octane-xplat/ui/routin
 import type { RouterHost } from '@octane-xplat/ui/routing/core'
 
 export function createPaneNavigation(host: RouterHost) {
-	const catalog = defineRoutes([defineRoute({ path: '/help' }).screen(() => null)])
-	const navigation = createRouter({ catalog, host, stacks: ['library', 'settings'] })
-	return { navigation, library: navigation.forStack('library') }
+  const catalog = defineRoutes([defineRoute({ path: '/help' }).screen(() => null)])
+  const navigation = createRouter({ catalog, host, stacks: ['library', 'settings'] })
+  return { navigation, library: navigation.forStack('library') }
 }
 ```
 
@@ -948,11 +948,11 @@ import { routes } from './routes.gen.catalog.web'
 
 configureRouter({ catalog: routes })
 export function Client() {
-	return (
-		<RouteOutlet>
-			<p>Home</p>
-		</RouteOutlet>
-	)
+  return (
+    <RouteOutlet>
+      <p>Home</p>
+    </RouteOutlet>
+  )
 }
 ```
 
@@ -1008,12 +1008,12 @@ The combined value retains each configured manifest's inferred legacy params.
 // Generated-only glue; RouteParams/RouteContracts are inferred above it.
 declare const registration: unique symbol
 declare module '@octane-xplat/ui' {
-	interface AppRoutes {
-		[registration]: RouteParams
-	}
-	interface AppRouteContracts {
-		[registration]: RouteContracts
-	}
+  interface AppRoutes {
+    [registration]: RouteParams
+  }
+  interface AppRouteContracts {
+    [registration]: RouteContracts
+  }
 }
 ```
 
@@ -1084,7 +1084,7 @@ late control outcomes. Legacy redirect carriers retain their existing mapping.
 // Host-free preparation outcome; a future HTTP adapter can return its Location.
 const result = await preparation.prepare('/old-item', { redirects: 'return' })
 if (result.status === 'redirect') {
-	const location = preparation.href(result.destination)
+  const location = preparation.href(result.destination)
 }
 ```
 
@@ -1117,17 +1117,17 @@ Browser routed entries themselves still remount during historical traversal.
 ```tsx
 // Client configured with stacks: ['saved', 'search'] before rendering.
 function Saved() {
-	return <Text>Saved</Text>
+  return <Text>Saved</Text>
 }
 function Search() {
-	return <Text>Search</Text>
+  return <Text>Search</Text>
 }
 const panes = [
-	{ key: 'saved', title: 'Saved', stack: 'saved', render: Saved },
-	{ key: 'search', title: 'Search', stack: 'search', render: Search },
+  { key: 'saved', title: 'Saved', stack: 'saved', render: Saved },
+  { key: 'search', title: 'Search', stack: 'search', render: Search },
 ]
 function Library() {
-	return <Tabs tabs={panes} />
+  return <Tabs tabs={panes} />
 }
 ```
 
@@ -1211,8 +1211,8 @@ requires migration to `useRouter()` beneath an owned outlet.
 
 ```tsx
 function BackButton() {
-	const navigation = useRouter()
-	return <Pressable onPress={() => navigation.back()}><Text>Back</Text></Pressable>
+  const navigation = useRouter()
+  return <Pressable onPress={() => navigation.back()}><Text>Back</Text></Pressable>
 }
 ```
 

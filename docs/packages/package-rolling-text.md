@@ -17,13 +17,13 @@ bun add @octane-xplat/rolling-text
 import { RollingText } from '@octane-xplat/rolling-text'
 
 function CartBadge({ count }: { count: number }) {
-	return (
-		<RollingText
-			value={`${count} items`}
-			transition={{ duration: 0.25 }}
-			accessibilityLabel={`${count} items in your cart`}
-		/>
-	)
+  return (
+    <RollingText
+      value={`${count} items`}
+      transition={{ duration: 0.25 }}
+      accessibilityLabel={`${count} items in your cart`}
+    />
+  )
 }
 ```
 
@@ -99,6 +99,6 @@ layout change affects the distance used by the next roll.
 import { RollingText } from '@octane-xplat/rolling-text'
 
 export function LargeCounter({ count }: { count: number }) {
-	return <RollingText value={`${count}`} style={{ fontSize: 32, height: 40 }} />
+  return <RollingText value={`${count}`} style={{ fontSize: 32, height: 40 }} />
 }
 ```

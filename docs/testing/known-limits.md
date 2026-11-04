@@ -67,7 +67,7 @@ breaking the frame's shared appearance.
 import { WebView } from '@octane-xplat/ui'
 
 export function Help() {
-	return <WebView src="https://example.com/help" className="flex-1" />
+  return <WebView src="https://example.com/help" className="flex-1" />
 }
 ```
 
@@ -109,7 +109,7 @@ importing them fails the other platform's build on purpose:
 import { UISwitch } from '@octane-xplat/ui/ios'
 
 export function PackedToggle(props: { packed: boolean; onChange: (value: boolean) => void }) {
-	return <UISwitch value={props.packed} onChange={props.onChange} />
+  return <UISwitch value={props.packed} onChange={props.onChange} />
 }
 ```
 
@@ -154,13 +154,13 @@ and [list evidence boundaries](../../.agents/docs/notes/primitive-notes.md#virtu
 import { VirtualList, Text } from '@octane-xplat/ui'
 
 export function PackingList(props: { items: { id: string; label: string }[] }) {
-	return (
-		<VirtualList
-			items={props.items}
-			keyExtractor={(item) => item.id}
-			renderItem={(item) => <Text>{item.label}</Text>}
-		/>
-	)
+  return (
+    <VirtualList
+      items={props.items}
+      keyExtractor={(item) => item.id}
+      renderItem={(item) => <Text>{item.label}</Text>}
+    />
+  )
 }
 ```
 
@@ -225,8 +225,8 @@ features remain separate. See the [source subset](../packages/package-video.md#e
 ```tsx
 import { Video } from '@octane-xplat/video'
 export function Clip({ source }: { source: string }) {
-	return <Video src={source} style={{ width: 320, height: 220 }}
-		onError={({ message }) => console.warn(message)} />
+  return <Video src={source} style={{ width: 320, height: 220 }}
+    onError={({ message }) => console.warn(message)} />
 }
 ```
 
@@ -250,15 +250,15 @@ live updates, and supported close/reopen cleanup for the migrated boundaries.
 import { Dialog, Text } from '@octane-xplat/ui'
 
 export function Preview(props: {
-	open: boolean
-	title: string
-	onOpenChange: (open: boolean) => void
+  open: boolean
+  title: string
+  onOpenChange: (open: boolean) => void
 }) {
-	return (
-		<Dialog isOpen={props.open} onOpenChange={props.onOpenChange}>
-			<Text>{props.title}</Text>
-		</Dialog>
-	)
+  return (
+    <Dialog isOpen={props.open} onOpenChange={props.onOpenChange}>
+      <Text>{props.title}</Text>
+    </Dialog>
+  )
 }
 ```
 
@@ -458,13 +458,13 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   import { getOutlineFromViewCapabilities } from '@octane-xplat/ui/macos'
 
   export function canDiscoverOutlineFromView() {
-  	const { isSupported, mode } = getOutlineFromViewCapabilities()
-  	return isSupported && mode === 'snapshot'
+    const { isSupported, mode } = getOutlineFromViewCapabilities()
+    return isSupported && mode === 'snapshot'
   }
 
   export function ArticleOutline(props: { doc: Parameters<typeof useOutlineFromDoc>[0] }) {
-  	const items = useOutlineFromDoc(props.doc)
-  	return <Outline items={items} />
+    const items = useOutlineFromDoc(props.doc)
+    return <Outline items={items} />
   }
   ```
 
@@ -552,26 +552,26 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 
   ```tsx
   import {
-  	FocusScope,
-  	Text,
-  	getFocusScopeCapabilities,
-  	useFocusVisible,
-  	useGridList,
+    FocusScope,
+    Text,
+    getFocusScopeCapabilities,
+    useFocusVisible,
+    useGridList,
   } from '@octane-xplat/ui'
 
   export function FocusSupport() {
-  	const scope = getFocusScopeCapabilities()
-  	const modality = useFocusVisible()
-  	const canTrackGridKeys = useGridList().isSupported
-  	return (
-  		<FocusScope
-  			contain={scope.contain}
-  			autoFocus={scope.autoFocus}
-  			restoreFocus={scope.restoreFocus}
-  		>
-  			<Text>{`Grid keys: ${canTrackGridKeys}; modality: ${modality.inputModality}; nested scopes: ${scope.nestedScopes}`}</Text>
-  		</FocusScope>
-  	)
+    const scope = getFocusScopeCapabilities()
+    const modality = useFocusVisible()
+    const canTrackGridKeys = useGridList().isSupported
+    return (
+      <FocusScope
+        contain={scope.contain}
+        autoFocus={scope.autoFocus}
+        restoreFocus={scope.restoreFocus}
+      >
+        <Text>{`Grid keys: ${canTrackGridKeys}; modality: ${modality.inputModality}; nested scopes: ${scope.nestedScopes}`}</Text>
+      </FocusScope>
+    )
   }
   ```
 
@@ -622,9 +622,9 @@ Existing CSS transforms need an outer container.
 import { LayoutGroup, motion } from '@octane-xplat/motion'
 
 export function LayoutSelection({ selected }: { selected: number }) {
-	return <LayoutGroup id="tabs">
-		<motion.View key={selected} layoutId="underline" style={{ marginLeft: selected * 100, width: 80, height: 4 }} />
-	</LayoutGroup>
+  return <LayoutGroup id="tabs">
+    <motion.View key={selected} layoutId="underline" style={{ marginLeft: selected * 100, width: 80, height: 4 }} />
+  </LayoutGroup>
 }
 ```
 
@@ -648,40 +648,40 @@ import { View, Pressable, Text } from '@octane-xplat/ui'
 const MotionCard = motion.create(View)
 
 export function Card() {
-	const [scope, animate] = useAnimate()
+  const [scope, animate] = useAnimate()
 
-	return (
-		<>
-			<MotionCard
-				ref={scope}
-				initial="hidden"
-				animate={['visible', 'selected']}
-				custom={20}
-				variants={{
-					hidden: { opacity: 0 },
-					visible: { opacity: 1 },
-					selected: (x: number) => ({ x }),
-				}}
-				whileTap={{ scale: 0.95 }}
-				whileFocus={{ scale: 1.05 }}
-				transition={{
-					default: { duration: 0.2 },
-					x: { type: 'spring', duration: 0.5, bounce: 0.2 },
-				}}
-				onAnimationStart={() => console.log('Started')}
-				onAnimationComplete={() => console.log('Finished')}
-			>
-				<motion.View animate={{ opacity: 1 }} transition={{ repeat: 1, repeatType: 'reverse' }} />
-			</MotionCard>
-			<Pressable
-				onPress={() => {
-					void animate({ x: 40 }, { duration: 0.2 })
-				}}
-			>
-				<Text>Move</Text>
-			</Pressable>
-		</>
-	)
+  return (
+    <>
+      <MotionCard
+        ref={scope}
+        initial="hidden"
+        animate={['visible', 'selected']}
+        custom={20}
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1 },
+          selected: (x: number) => ({ x }),
+        }}
+        whileTap={{ scale: 0.95 }}
+        whileFocus={{ scale: 1.05 }}
+        transition={{
+          default: { duration: 0.2 },
+          x: { type: 'spring', duration: 0.5, bounce: 0.2 },
+        }}
+        onAnimationStart={() => console.log('Started')}
+        onAnimationComplete={() => console.log('Finished')}
+      >
+        <motion.View animate={{ opacity: 1 }} transition={{ repeat: 1, repeatType: 'reverse' }} />
+      </MotionCard>
+      <Pressable
+        onPress={() => {
+          void animate({ x: 40 }, { duration: 0.2 })
+        }}
+      >
+        <Text>Move</Text>
+      </Pressable>
+    </>
+  )
 }
 ```
 
@@ -700,7 +700,7 @@ limits. See [drag setup](../app/animation-gestures.md#drag-a-component).
 import { motion } from '@octane-xplat/motion'
 
 export function DragCard() {
-	return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} />
+  return <motion.View drag="x" dragConstraints={{ left: -40, right: 40 }} dragElastic={false} />
 }
 // Native entry separately calls gesturehandler's install() before root creation.
 ```
@@ -720,13 +720,13 @@ import { Presence, motion } from '@octane-xplat/motion'
 import { TextInput } from '@octane-xplat/ui'
 
 export function Panel(props: { open: boolean }) {
-	return (
-		<Presence present={props.open}>
-			<motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-				<TextInput placeholder="Note" />
-			</motion.View>
-		</Presence>
-	)
+  return (
+    <Presence present={props.open}>
+      <motion.View animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <TextInput placeholder="Note" />
+      </motion.View>
+    </Presence>
+  )
 }
 ```
 
@@ -764,9 +764,9 @@ import { RichTextEditor } from '@octane-xplat/richtext'
 import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
-	const html$ = useSignal$('<p>Packing list</p>')
+  const html$ = useSignal$('<p>Packing list</p>')
 
-	return <RichTextEditor value={html$.get()} onChange={(html) => html$.set(html)} />
+  return <RichTextEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
 
@@ -800,9 +800,9 @@ import { TiptapEditor } from '@octane-xplat/tiptap'
 import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
-	const html$ = useSignal$('<p>Packing list</p>')
+  const html$ = useSignal$('<p>Packing list</p>')
 
-	return <TiptapEditor value={html$.get()} onChange={(html) => html$.set(html)} />
+  return <TiptapEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
 
@@ -830,9 +830,9 @@ property-escape regexes lazily with an ASCII fallback:
 ```ts
 let letterRe: RegExp
 try {
-	letterRe = new RegExp('\\p{L}', 'u') // full Unicode where ICU exists
+  letterRe = new RegExp('\\p{L}', 'u') // full Unicode where ICU exists
 } catch {
-	letterRe = /[A-Za-z]/ // iOS/Android fallback
+  letterRe = /[A-Za-z]/ // iOS/Android fallback
 }
 ```
 
@@ -841,9 +841,9 @@ import { LexicalEditor } from '@octane-xplat/lexical'
 import { useSignal$ } from 'octane/signals/client'
 
 export function Notes() {
-	const html$ = useSignal$('<p>Packing list</p>')
+  const html$ = useSignal$('<p>Packing list</p>')
 
-	return <LexicalEditor value={html$.get()} onChange={(html) => html$.set(html)} />
+  return <LexicalEditor value={html$.get()} onChange={(html) => html$.set(html)} />
 }
 ```
 
@@ -869,13 +869,13 @@ import { Pressable, Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 
 export function Toolbar() {
-	return (
-		<LiquidGlass>
-			<Pressable onPress={() => console.log('Pressed')}>
-				<Text>Action</Text>
-			</Pressable>
-		</LiquidGlass>
-	)
+  return (
+    <LiquidGlass>
+      <Pressable onPress={() => console.log('Pressed')}>
+        <Text>Action</Text>
+      </Pressable>
+    </LiquidGlass>
+  )
 }
 ```
 

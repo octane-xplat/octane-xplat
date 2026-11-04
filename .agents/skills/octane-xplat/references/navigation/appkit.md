@@ -18,11 +18,11 @@ import { useState } from 'octane'
 import { TabList, Tab } from '@octane-xplat/ui'
 
 export function Sections() {
-	const [value, setValue] = useState('overview')
-	return <TabList role="tablist" value={value} onChange={setValue}>
-		<Tab value="overview" label="Overview" />
-		<Tab value="details" label="Details" />
-	</TabList>
+  const [value, setValue] = useState('overview')
+  return <TabList role="tablist" value={value} onChange={setValue}>
+    <Tab value="overview" label="Overview" />
+    <Tab value="details" label="Details" />
+  </TabList>
 }
 ```
 
@@ -51,7 +51,7 @@ need evidence. See the [AppKit guide](../../../../../docs/app/navigation.md#open
 import { Link } from '@octane-xplat/ui'
 
 function AppLink(props: { href: string; onPress?: () => void }) {
-	return <Link href={props.href} as="a" onPress={props.onPress}>Help</Link>
+  return <Link href={props.href} as="a" onPress={props.onPress}>Help</Link>
 }
 export function CustomHelp() { return <Link as={AppLink} href="https://example.com/help">Help</Link> }
 ```
@@ -74,11 +74,11 @@ import { bindAppKitRouteLinks } from '@xplat/app/appkit-route-links.macos'
 
 // Private proving host only; app authors use the canonical public example.
 export default function AppKitApp(props: Parameters<typeof App>[0]) {
-	useEffect(() => {
-		try { return bindAppKitRouteLinks() }
-		catch { console.warn('[macos] Incoming link setup failed') }
-	}, [])
-	return <App {...props} />
+  useEffect(() => {
+    try { return bindAppKitRouteLinks() }
+    catch { console.warn('[macos] Incoming link setup failed') }
+  }, [])
+  return <App {...props} />
 }
 ```
 
@@ -104,10 +104,10 @@ empty lists disable/close. No public prop, dependency or separate layer is added
 import { TabList, Tab, TabMenu } from '@octane-xplat/ui'
 
 export function Sections(props: { value: string; change(value: string): void }) {
-	return <TabList role="tablist" value={props.value} onChange={props.change}>
-		<Tab value="overview" label="Overview" />
-		<TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
-	</TabList>
+  return <TabList role="tablist" value={props.value} onChange={props.change}>
+    <Tab value="overview" label="Overview" />
+    <TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
+  </TabList>
 }
 ```
 

@@ -18,7 +18,7 @@ Render the example component from your app:
 import { Badge } from 'octane-xplat-library'
 
 export function Welcome() {
-	return <Badge label="Ready" />
+  return <Badge label="Ready" />
 }
 ```
 

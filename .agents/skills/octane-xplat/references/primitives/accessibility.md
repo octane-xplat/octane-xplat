@@ -17,8 +17,8 @@ see [AppKit GridList](../../../../../docs/app/components.md#gridlist-on-appkit).
 import { GridList, Text } from '@octane-xplat/ui'
 
 export function Choices() {
-	return <GridList items={[{ id: 'one' }, { id: 'two' }]} columns={2}
-		selectionMode="single" renderItem={(item) => <Text>{item.id}</Text>} />
+  return <GridList items={[{ id: 'one' }, { id: 'two' }]} columns={2}
+    selectionMode="single" renderItem={(item) => <Text>{item.id}</Text>} />
 }
 ```
 
@@ -34,10 +34,10 @@ before relying on cancellation or FocusScope coordination.
 import { useKeyboard } from '@octane-xplat/ui'
 
 export function SearchField() {
-	const keyboard = useKeyboard({ onKeyDown: (event) => {
-		if (!event.isComposing) console.log(event.key, event.code)
-	} })
-	return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
+  const keyboard = useKeyboard({ onKeyDown: (event) => {
+    if (!event.isComposing) console.log(event.key, event.code)
+  } })
+  return <textfield accessibilityLabel="Search" {...keyboard.keyboardProps} />
 }
 ```
 
@@ -52,11 +52,11 @@ to their owning controls. Physical input, IME and VoiceOver require separate tar
 import { useFocusWithin } from '@octane-xplat/ui'
 
 export function Fields() {
-	const within = useFocusWithin({ onBlurWithin: () => console.log('left group') })
-	return <masonview {...within.focusWithinProps}>
-		<textfield placeholder="Name" />
-		<textfield placeholder="Notes" />
-	</masonview>
+  const within = useFocusWithin({ onBlurWithin: () => console.log('left group') })
+  return <masonview {...within.focusWithinProps}>
+    <textfield placeholder="Name" />
+    <textfield placeholder="Notes" />
+  </masonview>
 }
 ```
 
@@ -79,9 +79,9 @@ for the current subset and unqualified runtime cases.
 import { FocusScope, TextInput } from '@octane-xplat/ui'
 
 export function Details() {
-	return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
-		<TextInput label="Name" />
-	</FocusScope>
+  return <FocusScope contain autoFocus restoreFocus accessibilityLabel="Details">
+    <TextInput label="Name" />
+  </FocusScope>
 }
 ```
 
@@ -96,8 +96,8 @@ cleanup and the remaining FocusScope/mobile limits.
 import { Text, useFocusVisible } from '@octane-xplat/ui'
 
 export function InputStatus() {
-	const input = useFocusVisible()
-	return <Text>{input.isSupported ? input.inputModality : 'Unavailable'}</Text>
+  const input = useFocusVisible()
+  return <Text>{input.isSupported ? input.inputModality : 'Unavailable'}</Text>
 }
 ```
 
@@ -111,8 +111,8 @@ resize/rendering requires separate target qualification.
 import { Text, useMediaQuery } from '@octane-xplat/ui'
 
 export function LayoutHint() {
-	const wide = useMediaQuery('(min-width: 800px)')
-	return <Text>{wide ? 'Wide' : 'Compact'}</Text>
+  const wide = useMediaQuery('(min-width: 800px)')
+  return <Text>{wide ? 'Wide' : 'Compact'}</Text>
 }
 ```
 
@@ -125,10 +125,10 @@ and VoiceOver require separate target qualification. See [AppKit segments](../..
 import { SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
 
 export function ViewMode() {
-	return <SegmentedControl defaultValue="list" accessibilityLabel="View">
-		<SegmentedControlItem value="list" label="List" />
-		<SegmentedControlItem value="grid" label="Grid" />
-	</SegmentedControl>
+  return <SegmentedControl defaultValue="list" accessibilityLabel="View">
+    <SegmentedControlItem value="list" label="List" />
+    <SegmentedControlItem value="grid" label="Grid" />
+  </SegmentedControl>
 }
 ```
 
@@ -143,10 +143,10 @@ and overflow handling is not yet checked. See [Windows segments](../../../../../
 import { Icon, SegmentedControl, SegmentedControlItem } from '@octane-xplat/ui'
 
 export function Sorting(props: { value: string; onValueChange(value: string): void }) {
-	return <SegmentedControl value={props.value} onValueChange={props.onValueChange} ariaLabel="Sort">
-		<SegmentedControlItem value="newest" label="Newest" />
-		<SegmentedControlItem value="filter" label="Filter" isLabelHidden icon={<Icon name="xplat-funnel" />} />
-	</SegmentedControl>
+  return <SegmentedControl value={props.value} onValueChange={props.onValueChange} ariaLabel="Sort">
+    <SegmentedControlItem value="newest" label="Newest" />
+    <SegmentedControlItem value="filter" label="Filter" isLabelHidden icon={<Icon name="xplat-funnel" />} />
+  </SegmentedControl>
 }
 ```
 
@@ -164,7 +164,7 @@ alone did not prove that renderer bridge. See
 import { Slider, Switch } from '@octane-xplat/ui'
 
 export function Settings() {
-	return <><Switch label="Alerts" defaultValue /><Slider label="Volume" defaultValue={40} /></>
+  return <><Switch label="Alerts" defaultValue /><Slider label="Volume" defaultValue={40} /></>
 }
 ```
 
@@ -179,7 +179,7 @@ A direct call to a helper with the wrong name cannot establish AX enabled state.
 import { Button } from '@octane-xplat/ui'
 
 export function Save() {
-	return <Button label="Save" isDisabled clickAction={() => console.log('save')} />
+  return <Button label="Save" isDisabled clickAction={() => console.log('save')} />
 }
 ```
 
@@ -198,6 +198,6 @@ wiring, not actual native re-enable/hit-testing or lifecycle qualification. See
 import { Checkbox } from '@octane-xplat/ui'
 
 export function Choice({ saving }: { saving: boolean }) {
-	return <Checkbox label="Include archived" isDisabled={saving} />
+  return <Checkbox label="Include archived" isDisabled={saving} />
 }
 ```

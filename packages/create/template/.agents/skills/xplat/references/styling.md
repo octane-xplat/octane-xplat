@@ -6,8 +6,8 @@ while the app runs. Put the CSS in `src/style.css` and the component in a
 
 ```css
 .trip-card {
-	padding: 16px;
-	border-radius: 12px;
+  padding: 16px;
+  border-radius: 12px;
 }
 ```
 
@@ -30,14 +30,14 @@ before depending on that style.
 
 ```css
 .trip-card {
-	display: flex;
-	flex-direction: column;
-	padding: 16px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
 }
 .trip-actions {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 ```
 
@@ -52,8 +52,8 @@ import '@octane-xplat/ui/theme/tokens.css'
 
 ```css
 .trip-card {
-	background-color: var(--color-surface);
-	color: var(--color-text);
+  background-color: var(--color-surface);
+  color: var(--color-text);
 }
 ```
 

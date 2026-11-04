@@ -30,10 +30,10 @@ native uses its configured app files:
 import { firebaseAnalytics } from '@octane-xplat/firebase-analytics'
 
 export async function sendTestEvent(webConfig?: Record<string, unknown>) {
-	if (!firebaseAnalytics.supported) return
-	await firebaseAnalytics.init(webConfig)
-	await firebaseAnalytics.logScreenView('packing_list')
-	await firebaseAnalytics.logEvent('item_packed', { item_kind: 'example' })
+  if (!firebaseAnalytics.supported) return
+  await firebaseAnalytics.init(webConfig)
+  await firebaseAnalytics.logScreenView('packing_list')
+  await firebaseAnalytics.logEvent('item_packed', { item_kind: 'example' })
 }
 ```
 

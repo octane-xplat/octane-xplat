@@ -23,10 +23,10 @@ to this startup function once; use a test project while checking integration:
 import { posthog } from '@octane-xplat/posthog'
 
 export async function initializeAnalytics(apiKey: string, host: string) {
-	if (!posthog.supported) return
-	posthog.init({ apiKey, host })
-	posthog.capture('packing_list_opened', { source: 'documentation-example' })
-	await posthog.flush()
+  if (!posthog.supported) return
+  posthog.init({ apiKey, host })
+  posthog.capture('packing_list_opened', { source: 'documentation-example' })
+  await posthog.flush()
 }
 ```
 

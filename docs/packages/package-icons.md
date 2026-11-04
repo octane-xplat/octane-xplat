@@ -32,7 +32,7 @@ import xMark from 'icons:heroicons/x-mark'
 import { Icon } from '@octane-xplat/icons'
 
 export function Close() {
-	return <Icon icon={xMark} size={24} color="#2563eb" label="Close" />
+  return <Icon icon={xMark} size={24} color="#2563eb" label="Close" />
 }
 ```
 
@@ -78,7 +78,7 @@ import { addCollection, Icon } from '@octane-xplat/icons'
 addCollection(heroicons)
 
 export function NextAction() {
-	return <Icon name="heroicons:arrow-right" size={24} color="#2563eb" label="Next" />
+  return <Icon name="heroicons:arrow-right" size={24} color="#2563eb" label="Next" />
 }
 ```
 
@@ -103,9 +103,9 @@ differs from the square default:
 import { addIcon } from '@octane-xplat/icons'
 
 addIcon('app:next', {
-	width: 24,
-	height: 24,
-	body: '<path fill="none" d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/>',
+  width: 24,
+  height: 24,
+  body: '<path fill="none" d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/>',
 })
 ```
 
@@ -129,14 +129,14 @@ pruning an existing set:
 
 ```ts
 addCollection({
-	prefix: 'app',
-	width: 24,
-	height: 24,
-	icons: {
-		next: {
-			body: '<path fill="none" d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/>',
-		},
-	},
+  prefix: 'app',
+  width: 24,
+  height: 24,
+  icons: {
+    next: {
+      body: '<path fill="none" d="M4 12h16m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2"/>',
+    },
+  },
 })
 ```
 
@@ -157,7 +157,7 @@ import { addCollection, Icon } from '@octane-xplat/icons'
 
 addCollection({ prefix: 'trip', icons: { next: { body: '<path d="M0 0h16v16H0z" />' } } })
 export function TripIcon() {
-	return <Icon name="trip:next" />
+  return <Icon name="trip:next" />
 }
 // Replacing this collection notifies already-mounted TripIcon components.
 addCollection({ prefix: 'trip', icons: { next: { body: '<circle cx="8" cy="8" r="8" />' } } })
@@ -201,7 +201,7 @@ engines; browser-only SVG features such as filters/animation are not guaranteed.
 ```tsx
 // Icon is imported from this package above.
 export function Direction() {
-	return <Icon name="heroicons:arrow-right" color="#2563eb" rotate={1} hFlip label="Continue" />
+  return <Icon name="heroicons:arrow-right" color="#2563eb" rotate={1} hFlip label="Continue" />
 }
 ```
 
@@ -219,7 +219,7 @@ traversal remain unverified. See [AppKit SVG notes](https://github.com/octane-xp
 import { Icon } from '@octane-xplat/icons'
 
 export function Direction() {
-	return <Icon id="next" name="heroicons:arrow-right" size={24} label="Next" />
+  return <Icon id="next" name="heroicons:arrow-right" size={24} label="Next" />
 }
 ```
 
@@ -233,8 +233,8 @@ import { iconToSvg, resolveIcon } from '@octane-xplat/icons'
 
 const icon = resolveIcon('heroicons:arrow-right')
 if (icon) {
-	const svg = iconToSvg(icon, { color: '#2563eb' })
-	console.log(svg.viewBox, svg.width, svg.height, svg.markup)
+  const svg = iconToSvg(icon, { color: '#2563eb' })
+  console.log(svg.viewBox, svg.width, svg.height, svg.markup)
 }
 ```
 

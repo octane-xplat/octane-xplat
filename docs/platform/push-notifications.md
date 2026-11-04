@@ -76,7 +76,7 @@ import { push, type PushConfigureOptions } from '@octane-xplat/push'
 
 // options contains the app's public Firebase config and VAPID key.
 export function configureWorker(options: PushConfigureOptions) {
-	return push.configure({ ...options, serviceWorkerUrl: '/push/firebase-messaging-sw.js' })
+  return push.configure({ ...options, serviceWorkerUrl: '/push/firebase-messaging-sw.js' })
 }
 ```
 
@@ -86,9 +86,9 @@ export function configureWorker(options: PushConfigureOptions) {
 import { push } from '@octane-xplat/push'
 
 await push.configure({
-	// web only — ignored on native, which reads the App_Resources files
-	firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
-	vapidKey: '…', // Web Push certificate key — required for getToken on web
+  // web only — ignored on native, which reads the App_Resources files
+  firebaseConfig: { apiKey: '…', projectId: '…', messagingSenderId: '…', appId: '…' },
+  vapidKey: '…', // Web Push certificate key — required for getToken on web
 })
 ```
 
@@ -103,7 +103,7 @@ import { push } from '@octane-xplat/push'
 import type { FirebaseApp } from 'firebase/app'
 
 export function reuseFirebase(app: FirebaseApp, vapidKey: string) {
-	return push.configure({ app, vapidKey })
+  return push.configure({ app, vapidKey })
 }
 ```
 
@@ -114,22 +114,22 @@ export function reuseFirebase(app: FirebaseApp, vapidKey: string) {
 import { push } from '@octane-xplat/push'
 
 export async function registerPush(sendTokenToYourServer: (token: string) => Promise<void>) {
-	const status = await push.requestPermission()
-	if (status !== 'granted' && status !== 'provisional' && status !== 'ephemeral') return
+  const status = await push.requestPermission()
+  if (status !== 'granted' && status !== 'provisional' && status !== 'ephemeral') return
 
-	const token = await push.getToken()
-	if (token) await sendTokenToYourServer(token)
-	const offMessage = push.onMessage((message) => console.log(message.title ?? 'New message'))
-	const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
-	const offRefresh = push.onTokenRefresh((next) => {
-		void sendTokenToYourServer(next).catch(() => console.log('Token registration failed'))
-	})
+  const token = await push.getToken()
+  if (token) await sendTokenToYourServer(token)
+  const offMessage = push.onMessage((message) => console.log(message.title ?? 'New message'))
+  const offOpen = push.onNotificationOpen((message) => console.log(message.data?.route))
+  const offRefresh = push.onTokenRefresh((next) => {
+    void sendTokenToYourServer(next).catch(() => console.log('Token registration failed'))
+  })
 
-	return () => {
-		offMessage()
-		offOpen()
-		offRefresh()
-	}
+  return () => {
+    offMessage()
+    offOpen()
+    offRefresh()
+  }
 }
 ```
 
@@ -145,9 +145,9 @@ const offOpen = push.onNotificationOpen((message) => console.log(message.data?.r
 const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
 
 export function stopListeners() {
-	offMessage()
-	offOpen()
-	offRefresh()
+  offMessage()
+  offOpen()
+  offRefresh()
 }
 ```
 
@@ -171,18 +171,18 @@ every platform.
 import { push } from '@octane-xplat/push'
 
 const off = push.onMessage((message) => {
-	const tripId = message.data?.tripId
-	if (tripId) console.log('Updated trip', tripId)
+  const tripId = message.data?.tripId
+  if (tripId) console.log('Updated trip', tripId)
 })
 ```
 
 ```json
 {
-	"message": {
-		"topic": "trip-updates",
-		"notification": { "title": "Trip updated" },
-		"webpush": { "fcm_options": { "link": "https://example.com/" } }
-	}
+  "message": {
+    "topic": "trip-updates",
+    "notification": { "title": "Trip updated" },
+    "webpush": { "fcm_options": { "link": "https://example.com/" } }
+  }
 }
 ```
 
@@ -215,10 +215,10 @@ backend, rather than a user denying permission.
 import { push } from '@octane-xplat/push'
 
 export async function enablePush() {
-	if (!push.supported) return 'Push is unavailable on this platform'
-	await push.configure()
+  if (!push.supported) return 'Push is unavailable on this platform'
+  await push.configure()
 
-	return await push.requestPermission()
+  return await push.requestPermission()
 }
 ```
 
@@ -228,9 +228,9 @@ On macOS, `getToken()` returns null and `deleteToken()` does nothing.
 import { push } from '@octane-xplat/push'
 
 export async function clearPushRegistration() {
-	await push.deleteToken()
+  await push.deleteToken()
 
-	return await push.getToken() // null on macOS
+  return await push.getToken() // null on macOS
 }
 ```
 
@@ -247,9 +247,9 @@ const offOpen = push.onNotificationOpen((message) => console.log(message.data?.r
 const offRefresh = push.onTokenRefresh(() => console.log('Token changed'))
 
 export function stopPushListeners() {
-	offMessage()
-	offOpen()
-	offRefresh()
+  offMessage()
+  offOpen()
+  offRefresh()
 }
 ```
 

@@ -14,19 +14,19 @@ import { LiquidGlass } from '@octane-xplat/ui/ios'
 import { useSignal$ } from 'octane/signals/client'
 
 export function GlassControls() {
-	const presses$ = useSignal$(0)
+  const presses$ = useSignal$(0)
 
-	return (
-		<LiquidGlass className="p-4 rounded-xl">
-			<Pressable
-				onPress={() => {
-					presses$.set(presses$.get() + 1)
-				}}
-			>
-				<Text>Pressed {presses$.get()} times</Text>
-			</Pressable>
-		</LiquidGlass>
-	)
+  return (
+    <LiquidGlass className="p-4 rounded-xl">
+      <Pressable
+        onPress={() => {
+          presses$.set(presses$.get() + 1)
+        }}
+      >
+        <Text>Pressed {presses$.get()} times</Text>
+      </Pressable>
+    </LiquidGlass>
+  )
 }
 ```
 
@@ -43,11 +43,11 @@ import { Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 
 export function DecorativeGlass() {
-	return (
-		<LiquidGlass interactive>
-			<Text>Touch-responsive surface</Text>
-		</LiquidGlass>
-	)
+  return (
+    <LiquidGlass interactive>
+      <Text>Touch-responsive surface</Text>
+    </LiquidGlass>
+  )
 }
 ```
 
@@ -63,11 +63,11 @@ import { Text } from '@octane-xplat/ui'
 import { LiquidGlass } from '@octane-xplat/ui/ios'
 
 export function MaterialCard() {
-	return (
-		<LiquidGlass className="p-4 rounded-xl">
-			<Text>Material card</Text>
-		</LiquidGlass>
-	)
+  return (
+    <LiquidGlass className="p-4 rounded-xl">
+      <Text>Material card</Text>
+    </LiquidGlass>
+  )
 }
 ```
 
@@ -94,13 +94,13 @@ import { Text } from '@octane-xplat/ui'
 import { LiquidGlass, LiquidGlassContainer } from '@octane-xplat/ui/ios'
 
 export function GroupedGlass() {
-	return (
-		<LiquidGlassContainer spacing={8}>
-			<LiquidGlass>
-				<Text>One surface</Text>
-			</LiquidGlass>
-		</LiquidGlassContainer>
-	)
+  return (
+    <LiquidGlassContainer spacing={8}>
+      <LiquidGlass>
+        <Text>One surface</Text>
+      </LiquidGlass>
+    </LiquidGlassContainer>
+  )
 }
 ```
 

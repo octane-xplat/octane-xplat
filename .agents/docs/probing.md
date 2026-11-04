@@ -66,8 +66,8 @@ and [counter](../../examples/probes/counter.tsrx).
 import type { ProbeContext } from '../tools/probe/context'
 
 export async function run(ctx: ProbeContext) {
-	ctx.assert('target selected', typeof ctx.target, 'string')
-	ctx.record('target', ctx.target)
+  ctx.assert('target selected', typeof ctx.target, 'string')
+  ctx.record('target', ctx.target)
 }
 ```
 
@@ -112,8 +112,8 @@ Coordinates are relative to the view in NativeScript layout units. For example:
 
 ```ts
 await ctx.scrub('chart', [
-	{ x: 20, y: 40 },
-	{ x: 80, y: 40 },
+  { x: 20, y: 40 },
+  { x: 80, y: 40 },
 ])
 ```
 

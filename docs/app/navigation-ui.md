@@ -10,11 +10,11 @@ an option that accepts content, such as the `topNav` option for your top bar.
 import { AppShell, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<AppShell topNav={<Text>Workspace</Text>}>
-			<Text>Page content</Text>
-		</AppShell>
-	)
+  return (
+    <AppShell topNav={<Text>Workspace</Text>}>
+      <Text>Page content</Text>
+    </AppShell>
+  )
 }
 ```
 
@@ -30,45 +30,45 @@ also be used independently when an existing layout owns the frame.
 
 ```tsx
 import {
-	AppShell,
-	TopNav,
-	TopNavHeading,
-	TopNavItem,
-	SideNav,
-	SideNavHeading,
-	SideNavSection,
-	SideNavItem,
-	NavIcon,
-	Toolbar,
-	Text,
-	View,
+  AppShell,
+  TopNav,
+  TopNavHeading,
+  TopNavItem,
+  SideNav,
+  SideNavHeading,
+  SideNavSection,
+  SideNavItem,
+  NavIcon,
+  Toolbar,
+  Text,
+  View,
 } from '@octane-xplat/ui'
 
 ;<AppShell
-	variant="section"
-	height="fill"
-	banner={<Text>System status</Text>}
-	topNav={
-		<TopNav
-			heading={<TopNavHeading heading="Workspace" logo={<NavIcon icon="grid" />} />}
-			startContent={<TopNavItem label="Projects" to="/projects" />}
-			endContent={<TopNavItem label="Help" href="https://example.com/help" />}
-		/>
-	}
-	sideNav={
-		<SideNav
-			header={<SideNavHeading heading="Workspace" />}
-			collapsible={{ defaultIsCollapsed: false, hasButton: true }}
-		>
-			<SideNavSection title="Projects">
-				<SideNavItem label="Overview" icon="home" to="/projects" />
-				<SideNavItem label="Activity" icon="clock" to="/activity" />
-			</SideNavSection>
-		</SideNav>
-	}
+  variant="section"
+  height="fill"
+  banner={<Text>System status</Text>}
+  topNav={
+    <TopNav
+      heading={<TopNavHeading heading="Workspace" logo={<NavIcon icon="grid" />} />}
+      startContent={<TopNavItem label="Projects" to="/projects" />}
+      endContent={<TopNavItem label="Help" href="https://example.com/help" />}
+    />
+  }
+  sideNav={
+    <SideNav
+      header={<SideNavHeading heading="Workspace" />}
+      collapsible={{ defaultIsCollapsed: false, hasButton: true }}
+    >
+      <SideNavSection title="Projects">
+        <SideNavItem label="Overview" icon="home" to="/projects" />
+        <SideNavItem label="Activity" icon="clock" to="/activity" />
+      </SideNavSection>
+    </SideNav>
+  }
 >
-	<Toolbar label="Page actions" startContent={<Text>Overview</Text>} />
-	<Text>Page content</Text>
+  <Toolbar label="Page actions" startContent={<Text>Overview</Text>} />
+  <Text>Page content</Text>
 </AppShell>
 ```
 
@@ -84,18 +84,18 @@ can be placed manually when `hasToggle` is false.
 import { AppShell, SideNav, SideNavItem, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<AppShell
-			mobileNav={{ breakpoint: 'md', hasToggle: true }}
-			sideNav={
-				<SideNav>
-					<SideNavItem label="Projects" to="/projects" />
-				</SideNav>
-			}
-		>
-			<Text>Projects</Text>
-		</AppShell>
-	)
+  return (
+    <AppShell
+      mobileNav={{ breakpoint: 'md', hasToggle: true }}
+      sideNav={
+        <SideNav>
+          <SideNavItem label="Projects" to="/projects" />
+        </SideNav>
+      }
+    >
+      <Text>Projects</Text>
+    </AppShell>
+  )
 }
 ```
 
@@ -109,21 +109,21 @@ menu inside the heading that owns its close behavior.
 import { SideNav, SideNavHeading, NavHeadingMenu, NavHeadingMenuItem } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<SideNav
-			collapsible={{ defaultIsCollapsed: false, hasButton: true }}
-			header={
-				<SideNavHeading
-					heading="Workspace"
-					menu={
-						<NavHeadingMenu>
-							<NavHeadingMenuItem label="Personal" onClick={() => console.log('Personal')} />
-						</NavHeadingMenu>
-					}
-				/>
-			}
-		/>
-	)
+  return (
+    <SideNav
+      collapsible={{ defaultIsCollapsed: false, hasButton: true }}
+      header={
+        <SideNavHeading
+          heading="Workspace"
+          menu={
+            <NavHeadingMenu>
+              <NavHeadingMenuItem label="Personal" onClick={() => console.log('Personal')} />
+            </NavHeadingMenu>
+          }
+        />
+      }
+    />
+  )
 }
 ```
 
@@ -138,26 +138,26 @@ import { useState } from 'octane'
 import { TabList, Tab, TabMenu, View, Text } from '@octane-xplat/ui'
 
 export function Panels() {
-	const [selected, setSelected] = useState('summary')
+  const [selected, setSelected] = useState('summary')
 
-	return (
-		<>
-			<TabList role="tablist" value={selected} onChange={setSelected}>
-				<Tab id="summary-tab" value="summary" label="Summary" panelId="summary-panel" />
-				<Tab value="history" label="History" panelId="history-panel" />
-				<TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
-			</TabList>
-			<View
-				id="summary-panel"
-				accessibilityLabel="Summary panel"
-				web={{ role: 'tabpanel', 'aria-labelledby': 'summary-tab' }}
-			>
-				<Text>
-					{selected === 'summary' ? 'Summary' : selected === 'history' ? 'History' : 'Settings'}
-				</Text>
-			</View>
-		</>
-	)
+  return (
+    <>
+      <TabList role="tablist" value={selected} onChange={setSelected}>
+        <Tab id="summary-tab" value="summary" label="Summary" panelId="summary-panel" />
+        <Tab value="history" label="History" panelId="history-panel" />
+        <TabMenu label="More" options={[{ value: 'settings', label: 'Settings' }]} />
+      </TabList>
+      <View
+        id="summary-panel"
+        accessibilityLabel="Summary panel"
+        web={{ role: 'tabpanel', 'aria-labelledby': 'summary-tab' }}
+      >
+        <Text>
+          {selected === 'summary' ? 'Summary' : selected === 'history' ? 'History' : 'Settings'}
+        </Text>
+      </View>
+    </>
+  )
 }
 ```
 
@@ -171,8 +171,8 @@ controls local panels. Raw `href` is ignored. The caller changes panels from
 import { TabList, Tab } from '@octane-xplat/ui'
 
 const links = <TabList value="projects" onChange={() => {}}>
-	<Tab value="projects" label="Projects" to="/projects" />
-	<Tab value="activity" label="Activity" to="/activity" />
+  <Tab value="projects" label="Projects" to="/projects" />
+  <Tab value="activity" label="Activity" to="/activity" />
 </TabList>
 ```
 
@@ -186,12 +186,12 @@ for breadcrumbs, nested menu links, custom instances, and disabled items.
 import { NavigationMenu } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<NavigationMenu
-			horizontal
-			items={[{ key: 'projects', label: 'Projects', to: '/projects' }]}
-		/>
-	)
+  return (
+    <NavigationMenu
+      horizontal
+      items={[{ key: 'projects', label: 'Projects', to: '/projects' }]}
+    />
+  )
 }
 ```
 
@@ -214,15 +214,15 @@ inside the toolbar — a control with its own `size` prop keeps it.
 import { Toolbar, Button, Text } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<Toolbar
-			label="Page actions"
-			orientation="horizontal"
-			startContent={<Button label="Save" clickAction={() => console.log('Save')} />}
-			centerContent={<Text>Draft</Text>}
-			endContent={<Button label="Share" clickAction={() => console.log('Share')} />}
-		/>
-	)
+  return (
+    <Toolbar
+      label="Page actions"
+      orientation="horizontal"
+      startContent={<Button label="Save" clickAction={() => console.log('Save')} />}
+      centerContent={<Text>Draft</Text>}
+      endContent={<Button label="Share" clickAction={() => console.log('Share')} />}
+    />
+  )
 }
 ```
 
@@ -246,24 +246,24 @@ order changes and again with an empty list when overflow clears.
 import { OverflowList, Button, Text } from '@octane-xplat/ui'
 
 export function Actions() {
-	return (
-		<OverflowList
-			gap={2}
-			minVisibleItems={1}
-			collapseFrom="end"
-			overflowRenderer={(items) => <Text>More ({items.length})</Text>}
-		>
-			<Button>
-				<Text>Save</Text>
-			</Button>
-			<Button>
-				<Text>Share</Text>
-			</Button>
-			<Button>
-				<Text>Archive</Text>
-			</Button>
-		</OverflowList>
-	)
+  return (
+    <OverflowList
+      gap={2}
+      minVisibleItems={1}
+      collapseFrom="end"
+      overflowRenderer={(items) => <Text>More ({items.length})</Text>}
+    >
+      <Button>
+        <Text>Save</Text>
+      </Button>
+      <Button>
+        <Text>Share</Text>
+      </Button>
+      <Button>
+        <Text>Archive</Text>
+      </Button>
+    </OverflowList>
+  )
 }
 ```
 
@@ -281,28 +281,28 @@ import { useRef } from 'octane'
 import { View, Text, SideNav, useResizable, ResizeHandle } from '@octane-xplat/ui'
 
 export function Workspace() {
-	const containerRef = useRef(null)
-	const sidebar = useResizable({
-		containerRef,
-		direction: 'horizontal',
-		defaultSize: 280,
-		minSize: 180,
-		maxSize: 480,
-		autoSaveId: 'workspace-sidebar',
-	})
+  const containerRef = useRef(null)
+  const sidebar = useResizable({
+    containerRef,
+    direction: 'horizontal',
+    defaultSize: 280,
+    minSize: 180,
+    maxSize: 480,
+    autoSaveId: 'workspace-sidebar',
+  })
 
-	return (
-		<View
-			ref={(view) => {
-				containerRef.current = view
-			}}
-			className="workspace"
-		>
-			<SideNav style={{ width: sidebar.size }} />
-			<ResizeHandle direction="horizontal" resizable={sidebar.props} />
-			<Text>Workspace content</Text>
-		</View>
-	)
+  return (
+    <View
+      ref={(view) => {
+        containerRef.current = view
+      }}
+      className="workspace"
+    >
+      <SideNav style={{ width: sidebar.size }} />
+      <ResizeHandle direction="horizontal" resizable={sidebar.props} />
+      <Text>Workspace content</Text>
+    </View>
+  )
 }
 ```
 
@@ -315,35 +315,35 @@ record with stable keys; each region exposes `size`, `isCollapsed`,
 import { View, Text, Pressable, useResizable, ResizeHandle, pixel, percent } from '@octane-xplat/ui'
 
 export function Example() {
-	const panels = useResizable({
-		direction: 'horizontal',
-		regions: {
-			sidebar: {
-				defaultSize: pixel(280),
-				minSize: pixel(180),
-				maxSize: percent(50, { max: pixel(480) }),
-				collapsible: true,
-				collapsedSize: 0,
-				snaps: [240, 320],
-			},
-		},
-	})
+  const panels = useResizable({
+    direction: 'horizontal',
+    regions: {
+      sidebar: {
+        defaultSize: pixel(280),
+        minSize: pixel(180),
+        maxSize: percent(50, { max: pixel(480) }),
+        collapsible: true,
+        collapsedSize: 0,
+        snaps: [240, 320],
+      },
+    },
+  })
 
-	return (
-		<View>
-			<View style={{ width: panels.sidebar.size }}>
-				<Text>Sidebar</Text>
-			</View>
-			<ResizeHandle direction="horizontal" resizable={panels.sidebar.props} />
-			<Pressable
-				onPress={() =>
-					panels.sidebar.isCollapsed ? panels.sidebar.expand() : panels.sidebar.collapse()
-				}
-			>
-				<Text>Toggle sidebar</Text>
-			</Pressable>
-		</View>
-	)
+  return (
+    <View>
+      <View style={{ width: panels.sidebar.size }}>
+        <Text>Sidebar</Text>
+      </View>
+      <ResizeHandle direction="horizontal" resizable={panels.sidebar.props} />
+      <Pressable
+        onPress={() =>
+          panels.sidebar.isCollapsed ? panels.sidebar.expand() : panels.sidebar.collapse()
+        }
+      >
+        <Text>Toggle sidebar</Text>
+      </Pressable>
+    </View>
+  )
 }
 ```
 
@@ -356,16 +356,16 @@ layout measurements; it does not depend on browser `ResizeObserver`.
 import { View, Text, ResizeHandle, useResizable } from '@octane-xplat/ui'
 
 export function Example() {
-	const sidebar = useResizable({ direction: 'horizontal', defaultSize: 280, autoSaveId: 'sidebar' })
+  const sidebar = useResizable({ direction: 'horizontal', defaultSize: 280, autoSaveId: 'sidebar' })
 
-	return (
-		<View>
-			<View style={{ width: sidebar.size }}>
-				<Text>Sidebar</Text>
-			</View>
-			<ResizeHandle direction="horizontal" resizable={sidebar.props} />
-		</View>
-	)
+  return (
+    <View>
+      <View style={{ width: sidebar.size }}>
+        <Text>Sidebar</Text>
+      </View>
+      <ResizeHandle direction="horizontal" resizable={sidebar.props} />
+    </View>
+  )
 }
 ```
 
@@ -384,12 +384,12 @@ and web accessibility/focus behavior.
 import { TabList, Tab } from '@octane-xplat/ui'
 
 export function Example() {
-	return (
-		<TabList value="projects" onChange={(value) => console.log(value)}>
-			<Tab value="help" label="Help" href="https://example.com/help" />
-			<Tab value="admin" label="Admin" isDisabled />
-		</TabList>
-	)
+  return (
+    <TabList value="projects" onChange={(value) => console.log(value)}>
+      <Tab value="help" label="Help" href="https://example.com/help" />
+      <Tab value="admin" label="Admin" isDisabled />
+    </TabList>
+  )
 }
 ```
 

@@ -90,11 +90,11 @@ be a separate subpath widget, not a flag on `BottomSheet`.
 import { ScrollableArea, Text } from '@octane-xplat/ui'
 
 export function Refreshable(props: { refreshing: boolean; refresh: () => void }) {
-	return (
-		<ScrollableArea refreshing={props.refreshing} onRefresh={props.refresh}>
-			<Text>Trips</Text>
-		</ScrollableArea>
-	)
+  return (
+    <ScrollableArea refreshing={props.refreshing} onRefresh={props.refresh}>
+      <Text>Trips</Text>
+    </ScrollableArea>
+  )
 }
 ```
 
@@ -127,11 +127,11 @@ pass-through as intentional behavior; do not silently drop shared props.
 import { KeyboardAvoiding, TextInput } from '@octane-xplat/ui'
 
 export function Composer() {
-	return (
-		<KeyboardAvoiding>
-			<TextInput placeholder="Add a note" />
-		</KeyboardAvoiding>
-	)
+  return (
+    <KeyboardAvoiding>
+      <TextInput placeholder="Add a note" />
+    </KeyboardAvoiding>
+  )
 }
 ```
 
@@ -171,26 +171,26 @@ reuse.
 import { ScrollableArea, VirtualList, Text } from '@octane-xplat/ui'
 
 const items = [
-	{ id: 'passport', label: 'Passport' },
-	{ id: 'charger', label: 'Charger' },
+  { id: 'passport', label: 'Passport' },
+  { id: 'charger', label: 'Charger' },
 ]
 export function SmallList() {
-	return (
-		<ScrollableArea>
-			{items.map((item) => (
-				<Text>{item.label}</Text>
-			))}
-		</ScrollableArea>
-	)
+  return (
+    <ScrollableArea>
+      {items.map((item) => (
+        <Text>{item.label}</Text>
+      ))}
+    </ScrollableArea>
+  )
 }
 export function WindowedList() {
-	return (
-		<VirtualList
-			items={items}
-			keyExtractor={(item) => item.id}
-			renderItem={(item) => <Text>{item.label}</Text>}
-		/>
-	)
+  return (
+    <VirtualList
+      items={items}
+      keyExtractor={(item) => item.id}
+      renderItem={(item) => <Text>{item.label}</Text>}
+    />
+  )
 }
 ```
 
@@ -267,9 +267,9 @@ using the shared presets (`jsxImportSource`, `lib`, ambient host-globals) in
 
 ```json
 {
-	"extends": "./tsconfig.base.json",
-	"compilerOptions": { "jsxImportSource": "octane", "moduleSuffixes": [".web", ""] },
-	"include": ["src/**/*"]
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "jsxImportSource": "octane", "moduleSuffixes": [".web", ""] },
+  "include": ["src/**/*"]
 }
 ```
 

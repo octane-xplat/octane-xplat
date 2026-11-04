@@ -23,14 +23,14 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments() @{
-	const [files, setFiles] = useState<FileInputFile[] | null>([])
+  const [files, setFiles] = useState<FileInputFile[] | null>([])
 
-	<FileInput
-		label="Attachments"
-		isMultiple
-		value={files}
-		onChange={(next) => setFiles(Array.isArray(next) ? next : next ? [next] : [])}
-	/>
+  <FileInput
+    label="Attachments"
+    isMultiple
+    value={files}
+    onChange={(next) => setFiles(Array.isArray(next) ? next : next ? [next] : [])}
+  />
 }
 ```
 
@@ -46,11 +46,11 @@ import { files } from '@octane-xplat/files'
 
 const file = await files.pick('text/plain')
 if (file) {
-	try {
-		console.log(await files.readText(file))
-	} finally {
-		files.release(file)
-	}
+  try {
+    console.log(await files.readText(file))
+  } finally {
+    files.release(file)
+  }
 }
 ```
 
@@ -70,7 +70,7 @@ import { files, type FileRef } from '@octane-xplat/files'
 
 // Call with a live ref; keep it until this read finishes.
 export async function readAttachment(file: FileRef) {
-	return files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
+  return files.readBytes(file, { maxBytes: 10 * 1024 * 1024 })
 }
 ```
 
@@ -101,9 +101,9 @@ open picker's result.
 import { files } from '@octane-xplat/files'
 
 export async function exportReport(pdfBytes: Uint8Array) {
-	const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })
-	if (result === 'cancelled') console.log('user dismissed')
-	return result
+  const result = await files.export('report.pdf', pdfBytes, { mimeType: 'application/pdf' })
+  if (result === 'cancelled') console.log('user dismissed')
+  return result
 }
 ```
 
@@ -129,10 +129,10 @@ small extension table as a fallback for known types when native lookup is absent
 import { files } from '@octane-xplat/files'
 
 export async function chooseDocuments() {
-	return files.pickMultiple('.pdf,.docx')
+  return files.pickMultiple('.pdf,.docx')
 }
 export async function chooseImagesOrPDF() {
-	return files.pickMultiple('image/*,.pdf')
+  return files.pickMultiple('image/*,.pdf')
 }
 ```
 
@@ -147,16 +147,16 @@ supported. FileInput displays picker errors as field status.
 import { files } from '@octane-xplat/files'
 
 export async function chooseAnyFile() {
-	return files.pick('*/*')
+  return files.pick('*/*')
 }
 export async function chooseCustomDocument() {
-	try { return await files.pick('application/x-my-document') }
-	catch (error) {
-		if (error instanceof Error && error.name === 'UnsupportedFileTypeError') {
-			return files.pick('.mydoc')
-		}
-		throw error
-	}
+  try { return await files.pick('application/x-my-document') }
+  catch (error) {
+    if (error instanceof Error && error.name === 'UnsupportedFileTypeError') {
+      return files.pick('.mydoc')
+    }
+    throw error
+  }
 }
 ```
 
@@ -181,8 +181,8 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments({ save }: { save(value: FileInputFile | FileInputFile[] | null): Promise<void> }) {
-	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
-	return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
+  const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+  return <FileInput label="Attachments" value={value} onChange={setValue} changeAction={save} isMultiple />
 }
 ```
 
@@ -208,7 +208,7 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Images(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
-	return <FileInput label="Images" value={props.value} onChange={props.change} isMultiple accept="image/*" maxSize={5000000} />
+  return <FileInput label="Images" value={props.value} onChange={props.change} isMultiple accept="image/*" maxSize={5000000} />
 }
 ```
 
@@ -236,9 +236,9 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments() {
-	const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
-	return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
-		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+  const [value, setValue] = useState<FileInputFile | FileInputFile[] | null>([])
+  return <FileInput label="Attachments" mode="dropzone" value={value} onChange={setValue}
+    isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
 }
 ```
 
