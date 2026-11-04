@@ -426,3 +426,7 @@ package directory to match `go test` fixture resolution. The complete portable
 unit suite has a 90-second deadline, with a 105-second outer watchdog; individual
 SDK/process deadlines remain unchanged. These are store/transport
 checks; main dev and persistent session integration remain separate gates.
+
+Source-host `test:go-unit` disables Go's own test-result cache with `-count=1`.
+Turbo's `cache: false` alone does not force Go tests to execute. Portable compiled
+unit binaries already run directly and do not use Go test-result caching.

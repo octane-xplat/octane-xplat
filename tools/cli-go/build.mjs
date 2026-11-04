@@ -200,7 +200,13 @@ run('go', ['mod', 'download'], { stdio: 'inherit' })
 if (flags.includes('--test')) {
 	run(
 		'go',
-		['test', '-mod=readonly', ...(tags.length ? ['-tags=' + tags.join(',')] : []), './...'],
+		[
+			'test',
+			'-count=1',
+			'-mod=readonly',
+			...(tags.length ? ['-tags=' + tags.join(',')] : []),
+			'./...',
+		],
 		{
 			stdio: 'inherit',
 		},
