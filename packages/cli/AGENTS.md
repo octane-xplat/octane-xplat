@@ -1156,6 +1156,15 @@ skipping input-mode checks. Neither value describes Windows ACL privacy; keep
 owner/DACL validation separate. Include actual Windows platform-addition tests,
 since web-only additions may never observe an existing parent directory.
 
+
+For `updates init`, share the canonical hook string at build time rather than
+maintaining a second generated template in Go. Delegate Node conditional-export
+resolution to the selected project worker without importing the optional runtime.
+Reject a nearer broken package instead of resolving from farther/global installs.
+Keep simple hook/ignore publication native, preserve raw user bytes and modes,
+and validate both outputs before writing. Hook initialization is not evidence of
+NativeScript preparation, app boot, or delivered OTA updates.
+
 ## Native HTTP and C interop
 
 Separate build headers from runtime libraries. A host can have `libcurl.so.4`

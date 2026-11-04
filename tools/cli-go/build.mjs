@@ -27,6 +27,7 @@ import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundar
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
 import { buildReleaseWorker } from './release-worker.mjs'
+import { updatesHook } from '../../packages/cli/src/updates-hook.ts'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
@@ -100,6 +101,7 @@ writeFileSync(
 	join(moduleDirectory, 'catalog.json'),
 	JSON.stringify({
 		catalog: catalogPayload(),
+		updatesHook,
 		frameworkVersion: JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json')))
 			.frameworkVersion,
 		descriptors: AGENT_COMMANDS,
@@ -123,16 +125,18 @@ writeFileSync(
 				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
 			}))
 			.concat([
-				...['apply', 'check']
-					.map((child) => ({
-						...commandDescriptor(
-							readFileSync(join(root, 'packages/cli/src/commands/patches.ts'), 'utf8'),
-							child,
-						),
-						name: 'patches ' + child,
-						path: ['patches', child],
-						context: 'none',
-					}))
+				...Object.entries({ patches: ['apply', 'check'], updates: ['init'] })
+					.flatMap(([group, children]) =>
+						children.map((child) => ({
+							...commandDescriptor(
+								readFileSync(join(root, `packages/cli/src/commands/${group}.ts`), 'utf8'),
+								child,
+							),
+							name: group + ' ' + child,
+							path: [group, child],
+							context: 'none',
+						})),
+					)
 					.map((command) => ({
 						...command,
 						flags: command.flags.map(({ description, ...flag }) => ({

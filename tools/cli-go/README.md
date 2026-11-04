@@ -341,3 +341,16 @@ terminal without visual evidence. Creator archives are opt-in fixture payloads.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go platform addition"}' -- bun run turbo run test:go-add test:go-unit test:scaffold --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --filter=create-octane-xplat --concurrency=1
 ```
+
+
+`test:go-updates` (portable: `test:go-updates:portable`) verifies the shared update
+hook, conditional-export resolution without executing packages, custom-hook and
+alias preservation, malformed worker identities and cancellation cleanup. Source
+hosts compare the actual built TypeScript initializer; portable snapshots label
+that reference-only case as skipped. Byte/mode preservation is a POSIX-only case.
+The default gate uses actual project-installed worker files; fake workers cover
+only protocol rejection and blocked-worker cancellation.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go update-hook initialization"}' -- bun run turbo run test:go-updates test:go-unit test:updates --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```

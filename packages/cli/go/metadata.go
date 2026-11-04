@@ -10,6 +10,7 @@ import (
 //go:embed catalog.json
 var catalogBytes []byte
 var metadata struct {
+	UpdatesHook      string                     `json:"updatesHook"`
 	Catalog          json.RawMessage            `json:"catalog"`
 	Schemas          map[string]json.RawMessage `json:"schemas"`
 	Descriptors      []commandDescriptor        `json:"descriptors"`

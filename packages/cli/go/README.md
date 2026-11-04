@@ -353,3 +353,24 @@ target directories are deliberately preserved, so a retry does not fill an
 incomplete directory automatically. These operations are not a whole-workspace
 transaction. Windows pipe/job cancellation coverage does not qualify console
 Ctrl-C or interactive Windows terminal selection.
+
+
+`updates init` writes the canonical NativeScript after-prepare hook and adds
+`.xplat/` to the selected app's ignore file. Install the optional update runtime
+and fingerprint tool in that project first; the worker resolves their actual Node
+entry points without executing them. Rebuild iOS/Android binaries after committing
+the hook. Initialization does not qualify native update delivery.
+
+```sh
+bun add @octane-xplat/updates
+bun add --dev @octane-xplat/fingerprint
+/absolute/path/to/xplat-go updates init --dir .
+```
+
+Go shares the exact hook text with TypeScript and publishes only the hook and
+`.gitignore` through app directory handles. Custom nonempty hooks and output
+aliases fail before publication. Existing ignore bytes and source modes are
+preserved; repeat initialization leaves unchanged file timestamps intact. This
+includes preserving invalid UTF-8 bytes rather than decoding/re-encoding them.
+Partial file effects can remain after a publication failure; inspect both files
+before retrying. The command does not download or install optional packages.
