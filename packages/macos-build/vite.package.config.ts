@@ -13,6 +13,7 @@ const replacements = new Map([
 const entries = [
 	'macos/package-worker',
 	'macos/dev-worker',
+	'macos/dev',
 	'macos/doctor-worker',
 	'macos/jsc-host/check-vite',
 ]
@@ -42,6 +43,7 @@ export default defineConfig({
 				}
 			},
 			closeBundle() {
+				cpSync(resolve(source, 'macos/dev.d.ts'), resolve(root, 'dist/macos/dev.d.ts'))
 				const payload = resolve(root, 'dist/macos/jsc-host')
 				mkdirSync(payload, { recursive: true })
 				cpSync(resolve(source, 'macos/jsc-host/prebuilt'), resolve(payload, 'prebuilt'), {

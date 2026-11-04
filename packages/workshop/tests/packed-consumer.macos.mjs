@@ -63,6 +63,7 @@ try {
 		'ui',
 		'workshop',
 		'macos-appkit',
+		'macos-build',
 		'css-engine',
 		'platform',
 	]) {
@@ -86,6 +87,7 @@ try {
 					'@octane-xplat/cli': tarballs['@octane-xplat/cli'],
 					'@octanejs/vite-plugin': '0.1.61',
 					'@octane-xplat/macos-appkit': tarballs['@octane-xplat/macos-appkit'],
+					'@octane-xplat/macos-build': tarballs['@octane-xplat/macos-build'],
 					'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
 					'@tsrx/oxc': '0.20.0',
 					'@tsrx/core': '0.2.4',
@@ -104,7 +106,7 @@ try {
 	write('package.json', JSON.stringify(manifest))
 
 	run('bun', ['install', '--ignore-scripts'])
-	for (const name of ['ui', 'workshop', 'cli', 'macos-appkit']) {
+	for (const name of ['ui', 'workshop', 'cli', 'macos-appkit', 'macos-build']) {
 		assert.ok(
 			realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work),
 			`${name} must come from a tarball`,

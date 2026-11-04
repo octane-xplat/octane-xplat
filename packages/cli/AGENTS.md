@@ -23,6 +23,15 @@ code has no CLI runtime dependency. Those current package locations are not a
 requirement for future worker/plugin placement. For native commands, invoke the
 app's installed compiler/build tools with explicit argv, cwd and environment, and keep command/session orchestration in Nim.
 
+Node-based project operations can import `@octane-xplat/macos-build/dev-engine`
+from the selected project to reuse the canonical engine in their existing worker.
+Do not start a nested worker just to cross an API boundary already within Node.
+Keep outer process ownership native, validate project package exports, and await
+the engine’s shutdown. Host launch metadata does not establish app readiness.
+Large host assets stay in the optional macOS package. When qualifying cancellation,
+wait for an app output marker if the test requires initialized app code; a fixed
+delay after host launch can cancel before that code runs.
+
 The macOS development worker is `@octane-xplat/macos-build/dev-worker`.
 It runs the canonical Vite/compiler/HMR engine and publishes versioned readiness
 metadata; Nim owns target claims, session identities, captured logs and the outer

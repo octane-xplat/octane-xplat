@@ -173,8 +173,10 @@ while Vite and MCP exports remain per-module ESM.
 The manual `release.yml` track `nim` builds the parallel native CLI from
 `packages/cli/nim` with an exact `x.y.z-nim.N` version and publishes only
 `@octane-xplat/cli` under the `nim` dist-tag. Five native build/test jobs gate
-publication. The Nim tarball omits the TypeScript payload, JS exports, and
-runtime dependencies; TypeScript remains in-repo as the migration reference. It uses the existing trusted publisher; it neither bumps lockstep
+publication. The Nim tarball keeps the curated Vite and small operation-worker exports, while
+omitting the old CLI entry and heavy engine dependencies. Optional project
+engines and platform assets stay separate; TypeScript remains in-repo as the
+migration reference. It uses the existing trusted publisher; it neither bumps lockstep
 manifests nor changes `latest` or `nightly`. This workflow is an experimental
 migration lane, not full CLI parity evidence. See the
 [native implementation and packaging boundaries](../../packages/cli/nim/README.md).

@@ -384,3 +384,15 @@ preservation, stale observations and read-only planning.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go workshop inspection"}' -- bun run turbo run test:go-workshop test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
 ```
+
+`test:go-workshop-engine` validates the selected-project macOS engine binding
+and an actual packed engine import with no CLI package installed. It rejects
+nearer broken packages, missing APIs and escaped entries. The direct API removes
+the workshop's old CLI host import; it is not a Go service readiness or UI test. On macOS the packed direct engine
+also compiles and runs a headless NativeScript/AppKit fixture through the owned
+Go process probe, checking normal app exit and signal shutdown after an actual
+app output marker. Both must reap the host and remove its owned app bundle.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Workshop macOS project engine"}' -- bun run turbo run test:go-workshop-engine --filter=@octane-xplat/cli
+```

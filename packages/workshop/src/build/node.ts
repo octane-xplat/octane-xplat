@@ -145,7 +145,7 @@ export async function workshopDoctor({ cwd, json = false } = {}) {
 			process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64'),
 		'@octane-xplat/macos-appkit': Boolean(resolveFrom(root, '@octane-xplat/macos-appkit')),
 		'@nativescript/macos-node-api': Boolean(resolveFrom(root, '@nativescript/macos-node-api')),
-		'@octane-xplat/cli': Boolean(resolveFrom(root, '@octane-xplat/cli/macos')),
+		'@octane-xplat/macos-build': Boolean(resolveFrom(root, '@octane-xplat/macos-build/dev-engine')),
 		octane: Boolean(resolveFrom(root, 'octane')),
 		'@octanejs/vite-plugin': Boolean(resolveFrom(root, '@octanejs/vite-plugin')),
 		vite: Boolean(resolveFrom(root, 'vite')),

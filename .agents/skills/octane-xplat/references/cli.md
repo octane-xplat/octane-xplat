@@ -20,6 +20,11 @@ schema before using service launching in the parallel CLI. Initialization shares
 a read-only plan with the reference: preserve custom files/scripts, use ordinary
 paths under the 1 MiB input bound, and rerun after inspecting a stale-input error.
 
+MacOS workshop launch requires the selected project’s optional
+`@octane-xplat/macos-build/dev-engine`. Keep this engine and its host assets
+separate from the native executable; the workshop calls its Node API directly
+in the existing operation worker. Go workshop service support remains pending.
+
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
 discovery. Native `status` reports actual installed bindings, tool observations,

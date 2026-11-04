@@ -2,6 +2,7 @@ import { createRequire } from 'node:module'
 import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { loadMacOSDevEngine } from './macos-engine.ts'
 
 /** Generate a separate consumer-owned cache profile; leave app entries untouched. */
 export async function workshopMacOSDev({ root, config, story }) {
@@ -9,6 +10,7 @@ export async function workshopMacOSDev({ root, config, story }) {
 		throw new Error('The AppKit workshop requires a macOS arm64 or x86_64 execution host')
 	}
 
+	const { runMacOSDev } = await loadMacOSDevEngine(root)
 	const require = createRequire(join(root, 'package.json'))
 	for (const name of [
 		'@octane-xplat/macos-appkit',
@@ -80,7 +82,6 @@ export default async ({ mode }) => {
 	)
 
 	try {
-		const { runMacOSDev } = await import('@octane-xplat/cli/macos')
 		return await runMacOSDev(root, {
 			workshop: true,
 			target: {

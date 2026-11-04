@@ -8,19 +8,20 @@
 		"url": "https://github.com/octane-xplat/octane-xplat",
 		"directory": "packages/macos-build"
 	},
-	"type": "module",
 	"files": [
 		"dist",
 		"LICENSE",
 		"README.md"
 	],
+	"type": "module",
 	"exports": {
 		"./worker": "./dist/macos/package-worker.js",
 		"./doctor-worker": "./dist/macos/doctor-worker.js",
-		"./dev-worker": "./dist/macos/dev-worker.js"
-	},
-	"engines": {
-		"node": ">=22.22.2"
+		"./dev-worker": "./dist/macos/dev-worker.js",
+		"./dev-engine": {
+			"types": "./dist/macos/dev.d.ts",
+			"default": "./dist/macos/dev.js"
+		}
 	},
 	"publishConfig": {
 		"access": "public"
@@ -31,13 +32,16 @@
 		"typecheck": "tsc -p tsconfig.json",
 		"test:packed": "node ../../tools/cli-nim/macos-build-consumer.mjs"
 	},
-	"peerDependencies": {
-		"vite": "^8.3.0"
-	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
 		"@types/node": "24.10.1",
 		"typescript": "catalog:",
 		"vite": "catalog:"
+	},
+	"peerDependencies": {
+		"vite": "^8.3.0"
+	},
+	"engines": {
+		"node": ">=22.22.2"
 	}
 }

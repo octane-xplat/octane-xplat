@@ -1,7 +1,7 @@
 # @octane-xplat/macos-build
 
 > Build macOS app packages through project-installed tooling while keeping the
-> experimental Nim CLI download small.
+> standalone native CLI download small.
 
 This project-installed tool builds macOS app packages for the experimental
 [Nim CLI](package-cli.md#experimental-nim-executable). It contains the packaging
@@ -19,14 +19,12 @@ tools in the app's project, alongside its Vite configuration:
 bun add --dev @octane-xplat/macos-build @octane-xplat/build vite@^8.3.0
 ```
 
-The Nim tarball does not include the old CLI's JavaScript exports. In the existing
-macOS Vite configuration, replace the preset import from
-`@octane-xplat/cli/macos/vite` with the shared build package. Keep the preset call,
-its options and other plugins unchanged. The [build-plugin guide](package-build.md)
-explains the migration; that package also supplies route planning and baking:
+The native CLI keeps small Vite and worker exports in its package. The macOS
+engine and host assets stay in this optional project package. Keep the macOS
+preset import in your app's Vite configuration:
 
 ```ts
-import { xplatMacOS } from '@octane-xplat/build/macos/vite'
+import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
 ```
 
 Run the native `xplat` executable from the app directory. A foreground build
@@ -133,4 +131,36 @@ not import it. Maintainers qualify the actual packed package through Turbo:
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"macOS worker qualification"}' -- bun run turbo run test:nim-macos-build test:nim-macos-dev test:nim-macos-publication --filter=@octane-xplat/cli
+```
+
+## Call the development engine from Node
+
+A Node-based project tool can reuse the same engine without another worker
+process or the old CLI host API. Run it from the configured app; its promise
+settles after shutdown or failure. This API requires the app's installed Vite
+and native toolchain, just like the development worker.
+
+```ts
+import { runMacOSDev } from '@octane-xplat/macos-build/dev-engine'
+
+await runMacOSDev(process.cwd())
+```
+
+Callers running this inside a CLI worker own the outer process group, cancellation
+and resource lifetime. Create a private `resourceRoot` before passing it to the engine; this keeps owned
+temporary assets outside dependency caches. The callback reports host-process launch, which does not prove
+that the app rendered or is ready for interaction.
+
+```ts
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { runMacOSDev } from '@octane-xplat/macos-build/dev-engine'
+
+const resourceRoot = await mkdtemp(join(tmpdir(), 'xplat-dev-'))
+await runMacOSDev(process.cwd(), {
+  resourceRoot,
+  onReady: ({ pid }) => console.log(`Host process started: ${pid}`),
+})
+await rm(resourceRoot, { recursive: true })
 ```

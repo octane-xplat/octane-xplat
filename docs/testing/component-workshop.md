@@ -272,10 +272,11 @@ The `macos` target runs the same catalog and session in a small AppKit shell on
 the real JavaScriptCore/NativeScript host — the same runtime `xplat dev` uses
 for packaged macOS apps. It needs a macOS arm64 machine and the app's matching
 macOS dependencies (`@octane-xplat/macos-appkit` and
-`@nativescript/macos-node-api`). Story windows and sheets opened through `openWindow` or
+`@nativescript/macos-node-api`) plus the project-installed macOS build engine. Story windows and sheets opened through `openWindow` or
 `mountSheet` are workshop-owned and close when the story generation retires.
 
 ```sh
+bun add -D @octane-xplat/macos-build
 bun run xplat workshop dev --target macos
 ```
 

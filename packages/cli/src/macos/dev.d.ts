@@ -1,4 +1,4 @@
-/** Run the CLI-owned macOS host and Vite watcher using xplat.targets.macos.dev.
+/** Run the project-installed macOS host and Vite watcher using xplat.targets.macos.dev.
  * Native source changes compile and restart the host; failed rebuilds preserve it.
  * Resolves after shutdown and rejects on startup or unexpected host failure.
  */
@@ -9,6 +9,16 @@ export declare function runMacOSDev(
 		target?: Record<string, unknown>
 		/** Send workshop rebuild/error status to the persistent shell. */
 		workshop?: boolean
+		/** Caller-owned ephemeral resource root; keep outside dependency caches. */
+		resourceRoot?: string
+		/** Host-process launch evidence after each spawn; not proof of app readiness. */
+		onReady?: (metadata: {
+			pid: number
+			renderer: string
+			executable: string
+			observedAt?: string
+			url?: string
+		}) => void
 	},
 ): Promise<void>
 
