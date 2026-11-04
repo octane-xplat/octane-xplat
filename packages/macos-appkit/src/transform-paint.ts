@@ -8,7 +8,7 @@ import {
   CATransform3DScale,
   CATransform3DTranslate,
 } from '@octane-xplat/platform/macos'
-import { composeTransform, transformToParts } from '@octane-xplat/css-engine'
+import { composeTransform, transformToParts, type TranslateAxis } from '@octane-xplat/css-engine'
 
 interface Dependencies {
   borderPaint: Pick<BorderPaint, 'syncBorderBox'>
@@ -44,7 +44,11 @@ export function createTransformPaint(deps: Dependencies) {
   }
 
   // A translate axis is points or 'N%' resolved against the element's own size.
-  function translateAxisValue(value: any): any {
+  function translateAxisValue(value: unknown): TranslateAxis {
+    // The CSS engine and keyframe sampler already normalize percent axes.
+    if (typeof value === 'object' && value != null && 'unit' in value && value.unit === '%' && 'value' in value && typeof value.value === 'number' && Number.isFinite(value.value)) {
+      return { value: value.value, unit: '%' }
+    }
     if (typeof value === 'number') {
       return Number.isFinite(value) ? value : 0
     }
@@ -186,6 +190,8 @@ export function createTransformPaint(deps: Dependencies) {
     return (
       spec != null &&
       ((typeof spec.transform === 'string' && spec.transform.includes('%')) ||
+        spec.translateX?.unit === '%' ||
+        spec.translateY?.unit === '%' ||
         String(spec.translateX ?? '').includes('%') ||
         String(spec.translateY ?? '').includes('%'))
     )
