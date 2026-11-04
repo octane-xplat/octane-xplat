@@ -1644,12 +1644,23 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','corefs','storage-persist')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
   try{
   if($spec -eq 'clipboard-nontext'){Set-Clipboard -LiteralPath $PSCommandPath}
+  if($spec -eq 'media-live-read'){
+   # Resize the owned window twice so the app's layoutChanged subscriber sees transitions.
+   $rect=[System.Windows.Rect]::new()
+   if(-not [Core20Desktop]::GetWindowRect($script:WindowHandle,[ref]$rect)){throw 'Cannot read the owned window rect'}
+   $liveLeft=[int]$rect.Left;$liveTop=[int]$rect.Top;$liveWidth=[int]($rect.Right-$rect.Left);$liveHeight=[int]($rect.Bottom-$rect.Top)
+   $smallWidth=[Math]::Max(420,[int]($liveWidth*0.55))
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$liveLeft,$liveTop,$smallWidth,$liveHeight,$true)){throw 'Cannot shrink the owned window for media-live'}
+   Start-Sleep -Milliseconds 900
+   if(-not [Core20Desktop]::MoveWindow($script:WindowHandle,$liveLeft,$liveTop,$liveWidth,$liveHeight,$true)){throw 'Cannot restore the owned window for media-live'}
+   Start-Sleep -Milliseconds 900
+  }
   Command 'service-run' $spec|Out-Null
   $result=Service-Result $spec
   switch($spec){
@@ -1801,6 +1812,15 @@ function Check-ServiceActions{
     Assert ($null -ne $result.emojiReadBack) 'A lone emoji reads back a payload (mangled or exact — nondeterministic)' $result
     Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null' $result
     Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
+   }
+   'media-live-start' {
+    Assert ($result.subscribed -eq $true) 'Trait observer subscribes on the packaged host' $result
+    Assert ($result.rootBound -eq $true) 'Root view is available for layoutChanged binding' $result
+   }
+   'media-live-read' {
+    Assert ($result.eventCount -ge 2) 'At least two trait-change events delivered across the resizes' $result
+    Assert ($result.widthChanged -eq $true) 'Reported width changes between sampled events' $result
+    Assert ($result.released -eq $true) 'Trait observer releases cleanly' $result
    }
    'media-depth' {
     Assert ($result.screen -eq $true) 'Screen.mainScreen projects on the packaged host' $result

@@ -14,7 +14,7 @@ import {
 import { files } from '@octane-xplat/files'
 import { secureStorage } from '@octane-xplat/secure-storage'
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
-import { Screen } from '@nativescript/core'
+import { Application, Screen } from '@nativescript/core'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
 
@@ -790,6 +790,64 @@ async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
   return result
 }
 
+/**
+ * Live trait-change delivery: subscribe on the primitives
+ * `observeWindowsMediaTraits` listens to (orientationChanged + root
+ * layoutChanged) and record each sampled trait set. The driver resizes the
+ * window between -start and -read; the events buffer proves OS delivery.
+ */
+const mediaLiveEvents: Record<string, unknown>[] = []
+const mediaLiveOffs: (() => void)[] = []
+
+async function mediaLiveStartSpec(): Promise<Record<string, unknown>> {
+  mediaLiveEvents.length = 0
+  mediaLiveOffs.length = 0
+  const sample = (source: string) => {
+    const screen = Screen.mainScreen
+    mediaLiveEvents.push({
+      source,
+      widthDIPs: screen.widthDIPs,
+      heightDIPs: screen.heightDIPs,
+      scale: screen.scale,
+    })
+  }
+  const root = Application.getRootView()
+  const onOrientation = () => sample('orientation')
+  const onLayout = () => sample('layout')
+  try {
+    Application.on(Application.orientationChangedEvent, onOrientation)
+    mediaLiveOffs.push(() => Application.off(Application.orientationChangedEvent, onOrientation))
+  } catch {}
+  if (root) {
+    try {
+      root.on('layoutChanged', onLayout)
+      mediaLiveOffs.push(() => root.off('layoutChanged', onLayout))
+    } catch {}
+  }
+  sample('baseline')
+  return { subscribed: mediaLiveOffs.length > 0, rootBound: root !== null && root !== undefined }
+}
+
+async function mediaLiveReadSpec(): Promise<Record<string, unknown>> {
+  const events = mediaLiveEvents.map((event) => ({ ...event }))
+  let released = true
+  for (const off of mediaLiveOffs) {
+    try {
+      off()
+    } catch {
+      released = false
+    }
+  }
+  mediaLiveOffs.length = 0
+  const widths = new Set(events.map((event) => event.widthDIPs))
+  return {
+    eventCount: events.length,
+    widthChanged: widths.size > 1,
+    lastEvents: events.slice(-4),
+    released,
+  }
+}
+
 /** Pointer/hover/reduced-motion availability on the packaged projection. */
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
@@ -879,6 +937,12 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'connectivity-depth':
         result = await connectivityDepthSpec()
+        break
+      case 'media-live-start':
+        result = await mediaLiveStartSpec()
+        break
+      case 'media-live-read':
+        result = await mediaLiveReadSpec()
         break
       case 'storage-depth':
         result = await storageDepthSpec()
