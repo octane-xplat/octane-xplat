@@ -145,8 +145,10 @@ reading:
   `'????'`), maps `U+0301` combining acute to `'`, and truncates the payload
   at the first `U+0000` (`'before after'` reads back `'before'`). The exact
   mojibake varies across launches (e.g. `?` U+003F vs `�` U+FFFD render
-  alike), so only the invariants are stable: never exact round-trip, ASCII
-  prefix survives, NUL tail truncates. BMP ASCII text round-trips exactly. `readText` also maps an empty/undelivered payload
+  alike; a lone `U+1F600` read back as `??` on some launches and as the real
+  emoji on others), so only the invariants are stable: the unicode+NUL
+  payload never round-trips exactly, ASCII prefix survives, NUL tail
+  truncates. BMP ASCII text round-trips exactly. `readText` also maps an empty/undelivered payload
   to `null` — that mapping is our leaf's contract, not upstream loss.
   Storage through the JSON-document path round-trips the same characters
   exactly, so the loss is specific to WinRT string marshalling, not file IO.

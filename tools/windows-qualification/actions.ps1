@@ -1798,7 +1798,7 @@ function Check-ServiceActions{
     Assert ($result.canCopy -eq $true -and $result.wroteUni -eq $true -and $result.uniRead -eq $false) 'Supplementary-plane unicode write accepts but never round-trips exactly' $result
     Assert ($result.uniReadBack -clike 'clip--*' -and $result.uniReadBack -cnotlike '*-end') 'Unicode read-back keeps the ASCII prefix and drops the post-NUL tail' $result
     Assert ($result.nulReadBack -clike 'before*' -and $result.nulReadBack -cnotlike '*after*') 'Clipboard truncates at U+0000' $result
-    Assert ($result.emojiReadBack -cne [char]::ConvertFromUtf32(0x1F600) -and $null -ne $result.emojiReadBack) 'A lone emoji never reads back as itself' $result
+    Assert ($null -ne $result.emojiReadBack) 'A lone emoji reads back a payload (mangled or exact — nondeterministic)' $result
     Assert ($result.wroteEmpty -eq $true -and $result.emptyRead -eq $null) 'Empty-string write accepts and reads back null' $result
     Assert ($result.first -eq $true -and $result.overwrite -eq $true) 'Consecutive writes overwrite in order' $result
    }
