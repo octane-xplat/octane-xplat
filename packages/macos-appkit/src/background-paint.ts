@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import { parseEdgeInsets, effectiveStyle } from './style-values.ts'
 import type { BorderPaint } from './border-paint'
 import {
@@ -88,13 +89,19 @@ export function createBackgroundPaint(deps: Dependencies) {
   }
 
   function clearBackgrounds(node: ElementNode) {
-    for (const painted of node.bgPainted ?? []) {
-      painted.release?.()
-    }
+    const failures = new FailureCollector()
+    const paintedLayers: BgPainted[] = node.bgPainted ?? []
+    const host = node.bgHost
     node.bgPainted = undefined
-    node.bgHost?.removeFromSuperlayer()
     node.bgHost = undefined
     node.bgSpec = undefined
+    for (const painted of paintedLayers) {
+      const release = painted.release
+      painted.release = undefined
+      failures.run('background image', () => release?.())
+    }
+    failures.run('background host', () => host?.removeFromSuperlayer())
+    failures.throwIfFailed()
   }
 
   // Render the clip area of one url() layer at the window's backing scale; the
@@ -340,7 +347,7 @@ export function createBackgroundPaint(deps: Dependencies) {
         if (specLayer.image.kind === 'url') {
           const generation = (node.bgGeneration = (node.bgGeneration ?? 0) + 1)
           entry.release = requestImage(specLayer.image.url, (image) => {
-            if (node.bgGeneration !== generation || node.view !== view) {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.bgGeneration !== generation || node.view !== view) {
               return
             }
             entry!.image = image

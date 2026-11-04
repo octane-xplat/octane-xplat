@@ -359,9 +359,12 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
   owner.tabItems = owner.tabItems.filter((candidate: ElementNode) => candidate !== item)
   owners.delete(item)
   if (!preserveContent) {
-    item.tabContentRoot?.unmount()
+    const root = item.tabContentRoot
     item.tabContentRoot = null
-    notifyContentTarget(item)
+    const failures = new FailureCollector()
+    failures.run('tab nested root', () => root?.unmount())
+    failures.run('tab content target', () => notifyContentTarget(item))
+    failures.throwIfFailed()
   }
 
   const index = owner.tabItems.length
@@ -482,31 +485,40 @@ export function syncTabView(node: ElementNode) {
 }
 
 export function releaseTabView(node: ElementNode) {
+  if (node.tabDisposed) { return }
   node.tabDisposed = true
+  const failures = new FailureCollector()
   for (const item of (node.tabItems ?? []).slice()) {
-    detachTabItem(item)
+    failures.run('tab item detach', () => detachTabItem(item))
   }
-
-  delegates.delete(node.tabDelegate)
-  node.view!.delegate = null
+  const delegate = node.tabDelegate
   node.tabDelegate = null
+  failures.run('tab delegate identity', () => delegates.delete(delegate))
+  failures.run('tab native delegate', () => { if (node.view) { node.view.delegate = null } })
+  failures.throwIfFailed()
 }
 
 export function releaseTabItem(node: ElementNode) {
-  detachTabItem(node)
-  node.tabContentRoot?.unmount()
-  node.tabContentRoot = null
+  if (node.tabDisposed) { return }
   node.tabDisposed = true
   node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1
-  node.tabIconTask?.cancel()
+  const failures = new FailureCollector()
+  failures.run('tab item detach', () => detachTabItem(node))
+  const root = node.tabContentRoot
+  node.tabContentRoot = null
+  failures.run('tab nested root', () => root?.unmount())
+  const task = node.tabIconTask
   node.tabIconTask = null
+  failures.run('tab icon', () => task?.cancel())
   node.tabIconInput = undefined
   node.tabIconFontInputs = undefined
   node.props.__tabContent = undefined
   node.props.iconSource = undefined
   node.props.title = undefined
-  node.tabNativeItem.view = null
-  node.tabNativeItem.image = null
-  node.childHost?.removeFromSuperview()
+  failures.run('tab native content', () => { if (node.tabNativeItem) { node.tabNativeItem.view = null } })
+  failures.run('tab native image', () => { if (node.tabNativeItem) { node.tabNativeItem.image = null } })
+  const host = node.childHost
   node.childHost = undefined
+  failures.run('tab child host', () => host?.removeFromSuperview())
+  failures.throwIfFailed()
 }

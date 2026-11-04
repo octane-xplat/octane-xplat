@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import type { CssAnimations } from './css-animations'
 import type { CssCascade } from './css-cascade'
 import type { Projection } from './projection'
@@ -32,63 +33,54 @@ export type Tree = ReturnType<typeof createTree>
 export function createTree(deps: Dependencies) {
   function detach(container: RootContainer, node: ElementNode, preserveTab = false) {
     const previousParent = node.parent
-    deps.cssAnimations.stopSubtreeAnimations(node)
+    const failures = new FailureCollector()
+    const release = (phase: string, operation: () => void) => failures.run(phase, operation)
+    release('detach animations', () => deps.cssAnimations.stopSubtreeAnimations(node))
     if (node.type === 'tabviewitem' && !preserveTab) {
-      detachTabItem(node)
+      release('detach tab', () => detachTabItem(node))
     }
-
     const physicalParent = node.layoutParent ?? previousParent
     if (node.layoutParent) {
-      deps.projection.releaseProjectedView(node)
+      release('detach projection', () => deps.projection.releaseProjectedView(node))
     }
-
     if (node.type === 'proxyviewcontainer') {
       for (const child of deps.projection.projectedViews(node)) {
-        deps.projection.releaseProjectedView(child)
+        release('detach proxy projection', () => deps.projection.releaseProjectedView(child))
       }
     }
-
     const siblings = previousParent?.children ?? container.children
     const index = siblings.indexOf(node)
     if (index >= 0) {
       siblings.splice(index, 1)
     }
-
-    deps.nativeStyle.deactivateSizeConstraints(node)
-    deps.layout.releasePlacementPins(node)
-    if (node.view) {
-      const parentView = physicalParent?.childHost ?? physicalParent?.view
-      if (
-        parentView?.removeArrangedSubview &&
-        deps.layout.layoutView(node)?.superview === parentView
-      ) {
-        parentView.removeArrangedSubview(deps.layout.layoutView(node))
-      }
-
-      deps.layout.layoutView(node).removeFromSuperview()
-    }
-
-    if (
-      previousParent &&
-      ['contentview', 'actionbar'].includes(previousParent.type) &&
-      previousParent.contentChild === node
-    ) {
-      previousParent.contentChild = null
-      previousParent.view!.invalidateIntrinsicContentSize()
-    }
-
-    deps.layout.queueLayoutReconcile(container, previousParent)
-    deps.textElements.syncText(previousParent)
-    if (previousParent?.type === 'tabview') {
-      syncTabView(previousParent)
-    }
-
-    if (previousParent?.type === 'segmentedbar') {
-      deps.pickerElements.syncSegmentedBar(previousParent)
-    }
-
+    // Retire edges before native calls can reenter; the live parent still needs
+    // synchronization even though the child has begun disposal.
     node.parent = null
     node.layoutParent = null
+    release('detach size', () => deps.nativeStyle.deactivateSizeConstraints(node))
+    release('detach placement', () => deps.layout.releasePlacementPins(node))
+    if (node.view) {
+      const parentView = physicalParent?.childHost ?? physicalParent?.view
+      release('detach arranged view', () => {
+        if (parentView?.removeArrangedSubview && deps.layout.layoutView(node)?.superview === parentView) {
+          parentView.removeArrangedSubview(deps.layout.layoutView(node))
+        }
+      })
+      release('detach native view', () => deps.layout.layoutView(node).removeFromSuperview())
+    }
+    if (previousParent && ['contentview', 'actionbar'].includes(previousParent.type) && previousParent.contentChild === node) {
+      previousParent.contentChild = null
+      release('detach content size', () => previousParent.view!.invalidateIntrinsicContentSize())
+    }
+    release('detach parent layout', () => deps.layout.queueLayoutReconcile(container, previousParent))
+    release('detach parent text', () => deps.textElements.syncText(previousParent))
+    if (previousParent?.type === 'tabview') {
+      release('detach parent tab', () => syncTabView(previousParent))
+    }
+    if (previousParent?.type === 'segmentedbar') {
+      release('detach parent segment', () => deps.pickerElements.syncSegmentedBar(previousParent))
+    }
+    failures.throwIfFailed()
   }
 
   function validateTextNesting(parentType: string | undefined, childType: string) {

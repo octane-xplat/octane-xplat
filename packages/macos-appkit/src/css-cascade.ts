@@ -69,7 +69,7 @@ export function createCssCascade(deps: Dependencies) {
   // inside a batch, or coalesced onto one microtask outside a batch.
   function markStyleDirty(node: ElementNode, subtree = false, matchChanged = true) {
     const container = node.container
-    if (!container) {
+    if (!container || node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       return
     }
     ;(container.cssDirty ??= new Set()).add(node)

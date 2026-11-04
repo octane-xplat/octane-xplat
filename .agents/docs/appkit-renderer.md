@@ -91,12 +91,21 @@ and every cleanup path must tolerate partially constructed nodes. The paint
 services likewise still share geometry coordination and node-owned layer fields;
 their module boundaries do not establish independent lifecycles.
 
-Current cleanup is sequential rather than exception-isolated: a throwing hook
-can skip later detach/resource/identity releases, and failed construction can
-lose its primary error if cleanup throws. Preserve the normal ordering while
-introducing failure-safe phases. Live plugin nodes currently re-query the
-registration for cleanup; the acquired-definition migration must deliberately
-replace that behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
+Nodes progress through constructing, live, disposing and disposed. Disposal
+retires dispatch first and snapshots/removes destruction hooks before invoking
+them. The node owner attempts every independent release in the characterized
+order, including identity removal after native errors. Reentrant destruction
+is inert. Tree detachment still synchronizes a live parent after native failure;
+it must not use the child's disposal state to skip parent work.
+
+`failures.ts` preserves a single thrown value, including undefined. Multiple
+failures produce `PhaseErrors`, whose `errors` retain the original values and
+`failures` pair each value with its phase. Construction remains the first error
+when cleanup also fails. Retire each release field/lease before invoking it;
+never retry an OS release merely because it threw. A native release failure
+still means that OS resource may remain unreleased. Live plugin nodes currently
+re-query the registration for cleanup; the acquired-definition migration must
+deliberately replace that behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
 Root creation also admits a second root on the same host, and font records
 survive unmount ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).
 The direct root test characterizes that existing policy; it is not the desired

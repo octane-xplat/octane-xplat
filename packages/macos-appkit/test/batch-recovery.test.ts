@@ -694,3 +694,16 @@ test('command and CSS failure remain identifiable and never emit a successful co
   })
   assert.equal(fx.container.layoutDirty, null)
 })
+
+
+test('a failed old-node release retires an unexposed recreation replacement', () => {
+  const fx = fixture()
+  const node = fx.makeNode(fx.container, 1, 'button', {})
+  fx.container.nodes.set(1, node)
+  const failure = Error('old cleanup')
+  node.destroyHooks = [() => { throw failure }]
+  assert.throws(() => fx.applyCommand(fx.container, { op: 'recreate', id: 1, type: 'button', props: {} }), error => error === failure)
+  assert.equal(node.lifecycle, 'disposed')
+  assert.equal(fx.container.nodes.size, 0)
+  assert.equal(fx.actionHandlers.size, 0)
+})

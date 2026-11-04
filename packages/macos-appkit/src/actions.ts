@@ -102,7 +102,7 @@ export function createActions(deps: Dependencies) {
       const node = view ? deps.registry.cssNodesByView.get(view) : undefined
       const links = node?.textLinks
       if (
-        !node ||
+        !node || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         node.type !== 'label' ||
         !links?.length ||
         node.props.disabled === true ||
@@ -137,7 +137,7 @@ export function createActions(deps: Dependencies) {
       invokeAction(sender.tag ?? actionIdsByView.get(sender))
       // Toggle state lives on the control itself — resync :checked/:normal.
       const node = deps.registry.cssNodesByView.get(sender)
-      if (node) {
+      if (node && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed') {
         deps.cssPseudoState.syncPseudoState(node)
       }
     }
@@ -150,6 +150,7 @@ export function createActions(deps: Dependencies) {
       }
       notifyTextValueCommit(notification.object)
       const node = deps.inputElements.textNodesByView.get(notification.object)
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return }
       if (node?.type === 'searchbar') {
         deps.inputElements.notifySearchTextChange(node)
       } else {
@@ -214,6 +215,7 @@ export function createActions(deps: Dependencies) {
       }
       notifyTextValueCommit(notification.object)
       const node = deps.inputElements.textNodesByView.get(notification.object)
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return }
       if (node) {
         enforceTextLimit(notification.object as NSTextView, node.props?.maxLength)
       }
@@ -250,6 +252,7 @@ export function createActions(deps: Dependencies) {
     // Return in the field-editor delegate so clearing cannot emit submit.
     controlTextViewDoCommandBySelector(control: NSControl, _editor: NSTextView, selector: string) {
       const node = deps.inputElements.textNodesByView.get(control)
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return false }
       if (node?.type !== 'searchbar' || String(selector) !== 'insertNewline:') {
         return false
       }
@@ -275,6 +278,7 @@ export function createActions(deps: Dependencies) {
 
     textViewDoCommandBySelector(view: NSTextView, selector: string) {
       const node = deps.inputElements.textNodesByView.get(view)
+      if (node?.lifecycle === 'disposing' || node?.lifecycle === 'disposed') { return false }
       if (
         String(selector) !== 'insertNewline:' ||
         !node ||
@@ -326,6 +330,9 @@ export function createActions(deps: Dependencies) {
       node.actionId,
       typeof value === 'function'
         ? () => {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+              return
+            }
             try {
               if (!node.props.disabled) {
                 node.container.root!.eventScope('discrete', value)
@@ -359,7 +366,7 @@ export function createActions(deps: Dependencies) {
       node.view!,
       enabled
         ? (event: PanEvent) => {
-            if (node.props.disabled) {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.props.disabled) {
               return
             }
 
@@ -367,7 +374,7 @@ export function createActions(deps: Dependencies) {
               node.container.root!.eventScope('discrete', () => {
                 node.props.onPan?.(event)
                 const direction = swipeDirection(event)
-                if (direction !== null && !node.props.disabled) {
+                if (direction !== null && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && !node.props.disabled) {
                   node.props.onSwipe?.({ direction })
                 }
               })
@@ -388,6 +395,9 @@ export function createActions(deps: Dependencies) {
       node.actionId,
       typeof value === 'function'
         ? () => {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+              return
+            }
             try {
               node.container.root!.eventScope('discrete', () => value(readValue()))
             } catch (error) {
@@ -404,6 +414,9 @@ export function createActions(deps: Dependencies) {
     node.submitHandler =
       typeof value === 'function'
         ? () => {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+              return
+            }
             try {
               node.container.root!.eventScope('discrete', value)
             } catch (error) {

@@ -203,6 +203,9 @@ export function createLayout(deps: Dependencies) {
     }
 
     layoutHandlers.set(target, () => {
+      if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+        return
+      }
       const bounds = target.bounds
       try {
         node.container.root!.eventScope('discrete', () =>

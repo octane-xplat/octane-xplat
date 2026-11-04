@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import {
   defineUniversalComponent,
   universalPlan,
@@ -84,19 +85,21 @@ function releasePortal(cell: Cell) {
 }
 
 function clearContent(state: ListState, cell: Cell) {
-  releasePortal(cell)
-  cell.root?.unmount()
+  const failures = new FailureCollector()
+  failures.run('list portal', () => releasePortal(cell))
+  const root = cell.root
   cell.root = null
-  if (cell.factoryView) {
-    const host = cell.factoryView
-    factoryOwners.delete(host)
-    state.releaseOwnedRoot(host)
-    host.bindingContext = undefined
-    host.removeFromSuperview()
-    cell.factoryView = null
-  }
-
+  failures.run('list nested root', () => root?.unmount())
+  const host = cell.factoryView
+  cell.factoryView = null
   cell.mode = null
+  if (host) {
+    failures.run('list factory identity', () => factoryOwners.delete(host))
+    failures.run('list owned root', () => state.releaseOwnedRoot(host))
+    failures.run('list binding', () => { host.bindingContext = undefined })
+    failures.run('list factory host', () => host.removeFromSuperview())
+  }
+  failures.throwIfFailed()
 }
 
 function bind(state: ListState, cell: Cell, index: number) {
@@ -421,29 +424,28 @@ function refreshList(state: ListState) {
 
 export function disposeListView(view: NSView) {
   const state = states.get(view)
-  if (!state || state.closed) {
-    return
-  }
-
+  if (!state || state.closed) { return }
   state.closed = true
-  state.stopItems?.()
+  const failures = new FailureCollector()
+  const stopItems = state.stopItems
   state.stopItems = undefined
-  state.table.delegate = null
-  state.table.dataSource = null
-  state.table.target = null
-  state.table.action = null
+  failures.run('list subscription', () => stopItems?.())
+  for (const field of ['delegate', 'dataSource', 'target', 'action'] as const) {
+    failures.run('list ' + field, () => { state.table[field] = null })
+  }
   states.delete(state.table)
   states.delete(view)
-  for (const cell of state.cells) {
-    clearContent(state, cell)
-    cell.host.bindingContext = undefined
-    cell.host.removeFromSuperview()
+  const cells = [...state.cells]
+  state.cells.clear()
+  for (const cell of cells) {
+    failures.run('list cell content', () => clearContent(state, cell))
+    failures.run('list cell binding', () => { cell.host.bindingContext = undefined })
+    failures.run('list cell host', () => cell.host.removeFromSuperview())
     cellsByHost.delete(cell.host)
   }
-
-  state.cells.clear()
   state.props = {}
   state.count = 0
-  state.table.reloadData()
-  state.view.documentView = null
+  failures.run('list reload', () => state.table.reloadData())
+  failures.run('list document', () => { state.view.documentView = null })
+  failures.throwIfFailed()
 }

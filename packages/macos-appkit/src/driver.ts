@@ -228,7 +228,6 @@ export function createDriver(deps: Dependencies) {
         }
 
         if (existing) {
-          deps.tree.detach(container, existing)
           deps.nodes.destroy(existing)
         }
 
@@ -285,7 +284,9 @@ export function createDriver(deps: Dependencies) {
           deps.nodes.destroy(node)
         }
 
-        container.nodes.delete(command.id)
+        if (container.nodes.get(command.id) === node) {
+          container.nodes.delete(command.id)
+        }
         return
       }
       case 'visibility': {
@@ -330,8 +331,13 @@ export function createDriver(deps: Dependencies) {
         const index = siblings.indexOf(node)
         const beforeId = index < 0 ? null : (siblings[index + 1]?.id ?? null)
         const parentId = deps.registry.parentReference(parent)
-        deps.tree.remove(container, parentId, node)
-        deps.nodes.destroy(node)
+        const failures = new FailureCollector()
+        failures.run('recreate removal', () => deps.tree.remove(container, parentId, node))
+        failures.run('recreate disposal', () => deps.nodes.destroy(node))
+        if (failures.failed) {
+          failures.run('recreate replacement cleanup', () => deps.nodes.destroy(replacement))
+          failures.throwIfFailed()
+        }
         container.nodes.set(command.id, replacement)
         deps.tree.insert(container, parentId, replacement, beforeId)
         return

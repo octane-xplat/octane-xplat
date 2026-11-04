@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import type { CssAnimations } from './css-animations'
 import type { Registry } from './registry'
 import type { Tree } from './tree'
@@ -370,6 +371,7 @@ export function createNodes(deps: Dependencies) {
     const node: ElementNode = {
       id,
       type,
+      lifecycle: 'constructing',
       view: null,
       props: {},
       parent: null,
@@ -534,6 +536,9 @@ export function createNodes(deps: Dependencies) {
         }
       }
 
+      if (node.lifecycle !== 'constructing') {
+        throw new Error('AppKit node retired during construction')
+      }
       if (type === 'textfield' || type === 'textview' || type === 'searchbar') {
         node.actionId = deps.actions.nextActionId++
         deps.actions.actionIdsByView.set(node.view!, node.actionId)
@@ -579,6 +584,9 @@ export function createNodes(deps: Dependencies) {
       }
 
       deps.elementProps.applyProps(node, props)
+      if (node.lifecycle !== 'constructing') {
+        throw new Error('AppKit node retired during construction')
+      }
       if (node.view) {
         const owner = deps.registry.nodeContainersByView.get(node.view)
         if (owner && owner !== container) {
@@ -590,126 +598,110 @@ export function createNodes(deps: Dependencies) {
         deps.cssPseudoState.syncPseudoTracking(node)
       }
 
+      if (node.lifecycle !== 'constructing') {
+        throw new Error('AppKit node retired during construction')
+      }
+      node.lifecycle = 'live'
       return node
     } catch (error) {
       // Release whatever the failed creation registered — action slots,
       // observers, WebView delegates — since no caller can destroy it.
-      destroy(node)
+      const failures = new FailureCollector()
+      failures.run('construction', () => { throw error })
+      failures.run('construction cleanup', () => destroy(node))
+      failures.throwIfFailed()
       throw error
     }
   }
 
   function destroy(node: ElementNode) {
-    deps.inputElements.disposeBuiltinTextViewLayout(node)
-
-    if (
-      node.view &&
-      (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')
-    ) {
-      deps.subscriptions.focusWithinDispatcher.set(node.view)
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+      return
     }
-    if (
-      node.view &&
-      (typeof node.props.onKeyDown === 'function' || typeof node.props.onKeyUp === 'function')
-    ) {
-      deps.subscriptions.keyboardDispatcher.set(node.view)
+    node.lifecycle = 'disposing'
+    const failures = new FailureCollector()
+    const release = (phase: string, operation: () => void) => failures.run(phase, operation)
+
+    // Feature dispatch checks lifecycle before entering user code. Retire every
+    // stored hook before invoking any of them so reentrant destroy is inert.
+    const hooks = [...(node.destroyHooks ?? [])]
+    node.destroyHooks = undefined
+    release('retire text layout', () => deps.inputElements.disposeBuiltinTextViewLayout(node))
+    release('focus subscription', () => {
+      if (node.view && (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')) {
+        deps.subscriptions.focusWithinDispatcher.set(node.view)
+      }
+    })
+    release('keyboard subscription', () => {
+      if (node.view && (typeof node.props.onKeyDown === 'function' || typeof node.props.onKeyUp === 'function')) {
+        deps.subscriptions.keyboardDispatcher.set(node.view)
+      }
+    })
+    release('css dirty', () => node.container?.cssDirty?.delete(node))
+    release('animations', () => deps.cssAnimations.cancelKeyframeAnimations(node))
+    for (const [index, hook] of hooks.entries()) {
+      release('destroy hook ' + index, hook)
     }
-    node.container?.cssDirty?.delete(node)
-    deps.cssAnimations.cancelKeyframeAnimations(node)
-    for (const hook of node.destroyHooks ?? []) {
-      hook()
-    }
-    deps.registry.behaviorOf(node.type)?.destroy?.(node)
-    deps.hostedElements.disposeBuiltinListView(node)
+    // Canonical adapter acquisition/phases are introduced in P5/P6. Preserve
+    // the existing registration and builtin order until those cohorts migrate.
+    release('behavior prepare', () => deps.registry.behaviorOf(node.type)?.destroy?.(node))
+    release('list prepare', () => deps.hostedElements.disposeBuiltinListView(node))
+    release('pager prepare', () => deps.hostedElements.disposeBuiltinPager(node))
+    release('video prepare', () => deps.hostedElements.disposeBuiltinVideo(node))
+    release('tab prepare', () => deps.hostedElements.disposeBuiltinTabView(node))
+    release('tab item prepare', () => deps.hostedElements.disposeBuiltinTabItem(node))
+    release('segment item prepare', () => deps.pickerElements.disposeBuiltinSegmentedItem(node))
+    release('segment children prepare', () => deps.pickerElements.disposeBuiltinSegmentedChildren(node))
+    release('formatted prepare', () => deps.textElements.disposeBuiltinFormattedText(node))
+    release('proxy prepare', () => deps.projection.disposeBuiltinProxyChildren(node))
+    release('root layout prepare', () => deps.containerElements.disposeBuiltinRootLayout(node))
+    release('glass prepare', () => deps.containerElements.disposeBuiltinLiquidGlass(node))
+    release('content prepare', () => deps.containerElements.disposeBuiltinContentHost(node))
+    release('placeholder prepare', () => deps.containerElements.disposeBuiltinPlaceholder(node))
 
-    deps.hostedElements.disposeBuiltinPager(node)
-
-    deps.hostedElements.disposeBuiltinVideo(node)
-
-    deps.hostedElements.disposeBuiltinTabView(node)
-
-    deps.hostedElements.disposeBuiltinTabItem(node)
-
-    deps.pickerElements.disposeBuiltinSegmentedItem(node)
-
-    deps.pickerElements.disposeBuiltinSegmentedChildren(node)
-
-    deps.textElements.disposeBuiltinFormattedText(node)
-
-    deps.projection.disposeBuiltinProxyChildren(node)
-
-    deps.containerElements.disposeBuiltinRootLayout(node)
-
-    deps.containerElements.disposeBuiltinLiquidGlass(node)
-
-    deps.containerElements.disposeBuiltinContentHost(node)
-
-    deps.containerElements.disposeBuiltinPlaceholder(node)
-
-    if (node.view) {
-      deps.tree.detach(node.container, node)
-    }
-
-    disposePressGestures(node)
-    if (node.clickGestureRecognizer) {
-      node.clickGestureRecognizer.enabled = false
-      node.view?.removeGestureRecognizer(node.clickGestureRecognizer)
-      node.clickGestureRecognizer = undefined
-    }
-    if (node.linkClickRecognizer) {
-      node.linkClickRecognizer.enabled = false
-      node.view?.removeGestureRecognizer(node.linkClickRecognizer)
-      node.linkClickRecognizer = undefined
+    release('detach', () => deps.tree.detach(node.container, node))
+    release('press gestures', () => disposePressGestures(node))
+    for (const name of ['clickGestureRecognizer', 'linkClickRecognizer']) {
+      const recognizer = node[name]
+      node[name] = undefined
+      if (recognizer) {
+        release(name + ' disable', () => { recognizer.enabled = false })
+        release(name + ' detach', () => node.view?.removeGestureRecognizer(recognizer))
+      }
     }
     node.textLinks = undefined
-    node.cssHoverDispose?.()
+    const hover = node.cssHoverDispose
     node.cssHoverDispose = undefined
-    setVisualStateTracking(node, null)
-    if (node.view) {
-      deps.actions.panHandlersByView.delete(node.view)
-    }
-
-    if (node.panGestureRecognizer) {
-      node.panGestureRecognizer.enabled = false
-    }
-    deps.inputElements.disposeBuiltinTextInput(node)
-
-    deps.hostedElements.disposeBuiltinWebView(node)
-
-    deps.pickerElements.disposeBuiltinSegmentedControl(node)
-
-    deps.pickerElements.disposeBuiltinListPicker(node)
-
-    deps.pickerElements.disposeBuiltinTimePicker(node)
-
-    deps.pickerElements.disposeBuiltinDatePicker(node)
-
-    deps.controls.disposeBuiltinActivityIndicator(node)
-
-    deps.imageElements.disposeBuiltinImage(node)
-
-    deps.controls.disposeBuiltinScrollView(node)
+    release('hover', () => hover?.())
+    release('visual state', () => setVisualStateTracking(node, null))
+    release('pan handler', () => { if (node.view) { deps.actions.panHandlersByView.delete(node.view) } })
+    release('pan recognizer', () => { if (node.panGestureRecognizer) { node.panGestureRecognizer.enabled = false } })
+    release('text input dispose', () => deps.inputElements.disposeBuiltinTextInput(node))
+    release('web dispose', () => deps.hostedElements.disposeBuiltinWebView(node))
+    release('segment dispose', () => deps.pickerElements.disposeBuiltinSegmentedControl(node))
+    release('list picker dispose', () => deps.pickerElements.disposeBuiltinListPicker(node))
+    release('time picker dispose', () => deps.pickerElements.disposeBuiltinTimePicker(node))
+    release('date picker dispose', () => deps.pickerElements.disposeBuiltinDatePicker(node))
+    release('activity dispose', () => deps.controls.disposeBuiltinActivityIndicator(node))
+    release('image dispose', () => deps.imageElements.disposeBuiltinImage(node))
+    release('scroll dispose', () => deps.controls.disposeBuiltinScrollView(node))
 
     const detachScrollGeometry = node.scrollGeometryDetach
     node.scrollGeometryDetach = null
-    detachScrollGeometry?.()
-    for (const constraint of node.scrollAxisConstraints ?? []) {
-      constraint.active = false
+    release('scroll geometry', () => detachScrollGeometry?.())
+    const constraints = node.scrollAxisConstraints ?? []
+    node.scrollAxisConstraints = undefined
+    for (const constraint of constraints) {
+      release('scroll constraint', () => { constraint.active = false })
     }
-
-    if (node.layoutObserver) {
-      NSNotificationCenter.defaultCenter.removeObserver(node.layoutObserver)
-      node.layoutObserver = null
-    }
-
-    deps.backgroundPaint.clearBackgrounds(node)
-    if (node.outlineObserver) {
-      NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
-      node.outlineObserver = null
-    }
-    if (node.boxFrameOwner) {
-      deps.borderPaint.clearBoxFrameObserver(node)
-    }
+    const layoutObserver = node.layoutObserver
+    node.layoutObserver = null
+    release('layout observer', () => { if (layoutObserver) { NSNotificationCenter.defaultCenter.removeObserver(layoutObserver) } })
+    release('background paint', () => deps.backgroundPaint.clearBackgrounds(node))
+    const outlineObserver = node.outlineObserver
+    node.outlineObserver = null
+    release('outline observer', () => { if (outlineObserver) { NSNotificationCenter.defaultCenter.removeObserver(outlineObserver) } })
+    release('box frame', () => { if (node.boxFrameOwner) { deps.borderPaint.clearBoxFrameObserver(node) } })
     node.borderLayer = null
     node.borderSides = undefined
     node.borderOutline = undefined
@@ -717,36 +709,43 @@ export function createNodes(deps: Dependencies) {
     node.borderSideMasks = undefined
     node.borderBandShapes = undefined
     node.cornerMask = undefined
-    for (const host of node.outsetShadowHosts ?? []) {
-      host.removeFromSuperlayer()
-    }
+    const shadows = node.outsetShadowHosts ?? []
     node.outsetShadowHosts = undefined
-    node.insetShadowHost?.removeFromSuperlayer()
+    for (const host of shadows) {
+      release('outset shadow', () => host.removeFromSuperlayer())
+    }
+    const insetShadow = node.insetShadowHost
     node.insetShadowHost = null
+    release('inset shadow', () => insetShadow?.removeFromSuperlayer())
     node.insetShadowShapes = undefined
     node.insetShadowLayer = null
-
-    deps.layout.layoutHandlers.delete(node.layoutObservedView)
+    const observedView = node.layoutObservedView
     node.layoutObservedView = null
-
+    release('layout identity', () => deps.layout.layoutHandlers.delete(observedView))
     if (node.actionId !== undefined) {
-      deps.actions.actionHandlers.delete(node.actionId)
-      deps.accessibleHost.accessibilityLabels.delete(node.actionId)
-      deps.accessibleHost.accessibilityRoles.delete(node.actionId)
+      release('action identity', () => deps.actions.actionHandlers.delete(node.actionId!))
+      release('AX label identity', () => deps.accessibleHost.accessibilityLabels.delete(node.actionId!))
+      release('AX role identity', () => deps.accessibleHost.accessibilityRoles.delete(node.actionId!))
     }
-
-    if (
-      node.view &&
-      typeof deps.registry.nodeContainersByView !== 'undefined' &&
-      deps.registry.nodeContainersByView.get(node.view) === node.container
-    ) {
-      deps.registry.nodeContainersByView.delete(node.view)
-    }
-
-    if (node.view) {
-      deps.registry.cssNodesByView.delete(node.view)
-    }
+    release('view owner identity', () => {
+      if (node.view && typeof deps.registry.nodeContainersByView !== 'undefined' && deps.registry.nodeContainersByView.get(node.view) === node.container) {
+        deps.registry.nodeContainersByView.delete(node.view)
+      }
+    })
+    release('css view identity', () => {
+      if (node.view && deps.registry.cssNodesByView.get(node.view) === node) {
+        deps.registry.cssNodesByView.delete(node.view)
+      }
+    })
+    release('node identity', () => {
+      if (node.container.nodes?.get(node.id) === node) {
+        node.container.nodes.delete(node.id)
+      }
+    })
+    node.lifecycle = 'disposed'
+    failures.throwIfFailed()
   }
+
   return {
     validateNodeProps,
     makeNode,

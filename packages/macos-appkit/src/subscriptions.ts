@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import type { Registry } from './registry'
 import type { AccessibleHost } from './accessible-host'
 import { createAppKitKeyboardDispatcher } from './keyboard'
@@ -59,16 +60,19 @@ export function createSubscriptions(deps: Dependencies) {
       const leases = owned
 
       ;(node.destroyHooks ??= []).push(() => {
-        for (const off of [...leases]) {
-          off()
-        }
+        const failures = new FailureCollector()
         keyboardSubscriptionsByNode.delete(node)
+        for (const off of [...leases]) {
+          failures.run('subscription release', off)
+        }
+        failures.throwIfFailed()
       })
     }
     const leases = owned
     let active = true
     const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
       if (
+        node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         !active ||
         node.view !== view ||
         deps.registry.cssNodesByView.get(view) !== node ||
@@ -93,8 +97,8 @@ export function createSubscriptions(deps: Dependencies) {
         return
       }
       active = false
-      release()
       leases.delete(off)
+      release()
     }
     leases.add(off)
     return off
@@ -117,15 +121,18 @@ export function createSubscriptions(deps: Dependencies) {
       const leases = owned
 
       ;(node.destroyHooks ??= []).push(() => {
-        for (const off of [...leases]) {
-          off()
-        }
+        const failures = new FailureCollector()
         fileDropSubscriptionsByNode.delete(node)
+        for (const off of [...leases]) {
+          failures.run('subscription release', off)
+        }
+        failures.throwIfFailed()
       })
     }
     const leases = owned
     let active = true
     const current = () =>
+      node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' &&
       active &&
       Object.is(node.view, view) &&
       deps.registry.cssNodesByView.get(view) === node &&
@@ -151,8 +158,8 @@ export function createSubscriptions(deps: Dependencies) {
         return
       }
       active = false
-      release()
       leases.delete(off)
+      release()
     }
     leases.add(off)
     return off
@@ -173,16 +180,19 @@ export function createSubscriptions(deps: Dependencies) {
       const leases = owned
 
       ;(node.destroyHooks ??= []).push(() => {
-        for (const off of [...leases]) {
-          off()
-        }
+        const failures = new FailureCollector()
         contextSubscriptionsByNode.delete(node)
+        for (const off of [...leases]) {
+          failures.run('subscription release', off)
+        }
+        failures.throwIfFailed()
       })
     }
     const leases = owned
     let active = true
     const release = contextPointerDispatcher.subscribe(view, (target) => {
       if (
+        node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         !active ||
         node.view !== view ||
         deps.registry.cssNodesByView.get(view) !== node ||
@@ -208,8 +218,8 @@ export function createSubscriptions(deps: Dependencies) {
         return
       }
       active = false
-      release()
       leases.delete(off)
+      release()
     }
     leases.add(off)
     return off
@@ -223,6 +233,7 @@ export function createSubscriptions(deps: Dependencies) {
     const invoke = (name: string, event: unknown, current: () => boolean) => {
       const root = node.container.root
       if (
+        node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         !root ||
         !current() ||
         node.view !== view ||
@@ -232,6 +243,7 @@ export function createSubscriptions(deps: Dependencies) {
       }
       root.eventScope('discrete', () => {
         if (
+          node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
           !current() ||
           node.view !== view ||
           deps.registry.cssNodesByView.get(view) !== node ||
@@ -263,6 +275,7 @@ export function createSubscriptions(deps: Dependencies) {
     }
     const invoke = (name: 'onKeyDown' | 'onKeyUp', event: NativeKeyboardEvent<object>) => {
       if (
+        node.lifecycle === 'disposing' || node.lifecycle === 'disposed' ||
         node.props.disabled === true ||
         node.props.isEnabled === false ||
         node.props.enabled === false
@@ -298,6 +311,9 @@ export function createSubscriptions(deps: Dependencies) {
       return
     }
     const invoke = (name: 'onFocus' | 'onBlur', event: unknown) => {
+      if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+        return
+      }
       const handler = node.props[name]
       if (typeof handler !== 'function') {
         return

@@ -28,6 +28,8 @@ export type AppKitView = NSView & { [key: string]: any }
 export interface ElementNode {
   id: number
   type: string
+  /** Absent only for compiler-owned root records, which have separate ownership. */
+  lifecycle?: 'constructing' | 'live' | 'disposing' | 'disposed'
   view: AppKitView | null
   projectedChildren?: ElementNode[]
   layoutParent?: ElementNode | null

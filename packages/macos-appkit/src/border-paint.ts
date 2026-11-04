@@ -418,7 +418,7 @@ export function createBorderPaint(deps: Dependencies) {
       ready: false,
       view,
     }
-    const current = () => owner.active && node.boxFrameOwner === owner && node.view === view
+    const current = () => node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && owner.active && node.boxFrameOwner === owner && node.view === view
     node.boxFrameOwner = owner
     node.boxFrameObserver = null
     retireBoxFrameOwner(node, previous)
@@ -447,7 +447,7 @@ export function createBorderPaint(deps: Dependencies) {
       }
 
       const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
-        if (!owner.active || !owner.ready || node.boxFrameOwner !== owner) {
+        if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !owner.active || !owner.ready || node.boxFrameOwner !== owner) {
           return
         }
         if (node.view !== view) {

@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 import { effectiveStyle } from './style-values.ts'
 import type { Registry } from './registry'
 import type { Layout } from './layout'
@@ -448,7 +449,7 @@ export function createContainerElements(deps: Dependencies) {
         view,
         null,
         () => {
-          if (contentViewNodesByView.get(view) === node) {
+          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && contentViewNodesByView.get(view) === node) {
             deps.layout.queueLayoutReconcile(node.container, node)
           }
         },
@@ -584,34 +585,30 @@ export function createContainerElements(deps: Dependencies) {
   }
 
   function disposeBuiltinContentHost(node: ElementNode) {
-    // Removing an ancestor does not detach its native descendants. Every
-    // destroyed view releases its own edge, including retained ContentView refs.
-    if (['contentview', 'actionbar'].includes(node.type ?? '')) {
-      if (node.contentGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.contentGeometryObserver)
-        node.contentGeometryObserver = null
-      }
-
-      if (node.type === 'actionbar') {
-        if (node.actionBarDisplay) {
-          deps.layout.releasePlacementPins(node.actionBarDisplay)
-          node.actionBarDisplay.view.removeFromSuperview()
-        }
-
-        node.actionBarExternal = null
-        node.actionBarDisplay = null
-        node.actionBarTitle = null
-      }
-
-      // Detaching mutates children; iterate a snapshot.
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
-
-      if (node.view) {
-        contentViewNodesByView.delete(node.view)
+    // Children retire before their native host; release faults cannot strand
+    // siblings or the host lookup, and reentry cannot reacquire these fields.
+    if (!['contentview', 'actionbar'].includes(node.type ?? '')) { return }
+    const failures = new FailureCollector()
+    const observer = node.contentGeometryObserver
+    node.contentGeometryObserver = null
+    failures.run('content geometry', () => { if (observer) { NSNotificationCenter.defaultCenter.removeObserver(observer) } })
+    if (node.type === 'actionbar') {
+      const display = node.actionBarDisplay
+      node.actionBarExternal = null
+      node.actionBarDisplay = null
+      node.actionBarTitle = null
+      if (display) {
+        failures.run('action bar placement', () => deps.layout.releasePlacementPins(display))
+        failures.run('action bar display', () => display.view.removeFromSuperview())
       }
     }
+    for (const child of node.children.slice()) {
+      failures.run('content child', () => deps.tree.detach(node.container, child))
+    }
+    if (node.view) {
+      failures.run('content identity', () => contentViewNodesByView.delete(node.view!))
+    }
+    failures.throwIfFailed()
   }
 
   function disposeBuiltinPlaceholder(node: ElementNode) {
