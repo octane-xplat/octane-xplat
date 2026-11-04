@@ -3,6 +3,7 @@
 // templates own script bodies and the dependency set for each starter.
 import {
 	cpSync,
+	lstatSync,
 	existsSync,
 	mkdirSync,
 	readdirSync,
@@ -11,9 +12,10 @@ import {
 	writeFileSync,
 } from 'node:fs'
 
-import { basename, dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { ensureCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
+import { createHash } from 'node:crypto'
+import { mergeCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
 
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 // dist/ emit sits one level deeper than the root sources it mirrors.
@@ -266,10 +268,7 @@ export function composeManifest(ids) {
 }
 
 /** Add target-owned local patches before installing newly enabled dependencies. */
-function ensurePatchEntries(appRoot, enabledIds, manifest) {
-	const root = compatibilityRoot(appRoot)
-	const file = join(root, 'package.json')
-	const pkg = root === resolve(appRoot) ? manifest : JSON.parse(readFileSync(file, 'utf8'))
+function ensurePatchEntries(enabledIds, root, pkg, read, write) {
 	const needed = new Set(enabledIds.flatMap((id) => targets[id].patches ?? []))
 	const template = templateManifest()
 	const present = new Set(
@@ -285,20 +284,19 @@ function ensurePatchEntries(appRoot, enabledIds, manifest) {
 		if (!needed.has(name) || present.has(name)) {
 			continue
 		}
+
 		const source = join(TEMPLATE_DIR, path)
 		const destination = join(root, path)
-		if (existsSync(destination) && !readFileSync(source).equals(readFileSync(destination))) {
+		const before = read(destination)
+		if (before !== null && !readFileSync(source).equals(before)) {
 			throw new Error(
 				`Custom patch ${destination} differs from the framework patch; reconcile it first`,
 			)
 		}
-		mkdirSync(dirname(destination), { recursive: true })
-		cpSync(source, destination)
+
+		write(destination, readFileSync(source), statSync(source).mode & 0o777)
 		pkg.patchedDependencies[specifier] = path
 		changed = true
-	}
-	if (changed && root !== resolve(appRoot)) {
-		writeFileSync(file, JSON.stringify(pkg, null, '\t') + '\n')
 	}
 	return changed
 }
@@ -410,16 +408,14 @@ export function targetEnabled(appRoot, id) {
 }
 
 /** Copy a template file/dir into the app unless the destination exists. */
-function copyMissing(rel, appRoot, report) {
+function copyMissing(rel, appRoot, report, present, copy) {
 	const src = join(TEMPLATE_DIR, rel)
 	const dest = join(appRoot, rel === 'gitignore' ? '.gitignore' : rel)
-	if (existsSync(dest)) {
+	if (present(dest)) {
 		report.skipped.push(rel)
 		return
 	}
-
-	mkdirSync(dirname(dest), { recursive: true })
-	cpSync(src, dest, { recursive: true })
+	copy(src, dest)
 	report.copied.push(rel)
 }
 
@@ -429,10 +425,15 @@ function copyMissing(rel, appRoot, report) {
  * suffix — so enabling native means wiring the ambient declaration file and
  * the entrypoint into the app's own config.
  */
-function enableNativeInTsconfig(appRoot) {
+function enableNativeInTsconfig(appRoot, read, write) {
 	const path = join(appRoot, 'tsconfig.json')
-	const text = existsSync(path) ? readFileSync(path, 'utf8') : ''
-	const config = readJson(path)
+	const text = read(path)?.toString('utf8') ?? ''
+	let config
+	try {
+		config = JSON.parse(text)
+	} catch {
+		return false
+	}
 	if (!config || typeof config !== 'object') {
 		return false
 	}
@@ -446,18 +447,122 @@ function enableNativeInTsconfig(appRoot) {
 		config.compilerOptions.types = [...types, '@nativescript/types']
 	}
 
-	writeFileSync(path, JSON.stringify(config, null, indent) + '\n')
+	write(path, Buffer.from(JSON.stringify(config, null, indent) + '\n'), 0o644)
 	return true
 }
 
 /**
- * Enable `id` (plus unmet `requires`) inside an existing app at `appRoot`.
- * Additive only: existing files, scripts, and dep entries are skipped, never
- * overwritten. Returns a report for the caller to render.
+ * Plan enabling `id` and unmet requirements without writing. Existing target
+ * files, scripts and dependency choices stay intact; managed config and catalog
+ * changes carry raw-byte input hashes for the publisher.
  */
-export function applyTarget(appRoot, id) {
+export function planTarget(appRoot, id) {
+	appRoot = resolve(appRoot)
+	const root = compatibilityRoot(appRoot)
+	const inputs = new Map<string, any>()
+	const contents = new Map<string, Buffer>()
+	const files = new Map<string, any>()
+	const directories = new Map<string, number>()
+	const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+	const within = (path) => {
+		const rel = relative(root, path)
+		return rel === '' || (rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel))
+	}
+	const observe = (path) => {
+		path = resolve(path)
+		if (!within(path)) {
+			throw new Error(`Scaffold path leaves its workspace: ${path}`)
+		}
+		if (inputs.has(path)) {
+			return inputs.get(path)
+		}
+		let info
+		try {
+			info = lstatSync(path)
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
+
+			const input = { path, kind: 'missing' }
+			inputs.set(path, input)
+			return input
+		}
+		if (info.isSymbolicLink() || (!info.isDirectory() && !info.isFile())) {
+			throw new Error(`Scaffold path must be an ordinary file or directory: ${path}`)
+		}
+		const input: Record<string, any> = {
+			path,
+			kind: info.isDirectory() ? 'directory' : 'file',
+			mode: info.mode & 0o777,
+		}
+		if (input.kind === 'file') {
+			if (info.size > 16 * 1024 * 1024) {
+				throw new Error(`Scaffold input exceeds 16 MiB: ${path}`)
+			}
+
+			const bytes = readFileSync(path)
+			input.sha256 = hash(bytes)
+			contents.set(path, bytes)
+		}
+		inputs.set(path, input)
+		return input
+	}
+	const read = (path) => {
+		const input = observe(path)
+		if (input.kind === 'missing') {
+			return null
+		}
+		if (input.kind !== 'file') {
+			throw new Error(`Expected scaffold file: ${path}`)
+		}
+		return contents.get(resolve(path))!
+	}
+	const directory = (path, mode = 0o755) => {
+		if (path === root || path === appRoot) {
+			return
+		}
+		const input = observe(path)
+		if (input.kind === 'directory') {
+			return
+		}
+		if (input.kind !== 'missing') {
+			throw new Error(`Expected scaffold directory: ${path}`)
+		}
+		directory(dirname(path))
+		directories.set(path, mode)
+	}
+	const write = (path, bytes, mode) => {
+		const before = read(path)
+		if (before !== null && before.equals(bytes)) {
+			return
+		}
+		directory(dirname(path))
+		files.set(path, {
+			path,
+			before: before === null ? null : hash(before),
+			content: bytes.toString('base64'),
+			mode: before === null ? mode : observe(path).mode,
+		})
+	}
+	const copy = (source, dest) => {
+		const info = lstatSync(source)
+		if (info.isDirectory()) {
+			directory(dest, info.mode & 0o777)
+			for (const name of readdirSync(source).sort()) {
+				copy(join(source, name), join(dest, name))
+			}
+		} else if (info.isFile()) {
+			write(dest, readFileSync(source), info.mode & 0o777)
+		} else {
+			throw new Error(`Scaffold template must not contain aliases: ${source}`)
+		}
+	}
 	const manifestPath = join(appRoot, 'package.json')
-	const raw = readFileSync(manifestPath, 'utf8')
+	const raw = read(manifestPath)?.toString('utf8')
+	if (raw === undefined) {
+		throw new Error(`No package.json at ${appRoot}`)
+	}
 	const manifest: Record<string, any> = JSON.parse(raw)
 	const tpl = templateManifest()
 	const report: Record<string, any> = {
@@ -471,7 +576,17 @@ export function applyTarget(appRoot, id) {
 	}
 
 	for (const tid of resolveTargets([id])) {
-		if (targetEnabled(appRoot, tid)) {
+		const declared = { ...manifest.dependencies, ...manifest.devDependencies }
+		const runtime = { ios: '@nativescript/ios', android: '@nativescript/android' }[tid]
+		const enabled =
+			tid === 'web'
+				? observe(join(appRoot, 'vite.config.ts')).kind !== 'missing' ||
+					observe(join(appRoot, 'vite.config.mts')).kind !== 'missing'
+				: tid === 'native-shared'
+					? observe(join(appRoot, 'nativescript.config.ts')).kind !== 'missing'
+					: runtime !== undefined && typeof declared[runtime] === 'string'
+
+		if (enabled) {
 			report.already.push(tid)
 			continue
 		}
@@ -479,7 +594,7 @@ export function applyTarget(appRoot, id) {
 		report.enabled.push(tid)
 		const t = targets[tid]
 		for (const rel of t.files) {
-			copyMissing(rel, appRoot, report)
+			copyMissing(rel, appRoot, report, (path) => observe(path).kind !== 'missing', copy)
 		}
 
 		for (const [section, key] of [
@@ -521,7 +636,7 @@ export function applyTarget(appRoot, id) {
 			// Native sources join the app's single typecheck program — pull the
 			// ambient declaration entry into the roots and un-exclude the
 			// NativeScript entry that a web-only scaffold skips.
-			report.tsconfigUpdated = enableNativeInTsconfig(appRoot)
+			report.tsconfigUpdated = enableNativeInTsconfig(appRoot, read, write)
 		}
 	}
 
@@ -529,15 +644,78 @@ export function applyTarget(appRoot, id) {
 	// package.json never had — without them the next install misses the
 	// framework patches. enabled+already covers the yaml-missing case, where
 	// the file is regenerated for the whole enabled set.
-	if (ensurePatchEntries(appRoot, [...report.enabled, ...report.already], manifest)) {
+	const owner =
+		root === appRoot ? manifest : JSON.parse(read(join(root, 'package.json'))!.toString('utf8'))
+	if (ensurePatchEntries([...report.enabled, ...report.already], root, owner, read, write)) {
 		report.patchesAdded = true
 	}
-	ensureCompatibilityCatalog(appRoot, manifest)
+	mergeCompatibilityCatalog(manifest, owner)
+	if (root !== appRoot) {
+		write(join(root, 'package.json'), Buffer.from(JSON.stringify(owner, null, '\t') + '\n'), 0o644)
+	}
 
 	if (JSON.stringify(manifest) !== JSON.stringify(JSON.parse(raw))) {
 		// Match the file's existing indent so diffs stay minimal.
 		const indent = raw.match(/\n(\s+)"/)?.[1] ?? '\t'
-		writeFileSync(manifestPath, JSON.stringify(manifest, null, indent) + '\n')
+		write(manifestPath, Buffer.from(JSON.stringify(manifest, null, indent) + '\n'), 0o644)
 	}
-	return report
+	if (files.size > 8192 || inputs.size > 20000 || directories.size > 8192) {
+		throw new Error('Scaffold plan exceeds inventory limits')
+	}
+	let total = 0
+	for (const file of files.values()) {
+		const bytes = Buffer.from(file.content, 'base64').length
+		total += bytes
+		if (bytes > 16 * 1024 * 1024 || total > 32 * 1024 * 1024) {
+			throw new Error('Scaffold plan exceeds byte limits')
+		}
+	}
+	return {
+		version: 1,
+		root,
+		appRoot,
+		id,
+		files: [...files.values()],
+		directories: [...directories].map(([path, mode]) => ({ path, mode })),
+		inputs: [...inputs.values()],
+		report,
+	}
+}
+
+/** Apply the same read-only plan used by native CLI orchestration. */
+export function applyTarget(appRoot, id) {
+	const plan = planTarget(appRoot, id)
+	for (const input of plan.inputs) {
+		let info
+		try {
+			info = lstatSync(input.path)
+		} catch (error) {
+			if (error.code !== 'ENOENT') {
+				throw error
+			}
+		}
+
+		const kind = !info
+			? 'missing'
+			: info.isFile()
+				? 'file'
+				: info.isDirectory()
+					? 'directory'
+					: 'alias'
+
+		if (
+			kind !== input.kind ||
+			(kind === 'file' &&
+				createHash('sha256').update(readFileSync(input.path)).digest('hex') !== input.sha256)
+		) {
+			throw new Error(`Scaffold input changed; retry: ${input.path}`)
+		}
+	}
+	for (const entry of plan.directories) {
+		mkdirSync(entry.path, { recursive: true, mode: entry.mode })
+	}
+	for (const entry of plan.files) {
+		writeFileSync(entry.path, Buffer.from(entry.content, 'base64'), { mode: entry.mode })
+	}
+	return plan.report
 }

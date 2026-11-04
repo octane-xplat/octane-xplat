@@ -110,6 +110,7 @@ writeFileSync(
 			clean: (source) => commandDescriptor(source, 'clean'),
 			doctor: (source) => commandDescriptor(source, 'doctor'),
 			upgrade: (source) => commandDescriptor(source, 'upgrade'),
+			add: (source) => commandDescriptor(source, 'add'),
 		})
 			.map(([name, descriptor]) => ({
 				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),

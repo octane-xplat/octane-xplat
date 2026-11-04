@@ -154,7 +154,7 @@ func validateFormatPlan(ctx context.Context, project string, inputs []formatInpu
 			return fail("formatted output exceeds bounded plan size")
 		}
 		// Even unchanged files are retained in the complete stale-input check.
-		artifacts = append(artifacts, formatArtifact{scope, plannedArtifact{file, *entry.Code, before}})
+		artifacts = append(artifacts, formatArtifact{scope, plannedArtifact{File: file, Source: *entry.Code, Before: before}})
 	}
 	return plan, artifacts, nil
 }

@@ -16,6 +16,7 @@ export function projectToolFixture(
 		formatter = false,
 		linter = false,
 		packageManagement = false,
+		creator = false,
 	} = {},
 ) {
 	// Source-host test tasks may run concurrently. Never replace a shared archive
@@ -25,9 +26,13 @@ export function projectToolFixture(
 	if (existsSync(join(root, 'packages/build/dist/build-worker.js'))) {
 		fixtureWork = join(scratch, 'worker-packages')
 		mkdirSync(fixtureWork)
-		prepareFixtures(root, fixtureWork, { linter, packageManagement })
+		prepareFixtures(root, fixtureWork, { linter, packageManagement, creator })
 	}
-	const flavor = packageManagement ? 'management-packages' : 'project-packages'
+	const flavor = creator
+		? 'scaffold-packages'
+		: packageManagement
+			? 'management-packages'
+			: 'project-packages'
 	const packages = JSON.parse(readFileSync(join(fixtureWork, flavor + '.json')))
 	const deps = Object.fromEntries(
 		packages.packages
@@ -69,6 +74,7 @@ export function projectToolFixture(
 	})
 	assert.equal(result.status, 0, result.stderr)
 	return {
+		archiveDirectory: join(fixtureWork, flavor),
 		nodeModules: join(installed, 'node_modules'),
 		worker: realpathSync(join(installed, 'node_modules/@octane-xplat/cli/dist/build-worker.js')),
 		packages,

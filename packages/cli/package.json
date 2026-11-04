@@ -151,6 +151,7 @@
 		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
+		"test:go-add": "node --test ../../tools/cli-go/add.test.mjs",
 		"test:go-upgrade": "node --test ../../tools/cli-go/upgrade.test.mjs",
 		"test:go-routes": "node --test ../../tools/cli-go/routes.test.mjs",
 		"test:go-build-macos-real": "node --test ../../tools/cli-go/build-macos-real.test.mjs",

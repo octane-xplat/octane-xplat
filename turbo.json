@@ -2,11 +2,13 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
+		"test:scaffold": { "cache": false, "dependsOn": ["build"] },
 		"test:doctor": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_DOCTOR_REFERENCE_CLI"] },
 		"test:go-doctor": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-response-roots": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build", "@octane-xplat/macos-build#build"] },
 		"test:go-foreground-input": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-release-worker": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_RELEASE_BINARY"] },
+		"test:go-add": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "create-octane-xplat#build"] },
 		"test:go-upgrade": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go", "@octane-xplat/build#build"] },
 		"test:go-clean": { "cache": false, "dependsOn": ["build:go", "build"] },
 		"test:go-patches": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build"] },

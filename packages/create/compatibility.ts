@@ -81,16 +81,19 @@ export function compatibilityRoot(appRoot: string) {
 		if (!existsSync(file)) {
 			continue
 		}
+
 		const pkg = JSON.parse(readFileSync(file, 'utf8'))
 		const patterns = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages
 		if (!patterns?.length) {
 			continue
 		}
+
 		const included = patterns.filter((p) => !p.startsWith('!'))
 		const exclude = [
 			'**/node_modules/**',
 			...patterns.filter((p) => p.startsWith('!')).map((p) => p.slice(1)),
 		]
+
 		if (globSync(included, { cwd: at, exclude }).some((p) => resolve(at, p) === app)) {
 			return at
 		}
@@ -103,6 +106,14 @@ export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, 
 	const root = compatibilityRoot(appRoot)
 	const file = join(root, 'package.json')
 	const owner = root === resolve(appRoot) ? pkg : JSON.parse(readFileSync(file, 'utf8'))
+	mergeCompatibilityCatalog(pkg, owner)
+	if (owner !== pkg) {
+		writeFileSync(file, JSON.stringify(owner, null, '\t') + '\n')
+	}
+}
+
+/** Merge catalog policy without filesystem effects; shared by scaffold plans. */
+export function mergeCompatibilityCatalog(pkg: Record<string, any>, owner: Record<string, any>) {
 	if (Array.isArray(owner.workspaces)) {
 		owner.workspaces = { packages: owner.workspaces }
 	}
@@ -116,8 +127,5 @@ export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, 
 				catalog[name] ??= managedSpecifier(name, profile)
 			}
 		}
-	}
-	if (owner !== pkg) {
-		writeFileSync(file, JSON.stringify(owner, null, '\t') + '\n')
 	}
 }

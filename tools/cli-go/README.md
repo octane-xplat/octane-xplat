@@ -328,3 +328,16 @@ native-helper compatibility, not inference accuracy or model installation.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go ONNX helper build"}' -- bun run turbo run build:go-onnx --filter=@octane-xplat/cli
 XPLAT_GO_RELEASE_BINARY="$PWD/research/go-cli/xplat-go-darwin-arm64-cli-onnx" goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go ONNX helper replacement"}' -- bun run turbo run test:go-release-worker --filter=@octane-xplat/cli
 ```
+
+
+`test:go-add` (portable: `test:go-add:portable`) compares generated files against
+the actual project creator for web/iOS/Android, including shared native setup,
+workspace catalogs, patches and existing user files. It exercises bounded plan
+validation, output aliases, stale raw-byte inputs, explicit missing-tool
+instructions, real Bun installation and descendant cleanup after cancellation.
+POSIX runs also exercise explicit selection and cancellation in an isolated
+terminal without visual evidence. Creator archives are opt-in fixture payloads.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go platform addition"}' -- bun run turbo run test:go-add test:go-unit test:scaffold --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --filter=create-octane-xplat --concurrency=1
+```

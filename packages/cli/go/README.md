@@ -327,3 +327,29 @@ The prototype RPC owner can run
 and cancel this work while responding to other requests; public CLI integration
 with the persistent owner remains migration work. Direct CLI process ownership
 and prototype RPC qualification are separate from that pending integration.
+
+
+`add` enables web, iOS or Android in an existing Bun app. The selected project
+needs the matching `create-octane-xplat` version in addition to its CLI worker.
+The creator is an optional tool dependency; native help and schema discovery do
+not load it. Desktop targets are not offered by this command.
+
+```sh
+# Use the same version as your installed @octane-xplat/cli.
+bun add --dev create-octane-xplat@0.19.0
+/absolute/path/to/xplat-go add ios --no-install
+/absolute/path/to/xplat-go add android
+```
+
+The project creator plans template, patch and catalog changes. Go checks raw-byte
+inputs and output scope, preserves existing source files, and publishes through
+workspace directory handles while holding workspace/app leases. Default install
+runs the project's Bun with live input and output. `--no-install` leaves that step
+to you. No-argument terminal selection requires an explicit choice; Enter cancels.
+
+Publication and installation can leave partial changes after interruption. Inspect
+files and incomplete generated platform directories before retrying: existing
+target directories are deliberately preserved, so a retry does not fill an
+incomplete directory automatically. These operations are not a whole-workspace
+transaction. Windows pipe/job cancellation coverage does not qualify console
+Ctrl-C or interactive Windows terminal selection.

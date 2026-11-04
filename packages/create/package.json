@@ -53,6 +53,7 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"typecheck": "tsc -p tsconfig.json",
+		"test:scaffold": "node --test test/scaffold.test.mjs",
 		"test:library": "node test/library-guide.mjs"
 	},
 	"dependencies": {

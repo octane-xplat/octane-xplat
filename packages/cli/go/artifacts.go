@@ -27,6 +27,7 @@ type artifactState struct {
 type plannedArtifact struct {
 	File, Source string
 	Before       artifactState
+	Mode         os.FileMode
 }
 type artifactPublicationError struct {
 	Published []string
@@ -243,6 +244,8 @@ func publishArtifacts(ctx context.Context, scope artifactScope, artifacts []plan
 		_, writeErr := io.WriteString(file, artifact.Source)
 		if writeErr == nil && artifact.Before.Exists {
 			writeErr = file.Chmod(artifact.Before.Info.Mode().Perm())
+		} else if writeErr == nil && artifact.Mode != 0 {
+			writeErr = file.Chmod(artifact.Mode.Perm())
 		}
 		closeErr := file.Close()
 		if writeErr != nil {

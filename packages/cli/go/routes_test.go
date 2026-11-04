@@ -140,7 +140,7 @@ func TestArtifactPublicationRejectsAConcurrentOutputEditBeforeAnyRename(t *testi
 		if err != nil {
 			t.Fatal(err)
 		}
-		artifacts = append(artifacts, plannedArtifact{file, "generated", state})
+		artifacts = append(artifacts, plannedArtifact{File: file, Source: "generated", Before: state})
 	}
 	err = publishArtifacts(ctx, scope, artifacts, func() error {
 		return os.WriteFile(filepath.Join(project, "b.ts"), []byte("user edit"), 0644)
@@ -177,7 +177,7 @@ func TestArtifactPublicationPreservesModeAndNoopMtime(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{file, "new", before}}, func() error { return nil }); err != nil {
+	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: file, Source: "new", Before: before}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
 	after, err := snapshotArtifact(ctx, scope, file)
@@ -187,7 +187,7 @@ func TestArtifactPublicationPreservesModeAndNoopMtime(t *testing.T) {
 	if runtime.GOOS != "windows" && after.Info.Mode().Perm() != before.Info.Mode().Perm() {
 		t.Fatal("source publication silently changed output permissions")
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{file, "new", after}}, func() error { return nil }); err != nil {
+	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: file, Source: "new", Before: after}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
 	noop, err := os.Stat(file)
@@ -269,7 +269,7 @@ func TestRouteOutputAliasesCannotOverwriteSourceOrEscapeScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{link, "generated", before[link]}}, func() error { return nil }); err != nil {
+	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: link, Source: "generated", Before: before[link]}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
 	info, _ := os.Lstat(link)

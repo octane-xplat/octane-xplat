@@ -64,45 +64,56 @@ export function commandDescriptor(source, name) {
 			}
 			return expand(value, [...seen, identifier])
 		})
-	const flags = expand(args).map((entry) => {
-		const call = entry.value
-		if (call.type !== 'CallExpression' || !['flag', 'option'].includes(call.callee.name)) {
-			throw Error(`Unsupported ${name} flag`)
-		}
-		const config = call.arguments[0]
-		const string = (key) => {
-			const value = property(config, key)
-			if (typeof value.value !== 'string') {
-				throw Error(`Unsupported ${name} ${key}`)
+	const entries = expand(args)
+	const positionals = entries
+		.filter((entry) => entry.value?.callee?.name === 'restPositionals')
+		.map((entry) => {
+			if (property(entry.value.arguments[0], 'type').name !== 'string') {
+				throw Error(`Unsupported ${name} positional type`)
 			}
-			return value.value
-		}
-		if (call.callee.name === 'option') {
-			const type = property(config, 'type')
-			if (
-				type.type !== 'CallExpression' ||
-				type.callee.name !== 'optional' ||
-				type.arguments[0]?.name !== 'string'
-			) {
-				throw Error(`Unsupported ${name} option type`)
+			return { name: entry.key.name, variadic: true }
+		})
+	const flags = entries
+		.filter((entry) => entry.value?.callee?.name !== 'restPositionals')
+		.map((entry) => {
+			const call = entry.value
+			if (call.type !== 'CallExpression' || !['flag', 'option'].includes(call.callee.name)) {
+				throw Error(`Unsupported ${name} flag`)
 			}
-		}
-		return {
-			flag: string('long'),
-			...(entry.key.name !== string('long') ? { key: entry.key.name } : {}),
-			...(config.properties.some((item) => item.key?.name === 'short')
-				? { short: string('short') }
-				: {}),
-			type: call.callee.name === 'flag' ? 'boolean' : 'string',
-			description: string('description'),
-			...(call.callee.name === 'flag' ? { default: false } : {}),
-		}
-	})
+			const config = call.arguments[0]
+			const string = (key) => {
+				const value = property(config, key)
+				if (typeof value.value !== 'string') {
+					throw Error(`Unsupported ${name} ${key}`)
+				}
+				return value.value
+			}
+			if (call.callee.name === 'option') {
+				const type = property(config, 'type')
+				if (
+					type.type !== 'CallExpression' ||
+					type.callee.name !== 'optional' ||
+					type.arguments[0]?.name !== 'string'
+				) {
+					throw Error(`Unsupported ${name} option type`)
+				}
+			}
+			return {
+				flag: string('long'),
+				...(entry.key.name !== string('long') ? { key: entry.key.name } : {}),
+				...(config.properties.some((item) => item.key?.name === 'short')
+					? { short: string('short') }
+					: {}),
+				type: call.callee.name === 'flag' ? 'boolean' : 'string',
+				description: string('description'),
+				...(call.callee.name === 'flag' ? { default: false } : {}),
+			}
+		})
 	const summary = property(declaration.arguments[0], 'description').value
 	if (typeof summary !== 'string') {
 		throw Error(`Unsupported ${name} description`)
 	}
-	return { name, summary, flags, positionals: [] }
+	return { name, summary, flags, positionals }
 }
 
 export const routeCommandDescriptor = (source) => commandDescriptor(source, 'routes')

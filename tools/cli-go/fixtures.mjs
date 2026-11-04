@@ -6,8 +6,16 @@ import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
-export function prepareFixtures(root, work, { linter = false, packageManagement = false } = {}) {
-	const flavor = packageManagement ? 'management-packages' : 'project-packages'
+export function prepareFixtures(
+	root,
+	work,
+	{ linter = false, packageManagement = false, creator = false } = {},
+) {
+	const flavor = creator
+		? 'scaffold-packages'
+		: packageManagement
+			? 'management-packages'
+			: 'project-packages'
 	const output = join(work, flavor)
 	mkdirSync(output, { recursive: true })
 	const temporary = mkdtempSync(join(work, 'fixture-'))
@@ -53,6 +61,7 @@ export function prepareFixtures(root, work, { linter = false, packageManagement 
 			temporary,
 			...(packageManagement ? [] : [join(root, 'packages/lib')]),
 			...(linter ? [join(root, 'packages/lint')] : []),
+			...(creator ? [join(root, 'packages/create')] : []),
 		].map((directory) => {
 			const pkg = JSON.parse(readFileSync(join(directory, 'package.json')))
 			const result = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', output], {

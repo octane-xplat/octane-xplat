@@ -28,6 +28,7 @@ assert.ok(
 
 prepareFixtures(root, work, { linter: true })
 prepareFixtures(root, work, { packageManagement: true })
+prepareFixtures(root, work, { packageManagement: true, creator: true })
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const stage = mkdtempSync(join(work, 'snapshot-')),
 	source = join(stage, 'source')
@@ -109,6 +110,8 @@ try {
 		'project-packages.json',
 		'management-packages',
 		'management-packages.json',
+		'scaffold-packages',
+		'scaffold-packages.json',
 		...(routesOnly ? [] : ['model-cases.json']),
 	]) {
 		copy('research/go-cli/' + file)
@@ -147,6 +150,7 @@ try {
 		'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
 		'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mjs',
 		'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
+		'test:go-add:portable': 'node --test tools/cli-go/add.test.mjs',
 		'test:go-upgrade:portable': 'node --test tools/cli-go/upgrade.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
 		'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
@@ -173,6 +177,7 @@ try {
 				'//#test:go-doctor:portable': { cache: false },
 				'//#test:go-foreground-input:portable': { cache: false },
 				'//#test:go-release-worker:portable': { cache: false },
+				'//#test:go-add:portable': { cache: false },
 				'//#test:go-upgrade:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
 				'//#test:go-linux-build:portable': { cache: false },

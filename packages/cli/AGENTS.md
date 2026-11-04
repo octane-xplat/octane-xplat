@@ -1135,6 +1135,27 @@ not overwrite an unconfirmed-cleanup failure or its retained-data diagnostics.
 Distinguish operation deadlines from generic execution failures even when the
 outer CLI context remains live.
 
+
+Keep platform scaffolding policy in the installed creator, shared with the
+TypeScript reference. A small Node worker returns a read-only, versioned plan;
+Go validates workspace identity, raw-byte observations and bounded base64 output,
+then publishes with directory-root handles under workspace/app leases. Preserve
+new template modes and existing config modes. A valid-plan positive control is
+necessary beside malformed-plan tests: a broken synthetic worker can otherwise
+make every rejection appear to pass.
+
+Do not describe per-file atomic publication as a whole-workspace transaction.
+Cancellation or installation failure can leave completed files and incomplete
+new directories. Preserve user-owned target directories and disclose manual
+inspection before retrying rather than deleting or overwriting them as recovery.
+
+At the Node/Go Windows boundary, normalize directory modes explicitly: libuv
+reports ordinary directory permissions as `0666`/`0444`, while Go synthesizes
+execute bits (`0777`/`0555`). Compare the equivalent representation without
+skipping input-mode checks. Neither value describes Windows ACL privacy; keep
+owner/DACL validation separate. Include actual Windows platform-addition tests,
+since web-only additions may never observe an existing parent directory.
+
 ## Native HTTP and C interop
 
 Separate build headers from runtime libraries. A host can have `libcurl.so.4`

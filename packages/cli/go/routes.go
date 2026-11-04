@@ -167,7 +167,7 @@ func validateRouteArtifacts(data json.RawMessage, location routeLocation, before
 		if len(source) > maxArtifactBytes || bytes > maxArtifactPlanBytes {
 			return nil, nil, errors.New("route artifacts exceed 16 MiB per file or 64 MiB total")
 		}
-		outputs = append(outputs, plannedArtifact{path, source, state})
+		outputs = append(outputs, plannedArtifact{File: path, Source: source, Before: state})
 	}
 	for path, state := range before {
 		required := bake || path != location.Base+".data.ts" || !state.Exists
