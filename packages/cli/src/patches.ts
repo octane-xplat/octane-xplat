@@ -347,7 +347,10 @@ export const wrapComment = (text, width = 88) => {
  * package the manager never resolves produces a "patch not applied" warning at
  * install for no benefit.
  */
-export const applyPatches = (appDir, { force = false, packageManager } = {}) => {
+export const applyPatches = (
+	appDir: string,
+	{ force = false, packageManager }: { force?: boolean; packageManager?: 'bun' | 'pnpm' } = {},
+) => {
 	appDir = packageManagerRoot(appDir)
 	const manager = packageManagerFor(appDir, packageManager)
 	const pkg = readJson(join(appDir, 'package.json'))

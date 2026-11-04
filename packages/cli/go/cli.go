@@ -96,7 +96,7 @@ func nativeCatalog() map[string]any {
 	for _, entry := range catalog["orchestration"].([]any) {
 		command := object(entry)
 		command["status"] = "pending"
-		if nativeLegacyCommands[stringValue(command["name"])] != nil {
+		if legacyImplemented(stringValue(command["name"])) {
 			command["status"] = "implemented"
 		}
 		if stringValue(command["name"]) == "build" {
@@ -158,7 +158,7 @@ func runCLI(argv []string) int {
 		fmt.Println("\nProject commands:")
 		for _, command := range legacyCommands() {
 			status := "pending"
-			if nativeLegacyCommands[command.Name] != nil {
+			if legacyImplemented(command.Name) {
 				status = "implemented"
 			}
 			fmt.Printf("  %-20s %s [%s]\n", command.Name, command.Summary, status)

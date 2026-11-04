@@ -106,6 +106,23 @@ writeFileSync(
 				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
 			}))
 			.concat([
+				...['apply', 'check']
+					.map((child) => ({
+						...commandDescriptor(
+							readFileSync(join(root, 'packages/cli/src/commands/patches.ts'), 'utf8'),
+							child,
+						),
+						name: 'patches ' + child,
+						path: ['patches', child],
+						context: 'none',
+					}))
+					.map((command) => ({
+						...command,
+						flags: command.flags.map(({ description, ...flag }) => ({
+							...flag,
+							desc: description,
+						})),
+					})),
 				{
 					// The reference formatter has a raw argv parser, not a cmdr descriptor.
 					// Keep these three inputs covered by the native/reference workflow gate.

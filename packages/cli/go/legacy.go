@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type legacyHandler func(context.Context, map[string]any) error
@@ -17,6 +18,9 @@ func legacyCommands() []commandDescriptor {
 }
 
 func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string) int {
+	if members := legacyGroupMembers(command.Name); len(members) > 0 {
+		return runLegacyGroup(ctx, command, members, argv)
+	}
 	var descriptor *commandDescriptor
 	for i := range metadata.Orchestration {
 		if metadata.Orchestration[i].Name == command.Name {
@@ -30,15 +34,7 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		return 1
 	}
 	if legacySchemaRequested(argv) {
-		schema := map[string]any{
-			"contractVersion": 1, "command": command.Name, "summary": command.Summary,
-			"status": "implemented", "output": "human",
-			"input": map[string]any{"flags": descriptor.Flags, "positionals": descriptor.Positionals},
-		}
-		if command.Name == "build" {
-			schema["engines"] = buildEngineContracts()
-		}
-		return writeEnvelope(command.Name, nil, schema, nil)
+		return writeEnvelope(command.Name, nil, legacySchema(*descriptor), nil)
 	}
 	failureExit := 1
 	if command.Name == "fmt" || command.Name == "lint" {
@@ -77,7 +73,8 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	var cleanup *processCleanupError
 	var publication *artifactPublicationError
 	var clean *cleanFailure
-	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) || errors.As(err, &clean) {
+	var mutation *workspaceMutationError
+	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) || errors.As(err, &clean) || errors.As(err, &mutation) {
 		fmt.Fprintf(os.Stderr, "xplat %s: %v\n", command.Name, err)
 	}
 	if requiresFailureEvidence(err) {
@@ -87,6 +84,76 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		return legacyCancellationExit(ctx)
 	}
 	return failureExit
+}
+
+func legacyGroupMembers(name string) []commandDescriptor {
+	members := []commandDescriptor{}
+	for _, descriptor := range metadata.Orchestration {
+		if len(descriptor.Path) == 2 && descriptor.Path[0] == name {
+			members = append(members, descriptor)
+		}
+	}
+	return members
+}
+
+func legacyImplemented(name string) bool {
+	if nativeLegacyCommands[name] != nil {
+		return true
+	}
+	members := legacyGroupMembers(name)
+	for _, member := range members {
+		if nativeLegacyCommands[member.Name] == nil {
+			return false
+		}
+	}
+	return len(members) > 0
+}
+
+func legacySchema(command commandDescriptor) map[string]any {
+	status := "pending"
+	if legacyImplemented(command.Name) {
+		status = "implemented"
+	}
+	schema := map[string]any{
+		"contractVersion": 1, "command": command.Name, "summary": command.Summary,
+		"status": status, "output": "human",
+		"input": map[string]any{"flags": command.Flags, "positionals": command.Positionals},
+	}
+	if command.Name == "build" {
+		schema["engines"] = buildEngineContracts()
+	}
+	return schema
+}
+
+func runLegacyGroup(ctx context.Context, command commandDescriptor, members []commandDescriptor, argv []string) int {
+	if len(argv) == 1 && argv[0] == "--schema" {
+		schemas := []any{}
+		for _, member := range members {
+			schemas = append(schemas, legacySchema(member))
+		}
+		return writeEnvelope(command.Name, nil, map[string]any{"commands": schemas}, nil)
+	}
+	if len(argv) == 0 || (len(argv) == 1 && (argv[0] == "--help" || argv[0] == "-h")) {
+		fmt.Printf("xplat %s — %s\n\nCommands:\n", command.Name, command.Summary)
+		for _, member := range members {
+			fmt.Printf("  %-16s %s\n", member.Path[1], member.Summary)
+		}
+		if len(argv) == 0 {
+			return 1
+		}
+		return 0
+	}
+	for _, member := range members {
+		if argv[0] == member.Path[1] {
+			return runLegacyCLI(ctx, member, argv[1:])
+		}
+	}
+	names := []string{}
+	for _, member := range members {
+		names = append(names, member.Path[1])
+	}
+	fmt.Fprintf(os.Stderr, "Unknown xplat %s subcommand %q. Choose %s.\n", command.Name, argv[0], strings.Join(names, ", "))
+	return 1
 }
 
 func legacySchemaRequested(argv []string) bool {

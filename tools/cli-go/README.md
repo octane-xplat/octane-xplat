@@ -226,6 +226,20 @@ Linux host scripts ship beside its emitted modules; system GJS/GTK/WebKit librar
 are not bundled. Packaging verification does not establish app/window runtime or
 visual qualification. Windows executes only the explicit unsupported-host case.
 
+`test:go-patches` exercises the native command group using the real canonical
+worker and patch files in a minimal installed CLI fixture. Its dependencies are
+only `yaml` and `jsonc-parser`; checks assert that Vite, Babel, TSRX and the framework
+library are absent. Cases cover Bun/pnpm workspace selection, YAML comments and
+catalogs, JSONC/multi-document lock warnings, force/conflict handling, linked
+destinations, an actual patched Bun install and frozen reinstall, partial effects,
+and cancellation with descendant cleanup. Windows forced termination qualifies
+job cleanup, not graceful console cancellation or its partial-effect diagnostic.
+The runtime snapshot includes this fixture as `test:go-patches:portable`.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go patch management"}' -- bun run turbo run test:go-patches --filter=@octane-xplat/cli --concurrency=1
+```
+
 `test:go-clean` compares ordinary app/plugin cleanup with the actual TypeScript
 command on the source host and exercises native filesystem contracts on portable
 hosts. Fixtures include strict metadata rejection, output aliases, Windows

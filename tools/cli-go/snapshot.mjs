@@ -26,7 +26,8 @@ assert.ok(
 	'Build the canonical project worker before preparing a snapshot',
 )
 
-prepareFixtures(root, work, { linter:true })
+prepareFixtures(root, work, { linter: true })
+prepareFixtures(root, work, { packageManagement: true })
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const stage = mkdtempSync(join(work, 'snapshot-')),
 	source = join(stage, 'source')
@@ -105,6 +106,8 @@ try {
 	for (const file of [
 		'project-packages',
 		'project-packages.json',
+		'management-packages',
+		'management-packages.json',
 		...(routesOnly ? [] : ['model-cases.json']),
 	]) {
 		copy('research/go-cli/' + file)
@@ -137,6 +140,7 @@ try {
 	manifest.scripts = {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mjs',
+		'test:go-patches:portable': 'node --test tools/cli-go/patches.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
 		'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
 		'test:go-build:portable': 'node --test tools/cli-go/build-command.test.mjs',
@@ -157,10 +161,11 @@ try {
 			tasks: {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go-clean:portable': { cache: false },
+				'//#test:go-patches:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
-				'//#test:go-linux-build:portable': {cache:false},
-				'//#test:go-build:portable': {cache:false},
-				'//#test:go-lint:portable': {cache:false},
+				'//#test:go-linux-build:portable': { cache: false },
+				'//#test:go-build:portable': { cache: false },
+				'//#test:go-lint:portable': { cache: false },
 				'//#test:go-fmt:portable': { cache: false },
 				'//#test:go-typecheck:portable': { cache: false },
 				'//#measure:go-cli:portable': { cache: false },

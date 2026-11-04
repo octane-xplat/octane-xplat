@@ -76,7 +76,7 @@ func lockProjectOutputs(project string) (func(), error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("another Go build or clean owns this project's outputs; retry after it finishes")
+		return nil, fmt.Errorf("another Go build, clean or patches apply owns this project's outputs; retry after it finishes")
 	}
 	return func() { releaseCacheLock(file); close() }, nil
 }

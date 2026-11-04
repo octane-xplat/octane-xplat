@@ -131,7 +131,7 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 ## Go project orchestration
 
-Keep build/clean leases outside generated outputs and dependency caches. Use the
+Keep build/clean/patch-application leases outside generated outputs and dependency caches. Use the
 physical directory identity for the key: canonical path text alone can retain
 case aliases on macOS, while Windows junctions need handle-based identity. Never
 unlink a reusable kernel-lock file. Cleanup uses retained parent-directory handles,
@@ -139,6 +139,18 @@ validates metadata and every planned target before deletion, and reports partial
 effects when later removal fails or cancellation arrives between trees. Keep this
 foreground terminal flow out of a persistent host's event loop. See
 [native cleanup](go/clean.go) and [output ownership](go/project_lock.go).
+
+Patch inspection/application delegates to the canonical `patches.ts` helper in the
+selected CLI worker. Keep YAML/JSONC selection and comments there; do not maintain
+a second package-manager implementation in Go. Ship root `patches/` assets with
+that worker. Load route/compiler engines only in their own operations, so patch
+management needs only `yaml` and `jsonc-parser`. Go validates the workspace/manager
+returned by inspection, preflights ordinary configuration/patch destinations, and
+holds both workspace and selected-app leases during application. Those leases
+coordinate native invocations, not arbitrary project code or direct engine runs.
+Canonical application is sequential and can partially mutate before failure;
+retain a typed uncertainty error even when cancellation races the result. Do not
+claim atomic publication or an unchanged workspace on that path.
 
 Cancellation fixtures must stop and await their owned process in `finally`, even
 when an earlier assertion fails. A timer cleared on assertion failure can otherwise

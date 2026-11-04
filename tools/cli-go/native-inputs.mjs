@@ -23,6 +23,8 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/lint.ts',
 		'packages/cli/src/commands/build.ts',
 		'packages/cli/src/commands/clean.ts',
+		'packages/cli/src/commands/patches.ts',
+		'packages/cli/src/patches.ts',
 		'packages/cli/src/fmt-plan.ts',
 		'packages/cli/src/tsconfig-envs.ts',
 		'packages/cli/src/env.ts',
@@ -61,6 +63,11 @@ export function nativeInputs(root) {
 		'packages/cli/src/mcp/contract.ts',
 		'tools/cli-nim/scratch.mjs',
 	)
+	for (const file of readdirSync(join(root, 'packages/cli/patches'))) {
+		if (/\.(json|patch)$/.test(file)) {
+			files.push('packages/cli/patches/' + file)
+		}
+	}
 	for (const file of readdirSync(join(root, 'packages/cli/src'))) {
 		if (/^(?:route.*|build-worker|markdown)\.ts$/.test(file)) {
 			files.push('packages/cli/src/' + file)

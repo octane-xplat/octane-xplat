@@ -6,8 +6,9 @@ import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
-export function prepareFixtures(root, work, { linter = false } = {}) {
-	const output = join(work, 'project-packages')
+export function prepareFixtures(root, work, { linter = false, packageManagement = false } = {}) {
+	const flavor = packageManagement ? 'management-packages' : 'project-packages'
+	const output = join(work, flavor)
 	mkdirSync(output, { recursive: true })
 	const temporary = mkdtempSync(join(work, 'fixture-'))
 	try {
@@ -30,12 +31,27 @@ export function prepareFixtures(root, work, { linter = false } = {}) {
 			}
 		}
 
+		if (packageManagement) {
+			for (const [name, range] of Object.entries(manifest.dependencies)) {
+				if (['yaml', 'jsonc-parser'].includes(name)) {
+					continue
+				}
+
+				manifest.peerDependencies[name] = range
+				manifest.peerDependenciesMeta[name] = { optional: true }
+				delete manifest.dependencies[name]
+			}
+		}
+
+		manifest.files.push('patches')
+
 		writeFileSync(join(temporary, 'package.json'), JSON.stringify(manifest))
 		cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
+		cpSync(join(root, 'packages/cli/patches'), join(temporary, 'patches'), { recursive: true })
 		cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
 		const packages = [
 			temporary,
-			join(root, 'packages/lib'),
+			...(packageManagement ? [] : [join(root, 'packages/lib')]),
 			...(linter ? [join(root, 'packages/lint')] : []),
 		].map((directory) => {
 			const pkg = JSON.parse(readFileSync(join(directory, 'package.json')))
@@ -56,7 +72,7 @@ export function prepareFixtures(root, work, { linter = false } = {}) {
 		})
 
 		writeFileSync(
-			join(work, 'project-packages.json'),
+			join(work, flavor + '.json'),
 			JSON.stringify({
 				version: 1,
 				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[

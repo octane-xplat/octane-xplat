@@ -172,7 +172,7 @@ preserves case variants of the macOS directory name.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go cleanup contracts"}' -- bun run turbo run test:go-clean --filter=@octane-xplat/cli --concurrency=1
 ```
 
-Build and clean share a kernel lease in the OS user cache, keyed by physical
+Build, clean and `patches apply` share a kernel lease in the OS user cache, keyed by physical
 project identity so directory aliases share ownership. The cache must live outside
 the selected project. Keep its lock files in place after release; deleting a live
 lock would let another process acquire a different identity. This coordinates Go
@@ -181,6 +181,29 @@ their own coordination. Cleanup checks cancellation between output trees;
 individual recursive removals may finish before cancellation is observed. A failed
 or interrupted cleanup reports removed/attempted outputs and preserves the failure
 cause. Removal across multiple outputs is not a transaction.
+
+`patches check` and `patches apply` use the selected project's small Node worker
+and canonical patch assets. Go owns command parsing, workspace and package-manager
+selection, write-scope preflight, leases, deadlines and descendant cleanup. The
+canonical helper owns patch selection and Bun JSONC/pnpm YAML behavior, including
+comments, catalogs and lockfile reporting. These operations need `yaml` and
+`jsonc-parser`, without requiring Vite or a JavaScript compiler/parser.
+
+```sh
+/absolute/path/to/xplat-go patches check --dir ./apps/mobile
+/absolute/path/to/xplat-go patches apply --dir ./apps/mobile --package-manager bun
+# Inspect conflicts before choosing to replace the canonical patch destinations:
+/absolute/path/to/xplat-go patches apply --dir ./apps/mobile --force
+```
+
+Application does not install dependencies. It preserves identical alternative
+patch mappings and reports differing mappings/files as conflicts unless `--force`
+is explicit. Before application, Go rejects linked configuration files, patch
+directories and canonical patch destinations. The selected worker remains trusted
+project code; this preflight and cooperative lease do not isolate it from unrelated
+concurrent writers. Application copies files and updates configuration sequentially,
+so failure or cancellation can leave partial changes. Inspect those changes and
+rerun `patches check`; the CLI preserves this uncertainty in its error and exit.
 
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
