@@ -5,6 +5,8 @@ import { registerHooks } from 'node:module'
 // driver and tree are production modules, including their constructor effects.
 const platform = `
 class NativeObject {
+  initWithNameHandler(name, handler) { this.name = name; this.handler = handler; return this }
+  initWithTargetAction(target, action) { this.target = target; this.action = action; return this }
   static new() { return new this() }
   static alloc() { return new this() }
   static extend(methods) {

@@ -1,3 +1,5 @@
+import { legacyActionBoundary } from './legacy-action-boundary.ts'
+import { createAccessibilityState } from '../src/accessibility-state.ts'
 import { FailureCollector } from '../src/failures.ts'
 import { withLayoutBatch } from '../src/layout-batch.ts'
 import { builtinFixtureHelpers } from './renderer-source.ts'
@@ -53,6 +55,8 @@ export function sourceWithoutImports(url: URL) {
 }
 
 const SLICE_BASE = {
+  AccessibleHostView: class {},
+  createAccessibilityState,
   setTimeout,
   clearTimeout,
   withLayoutBatch,
@@ -70,6 +74,12 @@ const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
 /** `runInNewContext` for src/index.ts slices: prepends CSS_SLICE_STUBS so
  *  slices that reference cascade helpers they don't include still run. */
 export function runSlice(code: string, context?: Record<string, any>) {
+  if (context?.deps) {
+    if (context.deps.actions?.actionHandlers) {
+      context.deps.actions = { ...legacyActionBoundary(context.deps.actions), ...context.deps.actions }
+    }
+    context.deps.state ??= createAccessibilityState()
+  }
   if (context && (context as any)[RAW_SLICE_CONTEXT]) {
     // A raw (spy) context is the sandbox itself. Seed the shared helpers as
     // own properties so `has`/`get` resolve them before falling to spies.
@@ -126,6 +136,57 @@ export function spySliceContext(target: Record<string, any> = {}) {
 // these fallbacks fill names the slices reference but don't include. Real
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
+// Legacy branch tests supply mutable maps as their fake event boundary. New
+// ownership tests construct the real stores and feature factories directly.
+if (typeof canDispatch === 'undefined') var canDispatch = (n) => n.lifecycle !== 'disposing' && n.lifecycle !== 'disposed' && !n.props?.disabled && n.props?.isEnabled !== false && n.props?.enabled !== false
+globalThis.actionIdsByView ??= new WeakMap()
+globalThis.linkOwners ??= new WeakMap()
+if (typeof disposeTextLinks === 'undefined') var disposeTextLinks = () => {}
+globalThis.nodeActions ??= new WeakMap()
+globalThis.panViewsByNode ??= new WeakMap()
+globalThis.panHandlersByView ??= new WeakMap()
+globalThis.legacyAxState ??= createAccessibilityState()
+globalThis.leases ??= new WeakMap()
+if (typeof getAccessibilityProps === 'undefined') var getAccessibilityProps = (view) => legacyAxState.get(view)
+if (typeof accessibilityLease === 'undefined') var accessibilityLease = (node) => {
+  let record = leases.get(node)
+  if (!record || record.view !== node.view || !record.lease.current()) {
+    record?.lease.release()
+    record = {view: node.view, lease: legacyAxState.acquire(node.view)}
+    leases.set(node, record)
+  }
+  return record.lease
+}
+if (typeof disposeAccessibility === 'undefined') var disposeAccessibility = (node) => {
+  leases.get(node)?.lease.release(); leases.delete(node)
+}
+if (typeof idForView === 'undefined') var idForView = (view) => actionIdsByView.get(view)
+if (typeof hasHandler === 'undefined') var hasHandler = (view) => typeof actionHandlers.get(actionIdsByView.get(view) ?? cssNodesByView.get(view)?.actionId) === 'function'
+if (typeof allocate === 'undefined') var allocate = (view) => {
+  const id = nextActionId++
+  actionHandlers.set(id, null)
+  if (view) actionIdsByView.set(view, id)
+  let active = true
+  return {id, setHandler(handler) { if(active) actionHandlers.set(id, handler ?? null) }, release() {
+    active = false; actionHandlers.delete(id)
+    if(view && actionIdsByView.get(view) === id) actionIdsByView.delete(view)
+  }}
+}
+if (typeof adoptAction === 'undefined') var adoptAction = (node, action) => {
+  nodeActions.get(node)?.release(); nodeActions.set(node, action); node.actionId = action.id; return action.id
+}
+if (typeof acquireAction === 'undefined') var acquireAction = (node, view) => adoptAction(node, allocate(view))
+if (typeof setNodeHandler === 'undefined') var setNodeHandler = (node, handler) => {
+  if(nodeActions.has(node)) nodeActions.get(node).setHandler(handler)
+  else actionHandlers.set(node.actionId, handler ?? null)
+}
+if (typeof disposeActions === 'undefined') var disposeActions = (node) => {
+  nodeActions.get(node)?.release(); nodeActions.delete(node)
+  if(typeof actionHandlers !== 'undefined') actionHandlers.delete(node.actionId)
+  node.submitHandler = null
+  if(node.panGestureRecognizer) node.panGestureRecognizer.enabled = false
+}
+
 if (typeof notifyLayoutCommit === 'undefined') var notifyLayoutCommit = () => {}
 globalThis.disabledFocusTargets ??= { allows: () => false }
 if (typeof effectiveStyle === 'undefined') var effectiveStyle = (n) => n.computedStyle ?? n.props?.style ?? {}

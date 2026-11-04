@@ -101,7 +101,6 @@ function fixture() {
   const node: any = { id: 1, type: 'listpicker', props: {}, children: [], parent: null, container }
   const control = api.makeListPicker(node)
   node.view = control.view
-  node.actionId = control.actionId
   container.nodes.set(1, node)
   const onSelectedIndexChange = (event: any) => events.push(event)
   const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })

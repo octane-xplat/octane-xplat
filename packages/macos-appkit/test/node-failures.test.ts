@@ -1,3 +1,4 @@
+import { createActionStore } from '../src/action-store.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mockNativeBoundary } from './native-boundary.ts'
@@ -35,7 +36,7 @@ function fixture() {
     hostedElements: services(['disposeBuiltinListView', 'disposeBuiltinPager', 'disposeBuiltinVideo', 'disposeBuiltinTabView', 'disposeBuiltinTabItem', 'disposeBuiltinWebView']),
     pickerElements: services(['disposeBuiltinSegmentedItem', 'disposeBuiltinSegmentedChildren', 'disposeBuiltinSegmentedControl', 'disposeBuiltinListPicker', 'disposeBuiltinTimePicker', 'disposeBuiltinDatePicker']),
     containerElements: services(['disposeBuiltinRootLayout', 'disposeBuiltinLiquidGlass', 'disposeBuiltinContentHost', 'disposeBuiltinPlaceholder']),
-    textElements: services(['disposeBuiltinFormattedText']),
+    textElements: services(['disposeBuiltinFormattedText', 'disposeTextLinks']),
     projection: services(['disposeBuiltinProxyChildren']),
     controls: services(['disposeBuiltinActivityIndicator', 'disposeBuiltinScrollView']),
     imageElements: services(['disposeBuiltinImage']),
@@ -43,7 +44,9 @@ function fixture() {
     boxPaint: { dispose: () => run('paint') },
     layout: { layoutHandlers: new WeakMap() },
     accessibleHost: { accessibilityLabels: new Map(), accessibilityRoles: new Map() },
-    actions: { nextActionId: 1, actionHandlers: new Map(), actionIdsByView: new WeakMap(), panHandlersByView: new WeakMap() },
+    store: createActionStore(),
+    actions: { disposeActions(node) { deps.actions.actionHandlers.delete(node.actionId) }, actionHandlers: new Map() },
+    accessibility: { disposeAccessibility() {} },
     elementProps: { applyProps: () => run('props') },
     cssPseudoState: { syncPseudoTracking() {} },
   }
@@ -85,11 +88,11 @@ test('multiple cleanup errors retain values and labels while later identity clea
   const first = Error('hook'), second = Error('paint'), third = Error('identity')
   fx.node.destroyHooks = [() => { throw first }, () => fx.run('next hook')]
   fx.injected.set('paint', second)
-  fx.deps.accessibleHost.accessibilityLabels.delete = () => { throw third }
+  fx.deps.accessibility.disposeAccessibility = () => { throw third }
   assert.throws(() => fx.nodes.destroy(fx.node), error => {
     assert.ok(error instanceof PhaseErrors)
     assert.deepEqual(error.errors, [first, second, third])
-    assert.deepEqual(error.failures.map(failure => failure.phase), ['destroy hook 0', 'box paint', 'AX label identity'])
+    assert.deepEqual(error.failures.map(failure => failure.phase), ['destroy hook 0', 'box paint', 'accessibility'])
     return true
   })
   assert.ok(fx.trace.includes('next hook'))
@@ -118,9 +121,10 @@ test('held native action and submit closures are inert as soon as retirement sta
   fx.deps.actions = actions
   fx.node.container.root = { eventScope: (_kind, callback) => callback() }
   let calls = 0
+  actions.acquireAction(fx.node, fx.node.view)
   actions.setControlAction(fx.node, () => calls++, () => 1)
   actions.setTextSubmitAction(fx.node, () => calls++)
-  const action = actions.actionHandlers.get(1)!, submit = fx.node.submitHandler
+  const action = () => actions.invokeAction(fx.node.actionId), submit = fx.node.submitHandler
   action(); submit()
   assert.equal(calls, 2)
   fx.node.destroyHooks = [() => { action(); submit() }]

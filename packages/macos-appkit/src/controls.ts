@@ -1,13 +1,11 @@
 import type { Actions } from './actions'
 import type { CssCascade } from './css-cascade'
 import type { Accessibility } from './accessibility'
-import type { AccessibleHost } from './accessible-host'
 import type { PropBag, ElementNode } from './model'
 import {
   NSBorderType,
   NSNotificationCenter,
   NSScrollView,
-  NSView,
   NSBezelStyle,
   NSButton,
   NSButtonType,
@@ -23,15 +21,13 @@ import { makeMasonHostView } from './mason'
 interface Dependencies {
   actions: Pick<
     Actions,
-    | 'nextActionId'
-    | 'actionIdsByView'
-    | 'actionHandlers'
+    | 'acquireAction'
+    | 'setNodeHandler'
     | 'buttonActionTarget'
     | 'setControlAction'
   >
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
   accessibility: Pick<Accessibility, 'applyAccessibility'>
-  accessibleHost: Pick<AccessibleHost, 'accessibilityLabels'>
 }
 
 export type Controls = ReturnType<typeof createControls>
@@ -39,27 +35,7 @@ export type Controls = ReturnType<typeof createControls>
 export function createControls(deps: Dependencies) {
   const scrollHandlers = new WeakMap<object, () => void>()
 
-  /** Allocate the action/AX identity. setAction independently owns the click
-   * recognizer, including callbacks added after a semantic-only initial mount. */
-  function wireViewAction(view: NSView, props: PropBag): number | undefined {
-    const interactive = typeof props.onTap === 'function' || props.accessibilityRole === 'button'
-
-    // Accessibility props need the AX id too — a 'checkbox'/'link' role or a
-    // bare accessibilityLabel must not drop every accessibility prop.
-    const actionId =
-      interactive || props.accessibilityRole !== undefined || props.accessibilityLabel !== undefined
-        ? deps.actions.nextActionId++
-        : undefined
-
-    if (actionId !== undefined) {
-      deps.actions.actionIdsByView.set(view, actionId)
-      deps.actions.actionHandlers.set(actionId, null)
-    }
-
-    return actionId
-  }
-
-  function makeButton(props: PropBag) {
+  function makeButton(node: ElementNode, props: PropBag) {
     const button = NSButton.buttonWithTitleTargetAction(
       String(props.title ?? 'Button'),
       deps.actions.buttonActionTarget,
@@ -69,9 +45,8 @@ export function createControls(deps: Dependencies) {
     button.bezelStyle = NSBezelStyle.Rounded
     button.setButtonType(NSButtonType.MomentaryLight)
     button.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, button)
     button.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     return { view: button, actionId }
   }
 
@@ -158,7 +133,7 @@ export function createControls(deps: Dependencies) {
     })
   }
 
-  function makeSwitch(props: PropBag) {
+  function makeSwitch(node: ElementNode, props: PropBag) {
     const button = NSButton.buttonWithTitleTargetAction(
       '',
       deps.actions.buttonActionTarget,
@@ -167,9 +142,8 @@ export function createControls(deps: Dependencies) {
     button.setButtonType(NSButtonType.Switch)
     button.state = props.checked ? 1 : 0
     button.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, button)
     button.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     return { view: button, actionId }
   }
 
@@ -228,7 +202,7 @@ export function createControls(deps: Dependencies) {
     view.alphaValue = node.props.busy === true ? Number(node.appliedStyle?.opacity ?? 1) : 0
   }
 
-  function makeSlider(props: PropBag) {
+  function makeSlider(node: ElementNode, props: PropBag) {
     const slider = NSSlider.alloc().initWithFrame({
       origin: { x: 0, y: 0 },
       size: { width: 140, height: 24 },
@@ -240,9 +214,8 @@ export function createControls(deps: Dependencies) {
     slider.target = deps.actions.buttonActionTarget
     slider.action = 'controlChanged:'
     slider.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, slider)
     slider.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     return { view: slider, actionId }
   }
   function applyBuiltinProgressProp(node: ElementNode, name: string, value: PropBag[string]) {
@@ -285,13 +258,12 @@ export function createControls(deps: Dependencies) {
     if (name === 'title' || name === 'text') {
       node.view!.title = String(value ?? '')
     } else if (name === 'accessibilityLabel') {
-      deps.accessibleHost.accessibilityLabels.set(node.actionId!, String(value ?? ''))
       node.view!.setAccessibilityLabel?.(String(value ?? ''))
     } else if (name === 'isEnabled' || name === 'enabled') {
       node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
     } else if (name === 'onPress' || name === 'onTap') {
-      deps.actions.actionHandlers.set(
-        node.actionId!,
+      deps.actions.setNodeHandler(
+        node,
         typeof value === 'function'
           ? () => {
               if (
@@ -307,7 +279,7 @@ export function createControls(deps: Dependencies) {
                 console.error('[macos-event] button handler failed', error)
               }
             }
-          : null,
+          : undefined,
       )
     } else if (name === 'style') {
       deps.cssCascade.setNodeInlineStyle(node, value)
@@ -407,7 +379,6 @@ export function createControls(deps: Dependencies) {
 
   return {
     scrollHandlers,
-    wireViewAction,
     makeButton,
     makeScrollView,
     setScrollAction,

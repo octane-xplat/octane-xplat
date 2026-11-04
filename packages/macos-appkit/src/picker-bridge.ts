@@ -11,7 +11,7 @@ import {
 import type { PropBag } from './model'
 
 interface Dependencies {
-  actions: Pick<Actions, 'buttonActionTarget' | 'actionHandlers' | 'nextActionId'>
+  actions: Pick<Actions, 'buttonActionTarget' | 'allocate'>
   pickerElements: Pick<PickerElements, 'makePopUpControl'>
 }
 
@@ -51,7 +51,7 @@ export function createPickerBridge(deps: Dependencies) {
       return null
     }
     const picker = control.view,
-      actionId = control.actionId
+      action = control.action
     let active = true,
       attached = false,
       selecting = false,
@@ -70,7 +70,7 @@ export function createPickerBridge(deps: Dependencies) {
       active = false
       attached = false
       version++
-      deps.actions.actionHandlers.delete(actionId)
+      action.release()
       try {
         picker.menu?.cancelTracking()
       } catch {}
@@ -124,7 +124,7 @@ export function createPickerBridge(deps: Dependencies) {
       picker.enabled = enabled
       if (changed) {
         version++
-        deps.actions.actionHandlers.delete(actionId)
+        action.setHandler(undefined)
         picker.menu?.cancelTracking()
         picker.autoenablesItems = false
         picker.menu.autoenablesItems = false
@@ -154,7 +154,7 @@ export function createPickerBridge(deps: Dependencies) {
         picker.selectItemAtIndex(index)
       }
       const ownedVersion = version
-      deps.actions.actionHandlers.set(actionId, () => {
+      action.setHandler(() => {
         if (
           !active ||
           !attached ||
@@ -270,7 +270,7 @@ export function createPickerBridge(deps: Dependencies) {
     } catch {
       return null
     }
-    const actionId = deps.actions.nextActionId++
+    const action = deps.actions.allocate(picker)
     let active = true,
       writing = 0,
       enabled = false
@@ -283,7 +283,7 @@ export function createPickerBridge(deps: Dependencies) {
         return
       }
       active = false
-      deps.actions.actionHandlers.delete(actionId)
+      action.release()
       try {
         picker.target = null
         picker.action = null as unknown as string
@@ -376,10 +376,10 @@ export function createPickerBridge(deps: Dependencies) {
         constraint.active = true
       }
 
-      picker.tag = actionId
+      picker.tag = action.id
       picker.target = deps.actions.buttonActionTarget
       picker.action = 'controlChanged:'
-      deps.actions.actionHandlers.set(actionId, () => {
+      action.setHandler(() => {
         if (!active || writing || !enabled || picker.superview !== view || !view.window) {
           return
         }

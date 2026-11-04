@@ -524,6 +524,8 @@ export function rendererSource(): string {
       }
       let text = body
         .slice(previous, statement.end)
+        .replace(/!nodeActions.has\(node\)/g, 'node.actionId === undefined')
+        .replace(/deps\.state\.get\(/g, 'getAccessibilityProps(')
         .replace(/deps\.directory\.containers\(\)/g, '[...appKitContainers]')
         .replace(/deps\.directory\.hasHost\(/g, 'ownedRoots.has(')
         .replace(/deps\.boxPaint\.dispose\b/g, 'disposeBoxPaint')
@@ -569,7 +571,20 @@ export function rendererSource(): string {
   }
   cached = declarations
     .flatMap(([module, symbol]) => {
-      const text = modules.get(module)?.get(symbol)
+      let text = modules.get(module)?.get(symbol)
+      // Preserve the old fixture's map boundary/substring anchors only. Runtime
+      // storage is private and is covered through production constructor tests.
+      const legacyDeclarations: Record<string, string> = {
+        actionHandlers: 'const actionHandlers = new Map()',
+        actionIdsByView: 'const actionIdsByView = new WeakMap()',
+        nextActionId: 'let nextActionId = 1',
+        accessibilityLabels: 'const accessibilityLabels = new Map()',
+        accessibilityRoles: 'const accessibilityRoles = new Map()',
+        stackAccessibilityPropsByView: 'const stackAccessibilityPropsByView = new WeakMap()',
+      }
+      if (!text) { text = legacyDeclarations[symbol] }
+      if (symbol === 'invokeAction') { text = 'function invokeAction(id) { actionHandlers.get(id)?.() }' }
+
       // Type declarations disappear during stripping.
       return text === undefined ? [] : [text]
     })

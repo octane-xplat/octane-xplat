@@ -69,9 +69,10 @@ function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty,
     heightAnchor: { constraintEqualToConstant: () => ({ active: false }) },
   })
 
-  const allocAction = (view: any) => {
+  const allocAction = (node: any, view: any) => {
     const actionId = sandbox.nextMockActionId++
     actionHandlers.set(actionId, null)
+    node.actionId = actionId
     return { view, actionId }
   }
 
@@ -145,11 +146,11 @@ function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty,
     makeMasonView: () => (factoryCalls.push('masonview'), fakeView('masonview')),
     makeContentView: () => (factoryCalls.push('contentview'), fakeView('contentview')),
     makeLabel: () => fakeView('label'),
-    makeButton: () => (factoryCalls.push('button'), allocAction(fakeView('button'))),
+    makeButton: (node) => (factoryCalls.push('button'), allocAction(node, fakeView('button'))),
     makeScrollView: () => ({ view: fakeView('scrollview'), childHost: fakeView('scrollhost') }),
     makeTextField: () => fakeView('textfield'),
-    makeSwitch: () => allocAction(fakeView('switch')),
-    makeSlider: () => allocAction(fakeView('slider')),
+    makeSwitch: (node) => allocAction(node, fakeView('switch')),
+    makeSlider: (node) => allocAction(node, fakeView('slider')),
     makeWebView: () => fakeView('webview'),
     makeImageView: () => fakeView('image'),
   }

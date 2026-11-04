@@ -27,7 +27,7 @@ const projectionStart = source.indexOf('function setLayoutProjectionScale')
 const slices = [
   sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(/^export /gm, ''),
   source.slice(projectionStart, source.indexOf('\n}', projectionStart) + 2),
-  source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function wireViewAction')),
+  source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function makeLabel')),
   source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
   source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
   paritySource.slice(paritySource.indexOf('function descendants'), paritySource.indexOf('function colorValue')),

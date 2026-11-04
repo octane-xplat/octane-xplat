@@ -1,35 +1,46 @@
 import type { AccessibleHost } from './accessible-host'
+import type { AccessibilityState, AccessibilityLease, AccessibilityProps } from './accessibility-state'
 import type { ElementNode } from './model'
 import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 
 interface Dependencies {
-  accessibleHost: Pick<
-    AccessibleHost,
-    | 'AccessibleHostView'
-    | 'stackAccessibilityPropsByView'
-    | 'accessibilityLabels'
-    | 'accessibilityRoles'
-  >
+  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView'>
+  state: AccessibilityState
 }
 
 export type Accessibility = ReturnType<typeof createAccessibility>
 
 export function createAccessibility(deps: Dependencies) {
+  const leases = new WeakMap<ElementNode, { view: object; lease: AccessibilityLease }>()
+  function accessibilityLease(node: ElementNode) {
+    const prior = leases.get(node)
+    if (prior?.view === node.view && prior.lease.current()) { return prior.lease }
+    prior?.lease.release()
+    const lease = deps.state.acquire(node.view!)
+    leases.set(node, { view: node.view!, lease })
+    return lease
+  }
+  function disposeAccessibility(node: ElementNode) {
+    const prior = leases.get(node)
+    leases.delete(node)
+    prior?.lease.release()
+  }
   function applyAccessibility(node: ElementNode, name: string, value: any) {
     // Every mason-backed container hosts AccessibleHostView, so AX props apply
     // to any interactive container — not just the old stack/flex hosts.
     if (
-      node.actionId !== undefined &&
       node.view instanceof deps.accessibleHost.AccessibleHostView
     ) {
-      const props = deps.accessibleHost.stackAccessibilityPropsByView.get(node.view!) ?? {}
+      const lease = accessibilityLease(node)
+      const props = deps.state.get(node.view!) ?? {}
       if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
         const handler = value
         value =
           typeof handler === 'function'
             ? () => {
-                if (node.props.disabled || !node.container.root) {
+                if (!lease.current() || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.props.disabled || node.props.isEnabled === false || node.props.enabled === false ||
+                    node.props.accessibilityState?.disabled || node.props.accessibilityState?.readonly || !node.container.root) {
                   return false
                 }
                 try {
@@ -43,10 +54,27 @@ export function createAccessibility(deps: Dependencies) {
             : undefined
       }
 
-      deps.accessibleHost.stackAccessibilityPropsByView.set(node.view!, { ...props, [name]: value })
+      // Native props are normalized by the owning prop handlers; only semantic
+      // fields enter this typed view record, never action IDs or handlers.
+      const patch: Partial<AccessibilityProps> = {}
+      switch (name) {
+        case 'accessible': patch.accessible = value; break
+        case 'accessibilityLabel': patch.accessibilityLabel = String(value ?? ''); break
+        case 'accessibilityRole': patch.accessibilityRole = String(value ?? ''); break
+        case 'accessibilityHint': patch.accessibilityHint = value; break
+        case 'accessibilityValue': patch.accessibilityValue = value; break
+        case 'accessibilityMinValue': patch.accessibilityMinValue = value; break
+        case 'accessibilityMaxValue': patch.accessibilityMaxValue = value; break
+        case 'accessibilityValueDescription': patch.accessibilityValueDescription = value; break
+        case 'accessibilityOrientation': patch.accessibilityOrientation = value; break
+        case 'accessibilityState': patch.accessibilityState = value; break
+        case 'onAccessibilityIncrement': patch.onAccessibilityIncrement = value; break
+        case 'onAccessibilityDecrement': patch.onAccessibilityDecrement = value; break
+      }
+      lease.update(patch)
       const changed =
         name === 'accessibilityValue'
-          ? !Object.is(props[name], value)
+          ? !Object.is(props.accessibilityValue, value)
           : name === 'accessibilityState' &&
             (props[name]?.checked !== value?.checked ||
               props[name]?.selected !== value?.selected ||
@@ -60,13 +88,7 @@ export function createAccessibility(deps: Dependencies) {
         NSAccessibilityPostNotification(node.view!, 'AXValueChanged')
       }
 
-      if (name === 'accessibilityLabel') {
-        deps.accessibleHost.accessibilityLabels.set(node.actionId!, String(value ?? ''))
-      }
 
-      if (name === 'accessibilityRole') {
-        deps.accessibleHost.accessibilityRoles.set(node.actionId!, String(value ?? ''))
-      }
     }
 
     if (
@@ -134,5 +156,6 @@ export function createAccessibility(deps: Dependencies) {
   }
   return {
     applyAccessibility,
+    disposeAccessibility,
   }
 }

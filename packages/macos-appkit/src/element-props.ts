@@ -35,7 +35,7 @@ interface Dependencies {
     | 'applyBuiltinLiquidGlassProp'
     | 'applyBuiltinPlaceholderProp'
   >
-  actions: Pick<Actions, 'actionHandlers' | 'setPanAction'>
+  actions: Pick<Actions, 'hasHandler' | 'setPanAction'>
   textElements: Pick<
     TextElements,
     | 'syncTextLinks'
@@ -143,7 +143,7 @@ export function createElementProps(deps: Dependencies) {
     if ('disabled' in props && node.clickGestureRecognizer) {
       node.clickGestureRecognizer.enabled =
         !node.props.disabled &&
-        typeof deps.actions.actionHandlers.get(node.actionId!) === 'function'
+        deps.actions.hasHandler(node.view!)
     }
     if (
       ('disabled' in props || 'isEnabled' in props || 'enabled' in props) &&

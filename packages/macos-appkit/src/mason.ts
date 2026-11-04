@@ -723,8 +723,6 @@ interface MasonDeps {
   applyStyle: (node: any, value: any) => void
   applyClassName: (node: any, value: any) => void
   applyAccessibility: (node: any, name: string, value: any) => void
-  /** Allocate an action/AX identity; setAction owns click recognizers. */
-  wireAction: (view: any, props: any) => number | undefined
   /** Tap-action update; undefined clears the binding. */
   setAction: (node: any, value: any) => void
   /** Pan/swipe recognizer update; undefined clears the binding. */
@@ -899,9 +897,8 @@ export function installMasonElement(next: MasonDeps) {
     container: true,
     containerStyles: true,
     styleKeys: MASON_STYLE_KEYS,
-    make(node, props) {
+    make(node) {
       node.view = makeMasonLayout(node)
-      node.actionId = next.wireAction(node.view, props)
     },
     applyProp(node, name, value) {
       if (name === 'style') {

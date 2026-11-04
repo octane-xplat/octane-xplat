@@ -48,7 +48,7 @@ interface Dependencies {
   inputElements: Pick<InputElements, 'DEFAULT_TEXT_LINE_HEIGHT_RATIO' | 'fitTextView'>
   layout: Pick<Layout, 'queueLayoutReconcile'>
   registry: Pick<Registry, 'cssNodesByView'>
-  actions: Pick<Actions, 'actionHandlers' | 'buttonActionTarget'>
+  actions: Pick<Actions, 'hasHandler' | 'buttonActionTarget'>
   accessibility: Pick<Accessibility, 'applyAccessibility'>
   tree: Pick<Tree, 'detach'>
 }
@@ -335,7 +335,7 @@ export function createTextElements(deps: Dependencies) {
         isPrimaryClickBoundary(
           target.type,
           target.props.accessibilityRole,
-          typeof deps.actions.actionHandlers.get(target.actionId ?? -1) === 'function',
+          deps.actions.hasHandler(view),
         )
       )
     }

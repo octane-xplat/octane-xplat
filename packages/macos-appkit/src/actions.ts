@@ -1,3 +1,5 @@
+import type { ActionStore, ActionRegistration } from './action-store'
+import { FailureCollector } from './failures'
 import type { Registry } from './registry'
 import type { TextElements } from './text-elements'
 import type { CssPseudoState } from './css-pseudo-state'
@@ -27,6 +29,7 @@ import {
 import { shouldReceivePrimaryClick } from './primary-click'
 
 interface Dependencies {
+  store: ActionStore
   registry: Pick<Registry, 'cssNodesByView'>
   textElements: Pick<TextElements, 'textLinkCharacterIndex' | 'primaryClickBoundary'>
   cssPseudoState: Pick<CssPseudoState, 'syncPseudoState'>
@@ -43,19 +46,37 @@ interface Dependencies {
 export type Actions = ReturnType<typeof createActions>
 
 export function createActions(deps: Dependencies) {
-  const actionHandlers = new Map<number, (() => void) | null>()
+  const nodeActions = new WeakMap<ElementNode, ActionRegistration>()
+  const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | undefined>()
+  const panViewsByNode = new WeakMap<ElementNode, { view: object; handler: ((event: PanEvent) => void) | undefined }>()
+  const { allocate, dispatch: invokeAction, idForView, hasHandler } = deps.store
 
-  const actionIdsByView = new WeakMap<object, number>()
+  function adoptAction(node: ElementNode, action: ActionRegistration) {
+    nodeActions.get(node)?.release()
+    nodeActions.set(node, action)
+    node.actionId = action.id
+    return action.id
+  }
 
-  const panHandlersByView = new WeakMap<object, ((event: PanEvent) => void) | null>()
+  function acquireAction(node: ElementNode, view: object) {
+    return adoptAction(node, allocate(view))
+  }
 
-  let nextActionId = 1
+  function canDispatch(node: ElementNode) {
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !node.container.root ||
+        node.props.disabled === true || node.props.isEnabled === false || node.props.enabled === false ||
+        node.props.accessibilityState?.disabled || node.props.accessibilityState?.readonly) { return false }
+    const view = node.view
+    const enabled = view?.isEnabled
+    const nativeEnabled = typeof enabled === 'function' ? enabled.call(view) : (enabled ?? view?.enabled)
+    return nativeEnabled !== false && nativeEnabled !== 0
+  }
 
-  function invokeAction(actionId: number | undefined) {
-    const action = actionId === undefined ? undefined : actionHandlers.get(actionId)
-    if (action) {
-      action()
-    }
+  function setNodeHandler(node: ElementNode, handler: (() => void) | undefined) {
+    const view = node.view
+    nodeActions.get(node)?.setHandler(handler ? () => {
+      if (node.view === view && canDispatch(node)) { handler() }
+    } : undefined)
   }
 
   class ButtonActionTarget extends NSObject {
@@ -87,7 +108,7 @@ export function createActions(deps: Dependencies) {
     }
 
     ['viewPressed:'](sender: NSClickGestureRecognizer) {
-      invokeAction(actionIdsByView.get(sender.view))
+      invokeAction(idForView(sender.view))
     }
 
     ['linkPressed:'](sender: NSClickGestureRecognizer) {
@@ -134,7 +155,7 @@ export function createActions(deps: Dependencies) {
     }
 
     controlChanged(sender: NSControl) {
-      invokeAction(sender.tag ?? actionIdsByView.get(sender))
+      invokeAction(sender.tag ?? idForView(sender))
       // Toggle state lives on the control itself — resync :checked/:normal.
       const node = deps.registry.cssNodesByView.get(sender)
       if (node && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed') {
@@ -154,7 +175,7 @@ export function createActions(deps: Dependencies) {
       if (node?.type === 'searchbar') {
         deps.inputElements.notifySearchTextChange(node)
       } else {
-        invokeAction(node?.actionId ?? actionIdsByView.get(notification.object))
+        invokeAction(node?.actionId ?? idForView(notification.object))
       }
     }
 
@@ -222,7 +243,7 @@ export function createActions(deps: Dependencies) {
       deps.inputElements.syncTextViewPlaceholder(node)
       deps.inputElements.fitTextView(node)
       if (reportTextLimitChange(notification.object as NSTextView)) {
-        invokeAction(actionIdsByView.get(notification.object))
+        invokeAction(idForView(notification.object))
       }
     }
     controlTextDidBeginEditing(notification: NSNotification) {
@@ -304,14 +325,9 @@ export function createActions(deps: Dependencies) {
 
   function setAction(node: ElementNode, value: any) {
     const active = typeof value === 'function'
-    if (node.actionId === undefined) {
-      if (!active) {
-        return
-      }
-
-      node.actionId = nextActionId++
-      actionIdsByView.set(node.view!, node.actionId)
-      actionHandlers.set(node.actionId, null)
+    if (!nodeActions.has(node)) {
+      if (!active || !node.view) { return }
+      acquireAction(node, node.view)
     }
     if (active && !node.clickGestureRecognizer) {
       node.clickGestureRecognizer = configureGesture(
@@ -326,8 +342,8 @@ export function createActions(deps: Dependencies) {
       node.clickGestureRecognizer.enabled = active && !node.props.disabled
     }
 
-    actionHandlers.set(
-      node.actionId,
+    setNodeHandler(
+      node,
       typeof value === 'function'
         ? () => {
             if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
@@ -341,7 +357,7 @@ export function createActions(deps: Dependencies) {
               console.error('[macos-event] press handler failed', error)
             }
           }
-        : null,
+        : undefined,
     )
   }
 
@@ -362,49 +378,44 @@ export function createActions(deps: Dependencies) {
       node.panGestureRecognizer.enabled = enabled
     }
 
-    panHandlersByView.set(
-      node.view!,
-      enabled
-        ? (event: PanEvent) => {
-            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.props.disabled) {
-              return
-            }
-
-            try {
-              node.container.root!.eventScope('discrete', () => {
-                node.props.onPan?.(event)
-                const direction = swipeDirection(event)
-                if (direction !== null && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && !node.props.disabled) {
-                  node.props.onSwipe?.({ direction })
-                }
-              })
-            } catch (error) {
-              console.error('[macos-event] pan/swipe handler failed', error)
-            }
+    const view = node.view!
+    const previous = panViewsByNode.get(node)
+    if (previous && panHandlersByView.get(previous.view) === previous.handler) {
+      panHandlersByView.delete(previous.view)
+    }
+    const handler = enabled ? (event: PanEvent) => {
+      if (node.view !== view || panHandlersByView.get(view) !== handler || !canDispatch(node)) { return }
+      try {
+        node.container.root!.eventScope('discrete', () => {
+          node.props.onPan?.(event)
+          const direction = swipeDirection(event)
+          if (direction !== null && canDispatch(node) && panHandlersByView.get(view) === handler) {
+            node.props.onSwipe?.({ direction })
           }
-        : null,
-    )
+        })
+      } catch (error) { console.error('[macos-event] pan/swipe handler failed', error) }
+    } : undefined
+    panViewsByNode.set(node, { view, handler })
+    panHandlersByView.set(view, handler)
   }
 
   function setControlAction(node: ElementNode, value: any, readValue: () => any) {
-    if (node.actionId === undefined) {
+    if (!nodeActions.has(node)) {
       return
     }
 
-    actionHandlers.set(
-      node.actionId,
+    setNodeHandler(
+      node,
       typeof value === 'function'
         ? () => {
-            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
-              return
-            }
+            if (!canDispatch(node) || node.props.editable === false) { return }
             try {
               node.container.root!.eventScope('discrete', () => value(readValue()))
             } catch (error) {
               console.error('[macos-event] control handler failed', error)
             }
           }
-        : null,
+        : undefined,
     )
   }
 
@@ -414,7 +425,7 @@ export function createActions(deps: Dependencies) {
     node.submitHandler =
       typeof value === 'function'
         ? () => {
-            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+            if (!canDispatch(node) || node.props.editable === false) {
               return
             }
             try {
@@ -425,17 +436,36 @@ export function createActions(deps: Dependencies) {
           }
         : null
   }
+  function dispatchPan(view: object, event: PanEvent): boolean {
+    const handler = panHandlersByView.get(view)
+    if (!handler) { return false }
+    handler(event)
+    return true
+  }
+
+  function disposeActions(node: ElementNode) {
+    const action = nodeActions.get(node)
+    nodeActions.delete(node)
+    action?.release()
+    node.submitHandler = null
+    const pan = panViewsByNode.get(node)
+    panViewsByNode.delete(node)
+    if (pan && panHandlersByView.get(pan.view) === pan.handler) { panHandlersByView.delete(pan.view) }
+    const failures = new FailureCollector()
+    for (const name of ['clickGestureRecognizer', 'panGestureRecognizer'] as const) {
+      const recognizer = node[name]
+      node[name] = undefined
+      if (recognizer) {
+        failures.run(name + ' disable', () => { recognizer.enabled = false })
+        failures.run(name + ' detach', () => node.view?.removeGestureRecognizer(recognizer))
+      }
+    }
+    failures.throwIfFailed()
+  }
+
   return {
-    actionHandlers,
-    actionIdsByView,
-    panHandlersByView,
-    get nextActionId() {
-      return nextActionId
-    },
-    set nextActionId(value: typeof nextActionId) {
-      nextActionId = value
-    },
-    invokeAction,
+    allocate, invokeAction, idForView, hasHandler, acquireAction, adoptAction, setNodeHandler,
+    dispatchPan, disposeActions,
     buttonActionTarget,
     setAction,
     setPanAction,

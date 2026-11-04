@@ -1,24 +1,19 @@
 import type { Actions } from './actions'
 import type { Subscriptions } from './subscriptions'
-import type { PropBag } from './model'
+import type { AccessibilityState } from './accessibility-state'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
 import { NSNumber, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  actions: Pick<Actions, 'actionHandlers' | 'actionIdsByView' | 'invokeAction'>
+  actions: Pick<Actions, 'hasHandler' | 'idForView' | 'invokeAction'>
+  state: Pick<AccessibilityState, 'get'>
   subscriptions: Pick<Subscriptions, 'fileDropRegistry'>
 }
 
 export type AccessibleHost = ReturnType<typeof createAccessibleHost>
 
 export function createAccessibleHost(deps: Dependencies) {
-  const accessibilityLabels = new Map<number, string>()
-
-  const accessibilityRoles = new Map<number, string>()
-
-  const stackAccessibilityPropsByView = new WeakMap<object, PropBag>()
-
   const inputTransparentViews = new WeakSet<object>()
 
   // The macOS Slider uses the grid host as an overlay when no tracks are set.
@@ -39,8 +34,7 @@ export function createAccessibleHost(deps: Dependencies) {
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     acceptsFirstResponder() {
       return (
-        typeof deps.actions.actionHandlers.get(deps.actions.actionIdsByView.get(this) ?? -1) ===
-          'function' ||
+        deps.actions.hasHandler(this) ||
         (scopeFocusTargets.get(this) ?? 0) > 0 ||
         disabledFocusTargets.allows(this)
       )
@@ -63,11 +57,10 @@ export function createAccessibleHost(deps: Dependencies) {
         !modified &&
         (Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
         this.isAccessibilityEnabled() &&
-        !stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly &&
-        typeof deps.actions.actionHandlers.get(deps.actions.actionIdsByView.get(this) ?? -1) ===
-          'function'
+        !deps.state.get(this)?.accessibilityState?.readonly &&
+        deps.actions.hasHandler(this)
       ) {
-        deps.actions.invokeAction(deps.actions.actionIdsByView.get(this)!)
+        deps.actions.invokeAction(deps.actions.idForView(this)!)
         return
       }
 
@@ -118,13 +111,13 @@ export function createAccessibleHost(deps: Dependencies) {
     }
 
     accessibilityPerformPress() {
-      const actionId = deps.actions.actionIdsByView.get(this)
+      const actionId = deps.actions.idForView(this)
       if (
         actionId === undefined ||
-        typeof deps.actions.actionHandlers.get(actionId) !== 'function' ||
+        !deps.actions.hasHandler(this) ||
         !this.isAccessibilityEnabled() ||
         this.accessibilityIsIgnored() ||
-        stackAccessibilityPropsByView.get(this)?.accessibilityState?.readonly
+        deps.state.get(this)?.accessibilityState?.readonly
       ) {
         return false
       }
@@ -134,7 +127,7 @@ export function createAccessibleHost(deps: Dependencies) {
     }
 
     accessibilityPerformIncrement() {
-      const props = stackAccessibilityPropsByView.get(this)
+      const props = deps.state.get(this)
       if (
         this.accessibilityIsIgnored() ||
         !this.isAccessibilityEnabled() ||
@@ -147,7 +140,7 @@ export function createAccessibleHost(deps: Dependencies) {
     }
 
     accessibilityPerformDecrement() {
-      const props = stackAccessibilityPropsByView.get(this)
+      const props = deps.state.get(this)
       if (
         this.accessibilityIsIgnored() ||
         !this.isAccessibilityEnabled() ||
@@ -161,7 +154,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityRole() {
-      const role = accessibilityRoles.get(deps.actions.actionIdsByView.get(this) ?? -1)
+      const role = deps.state.get(this)?.accessibilityRole
       if (role === 'menu') {
         return 'AXMenu'
       }
@@ -200,7 +193,7 @@ export function createAccessibleHost(deps: Dependencies) {
       }
       if (
         role === 'button' &&
-        typeof stackAccessibilityPropsByView.get(this)?.accessibilityState?.pressed === 'boolean'
+        typeof deps.state.get(this)?.accessibilityState?.pressed === 'boolean'
       ) {
         return 'AXCheckBox'
       }
@@ -225,7 +218,7 @@ export function createAccessibleHost(deps: Dependencies) {
         return 1
       }
       if (role === 'AXToolbar') {
-        const axis = stackAccessibilityPropsByView.get(this)?.accessibilityOrientation
+        const axis = deps.state.get(this)?.accessibilityOrientation
         return axis === 'vertical' ? 1 : axis === 'horizontal' ? 2 : 0
       }
       // @ts-ignore super property read on the bridged superclass
@@ -234,7 +227,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityLabel() {
-      return accessibilityLabels.get(deps.actions.actionIdsByView.get(this) ?? -1) ?? ''
+      return deps.state.get(this)?.accessibilityLabel ?? ''
     }
 
     // Menu rows need a title as well as the existing AX label. Preserve native
@@ -249,11 +242,11 @@ export function createAccessibleHost(deps: Dependencies) {
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityValue() {
-      const props = stackAccessibilityPropsByView.get(this)
+      const props = deps.state.get(this)
       const role = this.accessibilityRole()
       if (role === 'AXRadioButton') {
         return NSNumber.numberWithDouble(
-          (accessibilityRoles.get(deps.actions.actionIdsByView.get(this) ?? -1) === 'tab'
+          (deps.state.get(this)?.accessibilityRole === 'tab'
             ? props?.accessibilityState?.selected
             : props?.accessibilityState?.checked) === true
             ? 1
@@ -264,7 +257,7 @@ export function createAccessibleHost(deps: Dependencies) {
       if (role === 'AXCheckBox') {
         const state = props?.accessibilityState
         const checked =
-          accessibilityRoles.get(deps.actions.actionIdsByView.get(this) ?? -1) === 'button' &&
+          deps.state.get(this)?.accessibilityRole === 'button' &&
           typeof state?.pressed === 'boolean'
             ? state.pressed
             : state?.checked
@@ -288,53 +281,51 @@ export function createAccessibleHost(deps: Dependencies) {
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityMinValue() {
       return NSNumber.numberWithDouble(
-        Number(stackAccessibilityPropsByView.get(this)?.accessibilityMinValue ?? 0),
+        Number(deps.state.get(this)?.accessibilityMinValue ?? 0),
       )
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityMaxValue() {
       return NSNumber.numberWithDouble(
-        Number(stackAccessibilityPropsByView.get(this)?.accessibilityMaxValue ?? 100),
+        Number(deps.state.get(this)?.accessibilityMaxValue ?? 100),
       )
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityValueDescription() {
-      return String(stackAccessibilityPropsByView.get(this)?.accessibilityValueDescription ?? '')
+      return String(deps.state.get(this)?.accessibilityValueDescription ?? '')
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityHelp() {
-      return stackAccessibilityPropsByView.get(this)?.accessibilityHint ?? ''
+      return deps.state.get(this)?.accessibilityHint ?? ''
     }
 
     // NSAccessibilityEnabledAttribute uses the protocol getter isAccessibilityEnabled.
     isAccessibilityEnabled() {
-      return !stackAccessibilityPropsByView.get(this)?.accessibilityState?.disabled
+      return !deps.state.get(this)?.accessibilityState?.disabled
     }
 
     isAccessibilitySelected() {
-      return stackAccessibilityPropsByView.get(this)?.accessibilityState?.selected === true
+      return deps.state.get(this)?.accessibilityState?.selected === true
     }
 
     isAccessibilityExpanded() {
-      return stackAccessibilityPropsByView.get(this)?.accessibilityState?.expanded === true
+      return deps.state.get(this)?.accessibilityState?.expanded === true
     }
 
     accessibilityIsIgnored() {
-      const props = stackAccessibilityPropsByView.get(this)
+      const props = deps.state.get(this)
       return (
-        deps.actions.actionIdsByView.get(this) === undefined ||
+        (!deps.state.get(this) && !deps.actions.hasHandler(this)) ||
+        this.hiddenOrHasHiddenAncestor ||
         props?.accessible === false ||
         props?.accessibilityRole === 'none'
       )
     }
   }
   return {
-    accessibilityLabels,
-    accessibilityRoles,
-    stackAccessibilityPropsByView,
     inputTransparentViews,
     scopeFocusTargets,
     tabStopSuppression,

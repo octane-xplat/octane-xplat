@@ -1,10 +1,11 @@
 import { registerGestureClass } from './gestures'
+import type { ActionRegistration } from './action-store'
 import type { Actions } from './actions'
 import { NSMenu, NSMenuItem, NSView, NSObject, interop } from '@octane-xplat/platform/macos'
 import type { ContextMenuOptions } from './model'
 
 interface Dependencies {
-  actions: Pick<Actions, 'actionHandlers' | 'nextActionId' | 'invokeAction'>
+  actions: Pick<Actions, 'allocate' | 'invokeAction'>
 }
 
 export type ContextMenu = ReturnType<typeof createContextMenu>
@@ -66,15 +67,15 @@ export function createContextMenu(deps: Dependencies) {
     }
     const state = { active: true, previous: null as NSMenu | null }
     contextMenuAttachments.set(menu, state)
-    const created: { id: number; item: NSMenuItem }[] = []
+    const created: { action: ActionRegistration; item: NSMenuItem }[] = []
     let selecting = false
     const detach = () => {
       if (!state.active) {
         return
       }
       state.active = false
-      for (const { id, item } of created) {
-        deps.actions.actionHandlers.delete(id)
+      for (const { action, item } of created) {
+        action.release()
         try {
           item.target = null
           item.action = null as unknown as string
@@ -119,11 +120,11 @@ export function createContextMenu(deps: Dependencies) {
         const disabled = !!item?.disabled
         menuItem.enabled = !disabled
 
-        const actionId = deps.actions.nextActionId++
-        menuItem.tag = actionId
+        const action = deps.actions.allocate()
+        menuItem.tag = action.id
         const id = item?.id
-        created.push({ id: actionId, item: menuItem })
-        deps.actions.actionHandlers.set(actionId, () => {
+        created.push({ action, item: menuItem })
+        action.setHandler(() => {
           if (!state.active || selecting || disabled || view.menu !== menu || !view.window) {
             return
           }

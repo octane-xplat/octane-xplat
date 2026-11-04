@@ -20,7 +20,7 @@ import { nativeColor } from './native-colors'
 interface Dependencies {
   actions: Pick<
     Actions,
-    'buttonActionTarget' | 'nextActionId' | 'actionHandlers' | 'setControlAction'
+    'buttonActionTarget' | 'allocate' | 'acquireAction' | 'adoptAction' | 'setControlAction'
   >
   layout: Pick<Layout, 'queueLayoutReconcile'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
@@ -43,15 +43,15 @@ export function createPickerElements(deps: Dependencies) {
     view.target = deps.actions.buttonActionTarget
     view.action = 'controlChanged:'
     view.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
-    view.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
-    return { view, actionId }
+    const action = deps.actions.allocate(view)
+    view.tag = action.id
+    return { view, action }
   }
 
   /** A noneditable AppKit picker for the shared NativeScript item/index API. */
   function makeListPicker(node: ElementNode) {
     const control = makePopUpControl()
+    deps.actions.adoptAction(node, control.action)
     node.listPickerIndex = -1
     node.listPickerRequested = -1
     return control
@@ -124,9 +124,8 @@ export function createPickerElements(deps: Dependencies) {
 
     view.translatesAutoresizingMaskIntoConstraints = false
     view.selectedSegmentBezelColor = nativeColor('#0000ff')
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, view)
     view.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     node.segmentedBarIndex = -1
     node.segmentedBarRequested = -1
     return { view, actionId }
@@ -235,9 +234,8 @@ export function createPickerElements(deps: Dependencies) {
     view.action = 'controlChanged:'
     view.sizeToFit()
     view.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, view)
     view.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     node.timePickerDefault = timeOfDay(new Date())
     node.timePickerValue = node.timePickerDefault
     node.timePickerBounds = [0, 1439]
@@ -363,9 +361,8 @@ export function createPickerElements(deps: Dependencies) {
     view.action = 'controlChanged:'
     view.sizeToFit()
     view.translatesAutoresizingMaskIntoConstraints = false
-    const actionId = deps.actions.nextActionId++
+    const actionId = deps.actions.acquireAction(node, view)
     view.tag = actionId
-    deps.actions.actionHandlers.set(actionId, null)
     node.datePickerDefault = calendarDate(new Date())
     node.datePickerValue = node.datePickerDefault
     return { view, actionId }

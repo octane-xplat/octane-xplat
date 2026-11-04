@@ -2,7 +2,7 @@ import { nodeClasses } from './style-values.ts'
 import type { RootDirectoryReader } from './root-directory'
 import type { Measurements } from './measurements'
 import type { CssCascade } from './css-cascade'
-import type { AccessibleHost } from './accessible-host'
+import type { AccessibilityState } from './accessibility-state'
 import type { Actions } from './actions'
 import type { Hover } from './hover'
 import type { Popover } from './popover'
@@ -14,8 +14,8 @@ interface Dependencies {
   directory: Pick<RootDirectoryReader, 'containers' | 'observe'>
   measurements: Pick<Measurements, 'measureParity' | 'descendants' | 'colorValue' | 'round'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'>
-  accessibleHost: Pick<AccessibleHost, 'accessibilityRoles' | 'accessibilityLabels'>
-  actions: Pick<Actions, 'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'>
+  accessibilityState: Pick<AccessibilityState, 'get'>
+  actions: Pick<Actions, 'dispatchPan' | 'invokeAction' | 'buttonActionTarget'>
   hover: Pick<Hover, 'hoverRecordByView'>
   popover: Pick<Popover, 'openPopups'>
 }
@@ -456,20 +456,18 @@ export function createAutomation(deps: Dependencies) {
               .filter(
                 (node) =>
                   node.type === 'masonview' &&
-                  node.actionId !== undefined &&
-                  deps.accessibleHost.accessibilityRoles.get(node.actionId!) === 'button',
+                  node.view != null &&
+                  deps.accessibilityState.get(node.view)?.accessibilityRole === 'button',
               )
-              .map((node) => deps.accessibleHost.accessibilityLabels.get(node.actionId!)),
+              .map((node) => deps.accessibilityState.get(node.view!)?.accessibilityLabel),
           }
         },
         /** Dispatch through the same event scope as the AppKit pan recognizer. */
         panView(view: any, event: PanEvent) {
-          const handler = deps.actions.panHandlersByView.get(view)
-          if (!handler) {
+          if (!deps.actions.dispatchPan(view, { ...event, view })) {
             throw new Error('No AppKit pan handler attached')
           }
 
-          handler({ ...event, view })
         },
         pressId(id: string) {
           const node = allNodes().find((candidate) => candidate.props.id === id)
@@ -506,7 +504,7 @@ export function createAutomation(deps: Dependencies) {
             (candidate) =>
               candidate.type === 'masonview' &&
               candidate.actionId !== undefined &&
-              deps.accessibleHost.accessibilityLabels.get(candidate.actionId) === label,
+              deps.accessibilityState.get(candidate.view!)?.accessibilityLabel === label,
           )
 
           if (!node) {

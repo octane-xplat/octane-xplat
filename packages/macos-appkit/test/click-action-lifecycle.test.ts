@@ -1,80 +1,64 @@
-import { rendererSource } from './renderer-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { runSlice } from './mock-globals.ts'
-import { isPrimaryClickBoundary, shouldReceivePrimaryClick } from '../src/primary-click.ts'
+import { createActionStore } from '../src/action-store.ts'
+import { mockNativeBoundary } from './native-boundary.ts'
+import { isPrimaryClickBoundary } from '../src/primary-click.ts'
 
-const source = rendererSource()
-function fn(name: string) {
-  const start = source.indexOf('function ' + name + '(')
-  return source.slice(start, source.indexOf('\nfunction ', start + 1))
-}
+const hooks = mockNativeBoundary()
+const { createActions } = await import('../src/actions.ts')
+hooks.deregister()
 
 function fixture() {
-  const handlers = new Map(),
-    ids = new WeakMap(),
-    recognizers: any[] = [],
-    calls: string[] = []
+  const store = createActionStore(), recognizers: any[] = [], calls: string[] = []
   const cssNodesByView = new WeakMap()
-  const api = runSlice(
-    fn('wireViewAction') + '\n' + fn('setAction') + '\n({wireViewAction,setAction})',
-    {
-      actionHandlers: handlers,
-      actionIdsByView: ids,
-      nextActionId: 1,
-      buttonActionTarget: {},
-      configureGesture: (recognizer: any, attempt: unknown) => {
-        recognizer.attempt = attempt
-        return recognizer
-      },
-      cssNodesByView,
-      isPrimaryClickBoundary,
-      shouldReceivePrimaryClick,
-      NSClickGestureRecognizer: {
-        alloc: () => ({ initWithTargetAction: () => ({ enabled: true }) }),
-      },
-      console,
-    },
-  )
+  const actions = createActions({
+    store,
+    registry: { cssNodesByView },
+    textElements: { primaryClickBoundary: () => view => {
+      const target = cssNodesByView.get(view)
+      return target != null && isPrimaryClickBoundary(target.type, target.props.accessibilityRole, store.hasHandler(view))
+    }, textLinkCharacterIndex: () => null },
+    cssPseudoState: { syncPseudoState() {} },
+    inputElements: {} as any,
+  })
   const view = { addGestureRecognizer: (recognizer: object) => recognizers.push(recognizer) }
   const node: any = {
-    view,
-    props: {},
+    view, props: {},
     container: { root: { eventScope: (_: string, callback: () => void) => callback() } },
   }
-  return { ...api, handlers, ids, recognizers, calls, view, node, cssNodesByView }
+  return { ...actions, store, recognizers, calls, view, node, cssNodesByView }
 }
 
-test('semantic-only checkbox mount can acquire exactly one click recognizer later', () => {
+test('semantic-only checkbox needs no action and can acquire exactly one click recognizer later', () => {
   const f = fixture()
-  f.node.actionId = f.wireViewAction(f.view, { accessibilityRole: 'checkbox' })
-  assert.equal(typeof f.node.actionId, 'number')
+  f.node.props.accessibilityRole = 'checkbox'
+  assert.equal(f.node.actionId, undefined)
   assert.equal(f.recognizers.length, 0)
   f.setAction(f.node, () => f.calls.push('first'))
   assert.equal(f.recognizers.length, 1)
   assert.equal(f.recognizers[0].enabled, true)
-  f.handlers.get(f.node.actionId)()
+  f.invokeAction(f.node.actionId)
   f.setAction(f.node, () => f.calls.push('latest'))
-  f.handlers.get(f.node.actionId)()
+  f.invokeAction(f.node.actionId)
   assert.deepEqual(f.calls, ['first', 'latest'])
   assert.equal(f.recognizers.length, 1)
 })
 
 test('clear/re-add and disabled callbacks retain identity without live no-op gestures', () => {
   const f = fixture()
-  f.node.actionId = f.wireViewAction(f.view, { accessibilityRole: 'radio' })
+  f.node.props.accessibilityRole = 'radio'
   f.node.props.disabled = true
   f.setAction(f.node, () => f.calls.push('press'))
   const recognizer = f.node.clickGestureRecognizer
   assert.equal(recognizer.enabled, false)
-  f.handlers.get(f.node.actionId)()
+  f.invokeAction(f.node.actionId)
   assert.deepEqual(f.calls, [])
   f.node.props.disabled = false
   f.setAction(f.node, () => f.calls.push('press'))
   assert.equal(recognizer.enabled, true)
   f.setAction(f.node, undefined)
   assert.equal(recognizer.enabled, false)
-  assert.equal(f.handlers.get(f.node.actionId), null)
+  assert.equal(f.store.hasHandler(f.view), false)
   f.setAction(f.node, () => f.calls.push('again'))
   assert.equal(f.node.clickGestureRecognizer, recognizer)
   assert.equal(recognizer.enabled, true)
@@ -100,18 +84,19 @@ test('primary click wiring reads current descendant semantics and action ownersh
   f.setAction(f.node, () => {})
   const recognizer = f.node.clickGestureRecognizer
   const event = { type: 1, window, locationInWindow: { x: 10, y: 10 } }
-  assert.equal(recognizer.attempt(event), true)
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), true)
   target.props = { accessibilityRole: 'button', disabled: true }
-  assert.equal(recognizer.attempt(event), false)
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
   target.props = {}
-  f.handlers.set(99, () => {})
-  assert.equal(recognizer.attempt(event), false)
-  f.handlers.set(99, null)
-  assert.equal(recognizer.attempt(event), true)
+  const childAction = f.store.allocate(child)
+  childAction.setHandler(() => {})
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
+  childAction.setHandler(undefined)
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), true)
   target.type = 'textfield'
-  assert.equal(recognizer.attempt(event), false)
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
   f.setAction(f.node, undefined)
   f.setAction(f.node, () => {})
   assert.equal(f.node.clickGestureRecognizer, recognizer)
-  assert.equal(recognizer.attempt(event), false)
+  assert.equal(recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event), false)
 })

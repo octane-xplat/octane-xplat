@@ -1,3 +1,4 @@
+import { createActionStore } from '../src/action-store.ts'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { registerHooks } from 'node:module'
@@ -44,7 +45,8 @@ test('date bridge accepts native class handles and retires acquired resources on
   })
   try {
     const { createPickerBridge } = await import('../src/picker-bridge.ts')
-    const actions = { nextActionId: 1, buttonActionTarget: {}, actionHandlers: new Map() }
+    const store = createActionStore()
+    const actions = { allocate: store.allocate, buttonActionTarget: {} }
     const bridge = createPickerBridge({ actions, pickerElements: { makePopUpControl() { throw Error('not used') } } })
     let picker: any
     const view: any = { window: {}, addSubview(value) { picker = value; value.superview = this } }
@@ -54,7 +56,7 @@ test('date bridge accepts native class handles and retires acquired resources on
       assert.ok(handle)
       assert.equal(picker.dateValue.timeIntervalSince1970, 120)
       assert.equal(picker.datePickerElements, mode === 'time' ? 12 : mode === 'date' ? 224 : 236)
-      const callback = actions.actionHandlers.get(picker.tag)
+      const callback = () => store.dispatch(picker.tag)
       callback()
       assert.equal(events.at(-1), 120000)
       const count = events.length
@@ -65,7 +67,7 @@ test('date bridge accepts native class handles and retires acquired resources on
       handle.detach()
       callback()
       assert.equal(events.length, count)
-      assert.equal(actions.actionHandlers.size, 0)
+      assert.equal(store.idForView(picker), undefined)
       assert.equal(picker.superview, null)
       assert.equal(picker.target, null)
       assert.equal(picker.action, null)
@@ -76,13 +78,13 @@ test('date bridge accepts native class handles and retires acquired resources on
     const failure = Error('native write')
     picker.failWrite = failure
     assert.throws(() => handle.update({ enabled: false }), error => error === failure)
-    assert.equal(actions.actionHandlers.size, 0)
+    assert.equal(store.idForView(picker), undefined)
     assert.equal(picker.superview, null)
     // Partial attachment acquires constraints before failing. They must retire too.
     view.addSubview = value => { picker = value; value.superview = view; throw failure }
     assert.equal(bridge.attachDatePicker(view, {}, () => {}), null)
     assert.equal(picker.superview, null)
-    assert.equal(actions.actionHandlers.size, 0)
+    assert.equal(store.idForView(picker), undefined)
   } finally {
     hooks.deregister()
   }

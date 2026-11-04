@@ -1,3 +1,4 @@
+import { createActionStore } from '../src/action-store.ts'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { registerHooks } from 'node:module'
@@ -58,16 +59,8 @@ test('hover and menu constructors own their targets independently and menus disp
     const { createContextMenu } = await import('../src/context-menu.ts')
     const logs: unknown[][] = []
     context.mock.method(console, 'error', (...args: unknown[]) => logs.push(args))
-    const actionHandlers = new Map<number, (() => void) | null>()
-    const actions = {
-      nextActionId: 1,
-      actionHandlers,
-      invokeAction(id: number | undefined) {
-        if (id !== undefined) {
-          actionHandlers.get(id)?.()
-        }
-      },
-    }
+    const store = createActionStore()
+    const actions = { allocate: store.allocate, invokeAction: store.dispatch }
     // This is the runtime's real order: hover is built before contextMenu.
     const hover = createHover()
     const menu = createContextMenu({ actions })
@@ -81,10 +74,9 @@ test('hover and menu constructors own their targets independently and menus disp
     const item = view.menu.items[0]
     item.target.menuItemSelected(item)
     assert.deepEqual(selected, ['open'])
-    const retainedAction = actionHandlers.get(item.tag)
+    const retainedAction = () => store.dispatch(item.tag)
     detach!()
     assert.equal(view.menu, null)
-    assert.equal(actionHandlers.size, 0)
     retainedAction?.()
     assert.deepEqual(selected, ['open'])
   } finally {

@@ -18,7 +18,7 @@ import type { Subscriptions } from './subscriptions'
 import type { HostedElements } from './hosted-elements'
 import type { Projection } from './projection'
 import type { Layout } from './layout'
-import type { AccessibleHost } from './accessible-host'
+import type { Accessibility } from './accessibility'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { NSNotificationCenter, NSTextField, NSTextView, NSView } from '@octane-xplat/platform/macos'
@@ -104,11 +104,9 @@ interface Dependencies {
   imageElements: Pick<ImageElements, 'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'>
   actions: Pick<
     Actions,
-    | 'nextActionId'
-    | 'actionIdsByView'
-    | 'actionHandlers'
+    | 'acquireAction'
     | 'buttonActionTarget'
-    | 'panHandlersByView'
+    | 'disposeActions'
   >
   elementProps: Pick<ElementProps, 'applyProps'>
   cssPseudoState: Pick<CssPseudoState, 'syncPseudoTracking'>
@@ -124,7 +122,7 @@ interface Dependencies {
   >
   projection: Pick<Projection, 'disposeBuiltinProxyChildren'>
   layout: Pick<Layout, 'layoutHandlers'>
-  accessibleHost: Pick<AccessibleHost, 'accessibilityLabels' | 'accessibilityRoles'>
+  accessibility: Pick<Accessibility, 'disposeAccessibility'>
 }
 
 export type Nodes = ReturnType<typeof createNodes>
@@ -420,7 +418,6 @@ export function createNodes(deps: Dependencies) {
           case 'segmentedbar': {
             const control = deps.pickerElements.makeSegmentedBar(node)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'listview':
@@ -435,19 +432,16 @@ export function createNodes(deps: Dependencies) {
           case 'listpicker': {
             const control = deps.pickerElements.makeListPicker(node)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'timepicker': {
             const control = deps.pickerElements.makeTimePicker(node)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'datepicker': {
             const control = deps.pickerElements.makeDatePicker(node)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'progress':
@@ -467,9 +461,8 @@ export function createNodes(deps: Dependencies) {
           case '#text':
             break
           case 'button': {
-            const button = deps.controls.makeButton(props)
+            const button = deps.controls.makeButton(node, props)
             node.view = button.view
-            node.actionId = button.actionId
             break
           }
           case 'scrollview': {
@@ -488,15 +481,13 @@ export function createNodes(deps: Dependencies) {
             node.view = deps.inputElements.makeTextField(props, true) as unknown as NSView
             break
           case 'switch': {
-            const control = deps.controls.makeSwitch(props)
+            const control = deps.controls.makeSwitch(node, props)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'slider': {
-            const control = deps.controls.makeSlider(props)
+            const control = deps.controls.makeSlider(node, props)
             node.view = control.view
-            node.actionId = control.actionId
             break
           }
           case 'webview':
@@ -538,9 +529,7 @@ export function createNodes(deps: Dependencies) {
         throw new Error('AppKit node retired during construction')
       }
       if (type === 'textfield' || type === 'textview' || type === 'searchbar') {
-        node.actionId = deps.actions.nextActionId++
-        deps.actions.actionIdsByView.set(node.view!, node.actionId)
-        deps.actions.actionHandlers.set(node.actionId, null)
+        deps.actions.acquireAction(node, node.view!)
         if (type !== 'textview') {
           // Per-edit events arrive through controlTextDidChange (delegate);
           // the target/action is reserved for submission on Return.
@@ -659,7 +648,7 @@ export function createNodes(deps: Dependencies) {
 
     release('detach', () => deps.tree.detach(node.container, node))
     release('press gestures', () => disposePressGestures(node))
-    for (const name of ['clickGestureRecognizer', 'linkClickRecognizer']) {
+    for (const name of ['linkClickRecognizer']) {
       const recognizer = node[name]
       node[name] = undefined
       if (recognizer) {
@@ -672,8 +661,7 @@ export function createNodes(deps: Dependencies) {
     node.cssHoverDispose = undefined
     release('hover', () => hover?.())
     release('visual state', () => setVisualStateTracking(node, null))
-    release('pan handler', () => { if (node.view) { deps.actions.panHandlersByView.delete(node.view) } })
-    release('pan recognizer', () => { if (node.panGestureRecognizer) { node.panGestureRecognizer.enabled = false } })
+    release('actions', () => deps.actions.disposeActions(node))
     release('text input dispose', () => deps.inputElements.disposeBuiltinTextInput(node))
     release('web dispose', () => deps.hostedElements.disposeBuiltinWebView(node))
     release('segment dispose', () => deps.pickerElements.disposeBuiltinSegmentedControl(node))
@@ -699,11 +687,7 @@ export function createNodes(deps: Dependencies) {
     const observedView = node.layoutObservedView
     node.layoutObservedView = null
     release('layout identity', () => deps.layout.layoutHandlers.delete(observedView))
-    if (node.actionId !== undefined) {
-      release('action identity', () => deps.actions.actionHandlers.delete(node.actionId!))
-      release('AX label identity', () => deps.accessibleHost.accessibilityLabels.delete(node.actionId!))
-      release('AX role identity', () => deps.accessibleHost.accessibilityRoles.delete(node.actionId!))
-    }
+    release('accessibility', () => deps.accessibility.disposeAccessibility(node))
     release('view owner identity', () => {
       if (node.view && typeof deps.registry.nodeContainersByView !== 'undefined' && deps.registry.nodeContainersByView.get(node.view) === node.container) {
         deps.registry.nodeContainersByView.delete(node.view)

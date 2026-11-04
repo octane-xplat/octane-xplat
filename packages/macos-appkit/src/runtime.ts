@@ -22,6 +22,7 @@ import { createLayoutProjection } from './layout-projection'
 import { createRegistry } from './registry'
 import { createLayout } from './layout'
 import { createSubscriptions } from './subscriptions'
+import { createActionStore } from './action-store'
 import { createActions } from './actions'
 import { createInputElements } from './input-elements'
 import { createContainerElements } from './container-elements'
@@ -33,6 +34,7 @@ import { createNodes } from './nodes'
 import { createNativeStyle } from './native-style'
 import { createCssCascade } from './css-cascade'
 import { createPointerStyle } from './pointer-style'
+import { createAccessibilityState } from './accessibility-state'
 import { createAccessibility } from './accessibility'
 import { createElementProps } from './element-props'
 import { createProjection } from './projection'
@@ -79,7 +81,9 @@ const subscriptions = createSubscriptions({
   },
 })
 
+const actionStore = createActionStore()
 const actions = createActions({
+  store: actionStore,
   registry,
   get textElements() {
     return textElements
@@ -127,7 +131,9 @@ const containerElements = createContainerElements({
   },
 })
 
+const accessibilityState = createAccessibilityState()
 const accessibleHost = createAccessibleHost({
+  state: accessibilityState,
   actions,
   subscriptions,
 })
@@ -140,7 +146,6 @@ const controls = createControls({
   get accessibility() {
     return accessibility
   },
-  accessibleHost,
 })
 
 const textElements = createTextElements({
@@ -205,7 +210,9 @@ const nodes = createNodes({
     return projection
   },
   layout,
-  accessibleHost,
+  get accessibility() {
+    return accessibility
+  },
 })
 
 const nativeStyle = createNativeStyle({
@@ -245,6 +252,7 @@ const pointerStyle = createPointerStyle({
 })
 
 const accessibility = createAccessibility({
+  state: accessibilityState,
   accessibleHost,
 })
 
@@ -355,10 +363,10 @@ const measurements = createMeasurements({
 })
 
 const automation = createAutomation({
+  accessibilityState,
   directory,
   measurements,
   cssCascade,
-  accessibleHost,
   actions,
   hover,
   popover,
@@ -409,7 +417,6 @@ function initializeRuntime() {
     applyStyle: cssCascade.setNodeInlineStyle,
     applyClassName: cssCascade.applyClassName,
     applyAccessibility: accessibility.applyAccessibility,
-    wireAction: controls.wireViewAction,
     setAction: actions.setAction,
     setPanAction: actions.setPanAction,
     makeScrollView: controls.makeScrollView,

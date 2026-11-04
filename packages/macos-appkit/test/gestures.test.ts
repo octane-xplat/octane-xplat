@@ -310,7 +310,7 @@ test('AppKit pan target normalizes flipped Y, delivers pan plus swipe, and suppr
   f.node.props.onSwipe = undefined
   f.setPanAction(f.node)
   assert.equal(f.node.panGestureRecognizer.enabled, false)
-  assert.equal(f.handlers.get(f.node.view), null)
+  assert.equal(f.handlers.get(f.node.view), undefined)
 })
 
 test('primary press callbacks guard disabled state even when a native action is already queued', () => {
