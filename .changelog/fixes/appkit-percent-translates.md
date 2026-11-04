@@ -6,4 +6,4 @@ Percentage translations now retain the CSS engine's resolved value and follow ch
 <masonview style={{ width: 120, height: 80, translateX: '25%' }} />
 ```
 
-See [macOS renderer setup](https://octane-xplat.dev/packages/macos-appkit).
+See [macOS renderer setup](https://octane-xplat.goddardai.org/package-macos-appkit).

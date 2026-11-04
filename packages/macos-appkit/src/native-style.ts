@@ -1,16 +1,12 @@
+import type { BoxPaint } from './box-paint'
 import { parseEdgeInsets, effectiveStyle, nodeClasses } from './style-values.ts'
 import type { TextElements } from './text-elements'
 import type { InputElements } from './input-elements'
 import type { Registry } from './registry'
 import type { Layout } from './layout'
 import type { CssCascade } from './css-cascade'
-import type { BackgroundPaint } from './background-paint'
 import type { AccessibleHost } from './accessible-host'
 import type { PointerStyle } from './pointer-style'
-import type { Outlines } from './outlines'
-import type { BorderPaint } from './border-paint'
-import type { TransformPaint } from './transform-paint'
-import type { ShadowPaint } from './shadow-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -32,28 +28,9 @@ interface Dependencies {
   registry: Pick<Registry, 'isManualLayoutParent' | 'behaviorOf'>
   layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'>
   cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'applyClassName'>
-  backgroundPaint: Pick<BackgroundPaint, 'BACKGROUND_STYLE_KEYS' | 'syncBackgrounds'>
   accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
   pointerStyle: Pick<PointerStyle, 'syncCursor' | 'syncUserSelect'>
-  outlines: Pick<Outlines, 'syncOutline'>
-  borderPaint: Pick<
-    BorderPaint,
-    | 'BORDER_RADIUS_KEYS'
-    | 'clearBorderSlot'
-    | 'BORDER_WIDTH_KEYS'
-    | 'BORDER_COLOR_KEYS'
-    | 'BORDER_EDGE_KEYS'
-    | 'clearBorderEdge'
-    | 'BORDER_STYLE_KEYS'
-    | 'syncBorderBox'
-    | 'setBorderSlot'
-    | 'setBorderEdge'
-  >
-  transformPaint: Pick<
-    TransformPaint,
-    'syncBoxGeometry' | 'TRANSFORM_KEYS' | 'TRANSFORM_SLOT' | 'translateAxisValue'
-  >
-  shadowPaint: Pick<ShadowPaint, 'parseBoxShadow'>
+  boxPaint: Pick<BoxPaint, 'applyBoxStyle' | 'isPaintStyle'>
 }
 
 export type NativeStyle = ReturnType<typeof createNativeStyle>
@@ -66,14 +43,6 @@ export function createNativeStyle(deps: Dependencies) {
     ['paddingLeft', ['left']],
     ['paddingVertical', ['top', 'bottom']],
     ['paddingHorizontal', ['left', 'right']],
-  ])
-
-  const OUTLINE_PROPS = new Set([
-    'outline',
-    'outlineWidth',
-    'outlineStyle',
-    'outlineColor',
-    'outlineOffset',
   ])
 
   // CSS owns the theme palette. Unstyled controls use AppKit semantic colors,
@@ -396,8 +365,8 @@ export function createNativeStyle(deps: Dependencies) {
       node.type,
     )
 
-    if (deps.backgroundPaint.BACKGROUND_STYLE_KEYS.has(name)) {
-      deps.backgroundPaint.syncBackgrounds(node)
+    if (deps.boxPaint.isPaintStyle(name)) {
+      return
     } else if (name === 'selectedBackgroundColor' && node.type === 'segmentedbar') {
       view.selectedSegmentBezelColor = nativeColor('#0000ff')
     } else if (name === 'pointerEvents') {
@@ -431,8 +400,6 @@ export function createNativeStyle(deps: Dependencies) {
       if (['label', 'htmlview'].includes(node.type)) {
         deps.pointerStyle.syncUserSelect(node)
       }
-    } else if (OUTLINE_PROPS.has(name)) {
-      deps.outlines.syncOutline(node)
     } else if (name === 'padding' && node.type === 'label') {
       node.stylePaddingBox = undefined
       node.stylePaddingEdges = undefined
@@ -462,19 +429,6 @@ export function createNativeStyle(deps: Dependencies) {
     } else if (name === 'backgroundColor') {
       node.styleBg = undefined
       syncNativeColors(node)
-    } else if (deps.borderPaint.BORDER_RADIUS_KEYS[name] != null) {
-      deps.borderPaint.clearBorderSlot(node, 'radii', deps.borderPaint.BORDER_RADIUS_KEYS[name])
-    } else if (deps.borderPaint.BORDER_WIDTH_KEYS[name] != null) {
-      deps.borderPaint.clearBorderSlot(node, 'widths', deps.borderPaint.BORDER_WIDTH_KEYS[name])
-    } else if (deps.borderPaint.BORDER_COLOR_KEYS[name] != null) {
-      deps.borderPaint.clearBorderSlot(node, 'colors', deps.borderPaint.BORDER_COLOR_KEYS[name])
-    } else if (deps.borderPaint.BORDER_EDGE_KEYS[name] != null) {
-      deps.borderPaint.clearBorderEdge(node, deps.borderPaint.BORDER_EDGE_KEYS[name])
-    } else if (deps.borderPaint.BORDER_STYLE_KEYS.has(name)) {
-      deps.borderPaint.syncBorderBox(node)
-    } else if (name === 'boxShadow') {
-      node.boxShadowSpec = undefined
-      deps.transformPaint.syncBoxGeometry(node)
     } else if (name === 'cornerShape') {
       if (view.layer) {
         view.layer.cornerCurve = 'circular'
@@ -495,12 +449,6 @@ export function createNativeStyle(deps: Dependencies) {
       if (deps.registry.isManualLayoutParent(resetParent?.type)) {
         deps.layout.queueLayoutReconcile(node.container, resetParent)
       }
-    } else if (deps.transformPaint.TRANSFORM_KEYS.has(name)) {
-      if (node.transformSpec) {
-        delete node.transformSpec[deps.transformPaint.TRANSFORM_SLOT[name] ?? name]
-      }
-
-      deps.transformPaint.syncBoxGeometry(node)
     } else if (name === 'zIndex') {
       if (view.layer) {
         view.layer.zPosition = 0
@@ -538,8 +486,8 @@ export function createNativeStyle(deps: Dependencies) {
         continue
       }
 
-      if (deps.backgroundPaint.BACKGROUND_STYLE_KEYS.has(name)) {
-        deps.backgroundPaint.syncBackgrounds(node)
+      if (deps.boxPaint.isPaintStyle(name)) {
+        continue
       } else if (name === 'overflow' || name === 'overflowX' || name === 'overflowY') {
         // Resolve both axes together after the complete style is applied.
         continue
@@ -621,13 +569,6 @@ export function createNativeStyle(deps: Dependencies) {
         node.bgApplied = true
         node.view.wantsLayer = true
         node.view.layer.backgroundColor = nativeColor(value).CGColor
-      } else if (deps.borderPaint.BORDER_RADIUS_KEYS[name] != null && node.view) {
-        deps.borderPaint.setBorderSlot(
-          node,
-          'radii',
-          deps.borderPaint.BORDER_RADIUS_KEYS[name],
-          value,
-        )
       } else if (name === 'cornerShape' && node.view) {
         node.view.wantsLayer = true
         node.view.layer.cornerCurve = value === 'squircle' ? 'continuous' : 'circular'
@@ -650,14 +591,6 @@ export function createNativeStyle(deps: Dependencies) {
         deps.registry.isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
       ) {
         deps.layout.queueLayoutReconcile(node.container, node.parent)
-      } else if (deps.transformPaint.TRANSFORM_KEYS.has(name) && node.view) {
-        const spec = (node.transformSpec ??= {})
-        spec[deps.transformPaint.TRANSFORM_SLOT[name] ?? name] =
-          name === 'translateX' || name === 'translateY'
-            ? deps.transformPaint.translateAxisValue(value)
-            : value
-
-        deps.transformPaint.syncBoxGeometry(node)
       } else if (name === 'zIndex' && node.view) {
         node.view.wantsLayer = true
         node.view.layer.zPosition = Number(value) || 0
@@ -687,8 +620,6 @@ export function createNativeStyle(deps: Dependencies) {
         if (['label', 'htmlview'].includes(node.type)) {
           deps.pointerStyle.syncUserSelect(node)
         }
-      } else if (OUTLINE_PROPS.has(name) && node.view) {
-        deps.outlines.syncOutline(node)
       } else if (name === 'textDecoration' && node.type === 'label' && node.view) {
         deps.textElements.setLabelText(node, String(node.view.stringValue ?? ''))
       } else if (
@@ -697,27 +628,6 @@ export function createNativeStyle(deps: Dependencies) {
       ) {
         // Apply paragraph settings after all declarations settle.
         continue
-      } else if (deps.borderPaint.BORDER_WIDTH_KEYS[name] != null && node.view) {
-        deps.borderPaint.setBorderSlot(
-          node,
-          'widths',
-          deps.borderPaint.BORDER_WIDTH_KEYS[name],
-          value,
-        )
-      } else if (deps.borderPaint.BORDER_COLOR_KEYS[name] != null && node.view) {
-        deps.borderPaint.setBorderSlot(
-          node,
-          'colors',
-          deps.borderPaint.BORDER_COLOR_KEYS[name],
-          value,
-        )
-      } else if (deps.borderPaint.BORDER_EDGE_KEYS[name] != null && node.view) {
-        deps.borderPaint.setBorderEdge(node, deps.borderPaint.BORDER_EDGE_KEYS[name], value)
-      } else if (name === 'boxShadow' && node.view) {
-        node.boxShadowSpec = deps.shadowPaint.parseBoxShadow(value)
-        deps.transformPaint.syncBoxGeometry(node)
-      } else if (deps.borderPaint.BORDER_STYLE_KEYS.has(name) && node.view) {
-        deps.borderPaint.syncBorderBox(node)
       } else if (deps.layout.MARGIN_SIDES[name] || name === 'margin') {
         deps.layout.setMarginStyle(node, name, value)
       } else if (
@@ -788,6 +698,7 @@ export function createNativeStyle(deps: Dependencies) {
       }
     }
 
+    deps.boxPaint.applyBoxStyle(node, prev, next)
     node.appliedStyle = next
     if (node.type === 'label') {
       const needsAlignment = ['textAlign', 'direction'].some(

@@ -1,3 +1,4 @@
+import type { BorderSpec } from './box-paint-state'
 import { nodeClasses, effectiveStyle } from './style-values.ts'
 import type { ElementNode, RootContainer, PropBag } from './model'
 import { NSColor, NSAttributedString, NSFontAttributeName, NSForegroundColorAttributeName } from '@octane-xplat/platform/macos'
@@ -8,11 +9,12 @@ interface ParityDependencies {
   borderLength(value: unknown): number
   borderRadiusPoints(value: unknown, width: number, height: number): number
   borderNSColor(node: ElementNode, value: unknown): NSColor | null
+  borderSpecForNode(node: ElementNode): BorderSpec | undefined
   appKitContainers: Set<RootContainer>
 }
 
 /** Read renderer state through its owner; measurements retain no roots of their own. */
-export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, appKitContainers }: ParityDependencies) {
+export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, borderSpecForNode, appKitContainers }: ParityDependencies) {
   const round = (value: number) => Math.round(value * 100) / 100
 
   function descendants(node: ElementNode, out: ElementNode[] = []) {
@@ -111,7 +113,7 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
       }
 
       if (facet === 'borderTopWidth') {
-        const declared = node.borderSpec?.widths?.top
+        const declared = borderSpecForNode(node)?.widths?.top
         if (declared != null) {
           value = borderLength(declared)
         } else if (view?.layer) {
@@ -120,7 +122,7 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
       }
 
       if (facet === 'borderTopColor') {
-        const declared = node.borderSpec?.colors?.top
+        const declared = borderSpecForNode(node)?.colors?.top
         const color =
           declared != null
             ? borderNSColor(node, declared)
@@ -134,7 +136,7 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
       }
 
       if (facet === 'borderTopLeftRadius') {
-        const declared = node.borderSpec?.radii?.topLeft
+        const declared = borderSpecForNode(node)?.radii?.topLeft
         if (declared != null && view) {
           const size = view.frame?.size ?? { width: 0, height: 0 }
           value = borderRadiusPoints(declared, Number(size.width) || 0, Number(size.height) || 0)

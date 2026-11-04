@@ -40,8 +40,7 @@ function fixture() {
     controls: services(['disposeBuiltinActivityIndicator', 'disposeBuiltinScrollView']),
     imageElements: services(['disposeBuiltinImage']),
     tree: { detach: () => run('detach') },
-    backgroundPaint: { clearBackgrounds: () => run('paint') },
-    borderPaint: { clearBoxFrameObserver: () => run('frame') },
+    boxPaint: { dispose: () => run('paint') },
     layout: { layoutHandlers: new WeakMap() },
     accessibleHost: { accessibilityLabels: new Map(), accessibilityRoles: new Map() },
     actions: { nextActionId: 1, actionHandlers: new Map(), actionIdsByView: new WeakMap(), panHandlersByView: new WeakMap() },
@@ -61,7 +60,7 @@ function fixture() {
   return { deps, nodes, node, trace, injected, container, run }
 }
 
-for (const stage of ['focus', 'keys', 'prepare', 'disposeBuiltinListView', 'detach', 'disposeBuiltinTextInput', 'paint', 'frame']) {
+for (const stage of ['focus', 'keys', 'prepare', 'disposeBuiltinListView', 'detach', 'disposeBuiltinTextInput', 'paint']) {
   test('node cleanup continues after ' + stage + ' and reentry cannot repeat it', () => {
     const fx = fixture()
     const failure = Error(stage)
@@ -73,7 +72,7 @@ for (const stage of ['focus', 'keys', 'prepare', 'disposeBuiltinListView', 'deta
     assert.equal(fx.deps.actions.actionHandlers.size, 0)
     assert.equal(fx.deps.registry.cssNodesByView.has(fx.node.view), false)
     assert.equal(fx.deps.registry.nodeContainersByView.has(fx.node.view), false)
-    assert.equal(fx.trace.at(-1), 'frame')
+    assert.equal(fx.trace.at(-1), 'paint')
     const count = fx.trace.length
     fx.nodes.destroy(fx.node)
     assert.equal(fx.trace.length, count)
@@ -90,7 +89,7 @@ test('multiple cleanup errors retain values and labels while later identity clea
   assert.throws(() => fx.nodes.destroy(fx.node), error => {
     assert.ok(error instanceof PhaseErrors)
     assert.deepEqual(error.errors, [first, second, third])
-    assert.deepEqual(error.failures.map(failure => failure.phase), ['destroy hook 0', 'background paint', 'AX label identity'])
+    assert.deepEqual(error.failures.map(failure => failure.phase), ['destroy hook 0', 'box paint', 'AX label identity'])
     return true
   })
   assert.ok(fx.trace.includes('next hook'))
@@ -206,15 +205,15 @@ test('content preparation failure cannot skip sibling detachment or the host ide
 
 test('paint cleanup retires every image release before reentry and still detaches its host', () => {
   const fx = fixture()
-  const paint = createBackgroundPaint(fx.deps)
+  const paint = createBackgroundPaint()
   const failure = Error('image release')
   fx.node.bgPainted = [
-    { release() { fx.run('image one'); paint.clearBackgrounds(fx.node); throw failure } },
+    { release() { fx.run('image one'); paint.clearBackgrounds(fx.node, fx.node); throw failure } },
     { release() { fx.run('image two') } },
   ]
   fx.node.bgHost = { removeFromSuperlayer: () => fx.run('paint host') }
-  assert.throws(() => paint.clearBackgrounds(fx.node), error => error === failure)
-  paint.clearBackgrounds(fx.node)
+  assert.throws(() => paint.clearBackgrounds(fx.node, fx.node), error => error === failure)
+  paint.clearBackgrounds(fx.node, fx.node)
   assert.deepEqual(fx.trace, ['image one', 'image two', 'paint host'])
   assert.equal(fx.node.bgPainted, undefined)
 })

@@ -1,3 +1,4 @@
+import { createBoxPaint } from './box-paint'
 import { createCssAnimations } from './css-animations'
 import { createPickerElements } from './picker-elements'
 import { createHostedElements } from './hosted-elements'
@@ -30,11 +31,6 @@ import { createNodes } from './nodes'
 import { createNativeStyle } from './native-style'
 import { createCssCascade } from './css-cascade'
 import { createPointerStyle } from './pointer-style'
-import { createOutlines } from './outlines'
-import { createBackgroundPaint } from './background-paint'
-import { createBorderPaint } from './border-paint'
-import { createShadowPaint } from './shadow-paint'
-import { createTransformPaint } from './transform-paint'
 import { createAccessibility } from './accessibility'
 import { createElementProps } from './element-props'
 import { createProjection } from './projection'
@@ -52,15 +48,11 @@ import { createAutomation } from './automation'
 import { createMeasurements } from './measurements'
 
 const registry = createRegistry()
+const boxPaint = createBoxPaint()
 
 const roots = createRoots({
+  boxPaint,
   registry,
-  get borderPaint() {
-    return borderPaint
-  },
-  get shadowPaint() {
-    return shadowPaint
-  },
   get driver() {
     return driver
   },
@@ -180,6 +172,7 @@ const imageElements = createImageElements({
 })
 
 const nodes = createNodes({
+  boxPaint,
   get cssAnimations() {
     return cssAnimations
   },
@@ -213,17 +206,12 @@ const nodes = createNodes({
   get projection() {
     return projection
   },
-  get backgroundPaint() {
-    return backgroundPaint
-  },
-  get borderPaint() {
-    return borderPaint
-  },
   layout,
   accessibleHost,
 })
 
 const nativeStyle = createNativeStyle({
+  boxPaint,
   textElements,
   inputElements,
   registry,
@@ -231,24 +219,9 @@ const nativeStyle = createNativeStyle({
   get cssCascade() {
     return cssCascade
   },
-  get backgroundPaint() {
-    return backgroundPaint
-  },
   accessibleHost,
   get pointerStyle() {
     return pointerStyle
-  },
-  get outlines() {
-    return outlines
-  },
-  get borderPaint() {
-    return borderPaint
-  },
-  get transformPaint() {
-    return transformPaint
-  },
-  get shadowPaint() {
-    return shadowPaint
   },
 })
 
@@ -271,37 +244,6 @@ const pointerStyle = createPointerStyle({
   get hover() {
     return hover
   },
-})
-
-const outlines = createOutlines({
-  get borderPaint() {
-    return borderPaint
-  },
-})
-
-const backgroundPaint = createBackgroundPaint({
-  get borderPaint() {
-    return borderPaint
-  },
-})
-
-const borderPaint = createBorderPaint({
-  get transformPaint() {
-    return transformPaint
-  },
-  get shadowPaint() {
-    return shadowPaint
-  },
-})
-
-const shadowPaint = createShadowPaint({
-  borderPaint,
-})
-
-const transformPaint = createTransformPaint({
-  borderPaint,
-  shadowPaint,
-  backgroundPaint,
 })
 
 const accessibility = createAccessibility({
@@ -421,7 +363,7 @@ const automation = createAutomation({
 
 const measurements = createMeasurements({
   textElements,
-  borderPaint,
+  boxPaint,
   roots,
 })
 

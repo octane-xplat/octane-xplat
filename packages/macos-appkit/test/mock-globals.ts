@@ -53,6 +53,8 @@ export function sourceWithoutImports(url: URL) {
 }
 
 const SLICE_BASE = {
+  setTimeout,
+  clearTimeout,
   withLayoutBatch,
   FailureCollector,
   normalizeHostStyleProps,
@@ -161,6 +163,9 @@ if (typeof stylesheetScope === 'undefined') var stylesheetScope = () => ({ query
 if (typeof INHERITED_CSS_PROPERTIES === 'undefined') var INHERITED_CSS_PROPERTIES = new Set(['color','font-size','font-weight','font-family','font-style','line-height','letter-spacing','text-align','text-transform','white-space','direction'])
 globalThis.appKitBridge ??= {}
 globalThis.clearBackgrounds ??= () => {}
+globalThis.disposeBoxPaint ??= () => {}
+globalThis.isPaintStyle ??= () => false
+globalThis.applyBoxStyle ??= () => {}
 globalThis.placeholderSignatureByField ??= new WeakMap()
 globalThis.BACKGROUND_STYLE_KEYS ??= new Set(['background','backgroundImage','backgroundRepeat','backgroundPosition','backgroundSize','backgroundOrigin','backgroundClip','backgroundAttachment','backgroundBlendMode'])
 if (typeof nodeScheme === 'undefined') var nodeScheme = () => 'light'

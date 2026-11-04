@@ -17,6 +17,21 @@ bun run --filter @xplat/macos test:layout-placement
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
 
+The packed `Paint.macos.tsx`/`paint-lifecycle.ts` fixture checks percentage and
+point translations after native layout, percentage radii, per-corner/banded
+border hosts, outset/inset shadow layers, layered image/gradient backgrounds,
+outline bounds expansion after resize, projection radius compensation, style
+removal and retirement. Repeated updates retain one layer host per feature;
+posting a native frame notification after retirement cannot recreate paint.
+These are native geometry and resource-lifetime assertions, not visual parity.
+Observer acquisition/reentry/failing-release balances use the production
+coordinator with native-boundary stand-ins; this is not a global native observer
+inventory or whole-process leak-freedom check.
+
+```sh
+bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
+```
+
 The packed renderer's `Dock.macos.tsx` fixture checks CSS absolute edge
 placement, percentages, resizing, keyed identity, and subtree cleanup. Its
 siblings share the containing block; they do not consume space sequentially

@@ -63,7 +63,7 @@ export interface ElementNode {
   // sizeConstraints, placementPins, styleBg,
   // layoutObserver, scrollObserver, scheme, textRuns, appliedStyle,
   // styleFont*/propFontSize, stylePaddingBox/Edges, styleVisibility,
-  // gradientLayer/gradientObserver, borderSpec, ...
+  // Paint resources live in the box-paint coordinator, not this extension bag.
   [key: string]: any
 }
 

@@ -1,3 +1,4 @@
+import { checkPaintLifecycle } from './paint-lifecycle'
 import { checkActionBarLifecycle } from './actionbar-lifecycle'
 import { checkListViewLifecycle } from './listview-lifecycle'
 import { checkTabLifecycle, checkImperativeTabLifecycle } from './tab-lifecycle'
@@ -330,6 +331,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               } finally {
                 listViewRoot.unmount()
               }
+
+              const paintRoot = createMacOSRoot(nativeWindow.contentView)
+              try { await checkPaintLifecycle(paintRoot, nativeWindow) } finally { paintRoot.unmount() }
 
               console.log('PACKED_RENDERER_OK')
             } catch (error) {

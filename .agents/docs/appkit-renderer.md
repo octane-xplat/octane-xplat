@@ -16,7 +16,7 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
-| Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
+| Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `box-paint.ts`, `box-paint-state.ts`, `box-geometry.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
 | Element creation, props and disposal | `container-elements.ts`, `controls.ts`, `picker-elements.ts`, `input-elements.ts`, `text-elements.ts`, `image-elements.ts`, `hosted-elements.ts` |
 | Generic prop merging and removal | `element-props.ts` |
 | Actions, subscriptions and accessibility | `actions.ts`, `subscriptions.ts`, `hover.ts`, `accessible-host.ts`, `accessibility.ts` |
@@ -87,9 +87,41 @@ The element modules group creation, prop handlers and disposal, but generic
 dispatch and cleanup ordering still live in `nodes.ts` and `element-props.ts`.
 Preserve those phases when changing the dispatch model: text layout retires
 before destruction hooks, nested content detaches before native hosts disappear,
-and every cleanup path must tolerate partially constructed nodes. The paint
-services likewise still share geometry coordination and node-owned layer fields;
-their module boundaries do not establish independent lifecycles.
+and every cleanup path must tolerate partially constructed nodes.
+
+Box painting has one coordinator in `box-paint.ts`. Its private WeakMap holds
+one typed record per node/view, including frame observation, layers and image
+leases. Nodes call one paint disposer after generic detach; they do not inspect
+paint resources. The coordinator is constructed before roots and style services,
+so those consumers receive a direct reference.
+
+Border, shadow, transform, background and outline writers receive that typed
+record. They share only stateless geometry/color helpers from `box-geometry.ts`;
+no writer calls another writer's service. Native style handles the full prop bag
+and passes the previous/next paint styles to the coordinator, including the
+animation overlay. Geometry delivery orders border, shadow, transform,
+background and outline updates. Projection compensation deliberately updates
+only border and shadow, preserving an already-applied transform.
+
+Frame acquisition suppresses synchronous setup callbacks until ready. Delivery
+checks current node/view/record identity and retirement; reentrant delivery during
+paint is inert. Frame delivery also coalesces a cancellable next-turn repaint:
+AppKit can overwrite the backing-layer transform after its notification returns,
+and bridge microtasks can drain before that native write finishes. Active
+transforms retain the lease even when their lengths are points. A replacement
+view retires the previous record before acquisition.
+Outline geometry still reads bounds, expands by width plus offset, and responds
+to frame notifications (including origin-only deliveries); it does not add a
+bounds-notification contract. Its geometry callback shares the box frame lease.
+Disposal retires the record before independent releases and restores the captured
+layer slots even after a release error. An OS release that throws may remain
+unreleased; disposal never retries it.
+
+Background image entries own independent cancellation and active guards. Reusing
+a URL entry retains its request; replacing its URL releases it. Late completion
+checks entry activity and current paint ownership before writing. Percentage
+translations may already be normalized by CSS or keyframes; preserve their
+fraction/unit pair and their frame dependency rather than reparsing the object.
 
 Nodes progress through constructing, live, disposing and disposed. Disposal
 retires dispatch first and snapshots/removes destruction hooks before invoking

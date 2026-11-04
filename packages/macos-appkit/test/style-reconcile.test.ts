@@ -92,6 +92,7 @@ function view({ orientation } = {}) {
     cell: { lineBreakMode: 0 },
     layer: {
       ...fakeCALayer(),
+      masksToBounds: false,
       setValueForKeyPath(key, value) {
         this['kvc:' + key] = value
       },
@@ -348,6 +349,7 @@ const sandbox = {
 }
 
 const {
+  paintState,
   setLayoutProjectionScale,
   applyStyle,
   setNodeInlineStyle,
@@ -359,7 +361,7 @@ const {
 } = runSlice(
   slices.join('\n') +
     source.slice(source.indexOf('function applyProps'), source.indexOf('function detach')) +
-    '\n({ setLayoutProjectionScale, applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
+    '\n({ paintState: node => boxPaintStates.get(node), setLayoutProjectionScale, applyStyle, setNodeInlineStyle, applyClassName, applyProps, nodeClasses, flushStyleDirty, markStyleDirty })',
   sandbox,
 )
 
@@ -830,13 +832,13 @@ test('per-side borders draw through masked shape layers and reset cleanly', () =
   setStyle(item, { borderTopWidth: 2, borderBottomWidth: 4, borderColor: '#ff0000' })
 
   assert.equal(item.view.layer.borderWidth, 0, 'per-side widths leave the collapsed slot alone')
-  const box = item.borderLayer
+  const box = paintState(item).borderLayer
   assert.ok(box, 'border layer installed under the sublayers')
   assert.equal(box.sublayers.length, 4)
   assert.equal(item.view.layer.sublayers[0], box)
   assert.equal(item.view.postsFrameChangedNotifications, true)
 
-  const top = item.borderSides.top
+  const top = paintState(item).borderSides.top
   assert.deepEqual(top.path.ops, [
     ['M', 0, 40],
     ['L', 100, 40],
@@ -845,11 +847,11 @@ test('per-side borders draw through masked shape layers and reset cleanly', () =
     ['Z'],
   ])
   assert.deepEqual({ ...top.fillColor }, { r: 1, g: 0, b: 0, a: 1 })
-  assert.equal(item.borderSides.left.hidden, true)
-  assert.equal(item.borderSides.bottom.hidden, false)
+  assert.equal(paintState(item).borderSides.left.hidden, true)
+  assert.equal(paintState(item).borderSides.bottom.hidden, false)
 
   setStyle(item, {})
-  assert.equal(item.borderLayer, null)
+  assert.equal(paintState(item).borderLayer, null)
   assert.equal(item.view.layer.sublayers.length, 0)
   assert.equal(frameObservers.length, 0, 'frame observer released with the borders')
 })
@@ -860,7 +862,7 @@ test('uniform borders keep the single CALayer fast path', () => {
 
   assert.equal(item.view.layer.borderWidth, 2)
   assert.deepEqual({ ...item.view.layer.borderColor }, { r: 1, g: 0, b: 0, a: 1 })
-  assert.equal(item.borderLayer, null, 'no shape layers for a uniform border')
+  assert.equal(paintState(item).borderLayer, null, 'no shape layers for a uniform border')
   assert.equal(item.view.postsFrameChangedNotifications, false)
 })
 
@@ -901,7 +903,7 @@ test('border shorthand feeds width and color slots', () => {
 
   setStyle(item, { border: '1px solid #00ff00', borderRight: '2px dashed #0000ff' })
   assert.equal(item.view.layer.borderWidth, 0, 'non-uniform sides go through layers')
-  const right = item.borderSides.right
+  const right = paintState(item).borderSides.right
   assert.deepEqual(right.mask.path.ops, [
     ['M', 100, 50],
     ['L', 100, 0],
@@ -915,7 +917,7 @@ test('border shorthand feeds width and color slots', () => {
 
   setStyle(item, { border: 0 })
   assert.equal(item.view.layer.borderWidth, 0)
-  assert.equal(item.borderLayer, null)
+  assert.equal(paintState(item).borderLayer, null)
 })
 
 test('inset borders paint shaded fill bands per side without a solid fallback warning', () => {
@@ -934,10 +936,10 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
   assert.ok(!warnings.some((m) => String(m).includes('Unsupported decorative border style')))
   assert.equal(item.view.layer.borderWidth, 0, 'banded styles still take the layered path')
   for (const side of ['top', 'right', 'bottom', 'left']) {
-    assert.equal(item.borderSides[side].hidden, false)
-    assert.equal((item.borderBandShapes?.[side] ?? []).length, 0, `no extra band shapes on ${side}`)
+    assert.equal(paintState(item).borderSides[side].hidden, false)
+    assert.equal((paintState(item).borderBandShapes?.[side] ?? []).length, 0, `no extra band shapes on ${side}`)
   }
-  assert.deepEqual(item.borderSides.top.path.ops, [
+  assert.deepEqual(paintState(item).borderSides.top.path.ops, [
     ['M', 0, 40],
     ['L', 100, 40],
     ['L', 97, 37],
@@ -945,18 +947,18 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
     ['Z'],
   ])
   assert.ok(
-    Math.abs(item.borderSides.top.fillColor.r - 0.67) < 1e-9 &&
-      item.borderSides.top.fillColor.g === 0,
+    Math.abs(paintState(item).borderSides.top.fillColor.r - 0.67) < 1e-9 &&
+      paintState(item).borderSides.top.fillColor.g === 0,
     'top shades dark',
   )
-  assert.ok(Math.abs(item.borderSides.left.fillColor.r - 0.67) < 1e-9, 'left shades dark')
+  assert.ok(Math.abs(paintState(item).borderSides.left.fillColor.r - 0.67) < 1e-9, 'left shades dark')
   assert.deepEqual(
-    { ...item.borderSides.bottom.fillColor },
+    { ...paintState(item).borderSides.bottom.fillColor },
     { r: 1, g: 0, b: 0, a: 1 },
     'bottom keeps the base color',
   )
   assert.deepEqual(
-    { ...item.borderSides.right.fillColor },
+    { ...paintState(item).borderSides.right.fillColor },
     { r: 1, g: 0, b: 0, a: 1 },
     'right keeps the base color',
   )
@@ -968,18 +970,18 @@ test('double borders paint two bands per side and retire the extras with the sty
   item.view.frame.size.height = 40
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
   for (const side of ['top', 'right', 'bottom', 'left']) {
-    assert.equal(item.borderBandShapes[side].length, 1, `one extra band on ${side}`)
-    assert.equal(item.borderBandShapes[side][0].hidden, false)
+    assert.equal(paintState(item).borderBandShapes[side].length, 1, `one extra band on ${side}`)
+    assert.equal(paintState(item).borderBandShapes[side][0].hidden, false)
   }
 
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'solid' })
-  assert.equal(item.borderLayer, null, 'uniform solid restores the fast path')
-  assert.equal(item.borderBandShapes, undefined)
+  assert.equal(paintState(item).borderLayer, null, 'uniform solid restores the fast path')
+  assert.equal(paintState(item).borderBandShapes, undefined)
 
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
-  const extras = item.borderBandShapes
+  const extras = paintState(item).borderBandShapes
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'dashed' })
-  assert.equal(item.borderStroke.hidden, false, 'uniform dashed strokes through borderStroke')
+  assert.equal(paintState(item).borderStroke.hidden, false, 'uniform dashed strokes through borderStroke')
   for (const side of ['top', 'right', 'bottom', 'left']) {
     assert.equal(extras[side][0].hidden, true)
   }
@@ -1002,7 +1004,7 @@ test('an unknown decorative border style warns once and paints solid', () => {
     1,
   )
   assert.equal(item.view.layer.borderWidth, 2, 'uniform fallback paints through the CALayer slot')
-  assert.equal(item.borderLayer, null)
+  assert.equal(paintState(item).borderLayer, null)
   assert.deepEqual({ ...item.view.layer.borderColor }, { r: 1, g: 0, b: 0, a: 1 })
 })
 
@@ -1011,10 +1013,10 @@ test('clearing a banded border removes the extra band shapes', () => {
   item.view.frame.size.width = 100
   item.view.frame.size.height = 40
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
-  assert.ok(item.borderBandShapes?.top?.length)
+  assert.ok(paintState(item).borderBandShapes?.top?.length)
   setStyle(item, {})
-  assert.equal(item.borderBandShapes, undefined)
-  assert.equal(item.borderLayer, null)
+  assert.equal(paintState(item).borderBandShapes, undefined)
+  assert.equal(paintState(item).borderLayer, null)
 })
 
 test('CSS border-radius and border-width arrive as per-corner and per-side longhands', () => {
@@ -1029,7 +1031,7 @@ test('CSS border-radius and border-width arrive as per-corner and per-side longh
   assert.equal(item.computedStyle.borderTopRightRadius, 8)
   assert.equal(item.computedStyle.borderTopWidth, 1)
   assert.equal(item.computedStyle.borderRightWidth, 2)
-  assert.equal(item.borderLayer != null, true, 'non-uniform sides layer the border')
+  assert.equal(paintState(item).borderLayer != null, true, 'non-uniform sides layer the border')
   assert.equal(item.view.layer.mask != null, true, 'per-corner radii clip through a mask')
 })
 
@@ -1057,9 +1059,9 @@ test('inset box-shadow paints a wall-hole shape carrying real blur', () => {
   item.view.frame.size.height = 50
   setStyle(item, { boxShadow: 'inset 0 0 6px 2px rgba(0, 0, 0, 0.3)' })
 
-  const host = item.insetShadowHost
+  const host = paintState(item).insetShadowHost
   assert.ok(host, 'inset shadow host installed')
-  const shape = item.insetShadowShapes?.[0]
+  const shape = paintState(item).insetShadowShapes?.[0]
   assert.ok(shape, 'one shape per inset shadow')
   assert.equal(shape.fillRule, 'even-odd')
   assert.ok(shape.path.ops.length > 9, 'outer wall + inner hole recorded')
@@ -1068,7 +1070,7 @@ test('inset box-shadow paints a wall-hole shape carrying real blur', () => {
   assert.equal(item.view.layer.shadowOpacity ?? 0, 0, 'no outset shadow applied')
 
   setStyle(item, { boxShadow: 'none' })
-  assert.equal(item.insetShadowHost, null)
+  assert.equal(paintState(item).insetShadowHost, null)
 })
 
 test('transform shorthand composes translate/rotate/scale onto the layer', () => {
@@ -1088,7 +1090,7 @@ test('transform shorthand composes translate/rotate/scale onto the layer', () =>
 
   setStyle(item, {})
   assert.equal(item.view.layer.transform?.identity, true)
-  assert.equal(item.transformApplied, false)
+  assert.equal(paintState(item).transformApplied, false)
 })
 
 test('projection scales authored radii and shadows without overwriting style reconciliation', () => {
@@ -1206,11 +1208,11 @@ test('uniform dashed borders use one rounded stroke, resize and release back to 
   const item = node('masonview')
   item.view.frame.size = { width: 120, height: 60 }
   setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8, borderStyle: 'dashed' })
-  const shape = item.borderStroke,
-    box = item.borderLayer,
-    frame = item.boxFrameObserver
+  const shape = paintState(item).borderStroke,
+    box = paintState(item).borderLayer,
+    frame = (paintState(item).frame?.token ?? null)
   assert.equal(item.view.layer.borderWidth, 0)
-  assert.equal(item.borderSides, undefined)
+  assert.equal(paintState(item).borderSides, undefined)
   assert.equal(shape.lineWidth, 2)
   assert.deepEqual([...shape.lineDashPattern], [6, 6])
   assert.equal(shape.lineCap, 'butt')
@@ -1220,12 +1222,12 @@ test('uniform dashed borders use one rounded stroke, resize and release back to 
   assert.deepEqual({ ...shape.frame.size }, { width: 240, height: 80 })
   setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8 })
   assert.equal(item.view.layer.borderWidth, 2)
-  assert.equal(item.borderLayer, null)
-  assert.equal(item.borderStroke, undefined)
-  assert.equal(item.boxFrameObserver, null)
+  assert.equal(paintState(item).borderLayer, null)
+  assert.equal(paintState(item).borderStroke, undefined)
+  assert.equal((paintState(item).frame?.token ?? null), null)
   assert.equal(box.superlayer, null)
   frame()
-  assert.equal(item.borderLayer, null, 'retired callback cannot revive the pattern')
+  assert.equal(paintState(item).borderLayer, null, 'retired callback cannot revive the pattern')
   setStyle(item, {})
 })
 
@@ -1239,8 +1241,8 @@ test('mixed dotted/solid edges keep separate colors, width-scaled caps and side 
     borderRightWidth: 4,
     borderRightColor: '#0000ff',
   })
-  const top = item.borderSides.top,
-    right = item.borderSides.right
+  const top = paintState(item).borderSides.top,
+    right = paintState(item).borderSides.right
   assert.deepEqual([...top.lineDashPattern], [0, 4])
   assert.equal(top.lineCap, 'round')
   assert.ok(top.mask)
@@ -1265,11 +1267,11 @@ test('explicit none/hidden styles hide sides and restore width-only native borde
   setStyle(item, { borderWidth: 2, borderStyle: 'none' })
   assert.equal(item.view.layer.borderWidth, 0)
   setStyle(item, { borderWidth: 2, borderStyle: 'hidden solid' })
-  assert.equal(item.borderSides.top.hidden, true)
-  assert.equal(item.borderSides.right.hidden, false)
+  assert.equal(paintState(item).borderSides.top.hidden, true)
+  assert.equal(paintState(item).borderSides.right.hidden, false)
   setStyle(item, { borderWidth: 2 })
   assert.equal(item.view.layer.borderWidth, 2)
-  assert.equal(item.borderLayer, null)
+  assert.equal(paintState(item).borderLayer, null)
   setStyle(item, {})
 })
 
@@ -1281,12 +1283,12 @@ test('the maintained FileInput dropzone CSS reaches native dash painting and cle
   item.view.frame.size = { width: 200, height: 80 }
   setStyle(item, { '--color-border': '#334455', '--radius-sm': '6px' })
   setClass(item, 'vx-fileinput--dropzone')
-  assert.equal(item.borderStroke.lineWidth, 1)
-  assert.deepEqual([...item.borderStroke.lineDashPattern], [3, 3])
-  assert.equal(item.borderStroke.lineCap, 'butt')
+  assert.equal(paintState(item).borderStroke.lineWidth, 1)
+  assert.deepEqual([...paintState(item).borderStroke.lineDashPattern], [3, 3])
+  assert.equal(paintState(item).borderStroke.lineCap, 'butt')
   setClass(item, '')
-  assert.equal(item.borderLayer, null)
-  assert.equal(item.boxFrameObserver, null)
+  assert.equal(paintState(item).borderLayer, null)
+  assert.equal((paintState(item).frame?.token ?? null), null)
 })
 
 test('the maintained table truncation rule reaches a label and releases its native mode with its class', () => {

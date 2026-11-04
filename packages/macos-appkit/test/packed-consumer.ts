@@ -65,6 +65,8 @@ const oxcVersion = compatibility.packages['@tsrx/oxc'].version
 const fixture = join(packageRoot, 'test/fixtures')
 for (const file of [
   'App.macos.tsx',
+  'Paint.macos.tsx',
+  'paint-lifecycle.ts',
   'Content.macos.tsx',
   'Dock.macos.tsx',
   'Wrap.macos.tsx',
@@ -310,6 +312,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   } else if (liquidGlassOnly) {
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
+    assert.match(output, /PACKED_BOX_PAINT_OK/)
     assert.match(output, /PACKED_CONTEXTMENU_OK/)
     assert.match(output, /PACKED_PICKER_BRIDGE_OK/)
     assert.match(output, /PACKED_STACKLAYOUT_OK/)

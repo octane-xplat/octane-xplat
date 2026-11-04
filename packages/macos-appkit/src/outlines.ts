@@ -1,5 +1,16 @@
+import type { BoxPaintState } from './box-paint-state'
+import type { BorderCorner } from './box-geometry'
+import {
+  BORDER_SIDES,
+  BORDER_CORNERS,
+  resolveBorderRadii,
+  scaleBorderRadii,
+  BORDER_STYLE_WORDS,
+  roundedBoxCGPath,
+  borderStrokeCGPath,
+  borderBandCGPath,
+} from './box-geometry.ts'
 import { effectiveStyle } from './style-values.ts'
-import type { BorderPaint, BorderCorner } from './border-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
 import {
@@ -7,10 +18,8 @@ import {
   CAShapeLayer,
   CGPathCreateMutable,
   NSColor,
-  NSNotificationCenter,
   NSNumber,
   NSView,
-  NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
 import { correctProjectionRadii } from './projection-paint'
 import {
@@ -21,23 +30,9 @@ import {
 } from './border-styles.ts'
 import { srgbComponents } from './color-components'
 
-interface Dependencies {
-  borderPaint: Pick<
-    BorderPaint,
-    | 'scaleBorderRadii'
-    | 'resolveBorderRadii'
-    | 'BORDER_CORNERS'
-    | 'BORDER_STYLE_WORDS'
-    | 'borderStrokeCGPath'
-    | 'BORDER_SIDES'
-    | 'roundedBoxCGPath'
-    | 'borderBandCGPath'
-  >
-}
-
 export type Outlines = ReturnType<typeof createOutlines>
 
-export function createOutlines(deps: Dependencies) {
+export function createOutlines() {
   // `outline`/`outline-*` draws a stroked ring outside the border edge — a
   // CALayer framing the bounds expanded by offset + width. `none` clears it.
   function outlineSpec(style: PropBag) {
@@ -97,23 +92,16 @@ export function createOutlines(deps: Dependencies) {
   // path; dashed/dotted stroke the centered rounded path like uniform-pattern
   // borders; double/groove/ridge/inset/outset paint the same shaded per-side
   // bands borders use, on the expanded box. `none`/`hidden` clear.
-  function syncOutline(node: ElementNode) {
+  function syncOutline(node: ElementNode, state: BoxPaintState) {
     const view = node.view!
-    node.outlineLayer?.removeFromSuperlayer()
-    node.outlineLayer = null
-    node.outlineShapes = undefined
-    node.outlineMask = undefined
-    if (node.outlineObserver) {
-      NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
-      node.outlineObserver = null
-    }
+    clearOutline(node, state)
     const spec = outlineSpec(effectiveStyle(node))
     if (!spec || !view.layer) {
       return
     }
     const layers = typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
     if (!layers && spec.style !== 'solid') {
-      const warned = (node.outlineWarnings ??= new Set<string>())
+      const warned = (state.outlineWarnings ??= new Set<string>())
       if (!warned.has(spec.style)) {
         warned.add(spec.style)
         console.warn('[macos-css] outline layers unavailable; drawing solid')
@@ -123,7 +111,7 @@ export function createOutlines(deps: Dependencies) {
     if (
       !['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'].includes(style)
     ) {
-      const warned = (node.outlineWarnings ??= new Set<string>())
+      const warned = (state.outlineWarnings ??= new Set<string>())
       if (!warned.has(style)) {
         warned.add(style)
         console.warn(
@@ -133,7 +121,7 @@ export function createOutlines(deps: Dependencies) {
     }
     view.wantsLayer = true
     const host = CALayer.alloc().init()
-    node.outlineLayer = host
+    state.outlineLayer = host
     host.backgroundColor = null
     view.layer.addSublayer(host)
     const outline = spec
@@ -144,20 +132,20 @@ export function createOutlines(deps: Dependencies) {
       const W = w + grow * 2
       const H = h + grow * 2
       host.frame = { origin: { x: -grow, y: -grow }, size: { width: W, height: H } }
-      const specBorder = node.borderSpec
-      const scaled = deps.borderPaint.scaleBorderRadii(
+      const specBorder = state.borderSpec
+      const scaled = scaleBorderRadii(
         correctProjectionRadii(
           view,
-          deps.borderPaint.resolveBorderRadii(specBorder?.radii, w, h),
+          resolveBorderRadii(specBorder?.radii, w, h),
           specBorder?.radii,
         ),
         w,
         h,
       )
       const outerRadii = Object.fromEntries(
-        deps.borderPaint.BORDER_CORNERS.map((c) => [c, scaled[c] + grow]),
+        BORDER_CORNERS.map((c) => [c, scaled[c] + grow]),
       ) as Record<BorderCorner, number>
-      if (style === 'solid' || !deps.borderPaint.BORDER_STYLE_WORDS.has(style)) {
+      if (style === 'solid' || !BORDER_STYLE_WORDS.has(style)) {
         host.borderWidth = outline.width
         host.borderColor = outline.color?.CGColor ?? null
         host.cornerRadius = Number(view.layer.cornerRadius) + grow
@@ -168,7 +156,7 @@ export function createOutlines(deps: Dependencies) {
       host.cornerRadius = 0
       const stroke = borderStrokeStyle(style, outline.width)
       if (stroke) {
-        const shape = ((node.outlineShapes ??= {}).stroke ??= CAShapeLayer.alloc().init())
+        const shape = ((state.outlineShapes ??= {}).stroke ??= CAShapeLayer.alloc().init())
         if (shape.superlayer !== host) {
           host.addSublayer(shape)
         }
@@ -180,9 +168,9 @@ export function createOutlines(deps: Dependencies) {
         shape.lineDashPattern = stroke.pattern.map((v) => NSNumber.numberWithDouble(v))
         shape.lineDashPhase = 0
         shape.lineCap = stroke.cap
-        shape.path = deps.borderPaint.borderStrokeCGPath(W, H, outerRadii, outline.width)
-        for (const side of deps.borderPaint.BORDER_SIDES) {
-          for (const extra of node.outlineShapes?.[side] ?? []) {
+        shape.path = borderStrokeCGPath(W, H, outerRadii, outline.width)
+        for (const side of BORDER_SIDES) {
+          for (const extra of state.outlineShapes?.[side] ?? []) {
             extra.hidden = true
           }
         }
@@ -192,12 +180,12 @@ export function createOutlines(deps: Dependencies) {
       // Decorative styles: per-side shaded bands on the expanded box, masked
       // to the outer rounded outline. Inner band edges stay straight at
       // rounded corners — the same limit the border bands carry.
-      const mask = (node.outlineMask ??= CAShapeLayer.alloc().init())
+      const mask = (state.outlineMask ??= CAShapeLayer.alloc().init())
       mask.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
-      mask.path = deps.borderPaint.roundedBoxCGPath(W, H, outerRadii)
+      mask.path = roundedBoxCGPath(W, H, outerRadii)
       host.mask = mask
-      if (node.outlineShapes?.stroke) {
-        node.outlineShapes.stroke.hidden = true
+      if (state.outlineShapes?.stroke) {
+        state.outlineShapes.stroke.hidden = true
       }
       const widths = {
         top: outline.width,
@@ -205,9 +193,9 @@ export function createOutlines(deps: Dependencies) {
         bottom: outline.width,
         left: outline.width,
       }
-      for (const side of deps.borderPaint.BORDER_SIDES) {
+      for (const side of BORDER_SIDES) {
         const bands = borderBands(style, side, outline.width)
-        const shapes = ((node.outlineShapes ??= {})[side] ??= [] as any[])
+        const shapes = ((state.outlineShapes ??= {})[side] ??= [] as any[])
         for (let i = 0; i < bands.length; i++) {
           const shape = (shapes[i] ??= CAShapeLayer.alloc().init())
           if (shape.superlayer !== host) {
@@ -217,7 +205,7 @@ export function createOutlines(deps: Dependencies) {
           shape.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
           shape.hidden = false
           shape.strokeColor = null
-          shape.path = deps.borderPaint.borderBandCGPath(
+          shape.path = borderBandCGPath(
             borderBandPoints(side, W, H, widths, bands[i].from, bands[i].to),
           )
 
@@ -232,15 +220,21 @@ export function createOutlines(deps: Dependencies) {
         }
       }
     }
+    state.outlineResize = resize
     resize()
-    view.postsFrameChangedNotifications = true
-    node.outlineObserver =
-      NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-        NSViewFrameDidChangeNotification,
-        view,
-        null,
-        resize,
-      )
+  }
+
+  function syncOutlineGeometry(node: ElementNode, state: BoxPaintState) {
+    state.outlineResize?.()
+  }
+
+  function clearOutline(node: ElementNode, state: BoxPaintState) {
+    const host = state.outlineLayer
+    state.outlineResize = undefined
+    state.outlineLayer = null
+    state.outlineMask = undefined
+    state.outlineShapes = undefined
+    host?.removeFromSuperlayer()
   }
 
   function darkOutlineColor(base: NSColor | null, view: NSView): NSColor | null {
@@ -255,5 +249,7 @@ export function createOutlines(deps: Dependencies) {
   }
   return {
     syncOutline,
+    syncOutlineGeometry,
+    clearOutline,
   }
 }

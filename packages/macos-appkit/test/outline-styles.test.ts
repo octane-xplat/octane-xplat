@@ -16,11 +16,9 @@ const SLICE =
   source.slice(
     source.indexOf('function outlineSpec'),
     source.indexOf('// ---- Background layers'),
-  ) + '\n({ outlineSpec, syncOutline })'
+  ) + '\n({ outlineSpec, syncOutline, syncOutlineGeometry })'
 
 function harness(style: any) {
-  const observerTokens: any[] = []
-  let resize: any
   const shapes: any[] = []
   const makeShape = () => {
     const s: any = {
@@ -72,20 +70,6 @@ function harness(style: any) {
     nativeColor: (c: any) => ({ CGColor: 'cg:' + c }),
     srgbComponents: () => ({ red: 0.5, green: 0.5, blue: 0.5, alpha: 1 }),
     effectiveStyle: () => style,
-    NSNotificationCenter: {
-      defaultCenter: {
-        addObserverForNameObjectQueueUsingBlock(_n: any, _v: any, _q: any, cb: any) {
-          resize = cb
-          const t = {}
-          observerTokens.push(t)
-          return t
-        },
-        removeObserver(t: any) {
-          observerTokens.splice(observerTokens.indexOf(t), 1)
-        },
-      },
-    },
-    NSViewFrameDidChangeNotification: 'frame',
     console,
   }
   const api = runSlice(SLICE, ctx)
@@ -102,7 +86,7 @@ function harness(style: any) {
       },
     },
   }
-  return { api, node, shapes, observerTokens, fireResize: () => resize?.() }
+  return { api, node, shapes, fireResize: () => api.syncOutlineGeometry(node) }
 }
 
 test('outlineSpec parses shorthand and longhands, none clears', () => {
@@ -152,7 +136,7 @@ test('double outline paints per-side bands; groove shades dark', () => {
 })
 
 test('solid keeps the CALayer border fast path; removal tears down', () => {
-  const { api, node, observerTokens } = harness({ outline: '2px solid blue' })
+  const { api, node } = harness({ outline: '2px solid blue' })
   api.syncOutline(node)
   const host = node.outlineLayer
   assert.equal(host.borderWidth, 2)
@@ -160,9 +144,9 @@ test('solid keeps the CALayer border fast path; removal tears down', () => {
   assert.equal(host.cornerRadius, 4 + 2)
   node.view.layer = null
   api.syncOutline(node)
-  // re-run with no spec clears the observer
+  assert.equal(host.superlayer, null)
+  // A missing spec also leaves no host.
   const { api: api3, node: node3 } = harness({})
   api3.syncOutline(node3)
   assert.equal(node3.outlineLayer, null)
-  assert.equal(observerTokens.length, 0)
 })

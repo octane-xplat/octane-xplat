@@ -129,7 +129,6 @@ const declarations: readonly (readonly [string, string])[] = [
   ['nodes', 'validateNodeProps'],
   ['nodes', 'makeNode'],
   ['native-style', 'EDGE_INSET_PROPS'],
-  ['native-style', 'OUTLINE_PROPS'],
   ['style-values', 'parseEdgeInsets'],
   ['css-cascade', 'cssChildren'],
   ['css-cascade', 'cssParentOf'],
@@ -188,6 +187,8 @@ const declarations: readonly (readonly [string, string])[] = [
   ['outlines', 'outlineSpec'],
   ['outlines', 'syncOutline'],
   ['outlines', 'darkOutlineColor'],
+  ['outlines', 'syncOutlineGeometry'],
+  ['outlines', 'clearOutline'],
   ['background-paint', 'BACKGROUND_STYLE_KEYS'],
   ['background-paint', 'BgPainted'],
   ['background-paint', 'backgroundEdges'],
@@ -196,44 +197,42 @@ const declarations: readonly (readonly [string, string])[] = [
   ['background-paint', 'paintGradientLayer'],
   ['background-paint', 'paintBackgrounds'],
   ['background-paint', 'syncBackgrounds'],
-  ['border-paint', 'BorderSide'],
-  ['border-paint', 'BorderCorner'],
-  ['border-paint', 'BORDER_SIDES'],
-  ['border-paint', 'BORDER_CORNERS'],
+  ['box-geometry', 'BorderSide'],
+  ['box-geometry', 'BorderCorner'],
+  ['box-geometry', 'BORDER_SIDES'],
+  ['box-geometry', 'BORDER_CORNERS'],
   ['border-paint', 'BORDER_WIDTH_KEYS'],
   ['border-paint', 'BORDER_COLOR_KEYS'],
   ['border-paint', 'BORDER_RADIUS_KEYS'],
   ['border-paint', 'BORDER_EDGE_KEYS'],
   ['border-paint', 'BORDER_STYLE_KEYS'],
-  ['border-paint', 'borderLength'],
-  ['border-paint', 'borderRadiusPoints'],
-  ['border-paint', 'resolveBorderRadii'],
-  ['border-paint', 'scaleBorderRadii'],
-  ['border-paint', 'BORDER_STYLE_WORDS'],
+  ['box-geometry', 'borderLength'],
+  ['box-geometry', 'borderRadiusPoints'],
+  ['box-geometry', 'resolveBorderRadii'],
+  ['box-geometry', 'scaleBorderRadii'],
+  ['box-geometry', 'BORDER_STYLE_WORDS'],
   ['border-paint', 'BORDER_WIDTH_RE'],
   ['border-paint', 'parseBorderEdge'],
-  ['border-paint', 'roundedBoxCGPath'],
-  ['border-paint', 'borderStrokeCGPath'],
-  ['border-paint', 'borderBandCGPath'],
+  ['box-geometry', 'roundedBoxCGPath'],
+  ['box-geometry', 'borderStrokeCGPath'],
+  ['box-geometry', 'borderBandCGPath'],
   ['border-paint', 'borderSideCGPath'],
-  ['border-paint', 'borderNSColor'],
+  ['box-geometry', 'borderNSColor'],
   ['border-paint', 'setBorderSlot'],
   ['border-paint', 'clearBorderSlot'],
   ['border-paint', 'setBorderEdge'],
   ['border-paint', 'clearBorderEdge'],
   ['border-paint', 'removeBorderLayers'],
-  ['border-paint', 'removeBoxFrameToken'],
-  ['border-paint', 'retireBoxFrameOwner'],
-  ['border-paint', 'clearBoxFrameObserver'],
-  ['border-paint', 'observeBoxFrame'],
   ['border-paint', 'syncBorderBox'],
+  ['border-paint', 'disposeBorder'],
   ['shadow-paint', 'ParsedBoxShadow'],
   ['shadow-paint', 'SHADOW_LENGTH_RE'],
   ['shadow-paint', 'parseBoxShadow'],
   ['shadow-paint', 'ZERO_RADII'],
-  ['shadow-paint', 'outsetShadowOnSelf'],
+  ['box-geometry', 'outsetShadowOnSelf'],
   ['shadow-paint', 'siblingShadowSuperlayer'],
   ['shadow-paint', 'syncBoxShadow'],
+  ['shadow-paint', 'disposeShadow'],
   ['transform-paint', 'TRANSFORM_KEYS'],
   ['transform-paint', 'TRANSFORM_SLOT'],
   ['transform-paint', 'translateAxisValue'],
@@ -242,7 +241,22 @@ const declarations: readonly (readonly [string, string])[] = [
   ['transform-paint', 'DEFAULT_PERSPECTIVE'],
   ['transform-paint', 'syncTransform'],
   ['transform-paint', 'hasPercentTranslate'],
-  ['transform-paint', 'syncBoxGeometry'],
+  ['box-paint', 'boxPaintStates'],
+  ['box-paint', 'retiringPaint'],
+  ['box-paint', 'OUTLINE_PROPS'],
+  ['box-paint', 'isPaintStyle'],
+  ['box-paint', 'livePaintNode'],
+  ['box-paint', 'removeBoxFrameToken'],
+  ['box-paint', 'clearBoxFrameObserver'],
+  ['box-paint', 'observeBoxFrame'],
+  ['box-paint', 'syncFrameLease'],
+  ['box-paint', 'acquirePaint'],
+  ['box-paint', 'syncGeometry'],
+  ['box-paint', 'applyBoxStyle'],
+  ['box-paint', 'syncProjection'],
+  ['box-paint', 'borderSpecForNode'],
+  ['box-paint', 'disposePaintState'],
+  ['box-paint', 'dispose'],
   ['native-style', 'clearMarginStyle'],
   ['native-style', 'syncLabelAlignment'],
   ['native-style', 'resetStyle'],
@@ -484,13 +498,16 @@ export function rendererSource(): string {
     // Stateless leaf modules expose declarations directly, without a service factory.
     const last = factory?.body.body.at(-1)
     const end = module === 'runtime' ? factory!.body.end - 1 : last?.start
-    const body = factory && end !== undefined
-      ? stripped.slice(factory.body.start + 1, end).replace(/^ {2}/gm, '')
-      : moduleAst.body.flatMap((statement) =>
-          statement.type === 'ExportNamedDeclaration' && statement.declaration
-            ? [stripped.slice(statement.declaration.start, statement.declaration.end)]
-            : [],
-        ).join('\n')
+    const body =
+      factory && end !== undefined
+        ? stripped.slice(factory.body.start + 1, end).replace(/^ {2}/gm, '')
+        : moduleAst.body
+            .flatMap((statement) =>
+              statement.type === 'ExportNamedDeclaration' && statement.declaration
+                ? [stripped.slice(statement.declaration.start, statement.declaration.end)]
+                : [],
+            )
+            .join('\n')
     const ast = parse(body, { ecmaVersion: 'latest', sourceType: 'script' })
     const found = new Map<string, string>()
     let previous = 0,
@@ -505,7 +522,32 @@ export function rendererSource(): string {
       } else {
         key = module === 'runtime' ? '#' + anonymous : '#try'
       }
-      let text = body.slice(previous, statement.end).replace(/\bdeps\s*\.\s*\w+\s*\.\s*/g, '')
+      let text = body
+        .slice(previous, statement.end)
+        .replace(/deps\.boxPaint\.dispose\b/g, 'disposeBoxPaint')
+        .replace(/\bdeps\s*\.\s*\w+\s*\.\s*/g, '')
+      if (
+        [
+          'border-paint',
+          'shadow-paint',
+          'transform-paint',
+          'background-paint',
+          'outlines',
+        ].includes(module)
+      ) {
+        // Legacy isolated writer fixtures pass their node-shaped state explicitly
+        // through this adapter; production always receives coordinator-owned state.
+        text = text.replace(/(function \w+\(\s*node\s*,\s*state)(\s*[,)]?)/g, '$1 = node$2')
+        text = text.replace('!state.current()', '!(state.current?.() ?? true)')
+      }
+      if (module === 'box-paint') {
+        text = text.replace(/\b(border|shadow|transform|background|outlines)\./g, '')
+        if (key === 'dispose') {
+          text = text.replace(/\bdispose\(/g, 'disposeBoxPaint(')
+        } else {
+          text = text.replace(/\bdispose\(node\)/g, 'disposeBoxPaint(node)')
+        }
+      }
       if (module === 'runtime') {
         text = text.replace(
           /\b([A-Za-z]+)\s*\.\s*([A-Za-z_$][\w$]*)/g,

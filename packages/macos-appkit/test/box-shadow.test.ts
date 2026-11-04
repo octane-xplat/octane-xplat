@@ -128,7 +128,7 @@ test('a superview without a layer is upgraded to host sibling shadows', () => {
     borderSpec: null,
     boxShadowSpec: [{ inset: false, dx: 0, dy: 1, blur: 2, spread: 0, color: 'red' }],
   }
-  assert.equal(api.outsetShadowOnSelf(node, view), false)
+  assert.equal(api.outsetShadowOnSelf(node.boxShadowSpec, view), false)
   api.syncBoxShadow(node)
   assert.equal(superview.wantsLayer, true)
   assert.equal(node.outsetShadowHosts.length, 1)
@@ -145,7 +145,7 @@ test('root view fallback paints the shadow on its own layer and keeps clip off',
       { inset: false, dx: 1, dy: 0, blur: 2, spread: 0, color: 'blue' },
     ],
   }
-  assert.equal(api.outsetShadowOnSelf(node, view), true)
+  assert.equal(api.outsetShadowOnSelf(node.boxShadowSpec, view), true)
   api.syncBoxShadow(node)
   assert.equal(view.layer.shadowColor, 'cg:red')
   assert.equal(view.layer.shadowRadius, 8)

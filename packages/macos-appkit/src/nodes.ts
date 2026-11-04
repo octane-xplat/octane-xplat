@@ -1,3 +1,4 @@
+import type { BoxPaint } from './box-paint'
 import { FailureCollector } from './failures.ts'
 import type { CssAnimations } from './css-animations'
 import type { Registry } from './registry'
@@ -16,8 +17,6 @@ import type { CssPseudoState } from './css-pseudo-state'
 import type { Subscriptions } from './subscriptions'
 import type { HostedElements } from './hosted-elements'
 import type { Projection } from './projection'
-import type { BackgroundPaint } from './background-paint'
-import type { BorderPaint } from './border-paint'
 import type { Layout } from './layout'
 import type { AccessibleHost } from './accessible-host'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
@@ -37,6 +36,7 @@ import { resolveFont as fontForFamilyStyle } from './fonts'
 import { disposePressGestures, setVisualStateTracking } from './gestures'
 
 interface Dependencies {
+  boxPaint: Pick<BoxPaint, 'dispose'>
   cssAnimations: Pick<CssAnimations, 'cancelKeyframeAnimations'>
   registry: Pick<
     Registry,
@@ -123,8 +123,6 @@ interface Dependencies {
     | 'disposeBuiltinWebView'
   >
   projection: Pick<Projection, 'disposeBuiltinProxyChildren'>
-  backgroundPaint: Pick<BackgroundPaint, 'clearBackgrounds'>
-  borderPaint: Pick<BorderPaint, 'clearBoxFrameObserver'>
   layout: Pick<Layout, 'layoutHandlers'>
   accessibleHost: Pick<AccessibleHost, 'accessibilityLabels' | 'accessibilityRoles'>
 }
@@ -697,28 +695,7 @@ export function createNodes(deps: Dependencies) {
     const layoutObserver = node.layoutObserver
     node.layoutObserver = null
     release('layout observer', () => { if (layoutObserver) { NSNotificationCenter.defaultCenter.removeObserver(layoutObserver) } })
-    release('background paint', () => deps.backgroundPaint.clearBackgrounds(node))
-    const outlineObserver = node.outlineObserver
-    node.outlineObserver = null
-    release('outline observer', () => { if (outlineObserver) { NSNotificationCenter.defaultCenter.removeObserver(outlineObserver) } })
-    release('box frame', () => { if (node.boxFrameOwner) { deps.borderPaint.clearBoxFrameObserver(node) } })
-    node.borderLayer = null
-    node.borderSides = undefined
-    node.borderOutline = undefined
-    node.borderStroke = undefined
-    node.borderSideMasks = undefined
-    node.borderBandShapes = undefined
-    node.cornerMask = undefined
-    const shadows = node.outsetShadowHosts ?? []
-    node.outsetShadowHosts = undefined
-    for (const host of shadows) {
-      release('outset shadow', () => host.removeFromSuperlayer())
-    }
-    const insetShadow = node.insetShadowHost
-    node.insetShadowHost = null
-    release('inset shadow', () => insetShadow?.removeFromSuperlayer())
-    node.insetShadowShapes = undefined
-    node.insetShadowLayer = null
+    release('box paint', () => deps.boxPaint.dispose(node))
     const observedView = node.layoutObservedView
     node.layoutObservedView = null
     release('layout identity', () => deps.layout.layoutHandlers.delete(observedView))

@@ -6,4 +6,4 @@ Layered backgrounds now accept each image's completion independently. Replacing 
 <masonview style={{ backgroundImage: 'url(one.png), url(two.png)' }} />
 ```
 
-See [macOS renderer setup](https://octane-xplat.dev/packages/macos-appkit).
+See [macOS renderer setup](https://octane-xplat.goddardai.org/package-macos-appkit).

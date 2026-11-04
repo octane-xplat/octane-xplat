@@ -1,4 +1,12 @@
-import type { BorderPaint, BorderCorner } from './border-paint'
+import { FailureCollector } from './failures.ts'
+import type { BoxPaintState } from './box-paint-state'
+import type { BorderCorner } from './box-geometry'
+import {
+  resolveBorderRadii,
+  scaleBorderRadii,
+  roundedBoxCGPath,
+  borderNSColor,
+} from './box-geometry.ts'
 import { splitStyleTokens, splitTopLevelCommas } from './css-text.ts'
 import type { ElementNode } from './model'
 import { CALayer, CAShapeLayer, CGPathCreateMutable, NSView } from '@octane-xplat/platform/macos'
@@ -15,16 +23,9 @@ export interface ParsedBoxShadow {
   color: string
 }
 
-interface Dependencies {
-  borderPaint: Pick<
-    BorderPaint,
-    'scaleBorderRadii' | 'resolveBorderRadii' | 'roundedBoxCGPath' | 'borderNSColor'
-  >
-}
-
 export type ShadowPaint = ReturnType<typeof createShadowPaint>
 
-export function createShadowPaint(deps: Dependencies) {
+export function createShadowPaint() {
   const SHADOW_LENGTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$/
 
   // splitTopLevelCommas comes from ./css-text.ts.
@@ -81,13 +82,6 @@ export function createShadowPaint(deps: Dependencies) {
     number
   >
 
-  function outsetShadowOnSelf(node: ElementNode, view: NSView): boolean {
-    if (!(node.boxShadowSpec?.some((s: any) => !s.inset) === true)) {
-      return false
-    }
-    return view.layer?.superlayer == null && (view as any).superview == null
-  }
-
   function siblingShadowSuperlayer(view: NSView): any | null {
     const superlayer = view.layer?.superlayer
     if (superlayer) {
@@ -101,20 +95,20 @@ export function createShadowPaint(deps: Dependencies) {
     return superview.layer ?? null
   }
 
-  function syncBoxShadow(node: ElementNode) {
+  function syncBoxShadow(node: ElementNode, state: BoxPaintState) {
     const view = node.view
     if (!view) {
       return
     }
-    const shadows = correctProjectionShadows<ParsedBoxShadow>(view, node.boxShadowSpec ?? [])
+    const shadows = correctProjectionShadows<ParsedBoxShadow>(view, state.boxShadowSpec ?? [])
     const outsets = shadows.filter((s: ParsedBoxShadow) => !s.inset)
     const insets = shadows.filter((s: ParsedBoxShadow) => s.inset)
     if (
       !outsets.length &&
       !insets.length &&
-      !node.shadowApplied &&
-      !node.insetShadowHost &&
-      !node.outsetShadowHosts?.length
+      !state.shadowApplied &&
+      !state.insetShadowHost &&
+      !state.outsetShadowHosts?.length
     ) {
       return
     }
@@ -129,11 +123,11 @@ export function createShadowPaint(deps: Dependencies) {
     const size = view.frame?.size ?? { width: 0, height: 0 }
     const w = Math.max(0, Number(size.width) || 0)
     const h = Math.max(0, Number(size.height) || 0)
-    const radii = deps.borderPaint.scaleBorderRadii(
+    const radii = scaleBorderRadii(
       correctProjectionRadii(
         view,
-        deps.borderPaint.resolveBorderRadii(node.borderSpec?.radii, w, h),
-        node.borderSpec?.radii,
+        resolveBorderRadii(state.borderSpec?.radii, w, h),
+        state.borderSpec?.radii,
       ),
       w,
       h,
@@ -143,7 +137,7 @@ export function createShadowPaint(deps: Dependencies) {
     if (superlayer) {
       // One empty sibling layer per outset shadow; the first CSS shadow sits
       // closest to the view (topmost).
-      const hosts = (node.outsetShadowHosts ??= [])
+      const hosts = (state.outsetShadowHosts ??= [])
       outsets.forEach((s, index) => {
         const host = (hosts[index] ??= CALayer.alloc().init())
         host.frame = layer.frame
@@ -154,8 +148,8 @@ export function createShadowPaint(deps: Dependencies) {
           bottomRight: Math.max(0, radii.bottomRight + s2),
           bottomLeft: Math.max(0, radii.bottomLeft + s2),
         }
-        host.shadowPath = deps.borderPaint.roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
-        host.shadowColor = deps.borderPaint.borderNSColor(node, s.color)?.CGColor ?? null
+        host.shadowPath = roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
+        host.shadowColor = borderNSColor(node, s.color)?.CGColor ?? null
         host.shadowOffset = { width: s.dx - s2, height: -s.dy - s2 }
         host.shadowRadius = s.blur
         host.shadowOpacity = 1
@@ -167,10 +161,10 @@ export function createShadowPaint(deps: Dependencies) {
       }
 
       hosts.length = outsets.length
-      if (node.shadowApplied) {
+      if (state.shadowApplied) {
         layer.shadowOpacity = 0
         layer.shadowPath = null
-        node.shadowApplied = false
+        state.shadowApplied = false
       }
     } else if (outsets.length) {
       const s = outsets[0]
@@ -182,40 +176,40 @@ export function createShadowPaint(deps: Dependencies) {
         bottomLeft: Math.max(0, radii.bottomLeft + s2),
       }
 
-      layer.shadowPath = deps.borderPaint.roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
-      layer.shadowColor = deps.borderPaint.borderNSColor(node, s.color)?.CGColor ?? null
+      layer.shadowPath = roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
+      layer.shadowColor = borderNSColor(node, s.color)?.CGColor ?? null
       layer.shadowOffset = { width: s.dx - s2, height: -s.dy - s2 }
       layer.shadowRadius = s.blur
       layer.shadowOpacity = 1
-      node.shadowApplied = true
+      state.shadowApplied = true
       if (outsets.length > 1) {
-        const warned = (node.shadowWarnings ??= new Set<string>())
+        const warned = (state.shadowWarnings ??= new Set<string>())
         if (!warned.has('self')) {
           warned.add('self')
           console.warn('[macos-css] root view: only the first outset box-shadow paints')
         }
       }
-    } else if (node.shadowApplied) {
+    } else if (state.shadowApplied) {
       layer.shadowOpacity = 0
       layer.shadowPath = null
-      node.shadowApplied = false
+      state.shadowApplied = false
     }
     if (!outsets.length || !superlayer) {
-      for (const host of node.outsetShadowHosts ?? []) {
+      for (const host of state.outsetShadowHosts ?? []) {
         host.removeFromSuperlayer()
       }
 
-      node.outsetShadowHosts = undefined
+      state.outsetShadowHosts = undefined
     }
 
     if (insets.length && typeof CAShapeLayer !== 'undefined') {
-      const host = (node.insetShadowHost ??= CALayer.alloc().init())
+      const host = (state.insetShadowHost ??= CALayer.alloc().init())
       if (host.superlayer !== layer) {
-        layer.insertSublayerAtIndex(host, node.bgHost ? 1 : 0)
+        layer.insertSublayerAtIndex(host, state.bgHost ? 1 : 0)
       }
 
       host.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
-      const shapes = (node.insetShadowShapes ??= [])
+      const shapes = (state.insetShadowShapes ??= [])
       insets.forEach((s, index) => {
         const shape = (shapes[index] ??= CAShapeLayer.alloc().init())
         if (shape.superlayer !== host) {
@@ -237,8 +231,8 @@ export function createShadowPaint(deps: Dependencies) {
         // the hole. Negative spread pushes the caster edge outside.
         const path = CGPathCreateMutable()
         const pad = Math.abs(s.dx) + Math.abs(s.dy) + Math.abs(s.blur) * 4 + Math.abs(spread) + 32
-        deps.borderPaint.roundedBoxCGPath(w + 2 * pad, h + 2 * pad, ZERO_RADII, -pad, -pad, path)
-        deps.borderPaint.roundedBoxCGPath(
+        roundedBoxCGPath(w + 2 * pad, h + 2 * pad, ZERO_RADII, -pad, -pad, path)
+        roundedBoxCGPath(
           Math.max(0, w - 2 * spread),
           Math.max(0, h - 2 * spread),
           inner,
@@ -248,7 +242,7 @@ export function createShadowPaint(deps: Dependencies) {
         )
         shape.path = path
         shape.fillRule = 'even-odd'
-        shape.fillColor = deps.borderPaint.borderNSColor(node, s.color)?.CGColor ?? null
+        shape.fillColor = borderNSColor(node, s.color)?.CGColor ?? null
         shape.shadowColor = shape.fillColor
         shape.shadowOffset = { width: s.dx, height: -s.dy }
         shape.shadowRadius = s.blur
@@ -260,15 +254,29 @@ export function createShadowPaint(deps: Dependencies) {
       }
 
       shapes.length = insets.length
-    } else if (node.insetShadowHost) {
-      node.insetShadowHost.removeFromSuperlayer()
-      node.insetShadowHost = null
-      node.insetShadowShapes = undefined
+    } else if (state.insetShadowHost) {
+      state.insetShadowHost.removeFromSuperlayer()
+      state.insetShadowHost = null
+      state.insetShadowShapes = undefined
     }
+  }
+  function disposeShadow(node: ElementNode, state: BoxPaintState) {
+    const failures = new FailureCollector()
+    const hosts = state.outsetShadowHosts ?? []
+    const inset = state.insetShadowHost
+    state.boxShadowSpec = undefined
+    state.outsetShadowHosts = undefined
+    state.insetShadowHost = null
+    state.insetShadowShapes = undefined
+    for (const host of hosts) {
+      failures.run('outset shadow', () => host.removeFromSuperlayer())
+    }
+    failures.run('inset shadow', () => inset?.removeFromSuperlayer())
+    failures.throwIfFailed()
   }
   return {
     parseBoxShadow,
-    outsetShadowOnSelf,
     syncBoxShadow,
+    disposeShadow,
   }
 }

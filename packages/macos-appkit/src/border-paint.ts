@@ -1,21 +1,28 @@
+import { FailureCollector } from './failures.ts'
+import type { BoxPaintState } from './box-paint-state'
+import {
+  BORDER_SIDES,
+  BORDER_CORNERS,
+  borderLength,
+  resolveBorderRadii,
+  scaleBorderRadii,
+  BORDER_STYLE_WORDS,
+  roundedBoxCGPath,
+  borderStrokeCGPath,
+  borderBandCGPath,
+  borderNSColor,
+  outsetShadowOnSelf,
+} from './box-geometry.ts'
+import type { BorderSide, BorderCorner } from './box-geometry'
 import { effectiveStyle } from './style-values.ts'
-import type { TransformPaint } from './transform-paint'
-import type { ShadowPaint } from './shadow-paint'
-import type { PropBag, ElementNode } from './model'
+import type { ElementNode } from './model'
 import { splitStyleTokens } from './css-text.ts'
 import {
   CALayer,
   CAShapeLayer,
-  CGPathAddArcToPoint,
-  CGPathAddLineToPoint,
-  CGPathCloseSubpath,
   CGPathCreateMutable,
-  CGPathMoveToPoint,
   NSColor,
-  NSNotificationCenter,
   NSNumber,
-  NSView,
-  NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
 import {
   borderStyleSides,
@@ -25,31 +32,12 @@ import {
   borderBandPoints,
   darkBorderComponents,
 } from './border-styles.ts'
-import { nativeColor } from './native-colors'
 import { correctProjectionRadii } from './projection-paint'
 import { srgbComponents } from './color-components'
 
-export type BorderSide = 'top' | 'right' | 'bottom' | 'left'
-
-export type BorderCorner = 'topLeft' | 'topRight' | 'bottomRight' | 'bottomLeft'
-
-interface Dependencies {
-  transformPaint: Pick<TransformPaint, 'syncBoxGeometry' | 'hasPercentTranslate'>
-  shadowPaint: Pick<ShadowPaint, 'outsetShadowOnSelf'>
-}
-
 export type BorderPaint = ReturnType<typeof createBorderPaint>
 
-export function createBorderPaint(deps: Dependencies) {
-  const BORDER_SIDES: readonly BorderSide[] = ['top', 'right', 'bottom', 'left']
-
-  const BORDER_CORNERS: readonly BorderCorner[] = [
-    'topLeft',
-    'topRight',
-    'bottomRight',
-    'bottomLeft',
-  ]
-
+export function createBorderPaint() {
   // camelCase style keys → the slot each writes; 'all' expands to every
   // side/corner. CSS border shorthands land as longhands (computeCascade
   // borderLonghands); `border`/`border-{side}` arrive whole and split here.
@@ -96,87 +84,6 @@ export function createBorderPaint(deps: Dependencies) {
 
   // Whitespace/comma tokenizers come from ./css-text.ts.
 
-  // `1px`/`1`/`thin` → points; CSS keyword widths map like the web.
-  function borderLength(value: any): number {
-    if (typeof value === 'number') {
-      return Number.isFinite(value) ? Math.max(0, value) : 0
-    }
-    const text = String(value ?? '')
-      .trim()
-      .toLowerCase()
-    if (text === 'thin') {
-      return 1
-    }
-    if (text === 'medium') {
-      return 3
-    }
-    if (text === 'thick') {
-      return 5
-    }
-    const points = parseFloat(text)
-    return Number.isFinite(points) ? Math.max(0, points) : 0
-  }
-
-  // Radius slot: points, or 'N%' of min(width, height) like the old
-  // single-radius path.
-  function borderRadiusPoints(value: any, width: number, height: number): number {
-    if (typeof value === 'string' && value.trim().endsWith('%')) {
-      const pct = parseFloat(value)
-      return Number.isFinite(pct) ? Math.max(0, (pct / 100) * Math.min(width, height)) : 0
-    }
-    return borderLength(value)
-  }
-
-  // Resolve the four corner radii in points (pre-clamp — uniformity is judged
-  // here so a zero-size frame cannot collapse distinct radii).
-  function resolveBorderRadii(spec: PropBag | undefined, w: number, h: number) {
-    return {
-      topLeft: borderRadiusPoints(spec?.topLeft, w, h),
-      topRight: borderRadiusPoints(spec?.topRight, w, h),
-      bottomRight: borderRadiusPoints(spec?.bottomRight, w, h),
-      bottomLeft: borderRadiusPoints(spec?.bottomLeft, w, h),
-    }
-  }
-
-  // CSS pairwise scale-down when adjacent radii overflow their shared edge.
-  function scaleBorderRadii(radii: Record<BorderCorner, number>, w: number, h: number) {
-    let scale = 1
-    const edges: [BorderCorner, BorderCorner, number][] = [
-      ['topLeft', 'topRight', w],
-      ['topRight', 'bottomRight', h],
-      ['bottomLeft', 'bottomRight', w],
-      ['topLeft', 'bottomLeft', h],
-    ]
-    for (const [a, b, edge] of edges) {
-      const sum = radii[a] + radii[b]
-      if (sum > edge && sum > 0) {
-        scale = Math.min(scale, edge / sum)
-      }
-    }
-    if (scale < 1) {
-      const scaled = { ...radii }
-      for (const corner of BORDER_CORNERS) {
-        scaled[corner] *= scale
-      }
-
-      return scaled
-    }
-    return radii
-  }
-
-  const BORDER_STYLE_WORDS = new Set([
-    'none',
-    'hidden',
-    'solid',
-    'dashed',
-    'dotted',
-    'double',
-    'groove',
-    'ridge',
-    'inset',
-    'outset',
-  ])
-
   const BORDER_WIDTH_RE = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:px|dip|pt)?$|^thin$|^medium$|^thick$/i
 
   // `border[-side]: <width> <style> <color>` arrives whole (no shorthand
@@ -206,74 +113,6 @@ export function createBorderPaint(deps: Dependencies) {
     return { width: none ? 0 : width, color }
   }
 
-  // Per-corner rounded-rect CGPath in the layer's y-up space — CSS top corners
-  // sit at y = height. `into` appends the subpath (ring building); dx/dy shift
-  // the whole rect. Null when the runtime globals are absent (slice tests).
-  function roundedBoxCGPath(
-    w: number,
-    h: number,
-    radii: Record<BorderCorner, number>,
-    dx = 0,
-    dy = 0,
-    into?: any,
-  ): any {
-    if (typeof CGPathCreateMutable !== 'function') {
-      return null
-    }
-    const path = into ?? CGPathCreateMutable()
-    const corner = (vx: number, vy: number, nx: number, ny: number, r: number) => {
-      if (r > 0) {
-        CGPathAddArcToPoint(path, null, vx + dx, vy + dy, nx + dx, ny + dy, r)
-      } else {
-        CGPathAddLineToPoint(path, null, vx + dx, vy + dy)
-      }
-    }
-    CGPathMoveToPoint(path, null, radii.topLeft + dx, h + dy)
-    corner(w, h, w, h - radii.topRight, radii.topRight)
-    CGPathAddLineToPoint(path, null, w + dx, radii.bottomRight + dy)
-    corner(w, 0, w - radii.bottomRight, 0, radii.bottomRight)
-    CGPathAddLineToPoint(path, null, radii.bottomLeft + dx, 0 + dy)
-    corner(0, 0, 0, radii.bottomLeft, radii.bottomLeft)
-    CGPathAddLineToPoint(path, null, 0 + dx, h - radii.topLeft + dy)
-    corner(0, h, radii.topLeft, h, radii.topLeft)
-    CGPathCloseSubpath(path)
-    return path
-  }
-
-  // Center a stroke inside the outer border box while retaining rounded corners.
-  function borderStrokeCGPath(
-    w: number,
-    h: number,
-    radii: Record<BorderCorner, number>,
-    width: number,
-  ) {
-    const inset = Math.min(width / 2, w / 2, h / 2)
-    const inner = Object.fromEntries(
-      BORDER_CORNERS.map((corner) => [corner, Math.max(0, radii[corner] - inset)]),
-    ) as Record<BorderCorner, number>
-    return roundedBoxCGPath(
-      w - inset * 2,
-      h - inset * 2,
-      scaleBorderRadii(inner, w - inset * 2, h - inset * 2),
-      inset,
-      inset,
-    )
-  }
-
-  function borderBandCGPath(points: [number, number][]): any {
-    if (typeof CGPathCreateMutable !== 'function' || !points.length) {
-      return null
-    }
-    const path = CGPathCreateMutable()
-    const [first, ...rest] = points
-    CGPathMoveToPoint(path, null, first[0], first[1])
-    for (const [x, y] of rest) {
-      CGPathAddLineToPoint(path, null, x, y)
-    }
-    CGPathCloseSubpath(path)
-    return path
-  }
-
   // Trapezoid covering one side's border band between the outer rect and the
   // inner border edge — the four sides partition the ring at the miters.
   function borderSideCGPath(
@@ -285,24 +124,14 @@ export function createBorderPaint(deps: Dependencies) {
     return borderBandCGPath(borderBandPoints(side, w, h, widths, 0, 1))
   }
 
-  // Unparseable colors (color-mix, unknown functions) read as no color rather
-  // than throwing mid-apply — nativeColor is strict by design elsewhere.
-  function borderNSColor(node: ElementNode, value: any): NSColor | null {
-    const raw = value ?? effectiveStyle(node).color ?? '#000'
-    try {
-      return nativeColor(raw)
-    } catch {
-      return null
-    }
-  }
-
   function setBorderSlot(
     node: ElementNode,
+    state: BoxPaintState,
     group: 'widths' | 'colors' | 'radii',
     slot: BorderSide | BorderCorner | 'all',
     value: any,
   ) {
-    const spec = (node.borderSpec ??= {})
+    const spec = (state.borderSpec ??= {})
     const bag = (spec[group] ??= {})
     if (slot === 'all') {
       for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
@@ -311,15 +140,15 @@ export function createBorderPaint(deps: Dependencies) {
     } else {
       bag[slot] = value
     }
-    syncBorderBox(node)
   }
 
   function clearBorderSlot(
     node: ElementNode,
+    state: BoxPaintState,
     group: 'widths' | 'colors' | 'radii',
     slot: BorderSide | BorderCorner | 'all',
   ) {
-    const bag = node.borderSpec?.[group]
+    const bag = state.borderSpec?.[group]
     if (bag) {
       if (slot === 'all') {
         for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
@@ -329,13 +158,17 @@ export function createBorderPaint(deps: Dependencies) {
         delete bag[slot]
       }
     }
-    syncBorderBox(node)
   }
 
   // `border`/`border-{side}` shorthand text feeds the same width/color slots.
-  function setBorderEdge(node: ElementNode, slot: BorderSide | 'all', value: any) {
+  function setBorderEdge(
+    node: ElementNode,
+    state: BoxPaintState,
+    slot: BorderSide | 'all',
+    value: any,
+  ) {
     const { width, color } = parseBorderEdge(value)
-    const spec = (node.borderSpec ??= {})
+    const spec = (state.borderSpec ??= {})
     const sides = slot === 'all' ? BORDER_SIDES : [slot]
     if (width !== undefined) {
       const widths = (spec.widths ??= {})
@@ -349,161 +182,39 @@ export function createBorderPaint(deps: Dependencies) {
         colors[side] = color
       }
     }
-    syncBorderBox(node)
   }
 
-  function clearBorderEdge(node: ElementNode, slot: BorderSide | 'all') {
-    const spec = node.borderSpec
+  function clearBorderEdge(node: ElementNode, state: BoxPaintState, slot: BorderSide | 'all') {
+    const spec = state.borderSpec
     for (const side of slot === 'all' ? BORDER_SIDES : [slot]) {
       delete spec?.widths?.[side]
       delete spec?.colors?.[side]
     }
-    syncBorderBox(node)
   }
 
-  function removeBorderLayers(node: ElementNode) {
-    if (node.borderLayer) {
-      node.borderLayer.removeFromSuperlayer()
+  function removeBorderLayers(node: ElementNode, state: BoxPaintState) {
+    const host = state.borderLayer
+    const bands = Object.values(state.borderBandShapes ?? {}).flat()
+    state.borderLayer = null
+    state.borderSides = undefined
+    state.borderOutline = undefined
+    state.borderStroke = undefined
+    state.borderSideMasks = undefined
+    state.borderBandShapes = undefined
+    const failures = new FailureCollector()
+    failures.run('border host', () => host?.removeFromSuperlayer())
+    for (const shape of bands) {
+      failures.run('border band', () => shape.removeFromSuperlayer())
     }
-    node.borderLayer = null
-    node.borderSides = undefined
-    node.borderOutline = undefined
-    node.borderStroke = undefined
-    node.borderSideMasks = undefined
-    for (const extras of Object.values(node.borderBandShapes ?? {})) {
-      for (const shape of extras as any[]) {
-        shape.removeFromSuperlayer()
-      }
-    }
-    node.borderBandShapes = undefined
+    failures.throwIfFailed()
   }
 
-  function removeBoxFrameToken(owner: any, token: any) {
-    try {
-      owner.remove.call(owner.center, token)
-    } catch {
-      try {
-        console.warn('[macos-css] Box frame cleanup failed')
-      } catch {}
-    }
-  }
-
-  function retireBoxFrameOwner(node: ElementNode, owner: any) {
-    if (!owner?.active) {
-      return
-    }
-    owner.active = false
-    const timer = owner.timer
-    owner.timer = undefined
-    if (timer !== undefined) { clearTimeout(timer) }
-    if (node.boxFrameOwner === owner) {
-      node.boxFrameOwner = null
-      node.boxFrameObserver = null
-    }
-    const token = owner.token
-    owner.token = null
-    if (token != null) {
-      removeBoxFrameToken(owner, token)
-    }
-  }
-
-  function clearBoxFrameObserver(node: ElementNode) {
-    retireBoxFrameOwner(node, node.boxFrameOwner)
-  }
-
-  function observeBoxFrame(node: ElementNode, view: NSView) {
-    const previous = node.boxFrameOwner
-    const owner = {
-      center: null as any,
-      remove: null as any,
-      token: null as any,
-      active: true,
-      ready: false,
-      syncing: false,
-      timer: undefined as ReturnType<typeof setTimeout> | undefined,
-      view,
-    }
-    const current = () => node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && owner.active && node.boxFrameOwner === owner && node.view === view
-    node.boxFrameOwner = owner
-    node.boxFrameObserver = null
-    retireBoxFrameOwner(node, previous)
-    try {
-      if (!current()) {
-        retireBoxFrameOwner(node, owner)
-        return
-      }
-
-      owner.center = NSNotificationCenter.defaultCenter
-      owner.remove = owner.center.removeObserver
-      const add = owner.center.addObserverForNameObjectQueueUsingBlock
-      if (typeof add !== 'function' || typeof owner.remove !== 'function') {
-        throw new Error('Box frame observation unavailable')
-      }
-
-      if (!current()) {
-        retireBoxFrameOwner(node, owner)
-        return
-      }
-
-      view.postsFrameChangedNotifications = true
-      if (!current()) {
-        retireBoxFrameOwner(node, owner)
-        return
-      }
-
-      const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
-        if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !owner.active || !owner.ready || owner.syncing || node.boxFrameOwner !== owner) {
-          return
-        }
-        if (node.view !== view) {
-          retireBoxFrameOwner(node, owner)
-          return
-        }
-        owner.syncing = true
-        try {
-          deps.transformPaint.syncBoxGeometry(node)
-        } catch {
-          try {
-            console.warn('[macos-css] Box geometry update failed')
-          } catch {}
-        } finally { owner.syncing = false }
-        // AppKit may finish its backing-layer geometry after this notification.
-        // One lease-guarded next-turn repaint follows that native write. Bridge
-        // callbacks can drain microtasks before AppKit finishes the write.
-        if (owner.timer === undefined && current()) {
-          owner.timer = setTimeout(() => {
-            owner.timer = undefined
-            if (!current() || !owner.ready) { return }
-            owner.syncing = true
-            try { deps.transformPaint.syncBoxGeometry(node) }
-            catch { try { console.warn('[macos-css] Box geometry update failed') } catch {} }
-            finally { owner.syncing = false }
-          }, 0)
-        }
-      })
-
-      if (!current()) {
-        if (token != null) {
-          removeBoxFrameToken(owner, token)
-        }
-
-        retireBoxFrameOwner(node, owner)
-        return
-      }
-
-      if (token == null) {
-        throw new Error('Box frame observation unavailable')
-      }
-
-      owner.token = token
-      node.boxFrameObserver = token
-      owner.ready = true
-    } catch {
-      retireBoxFrameOwner(node, owner)
-      try {
-        console.warn('[macos-css] Box frame observation unavailable')
-      } catch {}
-    }
+  function disposeBorder(node: ElementNode, state: BoxPaintState) {
+    const failures = new FailureCollector()
+    state.borderSpec = undefined
+    state.cornerMask = undefined
+    failures.run('border layers', () => removeBorderLayers(node, state))
+    failures.throwIfFailed()
   }
 
   // borderRadius styles and per-side border slots resolve on the node and sync
@@ -511,7 +222,7 @@ export function createBorderPaint(deps: Dependencies) {
   // boxes stay on the fast path; anything else draws through masked
   // CAShapeLayer trapezoids clipped to the rounded outline — banded styles
   // (double/groove/ridge/inset/outset) split each side into shaded bands.
-  function syncBorderBox(node: ElementNode) {
+  function syncBorderBox(node: ElementNode, state: BoxPaintState) {
     const view = node.view
     if (!view) {
       return
@@ -520,7 +231,7 @@ export function createBorderPaint(deps: Dependencies) {
     const size = view.frame?.size ?? { width: 0, height: 0 }
     const w = Number.isFinite(Number(size.width)) ? Math.max(0, Number(size.width)) : 0
     const h = Number.isFinite(Number(size.height)) ? Math.max(0, Number(size.height)) : 0
-    const spec = node.borderSpec
+    const spec = state.borderSpec
     const resolvedStyle = effectiveStyle(node)
     const sideStyles = borderStyleSides(resolvedStyle)
 
@@ -546,7 +257,7 @@ export function createBorderPaint(deps: Dependencies) {
           sideStyles[side],
         )
       ) {
-        const warned = (node.borderStyleWarnings ??= new Set())
+        const warned = (state.borderStyleWarnings ??= new Set())
         if (!warned.has(sideStyles[side])) {
           warned.add(sideStyles[side])
           console.warn('[macos-css] Unsupported decorative border style; drawing solid')
@@ -567,7 +278,7 @@ export function createBorderPaint(deps: Dependencies) {
     // fallback) cannot render under a mask or masksToBounds — the layer clip
     // loses to the shadow (same CALayer constraint UIKit has). Sibling shadow
     // hosts keep clipping on.
-    const outsetShadow = deps.shadowPaint.outsetShadowOnSelf(node, view)
+    const outsetShadow = outsetShadowOnSelf(state.boxShadowSpec, view)
     const perCorner = maxRadius > 0 && !uniformRadius && layers && !outsetShadow
     const patterned = BORDER_SIDES.some(
       (side) => borderStrokeStyle(sideStyles[side], widths[side]) != null,
@@ -607,15 +318,15 @@ export function createBorderPaint(deps: Dependencies) {
     // Corners: a uniform radius stays on cornerRadius; per-corner radii clip
     // through a mask path instead.
     if (perCorner) {
-      const mask = (node.cornerMask ??= CAShapeLayer.alloc().init())
+      const mask = (state.cornerMask ??= CAShapeLayer.alloc().init())
       mask.path = roundedBoxCGPath(w, h, scaled)
       layer.mask = mask
       layer.cornerRadius = 0
-      node.cornerMaskApplied = true
+      state.cornerMaskApplied = true
     } else {
-      if (node.cornerMaskApplied) {
+      if (state.cornerMaskApplied) {
         layer.mask = null as any
-        node.cornerMaskApplied = false
+        state.cornerMaskApplied = false
       }
 
       // The fast path writes the raw value — CA caps the radius internally,
@@ -625,26 +336,26 @@ export function createBorderPaint(deps: Dependencies) {
     }
 
     const clip = maxRadius > 0 && !outsetShadow
-    if (clip || node.radiusApplied) {
+    if (clip || state.radiusApplied) {
       layer.masksToBounds = clip
     }
-    node.radiusApplied = clip
+    state.radiusApplied = clip
 
     if (layered) {
       layer.borderWidth = 0
       layer.borderColor = null
-      if (!node.borderLayer) {
-        node.borderLayer = CALayer.alloc().init()
+      if (!state.borderLayer) {
+        state.borderLayer = CALayer.alloc().init()
         layer.insertSublayerAtIndex(
-          node.borderLayer,
-          (node.bgHost ? 1 : 0) + (node.insetShadowHost ? 1 : 0),
+          state.borderLayer,
+          (state.bgHost ? 1 : 0) + (state.insetShadowHost ? 1 : 0),
         )
       }
 
-      const box = node.borderLayer
+      const box = state.borderLayer
       box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
       if (maxRadius > 0) {
-        const outline = (node.borderOutline ??= CAShapeLayer.alloc().init())
+        const outline = (state.borderOutline ??= CAShapeLayer.alloc().init())
         outline.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
         outline.path = roundedBoxCGPath(w, h, scaled)
         box.mask = outline
@@ -678,13 +389,13 @@ export function createBorderPaint(deps: Dependencies) {
       }
 
       const hideBandExtras = (side: BorderSide) => {
-        for (const extra of node.borderBandShapes?.[side] ?? []) {
+        for (const extra of state.borderBandShapes?.[side] ?? []) {
           extra.hidden = true
         }
       }
 
       if (uniformPattern) {
-        const stroke = (node.borderStroke ??= CAShapeLayer.alloc().init())
+        const stroke = (state.borderStroke ??= CAShapeLayer.alloc().init())
         if (stroke.superlayer !== box) {
           box.addSublayer(stroke)
         }
@@ -698,7 +409,7 @@ export function createBorderPaint(deps: Dependencies) {
           borderNSColor(node, spec?.colors?.top)?.CGColor ?? null,
         )
 
-        for (const shape of Object.values(node.borderSides ?? {}) as any[]) {
+        for (const shape of Object.values(state.borderSides ?? {}) as any[]) {
           shape.hidden = true
         }
 
@@ -706,22 +417,23 @@ export function createBorderPaint(deps: Dependencies) {
           hideBandExtras(side)
         }
       } else {
-        if (node.borderStroke) {
-          node.borderStroke.hidden = true
+        if (state.borderStroke) {
+          state.borderStroke.hidden = true
         }
 
         for (const side of BORDER_SIDES) {
-          const shape = ((node.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
+          const shape = ((state.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
           if (shape.superlayer !== box) {
             box.addSublayer(shape)
           }
 
           shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
           shape.hidden = widths[side] === 0
-          shape.mask = null
+          // Native setters accept nil; these generated bindings omit null.
+          Object.assign(shape, { mask: null })
           shape.strokeColor = null
           shape.lineWidth = 0
-          shape.lineDashPattern = null
+          Object.assign(shape, { lineDashPattern: null })
           shape.fillColor = null
           if (widths[side] === 0) {
             hideBandExtras(side)
@@ -732,7 +444,7 @@ export function createBorderPaint(deps: Dependencies) {
           const color = baseNSColor?.CGColor ?? null
           if (borderStrokeStyle(sideStyles[side], widths[side])) {
             paintStroke(shape, sideStyles[side], widths[side], color)
-            const mask = ((node.borderSideMasks ??= {})[side] ??= CAShapeLayer.alloc().init())
+            const mask = ((state.borderSideMasks ??= {})[side] ??= CAShapeLayer.alloc().init())
             mask.frame = shape.frame
             mask.path = borderSideCGPath(side, w, h, widths)
             mask.fillColor = borderNSColor(node, '#000')?.CGColor ?? null
@@ -748,7 +460,7 @@ export function createBorderPaint(deps: Dependencies) {
             )
 
             shape.fillColor = bands[0].shade === 'dark' ? darkBandColor(baseNSColor, color) : color
-            const extras = ((node.borderBandShapes ??= {})[side] ??= [] as any[])
+            const extras = ((state.borderBandShapes ??= {})[side] ??= [] as any[])
             for (let i = 1; i < bands.length; i++) {
               const extra = (extras[i - 1] ??= CAShapeLayer.alloc().init())
               if (extra.superlayer !== box) {
@@ -772,7 +484,7 @@ export function createBorderPaint(deps: Dependencies) {
         }
       }
     } else {
-      removeBorderLayers(node)
+      removeBorderLayers(node, state)
       // Uniform borders use the CALayer slots; without shape layers the top
       // edge's values stand in — deterministic like the collapsed engine.
       layer.borderWidth = widths.top
@@ -782,57 +494,27 @@ export function createBorderPaint(deps: Dependencies) {
           : null
     }
 
-    // Percent radii, per-corner masks and layered borders all resolve against
-    // the box — resync on frame changes while any is in effect.
-    const percentRadius =
-      spec?.radii != null &&
-      BORDER_CORNERS.some((corner) =>
-        String(spec.radii[corner] ?? '')
-          .trim()
-          .endsWith('%'),
-      )
-    const needsSync =
-      Boolean(percentRadius) ||
+    state.borderNeedsFrame =
+      (spec?.radii != null &&
+        BORDER_CORNERS.some((corner) =>
+          String(spec.radii?.[corner] ?? '')
+            .trim()
+            .endsWith('%'),
+        )) ||
       perCorner ||
-      layered ||
-      (node.boxShadowSpec?.length ?? 0) > 0 ||
-      node.bgHost != null ||
-      deps.transformPaint.hasPercentTranslate(node) ||
-      (node.transformSpec != null && Object.keys(node.transformSpec).length > 0)
-    if (node.boxFrameOwner && node.boxFrameOwner.view !== view) {
-      clearBoxFrameObserver(node)
-    }
-    if (node.view !== view || effectiveStyle(node) !== resolvedStyle) {
-      return
-    }
-    if (needsSync && !node.boxFrameOwner) {
-      observeBoxFrame(node, view)
-    } else if (!needsSync) {
-      clearBoxFrameObserver(node)
-    }
+      layered
   }
   return {
-    BORDER_SIDES,
-    BORDER_CORNERS,
     BORDER_WIDTH_KEYS,
     BORDER_COLOR_KEYS,
     BORDER_RADIUS_KEYS,
     BORDER_EDGE_KEYS,
     BORDER_STYLE_KEYS,
-    borderLength,
-    borderRadiusPoints,
-    resolveBorderRadii,
-    scaleBorderRadii,
-    BORDER_STYLE_WORDS,
-    roundedBoxCGPath,
-    borderStrokeCGPath,
-    borderBandCGPath,
-    borderNSColor,
     setBorderSlot,
     clearBorderSlot,
     setBorderEdge,
     clearBorderEdge,
-    clearBoxFrameObserver,
     syncBorderBox,
+    disposeBorder,
   }
 }

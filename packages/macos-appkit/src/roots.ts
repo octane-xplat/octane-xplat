@@ -1,6 +1,5 @@
+import type { BoxPaint } from './box-paint'
 import type { Registry } from './registry'
-import type { BorderPaint } from './border-paint'
-import type { ShadowPaint } from './shadow-paint'
 import type { Driver } from './driver'
 import type { StyleEnvironment } from './style-environment'
 import type { Automation } from './automation'
@@ -19,9 +18,8 @@ export interface MacOSRootOptions {
 }
 
 interface Dependencies {
+  boxPaint: Pick<BoxPaint, 'syncProjection'>
   registry: Pick<Registry, 'cssNodesByView'>
-  borderPaint: Pick<BorderPaint, 'syncBorderBox'>
-  shadowPaint: Pick<ShadowPaint, 'syncBoxShadow'>
   driver: Pick<Driver, 'macOSDriver'>
   styleEnvironment: Pick<
     StyleEnvironment,
@@ -54,8 +52,7 @@ export function createRoots(deps: Dependencies) {
     try {
       transaction.setDisableActions(true)
       setProjectionScale(view, scale)
-      deps.borderPaint.syncBorderBox(node)
-      deps.shadowPaint.syncBoxShadow(node)
+      deps.boxPaint.syncProjection(node)
     } finally {
       transaction.commit()
     }

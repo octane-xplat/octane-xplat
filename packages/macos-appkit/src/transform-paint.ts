@@ -1,6 +1,4 @@
-import type { BorderPaint } from './border-paint'
-import type { ShadowPaint } from './shadow-paint'
-import type { BackgroundPaint } from './background-paint'
+import type { BoxPaintState } from './box-paint-state'
 import type { ElementNode } from './model'
 import {
   CATransform3DIdentity,
@@ -10,15 +8,9 @@ import {
 } from '@octane-xplat/platform/macos'
 import { composeTransform, transformToParts, type TranslateAxis } from '@octane-xplat/css-engine'
 
-interface Dependencies {
-  borderPaint: Pick<BorderPaint, 'syncBorderBox'>
-  shadowPaint: Pick<ShadowPaint, 'syncBoxShadow'>
-  backgroundPaint: Pick<BackgroundPaint, 'paintBackgrounds'>
-}
-
 export type TransformPaint = ReturnType<typeof createTransformPaint>
 
-export function createTransformPaint(deps: Dependencies) {
+export function createTransformPaint() {
   // ---- transforms --------------------------------------------------------------
 
   // Style keys that feed the transform — NS vocabulary: the `transform`
@@ -46,7 +38,15 @@ export function createTransformPaint(deps: Dependencies) {
   // A translate axis is points or 'N%' resolved against the element's own size.
   function translateAxisValue(value: unknown): TranslateAxis {
     // The CSS engine and keyframe sampler already normalize percent axes.
-    if (typeof value === 'object' && value != null && 'unit' in value && value.unit === '%' && 'value' in value && typeof value.value === 'number' && Number.isFinite(value.value)) {
+    if (
+      typeof value === 'object' &&
+      value != null &&
+      'unit' in value &&
+      value.unit === '%' &&
+      'value' in value &&
+      typeof value.value === 'number' &&
+      Number.isFinite(value.value)
+    ) {
       return { value: value.value, unit: '%' }
     }
     if (typeof value === 'number') {
@@ -103,12 +103,12 @@ export function createTransformPaint(deps: Dependencies) {
   // order (translate → rotate z → rotate x/y with perspective → scale) around
   // the layer's centre anchor. Y-down CSS semantics map to y-up layer space by
   // negating every y translate and every angle.
-  function syncTransform(node: ElementNode) {
+  function syncTransform(node: ElementNode, state: BoxPaintState) {
     const view = node.view
     if (!view || typeof CATransform3DTranslate !== 'function') {
       return
     }
-    const spec = node.transformSpec
+    const spec = state.transformSpec
     let parts: any = {}
     if (spec?.transform != null) {
       try {
@@ -146,9 +146,9 @@ export function createTransformPaint(deps: Dependencies) {
       Math.max(0, Number(size.height) || 0),
     )
     if (!steps.length) {
-      if (node.transformApplied && view.layer) {
+      if (state.transformApplied && view.layer) {
         view.layer.transform = CATransform3DIdentity
-        node.transformApplied = false
+        state.transformApplied = false
       }
 
       return
@@ -182,11 +182,11 @@ export function createTransformPaint(deps: Dependencies) {
       }
     }
     layer.transform = t
-    node.transformApplied = true
+    state.transformApplied = true
   }
 
-  function hasPercentTranslate(node: ElementNode): boolean {
-    const spec = node.transformSpec
+  function hasPercentTranslate(node: ElementNode, state: BoxPaintState): boolean {
+    const spec = state.transformSpec
     return (
       spec != null &&
       ((typeof spec.transform === 'string' && spec.transform.includes('%')) ||
@@ -197,19 +197,11 @@ export function createTransformPaint(deps: Dependencies) {
     )
   }
 
-  // One resync point for every box-geometry consumer — borders/radii/shadow and
-  // percent transforms.
-  function syncBoxGeometry(node: ElementNode) {
-    deps.borderPaint.syncBorderBox(node)
-    deps.shadowPaint.syncBoxShadow(node)
-    syncTransform(node)
-    deps.backgroundPaint.paintBackgrounds(node)
-  }
   return {
     TRANSFORM_KEYS,
     TRANSFORM_SLOT,
     translateAxisValue,
     hasPercentTranslate,
-    syncBoxGeometry,
+    syncTransform,
   }
 }

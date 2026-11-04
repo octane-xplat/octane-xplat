@@ -152,17 +152,37 @@ export class WKWebViewConfiguration extends NativeObject {}
 NSNotificationCenter.defaultCenter = { removeObserver() {} };
 `
 
-export function mockNativeBoundary() {
+export function mockNativeBoundary(overrides?: { module: URL; exports: readonly string[] }) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'dlopen')
   Object.defineProperty(globalThis, 'dlopen', { value: () => ({}), configurable: true })
+  let source = platform
+  if (overrides) {
+    for (const name of overrides.exports) {
+      source = source.replace(
+        'export class ' + name + ' extends NativeObject {}',
+        'import { ' +
+          name +
+          ' } from ' +
+          JSON.stringify(overrides.module.href) +
+          '; export { ' +
+          name +
+          ' };',
+      )
+    }
+  }
+  if (overrides?.exports.includes('NSNotificationCenter')) {
+    source = source.replace('NSNotificationCenter.defaultCenter = { removeObserver() {} };', '')
+  }
   const hooks = registerHooks({
     resolve(specifier, owner, next) {
       if (specifier === '@octane-xplat/platform/macos') {
-        return { url: 'data:text/javascript,' + encodeURIComponent(platform), shortCircuit: true }
+        return { url: 'data:text/javascript,' + encodeURIComponent(source), shortCircuit: true }
       }
       if (specifier.startsWith('.') && owner.parentURL) {
         const candidate = new URL(specifier + '.ts', owner.parentURL)
-        if (existsSync(candidate)) { return next(candidate.href, owner) }
+        if (existsSync(candidate)) {
+          return next(candidate.href, owner)
+        }
       }
       return next(specifier, owner)
     },
@@ -170,8 +190,11 @@ export function mockNativeBoundary() {
   return {
     deregister() {
       hooks.deregister()
-      if (previous) { Object.defineProperty(globalThis, 'dlopen', previous) }
-      else { delete (globalThis as any).dlopen }
+      if (previous) {
+        Object.defineProperty(globalThis, 'dlopen', previous)
+      } else {
+        delete (globalThis as any).dlopen
+      }
     },
   }
 }

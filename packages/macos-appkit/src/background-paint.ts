@@ -1,6 +1,13 @@
+import type { BoxPaintState } from './box-paint-state'
+import {
+  BORDER_CORNERS,
+  borderLength,
+  resolveBorderRadii,
+  scaleBorderRadii,
+  roundedBoxCGPath,
+} from './box-geometry.ts'
 import { FailureCollector } from './failures.ts'
 import { parseEdgeInsets, effectiveStyle } from './style-values.ts'
-import type { BorderPaint } from './border-paint'
 import {
   collectBackground,
   positioningBox,
@@ -23,31 +30,20 @@ import { correctProjectionRadii } from './projection-paint'
 import { requestImage } from './image'
 
 export interface BgPainted {
-  layer: any
+  layer: CALayer
   spec: BackgroundSpec['layers'][number]
   release?: () => void
-  active?: boolean
-  image?: any
-  mask?: any
+  active: boolean
+  image?: NSImage | null
+  mask?: CAShapeLayer
   renderedW?: number
   renderedH?: number
   renderedScale?: number
 }
 
-interface Dependencies {
-  borderPaint: Pick<
-    BorderPaint,
-    | 'borderLength'
-    | 'scaleBorderRadii'
-    | 'resolveBorderRadii'
-    | 'BORDER_CORNERS'
-    | 'roundedBoxCGPath'
-  >
-}
-
 export type BackgroundPaint = ReturnType<typeof createBackgroundPaint>
 
-export function createBackgroundPaint(deps: Dependencies) {
+export function createBackgroundPaint() {
   // ---- Background layers -----------------------------------------------------
   // `background`/`background-image`/`-repeat`/`-position`/`-size`/`-origin`/
   // `-clip` paint one CALayer subtree under the border: a host at sublayer 0
@@ -66,12 +62,12 @@ export function createBackgroundPaint(deps: Dependencies) {
     'backgroundBlendMode',
   ])
 
-  function backgroundEdges(node: ElementNode) {
-    const spec = node.borderSpec
+  function backgroundEdges(node: ElementNode, state: BoxPaintState) {
+    const spec = state.borderSpec
     const style = effectiveStyle(node)
     const sideStyles = borderStyleSides(style)
     const edge = (side: 'top' | 'right' | 'bottom' | 'left') =>
-      hiddenBorderStyle(sideStyles[side]) ? 0 : deps.borderPaint.borderLength(spec?.widths?.[side])
+      hiddenBorderStyle(sideStyles[side]) ? 0 : borderLength(spec?.widths?.[side])
     const padding = parseEdgeInsets(style.padding ?? 0)
     return {
       border: {
@@ -89,14 +85,16 @@ export function createBackgroundPaint(deps: Dependencies) {
     }
   }
 
-  function clearBackgrounds(node: ElementNode) {
+  function clearBackgrounds(node: ElementNode, state: BoxPaintState) {
     const failures = new FailureCollector()
-    const paintedLayers: BgPainted[] = node.bgPainted ?? []
-    const host = node.bgHost
-    node.bgPainted = undefined
-    node.bgHost = undefined
-    node.bgSpec = undefined
-    for (const painted of paintedLayers) { painted.active = false }
+    const paintedLayers: BgPainted[] = state.bgPainted ?? []
+    const host = state.bgHost
+    state.bgPainted = undefined
+    state.bgHost = undefined
+    state.bgSpec = undefined
+    for (const painted of paintedLayers) {
+      painted.active = false
+    }
     for (const painted of paintedLayers) {
       const release = painted.release
       painted.release = undefined
@@ -224,33 +222,29 @@ export function createBackgroundPaint(deps: Dependencies) {
     child.colors = resolved.map((s) => nativeColor(s.color).CGColor)
   }
 
-  function paintBackgrounds(node: ElementNode) {
+  function paintBackgrounds(node: ElementNode, state: BoxPaintState) {
     const view = node.view
-    const painted = node.bgPainted
-    if (!view || !painted?.length || !node.bgSpec) {
+    const painted = state.bgPainted
+    if (!view || !painted?.length || !state.bgSpec) {
       return
     }
     const bounds = view.bounds
     const w = Number(bounds?.size?.width ?? 0)
     const h = Number(bounds?.size?.height ?? 0)
-    const host = node.bgHost
+    const host = state.bgHost
     if (host) {
       host.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
     }
     const flipped = view.flipped === true
-    const { border, padding } = backgroundEdges(node)
-    const spec = node.borderSpec
-    const radii = deps.borderPaint.scaleBorderRadii(
-      correctProjectionRadii(
-        view,
-        deps.borderPaint.resolveBorderRadii(spec?.radii, w, h),
-        spec?.radii,
-      ),
+    const { border, padding } = backgroundEdges(node, state)
+    const spec = state.borderSpec
+    const radii = scaleBorderRadii(
+      correctProjectionRadii(view, resolveBorderRadii(spec?.radii, w, h), spec?.radii),
       w,
       h,
     )
     // CSS paints layers first-on-top; children keep reverse order.
-    ;(painted as BgPainted[]).forEach((entry) => {
+    painted.forEach((entry) => {
       const clip = positioningBox(entry.spec.clip, w, h, border, padding)
       const origin = positioningBox(entry.spec.origin, w, h, border, padding)
       const layer = entry.layer
@@ -261,15 +255,16 @@ export function createBackgroundPaint(deps: Dependencies) {
       if (entry.spec.clip !== 'border-box' && clip.width > 0 && clip.height > 0) {
         const inset = Math.max(border.top, border.left, border.right, border.bottom)
         const inner = Object.fromEntries(
-          deps.borderPaint.BORDER_CORNERS.map((c) => [c, Math.max(0, radii[c] - inset)]),
+          BORDER_CORNERS.map((c) => [c, Math.max(0, radii[c] - inset)]),
         )
 
         const mask = (entry.mask ??= CAShapeLayer.alloc().init())
         mask.frame = { origin: { x: 0, y: 0 }, size: { width: clip.width, height: clip.height } }
-        mask.path = deps.borderPaint.roundedBoxCGPath(clip.width, clip.height, inner as any)
+        mask.path = roundedBoxCGPath(clip.width, clip.height, inner as any)
         layer.mask = mask
       } else if (entry.mask) {
-        layer.mask = null
+        // The native setter accepts nil; its generated binding omits null.
+        Object.assign(layer, { mask: null })
       }
       const image = entry.spec.image
       if (image.kind === 'gradient') {
@@ -291,14 +286,14 @@ export function createBackgroundPaint(deps: Dependencies) {
     })
   }
 
-  function syncBackgrounds(node: ElementNode) {
+  function syncBackgrounds(node: ElementNode, state: BoxPaintState) {
     const view = node.view
     if (!view) {
       return
     }
     const warnings: string[] = []
     const spec = collectBackground(effectiveStyle(node), warnings)
-    const warned = (node.bgWarnings ??= new Set<string>())
+    const warned = (state.bgWarnings ??= new Set<string>())
     for (const message of warnings) {
       if (!warned.has(message)) {
         warned.add(message)
@@ -317,28 +312,30 @@ export function createBackgroundPaint(deps: Dependencies) {
     }
     const layers = spec?.layers ?? []
     if (!layers.length) {
-      clearBackgrounds(node)
+      clearBackgrounds(node, state)
       return
     }
-    node.bgSpec = spec
+    state.bgSpec = spec
     view.wantsLayer = true
-    if (!node.bgHost) {
-      node.bgHost = CALayer.alloc().init()
+    if (!state.bgHost) {
+      state.bgHost = CALayer.alloc().init()
     }
-    const host = node.bgHost
+    const host = state.bgHost
     const parentLayer = view.layer
     if (host.superlayer !== parentLayer) {
       parentLayer.insertSublayerAtIndex(host, 0)
     }
     // Reconcile children against the spec — layer kind/order changes rebuild,
     // same-kind entries repaint.
-    const previous = node.bgPainted ?? []
+    const previous = state.bgPainted ?? []
     const next: BgPainted[] = []
     layers.forEach((specLayer, index) => {
       let entry =
-        previous[index] && previous[index].spec.image.kind === specLayer.image.kind &&
+        previous[index] &&
+        previous[index].spec.image.kind === specLayer.image.kind &&
         (specLayer.image.kind !== 'url' ||
-          (previous[index].spec.image.kind === 'url' && previous[index].spec.image.url === specLayer.image.url))
+          (previous[index].spec.image.kind === 'url' &&
+            previous[index].spec.image.url === specLayer.image.url))
           ? previous[index]
           : undefined
       if (!entry) {
@@ -350,16 +347,24 @@ export function createBackgroundPaint(deps: Dependencies) {
         entry = { layer, spec: specLayer, active: true }
         if (specLayer.image.kind === 'url') {
           entry.release = requestImage(specLayer.image.url, (image) => {
-            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !entry!.active || node.view !== view) {
+            if (
+              node.lifecycle === 'disposing' ||
+              node.lifecycle === 'disposed' ||
+              !entry!.active ||
+              !state.current() ||
+              node.view !== view
+            ) {
               return
             }
             entry!.image = image
             entry!.renderedW = undefined
-            paintBackgrounds(node)
+            paintBackgrounds(node, state)
           })
         }
       }
-      if (JSON.stringify(entry.spec) !== JSON.stringify(specLayer)) { entry.renderedW = undefined }
+      if (JSON.stringify(entry.spec) !== JSON.stringify(specLayer)) {
+        entry.renderedW = undefined
+      }
       entry.spec = specLayer
       next.push(entry)
     })
@@ -372,7 +377,7 @@ export function createBackgroundPaint(deps: Dependencies) {
         entry.layer.removeFromSuperlayer()
       }
     }
-    node.bgPainted = next
+    state.bgPainted = next
     // Children sit above the host in CSS first-on-top order.
     next.forEach((entry, index) => {
       if (entry.layer.superlayer !== host) {
@@ -380,7 +385,7 @@ export function createBackgroundPaint(deps: Dependencies) {
       }
       entry.layer.zPosition = next.length - index
     })
-    paintBackgrounds(node)
+    paintBackgrounds(node, state)
   }
   return {
     BACKGROUND_STYLE_KEYS,
