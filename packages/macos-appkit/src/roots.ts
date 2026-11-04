@@ -80,6 +80,9 @@ export function createRoots(deps: Dependencies) {
   const appKitContainers = new Set<RootContainer>()
 
   function createMacOSRoot(hostView: NSView, { fontFamily }: MacOSRootOptions = {}) {
+    if (ownedRoots.has(hostView)) {
+      throw new Error('AppKit host already has a live root')
+    }
     rootFontFamilies.set(hostView, fontFamily)
     const container: RootContainer = {
       hostView,
@@ -117,10 +120,14 @@ export function createRoots(deps: Dependencies) {
     // diffs against a baseline instead of an empty cache.
     deps.styleEnvironment.seedContainerMedia(container)
     const unmount = root.unmount.bind(root)
+    let retired = false
     root.unmount = () => {
+      if (retired) return
+      retired = true
       appKitContainers.delete(container)
       if (ownedRoots.get(hostView) === root) {
         ownedRoots.delete(hostView)
+        rootFontFamilies.delete(hostView)
       }
 
       unmount()

@@ -138,11 +138,10 @@ never retry an OS release merely because it threw. A native release failure
 still means that OS resource may remain unreleased. Live plugin nodes currently
 re-query the registration for cleanup; the acquired-definition migration must
 deliberately replace that behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
-Root creation also admits a second root on the same host, and font records
-survive unmount ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).
-The direct root test characterizes that existing policy; it is not the desired
-single-owner contract. Keep identity-safe old-root retirement and nested font
-inheritance when enforcing the new policy.
+Root creation rejects a second live root on the same host; retained-root HMR
+must reuse the existing root. Retirement is idempotent and removes font
+membership with the host owner ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).
+Nested roots retain their captured inherited family until their own retirement.
 
 ## Verify a change
 

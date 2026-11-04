@@ -66,29 +66,24 @@ test('root services own registration, font inheritance and retirement independen
     other.unmount()
     assert.equal(independent.appKitContainers.size, 0)
 
-    // P0 characterization: current roots admit two mounts on one host.
-    // P3 must replace that admission policy while retaining identity-safe retirement.
     const sharedHost = {}
     const older = roots.createMacOSRoot(sharedHost, { fontFamily: 'Older' })
+    assert.throws(() => roots.createMacOSRoot(sharedHost), /already has a live root/)
+    assert.equal(roots.appKitContainers.size, 1)
+    older.unmount()
     const newer = roots.createMacOSRoot(sharedHost, { fontFamily: 'Newer' })
-    assert.equal(roots.appKitContainers.size, 2)
+    older.unmount()
     assert.equal(roots.ownedRoots.get(sharedHost), newer)
     const nestedHost = { superview: sharedHost }
-    assert.equal(roots.fontFamilyForView(nestedHost), 'Newer')
     const nested = roots.createMacOSRoot(nestedHost, {
       fontFamily: roots.fontFamilyForView(nestedHost),
     })
-    older.unmount()
-    assert.equal(roots.ownedRoots.get(sharedHost), newer)
-    assert.equal(roots.appKitContainers.size, 2)
-    assert.equal(roots.fontFamilyForView(nestedHost), 'Newer')
     newer.unmount()
-    assert.equal(roots.ownedRoots.has(sharedHost), false)
-    assert.equal(roots.appKitContainers.size, 1)
+    assert.equal(roots.fontFamilyForView(sharedHost), undefined)
+    assert.equal(roots.fontFamilyForView(nestedHost), 'Newer')
     nested.unmount()
     assert.equal(roots.appKitContainers.size, 0)
-    // Existing font records survive unmount; P3 owns retiring these records.
-    assert.equal(roots.fontFamilyForView(sharedHost), 'Newer')
+    assert.equal(roots.fontFamilyForView(nestedHost), undefined)
   } finally {
     hooks.deregister()
   }
