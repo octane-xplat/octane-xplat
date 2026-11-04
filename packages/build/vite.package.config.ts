@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { readFileSync, mkdirSync, writeFileSync, cpSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -34,6 +34,7 @@ export default defineConfig({
 		{
 			name: 'build-plugin-declarations',
 			closeBundle() {
+				cpSync(resolve(source, 'linux/host'), resolve(root, 'dist/linux/host'), { recursive: true })
 				for (const name of ['native', 'macos']) {
 					const output = resolve(root, 'dist/typecheck-globals', `${name}.d.ts`)
 					mkdirSync(dirname(output), { recursive: true })

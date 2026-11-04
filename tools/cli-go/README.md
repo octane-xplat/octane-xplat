@@ -200,4 +200,12 @@ compiled native C leaf, signed universal executable, verified app/DMG). The latt
 requires macOS arm64 and a native-build reservation. It never launches an app or
 performs visual analysis, retains failed fixtures for diagnosis, and records
 structured package evidence under `research/go-cli/`. NativeScript SDK execution
-and Linux packaging remain separate work; help/schema disclose pending engines.
+remains separate work; help/schema disclose pending engines.
+
+`test:go-linux-build` compares the packed worker's actual GTK/GJS and WebKitGTK
+output to canonical Node construction, extracts and compares each tar archive,
+and checks executable permissions, relocation, failed compilation, invalid plans,
+preflight of both destinations, output locking and cancellation. The worker's small
+Linux host scripts ship beside its emitted modules; system GJS/GTK/WebKit libraries
+are not bundled. Packaging verification does not establish app/window runtime or
+visual qualification. Windows executes only the explicit unsupported-host case.

@@ -118,8 +118,16 @@ func prepareBuildEngines(project string, selected []string) ([]projectBuildEngin
 			if err == nil {
 				_, err = installedProjectEntry(project, "vite", "bin", "vite")
 			}
+		case "linux":
+			if runtime.GOOS != "darwin" && runtime.GOOS != "linux" {
+				return nil, errors.New("Linux packaging requires a POSIX build host (macOS or Linux)")
+			}
+			entry, err = projectWorker(project)
+			if err == nil {
+				_, err = installedProjectEntry(project, "vite", "bin", "vite")
+			}
 		default:
-			return nil, fmt.Errorf("%s packaging integration is pending in the parallel Go CLI", kind)
+			return nil, fmt.Errorf("unknown build target %s", kind)
 		}
 		if err != nil {
 			return nil, err
@@ -206,6 +214,12 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 			}
 			continue
 		}
+		if engine.Platform == "linux" {
+			if err = runLinuxPackage(ctx, project, engine.Entry); err != nil {
+				return err
+			}
+			continue
+		}
 		args := []string{"node", engine.Entry, "build"}
 		if engine.Platform != "web" {
 			args = append(args, engine.Platform)
@@ -233,6 +247,6 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 
 func buildEngineContracts() map[string]string {
 	return map[string]string{
-		"web": "project-vite", "ios": "project-nativescript", "android": "project-nativescript", "windows": "project-nativescript", "macos": "project-packaging-worker", "linux": "pending",
+		"web": "project-vite", "ios": "project-nativescript", "android": "project-nativescript", "windows": "project-nativescript", "macos": "project-packaging-worker", "linux": "project-packaging-worker",
 	}
 }

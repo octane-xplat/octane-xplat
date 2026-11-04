@@ -213,6 +213,15 @@ rename must restore both old outputs;
 a failed rollback must retain staging and disclose recovery paths. Never delete a
 staging name whose directory identity changed or whose worker cleanup is unknown.
 
+Linux packaging reuses `linux/package.ts` with an explicit staging root,
+`publish: false` and host asset root. Preserve ordinary reference calls' default
+publication behavior. Full CLI assets live under `src/`; curated workers carry
+the small GJS host beside emitted modules. Do not silently omit WebKitGTK host
+assets or bundle system GJS/GTK libraries into the native executable. Native code
+owns the complete app-directory/archive publication pair and launcher modes.
+Annotate exported option shapes in transitional `@ts-nocheck` helpers: an optional
+binding without a default may disappear from the inferred public call signature.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

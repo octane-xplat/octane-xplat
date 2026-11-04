@@ -139,7 +139,7 @@ func commandHelp(command commandDescriptor) string {
 	}
 	fmt.Fprintf(&out, "\nRun `xplat %s --schema` for the machine-readable contract without executing the command.\n", command.Name)
 	if command.Name == "build" {
-		out.WriteString("\nEngines: project Vite, NativeScript, and the macOS packaging worker.\nLinux packaging is pending in this parallel Go build. Node must be installed.\n")
+		out.WriteString("\nEngines: project Vite, NativeScript, and selected macOS/Linux packaging workers.\nLinux packaging requires a POSIX build host. Node must be installed.\n")
 	}
 	return out.String()
 }

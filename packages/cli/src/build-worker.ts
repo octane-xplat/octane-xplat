@@ -1,6 +1,6 @@
 // Explicit project-toolchain operations. No CLI selection or orchestration.
-import { readFileSync, writeFileSync, statSync, realpathSync, existsSync } from 'node:fs'
-import { resolve, join, relative, dirname, sep } from 'node:path'
+import { readFileSync, writeFileSync, statSync, realpathSync, existsSync, lstatSync, readdirSync } from 'node:fs'
+import { resolve, join, relative, dirname, sep, basename } from 'node:path'
 import { pathToFileURL, fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
@@ -56,6 +56,25 @@ try {
 			onSource: source => { file = source },
 		})
 		data = { version: 1, count: plan.count, outputs: [...plan.outputs].map(([file, source]) => ({ file, source })) }
+	} else if (request.operation === 'linux-package') {
+		if (!['darwin', 'linux'].includes(process.platform)) {
+			throw new Error('Linux packaging requires a POSIX build host')
+		}
+		const stage = request.stagingRoot
+		const release = join(process.cwd(), 'dist/linux')
+		if (typeof stage !== 'string' || !lstatSync(stage).isDirectory() ||
+			dirname(realpathSync(stage)) !== realpathSync(release) ||
+			!basename(stage).startsWith('.xplat-linux-') || readdirSync(stage).length) {
+			throw new Error('Expected an empty native-owned Linux staging directory')
+		}
+		const { packageLinux } = await import('./linux/package.ts')
+		// Full CLI emit keeps payloads in src; curated workers keep this small
+		// Linux host beside the emitted module. No host/runtime is embedded.
+		const roots = [fileURLToPath(srcUrl(import.meta.url, 'linux/host/')),
+			fileURLToPath(new URL('./linux/host/', import.meta.url))]
+		const hostRoot = roots.find(root => existsSync(join(root, 'gjs-host.js')))
+		if (!hostRoot) { throw new Error('Update the selected CLI: Linux host assets are missing') }
+		data = await packageLinux(process.cwd(), { stagingRoot: stage, publish: false, hostRoot })
 	} else if (request.operation === 'fmt-plan') {
 		if (!Array.isArray(request.inputs) || !request.inputs.every((value: unknown) => typeof value === 'string')) {
 			throw new Error('fmt-plan requires input paths')

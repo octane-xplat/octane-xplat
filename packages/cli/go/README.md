@@ -140,7 +140,12 @@ locked staging/publication boundary for its app and DMG. Interactive terminals
 use a bounded comma-list selection; noninteractive commands select all available
 targets. Missing tools are installation errors, never permission to download them.
 Projects with routes also need their installed `@octane-xplat/cli` worker for
-automatic baking. Linux packaging is still pending. NativeScript SDK builds need separate target
+automatic baking. Linux packaging runs the selected CLI worker on macOS/Linux,
+using the canonical GTK/GJS or WebKitGTK packager and the same native locked
+staging/publication owner as macOS. The application directory and versioned tar
+archive are published together with recoverable backups; launchers keep their
+executable mode. Linux packaging requires macOS or Linux. NativeScript SDK builds
+need separate target
 qualification; invoking a fixture engine only proves the adapter contract.
 
 ```sh

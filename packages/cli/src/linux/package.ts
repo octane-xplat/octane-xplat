@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { srcUrl } from '../env.ts'
 import { inspectLinuxPackageConfig } from './config.ts'
 
-const hostRoot = fileURLToPath(srcUrl(import.meta.url, 'host/'))
+const defaultHostRoot = fileURLToPath(srcUrl(import.meta.url, 'host/'))
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const desktopString = (value) => value.replaceAll('\\', '\\\\').replaceAll('\t', '\\t')
 
@@ -86,7 +86,9 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
 }
 
 /** Build a relocatable GJS/WebKitGTK app and tar archive from a Linux target. */
-export async function packageLinux(appRoot) {
+export async function packageLinux(appRoot: string,
+	{ stagingRoot, publish = true, hostRoot = defaultHostRoot }:
+	{ stagingRoot?: string; publish?: boolean; hostRoot?: string } = {}) {
 	const config = inspectLinuxPackageConfig(appRoot)
 	if (config.issues.length) {
 		throw new Error(config.issues.join('\n'))
@@ -103,7 +105,8 @@ export async function packageLinux(appRoot) {
 
 	const output = join(appRoot, 'dist', 'linux')
 	mkdirSync(output, { recursive: true })
-	const staging = mkdtempSync(join(output, '.package-'))
+	const staging = stagingRoot ?? mkdtempSync(join(output, '.package-'))
+	let preserveStaging = false
 	const appDir = join(staging, config.executableName)
 	const archiveName = `${config.executableName}-${config.version}.tar.gz`
 	try {
@@ -211,6 +214,12 @@ printf 'Installed to %s\\n' "$DEST"
 			{ stdio: 'inherit' },
 		)
 
+		if (!publish) {
+			preserveStaging = true
+			return { version: 1, runtime: config.runtime, executableName: config.executableName,
+				packageVersion: config.version, appDir, archive: join(staging, archiveName) }
+		}
+
 		const destination = join(output, config.executableName)
 		const backup = join(staging, 'previous')
 		if (existsSync(destination)) {
@@ -231,6 +240,6 @@ printf 'Installed to %s\\n' "$DEST"
 		console.log(`[linux-package] ${destination}\n[linux-package] ${join(output, archiveName)}`)
 		return { appDir: destination, archive: join(output, archiveName) }
 	} finally {
-		rmSync(staging, { recursive: true, force: true })
+		if (!preserveStaging) { rmSync(staging, { recursive: true, force: true }) }
 	}
 }
