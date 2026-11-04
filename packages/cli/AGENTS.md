@@ -186,6 +186,13 @@ The human formatter's stdin/stdout helpers are one-shot process readers/writers:
 blocked I/O ends at the CLI's signal exit. Do not reuse those helpers in the
 persistent host, which needs operation-owned I/O and joined teardown instead.
 
+Lint delegates directly to the selected project's `@octane-xplat/lint` `./bin`
+export. Forward raw argv, including `--`, and preserve engine exit status and
+live stdout/stderr through the native process owner. Discovery, configuration,
+companion TSRX rules and explicit `--fix` mutations belong to that engine; do not
+add a second lint parser or apply native formatter publication rules to an engine
+that already owns fixes. Native schema/help must respect the argument delimiter.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

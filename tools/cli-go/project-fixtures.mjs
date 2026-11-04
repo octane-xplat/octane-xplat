@@ -10,7 +10,7 @@ export function projectToolFixture(
 	root,
 	work,
 	scratch,
-	{ checker = false, vite = true, formatter = false } = {},
+	{ checker = false, vite = true, formatter = false, linter = false } = {},
 ) {
 	// Source-host test tasks may run concurrently. Never replace a shared archive
 	// while another task is reading its recorded bytes/hash. Portable snapshots
@@ -19,17 +19,19 @@ export function projectToolFixture(
 	if (existsSync(join(root, 'packages/build/dist/build-worker.js'))) {
 		fixtureWork = join(scratch, 'worker-packages')
 		mkdirSync(fixtureWork)
-		prepareFixtures(root, fixtureWork)
+		prepareFixtures(root, fixtureWork, { linter })
 	}
 	const packages = JSON.parse(readFileSync(join(fixtureWork, 'project-packages.json')))
 	const deps = Object.fromEntries(
-		packages.packages.map((item) => {
-			const file = join(fixtureWork, 'project-packages', item.file),
-				bytes = readFileSync(file)
-			assert.equal(createHash('sha256').update(bytes).digest('hex'), item.sha256)
-			assert.equal(bytes.length, item.bytes)
-			return [item.name, `file:${file.replaceAll('\\', '/')}`]
-		}),
+		packages.packages
+			.filter((item) => !item.optional || linter)
+			.map((item) => {
+				const file = join(fixtureWork, 'project-packages', item.file),
+					bytes = readFileSync(file)
+				assert.equal(createHash('sha256').update(bytes).digest('hex'), item.sha256)
+				assert.equal(bytes.length, item.bytes)
+				return [item.name, `file:${file.replaceAll('\\', '/')}`]
+			}),
 	)
 	const installed = join(scratch, 'installed')
 	mkdirSync(installed)

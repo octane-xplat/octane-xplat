@@ -119,6 +119,19 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 /absolute/path/to/xplat-go fmt --stdin-filepath src/example.ts < src/example.ts
 ```
 
+`lint` invokes the selected project's `@octane-xplat/lint/bin` export with Node.
+The installed engine owns configuration, discovery, companion TSRX checks and
+explicit `--fix` writes. Go preserves raw arguments, live stdout/stderr and the
+engine's exit code while owning cancellation and descendant cleanup. No additional
+CLI worker or global tool installation is used for this operation.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go lint workflow"}' -- bun run turbo run test:go-lint --filter=@octane-xplat/cli
+# From a project with its lint engine installed:
+/absolute/path/to/xplat-go lint src
+/absolute/path/to/xplat-go lint --fix src
+```
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

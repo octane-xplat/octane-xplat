@@ -20,6 +20,7 @@ export function nativeInputs(root) {
 		'packages/cli/src/commands/routes.ts',
 		'packages/cli/src/commands/typecheck.ts',
 		'packages/cli/src/commands/fmt.ts',
+		'packages/cli/src/commands/lint.ts',
 		'packages/cli/src/fmt-plan.ts',
 		'packages/cli/src/tsconfig-envs.ts',
 		'packages/cli/src/env.ts',

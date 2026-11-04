@@ -145,6 +145,7 @@
 		"build:go-onnx": "node ../../tools/cli-go/build.mjs --cli --onnx",
 		"test:go-cli": "node --test ../../tools/cli-go/cli.test.mjs",
 		"test:go-routes": "node --test ../../tools/cli-go/routes.test.mjs",
+		"test:go-lint": "node --test ../../tools/cli-go/lint.test.mjs",
 		"test:go-fmt": "node --test ../../tools/cli-go/format.test.mjs",
 		"test:go-typecheck": "node --test ../../tools/cli-go/typecheck.test.mjs",
 		"test:go-typecheck-real": "node --test ../../tools/cli-go/typecheck-real.test.mjs",

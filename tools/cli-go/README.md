@@ -187,3 +187,8 @@ Snapshot producer paths such as `research/go-cli/routes-source.tgz` are replacea
 build outputs. Before indexing a snapshot in Silo, copy its bytes to a filename
 containing the content hash and index that retained path. Check its hash before
 using remote evidence; a matching filename or base Git revision is insufficient.
+
+`test:go-lint` packs and installs the workspace lint engine explicitly without
+Vite. It checks known clean/error TypeScript and TSRX cases, canonical config and
+ignore behavior, an actual fix, raw argv/environment/exit handling and live
+cancellation. Other project-worker fixtures do not install this optional engine.

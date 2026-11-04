@@ -9,63 +9,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
-	"strings"
 	"time"
 )
 
 func init() { nativeLegacyCommands["typecheck"] = typecheckCommand }
-
-// A package bin is data, not a PATH/global fallback or permission to download.
-// Stop at a nearer broken install just as worker lookup does.
-func installedTool(project, name, bin string) (string, error) {
-	if !validPackageName(name) || bin == "" {
-		return "", errors.New("invalid project tool selection")
-	}
-	for at := project; ; at = filepath.Dir(at) {
-		candidate := filepath.Join(at, "node_modules", filepath.FromSlash(name))
-		if _, err := os.Lstat(candidate); err == nil {
-			root, err := canonical(candidate)
-			if err != nil {
-				return "", err
-			}
-			manifestPath := filepath.Join(root, "package.json")
-			info, err := os.Stat(manifestPath)
-			if err != nil || !info.Mode().IsRegular() {
-				return "", fmt.Errorf("reinstall the selected project's %s: tool manifest must be a regular file", name)
-			}
-			data, err := metadataBytes(manifestPath, 1<<20)
-			if err != nil {
-				return "", fmt.Errorf("reinstall the selected project's %s: %w", name, err)
-			}
-			var manifest struct {
-				Name string
-				Bin  map[string]string
-			}
-			if json.Unmarshal(data, &manifest) != nil || manifest.Name != name {
-				return "", fmt.Errorf("invalid selected-project %s tool manifest", name)
-			}
-			entry := manifest.Bin[bin]
-			if !filepath.IsLocal(filepath.FromSlash(entry)) || strings.ContainsRune(entry, 0) {
-				return "", fmt.Errorf("%s must declare a relative %s executable", name, bin)
-			}
-			file, err := canonical(filepath.Join(root, filepath.FromSlash(entry)))
-			if err != nil || !inside(root, file) {
-				return "", fmt.Errorf("%s executable must remain inside its installed package", bin)
-			}
-			info, err = os.Stat(file)
-			if err != nil || !info.Mode().IsRegular() {
-				return "", fmt.Errorf("%s executable must be a regular file", bin)
-			}
-			return file, nil
-		} else if !os.IsNotExist(err) {
-			return "", err
-		}
-		if at == filepath.Dir(at) {
-			break
-		}
-	}
-	return "", fmt.Errorf("install the project's TSRX checker before typechecking (bun add --dev @tsrx/typescript-plugin typescript); missing %s", name)
-}
 
 var typecheckConfigNames = []string{"tsconfig.json", "tsconfig.native.json", "tsconfig.envs.json"}
 

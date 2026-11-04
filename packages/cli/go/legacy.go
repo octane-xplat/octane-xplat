@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"slices"
 )
 
 type legacyHandler func(context.Context, map[string]any) error
@@ -30,7 +29,7 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		fmt.Fprintf(os.Stderr, "xplat %s: the parallel Go implementation is pending.\n", command.Name)
 		return 1
 	}
-	if slices.Contains(argv, "--schema") {
+	if legacySchemaRequested(argv) {
 		return writeEnvelope(command.Name, nil, map[string]any{
 			"contractVersion": 1, "command": command.Name, "summary": command.Summary,
 			"status": "implemented", "output": "human",
@@ -38,10 +37,13 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		}, nil)
 	}
 	failureExit := 1
-	if command.Name == "fmt" {
+	if command.Name == "fmt" || command.Name == "lint" {
 		failureExit = 2
 	}
 	parsed := parseCommand(*descriptor, argv)
+	if command.Name == "lint" {
+		parsed = parsedCommand{Values: map[string]any{"argv": argv}, Help: lintHelpRequested(argv)}
+	}
 	if len(parsed.Errors) > 0 {
 		fmt.Fprintln(os.Stderr, parsed.Errors[0].Message)
 		fmt.Fprintf(os.Stderr, "Run xplat %s --help for usage.\n", command.Name)
@@ -57,6 +59,10 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	}
 	if err == nil {
 		return 0
+	}
+	var toolExit *projectToolExit
+	if errors.As(err, &toolExit) {
+		return toolExit.Code
 	}
 	if errors.Is(err, errFormatDifferences) {
 		return 1
@@ -76,4 +82,16 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 		return legacyCancellationExit(ctx)
 	}
 	return failureExit
+}
+
+func legacySchemaRequested(argv []string) bool {
+	for _, arg := range argv {
+		if arg == "--" {
+			return false
+		}
+		if arg == "--schema" {
+			return true
+		}
+	}
+	return false
 }

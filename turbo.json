@@ -3,6 +3,7 @@
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
 		"test:go-typecheck-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/web#typecheck", "@xplat/macos#typecheck", "@octane-xplat/lightbox#typecheck"] },
+		"test:go-lint": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/lint#build"] },
 		"test:go-fmt": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-typecheck": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"measure:go-cli": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
@@ -17,8 +18,8 @@
 		"build:go-tests": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go-onnx": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
-		"snapshot:go": { "cache": false, "dependsOn": ["@octane-xplat/build#build", "@octane-xplat/lib#build"] },
-		"snapshot:go-routes": { "cache": false, "dependsOn": ["@octane-xplat/build#build", "@octane-xplat/lib#build"] },
+		"snapshot:go": { "cache": false, "dependsOn": ["@octane-xplat/lint#build", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
+		"snapshot:go-routes": { "cache": false, "dependsOn": ["@octane-xplat/lint#build", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_BINARY"] },
 		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },

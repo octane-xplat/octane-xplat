@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
-export function prepareFixtures(root, work) {
+export function prepareFixtures(root, work, { linter = false } = {}) {
 	const output = join(work, 'project-packages')
 	mkdirSync(output, { recursive: true })
 	const temporary = mkdtempSync(join(work, 'fixture-'))
@@ -33,7 +33,11 @@ export function prepareFixtures(root, work) {
 		writeFileSync(join(temporary, 'package.json'), JSON.stringify(manifest))
 		cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
 		cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
-		const packages = [temporary, join(root, 'packages/lib')].map((directory) => {
+		const packages = [
+			temporary,
+			join(root, 'packages/lib'),
+			...(linter ? [join(root, 'packages/lint')] : []),
+		].map((directory) => {
 			const pkg = JSON.parse(readFileSync(join(directory, 'package.json')))
 			const result = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', output], {
 				cwd: directory,
@@ -44,6 +48,7 @@ export function prepareFixtures(root, work) {
 			const bytes = readFileSync(join(output, file))
 			return {
 				name: pkg.name,
+				optional: pkg.name === '@octane-xplat/lint',
 				file,
 				bytes: bytes.length,
 				sha256: createHash('sha256').update(bytes).digest('hex'),
