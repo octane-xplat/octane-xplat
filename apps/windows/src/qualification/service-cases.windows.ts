@@ -539,7 +539,9 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
 
     if (foreign) {
       try {
-        if (exists(foreign.path)) await deleteItemByPath(foreign.path)
+        if (exists(foreign.path)) {
+          await deleteItemByPath(foreign.path)
+        }
         result.foreignRemoved = !exists(foreign.path)
       } catch (error) {
         result.removeError = error instanceof Error ? error.message : String(error)
@@ -585,7 +587,9 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
         listeners.add(listener)
         if (++calls === 3) {
           aborted = true
-          for (const fire of listeners) fire()
+          for (const fire of listeners) {
+            fire()
+          }
         }
       },
       removeEventListener(_type: string, listener: () => void) {
