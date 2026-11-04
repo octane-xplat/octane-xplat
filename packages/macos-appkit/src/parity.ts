@@ -1,10 +1,9 @@
+import { nodeClasses, effectiveStyle } from './style-values.ts'
 import type { ElementNode, RootContainer, PropBag } from './model'
 import { NSColor, NSAttributedString, NSFontAttributeName, NSForegroundColorAttributeName } from '@octane-xplat/platform/macos'
 import { srgbComponents, withDrawingAppearance } from './color-components'
 
 interface ParityDependencies {
-  normalizeClass(value: unknown): string
-  effectiveStyle(node: ElementNode): PropBag
   labelPaddings: WeakMap<object, { top: number; left: number; bottom: number; right: number }>
   borderLength(value: unknown): number
   borderRadiusPoints(value: unknown, width: number, height: number): number
@@ -13,12 +12,8 @@ interface ParityDependencies {
 }
 
 /** Read renderer state through its owner; measurements retain no roots of their own. */
-export function createParityMeasurements({ normalizeClass, effectiveStyle, labelPaddings, borderLength, borderRadiusPoints, borderNSColor, appKitContainers }: ParityDependencies) {
+export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, appKitContainers }: ParityDependencies) {
   const round = (value: number) => Math.round(value * 100) / 100
-
-  function nodeClasses(node: ElementNode) {
-    return normalizeClass(node.props?.className).split(/\s+/).filter(Boolean)
-  }
 
   function descendants(node: ElementNode, out: ElementNode[] = []) {
     for (const child of node.children) {
@@ -467,6 +462,5 @@ export function createParityMeasurements({ normalizeClass, effectiveStyle, label
     return { target: 'macos', cells }
   }
 
-
-  return { round, nodeClasses, descendants, colorValue, measureParity }
+  return { round, descendants, colorValue, measureParity }
 }

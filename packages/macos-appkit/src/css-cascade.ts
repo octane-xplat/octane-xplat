@@ -1,3 +1,4 @@
+import { parseEdgeInsets, normalizeClass, effectiveStyle, shallowEqualStyle } from './style-values.ts'
 import type { CssAnimations } from './css-animations'
 import type { HostBridge } from './host-bridge'
 import type { Layout } from './layout'
@@ -6,7 +7,7 @@ import type { NativeStyle } from './native-style'
 import type { Controls } from './controls'
 import type { TextElements } from './text-elements'
 import type { InputElements } from './input-elements'
-import type { PropBag, ElementNode, RootContainer } from './model'
+import type { ElementNode, RootContainer } from './model'
 import { notifyLayoutCommit } from './layout-observers'
 import { NSWorkspace } from '@octane-xplat/platform/macos'
 import {
@@ -18,17 +19,11 @@ import {
 import type { CssHostNode } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  cssAnimations: Pick<
-    CssAnimations,
-    'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'
-  >
+  cssAnimations: Pick<CssAnimations, 'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'>
   hostBridge: Pick<HostBridge, 'appKitBridge'>
   layout: Pick<Layout, 'drainLayoutDirty'>
   roots: Pick<Roots, 'appKitContainers'>
-  nativeStyle: Pick<
-    NativeStyle,
-    'applyStyle' | 'normalizeClass' | 'effectiveStyle' | 'parseEdgeInsets'
-  >
+  nativeStyle: Pick<NativeStyle, 'applyStyle'>
   controls: Pick<Controls, 'syncActivityIndicator'>
   textElements: Pick<TextElements, 'syncHtmlView' | 'syncText'>
   inputElements: Pick<InputElements, 'fitTextView'>
@@ -142,11 +137,6 @@ export function createCssCascade(deps: Dependencies) {
       depth++
     }
     return depth
-  }
-
-  function shallowEqualStyle(a: PropBag, b: PropBag) {
-    const keys = Object.keys(a)
-    return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
   }
 
   // ---- Per-window media environment -------------------------------------------
@@ -305,7 +295,7 @@ export function createCssCascade(deps: Dependencies) {
 
   function applyClassName(node: ElementNode, value: any) {
     node.cssBaseClasses = new Set(
-      deps.nativeStyle.normalizeClass(value).split(/\s+/).filter(Boolean),
+      normalizeClass(value).split(/\s+/).filter(Boolean),
     )
     refreshCssClasses(node)
     markStyleDirty(node, true)
@@ -371,8 +361,8 @@ export function createCssCascade(deps: Dependencies) {
     // CSS paints the layer; it must not change the control's native bezel or
     // background configuration. Shared controls reset those at construction.
     if (node.type === 'textview') {
-      const style = deps.nativeStyle.effectiveStyle(node)
-      const inset = deps.nativeStyle.parseEdgeInsets(style.padding ?? 0)
+      const style = effectiveStyle(node)
+      const inset = parseEdgeInsets(style.padding ?? 0)
       view.textContainerInset = {
         width: Number(style.paddingLeft ?? inset.left) || 0,
         height: Number(style.paddingTop ?? inset.top) || 0,
@@ -396,7 +386,6 @@ export function createCssCascade(deps: Dependencies) {
     }
   }
   return {
-    shallowEqualStyle,
     cssChildren,
     cssSchemeName,
     markStyleDirty,

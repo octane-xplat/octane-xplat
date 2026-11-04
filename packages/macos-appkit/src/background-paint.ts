@@ -1,4 +1,4 @@
-import type { NativeStyle } from './native-style'
+import { parseEdgeInsets, effectiveStyle } from './style-values.ts'
 import type { BorderPaint } from './border-paint'
 import {
   collectBackground,
@@ -33,7 +33,6 @@ export interface BgPainted {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<NativeStyle, 'effectiveStyle' | 'parseEdgeInsets'>
   borderPaint: Pick<
     BorderPaint,
     | 'borderLength'
@@ -67,11 +66,11 @@ export function createBackgroundPaint(deps: Dependencies) {
 
   function backgroundEdges(node: ElementNode) {
     const spec = node.borderSpec
-    const style = deps.nativeStyle.effectiveStyle(node)
+    const style = effectiveStyle(node)
     const sideStyles = borderStyleSides(style)
     const edge = (side: 'top' | 'right' | 'bottom' | 'left') =>
       hiddenBorderStyle(sideStyles[side]) ? 0 : deps.borderPaint.borderLength(spec?.widths?.[side])
-    const padding = deps.nativeStyle.parseEdgeInsets(style.padding ?? 0)
+    const padding = parseEdgeInsets(style.padding ?? 0)
     return {
       border: {
         top: edge('top'),
@@ -289,7 +288,7 @@ export function createBackgroundPaint(deps: Dependencies) {
       return
     }
     const warnings: string[] = []
-    const spec = collectBackground(deps.nativeStyle.effectiveStyle(node), warnings)
+    const spec = collectBackground(effectiveStyle(node), warnings)
     const warned = (node.bgWarnings ??= new Set<string>())
     for (const message of warnings) {
       if (!warned.has(message)) {

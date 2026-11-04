@@ -39,7 +39,12 @@ interface Dependencies {
   cssAnimations: Pick<CssAnimations, 'cancelKeyframeAnimations'>
   registry: Pick<
     Registry,
-    'elementBehaviors' | 'behaviorOf' | 'nodeContainersByView' | 'cssNodesByView'
+    | 'VIEW_PARENT_TYPES'
+    | 'typeHasView'
+    | 'assertSupportedType'
+    | 'behaviorOf'
+    | 'nodeContainersByView'
+    | 'cssNodesByView'
   >
   tree: Pick<Tree, 'validateTextNesting' | 'detach'>
   pickerElements: Pick<
@@ -95,10 +100,7 @@ interface Dependencies {
     | 'disposeBuiltinTextViewLayout'
     | 'disposeBuiltinTextInput'
   >
-  imageElements: Pick<
-    ImageElements,
-    'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'
-  >
+  imageElements: Pick<ImageElements, 'makeImageView' | 'makeAnimatedImageView' | 'disposeBuiltinImage'>
   actions: Pick<
     Actions,
     | 'nextActionId'
@@ -129,66 +131,6 @@ interface Dependencies {
 export type Nodes = ReturnType<typeof createNodes>
 
 export function createNodes(deps: Dependencies) {
-  /** Types whose views arrange child views; mirrors the check in insert(). */
-  const VIEW_PARENT_TYPES = new Set([
-    'rootlayout',
-    'contentview',
-    'actionbar',
-    'proxyviewcontainer',
-    'masonview',
-    'scrollview',
-    'liquidglass',
-  ])
-
-  /** Every type the factory switch below can build. */
-  const SUPPORTED_TYPES = new Set([
-    ...VIEW_PARENT_TYPES,
-    'label',
-    'htmlview',
-    '#text',
-    'button',
-    'textfield',
-    'textview',
-    'searchbar',
-    'switch',
-    'slider',
-    'activityindicator',
-    'progress',
-    'datepicker',
-    'timepicker',
-    'listpicker',
-    'listview',
-    'segmentedbar',
-    'tabview',
-    'tabviewitem',
-    'segmentedbaritem',
-    'webview',
-    'image',
-    'animatedimage',
-    'pager',
-    'xplatvideo',
-    'placeholder',
-    'span',
-    'formattedstring',
-  ])
-
-  function typeHasView(type: string) {
-    return (
-      type !== 'tabviewitem' &&
-      type !== 'segmentedbaritem' &&
-      type !== '#text' &&
-      type !== 'span' &&
-      type !== 'formattedstring' &&
-      type !== 'proxyviewcontainer'
-    )
-  }
-
-  function assertSupportedType(type: string) {
-    if (!SUPPORTED_TYPES.has(type) && !deps.registry.elementBehaviors.has(type)) {
-      throw new Error('AppKit spike does not support <' + type + '>')
-    }
-  }
-
   /** Deterministic prop failures that would otherwise throw after views and
    *  registrations exist. `baseProps` supplies already-applied props for
    *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
@@ -203,7 +145,7 @@ export function createNodes(deps: Dependencies) {
         template.validate(
           (tag, values) => {
             try {
-              assertSupportedType(tag)
+              deps.registry.assertSupportedType(tag)
               validateNodeProps(tag, values)
             } catch (error) {
               throw new TypeError('[macos-host] listview itemTemplate: ' + String(error))
@@ -213,9 +155,9 @@ export function createNodes(deps: Dependencies) {
             deps.tree.validateTextNesting(parent, child)
             if (
               parent &&
-              (typeHasView(child) || child === 'proxyviewcontainer') &&
+              (deps.registry.typeHasView(child) || child === 'proxyviewcontainer') &&
               !(
-                VIEW_PARENT_TYPES.has(parent) ||
+                deps.registry.VIEW_PARENT_TYPES.has(parent) ||
                 deps.registry.behaviorOf(parent)?.container === true
               )
             ) {
@@ -422,7 +364,7 @@ export function createNodes(deps: Dependencies) {
     // Reject malformed props before factories allocate views or register
     // actions — the node only reaches container.nodes after this returns, so
     // a throwing prop below must unwind whatever was already acquired.
-    assertSupportedType(type)
+    deps.registry.assertSupportedType(type)
     validateNodeProps(type, props)
 
     const node: ElementNode = {
@@ -806,9 +748,6 @@ export function createNodes(deps: Dependencies) {
     }
   }
   return {
-    VIEW_PARENT_TYPES,
-    typeHasView,
-    assertSupportedType,
     validateNodeProps,
     makeNode,
     destroy,

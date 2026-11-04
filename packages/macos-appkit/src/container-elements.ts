@@ -1,5 +1,5 @@
+import { effectiveStyle } from './style-values.ts'
 import type { Registry } from './registry'
-import type { NativeStyle } from './native-style'
 import type { Layout } from './layout'
 import type { TextElements } from './text-elements'
 import type { Roots } from './roots'
@@ -20,7 +20,6 @@ import {
 
 interface Dependencies {
   registry: Pick<Registry, 'behaviorOf' | 'nodeContainersByView'>
-  nativeStyle: Pick<NativeStyle, 'effectiveStyle'>
   layout: Pick<
     Layout,
     | 'layoutView'
@@ -91,7 +90,7 @@ export function createContainerElements(deps: Dependencies) {
         Math.max(
           0,
           Number(
-            deps.nativeStyle.effectiveStyle(child)?.[axis] ??
+            effectiveStyle(child)?.[axis] ??
               (Number(size?.[axis]) >= 0 ? size?.[axis] : child?.view?.fittingSize?.[axis]),
           ) || 0,
         )
@@ -126,7 +125,7 @@ export function createContainerElements(deps: Dependencies) {
         Math.max(
           0,
           Number(
-            deps.nativeStyle.effectiveStyle(child)[axis] ??
+            effectiveStyle(child)[axis] ??
               (Number(intrinsic?.[axis]) >= 0 ? intrinsic?.[axis] : fitting?.[axis]) ??
               0,
           ) || 0,

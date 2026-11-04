@@ -1,19 +1,18 @@
+import { effectiveStyle, isCollapsed } from './style-values.ts'
 import type { NativeStyle } from './native-style'
 import type { Layout } from './layout'
 import type { CssCascade } from './css-cascade'
 import type { Registry } from './registry'
-import type { Nodes } from './nodes'
 import type { Tree } from './tree'
 import type { PropBag, ElementNode, RootContainer } from './model'
 import { NSView, NSWindowOrderingMode } from '@octane-xplat/platform/macos'
 import type { UniversalHostCommand, UniversalHostParent } from 'octane/universal/native'
 
 interface Dependencies {
-  nativeStyle: Pick<NativeStyle, 'isCollapsed' | 'deactivateSizeConstraints' | 'effectiveStyle'>
+  nativeStyle: Pick<NativeStyle, 'deactivateSizeConstraints'>
   layout: Pick<Layout, 'releasePlacementPins' | 'layoutView' | 'pinLayoutChild'>
   cssCascade: Pick<CssCascade, 'markStyleDirty' | 'setNodeInlineStyle'>
-  registry: Pick<Registry, 'isManualLayoutParent' | 'parentReference'>
-  nodes: Pick<Nodes, 'typeHasView'>
+  registry: Pick<Registry, 'isManualLayoutParent' | 'parentReference' | 'typeHasView'>
   tree: Pick<Tree, 'detach'>
 }
 
@@ -75,7 +74,7 @@ export function createProjection(deps: Dependencies) {
       : parent.children
 
     return children.flatMap((child: ElementNode) => {
-      if (deps.nativeStyle.isCollapsed(child)) {
+      if (isCollapsed(child)) {
         return []
       }
 
@@ -150,7 +149,7 @@ export function createProjection(deps: Dependencies) {
         }
 
         for (const name of PROXY_LAYOUT_STYLES) {
-          const ownerStyle = deps.nativeStyle.effectiveStyle(owner)
+          const ownerStyle = effectiveStyle(owner)
           if (ownerStyle[name] != null) {
             forwardedStyle[name] = ownerStyle[name]
           }
@@ -299,12 +298,12 @@ export function createProjection(deps: Dependencies) {
       }
 
       const node = nodes.get(id)
-      if (!node || deps.nativeStyle.isCollapsed(node)) {
+      if (!node || isCollapsed(node)) {
         return 0
       }
 
       if (node.type !== 'proxyviewcontainer') {
-        return deps.nodes.typeHasView(node.type) ? 1 : 0
+        return deps.registry.typeHasView(node.type) ? 1 : 0
       }
 
       return node.children.reduce((sum, child) => sum + count(child, new Set([...seen, id])), 0)

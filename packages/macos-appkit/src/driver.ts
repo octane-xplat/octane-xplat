@@ -18,6 +18,8 @@ import { notifyLayoutCommit } from './layout-observers'
 interface Dependencies {
   registry: Pick<
     Registry,
+    | 'typeHasView'
+    | 'assertSupportedType'
     | 'parentReference'
     | 'resolveParentNode'
     | 'canContainView'
@@ -26,10 +28,7 @@ interface Dependencies {
     | 'cssNodesByView'
     | 'portalHandlesByNode'
   >
-  nodes: Pick<
-    Nodes,
-    'assertSupportedType' | 'validateNodeProps' | 'typeHasView' | 'destroy' | 'makeNode'
-  >
+  nodes: Pick<Nodes, 'validateNodeProps' | 'destroy' | 'makeNode'>
   tree: Pick<Tree, 'validateTextNesting' | 'textOnlyChildError' | 'detach' | 'insert' | 'remove'>
   projection: Pick<Projection, 'validateProxyTree'>
   elementProps: Pick<ElementProps, 'applyProps' | 'droppedPropClears'>
@@ -76,7 +75,7 @@ export function createDriver(deps: Dependencies) {
     for (const command of commands) {
       switch (command.op) {
         case 'create':
-          deps.nodes.assertSupportedType(command.type)
+          deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
           pending.set(command.id, { type: command.type, props: command.props })
           parents.set(command.id, null)
@@ -88,7 +87,7 @@ export function createDriver(deps: Dependencies) {
             throw new Error('Unknown AppKit node ' + command.id)
           }
 
-          deps.nodes.assertSupportedType(command.type)
+          deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
           const existing = container.nodes.get(command.id)
           const parentId = parentOf(command.id) ?? null
@@ -98,7 +97,7 @@ export function createDriver(deps: Dependencies) {
             ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
               parent?.type ?? '',
             ) &&
-            !deps.nodes.typeHasView(command.type) &&
+            !deps.registry.typeHasView(command.type) &&
             command.type !== 'proxyviewcontainer'
           ) {
             throw deps.tree.textOnlyChildError(parent, command.type, { props: command.props })
@@ -106,7 +105,7 @@ export function createDriver(deps: Dependencies) {
 
           if (
             existing?.parent &&
-            (deps.nodes.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
+            (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
             !deps.registry.canContainView(existing.parent.type)
           ) {
             throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
@@ -152,14 +151,14 @@ export function createDriver(deps: Dependencies) {
                 'rootlayout',
                 'proxyviewcontainer',
               ].includes(parent.type) &&
-              !deps.nodes.typeHasView(entry.type) &&
+              !deps.registry.typeHasView(entry.type) &&
               entry.type !== 'proxyviewcontainer'
             ) {
               throw deps.tree.textOnlyChildError(parent, entry.type, { props: entry.props })
             }
 
             if (
-              (deps.nodes.typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
+              (deps.registry.typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
               !deps.registry.canContainView(parent.type)
             ) {
               throw new Error('AppKit <' + parent.type + '> cannot contain child views')
@@ -218,7 +217,7 @@ export function createDriver(deps: Dependencies) {
           ['masonview', 'contentview', 'actionbar', 'rootlayout'].includes(
             existing?.parent?.type ?? '',
           ) &&
-          !deps.nodes.typeHasView(command.type) &&
+          !deps.registry.typeHasView(command.type) &&
           command.type !== 'proxyviewcontainer'
         ) {
           throw deps.tree.textOnlyChildError(existing!.parent, command.type, {
@@ -308,7 +307,7 @@ export function createDriver(deps: Dependencies) {
           ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
             parent?.type ?? '',
           ) &&
-          !deps.nodes.typeHasView(command.type) &&
+          !deps.registry.typeHasView(command.type) &&
           command.type !== 'proxyviewcontainer'
         ) {
           throw deps.tree.textOnlyChildError(parent, command.type, { props: command.props })
@@ -316,7 +315,7 @@ export function createDriver(deps: Dependencies) {
 
         if (
           parent &&
-          (deps.nodes.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
+          (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
           !deps.registry.canContainView(parent.type)
         ) {
           // insert would reject the replacement after the original was

@@ -11,9 +11,11 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Responsibility | Modules |
 | --- | --- |
 | Composition and host adapters | `runtime.ts`, `host-bridge.ts` |
-| Node contracts, identities, batches and roots | `model.ts`, `registry.ts`, `nodes.ts`, `driver.ts`, `roots.ts` |
+| Node contracts, element capabilities and identities | `model.ts`, `registry.ts` |
+| Construction, batches and roots | `nodes.ts`, `driver.ts`, `roots.ts` |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
+| Stateless style reads and normalization | `style-values.ts` |
 | Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
 | Element creation, props and disposal | `container-elements.ts`, `controls.ts`, `picker-elements.ts`, `input-elements.ts`, `text-elements.ts`, `image-elements.ts`, `hosted-elements.ts` |
 | Generic prop merging and removal | `element-props.ts` |
@@ -30,11 +32,24 @@ its element module. `nodes.ts` coordinates construction and teardown order;
 individual native props. Keep synchronization that reads several props after
 the whole bag has been merged.
 
-Cross-subsystem contracts use type-only factory imports and `Pick` to name the
-required members. `runtime.ts` supplies getters for the owning services, so
-services can refer to each other without ESM value-import cycles. Mutations
-such as allocating an action ID reach the owner's live state; copying a counter
-into a dependency object would lose that connection.
+The registry owns element support and containment queries as well as identity
+maps. It has no service dependencies and is constructed first. Node creation,
+batch validation and projection consult that same registry, including live
+plugin registrations; metadata queries must not depend on node construction.
+
+Import stateless style queries from `style-values.ts` directly. Reading computed
+styles, class membership or collapsed state must not require the native style
+writer, the CSS cascade or the diagnostics service. Stateful services retain
+their own maps, timers and native resources.
+
+Cross-subsystem contracts import named result types and use `Pick` to name the
+required operations or state. `runtime.ts` passes already-constructed services
+directly and uses getters for forward references. Read a forward dependency at
+operation time, not during construction. These remaining cycles coordinate
+style application, tree mutation and element lifecycle; moving a pure query
+out of them is preferable to adding another lazy dependency. Mutations such as
+allocating an action ID reach the owner's live state; copying a counter into
+a dependency object would lose that connection.
 
 Construct all services before installing compatibility, Mason, tab content and
 host bridges. Native classes must be registered before Mason subclasses the

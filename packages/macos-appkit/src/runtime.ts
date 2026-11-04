@@ -51,10 +51,10 @@ import { createStyleEnvironment } from './style-environment'
 import { createAutomation } from './automation'
 import { createMeasurements } from './measurements'
 
+const registry = createRegistry()
+
 const roots = createRoots({
-  get registry() {
-    return registry
-  },
+  registry,
   get borderPaint() {
     return borderPaint
   },
@@ -72,19 +72,8 @@ const roots = createRoots({
   },
 })
 
-const registry = createRegistry({
-  get nodes() {
-    return nodes
-  },
-})
-
 const layout = createLayout({
-  get registry() {
-    return registry
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
+  registry,
   get projection() {
     return projection
   },
@@ -94,18 +83,14 @@ const layout = createLayout({
 })
 
 const subscriptions = createSubscriptions({
-  get registry() {
-    return registry
-  },
+  registry,
   get accessibleHost() {
     return accessibleHost
   },
 })
 
 const actions = createActions({
-  get registry() {
-    return registry
-  },
+  registry,
   get textElements() {
     return textElements
   },
@@ -124,9 +109,7 @@ const inputElements = createInputElements({
   get nativeStyle() {
     return nativeStyle
   },
-  get actions() {
-    return actions
-  },
+  actions,
   get cssCascade() {
     return cssCascade
   },
@@ -136,27 +119,16 @@ const inputElements = createInputElements({
 })
 
 const containerElements = createContainerElements({
-  get registry() {
-    return registry
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get layout() {
-    return layout
-  },
+  registry,
+  layout,
   get textElements() {
     return textElements
   },
-  get roots() {
-    return roots
-  },
+  roots,
   get cssCascade() {
     return cssCascade
   },
-  get actions() {
-    return actions
-  },
+  actions,
   get accessibility() {
     return accessibility
   },
@@ -166,27 +138,19 @@ const containerElements = createContainerElements({
 })
 
 const accessibleHost = createAccessibleHost({
-  get actions() {
-    return actions
-  },
-  get subscriptions() {
-    return subscriptions
-  },
+  actions,
+  subscriptions,
 })
 
 const controls = createControls({
-  get actions() {
-    return actions
-  },
+  actions,
   get cssCascade() {
     return cssCascade
   },
   get accessibility() {
     return accessibility
   },
-  get accessibleHost() {
-    return accessibleHost
-  },
+  accessibleHost,
 })
 
 const textElements = createTextElements({
@@ -196,18 +160,10 @@ const textElements = createTextElements({
   get cssCascade() {
     return cssCascade
   },
-  get inputElements() {
-    return inputElements
-  },
-  get layout() {
-    return layout
-  },
-  get registry() {
-    return registry
-  },
-  get actions() {
-    return actions
-  },
+  inputElements,
+  layout,
+  registry,
+  actions,
   get accessibility() {
     return accessibility
   },
@@ -217,9 +173,7 @@ const textElements = createTextElements({
 })
 
 const imageElements = createImageElements({
-  get accessibleHost() {
-    return accessibleHost
-  },
+  accessibleHost,
   get cssCascade() {
     return cssCascade
   },
@@ -229,9 +183,7 @@ const nodes = createNodes({
   get cssAnimations() {
     return cssAnimations
   },
-  get registry() {
-    return registry
-  },
+  registry,
   get tree() {
     return tree
   },
@@ -241,36 +193,20 @@ const nodes = createNodes({
   get cssCascade() {
     return cssCascade
   },
-  get containerElements() {
-    return containerElements
-  },
-  get roots() {
-    return roots
-  },
-  get controls() {
-    return controls
-  },
-  get textElements() {
-    return textElements
-  },
-  get inputElements() {
-    return inputElements
-  },
-  get imageElements() {
-    return imageElements
-  },
-  get actions() {
-    return actions
-  },
+  containerElements,
+  roots,
+  controls,
+  textElements,
+  inputElements,
+  imageElements,
+  actions,
   get elementProps() {
     return elementProps
   },
   get cssPseudoState() {
     return cssPseudoState
   },
-  get subscriptions() {
-    return subscriptions
-  },
+  subscriptions,
   get hostedElements() {
     return hostedElements
   },
@@ -283,39 +219,22 @@ const nodes = createNodes({
   get borderPaint() {
     return borderPaint
   },
-  get layout() {
-    return layout
-  },
-  get accessibleHost() {
-    return accessibleHost
-  },
+  layout,
+  accessibleHost,
 })
 
 const nativeStyle = createNativeStyle({
-  get textElements() {
-    return textElements
-  },
-  get inputElements() {
-    return inputElements
-  },
-  get registry() {
-    return registry
-  },
-  get layout() {
-    return layout
-  },
+  textElements,
+  inputElements,
+  registry,
+  layout,
   get cssCascade() {
     return cssCascade
-  },
-  get measurements() {
-    return measurements
   },
   get backgroundPaint() {
     return backgroundPaint
   },
-  get accessibleHost() {
-    return accessibleHost
-  },
+  accessibleHost,
   get pointerStyle() {
     return pointerStyle
   },
@@ -340,24 +259,12 @@ const cssCascade = createCssCascade({
   get hostBridge() {
     return hostBridge
   },
-  get layout() {
-    return layout
-  },
-  get roots() {
-    return roots
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get controls() {
-    return controls
-  },
-  get textElements() {
-    return textElements
-  },
-  get inputElements() {
-    return inputElements
-  },
+  layout,
+  roots,
+  nativeStyle,
+  controls,
+  textElements,
+  inputElements,
 })
 
 const pointerStyle = createPointerStyle({
@@ -367,27 +274,18 @@ const pointerStyle = createPointerStyle({
 })
 
 const outlines = createOutlines({
-  get nativeStyle() {
-    return nativeStyle
-  },
   get borderPaint() {
     return borderPaint
   },
 })
 
 const backgroundPaint = createBackgroundPaint({
-  get nativeStyle() {
-    return nativeStyle
-  },
   get borderPaint() {
     return borderPaint
   },
 })
 
 const borderPaint = createBorderPaint({
-  get nativeStyle() {
-    return nativeStyle
-  },
   get transformPaint() {
     return transformPaint
   },
@@ -397,96 +295,47 @@ const borderPaint = createBorderPaint({
 })
 
 const shadowPaint = createShadowPaint({
-  get borderPaint() {
-    return borderPaint
-  },
+  borderPaint,
 })
 
 const transformPaint = createTransformPaint({
-  get borderPaint() {
-    return borderPaint
-  },
-  get shadowPaint() {
-    return shadowPaint
-  },
-  get backgroundPaint() {
-    return backgroundPaint
-  },
+  borderPaint,
+  shadowPaint,
+  backgroundPaint,
 })
 
 const accessibility = createAccessibility({
-  get accessibleHost() {
-    return accessibleHost
-  },
+  accessibleHost,
 })
 
 const elementProps = createElementProps({
-  get nodes() {
-    return nodes
-  },
-  get containerElements() {
-    return containerElements
-  },
-  get actions() {
-    return actions
-  },
-  get textElements() {
-    return textElements
-  },
-  get cssCascade() {
-    return cssCascade
-  },
+  nodes,
+  containerElements,
+  actions,
+  textElements,
+  cssCascade,
   get pickerElements() {
     return pickerElements
   },
-  get layout() {
-    return layout
-  },
-  get subscriptions() {
-    return subscriptions
-  },
-  get registry() {
-    return registry
-  },
-  get accessibleHost() {
-    return accessibleHost
-  },
-  get accessibility() {
-    return accessibility
-  },
+  layout,
+  subscriptions,
+  registry,
+  accessibleHost,
+  accessibility,
   get hostedElements() {
     return hostedElements
   },
-  get controls() {
-    return controls
-  },
-  get inputElements() {
-    return inputElements
-  },
-  get imageElements() {
-    return imageElements
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
+  controls,
+  inputElements,
+  imageElements,
+  nativeStyle,
 })
 
 const projection = createProjection({
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get layout() {
-    return layout
-  },
-  get cssCascade() {
-    return cssCascade
-  },
-  get registry() {
-    return registry
-  },
-  get nodes() {
-    return nodes
-  },
+  nativeStyle,
+  layout,
+  cssCascade,
+  registry,
   get tree() {
     return tree
   },
@@ -496,203 +345,107 @@ const tree = createTree({
   get cssAnimations() {
     return cssAnimations
   },
-  get cssCascade() {
-    return cssCascade
-  },
-  get projection() {
-    return projection
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get layout() {
-    return layout
-  },
-  get textElements() {
-    return textElements
-  },
+  cssCascade,
+  projection,
+  nativeStyle,
+  layout,
+  textElements,
   get pickerElements() {
     return pickerElements
   },
-  get registry() {
-    return registry
-  },
-  get containerElements() {
-    return containerElements
-  },
+  registry,
+  containerElements,
 })
 
 const driver = createDriver({
-  get registry() {
-    return registry
-  },
-  get nodes() {
-    return nodes
-  },
-  get tree() {
-    return tree
-  },
-  get projection() {
-    return projection
-  },
-  get elementProps() {
-    return elementProps
-  },
-  get cssCascade() {
-    return cssCascade
-  },
+  registry,
+  nodes,
+  tree,
+  projection,
+  elementProps,
+  cssCascade,
   get cssPseudoState() {
     return cssPseudoState
   },
-  get layout() {
-    return layout
-  },
+  layout,
 })
 
 const hover = createHover({
-  get actions() {
-    return actions
-  },
+  actions,
   get contextMenu() {
     return contextMenu
   },
 })
 
 const popover = createPopover({
-  get roots() {
-    return roots
-  },
+  roots,
 })
 
 const cssPseudoState = createCssPseudoState({
-  get hover() {
-    return hover
-  },
-  get cssCascade() {
-    return cssCascade
-  },
-  get registry() {
-    return registry
-  },
-  get subscriptions() {
-    return subscriptions
-  },
-  get roots() {
-    return roots
-  },
+  hover,
+  cssCascade,
+  registry,
+  subscriptions,
+  roots,
 })
 
 const contextMenu = createContextMenu({
-  get actions() {
-    return actions
-  },
+  actions,
 })
 
 const pickerBridge = createPickerBridge({
-  get actions() {
-    return actions
-  },
+  actions,
   get pickerElements() {
     return pickerElements
   },
 })
 
 const sheetBridge = createSheetBridge({
-  get popover() {
-    return popover
-  },
+  popover,
 })
 
 const hostBridge = createHostBridge()
 
 const styleEnvironment = createStyleEnvironment({
-  get cssPseudoState() {
-    return cssPseudoState
-  },
-  get cssCascade() {
-    return cssCascade
-  },
-  get roots() {
-    return roots
-  },
+  cssPseudoState,
+  cssCascade,
+  roots,
 })
 
 const automation = createAutomation({
-  get roots() {
-    return roots
-  },
+  roots,
   get measurements() {
     return measurements
   },
-  get cssCascade() {
-    return cssCascade
-  },
-  get accessibleHost() {
-    return accessibleHost
-  },
-  get actions() {
-    return actions
-  },
-  get hover() {
-    return hover
-  },
-  get popover() {
-    return popover
-  },
+  cssCascade,
+  accessibleHost,
+  actions,
+  hover,
+  popover,
 })
 
 const measurements = createMeasurements({
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get textElements() {
-    return textElements
-  },
-  get borderPaint() {
-    return borderPaint
-  },
-  get roots() {
-    return roots
-  },
+  textElements,
+  borderPaint,
+  roots,
 })
 
 /** Install shared adapters only after every service has been constructed. */
 const pickerElements = createPickerElements({
-  get actions() {
-    return actions
-  },
-  get layout() {
-    return layout
-  },
-  get cssCascade() {
-    return cssCascade
-  },
-  get accessibility() {
-    return accessibility
-  },
-  get tree() {
-    return tree
-  },
+  actions,
+  layout,
+  cssCascade,
+  accessibility,
+  tree,
 })
 const hostedElements = createHostedElements({
-  get cssCascade() {
-    return cssCascade
-  },
-  get accessibility() {
-    return accessibility
-  },
-  get tree() {
-    return tree
-  },
+  cssCascade,
+  accessibility,
+  tree,
 })
 
 const cssAnimations = createCssAnimations({
-  get nativeStyle() {
-    return nativeStyle
-  },
-  get cssCascade() {
-    return cssCascade
-  },
+  nativeStyle,
 })
 
 function initializeRuntime() {

@@ -1,4 +1,4 @@
-import type { NativeStyle } from './native-style'
+import { effectiveStyle } from './style-values.ts'
 import type { BorderPaint, BorderCorner } from './border-paint'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
@@ -22,7 +22,6 @@ import {
 import { srgbComponents } from './color-components'
 
 interface Dependencies {
-  nativeStyle: Pick<NativeStyle, 'effectiveStyle'>
   borderPaint: Pick<
     BorderPaint,
     | 'scaleBorderRadii'
@@ -108,7 +107,7 @@ export function createOutlines(deps: Dependencies) {
       NSNotificationCenter.defaultCenter.removeObserver(node.outlineObserver)
       node.outlineObserver = null
     }
-    const spec = outlineSpec(deps.nativeStyle.effectiveStyle(node))
+    const spec = outlineSpec(effectiveStyle(node))
     if (!spec || !view.layer) {
       return
     }

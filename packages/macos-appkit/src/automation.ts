@@ -1,3 +1,4 @@
+import { nodeClasses } from './style-values.ts'
 import type { Roots } from './roots'
 import type { Measurements } from './measurements'
 import type { CssCascade } from './css-cascade'
@@ -11,10 +12,7 @@ import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/ma
 
 interface Dependencies {
   roots: Pick<Roots, 'appKitContainers'>
-  measurements: Pick<
-    Measurements,
-    'measureParity' | 'descendants' | 'nodeClasses' | 'colorValue' | 'round'
-  >
+  measurements: Pick<Measurements, 'measureParity' | 'descendants' | 'colorValue' | 'round'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'>
   accessibleHost: Pick<AccessibleHost, 'accessibilityRoles' | 'accessibilityLabels'>
   actions: Pick<Actions, 'panHandlersByView' | 'invokeAction' | 'buttonActionTarget'>
@@ -284,7 +282,7 @@ export function createAutomation(deps: Dependencies) {
             chain.push({
               id: cur.props.id ?? null,
               type: cur.type,
-              classes: deps.measurements.nodeClasses(cur),
+              classes: nodeClasses(cur),
               frame: cur.view
                 ? {
                     x: Number(cur.view.frame.origin.x),
@@ -326,7 +324,7 @@ export function createAutomation(deps: Dependencies) {
           const flipped = Boolean(doc.flipped)
           const cells = []
           for (const cell of stage.children) {
-            if (!cell.view || !deps.measurements.nodeClasses(cell).includes('parity-cell')) {
+            if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {
               continue
             }
 
@@ -391,7 +389,7 @@ export function createAutomation(deps: Dependencies) {
           const nativeWindow = view.window
           return {
             type: node.type,
-            classes: deps.measurements.nodeClasses(node),
+            classes: nodeClasses(node),
             scheme: deps.cssCascade.cssSchemeName(node),
             color: view.textColor
               ? (deps.measurements.colorValue(view.textColor, appearance) ?? null)

@@ -1,3 +1,4 @@
+import { effectiveStyle } from './style-values.ts'
 import type { NativeStyle } from './native-style'
 import type { CssCascade } from './css-cascade'
 import type { InputElements } from './input-elements'
@@ -42,10 +43,7 @@ export type AxLinkSlot = {
 }
 
 interface Dependencies {
-  nativeStyle: Pick<
-    NativeStyle,
-    'effectiveStyle' | 'setSizeConstraint' | 'fontForStyle' | 'syncNodeFont'
-  >
+  nativeStyle: Pick<NativeStyle, 'setSizeConstraint' | 'fontForStyle' | 'syncNodeFont'>
   cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'setNodeInlineStyle' | 'applyClassName'>
   inputElements: Pick<InputElements, 'DEFAULT_TEXT_LINE_HEIGHT_RATIO' | 'fitTextView'>
   layout: Pick<Layout, 'queueLayoutReconcile'>
@@ -122,7 +120,7 @@ export function createTextElements(deps: Dependencies) {
   }
 
   // Keep the native value intact: AppKit truncates only when drawing in the frame.
-  function syncLabelOverflow(node: ElementNode, style = deps.nativeStyle.effectiveStyle(node)) {
+  function syncLabelOverflow(node: ElementNode, style = effectiveStyle(node)) {
     const { maxLines } = node.props
     let { whiteSpace, textOverflow } = node.props
     if (whiteSpace != null && !['normal', 'nowrap'].includes(whiteSpace)) {
@@ -193,7 +191,7 @@ export function createTextElements(deps: Dependencies) {
       fontWeight: node.appliedFontWeight ?? '400',
       color: view.textColor,
       appearance: view.effectiveAppearance,
-      style: deps.nativeStyle.effectiveStyle(node),
+      style: effectiveStyle(node),
     })
 
     view.invalidateIntrinsicContentSize()
@@ -201,7 +199,7 @@ export function createTextElements(deps: Dependencies) {
   }
 
   function setLabelText(node: ElementNode, text: any) {
-    const style = deps.nativeStyle.effectiveStyle(node)
+    const style = effectiveStyle(node)
     const lineHeight = Number(style.lineHeight)
     const decoration = String(style.textDecoration ?? '')
     const kern = Number(style.letterSpacing)
