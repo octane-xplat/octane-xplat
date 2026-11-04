@@ -26,6 +26,7 @@ export interface BgPainted {
   layer: any
   spec: BackgroundSpec['layers'][number]
   release?: () => void
+  active?: boolean
   image?: any
   mask?: any
   renderedW?: number
@@ -95,6 +96,7 @@ export function createBackgroundPaint(deps: Dependencies) {
     node.bgPainted = undefined
     node.bgHost = undefined
     node.bgSpec = undefined
+    for (const painted of paintedLayers) { painted.active = false }
     for (const painted of paintedLayers) {
       const release = painted.release
       painted.release = undefined
@@ -334,7 +336,9 @@ export function createBackgroundPaint(deps: Dependencies) {
     const next: BgPainted[] = []
     layers.forEach((specLayer, index) => {
       let entry =
-        previous[index] && previous[index].spec.image.kind === specLayer.image.kind
+        previous[index] && previous[index].spec.image.kind === specLayer.image.kind &&
+        (specLayer.image.kind !== 'url' ||
+          (previous[index].spec.image.kind === 'url' && previous[index].spec.image.url === specLayer.image.url))
           ? previous[index]
           : undefined
       if (!entry) {
@@ -343,11 +347,10 @@ export function createBackgroundPaint(deps: Dependencies) {
             ? (CAGradientLayer as any).layer()
             : CALayer.alloc().init()
 
-        entry = { layer, spec: specLayer }
+        entry = { layer, spec: specLayer, active: true }
         if (specLayer.image.kind === 'url') {
-          const generation = (node.bgGeneration = (node.bgGeneration ?? 0) + 1)
           entry.release = requestImage(specLayer.image.url, (image) => {
-            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.bgGeneration !== generation || node.view !== view) {
+            if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !entry!.active || node.view !== view) {
               return
             }
             entry!.image = image
@@ -356,12 +359,16 @@ export function createBackgroundPaint(deps: Dependencies) {
           })
         }
       }
+      if (JSON.stringify(entry.spec) !== JSON.stringify(specLayer)) { entry.renderedW = undefined }
       entry.spec = specLayer
       next.push(entry)
     })
     for (const entry of previous) {
       if (!next.includes(entry)) {
-        entry.release?.()
+        entry.active = false
+        const release = entry.release
+        entry.release = undefined
+        release?.()
         entry.layer.removeFromSuperlayer()
       }
     }

@@ -185,3 +185,38 @@ test('the shorthand routes its color to backgroundColor and warns on junk', () =
     console.warn = orig
   }
 })
+
+test('each url layer accepts its own completion and retires independently', () => {
+  const { api, ctx } = harness()
+  const deliveries = new Map<string, (image: unknown) => void>()
+  ctx.delivered = (url: string, deliver: (image: unknown) => void) => deliveries.set(url, deliver)
+  const n = node({ backgroundImage: 'url(one.png), url(two.png)' }) as any
+  api.syncBackgrounds(n)
+  const [one, two] = n.bgPainted
+  const image = { size: { width: 10, height: 10 }, drawInRect() {} }
+  deliveries.get('two.png')!(image)
+  deliveries.get('one.png')!(image)
+  assert.equal(one.image, image)
+  assert.equal(two.image, image)
+  api.clearBackgrounds(n)
+  deliveries.get('one.png')!({})
+  assert.equal(one.image, image, 'retired completion cannot change an entry')
+})
+
+test('changing a url replaces its request and rejects the old completion', () => {
+  const { api, ctx, releases } = harness()
+  const deliveries = new Map<string, (image: unknown) => void>()
+  ctx.delivered = (url: string, deliver: (image: unknown) => void) => deliveries.set(url, deliver)
+  const n = node({ backgroundImage: 'url(one.png)' }) as any
+  api.syncBackgrounds(n)
+  const old = n.bgPainted[0]
+  n.computedStyle = { backgroundImage: 'url(two.png)' }
+  api.syncBackgrounds(n)
+  assert.ok(deliveries.has('two.png'))
+  assert.deepEqual(releases, ['one.png'])
+  deliveries.get('one.png')!({})
+  assert.equal(old.image, undefined)
+  const image = { size: { width: 10, height: 10 }, drawInRect() {} }
+  deliveries.get('two.png')!(image)
+  assert.equal(n.bgPainted[0].image, image)
+})
