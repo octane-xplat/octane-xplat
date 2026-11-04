@@ -10,11 +10,11 @@ interface ParityDependencies {
   borderRadiusPoints(value: unknown, width: number, height: number): number
   borderNSColor(node: ElementNode, value: unknown): NSColor | null
   borderSpecForNode(node: ElementNode): BorderSpec | undefined
-  appKitContainers: Set<RootContainer>
+  containers(): readonly RootContainer[]
 }
 
 /** Read renderer state through its owner; measurements retain no roots of their own. */
-export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, borderSpecForNode, appKitContainers }: ParityDependencies) {
+export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, borderSpecForNode, containers }: ParityDependencies) {
   const round = (value: number) => Math.round(value * 100) / 100
 
   function descendants(node: ElementNode, out: ElementNode[] = []) {
@@ -416,7 +416,7 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
   }
 
   function measureParity(container: RootContainer, facets: readonly string[]) {
-    const mountedNodes = [...appKitContainers].flatMap((entry) => [...entry.nodes.values()])
+    const mountedNodes = [...containers()].flatMap((entry) => [...entry.nodes.values()])
     const stage = mountedNodes.find((node) => node.props?.id === 'parity-stage')
     if (!stage?.view) {
       return null

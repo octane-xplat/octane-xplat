@@ -3,7 +3,7 @@ import { parseEdgeInsets, normalizeClass, effectiveStyle, shallowEqualStyle } fr
 import type { CssAnimations } from './css-animations'
 import type { HostBridge } from './host-bridge'
 import type { Layout } from './layout'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import type { NativeStyle } from './native-style'
 import type { Controls } from './controls'
 import type { TextElements } from './text-elements'
@@ -23,7 +23,7 @@ interface Dependencies {
   cssAnimations: Pick<CssAnimations, 'sameAnimations' | 'playKeyframeAnimations' | 'cancelKeyframeAnimations'>
   hostBridge: Pick<HostBridge, 'appKitBridge'>
   layout: Pick<Layout, 'drainLayoutDirty'>
-  roots: Pick<Roots, 'appKitContainers'>
+  directory: Pick<RootDirectoryReader, 'containers'>
   nativeStyle: Pick<NativeStyle, 'applyStyle'>
   controls: Pick<Controls, 'syncActivityIndicator'>
   textElements: Pick<TextElements, 'syncHtmlView' | 'syncText'>
@@ -174,7 +174,7 @@ export function createCssCascade(deps: Dependencies) {
   function largestWindowSize(): { width: number; height: number } {
     let width = 0
     let height = 0
-    for (const container of deps.roots.appKitContainers) {
+    for (const container of deps.directory.containers()) {
       const size = windowMediaSize(container.hostView?.window, container.hostView?.frame)
       if (size.width > width || size.height > height) {
         width = size.width

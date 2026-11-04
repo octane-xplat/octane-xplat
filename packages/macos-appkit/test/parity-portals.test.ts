@@ -36,7 +36,7 @@ test('parity associates mounted portal markers with their fixture and deduplicat
   const other = { nodes: new Map([[1, foreignPortal]]) }
   const descendants = (node) => node.children.flatMap((child) => [child, ...descendants(child)])
   const { measureParity } = runSlice(measure + '\n({ measureParity })', {
-    appKitContainers: new Set([container, other]),
+    containers: () => [container, other],
     nodeClasses: (node) => node.classes,
     descendants,
     parityNode: (node) => node.props.id,

@@ -1,5 +1,5 @@
 import { nodeClasses } from './style-values.ts'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import type { Measurements } from './measurements'
 import type { CssCascade } from './css-cascade'
 import type { AccessibleHost } from './accessible-host'
@@ -11,7 +11,7 @@ import type { PanEvent, PropBag, ElementNode, RootContainer } from './model'
 import { NSColor, NSNotification, NSScrollView } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  roots: Pick<Roots, 'appKitContainers'>
+  directory: Pick<RootDirectoryReader, 'containers' | 'observe'>
   measurements: Pick<Measurements, 'measureParity' | 'descendants' | 'colorValue' | 'round'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'flushStyleDirty' | 'cssSchemeName'>
   accessibleHost: Pick<AccessibleHost, 'accessibilityRoles' | 'accessibilityLabels'>
@@ -23,11 +23,13 @@ interface Dependencies {
 export type Automation = ReturnType<typeof createAutomation>
 
 export function createAutomation(deps: Dependencies) {
+  const debugRoots = new Map<UniversalRoot, unknown>()
+
   function installAutomation(root: UniversalRoot, container: RootContainer) {
     if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
-      // Ids resolve across every live container — see appKitContainers.
+      // Ids resolve across every live container snapshot.
       const allNodes = () =>
-        [...deps.roots.appKitContainers].flatMap((entry) => [...entry.nodes.values()])
+        [...deps.directory.containers()].flatMap((entry) => [...entry.nodes.values()])
       const debug = {
         findId(id: string) {
           const node = allNodes().find((node) => node.props.id === id)
@@ -550,11 +552,39 @@ export function createAutomation(deps: Dependencies) {
         },
       }
 
-      Object.defineProperty(root, '__macosDebug', { value: debug })
-      Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })
+      try {
+        Object.defineProperty(root, '__macosDebug', { value: debug, configurable: true })
+        Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: debug, configurable: true })
+        debugRoots.set(root, debug)
+      } catch (error) {
+        if (Reflect.get(root, '__macosDebug') === debug) {
+          Reflect.deleteProperty(root, '__macosDebug')
+        }
+        throw error
+      }
+      return () => {
+        debugRoots.delete(root)
+        if (Reflect.get(root, '__macosDebug') === debug) {
+          Reflect.deleteProperty(root, '__macosDebug')
+        }
+        if (Reflect.get(globalThis, '__xplatMacOSDebug') === debug) {
+          const latest = [...debugRoots.values()].at(-1)
+          if (latest) {
+            Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: latest, configurable: true })
+          } else {
+            Reflect.deleteProperty(globalThis, '__xplatMacOSDebug')
+          }
+        }
+      }
     }
   }
-  return {
-    installAutomation,
+  let activated = false
+  function activate() {
+    if (activated) {
+      return
+    }
+    deps.directory.observe(container => installAutomation(container.root!, container))
+    activated = true
   }
+  return { activate }
 }

@@ -1,13 +1,13 @@
 import type { TextElements } from './text-elements'
 import type { BoxPaint } from './box-paint'
 import { borderLength, borderRadiusPoints, borderNSColor } from './box-geometry'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import { createParityMeasurements } from './parity'
 
 interface Dependencies {
   textElements: Pick<TextElements, 'labelPaddings'>
   boxPaint: Pick<BoxPaint, 'borderSpecForNode'>
-  roots: Pick<Roots, 'appKitContainers'>
+  directory: Pick<RootDirectoryReader, 'containers'>
 }
 
 export type Measurements = ReturnType<typeof createMeasurements>
@@ -19,7 +19,7 @@ export function createMeasurements(deps: Dependencies) {
     borderRadiusPoints: borderRadiusPoints,
     borderNSColor: borderNSColor,
     borderSpecForNode: deps.boxPaint.borderSpecForNode,
-    appKitContainers: deps.roots.appKitContainers,
+    containers: deps.directory.containers,
   })
   return {
     round,

@@ -79,7 +79,7 @@ interface Dependencies {
     | 'disposeBuiltinContentHost'
     | 'disposeBuiltinPlaceholder'
   >
-  roots: Pick<Roots, 'createMacOSRoot' | 'ownedRoots'>
+  roots: Pick<Roots, 'createMacOSRoot' | 'unmountOwnedRoot'>
   controls: Pick<
     Controls,
     | 'makeProgress'
@@ -427,7 +427,7 @@ export function createNodes(deps: Dependencies) {
             node.view = makeListView({
               createRoot: (host) =>
                 deps.roots.createMacOSRoot(host, { fontFamily: container.fontFamily }),
-              releaseOwnedRoot: (host) => deps.roots.ownedRoots.get(host)?.unmount(),
+              releaseOwnedRoot: (host) => deps.roots.unmountOwnedRoot(host),
               color: nativeColor,
             }) as AppKitView
 

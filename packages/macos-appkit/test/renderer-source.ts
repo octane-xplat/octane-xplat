@@ -6,8 +6,7 @@ import { parse } from 'acorn'
 // declarations in the established fixture order, with injected dependencies
 // supplied as sandbox globals. New tests should import subsystem factories.
 const declarations: readonly (readonly [string, string])[] = [
-  ['roots', 'observeLayoutCommits'],
-  ['roots', 'setLayoutProjectionScale'],
+  ['layout-projection', 'setLayoutProjectionScale'],
   ['runtime', '#0'],
   ['registry', 'nodeContainersByView'],
   ['registry', 'portalHandlesByNode'],
@@ -401,13 +400,8 @@ const declarations: readonly (readonly [string, string])[] = [
   ['runtime', '#32'],
   ['runtime', '#33'],
   ['runtime', '#34'],
-  ['roots', 'ownedRoots'],
-  ['roots', 'rootFontFamilies'],
-  ['roots', 'fontFamilyForView'],
   ['roots', 'MacOSRootOptions'],
-  ['roots', 'appKitContainers'],
   ['automation', 'installAutomation'],
-  ['roots', 'createMacOSRoot'],
   ['measurements', 'round'],
   ['image-elements', 'applyBuiltinImageProp'],
   ['image-elements', 'disposeBuiltinImage'],
@@ -513,6 +507,12 @@ export function rendererSource(): string {
     let previous = 0,
       anonymous = 0
     for (const statement of ast.body) {
+      // Process activation is covered by production-constructor tests, not the
+      // legacy flattened runtime fixture's numbered statements.
+      if (module === 'runtime' && /^(styleEnvironment|automation)\.activate\(/.test(body.slice(statement.start, statement.end))) {
+        previous = statement.end
+        continue
+      }
       let key: string
       if (statement.type === 'FunctionDeclaration' || statement.type === 'ClassDeclaration') {
         key = statement.id!.name
@@ -524,6 +524,8 @@ export function rendererSource(): string {
       }
       let text = body
         .slice(previous, statement.end)
+        .replace(/deps\.directory\.containers\(\)/g, '[...appKitContainers]')
+        .replace(/deps\.directory\.hasHost\(/g, 'ownedRoots.has(')
         .replace(/deps\.boxPaint\.dispose\b/g, 'disposeBoxPaint')
         .replace(/\bdeps\s*\.\s*\w+\s*\.\s*/g, '')
       if (

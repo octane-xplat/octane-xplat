@@ -1,6 +1,6 @@
 import type { CssPseudoState } from './css-pseudo-state'
 import type { CssCascade } from './css-cascade'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import type { RootContainer } from './model'
 import {
   evalMediaQuery,
@@ -22,7 +22,7 @@ interface Dependencies {
     CssCascade,
     'markStyleDirty' | 'flushStyleDirty' | 'windowMediaSize' | 'mediaSharedEnv'
   >
-  roots: Pick<Roots, 'appKitContainers'>
+  directory: Pick<RootDirectoryReader, 'containers' | 'observe'>
 }
 
 export type StyleEnvironment = ReturnType<typeof createStyleEnvironment>
@@ -43,7 +43,7 @@ export function createStyleEnvironment(deps: Dependencies) {
   }
 
   function restyleAllContainers() {
-    for (const container of deps.roots.appKitContainers) {
+    for (const container of deps.directory.containers()) {
       restyleContainer(container)
     }
   }
@@ -52,7 +52,7 @@ export function createStyleEnvironment(deps: Dependencies) {
   // Media results are per window: a resize diffs every registered media-gated
   // query under that window's recorded and current size, then restyles only the
   // containers painting into it. container.mediaEnvs records the last observed
-  // size per window; createMacOSRoot seeds it so the first resize can diff —
+  // size per window; membership observation seeds it so the first resize can diff —
   // an unseeded window restyles unconditionally when any media rule exists.
   function containerWindowTargets(container: RootContainer): object[] {
     const windows: object[] = []
@@ -105,7 +105,7 @@ export function createStyleEnvironment(deps: Dependencies) {
     resizeQueued = true
     queueMicrotask(() => {
       resizeQueued = false
-      for (const container of deps.roots.appKitContainers) {
+      for (const container of deps.directory.containers()) {
         if (win != null) {
           if (
             containerWindowTargets(container).includes(win) &&
@@ -132,13 +132,12 @@ export function createStyleEnvironment(deps: Dependencies) {
     if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
       return
     }
-    resizeObserverInstalled = true
     center.addObserverForNameObjectQueueUsingBlock(
       NSWindowDidResizeNotification ?? 'NSWindowDidResizeNotification',
       null,
       null,
       (notification: NSNotification) => {
-        for (const container of deps.roots.appKitContainers) {
+        for (const container of deps.directory.containers()) {
           if (containerWindowTargets(container).includes(notification?.object)) {
             onHostWindowResize(notification?.object)
             return
@@ -146,6 +145,7 @@ export function createStyleEnvironment(deps: Dependencies) {
         }
       },
     )
+    resizeObserverInstalled = true
   }
 
   // Accessibility display notifications use the workspace's center, not defaultCenter.
@@ -169,7 +169,7 @@ export function createStyleEnvironment(deps: Dependencies) {
         workspace,
         NSOperationQueue.mainQueue,
         () => {
-          if (deps.roots.appKitContainers.size) {
+          if (deps.directory.containers().length) {
             onHostWindowResize()
           }
         },
@@ -182,10 +182,18 @@ export function createStyleEnvironment(deps: Dependencies) {
       console.warn('[macos-css] accessibility display observer unavailable', error)
     }
   }
+  let activated = false
+  function activate() {
+    if (activated) {
+      return
+    }
+    installResizeObserver()
+    installAccessibilityDisplayObserver()
+    deps.directory.observe(seedContainerMedia)
+    activated = true
+  }
   return {
+    activate,
     restyleAllContainers,
-    seedContainerMedia,
-    installResizeObserver,
-    installAccessibilityDisplayObserver,
   }
 }

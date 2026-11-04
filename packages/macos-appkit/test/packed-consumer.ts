@@ -66,6 +66,8 @@ const fixture = join(packageRoot, 'test/fixtures')
 for (const file of [
   'App.macos.tsx',
   'Paint.macos.tsx',
+  'RootDirectory.macos.tsx',
+  'root-directory-lifecycle.ts',
   'paint-lifecycle.ts',
   'Content.macos.tsx',
   'Dock.macos.tsx',
@@ -313,6 +315,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
     assert.match(output, /PACKED_BOX_PAINT_OK/)
+    assert.match(output, /PACKED_ROOT_DIRECTORY_OK/)
     assert.match(output, /PACKED_CONTEXTMENU_OK/)
     assert.match(output, /PACKED_PICKER_BRIDGE_OK/)
     assert.match(output, /PACKED_STACKLAYOUT_OK/)
@@ -401,6 +404,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
     } else if (liquidGlassOnly) {
       assert.match(devOutput, /PACKED_LIQUIDGLASS_HMR_OK/)
     } else {
+      assert.match(devOutput, /PACKED_ROOT_DIRECTORY_HMR_OK/)
       assert.match(devOutput, /PACKED_DOCKLAYOUT_HMR_OK/)
       assert.match(devOutput, /PACKED_WRAPLAYOUT_HMR_OK/)
       assert.match(devOutput, /PACKED_PROXYVIEWCONTAINER_HMR_OK/)

@@ -1,3 +1,4 @@
+import { checkRootDirectoryLifecycle } from './root-directory-lifecycle'
 import { checkPaintLifecycle } from './paint-lifecycle'
 import { checkActionBarLifecycle } from './actionbar-lifecycle'
 import { checkListViewLifecycle } from './listview-lifecycle'
@@ -335,6 +336,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               const paintRoot = createMacOSRoot(nativeWindow.contentView)
               try { await checkPaintLifecycle(paintRoot, nativeWindow) } finally { paintRoot.unmount() }
 
+              await checkRootDirectoryLifecycle(nativeWindow)
               console.log('PACKED_RENDERER_OK')
             } catch (error) {
               console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)

@@ -3,7 +3,7 @@ import { effectiveStyle } from './style-values.ts'
 import type { Registry } from './registry'
 import type { Layout } from './layout'
 import type { TextElements } from './text-elements'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import type { CssCascade } from './css-cascade'
 import type { Actions } from './actions'
 import type { Accessibility } from './accessibility'
@@ -31,7 +31,7 @@ interface Dependencies {
     | 'releasePlacementPins'
   >
   textElements: Pick<TextElements, 'makeLabel'>
-  roots: Pick<Roots, 'ownedRoots'>
+  directory: Pick<RootDirectoryReader, 'hasHost'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
   actions: Pick<Actions, 'setPanAction'>
   accessibility: Pick<Accessibility, 'applyAccessibility'>
@@ -254,7 +254,7 @@ export function createContainerElements(deps: Dependencies) {
     }
 
     if (
-      deps.roots.ownedRoots.has(view) ||
+      deps.directory.hasHost(view) ||
       (deps.registry.nodeContainersByView.has(view) && view.superview !== node.view)
     ) {
       throw new TypeError('AppKit actionbar titleView is owned by another Octane host')

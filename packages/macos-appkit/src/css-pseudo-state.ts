@@ -2,7 +2,7 @@ import type { Hover } from './hover'
 import type { CssCascade } from './css-cascade'
 import type { Registry } from './registry'
 import type { Subscriptions } from './subscriptions'
-import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotification,
@@ -18,7 +18,7 @@ interface Dependencies {
   cssCascade: Pick<CssCascade, 'setPseudoClass' | 'syncNormalState'>
   registry: Pick<Registry, 'cssNodesByView'>
   subscriptions: Pick<Subscriptions, 'keyboardDispatcher' | 'contextPointerDispatcher'>
-  roots: Pick<Roots, 'appKitContainers'>
+  directory: Pick<RootDirectoryReader, 'containers'>
 }
 
 export type CssPseudoState = ReturnType<typeof createCssPseudoState>
@@ -242,7 +242,7 @@ export function createCssPseudoState(deps: Dependencies) {
         null,
         null,
         (notification: NSNotification) => {
-          for (const container of deps.roots.appKitContainers) {
+          for (const container of deps.directory.containers()) {
             if (container.hostView?.window === notification?.object) {
               syncContainerFocus(container)
             }

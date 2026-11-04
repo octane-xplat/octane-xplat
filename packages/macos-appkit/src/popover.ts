@@ -1,4 +1,5 @@
 import type { Roots } from './roots'
+import type { RootDirectoryReader } from './root-directory'
 import {
   NSNotificationCenter,
   NSPopover,
@@ -11,7 +12,8 @@ import {
 import type { PropBag, PopupOptions } from './model'
 
 interface Dependencies {
-  roots: Pick<Roots, 'createMacOSRoot' | 'fontFamilyForView'>
+  roots: Pick<Roots, 'createMacOSRoot'>
+  directory: Pick<RootDirectoryReader, 'fontFamilyForView'>
 }
 
 export type Popover = ReturnType<typeof createPopover>
@@ -94,7 +96,7 @@ export function createPopover(deps: Dependencies) {
     })
 
     const root = deps.roots.createMacOSRoot(contentView, {
-      fontFamily: deps.roots.fontFamilyForView(anchor),
+      fontFamily: deps.directory.fontFamilyForView(anchor),
     })
     const popup = {
       popover: null as any,

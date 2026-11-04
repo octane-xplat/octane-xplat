@@ -17,6 +17,8 @@ import { showWindowLayer, type WindowLayerOptions } from './layer'
 import { installPresentationBridge } from './presentation'
 import '@nativescript/macos-node-api'
 import { createRoots } from './roots'
+import { createRootDirectory } from './root-directory'
+import { createLayoutProjection } from './layout-projection'
 import { createRegistry } from './registry'
 import { createLayout } from './layout'
 import { createSubscriptions } from './subscriptions'
@@ -50,17 +52,13 @@ import { createMeasurements } from './measurements'
 const registry = createRegistry()
 const boxPaint = createBoxPaint()
 
+const rootDirectory = createRootDirectory()
+const directory = rootDirectory.reader
+const layoutProjection = createLayoutProjection({ boxPaint, registry })
 const roots = createRoots({
-  boxPaint,
-  registry,
+  directory: rootDirectory.writer,
   get driver() {
     return driver
-  },
-  get styleEnvironment() {
-    return styleEnvironment
-  },
-  get automation() {
-    return automation
   },
 })
 
@@ -116,7 +114,7 @@ const containerElements = createContainerElements({
   get textElements() {
     return textElements
   },
-  roots,
+  directory,
   get cssCascade() {
     return cssCascade
   },
@@ -233,7 +231,7 @@ const cssCascade = createCssCascade({
     return hostBridge
   },
   layout,
-  roots,
+  directory,
   nativeStyle,
   controls,
   textElements,
@@ -316,6 +314,7 @@ const hover = createHover()
 
 const popover = createPopover({
   roots,
+  directory,
 })
 
 const cssPseudoState = createCssPseudoState({
@@ -323,7 +322,7 @@ const cssPseudoState = createCssPseudoState({
   cssCascade,
   registry,
   subscriptions,
-  roots,
+  directory,
 })
 
 const contextMenu = createContextMenu({
@@ -346,25 +345,23 @@ const hostBridge = createHostBridge()
 const styleEnvironment = createStyleEnvironment({
   cssPseudoState,
   cssCascade,
-  roots,
-})
-
-const automation = createAutomation({
-  roots,
-  get measurements() {
-    return measurements
-  },
-  cssCascade,
-  accessibleHost,
-  actions,
-  hover,
-  popover,
+  directory,
 })
 
 const measurements = createMeasurements({
   textElements,
   boxPaint,
-  roots,
+  directory,
+})
+
+const automation = createAutomation({
+  directory,
+  measurements,
+  cssCascade,
+  accessibleHost,
+  actions,
+  hover,
+  popover,
 })
 
 /** Install shared adapters only after every service has been constructed. */
@@ -386,6 +383,8 @@ const cssAnimations = createCssAnimations({
 })
 
 function initializeRuntime() {
+  styleEnvironment.activate()
+  automation.activate()
   configureTabContentRoots(
     (host, fontFamily) => roots.createMacOSRoot(host, { fontFamily }),
     nativeColor,
@@ -535,7 +534,7 @@ function initializeRuntime() {
   hostBridge.appKitBridge.showLayer = (options: PropBag) =>
     showWindowLayer(options as WindowLayerOptions, {
       createRoot: (view: NSView, anchor: NSView) =>
-        roots.createMacOSRoot(view, { fontFamily: roots.fontFamilyForView(anchor) }),
+        roots.createMacOSRoot(view, { fontFamily: directory.fontFamilyForView(anchor) }),
       fittingSize: popover.popupFittingSize,
     })
 
@@ -547,9 +546,11 @@ function initializeRuntime() {
 
   hostBridge.appKitBridge.presentSheet = sheetBridge.presentSheet
 
-  installPresentationBridge(hostBridge.appKitBridge, roots.createMacOSRoot, roots.fontFamilyForView)
+  installPresentationBridge(hostBridge.appKitBridge, roots.createMacOSRoot, directory.fontFamilyForView)
 }
 initializeRuntime()
 
-export const { createMacOSRoot, observeLayoutCommits, setLayoutProjectionScale } = roots
+export const { createMacOSRoot } = roots
+export const { observeLayoutCommits } = directory
+export const { setLayoutProjectionScale } = layoutProjection
 export type { MacOSRootOptions } from './roots'
