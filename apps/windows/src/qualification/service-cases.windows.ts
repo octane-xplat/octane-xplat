@@ -934,6 +934,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     out.xamlRoot = typeof xr === 'object' && xr !== null
     out.contentIslandEnv = typeof xr?.ContentIslandEnvironment === 'object'
     const appWindowId = xr?.ContentIslandEnvironment?.AppWindowId
+    out._appWindowId = appWindowId
     out.appWindowId = typeof appWindowId === 'object' && appWindowId !== null
     if (appWindowId && typeof ms?.UI?.Windowing?.AppWindow?.GetFromWindowId === 'function') {
       const appWindow = ms.UI.Windowing.AppWindow.GetFromWindowId(appWindowId)
@@ -947,6 +948,28 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
   } catch (error) {
     out.hwndError = error instanceof Error ? error.message : String(error)
   }
+  // WASDK 1.8 pickers take a WindowId/AppWindow directly — no HWND needed.
+  const msPickers = ms?.Windows?.Storage?.Pickers
+  out.msPickersNs = typeof msPickers === 'object' && msPickers !== null
+  out.msFileOpenPicker = typeof msPickers?.FileOpenPicker
+  out.msFileSavePicker = typeof msPickers?.FileSavePicker
+  out.msFolderPicker = typeof msPickers?.FolderPicker
+  if (typeof msPickers?.FileOpenPicker === 'function') {
+    const ctorAttempts: string[] = []
+    for (const arg of [undefined, out._appWindowId ?? undefined] as const) {
+      try {
+        const mp = arg === undefined ? new msPickers.FileOpenPicker() : new msPickers.FileOpenPicker(arg)
+        out.msCtorOk = mp !== null
+        out.msCtorVia = arg === undefined ? 'no-arg' : 'appWindowId'
+        out.msMembers = Object.getOwnPropertyNames(Object.getPrototypeOf(mp))
+        break
+      } catch (error) {
+        ctorAttempts.push(error instanceof Error ? error.message : String(error))
+      }
+    }
+    out.msCtorAttempts = ctorAttempts
+  }
+  delete out._appWindowId
   return out
 }
 
@@ -1000,6 +1023,69 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       }
     }
   } catch {}
+  // Owner-window acquisition: HWND via win32 FFI + IInitializeWithWindow via
+  // the dotnet bridge (CsWinRT's WinRT.Interop helper). Each step is emitted.
+  const win32 = NSWinRT?.win32
+  const dotnet = NSWinRT?.dotnet
+  const interop = NSWinRT?.interop
+  let hwnd: number | null = null
+  const hwndAttempts: string[] = []
+  if (typeof win32?.call === 'function') {
+    for (const fn of ['GetForegroundWindow', 'GetActiveWindow']) {
+      try {
+        const v = win32.call('user32.dll', fn, 'pointer')
+        hwndAttempts.push(`${fn}=${String(v)}`)
+        if (typeof v === 'number' && v !== 0 && hwnd === null) hwnd = v
+      } catch (error) {
+        hwndAttempts.push(`${fn}: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+    // GetGUIThreadInfo(own thread) -> GUITHREADINFO.hwndActive needs an
+    // out-buffer; probe pointerFromBuffer's marshalling first.
+    try {
+      if (typeof interop?.pointerFromBuffer === 'function') {
+        const buf = new ArrayBuffer(72)
+        const view = new DataView(buf)
+        view.setUint32(0, 72, true)
+        const ptr = interop.pointerFromBuffer(buf)
+        out.ptrFromBufferType = typeof ptr
+        const tid = win32.call('kernel32.dll', 'GetCurrentThreadId', 'u32')
+        const ok = win32.call('user32.dll', 'GetGUIThreadInfo', 'i32', {
+          type: 'u32',
+          value: tid,
+        },
+        { type: 'pointer', value: typeof ptr === 'number' ? ptr : 0 })
+        out.guiThreadOk = ok
+        if (ok) {
+          const active = Number(view.getBigInt64(8, true))
+          hwndAttempts.push(`GetGUIThreadInfo.hwndActive=${active}`)
+          if (active !== 0 && hwnd === null) hwnd = active
+        }
+      }
+    } catch (error) {
+      hwndAttempts.push(`GetGUIThreadInfo: ${error instanceof Error ? error.message : String(error)}`)
+    }
+  }
+  out.hwndAttempts = hwndAttempts
+  out.hwnd = hwnd
+  // IInitializeWithWindow::Initialize(picker, hwnd) through the dotnet bridge.
+  if (hwnd !== null && typeof dotnet?.invoke === 'function') {
+    const initAttempts: string[] = []
+    for (const asm of ['WinRT.Runtime', 'Microsoft.Windows.SDK.NET', '']) {
+      try {
+        const result = dotnet.invoke(asm, 'WinRT.Interop.InitializeWithWindow', 'Initialize', [
+          picker,
+          hwnd,
+        ])
+        initAttempts.push(`${asm || 'auto'}: ok=${String(result)}`)
+        out.initVia = asm || 'auto'
+        break
+      } catch (error) {
+        initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }
+    out.initAttempts = initAttempts
+  }
   try {
     const op = picker.PickSingleFileAsync()
     out.opType = typeof op
