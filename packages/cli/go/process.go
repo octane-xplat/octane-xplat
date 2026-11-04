@@ -42,6 +42,7 @@ func (b *limitedCapture) String() string {
 }
 
 type processResult struct {
+	Signal    int    `json:"signal,omitempty"`
 	ExitCode  int    `json:"exitCode"`
 	Stdout    string `json:"stdout"`
 	Stderr    string `json:"stderr"`
@@ -69,6 +70,7 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 // have no terminal input, even when they call the same command handlers.
 type foregroundInputKey struct{}
 type processHelperKey struct{}
+type processGraceKey struct{}
 
 func foregroundCommandContext(ctx context.Context, input *os.File) context.Context {
 	return context.WithValue(ctx, foregroundInputKey{}, input)
@@ -133,10 +135,18 @@ func runProcessStdio(ctx context.Context, argv []string, cwd string, env []strin
 		cancelled, interrupted = true, true
 	}
 	if cancelled {
-		containment.terminate()
+		if state, ok := ctx.Value(cliSignalKey{}).(*cliSignalState); ok && state.number.Load() == 2 {
+			containment.interrupt()
+		} else {
+			containment.terminate()
+		}
+		grace := 500 * time.Millisecond
+		if requested, ok := ctx.Value(processGraceKey{}).(time.Duration); ok && requested > 0 && requested <= 5*time.Second {
+			grace = requested
+		}
 		select {
 		case err = <-done:
-		case <-time.After(500 * time.Millisecond):
+		case <-time.After(grace):
 			containment.kill()
 			err = <-done
 		}
@@ -157,7 +167,7 @@ func runProcessStdio(ctx context.Context, argv []string, cwd string, env []strin
 	if cleanupErr != nil {
 		return processResult{}, &processCleanupError{cleanupErr}
 	}
-	result = processResult{ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated || err == exec.ErrWaitDelay, Cancelled: cancelled}
+	result = processResult{Signal: processExitSignal(cmd.ProcessState), ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated || err == exec.ErrWaitDelay, Cancelled: cancelled}
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok && err != exec.ErrWaitDelay {
 			return result, fmt.Errorf("process wait: %w", err)

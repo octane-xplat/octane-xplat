@@ -1330,3 +1330,15 @@ reason to replace correct native normalization.
 Ada getter slices have explicit lengths and may not end at NUL; mutation can
 invalidate them. Copy borrowed slices after the final mutation, and release
 separately owned getter results with their matching function.
+
+Foreground Go development keeps terminal forwarding separate from owned process
+pipes and retained history. A blocked or broken terminal must not delay group/Job
+cleanup; bound terminal queue/line memory and disclose omissions. Preserve long
+ordinary automation lines independently of the shorter retained-record limit.
+On POSIX, handle stdout SIGPIPE through cancellation before returning 141, and
+forward an explicit owner SIGINT to the owned group before escalation. Neither
+pipe tests nor forced Windows termination qualify console Ctrl-C.
+Main `dev` waits for initial route publication before launching engines, keeps
+later invalid edits recoverable, and stops auxiliary typegen when all targets end.
+Launch sidecars bind the expected application and worker generation; final reads
+must preserve the last update without requiring removed bundle files to exist.

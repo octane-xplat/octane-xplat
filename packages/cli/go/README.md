@@ -59,11 +59,33 @@ Go owns argv, cwd, environment, timeouts, publication, sessions, logs, cancellat
 and cleanup. Use small workers for operations requiring the project's JavaScript
 compiler, plugin or configuration execution, never a general CLI fallback.
 
-Main `dev` and public persistent sessions remain pending. Their native foundation
-includes SDK target discovery/selection and a separate versioned retained-history
-store. Its bounded logs preserve Node pagination, disclose rotation/incomplete
-tails, and keep cleanup confirmation separate from stopped state or stored PIDs.
-These internal providers do not register the unfinished public commands.
+Main `dev` selects native SDK targets, preflights project engine entries, publishes
+initial routes and watches their sources, then owns the selected project engines.
+Run it from the application directory. Node and the selected project's Vite,
+NativeScript or optional macOS build worker must be installed first.
+
+```sh
+/absolute/path/to/xplat-go dev web
+/absolute/path/to/xplat-go dev macos
+/absolute/path/to/xplat-go dev ios --device SIMULATOR_ID
+/absolute/path/to/xplat-go dev --targets web,android
+```
+
+Project configuration stays with those engines. For macOS without a dev profile,
+the optional macOS diagnostic worker checks canonical native-leaf discovery before
+allowing a direct project script; native leaves require a dev profile. Go retains
+prefixed stdout/stderr and bounded log records in its separate versioned history
+store, outside disposable project caches. It preserves nonzero tool exits and
+awaits cancellation/group cleanup. Interactive workspace typegen is auxiliary and
+stops when all selected targets finish. Slow terminal readers can omit terminal
+lines with a diagnostic; retained logs have separate bounds and failure reporting.
+Host spawn alone does not imply application readiness. SDK command construction
+and compilation do not establish device runtime or Windows console qualification.
+
+Public persistent sessions remain pending. The history store preserves Node
+pagination, discloses rotation/incomplete tails and keeps cleanup confirmation
+separate from stopped state or stored PIDs. Foreground captures do not register a
+live persistent-owner session or grant authority to signal stored PIDs.
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes

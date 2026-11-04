@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync, statSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { Console } from 'node:console'
 import { inspectMacOSDoctor } from './doctor-checks.ts'
+import { discoverMacOSNative } from './native.ts'
 
 const protocol = 'octane-build-worker',
 	version = 1
@@ -25,7 +26,7 @@ try {
 		request.protocol !== protocol ||
 		request.version !== version ||
 		typeof id !== 'string' ||
-		request.operation !== 'macos-doctor'
+		!['macos-doctor', 'macos-dev-preflight'].includes(request.operation)
 	) {
 		throw new Error('Unsupported macOS diagnostic worker protocol')
 	}
@@ -40,11 +41,14 @@ try {
 		throw new Error('Expected project package.json object')
 	}
 
-	const data = {
-		version: 1,
-		root,
-		rows: await inspectMacOSDoctor(root, manifest, '@octane-xplat/macos-build'),
-	}
+	const data =
+		request.operation === 'macos-dev-preflight'
+			? { version: 1, root, hasNativeLeaves: discoverMacOSNative(root).leaves.length > 0 }
+			: {
+					version: 1,
+					root,
+					rows: await inspectMacOSDoctor(root, manifest, '@octane-xplat/macos-build'),
+				}
 
 	writeFileSync(output, JSON.stringify({ protocol, version, id, ok: true, data }))
 } catch (error) {

@@ -35,6 +35,7 @@
 		"test:go-doc-data": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go", "@octane-xplat/docs-search#build"] },
 		"test:go-code": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-binding": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
+		"test:go-dev": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/macos-build#build"] },
 		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go"] },
 		"build:go-tests": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },
 		"build:go": { "cache": false, "passThroughEnv": ["GOOS", "GOARCH", "CC", "CXX", "XPLAT_GO_VERSION"] },

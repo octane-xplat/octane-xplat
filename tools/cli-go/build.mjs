@@ -109,6 +109,7 @@ writeFileSync(
 			routes: routeCommandDescriptor,
 			typecheck: typecheckCommandDescriptor,
 			build: buildCommandDescriptor,
+			dev: (source) => commandDescriptor(source, 'dev'),
 			clean: (source) => commandDescriptor(source, 'clean'),
 			doctor: (source) => commandDescriptor(source, 'doctor'),
 			upgrade: (source) => commandDescriptor(source, 'upgrade'),

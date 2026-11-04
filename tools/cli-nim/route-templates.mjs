@@ -66,15 +66,20 @@ export function commandDescriptor(source, name) {
 		})
 	const entries = expand(args)
 	const positionals = entries
-		.filter((entry) => entry.value?.callee?.name === 'restPositionals')
+		.filter((entry) => ['positional', 'restPositionals'].includes(entry.value?.callee?.name))
 		.map((entry) => {
-			if (property(entry.value.arguments[0], 'type').name !== 'string') {
+			const type = property(entry.value.arguments[0], 'type')
+			const optional = type.type === 'CallExpression' && type.callee.name === 'optional'
+			if ((optional ? type.arguments[0]?.name : type.name) !== 'string') {
 				throw Error(`Unsupported ${name} positional type`)
 			}
-			return { name: entry.key.name, variadic: true }
+			return {
+				name: entry.key.name,
+				...(entry.value.callee.name === 'restPositionals' ? { variadic: true } : { required: !optional }),
+			}
 		})
 	const flags = entries
-		.filter((entry) => entry.value?.callee?.name !== 'restPositionals')
+		.filter((entry) => !['positional', 'restPositionals'].includes(entry.value?.callee?.name))
 		.map((entry) => {
 			const call = entry.value
 			if (call.type !== 'CallExpression' || !['flag', 'option'].includes(call.callee.name)) {

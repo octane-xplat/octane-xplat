@@ -22,25 +22,26 @@ const historyRetainedRuns = 20
 var historyID = regexp.MustCompile(`^sess_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 
 type historySession struct {
-	Version          int     `json:"version"`
-	StoreVersion     int     `json:"storeVersion"`
-	Implementation   string  `json:"implementation"`
-	SessionID        string  `json:"sessionId"`
-	AppRoot          string  `json:"appRoot"`
-	AppID            string  `json:"appId"`
-	OwnerID          string  `json:"ownerId"`
-	PID              int     `json:"pid"`
-	Platform         string  `json:"platform"`
-	TargetID         string  `json:"targetId"`
-	State            string  `json:"state"`
-	Origin           string  `json:"origin"`
-	Ownership        string  `json:"ownership"`
-	CreatedAt        string  `json:"createdAt"`
-	StartedAt        string  `json:"startedAt"`
-	EndedAt          *string `json:"endedAt"`
-	CleanupConfirmed bool    `json:"cleanupConfirmed"`
-	Detail           string  `json:"detail,omitempty"`
-	RetentionError   string  `json:"retentionError,omitempty"`
+	NativeIdentity   *devNativeIdentity `json:"nativeIdentity,omitempty"`
+	Version          int                `json:"version"`
+	StoreVersion     int                `json:"storeVersion"`
+	Implementation   string             `json:"implementation"`
+	SessionID        string             `json:"sessionId"`
+	AppRoot          string             `json:"appRoot"`
+	AppID            string             `json:"appId"`
+	OwnerID          string             `json:"ownerId"`
+	PID              int                `json:"pid"`
+	Platform         string             `json:"platform"`
+	TargetID         string             `json:"targetId"`
+	State            string             `json:"state"`
+	Origin           string             `json:"origin"`
+	Ownership        string             `json:"ownership"`
+	CreatedAt        string             `json:"createdAt"`
+	StartedAt        string             `json:"startedAt"`
+	EndedAt          *string            `json:"endedAt"`
+	CleanupConfirmed bool               `json:"cleanupConfirmed"`
+	Detail           string             `json:"detail,omitempty"`
+	RetentionError   string             `json:"retentionError,omitempty"`
 }
 type historyRecord struct {
 	Seq           int64  `json:"seq"`
@@ -210,6 +211,19 @@ func validHistorySession(session historySession, project, id string) bool {
 	if session.EndedAt != nil {
 		if _, err := time.Parse(time.RFC3339Nano, *session.EndedAt); err != nil {
 			return false
+		}
+	}
+	if native := session.NativeIdentity; native != nil {
+		if session.Platform != "macos" || native.AppID == "" || len(native.Processes) == 0 || len(native.Processes) > 64 || native.DroppedProcesses < 0 {
+			return false
+		}
+		for _, process := range native.Processes {
+			if process.PID < 1 || process.PID > 1<<32-1 || !filepath.IsAbs(process.Executable) {
+				return false
+			}
+			if _, err := time.Parse(time.RFC3339Nano, process.ObservedAt); err != nil {
+				return false
+			}
 		}
 	}
 	return session.CleanupConfirmed == (session.EndedAt != nil)
@@ -480,6 +494,7 @@ func (capture *historyCapture) append(record historyRecord) error {
 		capture.appendFailed = true
 		capture.failure = errors.Join(capture.failure, err)
 		capture.session.RetentionError = capture.failure.Error()
+		capture.failure = errors.Join(capture.failure, historyMetadata(capture.root, capture.session))
 	}
 	return err
 }
@@ -659,4 +674,19 @@ func (store *historyStore) Logs(id, owner string, cursor *int64, limit int, stre
 		result.NextCursor = result.Records[len(result.Records)-1].Seq
 	}
 	return result, nil
+}
+
+// Controllers report observer/transport retention failures without promoting
+// them into process-cleanup evidence or waiting until a long-lived run ends.
+func (capture *historyCapture) recordRetentionError(err error) {
+	if err == nil {
+		return
+	}
+	capture.Lock()
+	defer capture.Unlock()
+	capture.failure = errors.Join(capture.failure, err)
+	capture.session.RetentionError = capture.failure.Error()
+	if !capture.closed {
+		capture.failure = errors.Join(capture.failure, historyMetadata(capture.root, capture.session))
+	}
 }

@@ -107,3 +107,7 @@ func privateInterruptFile(file *os.File) error {
 }
 
 func containedChildExitCode(err *exec.ExitError) int { return err.ExitCode() }
+
+func processExitSignal(*os.ProcessState) int { return 0 }
+
+func (c *processContainment) interrupt() { c.terminate() }

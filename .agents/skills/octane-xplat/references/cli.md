@@ -26,7 +26,15 @@ separate from the native executable; the workshop calls its Node API directly
 in the existing operation worker. Go workshop services use native lifetime
 ownership and a bounded startup sidecar. Schema evidence labels distinguish web listening, host spawn and mobile
 tool spawn from actual app readiness. Inspect those scopes before automating
-interactions. The main Go dev command remains a separate migration step.
+interactions. Main Go `dev` now owns foreground project engines after initial
+route publication. It retains bounded logs and validates macOS launch sidecars;
+launch metadata alone does not prove app initialization. It does not yet expose
+persistent session APIs. Use its native schema and owning README for scope.
+
+```sh
+/absolute/path/to/xplat-go dev web
+/absolute/path/to/xplat-go dev macos
+```
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only

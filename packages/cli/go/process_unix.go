@@ -151,3 +151,16 @@ func containedChildExitCode(err *exec.ExitError) int {
 	}
 	return err.ExitCode()
 }
+
+func processExitSignal(state *os.ProcessState) int {
+	if status, ok := state.Sys().(syscall.WaitStatus); ok && status.Signaled() {
+		return int(status.Signal())
+	}
+	return 0
+}
+
+func (c *processContainment) interrupt() {
+	if c.pid > 0 {
+		_ = syscall.Kill(-c.pid, syscall.SIGINT)
+	}
+}

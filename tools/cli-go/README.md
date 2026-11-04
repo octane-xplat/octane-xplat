@@ -111,6 +111,21 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 XPLAT_GO_DOCS_DOWNLOAD=1 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation downloads"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
 ```
 
+The main development gate runs the public `dev` entry with project-installed
+Vite, route preparation/recovery and multi-target exit handling. On macOS it also
+runs headless AppKit app code through the installed macOS worker and checks normal
+exit/cancellation, launch evidence and resource cleanup. It performs no image
+inspection. POSIX tests check SIGINT forwarding and broken-stdout cancellation;
+Windows owner termination checks Job cleanup, not console Ctrl-C.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground development"}' -- bun run turbo run test:go-unit test:go-dev --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
+```
+
+Frozen core snapshots expose `test:go-dev:portable` through root Turbo tasks,
+alongside the portable native unit gate. These execute actual host binaries;
+cross-compilation alone does not qualify a host.
+
 ## Cross-compilation and execution
 
 The Go core needs no C cross-compiler. For inference builds, the qualified
