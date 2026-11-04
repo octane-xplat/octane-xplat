@@ -16,6 +16,7 @@ import { runNativeJourney } from './native-journey.ts'
 
 await runNativeJourney({
 	target: 'macos',
+	executable: process.env.XPLAT_WORKSHOP_CLI,
 	hostBanner: 'WORKSHOP_MACOS_HOST',
 	hostCheckName: 'AppKit/JSC host started',
 	catalogLabel: 'macOS',

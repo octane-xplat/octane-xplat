@@ -40,6 +40,17 @@ func runWorkerEntry(ctx context.Context, project, worker, operation string, payl
 	return runWorkerEntryStdio(ctx, project, worker, operation, payload, nil, outputStream, diagnosticStream)
 }
 func runWorkerEntryStdio(ctx context.Context, project, worker, operation string, payload map[string]any, inputStream, outputStream, diagnosticStream *os.File) (workerResult, error) {
+	return runPreparedWorker(ctx, project, worker, operation, payload, inputStream, outputStream, diagnosticStream, nil)
+}
+
+// Preparation owns its observer until after process cleanup and before private data removal.
+type workerPreparation func(string, string, map[string]any) (func(), error)
+
+type workerExitError struct{ Code int }
+
+func (err *workerExitError) Error() string { return "worker failed after writing its response" }
+
+func runPreparedWorker(ctx context.Context, project, worker, operation string, payload map[string]any, inputStream, outputStream, diagnosticStream *os.File, prepare workerPreparation) (workerResult, error) {
 	if _, err := exec.LookPath("node"); err != nil {
 		return workerResult{}, errors.New("Node is required for this project worker; install the Node version required by the selected project and put it on PATH")
 	}
@@ -63,6 +74,13 @@ func runWorkerEntryStdio(ctx context.Context, project, worker, operation string,
 	request["id"] = id
 	request["operation"] = operation
 	request["project"] = project
+	if prepare != nil {
+		stop, err := prepare(directory, id, request)
+		if err != nil {
+			return workerResult{}, err
+		}
+		defer stop()
+	}
 	bytes, err := json.Marshal(request)
 	if err != nil {
 		return workerResult{}, err
@@ -120,7 +138,7 @@ func runWorkerEntryStdio(ctx context.Context, project, worker, operation string,
 		return result, fmt.Errorf("project worker: %s", response.Error.Message)
 	}
 	if process.ExitCode != 0 {
-		return result, errors.New("worker failed after writing its response")
+		return result, &workerExitError{Code: process.ExitCode}
 	}
 	if len(response.Data) == 0 {
 		return result, errors.New("worker omitted result data")

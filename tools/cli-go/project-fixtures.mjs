@@ -18,6 +18,7 @@ export function projectToolFixture(
 		packageManagement = false,
 		creator = false,
 		fontConverter = false,
+		workshopCompiler = false,
 	} = {},
 ) {
 	// Source-host test tasks may run concurrently. Never replace a shared archive
@@ -56,6 +57,9 @@ export function projectToolFixture(
 			type: 'module',
 			devDependencies: {
 				...deps,
+				...(workshopCompiler
+					? { ...packages.workshopCompiler, storybook: packages.workshopStorybook }
+					: {}),
 				...(fontConverter ? { wawoff2: packages.fontConverter } : {}),
 				...(formatter ? { '@octane-xplat/fmt': packages.formatter } : {}),
 				...(vite ? { vite: packages.vite } : {}),

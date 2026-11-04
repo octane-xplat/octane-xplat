@@ -69,6 +69,9 @@ export declare function workshopInit(options?: {
 	scripts?: boolean
 }): Promise<{ created: string[]; skipped: string[] }>
 
+/** Versioned admission hooks used by native service owners. */
+export declare const WORKSHOP_DEV_LIFECYCLE_VERSION: 1
+
 /** `xplat workshop dev` — boots the target's dev path (Vite server for web, native launch for ios/android, AppKit/GTK hosts for macos/linux). The resolved value varies by target. */
 export declare function workshopDev(options?: {
 	/** Consumer package root; defaults to process.cwd(). */
@@ -81,6 +84,16 @@ export declare function workshopDev(options?: {
 	port?: number
 	/** Device/emulator specifier for mobile targets. */
 	device?: string
+	/** Native caller's existing private runtime-resource directory. */
+	resourceRoot?: string
+	/** Native caller's private compiler-profile directory inside the app. */
+	profileRoot?: string
+	/** Engine evidence only: a listening web server, host spawn, or mobile tool spawn. */
+	onStarted?: (evidence: {
+		kind: 'web-listening' | 'native-host-spawned' | 'mobile-tool-spawned'
+		url?: string
+		pid?: number
+	}) => void
 }): Promise<unknown>
 
 /**

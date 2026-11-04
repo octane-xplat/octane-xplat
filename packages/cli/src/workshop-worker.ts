@@ -1,8 +1,8 @@
-// Selected-project workshop inspection; no CLI parser or service lifetime here.
+// Selected-project workshop operations; native callers own selection and service lifetime.
 import { Console } from 'node:console'
-import { lstatSync, realpathSync, statSync } from 'node:fs'
+import { lstatSync, realpathSync, statSync, writeFileSync, renameSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, join, sep } from 'node:path'
+import { dirname, join, sep, basename } from 'node:path'
 import { Writable } from 'node:stream'
 import { pathToFileURL } from 'node:url'
 
@@ -127,4 +127,100 @@ export async function workshopInitPlan(request: Record<string, any>) {
 		)
 	}
 	return api.planWorkshopInit({ cwd: project, scripts: request.scripts })
+}
+
+// A receipt admits the operation; it never claims app readiness or completion.
+export async function workshopService(
+	request: Record<string, any>,
+	requestFile: string,
+	resultFile: string,
+) {
+	const project = realpathSync(process.cwd())
+	if (!['web', 'macos', 'linux', 'ios', 'android', 'windows'].includes(request.target)) {
+		throw new Error('Unsupported workshop target')
+	}
+	for (const key of ['story', 'device']) {
+		if (
+			request[key] !== undefined &&
+			(typeof request[key] !== 'string' || request[key].length > 8192)
+		) {
+			throw new Error(`Invalid workshop ${key}`)
+		}
+	}
+	if (
+		request.port !== undefined &&
+		(!Number.isInteger(request.port) || request.port < 0 || request.port > 65535)
+	) {
+		throw new Error('Workshop port must be an integer from 0 to 65535')
+	}
+	const directory = realpathSync(dirname(requestFile))
+	if (
+		dirname(request.serviceStateFile) !== directory ||
+		basename(request.serviceStateFile) !== 'service.json' ||
+		request.resourceRoot !== join(directory, 'resources')
+	) {
+		throw new Error('Invalid native-owned service paths')
+	}
+	if (
+		request.profileRoot !== '' &&
+		(!request.profileRoot.startsWith(project + sep) ||
+			!basename(request.profileRoot).startsWith('.xplat-go-profile-') ||
+			!lstatSync(request.profileRoot).isDirectory())
+	) {
+		throw new Error('Invalid native-owned compiler profile')
+	}
+	globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr })
+	const api = await import(pathToFileURL(workshopEntry(project)).href)
+	if (api.WORKSHOP_DEV_LIFECYCLE_VERSION !== 1) {
+		throw new Error(
+			'Update @octane-xplat/workshop in the selected project to provide development lifecycle v1',
+		)
+	}
+
+	const data = {
+		version: 1,
+		project,
+		operation: 'workshop-dev',
+		target: request.target,
+		state: 'accepted',
+	}
+	writeFileSync(
+		resultFile,
+		JSON.stringify({
+			protocol: request.protocol,
+			version: request.version,
+			id: request.id,
+			ok: true,
+			data,
+			warnings: [],
+		}),
+	)
+	await api.workshopDev({
+		cwd: project,
+		target: request.target,
+		story: request.story,
+		port: request.port,
+		device: request.device,
+		resourceRoot: request.resourceRoot,
+		profileRoot: request.profileRoot || undefined,
+		onStarted: ({ kind, pid, url }) => {
+			const value = JSON.stringify({
+				protocol: 'octane-project-service',
+				version: 1,
+				id: request.id,
+				project,
+				operation: 'workshop-dev',
+				target: request.target,
+				kind,
+				pid,
+				url,
+			})
+			if (Buffer.byteLength(value) > 65536) {
+				throw new Error('Service startup evidence exceeds 64 KiB')
+			}
+			writeFileSync(request.serviceStateFile + '.next', value, { mode: 0o600 })
+			renameSync(request.serviceStateFile + '.next', request.serviceStateFile)
+		},
+	})
+	return data
 }

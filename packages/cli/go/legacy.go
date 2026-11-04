@@ -126,6 +126,9 @@ func legacySchema(command commandDescriptor) map[string]any {
 		"status": status, "output": "human",
 		"input": map[string]any{"flags": command.Flags, "positionals": command.Positionals},
 	}
+	if command.Name == "workshop dev" {
+		schema["startup"] = map[string]any{"deadlineSeconds": 300, "evidence": map[string]string{"web": "HTTP listener", "macos": "native host spawn", "linux": "native host spawn", "ios": "NativeScript tool spawn", "android": "NativeScript tool spawn", "windows": "launch blocked by project preflight"}, "appReadiness": "not inferred from engine startup"}
+	}
 	if command.Name == "build" {
 		schema["engines"] = buildEngineContracts()
 	}

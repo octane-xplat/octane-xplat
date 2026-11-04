@@ -1189,6 +1189,22 @@ remain visible on failure. Package specs passed to a Windows shell need a closed
 valid package-name grammar. Do not resolve Fontsource from a global installation
 or bypass a nearer broken package.
 
+Foreground project services use a versioned private startup sidecar, separate from
+human output and the operation-admission receipt. Bound startup, then allow the
+owned service lifetime until exit/cancellation; always await group/job cleanup.
+A final observer read catches evidence published just before an engine exits.
+Reject malformed/wrong-owner records; never derive signal authority from a PID
+in descriptive launch evidence. Keep native host spawn and mobile tool spawn
+separate from actual app initialization. Preserve nonzero engine exits even if
+an admission frame was written successfully.
+
+Keep compiler profiles inside a fresh native-owned app directory: the canonical
+config validator confines paths to the app, and generated configs resolve project
+modules from that ancestry. Keep runtime assets in the separate private worker
+resource root outside dependency caches. Native owns both lifetimes and removes
+profiles after confirmed process cleanup; retain their paths on uncertain cleanup.
+Do not weaken the config path boundary merely to put profiles in a global cache.
+
 Workshop inspection uses the selected project's `@octane-xplat/workshop/node`
 through the small CLI worker, with no old command-parser fallback. Keep discovery
 static: executing workshop configuration is intentional; executing story modules

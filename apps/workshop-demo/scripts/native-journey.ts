@@ -31,7 +31,7 @@ export function runNativeJourney(options) {
 	const normalize = options.normalize ?? ((line) => line)
 
 	const proc = spawn(
-		join(appRoot, 'node_modules/.bin/xplat'),
+		options.executable ?? join(appRoot, 'node_modules/.bin/xplat'),
 		['workshop', 'dev', '--target', options.target],
 		{
 			cwd: appRoot,

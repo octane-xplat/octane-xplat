@@ -9,12 +9,14 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
 
 func init() {
 	nativeLegacyCommands["workshop init"] = workshopInitCommand
+	nativeLegacyCommands["workshop dev"] = workshopDevCommand
 	for _, operation := range []string{"list", "doctor"} {
 		nativeLegacyCommands["workshop "+operation] = func(ctx context.Context, values map[string]any) error {
 			return workshopInspection(ctx, operation, values)
@@ -330,4 +332,46 @@ func workshopInitCommand(ctx context.Context, values map[string]any) error {
 	}
 	fmt.Fprintln(&output, "  run: bun run xplat workshop dev --target web")
 	return writeCommandText(child, os.Stdout, output.String())
+}
+
+func workshopDevCommand(ctx context.Context, values map[string]any) error {
+	project, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	project, err = canonical(project)
+	if err != nil {
+		return err
+	}
+	if _, err = projectManifest(project); err != nil {
+		return err
+	}
+	worker, err := projectWorker(project)
+	if err != nil {
+		return err
+	}
+	target := stringValue(values["target"])
+	if target == "" {
+		target = "web"
+	}
+	payload := map[string]any{"target": target}
+	for _, key := range []string{"story", "device"} {
+		if value, ok := values[key].(string); ok {
+			payload[key] = value
+		}
+	}
+	if value, ok := values["port"].(string); ok {
+		port, e := strconv.Atoi(value)
+		if e != nil || port < 0 || port > 65535 {
+			return errors.New("--port expects a decimal integer from 0 to 65535")
+		}
+		payload["port"] = port
+	}
+	release, err := lockProjectOutputs(project)
+	if err != nil {
+		return err
+	}
+	defer release()
+	_, err = runServiceWorker(ctx, project, worker, "workshop-dev", target, payload, 5*time.Minute, foregroundInput(ctx), os.Stdout, os.Stderr)
+	return err
 }

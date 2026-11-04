@@ -66,8 +66,17 @@ human diagnostics fail after printing the inventory. Doctor reports prerequisite
 not qualified platform support. Initialization uses its shared read-only plan: Go validates raw before-images,
 preserves existing templates and scripts, and publishes under an app output lease.
 Only the missing workshop package script may change in the manifest. Publication
-is atomic per file, with partial effects disclosed on interruption. Service
-launching remains pending in its schema until its lifecycle work is implemented.
+is atomic per file, with partial effects disclosed on interruption. Service launching calls the project engine in an owned Node worker, with a
+five-minute startup deadline and live stdout/stderr plus explicit foreground input.
+The schema labels its evidence: web listening, native host spawn or mobile tool
+spawn; none implies a fully initialized app. The native owner awaits the whole
+service lifetime and group/job cleanup, then removes its private resources.
+Windows workshop launch retains the project's explicit unqualified-host blocker.
+
+```sh
+/absolute/path/to/xplat-go workshop dev --target web --port 5173
+/absolute/path/to/xplat-go workshop dev --target macos
+```
 
 ```sh
 # From a project with its CLI worker and workshop package installed:

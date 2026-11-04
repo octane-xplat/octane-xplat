@@ -84,6 +84,15 @@ export function prepareFixtures(
 			join(work, flavor + '.json'),
 			JSON.stringify({
 				version: 1,
+				workshopCompiler: Object.fromEntries(
+					['octane', '@octanejs/vite-plugin', '@tsrx/oxc'].map((name) => [
+						name,
+						JSON.parse(readFileSync(join(root, 'package.json'))).devDependencies[name] ??
+							JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[name],
+					]),
+				),
+				workshopStorybook: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
+					.dependencies.storybook,
 				fontConverter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json')))
 					.dependencies.wawoff2,
 				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[

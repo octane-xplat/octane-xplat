@@ -396,3 +396,16 @@ app output marker. Both must reap the host and remove its owned app bundle.
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Workshop macOS project engine"}' -- bun run turbo run test:go-workshop-engine --filter=@octane-xplat/cli
 ```
+
+Workshop service gates run actual Vite HTTP, virtual-catalog updates, cancellation
+and port release through the Go CLI. `test:go-workshop-macos` runs the maintained
+39-step offscreen text journey in an owned copy of the demo, with the Go binary
+selected explicitly. It edits only the copy; source-linked dependencies make this
+a source-host qualification, not an isolated published consumer. Actions use the
+native recognizer/NSEvent automation seam, not OS-synthesized input. No images are
+captured. Native units cover startup deadlines, identity rejection, final receipt
+races, engine streams and resistant descendant cleanup.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1,"desktop_input":1},"purpose":"Go workshop services"}' -- bun run turbo run test:go-workshop test:go-workshop-macos test:go-unit --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```

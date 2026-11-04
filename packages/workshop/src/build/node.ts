@@ -430,12 +430,23 @@ export async function startWorkshopServer({ root, config, target, story, port } 
 	return { server, url }
 }
 
-export async function workshopDev({ cwd, target = 'web', story, port, device } = {}) {
+export const WORKSHOP_DEV_LIFECYCLE_VERSION = 1
+
+export async function workshopDev({
+	cwd,
+	target = 'web',
+	story,
+	port,
+	device,
+	resourceRoot,
+	profileRoot,
+	onStarted,
+} = {}) {
 	const root = consumerRoot(cwd)
 	if (target === 'macos') {
 		const { config } = await loadWorkshopConfig(root)
 		const { workshopMacOSDev } = await import('./macos-node.ts')
-		return workshopMacOSDev({ root, config, story })
+		return workshopMacOSDev({ root, config, story, resourceRoot, profileRoot, onStarted })
 	}
 
 	if (target === 'ios' || target === 'android') {
@@ -454,7 +465,7 @@ export async function workshopDev({ cwd, target = 'web', story, port, device } =
 
 		const { config } = await loadWorkshopConfig(root)
 		try {
-			return await launchMobile({ root, target, device, story, config })
+			return await launchMobile({ root, target, device, story, config, onStarted })
 		} catch (error) {
 			throw new WorkshopUsageError(error.message)
 		}
@@ -467,7 +478,7 @@ export async function workshopDev({ cwd, target = 'web', story, port, device } =
 	if (target === 'linux') {
 		const { config } = await loadWorkshopConfig(root)
 		const { workshopGtkDev } = await import('./gtk-node.ts')
-		return workshopGtkDev({ root, config, story })
+		return workshopGtkDev({ root, config, story, profileRoot, onStarted })
 	}
 
 	if (target !== 'web') {
@@ -487,5 +498,11 @@ export async function workshopDev({ cwd, target = 'web', story, port, device } =
 
 	process.on('SIGINT', shutdown)
 	process.on('SIGTERM', shutdown)
+	try {
+		onStarted?.({ kind: 'web-listening', url })
+	} catch (error) {
+		await server.close()
+		throw error
+	}
 	return server
 }

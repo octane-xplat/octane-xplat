@@ -108,6 +108,14 @@ export async function launchMobile(options) {
 	try {
 		await new Promise((resolve, reject) => {
 			child.once('error', reject)
+			child.once('spawn', () => {
+				try {
+					options.onStarted?.({ kind: 'mobile-tool-spawned', pid: child.pid })
+				} catch (error) {
+					child.kill()
+					reject(error)
+				}
+			})
 			child.once('exit', (code, signal) =>
 				code === 0
 					? resolve()

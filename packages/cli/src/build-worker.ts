@@ -50,6 +50,7 @@ if (!requestFile || !resultFile) {
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr })
 let id: unknown = null
 let file: string | undefined
+let service = false
 const warnings: string[] = []
 try {
 	if (statSync(requestFile).size > 64 * 1024 * 1024) {
@@ -73,6 +74,10 @@ try {
 	if (['add-targets', 'add-plan', 'add-install'].includes(request.operation)) {
 		const { addOperation } = await import('./add-worker.ts')
 		data = await addOperation(request)
+	} else if (request.operation === 'workshop-dev') {
+		service = true
+		const { workshopService } = await import('./workshop-worker.ts')
+		data = await workshopService(request, requestFile, resultFile)
 	} else if (request.operation === 'workshop-init-plan') {
 		const { workshopInitPlan } = await import('./workshop-worker.ts')
 		data = await workshopInitPlan(request)
@@ -418,4 +423,9 @@ try {
 	)
 
 	process.exitCode = 1
+	// Failed service engines may still own active watchers. The native owner reaps
+	// their group before removing private state, including after this forced exit.
+	if (service) {
+		setImmediate(() => process.exit(1))
+	}
 }

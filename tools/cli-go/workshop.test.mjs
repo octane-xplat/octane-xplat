@@ -32,7 +32,7 @@ for (const [file, hash] of Object.entries(build.inputs)) {
 }
 const scratch = realpathSync(scratchRun(root, 'go-workshop'))
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
-const tools = projectToolFixture(root, work, scratch)
+const tools = projectToolFixture(root, work, scratch, { workshopCompiler: true })
 let sequence = 0
 function put(dir, file, content) {
 	const path = join(dir, file)
@@ -50,7 +50,14 @@ function link(source, destination) {
 function fixture({ workshop = true } = {}) {
 	const dir = join(scratch, `app ${sequence++} π`)
 	put(dir, 'package.json', { name: 'workshop-consumer', type: 'module', private: true })
-	for (const name of ['@octane-xplat/cli', 'vite']) {
+	for (const name of [
+		'@octane-xplat/cli',
+		'vite',
+		'octane',
+		'@octanejs/vite-plugin',
+		'@tsrx/oxc',
+		'storybook',
+	]) {
 		link(join(tools.nodeModules, name), join(dir, 'node_modules', name))
 	}
 	if (workshop) {
@@ -63,6 +70,12 @@ function fixture({ workshop = true } = {}) {
 			recursive: true,
 			withFileTypes: true,
 		})) {
+			if (file.isFile()) {
+				const path = join(file.parentPath, file.name)
+				put(destination, path.slice(source.length + 1), readFileSync(path))
+			}
+		}
+		for (const file of readdirSync(join(source, 'src'), { recursive: true, withFileTypes: true })) {
 			if (file.isFile()) {
 				const path = join(file.parentPath, file.name)
 				put(destination, path.slice(source.length + 1), readFileSync(path))
@@ -119,7 +132,7 @@ test('workshop schemas are native and expose partial migration truthfully', () =
 			['workshop init', 'implemented'],
 			['workshop doctor', 'implemented'],
 			['workshop list', 'implemented'],
-			['workshop dev', 'pending'],
+			['workshop dev', 'implemented'],
 		],
 	)
 	success(run(dir, ['list', '--help'], { PATH: '' }))
@@ -526,3 +539,90 @@ test(
 		}
 	},
 )
+
+test('native workshop service uses actual Vite HTTP/catalog updates and releases the listener on cancel', async () => {
+	const dir = fixture()
+	put(dir, 'counter.stories.tsrx', story)
+	const child = spawn(binary, ['workshop', 'dev', '--target', 'web', '--port', '0'], {
+		cwd: dir,
+		stdio: ['ignore', 'pipe', 'pipe'],
+		env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '' },
+	})
+	const exited = once(child, 'exit')
+	let output = ''
+	child.stdout.on('data', (b) => (output += b))
+	child.stderr.on('data', (b) => (output += b))
+	let address
+	try {
+		for (let i = 0; i < 1200; i++) {
+			address = output.match(/WORKSHOP_READY (http:\/\/localhost:\d+\/)/)?.[1]
+			if (address) {
+				break
+			}
+			if (child.exitCode !== null) {
+				assert.fail(output)
+			}
+			await delay(25)
+		}
+		assert.ok(address, 'Vite did not listen: ' + output)
+		const response = await fetch(address)
+		assert.equal(response.status, 200)
+		const html = await response.text()
+		assert.match(html, /workshop/i)
+		// Request the actual maintained Vite virtual catalog, without evaluating stories.
+		const catalog = await fetch(new URL('/@id/__x00__xplat-workshop-catalog', address))
+		const text = await catalog.text()
+		writeFileSync(
+			join(work, 'workshop-service-http.json'),
+			JSON.stringify({ address, html, catalogStatus: catalog.status, catalog: text }),
+		)
+		assert.equal(catalog.status, 200, text)
+		assert.match(text, /counter\/basic/)
+		put(dir, 'counter.stories.tsrx', story.replaceAll('counter/basic', 'counter/changed'))
+		let updated = ''
+		for (let i = 0; i < 200; i++) {
+			const r = await fetch(new URL('/@id/__x00__xplat-workshop-catalog', address))
+			updated = await r.text()
+			if (updated.includes('counter/changed')) {
+				break
+			}
+			await delay(25)
+		}
+		assert.match(updated, /counter\/changed/)
+		child.kill('SIGTERM')
+		const [code, signal] = await exited
+		assert.equal(signal, null)
+		assert.equal(code, 143, output)
+		await assert.rejects(fetch(address))
+	} finally {
+		if (child.exitCode === null && child.signalCode === null) {
+			child.kill('SIGTERM')
+			await exited
+		}
+		writeFileSync(join(work, 'workshop-service-output.txt'), output)
+	}
+})
+
+test('native service reports project setup errors and preserves worker exit status', () => {
+	const dir = fixture()
+	const unsupported = run(dir, ['dev', '--target', 'windows'])
+	assert.equal(unsupported.status, 1, unsupported.stdout + unsupported.stderr)
+	assert.match(unsupported.stderr, /Windows|windows/)
+	const invalid = run(dir, ['dev', '--port', '65536'])
+	assert.equal(invalid.status, 1)
+	assert.match(invalid.stderr, /--port expects/)
+	// A valid admission frame never changes the actual engine failure status.
+	const pkg = join(dir, 'node_modules/@octane-xplat/cli')
+	rmSync(pkg)
+	put(pkg, 'package.json', {
+		name: '@octane-xplat/cli',
+		type: 'module',
+		exports: { './worker': './worker.js' },
+	})
+	put(
+		pkg,
+		'worker.js',
+		`import{readFileSync,writeFileSync}from'node:fs';const req=JSON.parse(readFileSync(process.argv[2]));writeFileSync(process.argv[3],JSON.stringify({protocol:req.protocol,version:req.version,id:req.id,ok:true,data:{version:1,project:req.project,operation:req.operation,target:req.target,state:'accepted'},warnings:[]}));process.exitCode=7;`,
+	)
+	assert.equal(run(dir, ['dev']).status, 7)
+})

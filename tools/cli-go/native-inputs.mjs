@@ -37,6 +37,8 @@ export function nativeInputs(root) {
 		'packages/cli/src/workshop-worker.ts',
 		'packages/workshop/package.json',
 		'packages/workshop/vite.config.ts',
+		'apps/workshop-demo/scripts/native-journey.ts',
+		'apps/workshop-demo/scripts/e2e-macos.ts',
 		'packages/app/src/assets/fonts/Geist-Variable.ttf',
 		'packages/app/src/assets/fonts/OFL.txt',
 		'packages/cli/test/fixtures/inter-latin-wght-normal.woff2',

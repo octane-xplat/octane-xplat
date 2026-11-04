@@ -98,7 +98,7 @@ export function gtkDoctor(root, configFile) {
 }
 
 /** Generate a session-owned build directory; app entries stay untouched. */
-export async function workshopGtkDev({ root, config, story }) {
+export async function workshopGtkDev({ root, config, story, profileRoot, onStarted }) {
 	if (process.platform !== 'linux' && process.platform !== 'darwin') {
 		throw new Error(
 			'The GTK workshop runs on Linux, or on macOS with Homebrew gjs as a development stand-in',
@@ -135,7 +135,7 @@ export async function workshopGtkDev({ root, config, story }) {
 	const catalogPlugin = join(source, 'native-catalog-vite.ts')
 	const shell = join(source, 'gtk/shell.gtk.ts')
 	const chromeCss = join(source, '../native/chrome.css')
-	const cache = join(root, 'node_modules/.cache/xplat/workshop-gtk')
+	const cache = profileRoot ?? join(root, 'node_modules/.cache/xplat/workshop-gtk')
 	await mkdir(cache, { recursive: true })
 	const directory = await mkdtemp(join(cache, 'session-'))
 	const bundle = join(directory, 'stories.cjs')
@@ -283,6 +283,14 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		}
 	})
 
+	host.once('spawn', () => {
+		try {
+			onStarted?.({ kind: 'native-host-spawned', pid: host.pid })
+		} catch (error) {
+			console.error(error)
+			void shutdown(1)
+		}
+	})
 	host.on('exit', (code) => void shutdown(code ?? 0))
 	host.on('error', async (error) => {
 		console.error(`xplat workshop: failed to launch the GTK host — ${error.message}`)

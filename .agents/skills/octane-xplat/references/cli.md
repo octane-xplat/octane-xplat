@@ -23,7 +23,10 @@ paths under the 1 MiB input bound, and rerun after inspecting a stale-input erro
 MacOS workshop launch requires the selected project’s optional
 `@octane-xplat/macos-build/dev-engine`. Keep this engine and its host assets
 separate from the native executable; the workshop calls its Node API directly
-in the existing operation worker. Go workshop service support remains pending.
+in the existing operation worker. Go workshop services use native lifetime
+ownership and a bounded startup sidecar. Schema evidence labels distinguish web listening, host spawn and mobile
+tool spawn from actual app readiness. Inspect those scopes before automating
+interactions. The main Go dev command remains a separate migration step.
 
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
