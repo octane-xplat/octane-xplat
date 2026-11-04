@@ -85,7 +85,7 @@ func runStagedPackage(ctx context.Context, project, worker, label, releaseKey, s
 			failure = &artifactPublicationError{Published: published, Retained: []string{filepath.Join(release, stage)}, Err: errors.Join(failure, err)}
 		}
 	}()
-	result, err := runWorkerEntry(ctx, project, worker, operation, map[string]any{"stagingRoot": filepath.Join(release, stage)}, os.Stdout, os.Stderr)
+	result, err := runWorkerEntryStdio(ctx, project, worker, operation, map[string]any{"stagingRoot": filepath.Join(release, stage)}, foregroundInput(ctx), os.Stdout, os.Stderr)
 	if err != nil {
 		preserve = requiresFailureEvidence(err)
 		return err

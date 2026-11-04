@@ -129,6 +129,34 @@ cache mutation without trusting stored PIDs. Scope document reads by canonical
 targets while preserving lexical reference names; bound traversal, reject external
 symlinks, and skip directory cycles instead of reproducing unsafe reference walks.
 
+## Foreground process input
+
+Only one-shot CLI dispatch attaches a foreground input file to its context.
+Default process/worker calls still receive EOF. Use the explicit foreground
+process entry for project engines, and pass input only to selected interactive
+worker operations (installation or packaging), not configuration/inspection
+workers or owner requests. Inherit an OS file rather than forwarding stdin with
+a Go goroutine that can remain blocked after child cancellation.
+
+The Windows job gate uses a separately inherited release handle; never consume
+stdin for containment. On Unix, a controlling terminal needs an atomic
+`SysProcAttr.Foreground` handoff and restoration after group cleanup. A private
+close-on-exec interrupt pipe lets a foreground gate trigger cancellation even
+when the project tool ignores Ctrl-C. Restoration failure is cleanup failure.
+The one-shot CLI temporarily ignores SIGTTOU for restoration, then restores its
+inherited default/ignored state; merely catching it can produce EIO for orphaned
+background groups. A noncontrolling PTY can pass terminal detection while
+TIOCGPGRP returns ENOTTY; it needs no job-control handoff.
+
+Keep real controlling-terminal tests separate from pipe and isTTY checks. Verify
+an answer, Ctrl-C with resistant descendants, and a subsequent parent read after
+foreground restoration. Snapshot and restore terminal settings too: killing a
+raw-mode tool must not leave later input raw. Termios also includes driver
+state: BSD sets PENDIN during raw-to-canonical restoration. Compare complete
+settings after a subsequent real parent read rather than masking that flag. Windows pipe/job tests do not
+qualify console control. Ctrl-C tests do not qualify POSIX stop/resume.
+Read a native selection line without buffering bytes intended for the next tool.
+
 ## Go project orchestration
 
 Upgrade uses the canonical compatibility planner/apply/inspection engine through

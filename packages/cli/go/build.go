@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -151,7 +150,7 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 		return err
 	}
 	requested := optionalString(values, "targets")
-	if requested == nil && len(available) > 0 && buildTerminal(os.Stdout) {
+	if requested == nil && len(available) > 0 && foregroundInput(ctx) != nil && buildTerminal(foregroundInput(ctx)) && buildTerminal(os.Stdout) {
 		fmt.Printf("Build targets (comma list; Enter selects %s): ", strings.Join(available, ","))
 		type answer struct {
 			line string
@@ -159,8 +158,20 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 		}
 		done := make(chan answer, 1)
 		go func() {
-			line, err := bufio.NewReader(io.LimitReader(os.Stdin, 16385)).ReadString('\n')
-			done <- answer{line, err}
+			var line strings.Builder
+			var byte [1]byte
+			var err error
+			for line.Len() <= 16384 {
+				var n int
+				n, err = foregroundInput(ctx).Read(byte[:])
+				if n > 0 {
+					line.WriteByte(byte[0])
+				}
+				if err != nil || byte[0] == '\n' {
+					break
+				}
+			}
+			done <- answer{line.String(), err}
 		}()
 		select {
 		case <-ctx.Done():
@@ -232,7 +243,7 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 				args = append(args, "--release")
 			}
 		}
-		result, err := runProcessIO(ctx, args, project, projectToolEnvironment(), os.Stdout, os.Stderr)
+		result, err := runForegroundProcessIO(ctx, args, project, projectToolEnvironment(), os.Stdout, os.Stderr)
 		if err != nil {
 			return err
 		}

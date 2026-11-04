@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -38,12 +36,9 @@ func TestNativeTestExecutableDispatchesGate(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	cmd := exec.CommandContext(ctx, exe, "_gate", exe, "-test.run=^TestGateChild$")
-	cmd.Stdin = bytes.NewReader([]byte{1})
-	cmd.Env = append(os.Environ(), "XPLAT_GO_TEST_GATE=1")
-	output, err := cmd.CombinedOutput()
-	if err != nil || !bytes.Contains(output, []byte("native-test-gate-child")) {
-		t.Fatalf("native test gate did not dispatch its child: %v\n%s", err, output)
+	result, err := runProcess(ctx, []string{exe, "-test.run=^TestGateChild$"}, t.TempDir(), append(os.Environ(), "XPLAT_GO_TEST_GATE=1"))
+	if err != nil || result.ExitCode != 0 || !strings.Contains(result.Stdout, "native-test-gate-child") {
+		t.Fatalf("native test gate did not dispatch its child: %v\n%+v", err, result)
 	}
 }
 

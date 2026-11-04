@@ -50,7 +50,7 @@ func lintCommand(ctx context.Context, values map[string]any) error {
 		return errors.New("Node is required for the project's lint engine")
 	}
 	argv, _ := values["argv"].([]string)
-	process, err := runProcessIO(ctx, append([]string{node, runner}, argv...), project, projectToolEnvironment(), os.Stdout, os.Stderr)
+	process, err := runForegroundProcessIO(ctx, append([]string{node, runner}, argv...), project, projectToolEnvironment(), os.Stdout, os.Stderr)
 	if err != nil {
 		return err
 	}

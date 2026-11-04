@@ -224,7 +224,14 @@ the native process group/job, followed by compatibility and patch inspection.
 The fixed Windows launcher supports package-manager command shims; it accepts no
 caller-supplied shell fragments. Install has a 15-minute deadline; other upgrade
 workers have a two-minute deadline. Use `--no-install` to manage installation
-separately. The tool worker currently has no interactive stdin forwarding.
+separately. Foreground installation inherits the invoking CLI's input file.
+Default worker calls and contexts without an explicit foreground input receive
+EOF. Build/lint/typecheck engines and packaging workers use the same opt-in input
+boundary. Unix controlling terminals hand foreground ownership to the contained
+child and restore ownership and input settings before returning; Ctrl-C still
+triggers descendant cleanup. Raw-mode cancellation has a separate terminal test.
+Windows uses a separate job release handle so containment does not consume stdin.
+Actual Windows console events remain a separate qualification gate.
 
 ```sh
 /absolute/path/to/xplat-go upgrade --no-install

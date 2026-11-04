@@ -174,7 +174,7 @@ func runCLI(argv []string) int {
 	head := argv[0]
 	for _, command := range legacyCommands() {
 		if command.Name == head {
-			return runLegacyCLI(ctx, command, argv[1:])
+			return runLegacyCLI(foregroundCommandContext(ctx, os.Stdin), command, argv[1:])
 		}
 	}
 	members := []commandDescriptor{}

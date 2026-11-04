@@ -139,7 +139,7 @@ func typecheckCommand(ctx context.Context, _ map[string]any) error {
 			return err
 		}
 		fmt.Printf("Typechecking %s\n", config)
-		process, err := runProcessIO(ctx, []string{node, checker, "--noEmit", "-p", config}, project, projectToolEnvironment(), os.Stdout, os.Stderr)
+		process, err := runForegroundProcessIO(ctx, []string{node, checker, "--noEmit", "-p", config}, project, projectToolEnvironment(), os.Stdout, os.Stderr)
 		if err != nil {
 			return err
 		}

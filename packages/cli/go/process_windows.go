@@ -5,20 +5,21 @@ package main
 import (
 	"errors"
 	"golang.org/x/sys/windows"
-	"io"
 	"os"
 	"os/exec"
+	"strconv"
 	"syscall"
 	"time"
 	"unsafe"
 )
 
 type processContainment struct {
-	job  windows.Handle
-	gate io.WriteCloser
+	job    windows.Handle
+	gate   *os.File
+	reader *os.File
 }
 
-func containedCommand(argv []string) (*exec.Cmd, *processContainment, error) {
+func containedCommand(argv []string, _ *os.File) (*exec.Cmd, *processContainment, error) {
 	exe, err := os.Executable()
 	if err != nil {
 		return nil, nil, err
@@ -33,16 +34,23 @@ func containedCommand(argv []string) (*exec.Cmd, *processContainment, error) {
 		windows.CloseHandle(job)
 		return nil, nil, err
 	}
-	cmd := exec.Command(exe, append([]string{"_gate"}, argv...)...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windows.CREATE_NEW_PROCESS_GROUP}
-	gate, err := cmd.StdinPipe()
+	reader, gate, err := os.Pipe()
 	if err != nil {
 		windows.CloseHandle(job)
 		return nil, nil, err
 	}
-	return cmd, &processContainment{job: job, gate: gate}, nil
+	if err = windows.SetHandleInformation(windows.Handle(reader.Fd()), windows.HANDLE_FLAG_INHERIT, windows.HANDLE_FLAG_INHERIT); err != nil {
+		reader.Close()
+		gate.Close()
+		windows.CloseHandle(job)
+		return nil, nil, err
+	}
+	cmd := exec.Command(exe, append([]string{"_gate", strconv.FormatUint(uint64(reader.Fd()), 10), "0"}, argv...)...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windows.CREATE_NEW_PROCESS_GROUP, AdditionalInheritedHandles: []syscall.Handle{syscall.Handle(reader.Fd())}}
+	return cmd, &processContainment{job: job, gate: gate, reader: reader}, nil
 }
 func (c *processContainment) attach(cmd *exec.Cmd) error {
+	_ = c.reader.Close()
 	h, err := windows.OpenProcess(windows.PROCESS_SET_QUOTA|windows.PROCESS_TERMINATE, false, uint32(cmd.Process.Pid))
 	if err != nil {
 		return err
@@ -77,14 +85,25 @@ func (c *processContainment) wait() error {
 	}
 	return errors.New("owned Windows job still has active descendants")
 }
-func (c *processContainment) close() {
+func (c *processContainment) close() error {
+	if c.reader != nil {
+		_ = c.reader.Close()
+	}
 	if c.gate != nil {
 		_ = c.gate.Close()
 	}
-	_ = windows.CloseHandle(c.job)
+	return windows.CloseHandle(c.job)
 }
 func ownerCommand(exe string, argv []string) *exec.Cmd {
 	cmd := exec.Command(exe, argv...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: windows.DETACHED_PROCESS | windows.CREATE_NEW_PROCESS_GROUP}
 	return cmd
 }
+
+func (c *processContainment) interrupts() <-chan struct{} { return nil }
+
+func privateInterruptFile(file *os.File) error {
+	return windows.SetHandleInformation(windows.Handle(file.Fd()), windows.HANDLE_FLAG_INHERIT, 0)
+}
+
+func containedChildExitCode(err *exec.ExitError) int { return err.ExitCode() }

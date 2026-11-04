@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
+	"os/signal"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -62,18 +65,44 @@ func runProcess(ctx context.Context, argv []string, cwd string, env []string) (p
 // Inherited OS streams keep compiler output live without a Go forwarding
 // goroutine blocked on a downstream reader. Group/job ownership is identical
 // to captured workers; final diagnostics are printed only after cleanup.
+// Only one-shot CLI dispatch supplies this capability. Owner/service contexts
+// have no terminal input, even when they call the same command handlers.
+type foregroundInputKey struct{}
+
+func foregroundCommandContext(ctx context.Context, input *os.File) context.Context {
+	return context.WithValue(ctx, foregroundInputKey{}, input)
+}
+func foregroundInput(ctx context.Context) *os.File {
+	input, _ := ctx.Value(foregroundInputKey{}).(*os.File)
+	return input
+}
+func runForegroundProcessIO(ctx context.Context, argv []string, cwd string, env []string, output, diagnostic *os.File) (processResult, error) {
+	return runProcessStdio(ctx, argv, cwd, env, foregroundInput(ctx), output, diagnostic)
+}
+
 func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, output, diagnostic *os.File) (processResult, error) {
+	return runProcessStdio(ctx, argv, cwd, env, nil, output, diagnostic)
+}
+
+func runProcessStdio(ctx context.Context, argv []string, cwd string, env []string, input, output, diagnostic *os.File) (result processResult, returnErr error) {
 	if err := ctx.Err(); err != nil {
 		return processResult{}, err
 	}
-	cmd, containment, err := containedCommand(argv)
+	cmd, containment, err := containedCommand(argv, input)
 	if err != nil {
 		return processResult{}, err
 	}
-	defer containment.close()
+	defer func() {
+		if err := containment.close(); err != nil {
+			returnErr = &processCleanupError{errors.Join(returnErr, err)}
+		}
+	}()
 	cmd.Dir = cwd
 	cmd.Env = env
 	cmd.WaitDelay = 500 * time.Millisecond
+	if input != nil {
+		cmd.Stdin = input
+	}
 	var stdout, stderr limitedCapture
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
@@ -93,11 +122,15 @@ func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, 
 	}
 	done := make(chan error, 1)
 	go func() { done <- containment.observeExit(cmd) }()
-	cancelled := false
+	cancelled, interrupted := false, false
 	select {
 	case err = <-done:
 	case <-ctx.Done():
 		cancelled = true
+	case <-containment.interrupts():
+		cancelled, interrupted = true, true
+	}
+	if cancelled {
 		containment.terminate()
 		select {
 		case err = <-done:
@@ -122,11 +155,15 @@ func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, 
 	if cleanupErr != nil {
 		return processResult{}, &processCleanupError{cleanupErr}
 	}
-	result := processResult{ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated || err == exec.ErrWaitDelay, Cancelled: cancelled}
+	result = processResult{ExitCode: cmd.ProcessState.ExitCode(), Stdout: stdout.String(), Stderr: stderr.String(), Truncated: stdout.Truncated || stderr.Truncated || err == exec.ErrWaitDelay, Cancelled: cancelled}
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); !ok && err != exec.ErrWaitDelay {
 			return result, fmt.Errorf("process wait: %w", err)
 		}
+	}
+	if interrupted || (input != nil && buildTerminal(input) && result.ExitCode == 130) {
+		result.Cancelled = true
+		return result, context.Canceled
 	}
 	return result, nil
 }
@@ -134,18 +171,45 @@ func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, 
 // The Windows job gate does not launch project code until assignment succeeds.
 func childGate(argv []string) {
 	var release [1]byte
-	if len(argv) == 0 {
+	if len(argv) < 3 {
 		os.Exit(125)
 	}
-	if _, err := io.ReadFull(os.Stdin, release[:]); err != nil || release[0] != 1 {
+	handle, err := strconv.ParseUint(argv[0], 10, 64)
+	if err != nil {
 		os.Exit(125)
 	}
-	cmd := exec.Command(argv[0], argv[1:]...)
+	gate := os.NewFile(uintptr(handle), "job-release")
+	if gate == nil {
+		os.Exit(125)
+	}
+	_, err = io.ReadFull(gate, release[:])
+	_ = gate.Close()
+	if err != nil || release[0] != 1 {
+		os.Exit(125)
+	}
+	if argv[1] != "0" {
+		eventHandle, err := strconv.ParseUint(argv[1], 10, 64)
+		if err != nil {
+			os.Exit(125)
+		}
+		events := os.NewFile(uintptr(eventHandle), "terminal-interrupt")
+		if events == nil {
+			os.Exit(125)
+		}
+		if err := privateInterruptFile(events); err != nil {
+			os.Exit(125)
+		}
+		interrupts := make(chan os.Signal, 1)
+		signal.Notify(interrupts, os.Interrupt)
+		go func() { <-interrupts; _, _ = events.Write([]byte{1}) }()
+	}
+	cmd := exec.Command(argv[2], argv[3:]...)
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		if e, ok := err.(*exec.ExitError); ok {
-			os.Exit(e.ExitCode())
+			os.Exit(containedChildExitCode(e))
 		}
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(127)

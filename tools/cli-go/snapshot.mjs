@@ -145,6 +145,7 @@ try {
 		'test:go-response-roots:portable':
 			'node --test --test-name-pattern=response.roots tools/cli-go/doctor.test.mjs tools/cli-go/patches.test.mjs',
 		'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
+		'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mjs',
 		'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
 		'test:go-upgrade:portable': 'node --test tools/cli-go/upgrade.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
@@ -170,6 +171,7 @@ try {
 				'//#test:go-patches:portable': { cache: false },
 				'//#test:go-response-roots:portable': { cache: false },
 				'//#test:go-doctor:portable': { cache: false },
+				'//#test:go-foreground-input:portable': { cache: false },
 				'//#test:go-release-worker:portable': { cache: false },
 				'//#test:go-upgrade:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },

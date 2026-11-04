@@ -54,7 +54,7 @@ func TestLeaderIdentityRemainsReservedThroughDescendantCleanup(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			command, containment, err := containedCommand([]string{executable, "-test.run=^TestReservedLeaderHelper$"})
+			command, containment, err := containedCommand([]string{executable, "-test.run=^TestReservedLeaderHelper$"}, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

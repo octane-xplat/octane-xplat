@@ -42,11 +42,11 @@ func upgradeOperation(ctx context.Context, project, root, manager, entry, operat
 	operationContext, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	payload := map[string]any{"workspaceRoot": root, "expectedManager": manager, "frameworkVersion": metadata.FrameworkVersion, "digest": digest}
-	var output, diagnostic *os.File
+	var input, output, diagnostic *os.File
 	if operation == "upgrade-install" {
-		output, diagnostic = os.Stdout, os.Stderr
+		input, output, diagnostic = foregroundInput(ctx), os.Stdout, os.Stderr
 	}
-	result, err := runWorkerEntry(operationContext, project, entry, operation, payload, output, diagnostic)
+	result, err := runWorkerEntryStdio(operationContext, project, entry, operation, payload, input, output, diagnostic)
 	if output == nil {
 		var text strings.Builder
 		text.WriteString(result.Process.Stdout)

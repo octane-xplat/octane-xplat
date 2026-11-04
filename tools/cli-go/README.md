@@ -305,4 +305,14 @@ older projects with no installed worker, corrupt inventory rejection, native hel
 without Node, a real install deleting the original policy, and the actual standalone
 archive. `release-worker.mjs` builds only upgrade operations plus the reviewed
 YAML/JSONC module closure and licenses. No JS runtime or old CLI is included.
-Final npm consumer packaging and interactive terminal input remain separate gates.
+Final npm consumer packaging and Windows real-console events remain separate gates.
+
+`test:go-foreground-input` (portable: `test:go-foreground-input:portable`) exercises
+project tool input without waiting for parent EOF and an actual Bun postinstall
+prompt through the release worker. POSIX hosts also run an isolated controlling
+terminal through `foreground-terminal.py`: Unicode answer, ordinary/resistant
+Ctrl-C, raw-mode cancellation, and a follow-up parent read after terminal ownership
+and input settings are restored.
+Native unit tests cover explicit input grants, default EOF, blocked readers and
+cancellation cleanup. These are non-visual terminal fixtures. Windows pipe/job
+coverage is distinct from actual Windows console qualification.

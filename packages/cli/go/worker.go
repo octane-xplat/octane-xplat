@@ -37,6 +37,9 @@ func runWorker(ctx context.Context, project, operation string, payload map[strin
 }
 
 func runWorkerEntry(ctx context.Context, project, worker, operation string, payload map[string]any, outputStream, diagnosticStream *os.File) (workerResult, error) {
+	return runWorkerEntryStdio(ctx, project, worker, operation, payload, nil, outputStream, diagnosticStream)
+}
+func runWorkerEntryStdio(ctx context.Context, project, worker, operation string, payload map[string]any, inputStream, outputStream, diagnosticStream *os.File) (workerResult, error) {
 	if _, err := exec.LookPath("node"); err != nil {
 		return workerResult{}, errors.New("Node is required for this project worker; install the Node version required by the selected project and put it on PATH")
 	}
@@ -74,7 +77,7 @@ func runWorkerEntry(ctx context.Context, project, worker, operation string, payl
 	if err = privateFile(output, nil); err != nil {
 		return workerResult{}, err
 	}
-	process, err := runProcessIO(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment(), outputStream, diagnosticStream)
+	process, err := runProcessStdio(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment(), inputStream, outputStream, diagnosticStream)
 	result := workerResult{Process: process}
 	if process.Truncated {
 		result.Warnings = append(result.Warnings, fmt.Sprintf("Project worker diagnostics exceeded the %d MiB capture limit per stream; output is truncated.", captureLimit>>20))
