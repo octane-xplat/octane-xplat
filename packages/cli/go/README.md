@@ -205,7 +205,7 @@ concurrent writers. Application copies files and updates configuration sequentia
 so failure or cancellation can leave partial changes. Inspect those changes and
 rerun `patches check`; the CLI preserves this uncertainty in its error and exit.
 
-`upgrade` uses the selected project's canonical compatibility engine for catalog,
+`upgrade` uses the invoked release's canonical compatibility engine for catalog,
 patch and manifest policy. Go validates the complete rooted plan, holds the
 workspace and every package's output lease, and requires a fresh plan digest
 before apply. Preview writes nothing; ordinary apply retains the canonical
@@ -232,11 +232,14 @@ bun install --no-frozen-lockfile
 /absolute/path/to/xplat-go doctor
 ```
 
-This parallel build requires a project worker with the invoked framework release.
-An older worker fails explicitly; silently using its older compatibility set is
-not an upgrade. The mismatch guard does not supply cross-release bootstrap for
-older projects. Final distribution must provide that matching release worker
-before this migration can replace the production CLI.
+Experimental standalone archives include `native-worker` beside the executable.
+An invoked CLI package supplies the same sidecar from its own release; Go verifies
+its bounded inventory and stages it privately before upgrading an older project.
+Replacing the original worker during installation does not prevent verification.
+Node must be installed, but the project need not already have this release's worker.
+Loose development binaries still require a matching project worker. An invalid
+invoked package fails without falling back to an older policy. This qualification
+layout does not switch the production npm package or its bin entry.
 
 `doctor` runs the shared diagnostic report through the selected project's CLI
 worker. Go owns the native help/schema, process lifecycle and presentation. The

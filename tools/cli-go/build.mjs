@@ -1,5 +1,14 @@
 import assert from 'node:assert/strict'
-import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, rmSync, existsSync } from 'node:fs'
+import {
+	readFileSync,
+	writeFileSync,
+	mkdirSync,
+	mkdtempSync,
+	rmSync,
+	existsSync,
+	cpSync,
+} from 'node:fs'
+
 import { resolve, join, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -17,6 +26,7 @@ import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilitie
 import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
+import { buildReleaseWorker } from './release-worker.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
@@ -41,6 +51,8 @@ assert.equal(
 	version,
 	'Use the exact same-release native prerelease pin',
 )
+
+const releaseWorker = cli ? buildReleaseWorker(root, join(work, 'release-worker'), version) : null
 
 const zig = onnx && process.env.CC?.startsWith('zig ')
 const env = {
@@ -267,8 +279,16 @@ if (flags.includes('--test')) {
 		writeFileSync(join(stage, 'LICENSE'), readFileSync(join(root, 'LICENSE')))
 		writeFileSync(
 			join(stage, 'README.txt'),
-			'Experimental bounded Go CLI feasibility probe, not the production CLI.\nNo Node/Bun or old CLI runtime is bundled. Project workers and ONNX/model assets are separate.\n',
+			'Experimental bounded Go CLI feasibility probe, not the production CLI.\nNo Node/Bun or old CLI runtime is bundled. Release upgrade policy and its small Node dependencies are included. Project build engines and ONNX/model assets are separate.\n',
 		)
+
+		if (cli) {
+			cpSync(join(work, 'release-worker'), join(stage, 'native-worker'), { recursive: true })
+			writeFileSync(
+				join(stage, 'package.json'),
+				JSON.stringify({ name: '@octane-xplat/cli', version }),
+			)
+		}
 
 		const archive = binary + '.tgz'
 		run(
@@ -283,6 +303,7 @@ if (flags.includes('--test')) {
 				'THIRD-PARTY-NOTICES.txt',
 				'LICENSE',
 				'README.txt',
+				...(cli ? ['package.json', 'native-worker'] : []),
 			],
 			{ env: { ...env, COPYFILE_DISABLE: '1' } },
 		)
@@ -312,6 +333,7 @@ if (flags.includes('--test')) {
 		sha256: sha(bytes),
 		binary,
 		download,
+		releaseWorker,
 	}
 
 	writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')

@@ -47,6 +47,7 @@ try {
 	}
 
 	copy('packages/cli/go')
+	copy('research/go-cli/release-worker')
 	const inputs = new Set()
 	for (const target of ['linux-amd64', 'windows-amd64']) {
 		const unit = `go-tests-${target}${target.startsWith('windows') ? '.exe' : ''}`
@@ -142,6 +143,7 @@ try {
 		'test:go-clean:portable': 'node --test tools/cli-go/clean.test.mjs',
 		'test:go-patches:portable': 'node --test tools/cli-go/patches.test.mjs',
 		'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
+		'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
 		'test:go-upgrade:portable': 'node --test tools/cli-go/upgrade.test.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
 		'test:go-linux-build:portable': 'node --test tools/cli-go/linux-build.test.mjs',
@@ -165,6 +167,7 @@ try {
 				'//#test:go-clean:portable': { cache: false },
 				'//#test:go-patches:portable': { cache: false },
 				'//#test:go-doctor:portable': { cache: false },
+				'//#test:go-release-worker:portable': { cache: false },
 				'//#test:go-upgrade:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
 				'//#test:go-linux-build:portable': { cache: false },

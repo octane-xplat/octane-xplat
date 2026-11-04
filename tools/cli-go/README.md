@@ -293,5 +293,10 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 
 Portable snapshots expose the same fixture as `test:go-upgrade:portable`. Ordinary
 workspace discovery still uses the small native glob matcher; upgrade policy
-reuses its existing Node workspace expansion. A matching project worker is a
-current prerequisite; cross-release worker bootstrap remains distribution work.
+reuses its existing Node workspace expansion. `test:go-release-worker` (portable:
+`test:go-release-worker:portable`) qualifies the invoked release policy sidecar:
+older projects with no installed worker, corrupt inventory rejection, native help
+without Node, a real install deleting the original policy, and the actual standalone
+archive. `release-worker.mjs` builds only upgrade operations plus the reviewed
+YAML/JSONC module closure and licenses. No JS runtime or old CLI is included.
+Final npm consumer packaging and interactive terminal input remain separate gates.

@@ -5,6 +5,13 @@ executables embed Bun and unpack their production payload into a writable
 local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
+The parallel [Go migration](../../../../packages/cli/go/README.md) retains both
+Nim and TypeScript; it has not replaced production packaging. Its experimental
+upgrade archives carry the invoked release's small policy worker and dependencies,
+staged privately across installation. This release-policy exception does not move
+compiler/plugin resolution away from the selected project, embed Node, or invoke
+the old CLI. Consult that entry and Silo for actual command/target qualification.
+
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
 discovery. Native `status` reports actual installed bindings, tool observations,

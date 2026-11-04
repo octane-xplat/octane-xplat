@@ -173,7 +173,7 @@ func preflightUpgrade(ctx context.Context, root string, data upgradeData) ([]str
 	return paths, nil
 }
 
-func upgradeCommand(ctx context.Context, values map[string]any) error {
+func upgradeCommand(ctx context.Context, values map[string]any) (result error) {
 	project, err := os.Getwd()
 	if err != nil {
 		return err
@@ -194,10 +194,12 @@ func upgradeCommand(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
-	entry, err := projectWorker(project)
+	worker, err := selectUpgradeWorker(project)
 	if err != nil {
 		return err
 	}
+	defer func() { result = worker.finish(result) }()
+	entry := worker.Entry
 	check, _ := values["check"].(bool)
 	noInstall, _ := values["noInstall"].(bool)
 	releases := []func(){}
@@ -298,9 +300,11 @@ func upgradeCommand(ctx context.Context, values map[string]any) error {
 		return mutation(fmt.Errorf("compatibility files updated, but %s install failed; rerun %s install --no-frozen-lockfile", manager, manager))
 	}
 	// Installation can replace the CLI package; resolve its current worker again.
-	entry, err = projectWorker(project)
-	if err != nil {
-		return mutation(err)
+	if worker.Directory == "" {
+		entry, err = projectWorker(project)
+		if err != nil {
+			return mutation(err)
+		}
 	}
 	verified, err := upgradeOperation(ctx, project, root, manager, entry, "upgrade-verify", "")
 	if err != nil {

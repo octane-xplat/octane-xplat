@@ -133,10 +133,24 @@ symlinks, and skip directory cycles instead of reproducing unsafe reference walk
 
 Upgrade uses the canonical compatibility planner/apply/inspection engine through
 explicit operations in `src/upgrade-worker.ts`. Preserve the invoked framework
-release: reject a project worker with different compatibility data rather than
-silently aligning to its release. Final distribution must provide a matching
-worker/bootstrap path for an older project's upgrade; the guard is not that
-bootstrap. Keep authored engine ranges unchanged, as the canonical planner does.
+release: packaged native builds use the invoked CLI package's checksum-inventoried
+`native-worker` policy, not an older project's worker. Stage that bounded closure
+privately before mutation so replacing the package during installation cannot
+remove the running policy or its verification code. Remove it after confirmed
+child cleanup; retain it with a diagnostic when cleanup is unknown. Loose development
+binaries may use a matching project worker; broken invoked packages fail explicitly.
+Keep build/compiler workers project-resolved and authored engine ranges unchanged.
+
+The release worker bundles only compatibility operations; YAML and JSONC remain
+normal, small Node modules with licenses and a reviewed dependency closure.
+Bun-bundling the JSONC UMD entry produced unresolved relative requires under Node;
+exercise the generated artifact under Node, not just its TypeScript source.
+Keep Unicode installation fixtures. Windows Node 24.13.1 recursive `cpSync`
+returned success while omitting the requested Unicode destination in qualification;
+fixture staging uses explicit manifest-file reads/writes and checks the real archive
+separately, rather than removing Unicode coverage.
+Keep a native binary plus its policy sidecar in experimental standalone archives.
+This does not authorize changing production package entry points.
 
 The plan includes every workspace package for native output leases, not only
 packages with managed dependencies. Validate the complete file inventory before
@@ -149,7 +163,8 @@ installation, verification and final output. The fixed Bun/pnpm install operatio
 uses Node's platform launcher for Windows command shims; Go still owns its entire
 process tree and live stdout/stderr. Never interpolate project paths or arbitrary
 arguments into that Windows shell. Refuse an aliased workspace `node_modules`
-before installation, and re-resolve the project worker after installation.
+before installation. Re-resolve project workers after installation; an invoked
+release policy uses its retained staged copy through verification.
 
 For pnpm 11 fixtures, use `pnpm_config_*` environment settings, not
 `npm_config_*`; the older prefix is ignored for registry/store selection. Keep

@@ -148,6 +148,7 @@
 		"test:go-clean": "node --test ../../tools/cli-go/clean.test.mjs",
 		"test:go-patches": "node --test ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
+		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
 		"test:go-upgrade": "node --test ../../tools/cli-go/upgrade.test.mjs",
 		"test:go-routes": "node --test ../../tools/cli-go/routes.test.mjs",
 		"test:go-build-macos-real": "node --test ../../tools/cli-go/build-macos-real.test.mjs",
