@@ -176,6 +176,16 @@ prevent cleanup from returning. Keep captured workers bounded and separate from
 live terminal streams; print final diagnostics only after group/job cleanup.
 Qualify cancellation with both resistant descendants and an unread output pipe.
 
+Formatting keeps discovery, Git ignores, project configuration and transforms in
+`fmt-plan.ts` with the selected installed formatter. Native code validates every
+returned target, raw source digest and mode before any write, then uses adjacent
+staging and explicit partial-publication evidence. A directory input authorizes
+that physical directory; a file input authorizes that physical file. Never let a
+worker broaden those scopes or publish a partial successful plan after diagnostics.
+The human formatter's stdin/stdout helpers are one-shot process readers/writers:
+blocked I/O ends at the CLI's signal exit. Do not reuse those helpers in the
+persistent host, which needs operation-owned I/O and joined teardown instead.
+
 ## Write Nim with explicit data semantics
 
 - Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node

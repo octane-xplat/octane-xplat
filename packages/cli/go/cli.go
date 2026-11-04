@@ -106,6 +106,9 @@ func commandHelp(command commandDescriptor) string {
 	var out strings.Builder
 	fmt.Fprintf(&out, "xplat %s — %s\n\nUsage: xplat %s", command.Name, command.Summary, command.Name)
 	for _, pos := range command.Positionals {
+		if pos.Variadic {
+			pos.Name += "..."
+		}
 		if pos.Required {
 			fmt.Fprintf(&out, " <%s>", pos.Name)
 		} else {

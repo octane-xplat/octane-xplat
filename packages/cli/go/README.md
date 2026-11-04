@@ -103,6 +103,22 @@ runs have the command's cancellation context; the short configuration worker
 has a two-minute deadline. Programs run in reference order and stop on the first
 failure. An empty project with no routes or programs needs no Node worker.
 
+`fmt` reuses canonical Node discovery, Git ignores and the selected project's
+`@octane-xplat/fmt` engine. Go validates all returned source identities and scopes
+before writing, then publishes each changed file beside its target, preserving
+permissions and unchanged timestamps. Writes across files are not a transaction;
+failures disclose partial publication. `--check` exits 1 for differences; usage,
+configuration, transformation and I/O errors exit 2. Stdin mode writes only the
+formatted text to stdout; worker/library diagnostics go to stderr.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go formatter workflow"}' -- bun run turbo run test:go-fmt --filter=@octane-xplat/cli
+# From a project with its CLI worker and formatter installed:
+/absolute/path/to/xplat-go fmt src tests
+/absolute/path/to/xplat-go fmt --check
+/absolute/path/to/xplat-go fmt --stdin-filepath src/example.ts < src/example.ts
+```
+
 Source search/read keeps app files separate from installed framework packages and
 labels checkout content as development source. Intent search builds a bounded
 local identifier/TF-IDF index in Go; exact search reads current files. Reads check

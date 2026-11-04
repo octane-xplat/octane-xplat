@@ -137,6 +137,7 @@ try {
 	manifest.scripts = {
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
 		'test:go-routes:portable': 'node --test tools/cli-go/routes.test.mjs',
+		'test:go-fmt:portable': 'node --test tools/cli-go/format.test.mjs',
 		'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mjs',
 		'measure:go-cli:portable': 'node tools/cli-go/measure.mjs',
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
@@ -152,6 +153,7 @@ try {
 			tasks: {
 				'//#test:go-unit:portable': { cache: false },
 				'//#test:go-routes:portable': { cache: false },
+				'//#test:go-fmt:portable': { cache: false },
 				'//#test:go-typecheck:portable': { cache: false },
 				'//#measure:go-cli:portable': { cache: false },
 				'//#test:go:portable': { cache: false },
@@ -177,7 +179,7 @@ try {
 			bytes: bytes.length,
 			sha256: sha(bytes),
 			scope: routesOnly
-				? 'Cross-compiled Go public core and unit binaries, identical hashed source and project workers for native route publication/watch runtime qualification. No compiler or inference assets.'
+				? 'Cross-compiled Go public core and unit binaries, identical hashed source and project workers for native route, typecheck and formatting workflow qualification. No compiler or inference assets.'
 				: 'Cross-compiled Go core/cgo binaries and identical hashed source plus pinned native model assets; qualification requires actual host execution.',
 		}
 

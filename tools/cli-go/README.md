@@ -175,3 +175,15 @@ directory to the run, and execute the binary with `-test.v`. Reserve the host fo
 execution, retain stdout/stderr and the exact executable hash, then remove the
 owned upload/run. These test executables include Go's test runner and do not
 represent CLI download or startup size.
+
+The native formatter gate uses `test:go-fmt` on `@octane-xplat/cli`. It installs
+only the curated worker and explicitly pinned formatter, without Vite, and compares
+discovery/transforms with the canonical packed planner. It covers check/stdin
+outputs, diagnostics, permissions, no-op timestamps, malformed/stale write plans
+and one-shot pipe cancellation. This gate does not qualify a persistent host's
+stdin/stdout lifecycle or Windows console events.
+
+Snapshot producer paths such as `research/go-cli/routes-source.tgz` are replaceable
+build outputs. Before indexing a snapshot in Silo, copy its bytes to a filename
+containing the content hash and index that retained path. Check its hash before
+using remote evidence; a matching filename or base Git revision is insufficient.

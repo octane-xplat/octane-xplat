@@ -3,6 +3,7 @@
 	"globalDependencies": ["tsconfig.base.json", "packages/cli/patches/**"],
 	"tasks": {
 		"test:go-typecheck-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/web#typecheck", "@xplat/macos#typecheck", "@octane-xplat/lightbox#typecheck"] },
+		"test:go-fmt": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-typecheck": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"measure:go-cli": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"test:go-routes": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },

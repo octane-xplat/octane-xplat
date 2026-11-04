@@ -6,7 +6,12 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { prepareFixtures } from './fixtures.mjs'
 
-export function projectToolFixture(root, work, scratch, { checker = false, vite = true } = {}) {
+export function projectToolFixture(
+	root,
+	work,
+	scratch,
+	{ checker = false, vite = true, formatter = false } = {},
+) {
 	// Source-host test tasks may run concurrently. Never replace a shared archive
 	// while another task is reading its recorded bytes/hash. Portable snapshots
 	// instead consume their already-frozen read-only fixture archives.
@@ -36,6 +41,7 @@ export function projectToolFixture(root, work, scratch, { checker = false, vite 
 			type: 'module',
 			devDependencies: {
 				...deps,
+				...(formatter ? { '@octane-xplat/fmt': packages.formatter } : {}),
 				...(vite ? { vite: packages.vite } : {}),
 				...(checker
 					? {

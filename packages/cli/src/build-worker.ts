@@ -56,6 +56,25 @@ try {
 			onSource: source => { file = source },
 		})
 		data = { version: 1, count: plan.count, outputs: [...plan.outputs].map(([file, source]) => ({ file, source })) }
+	} else if (request.operation === 'fmt-plan') {
+		if (!Array.isArray(request.inputs) || !request.inputs.every((value: unknown) => typeof value === 'string')) {
+			throw new Error('fmt-plan requires input paths')
+		}
+		if (request.stdin !== null && (!request.stdin || typeof request.stdin.path !== 'string' || typeof request.stdin.source !== 'string')) {
+			throw new Error('fmt-plan requires null or text stdin')
+		}
+		const { planFormat } = await import('./fmt-plan.ts')
+		data = await planFormat(process.cwd(), request.inputs, request.stdin, async () => {
+			const localRequire = createRequire(join(process.cwd(), 'package.json'))
+			let entry: string
+			try {
+				entry = localRequire.resolve('@octane-xplat/fmt')
+			} catch {
+				throw new Error('Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).')
+			}
+			const { createFormatter } = await import(pathToFileURL(entry).href)
+			return createFormatter({ cwd: process.cwd() })
+		})
 	} else if (request.operation === 'typecheck-config') {
 		// Program expansion is the compiler's existing Node/JSONC/glob contract.
 		// Its disposable cache writes stay with that engine; CLI process ownership

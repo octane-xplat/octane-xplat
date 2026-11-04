@@ -96,7 +96,27 @@ writeFileSync(
 			.map((command) => ({
 				...command,
 				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
-			})),
+			}))
+			.concat([
+				{
+					// The reference formatter has a raw argv parser, not a cmdr descriptor.
+					// Keep these three inputs covered by the native/reference workflow gate.
+					name: 'fmt',
+					path: ['fmt'],
+					context: 'none',
+					summary: LEGACY_COMMANDS.find((command) => command.name === 'fmt').summary,
+					flags: [
+						{ flag: 'check', type: 'boolean', desc: 'Report differences without writing' },
+						{
+							flag: 'stdin-filepath',
+							type: 'string',
+							key: 'stdinFilepath',
+							desc: 'Format stdin using this path',
+						},
+					],
+					positionals: [{ name: 'paths', variadic: true }],
+				},
+			]),
 		version,
 		capabilityIds: CAPABILITY_IDS,
 		boundaries: PRODUCT_BOUNDARIES,

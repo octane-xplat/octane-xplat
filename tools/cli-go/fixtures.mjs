@@ -54,6 +54,9 @@ export function prepareFixtures(root, work) {
 			join(work, 'project-packages.json'),
 			JSON.stringify({
 				version: 1,
+				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[
+					'@octane-xplat/fmt'
+				],
 				vite: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.vite,
 				checker: {
 					plugin: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[

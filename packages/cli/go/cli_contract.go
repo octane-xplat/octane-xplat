@@ -27,6 +27,7 @@ type flagDescriptor struct {
 type positionalDescriptor struct {
 	Name     string `json:"name"`
 	Required bool   `json:"required"`
+	Variadic bool   `json:"variadic,omitempty"`
 	Min      *int   `json:"min"`
 	Max      *int   `json:"max"`
 }
@@ -254,10 +255,17 @@ func parseCommand(command commandDescriptor, argv []string) parsedCommand {
 	if len(positionals) < len(required) {
 		return fail(invalid(fmt.Sprintf("Missing required argument <%s> for `xplat %s`.", required[0], command.Name), fmt.Sprintf("Run `xplat %s --help` for usage.", command.Name)))
 	}
-	if len(positionals) > len(command.Positionals) {
+	if len(positionals) > len(command.Positionals) && (len(command.Positionals) == 0 || !command.Positionals[len(command.Positionals)-1].Variadic) {
 		return fail(invalid(fmt.Sprintf("Unexpected argument %q for `xplat %s`.", positionals[len(command.Positionals)], command.Name), fmt.Sprintf("Run `xplat %s --help` for usage.", command.Name)))
 	}
 	for at, def := range command.Positionals {
+		if def.Variadic {
+			values[def.Name] = []string{}
+			if at < len(positionals) {
+				values[def.Name] = append([]string{}, positionals[at:]...)
+			}
+			break
+		}
 		if at >= len(positionals) {
 			continue
 		}

@@ -37,11 +37,15 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 			"input": map[string]any{"flags": descriptor.Flags, "positionals": descriptor.Positionals},
 		}, nil)
 	}
+	failureExit := 1
+	if command.Name == "fmt" {
+		failureExit = 2
+	}
 	parsed := parseCommand(*descriptor, argv)
 	if len(parsed.Errors) > 0 {
 		fmt.Fprintln(os.Stderr, parsed.Errors[0].Message)
 		fmt.Fprintf(os.Stderr, "Run xplat %s --help for usage.\n", command.Name)
-		return 1
+		return failureExit
 	}
 	if parsed.Help {
 		fmt.Print(commandHelp(*descriptor))
@@ -54,16 +58,22 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	if err == nil {
 		return 0
 	}
+	if errors.Is(err, errFormatDifferences) {
+		return 1
+	}
+	if errors.Is(err, errFormatDiagnostics) {
+		return 2
+	}
 	var cleanup *processCleanupError
 	var publication *artifactPublicationError
 	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) {
 		fmt.Fprintf(os.Stderr, "xplat %s: %v\n", command.Name, err)
 	}
 	if requiresFailureEvidence(err) {
-		return 1
+		return failureExit
 	}
 	if errors.Is(err, context.Canceled) {
 		return legacyCancellationExit(ctx)
 	}
-	return 1
+	return failureExit
 }
