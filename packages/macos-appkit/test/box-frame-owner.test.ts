@@ -33,6 +33,8 @@ function fixture() {
   const api = runSlice(code + '\n({ observeBoxFrame, clearBoxFrameObserver })', {
     NSNotificationCenter: Center,
     NSViewFrameDidChangeNotification: 'frame',
+    setTimeout,
+    clearTimeout,
     console: { warn: (message: string) => warnings.push(message) },
     syncBoxGeometry() {
       updates++
@@ -143,4 +145,19 @@ test('failed registration retires its held callback and a later attempt can bind
   h.tokens[0].callback()
   assert.equal(h.updates(), 1)
   h.clearBoxFrameObserver(h.node)
+})
+
+
+test('frame paint repeats after native commit and retirement invalidates queued delivery', async () => {
+  const h = fixture()
+  h.observeBoxFrame(h.node, h.view)
+  h.tokens[0].callback()
+  assert.equal(h.updates(), 1)
+  await new Promise(resolve => setTimeout(resolve, 5))
+  assert.equal(h.updates(), 2)
+  h.tokens[0].callback()
+  h.clearBoxFrameObserver(h.node)
+  await new Promise(resolve => setTimeout(resolve, 5))
+  assert.equal(h.updates(), 3, 'retired pending delivery cannot repaint')
+  assert.equal(h.tokens[0].removed, 1)
 })

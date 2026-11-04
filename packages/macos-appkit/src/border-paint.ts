@@ -393,6 +393,9 @@ export function createBorderPaint(deps: Dependencies) {
       return
     }
     owner.active = false
+    const timer = owner.timer
+    owner.timer = undefined
+    if (timer !== undefined) { clearTimeout(timer) }
     if (node.boxFrameOwner === owner) {
       node.boxFrameOwner = null
       node.boxFrameObserver = null
@@ -416,6 +419,8 @@ export function createBorderPaint(deps: Dependencies) {
       token: null as any,
       active: true,
       ready: false,
+      syncing: false,
+      timer: undefined as ReturnType<typeof setTimeout> | undefined,
       view,
     }
     const current = () => node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && owner.active && node.boxFrameOwner === owner && node.view === view
@@ -447,19 +452,33 @@ export function createBorderPaint(deps: Dependencies) {
       }
 
       const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
-        if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !owner.active || !owner.ready || node.boxFrameOwner !== owner) {
+        if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || !owner.active || !owner.ready || owner.syncing || node.boxFrameOwner !== owner) {
           return
         }
         if (node.view !== view) {
           retireBoxFrameOwner(node, owner)
           return
         }
+        owner.syncing = true
         try {
           deps.transformPaint.syncBoxGeometry(node)
         } catch {
           try {
             console.warn('[macos-css] Box geometry update failed')
           } catch {}
+        } finally { owner.syncing = false }
+        // AppKit may finish its backing-layer geometry after this notification.
+        // One lease-guarded next-turn repaint follows that native write. Bridge
+        // callbacks can drain microtasks before AppKit finishes the write.
+        if (owner.timer === undefined && current()) {
+          owner.timer = setTimeout(() => {
+            owner.timer = undefined
+            if (!current() || !owner.ready) { return }
+            owner.syncing = true
+            try { deps.transformPaint.syncBoxGeometry(node) }
+            catch { try { console.warn('[macos-css] Box geometry update failed') } catch {} }
+            finally { owner.syncing = false }
+          }, 0)
         }
       })
 
@@ -778,7 +797,8 @@ export function createBorderPaint(deps: Dependencies) {
       layered ||
       (node.boxShadowSpec?.length ?? 0) > 0 ||
       node.bgHost != null ||
-      deps.transformPaint.hasPercentTranslate(node)
+      deps.transformPaint.hasPercentTranslate(node) ||
+      (node.transformSpec != null && Object.keys(node.transformSpec).length > 0)
     if (node.boxFrameOwner && node.boxFrameOwner.view !== view) {
       clearBoxFrameObserver(node)
     }
