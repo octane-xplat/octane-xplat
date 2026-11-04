@@ -6,7 +6,7 @@ export default function Actions(props: any) {
         id="lease-native"
         text="Action"
         isEnabled={props.nativeEnabled}
-        onPress={props.press}
+        onTap={props.press}
       />
       <textfield
         id="lease-field"
