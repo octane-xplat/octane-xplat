@@ -66,6 +66,8 @@ const fixture = join(packageRoot, 'test/fixtures')
 for (const file of [
   'App.macos.tsx',
   'Paint.macos.tsx',
+  'Actions.macos.tsx',
+  'action-ownership-lifecycle.ts',
   'RootDirectory.macos.tsx',
   'root-directory-lifecycle.ts',
   'paint-lifecycle.ts',
@@ -297,7 +299,9 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   const result = spawnSync(executable, [], {
     cwd: directory,
     encoding: 'utf8',
-    timeout: 30_000,
+    // The full native lifecycle matrix runs on shared hosts; keep a bounded
+    // allowance for concurrent native compilation without dropping assertions.
+    timeout: 90_000,
     env: {
       ...ambientEnv,
       OCTANE_MACOS_AUTOMATION: '1',
@@ -314,6 +318,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   } else if (liquidGlassOnly) {
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
+    assert.match(output, /PACKED_ACTION_OWNERSHIP_OK/)
     assert.match(output, /PACKED_BOX_PAINT_OK/)
     assert.match(output, /PACKED_ROOT_DIRECTORY_OK/)
     assert.match(output, /PACKED_CONTEXTMENU_OK/)

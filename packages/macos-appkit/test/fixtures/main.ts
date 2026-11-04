@@ -1,3 +1,4 @@
+import { checkActionOwnershipLifecycle } from './action-ownership-lifecycle'
 import { checkRootDirectoryLifecycle } from './root-directory-lifecycle'
 import { checkPaintLifecycle } from './paint-lifecycle'
 import { checkActionBarLifecycle } from './actionbar-lifecycle'
@@ -336,6 +337,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               const paintRoot = createMacOSRoot(nativeWindow.contentView)
               try { await checkPaintLifecycle(paintRoot, nativeWindow) } finally { paintRoot.unmount() }
 
+              await checkActionOwnershipLifecycle(nativeWindow)
               await checkRootDirectoryLifecycle(nativeWindow)
               console.log('PACKED_RENDERER_OK')
             } catch (error) {

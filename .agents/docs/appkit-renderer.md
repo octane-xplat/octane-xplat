@@ -19,7 +19,7 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `box-paint.ts`, `box-paint-state.ts`, `box-geometry.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
 | Element creation, props and disposal | `container-elements.ts`, `controls.ts`, `picker-elements.ts`, `input-elements.ts`, `text-elements.ts`, `image-elements.ts`, `hosted-elements.ts` |
 | Generic prop merging and removal | `element-props.ts` |
-| Actions, subscriptions and accessibility | `actions.ts`, `subscriptions.ts`, `hover.ts`, `accessible-host.ts`, `accessibility.ts` |
+| Actions, subscriptions and accessibility | `action-store.ts`, `actions.ts`, `subscriptions.ts`, `hover.ts`, `accessible-host.ts`, `accessibility-state.ts`, `accessibility.ts` |
 | Native surfaces | `popover.ts`, `context-menu.ts`, `picker-bridge.ts`, `sheet-bridge.ts`; existing `presentation.ts` and `layer.ts` own their surface engines |
 | Inspection and measurement | `automation.ts`, `measurements.ts`, `parity.ts` |
 
@@ -47,9 +47,8 @@ required operations or state. `runtime.ts` passes already-constructed services
 directly and uses getters for forward references. Read a forward dependency at
 operation time, not during construction. These remaining cycles coordinate
 style application, tree mutation and element lifecycle; moving a pure query
-out of them is preferable to adding another lazy dependency. Mutations such as
-allocating an action ID reach the owner's live state; copying a counter into
-a dependency object would lose that connection.
+out of them is preferable to adding another lazy dependency. Action allocation is a private store operation that returns a registration
+lease; consumers never copy a counter or mutate backing maps.
 
 Construct all services before installing compatibility, Mason, tab content and
 host bridges. Native classes must be registered before Mason subclasses the
@@ -167,6 +166,42 @@ Root creation rejects a second live root on the same host; retained-root HMR
 must reuse the existing root. Retirement is idempotent and removes font
 membership with the host owner ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).
 Nested roots retain their captured inherited family until their own retirement.
+
+## Action and accessibility lifetimes
+
+`action-store.ts` alone allocates numeric IDs, changes handler slots and binds
+native views. Its leases replace handlers without changing a native `tag`.
+Dispatch validates incoming native IDs. Release retires the slot first and
+removes a view association only while that lease owns it; superseded view
+leases cannot dispatch or erase a replacement. The store contains no control,
+text, gesture or accessibility state.
+
+`actions.ts` keeps the process-owned native delegate target and the node-action
+feature's leases. Control/input factories acquire those leases before fallible
+subsequent setup; menus and picker attachments retain their own leases and
+release them from their attachment disposer. Common node teardown calls the
+feature disposer, never a remote map deletion. Pan payloads retain their own
+typed event path. Gesture release uses the acquired view and current handler
+identity, so old cleanup cannot remove a newer pan binding. Held submit and
+adjustment callbacks check their current slot before entering the event scope.
+
+`accessibility-state.ts` owns typed, immutable semantic snapshots by view;
+`accessibility.ts` owns node/view leases. Accessible hosts and diagnostics only
+query those snapshots and action availability. Semantic-only hosts need no
+click allocation. Replacing or retiring a semantic lease invalidates its
+adjustments without changing another view owner's metadata.
+
+Folded text owns its click recognizer and AX custom-action dispatch in
+`text-elements.ts`. Each node/view lifetime has distinct slots, including when
+several labels have identical link names. Refolding reuses that owner's native
+objects; retirement clears JS dispatch before native cleanup. The existing
+macos-node-api 0.4.4-next.2026-08-09-31292056208 bridge workaround still retains
+native custom-action objects for the process: prior host evidence found that
+finalizing JS handler blocks during a JSC sweep traps. Slots cannot be shared
+across retired view lifetimes without redirecting held native callbacks.
+This deliberately retains native objects while releasing their JS feature
+closures; it is not whole-process leak freedom. Remove this workaround only
+after an upstream bridge change passes a native finalization regression.
 
 ## Verify a change
 
