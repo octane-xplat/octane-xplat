@@ -192,3 +192,30 @@ test('the written config extends the manifest and expands in place', () => {
   const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
   assert.equal(config.extends, join(dir, 'tsconfig.envs.json'))
 })
+
+test('JSONC preserves comma-like string values and object keys', () => {
+	const manifest = {
+		environments: { web: { files: ['src/index.ts'] } },
+		compilerOptions: { paths: { ',}': [',]', 'https://example.com/*', '/* keep */'] } },
+	}
+	const dir = fixture(manifest)
+	assert.deepEqual(loadEnvManifest(dir).manifest, manifest)
+})
+
+test('JSONC accepts comments and trailing commas without repairing missing values', () => {
+	const dir = fixture({ environments: { web: { files: ['src/index.ts'] } } })
+	const path = join(dir, 'tsconfig.envs.json')
+	writeFileSync(path, '{ /* config */ "environments": { "web": { "files": ["src/index.ts",], }, }, // end\n }')
+	assert.deepEqual(loadEnvManifest(dir).manifest, {
+		environments: { web: { files: ['src/index.ts'] } },
+	})
+	for (const text of [
+		'{"environments":{"web":{"files":[,]}}}',
+		'{"environments":{"web":{,}}}',
+		'{"environments":{"web":{}},"compilerOptions":{"paths":{"x":[1/* gap */2]}}}',
+		'{"environments":{"web":{}}} /* unfinished',
+	]) {
+		writeFileSync(path, text)
+		assert.throws(() => loadEnvManifest(dir), /tsconfig\.envs\.json: invalid JSON/)
+	}
+})

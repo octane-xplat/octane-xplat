@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
@@ -76,4 +76,17 @@ test('dev rejects escaping and missing icon paths before launching a host', asyn
     createMacOSDevBundle(root, manifest({ icon: 'missing.icns' })),
     /does not exist/,
   )
+})
+
+test('a supplied development directory must be fresh before cleanup owns it', async (t) => {
+	const root = project(t)
+	const directory = join(root, 'owned-session')
+	const bundle = await createMacOSDevBundle(root, manifest(), { directory })
+	assert.ok(bundle.executable.startsWith(directory + '/'))
+	await bundle.cleanup()
+	assert.equal(existsSync(directory), false)
+	mkdirSync(directory)
+	writeFileSync(join(directory, 'keep'), 'authored')
+	await assert.rejects(createMacOSDevBundle(root, manifest(), { directory }), { code: 'EEXIST' })
+	assert.equal(readFileSync(join(directory, 'keep'), 'utf8'), 'authored')
 })

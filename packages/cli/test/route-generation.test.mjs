@@ -18,7 +18,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
 import { spawnSync } from 'node:child_process'
-import { generateRoutes } from '../dist/commands/routes.js'
+import { generateRoutes } from '../dist/route-generator.js'
 import { routePatternPath } from '@octane-xplat/lib/route-pattern'
 
 test('generated sibling imports resolve from default and nested output directories', async () => {

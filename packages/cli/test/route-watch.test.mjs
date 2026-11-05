@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createRouteWatcher } from '../dist/route-watch.js'
-import { generateRoutes } from '../dist/commands/routes.js'
+import { generateRoutes } from '../dist/route-generator.js'
 
 const screen = 'export default function Screen() { return null }'
 const until = async (predicate) => {

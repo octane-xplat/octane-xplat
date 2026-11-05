@@ -1,0 +1,42 @@
+{
+  "version": "1.31.1",
+  "release": "https://github.com/microsoft/onnxruntime/releases/tag/v1.31.1",
+  "targets": {
+    "darwin-arm64": {
+      "url": "https://github.com/microsoft/onnxruntime/releases/download/v1.31.1/onnxruntime-osx-arm64-1.31.1.tgz",
+      "sha256": "2e1344a1926ee50eb25b38153cb6992c3567515aef0e677a1a520a1798896d6f",
+      "bytes": 36936435,
+      "directory": "onnxruntime-osx-arm64-1.31.1",
+      "library": "lib/libonnxruntime.1.31.1.dylib",
+      "librarySha256": "17500d6b1e37e70f43a2c57d94233a1bc29fbcb297be0a5f8c7c13184f3307ba",
+      "files": {
+        "lib/libonnxruntime.1.31.1.dylib": {
+          "bytes": 44797256,
+          "sha256": "17500d6b1e37e70f43a2c57d94233a1bc29fbcb297be0a5f8c7c13184f3307ba"
+        },
+        "LICENSE": {
+          "bytes": 1073,
+          "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+        },
+        "ThirdPartyNotices.txt": {
+          "bytes": 338088,
+          "sha256": "143764b952fdb1a7c69ce653bfba74a7744d6a8a573bfb73e235fba356c83de3"
+        }
+      }
+    }
+  },
+  "headers": {
+    "onnxruntime_c_api.h": {
+      "sha256": "43d584f596ef66820421317df32a79a95fc1d39ee46cb3971a870c08d8ba4baa",
+      "bytes": 422790
+    },
+    "onnxruntime_error_code.h": {
+      "sha256": "5ce3b054e798eced8d14f5b86e98692fd33470463f96194ce0700a2d53dd8721",
+      "bytes": 2775
+    },
+    "onnxruntime_ep_c_api.h": {
+      "sha256": "b64036772115dbc6f06a900487ce22d34e862100db03e2ad62210758e27a19b2",
+      "bytes": 165249
+    }
+  }
+}
