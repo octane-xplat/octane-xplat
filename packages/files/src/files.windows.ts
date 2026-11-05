@@ -1,7 +1,7 @@
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { assertSafeFileName, concatBytes, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
-import { MIME_EXTENSIONS } from './file-types.macos'
+import { MIME_EXTENSIONS } from './file-types'
 import type { FileExportResult, FileReadBytesOptions, FileRef, Files } from './types'
 
 const CHUNK_SIZE = 64 * 1024
