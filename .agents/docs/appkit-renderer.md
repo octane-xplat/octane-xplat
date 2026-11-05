@@ -10,7 +10,7 @@ Paths below are relative to `packages/macos-appkit/src/`.
 
 | Responsibility | Modules |
 | --- | --- |
-| Composition and host adapters | `runtime.ts`, `host-bridge.ts` |
+| Composition and host adapters | `runtime.ts`, `runtime-activation.ts`, `host-bridge.ts` |
 | Node contracts, element capabilities and identities | `model.ts`, `element-adapter.ts`, `registry.ts` |
 | Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts`, `root-directory.ts` |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts`, `layout-projection.ts` |
@@ -44,10 +44,12 @@ their own maps, timers and native resources.
 
 Cross-subsystem contracts import named result types and use `Pick` to name the
 required operations or state. `runtime.ts` passes already-constructed services
-directly and uses getters for forward references. Read a forward dependency at
-operation time, not during construction. These remaining cycles coordinate
-style application, tree mutation and element lifecycle; moving a pure query
-out of them is preferable to adding another lazy dependency. Action allocation is a private store operation that returns a registration
+directly. Required forward operations are named callbacks with an activation
+check before accessing the later owner. No dependency getter exposes storage
+or triggers construction. Input identity storage precedes actions; accessible
+host identity precedes subscriptions; roots follow the completed driver.
+The layout service does not depend on the ActionBar owner: the acquired
+adapter already owns that layout dispatch. Action allocation is a private store operation that returns a registration
 lease; consumers never copy a counter or mutate backing maps.
 
 Construct all services before installing compatibility, Mason, tab content and
@@ -81,6 +83,45 @@ adapters, font registrations and image caches also have module/process scope.
 Per-root `nodes`, portal registrations and pending work live on `RootContainer`.
 Do not infer whole-renderer isolation from tests that construct one service
 twice with stand-ins.
+
+`runtime-activation.ts` is the first runtime import so its guard exists even
+during imported native class registration. Activation progresses from `constructing` to `activating`, then `active` or
+`failed`. Construction registers required native classes; adapter installation
+and required bridge setup finish before environment and optional diagnostics
+observation. Every root factory supplied to lists, tabs, popups, layers and
+presentations uses the guarded public facade. Root creation and forward
+operations reject before activation; failed activation retains its original
+error. A failed module import must never be retried by reconstructing native
+classes. Repeated imports reuse the loaded module; this is process activation,
+not independent renderer instantiation. Optional hover/menu installation keeps
+its explicit unavailable behavior; diagnostics activation failure is reported
+without preventing rendering. Required native registration/bridge failures
+reject the import.
+
+The remaining operational cycle coordinates these operations; it grants no
+new authority to the caller:
+
+| Operation family | Authority, readiness, reentry and retirement |
+| --- | --- |
+| Input/control/text updates → CSS/native style/font/AX | Feature owners acquire their view/action leases; callbacks run only after activation. Text-value/layout and action guards suppress recursive writes and retired dispatch. Node phases retire text observation before hooks, then detach and release feature state. |
+| Actions → text hit tests and pseudo state → subscriptions/accessible hosts | Actions own dispatch, not input storage. Native host file-drop methods call the subscription owner's named operations only after activation; registry identity, sender, active-slot and lifecycle checks reject replaced or retired owners. Subscription hooks release their leases during node teardown. |
+| Layout → projection → tree; tree → segmented selection | Layout requests projection through a named operation; projection can request tree detach, and tree synchronizes logical picker children. Per-root batches own dirty work, projection leases own physical placement, and acquired adapters own selection synchronization. Disposal marks the node first, releases placement before feature cleanup, and still permits required live-parent synchronization. |
+| CSS → animation → native style → CSS | Cascade owns computed styles; animation owns overlays and its self-quiescing timer; native style owns writes. Per-root batches and style equality prevent redundant work, while animation retirement cancels held work. This is not a general rollback or scheduling guarantee. |
+
+Process-scoped supporting state is intentional:
+
+| Modules | Process state and narrower resource lifetime |
+| --- | --- |
+| `gestures.ts`, `tab-view.ts`, `list-view.ts`, `webview.ts`, `video.ts` | Native delegate/class identity is registered once. Weak identity tables refer to acquired feature owners; node/adapter retirement invalidates handlers, observers, requests, timers and nested roots. List/pager portal counters remain monotonic across roots. |
+| `mason.ts`, `ns-compat.ts` | One installed adapter set and native Mason host/class. Compatibility queues pre-import registrations and retains class property metadata. Mason's style cache is node-keyed; its native-layout reentry set covers only the active call. Root retirement must not reset the process bridge or registration catalog. Mason's unavailable-engine warning/absence contract remains unchanged. |
+| `fonts.ts`, `image.ts`, `image-requests.ts`, `image-byte-cache.ts` | Registered font families, shared request deduplication and memory/URL caches outlive roots. Image requests and event handlers still retire by view/request identity; cache persistence is not permission for stale completion delivery. |
+| `pager.ts`, `image-geometry.ts`, `image-drawing.ts`, `text-value.ts`, `text-limit.ts`, `heading-accessibility.ts`, `projection-paint.ts`, `layer.ts` | Module WeakMaps hold view/node leases rather than independent roots. Feature disposal clears subscriptions/writers, restores owned native state and invalidates async work; pager timers/page roots retire with the pager. Warning flags remain process-lived. |
+| `layout-observers.ts`, `style-environment.ts`, `appearance.ts`, `css-pseudo-state.ts` | Layout listeners have explicit unsubscribe; environment/modality observers and the runtime's appearance subscription intentionally last for the loaded process. Directory readers limit work to live roots. No per-root recreation or public whole-runtime disposal is promised. |
+| `list-template.ts`, vendored list expression helpers | Parsed template/expression caches contain reusable descriptions, not native view/root ownership. They intentionally survive root retirement. |
+
+Paint writers remain leaves below the coordinator, directory readers expose no
+registration/retirement authority, and action handler maps/counters remain
+private to the action store. Do not merge these owners to reduce graph counts.
 
 `root-directory.ts` owns live container and host/font membership. Its reader
 returns snapshots, membership/font queries and scoped observation; it exposes
