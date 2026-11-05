@@ -1,10 +1,14 @@
 import { createMacOSRoot } from '../../macos-appkit/src/index'
 import { motion, MotionConfig } from '../src/index'
-import { NSWindow } from '@octane-xplat/platform/macos'
+import {
+  NSWindow,
+  NSNotificationCenter,
+  NSViewFrameDidChangeNotification,
+} from '@octane-xplat/platform/macos'
 import { View } from '@octane-xplat/ui'
 
 const views: Record<string, any> = {}
-function App(props: { wide: boolean; reverse: boolean }) {
+function App(props: { wide: boolean; reverse: boolean; paint?: boolean }) {
   return (
     <MotionConfig reducedMotion="never">
       <View style={{ width: 300, height: 200 }}>
@@ -18,7 +22,7 @@ function App(props: { wide: boolean; reverse: boolean }) {
             width: props.wide ? 200 : 100,
             height: props.wide ? 200 : 100,
             borderRadius: 20,
-            boxShadow: '0px 4px 12px 0px black',
+            boxShadow: props.paint === false ? undefined : '0px 4px 12px 0px black',
           }}
         >
           {(props.reverse ? ['b', 'a'] : ['a', 'b']).map((id) => (
@@ -81,10 +85,54 @@ export async function runLayout() {
       'initial radius correction',
     )
 
-    check(
-      Math.abs(views.parent.layer.shadowRadius * scale(views.parent) - 12) < 0.5,
-      'initial shadow correction',
-    )
+    const backingLayer = views.parent.layer
+    const shadowParent = backingLayer.superlayer
+    const activeShadows = () => {
+      const layers: any[] = []
+      const siblings = shadowParent.sublayers
+      for (let i = 0; i < Number(siblings?.count ?? 0); i++) {
+        const layer = siblings.objectAtIndex(i)
+        if (layer !== backingLayer && Number(layer.shadowOpacity) > 0) {
+          layers.push(layer)
+        }
+      }
+      return layers
+    }
+    const shadowSample = (phase: string) => {
+      const sample = {
+        phase,
+        scale: scale(views.parent),
+        backing: {
+          opacity: Number(views.parent.layer.shadowOpacity),
+          radius: Number(views.parent.layer.shadowRadius),
+        },
+        shadows: activeShadows().map((layer) => ({
+          radius: Number(layer.shadowRadius),
+          opacity: Number(layer.shadowOpacity),
+          scale: Number(layer.valueForKeyPath('transform.scale.x')),
+        })),
+      }
+      console.log('MOTION_SHADOW_SAMPLE ' + JSON.stringify(sample))
+      return sample
+    }
+    const checkShadow = (phase: string) => {
+      const sample = shadowSample(phase)
+      check(sample.shadows.length === 1, phase + ' one active sibling shadow')
+      const shadow = sample.shadows[0]
+      check(Math.abs(shadow.scale - sample.scale) < 0.0001, phase + ' shadow projection scale')
+      check(Math.abs(shadow.radius * shadow.scale - 12) < 0.5, phase + ' shadow correction')
+      const painted = activeShadows()[0]
+      const rect = painted.convertRectToLayer(painted.bounds, host.layer)
+      const box = visual(views.parent)
+      check(
+        Math.abs(rect.origin.x - box.origin.x) < 0.5 &&
+          Math.abs(rect.origin.y - box.origin.y) < 0.5 &&
+          Math.abs(rect.size.width - box.size.width) < 0.5 &&
+          Math.abs(rect.size.height - box.size.height) < 0.5,
+        phase + ' shadow follows projected box',
+      )
+    }
+    checkShadow('initial')
 
     check(Math.abs(first - 100) < 0.5, 'inverse projection before the next frame: ' + first)
     check(
@@ -107,9 +155,11 @@ export async function runLayout() {
     )
 
     check(Math.abs(child - 50) < 0.5, 'nested correction: ' + child)
+    checkShadow('intermediate')
     await sleep(400)
     check(scale(views.parent) === 1, 'restored parent transform')
     check(views.parent.layer.cornerRadius === 20, 'restored authored radius')
+    checkShadow('restored')
     const before = views.a.frame.origin.y
     const beforeVisual = visual(views.a)
     root.render(App, { wide: true, reverse: true })
@@ -127,6 +177,28 @@ export async function runLayout() {
 
     await sleep(500)
     check(Number(views.a.layer.valueForKeyPath('transform.translation.y')) === 0, 'reorder settles')
+    root.render(App, { wide: false, reverse: true })
+    await flush()
+    checkShadow('resize')
+    await sleep(500)
+    checkShadow('resize-restored')
+    const removed = activeShadows()[0]
+    root.render(App, { wide: false, reverse: true, paint: false })
+    await flush()
+    check(activeShadows().length === 0 && !removed.superlayer, 'shadow removal detaches sibling')
+    root.render(App, { wide: false, reverse: true })
+    await flush()
+    checkShadow('reapplied')
+    const retiredView = views.parent
+    const retired = activeShadows()[0]
+    root.unmount()
+    NSNotificationCenter.defaultCenter.postNotificationNameObject(
+      NSViewFrameDidChangeNotification,
+      retiredView,
+    )
+    await sleep(30)
+    check(!retired.superlayer && activeShadows().length === 0, 'retired notification cannot repaint')
+    console.log('MOTION_SHADOW_LIFECYCLE_OK projection/resize/removal/retirement')
     console.log('MOTION_LAYOUT_OK ' + JSON.stringify({ first, mid, child }))
   } finally {
     root.unmount()

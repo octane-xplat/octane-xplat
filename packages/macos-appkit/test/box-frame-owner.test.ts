@@ -177,6 +177,42 @@ test('projection compensation retains its narrow border/shadow writes and preser
   fx.paint.dispose(fx.node)
 })
 
+test('outset shadows use the backing layer coordinate space after transform writes and projection restoration', () => {
+  const fx = fixture()
+  fx.layer.bounds = { origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } }
+  fx.layer.anchorPoint = { x: 0, y: 1 }
+  fx.layer.position = { x: 30, y: 60 }
+  fx.apply({ translateX: 10, boxShadow: '0 4px 12px black' })
+  const shadow = fx.parent.children[0]
+  const aligned = () => {
+    assert.deepEqual(shadow.bounds, fx.layer.bounds)
+    assert.deepEqual(shadow.anchorPoint, fx.layer.anchorPoint)
+    assert.deepEqual(shadow.position, fx.layer.position)
+    assert.deepEqual(shadow.transform, fx.layer.transform)
+  }
+  aligned()
+  fx.layer.transform = [['scale', 0.5, 0.5, 1]]
+  setProjectionScale(fx.view, { x: 0.5, y: 0.5 })
+  fx.paint.syncProjection(fx.node)
+  aligned()
+  assert.equal(shadow.shadowRadius, 24)
+  assert.equal(shadow.shadowOffset.height, -8)
+  fx.layer.transform = []
+  setProjectionScale(fx.view, null)
+  fx.paint.syncProjection(fx.node)
+  aligned()
+  assert.equal(shadow.shadowRadius, 12)
+  fx.apply({ translateX: 25, boxShadow: '0 4px 12px black' })
+  aligned()
+  assert.deepEqual(shadow.transform, [['translate', 25, 0, 0]])
+  const token = onlyFrame()
+  fx.apply({})
+  assert.equal(shadow.superlayer, null)
+  fx.paint.dispose(fx.node)
+  token.callback()
+  assert.deepEqual(fx.parent.children, [fx.layer])
+})
+
 test('setup callbacks and reentrant native frame delivery cannot recurse or stack observers', () => {
   const fx = fixture()
   let writes = 0

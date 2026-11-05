@@ -79,6 +79,7 @@ try {
   assert.doesNotMatch(output, /MOTION_CHANNELS_FAIL|uncaught render error/)
   assert.match(output, /MOTION_CHANNELS_OK/)
   assert.match(output, /MOTION_LAYOUT_OK/)
+  assert.match(output, /MOTION_SHADOW_LIFECYCLE_OK/)
   assert.match(output, /MOTION_SHARED_LAYOUT_OK/)
   assert.match(output, /MOTION_DRAG_LAYOUT_OK/)
   assert.match(output, /MOTION_CONTAINERS_OK/)

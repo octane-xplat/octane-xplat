@@ -127,6 +127,13 @@ animation overlay. Geometry delivery orders border, shadow, transform,
 background and outline updates. Projection compensation deliberately updates
 only border and shadow, preserving an already-applied transform.
 
+Outset shadow siblings use the backing layer's bounds, anchor, position and
+transform. A transformed frame is not their local geometry. The coordinator
+aligns siblings again after authored transform writes; Motion publishes
+projection compensation after writing each projection/restoration transform.
+This keeps inverse-corrected shadow values in the actual painting coordinate
+space without changing the shadow-path or projection correction algorithms.
+
 Frame acquisition suppresses synchronous setup callbacks until ready. Delivery
 checks current node/view/record identity and retirement; reentrant delivery during
 paint is inert. Frame delivery also coalesces a cancellable next-turn repaint:

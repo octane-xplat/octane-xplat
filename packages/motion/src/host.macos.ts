@@ -82,8 +82,8 @@ export function attachHost(node: any): HostAdapter {
     read: () => ({ ...original }),
     write,
     restore: () => {
-      setLayoutProjectionScale(node, null)
       write(original)
+      setLayoutProjectionScale(node, null)
     },
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
@@ -100,9 +100,9 @@ export function attachHost(node: any): HostAdapter {
       setLayoutProjectionScale(node, null)
     },
     project(projection) {
-      setLayoutProjectionScale(node, projection ? paintScale(projection) : null)
       if (!projection) {
         write(latestValues)
+        setLayoutProjectionScale(node, null)
         return
       }
       const { delta, treeScale, latest } = projection
@@ -123,6 +123,9 @@ export function attachHost(node: any): HostAdapter {
         scaleY: delta.y.scale,
       })
       latestValues = saved
+      // The paint owner copies the current backing transform to outset
+      // siblings, so publish compensation after writing this sample.
+      setLayoutProjectionScale(node, paintScale(projection))
     },
   }
 }

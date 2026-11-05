@@ -140,7 +140,12 @@ export function createShadowPaint() {
       const hosts = (state.outsetShadowHosts ??= [])
       outsets.forEach((s, index) => {
         const host = (hosts[index] ??= CALayer.alloc().init())
-        host.frame = layer.frame
+        // `frame` is already transformed. Match the backing layer's local box
+        // and transform so inverse projection correction paints in that space.
+        host.bounds = layer.bounds
+        host.anchorPoint = layer.anchorPoint
+        host.position = layer.position
+        host.transform = layer.transform
         const s2 = s.spread
         const grown = {
           topLeft: Math.max(0, radii.topLeft + s2),
@@ -260,6 +265,19 @@ export function createShadowPaint() {
       state.insetShadowShapes = undefined
     }
   }
+  function syncOutsetGeometry(node: ElementNode, state: BoxPaintState) {
+    const layer = node.view?.layer
+    if (!layer) {
+      return
+    }
+    for (const host of state.outsetShadowHosts ?? []) {
+      host.bounds = layer.bounds
+      host.anchorPoint = layer.anchorPoint
+      host.position = layer.position
+      host.transform = layer.transform
+    }
+  }
+
   function disposeShadow(node: ElementNode, state: BoxPaintState) {
     const failures = new FailureCollector()
     const hosts = state.outsetShadowHosts ?? []
@@ -277,6 +295,7 @@ export function createShadowPaint() {
   return {
     parseBoxShadow,
     syncBoxShadow,
+    syncOutsetGeometry,
     disposeShadow,
   }
 }

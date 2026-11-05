@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 vi.mock('@octane-xplat/macos-appkit', () => ({ setLayoutProjectionScale: vi.fn() }))
 
 import { attachHost } from './host.macos'
+import { setLayoutProjectionScale } from '@octane-xplat/macos-appkit'
 
 function host() {
   const values = new Map<string, number>([
@@ -26,9 +27,37 @@ function host() {
   return { node, values, transaction }
 }
 
-afterEach(() => vi.unstubAllGlobals())
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.mocked(setLayoutProjectionScale).mockReset()
+})
 
 describe('AppKit Motion channels', () => {
+  it('publishes paint compensation after projection, plain-channel and baseline transforms', () => {
+    const { node, values } = host()
+    const view = {
+      ...node,
+      bounds: { size: { width: 200, height: 100 } },
+      layer: { ...node.layer, anchorPoint: { x: 0, y: 0 } },
+    }
+    const samples: { scale: number | null; native: number }[] = []
+    vi.mocked(setLayoutProjectionScale).mockImplementation((_view, scale) => {
+      samples.push({ scale: scale?.x ?? null, native: values.get('transform.scale.x')! })
+    })
+    const adapter = attachHost(view)
+    const axis = { translate: 0, scale: 0.5, origin: 0.5, originPoint: 0 }
+    adapter.project!({ delta: { x: axis, y: axis }, treeScale: { x: 1, y: 1 }, latest: {} })
+    adapter.project!(null)
+    adapter.project!({ delta: { x: axis, y: axis }, treeScale: { x: 1, y: 1 }, latest: {} })
+    adapter.restore()
+    expect(samples).toEqual([
+      { scale: 0.5, native: 0.5 },
+      { scale: null, native: 1 },
+      { scale: 0.5, native: 0.5 },
+      { scale: null, native: 1 },
+    ])
+  })
+
   it('writes all native channels in one transaction, with scale composition and native units', () => {
     const { node, values, transaction } = host()
     attachHost(node).write({

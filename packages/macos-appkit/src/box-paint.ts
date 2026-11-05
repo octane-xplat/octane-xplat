@@ -257,6 +257,12 @@ export function createBoxPaint() {
       if (!state.current()) {
         return
       }
+      // Shadow paths are written before authored transforms. Align their
+      // sibling hosts only after that transform has reached the backing layer.
+      shadow.syncOutsetGeometry(node, state)
+      if (!state.current()) {
+        return
+      }
       background.paintBackgrounds(node, state)
       if (!state.current()) {
         return

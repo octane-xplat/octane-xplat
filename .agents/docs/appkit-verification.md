@@ -28,6 +28,16 @@ Observer acquisition/reentry/failing-release balances use the production
 coordinator with native-boundary stand-ins; this is not a global native observer
 inventory or whole-process leak-freedom check.
 
+Motion's macOS runtime fixture inspects the active outset sibling rather than
+the inactive backing-layer shadow. It checks matching projection transforms,
+projected box geometry and blur at initial/intermediate samples, restoration,
+resize, style removal and inert frame delivery after retirement. These are
+native layer-state assertions, not pixel or physical-input evidence.
+
+```sh
+bun run turbo run test:macos-runtime --filter=@octane-xplat/motion
+```
+
 The packed action-ownership fixture checks real button tag/handler replacement,
 native-disabled controls, a programmatically delivered native click selector,
 text submission/readonly suppression, AX-only semantic views, AX press and

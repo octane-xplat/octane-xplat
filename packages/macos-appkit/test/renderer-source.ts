@@ -233,6 +233,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['box-geometry', 'outsetShadowOnSelf'],
   ['shadow-paint', 'siblingShadowSuperlayer'],
   ['shadow-paint', 'syncBoxShadow'],
+  ['shadow-paint', 'syncOutsetGeometry'],
   ['shadow-paint', 'disposeShadow'],
   ['transform-paint', 'TRANSFORM_KEYS'],
   ['transform-paint', 'TRANSFORM_SLOT'],
