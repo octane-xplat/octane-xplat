@@ -31,8 +31,8 @@ const env = {
 }
 
 const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge/android-reports')
-const avd = 'octane-stoic-forge-cli',
-	avdPath = join(base, 'avd'),
+const avd = 'elegant-fir-probe',
+	avdPath = join(homedir(), '.android/avd/elegant-fir-probe.avd'),
 	statePath = join(work, 'android-reports-prepare.json')
 
 const sha = (value) => createHash('sha256').update(value).digest('hex')
@@ -63,38 +63,11 @@ if (process.argv.includes('--prepare')) {
 		'Everything in this folder is disposable.\nOwner: stoic-forge parallel Go CLI; source tools/cli-go/android-reports-real.mjs. Evidence research/go-cli and ~/dev/reports/octane-xplat.\n',
 	)
 
-	const manager = join(sdk, 'cmdline-tools/latest/bin/avdmanager'),
-		owner = join(base, 'owner.json')
-
 	const list = command(join(sdk, 'emulator/emulator'), ['-list-avds']).trim().split(/\r?\n/)
-	if (list.includes(avd)) {
-		assert.ok(existsSync(owner), 'Existing AVD is not owned by this task')
-		assert.equal(JSON.parse(readFileSync(owner)).path, avdPath)
-	} else {
-		command(
-			manager,
-			[
-				'create',
-				'avd',
-				'--name',
-				avd,
-				'--package',
-				'system-images;android-35;google_apis;arm64-v8a',
-				'--path',
-				avdPath,
-			],
-			{ input: 'no\n' },
-		)
-
-		writeFileSync(owner, JSON.stringify({ avd, path: avdPath, task: 'stoic-forge Go CLI' }))
-	}
-
-	const avdConfig = join(avdPath, 'config.ini')
-	const config = readFileSync(avdConfig, 'utf8')
-	writeFileSync(
-		avdConfig,
-		config.replace(/^disk\.dataPartition\.size\s*=.*$/m, 'disk.dataPartition.size = 2147483648'),
-	)
+	assert.ok(list.includes(avd), 'Required existing AVD elegant-fir-probe is missing; no device will be created')
+	const config = readFileSync(join(avdPath, 'config.ini'), 'utf8')
+	assert.match(config, /^abi\.type\s*=\s*arm64-v8a\s*$/m)
+	assert.match(config, /^image\.sysdir\.1\s*=\s*system-images\/android-35\/google_apis\/arm64-v8a\/?\s*$/m)
 
 	const run = mkdtempSync(join(base, 'run-')),
 		appId = 'org.octane.clireports.p' + sha(run).slice(0, 12)
@@ -189,6 +162,8 @@ if (process.argv.includes('--prepare')) {
 	console.log('Prepared owned Android diagnostic APK; emulator not started')
 } else if (process.argv.includes('--run')) {
 	const prepared = JSON.parse(readFileSync(statePath))
+	assert.equal(prepared.avd, avd, 'Re-prepare the fixture for the designated existing AVD')
+	assert.equal(prepared.avdPath, avdPath)
 	assert.equal(sha(readFileSync(prepared.apk)), prepared.apkSha256)
 	const binary = join(work, 'go-tests-darwin-arm64'),
 		record = JSON.parse(readFileSync(binary + '.json'))
@@ -206,8 +181,12 @@ if (process.argv.includes('--prepare')) {
 
 	assert.ok(Number.isInteger(port) && port >= 5554 && port <= 5682 && port % 2 === 0)
 	assert.ok(
-		!command(adb, ['devices']).includes(device),
-		'Selected emulator port already belongs to a device',
+		!/^emulator-\d+\s/m.test(command(adb, ['devices'])),
+		'An Android emulator is already running; wait rather than starting another instance',
+	)
+	assert.ok(
+		!/\/(?:qemu-system-[^/\s]+|emulator)\s*$/m.test(command('/bin/ps', ['-axo', 'comm'])),
+		'An emulator process is already starting or running; wait for it to stop',
 	)
 
 	const child = spawn(
@@ -217,8 +196,6 @@ if (process.argv.includes('--prepare')) {
 			avd,
 			'-port',
 			String(port),
-			'-partition-size',
-			'2048',
 			'-no-window',
 			'-no-audio',
 			'-no-snapshot',
@@ -226,7 +203,7 @@ if (process.argv.includes('--prepare')) {
 			'-gpu',
 			'swiftshader',
 		],
-		{ env, stdio: ['ignore', 'pipe', 'pipe'] },
+		{ env, detached: true, stdio: ['ignore', 'pipe', 'pipe'] },
 	)
 
 	let output = '',

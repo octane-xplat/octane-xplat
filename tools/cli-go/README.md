@@ -587,15 +587,16 @@ bun run turbo run prepare:go-android-reports --filter=@xplat/cli-go-probe
 bun run turbo run test:go-android-reports-real --filter=@octane-xplat/cli --only
 ```
 
-Reserve `native_builds:1`, `resident_devices:1` and
-`exclusive:["android:octane-stoic-forge-cli"]` for preparation; the broker requires
-a resident slot even for offline AVD configuration. Release that reservation,
-then reserve only the resident Android/exclusive resources for runtime. The
-runner uses installed API 35/JDK 21 tools, a unique Java activity, fixed owned AVD,
-current binary/source hashes and no images. It crashes only that owned package,
+Reserve `native_builds:1` for preparation, which only reads the existing AVD
+configuration. Release that reservation, then reserve `resident_devices:1` and
+`exclusive:["android:elegant-fir-probe"]` for runtime. The runner requires the
+existing API 35 Google APIs ARM64 AVD `elegant-fir-probe` and JDK 21. It never
+creates, clones, wipes or reconfigures a device, or installs SDK images. Missing
+or incompatible configuration fails explicitly. It refuses to start while any
+Android emulator is already running or starting; wait for that session to end.
+The fixture uses a unique Java activity, current binary/source hashes and no
+images. It crashes only that owned package,
 then checks real records and originals through the public Go CLI and shuts down
 the emulator. Its sync line is constructed for the capture fixture; this is not
-a NativeScript deployment qualification. The installed emulator resets a requested
-2 GiB profile to 6 GiB and requires about 7.2 GiB free before boot; flags alone did
-not remove that requirement. Setup failures remain unqualified. Never wipe/reuse
-another task's AVD or remove unrelated files to satisfy the gate.
+a NativeScript deployment qualification. Setup and disk-space failures remain
+unqualified; preserve the existing device and unrelated files when a gate fails.
