@@ -312,9 +312,10 @@ export function updateWebView(
         : src
 
       const url = path.startsWith('/') ? NSURL.fileURLWithPath(path) : NSURL.URLWithString(path)
-      if (!url) {
+      const file = url?.isFileURL()
+      if (!url || (!file && !url.scheme)) {
         state.emit('onError', { url: src, error: 'Invalid document URL' })
-      } else if ((url as any).isFileURL) {
+      } else if (file) {
         if (src.startsWith('~/')) {
           // Bundle-resident sources may reference sibling resources.
           state.navigation = view.loadFileURLAllowingReadAccessToURL(

@@ -60,11 +60,11 @@ mockGlobals({
   NSBundle: { mainBundle: { resourcePath: '/bundle' } },
   NSURL: {
     fileURLWithPath: (path) => ({
-      isFileURL: true,
+      isFileURL: () => true,
       path,
       URLByDeletingLastPathComponent: '/parent',
     }),
-    URLWithString: (url) => ({ absoluteString: url }),
+    URLWithString: (url) => ({ absoluteString: url, isFileURL: () => false, scheme: /^([a-z]+):/i.exec(url)?.[1] }),
   },
   NSURLRequest: { requestWithURL: (url) => url },
 })
