@@ -174,13 +174,10 @@ async function filesSpec(): Promise<Record<string, unknown>> {
   const text = await files.readText(draft)
   const bin = await files.writeBytes('core20-bin.dat', new Uint8Array([0, 1, 2, 250, 255]))
   const bytes = await files.readBytes(bin)
-  let pickError = ''
-  try {
-    await files.pick()
-  } catch (error) {
-    pickError = String(error)
-  }
-  const exported = await files.export('core20-export.txt', new Uint8Array([1, 2, 3]))
+  // pick/export open a real OS dialog now — bounded evidence is
+  // picker-invoke's datum; presence only here.
+  const pickFn = typeof files.pick
+  const exportFn = typeof files.export
   let released = false
   try {
     files.release(draft)
@@ -196,8 +193,8 @@ async function filesSpec(): Promise<Record<string, unknown>> {
     matchedText: text === 'Passport ✓',
     matchedBytes: bytes.length === 5 && bytes[3] === 250 && bytes[4] === 255,
     differentUris: draft.uri !== bin.uri,
-    pickError,
-    exported,
+    pickFn,
+    exportFn,
     released,
     releasedAgain,
   }
@@ -417,26 +414,13 @@ async function windowMetricsSpec(): Promise<Record<string, unknown>> {
 
 /** Pickers and user-directed export are unavailable on packaged Windows. */
 async function filesPickersSpec(): Promise<Record<string, unknown>> {
-  let pickError = ''
-  try {
-    await files.pick()
-  } catch (error) {
-    pickError = error instanceof Error ? error.name : String(error)
+  // Presence-only: invoking pick/pickMultiple/export opens a real OS dialog
+  // owned by the app HWND (bounded dialog evidence lives in picker-invoke).
+  return {
+    pickFn: typeof files.pick,
+    pickMultipleFn: typeof files.pickMultiple,
+    exportFn: typeof files.export,
   }
-  let pickMultiError = ''
-  try {
-    await files.pickMultiple()
-  } catch (error) {
-    pickMultiError = error instanceof Error ? error.name : String(error)
-  }
-  let exportResult: string | null = null
-  let exportError = ''
-  try {
-    exportResult = await files.export('core20-export.dat', new Uint8Array([1]))
-  } catch (error) {
-    exportError = error instanceof Error ? error.name : String(error)
-  }
-  return { pickError, pickMultiError, exportResult, exportError }
 }
 
 /** PasswordVault depth: overwrite, empty, control-character and missing-key
@@ -1081,32 +1065,31 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   // (compiled into the app assembly via App_Resources\Windows\Interop)
   // takes (object picker, long hwnd) — both marshal cleanly.
   if (hwnd !== null && typeof dotnet?.invoke === 'function') {
-    // Projected WinRT objects cannot cross dotnet.invoke (they marshal as
-    // System.String), and the bridge awaits Task-returning methods on the
-    // caller thread — a Task-returning pick would deadlock the UI pump
-    // against its own dialog. The helper therefore enqueues the pick on the
-    // dispatcher and returns; JS polls PickSingleState. 'pending' at the
-    // deadline means a real dialog is open; the driver dismisses it with
-    // Escape after the result is captured.
+    // Real leaf path: files.pick() runs the managed dispatcher pick and
+    // polls PickState — while the OS dialog is open it stays pending.
+    // The race bounds the spec; the driver dismisses the dialog with
+    // Escape after capture. A concurrent second pick proves the busy guard.
     try {
-      out.managedStart = dotnet.invoke(
-        '', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleStart', [hwnd, '*'])
-      const deadline = Date.now() + 8000
-      let state = 'pending'
-      while (Date.now() < deadline) {
-        try {
-          state = String(dotnet.invoke(
-            '', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleState', []))
-        } catch (error) {
-          state = `poll-error:${error instanceof Error ? error.message : String(error)}`
-          break
-        }
-        if (state !== 'pending') break
-        await new Promise((resolve) => setTimeout(resolve, 250))
+      const pickPromise = files.pick()
+      const raced = await Promise.race([
+        pickPromise
+          .then((ref) => ({ pickLeaf: ref === null ? 'cancelled' : `ok:${ref.name}` }))
+          .catch((error: unknown) => ({
+            pickLeaf: `error:${error instanceof Error ? `${error.name}:${error.message}` : String(error)}`,
+          })),
+        new Promise<{ pickLeaf: string }>((resolve) =>
+          setTimeout(() => resolve({ pickLeaf: 'pending-dialog' }), 6000),
+        ),
+      ])
+      Object.assign(out, raced)
+      try {
+        await files.pick()
+        out.concurrentPick = 'resolved-unexpectedly'
+      } catch (error) {
+        out.concurrentPick = error instanceof Error ? error.message : String(error)
       }
-      out.managedResult = state
     } catch (error) {
-      out.managedError = error instanceof Error ? error.message : String(error)
+      out.pickLeafError = error instanceof Error ? error.message : String(error)
     }
   }
   try {

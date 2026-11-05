@@ -1,7 +1,8 @@
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
-import { assertSafeFileName, concatBytes, fileTooLarge, throwIfAborted } from './file-bytes'
-import type { FileReadBytesOptions, FileRef, Files } from './types'
+import { assertSafeFileName, concatBytes, exportBusy, fileTooLarge, throwIfAborted } from './file-bytes'
+import { MIME_EXTENSIONS } from './file-types.macos'
+import type { FileExportResult, FileReadBytesOptions, FileRef, Files } from './types'
 
 const CHUNK_SIZE = 64 * 1024
 const owned = new Map<string, { file: any; releasing: boolean }>()
@@ -68,7 +69,7 @@ async function readBytes(ref: FileRef, options: FileReadBytesOptions = {}): Prom
     throw new RangeError('files.readBytes: maxBytes must be a non-negative safe integer')
   }
   throwIfAborted(signal)
-  const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(ref.uri))
+  const file = await pickedFile(ref.uri)
   throwIfAborted(signal)
   if (maxBytes != null) {
     const properties = await NSWinRT.toPromise(file.GetBasicPropertiesAsync())
@@ -159,10 +160,121 @@ async function writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
   })
 }
 
+type DotnetBridge = {
+  invoke?: (assembly: string, type: string, method: string, args: unknown[]) => unknown
+}
+type Win32Bridge = { call?: (dll: string, fn: string, ret: string, ...args: unknown[]) => unknown }
+
+const PICKER_TYPE = 'OctaneXplat.Interop.ServiceInterop'
+let exportInFlight = false
+
+/**
+ * The app window's HWND through the runtime's Win32 FFI. The active window is
+ * the app-relevant owner; foreground is the fallback. `Microsoft.UI
+ * .Win32Interop.GetHwndFromWindowId` is unprojected on the pinned runtime.
+ */
+function ownerHwnd(): number | null {
+  const win32 = (NSWinRT as { win32?: Win32Bridge }).win32
+  if (typeof win32?.call !== 'function') return null
+  for (const fn of ['GetActiveWindow', 'GetForegroundWindow']) {
+    try {
+      const value = win32.call('user32.dll', fn, 'pointer')
+      if (typeof value === 'number' && value !== 0) return value
+    } catch {}
+  }
+  return null
+}
+
+function filterError(): Error {
+  const error = new Error(
+    'files.pick: could not resolve the requested file types; use explicit filename extensions',
+  )
+  error.name = 'UnsupportedFileTypeError'
+  return error
+}
+
+/** accept tokens ('.ext', MIME, 'image/*') -> comma-separated extensions. */
+function pickFilter(accept?: string): string {
+  if (!accept) return ''
+  const extensions = new Set<string>()
+  for (const raw of accept.split(',')) {
+    const token = raw.trim().toLowerCase()
+    if (!token) continue
+    if (token.startsWith('.')) {
+      extensions.add(token)
+      continue
+    }
+    const mapped = MIME_EXTENSIONS[token]
+    if (!mapped) throw filterError()
+    for (const extension of mapped) extensions.add(`.${extension}`)
+  }
+  return [...extensions].join(',')
+}
+
+function dotnetInvoke(method: string, args: unknown[]): string {
+  const dotnet = (NSWinRT as { dotnet?: DotnetBridge }).dotnet
+  if (typeof dotnet?.invoke !== 'function') throw new UnavailabilityError('files.pick')
+  return String(dotnet.invoke('', PICKER_TYPE, method, args))
+}
+
+function baseName(uri: string): string {
+  return uri.replace(/^.*[\\/]/, '') || uri
+}
+
+/**
+ * The projected WinRT pickers cannot cross `dotnet.invoke` (they marshal as
+ * `System.String`), and the bridge awaits `Task`-returning methods on the
+ * caller thread — which deadlocks the dialog's message pump. The app-shipped
+ * `ServiceInterop` helper instead enqueues the pick on the captured
+ * dispatcher and JS polls `PickState` until the dialog resolves.
+ */
+async function managedPick(
+  kind: 'single' | 'multiple' | 'save',
+  filter: string,
+  suggestedName?: string,
+): Promise<string> {
+  const hwnd = ownerHwnd()
+  if (hwnd == null) throw new UnavailabilityError('files.' + kind)
+  const start = dotnetInvoke('PickStart', [kind, hwnd, filter, suggestedName ?? ''])
+  if (start !== 'started') throw new Error(`files.${kind}: ${start}`)
+  while (true) {
+    const state = dotnetInvoke('PickState', [])
+    if (state !== 'pending') return state
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+}
+
+function pickResult(state: string, kind: string): string {
+  if (state === 'cancelled' || state.startsWith('ok:')) return state
+  throw new Error(`files.${kind}: ${state}`)
+}
+
+// Picker results carry access on the StorageFile, not its path — the helper
+// registers each result in FutureAccessList and returns "token|path".
+const pickedTokens = new Map<string, string>()
+
+function pickedRef(entry: string): FileRef {
+  const split = entry.indexOf('|')
+  const uri = split >= 0 ? entry.slice(split + 1) : entry
+  if (split > 0) pickedTokens.set(uri, entry.slice(0, split))
+  return { name: baseName(uri), uri }
+}
+
+function pickedFile(uri: string): Promise<any> {
+  const token = pickedTokens.get(uri)
+  if (token) {
+    return NSWinRT.toPromise(
+      Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.GetFileAsync(token),
+    )
+  }
+  return NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(uri))
+}
+
 /**
  * Experimental Windows file I/O through WinRT. Writes create owned temporary
- * copies; release schedules their deletion. Picker/export window interop is
- * unavailable: picking rejects and export returns `unavailable`.
+ * copies; release schedules their deletion. Pickers run managed-side in the
+ * app process (`ServiceInterop`) because the projected WinRT objects cannot
+ * cross the bridge.
  *
  * @example
  * import { files } from '@octane-xplat/files'
@@ -172,14 +284,21 @@ async function writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
  */
 /** File service — pickers, sandbox IO, user-directed export. */
 export const files: Files = {
-  pick: async () => {
-    throw new UnavailabilityError('files.pick')
+  pick: async (accept) => {
+    const state = pickResult(await managedPick('single', pickFilter(accept)), 'pick')
+    return state === 'cancelled' ? null : pickedRef(state.slice(3))
   },
-  pickMultiple: async () => {
-    throw new UnavailabilityError('files.pickMultiple')
+  pickMultiple: async (accept) => {
+    const state = pickResult(await managedPick('multiple', pickFilter(accept)), 'pickMultiple')
+    if (state === 'cancelled') return []
+    return state
+      .slice(3)
+      .split('\n')
+      .filter((entry) => entry.length > 0)
+      .map(pickedRef)
   },
   async readText(ref) {
-    const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(ref.uri))
+    const file = await pickedFile(ref.uri)
     return NSWinRT.toPromise(Windows.Storage.FileIO.ReadTextAsync(file))
   },
   readBytes,
@@ -188,7 +307,24 @@ export const files: Files = {
       await NSWinRT.toPromise(Windows.Storage.FileIO.WriteTextAsync(file, text))
     }),
   writeBytes,
-  export: async () => 'unavailable',
+  async export(name, bytes, opts) {
+    if (exportInFlight) throw exportBusy()
+    exportInFlight = true
+    try {
+      const own = name.replace(/^.*[\\/]/, '')
+      const dot = own.lastIndexOf('.')
+      const extension =
+        dot > 0 ? own.slice(dot) : opts?.mimeType ? `.${MIME_EXTENSIONS[opts.mimeType.toLowerCase()]?.[0] ?? 'bin'}` : '.txt'
+      const state = pickResult(await managedPick('save', extension, own), 'export')
+      if (state === 'cancelled') return 'cancelled'
+      const ref = pickedRef(state.slice(3))
+      const file = await pickedFile(ref.uri)
+      await NSWinRT.toPromise(Windows.Storage.FileIO.WriteBytesAsync(file, encode(bytes)))
+      return 'saved' as FileExportResult
+    } finally {
+      exportInFlight = false
+    }
+  },
   release(ref) {
     const entry = owned.get(ref.uri)
     if (!entry || entry.releasing) {

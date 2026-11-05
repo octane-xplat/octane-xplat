@@ -1702,8 +1702,8 @@ function Check-ServiceActions{
     Assert ($result.matchedText -eq $true) 'File service writeText/readText round-trips text' $result
     Assert ($result.matchedBytes -eq $true) 'File service writeBytes/readBytes round-trips binary' $result
     Assert ($result.differentUris -eq $true) 'Owned file copies get unique URIs' $result
-    Assert ($result.pickError -ne '' -and $result.pickError -ne $null) 'File pickers report unavailability explicitly' $result
-    Assert ($result.exported -eq 'unavailable') 'File export reports unavailable on the current surface' $result
+    Assert ($result.pickFn -ceq 'function') 'files.pick projects on packaged Windows' $result
+    Assert ($result.exportFn -ceq 'function') 'files.export projects on packaged Windows' $result
     Assert ($result.released -eq $true) 'Owned file release schedules cleanup' $result
    }
    'corefs' {
@@ -1754,9 +1754,10 @@ function Check-ServiceActions{
     Assert ($result.removed -eq $true -and $null -eq $result.readAfterRemove) 'Secure depth remove clears the key' $result
    }
    'files-pickers' {
-    Assert ($result.pickError -ceq 'UnavailabilityError') 'files.pick reports explicit unavailability' $result
-    Assert ($result.pickMultiError -ceq 'UnavailabilityError') 'files.pickMultiple reports explicit unavailability' $result
-    Assert ($result.exportResult -ceq 'unavailable' -and $result.exportError -ceq '') 'files.export reports bounded unavailability' $result
+    # Presence-only; bounded dialog evidence is picker-invoke's datum.
+    Assert ($result.pickFn -ceq 'function') 'files.pick projects on packaged Windows' $result
+    Assert ($result.pickMultipleFn -ceq 'function') 'files.pickMultiple projects on packaged Windows' $result
+    Assert ($result.exportFn -ceq 'function') 'files.export projects on packaged Windows' $result
    }
    'files-identity' {
     Assert ($result.sameNameDistinct -eq $true) 'Repeated sandbox writes keep distinct URIs' $result

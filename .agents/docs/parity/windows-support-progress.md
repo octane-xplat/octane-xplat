@@ -380,3 +380,19 @@ unprojected and `Convert.ChangeType` cannot coerce JS numbers; 1.0.0.220
 confirmed dead end. Service suite: 105/105 assertions across all rounds
 (launch `mw2r2pwt`); files-identity 12/12, storage-verify 8/8,
 secure-verify 9/9.
+
+## Picker owner-window resolved: managed-side pick (1.0.0.224)
+
+On `org.octanexplat.windows61` 1.0.0.224 (source `25ff9c960`, bounded): the
+managed-side pick path displays a real OS dialog without deadlocking the
+app. `ServiceInterop.PickSingleStart` enqueued the pick on the captured
+`DispatcherQueue` and reported `started`; the pick stayed `pending` for the
+full 8-second bound — a live `FileOpenPicker` dialog owned by the app HWND
+(`79824446` via `GetActiveWindow`) — while the JS-side
+`PickSingleFileAsync` still rejected `WinRT async operation failed`. The
+bridge's `AwaitIfTask` on `Task`-returning methods was confirmed as the
+deadlock mechanism (build 223's Task-returning pick hung the app
+deterministically twice). `files.pick`/`pickMultiple`/`export` are now
+implemented on this path: the helper returns `FutureAccessList`
+`token|path` entries, JS polls `PickState`, reads resolve through token
+grants. Service suite: 105/105 assertions (launch `mw2tzq2d`).

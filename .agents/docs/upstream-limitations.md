@@ -170,32 +170,30 @@ reading:
   repeat itself still enters the focused control. Held/repeat payload
   fidelity stays an uncovered dimension.
 
-Packaged picker surface, verified through 1.0.0.221 (`picker-probe`/
-`picker-invoke`, launches `mw2ekg6j`/`mw2r2pwt`): `Windows.Storage.Pickers`
-`.FileOpenPicker`/`FileSavePicker`/`FolderPicker` all project and construct,
-`PickSingleFileAsync`/`PickMultipleFilesAsync` resolve, `FileTypeFilter`
-accepts `Append('*')` (the `'*.*'` pattern throws `E_INVALIDARG 0x80070057`),
-and `SuggestedStartLocation` sets cleanly. The owner-window chain is the gap:
-`Microsoft.UI.Win32Interop` (HWND conversion) is unprojected and the picker
-exposes no `IInitializeWithWindow` member or `as`-cast escape hatch — so the
-invoke path was rebuilt through the runtime's own escape hatches. Verified:
-`NSWinRT.win32` (`{bind,call,define,import}`) reaches `GetActiveWindow`/
-`GetForegroundWindow`/`GetGUIThreadInfo` for a real owner HWND, and
-`NSWinRT.dotnet.invoke` calls a managed helper compiled into the app
-(`App_Resources/Windows/Interop/ServiceInterop.cs`, merged via
-`app.csproj`). The remaining blocker is arg marshalling: the projected
-picker crosses `dotnet.invoke` as `System.String`, not a `WinRtRef`-backed
-RCW (`ServiceInterop.Describe` reported `IsInitWithWindow=False` on the
-string), so neither the ComImport `IInitializeWithWindow` cast nor
-`WinRT.Interop.InitializeWithWindow` can run — every invocation path
-(`auto`/`windows`/`app` assemblies) fails with
-`InvalidCastException: Failed to create a CCW for object of type
-'System.String'` on 1.0.0.221, and `PickSingleFileAsync` rejects with
-`WinRT async operation failed`. Candidate carriers still under probe:
-`picker.handle`, `interop.handleOf(picker)` wrappers, `dotnet.wrap`,
-`interop.pointer`. Consumers must treat `files.pick`/`pickMultiple`/
-`export` as bounded-unavailable until a carrier crosses as a real RCW or
-another owner-init path is proven on packaged Windows.
+Packaged picker surface, verified through 1.0.0.224 (`picker-probe`/
+`picker-invoke`, launches `mw2ekg6j`/`mw2sfynm`/`mw2tzq2d`):
+`Windows.Storage.Pickers.FileOpenPicker`/`FileSavePicker`/`FolderPicker`
+all project and construct, `PickSingleFileAsync`/`PickMultipleFilesAsync`
+resolve, `FileTypeFilter` accepts `Append('*')` (`'*.*'` throws
+`E_INVALIDARG 0x80070057`), and `SuggestedStartLocation` sets cleanly.
+Two bridge limitations were verified and worked around:
+`dotnet.invoke` cannot marshal projected WinRT objects — every carrier
+(picker, `handle`, `interop.handleOf` wrappers, `dotnet.wrap`,
+`interop.pointer`) arrives as `System.String` or fails primitive
+conversion, so `WinRtRef` RCW materialization never runs — and the bridge
+awaits `Task`-returning methods on the caller thread, which deadlocks
+against a dialog's message pump. The shipping path avoids both: the
+app-compiled `OctaneXplat.Interop.ServiceInterop` helper
+(`App_Resources/Windows/Interop`, merged via `app.csproj`) constructs
+the picker in-process, initializes the owner HWND acquired through
+`NSWinRT.win32.call` (`GetActiveWindow`/`GetForegroundWindow`), enqueues
+on the captured `DispatcherQueue`, and returns `token|path` entries via
+`FutureAccessList`; JS polls `PickState`. Verified on 1.0.0.224: the
+managed pick reported `pending` for 8 s (a live dialog) while the JS-side
+invoke rejected `WinRT async operation failed` — and `files.pick`/
+`pickMultiple`/`export` are now implemented on this path pending packaged
+verification. WASDK 1.8 `Microsoft.Windows.Storage.Pickers` is absent on
+pinned WASDK 1.6 — confirmed dead end.
 
 Upstream status: reported — [NativeScript/NativeScript#11613](https://github.com/NativeScript/NativeScript/issues/11613)
 (file-system-access member matrix) and

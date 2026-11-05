@@ -46,25 +46,21 @@ namespace OctaneXplat.Interop
         // entirely in-process: construct + owner init + await here, and only
         // strings cross. The bridge awaits Task-returning methods on the
         // caller thread, which would deadlock against the dialog's message
-        // pump — so PickSingleStart enqueues the pick on the captured
-        // dispatcher and returns; JS polls PickSingleState.
+        // pump — so PickStart enqueues on the captured dispatcher and
+        // returns; JS polls PickState. One pick at a time.
         private static volatile string s_pickState = "idle";
 
-        public static string PickSingleStart(long hwnd, string filter)
+        public static string PickStart(string kind, long hwnd, string filter, string suggestedName)
         {
             var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
             if (dispatcher == null) return "fail:no-dispatcher";
+            if (s_pickState == "pending") return "fail:busy";
             s_pickState = "pending";
             dispatcher.TryEnqueue(async () =>
             {
                 try
                 {
-                    var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                    picker.FileTypeFilter.Add(string.IsNullOrEmpty(filter) ? "*" : filter);
-                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-                    WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
-                    var file = await picker.PickSingleFileAsync();
-                    s_pickState = file == null ? "cancelled" : "ok:" + file.Path;
+                    s_pickState = await DoPick(kind, hwnd, filter, suggestedName);
                 }
                 catch (Exception e)
                 {
@@ -74,9 +70,85 @@ namespace OctaneXplat.Interop
             return "started";
         }
 
-        public static string PickSingleState()
+        public static string PickState()
         {
             return s_pickState;
+        }
+
+        private static async System.Threading.Tasks.Task<string> DoPick(
+            string kind, long hwnd, string filter, string suggestedName)
+        {
+            switch (kind)
+            {
+                case "single":
+                case "multiple":
+                {
+                    var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                    AddFilters(picker.FileTypeFilter, filter);
+                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                    picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                    if (kind == "single")
+                    {
+                        var file = await picker.PickSingleFileAsync();
+                        return file == null ? "cancelled" : "ok:" + Grant(file) + "|" + file.Path;
+                    }
+                    var files = await picker.PickMultipleFilesAsync();
+                    if (files == null || files.Count == 0) return "cancelled";
+                    var paths = new System.Text.StringBuilder("ok:");
+                    foreach (var f in files) paths.Append(Grant(f)).Append("|").Append(f.Path).Append('\n');
+                    return paths.ToString().TrimEnd('\n');
+                }
+                case "folder":
+                {
+                    var picker = new Windows.Storage.Pickers.FolderPicker();
+                    picker.FileTypeFilter.Add("*");
+                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                    var folder = await picker.PickSingleFolderAsync();
+                    return folder == null ? "cancelled" : "ok:" + Grant(folder) + "|" + folder.Path;
+                }
+                case "save":
+                {
+                    var picker = new Windows.Storage.Pickers.FileSavePicker();
+                    var ext = string.IsNullOrEmpty(filter) ? ".txt" : filter;
+                    if (!ext.StartsWith(".")) ext = "." + ext;
+                    picker.FileTypeChoices.Add("Suggested type", new System.Collections.Generic.List<string> { ext });
+                    picker.DefaultFileExtension = ext;
+                    if (!string.IsNullOrEmpty(suggestedName)) picker.SuggestedFileName = suggestedName;
+                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                    var file = await picker.PickSaveFileAsync();
+                    return file == null ? "cancelled" : "ok:" + Grant(file) + "|" + file.Path;
+                }
+                default:
+                    return "fail:unknown-kind";
+            }
+        }
+
+        // Picker results carry access on the returned StorageFile, not its
+        // path — register each in FutureAccessList and hand JS the token.
+        private static string Grant(Windows.Storage.IStorageItem item)
+        {
+            return Windows.Storage.AccessCache.StorageApplicationPermissions
+                .FutureAccessList.Add(item);
+        }
+
+        private static void AddFilters(System.Collections.Generic.IList<string> target, string filter)
+        {
+            var added = false;
+            if (!string.IsNullOrEmpty(filter))
+            {
+                foreach (var raw in filter.Split(','))
+                {
+                    var ext = raw.Trim();
+                    if (ext.Length == 0) continue;
+                    if (!ext.StartsWith(".")) ext = "." + ext;
+                    target.Add(ext);
+                    added = true;
+                }
+            }
+            if (!added) target.Add("*");
         }
     }
 }
