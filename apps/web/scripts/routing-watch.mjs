@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 import { chromium } from 'playwright'
-import { generateRoutes } from '../../../packages/cli/src/commands/routes.ts'
+import { generateRoutes } from '../../../packages/cli/src/route-generator.ts'
 import { createRouteWatcher } from '../../../packages/cli/src/route-watch.ts'
 
 const shell = fileURLToPath(new URL('../', import.meta.url))

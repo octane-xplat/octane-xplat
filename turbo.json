@@ -122,16 +122,7 @@
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["dist/**", "types/**"]
 		},
-		"test:patches-pnpm": { "dependsOn": ["build", "^build"], "cache": false },
 		"test:patches-install": {
-			"dependsOn": ["build", "^build"],
-			"cache": false
-		},
-		"test:executable": {
-			"dependsOn": ["build:executable"],
-			"cache": false
-		},
-		"build:executable": {
 			"dependsOn": ["build", "^build"],
 			"cache": false
 		},

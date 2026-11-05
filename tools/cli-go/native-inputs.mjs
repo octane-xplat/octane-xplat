@@ -9,7 +9,7 @@ export function nativeInputs(root) {
 			.filter((file) => /\.(go|mod|sum|json|mjs|py|txt)$/.test(file))
 			.map((file) => directory + '/' + file.replaceAll('\\', '/')),
 	)
-	for (const directory of ['packages/cli/src/agent', 'packages/cli/src/mcp/contracts']) {
+	for (const directory of ['packages/cli/src/mcp/contracts']) {
 		for (const file of readdirSync(join(root, directory))) {
 			if (file.endsWith('.ts')) {
 				files.push(
@@ -42,27 +42,11 @@ export function nativeInputs(root) {
 			(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
 		),
 		'packages/platform/src/dev-bridge.ts',
-		'packages/cli/src/commands/routes.ts',
-		'packages/cli/src/commands/typecheck.ts',
-		'packages/cli/src/commands/fmt.ts',
-		'packages/cli/src/commands/lint.ts',
-		'packages/cli/src/commands/build.ts',
-		'packages/cli/src/commands/dev.ts',
-		'packages/cli/src/dev-logs.ts',
 		'packages/cli/src/native-identity.ts',
-		'packages/cli/src/procs.ts',
-		'packages/cli/src/commands/clean.ts',
-		'packages/cli/src/commands/patches.ts',
-		'packages/cli/src/commands/doctor.ts',
-		'packages/cli/src/commands/upgrade.ts',
-		'packages/cli/src/commands/add.ts',
-		'packages/cli/src/commands/updates.ts',
 		'packages/cli/src/updates-hook.ts',
 		'packages/cli/src/updates-worker.ts',
-		'packages/cli/src/commands/fonts.ts',
 		'packages/cli/src/fonts.ts',
 		'packages/cli/src/fonts-worker.ts',
-		'packages/cli/src/commands/workshop.ts',
 		'packages/cli/src/workshop-worker.ts',
 		'packages/workshop/package.json',
 		'packages/workshop/vite.config.ts',
@@ -105,13 +89,6 @@ export function nativeInputs(root) {
 		'packages/cli/src/package-manager.ts',
 		'packages/cli/src/package-root.ts',
 		'packages/cli/src/mcp/discovery.ts',
-		'packages/cli/src/mcp/status.ts',
-		'packages/cli/src/mcp/runtime/adapters/web.ts',
-		'packages/cli/src/mcp/runtime/adapters/shared.ts',
-		'packages/cli/src/mcp/runtime/targets.ts',
-		'packages/cli/src/mcp/runtime/process.ts',
-		'packages/cli/src/mcp/runtime/readiness.ts',
-		'packages/cli/src/mcp/runtime/logs.ts',
 		'packages/cli/src/mcp/code-scope.ts',
 		'packages/cli/src/mcp/code-service.ts',
 		'packages/cli/src/mcp/code-retrieval.ts',

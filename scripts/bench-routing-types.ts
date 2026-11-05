@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
-import { generateRoutes } from '../packages/cli/src/commands/routes.ts'
+import { generateRoutes } from '../packages/cli/src/route-generator.ts'
 
 // Manual contributor benchmark, deliberately outside the lightweight PR gate.
 // Every sample runs in a separate process so discarded compiler caches cannot

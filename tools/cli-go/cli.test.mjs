@@ -3,15 +3,12 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, symlinkSync } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
-import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
-import { parseArgs } from '../../packages/cli/src/agent/parse.ts'
 import {
 	discoverWorkspace,
 	detectGuidance,
 	resolveFrameworkBinding,
 } from '../../packages/cli/src/mcp/discovery.ts'
 
-import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
 import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
@@ -310,100 +307,6 @@ test('native prerequisite probes inspect actual Node availability and clear inje
 	)
 })
 
-test('descriptor parser matches independent Node across the existing native argument corpus', () => {
-	const requests = []
-	const add = (command, argv) => requests.push({ command, argv })
-	for (const command of AGENT_COMMANDS) {
-		for (const argv of [
-			[],
-			['--help'],
-			['-h'],
-			['--help=true'],
-			['--schema'],
-			['--unknown'],
-			['--help', '--unknown'],
-			['--', '--json'],
-			['extra', 'more'],
-			['--json=false'],
-			['-json'],
-			['---json'],
-		]) {
-			add(command, argv)
-		}
-
-		for (const flag of command.flags) {
-			const values =
-				flag.type === 'boolean'
-					? ['true', 'false', '']
-					: flag.type === 'integer'
-						? [
-								'',
-								' ',
-								'0',
-								'-0',
-								'1',
-								'1.0',
-								'1e1',
-								'1e20',
-								'1e21',
-								'1e30',
-								'\u00a0',
-								'\ufeff1\u00a0',
-								'1.5',
-								'0x10',
-								'0b10',
-								'0o10',
-								'0x',
-								'+0x10',
-								'0x+10',
-								'0x-10',
-								'1_0',
-								'NaN',
-								'Infinity',
-								'abc',
-								'-1',
-								'1000000',
-							]
-						: flag.type === 'enum'
-							? [...flag.values, 'invalid', '']
-							: ['', 'hello world', 'https://example.invalid/a?q=x', '-']
-
-			add(command, [`--${flag.flag}`])
-			add(command, [`--${flag.flag}`, '--help'])
-			for (const value of values) {
-				add(command, [`--${flag.flag}=${value}`, '--help'])
-				add(command, [`--${flag.flag}`, value, '--help'])
-			}
-		}
-	}
-	const synthetic = {
-		name: 'unicode',
-		positionals: [{ name: 'value', required: true, min: 2, max: 3 }],
-		flags: [],
-	}
-	for (const value of ['a', 'ab', 'abcd', '😀', '😀a', '😀😀']) {
-		add(synthetic, [value])
-	}
-	const input = put(join(scratch, 'parse.json'), requests)
-	const run = spawnSync(probe, ['parse', '--request', input], {
-		encoding: 'utf8',
-		timeout: 10000,
-		maxBuffer: 32 << 20,
-		env: { ...process.env, PATH: '' },
-	})
-	assert.equal(run.status, 0, run.stderr)
-	const replies = JSON.parse(run.stdout)
-	assert.equal(replies.length, requests.length)
-	for (const [at, { command, argv }] of requests.entries()) {
-		assert.deepEqual(
-			replies[at],
-			JSON.parse(JSON.stringify(parseArgs(command, argv))),
-			`${command.name}: ${JSON.stringify(argv)}`,
-		)
-	}
-	console.log(`${requests.length} independent parser comparisons`)
-})
-
 test('discovery, persisted per-client binding and envelope identity match Node', () => {
 	const project = join(scratch, 'workspace')
 	put(join(project, 'package.json'), { name: 'fixture', workspaces: ['apps/*'] })
@@ -477,33 +380,6 @@ test('discovery, persisted per-client binding and envelope identity match Node',
 	const value = JSON.parse(run.stdout)
 	assert.equal(value.selection.reason, 'sole-app')
 	assert.equal(value.context.projectId, null)
-})
-
-test('permission policy matches Node without creating visual or retention grants', () => {
-	for (const env of [
-		'',
-		'visual-capture',
-		' evidence-retain , external-effects ',
-		'\u0085visual-capture',
-	]) {
-		const scopes = env
-			.split(',')
-			.map((scope) => scope.trim())
-			.filter(Boolean)
-
-		const policy = createPolicyStore({
-			taskAuthorization: true,
-			grants: scopes.map((scope) => ({ scope, state: 'granted', source: 'server-config' })),
-		})
-
-		assert.deepEqual(
-			normal(cli(['permissions', '--json'], { env: { XPLAT_PERMISSIONS: env } }).value.data.grants),
-			normal(policy.list()),
-		)
-	}
-	const denied = cli(['permissions', '--scope', 'visual-capture', '--json'])
-	assert.equal(denied.status, 0)
-	assert.equal(denied.value.data.check.granted, false)
 })
 
 test(

@@ -5,7 +5,7 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { generateRoutes } from '../dist/commands/routes.js'
+import { generateRoutes } from '../dist/route-generator.js'
 
 const require = createRequire(import.meta.url)
 const exists = (file) =>

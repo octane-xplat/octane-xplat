@@ -1,13 +1,9 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
 	"errors"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"sync"
 	"testing"
@@ -232,12 +228,7 @@ func TestHistoryNamespaceAndFileBoundaries(t *testing.T) {
 	}
 }
 
-func TestHistoryLogPagesAgainstNode(t *testing.T) {
-	node, err := exec.LookPath("node")
-	if err != nil {
-		t.Skip("Node unavailable")
-	}
-	source, _ := filepath.Abs("../src/dev-logs.ts")
+func TestHistoryLogPaging(t *testing.T) {
 	store := testHistoryStore(t)
 	capture := testHistoryCapture(t, store)
 	capture.segmentLimit = 512
@@ -246,50 +237,69 @@ func TestHistoryLogPagesAgainstNode(t *testing.T) {
 		if i%2 == 0 {
 			stream = "stderr"
 		}
-		if err = capture.Append(historyRecord{Stream: stream, Line: "Actual shared log contract π"}); err != nil {
+		if err := capture.Append(historyRecord{Stream: stream, Line: "Actual shared log contract π"}); err != nil {
 			t.Fatal(err)
 		}
 	}
-	nodeRoot := t.TempDir()
-	target := filepath.Join(nodeRoot, "node_modules/.cache/xplat/sessions", capture.session.SessionID)
-	if err = os.MkdirAll(target, 0700); err != nil {
+	// Rotation may drop a disclosed oldest prefix; derive expectations from the
+	// retained page instead of absolute sequence numbers.
+	all, err := store.Logs(capture.session.SessionID, capture.session.OwnerID, new(int64), 500, "")
+	if err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"session.json", "current.jsonl", "previous.jsonl"} {
-		data, err := historyFile(capture.root, name, historySegmentBytes)
-		if os.IsNotExist(err) {
-			continue
+	if len(all.Records) < 4 {
+		t.Fatalf("expected several retained records, got %v", all.Records)
+	}
+	filter := func(stream string) []historyRecord {
+		out := []historyRecord{}
+		for _, r := range all.Records {
+			if stream == "" || r.Stream == stream {
+				out = append(out, r)
+			}
 		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		if err = os.WriteFile(filepath.Join(target, name), data, 0600); err != nil {
-			t.Fatal(err)
-		}
+		return out
 	}
 	for _, selection := range []struct {
-		cursor *int64
-		limit  int
-		stream string
-	}{{nil, 2, ""}, {new(int64), 2, ""}, {new(int64), 2, "stderr"}, {nil, 3, "stdout"}} {
-		request, _ := json.Marshal(map[string]any{"cursor": selection.cursor, "limit": selection.limit, "stream": selection.stream})
-		cmd := exec.Command(node, "--input-type=module", "-e", `import{pathToFileURL}from'node:url';const api=await import(pathToFileURL(process.argv[1]).href);const options=JSON.parse(process.argv[4]);if(options.cursor===null)delete options.cursor;const result=api.readDevLogs(process.argv[2],process.argv[3],options);delete result.session;delete result.coverage;console.log(JSON.stringify(result));`, source, nodeRoot, capture.session.SessionID, string(request))
-		output := testNodeOutput(t, context.Background(), cmd)
-		var expected map[string]any
-		if err = json.Unmarshal(output, &expected); err != nil {
-			t.Fatal(err)
-		}
+		cursor   *int64
+		limit    int
+		stream   string
+		newest   bool
+	}{
+		{nil, 2, "", true},
+		{new(int64), 2, "", false},
+		{new(int64), 2, "stderr", false},
+		{nil, 3, "stdout", true},
+	} {
 		actual, err := store.Logs(capture.session.SessionID, capture.session.OwnerID, selection.cursor, selection.limit, selection.stream)
 		if err != nil {
 			t.Fatal(err)
 		}
-		data, _ := json.Marshal(actual)
-		var observed map[string]any
-		_ = json.Unmarshal(data, &observed)
-		delete(observed, "session")
-		delete(observed, "coverage")
-		if !reflect.DeepEqual(observed, expected) {
-			t.Fatalf("native=%s reference=%s", data, output)
+		matching := filter(selection.stream)
+		want := matching
+		if len(matching) > selection.limit {
+			if selection.newest {
+				want = matching[len(matching)-selection.limit:]
+			} else {
+				want = matching[:selection.limit]
+			}
+		}
+		if len(actual.Records) != len(want) {
+			t.Fatalf("records=%v want %d records from %v", actual.Records, len(want), matching)
+		}
+		for i, r := range want {
+			if actual.Records[i] != r {
+				t.Fatalf("record[%d]=%+v want %+v", i, actual.Records[i], r)
+			}
+		}
+		wantCursor := all.NewestSeq
+		if len(matching) > len(want) {
+			wantCursor = want[len(want)-1].Seq
+		}
+		if actual.NextCursor != wantCursor {
+			t.Fatalf("nextCursor=%d want %d", actual.NextCursor, wantCursor)
+		}
+		if actual.OldestSeq != all.OldestSeq || actual.NewestSeq != all.NewestSeq {
+			t.Fatalf("bounds=%d..%d want %d..%d", actual.OldestSeq, actual.NewestSeq, all.OldestSeq, all.NewestSeq)
 		}
 	}
 	// A sequence gap must be disclosed rather than returning plausible logs.

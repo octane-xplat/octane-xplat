@@ -122,8 +122,7 @@ test('clean help/schema needs no Node and rejects unexpected inputs before delet
 	}
 })
 
-test('ordinary app/plugin cleanup matches actual Node reference filesystem behavior', () => {
-	const source = join(root, 'packages/cli/src/cli.ts')
+test('ordinary app/plugin cleanup removes only generated outputs', () => {
 	for (const manifest of [
 		{},
 		{ nativescript: { platforms: { ios: '9.1.0' } } },
@@ -131,36 +130,21 @@ test('ordinary app/plugin cleanup matches actual Node reference filesystem behav
 		{ nativescript: { platforms: false } },
 		{ nativescript: { platforms: null } },
 	]) {
-		const native = fixture(manifest, { ...outputs, ...authored }),
-			reference = fixture(manifest, { ...outputs, ...authored })
+		const native = fixture(manifest, { ...outputs, ...authored })
 
 		const r = run(native)
 		success(r)
-		if (existsSync(source)) {
-			const expected = spawnSync(process.execPath, [source, 'clean'], {
-				cwd: reference,
-				env,
-				encoding: 'utf8',
-				timeout: 20000,
-			})
-
-			success(expected)
-			assert.deepEqual(tree(native), tree(reference))
-		} else {
-			// Portable snapshots carry the source oracle and source-bound cases, not a
-			// second installation of the old CLI and all its runtime dependencies.
-			for (const path of [
-				'dist',
-				'.ns-vite-build',
-				'node_modules/.vite',
-				'node_modules/.cache/xplat',
-			]) {
-				assert.equal(existsSync(join(native, path)), false, path)
-			}
-
-			const plugin = manifest.nativescript?.platforms != null
-			assert.equal(existsSync(join(native, 'platforms/ios')), plugin)
+		for (const path of [
+			'dist',
+			'.ns-vite-build',
+			'node_modules/.vite',
+			'node_modules/.cache/xplat',
+		]) {
+			assert.equal(existsSync(join(native, path)), false, path)
 		}
+
+		const plugin = manifest.nativescript?.platforms != null
+		assert.equal(existsSync(join(native, 'platforms/ios')), plugin)
 
 		assert.equal(readFileSync(join(native, 'platforms/macos/host.swift'), 'utf8'), 'authored host')
 		const again = run(native)
