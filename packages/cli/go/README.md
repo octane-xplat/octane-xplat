@@ -115,6 +115,15 @@ forbids it. Pipe/Job qualification does not establish console Ctrl-C.
 | Cleanup unknown | Preserve descriptor and resources | Explicit safe recovery; never cached PID takeover |
 | Retired | Read lookup is empty; confirmed stage may be collected | Held bootstrap/global/launch claims |
 
+`runtime_jobs.go` owns admitted asynchronous jobs inside each native owner. It
+serializes request-key deduplication across app/root/platform/operation/session,
+retains live work through cancellation until the runner returns, and bounds live
+jobs (64), completed history (200), progress (16 KiB), results (256 KiB) and error
+detail (64 KiB). Returned snapshots cannot mutate live state. Failed process cleanup
+or a provider panic preserves unknown owner cleanup; partial publication remains a
+failed job without implying a live resource leak. The real managed-descendant gate
+uses this registry through owner RPC and awaits group/Job teardown on shutdown.
+
 Public session/job command handlers and per-request dispatch integration remain
 pending; this infrastructure does not register them as implemented. The primitive
 probe host is separate. Qualify actual detached startup/handoff through the public

@@ -46,6 +46,7 @@ type agentOwner struct {
 	touched              time.Time
 	operations, handlers sync.WaitGroup
 	cleanupErr           error
+	jobs                 *runtimeJobs
 	handoff              <-chan struct{}
 	descriptor           agentOwnerDescriptor
 }
@@ -196,6 +197,7 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 		Protocol: "octane-agent-owner", Version: agentOwnerProtocolVersion, Generation: identity(), Token: identity() + identity(),
 		Project: project, Address: "http://" + listener.Addr().String() + "/rpc", PID: os.Getpid(), State: "running",
 	}}
+	owner.jobs = newRuntimeJobs(owner)
 	if launch, ok := parent.Value(agentOwnerLaunchKey{}).(agentOwnerLaunchState); ok {
 		owner.handoff = launch.Adopted
 		owner.descriptor.LaunchID = launch.Request.LaunchID

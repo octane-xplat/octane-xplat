@@ -162,18 +162,13 @@ func TestAgentOwnerActiveOperationSurvivesIdleAndJoinsChildCleanup(t *testing.T)
 	armed := filepath.Join(t.TempDir(), "armed.json")
 	program := `const fs=require('node:fs');const child=require('node:child_process').spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});console.log('armed');setInterval(()=>{},1000)"],{stdio:['ignore','pipe','ignore']});process.on('SIGTERM',()=>{});child.stdout.once('data',()=>fs.writeFileSync(process.argv[1],JSON.stringify([process.pid,child.pid])));child.stdout.resume();setInterval(()=>{},1000);`
 	f := startAgentOwnerFixture(t, 300*time.Millisecond, func(ctx context.Context, owner *agentOwner, request agentOwnerRequest) (any, *cliError) {
-		operation, finish, err := owner.admit()
-		if err != nil {
-			return nil, executionFailure(err)
-		}
-		go func() {
+		job, deduped, failure := owner.jobs.start(runtimeJobInput{AppID: "app", AppRoot: owner.descriptor.Project, Platform: "web", Kind: "test"}, func(operation context.Context, report func(map[string]any) error) (any, error) {
 			value, err := runProcess(operation, []string{node, "-e", program, armed}, owner.descriptor.Project, nil)
 			processError <- err
 			result <- value
-			// This is teardown evidence, not the engine's user-facing failure state.
-			finish(err)
-		}()
-		return map[string]bool{"admitted": true}, nil
+			return value, err
+		})
+		return map[string]any{"job": job, "deduplicated": deduped}, failure
 	})
 	agentOwnerRPC(t, f.descriptor, `{"method":"work.start"}`, nil)
 	deadline := time.Now().Add(4 * time.Second)

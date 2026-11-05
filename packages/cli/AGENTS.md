@@ -72,6 +72,15 @@ breakaway explicitly and report refusal instead of inheriting a caller's Job.
 Owner creation does not make the first client's grants global: send validated
 permissions and operation environment per request when connecting public services.
 
+Job admission and request-key deduplication must be atomic before a runner starts.
+Include selected app identity, platform, operation and session in that key. A caller
+cancelling an RPC does not cancel owner-admitted work; explicit job cancellation
+stays `cancelling` until the runner has awaited resource cleanup. Bound progress,
+results and completed history independently, and return immutable snapshots.
+Preserve structured provider errors. Partial file publication must remain visible
+as failure even during cancellation, but does not itself prove a live process leak;
+reserve cleanup-unknown ownership for unconfirmed resource release or provider panic.
+
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations
 to distinguish live records from historical evidence. PID existence alone cannot
