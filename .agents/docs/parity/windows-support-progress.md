@@ -433,3 +433,18 @@ files-identity 12/12, storage-verify 8/8, secure-verify 9/9. Remaining:
 `pickMultiple` multi-select evidence and the upstream issue for the two
 bridge limitations (`dotnet.invoke` WinRT-object marshalling; caller-thread
 Task await).
+
+## Multi-select qualified: picker scenario complete (1.0.0.228)
+
+On `org.octanexplat.windows61` 1.0.0.228 (source `1a6127bb1`, bounded):
+`files.pickMultiple` completed a real OS multi-selection — the driver
+typed quoted paths `"Documents\core20-pick-target.txt"
+"Documents\core20-pick-second.txt"` into the open `FileOpenPicker` filename
+box and the leaf resolved `ok:2` with both names and `files.readText` on
+the first ref returning `core20-pick-content` through its token grant.
+Every picker surface member is now qualified on packaged Windows:
+`files.pick` (completed selection + token read-through), `files.
+pickMultiple` (multi-select), `files.export` (typed-destination save
+commit verified on disk), dialog display, cancel path, and the `fail:busy`
+guard. Service suite: 113/113 assertions (launch `mw2x5hw4`);
+files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
