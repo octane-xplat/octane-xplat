@@ -130,7 +130,37 @@ The app credential cannot authenticate CLI RPC or register another target. Token
 are carried in the bounded first frame, never in socket URLs. Browser origins
 must match an observed target dev origin; ordinary CLI HTTP still rejects Origin.
 `actions list` distinguishes connected empty registries from disconnected apps.
-Invocation, action status, full diagnostics and live controls remain pending.
+`actions invoke` validates the live declaration/input through the selected
+project's canonical Node worker, checks revision and declared effects, and submits
+one bounded app request. `actions status` reads its asynchronous result natively.
+The real app registry still owns handler execution, serialization and validation.
+Full diagnostics and UI controls remain pending.
+
+```sh
+/absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go actions status JOB_ID --project /work/repo --app apps/web --json
+```
+
+A short client's exit does not cancel an accepted action. Request keys are scoped
+to this app's dev-server startup and bind instance/action/revision/normalized input.
+An identical retained request returns its original job; a conflicting key is
+rejected. Results retain 200 completed jobs and at most 1,024 request-key records.
+An expired result or full key registry fails explicitly instead of repeating an
+action. Keys are not durable across dev-server restarts. Declared external effects
+need the invoking client's explicit `external-effects` grant.
+
+```sh
+XPLAT_PERMISSIONS=external-effects /absolute/path/to/xplat-go actions invoke --action fixture.external --instance APP_INSTANCE --request-key external-once --json
+```
+
+Canonical action deadlines default to 30 seconds and cap at five minutes. A
+cancellable action gets a bounded cooperative-cancel grace; only app confirmation
+becomes a cancelled result. In-flight disconnect, delivery ambiguity, or expired
+observation becomes an unknown outcome and is never automatically retried. An
+invalid result does not undo completed effects. Failure stacks are labelled
+`runtime-raw`; source-map resolution remains separate work. Node validation is
+bounded and native group/Job cleanup finishes before private worker data removal.
+Unconfirmed worker cleanup blocks further action admission and retains evidence.
 
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project

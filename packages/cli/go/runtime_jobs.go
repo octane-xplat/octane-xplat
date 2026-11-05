@@ -10,6 +10,23 @@ import (
 	"time"
 )
 
+// Foreground dev and retained probe owners share the same tested job lifecycle;
+// this interface does not authorize detached bootstrap or process launch.
+type runtimeJobOwner interface {
+	admit() (context.Context, func(error), error)
+}
+
+// Explicit provider facts survive a concurrent owner cancellation.
+type confirmedOperationResult struct {
+	Result any
+	State  string
+}
+
+type operationOutcomeFailure struct{ Err error }
+
+func (err *operationOutcomeFailure) Error() string { return err.Err.Error() }
+func (err *operationOutcomeFailure) Unwrap() error { return err.Err }
+
 // A job belongs to one selected app. The registry owns its runner until awaited
 // cleanup finishes; neither a request context nor a cancelling state releases it.
 type runtimeJob struct {
@@ -39,14 +56,14 @@ type runtimeJobEntry struct {
 
 type runtimeJobs struct {
 	mu                      sync.Mutex
-	owner                   *agentOwner
+	owner                   runtimeJobOwner
 	jobs                    map[string]*runtimeJobEntry
 	completed               []string
 	live                    int
 	liveLimit, historyLimit int
 }
 
-func newRuntimeJobs(owner *agentOwner) *runtimeJobs {
+func newRuntimeJobs(owner runtimeJobOwner) *runtimeJobs {
 	return &runtimeJobs{owner: owner, jobs: map[string]*runtimeJobEntry{}, liveLimit: 64, historyLimit: 200}
 }
 
@@ -104,6 +121,15 @@ func (registry *runtimeJobs) run(ctx context.Context, entry *runtimeJobEntry, ru
 			panicked = true
 			failure = fmt.Errorf("native job runner panicked: %v", recovered)
 		}
+		confirmed, authoritative := result.(*confirmedOperationResult)
+		if authoritative && confirmed != nil {
+			result = confirmed.Result
+			if confirmed.State != "succeeded" && confirmed.State != "cancelled" {
+				failure = errors.New("invalid confirmed operation state")
+			}
+		} else {
+			authoritative = false
+		}
 		var encoded json.RawMessage
 		if failure == nil {
 			var err error
@@ -117,7 +143,12 @@ func (registry *runtimeJobs) run(ctx context.Context, entry *runtimeJobEntry, ru
 		var startupCleanup *ownerStartupCleanupError
 		var sessionCleanup *runtimeSessionCleanupError
 		cleanupUnknown := panicked || errors.As(failure, &processCleanup) || errors.As(failure, &startupCleanup) || errors.As(failure, &sessionCleanup)
+		var unknown *operationOutcomeFailure
 		switch {
+		case authoritative && failure == nil:
+			entry.job.State = confirmed.State
+		case errors.As(failure, &unknown):
+			entry.job.State = "failed"
 		case panicked || requiresFailureEvidence(failure):
 			entry.job.State = "failed"
 		case entry.job.State == "cancelling" || ctx.Err() != nil:

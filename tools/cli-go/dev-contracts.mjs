@@ -88,6 +88,13 @@ export function goDevContracts(source) {
 	]) {
 		schema.summary = schema.summary.replace('`xplat job status`', '`xplat actions status`')
 	}
+	for (const descriptor of metadata.descriptors) {
+		if (descriptor.name === 'actions status') descriptor.context = 'app'
+	}
+	metadata.schemas['actions status'].requiresBoundApp = true
+	for (const command of metadata.catalog.commands) {
+		if (command.command === 'actions status') command.requiresBoundApp = true
+	}
 	metadata.schemas = Object.fromEntries(
 		Object.entries(metadata.schemas)
 			.filter(([name]) => !removed.has(name))

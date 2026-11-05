@@ -317,3 +317,34 @@ func TestDevServerWorkspaceSelectionAcceptsPortablePathSeparators(t *testing.T) 
 		t.Fatal("ambiguous workspace selected implicitly")
 	}
 }
+
+func TestDevServerClientBodyCancellationKeepsCancellationIdentity(t *testing.T) {
+	headers := make(chan struct{})
+	endpoint := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"protocol":`))
+		w.(http.Flusher).Flush()
+		close(headers)
+		<-r.Context().Done()
+	}))
+	defer endpoint.Close()
+	record := devServerRecord{Protocol: devServerProtocol, Version: 1, AppRoot: t.TempDir(), Endpoint: endpoint.URL + "/rpc", InstanceID: identity(), Token: identity() + identity()}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	done := make(chan *cliError, 1)
+	go func() { _, failure := (&devServerClient{record: record}).call(ctx, "targets", nil); done <- failure }()
+	select {
+	case <-headers:
+	case <-time.After(time.Second):
+		t.Fatal("response headers not observed")
+	}
+	cancel()
+	select {
+	case failure := <-done:
+		if failure == nil || failure.Code != "cancelled" {
+			t.Fatal("body cancellation became disconnection", failure)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("body cancellation did not finish")
+	}
+}

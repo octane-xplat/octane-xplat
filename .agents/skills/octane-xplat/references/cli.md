@@ -49,7 +49,20 @@ action listing. `session attach --instance APP_INSTANCE` observes an existing
 app; it never owns or terminates it. Engine progress remains separate from app
 connections. Direct loopback transport requires same-host reachability and a
 runtime WebSocket implementation; NativeScript device relay/runtime WebSocket adapters remain unimplemented,
-and browser execution remains unqualified. Invocation and full controls remain pending. Consult the native schema
+and browser execution remains unqualified. Native action invocation/status now use canonical project-worker validation and
+the app's existing execution policy. Read the registry revision, use an explicit
+request key, and poll `actions status` rather than a removed generic job command.
+Disconnect/deadline outcomes can remain unknown; do not automatically retry them
+with a new key. Keys/results are bounded to this dev-server startup, with no
+cross-restart idempotence guarantee. Runtime stacks are not source-map resolved.
+Full diagnostics and UI controls remain pending.
+
+```sh
+/absolute/path/to/xplat-go actions invoke --action ACTION_ID --instance APP_INSTANCE --revision REVISION --input '{}' --request-key REQUEST_KEY --json
+/absolute/path/to/xplat-go actions status JOB_ID --json
+```
+
+Consult the native schema
 for actual coverage. The superseded detached `session start/end`, `runtime build`
 and job-control surface is absent from Go; use ordinary explicit foreground builds
 and typechecks. The retained Nim and TypeScript surfaces below describe their

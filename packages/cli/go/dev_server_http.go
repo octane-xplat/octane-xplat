@@ -49,22 +49,24 @@ var devServerCommands = map[string]bool{
 }
 
 type devServer struct {
-	ctx        context.Context
-	cancel     context.CancelFunc
-	record     devServerRecord
-	store      *devServerStore
-	http       *http.Server
-	dispatch   devServerDispatch
-	apps       *devAppHub
-	mu         sync.Mutex
-	closing    bool
-	handlers   sync.WaitGroup
-	stopOnce   sync.Once
-	closeOnce  sync.Once
-	served     chan struct{}
-	finalized  chan struct{}
-	serveError error
-	closeError error
+	ctx            context.Context
+	cancel         context.CancelFunc
+	record         devServerRecord
+	store          *devServerStore
+	http           *http.Server
+	dispatch       devServerDispatch
+	apps           *devAppHub
+	actions        *devActions
+	operationError error
+	mu             sync.Mutex
+	closing        bool
+	handlers       sync.WaitGroup
+	stopOnce       sync.Once
+	closeOnce      sync.Once
+	served         chan struct{}
+	finalized      chan struct{}
+	serveError     error
+	closeError     error
 }
 
 // Starting this service is an explicit foreground-dev operation. No client
@@ -92,10 +94,11 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 			InstanceID: identity(), Token: identity() + identity(),
 		},
 	}
+	server.actions = newDevActions(server)
 	server.http = &http.Server{
 		Handler:           http.HandlerFunc(server.request),
 		ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 5 * time.Second,
-		WriteTimeout: 10 * time.Second, IdleTimeout: 5 * time.Second,
+		WriteTimeout: 20 * time.Second, IdleTimeout: 5 * time.Second,
 		MaxHeaderBytes: 16 << 10,
 		BaseContext:    func(net.Listener) context.Context { return ctx },
 	}
@@ -196,16 +199,41 @@ func (server *devServer) close() error {
 		go func() {
 			<-server.served
 			server.handlers.Wait()
-			server.closeError = errors.Join(server.serveError, server.store.close())
+			server.mu.Lock()
+			operationError := server.operationError
+			server.mu.Unlock()
+			if operationError != nil {
+				server.closeError = &devServerCleanupError{operationError}
+			} else {
+				server.closeError = errors.Join(server.serveError, server.store.close())
+			}
 			close(server.finalized)
 		}()
 	})
 	select {
 	case <-server.finalized:
 		return server.closeError
-	case <-time.After(3 * time.Second):
+	case <-time.After(10 * time.Second):
 		return &devServerCleanupError{errors.New("requests are still stopping; the lifetime claim is retained")}
 	}
+}
+
+func (server *devServer) admit() (context.Context, func(error), error) {
+	server.mu.Lock()
+	defer server.mu.Unlock()
+	if server.closing || server.ctx.Err() != nil || server.operationError != nil {
+		return nil, nil, errors.New("dev server is stopping")
+	}
+	server.handlers.Add(1)
+	var once sync.Once
+	return server.ctx, func(failure error) {
+		once.Do(func() {
+			server.mu.Lock()
+			server.operationError = errors.Join(server.operationError, failure)
+			server.mu.Unlock()
+			server.handlers.Done()
+		})
+	}, nil
 }
 
 type devServerClient struct{ record devServerRecord }
@@ -233,7 +261,11 @@ func (client *devServerClient) call(parent context.Context, command string, valu
 	if err != nil || len(body) > 1<<20 {
 		return nil, invalid("Dev server request exceeds its JSON bound.")
 	}
-	ctx, cancel := context.WithTimeout(parent, 10*time.Second)
+	deadline, headers := 10*time.Second, 5*time.Second
+	if command == "actions invoke" {
+		deadline, headers = 20*time.Second, 15*time.Second
+	}
+	ctx, cancel := context.WithTimeout(parent, deadline)
 	defer cancel()
 	request, err := http.NewRequestWithContext(ctx, "POST", client.record.Endpoint, bytes.NewReader(body))
 	if err != nil {
@@ -242,7 +274,7 @@ func (client *devServerClient) call(parent context.Context, command string, valu
 	request.Header.Set("Authorization", "Bearer "+client.record.Token)
 	request.Header.Set("X-Octane-Dev-Instance", client.record.InstanceID)
 	request.Header.Set("Content-Type", "application/json")
-	transport := &http.Transport{Proxy: nil, ResponseHeaderTimeout: 5 * time.Second}
+	transport := &http.Transport{Proxy: nil, ResponseHeaderTimeout: headers}
 	defer transport.CloseIdleConnections()
 	httpClient := &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	response, err := httpClient.Do(request)
@@ -258,6 +290,9 @@ func (client *devServerClient) call(parent context.Context, command string, valu
 	}
 	data, err := io.ReadAll(io.LimitReader(response.Body, (4<<20)+1))
 	if err != nil || len(data) > 4<<20 {
+		if parent.Err() != nil {
+			return nil, executionFailure(parent.Err())
+		}
 		return nil, devServerUnavailable("The dev server returned an invalid response.")
 	}
 	var reply devServerReply

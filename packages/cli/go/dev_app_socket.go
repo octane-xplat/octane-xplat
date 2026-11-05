@@ -58,17 +58,20 @@ type devAppHello struct {
 }
 
 type devAppMessage struct {
-	Type     string         `json:"type"`
-	Registry devAppRegistry `json:"registry"`
+	Type     string          `json:"type"`
+	Registry devAppRegistry  `json:"registry"`
+	Outcome  json.RawMessage `json:"outcome,omitempty"`
 }
 
 type devAppPeer struct {
-	conn           *websocket.Conn
-	target         string
-	session        string
-	registry       devAppRegistry
-	connectedAt    string
-	disconnectedAt string
+	conn               *websocket.Conn
+	ready              bool
+	instance, platform string
+	target             string
+	session            string
+	registry           devAppRegistry
+	connectedAt        string
+	disconnectedAt     string
 }
 
 type devAppHub struct {
@@ -192,7 +195,7 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sessionHash := sha256.Sum256([]byte(server.record.InstanceID + "\x00" + target + "\x00" + hello.Registry.AppInstanceID))
-	peer := &devAppPeer{conn: conn, target: target, session: fmt.Sprintf("sess_%x", sessionHash[:16]), registry: hello.Registry, connectedAt: isoNow()}
+	peer := &devAppPeer{conn: conn, instance: hello.Registry.AppInstanceID, platform: hello.Registry.Platform, target: target, session: fmt.Sprintf("sess_%x", sessionHash[:16]), registry: hello.Registry, connectedAt: isoNow()}
 	hub.mu.Lock()
 	previous := hub.peers[hello.Registry.AppInstanceID]
 	if previous != nil && previous.target != target {
@@ -228,6 +231,7 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 			peer.disconnectedAt = isoNow()
 		}
 		hub.mu.Unlock()
+		server.actions.disconnected(peer)
 	}()
 	ack, _ := json.Marshal(map[string]any{"type": "registered", "protocol": "octane-app-debug", "version": 1, "instanceId": server.record.InstanceID, "sessionId": peer.session})
 	writeCtx, cancel := context.WithTimeout(server.ctx, 2*time.Second)
@@ -236,6 +240,9 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
+	hub.mu.Lock()
+	peer.ready = true
+	hub.mu.Unlock()
 	for {
 		readCtx, cancel := context.WithTimeout(server.ctx, 20*time.Second)
 		kind, data, err = conn.Read(readCtx)
@@ -244,7 +251,18 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var message devAppMessage
-		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || message.Type != "registry" || !validDevRegistry(message.Registry, grant.platform) || message.Registry.AppInstanceID != hello.Registry.AppInstanceID {
+		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || (message.Type != "registry" && message.Type != "outcome") {
+			_ = conn.Close(websocket.StatusPolicyViolation, "invalid app update")
+			return
+		}
+		if message.Type == "outcome" {
+			if !server.actions.receive(peer, message.Outcome) {
+				_ = conn.Close(websocket.StatusPolicyViolation, "invalid action outcome")
+				return
+			}
+			continue
+		}
+		if !validDevRegistry(message.Registry, grant.platform) || message.Registry.AppInstanceID != hello.Registry.AppInstanceID {
 			_ = conn.Close(websocket.StatusPolicyViolation, "invalid app update")
 			return
 		}
@@ -307,7 +325,7 @@ func (hub *devAppHub) dispatch(command string, values map[string]any) (any, *cli
 	case "session attach":
 		matches := []*devAppPeer{}
 		for _, peer := range hub.peers {
-			if peer.disconnectedAt != "" {
+			if !peer.ready || peer.disconnectedAt != "" {
 				continue
 			}
 			if platform := stringValue(values["platform"]); platform != "" && platform != peer.registry.Platform {

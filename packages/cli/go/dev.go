@@ -278,7 +278,10 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 		return err
 	}
 	defer func() { failure = errors.Join(failure, server.close()) }()
+	view.mu.Lock()
 	view.apps = server.apps
+	view.server = server
+	view.mu.Unlock()
 	grants := map[string]string{}
 	for _, target := range chosen {
 		data, err := json.Marshal(server.appGrant(target))

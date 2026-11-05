@@ -63,7 +63,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				}
 			case "dev_actions":
 				entry["status"] = "partial"
-				entry["detail"] = "Lists live app-declared registries and disconnected observations natively. Invocation and action status remain pending."
+				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Stack locations remain runtime-raw; platform qualification is separate."
 				if platform == "ios" || platform == "android" {
 					entry["status"] = "unavailable"
 					entry["detail"] = "NativeScript app action transport is not implemented; device relay and runtime WebSocket adapters are required."

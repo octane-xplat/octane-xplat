@@ -390,12 +390,39 @@ try {
 
 		// Action field contracts specify JavaScript RegExp/default semantics. Keep
 		// one validator with the app/reference; this worker performs no invocation.
-		const { validateActionDeclaration, validateActionInput, validateActionOutput } =
-			await import('./mcp/contracts/actions.ts')
+		const {
+			validateActionDeclaration,
+			validateActionInput,
+			validateActionOutput,
+			actionAvailability,
+			DEV_ACTIONS_DEFAULT_TIMEOUT_MS,
+			DEV_ACTIONS_MAX_TIMEOUT_MS,
+		} = await import('./mcp/contracts/actions.ts')
 
 		const declaration = validateActionDeclaration(request.action)
+		let policy
+		if (request.includePolicy === true && declaration.length === 0) {
+			const action = request.action
+			const availability = actionAvailability(action, request.platform)
+			const inapplicable =
+				action.availability?.platforms !== undefined &&
+				!action.availability.platforms.includes(request.platform)
+			policy = {
+				allowed: availability.ready || (!inapplicable && Boolean(action.availability?.route)),
+				reason: availability.reason ?? '',
+				externalEffects: Boolean(action.effects?.externalEffects),
+				serialized: action.execution?.concurrency !== 'overlap',
+				cancellable: Boolean(action.execution?.cancellable),
+				timeoutMs: Math.min(
+					action.execution?.timeoutMs ?? DEV_ACTIONS_DEFAULT_TIMEOUT_MS,
+					DEV_ACTIONS_MAX_TIMEOUT_MS,
+				),
+			}
+		}
+
 		data = {
 			declaration,
+			...(request.includePolicy === true ? { policy } : {}),
 			checked: declaration.length
 				? null
 				: request.phase === 'input'

@@ -1090,6 +1090,31 @@ create no persistent observer ownership. Heartbeat tests must assert stable
 connection time, not merely a final ready state that could hide reconnect loops.
 Direct same-host socket evidence does not qualify device relays or browser apps.
 
+Keep action field semantics and policy extraction in the canonical selected-project
+worker; do not reinterpret JS regex, defaults, truthiness or UTF-16 lengths in Go.
+An omitted result contract is not an unchecked result: returning undeclared
+fields fails after effects may already have run. Positive fixtures must declare
+those fields, beside deliberate invalid-result controls. Require explicit boolean
+policy fields at the worker boundary; JSON null must not become a false/default
+external-effect decision.
+
+Use the native job lifecycle through a foreground admission interface, never a
+new detached owner. An accepted request outlives its HTTP client. Preserve
+provider-confirmed cancellation separately from operation outcome unknown and
+native process cleanup unknown. Unknown effects do not grant authority to stop an
+app, and must not become a success or be silently retried. A delivery/write error
+can be ambiguous. Retain request-key identity after completion/unknown; reject
+changed bindings and expired retained results rather than rerunning. Document
+startup/retention limits instead of promising durable exactly-once effects.
+
+Recheck connection, revision and declaration after asynchronous Node validation.
+Do not deliver work before the app registration acknowledgement is written.
+Worker validation deadlines, HTTP response budgets and process cleanup budgets
+must fit together. Join background operations and hijacked sockets on foreground
+shutdown; unconfirmed worker cleanup blocks replacement work and retains private
+operation data. Keep app stack provenance explicit until source-map resolution
+has actually occurred.
+
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or

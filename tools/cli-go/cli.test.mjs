@@ -106,6 +106,8 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'session status',
 			'session attach',
 			'actions list',
+			'actions invoke',
+			'actions status',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -126,7 +128,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		15,
+		17,
 	)
 	assert.equal(catalog.value.data.commands.length, 25)
 	for (const removed of [

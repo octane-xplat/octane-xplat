@@ -24,7 +24,10 @@ not stop apps. Target-scoped app WebSockets register actual action metadata;
 observation and action listing are native. App proof is distinct from private CLI
 RPC authorization. Browser execution remains unqualified and NativeScript device relay/runtime
 WebSocket adapters remain unimplemented; direct loopback sockets require same-host
-reachability and a runtime WebSocket implementation. Invocation/control remain pending. Detached-owner
+reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
+validation to the selected project worker, while foreground Go owns request
+identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
+missing dev server. UI controls and broader diagnostics remain pending. Detached-owner
 and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
 reports; they are superseded qualification scope, not active Go release gates.
 

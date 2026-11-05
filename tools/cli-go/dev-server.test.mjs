@@ -59,6 +59,7 @@ function fixture(multi = false) {
 			NODE_OPTIONS: '',
 			NODE_PATH: '',
 			XPLAT_AGENT_CLIENT: '',
+			XPLAT_PERMISSIONS: '',
 			FORCE_COLOR: '1',
 		},
 	}
@@ -311,9 +312,17 @@ test(
 			f.app,
 			'app-debug.ts',
 			`import {registerDevAction,startDevActionBridge} from './dev-actions-registry';
- const action=registerDevAction({id:'fixture.read',title:'Read fixture',description:'Read fixture state',effects:{summary:'Reads state'},run:()=>({value:1})});
+ let calls=0;
+ const action=registerDevAction({id:'fixture.read',title:'Read fixture',description:'Read fixture state',effects:{summary:'Reads state'},input:{fields:{value:{type:'string',pattern:'(?<=a)b',default:'ab'},emoji:{type:'string',maxLength:2,default:'😀'}}},result:{fields:{value:{type:'integer'},echoed:{type:'string'}}},run:(input)=>({value:++calls,echoed:input.value+input.emoji})});
+ const others=[
+ registerDevAction({id:'fixture.bad',title:'Bad result',description:'Returns an invalid result',effects:{summary:'Local fixture'},result:{fields:{value:{type:'integer'}}},run:()=>{calls++;return {value:'wrong'}}}),
+ registerDevAction({id:'fixture.external',title:'Declared external',description:'Local counter with external declaration',effects:{summary:'Local fixture only',externalEffects:true},result:{fields:{value:{type:'integer'}}},run:()=>({value:++calls})}),
+ registerDevAction({id:'fixture.slow',title:'Cancellable',description:'Waits for cooperative cancellation',effects:{summary:'Local wait'},execution:{cancellable:true,timeoutMs:1000},run:(_input,context)=>new Promise((_resolve,reject)=>context.signal.addEventListener('abort',()=>reject(Object.assign(new Error('cancelled'),{name:'AbortError'})),{once:true}))}),
+ registerDevAction({id:'fixture.drop',title:'Disconnect',description:'Drops only its app socket after a local effect',effects:{summary:'Local fixture effect'},result:{fields:{value:{type:'integer'}}},run:async()=>{const value=++calls;setTimeout(()=>globalThis['octane-xplat.dev-actions'].bridge.socket.close(),30);await new Promise(resolve=>setTimeout(resolve,1000));return {value}}})
+ ];
  let bridge=startDevActionBridge({appLabel:'Real framework registry'});
- export function clear(){action.dispose()}
+ export function clear(){action.dispose();for(const other of others)other.dispose()}
+ export function count(){return calls}
  export function stop(){bridge.stop()}
  export function reconnect(){bridge=startDevActionBridge({appLabel:'Real framework registry'})}
  `,
@@ -324,7 +333,7 @@ test(
 			`import {xplatDevBridge} from '@octane-xplat/cli/vite';
  export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'real-app-debug',configureServer(server){let app;
  server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.catch(error=>console.error(error.message))});
- server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{(await app)[operation]();res.end('ok')}catch(error){res.statusCode=500;res.end(error.message)}})
+ server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/count':'count','/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{const value=(await app)[operation]();res.end(value===undefined?'ok':JSON.stringify(value))}catch(error){res.statusCode=500;res.end(error.message)}})
  }}]}
  `,
 		)
@@ -371,6 +380,102 @@ test(
 		assert.equal(attached.data.session.sessionId, registered.sessionId)
 		assert.equal(attached.data.session.ownership, 'observed')
 		assert.equal(cli(f, ['targets']).data.targets[0].apps.length, 1)
+		const invoke = (id, key, input = '{}', extra = []) =>
+			cli(f, [
+				'actions',
+				'invoke',
+				'--action',
+				id,
+				'--instance',
+				registered.appInstanceId,
+				'--input',
+				input,
+				'--request-key',
+				key,
+				...extra,
+			])
+		const finished = async (accepted) => {
+			assert.equal(accepted.status, 0, JSON.stringify(accepted.error))
+			let job
+			await until(
+				() => {
+					job = cli(f, ['actions', 'status', accepted.data.job.jobId]).data?.job
+					return job && !['queued', 'running', 'cancelling'].includes(job.state)
+				},
+				'action did not finish',
+				15000,
+			)
+			return job
+		}
+		const count = async () => JSON.parse(await (await fetch(address + 'fixture/count')).text())
+		assert.equal(
+			invoke('fixture.read', 'stale', '{}', ['--revision', '0']).error.code,
+			'stale_identity',
+		)
+		assert.equal(
+			invoke('fixture.read', 'invalid', '{"value":"no"}').error.code,
+			'invalid_selection',
+		)
+		assert.equal(
+			invoke('fixture.read', 'utf16', '{"emoji":"😀😀"}').error.code,
+			'invalid_selection',
+		)
+		const accepted = invoke('fixture.read', 'read-once')
+		const success = await finished(accepted)
+		assert.equal(success.state, 'succeeded')
+		assert.equal(
+			success.result.outcome.result.echoed,
+			'ab😀',
+			'JS lookbehind/default/UTF-16 semantics were not retained',
+		)
+		assert.equal(await count(), 1)
+		const repeated = invoke('fixture.read', 'read-once')
+		assert.equal(repeated.data.job.jobId, accepted.data.job.jobId)
+		assert.equal(repeated.data.deduplicated, true)
+		assert.equal(
+			invoke('fixture.read', 'read-once', '{"value":"ab","emoji":"x"}').error.code,
+			'stale_identity',
+		)
+		assert.equal(await count(), 1)
+		const bad = await finished(invoke('fixture.bad', 'bad-once'))
+		assert.equal(bad.state, 'failed')
+		assert.equal(
+			await count(),
+			2,
+			'completed invalid-result effect was silently rolled back/repeated',
+		)
+		assert.equal(invoke('fixture.external', 'external-once').error.code, 'permission_denied')
+		assert.equal(await count(), 2)
+		const allowed = cli({ ...f, env: { ...f.env, XPLAT_PERMISSIONS: 'external-effects' } }, [
+			'actions',
+			'invoke',
+			'--action',
+			'fixture.external',
+			'--instance',
+			registered.appInstanceId,
+			'--request-key',
+			'external-once',
+		])
+		assert.equal((await finished(allowed)).state, 'succeeded')
+		assert.equal(await count(), 3)
+		const cancelled = await finished(invoke('fixture.slow', 'cancel-once'))
+		assert.equal(cancelled.state, 'cancelled')
+		assert.equal(cancelled.result.outcome.status, 'cancelled')
+		const dropped = invoke('fixture.drop', 'drop-once')
+		const unknown = await finished(dropped)
+		assert.equal(unknown.state, 'failed')
+		assert.equal(unknown.error.context.outcome, 'unknown')
+		await until(
+			() => inventory().data.instances[0]?.sessionId === registered.sessionId,
+			'app did not reconnect after transport loss',
+			10000,
+		)
+		const retryUnknown = invoke('fixture.drop', 'drop-once')
+		assert.equal(retryUnknown.data.job.jobId, dropped.data.job.jobId)
+		assert.equal(retryUnknown.data.deduplicated, true)
+		await delay(1200)
+		assert.equal(await count(), 4, 'unknown in-flight action was replayed')
+
 		assert.equal(owned.ended, false)
 		const transformed = await (await fetch(address + 'dev-bridge.ts')).text()
 		assert.ok(!transformed.includes(record(f).token), 'private CLI credential entered app code')

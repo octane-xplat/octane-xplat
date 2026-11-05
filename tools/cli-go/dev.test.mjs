@@ -314,7 +314,7 @@ test(
 			put(
 				f.app,
 				'main.js',
-				`import '@nativescript/macos-node-api';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.macos.read',title:'Read macOS app',description:'Observe app fixture',effects:{summary:'Read only'},run:()=>({value:1})});const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
+				`import '@nativescript/macos-node-api';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.macos.read',title:'Read macOS app',description:'Observe app fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
 			)
 			const child = spawn(binary, ['dev', 'macos'], {
 				cwd: f.app,
@@ -357,6 +357,29 @@ test(
 					const observed = query(['session', 'attach', '--instance', appInstance.appInstanceId])
 					assert.equal(observed.ok, true, JSON.stringify(observed))
 					assert.equal(observed.data.session.ownership, 'observed')
+					const accepted = query([
+						'actions',
+						'invoke',
+						'--action',
+						'fixture.macos.read',
+						'--instance',
+						appInstance.appInstanceId,
+						'--request-key',
+						'macos-observed-action',
+					])
+					assert.equal(accepted.ok, true, JSON.stringify(accepted))
+					let job
+					await until(
+						() => {
+							job = query(['actions', 'status', accepted.data.job.jobId]).data?.job
+							return job && !['queued', 'running', 'cancelling'].includes(job.state)
+						},
+						() => output + ' ' + JSON.stringify(job),
+						10000,
+					)
+					assert.equal(job.state, 'succeeded', JSON.stringify(job))
+					assert.equal(job.result.outcome.result.value, 1)
+
 					assert.equal(child.exitCode, null, 'observer client ended the AppKit host')
 					child.kill('SIGTERM')
 				}

@@ -143,7 +143,13 @@ WebSockets register the real framework action registry; attach/list/status and
 action listing stay native. The gate exercises empty registries, heartbeat
 stability, disconnect/reconnect, target-scoped proof and short-lived clients.
 The foreground macOS gate also attaches to actual headless AppKit app code.
-Invocation/control and NativeScript device relay/runtime WebSocket adapters
+The same gate invokes actual handlers through canonical selected-project Node
+validation. It checks JS lookbehind/default/UTF-16 behavior, result rejection with
+partial effects, declared external-effect permissions, completed/unknown request
+key dedupe and cooperative cancellation. The macOS foreground fixture also
+invokes an actual AppKit app action. The reused job registry belongs to foreground
+dev through a lifecycle interface; it never bootstraps the former detached owner.
+UI controls and NativeScript device relay/runtime WebSocket adapters
 remain unimplemented; browser execution remains unqualified; engine readiness alone is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
 for the current interface. The former detached-owner, asynchronous build/job and
 browser-session runners are preserved in checkpoint `14a7117c`; they are

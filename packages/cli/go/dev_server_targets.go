@@ -21,6 +21,7 @@ type devTargetView struct {
 	appRoot string
 	targets []devTargetProgress
 	apps    *devAppHub
+	server  *devServer
 }
 
 func newDevTargetView(appRoot string, targets []devTarget) *devTargetView {
@@ -78,8 +79,18 @@ func (view *devTargetView) update(id, state, readiness, detail string) {
 	}
 }
 
-func (view *devTargetView) dispatch(_ context.Context, command string, values map[string]any) (any, *cliError) {
+func (view *devTargetView) dispatch(ctx context.Context, command string, values map[string]any) (any, *cliError) {
+	view.mu.Lock()
+	apps, server := view.apps, view.server
+	view.mu.Unlock()
+	if apps == nil {
+		return nil, &cliError{Code: "unavailable", Message: "The dev server is still initializing."}
+	}
 	switch command {
+	case "actions invoke":
+		return server.actions.invoke(ctx, values)
+	case "actions status":
+		return server.actions.status(stringValue(values["jobId"]))
 	case "targets":
 		view.mu.Lock()
 		defer view.mu.Unlock()
@@ -91,12 +102,12 @@ func (view *devTargetView) dispatch(_ context.Context, command string, values ma
 			targets = append(targets, map[string]any{
 				"targetId": entry.target.ID, "platform": entry.target.Kind, "name": entry.target.Name,
 				"engine": map[string]any{"state": entry.state, "readiness": entry.readiness, "detail": entry.detail},
-				"apps":   view.apps.snapshots(entry.target.ID),
+				"apps":   apps.snapshots(entry.target.ID),
 			})
 		}
 		return map[string]any{"appRoot": view.appRoot, "targets": targets}, nil
 	case "session list", "session status", "session attach", "actions list":
-		return view.apps.dispatch(command, values)
+		return apps.dispatch(command, values)
 
 	default:
 		return nil, &cliError{Code: "unavailable", Message: "This live app command is not implemented in the parallel Go CLI."}
@@ -127,6 +138,15 @@ func devAppRequest(ctx context.Context, workspace *workspaceContext, command str
 			continue // These select the connection, not a second app inside it.
 		}
 		arguments[key] = value
+	}
+	if command == "actions invoke" {
+		grants := []string{}
+		for _, grant := range permissionGrants() {
+			if grant["state"] == "granted" {
+				grants = append(grants, stringValue(grant["scope"]))
+			}
+		}
+		arguments["_grants"] = grants
 	}
 	return client.call(ctx, command, arguments)
 }
