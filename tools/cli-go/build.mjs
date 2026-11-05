@@ -42,7 +42,6 @@ assert.ok(
 			'--test-binary',
 			'--onnx',
 			'--cli',
-			'--test-owner-race',
 			'--test-dev-server-race',
 		].includes(value),
 	),
@@ -50,11 +49,10 @@ assert.ok(
 const onnx = flags.includes('--onnx')
 const cli = flags.includes('--cli')
 const testBinary = flags.includes('--test-binary')
-const ownerRace = flags.includes('--test-owner-race')
 const devServerRace = flags.includes('--test-dev-server-race')
 assert.ok(
-	!(ownerRace || devServerRace) || flags.length === 1,
-	'Owner race qualification is a host-only standalone test mode',
+	!devServerRace || flags.length === 1,
+	'Race qualification is a host-only standalone test mode',
 )
 const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
@@ -81,7 +79,7 @@ const env = {
 	GOWORK: 'off',
 	GOCACHE: join(work, 'build-cache'),
 	GOMODCACHE: join(work, 'module-cache'),
-	CGO_ENABLED: onnx || ownerRace || devServerRace ? '1' : '0',
+	CGO_ENABLED: onnx || devServerRace ? '1' : '0',
 	ZIG_GLOBAL_CACHE_DIR: join(work, 'zig-global-cache'),
 	ZIG_LOCAL_CACHE_DIR: join(work, 'zig-local-cache'),
 }
@@ -218,14 +216,13 @@ writeFileSync(
 )
 
 run('go', ['mod', 'download'], { stdio: 'inherit' })
-if (flags.includes('--test') || ownerRace || devServerRace) {
+if (flags.includes('--test') || devServerRace) {
 	run(
 		'go',
 		[
 			'test',
 			'-count=1',
-			...(ownerRace ? ['-race', '-run=^TestAgentOwner'] : []),
-			...(devServerRace ? ['-race', '-run=^TestDev(Server|App)'] : []),
+			...(devServerRace ? ['-race', '-run=^TestDev(Server|App|Jobs)'] : []),
 			'-mod=readonly',
 			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'./...',

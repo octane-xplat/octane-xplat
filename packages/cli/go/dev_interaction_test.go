@@ -95,7 +95,7 @@ func TestDevAppInteractionSurvivesClientDisconnectAndNeverRepeats(t *testing.T) 
 		} `json:"evidence"`
 	}
 	_ = json.Unmarshal(receipt, &stored)
-	if _, failure := server.inspection.evidenceCommand("evidence delete", map[string]any{"id": stored.Evidence.ID}); failure != nil {
+	if _, failure := server.inspection.evidenceOperation(server.ctx, "evidence delete", map[string]any{"id": stored.Evidence.ID}); failure != nil {
 		t.Fatal(failure)
 	}
 	afterDelete, failure := client.call(context.Background(), "interact", values)

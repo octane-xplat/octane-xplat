@@ -172,8 +172,9 @@ Unconfirmed worker cleanup blocks further action admission and retains evidence.
 app sessions. Read a capture using its returned ID; `--cursor` continues after a
 sequence and `--stream` filters stdout, stderr or lifecycle. Without a cursor,
 reads return the most recent records. An authenticated running dev server can
-confirm its current owner; offline reads mark unfinished captures disconnected
-and preserve cleanup uncertainty. Reads create no missing cache or dev server.
+confirm which captures belong to its current instance; offline reads mark
+unfinished captures disconnected and preserve cleanup uncertainty. Reads create
+no missing cache or dev server.
 
 ```sh
 /absolute/path/to/xplat-go diagnostics --project /work/repo --app apps/web --json
@@ -309,11 +310,10 @@ entry are absent. Ordinary build and typecheck remain foreground operations.
 /absolute/path/to/xplat-go typecheck
 ```
 
-The previous detached-owner implementation is preserved in local checkpoint
-`14a7117c`. Its source is temporarily retained for reusable process/history
-primitives; it is unreachable from the Go production entry. Its browser lifecycle
-qualification is superseded by the explicitly started dev-server architecture,
-not evidence that the new app-debug workflow is complete. TypeScript and Nim
+The previous detached-owner implementation was removed; its last state is
+preserved in local checkpoint `14a7117c`. Its browser lifecycle qualification is
+superseded by the explicitly started dev-server architecture, not evidence that
+the new app-debug workflow is complete. TypeScript and Nim
 remain unchanged behavioral references except for these approved scope changes.
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
@@ -326,7 +326,7 @@ Only the missing workshop package script may change in the manifest. Publication
 is atomic per file, with partial effects disclosed on interruption. Service launching calls the project engine in an owned Node worker, with a
 five-minute startup deadline and live stdout/stderr plus explicit foreground input.
 The schema labels its evidence: web listening, native host spawn or mobile tool
-spawn; none implies a fully initialized app. The native owner awaits the whole
+spawn; none implies a fully initialized app. The foreground process awaits the whole
 service lifetime and group/job cleanup, then removes its private resources.
 Windows workshop launch retains the project's explicit unqualified-host blocker.
 
@@ -607,9 +607,9 @@ full text for lexical search and reads; model previews are bounded to 64 KiB,
 with `truncatedInputs` reported alongside the model's 512-token context limit.
 The public CLI owns and joins a native compute child for each documentation
 operation. Documentation reads, searches and indexing do not require a dev
-server. The retained prototype RPC-owner cancellation test exercises a separate
+server. The retained probe-host cancellation test exercises a separate
 experimental boundary; it does not imply that ordinary documentation commands
-must acquire a persistent owner. Foreground `dev` owns development engines and
+must attach to a dev server. Foreground `dev` owns development engines and
 app-control connections.
 
 

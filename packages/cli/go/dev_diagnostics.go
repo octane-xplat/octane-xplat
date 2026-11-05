@@ -22,7 +22,7 @@ func diagnosticsHistoryParent() (string, error) {
 // Retained diagnostics remain readable without a live server. A live owner is
 // trusted only inside authenticated foreground RPC, never from a recorded PID.
 func devDiagnosticsCommand(ctx context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
-	app, failure := runtimeSelectedApp(workspace)
+	app, failure := devSelectedApp(workspace)
 	if failure != nil {
 		return nil, failure
 	}
@@ -133,7 +133,7 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 	if ctx.Err() != nil {
 		return nil, executionFailure(ctx.Err())
 	}
-	store, err := lookupRuntimeHistory(parent, app)
+	store, err := lookupHistoryStore(parent, app)
 	if err != nil {
 		return nil, executionFailure(err)
 	}

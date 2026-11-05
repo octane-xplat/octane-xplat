@@ -54,7 +54,6 @@
 		"test:go-unit": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-dev-server-race": { "cache": false },
 		"test:go-dev-server": { "cache": false, "passThroughEnv": ["XPLAT_GO_BROWSER_LOGS"], "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/macos-build#build"] },
-		"test:go-owner-race": { "cache": false },
 		"test:go": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_BINARY"] },
 		"test:go-model": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ONNX_BINARY"] },
 		"//#test:nim-portability-handoff": { "cache": false, "passThroughEnv": ["XPLAT_NIM_HANDOFF_CONFIG"] },

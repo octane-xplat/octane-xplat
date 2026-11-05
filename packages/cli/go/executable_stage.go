@@ -65,25 +65,3 @@ func stageNativeExecutable(exe, directory, name string) (string, string, error) 
 	complete = true
 	return path, hex.EncodeToString(digest.Sum(nil)), nil
 }
-
-func nativeExecutableSHA(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	before, err := file.Stat()
-	if err != nil || !before.Mode().IsRegular() || before.Size() <= 0 || before.Size() > nativeExecutableLimit {
-		return "", errors.New("native executable must be a regular file of at most 64 MiB")
-	}
-	digest := sha256.New()
-	n, err := io.Copy(digest, io.LimitReader(file, (nativeExecutableLimit)+1))
-	if err != nil {
-		return "", err
-	}
-	after, err := file.Stat()
-	if err != nil || n != before.Size() || after.Size() != before.Size() || !after.ModTime().Equal(before.ModTime()) {
-		return "", errors.New("native executable changed while checking its identity")
-	}
-	return hex.EncodeToString(digest.Sum(nil)), nil
-}

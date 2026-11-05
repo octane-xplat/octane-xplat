@@ -21,8 +21,16 @@ const historyRetainedRuns = 20
 
 var historyID = regexp.MustCompile(`^sess_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 
+type historyLaunch struct {
+	Phase     string         `json:"phase"`
+	Readiness string         `json:"readiness,omitempty"`
+	Message   string         `json:"message,omitempty"`
+	Error     *cliError      `json:"error,omitempty"`
+	Browser   map[string]any `json:"browser,omitempty"`
+}
+
 type historySession struct {
-	Launch           *runtimeLaunch     `json:"launch,omitempty"`
+	Launch           *historyLaunch     `json:"launch,omitempty"`
 	ProcessKind      *string            `json:"processKind,omitempty"`
 	BuildIdentity    json.RawMessage    `json:"buildIdentity,omitempty"`
 	NativeIdentity   *devNativeIdentity `json:"nativeIdentity,omitempty"`
@@ -143,6 +151,44 @@ func openHistoryStore(parent, project string) (*historyStore, error) {
 	return &historyStore{root, path, project}, nil
 }
 func (store *historyStore) Close() error { return store.root.Close() }
+
+// History lookup must still resolve after the app directory was removed.
+// Creation continues to require canonical(existing) elsewhere.
+func knownHistoryProjectPath(project string) (string, error) {
+	path, err := canonical(project)
+	if os.IsNotExist(err) {
+		return prospectiveHistoryPath(project)
+	}
+	return path, err
+}
+
+// Unlike openHistoryStore, a reader must not create cache or metadata state.
+func lookupHistoryStore(parent, project string) (*historyStore, error) {
+	project, err := knownHistoryProjectPath(project)
+	if err != nil {
+		return nil, err
+	}
+	namespace, err := prospectiveHistoryPath(filepath.Join(parent, "history-go-v1"))
+	if err != nil {
+		return nil, err
+	}
+	if inside(project, namespace) {
+		return nil, fmt.Errorf("session history must be outside the selected project")
+	}
+	path := filepath.Join(namespace, fmt.Sprintf("%x", sha256.Sum256([]byte(filesystemKey(project)))))
+	for _, directory := range []string{namespace, path} {
+		if err := validatePrivateCache(directory); os.IsNotExist(err) {
+			return nil, nil
+		} else if err != nil {
+			return nil, err
+		}
+	}
+	root, err := os.OpenRoot(path)
+	if err != nil {
+		return nil, err
+	}
+	return &historyStore{root: root, path: path, project: project}, nil
+}
 
 func historyFile(root *os.Root, name string, limit int64) ([]byte, error) {
 	info, err := root.Lstat(name)
@@ -296,7 +342,7 @@ func (store *historyStore) Read(id string) (historySession, error) {
 	return result, nil
 }
 
-// Liveness is supplied by the authenticated live owner, never by PID existence.
+// Liveness is supplied by the authenticated live server instance, never by PID existence.
 func observedHistorySession(session historySession, owner string) map[string]any {
 	data, _ := json.Marshal(session)
 	var result map[string]any
@@ -531,24 +577,6 @@ func (capture *historyCapture) Append(record historyRecord) error {
 	capture.Lock()
 	defer capture.Unlock()
 	return capture.append(record)
-}
-func (capture *historyCapture) Update(state, detail string) error {
-	capture.Lock()
-	defer capture.Unlock()
-	if capture.closed {
-		return errors.New("capture is closed")
-	}
-	if !slices.Contains([]string{"starting", "ready", "failed", "stopped", "disconnected"}, state) {
-		return errors.New("invalid capture state")
-	}
-	capture.session.State = state
-	capture.session.Detail = detail
-	err := historyMetadata(capture.root, capture.session)
-	if err != nil {
-		capture.failure = errors.Join(capture.failure, err)
-		capture.session.RetentionError = capture.failure.Error()
-	}
-	return err
 }
 
 // Finish follows confirmed process/resource cleanup. Failed cleanup is retained

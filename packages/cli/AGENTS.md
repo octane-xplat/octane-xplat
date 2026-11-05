@@ -47,56 +47,42 @@ to exist after exit. Process observation/report association never grants signal
 ownership. Keep complete report originals separate from rotating log captures;
 a report-cache failure must disclose unavailability without hiding readable logs.
 
-Persistent-owner admission and shutdown must share a synchronization barrier:
+Foreground-server admission and shutdown must share a synchronization barrier:
 close admission before waiting for registered operations or request handlers.
 Register an operation before starting it and release its claim only after awaited
-cleanup. An idle timer may retire an owner only with no active operations or RPC
-handlers; client disconnects do not end admitted work. Hold a kernel lifetime
-lease across descriptor publication and teardown. Retain a cleanup-unknown
-descriptor when resource release fails. An existing running descriptor after
-lease release can be crash evidence too: reject automatic replacement rather
-than treating a dead PID or released lock as cleanup proof.
+cleanup; client disconnects do not end admitted work. Hold the kernel lifetime
+claim across discovery-record publication and teardown. Retain a cleanup-unknown
+record when resource release fails. An existing live record after claim release
+can be crash evidence too: reject automatic replacement rather than treating a
+dead PID or released lock as cleanup proof.
 
-Detached native startup uses a private pipe separate from caller stdin. Before
-handoff, only maintenance RPC is allowed and EOF cancels the unadopted child;
-after a handoff byte can be observed, caller exit must not kill that generation.
-Bind readiness to the retained process handle, launch nonce, project and staged
-binary checksum. Claim fresh stage directories atomically; a pre-existing private ACL is not
-ownership proof. Publish a manifest before copying bytes, and commit adoption
-before admitting work. A per-launch kernel claim prevents late obsolete starters.
-Collect stages only under the bootstrap/global/launch claims: unadopted stages need
-no descriptor/adoption witness; adopted stages need explicit cleanup confirmation.
-Preserve unknown files and modified verified images. Remove the executable before
-the manifest so Windows refusal preserves recovery evidence. Request Windows Job
-breakaway explicitly and report refusal instead of inheriting a caller's Job.
-Owner creation does not make the first client's grants global: send validated
-permissions and operation environment per request when connecting public services.
-Cleanup RPC deadlines must cover the bounded engine/browser teardown sequence;
-keep ordinary reads shorter. A client timeout proves neither owner loss nor
-resource release, and must not authorize replacement.
+Send validated permissions and operation environment per request when connecting
+public services; one client's grants do not become global. Cleanup request
+deadlines must cover the bounded engine teardown sequence; keep ordinary reads
+shorter. A client timeout proves neither server loss nor resource release, and
+must not authorize replacement.
 
 Job admission and request-key deduplication must be atomic before a runner starts.
-Include selected app identity, platform, operation and session in that key. A caller
-cancelling an RPC does not cancel owner-admitted work; explicit job cancellation
-stays `cancelling` until the runner has awaited resource cleanup. Bound progress,
+Include selected app identity, platform, operation and session in that key. A
+disconnecting client does not cancel admitted work; shutdown cancellation keeps a
+job live until the runner has awaited resource cleanup. Bound progress,
 results and completed history independently, and return immutable snapshots.
 Preserve structured provider errors. Partial file publication must remain visible
 as failure even during cancellation, but does not itself prove a live process leak;
 reserve cleanup-unknown ownership for unconfirmed resource release or provider panic.
 
-Persistent build workers must use the invoking request's explicit Node executable,
+Project build workers must use the invoking request's explicit Node executable,
 cwd and sanitized environment. Resolve project entries inside that app's installation;
 do not change process-wide cwd/environment or execute the old CLI. Keep request
-credentials out of descriptors, job metadata and logs. Revalidate selected app id
-and canonical root inside the owner. Distinguish genuine output-lease contention
-from cache/permission errors. Best-effort Git metadata may omit an unavailable
-revision, but must preserve dirty state and propagate unconfirmed process cleanup.
+credentials out of discovery records, job metadata and logs. Revalidate selected
+app identity and canonical root before dispatching work. Distinguish genuine
+output-lease contention from cache/permission errors.
 
-Claim target identity and owner admission before launching a session. Keep that
+Claim target identity and server admission before launching an engine. Keep that
 claim until awaited cleanup, including when a state is failed or disconnected.
-Separate creation checks from cleanup authority: edits/removal of a project must
-not prevent ending a known registered process. Scope cleanup by authenticated
-owner, registered app binding and session id; never rediscover signal authority
+Separate creation checks from cleanup authority: edits or removal of a project must
+not prevent ending a known registered process. Scope cleanup by the authenticated
+server, registered app binding and session id; never rediscover signal authority
 from a PID. Preserve nonempty project-lease cleanup witnesses across kernel lock
 release and clear them only while holding the lease after confirmed cleanup.
 
@@ -126,13 +112,13 @@ then require directory removal and retained reads to succeed. Report this apart
 from hosts where the whole workspace was removed before ending the session.
 
 Session evidence is separate from disposable session resources. Keep retained
-metadata/logs in the native history namespace; use authenticated owner generations
-to distinguish live records from historical evidence. PID existence alone cannot
-establish ownership or authorize cleanup. Publish a cleanup-confirmed checkpoint
-only after awaiting process/resource release, rather than inferring it from a
-stopped state emitted before an async cleanup finishes. Keep terminal-state
-metadata observers until explicit end or capture retirement so later state changes
-remain visible after the host exits.
+metadata/logs in the native history namespace; use authenticated server instance
+generations to distinguish live records from historical evidence. PID existence
+alone cannot establish ownership or authorize cleanup. Publish a
+cleanup-confirmed checkpoint only after awaiting process/resource release, rather
+than inferring it from a stopped state emitted before an async cleanup finishes.
+Keep terminal-state metadata observers until explicit end or capture retirement
+so later state changes remain visible after the host exits.
 Do not require global history enumeration before releasing a known live session:
 validate its selected-app ownership from the live registry, so an unrelated
 corrupt retained record cannot prevent process cleanup.
@@ -169,7 +155,7 @@ third validator or a partial native regex translation. Listing, HTTP, policy,
 queues and job outcomes remain native. Treat pre-job admission workers as owned
 resources too: register cancellation/completion before starting them, and await
 their teardown during host shutdown. Cancelling a queued FIFO ticket removes
-only that ticket; it must not release the running owner's slot. Preserve partial
+only that ticket; it must not release the running operation's slot. Preserve partial
 effect evidence when cancellation races a runner exception.
 
 Choose language boundaries by the operation's existing requirements and semantic
@@ -222,7 +208,7 @@ Only one-shot CLI dispatch attaches a foreground input file to its context.
 Default process/worker calls still receive EOF. Use the explicit foreground
 process entry for project engines, and pass input only to selected interactive
 worker operations (installation or packaging), not configuration/inspection
-workers or owner requests. Inherit an OS file rather than forwarding stdin with
+workers or dev server requests. Inherit an OS file rather than forwarding stdin with
 a Go goroutine that can remain blocked after child cancellation.
 
 The Windows job gate uses a separately inherited release handle; never consume

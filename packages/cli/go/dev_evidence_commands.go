@@ -13,7 +13,7 @@ func init() {
 	}
 }
 func devEvidenceCommand(ctx context.Context, workspace *workspaceContext, command string, values map[string]any) (any, *cliError) {
-	app, failure := runtimeSelectedApp(workspace)
+	app, failure := devSelectedApp(workspace)
 	if failure != nil {
 		return nil, failure
 	}

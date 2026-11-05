@@ -11,10 +11,53 @@ import (
 	"time"
 )
 
-func runtimeJobsFixture(t *testing.T) (*agentOwner, *runtimeJobs) {
-	t.Helper()
+// Test double for the dev server admission contract: jobs register before
+// starting and release their claim only after awaited cleanup.
+type testJobOwner struct {
+	mu         sync.Mutex
+	ctx        context.Context
+	cancel     context.CancelFunc
+	closing    bool
+	active     int
+	cleanupErr error
+	operations sync.WaitGroup
+}
+
+func newTestJobOwner() *testJobOwner {
 	ctx, cancel := context.WithCancel(context.Background())
-	owner := &agentOwner{ctx: ctx, cancel: cancel, touched: time.Now()}
+	return &testJobOwner{ctx: ctx, cancel: cancel}
+}
+
+func (owner *testJobOwner) admit() (context.Context, func(error), error) {
+	owner.mu.Lock()
+	defer owner.mu.Unlock()
+	if owner.closing || owner.ctx.Err() != nil {
+		return nil, nil, errors.New("dev server is stopping")
+	}
+	owner.active++
+	owner.operations.Add(1)
+	var once sync.Once
+	return owner.ctx, func(cleanup error) {
+		once.Do(func() {
+			owner.mu.Lock()
+			owner.active--
+			owner.cleanupErr = errors.Join(owner.cleanupErr, cleanup)
+			owner.mu.Unlock()
+			owner.operations.Done()
+		})
+	}, nil
+}
+
+func (owner *testJobOwner) stop() {
+	owner.mu.Lock()
+	owner.closing = true
+	owner.mu.Unlock()
+	owner.cancel()
+}
+
+func runtimeJobsFixture(t *testing.T) (*testJobOwner, *runtimeJobs) {
+	t.Helper()
+	owner := newTestJobOwner()
 	t.Cleanup(func() { owner.stop(); owner.operations.Wait() })
 	return owner, newRuntimeJobs(owner)
 }
@@ -43,7 +86,7 @@ func jobTestInput() runtimeJobInput {
 	return runtimeJobInput{AppID: "apps/a", AppRoot: "/selected/app", Platform: "web", Kind: "build", RequestKey: "same"}
 }
 
-func TestAgentOwnerJobsAtomicDedupeAndAppPlatformIsolation(t *testing.T) {
+func TestDevJobsAtomicDedupeAndAppPlatformIsolation(t *testing.T) {
 	owner, registry := runtimeJobsFixture(t)
 	input := jobTestInput()
 	gate := make(chan struct{})
@@ -94,18 +137,18 @@ func TestAgentOwnerJobsAtomicDedupeAndAppPlatformIsolation(t *testing.T) {
 	if _, err := registry.status("other", input.AppRoot, id); err == nil || err.Code != "not_found" {
 		t.Fatal("foreign app read leaked a job")
 	}
-	if _, err := registry.cancel(input.AppID, "/other/root", id); err == nil || err.Code != "not_found" {
-		t.Fatal("foreign app could cancel a job")
+	if _, err := registry.status(input.AppID, "/other/root", id); err == nil || err.Code != "not_found" {
+		t.Fatal("foreign app root read leaked a job")
 	}
 	owner.mu.Lock()
 	active := owner.active
 	owner.mu.Unlock()
-	if active != 3 || owner.retireIdle(0) {
-		t.Fatal("jobs did not retain owner admission")
+	if active != 3 {
+		t.Fatal("jobs did not retain server admission")
 	}
 }
 
-func TestAgentOwnerJobsCancellationWaitsForCleanupAndPreservesFailure(t *testing.T) {
+func TestDevJobsCancellationWaitsForCleanupAndPreservesFailure(t *testing.T) {
 	for _, unsafe := range []bool{false, true} {
 		t.Run(map[bool]string{false: "confirmed", true: "unknown"}[unsafe], func(t *testing.T) {
 			owner, registry := runtimeJobsFixture(t)
@@ -122,7 +165,7 @@ func TestAgentOwnerJobsCancellationWaitsForCleanupAndPreservesFailure(t *testing
 				close(cancelled)
 				<-cleanup
 				if unsafe {
-					return nil, &ownerStartupCleanupError{Err: errors.New("injected unconfirmed resource cleanup")}
+					return nil, &devServerCleanupError{Err: errors.New("injected unconfirmed resource cleanup")}
 				}
 				return map[string]bool{"cleanupComplete": true}, nil
 			})
@@ -130,22 +173,16 @@ func TestAgentOwnerJobsCancellationWaitsForCleanupAndPreservesFailure(t *testing
 				t.Fatal(err)
 			}
 			<-started
-			value, failure := registry.cancel(input.AppID, input.AppRoot, job.JobID)
-			if failure != nil || value.State != "cancelling" || value.FinishedAt != "" {
-				t.Fatal("cancel reported premature completion")
-			}
+			owner.cancel()
 			<-cancelled
-			if owner.retireIdle(0) {
-				t.Fatal("owner retired while cleanup was pending")
-			}
 			owner.mu.Lock()
 			active := owner.active
 			owner.mu.Unlock()
 			if active != 1 {
-				t.Fatal("cancel released the operation before cleanup")
+				t.Fatal("cancellation released the operation before cleanup")
 			}
 			once.Do(func() { close(cleanup) })
-			value = awaitRuntimeJob(t, registry, input, job.JobID)
+			value := awaitRuntimeJob(t, registry, input, job.JobID)
 			want := "cancelled"
 			if unsafe {
 				want = "failed"
@@ -160,13 +197,13 @@ func TestAgentOwnerJobsCancellationWaitsForCleanupAndPreservesFailure(t *testing
 			retained := owner.cleanupErr
 			owner.mu.Unlock()
 			if (retained != nil) != unsafe {
-				t.Fatal("cleanup failure was hidden or cancellation poisoned the owner")
+				t.Fatal("cleanup failure was hidden or cancellation poisoned the server")
 			}
 		})
 	}
 }
 
-func TestAgentOwnerJobsSnapshotsBoundsHistoryAndRetry(t *testing.T) {
+func TestDevJobsSnapshotsBoundsHistoryAndRetry(t *testing.T) {
 	_, registry := runtimeJobsFixture(t)
 	registry.historyLimit = 2
 	input := jobTestInput()
@@ -216,7 +253,7 @@ func TestAgentOwnerJobsSnapshotsBoundsHistoryAndRetry(t *testing.T) {
 	}
 }
 
-func TestAgentOwnerJobsPanicAndShutdownAdmission(t *testing.T) {
+func TestDevJobsPanicAndShutdownAdmission(t *testing.T) {
 	owner, registry := runtimeJobsFixture(t)
 	input := jobTestInput()
 	job, _, err := registry.start(input, func(context.Context, func(map[string]any) error) (any, error) { panic("injected provider panic") })
@@ -241,7 +278,7 @@ func TestAgentOwnerJobsPanicAndShutdownAdmission(t *testing.T) {
 	}
 }
 
-func TestAgentOwnerJobsPartialPublicationIsFailureWithoutLiveResourceLeak(t *testing.T) {
+func TestDevJobsPartialPublicationIsFailureWithoutLiveResourceLeak(t *testing.T) {
 	owner, registry := runtimeJobsFixture(t)
 	input := jobTestInput()
 	started := make(chan struct{})
@@ -254,9 +291,7 @@ func TestAgentOwnerJobsPartialPublicationIsFailureWithoutLiveResourceLeak(t *tes
 		t.Fatal(err)
 	}
 	<-started
-	if value, failure := registry.cancel(input.AppID, input.AppRoot, job.JobID); failure != nil || value.State != "cancelling" {
-		t.Fatal("partial-effect fixture did not enter cancellation")
-	}
+	owner.cancel()
 	value := awaitRuntimeJob(t, registry, input, job.JobID)
 	if value.State != "failed" || !strings.Contains(string(value.Error), "execution_failure") {
 		t.Fatal("partial publication became a successful cancellation")
@@ -269,7 +304,7 @@ func TestAgentOwnerJobsPartialPublicationIsFailureWithoutLiveResourceLeak(t *tes
 	}
 }
 
-func TestAgentOwnerJobsPreserveStructuredErrorAndEnforceLiveLimit(t *testing.T) {
+func TestDevJobsPreserveStructuredErrorAndEnforceLiveLimit(t *testing.T) {
 	_, registry := runtimeJobsFixture(t)
 	registry.liveLimit = 1
 	input := jobTestInput()

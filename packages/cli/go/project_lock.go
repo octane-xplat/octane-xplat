@@ -100,7 +100,7 @@ func lockOwnedProjectOutputs(project, owner string) (func(bool) error, error) {
 	if current, err := file.Stat(); err != nil || current.Size() != 0 {
 		releaseCacheLock(file)
 		close()
-		return nil, fmt.Errorf("previous native owner did not confirm project cleanup; inspect retained ownership evidence at %s", filepath.Join(cache, name))
+		return nil, fmt.Errorf("previous native operation did not confirm project cleanup; inspect retained ownership evidence at %s", filepath.Join(cache, name))
 	}
 	if owner != "" {
 		data, _ := json.Marshal(map[string]any{"version": 1, "project": project, "owner": owner})

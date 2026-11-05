@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -15,6 +16,10 @@ import (
 
 const devTerminalLineLimit = 1 << 20
 const devConsoleBudget = 4 << 20
+
+var devLocalURL = regexp.MustCompile(`https?://(?:localhost|127\.0\.0\.1|\[::1\]):[0-9]+/[^\s\x1b]*`)
+var devReadyLine = regexp.MustCompile(`(?i)(successfully (synced|started)|host started|\bready\b)`)
+var devANSI = regexp.MustCompile(`\x1b\[[0-?]*[ -/]*[@-~]`)
 
 type devConsole struct {
 	queue     chan string
@@ -25,7 +30,7 @@ type devConsole struct {
 }
 
 // Only foreground clients construct a console. History readers never wait on
-// terminal backpressure; a persistent owner uses nil and owns no console writer.
+// terminal backpressure; the dev server uses nil and owns no console writer.
 func newDevConsole(ctx context.Context, output *os.File, cancel context.CancelFunc) *devConsole {
 	console := &devConsole{queue: make(chan string, 64), done: make(chan struct{})}
 	go func() {

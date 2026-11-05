@@ -127,9 +127,6 @@ func (service *devInspection) inspect(parent context.Context, values map[string]
 	result["evidence"] = service.recordEvidence(peer, document, "inspection", "none", result)
 	return result, nil
 }
-func (service *devInspection) evidenceCommand(command string, values map[string]any) (any, *cliError) {
-	return service.evidenceOperation(service.server.ctx, command, values)
-}
 func (service *devInspection) evidenceOperation(ctx context.Context, command string, values map[string]any) (any, *cliError) {
 	for key := range values {
 		if !slices.Contains([]string{"kind", "id", "expiresAt", "_grants"}, key) {

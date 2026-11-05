@@ -295,6 +295,18 @@ export function goDevContracts(source) {
 			command.summary = devSummary
 		}
 	}
+	// The removed agent-owned job contract no longer anchors the build summary.
+	const buildSummary = "Production builds for the selected app's declared targets"
+	for (const command of metadata.orchestrationDescriptors) {
+		if (command.name === 'build') {
+			command.summary = buildSummary
+		}
+	}
+	for (const command of metadata.catalog.orchestration) {
+		if (command.name === 'build') {
+			command.summary = buildSummary
+		}
+	}
 	metadata.boundaries = metadata.boundaries.filter((value) => !value.includes('launch permission'))
 	metadata.boundaries.push(
 		'App-control commands attach to an explicitly started xplat dev server. They do not start servers, launch applications, install apps, or terminate human-owned processes.',

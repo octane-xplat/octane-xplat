@@ -22,7 +22,7 @@ func (capture *historyCapture) observeNativeScriptIdentity(line string, truncate
 	if capture.closed || (capture.session.Platform != "ios" && capture.session.Platform != "android") {
 		return nil
 	}
-	match := nativeScriptSyncIdentity.FindStringSubmatch(strings.TrimSpace(runtimeANSI.ReplaceAllString(line, "")))
+	match := nativeScriptSyncIdentity.FindStringSubmatch(strings.TrimSpace(devANSI.ReplaceAllString(line, "")))
 	if len(match) != 3 || len(match[1]) > 255 || (match[2] != capture.session.TargetID && strings.TrimSuffix(match[2], ".") != capture.session.TargetID) {
 		return nil
 	}

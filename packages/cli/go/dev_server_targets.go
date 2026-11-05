@@ -10,6 +10,26 @@ import (
 	"sync"
 )
 
+func init() {
+	for _, name := range []string{"interact", "inspect", "targets", "session list", "session status", "session attach", "actions list", "actions invoke", "actions status"} {
+		commandHandlers[name] = func(ctx context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
+			return devAppRequest(ctx, workspace, name, values)
+		}
+	}
+}
+
+func devSelectedApp(workspace *workspaceContext) (*appIdentity, *cliError) {
+	selection := workspace.selection()
+	if selection.State != "bound" {
+		code := "invalid_selection"
+		if selection.State == "ambiguous" {
+			code = "ambiguous_selection"
+		}
+		return nil, &cliError{Code: code, Message: "Development work needs an explicit app binding.", Recovery: map[string]string{"action": "Select an app with --app or `xplat app select`."}}
+	}
+	return selection.App, nil
+}
+
 type devTargetProgress struct {
 	target    devTarget
 	state     string
@@ -57,13 +77,13 @@ func (view *devTargetView) observe(id, kind string, nativeSidecar bool, record h
 	if nativeSidecar {
 		return
 	}
-	line := runtimeANSI.ReplaceAllString(record.Line, "")
-	if match := runtimeLocalURL.FindString(line); match != "" {
+	line := devANSI.ReplaceAllString(record.Line, "")
+	if match := devLocalURL.FindString(line); match != "" {
 		if view.apps != nil {
 			view.apps.allowOrigin(id, match)
 		}
 		view.update(id, "ready", "engine-reported", "The engine reported an HTTP endpoint; app debug attachment is separate.")
-	} else if kind != "web" && runtimeReadyLine.MatchString(line) {
+	} else if kind != "web" && devReadyLine.MatchString(line) {
 		view.update(id, "ready", "engine-reported", "The engine reported readiness; no app debug connection is inferred.")
 	}
 }

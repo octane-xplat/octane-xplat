@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"sync"
 	"testing"
-	"time"
 
 	"golang.org/x/sys/windows"
 )
@@ -29,30 +28,7 @@ func exclusiveTestFile(t *testing.T, path string) func() {
 	return close
 }
 
-func TestWindowsSharingProfileCleanupAndServiceObservation(t *testing.T) {
-	t.Run("profile waits for sharing release", func(t *testing.T) {
-		profile := filepath.Join(t.TempDir(), "profile")
-		if err := os.Mkdir(profile, 0700); err != nil {
-			t.Fatal(err)
-		}
-		close := exclusiveTestFile(t, filepath.Join(profile, "database"))
-		done := make(chan error, 1)
-		go func() { done <- removeRuntimeBrowserProfile(profile) }()
-		select {
-		case err := <-done:
-			t.Fatalf("cleanup returned before exclusive handle release: %v", err)
-		case <-time.After(100 * time.Millisecond):
-		}
-		close()
-		select {
-		case err := <-done:
-			if err != nil || pathExists(profile) {
-				t.Fatal("profile cleanup did not complete", err)
-			}
-		case <-time.After(5 * time.Second):
-			t.Fatal("profile cleanup did not join")
-		}
-	})
+func TestWindowsSharingServiceObservation(t *testing.T) {
 	t.Run("startup sharing is pending, malformed JSON is not", func(t *testing.T) {
 		root := t.TempDir()
 		path := filepath.Join(root, "service.json")

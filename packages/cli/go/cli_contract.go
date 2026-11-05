@@ -57,14 +57,6 @@ func requiresFailureEvidence(err error) bool {
 	if errors.As(err, &devCleanup) {
 		return true
 	}
-	var sessionCleanup *runtimeSessionCleanupError
-	if errors.As(err, &sessionCleanup) {
-		return true
-	}
-	var ownerCleanup *ownerStartupCleanupError
-	if errors.As(err, &ownerCleanup) {
-		return true
-	}
 	var mutation *workspaceMutationError
 	if errors.As(err, &mutation) {
 		return true

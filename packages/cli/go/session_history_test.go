@@ -38,6 +38,14 @@ func appendHistory(t *testing.T, capture *historyCapture, line string) {
 	}
 }
 
+func updateHistoryMetadata(capture *historyCapture, state, detail string) error {
+	capture.Lock()
+	defer capture.Unlock()
+	capture.session.State = state
+	capture.session.Detail = detail
+	return historyMetadata(capture.root, capture.session)
+}
+
 func TestHistoryOwnershipAndCleanupEvidence(t *testing.T) {
 	store := testHistoryStore(t)
 	capture := testHistoryCapture(t, store)
@@ -48,7 +56,7 @@ func TestHistoryOwnershipAndCleanupEvidence(t *testing.T) {
 	if observedHistorySession(initial, "different-owner")["historical"] != true || observedHistorySession(initial, initial.OwnerID)["historical"] != false {
 		t.Fatal("recorded PID must not confer live ownership")
 	}
-	if err = capture.Update("ready", "Engine evidence recorded."); err != nil {
+	if err = updateHistoryMetadata(capture, "ready", "Engine evidence recorded."); err != nil {
 		t.Fatal(err)
 	}
 	if err = capture.Finish("failed", "Process cleanup could not be confirmed.", false); err != nil {
@@ -351,7 +359,7 @@ func TestHistoryConcurrentReaderSnapshots(t *testing.T) {
 		if err := capture.Append(historyRecord{Stream: "stdout", Line: "concurrent output"}); err != nil {
 			t.Fatal(err)
 		}
-		if err := capture.Update("ready", "Concurrent metadata snapshot."); err != nil {
+		if err := updateHistoryMetadata(capture, "ready", "Concurrent metadata snapshot."); err != nil {
 			t.Fatal(err)
 		}
 	}

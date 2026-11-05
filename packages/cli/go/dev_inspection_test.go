@@ -48,7 +48,7 @@ func TestDevAppInspectionRoundTripAndEvidence(t *testing.T) {
 	if value["documentId"] != "doc_fixture" || value["coverage"] != namedHostCoverage {
 		t.Fatal(value)
 	}
-	list, err := service.evidenceCommand("evidence list", map[string]any{})
+	list, err := service.evidenceOperation(service.server.ctx, "evidence list", map[string]any{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,10 +60,10 @@ func TestDevAppInspectionRoundTripAndEvidence(t *testing.T) {
 		ID string `json:"id"`
 	}
 	_ = json.Unmarshal(records[0], &record)
-	if _, err := service.evidenceCommand("evidence delete", map[string]any{"id": record.ID}); err != nil {
+	if _, err := service.evidenceOperation(service.server.ctx, "evidence delete", map[string]any{"id": record.ID}); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := service.evidenceCommand("evidence delete", map[string]any{"id": record.ID}); err == nil || err.Code != "not_found" {
+	if _, err := service.evidenceOperation(service.server.ctx, "evidence delete", map[string]any{"id": record.ID}); err == nil || err.Code != "not_found" {
 		t.Fatal(err)
 	}
 }

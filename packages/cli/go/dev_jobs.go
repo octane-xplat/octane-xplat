@@ -10,13 +10,13 @@ import (
 	"time"
 )
 
-// Foreground dev and retained probe owners share the same tested job lifecycle;
-// this interface does not authorize detached bootstrap or process launch.
+// The dev server's job registry admits work only through this lifecycle;
+// it does not authorize detached bootstrap or process launch.
 type runtimeJobOwner interface {
 	admit() (context.Context, func(error), error)
 }
 
-// Explicit provider facts survive a concurrent owner cancellation.
+// Explicit provider facts survive a concurrent dev server shutdown.
 type confirmedOperationResult struct {
 	Result any
 	State  string
@@ -94,11 +94,11 @@ func (registry *runtimeJobs) start(input runtimeJobInput, run runtimeJobRun) (ru
 		}
 	}
 	if registry.live >= registry.liveLimit {
-		return runtimeJob{}, false, &cliError{Code: "unavailable", Message: "Native owner has reached its live job limit; wait for existing work or cancel a job."}
+		return runtimeJob{}, false, &cliError{Code: "unavailable", Message: "The dev server has reached its live job limit; wait for existing work to finish."}
 	}
 	parent, release, err := registry.owner.admit()
 	if err != nil {
-		return runtimeJob{}, false, ownerDisconnected("Native owner is retiring; no job was started.")
+		return runtimeJob{}, false, devServerUnavailable("The dev server is stopping; no job was started.")
 	}
 	ctx, cancel := context.WithCancel(parent)
 	entry := &runtimeJobEntry{input: input, cancel: cancel, done: make(chan struct{}), job: runtimeJob{
@@ -140,9 +140,8 @@ func (registry *runtimeJobs) run(ctx context.Context, entry *runtimeJobEntry, ru
 		}
 		registry.mu.Lock()
 		var processCleanup *processCleanupError
-		var startupCleanup *ownerStartupCleanupError
-		var sessionCleanup *runtimeSessionCleanupError
-		cleanupUnknown := panicked || errors.As(failure, &processCleanup) || errors.As(failure, &startupCleanup) || errors.As(failure, &sessionCleanup)
+		var devCleanup *devServerCleanupError
+		cleanupUnknown := panicked || errors.As(failure, &processCleanup) || errors.As(failure, &devCleanup)
 		var unknown *operationOutcomeFailure
 		switch {
 		case authoritative && failure == nil:
@@ -226,20 +225,6 @@ func (registry *runtimeJobs) status(appID, appRoot, id string) (runtimeJob, *cli
 	entry, failure := registry.selected(appID, appRoot, id)
 	if failure != nil {
 		return runtimeJob{}, failure
-	}
-	return snapshotRuntimeJob(entry.job), nil
-}
-
-func (registry *runtimeJobs) cancel(appID, appRoot, id string) (runtimeJob, *cliError) {
-	registry.mu.Lock()
-	defer registry.mu.Unlock()
-	entry, failure := registry.selected(appID, appRoot, id)
-	if failure != nil {
-		return runtimeJob{}, failure
-	}
-	if runtimeJobLive(entry.job.State) {
-		entry.job.State = "cancelling"
-		entry.cancel()
 	}
 	return snapshotRuntimeJob(entry.job), nil
 }
