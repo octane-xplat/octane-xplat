@@ -43,7 +43,7 @@ func (failure *devServerCleanupError) Unwrap() error { return failure.Err }
 var devServerCommands = map[string]bool{
 	"targets": true, "session attach": true,
 	"session list": true, "session status": true, "diagnostics": true,
-	"inspect": true, "interact": true, "capture": true,
+	"inspect": true, "interact": true,
 	"evidence list": true, "evidence retain": true, "evidence delete": true,
 	"actions list": true, "actions invoke": true, "actions status": true,
 }

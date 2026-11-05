@@ -304,7 +304,9 @@ bindings to make room for replay. Keys/receipts do not survive dev-server restar
 
 There is no detach command: clients simply finish or disconnect. The former Go
 `session start/end`, `runtime build`, `job status/cancel` and hidden `_owner`
-entry are absent. Ordinary build and typecheck remain foreground operations.
+entry are absent. `capture` is absent too: it captured a CLI-owned Chromium
+viewport, and attached clients own no browser. The `screenshot` capability
+reports unavailable. Ordinary build and typecheck remain foreground operations.
 
 ```sh
 /absolute/path/to/xplat-go build --targets web

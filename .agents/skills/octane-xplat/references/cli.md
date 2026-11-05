@@ -75,9 +75,10 @@ for macOS captures with recorded identity. Candidate bundle/time matches are not
 confirmed process ownership. Diagnostics preserves report coverage gaps without
 hiding logs. NativeScript package identity is captured only from selected-device SDK sync
 output, without PID or readiness claims. Android exit-history reads are scoped to
-that package/device and retain candidate records, not full traces. Mobile identity,
-iOS parsing and Android collection have unit/reference evidence; device runtime
-qualification is still pending. A failed device setup is not a runtime pass. Read-only browser inspection uses the
+that package/device and retain candidate records, not full traces. Android
+exit-record collection passes on a real API 35 emulator; NativeScript identity
+ingestion and iOS simulator report collection have only unit/reference evidence.
+A failed device setup is not a runtime pass. Read-only browser inspection uses the
 connected app's fixed named-host inspector and per-document identity. It redacts
 private values and never focuses controls, dispatches input or starts a browser.
 Evidence list/delete combine bounded current-session records and explicitly retained
@@ -90,8 +91,10 @@ not CDP or OS input. Require document/selector/request key, then inspect state
 separately. A repeated identical key returns the original delivery receipt; never
 change its binding or automatically use a new key after unknown effects. Admission
 outlives the HTTP client and observations are bounded. Receipts are limited to 256
-keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input,
-visual capture remains unsupported; explicit retention currently covers text records only.
+keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input
+remains unsupported. The Go CLI has no `capture` command (the TypeScript CLI's
+owned-Chromium capture has no equivalent under attach-only clients); explicit
+retention currently covers text records only.
 
 ```sh
 /absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json

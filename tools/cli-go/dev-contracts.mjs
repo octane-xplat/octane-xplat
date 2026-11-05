@@ -8,6 +8,8 @@ export function goDevContracts(source) {
 		'job cancel',
 		'session start',
 		'session end',
+		// Captured the owned Chromium viewport; the attach model owns no browser.
+		'capture',
 	])
 	const summaries = {
 		targets: 'List targets and app connections registered with the running dev server',
@@ -306,6 +308,15 @@ export function goDevContracts(source) {
 		if (command.name === 'build') {
 			command.summary = buildSummary
 		}
+	}
+	const capabilitiesSummary =
+		'Per-platform capability matrix: build, attachment, inspection, actions, interaction, and screenshot are separate rows with honest status'
+	for (const command of [
+		...metadata.descriptors.filter(({ name }) => name === 'capabilities'),
+		...metadata.catalog.commands.filter(({ command }) => command === 'capabilities'),
+		metadata.schemas.capabilities,
+	]) {
+		command.summary = capabilitiesSummary
 	}
 	metadata.boundaries = metadata.boundaries.filter((value) => !value.includes('launch permission'))
 	metadata.boundaries.push(

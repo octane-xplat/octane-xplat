@@ -117,7 +117,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				}
 			case "screenshot":
 				entry["requiresPermission"] = "visual-capture"
-				entry["detail"] = "The Go screenshot provider is pending. Capture requires explicit per-task developer approval when supported."
+				entry["detail"] = "The Go CLI has no capture command; the owned-browser capture contract was removed with agent-owned app launch. Capture would require explicit per-task developer approval if reintroduced."
 			}
 			entries = append(entries, entry)
 		}

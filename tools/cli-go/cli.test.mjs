@@ -138,13 +138,14 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
 		23,
 	)
-	assert.equal(catalog.value.data.commands.length, 25)
+	assert.equal(catalog.value.data.commands.length, 24)
 	for (const removed of [
 		'runtime build',
 		'job status',
 		'job cancel',
 		'session start',
 		'session end',
+		'capture',
 	]) {
 		assert.ok(!catalog.value.data.commands.some((command) => command.command === removed))
 	}
