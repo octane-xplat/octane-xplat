@@ -40,5 +40,26 @@ namespace OctaneXplat.Interop
                 return "fail:" + e.GetType().Name + ":" + e.Message;
             }
         }
+
+        // The projected JS picker cannot cross the bridge as an RCW
+        // (dotnet.invoke marshals it as System.String), so the pick runs
+        // entirely in-process: construct + owner init + await here, and only
+        // strings cross. Returns "ok:<path>" / "cancelled" / "fail:<info>".
+        public static async System.Threading.Tasks.Task<string> PickSingleJson(long hwnd, string filter)
+        {
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.FileTypeFilter.Add(string.IsNullOrEmpty(filter) ? "*" : filter);
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                var file = await picker.PickSingleFileAsync();
+                return file == null ? "cancelled" : "ok:" + file.Path;
+            }
+            catch (Exception e)
+            {
+                return "fail:" + e.GetType().Name + ":" + e.Message;
+            }
+        }
     }
 }

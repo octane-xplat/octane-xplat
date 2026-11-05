@@ -1081,58 +1081,27 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   // (compiled into the app assembly via App_Resources\Windows\Interop)
   // takes (object picker, long hwnd) — both marshal cleanly.
   if (hwnd !== null && typeof dotnet?.invoke === 'function') {
-    // The picker's JS proxy marshals to managed code as System.String — the
-    // bridge only materializes an RCW when the runtime writes a WinRtRef arg.
-    // Sweep the candidate carriers (tracked handle / handleOf wrappers) to
-    // find which one crosses as a real object.
-    const carriers: Array<[string, unknown]> = [['picker', picker]]
-    try { carriers.push(['picker.handle', (picker as { handle?: unknown }).handle]) } catch {}
+    // Projected WinRT objects cannot cross dotnet.invoke (they marshal as
+    // System.String), so the whole pick runs managed-side: the helper
+    // constructs FileOpenPicker, initializes its owner HWND, and awaits —
+    // only strings cross. timeout-pending here means a real dialog is open.
     try {
-      const h = interop?.handleOf?.(picker)
-      carriers.push(['handleOf', h])
-      carriers.push(['handleOf.handle', (h as { handle?: unknown } | null)?.handle])
-    } catch {}
-    try { carriers.push(['dotnet.wrap', dotnet.wrap?.(picker)]) } catch {}
-    try { carriers.push(['interop.pointer', interop?.pointer?.(picker)]) } catch {}
-    const describeAttempts: string[] = []
-    let carrier: unknown = null
-    let carrierName = ''
-    for (const [name, candidate] of carriers) {
-      if (candidate === undefined || candidate === null) continue
-      try {
-        const desc = dotnet.invoke('', 'OctaneXplat.Interop.ServiceInterop', 'Describe', [candidate])
-        describeAttempts.push(`${name}=${String(desc)}`)
-        if (typeof desc === 'string' && !desc.startsWith('System.String') && desc !== 'null' && !carrier) {
-          carrier = candidate
-          carrierName = name
-        }
-      } catch (error) {
-        describeAttempts.push(`${name}: ${error instanceof Error ? error.message : String(error)}`)
-      }
-    }
-    out.describeAttempts = describeAttempts
-    out.carrier = carrierName || null
-    if (carrier !== null) {
-      const initAttempts: string[] = []
-      for (const asm of ['', 'windows', 'app']) {
-        try {
-          const result = dotnet.invoke(
-            asm,
-            'OctaneXplat.Interop.ServiceInterop',
-            'InitializeWithWindow',
-            [carrier, hwnd],
-          )
-          initAttempts.push(`${asm || 'auto'}: ${String(result)}`)
-          if (typeof result === 'string' && result.startsWith('ok')) {
-            out.initVia = asm || 'auto'
-            out.initialized = true
-            break
-          }
-        } catch (error) {
-          initAttempts.push(`${asm || 'auto'}: ${error instanceof Error ? error.message : String(error)}`)
-        }
-      }
-      out.initAttempts = initAttempts
+      const task = dotnet.invoke('', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleJson', [hwnd, '*'])
+      out.managedTaskType = typeof task
+      const managed = typeof dotnet.taskToPromise === 'function' ? dotnet.taskToPromise(task) : task
+      const result = await Promise.race([
+        Promise.resolve(managed)
+          .then((v: unknown) => ({ managedResult: String(v) }))
+          .catch((error: unknown) => ({
+            managedError: error instanceof Error ? error.message : String(error),
+          })),
+        new Promise<{ managedResult: string }>((resolve) =>
+          setTimeout(() => resolve({ managedResult: 'timeout-pending' }), 8000),
+        ),
+      ])
+      Object.assign(out, result)
+    } catch (error) {
+      out.managedError = error instanceof Error ? error.message : String(error)
     }
   }
   try {
