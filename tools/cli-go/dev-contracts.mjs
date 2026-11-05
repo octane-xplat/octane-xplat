@@ -1,0 +1,86 @@
+// The Go migration deliberately replaces agent-owned launch/build sessions.
+// Curate this at build time; keep the retained TypeScript CLI unchanged.
+export function goDevContracts(source) {
+	const metadata = JSON.parse(JSON.stringify(source))
+	const removed = new Set([
+		'runtime build',
+		'job status',
+		'job cancel',
+		'session start',
+		'session end',
+	])
+	const summaries = {
+		targets: 'List targets and app connections registered with the running dev server',
+		'session attach': 'Attach an observer to an app already connected to xplat dev',
+		'session list': 'List app instances connected to the running dev server',
+		'session status': 'Read an existing app instance without starting or ending it',
+	}
+	metadata.descriptors = metadata.descriptors
+		.filter(({ name }) => !removed.has(name))
+		.map((descriptor) => {
+			const name = descriptor.name
+			if (!summaries[name]) return descriptor
+			return {
+				...descriptor,
+				name,
+				path: name.split(' '),
+				context: 'app',
+				effect: 'observe',
+				summary: summaries[name],
+				permissions: [],
+			}
+		})
+	const schema = (original) => {
+		const name = original.command
+		if (!summaries[name]) return original
+		return {
+			...original,
+			command: name,
+			summary: summaries[name],
+			effect: 'observe',
+			permissions: [],
+			requiresBoundApp: true,
+		}
+	}
+	metadata.schemas = Object.fromEntries(
+		Object.entries(metadata.schemas)
+			.filter(([name]) => !removed.has(name))
+			.map(([name, value]) => [name, schema(value)]),
+	)
+	metadata.catalog.commands = metadata.catalog.commands
+		.filter(({ command }) => !removed.has(command))
+		.map(schema)
+	metadata.capabilityIds = metadata.capabilityIds.filter(
+		(name) => !['launch', 'job_control', 'session_end'].includes(name),
+	)
+	const devSummary = 'Explicitly start the app dev server and selected development engines'
+	for (const command of metadata.orchestrationDescriptors) {
+		if (command.name !== 'dev') continue
+		command.summary = devSummary
+		command.flags.push(
+			{
+				flag: 'project',
+				type: 'string',
+				desc: 'Workspace or app directory; defaults to the nearest package from cwd',
+			},
+			{
+				flag: 'app',
+				type: 'string',
+				desc: 'Explicit app id, path or name; required when workspace selection is ambiguous',
+			},
+			{
+				flag: 'client',
+				type: 'string',
+				desc: 'Saved app-selection preference namespace; not an authentication identity',
+			},
+		)
+	}
+	for (const command of metadata.catalog.orchestration) {
+		if (command.name === 'dev') command.summary = devSummary
+	}
+	metadata.boundaries = metadata.boundaries.filter((value) => !value.includes('launch permission'))
+	metadata.boundaries.push(
+		'App-control commands attach to an explicitly started xplat dev server. They do not start servers, launch applications, install apps, or terminate human-owned processes.',
+	)
+	return metadata
+}

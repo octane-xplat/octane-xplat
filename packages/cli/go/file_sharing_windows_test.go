@@ -77,3 +77,20 @@ func TestWindowsSharingProfileCleanupAndServiceObservation(t *testing.T) {
 		}
 	})
 }
+
+func TestWindowsRetainedLogReadRetriesSharingWithoutHidingPersistentFailure(t *testing.T) {
+	path := t.TempDir()
+	root, err := os.OpenRoot(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer root.Close()
+	close := exclusiveTestFile(t, filepath.Join(path, "previous.jsonl"))
+	if _, err := historyLogFile(root, "previous.jsonl"); err == nil {
+		t.Fatal("persistent exclusive access became a successful empty log")
+	}
+	close()
+	if _, err := historyLogFile(root, "previous.jsonl"); err != nil {
+		t.Fatal("log read did not recover after sharing release", err)
+	}
+}

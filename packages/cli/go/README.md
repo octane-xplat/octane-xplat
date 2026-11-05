@@ -82,107 +82,55 @@ lines with a diagnostic; retained logs have separate bounds and failure reportin
 Host spawn alone does not imply application readiness. SDK command construction
 and compilation do not establish device runtime or Windows console qualification.
 
-Persistent session start/list/status/end and target ownership are now native. The history store preserves Node
-pagination, discloses rotation/incomplete tails and keeps cleanup confirmation
-separate from stopped state or stored PIDs. Foreground captures do not register a
-live persistent-owner session or grant authority to signal stored PIDs.
-
-The internal owner uses generation-bound loopback RPC and separate kernel claims
-for bootstrap, owner lifetime and staged launch. `agent_owner_client.go` performs
-read-only lookup without creating missing state, bypasses ambient proxies, refuses
-redirects and validates project/protocol/generation before sending its private
-token. `agent_owner_launch.go` creates the detached process; `agent_owner_entry.go`
-handles the private `_owner` entry; `agent_owner_cache.go` owns bounded staging and
-collection. Both upgrade and owner startup share the checked executable copier.
-
-The creator transfers ownership through a private pipe, preserving caller stdin.
-Before handoff, creator loss cancels startup and no resource operation is admitted.
-After handoff can be observed, ordinary client exit cannot kill the owner. The
-owner runs from a readback-verified private image, pinning later containment helpers
-across replacement of the original executable. One stage remains per workspace
-until the owner retires and the next creation/collection reclaims it; this is disk
-cache cost, separate from download size. `XPLAT_AGENT_HOST_IDLE_MS` defaults to
-120000 and accepts integers from 250 to 86400000; live operations prevent idle
-retirement. Windows creation requests Job breakaway and fails when host policy
-forbids it. Pipe/Job qualification does not establish console Ctrl-C.
-
-| Owner phase | Allowed behavior | Cleanup authority |
-| --- | --- | --- |
-| Preparing | Private image staging and authenticated maintenance | Retained creator process handle |
-| Unadopted | Ping/shutdown; no resource admission | Private pipe EOF cancels startup |
-| Adopted | Registered operations outlive individual clients | Live authenticated owner |
-| Retiring | Admission closed; await operations and handlers | Owner awaits cleanup before checkpoint |
-| Cleanup unknown | Preserve descriptor and resources | Explicit safe recovery; never cached PID takeover |
-| Retired | Read lookup is empty; confirmed stage may be collected | Held bootstrap/global/launch claims |
-
-`runtime_jobs.go` owns admitted asynchronous jobs inside each native owner. It
-serializes request-key deduplication across app/root/platform/operation/session,
-retains live work through cancellation until the runner returns, and bounds live
-jobs (64), completed history (200), progress (16 KiB), results (256 KiB) and error
-detail (64 KiB). Returned snapshots cannot mutate live state. Failed process cleanup
-or a provider panic preserves unknown owner cleanup; partial publication remains a
-failed job without implying a live resource leak. The real managed-descendant gate
-uses this registry through owner RPC and awaits group/Job teardown on shutdown.
-
-Public `runtime build`, `job status` and `job cancel` now use that owner. Each
-request revalidates the selected app/root and its grants. Build engines receive the
-invoking client's explicit Node path and environment, with Node preloads and agent
-policy variables removed. Credentials/environment values are transient, never job
-metadata or dedupe keys. Builds have a 30-minute operation deadline and use the
-same native output lease as foreground project commands. Status/cancel do not need
-Node and never start an absent owner. Live request keys dedupe only within the same
-app/root/platform/operation/session; completed keys may run again.
+Foreground `dev` publishes a private discovery record keyed by the canonical app
+directory. Humans or explicitly instructed agents can start it. Other CLI clients
+normally connect to that existing server; reads never start a missing server,
+launch an app/browser, or terminate a human-owned app. Disconnecting a short-lived
+client leaves development engines running.
 
 ```sh
-/absolute/path/to/xplat-go runtime build --platform web --project /work/app --app . --request-key build-1 --json
-/absolute/path/to/xplat-go job status job_ID --project /work/app --app . --json
-/absolute/path/to/xplat-go job cancel job_ID --project /work/app --app . --json
+# Explicit start, from the selected app or with workspace selection:
+/absolute/path/to/xplat-go dev --project /work/repo --app apps/web --targets web
+# Separate terminal; nested cwd and symlink aliases resolve the same app:
+/absolute/path/to/xplat-go targets --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go session list --project /work/repo --app apps/web --json
 ```
 
-The accepted job is asynchronous. Poll its state until succeeded, failed or
-cancelled; cancellation does not finish until native group/Job cleanup does.
-Successful results and failed job errors include a bounded completed-process
-stdout/stderr tail. Full live diagnostics/session/action/evidence providers remain
-pending. A build engine's availability does not qualify its platform SDK or device.
-A missing selected-project engine becomes a prerequisite error on the accepted job;
-no global package or old CLI supplies it. Build identity preserves dirty Git state.
+One dev server owns the foreground engines for an app directory. Separate
+worktrees have separate identities; ambiguous workspace roots require `--app`.
+The discovery record lives in current-user-only cache storage outside the app.
+Each explicit start creates a fresh instance and credential. Clients verify both
+app and instance over authenticated loopback HTTP, reject redirects, and bypass
+ambient proxies. Ordinary RPC rejects browser-origin requests. No login or agent
+registration is involved; the credential authorizes the same local user.
 
-Session attach and the remaining diagnostics/control/evidence/action services remain pending. The primitive
-probe host is separate. Qualify actual detached startup/handoff through the public
-CLI entry, independently from in-process transport tests. A different CLI binary
-cannot silently create work through an older owner's image; final live-registry
-integration must reconcile old-owner retirement during upgrades.
+`dev_server_record.go` owns discovery and its stable lifetime lock;
+`dev_server_http.go` owns bounded versioned requests and authenticated lookup.
+The foreground caller holds the claim until engines and request handlers finish
+cleanup. A missing, dead or stale record reports `disconnected_runtime`; it does
+not authorize automatic startup. Never use descriptive cached PIDs as signal
+authority. `XPLAT_DEV_CACHE` can select an isolated cache parent for tests.
 
-
-`targets` discovers only declared, host-eligible targets and overlays authenticated
-live claims without starting an owner. `session start` claims its target before
-launching a project engine; pending compatible requests dedupe, while a ready or
-cleanup-unconfirmed target is busy. Owned sessions share one kernel output lease
-per app inside that owner. Foreground project mutations remain excluded while any
-owned session uses the app. Browser modes launch a discovered Chromium in its own
-private profile; no browser is downloaded. Without Chromium, HTTP serving remains
-available and browser-side inspection is explicitly unavailable.
+The target response distinguishes an engine's reported readiness from connected
+app instances. **App debug WebSocket registration, attachment and live control
+remain pending.** An engine URL or native host spawn does not establish app-code
+readiness. Session listing currently reports no connected app instances, and
+status returns not found. There is no new detach command: clients simply finish
+or disconnect. The former Go `session start/end`, `runtime build`, `job status`
+and `job cancel` surface and hidden `_owner` entry have been removed. Ordinary
+explicit `build` and `typecheck` remain foreground operations.
 
 ```sh
-/absolute/path/to/xplat-go targets --project /work/app --app . --json
-/absolute/path/to/xplat-go session start web --project /work/app --app . --json
-/absolute/path/to/xplat-go session status sess_ID --project /work/app --app . --json
-/absolute/path/to/xplat-go session end sess_ID --project /work/app --app . --json
+/absolute/path/to/xplat-go build --targets web
+/absolute/path/to/xplat-go typecheck
 ```
 
-Readiness is scoped: `http-confirmed`, `engine-reported` or `host-spawned`. A native
-host spawn does not prove application initialization. Status/list merge immutable
-live snapshots with retained native history, marking old owners' data historical.
-These reads need no Node and create no absent caches or owner. Cleanup uses the
-registered binding, so edited/removed app metadata cannot trap an owned session.
-Ending awaits engine/browser/resource cleanup before confirming completion.
-
-The registry bounds live sessions and completed memory records to 64 each. Logs
-use the existing bounded history store. New session directories are claimed
-atomically. Project lease contents retain a generation-bound cleanup witness;
-released kernel locks do not clear it after failure/crash. Current Go project
-commands reject that witness until cleanup is confirmed. Never delete a lock file
-to bypass ownership. This is independent of retained PIDs, which authorize no signals.
+The previous detached-owner implementation is preserved in local checkpoint
+`14a7117c`. Its source is temporarily retained for reusable process/history
+primitives; it is unreachable from the Go production entry. Its browser lifecycle
+qualification is superseded by the explicitly started dev-server architecture,
+not evidence that the new app-debug workflow is complete. TypeScript and Nim
+remain unchanged behavioral references except for these approved scope changes.
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes

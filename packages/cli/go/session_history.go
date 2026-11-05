@@ -170,6 +170,19 @@ func historyFile(root *os.Root, name string, limit int64) ([]byte, error) {
 	}
 	return data, nil
 }
+
+// Retry a transient Windows delete-pending/sharing window without concealing a
+// persistent access failure or returning an empty successful page.
+func historyLogFile(root *os.Root, name string) ([]byte, error) {
+	for attempt := 0; ; attempt++ {
+		data, err := historyFile(root, name, historySegmentBytes)
+		if !historyReadMayBeRotating(err) || attempt == 5 {
+			return data, err
+		}
+		time.Sleep(2 * time.Millisecond)
+	}
+}
+
 func historyMetadata(root *os.Root, session historySession) error {
 	data, err := json.Marshal(session)
 	if err != nil {
@@ -608,7 +621,7 @@ func (store *historyStore) Logs(id, owner string, cursor *int64, limit int, stre
 	// Rotation may happen between reads. Re-read previous and deduplicate stable
 	// sequence identities, preserving a readable prefix of an incomplete final line.
 	for _, name := range []string{"previous.jsonl", "current.jsonl", "previous.jsonl"} {
-		data, err := historyFile(root, name, historySegmentBytes)
+		data, err := historyLogFile(root, name)
 		if os.IsNotExist(err) {
 			continue
 		}

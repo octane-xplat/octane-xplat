@@ -45,6 +45,7 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
 		private: true,
 		type: 'module',
 		packageManager: 'bun@1.4.4',
+		xplat: { targets: { web: {} } },
 		...(multi
 			? { scripts: { dev: 'node fail.mjs' }, xplat: { targets: { linux: { runtime: 'gtk' } } } }
 			: {}),
@@ -189,97 +190,195 @@ async function until(check, evidence, timeout = 30000) {
 test('main dev publishes initial routes before Vite and recovers later invalid configuration', async () => {
 	const f = fixture()
 	const cliPackage = join(f.app, 'node_modules/@octane-xplat/cli')
-	mkdirSync(dirname(cliPackage), {recursive:true})
-	symlinkSync(realpathSync(join(tools.nodeModules, '@octane-xplat/cli')), cliPackage, process.platform === 'win32' ? 'junction' : 'dir')
+	mkdirSync(dirname(cliPackage), { recursive: true })
+	symlinkSync(
+		realpathSync(join(tools.nodeModules, '@octane-xplat/cli')),
+		cliPackage,
+		process.platform === 'win32' ? 'junction' : 'dir',
+	)
 	put(f.app, 'app/index.tsx', 'export default () => null')
 	const config = readFileSync(join(f.app, 'vite.config.mjs'), 'utf8')
-	put(f.app, 'vite.config.mjs', "import {existsSync} from 'node:fs';if(!existsSync('routes.gen.manifest.json'))throw Error('routes missing before engine');"+config)
-	const child = spawn(binary, ['dev','web'], {cwd:f.app,env:f.env,stdio:['ignore','pipe','pipe']})
+	put(
+		f.app,
+		'vite.config.mjs',
+		"import {existsSync} from 'node:fs';if(!existsSync('routes.gen.manifest.json'))throw Error('routes missing before engine');" +
+			config,
+	)
+	const child = spawn(binary, ['dev', 'web'], {
+		cwd: f.app,
+		env: f.env,
+		stdio: ['ignore', 'pipe', 'pipe'],
+	})
 	const exited = once(child, 'exit')
 	let output = ''
-	child.stdout.on('data', b => output += b)
-	child.stderr.on('data', b => output += b)
+	child.stdout.on('data', (b) => (output += b))
+	child.stderr.on('data', (b) => (output += b))
 	try {
-		await until(() => output.includes('DEV_TEST_LISTENING'), () => output)
-		const manifest = () => readFileSync(join(f.app,'routes.gen.manifest.json'),'utf8')
+		await until(
+			() => output.includes('DEV_TEST_LISTENING'),
+			() => output,
+		)
+		const manifest = () => readFileSync(join(f.app, 'routes.gen.manifest.json'), 'utf8')
 		const initial = manifest()
 		put(f.app, 'xplat.routes.json', '{bad')
-		await until(() => /routing config|invalid character|JSON/i.test(output), () => output)
+		await until(
+			() => /routing config|invalid character|JSON/i.test(output),
+			() => output,
+		)
 		assert.equal(manifest(), initial)
-		put(f.app, 'xplat.routes.json', {directory:'app'})
+		put(f.app, 'xplat.routes.json', { directory: 'app' })
 		put(f.app, 'app/added.tsx', 'export default () => null')
-		await until(() => manifest().includes('added'), () => output)
-		assert.equal(child.exitCode,null)
+		await until(
+			() => manifest().includes('added'),
+			() => output,
+		)
+		assert.equal(child.exitCode, null)
 	} finally {
 		child.kill('SIGTERM')
 		await exited
 	}
 })
-test('main dev macOS worker runs actual AppKit app code and cleans launch resources', {skip:process.platform !== 'darwin',timeout:180000}, async () => {
-	const f = fixture(), packs = join(scratch, 'macos-pack')
-	mkdirSync(packs)
-	const packed = spawnSync('bun',['pm','pack','--ignore-scripts','--destination',packs],{cwd:join(root,'packages/macos-build'),encoding:'utf8',timeout:30000})
-	assert.equal(packed.status,0,packed.stderr)
-	const archive = join(packs,readdirSync(packs).find(p=>p.endsWith('.tgz')))
-	const pkg = JSON.parse(readFileSync(join(f.app,'package.json')))
-	pkg.dependencies = {'@octane-xplat/macos-build':'file:'+archive, vite:tools.packages.vite, octane:'0.16.3','@nativescript/macos-node-api':'0.4.4-next.2026-08-09-31292056208'}
-	pkg.xplat = {targets:{macos:{runtime:'appkit-node-api',renderer:'appkit',dev:{viteConfig:'vite.config.mjs',bundleFile:'dist/main.cjs'},package:{productName:'Go dev fixture',bundleIdentifier:'org.octane.xplat.go-dev-fixture',executableName:'GoDevFixture',minimumSystemVersion:'13.5'}}}}
-	put(f.app,'package.json',pkg)
-	const installed = spawnSync('bun',['install','--ignore-scripts','--linker','isolated'],{cwd:f.app,encoding:'utf8',timeout:120000})
-	assert.equal(installed.status,0,installed.stderr)
-	put(f.app,'vite.config.mjs',`export default {build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`)
-	for(const mode of ['exit','cancel']) {
-		put(f.app,'main.js',`import '@nativescript/macos-node-api';const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`)
-		const child=spawn(binary,['dev','macos'],{cwd:f.app,env:f.env,stdio:['ignore','pipe','pipe']})
-		const exited=once(child,'exit')
-		let output=''
-		child.stdout.on('data',b=>output+=b)
-		child.stderr.on('data',b=>output+=b)
-		try {
-			await until(()=>output.includes('GO_DEV_APP_INITIALIZED'),()=>output,90000)
-			if(mode==='cancel')child.kill('SIGTERM')
-			const [code,signal]=await exited
-			assert.equal(signal,null,output)
-			assert.equal(code,mode==='exit'?0:143,output)
-			const records=sessions(f)
-			const record=records.find(r=>r.sessionId===output.match(/session (sess_[a-f0-9-]+)/)?.[1])
-			assert.ok(record,output)
-			assert.equal(record.cleanupConfirmed,true)
-			assert.equal(record.nativeIdentity.appId,'org.octane.xplat.go-dev-fixture')
-			for(const launch of record.nativeIdentity.processes) {
-				assert.equal(existsSync(launch.executable),false)
-				assert.throws(()=>process.kill(launch.pid,0),{code:'ESRCH'})
+test(
+	'main dev macOS worker runs actual AppKit app code and cleans launch resources',
+	{ skip: process.platform !== 'darwin', timeout: 180000 },
+	async () => {
+		const f = fixture(),
+			packs = join(scratch, 'macos-pack')
+		mkdirSync(packs)
+		const packed = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], {
+			cwd: join(root, 'packages/macos-build'),
+			encoding: 'utf8',
+			timeout: 30000,
+		})
+		assert.equal(packed.status, 0, packed.stderr)
+		const archive = join(
+			packs,
+			readdirSync(packs).find((p) => p.endsWith('.tgz')),
+		)
+		const pkg = JSON.parse(readFileSync(join(f.app, 'package.json')))
+		pkg.dependencies = {
+			'@octane-xplat/macos-build': 'file:' + archive,
+			vite: tools.packages.vite,
+			octane: '0.16.3',
+			'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
+		}
+		pkg.xplat = {
+			targets: {
+				macos: {
+					runtime: 'appkit-node-api',
+					renderer: 'appkit',
+					dev: { viteConfig: 'vite.config.mjs', bundleFile: 'dist/main.cjs' },
+					package: {
+						productName: 'Go dev fixture',
+						bundleIdentifier: 'org.octane.xplat.go-dev-fixture',
+						executableName: 'GoDevFixture',
+						minimumSystemVersion: '13.5',
+					},
+				},
+			},
+		}
+		put(f.app, 'package.json', pkg)
+		const installed = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
+			cwd: f.app,
+			encoding: 'utf8',
+			timeout: 120000,
+		})
+		assert.equal(installed.status, 0, installed.stderr)
+		put(
+			f.app,
+			'vite.config.mjs',
+			`export default {build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
+		)
+		for (const mode of ['exit', 'cancel']) {
+			put(
+				f.app,
+				'main.js',
+				`import '@nativescript/macos-node-api';const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
+			)
+			const child = spawn(binary, ['dev', 'macos'], {
+				cwd: f.app,
+				env: f.env,
+				stdio: ['ignore', 'pipe', 'pipe'],
+			})
+			const exited = once(child, 'exit')
+			let output = ''
+			child.stdout.on('data', (b) => (output += b))
+			child.stderr.on('data', (b) => (output += b))
+			try {
+				await until(
+					() => output.includes('GO_DEV_APP_INITIALIZED'),
+					() => output,
+					90000,
+				)
+				if (mode === 'cancel') child.kill('SIGTERM')
+				const [code, signal] = await exited
+				assert.equal(signal, null, output)
+				assert.equal(code, mode === 'exit' ? 0 : 143, output)
+				const records = sessions(f)
+				const record = records.find(
+					(r) => r.sessionId === output.match(/session (sess_[a-f0-9-]+)/)?.[1],
+				)
+				assert.ok(record, output)
+				assert.equal(record.cleanupConfirmed, true)
+				assert.equal(record.nativeIdentity.appId, 'org.octane.xplat.go-dev-fixture')
+				for (const launch of record.nativeIdentity.processes) {
+					assert.equal(existsSync(launch.executable), false)
+					assert.throws(() => process.kill(launch.pid, 0), { code: 'ESRCH' })
+				}
+			} finally {
+				if (child.exitCode === null && child.signalCode === null) {
+					child.kill('SIGTERM')
+					await exited
+				}
+				writeFileSync(join(work, `dev-macos-${mode}-output.txt`), output)
 			}
-		} finally {
-			if(child.exitCode===null && child.signalCode===null){child.kill('SIGTERM');await exited}
-			writeFileSync(join(work,`dev-macos-${mode}-output.txt`),output)
 		}
-	}
-})
+	},
+)
 
-test('POSIX main dev forwards SIGINT and cleans up after a broken stdout pipe', {skip:process.platform==='win32',timeout:60000}, async()=>{
-	for(const mode of ['interrupt','broken-pipe']) {
-		const f=fixture()
-		const base=readFileSync(join(f.app,'vite.config.mjs'),'utf8')
-		put(f.app,'vite.config.mjs',"import {writeFileSync} from 'node:fs';process.on('SIGINT',()=>{writeFileSync('saw-int','yes');process.exit(0)});const pulse=setInterval(()=>console.log('DEV_PULSE'),25);"+base)
-		const child=spawn(binary,['dev','web'],{cwd:f.app,env:f.env,stdio:['ignore','pipe','pipe']})
-		const exited=once(child,'exit')
-		let output=''
-		child.stdout.on('data',b=>output+=b)
-		child.stderr.on('data',b=>output+=b)
-		try {
-			await until(()=>output.includes('DEV_TEST_LISTENING'),()=>output)
-			if(mode==='interrupt')child.kill('SIGINT');else child.stdout.destroy()
-			const [code,signal]=await exited
-			assert.equal(signal,null,output)
-			assert.equal(code,mode==='interrupt'?130:141,output)
-			if(mode==='interrupt')assert.equal(readFileSync(join(f.app,'saw-int'),'utf8'),'yes')
-			const address=output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
-			assert.ok(address,output)
-			await assert.rejects(fetch(address))
-			assert.ok(sessions(f).every(r=>r.cleanupConfirmed))
-		} finally {
-			if(child.exitCode===null&&child.signalCode===null){child.kill('SIGTERM');await exited}
+test(
+	'POSIX main dev forwards SIGINT and cleans up after a broken stdout pipe',
+	{ skip: process.platform === 'win32', timeout: 60000 },
+	async () => {
+		for (const mode of ['interrupt', 'broken-pipe']) {
+			const f = fixture()
+			const base = readFileSync(join(f.app, 'vite.config.mjs'), 'utf8')
+			put(
+				f.app,
+				'vite.config.mjs',
+				"import {writeFileSync} from 'node:fs';process.on('SIGINT',()=>{writeFileSync('saw-int','yes');process.exit(0)});const pulse=setInterval(()=>console.log('DEV_PULSE'),25);" +
+					base,
+			)
+			const child = spawn(binary, ['dev', 'web'], {
+				cwd: f.app,
+				env: f.env,
+				stdio: ['ignore', 'pipe', 'pipe'],
+			})
+			const exited = once(child, 'exit')
+			let output = ''
+			child.stdout.on('data', (b) => (output += b))
+			child.stderr.on('data', (b) => (output += b))
+			try {
+				await until(
+					() => output.includes('DEV_TEST_LISTENING'),
+					() => output,
+				)
+				if (mode === 'interrupt') child.kill('SIGINT')
+				else child.stdout.destroy()
+				const [code, signal] = await exited
+				assert.equal(signal, null, output)
+				assert.equal(code, mode === 'interrupt' ? 130 : 141, output)
+				if (mode === 'interrupt') assert.equal(readFileSync(join(f.app, 'saw-int'), 'utf8'), 'yes')
+				const address = output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
+				assert.ok(address, output)
+				await assert.rejects(fetch(address))
+				assert.ok(sessions(f).every((r) => r.cleanupConfirmed))
+			} finally {
+				if (child.exitCode === null && child.signalCode === null) {
+					child.kill('SIGTERM')
+					await exited
+				}
+			}
 		}
-	}
-})
+	},
+)

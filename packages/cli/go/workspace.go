@@ -206,10 +206,7 @@ func preferencePath(root, client string) string {
 }
 func newWorkspaceContext(values map[string]any) (*workspaceContext, error) {
 	root := stringValue(values["project"])
-	if root == "" {
-		root = "."
-	}
-	root, err := filepath.Abs(root)
+	root, err := workspaceStartDirectory(root)
 	if err != nil {
 		return nil, err
 	}
@@ -249,7 +246,8 @@ func newWorkspaceContext(values map[string]any) (*workspaceContext, error) {
 func (ctx *workspaceContext) matches(selector string) []appIdentity {
 	result := []appIdentity{}
 	for _, app := range ctx.Discovery.Apps {
-		if app.ID == selector || app.RelativeRoot == selector || app.Name == selector {
+		if app.ID == selector || app.RelativeRoot == selector || app.Name == selector ||
+			filepath.Clean(app.RelativeRoot) == filepath.Clean(filepath.FromSlash(selector)) {
 			result = append(result, app)
 		}
 	}

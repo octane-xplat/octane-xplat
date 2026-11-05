@@ -73,18 +73,9 @@ type runtimeRequest struct {
 }
 
 func init() {
-	for name, method := range map[string]string{"runtime build": "runtime.build", "job status": "jobs.status", "job cancel": "jobs.cancel"} {
+	for _, name := range []string{"targets", "session list", "session status"} {
 		commandHandlers[name] = func(ctx context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
-			return runtimeCommand(ctx, workspace, method, values)
-		}
-	}
-	commandHandlers["targets"] = runtimeTargetsCommand
-	commandHandlers["session start"] = func(ctx context.Context, w *workspaceContext, v map[string]any) (any, *cliError) {
-		return runtimeCommand(ctx, w, "runtime.launch", v)
-	}
-	for name, method := range map[string]string{"session list": "sessions.list", "session status": "sessions.get", "session end": "sessions.end"} {
-		commandHandlers[name] = func(ctx context.Context, w *workspaceContext, v map[string]any) (any, *cliError) {
-			return runtimeSessionCommand(ctx, w, method, v)
+			return devAppRequest(ctx, workspace, name, values)
 		}
 	}
 }

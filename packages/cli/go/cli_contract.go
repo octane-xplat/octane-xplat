@@ -53,6 +53,10 @@ func (e *cliError) Error() string { return e.Message }
 func (e *cliError) Unwrap() error { return e.cause }
 
 func requiresFailureEvidence(err error) bool {
+	var devCleanup *devServerCleanupError
+	if errors.As(err, &devCleanup) {
+		return true
+	}
 	var sessionCleanup *runtimeSessionCleanupError
 	if errors.As(err, &sessionCleanup) {
 		return true

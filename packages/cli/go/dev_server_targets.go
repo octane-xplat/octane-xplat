@@ -1,0 +1,163 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sync"
+)
+
+type devTargetProgress struct {
+	target    devTarget
+	state     string
+	readiness string
+	detail    string
+}
+
+type devTargetView struct {
+	mu      sync.Mutex
+	appRoot string
+	targets []devTargetProgress
+}
+
+func newDevTargetView(appRoot string, targets []devTarget) *devTargetView {
+	view := &devTargetView{appRoot: appRoot}
+	for _, target := range targets {
+		view.targets = append(view.targets, devTargetProgress{target: target, state: "starting"})
+	}
+	return view
+}
+
+func foregroundDevExecution() (runtimeExecution, error) {
+	node, err := exec.LookPath("node")
+	if err != nil {
+		return runtimeExecution{}, fmt.Errorf("Node is required for the selected project's development workers: %w", err)
+	}
+	node, err = filepath.Abs(node)
+	if err != nil {
+		return runtimeExecution{}, err
+	}
+	execution := runtimeExecution{Environment: projectToolEnvironment(), Node: node, Tools: map[string]string{}}
+	for _, tool := range runtimeTools {
+		if path, err := exec.LookPath(tool); err == nil {
+			if path, err := filepath.Abs(path); err == nil {
+				execution.Tools[tool] = path
+			}
+		}
+	}
+	return execution, nil
+}
+
+func (view *devTargetView) observe(id, kind string, nativeSidecar bool, record historyRecord) {
+	if nativeSidecar {
+		return
+	}
+	line := runtimeANSI.ReplaceAllString(record.Line, "")
+	if runtimeLocalURL.MatchString(line) {
+		view.update(id, "ready", "engine-reported", "The engine reported an HTTP endpoint; app debug attachment is separate.")
+	} else if kind != "web" && runtimeReadyLine.MatchString(line) {
+		view.update(id, "ready", "engine-reported", "The engine reported readiness; no app debug connection is inferred.")
+	}
+}
+
+func (view *devTargetView) update(id, state, readiness, detail string) {
+	view.mu.Lock()
+	defer view.mu.Unlock()
+	for i := range view.targets {
+		if view.targets[i].target.ID == id {
+			view.targets[i].state = state
+			view.targets[i].readiness = readiness
+			view.targets[i].detail = detail
+		}
+	}
+}
+
+func (view *devTargetView) dispatch(_ context.Context, command string, values map[string]any) (any, *cliError) {
+	switch command {
+	case "targets":
+		view.mu.Lock()
+		defer view.mu.Unlock()
+		targets := []any{}
+		for _, entry := range view.targets {
+			if platform := stringValue(values["platform"]); platform != "" && platform != entry.target.Kind {
+				continue
+			}
+			targets = append(targets, map[string]any{
+				"targetId": entry.target.ID, "platform": entry.target.Kind, "name": entry.target.Name,
+				"engine": map[string]any{"state": entry.state, "readiness": entry.readiness, "detail": entry.detail},
+				"apps":   []any{},
+			})
+		}
+		return map[string]any{"appRoot": view.appRoot, "targets": targets}, nil
+	case "session list":
+		return map[string]any{"appRoot": view.appRoot, "sessions": []any{}, "detail": "No app debug connection has registered yet; engine readiness is separate from app attachment."}, nil
+	case "session status":
+		return nil, &cliError{Code: "not_found", Message: "No connected app instance has this id."}
+	default:
+		return nil, &cliError{Code: "unavailable", Message: "App debug WebSocket handling for this command is pending in the parallel Go implementation."}
+	}
+}
+
+func devAppRequest(ctx context.Context, workspace *workspaceContext, command string, values map[string]any) (any, *cliError) {
+	selection := workspace.selection()
+	if selection.State != "bound" {
+		code := "invalid_selection"
+		if selection.State == "ambiguous" {
+			code = "ambiguous_selection"
+		}
+		return nil, &cliError{Code: code, Message: "Select an app with --app before connecting to its dev server.", Context: map[string]any{"candidates": selection.Candidates}}
+	}
+	cache, err := devServerCacheParent()
+	if err != nil {
+		return nil, executionFailure(err)
+	}
+	client, failure := lookupDevServer(ctx, cache, selection.App.Root)
+	if failure != nil {
+		return nil, failure
+	}
+	arguments := map[string]any{}
+	for key, value := range values {
+		switch key {
+		case "project", "app", "client", "json", "schema":
+			continue // These select the connection, not a second app inside it.
+		}
+		arguments[key] = value
+	}
+	return client.call(ctx, command, arguments)
+}
+
+func selectedDevApp(values map[string]any) (appIdentity, error) {
+	workspace, err := newWorkspaceContext(values)
+	if err != nil {
+		return appIdentity{}, err
+	}
+	selection := workspace.selection()
+	if selection.State != "bound" {
+		return appIdentity{}, fmt.Errorf("dev requires a selected app; pass --app at an ambiguous workspace root")
+	}
+	app := *selection.App
+	app.Root, err = canonical(app.Root)
+	return app, err
+}
+
+// Match cwd to its nearest package before applying the existing explicit and
+// saved-selection rules. An explicit different --project root stays authoritative.
+func workspaceStartDirectory(root string) (string, error) {
+	if root != "" && root != "." {
+		return filepath.Abs(root)
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for at := cwd; ; at = filepath.Dir(at) {
+		if pathExists(filepath.Join(at, "package.json")) {
+			return at, nil
+		}
+		if filepath.Dir(at) == at {
+			return cwd, nil
+		}
+	}
+}

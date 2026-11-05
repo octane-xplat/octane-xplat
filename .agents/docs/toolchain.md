@@ -15,14 +15,14 @@ does not bundle a JS runtime or call the old CLI. Workspace matching supports li
 exclusions; advanced glob grammar is deliberately unsupported. Discovery and
 package reads stay native.
 
-Owned Chromium launch on Windows passes `--edge-skip-compat-layer-relaunch`
-and `--do-not-de-elevate`. Edge/Chrome relaunch through a broker can break the
-relationship to the original process tree and DevTools connection. These narrow
-launch adapters follow [Playwright's recorded safeguards](https://github.com/microsoft/playwright/blob/1482237ae441b56b777dd128d98606fe6d26b61c/packages/playwright-core/src/server/chromium/chromiumSwitches.ts).
-Keep sandboxing enabled. Do not remove the adapters based on compilation alone:
-qualify actual browser start, protocol close, native group/Job cleanup and private
-profile removal on Windows, recording the installed browser version. A managed
-process exit alone does not prove a brokered browser has released its profile.
+The Go migration uses explicitly started foreground `dev` ownership. Humans or
+instructed agents may start it; app-control clients normally attach to an existing
+server and never implicitly launch a server/app/browser. Private discovery is
+keyed by canonical app directory, outside tracked project files, with per-start
+instance credentials and authenticated loopback requests. Client disconnect does
+not stop apps. App debug WebSocket integration remains pending. Detached-owner
+and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
+reports; they are superseded qualification scope, not active Go release gates.
 
 A parallel Nim implementation lives in [packages/cli/nim](../../packages/cli/nim/README.md).
 Keep TypeScript as the behavioral reference while migrating; native commands

@@ -228,14 +228,16 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	if (choice.Target != nil || choice.Device != nil) && choice.Targets != nil {
 		return errors.New("pass either a single target/device or --targets, not both")
 	}
-	project, err := os.Getwd()
+	app, err := selectedDevApp(values)
 	if err != nil {
 		return err
 	}
-	project, err = canonical(project)
+	project := app.Root
+	execution, err := foregroundDevExecution()
 	if err != nil {
 		return err
 	}
+	ctx = context.WithValue(ctx, runtimeExecutionKey{}, execution)
 	all, err := discoverDevTargets(ctx, project)
 	if err != nil {
 		return err
@@ -266,6 +268,18 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 		return err
 	}
 	defer release()
+	cacheParent, err := devServerCacheParent()
+	if err != nil {
+		return err
+	}
+	view := newDevTargetView(project, chosen)
+	server, err := startDevServer(ctx, cacheParent, project, view.dispatch)
+	if err != nil {
+		return err
+	}
+	defer func() { failure = errors.Join(failure, server.close()) }()
+	execution.OwnerID = server.record.InstanceID
+	ctx = context.WithValue(ctx, runtimeExecutionKey{}, execution)
 	routeCtx, cancelRoutes := context.WithCancel(ctx)
 	defer cancelRoutes()
 	ready := make(chan struct{}, 1)
@@ -292,8 +306,11 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 		}
 	case <-ctx.Done():
 		return ctx.Err()
+	case <-server.ctx.Done():
+		return errors.New("dev server stopped before initial route publication")
 	}
 	console := newDevConsole(ctx, os.Stdout, cancel)
+	console.emit("xplat", "Dev server ready. Other xplat commands can connect to this app.")
 	defer func() {
 		console.close()
 		if dropped := console.dropped.Load(); dropped > 0 {
@@ -315,7 +332,7 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	if appID == "" {
 		appID = filepath.Base(project)
 	}
-	owner := identity()
+	owner := server.record.InstanceID
 	type completion struct {
 		err error
 		aux bool
@@ -324,6 +341,14 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	auxCtx, cancelAux := context.WithCancel(ctx)
 	defer cancelAux()
 	run := func(runCtx context.Context, engine devEngine, retain bool) {
+		observation := execution
+		observation.Stream = func(record historyRecord) {
+			view.observe(engine.Target.ID, engine.Target.Kind, engine.MacWorker != "", record)
+		}
+		observation.Native = func(macDevFrame) {
+			view.update(engine.Target.ID, "ready", "native-host-spawned", "The native host spawned; app debug attachment is separate.")
+		}
+		runCtx = context.WithValue(runCtx, runtimeExecutionKey{}, observation)
 		var capture *historyCapture
 		if retain && store != nil {
 			var e error
@@ -345,12 +370,12 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 				if engine.MacWorker != "" {
 					return runMacDevWorker(ctx, project, engine.MacWorker, input, out, diagnostics, capture)
 				}
-				return runProcessStdio(ctx, engine.Args, engine.Directory, projectToolEnvironment(), input, out, diagnostics)
+				return runProcessStdio(ctx, engine.Args, engine.Directory, projectExecutionEnvironment(ctx), input, out, diagnostics)
 			})
 		}
 		if capture != nil {
 			state := "stopped"
-			if e != nil || !result.Cancelled && result.ExitCode != 0 {
+			if requiresFailureEvidence(e) || e != nil && !errors.Is(e, context.Canceled) || !result.Cancelled && result.ExitCode != 0 {
 				state = "failed"
 			}
 			var cleanup *processCleanupError
@@ -373,6 +398,11 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 			}
 			e = &projectToolExit{Code: code}
 		}
+		state, detail := "stopped", "Development engine stopped."
+		if requiresFailureEvidence(e) || e != nil && !errors.Is(e, context.Canceled) {
+			state, detail = "failed", e.Error()
+		}
+		view.update(engine.Target.ID, state, "", detail)
 		done <- completion{e, !retain}
 	}
 	for _, engine := range engines {
@@ -386,6 +416,8 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	}
 	console.emit("xplat", fmt.Sprintf("Starting %d target worker(s) — Ctrl+C stops all", len(engines)))
 	var first error
+	var serverFailure error
+	serverDone := server.ctx.Done()
 	for running > 0 {
 		var routes <-chan error
 		if !routesFinished {
@@ -415,6 +447,12 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 				}
 				cancel()
 			}
+		case <-serverDone:
+			serverDone = nil
+			if ctx.Err() == nil {
+				serverFailure = errors.New("dev server stopped while development engines were running")
+				cancel()
+			}
 		}
 	}
 	wasCancelled := ctx.Err() != nil
@@ -430,6 +468,9 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	// cancellation wins unless cleanup evidence itself is unavailable.
 	if requiresFailureEvidence(first) {
 		return first
+	}
+	if serverFailure != nil {
+		return errors.Join(serverFailure, first)
 	}
 	if wasCancelled {
 		return ctx.Err()

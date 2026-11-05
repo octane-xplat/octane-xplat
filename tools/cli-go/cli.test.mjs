@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, symlinkSync
 import { join, resolve, dirname } from 'node:path'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { parseArgs } from '../../packages/cli/src/agent/parse.ts'
-import { commandSchema } from '../../packages/cli/src/agent/catalog.ts'
+import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import {
 	discoverWorkspace,
 	detectGuidance,
@@ -15,6 +15,18 @@ import {
 import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
+import { goDevContracts } from './dev-contracts.mjs'
+
+const goReference = goDevContracts({
+	descriptors: AGENT_COMMANDS,
+	schemas: Object.fromEntries(
+		AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
+	),
+	catalog: catalogPayload(),
+	orchestrationDescriptors: [],
+	capabilityIds: [],
+	boundaries: [],
+})
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
@@ -49,6 +61,7 @@ function cli(args, options = {}) {
 			PATH: '',
 			XPLAT_PERMISSIONS: '',
 			XPLAT_AGENT_CLIENT: '',
+			XPLAT_DEV_CACHE: join(scratch, 'dev-cache'),
 			...options.env,
 		},
 	})
@@ -73,10 +86,10 @@ function normal(value) {
 }
 
 test('all descriptors expose truthful native schemas outside a project', () => {
-	for (const command of AGENT_COMMANDS) {
+	for (const command of goReference.descriptors) {
 		const actual = cli([...command.path, '--schema'])
 		assert.equal(actual.status, 0)
-		const expected = commandSchema(command)
+		const expected = structuredClone(goReference.schemas[command.name])
 		expected.status = [
 			'catalog',
 			'permissions',
@@ -88,14 +101,9 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'guidance',
 			'docs read',
 			'docs search',
-			'runtime build',
-			'job status',
-			'job cancel',
 			'targets',
-			'session start',
 			'session list',
 			'session status',
-			'session end',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -110,7 +118,21 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		18,
+		13,
+	)
+	assert.equal(catalog.value.data.commands.length, 25)
+	for (const removed of [
+		'runtime build',
+		'job status',
+		'job cancel',
+		'session start',
+		'session end',
+	]) {
+		assert.ok(!catalog.value.data.commands.some((command) => command.command === removed))
+	}
+	assert.ok(
+		!catalog.value.data.commands.some((command) => command.command === 'session detach'),
+		'Stateless clients disconnect without adding an observer-management API',
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
@@ -162,7 +184,7 @@ test('status preserves identity, guidance and actual package bindings without cl
 	])
 	assert.equal(data.server.name, '@octane-xplat/cli')
 	assert.equal(data.prerequisites.find((check) => check.id === 'node').status, 'missing')
-	assert.equal(data.prerequisites.find((check) => check.id === 'chromium').status, 'unknown')
+	assert.ok(!data.prerequisites.some((check) => check.id === 'chromium'))
 	assert.equal(data.docs.state, 'ready')
 	assert.match(data.docs.detail, /Embeddings require the inference-enabled build/)
 	assert.equal(data.codeIndex.state, 'ready')
@@ -172,14 +194,7 @@ test('status preserves identity, guidance and actual package bindings without cl
 			matrix.capabilities
 				.filter((entry) => entry.status === 'supported')
 				.map((entry) => entry.capability),
-			[
-				'project_status',
-				'guidance',
-				'code_search',
-				'target_discovery',
-				'job_control',
-				'session_end',
-			],
+			['project_status', 'guidance', 'code_search'],
 		)
 
 		assert.equal(

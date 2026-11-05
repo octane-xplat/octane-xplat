@@ -126,32 +126,24 @@ Frozen core snapshots expose `test:go-dev:portable` through root Turbo tasks,
 alongside the portable native unit gate. These execute actual host binaries;
 cross-compilation alone does not qualify a host.
 
-The persistent-owner foundation has a focused race-detector gate. It uses the
-host Go race runtime and C compiler for qualification; ordinary core release
-builds still disable CGO. This exercises authenticated local HTTP, lifetime lease,
-admission/shutdown races, idle retirement and actual managed descendant cleanup.
-It does not establish detached bootstrap or public session API support.
+The explicitly started dev-server gate runs real project Vite, short-lived HTTP
+clients, canonical app aliases, nested cwd selection, duplicate starts and
+foreground cancellation. Missing-server reads must neither create cache state nor
+start workers. The focused race gate exercises discovery and authenticated HTTP
+lifetime handling with the host Go race runtime; ordinary core builds disable CGO.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go owner race qualification"}' -- bun run turbo run test:go-unit test:go-owner-race --filter=@xplat/cli-go-probe --concurrency=1
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go foreground dev server"}' -- bun run turbo run test:go-unit test:go-cli test:go-dev test:go-dev-server test:go-dev-server-race --filter=@xplat/cli-go-probe --filter=@octane-xplat/cli --concurrency=1
 ```
 
-The owner bootstrap gate uses source-bound native one-shot test clients and the
-actual public CLI's private `_owner` entry. It checks concurrent creators, survival
-after client exit, exact image identity, unchanged caller stdin, cancellation on
-both sides of handoff, idle retirement and failed-spawn cleanup. It does not call
-the TypeScript CLI or substitute a test server for the public native entry.
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go detached owner qualification"}' -- bun run turbo run test:go-owner test:go-unit test:go-owner-race --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
-```
-
-Frozen core snapshots expose `test:go-owner:portable`. Their precompiled native
-client fixtures exercise the same public binaries on Linux and Windows. Tests use
-private fixture caches; driver stdin is ignored except for explicit input tests,
-so a fast structured failure cannot become a runner-level empty-pipe EPIPE. These
-bootstrap cases do not by themselves qualify public runtime services. Use the
-runtime build gate for build/job dispatch; owned persistent sessions have their own runtime gate; attach remains pending.
+Humans or instructed agents can explicitly start `dev`. Ordinary app-control
+requests connect to it and never start servers, apps or browsers implicitly.
+Clients finishing or disconnecting leave the engines running. App debug
+WebSocket registration and live attachment remain pending; engine readiness alone
+is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
+for the current interface. The former detached-owner, asynchronous build/job and
+browser-session runners are preserved in checkpoint `14a7117c`; they are
+superseded experiments, not current release gates.
 
 ## Cross-compilation and execution
 
@@ -467,31 +459,21 @@ partial metadata or writer failure. Portable unit binaries run from their Go
 package directory to match `go test` fixture resolution. The complete portable
 unit suite has a 90-second deadline, with a 105-second outer watchdog; individual
 SDK/process deadlines remain unchanged. These are store/transport
-checks; main dev and persistent session integration remain separate gates.
+checks; main dev and app-debug integration remain separate gates.
 
 Source-host `test:go-unit` disables Go's own test-result cache with `-count=1`.
 Turbo's `cache: false` alone does not force Go tests to execute. Portable compiled
 unit binaries already run directly and do not use Go test-result caching.
 
-The public runtime build gate executes real project Vite builds across independent
-one-shot clients, concurrent request-key dedupe, selected-app isolation, per-request
-environments, failure diagnostics and resistant-descendant cancellation. Source-host
-checks compare artifacts, dirty revision and errors to the TypeScript adapter. The
-portable snapshot runs native cases without the old CLI dependencies; that reference
-comparison is explicitly skipped there. The macOS packaging gate also exercises
-persistent runtime build/job status with a real C leaf and verified universal app/DMG.
+The foreground macOS packaging gate still checks actual C leaf compilation and
+universal app/DMG publication. It does not start detached runtime jobs or apps.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native runtime build jobs"}' -- bun run turbo run test:go-runtime-build test:go-build-macos-real --filter=@octane-xplat/cli
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native macOS foreground build"}' -- bun run turbo run test:go-build-macos-real --filter=@octane-xplat/cli
 ```
 
-The persistent-session gate runs real selected-project Vite/HTTP and optional
-Chromium DevTools HTTP, concurrent target claims, awaited cancellation/descendant
-cleanup and retained reads after owner retirement or project metadata removal.
-Its macOS case observes initialized AppKit app code and released host resources
-without capturing or inspecting images. Portable snapshots expose
-`test:go-runtime-sessions:portable`; the Mac-only app case skips elsewhere.
-
-```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native persistent sessions"}' -- bun run turbo run test:go-runtime-sessions --filter=@octane-xplat/cli
-```
+Frozen core snapshots expose `test:go-dev-server:portable` alongside
+`test:go-dev:portable`, ordinary build/worker checks and native units. Execute the
+actual binaries on each host before claiming qualification. Windows forced
+process termination and Job cleanup do not qualify console Ctrl-C. These
+headless gates do not launch a browser or inspect images.

@@ -50,23 +50,20 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 		for _, capability := range metadata.CapabilityIDs {
 			entry := map[string]any{"capability": capability, "status": "unavailable", "detail": "The Go " + strings.ReplaceAll(capability, "_", " ") + " provider is pending."}
 			switch capability {
-			case "project_status", "job_control", "session_end":
+			case "project_status":
 				entry = map[string]any{"capability": capability, "status": "supported"}
 			case "target_discovery":
-				entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native declared-platform/host/SDK discovery and authenticated target ownership; missing SDKs report explicit reasons."}
-			case "launch":
-				if selection.State == "bound" && slices.Contains(selection.App.Platforms, platform) {
-					entry = map[string]any{"capability": capability, "status": "partial", "requiresPermission": "runtime-actions", "detail": "Native owned sessions run selected-project engines and optional Chromium. Readiness reports HTTP, engine or native-host evidence; SDK/device and headed OS-input qualification remain separate."}
-				}
+				entry = map[string]any{"capability": capability, "status": "partial", "detail": "Reads selected targets from an explicitly started xplat dev server. App debug WebSocket registration is pending; engine readiness is separate from app attachment."}
+			case "attach":
+				entry["detail"] = "App debug WebSocket attachment is pending. Observer connections never start or terminate an app or dev server."
 			case "build":
-				entry["requiresPermission"] = "runtime-actions"
-				entry["detail"] = "Select an app and a declared platform before starting a native build job."
+				entry["detail"] = "Use the ordinary xplat build command with a selected app and declared platform."
 				if selection.State == "bound" && slices.Contains(selection.App.Platforms, platform) {
 					if _, err := prepareBuildEngines(context.Background(), selection.App.Root, []string{platform}); err != nil {
 						entry["detail"] = err.Error()
 					} else {
 						entry["status"] = "supported"
-						entry["detail"] = "Native host-owned build jobs use the selected project's engines. SDK prerequisites remain the engine's responsibility; provider availability does not qualify a device or host."
+						entry["detail"] = "Explicit foreground builds use the selected project's engines. SDK prerequisites remain the engine's responsibility; provider availability does not qualify a device or host."
 					}
 				}
 			case "guidance":
@@ -202,9 +199,6 @@ func (workspace *workspaceContext) prerequisites(ctx context.Context, platforms 
 	group.Wait()
 	if err != nil {
 		result = append(result, map[string]any{"id": "package-manager", "name": "Project package manager", "status": "missing", "remedy": err.Error()})
-	}
-	if slices.Contains(platforms, "web") {
-		result = append(result, map[string]any{"id": "chromium", "name": "Chromium browser", "platforms": []string{"web"}, "status": "unknown", "remedy": "Install Chromium before browser verification runs; browser availability has not been probed."})
 	}
 	return result
 }

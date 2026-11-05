@@ -1056,6 +1056,25 @@ the native computation does not directly consume.
 
 ## Go implementation boundaries
 
+Go app-control clients attach by default to an explicitly started foreground
+`dev` server. Humans or instructed agents can start it; observations never
+implicitly start servers/apps/browsers or terminate human-owned apps. A client
+finishing or disconnecting leaves app lifetime unchanged. Do not reintroduce
+agent-owned detached session launch/end or a needless detach-management command.
+The retained Nim/TypeScript lifecycle guidance describes those older references.
+
+Key discovery by canonical app directory: symlink/junction aliases converge,
+separate worktrees stay separate, and ambiguous workspaces require app selection.
+Keep current-user-only discovery outside the app, with fresh per-start instance
+and token. Authenticate short HTTP requests, verify app and instance, disable
+redirects/proxies and reject browser-origin ordinary RPC. Missing/dead/stale
+records report disconnected; read lookup must create no folders or engines.
+Hold the stable lifetime claim through foreground engine and request cleanup.
+Engine readiness and registered app-debug connections are separate observations;
+never infer an initialized app from a Vite URL or native host spawn. App-debug
+credentials must be scoped separately from the CLI discovery token.
+
+
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or
@@ -1281,6 +1300,13 @@ folders; resolving only the lexical path misses macOS /var aliases. Keep app and
 owner identities in every metadata record. Live-owner generations, not stored
 PIDs, distinguish active sessions from historical evidence. End times and cleanup
 confirmation are published together only after owned resource release.
+
+Accept ordinary forward-slash app selectors on Windows as well as native relative
+paths; compare normalized path separators without broadening app-name matches.
+Windows removed log segments can briefly fail reads with access denied while
+pending deletion. Retry those reads within a small bound; persistent permission
+errors still fail, and writer/metadata errors must never become empty successful
+pages. Keep concurrent rotation and persistent-denial controls in qualification.
 
 Keep log pagination compatible with the canonical Node contract: no cursor reads
 the newest matching tail; a cursor reads forward; filtered pages still advance

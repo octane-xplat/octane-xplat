@@ -28,38 +28,32 @@ ownership and a bounded startup sidecar. Schema evidence labels distinguish web 
 tool spawn from actual app readiness. Inspect those scopes before automating
 interactions. Main Go `dev` now owns foreground project engines after initial
 route publication. It retains bounded logs and validates macOS launch sidecars;
-launch metadata alone does not prove app initialization. It also exposes native persistent session start/list/status/end and target claims. Use its native schema and owning README for scope.
+launch metadata alone does not prove app initialization. Humans or explicitly
+instructed agents can start `dev`; ordinary agent commands normally connect to an
+already-running app. Missing discovery reports no running dev server and never
+starts one. Do not start apps or browsers implicitly to satisfy an observation.
 
 ```sh
-/absolute/path/to/xplat-go dev web
-/absolute/path/to/xplat-go dev macos
+/absolute/path/to/xplat-go dev --project /work/repo --app apps/web --targets web
+# In a separate invocation, after explicit startup:
+/absolute/path/to/xplat-go targets --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go session list --project /work/repo --app apps/web --json
 ```
 
-Go `runtime build` accepts asynchronous native-owned jobs using the selected
-project's Vite, NativeScript or packaging workers. Poll `job status` for terminal
-state and bounded output/error detail; `job cancel` awaits owned process cleanup.
-These reads never start an absent owner and need no Node. Build creation assumes
-Node is installed and forwards that invocation's environment without Node preloads
-or agent permission variables. Session attach and full live diagnostics remain
-pending; use the catalog/schema for the current execution surface.
+Go uses one foreground dev server per canonical app directory, with private
+same-user discovery and authenticated loopback requests. Nested directories and
+symlink aliases converge; worktrees stay separate. A short-lived client never
+owns app lifetime, and disconnecting it leaves the app running. App debug
+WebSocket registration and attachment remain pending; the current target listing
+reports engine progress separately from connected apps. Consult the native schema
+for actual coverage. The superseded detached `session start/end`, `runtime build`
+and job-control surface is absent from Go; use ordinary explicit foreground builds
+and typechecks. The retained Nim and TypeScript surfaces below describe their
+older implementation, not the Go migration's lifecycle contract.
 
 ```sh
-/absolute/path/to/xplat-go runtime build --platform web --project /work/app --app . --json
-/absolute/path/to/xplat-go job status job_ID --project /work/app --app . --json
-```
-
-Go session reads preserve historical owner loss and never start an absent owner.
-Use `targets` before selecting a target, poll session status for its explicit
-readiness scope, and await `session end` before reusing resources. A native-host
-spawn is separate from initialized app-code evidence. Session cleanup remains
-available after app metadata changes and uses retained native ownership rather
-than cached PIDs. Attach, control/evidence/actions and full diagnostics remain
-separately qualified services; consult native schemas for their current status.
-
-```sh
-/absolute/path/to/xplat-go targets --project /work/app --app . --json
-/absolute/path/to/xplat-go session start web --project /work/app --app . --json
-/absolute/path/to/xplat-go session end sess_ID --project /work/app --app . --json
+/absolute/path/to/xplat-go build --targets web
+/absolute/path/to/xplat-go typecheck
 ```
 
 The parallel Nim implementation is experimental and intended for the npm `nim`

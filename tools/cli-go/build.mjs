@@ -28,18 +28,34 @@ import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
 import { buildReleaseWorker } from './release-worker.mjs'
 import { updatesHook } from '../../packages/cli/src/updates-hook.ts'
+import { goDevContracts } from './dev-contracts.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
 const moduleDirectory = join(root, 'packages/cli/go')
 mkdirSync(work, { recursive: true })
 const flags = process.argv.slice(2)
-assert.ok(flags.every((value) => ['--test', '--test-binary', '--onnx', '--cli', '--test-owner-race'].includes(value)))
+assert.ok(
+	flags.every((value) =>
+		[
+			'--test',
+			'--test-binary',
+			'--onnx',
+			'--cli',
+			'--test-owner-race',
+			'--test-dev-server-race',
+		].includes(value),
+	),
+)
 const onnx = flags.includes('--onnx')
 const cli = flags.includes('--cli')
 const testBinary = flags.includes('--test-binary')
 const ownerRace = flags.includes('--test-owner-race')
-assert.ok(!ownerRace || flags.length === 1, 'Owner race qualification is a host-only standalone test mode')
+const devServerRace = flags.includes('--test-dev-server-race')
+assert.ok(
+	!(ownerRace || devServerRace) || flags.length === 1,
+	'Owner race qualification is a host-only standalone test mode',
+)
 const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
 assert.equal(
@@ -65,7 +81,7 @@ const env = {
 	GOWORK: 'off',
 	GOCACHE: join(work, 'build-cache'),
 	GOMODCACHE: join(work, 'module-cache'),
-	CGO_ENABLED: onnx || ownerRace ? '1' : '0',
+	CGO_ENABLED: onnx || ownerRace || devServerRace ? '1' : '0',
 	ZIG_GLOBAL_CACHE_DIR: join(work, 'zig-global-cache'),
 	ZIG_LOCAL_CACHE_DIR: join(work, 'zig-local-cache'),
 }
@@ -101,91 +117,93 @@ if (zig) {
 
 writeFileSync(
 	join(moduleDirectory, 'catalog.json'),
-	JSON.stringify({
-		catalog: catalogPayload(),
-		updatesHook,
-		frameworkVersion: JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json')))
-			.frameworkVersion,
-		descriptors: AGENT_COMMANDS,
-		orchestrationDescriptors: Object.entries({
-			routes: routeCommandDescriptor,
-			typecheck: typecheckCommandDescriptor,
-			build: buildCommandDescriptor,
-			dev: (source) => commandDescriptor(source, 'dev'),
-			clean: (source) => commandDescriptor(source, 'clean'),
-			doctor: (source) => commandDescriptor(source, 'doctor'),
-			upgrade: (source) => commandDescriptor(source, 'upgrade'),
-			add: (source) => commandDescriptor(source, 'add'),
-		})
-			.map(([name, descriptor]) => ({
-				...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),
-				path: [name],
-				context: 'none',
-				summary: LEGACY_COMMANDS.find((command) => command.name === name).summary,
-			}))
-			.map((command) => ({
-				...command,
-				flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
-			}))
-			.concat([
-				...Object.entries({
-					patches: ['apply', 'check'],
-					updates: ['init'],
-					fonts: ['add'],
-					workshop: ['init', 'doctor', 'list', 'dev'],
-				})
-					.flatMap(([group, children]) =>
-						children.map((child) => ({
-							...commandDescriptor(
-								readFileSync(join(root, `packages/cli/src/commands/${group}.ts`), 'utf8'),
-								child,
-							),
-							name: group + ' ' + child,
-							path: [group, child],
-							context: 'none',
-						})),
-					)
-					.map((command) => ({
-						...command,
-						flags: command.flags.map(({ description, ...flag }) => ({
-							...flag,
-							desc: description,
-						})),
-					})),
-				{
-					// The reference formatter has a raw argv parser, not a cmdr descriptor.
-					// Keep these three inputs covered by the native/reference workflow gate.
-					name: 'fmt',
-					path: ['fmt'],
+	JSON.stringify(
+		goDevContracts({
+			catalog: catalogPayload(),
+			updatesHook,
+			frameworkVersion: JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json')))
+				.frameworkVersion,
+			descriptors: AGENT_COMMANDS,
+			orchestrationDescriptors: Object.entries({
+				routes: routeCommandDescriptor,
+				typecheck: typecheckCommandDescriptor,
+				build: buildCommandDescriptor,
+				dev: (source) => commandDescriptor(source, 'dev'),
+				clean: (source) => commandDescriptor(source, 'clean'),
+				doctor: (source) => commandDescriptor(source, 'doctor'),
+				upgrade: (source) => commandDescriptor(source, 'upgrade'),
+				add: (source) => commandDescriptor(source, 'add'),
+			})
+				.map(([name, descriptor]) => ({
+					...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),
+					path: [name],
 					context: 'none',
-					summary: LEGACY_COMMANDS.find((command) => command.name === 'fmt').summary,
-					flags: [
-						{ flag: 'check', type: 'boolean', desc: 'Report differences without writing' },
-						{
-							flag: 'stdin-filepath',
-							type: 'string',
-							key: 'stdinFilepath',
-							desc: 'Format stdin using this path',
-						},
-					],
-					positionals: [{ name: 'paths', variadic: true }],
-				},
-				{
-					name: 'lint',
-					path: ['lint'],
-					context: 'none',
-					summary: LEGACY_COMMANDS.find((command) => command.name === 'lint').summary,
-					flags: [{ flag: 'fix', type: 'boolean', desc: 'Apply safe lint fixes' }],
-					positionals: [{ name: 'paths', variadic: true }],
-				},
-			]),
-		version,
-		capabilityIds: CAPABILITY_IDS,
-		boundaries: PRODUCT_BOUNDARIES,
-		schemas: Object.fromEntries(
-			AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
-		),
-	}),
+					summary: LEGACY_COMMANDS.find((command) => command.name === name).summary,
+				}))
+				.map((command) => ({
+					...command,
+					flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
+				}))
+				.concat([
+					...Object.entries({
+						patches: ['apply', 'check'],
+						updates: ['init'],
+						fonts: ['add'],
+						workshop: ['init', 'doctor', 'list', 'dev'],
+					})
+						.flatMap(([group, children]) =>
+							children.map((child) => ({
+								...commandDescriptor(
+									readFileSync(join(root, `packages/cli/src/commands/${group}.ts`), 'utf8'),
+									child,
+								),
+								name: group + ' ' + child,
+								path: [group, child],
+								context: 'none',
+							})),
+						)
+						.map((command) => ({
+							...command,
+							flags: command.flags.map(({ description, ...flag }) => ({
+								...flag,
+								desc: description,
+							})),
+						})),
+					{
+						// The reference formatter has a raw argv parser, not a cmdr descriptor.
+						// Keep these three inputs covered by the native/reference workflow gate.
+						name: 'fmt',
+						path: ['fmt'],
+						context: 'none',
+						summary: LEGACY_COMMANDS.find((command) => command.name === 'fmt').summary,
+						flags: [
+							{ flag: 'check', type: 'boolean', desc: 'Report differences without writing' },
+							{
+								flag: 'stdin-filepath',
+								type: 'string',
+								key: 'stdinFilepath',
+								desc: 'Format stdin using this path',
+							},
+						],
+						positionals: [{ name: 'paths', variadic: true }],
+					},
+					{
+						name: 'lint',
+						path: ['lint'],
+						context: 'none',
+						summary: LEGACY_COMMANDS.find((command) => command.name === 'lint').summary,
+						flags: [{ flag: 'fix', type: 'boolean', desc: 'Apply safe lint fixes' }],
+						positionals: [{ name: 'paths', variadic: true }],
+					},
+				]),
+			version,
+			capabilityIds: CAPABILITY_IDS,
+			boundaries: PRODUCT_BOUNDARIES,
+			schemas: Object.fromEntries(
+				AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
+			),
+		}),
+	),
 )
 
 // Preserve the probe harness's generated reference input beside its runner.
@@ -200,13 +218,14 @@ writeFileSync(
 )
 
 run('go', ['mod', 'download'], { stdio: 'inherit' })
-if (flags.includes('--test') || ownerRace) {
+if (flags.includes('--test') || ownerRace || devServerRace) {
 	run(
 		'go',
 		[
 			'test',
 			'-count=1',
 			...(ownerRace ? ['-race', '-run=^TestAgentOwner'] : []),
+			...(devServerRace ? ['-race', '-run=^TestDevServer'] : []),
 			'-mod=readonly',
 			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'./...',
