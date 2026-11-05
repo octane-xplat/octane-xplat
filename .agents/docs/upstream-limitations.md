@@ -239,3 +239,46 @@ and `readReducedMotion()` exists for JS facades. iOS
 `Settings.Global.ANIMATOR_DURATION_SCALE` are the OS sources — plumbing is a
 local gap, not an upstream miss; record consumers must not assume the hook
 reflects the OS preference today. Pinned in `media-query-native.test.ts`.
+
+## NativeScript iOS: persisted LiveSync bundle overrides the packaged entry (9.1.0)
+
+Verified against `NativeScript/ios` tag v9.1.0 (shipped via `@nativescript/ios`
+9.1.0 → ios-spm 9.1.0, TKLiveSync.xcframework) — source evidence plus runtime
+confirmation on simulator `91D40099-…` (#145):
+
+- A **DEBUG** iOS binary runs `TNSInitializeLiveSync()` at `main()` before
+  configuring the runtime
+  ([main.m](https://github.com/NativeScript/ios/blob/v9.1.0/project-template-ios/internal/main.m);
+  same shape in `internal/NativeScriptStart.m`). `DEBUG=1` is defined only in
+  the template's Debug `GCC_PREPROCESSOR_DEFINITIONS`, so the whole path —
+  including `TKLiveSync` — is compiled out of `--release` builds.
+- `trySetLiveSyncApplicationPath()`
+  ([TKLiveSync.m](https://github.com/NativeScript/ios/blob/v9.1.0/TKLiveSync/TKLiveSync.m))
+  sets `TNSBaseDir` to `~/Library/Application Support/LiveSync` whenever a
+  `LiveSync/app` directory exists in the data container; `main.m` then makes
+  it the runtime `BaseDir`, so `RuntimeConfig.ApplicationPath` becomes
+  `LiveSync/app` and the entry resolves from the leftover dev copy instead of
+  `<App>.app/app`. There is no runtime flag to opt out.
+- Writer side (CLI, `nativescript` package): physical devices receive
+  `sync.zip` under `Library/Application Support/LiveSync`
+  (`lib/common/constants.js`), extracted by the runtime at next boot;
+  emulators get file-by-file writes into the installed bundle's `app/`
+  (`lib/device-path-provider.js` → `simctl get_app_container`), which a
+  reinstall replaces — so the stale-copy trap is a device/debug-install
+  boundary, not a simulator LiveSync behavior.
+- Observed: a debug standalone install over a prior LiveSync session (data
+  preserved) runs the residue — `__dirname` resolves to
+  `…/LiveSync/app`, HTTP-import dev bundles die on the dead dev server
+  (`HTTP import failed … network error`), `Fatal: the main module failed to
+  run`, abort. Verified on simulator with a synthesized `LiveSync/app`
+  residue; the reporter verified the same sequence and the recovery on a
+  physical iPhone (#145).
+- Xplat stance: documented boundary, no code workaround. Recovery = remove
+  only the `LiveSync` directory (app data preserved); release builds are
+  immune by construction. See
+  [the native release guide](../../docs/start/native-release.md#ios-a-standalone-install-keeps-leftover-development-code).
+  A CLI step that clears the residue on standalone install is a candidate
+  proposal, not implemented.
+- Status: current in 9.1.0. Recheck on runtime upgrade — removal would be a
+  change to `TNSInitializeLiveSync`/`trySetLiveSyncApplicationPath` or the
+  DEBUG gating in the project template.

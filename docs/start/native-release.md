@@ -217,6 +217,34 @@ for validation, processing, tester access, and review. Retain exported `.ipa`
 files when your chosen distribution method produces them; an arbitrary `.app`
 from a simulator build is not a store upload.
 
+## iOS: a standalone install keeps leftover development code
+
+A `ns run ios` development session leaves a copy of the served code in the
+app's data, under `Library/Application Support/LiveSync` in its container.
+Installing a standalone build on top preserves app data, so the old copy is
+still there. A **debug** binary — `ns build ios` without `--release`, or any
+`ns run`/`ns debug` install — checks the LiveSync copy before its own
+packaged bundle. If one exists, it runs instead of the new code, which
+usually means a launch crash while the stale copy tries to reach a dev
+server that is no longer running. Release builds never look at the LiveSync
+copy, so this cannot affect a store build.
+
+If a standalone install crashes at launch and the device log names
+`Library/Application Support/LiveSync` or an old dev-server address, clear
+only that cache directory and keep everything else — recordings, preferences
+and other app data stay in place. On a simulator:
+
+```sh
+xcrun simctl get_app_container <device-udid> <bundle-id> data
+# Inside the printed directory, remove Library/Application Support/LiveSync.
+```
+
+On a physical device, replace only the `LiveSync` directory inside the app's
+data container — keep a backup until the launch is confirmed, because
+device file-transfer tools can report success while skipping the copy. The
+next startup log should show the main module loading from
+`<AppName>.app/app/bundle.mjs` instead of the LiveSync path.
+
 ## Test the distributed build
 
 Use the version installed from the test track, with the development server
@@ -250,6 +278,7 @@ for the rest of the feedback loop.
 | Store rejects the version | Increase the build number/version code and select the correct existing app record |
 | Login or links work only in development | Check distributed bundle ID/package name, callback registration and Android signing fingerprints |
 | App needs the dev server or loses styles | Inspect release bundle/configuration and [known limits](../testing/known-limits.md); reproduce with the packaged artifact |
+| iOS launch crash naming `Library/Application Support/LiveSync` or an old dev-server URL | A debug binary is loading a leftover LiveSync copy — clear only that directory per [the boundary above](#ios-a-standalone-install-keeps-leftover-development-code); use `--release` for builds meant to survive a dev session |
 
 For the next upload, make the correction in source, increase the build number,
 rebuild, and repeat the distributed check. Store requirements change; use the
