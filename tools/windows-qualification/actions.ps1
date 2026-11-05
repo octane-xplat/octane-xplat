@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-invoke')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-invoke','picker-select','picker-save')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1662,7 +1662,37 @@ function Check-ServiceActions{
    Start-Sleep -Milliseconds 900
   }
   Command 'service-run' $spec|Out-Null
+  if($spec -eq 'picker-select'){
+   # The open FileOpenPicker owns foreground inside the app process. Wait for
+   # the dialog, type a real path into its filename box, and commit — this is
+   # a genuine OS-level completed selection, not a simulated result.
+   $pickTarget=Join-Path $env:USERPROFILE 'Documents\core20-pick-target.txt'
+   [IO.File]::WriteAllText($pickTarget,'core20-pick-content')
+   Start-Sleep -Milliseconds 3000
+   try{
+    [Core20ActionInput]::Type($pickTarget)
+    Start-Sleep -Milliseconds 300
+    [Core20ActionInput]::Press(0x0D,$false)
+   }catch{}
+  }elseif($spec -eq 'picker-save'){
+   $saveTarget=Join-Path $env:USERPROFILE 'Documents\core20-exported.txt'
+   [IO.File]::Delete($saveTarget)
+   Start-Sleep -Milliseconds 3000
+   try{
+    [Core20ActionInput]::Type($saveTarget)
+    Start-Sleep -Milliseconds 300
+    [Core20ActionInput]::Press(0x0D,$false)
+   }catch{}
+  }
   $result=Service-Result $spec
+  if($spec -eq 'picker-save'){
+   $saveTarget=Join-Path $env:USERPROFILE 'Documents\core20-exported.txt'
+   Assert ((Test-Path $saveTarget) -eq $true) 'Exported file exists at the typed destination' @{target=$saveTarget}
+   if(Test-Path $saveTarget){Assert ((Get-Content $saveTarget -Raw -Encoding Byte).Count -eq 15) 'Exported file carries the payload bytes' @{target=$saveTarget}}
+   try{[Core20ActionInput]::Press(0x1B,$false)}catch{}
+  }elseif($spec -eq 'picker-select'){
+   try{[Core20ActionInput]::Press(0x1B,$false)}catch{}
+  }
   switch($spec){
    'clipboard' {
     Assert ($result.canCopy -eq $true) 'Clipboard service is available on the packaged host' $result
@@ -1841,6 +1871,13 @@ function Check-ServiceActions{
     Assert ($names -contains 'available') 'Invoke probe emits its outcome fields' $result
     Start-Sleep -Milliseconds 400
     try{[Core20ActionInput]::Press(0x1B,$false);[Core20ActionInput]::Press(0x1B,$false)}catch{}
+   }
+   'picker-select' {
+    Assert ($result.pickSelected -like 'ok:*core20-pick-target*') 'files.pick completes a typed-path selection' $result
+    Assert ($result.readBack -ceq 'core20-pick-content') 'Picked file reads through its access token' $result
+   }
+   'picker-save' {
+    Assert ($result.exportResult -ceq 'saved') 'files.export commits through the save dialog' $result
    }
   }
   }catch{

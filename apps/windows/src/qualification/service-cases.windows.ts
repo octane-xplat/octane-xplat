@@ -413,6 +413,55 @@ async function windowMetricsSpec(): Promise<Record<string, unknown>> {
 }
 
 /** Pickers and user-directed export are unavailable on packaged Windows. */
+/** Bounded completed-selection pick: the driver types a real path into the
+ * open dialog before the race resolves. 'pending-dialog' means the dialog
+ * outlasted the window; 'cancelled' means the driver Escape landed. */
+async function pickerSelectSpec(): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = {}
+  const raced = await Promise.race([
+    files.pick()
+      .then(async (ref) => {
+        if (ref === null) return { pickSelected: 'cancelled' }
+        const entry: Record<string, unknown> = {
+          pickSelected: `ok:${ref.name}`,
+          selectedUri: ref.uri,
+        }
+        try {
+          entry.readBack = await files.readText(ref)
+        } catch (error) {
+          entry.readError = error instanceof Error ? error.message : String(error)
+        }
+        return entry
+      })
+      .catch((error: unknown) => ({
+        pickSelected: `error:${error instanceof Error ? `${error.name}:${error.message}` : String(error)}`,
+      })),
+    new Promise<Record<string, unknown>>((resolve) =>
+      setTimeout(() => resolve({ pickSelected: 'pending-dialog' }), 12000),
+    ),
+  ])
+  Object.assign(out, raced)
+  return out
+}
+
+/** Bounded save-commit export: the driver types a destination path into the
+ * save dialog; the leaf then writes bytes through the token grant. */
+async function pickerSaveSpec(): Promise<Record<string, unknown>> {
+  const payload = new Uint8Array([99,111,114,101,50,48,45,101,120,112,111,114,116,101,100])
+  const raced = await Promise.race([
+    files
+      .export('core20-exported.txt', payload)
+      .then((result) => ({ exportResult: result }))
+      .catch((error: unknown) => ({
+        exportResult: `error:${error instanceof Error ? `${error.name}:${error.message}` : String(error)}`,
+      })),
+    new Promise<Record<string, unknown>>((resolve) =>
+      setTimeout(() => resolve({ exportResult: 'pending-dialog' }), 12000),
+    ),
+  ])
+  return { ...raced }
+}
+
 async function filesPickersSpec(): Promise<Record<string, unknown>> {
   // Presence-only: invoking pick/pickMultiple/export opens a real OS dialog
   // owned by the app HWND (bounded dialog evidence lives in picker-invoke).
@@ -1218,6 +1267,12 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'picker-invoke':
         result = await pickerInvokeSpec()
+        break
+      case 'picker-select':
+        result = await pickerSelectSpec()
+        break
+      case 'picker-save':
+        result = await pickerSaveSpec()
         break
       case 'storage-depth':
         result = await storageDepthSpec()
