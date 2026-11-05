@@ -7,7 +7,7 @@ const source = rendererSource()
 
 const stack = source.slice(
   source.indexOf('class AccessibleHostView'),
-  source.indexOf('const masonElementRegistration'),
+  source.indexOf('installMasonElement('),
 )
 
 const apply = source.slice(

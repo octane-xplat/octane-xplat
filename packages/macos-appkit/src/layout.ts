@@ -1,7 +1,6 @@
 import { effectiveStyle } from './style-values.ts'
 import type { Registry } from './registry'
 import type { Projection } from './projection'
-import type { ContainerElements } from './container-elements'
 import type { ElementNode, RootContainer } from './model'
 import {
   NSNotificationCenter,
@@ -14,7 +13,6 @@ import { observeScrollGeometry } from './scroll-view'
 interface Dependencies {
   registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'adapterFor'>
   projection: Pick<Projection, 'syncProxyProjection'>
-  containerElements: Pick<ContainerElements, 'syncActionBar'>
 }
 
 export type Layout = ReturnType<typeof createLayout>

@@ -8,7 +8,9 @@ import { NSNumber, NSView, NativeClass, interop } from '@octane-xplat/platform/m
 interface Dependencies {
   actions: Pick<Actions, 'hasHandler' | 'idForView' | 'invokeAction'>
   state: Pick<AccessibilityState, 'get'>
-  subscriptions: Pick<Subscriptions, 'fileDropRegistry'>
+  subscriptions: {
+    fileDropRegistry: Pick<Subscriptions['fileDropRegistry'], 'operation' | 'perform'>
+  }
 }
 
 export type AccessibleHost = ReturnType<typeof createAccessibleHost>

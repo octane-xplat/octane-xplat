@@ -1,3 +1,4 @@
+import { activateRuntime, assertRuntimeActive } from './runtime-activation'
 import { createElementAdapters } from './adapter-assembly'
 import { createBoxPaint } from './box-paint'
 import { createCssAnimations } from './css-animations'
@@ -51,153 +52,196 @@ import { createStyleEnvironment } from './style-environment'
 import { createAutomation } from './automation'
 import { createMeasurements } from './measurements'
 
+// Construction registers process-owned native classes. Forward operations below
+// are event/lifecycle work only: constructors and installers cannot call them.
 const registry = createRegistry()
+
 const boxPaint = createBoxPaint()
 
 const rootDirectory = createRootDirectory()
+
 const directory = rootDirectory.reader
+
 const layoutProjection = createLayoutProjection({ boxPaint, registry })
-const roots = createRoots({
-  directory: rootDirectory.writer,
-  get driver() {
-    return driver
-  },
+
+const hostBridge = createHostBridge()
+
+const hover = createHover()
+
+const pointerStyle = createPointerStyle({
+  hover,
 })
 
 const layout = createLayout({
   registry,
-  get projection() {
-    return projection
+  projection: {
+    syncProxyProjection(...args) {
+      assertRuntimeActive('layout.syncProxyProjection')
+      return projection.syncProxyProjection(...args)
+    },
   },
-  get containerElements() {
-    return containerElements
+})
+
+const actionStore = createActionStore()
+const accessibilityState = createAccessibilityState()
+
+const inputElements = createInputElements({
+  textElements: {
+    makeLabel(...args) {
+      assertRuntimeActive('inputElements.makeLabel')
+      return textElements.makeLabel(...args)
+    },
+  },
+  nativeStyle: {
+    fontForStyle(...args) {
+      assertRuntimeActive('inputElements.fontForStyle')
+      return nativeStyle.fontForStyle(...args)
+    },
+    setSizeConstraint(...args) {
+      assertRuntimeActive('inputElements.setSizeConstraint')
+      return nativeStyle.setSizeConstraint(...args)
+    },
+  },
+  actions: {
+    invokeAction(...args) {
+      assertRuntimeActive('inputElements.invokeAction')
+      return actions.invokeAction(...args)
+    },
+    idForView(...args) {
+      assertRuntimeActive('inputElements.idForView')
+      return actions.idForView(...args)
+    },
+    setControlAction(...args) {
+      assertRuntimeActive('inputElements.setControlAction')
+      return actions.setControlAction(...args)
+    },
+    setTextSubmitAction(...args) {
+      assertRuntimeActive('inputElements.setTextSubmitAction')
+      return actions.setTextSubmitAction(...args)
+    },
+  },
+  cssCascade: {
+    setNodeInlineStyle(...args) {
+      assertRuntimeActive('inputElements.setNodeInlineStyle')
+      return cssCascade.setNodeInlineStyle(...args)
+    },
+    applyClassName(...args) {
+      assertRuntimeActive('inputElements.applyClassName')
+      return cssCascade.applyClassName(...args)
+    },
+  },
+  accessibility: {
+    applyAccessibility(...args) {
+      assertRuntimeActive('inputElements.applyAccessibility')
+      return accessibility.applyAccessibility(...args)
+    },
+  },
+})
+
+const actions = createActions({
+  store: actionStore,
+  registry,
+  textElements: {
+    textLinkCharacterIndex(...args) {
+      assertRuntimeActive('actions.textLinkCharacterIndex')
+      return textElements.textLinkCharacterIndex(...args)
+    },
+    primaryClickBoundary(...args) {
+      assertRuntimeActive('actions.primaryClickBoundary')
+      return textElements.primaryClickBoundary(...args)
+    },
+  },
+  cssPseudoState: {
+    syncPseudoState(...args) {
+      assertRuntimeActive('actions.syncPseudoState')
+      return cssPseudoState.syncPseudoState(...args)
+    },
+  },
+  inputElements,
+})
+
+const accessibleHost = createAccessibleHost({
+  state: accessibilityState,
+  actions,
+  subscriptions: {
+    fileDropRegistry: {
+      operation(...args) {
+        assertRuntimeActive('file-drop operation')
+        return subscriptions.fileDropRegistry.operation(...args)
+      },
+      perform(...args) {
+        assertRuntimeActive('file-drop delivery')
+        return subscriptions.fileDropRegistry.perform(...args)
+      },
+    },
   },
 })
 
 const subscriptions = createSubscriptions({
   registry,
-  get accessibleHost() {
-    return accessibleHost
-  },
+  accessibleHost,
 })
 
-const actionStore = createActionStore()
-const actions = createActions({
-  store: actionStore,
-  registry,
-  get textElements() {
-    return textElements
-  },
-  get cssPseudoState() {
-    return cssPseudoState
-  },
-  get inputElements() {
-    return inputElements
-  },
-})
-
-const inputElements = createInputElements({
-  get textElements() {
-    return textElements
-  },
-  get nativeStyle() {
-    return nativeStyle
-  },
-  actions,
-  get cssCascade() {
-    return cssCascade
-  },
-  get accessibility() {
-    return accessibility
-  },
-})
-
-const containerElements = createContainerElements({
-  registry,
-  layout,
-  get textElements() {
-    return textElements
-  },
-  directory,
-  get cssCascade() {
-    return cssCascade
-  },
-  actions,
-  get accessibility() {
-    return accessibility
-  },
-  get tree() {
-    return tree
-  },
-})
-
-const accessibilityState = createAccessibilityState()
-const accessibleHost = createAccessibleHost({
+const accessibility = createAccessibility({
   state: accessibilityState,
-  actions,
-  subscriptions,
-})
-
-const controls = createControls({
-  actions,
-  get cssCascade() {
-    return cssCascade
-  },
-  get accessibility() {
-    return accessibility
-  },
+  accessibleHost,
 })
 
 const textElements = createTextElements({
-  get nativeStyle() {
-    return nativeStyle
+  nativeStyle: {
+    setSizeConstraint(...args) {
+      assertRuntimeActive('textElements.setSizeConstraint')
+      return nativeStyle.setSizeConstraint(...args)
+    },
+    fontForStyle(...args) {
+      assertRuntimeActive('textElements.fontForStyle')
+      return nativeStyle.fontForStyle(...args)
+    },
+    syncNodeFont(...args) {
+      assertRuntimeActive('textElements.syncNodeFont')
+      return nativeStyle.syncNodeFont(...args)
+    },
   },
-  get cssCascade() {
-    return cssCascade
+  cssCascade: {
+    warnUnsupportedCssProp(...args) {
+      assertRuntimeActive('textElements.warnUnsupportedCssProp')
+      return cssCascade.warnUnsupportedCssProp(...args)
+    },
+    setNodeInlineStyle(...args) {
+      assertRuntimeActive('textElements.setNodeInlineStyle')
+      return cssCascade.setNodeInlineStyle(...args)
+    },
+    applyClassName(...args) {
+      assertRuntimeActive('textElements.applyClassName')
+      return cssCascade.applyClassName(...args)
+    },
   },
   inputElements,
   layout,
   registry,
   actions,
-  get accessibility() {
-    return accessibility
-  },
-  get tree() {
-    return tree
+  accessibility,
+  tree: {
+    detach(...args) {
+      assertRuntimeActive('textElements.detach')
+      return tree.detach(...args)
+    },
   },
 })
 
-const imageElements = createImageElements({
-  accessibleHost,
-  get cssCascade() {
-    return cssCascade
+const controls = createControls({
+  actions,
+  cssCascade: {
+    setNodeInlineStyle(...args) {
+      assertRuntimeActive('controls.setNodeInlineStyle')
+      return cssCascade.setNodeInlineStyle(...args)
+    },
+    applyClassName(...args) {
+      assertRuntimeActive('controls.applyClassName')
+      return cssCascade.applyClassName(...args)
+    },
   },
-  subscriptions,
-})
-
-const nodes = createNodes({
-  boxPaint,
-  get cssAnimations() {
-    return cssAnimations
-  },
-  registry,
-  get tree() {
-    return tree
-  },
-  get cssCascade() {
-    return cssCascade
-  },
-  get elementProps() {
-    return elementProps
-  },
-  get cssPseudoState() {
-    return cssPseudoState
-  },
-  subscriptions,
-  layout,
-  get accessibility() {
-    return accessibility
-  },
+  accessibility,
 })
 
 const nativeStyle = createNativeStyle({
@@ -206,22 +250,27 @@ const nativeStyle = createNativeStyle({
   inputElements,
   registry,
   layout,
-  get cssCascade() {
-    return cssCascade
+  cssCascade: {
+    warnUnsupportedCssProp(...args) {
+      assertRuntimeActive('nativeStyle.warnUnsupportedCssProp')
+      return cssCascade.warnUnsupportedCssProp(...args)
+    },
+    applyClassName(...args) {
+      assertRuntimeActive('nativeStyle.applyClassName')
+      return cssCascade.applyClassName(...args)
+    },
   },
   accessibleHost,
-  get pointerStyle() {
-    return pointerStyle
-  },
+  pointerStyle,
+})
+
+const cssAnimations = createCssAnimations({
+  nativeStyle,
 })
 
 const cssCascade = createCssCascade({
-  get cssAnimations() {
-    return cssAnimations
-  },
-  get hostBridge() {
-    return hostBridge
-  },
+  cssAnimations,
+  hostBridge,
   layout,
   directory,
   nativeStyle,
@@ -230,15 +279,66 @@ const cssCascade = createCssCascade({
   inputElements,
 })
 
-const pointerStyle = createPointerStyle({
-  get hover() {
-    return hover
+const cssPseudoState = createCssPseudoState({
+  hover,
+  cssCascade,
+  registry,
+  subscriptions,
+  directory,
+})
+
+const projection = createProjection({
+  nativeStyle,
+  layout,
+  cssCascade,
+  registry,
+  tree: {
+    detach(...args) {
+      assertRuntimeActive('projection.detach')
+      return tree.detach(...args)
+    },
   },
 })
 
-const accessibility = createAccessibility({
-  state: accessibilityState,
+const tree = createTree({
+  cssAnimations,
+  cssCascade,
+  projection,
+  nativeStyle,
+  layout,
+  textElements,
+  pickerElements: {
+    syncSegmentedBar(...args) {
+      assertRuntimeActive('tree.syncSegmentedBar')
+      return pickerElements.syncSegmentedBar(...args)
+    },
+  },
+  registry,
+})
+
+const pickerElements = createPickerElements({
+  actions,
+  layout,
+  cssCascade,
+  accessibility,
+  tree,
+})
+
+const containerElements = createContainerElements({
+  registry,
+  layout,
+  textElements,
+  directory,
+  cssCascade,
+  actions,
+  accessibility,
+  tree,
+})
+
+const imageElements = createImageElements({
   accessibleHost,
+  cssCascade,
+  subscriptions,
 })
 
 const elementProps = createElementProps({
@@ -251,29 +351,17 @@ const elementProps = createElementProps({
   accessibility,
 })
 
-const projection = createProjection({
-  nativeStyle,
-  layout,
-  cssCascade,
+const nodes = createNodes({
+  boxPaint,
+  cssAnimations,
   registry,
-  get tree() {
-    return tree
-  },
-})
-
-const tree = createTree({
-  get cssAnimations() {
-    return cssAnimations
-  },
+  tree,
   cssCascade,
-  projection,
-  nativeStyle,
+  elementProps,
+  cssPseudoState,
+  subscriptions,
   layout,
-  textElements,
-  get pickerElements() {
-    return pickerElements
-  },
-  registry,
+  accessibility,
 })
 
 const driver = createDriver({
@@ -283,24 +371,19 @@ const driver = createDriver({
   projection,
   elementProps,
   cssCascade,
-  get cssPseudoState() {
-    return cssPseudoState
-  },
+  cssPseudoState,
   layout,
 })
 
-const hover = createHover()
+const rootLifecycle = createRoots({
+  directory: rootDirectory.writer,
+  driver,
+})
+
+const roots = { ...rootLifecycle, createMacOSRoot }
 
 const popover = createPopover({
   roots,
-  directory,
-})
-
-const cssPseudoState = createCssPseudoState({
-  hover,
-  cssCascade,
-  registry,
-  subscriptions,
   directory,
 })
 
@@ -310,16 +393,12 @@ const contextMenu = createContextMenu({
 
 const pickerBridge = createPickerBridge({
   actions,
-  get pickerElements() {
-    return pickerElements
-  },
+  pickerElements,
 })
 
 const sheetBridge = createSheetBridge({
   popover,
 })
-
-const hostBridge = createHostBridge()
 
 const styleEnvironment = createStyleEnvironment({
   cssPseudoState,
@@ -343,18 +422,6 @@ const automation = createAutomation({
   popover,
 })
 
-/** Install shared adapters only after every service has been constructed. */
-const pickerElements = createPickerElements({
-  actions,
-  layout,
-  cssCascade,
-  accessibility,
-  tree,
-})
-const cssAnimations = createCssAnimations({
-  nativeStyle,
-})
-
 const elementAdapters = createElementAdapters({
   registry,
   controls,
@@ -376,14 +443,12 @@ const elementAdapters = createElementAdapters({
 })
 
 function initializeRuntime() {
-  styleEnvironment.activate()
-  automation.activate()
   configureTabContentRoots(
     (host, fontFamily) => roots.createMacOSRoot(host, { fontFamily }),
     nativeColor,
   )
 
-  const compatInstallation = installCompat({
+  installCompat({
     registerElementType: elementAdapters.registerElementType,
     applyStyle: cssCascade.setNodeInlineStyle,
     applyClassName: cssCascade.applyClassName,
@@ -393,7 +458,7 @@ function initializeRuntime() {
 
   // Every service is constructed before registration, so Mason can subclass
   // the accessible host and adapters can call across subsystem boundaries.
-  const masonElementRegistration = installMasonElement({
+  installMasonElement({
     registerElementType: elementAdapters.registerElementType,
     layoutView: layout.layoutView,
     pinLayoutChild: layout.pinLayoutChild,
@@ -544,10 +609,21 @@ function initializeRuntime() {
     roots.createMacOSRoot,
     directory.fontFamilyForView,
   )
+  styleEnvironment.activate()
+  try {
+    automation.activate()
+  } catch (error) {
+    console.error('[macos-runtime] optional diagnostics unavailable', error)
+  }
 }
-initializeRuntime()
 
-export const { createMacOSRoot } = roots
+activateRuntime(initializeRuntime)
+
+export function createMacOSRoot(...args: Parameters<typeof rootLifecycle.createMacOSRoot>) {
+  assertRuntimeActive('root creation')
+  return rootLifecycle.createMacOSRoot(...args)
+}
+
 export const { observeLayoutCommits } = directory
 export const { setLayoutProjectionScale } = layoutProjection
 export type { MacOSRootOptions } from './roots'

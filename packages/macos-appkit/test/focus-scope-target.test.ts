@@ -7,7 +7,7 @@ import { createTabStopSuppression } from '../src/tab-stop.ts'
 const source = rendererSource()
 const view = source.slice(
   source.indexOf('class AccessibleHostView'),
-  source.indexOf('const masonElementRegistration'),
+  source.indexOf('installMasonElement('),
 )
 
 const retain = source.slice(

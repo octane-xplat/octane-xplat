@@ -8,7 +8,7 @@ import { runSlice } from './mock-globals.ts'
 const source = rendererSource()
 const host = source.slice(
   source.indexOf('class AccessibleHostView'),
-  source.indexOf('const masonElementRegistration'),
+  source.indexOf('installMasonElement('),
 )
 
 const apply = source.slice(

@@ -30,7 +30,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['container-elements', 'gridLayoutNodesByView'],
   ['registry', 'adapterFor'],
   ['registry', 'isManualLayoutParent'],
-  ['runtime', 'compatInstallation'],
+  ['runtime', 'installCompat'],
   ['container-elements', 'rootLayoutNodesByView'],
   ['container-elements', 'contentViewNodesByView'],
   ['container-elements', 'placeholderNodesByView'],
@@ -56,7 +56,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['accessible-host', 'tabStopSuppression'],
   ['accessible-host', 'disabledFocusTargets'],
   ['accessible-host', 'AccessibleHostView'],
-  ['runtime', 'masonElementRegistration'],
+  ['runtime', 'installMasonElement'],
   ['container-elements', 'LiquidGlassView'],
   ['container-elements', 'ActionBarHost'],
   ['container-elements', 'ContentViewHost'],
@@ -482,7 +482,7 @@ export function rendererSource(): string {
       if (
         statement.type === 'ExportNamedDeclaration' &&
         statement.declaration?.type === 'FunctionDeclaration' &&
-        statement.declaration.id?.name.startsWith('create')
+        module !== 'runtime' && statement.declaration.id?.name.startsWith('create')
       ) {
         return [statement.declaration]
       }
@@ -525,6 +525,14 @@ export function rendererSource(): string {
       } else if (statement.type === 'VariableDeclaration') {
         const binding = statement.declarations[0].id
         key = binding.type === 'Identifier' ? binding.name : 'round'
+      } else if (
+        module === 'runtime' &&
+        statement.type === 'ExpressionStatement' &&
+        statement.expression.type === 'CallExpression' &&
+        statement.expression.callee.type === 'Identifier' &&
+        ['installCompat', 'installMasonElement'].includes(statement.expression.callee.name)
+      ) {
+        key = statement.expression.callee.name
       } else {
         key = module === 'runtime' ? '#' + anonymous : '#try'
       }
@@ -584,15 +592,6 @@ export function rendererSource(): string {
       }
       found.set(key, text)
       previous = statement.end
-      if (module === 'layout' && key === 'reconcileLayoutParent') {
-        text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
-      }
-      if (module === 'tree' && key === 'insert') {
-        text = text.replace('const parent = resolveParentNode(container, parentId)', 'const parent = resolveParentNode(container, parentId)\n acquireFixtureAdapter(parent)\n acquireFixtureAdapter(node)')
-      }
-      if (module === 'native-style' && key === 'applyStyle') {
-        text = text.replace(/(function applyStyle\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
-      }
       if (module === 'runtime') {
         anonymous++
       }

@@ -154,7 +154,10 @@ export class WKWebViewConfiguration extends NativeObject {}
 NSNotificationCenter.defaultCenter = { removeObserver() {} };
 `
 
-export function mockNativeBoundary(overrides?: { module: URL; exports: readonly string[] }) {
+export function mockNativeBoundary(
+  overrides?: { module: URL; exports: readonly string[] },
+  appendSource = '',
+) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'dlopen')
   Object.defineProperty(globalThis, 'dlopen', { value: () => ({}), configurable: true })
   let source = platform
@@ -175,8 +178,12 @@ export function mockNativeBoundary(overrides?: { module: URL; exports: readonly 
   if (overrides?.exports.includes('NSNotificationCenter')) {
     source = source.replace('NSNotificationCenter.defaultCenter = { removeObserver() {} };', '')
   }
+  source += appendSource
   const hooks = registerHooks({
     resolve(specifier, owner, next) {
+      if (specifier === '@nativescript/macos-node-api') {
+        return { url: 'data:text/javascript,export {}', shortCircuit: true }
+      }
       if (specifier === '@octane-xplat/platform/macos') {
         return { url: 'data:text/javascript,' + encodeURIComponent(source), shortCircuit: true }
       }
