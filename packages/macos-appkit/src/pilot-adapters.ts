@@ -18,10 +18,10 @@ export interface PilotAdapterDependencies {
   layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutContentChild'>
 }
 
+export type PilotAdapters = Readonly<Record<string, ElementAdapter>>
+
 /** Definitions assembled by runtime composition; leaf imports register nothing. */
-export function createPilotAdapters(
-  deps: PilotAdapterDependencies,
-): Readonly<Record<string, ElementAdapter>> {
+export function createPilotAdapters(deps: PilotAdapterDependencies): PilotAdapters {
   return {
     button: {
       container: false,
