@@ -2,6 +2,7 @@ import { createMacOSRoot } from '../../macos-appkit/src/index'
 import { motion, MotionConfig } from '../src/index'
 import { attachHost } from '../src/host.macos'
 import { NSView } from '@octane-xplat/platform/macos'
+import type { UniversalRoot } from 'octane/universal/native'
 
 let view: any
 let snapshot: any
@@ -32,7 +33,7 @@ function App(props: any) {
 // Actual AppKit properties only: no window, desktop input or preference writes.
 export async function runChannels() {
   const nativeHost = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 300, 200))
-  let root = createMacOSRoot(nativeHost)
+  let root: UniversalRoot | undefined
   let assertions = 0
   const check = (condition: boolean, message: string) => {
     assertions++
@@ -121,6 +122,6 @@ export async function runChannels() {
   } catch (error) {
     console.error('MOTION_CHANNELS_FAIL ' + (error as Error).message)
   } finally {
-    root.unmount()
+    root?.unmount()
   }
 }
