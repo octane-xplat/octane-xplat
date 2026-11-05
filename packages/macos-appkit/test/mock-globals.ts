@@ -1,3 +1,4 @@
+import { createContainerAdapters } from '../src/container-adapters.ts'
 import { createControlAdapters } from '../src/control-adapters.ts'
 import { createPilotAdapters } from '../src/pilot-adapters.ts'
 import { unconvertedElementTypes } from '../src/element-adapter.ts'
@@ -60,6 +61,7 @@ export function sourceWithoutImports(url: URL) {
 const SLICE_BASE = {
   createPilotAdapters,
   createControlAdapters,
+  createContainerAdapters,
   unconvertedElementTypes,
   AccessibleHostView: class {},
   createAccessibilityState,
@@ -162,7 +164,14 @@ var adapters = { lookup(type) {
   const controls = createControlAdapters({ controls: new Proxy({}, { get: (_target, key) => (...args) => globalThis[key](...args) }), actions: { disposeActions: (...args) => disposeActions(...args) } })
   const text = createTextAdapters({ textElements: { applyBuiltinHtmlViewProp: (...args) => applyBuiltinHtmlViewProp(...args), applyBuiltinLabelProp: (...args) => applyBuiltinLabelProp(...args), disposeBuiltinFormattedText: (...args) => disposeBuiltinFormattedText(...args), disposeTextLinks: (...args) => disposeTextLinks(...args), makeLabel: (...args) => makeLabel(...args), syncHtmlView: (...args) => syncHtmlView(...args), syncLabelOverflow: (...args) => syncLabelOverflow(...args), syncText: (...args) => syncText(...args) }, inputElements: { applyBuiltinSearchBarProp: (...args) => applyBuiltinSearchBarProp(...args), applyBuiltinTextInputProp: (...args) => applyBuiltinTextInputProp(...args), disposeBuiltinTextInput: (...args) => disposeBuiltinTextInput(...args), disposeBuiltinTextViewLayout: (...args) => disposeBuiltinTextViewLayout(...args), fitTextView: (...args) => fitTextView(...args), initializeTextViewport: (...args) => initializeTextViewport(...args), makeSearchBar: (...args) => makeSearchBar(...args), makeTextField: (...args) => makeTextField(...args), setTextFieldPlaceholder: (...args) => setTextFieldPlaceholder(...args), syncSearchBar: (...args) => syncSearchBar(...args), syncSecureTextField: (...args) => syncSecureTextField(...args), textNodesByView: (...args) => textNodesByView(...args) }, actions: { acquireAction: (...args) => acquireAction(...args), buttonActionTarget: typeof buttonActionTarget === 'undefined' ? {} : buttonActionTarget, disposeActions: (...args) => disposeActions(...args) } })
   const pickers = createPickerAdapters({ pickerElements: { timeOfDay: (...args) => timeOfDay(...args), calendarDate: (...args) => calendarDate(...args), makeSegmentedBar: (...args) => makeSegmentedBar(...args), applyBuiltinSegmentedBarProp: (...args) => applyBuiltinSegmentedBarProp(...args), syncSegmentedBar: (...args) => syncSegmentedBar(...args), makeListPicker: (...args) => makeListPicker(...args), applyBuiltinListPickerProp: (...args) => applyBuiltinListPickerProp(...args), syncListPicker: (...args) => syncListPicker(...args), makeTimePicker: (...args) => makeTimePicker(...args), applyBuiltinTimePickerProp: (...args) => applyBuiltinTimePickerProp(...args), syncTimePicker: (...args) => syncTimePicker(...args), makeDatePicker: (...args) => makeDatePicker(...args), applyBuiltinDatePickerProp: (...args) => applyBuiltinDatePickerProp(...args), syncDatePicker: (...args) => syncDatePicker(...args), disposeBuiltinSegmentedItem: (...args) => disposeBuiltinSegmentedItem(...args), disposeBuiltinSegmentedChildren: (...args) => disposeBuiltinSegmentedChildren(...args), disposeBuiltinSegmentedControl: (...args) => disposeBuiltinSegmentedControl(...args), disposeBuiltinListPicker: (...args) => disposeBuiltinListPicker(...args), disposeBuiltinTimePicker: (...args) => disposeBuiltinTimePicker(...args), disposeBuiltinDatePicker: (...args) => disposeBuiltinDatePicker(...args) }, actions: { disposeActions: (...args) => disposeActions(...args) } })
-  return pilots[type] ?? controls[type] ?? text[type] ?? pickers[type]
+  const containers = createContainerAdapters({
+    containers: new Proxy({}, { get: (_target, key) => String(key).endsWith('ByView') ? globalThis[key] : (...args) => globalThis[key](...args) }),
+    layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args), layoutRootChildren: (...args) => layoutRootChildren(...args) },
+    actions: { disposeActions: (...args) => disposeActions(...args) },
+    cssCascade: { setNodeInlineStyle: (...args) => setNodeInlineStyle(...args), applyClassName: (...args) => applyClassName(...args) },
+    projection: { disposeBuiltinProxyChildren: (...args) => disposeBuiltinProxyChildren(...args) },
+  })
+  return pilots[type] ?? controls[type] ?? text[type] ?? pickers[type] ?? containers[type]
 } }
 
 // Legacy branch tests supply mutable maps as their fake event boundary. New

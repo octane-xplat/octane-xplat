@@ -1,3 +1,4 @@
+import { createContainerAdapters, type ContainerAdapterDependencies } from './container-adapters.ts'
 import { createPickerAdapters, type PickerAdapterDependencies } from './picker-adapters.ts'
 import { createTextAdapters, type TextAdapterDependencies } from './text-adapters.ts'
 import { createControlAdapters, type ControlAdapterDependencies } from './control-adapters.ts'
@@ -6,7 +7,7 @@ import type { ElementBehavior } from './model'
 import { FailureCollector } from './failures.ts'
 import { createPilotAdapters, type PilotAdapterDependencies } from './pilot-adapters.ts'
 
-type Dependencies = PilotAdapterDependencies &
+type Dependencies = ContainerAdapterDependencies & PilotAdapterDependencies &
   ControlAdapterDependencies &
   TextAdapterDependencies &
   PickerAdapterDependencies & {
@@ -25,6 +26,7 @@ export function createElementAdapters(deps: Dependencies) {
       ...createControlAdapters(deps),
       ...createTextAdapters(deps),
       ...createPickerAdapters(deps),
+      ...createContainerAdapters(deps),
     }),
   )
   for (const [type, adapter] of definitions) {

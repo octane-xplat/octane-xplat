@@ -567,6 +567,9 @@ export function rendererSource(): string {
       if ((module === 'element-props' && key === 'applyProps') || (module === 'nodes' && key === 'destroy')) {
         text = text.replace(/(function (?:applyProps|destroy)\(node[^)]*\) \{)/, '$1\n node.adapter ??= adapters.lookup(node.type)')
       }
+      if (module === 'layout' && key === 'reconcileLayoutParent') {
+        text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
+      }
       if (module === 'runtime') {
         text = text.replace(
           /\b([A-Za-z]+)\s*\.\s*([A-Za-z_$][\w$]*)/g,
@@ -578,6 +581,9 @@ export function rendererSource(): string {
       }
       found.set(key, text)
       previous = statement.end
+      if (module === 'layout' && key === 'reconcileLayoutParent') {
+        text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
+      }
       if (module === 'runtime') {
         anonymous++
       }

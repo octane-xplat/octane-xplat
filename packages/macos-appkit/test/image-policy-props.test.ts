@@ -28,7 +28,7 @@ test('native image creation receives the final policy before its first source lo
 
 test('image mutation dispatch reads the final prop bag for simultaneous changes and policy removal', () => {
   const start = source.indexOf("case 'image':", source.indexOf('function applyProps(')),
-    end = source.indexOf("case 'placeholder':", start),
+    end = source.indexOf("default:", start),
     calls: any[] = []
   // Exercise the real image branch under applyProps' observed complete-bag
   // protocol. This is source dispatch evidence, not native batch execution.

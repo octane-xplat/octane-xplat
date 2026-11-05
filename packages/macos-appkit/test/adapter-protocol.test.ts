@@ -191,7 +191,7 @@ function fixture() {
     fitTextView() { run('text fit') },
   }
   Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs, pickerElements: pickers })
-  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements })
+  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements, cssCascade: deps.cssCascade, projection: deps.projection })
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
   deps.elementProps = props
@@ -761,4 +761,35 @@ test('acquired listpicker synchronizes the complete bag, preserves native select
   assert.equal(events.length, count)
   assert.equal(view.target, null)
   assert.equal(f.store.idForView(view), undefined)
+})
+
+
+test('root adapter retires geometry identity before failing observer release and detaches every child', () => {
+  const f = fixture()
+  const node = f.make('rootlayout')
+  const child = f.make('button', {}, 2)
+  const sibling = f.make('button', {}, 3)
+  node.children.push(child, sibling)
+  const held = f.held[0]
+  f.trace.length = 0
+  const failure = Error('root observer release')
+  f.failures.set('unobserve', failure)
+  assert.throws(() => f.nodes.destroy(node), (error) => error === failure)
+  assert.equal(f.containers.rootLayoutNodesByView.has(node.view!), false)
+  assert.equal(node.rootGeometryObserver, null)
+  assert.ok(f.trace.indexOf('detach 2') < f.trace.indexOf('detach 1'))
+  assert.ok(f.trace.includes('detach 3'))
+  f.trace.length = 0
+  held()
+  f.nodes.destroy(node)
+  assert.deepEqual(f.trace, [])
+})
+
+test('root partial acquisition releases its host identity when geometry observation fails', () => {
+  const f = fixture()
+  const failure = Error('root observation')
+  f.failures.set('observe', failure)
+  assert.throws(() => f.make('rootlayout'), (error) => error === failure)
+  assert.equal(f.container.nodes.size, 0)
+  assert.ok(f.trace.includes('detach 1'))
 })

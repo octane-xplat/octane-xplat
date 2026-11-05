@@ -207,21 +207,27 @@ export function createContainerElements(deps: Dependencies) {
       size: { width: 0, height: 0 },
     })
 
+    node.view = view
     view.translatesAutoresizingMaskIntoConstraints = false
     rootLayoutNodesByView.set(view, node)
     view.postsFrameChangedNotifications = true
-    node.rootGeometryObserver =
+    const observer =
       NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
         NSViewFrameDidChangeNotification,
         view,
         null,
         () => {
-          if (rootLayoutNodesByView.get(view) === node) {
+          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && rootLayoutNodesByView.get(view) === node) {
             deps.layout.queueLayoutReconcile(node.container, node)
           }
         },
       )
 
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+      NSNotificationCenter.defaultCenter.removeObserver(observer)
+    } else {
+      node.rootGeometryObserver = observer
+    }
     return view
   }
 
@@ -480,21 +486,28 @@ export function createContainerElements(deps: Dependencies) {
       size: { width: 140, height: 28 },
     })
 
+    node.view = view
     view.translatesAutoresizingMaskIntoConstraints = false
     // Grid placement is resolved in layout() from current bounds, so a frame
     // change must queue the same reconcile the other manual hosts perform.
     view.postsFrameChangedNotifications = true
-    node.glassGeometryObserver =
+    const observer =
       NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
         NSViewFrameDidChangeNotification,
         view,
         null,
         () => {
-          if (gridLayoutNodesByView.get(view) === node) {
+          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && gridLayoutNodesByView.get(view) === node) {
             deps.layout.queueLayoutReconcile(node.container, node)
           }
         },
       )
+
+    if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
+      NSNotificationCenter.defaultCenter.removeObserver(observer)
+      return view
+    }
+    node.glassGeometryObserver = observer
 
     const backdrop = NSVisualEffectView.alloc().initWithFrame({
       origin: { x: 0, y: 0 },
@@ -505,6 +518,7 @@ export function createContainerElements(deps: Dependencies) {
     // appearance-following analog of iOS's clear glass. Within-window blending
     // needs content behind the view inside the same window and would render no
     // effect in the common empty-window case.
+    node.glassBackdrop = backdrop
     backdrop.material = NSVisualEffectMaterial.UnderWindowBackground
     backdrop.blendingMode = NSVisualEffectBlendingMode.Behind
     backdrop.translatesAutoresizingMaskIntoConstraints = false
@@ -513,7 +527,6 @@ export function createContainerElements(deps: Dependencies) {
     backdrop.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor).active = true
     backdrop.topAnchor.constraintEqualToAnchor(view.topAnchor).active = true
     backdrop.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
-    node.glassBackdrop = backdrop
     return view
   }
   function applyBuiltinContentHostProp(node: ElementNode, name: string, value: PropBag[string]) {
@@ -573,33 +586,33 @@ export function createContainerElements(deps: Dependencies) {
   }
 
   function disposeBuiltinRootLayout(node: ElementNode) {
-    if (node.type === 'rootlayout') {
-      if (node.rootGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.rootGeometryObserver)
-        node.rootGeometryObserver = null
-      }
-
-      if (node.view) {
-        rootLayoutNodesByView.delete(node.view)
-      }
-
-      for (const child of node.children.slice()) {
-        deps.tree.detach(node.container, child)
-      }
+    if (node.type !== 'rootlayout') return
+    const failures = new FailureCollector()
+    const observer = node.rootGeometryObserver
+    node.rootGeometryObserver = null
+    if (node.view) rootLayoutNodesByView.delete(node.view)
+    failures.run('root geometry', () => {
+      if (observer) NSNotificationCenter.defaultCenter.removeObserver(observer)
+    })
+    for (const child of node.children.slice()) {
+      failures.run('root child', () => deps.tree.detach(node.container, child))
     }
+    failures.throwIfFailed()
   }
 
   function disposeBuiltinLiquidGlass(node: ElementNode) {
-    if (node.type === 'liquidglass') {
-      if (node.glassGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.glassGeometryObserver)
-        node.glassGeometryObserver = null
-      }
-
-      // The material backdrop is not a node view, so nothing else detaches it.
-      node.glassBackdrop?.removeFromSuperview()
-      node.glassBackdrop = null
-    }
+    if (node.type !== 'liquidglass') return
+    const failures = new FailureCollector()
+    const observer = node.glassGeometryObserver
+    const backdrop = node.glassBackdrop
+    node.glassGeometryObserver = null
+    node.glassBackdrop = null
+    if (node.view) gridLayoutNodesByView.delete(node.view)
+    failures.run('glass geometry', () => {
+      if (observer) NSNotificationCenter.defaultCenter.removeObserver(observer)
+    })
+    failures.run('glass backdrop', () => backdrop?.removeFromSuperview())
+    failures.throwIfFailed()
   }
 
   function disposeBuiltinContentGeometry(node: ElementNode) {

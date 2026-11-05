@@ -393,7 +393,7 @@ const cssAnimations = createCssAnimations({
   nativeStyle,
 })
 
-const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements, pickerElements })
+const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements, pickerElements, cssCascade, projection })
 
 function initializeRuntime() {
   styleEnvironment.activate()

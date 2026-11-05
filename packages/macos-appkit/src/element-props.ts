@@ -174,22 +174,6 @@ export function createElementProps(deps: Dependencies) {
       return
     }
 
-    if (node.type === 'proxyviewcontainer') {
-      // Projection forwards the proxy's computed style (PROXY_LAYOUT_STYLES),
-      // so style inputs must reach the cascade even though the props loop
-      // below never runs for a viewless node.
-      if ('style' in props) {
-        deps.cssCascade.setNodeInlineStyle(node, props.style)
-      }
-
-      if ('className' in props) {
-        deps.cssCascade.applyClassName(node, props.className)
-      }
-
-      deps.layout.queueLayoutReconcile(node.container, node)
-      return
-    }
-
     if (node.adapter && !node.adapter.hasView) {
       for (const [name, value] of Object.entries(props)) { node.adapter.applyProp?.(node, name, value) }
       node.adapter.afterProps?.(node, props)
@@ -330,13 +314,6 @@ export function createElementProps(deps: Dependencies) {
       }
 
       switch (node.type) {
-        case 'rootlayout':
-        case 'actionbar':
-          deps.containerElements.applyBuiltinContentHostProp(node, name, value)
-          break
-        case 'liquidglass':
-          deps.containerElements.applyBuiltinLiquidGlassProp(node, name, value)
-          break
         case 'tabview':
           deps.hostedElements.applyBuiltinTabViewProp(node, name, value)
           break
@@ -352,9 +329,6 @@ export function createElementProps(deps: Dependencies) {
         case 'image':
         case 'animatedimage':
           deps.imageElements.applyBuiltinImageProp(node, name, value)
-          break
-        case 'placeholder':
-          deps.containerElements.applyBuiltinPlaceholderProp(node, name, value)
           break
         default: {
           const behavior = deps.registry.behaviorOf(node.type)
@@ -404,7 +378,7 @@ export function createElementProps(deps: Dependencies) {
     // queues the parent — the two are not exclusive (a masonview nested in a
     // masonview needs both passes).
     if (
-      ['liquidglass', 'actionbar', 'rootlayout'].includes(node.type) ||
+      node.adapter?.layout != null ||
       deps.registry.behaviorOf(node.type)?.layout != null
     ) {
       deps.layout.queueLayoutReconcile(node.container, node)

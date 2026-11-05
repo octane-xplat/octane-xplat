@@ -35,12 +35,8 @@ export function createElementAdapterCatalog() {
 /** Explicit bounded legacy inventory for the unpublished P5→P6 migration.
  * A migrated type missing its assembled definition must fail before acquisition. */
 export const unconvertedElementTypes: ReadonlySet<string> = new Set([
-  'rootlayout',
-  'actionbar',
-  'proxyviewcontainer',
   'masonview',
   'scrollview',
-  'liquidglass',
   'listview',
   'tabview',
   'tabviewitem',
@@ -49,5 +45,4 @@ export const unconvertedElementTypes: ReadonlySet<string> = new Set([
   'animatedimage',
   'pager',
   'xplatvideo',
-  'placeholder',
 ])

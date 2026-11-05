@@ -173,16 +173,6 @@ export function createNodes(deps: Dependencies) {
       validateTabProps(type, props ?? {})
     }
 
-
-
-
-
-
-
-
-
-
-
     if (
       type === 'placeholder' &&
       props?.onCreatingView != null &&
@@ -272,17 +262,6 @@ export function createNodes(deps: Dependencies) {
         makeBehavior(node, props)
       } else {
         switch (type) {
-          case 'rootlayout':
-            node.view = deps.containerElements.makeRootLayout(node)
-            break
-          case 'actionbar':
-            node.view = deps.containerElements.makeActionBar(node)
-            deps.containerElements.contentViewNodesByView.set(node.view!, node)
-            deps.containerElements.observeContentGeometry(node)
-            break
-          case 'liquidglass':
-            node.view = deps.containerElements.makeLiquidGlass(node)
-            break
           case 'tabview':
             node.view = makeTabView(node)
             break
@@ -319,11 +298,6 @@ export function createNodes(deps: Dependencies) {
           case 'xplatvideo':
             node.view = makeVideoView()
             break
-          case 'placeholder':
-            node.view = deps.containerElements.makePlaceholder(node)
-            break
-          case 'proxyviewcontainer':
-            break
           default: {
             const behavior = deps.registry.behaviorOf(type)
             if (!behavior?.make) {
@@ -338,9 +312,6 @@ export function createNodes(deps: Dependencies) {
 
       if (node.lifecycle !== 'constructing') {
         throw new Error('AppKit node retired during construction')
-      }
-      if (type === 'liquidglass') {
-        deps.containerElements.gridLayoutNodesByView.set(node.view!, node)
       }
 
       deps.elementProps.applyProps(node, props)
@@ -417,11 +388,6 @@ export function createNodes(deps: Dependencies) {
       release('segment item prepare', () => deps.pickerElements.disposeBuiltinSegmentedItem(node))
       release('segment children prepare', () => deps.pickerElements.disposeBuiltinSegmentedChildren(node))
       release('formatted prepare', () => deps.textElements.disposeBuiltinFormattedText(node))
-      release('proxy prepare', () => deps.projection.disposeBuiltinProxyChildren(node))
-      release('root layout prepare', () => deps.containerElements.disposeBuiltinRootLayout(node))
-      release('glass prepare', () => deps.containerElements.disposeBuiltinLiquidGlass(node))
-      release('content prepare', () => deps.containerElements.disposeBuiltinContentHost(node))
-      release('placeholder prepare', () => deps.containerElements.disposeBuiltinPlaceholder(node))
     }
 
     release('detach', () => deps.tree.detach(node.container, node))

@@ -611,22 +611,7 @@ export function createLayout(deps: Dependencies) {
       return
     }
 
-    if (parent.type === 'rootlayout') {
-      parent.view?.invalidateIntrinsicContentSize()
-      layoutRootChildren(parent)
-      if (['contentview', 'actionbar', 'rootlayout'].includes(parent.parent?.type ?? '')) {
-        queueLayoutReconcile(parent.container, parent.parent)
-      }
 
-      return
-    }
-
-    if (parent.type === 'actionbar') {
-      parent.view?.invalidateIntrinsicContentSize()
-      deps.containerElements.syncActionBar(parent)
-      queueLayoutReconcile(parent.container, parent.parent)
-      return
-    }
   }
   return {
     stickyPlacements,
