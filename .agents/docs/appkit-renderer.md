@@ -151,7 +151,10 @@ former forwarding-only hosted service is removed. Lists/tabs/pager/web/video
 and image engines retain their separate resource state. Image, list and pager
 factories publish an acquired host before fallible resource setup. Pager retires
 state before independent timer/observer/page releases and releases late observer
-tokens. Scroll observer, geometry and axis constraints belong to its definition.
+tokens. Page hosts must join the document before activating clip-relative
+constraints; AppKit aborts when their anchors have no common ancestor
+([#141](https://github.com/octane-xplat/octane-xplat/issues/141)). Scroll observer,
+geometry and axis constraints belong to its definition.
 A manual container is also a child: style application must queue both its own
 layout and its physical parent's layout, including styles forwarded by proxies.
 
