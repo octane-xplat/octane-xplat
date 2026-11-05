@@ -5,13 +5,31 @@ import vm from 'node:vm'
 import ts from 'typescript-classic'
 
 const source = await readFile(new URL('../src/session-backend.ios.ts', import.meta.url), 'utf8')
-const start = source.indexOf('const stopSessionIfIdle =')
-const end = source.indexOf('\n\t}', start) + 3
-assert.ok(start >= 0 && end > start)
-const compiled = ts.transpile(source.slice(start, end) + '\nglobalThis.stop = stopSessionIfIdle', {
-  module: ts.ModuleKind.CommonJS,
-  target: ts.ScriptTarget.ES2022,
-})
+const sourceFile = ts.createSourceFile('session-backend.ios.ts', source, ts.ScriptTarget.Latest, true)
+let stopStatement
+const findStopStatement = (node) => {
+  if (
+    !stopStatement &&
+    ts.isVariableStatement(node) &&
+    node.declarationList.declarations.some(
+      (decl) => ts.isIdentifier(decl.name) && decl.name.text === 'stopSessionIfIdle',
+    )
+  ) {
+    stopStatement = node
+    return
+  }
+  ts.forEachChild(node, findStopStatement)
+}
+ts.forEachChild(sourceFile, findStopStatement)
+assert.ok(stopStatement, 'stopSessionIfIdle declaration not found in session-backend.ios.ts')
+const compiled = ts.transpile(
+  source.slice(stopStatement.getStart(sourceFile), stopStatement.getEnd()) +
+    '\nglobalThis.stop = stopSessionIfIdle',
+  {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  },
+)
 
 const load = (overrides = {}) => {
   const events = []
