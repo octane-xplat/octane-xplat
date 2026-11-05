@@ -187,9 +187,11 @@ text, gesture or accessibility state.
 feature's leases. Control/input factories acquire those leases before fallible
 subsequent setup; menus and picker attachments retain their own leases and
 release them from their attachment disposer. Common node teardown calls the
-feature disposer, never a remote map deletion. Pan payloads retain their own
-typed event path. Gesture release uses the acquired view and current handler
-identity, so old cleanup cannot remove a newer pan binding. Native click,
+feature disposer, never a remote map deletion. Acquired menu leases enter the
+attachment's release list before native tag writes; popup construction releases
+a lease itself if the tag write fails before transfer to a node or attachment.
+Pan payloads retain their own typed event path. Gesture release uses the acquired
+view and current handler identity, so old cleanup cannot remove a newer pan binding. Native click,
 link and pan dispatch also verifies the current recognizer sender; a held old
 recognizer cannot dispatch through a reused view. Held submit and
 adjustment callbacks check their current slot before entering the event scope.

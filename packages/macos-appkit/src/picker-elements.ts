@@ -44,7 +44,12 @@ export function createPickerElements(deps: Dependencies) {
     view.action = 'controlChanged:'
     view.translatesAutoresizingMaskIntoConstraints = false
     const action = deps.actions.allocate(view)
-    view.tag = action.id
+    try {
+      view.tag = action.id
+    } catch (error) {
+      action.release()
+      throw error
+    }
     return { view, action }
   }
 

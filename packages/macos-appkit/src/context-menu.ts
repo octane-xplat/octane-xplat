@@ -121,9 +121,9 @@ export function createContextMenu(deps: Dependencies) {
         menuItem.enabled = !disabled
 
         const action = deps.actions.allocate()
+        created.push({ action, item: menuItem })
         menuItem.tag = action.id
         const id = item?.id
-        created.push({ action, item: menuItem })
         action.setHandler(() => {
           if (!state.active || selecting || disabled || view.menu !== menu || !view.window) {
             return

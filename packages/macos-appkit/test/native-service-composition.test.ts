@@ -24,6 +24,11 @@ class MenuItem extends NSObject {
     this.title = title; this.action = action; return this
   }
   isEnabled() { return this.enabled }
+  set tag(value) {
+    if (this.title === 'Fail tag') throw Error('native tag write');
+    this._tag = value;
+  }
+  get tag() { return this._tag }
 }
 // NativeScript's macOS NAPI class handles are objects with alloc(), not JS functions.
 export const NSMenu = { alloc: () => new Menu() };
@@ -60,7 +65,15 @@ test('hover and menu constructors own their targets independently and menus disp
     const logs: unknown[][] = []
     context.mock.method(console, 'error', (...args: unknown[]) => logs.push(args))
     const store = createActionStore()
-    const actions = { allocate: store.allocate, invokeAction: store.dispatch }
+    const allocated: ReturnType<typeof store.allocate>[] = []
+    const actions = {
+      allocate() {
+        const lease = store.allocate()
+        allocated.push(lease)
+        return lease
+      },
+      invokeAction: store.dispatch,
+    }
     // This is the runtime's real order: hover is built before contextMenu.
     const hover = createHover()
     const menu = createContextMenu({ actions })
@@ -78,6 +91,13 @@ test('hover and menu constructors own their targets independently and menus disp
     detach!()
     assert.equal(view.menu, null)
     retainedAction?.()
+    assert.deepEqual(selected, ['open'])
+    // A failed tag write happens before the item reaches its native menu.
+    // Its acquired slot must still retire, including held lease setters.
+    assert.equal(menu.attachContextMenu(view, { items: [{ title: 'Fail tag' }] }, () => {}), null)
+    const failed = allocated.at(-1)!
+    failed.setHandler(() => selected.push('resurrected'))
+    store.dispatch(failed.id)
     assert.deepEqual(selected, ['open'])
   } finally {
     hooks.deregister()
