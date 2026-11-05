@@ -151,7 +151,7 @@ client fixtures exercise the same public binaries on Linux and Windows. Tests us
 private fixture caches; driver stdin is ignored except for explicit input tests,
 so a fast structured failure cannot become a runner-level empty-pipe EPIPE. These
 bootstrap cases do not by themselves qualify public runtime services. Use the
-runtime build gate for build/job dispatch; persistent sessions remain pending.
+runtime build gate for build/job dispatch; owned persistent sessions have their own runtime gate; attach remains pending.
 
 ## Cross-compilation and execution
 
@@ -483,4 +483,15 @@ persistent runtime build/job status with a real C leaf and verified universal ap
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native runtime build jobs"}' -- bun run turbo run test:go-runtime-build test:go-build-macos-real --filter=@octane-xplat/cli
+```
+
+The persistent-session gate runs real selected-project Vite/HTTP and optional
+Chromium DevTools HTTP, concurrent target claims, awaited cancellation/descendant
+cleanup and retained reads after owner retirement or project metadata removal.
+Its macOS case observes initialized AppKit app code and released host resources
+without capturing or inspecting images. Portable snapshots expose
+`test:go-runtime-sessions:portable`; the Mac-only app case skips elsewhere.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native persistent sessions"}' -- bun run turbo run test:go-runtime-sessions --filter=@octane-xplat/cli
 ```

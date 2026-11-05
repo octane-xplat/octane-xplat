@@ -115,9 +115,11 @@ if(mode==='started'){console.log('service stdout');console.error('service stderr
 			if err = os.WriteFile(worker, []byte(program), 0600); err != nil {
 				t.Fatal(err)
 			}
-			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			// Allow a real Node process to start on a busy host. The observer's
+			// short deadline is covered independently without process startup.
+			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 			defer cancel()
-			result, err := runServiceWorker(ctx, project, worker, "workshop-dev", "web", map[string]any{"target": "web"}, time.Second, nil, nil, nil)
+			result, err := runServiceWorker(ctx, project, worker, "workshop-dev", "web", map[string]any{"target": "web"}, 5*time.Second, nil, nil, nil)
 			switch mode {
 			case "started":
 				if err != nil || result.Process.Cancelled || !strings.Contains(result.Process.Stdout, "service stdout") || !strings.Contains(result.Process.Stderr, "service stderr") {

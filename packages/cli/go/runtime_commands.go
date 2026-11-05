@@ -24,6 +24,22 @@ type runtimeExecution struct {
 	Environment []string
 	Node        string
 	Observe     func(processResult)
+	Tools       map[string]string
+	Stream      func(historyRecord)
+	Native      func(macDevFrame)
+	OwnerID     string
+}
+
+var runtimeTools = []string{"xcrun", "adb", "bun", "npm", "pnpm", "git"}
+
+func projectExecutable(ctx context.Context, name string) (string, error) {
+	if execution, ok := ctx.Value(runtimeExecutionKey{}).(runtimeExecution); ok {
+		if path := execution.Tools[name]; path != "" {
+			return path, nil
+		}
+		return "", exec.ErrNotFound
+	}
+	return exec.LookPath(name)
 }
 
 func projectExecutionEnvironment(ctx context.Context) []string {
@@ -41,21 +57,34 @@ func projectNodeExecutable(ctx context.Context) (string, error) {
 }
 
 type runtimeRequest struct {
-	Version     int      `json:"version"`
-	AppID       string   `json:"appId"`
-	AppRoot     string   `json:"appRoot"`
-	Grants      []string `json:"grants"`
-	Environment []string `json:"environment,omitempty"`
-	Node        string   `json:"node,omitempty"`
-	Platform    string   `json:"platform,omitempty"`
-	RequestKey  string   `json:"requestKey,omitempty"`
-	JobID       string   `json:"jobId,omitempty"`
+	Version     int               `json:"version"`
+	AppID       string            `json:"appId"`
+	AppRoot     string            `json:"appRoot"`
+	Grants      []string          `json:"grants"`
+	Environment []string          `json:"environment,omitempty"`
+	Node        string            `json:"node,omitempty"`
+	Platform    string            `json:"platform,omitempty"`
+	RequestKey  string            `json:"requestKey,omitempty"`
+	JobID       string            `json:"jobId,omitempty"`
+	SessionID   string            `json:"sessionId,omitempty"`
+	Target      string            `json:"target,omitempty"`
+	BrowserMode string            `json:"browserMode,omitempty"`
+	Tools       map[string]string `json:"tools,omitempty"`
 }
 
 func init() {
 	for name, method := range map[string]string{"runtime build": "runtime.build", "job status": "jobs.status", "job cancel": "jobs.cancel"} {
 		commandHandlers[name] = func(ctx context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
 			return runtimeCommand(ctx, workspace, method, values)
+		}
+	}
+	commandHandlers["targets"] = runtimeTargetsCommand
+	commandHandlers["session start"] = func(ctx context.Context, w *workspaceContext, v map[string]any) (any, *cliError) {
+		return runtimeCommand(ctx, w, "runtime.launch", v)
+	}
+	for name, method := range map[string]string{"session list": "sessions.list", "session status": "sessions.get", "session end": "sessions.end"} {
+		commandHandlers[name] = func(ctx context.Context, w *workspaceContext, v map[string]any) (any, *cliError) {
+			return runtimeSessionCommand(ctx, w, method, v)
 		}
 	}
 }
@@ -73,6 +102,24 @@ func runtimeSelectedApp(workspace *workspaceContext) (*appIdentity, *cliError) {
 }
 
 func runtimeCommand(ctx context.Context, workspace *workspaceContext, method string, values map[string]any) (any, *cliError) {
+	if method == "jobs.cancel" || method == "jobs.status" {
+		cache, err := agentOwnerCacheParent()
+		if err != nil {
+			return nil, executionFailure(err)
+		}
+		client, failure := lookupAgentOwner(ctx, cache, workspace.Root)
+		if failure != nil {
+			return nil, failure
+		}
+		if client == nil {
+			return nil, &cliError{Code: "not_found", Message: "No native agent owner is running; no jobs exist for this workspace."}
+		}
+		operation := "jobs.statusOwned"
+		if method == "jobs.cancel" {
+			operation = "jobs.cancelOwned"
+		}
+		return client.call(ctx, operation, runtimeOwnedParams(workspace, stringValue(values["jobId"]), method == "jobs.cancel"))
+	}
 	app, failure := runtimeSelectedApp(workspace)
 	if failure != nil {
 		return nil, failure
@@ -82,17 +129,23 @@ func runtimeCommand(ctx context.Context, workspace *workspaceContext, method str
 		return nil, executionFailure(err)
 	}
 	request := runtimeRequest{Version: 1, AppID: app.ID, AppRoot: root, Platform: stringValue(values["platform"]), RequestKey: stringValue(values["requestKey"]), JobID: stringValue(values["jobId"])}
+	request.SessionID = stringValue(values["sessionId"])
+	request.Target = stringValue(values["target"])
+	request.BrowserMode = stringValue(values["browserMode"])
 	for _, grant := range permissionGrants() {
 		if grant["state"] == "granted" {
 			request.Grants = append(request.Grants, stringValue(grant["scope"]))
 		}
 	}
-	if method == "runtime.build" {
-		if request.Platform == "" {
-			return nil, invalid("Pass --platform to build one declared platform.")
-		}
-		if !slices.Contains(app.Platforms, request.Platform) {
-			return nil, invalid(fmt.Sprintf("App %q does not declare the %q platform.", app.ID, request.Platform))
+	create := method == "runtime.build" || method == "runtime.launch"
+	if create {
+		if method == "runtime.build" {
+			if request.Platform == "" {
+				return nil, invalid("Pass --platform to build one declared platform.")
+			}
+			if !slices.Contains(app.Platforms, request.Platform) {
+				return nil, invalid(fmt.Sprintf("App %q does not declare the %q platform.", app.ID, request.Platform))
+			}
 		}
 		request.Node, err = exec.LookPath("node")
 		if err != nil {
@@ -103,6 +156,14 @@ func runtimeCommand(ctx context.Context, workspace *workspaceContext, method str
 			return nil, executionFailure(err)
 		}
 		request.Environment = projectToolEnvironment()
+		request.Tools = map[string]string{}
+		for _, tool := range runtimeTools {
+			if found, e := exec.LookPath(tool); e == nil {
+				if path, e := filepath.Abs(found); e == nil {
+					request.Tools[tool] = path
+				}
+			}
+		}
 		request.Environment, failure = runtimeEnvironment(request)
 		if failure != nil {
 			return nil, failure
@@ -113,7 +174,7 @@ func runtimeCommand(ctx context.Context, workspace *workspaceContext, method str
 		return nil, executionFailure(err)
 	}
 	var client *agentOwnerClient
-	if method == "runtime.build" {
+	if create {
 		executable, err := os.Executable()
 		if err != nil {
 			return nil, executionFailure(err)
@@ -161,6 +222,14 @@ func decodeRuntimeRequest(params map[string]any) (runtimeRequest, *cliError) {
 }
 
 func runtimeEnvironment(request runtimeRequest) ([]string, *cliError) {
+	for name, path := range request.Tools {
+		if !slices.Contains(runtimeTools, name) || !filepath.IsAbs(path) {
+			return nil, invalid("Invalid runtime tool selection.")
+		}
+		if info, err := os.Stat(path); err != nil || !info.Mode().IsRegular() {
+			return nil, runtimePrerequisite("An invoking-client runtime tool is unavailable.")
+		}
+	}
 	if !filepath.IsAbs(request.Node) {
 		return nil, runtimePrerequisite("The invoking client must select an absolute Node executable.")
 	}
@@ -187,7 +256,10 @@ func runtimeEnvironment(request runtimeRequest) ([]string, *cliError) {
 }
 
 func dispatchRuntime(ctx context.Context, owner *agentOwner, call agentOwnerRequest) (any, *cliError) {
-	if !slices.Contains([]string{"runtime.build", "jobs.status", "jobs.cancel"}, call.Method) {
+	if slices.Contains([]string{"sessions.overview", "sessions.endOwned", "jobs.cancelOwned", "jobs.statusOwned"}, call.Method) {
+		return dispatchOwnedRuntime(ctx, owner, call)
+	}
+	if !slices.Contains([]string{"runtime.build", "jobs.status", "jobs.cancel", "runtime.launch", "runtime.targetClaims", "sessions.list", "sessions.get", "sessions.end"}, call.Method) {
 		return nil, invalid("Unknown native owner operation.")
 	}
 	request, failure := decodeRuntimeRequest(call.Params)
@@ -195,7 +267,7 @@ func dispatchRuntime(ctx context.Context, owner *agentOwner, call agentOwnerRequ
 		return nil, failure
 	}
 	required := "workspace"
-	if call.Method != "jobs.status" {
+	if !slices.Contains([]string{"jobs.status", "runtime.targetClaims", "sessions.list", "sessions.get"}, call.Method) {
 		required = "runtime-actions"
 	}
 	if !slices.Contains(request.Grants, required) {
@@ -214,7 +286,16 @@ func dispatchRuntime(ctx context.Context, owner *agentOwner, call agentOwnerRequ
 		return nil, &cliError{Code: "stale_identity", Message: "Selected app identity changed; rediscover the app before starting or observing work."}
 	}
 	app.Root = physical
-	if call.Method != "runtime.build" {
+	switch call.Method {
+	case "runtime.targetClaims":
+		return map[string]any{"claims": owner.sessions.claims(*app)}, nil
+	case "sessions.list":
+		return map[string]any{"sessions": owner.sessions.list(*app)}, nil
+	case "sessions.get":
+		return owner.sessions.status(*app, request.SessionID)
+	case "sessions.end":
+		return owner.sessions.end(ctx, *app, request.SessionID)
+	case "jobs.status", "jobs.cancel":
 		var job runtimeJob
 		if call.Method == "jobs.cancel" {
 			job, failure = owner.jobs.cancel(app.ID, app.Root, request.JobID)
@@ -222,6 +303,24 @@ func dispatchRuntime(ctx context.Context, owner *agentOwner, call agentOwnerRequ
 			job, failure = owner.jobs.status(app.ID, app.Root, request.JobID)
 		}
 		return map[string]any{"job": job}, failure
+	}
+	if call.Method == "runtime.launch" {
+		environment, failure := runtimeEnvironment(request)
+		if failure != nil {
+			return nil, failure
+		}
+		execution := runtimeExecution{Environment: environment, Node: request.Node, Tools: request.Tools, OwnerID: owner.descriptor.Generation}
+		launchCtx := context.WithValue(ctx, runtimeExecutionKey{}, execution)
+		target, failure := selectRuntimeTarget(launchCtx, *app, request.Target)
+		if failure != nil {
+			return nil, failure
+		}
+		if request.BrowserMode != "" && request.BrowserMode != "headless" && request.BrowserMode != "headed" {
+			return nil, invalid("Unknown browser mode.")
+		}
+		return owner.sessions.start(*app, target, request.RequestKey, func(operation context.Context, entry *runtimeSessionEntry, report func(runtimeLaunch, string)) error {
+			return runRuntimeSession(context.WithValue(operation, runtimeExecutionKey{}, execution), owner.sessions, entry, target, request.BrowserMode, report)
+		})
 	}
 	if !slices.Contains(app.Platforms, request.Platform) {
 		return nil, invalid(fmt.Sprintf("App %q does not declare the %q platform.", app.ID, request.Platform))
@@ -234,7 +333,7 @@ func dispatchRuntime(ctx context.Context, owner *agentOwner, call agentOwnerRequ
 	job, deduplicated, failure := owner.jobs.start(input, func(operation context.Context, report func(map[string]any) error) (any, error) {
 		budget, cancel := context.WithTimeout(operation, 30*time.Minute)
 		defer cancel()
-		return runRuntimeBuild(context.WithValue(budget, runtimeExecutionKey{}, runtimeExecution{Environment: environment, Node: request.Node}), *app, request.Platform, report)
+		return runRuntimeBuild(context.WithValue(budget, runtimeExecutionKey{}, runtimeExecution{Environment: environment, Node: request.Node, Tools: request.Tools, OwnerID: owner.descriptor.Generation}), *app, request.Platform, report)
 	})
 	return map[string]any{"job": job, "deduplicated": deduplicated}, failure
 }
@@ -275,7 +374,7 @@ func (tail *runtimeBuildTail) snapshot() []string {
 	return slices.Clone(tail.lines)
 }
 
-func runRuntimeBuild(ctx context.Context, app appIdentity, platform string, report func(map[string]any) error) (any, error) {
+func runRuntimeBuild(ctx context.Context, app appIdentity, platform string, report func(map[string]any) error) (answer any, failure error) {
 	if err := report(map[string]any{"phase": "starting", "platform": platform}); err != nil {
 		return nil, err
 	}
@@ -283,7 +382,8 @@ func runRuntimeBuild(ctx context.Context, app appIdentity, platform string, repo
 	if err != nil {
 		return nil, runtimePrerequisite(err.Error())
 	}
-	release, err := lockProjectOutputs(app.Root)
+	execution := ctx.Value(runtimeExecutionKey{}).(runtimeExecution)
+	release, err := lockOwnedProjectOutputs(app.Root, execution.OwnerID)
 	if err != nil {
 		var busy *projectOutputsBusyError
 		if errors.As(err, &busy) {
@@ -291,9 +391,19 @@ func runRuntimeBuild(ctx context.Context, app appIdentity, platform string, repo
 		}
 		return nil, executionFailure(err)
 	}
-	defer release()
+	defer func() {
+		panicked := recover()
+		var process *processCleanupError
+		var cleanup *runtimeSessionCleanupError
+		var startup *ownerStartupCleanupError
+		if err := release(panicked == nil && !errors.As(failure, &process) && !errors.As(failure, &cleanup) && !errors.As(failure, &startup)); err != nil {
+			failure = errors.Join(failure, &runtimeSessionCleanupError{Err: err})
+		}
+		if panicked != nil {
+			panic(panicked)
+		}
+	}()
 	tail := &runtimeBuildTail{}
-	execution := ctx.Value(runtimeExecutionKey{}).(runtimeExecution)
 	execution.Observe = tail.observe
 	ctx = context.WithValue(ctx, runtimeExecutionKey{}, execution)
 	if err := report(map[string]any{"phase": "building", "platform": platform}); err != nil {
@@ -345,7 +455,7 @@ func runRuntimeBuild(ctx context.Context, app appIdentity, platform string, repo
 }
 
 func runtimeBuildRevision(ctx context.Context, project string) (any, error) {
-	tool, err := exec.LookPath("git")
+	tool, err := projectExecutable(ctx, "git")
 	if err != nil {
 		return nil, nil
 	}

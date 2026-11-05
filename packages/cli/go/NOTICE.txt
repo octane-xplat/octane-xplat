@@ -3,3 +3,6 @@ Hugging Face tokenizers.js 0.2.0 (c64658585ee6b65da8788f434b8ac53e93a4e32c).
 Copyright Hugging Face, Inc. Licensed under Apache-2.0; the full upstream
 attribution and license are in licenses/tokenizers-js.txt. Modified for Go,
 pinned MiniLM assets and one unpadded sequence. This is not a general tokenizer.
+
+Owned Chromium shutdown uses github.com/coder/websocket v1.8.15 (ISC).
+Its license is included in the executable download's THIRD-PARTY-NOTICES.txt.

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -25,7 +24,8 @@ type devEngine struct {
 }
 
 func prepareDevEngines(ctx context.Context, project string, targets []devTarget) ([]devEngine, error) {
-	if _, err := exec.LookPath("node"); err != nil {
+	node, err := projectNodeExecutable(ctx)
+	if err != nil {
 		return nil, errors.New("Node is required for project development engines")
 	}
 	manifest, err := projectManifest(project)
@@ -41,7 +41,7 @@ func prepareDevEngines(ctx context.Context, project string, targets []devTarget)
 			if err != nil {
 				return nil, err
 			}
-			engine.Args = []string{"node", entry}
+			engine.Args = []string{node, entry}
 		case "ios", "android", "windows":
 			if target.Kind == "ios" && runtime.GOOS != "darwin" {
 				return nil, errors.New("iOS development requires a Mac")
@@ -53,7 +53,7 @@ func prepareDevEngines(ctx context.Context, project string, targets []devTarget)
 			if err != nil {
 				return nil, err
 			}
-			engine.Args = []string{"node", entry, "run", target.Kind}
+			engine.Args = []string{node, entry, "run", target.Kind}
 			if target.Kind != "windows" {
 				engine.Args = append(engine.Args, "--device", target.Device)
 			}
@@ -110,7 +110,7 @@ func prepareDevEngines(ctx context.Context, project string, targets []devTarget)
 			if err != nil {
 				return nil, err
 			}
-			executable, err := exec.LookPath(manager)
+			executable, err := projectExecutable(ctx, manager)
 			if err != nil {
 				return nil, fmt.Errorf("install the project's %s package manager: %w", manager, err)
 			}
@@ -132,8 +132,13 @@ func prepareDevSimulator(ctx context.Context, project string, target devTarget) 
 	}
 	commands = append(commands, []string{"xcrun", "simctl", "bootstatus", target.Device, "-b"})
 	for _, argv := range commands {
+		tool, err := projectExecutable(ctx, argv[0])
+		if err != nil {
+			return err
+		}
+		argv[0] = tool
 		child, cancel := context.WithTimeout(ctx, 2*time.Minute)
-		result, err := runProcess(child, argv, project, nil)
+		result, err := runProcess(child, argv, project, projectExecutionEnvironment(ctx))
 		cancel()
 		if err != nil {
 			return err

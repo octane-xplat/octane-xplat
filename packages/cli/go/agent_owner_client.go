@@ -48,7 +48,7 @@ func agentOwnerDirectory(parent, project string) (string, error) {
 	if parent == "" {
 		return "", errors.New("native owner requires a cache parent")
 	}
-	project, err := canonical(project)
+	project, err := knownOwnerProjectPath(project)
 	if err != nil {
 		return "", err
 	}
@@ -65,7 +65,7 @@ func agentOwnerDirectory(parent, project string) (string, error) {
 // A missing cache or descriptor means no owner. Malformed, inaccessible or stale
 // ownership evidence is an error, not permission to start a replacement.
 func lookupAgentOwner(ctx context.Context, parent, project string) (*agentOwnerClient, *cliError) {
-	project, err := canonical(project)
+	project, err := knownOwnerProjectPath(project)
 	if err != nil {
 		return nil, executionFailure(err)
 	}
@@ -81,7 +81,7 @@ func lookupAgentOwner(ctx context.Context, parent, project string) (*agentOwnerC
 	return connectAgentOwnerAt(ctx, directory, project)
 }
 func connectAgentOwnerAt(ctx context.Context, directory, project string) (*agentOwnerClient, *cliError) {
-	project, err := canonical(project)
+	project, err := knownOwnerProjectPath(project)
 	if err != nil {
 		return nil, executionFailure(err)
 	}
@@ -164,7 +164,11 @@ func (client *agentOwnerClient) call(parent context.Context, method string, para
 	if len(body) > 1<<20 {
 		return nil, invalid("Native owner request exceeds 1 MiB.")
 	}
-	ctx, cancel := context.WithTimeout(parent, 10*time.Second)
+	budget, headers := 10*time.Second, 5*time.Second
+	if method == "sessions.endOwned" || method == "sessions.end" {
+		budget, headers = 30*time.Second, 30*time.Second
+	}
+	ctx, cancel := context.WithTimeout(parent, budget)
 	defer cancel()
 	request, err := http.NewRequestWithContext(ctx, "POST", client.descriptor.Address, bytes.NewReader(body))
 	if err != nil {
@@ -173,7 +177,7 @@ func (client *agentOwnerClient) call(parent context.Context, method string, para
 	request.Header.Set("Authorization", "Bearer "+client.descriptor.Token)
 	request.Header.Set("X-Octane-Owner", client.descriptor.Generation)
 	request.Header.Set("Content-Type", "application/json")
-	transport := &http.Transport{Proxy: nil, ResponseHeaderTimeout: 5 * time.Second}
+	transport := &http.Transport{Proxy: nil, ResponseHeaderTimeout: headers}
 	defer transport.CloseIdleConnections()
 	response, err := (&http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}).Do(request)
 	if err != nil {

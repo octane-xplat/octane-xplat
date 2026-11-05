@@ -57,7 +57,7 @@ function app() {
 
 function launch(f, { mode = 'lookup', method = 'host.ping', pause = '', stdin } = {}) {
 	const child = spawn(fixture, ['-test.run=^TestAgentOwnerBootstrapFixture$'], {
-		cwd: f.project,
+		cwd: f.cwd ?? f.project,
 		stdio: [stdin === undefined ? 'ignore' : 'pipe', 'pipe', 'pipe'],
 		env: {
 			...process.env,
@@ -174,6 +174,19 @@ test('native read-only owner lookup creates no cache or daemon', async () => {
 	assert.equal(result.code, 0, result.stdout + result.stderr)
 	assert.deepEqual(value(result), { ok: true, owner: null })
 	assert.equal(existsSync(f.cache), false)
+})
+
+test('an idle owner does not hold the workspace working directory open', async () => {
+	const f = app()
+	f.cwd = scratch
+	const started = await run(f, { mode: 'start' })
+	assert.equal(started.code, 0, started.stdout + started.stderr)
+	rmSync(f.project, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
+	assert.equal(existsSync(f.project), false)
+	const observed = await run(f)
+	assert.equal(observed.code, 0, observed.stdout + observed.stderr)
+	assert.equal(value(observed).generation, value(started).generation)
+	await shutdown(f)
 })
 
 test(

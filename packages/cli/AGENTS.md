@@ -71,6 +71,9 @@ the manifest so Windows refusal preserves recovery evidence. Request Windows Job
 breakaway explicitly and report refusal instead of inheriting a caller's Job.
 Owner creation does not make the first client's grants global: send validated
 permissions and operation environment per request when connecting public services.
+Cleanup RPC deadlines must cover the bounded engine/browser teardown sequence;
+keep ordinary reads shorter. A client timeout proves neither owner loss nor
+resource release, and must not authorize replacement.
 
 Job admission and request-key deduplication must be atomic before a runner starts.
 Include selected app identity, platform, operation and session in that key. A caller
@@ -88,6 +91,39 @@ credentials out of descriptors, job metadata and logs. Revalidate selected app i
 and canonical root inside the owner. Distinguish genuine output-lease contention
 from cache/permission errors. Best-effort Git metadata may omit an unavailable
 revision, but must preserve dirty state and propagate unconfirmed process cleanup.
+
+Claim target identity and owner admission before launching a session. Keep that
+claim until awaited cleanup, including when a state is failed or disconnected.
+Separate creation checks from cleanup authority: edits/removal of a project must
+not prevent ending a known registered process. Scope cleanup by authenticated
+owner, registered app binding and session id; never rediscover signal authority
+from a PID. Preserve nonempty project-lease cleanup witnesses across kernel lock
+release and clear them only while holding the lease after confirmed cleanup.
+
+For native macOS workers, require the validated launch sidecar rather than a generic
+"ready" log line. Report host-spawn evidence separately from app initialization.
+Normalize ANSI sequences in log-based readiness parsing: Vite can color the port
+inside its URL even with piped output. Preserve original retained log bytes.
+A browser owns its private profile and process group/Job until joined cleanup;
+DevTools port metadata is descriptive and never signal authority. Capture bounded
+native launch history before copying it into public live session snapshots.
+Windows sharing violations can briefly outlive process exit or atomic sidecar
+publication. Retry those specific OS errors within an existing deadline; do not
+mask malformed metadata or general access failures. Join process cleanup before
+retrying private browser-profile removal, and preserve it if bounded retries fail.
+Close an owned Chromium browser through the validated private DevTools endpoint
+before escalation through its retained process group/Job. Keep cancellation and
+joining separate so a parent cancellation cannot race the graceful close.
+Browser qualification must forward explicit browser configuration through the task
+runner and assert the selected executable as well as its observed DevTools version.
+A filtered environment can silently exercise a fallback browser instead.
+Collect each qualification archive into a fresh directory. A missing result from
+a failed run must never inherit an older JSON file; validate source/binary hashes
+before treating a collected result as current evidence.
+Windows may reject removing a live engine's working directory with EBUSY after
+its files have already been removed. Verify ending through the registered binding,
+then require directory removal and retained reads to succeed. Report this apart
+from hosts where the whole workspace was removed before ending the session.
 
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations

@@ -11,16 +11,19 @@ import {
 	detectGuidance,
 	resolveFrameworkBinding,
 } from '../../packages/cli/src/mcp/discovery.ts'
+
 import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
+
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const suffix = process.platform === 'win32' ? '.exe' : ''
 const binary = join(work, `xplat-go-${host}-cli${suffix}`),
 	probe = join(work, `xplat-go-${host}${suffix}`)
+
 for (const executable of [binary, probe]) {
 	assert.deepEqual(
 		JSON.parse(readFileSync(executable + '.json')).inputs,
@@ -28,12 +31,14 @@ for (const executable of [binary, probe]) {
 		'Stale Go contract build',
 	)
 }
+
 const scratch = scratchRun(root, 'go-contracts')
 function put(path, value) {
 	mkdirSync(dirname(path), { recursive: true })
 	writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value))
 	return path
 }
+
 function cli(args, options = {}) {
 	const result = spawnSync(binary, args, {
 		cwd: scratch,
@@ -52,6 +57,7 @@ function cli(args, options = {}) {
 	delete value.requestId
 	return { status: result.status, value }
 }
+
 function normal(value) {
 	if (Array.isArray(value)) {
 		return value.map(normal)
@@ -85,9 +91,15 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'runtime build',
 			'job status',
 			'job cancel',
+			'targets',
+			'session start',
+			'session list',
+			'session status',
+			'session end',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
+
 		assert.deepEqual(actual.value.data, expected)
 	}
 	const catalog = cli(['catalog', '--json'])
@@ -98,13 +110,12 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		13,
+		18,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],
 		[['docs', 'unknown', '--json'], 'invalid_selection'],
 		[['actions', 'status', '--json'], 'invalid_selection'],
-		[['session', 'list', '--json'], 'unavailable'],
 	]) {
 		const actual = cli(args)
 		assert.equal(actual.value.ok, false)
@@ -161,12 +172,21 @@ test('status preserves identity, guidance and actual package bindings without cl
 			matrix.capabilities
 				.filter((entry) => entry.status === 'supported')
 				.map((entry) => entry.capability),
-			['project_status', 'guidance', 'code_search'],
+			[
+				'project_status',
+				'guidance',
+				'code_search',
+				'target_discovery',
+				'job_control',
+				'session_end',
+			],
 		)
+
 		assert.equal(
 			matrix.capabilities.find((entry) => entry.capability === 'screenshot').requiresPermission,
 			'visual-capture',
 		)
+
 		assert.equal(
 			matrix.capabilities.find((entry) => entry.capability === 'guidance').status,
 			'supported',
@@ -287,6 +307,7 @@ test('descriptor parser matches independent Node across the existing native argu
 		]) {
 			add(command, argv)
 		}
+
 		for (const flag of command.flags) {
 			const values =
 				flag.type === 'boolean'
@@ -323,6 +344,7 @@ test('descriptor parser matches independent Node across the existing native argu
 						: flag.type === 'enum'
 							? [...flag.values, 'invalid', '']
 							: ['', 'hello world', 'https://example.invalid/a?q=x', '-']
+
 			add(command, [`--${flag.flag}`])
 			add(command, [`--${flag.flag}`, '--help'])
 			for (const value of values) {
@@ -371,6 +393,7 @@ test('discovery, persisted per-client binding and envelope identity match Node',
 			name: 'same-name',
 			xplat: { targets: target === 'linux' ? { linux: { runtime: 'gtk' } } : {} },
 		})
+
 		if (target === 'web') {
 			put(join(app, 'vite.config.mts'), '')
 		}
@@ -444,10 +467,12 @@ test('permission policy matches Node without creating visual or retention grants
 			.split(',')
 			.map((scope) => scope.trim())
 			.filter(Boolean)
+
 		const policy = createPolicyStore({
 			taskAuthorization: true,
 			grants: scopes.map((scope) => ({ scope, state: 'granted', source: 'server-config' })),
 		})
+
 		assert.deepEqual(
 			normal(cli(['permissions', '--json'], { env: { XPLAT_PERMISSIONS: env } }).value.data.grants),
 			normal(policy.list()),

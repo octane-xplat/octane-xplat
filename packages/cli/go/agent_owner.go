@@ -47,6 +47,8 @@ type agentOwner struct {
 	operations, handlers sync.WaitGroup
 	cleanupErr           error
 	jobs                 *runtimeJobs
+	sessions             *runtimeSessions
+	cacheParent          string
 	handoff              <-chan struct{}
 	descriptor           agentOwnerDescriptor
 }
@@ -198,6 +200,8 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 		Project: project, Address: "http://" + listener.Addr().String() + "/rpc", PID: os.Getpid(), State: "running",
 	}}
 	owner.jobs = newRuntimeJobs(owner)
+	owner.cacheParent = sessionHistoryParent(directory)
+	owner.sessions = newRuntimeSessions(owner)
 	if launch, ok := parent.Value(agentOwnerLaunchKey{}).(agentOwnerLaunchState); ok {
 		owner.handoff = launch.Adopted
 		owner.descriptor.LaunchID = launch.Request.LaunchID
@@ -232,6 +236,11 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 		var value any
 		var failure *cliError
 		stop := false
+		if request.Method == "sessions.endOwned" || request.Method == "sessions.end" {
+			// Teardown can include stream drain, graceful browser close and
+			// bounded group/Job escalation. Reads keep the shorter deadline.
+			_ = http.NewResponseController(w).SetWriteDeadline(time.Now().Add(35 * time.Second))
+		}
 		switch request.Method {
 		case "host.ping":
 			value = map[string]any{"generation": owner.descriptor.Generation, "project": project, "implementation": "go", "protocolVersion": agentOwnerProtocolVersion, "adopted": owner.adopted(), "binarySha256": owner.descriptor.BinarySHA256, "launchId": owner.descriptor.LaunchID}

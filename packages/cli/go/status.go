@@ -50,8 +50,14 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 		for _, capability := range metadata.CapabilityIDs {
 			entry := map[string]any{"capability": capability, "status": "unavailable", "detail": "The Go " + strings.ReplaceAll(capability, "_", " ") + " provider is pending."}
 			switch capability {
-			case "project_status":
+			case "project_status", "job_control", "session_end":
 				entry = map[string]any{"capability": capability, "status": "supported"}
+			case "target_discovery":
+				entry = map[string]any{"capability": capability, "status": "supported", "detail": "Native declared-platform/host/SDK discovery and authenticated target ownership; missing SDKs report explicit reasons."}
+			case "launch":
+				if selection.State == "bound" && slices.Contains(selection.App.Platforms, platform) {
+					entry = map[string]any{"capability": capability, "status": "partial", "requiresPermission": "runtime-actions", "detail": "Native owned sessions run selected-project engines and optional Chromium. Readiness reports HTTP, engine or native-host evidence; SDK/device and headed OS-input qualification remain separate."}
+				}
 			case "build":
 				entry["requiresPermission"] = "runtime-actions"
 				entry["detail"] = "Select an app and a declared platform before starting a native build job."

@@ -170,6 +170,9 @@ func runMacDevWorker(ctx context.Context, project, entry string, input, out, dia
 					capture.recordRetentionError(err)
 				}
 			}
+			if execution, ok := ctx.Value(runtimeExecutionKey{}).(runtimeExecution); ok && execution.Native != nil {
+				execution.Native(*frame)
+			}
 		}
 		for {
 			select {
@@ -186,7 +189,13 @@ func runMacDevWorker(ctx context.Context, project, entry string, input, out, dia
 			}
 		}
 	}()
-	result, err := runProcessStdio(child, []string{"node", entry, request, state}, project, projectToolEnvironment(), input, out, diagnostics)
+	node, err := projectNodeExecutable(child)
+	if err != nil {
+		close(stop)
+		<-done
+		return processResult{}, err
+	}
+	result, err := runProcessStdio(child, []string{node, entry, request, state}, project, projectExecutionEnvironment(child), input, out, diagnostics)
 	close(stop)
 	<-done
 	if frame, finalErr := readMacDevFrame(state, id, resources, appID); finalErr == nil && frame != nil && capture != nil {

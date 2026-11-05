@@ -281,6 +281,7 @@ if (flags.includes('--test') || ownerRace) {
 		)
 
 		for (const [name, version, license] of [
+			['github.com/coder/websocket', 'v1.8.15', 'LICENSE.txt'],
 			['golang.org/x/sys', 'v0.49.0', 'LICENSE'],
 			['golang.org/x/text', 'v0.43.0', 'LICENSE'],
 			['gopkg.in/yaml.v3', 'v3.0.1', 'LICENSE'],

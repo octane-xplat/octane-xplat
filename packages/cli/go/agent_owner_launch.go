@@ -148,7 +148,9 @@ func ensureAgentOwner(parent context.Context, cache, project, invoked string, ho
 	}
 	defer write.Close()
 	cmd := agentOwnerCommand(helper, []string{"_owner", directory, id})
-	cmd.Dir = project
+	// The persistent owner must not lock the caller's workspace as its CWD.
+	// Every admitted operation receives its own explicit project directory.
+	cmd.Dir = run
 	cmd.Env = ownerChildEnvironment()
 	cmd.Stdin = read
 	if err = cmd.Start(); err != nil {

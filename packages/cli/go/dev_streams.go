@@ -102,6 +102,9 @@ func runLoggedDevProcess(ctx context.Context, tag string, capture *historyCaptur
 			if capture != nil {
 				_ = capture.Append(historyRecord{Stream: stream, Source: tag, Line: line, LineTruncated: truncated})
 			}
+			if execution, ok := ctx.Value(runtimeExecutionKey{}).(runtimeExecution); ok && execution.Stream != nil {
+				execution.Stream(historyRecord{Stream: stream, Source: tag, Line: line, LineTruncated: truncated})
+			}
 			human := line
 			if truncated {
 				human = strings.ToValidUTF8(human, "�") + " [xplat: terminal line truncated after 1 MiB]"

@@ -22,6 +22,9 @@ const historyRetainedRuns = 20
 var historyID = regexp.MustCompile(`^sess_[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$`)
 
 type historySession struct {
+	Launch           *runtimeLaunch     `json:"launch,omitempty"`
+	ProcessKind      *string            `json:"processKind,omitempty"`
+	BuildIdentity    json.RawMessage    `json:"buildIdentity,omitempty"`
 	NativeIdentity   *devNativeIdentity `json:"nativeIdentity,omitempty"`
 	Version          int                `json:"version"`
 	StoreVersion     int                `json:"storeVersion"`
@@ -377,7 +380,7 @@ func (store *historyStore) Capture(session historySession) (*historyCapture, err
 	if _, err := store.root.Lstat(session.SessionID); !os.IsNotExist(err) {
 		return nil, errors.New("native capture identity already exists or cannot be checked")
 	}
-	if err := preparePrivateCache(filepath.Join(store.path, session.SessionID)); err != nil {
+	if err := privateDirectoryAt(filepath.Join(store.path, session.SessionID)); err != nil {
 		return nil, err
 	}
 	info, err := store.root.Lstat(session.SessionID)

@@ -29,7 +29,7 @@ type serviceStart struct {
 
 func readServiceStart(path, id, project, operation, target string) (bool, error) {
 	info, err := os.Lstat(path)
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) || fileSharingViolation(err) {
 		return false, nil
 	}
 	if err != nil {
@@ -39,6 +39,9 @@ func readServiceStart(path, id, project, operation, target string) (bool, error)
 		return false, errors.New("invalid service startup file type/size")
 	}
 	file, err := os.Open(path)
+	if fileSharingViolation(err) {
+		return false, nil // The bounded startup observer retries publication locks.
+	}
 	if err != nil {
 		return false, err
 	}

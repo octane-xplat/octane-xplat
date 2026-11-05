@@ -82,7 +82,7 @@ lines with a diagnostic; retained logs have separate bounds and failure reportin
 Host spawn alone does not imply application readiness. SDK command construction
 and compilation do not establish device runtime or Windows console qualification.
 
-Public persistent sessions remain pending. The history store preserves Node
+Persistent session start/list/status/end and target ownership are now native. The history store preserves Node
 pagination, discloses rotation/incomplete tails and keeps cleanup confirmation
 separate from stopped state or stored PIDs. Foreground captures do not register a
 live persistent-owner session or grant authority to signal stored PIDs.
@@ -147,12 +147,42 @@ pending. A build engine's availability does not qualify its platform SDK or devi
 A missing selected-project engine becomes a prerequisite error on the accepted job;
 no global package or old CLI supplies it. Build identity preserves dirty Git state.
 
-Public session handlers and the remaining per-request services remain pending. The primitive
+Session attach and the remaining diagnostics/control/evidence/action services remain pending. The primitive
 probe host is separate. Qualify actual detached startup/handoff through the public
 CLI entry, independently from in-process transport tests. A different CLI binary
 cannot silently create work through an older owner's image; final live-registry
 integration must reconcile old-owner retirement during upgrades.
 
+
+`targets` discovers only declared, host-eligible targets and overlays authenticated
+live claims without starting an owner. `session start` claims its target before
+launching a project engine; pending compatible requests dedupe, while a ready or
+cleanup-unconfirmed target is busy. Owned sessions share one kernel output lease
+per app inside that owner. Foreground project mutations remain excluded while any
+owned session uses the app. Browser modes launch a discovered Chromium in its own
+private profile; no browser is downloaded. Without Chromium, HTTP serving remains
+available and browser-side inspection is explicitly unavailable.
+
+```sh
+/absolute/path/to/xplat-go targets --project /work/app --app . --json
+/absolute/path/to/xplat-go session start web --project /work/app --app . --json
+/absolute/path/to/xplat-go session status sess_ID --project /work/app --app . --json
+/absolute/path/to/xplat-go session end sess_ID --project /work/app --app . --json
+```
+
+Readiness is scoped: `http-confirmed`, `engine-reported` or `host-spawned`. A native
+host spawn does not prove application initialization. Status/list merge immutable
+live snapshots with retained native history, marking old owners' data historical.
+These reads need no Node and create no absent caches or owner. Cleanup uses the
+registered binding, so edited/removed app metadata cannot trap an owned session.
+Ending awaits engine/browser/resource cleanup before confirming completion.
+
+The registry bounds live sessions and completed memory records to 64 each. Logs
+use the existing bounded history store. New session directories are claimed
+atomically. Project lease contents retain a generation-bound cleanup witness;
+released kernel locks do not clear it after failure/crash. Current Go project
+commands reject that witness until cleanup is confirmed. Never delete a lock file
+to bypass ownership. This is independent of retained PIDs, which authorize no signals.
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes

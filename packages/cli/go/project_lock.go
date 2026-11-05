@@ -2,10 +2,13 @@ package main
 
 import (
 	"crypto/sha256"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 type projectOutputsBusyError struct{}
@@ -17,6 +20,16 @@ func (*projectOutputsBusyError) Error() string {
 // The lock must outlive removal of dist and dependency caches. Never unlink it:
 // another process may already have this same kernel lock identity open.
 func lockProjectOutputs(project string) (func(), error) {
+	release, err := lockOwnedProjectOutputs(project, "")
+	if err != nil {
+		return nil, err
+	}
+	return func() { _ = release(true) }, nil
+}
+
+// Nonempty lease contents are a cleanup witness, not signal authority. A released
+// kernel claim after owner loss never authorizes overwriting that evidence.
+func lockOwnedProjectOutputs(project, owner string) (func(bool) error, error) {
 	project, err := canonical(project)
 	if err != nil {
 		return nil, err
@@ -84,5 +97,35 @@ func lockProjectOutputs(project string) (func(), error) {
 		}
 		return nil, &projectOutputsBusyError{}
 	}
-	return func() { releaseCacheLock(file); close() }, nil
+	if current, err := file.Stat(); err != nil || current.Size() != 0 {
+		releaseCacheLock(file)
+		close()
+		return nil, fmt.Errorf("previous native owner did not confirm project cleanup; inspect retained ownership evidence at %s", filepath.Join(cache, name))
+	}
+	if owner != "" {
+		data, _ := json.Marshal(map[string]any{"version": 1, "project": project, "owner": owner})
+		if _, err = file.Write(data); err == nil {
+			err = file.Sync()
+		}
+		if err != nil {
+			releaseCacheLock(file)
+			close()
+			return nil, err
+		}
+	}
+	var once sync.Once
+	var outcome error
+	return func(confirmed bool) error {
+		once.Do(func() {
+			if confirmed && owner != "" {
+				outcome = file.Truncate(0)
+				if outcome == nil {
+					outcome = file.Sync()
+				}
+			}
+			releaseCacheLock(file)
+			outcome = errors.Join(outcome, file.Close(), root.Close())
+		})
+		return outcome
+	}, nil
 }

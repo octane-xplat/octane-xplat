@@ -115,7 +115,8 @@ func (registry *runtimeJobs) run(ctx context.Context, entry *runtimeJobEntry, ru
 		registry.mu.Lock()
 		var processCleanup *processCleanupError
 		var startupCleanup *ownerStartupCleanupError
-		cleanupUnknown := panicked || errors.As(failure, &processCleanup) || errors.As(failure, &startupCleanup)
+		var sessionCleanup *runtimeSessionCleanupError
+		cleanupUnknown := panicked || errors.As(failure, &processCleanup) || errors.As(failure, &startupCleanup) || errors.As(failure, &sessionCleanup)
 		switch {
 		case panicked || requiresFailureEvidence(failure):
 			entry.job.State = "failed"
