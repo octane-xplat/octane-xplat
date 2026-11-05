@@ -11,13 +11,13 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | Responsibility | Modules |
 | --- | --- |
 | Composition and host adapters | `runtime.ts`, `host-bridge.ts` |
-| Node contracts, element capabilities and identities | `model.ts`, `registry.ts` |
+| Node contracts, element capabilities and identities | `model.ts`, `element-adapter.ts`, `registry.ts` |
 | Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts`, `root-directory.ts` |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts`, `layout-projection.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
 | Native styling and painting | `native-style.ts`, `pointer-style.ts`, `native-colors.ts`, `outlines.ts`, `box-paint.ts`, `box-paint-state.ts`, `box-geometry.ts`, `background-paint.ts`, `border-paint.ts`, `shadow-paint.ts`, `transform-paint.ts` |
-| Element creation, props and disposal | `container-elements.ts`, `controls.ts`, `picker-elements.ts`, `input-elements.ts`, `text-elements.ts`, `image-elements.ts`, `hosted-elements.ts` |
+| Element creation, props and disposal | `adapter-assembly.ts`, `pilot-adapters.ts`, `control-adapters.ts`, `text-adapters.ts`, `picker-adapters.ts`, `container-adapters.ts`, `surface-adapters.ts`, `scroll-adapter.ts`; native owners remain in their element/engine modules |
 | Generic prop merging and removal | `element-props.ts` |
 | Actions, subscriptions and accessibility | `action-store.ts`, `actions.ts`, `subscriptions.ts`, `hover.ts`, `accessible-host.ts`, `accessibility-state.ts`, `accessibility.ts` |
 | Native surfaces | `popover.ts`, `context-menu.ts`, `picker-bridge.ts`, `sheet-bridge.ts`; existing `presentation.ts` and `layer.ts` own their surface engines |
@@ -118,34 +118,52 @@ node's cleanup. Normal author registration of a migrated type composes its
 override against the original builtin definition, rather than stacking prior
 overrides. Missing migrated definitions reject before native acquisition.
 
-The unpublished migration explicitly lists remaining builtin types in
-`unconvertedElementTypes`; registered Mason/compatibility behaviors remain in
-`registry.ts` until their cohort migrates. `button`, `contentview`, `switch`, `slider`, `progress` and
-`activityindicator`, `rootlayout`, `actionbar`, `liquidglass`,
-`proxyviewcontainer` and `placeholder` have no
-legacy create/prop/dispose fallback. Adding a canonical adapter requires its
-definition, assembly and tests, without a generic lifecycle switch branch.
-Common props merge first, feature props follow, then `afterProps` reads the
-merged bag. Complete-next-bag removal still enters as explicit undefined clears.
+Every supported builtin, viewless record and registered engine uses this
+catalog. `entries()` supplies an inventory snapshot; capability readers use the
+acquired definition for live nodes and the catalog for prospective types.
+Mason installs `masonview` and composes the `scrollview`/`liquidglass` definitions
+after the accessible native base class exists. Compatibility registration uses
+the same create/prop/layout/retirement phases, including queued registrations.
+There is no parallel behavior map, builtin factory switch or blanket feature
+disposer list in nodes. Compiler-owned portal/root records retain their separate
+creation and ownership path; the broad public `ElementNode` contract remains.
 
-Disposal calls the acquired `retire` before destruction hooks, then
-`prepareDispose` while the native host exists, generic detach, and `dispose`.
-Button owns its action release through the adapter. Contentview preparation
-retires its private typed geometry lease, detaches children and removes host
-identity before generic host detach. Late observation tokens acquired during
-reentrant retirement are released; held callbacks reject retired/replaced leases.
-Text adapters retire sizing before hooks, inherit fonts and install input delegates
-before initial props, and own input/link cleanup. Viewless text definitions fold
-the merged bag into the live text parent. Picker definitions validate before allocation, synchronize selection against the
-complete prop bag, and release action leases with native control state. Logical
-segmented items synchronize their live parent during removal. RootLayout and ActionBar definitions own child layout, geometry retirement and
-pre-detach cleanup. RootLayout publishes its host before fallible observation,
-retires host identity before observer removal, and attempts every child detach
-after a release failure. LiquidGlass similarly publishes its acquired host and
-backdrop before subsequent fallible setup; retired frame callbacks are inert.
-Viewless proxies route style/class updates through their definition before
-projection layout. Placeholder owns its assigned native-content retirement.
-Nested-root legacy phases remain until their P6 cohort migrates.
+The adapter validates before native creation. `beforeProps` preserves feature
+admission that must precede merging the prop bag, such as ActionBar title-view
+ownership checks. Common fields merge next, feature prop effects follow, and
+`afterProps` reads the complete merged bag. `didAttach` handles attachment-bound
+work such as Placeholder's one-time native-content event. These are generic
+phases, not type-specific coordinator hooks. Attached child props, style
+validation, native-view availability, containment, and logical public instances
+are definition metadata. Raw `#text` still has no public instance; the existing
+logical tab/segment/span/formatted/proxy records retain their node handles.
+
+Disposal calls acquired `retire` before destruction hooks, `prepareDispose`
+while the host exists, generic detach, then `dispose`. Text definitions retire
+sizing before hooks and own input/link cleanup. Container preparation retires
+geometry/identity before independent observer and child releases. Late geometry
+tokens acquired during reentrant retirement are released; held callbacks reject
+retired or replaced owners. RootLayout and ActionBar own their child layout;
+viewless proxies forward style/class updates before projection layout.
+
+`surface-adapters.ts` owns hosted-element definitions and prop dispatch; the
+former forwarding-only hosted service is removed. Lists/tabs/pager/web/video
+and image engines retain their separate resource state. Image, list and pager
+factories publish an acquired host before fallible resource setup. Pager retires
+state before independent timer/observer/page releases and releases late observer
+tokens. Scroll observer, geometry and axis constraints belong to its definition.
+A manual container is also a child: style application must queue both its own
+layout and its physical parent's layout, including styles forwarded by proxies.
+
+Video binds observed player/item identities to its owner, spells the exposed
+KVO selector exactly, and retires dispatch before independent native releases.
+Its half-second periodic interval needs a scale that represents it as a positive
+`CMTime`; scale 1 quantizes that interval to zero. WebView invokes the native
+`NSURL.isFileURL()` predicate; testing the method object as a boolean routes
+non-file URLs into WebKit's file-only loader. These defects are tracked by
+[#137](https://github.com/octane-xplat/octane-xplat/issues/137),
+[#138](https://github.com/octane-xplat/octane-xplat/issues/138) and
+[#139](https://github.com/octane-xplat/octane-xplat/issues/139) until normal integration.
 
 Box painting has one coordinator in `box-paint.ts`. Its private WeakMap holds
 one typed record per node/view, including frame observation, layers and image
@@ -200,9 +218,8 @@ failures produce `PhaseErrors`, whose `errors` retain the original values and
 `failures` pair each value with its phase. Construction remains the first error
 when cleanup also fails. Retire each release field/lease before invoking it;
 never retry an OS release merely because it threw. A native release failure
-still means that OS resource may remain unreleased. Unconverted plugin nodes still
-re-query their legacy registration for cleanup; P6 must migrate that remaining
-behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
+still means that OS resource may remain unreleased. Registration replacement cannot redirect an existing node's cleanup or containment; batch preflight uses the same acquired capabilities
+([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
 Root creation rejects a second live root on the same host; retained-root HMR
 must reuse the existing root. Retirement is idempotent and removes font
 membership with the host owner ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).

@@ -62,6 +62,17 @@ construction, reentrant observer acquisition and release failures use production
 constructors with native-boundary stand-ins; they do not establish failing OS
 setter/release behavior.
 
+The packed hosted-surface fixture checks decoded/cleared native images,
+animated-image prop removal, two-to-one pager host replacement, web navigation
+delegate retirement, native video KVO selector delivery and player detachment.
+It replaces a public plugin registration while its node is live and verifies
+that retirement uses the acquired registration. Held native callbacks after
+retirement must be inert. These are programmatic native state and lifecycle
+checks; they do not establish media playback, physical input, network loading,
+VoiceOver or whole-process leak freedom. Partial setup, reentrant acquisition,
+failing releases and timer suppression additionally use production constructors
+with native-boundary stand-ins.
+
 The packed root-directory fixture checks native main, retained-tab and
 list-template roots, compiler tab portals, an external portal target, popup and
 window-layer roots. It asserts inherited Menlo fonts, immediate visits to live
