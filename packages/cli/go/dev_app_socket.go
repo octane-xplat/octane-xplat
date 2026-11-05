@@ -23,6 +23,15 @@ const (
 	devAppMaxActions = 256
 )
 
+// coder/websocket closes the whole connection when a write's context ends,
+// even just after the peer received the bytes. Bind writes to the server
+// lifetime so cancelling one request cannot drop a human-owned app.
+func writeDevApp(server context.Context, peer *devAppPeer, data []byte) error {
+	ctx, cancel := context.WithTimeout(server, 3*time.Second)
+	defer cancel()
+	return peer.conn.Write(ctx, websocket.MessageText, data)
+}
+
 // App grants cannot authorize CLI RPC or another target. They may be embedded in
 // development code; the private same-user CLI credential must never be embedded.
 type devAppGrant struct {

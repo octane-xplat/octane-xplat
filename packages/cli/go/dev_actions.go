@@ -11,8 +11,6 @@ import (
 	"slices"
 	"sync"
 	"time"
-
-	"github.com/coder/websocket"
 )
 
 type devActionPolicy struct {
@@ -338,10 +336,7 @@ func (service *devActions) run(parent context.Context, entry *devActionEntry, re
 		return nil, &cliError{Code: "disconnected_runtime", Message: "The app disconnected before dispatch; the action was not run.", Context: map[string]any{"outcome": "not-run"}}
 	}
 	data, _ := json.Marshal(map[string]any{"type": "work", "invocations": []any{map[string]any{"requestId": entry.requestID, "appInstanceId": entry.instance, "actionId": entry.actionID, "registryRevision": entry.revision, "input": entry.input}}})
-	writeCtx, stopWrite := context.WithTimeout(ctx, 3*time.Second)
-	err := entry.peer.conn.Write(writeCtx, websocket.MessageText, data)
-	stopWrite()
-	if err != nil {
+	if err := writeDevApp(service.server.ctx, entry.peer, data); err != nil {
 		return nil, actionUnknown(entry, "disconnected_runtime", "The action could not be confirmed delivered; its outcome is unknown.")
 	}
 	_ = report(map[string]any{"phase": "dispatched", "requestId": entry.requestID})
@@ -352,7 +347,7 @@ func (service *devActions) run(parent context.Context, entry *devActionEntry, re
 		if entry.policy.Cancellable && parent.Err() == nil {
 			grace, cancel := context.WithTimeout(parent, 5*time.Second)
 			data, _ := json.Marshal(map[string]any{"type": "work", "cancel": []string{entry.requestID}})
-			_ = entry.peer.conn.Write(grace, websocket.MessageText, data)
+			_ = writeDevApp(service.server.ctx, entry.peer, data)
 			select {
 			case outcome = <-entry.outcome:
 			case <-grace.Done():

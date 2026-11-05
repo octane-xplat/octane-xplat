@@ -6,8 +6,6 @@ import (
 	"slices"
 	"sync"
 	"time"
-
-	"github.com/coder/websocket"
 )
 
 const namedHostCoverage = "Named DOM hosts in the main document; excludes shadow roots, frames, component ownership and signals."
@@ -246,7 +244,7 @@ func (service *devInspection) exchange(parent context.Context, peer *devAppPeer,
 		return nil, &cliError{Code: "stale_identity", Message: "The app or document changed before dispatch; no request was sent."}
 	}
 	data, _ := json.Marshal(map[string]any{"type": operation, "requestId": request, "args": args})
-	if err := peer.conn.Write(ctx, websocket.MessageText, data); err != nil {
+	if err := writeDevApp(service.server.ctx, peer, data); err != nil {
 		return nil, appExchangeFailure(operation, "disconnected_runtime", "App delivery could not be confirmed.")
 	}
 	var raw json.RawMessage
