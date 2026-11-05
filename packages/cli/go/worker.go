@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -51,7 +50,8 @@ type workerExitError struct{ Code int }
 func (err *workerExitError) Error() string { return "worker failed after writing its response" }
 
 func runPreparedWorker(ctx context.Context, project, worker, operation string, payload map[string]any, inputStream, outputStream, diagnosticStream *os.File, prepare workerPreparation) (workerResult, error) {
-	if _, err := exec.LookPath("node"); err != nil {
+	node, err := projectNodeExecutable(ctx)
+	if err != nil {
 		return workerResult{}, errors.New("Node is required for this project worker; install the Node version required by the selected project and put it on PATH")
 	}
 	directory, err := privateDirectory(os.TempDir(), "xplat-go-worker-")
@@ -95,7 +95,7 @@ func runPreparedWorker(ctx context.Context, project, worker, operation string, p
 	if err = privateFile(output, nil); err != nil {
 		return workerResult{}, err
 	}
-	process, err := runProcessStdio(ctx, []string{"node", worker, input, output}, project, projectToolEnvironment(), inputStream, outputStream, diagnosticStream)
+	process, err := runProcessStdio(ctx, []string{node, worker, input, output}, project, projectExecutionEnvironment(ctx), inputStream, outputStream, diagnosticStream)
 	result := workerResult{Process: process}
 	if process.Truncated {
 		result.Warnings = append(result.Warnings, fmt.Sprintf("Project worker diagnostics exceeded the %d MiB capture limit per stream; output is truncated.", captureLimit>>20))

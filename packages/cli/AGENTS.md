@@ -81,6 +81,14 @@ Preserve structured provider errors. Partial file publication must remain visibl
 as failure even during cancellation, but does not itself prove a live process leak;
 reserve cleanup-unknown ownership for unconfirmed resource release or provider panic.
 
+Persistent build workers must use the invoking request's explicit Node executable,
+cwd and sanitized environment. Resolve project entries inside that app's installation;
+do not change process-wide cwd/environment or execute the old CLI. Keep request
+credentials out of descriptors, job metadata and logs. Revalidate selected app id
+and canonical root inside the owner. Distinguish genuine output-lease contention
+from cache/permission errors. Best-effort Git metadata may omit an unavailable
+revision, but must preserve dirty state and propagate unconfirmed process cleanup.
+
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations
 to distinguish live records from historical evidence. PID existence alone cannot

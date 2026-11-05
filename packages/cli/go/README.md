@@ -124,8 +124,30 @@ or a provider panic preserves unknown owner cleanup; partial publication remains
 failed job without implying a live resource leak. The real managed-descendant gate
 uses this registry through owner RPC and awaits group/Job teardown on shutdown.
 
-Public session/job command handlers and per-request dispatch integration remain
-pending; this infrastructure does not register them as implemented. The primitive
+Public `runtime build`, `job status` and `job cancel` now use that owner. Each
+request revalidates the selected app/root and its grants. Build engines receive the
+invoking client's explicit Node path and environment, with Node preloads and agent
+policy variables removed. Credentials/environment values are transient, never job
+metadata or dedupe keys. Builds have a 30-minute operation deadline and use the
+same native output lease as foreground project commands. Status/cancel do not need
+Node and never start an absent owner. Live request keys dedupe only within the same
+app/root/platform/operation/session; completed keys may run again.
+
+```sh
+/absolute/path/to/xplat-go runtime build --platform web --project /work/app --app . --request-key build-1 --json
+/absolute/path/to/xplat-go job status job_ID --project /work/app --app . --json
+/absolute/path/to/xplat-go job cancel job_ID --project /work/app --app . --json
+```
+
+The accepted job is asynchronous. Poll its state until succeeded, failed or
+cancelled; cancellation does not finish until native group/Job cleanup does.
+Successful results and failed job errors include a bounded completed-process
+stdout/stderr tail. Full live diagnostics/session/action/evidence providers remain
+pending. A build engine's availability does not qualify its platform SDK or device.
+A missing selected-project engine becomes a prerequisite error on the accepted job;
+no global package or old CLI supplies it. Build identity preserves dirty Git state.
+
+Public session handlers and the remaining per-request services remain pending. The primitive
 probe host is separate. Qualify actual detached startup/handoff through the public
 CLI entry, independently from in-process transport tests. A different CLI binary
 cannot silently create work through an older owner's image; final live-registry

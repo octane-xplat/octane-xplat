@@ -124,7 +124,7 @@ func agentOwnerChild(args []string) int {
 	}()
 	ctx = context.WithValue(ctx, agentOwnerLaunchKey{}, agentOwnerLaunchState{Request: request, Adopted: adopted})
 	ctx = context.WithValue(ctx, processHelperKey{}, executable)
-	err = serveAgentOwner(ctx, directory, project, time.Duration(request.IdleMillis)*time.Millisecond, nil)
+	err = serveAgentOwner(ctx, directory, project, time.Duration(request.IdleMillis)*time.Millisecond, dispatchRuntime)
 	if err != nil {
 		return fail(err)
 	}

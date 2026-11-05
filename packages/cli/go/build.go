@@ -90,9 +90,9 @@ func availableBuildTargets(ctx context.Context, project string) ([]string, error
 	return available, nil
 }
 
-func prepareBuildEngines(project string, selected []string) ([]projectBuildEngine, error) {
+func prepareBuildEngines(ctx context.Context, project string, selected []string) ([]projectBuildEngine, error) {
 	engines := []projectBuildEngine{}
-	if _, err := exec.LookPath("node"); err != nil {
+	if _, err := projectNodeExecutable(ctx); err != nil {
 		return nil, errors.New("Node is required for the project's build engines")
 	}
 	for _, kind := range selected {
@@ -196,7 +196,7 @@ func buildCommand(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
-	engines, err := prepareBuildEngines(project, selected)
+	engines, err := prepareBuildEngines(ctx, project, selected)
 	if err != nil {
 		return err
 	}

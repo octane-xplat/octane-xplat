@@ -176,7 +176,8 @@
 		"test:go-doc-data": "node --test ../../tools/cli-go/doc-data.test.mjs",
 		"test:go-doc-snapshot": "node --test ../../tools/cli-go/doc-snapshot.test.mjs",
 		"test:go-docs": "node --test ../../tools/cli-go/docs.test.mjs",
-		"test:go-doc-index": "node --test ../../tools/cli-go/docs-index.test.mjs"
+		"test:go-doc-index": "node --test ../../tools/cli-go/docs-index.test.mjs",
+		"test:go-runtime-build": "node --test ../../tools/cli-go/runtime-build.test.mjs"
 	},
 	"dependencies": {
 		"@alloc/cmd-ts": "0.17.1",

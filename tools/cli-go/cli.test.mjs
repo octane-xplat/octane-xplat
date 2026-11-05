@@ -82,6 +82,9 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'guidance',
 			'docs read',
 			'docs search',
+			'runtime build',
+			'job status',
+			'job cancel',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -95,7 +98,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		10,
+		13,
 	)
 	for (const [args, code] of [
 		[['docs', '--json'], 'invalid_selection'],

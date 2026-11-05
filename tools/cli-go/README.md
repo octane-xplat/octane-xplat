@@ -150,7 +150,8 @@ Frozen core snapshots expose `test:go-owner:portable`. Their precompiled native
 client fixtures exercise the same public binaries on Linux and Windows. Tests use
 private fixture caches; driver stdin is ignored except for explicit input tests,
 so a fast structured failure cannot become a runner-level empty-pipe EPIPE. These
-cases do not qualify the still-pending public session/job service dispatch.
+bootstrap cases do not by themselves qualify public runtime services. Use the
+runtime build gate for build/job dispatch; persistent sessions remain pending.
 
 ## Cross-compilation and execution
 
@@ -471,3 +472,15 @@ checks; main dev and persistent session integration remain separate gates.
 Source-host `test:go-unit` disables Go's own test-result cache with `-count=1`.
 Turbo's `cache: false` alone does not force Go tests to execute. Portable compiled
 unit binaries already run directly and do not use Go test-result caching.
+
+The public runtime build gate executes real project Vite builds across independent
+one-shot clients, concurrent request-key dedupe, selected-app isolation, per-request
+environments, failure diagnostics and resistant-descendant cancellation. Source-host
+checks compare artifacts, dirty revision and errors to the TypeScript adapter. The
+portable snapshot runs native cases without the old CLI dependencies; that reference
+comparison is explicitly skipped there. The macOS packaging gate also exercises
+persistent runtime build/job status with a real C leaf and verified universal app/DMG.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Native runtime build jobs"}' -- bun run turbo run test:go-runtime-build test:go-build-macos-real --filter=@octane-xplat/cli
+```

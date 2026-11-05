@@ -16,6 +16,7 @@ import {
 import { join, resolve, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { createHash } from 'node:crypto'
+import { setTimeout as delay } from 'node:timers/promises'
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
 
@@ -26,7 +27,7 @@ function put(file, value) {
 	writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value))
 }
 
-function run(command, args, cwd) {
+function run(command, args, cwd, environment = {}) {
 	const result = spawnSync(command, args, {
 		cwd,
 		encoding: 'utf8',
@@ -34,6 +35,7 @@ function run(command, args, cwd) {
 		maxBuffer: 16 << 20,
 		env: {
 			...process.env,
+			...environment,
 			NODE_OPTIONS: '',
 			NODE_PATH: '',
 			MACOS_SIGNING_IDENTITY: '',
@@ -54,8 +56,8 @@ function run(command, args, cwd) {
 
 test(
 	'actual macOS worker produces a verified native app/DMG with a compiled C leaf',
-	{ skip: process.platform !== 'darwin' || process.arch !== 'arm64' },
-	() => {
+	{ skip: process.platform !== 'darwin' || process.arch !== 'arm64', timeout: 600000 },
+	async () => {
 		const build = JSON.parse(readFileSync(binary + '.json'))
 		const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 		assert.equal(sha(readFileSync(binary)), build.sha256)
@@ -66,6 +68,8 @@ test(
 		mkdirSync(base, { recursive: true })
 		const scratch = realpathSync(mkdtempSync(join(base, 'macos-build-')))
 		let complete = false
+		let ownerCleanupFailure
+		const runtimeCache = join(scratch, 'runtime-owner-cache')
 		try {
 			const packs = join(scratch, 'packs')
 			mkdirSync(packs)
@@ -126,6 +130,46 @@ test(
 			run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], app)
 			const output = run(binary, ['build', '--targets', 'macos'], app)
 			assert.match(output, /Build complete/)
+			const runtimeEnvironment = {
+				XPLAT_MCP_CACHE: runtimeCache,
+				XPLAT_AGENT_HOST_IDLE_MS: '20000',
+				XPLAT_AGENT_APP: '',
+				XPLAT_AGENT_CLIENT: '',
+				XPLAT_PERMISSIONS: '',
+			}
+
+			const runtimeArgs = ['--project', app, '--app', '.', '--json']
+			const accepted = JSON.parse(
+				run(
+					binary,
+					['runtime', 'build', '--platform', 'macos', ...runtimeArgs],
+					app,
+					runtimeEnvironment,
+				),
+			)
+
+			assert.equal(accepted.ok, true)
+			let job
+			const deadline = Date.now() + 240000
+			for (;;) {
+				job = JSON.parse(
+					run(
+						binary,
+						['job', 'status', accepted.data.job.jobId, ...runtimeArgs],
+						app,
+						runtimeEnvironment,
+					),
+				).data.job
+
+				if (['succeeded', 'failed', 'cancelled'].includes(job.state)) {
+					break
+				}
+
+				assert.ok(Date.now() < deadline, 'native macOS build job timed out')
+				await delay(500)
+			}
+
+			assert.equal(job.state, 'succeeded', JSON.stringify(job))
 			const release = join(app, 'artifacts/macos-universal'),
 				bundle = join(release, 'previous.app'),
 				image = join(release, 'previous-macos-universal.dmg')
@@ -152,8 +196,9 @@ test(
 				dmgBytes: readFileSync(image).length,
 				dmgSha256: sha(readFileSync(image)),
 				commands,
+				runtimeJob: job,
 				scope:
-					'Actual native C leaf compilation and universal app/DMG packaging; no app launch or visual analysis.',
+					'Actual native C leaf compilation and universal app/DMG packaging through both foreground build and persistent runtime build/job status; no app launch or visual analysis.',
 			})
 
 			assert.equal(
@@ -167,10 +212,49 @@ test(
 
 			complete = true
 		} finally {
+			const ownerBase = join(runtimeCache, 'cli-go/owner-go-v1')
+			if (existsSync(ownerBase)) {
+				for (const name of readdirSync(ownerBase)) {
+					const descriptor = join(ownerBase, name, 'owner.json')
+					if (!existsSync(descriptor)) {
+						continue
+					}
+
+					try {
+						const value = JSON.parse(readFileSync(descriptor))
+						const reply = await fetch(value.address, {
+							method: 'POST',
+							headers: {
+								Authorization: 'Bearer ' + value.token,
+								'X-Octane-Owner': value.generation,
+							},
+							body: JSON.stringify({ method: 'host.shutdown' }),
+							signal: AbortSignal.timeout(5000),
+						})
+
+						assert.equal(reply.status, 200)
+						const deadline = Date.now() + 10000
+						while (existsSync(descriptor) && Date.now() < deadline) {
+							await delay(50)
+						}
+
+						assert.equal(existsSync(descriptor), false, 'macOS native owner cleanup unconfirmed')
+					} catch (error) {
+						complete = false
+						ownerCleanupFailure = error
+						console.error('macOS runtime owner cleanup unconfirmed: ' + error)
+					}
+				}
+			}
+
 			if (complete) {
 				rmSync(scratch, { recursive: true, force: true })
 			} else {
 				console.error('Failed macOS build fixture retained at ' + scratch)
+			}
+
+			if (ownerCleanupFailure) {
+				throw ownerCleanupFailure
 			}
 		}
 	},

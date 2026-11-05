@@ -52,6 +52,17 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			switch capability {
 			case "project_status":
 				entry = map[string]any{"capability": capability, "status": "supported"}
+			case "build":
+				entry["requiresPermission"] = "runtime-actions"
+				entry["detail"] = "Select an app and a declared platform before starting a native build job."
+				if selection.State == "bound" && slices.Contains(selection.App.Platforms, platform) {
+					if _, err := prepareBuildEngines(context.Background(), selection.App.Root, []string{platform}); err != nil {
+						entry["detail"] = err.Error()
+					} else {
+						entry["status"] = "supported"
+						entry["detail"] = "Native host-owned build jobs use the selected project's engines. SDK prerequisites remain the engine's responsibility; provider availability does not qualify a device or host."
+					}
+				}
 			case "guidance":
 				entry["status"] = "partial"
 				entry["detail"] = "Project status inventories guidance sources; tailored guidance retrieval is pending."

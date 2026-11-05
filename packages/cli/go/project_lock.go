@@ -8,6 +8,12 @@ import (
 	"strings"
 )
 
+type projectOutputsBusyError struct{}
+
+func (*projectOutputsBusyError) Error() string {
+	return "another Go project operation owns this project's outputs; retry after it finishes"
+}
+
 // The lock must outlive removal of dist and dependency caches. Never unlink it:
 // another process may already have this same kernel lock identity open.
 func lockProjectOutputs(project string) (func(), error) {
@@ -76,7 +82,7 @@ func lockProjectOutputs(project string) (func(), error) {
 		if err != nil {
 			return nil, err
 		}
-		return nil, fmt.Errorf("another Go project operation owns this project's outputs; retry after it finishes")
+		return nil, &projectOutputsBusyError{}
 	}
 	return func() { releaseCacheLock(file); close() }, nil
 }

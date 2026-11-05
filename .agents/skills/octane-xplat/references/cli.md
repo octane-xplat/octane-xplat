@@ -36,6 +36,19 @@ persistent session APIs. Use its native schema and owning README for scope.
 /absolute/path/to/xplat-go dev macos
 ```
 
+Go `runtime build` accepts asynchronous native-owned jobs using the selected
+project's Vite, NativeScript or packaging workers. Poll `job status` for terminal
+state and bounded output/error detail; `job cancel` awaits owned process cleanup.
+These reads never start an absent owner and need no Node. Build creation assumes
+Node is installed and forwards that invocation's environment without Node preloads
+or agent permission variables. Persistent sessions and full live diagnostics remain
+pending; use the catalog/schema for the current execution surface.
+
+```sh
+/absolute/path/to/xplat-go runtime build --platform web --project /work/app --app . --json
+/absolute/path/to/xplat-go job status job_ID --project /work/app --app . --json
+```
+
 The parallel Nim implementation is experimental and intended for the npm `nim`
 tag. Its installed catalog distinguishes implemented commands from schema-only
 discovery. Native `status` reports actual installed bindings, tool observations,

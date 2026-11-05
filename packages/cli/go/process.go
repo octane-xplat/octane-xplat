@@ -88,6 +88,9 @@ func runProcessIO(ctx context.Context, argv []string, cwd string, env []string, 
 }
 
 func runProcessStdio(ctx context.Context, argv []string, cwd string, env []string, input, output, diagnostic *os.File) (result processResult, returnErr error) {
+	if execution, ok := ctx.Value(runtimeExecutionKey{}).(runtimeExecution); ok && execution.Observe != nil {
+		defer func() { execution.Observe(result) }()
+	}
 	if err := ctx.Err(); err != nil {
 		return processResult{}, err
 	}
