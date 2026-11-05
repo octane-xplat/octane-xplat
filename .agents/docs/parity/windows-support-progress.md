@@ -396,3 +396,20 @@ deterministically twice). `files.pick`/`pickMultiple`/`export` are now
 implemented on this path: the helper returns `FutureAccessList`
 `token|path` entries, JS polls `PickState`, reads resolve through token
 grants. Service suite: 105/105 assertions (launch `mw2tzq2d`).
+
+## Production pick/export implemented and dialog-verified (1.0.0.225)
+
+On `org.octanexplat.windows61` 1.0.0.225 (source `b8b502e4e`, bounded):
+`files.pick()` — the production leaf path — opened a live OS
+`FileOpenPicker` dialog owned by the app HWND (`8521232` via
+`GetActiveWindow`) and stayed `pending-dialog` through the 6-second bound
+until the driver's Escape cancelled it; a concurrent `files.pick` returned
+`files.single: fail:busy`, proving the single-pick guard. The app remained
+fully responsive throughout: service suite 105/105 assertions (launch
+`mw2v92h6`), files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
+`pick`/`pickMultiple`/`export` now run through
+`OctaneXplat.Interop.ServiceInterop` (construct + `InitializeWithWindow` +
+`DispatcherQueue` enqueue + `FutureAccessList` token grants) because the
+projected WinRT objects cannot cross `dotnet.invoke` and Task-returning
+bridge calls deadlock the dialog pump. Completed-selection, typed-filename,
+and save-commit evidence remain the next qualification increments.
