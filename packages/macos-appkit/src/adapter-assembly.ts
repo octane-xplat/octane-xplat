@@ -1,3 +1,4 @@
+import { createTextAdapters, type TextAdapterDependencies } from './text-adapters.ts'
 import { createControlAdapters, type ControlAdapterDependencies } from './control-adapters.ts'
 import type { Registry } from './registry'
 import type { ElementBehavior } from './model'
@@ -5,7 +6,8 @@ import { FailureCollector } from './failures.ts'
 import { createPilotAdapters, type PilotAdapterDependencies } from './pilot-adapters.ts'
 
 type Dependencies = PilotAdapterDependencies &
-  ControlAdapterDependencies & {
+  ControlAdapterDependencies &
+  TextAdapterDependencies & {
     registry: Pick<Registry, 'adapters' | 'registerElementType'>
   }
 
@@ -16,7 +18,11 @@ export type ElementAdapters = ReturnType<typeof createElementAdapters>
  * canonical definition against its original builtin, never a previous override. */
 export function createElementAdapters(deps: Dependencies) {
   const definitions = new Map(
-    Object.entries({ ...createPilotAdapters(deps), ...createControlAdapters(deps) }),
+    Object.entries({
+      ...createPilotAdapters(deps),
+      ...createControlAdapters(deps),
+      ...createTextAdapters(deps),
+    }),
   )
   for (const [type, adapter] of definitions) {
     deps.registry.adapters.register(type, adapter)

@@ -6,6 +6,8 @@ import { createRegistry } from '../src/registry.ts'
 // node factories, native classes or runtime bridges have been constructed.
 test('registry queries track plugin registrations independently of node construction', () => {
   const registry = createRegistry()
+  assert.throws(() => registry.assertSupportedType('label'), /label/)
+  registry.adapters.register('label', { container: false, hasView: true, create() {} })
   assert.doesNotThrow(() => registry.assertSupportedType('label'))
   assert.equal(registry.canContainView('label'), false)
   assert.equal(registry.canContainView('rootlayout'), true)

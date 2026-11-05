@@ -129,6 +129,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['registry', 'assertSupportedType'],
   ['nodes', 'validateNodeProps'],
   ['nodes', 'makeNode'],
+  ['text-adapters', 'createInput'],
   ['native-style', 'EDGE_INSET_PROPS'],
   ['style-values', 'parseEdgeInsets'],
   ['css-cascade', 'cssChildren'],

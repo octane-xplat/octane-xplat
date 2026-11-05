@@ -3,16 +3,17 @@ import { test } from 'node:test'
 import type { ElementNode, PropBag } from '../src/model.ts'
 import type { ElementAdapter } from '../src/element-adapter.ts'
 import { createElementAdapterCatalog, unconvertedElementTypes } from '../src/element-adapter.ts'
-import { createElementAdapters } from '../src/adapter-assembly.ts'
 import { createActionStore } from '../src/action-store.ts'
 import { mockNativeBoundary } from './native-boundary.ts'
 
 const hooks = mockNativeBoundary()
+const { createElementAdapters } = await import('../src/adapter-assembly.ts')
 const { createNodes } = await import('../src/nodes.ts')
 const { createRegistry } = await import('../src/registry.ts')
 const { createElementProps } = await import('../src/element-props.ts')
 const { createControls } = await import('../src/controls.ts')
 const { createContainerElements } = await import('../src/container-elements.ts')
+const { createInputElements } = await import('../src/input-elements.ts')
 const { createActions } = await import('../src/actions.ts')
 const { NSButton, NSSlider, NSProgressIndicator, NSNotificationCenter, NSView } =
   await import('@octane-xplat/platform/macos')
@@ -132,7 +133,7 @@ function fixture() {
     store,
     layout,
     cssCascade,
-    textElements: { syncText: noop, syncTextLinks: noop, disposeTextLinks: noop },
+    textElements: { syncText: noop, syncTextLinks: noop, disposeTextLinks: noop, syncLabelOverflow: noop, syncHtmlView: noop, makeLabel: nativeView },
     inputElements: {
       textNodesByView: new WeakMap(),
       disposeBuiltinTextViewLayout() {
@@ -173,8 +174,15 @@ function fixture() {
   const actions = createActions(deps)
   const controls = createControls({ ...deps, actions })
   const containers = createContainerElements({ ...deps, actions })
-  Object.assign(deps, { actions, controls, containerElements: containers })
-  const assembly = createElementAdapters({ registry, controls, containers, actions, layout })
+  const inputs = {
+    ...createInputElements({ ...deps, actions }),
+    makeTextField: nativeView,
+    makeSearchBar: nativeView,
+    initializeTextViewport() { run('text viewport') },
+    fitTextView() { run('text fit') },
+  }
+  Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs })
+  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements })
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
   deps.elementProps = props
@@ -692,4 +700,31 @@ test('canonical progress reads the full bag and spinner retirement stops animati
   f.nodes.destroy(spinner)
   assert.equal(spinner.view!.running, false)
   assert.equal(spinner.view!.hidden, true)
+})
+
+test('acquired textview retires sizing before hooks and releases its action after native detach', () => {
+  const f = fixture()
+  const node = f.make('textview')
+  assert.equal(node.view!.delegate != null, true)
+  node.textLayoutDetach = () => f.trace.push('text sizing retired')
+  node.destroyHooks = [() => {
+    assert.equal(node.textLayoutRetired, true)
+    assert.equal(node.textLayoutDetach, undefined)
+    assert.equal(f.store.idForView(node.view!) != null, true)
+    f.trace.push('text hook')
+  }]
+  f.nodes.destroy(node)
+  assert.ok(f.trace.indexOf('text sizing retired') < f.trace.indexOf('text hook'))
+  assert.ok(f.trace.indexOf('text hook') < f.trace.indexOf('detach 1'))
+  assert.equal(f.store.idForView(node.view!), undefined)
+  assert.equal(node.view!.delegate, null)
+})
+
+test('partial textview construction unwinds delegate and action ownership after a common prop failure', () => {
+  const f = fixture(), failure = Error('failed text props')
+  f.failures.set('common id', failure)
+  assert.throws(() => f.make('textview', { id: 'text' }), error => error === failure)
+  const view = f.views.at(-1)
+  assert.equal(view.delegate, null)
+  assert.equal(f.store.idForView(view), undefined)
 })

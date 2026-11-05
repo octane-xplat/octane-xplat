@@ -8,7 +8,7 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
     axStart = source.indexOf('function applyAccessibility('),
     axEnd = source.indexOf('/** Host updates carry', axStart)
   const branchStart = source.indexOf("case 'scrollview':", source.indexOf('function applyProps(')),
-    branchEnd = source.indexOf("case 'searchbar':", branchStart)
+    branchEnd = source.indexOf("case 'webview':", branchStart)
   assert.ok(axStart >= 0 && axEnd > axStart && branchStart > axEnd && branchEnd > branchStart)
   const update = runSlice(
     source.slice(axStart, axEnd) +

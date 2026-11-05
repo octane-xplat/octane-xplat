@@ -175,7 +175,7 @@ const imageElements = createImageElements({
   },
 })
 
-const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout })
+const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements })
 
 const nodes = createNodes({
   boxPaint,

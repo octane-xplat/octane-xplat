@@ -145,6 +145,7 @@ export function spySliceContext(target: Record<string, any> = {}) {
 // these fallbacks fill names the slices reference but don't include. Real
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
+${sourceWithoutImports(new URL('../src/text-adapters.ts', import.meta.url)).replace(/^export /gm, '')}
 // Legacy slices use the same pilot definitions with their existing native fakes.
 // Production composition and ordering are exercised by adapter-protocol tests.
 var contentGeometryLeases = new WeakMap()
@@ -158,7 +159,8 @@ var adapters = { lookup(type) {
     layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args), layoutContentChild: (...args) => layoutContentChild(...args) },
   })
   const controls = createControlAdapters({ controls: new Proxy({}, { get: (_target, key) => (...args) => globalThis[key](...args) }), actions: { disposeActions: (...args) => disposeActions(...args) } })
-  return pilots[type] ?? controls[type]
+  const text = createTextAdapters({ textElements: { applyBuiltinHtmlViewProp: (...args) => applyBuiltinHtmlViewProp(...args), applyBuiltinLabelProp: (...args) => applyBuiltinLabelProp(...args), disposeBuiltinFormattedText: (...args) => disposeBuiltinFormattedText(...args), disposeTextLinks: (...args) => disposeTextLinks(...args), makeLabel: (...args) => makeLabel(...args), syncHtmlView: (...args) => syncHtmlView(...args), syncLabelOverflow: (...args) => syncLabelOverflow(...args), syncText: (...args) => syncText(...args) }, inputElements: { applyBuiltinSearchBarProp: (...args) => applyBuiltinSearchBarProp(...args), applyBuiltinTextInputProp: (...args) => applyBuiltinTextInputProp(...args), disposeBuiltinTextInput: (...args) => disposeBuiltinTextInput(...args), disposeBuiltinTextViewLayout: (...args) => disposeBuiltinTextViewLayout(...args), fitTextView: (...args) => fitTextView(...args), initializeTextViewport: (...args) => initializeTextViewport(...args), makeSearchBar: (...args) => makeSearchBar(...args), makeTextField: (...args) => makeTextField(...args), setTextFieldPlaceholder: (...args) => setTextFieldPlaceholder(...args), syncSearchBar: (...args) => syncSearchBar(...args), syncSecureTextField: (...args) => syncSecureTextField(...args), textNodesByView: (...args) => textNodesByView(...args) }, actions: { acquireAction: (...args) => acquireAction(...args), buttonActionTarget: typeof buttonActionTarget === 'undefined' ? {} : buttonActionTarget, disposeActions: (...args) => disposeActions(...args) } })
+  return pilots[type] ?? controls[type] ?? text[type]
 } }
 
 // Legacy branch tests supply mutable maps as their fake event boundary. New

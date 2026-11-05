@@ -622,6 +622,7 @@ test('textview destruction retires sizing before hooks even after partial constr
     node = fx.makeNode(fx.container, 99, 'label', {}),
     events: string[] = []
   node.type = 'textview'
+  node.adapter = undefined // Acquire the text definition at this legacy fixture ingress.
   node.view = null
   node.textLayoutDetach = () => {
     assert.equal(node.textLayoutRetired, true)

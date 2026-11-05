@@ -107,6 +107,7 @@ test('failed partial construction preserves its primary error with cleanup error
   const primary = Error('construction'), cleanup = Error('cleanup')
   fx.injected.set('props', primary)
   fx.injected.set('prepare', cleanup)
+  fx.deps.registry.adapters.register('span', { container: false, hasView: false, create() {}, prepareDispose() { fx.run('prepare') } })
   assert.throws(() => fx.nodes.makeNode(fx.container, 2, 'span', {}), error => {
     assert.ok(error instanceof PhaseErrors)
     assert.deepEqual(error.errors, [primary, cleanup])

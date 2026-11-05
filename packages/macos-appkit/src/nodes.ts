@@ -22,17 +22,14 @@ import type { Layout } from './layout'
 import type { Accessibility } from './accessibility'
 import type { PropBag, AppKitView, ElementNode, RootContainer } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
-import { NSNotificationCenter, NSTextField, NSTextView, NSView } from '@octane-xplat/platform/macos'
+import { NSNotificationCenter, NSView } from '@octane-xplat/platform/macos'
 import { validateListProps } from './list-template'
 import { nativeColor } from './native-colors'
 import { makeTabView, makeTabItem, validateTabProps } from './tab-view'
-import { validateHtmlProps } from './html-text'
-import { validateTextStyle } from './formatted-text'
 import { makeListView } from './list-view'
 import { makeWebView } from './webview'
 import { makePagerView } from './pager'
 import { makeVideoView } from './video'
-import { resolveFont as fontForFamilyStyle } from './fonts'
 
 import { disposePressGestures, setVisualStateTracking } from './gestures'
 
@@ -263,18 +260,7 @@ export function createNodes(deps: Dependencies) {
       throw new Error('AppKit placeholder onCreatingView must be a function')
     }
 
-    if (type === 'htmlview') {
-      validateHtmlProps(props ?? {})
-    }
-
-    if (type === 'span' || type === 'formattedstring') {
-      validateTextStyle(props ?? {}, nativeColor)
-      return
-    }
-
-    if (type === '#text') {
-      return
-    }
+    if (['#text', 'span', 'formattedstring'].includes(type)) { return }
 
     const style = props?.style
     if (style != null) {
@@ -311,35 +297,6 @@ export function createNodes(deps: Dependencies) {
       throw new Error('[macos-host] dock must be left, top, right or bottom')
     }
 
-    if (type === 'textfield' && props?.placeholderTextColor != null) {
-      // setTextFieldPlaceholder only reaches the color when text exists.
-      const placeholder = props.placeholder ?? baseProps?.placeholder
-      if (String(placeholder ?? '') !== '') {
-        nativeColor(props.placeholderTextColor)
-      }
-    }
-
-    if (type === 'label') {
-      // syncLabelOverflow and syncNodeFont throw the same deterministic
-      // errors inside applyProps — validate here so pre-flight honors its
-      // contract and the batch aborts before earlier commands mutate state.
-      const merged = { ...baseProps, ...props }
-      if (merged.whiteSpace != null && !['normal', 'nowrap'].includes(merged.whiteSpace)) {
-        throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
-      }
-
-      if (merged.textOverflow != null && !['clip', 'ellipsis'].includes(merged.textOverflow)) {
-        throw new Error('[macos-host] label textOverflow supports only clip and ellipsis')
-      }
-
-      if (merged.maxLines != null && (!Number.isInteger(merged.maxLines) || merged.maxLines < 0)) {
-        throw new Error('[macos-host] label maxLines must be a non-negative integer')
-      }
-
-      if (props?.fontSize !== undefined && !Number.isFinite(Number(props.fontSize))) {
-        throw new Error('[macos-host] label fontSize must be a finite number')
-      }
-    }
   }
 
   function makeNode(container: RootContainer, id: number, type: string, props: PropBag) {
@@ -430,31 +387,12 @@ export function createNodes(deps: Dependencies) {
             node.view = control.view
             break
           }
-          case 'htmlview':
-            node.view = deps.textElements.makeLabel()
-            // @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
-            node.view.selectable = true
-            break
-          case 'label':
-            node.view = deps.textElements.makeLabel()
-            break
-          case '#text':
-            break
           case 'scrollview': {
             const scroll = deps.controls.makeScrollView(node)
             node.view = scroll.view
             node.childHost = scroll.childHost
             break
           }
-          case 'searchbar':
-            node.view = deps.inputElements.makeSearchBar()
-            break
-          case 'textfield':
-            node.view = deps.inputElements.makeTextField(props) as unknown as NSView
-            break
-          case 'textview':
-            node.view = deps.inputElements.makeTextField(props, true) as unknown as NSView
-            break
           case 'webview':
             node.view = makeWebView()
             break
@@ -474,9 +412,7 @@ export function createNodes(deps: Dependencies) {
             node.view = deps.containerElements.makePlaceholder(node)
             break
           case 'proxyviewcontainer':
-          case 'formattedstring':
           case 'segmentedbaritem':
-          case 'span':
             break
           default: {
             const behavior = deps.registry.behaviorOf(type)
@@ -493,46 +429,8 @@ export function createNodes(deps: Dependencies) {
       if (node.lifecycle !== 'constructing') {
         throw new Error('AppKit node retired during construction')
       }
-      if (type === 'textfield' || type === 'textview' || type === 'searchbar') {
-        deps.actions.acquireAction(node, node.view!)
-        if (type !== 'textview') {
-          // Per-edit events arrive through controlTextDidChange (delegate);
-          // the target/action is reserved for submission on Return.
-          const textField = node.view! as NSTextField
-          textField.delegate = deps.actions.buttonActionTarget
-          textField.target = deps.actions.buttonActionTarget
-          if (type === 'searchbar') {
-            // @ts-ignore clearing the action needs null; generated decl types it non-null.
-            textField.action = null
-          } else {
-            textField.action = 'textFieldSubmitted:'
-          }
-        } else {
-          ;(node.view! as NSTextView).delegate = deps.actions.buttonActionTarget
-        }
-      }
-
-      if (['label', 'htmlview', 'textfield', 'textview', 'searchbar'].includes(type)) {
-        const textControl = node.view! as NSTextField | NSTextView
-        if (textControl.font) {
-          textControl.font = fontForFamilyStyle(
-            textControl.font.pointSize,
-            400,
-            container.fontFamily,
-          )
-        }
-      }
-
       if (type === 'liquidglass') {
         deps.containerElements.gridLayoutNodesByView.set(node.view!, node)
-      }
-
-      if (type === 'textfield' || type === 'searchbar') {
-        deps.inputElements.textNodesByView.set(node.view!, node)
-      }
-
-      if (type === 'textview') {
-        deps.inputElements.initializeTextViewport(node, props)
       }
 
       deps.elementProps.applyProps(node, props)
@@ -618,7 +516,7 @@ export function createNodes(deps: Dependencies) {
 
     release('detach', () => deps.tree.detach(node.container, node))
     release('press gestures', () => disposePressGestures(node))
-    release('text links', () => deps.textElements.disposeTextLinks(node))
+    if (!node.adapter) { release('text links', () => deps.textElements.disposeTextLinks(node)) }
     const hover = node.cssHoverDispose
     node.cssHoverDispose = undefined
     release('hover', () => hover?.())

@@ -18,7 +18,7 @@ import type { PropBag, ElementNode } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
 import { syncTabView, syncTabItem } from './tab-view'
 import { setImageGeometryHandler } from './image-geometry.ts'
-import { NSImageView, NSTextField } from '@octane-xplat/platform/macos'
+import { NSImageView } from '@octane-xplat/platform/macos'
 import { setPressGesture } from './gestures'
 import { configureScrollAxes } from './scroll-view'
 import { updateWebView } from './webview'
@@ -202,17 +202,9 @@ export function createElementProps(deps: Dependencies) {
       return
     }
 
-    if (node.type === '#text') {
-      if ('value' in props) {
-        node.text = String(props.value ?? '')
-      }
-
-      deps.textElements.syncText(node.parent)
-      return
-    }
-
-    if (node.type === 'span' || node.type === 'formattedstring') {
-      deps.textElements.syncText(node.parent)
+    if (node.adapter && !node.adapter.hasView) {
+      for (const [name, value] of Object.entries(props)) { node.adapter.applyProp?.(node, name, value) }
+      node.adapter.afterProps?.(node, props)
       return
     }
     if ('onKeyDown' in props || 'onKeyUp' in props) {
@@ -375,21 +367,8 @@ export function createElementProps(deps: Dependencies) {
         case 'datepicker':
           deps.pickerElements.applyBuiltinDatePickerProp(node, name, value)
           break
-        case 'htmlview':
-          deps.textElements.applyBuiltinHtmlViewProp(node, name, value)
-          break
-        case 'label':
-          deps.textElements.applyBuiltinLabelProp(node, name, value)
-          break
         case 'scrollview':
           deps.controls.applyBuiltinScrollViewProp(node, name, value)
-          break
-        case 'searchbar':
-          deps.inputElements.applyBuiltinSearchBarProp(node, name, value)
-          break
-        case 'textfield':
-        case 'textview':
-          deps.inputElements.applyBuiltinTextInputProp(node, name, value)
           break
         case 'webview':
           deps.hostedElements.applyBuiltinWebViewProp(node, name, value)
@@ -419,22 +398,6 @@ export function createElementProps(deps: Dependencies) {
         deps.cssCascade.setNodeInlineStyle(node, { ...node.props.style, height })
         deps.nativeStyle.setSizeConstraint(node, 'height', height)
       })
-    }
-
-    if (node.type === 'textfield') {
-      deps.inputElements.syncSecureTextField(node)
-      node.view!.enabled = node.props.isEnabled !== false && node.props.enabled !== false
-      node.view!.editable = node.view!.enabled && node.props.editable !== false
-      deps.inputElements.setTextFieldPlaceholder(
-        node.view as NSTextField,
-        node.props,
-        node.stylePlaceholderColor,
-      )
-    }
-
-    if (node.type === 'label') {
-      deps.textElements.syncLabelOverflow(node)
-      deps.textElements.syncText(node)
     }
 
     if (node.type === 'tabview') {
@@ -467,19 +430,6 @@ export function createElementProps(deps: Dependencies) {
 
     if (node.type === 'timepicker') {
       deps.pickerElements.syncTimePicker(node, props)
-    }
-
-    if (node.type === 'htmlview') {
-      deps.textElements.syncHtmlView(node)
-    }
-
-    if (node.type === 'searchbar') {
-      deps.inputElements.syncSearchBar(node, props)
-    }
-
-    if (node.type === 'textview') {
-      node.view!.editable = node.props.isEnabled !== false && node.props.editable !== false
-      deps.inputElements.fitTextView(node)
     }
 
     if (
@@ -518,7 +468,7 @@ export function createElementProps(deps: Dependencies) {
       deps.layout.queueLayoutReconcile(node.container, node.parent)
     }
 
-    if (node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {
+    if (!node.adapter && node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {
       deps.textElements.syncText(node)
     }
   }
