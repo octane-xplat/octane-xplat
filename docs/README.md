@@ -58,6 +58,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | ----------------------------------------------- | ------------------------------------------------------ |
 | Put text, buttons, and lists on a screen        | [Building screens](app/primitives.md)                  |
 | Share a component between apps | [Publish a component library](app/component-libraries.md) |
+| Install build plugins separately from the CLI | [Project build plugins](packages/package-build.md) |
 | Save settings and packing records | [Local storage](app/local-storage.md) |
 | Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
 | Make a screen work with assistive technology    | [Accessible screens](app/accessibility.md)             |

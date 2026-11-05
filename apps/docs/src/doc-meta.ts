@@ -106,6 +106,8 @@ export const GROUPS = [
       'package-camera',
       'package-canvas',
       'package-charts',
+      'package-build',
+
       'package-cli',
       'package-toolchain',
       'package-contacts',

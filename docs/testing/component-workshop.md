@@ -37,6 +37,16 @@ bun run xplat workshop doctor
 bun run xplat workshop list
 ```
 
+Initialization checks the saved files before writing. Use ordinary files and
+folders rather than symbolic links (paths pointing elsewhere); each input file
+must be no larger than 1 MiB. If a file changes while initialization runs, inspect that edit
+and run the command again. To add only the configuration and example, leave your
+package scripts alone with `--no-scripts`.
+
+```sh
+bun run xplat workshop init --no-scripts
+```
+
 ## Declaring stories
 
 Once the generated counter works, add a component example of your own. The
@@ -62,31 +72,31 @@ type State = { count: number }
 type Fixture = { account: string }
 
 function Counter(p: Props & { state: Store<State>; fixture: Fixture }) {
-  const { count } = useStore(p.state)
-  return (
-    <Pressable
-      accessibilityLabel="Increment"
-      onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
-    >
-      <Text>
-        {p.label ?? p.fixture.account}: {count}
-      </Text>
-    </Pressable>
-  )
+	const { count } = useStore(p.state)
+	return (
+		<Pressable
+			accessibilityLabel="Increment"
+			onPress={() => p.state.update((s) => ({ count: s.count + p.step }))}
+		>
+			<Text>
+				{p.label ?? p.fixture.account}: {count}
+			</Text>
+		</Pressable>
+	)
 }
 
 export const Basic = defineStory<Props, State, Fixture>({
-  id: 'counter/basic',
-  title: 'Examples / Counter',
-  targets: 'all',
-  component: Counter,
-  args: { step: 1 },
-  controls: {
-    step: { type: 'number', min: 1, max: 10 },
-    label: { type: 'string', allowUnset: true },
-  },
-  state: () => ({ count: 0 }),
-  fixture: () => ({ account: 'Demo' }),
+	id: 'counter/basic',
+	title: 'Examples / Counter',
+	targets: 'all',
+	component: Counter,
+	args: { step: 1 },
+	controls: {
+		step: { type: 'number', min: 1, max: 10 },
+		label: { type: 'string', allowUnset: true },
+	},
+	state: () => ({ count: 0 }),
+	fixture: () => ({ account: 'Demo' }),
 })
 ```
 
@@ -113,8 +123,8 @@ To reuse the controls from `Basic`, declare them in the same file and set its
 import type { StoryControls } from '@octane-xplat/workshop'
 
 const controls: StoryControls<Props> = {
-  step: { type: 'number', min: 1, max: 10 },
-  label: { type: 'string', allowUnset: true },
+	step: { type: 'number', min: 1, max: 10 },
+	label: { type: 'string', allowUnset: true },
 }
 ```
 
@@ -133,11 +143,11 @@ In the same file, define this factory and set `Basic`'s `fixture` property to
 import type { FixtureFactory } from '@octane-xplat/workshop'
 
 const fixture: FixtureFactory<Fixture> = ({ signal, onCleanup }) => {
-  const timer = setInterval(() => {
-    if (!signal.aborted) console.log('Demo fixture is active')
-  }, 1000)
-  onCleanup(() => clearInterval(timer))
-  return { account: 'Demo' }
+	const timer = setInterval(() => {
+		if (!signal.aborted) console.log('Demo fixture is active')
+	}, 1000)
+	onCleanup(() => clearInterval(timer))
+	return { account: 'Demo' }
 }
 ```
 
@@ -152,7 +162,7 @@ shows an actual secondary Octane root, shared provider store, and disposal.
 import { SizeProvider } from '@octane-xplat/ui'
 
 function DemoProvider(p: { fixture: Fixture; children?: unknown }) {
-  return <SizeProvider size="lg">{p.children}</SizeProvider>
+	return <SizeProvider size="lg">{p.children}</SizeProvider>
 }
 // Use this array for Basic's providers field:
 const providers = [DemoProvider]
@@ -209,13 +219,13 @@ To make an iOS-only variant, save the earlier component, imports, and types in
 
 ```ts
 export const IOSOnly = defineStory<Props, State, Fixture>({
-  id: 'counter/ios-only',
-  title: 'Examples / iOS counter',
-  targets: ['ios'],
-  component: Counter,
-  args: { step: 1 },
-  state: () => ({ count: 0 }),
-  fixture: () => ({ account: 'Demo' }),
+	id: 'counter/ios-only',
+	title: 'Examples / iOS counter',
+	targets: ['ios'],
+	component: Counter,
+	args: { step: 1 },
+	state: () => ({ count: 0 }),
+	fixture: () => ({ account: 'Demo' }),
 })
 ```
 
@@ -262,10 +272,11 @@ The `macos` target runs the same catalog and session in a small AppKit shell on
 the real JavaScriptCore/NativeScript host — the same runtime `xplat dev` uses
 for packaged macOS apps. It needs a macOS arm64 machine and the app's matching
 macOS dependencies (`@octane-xplat/macos-appkit` and
-`@nativescript/macos-node-api`). Story windows and sheets opened through `openWindow` or
+`@nativescript/macos-node-api`) plus the project-installed macOS build engine. Story windows and sheets opened through `openWindow` or
 `mountSheet` are workshop-owned and close when the story generation retires.
 
 ```sh
+bun add -D @octane-xplat/macos-build
 bun run xplat workshop dev --target macos
 ```
 
@@ -292,11 +303,11 @@ Relative provider and asset paths resolve from the consuming app.
 import { defineWorkshopConfig } from '@octane-xplat/workshop'
 
 export default defineWorkshopConfig({
-  stories: {
-    include: ['src/**/*.stories.tsrx', 'src/**/*.stories.web.tsrx'],
-    exclude: ['src/private-fixtures/**'],
-  },
-  assets: { examples: './public' },
+	stories: {
+		include: ['src/**/*.stories.tsrx', 'src/**/*.stories.web.tsrx'],
+		exclude: ['src/private-fixtures/**'],
+	},
+	assets: { examples: './public' },
 })
 ```
 

@@ -23,14 +23,14 @@ import { media } from '@octane-xplat/media'
 import { files } from '@octane-xplat/files'
 
 export async function readImages() {
-  const images = await media.pickImages()
-  try {
-    const bytes: Uint8Array[] = []
-    for (const image of images) bytes.push(await files.readBytes(image))
-    return bytes
-  } finally {
-    for (const image of images) files.release(image)
-  }
+	const images = await media.pickImages()
+	try {
+		const bytes: Uint8Array[] = []
+		for (const image of images) bytes.push(await files.readBytes(image))
+		return bytes
+	} finally {
+		for (const image of images) files.release(image)
+	}
 }
 ```
 
@@ -106,21 +106,18 @@ before releasing manual tmpfile results; the wrapper owns automatic results
 until replacement/disposal. Wait for loaded images/fonts explicitly. Continuous
 mode, full-scroll content, RAW/ZIP and Android GL handling reject. Check the
 selected backend's capabilities: only phones implement primary app-screen
-capture; GTK/experimental Windows implement PNG views only. Apple backends are
-TypeScript over the ObjC bridge (no native rebuild); iOS simulator and macOS
-runtime checks verify real PNG/JPEG bytes, owned-file release and refusals.
-Pixel fidelity is uninspected and Android/GTK/Windows output remains
-unqualified — do not treat source checks as pixel evidence or bypass a
-visual-analysis restriction.
+capture; GTK/experimental Windows implement PNG views only. Source/compiler/API
+checks have passed, but no capture output is runtime-qualified. Do not treat
+those checks as pixel evidence or bypass a visual-analysis restriction.
 
 ```ts
 import { captureRef, releaseCapture } from '@octane-xplat/view-shot'
 
 const uri = await captureRef(card, { format: 'png' })
 try {
-  // Await the operation that consumes uri.
+	// Await the operation that consumes uri.
 } finally {
-  releaseCapture(uri)
+	releaseCapture(uri)
 }
 ```
 
@@ -139,11 +136,11 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments(props: {
-  value: FileInputFile[]
-  change(value: FileInputFile | FileInputFile[] | null): void
-  save(value: FileInputFile | FileInputFile[] | null): Promise<void>
+	value: FileInputFile[]
+	change(value: FileInputFile | FileInputFile[] | null): void
+	save(value: FileInputFile | FileInputFile[] | null): Promise<void>
 }) {
-  return <FileInput value={props.value} onChange={props.change} changeAction={props.save} isMultiple />
+	return <FileInput value={props.value} onChange={props.change} changeAction={props.save} isMultiple />
 }
 ```
 
@@ -175,8 +172,8 @@ import { FileInput } from '@octane-xplat/files'
 import type { FileInputFile } from '@octane-xplat/files'
 
 export function Attachments(props: { value: FileInputFile[]; change(value: FileInputFile | FileInputFile[] | null): void }) {
-  return <FileInput label="Attachments" mode="dropzone" value={props.value} onChange={props.change}
-    isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
+	return <FileInput label="Attachments" mode="dropzone" value={props.value} onChange={props.change}
+		isMultiple accept=".txt,.pdf" maxSize={5000000} maxFiles={3} />
 }
 ```
 
@@ -200,12 +197,12 @@ for ownership and limits.
 import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
 
 export async function toWebP(source: string) {
-  const context = ImageManipulator.manipulate(source)
-  let pixels: Awaited<ReturnType<typeof context.renderAsync>> | undefined
-  try {
-    pixels = await context.renderAsync()
-    return await pixels.saveAsync({ format: SaveFormat.WEBP })
-  } finally { pixels?.release(); context.release() }
+	const context = ImageManipulator.manipulate(source)
+	let pixels: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+	try {
+		pixels = await context.renderAsync()
+		return await pixels.saveAsync({ format: SaveFormat.WEBP })
+	} finally { pixels?.release(); context.release() }
 }
 // The receiving owner releases the saved ImageResult after its last use.
 ```
@@ -221,8 +218,8 @@ is separate from engine/SDK qualification; see the
 import { convertGif, isAvailable, releaseVideo } from '@octane-xplat/media-converter'
 
 export async function uploadAnimation(source: string, upload: (uri: string) => Promise<void>) {
-  if (!(await isAvailable('mp4'))) throw new Error('MP4 encoding is unavailable')
-  const video = await convertGif(source).result
-  try { await upload(video.uri) } finally { releaseVideo(video) }
+	if (!(await isAvailable('mp4'))) throw new Error('MP4 encoding is unavailable')
+	const video = await convertGif(source).result
+	try { await upload(video.uri) } finally { releaseVideo(video) }
 }
 ```

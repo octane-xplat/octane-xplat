@@ -177,8 +177,11 @@ the independent example checker.
 For source-only exports, the generator emits declarations once per package using
 its compiler settings before rendering with `exports-md`. Typechecking remains
 an independent gate. JavaScript-only commands without declarations are named on
-the API page and route to the usage guide. Missing explicit declaration targets
-fail generation. Tests cover re-exports, source inference, missing declarations,
+the API page and route to the usage guide. Packages containing only those entry
+points list their commands without invoking the declaration renderer or executing
+the workers. Missing explicit declaration targets still fail generation, including
+in mixed library/worker packages. Tests cover re-exports, source inference,
+missing declarations and workers,
 multi-variable declarations, default function aliases, and complete writes
 of large pages. Reassess these adaptations when upstream
 supports the relevant cases directly.

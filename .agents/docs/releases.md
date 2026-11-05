@@ -168,6 +168,23 @@ and [consumer installation](../../docs/packages/package-cli.md#single-file-execu
 Binaries are excluded from npm tarballs: the npm bin requires installed Bun,
 while Vite and MCP exports remain per-module ESM.
 
+## Parallel Nim CLI channel
+
+The manual `release.yml` track `nim` builds the parallel native CLI from
+`packages/cli/nim` with an exact `x.y.z-nim.N` version and publishes only
+`@octane-xplat/cli` under the `nim` dist-tag. Five native build/test jobs gate
+publication. The Nim tarball keeps the curated Vite and small operation-worker exports, while
+omitting the old CLI entry and heavy engine dependencies. Optional project
+engines and platform assets stay separate; TypeScript remains in-repo as the
+migration reference. It uses the existing trusted publisher; it neither bumps lockstep
+manifests nor changes `latest` or `nightly`. This workflow is an experimental
+migration lane, not full CLI parity evidence. See the
+[native implementation and packaging boundaries](../../packages/cli/nim/README.md).
+
+```sh
+gh workflow run release.yml -f track=nim -f nim_version=0.19.0-nim.1
+```
+
 ## Add a publishable package
 
 [`scripts/publishable.ts`](../../scripts/publishable.ts) discovers every

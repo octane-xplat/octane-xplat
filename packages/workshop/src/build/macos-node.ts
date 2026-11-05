@@ -2,13 +2,22 @@ import { createRequire } from 'node:module'
 import { mkdir, mkdtemp, writeFile, rm } from 'node:fs/promises'
 import { join, relative, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { loadMacOSDevEngine } from './macos-engine.ts'
 
 /** Generate a separate consumer-owned cache profile; leave app entries untouched. */
-export async function workshopMacOSDev({ root, config, story }) {
+export async function workshopMacOSDev({
+	root,
+	config,
+	story,
+	resourceRoot,
+	profileRoot,
+	onStarted,
+}) {
 	if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
 		throw new Error('The AppKit workshop requires a macOS arm64 or x86_64 execution host')
 	}
 
+	const { runMacOSDev } = await loadMacOSDevEngine(root)
 	const require = createRequire(join(root, 'package.json'))
 	for (const name of [
 		'@octane-xplat/macos-appkit',
@@ -26,7 +35,7 @@ export async function workshopMacOSDev({ root, config, story }) {
 		}
 	}
 
-	const cache = join(root, 'node_modules/.cache/xplat/workshop-macos')
+	const cache = profileRoot ?? join(root, 'node_modules/.cache/xplat/workshop-macos')
 	await mkdir(cache, { recursive: true })
 	const directory = await mkdtemp(join(cache, 'session-'))
 	// Payload sources (fed to the consumer's vite as file paths) ship under
@@ -80,9 +89,10 @@ export default async ({ mode }) => {
 	)
 
 	try {
-		const { runMacOSDev } = await import('@octane-xplat/cli/macos')
 		return await runMacOSDev(root, {
 			workshop: true,
+			resourceRoot,
+			onReady: (meta) => onStarted?.({ kind: 'native-host-spawned', pid: meta.pid }),
 			target: {
 				runtime: 'appkit-node-api',
 				renderer: 'appkit',

@@ -6,28 +6,28 @@ import { SelectView } from './SelectView.windows.tsrx'
 
 /** Finite-list selection with local search; Typeahead owns async result sources. */
 export function Select(inputProps: SelectProps): unknown @{
-  const props = useFieldControlProps(inputProps)
-  const state = useSelect(props)
-  const { selectionMode, ...viewProps } = props
+	const props = useFieldControlProps(inputProps)
+	const state = useSelect(props)
+	const { selectionMode, ...viewProps } = props
 
-  <SelectView
-    {...viewProps}
-    multiple={selectionMode === 'multiple'}
-    open={state.open}
-    query={state.query}
-    selected={state.selected}
-    groups={state.groups}
-    shown={state.shown}
-    enabled={state.enabled}
-    selectAllState={state.selectAllState}
-    pending={state.pending}
-    triggerText={state.triggerText}
-    emptyText={state.emptyText}
-    announcement={state.announcement}
-    onOpenChange={state.setOpen}
-    onQueryChange={state.setQuery}
-    onPick={state.pick}
-    onClear={state.clear}
-    onSelectAll={state.selectAll}
-  />
+	<SelectView
+		{...viewProps}
+		multiple={selectionMode === 'multiple'}
+		open={state.open}
+		query={state.query}
+		selected={state.selected}
+		groups={state.groups}
+		shown={state.shown}
+		enabled={state.enabled}
+		selectAllState={state.selectAllState}
+		pending={state.pending}
+		triggerText={state.triggerText}
+		emptyText={state.emptyText}
+		announcement={state.announcement}
+		onOpenChange={state.setOpen}
+		onQueryChange={state.setQuery}
+		onPick={state.pick}
+		onClear={state.clear}
+		onSelectAll={state.selectAll}
+	/>
 }

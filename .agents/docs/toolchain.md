@@ -3,37 +3,82 @@
 Paths in code spans refer to the repository root. Read this reference when its
 subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
-## Shared consumer toolchain
-
-`packages/toolchain` publishes `octane-xplat`: the CLI bin, the `/vite`
-configuration facade, and common compiler/build dependencies. External pins
-come from `packages/create/compatibility.json` through `sync:compatibility`;
-internal workspace dependencies follow lockstep publication. The private root
-is named `@xplat/workspace` so it cannot shadow the published package.
-Keep app runtime/target dependencies explicit. Tool execution may resolve
-compiler tools through the installed umbrella, but ordinary app imports do
-not gain access to those transitive packages.
-
-## Vite dependency optimizer resolution
-
-Vite 8.3.0's Rolldown optimizer uses a separate extension list rather than
-inheriting `resolve.extensions` ([optimizer source](https://github.com/vitejs/vite/blob/v8.3.0/packages/vite/src/node/optimizer/index.ts),
-[option contract](https://vite.dev/config/dep-optimization-options.html#optimizedeps-rolldownoptions)).
-A source package importing `./db` can therefore select native `db.ts` while
-ordinary web resolution selects `db.web.ts`; a production build does not
-exercise the optimizer.
-
-Xplat's platform resolution plugin (`xplatTsrx`, composed into `xplatBoundary`)
-defaults each environment's optimizer extensions to its resolved extension
-order after normal config hooks. Explicit optimizer extension lists win.
-Native extension ordering updates environment resolvers as well as the root
-resolver, since Vite creates these separately. No dependencies are excluded.
-The maintained `packages/cli/test/vite-optimizer.test.mjs` exercises a real
-Vite dev server, optimized web/native siblings and a transformed worker URL.
-Reassess this default when upgrading Vite; remove the local alignment if
-upstream starts inheriting platform extensions itself.
-
 ## CLI runtime and executable packaging
+
+The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.
+[Build tooling](../../tools/cli-go/README.md) owns pinned builds, runtime
+snapshots, correctness checks and size/startup measurements; the package `bin`
+dispatches to the platform binary. Node is an installed prerequisite for
+explicit JavaScript workers; the executable does not bundle a JS runtime or
+call a JavaScript CLI. Workspace matching supports literal paths, `*` within a path segment and
+exclusions; advanced glob grammar is deliberately unsupported. Discovery and
+package reads stay native.
+
+The Go migration uses explicitly started foreground `dev` ownership. Humans or
+instructed agents may start it; app-control clients normally attach to an existing
+server and never implicitly launch a server/app/browser. Private discovery is
+keyed by canonical app directory, outside tracked project files, with per-start
+instance credentials and authenticated loopback requests. Client disconnect does
+not stop apps. Target-scoped app WebSockets register actual action metadata;
+observation and action listing are native. App proof is distinct from private CLI
+RPC authorization. The maintained macOS gates exercise actual Chromium actions,
+named-DOM inspection and programmatic handler dispatch, and actual AppKit action
+registration/invocation through the host's Foundation WebSocket shim. These are
+separate from OS-input or device qualification. The NativeScript preset now
+supplies an experimental project-Vite WebSocket relay. Actual registration,
+read-only action invocation/status and short-client lifetime pass on an API 35
+ARM64 Android emulator and an iOS 27 arm64 simulator (`test:go-dev-ios-real`);
+reconnect/HMR, physical devices and other runtimes remain pending. Direct loopback sockets require
+same-host reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
+validation to the selected project worker, while foreground Go owns request
+identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
+missing dev server. Retained engine logs, browser warnings/errors, scoped Apple
+crash reports and text evidence have maintained gates; image capture and native
+UI-inspection adapters remain pending. See the Go README for each provider's
+scope and actual-target limits. Detached-owner
+and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
+reports; they are superseded qualification scope, not active Go release gates.
+
+The Go implementation in [packages/cli/go](../../packages/cli/go/README.md) is
+the sole CLI; the TypeScript and Nim implementations were removed. Native
+commands never execute a JavaScript CLI fallback; the package `bin` dispatches
+to the platform binary built by [tools/cli-go](../../tools/cli-go/README.md).
+See [CLI agent guidance](../../packages/cli/AGENTS.md) for ownership and
+boundary rules.
+
+Project-installed Vite presets are separately packaged as
+[`@octane-xplat/build`](../../packages/build/README.md). Its build compiles the
+plugin closure from the CLI package's TypeScript sources; it has no published
+CLI runtime dependency. Keep JS compilation and development middleware in the
+app's toolchain, and command/process/session orchestration in the native
+executable. macOS packaging uses the separate
+[`@octane-xplat/macos-build`](../../packages/macos-build/README.md) worker and
+host assets in the selected project. Keep that platform cost out of the CLI
+tarball and web-only build installations. Go owns staging and final
+publication after the worker finishes.
+
+The published tarball preserves the Vite exports and the bounded `./worker`
+operation through the curated plugin closure; heavy engines are optional peers.
+Native-only installs fetch none of those peers. Native worker/declaration lookup uses the selected project's compatible
+`@octane-xplat/cli` installation. The separate build package is no longer a
+native workflow prerequisite.
+See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
+
+For the isolated native-TypeScript alternative, use the
+[Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host
+checks compare real catalog/discovery code with Node and measure the combined
+prototype. It is experimental; its results do not change the production
+runtime contract below. Perry 0.5.1520's optimized library rebuild requires a matching
+Git checkout, not only an unpacked source archive, because release compiler
+and runtime build stamps must agree.
+
+Perry 0.5.1520 is not qualified for the current CLI: the native core's pnpm
+lockfile binding omits versions and installation/lockfile conflict warnings
+that the same source reports under Node. Strict compilation succeeds despite
+this runtime mismatch. Keep the parity checks and download budget intact;
+compiler success and a small hello-world binary do not establish feasibility
+for Xplat's dependency graph. Preserve run evidence in Silo/local reports,
+and recheck this boundary before a production cutover.
 
 `xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;
 Node remains required by app and repository tooling. Vite/MCP subpath exports
@@ -63,40 +108,28 @@ Run `test:executable` through Turbo for concurrent extraction, native formatting
 and helper-process checks. The release workflow attaches executable/checksum
 pairs; npm still ships the Node-compatible ESM exports and Bun bin launcher.
 
+### Go Windows junction identity
+
+Go 1.27.3 follows the [Go 1.23 Windows symlink behavior](https://go.dev/doc/godebug#go-123):
+`filepath.EvalSymlinks` does not resolve mount-point reparse points, including
+directory junctions. Workspace package links use these on Windows. Treating the
+lexical link as a physical package root makes checkout docs discovery walk the
+consumer's `node_modules` instead of the framework repository. The
+[Windows canonical-path adapter](../../packages/cli/go/canonical_windows.go)
+opens the target and uses `GetFinalPathNameByHandle`, handling extended DOS and
+UNC names. Keep this local to physical identity instead of changing the process's
+global `GODEBUG` behavior. The [native index gate](../../tools/cli-go/docs-index.test.mjs)
+checks linked checkout discovery and rejects an external docs junction; build
+success alone does not establish either runtime property.
+
+Windows Git object paths can exceed `MAX_PATH` even when the owned staging
+directory fits. An actual bare fetch at a 216-character staging path failed with
+`Filename too long`; process-local `-c core.longpaths=true` succeeded. The native
+snapshot service passes that flag on Windows and qualifies a long-cache-path
+fixture. Do not shorten a failing fixture or change the user's global Git config
+to hide this boundary.
+
 ## Runtime dependency compatibility
-
-TypeScript checking uses `7.1.0-beta` with `@tsrx/content-mapper` 0.1.2 and
-`@tsrx/typescript-plugin` 0.6.3. Keep explicit `.tsrx` imports and unsuffixed
-contracts: native TypeScript does not support extensionless custom-extension
-resolution or Xplat's platform suffix placement. `xplatBoundary` redirects
-unsuffixed explicit TSRX paths at build time; declaration-only defaults throw
-when the target has no implementation. See [TSRX's upstream gap tracker](https://github.com/tsrx-org/tsrx/issues/136).
-
-TypeScript 7 has no classic JavaScript compiler API. `tsrx-typegen` owns
-TypeScript 5.9.3 and its 0.4.11 checker adapter; it resolves the target compiler
-from the project, but not the checker. The older plugin patch remains for that
-classic declaration path. Other API consumers explicitly import the
-`typescript-classic` alias. That alias also exposes `tsc`, so repository scripts
-use `tsrx-tsc` to avoid `.bin` collisions and select the project's compiler.
-Consumers must declare `@tsrx/content-mapper` directly: native TypeScript
-resolves the config's mapper from the project, not from the umbrella toolchain.
-NativeScript Vite 8.0.20 and the 8.0.21 Windows preview also use the classic
-API for configuration parsing and NativeClass lowering. Their upstream
-`loadTypeScript` prefers the project's `typescript`, which is a native launcher
-in this version set and lacks `getParsedCommandLineOfConfigFile` and
-`transpileModule`. The canonical Vite patches select the explicit
-`typescript-classic` alias, supplied directly by native apps and starters.
-TSRX checks still delegate to the project's native `tsrx-tsc`; the Vite plain
-TypeScript fallback and NativeClass transformer use the classic API. Remove
-that loader hunk when upstream supports native compiler projects. Source:
-[NativeScript's loader](https://github.com/NativeScript/NativeScript/blob/abae298/packages/vite/helpers/typescript.ts).
-Source and host checker tests establish this API boundary, not device behavior.
-
-Documentation's exports-md calls bind `cwd` to the classic installation for
-parsing. For manual `exports-md` retrieval, run from `packages/tsrx-typegen`
-and pass absolute input paths so nearest-compiler discovery finds the classic
-API. Do not replace these API dependencies with the native launcher.
-
 
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
 `@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a
@@ -190,16 +223,6 @@ Drive-by improvements to `packages/lint/` are allowed when they improve the
 experience of agents writing Octane-xplat code effectively.
 
 - **Typegen emits declarations per file and does not type-check.** `tsrx-typegen` transpiles each source's declarations with `isolatedDeclarations` and no TypeScript program, so every exported function, method and variable needs an explicit type. In this repository, native tsrx components use `): unknown @{` and DOM components use `): JSX.Element @{` with `import type { JSX } from 'octane/jsx-runtime'`. Type errors surface only in `typecheck` tasks. `ui` and `lottie` keep `isolatedDeclarations` off their tsconfigs because their vendored submodule sources cannot carry annotations. Those files' declarations come from `types/overrides/` through `tsrx-typegen.json` overrides; update them by hand when the vendored submodule changes. Leaf packages generate their declarations with `tsrx-typegen` into `types/generated/` and must not commit hand-written declaration facades under `types/`; signatures the emitter cannot express go in `types/overrides/`.
-- **UI type exports follow the package's declaration entrypoint.** The shared
-  root and subpath barrels own the public type lists for the common declaration
-  entrypoints. Platform runtime barrels need no duplicate type re-exports;
-  `scripts/sync-ui-barrels.ts` omits them from generated web twins. GTK uses
-  the same public declaration entrypoint as the other targets; keep its runtime
-  barrel value-only and compare its actual runtime exports in the GTK fixture.
-  GTK fixture configs inherit the shared extensionless-first suffix order.
-  A GTK-first override also substitutes `index.gtk.d.ts` for the common
-  `index.d.ts` export and loses the public type exports. Runtime leaf selection
-  belongs to the GTK preset.
 - **Task orchestration runs through Turborepo** (`turbo` 2.11.4 devDep,
   `turbo.json` at the root). `bun run typegen`, `bun run typecheck`, the
   `typecheck:{web,mobile,macos,linux,windows,docs}` filters,
@@ -399,6 +422,26 @@ experience of agents writing Octane-xplat code effectively.
   const Screen = () => null
   export { Screen as default }
   ```
+- **NativeScript Vite 8.0.20 can miss core's `source-map-js` under Bun's
+  isolated layout.** The device loader requests
+  `/ns/m/node_modules/source-map-js/lib/source-map-generator.js`, whose URL
+  has lost the importing core package's location. The HTTP route returns
+  404 in both `apps/mobile` and a small linked fixture, and an actual Android
+  app fails before its entry runs. The file exists and resolves from core's
+  canonical package path. `xplatNative` narrowly aliases this SDK-emitted
+  HTTP prefix to core's installed dependency; ordinary bare app imports are
+  unchanged. The host regression is `test:go-dev-android-http`, with the
+  selected project in `XPLAT_GO_ANDROID_HTTP_APP`; device qualification is a
+  separate `test:go-dev-android-real` gate. Revisit this alias when an adopted
+  upstream release resolves HTTP module paths through the importing SDK's
+  transitive dependency context. Do not hoist or add undeclared app dependencies
+  merely to make this route pass.
+- **NativeScript iOS cannot build an app whose directory is named `app`.**
+  NativeScript 9.1 names the generated Xcode project and executable after the
+  app directory, and its JS bundle folder is always `app`. Xcode then fails with
+  `Multiple commands produce '…/app.app/app'`; pinning simulator architectures
+  does not help. Name disposable fixture directories something else (the iOS
+  relay gate uses `relay-fixture`).
 - **Hoisted workspaces need the canonical exports-reverse-map fix on
   NativeScript Vite 8.0.20.** Its runtime-plugin bare-specifier fold reads
   `projectRoot/node_modules/<pkg>/package.json` literally, so in a
@@ -663,14 +706,14 @@ UI tarball; a workspace-only check cannot catch this missing-parent failure.
 
 ```json
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "jsx": "preserve",
-    "verbatimModuleSyntax": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "noEmitHelpers": true
-  }
+	"compilerOptions": {
+		"target": "ES2020",
+		"jsx": "preserve",
+		"verbatimModuleSyntax": true,
+		"experimentalDecorators": true,
+		"emitDecoratorMetadata": true,
+		"noEmitHelpers": true
+	}
 }
 ```
 
@@ -785,17 +828,17 @@ accepts the unparenthesized form.
 
 ```tsrx
 function Example(props: { visible: boolean }) @{
-  const content = (
-    <>
-      <button>Choose</button>
-    </>
-  )
+	const content = (
+		<>
+			<button>Choose</button>
+		</>
+	)
 
-  @if (props.visible) {
-    <div>{content}</div>
-  } @else {
-    <p>Hidden</p>
-  }
+	@if (props.visible) {
+		<div>{content}</div>
+	} @else {
+		<p>Hidden</p>
+	}
 }
 ```
 
@@ -884,7 +927,7 @@ The failing source was:
 // src/Example.web.tsrx
 import { css } from './styled-system/css'
 export function Example() @{
-  <div className={css({ padding: '8' })}>TSRX</div>
+	<div className={css({ padding: '8' })}>TSRX</div>
 }
 ```
 

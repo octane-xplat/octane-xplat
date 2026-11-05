@@ -54,7 +54,8 @@
 		"prepack": "bun run build",
 		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"test:library": "node test/library-guide.mjs",
-		"test": "node --test test/*.test.mjs"
+		"test": "node --test test/*.test.mjs",
+		"test:scaffold": "node --test test/scaffold.test.mjs"
 	},
 	"dependencies": {
 		"@clack/prompts": "1.8.1",

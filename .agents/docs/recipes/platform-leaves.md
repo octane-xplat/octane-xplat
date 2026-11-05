@@ -18,12 +18,10 @@ outside this recipe's scope.
 
 ## Acceptance criteria
 
-- AC1: The same import reaches `.web` in a browser or DOM webview; native targets select their most-specific implementation and fall back to the unsuffixed implementation. A declaration-only default supplies types and must not be selected as a runtime implementation.
+- AC1: The same import reaches `.web` in a browser or DOM webview; native targets select their most-specific implementation and fall back to the unsuffixed module.
 - AC2: `.mobile` overrides the unsuffixed default on iOS and Android; `.ios` and `.android` override `.mobile` only on their matching OS, and `.macos` overrides the default on macOS.
-- AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using explicit `.tsrx` imports and an unsuffixed contract.
+- AC3: The reader can typecheck the shared caller and its .tsrx leaves on web, iOS, Android, and macOS using the documented import and shim conventions.
 - AC4: Existing Linux WebKitGTK apps retain `.linux` precedence over `.web` during migration; new DOM webview frontends use `.web`.
-
-- AC6: Web development dependency optimization selects browser siblings using the configured extension order and serves referenced workers; explicit optimizer extension overrides remain authoritative.
 
 - AC5: CSS imports select one platform sibling with fallback, while explicit imports allow shared-plus-platform composition.
 
@@ -35,9 +33,10 @@ outside this recipe's scope.
   Maintained catalog-build fixture: `packages/cli/test/route-generation.test.mjs`;
   it checks evaluated module identity on seven target graphs without implying
   device or Windows host runtime qualification.
-- AC3: [TypeScript contracts and target commands](../../../docs/platform/module-resolution.md#typescript).
+- AC3: [TypeScript, .tsrx shims, and target commands](../../../docs/platform/module-resolution.md#typescript).
+  The [experimental native CLI](../../../docs/packages/package-cli.md#native-executable)
+  invokes the project's existing checker and supplies installed ambient declarations;
+  command qualification on macOS does not establish app runtime behavior on a target.
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).
 
 - AC5: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants) and the maintained [CSS pipeline tests](../../../packages/cli/test/css-platform.test.mjs).
-
-- AC6: [Development dependencies](../../../docs/platform/module-resolution.md#dependencies-during-web-development), [web setup](../../../docs/packages/package-toolchain.md#configure-a-web-app), and maintained `packages/cli/test/vite-optimizer.test.mjs`.

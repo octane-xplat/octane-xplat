@@ -11,6 +11,15 @@ available, or uses a standalone executable with Bun embedded. The reader runs
 commands from the project directory. These are host-side code checks; they
 do not establish runtime behavior on a browser or device.
 
+The experimental Nim executable has a separate, partial migration path: native
+lint requires Node and a project-installed `@octane-xplat/lint`; native formatting
+on macOS requires Node and project-installed `@octane-xplat/fmt@0.1.1`. Native
+format/check/stdin have a [formatter gate](../../../tools/cli-go/format.test.mjs);
+complete starter-script workflow verification remains separate. The extra engine
+installation still does not satisfy AC1's CLI-only installation. Keep those gaps explicit rather than treating the smaller download as
+full workflow coverage. See the [native CLI setup](../../../docs/packages/package-cli.md#native-executable)
+and [packed-engine qualification](../../../tools/cli-go/lint.test.mjs).
+
 ## Requirements
 
 - Check shared source without assembling a separate lint toolchain.
@@ -24,14 +33,14 @@ do not establish runtime behavior on a browser or device.
 - AC2: Linting leaves source unchanged by default; safe fixes are opt-in, remaining errors fail the command, and warnings remain advisory.
 - AC3: Files and directories select the same scope in both passes, with matching Git/config ignores and consistent output-directory, symlink and nested-repository boundaries.
 - AC4: The reader can use a strict JSON project config, extend the bundled preset, and override Xplat rule severities/options for matching files; unsupported config formats and invocation-root scope are explicit.
-- AC5: Formatting discovers all Oxfmt file types and special filenames, excludes generated lockfiles, and restricts Octane fixes to JS/TS/TSRX. CSS and other languages preserve check/write/stdin behavior. The reader can format source separately and check formatting without writes; app and library starters expose the supported lint and formatting scripts.
+- AC5: The reader can format source separately and check formatting without writes; app and library starters expose the supported lint and formatting scripts.
 - AC6: Existing standalone xplat-lint invocations remain usable with paths and safe fixes, including direct Node invocation without bin shims on PATH.
 
 ## Documentation
 
-- AC1: [CLI runtime and standalone executable](../../../docs/packages/package-cli.md#single-file-executable), [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../docs/packages/package-lint.md#what-gets-checked), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
-- AC2: [Lint behavior and exit codes](../../../docs/packages/package-cli.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../packages/cli/test/lint.test.mjs).
-- AC3: [Selection and ignores](../../../docs/packages/package-lint.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../packages/cli/test/lint.test.mjs).
-- AC4: [Project configuration](../../../docs/packages/package-lint.md#project-configuration) and the [configuration parity tests](../../../packages/cli/test/lint.test.mjs).
-- AC5: Formatting discovers all Oxfmt file types and special filenames, excludes generated lockfiles, and restricts Octane fixes to JS/TS/TSRX. CSS and other languages preserve check/write/stdin behavior. [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../packages/cli/test/fmt.test.mjs).
-- AC6: [Standalone command and direct Node example](../../../docs/packages/package-lint.md) and the [compatibility integration test](../../../packages/cli/test/lint.test.mjs).
+- AC1: [CLI runtime and standalone executable](../../../docs/packages/package-cli.md#single-file-executable), [Lint and format source](../../../docs/testing/testing.md#lint-and-format-source), [rule coverage](../../../docs/packages/package-lint.md#what-gets-checked), and the [CLI integration tests](../../../tools/cli-go/lint.test.mjs).
+- AC2: [Lint behavior and exit codes](../../../docs/packages/package-cli.md#lint-and-format), [fixes](../../../docs/testing/testing.md#lint-and-format-source), and the [CLI integration tests](../../../tools/cli-go/lint.test.mjs).
+- AC3: [Selection and ignores](../../../docs/packages/package-lint.md#what-gets-checked) and the [selection, ignore and boundary tests](../../../tools/cli-go/lint.test.mjs).
+- AC4: [Project configuration](../../../docs/packages/package-lint.md#project-configuration) and the [configuration parity tests](../../../tools/cli-go/lint.test.mjs).
+- AC5: [Separate lint and format commands](../../../docs/testing/testing.md#lint-and-format-source), [app scripts](../../../packages/create/template/package.json), [library scripts](../../../packages/create/library-template/package.json), and the [format command tests](../../../tools/cli-go/format.test.mjs).
+- AC6: [Standalone command and direct Node example](../../../docs/packages/package-lint.md) and the [compatibility integration test](../../../tools/cli-go/lint.test.mjs).

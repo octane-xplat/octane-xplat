@@ -9,21 +9,19 @@ const directory = await mkdtemp(join(tmpdir(), 'xplat-webp-engine-'))
 const vendor = join(root, 'platforms/macos/vendor/libwebp')
 const { globSync } = await import('node:fs')
 function run(command, args) {
-  const result = spawnSync(command, args, { encoding: 'utf8', timeout: 120000 })
-  assert.equal(result.status, 0, result.stdout + result.stderr)
-  return result.stdout
+	const result = spawnSync(command, args, { encoding: 'utf8', timeout: 120000 })
+	assert.equal(result.status, 0, result.stdout + result.stderr)
+	return result.stdout
 }
-
 try {
-  assert.equal(
-    await readFile(join(root, 'platforms/macos/src/XplatWebPEncoder.m'), 'utf8'),
-    await readFile(join(root, 'platforms/ios/src/XplatWebPEncoder.m'), 'utf8'),
-  )
-
-  const main = join(directory, 'main.m')
-  await writeFile(
-    main,
-    `#import <Foundation/Foundation.h>
+	assert.equal(
+		await readFile(join(root, 'platforms/macos/src/XplatWebPEncoder.m'), 'utf8'),
+		await readFile(join(root, 'platforms/ios/src/XplatWebPEncoder.m'), 'utf8'),
+	)
+	const main = join(directory, 'main.m')
+	await writeFile(
+		main,
+		`#import <Foundation/Foundation.h>
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import "XplatWebPEncoder.h"
@@ -45,68 +43,62 @@ int main() { @autoreleasepool {
     puts("WEBP_ENGINE_OK dimensions,alpha,encoded-bytes");
 } return 0; }
 `,
-  )
-
-  const sources = [
-    ...globSync(join(vendor, 'src/{dec,dsp,enc,utils}/*.c')),
-    ...globSync(join(vendor, 'sharpyuv/*.c')),
-  ]
-
-  const objects = []
-  for (const [index, source] of sources.entries()) {
-    const object = join(directory, `${index}.o`)
-    run('xcrun', [
-      'clang',
-      '-O2',
-      '-I',
-      vendor,
-      '-I',
-      join(vendor, 'src'),
-      '-c',
-      source,
-      '-o',
-      object,
-    ])
-
-    objects.push(object)
-  }
-
-  run('xcrun', [
-    'clang',
-    '-fobjc-arc',
-    '-I',
-    join(root, 'platforms/macos/src'),
-    '-I',
-    join(vendor, 'src'),
-    '-framework',
-    'Foundation',
-    '-framework',
-    'ImageIO',
-    '-framework',
-    'CoreGraphics',
-    join(root, 'platforms/macos/src/XplatWebPEncoder.m'),
-    main,
-    ...objects,
-    '-o',
-    join(directory, 'case'),
-  ])
-
-  console.log(run(join(directory, 'case'), []).trim())
-  const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
-  run('xcrun', [
-    'clang',
-    '-fsyntax-only',
-    '-fobjc-arc',
-    '-isysroot',
-    sdk,
-    '-target',
-    'arm64-apple-ios15.0-simulator',
-    '-I',
-    join(vendor, 'src'),
-    join(root, 'platforms/ios/src/XplatWebPEncoder.m'),
-  ])
-
-  console.log('iOS SDK: codec bridge syntax passed (not CocoaPods integration or device runtime).')
+	)
+	const sources = [
+		...globSync(join(vendor, 'src/{dec,dsp,enc,utils}/*.c')),
+		...globSync(join(vendor, 'sharpyuv/*.c')),
+	]
+	const objects = []
+	for (const [index, source] of sources.entries()) {
+		const object = join(directory, `${index}.o`)
+		run('xcrun', [
+			'clang',
+			'-O2',
+			'-I',
+			vendor,
+			'-I',
+			join(vendor, 'src'),
+			'-c',
+			source,
+			'-o',
+			object,
+		])
+		objects.push(object)
+	}
+	run('xcrun', [
+		'clang',
+		'-fobjc-arc',
+		'-I',
+		join(root, 'platforms/macos/src'),
+		'-I',
+		join(vendor, 'src'),
+		'-framework',
+		'Foundation',
+		'-framework',
+		'ImageIO',
+		'-framework',
+		'CoreGraphics',
+		join(root, 'platforms/macos/src/XplatWebPEncoder.m'),
+		main,
+		...objects,
+		'-o',
+		join(directory, 'case'),
+	])
+	console.log(run(join(directory, 'case'), []).trim())
+	const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
+	run('xcrun', [
+		'clang',
+		'-fsyntax-only',
+		'-fobjc-arc',
+		'-isysroot',
+		sdk,
+		'-target',
+		'arm64-apple-ios15.0-simulator',
+		'-I',
+		join(vendor, 'src'),
+		join(root, 'platforms/ios/src/XplatWebPEncoder.m'),
+	])
+	console.log('iOS SDK: codec bridge syntax passed (not CocoaPods integration or device runtime).')
 } finally {
-  await rm(directory, { recursive: true, force: true })
+	await rm(directory, { recursive: true, force: true })
 }

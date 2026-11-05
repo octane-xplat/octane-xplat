@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { parseArgs } from 'node:util'
 import { zipSync } from 'fflate/browser'
 import { createFingerprintAsync } from '@octane-xplat/fingerprint'
-import { initializeUpdates } from '../../cli/src/commands/updates.ts'
+import { initializeUpdates } from '../../cli/src/updates-hook.ts'
 
 const { values } = parseArgs({
   options: {

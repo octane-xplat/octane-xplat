@@ -1,0 +1,48 @@
+name: Perry CLI prototype
+
+# An experimental qualification lane, deliberately outside the PR gate.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-14, ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - run: bun install --frozen-lockfile --ignore-scripts
+      - run: node tools/cli-perry/install.mjs
+      # Auto-optimized stdlib builds need a Git checkout matching the compiler;
+      # source tarballs receive a different runtime build stamp.
+      - uses: actions/checkout@v6
+        with:
+          repository: PerryTS/perry
+          ref: 381045a8735ff325621c5dfb26a3bd4f5a8798c5
+          path: research/perry-cli/compiler-source
+      - run: rustup toolchain install nightly-2026-08-20 --profile minimal
+      - name: Compile and verify native behavior
+        shell: bash
+        run: |
+          export PERRY_WORKSPACE_ROOT="$GITHUB_WORKSPACE/research/perry-cli/compiler-source"
+          bun run turbo run test:perry-cli --filter=//
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perry-cli-${{ matrix.runner }}
+          path: |
+            research/perry-cli/*/results.json
+            research/perry-cli/*/*.build.log

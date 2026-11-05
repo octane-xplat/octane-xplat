@@ -5,9 +5,205 @@ executables embed Bun and unpack their production payload into a writable
 local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
+The [Go implementation](../../../../packages/cli/go/README.md) is the sole CLI;
+the TypeScript and Nim implementations were removed. Its release
+upgrade archives carry the invoked release's small policy worker and dependencies,
+staged privately across installation. This release-policy exception does not move
+compiler/plugin resolution away from the selected project, embed Node, or invoke
+the old CLI. Consult that entry and Silo for actual command/target qualification.
+
+Go workshop inspection calls the selected project's workshop Node engine. JSON
+discovery diagnostics are data with exit zero; human diagnostics fail. Static
+story discovery does not execute story modules, though Vite configuration does
+execute. Doctor availability does not qualify a native host. Consult the group
+schema before using service launching in the parallel CLI. Initialization shares
+a read-only plan with the reference: preserve custom files/scripts, use ordinary
+paths under the 1 MiB input bound, and rerun after inspecting a stale-input error.
+
+MacOS workshop launch requires the selected project’s optional
+`@octane-xplat/macos-build/dev-engine`. Keep this engine and its host assets
+separate from the native executable; the workshop calls its Node API directly
+in the existing operation worker. Go workshop services use native lifetime
+ownership and a bounded startup sidecar. Schema evidence labels distinguish web listening, host spawn and mobile
+tool spawn from actual app readiness. Inspect those scopes before automating
+interactions. Main Go `dev` now owns foreground project engines after initial
+route publication. It retains bounded logs and validates macOS launch sidecars;
+launch metadata alone does not prove app initialization. Humans or explicitly
+instructed agents can start `dev`; ordinary agent commands normally connect to an
+already-running app. Missing discovery reports no running dev server and never
+starts one. Do not start apps or browsers implicitly to satisfy an observation.
+
+```sh
+/absolute/path/to/xplat-go dev --project /work/repo --app apps/web --targets web
+# In a separate invocation, after explicit startup:
+/absolute/path/to/xplat-go targets --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go session list --project /work/repo --app apps/web --json
+```
+
+Go uses one foreground dev server per canonical app directory, with private
+same-user discovery and authenticated loopback requests. Nested directories and
+symlink aliases converge; worktrees stay separate. A short-lived client never
+owns app lifetime, and disconnecting it leaves the app running. App debug
+WebSockets now register framework action metadata, with native observation and
+action listing. `session attach --instance APP_INSTANCE` observes an existing
+app; it never owns or terminates it. Engine progress remains separate from app
+connections. Direct loopback transport requires same-host reachability and a
+runtime WebSocket implementation. NativeScript has an experimental project-Vite
+relay with registration, read-only invocation/status and short-client lifetime
+evidence on an API 35 ARM64 Android emulator and an iOS 27 arm64 simulator.
+Reconnect/HMR, physical devices and other runtimes remain unqualified,
+and non-browser UI adapters remain unqualified. Actual Chromium action invocation and programmatic interaction have macOS
+evidence; protocol checks do not qualify browser UI behavior on other hosts. Browser console
+forwarding has separate headless Chromium evidence. The AppKit gate also exercises
+native macOS action registration, invocation and status through the JavaScriptCore
+host's Foundation WebSocket shim; it does not establish native UI inspection or
+OS-input support. Native action invocation/status now use canonical project-worker validation and
+the app's existing execution policy. Read the registry revision, use an explicit
+request key, and poll `actions status` rather than a removed generic job command.
+Disconnect/deadline outcomes can remain unknown; do not automatically retry them
+with a new key. Keys/results are bounded to this dev-server startup, with no
+cross-restart idempotence guarantee. Failed action jobs keep raw stacks and may add `sourceStack` from current cached
+Vite maps (`stackResolution: "vite-current"`). This does not prove exact-revision
+mapping or resolution of every frame. Unserved, file/device or unavailable frames
+remain raw; lookup failure does not alter the action outcome or partial effects.
+Go `diagnostics` lists retained foreground engine captures and reads bounded logs,
+including after dev exits. Its capture IDs differ from observed app sessions.
+Never infer liveness or cleanup from a recorded PID. The Go Vite plugin forwards bounded browser warnings, errors, uncaught failures
+and rejected promises using the existing client. Diagnostics reports observations
+in the returned page; absent records do not prove an error-free app. Scoped Apple crash-report discovery and complete retained originals are available
+for macOS captures with recorded identity. Candidate bundle/time matches are not
+confirmed process ownership. Diagnostics preserves report coverage gaps without
+hiding logs. NativeScript package identity is captured only from selected-device SDK sync
+output, without PID or readiness claims. Android exit-history reads are scoped to
+that package/device and retain candidate records, not full traces. Android
+exit-record collection passes on a real API 35 emulator; NativeScript identity
+ingestion and iOS simulator report collection have only unit/reference evidence.
+A failed device setup is not a runtime pass. Read-only browser inspection uses the
+connected app's fixed named-host inspector and per-document identity. It redacts
+private values and never focuses controls, dispatches input or starts a browser.
+Evidence list/delete combine bounded current-session records and explicitly retained
+text records scoped to the selected app. Retention requires the invoking command
+to grant `evidence-retain`; records survive restart in the private native cache.
+List/renew/delete work offline without Node or server startup. Expiration is a
+future ISO timestamp or manual deletion; expired records are filtered on reads.
+Corruption and full retained capacity fail explicitly. Deletion cannot erase a client transcript. Programmatic `interact --mechanism handler-dispatch` uses an untrusted HTML click,
+not CDP or OS input. Require document/selector/request key, then inspect state
+separately. A repeated identical key returns the original delivery receipt; never
+change its binding or automatically use a new key after unknown effects. Admission
+outlives the HTTP client and observations are bounded. Receipts are limited to 256
+keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input
+remains unsupported. The Go CLI has no `capture` command; explicit
+retention currently covers text records only.
+
+```sh
+/absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
+/absolute/path/to/xplat-go interact APP_SESSION_ID --document DOCUMENT_ID --testid counter.increment --mechanism handler-dispatch --request-key CLICK_KEY --json
+XPLAT_PERMISSIONS=evidence-retain /absolute/path/to/xplat-go evidence retain EVIDENCE_ID --json
+/absolute/path/to/xplat-go evidence list --kind inspection --json
+/absolute/path/to/xplat-go diagnostics --json
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --limit 50 --stream stderr --json
+```
+
+```sh
+/absolute/path/to/xplat-go actions invoke --action ACTION_ID --instance APP_INSTANCE --revision REVISION --input '{}' --request-key REQUEST_KEY --json
+/absolute/path/to/xplat-go actions status JOB_ID --json
+```
+
+Consult the native schema
+for actual coverage. The superseded detached `session start/end`, `runtime build`
+and job-control surface is absent from Go; use ordinary explicit foreground builds
+and typechecks.
+
+```sh
+/absolute/path/to/xplat-go build --targets web
+/absolute/path/to/xplat-go typecheck
+```
+
+The Go CLI ships on the npm `nim` tag. Its installed catalog distinguishes
+implemented commands from schema-only discovery. Native `status` reports actual installed bindings, tool observations,
+guidance and source coverage; `capabilities` describes the providers wired into
+that build. Tool presence does not qualify an SDK/device or runtime check.
+Canonical compatibility checks accept an exact same-release `@octane-xplat/cli`
+`nim` prerelease; its installed version must match. The upgrade planner
+preserves this choice and rejects shared-catalog or override conflicts before
+writes. Keep other framework pins strict.
+Native `typecheck` is available on macOS using the project-installed
+TSRX checker and CLI-owned worker; it never executes baked loaders. Native `routes`
+bakes data and watches route/configuration edits on macOS, with owned worker
+cancellation and last-good publication. Keep generated output paths stable while
+watching. Route planning/rendering runs in the selected project's build worker;
+Go validates the artifact plan and owns publication and the worker's lifecycle.
+Session list/status/end and job status/cancel use the authenticated native host
+on macOS. Reads never start it. Its private per-workspace cache survives project
+cache cleanup. Web `build --targets web` and `runtime build --platform web` invoke the selected
+project's installed Vite. Build-job diagnostics retain bounded output while the
+host lives; inspect with `diagnostics --job JOB_ID`. Native macOS builds use
+the separate `@octane-xplat/macos-build/worker` and its host assets. Go validates
+and publishes staged app/DMG artifacts after the worker exits; cancellation
+before publication preserves the previous artifacts. Overlapping native builds
+for one app report target busy. Native macOS target discovery includes live
+session ownership. `session start macos` uses the project's installed development
+worker for Vite/compiler/HMR; Go owns readiness, logs and process cleanup.
+End the returned identity with `session end SESSION_ID`. App-scoped retained
+session logs survive host exit; build-job captures still last only while the
+host lives. An unavailable owner makes uncompleted history disconnected and
+cleanup unconfirmed: historical end never signals recorded PIDs. macOS attachment
+observes compatible same-user engines in the selected app's working directory.
+It infers identity and captures lifecycle events only; end/shutdown releases its
+observer while preserving external processes. Native macOS diagnostics retain
+complete local .ips originals separately from logs and disclose report availability
+and confirmed/candidate association. Other report platforms, launch/attach engines
+and automatic owner-death recovery remain pending.
+Native docs read/search/index are available on macOS arm64 without Node/Bun.
+`docs index` explicitly prepares about 61 MB of optional pinned model/runtime
+downloads; ordinary search never downloads them. Check its reported retrieval
+mode and provenance, keep returned refs, and re-index edited linked docs. Native
+cache state is separate from TypeScript; backend vector caches are not interchangeable.
+Native development-action listing/status and HTTP control are available on macOS.
+Invocation validates JS field contracts in the selected project's compatible
+`@octane-xplat/cli/worker`, so it needs that package and Node >=22.22.2. Use the
+live instance/revision, follow the job, and preserve unknown/partial outcomes.
+The native host owns admission workers too; shutdown awaits them. This host-side
+qualification does not expand the app runtime transport limits in the
+[development-actions reference](development-actions.md).
+The package retains its Vite subpaths and a bounded worker export. Engine
+packages are optional peers, and native-only installs do not fetch them. The
+native build-worker/declaration lookup uses the selected project's compatible
+`@octane-xplat/cli` installation, without a separate build-package requirement.
+Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
+with Node >=22.22.2. Install that package in the project; it is not bundled with
+the CLI tarball. Help is native. The engine owns its rules, ignores and safe
+fixes; Go owns process cleanup. Native `fmt` on macOS uses the project's
+`@octane-xplat/fmt@0.1.1` and Node; check mode writes nothing, and transform
+errors leave the whole batch untouched. Help remains native. The small formatter
+operation shares the reference planner; it is not a second formatter engine.
+On Ubuntu x64, the native owner and web build workflow are qualified with the
+project-installed route/baking worker and Vite, including job cancellation and
+child/descendant cleanup. Keep macOS-specific engines on a Mac. Windows process
+jobs have separate descendant-cleanup checks, and HTTP/TLS has a separate native
+transport gate. Private owner/bootstrap/RPC also pass with PowerShell ancestry
+and Bun script-run cross-SSH handoff. Windows Turbo task teardown ends the owner
+in the observed context; survival after that task remains unqualified. The
+representative Windows 11 x64 web-build workflow now passes with Bun 1.4.4, the
+canonical project worker and Vite, including private sidecars, cancellation and
+last-good artifacts. Other Windows commands/engines still require their own gates.
+
+```sh
+# On a qualified host, from the selected app with its build tools installed:
+xplat runtime build --platform web --json
+# Substitute the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+```
+
+Small plugins and workers are available through the project-installed
+`@octane-xplat/cli` package. See the
+[Go CLI entry](../../../../packages/cli/go/README.md).
+
 ```sh
 bun --version
 bun run xplat --help
+bun run xplat catalog --json
 ```
 
 Use the app's installed CLI for discovery and supported operations. It
@@ -131,8 +327,7 @@ bun run xplat docs search "navigation" --corpus changelog --json
 ## Choose an app-building operation
 
 Use existing project scripts and focused help for ordinary changes. Formatting
-covers Oxfmt languages and special filenames plus TSRX; Octane fixes apply
-to JS/TS/TSRX. It writes by default; upgrades, platform additions, generated routes, fonts, and
+writes by default; upgrades, platform additions, generated routes, fonts, and
 OTA configuration can change the workspace. Keep them within the task. Start
 with check modes when inspecting compatibility or source quality.
 
@@ -143,6 +338,14 @@ bun run xplat fmt --check
 bun run xplat lint --help
 bun run xplat routes --help
 bun run xplat add --help
+```
+
+When font registration rejects an invalid `fonts/fonts.json` in the app source
+directory, repair the existing file. Do not delete it to make registration pass:
+that discards saved family/token registrations.
+
+```sh
+bun run xplat fonts add ./Inter.ttf
 ```
 
 Run platform additions from the intended app directory. In a monorepo, `add`

@@ -6,15 +6,6 @@
 > Status: `0.x` — the API surface is still moving. iOS/Android targets need
 > the NativeScript toolchain (Xcode/JDK + `ns`).
 
-For the standard development toolchain, use the
-[`octane-xplat` package](https://octane-xplat.goddardai.org/package-toolchain).
-It includes this CLI; install `@octane-xplat/cli` separately when managing
-your own toolchain.
-
-```sh
-bun add -D octane-xplat
-```
-
 For a new app, start with the [creator](https://octane-xplat.goddardai.org/package-create). The CLI runs
 configured web, iOS, and Android targets, plus opt-in experimental macOS,
 Windows, and Linux apps. Desktop setup and support depend on the selected
@@ -42,16 +33,26 @@ bun run xplat upgrade --check # preview alignment to this CLI's compatibility se
 bun run xplat upgrade      # align workspace versions and patches, then install
 bun run xplat typecheck    # web + native tsconfigs
 bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
-bun run xplat fmt          # format Oxfmt file types + .tsrx in place (--check, --stdin-filepath)
+bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
 bun run xplat patches apply  # install the framework's bun patch set into this app
 bun run xplat patches check  # verify the patch set is registered and unmodified
 bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
 bun run xplat fonts add @fontsource-variable/inter --install  # Fontsource package
 ```
 
-The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts select
-their configured targets; the web scripts use `xplat` and the phone scripts
-use NativeScript. The
+Font registration keeps its saved family data in `src/fonts/fonts.json` (or the
+configured app source directory). If that file contains invalid JSON, repair it
+before retrying; keep its existing registrations rather than deleting the file.
+Each input, converted font, or managed output is limited to 16 MiB; one
+registration plan is limited to 32 MiB. Use smaller files or Fontsource subsets,
+and split large collections across separate registrations.
+
+```sh
+bun run xplat fonts add ./Inter.ttf
+```
+
+The scaffolded app's `bun run dev` / `bun run build` / `bun run dev:ios` scripts drive
+the supported targets directly; `xplat` is the multi-target front end. The
 experimental macOS target is configured by the app and packaged by `xplat`.
 
 ```sh
@@ -79,11 +80,12 @@ GJS host; Linux users supply the GTK/WebKit system runtime.
 
 ## Single-file executable
 
-The CLI executables workflow attaches standalone executables to
+The CLI executables workflow attaches native Go executables to
 [GitHub Releases](https://github.com/octane-xplat/octane-xplat/releases), named `xplat-<platform>-<architecture>` (with
-`.exe` on Windows), alongside SHA-256 checksums. These contain Bun and the
-CLI dependencies; a separate Bun installation is unnecessary. App builds still
-need Node, Bun, and the toolchains for their selected platforms.
+`.exe` on Windows), alongside SHA-256 checksums. The executable is a single
+native binary — a much smaller download that needs no Bun payload or
+extraction cache. App builds still need Node, Bun, and the toolchains for
+their selected platforms.
 
 For example, after downloading the macOS Apple Silicon executable, run from
 its download folder:
@@ -92,11 +94,6 @@ its download folder:
 chmod +x ./xplat-darwin-arm64
 ./xplat-darwin-arm64 --help
 ```
-
-The first launch extracts its embedded packages into a content-addressed cache
-under `~/.cache/octane-xplat/cli` (`$XDG_CACHE_HOME` on Unix or
-`%LOCALAPPDATA%` on Windows, when set). Later launches reuse that payload.
-Set `XPLAT_CLI_CACHE` to choose a writable cache directory:
 
 ```sh
 XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
@@ -115,6 +112,263 @@ Build on each destination OS and architecture so the native parser and
 formatter dependencies match that host; changing only Bun's compile target
 would leave incompatible native modules. The CLI executables workflow does
 this for macOS and Linux arm64/x64 and Windows x64.
+
+## Native executable
+
+`xplat` is a native Go executable; the TypeScript and Nim implementations are
+removed. Published platform packages ship the matching binary, and the package
+`bin` resolves it for the install platform (darwin/linux/windows on
+arm64/amd64). Contributors with this repository installed can build and run it
+locally; `bun run xplat` inside an app workspace resolves the local
+`research/go-cli` build:
+
+```sh
+turbo run build:go --filter=@xplat/cli-go-probe
+bun run xplat catalog --json
+```
+
+Keep the project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli@nim` package installed;
+the native executable does not include those tools. A web build returns a job
+that you can inspect and cancel:
+
+```sh
+xplat runtime build --platform web --json
+# Replace JOB_ID with the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+xplat job cancel JOB_ID --json
+```
+
+The npm tarball keeps the small Vite plugins and worker alongside
+the native binary. Projects using those JS exports install their engine packages
+separately; a native-only installation does not download them. Native build commands resolve their worker and declarations from the selected
+project's compatible CLI installation; no separate build package is required. For projects using the CLI Vite imports directly, install the
+currently supported engines:
+
+```sh
+bun add --dev vite@8.3.0 @tsrx/core@0.5.5 @octane-xplat/lib@0.19.0 \
+  postcss@8.5.32 postcss-load-config@6.0.1 marked@18.1.2 \
+  @babel/core@8.0.9 @babel/plugin-transform-unicode-property-regex@8.0.1 \
+  @babel/plugin-transform-unicode-sets-regex@8.0.1
+```
+
+Keep the existing Vite import when using the native package. The large macOS host
+assets remain a separate optional installation:
+
+```ts
+import { xplatCss } from '@octane-xplat/cli/vite'
+
+const cssPlugin = xplatCss('web')
+```
+
+Native `status` discovers apps, installed framework versions, project guidance,
+source coverage and tools on your PATH without needing Node or Bun to run the
+report. Missing tools are reported with installation hints. Use `capabilities`
+to check which operations your native build provides; a tool being installed
+does not mean an SDK, device or running app is ready:
+
+```sh
+xplat status --project "$PWD" --json
+xplat capabilities --project "$PWD" --json
+```
+
+Native lint runs the project's installed lint engine on macOS Apple Silicon.
+Install `@octane-xplat/lint` in that project and provide Node >=22.22.2 on PATH;
+the native download includes neither. The engine keeps its regular-source and
+TSRX rules, project ignores, and opt-in safe fixes. Help works without Node.
+
+```sh
+bun add --dev @octane-xplat/lint
+xplat lint --help
+xplat lint src
+xplat lint --fix src
+```
+
+Native formatting on macOS Apple Silicon uses the project's installed
+`@octane-xplat/fmt@0.1.1` and Node >=22.22.2. Run from your app or library folder.
+Check mode reports differences without writes; ordinary formatting updates the
+selected files. Configuration or parse errors leave the entire batch unchanged.
+Help works without Node, and the native download includes neither Node nor the
+formatter engine:
+
+```sh
+bun add --dev @octane-xplat/fmt@0.1.1
+xplat fmt --help
+xplat fmt src --check
+xplat fmt src
+printf 'const x=1\n' | xplat fmt --stdin-filepath src/example.ts
+```
+
+Native docs search and reads work without Node or Bun on macOS Apple Silicon.
+Search follows the selected app's installed versions, reports conflicts or missing
+snapshots, and labels local project guidance separately. Start with lexical search
+(matching words); use a returned `ref` to read the same versioned page:
+
+```sh
+# In this repository, select the web app; in another workspace, select its app id.
+xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+# Replace DOC_REF with a ref returned by the search.
+xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
+```
+
+For semantic search (matching meaning), explicitly prepare the optional native
+model first. Its pinned model/runtime download is about 61 MB, with about 69 MB
+retained locally, separately from the executable. Indexing and queries stay on
+your computer. Ordinary search never downloads these assets and reports a lexical
+fallback when embeddings are unavailable; re-index after editing linked docs:
+
+```sh
+xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+```
+
+The native docs cache lives in its own `XPLAT_MCP_CACHE` namespace. Optional
+model files are retained separately from the executable. Searches reject
+external symlink targets and bound traversal; docs larger than 4 MiB produce
+an explicit error:
+
+```sh
+xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+```
+
+Native action discovery reads the running app's development bridge without
+starting Node itself. Start the app with its existing development workflow, then list its
+instances and declared actions. An empty registry is different from an unreachable
+bridge; use the returned instance and revision when invoking:
+
+```sh
+xplat actions list --project "$PWD" --app apps/web --json
+```
+
+Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/cli` worker
+installed in the selected project. Use the matching
+release build package; an older worker reports an update requirement.
+The worker checks JavaScript field contracts, including regexes and defaults.
+Go owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
+the returned job through completion and inspect reported effects before retrying:
+
+```sh
+# Replace these values with exact identities from the live listing.
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
+xplat actions status JOB_ID --project "$PWD" --json
+xplat job cancel JOB_ID --project "$PWD" --json
+```
+
+Request keys recover live jobs within their app instance/action. Reusing a key
+with different input or a changed revision fails explicitly. Outcome history is
+bounded, so keys do not promise indefinite protection against reruns. Queued
+cancellation prevents dispatch; cancellation after dispatch is best-effort and
+does not undo changes. A result-contract failure also leaves completed effects
+in place. Read the job's structured result or failure:
+
+```sh
+xplat job status JOB_ID --project "$PWD" --json
+```
+
+Native `typecheck` uses the selected project's installed package manager and
+TSRX checker. The project must already contain compatible `@octane-xplat/cli`,
+`@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
+invoke your built executable by its absolute path. A successful check prints
+`Typecheck clean`; compiler errors exit with status 1. Route types are regenerated
+without executing baked loaders:
+
+```sh
+# Replace /path/to/octane-xplat with your repository's absolute path.
+xplat typecheck
+```
+
+Native `routes` generates route contracts and platform catalogs, and bakes loader
+or Markdown data using the project's build package. Loader execution also needs
+its installed Vite and Node. Run it once, or watch source/configuration edits.
+A failed or obsolete bake leaves the previous generated files in place. Keep the
+output path stable while watching; stop before moving generated files and update
+client imports afterward. `--dir` and `--out` require a value; missing values fail
+before generating files:
+
+```sh
+xplat routes
+xplat routes --watch
+```
+
+Native session and job commands connect to a background owner for the workspace.
+A read does not start that process. With no owner, session reads use retained
+history when available; build-job state requires its live owner. Each CLI
+implementation owns its runtime state. Web builds run on macOS and the qualified
+Ubuntu x64 host; development sessions and native app builds require macOS.
+Other engines remain migration work:
+
+```sh
+xplat session list --json
+```
+
+Native web builds use your project's installed Vite and package manager. The
+Linux executable also needs the host's glibc, matching C++ runtime and
+`libcurl.so.4`; other Linux distributions remain unqualified. Run
+`build` from the app directory for foreground output, or use `runtime build` for
+a background job. Poll its returned job id and read captured output. Job logs
+are bounded and disappear when the background owner exits:
+
+```sh
+xplat build --targets web
+xplat runtime build --platform web --json
+# Replace JOB_ID with the returned id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+```
+
+Native macOS builds use a separate [macOS build worker](package-macos-build.md).
+Install it in an already configured macOS app, then build in the foreground or
+start a job. Its host assets stay in the project toolchain:
+
+```sh
+bun add --dev @octane-xplat/macos-build @octane-xplat/cli@nim
+xplat build --targets macos
+xplat runtime build --platform macos --json
+```
+
+For an app with macOS development configuration, start its installed development
+engine and inspect the returned session. Go owns the session and process cleanup;
+Vite and the native compiler handle rebuilds in the project toolchain. See the
+[development workflow](package-macos-build.md#start-a-development-session) for
+prerequisites and current limits. Retained session logs remain readable after
+the native owner exits; build-job log captures still last only while it runs:
+
+```sh
+xplat targets --platform macos --json
+xplat session start macos --json
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
+If you already run a compatible macOS development engine from the app's directory,
+attach without transferring ownership. The returned session describes inferred
+process identity, not confirmed UI readiness. Only lifecycle events are captured;
+app output stays in its existing terminal. Ending the attachment or shutting down
+the native owner leaves the external engine and app running. If several engines
+match, choose a returned candidate with `--target TARGET_ID`:
+
+```sh
+xplat session attach --platform macos --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
+Native macOS diagnostics also retain complete local crash reports separately
+from logs. Read their availability and association in the diagnostic result, then
+select a returned report id. See [macOS session diagnostics](package-macos-build.md#start-a-development-session)
+for limits and interpretation:
+
+```sh
+xplat diagnostics --session SESSION_ID --json
+xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+```
+
+Inspect the native catalog before using another workflow:
+
+```sh
+xplat catalog --json
+```
 
 ## App testing
 
@@ -195,6 +449,17 @@ bun install --no-frozen-lockfile
 bun run xplat doctor
 ```
 
+The native CLI is the one channel exception: an exact CLI pin
+whose base matches this framework release may use the `nim.N` suffix. Its
+installed version must match that exact pin. The upgrade planner
+preserves the CLI choice and rejects catalog/override conflicts before writing;
+other framework and compiler pins keep their release rules. Save the exact
+version when opting in to the native channel:
+
+```sh
+bun add --dev --exact @octane-xplat/cli@nim
+```
+
 | Managed together when declared                                      | Kept under application/library ownership                              |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | Lockstep Xplat packages, Octane and NativeScript renderers          | App-specific libraries and plugins outside the compatibility manifest |
@@ -213,9 +478,9 @@ qualification limits.
 
 ```json
 {
-  "dependencies": {
-    "@octane-xplat/nativescript-mason-core": "catalog:xplat"
-  }
+	"dependencies": {
+		"@octane-xplat/nativescript-mason-core": "catalog:xplat"
+	}
 }
 ```
 
@@ -229,8 +494,8 @@ are preserved.
 
 ```json
 {
-  "dependencies": { "octane": "catalog:xplat" },
-  "devDependencies": { "@tsrx/oxc": "catalog:xplat" }
+	"dependencies": { "octane": "catalog:xplat" },
+	"devDependencies": { "@tsrx/oxc": "catalog:xplat" }
 }
 ```
 
@@ -273,16 +538,6 @@ bun run xplat lint src
 bun run xplat lint --fix src
 bun run xplat fmt
 bun run xplat fmt --check
-```
-
-Formatting covers Oxfmt's languages, aliases and special filenames, including
-CSS, JSON, Markdown, YAML, TOML, GraphQL and templates. Octane lint fixes and
-statement spacing apply to JS/TS/TSRX. Check mode leaves files untouched;
-stdin mode writes only to stdout. Generated lockfiles are excluded.
-
-```sh
-bun run xplat fmt --check packages/ui/src/theme/chrome.css
-bun run xplat fmt docs config.json
 ```
 
 Lint exits `0` when no errors remain, `1` for lint errors, and `2` for command
@@ -464,24 +719,6 @@ resolutions. Convert an older binary lockfile before checking patches:
 bun install --save-text-lockfile --lockfile-only
 xplat patches check
 ```
-
-## Working against a local checkout
-
-Developing an app against a local checkout
-(`"@octane-xplat/cli": "link:../octane-xplat/packages/cli"`)? pnpm 11 reads a
-`link:` dep's manifest while resolving — before `preinstall` hooks run — so a
-linked path that only appears mid-install (for example a symlink a hook
-creates) installs without its `node_modules/.bin` shims: `xplat` and
-`xplat-lint` come back `command not found`, and later installs report
-"Already up to date" without re-linking. Restore the shims with:
-
-```sh
-node node_modules/@octane-xplat/cli/src/link-bins.ts
-```
-
-Run it from the app's `postinstall` (after the hook that creates the link
-path) so the first install lands them, or reinstall with the path already
-present. pnpm 12 links these bins normally.
 
 ## Native Vite preset
 

@@ -136,10 +136,13 @@ import { xplatDevBridge } from '@octane-xplat/cli/vite'
 export default defineConfig({ plugins: [xplatDevBridge()] })
 ```
 
-Web is the qualified transport; Android was verified on one physical device
-through `xplat dev` (dev server reached via adb reverse). iOS/Windows share
-bridge machinery but are not runtime-qualified; macOS AppKit and Linux adapters
-are unavailable.
+The Go CLI has actual macOS Chromium and headless
+AppKit action registration/invocation/status evidence. The Go NativeScript
+project-Vite relay also has actual registration, read-only invocation/status,
+short-client lifetime and foreground cleanup evidence on an API 35 ARM64 Android
+emulator and an iOS 27 arm64 simulator. Reconnect/HMR, physical devices, other
+runtimes, Windows and Linux app-runtime
+coverage must not be inferred from their shared registry or host protocol tests.
 Declaring an action's platforms does not establish transport support.
 
 Use the [CLI action workflow](cli.md#inspect-and-assert-supported-behavior) to
@@ -155,4 +158,19 @@ bun run xplat actions list --json
 # Use identities and contracts from the listing; replace all placeholders.
 bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
 bun run xplat actions status JOB_ID --json
+```
+
+With the Go CLI on macOS, listing/status and HTTP/job orchestration are native.
+Invocation uses the selected project's compatible build worker and
+Node to validate JavaScript field/regex contracts.
+Native queues reject stale registries before dispatch, cancelled waiting tickets
+never execute, and changed input/revision cannot reuse a known request key.
+Cancellation preserves effect evidence and is not rollback. Headless testing with
+the real Vite bridge and app registry alone does not qualify
+AppKit/NativeScript fetch or OS UI behavior.
+
+```sh
+xplat actions list --json
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
+xplat job status JOB_ID --json
 ```
