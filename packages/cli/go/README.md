@@ -87,12 +87,40 @@ pagination, discloses rotation/incomplete tails and keeps cleanup confirmation
 separate from stopped state or stored PIDs. Foreground captures do not register a
 live persistent-owner session or grant authority to signal stored PIDs.
 
-`agent_owner.go` is the internal persistent transport foundation, separate from the
-primitive probe host. It authenticates token and generation, holds a kernel
-lifetime lease, separates idle retirement from active operations, joins shutdown
-and preserves cleanup-unknown evidence. It does not yet register a public owner
-entry, client bootstrap or session/job command handlers. Qualifying the transport
-inside a native test process does not qualify detached owner startup or recovery.
+The internal owner uses generation-bound loopback RPC and separate kernel claims
+for bootstrap, owner lifetime and staged launch. `agent_owner_client.go` performs
+read-only lookup without creating missing state, bypasses ambient proxies, refuses
+redirects and validates project/protocol/generation before sending its private
+token. `agent_owner_launch.go` creates the detached process; `agent_owner_entry.go`
+handles the private `_owner` entry; `agent_owner_cache.go` owns bounded staging and
+collection. Both upgrade and owner startup share the checked executable copier.
+
+The creator transfers ownership through a private pipe, preserving caller stdin.
+Before handoff, creator loss cancels startup and no resource operation is admitted.
+After handoff can be observed, ordinary client exit cannot kill the owner. The
+owner runs from a readback-verified private image, pinning later containment helpers
+across replacement of the original executable. One stage remains per workspace
+until the owner retires and the next creation/collection reclaims it; this is disk
+cache cost, separate from download size. `XPLAT_AGENT_HOST_IDLE_MS` defaults to
+120000 and accepts integers from 250 to 86400000; live operations prevent idle
+retirement. Windows creation requests Job breakaway and fails when host policy
+forbids it. Pipe/Job qualification does not establish console Ctrl-C.
+
+| Owner phase | Allowed behavior | Cleanup authority |
+| --- | --- | --- |
+| Preparing | Private image staging and authenticated maintenance | Retained creator process handle |
+| Unadopted | Ping/shutdown; no resource admission | Private pipe EOF cancels startup |
+| Adopted | Registered operations outlive individual clients | Live authenticated owner |
+| Retiring | Admission closed; await operations and handlers | Owner awaits cleanup before checkpoint |
+| Cleanup unknown | Preserve descriptor and resources | Explicit safe recovery; never cached PID takeover |
+| Retired | Read lookup is empty; confirmed stage may be collected | Held bootstrap/global/launch claims |
+
+Public session/job command handlers and per-request dispatch integration remain
+pending; this infrastructure does not register them as implemented. The primitive
+probe host is separate. Qualify actual detached startup/handoff through the public
+CLI entry, independently from in-process transport tests. A different CLI binary
+cannot silently create work through an older owner's image; final live-registry
+integration must reconcile old-owner retirement during upgrades.
 
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`

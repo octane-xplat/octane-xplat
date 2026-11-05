@@ -5,6 +5,9 @@ package main
 import "os"
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "_owner" {
+		os.Exit(agentOwnerChild(os.Args[2:]))
+	}
 	if len(os.Args) > 1 && os.Args[1] == "_compute" {
 		os.Exit(computeChild(os.Args[2:]))
 	}

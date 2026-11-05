@@ -144,6 +144,7 @@ try {
 	// Runtime tasks belong at the disposable root; hashed source stays unchanged.
 	const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
 	manifest.scripts = {
+		'test:go-owner:portable': 'node --test tools/cli-go/owner-bootstrap.test.mjs',
 		'test:go-dev:portable': 'node --test tools/cli-go/dev.test.mjs',
 		'test:go-workshop:portable': 'node --test tools/cli-go/workshop.test.mjs',
 		'test:go-unit:portable': 'node tools/cli-go/unit-portable.mjs',
@@ -176,6 +177,7 @@ try {
 		join(source, 'turbo.json'),
 		JSON.stringify({
 			tasks: {
+				'//#test:go-owner:portable': { cache: false },
 				'//#test:go-dev:portable': { cache: false },
 				'//#test:go-workshop:portable': { cache: false },
 				'//#test:go-unit:portable': { cache: false },

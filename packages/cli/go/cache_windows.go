@@ -26,6 +26,15 @@ func preparePrivateCache(path string) error {
 	if err = windows.CreateDirectory(name, security); err != nil && err != windows.ERROR_ALREADY_EXISTS {
 		return err
 	}
+	return validatePrivateCache(path)
+}
+
+// Keep read-only owner lookup free of CreateDirectory side effects.
+func validatePrivateCache(path string) error {
+	name, err := windows.UTF16PtrFromString(path)
+	if err != nil {
+		return err
+	}
 	attributes, err := windows.GetFileAttributes(name)
 	if err != nil {
 		return err

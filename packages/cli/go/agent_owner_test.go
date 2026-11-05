@@ -266,7 +266,7 @@ func TestAgentOwnerDoesNotReplaceUnconfirmedCrashEvidence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	descriptor := agentOwnerDescriptor{Protocol: "octane-agent-owner", Version: 1, Generation: identity(), Token: identity() + identity(), Project: project, Address: "http://127.0.0.1:1/rpc", PID: int(os.Getpid()), State: "running"}
+	descriptor := agentOwnerDescriptor{Protocol: "octane-agent-owner", Version: agentOwnerProtocolVersion, Generation: identity(), Token: identity() + identity(), Project: project, Address: "http://127.0.0.1:1/rpc", PID: int(os.Getpid()), State: "running"}
 	if err = writeAgentOwnerDescriptor(root, descriptor); err != nil {
 		t.Fatal(err)
 	}

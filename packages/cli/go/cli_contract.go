@@ -41,17 +41,22 @@ type commandDescriptor struct {
 	Examples    []string               `json:"examples"`
 }
 type cliError struct {
-	Code     string `json:"code"`
-	Message  string `json:"message"`
-	Recovery any    `json:"recovery,omitempty"`
-	Context  any    `json:"context,omitempty"`
-	cause    error
+	Retryable *bool  `json:"retryable,omitempty"`
+	Code      string `json:"code"`
+	Message   string `json:"message"`
+	Recovery  any    `json:"recovery,omitempty"`
+	Context   any    `json:"context,omitempty"`
+	cause     error
 }
 
 func (e *cliError) Error() string { return e.Message }
 func (e *cliError) Unwrap() error { return e.cause }
 
 func requiresFailureEvidence(err error) bool {
+	var ownerCleanup *ownerStartupCleanupError
+	if errors.As(err, &ownerCleanup) {
+		return true
+	}
 	var mutation *workspaceMutationError
 	if errors.As(err, &mutation) {
 		return true

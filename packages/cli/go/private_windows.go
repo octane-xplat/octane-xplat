@@ -75,3 +75,17 @@ func privateOutput(path string) (*os.File, error) {
 	}
 	return os.NewFile(uintptr(h), path), nil
 }
+
+// Named stages must claim creation atomically, without accepting an existing
+// directory merely because its ACL is private.
+func privateDirectoryAt(path string) error {
+	security, err := privateDirectorySecurity()
+	if err != nil {
+		return err
+	}
+	name, err := windows.UTF16PtrFromString(path)
+	if err != nil {
+		return err
+	}
+	return windows.CreateDirectory(name, security)
+}

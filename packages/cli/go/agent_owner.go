@@ -17,16 +17,20 @@ import (
 // This protocol is separate from the retained primitive host. Persistent clients
 // bind a generation and token, never a stored PID. The public session services
 // will share this transport; this alone does not register their command handlers.
+const agentOwnerProtocolVersion = 2
+
 type agentOwnerDescriptor struct {
-	Protocol   string `json:"protocol"`
-	Version    int    `json:"version"`
-	Generation string `json:"generation"`
-	Token      string `json:"token"`
-	Project    string `json:"project"`
-	Address    string `json:"address"`
-	PID        int    `json:"pid"`
-	State      string `json:"state"`
-	Detail     string `json:"detail,omitempty"`
+	BinarySHA256 string `json:"binarySha256,omitempty"`
+	LaunchID     string `json:"launchId,omitempty"`
+	Protocol     string `json:"protocol"`
+	Version      int    `json:"version"`
+	Generation   string `json:"generation"`
+	Token        string `json:"token"`
+	Project      string `json:"project"`
+	Address      string `json:"address"`
+	PID          int    `json:"pid"`
+	State        string `json:"state"`
+	Detail       string `json:"detail,omitempty"`
 }
 type agentOwnerRequest struct {
 	Method string         `json:"method"`
@@ -42,6 +46,7 @@ type agentOwner struct {
 	touched              time.Time
 	operations, handlers sync.WaitGroup
 	cleanupErr           error
+	handoff              <-chan struct{}
 	descriptor           agentOwnerDescriptor
 }
 
@@ -50,7 +55,7 @@ type agentOwner struct {
 func (owner *agentOwner) admit() (context.Context, func(error), error) {
 	owner.mu.Lock()
 	defer owner.mu.Unlock()
-	if owner.closing || owner.ctx.Err() != nil {
+	if owner.closing || owner.ctx.Err() != nil || !owner.adopted() {
 		return nil, nil, errors.New("native owner is stopping")
 	}
 	owner.active++
@@ -67,6 +72,17 @@ func (owner *agentOwner) admit() (context.Context, func(error), error) {
 			owner.operations.Done()
 		})
 	}, nil
+}
+func (owner *agentOwner) adopted() bool {
+	if owner.handoff == nil {
+		return true
+	}
+	select {
+	case <-owner.handoff:
+		return true
+	default:
+		return false
+	}
 }
 func (owner *agentOwner) stop() {
 	owner.mu.Lock()
@@ -157,7 +173,7 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 	defer release()
 	if data, readErr := historyFile(root, "owner.json", 64<<10); readErr == nil {
 		var previous agentOwnerDescriptor
-		if json.Unmarshal(data, &previous) != nil || previous.Protocol != "octane-agent-owner" || previous.Version != 1 || previous.Project != project {
+		if json.Unmarshal(data, &previous) != nil || previous.Protocol != "octane-agent-owner" || previous.Version != agentOwnerProtocolVersion || previous.Project != project {
 			return errors.New("native owner cache contains an invalid or mismatched descriptor")
 		}
 		if previous.State == "cleanup-unknown" {
@@ -177,9 +193,14 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 	ctx, cancel := context.WithCancel(parent)
 	defer cancel()
 	owner := &agentOwner{ctx: ctx, cancel: cancel, touched: time.Now(), descriptor: agentOwnerDescriptor{
-		Protocol: "octane-agent-owner", Version: 1, Generation: identity(), Token: identity() + identity(),
+		Protocol: "octane-agent-owner", Version: agentOwnerProtocolVersion, Generation: identity(), Token: identity() + identity(),
 		Project: project, Address: "http://" + listener.Addr().String() + "/rpc", PID: os.Getpid(), State: "running",
 	}}
+	if launch, ok := parent.Value(agentOwnerLaunchKey{}).(agentOwnerLaunchState); ok {
+		owner.handoff = launch.Adopted
+		owner.descriptor.LaunchID = launch.Request.LaunchID
+		owner.descriptor.BinarySHA256 = launch.Request.BinarySHA256
+	}
 	server := &http.Server{ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 5 * time.Second}
 	server.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// No browser-origin RPC, redirects or public unauthenticated health endpoint.
@@ -211,12 +232,14 @@ func serveAgentOwner(parent context.Context, directory, project string, idle tim
 		stop := false
 		switch request.Method {
 		case "host.ping":
-			value = map[string]any{"generation": owner.descriptor.Generation, "project": project, "implementation": "go", "protocolVersion": 1}
+			value = map[string]any{"generation": owner.descriptor.Generation, "project": project, "implementation": "go", "protocolVersion": agentOwnerProtocolVersion, "adopted": owner.adopted(), "binarySha256": owner.descriptor.BinarySHA256, "launchId": owner.descriptor.LaunchID}
 		case "host.shutdown":
 			value = map[string]bool{"stopping": true}
 			stop = true
 		default:
-			if dispatch == nil {
+			if !owner.adopted() {
+				failure = ownerDisconnected("Native owner startup handoff is not complete.")
+			} else if dispatch == nil {
 				failure = invalid("Unknown native owner operation.")
 			} else {
 				value, failure = dispatch(owner.ctx, owner, request)

@@ -136,6 +136,22 @@ It does not establish detached bootstrap or public session API support.
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go owner race qualification"}' -- bun run turbo run test:go-unit test:go-owner-race --filter=@xplat/cli-go-probe --concurrency=1
 ```
 
+The owner bootstrap gate uses source-bound native one-shot test clients and the
+actual public CLI's private `_owner` entry. It checks concurrent creators, survival
+after client exit, exact image identity, unchanged caller stdin, cancellation on
+both sides of handoff, idle retirement and failed-spawn cleanup. It does not call
+the TypeScript CLI or substitute a test server for the public native entry.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go detached owner qualification"}' -- bun run turbo run test:go-owner test:go-unit test:go-owner-race --filter=@octane-xplat/cli --filter=@xplat/cli-go-probe --concurrency=1
+```
+
+Frozen core snapshots expose `test:go-owner:portable`. Their precompiled native
+client fixtures exercise the same public binaries on Linux and Windows. Tests use
+private fixture caches; driver stdin is ignored except for explicit input tests,
+so a fast structured failure cannot become a runner-level empty-pipe EPIPE. These
+cases do not qualify the still-pending public session/job service dispatch.
+
 ## Cross-compilation and execution
 
 The Go core needs no C cross-compiler. For inference builds, the qualified

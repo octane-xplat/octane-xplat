@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -139,61 +138,13 @@ func selectUpgradeWorker(project string) (upgradeWorkerLease, error) {
 // Installation may replace the executable path used by native containment gates.
 // Hold an immutable private helper from the invoked release across that mutation.
 func stageUpgradeHelper(lease *upgradeWorkerLease) error {
-	if lease.Directory == "" {
-		return errors.New("upgrade helper requires private release staging")
-	}
 	exe, err := os.Executable()
 	if err != nil {
 		return err
 	}
-	source, err := os.Open(exe)
-	if err != nil {
-		return err
+	helper, _, err := stageNativeExecutable(exe, lease.Directory, "native-helper-"+identity()+".exe")
+	if err == nil {
+		lease.Helper = helper
 	}
-	defer source.Close()
-	info, err := source.Stat()
-	const maxHelperBytes = 64 << 20
-	if err != nil || !info.Mode().IsRegular() || info.Size() <= 0 || info.Size() > maxHelperBytes {
-		return errors.New("invoked native helper must be an ordinary executable under 64 MiB")
-	}
-	path := filepath.Join(lease.Directory, "native-helper-"+identity()+".exe")
-	output, err := privateOutput(path)
-	if err != nil {
-		return err
-	}
-	complete := false
-	defer func() {
-		if !complete {
-			_ = os.Remove(path)
-		}
-	}()
-	digest := sha256.New()
-	n, copyErr := io.Copy(io.MultiWriter(output, digest), io.LimitReader(source, maxHelperBytes+1))
-	closeErr := output.Close()
-	if copyErr != nil || closeErr != nil {
-		return errors.Join(copyErr, closeErr)
-	}
-	after, err := source.Stat()
-	if err != nil || n != info.Size() || after.Size() != info.Size() || !after.ModTime().Equal(info.ModTime()) {
-		return errors.New("native helper changed during staging")
-	}
-	copied, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	actual := sha256.New()
-	verified, readErr := io.Copy(actual, io.LimitReader(copied, maxHelperBytes+1))
-	closeErr = copied.Close()
-	if readErr != nil || closeErr != nil {
-		return errors.Join(readErr, closeErr)
-	}
-	if verified != n || !bytes.Equal(actual.Sum(nil), digest.Sum(nil)) {
-		return errors.New("native helper checksum mismatch")
-	}
-	if err = os.Chmod(path, 0700); err != nil {
-		return err
-	}
-	lease.Helper = path
-	complete = true
-	return nil
+	return err
 }

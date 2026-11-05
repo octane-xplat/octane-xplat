@@ -57,6 +57,21 @@ descriptor when resource release fails. An existing running descriptor after
 lease release can be crash evidence too: reject automatic replacement rather
 than treating a dead PID or released lock as cleanup proof.
 
+Detached native startup uses a private pipe separate from caller stdin. Before
+handoff, only maintenance RPC is allowed and EOF cancels the unadopted child;
+after a handoff byte can be observed, caller exit must not kill that generation.
+Bind readiness to the retained process handle, launch nonce, project and staged
+binary checksum. Claim fresh stage directories atomically; a pre-existing private ACL is not
+ownership proof. Publish a manifest before copying bytes, and commit adoption
+before admitting work. A per-launch kernel claim prevents late obsolete starters.
+Collect stages only under the bootstrap/global/launch claims: unadopted stages need
+no descriptor/adoption witness; adopted stages need explicit cleanup confirmation.
+Preserve unknown files and modified verified images. Remove the executable before
+the manifest so Windows refusal preserves recovery evidence. Request Windows Job
+breakaway explicitly and report refusal instead of inheriting a caller's Job.
+Owner creation does not make the first client's grants global: send validated
+permissions and operation environment per request when connecting public services.
+
 Session evidence is separate from disposable session resources. Keep retained
 metadata/logs in the native history namespace; use authenticated owner generations
 to distinguish live records from historical evidence. PID existence alone cannot

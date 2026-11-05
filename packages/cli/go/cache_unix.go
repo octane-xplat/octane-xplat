@@ -14,6 +14,11 @@ func preparePrivateCache(path string) error {
 	if err := os.MkdirAll(path, 0700); err != nil {
 		return err
 	}
+	return validatePrivateCache(path)
+}
+
+// Validation is read-only; inspection must never create a missing namespace.
+func validatePrivateCache(path string) error {
 	info, err := os.Lstat(path)
 	if err != nil {
 		return err
