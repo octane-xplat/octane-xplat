@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, test } from 'node:test'
-import { build, createServer } from 'vite'
+import { build, createLogger, createServer } from 'vite'
 import { xplatCss } from '../dist/css-platform.js'
 
 const temporary = []
@@ -317,10 +317,10 @@ for (const mode of ['inline', 'discovered', 'directory']) {
     assert.deepEqual(actualOptions.map, options.map)
     assert.deepEqual(
       plugins.map((entry) => entry.postcssPlugin),
-      ['xplat-platform', 'consumer'],
+      ['xplat-platform', 'xplat-platform-defer', 'consumer'],
     )
     if (mode === 'inline') {
-      assert.equal(plugins[1], plugin)
+      assert.equal(plugins[2], plugin)
       assert.equal(actualOptions.map, options.map)
       assert.deepEqual(configured.plugins, [plugin])
     }
@@ -332,5 +332,45 @@ for (const mode of ['inline', 'discovered', 'directory']) {
     assert.match(result.css, /blue/)
     assert.doesNotMatch(result.css, /@platform|excluded|red/)
     assert.ok(result.map)
+  })
+}
+
+for (const cssMinify of ['esbuild', 'lightningcss']) {
+  test(`deferred sheets encode platform blocks as layers for ${cssMinify} minify`, async () => {
+    const plugin = xplatCss('web')
+    plugin.api.defer('deferred.css')
+    const root = fixture({
+      'main.js': "import './deferred.css'",
+      'deferred.css': `@layer utilities {
+@platform web { .kept { color: blue } @platform ios { .nested { color: red } } }
+@platform ios, mobile { .dropped { color: red } }
+}`,
+    })
+    const warnings = []
+    const logger = createLogger()
+    logger.warn = (msg) => warnings.push(String(msg))
+    const outputs = await build({
+      configFile: false,
+      root,
+      customLogger: logger,
+      plugins: [plugin],
+      build: {
+        write: false,
+        cssMinify,
+        lib: { entry: join(root, 'main.js'), formats: ['es'], cssFileName: 'styles' },
+      },
+    })
+    assert.equal(warnings.filter((msg) => msg.includes('@platform')).length, 0, warnings.join('\n'))
+    const css = (Array.isArray(outputs) ? outputs : [outputs])
+      .flatMap((output) => output.output)
+      .filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
+      .map((file) => file.source)
+      .join('\n')
+    assert.doesNotMatch(css, /@platform/)
+    assert.match(css, /@layer xplat-platform-web/)
+    const { css: projected } = plugin.api.project(css, 'styles.css')
+    assert.doesNotMatch(projected, /@platform|xplat-platform|\.dropped|\.nested/)
+    assert.match(projected, /@layer utilities/)
+    assert.match(projected, /\.kept/)
   })
 }

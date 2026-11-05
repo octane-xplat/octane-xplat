@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
-import { build } from 'vite'
+import { build, createLogger } from 'vite'
 import { xplatBamboo } from '../src/vite.ts'
 import { xplatCss } from '@octane-xplat/cli/vite'
 
@@ -107,22 +107,36 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
     writeFileSync(join(root, 'index.html'), '<script type="module" src="/src/main.ts"></script>')
     const main = join(root, 'src/main.ts')
     writeFileSync(main, readFileSync(main, 'utf8') + '\nglobalThis.card = card;')
+    const warnings = []
+    const logger = createLogger()
+    logger.warn = (msg) => warnings.push(String(msg))
     const written = await build({
       configFile: false,
       root,
-      logLevel: 'silent',
+      customLogger: logger,
       plugins: [
         xplatCss('web'),
         xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
       ],
-      build: { outDir: 'dist', minify: false, sourcemap: true, manifest: true },
+      build: {
+        outDir: 'dist',
+        minify: false,
+        cssMinify: 'lightningcss',
+        sourcemap: true,
+        manifest: true,
+      },
     })
+
+    assert.equal(warnings.filter((msg) => msg.includes('@platform')).length, 0, warnings.join('\n'))
 
     const files = written.output
     const sheets = files.filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
     assert.equal(sheets.length, 1)
     assert.match(sheets[0].fileName, /platform-[a-f0-9]+\.css$/)
-    assert.doesNotMatch(readFileSync(join(root, 'dist', sheets[0].fileName), 'utf8'), /@platform/)
+    assert.doesNotMatch(
+      readFileSync(join(root, 'dist', sheets[0].fileName), 'utf8'),
+      /@platform|xplat-platform/,
+    )
     const html = readFileSync(join(root, 'dist/index.html'), 'utf8')
     assert.ok(html.includes(sheets[0].fileName), html)
     const manifest = readFileSync(join(root, 'dist/.vite/manifest.json'), 'utf8')

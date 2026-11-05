@@ -7,6 +7,7 @@ import type { Plugin } from 'vite'
 interface PlatformCssApi {
   defer(id: string): void
   filter(css: string, from?: string): string
+  hasPlatformConditions(css: string): boolean
   project(css: string, from: string, previousMap?: string): { css: string; map?: string }
 }
 
@@ -86,7 +87,7 @@ export function platformOutput(): Plugin {
                   const previousMap =
                     mapAsset?.type === 'asset' ? String(mapAsset.source) : undefined
 
-                  if (!source.includes('@platform')) {
+                  if (!compiler.hasPlatformConditions(source)) {
                     continue
                   }
 

@@ -49,28 +49,47 @@ function matches(condition: string, platform: CssPlatform): boolean {
   )
 }
 
+const deferredLayerPrefix = 'xplat-platform-'
+const deferredLayerName = /^xplat-platform-([a-z]+(?:_[a-z]+)*)$/
+
+function platformTargetNames(rule: AtRule): string[] {
+  const names = rule.params
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .split(',')
+    .map((name) => name.trim())
+  if (!rule.nodes || names.some((name) => !targets.has(name))) {
+    throw rule.error(
+      `Expected @platform <target>[, <target> ...] { ... }; targets: ${[...targets].join(', ')}`,
+    )
+  }
+  return names
+}
+
+/** Targets carried by a deferred `@layer xplat-platform-*` block, if it is one. */
+function deferredLayerNames(rule: AtRule): string[] | undefined {
+  if (rule.name !== 'layer' || !rule.nodes) {
+    return undefined
+  }
+  const names = deferredLayerName.exec(rule.params.trim())?.[1].split('_')
+  return names?.every((name) => targets.has(name)) ? names : undefined
+}
+
 function filterPlatforms(root: Root, platform: CssPlatform) {
   const conditions = new Map<AtRule, string[]>()
   // Validate every list, including unreachable nested blocks, before pruning.
-  root.walkAtRules('platform', (rule) => {
-    const names = rule.params
-      .replace(/\/\*[\s\S]*?\*\//g, ' ')
-      .split(',')
-      .map((name) => name.trim())
-    if (!rule.nodes || names.some((name) => !targets.has(name))) {
-      throw rule.error(
-        `Expected @platform <target>[, <target> ...] { ... }; targets: ${[...targets].join(', ')}`,
-      )
+  root.walkAtRules((rule) => {
+    const names = rule.name === 'platform' ? platformTargetNames(rule) : deferredLayerNames(rule)
+    if (names) {
+      conditions.set(rule, names)
     }
-    conditions.set(rule, names)
   })
-  root.walkAtRules('platform', (rule) => {
-    if (conditions.get(rule)!.some((name) => matches(name, platform))) {
+  for (const [rule, names] of conditions) {
+    if (names.some((name) => matches(name, platform))) {
       rule.replaceWith(...rule.nodes!)
     } else {
       rule.remove()
     }
-  })
+  }
 }
 
 /** Compile platform blocks while retaining source positions for diagnostics. */
@@ -88,6 +107,30 @@ export function platformCssPlugin(
   }
 }
 
+/**
+ * Deferred sheets reach Vite's CSS minifier before the final projection, and
+ * minifiers warn on the unknown `@platform` at-rule. Rewriting the blocks as
+ * uniquely named `@layer` wrappers keeps every class reachable for validation
+ * and minifies silently; the projection decodes them. Layers are legal
+ * everywhere `@platform` is, including nested inside matching blocks.
+ */
+function platformDeferPlugin(deferred: Set<string>): PostcssPlugin {
+  return {
+    postcssPlugin: 'xplat-platform-defer',
+    Once(root) {
+      const file = root.source?.input.file
+      if (!file || ![...deferred].some((id) => file.endsWith(id))) {
+        return
+      }
+      root.walkAtRules('platform', (rule) => {
+        const names = platformTargetNames(rule)
+        rule.name = 'layer'
+        rule.params = `${deferredLayerPrefix}${names.join('_')}`
+      })
+    },
+  }
+}
+
 /** Parse platform CSS without losing authored declaration positions for audits. */
 export function parsePlatformCss(css: string, platform: CssPlatform, from?: string): Root {
   const root = postcss.parse(css, { from })
@@ -95,9 +138,14 @@ export function parsePlatformCss(css: string, platform: CssPlatform, from?: stri
   return root
 }
 
+/** Whether emitted CSS still carries platform conditions awaiting projection. */
+export function hasPlatformConditions(css: string): boolean {
+  return css.includes('@platform') || css.includes(deferredLayerPrefix)
+}
+
 /** Filter authored or generated CSS before a target-specific consumer parses it. */
 export function filterPlatformCss(css: string, platform: CssPlatform, from?: string): string {
-  return css.includes('@platform') ? parsePlatformCss(css, platform, from).toString() : css
+  return hasPlatformConditions(css) ? parsePlatformCss(css, platform, from).toString() : css
 }
 
 /**
@@ -134,6 +182,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
       platform,
       defer: (id: string) => deferred.add(id),
       filter: (css: string, from?: string) => filterPlatformCss(css, platform, from),
+      hasPlatformConditions,
       project(css: string, from: string, previousMap?: string) {
         const result = postcss([platformCssPlugin(platform)]).process(css, {
           from,
@@ -175,7 +224,11 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
       userConfig.css ??= {}
       userConfig.css.postcss = {
         ...settings.options,
-        plugins: [platformCssPlugin(platform, deferred), ...(settings.plugins ?? [])],
+        plugins: [
+          platformCssPlugin(platform, deferred),
+          platformDeferPlugin(deferred),
+          ...(settings.plugins ?? []),
+        ],
       }
 
       // Vite's CSS @import resolver uses aliases but bypasses resolveId

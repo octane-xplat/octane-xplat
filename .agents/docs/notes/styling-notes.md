@@ -385,6 +385,23 @@ maps. Native CSS consumption runs afterward. Dev serving filters directly.
 This preserves upstream missing-rule and changed-output validation rather than
 disabling pruning or introducing dummy declarations.
 
+Deferred sheets reach Vite's CSS minifier (esbuild or Lightning CSS) before the
+finalizer runs, and minifiers warn on the unknown `@platform` at-rule — one
+`[lightningcss minify] Unknown at rule: @platform` line per block. Vite 8.3
+emits that warning through `config.logger.warn`, outside Rollup `onLog`, and
+explicitly clears `customAtRules`/`visitor` in the minify call, so the at-rule
+cannot be declared or the warning filtered by a plugin hook. Instead
+`xplat-platform-defer`, a second PostCSS plugin registered by `xplatCss`,
+rewrites deferred `@platform` blocks as `@layer xplat-platform-<targets>`
+wrappers during module processing. Layers are standard CSS: they minify
+silently, cannot merge or reorder across layer boundaries, and keep every
+class reachable for Bamboo's digest and reachability checks. The post-finalizer
+projection decodes the layer names and applies the same matching/removal as
+`@platform` (nested platform blocks become nested layers, so ordering and
+cascade position are preserved). `hasPlatformConditions` gates the projection
+on either marker. An authored layer named `xplat-platform-<valid targets>`
+would be treated as a platform block — an accepted collision.
+
 Evidence: source inspection of Bamboo 1.56.2
 [`prune-static-css.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/prune-static-css.ts),
 [`plugin.ts`](https://github.com/gajus/bamboocss/blob/1.56.2/packages/vite/src/plugin.ts),
