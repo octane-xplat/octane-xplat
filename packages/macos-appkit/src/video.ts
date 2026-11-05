@@ -1,3 +1,4 @@
+import { FailureCollector } from './failures.ts'
 /** `xplatvideo` — AppKit video surface backed by AVPlayerView + AVPlayer.
  *  Chrome stays off (`controlsStyle` None) unless the `controls` prop asks
  *  for the inline transport; the shared VideoChrome draws over it, same as
@@ -43,6 +44,7 @@ interface VideoState {
   timeObserver: any
   started: boolean
   generation: number
+  playerObserved?: boolean
   emit(name: string, payload: any): void
 }
 
@@ -50,7 +52,7 @@ const states = new WeakMap<object, VideoState>()
 
 const StatusObserver = NSObject.extend(
   {
-    observeValueForKeyPathOfObjectChangeContext(
+    'observeValueForKeyPath:ofObject:change:context:'(
       keyPath: string,
       object: any,
       _change: any,
@@ -85,7 +87,7 @@ const StatusObserver = NSObject.extend(
   {
     name: 'XplatVideoStatusObserver',
     exposedMethods: {
-      observeValueForKeyPathOfObjectChangeContext: {
+      'observeValueForKeyPath:ofObject:change:context:': {
         params: [NSObject, NSObject, NSObject, NSObject],
         returns: interop.types.void,
       },
@@ -123,6 +125,7 @@ function attachItem(state: VideoState, view: any) {
   const generation = ++state.generation
   state.started = false
   if (state.item) {
+    states.delete(state.item)
     state.item.removeObserverForKeyPath(state.observer, 'status')
     NSNotificationCenter.defaultCenter.removeObserver(state.endObserver)
     NSNotificationCenter.defaultCenter.removeObserver(state.failObserver)
@@ -155,6 +158,7 @@ function attachItem(state: VideoState, view: any) {
       : AVPlayerItem.playerItemWithURL(url)
 
   state.item = item
+  states.set(item, state)
   item.addObserverForKeyPathOptionsContext(state.observer, 'status', 0, null)
   const center = NSNotificationCenter.defaultCenter
   state.endObserver = center.addObserverForNameObjectQueueUsingBlock(
@@ -221,6 +225,13 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
       started: false,
       generation: 0,
       emit(name: string, payload: any) {
+        if (
+          states.get(view) !== created ||
+          node.lifecycle === 'disposing' ||
+          node.lifecycle === 'disposed'
+        ) {
+          return
+        }
         const handler = created.props[name]
         if (handler) {
           try {
@@ -233,6 +244,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
     }
 
     states.set(view, created)
+    states.set(created.player, created)
 
     // The status observer reads state through the view it was registered
     // on; tag the view so the KVO callback can find its state.
@@ -243,6 +255,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
       0,
       null,
     )
+    created.playerObserved = true
 
     state = created
   }
@@ -267,7 +280,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
   if (props.observeCurrentTime !== previousObserve) {
     if (props.observeCurrentTime && !state.timeObserver) {
       state.timeObserver = state.player.addPeriodicTimeObserverForIntervalQueueUsingBlock(
-        CMTimeMakeWithSeconds(0.5, 1),
+        CMTimeMakeWithSeconds(0.5, 600),
         null,
         (time: any) => {
           const seconds = Number(time?.seconds ?? 0)
@@ -292,19 +305,56 @@ export function disposeVideoView(view: AVPlayerView) {
   if (!state) {
     return
   }
-
-  if (state.timeObserver) {
-    state.player.removeTimeObserver(state.timeObserver)
-  }
-
-  if (state.item) {
-    state.item.removeObserverForKeyPath(state.observer, 'status')
-  }
-
-  NSNotificationCenter.defaultCenter.removeObserver(state.endObserver)
-  NSNotificationCenter.defaultCenter.removeObserver(state.failObserver)
-  state.player.removeObserverForKeyPath(state.observer, 'timeControlStatus')
-  state.player.pause()
-  ;(view as any).player = null
+  // Retire dispatch/identities before native removals can deliver callbacks.
   states.delete(view)
+  if (states.get(state.player) === state) {
+    states.delete(state.player)
+  }
+  const item = state.item
+  if (item && states.get(item) === state) {
+    states.delete(item)
+  }
+  const timeObserver = state.timeObserver
+  const endObserver = state.endObserver
+  const failObserver = state.failObserver
+  state.item = null
+  state.timeObserver = null
+  state.endObserver = null
+  state.failObserver = null
+  state.generation++
+  state.props = {}
+  const failures = new FailureCollector()
+  failures.run('video time observer', () => {
+    if (timeObserver) {
+      state.player.removeTimeObserver(timeObserver)
+    }
+  })
+  failures.run('video item observer', () => {
+    if (item) {
+      item.removeObserverForKeyPath(state.observer, 'status')
+    }
+  })
+  failures.run('video end observer', () => {
+    if (endObserver) {
+      NSNotificationCenter.defaultCenter.removeObserver(endObserver)
+    }
+  })
+  failures.run('video fail observer', () => {
+    if (failObserver) {
+      NSNotificationCenter.defaultCenter.removeObserver(failObserver)
+    }
+  })
+  failures.run('video player observer', () => {
+    if (state.playerObserved) {
+      state.player.removeObserverForKeyPath(state.observer, 'timeControlStatus')
+    }
+  })
+  failures.run('video pause', () => state.player.pause())
+  failures.run('video native player', () => {
+    // The generated AVKit declaration omits native nil for this property.
+    if (!Reflect.set(view, 'player', null)) {
+      throw new Error('Unable to detach video player')
+    }
+  })
+  failures.throwIfFailed()
 }
