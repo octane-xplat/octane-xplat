@@ -12,7 +12,9 @@ Paths below are relative to `packages/macos-appkit/src/`.
 | --- | --- |
 | Composition and host adapters | `runtime.ts`, `runtime-activation.ts`, `host-bridge.ts` |
 | Node contracts, element capabilities and identities | `model.ts`, `element-adapter.ts`, `registry.ts` |
-| Construction, batches and roots | `nodes.ts`, `driver.ts`, `layout-batch.ts`, `roots.ts`, `root-directory.ts` |
+| Node construction and phased release | `nodes.ts`, `failures.ts`; acquired adapters own feature releases |
+| Host/CSS batch scope and commit stages | `layout-batch.ts`, `driver.ts`, `css-cascade.ts` |
+| Root creation/retirement and read-only membership | `roots.ts` receives the `root-directory.ts` writer; other services receive its reader |
 | Attachment, projection and layout | `tree.ts`, `projection.ts`, `layout.ts`, `layout-projection.ts` |
 | CSS matching, state and environment | `css-cascade.ts`, `css-animations.ts`, `css-pseudo-state.ts`, `style-environment.ts` |
 | Stateless style reads and normalization | `style-values.ts` |
@@ -25,12 +27,13 @@ Paths below are relative to `packages/macos-appkit/src/`.
 
 ## Keep lifecycle and initialization explicit
 
-Each subsystem factory owns its retained maps, observers, native classes and
-cleanup. Put a builtin element's factory, native prop handler and disposal in
-its element module. `nodes.ts` coordinates construction and teardown order;
+Each feature owner retains and releases its own resources. Canonical adapters
+connect element creation, native prop effects and phased disposal to those
+owners. `nodes.ts` coordinates common construction and teardown;
 `element-props.ts` merges the next prop bag, applies common fields and dispatches
-individual native props. Keep synchronization that reads several props after
-the whole bag has been merged.
+through the acquired adapter. Synchronization that reads several props runs
+after the whole bag has been merged. New element support belongs in adapter
+definition/assembly and its feature owner, not a generic lifecycle switch.
 
 The registry owns element support and containment queries as well as identity
 maps. It has no service dependencies and is constructed first. Node creation,
@@ -49,8 +52,9 @@ check before accessing the later owner. No dependency getter exposes storage
 or triggers construction. Input identity storage precedes actions; accessible
 host identity precedes subscriptions; roots follow the completed driver.
 The layout service does not depend on the ActionBar owner: the acquired
-adapter already owns that layout dispatch. Action allocation is a private store operation that returns a registration
-lease; consumers never copy a counter or mutate backing maps.
+adapter already owns that layout dispatch. Action allocation is a private store
+operation that returns a registration lease; consumers never copy a counter or
+mutate backing maps.
 
 Construct all services before installing compatibility, Mason, tab content and
 host bridges. Native classes must be registered before Mason subclasses the
@@ -85,9 +89,10 @@ Do not infer whole-renderer isolation from tests that construct one service
 twice with stand-ins.
 
 `runtime-activation.ts` is the first runtime import so its guard exists even
-during imported native class registration. Activation progresses from `constructing` to `activating`, then `active` or
-`failed`. Construction registers required native classes; adapter installation
-and required bridge setup finish before environment and optional diagnostics
+during imported native class registration. Activation progresses from
+`constructing` to `activating`, then `active` or `failed`. Construction registers
+required native classes; adapter installation and required bridge setup finish
+before environment and optional diagnostics
 observation. Every root factory supplied to lists, tabs, popups, layers and
 presentations uses the guarded public facade. Root creation and forward
 operations reject before activation; failed activation retains its original
@@ -139,6 +144,11 @@ retirement cannot remove a reused host's new membership. A root retired during
 setup cannot escape as a live result. These are cleanup guarantees, not rollback
 of native writes or recovery from an unreleasable OS resource.
 
+Only one live root may own a host. A second mount rejects; retained-root HMR
+reuses that root instead of mounting again. Unmount before reusing or disposing
+the host. Unmount retires membership even when a later cleanup fails; it does
+not uninstall process bridges, native classes, fonts or caches.
+
 Environment observers install once during runtime activation, after services
 exist. Environment media seeding and optional automation subscribe to directory
 membership, including already-live roots. Each debug seam has an identity-scoped
@@ -150,14 +160,15 @@ thin facade over the registry/box owner and does not depend on root lifecycle.
 
 `element-adapter.ts` defines the private phased protocol and catalog. Runtime
 composition uses `adapter-assembly.ts` to assemble definitions from
-`pilot-adapters.ts`, `control-adapters.ts`, `text-adapters.ts` and
-`picker-adapters.ts` and `container-adapters.ts`; importing a leaf
+`pilot-adapters.ts`, `control-adapters.ts`, `text-adapters.ts`,
+`picker-adapters.ts`, `container-adapters.ts`, `surface-adapters.ts` and
+`scroll-adapter.ts`; importing an adapter leaf
 registers nothing. A node captures its validated definition before creation and
 retains it for props, layout and disposal. Replacement registrations affect
 future acquisitions; mutating a registration object cannot redirect a live
 node's cleanup. Normal author registration of a migrated type composes its
 override against the original builtin definition, rather than stacking prior
-overrides. Missing migrated definitions reject before native acquisition.
+overrides. Missing definitions reject before native acquisition.
 
 Every supported builtin, viewless record and registered engine uses this
 catalog. `entries()` supplies an inventory snapshot; capability readers use the

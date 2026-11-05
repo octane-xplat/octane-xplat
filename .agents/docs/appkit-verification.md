@@ -13,9 +13,18 @@ bun run --filter @xplat/macos test:layout-placement
 
 ## Packed consumers and overlays
 
+The renderer's assembly tests load the actual public entry with stand-ins only
+at the native boundary. They cover constructor/static-import reentry, required
+class and bridge failures, optional capability absence, diagnostics and repeat
+imports/activation. These qualify composition readiness and failure policy;
+native registration and compiler portal execution require the packed host below.
+
 `@octane-xplat/macos-appkit` has independent packed-consumer coverage for
 system fonts, rendering updates, and the CLI's AppKit packaging contract. This
 coverage does not establish OS input delivery or general UI-package parity.
+The consumer imports the public model types through the declaration entry and
+preserves their open extension contract. Compiler tab/list wrappers execute in
+the packed host; their exports and prop transport also require source review.
 
 The packed `Paint.macos.tsx`/`paint-lifecycle.ts` fixture checks percentage and
 point translations after native layout, percentage radii, per-corner/banded
@@ -83,6 +92,12 @@ checks debug identity and old-root retirement after host reuse. Process observer
 installation counts and failing observation cleanup use production constructors
 with native-boundary stand-ins, not a native observer inventory.
 
+The separate picker-bridge fixture attaches date and time modes to real native
+controls, updates their selection, invokes their native action selector and
+retires the attachment. Held delivery after retirement is inert. This qualifies
+the bridge's object-handle admission and programmatic attachment lifecycle; it
+does not establish physical picker interaction or the public date-input journey.
+
 ```sh
 bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
 ```
@@ -121,8 +136,8 @@ export function FixedCells() {
 ```
 
 Shared AppKit dialogs, alert dialogs, bottom sheets, lightboxes, and toast
-stacks have dedicated presentation and cleanup. The renderer's 88 native-state
-tests pass, and the bounded packed overlay consumer typechecks JSX and
+stacks have dedicated presentation and cleanup. The maintained native-state
+tests and bounded packed overlay consumer cover JSX and
 imperative declarations in Bundler and NodeNext modes. Those checks cover
 source, handler dispatch, and declarations; they do not establish physical OS
 input or VoiceOver behavior. Lightbox video playback, double-click zoom, and
@@ -159,6 +174,6 @@ The isolated AppKit overlay fixture previously passed its overlay assertions
 not physical OS input. See the
 [renderer setup and verification boundary](../../docs/packages/package-macos-appkit.md).
 
-The broader `@octane-xplat/ui` native suite is green: the universal entries
-export `Children` again, and the focused imperative-sheet service tests pass
-alongside the rest of the mobile and macOS cases.
+The broader `@octane-xplat/ui` native suite is a separate gate. Renderer packed
+evidence does not qualify that suite or turn failing dependent typechecks into
+passes. Use current run evidence from Silo rather than historical suite totals.
