@@ -444,6 +444,34 @@ async function pickerSelectSpec(): Promise<Record<string, unknown>> {
   return out
 }
 
+/** Bounded multi-select pick: the driver types two quoted paths into the
+ * filename box, which the OS picker treats as a multi-selection. */
+async function pickerMultiSpec(): Promise<Record<string, unknown>> {
+  const raced = await Promise.race([
+    files
+      .pickMultiple()
+      .then(async (refs) => {
+        const entry: Record<string, unknown> = {
+          multiSelected: refs.length === 0 ? 'cancelled' : `ok:${refs.length}`,
+          multiNames: refs.map((ref) => ref.name),
+        }
+        try {
+          entry.firstReadBack = refs.length ? await files.readText(refs[0]) : null
+        } catch (error) {
+          entry.readError = error instanceof Error ? error.message : String(error)
+        }
+        return entry
+      })
+      .catch((error: unknown) => ({
+        multiSelected: `error:${error instanceof Error ? `${error.name}:${error.message}` : String(error)}`,
+      })),
+    new Promise<Record<string, unknown>>((resolve) =>
+      setTimeout(() => resolve({ multiSelected: 'pending-dialog' }), 12000),
+    ),
+  ])
+  return { ...raced }
+}
+
 /** Bounded save-commit export: the driver types a destination path into the
  * save dialog; the leaf then writes bytes through the token grant. */
 async function pickerSaveSpec(): Promise<Record<string, unknown>> {
@@ -1273,6 +1301,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'picker-save':
         result = await pickerSaveSpec()
+        break
+      case 'picker-multi':
+        result = await pickerMultiSpec()
         break
       case 'storage-depth':
         result = await storageDepthSpec()

@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-select','picker-save','picker-invoke')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-select','picker-save','picker-multi','picker-invoke')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1674,6 +1674,17 @@ function Check-ServiceActions{
     Start-Sleep -Milliseconds 300
     [Core20ActionInput]::Press(0x0D,$false)
    }catch{}
+  }elseif($spec -eq 'picker-multi'){
+   $multiA=Join-Path $env:USERPROFILE 'Documents\core20-pick-target.txt'
+   $multiB=Join-Path $env:USERPROFILE 'Documents\core20-pick-second.txt'
+   [IO.File]::WriteAllText($multiA,'core20-pick-content')
+   [IO.File]::WriteAllText($multiB,'core20-pick-second-content')
+   Start-Sleep -Milliseconds 3000
+   try{
+    [Core20ActionInput]::Type('"' + $multiA + '" "' + $multiB + '"')
+    Start-Sleep -Milliseconds 300
+    [Core20ActionInput]::Press(0x0D,$false)
+   }catch{}
   }elseif($spec -eq 'picker-save'){
    $saveTarget=Join-Path $env:USERPROFILE 'Documents\core20-exported.txt'
    [IO.File]::Delete($saveTarget)
@@ -1689,6 +1700,8 @@ function Check-ServiceActions{
    $saveTarget=Join-Path $env:USERPROFILE 'Documents\core20-exported.txt'
    Assert ((Test-Path $saveTarget) -eq $true) 'Exported file exists at the typed destination' @{target=$saveTarget}
    if(Test-Path $saveTarget){Assert ((Get-Content $saveTarget -Raw -Encoding Byte).Count -eq 15) 'Exported file carries the payload bytes' @{target=$saveTarget}}
+   try{[Core20ActionInput]::Press(0x1B,$false)}catch{}
+  }elseif($spec -eq 'picker-multi'){
    try{[Core20ActionInput]::Press(0x1B,$false)}catch{}
   }elseif($spec -eq 'picker-select'){
    try{[Core20ActionInput]::Press(0x1B,$false)}catch{}
@@ -1878,6 +1891,11 @@ function Check-ServiceActions{
    }
    'picker-save' {
     Assert ($result.exportResult -ceq 'saved') 'files.export commits through the save dialog' $result
+   }
+   'picker-multi' {
+    Assert ($result.multiSelected -ceq 'ok:2') 'files.pickMultiple completes a quoted-path multi-selection' $result
+    Assert ($result.multiNames -contains 'core20-pick-target.txt' -and $result.multiNames -contains 'core20-pick-second.txt') 'Multi-select returns both picked names' $result
+    Assert ($result.firstReadBack -ceq 'core20-pick-content') 'First multi-picked file reads through its token' $result
    }
   }
   }catch{
