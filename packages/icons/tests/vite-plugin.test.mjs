@@ -1,7 +1,7 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import { after, test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -50,6 +50,34 @@ test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', ()
   assert.equal(alias.rotate, 1)
   assert.equal(watched.length, 2)
   assert.equal(plugin.load.call(ctx, '\0icons:unknown'), null)
+})
+
+test('xplatIcons syncs the .icon type-stub tree at config time', () => {
+  const synced = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-sync-'))
+  mkdirSync(join(synced, 'node_modules/@iconify-json'), { recursive: true })
+  symlinkSync(
+    join(root, 'node_modules/@iconify-json/mini'),
+    join(synced, 'node_modules/@iconify-json/mini'),
+  )
+  try {
+    xplatIcons().configResolved({ root: synced })
+    assert.ok(existsSync(join(synced, '.icons/mini/wide.icon')))
+
+    const bare = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-off-'))
+    mkdirSync(join(bare, 'node_modules/@iconify-json'), { recursive: true })
+    symlinkSync(
+      join(root, 'node_modules/@iconify-json/mini'),
+      join(bare, 'node_modules/@iconify-json/mini'),
+    )
+    try {
+      xplatIcons({ stubs: false }).configResolved({ root: bare })
+      assert.ok(!existsSync(join(bare, '.icons')))
+    } finally {
+      rmSync(bare, { recursive: true, force: true })
+    }
+  } finally {
+    rmSync(synced, { recursive: true, force: true })
+  }
 })
 
 test('xplatIcons register mode self-registers each module', () => {

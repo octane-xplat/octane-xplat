@@ -9,6 +9,7 @@ export default defineConfig({
     lib: {
       entry: {
         'vite/index': 'src/vite/index.ts',
+        'mapper/server': 'src/mapper/server.ts',
       },
       formats: ['es'],
     },

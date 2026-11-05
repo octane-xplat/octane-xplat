@@ -24,5 +24,12 @@
 		],
 		"allowImportingTsExtensions": true
 	},
-	"files": ["src/index.ts", "src/index.web.ts", "src/index.macos.ts", "src/vite/index.ts", "src/vite/resolve.ts"]
+	"files": [
+		"src/index.ts",
+		"src/index.web.ts",
+		"src/index.macos.ts",
+		"src/vite/index.ts",
+		"src/vite/resolve.ts",
+		"src/vite/stubs.ts"
+	]
 }

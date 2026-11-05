@@ -4,7 +4,7 @@ hype: 75
 
 ### Type-safe, tree-shaken icons via `icons:*` imports
 
-`@octane-xplat/icons` adds a `xplatIcons` Vite plugin that resolves `icons:<prefix>/<name>` specifiers to per-icon modules — each import is a compile-checked, tree-shaking edge instead of a whole `@iconify-json/*` collection in the bundle. `<Icon>` accepts that data through `icon=`, skipping the registry lookup entirely; `name=` remains for dynamic lookups, and `addIcon`/`addIcons` register single icons into it — `xplatIcons({ register: true })` makes every imported icon self-register so `name=` resolves the same tree-shaken data.
+`@octane-xplat/icons` adds a `xplatIcons` Vite plugin that resolves `icons:<prefix>/<name>` specifiers to per-icon modules — each import is a tree-shaking edge instead of a whole `@iconify-json/*` collection in the bundle. A TypeScript content mapper plus a generated `.icon` stub tree (synced by the plugin into `.icons/`) makes every specifier compile-checked per name: a misspelled icon fails `tsc` with `TS2307`, and the import's type is that icon's normalized `IconifyIcon` literal. `<Icon>` accepts the data through `icon=`, skipping the registry lookup entirely; `name=` remains for dynamic lookups, and `addIcon`/`addIcons` register single icons into it — `xplatIcons({ register: true })` makes every imported icon self-register so `name=` resolves the same tree-shaken data.
 
 ```tsx
 import xMark from 'icons:heroicons/x-mark'

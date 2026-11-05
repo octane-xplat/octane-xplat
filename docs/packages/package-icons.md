@@ -49,20 +49,33 @@ import { xplatIcons } from '@octane-xplat/icons/vite'
 // vite.config.ts — plugins: [xplatIcons(), ...octane(), ...]
 ```
 
-For typing, include the package's `icons.d.ts` ambient stub in the app —
-reference it from an existing ambient declaration file:
+Type checking comes from the package's TypeScript content mapper plus a
+generated stub tree: two entries in the app's tsconfig map `icons:*`
+specifiers onto the stubs and register the `.icon` extension:
 
-```ts
-// src/icons.d.ts (any app file swept into your tsconfig)
-/// <reference path="../node_modules/@octane-xplat/icons/icons.d.ts" />
+```jsonc
+{
+  "contentMappers": [{ "package": "@octane-xplat/icons", "extensions": [".icon"] }],
+  "compilerOptions": {
+    "paths": { "icons:*": ["./.icons/*.icon"] },
+  },
+}
 ```
 
-Or copy its `declare module 'icons:*'` block into an app `.d.ts`, or add the
-file to your tsconfig `include`. Every `icons:*` specifier then types its
-default export as `IconifyIcon`; the build still fails on an icon that does
-not exist in the collection. A stricter per-collection name union and
-specifier-level declarations are future work — see issue
-[octane-xplat#93](https://github.com/octane-xplat/octane-xplat/issues/93).
+The plugin writes the stub tree — one `.icon` file per icon and alias name
+in each installed `@iconify-json/*` collection — into `<root>/.icons` when
+Vite loads its config, so a normal `dev`/`build` keeps it in sync. Each
+import then type-checks against the collection's real `icons.json`: a
+specifier with no stub fails as `TS2307 Cannot find module`, and the import's
+type is the icon's own normalized `IconifyIcon` literal. The tree is
+regenerable build output — add `.icons/` to `.gitignore`. Disable plugin
+sync with `xplatIcons({ stubs: false })`, or steer it with a
+`stubs: { outDir, collections }` object; `syncIconStubs` is also exported
+from `@octane-xplat/icons/vite` for non-Vite typecheck flows.
+
+The content mapper requires the native TypeScript 7.1 line this toolchain
+already runs (`tsrx-tsc` passes `--runExternalCode`); it does not run under
+classic TypeScript 5/6, where `icons:` specifiers have no type resolution.
 
 ## Runtime registry
 

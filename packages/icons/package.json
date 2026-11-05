@@ -19,11 +19,16 @@
 	"files": [
 		"src",
 		"dist",
-		"icons.d.ts",
 		"types/generated",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"
 	],
+	"typescript": {
+		"contentMapper": {
+			"exec": ["node", "dist/mapper/server.js"],
+			"dynamicConfig": true
+		}
+	},
 	"type": "module",
 	"exports": {
 		".": {
