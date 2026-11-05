@@ -319,7 +319,25 @@ export const files: Files = {
       if (state === 'cancelled') return 'cancelled'
       const ref = pickedRef(state.slice(3))
       const file = await pickedFile(ref.uri)
-      await NSWinRT.toPromise(Windows.Storage.FileIO.WriteBytesAsync(file, encode(bytes)))
+      // FileIO.WriteBytesAsync rejects on token-granted files upstream
+      // (HRESULT 0x80004005); the stream path is the working write.
+      const stream = await NSWinRT.toPromise(file.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
+      let output: any
+      try {
+        output = stream.GetOutputStreamAt(0)
+        for (let offset = 0; offset < bytes.byteLength; offset += CHUNK_SIZE) {
+          const chunk = bytes.subarray(offset, offset + CHUNK_SIZE)
+          if ((await NSWinRT.toPromise(output.WriteAsync(encode(chunk)))) !== chunk.byteLength) {
+            throw new Error('files.export: incomplete native write')
+          }
+        }
+        if (!(await NSWinRT.toPromise(output.FlushAsync()))) {
+          throw new Error('files.export: native stream flush failed')
+        }
+      } finally {
+        close(output)
+        close(stream)
+      }
       return 'saved' as FileExportResult
     } finally {
       exportInFlight = false
