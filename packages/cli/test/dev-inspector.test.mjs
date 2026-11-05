@@ -31,6 +31,30 @@ test('fixed app inspector validates requests, preserves document identity and ne
 		assert.equal(inspector.inspect(args).error.code, 'invalid_selection')
 	}
 	assert.equal(calls.length, 0)
+
+	const interaction = {
+		documentId: 'doc_fixture',
+		control: { kind: 'id', name: 'button' },
+		mechanism: 'handler-dispatch',
+		expiresAt: Date.now() + 3000,
+	}
+	for (const changed of [
+		{ mechanism: 'dom-event' },
+		{ mechanism: 'os-input' },
+		{ expression: 'run()' },
+		{ control: { kind: 'css', name: 'button' } },
+	]) {
+		const result = inspector.interact({ ...interaction, ...changed })
+		assert.equal(result.error.code, 'invalid_selection')
+		assert.equal(result.outcome, 'not-run')
+	}
+	assert.equal(
+		inspector.interact({ ...interaction, documentId: 'stale' }).error.code,
+		'stale_identity',
+	)
+	assert.equal(inspector.interact({ ...interaction, expiresAt: 0 }).outcome, 'not-run')
+	assert.equal(calls.length, 0, 'rejected mutation reached the DOM inspector')
+
 	const page = inspector.inspect({
 		control: { kind: 'testID', name: 'counter.value' },
 		limit: 2,

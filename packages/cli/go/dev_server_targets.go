@@ -106,6 +106,8 @@ func (view *devTargetView) dispatch(ctx context.Context, command string, values 
 			server.mu.Unlock()
 		}
 		return result, failure
+	case "interact":
+		return server.inspection.interact(ctx, values)
 	case "inspect":
 		return server.inspection.inspect(ctx, values)
 	case "evidence list", "evidence delete":
@@ -162,7 +164,7 @@ func devAppRequest(ctx context.Context, workspace *workspaceContext, command str
 		}
 		arguments[key] = value
 	}
-	if command == "actions invoke" || command == "inspect" {
+	if command == "actions invoke" || command == "inspect" || command == "interact" {
 		grants := []string{}
 		for _, grant := range permissionGrants() {
 			if grant["state"] == "granted" {

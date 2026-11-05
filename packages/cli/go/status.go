@@ -64,6 +64,11 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "logs":
 				entry["status"] = "partial"
 				entry["detail"] = "Native retained foreground engine logs are readable live or offline with bounded cursor pagination. The Go Vite plugin forwards bounded browser warnings/errors; diagnostics distinguishes observed records from complete console coverage. Native Apple reports require the capture's recorded identity and the Mac that ran it; candidate/confirmed associations are distinct. Android exit history is package/device-scoped candidate evidence, not full traces or confirmed PID ownership. NativeScript identities require selected-device sync output; runtime qualification remains separate. Observed app sessions use separate identities."
+			case "interaction":
+				if platform == "web" {
+					entry["status"] = "partial"
+					entry["detail"] = "Explicit programmatic HTML handler-dispatch through the connected app, with inspected document and request-key receipts. No CDP/OS-input qualification or app-state assertion."
+				}
 			case "ui_inspection":
 				if platform == "web" {
 					entry["status"] = "partial"

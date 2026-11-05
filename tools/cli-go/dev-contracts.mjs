@@ -161,6 +161,70 @@ export function goDevContracts(source) {
 			}
 		}
 	}
+	const interact = metadata.descriptors.find(({ name }) => name === 'interact')
+	interact.summary =
+		'Dispatch an explicit programmatic HTML click in a connected app; requires inspected document and startup-scoped request key, never CDP or OS input'
+	interact.flags = interact.flags.filter(({ flag }) => flag !== 'key')
+	Object.assign(
+		interact.flags.find(({ flag }) => flag === 'mechanism'),
+		{
+			values: ['handler-dispatch'],
+			desc: 'Explicit programmatic HTMLElement.click; not CDP or OS input (required)',
+		},
+	)
+	interact.flags.push({
+		flag: 'request-key',
+		key: 'requestKey',
+		type: 'string',
+		desc: 'Required startup-scoped key; reuse identical input to read the same receipt without dispatching again',
+	})
+	interact.examples = [
+		'xplat interact APP_SESSION_ID --document DOCUMENT_ID --testid counter.increment --mechanism handler-dispatch --request-key CLICK_KEY --json',
+	]
+	for (const item of [
+		metadata.schemas.interact,
+		...metadata.catalog.commands.filter(({ command }) => command === 'interact'),
+	]) {
+		item.summary = interact.summary
+		item.examples = interact.examples
+		item.input.flags = item.input.flags.filter(({ flag }) => flag !== '--key')
+		Object.assign(
+			item.input.flags.find(({ flag }) => flag === '--mechanism'),
+			{
+				values: ['handler-dispatch'],
+				description: 'Explicit programmatic HTMLElement.click; not CDP or OS input (required)',
+			},
+		)
+
+		item.input.flags.push({
+			flag: '--request-key',
+			type: 'string',
+			description: interact.flags.at(-1).desc,
+		})
+
+		item.output.description =
+			'Confirmed programmatic dispatch with an evidence reference, or a failure preserving not-run/unknown effects. Reusing the same request key never dispatches again in this startup.'
+
+		item.errors = item.errors.filter(({ code }) => code !== 'prerequisite_missing')
+		item.errors.push(
+			{
+				code: 'disconnected_runtime',
+				exit: 6,
+				when: 'App delivery was lost; effects may remain unknown',
+			},
+			{
+				code: 'execution_failure',
+				exit: 3,
+				when: 'App confirmation was invalid; effects remain unknown',
+			},
+			{
+				code: 'target_busy',
+				exit: 3,
+				when: 'Another operation holds the app slot; this attempt did not run',
+			},
+		)
+	}
+
 	metadata.schemas = Object.fromEntries(
 		Object.entries(metadata.schemas)
 			.filter(([name]) => !removed.has(name))

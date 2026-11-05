@@ -221,6 +221,7 @@ interface AppDebugInspector {
 	version: 1
 	documentId: string
 	inspect(args: unknown): unknown
+	interact?(args: unknown): unknown
 }
 
 function appDebugInspector(): AppDebugInspector | undefined {
@@ -480,7 +481,15 @@ const snapshot = (state: RegistryState, appLabel?: string) => {
 		appInstanceId: state.instanceId,
 		...(appLabel ? { appLabel } : {}),
 		platform: devBridgePlatform(),
-		...(inspector ? { inspection: { version: 1, documentId: inspector.documentId } } : {}),
+		...(inspector
+			? {
+					inspection: {
+						version: 1,
+						documentId: inspector.documentId,
+						mechanisms: typeof inspector.interact === 'function' ? ['handler-dispatch'] : [],
+					},
+				}
+			: {}),
 		revision: state.revision,
 		announcedAt: new Date().toISOString(),
 		...(location !== undefined ? { location } : {}),
@@ -987,7 +996,7 @@ function connectAppSocket(rt: BridgeRuntime) {
 			) {
 				rt.state = 'live'
 				rt.lastError = undefined
-			} else if (frame.type === 'inspect' && rt.state === 'live') {
+			} else if ((frame.type === 'inspect' || frame.type === 'interact') && rt.state === 'live') {
 				if (
 					typeof frame.requestId !== 'string' ||
 					!frame.requestId ||
@@ -999,12 +1008,15 @@ function connectAppSocket(rt: BridgeRuntime) {
 				const inspector = appDebugInspector()
 				let result: unknown
 				try {
-					result = inspector?.inspect(frame.args) ?? {
+					result = (frame.type === 'inspect'
+						? inspector?.inspect(frame.args)
+						: inspector?.interact?.(frame.args)) ?? {
 						error: { code: 'unsupported_capability', message: 'No app inspector in this runtime.' },
 					}
 				} catch {
 					result = {
-						error: { code: 'execution_failure', message: 'The fixed app inspection failed.' },
+						error: { code: 'execution_failure', message: 'The fixed app operation failed.' },
+						outcome: frame.type === 'interact' ? 'unknown' : undefined,
 					}
 				}
 
@@ -1017,7 +1029,8 @@ function connectAppSocket(rt: BridgeRuntime) {
 							result: {
 								error: {
 									code: 'unavailable',
-									message: 'Inspection result exceeds its bound; use a smaller page.',
+									message:
+										'App operation result exceeds its bound; effects may already have occurred.',
 								},
 							},
 						}),

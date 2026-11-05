@@ -73,7 +73,7 @@ type runtimeRequest struct {
 }
 
 func init() {
-	for _, name := range []string{"inspect", "evidence list", "evidence delete", "targets", "session list", "session status", "session attach", "actions list", "actions invoke", "actions status"} {
+	for _, name := range []string{"interact", "inspect", "evidence list", "evidence delete", "targets", "session list", "session status", "session attach", "actions list", "actions invoke", "actions status"} {
 		commandHandlers[name] = func(ctx context.Context, workspace *workspaceContext, values map[string]any) (any, *cliError) {
 			return devAppRequest(ctx, workspace, name, values)
 		}

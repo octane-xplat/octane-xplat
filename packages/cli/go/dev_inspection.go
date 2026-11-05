@@ -13,8 +13,9 @@ import (
 const namedHostCoverage = "Named DOM hosts in the main document; excludes shadow roots, frames, component ownership and signals."
 
 type devInspectionCapability struct {
-	Version    int    `json:"version"`
-	DocumentID string `json:"documentId"`
+	Version    int      `json:"version"`
+	DocumentID string   `json:"documentId"`
+	Mechanisms []string `json:"mechanisms,omitempty"`
 }
 type devInspectionPending struct {
 	peer   *devAppPeer
@@ -27,10 +28,11 @@ type devInspection struct {
 	busy          map[*devAppPeer]bool
 	evidence      []json.RawMessage
 	evidenceBytes int
+	receipts      map[string]*devInteractionReceipt
 }
 
 func newDevInspection(server *devServer) *devInspection {
-	return &devInspection{server: server, pending: map[string]*devInspectionPending{}, busy: map[*devAppPeer]bool{}}
+	return &devInspection{server: server, pending: map[string]*devInspectionPending{}, busy: map[*devAppPeer]bool{}, receipts: map[string]*devInteractionReceipt{}}
 }
 func (service *devInspection) receive(peer *devAppPeer, request string, result json.RawMessage) bool {
 	if request == "" || len(request) > 128 || len(result) > 256<<10 || len(result) == 0 {
@@ -90,69 +92,13 @@ func (service *devInspection) inspect(parent context.Context, values map[string]
 			return nil, invalid("Unknown inspection option: " + key)
 		}
 	}
-	hub := service.server.apps
-	hub.mu.Lock()
-	var peer *devAppPeer
-	for _, candidate := range hub.peers {
-		if candidate.session == stringValue(values["sessionId"]) {
-			peer = candidate
-			break
-		}
+	peer, document, failure := service.selectedPeer(values)
+	if failure != nil {
+		return nil, failure
 	}
-	if peer == nil {
-		hub.mu.Unlock()
-		return nil, &cliError{Code: "not_found", Message: "No app session with this identity in the current dev server."}
-	}
-	if !peer.ready || peer.disconnectedAt != "" {
-		hub.mu.Unlock()
-		return nil, &cliError{Code: "disconnected_runtime", Message: "The selected app is disconnected; no server or app was started."}
-	}
-	capability := peer.registry.Inspection
-	if peer.platform != "web" || capability == nil || capability.Version != 1 || capability.DocumentID == "" || len(capability.DocumentID) > 128 {
-		hub.mu.Unlock()
-		return nil, &cliError{Code: "unsupported_capability", Message: "This app did not announce the named-host browser inspector."}
-	}
-	document := capability.DocumentID
-	instance, platform, target, session := peer.instance, peer.platform, peer.target, peer.session
-	hub.mu.Unlock()
-	request := identity()
-	pending := &devInspectionPending{peer: peer, result: make(chan json.RawMessage, 1)}
-	service.mu.Lock()
-	if service.busy[peer] || len(service.pending) >= 32 {
-		service.mu.Unlock()
-		return nil, &cliError{Code: "target_busy", Message: "Another inspection is pending for this app; no input was sent."}
-	}
-	service.pending[request] = pending
-	service.busy[peer] = true
-	service.mu.Unlock()
-	defer func() {
-		service.mu.Lock()
-		delete(service.pending, request)
-		delete(service.busy, peer)
-		service.mu.Unlock()
-	}()
-	ctx, cancel := context.WithTimeout(parent, 3*time.Second)
-	defer cancel()
-	data, _ := json.Marshal(map[string]any{"type": "inspect", "requestId": request, "args": args})
-	if err := peer.conn.Write(ctx, websocket.MessageText, data); err != nil {
-		return nil, &cliError{Code: "disconnected_runtime", Message: "The read request could not reach the selected app."}
-	}
-	var raw json.RawMessage
-	select {
-	case raw = <-pending.result:
-	case <-ctx.Done():
-		return nil, &cliError{Code: "unavailable", Message: "The app inspection timed out or was cancelled; inspect again after checking the connection."}
-	case <-service.server.ctx.Done():
-		return nil, &cliError{Code: "disconnected_runtime", Message: "The dev server is stopping."}
-	}
-	if raw == nil {
-		return nil, &cliError{Code: "disconnected_runtime", Message: "The app disconnected during inspection."}
-	}
-	hub.mu.Lock()
-	live := hub.peers[instance] == peer && peer.ready && peer.disconnectedAt == "" && peer.registry.Inspection != nil && peer.registry.Inspection.DocumentID == document
-	hub.mu.Unlock()
-	if !live {
-		return nil, &cliError{Code: "stale_identity", Message: "The app or document changed during inspection; inspect the current session again."}
+	raw, failure := service.exchange(parent, peer, document, "inspect", args)
+	if failure != nil {
+		return nil, failure
 	}
 	var page struct {
 		DocumentID string            `json:"documentId"`
@@ -178,17 +124,7 @@ func (service *devInspection) inspect(parent context.Context, values map[string]
 		return nil, &cliError{Code: "execution_failure", Message: "Invalid app inspection page bounds."}
 	}
 	result := map[string]any{"documentId": document, "controls": page.Controls, "total": *page.Total, "nextOffset": page.NextOffset, "coverage": namedHostCoverage, "limitations": []string{"App-reported main-document state only; no OS input, component tree, screenshot or build revision assertion."}}
-	record := map[string]any{"id": "ev_" + identity(), "kind": "inspection", "summary": "Named hosts in a connected browser app", "provenance": map[string]any{"appRoot": service.server.record.AppRoot, "platform": platform, "targetId": target, "sessionId": session, "appInstanceId": instance, "documentId": document, "mechanism": "none", "capturedAt": isoNow()}, "data": result, "createdAt": isoNow(), "retention": map[string]any{"scope": "session", "detail": "Bounded to this dev-server startup; oldest session records are evicted."}}
-	serialized, _ := json.Marshal(record)
-	service.mu.Lock()
-	for len(service.evidence) > 0 && (len(service.evidence) >= 32 || service.evidenceBytes+len(serialized) > 2<<20) {
-		service.evidenceBytes -= len(service.evidence[0])
-		service.evidence = service.evidence[1:]
-	}
-	service.evidence = append(service.evidence, serialized)
-	service.evidenceBytes += len(serialized)
-	service.mu.Unlock()
-	result["evidence"] = json.RawMessage(serialized)
+	result["evidence"] = service.recordEvidence(peer, document, "inspection", "none", result)
 	return result, nil
 }
 func (service *devInspection) evidenceCommand(command string, values map[string]any) (any, *cliError) {
@@ -224,4 +160,118 @@ func (service *devInspection) evidenceCommand(command string, values map[string]
 		}
 	}
 	return nil, &cliError{Code: "not_found", Message: "No evidence record with this identity in the current dev server."}
+}
+
+func (service *devInspection) selectedPeer(values map[string]any) (*devAppPeer, string, *cliError) {
+	hub := service.server.apps
+	hub.mu.Lock()
+	var peer *devAppPeer
+	for _, candidate := range hub.peers {
+		if candidate.session == stringValue(values["sessionId"]) {
+			peer = candidate
+			break
+		}
+	}
+	if peer == nil {
+		hub.mu.Unlock()
+		return nil, "", &cliError{Code: "not_found", Message: "No app session with this identity in the current dev server."}
+	}
+	if !peer.ready || peer.disconnectedAt != "" {
+		hub.mu.Unlock()
+		return nil, "", &cliError{Code: "disconnected_runtime", Message: "The selected app is disconnected; no server or app was started."}
+	}
+	capability := peer.registry.Inspection
+	if peer.platform != "web" || capability == nil || capability.Version != 1 || capability.DocumentID == "" || len(capability.DocumentID) > 128 {
+		hub.mu.Unlock()
+		return nil, "", &cliError{Code: "unsupported_capability", Message: "This app did not announce the named-host browser inspector."}
+	}
+	document := capability.DocumentID
+	hub.mu.Unlock()
+	return peer, document, nil
+}
+
+func (service *devInspection) exchange(parent context.Context, peer *devAppPeer, document, operation string, args map[string]any) (json.RawMessage, *cliError) {
+	request := identity()
+	pending := &devInspectionPending{peer: peer, result: make(chan json.RawMessage, 1)}
+	service.mu.Lock()
+	if service.busy[peer] || len(service.pending) >= 32 {
+		service.mu.Unlock()
+		return nil, &cliError{Code: "target_busy", Message: "Another app observation or interaction is pending; no request was sent."}
+	}
+	service.pending[request] = pending
+	service.busy[peer] = true
+	service.mu.Unlock()
+	defer func() {
+		service.mu.Lock()
+		delete(service.pending, request)
+		delete(service.busy, peer)
+		service.mu.Unlock()
+	}()
+	ctx, cancel := context.WithTimeout(parent, 3*time.Second)
+	defer cancel()
+
+	service.server.apps.mu.Lock()
+	current := service.server.apps.peers[peer.instance] == peer && peer.ready && peer.disconnectedAt == "" && peer.registry.Inspection != nil && peer.registry.Inspection.DocumentID == document
+	service.server.apps.mu.Unlock()
+	if !current {
+		return nil, &cliError{Code: "stale_identity", Message: "The app or document changed before dispatch; no request was sent."}
+	}
+	data, _ := json.Marshal(map[string]any{"type": operation, "requestId": request, "args": args})
+	if err := peer.conn.Write(ctx, websocket.MessageText, data); err != nil {
+		return nil, appExchangeFailure(operation, "disconnected_runtime", "App delivery could not be confirmed.")
+	}
+	var raw json.RawMessage
+	var ended *cliError
+	select {
+	case raw = <-pending.result:
+	default:
+		select {
+		case raw = <-pending.result:
+		case <-ctx.Done():
+			ended = appExchangeFailure(operation, "unavailable", "App observation timed out or was cancelled.")
+		case <-service.server.ctx.Done():
+			ended = appExchangeFailure(operation, "disconnected_runtime", "The dev server is stopping.")
+		}
+	}
+	if ended != nil {
+		// App-confirmed facts already received win a simultaneous shutdown.
+		select {
+		case raw = <-pending.result:
+		default:
+			return nil, ended
+		}
+	}
+
+	if raw == nil {
+		return nil, appExchangeFailure(operation, "disconnected_runtime", "The app disconnected during observation.")
+	}
+	service.server.apps.mu.Lock()
+	live := service.server.apps.peers[peer.instance] == peer && peer.ready && peer.disconnectedAt == "" && peer.registry.Inspection != nil && peer.registry.Inspection.DocumentID == document
+	service.server.apps.mu.Unlock()
+	if !live && operation == "inspect" {
+		return nil, &cliError{Code: "stale_identity", Message: "The app or document changed during inspection; inspect the current session again."}
+	}
+	return raw, nil
+}
+
+func appExchangeFailure(operation, code, message string) *cliError {
+	failure := &cliError{Code: code, Message: message}
+	if operation == "interact" {
+		failure.Message += " Interaction effects are unknown."
+		failure.Context = map[string]any{"outcome": "unknown"}
+	}
+	return failure
+}
+func (service *devInspection) recordEvidence(peer *devAppPeer, document, kind, mechanism string, result map[string]any) json.RawMessage {
+	record := map[string]any{"id": "ev_" + identity(), "kind": kind, "summary": kind + " of named hosts in a connected browser app", "provenance": map[string]any{"appRoot": service.server.record.AppRoot, "platform": peer.platform, "targetId": peer.target, "sessionId": peer.session, "appInstanceId": peer.instance, "documentId": document, "mechanism": mechanism, "capturedAt": isoNow()}, "data": result, "createdAt": isoNow(), "retention": map[string]any{"scope": "session", "detail": "Bounded to this dev-server startup; oldest session records are evicted."}}
+	serialized, _ := json.Marshal(record)
+	service.mu.Lock()
+	for len(service.evidence) > 0 && (len(service.evidence) >= 32 || service.evidenceBytes+len(serialized) > 2<<20) {
+		service.evidenceBytes -= len(service.evidence[0])
+		service.evidence = service.evidence[1:]
+	}
+	service.evidence = append(service.evidence, serialized)
+	service.evidenceBytes += len(serialized)
+	service.mu.Unlock()
+	return serialized
 }

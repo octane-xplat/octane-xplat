@@ -705,7 +705,7 @@ test(
 )
 
 test(
-	'connected browser inspection reads actual named hosts without owning app lifetime',
+	'connected browser inspection and explicit handler dispatch preserve app lifetime',
 	{ skip: process.env.XPLAT_GO_BROWSER_LOGS !== '1', timeout: 90000 },
 	async () => {
 		const f = fixture()
@@ -721,13 +721,21 @@ test(
 			f.app,
 			'index.html',
 			`<!doctype html><html><body>
- <button id="button" data-testid="counter.increment">Read without clicking</button>
+ <button id="button" data-testid="counter.increment">Increment fixture</button>
  <div id="value">Visible count 0</div>
  <input id="password" type="password" value="never-return-password">
  <section id="private" data-xplat-private><span>never-return-private-text</span></section>
  <input id="hidden" type="hidden" value="never-return-hidden">
  <button data-testid="duplicate">First</button><button data-testid="duplicate">Second</button>
- <script type="module">import {startDevActionBridge} from '/dev-actions-registry.ts';startDevActionBridge({appLabel:'Actual browser inspector'});</script>
+ <button id="disabled" disabled>Disabled fixture</button>
+ <button id="hidden-button" style="display:none">Hidden fixture</button>
+ <button id="obscured" style="position:absolute;top:300px;left:10px;width:100px;height:30px">Covered fixture</button>
+ <div style="position:absolute;top:300px;left:10px;width:150px;height:40px;z-index:99999">Fixed cover</div>
+ <script type="module">import {registerDevAction,startDevActionBridge} from '/dev-actions-registry.ts';globalThis.fixtureAllClicks=0;globalThis.fixtureCount=0;
+ document.addEventListener('click',()=>globalThis.fixtureAllClicks++);
+ document.getElementById('button').addEventListener('click',(event)=>{globalThis.fixtureCount++;globalThis.fixtureTrusted=event.isTrusted;document.getElementById('value').textContent='Visible count '+globalThis.fixtureCount});
+ registerDevAction({id:'fixture.browser.read',title:'Read browser fixture',description:'Reads current fixture text',effects:{summary:'Read only'},result:{fields:{value:{type:'string'}}},run:()=>({value:document.getElementById('value').textContent})});
+ startDevActionBridge({appLabel:'Actual browser inspector'});</script>
  </body></html>`,
 		)
 		put(
@@ -759,7 +767,7 @@ test(
 			const inspect = (...args) => cli(f, ['inspect', session.sessionId, ...args])
 			const all = inspect()
 			assert.equal(all.status, 0, JSON.stringify(all.error))
-			assert.equal(all.data.total, 7)
+			assert.equal(all.data.total, 10)
 			assert.equal(all.data.documentId, session.inspection.documentId)
 			assert.ok(
 				all.data.controls.some(
@@ -796,6 +804,145 @@ test(
 				'invalid_selection',
 			)
 
+			assert.ok(session.inspection.mechanisms.includes('handler-dispatch'))
+			const interact = (id, key, documentId = all.data.documentId) =>
+				cli(f, [
+					'interact',
+					session.sessionId,
+					'--document',
+					documentId,
+					'--id',
+					id,
+					'--mechanism',
+					'handler-dispatch',
+					'--request-key',
+					key,
+				])
+
+			assert.equal(
+				cli(f, [
+					'interact',
+					session.sessionId,
+					'--document',
+					all.data.documentId,
+					'--id',
+					'button',
+					'--request-key',
+					'missing-mechanism',
+				]).error.code,
+				'invalid_selection',
+			)
+
+			assert.equal(
+				cli(f, [
+					'interact',
+					session.sessionId,
+					'--document',
+					all.data.documentId,
+					'--id',
+					'button',
+					'--mechanism',
+					'handler-dispatch',
+				]).error.code,
+				'invalid_selection',
+			)
+
+			const stale = interact('button', 'stale-click', 'stale-document')
+			assert.equal(stale.error.code, 'stale_identity')
+			assert.equal(stale.error.context.outcome, 'not-run')
+			for (const id of ['disabled', 'hidden-button', 'obscured', 'password', 'private', 'hidden']) {
+				const blocked = interact(id, 'blocked-' + id)
+				assert.equal(blocked.error.code, 'unavailable', JSON.stringify(blocked))
+				assert.equal(blocked.error.context.outcome, 'not-run')
+			}
+
+			assert.equal(await page.evaluate(() => globalThis.fixtureAllClicks), 0)
+			const click = interact('button', 'click-once')
+			assert.equal(click.status, 0, JSON.stringify(click.error))
+			assert.equal(click.data.inputSent, true)
+			assert.equal(click.data.eventTrusted, false)
+			assert.equal(click.data.evidence.provenance.mechanism, 'handler-dispatch')
+			assert.equal(await page.evaluate(() => globalThis.fixtureTrusted), false)
+			assert.equal(inspect('--id', 'value').data.controls[0].text, 'Visible count 1')
+			assert.equal(interact('button', 'click-once').data.evidence.id, click.data.evidence.id)
+			assert.equal(interact('value', 'click-once').error.code, 'stale_identity')
+			assert.equal(
+				await page.evaluate(() => globalThis.fixtureAllClicks),
+				1,
+				'a repeated or rebound key dispatched again',
+			)
+
+			for (const mechanism of ['dom-event', 'os-input']) {
+				assert.equal(
+					cli(f, [
+						'interact',
+						session.sessionId,
+						'--document',
+						all.data.documentId,
+						'--id',
+						'button',
+						'--mechanism',
+						mechanism,
+						'--request-key',
+						'wrong-' + mechanism,
+					]).error.code,
+					'invalid_selection',
+				)
+			}
+
+			assert.equal(
+				await page.evaluate(() => globalThis.fixtureAllClicks),
+				1,
+				'unsupported mechanism fell back to a click',
+			)
+
+			const expired = await page.evaluate(
+				(documentId) =>
+					globalThis['octane-xplat.dev-inspector'].interact({
+						documentId,
+						control: { kind: 'id', name: 'button' },
+						mechanism: 'handler-dispatch',
+						expiresAt: Date.now() - 1,
+					}),
+				all.data.documentId,
+			)
+
+			assert.equal(expired.outcome, 'not-run')
+			assert.equal(await page.evaluate(() => globalThis.fixtureAllClicks), 1)
+			// Qualify real browser action work separately from inspection traffic.
+			const action = cli(f, [
+				'actions',
+				'invoke',
+				'--instance',
+				session.appInstanceId,
+				'--action',
+				'fixture.browser.read',
+				'--request-key',
+				'browser-read-once',
+			])
+
+			assert.equal(action.status, 0, JSON.stringify(action.error))
+			let actionResult
+			await until(() => {
+				actionResult = cli(f, ['actions', 'status', action.data.job.jobId]).data?.job
+				return actionResult?.state === 'succeeded'
+			}, 'real browser action did not finish')
+
+			assert.equal(actionResult.result.outcome.result.value, 'Visible count 1')
+			assert.equal(
+				cli(f, [
+					'actions',
+					'invoke',
+					'--instance',
+					session.appInstanceId,
+					'--action',
+					'fixture.browser.read',
+					'--request-key',
+					'browser-read-once',
+				]).data.job.jobId,
+				action.data.job.jobId,
+			)
+
 			const evidenceId = all.data.evidence.id
 			const inventory = cli(f, ['evidence', 'list'])
 			assert.equal(inventory.status, 0, JSON.stringify(inventory.error))
@@ -828,7 +975,7 @@ test(
 			assert.equal((await fetch(address)).status, 200)
 			evidence.push({
 				workflow:
-					'actual headless Chromium app WebSocket inspection, stable named hosts, privacy redaction, pagination, duplicate/missing controls, document reload, evidence list/delete; no images or input',
+					'actual headless Chromium inspection and programmatic handler-dispatch, blocked private/hidden/disabled/obscured hosts, idempotent receipts and real browser action invocation; no images, CDP input or OS input',
 				documentId: document,
 			})
 		} finally {

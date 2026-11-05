@@ -1131,7 +1131,20 @@ installed in a real browser document; SSR or a socket constructor is not support
 Bound page results and pending native reads; bind replies to the exact peer and
 request, recheck document/connection identity, and release a cancelled read without
 closing the app socket. Read-only inspection must never focus or dispatch input.
-Keep private text/values redacted in both immediate results and evidence. A JS
+Keep private text/values redacted in both immediate results and evidence.
+Programmatic HTML clicks are `handler-dispatch` with untrusted browser events,
+not the retained reference's CDP `dom-event` or OS input. Require the inspected
+document, exact selector and explicit startup-scoped request key. Validate again
+in the app and expire queued delivery before dispatch. Once admitted, a mutation
+outlives its HTTP client; keep that handler registered until bounded observation
+ends. Retain the key even for ambiguous delivery/unknown effects, reject rebinding,
+and never automatically replay. App-confirmed dispatch survives simultaneous
+observer shutdown; it is not an app-state assertion. Keep mutation receipts to
+delivery metadata and evidence references: caching evidence bodies again would
+bypass retention bounds and keep UI text after deletion. Evidence deletion must
+preserve dedupe facts without resurrecting deleted data. Current receipts expire
+with dev-server startup and allow at most 256 keys; do not promise cross-restart
+idempotence. A JS
 string-length wire bound must cover UTF-8 bytes too: allowing64Ki UTF-16 units
 keeps even three-byte units below256KiB. Session evidence is bounded to one
 selected app/dev-server startup; list/delete do not imply persistence or erase

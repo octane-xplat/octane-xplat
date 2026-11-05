@@ -134,7 +134,7 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
 The real app registry still owns handler execution, serialization and validation.
-Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. Read-only browser inspection is available through an announced app inspector; interactions and visual capture remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
+Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. Read-only browser inspection is available through an announced app inspector; explicit programmatic interaction is available on announced browser hosts; CDP/OS input and visual capture remain unsupported. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
@@ -228,10 +228,13 @@ remain unimplemented. Browser inspection attaches through the existing app socke
 and reuses the canonical fixed named-host operation. It returns bounded main-document
 hosts, private-value redaction, a per-document identity and session evidence. It
 never focuses a control, sends input, starts a browser or requires ownership of
-its process. Component trees, shadow roots and frames are excluded. Interactions,
-OS input, screenshot capture and explicit evidence retention remain pending.
-Browser console forwarding has separate headless Chromium evidence. Browser action
-invocation remains unqualified; inspection transport is not an action-workflow pass. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
+its process. Component trees, shadow roots and frames are excluded. Programmatic HTML interaction uses the explicit `handler-dispatch` mechanism.
+It is `HTMLElement.click()` with an untrusted event, not a CDP click or OS input.
+It refuses hidden, disabled, private and obscured controls. CDP/OS input, screenshot
+capture and explicit evidence retention remain unsupported.
+Browser console forwarding has separate headless Chromium evidence. Actual Chromium inspection, programmatic interaction and browser action invocation
+have separate macOS evidence; portable protocol checks do not qualify other hosts
+for browser UI behavior. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
 The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
 configuration. Production builds receive no native bridge definition.
 
@@ -248,6 +251,24 @@ identity; use the new session rather than sending work to the old one.
 /absolute/path/to/xplat-go evidence list --kind inspection --json
 /absolute/path/to/xplat-go evidence delete EVIDENCE_ID --json
 ```
+
+Use the inspected document and an explicit key for each intended programmatic
+click. Repeating identical arguments/key reads its receipt without clicking again.
+Changed bindings fail. The receipt proves dispatch only; inspect state independently.
+Receipts keep delivery metadata and an evidence reference, so deleting/evicting an
+evidence body releases its recorded UI text without forgetting dispatch identity.
+
+```sh
+/absolute/path/to/xplat-go interact APP_SESSION_ID --document DOCUMENT_ID --testid counter.increment --mechanism handler-dispatch --request-key CLICK_KEY --json
+/absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --json
+```
+
+An accepted interaction outlives a short client's disconnect. Observation is
+bounded to three seconds; ambiguous delivery, disconnection or an invalid reply
+can leave effects unknown. Reuse the same key to read its receipt; never
+implicitly retry with a new key. A not-run receipt confirms no dispatch and stays
+bound to that attempt too. The startup admits at most 256 keys and never evicts
+bindings to make room for replay. Keys/receipts do not survive dev-server restart.
 
 There is no detach command: clients simply finish or disconnect. The former Go
 `session start/end`, `runtime build`, `job status/cancel` and hidden `_owner`

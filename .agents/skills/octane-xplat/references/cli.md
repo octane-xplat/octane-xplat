@@ -49,8 +49,8 @@ action listing. `session attach --instance APP_INSTANCE` observes an existing
 app; it never owns or terminates it. Engine progress remains separate from app
 connections. Direct loopback transport requires same-host reachability and a
 runtime WebSocket implementation; NativeScript device relay/runtime WebSocket adapters remain unimplemented,
-and non-browser UI adapters remain unqualified. Browser action invocation also
-remains unqualified; a successful inspection is not an action-workflow pass. Browser console
+and non-browser UI adapters remain unqualified. Actual Chromium action invocation and programmatic interaction have macOS
+evidence; protocol checks do not qualify browser UI behavior on other hosts. Browser console
 forwarding has separate headless Chromium evidence. Native action invocation/status now use canonical project-worker validation and
 the app's existing execution policy. Read the registry revision, use an explicit
 request key, and poll `actions status` rather than a removed generic job command.
@@ -75,11 +75,17 @@ qualification is still pending. A failed device setup is not a runtime pass. Rea
 connected app's fixed named-host inspector and per-document identity. It redacts
 private values and never focuses controls, dispatches input or starts a browser.
 Evidence list/delete are scoped to this selected app/dev-server startup, bounded
-and ephemeral; they cannot erase a client transcript. Interactions, OS input,
-visual capture and explicit evidence retention remain pending.
+and ephemeral; they cannot erase a client transcript. Programmatic `interact --mechanism handler-dispatch` uses an untrusted HTML click,
+not CDP or OS input. Require document/selector/request key, then inspect state
+separately. A repeated identical key returns the original delivery receipt; never
+change its binding or automatically use a new key after unknown effects. Admission
+outlives the HTTP client and observations are bounded. Receipts are limited to 256
+keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input,
+visual capture and explicit evidence retention remain unsupported.
 
 ```sh
 /absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
+/absolute/path/to/xplat-go interact APP_SESSION_ID --document DOCUMENT_ID --testid counter.increment --mechanism handler-dispatch --request-key CLICK_KEY --json
 /absolute/path/to/xplat-go evidence list --kind inspection --json
 /absolute/path/to/xplat-go diagnostics --json
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --limit 50 --stream stderr --json
