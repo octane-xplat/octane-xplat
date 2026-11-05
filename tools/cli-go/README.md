@@ -106,6 +106,11 @@ test seeds checksum-verified assets and runs offline on macOS using a network
 sandbox. Portable tests use invalid proxy settings rather than an OS network
 sandbox. The optional assets are measured separately from the executable.
 
+Measure the inference-enabled public executable with `turbo run
+measure:go-cli-onnx --filter=@octane-xplat/cli`. Its
+`startup-<target>-cli-onnx.json` report is separate from the core build's report;
+warm help startup does not include loading the runtime or model assets.
+
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation index"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli
 XPLAT_GO_DOCS_DOWNLOAD=1 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native documentation downloads"}' -- bun run turbo run test:go-doc-index --filter=@octane-xplat/cli

@@ -170,6 +170,7 @@
 		"test:go-typecheck": "node --test ../../tools/cli-go/typecheck.test.mjs",
 		"test:go-typecheck-real": "node --test ../../tools/cli-go/typecheck-real.test.mjs",
 		"measure:go-cli": "node ../../tools/cli-go/measure.mjs",
+		"measure:go-cli-onnx": "node ../../tools/cli-go/measure.mjs --onnx",
 		"test:go-binding": "node --test ../../tools/cli-go/package-binding.test.mjs",
 		"test:go-code": "node --test ../../tools/cli-go/code.test.mjs",
 		"test:go-doc-data": "node --test ../../tools/cli-go/doc-data.test.mjs",

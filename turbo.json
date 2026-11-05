@@ -28,6 +28,7 @@
 		"test:go-fmt": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-typecheck": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"measure:go-cli": { "cache": false, "dependsOn": ["build:go"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
+		"measure:go-cli-onnx": { "cache": false, "dependsOn": ["build:go-onnx"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"test:go-routes": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"], "passThroughEnv": ["XPLAT_GO_ROUTES_BINARY"] },
 		"test:go-doc-index": { "cache": false, "dependsOn": ["build:go-onnx", "@xplat/cli-go-probe#test:go-model"], "passThroughEnv": ["XPLAT_GO_DOCS_DOWNLOAD"] },
 		"test:go-docs": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/docs-search#build"] },

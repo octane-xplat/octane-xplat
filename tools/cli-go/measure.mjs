@@ -10,12 +10,17 @@ import { performance } from 'node:perf_hooks'
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
 
+const flags = process.argv.slice(2)
+assert.ok(flags.length === 0 || (flags.length === 1 && flags[0] === '--onnx'))
+const onnx = flags.includes('--onnx')
+
 const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary =
 	process.env.XPLAT_GO_ROUTES_BINARY ??
-	join(work, `xplat-go-${target}-cli${process.platform === 'win32' ? '.exe' : ''}`)
+	join(work, `xplat-go-${target}-cli${onnx ? '-onnx' : ''}${process.platform === 'win32' ? '.exe' : ''}`)
 
 const build = JSON.parse(readFileSync(binary + '.json'))
+assert.equal(build.onnx, onnx, 'Measure the requested inference variant')
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const bytes = readFileSync(binary),
 	archive = readFileSync(binary + '.tgz')
@@ -47,6 +52,7 @@ for (let at = 0; at < 25; at++) {
 samples.sort((a, b) => a - b)
 const record = {
 	target,
+	variant: onnx ? 'native-inference' : 'core',
 	node: process.version,
 	binarySha256: build.sha256,
 	scope:
@@ -61,5 +67,5 @@ const record = {
 	goals: { gzipBytes: 5000000, medianMs: 50 },
 }
 
-writeFileSync(join(work, `startup-${target}-cli.json`), JSON.stringify(record, null, 2) + '\n')
+writeFileSync(join(work, `startup-${target}-cli${onnx ? '-onnx' : ''}.json`), JSON.stringify(record, null, 2) + '\n')
 console.log(JSON.stringify(record, null, 2))
