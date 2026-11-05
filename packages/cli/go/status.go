@@ -82,7 +82,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Raw stacks are retained; current served Vite maps may enrich HTTP frames. File/device mapping and platform qualification remain separate."
 				if platform == "ios" || platform == "android" {
 					entry["status"] = "unavailable"
-					entry["detail"] = "NativeScript app action transport is not implemented; device relay and runtime WebSocket adapters are required."
+					entry["detail"] = "An experimental project-Vite app relay is implemented, but NativeScript device connection and lifecycle are not runtime-qualified."
 				}
 			case "build":
 				entry["detail"] = "Use the ordinary xplat build command with a selected app and declared platform."

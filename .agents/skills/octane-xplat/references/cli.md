@@ -48,7 +48,8 @@ WebSockets now register framework action metadata, with native observation and
 action listing. `session attach --instance APP_INSTANCE` observes an existing
 app; it never owns or terminates it. Engine progress remains separate from app
 connections. Direct loopback transport requires same-host reachability and a
-runtime WebSocket implementation; NativeScript device relay and connection qualification remain pending,
+runtime WebSocket implementation. NativeScript has an experimental project-Vite
+relay, but device connection/lifecycle qualification remains pending,
 and non-browser UI adapters remain unqualified. Actual Chromium action invocation and programmatic interaction have macOS
 evidence; protocol checks do not qualify browser UI behavior on other hosts. Browser console
 forwarding has separate headless Chromium evidence. The AppKit gate also exercises

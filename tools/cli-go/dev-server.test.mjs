@@ -19,6 +19,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { createHash } from 'node:crypto'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
 import { projectToolFixture } from './project-fixtures.mjs'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 
@@ -362,6 +363,52 @@ test(
 		assert.equal(cli(f, ['diagnostics']).data.sessions[0].sessionId, capture.sessionId)
 	},
 )
+
+test('project Vite device relay preserves actual Go app authentication', { timeout: 60000 }, async () => {
+	const f = fixture()
+	const require = createRequire(join(f.app, 'package.json'))
+	const plugin = pathToFileURL(join(dirname(require.resolve('@octane-xplat/cli/vite')), 'mcp/dev-socket.js')).href
+	put(f.app, 'vite.config.mjs', `import{writeFileSync}from'node:fs';import{nativeDevSocketPlugin}from ${JSON.stringify(plugin)};writeFileSync('app-grant.json',process.env.XPLAT_DEV_APP_BRIDGE,{mode:0o600});export default{server:{host:'127.0.0.1',port:0},plugins:[nativeDevSocketPlugin({deviceRelay:true})]}`)
+	const owned = start(f)
+	try {
+		await until(() => existsSync(join(f.app, 'app-grant.json')), () => owned.stdout + owned.stderr)
+		const grant = JSON.parse(readFileSync(join(f.app, 'app-grant.json')))
+		const info = record(f)
+		const origin = await until(() => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0], () => owned.stdout + owned.stderr)
+		const relay = new URL('/__xplat_dev__/app' + new URL(grant.socket).search, origin)
+		relay.protocol = 'ws:'
+		for (const allowed of [false, true]) {
+			const client = new WebSocket(relay)
+			try {
+				const state = await new Promise((resolve, reject) => {
+					const timer = setTimeout(() => reject(new Error('Relayed app authentication timed out')), 5000)
+					const finish = (value) => { clearTimeout(timer); resolve(value) }
+					client.onopen = () => client.send(JSON.stringify({ protocol: 'octane-app-debug', version: 1, instanceId: grant.instanceId, targetId: grant.targetId, token: allowed ? grant.token : info.token, registry: { protocol: 'xplat-dev-actions', version: 1, appInstanceId: 'relay-fixture', platform: 'web', revision: 1, actions: [] } }))
+					client.onmessage = (event) => { if (JSON.parse(event.data).type === 'registered') finish('registered') }
+					client.onclose = () => finish('closed')
+					client.onerror = () => finish('error')
+				})
+				if (allowed) {
+					assert.equal(state, 'registered')
+					await until(() => cli(f, ['actions', 'list']).data?.instances?.some((instance) => instance.appInstanceId === 'relay-fixture'), 'Relayed app was not visible through native RPC')
+				} else {
+					assert.notEqual(state, 'registered', 'The private CLI credential must not authenticate an app')
+					assert.equal(cli(f, ['actions', 'list']).data.instances.length, 0)
+				}
+			} finally {
+				if (client.readyState !== WebSocket.CLOSED) {
+					const closed = new Promise((resolve) => client.addEventListener('close', resolve, { once: true }))
+					client.close()
+					await closed
+				}
+			}
+		}
+		assert.equal(owned.ended, false, 'Closing relayed clients stopped the foreground server')
+		assert.equal((await fetch(origin)).status, 200)
+		assert.ok(!owned.stdout.includes(info.token) && !owned.stderr.includes(info.token))
+		evidence.push({ workflow: 'Actual Go app authentication through real project Vite WS proxy; private CLI token rejected, app grant accepted, short clients preserve foreground ownership. Web target is a transport carrier; no NativeScript device qualification.' })
+	} finally { await stop(owned) }
+})
 
 test(
 	'real framework action registry connects through project Vite and survives client attachment',

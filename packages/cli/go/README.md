@@ -224,8 +224,20 @@ detached build-job surface has no diagnostics `--job` selector.
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
 Vite and a headless AppKit JavaScriptCore host, including native action invocation
-and status. NativeScript device reachability still needs a relay and actual
-runtime qualification. Browser inspection attaches through the existing app socket
+and status. The NativeScript preset has an experimental project-Vite app relay;
+actual device connection/lifecycle qualification remains pending. With an explicit
+Go dev grant, the ordinary NativeScript preset configures the relay automatically
+and the native client resolves it against its existing HTTP origin. The provider
+remains unavailable in capability reporting until device qualification.
+
+```ts
+import { defineConfig } from 'vite'
+import { xplatNative } from '@octane-xplat/cli/vite'
+
+export default defineConfig((environment) => xplatNative(environment))
+```
+
+Browser inspection attaches through the existing app socket
 and reuses the canonical fixed named-host operation. It returns bounded main-document
 hosts, private-value redaction, a per-document identity and session evidence. It
 never focuses a control, sends input, starts a browser or requires ownership of

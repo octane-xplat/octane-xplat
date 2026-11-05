@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { ViteDevServer } from 'vite'
+import type { ResolvedConfig, ViteDevServer } from 'vite'
 import { createDevStackResolver } from './dev-stack.ts'
 import { installDevInspector } from '../dev-inspector.web.ts'
 import { inspectDOM } from './inspection/dom.web.ts'
@@ -8,7 +8,7 @@ import { formatBrowserLogBatch } from '../dev-log-server.ts'
 
 // Explicit Go foreground dev owns this channel. Only an app/target credential
 // enters generated code; it cannot authenticate the CLI's private HTTP API.
-export function nativeDevSocketPlugin() {
+export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: boolean } = {}) {
 	const source = process.env.XPLAT_DEV_APP_BRIDGE
 	if (!source) {
 		return null
@@ -49,7 +49,23 @@ export function nativeDevSocketPlugin() {
 	let batches = 0
 	const logs = '/__xplat_dev__/logs'
 	const stacks = '/__xplat_dev__/stacks'
+	const relayPath = '/__xplat_dev__/app' + endpoint.search
+	const relayPattern = '^' + relayPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$'
+	const relayProxy = {
+		target: endpoint.origin.replace(/^ws/, 'http'),
+		ws: true,
+		rewriteWsOrigin: false,
+		// Forward only this app channel; preserve Origin for Go validation.
+		rewrite: () => endpoint.pathname + endpoint.search,
+	}
 	return {
+		configResolved(config: ResolvedConfig) {
+			if (deviceRelay) {
+				// A project catch-all must not intercept the reserved app channel.
+				const others = Object.entries(config.server.proxy ?? {}).filter(([key]) => key !== relayPattern)
+				config.server.proxy = { [relayPattern]: relayProxy, ...Object.fromEntries(others) }
+			}
+		},
 		transformIndexHtml() {
 			return [
 				{
@@ -138,10 +154,17 @@ export function nativeDevSocketPlugin() {
 			environment.command === 'serve' || environment.mode === 'development',
 		config() {
 			return {
+				...(deviceRelay ? {
+					server: {
+						proxy: {
+							[relayPattern]: relayProxy,
+						},
+					},
+				} : {}),
 				define: {
 					__XPLAT_DEV_BRIDGE__: JSON.stringify({
 						token: bridge.token,
-						socket: bridge.socket,
+						socket: deviceRelay ? relayPath : bridge.socket,
 						instanceId: bridge.instanceId,
 						targetId: bridge.targetId,
 					}),

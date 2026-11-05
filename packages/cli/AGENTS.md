@@ -256,9 +256,14 @@ Check current entry points and maintained runtime evidence before extending a
 platform adapter. AppKit already uses the JavaScriptCore host's Foundation
 WebSocket shim and has native action invocation coverage. NativeScript's gap is
 device reachability/qualification, not evidence that every native host needs a
-new WebSocket implementation. Prefer the existing project Vite process's public
-WebSocket-proxy configuration for a device relay; keep target credentials scoped
-to the app channel and verify actual device behavior before claiming support.
+new WebSocket implementation. The experimental device relay uses the project
+Vite process's public WebSocket proxy and resolves its URL against the runtime's
+HTTP origin. Reserve its exact target/startup route before project catch-all
+proxies; forward only the app channel and preserve Origin for Go validation.
+Keep target credentials scoped to that channel. Host/VM client tests do not
+qualify NativeScript devices or native TLS; verify those runtimes before claiming
+support. Do not remove Origin checks or forward the private CLI credential to
+make a device connect.
 Avoid depending on NativeScript HMR's internal framework-strategy callbacks.
 
 Upgrade uses the canonical compatibility planner/apply/inspection engine through

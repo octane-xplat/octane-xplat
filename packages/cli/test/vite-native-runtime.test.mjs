@@ -79,6 +79,31 @@ test('native preset loads without alien-signals in the app or Octane dependency 
 			}
 		}
 
+		await t.test('Go app grants select the device relay in the built native preset', async () => {
+			const previous = process.env.XPLAT_DEV_APP_BRIDGE
+			process.env.XPLAT_DEV_APP_BRIDGE = JSON.stringify({
+				protocol: 'octane-app-debug', version: 1,
+				socket: `ws://127.0.0.1:12345/app?target=android%3Aemulator-5554&instance=${'a'.repeat(32)}`,
+				targetId: 'android:emulator-5554', instanceId: 'a'.repeat(32), token: 'b'.repeat(64),
+			})
+			try {
+				const config = await xplatNative('development')
+				const bridge = config.plugins.flat(Infinity).find((plugin) => plugin?.name === 'xplat-native-app-debug')
+				assert.ok(bridge)
+				const result = bridge.config()
+				const defined = JSON.parse(result.define.__XPLAT_DEV_BRIDGE__)
+				assert.ok(defined.socket.startsWith('/__xplat_dev__/app?'))
+				assert.equal(Object.keys(result.server.proxy).length, 1)
+				const [pattern, proxy] = Object.entries(result.server.proxy)[0]
+				assert.ok(new RegExp(pattern).test(defined.socket))
+				assert.equal(new RegExp(pattern).test('/rpc'), false)
+				assert.equal(proxy.target, 'http://127.0.0.1:12345')
+			} finally {
+				if (previous === undefined) delete process.env.XPLAT_DEV_APP_BRIDGE
+				else process.env.XPLAT_DEV_APP_BRIDGE = previous
+			}
+		})
+
 		await t.test(
 			'an explicit core dependency resolves the unchanged renderer imports on both mobile platforms',
 			async () => {

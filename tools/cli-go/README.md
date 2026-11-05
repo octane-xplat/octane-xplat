@@ -155,11 +155,29 @@ partial effects, declared external-effect permissions, completed/unknown request
 key dedupe and cooperative cancellation. The macOS foreground fixture also
 invokes an actual AppKit app action. The reused job registry belongs to foreground
 dev through a lifecycle interface; it never bootstraps the former detached owner.
-UI controls and NativeScript device relay/runtime WebSocket adapters
-remain unimplemented; browser execution remains unqualified; engine readiness alone is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
+The opt-in macOS Chromium gate separately verifies named-DOM inspection and
+programmatic handler dispatch; this is not OS input or native UI inspection.
+The NativeScript relay has host protocol coverage, while actual device
+connection/lifecycle qualification remains pending. Engine readiness alone is
+not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
 for the current interface. The former detached-owner, asynchronous build/job and
 browser-session runners are preserved in checkpoint `14a7117c`; they are
 superseded experiments, not current release gates.
+
+`test:go-device-relay` runs a real Node/Vite WebSocket proxy, a test-only Bun
+upstream, and the native leaf with mocked Device/Node WebSocket. It checks device
+origin URL resolution, unchanged Origin headers, exact target/startup routing,
+catch-all proxy precedence, rejection of other paths, and HTTPS-to-WSS URL
+selection. It does not exercise a device or TLS handshake. `test:go-dev-server`
+also checks the same relay against the actual Go app endpoint: the private CLI
+token is rejected, an app grant is accepted, and closing the client leaves the
+foreground server alive. That case uses a web target as a transport carrier and
+does not claim NativeScript runtime qualification.
+
+```sh
+bun run turbo run test:go-device-relay --filter=@octane-xplat/cli
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go app relay composition"}' -- bun run turbo run test:go-dev-server --filter=@octane-xplat/cli
+```
 
 ## Cross-compilation and execution
 

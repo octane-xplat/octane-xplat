@@ -25,9 +25,10 @@ observation and action listing are native. App proof is distinct from private CL
 RPC authorization. The maintained macOS gates exercise actual Chromium actions,
 named-DOM inspection and programmatic handler dispatch, and actual AppKit action
 registration/invocation through the host's Foundation WebSocket shim. These are
-separate from OS-input or device qualification. NativeScript device reachability
-still needs a relay; direct loopback sockets require same-host reachability and
-a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
+separate from OS-input or device qualification. The NativeScript preset now
+supplies an experimental project-Vite WebSocket relay; actual device
+connection/lifecycle qualification remains pending. Direct loopback sockets require
+same-host reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
 validation to the selected project worker, while foreground Go owns request
 identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
 missing dev server. Retained engine logs, browser warnings/errors, scoped Apple

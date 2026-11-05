@@ -25,6 +25,7 @@ import { pathToFileURL } from 'node:url'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
+import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
 import { nativeUnicodeRegex } from './native-regex.ts'
 
@@ -923,7 +924,7 @@ export async function xplatNative(env, opts = {}) {
 				nativeRelativeResolution(),
 				// Dev-action registry bridge (MCP package G): dev-server-only —
 				// apply:'serve' keeps it and the token define out of builds.
-				xplatDevBridge(),
+				nativeDevSocketPlugin({ deviceRelay: true }) ?? xplatDevBridge(),
 			],
 			server: {
 				fs: {

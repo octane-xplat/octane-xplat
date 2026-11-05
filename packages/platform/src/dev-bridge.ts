@@ -2,8 +2,9 @@ import type { AppDebugSocket } from './dev-bridge-socket'
 // Dev-bridge endpoint discovery — iOS/Android/Windows (the unsuffixed native
 // default). The NativeScript dev runtime exposes the dev server origin it is
 // loading modules from as __NS_HTTP_ORIGIN__; the bridge token arrives through
-// the dev-only __XPLAT_DEV_BRIDGE__ define injected by the xplatDevBridge vite
-// plugin (part of the xplatNative preset). The NativeScript device transform
+// the dev-only __XPLAT_DEV_BRIDGE__ define injected by the xplatNative bridge
+// plugin. Go foreground dev supplies a relay path on that same origin. The
+// NativeScript device transform
 // injects that define as a module-scope const — unlike the web client it does
 // not assign defines on globalThis — so the bare identifier is read first and
 // the global is only a fallback. Absent either, there is no bridge: production
@@ -53,10 +54,19 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 	}
 }
 
-// Optional host transport. Mobile/device reachability still needs its own relay;
-// discovering a constructor alone is not platform qualification.
+// Device endpoints use the existing Vite origin rather than host loopback.
+// A constructor and a resolved URL still do not establish device qualification.
 export function devBridgeSocket(url: string): AppDebugSocket | undefined {
 	const Constructor = (globalThis as unknown as { WebSocket?: new (url: string) => AppDebugSocket })
 		.WebSocket
+	if (Constructor && url.startsWith('/')) {
+		const endpoint = devBridgeEndpoint()
+		if (!endpoint || !url.startsWith('/__xplat_dev__/app?')) {
+			throw new Error('Invalid app debug relay endpoint')
+		}
+		const resolved = new URL(url, endpoint.origin)
+		resolved.protocol = resolved.protocol === 'https:' ? 'wss:' : 'ws:'
+		url = resolved.href
+	}
 	return Constructor ? new Constructor(url) : undefined
 }
