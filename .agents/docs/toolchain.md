@@ -26,8 +26,9 @@ RPC authorization. The maintained macOS gates exercise actual Chromium actions,
 named-DOM inspection and programmatic handler dispatch, and actual AppKit action
 registration/invocation through the host's Foundation WebSocket shim. These are
 separate from OS-input or device qualification. The NativeScript preset now
-supplies an experimental project-Vite WebSocket relay; actual device
-connection/lifecycle qualification remains pending. Direct loopback sockets require
+supplies an experimental project-Vite WebSocket relay. Actual API 35 ARM64 Android
+registration, read-only action invocation/status and short-client lifetime pass;
+reconnect/HMR, other devices and iOS qualification remain pending. Direct loopback sockets require
 same-host reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
 validation to the selected project worker, while foreground Go owns request
 identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
@@ -456,6 +457,20 @@ experience of agents writing Octane-xplat code effectively.
   const Screen = () => null
   export { Screen as default }
   ```
+- **NativeScript Vite 8.0.20 can miss core's `source-map-js` under Bun's
+  isolated layout.** The device loader requests
+  `/ns/m/node_modules/source-map-js/lib/source-map-generator.js`, whose URL
+  has lost the importing core package's location. The HTTP route returns
+  404 in both `apps/mobile` and a small linked fixture, and an actual Android
+  app fails before its entry runs. The file exists and resolves from core's
+  canonical package path. `xplatNative` narrowly aliases this SDK-emitted
+  HTTP prefix to core's installed dependency; ordinary bare app imports are
+  unchanged. The host regression is `test:go-dev-android-http`, with the
+  selected project in `XPLAT_GO_ANDROID_HTTP_APP`; device qualification is a
+  separate `test:go-dev-android-real` gate. Revisit this alias when an adopted
+  upstream release resolves HTTP module paths through the importing SDK's
+  transitive dependency context. Do not hoist or add undeclared app dependencies
+  merely to make this route pass.
 - **Hoisted workspaces need the canonical exports-reverse-map fix on
   NativeScript Vite 8.0.20.** Its runtime-plugin bare-specifier fold reads
   `projectRoot/node_modules/<pkg>/package.json` literally, so in a

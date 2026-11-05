@@ -296,6 +296,24 @@ export function nativeRelativeResolution() {
 	}
 }
 
+function nativeCoreHttpAliases(appRequire) {
+	try {
+		// NativeScript 8.0.20 emits this HTTP path from core, but its lookup
+		// loses the importer and cannot find Bun's isolated transitive package.
+		// Anchor to the selected SDK's real package, not its symlink spelling.
+		const coreRequire = createRequire(realpathSync(appRequire.resolve('@nativescript/core/package.json')))
+		return [{
+			find: /^\/node_modules\/source-map-js(?=\/|$)/,
+			replacement: dirname(coreRequire.resolve('source-map-js/package.json')),
+		}]
+	} catch (error) {
+		// Other SDK versions need not depend on this package. Their normal
+		// configuration owns any missing-SDK diagnostics.
+		if (error?.code === 'MODULE_NOT_FOUND') return []
+		throw error
+	}
+}
+
 /**
  * On-device HMR needs the app's websocket client to attach to /ns-hmr after
  * the HTTP boot. When it never does — the websockets polyfill missing from
@@ -984,6 +1002,7 @@ export async function xplatNative(env, opts = {}) {
 				// must not be rewritten.
 				alias: [
 					{ find: /^octane$/, replacement: 'octane/universal/native' },
+					...nativeCoreHttpAliases(appRequire),
 					// The canonical renderer patch keeps full MasonKit imports.
 					// Resolve them through the app's selected engine, including
 					// /style: an isolated renderer cannot resolve the app's core

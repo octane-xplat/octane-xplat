@@ -214,21 +214,22 @@ second budget; diagnostic RPC budgets include managed-process cleanup. Unknown
 cleanup stays a failure and blocks additional source queries in the foreground
 server while retaining readable log evidence.
 
-Mobile identity and report parsers have unit/reference coverage. NativeScript
-identity ingestion and iOS simulator report collection have no device runtime
-qualification. The owned Android runtime runner is available, but this host's
-emulator space requirement prevented boot; real Android runtime qualification
-remains pending. macOS identity/Apple collection retain actual runtime evidence. The removed
+Mobile identity and report parsers have unit/reference coverage. Real Android
+exit-record collection and public original retention pass on the designated API 35
+ARM64 emulator using a disposable Java activity. Its sync identity is constructed,
+so it does not qualify NativeScript identity ingestion. iOS simulator report
+collection remains unqualified. macOS identity/Apple collection retain actual runtime evidence. The removed
 detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
 Vite and a headless AppKit JavaScriptCore host, including native action invocation
-and status. The NativeScript preset has an experimental project-Vite app relay;
-actual device connection/lifecycle qualification remains pending. With an explicit
+and status. The experimental NativeScript relay has real API 35 ARM64 Android
+registration, read-only invocation/status, short-client lifetime and foreground
+engine cleanup evidence. Reconnect/HMR, other devices and iOS remain unqualified. With an explicit
 Go dev grant, the ordinary NativeScript preset configures the relay automatically
 and the native client resolves it against its existing HTTP origin. The provider
-remains unavailable in capability reporting until device qualification.
+reports partial Android attachment/actions and unavailable iOS attachment/actions.
 
 ```ts
 import { defineConfig } from 'vite'

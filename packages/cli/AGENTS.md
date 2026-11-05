@@ -266,6 +266,14 @@ support. Do not remove Origin checks or forward the private CLI credential to
 make a device connect.
 Avoid depending on NativeScript HMR's internal framework-strategy callbacks.
 
+Device HTTP module paths can lose importer context. Resolve SDK-owned transitive
+packages from the selected SDK's canonical real package path; a symlink spelling
+can anchor Node resolution at the wrong directory. Keep any workaround scoped
+to the observed SDK URL, and verify both the HTTP route and actual device boot.
+Project plugins may install process exception handlers: standalone probe success
+must require explicit completed assertions after awaited shutdown, rather than
+assuming a thrown assertion necessarily produces a nonzero exit.
+
 Upgrade uses the canonical compatibility planner/apply/inspection engine through
 explicit operations in `src/upgrade-worker.ts`. Preserve the invoked framework
 release: packaged native builds use the invoked CLI package's checksum-inventoried

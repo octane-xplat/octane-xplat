@@ -57,9 +57,11 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "attach":
 				entry["status"] = "partial"
 				entry["detail"] = "Observes an app already connected over the dev WebSocket. Requires a runtime WebSocket implementation; platform/app qualification remains separate. Clients never start or terminate apps."
-				if platform == "ios" || platform == "android" {
+				if platform == "ios" {
 					entry["status"] = "unavailable"
-					entry["detail"] = "NativeScript device relay/WebSocket adapters are not implemented. Engine spawn does not establish app attachment."
+					entry["detail"] = "The project-Vite relay is implemented, but iOS app attachment is not device-qualified. Engine spawn does not establish app attachment."
+				} else if platform == "android" {
+					entry["detail"] = "Experimental Android app registration through project Vite is verified on an API 35 ARM64 emulator. Observers never own app lifetime; reconnect/HMR and broader device lifecycle remain unqualified."
 				}
 			case "logs":
 				entry["status"] = "partial"
@@ -80,9 +82,11 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "dev_actions":
 				entry["status"] = "partial"
 				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Raw stacks are retained; current served Vite maps may enrich HTTP frames. File/device mapping and platform qualification remain separate."
-				if platform == "ios" || platform == "android" {
+				if platform == "ios" {
 					entry["status"] = "unavailable"
-					entry["detail"] = "An experimental project-Vite app relay is implemented, but NativeScript device connection and lifecycle are not runtime-qualified."
+					entry["detail"] = "An experimental project-Vite app relay is implemented, but iOS device connection and lifecycle are not runtime-qualified."
+				} else if platform == "android" {
+					entry["detail"] = "Experimental Android read-only action invocation/status and short-client lifetime are verified through Go, project Vite and a real API 35 ARM64 emulator. Reconnect/HMR, broader action effects and other devices remain unqualified."
 				}
 			case "build":
 				entry["detail"] = "Use the ordinary xplat build command with a selected app and declared platform."

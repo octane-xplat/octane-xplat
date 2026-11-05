@@ -140,8 +140,9 @@ The retained TypeScript CLI has web coverage and one physical Android device
 verification through `xplat dev` with adb reverse. That does not qualify the Go
 device transport. The parallel Go CLI has actual macOS Chromium and headless
 AppKit action registration/invocation/status evidence. The Go NativeScript
-project-Vite relay has host protocol coverage, but device connection/lifecycle
-qualification remains pending. iOS, Windows and Linux app-runtime
+project-Vite relay also has actual API 35 ARM64 Android registration, read-only
+invocation/status, short-client lifetime and foreground cleanup evidence.
+Reconnect/HMR, other Android devices, iOS, Windows and Linux app-runtime
 coverage must not be inferred from their shared registry or host protocol tests.
 Declaring an action's platforms does not establish transport support.
 

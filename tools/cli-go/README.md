@@ -600,3 +600,27 @@ then checks real records and originals through the public Go CLI and shuts down
 the emulator. Its sync line is constructed for the capture fixture; this is not
 a NativeScript deployment qualification. Setup and disk-space failures remain
 unqualified; preserve the existing device and unrelated files when a gate fails.
+
+The opt-in NativeScript relay gate builds a small disposable app with the current
+bridge sources and installed project dependencies. It boots only the existing
+`elegant-fir-probe` AVD, rejects another running emulator, and checks a read-only
+action through the real Go foreground server, project Vite and device WebSocket.
+It checks that short CLI clients leave the app alive, then stops foreground dev,
+uninstalls only its unique fixture package and shuts down the emulator it started.
+Reserve `native_builds:1`, `resident_devices:1` and
+`exclusive:["android:elegant-fir-probe"]` around this explicit native workflow;
+it is excluded from ordinary PR checks. It captures text only and does not prove
+OS input, rendering, TLS, reconnect/HMR or other devices/platforms.
+
+```sh
+bun run turbo run test:go-dev-android-real --filter=@octane-xplat/cli
+```
+
+Reproduce device-module routing without an emulator or native compilation by
+selecting an existing private test app. This starts only a loopback Vite server,
+requests the SDK's `source-map-js` module and app entry, then closes the server.
+Its explicit exit status is independent of project exception handlers.
+
+```sh
+XPLAT_GO_ANDROID_HTTP_APP="$PWD/apps/mobile" bun run turbo run test:go-dev-android-http --filter=@octane-xplat/cli
+```
