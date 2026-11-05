@@ -1,3 +1,4 @@
+import type { ElementAdapter } from './element-adapter'
 import { FailureCollector } from './failures.ts'
 import { withLayoutBatch } from './layout-batch.ts'
 import type { Registry } from './registry'
@@ -24,7 +25,7 @@ interface Dependencies {
     | 'assertSupportedType'
     | 'parentReference'
     | 'resolveParentNode'
-    | 'canContainView'
+    | 'adapters'
     | 'isPortalTargetView'
     | 'nodeContainersByView'
     | 'cssNodesByView'
@@ -49,7 +50,7 @@ export function createDriver(deps: Dependencies) {
   function validateBatch(container: RootContainer, commands: readonly UniversalHostCommand[]) {
     // Ids created by this batch are not in container.nodes yet — track them so
     // later commands validate against the intended tree.
-    const pending = new Map<number, { type: string; props: PropBag }>()
+    const pending = new Map<number, { type: string; props: PropBag; adapter?: ElementAdapter }>()
     const destroyed = new Set<number>()
     const parents = new Map<number, UniversalHostParent>()
     const parentOf = (id: number): UniversalHostParent | undefined => {
@@ -61,7 +62,9 @@ export function createDriver(deps: Dependencies) {
       return node ? deps.registry.parentReference(node.parent) : undefined
     }
 
-    const known = (id: number): { type: string; props: PropBag } | undefined =>
+    const known = (
+      id: number,
+    ): { type: string; props: PropBag; adapter?: ElementAdapter } | undefined =>
       pending.get(id) ?? (destroyed.has(id) ? undefined : container.nodes.get(id))
 
     const parentNode = (parent: UniversalHostParent) => {
@@ -79,7 +82,11 @@ export function createDriver(deps: Dependencies) {
         case 'create':
           deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
-          pending.set(command.id, { type: command.type, props: command.props })
+          pending.set(command.id, {
+            type: command.type,
+            props: command.props,
+            adapter: deps.registry.adapters.lookup(command.type),
+          })
           parents.set(command.id, null)
           destroyed.delete(command.id)
           continue
@@ -108,12 +115,16 @@ export function createDriver(deps: Dependencies) {
           if (
             existing?.parent &&
             (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
-            !deps.registry.canContainView(existing.parent.type)
+            !(existing.parent.type === 'portalroot' || existing.parent.adapter?.container === true)
           ) {
             throw new Error('AppKit <' + existing.parent.type + '> cannot contain child views')
           }
 
-          pending.set(command.id, { type: command.type, props: command.props })
+          pending.set(command.id, {
+            type: command.type,
+            props: command.props,
+            adapter: deps.registry.adapters.lookup(command.type),
+          })
           continue
         }
         case 'update': {
@@ -153,15 +164,15 @@ export function createDriver(deps: Dependencies) {
                 'rootlayout',
                 'proxyviewcontainer',
               ].includes(parent.type) &&
-              !deps.registry.typeHasView(entry.type) &&
+              !(entry.adapter?.hasView === true) &&
               entry.type !== 'proxyviewcontainer'
             ) {
               throw deps.tree.textOnlyChildError(parent, entry.type, { props: entry.props })
             }
 
             if (
-              (deps.registry.typeHasView(entry.type) || entry.type === 'proxyviewcontainer') &&
-              !deps.registry.canContainView(parent.type)
+              (entry.adapter?.hasView === true || entry.type === 'proxyviewcontainer') &&
+              !(parent.type === 'portalroot' || parent.adapter?.container === true)
             ) {
               throw new Error('AppKit <' + parent.type + '> cannot contain child views')
             }
@@ -319,7 +330,7 @@ export function createDriver(deps: Dependencies) {
         if (
           parent &&
           (deps.registry.typeHasView(command.type) || command.type === 'proxyviewcontainer') &&
-          !deps.registry.canContainView(parent.type)
+          !(parent.type === 'portalroot' || parent.adapter?.container === true)
         ) {
           // insert would reject the replacement after the original was
           // already removed and destroyed — fail while it is intact.
@@ -448,62 +459,57 @@ export function createDriver(deps: Dependencies) {
       validateBatch(container, batch.commands)
       return {
         apply() {
-          withLayoutBatch(container, () => {
-            const failures = new FailureCollector()
-            failures.run('commands', () => {
-              for (const command of batch.commands) {
-                try {
-                  applyCommand(container, command)
-                } catch (error) {
-                  // The universal root can swallow a mid-batch failure when it
-                  // retries or aborts the attempt — log it here so an
-                  // unsupported element cannot silently stall the mount.
-                  console.error(
-                    '[macos-host] command ' +
-                      command.op +
-                      ' failed for <' +
-                      ((command as { type?: string }).type ?? '?') +
-                      '> id=' +
-                      ('id' in command ? command.id : '?'),
-                    error,
-                  )
+          withLayoutBatch(
+            container,
+            () => {
+              const failures = new FailureCollector()
+              failures.run('commands', () => {
+                for (const command of batch.commands) {
+                  try {
+                    applyCommand(container, command)
+                  } catch (error) {
+                    // The universal root can swallow a mid-batch failure when it
+                    // retries or aborts the attempt — log it here so an
+                    // unsupported element cannot silently stall the mount.
+                    console.error(
+                      '[macos-host] command ' +
+                        command.op +
+                        ' failed for <' +
+                        ((command as { type?: string }).type ?? '?') +
+                        '> id=' +
+                        ('id' in command ? command.id : '?'),
+                      error,
+                    )
 
-                  throw error
+                    throw error
+                  }
                 }
+              })
+              failures.run('css', () => {
+                // Restyle while the layout batch is open so style-driven layout
+                // work joins the batch's single drain.
+                deps.cssCascade.flushStyleDirty(container!)
+              })
+              failures.throwIfFailed()
+            },
+            (dirty, outcome) => {
+              // Tab/layout writes depend on a complete command + CSS pass. Do not
+              // publish or continue a partial commit; later batches remain usable.
+              if (outcome === 'failed') {
+                return
               }
-            })
-            failures.run('css', () => {
-              // Restyle while the layout batch is open so style-driven layout
-              // work joins the batch's single drain.
-              deps.cssCascade.flushStyleDirty(container!)
-            })
-            failures.throwIfFailed()
-          }, (dirty, outcome) => {
-            // Tab/layout writes depend on a complete command + CSS pass. Do not
-            // publish or continue a partial commit; later batches remain usable.
-            if (outcome === 'failed') {
-              return
-            }
-            flushTabViews(container)
-            deps.layout.drainLayoutDirty(dirty)
-            notifyLayoutCommit(container.hostView)
-          })
+              flushTabViews(container)
+              deps.layout.drainLayoutDirty(dirty)
+              notifyLayoutCommit(container.hostView)
+            },
+          )
         },
         abort() {},
       }
     },
     getPublicInstance(container, id) {
       const node = container.nodes.get(id)
-      return node &&
-        [
-          'proxyviewcontainer',
-          'formattedstring',
-          'span',
-          'segmentedbaritem',
-          'tabviewitem',
-        ].includes(node.type)
-        ? node
-        : (node?.view ?? null)
+      return node?.adapter?.publicInstance === 'node' ? node : (node?.view ?? null)
     },
   }
   return {

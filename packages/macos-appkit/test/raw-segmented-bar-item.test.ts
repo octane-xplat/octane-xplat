@@ -55,7 +55,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       assertSupportedType: noop,

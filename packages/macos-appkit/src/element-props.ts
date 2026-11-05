@@ -1,95 +1,22 @@
-import type { Nodes } from './nodes'
-import type { ContainerElements } from './container-elements'
 import type { Actions } from './actions'
 import type { TextElements } from './text-elements'
 import type { CssCascade } from './css-cascade'
-import type { PickerElements } from './picker-elements'
 import type { Layout } from './layout'
 import type { Subscriptions } from './subscriptions'
-import type { Registry } from './registry'
 import type { AccessibleHost } from './accessible-host'
 import type { Accessibility } from './accessibility'
-import type { HostedElements } from './hosted-elements'
-import type { Controls } from './controls'
-import type { InputElements } from './input-elements'
-import type { ImageElements } from './image-elements'
-import type { NativeStyle } from './native-style'
 import type { PropBag, ElementNode } from './model'
 import { normalizeHostStyleProps } from './inline-style.ts'
-import { syncTabView, syncTabItem } from './tab-view'
-import { setImageGeometryHandler } from './image-geometry.ts'
-import { NSImageView } from '@octane-xplat/platform/macos'
 import { setPressGesture } from './gestures'
-import { configureScrollAxes } from './scroll-view'
-import { updateWebView } from './webview'
-import { updateListView } from './list-view'
-import { updatePagerView } from './pager'
-import { updateVideoView } from './video'
 
 interface Dependencies {
-  nodes: Pick<Nodes, 'validateNodeProps'>
-  containerElements: Pick<
-    ContainerElements,
-    | 'setActionBarTitleView'
-    | 'applyBuiltinContentHostProp'
-    | 'applyBuiltinLiquidGlassProp'
-    | 'applyBuiltinPlaceholderProp'
-  >
   actions: Pick<Actions, 'hasHandler' | 'setPanAction'>
-  textElements: Pick<
-    TextElements,
-    | 'syncTextLinks'
-    | 'syncText'
-    | 'applyBuiltinHtmlViewProp'
-    | 'applyBuiltinLabelProp'
-    | 'syncLabelOverflow'
-    | 'syncHtmlView'
-  >
-  cssCascade: Pick<
-    CssCascade,
-    'setNodeId' | 'setPseudoClass' | 'syncNormalState' | 'setNodeInlineStyle' | 'applyClassName'
-  >
-  pickerElements: Pick<
-    PickerElements,
-    | 'syncSegmentedBar'
-    | 'applyBuiltinSegmentedBarProp'
-    | 'applyBuiltinListPickerProp'
-    | 'applyBuiltinTimePickerProp'
-    | 'applyBuiltinDatePickerProp'
-    | 'syncListPicker'
-    | 'syncDatePicker'
-    | 'syncTimePicker'
-  >
+  textElements: Pick<TextElements, 'syncTextLinks'>
+  cssCascade: Pick<CssCascade, 'setNodeId' | 'setPseudoClass' | 'syncNormalState'>
   layout: Pick<Layout, 'queueLayoutReconcile' | 'setLayoutAction'>
-  subscriptions: Pick<Subscriptions, 'setKeyActions' | 'setFocusActions' | 'setImageActions'>
-  registry: Pick<Registry, 'behaviorOf'>
+  subscriptions: Pick<Subscriptions, 'setKeyActions' | 'setFocusActions'>
   accessibleHost: Pick<AccessibleHost, 'AccessibleHostView'>
   accessibility: Pick<Accessibility, 'applyAccessibility'>
-  hostedElements: Pick<
-    HostedElements,
-    'applyBuiltinTabViewProp' | 'applyBuiltinListViewProp' | 'applyBuiltinWebViewProp'
-  >
-  controls: Pick<
-    Controls,
-    | 'applyBuiltinProgressProp'
-    | 'applyBuiltinActivityIndicatorProp'
-    | 'applyBuiltinScrollViewProp'
-    | 'applyBuiltinSwitchProp'
-    | 'applyBuiltinSliderProp'
-    | 'syncActivityIndicator'
-    | 'syncProgress'
-  >
-  inputElements: Pick<
-    InputElements,
-    | 'applyBuiltinSearchBarProp'
-    | 'applyBuiltinTextInputProp'
-    | 'syncSecureTextField'
-    | 'setTextFieldPlaceholder'
-    | 'syncSearchBar'
-    | 'fitTextView'
-  >
-  imageElements: Pick<ImageElements, 'applyBuiltinImageProp'>
-  nativeStyle: Pick<NativeStyle, 'setSizeConstraint'>
 }
 
 export type ElementProps = ReturnType<typeof createElementProps>
@@ -123,14 +50,10 @@ export function createElementProps(deps: Dependencies) {
 
   function applyProps(node: ElementNode, props: PropBag) {
     props = normalizeHostStyleProps(props)
-    if (node.lifecycle !== 'constructing') { node.adapter?.validate?.(props, node.props) }
-    if (
-      node.type === 'actionbar' &&
-      'titleView' in props &&
-      node.actionBarTitleViewProp !== props.titleView
-    ) {
-      deps.containerElements.setActionBarTitleView(node, props.titleView)
+    if (node.lifecycle !== 'constructing') {
+      node.adapter?.validate?.(props, node.props)
     }
+    node.adapter?.beforeProps?.(node, props)
 
     node.props = { ...node.props, ...props }
     if ('testID' in props && node.view) {
@@ -138,8 +61,7 @@ export function createElementProps(deps: Dependencies) {
     }
     if ('disabled' in props && node.clickGestureRecognizer) {
       node.clickGestureRecognizer.enabled =
-        !node.props.disabled &&
-        deps.actions.hasHandler(node.view!)
+        !node.props.disabled && deps.actions.hasHandler(node.view!)
     }
     if (
       ('disabled' in props || 'isEnabled' in props || 'enabled' in props) &&
@@ -169,13 +91,10 @@ export function createElementProps(deps: Dependencies) {
       node.authoredProps = { ...node.authoredProps, ...props }
     }
 
-    if (node.type === 'tabviewitem') {
-      syncTabItem(node)
-      return
-    }
-
     if (node.adapter && !node.adapter.hasView) {
-      for (const [name, value] of Object.entries(props)) { node.adapter.applyProp?.(node, name, value) }
+      for (const [name, value] of Object.entries(props)) {
+        node.adapter.applyProp?.(node, name, value)
+      }
       node.adapter.afterProps?.(node, props)
       return
     }
@@ -184,27 +103,6 @@ export function createElementProps(deps: Dependencies) {
     }
     if ('onFocus' in props || 'onBlur' in props) {
       deps.subscriptions.setFocusActions(node)
-    }
-
-    const layoutChildProps: Record<string, readonly string[]> = {
-      rootlayout: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
-      contentview: ['horizontalAlignment', 'verticalAlignment'],
-      actionbar: ['horizontalAlignment', 'verticalAlignment'],
-      masonview: [
-        'row',
-        'col',
-        'rowSpan',
-        'colSpan',
-        'dock',
-        'left',
-        'top',
-        'right',
-        'bottom',
-        'horizontalAlignment',
-        'verticalAlignment',
-      ],
-      liquidglass: ['row', 'col', 'rowSpan', 'colSpan', 'horizontalAlignment', 'verticalAlignment'],
-      scrollview: ['horizontalAlignment', 'verticalAlignment'],
     }
 
     for (const [name, value] of Object.entries(props)) {
@@ -222,7 +120,7 @@ export function createElementProps(deps: Dependencies) {
 
       if (
         (node.layoutParent ?? node.parent) &&
-        layoutChildProps[(node.layoutParent ?? node.parent)!.type]?.includes(name)
+        (node.layoutParent ?? node.parent)?.adapter?.childProps?.has(name)
       ) {
         continue
       }
@@ -248,31 +146,12 @@ export function createElementProps(deps: Dependencies) {
         continue
       }
 
-      if (node.type === 'image' && (name === 'onImageLoad' || name === 'onImageError')) {
-        deps.subscriptions.setImageActions(node)
-        continue
-      }
-
-      if (node.type === 'image' && name === 'onImageGeometryChanged') {
-        setImageGeometryHandler(
-          node.view as NSImageView,
-          typeof value === 'function'
-            ? (geometry) => node.container.root!.eventScope('discrete', () => value(geometry))
-            : undefined,
-        )
-
-        continue
-      }
-
       if (name === 'onLayoutChanged') {
         deps.layout.setLayoutAction(node, value)
         continue
       }
 
-      if (
-        ['masonview', 'liquidglass'].includes(node.type) ||
-        deps.registry.behaviorOf(node.type)?.containerStyles
-      ) {
+      if (node.adapter?.containerStyles) {
         if (['onTouch', 'onLongPress', 'onDoubleTap'].includes(name)) {
           setPressGesture(node, name)
           continue
@@ -301,109 +180,19 @@ export function createElementProps(deps: Dependencies) {
         continue
       }
 
-      if (node.adapter) {
-        node.adapter.applyProp?.(node, name, value)
-        continue
-      }
-
-      // Registered behaviors first — mason-backed containers consume style/
-      // className/layout props; unhandled names fall through to the builtin
-      // per-type cases (scrollview's own props, stack taps, etc.).
-      if (deps.registry.behaviorOf(node.type)?.applyProp?.(node, name, value)) {
-        continue
-      }
-
-      switch (node.type) {
-        case 'tabview':
-          deps.hostedElements.applyBuiltinTabViewProp(node, name, value)
-          break
-        case 'listview':
-          deps.hostedElements.applyBuiltinListViewProp(node, name, value)
-          break
-        case 'scrollview':
-          deps.controls.applyBuiltinScrollViewProp(node, name, value)
-          break
-        case 'webview':
-          deps.hostedElements.applyBuiltinWebViewProp(node, name, value)
-          break
-        case 'image':
-        case 'animatedimage':
-          deps.imageElements.applyBuiltinImageProp(node, name, value)
-          break
-        default: {
-          const behavior = deps.registry.behaviorOf(node.type)
-          if (behavior && !behavior.applyProp?.(node, name, value)) {
-            console.warn('[macos-host] ignored ' + node.type + ' prop ' + name)
-          }
-
-          break
-        }
-      }
+      node.adapter?.applyProp?.(node, name, value)
     }
 
     node.adapter?.afterProps?.(node, props)
 
-    if (node.type === 'webview') {
-      updateWebView(node, props, (height) => {
-        deps.cssCascade.setNodeInlineStyle(node, { ...node.props.style, height })
-        deps.nativeStyle.setSizeConstraint(node, 'height', height)
-      })
-    }
-
-    if (node.type === 'tabview') {
-      syncTabView(node)
-    }
-
-    if (node.type === 'listview') {
-      updateListView(node.view!, node.props)
-    }
-
-    if (node.type === 'pager') {
-      updatePagerView(node.view!, node.props)
-    }
-
-    if (node.type === 'xplatvideo') {
-      updateVideoView(node, node.props)
-    }
-
-    if (
-      node.type === 'scrollview' &&
-      (!node.scrollAxisConstraints || 'orientation' in props || 'horizontal' in props)
-    ) {
-      configureScrollAxes(node)
-      deps.layout.queueLayoutReconcile(node.container, node)
-    }
-
     // A container queues its own subtree; a child of a layout parent also
     // queues the parent — the two are not exclusive (a masonview nested in a
     // masonview needs both passes).
-    if (
-      node.adapter?.layout != null ||
-      deps.registry.behaviorOf(node.type)?.layout != null
-    ) {
+    if (node.adapter?.layout != null) {
       deps.layout.queueLayoutReconcile(node.container, node)
     }
-    if (
-      node.parent?.type === 'liquidglass' ||
-      node.parent?.type === 'rootlayout' ||
-      ['contentview', 'actionbar'].includes(node.parent?.type ?? '') ||
-      deps.registry.behaviorOf(node.parent?.type)?.layout != null
-    ) {
+    if (node.parent?.adapter?.container === true) {
       deps.layout.queueLayoutReconcile(node.container, node.parent)
-    }
-
-    if (node.parent?.type === 'proxyviewcontainer') {
-      deps.layout.queueLayoutReconcile(node.container, node.parent)
-    }
-
-    // Container children also reconcile their own subtree. Their size updates
-    // must still notify the outer layout parent.
-    if (node.parent?.type === 'rootlayout') {
-      deps.layout.queueLayoutReconcile(node.container, node.parent)
-    }
-
-    if (!node.adapter && node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {
-      deps.textElements.syncText(node)
     }
   }
   return {

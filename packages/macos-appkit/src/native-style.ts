@@ -23,9 +23,12 @@ import { setImageDrawingStyle } from './image-drawing'
 import { INHERITED_CSS_PROPERTIES } from '@octane-xplat/css-engine'
 
 interface Dependencies {
-  textElements: Pick<TextElements, 'setLabelText' | 'labelPaddings' | 'syncLabelOverflow' | 'syncText'>
+  textElements: Pick<
+    TextElements,
+    'setLabelText' | 'labelPaddings' | 'syncLabelOverflow' | 'syncText'
+  >
   inputElements: Pick<InputElements, 'setTextFieldPlaceholder'>
-  registry: Pick<Registry, 'isManualLayoutParent' | 'behaviorOf'>
+  registry: Pick<Registry, 'isManualLayoutParent' | 'adapterFor'>
   layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'>
   cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'applyClassName'>
   accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
@@ -104,7 +107,7 @@ export function createNativeStyle(deps: Dependencies) {
       specs[name] = spec
     }
 
-    if (deps.registry.isManualLayoutParent((node.layoutParent ?? node.parent)?.type)) {
+    if (deps.registry.isManualLayoutParent(node.layoutParent ?? node.parent)) {
       deactivateSizeConstraints(node)
       deps.layout.queueLayoutReconcile(node.container, node.parent)
       return
@@ -157,7 +160,7 @@ export function createNativeStyle(deps: Dependencies) {
     if (
       !spec ||
       !node.view ||
-      deps.registry.isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
+      deps.registry.isManualLayoutParent(node.layoutParent ?? node.parent)
     ) {
       return
     }
@@ -244,7 +247,7 @@ export function createNativeStyle(deps: Dependencies) {
       left: edges?.left ?? box?.left ?? 0,
     }
 
-    if (node.type === 'rootlayout' || deps.registry.behaviorOf(node.type)?.containerStyles) {
+    if (node.adapter?.containerStyles) {
       node.dockInsets = insets
       deps.layout.queueLayoutReconcile(node.container, node)
     } else {
@@ -300,7 +303,7 @@ export function createNativeStyle(deps: Dependencies) {
     }
 
     const marginParent = node.layoutParent ?? node.parent
-    if (deps.registry.isManualLayoutParent(marginParent?.type)) {
+    if (deps.registry.isManualLayoutParent(marginParent)) {
       deps.layout.queueLayoutReconcile(node.container, marginParent)
     }
   }
@@ -316,8 +319,9 @@ export function createNativeStyle(deps: Dependencies) {
     }
     const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
     const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
-    let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node)
-      .includes('vx-sheet-grabber')
+    let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node).includes(
+      'vx-sheet-grabber',
+    )
       ? NSTextAlignment.Center
       : start
     switch (style.textAlign) {
@@ -410,17 +414,11 @@ export function createNativeStyle(deps: Dependencies) {
       }
 
       syncLabelPadding(node)
-    } else if (
-      name === 'padding' &&
-      (node.type === 'rootlayout' || deps.registry.behaviorOf(node.type)?.containerStyles)
-    ) {
+    } else if (name === 'padding' && node.adapter?.containerStyles) {
       node.stylePaddingBox = undefined
       node.stylePaddingEdges = undefined
       syncEdgeInsets(node)
-    } else if (
-      EDGE_INSET_PROPS.has(name) &&
-      (node.type === 'rootlayout' || deps.registry.behaviorOf(node.type)?.containerStyles)
-    ) {
+    } else if (EDGE_INSET_PROPS.has(name) && node.adapter?.containerStyles) {
       for (const edge of EDGE_INSET_PROPS.get(name)!) {
         delete node.stylePaddingEdges?.[edge]
       }
@@ -446,7 +444,7 @@ export function createNativeStyle(deps: Dependencies) {
       setSizeConstraint(node, name, undefined)
     } else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
       const resetParent = node.layoutParent ?? node.parent
-      if (deps.registry.isManualLayoutParent(resetParent?.type)) {
+      if (deps.registry.isManualLayoutParent(resetParent)) {
         deps.layout.queueLayoutReconcile(node.container, resetParent)
       }
     } else if (name === 'zIndex') {
@@ -540,10 +538,7 @@ export function createNativeStyle(deps: Dependencies) {
         }
 
         syncLabelPadding(node)
-      } else if (
-        name === 'padding' &&
-        (node.type === 'rootlayout' || deps.registry.behaviorOf(node.type)?.containerStyles)
-      ) {
+      } else if (name === 'padding' && node.adapter?.containerStyles) {
         const box = parseEdgeInsets(value)
         node.stylePaddingBox = box
         node.stylePaddingEdges = {
@@ -554,10 +549,7 @@ export function createNativeStyle(deps: Dependencies) {
         }
 
         syncEdgeInsets(node)
-      } else if (
-        EDGE_INSET_PROPS.has(name) &&
-        (node.type === 'rootlayout' || deps.registry.behaviorOf(node.type)?.containerStyles)
-      ) {
+      } else if (EDGE_INSET_PROPS.has(name) && node.adapter?.containerStyles) {
         const edges = (node.stylePaddingEdges ??= {})
         for (const edge of EDGE_INSET_PROPS.get(name)!) {
           edges[edge] = Number(value) || 0
@@ -588,7 +580,7 @@ export function createNativeStyle(deps: Dependencies) {
       } else if (
         name === 'left' &&
         node.view &&
-        deps.registry.isManualLayoutParent((node.layoutParent ?? node.parent)?.type)
+        deps.registry.isManualLayoutParent(node.layoutParent ?? node.parent)
       ) {
         deps.layout.queueLayoutReconcile(node.container, node.parent)
       } else if (name === 'zIndex' && node.view) {
@@ -632,8 +624,8 @@ export function createNativeStyle(deps: Dependencies) {
         deps.layout.setMarginStyle(node, name, value)
       } else if (
         !(
-          deps.registry.behaviorOf(node.type)?.styleKeys?.has(name) ||
-          deps.registry.behaviorOf((node.layoutParent ?? node.parent)?.type)?.styleKeys?.has(name)
+          node.adapter?.styleKeys?.has(name) ||
+          (node.layoutParent ?? node.parent)?.adapter?.styleKeys?.has(name)
         )
       ) {
         // Inherited values, and inheritable properties a stylesheet declares on
@@ -658,14 +650,14 @@ export function createNativeStyle(deps: Dependencies) {
 
     // Registered layouts consume style through their own sync; a style apply on
     // the container or a direct child re-queues its pass.
-    const layoutHost =
-      deps.registry.behaviorOf(node.type)?.layout != null
-        ? node
-        : deps.registry.behaviorOf((node.layoutParent ?? node.parent)?.type)?.layout != null
-          ? (node.layoutParent ?? node.parent)
-          : null
-    if (layoutHost) {
-      deps.layout.queueLayoutReconcile(node.container, layoutHost)
+    if (node.adapter?.layout) {
+      deps.layout.queueLayoutReconcile(node.container, node)
+    }
+    // A manual container can also be a child of another layout owner. Both
+    // passes are required after projected styles reach the child cascade.
+    const layoutParent = node.layoutParent ?? node.parent
+    if (layoutParent?.adapter?.layout) {
+      deps.layout.queueLayoutReconcile(node.container, layoutParent)
     }
 
     // Mason's overflow enum controls layout sizing; AppKit drawing needs its
@@ -722,7 +714,7 @@ export function createNativeStyle(deps: Dependencies) {
         deps.textElements.syncText(node)
       }
     }
-    if (deps.registry.behaviorOf(node.type)?.layout) {
+    if (node.adapter?.layout) {
       deps.layout.queueLayoutReconcile(node.container, node)
     }
   }

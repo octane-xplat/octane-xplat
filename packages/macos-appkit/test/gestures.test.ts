@@ -41,7 +41,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSObject: Native,
@@ -237,7 +237,7 @@ function panFixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSObject: class {},
@@ -350,7 +350,7 @@ test('JSC gesture registration makes native callbacks enumerable before registra
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     NSObject: class {

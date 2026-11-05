@@ -81,6 +81,8 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
     }
   }
   const logical: ElementAdapter = {
+    publicInstance: 'node',
+    styleValidation: 'none',
     container: false,
     hasView: false,
     create() {},
@@ -94,6 +96,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
   }
   return {
     label: {
+      styleValidation: 'text',
       container: false,
       hasView: true,
       validate(props, previous) {
@@ -129,6 +132,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       dispose: deps.textElements.disposeTextLinks,
     },
     htmlview: {
+      styleValidation: 'text',
       container: false,
       hasView: true,
       validate(props) {
@@ -151,6 +155,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       dispose: deps.textElements.disposeTextLinks,
     },
     textfield: {
+      styleValidation: 'text',
       container: false,
       hasView: true,
       validate(props, previous) {
@@ -185,6 +190,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       dispose: disposeInput,
     },
     textview: {
+      styleValidation: 'text',
       container: false,
       hasView: true,
       create(node, props) {
@@ -205,6 +211,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       dispose: disposeInput,
     },
     searchbar: {
+      styleValidation: 'text',
       container: false,
       hasView: true,
       create(node) {
@@ -223,6 +230,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       dispose: disposeInput,
     },
     '#text': {
+      styleValidation: 'none',
       container: false,
       hasView: false,
       create() {},

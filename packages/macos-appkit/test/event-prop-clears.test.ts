@@ -35,7 +35,7 @@ function fixture() {
     elementBehaviors: new Map(),
     behaviorOf: () => undefined,
     isManualLayoutParent: (t: string) =>
-      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     applyProps: (_node: any, props: any) => {

@@ -1,5 +1,5 @@
-import { createElementAdapterCatalog, unconvertedElementTypes } from './element-adapter.ts'
-import type { ElementNode, RootContainer, ElementBehavior } from './model'
+import { createElementAdapterCatalog } from './element-adapter.ts'
+import type { ElementNode, RootContainer } from './model'
 import type { UniversalHostParent, UniversalPortalTargetHandle } from 'octane/universal/native'
 import type { NSView } from '@octane-xplat/platform/macos'
 
@@ -8,64 +8,16 @@ export type Registry = ReturnType<typeof createRegistry>
 export function createRegistry() {
   const adapters = createElementAdapterCatalog()
 
-  /** Types whose views arrange child views; mirrors the check in insert(). */
-  const VIEW_PARENT_TYPES = new Set([
-    'rootlayout',
-    'contentview',
-    'actionbar',
-    'proxyviewcontainer',
-    'masonview',
-    'scrollview',
-    'liquidglass',
-  ])
-
-  /** Builtin types implemented by the node and element factories. */
-  const SUPPORTED_TYPES = new Set([
-    ...VIEW_PARENT_TYPES,
-    'label',
-    'htmlview',
-    '#text',
-    'button',
-    'textfield',
-    'textview',
-    'searchbar',
-    'switch',
-    'slider',
-    'activityindicator',
-    'progress',
-    'datepicker',
-    'timepicker',
-    'listpicker',
-    'listview',
-    'segmentedbar',
-    'tabview',
-    'tabviewitem',
-    'segmentedbaritem',
-    'webview',
-    'image',
-    'animatedimage',
-    'pager',
-    'xplatvideo',
-    'placeholder',
-    'span',
-    'formattedstring',
-  ])
+  function adapterFor(type: string | undefined) {
+    return type ? adapters.lookup(type) : undefined
+  }
 
   function typeHasView(type: string) {
-    return adapters.lookup(type)?.hasView ?? (
-      type !== 'tabviewitem' &&
-      type !== 'segmentedbaritem' &&
-      type !== '#text' &&
-      type !== 'span' &&
-      type !== 'formattedstring' &&
-      type !== 'proxyviewcontainer'
-    )
+    return type === 'portalroot' || adapterFor(type)?.hasView === true
   }
 
   function assertSupportedType(type: string) {
-    if (adapters.lookup(type)) { return }
-    if ((SUPPORTED_TYPES.has(type) && !unconvertedElementTypes.has(type)) ||
-      (!SUPPORTED_TYPES.has(type) && !elementBehaviors.has(type))) {
+    if (!adapterFor(type)) {
       throw new Error('AppKit spike does not support <' + type + '>')
     }
   }
@@ -104,11 +56,7 @@ export function createRegistry() {
   }
 
   function canContainView(type: string): boolean {
-    return (
-      adapters.lookup(type)?.container ?? (VIEW_PARENT_TYPES.has(type) ||
-      type === 'portalroot' ||
-      behaviorOf(type)?.container === true)
-    )
+    return type === 'portalroot' || adapterFor(type)?.container === true
   }
 
   function isPortalTargetView(target: unknown): target is NSView {
@@ -126,30 +74,11 @@ export function createRegistry() {
     )
   }
 
-  /** Per-type behavior for Mason containers and compatibility/plugin elements.
-   *  Generic renderer dispatch checks this registry before builtin handlers. */
-  const elementBehaviors = new Map<string, ElementBehavior>()
-
-  function registerElementType(type: string, behavior: ElementBehavior) {
-    elementBehaviors.set(type, behavior)
-  }
-
-  function behaviorOf(type: string | undefined): ElementBehavior | undefined {
-    return type ? elementBehaviors.get(type) : undefined
-  }
-
-  /** Parents that position children themselves — child margins and size
-   *  constraints are consumed by the host's own layout pass. */
-  function isManualLayoutParent(type: string | undefined) {
-    return (
-      adapters.lookup(type ?? '')?.layout != null ||
-      ['actionbar', 'rootlayout'].includes(type ?? '') ||
-      behaviorOf(type)?.layout != null
-    )
+  function isManualLayoutParent(node: Pick<ElementNode, 'adapter'> | null | undefined) {
+    return node?.adapter?.layout != null
   }
   return {
     adapters,
-    VIEW_PARENT_TYPES,
     typeHasView,
     assertSupportedType,
     nodeContainersByView,
@@ -159,9 +88,7 @@ export function createRegistry() {
     resolveParentNode,
     canContainView,
     isPortalTargetView,
-    elementBehaviors,
-    registerElementType,
-    behaviorOf,
+    adapterFor,
     isManualLayoutParent,
   }
 }

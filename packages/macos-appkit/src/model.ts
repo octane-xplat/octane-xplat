@@ -123,22 +123,3 @@ export interface PortalTargetEntry {
   root: ElementNode
   registrations: number
 }
-
-export interface ElementBehavior {
-  /** View factory — sets node.view (plus actionId/childHost as needed). */
-  make?: (node: ElementNode, props: PropBag) => void
-  /** Prop dispatch — return true when the prop was consumed. */
-  applyProp?: (node: ElementNode, name: string, value: any) => boolean
-  /** Manual child layout invoked from reconcileLayoutParent and frame
-   *  changes — implies children get no margin wrapper or size pins. */
-  layout?: (parent: ElementNode) => void
-  /** Teardown — runs at the top of destroy() before generic teardown. */
-  destroy?: (node: ElementNode) => void
-  /** Element hosts view children (VIEW_PARENT_TYPES semantics). */
-  container?: boolean
-  /** Consumes container plumbing styles: padding -> dockInsets. */
-  containerStyles?: boolean
-  /** Style keys this element (or its children) consume — suppresses the
-   *  unsupported-style warning for them. */
-  styleKeys?: ReadonlySet<string>
-}

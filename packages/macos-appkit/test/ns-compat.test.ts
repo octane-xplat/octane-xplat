@@ -82,7 +82,7 @@ test('affectsLayout properties request a layout reconcile', () => {
 
   const behavior = registered.get('myview')
   const node = { id: 1, type: 'myview', container: {}, children: [] }
-  behavior.make(node, {})
+  behavior.create(node, {})
   assert.deepEqual(node.view, { kind: 'native' })
   node.nsCompatView.count = 3
   assert.equal(reconciles.length, 1)
@@ -97,6 +97,8 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
       return { kind: 'v' }
     }
     dispose() {
+      assert.equal(this.hostNode, null, 'owner must retire before plugin code runs')
+      this.requestLayout()
       disposals.push(1)
     }
   }
@@ -108,7 +110,7 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
   assert.equal(behavior.containerStyles, true)
 
   const node = { id: 7, type: 'myview', container: {}, children: [] }
-  behavior.make(node, {})
+  behavior.create(node, {})
   const view = node.nsCompatView
   assert.ok(view instanceof api.ViewBase)
   assert.equal(view.hostNode, node)
@@ -132,9 +134,10 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
   // id swallowed
   assert.equal(behavior.applyProp(node, 'id', 'x'), true)
 
-  behavior.destroy(node)
+  behavior.prepareDispose(node)
   assert.equal(disposals.length, 1)
   assert.equal(node.nsCompatView, undefined)
+  assert.equal(view.hostNode, null)
 })
 
 test('registrations before installCompat replay on install', () => {
@@ -160,6 +163,6 @@ test('registrations before installCompat replay on install', () => {
   })
   assert.ok(registered.has('earlyview'))
   const node = { id: 1, type: 'earlyview', container: {}, children: [] }
-  registered.get('earlyview').make(node, {})
+  registered.get('earlyview').create(node, {})
   assert.deepEqual(node.view, { early: true })
 })

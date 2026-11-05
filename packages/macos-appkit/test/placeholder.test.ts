@@ -257,7 +257,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
     layoutView: (node: any) => node.view,
     arrangedView: (node: any) => node.view,
     isManualLayoutParent: (t: string) =>
-      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type),
     deactivateSizeConstraints: () => {},
     releasePlacementPins: () => {},
     applySizeConstraints: () => {},
@@ -371,7 +371,7 @@ test('placeholder rejects JSX children through the shared nesting rule', () => {
     elementBehaviors: new Map(),
     behaviorOf: () => undefined,
     isManualLayoutParent: (t: string) =>
-      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+      ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
   })
   assert.throws(

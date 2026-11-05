@@ -21,7 +21,7 @@ const context = {
       'docklayout',
       'wraplayout',
       'rootlayout',
-    ].includes(t),
+    ].includes(typeof t === 'string' ? t : t?.type),
   registerElementType: () => {},
 
   NSObject: class {},

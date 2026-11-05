@@ -20,7 +20,7 @@ const { applyProps } = runSlice(applyPropsSrc + '\n({ applyProps })', {
   elementBehaviors: new Map(),
   behaviorOf: () => undefined,
   isManualLayoutParent: (t: string) =>
-    ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(t),
+    ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type),
   registerElementType: () => {},
   console: { warn: (msg: unknown) => warnings.push(String(msg)) },
   queueLayoutReconcile: (container: any, parent: any) => reconciles.push(parent),

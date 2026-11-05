@@ -28,9 +28,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['actions', 'clickRecognizersByView'],
   ['actions', 'panRecognizersByView'],
   ['container-elements', 'gridLayoutNodesByView'],
-  ['registry', 'elementBehaviors'],
-  ['registry', 'registerElementType'],
-  ['registry', 'behaviorOf'],
+  ['registry', 'adapterFor'],
   ['registry', 'isManualLayoutParent'],
   ['runtime', 'compatInstallation'],
   ['container-elements', 'rootLayoutNodesByView'],
@@ -68,6 +66,7 @@ const declarations: readonly (readonly [string, string])[] = [
   ['container-elements', 'makeContentView'],
   ['container-elements', 'makeActionBar'],
   ['container-elements', 'validateActionBarTitleView'],
+  ['container-elements', 'validateActionBarProps'],
   ['container-elements', 'setActionBarTitleView'],
   ['container-elements', 'syncActionBar'],
   ['container-elements', 'makePlaceholder'],
@@ -123,8 +122,6 @@ const declarations: readonly (readonly [string, string])[] = [
   ['image-elements', 'InputImageView'],
   ['image-elements', 'makeImageView'],
   ['image-elements', 'makeAnimatedImageView'],
-  ['registry', 'VIEW_PARENT_TYPES'],
-  ['registry', 'SUPPORTED_TYPES'],
   ['registry', 'typeHasView'],
   ['registry', 'assertSupportedType'],
   ['nodes', 'validateNodeProps'],
@@ -425,15 +422,15 @@ const declarations: readonly (readonly [string, string])[] = [
   ['container-elements', 'disposeBuiltinLiquidGlass'],
   ['container-elements', 'disposeBuiltinContentHost'],
   ['container-elements', 'disposeBuiltinPlaceholder'],
-  ['hosted-elements', 'applyBuiltinTabViewProp'],
-  ['hosted-elements', 'applyBuiltinListViewProp'],
-  ['hosted-elements', 'applyBuiltinWebViewProp'],
-  ['hosted-elements', 'disposeBuiltinListView'],
-  ['hosted-elements', 'disposeBuiltinPager'],
-  ['hosted-elements', 'disposeBuiltinVideo'],
-  ['hosted-elements', 'disposeBuiltinTabView'],
-  ['hosted-elements', 'disposeBuiltinTabItem'],
-  ['hosted-elements', 'disposeBuiltinWebView'],
+  ['surface-adapters', 'applyBuiltinTabViewProp'],
+  ['surface-adapters', 'applyBuiltinListViewProp'],
+  ['surface-adapters', 'applyBuiltinWebViewProp'],
+  ['surface-adapters', 'disposeBuiltinListView'],
+  ['surface-adapters', 'disposeBuiltinPager'],
+  ['surface-adapters', 'disposeBuiltinVideo'],
+  ['surface-adapters', 'disposeBuiltinTabView'],
+  ['surface-adapters', 'disposeBuiltinTabItem'],
+  ['surface-adapters', 'disposeBuiltinWebView'],
   ['picker-elements', 'applyBuiltinSegmentedBarProp'],
   ['picker-elements', 'applyBuiltinListPickerProp'],
   ['picker-elements', 'applyBuiltinTimePickerProp'],
@@ -565,10 +562,16 @@ export function rendererSource(): string {
       // Hand-authored legacy fixture nodes did not pass through makeNode.
       // Acquire the production definition at this test-only ingress.
       if ((module === 'element-props' && key === 'applyProps') || (module === 'nodes' && key === 'destroy')) {
-        text = text.replace(/(function (?:applyProps|destroy)\(node[^)]*\) \{)/, '$1\n node.adapter ??= adapters.lookup(node.type)')
+        text = text.replace(/(function (?:applyProps|destroy)\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
       }
       if (module === 'layout' && key === 'reconcileLayoutParent') {
         text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
+      }
+      if (module === 'tree' && key === 'insert') {
+        text = text.replace('const parent = resolveParentNode(container, parentId)', 'const parent = resolveParentNode(container, parentId)\n acquireFixtureAdapter(parent)\n acquireFixtureAdapter(node)')
+      }
+      if (module === 'native-style' && key === 'applyStyle') {
+        text = text.replace(/(function applyStyle\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
       }
       if (module === 'runtime') {
         text = text.replace(
@@ -576,13 +579,19 @@ export function rendererSource(): string {
           (match, owner: string, member: string) => (services.has(owner) ? member : match),
         )
       }
-      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$)/.test(key)) {
+      if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$)/.test(key)) {
         builtinHelpers.set(key, text)
       }
       found.set(key, text)
       previous = statement.end
       if (module === 'layout' && key === 'reconcileLayoutParent') {
         text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
+      }
+      if (module === 'tree' && key === 'insert') {
+        text = text.replace('const parent = resolveParentNode(container, parentId)', 'const parent = resolveParentNode(container, parentId)\n acquireFixtureAdapter(parent)\n acquireFixtureAdapter(node)')
+      }
+      if (module === 'native-style' && key === 'applyStyle') {
+        text = text.replace(/(function applyStyle\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
       }
       if (module === 'runtime') {
         anonymous++

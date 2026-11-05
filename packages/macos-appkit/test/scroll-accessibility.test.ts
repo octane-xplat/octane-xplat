@@ -7,14 +7,10 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
   const source = rendererSource(),
     axStart = source.indexOf('function applyAccessibility('),
     axEnd = source.indexOf('/** Host updates carry', axStart)
-  const branchStart = source.indexOf("case 'scrollview':", source.indexOf('function applyProps(')),
-    branchEnd = source.indexOf("case 'webview':", branchStart)
-  assert.ok(axStart >= 0 && axEnd > axStart && branchStart > axEnd && branchEnd > branchStart)
+  assert.ok(axStart >= 0 && axEnd > axStart)
   const update = runSlice(
     source.slice(axStart, axEnd) +
-      '\nfunction update(node, props) { for (const [name, value] of Object.entries(props)) { switch (node.type) { ' +
-      source.slice(branchStart, branchEnd) +
-      ' } } }; update',
+      '\nfunction update(node, props) { for (const [name, value] of Object.entries(props)) applyBuiltinScrollViewProp(node, name, value) }; update',
   )
   let element = true,
     label = ''

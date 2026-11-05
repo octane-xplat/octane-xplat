@@ -1,3 +1,4 @@
+import type { Subscriptions } from './subscriptions'
 import type { AccessibleHost } from './accessible-host'
 import type { CssCascade } from './css-cascade'
 import type { PropBag, ElementNode } from './model'
@@ -7,6 +8,7 @@ import { disposeImage, updateImage } from './image'
 import { drawImageContent } from './image-drawing'
 
 interface Dependencies {
+  subscriptions: Pick<Subscriptions, 'setImageActions'>
   accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
 }
@@ -50,12 +52,15 @@ export function createImageElements(deps: Dependencies) {
     }
   }
 
-  function makeImageView(props: PropBag) {
+  function makeImageView(props: PropBag, node?: ElementNode) {
     const image = InputImageView.alloc().initWithFrame({
       origin: { x: 0, y: 0 },
       size: { width: 24, height: 24 },
     })
 
+    if (node) {
+      node.view = image
+    }
     image.translatesAutoresizingMaskIntoConstraints = false
     updateImage(image, props.src, props.placeholder, props.imageCachePolicy)
 
@@ -66,13 +71,22 @@ export function createImageElements(deps: Dependencies) {
    *  path as `image` (an NSImage decoded from GIF data carries its frames);
    *  `animates` is the only difference. The property is deprecated in macOS 14
    *  but still drives GIF playback — AppKit has no replacement animation view. */
-  function makeAnimatedImageView(props: PropBag) {
-    const image = makeImageView(props)
+  function makeAnimatedImageView(props: PropBag, node?: ElementNode) {
+    const image = makeImageView(props, node)
     image.animates = true
     return image
   }
   function applyBuiltinImageProp(node: ElementNode, name: string, value: PropBag[string]) {
-    if (name === 'src' || name === 'placeholder' || name === 'imageCachePolicy') {
+    if (node.type === 'image' && (name === 'onImageLoad' || name === 'onImageError')) {
+      deps.subscriptions.setImageActions(node)
+    } else if (node.type === 'image' && name === 'onImageGeometryChanged') {
+      setImageGeometryHandler(
+        node.view as NSImageView,
+        typeof value === 'function'
+          ? (geometry) => node.container.root!.eventScope('discrete', () => value(geometry))
+          : undefined,
+      )
+    } else if (name === 'src' || name === 'placeholder' || name === 'imageCachePolicy') {
       updateImage(
         node.view as NSImageView,
         node.props.src,

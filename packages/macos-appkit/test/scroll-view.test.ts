@@ -501,7 +501,7 @@ test('existing onScroll event shape and latest callback survive replacement and 
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     scrollHandlers: new WeakMap(),

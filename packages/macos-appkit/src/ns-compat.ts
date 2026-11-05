@@ -1,9 +1,10 @@
+import type { ElementAdapterRegistration } from './element-adapter'
 /** Minimal @nativescript/core-compatible surface for the AppKit renderer.
  *
  *  Goal: pure-JS NativeScript plugins (custom views, behaviors, utilities)
  *  run on this host — they write `class X extends ViewBase`, register
  *  `Property`/`CssProperty`s, and instantiate through `registerPluginElement`
- *  which bridges into the renderer's element-behavior seam.
+ *  which bridges into the renderer's canonical adapter catalog.
  *
  *  Deliberately out of scope (add per plugin demand): application/frame/page
  *  navigation, dialogs, file-system, image-source, gesture classes.
@@ -228,7 +229,7 @@ export class ViewBase extends Observable {
 // --- Registration seam -----------------------------------------------------
 
 interface CompatDeps {
-  registerElementType: (type: string, behavior: any) => void
+  registerElementType: (type: string, behavior: ElementAdapterRegistration) => void
   applyStyle: (node: any, value: any) => void
   applyClassName: (node: any, value: any) => void
   applyAccessibility: (node: any, name: string, value: any) => void
@@ -270,14 +271,15 @@ export function registerPluginElement<T extends ViewBase>(
     }
     compatDeps.registerElementType(name, {
       container: options.container ?? false,
+      hasView: true,
       containerStyles: options.container ?? false,
       layout: options.layout,
       styleKeys: options.styleKeys,
-      make(node: any, _props: any) {
+      create(node: any, _props: any) {
         const view = options.createView()
         view.__attachNode(node)
-        node.view = view.createNativeView() ?? view.nativeView
         node.nsCompatView = view
+        node.view = view.createNativeView() ?? view.nativeView
       },
       applyProp(node: any, prop: string, value: any) {
         const view = node.nsCompatView as ViewBase | undefined
@@ -305,11 +307,13 @@ export function registerPluginElement<T extends ViewBase>(
           ;(view as any)[prop] = value
           return true
         }
-        return prop === 'id' || value === undefined
+        return prop === 'id'
       },
-      destroy(node: any) {
-        ;(node.nsCompatView as any)?.dispose?.()
+      prepareDispose(node: any) {
+        const view = node.nsCompatView
         node.nsCompatView = undefined
+        if (view) { view.hostNode = null }
+        view?.dispose?.()
       },
     })
   }

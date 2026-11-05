@@ -1,3 +1,5 @@
+import { FailureCollector } from './failures.ts'
+import type { ElementAdapterRegistration } from './element-adapter'
 /** Mason layout engine bridge — drives libxplatmason.dylib (the XPLMason
  *  ObjC facade statically linked with octane-xplat/nativescript-mason's
  *  mason-c crate) for `masonview` subtrees. Elements keep their own
@@ -708,7 +710,7 @@ export function releaseMasonNodes(node: NodeLike) {
 // ---------------------------------------------------------------------------
 
 interface MasonDeps {
-  registerElementType: (type: string, behavior: ElementBehavior) => void
+  registerElementType: (type: string, behavior: ElementAdapterRegistration) => void
   layoutView: (node: any) => any
   pinLayoutChild: (
     child: any,
@@ -731,19 +733,8 @@ interface MasonDeps {
   makeScrollView: (node: any) => { view: any; childHost: any }
   /** NSView subclass carrying the shared AX/action surface — container
    *  hosts extend it so a tappable stack/grid keeps AX press + roles. */
+  disposeActions: (node: import('./model').ElementNode) => void
   baseView: any
-}
-
-// Structural twin of index.ts's ElementBehavior — declared locally so this
-// module doesn't import the renderer for a type it registers into.
-interface ElementBehavior {
-  make?: (node: any, props: any) => void
-  applyProp?: (node: any, name: string, value: any) => boolean
-  layout?: (parent: any) => void
-  destroy?: (node: any) => void
-  container?: boolean
-  containerStyles?: boolean
-  styleKeys?: ReadonlySet<string>
 }
 
 const masonLayoutNodesByView = new WeakMap<object, any>()
@@ -893,11 +884,25 @@ export function installMasonElement(next: MasonDeps) {
   deps = next
   MasonLayoutView ??= createMasonLayoutView()
 
-  const behavior: ElementBehavior = {
+  const behavior: ElementAdapterRegistration = {
     container: true,
+    hasView: true,
     containerStyles: true,
+    childProps: new Set([
+      'row',
+      'col',
+      'rowSpan',
+      'colSpan',
+      'dock',
+      'left',
+      'top',
+      'right',
+      'bottom',
+      'horizontalAlignment',
+      'verticalAlignment',
+    ]),
     styleKeys: MASON_STYLE_KEYS,
-    make(node) {
+    create(node) {
       node.view = makeMasonLayout(node)
     },
     applyProp(node, name, value) {
@@ -951,21 +956,27 @@ export function installMasonElement(next: MasonDeps) {
     layout(parent) {
       layoutMasonChildren(parent, next.layoutView, next.pinLayoutChild)
     },
-    destroy(node) {
-      if (node.masonGeometryObserver) {
-        NSNotificationCenter.defaultCenter.removeObserver(node.masonGeometryObserver)
-        node.masonGeometryObserver = null
-      }
+    dispose: next.disposeActions,
+    prepareDispose(node) {
+      const failures = new FailureCollector()
+      const observer = node.masonGeometryObserver
+      node.masonGeometryObserver = null
       if (node.view) {
         masonLayoutNodesByView.delete(node.view)
       }
       if (node.childHost) {
         masonLayoutNodesByView.delete(node.childHost)
       }
-      releaseMasonNodes(node)
+      failures.run('Mason geometry', () => {
+        if (observer) {
+          NSNotificationCenter.defaultCenter.removeObserver(observer)
+        }
+      })
+      failures.run('Mason nodes', () => releaseMasonNodes(node))
       for (const child of node.children.slice()) {
-        next.detach(node.container, child)
+        failures.run('Mason child', () => next.detach(node.container, child))
       }
+      failures.throwIfFailed()
     },
   }
 
@@ -973,7 +984,8 @@ export function installMasonElement(next: MasonDeps) {
     if (type === 'scrollview') {
       next.registerElementType(type, {
         ...behavior,
-        make(node) {
+        dispose: undefined,
+        create(node) {
           const scroll = next.makeScrollView(node)
           node.view = scroll.view
           node.childHost = scroll.childHost
@@ -982,7 +994,7 @@ export function installMasonElement(next: MasonDeps) {
     } else if (type === 'liquidglass') {
       // Keep the glass host factory (backdrop + blur observers); mason
       // owns the child geometry only.
-      const { make, ...rest } = behavior
+      const { create, dispose, ...rest } = behavior
       next.registerElementType(type, rest)
     } else {
       next.registerElementType(type, behavior)

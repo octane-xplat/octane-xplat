@@ -127,7 +127,7 @@ function propsHarness() {
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     actionHandlers,
@@ -276,7 +276,7 @@ test('per-edit delegate events fire the change handler while the action fires su
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     NSObject: class {},

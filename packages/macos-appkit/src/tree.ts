@@ -7,7 +7,6 @@ import type { Layout } from './layout'
 import type { TextElements } from './text-elements'
 import type { PickerElements } from './picker-elements'
 import type { Registry } from './registry'
-import type { ContainerElements } from './container-elements'
 import type { PropBag, ElementNode, RootContainer } from './model'
 import { syncTabView, detachTabItem } from './tab-view'
 import type { UniversalHostParent } from 'octane/universal/native'
@@ -25,7 +24,6 @@ interface Dependencies {
   textElements: Pick<TextElements, 'syncText'>
   pickerElements: Pick<PickerElements, 'syncSegmentedBar'>
   registry: Pick<Registry, 'resolveParentNode' | 'canContainView' | 'isManualLayoutParent'>
-  containerElements: Pick<ContainerElements, 'fireCreatingView'>
 }
 
 export type Tree = ReturnType<typeof createTree>
@@ -210,7 +208,7 @@ export function createTree(deps: Dependencies) {
     if (
       parent &&
       (node.view || node.type === 'proxyviewcontainer') &&
-      !deps.registry.canContainView(parent.type)
+      !(parent.type === 'portalroot' || parent.adapter?.container === true)
     ) {
       throw new Error('AppKit <' + parent.type + '> cannot contain child views')
     }
@@ -253,7 +251,7 @@ export function createTree(deps: Dependencies) {
 
       deps.layout.queueLayoutReconcile(container, parent ?? node)
       if (node.type === 'placeholder') {
-        deps.containerElements.fireCreatingView(node)
+        node.adapter?.didAttach?.(node)
       }
 
       return
@@ -265,7 +263,7 @@ export function createTree(deps: Dependencies) {
           ['portalroot', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(
             parent.type,
           ) ||
-          deps.registry.isManualLayoutParent(parent.type)
+          deps.registry.isManualLayoutParent(parent)
         ) {
         }
 
@@ -304,7 +302,7 @@ export function createTree(deps: Dependencies) {
           deps.layout.layoutView(node).translatesAutoresizingMaskIntoConstraints = false
           deps.nativeStyle.deactivateSizeConstraints(node)
           deps.layout.queueLayoutReconcile(container, parent)
-        } else if (deps.registry.isManualLayoutParent(parent.type)) {
+        } else if (deps.registry.isManualLayoutParent(parent)) {
           parentView.addSubview(deps.layout.layoutView(node))
           deps.layout.layoutView(node).translatesAutoresizingMaskIntoConstraints = false
           deps.nativeStyle.deactivateSizeConstraints(node)
@@ -333,7 +331,7 @@ export function createTree(deps: Dependencies) {
       }
 
       if (node.type === 'placeholder') {
-        deps.containerElements.fireCreatingView(node)
+        node.adapter?.didAttach?.(node)
       }
 
       deps.cssCascade.markStyleDirty(node, true)

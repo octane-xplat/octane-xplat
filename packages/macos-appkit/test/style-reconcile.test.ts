@@ -199,7 +199,7 @@ const sandbox = {
   ),
   behaviorOf: (t: string) => sandbox.elementBehaviors.get(t),
   isManualLayoutParent: (t: string) =>
-    ['contentview', 'actionbar', 'rootlayout'].includes(t) || MASON_TYPES.includes(t),
+    ['contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type) || MASON_TYPES.includes(typeof t === 'string' ? t : t?.type),
   registerElementType: () => {},
 
   console,
@@ -1338,4 +1338,14 @@ test('table descendants inherit whitespace without inheriting non-inherited text
   setClass(parent, '')
   assert.equal(item.view.cell.wraps, true)
   assert.equal(item.sizeConstraintSpecs.height, undefined)
+})
+
+
+test('style application queues both a manual child and its physical outer layout owner', () => {
+  const parent = node('masonview')
+  const child = node('contentview', { parent })
+  reconciles.length = 0
+  applyStyle(child, { gridRow: '2', gridColumn: '2' })
+  assert.ok(reconciles.includes(child), 'content layout must reconcile its own child')
+  assert.ok(reconciles.includes(parent), 'Mason must consume the updated placement')
 })

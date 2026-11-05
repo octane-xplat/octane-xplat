@@ -1,7 +1,7 @@
+import { createElementAdapterCatalog } from '../src/element-adapter.ts'
 import { createContainerAdapters } from '../src/container-adapters.ts'
 import { createControlAdapters } from '../src/control-adapters.ts'
 import { createPilotAdapters } from '../src/pilot-adapters.ts'
-import { unconvertedElementTypes } from '../src/element-adapter.ts'
 import { legacyActionBoundary } from './legacy-action-boundary.ts'
 import { createAccessibilityState } from '../src/accessibility-state.ts'
 import { FailureCollector } from '../src/failures.ts'
@@ -62,7 +62,7 @@ const SLICE_BASE = {
   createPilotAdapters,
   createControlAdapters,
   createContainerAdapters,
-  unconvertedElementTypes,
+  createElementAdapterCatalog,
   AccessibleHostView: class {},
   createAccessibilityState,
   setTimeout,
@@ -147,12 +147,15 @@ export function spySliceContext(target: Record<string, any> = {}) {
 // these fallbacks fill names the slices reference but don't include. Real
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
+${sourceWithoutImports(new URL('../src/surface-adapters.ts', import.meta.url)).replace(/^export /gm, '')}
+${sourceWithoutImports(new URL('../src/scroll-adapter.ts', import.meta.url)).replace(/^export /gm, '')}
 ${sourceWithoutImports(new URL('../src/picker-adapters.ts', import.meta.url)).replace(/^export /gm, '')}
 ${sourceWithoutImports(new URL('../src/text-adapters.ts', import.meta.url)).replace(/^export /gm, '')}
 // Legacy slices use the same pilot definitions with their existing native fakes.
 // Production composition and ordering are exercised by adapter-protocol tests.
 var contentGeometryLeases = new WeakMap()
-var elementAdapters = { registerElementType: (...args) => registerElementType(...args) }
+var fixtureRegistrations = createElementAdapterCatalog()
+var elementAdapters = { registerElementType: (type, adapter) => fixtureRegistrations.register(type, adapter) }
 var adapters = { lookup(type) {
   const pilots = createPilotAdapters({
     controls: { makeButton: (...args) => makeButton(...args), applyBuiltinButtonProp: (...args) => applyBuiltinButtonProp(...args) },
@@ -165,14 +168,47 @@ var adapters = { lookup(type) {
   const text = createTextAdapters({ textElements: { applyBuiltinHtmlViewProp: (...args) => applyBuiltinHtmlViewProp(...args), applyBuiltinLabelProp: (...args) => applyBuiltinLabelProp(...args), disposeBuiltinFormattedText: (...args) => disposeBuiltinFormattedText(...args), disposeTextLinks: (...args) => disposeTextLinks(...args), makeLabel: (...args) => makeLabel(...args), syncHtmlView: (...args) => syncHtmlView(...args), syncLabelOverflow: (...args) => syncLabelOverflow(...args), syncText: (...args) => syncText(...args) }, inputElements: { applyBuiltinSearchBarProp: (...args) => applyBuiltinSearchBarProp(...args), applyBuiltinTextInputProp: (...args) => applyBuiltinTextInputProp(...args), disposeBuiltinTextInput: (...args) => disposeBuiltinTextInput(...args), disposeBuiltinTextViewLayout: (...args) => disposeBuiltinTextViewLayout(...args), fitTextView: (...args) => fitTextView(...args), initializeTextViewport: (...args) => initializeTextViewport(...args), makeSearchBar: (...args) => makeSearchBar(...args), makeTextField: (...args) => makeTextField(...args), setTextFieldPlaceholder: (...args) => setTextFieldPlaceholder(...args), syncSearchBar: (...args) => syncSearchBar(...args), syncSecureTextField: (...args) => syncSecureTextField(...args), textNodesByView: (...args) => textNodesByView(...args) }, actions: { acquireAction: (...args) => acquireAction(...args), buttonActionTarget: typeof buttonActionTarget === 'undefined' ? {} : buttonActionTarget, disposeActions: (...args) => disposeActions(...args) } })
   const pickers = createPickerAdapters({ pickerElements: { timeOfDay: (...args) => timeOfDay(...args), calendarDate: (...args) => calendarDate(...args), makeSegmentedBar: (...args) => makeSegmentedBar(...args), applyBuiltinSegmentedBarProp: (...args) => applyBuiltinSegmentedBarProp(...args), syncSegmentedBar: (...args) => syncSegmentedBar(...args), makeListPicker: (...args) => makeListPicker(...args), applyBuiltinListPickerProp: (...args) => applyBuiltinListPickerProp(...args), syncListPicker: (...args) => syncListPicker(...args), makeTimePicker: (...args) => makeTimePicker(...args), applyBuiltinTimePickerProp: (...args) => applyBuiltinTimePickerProp(...args), syncTimePicker: (...args) => syncTimePicker(...args), makeDatePicker: (...args) => makeDatePicker(...args), applyBuiltinDatePickerProp: (...args) => applyBuiltinDatePickerProp(...args), syncDatePicker: (...args) => syncDatePicker(...args), disposeBuiltinSegmentedItem: (...args) => disposeBuiltinSegmentedItem(...args), disposeBuiltinSegmentedChildren: (...args) => disposeBuiltinSegmentedChildren(...args), disposeBuiltinSegmentedControl: (...args) => disposeBuiltinSegmentedControl(...args), disposeBuiltinListPicker: (...args) => disposeBuiltinListPicker(...args), disposeBuiltinTimePicker: (...args) => disposeBuiltinTimePicker(...args), disposeBuiltinDatePicker: (...args) => disposeBuiltinDatePicker(...args) }, actions: { disposeActions: (...args) => disposeActions(...args) } })
   const containers = createContainerAdapters({
-    containers: new Proxy({}, { get: (_target, key) => String(key).endsWith('ByView') ? globalThis[key] : (...args) => globalThis[key](...args) }),
+    containers: new Proxy({ validateActionBarProps: (...args) => validateActionBarProps(...args), setActionBarTitleView: (...args) => setActionBarTitleView(...args) }, { get: (_target, key) => key in _target ? _target[key] : (String(key).endsWith('ByView') ? globalThis[key] : (...args) => globalThis[key](...args)) }),
     layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args), layoutRootChildren: (...args) => layoutRootChildren(...args) },
     actions: { disposeActions: (...args) => disposeActions(...args) },
     cssCascade: { setNodeInlineStyle: (...args) => setNodeInlineStyle(...args), applyClassName: (...args) => applyClassName(...args) },
     projection: { disposeBuiltinProxyChildren: (...args) => disposeBuiltinProxyChildren(...args) },
   })
-  return pilots[type] ?? controls[type] ?? text[type] ?? pickers[type] ?? containers[type]
+  const forwarding = new Proxy({}, { get: (_target, key) => (...args) => globalThis[key](...args) })
+  const surfaces = createSurfaceAdapters({ accessibility: { applyAccessibility: (...args) => applyAccessibility(...args) }, hostedElements: { applyBuiltinListViewProp: (...args) => applyBuiltinListViewProp(...args), applyBuiltinTabViewProp: (...args) => applyBuiltinTabViewProp(...args), applyBuiltinWebViewProp: (...args) => applyBuiltinWebViewProp(...args), disposeBuiltinListView: (...args) => disposeBuiltinListView(...args), disposeBuiltinTabView: (...args) => disposeBuiltinTabView(...args), disposeBuiltinTabItem: (...args) => disposeBuiltinTabItem(...args), disposeBuiltinWebView: (...args) => disposeBuiltinWebView(...args), disposeBuiltinPager: (...args) => disposeBuiltinPager(...args), disposeBuiltinVideo: (...args) => disposeBuiltinVideo(...args) }, imageElements: { makeImageView: (...args) => makeImageView(...args), makeAnimatedImageView: (...args) => makeAnimatedImageView(...args), applyBuiltinImageProp: (...args) => applyBuiltinImageProp(...args), disposeBuiltinImage: (...args) => disposeBuiltinImage(...args) },
+    roots: { createMacOSRoot: (...args) => createMacOSRoot(...args), unmountOwnedRoot: (...args) => unmountOwnedRoot(...args) },
+    actions: { disposeActions: (...args) => disposeActions(...args) }, cssCascade: { setNodeInlineStyle: (...args) => setNodeInlineStyle(...args) },
+    nativeStyle: { setSizeConstraint: (...args) => setSizeConstraint(...args) }, subscriptions: { setImageActions: (...args) => setImageActions(...args) },
+    nodes: { validateNodeProps: (...args) => validateNodeProps(...args) }, registry: { assertSupportedType: (...args) => assertSupportedType(...args), typeHasView: (...args) => typeHasView(...args), canContainView: (...args) => canContainView(...args) }, tree: { validateTextNesting: (...args) => validateTextNesting(...args), detach: (...args) => detach(...args) } })
+  const scroll = createScrollAdapter({ controls: { makeScrollView: (...args) => makeScrollView(...args), applyBuiltinScrollViewProp: (...args) => applyBuiltinScrollViewProp(...args), disposeBuiltinScrollView: (...args) => disposeBuiltinScrollView(...args) }, actions: { disposeActions: (...args) => disposeActions(...args) }, layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args) } })
+  const base = pilots[type] ?? controls[type] ?? text[type] ?? pickers[type] ?? containers[type] ?? surfaces[type] ?? (type === 'scrollview' ? scroll : undefined)
+  const installed = fixtureRegistrations.lookup(type)
+  if (installed) return installed
+  // Historical source fixtures supplied fake engine registrations. Translate
+  // their boundary shape here; production has only the canonical catalog.
+  const fake = typeof behaviorOf === 'function' ? behaviorOf(type) : undefined
+  if (!fake) {
+    if (!base && ((typeof VIEW_PARENT_TYPES !== 'undefined' && VIEW_PARENT_TYPES.has(type)) || (typeof isManualLayoutParent === 'function' && isManualLayoutParent(type)))) {
+      return { container: true, hasView: true, childProps: new Set(['row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'right', 'bottom', 'horizontalAlignment', 'verticalAlignment']), create() {}, layout() {} }
+    }
+    return base
+  }
+  return { ...base, ...fake, container: fake.container ?? base?.container ?? true,
+    hasView: fake.hasView ?? base?.hasView ?? true,
+    childProps: fake.childProps ?? base?.childProps ?? (fake.layout ? new Set(['row', 'col', 'rowSpan', 'colSpan', 'dock', 'left', 'top', 'right', 'bottom', 'horizontalAlignment', 'verticalAlignment']) : undefined),
+    create: fake.create ?? fake.make ?? base?.create ?? (() => {}),
+    prepareDispose: fake.prepareDispose ?? fake.destroy ?? base?.prepareDispose,
+    dispose: base?.dispose ?? ((node) => disposeActions(node)),
+    applyProp(node, name, value) { return fake.applyProp?.(node, name, value) || base?.applyProp?.(node, name, value) || false } }
+
 } }
+
+function adapterFor(type) { return type ? adapters.lookup(type) : undefined }
+function acquireFixtureAdapter(node) {
+  if (node?.type && !node.adapter) node.adapter = adapters.lookup(node.type)
+  if (node?.parent?.type && !node.parent.adapter) node.parent.adapter = adapters.lookup(node.parent.type)
+  if (node?.layoutParent?.type && !node.layoutParent.adapter) node.layoutParent.adapter = adapters.lookup(node.layoutParent.type)
+}
 
 // Legacy branch tests supply mutable maps as their fake event boundary. New
 // ownership tests construct the real stores and feature factories directly.

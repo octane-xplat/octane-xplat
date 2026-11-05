@@ -64,7 +64,7 @@ function controlFixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
@@ -229,7 +229,7 @@ test('Progress production ownership moves its native host between parents and re
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['contentview']),

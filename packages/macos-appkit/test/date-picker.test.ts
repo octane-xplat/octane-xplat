@@ -68,7 +68,7 @@ function fixture(failure: { constraint?: number } = {}) {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSDate: Object.assign(function NSDate() {}, {

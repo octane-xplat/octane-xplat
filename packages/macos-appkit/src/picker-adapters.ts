@@ -185,6 +185,7 @@ export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAda
       },
     },
     segmentedbaritem: {
+      publicInstance: 'node',
       container: false,
       hasView: false,
       validate(props) {

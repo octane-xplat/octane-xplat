@@ -34,7 +34,7 @@ test('AppKit checkbox/radio roles and values update and disabled controls reject
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSView: class {},

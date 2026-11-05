@@ -146,11 +146,12 @@ export function validateTabProps(type: string, props: Record<string, any>) {
 
 export function makeTabView(node: ElementNode): AppKitView {
   const view = NSTabView.alloc().init()
+  node.view = view as AppKitView
   view.translatesAutoresizingMaskIntoConstraints = false
   const delegate = TabDelegate.new()
   delegates.set(delegate, node)
-  view.delegate = delegate
   node.tabDelegate = delegate // AppKit holds its delegate weakly.
+  view.delegate = delegate
   node.tabItems = []
   node.tabIndex = -1
   node.tabRequested = -1

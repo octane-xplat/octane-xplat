@@ -129,7 +129,7 @@ export function createProjection(deps: Dependencies) {
     const manual =
       ['liquidglass', 'contentview', 'actionbar', 'rootlayout', '#root', 'portalroot'].includes(
         parent.type,
-      ) || deps.registry.isManualLayoutParent(parent.type)
+      ) || deps.registry.isManualLayoutParent(parent)
 
     for (const child of children) {
       // Preserve authored values separately from the parent's forwarded values.

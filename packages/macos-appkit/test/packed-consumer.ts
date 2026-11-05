@@ -66,6 +66,9 @@ const fixture = join(packageRoot, 'test/fixtures')
 for (const file of [
   'App.macos.tsx',
   'Paint.macos.tsx',
+  'Hosted.macos.tsx',
+  'hosted-lifecycle.ts',
+  'packed-plugin.ts',
   'Actions.macos.tsx',
   'action-ownership-lifecycle.ts',
   'RootDirectory.macos.tsx',
@@ -318,6 +321,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   } else if (liquidGlassOnly) {
     assert.match(output, /PACKED_LIQUIDGLASS_OK/)
   } else {
+    assert.match(output, /PACKED_HOSTED_SURFACES_OK/)
     assert.match(output, /PACKED_ACTION_OWNERSHIP_OK/)
     assert.match(output, /PACKED_BOX_PAINT_OK/)
     assert.match(output, /PACKED_ROOT_DIRECTORY_OK/)

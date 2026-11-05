@@ -55,7 +55,7 @@ function controlFixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       Date,
@@ -153,7 +153,7 @@ test('TimePicker production ownership moves its native host between parents and 
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['contentview']),

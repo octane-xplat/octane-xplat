@@ -17,10 +17,7 @@ const liquidGlassClass = source.slice(
   source.indexOf('\nclass ActionBarHost'),
 )
 
-const supportedSets = source.slice(
-  source.indexOf('const VIEW_PARENT_TYPES'),
-  source.indexOf('function typeHasView'),
-)
+
 
 class NSView {
   subviews: any[] = []
@@ -86,20 +83,10 @@ function makeContext() {
   }
 }
 
-test('liquidglass is a supported view-parent type', () => {
-  const { SUPPORTED_TYPES, VIEW_PARENT_TYPES, assertSupportedType, typeHasView } = runSlice(
-    supportedSets +
-      fn('typeHasView') +
-      fn('assertSupportedType') +
-      '\n;({ SUPPORTED_TYPES, VIEW_PARENT_TYPES, assertSupportedType, typeHasView })',
-    { elementBehaviors: new Map() },
-  )
-
-  assert.ok(SUPPORTED_TYPES.has('liquidglass'))
-  assert.ok(VIEW_PARENT_TYPES.has('liquidglass'))
-  assert.equal(typeHasView('liquidglass'), true)
-  assert.doesNotThrow(() => assertSupportedType('liquidglass'))
-  assert.throws(() => assertSupportedType('liquidglassview'), /does not support/)
+test('liquidglass declares native-view and containment capabilities', () => {
+  const { adapter } = runSlice('({ adapter: adapters.lookup("liquidglass") })')
+  assert.equal(adapter.hasView, true)
+  assert.equal(adapter.container, true)
 })
 
 test('makeLiquidGlass pins a glass material behind grid children', () => {
@@ -152,7 +139,7 @@ test('the host layout dispatches to the registered behavior for the node', () =>
     context,
   )
 
-  const node = { id: 7, type: 'liquidglass', container: {} }
+  const node = { id: 7, type: 'liquidglass', container: {}, adapter: { layout: (node: any) => calls.push(node) } }
   const host = makeLiquidGlass(node)
   context.gridLayoutNodesByView.set(host, node)
   host.layout()

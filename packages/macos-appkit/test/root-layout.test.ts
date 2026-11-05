@@ -118,7 +118,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       dockLayoutNodesByView: new WeakMap(),
@@ -309,7 +309,7 @@ test('RootLayout geometry observer releases on disposal and ignores late callbac
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       stickyPlacements: { position: (_node: unknown, rect: { x: number }) => rect.x, reset() {} },

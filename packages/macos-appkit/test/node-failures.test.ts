@@ -3,7 +3,7 @@ import { createActionStore } from '../src/action-store.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { mockNativeBoundary } from './native-boundary.ts'
-import { PhaseErrors } from '../src/failures.ts'
+import { FailureCollector, PhaseErrors } from '../src/failures.ts'
 
 const hooks = mockNativeBoundary()
 const { createNodes } = await import('../src/nodes.ts')
@@ -57,6 +57,22 @@ function fixture() {
   const node: any = {
     id: 1, type: 'span', lifecycle: 'live', view: {}, props: { onFocus() {}, onKeyDown() {} },
     container, parent: null, children: [], actionId: 1, boxFrameOwner: {},
+  }
+  node.adapter = {
+    container: false, hasView: true, create() {},
+    retire: deps.inputElements.disposeBuiltinTextViewLayout,
+    prepareDispose() {
+      const failures = new FailureCollector()
+      failures.run('prepare', () => run('prepare'))
+      failures.run('list prepare', deps.hostedElements.disposeBuiltinListView)
+      failures.throwIfFailed()
+    },
+    dispose(node) {
+      const failures = new FailureCollector()
+      failures.run('text input', deps.inputElements.disposeBuiltinTextInput)
+      failures.run('actions', () => deps.actions.disposeActions(node))
+      failures.throwIfFailed()
+    },
   }
   container.nodes.set(1, node)
   deps.actions.actionHandlers.set(1, () => {})
@@ -264,7 +280,7 @@ test('standalone CSS failure resets ownership without publishing success; next f
 test('destruction during construction cannot revive or register the partial node', () => {
   const fx = fixture()
   let partial: any
-  fx.deps.registry.behaviorOf = () => ({ make(node) { partial = node; fx.nodes.destroy(node) } })
+  fx.deps.registry.adapters.register('span', { container: false, hasView: false, create(node) { partial = node; fx.nodes.destroy(node) } })
   assert.throws(() => fx.nodes.makeNode(fx.container, 2, 'span', {}), /retired during construction/)
   assert.equal(partial.lifecycle, 'disposed')
   assert.equal(fx.container.nodes.has(2), false)

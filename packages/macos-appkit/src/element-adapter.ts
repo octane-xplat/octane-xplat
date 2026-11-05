@@ -5,15 +5,20 @@ import type { ElementNode, PropBag } from './model'
 export interface ElementAdapter {
   readonly container: boolean
   readonly hasView: boolean
+  readonly publicInstance?: 'node'
+  readonly styleValidation?: 'text' | 'none'
   readonly containerStyles?: boolean
   readonly styleKeys?: ReadonlySet<string>
   validate?(props: PropBag, previous?: PropBag): void
   create(node: ElementNode, props: PropBag): void
+  beforeProps?(node: ElementNode, patch: PropBag): void
+  readonly childProps?: ReadonlySet<string>
   applyProp?(node: ElementNode, name: string, value: unknown): boolean
   afterProps?(node: ElementNode, patch: PropBag): void
   retire?(node: ElementNode): void
   prepareDispose?(node: ElementNode): void
   dispose?(node: ElementNode): void
+  didAttach?(node: ElementNode): void
   layout?(node: ElementNode): void
 }
 
@@ -24,25 +29,25 @@ export function createElementAdapterCatalog() {
   function register(type: string, adapter: ElementAdapter): void {
     // Capture the definition, so mutating a registration object cannot redirect
     // an already acquired node's lifecycle either.
-    definitions.set(type, Object.freeze({ ...adapter }))
+    definitions.set(
+      type,
+      Object.freeze({
+        ...adapter,
+        styleKeys: adapter.styleKeys && new Set(adapter.styleKeys),
+        childProps: adapter.childProps && new Set(adapter.childProps),
+      }),
+    )
   }
   function lookup(type: string): ElementAdapter | undefined {
     return definitions.get(type)
   }
-  return { register, lookup }
+  function entries(): ReadonlyArray<readonly [string, ElementAdapter]> {
+    return [...definitions.entries()]
+  }
+  return { register, lookup, entries }
 }
 
-/** Explicit bounded legacy inventory for the unpublished P5→P6 migration.
- * A migrated type missing its assembled definition must fail before acquisition. */
-export const unconvertedElementTypes: ReadonlySet<string> = new Set([
-  'masonview',
-  'scrollview',
-  'listview',
-  'tabview',
-  'tabviewitem',
-  'webview',
-  'image',
-  'animatedimage',
-  'pager',
-  'xplatvideo',
-])
+/** Registration uses the canonical phases. Builtin overrides may omit create;
+ * new types must supply it before registration succeeds. */
+export type ElementAdapterRegistration = Pick<ElementAdapter, 'container' | 'hasView'> &
+  Partial<ElementAdapter>

@@ -2,12 +2,14 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { ElementNode, PropBag } from '../src/model.ts'
 import type { ElementAdapter } from '../src/element-adapter.ts'
-import { createElementAdapterCatalog, unconvertedElementTypes } from '../src/element-adapter.ts'
+import { createElementAdapterCatalog } from '../src/element-adapter.ts'
 import { createActionStore } from '../src/action-store.ts'
 import { mockNativeBoundary } from './native-boundary.ts'
 
 const hooks = mockNativeBoundary()
 const { createElementAdapters } = await import('../src/adapter-assembly.ts')
+const { installMasonElement } = await import('../src/mason.ts')
+const { createDriver } = await import('../src/driver.ts')
 const { createNodes } = await import('../src/nodes.ts')
 const { createRegistry } = await import('../src/registry.ts')
 const { createElementProps } = await import('../src/element-props.ts')
@@ -191,7 +193,7 @@ function fixture() {
     fitTextView() { run('text fit') },
   }
   Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs, pickerElements: pickers })
-  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements, cssCascade: deps.cssCascade, projection: deps.projection })
+  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements, cssCascade: deps.cssCascade, projection: deps.projection, accessibility: deps.accessibility, imageElements: deps.imageElements, roots: deps.roots, nativeStyle: deps.nativeStyle, subscriptions: deps.subscriptions, nodes: { validateNodeProps: (...args) => deps.nodes.validateNodeProps(...args) }, tree: deps.tree })
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
   deps.elementProps = props
@@ -244,6 +246,10 @@ test('adapter phases order validation, common/feature writes, merged sync and ph
         },
       ]
     },
+    beforeProps(node) {
+      f.run('admission')
+      assert.equal(node.props.id, undefined)
+    },
     applyProp(node, name) {
       f.run('feature ' + name)
       assert.equal(node.props.id, 'one')
@@ -269,6 +275,7 @@ test('adapter phases order validation, common/feature writes, merged sync and ph
   assert.deepEqual(f.trace, [
     'validate',
     'create',
+    'admission',
     'common id',
     'feature id',
     'feature custom',
@@ -320,7 +327,7 @@ test('registration replacement and caller mutation affect future acquisitions on
   assert.deepEqual(events, ['old prop', 'new prop', 'old dispose', 'new dispose'])
 })
 
-for (const boundary of ['validate', 'create', 'feature', 'after', 'identity sync']) {
+for (const boundary of ['validate', 'create', 'admission', 'feature', 'after', 'identity sync']) {
   test('partial construction cleans acquired resources at ' + boundary, () => {
     const f = fixture(),
       failure = Error(boundary)
@@ -337,6 +344,7 @@ for (const boundary of ['validate', 'create', 'feature', 'after', 'identity sync
         node.destroyHooks = [() => f.run('hook')]
         f.run('create')
       },
+      beforeProps() { f.run('admission') },
       applyProp() {
         f.run('feature')
         return true
@@ -515,14 +523,12 @@ for (const boundary of ['observe', 'style', 'identity sync']) {
   })
 }
 
-test('missing pilot installation cannot silently fall back; legacy inventory stays explicit', () => {
+test('missing adapter installation rejects before native acquisition', () => {
   const registry = createRegistry()
   assert.throws(() => registry.assertSupportedType('button'), /does not support/)
   assert.throws(() => registry.assertSupportedType('contentview'), /does not support/)
   assert.throws(() => registry.assertSupportedType('portalroot'), /does not support/)
   assert.throws(() => registry.assertSupportedType('unknown'), /does not support/)
-  assert.equal(unconvertedElementTypes.has('button'), false)
-  assert.equal(unconvertedElementTypes.has('contentview'), false)
   const catalog = createElementAdapterCatalog()
   assert.equal(catalog.lookup('button'), undefined)
 })
@@ -619,21 +625,23 @@ test('normal author registration replaces future pilot definitions without redir
   const f = fixture(),
     events: string[] = []
   f.assembly.registerElementType('button', {
+    container: false, hasView: true,
     applyProp(_node, name) {
       events.push('old ' + name)
       return false
     },
-    destroy() {
+    prepareDispose() {
       events.push('old dispose')
     },
   })
   const old = f.make('button', { text: 'Old' })
   f.assembly.registerElementType('button', {
+    container: false, hasView: true,
     applyProp(_node, name) {
       events.push('new ' + name)
       return false
     },
-    destroy() {
+    prepareDispose() {
       events.push('new dispose')
     },
   })
@@ -652,14 +660,16 @@ test('registration replacement inside a live native action cannot redirect reent
   const f = fixture(),
     events: string[] = []
   f.assembly.registerElementType('button', {
-    destroy() {
+    container: false, hasView: true,
+    prepareDispose() {
       events.push('acquired')
     },
   })
   const node = f.make('button', {
     onPress() {
       f.assembly.registerElementType('button', {
-        destroy() {
+    container: false, hasView: true,
+        prepareDispose() {
           events.push('replacement')
         },
       })
@@ -792,4 +802,79 @@ test('root partial acquisition releases its host identity when geometry observat
   assert.throws(() => f.make('rootlayout'), (error) => error === failure)
   assert.equal(f.container.nodes.size, 0)
   assert.ok(f.trace.includes('detach 1'))
+})
+
+
+test('the assembled builtin and registered-engine inventory has one canonical definition per supported type', () => {
+  const f = fixture()
+  const noop = () => {}
+  installMasonElement({
+    registerElementType: f.assembly.registerElementType,
+    baseView: NSView,
+    layoutView: node => node.view, pinLayoutChild: noop, queueLayoutReconcile: noop,
+    detach: noop, applyStyle: noop, applyClassName: noop, applyAccessibility: noop,
+    setAction: noop, setPanAction: noop, makeScrollView: f.deps.controls.makeScrollView,
+    disposeActions: f.actions.disposeActions,
+  })
+  const expected = ['rootlayout', 'contentview', 'actionbar', 'proxyviewcontainer', 'masonview', 'scrollview', 'liquidglass', 'label', 'htmlview', '#text', 'button', 'textfield', 'textview', 'searchbar', 'switch', 'slider', 'activityindicator', 'progress', 'datepicker', 'timepicker', 'listpicker', 'listview', 'segmentedbar', 'tabview', 'tabviewitem', 'segmentedbaritem', 'webview', 'image', 'animatedimage', 'pager', 'xplatvideo', 'placeholder', 'span', 'formattedstring'].sort()
+  const entries = f.registry.adapters.entries()
+  assert.deepEqual(entries.map(([type]) => type).sort(), expected)
+  for (const [type, adapter] of entries) {
+    assert.equal(typeof adapter.container, 'boolean', type)
+    assert.equal(typeof adapter.hasView, 'boolean', type)
+    assert.equal(typeof adapter.create, 'function', type)
+  }
+  assert.equal(f.registry.adapters.lookup('scrollview')!.containerStyles, true)
+  assert.equal(f.registry.adapters.lookup('liquidglass')!.containerStyles, true)
+})
+
+
+test('batch preflight preserves an acquired live parent capability after registration replacement', () => {
+  const f = fixture()
+  f.assembly.registerElementType('extension-host', { container: true, hasView: true, create(node) { node.view = new NSView() } })
+  const parent = f.make('extension-host', {}, 10)
+  const child = f.make('button', {}, 11)
+  f.assembly.registerElementType('extension-host', { container: false, hasView: true, create(node) { node.view = new NSView() } })
+  const driver = createDriver({ ...f.deps, registry: f.registry, nodes: f.nodes,
+    tree: { ...f.deps.tree, validateTextNesting() {} }, projection: { validateProxyTree() {} } })
+  assert.doesNotThrow(() => driver.macOSDriver.prepareBatch(f.container, { commands: [{ op: 'insert', id: child.id, parent: parent.id, before: null }] }))
+  assert.equal(parent.adapter!.container, true)
+  assert.equal(f.registry.canContainView('extension-host'), false)
+})
+
+
+test('registered Mason layout leaves builtin scroll handler removals to the acquired scroll definition', () => {
+  const f = fixture()
+  const noop = () => {}
+  installMasonElement({ registerElementType: f.assembly.registerElementType, baseView: NSView,
+    layoutView: node => node.view, pinLayoutChild: noop, queueLayoutReconcile: noop, detach: noop,
+    applyStyle: noop, applyClassName: noop, applyAccessibility: noop, setAction: noop, setPanAction: noop,
+    makeScrollView: f.deps.controls.makeScrollView, disposeActions: f.actions.disposeActions })
+  let calls = 0
+  const clip = { postsBoundsChangedNotifications: false }
+  const adapter = f.registry.adapters.lookup('scrollview')!
+  const node: any = { id: 44, type: 'scrollview', adapter, lifecycle: 'live', view: { contentView: clip },
+    props: { onScroll() { calls++ } }, children: [], parent: null, container: f.container }
+  adapter.applyProp!(node, 'onScroll', node.props.onScroll)
+  assert.equal(typeof f.deps.controls.scrollHandlers.get(clip), 'function')
+  const held = f.held.at(-1)!
+  node.props.onScroll = undefined
+  adapter.applyProp!(node, 'onScroll', undefined)
+  assert.equal(f.deps.controls.scrollHandlers.get(clip), undefined)
+  held()
+  assert.equal(calls, 0)
+  f.nodes.destroy(node)
+  assert.equal(f.observers.size, 0)
+})
+
+
+test('public logical records retain their instance contract while raw text stays private', () => {
+  const f = fixture()
+  const driver = createDriver(f.deps).macOSDriver
+  const raw = f.make('#text', { value: 'Text' }, 80)
+  assert.equal(driver.getPublicInstance(f.container, raw.id), null)
+  for (const [index, type] of ['span', 'formattedstring', 'proxyviewcontainer', 'segmentedbaritem'].entries()) {
+    const record = f.make(type, {}, 81 + index)
+    assert.equal(driver.getPublicInstance(f.container, record.id), record, type)
+  }
 })

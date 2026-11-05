@@ -64,7 +64,7 @@ function controlFixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSProgressIndicator: { alloc: () => ({ initWithFrame: () => view }) },
@@ -208,7 +208,7 @@ test('ActivityIndicator production ownership moves its native host between paren
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['contentview']),

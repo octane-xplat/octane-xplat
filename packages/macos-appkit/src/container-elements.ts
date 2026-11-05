@@ -21,7 +21,7 @@ import {
 } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
-  registry: Pick<Registry, 'behaviorOf' | 'nodeContainersByView'>
+  registry: Pick<Registry, 'adapterFor' | 'nodeContainersByView'>
   layout: Pick<
     Layout,
     | 'layoutView'
@@ -75,7 +75,7 @@ export function createContainerElements(deps: Dependencies) {
       super.layout()
       const node = gridLayoutNodesByView.get(this)
       if (node) {
-        deps.registry.behaviorOf('liquidglass')?.layout?.(node)
+        node.adapter?.layout?.(node)
       }
     }
   }
@@ -211,17 +211,20 @@ export function createContainerElements(deps: Dependencies) {
     view.translatesAutoresizingMaskIntoConstraints = false
     rootLayoutNodesByView.set(view, node)
     view.postsFrameChangedNotifications = true
-    const observer =
-      NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-        NSViewFrameDidChangeNotification,
-        view,
-        null,
-        () => {
-          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && rootLayoutNodesByView.get(view) === node) {
-            deps.layout.queueLayoutReconcile(node.container, node)
-          }
-        },
-      )
+    const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+      NSViewFrameDidChangeNotification,
+      view,
+      null,
+      () => {
+        if (
+          node.lifecycle !== 'disposing' &&
+          node.lifecycle !== 'disposed' &&
+          rootLayoutNodesByView.get(view) === node
+        ) {
+          deps.layout.queueLayoutReconcile(node.container, node)
+        }
+      },
+    )
 
     if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       NSNotificationCenter.defaultCenter.removeObserver(observer)
@@ -256,6 +259,12 @@ export function createContainerElements(deps: Dependencies) {
     node.actionBarTitleViewProp = node.props.titleView
     node.actionBarExternal = node.props.titleView ?? null
     return view
+  }
+
+  function validateActionBarProps(props: PropBag) {
+    if (props.titleView != null && !(props.titleView instanceof NSView)) {
+      throw new TypeError('AppKit actionbar titleView must be an AppKit NSView')
+    }
   }
 
   function validateActionBarTitleView(node: ElementNode, view: NSView | null | undefined) {
@@ -460,23 +469,31 @@ export function createContainerElements(deps: Dependencies) {
     // Auto Layout can resize an NSView after its layout() callback. Observe
     // the resulting frame, so right/bottom alignment and stretch use the
     // new bounds even when AppKit does not schedule another layout pass.
-    lease.token =
-      NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-        NSViewFrameDidChangeNotification,
-        view,
-        null,
-        () => {
-          if (lease.active && contentGeometryLeases.get(node) === lease && node.view === lease.view && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && contentViewNodesByView.get(view) === node) {
-            deps.layout.queueLayoutReconcile(node.container, node)
-          }
-        },
-      )
+    lease.token = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+      NSViewFrameDidChangeNotification,
+      view,
+      null,
+      () => {
+        if (
+          lease.active &&
+          contentGeometryLeases.get(node) === lease &&
+          node.view === lease.view &&
+          node.lifecycle !== 'disposing' &&
+          node.lifecycle !== 'disposed' &&
+          contentViewNodesByView.get(view) === node
+        ) {
+          deps.layout.queueLayoutReconcile(node.container, node)
+        }
+      },
+    )
     // Native registration can synchronously retire the node before returning
     // its token. That late token still belongs to this retired lease.
     if (!lease.active || contentGeometryLeases.get(node) !== lease) {
       const token = lease.token
       lease.token = undefined
-      if (token) { NSNotificationCenter.defaultCenter.removeObserver(token) }
+      if (token) {
+        NSNotificationCenter.defaultCenter.removeObserver(token)
+      }
     }
   }
 
@@ -491,17 +508,20 @@ export function createContainerElements(deps: Dependencies) {
     // Grid placement is resolved in layout() from current bounds, so a frame
     // change must queue the same reconcile the other manual hosts perform.
     view.postsFrameChangedNotifications = true
-    const observer =
-      NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
-        NSViewFrameDidChangeNotification,
-        view,
-        null,
-        () => {
-          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && gridLayoutNodesByView.get(view) === node) {
-            deps.layout.queueLayoutReconcile(node.container, node)
-          }
-        },
-      )
+    const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+      NSViewFrameDidChangeNotification,
+      view,
+      null,
+      () => {
+        if (
+          node.lifecycle !== 'disposing' &&
+          node.lifecycle !== 'disposed' &&
+          gridLayoutNodesByView.get(view) === node
+        ) {
+          deps.layout.queueLayoutReconcile(node.container, node)
+        }
+      },
+    )
 
     if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       NSNotificationCenter.defaultCenter.removeObserver(observer)
@@ -586,13 +606,19 @@ export function createContainerElements(deps: Dependencies) {
   }
 
   function disposeBuiltinRootLayout(node: ElementNode) {
-    if (node.type !== 'rootlayout') return
+    if (node.type !== 'rootlayout') {
+      return
+    }
     const failures = new FailureCollector()
     const observer = node.rootGeometryObserver
     node.rootGeometryObserver = null
-    if (node.view) rootLayoutNodesByView.delete(node.view)
+    if (node.view) {
+      rootLayoutNodesByView.delete(node.view)
+    }
     failures.run('root geometry', () => {
-      if (observer) NSNotificationCenter.defaultCenter.removeObserver(observer)
+      if (observer) {
+        NSNotificationCenter.defaultCenter.removeObserver(observer)
+      }
     })
     for (const child of node.children.slice()) {
       failures.run('root child', () => deps.tree.detach(node.container, child))
@@ -601,15 +627,21 @@ export function createContainerElements(deps: Dependencies) {
   }
 
   function disposeBuiltinLiquidGlass(node: ElementNode) {
-    if (node.type !== 'liquidglass') return
+    if (node.type !== 'liquidglass') {
+      return
+    }
     const failures = new FailureCollector()
     const observer = node.glassGeometryObserver
     const backdrop = node.glassBackdrop
     node.glassGeometryObserver = null
     node.glassBackdrop = null
-    if (node.view) gridLayoutNodesByView.delete(node.view)
+    if (node.view) {
+      gridLayoutNodesByView.delete(node.view)
+    }
     failures.run('glass geometry', () => {
-      if (observer) NSNotificationCenter.defaultCenter.removeObserver(observer)
+      if (observer) {
+        NSNotificationCenter.defaultCenter.removeObserver(observer)
+      }
     })
     failures.run('glass backdrop', () => backdrop?.removeFromSuperview())
     failures.throwIfFailed()
@@ -618,17 +650,23 @@ export function createContainerElements(deps: Dependencies) {
   function disposeBuiltinContentGeometry(node: ElementNode) {
     const lease = contentGeometryLeases.get(node)
     contentGeometryLeases.delete(node)
-    if (!lease) { return }
+    if (!lease) {
+      return
+    }
     lease.active = false
     const token = lease.token
     lease.token = undefined
-    if (token) { NSNotificationCenter.defaultCenter.removeObserver(token) }
+    if (token) {
+      NSNotificationCenter.defaultCenter.removeObserver(token)
+    }
   }
 
   function disposeBuiltinContentHost(node: ElementNode) {
     // Children retire before their native host; release faults cannot strand
     // siblings or the host lookup, and reentry cannot reacquire these fields.
-    if (!['contentview', 'actionbar'].includes(node.type ?? '')) { return }
+    if (!['contentview', 'actionbar'].includes(node.type ?? '')) {
+      return
+    }
     const failures = new FailureCollector()
     const ownedView = contentGeometryLeases.get(node)?.view ?? node.view
     failures.run('content geometry', () => disposeBuiltinContentGeometry(node))
@@ -647,7 +685,9 @@ export function createContainerElements(deps: Dependencies) {
     }
     if (ownedView) {
       failures.run('content identity', () => {
-        if (contentViewNodesByView.get(ownedView) === node) { contentViewNodesByView.delete(ownedView) }
+        if (contentViewNodesByView.get(ownedView) === node) {
+          contentViewNodesByView.delete(ownedView)
+        }
       })
     }
     failures.throwIfFailed()
@@ -681,6 +721,7 @@ export function createContainerElements(deps: Dependencies) {
     makeContentView,
     makeActionBar,
     setActionBarTitleView,
+    validateActionBarProps,
     syncActionBar,
     makePlaceholder,
     fireCreatingView,

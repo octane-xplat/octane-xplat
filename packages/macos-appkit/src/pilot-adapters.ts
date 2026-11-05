@@ -36,6 +36,7 @@ export function createPilotAdapters(deps: PilotAdapterDependencies): PilotAdapte
       dispose: deps.actions.disposeActions,
     },
     contentview: {
+      childProps: new Set(['horizontalAlignment', 'verticalAlignment']),
       container: true,
       hasView: true,
       create(node) {

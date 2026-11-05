@@ -85,7 +85,7 @@ function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty,
     ),
     behaviorOf: (type: string) => sandbox.elementBehaviors.get(type),
     isManualLayoutParent: (t: string) =>
-      ['liquidglass', 'contentview', 'actionbar', 'rootlayout', 'masonview'].includes(t),
+      ['liquidglass', 'contentview', 'actionbar', 'rootlayout', 'masonview'].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     validateTextStyle,
@@ -437,7 +437,7 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
   assert.equal(fx.nodeContainersByView.has(node.view), false)
 })
 
-test('P0 behavior replacement currently redirects existing-node cleanup to the latest registration', () => {
+test('P6 registration replacement preserves acquired cleanup for the existing node', () => {
   const fx = fixture()
   const events: string[] = []
   fx.elementBehaviors.set('plugin-host', {
@@ -449,8 +449,7 @@ test('P0 behavior replacement currently redirects existing-node cleanup to the l
     destroy() { events.push('replacement') },
   })
   fx.destroy(node)
-  // P5/P6 must deliberately change this characterization to acquired-definition cleanup.
-  assert.deepEqual(events, ['replacement'])
+  assert.deepEqual(events, ['original'])
 })
 
 test('recreate rejects a view replacement under a non-container parent', () => {

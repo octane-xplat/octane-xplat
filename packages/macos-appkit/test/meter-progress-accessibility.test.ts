@@ -40,7 +40,7 @@ test('AppKit meter and progressbar roles report range, value, and description', 
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSView: class {},

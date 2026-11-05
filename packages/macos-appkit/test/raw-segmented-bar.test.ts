@@ -66,7 +66,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       NSSegmentedControl: {
@@ -255,7 +255,7 @@ test('SegmentedBar production ownership moves its native host between parents an
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['contentview']),
@@ -335,7 +335,7 @@ test('SegmentedBar selected background style updates and restores the pinned blu
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     nativeColor: (value: any) => value,

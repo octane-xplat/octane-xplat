@@ -79,7 +79,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['wraplayout', 'contentview', 'proxyviewcontainer']),

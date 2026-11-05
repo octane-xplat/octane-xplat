@@ -1,3 +1,5 @@
+import type { ElementNode } from './model'
+import { FailureCollector } from './failures.ts'
 /** `pager` — the shared paged-container extension element. An NSScrollView
  *  whose document holds one clip-sized host per item laid side by side;
  *  scrolling snaps to the nearest page after the gesture settles (mandatory
@@ -71,6 +73,9 @@ function scrollToPage(state: PagerState, index: number) {
 /** After the gesture's bounds changes idle out, land on the nearest page and
  *  report it. Mirrors the web leaf's 90 ms scroll-idle debounce. */
 function scheduleSettle(state: PagerState) {
+  if (state.closed) {
+    return
+  }
   if (state.settleTimer !== undefined) {
     clearTimeout(state.settleTimer)
   }
@@ -196,8 +201,11 @@ function layoutPages(state: PagerState) {
   }
 }
 
-export function makePagerView(): NSView {
+export function makePagerView(node?: ElementNode): NSView {
   const view = NSScrollViewMake() as View
+  if (node) {
+    node.view = view
+  }
   view.translatesAutoresizingMaskIntoConstraints = false
   view.hasHorizontalScroller = false
   view.hasVerticalScroller = false
@@ -207,9 +215,7 @@ export function makePagerView(): NSView {
     size: { width: 0, height: 0 },
   }) as View
 
-  view.documentView = document
   const clip = view.contentView
-  clip.postsBoundsChangedNotifications = true
   const state: PagerState = {
     view,
     clip,
@@ -223,12 +229,20 @@ export function makePagerView(): NSView {
   }
 
   states.set(view, state)
-  state.boundsObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
+  view.documentView = document
+  clip.postsBoundsChangedNotifications = true
+  const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
     NSViewBoundsDidChangeNotification,
     clip,
     null,
     () => scheduleSettle(state),
   )
+
+  if (state.closed || states.get(view) !== state) {
+    NSNotificationCenter.defaultCenter.removeObserver(observer)
+  } else {
+    state.boundsObserver = observer
+  }
 
   return view
 }
@@ -285,27 +299,38 @@ export function disposePagerView(view: NSView) {
   if (!state || state.closed) {
     return
   }
-
   state.closed = true
-  if (state.settleTimer !== undefined) {
-    clearTimeout(state.settleTimer)
-    state.settleTimer = undefined
-  }
-
-  if (state.boundsObserver) {
-    NSNotificationCenter.defaultCenter.removeObserver(state.boundsObserver)
-    state.boundsObserver = undefined
-  }
-
-  for (const constraint of state.pageConstraints ?? []) {
-    constraint.active = false
-  }
-
-  for (const page of state.pages) {
-    unbindPage(state, page)
-  }
-
-  state.pages = []
-  state.view.documentView = null
   states.delete(view)
+  state.props = {}
+  const timer = state.settleTimer
+  const observer = state.boundsObserver
+  const constraints = state.pageConstraints
+  const pages = state.pages
+  state.settleTimer = undefined
+  state.boundsObserver = undefined
+  state.pageConstraints = []
+  state.pages = []
+  const failures = new FailureCollector()
+  failures.run('pager settle', () => {
+    if (timer !== undefined) {
+      clearTimeout(timer)
+    }
+  })
+  failures.run('pager observer', () => {
+    if (observer) {
+      NSNotificationCenter.defaultCenter.removeObserver(observer)
+    }
+  })
+  for (const constraint of constraints) {
+    failures.run('pager constraint', () => {
+      constraint.active = false
+    })
+  }
+  for (const page of pages) {
+    failures.run('pager page', () => unbindPage(state, page))
+  }
+  failures.run('pager document', () => {
+    state.view.documentView = null
+  })
+  failures.throwIfFailed()
 }

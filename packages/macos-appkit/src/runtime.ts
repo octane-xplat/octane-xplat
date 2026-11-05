@@ -2,7 +2,6 @@ import { createElementAdapters } from './adapter-assembly'
 import { createBoxPaint } from './box-paint'
 import { createCssAnimations } from './css-animations'
 import { createPickerElements } from './picker-elements'
-import { createHostedElements } from './hosted-elements'
 import { configureTabContentRoots } from './tab-view'
 import { nativeColor } from './native-colors'
 import { installCompat } from './ns-compat'
@@ -173,9 +172,8 @@ const imageElements = createImageElements({
   get cssCascade() {
     return cssCascade
   },
+  subscriptions,
 })
-
-
 
 const nodes = createNodes({
   boxPaint,
@@ -186,19 +184,9 @@ const nodes = createNodes({
   get tree() {
     return tree
   },
-  get pickerElements() {
-    return pickerElements
-  },
   get cssCascade() {
     return cssCascade
   },
-  containerElements,
-  roots,
-  controls,
-  textElements,
-  inputElements,
-  imageElements,
-  actions,
   get elementProps() {
     return elementProps
   },
@@ -206,12 +194,6 @@ const nodes = createNodes({
     return cssPseudoState
   },
   subscriptions,
-  get hostedElements() {
-    return hostedElements
-  },
-  get projection() {
-    return projection
-  },
   layout,
   get accessibility() {
     return accessibility
@@ -260,26 +242,13 @@ const accessibility = createAccessibility({
 })
 
 const elementProps = createElementProps({
-  nodes,
-  containerElements,
   actions,
   textElements,
   cssCascade,
-  get pickerElements() {
-    return pickerElements
-  },
   layout,
   subscriptions,
-  registry,
   accessibleHost,
   accessibility,
-  get hostedElements() {
-    return hostedElements
-  },
-  controls,
-  inputElements,
-  imageElements,
-  nativeStyle,
 })
 
 const projection = createProjection({
@@ -305,7 +274,6 @@ const tree = createTree({
     return pickerElements
   },
   registry,
-  containerElements,
 })
 
 const driver = createDriver({
@@ -383,17 +351,29 @@ const pickerElements = createPickerElements({
   accessibility,
   tree,
 })
-const hostedElements = createHostedElements({
-  cssCascade,
-  accessibility,
-  tree,
-})
-
 const cssAnimations = createCssAnimations({
   nativeStyle,
 })
 
-const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements, pickerElements, cssCascade, projection })
+const elementAdapters = createElementAdapters({
+  registry,
+  controls,
+  containers: containerElements,
+  actions,
+  layout,
+  textElements,
+  inputElements,
+  pickerElements,
+  cssCascade,
+  projection,
+  accessibility,
+  imageElements,
+  roots,
+  nativeStyle,
+  subscriptions,
+  nodes,
+  tree,
+})
 
 function initializeRuntime() {
   styleEnvironment.activate()
@@ -426,6 +406,7 @@ function initializeRuntime() {
     setPanAction: actions.setPanAction,
     makeScrollView: controls.makeScrollView,
     baseView: accessibleHost.AccessibleHostView,
+    disposeActions: actions.disposeActions,
   })
 
   hostBridge.appKitBridge.readOutlineHeadings = (view) =>
@@ -558,7 +539,11 @@ function initializeRuntime() {
 
   hostBridge.appKitBridge.presentSheet = sheetBridge.presentSheet
 
-  installPresentationBridge(hostBridge.appKitBridge, roots.createMacOSRoot, directory.fontFamilyForView)
+  installPresentationBridge(
+    hostBridge.appKitBridge,
+    roots.createMacOSRoot,
+    directory.fontFamilyForView,
+  )
 }
 initializeRuntime()
 

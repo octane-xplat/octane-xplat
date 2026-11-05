@@ -12,7 +12,7 @@ import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
 
 interface Dependencies {
-  registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'behaviorOf'>
+  registry: Pick<Registry, 'cssNodesByView' | 'isManualLayoutParent' | 'adapterFor'>
   projection: Pick<Projection, 'syncProxyProjection'>
   containerElements: Pick<ContainerElements, 'syncActionBar'>
 }
@@ -131,7 +131,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const parent = node.layoutParent ?? node.parent
-    if (deps.registry.isManualLayoutParent(parent?.type)) {
+    if (deps.registry.isManualLayoutParent(parent)) {
       queueLayoutReconcile(node.container, parent)
     }
   }
@@ -570,15 +570,6 @@ export function createLayout(deps: Dependencies) {
 
     if (parent.adapter) {
       parent.adapter.layout?.(parent)
-      return
-    }
-
-    // Registered behaviors own their layout pass — mason-backed containers
-    // (masonview, scrollview, liquidglass) never reach the builtin branches.
-    const layoutBehavior = deps.registry.behaviorOf(parent.type)?.layout
-    if (layoutBehavior) {
-      parent.view?.invalidateIntrinsicContentSize()
-      layoutBehavior(parent)
       return
     }
 

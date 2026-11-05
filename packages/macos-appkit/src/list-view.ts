@@ -1,3 +1,4 @@
+import type { ElementNode } from './model'
 import { FailureCollector } from './failures.ts'
 import {
   defineUniversalComponent,
@@ -321,12 +322,14 @@ const ListDelegate = NSObject.extend(
 /** Create the raw scroll/table host; weak native delegate edges have a retained JS owner. */
 export function makeListView(
   deps: Pick<ListState, 'createRoot' | 'releaseOwnedRoot' | 'color'>,
+  node?: ElementNode,
 ): NSView {
   const view = NSScrollView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
   }) as View
 
+  if (node) {node.view = view}
   view.translatesAutoresizingMaskIntoConstraints = false
   view.hasVerticalScroller = true
   view.hasHorizontalScroller = false

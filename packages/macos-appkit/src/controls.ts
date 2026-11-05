@@ -21,10 +21,7 @@ import { makeMasonHostView } from './mason'
 interface Dependencies {
   actions: Pick<
     Actions,
-    | 'acquireAction'
-    | 'setNodeHandler'
-    | 'buttonActionTarget'
-    | 'setControlAction'
+    'acquireAction' | 'setNodeHandler' | 'buttonActionTarget' | 'setControlAction'
   >
   cssCascade: Pick<CssCascade, 'setNodeInlineStyle' | 'applyClassName'>
   accessibility: Pick<Accessibility, 'applyAccessibility'>
@@ -56,9 +53,11 @@ export function createControls(deps: Dependencies) {
       size: { width: 480, height: 320 },
     })
 
+    node.view = scroll
     // The document view is a mason host — the engine sizes it to content and
     // pins scroll children inside it.
     const content = makeMasonHostView(node)
+    node.childHost = content
     scroll.hasVerticalScroller = true
     scroll.drawsBackground = false
     scroll.borderType = NSBorderType.No
@@ -371,9 +370,10 @@ export function createControls(deps: Dependencies) {
     if (node.type === 'scrollview' && node.scrollObserverInstalled && node.view) {
       const clipView = node.view.contentView
       scrollHandlers.delete(clipView)
-      NSNotificationCenter.defaultCenter.removeObserver(node.scrollObserver)
+      const observer = node.scrollObserver
       node.scrollObserver = null
       node.scrollObserverInstalled = false
+      NSNotificationCenter.defaultCenter.removeObserver(observer)
     }
   }
 

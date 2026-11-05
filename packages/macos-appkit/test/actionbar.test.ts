@@ -47,7 +47,7 @@ function fixture() {
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       ownedRoots: new WeakMap(),
@@ -173,7 +173,7 @@ test('ActionBar rejects non-NSView titleView values during prop preflight', () =
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
     NSView,
   })

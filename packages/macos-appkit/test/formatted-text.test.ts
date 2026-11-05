@@ -129,7 +129,7 @@ test('logical text hosts reparent, move, remove and dispose through production o
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(),

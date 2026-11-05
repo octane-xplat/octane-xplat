@@ -135,7 +135,7 @@ test('HtmlView updates reconcile content only after font/color sources, preservi
         'docklayout',
         'wraplayout',
         'rootlayout',
-      ].includes(t),
+      ].includes(typeof t === 'string' ? t : t?.type),
     registerElementType: () => {},
 
     parseHtmlText: (html: string, defaults: any) => ({ html, defaults }),
@@ -215,7 +215,7 @@ test('HtmlView production ownership moves its native host between parents and re
           'docklayout',
           'wraplayout',
           'rootlayout',
-        ].includes(t),
+        ].includes(typeof t === 'string' ? t : t?.type),
       registerElementType: () => {},
 
       VIEW_PARENT_TYPES: new Set(['contentview']),

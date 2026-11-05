@@ -7,7 +7,7 @@ import { runInNewContext } from 'node:vm'
 const source = rendererSource()
 test('native image creation receives the final policy before its first source load', () => {
   const start = source.indexOf('function makeImageView('),
-    end = source.indexOf('/** Types whose views arrange child views', start),
+    end = source.indexOf('function typeHasView(', start),
     calls: any[] = []
   const view = {},
     create = runInNewContext(
@@ -27,17 +27,11 @@ test('native image creation receives the final policy before its first source lo
 })
 
 test('image mutation dispatch reads the final prop bag for simultaneous changes and policy removal', () => {
-  const start = source.indexOf("case 'image':", source.indexOf('function applyProps(')),
-    end = source.indexOf("default:", start),
-    calls: any[] = []
-  // Exercise the real image branch under applyProps' observed complete-bag
-  // protocol. This is source dispatch evidence, not native batch execution.
+  const calls: any[] = []
+  // The feature reader runs under the adapter's complete merged-bag contract.
   const apply = runInNewContext(
     builtinFixtureHelpers() +
-      '\n' +
-      stripTypeScriptTypes(
-        `(function(node, props) { node.props = { ...node.props, ...props }; for (const [name, value] of Object.entries(props)) { switch(node.type) { ${source.slice(start, end)} } } })`,
-      ),
+      '\n(function(node, props) { node.props = { ...node.props, ...props }; for (const [name, value] of Object.entries(props)) applyBuiltinImageProp(node, name, value) })',
     { updateImage: (...args: any[]) => calls.push(args) },
   )
   const node = { type: 'image', view: {}, props: { src: 'old', imageCachePolicy: 'memory-disk' } }
