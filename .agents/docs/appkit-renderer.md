@@ -109,7 +109,8 @@ thin facade over the registry/box owner and does not depend on root lifecycle.
 
 `element-adapter.ts` defines the private phased protocol and catalog. Runtime
 composition uses `adapter-assembly.ts` to assemble definitions from
-`pilot-adapters.ts`, `control-adapters.ts` and `text-adapters.ts`; importing a leaf
+`pilot-adapters.ts`, `control-adapters.ts`, `text-adapters.ts` and
+`picker-adapters.ts`; importing a leaf
 registers nothing. A node captures its validated definition before creation and
 retains it for props, layout and disposal. Replacement registrations affect
 future acquisitions; mutating a registration object cannot redirect a live
@@ -134,8 +135,10 @@ identity before generic host detach. Late observation tokens acquired during
 reentrant retirement are released; held callbacks reject retired/replaced leases.
 Text adapters retire sizing before hooks, inherit fonts and install input delegates
 before initial props, and own input/link cleanup. Viewless text definitions fold
-the merged bag into the live text parent. Nested-root legacy phases remain
-until their P6 cohort migrates.
+the merged bag into the live text parent. Picker definitions validate before allocation, synchronize selection against the
+complete prop bag, and release action leases with native control state. Logical
+segmented items synchronize their live parent during removal. Nested-root legacy
+phases remain until their P6 cohort migrates.
 
 Box painting has one coordinator in `box-paint.ts`. Its private WeakMap holds
 one typed record per node/view, including frame observation, layers and image

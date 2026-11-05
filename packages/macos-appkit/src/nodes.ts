@@ -173,84 +173,15 @@ export function createNodes(deps: Dependencies) {
       validateTabProps(type, props ?? {})
     }
 
-    if (type === 'segmentedbaritem' && props?.title != null && typeof props.title !== 'string') {
-      throw new Error('AppKit segmentedbaritem title must be a string')
-    }
 
-    if (type === 'segmentedbar') {
-      if (props?.items != null && !Array.isArray(props.items)) {
-        throw new Error('AppKit segmentedbar items must be an array')
-      }
 
-      for (const item of props?.items ?? []) {
-        if (!item || typeof item !== 'object') {
-          throw new Error('AppKit segmentedbar items must be objects with optional titles')
-        }
 
-        if (item.title != null && typeof item.title !== 'string') {
-          throw new Error('AppKit segmentedbar item title must be a string')
-        }
-      }
 
-      if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {
-        throw new Error('AppKit segmentedbar selectedIndex must be an integer')
-      }
 
-      if (props?.style?.selectedBackgroundColor != null) {
-        nativeColor(props.style.selectedBackgroundColor)
-      }
-    }
 
-    if (type === 'listpicker') {
-      if (props?.items != null && !Array.isArray(props.items)) {
-        throw new Error('AppKit listpicker items must be an array')
-      }
 
-      if (props?.selectedIndex != null && !Number.isInteger(props.selectedIndex)) {
-        throw new Error('AppKit listpicker selectedIndex must be an integer')
-      }
 
-      // Validate item conversion before allocating a view or registration.
-      for (const item of props?.items ?? []) {
-        if (item != null) {
-          void (item + '')
-        }
-      }
-    }
 
-    if (type === 'timepicker') {
-      if (props?.time != null) {
-        deps.pickerElements.timeOfDay(props.time)
-      }
-
-      for (const name of ['hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute']) {
-        const value = props?.[name]
-        const maximum = name.toLowerCase().includes('hour') ? 23 : 59
-        if (value != null && (!Number.isInteger(value) || value < 0 || value > maximum)) {
-          throw new TypeError(
-            'AppKit timepicker ' + name + ' must be an integer from 0 through ' + maximum,
-          )
-        }
-      }
-    }
-
-    if (type === 'datepicker') {
-      for (const name of ['date', 'minDate', 'maxDate']) {
-        if (props?.[name] != null) {
-          if (!(props[name] instanceof Date) && typeof props[name] !== 'string') {
-            throw new Error('AppKit datepicker ' + name + ' must be Date or string')
-          }
-
-          deps.pickerElements.calendarDate(props[name])
-        }
-      }
-
-      for (const name of ['year', 'month', 'day']) {
-        if (props?.[name] != null && !Number.isInteger(props[name])) {
-          throw new Error('AppKit datepicker ' + name + ' must be an integer')
-        }
-      }
-    }
 
     if (
       type === 'placeholder' &&
@@ -358,11 +289,6 @@ export function createNodes(deps: Dependencies) {
           case 'tabviewitem':
             makeTabItem(node)
             break
-          case 'segmentedbar': {
-            const control = deps.pickerElements.makeSegmentedBar(node)
-            node.view = control.view
-            break
-          }
           case 'listview':
             node.view = makeListView({
               createRoot: (host) =>
@@ -372,21 +298,6 @@ export function createNodes(deps: Dependencies) {
             }) as AppKitView
 
             break
-          case 'listpicker': {
-            const control = deps.pickerElements.makeListPicker(node)
-            node.view = control.view
-            break
-          }
-          case 'timepicker': {
-            const control = deps.pickerElements.makeTimePicker(node)
-            node.view = control.view
-            break
-          }
-          case 'datepicker': {
-            const control = deps.pickerElements.makeDatePicker(node)
-            node.view = control.view
-            break
-          }
           case 'scrollview': {
             const scroll = deps.controls.makeScrollView(node)
             node.view = scroll.view
@@ -412,7 +323,6 @@ export function createNodes(deps: Dependencies) {
             node.view = deps.containerElements.makePlaceholder(node)
             break
           case 'proxyviewcontainer':
-          case 'segmentedbaritem':
             break
           default: {
             const behavior = deps.registry.behaviorOf(type)

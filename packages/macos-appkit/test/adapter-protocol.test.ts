@@ -13,9 +13,10 @@ const { createRegistry } = await import('../src/registry.ts')
 const { createElementProps } = await import('../src/element-props.ts')
 const { createControls } = await import('../src/controls.ts')
 const { createContainerElements } = await import('../src/container-elements.ts')
+const { createPickerElements } = await import('../src/picker-elements.ts')
 const { createInputElements } = await import('../src/input-elements.ts')
 const { createActions } = await import('../src/actions.ts')
-const { NSButton, NSSlider, NSProgressIndicator, NSNotificationCenter, NSView } =
+const { NSButton, NSSlider, NSProgressIndicator, NSPopUpButton, NSMenuItem, NSNotificationCenter, NSView } =
   await import('@octane-xplat/platform/macos')
 hooks.deregister()
 
@@ -74,6 +75,13 @@ function fixture() {
       return this
     },
   })
+  Object.assign(NSPopUpButton.prototype, {
+    initWithFramePullsDown() { this.menu = { items: [], addItem(item) { this.items.push(item) } }; return this },
+    removeAllItems() { this.menu.items.length = 0 },
+    selectItemAtIndex(index) { this.indexOfSelectedItem = index },
+    invalidateIntrinsicContentSize() {},
+  })
+  Object.assign(NSMenuItem.prototype, { initWithTitleActionKeyEquivalent(title) { this.title = title; return this } })
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -174,6 +182,7 @@ function fixture() {
   const actions = createActions(deps)
   const controls = createControls({ ...deps, actions })
   const containers = createContainerElements({ ...deps, actions })
+  const pickers = createPickerElements({ ...deps, actions })
   const inputs = {
     ...createInputElements({ ...deps, actions }),
     makeTextField: nativeView,
@@ -181,8 +190,8 @@ function fixture() {
     initializeTextViewport() { run('text viewport') },
     fitTextView() { run('text fit') },
   }
-  Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs })
-  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements })
+  Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs, pickerElements: pickers })
+  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements })
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
   deps.elementProps = props
@@ -546,6 +555,13 @@ test('content geometry releases a late native token when registration reenters r
   const f = fixture(),
     token = {}
   let observedView: object | undefined
+  Object.assign(NSPopUpButton.prototype, {
+    initWithFramePullsDown() { this.menu = { items: [], addItem(item) { this.items.push(item) } }; return this },
+    removeAllItems() { this.menu.items.length = 0 },
+    selectItemAtIndex(index) { this.indexOfSelectedItem = index },
+    invalidateIntrinsicContentSize() {},
+  })
+  Object.assign(NSMenuItem.prototype, { initWithTitleActionKeyEquivalent(title) { this.title = title; return this } })
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -726,5 +742,23 @@ test('partial textview construction unwinds delegate and action ownership after 
   assert.throws(() => f.make('textview', { id: 'text' }), error => error === failure)
   const view = f.views.at(-1)
   assert.equal(view.delegate, null)
+  assert.equal(f.store.idForView(view), undefined)
+})
+
+test('acquired listpicker synchronizes the complete bag, preserves native selection and retires held action dispatch', () => {
+  const f = fixture(), events: number[] = []
+  const node = f.make('listpicker', { items: ['a', 'a', 'c'], selectedIndex: 2, onSelectedIndexChange(event) { events.push(event.value) } })
+  const view = node.view!, id = view.tag
+  assert.equal(view.menu.items.length, 3)
+  assert.equal(view.indexOfSelectedItem, 2)
+  f.props.applyProps(node, { items: ['x', 'y'], selectedIndex: 1 })
+  assert.equal(view.indexOfSelectedItem, 1)
+  f.props.applyProps(node, f.props.droppedPropClears(node, {}))
+  assert.equal(view.menu.items.length, 0)
+  const count = events.length
+  f.nodes.destroy(node)
+  f.store.dispatch(id)
+  assert.equal(events.length, count)
+  assert.equal(view.target, null)
   assert.equal(f.store.idForView(view), undefined)
 })

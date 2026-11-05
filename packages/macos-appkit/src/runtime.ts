@@ -175,7 +175,7 @@ const imageElements = createImageElements({
   },
 })
 
-const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements })
+
 
 const nodes = createNodes({
   boxPaint,
@@ -392,6 +392,8 @@ const hostedElements = createHostedElements({
 const cssAnimations = createCssAnimations({
   nativeStyle,
 })
+
+const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout, textElements, inputElements, pickerElements })
 
 function initializeRuntime() {
   styleEnvironment.activate()

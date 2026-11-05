@@ -1,3 +1,4 @@
+import { createPickerAdapters, type PickerAdapterDependencies } from './picker-adapters.ts'
 import { createTextAdapters, type TextAdapterDependencies } from './text-adapters.ts'
 import { createControlAdapters, type ControlAdapterDependencies } from './control-adapters.ts'
 import type { Registry } from './registry'
@@ -7,7 +8,8 @@ import { createPilotAdapters, type PilotAdapterDependencies } from './pilot-adap
 
 type Dependencies = PilotAdapterDependencies &
   ControlAdapterDependencies &
-  TextAdapterDependencies & {
+  TextAdapterDependencies &
+  PickerAdapterDependencies & {
     registry: Pick<Registry, 'adapters' | 'registerElementType'>
   }
 
@@ -22,6 +24,7 @@ export function createElementAdapters(deps: Dependencies) {
       ...createPilotAdapters(deps),
       ...createControlAdapters(deps),
       ...createTextAdapters(deps),
+      ...createPickerAdapters(deps),
     }),
   )
   for (const [type, adapter] of definitions) {

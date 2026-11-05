@@ -124,10 +124,6 @@ export function createElementProps(deps: Dependencies) {
   function applyProps(node: ElementNode, props: PropBag) {
     props = normalizeHostStyleProps(props)
     if (node.lifecycle !== 'constructing') { node.adapter?.validate?.(props, node.props) }
-    if (node.type === 'timepicker') {
-      deps.nodes.validateNodeProps(node.type, props)
-    }
-
     if (
       node.type === 'actionbar' &&
       'titleView' in props &&
@@ -175,14 +171,6 @@ export function createElementProps(deps: Dependencies) {
 
     if (node.type === 'tabviewitem') {
       syncTabItem(node)
-      return
-    }
-
-    if (node.type === 'segmentedbaritem') {
-      if (node.parent) {
-        deps.pickerElements.syncSegmentedBar(node.parent)
-      }
-
       return
     }
 
@@ -352,20 +340,8 @@ export function createElementProps(deps: Dependencies) {
         case 'tabview':
           deps.hostedElements.applyBuiltinTabViewProp(node, name, value)
           break
-        case 'segmentedbar':
-          deps.pickerElements.applyBuiltinSegmentedBarProp(node, name, value)
-          break
         case 'listview':
           deps.hostedElements.applyBuiltinListViewProp(node, name, value)
-          break
-        case 'listpicker':
-          deps.pickerElements.applyBuiltinListPickerProp(node, name, value)
-          break
-        case 'timepicker':
-          deps.pickerElements.applyBuiltinTimePickerProp(node, name, value)
-          break
-        case 'datepicker':
-          deps.pickerElements.applyBuiltinDatePickerProp(node, name, value)
           break
         case 'scrollview':
           deps.controls.applyBuiltinScrollViewProp(node, name, value)
@@ -404,14 +380,6 @@ export function createElementProps(deps: Dependencies) {
       syncTabView(node)
     }
 
-    if (node.type === 'segmentedbar') {
-      deps.pickerElements.syncSegmentedBar(node)
-    }
-
-    if (node.type === 'listpicker') {
-      deps.pickerElements.syncListPicker(node)
-    }
-
     if (node.type === 'listview') {
       updateListView(node.view!, node.props)
     }
@@ -422,14 +390,6 @@ export function createElementProps(deps: Dependencies) {
 
     if (node.type === 'xplatvideo') {
       updateVideoView(node, node.props)
-    }
-
-    if (node.type === 'datepicker') {
-      deps.pickerElements.syncDatePicker(node, props)
-    }
-
-    if (node.type === 'timepicker') {
-      deps.pickerElements.syncTimePicker(node, props)
     }
 
     if (
