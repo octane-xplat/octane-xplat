@@ -5,7 +5,13 @@ import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
 import { RELEASES, releaseName, releaseVersion, type Release } from './release-version.ts'
 
-type Note = { path: string; release: Release; kind: 'features' | 'fixes'; body: string }
+type Note = {
+  path: string
+  release: Release
+  kind: 'features' | 'fixes'
+  hype: number
+  body: string
+}
 const repository = 'https://github.com/octane-xplat/octane-xplat'
 
 export function readNotes(root: string): Note[] {
@@ -29,18 +35,29 @@ export function readNotes(root: string): Note[] {
       const header = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/.exec(text)
       assert.ok(header || !text.startsWith('---'), `${path}: close the YAML header or omit it`)
       let release: Release = 'lockstep'
+      let hype = 50
       let body = text
       if (header) {
         const metadata = parse(header[1])
         assert.ok(
           metadata &&
             typeof metadata === 'object' &&
-            Object.keys(metadata).length === 1 &&
-            Object.hasOwn(metadata, 'release'),
-          `${path}: the header must contain only release`,
+            !Array.isArray(metadata) &&
+            Object.keys(metadata).length > 0 &&
+            Object.keys(metadata).every((key) => key === 'release' || key === 'hype'),
+          `${path}: the header must contain only release and/or hype`,
         )
 
-        release = releaseName(metadata.release)
+        if (Object.hasOwn(metadata, 'release')) {
+          release = releaseName(metadata.release)
+        }
+        if (Object.hasOwn(metadata, 'hype')) {
+          assert.ok(
+            Number.isInteger(metadata.hype) && metadata.hype >= 0 && metadata.hype <= 100,
+            `${path}: hype must be an integer from 0 to 100`,
+          )
+          hype = metadata.hype
+        }
         body = header[2]
       }
 
@@ -77,7 +94,7 @@ export function readNotes(root: string): Note[] {
       }
 
       assert.ok(!fence, `${path}: close the code fence`)
-      notes.push({ path, release, kind, body })
+      notes.push({ path, release, kind, hype, body })
     }
   }
   return notes
@@ -104,6 +121,7 @@ export function renderNotes(
   for (const { kind, file, title } of sections) {
     const body = notes
       .filter((note) => note.kind === kind)
+      .sort((a, b) => b.hype - a.hype || (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
       .map((note) => note.body)
       .join('\n\n')
 

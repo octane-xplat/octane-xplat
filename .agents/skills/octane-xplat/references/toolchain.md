@@ -193,7 +193,9 @@ features or breaking changes, add `.changelog/*.md`; use
 shipped. Internal-only work needs no entry.
 Follow the [authoring contract](../../../docs/releases.md#write-a-release-note)
 for the note format, plain wording, minimal API snippets, and official docs
-links.
+links. Optional frontmatter `hype` (integer 0–100, default 50) ranks reader
+excitement: higher scores lead within each release and log, with filename ties.
+It does not change version bumps or release selection.
 The one-time package stub/trust bootstrap is an explicit exception covered by
 the release reference; it is not a general release workflow.
 

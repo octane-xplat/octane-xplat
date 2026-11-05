@@ -194,6 +194,89 @@ test('preview preserves Markdown and prepare consumes only the selected release'
   assert.equal(readNotes(root).length, 0)
 })
 
+test('hype orders each release and log, defaults to 50, and never appears in published notes', (t) => {
+  const root = fixture(t)
+  for (const release of ['lockstep', 'tsrx-typegen']) {
+    for (const directory of ['.changelog', '.changelog/fixes']) {
+      for (const [filename, hype] of [
+        ['a-low', 0],
+        ['b-default', undefined],
+        ['c-normal', 50],
+        ['z-banger', 100],
+      ]) {
+        const title = `${release} ${directory} ${filename}`
+        // Exercise hype-only lockstep headers as well as headers with both fields.
+        const metadata = {
+          ...(release === 'tsrx-typegen' ? { release } : {}),
+          ...(hype === undefined ? {} : { hype }),
+        }
+        const header = Object.entries(metadata)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('\n')
+        write(
+          root,
+          `${directory}/${release}-${filename}.md`,
+          `${header ? `---\n${header}\n---\n\n` : ''}${note(undefined, title)}`,
+        )
+      }
+    }
+  }
+  for (const release of ['lockstep', 'tsrx-typegen']) {
+    const preview = renderNotes(root, release, '0.2.0', '2026-10-23')
+    assert.equal(preview.notes.length, 8)
+    for (const log of preview.logs) {
+      const directory = log.path.endsWith('FIXLOG.md') ? '.changelog/fixes' : '.changelog'
+      assert.deepEqual(
+        [...log.content.split('\n## ')[1].matchAll(/^### (.+)$/gm)].map((match) => match[1]),
+        ['z-banger', 'b-default', 'c-normal', 'a-low'].map(
+          (name) => `${release} ${directory} ${name}`,
+        ),
+      )
+      assert.doesNotMatch(log.content, /hype:|release:/)
+    }
+    assert.doesNotMatch(preview.github, /hype:|release:/)
+    const prepared = prepareNotes(root, release, '0.2.0', '2026-10-23')
+    assert.equal(prepared.github, preview.github)
+    assert.equal(extractNotes(root, release, '0.2.0'), preview.github)
+    for (const log of prepared.logs) {
+      assert.equal(readFileSync(log.path, 'utf8'), log.content)
+    }
+    assert.equal(readNotes(root).length, release === 'lockstep' ? 8 : 0)
+  }
+})
+
+test('invalid hype fails before logs change or notes are consumed', (t) => {
+  const root = fixture(t)
+  write(root, 'CHANGELOG.md', '# Changelog\n')
+  write(root, 'FIXLOG.md', '# Fixlog\n')
+  write(root, '.changelog/good.md', note(undefined, 'Valid feature'))
+  for (const hype of [
+    '-1',
+    '101',
+    '50.5',
+    '"90"',
+    'true',
+    'null',
+    '',
+    '.nan',
+    '.inf',
+    '[]',
+    '{}',
+  ]) {
+    const invalid = `---\nhype: ${hype}\n---\n\n${note(undefined, 'Invalid hype')}`
+    write(root, '.changelog/fixes/invalid.md', invalid)
+    assert.throws(
+      () => prepareNotes(root, 'lockstep', '0.3.0'),
+      /hype must be an integer from 0 to 100/,
+    )
+    assert.equal(readFileSync(join(root, 'CHANGELOG.md'), 'utf8'), '# Changelog\n')
+    assert.equal(readFileSync(join(root, 'FIXLOG.md'), 'utf8'), '# Fixlog\n')
+    assert.ok(existsSync(join(root, '.changelog/good.md')))
+    assert.equal(readFileSync(join(root, '.changelog/fixes/invalid.md'), 'utf8'), invalid)
+    assert.equal(existsSync(join(root, '.release-notes.md')), false)
+  }
+})
+
 test('an unlisted release leaves both histories unchanged and produces usable GitHub notes', (t) => {
   const root = fixture(t)
   write(root, 'CHANGELOG.md', '# Changelog\n')
@@ -225,6 +308,9 @@ test('invalid fragments fail before logs change or any file is consumed', (t) =>
   for (const invalid of [
     '---\nrelease: lockstep\n### Unclosed header\n\nDescription.\n',
     '---\n\n---\n\n### Empty header\n\nDescription.\n',
+    '---\n- hype\n---\n\n### Array header\n\nDescription.\n',
+    '---\n90\n---\n\n### Scalar header\n\nDescription.\n',
+    '---\nhype: 90\nhype: 50\n---\n\n### Duplicate hype\n\nDescription.\n',
     note('nightly', 'Wrong release'),
     note('lockstep', 'Unknown field').replace(
       'release: lockstep',

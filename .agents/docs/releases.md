@@ -282,13 +282,46 @@ fixlog. Prefer outcomes such as “Keep your place when new messages arrive”
 over implementation terms. State affected platforms when the difference
 matters to the reader.
 
-Every file begins with a level-three title and a short description. Most
-packages use `lockstep`: they share one version, and a lockstep note needs no
-YAML header. Only a `tsrx-typegen` note opens with a header containing
-`release: tsrx-typegen` and nothing else. For a change spanning both release
-streams, write a separate file for each stream so either can publish
-independently. Choose a descriptive filename that does not collide
-with another pending note; do not include an anticipated version or date.
+Every file's body begins with a level-three title and a short description.
+Most packages use `lockstep`: they share one version, and a lockstep note
+needs no YAML header. A `tsrx-typegen` note requires `release: tsrx-typegen`
+in its header. For a change spanning both release streams, write a separate
+file for each stream so either can publish independently. Choose a descriptive
+filename that does not collide with another pending note; do not include an
+anticipated version or date.
+
+An optional YAML header accepts only `release` and `hype`. Set `hype` to an
+integer from 0 (boring) to 100 (banger) to put more exciting changes first;
+omitting it means 50. This lockstep note sorts ahead of notes scored below 90:
+
+```md
+---
+hype: 90
+---
+
+### Build native desktop apps
+
+Create desktop apps with shared components.
+```
+
+For an independent note, combine the fields in the same header:
+
+```md
+---
+release: tsrx-typegen
+hype: 75
+---
+
+### Generate declarations for more exports
+
+Publish typed libraries with fewer manual declarations.
+```
+
+Score reader excitement, not bug severity or migration urgency. Use the scale
+roughly: 0 for housekeeping-level interest, 25 for a small improvement, 50 for
+a useful everyday change, 75 for a major capability or widely felt fix, and
+100 for a release-defining change. Scores affect only ordering within each
+release and log; they do not affect release selection or version bumps.
 
 This is a format example for a hypothetical button fix, not a pending release
 announcement. Save a real fix in `.changelog/fixes/disabled-save-button.md`:
@@ -351,8 +384,9 @@ a change affects an API.
 ## Assemble notes at release time
 
 Only versioned releases consume pending files. The release script groups the
-selected stream's files by features and fixes, sorts filenames for stable
-ordering, removes the YAML headers, and prepends a dated, linked release heading
+selected stream's files by features and fixes, sorts by descending `hype`
+(default 50) with filename order breaking ties, removes the YAML headers,
+and prepends a dated, linked release heading
 to each nonempty destination. Entry bodies, including snippets and links, are
 preserved. Empty categories add no heading; a release without notes can still
 ship — its changelog page section just stays empty.
