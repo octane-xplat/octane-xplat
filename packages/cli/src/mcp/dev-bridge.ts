@@ -30,6 +30,7 @@ import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { SourceMap } from 'node:module'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { browserLogScript } from '../dev-log-client.web.ts'
+import { formatBrowserLogBatch } from '../dev-log-server.ts'
 
 const PREFIX = '/__xplat_dev__'
 const MAX_BODY = 1024 * 1024
@@ -582,35 +583,10 @@ export function xplatDevBridge(options = {}) {
 			prune()
 			if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
 				const body = await readBody(req)
-				if (
-					!Array.isArray(body.records) ||
-					body.records.length > 10 ||
-					!Number.isSafeInteger(body.dropped ?? 0) ||
-					(body.dropped ?? 0) < 0 ||
-					body.records.some(
-						(record) =>
-							!record ||
-							!['warn', 'error'].includes(record.level) ||
-							typeof record.line !== 'string' ||
-							record.line.length > 2048,
-					)
-				) {
-					throw new Error('Invalid browser log batch.')
-				}
+				const batch = formatBrowserLogBatch(body)
+				process.stderr.write(batch.text)
 
-				if (body.dropped) {
-					process.stderr.write(
-						`[browser:warn] ${body.dropped} browser log records lost before delivery.\n`,
-					)
-				}
-
-				for (const record of body.records) {
-					for (const line of record.line.split(/\r?\n/)) {
-						process.stderr.write(`[browser:${record.level}] ${line}\n`)
-					}
-				}
-
-				return json(res, 200, { accepted: body.records.length })
+				return json(res, 200, { accepted: batch.accepted })
 			}
 
 			// GET /invoke/<requestId> — the only parametrized route.

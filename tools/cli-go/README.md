@@ -493,3 +493,11 @@ and after it stops. It verifies capture owner identity, bounded pagination,
 platform mismatch rejection, offline records and explicit unavailable crash-report
 coverage. Engine capture IDs remain separate from observed app session IDs;
 forced Windows shutdown does not prove a final metadata cleanup write.
+
+The app-registry fixture executes the actual injected browser logger in a VM and
+forwards its authenticated requests through real Vite into native diagnostics on
+portable hosts. This does not prove browser APIs. Set `XPLAT_GO_BROWSER_LOGS=1`
+for `test:go-dev-server` to additionally launch the existing Playwright Chromium
+installation, assert real warnings/uncaught errors/rejections reach native logs,
+and close the test-owned browser. It captures no images and is opt-in outside
+lightweight PR checks. This does not qualify UI inspection or other controls.

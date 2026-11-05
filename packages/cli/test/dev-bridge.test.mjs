@@ -109,9 +109,11 @@ test('browser log batches authenticate, validate atomically, and reach process s
 	} finally {
 		process.stderr.write = original
 	}
-	assert.ok(output.some((line) => line.includes('3 browser log records lost')))
-	assert.ok(output.includes('[browser:error] failed\n'))
-	assert.ok(output.includes('[browser:error] stack line\n'))
+	// Write chunk boundaries are not part of the log stream contract.
+	assert.equal(
+		output.join(''),
+		'[browser:warn] 3 browser log records lost before delivery.\n[browser:error] failed\n[browser:error] stack line\n',
+	)
 })
 
 test('the session file lands under the app root with url, token and pid', async (t) => {

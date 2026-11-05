@@ -134,7 +134,7 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
 The real app registry still owns handler execution, serialization and validation.
-Native diagnostics reads retained foreground engine logs; app-console capture, native crash reports and UI controls remain pending.
+Native diagnostics reads retained foreground engine logs; native crash reports and UI controls remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
@@ -174,16 +174,20 @@ and preserve cleanup uncertainty. Reads create no missing cache or dev server.
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --cursor 0 --limit 50 --stream stderr --project /work/repo --app apps/web --json
 ```
 
-Logs remain readable after foreground dev exits. Native crash reports and app
-console capture are explicitly unavailable in this implementation; engine output
-does not prove their absence. `--report` fails with `unavailable`. The removed
+Logs remain readable after foreground dev exits. Native crash reports remain unavailable. The Go development Vite plugin injects
+the existing bounded browser logger for warnings, console errors, uncaught errors
+and rejected promises. It omits object values, preserves local console calls and
+reports lost deliveries. Diagnostics identifies forwarded browser records in the
+returned page; no full console coverage or absence of errors is inferred. Stacks
+remain runtime-raw. `--report` fails with `unavailable`. The removed
 detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
 Vite and a headless AppKit Node host. NativeScript device relay/runtime WebSocket adapters
-remain unimplemented, and browser execution remains unqualified; a spawned SDK tool is not
-proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
+remain unimplemented. Browser app-action transport and UI controls remain
+unqualified; browser console forwarding is verified separately in headless
+Chromium. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
 The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
 configuration. Production builds receive no native bridge definition.
 

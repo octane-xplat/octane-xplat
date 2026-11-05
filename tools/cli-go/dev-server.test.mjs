@@ -16,6 +16,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { stripVTControlCharacters } from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createHash } from 'node:crypto'
+import vm from 'node:vm'
+import { createRequire } from 'node:module'
 import { projectToolFixture } from './project-fixtures.mjs'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 
@@ -367,6 +369,113 @@ test(
 			() => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
 			() => owned.stdout + ' ' + owned.stderr,
 		)
+		// Execute the real injected client without a browser dependency on portable
+		// hosts. This proves client/HTTP/worker/native retention, not browser APIs.
+		const html = await (await fetch(address)).text()
+		const script = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)]
+			.map((match) => match[1])
+			.find((text) => text.includes('__XPLAT_LOGS_INSTALLED__'))
+		assert.ok(script, 'native dev did not inject the canonical browser logger')
+		const listeners = new Map(),
+			sent = []
+		const context = vm.createContext({
+			Error,
+			console: { warn() {}, error() {} },
+			addEventListener: (name, handler) => listeners.set(name, handler),
+			setTimeout,
+			fetch: async (path, init) => {
+				sent.push(init)
+				return fetch(new URL(path, address), init)
+			},
+		})
+		vm.runInContext(script, context)
+		vm.runInContext(
+			"console.warn('native-browser-fixture', {privateValue:'do-not-serialize'})",
+			context,
+		)
+		listeners.get('error')({ message: 'native-runtime-error' })
+		listeners.get('unhandledrejection')({ reason: 'native-rejected-fixture' })
+		const capture = cli(f, ['diagnostics']).data.sessions[0]
+		const readConsole = () => cli(f, ['diagnostics', '--session', capture.sessionId]).data
+		await until(
+			() =>
+				['native-browser-fixture', 'native-runtime-error', 'native-rejected-fixture'].every(
+					(text) =>
+						readConsole().logs.records.some(
+							(record) => record.source === 'browser' && record.line.includes(text),
+						),
+				),
+			'browser client logs did not reach native capture',
+		)
+		assert.equal(readConsole().coverage.appConsole.status, 'captured')
+		assert.ok(!JSON.stringify(readConsole()).includes('do-not-serialize'))
+		const headers = sent[0].headers
+		assert.equal(
+			(
+				await fetch(new URL('/__xplat_dev__/logs', address), {
+					method: 'POST',
+					headers: { 'content-type': 'application/json' },
+					body: '{}',
+				})
+			).status,
+			403,
+		)
+		assert.equal(
+			(
+				await fetch(new URL('/__xplat_dev__/logs', address), {
+					method: 'POST',
+					headers: { ...headers, origin: 'http://foreign.invalid' },
+					body: '{}',
+				})
+			).status,
+			403,
+		)
+		assert.equal(
+			(
+				await fetch(new URL('/__xplat_dev__/logs', address), {
+					method: 'POST',
+					headers,
+					body: JSON.stringify({ records: [{ level: 'info', line: 'must-not-retain' }] }),
+				})
+			).status,
+			400,
+		)
+		if (process.env.XPLAT_GO_BROWSER_LOGS === '1') {
+			const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+			const browser = await requireWeb('playwright').chromium.launch({ headless: true })
+			try {
+				const page = await browser.newPage()
+				await page.goto(address)
+				await page.evaluate(() => {
+					console.warn('chromium-native-warning')
+					setTimeout(() => {
+						throw new Error('chromium-native-uncaught')
+					}, 0)
+					Promise.reject('chromium-native-rejection')
+				})
+
+				await until(
+					() =>
+						[
+							'chromium-native-warning',
+							'chromium-native-uncaught',
+							'chromium-native-rejection',
+						].every((text) =>
+							readConsole().logs.records.some(
+								(record) => record.source === 'browser' && record.line.includes(text),
+							),
+						),
+					'actual Chromium logs were not retained',
+				)
+
+				evidence.push({
+					workflow:
+						'actual headless Chromium console warning, uncaught error and rejected promise through injected native plugin; no images captured',
+				})
+			} finally {
+				await browser.close()
+			}
+		}
 		const inventory = () => cli(f, ['actions', 'list'])
 		let registered
 		await until(

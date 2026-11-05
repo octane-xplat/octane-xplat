@@ -63,7 +63,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				}
 			case "logs":
 				entry["status"] = "partial"
-				entry["detail"] = "Native retained foreground engine logs are readable live or offline with bounded cursor pagination. Native crash reports and app-console capture are unavailable; observed app sessions use separate identities."
+				entry["detail"] = "Native retained foreground engine logs are readable live or offline with bounded cursor pagination. The Go Vite plugin forwards bounded browser warnings/errors; diagnostics distinguishes observed records from complete console coverage. Native crash reports remain unavailable; observed app sessions use separate identities."
 			case "dev_actions":
 				entry["status"] = "partial"
 				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Stack locations remain runtime-raw; platform qualification is separate."

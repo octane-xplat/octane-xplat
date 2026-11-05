@@ -173,7 +173,14 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 	if ctx.Err() != nil {
 		return nil, executionFailure(ctx.Err())
 	}
-	return map[string]any{"sessionId": session.SessionID, "session": logs.Session, "logs": logs, "reports": []any{}, "coverage": map[string]any{"logs": "captured", "appConsole": "unavailable", "nativeReports": map[string]any{"status": "unavailable", "detail": "Native crash-report discovery and retention are not implemented in the parallel Go CLI; engine logs remain readable."}}}, nil
+	consoleStatus := "not-observed"
+	for _, record := range logs.Records {
+		if record.Source == "browser" {
+			consoleStatus = "captured"
+			break
+		}
+	}
+	return map[string]any{"sessionId": session.SessionID, "session": logs.Session, "logs": logs, "reports": []any{}, "coverage": map[string]any{"logs": "captured", "appConsole": map[string]any{"status": consoleStatus, "scope": "returned-page", "detail": "Forwarded browser warnings, errors and runtime failures only; no complete console coverage or absence of errors is inferred. Stacks are runtime-raw."}, "nativeReports": map[string]any{"status": "unavailable", "detail": "Native crash-report discovery and retention are not implemented in the parallel Go CLI; engine logs remain readable."}}}, nil
 }
 func diagnosticsInventory(records []map[string]any) any {
 	return map[string]any{"sessions": records, "note": "Select --session with an engine capture ID from this list. Observed app session IDs are separate. Reads never start a dev server or claim app ownership."}

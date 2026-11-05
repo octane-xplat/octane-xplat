@@ -49,7 +49,8 @@ action listing. `session attach --instance APP_INSTANCE` observes an existing
 app; it never owns or terminates it. Engine progress remains separate from app
 connections. Direct loopback transport requires same-host reachability and a
 runtime WebSocket implementation; NativeScript device relay/runtime WebSocket adapters remain unimplemented,
-and browser execution remains unqualified. Native action invocation/status now use canonical project-worker validation and
+and browser app-action transport/UI controls remain unqualified. Browser console
+forwarding has separate headless Chromium evidence. Native action invocation/status now use canonical project-worker validation and
 the app's existing execution policy. Read the registry revision, use an explicit
 request key, and poll `actions status` rather than a removed generic job command.
 Disconnect/deadline outcomes can remain unknown; do not automatically retry them
@@ -57,8 +58,10 @@ with a new key. Keys/results are bounded to this dev-server startup, with no
 cross-restart idempotence guarantee. Runtime stacks are not source-map resolved.
 Go `diagnostics` lists retained foreground engine captures and reads bounded logs,
 including after dev exits. Its capture IDs differ from observed app sessions.
-Never infer liveness or cleanup from a recorded PID. App-console capture, native
-crash reports and UI controls remain pending.
+Never infer liveness or cleanup from a recorded PID. The Go Vite plugin forwards bounded browser warnings, errors, uncaught failures
+and rejected promises using the existing client. Diagnostics reports observations
+in the returned page; absent records do not prove an error-free app. Native crash
+reports and UI controls remain pending.
 
 ```sh
 /absolute/path/to/xplat-go diagnostics --json

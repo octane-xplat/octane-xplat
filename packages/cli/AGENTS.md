@@ -1122,8 +1122,13 @@ foreground-server response establishes a current owner; a stored PID or session
 state cannot establish liveness or cleanup. Offline reads preserve evidence while
 marking unfinished captures historical/disconnected. Keep filtered cursor behavior,
 rotation errors and incomplete tails visible; never convert malformed evidence to
-an empty successful page. Engine logs do not substitute for app-console or OS
-crash-report capture. Declare those coverage gaps explicitly.
+an empty successful page. Reuse the canonical browser logger in the Go development Vite plugin, with the
+same batch validator used by the retained bridge. Preserve console behavior and
+omit object values. Bound pending HTTP bodies, deadlines, batch rate and stderr
+backpressure; do not let browser logging retain an unbounded output queue. Test
+exact stream bytes rather than Node write-chunk boundaries. Browser observations
+are scoped to the returned log page and do not prove complete console coverage.
+Engine/browser output does not substitute for OS crash-report discovery.
 
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
