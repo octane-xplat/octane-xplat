@@ -32,8 +32,8 @@ try {
 } finally { await server.close() }
 writeFileSync(join(root, 'research/go-cli/dev-android-http.json'), JSON.stringify({ app, results }, null, 2))
 const failed = results.filter((result) => result.status !== 200)
-if (failed.length) console.error(JSON.stringify(failed))
-else console.log('NativeScript device-module HTTP lookups passed on host; no device runtime claim')
+if (failed.length) {console.error(JSON.stringify(failed))}
+else {console.log('NativeScript device-module HTTP lookups passed on host; no device runtime claim')}
 // The server is already closed; plugin exception handlers must not turn a
 // failed assertion into a successful exit or keep a failed probe alive.
 process.exit(failed.length ? 1 : 0)

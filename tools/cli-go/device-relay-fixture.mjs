@@ -5,7 +5,7 @@ const seen = []
 const server = Bun.serve({
 	hostname: '127.0.0.1', port: 0,
 	fetch(request, server) {
-		if (seen.length >= 64) return new Response('Fixture request bound', { status: 503 })
+		if (seen.length >= 64) {return new Response('Fixture request bound', { status: 503 })}
 		const url = new URL(request.url)
 		const record = { path: url.pathname + url.search, origin: request.headers.get('origin') }
 		seen.push(record)

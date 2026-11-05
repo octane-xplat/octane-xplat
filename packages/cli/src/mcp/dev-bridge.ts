@@ -79,7 +79,7 @@ const readBody = (req) =>
  */
 export function xplatDevBridge(options = {}) {
 	const native = nativeDevSocketPlugin()
-	if (native) return native
+	if (native) {return native}
 	const token = randomBytes(24).toString('hex')
 	const serverId = `srv_${randomUUID()}`
 	const startedAt = new Date().toISOString()

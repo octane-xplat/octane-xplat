@@ -99,8 +99,8 @@ test('native preset loads without alien-signals in the app or Octane dependency 
 				assert.equal(new RegExp(pattern).test('/rpc'), false)
 				assert.equal(proxy.target, 'http://127.0.0.1:12345')
 			} finally {
-				if (previous === undefined) delete process.env.XPLAT_DEV_APP_BRIDGE
-				else process.env.XPLAT_DEV_APP_BRIDGE = previous
+				if (previous === undefined) {delete process.env.XPLAT_DEV_APP_BRIDGE}
+				else {process.env.XPLAT_DEV_APP_BRIDGE = previous}
 			}
 		})
 

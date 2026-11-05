@@ -217,7 +217,7 @@ if (binaries.catalog) {
 			const start = performance.now()
 			const result = execute(binaries.core ?? binaries.catalog, ['--help'])
 			assert.equal(result.status, 0, result.stderr)
-			if (i >= 5) samples.push(performance.now() - start)
+			if (i >= 5) {samples.push(performance.now() - start)}
 		}
 		samples.sort((a, b) => a - b)
 		results.startup = {
@@ -426,13 +426,13 @@ if (binaries.io) {
 						}
 					})
 					parent.on('close', (code, signal) => {
-						if (ready && code === 0 && signal === null) done()
+						if (ready && code === 0 && signal === null) {done()}
 						else
-							reject(
+							{reject(
 								new Error(
 									`Cancellation failed: ready=${ready}, code=${code}, signal=${signal}, stderr=${stderr}`,
 								),
-							)
+							)}
 					})
 				})
 				assert.equal(readFileSync(stopped, 'utf8'), 'stopped')
@@ -443,7 +443,7 @@ if (binaries.io) {
 					try {
 						process.kill(childPid, 'SIGKILL')
 					} catch (error) {
-						if (error.code !== 'ESRCH') throw error
+						if (error.code !== 'ESRCH') {throw error}
 					}
 				}
 			}

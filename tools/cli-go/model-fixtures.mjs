@@ -16,13 +16,13 @@ const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 
 export async function prepareModelFixtures({ tokenizerOnly = true } = {}) {
  for (const [file, digest] of Object.entries(modelFiles)) {
-  if (tokenizerOnly && file.endsWith('.onnx')) continue
+  if (tokenizerOnly && file.endsWith('.onnx')) {continue}
   const path = resolve(modelFixtureDir, file)
-  if (existsSync(path) && sha(readFileSync(path)) === digest) continue
+  if (existsSync(path) && sha(readFileSync(path)) === digest) {continue}
   const response = await fetch(`https://huggingface.co/${MODEL.name}/resolve/${MODEL.revision}/${file}`, { signal: AbortSignal.timeout(120_000) })
-  if (!response.ok) throw Error(`Fixture download failed (${response.status}): ${file}`)
+  if (!response.ok) {throw Error(`Fixture download failed (${response.status}): ${file}`)}
   const bytes = new Uint8Array(await response.arrayBuffer())
-  if (sha(bytes) !== digest) throw Error(`Fixture checksum mismatch: ${file}`)
+  if (sha(bytes) !== digest) {throw Error(`Fixture checksum mismatch: ${file}`)}
   mkdirSync(dirname(path), { recursive: true })
   const staging = `${path}.${randomUUID()}.tmp`
   try { writeFileSync(staging, bytes); renameSync(staging, path) }
@@ -33,6 +33,6 @@ export async function prepareModelFixtures({ tokenizerOnly = true } = {}) {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
- if (process.argv.length !== 3 || !['--tokenizer-only', '--with-weights'].includes(process.argv[2])) throw Error('Use --tokenizer-only or --with-weights')
+ if (process.argv.length !== 3 || !['--tokenizer-only', '--with-weights'].includes(process.argv[2])) {throw Error('Use --tokenizer-only or --with-weights')}
  await prepareModelFixtures({ tokenizerOnly: process.argv[2] === '--tokenizer-only' })
 }

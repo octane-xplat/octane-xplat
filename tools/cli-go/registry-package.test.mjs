@@ -26,8 +26,8 @@ test('registry layout selects only the host payload and installs a direct native
 	const scratch = realpathSync(scratchRun(root, 'go-registry-consumer'))
 	let registry, closed
 	t.after(async () => {
-		if (registry && registry.exitCode === null && registry.signalCode === null) registry.kill('SIGKILL')
-		if (closed) await closed
+		if (registry && registry.exitCode === null && registry.signalCode === null) {registry.kill('SIGKILL')}
+		if (closed) {await closed}
 		rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
 	})
 	const packaged = packNativeConsumer(root, binary, scratch, { registryLayout: true })
@@ -66,7 +66,7 @@ test('registry layout selects only the host payload and installs a direct native
 		writeFileSync(join(consumer, '.npmrc'), `@octane-xplat:registry=http://127.0.0.1:${port}/\n`)
 		const env = { ...process.env, NODE_PATH: '', NODE_OPTIONS: '', BUN_INSTALL_CACHE_DIR: join(consumer, 'cache') }
 		for (const name of Object.keys(env)) {
-			if (['npm_config_registry', 'bun_config_registry'].includes(name.toLowerCase())) delete env[name]
+			if (['npm_config_registry', 'bun_config_registry'].includes(name.toLowerCase())) {delete env[name]}
 		}
 		success(run('bun', ['install', '--linker', 'isolated', ...(ignoreScripts ? ['--ignore-scripts'] : [])], { cwd: consumer, env }))
 		const installed = realpathSync(join(consumer, 'node_modules/@octane-xplat/cli'))
@@ -108,7 +108,7 @@ test('registry layout selects only the host payload and installs a direct native
 	const selectedIndex = packages.findIndex((item) => item.manifest.name === expected)
 	assert.ok(seen.includes(`/package-${selectedIndex}.tgz`), 'The host binary must be downloaded')
 	for (let index = 1; index < packages.length; index++) {
-		if (index !== selectedIndex) assert.ok(!seen.includes(`/package-${index}.tgz`), 'Do not download foreign native payloads')
+		if (index !== selectedIndex) {assert.ok(!seen.includes(`/package-${index}.tgz`), 'Do not download foreign native payloads')}
 	}
 	writeFileSync(join(root, `research/go-cli/registry-consumer-${target}.json`), JSON.stringify({ target, passed: true, sourceInputs: packaged.build.inputs, executableSha256: packaged.build.sha256, mainBytes: artifacts[0].bytes, selectedBytes: selected.bytes, totalDownloadBytes: artifacts[0].bytes + selected.bytes, artifacts, requests: seen, scope: 'Actual Bun registry selection, trusted install hook, ignored-script repair and integrity/missing-payload controls; private local fixtures, no publication, model initialization or unexecuted platform qualification.' }, null, 2) + '\n')
 })

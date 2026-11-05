@@ -50,7 +50,7 @@ test('device app relay uses the reachable origin and forwards only its fixed app
 	const trap = http.createServer((request, response) => { trapRequests.push(request.url); response.writeHead(404).end() })
 	await new Promise((resolve) => trap.listen(0, '127.0.0.1', resolve))
 	t.after(async () => {
-		if (upstream.exitCode === null && upstream.signalCode === null) upstream.kill('SIGTERM')
+		if (upstream.exitCode === null && upstream.signalCode === null) {upstream.kill('SIGTERM')}
 		await exited
 		await vite?.close()
 		trap.closeAllConnections?.()
@@ -70,7 +70,7 @@ test('device app relay uses the reachable origin and forwards only its fixed app
 	process.env.XPLAT_DEV_APP_BRIDGE = JSON.stringify(bridge)
 	let plugin, direct
 	try { plugin = nativeDevSocketPlugin({ deviceRelay: true }); direct = nativeDevSocketPlugin() }
-	finally { if (previous === undefined) delete process.env.XPLAT_DEV_APP_BRIDGE; else process.env.XPLAT_DEV_APP_BRIDGE = previous }
+	finally { if (previous === undefined) {delete process.env.XPLAT_DEV_APP_BRIDGE;} else {process.env.XPLAT_DEV_APP_BRIDGE = previous} }
 	assert.equal(JSON.parse(direct.config().define.__XPLAT_DEV_BRIDGE__).socket, socket)
 	assert.equal(direct.config().server, undefined)
 	const define = JSON.parse(plugin.config().define.__XPLAT_DEV_BRIDGE__)

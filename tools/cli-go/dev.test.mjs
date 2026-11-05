@@ -25,7 +25,7 @@ const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (b) => createHash('sha256').update(b).digest('hex')
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs))
-	assert.equal(sha(readFileSync(join(root, file))), hash, file)
+	{assert.equal(sha(readFileSync(join(root, file))), hash, file)}
 const scratch = realpathSync(scratchRun(root, 'go-dev'))
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
 const tools = projectToolFixture(root, work, scratch)
@@ -64,8 +64,8 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
 			destination,
 			process.platform === 'win32' ? 'junction' : 'dir',
 		)
-	} else put(app, 'node_modules/vite/package.json', { name: 'broken-vite' })
-	if (multi) put(app, 'fail.mjs', "console.log('SCRIPT_FAILED_SEVEN');process.exit(7)")
+	} else {put(app, 'node_modules/vite/package.json', { name: 'broken-vite' })}
+	if (multi) {put(app, 'fail.mjs', "console.log('SCRIPT_FAILED_SEVEN');process.exit(7)")}
 	const cache = process.platform === 'darwin' ? join(home, 'Library/Caches') : join(home, 'cache')
 	return {
 		app,
@@ -104,8 +104,8 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
 	try {
 		for (let n = 0; n < 1200; n++) {
 			address = output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
-			if (address) break
-			if (child.exitCode !== null) assert.fail(output)
+			if (address) {break}
+			if (child.exitCode !== null) {assert.fail(output)}
 			await delay(25)
 		}
 		assert.ok(address, output)
@@ -115,7 +115,7 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
 		assert.match(await response.text(), /Native dev HTTP fixture/)
 		child.kill('SIGTERM')
 		const [code, signal] = await exited
-		if (process.platform === 'win32') assert.equal(signal, 'SIGTERM')
+		if (process.platform === 'win32') {assert.equal(signal, 'SIGTERM')}
 		else {
 			assert.equal(signal, null)
 			assert.equal(code, 143, output)
@@ -304,7 +304,7 @@ test(
 			`import {xplatDevBridge} from '@octane-xplat/cli/vite';export default {plugins:[xplatDevBridge()],build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
 		)
 		for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts'])
-			put(f.app, name, readFileSync(join(root, 'packages/platform/src', name), 'utf8'))
+			{put(f.app, name, readFileSync(join(root, 'packages/platform/src', name), 'utf8'))}
 		put(
 			f.app,
 			'dev-bridge.ts',
@@ -313,7 +313,7 @@ test(
 		for (const mode of ['exit', 'cancel', ...(process.env.XPLAT_GO_APPLE_REPORTS_REAL === '1' ? ['abort'] : [])]) {
 			const active = mode === 'abort' ? { ...f, cache: join(process.env.HOME, 'Library/Caches'), env: { ...f.env, HOME: process.env.HOME } } : f
 			const reportCache = join(active.cache, 'octane-xplat/cli-go/history-go-v1', sha(Buffer.from(realpathSync(f.app))))
-			if (mode === 'abort') assert.equal(existsSync(reportCache), false, 'owned report fixture cache unexpectedly exists')
+			if (mode === 'abort') {assert.equal(existsSync(reportCache), false, 'owned report fixture cache unexpectedly exists')}
 			put(
 				f.app,
 				'main.js',
@@ -330,7 +330,7 @@ test(
 			child.stderr.on('data', (b) => (output += b))
 			try {
 				await until(
-					() => { if (child.exitCode !== null) assert.fail(output); return output.includes('GO_DEV_APP_INITIALIZED') },
+					() => { if (child.exitCode !== null) {assert.fail(output);} return output.includes('GO_DEV_APP_INITIALIZED') },
 					() => output,
 					90000,
 				)
@@ -389,7 +389,7 @@ test(
 				const [code, signal] = await exited
 				assert.equal(signal, null, output)
 				assert.equal(code, mode === 'exit' ? 0 : mode === 'abort' ? 1 : 143, output)
-				if (mode === 'abort') assert.match(output, /macOS host exited: SIGABRT/)
+				if (mode === 'abort') {assert.match(output, /macOS host exited: SIGABRT/)}
 				const records = sessions(active)
 				const record = records.find(
 					(r) => r.sessionId === output.match(/session (sess_[a-f0-9-]+)/)?.[1],
@@ -422,7 +422,7 @@ test(
 					await exited
 				}
 				writeFileSync(join(work, `dev-macos-${mode}-output.txt`), output)
-				if (mode === 'abort') rmSync(reportCache, {recursive:true,force:true})
+				if (mode === 'abort') {rmSync(reportCache, {recursive:true,force:true})}
 			}
 		}
 	},
@@ -455,12 +455,12 @@ test(
 					() => output.includes('DEV_TEST_LISTENING'),
 					() => output,
 				)
-				if (mode === 'interrupt') child.kill('SIGINT')
-				else child.stdout.destroy()
+				if (mode === 'interrupt') {child.kill('SIGINT')}
+				else {child.stdout.destroy()}
 				const [code, signal] = await exited
 				assert.equal(signal, null, output)
 				assert.equal(code, mode === 'interrupt' ? 130 : 141, output)
-				if (mode === 'interrupt') assert.equal(readFileSync(join(f.app, 'saw-int'), 'utf8'), 'yes')
+				if (mode === 'interrupt') {assert.equal(readFileSync(join(f.app, 'saw-int'), 'utf8'), 'yes')}
 				const address = output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
 				assert.ok(address, output)
 				await assert.rejects(fetch(address))

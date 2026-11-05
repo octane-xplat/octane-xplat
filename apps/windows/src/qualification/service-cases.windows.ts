@@ -421,7 +421,7 @@ async function pickerSelectSpec(): Promise<Record<string, unknown>> {
   const raced = await Promise.race([
     files.pick()
       .then(async (ref) => {
-        if (ref === null) return { pickSelected: 'cancelled' }
+        if (ref === null) {return { pickSelected: 'cancelled' }}
         const entry: Record<string, unknown> = {
           pickSelected: `ok:${ref.name}`,
           selectedUri: ref.uri,
@@ -1043,7 +1043,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
 async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = { available: false }
   const pickers = Windows?.Storage?.Pickers
-  if (!pickers?.FileOpenPicker) return out
+  if (!pickers?.FileOpenPicker) {return out}
   out.available = true
   const picker = new pickers.FileOpenPicker()
   const filter = picker.FileTypeFilter
@@ -1096,7 +1096,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       try {
         const v = win32.call('user32.dll', fn, 'pointer')
         hwndAttempts.push(`${fn}=${String(v)}`)
-        if (typeof v === 'number' && v !== 0 && hwnd === null) hwnd = v
+        if (typeof v === 'number' && v !== 0 && hwnd === null) {hwnd = v}
       } catch (error) {
         hwndAttempts.push(`${fn}: ${error instanceof Error ? error.message : String(error)}`)
       }
@@ -1120,7 +1120,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
         if (ok) {
           const active = Number(view.getBigInt64(8, true))
           hwndAttempts.push(`GetGUIThreadInfo.hwndActive=${active}`)
-          if (active !== 0 && hwnd === null) hwnd = active
+          if (active !== 0 && hwnd === null) {hwnd = active}
         }
       }
     } catch (error) {

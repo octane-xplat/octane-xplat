@@ -15,7 +15,7 @@ const binary = join(work, 'xplat-go-darwin-arm64-cli')
 const sha = (data) => createHash('sha256').update(data).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
 assert.equal(sha(readFileSync(binary)), build.sha256)
-for (const [file, hash] of Object.entries(build.inputs)) assert.equal(sha(readFileSync(join(root, file))), hash, file)
+for (const [file, hash] of Object.entries(build.inputs)) {assert.equal(sha(readFileSync(join(root, file))), hash, file)}
 
 const sdk = process.env.ANDROID_HOME ?? join(homedir(), 'Library/Android/sdk')
 const java = process.env.JAVA_HOME ?? join(homedir(), 'Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home')
@@ -23,7 +23,7 @@ const adb = join(sdk, 'platform-tools/adb'), avd = 'elegant-fir-probe', device =
 const scratch = realpathSync(scratchRun(root, 'go-native-android'))
 const app = join(scratch, 'app'), appId = 'org.octane.clirelay.p' + sha(scratch).slice(0, 12)
 const env = { ...process.env, CI: '1', NODE_OPTIONS: '', NODE_PATH: '', JAVA_HOME: java, ANDROID_HOME: sdk, ANDROID_SDK_ROOT: sdk, GRADLE_USER_HOME: join(scratch, 'gradle'), XPLAT_DEV_CACHE: join(scratch, 'dev-cache'), XDG_CACHE_HOME: join(scratch, 'cache'), PATH: join(java, 'bin') + ':' + join(sdk, 'platform-tools') + ':' + process.env.PATH }
-for (const key of ['VISUAL_CAPTURE_URL', 'VISUAL_RUN_ID', 'VISUAL_REVISION', 'VISUAL_SCENARIO_HASH', 'XPLAT_DEV_APP_BRIDGE', 'XPLAT_AGENT_CLIENT', 'XPLAT_PERMISSIONS']) delete env[key]
+for (const key of ['VISUAL_CAPTURE_URL', 'VISUAL_RUN_ID', 'VISUAL_REVISION', 'VISUAL_SCENARIO_HASH', 'XPLAT_DEV_APP_BRIDGE', 'XPLAT_AGENT_CLIENT', 'XPLAT_PERMISSIONS']) {delete env[key]}
 function command(tool, args, options = {}) {
 	const result = spawnSync(tool, args, { env, encoding: 'utf8', timeout: 15000, maxBuffer: 2 << 20, ...options })
 	assert.equal(result.status, 0, `${tool}: ${result.error?.message ?? result.stderr}`)
@@ -34,7 +34,7 @@ async function until(read, message, timeout = 30000) {
 	const deadline = Date.now() + timeout
 	for (;;) {
 		const value = await read()
-		if (value) return value
+		if (value) {return value}
 		assert.ok(Date.now() < deadline, typeof message === 'function' ? message() : message)
 		await delay(200)
 	}
@@ -42,12 +42,12 @@ async function until(read, message, timeout = 30000) {
 function owned(tool, args, options = {}) {
 	const child = spawn(tool, args, { env, detached: true, stdio: ['ignore', 'pipe', 'pipe'], ...options })
 	const state = { child, ended: false, output: '' }
-	for (const pipe of [child.stdout, child.stderr]) pipe.on('data', (data) => { state.output = (state.output + data).slice(-(2 << 20)) })
+	for (const pipe of [child.stdout, child.stderr]) {pipe.on('data', (data) => { state.output = (state.output + data).slice(-(2 << 20)) })}
 	state.completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('close', (code, signal) => { state.ended = true; resolve({ code, signal }) }) })
 	return state
 }
 async function stop(state) {
-	if (!state || state.ended) return
+	if (!state || state.ended) {return}
 	state.child.kill('SIGINT')
 	await Promise.race([state.completion, delay(20000, undefined, { ref: false }).then(() => { throw new Error('Owned process did not shut down') })])
 }
@@ -72,13 +72,13 @@ cpSync(join(root, 'packages/create/template/App_Resources/Android'), join(app, '
 put(join(app, 'nativescript.config.ts'), `export default {id:${JSON.stringify(appId)},appPath:'src',appResourcesPath:'App_Resources',cli:{packageManager:'bun'},bundler:'vite',bundlerConfigPath:'vite.config.mts'}\n`)
 put(join(app, 'vite.config.mts'), `import {defineConfig} from 'vite';import {xplatNative} from '@octane-xplat/cli/vite';export default defineConfig(env=>xplatNative(env,{extra:{server:{host:'127.0.0.1'}}}))\n`)
 put(join(app, 'tsconfig.json'), { compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', skipLibCheck: true } })
-for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts', 'dev-bridge.ts']) cpSync(join(root, 'packages/platform/src', name), join(app, 'src', name), { recursive: false, force: true })
+for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts', 'dev-bridge.ts']) {cpSync(join(root, 'packages/platform/src', name), join(app, 'src', name), { recursive: false, force: true })}
 put(join(app, 'src/index.ts'), `import '@valor/nativescript-websockets';import {Application,Label} from '@nativescript/core';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.android.read',title:'Read Android fixture',description:'Observe owned fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});console.log('GO_ANDROID_RELAY_READY');Application.run({create:()=>{const label=new Label();label.text='Owned CLI relay fixture';return label}});\n`)
 mkdirSync(env.GRADLE_USER_HOME)
 put(join(env.GRADLE_USER_HOME, 'gradle.properties'), 'org.gradle.daemon=false\norg.gradle.workers.max=2\n')
 // Reuse downloaded engine artifacts without changing the existing cache.
 const gradleCache = join(work, 'nativescript-gradle-cache')
-for (const name of ['wrapper', 'caches']) if (existsSync(join(gradleCache, name))) cpSync(join(gradleCache, name), join(env.GRADLE_USER_HOME, name), { recursive: true })
+for (const name of ['wrapper', 'caches']) {if (existsSync(join(gradleCache, name))) {cpSync(join(gradleCache, name), join(env.GRADLE_USER_HOME, name), { recursive: true })}}
 
 let emulator, dev, failure
 const evidence = { revision: command('git', ['rev-parse', 'HEAD'], { cwd: root }).trim(), binarySha256: build.sha256, device, avd, appId, scratch, passed: false }
@@ -140,5 +140,5 @@ try {
 	writeFileSync(join(work, 'dev-android-real-output.log'), dev?.output ?? '')
 	writeFileSync(join(work, 'dev-android-emulator.log'), emulator?.output ?? '')
 }
-if (failure) throw failure
+if (failure) {throw failure}
 console.log('Qualified actual NativeScript Android app action over project Vite relay and Go RPC; no image or OS input qualification')

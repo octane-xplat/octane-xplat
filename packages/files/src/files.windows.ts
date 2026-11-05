@@ -175,11 +175,11 @@ let exportInFlight = false
  */
 function ownerHwnd(): number | null {
   const win32 = (NSWinRT as { win32?: Win32Bridge }).win32
-  if (typeof win32?.call !== 'function') return null
+  if (typeof win32?.call !== 'function') {return null}
   for (const fn of ['GetActiveWindow', 'GetForegroundWindow']) {
     try {
       const value = win32.call('user32.dll', fn, 'pointer')
-      if (typeof value === 'number' && value !== 0) return value
+      if (typeof value === 'number' && value !== 0) {return value}
     } catch {}
   }
   return null
@@ -195,25 +195,25 @@ function filterError(): Error {
 
 /** accept tokens ('.ext', MIME, 'image/*') -> comma-separated extensions. */
 function pickFilter(accept?: string): string {
-  if (!accept) return ''
+  if (!accept) {return ''}
   const extensions = new Set<string>()
   for (const raw of accept.split(',')) {
     const token = raw.trim().toLowerCase()
-    if (!token) continue
+    if (!token) {continue}
     if (token.startsWith('.')) {
       extensions.add(token)
       continue
     }
     const mapped = MIME_EXTENSIONS[token]
-    if (!mapped) throw filterError()
-    for (const extension of mapped) extensions.add(`.${extension}`)
+    if (!mapped) {throw filterError()}
+    for (const extension of mapped) {extensions.add(`.${extension}`)}
   }
   return [...extensions].join(',')
 }
 
 function dotnetInvoke(method: string, args: unknown[]): string {
   const dotnet = (NSWinRT as { dotnet?: DotnetBridge }).dotnet
-  if (typeof dotnet?.invoke !== 'function') throw new UnavailabilityError('files.pick')
+  if (typeof dotnet?.invoke !== 'function') {throw new UnavailabilityError('files.pick')}
   return String(dotnet.invoke('', PICKER_TYPE, method, args))
 }
 
@@ -234,18 +234,18 @@ async function managedPick(
   suggestedName?: string,
 ): Promise<string> {
   const hwnd = ownerHwnd()
-  if (hwnd == null) throw new UnavailabilityError('files.' + kind)
+  if (hwnd == null) {throw new UnavailabilityError('files.' + kind)}
   const start = dotnetInvoke('PickStart', [kind, hwnd, filter, suggestedName ?? ''])
-  if (start !== 'started') throw new Error(`files.${kind}: ${start}`)
+  if (start !== 'started') {throw new Error(`files.${kind}: ${start}`)}
   while (true) {
     const state = dotnetInvoke('PickState', [])
-    if (state !== 'pending') return state
+    if (state !== 'pending') {return state}
     await new Promise((resolve) => setTimeout(resolve, 200))
   }
 }
 
 function pickResult(state: string, kind: string): string {
-  if (state === 'cancelled' || state.startsWith('ok:')) return state
+  if (state === 'cancelled' || state.startsWith('ok:')) {return state}
   throw new Error(`files.${kind}: ${state}`)
 }
 
@@ -256,7 +256,7 @@ const pickedTokens = new Map<string, string>()
 function pickedRef(entry: string): FileRef {
   const split = entry.indexOf('|')
   const uri = split >= 0 ? entry.slice(split + 1) : entry
-  if (split > 0) pickedTokens.set(uri, entry.slice(0, split))
+  if (split > 0) {pickedTokens.set(uri, entry.slice(0, split))}
   return { name: baseName(uri), uri }
 }
 
@@ -290,7 +290,7 @@ export const files: Files = {
   },
   pickMultiple: async (accept) => {
     const state = pickResult(await managedPick('multiple', pickFilter(accept)), 'pickMultiple')
-    if (state === 'cancelled') return []
+    if (state === 'cancelled') {return []}
     return state
       .slice(3)
       .split('\n')
@@ -308,7 +308,7 @@ export const files: Files = {
     }),
   writeBytes,
   async export(name, bytes, opts) {
-    if (exportInFlight) throw exportBusy()
+    if (exportInFlight) {throw exportBusy()}
     exportInFlight = true
     try {
       const own = name.replace(/^.*[\\/]/, '')
@@ -316,7 +316,7 @@ export const files: Files = {
       const extension =
         dot > 0 ? own.slice(dot) : opts?.mimeType ? `.${MIME_EXTENSIONS[opts.mimeType.toLowerCase()]?.[0] ?? 'bin'}` : '.txt'
       const state = pickResult(await managedPick('save', extension, own), 'export')
-      if (state === 'cancelled') return 'cancelled'
+      if (state === 'cancelled') {return 'cancelled'}
       const ref = pickedRef(state.slice(3))
       const file = await pickedFile(ref.uri)
       // FileIO.WriteBytesAsync rejects on token-granted files upstream

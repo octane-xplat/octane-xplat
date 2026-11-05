@@ -11,6 +11,6 @@ export function scratchRun(workspace, label) {
  mkdirSync(base, { recursive: true })
  try {
   writeFileSync(join(base, 'README.md'), `Everything in this folder is disposable.\n\nOwner: native CLI rewrite (tools/cli-go).\nSource: ${workspace}\nRetained evidence: ${workspace}/research/go-cli and ~/dev/reports/octane-xplat.\nReproduce runs through the owning Turbo qualification tasks.\n`, { flag: 'wx' })
- } catch (error) { if (error.code !== 'EEXIST') throw error }
+ } catch (error) { if (error.code !== 'EEXIST') {throw error} }
  return mkdtempSync(join(base, `${new Date().toISOString().slice(0,10)}-${label}-`))
 }

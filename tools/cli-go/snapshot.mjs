@@ -126,7 +126,7 @@ try {
 			assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale registry source: ' + input)
 			inputs.add(input)
 		}
-		for (const suffix of ['', '.json', '.tgz']) copy(mac + suffix)
+		for (const suffix of ['', '.json', '.tgz']) {copy(mac + suffix)}
 	}
 
 	for (const file of [

@@ -39,7 +39,7 @@ try {
 	assert.ok(response.ok, `Download failed: HTTP ${response.status}`)
 	await pipeline(Readable.fromWeb(response.body), createWriteStream(archive))
 	const hash = createHash('sha256')
-	for await (const chunk of createReadStream(archive)) hash.update(chunk)
+	for await (const chunk of createReadStream(archive)) {hash.update(chunk)}
 	assert.equal(hash.digest('hex'), asset.sha256, 'Compiler archive checksum mismatch')
 	const unpacked = join(scratch, 'unpacked')
 	mkdirSync(unpacked)

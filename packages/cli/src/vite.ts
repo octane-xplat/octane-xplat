@@ -309,7 +309,7 @@ function nativeCoreHttpAliases(appRequire) {
 	} catch (error) {
 		// Other SDK versions need not depend on this package. Their normal
 		// configuration owns any missing-SDK diagnostics.
-		if (error?.code === 'MODULE_NOT_FOUND') return []
+		if (error?.code === 'MODULE_NOT_FOUND') {return []}
 		throw error
 	}
 }

@@ -384,7 +384,7 @@ test('project Vite device relay preserves actual Go app authentication', { timeo
 					const timer = setTimeout(() => reject(new Error('Relayed app authentication timed out')), 5000)
 					const finish = (value) => { clearTimeout(timer); resolve(value) }
 					client.onopen = () => client.send(JSON.stringify({ protocol: 'octane-app-debug', version: 1, instanceId: grant.instanceId, targetId: grant.targetId, token: allowed ? grant.token : info.token, registry: { protocol: 'xplat-dev-actions', version: 1, appInstanceId: 'relay-fixture', platform: 'web', revision: 1, actions: [] } }))
-					client.onmessage = (event) => { if (JSON.parse(event.data).type === 'registered') finish('registered') }
+					client.onmessage = (event) => { if (JSON.parse(event.data).type === 'registered') {finish('registered')} }
 					client.onclose = () => finish('closed')
 					client.onerror = () => finish('error')
 				})

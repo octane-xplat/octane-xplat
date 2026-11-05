@@ -16,7 +16,7 @@ const binary = join(work, 'xplat-go-darwin-arm64-cli')
 const sha = (data) => createHash('sha256').update(data).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
 assert.equal(sha(readFileSync(binary)), build.sha256)
-for (const [file, hash] of Object.entries(build.inputs)) assert.equal(sha(readFileSync(join(root, file))), hash, file)
+for (const [file, hash] of Object.entries(build.inputs)) {assert.equal(sha(readFileSync(join(root, file))), hash, file)}
 
 const udid = '91D40099-A056-497D-A572-ADDDFD6A8F23'
 const scratch = realpathSync(scratchRun(root, 'go-native-ios'))
@@ -24,7 +24,7 @@ const scratch = realpathSync(scratchRun(root, 'go-native-ios'))
 // JS bundle folder is always "app", so a directory named "app" collides in Xcode.
 const app = join(scratch, 'relay-fixture'), appId = 'org.octane.clirelay.p' + sha(scratch).slice(0, 12)
 const env = { ...process.env, CI: '1', NODE_OPTIONS: '', NODE_PATH: '', XPLAT_DEV_CACHE: join(scratch, 'dev-cache'), XDG_CACHE_HOME: join(scratch, 'cache') }
-for (const key of ['VISUAL_CAPTURE_URL', 'VISUAL_RUN_ID', 'VISUAL_REVISION', 'VISUAL_SCENARIO_HASH', 'XPLAT_DEV_APP_BRIDGE', 'XPLAT_AGENT_CLIENT', 'XPLAT_PERMISSIONS']) delete env[key]
+for (const key of ['VISUAL_CAPTURE_URL', 'VISUAL_RUN_ID', 'VISUAL_REVISION', 'VISUAL_SCENARIO_HASH', 'XPLAT_DEV_APP_BRIDGE', 'XPLAT_AGENT_CLIENT', 'XPLAT_PERMISSIONS']) {delete env[key]}
 function command(tool, args, options = {}) {
 	const result = spawnSync(tool, args, { env, encoding: 'utf8', timeout: 15000, maxBuffer: 2 << 20, ...options })
 	assert.equal(result.status, 0, `${tool}: ${result.error?.message ?? result.stderr}`)
@@ -35,7 +35,7 @@ async function until(read, message, timeout = 30000) {
 	const deadline = Date.now() + timeout
 	for (;;) {
 		const value = await read()
-		if (value) return value
+		if (value) {return value}
 		assert.ok(Date.now() < deadline, typeof message === 'function' ? message() : message)
 		await delay(200)
 	}
@@ -43,12 +43,12 @@ async function until(read, message, timeout = 30000) {
 function owned(tool, args, options = {}) {
 	const child = spawn(tool, args, { env, detached: true, stdio: ['ignore', 'pipe', 'pipe'], ...options })
 	const state = { child, ended: false, output: '' }
-	for (const pipe of [child.stdout, child.stderr]) pipe.on('data', (data) => { state.output = (state.output + data).slice(-(2 << 20)) })
+	for (const pipe of [child.stdout, child.stderr]) {pipe.on('data', (data) => { state.output = (state.output + data).slice(-(2 << 20)) })}
 	state.completion = new Promise((resolve, reject) => { child.once('error', reject); child.once('close', (code, signal) => { state.ended = true; resolve({ code, signal }) }) })
 	return state
 }
 async function stop(state) {
-	if (!state || state.ended) return
+	if (!state || state.ended) {return}
 	state.child.kill('SIGINT')
 	await Promise.race([state.completion, delay(20000, undefined, { ref: false }).then(() => { throw new Error('Owned process did not shut down') })])
 }
@@ -63,7 +63,7 @@ function simulator() {
 	const listed = JSON.parse(simctl(['list', 'devices', '-j']))
 	for (const [runtime, devices] of Object.entries(listed.devices ?? {})) {
 		const device = devices.find((device) => device.udid === udid)
-		if (device) return { ...device, runtime }
+		if (device) {return { ...device, runtime }}
 	}
 	return null
 }
@@ -84,7 +84,7 @@ writeFileSync(join(app, 'App_Resources/iOS/build.xcconfig'), readFileSync(join(a
 put(join(app, 'nativescript.config.ts'), `export default {id:${JSON.stringify(appId)},appPath:'src',appResourcesPath:'App_Resources',cli:{packageManager:'bun'},bundler:'vite',bundlerConfigPath:'vite.config.mts'}\n`)
 put(join(app, 'vite.config.mts'), `import {defineConfig} from 'vite';import {xplatNative} from '@octane-xplat/cli/vite';export default defineConfig(env=>xplatNative(env,{extra:{server:{host:'127.0.0.1'}}}))\n`)
 put(join(app, 'tsconfig.json'), { compilerOptions: { target: 'ES2022', module: 'ESNext', moduleResolution: 'bundler', skipLibCheck: true } })
-for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts', 'dev-bridge.ts']) cpSync(join(root, 'packages/platform/src', name), join(app, 'src', name), { recursive: false, force: true })
+for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts', 'dev-bridge.ts']) {cpSync(join(root, 'packages/platform/src', name), join(app, 'src', name), { recursive: false, force: true })}
 put(join(app, 'src/index.ts'), `import '@valor/nativescript-websockets';import {Application,Label} from '@nativescript/core';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.ios.read',title:'Read iOS fixture',description:'Observe owned fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});console.log('GO_IOS_RELAY_READY');Application.run({create:()=>{const label=new Label();label.text='Owned CLI relay fixture';return label}});\n`)
 
 let dev, failure
@@ -139,12 +139,12 @@ try {
 		spawnSync('xcrun', ['simctl', 'terminate', udid, appId], { env, timeout: 15000 })
 		const removed = spawnSync('xcrun', ['simctl', 'uninstall', udid, appId], { env, encoding: 'utf8', timeout: 15000 })
 		if (removed.status !== 0 && evidence.passed) { failure ??= new Error('Owned iOS fixture uninstall failed'); evidence.uninstallError = removed.stderr }
-		if (evidence.simulator.initiallyBooted === false) spawnSync('xcrun', ['simctl', 'shutdown', udid], { env, timeout: 60000 })
+		if (evidence.simulator.initiallyBooted === false) {spawnSync('xcrun', ['simctl', 'shutdown', udid], { env, timeout: 60000 })}
 		evidence.simulator.finalState = simulator()?.state
 	}
 	evidence.passed &&= !failure
 	writeFileSync(join(work, 'dev-ios-real.json'), JSON.stringify(evidence, null, 2))
 	writeFileSync(join(work, 'dev-ios-real-output.log'), dev?.output ?? '')
 }
-if (failure) throw failure
+if (failure) {throw failure}
 console.log('Qualified actual NativeScript iOS app action over project Vite relay and Go RPC; no image or OS input qualification')
