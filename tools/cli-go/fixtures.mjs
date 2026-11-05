@@ -6,6 +6,12 @@ import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
+// Only the source workspace can pack fixtures. Portable snapshots (named by
+// snapshot.mjs) carry built worker output and consume frozen fixture archives.
+export function canPrepareFixtures(root) {
+	return JSON.parse(readFileSync(join(root, 'package.json'))).name !== 'xplat-go-portability-snapshot'
+}
+
 export function prepareFixtures(
 	root,
 	work,

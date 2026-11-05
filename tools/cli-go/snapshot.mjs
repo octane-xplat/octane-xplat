@@ -84,21 +84,25 @@ try {
 			}
 		}
 
-		const cli = `xplat-go-${target}-cli${routesOnly ? '' : '-onnx'}${target.startsWith('windows') ? '.exe' : ''}`
-		const cliRecord = JSON.parse(readFileSync(join(work, cli + '.json')))
-		assert.equal(sha(readFileSync(join(work, cli))), cliRecord.sha256)
-		for (const [input, hash] of Object.entries(cliRecord.inputs)) {
-			assert.equal(
-				sha(readFileSync(join(root, input))),
-				hash,
-				'Stale public native source: ' + input,
-			)
+		// Full snapshots carry both public images: core-CLI tasks and inference tasks
+		// must run against the same frozen source.
+		for (const variant of routesOnly ? [''] : ['', '-onnx']) {
+			const cli = `xplat-go-${target}-cli${variant}${target.startsWith('windows') ? '.exe' : ''}`
+			const cliRecord = JSON.parse(readFileSync(join(work, cli + '.json')))
+			assert.equal(sha(readFileSync(join(work, cli))), cliRecord.sha256)
+			for (const [input, hash] of Object.entries(cliRecord.inputs)) {
+				assert.equal(
+					sha(readFileSync(join(root, input))),
+					hash,
+					'Stale public native source: ' + input,
+				)
 
-			inputs.add(input)
-		}
+				inputs.add(input)
+			}
 
-		for (const suffix of ['', '.json', '.tgz']) {
-			copy('research/go-cli/' + cli + suffix)
+			for (const suffix of ['', '.json', '.tgz']) {
+				copy('research/go-cli/' + cli + suffix)
+			}
 		}
 
 		if (routesOnly) {

@@ -1,10 +1,10 @@
 // Isolated selected-project toolchains for native project-command gates.
 import assert from 'node:assert/strict'
-import { readFileSync, writeFileSync, mkdirSync, existsSync, realpathSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { prepareFixtures } from './fixtures.mjs'
+import { canPrepareFixtures, prepareFixtures } from './fixtures.mjs'
 
 export function projectToolFixture(
 	root,
@@ -25,7 +25,7 @@ export function projectToolFixture(
 	// while another task is reading its recorded bytes/hash. Portable snapshots
 	// instead consume their already-frozen read-only fixture archives.
 	let fixtureWork = work
-	if (existsSync(join(root, 'packages/build/dist/build-worker.js'))) {
+	if (canPrepareFixtures(root)) {
 		fixtureWork = join(scratch, 'worker-packages')
 		mkdirSync(fixtureWork)
 		prepareFixtures(root, fixtureWork, { linter, packageManagement, creator })
