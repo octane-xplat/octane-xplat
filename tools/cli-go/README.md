@@ -373,8 +373,31 @@ this is consumer qualification, not the final multi-platform registry layout.
 It does not publish or change the production CLI package. The same gate is
 available as `test:go-package:portable` in full inference snapshots.
 
+`test:go-registry` exercises the single-name layout through a private loopback
+registry. The main package keeps the small exports and upgrade worker; exact
+optional `@octane-xplat/cli-native-<os>-<arch>` packages carry each native image.
+Node runs only the install hook, which checks the payload version, size and hash
+before replacing the bin. No runtime launcher or network downloader is added.
+The test checks trusted Bun installation, manual repair after `--ignore-scripts`,
+missing/corrupt payload refusal without changing a working bin, and that foreign
+native tarballs are not downloaded. Registry metadata for other targets may be
+requested. Reported download bytes sum the main and selected tarballs, excluding
+registry metadata, HTTP overhead and optional model/runtime assets.
+Keep the packaged `.exe` slot empty until selection: Bun's Windows bin shim caches
+a placeholder shebang before postinstall and would keep trying that interpreter
+after native replacement. With scripts disabled, the slot is not executable;
+run the installed `install-native.mjs` with Node after installing optional payloads.
+
+Build all three current inference targets with matching source inputs before
+this gate; it refuses stale or mixed releases. Use the cross-build commands above
+with `--filter=@octane-xplat/cli`, then run the host gate below. Full inference
+snapshots include all three images for `test:go-registry:portable`. These private
+fixtures cover darwin-arm64, linux-x64 and win32-x64 only; they do not publish
+platform packages or change the production npm manifest.
+
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native npm consumer"}' -- bun run turbo run test:go-package --filter=@octane-xplat/cli
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native registry consumer"}' -- bun run turbo run test:go-registry --filter=@octane-xplat/cli
 ```
 
 `test:go-foreground-input` (portable: `test:go-foreground-input:portable`) exercises

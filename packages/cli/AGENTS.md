@@ -275,6 +275,18 @@ separately, rather than removing Unicode coverage.
 Keep a native binary plus its policy sidecar in experimental standalone archives.
 This does not authorize changing production package entry points.
 
+Keep npm platform selection at installation time: the experimental Go registry
+layout uses exact optional native-package versions and a checksum-verified atomic
+bin replacement, with no runtime Node launcher or downloader. Preserve a working
+bin when a payload is absent or invalid. Qualify the actual registry request log,
+trusted Bun install and manual repair after disabled scripts; a host-only tarball
+does not prove OS filtering. Current fixture payloads cover only the three pinned
+inference targets. Keep these fixtures private until release integration is ready.
+Leave the packaged native `.exe` slot empty, without a script shebang. Bun's
+Windows shim caches the pre-install interpreter and otherwise keeps invoking it
+after the installer copies a native image. Qualify the package-manager command
+as well as direct execution; the latter alone misses this failure.
+
 The plan includes every workspace package for native output leases, not only
 packages with managed dependencies. Validate the complete file inventory before
 mutation and require a freshly recomputed plan digest before canonical apply.

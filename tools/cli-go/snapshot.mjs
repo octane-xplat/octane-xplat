@@ -114,6 +114,17 @@ try {
 		}
 	}
 
+	if (!routesOnly) {
+		const mac = 'research/go-cli/xplat-go-darwin-arm64-cli-onnx'
+		const record = JSON.parse(readFileSync(join(root, mac + '.json')))
+		assert.equal(sha(readFileSync(join(root, mac))), record.sha256)
+		for (const [input, hash] of Object.entries(record.inputs)) {
+			assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale registry source: ' + input)
+			inputs.add(input)
+		}
+		for (const suffix of ['', '.json', '.tgz']) copy(mac + suffix)
+	}
+
 	for (const file of [
 		'project-packages',
 		'project-packages.json',
@@ -163,6 +174,7 @@ try {
 		'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mjs',
 		'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
 		'test:go-package:portable': 'node --test tools/cli-go/package.test.mjs',
+		'test:go-registry:portable': 'node --test tools/cli-go/registry-package.test.mjs',
 		'test:go-fonts:portable': 'node --test tools/cli-go/fonts.test.mjs',
 		'test:go-updates:portable': 'node --test tools/cli-go/updates.test.mjs',
 		'test:go-add:portable': 'node --test tools/cli-go/add.test.mjs',
@@ -197,6 +209,7 @@ try {
 				'//#test:go-foreground-input:portable': { cache: false },
 				'//#test:go-release-worker:portable': { cache: false },
 				'//#test:go-package:portable': { cache: false },
+				'//#test:go-registry:portable': { cache: false },
 				'//#test:go-fonts:portable': { cache: false },
 				'//#test:go-updates:portable': { cache: false },
 				'//#test:go-add:portable': { cache: false },

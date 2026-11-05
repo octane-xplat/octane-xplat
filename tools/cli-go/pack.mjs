@@ -5,8 +5,9 @@ import { join, resolve, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { nativeInputs, sha256 } from './native-inputs.mjs'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
+import { stagePlatformPackages } from './pack-platforms.mjs'
 
-export function packNativeConsumer(root, binary, directory) {
+export function packNativeConsumer(root, binary, directory, { registryLayout = false } = {}) {
 	const build = JSON.parse(readFileSync(binary + '.json'))
 	const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 	assert.equal(build.cli, true)
@@ -66,11 +67,25 @@ export function packNativeConsumer(root, binary, directory) {
 		peerDependencies: peers,
 		peerDependenciesMeta: Object.fromEntries(Object.keys(peers).map((name) => [name, { optional: true }])),
 	}
+	let platforms
+	if (registryLayout) {
+		platforms = stagePlatformPackages(root, directory, build)
+		delete pkg.os
+		delete pkg.cpu
+		pkg.optionalDependencies = Object.fromEntries(platforms.packages.map(({ manifest }) => [manifest.name, build.cliVersion]))
+		pkg.scripts = { postinstall: 'node install-native.mjs' }
+		pkg.files.push('install-native.mjs', 'native-platforms.json')
+		cpSync(join(root, 'tools/cli-go/install-native.mjs'), join(stage, 'install-native.mjs'))
+		writeFileSync(join(stage, 'native-platforms.json'), JSON.stringify(platforms.manifest, null, 2) + '\n')
+		// Bun's Windows bin shim remembers a shebang before postinstall runs.
+		// Keep this native .exe slot empty until installation selects its image.
+		writeFileSync(join(stage, 'bin/xplat.exe'), '', { mode: 0o755 })
+	}
 	writeFileSync(join(stage, 'package.json'), JSON.stringify(pkg, null, 2) + '\n')
 	const packed = spawnSync('bun', ['pm', 'pack', '--destination', directory], {
 		cwd: stage, encoding: 'utf8', timeout: 60000,
 	})
 	assert.equal(packed.status, 0, packed.stdout + packed.stderr)
 	const tarball = resolve(directory, `octane-xplat-cli-${build.cliVersion}.tgz`)
-	return { stage, tarball, pkg, build, bytes: readFileSync(tarball).length, sha256: sha256(readFileSync(tarball)) }
+	return { stage, tarball, pkg, build, platforms, bytes: readFileSync(tarball).length, sha256: sha256(readFileSync(tarball)) }
 }
