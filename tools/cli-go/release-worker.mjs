@@ -17,20 +17,32 @@ import { createHash } from 'node:crypto'
 export function buildReleaseWorker(root, destination, version) {
 	rmSync(destination, { recursive: true, force: true })
 	mkdirSync(join(destination, 'dist'), { recursive: true })
+	// The package's Node main is UMD with factory-local requires that Bun cannot
+	// statically bundle. Select its declared ESM module entry for this bundle.
+	const jsonc = realpathSync(join(root, 'packages/cli/node_modules/jsonc-parser'))
+	const jsoncPackage = JSON.parse(readFileSync(join(jsonc, 'package.json')))
+	assert.equal(jsoncPackage.module, './lib/esm/main.js')
+	const config = join(destination, 'bundle.tsconfig.json')
+	writeFileSync(config, JSON.stringify({
+		extends: join(root, 'tsconfig.json'),
+		compilerOptions: { paths: { 'jsonc-parser': [join(jsonc, jsoncPackage.module)] } },
+	}))
 	const result = spawnSync(
 		'bun',
 		[
+			'--tsconfig-override=' + config,
 			'build',
 			join(root, 'packages/cli/src/upgrade-entry.ts'),
 			'--target=node',
 			'--format=esm',
-			'--external=yaml',
-			'--external=jsonc-parser',
+			// npm pack omits nested node_modules. Bundle the two reviewed pure-JS
+			// parsers so the release-owned upgrade worker survives real packing.
 			'--minify',
 			'--outfile=' + join(destination, 'dist/upgrade-worker.mjs'),
 		],
 		{ cwd: root, encoding: 'utf8' },
 	)
+	rmSync(config)
 	assert.equal(result.status, 0, result.stderr)
 	cpSync(join(root, 'packages/create/compatibility.json'), join(destination, 'compatibility.json'))
 	cpSync(join(root, 'packages/cli/patches'), join(destination, 'patches'), { recursive: true })
@@ -44,7 +56,6 @@ export function buildReleaseWorker(root, destination, version) {
 			name + ' needs a reviewed dependency closure',
 		)
 
-		cpSync(from, join(destination, 'node_modules', name), { recursive: true })
 		notices += '\n' + name + '@' + pkg.version + '\n'
 		for (const file of readdirSync(from).filter((file) => /^license(?:\.|$)/i.test(file))) {
 			notices += readFileSync(join(from, file), 'utf8') + '\n'

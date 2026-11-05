@@ -262,10 +262,12 @@ the replacement. Stage the helper only for default installation, not preview or
 Loose development binaries may use a matching project worker; broken invoked packages fail explicitly.
 Keep build/compiler workers project-resolved and authored engine ranges unchanged.
 
-The release worker bundles only compatibility operations; YAML and JSONC remain
-normal, small Node modules with licenses and a reviewed dependency closure.
-Bun-bundling the JSONC UMD entry produced unresolved relative requires under Node;
-exercise the generated artifact under Node, not just its TypeScript source.
+The Go release worker bundles compatibility operations and the two reviewed
+YAML/JSONC parsers with licenses. npm packing omits nested `node_modules`.
+Select JSONC's declared ESM module entry in the task-local bundle configuration;
+Bun-bundling its Node UMD entry produces unresolved relative requires under Node.
+Check the complete release-worker manifest against the actual npm inventory and
+execute an installed offline upgrade, not only the native bin or another worker.
 Keep Unicode installation fixtures. Windows Node 24.13.1 recursive `cpSync`
 returned success while omitting the requested Unicode destination in qualification;
 fixture staging uses explicit manifest-file reads/writes and checks the real archive

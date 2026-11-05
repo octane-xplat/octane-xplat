@@ -49,6 +49,13 @@ try {
 
 	copy('packages/workshop/dist')
 	copy('packages/workshop/src')
+	copy('packages/build/dist')
+	const plugins = JSON.parse(readFileSync(join(root, 'packages/build/package.json')))
+	for (const [name, range] of Object.entries({ ...plugins.dependencies, ...plugins.peerDependencies })) {
+		if (range === 'workspace:*') {
+			copy('packages/' + name.split('/')[1] + '/package.json')
+		}
+	}
 	copy('packages/cli/go')
 	copy('research/go-cli/release-worker')
 	const inputs = new Set()
@@ -155,6 +162,7 @@ try {
 		'test:go-doctor:portable': 'node --test tools/cli-go/doctor.test.mjs',
 		'test:go-foreground-input:portable': 'node --test tools/cli-go/foreground-input.test.mjs',
 		'test:go-release-worker:portable': 'node --test tools/cli-go/release-worker.test.mjs',
+		'test:go-package:portable': 'node --test tools/cli-go/package.test.mjs',
 		'test:go-fonts:portable': 'node --test tools/cli-go/fonts.test.mjs',
 		'test:go-updates:portable': 'node --test tools/cli-go/updates.test.mjs',
 		'test:go-add:portable': 'node --test tools/cli-go/add.test.mjs',
@@ -166,6 +174,7 @@ try {
 		'test:go-fmt:portable': 'node --test tools/cli-go/format.test.mjs',
 		'test:go-typecheck:portable': 'node --test tools/cli-go/typecheck.test.mjs',
 		'measure:go-cli:portable': 'node tools/cli-go/measure.mjs',
+		'measure:go-cli-onnx:portable': 'node tools/cli-go/measure.mjs --onnx',
 		'test:go:portable': 'node tools/cli-go/qualify.mjs',
 		'test:go-model:portable': 'node tools/cli-go/model-portable.mjs',
 		'test:go-doc-snapshot:portable': 'node --test tools/cli-go/doc-snapshot.test.mjs',
@@ -187,6 +196,7 @@ try {
 				'//#test:go-doctor:portable': { cache: false },
 				'//#test:go-foreground-input:portable': { cache: false },
 				'//#test:go-release-worker:portable': { cache: false },
+				'//#test:go-package:portable': { cache: false },
 				'//#test:go-fonts:portable': { cache: false },
 				'//#test:go-updates:portable': { cache: false },
 				'//#test:go-add:portable': { cache: false },
@@ -198,6 +208,7 @@ try {
 				'//#test:go-fmt:portable': { cache: false },
 				'//#test:go-typecheck:portable': { cache: false },
 				'//#measure:go-cli:portable': { cache: false },
+				'//#measure:go-cli-onnx:portable': { cache: false },
 				'//#test:go:portable': { cache: false },
 				'//#test:go-model:portable': { cache: false },
 				'//#test:go-doc-snapshot:portable': { cache: false },

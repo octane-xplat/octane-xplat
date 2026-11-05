@@ -94,8 +94,9 @@ runtime assets only during explicit index preparation. Ordinary queries never
 download those assets; Node is used only by the test reference and explicit
 project workers. Each owned compute child reuses one native session across
 bounded batches. Its cache identities include the model/runtime pins, inference
-settings and tokenizer dependencies. Public integration with the persistent owner
-and the broader tokenizer corpus remain migration work.
+settings and tokenizer dependencies. Public documentation commands own their
+compute children directly and do not require a persistent owner or dev server.
+The broader tokenizer corpus remains migration work.
 
 The index gate covers empty inventories, useful guide retrieval, long fenced
 sections with disclosed model previews and searchable tails, vector corruption
@@ -355,7 +356,26 @@ without Node, real installs deleting the original policy or replacing both it an
 executable path, and the actual standalone archive. `release-worker.mjs` builds
 only upgrade operations plus the reviewed
 YAML/JSONC module closure and licenses. No JS runtime or old CLI is included.
+The reviewed parser dependencies are bundled into the worker: npm packing omits
+nested `node_modules`, so an unpacked standalone fixture alone cannot prove that
+the worker will survive an npm tarball. The consumer gate checks the complete
+release-worker inventory and executes an offline upgrade from the installed bin.
 Final npm consumer packaging and Windows real-console events remain separate gates.
+
+`test:go-package` builds a private host-specific npm tarball containing the
+inference-enabled native bin, the release upgrade worker and curated Vite/worker
+exports. It installs that tarball into an isolated consumer with lifecycle scripts
+disabled, verifies no optional engine peers were installed, executes the native
+bin and package-manager command, and runs the installed Node worker's action
+validator. The bin is the executable itself; no postinstall or runtime launcher
+is needed. The package is private and restricted to the current OS/architecture;
+this is consumer qualification, not the final multi-platform registry layout.
+It does not publish or change the production CLI package. The same gate is
+available as `test:go-package:portable` in full inference snapshots.
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native npm consumer"}' -- bun run turbo run test:go-package --filter=@octane-xplat/cli
+```
 
 `test:go-foreground-input` (portable: `test:go-foreground-input:portable`) exercises
 project tool input without waiting for parent EOF and an actual Bun postinstall

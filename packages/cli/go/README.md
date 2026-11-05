@@ -591,10 +591,12 @@ keeps edited or deleted content from returning stale hits. The compute child
 reuses one native model session per operation. Large fenced sections keep their
 full text for lexical search and reads; model previews are bounded to 64 KiB,
 with `truncatedInputs` reported alongside the model's 512-token context limit.
-The prototype RPC owner can run
-and cancel this work while responding to other requests; public CLI integration
-with the persistent owner remains migration work. Direct CLI process ownership
-and prototype RPC qualification are separate from that pending integration.
+The public CLI owns and joins a native compute child for each documentation
+operation. Documentation reads, searches and indexing do not require a dev
+server. The retained prototype RPC-owner cancellation test exercises a separate
+experimental boundary; it does not imply that ordinary documentation commands
+must acquire a persistent owner. Foreground `dev` owns development engines and
+app-control connections.
 
 
 `add` enables web, iOS or Android in an existing Bun app. The selected project

@@ -152,6 +152,7 @@
 		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
+		"test:go-package": "node --test ../../tools/cli-go/package.test.mjs",
 		"test:go-workshop-macos": "node --test ../../tools/cli-go/workshop-macos.test.mjs",
 		"test:go-workshop-engine": "node --test ../../tools/cli-go/workshop-engine.test.mjs",
 		"test:go-workshop": "node --test ../../tools/cli-go/workshop.test.mjs",
