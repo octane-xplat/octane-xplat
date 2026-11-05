@@ -223,8 +223,9 @@ detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
-Vite and a headless AppKit Node host. NativeScript device relay/runtime WebSocket adapters
-remain unimplemented. Browser inspection attaches through the existing app socket
+Vite and a headless AppKit JavaScriptCore host, including native action invocation
+and status. NativeScript device reachability still needs a relay and actual
+runtime qualification. Browser inspection attaches through the existing app socket
 and reuses the canonical fixed named-host operation. It returns bounded main-document
 hosts, private-value redaction, a per-document identity and session evidence. It
 never focuses a control, sends input, starts a browser or requires ownership of

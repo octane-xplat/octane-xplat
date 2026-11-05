@@ -246,6 +246,21 @@ Read a native selection line without buffering bytes intended for the next tool.
 
 ## Go project orchestration
 
+Choose Go/Node boundaries by semantic ownership, not by file length. Keep native
+discovery, HTTP, process/resource lifetime, caches and inference independent of a
+project toolchain. Parsing/executing JS configuration, compiler analysis, code
+rendering and action-field semantics use the canonical project worker. Do not
+add a second native implementation of an engine already running in Node.
+
+Check current entry points and maintained runtime evidence before extending a
+platform adapter. AppKit already uses the JavaScriptCore host's Foundation
+WebSocket shim and has native action invocation coverage. NativeScript's gap is
+device reachability/qualification, not evidence that every native host needs a
+new WebSocket implementation. Prefer the existing project Vite process's public
+WebSocket-proxy configuration for a device relay; keep target credentials scoped
+to the app channel and verify actual device behavior before claiming support.
+Avoid depending on NativeScript HMR's internal framework-strategy callbacks.
+
 Upgrade uses the canonical compatibility planner/apply/inspection engine through
 explicit operations in `src/upgrade-worker.ts`. Preserve the invoked framework
 release: packaged native builds use the invoked CLI package's checksum-inventoried

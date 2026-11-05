@@ -136,10 +136,12 @@ import { xplatDevBridge } from '@octane-xplat/cli/vite'
 export default defineConfig({ plugins: [xplatDevBridge()] })
 ```
 
-Web is the qualified transport; Android was verified on one physical device
-through `xplat dev` (dev server reached via adb reverse). iOS/Windows share
-bridge machinery but are not runtime-qualified; macOS AppKit and Linux adapters
-are unavailable.
+The retained TypeScript CLI has web coverage and one physical Android device
+verification through `xplat dev` with adb reverse. That does not qualify the Go
+device transport. The parallel Go CLI has actual macOS Chromium and headless
+AppKit action registration/invocation/status evidence; NativeScript device relay
+and connection qualification remain pending. iOS, Windows and Linux app-runtime
+coverage must not be inferred from their shared registry or host protocol tests.
 Declaring an action's platforms does not establish transport support.
 
 Use the [CLI action workflow](cli.md#inspect-and-assert-supported-behavior) to
@@ -163,8 +165,8 @@ Node to validate JavaScript field/regex contracts.
 Native queues reject stale registries before dispatch, cancelled waiting tickets
 never execute, and changed input/revision cannot reuse a known request key.
 Cancellation preserves effect evidence and is not rollback. Headless testing with
-the real Vite bridge and app registry does not qualify AppKit/NativeScript fetch
-or UI behavior beyond the runtime coverage described above.
+the real Vite bridge and app registry in that Nim gate alone does not qualify
+AppKit/NativeScript fetch or OS UI behavior.
 
 ```sh
 xplat actions list --json

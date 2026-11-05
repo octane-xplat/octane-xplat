@@ -22,12 +22,18 @@ keyed by canonical app directory, outside tracked project files, with per-start
 instance credentials and authenticated loopback requests. Client disconnect does
 not stop apps. Target-scoped app WebSockets register actual action metadata;
 observation and action listing are native. App proof is distinct from private CLI
-RPC authorization. Browser execution remains unqualified and NativeScript device relay/runtime
-WebSocket adapters remain unimplemented; direct loopback sockets require same-host
-reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
+RPC authorization. The maintained macOS gates exercise actual Chromium actions,
+named-DOM inspection and programmatic handler dispatch, and actual AppKit action
+registration/invocation through the host's Foundation WebSocket shim. These are
+separate from OS-input or device qualification. NativeScript device reachability
+still needs a relay; direct loopback sockets require same-host reachability and
+a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
 validation to the selected project worker, while foreground Go owns request
 identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
-missing dev server. UI controls and broader diagnostics remain pending. Detached-owner
+missing dev server. Retained engine logs, browser warnings/errors, scoped Apple
+crash reports and text evidence have maintained gates; image capture and native
+UI-inspection adapters remain pending. See the Go README for each provider's
+scope and actual-target limits. Detached-owner
 and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
 reports; they are superseded qualification scope, not active Go release gates.
 

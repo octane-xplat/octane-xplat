@@ -1,9 +1,9 @@
 import type { AppDebugSocket } from './dev-bridge-socket'
-// Dev-bridge endpoint discovery — macOS. The WKWebView renderer loads
-// dev-server content and can use location.origin like the web leaf; the
-// AppKit JavaScriptCore host bundles the app ahead of time and has no fetch
-// path to a dev server yet — there the endpoint stays unavailable rather than
-// pretending a channel exists.
+// Dev-bridge endpoint discovery — macOS. WKWebView can use location.origin.
+// Bundled AppKit code derives the endpoint from its explicit app grant; the
+// JavaScriptCore host's Foundation WebSocket shim supplies the transport.
+// Without a development grant this remains inert. Connection readiness still
+// requires the server's registration acknowledgement, not a constructor check.
 declare const __XPLAT_DEV_BRIDGE__:
 	| { token?: string; socket?: string; instanceId?: string; targetId?: string }
 	| undefined
