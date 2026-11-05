@@ -14,7 +14,8 @@ const { createElementProps } = await import('../src/element-props.ts')
 const { createControls } = await import('../src/controls.ts')
 const { createContainerElements } = await import('../src/container-elements.ts')
 const { createActions } = await import('../src/actions.ts')
-const { NSButton, NSNotificationCenter, NSView } = await import('@octane-xplat/platform/macos')
+const { NSButton, NSSlider, NSProgressIndicator, NSNotificationCenter, NSView } =
+  await import('@octane-xplat/platform/macos')
 hooks.deregister()
 
 // Production node/prop/adapter/feature owners; only native objects and unrelated
@@ -72,6 +73,22 @@ function fixture() {
       return this
     },
   })
+  for (const NativeControl of [NSSlider, NSProgressIndicator]) {
+    Object.assign(NativeControl.prototype, {
+      initWithFrame() {
+        return this
+      },
+      sizeToFit() {},
+      startAnimation() {
+        this.running = true
+        run('spinner start')
+      },
+      stopAnimation() {
+        this.running = false
+        run('spinner stop')
+      },
+    })
+  }
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock(_name, _view, _queue, callback) {
       run('observe')
@@ -521,6 +538,22 @@ test('content geometry releases a late native token when registration reenters r
   const f = fixture(),
     token = {}
   let observedView: object | undefined
+  for (const NativeControl of [NSSlider, NSProgressIndicator]) {
+    Object.assign(NativeControl.prototype, {
+      initWithFrame() {
+        return this
+      },
+      sizeToFit() {},
+      startAnimation() {
+        this.running = true
+        run('spinner start')
+      },
+      stopAnimation() {
+        this.running = false
+        run('spinner stop')
+      },
+    })
+  }
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock(_name, view, _queue, callback) {
       observedView = view
@@ -616,4 +649,47 @@ test('registration replacement inside a live native action cannot redirect reent
   const future = f.make('button', {}, 2)
   f.nodes.destroy(future)
   assert.deepEqual(events, ['acquired', 'replacement'])
+})
+
+test('canonical switch and slider clear handlers and values without replacing their native action identity', () => {
+  for (const type of ['switch', 'slider']) {
+    const f = fixture()
+    let calls = 0
+    const node = f.make(type, {
+      checked: true,
+      value: 0.7,
+      onCheckedChange() {
+        calls++
+      },
+      onValueChange() {
+        calls++
+      },
+    })
+    const id = node.view!.tag
+    f.props.applyProps(node, f.props.droppedPropClears(node, {}))
+    assert.equal(node.view!.tag, id)
+    assert.equal(f.store.hasHandler(node.view!), false)
+    f.store.dispatch(id)
+    assert.equal(calls, 0)
+    f.nodes.destroy(node)
+    assert.equal(f.store.idForView(node.view!), undefined)
+  }
+})
+
+test('canonical progress reads the full bag and spinner retirement stops animation after prop removal', () => {
+  const f = fixture()
+  const progress = f.make('progress', { value: 30, maxValue: 40 })
+  f.props.applyProps(progress, { maxValue: 20 })
+  assert.equal(progress.view!.doubleValue, 20)
+  f.props.applyProps(progress, f.props.droppedPropClears(progress, {}))
+  assert.equal(progress.view!.doubleValue, 0)
+  assert.equal(progress.view!.maxValue, 100)
+  const spinner = f.make('activityindicator', { busy: true }, 2)
+  assert.equal(spinner.view!.running, true)
+  f.props.applyProps(spinner, f.props.droppedPropClears(spinner, {}))
+  assert.equal(spinner.view!.running, false)
+  f.props.applyProps(spinner, { busy: true })
+  f.nodes.destroy(spinner)
+  assert.equal(spinner.view!.running, false)
+  assert.equal(spinner.view!.hidden, true)
 })

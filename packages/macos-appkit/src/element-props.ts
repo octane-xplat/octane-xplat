@@ -375,12 +375,6 @@ export function createElementProps(deps: Dependencies) {
         case 'datepicker':
           deps.pickerElements.applyBuiltinDatePickerProp(node, name, value)
           break
-        case 'progress':
-          deps.controls.applyBuiltinProgressProp(node, name, value)
-          break
-        case 'activityindicator':
-          deps.controls.applyBuiltinActivityIndicatorProp(node, name, value)
-          break
         case 'htmlview':
           deps.textElements.applyBuiltinHtmlViewProp(node, name, value)
           break
@@ -396,12 +390,6 @@ export function createElementProps(deps: Dependencies) {
         case 'textfield':
         case 'textview':
           deps.inputElements.applyBuiltinTextInputProp(node, name, value)
-          break
-        case 'switch':
-          deps.controls.applyBuiltinSwitchProp(node, name, value)
-          break
-        case 'slider':
-          deps.controls.applyBuiltinSliderProp(node, name, value)
           break
         case 'webview':
           deps.hostedElements.applyBuiltinWebViewProp(node, name, value)
@@ -479,14 +467,6 @@ export function createElementProps(deps: Dependencies) {
 
     if (node.type === 'timepicker') {
       deps.pickerElements.syncTimePicker(node, props)
-    }
-
-    if (node.type === 'activityindicator') {
-      deps.controls.syncActivityIndicator(node)
-    }
-
-    if (node.type === 'progress') {
-      deps.controls.syncProgress(node)
     }
 
     if (node.type === 'htmlview') {

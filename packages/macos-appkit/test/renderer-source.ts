@@ -561,6 +561,11 @@ export function rendererSource(): string {
           text = text.replace(/\bdispose\(node\)/g, 'disposeBoxPaint(node)')
         }
       }
+      // Hand-authored legacy fixture nodes did not pass through makeNode.
+      // Acquire the production definition at this test-only ingress.
+      if ((module === 'element-props' && key === 'applyProps') || (module === 'nodes' && key === 'destroy')) {
+        text = text.replace(/(function (?:applyProps|destroy)\(node[^)]*\) \{)/, '$1\n node.adapter ??= adapters.lookup(node.type)')
+      }
       if (module === 'runtime') {
         text = text.replace(
           /\b([A-Za-z]+)\s*\.\s*([A-Za-z_$][\w$]*)/g,

@@ -109,7 +109,7 @@ thin facade over the registry/box owner and does not depend on root lifecycle.
 
 `element-adapter.ts` defines the private phased protocol and catalog. Runtime
 composition uses `adapter-assembly.ts` to assemble definitions from
-`pilot-adapters.ts`; importing a leaf
+`pilot-adapters.ts` and `control-adapters.ts`; importing a leaf
 registers nothing. A node captures its validated definition before creation and
 retains it for props, layout and disposal. Replacement registrations affect
 future acquisitions; mutating a registration object cannot redirect a live
@@ -119,7 +119,8 @@ overrides. Missing migrated definitions reject before native acquisition.
 
 The unpublished migration explicitly lists remaining builtin types in
 `unconvertedElementTypes`; registered Mason/compatibility behaviors remain in
-`registry.ts` until their cohort migrates. `button` and `contentview` have no
+`registry.ts` until their cohort migrates. `button`, `contentview`, `switch`, `slider`, `progress` and
+`activityindicator` have no
 legacy create/prop/dispose fallback. Adding a canonical adapter requires its
 definition, assembly and tests, without a generic lifecycle switch branch.
 Common props merge first, feature props follow, then `afterProps` reads the

@@ -1,3 +1,4 @@
+import { createControlAdapters } from '../src/control-adapters.ts'
 import { createPilotAdapters } from '../src/pilot-adapters.ts'
 import { unconvertedElementTypes } from '../src/element-adapter.ts'
 import { legacyActionBoundary } from './legacy-action-boundary.ts'
@@ -58,6 +59,7 @@ export function sourceWithoutImports(url: URL) {
 
 const SLICE_BASE = {
   createPilotAdapters,
+  createControlAdapters,
   unconvertedElementTypes,
   AccessibleHostView: class {},
   createAccessibilityState,
@@ -80,7 +82,10 @@ const RAW_SLICE_CONTEXT = Symbol('macos-appkit.raw-slice-context')
 export function runSlice(code: string, context?: Record<string, any>) {
   if (context?.deps) {
     if (context.deps.actions?.actionHandlers) {
-      context.deps.actions = { ...legacyActionBoundary(context.deps.actions), ...context.deps.actions }
+      context.deps.actions = {
+        ...legacyActionBoundary(context.deps.actions),
+        ...context.deps.actions,
+      }
     }
     context.deps.state ??= createAccessibilityState()
   }
@@ -145,13 +150,15 @@ const CSS_SLICE_STUBS = `
 var contentGeometryLeases = new WeakMap()
 var elementAdapters = { registerElementType: (...args) => registerElementType(...args) }
 var adapters = { lookup(type) {
-  return createPilotAdapters({
+  const pilots = createPilotAdapters({
     controls: { makeButton: (...args) => makeButton(...args), applyBuiltinButtonProp: (...args) => applyBuiltinButtonProp(...args) },
     containers: { makeContentView: (...args) => makeContentView(...args), contentViewNodesByView: typeof contentViewNodesByView === 'undefined' ? new WeakMap() : contentViewNodesByView,
       observeContentGeometry: (...args) => observeContentGeometry(...args), applyBuiltinContentHostProp: (...args) => applyBuiltinContentHostProp(...args), disposeBuiltinContentHost: (...args) => disposeBuiltinContentHost(...args) },
     actions: { disposeActions: (...args) => disposeActions(...args) },
     layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args), layoutContentChild: (...args) => layoutContentChild(...args) },
-  })[type]
+  })
+  const controls = createControlAdapters({ controls: new Proxy({}, { get: (_target, key) => (...args) => globalThis[key](...args) }), actions: { disposeActions: (...args) => disposeActions(...args) } })
+  return pilots[type] ?? controls[type]
 } }
 
 // Legacy branch tests supply mutable maps as their fake event boundary. New

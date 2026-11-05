@@ -430,6 +430,7 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
   }
   // The sizing helper's type guard admits only textview nodes.
   node.type = 'textview'
+  node.adapter = undefined // This legacy text fixture did not acquire a text adapter.
   fx.destroy(node)
   assert.deepEqual(events, ['retire-sizing', 'hook-with-host', 'common-after-detach'])
   assert.equal(fx.actionHandlers.has(node.actionId), false)

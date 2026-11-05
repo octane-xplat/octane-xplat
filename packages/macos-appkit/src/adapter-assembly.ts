@@ -1,11 +1,13 @@
+import { createControlAdapters, type ControlAdapterDependencies } from './control-adapters.ts'
 import type { Registry } from './registry'
 import type { ElementBehavior } from './model'
 import { FailureCollector } from './failures.ts'
 import { createPilotAdapters, type PilotAdapterDependencies } from './pilot-adapters.ts'
 
-interface Dependencies extends PilotAdapterDependencies {
-  registry: Pick<Registry, 'adapters' | 'registerElementType'>
-}
+type Dependencies = PilotAdapterDependencies &
+  ControlAdapterDependencies & {
+    registry: Pick<Registry, 'adapters' | 'registerElementType'>
+  }
 
 export type ElementAdapters = ReturnType<typeof createElementAdapters>
 
@@ -13,7 +15,9 @@ export type ElementAdapters = ReturnType<typeof createElementAdapters>
  * Legacy types remain explicit until P6. Replacing a migrated type composes one
  * canonical definition against its original builtin, never a previous override. */
 export function createElementAdapters(deps: Dependencies) {
-  const definitions = new Map(Object.entries(createPilotAdapters(deps)))
+  const definitions = new Map(
+    Object.entries({ ...createPilotAdapters(deps), ...createControlAdapters(deps) }),
+  )
   for (const [type, adapter] of definitions) {
     deps.registry.adapters.register(type, adapter)
   }

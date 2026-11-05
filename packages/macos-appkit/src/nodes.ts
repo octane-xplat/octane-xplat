@@ -255,21 +255,6 @@ export function createNodes(deps: Dependencies) {
       }
     }
 
-    if (type === 'progress') {
-      for (const name of ['value', 'maxValue']) {
-        if (
-          props?.[name] != null &&
-          (typeof props[name] !== 'number' || !Number.isFinite(props[name]))
-        ) {
-          throw new Error('AppKit progress ' + name + ' must be a finite number')
-        }
-      }
-    }
-
-    if (type === 'activityindicator' && props?.busy != null && typeof props.busy !== 'boolean') {
-      throw new Error('AppKit activityindicator busy must be boolean')
-    }
-
     if (
       type === 'placeholder' &&
       props?.onCreatingView != null &&
@@ -445,12 +430,6 @@ export function createNodes(deps: Dependencies) {
             node.view = control.view
             break
           }
-          case 'progress':
-            node.view = deps.controls.makeProgress()
-            break
-          case 'activityindicator':
-            node.view = deps.controls.makeActivityIndicator()
-            break
           case 'htmlview':
             node.view = deps.textElements.makeLabel()
             // @ts-ignore selectable is writable on NSTextView; generated decl marks it readonly.
@@ -476,16 +455,6 @@ export function createNodes(deps: Dependencies) {
           case 'textview':
             node.view = deps.inputElements.makeTextField(props, true) as unknown as NSView
             break
-          case 'switch': {
-            const control = deps.controls.makeSwitch(node, props)
-            node.view = control.view
-            break
-          }
-          case 'slider': {
-            const control = deps.controls.makeSlider(node, props)
-            node.view = control.view
-            break
-          }
           case 'webview':
             node.view = makeWebView()
             break
@@ -666,7 +635,6 @@ export function createNodes(deps: Dependencies) {
       release('list picker dispose', () => deps.pickerElements.disposeBuiltinListPicker(node))
       release('time picker dispose', () => deps.pickerElements.disposeBuiltinTimePicker(node))
       release('date picker dispose', () => deps.pickerElements.disposeBuiltinDatePicker(node))
-      release('activity dispose', () => deps.controls.disposeBuiltinActivityIndicator(node))
       release('image dispose', () => deps.imageElements.disposeBuiltinImage(node))
       release('scroll dispose', () => deps.controls.disposeBuiltinScrollView(node))
     }
