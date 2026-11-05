@@ -239,3 +239,16 @@ and `readReducedMotion()` exists for JS facades. iOS
 `Settings.Global.ANIMATOR_DURATION_SCALE` are the OS sources — plumbing is a
 local gap, not an upstream miss; record consumers must not assume the hook
 reflects the OS preference today. Pinned in `media-query-native.test.ts`.
+
+## NativeScript iOS background redraw clears custom masks (core 9.1.3)
+
+`ui/styling/background.ios` calls `clearLayerMask` during background cleanup
+when no NativeScript clip-path or non-uniform border owns the mask. It restores
+`originalMask` (normally null), erasing masks installed directly by a component.
+This redraw need not emit `layoutChanged`. SmoothCorners preserves its active
+owned mask around the inner view's `_redrawNativeBackground` method; unrelated
+masks and replacement native views retain the original redraw behavior. Recheck
+this private-hook integration when upgrading NativeScript and remove it if core
+preserves custom mask ownership. Source inspection and mocked host regressions
+establish the cleanup conflict, not on-device camera/save reproduction or pixel
+parity. Tracking: [#153](https://github.com/octane-xplat/octane-xplat/issues/153).

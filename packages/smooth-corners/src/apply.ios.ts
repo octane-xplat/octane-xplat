@@ -55,6 +55,30 @@ function toCGPath(cmds: PathCommand[]): any {
 
 const MASK_KEY = '__smoothMask'
 const BORDER_KEY = '__smoothBorder'
+const REDRAW_KEY = '__smoothRedraw'
+
+/** NativeScript background cleanup clears custom layer masks even when no
+ * layout event follows. Preserve only our own mask across that cleanup. */
+function preserveClipOnRedraw(view: any): void {
+  if (view[REDRAW_KEY] || typeof view._redrawNativeBackground !== 'function') {
+    return
+  }
+
+  const redraw = view._redrawNativeBackground
+  view._redrawNativeBackground = function (...args: any[]) {
+    const native = this.ios
+    const mask = native?.[MASK_KEY]
+    const owned = mask && native.layer.mask === mask
+    try {
+      return redraw.apply(this, args)
+    } finally {
+      if (owned && this.ios === native) {
+        native.layer.mask = mask
+      }
+    }
+  }
+  view[REDRAW_KEY] = true
+}
 
 function sizeOf(view: any): { w: number; h: number } | null {
   const size = view?.getActualSize?.()
@@ -68,6 +92,8 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
   if (!v || !size) {
     return
   }
+
+  preserveClipOnRedraw(view)
 
   const path = toCGPath(generateCommands(size.w, size.h, props.corners))
 
