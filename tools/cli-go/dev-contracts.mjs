@@ -161,6 +161,35 @@ export function goDevContracts(source) {
 			}
 		}
 	}
+	const retention = metadata.descriptors.find(({ name }) => name === 'evidence retain')
+	retention.context = 'app'
+	retention.permissions = ['evidence-retain']
+	for (const name of ['evidence list', 'evidence delete', 'evidence retain']) {
+		const descriptor = metadata.descriptors.find((item) => item.name === name)
+		descriptor.summary =
+			name === 'evidence list'
+				? 'List current session and restart-safe retained text evidence for the selected app'
+				: name === 'evidence retain'
+					? 'Retain selected app text evidence outside the project with an explicit grant and optional future ISO expiration'
+					: 'Delete selected app evidence; interaction dedupe facts and external transcripts remain'
+
+		for (const item of [
+			metadata.schemas[name],
+			...metadata.catalog.commands.filter(({ command }) => command === name),
+		]) {
+			item.summary = descriptor.summary
+			item.requiresBoundApp = true
+			if (name === 'evidence retain') {
+				item.permissions = ['evidence-retain']
+				item.errors.push({
+					code: 'permission_denied',
+					exit: 4,
+					when: 'evidence-retain is not granted',
+				})
+			}
+		}
+	}
+
 	const interact = metadata.descriptors.find(({ name }) => name === 'interact')
 	interact.summary =
 		'Dispatch an explicit programmatic HTML click in a connected app; requires inspected document and startup-scoped request key, never CDP or OS input'

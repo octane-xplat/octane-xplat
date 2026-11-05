@@ -74,18 +74,23 @@ iOS parsing and Android collection have unit/reference evidence; device runtime
 qualification is still pending. A failed device setup is not a runtime pass. Read-only browser inspection uses the
 connected app's fixed named-host inspector and per-document identity. It redacts
 private values and never focuses controls, dispatches input or starts a browser.
-Evidence list/delete are scoped to this selected app/dev-server startup, bounded
-and ephemeral; they cannot erase a client transcript. Programmatic `interact --mechanism handler-dispatch` uses an untrusted HTML click,
+Evidence list/delete combine bounded current-session records and explicitly retained
+text records scoped to the selected app. Retention requires the invoking command
+to grant `evidence-retain`; records survive restart in the private native cache.
+List/renew/delete work offline without Node or server startup. Expiration is a
+future ISO timestamp or manual deletion; expired records are filtered on reads.
+Corruption and full retained capacity fail explicitly. Deletion cannot erase a client transcript. Programmatic `interact --mechanism handler-dispatch` uses an untrusted HTML click,
 not CDP or OS input. Require document/selector/request key, then inspect state
 separately. A repeated identical key returns the original delivery receipt; never
 change its binding or automatically use a new key after unknown effects. Admission
 outlives the HTTP client and observations are bounded. Receipts are limited to 256
 keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input,
-visual capture and explicit evidence retention remain unsupported.
+visual capture remains unsupported; explicit retention currently covers text records only.
 
 ```sh
 /absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
 /absolute/path/to/xplat-go interact APP_SESSION_ID --document DOCUMENT_ID --testid counter.increment --mechanism handler-dispatch --request-key CLICK_KEY --json
+XPLAT_PERMISSIONS=evidence-retain /absolute/path/to/xplat-go evidence retain EVIDENCE_ID --json
 /absolute/path/to/xplat-go evidence list --kind inspection --json
 /absolute/path/to/xplat-go diagnostics --json
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --limit 50 --stream stderr --json

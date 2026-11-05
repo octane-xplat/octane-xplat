@@ -128,38 +128,70 @@ func (service *devInspection) inspect(parent context.Context, values map[string]
 	return result, nil
 }
 func (service *devInspection) evidenceCommand(command string, values map[string]any) (any, *cliError) {
+	return service.evidenceOperation(service.server.ctx, command, values)
+}
+func (service *devInspection) evidenceOperation(ctx context.Context, command string, values map[string]any) (any, *cliError) {
 	for key := range values {
-		if key != "kind" && key != "id" {
+		if !slices.Contains([]string{"kind", "id", "expiresAt", "_grants"}, key) {
 			return nil, invalid("Unknown evidence option: " + key)
 		}
 	}
+	if command == "evidence retain" {
+		if failure := actionPermission(values, "evidence-retain"); failure != nil {
+			return nil, failure
+		}
+	}
+	parent, err := diagnosticsHistoryParent()
+	if err != nil {
+		return nil, executionFailure(err)
+	}
 	service.mu.Lock()
 	defer service.mu.Unlock()
-	if command == "evidence list" {
-		result := []json.RawMessage{}
-		for _, raw := range service.evidence {
-			var metadata struct {
-				Kind string `json:"kind"`
-			}
-			_ = json.Unmarshal(raw, &metadata)
-			if kind := stringValue(values["kind"]); kind == "" || kind == metadata.Kind {
-				result = append(result, slices.Clone(raw))
-			}
-		}
-		return map[string]any{"evidence": result, "retention": "Current dev-server startup only; at most32 records and2MiB."}, nil
-	}
+	id := stringValue(values["id"])
+	var source json.RawMessage
+	index := -1
 	for i, raw := range service.evidence {
-		var metadata struct {
-			ID string `json:"id"`
-		}
-		_ = json.Unmarshal(raw, &metadata)
-		if metadata.ID == stringValue(values["id"]) {
-			service.evidenceBytes -= len(raw)
-			service.evidence = slices.Delete(service.evidence, i, i+1)
-			return map[string]any{"deleted": true, "id": metadata.ID, "note": "Deleting this server record cannot erase a client transcript that already recorded it."}, nil
+		var header evidenceRecordHeader
+		_ = json.Unmarshal(raw, &header)
+		if header.ID == id {
+			source = raw
+			index = i
+			break
 		}
 	}
-	return nil, &cliError{Code: "not_found", Message: "No evidence record with this identity in the current dev server."}
+	durable, failure := evidenceDiskCommand(ctx, parent, service.server.record.AppRoot, command, values, source)
+	if command == "evidence list" {
+		if failure != nil {
+			return nil, failure
+		}
+		records := durable.([]json.RawMessage)
+		seen := map[string]bool{}
+		for _, raw := range records {
+			var header evidenceRecordHeader
+			_ = json.Unmarshal(raw, &header)
+			seen[header.ID] = true
+		}
+		for _, raw := range service.evidence {
+			var header evidenceRecordHeader
+			_ = json.Unmarshal(raw, &header)
+			if !seen[header.ID] && (stringValue(values["kind"]) == "" || stringValue(values["kind"]) == header.Kind) {
+				records = append(records, slices.Clone(raw))
+			}
+		}
+		return map[string]any{"evidence": records, "retention": "Session records expire with this server; explicitly retained records survive restart. Expired disk records are filtered; mutations collect them."}, nil
+	}
+	if command == "evidence delete" && index >= 0 && failure != nil && failure.Code == "not_found" {
+		failure = nil
+		durable = map[string]any{"deleted": true, "id": id, "note": "Deleting a server record cannot erase client transcripts or delivery receipts."}
+	}
+	if failure != nil {
+		return nil, failure
+	}
+	if index >= 0 {
+		service.evidenceBytes -= len(service.evidence[index])
+		service.evidence = slices.Delete(service.evidence, index, index+1)
+	}
+	return durable, nil
 }
 
 func (service *devInspection) selectedPeer(values map[string]any) (*devAppPeer, string, *cliError) {

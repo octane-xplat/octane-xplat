@@ -1150,6 +1150,20 @@ keeps even three-byte units below256KiB. Session evidence is bounded to one
 selected app/dev-server startup; list/delete do not imply persistence or erase
 client transcripts. Retention and visual capture remain separate explicit features.
 
+Explicit text-evidence retention uses `evidence-go-v1` in the native user cache,
+keyed by canonical app identity. Check the invoking request's `evidence-retain`
+grant before cache lookup/publication; a daemon environment is not a global grant.
+Retain only known records, never arbitrary app-supplied artifact paths. Publish a
+single bounded, checksummed envelope atomically and validate identity/app binding
+on every read. Stable kernel locks serialize independent clients. Pure lookup
+must create neither folders nor a missing lock; corruption is failure, not empty
+evidence. Retention survives server exit and can be read/renewed/deleted offline
+without Node or app startup. Capacity rejects additional records instead of
+silently evicting unexpired retained data. Reads filter expiry without deleting;
+explicit mutations collect expired records. Session and retained stores have
+separate budgets. Promoting/deleting a body must release the session copy while
+keeping interaction receipts limited to delivery metadata and references.
+
 Retained engine captures and observed app sessions have separate IDs and owners.
 Diagnostics must reuse the capture writer's cache-parent function and bounded
 history reader. Lookup must not create missing directories. Only an authenticated

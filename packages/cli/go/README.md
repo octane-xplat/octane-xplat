@@ -231,7 +231,7 @@ never focuses a control, sends input, starts a browser or requires ownership of
 its process. Component trees, shadow roots and frames are excluded. Programmatic HTML interaction uses the explicit `handler-dispatch` mechanism.
 It is `HTMLElement.click()` with an untrusted event, not a CDP click or OS input.
 It refuses hidden, disabled, private and obscured controls. CDP/OS input, screenshot
-capture and explicit evidence retention remain unsupported.
+capture remains unsupported. Explicit text evidence retention is available with its own grant.
 Browser console forwarding has separate headless Chromium evidence. Actual Chromium inspection, programmatic interaction and browser action invocation
 have separate macOS evidence; portable protocol checks do not qualify other hosts
 for browser UI behavior. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
@@ -239,8 +239,10 @@ The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
 configuration. Production builds receive no native bridge definition.
 
 Read a connected browser session's named hosts and inspect its ephemeral evidence.
-Evidence list/delete use the selected app dev server, retain at most32 records/2MiB,
-and do not persist across server restart. Oldest records may be evicted. Deleting
+Evidence list/delete combine current session records (at most32/2MiB) with explicitly
+retained text records from the native cache. Session records expire on server exit;
+oldest session records may be evicted. Retained records survive restart and use
+a separate16-record/1MiB budget without silently evicting unexpired data. Deleting
 a server record cannot erase a client transcript. A page that exceeds the response
 bound must be retried with a smaller limit. Reloading the document changes its
 identity; use the new session rather than sending work to the old one.
@@ -248,6 +250,20 @@ identity; use the new session rather than sending work to the old one.
 ```sh
 /absolute/path/to/xplat-go session list --json
 /absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
+/absolute/path/to/xplat-go evidence list --kind inspection --json
+/absolute/path/to/xplat-go evidence delete EVIDENCE_ID --json
+```
+
+Retain a text record explicitly with the invoking command's permission grant.
+Omit expiration for manual deletion, or supply a future ISO timestamp including
+`Z` or a UTC offset. Retention stores a checksummed record in the private native
+user cache outside the app; it never follows an app-supplied artifact path. Reads
+filter expired records; retain/delete collect expired files. Corruption and budget
+exhaustion are errors. List/renew/delete work after dev exits, without Node or
+starting a server. Unretained session records do not survive exit.
+
+```sh
+XPLAT_PERMISSIONS=evidence-retain /absolute/path/to/xplat-go evidence retain EVIDENCE_ID --expires-at 2099-01-01T00:00:00Z --json
 /absolute/path/to/xplat-go evidence list --kind inspection --json
 /absolute/path/to/xplat-go evidence delete EVIDENCE_ID --json
 ```

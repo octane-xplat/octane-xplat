@@ -750,6 +750,8 @@ test(
 		)
 		const requireWeb = createRequire(join(root, 'apps/web/package.json'))
 		const browser = await requireWeb('playwright').chromium.launch({ headless: true })
+		let retainedId
+
 		try {
 			const page = await browser.newPage()
 			await page.goto(address)
@@ -943,6 +945,21 @@ test(
 				action.data.job.jobId,
 			)
 
+			retainedId = inspect('--id', 'value').data.evidence.id
+			const deniedRetention = cli(f, ['evidence', 'retain', retainedId])
+			assert.equal(deniedRetention.error.code, 'permission_denied')
+			const granted = { ...f, env: { ...f.env, XPLAT_PERMISSIONS: 'evidence-retain' } }
+			assert.equal(
+				cli(granted, ['evidence', 'retain', retainedId, '--expires-at', 'yesterday']).error.code,
+				'invalid_selection',
+			)
+
+			const retained = cli(granted, ['evidence', 'retain', retainedId])
+			assert.equal(retained.status, 0, JSON.stringify(retained.error))
+			assert.equal(retained.data.record.retention.scope, 'retained')
+			assert.equal(retained.data.record.retention.expiresAt, null)
+			assert.equal(retained.data.record.data.controls[0].text, 'Visible count 1')
+
 			const evidenceId = all.data.evidence.id
 			const inventory = cli(f, ['evidence', 'list'])
 			assert.equal(inventory.status, 0, JSON.stringify(inventory.error))
@@ -982,5 +999,32 @@ test(
 			await browser.close()
 			await stop(owned)
 		}
+
+		const offline = { ...f, env: { ...f.env, PATH: '' } }
+		const historical = cli(offline, ['evidence', 'list'])
+		assert.equal(historical.status, 0, JSON.stringify(historical.error))
+		assert.equal(historical.data.evidence.length, 1, 'ephemeral records survived server exit')
+		assert.equal(historical.data.evidence[0].id, retainedId)
+		assert.equal(historical.data.evidence[0].data.controls[0].text, 'Visible count 1')
+		assert.equal(record(f), null, 'offline read started a dev server')
+		const renewed = cli(
+			{ ...offline, env: { ...offline.env, XPLAT_PERMISSIONS: 'evidence-retain' } },
+			[
+				'evidence',
+				'retain',
+				retainedId,
+				'--expires-at',
+				new Date(Date.now() + 3600000).toISOString(),
+			],
+		)
+		assert.equal(renewed.status, 0, JSON.stringify(renewed.error))
+		assert.ok(renewed.data.record.retention.expiresAt)
+		assert.equal(cli(offline, ['evidence', 'delete', retainedId]).status, 0)
+		assert.equal(cli(offline, ['evidence', 'list']).data.evidence.length, 0)
+		assert.equal(cli(offline, ['evidence', 'delete', retainedId]).error.code, 'not_found')
+		evidence.push({
+			workflow:
+				'actual browser text evidence retention grant, dev exit, native offline reads/renew/delete with empty PATH; no Node or server bootstrap',
+		})
 	},
 )
