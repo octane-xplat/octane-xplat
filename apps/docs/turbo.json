@@ -36,6 +36,7 @@
 				"@octane-xplat/dnd-kit#typegen",
 				"@octane-xplat/drawer#typegen",
 				"@octane-xplat/files#typegen",
+				"@octane-xplat/form#typegen",
 				"@octane-xplat/fingerprint#build",
 				"@octane-xplat/firebase-analytics#typegen",
 				"@octane-xplat/firebase-crashlytics#typegen",

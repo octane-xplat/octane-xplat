@@ -6,6 +6,9 @@ Start with [a working app](../start/toolchain.md#create-and-run) and the
 [component example](primitives.md#a-practical-example) if you're new to
 state and callbacks.
 
+For form-wide values, validation, reset, and saving, follow
+[Forms with validation](../packages/package-form.md).
+
 For a complete labeled form with validation, focus and announcement checks,
 follow [Build and test an accessible screen](accessibility.md).
 For the experimental GTK target, use the platform examples for

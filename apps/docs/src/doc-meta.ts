@@ -121,6 +121,7 @@ export const GROUPS = [
       'package-drawer',
       'package-effects',
       'package-files',
+      'package-form',
       'package-fingerprint',
       'package-firebase-analytics',
       'package-firebase-crashlytics',

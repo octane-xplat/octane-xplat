@@ -93,6 +93,7 @@ Workflows:
 - [Handle keys and copy text](keyboard-clipboard.md)
 - [Add configurable workspace shortcuts](keyboard-shortcuts.md)
 - [Enter and submit text reliably](text-entry.md)
+- [Validate and save a shared form](validated-forms.md)
 - [Search and enter selected values](search-and-token-entry.md)
 - [Build a structured search field](power-search.md)
 - [Compose action controls and interactive cards](interactive-actions.md)

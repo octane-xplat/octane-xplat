@@ -35,6 +35,7 @@
 		"@octane-xplat/fingerprint",
 		"@octane-xplat/firebase-analytics",
 		"@octane-xplat/firebase-crashlytics",
+		"@octane-xplat/form",
 		"@octane-xplat/geofencing",
 		"@octane-xplat/geolocation",
 		"@octane-xplat/gif",

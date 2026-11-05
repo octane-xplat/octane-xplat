@@ -83,6 +83,7 @@ limitations. Do not load the entire reference tree by default.
 | Add app actions for deterministic verification     | [Development actions](references/development-actions.md)                                                                                        |
 | Create, run, or upgrade an app                     | [Getting started](references/getting-started.md)                                                                                                 |
 | Hooks, state, context, refs, boundaries, children  | [Octane semantics](references/octane.md)                                                                                                         |
+| Typed form values, validation, submit/reset | [Forms with validation](../../../docs/packages/package-form.md); use `@octane-xplat/form` over form-core. Every field reader calls `useField`; form summaries call `useFormStore`. Put conditional fields in child components so unmount releases their registrations. |
 | Choose/use a component                             | [Primitives](references/primitives.md)                                                                                                           |
 | Group, expand or pin Table rows | [Grouped and tree tables](references/primitives/tables.md#grouped-and-tree-tables); [public examples](../../../docs/app/tables.md) |
 | Implement/debug a native leaf                      | [Driver semantics](references/primitives/driver-semantics.md)                                                                                    |

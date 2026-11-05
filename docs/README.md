@@ -61,6 +61,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Save settings and packing records | [Local storage](app/local-storage.md) |
 | Change colors, spacing, and fonts               | [Styling screens](app/styling.md)                      |
 | Make a screen work with assistive technology    | [Accessible screens](app/accessibility.md)             |
+| Validate and save form values | [Forms with validation](packages/package-form.md) |
 | Let someone type into a form                    | [Enter and submit text](app/text-entry.md)             |
 | Add scoped keyboard commands | [Keyboard shortcuts](app/keyboard-shortcuts.md); [API reference](app/keyboard-shortcuts-api.md) |
 | Migrate changed UI value and unit props         | [UI API migrations](app/ui-api-migrations.md)          |
