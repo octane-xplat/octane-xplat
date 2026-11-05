@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Open a Windows action menu with the keyboard or mouse
 
 Experimental Windows dropdowns use native menu-item input and automation for flat action rows, while keeping the shared Button and row content:

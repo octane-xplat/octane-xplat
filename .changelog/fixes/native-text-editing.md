@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Keep native text editing predictable
 
 On iOS and Android:

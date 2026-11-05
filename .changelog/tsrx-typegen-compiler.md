@@ -1,5 +1,6 @@
 ---
 release: tsrx-typegen
+hype: 50
 ---
 
 ### Generate declarations alongside native TypeScript

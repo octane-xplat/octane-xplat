@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Turn GIF attachments into videos and encode WebP images
 
 Use `@octane-xplat/media-converter` for GIF-to-MP4 jobs with progress, cancellation, and temporary-output cleanup. Browser hosts can also produce WebM when their encoder supports it. Native converters take local files; native Windows and GTK adapters are not available yet.

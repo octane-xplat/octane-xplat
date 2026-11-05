@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Load Windows avatar images and expose their names
 
 Windows images using base64 data URIs now reach the native async decoder instead of remaining empty. Avatar initials fit inside their circle, and both the image and initials paths expose a named image peer.

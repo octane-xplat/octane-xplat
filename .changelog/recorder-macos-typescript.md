@@ -1,3 +1,7 @@
+---
+hype: 25
+---
+
 ### Microphone recording needs no native rebuild on macOS
 
 `@octane-xplat/recorder` no longer ships a Swift leaf on macOS. The AppKit backend calls `AVAudioRecorder`, `AVCaptureDevice` and `NSFileManager` directly from TypeScript through the host's Objective-C bridge, so installing or updating the package works with a JavaScript-only refresh — no plugin rebuild is needed on macOS. iOS and Android are unchanged.

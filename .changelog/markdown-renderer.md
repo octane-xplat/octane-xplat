@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Markdown renders through the full Astryx 0.7.4 surface
 
 `Markdown` now matches the Astryx 0.7.4 component: raw source moves from a `text` prop to `children` (`data` for baked documents is unchanged), `isStreaming` smooths bursts internally, and new props control layout, citations, links, and extensions — `display`, `contentWidth`, `contentAlign`, `citationStyle`, `autolink`, `onLinkClick`, `components` (ten renderer slots), `inlinePlugins`, and `plugins`.

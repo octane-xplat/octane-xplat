@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Check TSRX with TypeScript 7.1
 
 The toolchain now uses TypeScript 7.1 beta and the TSRX content mapper. Use an explicit `.tsrx` extension without a platform name; the build still selects the platform implementation. Each platform family needs an unsuffixed module for its shared type contract.

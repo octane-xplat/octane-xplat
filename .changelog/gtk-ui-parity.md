@@ -1,3 +1,7 @@
+---
+hype: 100
+---
+
 ### Build Linux apps with the complete UI kit
 
 The GTK target now exports the shared `@octane-xplat/ui` surface, with one public type entrypoint across platforms. Inputs and fields, popovers and menus, dialogs, sheets and toasts, navigation and app chrome, collections and data tables, typeahead and search, date and color pickers, rich text, icons, and `WebView` all render through the Linux GTK renderer with the same props and types as the native barrel. Pure utilities — theme tokens, i18n, sources, table and calendar helpers — work too.

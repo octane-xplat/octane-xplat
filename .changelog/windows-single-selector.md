@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Choose a Windows option with the keyboard or mouse
 
 Experimental Windows single-choice Selectors now use native option selection and accessibility while keeping the shared trigger and option content. Open with F4 or a click, preview with arrow keys, commit with Enter, and cancel with Escape:

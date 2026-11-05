@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Install the shared development toolchain together
 
 The new `octane-xplat` package provides the `xplat` command and compatible Vite, TypeScript, and TSRX tooling. New app starters include it and import build configuration helpers from `octane-xplat/vite`.

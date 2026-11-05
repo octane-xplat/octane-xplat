@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Use native selection and keyboard input in Windows panel tabs
 
 Experimental Windows panel tabs now expose native tab-selection automation, use one Tab stop, and select enabled tabs with Left/Right, Home and End. Selection stays controlled by your component, which also renders the panel:

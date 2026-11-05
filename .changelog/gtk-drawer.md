@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Add Drawer to the GTK4/GJS target
 
 `@octane-xplat/drawer` now renders on Linux GTK. The panel docks to the start edge and fills the window height over a modal scrim; backdrop presses and Escape dismiss it, and controlled `open`, `onOpenChange`, and `onDismiss` behave like the desktop leaves. The `gtk` export condition resolves the leaf automatically — no import changes needed.

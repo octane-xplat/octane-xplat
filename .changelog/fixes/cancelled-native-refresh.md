@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### Ignore cancelled native refresh gestures
 
 An interrupted native pull-to-refresh gesture now returns the indicator to rest without calling onRefresh. A controlled refresh stays docked until refreshing becomes false. Refreshable Mason regions also honor their viewport dimensions and keep the indicator overlaid in the viewport's grid cell.

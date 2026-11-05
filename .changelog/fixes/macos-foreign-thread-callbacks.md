@@ -1,3 +1,7 @@
+---
+hype: 50
+---
+
 ### macOS apps no longer crash when the system calls JS delegate methods on other threads
 
 On macOS, an Objective-C method implemented in JavaScript — a delegate or `NSObject.extend` member — crashed the app when the system invoked it on a spawned thread or background queue instead of the main thread. The bundled native runtime now delivers those method callbacks on the JavaScript thread and waits for the return value, so delegates the system calls from other threads (like `NSPrintOperation`'s `didRun`) work instead of terminating the process.

@@ -1,3 +1,7 @@
+---
+hype: 75
+---
+
 ### Search installed-version docs locally
 
 Agents can prepare local vector search for guides, package READMEs, and release notes. Search combines keywords with a local embedding model, preserves version provenance, and reports lexical fallback when embeddings are unavailable.
