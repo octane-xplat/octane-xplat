@@ -946,7 +946,7 @@ export function installMasonElement(next: MasonDeps) {
 
         return true
       }
-      return name === 'id' || value === undefined
+      return name === 'id'
     },
     layout(parent) {
       layoutMasonChildren(parent, next.layoutView, next.pinLayoutChild)
