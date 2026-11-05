@@ -268,6 +268,8 @@ export function updatePagerView(view: NSView, props: Props) {
 
     host.translatesAutoresizingMaskIntoConstraints = false
     state.pages.push({ host, index: -1, bound: false })
+    // Clip-relative constraints require the page to share its view hierarchy.
+    state.document.addSubview(host)
   }
 
   while (state.pages.length > count) {
