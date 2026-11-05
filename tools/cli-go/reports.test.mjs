@@ -127,3 +127,104 @@ test('native Apple report parsing agrees with the actual Node engine on accepted
 		rmSync(base, { recursive: true, force: true })
 	}
 })
+
+test('native Android exit history agrees with Node for record kinds, scope, CRLF and unavailable formats', async () => {
+	const base = mkdtempSync(join(scratchRun(root, 'go-android-report-reference'), 'case-'))
+	try {
+		const now = new Date().toISOString(),
+			run = {
+				sessionId: 'sess_00000000-0000-0000-0000-000000000001',
+				platform: 'android',
+				targetId: 'emulator-5588',
+				startedAt: now,
+				endedAt: now,
+				nativeIdentity: { appId: 'org.octane.reference', processes: [] },
+			}
+
+		const timestamp = now.replace('T', ' ').replace('Z', '')
+		const prefix =
+			'ACTIVITY MANAGER PROCESS EXIT INFO (dumpsys activity exit-info)\n  package: org.octane.reference\n'
+
+		const block = `        ApplicationExitInfo #0:\n          timestamp=${timestamp} pid=42 realUid=123\n          process=org.octane.reference reason=5 (CRASH NATIVE) subreason=0 status=11\n          importance=100 trace=/data/tombstones/private\n`
+		const cases = []
+		for (const [name, output, zone] of [
+			['native-crash', prefix + block, '+0000'],
+			[
+				'java-crash',
+				prefix + block.replace('reason=5 (CRASH NATIVE)', 'reason=4 (CRASH)'),
+				'+0000',
+			],
+			[
+				'anr-crlf',
+				(prefix + block.replace('reason=5 (CRASH NATIVE)', 'reason=6 (ANR)')).replaceAll(
+					'\n',
+					'\r\n',
+				),
+				'+0000',
+			],
+			[
+				'child-process',
+				prefix +
+					block.replace('process=org.octane.reference', 'process=org.octane.reference:child'),
+				'+0000',
+			],
+			[
+				'foreign-package',
+				prefix +
+					block.replace('process=org.octane.reference', 'process=org.octane.reference.other'),
+				'+0000',
+			],
+			['stale', prefix + block.replace(timestamp, '2000-01-01 00:00:00.000'), '+0000'],
+			['malformed', 'ACTIVITY MANAGER PROCESS EXIT INFO\nApplicationExitInfo unknown', '+0000'],
+			['unsupported', 'unknown output', '+0000'],
+			['invalid-zone', prefix + block, 'unavailable'],
+		]) {
+			const expected = await discoverNativeReports(join(base, name), run, {
+				exec: async (_tool, args) => (args.includes('date') ? zone : output),
+			})
+
+			cases.push({
+				Name: name,
+				Run: run,
+				Output: output,
+				Zone: zone,
+				Now: now,
+				Expected: expected.reports,
+				Status: expected.coverage.status,
+			})
+		}
+
+		const path = join(base, 'corpus.json')
+		writeFileSync(path, JSON.stringify(cases))
+		const result = spawnSync(
+			binary,
+			['-test.run=^TestAndroidNativeReportReferenceCorpus$', '-test.v'],
+			{
+				env: { ...process.env, XPLAT_GO_ANDROID_REPORT_CORPUS: path },
+				encoding: 'utf8',
+				timeout: 20000,
+			},
+		)
+
+		assert.equal(result.status, 0, result.stdout + result.stderr)
+		writeFileSync(
+			join(work, `android-report-reference-${target}.json`),
+			JSON.stringify(
+				{
+					target,
+					binarySha256: record.sha256,
+					cases: cases.map(({ Name, Status, Expected }) => ({
+						name: Name,
+						status: Status,
+						kind: Expected[0]?.kind ?? null,
+					})),
+					passed: true,
+				},
+				null,
+				2,
+			),
+		)
+	} finally {
+		rmSync(base, { recursive: true, force: true })
+	}
+})

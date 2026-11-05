@@ -318,6 +318,12 @@ func nativeReportsRoot(store *historyStore, session string, create bool) (*os.Ro
 	}
 	return root.OpenRoot("reports")
 }
+func validNativeReportSource(report nativeReport) bool {
+	if report.Source == "apple-ips" {
+		return report.Kind == "native-crash"
+	}
+	return report.Source == "android-exit-info" && report.Association == "candidate" && slices.Contains([]string{"native-crash", "crash", "anr", "process-exit"}, report.Kind)
+}
 func readRetainedNativeReport(root *os.Root, id string) (retainedNativeReport, error) {
 	var report retainedNativeReport
 	if !nativeReportID.MatchString(id) {
@@ -327,7 +333,7 @@ func readRetainedNativeReport(root *os.Root, id string) (retainedNativeReport, e
 	if err != nil {
 		return report, err
 	}
-	if json.Unmarshal(data, &report) != nil || report.Version != 1 || report.ID != id || report.Bytes != len(report.Data) || report.Bytes > nativeReportBytes || !utf8.Valid(report.Data) || fmt.Sprintf("report_%x", sha256.Sum256(report.Data)) != id || !slices.Contains([]string{"confirmed", "candidate"}, report.Association) || report.Kind != "native-crash" || report.Source != "apple-ips" {
+	if json.Unmarshal(data, &report) != nil || report.Version != 1 || report.ID != id || report.Bytes != len(report.Data) || report.Bytes > nativeReportBytes || !utf8.Valid(report.Data) || fmt.Sprintf("report_%x", sha256.Sum256(report.Data)) != id || !slices.Contains([]string{"confirmed", "candidate"}, report.Association) || !validNativeReportSource(report.nativeReport) {
 		return report, errors.New("retained report failed integrity validation")
 	}
 	if _, valid := parseNativeReportTime(report.Timestamp); !valid {
@@ -401,7 +407,7 @@ func publishNativeReport(root *os.Root, report retainedNativeReport) error {
 	return root.Rename(name, report.ID+".json")
 }
 func discoverNativeReportSnapshot(ctx context.Context, store *historyStore, run historySession, host, home string, now time.Time) (nativeReportSnapshot, error) {
-	result := nativeReportSnapshot{Reports: []nativeReport{}, Coverage: nativeReportCoverage{Status: "unsupported", Detail: "Local Apple .ips parsing requires a recorded native identity (currently macOS captures). Android exit history remains pending."}}
+	result := nativeReportSnapshot{Reports: []nativeReport{}, Coverage: nativeReportCoverage{Status: "unsupported", Detail: "Native report discovery supports local Apple .ips and app-scoped Android exit history when recorded native identity is available."}}
 	root, err := nativeReportsRoot(store, run.SessionID, false)
 	if err == nil {
 		result.Reports, err = listRetainedNativeReports(root)
@@ -421,6 +427,13 @@ func discoverNativeReportSnapshot(ctx context.Context, store *historyStore, run 
 			result.Coverage = nativeReportCoverage{Status: "unsupported", Detail: "Physical iOS report extraction is not implemented; this source supports simulators only."}
 		default:
 			found, result.Coverage = scanAppleNativeReports(ctx, run, filepath.Join(home, "Library", "Logs", "DiagnosticReports"), now)
+		}
+	}
+	if run.Platform == "android" {
+		var readErr error
+		found, result.Coverage, readErr = androidNativeReports(ctx, run, now)
+		if readErr != nil {
+			return result, readErr
 		}
 	}
 	if ctx.Err() != nil {

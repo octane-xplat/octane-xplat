@@ -12,6 +12,7 @@
 		"test:go-owner-race": "node build.mjs --test-owner-race",
 		"test:go-model": "node model.test.mjs",
 		"snapshot:go": "node snapshot.mjs",
-		"snapshot:go-routes": "node snapshot.mjs --routes"
+		"snapshot:go-routes": "node snapshot.mjs --routes",
+		"prepare:go-android-reports": "node android-reports-real.mjs --prepare"
 	}
 }

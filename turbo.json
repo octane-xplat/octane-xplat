@@ -35,6 +35,8 @@
 		"test:go-doc-data": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go", "@octane-xplat/docs-search#build"] },
 		"test:go-code": { "cache": false, "dependsOn": ["build:go"] },
 		"test:go-binding": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go"] },
+		"prepare:go-android-reports": { "cache": false, "dependsOn": ["@octane-xplat/cli#build:go", "build:go-tests"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
+		"test:go-android-reports-real": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#prepare:go-android-reports"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "XPLAT_GO_ANDROID_PORT"] },
 		"test:go-reports": { "cache": false, "dependsOn": ["@xplat/cli-go-probe#build:go-tests", "build"] },
 		"test:go-dev": { "cache": false, "passThroughEnv": ["XPLAT_GO_APPLE_REPORTS_REAL"], "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/macos-build#build"] },
 		"test:go-cli": { "cache": false, "dependsOn": ["build:go", "@xplat/cli-go-probe#build:go"] },

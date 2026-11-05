@@ -63,8 +63,11 @@ and rejected promises using the existing client. Diagnostics reports observation
 in the returned page; absent records do not prove an error-free app. Scoped Apple crash-report discovery and complete retained originals are available
 for macOS captures with recorded identity. Candidate bundle/time matches are not
 confirmed process ownership. Diagnostics preserves report coverage gaps without
-hiding logs. iOS parsing has fixture evidence only; NativeScript identity and
-Android report adapters remain pending. UI controls remain pending.
+hiding logs. NativeScript package identity is captured only from selected-device SDK sync
+output, without PID or readiness claims. Android exit-history reads are scoped to
+that package/device and retain candidate records, not full traces. Mobile identity,
+iOS parsing and Android collection have unit/reference evidence; device runtime
+qualification is still pending. A failed device setup is not a runtime pass. UI controls remain pending.
 
 ```sh
 /absolute/path/to/xplat-go diagnostics --json

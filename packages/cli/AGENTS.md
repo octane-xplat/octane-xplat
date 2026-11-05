@@ -1144,6 +1144,19 @@ must not hide engine logs. Test macOS crashes with the actual host's `abort()`;
 An inner SIGABRT may be reported by the worker as exit 1 plus signal diagnostics;
 assert both levels rather than assuming outer shell status 134.
 
+NativeScript sync identity must match the exact SDK line format and the capture's
+selected device; ignore prefixed console lookalikes and
+truncated/foreign-device lines, never invent a PID/readiness, and reject package
+identity changes inside one capture. Android exit history remains package/device
+candidate evidence, using the device's current timezone. Keep command argv fixed,
+validate selectors, bound shared deadlines and preserve original CRLF/indentation
+when hashing records. Never fetch trace paths or tombstones. Propagate unknown
+child cleanup and prevent another source command after it; readable log evidence
+must remain available. Data-format adapters execute on desktop hosts: name shared
+Android code `android_reports.go`, because `*_android.go` is an implicit Go OS
+build constraint. Owned emulator qualification is distinct from parser/reference
+tests; never claim it passed if the emulator could not boot.
+
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or

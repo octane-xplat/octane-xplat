@@ -230,9 +230,22 @@ func validHistorySession(session historySession, project, id string) bool {
 		}
 	}
 	if native := session.NativeIdentity; native != nil {
-		if session.Platform != "macos" || native.AppID == "" || len(native.Processes) == 0 || len(native.Processes) > 64 || native.DroppedProcesses < 0 {
+		if native.AppID == "" || len(native.AppID) > 255 || len(native.Processes) > 64 || native.DroppedProcesses < 0 {
 			return false
 		}
+		switch session.Platform {
+		case "macos":
+			if len(native.Processes) == 0 {
+				return false
+			}
+		case "android", "ios":
+			if len(native.Processes) != 0 || native.DroppedProcesses != 0 || !mobileNativeAppID.MatchString(native.AppID) || session.Platform == "android" && !androidNativeAppID.MatchString(native.AppID) {
+				return false
+			}
+		default:
+			return false
+		}
+
 		for _, process := range native.Processes {
 			if process.PID < 1 || process.PID > 1<<32-1 || !filepath.IsAbs(process.Executable) {
 				return false

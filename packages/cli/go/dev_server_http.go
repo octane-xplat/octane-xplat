@@ -262,7 +262,7 @@ func (client *devServerClient) call(parent context.Context, command string, valu
 		return nil, invalid("Dev server request exceeds its JSON bound.")
 	}
 	deadline, headers := 10*time.Second, 5*time.Second
-	if command == "actions invoke" {
+	if command == "actions invoke" || command == "diagnostics" {
 		deadline, headers = 20*time.Second, 15*time.Second
 	}
 	ctx, cancel := context.WithTimeout(parent, deadline)

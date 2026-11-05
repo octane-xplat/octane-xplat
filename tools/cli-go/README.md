@@ -511,3 +511,25 @@ headless AppKit fixture, collect the OS .ips through the native CLI, and verify
 its retained original hash. It uses the real macOS report directory and removes
 only its own native history cache after preserving local evidence; OS reports
 are left in place. No images are captured. This is opt-in outside PR checks.
+
+Android diagnostics adds a nine-case Node comparison for exit kinds, process
+scope, CRLF and unavailable formats. An explicit owned-device gate is split into
+preparation (native build reservation) and runtime (resident Android reservation):
+
+```sh
+bun run turbo run prepare:go-android-reports --filter=@xplat/cli-go-probe
+bun run turbo run test:go-android-reports-real --filter=@octane-xplat/cli --only
+```
+
+Reserve `native_builds:1`, `resident_devices:1` and
+`exclusive:["android:octane-stoic-forge-cli"]` for preparation; the broker requires
+a resident slot even for offline AVD configuration. Release that reservation,
+then reserve only the resident Android/exclusive resources for runtime. The
+runner uses installed API 35/JDK 21 tools, a unique Java activity, fixed owned AVD,
+current binary/source hashes and no images. It crashes only that owned package,
+then checks real records and originals through the public Go CLI and shuts down
+the emulator. Its sync line is constructed for the capture fixture; this is not
+a NativeScript deployment qualification. The installed emulator resets a requested
+2 GiB profile to 6 GiB and requires about 7.2 GiB free before boot; flags alone did
+not remove that requirement. Setup failures remain unqualified. Never wipe/reuse
+another task's AVD or remove unrelated files to satisfy the gate.

@@ -196,9 +196,23 @@ TypeScript store layout and does not migrate that store.
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --report REPORT_ID --project /work/repo --app apps/macos --json
 ```
 
-Native identity ingestion is currently qualified for macOS captures. iOS simulator
-report parsing has fixture coverage but no runtime qualification; NativeScript
-identity ingestion and Android exit-history adapters remain pending. The removed
+NativeScript captures record package identity only from bounded, non-truncated
+SDK sync output matching the selected device. They record no PID and do not infer
+app attachment/readiness. Conflicting package identities require a fresh capture.
+Android diagnostics uses only that recorded device/package, two bounded `adb`
+queries and the device's current timezone. Exit records are candidate evidence;
+they include Java/native crashes, ANRs and other exits, not full traces or
+root-only tombstones. Unrecognized/unavailable output remains a coverage gap.
+No commands read trace paths or start/stop apps. Source queries share an eight
+second budget; diagnostic RPC budgets include managed-process cleanup. Unknown
+cleanup stays a failure and blocks additional source queries in the foreground
+server while retaining readable log evidence.
+
+Mobile identity and report parsers have unit/reference coverage. NativeScript
+identity ingestion and iOS simulator report collection have no device runtime
+qualification. The owned Android runtime runner is available, but this host's
+emulator space requirement prevented boot; real Android runtime qualification
+remains pending. macOS identity/Apple collection retain actual runtime evidence. The removed
 detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host

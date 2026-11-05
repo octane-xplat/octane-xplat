@@ -101,6 +101,9 @@ func runLoggedDevProcess(ctx context.Context, tag string, capture *historyCaptur
 			line := strings.TrimSuffix(strings.TrimSuffix(string(pending), "\n"), "\r")
 			if capture != nil {
 				_ = capture.Append(historyRecord{Stream: stream, Source: tag, Line: line, LineTruncated: truncated})
+				if err := capture.observeNativeScriptIdentity(line, truncated); err != nil {
+					capture.recordRetentionError(err)
+				}
 			}
 			if execution, ok := ctx.Value(runtimeExecutionKey{}).(runtimeExecution); ok && execution.Stream != nil {
 				execution.Stream(historyRecord{Stream: stream, Source: tag, Line: line, LineTruncated: truncated})

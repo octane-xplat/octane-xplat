@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -88,11 +89,23 @@ func (view *devTargetView) dispatch(ctx context.Context, command string, values 
 	}
 	switch command {
 	case "diagnostics":
+		server.mu.Lock()
+		blocked := server.operationError != nil
+		server.mu.Unlock()
+		if blocked {
+			ctx = context.WithValue(ctx, nativeReportSourceBlockedKey{}, true)
+		}
 		parent, err := diagnosticsHistoryParent()
 		if err != nil {
 			return nil, executionFailure(err)
 		}
-		return readDevDiagnostics(ctx, parent, view.appRoot, server.record.InstanceID, values)
+		result, failure := readDevDiagnostics(ctx, parent, view.appRoot, server.record.InstanceID, values)
+		if failure != nil && requiresFailureEvidence(failure) {
+			server.mu.Lock()
+			server.operationError = errors.Join(server.operationError, failure)
+			server.mu.Unlock()
+		}
+		return result, failure
 	case "actions invoke":
 		return server.actions.invoke(ctx, values)
 	case "actions status":

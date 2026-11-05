@@ -214,6 +214,11 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 		return nil, executionFailure(ctx.Err())
 	}
 	if reportErr != nil {
+		if requiresFailureEvidence(reportErr) {
+			failure := executionFailure(reportErr)
+			failure.Context = map[string]any{"logs": logs, "cleanup": "unknown"}
+			return nil, failure
+		}
 		native = nativeReportSnapshot{Reports: []nativeReport{}, Coverage: nativeReportCoverage{Status: "unavailable", Detail: "Native report discovery or retention failed; engine logs remain readable."}}
 	}
 	consoleStatus := "not-observed"
