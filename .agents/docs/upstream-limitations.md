@@ -205,7 +205,10 @@ pinned WASDK 1.6 — confirmed dead end.
 Upstream status: reported — [NativeScript/NativeScript#11613](https://github.com/NativeScript/NativeScript/issues/11613)
 (file-system-access member matrix) and
 [NativeScript/NativeScript#11614](https://github.com/NativeScript/NativeScript/issues/11614)
-(HSTRING marshalling loss + `Values` IMap unprojected). Revisit all when the
+(HSTRING marshalling loss + `Values` IMap unprojected) and
+[NativeScript/NativeScript#11616](https://github.com/NativeScript/NativeScript/issues/11616)
+(`dotnet.invoke` cannot marshal projected WinRT objects; bridge awaits
+`Task`-returning methods on the caller thread). Revisit all when the
 Windows core runtime rev changes.
 
 ## @nativescript-community/octane driver: text-run parenting gaps (0.2.5)
