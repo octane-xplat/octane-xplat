@@ -22,25 +22,21 @@ may have app-specific dependencies, library consumer peers, or custom patches.
 - AC1: App and library starters obtain exact managed pins and Node/Bun requirements from one release compatibility manifest; optional tool/platform dependencies are not installed solely because they appear in the manifest.
 - AC2: The reader can select the executing CLI release, preview without writes, apply across a workspace, defer installation, and recover from install failure without mistaking updated metadata for a successful install.
 - AC3: Upgrade selects matching patch versions without trusting a stale lockfile, replaces obsolete framework config mappings, preserves custom patches, and stops before any writes on conflicting patch/override/source choices.
-- AC4: User catalogs, unrelated dependencies/scripts, local development links and library consumer peer ranges survive; Windows preview and mobile pins remain separate and unsupported mixed packages fail preflight.
-- AC5: Doctor compares declarations and reachable installed versions, reports physical duplicate runtime paths including equal-version copies, checks Node/Bun, and exits nonzero for managed compatibility failures without changing project files.
+- AC4: User catalogs, unrelated dependencies/scripts, local development links, library consumer peer ranges, and exact same-release CLI Nim channel choices survive; Windows preview and mobile pins remain separate and unsupported mixed packages fail preflight.
+- AC5: Doctor compares declarations and reachable installed versions, requires an accepted exact same-release Nim CLI pin to match the installed CLI, reports physical duplicate runtime paths including equal-version copies, checks Node/Bun, and exits nonzero for managed compatibility failures without changing project files.
 - AC6: The reader runs their own tests and target builds after alignment; host checks and simulated Windows metadata tests do not establish browser/device/native runtime support.
 - AC7: An isolated mobile app's explicit Mason core beta dependency survives upgrades without adding full MasonKit; doctor reports conflicting native engines, duplicate core installations, or unsupported Windows selection.
 
 - AC8: The reader can apply/check the same canonical patch set in Bun and pnpm projects, including workspace members, catalogs, transitive dependencies, lockfile selection, conflicts, and deferred installation; pnpm 11 configuration is YAML, while Bun configuration is root package.json.
 
-- AC9: New apps use the octane-xplat toolchain facade; upgrades manage its lockstep pin without dropping direct runtime, ambient-type, compiler-peer, platform, or app-specific dependency declarations.
-
 ## Documentation
 
 - AC1: [Compatible versions](../../../docs/packages/package-cli.md#compatible-versions), [creator](../../../docs/packages/package-create.md), [compatibility manifest](../../../packages/create/compatibility.json), and [template synchronization](../../../scripts/sync-compatibility.ts).
-- AC2: [Upgrade framework packages](../../../docs/start/toolchain.md#upgrade-framework-packages), [CLI flags and recovery](../../../docs/packages/package-cli.md#compatible-versions), and [upgrade integration tests](../../../packages/cli/test/compatibility.test.mjs).
-- AC3: [Patch ownership and conflicts](../../../docs/packages/package-cli.md#compatible-versions) and [stale-lockfile/custom-patch tests](../../../packages/cli/test/compatibility.test.mjs).
-- AC4: [Ownership and Windows profiles](../../../docs/packages/package-cli.md#compatible-versions), [library development](../../../packages/create/library-template/README.md#develop-and-check), and [workspace/profile tests](../../../packages/cli/test/compatibility.test.mjs).
-- AC5: [Installed checks and duplicate runtime paths](../../../docs/packages/package-cli.md#compatible-versions) and [installed-graph tests](../../../packages/cli/test/compatibility.test.mjs).
+- AC2: [Upgrade framework packages](../../../docs/start/toolchain.md#upgrade-framework-packages), [CLI flags and recovery](../../../docs/packages/package-cli.md#compatible-versions), and [upgrade integration tests](../../../tools/cli-go/updates.test.mjs).
+- AC3: [Patch ownership and conflicts](../../../docs/packages/package-cli.md#compatible-versions) and [stale-lockfile/custom-patch tests](../../../tools/cli-go/updates.test.mjs).
+- AC4: [Ownership and Windows profiles](../../../docs/packages/package-cli.md#compatible-versions), [library development](../../../packages/create/library-template/README.md#develop-and-check), and [workspace/profile tests](../../../tools/cli-go/updates.test.mjs).
+- AC5: [Installed checks and duplicate runtime paths](../../../docs/packages/package-cli.md#compatible-versions) and [installed-graph tests](../../../tools/cli-go/updates.test.mjs).
 - AC6: [Post-upgrade checks](../../../docs/start/toolchain.md#upgrade-framework-packages) and [target support](../../../docs/start/spec.md#choose-your-targets).
-- AC7: [Core engine choice](../../../docs/packages/package-cli.md#compatible-versions), [native preset](../../../docs/packages/package-cli.md#native-vite-preset), [compatibility regressions](../../../packages/cli/test/compatibility.test.mjs), and the [shared FontManager runtime regression](../../../apps/mobile/src/tests/font-manager-coinstallation.spec.tsrx).
+- AC7: [Core engine choice](../../../docs/packages/package-cli.md#compatible-versions), [native preset](../../../docs/packages/package-cli.md#native-vite-preset), [compatibility regressions](../../../tools/cli-go/updates.test.mjs), and the [shared FontManager runtime regression](../../../apps/mobile/src/tests/font-manager-coinstallation.spec.tsrx).
 
-- AC8: [Patches with Bun and pnpm](../../../docs/packages/package-cli.md#framework-patches), [lockfile and conflict tests](../../../packages/cli/test/patches-bun.test.mjs), and [real frozen-install tests](../../../packages/cli/standalone/patches-install.test.mjs).
-
-- AC9: [Shared toolchain](../../../docs/packages/package-toolchain.md), [creator template](../../../packages/create/template/package.json), and [packed isolated toolchain consumer](../../../packages/toolchain/test/packed.mjs).
+- AC8: [Patches with Bun and pnpm](../../../docs/packages/package-cli.md#framework-patches), [lockfile and conflict tests](../../../packages/cli/test/patches-bun.test.mjs), and [real frozen-install tests](../../../packages/cli/test/patches-bun.test.mjs).

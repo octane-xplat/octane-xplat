@@ -27,4 +27,4 @@ small platform differences or a separate stylesheet without runtime branches.
 - AC1: [Style one platform](../../../docs/app/styling.md#style-one-platform) and [pipeline tests](../../../packages/cli/test/css-platform.test.mjs).
 - AC2: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants).
 - AC3: [Style one platform](../../../docs/app/styling.md#style-one-platform).
-- AC4: [Style one platform](../../../docs/app/styling.md#style-one-platform).
+- AC4: [Style one platform](../../../docs/app/styling.md#style-one-platform); [separate project build plugins](../../../docs/packages/package-build.md) preserves the app's other plugins and PostCSS configuration when migrating imports. The [packed plugin consumer](../../../tools/cli-go/build-tools-consumer.mjs) checks this boundary without claiming renderer/device behavior.
