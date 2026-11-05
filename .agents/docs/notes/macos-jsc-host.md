@@ -108,6 +108,36 @@ script bug.
   the map during a bridged call, or moves all erase operations off the
   finalizer path.
 
+## JS-backed native block finalization during JSC sweeping (upstream, patched)
+
+NativeScript runtimes `5b697b393152f973dd392851fd72dacf03a7a0c9`
+(`ffi/napi/ObjCBridge.mm::deleteReferenceOnOwningThread`) deletes references
+inline on the JS thread. On the libjsc host, GC can release an Objective-C
+object on that thread while JSC is sweeping. For a removed NSEvent monitor,
+the object releases its JS-backed block; deleting the block's weak reference
+calls `JSObjectGetPropertyForKey`, which can allocate and traps inside the sweep.
+This reproduces without importing the renderer. Tracking:
+[octane-xplat#136](https://github.com/octane-xplat/octane-xplat/issues/136).
+
+`patches/nativescript-runtimes.patch` queues reference deletion on the owning
+run loop for `BARE_COMPAT_NAPI`, including same-thread releases. The existing
+bridge identity/token check rejects queued work after environment retirement.
+The native block cache also performs JS reference reads/creation outside its
+mutex: those operations can trigger GC and reenter block disposal. Captured
+reference identity protects replacement entries when a stale read retires.
+No native monitor or JS callback is retained for the process as a workaround.
+The maintained `macos-block-finalization.test.mjs` cycles removed native
+monitor blocks under allocation pressure, requires retired callbacks to become
+unreachable through WeakRef, and checks normal host shutdown. Companion
+pointer-cache, incoming-block and foreign-IMP regressions cover the existing
+bridge patches. These are native GC/lifetime checks, not physical input or
+whole-process leak freedom. Keep the separate AX custom-action retention
+workaround until its own finalization regression qualifies removal.
+
+Remove this patch only when upstream reference deletion is safe during JSC
+finalization and the native regression passes on the replacement host. Keep
+all other pinned runtime patches and source revisions when rebuilding.
+
 ## Foreign-queue JS callbacks starved until the env loop pump (first-party, fixed)
 
 The starvation observed 2026-11-01 (gif probes under `research/gif-runtime/`)

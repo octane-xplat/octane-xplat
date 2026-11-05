@@ -537,7 +537,7 @@ index 4cd8196..5a87cb8 100644
    uint64_t dispatchLookupSignatureHash = 0;
    uint64_t dispatchId = 0;
 diff --git a/NativeScript/ffi/napi/Block.mm b/NativeScript/ffi/napi/Block.mm
-index 3b8697a..9aefb6d 100644
+index 3b8697a..126d022 100644
 --- a/NativeScript/ffi/napi/Block.mm
 +++ b/NativeScript/ffi/napi/Block.mm
 @@ -38,6 +38,9 @@ struct Block_literal_1 {
@@ -550,7 +550,83 @@ index 3b8697a..9aefb6d 100644
  namespace {
 
  constexpr int kBlockNeedsFree = (1 << 24);
-@@ -388,6 +391,10 @@ void finalizeFunctionPointerNow(napi_env env, void* finalize_data, void* finaliz
+@@ -313,42 +316,38 @@ Block_descriptor_1 kBlockDescriptor = {
+ };
+
+ inline napi_value getCachedBlockJsFunction(napi_env env, void* blockPtr) {
+-  BlockJsFunctionEntry removedEntry;
+-  bool shouldDelete = false;
+-  napi_value value = nullptr;
+-
++  BlockJsFunctionEntry entry;
+   {
+     std::lock_guard<std::mutex> lock(g_blockToJsFunctionMutex);
+     auto it = g_blockToJsFunction.find(blockPtr);
+-    if (it == g_blockToJsFunction.end()) {
+-      return nullptr;
+-    }
++    if (it == g_blockToJsFunction.end()) return nullptr;
++    entry = it->second;
++  }
+
+-    value = nativescript::get_ref_value(env, it->second.ref);
+-    if (value == nullptr) {
+-      removedEntry = it->second;
++  // A napi read can collect another block and reenter this cache's disposer.
++  // Never hold its mutex across JS operations; retire only the captured entry.
++  napi_value value = nativescript::get_ref_value(env, entry.ref);
++  bool removed = false;
++  if (value == nullptr) {
++    std::lock_guard<std::mutex> lock(g_blockToJsFunctionMutex);
++    auto it = g_blockToJsFunction.find(blockPtr);
++    if (it != g_blockToJsFunction.end() && it->second.ref == entry.ref) {
+       g_blockToJsFunction.erase(it);
+-      shouldDelete = true;
++      removed = true;
+     }
+   }
+-
+-  if (shouldDelete) {
+-    deleteBlockReferenceOnOwningLoop(removedEntry);
+-  }
+-
++  if (removed) deleteBlockReferenceOnOwningLoop(entry);
+   return value;
+ }
+
+ inline void cacheBlockJsFunction(napi_env env, void* blockPtr, napi_value jsFunction,
+                                  nativescript::Closure* closure) {
+-  if (blockPtr == nullptr || jsFunction == nullptr) {
+-    return;
+-  }
+-  std::lock_guard<std::mutex> lock(g_blockToJsFunctionMutex);
+-  if (g_blockToJsFunction.find(blockPtr) != g_blockToJsFunction.end()) {
+-    return;
++  if (blockPtr == nullptr || jsFunction == nullptr) return;
++  {
++    std::lock_guard<std::mutex> lock(g_blockToJsFunctionMutex);
++    if (g_blockToJsFunction.find(blockPtr) != g_blockToJsFunction.end()) return;
+   }
+-  // Keep this weak so callback identity can round-trip without preventing GC.
++  // Weak-reference creation allocates and may run a native block finalizer.
+   BlockJsFunctionEntry entry;
+   entry.ref = nativescript::make_ref(env, jsFunction, 0);
+   entry.env = env;
+@@ -356,7 +355,12 @@ inline void cacheBlockJsFunction(napi_env env, void* blockPtr, napi_value jsFunc
+   entry.bridgeStateToken = entry.bridgeState != nullptr ? entry.bridgeState->lifetimeToken : 0;
+   entry.jsThreadId = closure != nullptr ? closure->jsThreadId : std::this_thread::get_id();
+   entry.jsRunLoop = closure != nullptr ? closure->jsRunLoop : CFRunLoopGetCurrent();
+-  g_blockToJsFunction[blockPtr] = entry;
++  bool inserted;
++  {
++    std::lock_guard<std::mutex> lock(g_blockToJsFunctionMutex);
++    inserted = g_blockToJsFunction.emplace(blockPtr, entry).second;
++  }
++  if (!inserted) deleteBlockReferenceOnOwningLoop(entry);
+ }
+
+ }  // namespace
+@@ -388,6 +392,10 @@ void finalizeFunctionPointerNow(napi_env env, void* finalize_data, void* finaliz
    if (ref == nullptr) {
      return;
    }
@@ -561,7 +637,7 @@ index 3b8697a..9aefb6d 100644
    if (ref->ownsCif && ref->cif != nullptr) {
      delete ref->cif;
      ref->cif = nullptr;
-@@ -536,8 +543,24 @@ napi_value FunctionPointer::wrap(napi_env env, void* function, metagen::MDSectio
+@@ -536,8 +544,24 @@ napi_value FunctionPointer::wrap(napi_env env, void* function, metagen::MDSectio
      }
    }
 
@@ -586,7 +662,7 @@ index 3b8697a..9aefb6d 100644
    ref->offset = offset;
 
    ObjCBridgeState* bridgeState = ObjCBridgeState::InstanceData(env);
-@@ -593,8 +616,20 @@ napi_value FunctionPointer::wrapWithEncoding(napi_env env, void* function, const
+@@ -593,8 +617,20 @@ napi_value FunctionPointer::wrapWithEncoding(napi_env env, void* function, const
      }
    }
 
@@ -689,3 +765,17 @@ index 12aea82..90b376c 100644
        }
      }
    }
+diff --git a/NativeScript/ffi/napi/ObjCBridge.mm b/NativeScript/ffi/napi/ObjCBridge.mm
+--- a/NativeScript/ffi/napi/ObjCBridge.mm
++++ b/NativeScript/ffi/napi/ObjCBridge.mm
+@@ -78,5 +78,9 @@ inline void deleteReferenceOnOwningThread(napi_env env, ObjCBridgeState* bridgeState,
+   if (bridgeState->jsThreadId == std::this_thread::get_id()) {
+-#if !defined(TARGET_ENGINE_QUICKJS)
++// libjsc may release native objects/blocks from a JSC sweep on the JS
++// thread. Deleting a weak ref reads a JS property and can allocate, which
++// JSC forbids during sweeping. Queue it even on the owning thread; the
++// live-state token below also prevents using an env after its teardown.
++#if !defined(TARGET_ENGINE_QUICKJS) && !defined(BARE_COMPAT_NAPI)
+     deleteReferenceNow(env, ref, unrefFirst);
+     return;
+ #endif
