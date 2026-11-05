@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
 
+import { nativeDevSocketPlugin } from '../mcp/dev-socket.ts'
 import { tabItemContentRoots } from './tab-item.ts'
 import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
 
@@ -27,6 +28,7 @@ export async function xplatMacOS(env, options = {}) {
 		root,
 		define: xplatNodeEnvDefine(mode),
 		plugins: [
+			...(mode === 'development' ? [nativeDevSocketPlugin()].filter(Boolean) : []),
 			xplatCss('macos'),
 			xplatInlineStylesheets(),
 			xplatBoundary('macos'),

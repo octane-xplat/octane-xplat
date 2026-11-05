@@ -22,7 +22,8 @@
 // - Duplicate ids throw; disposing the returned handle removes the action
 //   (component-owned registrations end with their owner).
 
-import { devBridgeEndpoint, devBridgePlatform } from './dev-bridge'
+import type { AppDebugSocket } from './dev-bridge-socket'
+import { devBridgeEndpoint, devBridgePlatform, devBridgeSocket } from './dev-bridge'
 import {
 	validateActionDeclaration,
 	validateActionInput,
@@ -215,7 +216,15 @@ interface RunningInvocation {
 }
 
 interface BridgeRuntime {
-	endpoint: { origin: string; token: string }
+	endpoint: {
+		origin: string
+		token: string
+		socket?: string
+		instanceId?: string
+		targetId?: string
+	}
+	socket?: AppDebugSocket
+	reconnect?: ReturnType<typeof setTimeout>
 	state: 'connecting' | 'live' | 'degraded' | 'stopped'
 	lastError?: string
 	polling: boolean
@@ -788,7 +797,7 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
 	}
 
 	const rt: BridgeRuntime = {
-		endpoint: { origin, token },
+		endpoint: { ...discovered, origin, token },
 		state: 'connecting',
 		polling: true,
 		announcing: true,
@@ -798,9 +807,10 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
 	state.bridge = rt
 	state.appLabel = options.appLabel
 
-	void announceOnce(rt)
+	if (rt.endpoint.socket) connectAppSocket(rt)
+	else void announceOnce(rt)
 	rt.timer = setInterval(() => void announceOnce(rt), options.intervalMs ?? ANNOUNCE_INTERVAL_MS)
-	void pollLoop(rt)
+	if (!rt.endpoint.socket) void pollLoop(rt)
 
 	return {
 		instanceId: state.instanceId,
@@ -819,6 +829,8 @@ function stopBridge(rt: BridgeRuntime) {
 	rt.announcing = false
 	rt.state = 'stopped'
 	rt.controller.abort()
+	if (rt.reconnect) clearTimeout(rt.reconnect)
+	rt.socket?.close()
 	if (rt.timer) {
 		clearInterval(rt.timer)
 	}
@@ -842,6 +854,19 @@ function scheduleAnnounce(state: RegistryState) {
 }
 
 async function announceOnce(rt: BridgeRuntime) {
+	if (rt.endpoint.socket) {
+		if (rt.announcing && rt.socket?.readyState === 1 && rt.state === 'live') {
+			try {
+				rt.socket.send(
+					JSON.stringify({ type: 'registry', registry: snapshot(registry(), registry().appLabel) }),
+				)
+			} catch {
+				rt.socket.close()
+			}
+		}
+		return
+	}
+
 	const fetch = fetchImpl()
 	if (!rt.announcing || !fetch) {
 		if (!fetch) {
@@ -868,6 +893,87 @@ async function announceOnce(rt: BridgeRuntime) {
 	} catch (error) {
 		rt.state = 'degraded'
 		rt.lastError = `announce failed: ${(error as Error)?.message ?? error}`
+	}
+}
+
+function connectAppSocket(rt: BridgeRuntime) {
+	if (!rt.polling || !rt.endpoint.socket) return
+	let socket: AppDebugSocket
+	try {
+		const connection = devBridgeSocket(rt.endpoint.socket)
+		if (!connection) {
+			rt.state = 'degraded'
+			rt.lastError = 'No WebSocket implementation in this runtime'
+			return
+		}
+		socket = connection
+	} catch {
+		rt.state = 'degraded'
+		rt.lastError = 'App debug socket could not connect'
+		rt.reconnect = setTimeout(() => connectAppSocket(rt), 1000)
+		return
+	}
+	rt.socket = socket
+	socket.onopen = () => {
+		if (!rt.polling || rt.socket !== socket) {
+			socket.close()
+			return
+		}
+		try {
+			socket.send(
+				JSON.stringify({
+					protocol: 'octane-app-debug',
+					version: 1,
+					instanceId: rt.endpoint.instanceId,
+					targetId: rt.endpoint.targetId,
+					token: rt.endpoint.token,
+					registry: snapshot(registry(), registry().appLabel),
+				}),
+			)
+		} catch {
+			rt.state = 'degraded'
+			rt.lastError = 'App registration could not be sent'
+			socket.close()
+		}
+	}
+	socket.onmessage = (event) => {
+		if (rt.socket !== socket || !rt.polling) return
+		try {
+			if (typeof event.data !== 'string' || event.data.length > 1 << 20)
+				throw Error('invalid app frame')
+			const frame = JSON.parse(event.data)
+			if (
+				frame.type === 'registered' &&
+				frame.protocol === 'octane-app-debug' &&
+				frame.version === 1 &&
+				frame.instanceId === rt.endpoint.instanceId
+			) {
+				rt.state = 'live'
+				rt.lastError = undefined
+			} else if (frame.type === 'work' && rt.state === 'live') {
+				for (const request of frame.invocations ?? []) void dispatchInvocation(rt, request)
+				for (const requestId of frame.cancel ?? []) requestCancel(requestId)
+			} else throw Error('invalid app frame')
+		} catch {
+			rt.state = 'degraded'
+			rt.lastError = 'Invalid app debug response'
+			socket.close()
+		}
+	}
+	socket.onerror = () => {
+		if (rt.socket === socket) {
+			rt.state = 'degraded'
+			rt.lastError = 'App debug socket disconnected'
+		}
+	}
+	socket.onclose = () => {
+		if (rt.socket !== socket) return
+		rt.socket = undefined
+		if (rt.polling) {
+			rt.state = 'degraded'
+			rt.lastError = 'App debug socket disconnected'
+			rt.reconnect = setTimeout(() => connectAppSocket(rt), 1000)
+		}
 	}
 }
 
@@ -946,6 +1052,16 @@ async function postOutcome(rt: BridgeRuntime, outcome: DevActionOutcome) {
 	}
 
 	state.outcomes.set(outcome.requestId, outcome)
+	if (rt.endpoint.socket) {
+		if (rt.socket?.readyState === 1 && rt.state === 'live') {
+			try {
+				rt.socket.send(JSON.stringify({ type: 'outcome', outcome }))
+			} catch {
+				rt.socket.close()
+			}
+		}
+		return
+	}
 
 	if (!fetch) {
 		return

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test, after } from 'node:test'
 import {
 	readFileSync,
+	cpSync,
 	writeFileSync,
 	mkdirSync,
 	existsSync,
@@ -295,5 +296,120 @@ test(
 			10000,
 		)
 		assert.equal(cli(f, ['targets']).error.code, 'disconnected_runtime')
+	},
+)
+
+test(
+	'real framework action registry connects through project Vite and survives client attachment',
+	{ timeout: 90000 },
+	async () => {
+		const f = fixture()
+		for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts'])
+			cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
+		cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
+		put(
+			f.app,
+			'app-debug.ts',
+			`import {registerDevAction,startDevActionBridge} from './dev-actions-registry';
+ const action=registerDevAction({id:'fixture.read',title:'Read fixture',description:'Read fixture state',effects:{summary:'Reads state'},run:()=>({value:1})});
+ let bridge=startDevActionBridge({appLabel:'Real framework registry'});
+ export function clear(){action.dispose()}
+ export function stop(){bridge.stop()}
+ export function reconnect(){bridge=startDevActionBridge({appLabel:'Real framework registry'})}
+ `,
+		)
+		put(
+			f.app,
+			'vite.config.mjs',
+			`import {xplatDevBridge} from '@octane-xplat/cli/vite';
+ export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'real-app-debug',configureServer(server){let app;
+ server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.catch(error=>console.error(error.message))});
+ server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{(await app)[operation]();res.end('ok')}catch(error){res.statusCode=500;res.end(error.message)}})
+ }}]}
+ `,
+		)
+		const owned = start(f)
+		await until(
+			() => record(f),
+			() => owned.stdout + ' ' + owned.stderr,
+		)
+		const address = await until(
+			() => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
+			() => owned.stdout + ' ' + owned.stderr,
+		)
+		const inventory = () => cli(f, ['actions', 'list'])
+		let registered
+		await until(
+			() => {
+				const result = inventory()
+				registered = result.data?.instances?.[0]
+				return registered?.actions?.some((action) => action.id === 'fixture.read')
+			},
+			() => owned.stdout + ' ' + owned.stderr,
+		)
+		assert.equal(registered.appLabel, 'Real framework registry')
+		await delay(12000)
+		assert.equal(
+			cli(f, ['session', 'status', registered.sessionId]).data.session.state,
+			'ready',
+			'app heartbeat did not survive HTTP timeout defaults',
+		)
+		assert.equal(
+			cli(f, ['session', 'status', registered.sessionId]).data.session.connectedAt,
+			registered.connectedAt,
+			'the app silently reconnected during the heartbeat window',
+		)
+		const attached = cli(f, [
+			'session',
+			'attach',
+			'--platform',
+			'web',
+			'--instance',
+			registered.appInstanceId,
+		])
+		assert.equal(attached.status, 0, JSON.stringify(attached.error))
+		assert.equal(attached.data.session.sessionId, registered.sessionId)
+		assert.equal(attached.data.session.ownership, 'observed')
+		assert.equal(cli(f, ['targets']).data.targets[0].apps.length, 1)
+		assert.equal(owned.ended, false)
+		const transformed = await (await fetch(address + 'dev-bridge.ts')).text()
+		assert.ok(!transformed.includes(record(f).token), 'private CLI credential entered app code')
+		assert.equal((await fetch(address + 'fixture/clear')).status, 200)
+		await until(
+			() => inventory().data.instances[0]?.actions?.length === 0,
+			'connected empty registry was not observed',
+		)
+		assert.equal((await fetch(address + 'fixture/stop')).status, 200)
+		await until(
+			() =>
+				cli(f, ['session', 'status', registered.sessionId]).data?.session.state === 'disconnected',
+			'app disconnection was not observed',
+		)
+		assert.equal(owned.ended, false)
+		assert.equal((await fetch(address)).status, 200)
+		assert.equal((await fetch(address + 'fixture/reconnect')).status, 200)
+		await until(
+			() => inventory().data.instances[0]?.sessionId === registered.sessionId,
+			'framework registry did not reconnect with stable identity',
+		)
+		assert.equal(cli(f, ['session', 'attach']).status, 0)
+		evidence.push({
+			workflow:
+				'actual framework registry, project Vite SSR, native socket attachment; empty registry, app disconnect/reconnect and short-lived clients',
+			sessionId: registered.sessionId,
+		})
+		await stop(owned)
+		await until(
+			async () => {
+				try {
+					await fetch(address, { signal: AbortSignal.timeout(500) })
+					return false
+				} catch {
+					return true
+				}
+			},
+			'app-debug Vite listener survived foreground shutdown',
+			10000,
+		)
 	},
 )

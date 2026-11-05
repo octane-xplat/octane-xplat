@@ -40,7 +40,53 @@ export function goDevContracts(source) {
 			effect: 'observe',
 			permissions: [],
 			requiresBoundApp: true,
+			...(name === 'session attach'
+				? {
+						input: attachSchema.input,
+						errors: attachSchema.errors,
+						examples: attachSchema.examples,
+					}
+				: {}),
 		}
+	}
+	const attach = metadata.descriptors.find(({ name }) => name === 'session attach')
+	attach.flags = attach.flags.map((flag) =>
+		flag.flag === 'platform'
+			? { ...flag, desc: 'Platform to observe; optional when one app matches' }
+			: flag,
+	)
+	attach.flags.push({
+		flag: 'instance',
+		key: 'appInstanceId',
+		type: 'string',
+		desc: 'Exact connected app instance when a target has several apps',
+	})
+	attach.examples = ['xplat session attach --platform web --instance APP_INSTANCE --json']
+	const attachSchema = metadata.schemas['session attach']
+	attachSchema.input.flags = attachSchema.input.flags.map((flag) =>
+		flag.flag === '--platform'
+			? { ...flag, description: 'Platform to observe; optional when one app matches' }
+			: flag,
+	)
+	attachSchema.input.flags.push({
+		flag: '--instance',
+		type: 'string',
+		description: 'Exact connected app instance when a target has several apps',
+	})
+	attachSchema.errors = attachSchema.errors.filter(({ code }) => code !== 'permission_denied')
+	attachSchema.examples = attach.examples
+	for (const descriptor of metadata.descriptors) {
+		if (descriptor.name === 'actions invoke')
+			descriptor.summary = descriptor.summary.replace(
+				'`xplat job status`',
+				'`xplat actions status`',
+			)
+	}
+	for (const schema of [
+		metadata.schemas['actions invoke'],
+		...metadata.catalog.commands.filter((item) => item.command === 'actions invoke'),
+	]) {
+		schema.summary = schema.summary.replace('`xplat job status`', '`xplat actions status`')
 	}
 	metadata.schemas = Object.fromEntries(
 		Object.entries(metadata.schemas)

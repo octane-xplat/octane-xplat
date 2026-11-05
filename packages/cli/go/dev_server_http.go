@@ -55,6 +55,7 @@ type devServer struct {
 	store      *devServerStore
 	http       *http.Server
 	dispatch   devServerDispatch
+	apps       *devAppHub
 	mu         sync.Mutex
 	closing    bool
 	handlers   sync.WaitGroup
@@ -83,7 +84,7 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 	}
 	ctx, cancel := context.WithCancel(parent)
 	server := &devServer{
-		ctx: ctx, cancel: cancel, store: store, dispatch: dispatch,
+		ctx: ctx, cancel: cancel, store: store, dispatch: dispatch, apps: newDevAppHub(),
 		served: make(chan struct{}), finalized: make(chan struct{}),
 		record: devServerRecord{
 			Protocol: devServerProtocol, Version: 1, AppRoot: store.app,
@@ -123,6 +124,10 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 }
 
 func (server *devServer) request(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/app" {
+		server.appSocket(w, r)
+		return
+	}
 	if r.Method != "POST" || r.URL.Path != "/rpc" || r.URL.RawPath != "" || r.URL.RawQuery != "" || r.URL.ForceQuery ||
 		len(r.Header.Values("Origin")) != 0 || len(r.Header.Values("Authorization")) != 1 || len(r.Header.Values("X-Octane-Dev-Instance")) != 1 ||
 		subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+server.record.Token)) != 1 ||

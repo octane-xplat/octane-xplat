@@ -47,9 +47,17 @@ async function loadDevActions(globals = {}) {
 		Promise,
 		Date,
 		Math,
-		fetch,
+		fetch: globals.fetch ?? fetch,
+		WebSocket: globals.WebSocket,
 		location: { origin: globals.origin },
-		__XPLAT_DEV_BRIDGE__: globals.token ? { token: globals.token } : undefined,
+		__XPLAT_DEV_BRIDGE__: globals.token
+			? {
+					token: globals.token,
+					socket: globals.socket,
+					instanceId: globals.instanceId,
+					targetId: globals.targetId,
+				}
+			: undefined,
 		__NS_HTTP_ORIGIN__: globals.os ? globals.origin : undefined,
 	}
 
@@ -1212,4 +1220,99 @@ test('a revision bump during navigation does not fail the in-flight call', async
 	const instance = await until(async () => (await bridge.call('GET', '/registry')).instances[0])
 	const outcome = await invokeRouteAction(bridge, instance, 'req_revbump', 'checkout.confirm')
 	assert.equal(outcome.status, 'succeeded', JSON.stringify(outcome))
+})
+
+test('native socket bridge authenticates the app, updates its registry and stops without HTTP fallback', async (t) => {
+	const sockets = []
+	class Socket {
+		readyState = 0
+		frames = []
+		constructor(url) {
+			this.url = url
+			sockets.push(this)
+		}
+		send(data) {
+			this.frames.push(JSON.parse(data))
+		}
+		close() {
+			this.readyState = 3
+			this.onclose?.()
+		}
+		open() {
+			this.readyState = 1
+			this.onopen?.()
+		}
+		receive(frame) {
+			this.onmessage?.({ data: JSON.stringify(frame) })
+		}
+	}
+	const instanceId = 'a'.repeat(32)
+	let httpCalls = 0
+	const { exports: api } = await loadDevActions({
+		origin: 'http://127.0.0.1:5173',
+		token: 'app-proof',
+		socket: 'ws://127.0.0.1:1234/app?target=web&instance=' + instanceId,
+		instanceId,
+		targetId: 'web',
+		WebSocket: Socket,
+		fetch: () => {
+			httpCalls++
+			throw Error('unexpected HTTP fallback')
+		},
+	})
+	const action = api.registerDevAction({
+		id: 'socket.read',
+		title: 'Socket read',
+		description: 'Read state',
+		effects: { summary: 'Read only' },
+		run: () => ({}),
+	})
+	const bridge = api.startDevActionBridge()
+	t.after(() => {
+		bridge.stop()
+		action.dispose()
+	})
+	assert.equal(sockets.length, 1)
+	const socket = sockets[0]
+	socket.open()
+	assert.equal(socket.frames[0].protocol, 'octane-app-debug')
+	assert.equal(socket.frames[0].token, 'app-proof')
+	assert.equal(socket.frames[0].registry.actions[0].id, 'socket.read')
+	assert.equal(bridge.state, 'connecting')
+	socket.receive({
+		type: 'registered',
+		protocol: 'octane-app-debug',
+		version: 1,
+		instanceId,
+		sessionId: 'sess_observed',
+	})
+	assert.equal(bridge.state, 'live')
+	action.dispose()
+	await new Promise((resolve) => queueMicrotask(resolve))
+	assert.equal(socket.frames.at(-1).type, 'registry')
+	assert.equal(socket.frames.at(-1).registry.actions.length, 0)
+	assert.equal(httpCalls, 0)
+	bridge.stop()
+	assert.equal(bridge.state, 'stopped')
+	assert.equal(socket.readyState, 3)
+})
+
+test('native socket bridge reports a missing transport instead of using the old HTTP bridge', async (t) => {
+	let httpCalls = 0
+	const { exports: api } = await loadDevActions({
+		origin: 'http://127.0.0.1:5173',
+		token: 'app-proof',
+		socket: 'ws://127.0.0.1:1234/app',
+		instanceId: 'a'.repeat(32),
+		targetId: 'web',
+		fetch: () => {
+			httpCalls++
+			throw Error('unexpected HTTP fallback')
+		},
+	})
+	const bridge = api.startDevActionBridge()
+	t.after(() => bridge.stop())
+	assert.equal(bridge.state, 'degraded')
+	assert.match(bridge.lastError, /WebSocket/)
+	assert.equal(httpCalls, 0)
 })

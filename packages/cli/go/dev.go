@@ -278,6 +278,15 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 		return err
 	}
 	defer func() { failure = errors.Join(failure, server.close()) }()
+	view.apps = server.apps
+	grants := map[string]string{}
+	for _, target := range chosen {
+		data, err := json.Marshal(server.appGrant(target))
+		if err != nil {
+			return err
+		}
+		grants[target.ID] = string(data)
+	}
 	execution.OwnerID = server.record.InstanceID
 	ctx = context.WithValue(ctx, runtimeExecutionKey{}, execution)
 	routeCtx, cancelRoutes := context.WithCancel(ctx)
@@ -342,6 +351,9 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 	defer cancelAux()
 	run := func(runCtx context.Context, engine devEngine, retain bool) {
 		observation := execution
+		if bridge := grants[engine.Target.ID]; retain && bridge != "" {
+			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge)
+		}
 		observation.Stream = func(record historyRecord) {
 			view.observe(engine.Target.ID, engine.Target.Kind, engine.MacWorker != "", record)
 		}

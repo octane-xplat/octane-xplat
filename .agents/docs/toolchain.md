@@ -20,7 +20,11 @@ instructed agents may start it; app-control clients normally attach to an existi
 server and never implicitly launch a server/app/browser. Private discovery is
 keyed by canonical app directory, outside tracked project files, with per-start
 instance credentials and authenticated loopback requests. Client disconnect does
-not stop apps. App debug WebSocket integration remains pending. Detached-owner
+not stop apps. Target-scoped app WebSockets register actual action metadata;
+observation and action listing are native. App proof is distinct from private CLI
+RPC authorization. Browser execution remains unqualified and NativeScript device relay/runtime
+WebSocket adapters remain unimplemented; direct loopback sockets require same-host
+reachability and a runtime WebSocket implementation. Invocation/control remain pending. Detached-owner
 and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
 reports; they are superseded qualification scope, not active Go release gates.
 

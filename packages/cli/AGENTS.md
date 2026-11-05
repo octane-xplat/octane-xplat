@@ -1072,8 +1072,23 @@ records report disconnected; read lookup must create no folders or engines.
 Hold the stable lifetime claim through foreground engine and request cleanup.
 Engine readiness and registered app-debug connections are separate observations;
 never infer an initialized app from a Vite URL or native host spawn. App-debug
-credentials must be scoped separately from the CLI discovery token.
+credentials must be scoped separately from the CLI discovery token, and cannot
+authorize ordinary RPC or another target. Send app proof in a bounded first frame,
+not a URL. Accept browser Origin only for a target's explicitly observed dev
+origin; ordinary RPC continues rejecting Origin. Bound unauthenticated sockets,
+registries and disconnected observations. Server shutdown must close and join
+hijacked WebSockets too: HTTP Server.Close alone does not own them.
 
+Reuse the real app action registry and its validation/execution policy across
+transports. The explicit Go plugin selects sockets; retained TypeScript/Nim builds
+keep their existing HTTP channel. A missing WebSocket runtime must report degraded
+instead of silently falling back. Production builds must not receive the native
+bridge definition. Preserve declaration revision on ordered updates, and allow
+same-revision availability updates. Replace reconnecting peers by connection
+identity so an old reader cannot disconnect its successor. Short CLI clients
+create no persistent observer ownership. Heartbeat tests must assert stable
+connection time, not merely a final ready state that could hide reconnect loops.
+Direct same-host socket evidence does not qualify device relays or browser apps.
 
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an

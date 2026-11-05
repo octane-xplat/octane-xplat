@@ -20,6 +20,7 @@ type devTargetView struct {
 	mu      sync.Mutex
 	appRoot string
 	targets []devTargetProgress
+	apps    *devAppHub
 }
 
 func newDevTargetView(appRoot string, targets []devTarget) *devTargetView {
@@ -55,7 +56,10 @@ func (view *devTargetView) observe(id, kind string, nativeSidecar bool, record h
 		return
 	}
 	line := runtimeANSI.ReplaceAllString(record.Line, "")
-	if runtimeLocalURL.MatchString(line) {
+	if match := runtimeLocalURL.FindString(line); match != "" {
+		if view.apps != nil {
+			view.apps.allowOrigin(id, match)
+		}
 		view.update(id, "ready", "engine-reported", "The engine reported an HTTP endpoint; app debug attachment is separate.")
 	} else if kind != "web" && runtimeReadyLine.MatchString(line) {
 		view.update(id, "ready", "engine-reported", "The engine reported readiness; no app debug connection is inferred.")
@@ -87,16 +91,15 @@ func (view *devTargetView) dispatch(_ context.Context, command string, values ma
 			targets = append(targets, map[string]any{
 				"targetId": entry.target.ID, "platform": entry.target.Kind, "name": entry.target.Name,
 				"engine": map[string]any{"state": entry.state, "readiness": entry.readiness, "detail": entry.detail},
-				"apps":   []any{},
+				"apps":   view.apps.snapshots(entry.target.ID),
 			})
 		}
 		return map[string]any{"appRoot": view.appRoot, "targets": targets}, nil
-	case "session list":
-		return map[string]any{"appRoot": view.appRoot, "sessions": []any{}, "detail": "No app debug connection has registered yet; engine readiness is separate from app attachment."}, nil
-	case "session status":
-		return nil, &cliError{Code: "not_found", Message: "No connected app instance has this id."}
+	case "session list", "session status", "session attach", "actions list":
+		return view.apps.dispatch(command, values)
+
 	default:
-		return nil, &cliError{Code: "unavailable", Message: "App debug WebSocket handling for this command is pending in the parallel Go implementation."}
+		return nil, &cliError{Code: "unavailable", Message: "This live app command is not implemented in the parallel Go CLI."}
 	}
 }
 

@@ -104,11 +104,19 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'targets',
 			'session list',
 			'session status',
+			'session attach',
+			'actions list',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
 
 		assert.deepEqual(actual.value.data, expected)
+		if (command.name === 'session attach') {
+			assert.ok(!actual.value.data.examples.join(' ').includes('web:5173'))
+			assert.ok(actual.value.data.input.flags.some((flag) => flag.flag === '--instance'))
+		}
+		if (command.name === 'actions invoke')
+			assert.ok(!actual.value.data.summary.includes('xplat job status'))
 	}
 	const catalog = cli(['catalog', '--json'])
 	assert.equal(catalog.status, 0)
@@ -118,7 +126,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		13,
+		15,
 	)
 	assert.equal(catalog.value.data.commands.length, 25)
 	for (const removed of [

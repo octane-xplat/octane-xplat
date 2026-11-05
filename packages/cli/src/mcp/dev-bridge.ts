@@ -24,6 +24,7 @@
 // is never injected, no middleware exists, and an app-side startDevActionBridge
 // finds no endpoint and stays inert.
 
+import { nativeDevSocketPlugin } from './dev-socket.ts'
 import { randomBytes, randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { SourceMap } from 'node:module'
@@ -76,6 +77,8 @@ const readBody = (req) =>
  * MCP server scans the bound app.
  */
 export function xplatDevBridge(options = {}) {
+	const native = nativeDevSocketPlugin()
+	if (native) return native
 	const token = randomBytes(24).toString('hex')
 	const serverId = `srv_${randomUUID()}`
 	const startedAt = new Date().toISOString()

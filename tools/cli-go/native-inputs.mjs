@@ -12,11 +12,33 @@ export function nativeInputs(root) {
 	for (const directory of ['packages/cli/src/agent', 'packages/cli/src/mcp/contracts']) {
 		for (const file of readdirSync(join(root, directory))) {
 			if (file.endsWith('.ts')) {
-				files.push(directory + '/' + file)
+				files.push(
+					'packages/cli/src/mcp/dev-socket.ts',
+					'packages/cli/src/macos/vite.ts',
+					'packages/cli/src/mcp/dev-bridge.ts',
+					'packages/platform/src/dev-actions-registry.ts',
+					'packages/platform/src/dev-bridge-socket.ts',
+					'packages/platform/src/dev-actions-schema.ts',
+					...['web', 'macos', 'linux'].map(
+						(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+					),
+					'packages/platform/src/dev-bridge.ts',
+					directory + '/' + file,
+				)
 			}
 		}
 	}
 	files.push(
+		'packages/cli/src/mcp/dev-socket.ts',
+		'packages/cli/src/macos/vite.ts',
+		'packages/cli/src/mcp/dev-bridge.ts',
+		'packages/platform/src/dev-actions-registry.ts',
+		'packages/platform/src/dev-bridge-socket.ts',
+		'packages/platform/src/dev-actions-schema.ts',
+		...['web', 'macos', 'linux'].map(
+			(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+		),
+		'packages/platform/src/dev-bridge.ts',
 		'packages/cli/src/commands/routes.ts',
 		'packages/cli/src/commands/typecheck.ts',
 		'packages/cli/src/commands/fmt.ts',
@@ -109,29 +131,89 @@ export function nativeInputs(root) {
 	)
 	for (const file of readdirSync(join(root, 'packages/workshop/src/build'), { recursive: true })) {
 		if (/\.(ts|js)$/.test(file)) {
-			files.push('packages/workshop/src/build/' + file.replaceAll('\\', '/'))
+			files.push(
+				'packages/cli/src/mcp/dev-socket.ts',
+				'packages/cli/src/macos/vite.ts',
+				'packages/cli/src/mcp/dev-bridge.ts',
+				'packages/platform/src/dev-actions-registry.ts',
+				'packages/platform/src/dev-bridge-socket.ts',
+				'packages/platform/src/dev-actions-schema.ts',
+				...['web', 'macos', 'linux'].map(
+					(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+				),
+				'packages/platform/src/dev-bridge.ts',
+				'packages/workshop/src/build/' + file.replaceAll('\\', '/'),
+			)
 		}
 	}
 	for (const file of readdirSync(join(root, 'packages/cli/src/macos'), { recursive: true })) {
 		if (/\.(ts|js)$/.test(file)) {
-			files.push('packages/cli/src/macos/' + file.replaceAll('\\', '/'))
+			files.push(
+				'packages/cli/src/mcp/dev-socket.ts',
+				'packages/cli/src/macos/vite.ts',
+				'packages/cli/src/mcp/dev-bridge.ts',
+				'packages/platform/src/dev-actions-registry.ts',
+				'packages/platform/src/dev-bridge-socket.ts',
+				'packages/platform/src/dev-actions-schema.ts',
+				...['web', 'macos', 'linux'].map(
+					(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+				),
+				'packages/platform/src/dev-bridge.ts',
+				'packages/cli/src/macos/' + file.replaceAll('\\', '/'),
+			)
 		}
 	}
 	for (const file of readdirSync(join(root, 'packages/cli/test/fixtures/macos-native-leaves/c'), {
 		recursive: true,
 	})) {
 		if (/\.(json|c|h)$/.test(file)) {
-			files.push('packages/cli/test/fixtures/macos-native-leaves/c/' + file.replaceAll('\\', '/'))
+			files.push(
+				'packages/cli/src/mcp/dev-socket.ts',
+				'packages/cli/src/macos/vite.ts',
+				'packages/cli/src/mcp/dev-bridge.ts',
+				'packages/platform/src/dev-actions-registry.ts',
+				'packages/platform/src/dev-bridge-socket.ts',
+				'packages/platform/src/dev-actions-schema.ts',
+				...['web', 'macos', 'linux'].map(
+					(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+				),
+				'packages/platform/src/dev-bridge.ts',
+				'packages/cli/test/fixtures/macos-native-leaves/c/' + file.replaceAll('\\', '/'),
+			)
 		}
 	}
 	for (const file of readdirSync(join(root, 'packages/cli/patches'))) {
 		if (/\.(json|patch)$/.test(file)) {
-			files.push('packages/cli/patches/' + file)
+			files.push(
+				'packages/cli/src/mcp/dev-socket.ts',
+				'packages/cli/src/macos/vite.ts',
+				'packages/cli/src/mcp/dev-bridge.ts',
+				'packages/platform/src/dev-actions-registry.ts',
+				'packages/platform/src/dev-bridge-socket.ts',
+				'packages/platform/src/dev-actions-schema.ts',
+				...['web', 'macos', 'linux'].map(
+					(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+				),
+				'packages/platform/src/dev-bridge.ts',
+				'packages/cli/patches/' + file,
+			)
 		}
 	}
 	for (const file of readdirSync(join(root, 'packages/cli/src'))) {
 		if (/^(?:route.*|build-worker|markdown)\.ts$/.test(file)) {
-			files.push('packages/cli/src/' + file)
+			files.push(
+				'packages/cli/src/mcp/dev-socket.ts',
+				'packages/cli/src/macos/vite.ts',
+				'packages/cli/src/mcp/dev-bridge.ts',
+				'packages/platform/src/dev-actions-registry.ts',
+				'packages/platform/src/dev-bridge-socket.ts',
+				'packages/platform/src/dev-actions-schema.ts',
+				...['web', 'macos', 'linux'].map(
+					(platform) => 'packages/platform/src/dev-bridge.' + platform + '.ts',
+				),
+				'packages/platform/src/dev-bridge.ts',
+				'packages/cli/src/' + file,
+			)
 		}
 	}
 	return Object.fromEntries(

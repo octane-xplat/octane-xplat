@@ -44,8 +44,12 @@ Go uses one foreground dev server per canonical app directory, with private
 same-user discovery and authenticated loopback requests. Nested directories and
 symlink aliases converge; worktrees stay separate. A short-lived client never
 owns app lifetime, and disconnecting it leaves the app running. App debug
-WebSocket registration and attachment remain pending; the current target listing
-reports engine progress separately from connected apps. Consult the native schema
+WebSockets now register framework action metadata, with native observation and
+action listing. `session attach --instance APP_INSTANCE` observes an existing
+app; it never owns or terminates it. Engine progress remains separate from app
+connections. Direct loopback transport requires same-host reachability and a
+runtime WebSocket implementation; NativeScript device relay/runtime WebSocket adapters remain unimplemented,
+and browser execution remains unqualified. Invocation and full controls remain pending. Consult the native schema
 for actual coverage. The superseded detached `session start/end`, `runtime build`
 and job-control surface is absent from Go; use ordinary explicit foreground builds
 and typechecks. The retained Nim and TypeScript surfaces below describe their

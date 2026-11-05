@@ -53,9 +53,21 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "project_status":
 				entry = map[string]any{"capability": capability, "status": "supported"}
 			case "target_discovery":
-				entry = map[string]any{"capability": capability, "status": "partial", "detail": "Reads selected targets from an explicitly started xplat dev server. App debug WebSocket registration is pending; engine readiness is separate from app attachment."}
+				entry = map[string]any{"capability": capability, "status": "partial", "detail": "Reads dev engines and connected app WebSocket instances; engine readiness remains separate from app attachment. Actual OS/app qualification is reported separately."}
 			case "attach":
-				entry["detail"] = "App debug WebSocket attachment is pending. Observer connections never start or terminate an app or dev server."
+				entry["status"] = "partial"
+				entry["detail"] = "Observes an app already connected over the dev WebSocket. Requires a runtime WebSocket implementation; platform/app qualification remains separate. Clients never start or terminate apps."
+				if platform == "ios" || platform == "android" {
+					entry["status"] = "unavailable"
+					entry["detail"] = "NativeScript device relay/WebSocket adapters are not implemented. Engine spawn does not establish app attachment."
+				}
+			case "dev_actions":
+				entry["status"] = "partial"
+				entry["detail"] = "Lists live app-declared registries and disconnected observations natively. Invocation and action status remain pending."
+				if platform == "ios" || platform == "android" {
+					entry["status"] = "unavailable"
+					entry["detail"] = "NativeScript app action transport is not implemented; device relay and runtime WebSocket adapters are required."
+				}
 			case "build":
 				entry["detail"] = "Use the ordinary xplat build command with a selected app and declared platform."
 				if selection.State == "bound" && slices.Contains(selection.App.Platforms, platform) {

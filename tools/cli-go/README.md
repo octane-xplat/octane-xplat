@@ -139,8 +139,12 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 Humans or instructed agents can explicitly start `dev`. Ordinary app-control
 requests connect to it and never start servers, apps or browsers implicitly.
 Clients finishing or disconnecting leave the engines running. App debug
-WebSocket registration and live attachment remain pending; engine readiness alone
-is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
+WebSockets register the real framework action registry; attach/list/status and
+action listing stay native. The gate exercises empty registries, heartbeat
+stability, disconnect/reconnect, target-scoped proof and short-lived clients.
+The foreground macOS gate also attaches to actual headless AppKit app code.
+Invocation/control and NativeScript device relay/runtime WebSocket adapters
+remain unimplemented; browser execution remains unqualified; engine readiness alone is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
 for the current interface. The former detached-owner, asynchronous build/job and
 browser-session runners are preserved in checkpoint `14a7117c`; they are
 superseded experiments, not current release gates.

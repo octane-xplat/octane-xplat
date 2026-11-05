@@ -112,13 +112,37 @@ not authorize automatic startup. Never use descriptive cached PIDs as signal
 authority. `XPLAT_DEV_CACHE` can select an isolated cache parent for tests.
 
 The target response distinguishes an engine's reported readiness from connected
-app instances. **App debug WebSocket registration, attachment and live control
-remain pending.** An engine URL or native host spawn does not establish app-code
-readiness. Session listing currently reports no connected app instances, and
-status returns not found. There is no new detach command: clients simply finish
-or disconnect. The former Go `session start/end`, `runtime build`, `job status`
-and `job cancel` surface and hidden `_owner` entry have been removed. Ordinary
-explicit `build` and `typecheck` remain foreground operations.
+app instances. `session attach` selects an existing app debug connection and
+returns an observed session identity; it creates no app process or persistent
+agent registration. Select `--instance` when a target contains several apps.
+Session status preserves a disconnected app observation; it does not signal it.
+
+```sh
+/absolute/path/to/xplat-go actions list --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go session attach --platform web --instance APP_INSTANCE --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go session status SESSION_ID --project /work/repo --app apps/web --json
+```
+
+The selected project's compatible CLI Vite plugin receives a target-scoped app
+credential from foreground dev. The app's existing framework action registry
+connects over WebSocket, updates its actions, and reconnects after transport loss.
+The app credential cannot authenticate CLI RPC or register another target. Tokens
+are carried in the bounded first frame, never in socket URLs. Browser origins
+must match an observed target dev origin; ordinary CLI HTTP still rejects Origin.
+`actions list` distinguishes connected empty registries from disconnected apps.
+Invocation, action status, full diagnostics and live controls remain pending.
+
+This direct socket requires a runtime WebSocket implementation and same-host
+loopback access. The maintained test runs the actual registry through project
+Vite and a headless AppKit Node host. NativeScript device relay/runtime WebSocket adapters
+remain unimplemented, and browser execution remains unqualified; a spawned SDK tool is not
+proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
+The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
+configuration. Production builds receive no native bridge definition.
+
+There is no detach command: clients simply finish or disconnect. The former Go
+`session start/end`, `runtime build`, `job status/cancel` and hidden `_owner`
+entry are absent. Ordinary build and typecheck remain foreground operations.
 
 ```sh
 /absolute/path/to/xplat-go build --targets web

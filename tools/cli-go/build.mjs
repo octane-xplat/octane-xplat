@@ -225,7 +225,7 @@ if (flags.includes('--test') || ownerRace || devServerRace) {
 			'test',
 			'-count=1',
 			...(ownerRace ? ['-race', '-run=^TestAgentOwner'] : []),
-			...(devServerRace ? ['-race', '-run=^TestDevServer'] : []),
+			...(devServerRace ? ['-race', '-run=^TestDev(Server|App)'] : []),
 			'-mod=readonly',
 			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'./...',

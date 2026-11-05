@@ -258,9 +258,23 @@ test(
 		const pkg = JSON.parse(readFileSync(join(f.app, 'package.json')))
 		pkg.dependencies = {
 			'@octane-xplat/macos-build': 'file:' + archive,
+			'@octane-xplat/cli':
+				'file:' +
+				join(
+					tools.archiveDirectory,
+					tools.packages.packages.find((item) => item.name === '@octane-xplat/cli').file,
+				),
 			vite: tools.packages.vite,
 			octane: '0.16.3',
 			'@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
+		}
+		pkg.overrides = {
+			'@octane-xplat/lib':
+				'file:' +
+				join(
+					tools.archiveDirectory,
+					tools.packages.packages.find((item) => item.name === '@octane-xplat/lib').file,
+				),
 		}
 		pkg.xplat = {
 			targets: {
@@ -287,13 +301,20 @@ test(
 		put(
 			f.app,
 			'vite.config.mjs',
-			`export default {build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
+			`import {xplatDevBridge} from '@octane-xplat/cli/vite';export default {plugins:[xplatDevBridge()],build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
+		)
+		for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts'])
+			put(f.app, name, readFileSync(join(root, 'packages/platform/src', name), 'utf8'))
+		put(
+			f.app,
+			'dev-bridge.ts',
+			readFileSync(join(root, 'packages/platform/src/dev-bridge.macos.ts'), 'utf8'),
 		)
 		for (const mode of ['exit', 'cancel']) {
 			put(
 				f.app,
 				'main.js',
-				`import '@nativescript/macos-node-api';const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
+				`import '@nativescript/macos-node-api';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.macos.read',title:'Read macOS app',description:'Observe app fixture',effects:{summary:'Read only'},run:()=>({value:1})});const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
 			)
 			const child = spawn(binary, ['dev', 'macos'], {
 				cwd: f.app,
@@ -310,7 +331,35 @@ test(
 					() => output,
 					90000,
 				)
-				if (mode === 'cancel') child.kill('SIGTERM')
+				if (mode === 'cancel') {
+					let live
+					const query = (args) => {
+						const result = spawnSync(binary, [...args, '--json'], {
+							cwd: f.app,
+							env: f.env,
+							encoding: 'utf8',
+							timeout: 10000,
+						})
+						return JSON.parse(result.stdout)
+					}
+					await until(
+						() => {
+							live = query(['actions', 'list'])
+							return live.data?.instances?.[0]?.actions?.some(
+								(action) => action.id === 'fixture.macos.read',
+							)
+						},
+						() => output + ' ' + JSON.stringify(live),
+						15000,
+					)
+					const appInstance = live.data.instances[0]
+					assert.equal(appInstance.platform, 'macos')
+					const observed = query(['session', 'attach', '--instance', appInstance.appInstanceId])
+					assert.equal(observed.ok, true, JSON.stringify(observed))
+					assert.equal(observed.data.session.ownership, 'observed')
+					assert.equal(child.exitCode, null, 'observer client ended the AppKit host')
+					child.kill('SIGTERM')
+				}
 				const [code, signal] = await exited
 				assert.equal(signal, null, output)
 				assert.equal(code, mode === 'exit' ? 0 : 143, output)
