@@ -73,7 +73,7 @@ function fixture(type = 'contentview') {
       'destroy',
     ]
       .map(fn)
-      .join('\n') + '\n({insert,remove,destroy,layoutContentChild})',
+      .join('\n') + '\n({insert,remove,destroy,layoutContentChild,adapters})',
     {
       stickyPlacements: { position: (_node: unknown, rect: { x: number }) => rect.x, reset() {} },
       elementBehaviors: new Map(),
@@ -104,6 +104,8 @@ function fixture(type = 'contentview') {
       setLayoutAction: noop,
     },
   )
+
+  Object.assign(parent, { adapter: api.adapters.lookup(type) })
 
   const child = (id: number, props: any = {}) => ({
     id,

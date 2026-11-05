@@ -1,3 +1,4 @@
+import { NSNotificationCenter, NSViewFrameDidChangeNotification } from '@octane-xplat/platform/macos'
 import Content, { contentRefs, contentEvents } from './Content'
 
 export async function checkContentLifecycle(root: any, nativeWindow: any) {
@@ -183,6 +184,11 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
     'ContentView teardown callback cleanup failed',
   )
 
+  NSNotificationCenter.defaultCenter.postNotificationNameObject(NSViewFrameDidChangeNotification, host)
+  await settle()
+  check(!finalChild.superview && !finalDescendant.superview && Number(host.subviews.count) === 0,
+    'Retired pilot geometry delivery restored children')
+  console.log('PACKED_ADAPTER_CONTENT_RETIRE_OK')
   root.unmount()
   check(contentEvents.length === 6, 'ContentView cleanup repeated')
   console.log('PACKED_CONTENTVIEW_OK')

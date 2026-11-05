@@ -1,3 +1,5 @@
+import { createPilotAdapters } from '../src/pilot-adapters.ts'
+import { unconvertedElementTypes } from '../src/element-adapter.ts'
 import { legacyActionBoundary } from './legacy-action-boundary.ts'
 import { createAccessibilityState } from '../src/accessibility-state.ts'
 import { FailureCollector } from '../src/failures.ts'
@@ -55,6 +57,8 @@ export function sourceWithoutImports(url: URL) {
 }
 
 const SLICE_BASE = {
+  createPilotAdapters,
+  unconvertedElementTypes,
   AccessibleHostView: class {},
   createAccessibilityState,
   setTimeout,
@@ -136,6 +140,20 @@ export function spySliceContext(target: Record<string, any> = {}) {
 // these fallbacks fill names the slices reference but don't include. Real
 // function declarations in the slice and sandbox-provided globals win.
 const CSS_SLICE_STUBS = `
+// Legacy slices use the same pilot definitions with their existing native fakes.
+// Production composition and ordering are exercised by adapter-protocol tests.
+var contentGeometryLeases = new WeakMap()
+var elementAdapters = { registerElementType: (...args) => registerElementType(...args) }
+var adapters = { lookup(type) {
+  return createPilotAdapters({
+    controls: { makeButton: (...args) => makeButton(...args), applyBuiltinButtonProp: (...args) => applyBuiltinButtonProp(...args) },
+    containers: { makeContentView: (...args) => makeContentView(...args), contentViewNodesByView: typeof contentViewNodesByView === 'undefined' ? new WeakMap() : contentViewNodesByView,
+      observeContentGeometry: (...args) => observeContentGeometry(...args), applyBuiltinContentHostProp: (...args) => applyBuiltinContentHostProp(...args), disposeBuiltinContentHost: (...args) => disposeBuiltinContentHost(...args) },
+    actions: { disposeActions: (...args) => disposeActions(...args) },
+    layout: { queueLayoutReconcile: (...args) => queueLayoutReconcile(...args), layoutContentChild: (...args) => layoutContentChild(...args) },
+  })[type]
+} }
+
 // Legacy branch tests supply mutable maps as their fake event boundary. New
 // ownership tests construct the real stores and feature factories directly.
 if (typeof canDispatch === 'undefined') var canDispatch = (n) => n.lifecycle !== 'disposing' && n.lifecycle !== 'disposed' && !n.props?.disabled && n.props?.isEnabled !== false && n.props?.enabled !== false

@@ -107,11 +107,31 @@ Layout-commit observation still visits all already-live hosts immediately and
 unsubscribes if that initial visit fails. Projection compensation has its own
 thin facade over the registry/box owner and does not depend on root lifecycle.
 
-The element modules group creation, prop handlers and disposal, but generic
-dispatch and cleanup ordering still live in `nodes.ts` and `element-props.ts`.
-Preserve those phases when changing the dispatch model: text layout retires
-before destruction hooks, nested content detaches before native hosts disappear,
-and every cleanup path must tolerate partially constructed nodes.
+`element-adapter.ts` defines the private phased protocol and catalog. Runtime
+composition uses `adapter-assembly.ts` to assemble definitions from
+`pilot-adapters.ts`; importing a leaf
+registers nothing. A node captures its validated definition before creation and
+retains it for props, layout and disposal. Replacement registrations affect
+future acquisitions; mutating a registration object cannot redirect a live
+node's cleanup. Normal author registration of a migrated type composes its
+override against the original builtin definition, rather than stacking prior
+overrides. Missing migrated definitions reject before native acquisition.
+
+The unpublished migration explicitly lists remaining builtin types in
+`unconvertedElementTypes`; registered Mason/compatibility behaviors remain in
+`registry.ts` until their cohort migrates. `button` and `contentview` have no
+legacy create/prop/dispose fallback. Adding a canonical adapter requires its
+definition, assembly and tests, without a generic lifecycle switch branch.
+Common props merge first, feature props follow, then `afterProps` reads the
+merged bag. Complete-next-bag removal still enters as explicit undefined clears.
+
+Disposal calls the acquired `retire` before destruction hooks, then
+`prepareDispose` while the native host exists, generic detach, and `dispose`.
+Button owns its action release through the adapter. Contentview preparation
+retires its private typed geometry lease, detaches children and removes host
+identity before generic host detach. Late observation tokens acquired during
+reentrant retirement are released; held callbacks reject retired/replaced leases.
+Legacy text sizing and nested-root phases retain their prior order until P6.
 
 Box painting has one coordinator in `box-paint.ts`. Its private WeakMap holds
 one typed record per node/view, including frame observation, layers and image
@@ -166,9 +186,9 @@ failures produce `PhaseErrors`, whose `errors` retain the original values and
 `failures` pair each value with its phase. Construction remains the first error
 when cleanup also fails. Retire each release field/lease before invoking it;
 never retry an OS release merely because it threw. A native release failure
-still means that OS resource may remain unreleased. Live plugin nodes currently
-re-query the registration for cleanup; the acquired-definition migration must
-deliberately replace that behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
+still means that OS resource may remain unreleased. Unconverted plugin nodes still
+re-query their legacy registration for cleanup; P6 must migrate that remaining
+behavior ([#118](https://github.com/octane-xplat/octane-xplat/issues/118)).
 Root creation rejects a second live root on the same host; retained-root HMR
 must reuse the existing root. Retirement is idempotent and removes font
 membership with the host owner ([#119](https://github.com/octane-xplat/octane-xplat/issues/119)).

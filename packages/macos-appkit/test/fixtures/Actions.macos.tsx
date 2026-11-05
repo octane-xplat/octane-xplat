@@ -3,6 +3,9 @@ export default function Actions(props: any) {
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column', width: 240 }}>
       <button id="lease-native" text="Action" isEnabled={props.nativeEnabled} onTap={props.press} />
+      <button id="lease-clears" {...(props.clearButton ? {} : {
+        text: 'Clear me', isEnabled: false, accessibilityLabel: 'Clear label', onTap: props.press,
+      })} />
       <textfield
         id="lease-field"
         text="Editing"

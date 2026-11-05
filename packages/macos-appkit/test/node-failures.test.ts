@@ -1,3 +1,4 @@
+import { createElementAdapterCatalog } from '../src/element-adapter.ts'
 import { createActionStore } from '../src/action-store.ts'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
@@ -26,6 +27,7 @@ function fixture() {
   const services = (names: string[]) => Object.fromEntries(names.map(name => [name, () => run(name)]))
   const deps: any = {
     registry: {
+      adapters: createElementAdapterCatalog(),
       assertSupportedType() {}, behaviorOf: () => ({ destroy: () => run('prepare') }),
       nodeContainersByView: new WeakMap(), cssNodesByView: new WeakMap(),
     },

@@ -73,7 +73,6 @@ interface Dependencies {
     Controls,
     | 'applyBuiltinProgressProp'
     | 'applyBuiltinActivityIndicatorProp'
-    | 'applyBuiltinButtonProp'
     | 'applyBuiltinScrollViewProp'
     | 'applyBuiltinSwitchProp'
     | 'applyBuiltinSliderProp'
@@ -124,6 +123,7 @@ export function createElementProps(deps: Dependencies) {
 
   function applyProps(node: ElementNode, props: PropBag) {
     props = normalizeHostStyleProps(props)
+    if (node.lifecycle !== 'constructing') { node.adapter?.validate?.(props, node.props) }
     if (node.type === 'timepicker') {
       deps.nodes.validateNodeProps(node.type, props)
     }
@@ -337,6 +337,11 @@ export function createElementProps(deps: Dependencies) {
         continue
       }
 
+      if (node.adapter) {
+        node.adapter.applyProp?.(node, name, value)
+        continue
+      }
+
       // Registered behaviors first — mason-backed containers consume style/
       // className/layout props; unhandled names fall through to the builtin
       // per-type cases (scrollview's own props, stack taps, etc.).
@@ -347,7 +352,6 @@ export function createElementProps(deps: Dependencies) {
       switch (node.type) {
         case 'rootlayout':
         case 'actionbar':
-        case 'contentview':
           deps.containerElements.applyBuiltinContentHostProp(node, name, value)
           break
         case 'liquidglass':
@@ -382,9 +386,6 @@ export function createElementProps(deps: Dependencies) {
           break
         case 'label':
           deps.textElements.applyBuiltinLabelProp(node, name, value)
-          break
-        case 'button':
-          deps.controls.applyBuiltinButtonProp(node, name, value)
           break
         case 'scrollview':
           deps.controls.applyBuiltinScrollViewProp(node, name, value)
@@ -422,6 +423,8 @@ export function createElementProps(deps: Dependencies) {
         }
       }
     }
+
+    node.adapter?.afterProps?.(node, props)
 
     if (node.type === 'webview') {
       updateWebView(node, props, (height) => {
@@ -511,7 +514,7 @@ export function createElementProps(deps: Dependencies) {
     // queues the parent — the two are not exclusive (a masonview nested in a
     // masonview needs both passes).
     if (
-      ['liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(node.type) ||
+      ['liquidglass', 'actionbar', 'rootlayout'].includes(node.type) ||
       deps.registry.behaviorOf(node.type)?.layout != null
     ) {
       deps.layout.queueLayoutReconcile(node.container, node)

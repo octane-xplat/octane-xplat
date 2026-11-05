@@ -24,6 +24,7 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
   const calls: string[] = []
   let props = {
     nativeEnabled: true,
+    clearButton: false,
     editable: true,
     state: {},
     press: () => calls.push('first'),
@@ -136,7 +137,20 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     )
     firstAction.handler()
     secondAction.handler()
+    const clearing = debug.findId('lease-clears'), clearingTag = clearing.tag
+    check(String(clearing.title) === 'Clear me' && !clearing.enabled, 'Pilot button setup missing')
+    props = { ...props, clearButton: true }
+    await render()
+    const clearLabel = typeof clearing.accessibilityLabel === 'function'
+      ? clearing.accessibilityLabel() : clearing.accessibilityLabel
+    check(debug.findId('lease-clears') === clearing && clearing.tag === clearingTag,
+      'Complete prop removal recreated the pilot button')
+    check(String(clearing.title) === '' && clearing.enabled && !clearLabel,
+      'Complete prop removal did not reset pilot native state')
     const before = calls.length
+    app.sendActionToFrom('buttonPressed:', clearing.target, clearing)
+    check(calls.length === before, 'Removed pilot button handler dispatched')
+    console.log('PACKED_ADAPTER_BUTTON_CLEAR_OK')
     root.unmount()
     app.sendActionToFrom('buttonPressed:', target, button)
     app.sendActionToFrom('viewPressed:', target, click)

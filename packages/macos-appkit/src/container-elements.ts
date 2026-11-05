@@ -11,6 +11,7 @@ import type { Tree } from './tree'
 import type { PropBag, AppKitView, ElementNode } from './model'
 import {
   NSNotificationCenter,
+  type NSObject,
   NSView,
   NSViewFrameDidChangeNotification,
   NSVisualEffectBlendingMode,
@@ -38,9 +39,16 @@ interface Dependencies {
   tree: Pick<Tree, 'detach'>
 }
 
+interface ContentGeometryLease {
+  readonly view: AppKitView
+  active: boolean
+  token?: NSObject | null
+}
+
 export type ContainerElements = ReturnType<typeof createContainerElements>
 
 export function createContainerElements(deps: Dependencies) {
+  const contentGeometryLeases = new WeakMap<ElementNode, ContentGeometryLease>()
   const gridLayoutNodesByView = new WeakMap<object, ElementNode>()
 
   const rootLayoutNodesByView = new WeakMap<object, ElementNode>()
@@ -438,22 +446,32 @@ export function createContainerElements(deps: Dependencies) {
   }
 
   function observeContentGeometry(node: ElementNode) {
+    disposeBuiltinContentGeometry(node)
     const view = node.view!
+    const lease: ContentGeometryLease = { view, active: true }
+    contentGeometryLeases.set(node, lease)
     view.postsFrameChangedNotifications = true
     // Auto Layout can resize an NSView after its layout() callback. Observe
     // the resulting frame, so right/bottom alignment and stretch use the
     // new bounds even when AppKit does not schedule another layout pass.
-    node.contentGeometryObserver =
+    lease.token =
       NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
         NSViewFrameDidChangeNotification,
         view,
         null,
         () => {
-          if (node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && contentViewNodesByView.get(view) === node) {
+          if (lease.active && contentGeometryLeases.get(node) === lease && node.view === lease.view && node.lifecycle !== 'disposing' && node.lifecycle !== 'disposed' && contentViewNodesByView.get(view) === node) {
             deps.layout.queueLayoutReconcile(node.container, node)
           }
         },
       )
+    // Native registration can synchronously retire the node before returning
+    // its token. That late token still belongs to this retired lease.
+    if (!lease.active || contentGeometryLeases.get(node) !== lease) {
+      const token = lease.token
+      lease.token = undefined
+      if (token) { NSNotificationCenter.defaultCenter.removeObserver(token) }
+    }
   }
 
   function makeLiquidGlass(node: ElementNode) {
@@ -584,14 +602,23 @@ export function createContainerElements(deps: Dependencies) {
     }
   }
 
+  function disposeBuiltinContentGeometry(node: ElementNode) {
+    const lease = contentGeometryLeases.get(node)
+    contentGeometryLeases.delete(node)
+    if (!lease) { return }
+    lease.active = false
+    const token = lease.token
+    lease.token = undefined
+    if (token) { NSNotificationCenter.defaultCenter.removeObserver(token) }
+  }
+
   function disposeBuiltinContentHost(node: ElementNode) {
     // Children retire before their native host; release faults cannot strand
     // siblings or the host lookup, and reentry cannot reacquire these fields.
     if (!['contentview', 'actionbar'].includes(node.type ?? '')) { return }
     const failures = new FailureCollector()
-    const observer = node.contentGeometryObserver
-    node.contentGeometryObserver = null
-    failures.run('content geometry', () => { if (observer) { NSNotificationCenter.defaultCenter.removeObserver(observer) } })
+    const ownedView = contentGeometryLeases.get(node)?.view ?? node.view
+    failures.run('content geometry', () => disposeBuiltinContentGeometry(node))
     if (node.type === 'actionbar') {
       const display = node.actionBarDisplay
       node.actionBarExternal = null
@@ -605,8 +632,10 @@ export function createContainerElements(deps: Dependencies) {
     for (const child of node.children.slice()) {
       failures.run('content child', () => deps.tree.detach(node.container, child))
     }
-    if (node.view) {
-      failures.run('content identity', () => contentViewNodesByView.delete(node.view!))
+    if (ownedView) {
+      failures.run('content identity', () => {
+        if (contentViewNodesByView.get(ownedView) === node) { contentViewNodesByView.delete(ownedView) }
+      })
     }
     failures.throwIfFailed()
   }

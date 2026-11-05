@@ -213,6 +213,7 @@ function applyPropsFixture(type: string) {
   const node = {
     id: 1,
     type,
+    adapter: applyPropsSandbox.adapters.lookup(type),
     props: {},
     parent: null,
     children: [],

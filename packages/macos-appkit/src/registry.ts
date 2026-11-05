@@ -1,3 +1,4 @@
+import { createElementAdapterCatalog, unconvertedElementTypes } from './element-adapter.ts'
 import type { ElementNode, RootContainer, ElementBehavior } from './model'
 import type { UniversalHostParent, UniversalPortalTargetHandle } from 'octane/universal/native'
 import type { NSView } from '@octane-xplat/platform/macos'
@@ -5,6 +6,8 @@ import type { NSView } from '@octane-xplat/platform/macos'
 export type Registry = ReturnType<typeof createRegistry>
 
 export function createRegistry() {
+  const adapters = createElementAdapterCatalog()
+
   /** Types whose views arrange child views; mirrors the check in insert(). */
   const VIEW_PARENT_TYPES = new Set([
     'rootlayout',
@@ -49,7 +52,7 @@ export function createRegistry() {
   ])
 
   function typeHasView(type: string) {
-    return (
+    return adapters.lookup(type)?.hasView ?? (
       type !== 'tabviewitem' &&
       type !== 'segmentedbaritem' &&
       type !== '#text' &&
@@ -60,7 +63,9 @@ export function createRegistry() {
   }
 
   function assertSupportedType(type: string) {
-    if (!SUPPORTED_TYPES.has(type) && !elementBehaviors.has(type)) {
+    if (adapters.lookup(type)) { return }
+    if ((SUPPORTED_TYPES.has(type) && !unconvertedElementTypes.has(type)) ||
+      (!SUPPORTED_TYPES.has(type) && !elementBehaviors.has(type))) {
       throw new Error('AppKit spike does not support <' + type + '>')
     }
   }
@@ -100,9 +105,9 @@ export function createRegistry() {
 
   function canContainView(type: string): boolean {
     return (
-      VIEW_PARENT_TYPES.has(type) ||
+      adapters.lookup(type)?.container ?? (VIEW_PARENT_TYPES.has(type) ||
       type === 'portalroot' ||
-      behaviorOf(type)?.container === true
+      behaviorOf(type)?.container === true)
     )
   }
 
@@ -137,11 +142,13 @@ export function createRegistry() {
    *  constraints are consumed by the host's own layout pass. */
   function isManualLayoutParent(type: string | undefined) {
     return (
-      ['contentview', 'actionbar', 'rootlayout'].includes(type ?? '') ||
+      adapters.lookup(type ?? '')?.layout != null ||
+      ['actionbar', 'rootlayout'].includes(type ?? '') ||
       behaviorOf(type)?.layout != null
     )
   }
   return {
+    adapters,
     VIEW_PARENT_TYPES,
     typeHasView,
     assertSupportedType,

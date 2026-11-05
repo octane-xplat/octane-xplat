@@ -39,7 +39,8 @@ bun run turbo run test:macos-runtime --filter=@octane-xplat/motion
 ```
 
 The packed action-ownership fixture checks real button tag/handler replacement,
-native-disabled controls, a programmatically delivered native click selector,
+native-disabled controls, complete removal of button text/enabled/label/handler
+props without changing its native tag, a programmatically delivered native click selector,
 text submission/readonly suppression, AX-only semantic views, AX press and
 increment/decrement, readonly/disabled adjustment suppression, distinct native
 custom actions for same-named folded links, and held callbacks after retirement.
@@ -52,6 +53,14 @@ These checks establish programmatic native dispatch and lifetime behavior, not
 physical input, an IME journey, VoiceOver or whole-process leak freedom. Native
 AX custom-action objects remain process-retained for the documented bridge
 finalizer workaround while their retired JS feature closures are cleared.
+
+The packed contentview fixture checks single-child replacement, intrinsic and
+explicit sizing, alignment updates/removal, ref cleanup, nested-child detachment
+and inert frame delivery after retirement. These are native geometry/lifetime
+assertions. Exact adapter phase order, registration replacement, partial
+construction, reentrant observer acquisition and release failures use production
+constructors with native-boundary stand-ins; they do not establish failing OS
+setter/release behavior.
 
 The packed root-directory fixture checks native main, retained-tab and
 list-template roots, compiler tab portals, an external portal target, popup and

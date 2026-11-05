@@ -415,7 +415,7 @@ test('failed recreate construction preserves the live original and retires the p
 
 test('P0 teardown trace keeps sizing before hooks and native detach before common release', () => {
   const fx = fixture()
-  const node = fx.makeNode(fx.container, 90, 'button', {})
+  const node = fx.makeNode(fx.container, 90, 'switch', {})
   const events: string[] = []
   fx.container.children.push(node)
   node.textLayoutDetach = () => events.push('retire-sizing')
@@ -597,7 +597,7 @@ test('contentview observes real frame changes and ignores callbacks after dispos
   assert.deepEqual(fx.geometryReconciles, [host])
   fx.destroy(host)
   assert.deepEqual(fx.removedObservers, [observer])
-  assert.equal(host.contentGeometryObserver, null)
+  // Geometry leases are private; held callback inertness is asserted below.
   observer.block()
   assert.deepEqual(fx.geometryReconciles, [host])
 })

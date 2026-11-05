@@ -1,3 +1,4 @@
+import { createElementAdapters } from './adapter-assembly'
 import { createBoxPaint } from './box-paint'
 import { createCssAnimations } from './css-animations'
 import { createPickerElements } from './picker-elements'
@@ -173,6 +174,8 @@ const imageElements = createImageElements({
     return cssCascade
   },
 })
+
+const elementAdapters = createElementAdapters({ registry, controls, containers: containerElements, actions, layout })
 
 const nodes = createNodes({
   boxPaint,
@@ -399,7 +402,7 @@ function initializeRuntime() {
   )
 
   const compatInstallation = installCompat({
-    registerElementType: registry.registerElementType,
+    registerElementType: elementAdapters.registerElementType,
     applyStyle: cssCascade.setNodeInlineStyle,
     applyClassName: cssCascade.applyClassName,
     applyAccessibility: accessibility.applyAccessibility,
@@ -409,7 +412,7 @@ function initializeRuntime() {
   // Every service is constructed before registration, so Mason can subclass
   // the accessible host and adapters can call across subsystem boundaries.
   const masonElementRegistration = installMasonElement({
-    registerElementType: registry.registerElementType,
+    registerElementType: elementAdapters.registerElementType,
     layoutView: layout.layoutView,
     pinLayoutChild: layout.pinLayoutChild,
     queueLayoutReconcile: layout.queueLayoutReconcile,

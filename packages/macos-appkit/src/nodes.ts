@@ -1,3 +1,4 @@
+import type { ElementAdapter } from './element-adapter'
 import type { BoxPaint } from './box-paint'
 import { FailureCollector } from './failures.ts'
 import type { CssAnimations } from './css-animations'
@@ -40,6 +41,7 @@ interface Dependencies {
   cssAnimations: Pick<CssAnimations, 'cancelKeyframeAnimations'>
   registry: Pick<
     Registry,
+    | 'adapters'
     | 'VIEW_PARENT_TYPES'
     | 'typeHasView'
     | 'assertSupportedType'
@@ -68,7 +70,6 @@ interface Dependencies {
     ContainerElements,
     | 'makeRootLayout'
     | 'makeActionBar'
-    | 'makeContentView'
     | 'contentViewNodesByView'
     | 'observeContentGeometry'
     | 'makeLiquidGlass'
@@ -84,7 +85,6 @@ interface Dependencies {
     Controls,
     | 'makeProgress'
     | 'makeActivityIndicator'
-    | 'makeButton'
     | 'makeScrollView'
     | 'makeSwitch'
     | 'makeSlider'
@@ -131,8 +131,9 @@ export function createNodes(deps: Dependencies) {
   /** Deterministic prop failures that would otherwise throw after views and
    *  registrations exist. `baseProps` supplies already-applied props for
    *  update commands so merged-prop rules (e.g. placeholder color) stay exact. */
-  function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag) {
+  function validateNodeProps(type: string, props: PropBag | undefined, baseProps?: PropBag, adapter: ElementAdapter | undefined = deps.registry.adapters.lookup(type)) {
     props = normalizeHostStyleProps(props)
+    adapter?.validate?.(props ?? {}, baseProps)
     if (type === 'actionbar' && props?.titleView != null && !(props.titleView instanceof NSView)) {
       throw new TypeError('AppKit actionbar titleView must be an AppKit NSView')
     }
@@ -362,12 +363,14 @@ export function createNodes(deps: Dependencies) {
     // actions — the node only reaches container.nodes after this returns, so
     // a throwing prop below must unwind whatever was already acquired.
     deps.registry.assertSupportedType(type)
-    validateNodeProps(type, props)
+    const adapter = deps.registry.adapters.lookup(type)
+    validateNodeProps(type, props, undefined, adapter)
 
     const node: ElementNode = {
       id,
       type,
       lifecycle: 'constructing',
+      adapter,
       view: null,
       props: {},
       parent: null,
@@ -388,7 +391,9 @@ export function createNodes(deps: Dependencies) {
 
     try {
       const makeBehavior = deps.registry.behaviorOf(type)?.make
-      if (makeBehavior) {
+      if (node.adapter) {
+        node.adapter.create(node, props)
+      } else if (makeBehavior) {
         // Registered element behaviors own their factory (mason-backed
         // containers, plugin elements).
         makeBehavior(node, props)
@@ -398,11 +403,7 @@ export function createNodes(deps: Dependencies) {
             node.view = deps.containerElements.makeRootLayout(node)
             break
           case 'actionbar':
-          case 'contentview':
-            node.view =
-              type === 'actionbar'
-                ? deps.containerElements.makeActionBar(node)
-                : deps.containerElements.makeContentView()
+            node.view = deps.containerElements.makeActionBar(node)
             deps.containerElements.contentViewNodesByView.set(node.view!, node)
             deps.containerElements.observeContentGeometry(node)
             break
@@ -460,11 +461,6 @@ export function createNodes(deps: Dependencies) {
             break
           case '#text':
             break
-          case 'button': {
-            const button = deps.controls.makeButton(node, props)
-            node.view = button.view
-            break
-          }
           case 'scrollview': {
             const scroll = deps.controls.makeScrollView(node)
             node.view = scroll.view
@@ -613,7 +609,10 @@ export function createNodes(deps: Dependencies) {
     // stored hook before invoking any of them so reentrant destroy is inert.
     const hooks = [...(node.destroyHooks ?? [])]
     node.destroyHooks = undefined
-    release('retire text layout', () => deps.inputElements.disposeBuiltinTextViewLayout(node))
+    release('adapter retire', () => node.adapter?.retire?.(node))
+    if (!node.adapter) {
+      release('retire text layout', () => deps.inputElements.disposeBuiltinTextViewLayout(node))
+    }
     release('focus subscription', () => {
       if (node.view && (typeof node.props.onFocus === 'function' || typeof node.props.onBlur === 'function')) {
         deps.subscriptions.focusWithinDispatcher.set(node.view)
@@ -629,22 +628,24 @@ export function createNodes(deps: Dependencies) {
     for (const [index, hook] of hooks.entries()) {
       release('destroy hook ' + index, hook)
     }
-    // Canonical adapter acquisition/phases are introduced in P5/P6. Preserve
-    // the existing registration and builtin order until those cohorts migrate.
-    release('behavior prepare', () => deps.registry.behaviorOf(node.type)?.destroy?.(node))
-    release('list prepare', () => deps.hostedElements.disposeBuiltinListView(node))
-    release('pager prepare', () => deps.hostedElements.disposeBuiltinPager(node))
-    release('video prepare', () => deps.hostedElements.disposeBuiltinVideo(node))
-    release('tab prepare', () => deps.hostedElements.disposeBuiltinTabView(node))
-    release('tab item prepare', () => deps.hostedElements.disposeBuiltinTabItem(node))
-    release('segment item prepare', () => deps.pickerElements.disposeBuiltinSegmentedItem(node))
-    release('segment children prepare', () => deps.pickerElements.disposeBuiltinSegmentedChildren(node))
-    release('formatted prepare', () => deps.textElements.disposeBuiltinFormattedText(node))
-    release('proxy prepare', () => deps.projection.disposeBuiltinProxyChildren(node))
-    release('root layout prepare', () => deps.containerElements.disposeBuiltinRootLayout(node))
-    release('glass prepare', () => deps.containerElements.disposeBuiltinLiquidGlass(node))
-    release('content prepare', () => deps.containerElements.disposeBuiltinContentHost(node))
-    release('placeholder prepare', () => deps.containerElements.disposeBuiltinPlaceholder(node))
+    release('adapter prepare', () => node.adapter?.prepareDispose?.(node))
+    // Explicit legacy cohort only: migrated nodes never enter this path.
+    if (!node.adapter) {
+      release('behavior prepare', () => deps.registry.behaviorOf(node.type)?.destroy?.(node))
+      release('list prepare', () => deps.hostedElements.disposeBuiltinListView(node))
+      release('pager prepare', () => deps.hostedElements.disposeBuiltinPager(node))
+      release('video prepare', () => deps.hostedElements.disposeBuiltinVideo(node))
+      release('tab prepare', () => deps.hostedElements.disposeBuiltinTabView(node))
+      release('tab item prepare', () => deps.hostedElements.disposeBuiltinTabItem(node))
+      release('segment item prepare', () => deps.pickerElements.disposeBuiltinSegmentedItem(node))
+      release('segment children prepare', () => deps.pickerElements.disposeBuiltinSegmentedChildren(node))
+      release('formatted prepare', () => deps.textElements.disposeBuiltinFormattedText(node))
+      release('proxy prepare', () => deps.projection.disposeBuiltinProxyChildren(node))
+      release('root layout prepare', () => deps.containerElements.disposeBuiltinRootLayout(node))
+      release('glass prepare', () => deps.containerElements.disposeBuiltinLiquidGlass(node))
+      release('content prepare', () => deps.containerElements.disposeBuiltinContentHost(node))
+      release('placeholder prepare', () => deps.containerElements.disposeBuiltinPlaceholder(node))
+    }
 
     release('detach', () => deps.tree.detach(node.container, node))
     release('press gestures', () => disposePressGestures(node))
@@ -653,16 +654,22 @@ export function createNodes(deps: Dependencies) {
     node.cssHoverDispose = undefined
     release('hover', () => hover?.())
     release('visual state', () => setVisualStateTracking(node, null))
-    release('actions', () => deps.actions.disposeActions(node))
-    release('text input dispose', () => deps.inputElements.disposeBuiltinTextInput(node))
-    release('web dispose', () => deps.hostedElements.disposeBuiltinWebView(node))
-    release('segment dispose', () => deps.pickerElements.disposeBuiltinSegmentedControl(node))
-    release('list picker dispose', () => deps.pickerElements.disposeBuiltinListPicker(node))
-    release('time picker dispose', () => deps.pickerElements.disposeBuiltinTimePicker(node))
-    release('date picker dispose', () => deps.pickerElements.disposeBuiltinDatePicker(node))
-    release('activity dispose', () => deps.controls.disposeBuiltinActivityIndicator(node))
-    release('image dispose', () => deps.imageElements.disposeBuiltinImage(node))
-    release('scroll dispose', () => deps.controls.disposeBuiltinScrollView(node))
+    release('adapter dispose', () => node.adapter?.dispose?.(node))
+    // Canonical definitions own their feature actions. Legacy types retain
+    // the blanket feature cleanup only until their P6 migration.
+    if (!node.adapter) {
+      release('actions', () => deps.actions.disposeActions(node))
+
+      release('text input dispose', () => deps.inputElements.disposeBuiltinTextInput(node))
+      release('web dispose', () => deps.hostedElements.disposeBuiltinWebView(node))
+      release('segment dispose', () => deps.pickerElements.disposeBuiltinSegmentedControl(node))
+      release('list picker dispose', () => deps.pickerElements.disposeBuiltinListPicker(node))
+      release('time picker dispose', () => deps.pickerElements.disposeBuiltinTimePicker(node))
+      release('date picker dispose', () => deps.pickerElements.disposeBuiltinDatePicker(node))
+      release('activity dispose', () => deps.controls.disposeBuiltinActivityIndicator(node))
+      release('image dispose', () => deps.imageElements.disposeBuiltinImage(node))
+      release('scroll dispose', () => deps.controls.disposeBuiltinScrollView(node))
+    }
 
     const detachScrollGeometry = node.scrollGeometryDetach
     node.scrollGeometryDetach = null

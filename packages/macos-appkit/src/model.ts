@@ -1,5 +1,6 @@
 import type { NSView, NSGestureRecognizer } from '@octane-xplat/platform/macos'
 import type { UniversalRoot, UniversalPortalTargetHandle } from 'octane/universal/native'
+import type { ElementAdapter } from './element-adapter'
 import type { TextLinkRun } from './formatted-text'
 
 /** Props arrive from compiled elements as open-ended bags; each leaf
@@ -30,9 +31,12 @@ export interface ElementNode {
   type: string
   /** Absent only for compiler-owned root records, which have separate ownership. */
   lifecycle?: 'constructing' | 'live' | 'disposing' | 'disposed'
+  /** Acquired once; never resolve live phases through a newer registration. */
+  readonly adapter?: ElementAdapter
   view: AppKitView | null
   projectedChildren?: ElementNode[]
   layoutParent?: ElementNode | null
+  contentChild?: ElementNode | null
   childHost?: AppKitView
   datePickerDefault?: Date
   datePickerValue?: Date

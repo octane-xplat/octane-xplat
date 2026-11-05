@@ -568,6 +568,11 @@ export function createLayout(deps: Dependencies) {
       deps.projection.syncProxyProjection(parent)
     }
 
+    if (parent.adapter) {
+      parent.adapter.layout?.(parent)
+      return
+    }
+
     // Registered behaviors own their layout pass — mason-backed containers
     // (masonview, scrollview, liquidglass) never reach the builtin branches.
     const layoutBehavior = deps.registry.behaviorOf(parent.type)?.layout
@@ -620,16 +625,6 @@ export function createLayout(deps: Dependencies) {
       parent.view?.invalidateIntrinsicContentSize()
       deps.containerElements.syncActionBar(parent)
       queueLayoutReconcile(parent.container, parent.parent)
-      return
-    }
-
-    if (parent.type === 'contentview') {
-      parent.view?.invalidateIntrinsicContentSize()
-      layoutContentChild(parent)
-      if (parent.parent?.type === 'rootlayout') {
-        queueLayoutReconcile(parent.container, parent.parent)
-      }
-
       return
     }
   }
