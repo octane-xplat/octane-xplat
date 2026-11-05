@@ -29,6 +29,7 @@ export function nativeInputs(root) {
 		}
 	}
 	files.push(
+		'packages/cli/src/mcp/dev-stack.ts',
 		'packages/cli/src/mcp/dev-socket.ts',
 		'packages/cli/src/macos/vite.ts',
 		'packages/cli/src/mcp/dev-bridge.ts',

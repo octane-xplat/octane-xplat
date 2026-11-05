@@ -157,8 +157,14 @@ Canonical action deadlines default to 30 seconds and cap at five minutes. A
 cancellable action gets a bounded cooperative-cancel grace; only app confirmation
 becomes a cancelled result. In-flight disconnect, delivery ambiguity, or expired
 observation becomes an unknown outcome and is never automatically retried. An
-invalid result does not undo completed effects. Failure stacks are labelled
-`runtime-raw`; source-map resolution remains separate work. Node validation is
+invalid result does not undo completed effects. Failed action jobs retain raw
+stacks and may add `sourceStack` using the current maps of modules already served
+by the selected Vite engine. `stackResolution: "vite-current"` means at least one
+frame mapped; other frames can remain raw. This is current-revision information,
+not a retained map of the failure's exact revision. Missing/stale maps, unsupported
+`file://` or device frames, and unavailable engines leave `runtime-raw` stacks.
+Source lookup cannot change the action outcome or discard partial effects.
+Node validation is
 bounded and native group/Job cleanup finishes before private worker data removal.
 Unconfirmed worker cleanup blocks further action admission and retains evidence.
 

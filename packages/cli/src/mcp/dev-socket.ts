@@ -1,4 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { ViteDevServer } from 'vite'
+import { createDevStackResolver } from './dev-stack.ts'
 import { browserLogScript } from '../dev-log-client.web.ts'
 import { formatBrowserLogBatch } from '../dev-log-server.ts'
 
@@ -44,6 +46,7 @@ export function nativeDevSocketPlugin() {
 	let windowAt = 0
 	let batches = 0
 	const logs = '/__xplat_dev__/logs'
+	const stacks = '/__xplat_dev__/stacks'
 	return {
 		transformIndexHtml() {
 			return [
@@ -55,16 +58,9 @@ export function nativeDevSocketPlugin() {
 				},
 			]
 		},
-		configureServer(server: {
-			config: { server: { https?: unknown } }
-			middlewares: {
-				use: (
-					handler: (req: IncomingMessage, res: ServerResponse, next: () => void) => void,
-				) => void
-			}
-		}) {
+		configureServer(server: ViteDevServer) {
 			server.middlewares.use(async (req, res, next) => {
-				if (req.url?.split('?')[0] !== logs) {
+				if (![logs, stacks].includes(req.url?.split('?')[0] ?? '')) {
 					return next()
 				}
 				const reply = (status: number, value: unknown) => {
@@ -75,8 +71,9 @@ export function nativeDevSocketPlugin() {
 				const origin = `${server.config.server.https ? 'https' : 'http'}://${req.headers.host}`
 				if (
 					req.method !== 'POST' ||
-					req.url !== logs ||
+					(req.url !== logs && req.url !== stacks) ||
 					req.headers['x-xplat-dev-token'] !== bridge.token ||
+					(req.url === stacks && req.headers.origin !== undefined) ||
 					(req.headers.origin !== undefined && req.headers.origin !== origin)
 				) {
 					return reply(403, { error: 'Browser log request rejected' })
@@ -93,6 +90,25 @@ export function nativeDevSocketPlugin() {
 				batches++
 				try {
 					const body = await readBrowserLogRequest(req)
+					if (req.url === stacks) {
+						if (!isStackRequest(body, bridge)) {
+							return reply(400, { error: 'Invalid source-stack request' })
+						}
+
+						const resolveStack = createDevStackResolver(() => server, { cachedOnly: true, origin })
+						const sourceStacks: (string | null)[] = []
+						for (const stack of body.stacks) {
+							sourceStacks.push((await resolveStack(stack)) ?? null)
+						}
+
+						return reply(200, {
+							version: 1,
+							instanceId: bridge.instanceId,
+							targetId: bridge.targetId,
+							sourceStacks,
+						})
+					}
+
 					const batch = formatBrowserLogBatch(body)
 					if (blocked) {
 						return reply(503, { error: 'Browser log sink busy' })
@@ -175,4 +191,18 @@ function readBrowserLogRequest(req: IncomingMessage): Promise<unknown> {
 		}, 2000)
 		req.on('data', data).once('end', end).once('error', fail).once('aborted', aborted)
 	})
+}
+
+// Only bounded raw strings cross this boundary, never executable module requests
+// or caller-supplied maps. Cached Vite maps describe the current dev revision.
+function isStackRequest(body, bridge): body is { stacks: string[] } {
+	return (
+		body?.version === 1 &&
+		body.instanceId === bridge.instanceId &&
+		body.targetId === bridge.targetId &&
+		Array.isArray(body.stacks) &&
+		body.stacks.length <= 20 &&
+		body.stacks.every((stack) => typeof stack === 'string' && Buffer.byteLength(stack) <= 8192) &&
+		Buffer.byteLength(JSON.stringify(body.stacks)) <= 24 * 1024
+	)
 }

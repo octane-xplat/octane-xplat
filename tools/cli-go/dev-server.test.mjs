@@ -11,6 +11,7 @@ import {
 	symlinkSync,
 	rmSync,
 } from 'node:fs'
+
 import { join, resolve, dirname } from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
 import { stripVTControlCharacters } from 'node:util'
@@ -23,17 +24,21 @@ import { scratchRun } from '../cli-nim/scratch.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
+
 const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary = join(work, `xplat-go-${target}-cli${process.platform === 'win32' ? '.exe' : ''}`)
 const sha = (value) => createHash('sha256').update(value).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
 assert.equal(sha(readFileSync(binary)), build.sha256)
-for (const [file, hash] of Object.entries(build.inputs))
+for (const [file, hash] of Object.entries(build.inputs)) {
 	assert.equal(sha(readFileSync(join(root, file))), hash, file)
+}
+
 const scratch = realpathSync(scratchRun(root, 'go-dev-server'))
 const tools = projectToolFixture(root, work, scratch)
 const evidence = [],
 	fixtures = []
+
 let sequence = 0
 function put(base, name, value) {
 	const path = join(base, name)
@@ -41,6 +46,7 @@ function put(base, name, value) {
 	writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value))
 	return path
 }
+
 function fixture(multi = false) {
 	const base = join(scratch, `case ${sequence++} π`),
 		project = join(base, 'project'),
@@ -65,13 +71,14 @@ function fixture(multi = false) {
 			FORCE_COLOR: '1',
 		},
 	}
-	if (multi)
+	if (multi) {
 		put(project, 'package.json', {
 			name: 'workspace',
 			private: true,
 			packageManager: 'bun@1.4.4',
 			workspaces: ['apps/*'],
 		})
+	}
 	const apps = multi ? ['apps/one', 'apps/two'] : ['']
 	for (const name of apps) {
 		const app = join(project, name)
@@ -82,6 +89,7 @@ function fixture(multi = false) {
 			packageManager: 'bun@1.4.4',
 			xplat: { targets: { web: {} } },
 		})
+
 		put(app, 'index.html', '<h1>Explicit foreground dev server</h1>')
 		put(app, 'src/app/index.tsrx', 'export default ()=>null\n')
 		put(
@@ -89,6 +97,7 @@ function fixture(multi = false) {
 			'vite.config.mjs',
 			`import fs from 'node:fs';export default{server:{host:'127.0.0.1',port:0},plugins:[{name:'dev-server-proof',configureServer(){fs.appendFileSync('engine-starts.log','start\\n')}}]}`,
 		)
+
 		symlinkSync(
 			tools.nodeModules,
 			join(app, 'node_modules'),
@@ -99,15 +108,20 @@ function fixture(multi = false) {
 	fixtures.push(f)
 	return f
 }
+
 async function until(read, message, timeout = 30000) {
 	const deadline = Date.now() + timeout
 	for (;;) {
 		const value = await read()
-		if (value) return value
+		if (value) {
+			return value
+		}
+
 		assert.ok(Date.now() < deadline, typeof message === 'function' ? message() : message)
 		await delay(50)
 	}
 }
+
 function cli(f, args, cwd = f.app) {
 	const result = spawnSync(binary, [...args, '--json'], {
 		cwd,
@@ -120,15 +134,21 @@ function cli(f, args, cwd = f.app) {
 	evidence.push({ args, status: result.status, value })
 	return { status: result.status, ...value }
 }
+
 function record(f) {
 	const namespace = join(f.cache, 'dev-servers-v1')
-	if (!existsSync(namespace)) return null
+	if (!existsSync(namespace)) {
+		return null
+	}
 	for (const name of readdirSync(namespace)) {
 		const file = join(namespace, name, 'server.json')
-		if (existsSync(file)) return JSON.parse(readFileSync(file))
+		if (existsSync(file)) {
+			return JSON.parse(readFileSync(file))
+		}
 	}
 	return null
 }
+
 function start(f, args = []) {
 	const child = spawn(binary, ['dev', '--targets', 'web', ...args], {
 		cwd: f.app,
@@ -156,8 +176,11 @@ function start(f, args = []) {
 	f.children.push(owned)
 	return owned
 }
+
 async function stop(owned) {
-	if (!owned.ended) owned.child.kill(process.platform === 'win32' ? 'SIGTERM' : 'SIGINT')
+	if (!owned.ended) {
+		owned.child.kill(process.platform === 'win32' ? 'SIGTERM' : 'SIGINT')
+	}
 	return await Promise.race([
 		owned.completion,
 		delay(15000, undefined, { ref: false }).then(() => {
@@ -165,9 +188,10 @@ async function stop(owned) {
 		}),
 	])
 }
+
 after(async () => {
 	let clean = true
-	for (const f of fixtures)
+	for (const f of fixtures) {
 		for (const child of f.children) {
 			try {
 				await stop(child)
@@ -175,12 +199,15 @@ after(async () => {
 				clean = false
 			}
 		}
-	for (const f of fixtures)
-		for (const child of f.children)
+	}
+	for (const f of fixtures) {
+		for (const child of f.children) {
 			evidence.push({
 				foregroundOutput: stripVTControlCharacters(child.stdout),
 				foregroundDiagnostics: stripVTControlCharacters(child.stderr),
 			})
+		}
+	}
 	writeFileSync(
 		join(work, `dev-server-${target}.json`),
 		JSON.stringify(
@@ -196,7 +223,9 @@ after(async () => {
 			2,
 		),
 	)
-	if (clean) rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
+	if (clean) {
+		rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
+	}
 	assert.ok(clean, 'owned dev fixture could not be joined; scratch retained')
 })
 
@@ -265,11 +294,20 @@ test(
 		assert.equal(liveLogs.logs.historical, false)
 		assert.equal(liveLogs.logs.records.length, 1)
 		assert.equal(liveLogs.coverage.nativeReports.status, 'unsupported')
-		const unsupportedReport = cli(f, ['diagnostics', '--session', capture.sessionId, '--report', 'native'])
+		const unsupportedReport = cli(f, [
+			'diagnostics',
+			'--session',
+			capture.sessionId,
+			'--report',
+			'native',
+		])
 		assert.equal(unsupportedReport.error.code, 'invalid_selection')
 		assert.equal(unsupportedReport.status, 2)
 		assert.equal(cli(f, ['diagnostics', '--job', 'removed']).error.code, 'invalid_selection')
-		assert.equal(cli(f, ['diagnostics', '--session', capture.sessionId, '--platform', 'ios']).error.code, 'invalid_selection')
+		assert.equal(
+			cli(f, ['diagnostics', '--session', capture.sessionId, '--platform', 'ios']).error.code,
+			'invalid_selection',
+		)
 		assert.equal(owned.ended, false)
 		assert.match(await (await fetch(address)).text(), /Explicit foreground dev server/)
 		assert.equal(
@@ -317,7 +355,9 @@ test(
 		assert.equal(endedLogs.logs.historical, true)
 		// Forced Windows termination can leave the last metadata snapshot unfinished;
 		// it must never infer cleanup from an absent server or recorded PID.
-		if (process.platform !== 'win32') assert.equal(endedLogs.session.cleanupConfirmed, true)
+		if (process.platform !== 'win32') {
+			assert.equal(endedLogs.session.cleanupConfirmed, true)
+		}
 		assert.ok(endedLogs.logs.records.length > 0)
 		assert.equal(cli(f, ['diagnostics']).data.sessions[0].sessionId, capture.sessionId)
 	},
@@ -328,16 +368,24 @@ test(
 	{ timeout: 90000 },
 	async () => {
 		const f = fixture()
-		for (const name of ['dev-actions-registry.ts', 'dev-actions-schema.ts', 'dev-bridge-socket.ts'])
+		for (const name of [
+			'dev-actions-registry.ts',
+			'dev-actions-schema.ts',
+			'dev-bridge-socket.ts',
+		]) {
 			cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
+		}
 		cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
 		put(
 			f.app,
 			'app-debug.ts',
-			`import {registerDevAction,startDevActionBridge} from './dev-actions-registry';
+			`import vm from 'node:vm';
+ import {registerDevAction,startDevActionBridge} from './dev-actions-registry';
+ let origin='';export function setOrigin(value){origin=value}
  let calls=0;
  const action=registerDevAction({id:'fixture.read',title:'Read fixture',description:'Read fixture state',effects:{summary:'Reads state'},input:{fields:{value:{type:'string',pattern:'(?<=a)b',default:'ab'},emoji:{type:'string',maxLength:2,default:'😀'}}},result:{fields:{value:{type:'integer'},echoed:{type:'string'}}},run:(input)=>({value:++calls,echoed:input.value+input.emoji})});
  const others=[
+ registerDevAction({id:'fixture.mapped',title:'Mapped failure',description:'Throws from a real served module',effects:{summary:'Local fixture only'},run:async()=>{const source=await(await fetch(origin+'mapped.ts')).text();vm.runInNewContext(source,{}, {filename:origin+'mapped.ts'})}}),
  registerDevAction({id:'fixture.bad',title:'Bad result',description:'Returns an invalid result',effects:{summary:'Local fixture'},result:{fields:{value:{type:'integer'}}},run:()=>{calls++;return {value:'wrong'}}}),
  registerDevAction({id:'fixture.external',title:'Declared external',description:'Local counter with external declaration',effects:{summary:'Local fixture only',externalEffects:true},result:{fields:{value:{type:'integer'}}},run:()=>({value:++calls})}),
  registerDevAction({id:'fixture.slow',title:'Cancellable',description:'Waits for cooperative cancellation',effects:{summary:'Local wait'},execution:{cancellable:true,timeoutMs:1000},run:(_input,context)=>new Promise((_resolve,reject)=>context.signal.addEventListener('abort',()=>reject(Object.assign(new Error('cancelled'),{name:'AbortError'})),{once:true}))}),
@@ -355,11 +403,12 @@ test(
 			'vite.config.mjs',
 			`import {xplatDevBridge} from '@octane-xplat/cli/vite';
  export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'real-app-debug',configureServer(server){let app;
- server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.catch(error=>console.error(error.message))});
+ server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.then(value=>value.setOrigin('http://127.0.0.1:'+server.httpServer.address().port+'/')).catch(error=>console.error(error.message))});
  server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/count':'count','/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{const value=(await app)[operation]();res.end(value===undefined?'ok':JSON.stringify(value))}catch(error){res.statusCode=500;res.end(error.message)}})
  }}]}
  `,
 		)
+		put(f.app, 'mapped.ts', 'const value: number = 1;\nthrow new Error("mapped action failure");\n')
 		const owned = start(f)
 		await until(
 			() => record(f),
@@ -537,6 +586,12 @@ test(
 			)
 			return job
 		}
+
+		const mapped = await finished(invoke('fixture.mapped', 'mapped-failure'))
+		assert.equal(mapped.state, 'failed')
+		assert.equal(mapped.error.context.stackResolution, 'vite-current', JSON.stringify(mapped.error))
+		assert.match(mapped.error.context.failures[0].sourceStack, /mapped\.ts:2:\d+/)
+		assert.ok(mapped.error.context.failures[0].stack.includes(address + 'mapped.ts:'))
 		const count = async () => JSON.parse(await (await fetch(address + 'fixture/count')).text())
 		assert.equal(
 			invoke('fixture.read', 'stale', '{}', ['--revision', '0']).error.code,

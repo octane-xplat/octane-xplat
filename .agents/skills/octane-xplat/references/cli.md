@@ -55,7 +55,10 @@ the app's existing execution policy. Read the registry revision, use an explicit
 request key, and poll `actions status` rather than a removed generic job command.
 Disconnect/deadline outcomes can remain unknown; do not automatically retry them
 with a new key. Keys/results are bounded to this dev-server startup, with no
-cross-restart idempotence guarantee. Runtime stacks are not source-map resolved.
+cross-restart idempotence guarantee. Failed action jobs keep raw stacks and may add `sourceStack` from current cached
+Vite maps (`stackResolution: "vite-current"`). This does not prove exact-revision
+mapping or resolution of every frame. Unserved, file/device or unavailable frames
+remain raw; lookup failure does not alter the action outcome or partial effects.
 Go `diagnostics` lists retained foreground engine captures and reads bounded logs,
 including after dev exits. Its capture IDs differ from observed app sessions.
 Never infer liveness or cleanup from a recorded PID. The Go Vite plugin forwards bounded browser warnings, errors, uncaught failures

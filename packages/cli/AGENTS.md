@@ -1112,8 +1112,17 @@ Do not deliver work before the app registration acknowledgement is written.
 Worker validation deadlines, HTTP response budgets and process cleanup budgets
 must fit together. Join background operations and hijacked sockets on foreground
 shutdown; unconfirmed worker cleanup blocks replacement work and retains private
-operation data. Keep app stack provenance explicit until source-map resolution
-has actually occurred.
+operation data. Keep app stack provenance explicit: `runtime-raw` means no Vite
+mapping was retained; `vite-current` means at least one frame was resolved against
+the current served module map, not necessarily the code revision at failure time.
+Keep raw stacks alongside source stacks. Reuse the shared Node/Vite resolver,
+never implement a second source-map engine in Go. Native requests may inspect
+cached served maps only, not transform caller-selected paths. Only observed
+loopback engine origins receive the target-scoped app credential; reject redirects,
+proxies, stale startup/target responses and browser origins. Resolution has a
+separate bounded budget and cannot replace a confirmed failure, partial effects
+or shutdown facts. App-supplied `sourceStack` is not mapping evidence. Unsupported
+file/device frames remain raw until their actual runtime adapter is qualified.
 
 Retained engine captures and observed app sessions have separate IDs and owners.
 Diagnostics must reuse the capture writer's cache-parent function and bounded
