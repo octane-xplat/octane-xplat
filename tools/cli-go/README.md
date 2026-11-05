@@ -157,9 +157,9 @@ invokes an actual AppKit app action. The reused job registry belongs to foregrou
 dev through a lifecycle interface; it never bootstraps the former detached owner.
 The opt-in macOS Chromium gate separately verifies named-DOM inspection and
 programmatic handler dispatch; this is not OS input or native UI inspection.
-The NativeScript relay has host protocol coverage, while actual device
-connection/lifecycle qualification remains pending. Engine readiness alone is
-not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
+The NativeScript relay has host protocol coverage plus the opt-in Android
+emulator and iOS simulator gates below; reconnect/HMR and physical devices
+remain unqualified. Engine readiness alone is not an app connection. Use the [Go CLI entry](../../packages/cli/go/README.md)
 for the current interface. The former detached-owner, asynchronous build/job and
 browser-session runners are preserved in checkpoint `14a7117c`; they are
 superseded experiments, not current release gates.
