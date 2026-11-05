@@ -14,11 +14,11 @@ iOS and Android use, but does not implement every NativeScript widget or CSS
 property. See the [macOS harness](../../apps/macos/README.md) for the current
 component and service limits.
 
-Verification status: the image-crop integration test compiles and mounts the
-public UI barrel, and registered action selectors match their target/action
-strings through direct handler dispatch. OS-level input delivery (a live
-AppKit `performClick`, control edits, gestures) has not been verified end to
-end, and the full application harness has not been reverified by that test.
+The independent packed consumer checks native selector dispatch, geometry,
+element and nested-root cleanup, and retained-root HMR. These are programmatic
+checks on Apple Silicon macOS. Physical input, VoiceOver, visual parity and
+whole-process leak freedom require separate qualification; the full application
+harness is not qualified by this consumer.
 
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-macos-appkit).
@@ -30,8 +30,9 @@ dependencies. The CLI also requires the runtime to be directly declared, even
 though the renderer depends on it. Use one copy of Octane per application.
 Declare `@octane-xplat/cli`, `@octanejs/vite-plugin`, and `vite` as development
 dependencies; the preset resolves these from your app, not from the CLI.
-The maintained consumer uses Octane 0.6.3, the Vite plugin 0.1.61, Vite 8.3.0,
-and the runtime `0.4.4-next.2026-08-09-31292056208`.
+Use the compatible versions supplied by the [toolchain setup](package-toolchain.md);
+the maintained consumer reads the repository's compatibility manifest rather
+than maintaining a second set of version pins.
 
 Apply the framework's [patch setup](package-cli.md)
 before building. For TSX checking, install TypeScript; for TSRX source, also
@@ -67,7 +68,7 @@ Set these TypeScript options:
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
-    "jsxImportSource": "@octane-xplat/macos-appkit",
+    "jsxImportSource": "@octane-xplat/jsx",
     "customConditions": ["macos"],
     "moduleSuffixes": [".macos", ""],
     "lib": ["ESNext"],
@@ -79,7 +80,8 @@ Set these TypeScript options:
 }
 ```
 
-JSX runtime subpaths contain compiler typing declarations; use the Octane Vite
+Declare `@octane-xplat/jsx` for the JSX types shown above. Its runtime subpaths
+contain compiler typing declarations; use the Octane Vite
 compiler to produce runnable code. The preset compiles reachable TSX/TSRX
 source by default. `rules` can override that selection.
 
@@ -155,13 +157,6 @@ registerStylesheet('promo', '.promo { background-color: #fde68a; }')
 
 Current limits:
 
-- Only `:disabled` responds to state. `:hover`, `:active`, `:pressed`, and
-  `:focus` rules never match yet.
-- Media queries are re-checked when the appearance or the stylesheets
-  change, but not when a window resizes.
-- `@keyframes` and `animation-*` are parsed but not played.
-- Labels ignore padding. Per-corner radii and per-side borders collapse to a
-  single value.
 - A text field or text view drops its native bezel and background as soon
   as CSS gives it a background, border, or corner radius.
 - An unsupported property logs `[macos-css] ignored unsupported property`
@@ -208,7 +203,7 @@ export function AccountPage() {
 
 The label renders `Account: Avery` inside the `rootlayout` and reads the same
 provider value as its declaring tree. Run the maintained portal fixture with
-`pnpm --filter @octane-xplat/macos-appkit test:portals` to check context,
+`bun run turbo run test:portals --filter=@octane-xplat/macos-appkit` to check context,
 provider updates, and native child cleanup.
 
 Use [the packaging guide](../start/toolchain.md#experimental-appkit-target)
@@ -431,17 +426,9 @@ export default config
 From this repository:
 
 ```sh
-pnpm --filter @octane-xplat/macos-appkit test
-pnpm --filter @octane-xplat/macos-appkit test:overflow
-pnpm --filter @octane-xplat/macos-appkit test:portals
-pnpm --filter @octane-xplat/macos-appkit test:packed
-pnpm --filter @xplat/macos test:fonts
-pnpm --filter @xplat/macos test:layout-channels
+bun run turbo run test --filter=@octane-xplat/macos-appkit
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit packed verification"}' -- bun run turbo run test:packed --filter=@octane-xplat/macos-appkit
 ```
-
-The overflow check runs an AppKit fixture with long and short strings, assigned
-frame resizing, multiline limits, attributed line height, and prop removals. It
-asserts native values and measurements; it does not inspect rendered pixels.
 
 The packed check uses the renderer and CLI tarballs in a temporary app outside
 the checkout. It checks declarations and production compilation on every
@@ -457,5 +444,5 @@ The maintained nonvisual fixture checks Objective-C gesture target dispatch;
 physical OS input remains a separate manual check.
 
 ```sh
-goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- pnpm --filter @octane-xplat/macos-appkit test:gestures
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"AppKit gesture verification"}' -- bun run turbo run test:gestures --filter=@octane-xplat/macos-appkit
 ```

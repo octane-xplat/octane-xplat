@@ -33,6 +33,12 @@ experimental; native GTK and DOM webviews are different targets. Read
 The [module-resolution guide](../../../../docs/platform/module-resolution.md)
 explains the common suffix and JSX contract.
 
+For AppKit host setup, follow the [renderer guide](../../../../docs/packages/package-macos-appkit.md).
+Use the shared JSX type package rather than a renderer JSX subpath. Keep one
+loaded process runtime and one live root per host; retained-root HMR reuses
+that root. Contributor ownership and cleanup constraints live in the
+[renderer internals](../../../docs/appkit-renderer.md).
+
 For the pinned Windows NativeScript preview's build checker, a `.ts` entry
 must import a TSRX component with an explicit `.tsrx` extension to select the
 TSRX compiler. Its detection does not follow extensionless imports. Keep this
