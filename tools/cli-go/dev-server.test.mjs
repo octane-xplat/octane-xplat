@@ -254,6 +254,20 @@ test(
 			assert.deepEqual(result.data.targets[0].apps, [])
 			assert.equal(cli(f, ['session', 'list'], cwd).data.sessions.length, 0)
 		}
+		const captures = cli(f, ['diagnostics']).data.sessions
+		assert.equal(captures.length, 1)
+		const capture = captures[0]
+		assert.equal(capture.historical, false)
+		assert.equal(capture.ownerId, info.instanceId)
+		const liveLogs = cli(f, ['diagnostics', '--session', capture.sessionId, '--limit', '1']).data
+		assert.equal(liveLogs.logs.historical, false)
+		assert.equal(liveLogs.logs.records.length, 1)
+		assert.equal(liveLogs.coverage.nativeReports.status, 'unavailable')
+		const unsupportedReport = cli(f, ['diagnostics', '--session', capture.sessionId, '--report', 'native'])
+		assert.equal(unsupportedReport.error.code, 'unavailable')
+		assert.equal(unsupportedReport.status, 3)
+		assert.equal(cli(f, ['diagnostics', '--job', 'removed']).error.code, 'invalid_selection')
+		assert.equal(cli(f, ['diagnostics', '--session', capture.sessionId, '--platform', 'ios']).error.code, 'invalid_selection')
 		assert.equal(owned.ended, false)
 		assert.match(await (await fetch(address)).text(), /Explicit foreground dev server/)
 		assert.equal(
@@ -297,6 +311,13 @@ test(
 			10000,
 		)
 		assert.equal(cli(f, ['targets']).error.code, 'disconnected_runtime')
+		const endedLogs = cli(f, ['diagnostics', '--session', capture.sessionId]).data
+		assert.equal(endedLogs.logs.historical, true)
+		// Forced Windows termination can leave the last metadata snapshot unfinished;
+		// it must never infer cleanup from an absent server or recorded PID.
+		if (process.platform !== 'win32') assert.equal(endedLogs.session.cleanupConfirmed, true)
+		assert.ok(endedLogs.logs.records.length > 0)
+		assert.equal(cli(f, ['diagnostics']).data.sessions[0].sessionId, capture.sessionId)
 	},
 )
 

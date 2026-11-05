@@ -61,6 +61,9 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 					entry["status"] = "unavailable"
 					entry["detail"] = "NativeScript device relay/WebSocket adapters are not implemented. Engine spawn does not establish app attachment."
 				}
+			case "logs":
+				entry["status"] = "partial"
+				entry["detail"] = "Native retained foreground engine logs are readable live or offline with bounded cursor pagination. Native crash reports and app-console capture are unavailable; observed app sessions use separate identities."
 			case "dev_actions":
 				entry["status"] = "partial"
 				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Stack locations remain runtime-raw; platform qualification is separate."

@@ -87,6 +87,12 @@ func (view *devTargetView) dispatch(ctx context.Context, command string, values 
 		return nil, &cliError{Code: "unavailable", Message: "The dev server is still initializing."}
 	}
 	switch command {
+	case "diagnostics":
+		parent, err := diagnosticsHistoryParent()
+		if err != nil {
+			return nil, executionFailure(err)
+		}
+		return readDevDiagnostics(ctx, parent, view.appRoot, server.record.InstanceID, values)
 	case "actions invoke":
 		return server.actions.invoke(ctx, values)
 	case "actions status":

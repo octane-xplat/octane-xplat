@@ -1115,6 +1115,16 @@ shutdown; unconfirmed worker cleanup blocks replacement work and retains private
 operation data. Keep app stack provenance explicit until source-map resolution
 has actually occurred.
 
+Retained engine captures and observed app sessions have separate IDs and owners.
+Diagnostics must reuse the capture writer's cache-parent function and bounded
+history reader. Lookup must not create missing directories. Only an authenticated
+foreground-server response establishes a current owner; a stored PID or session
+state cannot establish liveness or cleanup. Offline reads preserve evidence while
+marking unfinished captures historical/disconnected. Keep filtered cursor behavior,
+rotation errors and incomplete tails visible; never convert malformed evidence to
+an empty successful page. Engine logs do not substitute for app-console or OS
+crash-report capture. Declare those coverage gaps explicitly.
+
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or

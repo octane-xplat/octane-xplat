@@ -95,6 +95,21 @@ export function goDevContracts(source) {
 	for (const command of metadata.catalog.commands) {
 		if (command.command === 'actions status') command.requiresBoundApp = true
 	}
+	// Go has foreground captures, not the superseded detached build-job API.
+	const diagnostics = metadata.descriptors.find(({ name }) => name === 'diagnostics')
+	diagnostics.context = 'app'
+	diagnostics.summary = 'List retained foreground engine captures or read bounded logs; app sessions and native crash reports are separate'
+	diagnostics.flags = diagnostics.flags.filter(({ flag }) => flag !== 'job')
+	diagnostics.flags.find(({ flag }) => flag === 'session').desc = 'Engine capture ID returned by diagnostics; distinct from observed app sessions'
+	for (const item of [metadata.schemas.diagnostics, ...metadata.catalog.commands.filter(({ command }) => command === 'diagnostics')]) {
+		item.requiresBoundApp = true
+		item.summary = diagnostics.summary
+		item.input.flags = item.input.flags.filter(({ flag }) => flag !== '--job')
+		item.input.flags.find(({ flag }) => flag === '--session').description = diagnostics.flags.find(({ flag }) => flag === 'session').desc
+		item.output.description = 'Engine capture sessions, or {session, logs, reports, coverage}. Native reports and app console capture are explicitly unavailable.'
+		item.errors = item.errors.map((error) => ({ ...error, when: error.when.replace('run, session or job capture', 'engine capture session') }))
+		item.errors.push({ code: 'unavailable', exit: 3, when: 'Native crash-report discovery and original report reads are not implemented' })
+	}
 	metadata.schemas = Object.fromEntries(
 		Object.entries(metadata.schemas)
 			.filter(([name]) => !removed.has(name))

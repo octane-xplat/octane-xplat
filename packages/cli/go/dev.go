@@ -329,10 +329,10 @@ func devCommand(parent context.Context, values map[string]any) (failure error) {
 			fmt.Fprintf(os.Stderr, "Development terminal omitted %d lines due to backpressure or shutdown; retained logs are separate.\n", dropped)
 		}
 	}()
-	cache, err := os.UserCacheDir()
+	cache, err := diagnosticsHistoryParent()
 	var store *historyStore
 	if err == nil {
-		store, err = openHistoryStore(filepath.Join(cache, "octane-xplat", "cli-go"), project)
+		store, err = openHistoryStore(cache, project)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Development log capture unavailable:", err)

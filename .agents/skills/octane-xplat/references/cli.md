@@ -55,7 +55,15 @@ request key, and poll `actions status` rather than a removed generic job command
 Disconnect/deadline outcomes can remain unknown; do not automatically retry them
 with a new key. Keys/results are bounded to this dev-server startup, with no
 cross-restart idempotence guarantee. Runtime stacks are not source-map resolved.
-Full diagnostics and UI controls remain pending.
+Go `diagnostics` lists retained foreground engine captures and reads bounded logs,
+including after dev exits. Its capture IDs differ from observed app sessions.
+Never infer liveness or cleanup from a recorded PID. App-console capture, native
+crash reports and UI controls remain pending.
+
+```sh
+/absolute/path/to/xplat-go diagnostics --json
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --limit 50 --stream stderr --json
+```
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action ACTION_ID --instance APP_INSTANCE --revision REVISION --input '{}' --request-key REQUEST_KEY --json

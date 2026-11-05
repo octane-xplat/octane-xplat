@@ -134,7 +134,7 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
 The real app registry still owns handler execution, serialization and validation.
-Full diagnostics and UI controls remain pending.
+Native diagnostics reads retained foreground engine logs; app-console capture, native crash reports and UI controls remain pending.
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
@@ -161,6 +161,23 @@ invalid result does not undo completed effects. Failure stacks are labelled
 `runtime-raw`; source-map resolution remains separate work. Node validation is
 bounded and native group/Job cleanup finishes before private worker data removal.
 Unconfirmed worker cleanup blocks further action admission and retains evidence.
+
+`diagnostics` lists this app's engine captures, with IDs separate from observed
+app sessions. Read a capture using its returned ID; `--cursor` continues after a
+sequence and `--stream` filters stdout, stderr or lifecycle. Without a cursor,
+reads return the most recent records. An authenticated running dev server can
+confirm its current owner; offline reads mark unfinished captures disconnected
+and preserve cleanup uncertainty. Reads create no missing cache or dev server.
+
+```sh
+/absolute/path/to/xplat-go diagnostics --project /work/repo --app apps/web --json
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --cursor 0 --limit 50 --stream stderr --project /work/repo --app apps/web --json
+```
+
+Logs remain readable after foreground dev exits. Native crash reports and app
+console capture are explicitly unavailable in this implementation; engine output
+does not prove their absence. `--report` fails with `unavailable`. The removed
+detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project

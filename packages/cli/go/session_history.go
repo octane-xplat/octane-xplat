@@ -597,6 +597,7 @@ type historyLogs struct {
 	Coverage       string          `json:"coverage"`
 }
 
+var errHistoryCursorAhead = errors.New("cursor is ahead of this session; use a cursor returned for the same session id")
 var errHistoryChanged = errors.New("retained history changed during the read; retry")
 var errHistoryRotated = errors.New("log files rotated during the read; retry")
 
@@ -662,7 +663,7 @@ func (store *historyStore) Logs(id, owner string, cursor *int64, limit int, stre
 		}
 	}
 	if cursor != nil && *cursor > result.NewestSeq {
-		return result, errors.New("cursor is ahead of this session; use a cursor returned for the same session id")
+		return result, errHistoryCursorAhead
 	}
 	after := int64(0)
 	if cursor != nil {

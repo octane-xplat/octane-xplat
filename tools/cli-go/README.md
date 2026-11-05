@@ -487,3 +487,9 @@ Frozen core snapshots expose `test:go-dev-server:portable` alongside
 actual binaries on each host before claiming qualification. Windows forced
 process termination and Job cleanup do not qualify console Ctrl-C. These
 headless gates do not launch a browser or inspect images.
+
+The foreground server test also reads native diagnostics while the engine runs
+and after it stops. It verifies capture owner identity, bounded pagination,
+platform mismatch rejection, offline records and explicit unavailable crash-report
+coverage. Engine capture IDs remain separate from observed app session IDs;
+forced Windows shutdown does not prove a final metadata cleanup write.
