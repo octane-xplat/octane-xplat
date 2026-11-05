@@ -30,7 +30,7 @@ interface Dependencies {
   inputElements: Pick<InputElements, 'setTextFieldPlaceholder'>
   registry: Pick<Registry, 'isManualLayoutParent' | 'adapterFor'>
   layout: Pick<Layout, 'queueLayoutReconcile' | 'layoutView' | 'MARGIN_SIDES' | 'setMarginStyle'>
-  cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp' | 'applyClassName'>
+  cssCascade: Pick<CssCascade, 'warnUnsupportedCssProp'>
   accessibleHost: Pick<AccessibleHost, 'inputTransparentViews'>
   pointerStyle: Pick<PointerStyle, 'syncCursor' | 'syncUserSelect'>
   boxPaint: Pick<BoxPaint, 'applyBoxStyle' | 'isPaintStyle'>
@@ -719,9 +719,6 @@ export function createNativeStyle(deps: Dependencies) {
     }
   }
 
-  function applyClassNameProp(node: ElementNode, value: any) {
-    deps.cssCascade.applyClassName(node, value)
-  }
   return {
     fontForStyle,
     setSizeConstraint,

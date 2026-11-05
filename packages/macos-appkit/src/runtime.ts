@@ -255,10 +255,6 @@ const nativeStyle = createNativeStyle({
       assertRuntimeActive('nativeStyle.warnUnsupportedCssProp')
       return cssCascade.warnUnsupportedCssProp(...args)
     },
-    applyClassName(...args) {
-      assertRuntimeActive('nativeStyle.applyClassName')
-      return cssCascade.applyClassName(...args)
-    },
   },
   accessibleHost,
   pointerStyle,

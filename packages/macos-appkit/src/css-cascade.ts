@@ -47,14 +47,6 @@ export function createCssCascade(deps: Dependencies) {
     )
   }
 
-  function cssParentOf(node: ElementNode): ElementNode | null {
-    let parent = node.parent
-    while (parent && parent.view == null && parent.type !== 'proxyviewcontainer') {
-      parent = parent.parent
-    }
-    return parent
-  }
-
   /** Root container top-level nodes (incl. portal/list-cell/sheet roots) carry
    *  the NS ambient classes: ns-root, ns-macos, ns-light|ns-dark. */
   function isCssRootNode(node: ElementNode): boolean {

@@ -817,7 +817,7 @@ test('effectiveStyle tolerates a missing node (empty actionbar intrinsicContentS
   const { effectiveStyle } = runSlice(
     source.slice(
       source.indexOf('function effectiveStyle'),
-      source.indexOf('function applyClassNameProp'),
+      source.indexOf('function textContent'),
     ) + '\n({ effectiveStyle })',
     {},
   )
