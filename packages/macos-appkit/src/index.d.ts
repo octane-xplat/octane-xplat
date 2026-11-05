@@ -2,6 +2,7 @@ import '@nativescript/macos-node-api'
 import { NSFontDescriptor, NSView } from '@octane-xplat/platform/macos'
 
 export * from 'octane/universal/native'
+export type { AppKitView, ElementNode } from './model'
 export interface MacOSRootOptions {
   /** Default font family for this root and its renderer-hosted overlays. */
   fontFamily?: string

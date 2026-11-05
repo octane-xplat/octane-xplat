@@ -1,6 +1,6 @@
 import type { JSX as SharedJSX } from '@octane-xplat/jsx/jsx-runtime'
 import { createMacOSRoot, registerFontFamily } from '@octane-xplat/macos-appkit'
-import type { MacOSRootOptions } from '@octane-xplat/macos-appkit'
+import type { AppKitView, ElementNode, MacOSRootOptions } from '@octane-xplat/macos-appkit'
 import type { XplatMacOSOptions } from '@octane-xplat/cli/macos/vite'
 import type { JSX } from '@octane-xplat/jsx/intrinsics'
 import type { jsx } from '@octane-xplat/jsx/jsx-runtime'
@@ -8,6 +8,11 @@ import type { jsxs } from '@octane-xplat/jsx/jsx-dev-runtime'
 
 declare const host: Parameters<typeof createMacOSRoot>[0]
 declare const descriptor: Parameters<typeof registerFontFamily>[1][number]['descriptor']
+// The declaration entry must preserve the source barrel's open extension types.
+export function ownedView(node: ElementNode): AppKitView | null {
+  node.pluginState = { active: true }
+  return node.view
+}
 const options: MacOSRootOptions = { fontFamily: 'system-ui' }
 createMacOSRoot(host, options).unmount()
 registerFontFamily('Test', [{ weight: 400, descriptor }])
