@@ -225,12 +225,13 @@ detached build-job surface has no diagnostics `--job` selector.
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
 Vite and a headless AppKit JavaScriptCore host, including native action invocation
-and status. The experimental NativeScript relay has real API 35 ARM64 Android
-registration, read-only invocation/status, short-client lifetime and foreground
-engine cleanup evidence. Reconnect/HMR, other devices and iOS remain unqualified. With an explicit
+and status. The experimental NativeScript relay has real registration, read-only
+invocation/status, short-client lifetime and foreground engine cleanup evidence on
+an API 35 ARM64 Android emulator and an iOS 27 arm64 simulator. Reconnect/HMR,
+physical devices and other runtimes remain unqualified. With an explicit
 Go dev grant, the ordinary NativeScript preset configures the relay automatically
 and the native client resolves it against its existing HTTP origin. The provider
-reports partial Android attachment/actions and unavailable iOS attachment/actions.
+reports partial Android and iOS attachment/actions.
 
 ```ts
 import { defineConfig } from 'vite'

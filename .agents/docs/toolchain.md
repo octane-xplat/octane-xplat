@@ -26,9 +26,10 @@ RPC authorization. The maintained macOS gates exercise actual Chromium actions,
 named-DOM inspection and programmatic handler dispatch, and actual AppKit action
 registration/invocation through the host's Foundation WebSocket shim. These are
 separate from OS-input or device qualification. The NativeScript preset now
-supplies an experimental project-Vite WebSocket relay. Actual API 35 ARM64 Android
-registration, read-only action invocation/status and short-client lifetime pass;
-reconnect/HMR, other devices and iOS qualification remain pending. Direct loopback sockets require
+supplies an experimental project-Vite WebSocket relay. Actual registration,
+read-only action invocation/status and short-client lifetime pass on an API 35
+ARM64 Android emulator and an iOS 27 arm64 simulator (`test:go-dev-ios-real`);
+reconnect/HMR, physical devices and other runtimes remain pending. Direct loopback sockets require
 same-host reachability and a runtime WebSocket implementation. Action invocation/status delegate JS field/default/RegExp and execution-policy
 validation to the selected project worker, while foreground Go owns request
 identity, deadlines, dedupe, outcomes and cleanup. Invocation never creates a
@@ -471,6 +472,12 @@ experience of agents writing Octane-xplat code effectively.
   upstream release resolves HTTP module paths through the importing SDK's
   transitive dependency context. Do not hoist or add undeclared app dependencies
   merely to make this route pass.
+- **NativeScript iOS cannot build an app whose directory is named `app`.**
+  NativeScript 9.1 names the generated Xcode project and executable after the
+  app directory, and its JS bundle folder is always `app`. Xcode then fails with
+  `Multiple commands produce '…/app.app/app'`; pinning simulator architectures
+  does not help. Name disposable fixture directories something else (the iOS
+  relay gate uses `relay-fixture`).
 - **Hoisted workspaces need the canonical exports-reverse-map fix on
   NativeScript Vite 8.0.20.** Its runtime-plugin bare-specifier fold reads
   `projectRoot/node_modules/<pkg>/package.json` literally, so in a

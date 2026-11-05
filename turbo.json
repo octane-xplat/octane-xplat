@@ -27,6 +27,7 @@
 		"test:go-nativescript-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/app#gen", "@xplat/mobile#typecheck"], "passThroughEnv": ["XPLAT_GO_NS_TARGET", "ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME", "DEVELOPER_DIR"] },
 		"test:go-dev-android-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/mobile#typecheck"], "passThroughEnv": ["ANDROID_HOME", "ANDROID_SDK_ROOT", "JAVA_HOME"] },
 		"test:go-dev-android-http": { "cache": false, "dependsOn": ["build"], "passThroughEnv": ["XPLAT_GO_ANDROID_HTTP_APP"] },
+		"test:go-dev-ios-real": { "cache": false, "dependsOn": ["build:go", "build", "@xplat/mobile#typecheck"], "passThroughEnv": ["DEVELOPER_DIR"] },
 		"test:go-linux-build": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-build": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build"] },
 		"test:go-lint": { "cache": false, "dependsOn": ["build:go", "@octane-xplat/build#build", "@octane-xplat/lib#build", "@octane-xplat/lint#build"] },

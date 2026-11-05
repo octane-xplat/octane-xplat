@@ -58,8 +58,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				entry["status"] = "partial"
 				entry["detail"] = "Observes an app already connected over the dev WebSocket. Requires a runtime WebSocket implementation; platform/app qualification remains separate. Clients never start or terminate apps."
 				if platform == "ios" {
-					entry["status"] = "unavailable"
-					entry["detail"] = "The project-Vite relay is implemented, but iOS app attachment is not device-qualified. Engine spawn does not establish app attachment."
+					entry["detail"] = "Experimental iOS app registration through project Vite is verified on an iOS 27 arm64 simulator. Observers never own app lifetime; reconnect/HMR, physical devices and other runtimes remain unqualified."
 				} else if platform == "android" {
 					entry["detail"] = "Experimental Android app registration through project Vite is verified on an API 35 ARM64 emulator. Observers never own app lifetime; reconnect/HMR and broader device lifecycle remain unqualified."
 				}
@@ -83,8 +82,7 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 				entry["status"] = "partial"
 				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Raw stacks are retained; current served Vite maps may enrich HTTP frames. File/device mapping and platform qualification remain separate."
 				if platform == "ios" {
-					entry["status"] = "unavailable"
-					entry["detail"] = "An experimental project-Vite app relay is implemented, but iOS device connection and lifecycle are not runtime-qualified."
+					entry["detail"] = "Experimental iOS read-only action invocation/status and short-client lifetime are verified through Go, project Vite and a real iOS 27 arm64 simulator. Reconnect/HMR, broader action effects, physical devices and other runtimes remain unqualified."
 				} else if platform == "android" {
 					entry["detail"] = "Experimental Android read-only action invocation/status and short-client lifetime are verified through Go, project Vite and a real API 35 ARM64 emulator. Reconnect/HMR, broader action effects and other devices remain unqualified."
 				}

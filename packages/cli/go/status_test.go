@@ -13,12 +13,8 @@ func TestMobileCapabilitiesKeepDeviceQualificationBounded(t *testing.T) {
 			found[entry["capability"].(string)] = entry["status"].(string)
 		}
 		for _, capability := range []string{"attach", "dev_actions"} {
-			want := "unavailable"
-			if platform == "android" {
-				want = "partial"
-			}
-			if found[capability] != want {
-				t.Fatalf("%s %s = %s; want %s", platform, capability, found[capability], want)
+			if found[capability] != "partial" {
+				t.Fatalf("%s %s = %s; want partial", platform, capability, found[capability])
 			}
 		}
 		for _, capability := range []string{"ui_inspection", "screenshot", "interaction"} {

@@ -624,3 +624,21 @@ Its explicit exit status is independent of project exception handlers.
 ```sh
 XPLAT_GO_ANDROID_HTTP_APP="$PWD/apps/mobile" bun run turbo run test:go-dev-android-http --filter=@octane-xplat/cli
 ```
+
+The opt-in iOS relay gate builds the same small disposable app for the iOS
+simulator. It asserts the designated existing simulator
+`91D40099-A056-497D-A572-ADDDFD6A8F23` is present and available before starting —
+it never creates, clones, erases or selects a device by name — then checks a
+read-only action through the real Go foreground server, project Vite and the
+device WebSocket. It checks that short CLI clients leave the app alive, then
+stops foreground dev, terminates and uninstalls only its unique fixture bundle
+id, and shuts the simulator down only when it started Shutdown. Reserve
+`native_builds:1`, `resident_devices:1` and
+`exclusive:["ios:91D40099-A056-497D-A572-ADDDFD6A8F23"]` around this explicit
+native workflow; it is excluded from ordinary PR checks. It captures text only
+and does not prove OS input, rendering, TLS, reconnect/HMR or other
+devices/runtimes.
+
+```sh
+bun run turbo run test:go-dev-ios-real --filter=@octane-xplat/cli
+```
