@@ -413,3 +413,23 @@ fully responsive throughout: service suite 105/105 assertions (launch
 projected WinRT objects cannot cross `dotnet.invoke` and Task-returning
 bridge calls deadlock the dialog pump. Completed-selection, typed-filename,
 and save-commit evidence remain the next qualification increments.
+
+## Pickers fully qualified: completed selection + save commit (1.0.0.227)
+
+On `org.octanexplat.windows61` 1.0.0.227 (source `e82bb1d24`, bounded):
+`files.pick` completed a real OS selection — the driver typed
+`Documents\core20-pick-target.txt` into the open `FileOpenPicker` and the
+leaf resolved `ok:core20-pick-target.txt` with `files.readText` returning
+`core20-pick-content` through the `FutureAccessList` token grant.
+`files.export` committed through `FileSavePicker` — typed destination
+`Documents\core20-exported.txt` verified on disk with the payload bytes —
+via the stream write (`FileIO.WriteBytesAsync` rejects on token-granted
+files, `HRESULT 0x80004005`). `files.pick`/`pickMultiple`/`export` are
+therefore genuinely supported on packaged Windows: dialog display,
+completed selection, cancel (`cancelled`/`pending-dialog`+Escape), busy
+guard (`fail:busy`), token read-through, and save commit all carry
+packaged evidence. Service suite: 110/110 assertions (launch `mw2wh645`);
+files-identity 12/12, storage-verify 8/8, secure-verify 9/9. Remaining:
+`pickMultiple` multi-select evidence and the upstream issue for the two
+bridge limitations (`dotnet.invoke` WinRT-object marshalling; caller-thread
+Task await).

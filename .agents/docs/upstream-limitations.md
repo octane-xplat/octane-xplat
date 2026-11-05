@@ -190,9 +190,16 @@ the picker in-process, initializes the owner HWND acquired through
 on the captured `DispatcherQueue`, and returns `token|path` entries via
 `FutureAccessList`; JS polls `PickState`. Verified on 1.0.0.224: the
 managed pick reported `pending` for 8 s (a live dialog) while the JS-side
-invoke rejected `WinRT async operation failed` — and `files.pick`/
-`pickMultiple`/`export` are now implemented on this path pending packaged
-verification. WASDK 1.8 `Microsoft.Windows.Storage.Pickers` is absent on
+invoke rejected `WinRT async operation failed` — and `files.pick`/`pickMultiple`/
+`export` ship on this path — qualified on 1.0.0.227: a typed-path
+selection returned `ok:core20-pick-target.txt` with `FutureAccessList`
+token read-through (`files.readText` -> `core20-pick-content`), a
+typed-destination save committed `files.export` -> `saved` (verified
+driver-side on disk), and a concurrent pick returned the `fail:busy`
+guard. `FileIO.WriteBytesAsync` rejects on token-granted files
+(`HRESULT 0x80004005`, same as upstream's other broken `StorageFile`
+members); export writes through `OpenAsync(ReadWrite)` +
+`GetOutputStreamAt` + `WriteAsync` + `Flush` instead. WASDK 1.8 `Microsoft.Windows.Storage.Pickers` is absent on
 pinned WASDK 1.6 — confirmed dead end.
 
 Upstream status: reported — [NativeScript/NativeScript#11613](https://github.com/NativeScript/NativeScript/issues/11613)
