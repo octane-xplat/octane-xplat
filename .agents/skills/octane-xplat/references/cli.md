@@ -49,7 +49,8 @@ action listing. `session attach --instance APP_INSTANCE` observes an existing
 app; it never owns or terminates it. Engine progress remains separate from app
 connections. Direct loopback transport requires same-host reachability and a
 runtime WebSocket implementation; NativeScript device relay/runtime WebSocket adapters remain unimplemented,
-and browser app-action transport/UI controls remain unqualified. Browser console
+and non-browser UI adapters remain unqualified. Browser action invocation also
+remains unqualified; a successful inspection is not an action-workflow pass. Browser console
 forwarding has separate headless Chromium evidence. Native action invocation/status now use canonical project-worker validation and
 the app's existing execution policy. Read the registry revision, use an explicit
 request key, and poll `actions status` rather than a removed generic job command.
@@ -70,9 +71,16 @@ hiding logs. NativeScript package identity is captured only from selected-device
 output, without PID or readiness claims. Android exit-history reads are scoped to
 that package/device and retain candidate records, not full traces. Mobile identity,
 iOS parsing and Android collection have unit/reference evidence; device runtime
-qualification is still pending. A failed device setup is not a runtime pass. UI controls remain pending.
+qualification is still pending. A failed device setup is not a runtime pass. Read-only browser inspection uses the
+connected app's fixed named-host inspector and per-document identity. It redacts
+private values and never focuses controls, dispatches input or starts a browser.
+Evidence list/delete are scoped to this selected app/dev-server startup, bounded
+and ephemeral; they cannot erase a client transcript. Interactions, OS input,
+visual capture and explicit evidence retention remain pending.
 
 ```sh
+/absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
+/absolute/path/to/xplat-go evidence list --kind inspection --json
 /absolute/path/to/xplat-go diagnostics --json
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --limit 50 --stream stderr --json
 ```

@@ -215,6 +215,26 @@ interface RunningInvocation {
 	active: Set<HandlerEntry>
 }
 
+// Structural protocol only; browser code is installed by its development Vite
+// plugin. Other hosts and SSR have no inspector and must not advertise one.
+interface AppDebugInspector {
+	version: 1
+	documentId: string
+	inspect(args: unknown): unknown
+}
+
+function appDebugInspector(): AppDebugInspector | undefined {
+	const candidate = (globalThis as unknown as Record<string, AppDebugInspector | undefined>)[
+		'octane-xplat.dev-inspector'
+	]
+	return candidate?.version === 1 &&
+		typeof candidate.documentId === 'string' &&
+		candidate.documentId.length <= 128 &&
+		typeof candidate.inspect === 'function'
+		? candidate
+		: undefined
+}
+
 interface BridgeRuntime {
 	endpoint: {
 		origin: string
@@ -446,6 +466,7 @@ const declarations = (state: RegistryState) =>
 	})
 
 const snapshot = (state: RegistryState, appLabel?: string) => {
+	const inspector = appDebugInspector()
 	let location: { route: string | null; modal: boolean } | undefined
 	try {
 		location = state.navigator?.impl.location()
@@ -459,6 +480,7 @@ const snapshot = (state: RegistryState, appLabel?: string) => {
 		appInstanceId: state.instanceId,
 		...(appLabel ? { appLabel } : {}),
 		platform: devBridgePlatform(),
+		...(inspector ? { inspection: { version: 1, documentId: inspector.documentId } } : {}),
 		revision: state.revision,
 		announcedAt: new Date().toISOString(),
 		...(location !== undefined ? { location } : {}),
@@ -807,10 +829,15 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
 	state.bridge = rt
 	state.appLabel = options.appLabel
 
-	if (rt.endpoint.socket) connectAppSocket(rt)
-	else void announceOnce(rt)
+	if (rt.endpoint.socket) {
+		connectAppSocket(rt)
+	} else {
+		void announceOnce(rt)
+	}
 	rt.timer = setInterval(() => void announceOnce(rt), options.intervalMs ?? ANNOUNCE_INTERVAL_MS)
-	if (!rt.endpoint.socket) void pollLoop(rt)
+	if (!rt.endpoint.socket) {
+		void pollLoop(rt)
+	}
 
 	return {
 		instanceId: state.instanceId,
@@ -829,7 +856,9 @@ function stopBridge(rt: BridgeRuntime) {
 	rt.announcing = false
 	rt.state = 'stopped'
 	rt.controller.abort()
-	if (rt.reconnect) clearTimeout(rt.reconnect)
+	if (rt.reconnect) {
+		clearTimeout(rt.reconnect)
+	}
 	rt.socket?.close()
 	if (rt.timer) {
 		clearInterval(rt.timer)
@@ -864,6 +893,7 @@ async function announceOnce(rt: BridgeRuntime) {
 				rt.socket.close()
 			}
 		}
+
 		return
 	}
 
@@ -897,7 +927,9 @@ async function announceOnce(rt: BridgeRuntime) {
 }
 
 function connectAppSocket(rt: BridgeRuntime) {
-	if (!rt.polling || !rt.endpoint.socket) return
+	if (!rt.polling || !rt.endpoint.socket) {
+		return
+	}
 	let socket: AppDebugSocket
 	try {
 		const connection = devBridgeSocket(rt.endpoint.socket)
@@ -906,6 +938,7 @@ function connectAppSocket(rt: BridgeRuntime) {
 			rt.lastError = 'No WebSocket implementation in this runtime'
 			return
 		}
+
 		socket = connection
 	} catch {
 		rt.state = 'degraded'
@@ -937,10 +970,14 @@ function connectAppSocket(rt: BridgeRuntime) {
 		}
 	}
 	socket.onmessage = (event) => {
-		if (rt.socket !== socket || !rt.polling) return
+		if (rt.socket !== socket || !rt.polling) {
+			return
+		}
 		try {
-			if (typeof event.data !== 'string' || event.data.length > 1 << 20)
+			if (typeof event.data !== 'string' || event.data.length > 1 << 20) {
 				throw Error('invalid app frame')
+			}
+
 			const frame = JSON.parse(event.data)
 			if (
 				frame.type === 'registered' &&
@@ -950,10 +987,55 @@ function connectAppSocket(rt: BridgeRuntime) {
 			) {
 				rt.state = 'live'
 				rt.lastError = undefined
+			} else if (frame.type === 'inspect' && rt.state === 'live') {
+				if (
+					typeof frame.requestId !== 'string' ||
+					!frame.requestId ||
+					frame.requestId.length > 128
+				) {
+					throw Error('invalid inspection request')
+				}
+
+				const inspector = appDebugInspector()
+				let result: unknown
+				try {
+					result = inspector?.inspect(frame.args) ?? {
+						error: { code: 'unsupported_capability', message: 'No app inspector in this runtime.' },
+					}
+				} catch {
+					result = {
+						error: { code: 'execution_failure', message: 'The fixed app inspection failed.' },
+					}
+				}
+
+				const response = JSON.stringify({ type: 'inspection', requestId: frame.requestId, result })
+				if (response.length > 64 * 1024) {
+					socket.send(
+						JSON.stringify({
+							type: 'inspection',
+							requestId: frame.requestId,
+							result: {
+								error: {
+									code: 'unavailable',
+									message: 'Inspection result exceeds its bound; use a smaller page.',
+								},
+							},
+						}),
+					)
+				} else {
+					socket.send(response)
+				}
 			} else if (frame.type === 'work' && rt.state === 'live') {
-				for (const request of frame.invocations ?? []) void dispatchInvocation(rt, request)
-				for (const requestId of frame.cancel ?? []) requestCancel(requestId)
-			} else throw Error('invalid app frame')
+				for (const request of frame.invocations ?? []) {
+					void dispatchInvocation(rt, request)
+				}
+
+				for (const requestId of frame.cancel ?? []) {
+					requestCancel(requestId)
+				}
+			} else {
+				throw Error('invalid app frame')
+			}
 		} catch {
 			rt.state = 'degraded'
 			rt.lastError = 'Invalid app debug response'
@@ -967,7 +1049,9 @@ function connectAppSocket(rt: BridgeRuntime) {
 		}
 	}
 	socket.onclose = () => {
-		if (rt.socket !== socket) return
+		if (rt.socket !== socket) {
+			return
+		}
 		rt.socket = undefined
 		if (rt.polling) {
 			rt.state = 'degraded'
@@ -1060,6 +1144,7 @@ async function postOutcome(rt: BridgeRuntime, outcome: DevActionOutcome) {
 				rt.socket.close()
 			}
 		}
+
 		return
 	}
 

@@ -703,3 +703,137 @@ test(
 		)
 	},
 )
+
+test(
+	'connected browser inspection reads actual named hosts without owning app lifetime',
+	{ skip: process.env.XPLAT_GO_BROWSER_LOGS !== '1', timeout: 90000 },
+	async () => {
+		const f = fixture()
+		for (const name of [
+			'dev-actions-registry.ts',
+			'dev-actions-schema.ts',
+			'dev-bridge-socket.ts',
+		]) {
+			cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
+		}
+		cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
+		put(
+			f.app,
+			'index.html',
+			`<!doctype html><html><body>
+ <button id="button" data-testid="counter.increment">Read without clicking</button>
+ <div id="value">Visible count 0</div>
+ <input id="password" type="password" value="never-return-password">
+ <section id="private" data-xplat-private><span>never-return-private-text</span></section>
+ <input id="hidden" type="hidden" value="never-return-hidden">
+ <button data-testid="duplicate">First</button><button data-testid="duplicate">Second</button>
+ <script type="module">import {startDevActionBridge} from '/dev-actions-registry.ts';startDevActionBridge({appLabel:'Actual browser inspector'});</script>
+ </body></html>`,
+		)
+		put(
+			f.app,
+			'vite.config.mjs',
+			`import {xplatDevBridge} from '@octane-xplat/cli/vite';export default{server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge()]}`,
+		)
+		const owned = start(f)
+		const address = await until(
+			() => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
+			() => owned.stdout + ' ' + owned.stderr,
+		)
+		const requireWeb = createRequire(join(root, 'apps/web/package.json'))
+		const browser = await requireWeb('playwright').chromium.launch({ headless: true })
+		try {
+			const page = await browser.newPage()
+			await page.goto(address)
+			let session
+			await until(
+				() => {
+					session = cli(f, ['session', 'list']).data?.sessions.find(
+						(value) => value.inspection?.version === 1 && value.state === 'ready',
+					)
+					return session
+				},
+				() => owned.stdout + ' ' + owned.stderr,
+			)
+
+			const inspect = (...args) => cli(f, ['inspect', session.sessionId, ...args])
+			const all = inspect()
+			assert.equal(all.status, 0, JSON.stringify(all.error))
+			assert.equal(all.data.total, 7)
+			assert.equal(all.data.documentId, session.inspection.documentId)
+			assert.ok(
+				all.data.controls.some(
+					(control) => control.id === 'value' && control.text === 'Visible count 0',
+				),
+			)
+
+			assert.ok(!JSON.stringify(all).includes('never-return-'))
+			for (const id of ['password', 'private', 'hidden']) {
+				const control = all.data.controls.find((control) => control.id === id)
+				assert.equal(control.sensitive, true)
+				assert.equal(control.text, '[redacted]')
+				assert.equal(control.value, '[redacted]')
+			}
+
+			const focused = await page.evaluate(() => document.activeElement?.id)
+			const selected = inspect('--id', 'button')
+			assert.equal(selected.status, 0)
+			assert.equal(selected.data.controls.length, 1)
+			assert.equal(
+				await page.evaluate(() => document.activeElement?.id),
+				focused,
+				'read-only inspection changed focus',
+			)
+
+			const bounded = inspect('--limit', '2')
+			assert.equal(bounded.data.controls.length, 2)
+			assert.equal(bounded.data.nextOffset, 2)
+			assert.equal(inspect('--offset', '2', '--limit', '2').data.controls[0].id, 'password')
+			assert.equal(inspect('--testid', 'duplicate').error.code, 'ambiguous_selection')
+			assert.equal(inspect('--id', 'absent').error.code, 'not_found')
+			assert.equal(
+				inspect('--id', 'button', '--testid', 'duplicate').error.code,
+				'invalid_selection',
+			)
+
+			const evidenceId = all.data.evidence.id
+			const inventory = cli(f, ['evidence', 'list'])
+			assert.equal(inventory.status, 0, JSON.stringify(inventory.error))
+			assert.ok(
+				inventory.data.evidence.some(
+					(record) => record.id === evidenceId && record.provenance.sessionId === session.sessionId,
+				),
+			)
+
+			assert.ok(!JSON.stringify(inventory).includes('never-return-'))
+			assert.equal(cli(f, ['evidence', 'delete', evidenceId]).status, 0)
+			assert.equal(cli(f, ['evidence', 'delete', evidenceId]).error.code, 'not_found')
+			const previous = session.sessionId,
+				document = all.data.documentId
+
+			await page.reload()
+			await until(
+				() =>
+					cli(f, ['session', 'list']).data?.sessions.some(
+						(value) =>
+							value.sessionId !== previous &&
+							value.inspection?.documentId !== document &&
+							value.state === 'ready',
+					),
+				'new browser document not observed',
+			)
+
+			assert.equal(cli(f, ['inspect', previous]).error.code, 'disconnected_runtime')
+			assert.equal(owned.ended, false)
+			assert.equal((await fetch(address)).status, 200)
+			evidence.push({
+				workflow:
+					'actual headless Chromium app WebSocket inspection, stable named hosts, privacy redaction, pagination, duplicate/missing controls, document reload, evidence list/delete; no images or input',
+				documentId: document,
+			})
+		} finally {
+			await browser.close()
+			await stop(owned)
+		}
+	},
+)

@@ -57,6 +57,7 @@ type devServer struct {
 	dispatch       devServerDispatch
 	apps           *devAppHub
 	actions        *devActions
+	inspection     *devInspection
 	operationError error
 	mu             sync.Mutex
 	closing        bool
@@ -95,6 +96,7 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 		},
 	}
 	server.actions = newDevActions(server)
+	server.inspection = newDevInspection(server)
 	server.http = &http.Server{
 		Handler:           http.HandlerFunc(server.request),
 		ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 5 * time.Second,

@@ -109,6 +109,9 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			'actions invoke',
 			'actions status',
 			'diagnostics',
+			'inspect',
+			'evidence list',
+			'evidence delete',
 		].includes(command.name)
 			? 'implemented'
 			: 'pending'
@@ -118,8 +121,10 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 			assert.ok(!actual.value.data.examples.join(' ').includes('web:5173'))
 			assert.ok(actual.value.data.input.flags.some((flag) => flag.flag === '--instance'))
 		}
-		if (command.name === 'actions invoke')
+
+		if (command.name === 'actions invoke') {
 			assert.ok(!actual.value.data.summary.includes('xplat job status'))
+		}
 	}
 	const catalog = cli(['catalog', '--json'])
 	assert.equal(catalog.status, 0)
@@ -129,7 +134,7 @@ test('all descriptors expose truthful native schemas outside a project', () => {
 	)
 	assert.equal(
 		catalog.value.data.commands.filter((command) => command.status === 'implemented').length,
-		18,
+		21,
 	)
 	assert.equal(catalog.value.data.commands.length, 25)
 	for (const removed of [

@@ -64,9 +64,14 @@ func (workspace *workspaceContext) capabilityMatrix(platforms []string) []any {
 			case "logs":
 				entry["status"] = "partial"
 				entry["detail"] = "Native retained foreground engine logs are readable live or offline with bounded cursor pagination. The Go Vite plugin forwards bounded browser warnings/errors; diagnostics distinguishes observed records from complete console coverage. Native Apple reports require the capture's recorded identity and the Mac that ran it; candidate/confirmed associations are distinct. Android exit history is package/device-scoped candidate evidence, not full traces or confirmed PID ownership. NativeScript identities require selected-device sync output; runtime qualification remains separate. Observed app sessions use separate identities."
+			case "ui_inspection":
+				if platform == "web" {
+					entry["status"] = "partial"
+					entry["detail"] = "Named DOM hosts through an already-connected app inspector, with bounded pages and private-value redaction. Requires an announced browser inspector; no app/browser launch, component tree, shadow-root/iframe coverage or OS-input claim."
+				}
 			case "dev_actions":
 				entry["status"] = "partial"
-				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Stack locations remain runtime-raw; platform qualification is separate."
+				entry["detail"] = "Native action invocation/status reuse canonical project-worker validation and app execution, with revision/effect checks, dedupe and unknown/partial outcomes. Raw stacks are retained; current served Vite maps may enrich HTTP frames. File/device mapping and platform qualification remain separate."
 				if platform == "ios" || platform == "android" {
 					entry["status"] = "unavailable"
 					entry["detail"] = "NativeScript app action transport is not implemented; device relay and runtime WebSocket adapters are required."

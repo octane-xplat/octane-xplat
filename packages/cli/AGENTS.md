@@ -1124,6 +1124,19 @@ separate bounded budget and cannot replace a confirmed failure, partial effects
 or shutdown facts. App-supplied `sourceStack` is not mapping evidence. Unsupported
 file/device frames remain raw until their actual runtime adapter is qualified.
 
+Browser inspection belongs in the connected app, not in a newly launched or
+agent-owned browser. Reuse the fixed canonical named-host inspector; never expose
+an expression-evaluation API. Advertise its version/document identity only when
+installed in a real browser document; SSR or a socket constructor is not support.
+Bound page results and pending native reads; bind replies to the exact peer and
+request, recheck document/connection identity, and release a cancelled read without
+closing the app socket. Read-only inspection must never focus or dispatch input.
+Keep private text/values redacted in both immediate results and evidence. A JS
+string-length wire bound must cover UTF-8 bytes too: allowing64Ki UTF-16 units
+keeps even three-byte units below256KiB. Session evidence is bounded to one
+selected app/dev-server startup; list/delete do not imply persistence or erase
+client transcripts. Retention and visual capture remain separate explicit features.
+
 Retained engine captures and observed app sessions have separate IDs and owners.
 Diagnostics must reuse the capture writer's cache-parent function and bounded
 history reader. Lookup must not create missing directories. Only an authenticated

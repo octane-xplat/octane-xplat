@@ -139,8 +139,10 @@ func TestDevAppRegistryAttachAndReconnectKeepClientLifetimeSeparate(t *testing.T
 	if appSocketRead(t, replacement)["sessionId"] != session {
 		t.Fatal("reconnect changed app session identity")
 	}
+	waitActionPeerReady(t, server, "app-a")
 	second := appSocketDial(t, grant, "", grant.Token, "app-b")
 	_ = appSocketRead(t, second)
+	waitActionPeerReady(t, server, "app-b")
 	if _, failure = client.call(context.Background(), "session attach", nil); failure == nil || failure.Code != "ambiguous_selection" {
 		t.Fatal("ambiguous apps selected implicitly", failure)
 	}

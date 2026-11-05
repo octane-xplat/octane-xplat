@@ -19,7 +19,9 @@ export function goDevContracts(source) {
 		.filter(({ name }) => !removed.has(name))
 		.map((descriptor) => {
 			const name = descriptor.name
-			if (!summaries[name]) return descriptor
+			if (!summaries[name]) {
+				return descriptor
+			}
 			return {
 				...descriptor,
 				name,
@@ -32,7 +34,9 @@ export function goDevContracts(source) {
 		})
 	const schema = (original) => {
 		const name = original.command
-		if (!summaries[name]) return original
+		if (!summaries[name]) {
+			return original
+		}
 		return {
 			...original,
 			command: name,
@@ -76,11 +80,12 @@ export function goDevContracts(source) {
 	attachSchema.errors = attachSchema.errors.filter(({ code }) => code !== 'permission_denied')
 	attachSchema.examples = attach.examples
 	for (const descriptor of metadata.descriptors) {
-		if (descriptor.name === 'actions invoke')
+		if (descriptor.name === 'actions invoke') {
 			descriptor.summary = descriptor.summary.replace(
 				'`xplat job status`',
 				'`xplat actions status`',
 			)
+		}
 	}
 	for (const schema of [
 		metadata.schemas['actions invoke'],
@@ -89,26 +94,72 @@ export function goDevContracts(source) {
 		schema.summary = schema.summary.replace('`xplat job status`', '`xplat actions status`')
 	}
 	for (const descriptor of metadata.descriptors) {
-		if (descriptor.name === 'actions status') descriptor.context = 'app'
+		if (descriptor.name === 'actions status') {
+			descriptor.context = 'app'
+		}
 	}
 	metadata.schemas['actions status'].requiresBoundApp = true
 	for (const command of metadata.catalog.commands) {
-		if (command.command === 'actions status') command.requiresBoundApp = true
+		if (command.command === 'actions status') {
+			command.requiresBoundApp = true
+		}
 	}
 	// Go has foreground captures, not the superseded detached build-job API.
 	const diagnostics = metadata.descriptors.find(({ name }) => name === 'diagnostics')
 	diagnostics.context = 'app'
-	diagnostics.summary = 'List foreground engine captures or read bounded logs and scoped native reports; app sessions use separate IDs'
+	diagnostics.summary =
+		'List foreground engine captures or read bounded logs and scoped native reports; app sessions use separate IDs'
 	diagnostics.flags = diagnostics.flags.filter(({ flag }) => flag !== 'job')
-	diagnostics.flags.find(({ flag }) => flag === 'session').desc = 'Engine capture ID returned by diagnostics; distinct from observed app sessions'
-	for (const item of [metadata.schemas.diagnostics, ...metadata.catalog.commands.filter(({ command }) => command === 'diagnostics')]) {
+	diagnostics.flags.find(({ flag }) => flag === 'session').desc =
+		'Engine capture ID returned by diagnostics; distinct from observed app sessions'
+	for (const item of [
+		metadata.schemas.diagnostics,
+		...metadata.catalog.commands.filter(({ command }) => command === 'diagnostics'),
+	]) {
 		item.requiresBoundApp = true
 		item.summary = diagnostics.summary
 		item.input.flags = item.input.flags.filter(({ flag }) => flag !== '--job')
-		item.input.flags.find(({ flag }) => flag === '--session').description = diagnostics.flags.find(({ flag }) => flag === 'session').desc
-		item.output.description = 'Engine capture sessions, or {session, logs, reports, coverage}. Apple report discovery is host/identity scoped; --report reads a retained original. Browser coverage reports observations in the returned page.'
-		item.errors = item.errors.map((error) => ({ ...error, when: error.when.replace('run, session or job capture', 'engine capture session') }))
+		item.input.flags.find(({ flag }) => flag === '--session').description = diagnostics.flags.find(
+			({ flag }) => flag === 'session',
+		).desc
 
+		item.output.description =
+			'Engine capture sessions, or {session, logs, reports, coverage}. Apple report discovery is host/identity scoped; --report reads a retained original. Browser coverage reports observations in the returned page.'
+
+		item.errors = item.errors.map((error) => ({
+			...error,
+			when: error.when.replace('run, session or job capture', 'engine capture session'),
+		}))
+	}
+
+	// Browser inspection attaches through the app socket; it never owns Chromium.
+	for (const name of ['inspect', 'evidence list', 'evidence delete']) {
+		const descriptor = metadata.descriptors.find((item) => item.name === name)
+		descriptor.context = 'app'
+		if (name === 'inspect') {
+			descriptor.summary =
+				'Read bounded named DOM hosts from a connected browser app; private values are redacted and no input is sent'
+		} else {
+			descriptor.summary =
+				name === 'evidence list'
+					? 'List bounded inspection records from the current selected app dev-server startup'
+					: 'Delete a current dev-server inspection record; client transcripts remain outside server control'
+		}
+
+		for (const item of [
+			metadata.schemas[name],
+			...metadata.catalog.commands.filter((item) => item.command === name),
+		]) {
+			item.requiresBoundApp = true
+			item.summary = descriptor.summary
+			if (name === 'inspect') {
+				item.errors = item.errors.map((error) =>
+					error.code === 'unsupported_capability'
+						? { ...error, when: 'The connected app has no named-host browser inspector' }
+						: error,
+				)
+			}
+		}
 	}
 	metadata.schemas = Object.fromEntries(
 		Object.entries(metadata.schemas)
@@ -123,7 +174,10 @@ export function goDevContracts(source) {
 	)
 	const devSummary = 'Explicitly start the app dev server and selected development engines'
 	for (const command of metadata.orchestrationDescriptors) {
-		if (command.name !== 'dev') continue
+		if (command.name !== 'dev') {
+			continue
+		}
+
 		command.summary = devSummary
 		command.flags.push(
 			{
@@ -144,7 +198,9 @@ export function goDevContracts(source) {
 		)
 	}
 	for (const command of metadata.catalog.orchestration) {
-		if (command.name === 'dev') command.summary = devSummary
+		if (command.name === 'dev') {
+			command.summary = devSummary
+		}
 	}
 	metadata.boundaries = metadata.boundaries.filter((value) => !value.includes('launch permission'))
 	metadata.boundaries.push(

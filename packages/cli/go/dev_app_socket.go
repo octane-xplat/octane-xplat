@@ -37,15 +37,16 @@ type devAppGrant struct {
 }
 
 type devAppRegistry struct {
-	Protocol      string            `json:"protocol"`
-	Version       int               `json:"version"`
-	AppInstanceID string            `json:"appInstanceId"`
-	AppLabel      string            `json:"appLabel,omitempty"`
-	Platform      string            `json:"platform"`
-	Revision      int64             `json:"revision"`
-	AnnouncedAt   string            `json:"announcedAt"`
-	Location      json.RawMessage   `json:"location,omitempty"`
-	Actions       []json.RawMessage `json:"actions"`
+	Protocol      string                   `json:"protocol"`
+	Version       int                      `json:"version"`
+	AppInstanceID string                   `json:"appInstanceId"`
+	AppLabel      string                   `json:"appLabel,omitempty"`
+	Platform      string                   `json:"platform"`
+	Revision      int64                    `json:"revision"`
+	AnnouncedAt   string                   `json:"announcedAt"`
+	Location      json.RawMessage          `json:"location,omitempty"`
+	Inspection    *devInspectionCapability `json:"inspection,omitempty"`
+	Actions       []json.RawMessage        `json:"actions"`
 }
 
 type devAppHello struct {
@@ -58,9 +59,11 @@ type devAppHello struct {
 }
 
 type devAppMessage struct {
-	Type     string          `json:"type"`
-	Registry devAppRegistry  `json:"registry"`
-	Outcome  json.RawMessage `json:"outcome,omitempty"`
+	Type      string          `json:"type"`
+	RequestID string          `json:"requestId,omitempty"`
+	Result    json.RawMessage `json:"result,omitempty"`
+	Registry  devAppRegistry  `json:"registry"`
+	Outcome   json.RawMessage `json:"outcome,omitempty"`
 }
 
 type devAppPeer struct {
@@ -232,6 +235,7 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 		}
 		hub.mu.Unlock()
 		server.actions.disconnected(peer)
+		server.inspection.disconnected(peer)
 	}()
 	ack, _ := json.Marshal(map[string]any{"type": "registered", "protocol": "octane-app-debug", "version": 1, "instanceId": server.record.InstanceID, "sessionId": peer.session})
 	writeCtx, cancel := context.WithTimeout(server.ctx, 2*time.Second)
@@ -251,9 +255,15 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var message devAppMessage
-		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || (message.Type != "registry" && message.Type != "outcome") {
+		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || (message.Type != "registry" && message.Type != "outcome" && message.Type != "inspection") {
 			_ = conn.Close(websocket.StatusPolicyViolation, "invalid app update")
 			return
+		}
+		if message.Type == "inspection" {
+			if !server.inspection.receive(peer, message.RequestID, message.Result) {
+				return
+			}
+			continue
 		}
 		if message.Type == "outcome" {
 			if !server.actions.receive(peer, message.Outcome) {
@@ -284,7 +294,7 @@ func devPeerSnapshot(peer *devAppPeer) map[string]any {
 	if peer.disconnectedAt != "" {
 		state = "disconnected"
 	}
-	return map[string]any{"sessionId": peer.session, "targetId": peer.target, "appInstanceId": peer.registry.AppInstanceID, "platform": peer.registry.Platform, "appLabel": peer.registry.AppLabel, "registryRevision": peer.registry.Revision, "state": state, "ownership": "observed", "origin": "dev-app-websocket", "readiness": "app-connected", "connectedAt": peer.connectedAt, "disconnectedAt": peer.disconnectedAt}
+	return map[string]any{"sessionId": peer.session, "targetId": peer.target, "appInstanceId": peer.registry.AppInstanceID, "platform": peer.registry.Platform, "appLabel": peer.registry.AppLabel, "registryRevision": peer.registry.Revision, "state": state, "ownership": "observed", "origin": "dev-app-websocket", "readiness": "app-connected", "connectedAt": peer.connectedAt, "disconnectedAt": peer.disconnectedAt, "inspection": peer.registry.Inspection}
 }
 
 func (hub *devAppHub) snapshots(target string) []any {

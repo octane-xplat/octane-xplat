@@ -1,6 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ViteDevServer } from 'vite'
 import { createDevStackResolver } from './dev-stack.ts'
+import { installDevInspector } from '../dev-inspector.web.ts'
+import { inspectDOM } from './inspection/dom.web.ts'
 import { browserLogScript } from '../dev-log-client.web.ts'
 import { formatBrowserLogBatch } from '../dev-log-server.ts'
 
@@ -53,7 +55,7 @@ export function nativeDevSocketPlugin() {
 				{
 					tag: 'script',
 					attrs: { type: 'module' },
-					children: browserLogScript(bridge.token, logs),
+					children: `${browserLogScript(bridge.token, logs)};(${installDevInspector.toString()})(${inspectDOM.toString()});`,
 					injectTo: 'head-prepend',
 				},
 			]

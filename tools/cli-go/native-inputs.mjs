@@ -29,6 +29,8 @@ export function nativeInputs(root) {
 		}
 	}
 	files.push(
+		'packages/cli/src/dev-inspector.web.ts',
+		'packages/cli/src/mcp/inspection/dom.web.ts',
 		'packages/cli/src/mcp/dev-stack.ts',
 		'packages/cli/src/mcp/dev-socket.ts',
 		'packages/cli/src/macos/vite.ts',

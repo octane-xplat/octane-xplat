@@ -134,7 +134,7 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
 The real app registry still owns handler execution, serialization and validation.
-Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. UI controls remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
+Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. Read-only browser inspection is available through an announced app inspector; interactions and visual capture remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
@@ -224,11 +224,30 @@ detached build-job surface has no diagnostics `--job` selector.
 This direct socket requires a runtime WebSocket implementation and same-host
 loopback access. The maintained test runs the actual registry through project
 Vite and a headless AppKit Node host. NativeScript device relay/runtime WebSocket adapters
-remain unimplemented. Browser app-action transport and UI controls remain
-unqualified; browser console forwarding is verified separately in headless
-Chromium. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
+remain unimplemented. Browser inspection attaches through the existing app socket
+and reuses the canonical fixed named-host operation. It returns bounded main-document
+hosts, private-value redaction, a per-document identity and session evidence. It
+never focuses a control, sends input, starts a browser or requires ownership of
+its process. Component trees, shadow roots and frames are excluded. Interactions,
+OS input, screenshot capture and explicit evidence retention remain pending.
+Browser console forwarding has separate headless Chromium evidence. Browser action
+invocation remains unqualified; inspection transport is not an action-workflow pass. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
 The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
 configuration. Production builds receive no native bridge definition.
+
+Read a connected browser session's named hosts and inspect its ephemeral evidence.
+Evidence list/delete use the selected app dev server, retain at most32 records/2MiB,
+and do not persist across server restart. Oldest records may be evicted. Deleting
+a server record cannot erase a client transcript. A page that exceeds the response
+bound must be retried with a smaller limit. Reloading the document changes its
+identity; use the new session rather than sending work to the old one.
+
+```sh
+/absolute/path/to/xplat-go session list --json
+/absolute/path/to/xplat-go inspect APP_SESSION_ID --testid counter.value --limit 20 --json
+/absolute/path/to/xplat-go evidence list --kind inspection --json
+/absolute/path/to/xplat-go evidence delete EVIDENCE_ID --json
+```
 
 There is no detach command: clients simply finish or disconnect. The former Go
 `session start/end`, `runtime build`, `job status/cancel` and hidden `_owner`
