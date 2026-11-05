@@ -264,10 +264,10 @@ test(
 		const liveLogs = cli(f, ['diagnostics', '--session', capture.sessionId, '--limit', '1']).data
 		assert.equal(liveLogs.logs.historical, false)
 		assert.equal(liveLogs.logs.records.length, 1)
-		assert.equal(liveLogs.coverage.nativeReports.status, 'unavailable')
+		assert.equal(liveLogs.coverage.nativeReports.status, 'unsupported')
 		const unsupportedReport = cli(f, ['diagnostics', '--session', capture.sessionId, '--report', 'native'])
-		assert.equal(unsupportedReport.error.code, 'unavailable')
-		assert.equal(unsupportedReport.status, 3)
+		assert.equal(unsupportedReport.error.code, 'invalid_selection')
+		assert.equal(unsupportedReport.status, 2)
 		assert.equal(cli(f, ['diagnostics', '--job', 'removed']).error.code, 'invalid_selection')
 		assert.equal(cli(f, ['diagnostics', '--session', capture.sessionId, '--platform', 'ios']).error.code, 'invalid_selection')
 		assert.equal(owned.ended, false)

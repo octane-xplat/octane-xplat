@@ -1130,6 +1130,20 @@ exact stream bytes rather than Node write-chunk boundaries. Browser observations
 are scoped to the returned log page and do not prove complete console coverage.
 Engine/browser output does not substitute for OS crash-report discovery.
 
+Native report association needs platform, capture window and app identity;
+confirmed Apple evidence additionally needs observed PID and launch time. Keep
+candidate matches visibly weaker. Distinguish null/missing fields from explicit
+empty fields and integral JSON number spellings from integer-decoder syntax;
+compare external report fixtures against the actual Node reference. Bound source
+reads without following report-file symlinks and preserve complete originals with
+content hashes, atomic publication and a bounded native lock. Keep raw-content
+limits separate from base64/JSON encoding overhead. Full original reads use the
+local native reader, not the smaller HTTP response budget. Discovery failures
+must not hide engine logs. Test macOS crashes with the actual host's `abort()`;
+`appkit-node-api` naming does not grant Node `process` APIs in JavaScriptCore.
+An inner SIGABRT may be reported by the worker as exit 1 plus signal diagnostics;
+assert both levels rather than assuming outer shell status 134.
+
 Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or

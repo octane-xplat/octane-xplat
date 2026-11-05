@@ -310,15 +310,18 @@ test(
 			'dev-bridge.ts',
 			readFileSync(join(root, 'packages/platform/src/dev-bridge.macos.ts'), 'utf8'),
 		)
-		for (const mode of ['exit', 'cancel']) {
+		for (const mode of ['exit', 'cancel', ...(process.env.XPLAT_GO_APPLE_REPORTS_REAL === '1' ? ['abort'] : [])]) {
+			const active = mode === 'abort' ? { ...f, cache: join(process.env.HOME, 'Library/Caches'), env: { ...f.env, HOME: process.env.HOME } } : f
+			const reportCache = join(active.cache, 'octane-xplat/cli-go/history-go-v1', sha(Buffer.from(realpathSync(f.app))))
+			if (mode === 'abort') assert.equal(existsSync(reportCache), false, 'owned report fixture cache unexpectedly exists')
 			put(
 				f.app,
 				'main.js',
-				`import '@nativescript/macos-node-api';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.macos.read',title:'Read macOS app',description:'Observe app fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : 'setInterval(()=>{},1000)'}`,
+				`import '@nativescript/macos-node-api';import {registerDevAction} from './dev-actions-registry';registerDevAction({id:'fixture.macos.read',title:'Read macOS app',description:'Observe app fixture',effects:{summary:'Read only'},result:{fields:{value:{type:'integer'}}},run:()=>({value:1})});const app=NSApplication.sharedApplication;app.setActivationPolicy(2);console.log('GO_DEV_APP_INITIALIZED');${mode === 'exit' ? 'setTimeout(()=>app.terminate(null),300)' : mode === 'abort' ? 'setTimeout(()=>abort(),1500)' : 'setInterval(()=>{},1000)'}`,
 			)
 			const child = spawn(binary, ['dev', 'macos'], {
 				cwd: f.app,
-				env: f.env,
+				env: active.env,
 				stdio: ['ignore', 'pipe', 'pipe'],
 			})
 			const exited = once(child, 'exit')
@@ -327,7 +330,7 @@ test(
 			child.stderr.on('data', (b) => (output += b))
 			try {
 				await until(
-					() => output.includes('GO_DEV_APP_INITIALIZED'),
+					() => { if (child.exitCode !== null) assert.fail(output); return output.includes('GO_DEV_APP_INITIALIZED') },
 					() => output,
 					90000,
 				)
@@ -336,7 +339,7 @@ test(
 					const query = (args) => {
 						const result = spawnSync(binary, [...args, '--json'], {
 							cwd: f.app,
-							env: f.env,
+							env: active.env,
 							encoding: 'utf8',
 							timeout: 10000,
 						})
@@ -385,14 +388,30 @@ test(
 				}
 				const [code, signal] = await exited
 				assert.equal(signal, null, output)
-				assert.equal(code, mode === 'exit' ? 0 : 143, output)
-				const records = sessions(f)
+				assert.equal(code, mode === 'exit' ? 0 : mode === 'abort' ? 1 : 143, output)
+				if (mode === 'abort') assert.match(output, /macOS host exited: SIGABRT/)
+				const records = sessions(active)
 				const record = records.find(
 					(r) => r.sessionId === output.match(/session (sess_[a-f0-9-]+)/)?.[1],
 				)
 				assert.ok(record, output)
 				assert.equal(record.cleanupConfirmed, true)
 				assert.equal(record.nativeIdentity.appId, 'org.octane.xplat.go-dev-fixture')
+				if (mode === 'abort') {
+					const query = (args) => {
+						const response = spawnSync(binary, ['diagnostics', '--session', record.sessionId, ...args, '--json'], {cwd:f.app,env:active.env,encoding:'utf8',timeout:15000,maxBuffer:32*1024*1024})
+						assert.equal(response.status, 0, response.stderr)
+						return JSON.parse(response.stdout)
+					}
+					let diagnostics
+					await until(() => { diagnostics=query([]); return diagnostics.data?.reports?.some(report=>report.association==='confirmed') }, () => JSON.stringify(diagnostics?.data?.coverage), 45000)
+					const report=diagnostics.data.reports.find(report=>report.association==='confirmed')
+					const original=query(['--report',report.id])
+					assert.match(original.data.report.content,/SIGABRT/)
+					assert.equal('report_'+sha(Buffer.from(original.data.report.content)),report.id)
+					writeFileSync(join(work,'apple-native-original.json'),JSON.stringify(original),{mode:0o600})
+					writeFileSync(join(work,'apple-native-report.json'),JSON.stringify({binarySha256:build.sha256,sessionId:record.sessionId,report,coverage:diagnostics.data.coverage,source:'actual macOS AppKit fixture host abort() and OS .ips report',passed:true},null,2),{mode:0o600})
+				}
 				for (const launch of record.nativeIdentity.processes) {
 					assert.equal(existsSync(launch.executable), false)
 					assert.throws(() => process.kill(launch.pid, 0), { code: 'ESRCH' })
@@ -403,6 +422,7 @@ test(
 					await exited
 				}
 				writeFileSync(join(work, `dev-macos-${mode}-output.txt`), output)
+				if (mode === 'abort') rmSync(reportCache, {recursive:true,force:true})
 			}
 		}
 	},

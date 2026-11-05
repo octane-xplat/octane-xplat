@@ -28,8 +28,8 @@ func TestDevDiagnosticsNoStateAndSelectorValidation(t *testing.T) {
 			t.Fatal("invalid diagnostic selector accepted", values, failure)
 		}
 	}
-	if _, failure := readDevDiagnostics(context.Background(), parent, app, "", map[string]any{"reportId": "native"}); failure == nil || failure.Code != "unavailable" {
-		t.Fatal("unimplemented report must be explicit", failure)
+	if _, failure := readDevDiagnostics(context.Background(), parent, app, "", map[string]any{"reportId": "native"}); failure == nil || failure.Code != "invalid_selection" {
+		t.Fatal("invalid report id must be rejected", failure)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()

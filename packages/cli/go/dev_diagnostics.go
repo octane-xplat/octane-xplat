@@ -26,8 +26,16 @@ func devDiagnosticsCommand(ctx context.Context, workspace *workspaceContext, val
 	if failure != nil {
 		return nil, failure
 	}
-	if _, failure := diagnosticsOptions(values); failure != nil {
+	options, failure := diagnosticsOptions(values)
+	if failure != nil {
 		return nil, failure
+	}
+	if options.report != "" {
+		parent, err := diagnosticsHistoryParent()
+		if err != nil {
+			return nil, executionFailure(err)
+		}
+		return readDevDiagnostics(ctx, parent, app.Root, "", values)
 	}
 	cache, err := devServerCacheParent()
 	if err != nil {
@@ -55,16 +63,16 @@ func devDiagnosticsCommand(ctx context.Context, workspace *workspaceContext, val
 }
 
 type devDiagnosticsOptions struct {
-	session, platform, stream string
-	cursor                    *int64
-	limit                     int
+	session, platform, stream, report string
+	cursor                            *int64
+	limit                             int
 }
 
 func diagnosticsOptions(values map[string]any) (devDiagnosticsOptions, *cliError) {
 	result := devDiagnosticsOptions{limit: 500}
 	for key, value := range values {
 		switch key {
-		case "sessionId", "platform", "stream":
+		case "sessionId", "platform", "stream", "reportId":
 			text, ok := value.(string)
 			if !ok || text == "" {
 				return result, invalid("Diagnostic selectors must be nonempty strings.")
@@ -76,6 +84,8 @@ func diagnosticsOptions(values map[string]any) (devDiagnosticsOptions, *cliError
 				result.platform = text
 			case "stream":
 				result.stream = text
+			case "reportId":
+				result.report = text
 			}
 		case "cursor", "limit":
 			number, ok := value.(float64)
@@ -91,12 +101,14 @@ func diagnosticsOptions(values map[string]any) (devDiagnosticsOptions, *cliError
 				}
 				result.limit = int(number)
 			}
-		case "reportId":
-			return result, &cliError{Code: "unavailable", Message: "Native crash-report discovery and retained originals are not implemented in the parallel Go CLI. Engine log capture is available separately."}
+
 		case "project", "app", "client", "json", "schema":
 		default:
 			return result, invalid("Unknown diagnostics option: " + key)
 		}
+	}
+	if result.report != "" && (result.session == "" || !nativeReportID.MatchString(result.report) || result.cursor != nil || values["limit"] != nil || result.stream != "") {
+		return result, invalid("--report requires a valid retained report ID and --session, without log pagination or stream filters.")
 	}
 	if result.session != "" && !historyID.MatchString(result.session) {
 		return result, invalid("Select an engine capture session ID returned by diagnostics; observed app session IDs are separate.")
@@ -158,6 +170,30 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 	if options.platform != "" && options.platform != session.Platform {
 		return nil, invalid("The selected capture belongs to another platform.")
 	}
+	if options.report != "" {
+		root, err := nativeReportsRoot(store, session.SessionID, false)
+		if os.IsNotExist(err) {
+			return nil, &cliError{Code: "not_found", Message: "No retained original for this app and capture."}
+		}
+		if err != nil {
+			return nil, executionFailure(err)
+		}
+		defer root.Close()
+		report, err := readRetainedNativeReport(root, options.report)
+		if os.IsNotExist(err) {
+			return nil, &cliError{Code: "not_found", Message: "No retained original for this app and capture."}
+		}
+		if err != nil {
+			return nil, executionFailure(err)
+		}
+		if ctx.Err() != nil {
+			return nil, executionFailure(ctx.Err())
+		}
+		return map[string]any{"sessionId": session.SessionID, "report": struct {
+			nativeReport
+			Content string `json:"content"`
+		}{report.nativeReport, string(report.Data)}}, nil
+	}
 	logs, err := store.Logs(options.session, owner, options.cursor, options.limit, options.stream)
 	if errors.Is(err, errHistoryCursorAhead) {
 		return nil, invalid(err.Error())
@@ -173,6 +209,13 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 	if ctx.Err() != nil {
 		return nil, executionFailure(ctx.Err())
 	}
+	native, reportErr := discoverNativeReports(ctx, store, session)
+	if ctx.Err() != nil {
+		return nil, executionFailure(ctx.Err())
+	}
+	if reportErr != nil {
+		native = nativeReportSnapshot{Reports: []nativeReport{}, Coverage: nativeReportCoverage{Status: "unavailable", Detail: "Native report discovery or retention failed; engine logs remain readable."}}
+	}
 	consoleStatus := "not-observed"
 	for _, record := range logs.Records {
 		if record.Source == "browser" {
@@ -180,7 +223,7 @@ func readDevDiagnostics(ctx context.Context, parent, app, owner string, values m
 			break
 		}
 	}
-	return map[string]any{"sessionId": session.SessionID, "session": logs.Session, "logs": logs, "reports": []any{}, "coverage": map[string]any{"logs": "captured", "appConsole": map[string]any{"status": consoleStatus, "scope": "returned-page", "detail": "Forwarded browser warnings, errors and runtime failures only; no complete console coverage or absence of errors is inferred. Stacks are runtime-raw."}, "nativeReports": map[string]any{"status": "unavailable", "detail": "Native crash-report discovery and retention are not implemented in the parallel Go CLI; engine logs remain readable."}}}, nil
+	return map[string]any{"sessionId": session.SessionID, "session": logs.Session, "logs": logs, "reports": native.Reports, "coverage": map[string]any{"logs": "captured", "appConsole": map[string]any{"status": consoleStatus, "scope": "returned-page", "detail": "Forwarded browser warnings, errors and runtime failures only; no complete console coverage or absence of errors is inferred. Stacks are runtime-raw."}, "nativeReports": native.Coverage}}, nil
 }
 func diagnosticsInventory(records []map[string]any) any {
 	return map[string]any{"sessions": records, "note": "Select --session with an engine capture ID from this list. Observed app session IDs are separate. Reads never start a dev server or claim app ownership."}

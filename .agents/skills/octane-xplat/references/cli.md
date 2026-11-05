@@ -60,8 +60,11 @@ Go `diagnostics` lists retained foreground engine captures and reads bounded log
 including after dev exits. Its capture IDs differ from observed app sessions.
 Never infer liveness or cleanup from a recorded PID. The Go Vite plugin forwards bounded browser warnings, errors, uncaught failures
 and rejected promises using the existing client. Diagnostics reports observations
-in the returned page; absent records do not prove an error-free app. Native crash
-reports and UI controls remain pending.
+in the returned page; absent records do not prove an error-free app. Scoped Apple crash-report discovery and complete retained originals are available
+for macOS captures with recorded identity. Candidate bundle/time matches are not
+confirmed process ownership. Diagnostics preserves report coverage gaps without
+hiding logs. iOS parsing has fixture evidence only; NativeScript identity and
+Android report adapters remain pending. UI controls remain pending.
 
 ```sh
 /absolute/path/to/xplat-go diagnostics --json

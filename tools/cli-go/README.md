@@ -501,3 +501,13 @@ for `test:go-dev-server` to additionally launch the existing Playwright Chromium
 installation, assert real warnings/uncaught errors/rejections reach native logs,
 and close the test-owned browser. It captures no images and is opt-in outside
 lightweight PR checks. This does not qualify UI inspection or other controls.
+
+`test:go-reports` compares native Apple parsing against the actual retained Node
+engine, including null/empty fields, numeric JSON representations, identity/time
+rejection and candidate/confirmed associations. Native units cover atomic bounded
+retention, integrity, concurrent readers and complete 4 MiB originals. Set
+`XPLAT_GO_APPLE_REPORTS_REAL=1` for `test:go-dev` to abort only its disposable
+headless AppKit fixture, collect the OS .ips through the native CLI, and verify
+its retained original hash. It uses the real macOS report directory and removes
+only its own native history cache after preserving local evidence; OS reports
+are left in place. No images are captured. This is opt-in outside PR checks.

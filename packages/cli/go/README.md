@@ -134,7 +134,7 @@ must match an observed target dev origin; ordinary CLI HTTP still rejects Origin
 project's canonical Node worker, checks revision and declared effects, and submits
 one bounded app request. `actions status` reads its asynchronous result natively.
 The real app registry still owns handler execution, serialization and validation.
-Native diagnostics reads retained foreground engine logs; native crash reports and UI controls remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
+Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. UI controls remain pending. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
@@ -174,12 +174,31 @@ and preserve cleanup uncertainty. Reads create no missing cache or dev server.
 /absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --cursor 0 --limit 50 --stream stderr --project /work/repo --app apps/web --json
 ```
 
-Logs remain readable after foreground dev exits. Native crash reports remain unavailable. The Go development Vite plugin injects
+Logs remain readable after foreground dev exits. Native Apple .ips discovery requires the Mac that ran the app and recorded native identity. The Go development Vite plugin injects
 the existing bounded browser logger for warnings, console errors, uncaught errors
 and rejected promises. It omits object values, preserves local console calls and
 reports lost deliveries. Diagnostics identifies forwarded browser records in the
 returned page; no full console coverage or absence of errors is inferred. Stacks
-remain runtime-raw. `--report` fails with `unavailable`. The removed
+remain runtime-raw.
+
+`--report` reads a complete retained original directly from the private native
+history store, so the local HTTP response bound cannot truncate a large original.
+IDs are content hashes, not paths. Summaries distinguish confirmed observed
+PID/launch-time evidence from bundle/time candidates. Missing sources, malformed
+reports, bounded scans and retention limits remain explicit coverage states and
+do not hide readable engine logs. Up to ten complete originals are retained,
+4 MiB each and 16 MiB of raw content total, independently of log rotation. A
+single atomic base64 JSON envelope preserves original bytes with about one-third
+encoding overhead; hashes are checked on reads. This differs from the retained
+TypeScript store layout and does not migrate that store.
+
+```sh
+/absolute/path/to/xplat-go diagnostics --session ENGINE_CAPTURE_ID --report REPORT_ID --project /work/repo --app apps/macos --json
+```
+
+Native identity ingestion is currently qualified for macOS captures. iOS simulator
+report parsing has fixture coverage but no runtime qualification; NativeScript
+identity ingestion and Android exit-history adapters remain pending. The removed
 detached build-job surface has no diagnostics `--job` selector.
 
 This direct socket requires a runtime WebSocket implementation and same-host
