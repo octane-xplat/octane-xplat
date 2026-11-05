@@ -5,8 +5,8 @@ executables embed Bun and unpack their production payload into a writable
 local cache; they still require the app's Node/Bun/platform toolchains.
 See [CLI installation and executable builds](../../../../docs/packages/package-cli.md#single-file-executable).
 
-The parallel [Go migration](../../../../packages/cli/go/README.md) retains both
-Nim and TypeScript; it has not replaced production packaging. Its experimental
+The [Go implementation](../../../../packages/cli/go/README.md) is the sole CLI;
+the TypeScript and Nim implementations were removed. Its release
 upgrade archives carry the invoked release's small policy worker and dependencies,
 staged privately across installation. This release-policy exception does not move
 compiler/plugin resolution away from the selected project, embed Node, or invoke
@@ -92,8 +92,7 @@ separately. A repeated identical key returns the original delivery receipt; neve
 change its binding or automatically use a new key after unknown effects. Admission
 outlives the HTTP client and observations are bounded. Receipts are limited to 256
 keys/current dev-server startup and retain no duplicate UI-text body. CDP/OS input
-remains unsupported. The Go CLI has no `capture` command (the TypeScript CLI's
-owned-Chromium capture has no equivalent under attach-only clients); explicit
+remains unsupported. The Go CLI has no `capture` command; explicit
 retention currently covers text records only.
 
 ```sh
@@ -113,41 +112,38 @@ XPLAT_PERMISSIONS=evidence-retain /absolute/path/to/xplat-go evidence retain EVI
 Consult the native schema
 for actual coverage. The superseded detached `session start/end`, `runtime build`
 and job-control surface is absent from Go; use ordinary explicit foreground builds
-and typechecks. The retained Nim and TypeScript surfaces below describe their
-older implementation, not the Go migration's lifecycle contract.
+and typechecks.
 
 ```sh
 /absolute/path/to/xplat-go build --targets web
 /absolute/path/to/xplat-go typecheck
 ```
 
-The parallel Nim implementation is experimental and intended for the npm `nim`
-tag. Its installed catalog distinguishes implemented commands from schema-only
-discovery. Native `status` reports actual installed bindings, tool observations,
+The Go CLI ships on the npm `nim` tag. Its installed catalog distinguishes
+implemented commands from schema-only discovery. Native `status` reports actual installed bindings, tool observations,
 guidance and source coverage; `capabilities` describes the providers wired into
 that build. Tool presence does not qualify an SDK/device or runtime check.
 Canonical compatibility checks accept an exact same-release `@octane-xplat/cli`
-Nim prerelease; its installed version must match. The reference upgrade planner
+`nim` prerelease; its installed version must match. The upgrade planner
 preserves this choice and rejects shared-catalog or override conflicts before
-writes. Keep other framework pins strict. Native doctor/upgrade execution is
-still pending; the compatibility core alone does not qualify those commands.
+writes. Keep other framework pins strict.
 Native `typecheck` is available on macOS using the project-installed
 TSRX checker and CLI-owned worker; it never executes baked loaders. Native `routes`
 bakes data and watches route/configuration edits on macOS, with owned worker
 cancellation and last-good publication. Keep generated output paths stable while
 watching. Route planning/rendering runs in the selected project's build worker;
-Nim validates the artifact plan and owns publication and the worker's lifecycle.
+Go validates the artifact plan and owns publication and the worker's lifecycle.
 Session list/status/end and job status/cancel use the authenticated native host
 on macOS. Reads never start it. Its private per-workspace cache survives project
 cache cleanup. Web `build --targets web` and `runtime build --platform web` invoke the selected
 project's installed Vite. Build-job diagnostics retain bounded output while the
 host lives; inspect with `diagnostics --job JOB_ID`. Native macOS builds use
-the separate `@octane-xplat/macos-build/worker` and its host assets. Nim validates
+the separate `@octane-xplat/macos-build/worker` and its host assets. Go validates
 and publishes staged app/DMG artifacts after the worker exits; cancellation
 before publication preserves the previous artifacts. Overlapping native builds
 for one app report target busy. Native macOS target discovery includes live
 session ownership. `session start macos` uses the project's installed development
-worker for Vite/compiler/HMR; Nim owns readiness, logs and process cleanup.
+worker for Vite/compiler/HMR; Go owns readiness, logs and process cleanup.
 End the returned identity with `session end SESSION_ID`. App-scoped retained
 session logs survive host exit; build-job captures still last only while the
 host lives. An unavailable owner makes uncompleted history disconnected and
@@ -170,14 +166,14 @@ live instance/revision, follow the job, and preserve unknown/partial outcomes.
 The native host owns admission workers too; shutdown awaits them. This host-side
 qualification does not expand the app runtime transport limits in the
 [development-actions reference](development-actions.md).
-The Nim package retains its Vite subpaths and a bounded worker export. Engine
+The package retains its Vite subpaths and a bounded worker export. Engine
 packages are optional peers, and native-only installs do not fetch them. The
 native build-worker/declaration lookup uses the selected project's compatible
 `@octane-xplat/cli` installation, without a separate build-package requirement.
 Native lint on macOS invokes the selected project's `@octane-xplat/lint/bin`
 with Node >=22.22.2. Install that package in the project; it is not bundled with
-the Nim tarball. Help is native. The engine owns its rules, ignores and safe
-fixes; Nim owns process cleanup. Native `fmt` on macOS uses the project's
+the CLI tarball. Help is native. The engine owns its rules, ignores and safe
+fixes; Go owns process cleanup. Native `fmt` on macOS uses the project's
 `@octane-xplat/fmt@0.1.1` and Node; check mode writes nothing, and transform
 errors leave the whole batch untouched. Help remains native. The small formatter
 operation shares the reference planner; it is not a second formatter engine.
@@ -200,10 +196,9 @@ xplat job status JOB_ID --json
 xplat diagnostics --job JOB_ID --json
 ```
 
-Keep using the TypeScript CLI for unported workflows.
 Small plugins and workers are available through the project-installed
 `@octane-xplat/cli` package. See the
-[native migration boundaries](../../../../packages/cli/nim/README.md).
+[Go CLI entry](../../../../packages/cli/go/README.md).
 
 ```sh
 bun --version

@@ -136,9 +136,7 @@ import { xplatDevBridge } from '@octane-xplat/cli/vite'
 export default defineConfig({ plugins: [xplatDevBridge()] })
 ```
 
-The retained TypeScript CLI has web coverage and one physical Android device
-verification through `xplat dev` with adb reverse. That does not qualify the Go
-device transport. The parallel Go CLI has actual macOS Chromium and headless
+The Go CLI has actual macOS Chromium and headless
 AppKit action registration/invocation/status evidence. The Go NativeScript
 project-Vite relay also has actual registration, read-only invocation/status,
 short-client lifetime and foreground cleanup evidence on an API 35 ARM64 Android
@@ -162,13 +160,13 @@ bun run xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revisio
 bun run xplat actions status JOB_ID --json
 ```
 
-With the experimental Nim CLI on macOS, listing/status and HTTP/job orchestration
-are native. Invocation uses the selected project's compatible build worker and
+With the Go CLI on macOS, listing/status and HTTP/job orchestration are native.
+Invocation uses the selected project's compatible build worker and
 Node to validate JavaScript field/regex contracts.
 Native queues reject stale registries before dispatch, cancelled waiting tickets
 never execute, and changed input/revision cannot reuse a known request key.
 Cancellation preserves effect evidence and is not rollback. Headless testing with
-the real Vite bridge and app registry in that Nim gate alone does not qualify
+the real Vite bridge and app registry alone does not qualify
 AppKit/NativeScript fetch or OS UI behavior.
 
 ```sh

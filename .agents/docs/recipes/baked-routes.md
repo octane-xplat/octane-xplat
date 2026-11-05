@@ -59,7 +59,7 @@ to render on every target with no runtime fetch.
   Maintained example: `packages/app/src/app/notes.md`.
 - AC3: [constraints list](../../../docs/app/navigation.md#bake-route-data-at-build-time)
   — serializability, param-less bake, sibling requirement, typecheck
-  behavior. The [experimental native command](../../../docs/packages/package-cli.md#experimental-nim-executable)
+  behavior. The [experimental native command](../../../docs/packages/package-cli.md#native-executable)
   also skips loader execution while typechecking. Native route baking/watch checks
   cover strict JSON output, last-good artifact preservation, obsolete generation
   cancellation and worker cleanup; these command checks do not establish rendered

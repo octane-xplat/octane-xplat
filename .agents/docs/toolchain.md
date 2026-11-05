@@ -5,13 +5,12 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 ## CLI runtime and executable packaging
 
-The parallel [Go CLI migration](../../packages/cli/go/README.md) retains the Nim
-implementation and TypeScript reference until replacement qualification. The
-[evaluation tooling](../../tools/cli-go/README.md) owns pinned Go/Zig builds,
-runtime snapshots, correctness checks and size/startup measurements. These
-development builds do not change the production CLI or the `nim` package channel.
-Node is an installed prerequisite for explicit JavaScript workers; the executable
-does not bundle a JS runtime or call the old CLI. Workspace matching supports literal paths, `*` within a path segment and
+The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.
+[Build tooling](../../tools/cli-go/README.md) owns pinned builds, runtime
+snapshots, correctness checks and size/startup measurements; the package `bin`
+dispatches to the platform binary. Node is an installed prerequisite for
+explicit JavaScript workers; the executable does not bundle a JS runtime or
+call a JavaScript CLI. Workspace matching supports literal paths, `*` within a path segment and
 exclusions; advanced glob grammar is deliberately unsupported. Discovery and
 package reads stay native.
 
@@ -40,65 +39,30 @@ scope and actual-target limits. Detached-owner
 and browser-lifecycle experiments are preserved in checkpoint `14a7117c` and local
 reports; they are superseded qualification scope, not active Go release gates.
 
-A parallel Nim implementation lives in [packages/cli/nim](../../packages/cli/nim/README.md).
-Keep TypeScript as the behavioral reference while migrating; native commands
-must not execute the old CLI as a fallback. Its separate package staging omits
-the old JS CLI and heavy runtime dependencies, and targets only
-the explicit `nim` prerelease channel. Read the owning README for implemented
-scope and qualification limits, [tools/cli-nim](../../tools/cli-nim/README.md) for
-task-local compiler/dependency pins and differential checks, and
-[CLI agent guidance](../../packages/cli/AGENTS.md) for verified Nim pitfalls.
+The Go implementation in [packages/cli/go](../../packages/cli/go/README.md) is
+the sole CLI; the TypeScript and Nim implementations were removed. Native
+commands never execute a JavaScript CLI fallback; the package `bin` dispatches
+to the platform binary built by [tools/cli-go](../../tools/cli-go/README.md).
+See [CLI agent guidance](../../packages/cli/AGENTS.md) for ownership and
+boundary rules.
 
 Project-installed Vite presets are separately packaged as
 [`@octane-xplat/build`](../../packages/build/README.md). Its build compiles the
-plugin closure from the TypeScript reference sources; it has no published CLI
-runtime dependency. Keep JS compilation and development middleware in the app's
-toolchain, and command/process/session orchestration in the native executable.
-macOS packaging uses the separate [`@octane-xplat/macos-build`](../../packages/macos-build/README.md)
-worker and host assets in the selected project. Keep that platform cost out of
-the CLI tarball and web-only build installations. Nim owns staging and final
+plugin closure from the CLI package's TypeScript sources; it has no published
+CLI runtime dependency. Keep JS compilation and development middleware in the
+app's toolchain, and command/process/session orchestration in the native
+executable. macOS packaging uses the separate
+[`@octane-xplat/macos-build`](../../packages/macos-build/README.md) worker and
+host assets in the selected project. Keep that platform cost out of the CLI
+tarball and web-only build installations. Go owns staging and final
 publication after the worker finishes.
 
-The existing TypeScript CLI exports remain available during the parallel
-migration. The Nim tarball preserves Vite exports and the bounded `./worker`
+The published tarball preserves the Vite exports and the bounded `./worker`
 operation through the curated plugin closure; heavy engines are optional peers.
 Native-only installs fetch none of those peers. Native worker/declaration lookup uses the selected project's compatible
 `@octane-xplat/cli` installation. The separate build package is no longer a
 native workflow prerequisite.
 See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
-
-Nim 2.2.12's `posix_utils.mkdtemp` uses a `posix.nim` declaration naming
-`<stdlib.h>`. The qualified macOS SDK 27.0 declares it in `<unistd.h>`;
-generated C fails with an undeclared-function error and integer-to-pointer
-conversion. The native worker uses a narrow
-[macOS header adapter](../../packages/cli/nim/private_temp_macos.nim), while
-Linux keeps the standard utility. Both request atomic `0700` creation for
-private request/result directories; `createTempDir` creates `0755` under a
-normal `0022` umask. This is source/build evidence for the pinned binding and
-SDK, with active-directory permissions covered by the
-[portable worker gate](../../tools/cli-nim/portability-workflow.mjs). Remove the
-macOS adapter when the pinned binding compiles against the SDK and the same
-permission/cancellation gate passes; do not suppress the C diagnostic.
-
-Nim 2.2.12's Windows `envPairs` splits hidden drive-current-directory entries
-such as `=C:=C:\project` at their first equals sign, producing an empty key.
-The [native environment adapter](../../packages/cli/nim/windows_environment.nim)
-reconstructs those drive keys for owner and engine inheritance. Preserve separate
-drives and case-insensitive names; ordinary explicit overlays still reject
-invalid names. Node-parent tests can hide these entries, so removal requires an
-upgraded compiler plus the direct PowerShell/bootstrap and two-drive fixture gates.
-See [CLI agent guidance](../../packages/cli/AGENTS.md) for OS environment and
-owner-job handoff constraints; parent-client exit alone does not qualify SSH
-or task-runner teardown.
-
-Pinned NimCrypto 0.7.3 emits GCC ISA flags (`-mavx2`, `-msha`, SSE flags) even
-for its MSVC-specific intrinsic declarations. MSVC reports ignored-option warnings;
-a cold AVX2 probe translation can spend several minutes optimizing generated C.
-The actual Windows storage probe completed after sustained compiler CPU activity.
-Keep build/probe caches task-local, and inspect the exact owned compiler and CPU
-before classifying a quiet build as stuck or retrying over it. This is a source
-and build constraint, not evidence of a digest mismatch; retain independent hash
-checks when changing this dependency or backend.
 
 For the isolated native-TypeScript alternative, use the
 [Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host

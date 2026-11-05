@@ -4,7 +4,7 @@
 > standalone native CLI download small.
 
 This project-installed tool builds macOS app packages for the experimental
-[Nim CLI](package-cli.md#experimental-nim-executable). It contains the packaging
+[Nim CLI](package-cli.md#native-executable). It contains the packaging
 and development workers and the verified JavaScriptCore host assets. Those assets stay out of the
 standalone CLI download and out of web-only build installations.
 

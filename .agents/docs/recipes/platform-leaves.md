@@ -34,7 +34,7 @@ outside this recipe's scope.
   it checks evaluated module identity on seven target graphs without implying
   device or Windows host runtime qualification.
 - AC3: [TypeScript, .tsrx shims, and target commands](../../../docs/platform/module-resolution.md#typescript).
-  The [experimental native CLI](../../../docs/packages/package-cli.md#experimental-nim-executable)
+  The [experimental native CLI](../../../docs/packages/package-cli.md#native-executable)
   invokes the project's existing checker and supplies installed ambient declarations;
   command qualification on macOS does not establish app runtime behavior on a target.
 - AC4: [Linux compatibility resolution](../../../docs/platform/module-resolution.md#file-variants) and [experimental Linux target](../../../docs/start/toolchain.md#experimental-linux-target-webkitgtk-webview).

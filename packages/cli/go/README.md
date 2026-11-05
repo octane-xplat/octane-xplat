@@ -1,9 +1,8 @@
-# Parallel Go CLI
+# Go CLI
 
-This directory owns the Go migration of `xplat`. The TypeScript implementation
-is the behavioral reference; [Nim](../nim/README.md) remains available until the
-replacement is ready. The production bin and publication workflow are unchanged.
-The native executable never calls the old CLI as a fallback.
+This directory owns the Go implementation of `xplat` — the sole CLI. The package
+bin dispatches to this executable per platform. The native executable never
+calls a JavaScript CLI as a fallback.
 
 Build the public entry and run contract tests through Turbo. Use the repository's
 Bun 1.4.4 and Go 1.27.3. Node is a prerequisite for explicit JavaScript workers;
@@ -25,8 +24,8 @@ migration status and qualification evidence live in Silo and local reports.
 primitive harness instead. Both use the same process, HTTP, worker and native
 model code. The [evaluation tooling](../../../tools/cli-go/README.md) owns compiler
 pins, source/artifact fingerprints, measurements, project fixtures and portable
-qualification snapshots. Generated command metadata comes from the actual
-TypeScript descriptors at build time; help and schemas need no runtime Node.
+qualification snapshots. Command metadata comes from the checked-in
+`catalog.json`, embedded at build time; help and schemas need no runtime Node.
 
 `cli_contract.go` handles descriptor parsing, errors and exit groups. `workspace.go`
 keeps explicit selection and client preferences separate from sole-app discovery;
@@ -250,8 +249,8 @@ It refuses hidden, disabled, private and obscured controls. CDP/OS input, screen
 capture remains unsupported. Explicit text evidence retention is available with its own grant.
 Browser console forwarding has separate headless Chromium evidence. Actual Chromium inspection, programmatic interaction and browser action invocation
 have separate macOS evidence; portable protocol checks do not qualify other hosts
-for browser UI behavior. A spawned SDK tool is not proof of an attached app. Go never uses the old HTTP/TypeScript CLI as fallback.
-The retained TypeScript/Nim plugin channel remains unchanged outside explicit Go
+for browser UI behavior. A spawned SDK tool is not proof of an attached app. Go never uses a JavaScript CLI as fallback. The project-installed JS
+worker channel remains unchanged outside explicit Go
 configuration. Production builds receive no native bridge definition.
 
 Read a connected browser session's named hosts and inspect its ephemeral evidence.
@@ -316,8 +315,7 @@ reports unavailable. Ordinary build and typecheck remain foreground operations.
 The previous detached-owner implementation was removed; its last state is
 preserved in local checkpoint `14a7117c`. Its browser lifecycle qualification is
 superseded by the explicitly started dev-server architecture, not evidence that
-the new app-debug workflow is complete. TypeScript and Nim
-remain unchanged behavioral references except for these approved scope changes.
+the new app-debug workflow is complete.
 
 Workshop inspection delegates to the selected project's `@octane-xplat/workshop/node`
 through that small worker. Story discovery is static; project configuration executes
@@ -461,7 +459,7 @@ Build, clean, doctor, upgrade and `patches apply` share a kernel lease in the OS
 project identity so directory aliases share ownership. The cache must live outside
 the selected project. Keep its lock files in place after release; deleting a live
 lock would let another process acquire a different identity. This coordinates Go
-invocations sharing that cache. Separate Nim/TypeScript or direct engine runs need
+invocations sharing that cache. Separate JavaScript worker or direct engine runs need
 their own coordination. Cleanup checks cancellation between output trees;
 individual recursive removals may finish before cancellation is observed. A failed
 or interrupted cleanup reports removed/attempted outputs and preserves the failure
@@ -654,7 +652,7 @@ bun add --dev @octane-xplat/fingerprint
 /absolute/path/to/xplat-go updates init --dir .
 ```
 
-Go shares the exact hook text with TypeScript and publishes only the hook and
+Go shares the exact hook text with the retained worker and publishes only the hook and
 `.gitignore` through app directory handles. Custom nonempty hooks and output
 aliases fail before publication. Existing ignore bytes and source modes are
 preserved; repeat initialization leaves unchanged file timestamps intact. This

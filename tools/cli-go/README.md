@@ -1,12 +1,11 @@
-# Parallel Go CLI feasibility
+# Go CLI build and evaluation
 
-These evaluation tools support the [full Go migration](../../packages/cli/go/README.md)
-and retain the feasibility probe alongside the retained
-[Nim implementation](../../packages/cli/nim/README.md). It does not replace the
-CLI, change the npm channel, or fall back to the TypeScript CLI. Build-time
-metadata comes from the TypeScript reference. The primitive probe catalog describes reference
-contracts, not the probe's implemented command coverage; `--help` lists the
-bounded probe operations.
+These tools build the [Go CLI](../../packages/cli/go/README.md) — the sole CLI —
+and retain the primitive feasibility probe used by the unit gates. They do not
+change the npm channel or fall back to a JavaScript CLI. Build-time command
+metadata comes from the checked-in `packages/cli/go/catalog.json`. The primitive
+probe catalog describes reference contracts, not the probe's implemented command
+coverage; `--help` lists the bounded probe operations.
 
 Use Go **1.27.3**, Bun **1.4.4**, and Node with TypeScript stripping. The core
 build disables cgo. The optional `onnx` build uses
@@ -20,7 +19,7 @@ bun run turbo run test:go-model --filter=@xplat/cli-go-probe --only
 ```
 
 The optional model gate currently prepares and compares on macOS arm64. It
-reuses checksummed Nim evaluation assets without modifying Nim source. It runs
+reuses checksummed evaluation assets recorded during the migration. It runs
 native inference without network access or a runtime PATH, compares token IDs
 and vectors with the Node reference, and checks relevance on maintained-guide
 sections. Exact native/WASM ranking equality is not a requirement. The portable
@@ -326,9 +325,8 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go patch management"}' -- bun run turbo run test:go-patches --filter=@octane-xplat/cli --concurrency=1
 ```
 
-`test:go-clean` compares ordinary app/plugin cleanup with the actual TypeScript
-command on the source host and exercises native filesystem contracts on portable
-hosts. Fixtures include strict metadata rejection, output aliases, Windows
+`test:go-clean` exercises native filesystem contracts for ordinary app/plugin
+cleanup on source and portable hosts. Fixtures include strict metadata rejection, output aliases, Windows
 junctions, unsafe ancestors, cancellation and the shared native build/clean lease.
 The native unit gate checks stale plans, replaced parents and partial-effect
 reporting. All cases use disposable projects; never point this gate at a proving
@@ -455,9 +453,8 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 
 `test:go-updates` (portable: `test:go-updates:portable`) verifies the shared update
 hook, conditional-export resolution without executing packages, custom-hook and
-alias preservation, malformed worker identities and cancellation cleanup. Source
-hosts compare the actual built TypeScript initializer; portable snapshots label
-that reference-only case as skipped. Byte/mode preservation is a POSIX-only case.
+alias preservation, malformed worker identities and cancellation cleanup.
+Byte/mode preservation is a POSIX-only case.
 The default gate uses actual project-installed worker files; fake workers cover
 only protocol rejection and blocked-worker cancellation.
 
@@ -470,9 +467,8 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 Inter WOFF2 data through the project engine. It checks Fontsource static/variable
 selection, subset/weights, names/tokens, custom source paths, existing fonts,
 output aliases, malformed/stale plans with a positive control, cancellation and
-actual Bun installation through a private loopback package registry. Only the
-source-host test imports the built TypeScript reference; snapshots label that
-case skipped. Fonts are parsed and hashed without visual analysis. The converter
+actual Bun installation through a private loopback package registry.
+Fonts are parsed and hashed without visual analysis. The converter
 peer is installed only for this fixture; its absence has an actionable diagnostic.
 
 ```sh

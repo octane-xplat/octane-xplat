@@ -124,5 +124,3 @@ console.debug('temporary diagnostic')
 console.debug('temporary diagnostic') // xplat-disable-line
 ```
 
-For a linked checkout with a missing `xplat-lint` shim, see the
-[CLI's bin repair instructions](https://octane-xplat.goddardai.org/package-cli#working-against-a-local-checkout).

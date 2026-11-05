@@ -80,11 +80,12 @@ GJS host; Linux users supply the GTK/WebKit system runtime.
 
 ## Single-file executable
 
-The CLI executables workflow attaches standalone executables to
+The CLI executables workflow attaches native Go executables to
 [GitHub Releases](https://github.com/octane-xplat/octane-xplat/releases), named `xplat-<platform>-<architecture>` (with
-`.exe` on Windows), alongside SHA-256 checksums. These contain Bun and the
-CLI dependencies; a separate Bun installation is unnecessary. App builds still
-need Node, Bun, and the toolchains for their selected platforms.
+`.exe` on Windows), alongside SHA-256 checksums. The executable is a single
+native binary — a much smaller download that needs no Bun payload or
+extraction cache. App builds still need Node, Bun, and the toolchains for
+their selected platforms.
 
 For example, after downloading the macOS Apple Silicon executable, run from
 its download folder:
@@ -93,11 +94,6 @@ its download folder:
 chmod +x ./xplat-darwin-arm64
 ./xplat-darwin-arm64 --help
 ```
-
-The first launch extracts its embedded packages into a content-addressed cache
-under `~/.cache/octane-xplat/cli` (`$XDG_CACHE_HOME` on Unix or
-`%LOCALAPPDATA%` on Windows, when set). Later launches reuse that payload.
-Set `XPLAT_CLI_CACHE` to choose a writable cache directory:
 
 ```sh
 XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
@@ -117,27 +113,21 @@ formatter dependencies match that host; changing only Bun's compile target
 would leave incompatible native modules. The CLI executables workflow does
 this for macOS and Linux arm64/x64 and Windows x64.
 
-## Experimental Nim executable
+## Native executable
 
-The parallel Nim rewrite is being prepared for the `nim` prerelease channel.
-Contributors with this repository installed can build it locally. macOS Apple
-Silicon has the broadest coverage. A representative web build and cancellation
-workflow also runs on Ubuntu 24.04 x64 and Windows 11 x64 with Bun 1.4.4. These
-checks include installed project tools, cancellation and owner restart; other
-commands and platform engines still have separate limits. Windows qualification
-currently uses an isolated build, rather than a published installer. The local
-build command below is the macOS path; the [portability runner](../../tools/cli-nim/README.md#isolated-native-portability-builds)
-owns the Linux and Windows source builds. Check the native catalog before using
-a command:
+`xplat` is a native Go executable; the TypeScript and Nim implementations are
+removed. Published platform packages ship the matching binary, and the package
+`bin` resolves it for the install platform (darwin/linux/windows on
+arm64/amd64). Contributors with this repository installed can build and run it
+locally; `bun run xplat` inside an app workspace resolves the local
+`research/go-cli` build:
 
 ```sh
-bun run turbo run build:nim --filter=@octane-xplat/cli
-research/nim-cli/native/xplat catalog --json
+turbo run build:go --filter=@xplat/cli-go-probe
+bun run xplat catalog --json
 ```
 
-On Windows, start the preview CLI from PowerShell or a Bun script. Background
-owners are not qualified to survive a Windows Turbo task finishing. Keep the
-project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli@nim` package installed;
+Keep the project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli@nim` package installed;
 the native executable does not include those tools. A web build returns a job
 that you can inspect and cancel:
 
@@ -149,7 +139,7 @@ xplat diagnostics --job JOB_ID --json
 xplat job cancel JOB_ID --json
 ```
 
-The experimental npm tarball keeps the small Vite plugins and worker alongside
+The npm tarball keeps the small Vite plugins and worker alongside
 the native binary. Projects using those JS exports install their engine packages
 separately; a native-only installation does not download them. Native build commands resolve their worker and declarations from the selected
 project's compatible CLI installation; no separate build package is required. For projects using the CLI Vite imports directly, install the
@@ -162,7 +152,7 @@ bun add --dev vite@8.3.0 @tsrx/core@0.5.5 @octane-xplat/lib@0.19.0 \
   @babel/plugin-transform-unicode-sets-regex@8.0.1
 ```
 
-Keep the existing Vite import when using the Nim package. The large macOS host
+Keep the existing Vite import when using the native package. The large macOS host
 assets remain a separate optional installation:
 
 ```ts
@@ -178,8 +168,8 @@ to check which operations your native build provides; a tool being installed
 does not mean an SDK, device or running app is ready:
 
 ```sh
-research/nim-cli/native/xplat status --project "$PWD" --json
-research/nim-cli/native/xplat capabilities --project "$PWD" --json
+xplat status --project "$PWD" --json
+xplat capabilities --project "$PWD" --json
 ```
 
 Native lint runs the project's installed lint engine on macOS Apple Silicon.
@@ -189,9 +179,9 @@ TSRX rules, project ignores, and opt-in safe fixes. Help works without Node.
 
 ```sh
 bun add --dev @octane-xplat/lint
-research/nim-cli/native/xplat lint --help
-research/nim-cli/native/xplat lint src
-research/nim-cli/native/xplat lint --fix src
+xplat lint --help
+xplat lint src
+xplat lint --fix src
 ```
 
 Native formatting on macOS Apple Silicon uses the project's installed
@@ -216,9 +206,9 @@ snapshots, and labels local project guidance separately. Start with lexical sear
 
 ```sh
 # In this repository, select the web app; in another workspace, select its app id.
-research/nim-cli/native/xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
+xplat docs search navigation --project "$PWD" --app apps/web --mode lexical --json
 # Replace DOC_REF with a ref returned by the search.
-research/nim-cli/native/xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
+xplat docs read --project "$PWD" --app apps/web --ref DOC_REF --json
 ```
 
 For semantic search (matching meaning), explicitly prepare the optional native
@@ -228,18 +218,17 @@ your computer. Ordinary search never downloads these assets and reports a lexica
 fallback when embeddings are unavailable; re-index after editing linked docs:
 
 ```sh
-research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
-research/nim-cli/native/xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
+xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+xplat docs search "remember input between pages" --project "$PWD" --app apps/web --json
 ```
 
-The native docs cache is separate from the TypeScript cache. Status reports its
-location under `XPLAT_MCP_CACHE/nim-v1`. Optional model files default to
-`~/.cache/octane-xplat/nim-inference`; set `XPLAT_NIM_INFERENCE_CACHE` to an absolute
-private directory to store them elsewhere. Searches reject external symlink
-targets and bound traversal; docs larger than 4 MiB produce an explicit error:
+The native docs cache lives in its own `XPLAT_MCP_CACHE` namespace. Optional
+model files are retained separately from the executable. Searches reject
+external symlink targets and bound traversal; docs larger than 4 MiB produce
+an explicit error:
 
 ```sh
-XPLAT_NIM_INFERENCE_CACHE="$HOME/.cache/xplat-models" research/nim-cli/native/xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
+xplat docs index --project "$PWD" --app apps/web --package @octane-xplat/ui --json
 ```
 
 Native action discovery reads the running app's development bridge without
@@ -248,21 +237,21 @@ instances and declared actions. An empty registry is different from an unreachab
 bridge; use the returned instance and revision when invoking:
 
 ```sh
-research/nim-cli/native/xplat actions list --project "$PWD" --app apps/web --json
+xplat actions list --project "$PWD" --app apps/web --json
 ```
 
 Invocation requires Node >=22.22.2 and a compatible `@octane-xplat/cli` worker
-installed in the selected project. During this migration, use the matching
-checkout/prerelease build package; an older worker reports an update requirement.
+installed in the selected project. Use the matching
+release build package; an older worker reports an update requirement.
 The worker checks JavaScript field contracts, including regexes and defaults.
-Nim owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
+Go owns permission checks, HTTP, bounded queues, jobs and cancellation. Follow
 the returned job through completion and inspect reported effects before retrying:
 
 ```sh
 # Replace these values with exact identities from the live listing.
-research/nim-cli/native/xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
-research/nim-cli/native/xplat actions status JOB_ID --project "$PWD" --json
-research/nim-cli/native/xplat job cancel JOB_ID --project "$PWD" --json
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --project "$PWD" --app apps/web --json
+xplat actions status JOB_ID --project "$PWD" --json
+xplat job cancel JOB_ID --project "$PWD" --json
 ```
 
 Request keys recover live jobs within their app instance/action. Reusing a key
@@ -273,7 +262,7 @@ does not undo changes. A result-contract failure also leaves completed effects
 in place. Read the job's structured result or failure:
 
 ```sh
-research/nim-cli/native/xplat job status JOB_ID --project "$PWD" --json
+xplat job status JOB_ID --project "$PWD" --json
 ```
 
 Native `typecheck` uses the selected project's installed package manager and
@@ -285,7 +274,7 @@ without executing baked loaders:
 
 ```sh
 # Replace /path/to/octane-xplat with your repository's absolute path.
-/path/to/octane-xplat/research/nim-cli/native/xplat typecheck
+xplat typecheck
 ```
 
 Native `routes` generates route contracts and platform catalogs, and bakes loader
@@ -297,8 +286,8 @@ client imports afterward. `--dir` and `--out` require a value; missing values fa
 before generating files:
 
 ```sh
-/path/to/octane-xplat/research/nim-cli/native/xplat routes
-/path/to/octane-xplat/research/nim-cli/native/xplat routes --watch
+xplat routes
+xplat routes --watch
 ```
 
 Native session and job commands connect to a background owner for the workspace.
@@ -309,7 +298,7 @@ Ubuntu x64 host; development sessions and native app builds require macOS.
 Other engines remain migration work:
 
 ```sh
-/path/to/octane-xplat/research/nim-cli/native/xplat session list --json
+xplat session list --json
 ```
 
 Native web builds use your project's installed Vite and package manager. The
@@ -320,11 +309,11 @@ a background job. Poll its returned job id and read captured output. Job logs
 are bounded and disappear when the background owner exits:
 
 ```sh
-/path/to/octane-xplat/research/nim-cli/native/xplat build --targets web
-/path/to/octane-xplat/research/nim-cli/native/xplat runtime build --platform web --json
+xplat build --targets web
+xplat runtime build --platform web --json
 # Replace JOB_ID with the returned id:
-/path/to/octane-xplat/research/nim-cli/native/xplat job status JOB_ID --json
-/path/to/octane-xplat/research/nim-cli/native/xplat diagnostics --job JOB_ID --json
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
 ```
 
 Native macOS builds use a separate [macOS build worker](package-macos-build.md).
@@ -338,7 +327,7 @@ xplat runtime build --platform macos --json
 ```
 
 For an app with macOS development configuration, start its installed development
-engine and inspect the returned session. Nim owns the session and process cleanup;
+engine and inspect the returned session. Go owns the session and process cleanup;
 Vite and the native compiler handle rebuilds in the project toolchain. See the
 [development workflow](package-macos-build.md#start-a-development-session) for
 prerequisites and current limits. Retained session logs remain readable after
@@ -378,7 +367,7 @@ xplat diagnostics --session SESSION_ID --report REPORT_ID --json
 Inspect the native catalog before using another workflow:
 
 ```sh
-/path/to/octane-xplat/research/nim-cli/native/xplat catalog --json
+xplat catalog --json
 ```
 
 ## App testing
@@ -460,13 +449,12 @@ bun install --no-frozen-lockfile
 bun run xplat doctor
 ```
 
-The experimental native CLI is the one channel exception: an exact CLI pin
+The native CLI is the one channel exception: an exact CLI pin
 whose base matches this framework release may use the `nim.N` suffix. Its
-installed version must match that exact pin. The reference upgrade planner
+installed version must match that exact pin. The upgrade planner
 preserves the CLI choice and rejects catalog/override conflicts before writing;
-other framework and compiler pins keep their release rules. After a Nim release
-is published, save its exact version when opting in. Native `doctor` and `upgrade`
-execution remain pending during the rewrite:
+other framework and compiler pins keep their release rules. Save the exact
+version when opting in to the native channel:
 
 ```sh
 bun add --dev --exact @octane-xplat/cli@nim
@@ -731,24 +719,6 @@ resolutions. Convert an older binary lockfile before checking patches:
 bun install --save-text-lockfile --lockfile-only
 xplat patches check
 ```
-
-## Working against a local checkout
-
-Developing an app against a local checkout
-(`"@octane-xplat/cli": "link:../octane-xplat/packages/cli"`)? pnpm 11 reads a
-`link:` dep's manifest while resolving — before `preinstall` hooks run — so a
-linked path that only appears mid-install (for example a symlink a hook
-creates) installs without its `node_modules/.bin` shims: `xplat` and
-`xplat-lint` come back `command not found`, and later installs report
-"Already up to date" without re-linking. Restore the shims with:
-
-```sh
-node node_modules/@octane-xplat/cli/src/link-bins.ts
-```
-
-Run it from the app's `postinstall` (after the hook that creates the link
-path) so the first install lands them, or reinstall with the path already
-present. pnpm 12 links these bins normally.
 
 ## Native Vite preset
 

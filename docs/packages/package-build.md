@@ -66,7 +66,7 @@ import { xplatCss } from '@octane-xplat/build/vite'
 The TypeScript CLI continues to expose its existing plugin paths during the
 parallel migration. The experimental Nim package also retains the small Vite
 exports, with opt-in engine dependencies; changing to a separate package is not
-required for those imports. See [native CLI setup](package-cli.md#experimental-nim-executable)
+required for those imports. See [native CLI setup](package-cli.md#native-executable)
 for its opt-in engine installation. Command availability remains a separate contract: inspect the
 installed CLI's catalog before using it to orchestrate builds.
 

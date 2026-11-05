@@ -1,27 +1,28 @@
 # CLI implementation guidance
 
-The full Go migration lives in `go/`; retain the Nim implementation in `nim/`
-until the replacement is ready. Keep the TypeScript implementation as the
-behavioral reference during migration. Node is an assumed prerequisite for explicit
-JavaScript workers; do not bundle or download it. Inference remains native.
-See [the Go entry](go/README.md) for build and ownership boundaries. Native
-commands must not fall back to executing the old CLI. Project-installed JavaScript build engines remain a
+The Go implementation in `go/` is the sole CLI. The TypeScript sources remaining
+under `src/` exist only for published Vite/plugin exports and the small
+JavaScript workers that Go invokes from the selected project; they are not a CLI
+fallback. Node is an assumed prerequisite for explicit JavaScript workers; do not
+bundle or download it. Inference remains native. See [the Go entry](go/README.md)
+for build and ownership boundaries. Native commands must not fall back to
+executing the old CLI. Project-installed JavaScript build engines remain a
 separate execution boundary. Keep the executable native, without embedded
 Node/Bun or an old-CLI fallback. Small operation workers and Vite exports may
 live in this package; language boundaries do not require npm package boundaries.
 Keep heavy engine dependencies opt-in and large platform host assets separate.
 
-The Nim tarball retains the small Vite/worker exports in this package using
+The published tarball retains the small Vite/worker exports in this package using
 the curated `@octane-xplat/build` output closure and optional engine peers.
 Native-only installs must not fetch those peers. Native worker/declaration
 lookup uses the selected project's `@octane-xplat/cli` installation. Reject a
 nearer broken install or worker symlink outside its canonical package root; do
 not supply a missing project worker from another installation or global paths.
 Project-installed plugins also remain in `@octane-xplat/build`. That package compiles
-the Vite plugin closure from the TypeScript reference at build time; its published
+the Vite plugin closure from this package's TypeScript sources at build time; its published
 code has no CLI runtime dependency. Those current package locations are not a
 requirement for future worker/plugin placement. For native commands, invoke the
-app's installed compiler/build tools with explicit argv, cwd and environment, and keep command/session orchestration in Nim.
+app's installed compiler/build tools with explicit argv, cwd and environment, and keep command/session orchestration in Go.
 
 Node-based project operations can import `@octane-xplat/macos-build/dev-engine`
 from the selected project to reuse the canonical engine in their existing worker.
@@ -34,7 +35,7 @@ delay after host launch can cancel before that code runs.
 
 The macOS development worker is `@octane-xplat/macos-build/dev-worker`.
 It runs the canonical Vite/compiler/HMR engine and publishes versioned readiness
-metadata; Nim owns target claims, session identities, captured logs and the outer
+metadata; Go owns target claims, session identities, captured logs and the outer
 process group. Keep readiness separate from printed diagnostics. Put owned session
 resources in the host's private cache, outside dependency caches removed by clean,
 so cancellation before worker readiness can still release them.
@@ -140,12 +141,12 @@ identity when restarting. Bound disk retention separately from memory retention.
 Project operations that already need JavaScript use small, versioned workers
 from the selected project's `@octane-xplat/cli/worker` or platform-specific
 `@octane-xplat/macos-build/worker`. Keep parser/compiler
-AST details and JS execution there; pass stable validated metadata to Nim.
-Nim owns explicit argv/cwd/environment, response bounds, timeout, cancellation
+AST details and JS execution there; pass stable validated metadata to Go.
+Go owns explicit argv/cwd/environment, response bounds, timeout, cancellation
 and process-group cleanup. Sidecar JSON separates results from library diagnostics
 on stderr. Do not resolve a missing project dependency from global module paths.
 Keep catalog, discovery, permissions, source/document reads, HTTP control and
-process ownership native. Inference stays in Nim; useful retrieval quality takes
+process ownership native. Inference stays in Go; useful retrieval quality takes
 precedence over incidental equality with WASM search ranking.
 
 Development-action input/output validation uses the selected project's
@@ -164,7 +165,7 @@ same project-installed worker can remove duplicated language-specific logic.
 Fast native help startup does not establish an end-to-end speed benefit for that
 renderer. Formatting follows this rule too: share discovery, Git ignore and
 formatter planning with the reference command; let the project's formatter engine
-load its configuration and native binding. Nim validates the complete plan before
+load its configuration and native binding. Go validates the complete plan before
 any source publication, then stages adjacent files and performs native rename.
 Keep raw-byte source digests and permissions in stale-input checks; decoding two
 different invalid UTF-8 byte sequences can yield the same text. Worker/library
@@ -468,88 +469,7 @@ owns the complete app-directory/archive publication pair and launcher modes.
 Annotate exported option shapes in transitional `@ts-nocheck` helpers: an optional
 binding without a default may disappear from the inferred public call signature.
 
-## Write Nim with explicit data semantics
-
-- Distinguish an absent `JsonNode` reference (`nil`) from a JSON `null` node
-  (`JNull`). Optional JS property access and nullish fallback do not translate
-  to a nil check alone. Check the node kind before reading an object, array,
-  string, or number, and preserve the reference contract's missing/null policy.
-- Use `Option[T]` when a valid empty value must remain distinct from absence.
-  For example, a parsed parameter can have `some("")`, while a static segment
-  has `none(string)`. An empty-string sentinel would merge those results.
-- `JsonNode` is a reference type: assignment shares mutable data. Return deep
-  copies at snapshot boundaries, including nested build identities and cached
-  async results, so caller mutation cannot alter private ownership/state records.
-  Before copying a constructed JSON object, omit absent properties or insert
-  `newJNull()` explicitly. A nested nil reference is not a JSON null and can
-  crash the standard deep-copy path. Exercise errors with optional metadata
-  absent; an ambiguity report must not take down a persistent owner.
-- Sequence iteration can yield borrowed (`lent`) values. A closure comparator
-  cannot safely capture such a loop variable. Use indexed iteration and copy
-  the value into a local before creating the closure; preserve the compiler's
-  borrow checks instead of disabling them.
-- `for key, value in jsonNode` is object iteration: the key is a string.
-  For an array with numeric positions, use `for i in 0..<node.len` and
-  `let value = node[i]`. Do not assume a two-variable loop means array indices.
-- Avoid naming a sequence-returning helper `keys` when `std/json` is imported.
-  In a `for` expression, Nim can select the library's `keys(JsonNode)` iterator
-  instead of the local procedure. Give semantic helpers distinct names such as
-  `jsObjectKeys`; test null and primitive inputs as well as ordinary objects.
-- Nim strings store bytes; decode raw input before treating it as UTF-8.
-  Iterating `runes` does not validate an arbitrary byte buffer. Use `runes`
-  for Unicode scalar values; JavaScript
-  string lengths count UTF-16 code units. Choose deliberately when porting length
-  limits or offsets; one non-BMP character counts as two JS code units.
-- Number parsing and formatting are contracts, not mechanical substitutions.
-  A validated integer can still be a `JFloat` node after argument parsing.
-  `getInt()` silently returns its default for that storage kind. Accept validated
-  numeric kinds, check finite/integer/range constraints, then convert explicitly;
-  exercise public options as well as low-level probes supplied with `JInt` inputs.
-  JavaScript `Number()` accepts empty/whitespace strings and unsigned base-prefixed
-  integers. Port accepted syntax, finite/integer checks, bounds, and diagnostics
-  explicitly. Nim floating-point parsing accepts separators such as `1_0` that
-  JS `Number()` rejects. JSON serialization also needs deliberate handling of
-  negative zero: `JSON.stringify(-0)` emits `0`. Nim
-  `formatFloat(x, ffDecimal, 0)` can leave a trailing decimal dot;
-  normalize it when the contract requires JS whole-number formatting. Keep
-  differential tests for numeric edge cases rather than trusting matching types.
-- Use shortest-roundtrip floating-point digits before applying JavaScript's
-  decimal/scientific notation thresholds. Printing the exact binary value with
-  fixed-point formatting can produce a different integer string. `std/json`
-  also stores overflowing integer tokens as raw-number `JString` nodes;
-  `getFloat()` on those nodes silently returns its default. Normalize numeric
-  decoding at the JSON boundary and test integers beyond the safe-double range.
-- JavaScript string coercion is separate from JSON serialization. Arrays coerce
-  by joining their elements, with null elements empty; objects normally become
-  `[object Object]`. Match the intended conversion before hashing identities or
-  composing diagnostics instead of assuming `$jsonNode` has the same meaning.
-- Choose JSON equality deliberately. Nim's object/array equality compares
-  contents; JavaScript `===` compares their identities. Nim also stores integer
-  and floating-point JSON nodes separately, while JS uses one Number type.
-  Version binding and metadata validation need tests across those distinctions.
-- Successful Nim JSON parsing does not establish strict `JSON.parse` or
-  `jsonc-parser` equivalence. Test comments, trailing commas, malformed documents,
-  scalar roots, and parse-error behavior for each file format separately.
-- `std/json`'s `%` conversion turns non-finite floating-point values into strings
-  such as `"inf"` and `"nan"`. When preserving numeric values until a wire-policy
-  decision, construct `newJFloat(value)` explicitly; the JSON writer can then
-  encode non-finite numbers as `null`. Do not rewrite literal strings with those
-  spellings. Keep negative-zero handling at the same serialization boundary.
-
 ## Read installed dependency graphs without executing code
-
-`compatibility_check.nim` inspects metadata against the creator's canonical
-compatibility manifest. Preserve direct app pins separately from installed
-versions: a matching declaration does not establish a matching runtime graph.
-Keep the native CLI release suffix as a validated ASCII string, not a machine
-integer: it needs identity comparison, and conversion would truncate large valid
-identifiers. An exact same-framework `nim.N` CLI declaration selects its exact
-installed-version expectation; it does not exempt other framework pins. Upgrade
-preflight must validate the completed catalog plan so later apps cannot silently
-replace an earlier app's preserved CLI choice.
-Count singleton copies by canonical physical package root, using the installed
-manifest identity so aliases count correctly. Use `OrderedTable` where Node Map
-insertion order contributes to diagnostics, and a visited set to bound cycles.
 
 Keep root dependency/dev/optional declarations separate from root consumer peers;
 library peer ranges are app-owned. Traverse transitive dependency, optional and
@@ -560,61 +480,6 @@ builtin-name inventory as data; metadata in an on-disk package named `fs` must
 not create a graph that Node would never resolve. Bound metadata and graph size,
 and keep cancellation checks at each graph step. Never import dependency code
 merely to discover its version.
-
-## Compile-time data and module boundaries
-
-Use `const metadata = staticRead("metadata.json")` for embedded generated data;
-`staticRead` requires compile-time evaluation, rather than an ordinary runtime
-argument expression. Generate metadata from the canonical descriptors instead of
-maintaining another command-contract copy. Keep generated data out of Git.
-
-An imported module's unconditional `staticRead` inputs are compile dependencies
-even when its feature reports unsupported on the destination OS. Include those
-small manifests in source snapshots and hash them independently from optional
-runtime/model bodies. Compile the snapshot itself to verify its input closure.
-
-Large `staticRead` strings can pass Nim and GCC/Clang while failing MSVC's
-generated-C literal limit (`C2026`). Embed bounded compile-time chunks and join
-them at runtime when the data exceeds that backend limit. Preserve the exact
-bytes and verify the actual target compiler, then remeasure startup.
-
-Nim's pinned Visual C++ configuration uses `vccexe.exe`, a wrapper that prepares
-the Visual Studio environment. In an already configured developer shell, select
-`cl.exe` for `vcc.exe`, `vcc.cpp.exe` and both linker keys in the task's compiler
-arguments. Keep SDK setup process-local; do not edit the shared compiler config.
-Forward `INCLUDE`, `LIB` and `LIBPATH` explicitly through Turbo's strict task
-environment, and check the effective child environment before compiling. Finding
-`cl.exe` on PATH does not establish that the C headers and libraries are visible.
-
-Route planning and rendering share `src/route-generator.ts` between the reference
-CLI and the selected project's build worker. The worker returns an artifact plan;
-Nim validates its schema, complete expected destination set and unchanged inputs
-before publishing. Keep this operation free of output publication and CLI command
-imports. Propagate structured warnings on both success and failure. A matching
-protocol version alone does not establish valid file destinations or completeness.
-
-Inspect a macOS executable's `LC_BUILD_VERSION` as well as its linked libraries.
-The compiler can default the deployment minimum to the current SDK/host even
-when every linked library is part of macOS. A successful host build does not
-establish support for older systems; pin deployment flags deliberately and
-qualify the actual supported OS separately.
-
-Nim source module basenames must be valid Nim identifiers. Use underscores,
-not hyphens, in `.nim` filenames; output executable names may contain hyphens.
-Use focused modules for parsing, discovery, process/HTTP boundaries and command
-behavior so pure logic can be tested without starting project tools or sessions.
-Export shared symbols explicitly with `*` and import their owning modules.
-`include` shares the caller's scope and can hide dependencies on its locals;
-prefer imported modules for reusable code rather than relying on include order.
-
-`std/json.pretty()` accepts an indentation width, not an indentation character.
-If matching a tab-indented file contract, convert only the generated line prefixes;
-replacing spaces globally would corrupt string values. For UTC timestamps, convert
-with `.utc` before formatting a trailing `Z`: formatting a zone marker alone does
-not change the instant's timezone.
-Nim integer division truncates toward zero. When formatting timestamps before the
-Unix epoch, normalize seconds and a nonnegative millisecond remainder explicitly;
-ordinary `div`/`mod` can otherwise print an invalid negative fractional component.
 
 ## Verify behavior across language boundaries
 
@@ -630,35 +495,22 @@ front eviction, keep sequence numbers monotonic, disclose cursor gaps, and copy
 records before returning them or invoking observers. Snapshot the callback list
 before notification so reentrant registration cannot invalidate iteration.
 
-Use a native rename primitive for publication that requires atomic moves.
-Nim's high-level move helpers can fall back to copy-and-delete across filesystems;
-the operation name alone does not promise an atomic rename. Keep same-filesystem
-staging, explicit rollback and retained recovery files; qualify a real filesystem
-failure, not only a mocked return.
-
 A foreground output sink has lifecycle responsibility even if the log store
 contains observer exceptions. Catch a sink's write/flush error explicitly and
 cancel the owned operation. Silently swallowing a broken pipe can leave a build
 running after its consumer disappears; qualify cleanup before fixture teardown.
 
-Keep a Node/TypeScript differential oracle until each migrated behavior is
-qualified. Compare structured results, errors, exit codes and stream ownership;
-compilation or a successful happy path does not prove semantic parity. For pure
-logic, a test-only native program reading NDJSON can exercise a large case corpus
-in one process. Do not ship test-only entry points in the production binary.
+Compare structured results, errors, exit codes and stream ownership at the
+actual interface boundary; compilation or a successful happy path does not prove
+semantic parity. For pure logic, a test-only native program reading NDJSON can
+exercise a large case corpus in one process. Do not ship test-only entry points
+in the production binary.
 
 Contain differential reference processes that invoke installed tools, too.
 Successful synchronous Node version probes can leave descendants holding a
 Windows working directory open; retries or unlinking fixture packages do not
 establish cleanup. Use the test-only Go process probe for the Doctor reference
 and assert its exit, capture and cancellation state before reading the report.
-
-Publish an ownership future before starting async work that can notify observers.
-Nim async procedures can execute synchronously until their first pending await;
-assigning `owner.pending = startWork()` can allow a reentrant cleanup observer to
-see no pending work. Install a placeholder future first, then complete/fail it
-when the runner finishes. Cleanup must await that ownership future before reporting
-released resources. A completed state snapshot alone does not prove cleanup.
 
 Assert that positive fixtures actually reach the intended successful result.
 Two implementations returning the same unavailable/default value do not qualify
@@ -674,14 +526,6 @@ For failure-path checks, catch only the operation being tested. Assert rejection
 outside that catch so a successful operation cannot catch the test's own failure
 and accidentally pass. Keep protocol/exit assertions independent of diagnostics.
 
-Treat dependency semantics as independent of successful compilation. In particular,
-NimYAML's JSON construction can overwrite duplicate keys that the reference YAML
-reader rejects; validate the event stream when key uniqueness is part of the
-input contract. With Nim variant (`case`) objects, inspect the active kind before
-accessing branch-specific fields. When rewriting an event's kind, construct a new
-variant value instead of changing the tag and then using fields from the old
-branch; otherwise runtime field checks can raise `FieldDefect`.
-
 A glob matcher and a filesystem walker have separate behavior:
 explicitly choose hidden-entry, symlink, exclusion and literal-directory rules.
 Compare path sets when the reference does not promise enumeration order.
@@ -696,23 +540,7 @@ only outside quoted strings and check that a trailing comma follows a complete
 value; blindly deleting `,]` would turn invalid `[,]` into an accepted array.
 Keep format-specific validation separate from strict project manifests.
 
-Compiler pins and Nim dependencies are declared under `tools/cli-nim`. Keep
-compiler downloads and caches task-local in ignored `research/nim-cli` storage.
-Run repository builds/tests through Turbo and reserve `native_builds` before
-expensive compilation. Qualify actual native targets; cross-compilation is build
-evidence only. Run reports and operational status belong in local reports/Silo,
-not in this guidance file.
-
-`nim check` checks Nim semantics without compiling C or producing an executable.
-Compiler-VM (`static`) checks can verify pure logic, but neither establishes
-native runtime, FFI, process or platform behavior. Keep native execution gates.
-
 ## Async and child-process boundaries
-
-C-imported constants can be runtime values in Nim's bindings. For example,
-macOS POSIX errno values cannot be used as Nim compile-time `case` labels.
-Use runtime comparisons when the binding is not a Nim `const`; do not replace
-platform error constants with hardcoded numeric values.
 
 Compile C function-table adapters against the complete pinned public-header
 closure. A cached C object can hide missing transitive headers; verify a fresh
@@ -758,7 +586,7 @@ Treat detached daemon handoff separately from disposable tool children. An
 invocation's ordinary process manager must not kill a successfully published
 daemon on exit. Failed startup may terminate only the still-owned unpublished
 child, never a PID merely read from a stale descriptor. Export read-only PID
-accessors and track acquired ownership explicitly: a default-initialized Nim
+accessors and track acquired ownership explicitly: a default-initialized
 resource object contains zeroes, which must not mean owned FD 0 or process group 0.
 
 Keep host discovery and lifetime locks outside caches removed by dependency
@@ -793,21 +621,6 @@ preserve raw bytes and track line starts separately for stdout and stderr;
 decoding each chunk can replace part of a valid character. Keep bounded decoded
 log records separate from the full terminal stream so truncating logs does not
 silently discard compiler diagnostics.
-
-Socket chunks also split UTF-8 sequences. For bounded RPC, use unbuffered reads,
-assemble one byte-bounded frame, then decode/parse it. Do not require EOF to finish
-a request/response exchange. Close and drain pending I/O during shutdown. Preserve
-OS `DeviceId`/`FileId` types for path ownership checks; remove an owned socket path
-only if its identity still matches, since another listener can replace its name.
-Nim's `std/asyncnet` Unix-socket API is qualified on macOS and Linux for this
-bounded protocol; reuse it before adding a separate socket engine. Keep transport
-interoperability separate from authenticated owner and project-worker evidence.
-For Windows, use the explicit `local_rpc` platform boundary. Keep SDK OVERLAPPED
-records, events and pending buffers in C-owned memory. `CancelIoEx` requests
-cancellation; it does not release that memory. Poll terminal completion before
-closing handles/freeing buffers, and share one release future across repeated
-close calls. Reinitialize an OVERLAPPED record only after its prior I/O completes.
-A timed-out Nim future alone cannot establish kernel cleanup.
 
 A completed pipe write can still be buffered. Let ordinary clients consume the
 reply and disconnect with a bounded asynchronous drain; blocking
@@ -851,22 +664,6 @@ terminating the transferred owner. Before publication, cancellation must await
 both leader exit and zero active job members. Qualify survival across separate
 SSH connections and longer-lived descendants on owner exit.
 
-Windows environment blocks include hidden drive-current-directory entries such
-as `=C:=C:\project`. Nim 2.2.12's `envPairs` splits at the first equals sign,
-yielding an empty key and `C:=C:\project` as the value. Reconstruct the documented
-`=C:` key at the inherited-environment boundary, preserve each drive separately,
-and use case-insensitive names. Explicit ordinary environment overlays still
-reject empty/equals-containing names. Node's environment object can hide these
-entries, so qualify normal PowerShell/cmd launches as well as Node test parents.
-
-Keep required OS variables when qualifying an explicit child environment. On the
-qualified Windows host, importing Nim's async dispatcher without `SystemRoot`
-fails during Winsock initialization before the program's exception handler runs,
-with a misleading “not a socket” error. An empty `PATH` still proves runtime
-independence; an invalid OS environment does not. Preserve the caller's normal
-OS environment for production owners and supply `SystemRoot` explicitly in
-minimal native fixtures rather than silently adding variables in the launcher.
-
 Calling `CreateProcessW` directly does not guarantee shell-free execution:
 Windows can dispatch `.cmd`/`.bat` files through `cmd.exe`; see
 [the MSRC explanation](https://www.microsoft.com/en-us/msrc/blog/2014/04/ms14-019-fixing-a-binary-hijacking-via-cmd-or-bat-file).
@@ -876,7 +673,7 @@ before launch. Test ordinary, case-varied and trailing-dot/space aliases against
 an observable script marker; do not infer safety from literal argv alone.
 Windows job termination is immediate; do not describe it as cooperative POSIX
 SIGTERM or promise a grace period. Keep console callbacks in C with an atomic
-flag; perform Nim allocation, logging and cancellation on the event loop.
+flag; perform allocation, logging and cancellation on the event loop.
 
 POSIX spawn extensions differ by host. Keep macOS close-by-default flags and
 Linux close-from file actions in separate platform modules; run the close-from
@@ -892,19 +689,6 @@ Node on Linux can execute no-shebang text through a shell while Node on macOS
 rejects it. Keep the native `ENOEXEC` rejection explicit and tested instead of
 silently selecting an interpreter to reproduce that platform-specific fallback.
 
-Sending SIGKILL is not confirmation that every group member has exited or been
-reaped. On macOS, observe leader exit with `waitid(..., WNOWAIT)` and keep its PID
-reserved while checking the group's remaining members through the SDK API. Only
-reap the leader and complete cleanup after the group has no other members. Avoid
-another group signal after releasing that identity. A small C shim keeps SDK
-struct layouts out of Nim; resolve its header from `currentSourcePath().parentDir`
-so probes with another main-module directory can compile it too.
-
-Nim 2.2.12 `quit(int)` clamps to -128..127 before calling C `exit`. Use the
-`process_exit.exitProcess` helper when forwarding native exit statuses, including
-128+signal values. Calling C `exit` still runs registered `atexit` cleanup;
-`_exit` skips it. Verify actual parent exit status, not just a returned integer.
-
 For concurrent launches, prefer child-only spawn actions for cwd and explicit
 descriptor inheritance. A standard-library helper can briefly change the
 parent's cwd internally. Audit pinned POSIX bindings as well: similarly named
@@ -919,11 +703,6 @@ search. Test with a named executable that exists only in the overridden PATH.
 
 ## Filesystem and byte boundaries
 
-Nim's `parentDir` returns an empty string at an absolute filesystem root.
-For ancestor walks, use a helper that returns the root itself there, then stop
-when parent equals current. Joining an empty parent with `node_modules` or a
-config filename would silently search the process working directory.
-
 `absolutePath` and `normalizedPath` provide lexical paths; they do not establish
 symlink containment. Use `expandFilename` for the canonical existing target and
 handle its failure. Scope-sensitive reads must check both the requested name
@@ -937,37 +716,6 @@ character. Apply `utf8ForWrite` at the filesystem boundary and retain the
 original semantic path in generated JSON. Reject embedded NUL before passing a
 path to a C string API; truncation must not make an invalid path resolve to an
 existing file.
-
-Temporary-file permissions survive an atomic rename. Nim's `createTempFile`
-uses private permissions; that is suitable for caches, but can change ordinary
-generated files to `0600`. When matching Node's `open(..., 'wx')`, create the
-temporary file exclusively with mode `0666` so the OS applies the caller's umask.
-Do not chmod to `0666` afterward or query umask by briefly changing process state.
-Handle partial writes, close the descriptor, and clean up only a file you created.
-
-Do not infer directory privacy from `createTempFile`: Nim 2.2.12's
-`createTempDir` follows the caller's umask and creates `0755` under `0022`.
-For private operation/request directories, use the native `mkdtemp` boundary
-with the chosen parent/prefix; it creates `0700` atomically. Linux uses
-`std/posix_utils.mkdtemp`. The macOS adapter names `<unistd.h>` because the pinned
-stdlib binding names `<stdlib.h>` and fails C compilation with SDK 27.0; see the
-[toolchain constraint](../../.agents/docs/toolchain.md#cli-runtime-and-executable-packaging).
-Keep a mutable Nim string alive while C changes its suffix. Verify the active
-worker directory's permissions, and await process cleanup before removing it.
-Windows uses `private_windows.nim` and its SDK adapter for local NTFS storage.
-Create private directories/files with an explicit current-user owner and protected
-user-only DACL; never infer privacy from POSIX mode bits or silently repair an
-existing broad/foreign ACL. Reject reparse ancestors, nonregular files and
-hardlinks. Hold ancestor handles without delete sharing during path operations;
-a lifetime lock retains them plus its exact locked file until release. Keep
-handle-based deletion bound to the recorded volume/file identity. The shared
-stamp uses NTFS's 64-bit index; ReFS, UNC/device paths and junction-based cache
-roots need separate adapters/qualification.
-Preserve `C:\` when extracting a root parent: bare `C:` has different Windows
-semantics. Validate/pin the volume before creating missing directories, since a
-drive letter can map to a network share. Reserved device aliases include
-superscript-digit COM/LPT names and CONIN$/CONOUT$; reject them before opening a
-handle, rather than relying only on a later regular-file check.
 
 An inherited private DACL does not establish a newly created file's owner.
 Windows uses the creator token's default owner, which can be a group rather than
@@ -1005,14 +753,6 @@ When serialized JSON feeds a fingerprint, compare encoded bytes as well as
 parsed values. Equivalent escapes such as `\u001B` and `\u001b` have different
 hashes. Preserve literal backslash sequences when normalizing actual JSON escapes.
 
-JS object enumeration places canonical array-index keys before other keys,
-even when those properties were added later by a spread. Nim's ordered JSON
-objects preserve insertion order instead. Match this ordering recursively when
-generated bytes must equal `JSON.stringify`, and use UTF-16 code-unit ordering
-for JS's default string sort. Locale sorting and byte sorting serve different
-contracts. Glob traversal also needs a deliberate order when it feeds ordered
-diagnostics rather than a set of filenames.
-
 JavaScript string slicing may split a UTF-16 surrogate pair. A continuation
 contract based on JS offsets must preserve that code unit, rather than silently
 rounding to a Unicode scalar boundary. Escape lone surrogates in JSON output;
@@ -1039,12 +779,6 @@ code points), and Greek sigma depends on surrounding cased/ignorable characters.
 Use the pinned Unicode database and explicit context rules when matching JS;
 ASCII lowering or an unconditional rune map silently changes search results.
 
-Port each text loop according to its source operation. One dependency can mix
-scalar iteration (`for...of`) and indexed UTF-16 units in the same algorithm.
-Replacing every loop with Nim `runes` can change behavior even when the port
-looks more Unicode-aware. Qualify the dependency's actual encoding path; settings
-present in a model JSON file may be ignored by that implementation.
-
 Locale ordering is also a contract: `localeCompare` is not a byte comparator.
 Keep its native adapter at a platform boundary and test the actual engine and
 locale used. When passing text through an FFI, use explicit code-unit lengths
@@ -1068,15 +802,15 @@ error before the real call and check its returned length. Use explicit close
 operations and reject use after close, including empty-input fast paths.
 
 For large C function tables, compile a small C shim against the pinned public
-header instead of maintaining table offsets in Nim. Keep the dynamically loaded
+header instead of maintaining table offsets in Go. Keep the dynamically loaded
 library alive until every session and borrowed output is released. A synchronous
-FFI call may borrow Nim input buffers for its duration; do not let the foreign
+FFI call may borrow input buffers for its duration; do not let the foreign
 library retain them beyond their owner. Preserve model Float32 values before
-pooling them into Nim `float`/JS Number accumulators.
+pooling them into `float`/JS Number accumulators.
 
 Matching model bytes and runtime version numbers do not establish cross-engine
 inference parity. Native CPU graph optimizations can change quantized outputs
-and search order. Keep inference in Nim and include engine/settings in cache
+and search order. Keep inference in Go and include engine/settings in cache
 identities. Evaluate useful retrieval quality; exact native/WASM ranking equality
 is not required. Normalization and plausible vectors alone are insufficient.
 Validate every pinned asset required by the reference, including metadata that
@@ -1089,8 +823,6 @@ Go app-control clients attach by default to an explicitly started foreground
 implicitly start servers/apps/browsers or terminate human-owned apps. A client
 finishing or disconnecting leaves app lifetime unchanged. Do not reintroduce
 agent-owned detached session launch/end or a needless detach-management command.
-The retained Nim/TypeScript lifecycle guidance describes those older references.
-
 Key discovery by canonical app directory: symlink/junction aliases converge,
 separate worktrees stay separate, and ambiguous workspaces require app selection.
 Keep current-user-only discovery outside the app, with fresh per-start instance
@@ -1108,8 +840,8 @@ registries and disconnected observations. Server shutdown must close and join
 hijacked WebSockets too: HTTP Server.Close alone does not own them.
 
 Reuse the real app action registry and its validation/execution policy across
-transports. The explicit Go plugin selects sockets; retained TypeScript/Nim builds
-keep their existing HTTP channel. A missing WebSocket runtime must report degraded
+transports. The Go plugin selects sockets; the project-installed JS workers
+keep their existing channel. A missing WebSocket runtime must report degraded
 instead of silently falling back. Production builds must not receive the native
 bridge definition. Preserve declaration revision on ordered updates, and allow
 same-revision availability updates. Replace reconnecting peers by connection
@@ -1238,7 +970,7 @@ Keep workspace matching simple and native: literal paths, a single `*` within
 one path segment, and leading `!` exclusions. Reject advanced patterns with an
 actionable configuration error rather than maintaining another glob engine or
 launching Node merely to interpret workspace metadata. Do not expand this grammar
-for incidental parity with the TypeScript reference. Project compiler/plugin
+for incidental parity with another glob engine. Project compiler/plugin
 execution still belongs in explicit Node workers.
 
 Decode dependency objects in declaration order when producing ordered diagnostics.
@@ -1366,9 +1098,9 @@ Clone bounded Go substring excerpts so a small hit does not retain a large sourc
 buffer. Human excerpt boundaries may differ; version provenance, scope and UTF-16
 page continuation remain meaningful contracts to compare independently.
 
-Use descriptor metadata generated from the TypeScript source for parsing and
+Use the checked-in catalog descriptor metadata for parsing and
 schemas. Execution coverage belongs to the Go handler registration, not the
-reference descriptor's status. Keep permission checks, selection precedence and
+descriptor's status. Keep permission checks, selection precedence and
 exit groups explicit; a sole discovered app need not create the same persistent
 binding or envelope identity as an explicit selection.
 
@@ -1400,9 +1132,8 @@ not overwrite an unconfirmed-cleanup failure or its retained-data diagnostics.
 Distinguish operation deadlines from generic execution failures even when the
 outer CLI context remains live.
 
-
 Keep platform scaffolding policy in the installed creator, shared with the
-TypeScript reference. A small Node worker returns a read-only, versioned plan;
+project-installed worker. A small Node worker returns a read-only, versioned plan;
 Go validates workspace identity, raw-byte observations and bounded base64 output,
 then publishes with directory-root handles under workspace/app leases. Preserve
 new template modes and existing config modes. A valid-plan positive control is
@@ -1421,7 +1152,6 @@ skipping input-mode checks. Neither value describes Windows ACL privacy; keep
 owner/DACL validation separate. Include actual Windows platform-addition tests,
 since web-only additions may never observe an existing parent directory.
 
-
 For `updates init`, share the canonical hook string at build time rather than
 maintaining a second generated template in Go. Delegate Node conditional-export
 resolution to the selected project worker without importing the optional runtime.
@@ -1429,7 +1159,6 @@ Reject a nearer broken package instead of resolving from farther/global installs
 Keep simple hook/ignore publication native, preserve raw user bytes and modes,
 and validate both outputs before writing. Hook initialization is not evidence of
 NativeScript preparation, app boot, or delivered OTA updates.
-
 
 Keep font parsing/conversion and CSS registration policy in the canonical Node
 engine. Both frontends use its read-only plan; Go validates explicit app/source
@@ -1500,7 +1229,7 @@ is not. Preserve JSON discovery diagnostics as data with a successful exit, whil
 human discovery diagnostics fail after printing the inventory. Keep configuration
 logs on stderr when stdout carries JSON. Prerequisite reports describe availability,
 not platform qualification. Workshop initialization shares the read-only `planWorkshopInit` policy with the
-TypeScript frontend. Go validates the fixed destination set, raw bytes, modes and
+project-installed JS frontend. Go validates the fixed destination set, raw bytes, modes and
 manifest preservation under an output lease before per-file atomic publication.
 Keep skipped files in input observations too. Existing templates and custom scripts
 remain user-owned. Service lifecycle support is separate; initialization and
@@ -1518,33 +1247,15 @@ that the resulting executable bundles the runtime. Record the library actually
 loaded and the ELF's glibc/C++ symbol requirements. `ldd` alone misses libraries
 loaded lazily, and compiling on one distribution does not qualify older hosts.
 
-Windows can reuse the typed curl shim with a pinned static HTTP/HTTPS-only curl
-and zlib, while Schannel supplies OS TLS and trust. Keep the static CRT consistent
-with Nim's MSVC objects. Record exact source/tool/link identities and include the
-licenses. A static curl security fix needs a new executable; do not describe this
-as an OS-serviced curl runtime. Configure existing MSVC/CMake/Ninja tools only in
-the build process and forward SDK environment variables through Turbo explicitly.
-Normalize CMake library paths to forward slashes before its pkg-config generator
-runs; otherwise an absolute Windows library path can become a malformed `-lC:...`.
-Validate the generated protocol and link closure rather than guessing SDK libs.
-Use short task-cache roots on Windows: deeply nested CMake try-compile object
-paths can exceed its path budget even when the final build succeeds.
-
 Proxy engines can use forward requests or CONNECT tunnels even for plaintext
 HTTP. Support both in qualification fixtures and assert each client's actual
 proxy traversal. Compare response/cancellation contracts without forcing the
 engines to use an identical handshake. Control both uppercase and lowercase
 ambient proxy variables in subprocess tests.
 
-Call C variadic functions with their real ABI. Casting a variadic function to a
-fixed-argument proc pointer is unsafe on macOS arm64. A small typed C shim using
-the SDK header can marshal `long`, size types and callbacks correctly. C callback
-pointer types must match too: Nim `cstring` becomes `char*`, which is a distinct
-callback parameter type from `const char*` for the C compiler.
-
 For per-source C/C++ flags, use `.compile("source.cpp", "-std=c++20 ...")`.
 The tuple form of `compile` uses its second value as an output-name formatter,
-not compiler flags. Nim recognizes C++ sources; inspect its link command before
+not compiler flags. Inspect the link command before
 adding a duplicate C++ runtime library flag. MSVC needs `/std:c++20` and
 `/Zc:__cplusplus` for Ada's language-version checks, `/EHsc` for its C++ exception
 boundary, and `/MT` for the chosen static CRT; Unix compiler flags are not portable.
@@ -1553,12 +1264,6 @@ Foreign callbacks should copy data and record state. Complete futures and call
 user sinks after returning from the C operation and draining its messages. User
 code can close every handle; detach queued chunks before invoking it and check
 whether the owner is still live before using a retained handle.
-
-For OS callbacks on foreign threads, a bounded C-owned queue keeps those threads
-out of Nim's managed runtime. Drain and allocate Nim values on the event loop.
-Stop/invalidate the foreign event source and drain its callback queue before
-freeing the context. If later Nim initialization raises after opening a foreign
-handle, close that handle explicitly; an unreachable Nim wrapper does not free it.
 
 File events may be coalesced, dropped or delayed. Tie a generation to observed
 input state and recheck that state before publishing; an event alone does not
@@ -1578,8 +1283,8 @@ Keep header readiness separate from body completion so a status probe can finish
 without waiting for a slow body. Preserve the reference's catch boundaries:
 catching only body/JSON failures differs from catching the entire fetch.
 Schedule phase-specific test cancellation from an observed headers-ready event.
-A short timer started before the request can hit different phases in Node and
-Nim under host load, producing different valid envelopes rather than proving a
+A short timer started before the request can hit different phases across
+processes under host load, producing different valid envelopes rather than proving a
 transport mismatch.
 
 RFC 3986 and WHATWG URL normalization differ. Use the pinned native Ada engine

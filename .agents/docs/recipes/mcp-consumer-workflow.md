@@ -43,7 +43,7 @@ cleanup restricted to owned resources.
 The packed-stdio lane ([prepare](../../../packages/mcp/tests/prepare-packed-consumer.mjs), [runner](../../../packages/mcp/tests/packed-stdio-consumer.mjs)) exercises the same criteria against packed tarballs over stdin/stdout.
 
 The `xplat` CLI projects the same services through agent commands; the packed
-agent lane ([runner](../../../packages/cli/test/packed-agent-consumer.mjs)) verifies
+agent lane ([runner](../../../tools/cli-go/build-tools-consumer.mjs)) verifies
 the discovery/retrieval subset plus the web session journey — build, launch,
 session readiness/build-job polling, diagnostics, inspect, dom-event and os-input interaction,
 capture gating, dev-action discovery/invocation, and ownership-safe cleanup —
