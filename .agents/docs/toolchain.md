@@ -131,6 +131,25 @@ to hide this boundary.
 
 ## Runtime dependency compatibility
 
+The content-mapper protocol is file-keyed, not specifier-keyed
+(typescript 7.1.0-beta, verified by probe for octane-xplat#93):
+`transform` receives `fileName` and on-disk `content`, and the RPC surface
+(initialize/openProject/closeProject/transform) has no module-resolution or
+virtual-file hook — upstream states the mapper plays no part in resolution
+([microsoft/TypeScript#64549](https://github.com/microsoft/TypeScript/issues/64549)).
+A specifier like `icons:heroicons/x-mark` must therefore resolve to a real
+file with a registered extension before the mapper runs: `paths` wildcards
+do reach mapped extensions, but a missing target file is TS2307.
+`@octane-xplat/icons` ships the `.icon` mapper (its own
+`typescript.contentMapper` manifest, `dist/mapper/server.js`) plus
+`syncIconStubs`, which writes one stub per collection icon under `.icons/`;
+`xplatIcons` syncs at `configResolved` unless `stubs: false`. Consumers wire
+`"paths": { "icons:*": ["./.icons/*.icon"] }` and register `.icon` in
+`contentMappers`; each stub's transform emits the icon's `IconifyIcon`
+literal, so names compile-check per specifier without ambient
+`declare module` wildcards (removed — a wildcard would mask misspellings).
+
+
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
 `@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a
 hoisted installation cannot select the older optional peer from another
