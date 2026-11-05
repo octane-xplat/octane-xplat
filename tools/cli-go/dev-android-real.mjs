@@ -7,7 +7,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, symlinkSync,
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 
 assert.equal(process.platform, 'darwin', 'This device recipe requires the configured macOS SDK host')
 const root = resolve(import.meta.dirname, '../..'), work = join(root, 'research/go-cli')

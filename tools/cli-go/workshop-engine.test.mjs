@@ -13,7 +13,7 @@ import {
 import { join, dirname, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 const root = resolve(import.meta.dirname, '../..'),
 	scratch = realpathSync(scratchRun(root, 'go-workshop-engine'))
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))

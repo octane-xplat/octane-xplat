@@ -5,10 +5,6 @@
 	"type": "module",
 	"scripts": {
 		"test:perry-cli": "node tools/cli-perry/verify.mjs",
-		"test:nim-portability-handoff": "node tools/cli-nim/portability-ssh-handoff.mjs",
-		"snapshot:nim-portability": "node tools/cli-nim/portability-snapshot.mjs",
-		"snapshot:nim-portability-worker": "node tools/cli-nim/portability-snapshot.mjs --project-worker",
-		"benchmark:nim-portability": "node tools/cli-nim/portability-smoke.mjs",
 		"probe": "node scripts/probe.ts",
 		"test:query-cache-runtime": "node scripts/query-cache-runtime.ts",
 		"dev:web": "bun run --filter @xplat/web dev",

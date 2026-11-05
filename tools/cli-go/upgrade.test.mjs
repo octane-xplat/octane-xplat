@@ -19,7 +19,7 @@ import { join, resolve, dirname, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

@@ -31,7 +31,7 @@
 		"build": "vite build --config vite.package.config.ts",
 		"prepack": "bun run build",
 		"typecheck": "tsc -p tsconfig.json",
-		"test:packed": "node ../../tools/cli-nim/build-tools-consumer.mjs"
+		"test:packed": "node ../../tools/cli-go/build-tools-consumer.mjs"
 	},
 	"dependencies": {
 		"jsonc-parser": "3.3.1",

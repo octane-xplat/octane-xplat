@@ -12,7 +12,7 @@ import {
 } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { createDocsService } from '../../packages/cli/src/mcp/docs-service.ts'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')

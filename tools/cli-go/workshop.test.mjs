@@ -17,7 +17,7 @@ import { spawnSync, spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createHash } from 'node:crypto'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

@@ -6,7 +6,7 @@ import { join, resolve, dirname } from 'node:path'
 import { listDocs, readPage, parseDocRef } from '../../packages/cli/src/mcp/docs-retrieval.ts'
 import { resolveInstallations } from '../../packages/cli/src/mcp/docs-binding.ts'
 import { chunkMarkdown } from '../../packages/docs-search/src/chunks.ts'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`

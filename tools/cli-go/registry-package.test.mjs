@@ -7,7 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { readFileSync, writeFileSync, mkdirSync, existsSync, rmSync, realpathSync, renameSync, copyFileSync } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { packNativeConsumer } from './pack.mjs'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { sha256 } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')

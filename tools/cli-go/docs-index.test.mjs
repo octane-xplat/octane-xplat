@@ -13,9 +13,9 @@ import {
 import { join, resolve, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
-import { scratchRun } from '../cli-nim/scratch.mjs'
-import { modelFixtureDir, prepareModelFixtures, modelFiles } from '../cli-nim/model-fixtures.mjs'
-import { runtimeDir, prepareOrtFixtures } from '../cli-nim/ort-fixtures.mjs'
+import { scratchRun } from './scratch.mjs'
+import { modelFixtureDir, prepareModelFixtures, modelFiles } from './model-fixtures.mjs'
+import { runtimeDir, prepareOrtFixtures } from './ort-fixtures.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

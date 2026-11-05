@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, realpathSy
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { packNativeConsumer } from './pack.mjs'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { sha256 } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')

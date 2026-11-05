@@ -11,7 +11,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import ts from 'typescript'
 import { createServer } from 'vite'
 import { nativeDevSocketPlugin } from '../src/mcp/dev-socket.ts'
-import { scratchRun } from '../../../tools/cli-nim/scratch.mjs'
+import { scratchRun } from '../../../tools/cli-go/scratch.mjs'
 
 const root = resolve(import.meta.dirname, '../../..')
 const bridgeSource = ts.transpile(readFileSync(join(root, 'packages/platform/src/dev-bridge.ts'), 'utf8'), {

@@ -18,7 +18,7 @@ import { once } from 'node:events'
 import { setTimeout as delay } from 'node:timers/promises'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
 import { updatesHook } from '../../packages/cli/src/updates-hook.ts'
 

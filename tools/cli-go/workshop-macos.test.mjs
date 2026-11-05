@@ -13,7 +13,7 @@ import {
 import { join, resolve, relative } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli/workshop-service')
 test(

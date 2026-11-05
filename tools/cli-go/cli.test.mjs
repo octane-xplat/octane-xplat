@@ -12,7 +12,7 @@ import {
 } from '../../packages/cli/src/mcp/discovery.ts'
 
 import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

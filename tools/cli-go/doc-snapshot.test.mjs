@@ -13,7 +13,7 @@ import {
 } from 'node:fs'
 import { join, resolve, dirname } from 'node:path'
 import { ensureSnapshot } from '../../packages/cli/src/mcp/docs-snapshots.ts'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 import { setTimeout as delay } from 'node:timers/promises'
 

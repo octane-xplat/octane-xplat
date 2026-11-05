@@ -16,7 +16,7 @@ import { once } from 'node:events'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createServer } from 'node:http'
 import { pathToFileURL } from 'node:url'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
 import { fontCase, fontCases, fontTree } from './font-fixtures.mjs'
 const root = resolve(import.meta.dirname, '../..'),

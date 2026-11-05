@@ -15,7 +15,7 @@ import {
 
 import { join, resolve, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')

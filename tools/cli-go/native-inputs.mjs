@@ -99,7 +99,6 @@ export function nativeInputs(root) {
 		'packages/cli/src/linux/config.ts',
 		'packages/cli/src/linux/host/gjs-host.js',
 		'packages/cli/src/linux/host/bridge-selftest.linux.js',
-		'tools/cli-nim/route-templates.mjs',
 		'packages/cli/package.json',
 		'packages/create/compatibility.json',
 		'packages/cli/src/cli-channel.ts',
@@ -126,11 +125,7 @@ export function nativeInputs(root) {
 		'packages/docs-search/src/chunks.ts',
 		'packages/docs-search/src/model.ts',
 		'packages/docs-search/src/inference.ts',
-		'tools/cli-nim/model-fixtures.mjs',
-		'tools/cli-nim/ort-fixtures.mjs',
-		'tools/cli-nim/ort-runtime.json',
 		'packages/cli/src/mcp/contract.ts',
-		'tools/cli-nim/scratch.mjs',
 	)
 	for (const file of readdirSync(join(root, 'packages/workshop/src/build'), { recursive: true })) {
 		if (/\.(ts|js)$/.test(file)) {

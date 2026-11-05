@@ -17,7 +17,7 @@ import { once } from 'node:events'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createHash } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')

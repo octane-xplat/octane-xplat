@@ -6,7 +6,7 @@ import { join, resolve, dirname } from 'node:path'
 import * as manager from '../../packages/cli/src/package-manager.ts'
 import { resolveFrameworkBinding } from '../../packages/cli/src/mcp/discovery.ts'
 import { installedPackageRoot } from '../../packages/cli/src/package-root.ts'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

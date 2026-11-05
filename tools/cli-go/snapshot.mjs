@@ -14,7 +14,7 @@ import {
 import { join, resolve, dirname } from 'node:path'
 import { createHash } from 'node:crypto'
 import { spawnSync } from 'node:child_process'
-import { modelFixtureDir } from '../cli-nim/model-fixtures.mjs'
+import { modelFixtureDir } from './model-fixtures.mjs'
 import { prepareFixtures } from './fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),

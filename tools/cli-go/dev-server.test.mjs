@@ -21,7 +21,7 @@ import vm from 'node:vm'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { projectToolFixture } from './project-fixtures.mjs'
-import { scratchRun } from '../cli-nim/scratch.mjs'
+import { scratchRun } from './scratch.mjs'
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
