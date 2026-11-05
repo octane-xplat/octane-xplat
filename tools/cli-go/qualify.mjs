@@ -169,15 +169,10 @@ async function serve(server) {
 try {
 	assert.match((await cli(['--help'], { emptyPath: true })).experimental, /Go/)
 	const catalog = await cli(['catalog'], { emptyPath: true })
-	assert.deepEqual(
-		catalog,
-		JSON.parse(readFileSync(join(import.meta.dirname, 'catalog.json'))).catalog,
-	)
+	const canonical = JSON.parse(readFileSync(join(root, 'packages/cli/go/catalog.json')))
+	assert.deepEqual(catalog, canonical.catalog)
 	const schema = catalog.commands[0].command ?? catalog.commands[0].name
-	assert.deepEqual(
-		await cli(['schema', schema], { emptyPath: true }),
-		JSON.parse(readFileSync(join(import.meta.dirname, 'catalog.json'))).schemas[schema],
-	)
+	assert.deepEqual(await cli(['schema', schema], { emptyPath: true }), canonical.schemas[schema])
 	record.checks.push('catalog and schema equal canonical TypeScript metadata with empty PATH')
 	const dependencies = Object.fromEntries(
 		packages.packages.map((item) => {

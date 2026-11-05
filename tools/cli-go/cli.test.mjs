@@ -5,7 +5,6 @@ import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync, symlinkSync
 import { join, resolve, dirname } from 'node:path'
 import { AGENT_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
 import { parseArgs } from '../../packages/cli/src/agent/parse.ts'
-import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
 import {
 	discoverWorkspace,
 	detectGuidance,
@@ -15,21 +14,11 @@ import {
 import { createPolicyStore } from '../../packages/cli/src/mcp/contracts/policy.ts'
 import { scratchRun } from '../cli-nim/scratch.mjs'
 import { nativeInputs } from './native-inputs.mjs'
-import { goDevContracts } from './dev-contracts.mjs'
-
-const goReference = goDevContracts({
-	descriptors: AGENT_COMMANDS,
-	schemas: Object.fromEntries(
-		AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
-	),
-	catalog: catalogPayload(),
-	orchestrationDescriptors: [],
-	capabilityIds: [],
-	boundaries: [],
-})
 
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
+
+const goReference = JSON.parse(readFileSync(join(root, 'packages/cli/go/catalog.json')))
 
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const suffix = process.platform === 'win32' ? '.exe' : ''

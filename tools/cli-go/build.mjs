@@ -13,22 +13,10 @@ import { resolve, join, dirname } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
-import { catalogPayload, commandSchema } from '../../packages/cli/src/agent/catalog.ts'
-import { AGENT_COMMANDS, LEGACY_COMMANDS } from '../../packages/cli/src/agent/commands.ts'
-import {
-	routeCommandDescriptor,
-	typecheckCommandDescriptor,
-	buildCommandDescriptor,
-	commandDescriptor,
-} from '../cli-nim/route-templates.mjs'
 
-import { CAPABILITY_IDS } from '../../packages/cli/src/mcp/contracts/capabilities.ts'
-import { PRODUCT_BOUNDARIES } from '../../packages/cli/src/mcp/contracts/boundaries.ts'
 import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
 import { buildReleaseWorker } from './release-worker.mjs'
-import { updatesHook } from '../../packages/cli/src/updates-hook.ts'
-import { goDevContracts } from './dev-contracts.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
@@ -113,103 +101,8 @@ if (zig) {
 	)
 }
 
-writeFileSync(
-	join(moduleDirectory, 'catalog.json'),
-	JSON.stringify(
-		goDevContracts({
-			catalog: catalogPayload(),
-			updatesHook,
-			frameworkVersion: JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json')))
-				.frameworkVersion,
-			descriptors: AGENT_COMMANDS,
-			orchestrationDescriptors: Object.entries({
-				routes: routeCommandDescriptor,
-				typecheck: typecheckCommandDescriptor,
-				build: buildCommandDescriptor,
-				dev: (source) => commandDescriptor(source, 'dev'),
-				clean: (source) => commandDescriptor(source, 'clean'),
-				doctor: (source) => commandDescriptor(source, 'doctor'),
-				upgrade: (source) => commandDescriptor(source, 'upgrade'),
-				add: (source) => commandDescriptor(source, 'add'),
-			})
-				.map(([name, descriptor]) => ({
-					...descriptor(readFileSync(join(root, `packages/cli/src/commands/${name}.ts`), 'utf8')),
-					path: [name],
-					context: 'none',
-					summary: LEGACY_COMMANDS.find((command) => command.name === name).summary,
-				}))
-				.map((command) => ({
-					...command,
-					flags: command.flags.map(({ description, ...flag }) => ({ ...flag, desc: description })),
-				}))
-				.concat([
-					...Object.entries({
-						patches: ['apply', 'check'],
-						updates: ['init'],
-						fonts: ['add'],
-						workshop: ['init', 'doctor', 'list', 'dev'],
-					})
-						.flatMap(([group, children]) =>
-							children.map((child) => ({
-								...commandDescriptor(
-									readFileSync(join(root, `packages/cli/src/commands/${group}.ts`), 'utf8'),
-									child,
-								),
-								name: group + ' ' + child,
-								path: [group, child],
-								context: 'none',
-							})),
-						)
-						.map((command) => ({
-							...command,
-							flags: command.flags.map(({ description, ...flag }) => ({
-								...flag,
-								desc: description,
-							})),
-						})),
-					{
-						// The reference formatter has a raw argv parser, not a cmdr descriptor.
-						// Keep these three inputs covered by the native/reference workflow gate.
-						name: 'fmt',
-						path: ['fmt'],
-						context: 'none',
-						summary: LEGACY_COMMANDS.find((command) => command.name === 'fmt').summary,
-						flags: [
-							{ flag: 'check', type: 'boolean', desc: 'Report differences without writing' },
-							{
-								flag: 'stdin-filepath',
-								type: 'string',
-								key: 'stdinFilepath',
-								desc: 'Format stdin using this path',
-							},
-						],
-						positionals: [{ name: 'paths', variadic: true }],
-					},
-					{
-						name: 'lint',
-						path: ['lint'],
-						context: 'none',
-						summary: LEGACY_COMMANDS.find((command) => command.name === 'lint').summary,
-						flags: [{ flag: 'fix', type: 'boolean', desc: 'Apply safe lint fixes' }],
-						positionals: [{ name: 'paths', variadic: true }],
-					},
-				]),
-			version,
-			capabilityIds: CAPABILITY_IDS,
-			boundaries: PRODUCT_BOUNDARIES,
-			schemas: Object.fromEntries(
-				AGENT_COMMANDS.map((command) => [command.name, commandSchema(command)]),
-			),
-		}),
-	),
-)
-
-// Preserve the probe harness's generated reference input beside its runner.
-writeFileSync(
-	join(import.meta.dirname, 'catalog.json'),
-	readFileSync(join(moduleDirectory, 'catalog.json')),
-)
-
+// The command catalog is checked in at packages/cli/go/catalog.json (embedded
+// via //go:embed); edit it deliberately rather than regenerating it here.
 writeFileSync(
 	join(moduleDirectory, 'native-assets.json'),
 	readFileSync(join(import.meta.dirname, 'native-assets.json')),
