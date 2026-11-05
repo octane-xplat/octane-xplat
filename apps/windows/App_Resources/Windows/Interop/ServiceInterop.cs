@@ -44,22 +44,39 @@ namespace OctaneXplat.Interop
         // The projected JS picker cannot cross the bridge as an RCW
         // (dotnet.invoke marshals it as System.String), so the pick runs
         // entirely in-process: construct + owner init + await here, and only
-        // strings cross. Returns "ok:<path>" / "cancelled" / "fail:<info>".
-        public static async System.Threading.Tasks.Task<string> PickSingleJson(long hwnd, string filter)
+        // strings cross. The bridge awaits Task-returning methods on the
+        // caller thread, which would deadlock against the dialog's message
+        // pump — so PickSingleStart enqueues the pick on the captured
+        // dispatcher and returns; JS polls PickSingleState.
+        private static volatile string s_pickState = "idle";
+
+        public static string PickSingleStart(long hwnd, string filter)
         {
-            try
+            var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+            if (dispatcher == null) return "fail:no-dispatcher";
+            s_pickState = "pending";
+            dispatcher.TryEnqueue(async () =>
             {
-                var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                picker.FileTypeFilter.Add(string.IsNullOrEmpty(filter) ? "*" : filter);
-                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
-                var file = await picker.PickSingleFileAsync();
-                return file == null ? "cancelled" : "ok:" + file.Path;
-            }
-            catch (Exception e)
-            {
-                return "fail:" + e.GetType().Name + ":" + e.Message;
-            }
+                try
+                {
+                    var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                    picker.FileTypeFilter.Add(string.IsNullOrEmpty(filter) ? "*" : filter);
+                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+                    WinRT.Interop.InitializeWithWindow.Initialize(picker, new IntPtr(hwnd));
+                    var file = await picker.PickSingleFileAsync();
+                    s_pickState = file == null ? "cancelled" : "ok:" + file.Path;
+                }
+                catch (Exception e)
+                {
+                    s_pickState = "fail:" + e.GetType().Name + ":" + e.Message;
+                }
+            });
+            return "started";
+        }
+
+        public static string PickSingleState()
+        {
+            return s_pickState;
         }
     }
 }

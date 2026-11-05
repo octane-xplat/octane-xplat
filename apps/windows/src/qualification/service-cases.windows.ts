@@ -1082,24 +1082,29 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   // takes (object picker, long hwnd) — both marshal cleanly.
   if (hwnd !== null && typeof dotnet?.invoke === 'function') {
     // Projected WinRT objects cannot cross dotnet.invoke (they marshal as
-    // System.String), so the whole pick runs managed-side: the helper
-    // constructs FileOpenPicker, initializes its owner HWND, and awaits —
-    // only strings cross. timeout-pending here means a real dialog is open.
+    // System.String), and the bridge awaits Task-returning methods on the
+    // caller thread — a Task-returning pick would deadlock the UI pump
+    // against its own dialog. The helper therefore enqueues the pick on the
+    // dispatcher and returns; JS polls PickSingleState. 'pending' at the
+    // deadline means a real dialog is open; the driver dismisses it with
+    // Escape after the result is captured.
     try {
-      const task = dotnet.invoke('', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleJson', [hwnd, '*'])
-      out.managedTaskType = typeof task
-      const managed = typeof dotnet.taskToPromise === 'function' ? dotnet.taskToPromise(task) : task
-      const result = await Promise.race([
-        Promise.resolve(managed)
-          .then((v: unknown) => ({ managedResult: String(v) }))
-          .catch((error: unknown) => ({
-            managedError: error instanceof Error ? error.message : String(error),
-          })),
-        new Promise<{ managedResult: string }>((resolve) =>
-          setTimeout(() => resolve({ managedResult: 'timeout-pending' }), 8000),
-        ),
-      ])
-      Object.assign(out, result)
+      out.managedStart = dotnet.invoke(
+        '', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleStart', [hwnd, '*'])
+      const deadline = Date.now() + 8000
+      let state = 'pending'
+      while (Date.now() < deadline) {
+        try {
+          state = String(dotnet.invoke(
+            '', 'OctaneXplat.Interop.ServiceInterop', 'PickSingleState', []))
+        } catch (error) {
+          state = `poll-error:${error instanceof Error ? error.message : String(error)}`
+          break
+        }
+        if (state !== 'pending') break
+        await new Promise((resolve) => setTimeout(resolve, 250))
+      }
+      out.managedResult = state
     } catch (error) {
       out.managedError = error instanceof Error ? error.message : String(error)
     }
