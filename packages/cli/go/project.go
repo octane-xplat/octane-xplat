@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/tailscale/hujson"
 )
 
 func inside(root, path string) bool {
@@ -81,85 +83,10 @@ func projectWorker(project string) (string, error) {
 	return "", errors.New("install @octane-xplat/cli in the selected project to provide worker v1")
 }
 
-// JSONC is accepted only for bun.lock. Strip comments outside strings and
+// JSONC is accepted only for bun.lock. Standardize strips comments and
 // trailing commas without altering quoted URLs/comment-like text.
 func jsonc(data []byte) ([]byte, error) {
-	result := append([]byte(nil), data...)
-	quoted, escaped := false, false
-	for i := 0; i < len(result); i++ {
-		ch := result[i]
-		if quoted {
-			if escaped {
-				escaped = false
-			} else if ch == '\\' {
-				escaped = true
-			} else if ch == '"' {
-				quoted = false
-			}
-			continue
-		}
-		if ch == '"' {
-			quoted = true
-			continue
-		}
-		if ch == '/' && i+1 < len(result) {
-			if result[i+1] == '/' {
-				for ; i < len(result) && result[i] != '\n'; i++ {
-					result[i] = ' '
-				}
-				continue
-			}
-			if result[i+1] == '*' {
-				result[i] = ' '
-				i++
-				result[i] = ' '
-				closed := false
-				for i++; i < len(result); i++ {
-					if result[i] == '*' && i+1 < len(result) && result[i+1] == '/' {
-						result[i] = ' '
-						i++
-						result[i] = ' '
-						closed = true
-						break
-					}
-					if result[i] != '\n' && result[i] != '\r' {
-						result[i] = ' '
-					}
-				}
-				if !closed {
-					return nil, errors.New("unterminated JSONC comment")
-				}
-			}
-		}
-	}
-	quoted = false
-	escaped = false
-	for i, ch := range result {
-		if quoted {
-			if escaped {
-				escaped = false
-			} else if ch == '\\' {
-				escaped = true
-			} else if ch == '"' {
-				quoted = false
-			}
-			continue
-		}
-		if ch == '"' {
-			quoted = true
-			continue
-		}
-		if ch == ',' {
-			j := i + 1
-			for j < len(result) && strings.ContainsRune(" \t\r\n", rune(result[j])) {
-				j++
-			}
-			if j < len(result) && (result[j] == ']' || result[j] == '}') {
-				result[i] = ' '
-			}
-		}
-	}
-	return result, nil
+	return hujson.Standardize(data)
 }
 
 func lockReport(root string) (any, error) {
