@@ -193,6 +193,16 @@ test('container defaults leave class-authored alignment in the CSS cascade', () 
   assert.equal(Object.hasOwn(empty, 'alignItems'), false)
 })
 
+test('container position default stays below authored stylesheet rules', () => {
+  // The containing-block default must write the css-source accessor: a local
+  // `position` write outranks every class rule and pins authored absolute
+  // children in flow (#160).
+  const style = {}
+  api.applyMasonDefaults('masonview', { style })
+  assert.equal(style['css:position'], 'relative')
+  assert.equal(Object.hasOwn(style, 'position'), false)
+})
+
 test('class-sized foreign leaves copy resolved dimensions and track class replacement/removal', () => {
   const f = foreign()
   f.classStyle({ width: 31, height: 36, marginLeft: 4, alignSelf: 'center' })
