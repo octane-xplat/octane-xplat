@@ -212,3 +212,25 @@ test('diagnostics MCP tool maps selectors onto the contract flags', async () => 
 		await client.close()
 	}
 })
+
+test('xplat_interact requires the contract request key before dispatch', async () => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'interact-app' })
+	const { client, transport } = await connect(root)
+	try {
+		// The Go contract mandates --request-key for every dispatch; the MCP
+		// schema must reject a keyless call instead of passing it downstream.
+		const missing = await client.callTool({
+			name: 'xplat_interact',
+			arguments: {
+				sessionId: 'sess_1',
+				documentId: 'doc_1',
+				control: { kind: 'id', name: 'save' },
+			},
+		})
+		assert.equal(missing.isError, true)
+		assert.equal(transport.calls.length, 0)
+	} finally {
+		await client.close()
+	}
+})

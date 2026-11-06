@@ -49,8 +49,10 @@ export function registerInspectionTools(
           .describe('Explicit programmatic dispatch; no CDP or OS input exists in the current contract'),
         requestKey: z
           .string()
-          .optional()
-          .describe('Startup-scoped dedupe key; reuse an identical key to read the same receipt'),
+          .min(1)
+          .describe(
+            'Required startup-scoped dedupe key; reuse an identical key to read the same receipt without dispatching again',
+          ),
       },
     },
     run('interact'),
