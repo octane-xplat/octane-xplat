@@ -5,6 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/artifact"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/build"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/clean"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/format"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/commands/lint"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/project"
 	"os"
 	"strings"
 	"time"
@@ -12,24 +20,24 @@ import (
 
 type legacyHandler func(context.Context, map[string]any) error
 
-func legacyCommands() []commandDescriptor {
-	var catalog struct{ Orchestration []commandDescriptor }
-	_ = json.Unmarshal(metadata.Catalog, &catalog)
+func legacyCommands() []cli.CommandDescriptor {
+	var catalog struct{ Orchestration []cli.CommandDescriptor }
+	_ = json.Unmarshal(cli.Metadata.Catalog, &catalog)
 	return catalog.Orchestration
 }
 
-func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string) int {
+func runLegacyCLI(ctx context.Context, command cli.CommandDescriptor, argv []string) int {
 	if members := legacyGroupMembers(command.Name); len(members) > 0 {
 		return runLegacyGroup(ctx, command, members, argv)
 	}
-	var descriptor *commandDescriptor
-	for i := range metadata.Orchestration {
-		if metadata.Orchestration[i].Name == command.Name {
-			descriptor = &metadata.Orchestration[i]
+	var descriptor *cli.CommandDescriptor
+	for i := range cli.Metadata.Orchestration {
+		if cli.Metadata.Orchestration[i].Name == command.Name {
+			descriptor = &cli.Metadata.Orchestration[i]
 			break
 		}
 	}
-	handler := nativeLegacyCommands[command.Name]
+	handler := NativeLegacyCommands[command.Name]
 	if descriptor == nil || handler == nil {
 		fmt.Fprintf(os.Stderr, "xplat %s: the parallel Go implementation is pending.\n", command.Name)
 		return 1
@@ -41,9 +49,9 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	if command.Name == "fmt" || command.Name == "lint" {
 		failureExit = 2
 	}
-	parsed := parseCommand(*descriptor, argv)
+	parsed := cli.ParseCommand(*descriptor, argv)
 	if command.Name == "lint" {
-		parsed = parsedCommand{Values: map[string]any{"argv": argv}, Help: lintHelpRequested(argv)}
+		parsed = cli.ParsedCommand{Values: map[string]any{"argv": argv}, Help: lint.HelpRequested(argv)}
 	}
 	if len(parsed.Errors) > 0 {
 		fmt.Fprintln(os.Stderr, parsed.Errors[0].Message)
@@ -61,20 +69,20 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 	if err == nil {
 		return 0
 	}
-	var toolExit *projectToolExit
+	var toolExit *project.ToolExit
 	if errors.As(err, &toolExit) {
 		return toolExit.Code
 	}
-	if errors.Is(err, errFormatDifferences) {
+	if errors.Is(err, format.ErrFormatDifferences) {
 		return 1
 	}
-	if errors.Is(err, errFormatDiagnostics) {
+	if errors.Is(err, format.ErrFormatDiagnostics) {
 		return 2
 	}
-	var cleanup *processCleanupError
-	var publication *artifactPublicationError
-	var clean *cleanFailure
-	var mutation *workspaceMutationError
+	var cleanup *proc.CleanupError
+	var publication *artifact.PublicationError
+	var clean *clean.Failure
+	var mutation *project.WorkspaceMutationError
 	if !errors.Is(err, context.Canceled) || errors.As(err, &cleanup) || errors.As(err, &publication) || errors.As(err, &clean) || errors.As(err, &mutation) {
 		outputContext := ctx
 		if ctx.Err() != nil || errors.Is(err, context.DeadlineExceeded) {
@@ -82,20 +90,20 @@ func runLegacyCLI(ctx context.Context, command commandDescriptor, argv []string)
 			outputContext, cancel = context.WithTimeout(context.WithoutCancel(ctx), 250*time.Millisecond)
 			defer cancel()
 		}
-		_ = writeCommandText(outputContext, os.Stderr, fmt.Sprintf("xplat %s: %v\n", command.Name, err))
+		_ = proc.WriteCommandText(outputContext, os.Stderr, fmt.Sprintf("xplat %s: %v\n", command.Name, err))
 	}
-	if requiresFailureEvidence(err) {
+	if cli.RequiresFailureEvidence(err) {
 		return failureExit
 	}
 	if errors.Is(err, context.Canceled) {
-		return legacyCancellationExit(ctx)
+		return proc.LegacyCancellationExit(ctx)
 	}
 	return failureExit
 }
 
-func legacyGroupMembers(name string) []commandDescriptor {
-	members := []commandDescriptor{}
-	for _, descriptor := range metadata.Orchestration {
+func legacyGroupMembers(name string) []cli.CommandDescriptor {
+	members := []cli.CommandDescriptor{}
+	for _, descriptor := range cli.Metadata.Orchestration {
 		if len(descriptor.Path) == 2 && descriptor.Path[0] == name {
 			members = append(members, descriptor)
 		}
@@ -104,19 +112,19 @@ func legacyGroupMembers(name string) []commandDescriptor {
 }
 
 func legacyImplemented(name string) bool {
-	if nativeLegacyCommands[name] != nil {
+	if NativeLegacyCommands[name] != nil {
 		return true
 	}
 	members := legacyGroupMembers(name)
 	for _, member := range members {
-		if nativeLegacyCommands[member.Name] == nil {
+		if NativeLegacyCommands[member.Name] == nil {
 			return false
 		}
 	}
 	return len(members) > 0
 }
 
-func legacySchema(command commandDescriptor) map[string]any {
+func legacySchema(command cli.CommandDescriptor) map[string]any {
 	status := "pending"
 	if legacyImplemented(command.Name) {
 		status = "implemented"
@@ -130,12 +138,12 @@ func legacySchema(command commandDescriptor) map[string]any {
 		schema["startup"] = map[string]any{"deadlineSeconds": 300, "evidence": map[string]string{"web": "HTTP listener", "macos": "native host spawn", "linux": "native host spawn", "ios": "NativeScript tool spawn", "android": "NativeScript tool spawn", "windows": "launch blocked by project preflight"}, "appReadiness": "not inferred from engine startup"}
 	}
 	if command.Name == "build" {
-		schema["engines"] = buildEngineContracts()
+		schema["engines"] = build.EngineContracts()
 	}
 	return schema
 }
 
-func runLegacyGroup(ctx context.Context, command commandDescriptor, members []commandDescriptor, argv []string) int {
+func runLegacyGroup(ctx context.Context, command cli.CommandDescriptor, members []cli.CommandDescriptor, argv []string) int {
 	if len(argv) == 1 && argv[0] == "--schema" {
 		schemas := []any{}
 		for _, member := range members {

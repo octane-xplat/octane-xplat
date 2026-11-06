@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict'
 import {
 	readFileSync,
+	readdirSync,
 	writeFileSync,
 	mkdirSync,
 	mkdtempSync,
 	rmSync,
-	existsSync,
+	existsSync,	
+	statSync,
 	cpSync,
 } from 'node:fs'
 
@@ -42,7 +44,7 @@ assert.ok(
 	!devServerRace || flags.length === 1,
 	'Race qualification is a host-only standalone test mode',
 )
-const tags = [...(cli ? [] : ['probe']), ...(onnx ? ['onnx'] : [])]
+const tags = onnx ? ['onnx'] : []
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
 assert.equal(
 	sourceVersion,
@@ -101,10 +103,10 @@ if (zig) {
 	)
 }
 
-// The command catalog is checked in at packages/cli/go/catalog.json (embedded
+// The command catalog is checked in at packages/cli/go/internal/assets/catalog.json (embedded
 // via //go:embed); edit it deliberately rather than regenerating it here.
 writeFileSync(
-	join(moduleDirectory, 'native-assets.json'),
+	join(moduleDirectory, 'internal/assets/native-assets.json'),
 	readFileSync(join(import.meta.dirname, 'native-assets.json')),
 )
 
@@ -128,12 +130,15 @@ if (flags.includes('--test') || devServerRace) {
 	const target = `${env.GOOS ?? (process.platform === 'win32' ? 'windows' : process.platform)}-${env.GOARCH ?? (process.arch === 'x64' ? 'amd64' : process.arch)}`
 	const binary = join(
 		work,
-		`${testBinary ? 'go-tests' : 'xplat-go'}-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`,
+		`${testBinary ? 'go-tests' : 'xplat-go'}-${target}${cli ? '-cli' : ''}${onnx ? '-onnx' : ''}${testBinary ? '' : target.startsWith('windows') ? '.exe' : ''}`,
 	)
 
 	const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 	const inputs = () => nativeInputs(root)
 	const before = inputs()
+	if (testBinary && existsSync(binary) && !statSync(binary).isDirectory()) {
+		rmSync(binary)
+	}
 	run(
 		'go',
 		[
@@ -144,15 +149,34 @@ if (flags.includes('--test') || devServerRace) {
 			'-ldflags=-s -w',
 			...(tags.length ? ['-tags=' + tags.join(',')] : []),
 			'-o',
-			binary,
-			'.',
+			testBinary ? binary + '/' : binary,
+			...(testBinary ? ['./...'] : cli ? ['.'] : ['./cmd/probe']),
 		],
 		{ stdio: 'inherit' },
 	)
 
 	assert.deepEqual(inputs(), before, 'Source changed during build')
-	const bytes = readFileSync(binary)
 	if (testBinary) {
+		const suffix = target.startsWith('windows') ? '.test.exe' : '.test'
+		const packageDirs = {}
+		for (const line of run('go', ['list', '-f', '{{.Dir}}', './...']).trim().split('\n')) {
+			const normalized = line.replaceAll('\\', '/')
+			const prefix = moduleDirectory.replaceAll('\\', '/')
+			const relative = normalized === prefix ? '.' : normalized.replace(prefix + '/', '')
+			packageDirs[normalized.split('/').pop()] = relative
+		}
+		const binaries = {}
+		for (const file of readdirSync(binary).sort()) {
+			if (!file.endsWith(suffix)) continue
+			const directory = file.slice(0, -suffix.length)
+			const packages = packageDirs[directory] ? [packageDirs[directory]] : []
+			const bytes = readFileSync(join(binary, file))
+			binaries[file] = {
+				bytes: bytes.length,
+				sha256: sha(bytes),
+				directory: packages.length === 1 ? packages[0] : directory,
+			}
+		}
 		const record = {
 			version: 2,
 			kind: 'test-executable',
@@ -163,8 +187,7 @@ if (flags.includes('--test') || devServerRace) {
 				encoding: 'utf8',
 			}).stdout.trim(),
 			inputs: before,
-			bytes: bytes.length,
-			sha256: sha(bytes),
+			binaries,
 			binary,
 		}
 
@@ -172,6 +195,7 @@ if (flags.includes('--test') || devServerRace) {
 		console.log(JSON.stringify({ ...record, inputs: undefined }))
 		process.exit(0)
 	}
+	const bytes = readFileSync(binary)
 
 	const stage = mkdtempSync(join(work, 'download-'))
 	let download

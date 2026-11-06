@@ -169,7 +169,7 @@ async function serve(server) {
 try {
 	assert.match((await cli(['--help'], { emptyPath: true })).experimental, /Go/)
 	const catalog = await cli(['catalog'], { emptyPath: true })
-	const canonical = JSON.parse(readFileSync(join(root, 'packages/cli/go/catalog.json')))
+	const canonical = JSON.parse(readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')))
 	assert.deepEqual(catalog, canonical.catalog)
 	const schema = catalog.commands[0].command ?? catalog.commands[0].name
 	assert.deepEqual(await cli(['schema', schema], { emptyPath: true }), canonical.schemas[schema])

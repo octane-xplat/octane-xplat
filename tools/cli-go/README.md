@@ -3,7 +3,7 @@
 These tools build the [Go CLI](../../packages/cli/go/README.md) — the sole CLI —
 and retain the primitive feasibility probe used by the unit gates. They do not
 change the npm channel or fall back to a JavaScript CLI. Build-time command
-metadata comes from the checked-in `packages/cli/go/catalog.json`. The primitive
+metadata comes from the checked-in `packages/cli/go/internal/assets/catalog.json`. The primitive
 probe catalog describes reference contracts, not the probe's implemented command
 coverage; `--help` lists the bounded probe operations.
 

@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
 	"os"
 	"os/exec"
 	"runtime"
@@ -16,11 +18,11 @@ func TestLegacySignalFixture(t *testing.T) {
 	if os.Getenv("XPLAT_GO_SIGNAL_FIXTURE") != "1" {
 		t.Skip("subprocess helper")
 	}
-	ctx, stop := cliSignalContext(context.Background())
+	ctx, stop := proc.CliSignalContext(context.Background())
 	defer stop()
-	command := commandDescriptor{Name: "signal-fixture"}
-	metadata.Orchestration = append(metadata.Orchestration, command)
-	nativeLegacyCommands[command.Name] = func(ctx context.Context, _ map[string]any) error {
+	command := cli.CommandDescriptor{Name: "signal-fixture"}
+	cli.Metadata.Orchestration = append(cli.Metadata.Orchestration, command)
+	NativeLegacyCommands[command.Name] = func(ctx context.Context, _ map[string]any) error {
 		fmt.Println("ready")
 		<-ctx.Done()
 		return ctx.Err()

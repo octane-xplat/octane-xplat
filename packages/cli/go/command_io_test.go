@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
 	"io"
 	"os"
 	"strings"
@@ -19,14 +21,14 @@ func TestOneShotOutputCanCancelAnUnreadPipe(t *testing.T) {
 	defer read.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
-	if err = writeCommandText(ctx, write, strings.Repeat("large diagnostic", 1<<20)); !errors.Is(err, context.DeadlineExceeded) {
+	if err = proc.WriteCommandText(ctx, write, strings.Repeat("large diagnostic", 1<<20)); !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatal(err)
 	}
 }
 
 func TestCancelledFailureEvidenceDoesNotWaitForeverForStderr(t *testing.T) {
 	found := false
-	for _, entry := range metadata.Orchestration {
+	for _, entry := range cli.Metadata.Orchestration {
 		found = found || entry.Name == "doctor"
 	}
 	if !found {
@@ -46,13 +48,13 @@ func TestCancelledFailureEvidenceDoesNotWaitForeverForStderr(t *testing.T) {
 	previousOutput := os.Stderr
 	os.Stderr = write
 	defer func() { os.Stderr = previousOutput }()
-	previousHandler := nativeLegacyCommands["doctor"]
-	nativeLegacyCommands["doctor"] = func(context.Context, map[string]any) error { return &processCleanupError{Err: context.Canceled} }
-	defer func() { nativeLegacyCommands["doctor"] = previousHandler }()
+	previousHandler := NativeLegacyCommands["doctor"]
+	NativeLegacyCommands["doctor"] = func(context.Context, map[string]any) error { return &proc.CleanupError{Err: context.Canceled} }
+	defer func() { NativeLegacyCommands["doctor"] = previousHandler }()
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 	done := make(chan int, 1)
-	go func() { done <- runLegacyCLI(ctx, commandDescriptor{Name: "doctor"}, nil) }()
+	go func() { done <- runLegacyCLI(ctx, cli.CommandDescriptor{Name: "doctor"}, nil) }()
 	select {
 	case code := <-done:
 		if code != 1 {

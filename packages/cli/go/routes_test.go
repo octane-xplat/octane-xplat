@@ -3,6 +3,10 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/artifact"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/proc/proctest"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/routes"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,13 +18,7 @@ import (
 // Windows containment starts this executable as a gated child. Go's generated
 // test main bypasses both production entries, so route fixtures need the same
 // internal gate dispatch instead of accidentally rerunning the unit suite.
-func TestMain(m *testing.M) {
-	if len(os.Args) > 1 && os.Args[1] == "_gate" {
-		childGate(os.Args[2:])
-		os.Exit(0)
-	}
-	os.Exit(m.Run())
-}
+func TestMain(m *testing.M) { proctest.Main(m) }
 
 func TestGateChild(t *testing.T) {
 	if os.Getenv("XPLAT_GO_TEST_GATE") != "1" {
@@ -36,7 +34,7 @@ func TestNativeTestExecutableDispatchesGate(t *testing.T) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	result, err := runProcess(ctx, []string{exe, "-test.run=^TestGateChild$"}, t.TempDir(), append(os.Environ(), "XPLAT_GO_TEST_GATE=1"))
+	result, err := proc.RunProcess(ctx, []string{exe, "-test.run=^TestGateChild$"}, t.TempDir(), append(os.Environ(), "XPLAT_GO_TEST_GATE=1"))
 	if err != nil || result.ExitCode != 0 || !strings.Contains(result.Stdout, "native-test-gate-child") {
 		t.Fatalf("native test gate did not dispatch its child: %v\n%+v", err, result)
 	}
@@ -67,18 +65,18 @@ func TestRouteWatchFixture(t *testing.T) {
 			}
 		}
 	}()
-	if err := watchRoutes(ctx, project, routeOptions{}); err != context.Canceled {
+	if err := routes.WatchRoutes(ctx, project, routes.RouteOptions{}); err != context.Canceled {
 		t.Fatalf("watch cancellation did not complete cleanly: %v", err)
 	}
 }
 
 func TestRoutePlanRequiresCompleteExpectedDestinations(t *testing.T) {
 	project := t.TempDir()
-	location := routeLocation{Project: project, Directory: filepath.Join(project, "app"), Base: filepath.Join(project, "routes.gen")}
-	before := map[string]artifactState{}
+	location := routes.RouteLocation{Project: project, Directory: filepath.Join(project, "app"), Base: filepath.Join(project, "routes.gen")}
+	before := map[string]artifact.State{}
 	outputs := []map[string]any{}
-	for _, path := range location.outputPaths() {
-		before[path] = artifactState{Path: path}
+	for _, path := range location.OutputPaths() {
+		before[path] = artifact.State{Path: path}
 		outputs = append(outputs, map[string]any{"file": path, "source": "generated"})
 	}
 	plan := func(count any, values []map[string]any) json.RawMessage {
@@ -88,11 +86,11 @@ func TestRoutePlanRequiresCompleteExpectedDestinations(t *testing.T) {
 		}
 		return data
 	}
-	if artifacts, count, err := validateRouteArtifacts(plan(2, outputs), location, before, true); err != nil || count == nil || *count != 2 || len(artifacts) != 18 {
+	if artifacts, count, err := routes.ValidateRouteArtifacts(plan(2, outputs), location, before, true); err != nil || count == nil || *count != 2 || len(artifacts) != 18 {
 		t.Fatalf("valid canonical plan rejected: %v", err)
 	}
 	for _, count := range []any{nil, true, false, -1, 1.5, "2", 50001} {
-		if _, _, err := validateRouteArtifacts(plan(count, outputs), location, before, true); err == nil {
+		if _, _, err := routes.ValidateRouteArtifacts(plan(count, outputs), location, before, true); err == nil {
 			t.Fatalf("invalid count accepted: %#v", count)
 		}
 	}
@@ -100,9 +98,9 @@ func TestRoutePlanRequiresCompleteExpectedDestinations(t *testing.T) {
 		outputs[:17],
 		append(append([]map[string]any{}, outputs...), outputs[0]),
 		append(append([]map[string]any{}, outputs[:17]...), map[string]any{"file": filepath.Join(project, "user.ts"), "source": "overwrite"}),
-		append(append([]map[string]any{}, outputs[:17]...), map[string]any{"file": location.outputPaths()[17], "source": nil}),
+		append(append([]map[string]any{}, outputs[:17]...), map[string]any{"file": location.OutputPaths()[17], "source": nil}),
 	} {
-		if _, _, err := validateRouteArtifacts(plan(2, values), location, before, true); err == nil {
+		if _, _, err := routes.ValidateRouteArtifacts(plan(2, values), location, before, true); err == nil {
 			t.Fatal("partial, duplicate or malformed plan accepted")
 		}
 	}
@@ -115,10 +113,10 @@ func TestRoutePlanRequiresCompleteExpectedDestinations(t *testing.T) {
 			withoutData = append(withoutData, value)
 		}
 	}
-	if _, _, err := validateRouteArtifacts(plan(2, withoutData), location, before, false); err != nil {
+	if _, _, err := routes.ValidateRouteArtifacts(plan(2, withoutData), location, before, false); err != nil {
 		t.Fatalf("type-only preparation must preserve existing baked data: %v", err)
 	}
-	if _, _, err := validateRouteArtifacts(plan(2, withoutData), location, before, true); err == nil {
+	if _, _, err := routes.ValidateRouteArtifacts(plan(2, withoutData), location, before, true); err == nil {
 		t.Fatal("baking accepted an omitted data artifact")
 	}
 }
@@ -126,23 +124,23 @@ func TestRoutePlanRequiresCompleteExpectedDestinations(t *testing.T) {
 func TestArtifactPublicationRejectsAConcurrentOutputEditBeforeAnyRename(t *testing.T) {
 	ctx := context.Background()
 	project := t.TempDir()
-	scope, err := outputScope(project, project)
+	scope, err := artifact.OutputScope(project, project)
 	if err != nil {
 		t.Fatal(err)
 	}
-	artifacts := []plannedArtifact{}
+	artifacts := []artifact.PlannedArtifact{}
 	for _, name := range []string{"a.ts", "b.ts"} {
 		file := filepath.Join(project, name)
 		if err = os.WriteFile(file, []byte("original"), 0644); err != nil {
 			t.Fatal(err)
 		}
-		state, err := snapshotArtifact(ctx, scope, file)
+		state, err := artifact.SnapshotArtifact(ctx, scope, file)
 		if err != nil {
 			t.Fatal(err)
 		}
-		artifacts = append(artifacts, plannedArtifact{File: file, Source: "generated", Before: state})
+		artifacts = append(artifacts, artifact.PlannedArtifact{File: file, Source: "generated", Before: state})
 	}
-	err = publishArtifacts(ctx, scope, artifacts, func() error {
+	err = artifact.PublishArtifacts(ctx, scope, artifacts, func() error {
 		return os.WriteFile(filepath.Join(project, "b.ts"), []byte("user edit"), 0644)
 	})
 	if err == nil || !strings.Contains(err.Error(), "changed during planning") {
@@ -169,29 +167,29 @@ func TestArtifactPublicationPreservesModeAndNoopMtime(t *testing.T) {
 	if err := os.WriteFile(file, []byte("old"), 0640); err != nil {
 		t.Fatal(err)
 	}
-	scope, err := outputScope(project, project)
+	scope, err := artifact.OutputScope(project, project)
 	if err != nil {
 		t.Fatal(err)
 	}
-	before, err := snapshotArtifact(ctx, scope, file)
+	before, err := artifact.SnapshotArtifact(ctx, scope, file)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: file, Source: "new", Before: before}}, func() error { return nil }); err != nil {
+	if err = artifact.PublishArtifacts(ctx, scope, []artifact.PlannedArtifact{{File: file, Source: "new", Before: before}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
-	after, err := snapshotArtifact(ctx, scope, file)
+	after, err := artifact.SnapshotArtifact(ctx, scope, file)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if runtime.GOOS != "windows" && after.Info.Mode().Perm() != before.Info.Mode().Perm() {
 		t.Fatal("source publication silently changed output permissions")
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: file, Source: "new", Before: after}}, func() error { return nil }); err != nil {
+	if err = artifact.PublishArtifacts(ctx, scope, []artifact.PlannedArtifact{{File: file, Source: "new", Before: after}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
 	noop, err := os.Stat(file)
-	if err != nil || !sameArtifactInfo(after.Info, noop) {
+	if err != nil || !artifact.SameArtifactInfo(after.Info, noop) {
 		t.Fatal("identical generation replaced or touched an unchanged file")
 	}
 }
@@ -207,11 +205,11 @@ func TestRouteFingerprintUsesRawBytesAndIgnoresItsOwnGeneratedTree(t *testing.T)
 		t.Fatal(err)
 	}
 	out := "app/generated/routes.gen"
-	location, err := locateRoutes(project, routeOptions{Output: &out}, "")
+	location, err := routes.LocateRoutes(project, routes.RouteOptions{Output: &out}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
-	before, err := routeFingerprint(ctx, location)
+	before, err := routes.RouteFingerprint(ctx, location)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +218,7 @@ func TestRouteFingerprintUsesRawBytesAndIgnoresItsOwnGeneratedTree(t *testing.T)
 		t.Fatal(err)
 	}
 	_ = os.Chtimes(file, original.ModTime(), original.ModTime())
-	changed, err := routeFingerprint(ctx, location)
+	changed, err := routes.RouteFingerprint(ctx, location)
 	if err != nil || changed == before {
 		t.Fatal("different invalid UTF-8 bytes collapsed to one source fingerprint")
 	}
@@ -230,14 +228,14 @@ func TestRouteFingerprintUsesRawBytesAndIgnoresItsOwnGeneratedTree(t *testing.T)
 	if err = os.WriteFile(location.Base+".types.ts", []byte("generated"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	ignored, err := routeFingerprint(ctx, location)
+	ignored, err := routes.RouteFingerprint(ctx, location)
 	if err != nil || ignored != changed {
 		t.Fatal("generated files or empty output directories invalidated their own generation")
 	}
 	if err = os.WriteFile(filepath.Join(project, "xplat.routes.json"), []byte("{}"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = routeFingerprint(ctx, location); err == nil {
+	if _, err = routes.RouteFingerprint(ctx, location); err == nil {
 		t.Fatal("configuration changed after path selection without invalidating the plan")
 	}
 }
@@ -253,7 +251,7 @@ func TestRouteOutputAliasesCannotOverwriteSourceOrEscapeScope(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	location, err := locateRoutes(project, routeOptions{}, "")
+	location, err := routes.LocateRoutes(project, routes.RouteOptions{}, "")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -265,11 +263,11 @@ func TestRouteOutputAliasesCannotOverwriteSourceOrEscapeScope(t *testing.T) {
 	if err = os.Symlink(target, link); err != nil {
 		t.Fatal(err)
 	}
-	scope, before, err := captureRouteOutputs(ctx, location)
+	scope, before, err := routes.CaptureRouteOutputs(ctx, location)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err = publishArtifacts(ctx, scope, []plannedArtifact{{File: link, Source: "generated", Before: before[link]}}, func() error { return nil }); err != nil {
+	if err = artifact.PublishArtifacts(ctx, scope, []artifact.PlannedArtifact{{File: link, Source: "generated", Before: before[link]}}, func() error { return nil }); err != nil {
 		t.Fatal(err)
 	}
 	info, _ := os.Lstat(link)
@@ -281,14 +279,14 @@ func TestRouteOutputAliasesCannotOverwriteSourceOrEscapeScope(t *testing.T) {
 	input := filepath.Join(project, "app", "input.ts")
 	_ = os.WriteFile(input, []byte("keep"), 0644)
 	_ = os.Symlink(input, link)
-	if _, _, err = captureRouteOutputs(ctx, location); err == nil {
+	if _, _, err = routes.CaptureRouteOutputs(ctx, location); err == nil {
 		t.Fatal("output alias can overwrite route source")
 	}
 	_ = os.Remove(link)
 	external := filepath.Join(t.TempDir(), "private.ts")
 	_ = os.WriteFile(external, []byte("private"), 0600)
 	_ = os.Symlink(external, link)
-	if _, _, err = captureRouteOutputs(ctx, location); err == nil {
+	if _, _, err = routes.CaptureRouteOutputs(ctx, location); err == nil {
 		t.Fatal("output alias escaped its authorized root")
 	}
 }

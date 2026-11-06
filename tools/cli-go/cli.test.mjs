@@ -15,7 +15,7 @@ import { nativeInputs } from './native-inputs.mjs'
 const root = resolve(import.meta.dirname, '../..'),
 	work = join(root, 'research/go-cli')
 
-const goReference = JSON.parse(readFileSync(join(root, 'packages/cli/go/catalog.json')))
+const goReference = JSON.parse(readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')))
 
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const suffix = process.platform === 'win32' ? '.exe' : ''

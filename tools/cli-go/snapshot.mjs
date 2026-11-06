@@ -60,9 +60,11 @@ try {
 	copy('research/go-cli/release-worker')
 	const inputs = new Set()
 	for (const target of ['linux-amd64', 'windows-amd64']) {
-		const unit = `go-tests-${target}${target.startsWith('windows') ? '.exe' : ''}`
+		const unit = `go-tests-${target}`
 		const unitRecord = JSON.parse(readFileSync(join(work, unit + '.json')))
-		assert.equal(sha(readFileSync(join(work, unit))), unitRecord.sha256)
+		for (const [file, info] of Object.entries(unitRecord.binaries)) {
+			assert.equal(sha(readFileSync(join(work, unit, file))), info.sha256, 'Stale test binary: ' + file)
+		}
 		for (const [input, hash] of Object.entries(unitRecord.inputs)) {
 			assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale unit source: ' + input)
 			inputs.add(input)

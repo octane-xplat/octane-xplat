@@ -20,16 +20,16 @@ operations fail explicitly. A schema, parser or primitive probe is never evidenc
 that the corresponding command or platform provider is implemented. Current
 migration status and qualification evidence live in Silo and local reports.
 
-`entry_cli.go` is the public entry; the `probe` build tag selects the retained
-primitive harness instead. Both use the same process, HTTP, worker and native
-model code. The [evaluation tooling](../../../tools/cli-go/README.md) owns compiler
+`entry_cli.go` is the public entry; the separate `cmd/probe` main is the retained
+primitive harness. Both use the same process, HTTP, worker and native
+model code in `internal/`. The [evaluation tooling](../../../tools/cli-go/README.md) owns compiler
 pins, source/artifact fingerprints, measurements, project fixtures and portable
 qualification snapshots. Command metadata comes from the checked-in
-`catalog.json`, embedded at build time; help and schemas need no runtime Node.
+`internal/assets/catalog.json`, embedded at build time; help and schemas need no runtime Node.
 
-`cli_contract.go` handles descriptor parsing, errors and exit groups. `workspace.go`
+`internal/cli/cli_contract.go` handles descriptor parsing, errors and exit groups. `internal/project/workspace.go`
 keeps explicit selection and client preferences separate from sole-app discovery;
-read-only discovery does not persist a selection. `policy.go` reports grants
+read-only discovery does not persist a selection. `internal/cli/policy.go` reports grants
 without granting visual capture, retention or external effects. Workspace cache
 writes use Go's directory-root API rather than a check followed by an unbounded
 path operation. Host/request secrets still require separate private permissions
@@ -103,8 +103,8 @@ app and instance over authenticated loopback HTTP, reject redirects, and bypass
 ambient proxies. Ordinary RPC rejects browser-origin requests. No login or agent
 registration is involved; the credential authorizes the same local user.
 
-`dev_server_record.go` owns discovery and its stable lifetime lock;
-`dev_server_http.go` owns bounded versioned requests and authenticated lookup.
+`internal/dev/dev_server_record.go` owns discovery and its stable lifetime lock;
+`internal/dev/dev_server_http.go` owns bounded versioned requests and authenticated lookup.
 The foreground caller holds the claim until engines and request handlers finish
 cleanup. A missing, dead or stale record reports `disconnected_runtime`; it does
 not authorize automatic startup. Never use descriptive cached PIDs as signal
