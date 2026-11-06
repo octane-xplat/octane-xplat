@@ -167,7 +167,9 @@ if (flags.includes('--test') || devServerRace) {
 		}
 		const binaries = {}
 		for (const file of readdirSync(binary).sort()) {
-			if (!file.endsWith(suffix)) continue
+			if (!file.endsWith(suffix)) {
+				continue
+			}
 			const directory = file.slice(0, -suffix.length)
 			const packages = packageDirs[directory] ? [packageDirs[directory]] : []
 			const bytes = readFileSync(join(binary, file))
