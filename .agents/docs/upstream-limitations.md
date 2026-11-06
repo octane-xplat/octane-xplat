@@ -318,3 +318,31 @@ restores it after native microphone release. Only the package's own camera
 leases are coordinated; external owners must coordinate writes to this
 app-wide Boolean. See [Apple's policy](https://developer.apple.com/documentation/avfaudio/avaudiosession/allowhapticsandsystemsoundsduringrecording)
 and the [camera guide](../../docs/app/movie-capture.md#allow-ios-feedback-while-the-microphone-is-active).
+
+## UIKit + SVGKit: no display pass after reveal from a hidden ancestor
+
+`SVGKFastImageView` (SVGKit 3.1.1, Akylas `3.x` fork `24cad5f`) rasterizes its
+SVG only inside `drawRect:` → `SVGKImage renderInContext:`; the layer's
+backing contents appear solely when UIKit runs a display pass. UIKit drops
+the pending display of a view inside a hidden (`UIView.hidden`) ancestor at
+the moment it would draw, and unhiding the ancestor does not re-run
+`drawRect:` — the view keeps positive bounds and a parsed image but
+`layer.contents` stays nil. NativeScript maps `visibility: collapse` to
+`hidden = true` plus removal from layout, so an `svgview` mounted under a
+parent that was collapsed through its first layout reveals as a blank glyph
+(issue #149, reported on a physical iPhone 13 Pro Max).
+
+- Runtime evidence (simulator 91D40099-A056-497D-A572-ADDDFD6A8F23, case
+  `examples/probes/svg-collapse-reveal.ios.tsrx`): bounds 0x0 + contents nil
+  while collapsed; after reveal bounds 24x24, `hidden` false, parsed 24x24
+  image — `layer.contents` nil before the workaround, non-nil after.
+- Xplat stance: vendored-fork workaround. `SVGView` on the `xplat-vendored`
+  branch of `octane-xplat/ui-svg` requests display (`setNeedsDisplay`) when
+  it gains positive bounds (`onLayout`) or its own visibility is restored
+  (`[visibilityProperty.setNative]`), gated on `layer.contents == nil` so
+  already-drawn views are not re-rasterized. The view cannot observe an
+  ancestor's hidden→visible transition; the bounds signal relies on
+  NativeScript re-laying out the subtree when a collapsed ancestor returns.
+- Status: current in SVGKit 3.1.1 / Akylas `3.x` fork. Recheck if upstream
+  makes `SVGKFastImageView` re-request display on `layoutSubviews` or
+  `didMoveToWindow`.

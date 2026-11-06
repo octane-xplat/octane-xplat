@@ -34,7 +34,15 @@ runInNewContext(compiled, {
   exports,
   require(name) {
     if (name === '@nativescript/core') {
-      return { Utils: { layout } }
+      return {
+        CoreTypes: { Visibility: { visible: 'visible', collapse: 'collapse', hidden: 'hidden' } },
+        visibilityProperty: { setNative: Symbol('visibility') },
+        File: class File {},
+        ImageAsset: class ImageAsset {},
+        Utils: { layout },
+        knownFolders: { currentApp: () => ({ path: '' }) },
+        path: { join: (...parts) => parts.join('/') },
+      }
     }
     if (name === './index.common') {
       return {
