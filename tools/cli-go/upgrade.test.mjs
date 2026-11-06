@@ -15,7 +15,8 @@ import {
   cpSync,
 } from 'node:fs'
 
-import { join, resolve, dirname, relative } from 'node:path'
+import { join, resolve, dirname, relative, basename } from 'node:path'
+import { parse as parseYaml } from 'yaml'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -251,6 +252,39 @@ test('default upgrade executes the actual Bun install and post-install verificat
   assert.equal(run(dir, ['--check']).status, 0)
 })
 
+test('pnpm projects without the patches config dependency keep local patch files', () => {
+  const dir = fixture(
+    { packageManager: `pnpm@${compatibility.tools.pnpm}` },
+    {
+      'pnpm-workspace.yaml':
+        'packages:\n  - apps/*\npatchedDependencies:\n  octane@0.16.3: patches/octane@0.16.3.patch\n',
+      'patches/octane@0.16.3.patch': readFileSync(
+        join(root, 'packages/cli/patches/octane@0.16.3.patch'),
+        'utf8',
+      ),
+      'apps/mobile/package.json': {
+        private: true,
+        dependencies: { octane: '0.0.1' },
+        devDependencies: { '@octane-xplat/cli': build.cliVersion },
+      },
+    },
+  )
+  compareApply(dir)
+  const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+  assert.doesNotMatch(yaml, /configDependencies/)
+  const canonical = join(root, 'packages/cli/patches')
+  const entries = parseYaml(yaml).patchedDependencies ?? {}
+  for (const [specifier, path] of Object.entries(entries)) {
+    assert.ok(String(path).startsWith('patches/'), `${specifier} not a local patch`)
+    if (existsSync(join(dir, String(path)))) {
+      assert.deepEqual(
+        readFileSync(join(dir, String(path))),
+        readFileSync(join(canonical, basename(String(path)))),
+      )
+    }
+  }
+})
+
 test('pinned pnpm installs through a real command shim and passes post-install verification', async (t) => {
   const tool = join(scratch, 'pnpm engine')
   put(tool, 'package.json', { private: true, devDependencies: { pnpm: compatibility.tools.pnpm } })
@@ -354,6 +388,14 @@ test('pinned pnpm installs through a real command shim and passes post-install v
     dir,
     '.npmrc',
     `@octane-xplat:registry=http://127.0.0.1:${JSON.parse(readFileSync(ready)).port}/\n`,
+  )
+
+  // The project already opted into the patches config dependency — declared
+  // now that the private registry can resolve it.
+  put(
+    dir,
+    'pnpm-workspace.yaml',
+    `packages: []\nconfigDependencies:\n  '@octane-xplat/patches': ${compatibility.frameworkVersion}\n`,
   )
 
   const result = run(dir, [], overlay)

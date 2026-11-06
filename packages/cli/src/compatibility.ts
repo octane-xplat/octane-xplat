@@ -336,11 +336,17 @@ export function planUpgrade(dir: string): UpgradePlan {
       delete oldPatches[specifier]
     }
   }
+  // pnpm keeps local patch files unless the workspace already opted into the
+  // @octane-xplat/patches config dependency — new entries match Bun's local
+  // mode so upgrades never split a project across both patch modes.
+  const configMode =
+    manager === 'pnpm' && config.configDependencies?.['@octane-xplat/patches'] !== undefined
   for (const patch of wanted) {
-    oldPatches[patch.specifier] ??=
-      manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
+    oldPatches[patch.specifier] ??= configMode
+      ? `${patchPrefix}${patch.file}`
+      : `patches/${patch.file}`
 
-    if (manager === 'bun') {
+    if (!configMode) {
       change(
         join(root, oldPatches[patch.specifier]),
         readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
