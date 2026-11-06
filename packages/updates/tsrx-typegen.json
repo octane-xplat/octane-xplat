@@ -6,13 +6,13 @@
 			"outDir": "types/generated",
 			"entrypoints": {
 				".": {
-					"source": "src/index.web.ts",
+					"source": "src/index.ts",
 					"runtime": [
 						"./src/index.ts",
 						"./src/index.web.ts"
 					],
 					"types": [
-						"./types/generated/index.web.d.ts"
+						"./types/generated/index.d.ts"
 					]
 				},
 				"./prepare": {

@@ -164,7 +164,6 @@
 		"@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
 		"@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
 		"@nativescript/core@https://pkg.pr.new/@nativescript/core@abae298": "packages/cli/patches/@nativescript__core@9.1.4-next.0.patch",
-		"@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
 		"@octanejs/tiptap@0.0.62": "packages/cli/patches/@octanejs__tiptap@0.0.62.patch",
 		"@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
 		"@sveltejs/acorn-typescript@1.0.13": "packages/cli/patches/@sveltejs__acorn-typescript@1.0.13.patch",

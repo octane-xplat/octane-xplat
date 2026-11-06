@@ -1,6 +1,6 @@
 #!/usr/bin/env node
+import { spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
-import { pathToFileURL } from 'node:url'
 import {
   mkdirSync,
   mkdtempSync,
@@ -14,22 +14,16 @@ import {
 import { tmpdir } from 'node:os'
 import { dirname, extname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path'
 import { checkPackedPackage } from './pack-check.ts'
+import { defaultExtensions, platformVariantOf } from './platform-variants.ts'
 
 const manifestName = '.tsrx-typegen-manifest.json'
-const defaultExtensions = {
-  '.ts': '.js',
-  '.tsx': '.js',
-  '.tsrx': '.js',
-  '.mts': '.mjs',
-  '.cts': '.cjs',
-}
 
 function usage() {
   console.log(`Usage: tsrx-typegen --project <tsconfig> [--target <name>] [--check]
        tsrx-typegen --target <name> [--check]
        tsrx-typegen --pack-check [--target <name>]
 
-Generate declarations with the bundled classic TypeScript and the project's TSRX target compiler.
+Generate declarations with TypeScript 7.1 through the project's content mappers (tsc --runExternalCode --noCheck); entrypoint sources must be the unsuffixed contract files.
 
 Options:
   --project <path>  TypeScript config for declaration generation
@@ -149,11 +143,8 @@ function readProjectConfig(ts, configPath, projectRoot, target) {
     )
   }
 
-  if (!options.declaration || !options.emitDeclarationOnly || options.noEmit) {
-    throw new Error(
-      `${configPath} must set declaration: true, emitDeclarationOnly: true, and noEmit: false.`,
-    )
-  }
+  // Declaration emit options are supplied by the generated child config that
+  // extends this project — the project itself does not declare them.
 
   const outputDirectory = target?.outDir ?? options.declarationDir ?? options.outDir
   if (!outputDirectory) {
@@ -865,354 +856,147 @@ function verifyPublicTypes(projectRoot, generated, outDir, target, sourceOutputs
   }
 }
 
-function loadLanguagePlugin(requireModule, compilerPath, ts, project) {
-  const pluginDir = dirname(compilerPath)
-  const languageEntry = readdirSync(pluginDir).find((entry) => /^language-.*\.js$/.test(entry))
-  if (!languageEntry) {
-    throw new Error(`@tsrx/typescript-plugin language plugin not found beside ${compilerPath}`)
-  }
+// `contentMappers` is a native TypeScript 7.1 config key the classic API does
+// not parse; read each layer's raw JSONC so the generated emit config can
+// inherit the nearest declaration. `extends` may be a string or an array,
+// relative or a package specifier resolved through the config's own
+// node_modules chain.
+function projectContentMappers(ts, requireModule, configPath) {
+  const seen = new Set<any>()
+  const visit = (path) => {
+    const canonical = resolve(path)
+    if (seen.has(canonical)) {
+      return undefined
+    }
 
-  const { t: createLanguagePlugin } = requireModule(join(pluginDir, languageEntry))
-  if (typeof createLanguagePlugin !== 'function') {
-    throw new Error(`${languageEntry} does not export the tsrx language plugin factory`)
-  }
+    seen.add(canonical)
+    const configFile = ts.readConfigFile(canonical, ts.sys.readFile)
+    if (configFile.error) {
+      throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'))
+    }
 
-  return createLanguagePlugin({ ts, configFileName: project, configHost: ts.sys })
-}
+    const config = configFile.config ?? {}
+    if (Array.isArray(config.contentMappers)) {
+      return config.contentMappers
+    }
 
-function mappedSourceOffset(mappings, offset) {
-  for (const mapping of mappings ?? []) {
-    const generatedOffsets = mapping.generatedOffsets ?? []
-    const generatedLengths = mapping.generatedLengths ?? mapping.lengths ?? []
-    for (let index = 0; index < generatedOffsets.length; index += 1) {
-      const start = generatedOffsets[index]
-      const end = start + (generatedLengths[index] ?? 0)
-      if (offset >= start && offset < end) {
-        const sourceOffset = (mapping.sourceOffsets?.[index] ?? start) + (offset - start)
-        const sourceLength = mapping.lengths?.[index] ?? generatedLengths[index] ?? 0
-        return Math.min(sourceOffset, (mapping.sourceOffsets?.[index] ?? 0) + sourceLength)
+    const bases =
+      typeof config.extends === 'string'
+        ? [config.extends]
+        : Array.isArray(config.extends)
+          ? config.extends
+          : []
+    for (const specifier of bases) {
+      if (typeof specifier !== 'string' || !specifier) {
+        continue
+      }
+
+      let parent
+      const candidates = [specifier, `${specifier}.json`, join(specifier, 'tsconfig.json')]
+      for (const candidate of candidates) {
+        try {
+          parent = specifier.startsWith('.')
+            ? resolve(dirname(canonical), candidate)
+            : requireModule.resolve(candidate, { paths: [dirname(canonical)] })
+          if (parent && statSync(parent).isFile()) {
+            break
+          }
+        } catch {
+          parent = undefined
+        }
+      }
+
+      if (parent) {
+        const found = visit(parent)
+        if (found) {
+          return found
+        }
       }
     }
-  }
 
-  return null
-}
-
-function lineAndCharacter(text, offset) {
-  let line = 0
-  let character = 0
-  for (let index = 0; index < Math.min(offset, text.length); index += 1) {
-    if (text[index] === '\n') {
-      line += 1
-      character = 0
-    } else {
-      character += 1
-    }
-  }
-
-  return { line: line + 1, character: character + 1 }
-}
-
-function formatEmitDiagnostic(ts, file, sourceText, virtual, diagnostic) {
-  const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
-  const generatedStart = diagnostic.start
-  if (virtual && typeof generatedStart === 'number') {
-    const sourceOffset = mappedSourceOffset(virtual.mappings, generatedStart)
-    if (sourceOffset === null) {
-      return `${file}(1,1): error TS${diagnostic.code}: ${message} (position in generated tsrx output is unmapped)`
-    }
-
-    const { line, character } = lineAndCharacter(sourceText, sourceOffset)
-    return `${file}(${line},${character}): error TS${diagnostic.code}: ${message}`
-  }
-
-  if (diagnostic.file && typeof generatedStart === 'number') {
-    const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(generatedStart)
-    return `${file}(${line + 1},${character + 1}): error TS${diagnostic.code}: ${message}`
-  }
-
-  return `${file}: error TS${diagnostic.code}: ${message}`
-}
-
-function reportTransformErrors(file, errors) {
-  const seen = new Set<any>()
-  for (const error of errors) {
-    const message =
-      error && typeof error === 'object' && 'message' in error
-        ? String(error.message)
-        : String(error)
-
-    const key = `${file}\0${message}`
-    if (!seen.has(key)) {
-      seen.add(key)
-      console.error(`[tsrx-tsc] ${file}: ${message}`)
-    }
-  }
-
-  throw new Error(
-    'tsrx compiler reported transform diagnostics; declarations were not written. Fix the source or configure an explicit declaration override.',
-  )
-}
-
-function moduleSpecifiers(ts, source) {
-  return moduleSpecifierNodes(ts, source).map((node) => node.text)
-}
-
-// The language plugin declares .tsrx as a hidden extension: in a full program
-// it is resolved at the `.ts` candidate slot. Probe that resolution ourselves —
-// ts.resolveModuleName cannot see hidden extensions without the volar host.
-function probeModule(ts, specifier, containingFile, options, extensions) {
-  if (!specifier.startsWith('.')) {
     return undefined
   }
 
-  const base = resolve(dirname(containingFile), specifier)
-  const suffixes = options.moduleSuffixes?.length ? options.moduleSuffixes : ['']
-  const suffixHasExt = /\.[cm]?[jt]sx?$/i.test(specifier)
-  const candidates: any[] = []
-  if (suffixHasExt || specifier.endsWith('.tsrx')) {
-    candidates.push(base)
-    const stem = base.replace(/\.[cm]?[jt]sx?$/i, '')
-    for (const ext of Object.keys(extensions)) {
-      candidates.push(stem + ext)
-    }
-  } else {
-    for (const suffix of suffixes) {
-      for (const ext of Object.keys(extensions)) {
-        candidates.push(`${base}${suffix}${ext}`)
-      }
-    }
-
-    for (const suffix of suffixes) {
-      for (const ext of Object.keys(extensions)) {
-        candidates.push(join(`${base}${suffix}`, `index${ext}`))
-      }
-    }
-  }
-
-  return candidates.find((candidate) => ts.sys.fileExists(candidate))
+  return visit(configPath)
 }
 
-// transpileDeclaration silently omits tsc's implicit `| undefined` widening
-// for a parameter that has an initializer and is followed by a required
-// parameter; the full program reports this as TS9025. Mirror the check
-// syntactically so packages whose tsconfig cannot enable isolatedDeclarations
-// (vendored sources) get the same diagnostic.
-function findUndefinedWideningDiagnostics(ts, source) {
-  const diagnostics: any[] = []
-  const typeIncludesUndefined = (type) =>
-    type &&
-    (type.kind === ts.SyntaxKind.UndefinedKeyword ||
-      (ts.isUnionTypeNode(type) &&
-        type.types.some((part) => part.kind === ts.SyntaxKind.UndefinedKeyword)))
-  const check = (parameters: any[], exported: any) => {
-    if (!exported) {
-      return
-    }
-    const list = Array.from(parameters)
-    list.forEach((param, index) => {
-      const requiredAfter = list
-        .slice(index + 1)
-        .some((later) => !later.dotDotDotToken && !later.questionToken && !later.initializer)
-      if (
-        param.initializer &&
-        !param.questionToken &&
-        requiredAfter &&
-        !typeIncludesUndefined(param.type)
-      ) {
-        diagnostics.push({
-          file: source,
-          start: param.getStart(source),
-          code: 9025,
-          category: ts.DiagnosticCategory.Error,
-          messageText: `Declaration emit for this parameter requires implicitly adding 'undefined' to its type. This is not supported with --isolatedDeclarations.`,
-        })
+// Native tsc names emitted declarations by the runtime extension declared in
+// `outputExtensions`; map every extension the mapper handles to the runtime
+// extension the target publishes (default .tsrx → .js).
+function generatedContentMappers(ts, requireModule, configPath, sourceExtensions) {
+  const entries = projectContentMappers(ts, requireModule, configPath)
+  if (!entries?.length) {
+    return undefined
+  }
+
+  return entries.map((entry) => {
+    const outputExtensions: Record<string, string> = {}
+    for (const extension of entry?.extensions ?? []) {
+      if (typeof extension === 'string' && extension.startsWith('.')) {
+        outputExtensions[extension] = sourceExtensions[extension] ?? '.js'
       }
-    })
-  }
-  const isExported = (node) =>
-    ts.getModifiers(node)?.some((mod) => mod.kind === ts.SyntaxKind.ExportKeyword) ?? false
-  const visit = (node, exported) => {
-    const exportedNow = exported || isExported(node)
-    if (
-      ts.isFunctionDeclaration(node) ||
-      ts.isMethodDeclaration(node) ||
-      ts.isArrowFunction(node) ||
-      ts.isFunctionExpression(node) ||
-      ts.isConstructorDeclaration(node)
-    ) {
-      check(node.parameters, exportedNow)
     }
-    ts.forEachChild(node, (child) => visit(child, exportedNow))
-  }
-  visit(source, false)
-  return diagnostics
+
+    return { ...entry, outputExtensions }
+  })
 }
 
+// The native compiler spawns the mapper declared by the project's tsconfig;
+// the generated config lives inside the project so the bare package name
+// resolves through its own node_modules.
 function emitDeclarations(
   ts,
-  plugin,
-  fileNames,
+  requireModule,
+  projectRoot,
+  project,
+  targetName,
+  rootSources,
   rootDir,
-  options,
-  extensions,
-  overrides,
+  sourceExtensions,
   outputDir,
 ) {
-  if (typeof ts.transpileDeclaration !== 'function') {
-    throw new Error(
-      'tsrx-typegen requires TypeScript >= 5.5: ts.transpileDeclaration is not available',
-    )
+  const tscManifest = requireModule.resolve('typescript/package.json')
+  const tscBin = JSON.parse(readFileSync(tscManifest, 'utf8'))?.bin?.tsc
+  if (typeof tscBin !== 'string' || !tscBin) {
+    throw new Error('tsrx-typegen requires TypeScript 7.1: the package declares no tsc bin')
   }
 
-  const compilerOptions = { ...options, isolatedDeclarations: true }
-  const extraFileExtensions = plugin.typescript?.extraFileExtensions ?? [
-    { extension: 'tsrx', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
-  ]
-  const resolutionCache =
-    typeof ts.createModuleResolutionCache === 'function'
-      ? ts.createModuleResolutionCache(rootDir, (file) => file, options)
-      : undefined
-  const emitted: any[] = []
-  const diagnostics: any[] = []
-  const seen = new Set<any>()
-  const queue: any[] = []
-  const enqueue = (file) => {
-    const resolved = resolve(file)
-    if (!seen.has(resolved)) {
-      seen.add(resolved)
-      queue.push(resolved)
-    }
+  const tsc = join(dirname(tscManifest), tscBin)
+  const cacheDir = join(projectRoot, 'node_modules', '.cache', 'tsrx-typegen')
+  mkdirSync(cacheDir, { recursive: true })
+  const generatedPath = join(cacheDir, `${targetName ?? 'project'}.json`)
+  const generated: Record<string, any> = {
+    extends: project,
+    compilerOptions: {
+      declaration: true,
+      emitDeclarationOnly: true,
+      noEmit: false,
+      noCheck: true,
+      rewriteRelativeImportExtensions: true,
+      rootDir,
+      outDir: outputDir,
+      // declarationDir beats outDir when the project sets it; pin it to the
+      // temporary output so project values cannot write into the package.
+      declarationDir: outputDir,
+    },
+    files: rootSources,
+    include: [],
   }
 
-  for (const file of fileNames) {
-    enqueue(file)
+  const contentMappers = generatedContentMappers(ts, requireModule, project, sourceExtensions)
+  if (contentMappers) {
+    generated.contentMappers = contentMappers
   }
 
-  // Transform, transpile and release each file as it is dequeued so the tsrx
-  // virtual code (AST, mappings, embedded scripts) is never held for the
-  // whole walk.
-  while (queue.length) {
-    const file = queue.shift()
-    const sourceExtension = extname(file).toLowerCase()
-    if (!Object.hasOwn(extensions, sourceExtension) && !/\.d\.[cm]?ts$/i.test(file)) {
-      continue
-    }
+  writeFileSync(generatedPath, JSON.stringify(generated, null, 2) + '\n')
 
-    const sourceText = readFileSync(file, 'utf8')
-    let text = sourceText
-    let fileName = file
-    let virtual
-    if (sourceExtension === '.tsrx') {
-      try {
-        virtual = plugin.createVirtualCode(
-          pathToFileURL(file).href,
-          'tsrx',
-          ts.ScriptSnapshot.fromString(sourceText),
-          {},
-        )
-      } catch (error) {
-        reportTransformErrors(file, [error])
-      }
-
-      const transformErrors = [...(virtual.fatalErrors ?? []), ...(virtual.usageErrors ?? [])]
-      if (transformErrors.length) {
-        reportTransformErrors(file, transformErrors)
-      }
-
-      const script = plugin.typescript.getServiceScript(virtual)
-      if (!script) {
-        reportTransformErrors(file, ['tsrx compiler produced no service script'])
-      }
-
-      text = script.code.snapshot.getText(0, script.code.snapshot.getLength())
-      fileName = file.slice(0, -sourceExtension.length) + (script.extension ?? '.tsx')
-    }
-
-    const source = ts.createSourceFile(
-      fileName,
-      text,
-      ts.ScriptTarget.Latest,
-      true,
-      ts.ScriptKind.TSX,
-    )
-
-    if (!/\.d\.[cm]?ts$/i.test(file)) {
-      const declarationExtension =
-        sourceExtension === '.mts' ? '.d.mts' : sourceExtension === '.cts' ? '.d.cts' : '.d.ts'
-
-      const declaration = normalize(
-        relative(rootDir, file).slice(0, -sourceExtension.length) + declarationExtension,
-      )
-
-      // Overridden files still emit: their output feeds declaration lookups in
-      // rewriteDeclaration before applyOverrides replaces the content, and
-      // their diagnostics are waived since the override owns the signature.
-      const overridden = overrides.has(declaration)
-
-      const result = ts.transpileDeclaration(text, {
-        fileName,
-        compilerOptions,
-        reportDiagnostics: true,
-      })
-
-      if (!overridden) {
-        for (const diagnostic of result.diagnostics ?? []) {
-          diagnostics.push(formatEmitDiagnostic(ts, file, sourceText, virtual, diagnostic))
-        }
-
-        for (const diagnostic of findUndefinedWideningDiagnostics(ts, source)) {
-          diagnostics.push(formatEmitDiagnostic(ts, file, sourceText, virtual, diagnostic))
-        }
-      }
-
-      virtual = undefined
-
-      let outputText = result.outputText ?? ''
-      // transpileDeclaration drops bare side-effect imports (e.g. `import
-      // './drawer.css'`) that full-program emit preserves; re-inject any that
-      // did not survive, keeping source order at the top of the file.
-      const droppedImports: any[] = []
-      for (const match of text.matchAll(/^\s*import\s+['"]([^'"]+)['"]\s*;?\s*$/gm)) {
-        if (!outputText.includes(`'${match[1]}'`) && !outputText.includes(`"${match[1]}"`)) {
-          droppedImports.push(`import '${match[1]}';`)
-        }
-      }
-
-      if (droppedImports.length) {
-        outputText = droppedImports.join('\n') + '\n' + outputText
-      }
-
-      emitted.push({ file, declaration, outputText })
-    }
-
-    for (const specifier of moduleSpecifiers(ts, source)) {
-      const resolved = ts.resolveModuleName(
-        specifier,
-        file,
-        options,
-        ts.sys,
-        resolutionCache,
-        undefined,
-        undefined,
-        extraFileExtensions,
-      )
-
-      const target =
-        resolved.resolvedModule?.resolvedFileName ??
-        probeModule(ts, specifier, file, options, extensions)
-
-      if (target && pathInside(rootDir, target)) {
-        enqueue(target)
-      }
-    }
-  }
-
-  if (diagnostics.length) {
-    for (const line of diagnostics) {
-      console.error(line)
-    }
-
+  const result = spawnSync(process.execPath, [tsc, '--runExternalCode', '--listFiles', '-p', generatedPath], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+  })
+  const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
+  if (result.status !== 0) {
+    console.error(output)
     console.error(
       'tsrx-typegen: declaration emit failed; generated files were not changed. Add an explicit type annotation to the reported export, or configure an explicit declaration override for an unsupported public signature.',
     )
@@ -1220,13 +1004,75 @@ function emitDeclarations(
     return false
   }
 
-  for (const { declaration, outputText } of emitted) {
-    const output = join(outputDir, declaration)
-    mkdirSync(dirname(output), { recursive: true })
-    writeFileSync(output, outputText)
+  // --listFiles reports the whole program (entrypoints plus their resolved
+  // imports); emitted declarations cover every non-declaration source under
+  // rootDir.
+  const programFiles = output
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(
+      (line) =>
+        isAbsolute(line) &&
+        pathInside(rootDir, line) &&
+        existsSyncProgramFile(line),
+    )
+
+  return { programFiles }
+}
+
+function existsSyncProgramFile(path) {
+  try {
+    return statSync(path).isFile()
+  } catch {
+    return false
+  }
+}
+
+// Wildcard runtime subpaths like `./src/*` publish every source file the
+// pattern captures — including modules no entrypoint imports. Expand each
+// pattern against shipped sources on disk; platform variants of an
+// unsuffixed sibling are implementation files and never emit declarations.
+function wildcardEmitSources(projectRoot, runtime, sourceExtensions, moduleSuffixes) {
+  const sources: any[] = []
+  for (const pattern of stringsIn(runtime)) {
+    if (!pattern.includes('*')) {
+      continue
+    }
+
+    if ((pattern.match(/\*/g) ?? []).length > 1) {
+      throw new Error(`wildcard runtime target uses more than one wildcard: ${pattern}`)
+    }
+
+    const rel = pattern.replace(/^\.\//, '')
+    const marker = rel.indexOf('*')
+    const prefix = rel.slice(0, marker)
+    const suffix = rel.slice(marker + 1)
+    const root = join(projectRoot, prefix || '.')
+    let files
+    try {
+      files = collectFiles(root)
+    } catch {
+      continue
+    }
+
+    for (const file of files) {
+      const relativePath = relative(projectRoot, file).replaceAll(sep, '/')
+      if (
+        !relativePath.startsWith(prefix) ||
+        !relativePath.endsWith(suffix) ||
+        relativePath.length <= prefix.length + suffix.length ||
+        !Object.hasOwn(sourceExtensions, extname(file).toLowerCase()) ||
+        /\.d\.[cm]?ts$/i.test(file) ||
+        platformVariantOf(file, moduleSuffixes, Object.keys(sourceExtensions))
+      ) {
+        continue
+      }
+
+      sources.push(file)
+    }
   }
 
-  return true
+  return sources
 }
 
 function runTarget(projectRoot, args) {
@@ -1236,8 +1082,8 @@ function runTarget(projectRoot, args) {
     args.target,
   )
 
-  const tsPath = createRequire(import.meta.url).resolve('typescript')
-  const ts = createRequire(import.meta.url)(tsPath)
+  const requireModule = createRequire(import.meta.url)
+  const ts = requireModule('typescript-classic')
   const { outDir, options, rootDir, fileNames } = readProjectConfig(
     ts,
     project,
@@ -1245,39 +1091,71 @@ function runTarget(projectRoot, args) {
     target,
   )
 
-  const overrideFiles = new Set(Object.keys(overrides).map(normalize))
-  const { sourceOutputs, runtimeByDeclaration } = sourceDeclarationMap(
-    rootDir,
-    fileNames,
-    sourceExtensions,
-    overrideFiles,
-  )
+  if (target) {
+    for (const [subpath, entry] of Object.entries<any>(target.entrypoints)) {
+      const source = resolve(projectRoot, entry.source)
+      const sibling = platformVariantOf(
+        source,
+        options.moduleSuffixes,
+        Object.keys(sourceExtensions),
+      )
+      if (sibling) {
+        throw new Error(
+          `entrypoint ${subpath} source ${entry.source} is a platform variant; generate declarations from the unsuffixed contract ${relative(projectRoot, sibling)}`,
+        )
+      }
+    }
+  }
 
-  const compilerPath = createRequire(import.meta.url).resolve('@tsrx/typescript-plugin/dist/tsc.js')
-  const requireModule = createRequire(import.meta.url)
-  const plugin = loadLanguagePlugin(requireModule, compilerPath, ts, project)
+  const rootSources = target
+    ? [
+        ...new Set([
+          ...Object.values<any>(target.entrypoints).map((entry) =>
+            resolve(projectRoot, entry.source),
+          ),
+          ...Object.values<any>(target.entrypoints).flatMap((entry) =>
+            wildcardEmitSources(
+              projectRoot,
+              entry.runtime,
+              sourceExtensions,
+              options.moduleSuffixes,
+            ),
+          ),
+        ]),
+      ]
+    : fileNames
+
+  const overrideFiles = new Set(Object.keys(overrides).map(normalize))
   const temporaryRoot = mkdtempSync(join(tmpdir(), 'tsrx-typegen-'))
   const temporaryOut = join(temporaryRoot, 'types')
   const outputDir = temporaryOut
   try {
-    if (
-      !emitDeclarations(
-        ts,
-        plugin,
-        fileNames,
-        rootDir,
-        options,
-        sourceExtensions,
-        overrideFiles,
-        outputDir,
-      )
-    ) {
+    const emitted = emitDeclarations(
+      ts,
+      requireModule,
+      projectRoot,
+      project,
+      target?.name,
+      rootSources,
+      rootDir,
+      sourceExtensions,
+      outputDir,
+    )
+    if (!emitted) {
       return false
     }
 
+    const { programFiles } = emitted
+    const { sourceOutputs, runtimeByDeclaration } = sourceDeclarationMap(
+      rootDir,
+      programFiles,
+      sourceExtensions,
+      overrideFiles,
+    )
+
     // TypeScript does not emit declaration inputs. Preserve included, local
     // declarations beside emitted modules so their references remain closed.
-    for (const source of fileNames) {
+    for (const source of programFiles) {
       if (!/\.d\.[cm]?ts$/.test(source) || !pathInside(rootDir, source)) {
         continue
       }
@@ -1344,8 +1222,7 @@ function run() {
     }
   }
 
-  const tsPath = createRequire(import.meta.url).resolve('typescript')
-  const ts = createRequire(import.meta.url)(tsPath)
+  const ts = createRequire(import.meta.url)('typescript-classic')
   checkPackedPackage(projectRoot, ts)
 }
 

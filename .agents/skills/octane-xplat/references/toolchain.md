@@ -262,9 +262,10 @@ Generate declarations from that unsuffixed contract: point each
 `tsrx-typegen.json` entrypoint `source` at the unsuffixed file and never add
 per-platform or per-target declarations. Only a platform-only subpath with no
 unsuffixed module uses its platform file.
-`tsrx-typegen` owns its classic compiler API and adapter independently of the
-project's checker; do not add classic TypeScript as a consumer peer or switch
-the emitter to the native launcher's nonexistent JavaScript API.
+`tsrx-typegen` emits with its own TypeScript 7.1 `tsc --runExternalCode`
+through the project's declared content mapper, adding `outputExtensions` in a
+generated config; its `typescript-classic` alias only parses configs, rewrites
+specifiers and runs `--pack-check`.
 
 NativeScript build helpers still need the classic API for config parsing and
 NativeClass lowering. Keep the managed `typescript-classic` alias in native

@@ -84,7 +84,7 @@
 			"default": "./src/breakpoints.tsrx"
 		},
 		"./breakpoints.web.ts": {
-			"types": "./types/generated/breakpoints.web.d.ts",
+			"types": "./types/generated/breakpoints.d.ts",
 			"default": "./src/breakpoints.web.tsrx"
 		},
 		"./lifecycle": {
@@ -103,7 +103,7 @@
 			"default": "./src/lifecycle.tsrx"
 		},
 		"./lifecycle.web.ts": {
-			"types": "./types/generated/lifecycle.web.d.ts",
+			"types": "./types/generated/lifecycle.d.ts",
 			"default": "./src/lifecycle.web.tsrx"
 		},
 		"./safe-area": {
@@ -122,7 +122,7 @@
 			"default": "./src/safe-area.tsrx"
 		},
 		"./safe-area.web.ts": {
-			"types": "./types/generated/safe-area.web.d.ts",
+			"types": "./types/generated/safe-area.d.ts",
 			"default": "./src/safe-area.web.tsrx"
 		},
 		"./screen": {
@@ -141,11 +141,11 @@
 			"default": "./src/screen.tsrx"
 		},
 		"./screen.web.ts": {
-			"types": "./types/generated/screen.web.d.ts",
+			"types": "./types/generated/screen.d.ts",
 			"default": "./src/screen.web.tsrx"
 		},
 		"./use-keep-awake.macos.ts": {
-			"types": "./types/generated/use-keep-awake.macos.d.ts",
+			"types": "./types/generated/use-keep-awake.d.ts",
 			"default": "./src/use-keep-awake.macos.tsrx"
 		},
 		"./use-keep-awake.ts": {
@@ -153,7 +153,7 @@
 			"default": "./src/use-keep-awake.tsrx"
 		},
 		"./use-keep-awake.web.ts": {
-			"types": "./types/generated/use-keep-awake.web.d.ts",
+			"types": "./types/generated/use-keep-awake.d.ts",
 			"default": "./src/use-keep-awake.web.tsrx"
 		},
 		"./*.tsrx": {

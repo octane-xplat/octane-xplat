@@ -31,14 +31,14 @@
 		"build": "vite build",
 		"prepack": "bun run build",
 		"test": "bun run build && node tests/pack-check.mjs && node tests/packed-consumer.mjs",
-		"typecheck": "tsc -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode -p tsconfig.json"
 	},
 	"devDependencies": {
 		"@types/node": "26.6.6",
 		"vite": "catalog:"
 	},
 	"dependencies": {
-		"typescript": "5.9.3",
-		"@tsrx/typescript-plugin": "0.4.11"
+		"typescript": "7.1.0-beta",
+		"typescript-classic": "npm:typescript@5.9.3"
 	}
 }

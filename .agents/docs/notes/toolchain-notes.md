@@ -378,8 +378,9 @@ imports ([TS#64053](https://github.com/microsoft/TypeScript/issues/64053));
 `"outputExtensions": { ".tsrx": ".js" }` (plus
 `rewriteRelativeImportExtensions: true`) emits `Component.d.ts` and rewrites
 `./Component.tsrx` imports to `./Component.js`; the key is accepted by the
-binary though the bundled tsconfig schema does not list it. tsrx-typegen
-still targets the classic TS 5.9 path — its migration is not done.
+binary though the bundled tsconfig schema does not list it. `tsrx-typegen`
+emit now uses exactly this native path (`outputExtensions` per mapper entry);
+`typescript-classic` remains only for syntax work and `--pack-check`.
 
 Packages with `tsrx-typegen.json` can run `tsrx-typegen --pack-check` as a hard
 publication gate. It checks every target's generated output, packs a temporary

@@ -8,7 +8,7 @@ import { checkPackedPackage, verifyPackedPackage } from '../dist/pack-check.js'
 
 const toolRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const fixtureRoot = resolve(toolRoot, '../typegen-fixture')
-const ts = createRequire(import.meta.url)('typescript')
+const ts = createRequire(import.meta.url)('typescript-classic')
 const root = mkdtempSync(join(tmpdir(), 'tsrx-typegen-pack-fixture-'))
 
 function writePackage(files) {
@@ -114,12 +114,11 @@ try {
   }
 
   verifyPackedPackage(ts, writePackage(extensionlessSource))
+  // hook.web.tsrx is a platform variant of hook.tsrx — a wildcard subpath for
+  // it has no declaration of its own, so omitting the file is not an error.
   const { 'types/hook.web.d.ts': omitted, ...missingVariant } = extensionlessSource
   assert.ok(omitted)
-  assert.throws(
-    () => verifyPackedPackage(ts, writePackage(missingVariant)),
-    /missing from the tarball: \.\/types\/hook\.web\.d\.ts/,
-  )
+  verifyPackedPackage(ts, writePackage(missingVariant))
 
   assert.throws(
     () =>

@@ -80,14 +80,6 @@
 			"template": false
 		},
 		{
-			"specifier": "@tsrx/typescript-plugin@0.4.11",
-			"file": "@tsrx__typescript-plugin@0.4.11.patch",
-			"scope": "toolchain",
-			"template": false,
-			"why": "Retained for tsrx-typegen's owned classic 5.9.3/0.4.11 declaration pipeline. Enables resolveHiddenExtensions while that adapter walks source graphs. Native checking runs tsc --runExternalCode with content-mapper 0.1.2 and explicit .tsrx imports, without this patch.",
-			"dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
-		},
-		{
 			"specifier": "@octanejs/tiptap@0.0.62",
 			"file": "@octanejs__tiptap@0.0.62.patch",
 			"scope": "toolchain",

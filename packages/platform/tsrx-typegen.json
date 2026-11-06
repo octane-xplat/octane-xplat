@@ -6,7 +6,7 @@
 			"outDir": "types/generated",
 			"entrypoints": {
 				".": {
-					"source": "src/index.macos.ts",
+					"source": "src/index.ts",
 					"runtime": [
 						"./src/index.macos.ts",
 						"./src/index.ts",
@@ -62,7 +62,7 @@
 					]
 				},
 				"./environment": {
-					"source": "src/environment.macos.ts",
+					"source": "src/environment.ts",
 					"runtime": [
 						"./src/environment.ts",
 						"./src/environment.web.ts",
@@ -100,12 +100,12 @@
 					]
 				},
 				"./breakpoints.web.ts": {
-					"source": "src/breakpoints.web.tsrx",
+					"source": "src/breakpoints.tsrx",
 					"runtime": [
 						"./src/breakpoints.web.tsrx"
 					],
 					"types": [
-						"./types/generated/breakpoints.web.d.ts"
+						"./types/generated/breakpoints.d.ts"
 					]
 				},
 				"./lifecycle.ts": {
@@ -118,12 +118,12 @@
 					]
 				},
 				"./lifecycle.web.ts": {
-					"source": "src/lifecycle.web.tsrx",
+					"source": "src/lifecycle.tsrx",
 					"runtime": [
 						"./src/lifecycle.web.tsrx"
 					],
 					"types": [
-						"./types/generated/lifecycle.web.d.ts"
+						"./types/generated/lifecycle.d.ts"
 					]
 				},
 				"./safe-area.ts": {
@@ -136,12 +136,12 @@
 					]
 				},
 				"./safe-area.web.ts": {
-					"source": "src/safe-area.web.tsrx",
+					"source": "src/safe-area.tsrx",
 					"runtime": [
 						"./src/safe-area.web.tsrx"
 					],
 					"types": [
-						"./types/generated/safe-area.web.d.ts"
+						"./types/generated/safe-area.d.ts"
 					]
 				},
 				"./screen.ts": {
@@ -154,12 +154,12 @@
 					]
 				},
 				"./screen.web.ts": {
-					"source": "src/screen.web.tsrx",
+					"source": "src/screen.tsrx",
 					"runtime": [
 						"./src/screen.web.tsrx"
 					],
 					"types": [
-						"./types/generated/screen.web.d.ts"
+						"./types/generated/screen.d.ts"
 					]
 				},
 				"./breakpoints": {
@@ -303,12 +303,12 @@
 					]
 				},
 				"./use-keep-awake.macos.ts": {
-					"source": "src/use-keep-awake.macos.tsrx",
+					"source": "src/use-keep-awake.tsrx",
 					"runtime": [
 						"./src/use-keep-awake.macos.tsrx"
 					],
 					"types": [
-						"./types/generated/use-keep-awake.macos.d.ts"
+						"./types/generated/use-keep-awake.d.ts"
 					]
 				},
 				"./use-keep-awake.ts": {
@@ -321,12 +321,12 @@
 					]
 				},
 				"./use-keep-awake.web.ts": {
-					"source": "src/use-keep-awake.web.tsrx",
+					"source": "src/use-keep-awake.tsrx",
 					"runtime": [
 						"./src/use-keep-awake.web.tsrx"
 					],
 					"types": [
-						"./types/generated/use-keep-awake.web.d.ts"
+						"./types/generated/use-keep-awake.d.ts"
 					]
 				},
 				"./*.tsrx": {

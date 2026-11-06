@@ -22,9 +22,6 @@
 		}
 	},
 	"overrides": {
-		"index.d.ts": "types/overrides/index.d.ts",
-		"index.web.d.ts": "types/overrides/index.web.d.ts",
-		"index.macos.d.ts": "types/overrides/index.macos.d.ts",
-		"index.windows.d.ts": "types/overrides/index.windows.d.ts"
+		"index.d.ts": "types/overrides/index.d.ts"
 	}
 }

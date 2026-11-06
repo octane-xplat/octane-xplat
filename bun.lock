@@ -2775,8 +2775,8 @@
         "tsrx-typegen": "./bin/tsrx-typegen.mjs",
       },
       "dependencies": {
-        "@tsrx/typescript-plugin": "0.4.11",
-        "typescript": "5.9.3",
+        "typescript": "7.1.0-beta",
+        "typescript-classic": "npm:typescript@5.9.3",
       },
       "devDependencies": {
         "@types/node": "26.6.6",
@@ -3151,7 +3151,6 @@
     "@nativescript/doctor@2.0.18": "packages/cli/patches/@nativescript__doctor@2.0.18.patch",
     "@nativescript/vite@https://pkg.pr.new/@nativescript/vite@abae298": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
     "@nativescript-community/octane@0.2.5": "packages/cli/patches/@nativescript-community__octane@0.2.5.patch",
-    "@tsrx/typescript-plugin@0.4.11": "packages/cli/patches/@tsrx__typescript-plugin@0.4.11.patch",
     "@nativescript/vite@8.0.20": "packages/cli/patches/@nativescript__vite@8.0.20.patch",
     "@nativescript/vite@8.0.21": "packages/cli/patches/@nativescript__vite@8.0.21.patch",
   },
@@ -7225,10 +7224,6 @@
     "test-exclude/glob": ["glob@7.2.3", "", { "dependencies": { "fs.realpath": "1.0.0", "inflight": "1.0.6", "inherits": "2.0.4", "minimatch": "3.1.5", "once": "1.4.0", "path-is-absolute": "1.0.1" } }, "sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q=="],
 
     "test-exclude/minimatch": ["minimatch@3.1.5", "", { "dependencies": { "brace-expansion": "1.1.21" } }, "sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w=="],
-
-    "tsrx-typegen/@tsrx/typescript-plugin": ["@tsrx/typescript-plugin@0.4.11", "", { "dependencies": { "@volar/language-core": "2.4.28", "@volar/typescript": "2.4.28" }, "peerDependencies": { "@tsrx/preact": "0.2.8", "@tsrx/react": "0.3.8", "@tsrx/ripple": "^0.2.0", "@tsrx/solid": "0.2.8", "@tsrx/vue": "0.2.8", "octane": "*", "typescript": "^5.9.3" }, "optionalPeers": ["@tsrx/preact", "@tsrx/react", "@tsrx/ripple", "@tsrx/solid", "@tsrx/vue", "octane"], "bin": { "tsrx-tsc": "./dist/tsc.js" } }, "sha512-yK1A0o1tS6SeGey369VkBBuhRkVWqd3D9B3v6v19Y++0Z/nt77Xw2K1W6pfDFNg3dhSlS7mh/gNUAi/V8u3LyA=="],
-
-    "tsrx-typegen/typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "type-is/content-type": ["content-type@2.1.0", "", {}, "sha512-mj7UPXE0jaqaOsukNZRUEfEi2AcL7C/vwmwcHV0O97eO1E1pxBZuyjlZrx5seTaNBg1U6+o35wpa35Qfcc+7ag=="],
 

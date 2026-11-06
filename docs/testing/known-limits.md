@@ -368,12 +368,6 @@ if (result === 'unavailable') console.log('Sharing unavailable')
 
 ## Same edge on every target
 
-- **TS 7 content-mapper declarations need output mapping.** The classic TS 5.9
-  `tsrx-tsc` path emits `.d.ts`, but preserves explicit `.tsrx` imports that
-  plain TypeScript consumers cannot resolve. `tsrx-typegen` rewrites those
-  references for the package's published JavaScript layout. Native TS 7 emits
-  `Component.d.tsrx.ts` and also needs upstream declaration output mapping
-  (TS#64053 / draft TS#64120). — post-0.6.0·desk.
 - **Packed declaration checks do not prove prop semantics.** `tsrx-typegen
 --pack-check` verifies tarball paths, dependency declarations, and runtime
   value-export names; keep a plain TypeScript consumer test for required props,

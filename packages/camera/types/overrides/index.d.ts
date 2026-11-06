@@ -1,4 +1,4 @@
-export { CameraView } from './CameraView.mobile.js'
+export { CameraView } from './CameraView.js'
 export type { CameraAccessibilityRole, CameraViewHandle, CameraViewProps } from './props.js'
 export { createCameraSession } from './session.js'
 export { CameraCaptureError } from './types.js'

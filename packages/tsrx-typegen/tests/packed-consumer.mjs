@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import {
   cpSync,
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readdirSync,
@@ -164,8 +165,14 @@ void value
   }
 
   // A parameter with an initializer before a required parameter widens to
-  // `| undefined` in tsc emit; the isolated emitter must flag it like TS9025.
+  // `| undefined` in native tsc emit — the full program emits it correctly
+  // where the removed isolated-declarations transpile path could not.
   const defaultedSource = join(packageRoot, 'src/defaulted.ts')
+  const defaultedEntry = join(packageRoot, 'src/index.ts')
+  const defaultedEntryOriginal = readFileSync(defaultedEntry, 'utf8')
+  const defaultedManifest = join(packageRoot, 'types/generated/.tsrx-typegen-manifest.json')
+  const defaultedManifestOriginal = readFileSync(defaultedManifest, 'utf8')
+  const defaultedGenerated = readFileSync(generatedEntry, 'utf8')
   writeFileSync(
     defaultedSource,
     `export function defaulted(size: number = 0, label: string): string {
@@ -173,6 +180,7 @@ void value
 }
 `,
   )
+  writeFileSync(defaultedEntry, `${defaultedEntryOriginal}\nexport { defaulted } from './defaulted'\n`)
 
   try {
     const defaulted = spawnSync(
@@ -181,15 +189,23 @@ void value
       { cwd: packageRoot, encoding: 'utf8' },
     )
 
-    assert.notEqual(
+    assert.equal(
       defaulted.status,
       0,
-      'defaulted parameter before a required parameter fails emit',
+      `native emit accepts a defaulted parameter before a required one\n${defaulted.stderr}`,
     )
 
-    assert.match(defaulted.stderr, /defaulted\.ts\(\d+,\d+\): error TS9025/)
+    const declaration = readFileSync(
+      join(packageRoot, 'types/generated/defaulted.d.ts'),
+      'utf8',
+    )
+    assert.match(declaration, /size: number \| undefined/)
   } finally {
+    writeFileSync(defaultedEntry, defaultedEntryOriginal)
     rmSync(defaultedSource)
+    writeFileSync(generatedEntry, defaultedGenerated)
+    writeFileSync(defaultedManifest, defaultedManifestOriginal)
+    rmSync(join(packageRoot, 'types/generated/defaulted.d.ts'), { force: true })
   }
 
   run('bun', ['typegen:check'], packageRoot)
@@ -198,6 +214,8 @@ void value
   const includedDeclaration = join(packageRoot, 'src/IncludedDeclaration.d.ts')
   const declarationReader = join(packageRoot, 'src/DeclarationReader.ts')
   const declarationIndex = join(packageRoot, 'src/declaration-input-index/index.d.ts')
+  const declEntry = join(packageRoot, 'src/index.ts')
+  const declEntryOriginal = readFileSync(declEntry, 'utf8')
   try {
     mkdirSync(dirname(declarationIndex), { recursive: true })
     writeFileSync(declarationIndex, 'export interface PublicInput { value: string }\n')
@@ -214,6 +232,7 @@ export type PublicSurface = typeof import('./declaration-input-index/index')
 export function readIncluded(value: Included): Included { return value }
 `,
     )
+    writeFileSync(declEntry, `${declEntryOriginal}\nexport { readIncluded } from './DeclarationReader'\n`)
 
     run('bun', ['typegen'], packageRoot)
     assert.equal(
@@ -249,6 +268,7 @@ export function readIncluded(value: Included): Included { return value }
     assert.notEqual(staleInput.status, 0, 'check mode detects changed declaration inputs')
     assert.match(staleInput.stderr, /IncludedDeclaration\.d\.ts is stale/)
   } finally {
+    writeFileSync(declEntry, declEntryOriginal)
     rmSync(includedDeclaration, { force: true })
     rmSync(declarationReader, { force: true })
     rmSync(dirname(declarationIndex), { recursive: true, force: true })
@@ -261,11 +281,17 @@ export function readIncluded(value: Included): Included { return value }
     join(packageRoot, `src/${collisionName}.ts`),
     join(packageRoot, `src/${collisionName}.tsrx`),
   ]
+  const collisionEntry = join(packageRoot, 'src/index.ts')
+  const collisionEntryOriginal = readFileSync(collisionEntry, 'utf8')
 
   try {
     for (const source of collidingSources) {
       writeFileSync(source, 'export {}\n')
     }
+    writeFileSync(
+      collisionEntry,
+      `${collisionEntryOriginal}\nexport * from './${collisionName}.ts'\nexport * from './${collisionName}.tsrx'\n`,
+    )
 
     const collision = spawnSync(
       process.execPath,
@@ -274,8 +300,9 @@ export function readIncluded(value: Included): Included { return value }
     )
 
     assert.notEqual(collision.status, 0, 'same-name source files cannot overwrite declarations')
-    assert.match(collision.stderr, /source output collision/)
+    assert.match(collision.stderr, /TS5056|source output collision/)
   } finally {
+    writeFileSync(collisionEntry, collisionEntryOriginal)
     for (const source of collidingSources) {
       rmSync(source, { force: true })
     }
@@ -284,12 +311,15 @@ export function readIncluded(value: Included): Included { return value }
   const outputDir = join(packageRoot, 'types/generated')
   const outputManifest = join(outputDir, '.tsrx-typegen-manifest.json')
   const originalOutputManifest = readFileSync(outputManifest, 'utf8')
+  const caseEntry = collisionEntry
   const lowerName = `caseonly-${process.pid}`
   const upperName = `CaseOnly-${process.pid}`
   const lowerSource = join(packageRoot, `src/${lowerName}.tsrx`)
   const upperSource = join(packageRoot, `src/${upperName}.tsrx`)
+  const caseEntryOriginal = readFileSync(collisionEntry, 'utf8')
   try {
     writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
+    writeFileSync(caseEntry, `${caseEntryOriginal}\nexport * from './${lowerName}.tsrx'\n`)
     run(
       process.execPath,
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
@@ -300,6 +330,7 @@ export function readIncluded(value: Included): Included { return value }
     assert.ok(JSON.parse(readFileSync(outputManifest, 'utf8')).files.includes(lowerOutput))
     rmSync(lowerSource)
     writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
+    writeFileSync(caseEntry, `${caseEntryOriginal}\nexport * from './${upperName}.tsrx'\n`)
     run(
       process.execPath,
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
@@ -316,6 +347,7 @@ export function readIncluded(value: Included): Included { return value }
     assert.ok(updatedFiles.includes(upperOutput))
     assert.ok(!updatedFiles.includes(lowerOutput))
   } finally {
+    writeFileSync(caseEntry, caseEntryOriginal)
     rmSync(lowerSource, { force: true })
     rmSync(upperSource, { force: true })
     for (const name of readdirSync(outputDir)) {
@@ -329,14 +361,12 @@ export function readIncluded(value: Included): Included { return value }
 
   const overrideConfigPath = join(packageRoot, 'tsrx-typegen.json')
   const originalConfig = readFileSync(overrideConfigPath, 'utf8')
-  const overrideDeclaration = `${collisionName}.d.ts`
+  // An override replaces a managed emitted declaration; it cannot rescue a
+  // same-name collision because native tsc refuses duplicate outputs first.
+  const overrideDeclaration = 'format.d.ts'
   const overrideSource = join(packageRoot, `types/overrides/${overrideDeclaration}`)
   const overrideText = "export interface CollisionContract { kind: 'override' }\n"
   try {
-    for (const source of collidingSources) {
-      writeFileSync(source, 'export {}\n')
-    }
-
     mkdirSync(dirname(overrideSource), { recursive: true })
     writeFileSync(overrideSource, overrideText)
     const config = JSON.parse(originalConfig)
@@ -360,10 +390,6 @@ export function readIncluded(value: Included): Included { return value }
     run('bun', ['typegen:check'], packageRoot)
   } finally {
     writeFileSync(overrideConfigPath, originalConfig)
-    for (const source of collidingSources) {
-      rmSync(source, { force: true })
-    }
-
     rmSync(overrideSource, { force: true })
   }
 
@@ -371,8 +397,10 @@ export function readIncluded(value: Included): Included { return value }
 
   const invalidSource = join(packageRoot, 'src/Invalid.tsrx')
   const generatedBeforeFailure = readFileSync(generatedEntry, 'utf8')
+  const invalidEntryOriginal = readFileSync(collisionEntry, 'utf8')
   try {
     writeFileSync(invalidSource, 'export function Invalid( {\n')
+    writeFileSync(collisionEntry, `${invalidEntryOriginal}\nexport * from './Invalid.tsrx'\n`)
     const failedTransform = spawnSync(
       process.execPath,
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
@@ -380,9 +408,10 @@ export function readIncluded(value: Included): Included { return value }
     )
 
     assert.notEqual(failedTransform.status, 0, 'transform diagnostics prevent declaration output')
-    assert.match(failedTransform.stderr, /tsrx compiler reported transform diagnostics/)
+    assert.match(failedTransform.stderr, /declaration emit failed/)
     assert.equal(readFileSync(generatedEntry, 'utf8'), generatedBeforeFailure)
   } finally {
+    writeFileSync(collisionEntry, invalidEntryOriginal)
     rmSync(invalidSource, { force: true })
   }
 
@@ -453,7 +482,58 @@ Badge({ label: 42 })
     rmSync(factoryConfig, { force: true })
   }
 
-  run('bun', ['typegen'], packageRoot)
+  // Wildcard subpaths: every shipped source captured by the runtime pattern
+  // emits a declaration; a platform variant of an unsuffixed sibling does
+  // not — its subpath resolves to the contract's declaration.
+  const wildcardFiles = ['foo.ts', 'foo.macos.ts', 'only.web.ts', 'orphan.ts'].map((name) =>
+    join(packageRoot, 'src', name),
+  )
+  const wildcardConfigPath = join(packageRoot, 'tsrx-typegen.json')
+  const wildcardPackagePath = join(packageRoot, 'package.json')
+  const wildcardConfigOriginal = readFileSync(wildcardConfigPath, 'utf8')
+  const wildcardPackageOriginal = readFileSync(wildcardPackagePath, 'utf8')
+  try {
+    for (const file of wildcardFiles) {
+      writeFileSync(file, 'export const value = 1\n')
+    }
+
+    const wildcardConfig = JSON.parse(wildcardConfigOriginal)
+    wildcardConfig.targets.octane.entrypoints['./*'] = {
+      source: 'src/index.ts',
+      runtime: './src/*',
+      types: './types/generated/*.d.ts',
+    }
+    writeFileSync(wildcardConfigPath, JSON.stringify(wildcardConfig, null, 2) + '\n')
+
+    const wildcardPackage = JSON.parse(wildcardPackageOriginal)
+    wildcardPackage.exports['./*'] = {
+      types: './types/generated/*.d.ts',
+      default: './src/*',
+    }
+    writeFileSync(wildcardPackagePath, JSON.stringify(wildcardPackage, null, 2) + '\n')
+
+    run('bun', ['typegen'], packageRoot)
+    for (const emitted of ['foo.d.ts', 'only.web.d.ts', 'orphan.d.ts']) {
+      assert.ok(
+        existsSync(join(packageRoot, 'types/generated', emitted)),
+        `wildcard emit produced ${emitted}`,
+      )
+    }
+    assert.ok(
+      !existsSync(join(packageRoot, 'types/generated/foo.macos.d.ts')),
+      'platform variant of an unsuffixed contract does not emit',
+    )
+
+    run('bun', ['run', 'tsrx-typegen', '--pack-check'], packageRoot)
+  } finally {
+    writeFileSync(wildcardConfigPath, wildcardConfigOriginal)
+    writeFileSync(wildcardPackagePath, wildcardPackageOriginal)
+    for (const file of wildcardFiles) {
+      rmSync(file, { force: true })
+    }
+
+    run('bun', ['typegen'], packageRoot)
+  }
 
   console.log(
     'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',

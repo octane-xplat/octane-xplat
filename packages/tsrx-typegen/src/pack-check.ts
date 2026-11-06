@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { platformVariantOf } from './platform-variants.ts'
 
 const moduleSpecifierNodes = (ts, sourceFile) => {
   const nodes: any[] = []
@@ -264,10 +265,11 @@ function staticRuntimeExports(ts, file, seen: Set<any> = new Set()) {
 
     if (exported) {
       if (
-        ts.isFunctionDeclaration(statement) ||
-        ts.isClassDeclaration(statement) ||
-        ts.isEnumDeclaration(statement) ||
-        ts.isModuleDeclaration(statement)
+        !isDefault &&
+        (ts.isFunctionDeclaration(statement) ||
+          ts.isClassDeclaration(statement) ||
+          ts.isEnumDeclaration(statement) ||
+          ts.isModuleDeclaration(statement))
       ) {
         if (statement.name) {
           names.add(statement.name.text)
@@ -559,6 +561,12 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
         runtimeFile = packedPath(packageRoot, runtimeMatch.path)
       } catch (error) {
         failures.push(`${branch.subpath}: ${error.message}`)
+        continue
+      }
+
+      // Platform variants are implementation files behind the unsuffixed
+      // contract; a wildcard subpath for one has no declaration of its own.
+      if (platformVariantOf(runtimeFile, options.moduleSuffixes)) {
         continue
       }
 

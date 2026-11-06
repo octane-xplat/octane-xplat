@@ -154,9 +154,14 @@ pointed at declarations:
 ```
 
 Keep wildcard runtime targets extensionless so the app bundler can select
-`.web.ts`, `.ios.ts`, or `.web.tsrx` siblings. The declaration wildcard uses
-the same module stem, and the pack check verifies each source variant has its
-matching declaration.
+`.web.ts`, `.ios.ts`, or `.web.tsrx` siblings. A wildcard `runtime` pattern
+also widens the emit set: every shipped source file the pattern captures
+generates a declaration, including modules no entrypoint imports. A platform
+variant of an unsuffixed sibling (for example `billing.macos.ts` next to
+`billing.ts`) is an implementation file, never emits its own declaration,
+and its wildcard subpath is not checked for one — declarations always come
+from the unsuffixed contract. A platform-only file with no unsuffixed
+sibling stays in the emit set and declares its own subpath.
 
 Use separate target records and project configs when public signatures differ.
 Each config must select the source variants exposed by its runtime exports.
@@ -242,10 +247,10 @@ bun run xplat doctor
 
 ## Backend and inference
 
-The first supported backend is the classic `tsrx-tsc` path with TypeScript
-5.9.x. TypeScript 7 content-mapper output needs upstream declaration naming
-and specifier support before it can replace this backend. Generation rejects
-compiler errors; editor-only partial transforms are not used.
+The emit backend is native TypeScript 7.1 run through the project's content
+mappers (`tsc --runExternalCode --noCheck`). Emit-only runs keep type errors
+in `typecheck` tasks; the project's own `isolatedDeclarations` setting
+applies — the tool no longer forces it.
 
 This tool preserves TypeScript's declaration inference. Keep exported helpers,
 generic signatures, overloads, and compound members explicit in source when
