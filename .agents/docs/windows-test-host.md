@@ -162,28 +162,28 @@ installed-package Windows pointer, input, and percentage-layout regressions. The
 contact-only touch movement from upstream. These exercise JavaScript with host
 fixtures, not WinUI hit testing or OS input.
 
-## Windows runtime 0.1.0-alpha.146
+## Windows runtime 1.0.0-beta.20
 
-The Windows runtime pin moved to `@nativescript/windows@0.1.0-alpha.146` —
-the head of the alpha line (a small maintenance delta over alpha.144:
-nullable annotations, a `SupportedOSPlatform` attribute, `in`-parameter and
-null-check fixes; identical file list and DotNetBridge protocol). Core and
-Vite stay on `abae298` and the CLI dev pin is unchanged.
+The Windows runtime pin moved to `@nativescript/windows@1.0.0-beta.20` while
+core and Vite stay on `abae298` and the `nativescript` CLI dev pin is
+unchanged, superseding the interim alpha.146 bump (a small maintenance delta
+over alpha.144: nullable annotations, a `SupportedOSPlatform` attribute,
+`in`-parameter and null-check fixes; identical file list and DotNetBridge
+protocol). Beta.20 removes the static binding generator — the bridge creates
+JS subclasses of .NET and WinRT classes at runtime — seals `app.nsbundle` with
+a per-build key, moves devtools to port 43000, and drops
+`privateNetworkClientServer` from its template manifest (the app's own
+manifest is unaffected). Its storage projection fixes pair with later core
+PR #11272 commits that are not in `abae298`, so this runtime/core pairing is
+unqualified. Beta.18+ adds `JsTypedArray` marshaling that targets the Mason
+`byte[]` gap below.
 
-The beta line was evaluated first and is not a qualified replacement yet:
-`1.0.0-beta.20` builds, signs, installs and launches on Windy (MSIX
-1.0.0.229), and stock WinUI controls keep correct UIA peers, but every
-xplat/Mason action control loses its typed automation peer — Button,
-Pressable, ListItem, TabItem, Selector and MenuItem elements report a generic
-`NamedContainerAutomationPeer` (`ControlType.Group`) instead of
-`ControlType.Button`/`TabItem`/`ComboBox`/`MenuItem` with their
-Invoke/SelectionItem patterns. The same drivers passed on the alpha.144
-runtime (1.0.0.196 run records in Silo `windows_checks`), so this is a
-beta-line regression, presumably from the new runtime JS-subclassing path
-that replaced the static binding generator. Re-evaluate the beta line when
-upstream fixes action-control peer projection; the Mason `byte[]` and Label
-`UIElement` workarounds below must be rechecked at the same time — beta.18+
-adds `JsTypedArray` marshaling that targets the `byte[]` gap.
+The bridge now passes WinRT objects to .NET as projected objects, so the Mason
+`byte[]` and Label `UIElement` workarounds below must be rechecked, not assumed
+still needed or removable. Earlier Windows runtime results do not qualify this
+pin: rerun build, launch, pointer, keyboard, and percentage-layout checks on a
+Windows host before claiming it.
+
 
 ## Mason core package qualification
 
@@ -194,7 +194,7 @@ older lab-only 13-check smoke is insufficient. The source package includes the
 CsWinRT projection repair and DotNetBridge content target, so a consumer must
 not depend on app-local copies of those repairs.
 
-The pinned `@nativescript/windows@0.1.0-alpha.144` bridge rejects both typed and
+The `0.1.0-alpha.144` bridge rejected both typed and
 ordinary arrays for projected Mason `byte[]` arguments, reporting a
 `System.String` to `System.Byte[]` cast. Core's package-owned managed adapter
 accepts explicit JSON bytes and calls the unchanged native WinRT API. It also

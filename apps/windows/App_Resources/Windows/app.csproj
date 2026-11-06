@@ -4,7 +4,7 @@
     <AppDescription>Built with NativeScript on Windows.</AppDescription>
     <ApplicationManifest Condition="'$(ApplicationManifest)' == '' and Exists('$(MSBuildThisFileDirectory)app.manifest')">$(MSBuildThisFileDirectory)app.manifest</ApplicationManifest>
   </PropertyGroup>
-  <!-- The runtime template (alpha.144 through alpha.146) copies these files
+  <!-- The runtime template (alpha.144 through 1.0.0-beta.20) copies these files
        after Build or only during Publish, too late for the MSIX payload.
        Declare them before package output discovery. -->
   <ItemGroup>
