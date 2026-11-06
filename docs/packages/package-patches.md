@@ -3,9 +3,11 @@
 > Canonical framework patch files for Bun and pnpm
 
 The canonical patch bundle, shared by Bun and pnpm compatibility checks.
-New apps and libraries include local `patches/` files in their scaffold, so
-Bun can apply them during the first install. Existing pnpm consumers can
-continue using this package as a config dependency.
+New apps and libraries include local `patches/` files in their scaffold for
+both package managers — Bun applies them during the first install, and pnpm
+registers them in `pnpm-workspace.yaml`. Existing pnpm consumers that already
+declare `@octane-xplat/patches` in `configDependencies` continue using this
+package as a config dependency.
 
 The canonical patch files and their rationale live in
 `packages/cli/patches/manifest.json`. `bun run sync:patches` generates this

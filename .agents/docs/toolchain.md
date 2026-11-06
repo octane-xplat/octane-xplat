@@ -287,6 +287,20 @@ experience of agents writing Octane-xplat code effectively.
   Every workspace must still declare what it imports. Bun packs publishable
   packages; npm uploads the tarballs with trusted publishing and provenance.
   pnpm is optional for `test:patches-pnpm`, a manual compatibility check.
+- **Starters are package-manager selectable.** `bun create` produces a Bun
+  project; `pnpm create` produces a pnpm project; other launchers probe
+  installed managers and `--package-manager` overrides. Bun config lives in
+  `package.json` (`workspaces.catalogs`, `overrides`, `patchedDependencies`,
+  `trustedDependencies`); the pnpm variant moves the same fields to
+  `pnpm-workspace.yaml` (`catalogs`, `overrides`, `patchedDependencies`,
+  `allowUnusedPatches`, `allowBuilds`, `nodeLinker: hoisted`, `saveExact`)
+  plus `packageManager: pnpm@<pin>`. That YAML shape is what `xplat upgrade`
+  and `xplat patches apply` also write. `allowBuilds` membership comes from
+  real pnpm install reports per target set — Bun `trustedDependencies` is not
+  evidence of the full list (pnpm additionally reported `@nativescript/core`
+  and `protobufjs`, denied `false`). `bun pm pack` drops `bunfig.toml`
+  (packaging ignore rules), so templates carry it renamed to `bunfig` and the
+  creator restores the name on copy.
 - **Keep patch source identities exact.** Bun keys tarball patches by URL,
   while pnpm keys the Windows previews by the package version. The canonical
   manifest's `bunSpecifiers` records the verified URL identities; it does not

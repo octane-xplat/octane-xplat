@@ -27,7 +27,9 @@ bun run typegen
 bun run test:packed
 ```
 
-Creation installs the package's development tools; it does not start a server.
+Use `pnpm create` for a pnpm package — the same scripts run as `pnpm run …`,
+and `--package-manager` overrides the launcher choice. Creation installs the
+package's development tools; it does not start a server.
 The template contains these useful files:
 
 ```text

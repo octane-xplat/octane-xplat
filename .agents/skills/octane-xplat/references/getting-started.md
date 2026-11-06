@@ -8,7 +8,17 @@ for platforms, installs dependencies, and starts the development server.
 
 ```sh
 bun create octane-xplat my-app
+# pnpm equivalent: pnpm create octane-xplat my-app
 ```
+
+The create launcher selects the project's package manager: `bun create` makes
+a Bun app, `pnpm create` makes a pnpm app, other launchers pick whichever is
+installed or ask when both are, and `--package-manager bun|pnpm` overrides the
+choice. The same rules apply to `--template library`. In a pnpm app, catalog
+pins, overrides, `patchedDependencies`, `allowBuilds`, and the hoisted linker
+live in `pnpm-workspace.yaml` instead of `package.json`, and `pnpm run` takes
+extra args without `--` (`pnpm run test:ios --device UDID`). `xplat add`,
+`xplat upgrade`, and `xplat patches` work in both project kinds.
 
 Starters install `octane-xplat` for the shared CLI/compiler toolchain and
 import Vite helpers from `octane-xplat/vite`. Keep direct declarations for

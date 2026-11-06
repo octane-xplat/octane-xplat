@@ -2,7 +2,7 @@
 
 > Install and upgrade the shared development tools for an Octane Xplat app.
 
-New apps created with `bun create octane-xplat` include `octane-xplat`. It
+New apps created with `bun create octane-xplat` or `pnpm create octane-xplat` include `octane-xplat`. It
 provides the `xplat` command, formatting, linting, Vite configuration helpers,
 and compatible versions of the Octane and TSRX compiler tools. To add it to
 an existing app, run this from the app directory:
@@ -12,7 +12,7 @@ bun add -D octane-xplat
 bun run xplat --help
 ```
 
-Use Bun 1.4.4 or later and Node 22.22.2 or later. Follow the
+Use Bun 1.4.4 or later, or pnpm 11.24 or later, plus Node 22.22.2 or later. Follow the
 [setup guide](https://octane-xplat.goddardai.org/toolchain) for native prerequisites.
 Installing the toolchain does not install Xcode, Android SDKs, or desktop hosts.
 

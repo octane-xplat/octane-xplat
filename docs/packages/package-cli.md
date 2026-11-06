@@ -34,7 +34,7 @@ bun run xplat upgrade      # align workspace versions and patches, then install
 bun run xplat typecheck    # web + native tsconfigs
 bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
 bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx and other Oxfmt languages in place (--check, --stdin-filepath)
-bun run xplat patches apply  # install the framework's bun patch set into this app
+bun run xplat patches apply  # install the framework's patch set into this app
 bun run xplat patches check  # verify the patch set is registered and unmodified
 bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
 bun run xplat fonts add @fontsource-variable/inter --install  # Fontsource package
@@ -439,6 +439,16 @@ git diff
 bun install
 ```
 
+In a pnpm project the same command works — pins, patch registrations, and
+`allowBuilds` approvals go into `pnpm-workspace.yaml`, and the install runs
+`pnpm install`:
+
+```sh
+pnpm run xplat add ios --no-install
+git diff
+pnpm install
+```
+
 Existing files, dependency specifications, and scripts are preserved. Review
 skipped-file warnings, reconcile custom configuration, and adapt the sample tests
 to your app. Web tests match `src/**/*.web.test.{ts,tsx,tsrx}` through
@@ -469,6 +479,17 @@ install to you:
 bun run xplat upgrade --no-install
 bun install --no-frozen-lockfile
 bun run xplat doctor
+```
+
+In a pnpm project, `pnpm dlx @octane-xplat/cli@latest upgrade` behaves the same
+way and installs with pnpm. Upgrades write local `patches/` files like Bun,
+unless the workspace already declares `@octane-xplat/patches` in
+`configDependencies` — that existing opt-in keeps the config-package mode.
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --no-install
+pnpm install --no-frozen-lockfile
+pnpm run xplat doctor
 ```
 
 The native CLI is the one channel exception: an exact CLI pin
@@ -729,8 +750,10 @@ Docs: [Get a working app and iterate](https://octane-xplat.goddardai.org/toolcha
 
 ## Framework patches
 
-The creator generates Bun apps and libraries with local patch files.
-`xplat upgrade` aligns their catalogs and patches before installing.
+The creator generates apps and libraries with local patch files for both
+package managers. `xplat upgrade` aligns their catalogs and patches before
+installing — for pnpm it writes the same local files unless the project already
+declares `@octane-xplat/patches` in `configDependencies`.
 
 The same canonical patch files work with **Bun 1.4.4 or later** and **pnpm**.
 Run from your app directory. The CLI selects the workspace root and uses its
@@ -747,9 +770,9 @@ It reads default and named catalogs from that same manifest. For a pnpm project,
 the command writes `pnpm-workspace.yaml`, creating it for a standalone app too:
 
 ```sh
-pnpm xplat patches apply
+pnpm run xplat patches apply
 pnpm install
-pnpm xplat patches check
+pnpm run xplat patches check
 ```
 
 pnpm 11 ignores `package.json.pnpm.patchedDependencies`; rerun `apply` to move

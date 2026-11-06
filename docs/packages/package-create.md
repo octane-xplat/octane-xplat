@@ -10,11 +10,31 @@ verification pending, and a WebKitGTK webview host. See
 [target support](https://octane-xplat.goddardai.org/spec#choose-your-targets).
 The framework is `0.x` and its API surface is still changing.
 
-With Node.js and Bun 1.4.4 installed:
+With Node.js 22.22.2 or later, plus Bun 1.4.4 or pnpm 11.24 or later:
 
 ```sh
 bun create octane-xplat my-app
 ```
+
+```sh
+pnpm create octane-xplat my-app
+```
+
+The command you launch through becomes the app's **package manager**: the tool
+that downloads packages and runs project scripts. `bun create` makes a Bun
+project; `pnpm create` makes a pnpm project. Other launchers such as
+`npx create-octane-xplat` use whichever of the two is installed and ask when
+both are; `--package-manager bun` or `--package-manager pnpm` overrides that
+choice for any launcher. If neither is installed, the creator still writes a
+Bun project, skips the install step, and explains what to install next.
+
+Both kinds of app work the same way afterward — the project scripts in this
+guide run under `bun run` or `pnpm run`. Two pnpm differences to know: a pnpm
+app pins `pnpm@11.24.0` in its `packageManager` field, so a newer pnpm
+switches to that version automatically, and `pnpm run` passes extra arguments
+directly — write `pnpm run test:ios --device DEVICE_UDID`, not
+`pnpm run test:ios -- --device` (pnpm forwards a `--` separator to the script
+literally, where Bun removes it).
 
 The starter's `tsconfig.json` selects the shared native JSX types from its
 direct `@octane-xplat/jsx` dependency. Browser JSX leaves select DOM types on
@@ -44,6 +64,9 @@ bun run typecheck
 bun run typegen
 bun run test:packed
 ```
+
+`pnpm create` and `--package-manager` choose the library's manager the same
+way; run the same scripts as `pnpm run …` in a pnpm project.
 
 The library starter publishes source for web, iOS, and Android, which the
 consuming app compiles. It includes conditional exports, generated `.d.ts`
@@ -79,9 +102,38 @@ clear the list in this in-memory version. The
 [first-flow guide](https://octane-xplat.goddardai.org/toolchain#build-and-check-your-first-flow)
 includes the full prompt and failure checks.
 
-The generated app pins Bun 1.4.4. Its `package.json` owns named catalogs
-and patch registrations. Local `patches/` files are available before the first
-install; keep them and `bun.lock` in Git.
+A Bun app pins `bun@1.4.4` and keeps its named catalogs, overrides, and patch
+registrations in `package.json`; `bun.lock` records what Bun installed, and
+`bunfig.toml` selects the flat dependency layout NativeScript needs. A pnpm app
+pins `pnpm@11.24.0` and keeps the same settings in `pnpm-workspace.yaml`
+instead — `catalogs.xplat`, `overrides`, `patchedDependencies`,
+`allowUnusedPatches`, `allowBuilds` (the approved and denied install-time build
+scripts), `nodeLinker: hoisted` (the same flat-tree requirement), and
+`saveExact` — plus `pnpm-lock.yaml` instead of `bun.lock`. There is no
+`bunfig.toml` in a pnpm app. Either way, local `patches/` files are available
+before the first install; keep them and the lockfile in Git.
+
+**Apps created with 0.19.0 through `bun create` are missing `bunfig.toml`** —
+the published tarball dropped it. If your Bun app's root has
+no `bunfig.toml`, add one, then reinstall:
+
+```toml
+[install]
+linker = "hoisted"
+exact = true
+```
+
+```sh
+bun install
+```
+
+pnpm 11 holds back package versions published in the last 24 hours by default
+(a supply-chain safeguard called
+[`minimumReleaseAge`](https://pnpm.io/settings#minimumreleaseage)). Right after
+a framework release, `pnpm install` may hold back or adjust a just-published
+version and add a `minimumReleaseAgeExclude` line to `pnpm-workspace.yaml`.
+Waiting a day is the simplest fix; adding an exclusion for a package you trust
+is your choice to make.
 
 Apps start with the runtime, build packages, and tests their selected platforms
 need. Feature packages are added when you use them.
@@ -95,6 +147,14 @@ app's folder, run the command for a platform you enabled:
 bun run test:web            # when web is enabled
 bun run test:ios -- --device DEVICE_UDID  # when iOS is enabled
 bun run test:android -- --device DEVICE_SERIAL  # when Android is enabled
+```
+
+In a pnpm app the same scripts run without the `--` separator:
+
+```sh
+pnpm run test:web
+pnpm run test:ios --device DEVICE_UDID
+pnpm run test:android --device DEVICE_SERIAL
 ```
 
 Web tests use jsdom, which simulates a browser's
@@ -121,6 +181,14 @@ bunx @octane-xplat/cli@latest upgrade
 bun run xplat doctor
 ```
 
+The pnpm form uses `pnpm dlx`:
+
+```sh
+pnpm dlx @octane-xplat/cli@latest upgrade --check
+pnpm dlx @octane-xplat/cli@latest upgrade
+pnpm run xplat doctor
+```
+
 An upgrade covers the workspace's managed dependencies and patches. Your
 app-specific packages and library consumer peer ranges remain yours. See
 [compatible versions](https://octane-xplat.goddardai.org/package-cli#compatible-versions) for local links,
@@ -132,6 +200,7 @@ app directory:
 ```sh
 cd my-app
 bun run dev            # web
+# pnpm app: pnpm run dev
 ```
 
 From that directory, these commands run other targets or check the app — the

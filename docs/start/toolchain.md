@@ -8,8 +8,9 @@ You need two tools on your computer:
 
 - **Node.js** runs the tools that prepare your app. Install version 22.22.2
   or later from the [Node.js download page](https://nodejs.org/en/download).
-- **Bun** runs Xplat, downloads packages, and runs project commands. Install
-  [Bun 1.4.4 or later](https://bun.com/docs/installation).
+- **A package manager** downloads packages and runs project commands. Install
+  [Bun 1.4.4 or later](https://bun.com/docs/installation), or
+  [pnpm 11.24 or later](https://pnpm.io/installation) if you prefer pnpm.
 
 A **package** is a bundle of code your app uses, such as Xplat's buttons and
 text fields. You don't need phone development tools to start in the browser.
@@ -17,12 +18,13 @@ text fields. You don't need phone development tools to start in the browser.
 1. Open a terminal: Terminal on macOS, PowerShell on Windows, or your Linux
    terminal app. This is where you type commands. Your code editor may also
    have a terminal panel.
-2. Check that all three tools are available. Run each line separately:
+2. Check that Node.js and your package manager are available. Run each line
+   separately:
 
    ```sh
    node --version
-   bun --version
-   bun --version
+   bun --version    # if you chose Bun
+   pnpm --version   # if you chose pnpm
    ```
 
    Each should print a version number. If you see “command not found” or
@@ -36,7 +38,9 @@ text fields. You don't need phone development tools to start in the browser.
    bun create octane-xplat my-app
    ```
 
-   `my-app` is the new folder's name; you can choose another name. Use a
+   With pnpm instead, run `pnpm create octane-xplat my-app` — the launcher
+   picks your package manager. `my-app` is the new folder's name; you can
+   choose another name. Use a
    folder that doesn't already contain files. The command asks which
    platforms to target — web, iOS, and Android are pre-selected — then
    copies the matching starter files, installs its packages, and starts a
@@ -227,8 +231,9 @@ versions; examples for another framework may need changes.
 
 The framework supplies a compatible set of package versions. The starter's
 `package.json` owns a named **catalog**, a shared list of exact versions, and
-patch registrations. `bun.lock` records what Bun installed. Keep both files
-and the scaffold's `patches/` directory in Git.
+patch registrations. `bun.lock` records what Bun installed. A pnpm app keeps
+the same settings in `pnpm-workspace.yaml` and its record in `pnpm-lock.yaml`.
+Keep those files and the scaffold's `patches/` directory in Git.
 
 ```json
 {
@@ -275,6 +280,9 @@ bun run xplat doctor
 bun run typecheck
 bun run build
 ```
+
+In a pnpm project, run the preview with `pnpm dlx` and the rest as
+`pnpm run …`.
 
 The preview writes nothing and exits `1` when changes are needed. Applying
 updates the framework packages, compiler, bundler, enabled test/native tools,
@@ -403,7 +411,8 @@ starting a server, run:
 bun create octane-xplat my-app --no-install
 ```
 
-You will still need to run `bun install` and `bun run dev` from the new folder
+You will still need to run `bun install` and `bun run dev` (or the `pnpm`
+equivalents) from the new folder
 before you can use the app. For the usual first-app setup, use the
 [create and run steps](#create-and-run).
 

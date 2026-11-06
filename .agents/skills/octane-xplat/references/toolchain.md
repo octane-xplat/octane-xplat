@@ -35,8 +35,11 @@ manifest, installed package versions, and doctor/upgrade output own the current
 version set; exact pins copied into prose go stale. Within this repository,
 workspace dependencies use `"workspace:*"` and packages declare every import.
 The TypeScript CLI runs under Bun; its standalone executables embed it. Repository
-installs require Bun 1.4.4. Consumer starters also use Bun, while `xplat patches`
-and development/build commands select either Bun or pnpm from the project.
+installs require Bun 1.4.4. Consumer starters select Bun or pnpm at create time
+(`bun create` vs `pnpm create`, or `--package-manager`); pnpm projects keep
+catalogs, overrides, patches, `allowBuilds`, and the hoisted linker in
+`pnpm-workspace.yaml`. `xplat add`, `xplat patches`, and development/build
+commands select either manager from the project.
 Other Node tooling needs Node >=22.18 for direct erasable TypeScript execution;
 consumer bundlers still compile framework runtime source.
 
