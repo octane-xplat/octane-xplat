@@ -257,25 +257,35 @@ its environments; manifests without an explicit source resolve the facade defaul
 ```
 
 TypeScript 7.1 checks TSRX through a **content mapper**, a compiler process
-that presents each TSRX file as typed source. Starters declare the mapper as a
-development dependency. In an existing app, install it and keep this entry in
-configurations that contain TSRX. Checking requires native TypeScript's
-external-code opt-in: run `tsc` with `--runExternalCode`.
-
-```sh
-bun add -D @tsrx/content-mapper
-```
+that presents each TSRX file as typed source. The `octane-xplat` umbrella
+package already declares the mapper, so apps keep this entry in
+configurations that contain TSRX and install nothing extra:
 
 ```json
 {
   "contentMappers": [
-    { "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }
+    { "package": "octane-xplat", "extensions": [".tsrx"] }
   ]
 }
 ```
 
+Libraries that depend on `@octane-xplat/cli` directly name it instead:
+
+```json
+{
+  "contentMappers": [
+    { "package": "@octane-xplat/cli", "extensions": [".tsrx"] }
+  ]
+}
+```
+
+The package name must resolve as a bare `node_modules` entry from the
+tsconfig's directory — the compiler does not accept paths here — so the
+mapper lives on the packages every project depends on directly. Checking
+uses the project's TypeScript 7.1 compiler:
+
 ```sh
-bun run tsc --runExternalCode --noEmit
+bun run xplat typecheck
 ```
 
 Native TypeScript does not resolve extensionless imports to TSRX files, and

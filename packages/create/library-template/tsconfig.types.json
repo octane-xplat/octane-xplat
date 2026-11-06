@@ -1,5 +1,5 @@
 {
-	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"contentMappers": [{ "package": "@octane-xplat/cli", "extensions": [".tsrx"] }],
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"declaration": true,

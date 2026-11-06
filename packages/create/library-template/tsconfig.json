@@ -1,5 +1,5 @@
 {
-	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"contentMappers": [{ "package": "@octane-xplat/cli", "extensions": [".tsrx"] }],
 	"compilerOptions": {
 		"strict": true,
 		"target": "es2022",

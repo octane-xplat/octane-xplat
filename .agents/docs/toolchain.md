@@ -128,6 +128,19 @@ literal, so names compile-check per specifier. The ambient `icons.d.ts`
 fallback for classic TypeScript, but must not be included alongside the
 mapper setup — it matches specifiers the stub tree would have rejected.
 
+`contentMappers[].package` resolves **only** as a bare `node_modules` name
+walked up from the tsconfig directory (typescript 7.1.0-beta: absolute and
+relative paths are TS6054), so a transitive dependency is invisible under
+Bun's isolated linker. The `.tsrx` mapper therefore lives on the packages a
+project depends on directly: `@octane-xplat/cli` depends on
+`@tsrx/content-mapper` and declares `typescript.contentMapper`
+(`bin/tsrx-mapper.mjs` — a re-export of upstream's unexported server entry);
+`octane-xplat` declares the same manifest with a bin stub that imports
+`@octane-xplat/cli/tsrx-mapper`. App tsconfigs name `octane-xplat`, libraries
+(depending on the CLI directly) name `@octane-xplat/cli`; repo-internal
+workspace tsconfigs keep `@tsrx/content-mapper` (the root declares it).
+Apps must not be told to install `@tsrx/content-mapper` themselves.
+
 
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
 `@octanejs/vite-plugin` 0.5.0. The parser pin is explicit at the root so a

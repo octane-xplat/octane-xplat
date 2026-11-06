@@ -62,7 +62,6 @@ try {
     devDependencies: {
       'octane-xplat': overrides['octane-xplat'],
       '@tsrx/oxc': pins['@tsrx/oxc'],
-      '@tsrx/content-mapper': pins['@tsrx/content-mapper'],
       vite: pins.vite,
     },
     overrides: { ...template.overrides, ...overrides },
@@ -84,7 +83,7 @@ createRoot(document.getElementById('root')!).render(<App />)
   )
 
   write(join(app, 'tsconfig.json'), {
-    contentMappers: [{ package: '@tsrx/content-mapper', extensions: ['.tsrx'] }],
+    contentMappers: [{ package: 'octane-xplat', extensions: ['.tsrx'] }],
     compilerOptions: {
       strict: true,
       target: 'ESNext',
@@ -108,7 +107,12 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
 
   run('bun', ['install', '--ignore-scripts'], app)
   // These tools must work without direct app declarations or top-level links.
-  for (const name of ['typescript', '@octanejs/vite-plugin', '@octane-xplat/cli']) {
+  for (const name of [
+    'typescript',
+    '@tsrx/content-mapper',
+    '@octanejs/vite-plugin',
+    '@octane-xplat/cli',
+  ]) {
     assert.throws(() => readFileSync(join(app, 'node_modules', name, 'package.json')))
   }
 

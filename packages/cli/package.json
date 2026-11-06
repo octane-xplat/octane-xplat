@@ -62,7 +62,14 @@
 		},
 		"./mcp/*": "./dist/mcp/*.js",
 		"./mcp/*.mjs": "./dist/mcp/*.js",
-		"./worker": "./dist/build-worker.js"
+		"./worker": "./dist/build-worker.js",
+		"./tsrx-mapper": "./bin/tsrx-mapper.mjs"
+	},
+	"typescript": {
+		"contentMapper": {
+			"exec": ["node", "bin/tsrx-mapper.mjs"],
+			"dynamicConfig": true
+		}
 	},
 	"publishConfig": {
 		"access": "public"
@@ -137,6 +144,7 @@
 		"@octane-xplat/docs-search": "workspace:*",
 		"@octane-xplat/fmt": "0.2.0",
 		"@octane-xplat/lib": "workspace:*",
+		"@tsrx/content-mapper": "catalog:",
 		"@tsrx/core": "0.5.5",
 		"create-octane-xplat": "workspace:*",
 		"ignore": "7.0.14",

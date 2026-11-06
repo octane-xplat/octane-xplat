@@ -252,8 +252,10 @@ bun run turbo run typecheck --filter=...@octane-xplat/ui
 
 ## Native TypeScript and declaration generation
 
-TypeScript 7.1 uses `@tsrx/content-mapper`; keep it declared in TSRX configs and
-use `tsc --runExternalCode` for checks. Import TSRX modules with explicit `.tsrx`, without a
+TypeScript 7.1 uses a content mapper for TSRX configs — apps name
+`octane-xplat`, libraries name `@octane-xplat/cli` (the mapper is their
+declared tool, not an app dependency). Use `xplat typecheck` /
+`tsc --runExternalCode` for checks. Import TSRX modules with explicit `.tsrx`, without a
 platform tag. The unsuffixed module supplies the contract, while the build
 selects the implementation. See [platform files](platform-leaves.md).
 `tsrx-typegen` owns its classic compiler API and adapter independently of the

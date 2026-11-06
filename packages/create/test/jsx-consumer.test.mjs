@@ -133,10 +133,10 @@ for (const targets of ['web', 'ios', 'android', 'web,ios,android', 'web+add-ios'
       mkdirSync(dirname(destination), { recursive: true })
       symlinkSync(join(repo, 'packages/ui/node_modules', name), destination, 'dir')
     }
-    assert.ok(manifest.devDependencies['@tsrx/content-mapper'])
-    const mapper = join(modules, '@tsrx/content-mapper')
-    mkdirSync(dirname(mapper), { recursive: true })
-    symlinkSync(join(repo, 'node_modules/@tsrx/content-mapper'), mapper, 'dir')
+    // The tsconfig names the octane-xplat umbrella as the content mapper;
+    // its manifest runs the mapper bundled with @octane-xplat/cli.
+    assert.ok(manifest.devDependencies['octane-xplat'])
+    symlinkSync(join(repo, 'packages/toolchain'), join(modules, 'octane-xplat'), 'dir')
     writeFileSync(join(app, 'native.tsx'), native)
     writeFileSync(join(app, 'dom.web.tsx'), dom)
     const probe = {

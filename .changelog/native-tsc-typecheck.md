@@ -7,13 +7,14 @@ TypeScript 7.1 compiler directly as `tsc --runExternalCode` instead of the
 **Breaking change:** TypeScript 5/6 projects are no longer supported by
 `xplat typecheck`; the compiler must be the native 7.1 line the `octane-xplat`
 umbrella supplies. Projects no longer need `@tsrx/typescript-plugin` — remove
-it from your dependencies. Keep `@tsrx/content-mapper` declared in configs
-that contain `.tsrx` sources; the compiler flag only unlocks external mapper
-code.
+it from your dependencies. Keep the content-mapper entry in configs that
+contain `.tsrx` sources; the compiler flag only unlocks external mapper code.
+The mapper is supplied by the toolchain package — apps name `octane-xplat`,
+libraries name `@octane-xplat/cli`.
 
 ```json
 {
-  "contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }]
+  "contentMappers": [{ "package": "octane-xplat", "extensions": [".tsrx"] }]
 }
 ```
 

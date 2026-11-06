@@ -1,7 +1,7 @@
 {
 	"contentMappers": [
 		{
-			"package": "@tsrx/content-mapper",
+			"package": "octane-xplat",
 			"extensions": [
 				".tsrx"
 			]

@@ -28,7 +28,6 @@
 				"@octane-xplat/jsx": "0.19.0",
 				"@octane-xplat/ui": "0.19.0",
 				"@octanejs/vite-plugin": "0.5.0",
-				"@tsrx/content-mapper": "0.1.2",
 				"@tsrx/oxc": "0.20.0",
 				"octane": "0.16.3",
 				"tsrx-typegen": "0.5.0",
@@ -88,8 +87,7 @@
 		"tsrx-typegen": "catalog:xplat",
 		"typescript": "catalog:xplat",
 		"vite": "catalog:xplat",
-		"vitest": "catalog:xplat",
-		"@tsrx/content-mapper": "catalog:xplat"
+		"vitest": "catalog:xplat"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

@@ -78,9 +78,10 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
   assert.ok(yaml.includes(`octane@${managedSpecifier('octane')}`))
   assert.doesNotMatch(yaml, /@tsrx\/typescript-plugin@/)
   const pkg = JSON.parse(yaml)
-  assert.equal(pkg.devDependencies['@tsrx/content-mapper'], 'catalog:xplat')
-  // The shared compiler profile includes the classic parser for content mapping.
-  assert.equal(pkg.devDependencies['typescript-classic'], 'catalog:xplat')
+  assert.equal(pkg.devDependencies['@tsrx/content-mapper'], undefined)
+  const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+  assert.equal(tsconfig.contentMappers[0].package, 'octane-xplat')
+  assert.equal(pkg.devDependencies['typescript-classic'], undefined)
   assert.equal(pkg.packageManager, 'bun@1.4.4')
   for (const path of Object.values(pkg.patchedDependencies)) {
     assert.ok(existsSync(join(dir, path)))

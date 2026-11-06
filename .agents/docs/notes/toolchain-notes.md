@@ -370,13 +370,16 @@ iOS/Android subpath entrypoints. Its AppKit root entrypoint keeps an explicit
 declaration because that renderer uses separate JSX types; it now references
 the generated shared props, and stale `Pager`/`Video` entries were removed
 because those components ship from separate leaf packages. This adopts the
-same flow the GIF leaf proved in a packed consumer. The TS 7 content-mapper
-path has a separate output naming/specifier issue (`Component.d.tsrx.ts` and
-retained `.tsrx` imports; upstream
-[TS#64053](https://github.com/microsoft/TypeScript/issues/64053) and
-[draft TS#64120](https://github.com/microsoft/TypeScript/pull/64120)). The
-initial typegen backend targets the classic TS 5.9 path; it does not claim
-that the upstream TS 7 issue is fixed.
+same flow the GIF leaf proved in a packed consumer. TS 7 content-mapper
+declaration emit used to name output `Component.d.tsrx.ts` and keep `.tsrx`
+imports ([TS#64053](https://github.com/microsoft/TypeScript/issues/64053));
+[TS#64581](https://github.com/microsoft/TypeScript/pull/64581) fixed it. Verified on
+7.1.0-beta: a `contentMappers` entry with
+`"outputExtensions": { ".tsrx": ".js" }` (plus
+`rewriteRelativeImportExtensions: true`) emits `Component.d.ts` and rewrites
+`./Component.tsrx` imports to `./Component.js`; the key is accepted by the
+binary though the bundled tsconfig schema does not list it. tsrx-typegen
+still targets the classic TS 5.9 path — its migration is not done.
 
 Packages with `tsrx-typegen.json` can run `tsrx-typegen --pack-check` as a hard
 publication gate. It checks every target's generated output, packs a temporary
