@@ -673,7 +673,34 @@ test('bin --package-manager validates its value', () => {
     { encoding: 'utf8' },
   )
   assert.equal(missing.status, 1)
-  assert.match(missing.stderr, /--package-manager needs a value: bun or pnpm/)
+  assert.match(missing.stderr, /ambiguous/)
+})
+
+test('bin parseArgs errors carry the ✗ prefix', (t) => {
+  const root = project(t)
+  const cases = [
+    [['--target', 'web', '--no-install'], /Unknown option '--target'/],
+    [[join(root, 'a'), join(root, 'b'), '--no-install'], /expected one project directory/],
+    [[join(root, 'c'), '--template', 'nope', '--no-install'], /--template must be app or library/],
+    [[join(root, 'd'), '--name', '--targets', 'web', '--no-install'], /ambiguous/],
+  ]
+  for (const [args, pattern] of cases) {
+    const result = spawnSync(process.execPath, [creator, ...args], { encoding: 'utf8' })
+    assert.equal(result.status, 1, String(args))
+    assert.match(result.stderr, pattern, String(args))
+  }
+})
+
+test('bin --package-manager=pnpm equals form scaffolds a pnpm project', (t) => {
+  const root = project(t)
+  const dir = join(root, 'eq-app')
+  const result = spawnSync(
+    process.execPath,
+    [creator, dir, '--package-manager=pnpm', '--no-install', '--targets', 'web'],
+    { encoding: 'utf8' },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
 })
 
 test('bin picks the invoking user agent when no flag is given', (t) => {

@@ -2,6 +2,7 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
+import { parseArgs } from 'node:util'
 import {
   composeLibrary,
   composeTargets,
@@ -19,109 +20,61 @@ import {
   type PackageManager,
 } from './package-manager.ts'
 
-const argv = process.argv.slice(2)
-const noInstall = argv.includes('--no-install')
-const templateIndex = argv.findIndex((arg) => arg === '--template' || arg.startsWith('--template='))
-const templateValueIndex =
-  templateIndex !== -1 && argv[templateIndex] === '--template' ? templateIndex + 1 : -1
-
-const templateArg =
-  templateIndex === -1
-    ? 'app'
-    : templateValueIndex !== -1
-      ? argv[templateValueIndex]
-      : argv[templateIndex].slice('--template='.length)
-
-const nameIndex = argv.findIndex((arg) => arg === '--name' || arg.startsWith('--name='))
-const nameValueIndex = nameIndex !== -1 && argv[nameIndex] === '--name' ? nameIndex + 1 : -1
-const nameArg =
-  nameIndex === -1
-    ? undefined
-    : nameValueIndex !== -1
-      ? argv[nameValueIndex]
-      : argv[nameIndex].slice('--name='.length)
-
-if (templateIndex !== -1 && (!templateArg || templateArg.startsWith('-'))) {
-  console.error('✗ --template needs a value: app or library')
+const fail = (message: string): never => {
+  console.error(`✗ ${message}`)
   process.exit(1)
 }
 
-if (!['app', 'library'].includes(templateArg)) {
-  console.error(`✗ unknown template "${templateArg}" — expected app or library`)
-  process.exit(1)
+function parseCli() {
+  try {
+    return parseArgs({
+      args: process.argv.slice(2),
+      allowPositionals: true,
+      options: {
+        template: { type: 'string', default: 'app' },
+        name: { type: 'string' },
+        targets: { type: 'string' },
+        'package-manager': { type: 'string' },
+        'no-install': { type: 'boolean', default: false },
+      },
+    })
+  } catch (error) {
+    return fail(error.message)
+  }
 }
 
-if (nameIndex !== -1 && (!nameArg || nameArg.startsWith('-'))) {
-  console.error('✗ --name needs an npm package name')
-  process.exit(1)
+const { values, positionals } = parseCli()
+
+const oneOf = <T extends string>(flag: string, value: string | undefined, choices: readonly T[]) =>
+  value === undefined || (choices as readonly string[]).includes(value)
+    ? (value as T | undefined)
+    : fail(`--${flag} must be ${choices.join(' or ')}`)
+
+const templateArg = oneOf('template', values.template, ['app', 'library'] as const)!
+const managerFlag = oneOf('package-manager', values['package-manager'], ['bun', 'pnpm'] as const)
+const noInstall = values['no-install']
+
+if (values.name === '') {
+  fail('--name needs an npm package name')
 }
 
-const targetsIndex = argv.findIndex((arg) => arg === '--targets' || arg.startsWith('--targets='))
-const targetsValueIndex =
-  targetsIndex !== -1 && argv[targetsIndex] === '--targets' ? targetsIndex + 1 : -1
-
-const targetsArg =
-  targetsIndex === -1
-    ? undefined
-    : targetsValueIndex !== -1
-      ? argv[targetsValueIndex]
-      : argv[targetsIndex].slice('--targets='.length)
-
-if (targetsIndex !== -1 && (targetsArg === undefined || targetsArg.startsWith('-'))) {
-  console.error(`✗ --targets needs a comma list: ${selectableTargets.join(', ')}`)
-  process.exit(1)
+if (positionals.length > 1) {
+  fail(`expected one project directory, got ${positionals.join(' ')}`)
 }
 
-const managerIndex = argv.findIndex(
-  (arg) => arg === '--package-manager' || arg.startsWith('--package-manager='),
-)
-
-const managerValueIndex =
-  managerIndex !== -1 && argv[managerIndex] === '--package-manager' ? managerIndex + 1 : -1
-
-const managerArg =
-  managerIndex === -1
-    ? undefined
-    : managerValueIndex !== -1
-      ? argv[managerValueIndex]
-      : argv[managerIndex].slice('--package-manager='.length)
-
-if (managerIndex !== -1 && (!managerArg || managerArg.startsWith('-'))) {
-  console.error('✗ --package-manager needs a value: bun or pnpm')
-  process.exit(1)
-}
-
-if (managerArg !== undefined && managerArg !== 'bun' && managerArg !== 'pnpm') {
-  console.error('✗ --package-manager must be bun or pnpm')
-  process.exit(1)
-}
-
-const optionValues = new Set(
-  [targetsValueIndex, templateValueIndex, nameValueIndex, managerValueIndex].filter(
-    (index) => index !== -1,
-  ),
-)
-
-const positional = argv.filter((arg, i) => !arg.startsWith('-') && !optionValues.has(i))
 const defaultDir = templateArg === 'library' ? 'octane-xplat-library' : 'octane-xplat-app'
-const dir = resolve(positional[0] ?? defaultDir)
+const dir = resolve(positionals[0] ?? defaultDir)
 
-if (templateArg === 'library' && targetsIndex !== -1) {
-  console.error(
-    '✗ --targets applies to the app template; libraries start with web and native builds',
-  )
-
-  process.exit(1)
+if (templateArg === 'library' && values.targets !== undefined) {
+  fail('--targets applies to the app template; libraries start with web and native builds')
 }
 
-if (templateArg === 'app' && nameIndex !== -1) {
-  console.error('✗ --name applies only to the library template')
-  process.exit(1)
+if (templateArg === 'app' && values.name !== undefined) {
+  fail('--name applies only to the library template')
 }
 
 if (existsSync(dir) && readdirSync(dir).length > 0) {
-  console.error(`✗ ${dir} exists and is not empty`)
-  process.exit(1)
+  fail(`${dir} exists and is not empty`)
 }
 
 const parseTargets = (value) => {
@@ -146,7 +99,7 @@ const parseTargets = (value) => {
 }
 
 const decision = decidePackageManager({
-  flag: managerArg,
+  flag: managerFlag,
   userAgent: process.env.npm_config_user_agent,
   installed: installedManagers(),
   interactive: Boolean(process.stdout.isTTY),
@@ -188,7 +141,7 @@ async function promptForManager(p: typeof import('@clack/prompts')) {
 
 let ids: string[] = []
 if (templateArg === 'library') {
-  const packageName = nameArg ?? basename(dir)
+  const packageName = values.name ?? basename(dir)
   if (decision.kind === 'prompt') {
     const p = await import('@clack/prompts')
     p.intro('create-octane-xplat')
@@ -206,9 +159,9 @@ if (templateArg === 'library') {
     `\n✓ scaffolded ${dir} (library: ${packageName}; web + iOS + Android; ${packageManager})`,
   )
 } else {
-  if (targetsArg !== undefined) {
+  if (values.targets !== undefined) {
     try {
-      ids = parseTargets(targetsArg)
+      ids = parseTargets(values.targets)
     } catch (error) {
       console.error(`✗ ${error.message}`)
       process.exit(1)
@@ -242,7 +195,7 @@ if (templateArg === 'library') {
   }
 
   // Targets from the flag skip the multiselect; the manager choice still asks.
-  if (decision.kind === 'prompt' && targetsArg !== undefined) {
+  if (decision.kind === 'prompt' && values.targets !== undefined) {
     const p = await import('@clack/prompts')
     p.intro('create-octane-xplat')
     await promptForManager(p)
