@@ -11,6 +11,7 @@ import { usePinch } from './pinch.tsrx'
 import type { PinchEvent } from '../../props'
 
 const events: PinchEvent[] = []
+const cleanups: (() => void)[] = []
 
 function PinchHost() @{
   const onPinch = usePinch((event) => events.push(event))
@@ -26,10 +27,12 @@ function mountPinchHost() {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   root.render(PinchHost, {})
+  cleanups.push(() => root.unmount())
   return { container, root, host: container.children[0] }
 }
 
 afterEach(() => {
+  for (const cleanup of cleanups.splice(0)) cleanup()
   events.length = 0
   vi.unstubAllGlobals()
 })
@@ -61,20 +64,19 @@ describe('native pinch normalization', () => {
   })
 
   it('preserves finite focal coordinates and omits unavailable values', () => {
-    const { host, root } = mountPinchHost()
-    const handler = host.props.onPinch
-    handler({ state: 2, getFocusX: () => 14, getFocusY: () => 44 })
-    handler({ state: 2, getFocusX: () => NaN, getFocusY: () => Infinity })
+    const { container, host } = mountPinchHost()
+    container.dispatchEvent(host, 'pinch', { state: 2, getFocusX: () => 14, getFocusY: () => 44 })
+    container.dispatchEvent(host, 'pinch', { state: 2, getFocusX: () => NaN, getFocusY: () => Infinity })
     expect(events[0]).toMatchObject({ focusX: 14, focusY: 44 })
     expect(events[1].focusX).toBeUndefined()
     expect(events[1].focusY).toBeUndefined()
-    root.unmount()
   })
 
   it('leaves the prop unset without a callback', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     root.render(BareHost, {})
+    cleanups.push(() => root.unmount())
     expect(() =>
       container.dispatchEvent(container.children[0], 'pinch', { scale: 1, state: 1 }),
     ).toThrow(/no "pinch" listener/)

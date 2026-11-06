@@ -85,3 +85,38 @@ it('ignores native entrance completion or cancellation after presentation teardo
   expect(close).not.toHaveBeenCalled()
   expect(host.style.paddingBottom).toBe(12)
 })
+
+for (const contacts of [
+  { ios: { numberOfTouches: 2 } },
+  { android: { current: { getPointerCount: () => 2 } } },
+]) {
+  it('ignores a two-contact pull-down and cancels an existing drag', () => {
+    vi.useFakeTimers()
+    const host = fixture()
+    const close = vi.fn()
+    host.animate = ({ translate }: any) => {
+      host.translateY = translate.y
+      return Promise.resolve()
+    }
+    const controller = attachSheetDetents(host, [0.5, 0.8], close)
+    controller.enter()
+    const pan = host.children[0].listeners.get('pan')
+    const restingOffset = host.translateY
+    pan({ state: 1, deltaY: 0, ...contacts })
+    pan({ state: 2, deltaY: 700, ...contacts })
+    pan({ state: 3, deltaY: 700 })
+    expect(host.translateY).toBe(restingOffset)
+    expect(close).not.toHaveBeenCalled()
+
+    pan({ state: 1, deltaY: 0 })
+    pan({ state: 2, deltaY: 100 })
+    expect(host.translateY).toBe(restingOffset + 100)
+    pan({ state: 2, deltaY: 150, ...contacts })
+    expect(host.translateY).toBe(restingOffset)
+    pan({ state: 2, deltaY: 700 })
+    pan({ state: 3, deltaY: 700 })
+    expect(host.translateY).toBe(restingOffset)
+    expect(close).not.toHaveBeenCalled()
+    controller.detach()
+  })
+}

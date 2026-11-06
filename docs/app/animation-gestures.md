@@ -1301,7 +1301,18 @@ or numbers in typed test fixtures with these supported values.
 (`1` is unchanged) with the same `began | moved | ended | cancelled`
 state union. It attaches to the same native leaves as `onSwipe`
 (`View`, `Row`, `Stack`, `StackItem`, `Pressable`); web and desktop
-renderers do not synthesize pinch events.
+renderers do not synthesize pinch events. Optional `focusX` and `focusY`
+contain coordinates reported by the native recognizer. They are absent when
+unavailable; coordinate units and native gesture delivery still need device
+qualification.
+
+```tsx
+import { View } from '@octane-xplat/ui'
+
+export function PinchArea() {
+  return <View onPinch={({ scale, focusX, focusY }) => console.log(scale, focusX, focusY)} />
+}
+```
 
 ```tsx
 import { Text, View } from '@octane-xplat/ui'

@@ -134,6 +134,12 @@ export function GestureArea() {
 }
 ```
 
+For camera pinch-to-zoom, use the [camera guide](../../../../../docs/packages/package-camera.md#pinch-to-zoom).
+`CameraView.onPinch` is available on iOS and Android; shared `onPinch` also
+exposes optional raw focal coordinates. Mock normalization checks do not qualify
+native gesture delivery or focal-coordinate units. Coordinate custom ancestor
+pull-down recognizers with the pinch; they may observe the same touches.
+
 Windows pan uses the pinned Core pointer owner: one initiating contact,
 cumulative logical-DIP deltas, capture-loss cancellation and zero velocity.
 Packaged x64 mouse checks cover the shared Slider's numeric pointer path; they
