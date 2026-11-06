@@ -152,6 +152,21 @@ export function attachSheetDetents(
   }
 
   const onPan = (e: any) => {
+    // Two or more touches are a pinch, not a pull-down — iOS pan
+    // recognizers keep tracking while a descendant pinch recognizer runs,
+    // so a camera-style pinch must not drag or dismiss the sheet.
+    const touches =
+      typeof e.ios?.numberOfTouches === 'number'
+        ? e.ios.numberOfTouches
+        : (e.android?.current?.getPointerCount?.() ?? 1)
+    if (touches >= 2) {
+      if (dragging) {
+        dragging = false
+        animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh()))
+      }
+      return
+    }
+
     if (e.state === 1) {
       // began
       dragging = true

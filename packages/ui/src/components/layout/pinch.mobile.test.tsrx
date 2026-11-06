@@ -60,6 +60,17 @@ describe('native pinch normalization', () => {
     expect(events[1]).toMatchObject({ scale: 1, state: 'moved' })
   })
 
+  it('preserves finite focal coordinates and omits unavailable values', () => {
+    const { host, root } = mountPinchHost()
+    const handler = host.props.onPinch
+    handler({ state: 2, getFocusX: () => 14, getFocusY: () => 44 })
+    handler({ state: 2, getFocusX: () => NaN, getFocusY: () => Infinity })
+    expect(events[0]).toMatchObject({ focusX: 14, focusY: 44 })
+    expect(events[1].focusX).toBeUndefined()
+    expect(events[1].focusY).toBeUndefined()
+    root.unmount()
+  })
+
   it('leaves the prop unset without a callback', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))

@@ -133,6 +133,10 @@ export interface SwipeEvent {
 export interface PinchEvent {
   /** Cumulative scale multiplier since gesture start. */
   scale: number
+  /** Focal point x as reported by the native recognizer; absent when unavailable. */
+  focusX?: number
+  /** Focal point y as reported by the native recognizer; absent when unavailable. */
+  focusY?: number
   /** Gesture phase — began → moved → ended/cancelled. */
   state: PanState
   /** The host element the gesture is attached to. */
