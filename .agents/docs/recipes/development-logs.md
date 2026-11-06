@@ -30,13 +30,13 @@ retention gaps; process output is not a complete OS diagnostic stream.
 
 ## Documentation
 
-- AC1: [Start capture and read a session](../../../docs/testing/diagnostics.md), [subprocess regression](../../../packages/cli/go/session_history_test.go)
+- AC1: [Start capture and read a session](../../../docs/testing/diagnostics.md), [subprocess regression](../../../packages/cli/go/internal/history/session_history_test.go)
 - AC2: [Session selection and pagination](../../../docs/testing/diagnostics.md), [agent guidance](../../skills/octane-xplat/references/cli.md#follow-jobs-and-sessions-through-completion), [CLI regression](../../../tools/cli-go/cli.test.mjs)
-- AC3: [Retention and missing evidence](../../../docs/testing/diagnostics.md#retention-and-missing-evidence), [storage regression](../../../packages/cli/go/session_history_test.go)
+- AC3: [Retention and missing evidence](../../../docs/testing/diagnostics.md#retention-and-missing-evidence), [storage regression](../../../packages/cli/go/internal/history/session_history_test.go)
 - AC4: [Browser setup and boundaries](../../../docs/testing/diagnostics.md#what-is-captured), [client regression](../../../packages/cli/test/dev-browser-logs.test.mjs), [HTTP regression](../../../packages/cli/test/dev-bridge.test.mjs), [optional Chromium qualification](../../../packages/cli/test/dev-browser-logs.test.mjs)
 - AC5: [Platform coverage](../../../docs/testing/diagnostics.md#what-is-captured), [evidence record](../../design/agent-diagnostics.md)
 
-- AC6: [Native report sources and limits](../../../docs/testing/diagnostics.md#native-reports), [collector regression](../../../packages/cli/go/native_reports_test.go)
+- AC6: [Native report sources and limits](../../../docs/testing/diagnostics.md#native-reports), [collector regression](../../../packages/cli/go/internal/history/native_reports_test.go)
 - AC7: [Diagnostic interface](../../../docs/testing/diagnostics.md), [CLI regression](../../../tools/cli-go/cli.test.mjs), [MCP regression](../../../packages/mcp/tests/server.test.mjs)
 
 - AC8: [Choose a development device](../../../docs/start/toolchain.md#run-on-ios-and-android), [Session lifecycle and selection](../../../docs/testing/diagnostics.md), [runtime regressions](../../../packages/mcp/tests/runtime.test.mjs), [CLI regressions](../../../tools/cli-go/cli.test.mjs)

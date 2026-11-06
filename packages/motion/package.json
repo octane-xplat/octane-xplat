@@ -56,9 +56,9 @@
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
-		"@formatjs/intl-getcanonicallocales": "3.2.12",
-		"@formatjs/intl-locale": "5.3.12",
-		"@formatjs/intl-segmenter": "12.2.15",
+		"@formatjs/intl-getcanonicallocales": "3.3.0",
+		"@formatjs/intl-locale": "5.4.1",
+		"@formatjs/intl-segmenter": "12.3.0",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",

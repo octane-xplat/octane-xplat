@@ -69,13 +69,13 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"nativescript": "9.1.1",
-		"storybook": "10.6.1",
+		"storybook": "10.6.6",
 		"typescript": "catalog:",
+		"typescript-classic": "catalog:",
 		"vite": "catalog:",
-		"vitest": "catalog:",
-		"@tsrx/content-mapper": "catalog:",
-		"typescript-classic": "catalog:"
+		"vitest": "catalog:"
 	}
 }

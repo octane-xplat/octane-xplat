@@ -3,8 +3,8 @@ import type { JSX } from '@octane-xplat/jsx/jsx-runtime'
 import { useRef, useEffect, useState } from 'octane'
 import { useStore } from '@octane-xplat/ui/data'
 import type { CatalogEntry } from '../catalog'
-import { WORKSHOP_TARGETS, type StoryControl, type WorkshopTarget } from '../contract'
-import { UNSET, isUnsettable } from '../controls'
+import { WORKSHOP_TARGETS, type WorkshopTarget } from '../contract'
+import { UNSET, controlEntries, isUnsettable } from '../controls'
 import type { NativeWorkshopController } from './controller'
 
 export interface NativeChromeProps {
@@ -261,10 +261,7 @@ function ControlsPanel(p: {
   const [showHost, setShowHost] = useState(false)
   const story = p.controller.session.currentStory
   const currentProps = p.controller.session.currentProps ?? {}
-  const controls = Object.entries(story?.controls ?? {}).filter(
-    (entry): entry is [string, StoryControl<any, true>] => entry[1] !== undefined,
-  )
-
+  const controls = controlEntries(story?.controls)
   const disabled = s.session.phase !== 'ready'
   const commit = (key: string, value: unknown) => p.controller.control(key, value as any)
   return (

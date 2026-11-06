@@ -60,6 +60,7 @@ try {
   for (const dir of [
     'create',
     'cli',
+    'docs-search',
     'lib',
     'ui',
     'workshop',
@@ -74,6 +75,12 @@ try {
       `file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
   }
 
+  // octane must match the cli patch manifest's specifier or the patch is
+  // skipped as unused; read the managed pin instead of hardcoding it.
+  const compatibility = JSON.parse(
+    readFileSync(join(repo, 'packages/create/compatibility.json'), 'utf8'),
+  )
+
   write(
     'package.json',
     JSON.stringify(
@@ -81,13 +88,16 @@ try {
         name: 'workshop-packed-macos-acceptance',
         private: true,
         type: 'module',
-        dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.14.0' },
+        dependencies: {
+          '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
+          octane: compatibility.packages.octane.version,
+        },
         devDependencies: {
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
           '@octanejs/vite-plugin': '0.1.61',
           '@octane-xplat/macos-appkit': tarballs['@octane-xplat/macos-appkit'],
-          '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
+          '@nativescript/macos-node-api': '0.5.0-beta.0',
           '@tsrx/oxc': '0.20.0',
           '@tsrx/core': '0.2.4',
           typescript: '5.9.3',
@@ -103,6 +113,10 @@ try {
   manifest.overrides = tarballs
   manifest.packageManager = 'bun@1.4.4'
   write('package.json', JSON.stringify(manifest))
+  // The isolated linker keeps patched packages in a hash-suffixed store path,
+  // which the patch assertion below inspects; the hoisted linker applies
+  // patches in place with no distinguishing path.
+  write('bunfig.toml', '[install]\nlinker = "isolated"\n')
 
   run('bun', ['install', '--ignore-scripts'])
   for (const name of ['ui', 'workshop', 'cli', 'macos-appkit']) {
@@ -125,7 +139,7 @@ try {
   const req = createRequire(join(consumer, 'package.json'))
   assert.match(
     realpathSync(req.resolve('octane')),
-    /patch_hash/,
+    new RegExp(`octane@${compatibility.packages.octane.version.replaceAll('.', '\\.')}\\+`),
     'consumer octane must be the patched instance',
   )
 

@@ -56,7 +56,7 @@
 	},
 	"devDependencies": {
 		"@tsrx/typescript-plugin": "catalog:",
-		"@types/node": "24.10.1",
+		"@types/node": "26.6.6",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"srvx": "1.0.6",

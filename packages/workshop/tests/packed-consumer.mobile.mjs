@@ -29,7 +29,7 @@ function run(command, args, cwd = consumer) {
 
 const write = (file, body) => writeFileSync(join(consumer, file), body)
 const tarballs = {}
-for (const dir of ['cli', 'lib', 'ui', 'workshop']) {
+for (const dir of ['cli', 'docs-search', 'lib', 'ui', 'workshop']) {
   const root = join(repo, 'packages', dir)
   const p = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], root)

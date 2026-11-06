@@ -21,7 +21,7 @@ function run(command, args, cwd = app) {
 
 const dependencies = {
   octane: '0.6.3',
-  '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
+  '@nativescript/macos-node-api': '0.5.0-beta.0',
 }
 
 for (const name of [

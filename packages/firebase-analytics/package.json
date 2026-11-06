@@ -51,7 +51,8 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test:web": "node tests/runtime.web.mjs"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
@@ -61,7 +62,10 @@
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
-		"@tsrx/content-mapper": "catalog:"
+		"@tsrx/content-mapper": "catalog:",
+		"@octane-xplat/push": "workspace:*",
+		"vite": "catalog:",
+		"playwright": "1.63.0"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -85,6 +89,6 @@
 	"dependencies": {
 		"@nativescript/firebase-analytics": "5.0.2",
 		"@nativescript/firebase-core": "5.0.2",
-		"firebase": "13.1.0"
+		"firebase": "13.2.0"
 	}
 }

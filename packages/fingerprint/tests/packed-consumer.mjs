@@ -92,7 +92,7 @@ try {
 
   assert.deepEqual(JSON.parse(comparison), [])
   const manifest = JSON.parse(await readFile(join(packed, 'package/package.json'), 'utf8'))
-  assert.equal(manifest.dependencies.typescript, '5.9.3')
+  assert.equal(manifest.dependencies['typescript-classic'], 'npm:typescript@5.9.3')
   assert.ok(!manifest.dependencies['@nativescript/core'])
   console.log(
     'Packed Node consumer: installed emitted JavaScript, fresh native config evaluation, source/hash/diff APIs and JSON CLI passed without renderer dependencies.',

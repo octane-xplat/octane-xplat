@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/sentry",
 	"version": "0.19.0",
-	"description": "Sentry error and performance reporting for Octane xplat \u2014 @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
+	"description": "Sentry error and performance reporting for Octane xplat — @nativescript-community/sentry on iOS/Android, @sentry/browser on web",
 	"keywords": [
 		"android",
 		"cross-platform",
@@ -54,7 +54,8 @@
 		"typegen": "tsrx-typegen --target octane",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check",
-		"typecheck": "node ../../scripts/typecheck.ts"
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test:web": "node tests/runtime.web.mjs"
 	},
 	"devDependencies": {
 		"@sentry/cli": "3.8.2",
@@ -72,7 +73,8 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
-		"typescript-classic": "catalog:"
+		"typescript-classic": "catalog:",
+		"playwright": "1.63.0"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",
@@ -95,7 +97,7 @@
 	},
 	"dependencies": {
 		"@nativescript-community/sentry": "4.6.49",
-		"@sentry/browser": "11.9.0",
+		"@sentry/browser": "11.10.0",
 		"@octane-xplat/lib": "workspace:*"
 	}
 }

@@ -40,7 +40,7 @@
 		"onnxruntime-web": "1.31.1"
 	},
 	"devDependencies": {
-		"@types/node": "24.10.1",
+		"@types/node": "26.6.6",
 		"typescript": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"

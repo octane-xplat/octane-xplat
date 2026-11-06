@@ -102,8 +102,8 @@ type TrustedOrigin = { scheme: string; host: string; port: number | null }
 type TrustedOriginParts = { protocol?: unknown; host?: unknown; port?: unknown }
 
 /** The NSObject.extend(...) product — a native class the bridge instantiates. */
-interface NativeConstructible {
-  alloc(): { init(): NSObject }
+interface NativeConstructible<T extends NSObject> {
+  alloc(): { init(): T }
 }
 
 /** NSView members the declared bridge types omit. */
@@ -172,9 +172,10 @@ const trusted = (origin: TrustedOrigin | null, allowed: TrustedOrigin | undefine
   origin.host === allowed.host &&
   (allowed.port == null || origin.port === allowed.port)
 
-let ChannelClass: { alloc(): { init(): NSObject } } | undefined
+type Channel = NSObject & WKScriptMessageHandler & WKNavigationDelegate
+let ChannelClass: NativeConstructible<Channel> | undefined
 
-function channelClass(): { alloc(): { init(): NSObject } } {
+function channelClass(): NativeConstructible<Channel> {
   ChannelClass ??= NSObject.extend(
     {
       userContentControllerDidReceiveScriptMessage(
@@ -230,8 +231,8 @@ function channelClass(): { alloc(): { init(): NSObject } } {
       name: 'XplatWebViewChannel',
       protocols: [WKScriptMessageHandler, WKNavigationDelegate],
     },
-  )
-  return ChannelClass as unknown as NativeConstructible
+  ) as unknown as NativeConstructible<Channel>
+  return ChannelClass
 }
 
 const mediaUsageKey = (mediaType: string): string =>
@@ -265,11 +266,10 @@ const runLoopSpin = (seconds: number): void => {
 }
 
 // requestAccess's completion block lands on an arbitrary queue. The host's
-// env loop pump delivers foreign-queue JS blocks on the main thread now, but
-// a nil handler is also accepted, so the request is polled through the run
-// loop the way the Swift spin did.
+// env loop pump delivers foreign-queue JS blocks on the main thread. Supply
+// the required completion while polling authorization through the run loop.
 const requestMediaTypeAccess = (mediaType: string, deadlineSeconds: number | null): void => {
-  AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(mediaType, null)
+  AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(mediaType, () => {})
   const deadline = deadlineSeconds == null ? null : Date.now() + deadlineSeconds * 1000
   while (
     Number(AVCaptureDevice.authorizationStatusForMediaType(mediaType)) ===
@@ -318,9 +318,10 @@ const schemeError = (task: WKURLSchemeTask, code: number): void => {
 const NSErrorFor = (domain: string, code: number): NSError =>
   NSError.errorWithDomainCodeUserInfo(domain, code, null)
 
-let SchemeHandlerClass: { alloc(): { init(): NSObject } } | undefined
+type SchemeHandler = NSObject & WKURLSchemeHandler
+let SchemeHandlerClass: NativeConstructible<SchemeHandler> | undefined
 
-function schemeHandlerClass(): { alloc(): { init(): NSObject } } {
+function schemeHandlerClass(): NativeConstructible<SchemeHandler> {
   SchemeHandlerClass ??= NSObject.extend(
     {
       webViewStartURLSchemeTask(_webView: object, task: WKURLSchemeTask): void {
@@ -335,8 +336,8 @@ function schemeHandlerClass(): { alloc(): { init(): NSObject } } {
       webViewStopURLSchemeTask(_webView: object, _task: unknown): void {},
     },
     { name: 'XplatBundleSchemeHandler', protocols: [WKURLSchemeHandler] },
-  )
-  return SchemeHandlerClass as unknown as NativeConstructible
+  ) as unknown as NativeConstructible<SchemeHandler>
+  return SchemeHandlerClass
 }
 
 function serveSchemeTask(task: WKURLSchemeTask): void {
@@ -410,7 +411,7 @@ function serveSchemeTask(task: WKURLSchemeTask): void {
 
 const fileURL = (value: string): NSURL => {
   const url = NSURL.URLWithString(value)
-  return url != null && url.isFileURL ? url : NSURL.fileURLWithPath(value)
+  return url != null && url.isFileURL() ? url : NSURL.fileURLWithPath(value)
 }
 
 const fileRef = (url: NSURL): { name: string; uri: string } => ({
@@ -482,9 +483,12 @@ export function createMacOSWebView(parent: object): MacOSWebView {
   const keychainService = String(NSBundle.mainBundle.bundleIdentifier ?? 'org.octane.xplat')
   const keychainQuery = (key: string): NSMutableDictionary => {
     const query = NSMutableDictionary.new()
-    query.setObjectForKey(keychainKeys.genericPassword, keychainKeys.class)
-    query.setObjectForKey(keychainService, keychainKeys.service)
-    query.setObjectForKey(key, keychainKeys.account)
+    query.setObjectForKey(
+      keychainKeys.genericPassword,
+      NSString.stringWithString(keychainKeys.class),
+    )
+    query.setObjectForKey(keychainService, NSString.stringWithString(keychainKeys.service))
+    query.setObjectForKey(key, NSString.stringWithString(keychainKeys.account))
     return query
   }
 
@@ -511,6 +515,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         directory,
         true,
         null,
+        null,
       )
     return ok ? directory : null
   }
@@ -531,7 +536,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
     }
     state.stagedMovies.delete(String(target.absoluteString))
     try {
-      NSFileManager.defaultManager.removeItemAtURLError(staged)
+      NSFileManager.defaultManager.removeItemAtURLError(staged, null)
     } catch {}
   }
 
@@ -679,7 +684,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       const literal = array.slice(1, -1)
       webView.evaluateJavaScriptCompletionHandler(
         `window.__xplatHostTransport?.receive(${literal})`,
-        null,
+        () => {},
       )
     },
     pickFile(accept, startingFolder) {
@@ -734,6 +739,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         panel.URL,
         true,
         4,
+        null,
       )
       return written ? fileRef(panel.URL) : null
     },
@@ -803,9 +809,12 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const query = keychainQuery(key)
-      query.setObjectForKey(NSNumber.numberWithBool(true), keychainKeys.returnData)
-      query.setObjectForKey(keychainKeys.matchLimitOne, keychainKeys.matchLimit)
-      const out = new interop.Reference(interop.types.id)
+      query.setObjectForKey(NSNumber.numberWithBool(true), NSString.stringWithString(keychainKeys.returnData))
+      query.setObjectForKey(
+        keychainKeys.matchLimitOne,
+        NSString.stringWithString(keychainKeys.matchLimit),
+      )
+      const out = new interop.Reference<NSData>()
       if (Number(SecItemCopyMatching(query, out)) !== 0 || out.value == null) {
         return null
       }
@@ -818,7 +827,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       }
       const data = NSString.stringWithString(value).dataUsingEncoding(4)
       const update = NSMutableDictionary.new()
-      update.setObjectForKey(data, keychainKeys.valueData)
+      update.setObjectForKey(data, NSString.stringWithString(keychainKeys.valueData))
       const status = Number(SecItemUpdate(keychainQuery(key), update))
       if (status === 0) {
         return true
@@ -827,8 +836,11 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return false
       }
       const query = keychainQuery(key)
-      query.setObjectForKey(data, keychainKeys.valueData)
-      query.setObjectForKey(keychainKeys.afterFirstUnlock, keychainKeys.accessible)
+      query.setObjectForKey(data, NSString.stringWithString(keychainKeys.valueData))
+      query.setObjectForKey(
+        keychainKeys.afterFirstUnlock,
+        NSString.stringWithString(keychainKeys.accessible),
+      )
       return Number(SecItemAdd(query, null)) === 0
     },
     secureStorageRemove(key) {
@@ -852,7 +864,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       const requested = options?.fileUrl
       if (requested) {
         const url = NSURL.URLWithString(requested)
-        const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+        const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
         if (target == null) {
           return null
         }
@@ -882,7 +894,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const url = options?.fileUrl ? NSURL.URLWithString(options.fileUrl) : null
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       const data = options?.base64
         ? NSData.alloc().initWithBase64EncodedStringOptions(options.base64, 0)
         : null
@@ -893,7 +905,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       ) {
         return null
       }
-      const written = data.writeToURLOptionsError(target, NSDataWritingOptions.DataWritingAtomic)
+      const written = data.writeToURLOptionsError(target, NSDataWritingOptions.DataWritingAtomic, null)
       return written ? fileRef(target) : null
     },
     writeMovieFileChunk(options) {
@@ -902,7 +914,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const url = options?.fileUrl ? NSURL.URLWithString(options.fileUrl) : null
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       if (target == null) {
         return null
       }
@@ -924,7 +936,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       try {
         let staged = state.stagedMovies.get(key)
         if (staged != null) {
-          const handle = NSFileHandle.fileHandleForWritingToURLError(staged)
+          const handle = NSFileHandle.fileHandleForWritingToURLError(staged, null)
           if (handle == null) {
             throw new Error('staged movie open failed')
           }
@@ -940,6 +952,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
           const ok = data.writeToURLOptionsError(
             staged,
             NSDataWritingOptions.DataWritingWithoutOverwriting,
+            null,
           )
 
           if (!ok) {
@@ -953,7 +966,9 @@ export function createMacOSWebView(parent: object): MacOSWebView {
           return { ok: true }
         }
 
-        NSFileManager.defaultManager.moveItemAtURLToURLError(staged, target)
+        if (!NSFileManager.defaultManager.moveItemAtURLToURLError(staged, target, null)) {
+          throw new Error('staged movie commit failed')
+        }
         state.stagedMovies.delete(key)
         return fileRef(target)
       } catch {
@@ -966,7 +981,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const url = NSURL.URLWithString(uri)
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       if (target == null) {
         return null
       }
@@ -975,6 +990,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       }
       const attributes = NSFileManager.defaultManager.attributesOfItemAtPathError(
         String(target.path),
+        null,
       )
       const size = attributes?.objectForKey('NSFileSize')
       return {
@@ -988,7 +1004,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const url = NSURL.URLWithString(uri)
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       const data = target == null ? null : NSData.dataWithContentsOfURL(target)
       return data == null ? null : String(data.base64EncodedStringWithOptions(0))
     },
@@ -998,11 +1014,11 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const url = options?.fileUrl ? NSURL.URLWithString(options.fileUrl) : null
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       if (target == null) {
         return null
       }
-      const handle = NSFileHandle.fileHandleForReadingFromURLError(target)
+      const handle = NSFileHandle.fileHandleForReadingFromURLError(target, null)
       if (handle == null) {
         return null
       }
@@ -1024,7 +1040,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         }
 
         handle.seekToFileOffset(offset)
-        const chunk = handle.readDataUpToLengthError(length)
+        const chunk = handle.readDataUpToLengthError(length, null)
         return chunk == null ? null : String(chunk.base64EncodedStringWithOptions(0))
       } finally {
         try {
@@ -1037,7 +1053,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return false
       }
       const url = NSURL.URLWithString(uri)
-      const target = url != null && url.isFileURL ? moviePathInsidePrivateRoot(url) : null
+      const target = url != null && url.isFileURL() ? moviePathInsidePrivateRoot(url) : null
       if (target == null) {
         return false
       }
@@ -1046,8 +1062,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return true
       }
       try {
-        NSFileManager.defaultManager.removeItemAtURLError(target)
-        return true
+        return NSFileManager.defaultManager.removeItemAtURLError(target, null)
       } catch {
         return false
       }

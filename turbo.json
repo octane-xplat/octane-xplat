@@ -7,6 +7,8 @@
 	],
 	"tasks": {
 		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
+		"test:dev-bridge": { "dependsOn": ["^typegen"], "outputs": [] },
+		"test:accessibility": { "dependsOn": ["^typegen"], "outputs": [] },
 		"test:typescript": { "dependsOn": ["build", "^typegen"], "outputs": [] },
 		"create-octane-xplat#test": { "dependsOn": ["build", "^typegen", "^build"], "outputs": [] },
 		"@octane-xplat/camera#test:ios-writer": {
@@ -17,6 +19,15 @@
 			"dependsOn": ["^typegen"],
 			"cache": false,
 			"passThroughEnv": ["GODDARD_*", "XPLAT_IOS_DEVICE", "XPLAT_IOS_DEVELOPMENT_TEAM"]
+		},
+		"@octane-xplat/firebase-analytics#test:web": {
+			"dependsOn": ["^typegen"],
+			"cache": false
+		},
+		"@octane-xplat/sentry#test:web": {
+			"dependsOn": ["^typegen"],
+			"env": ["XPLAT_WEB_BROWSER"],
+			"cache": false
 		},
 		"@octane-xplat/camera#test:web": {
 			"dependsOn": ["^typegen"],

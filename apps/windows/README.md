@@ -23,7 +23,7 @@ Pins, all deliberate:
   `pkg.pr.new/...@abae298` (the October 23 revision of PR #11272,
   including the percentage-size hook from PR #11468). Use the commit pin: the PR-number
   URL moves when upstream pushes, invalidating the lockfile checksums.
-- `@nativescript/windows` is exact `0.1.0-alpha.144` — ranges match
+- `@nativescript/windows` is exact `0.1.0-alpha.146` — ranges match
   incompatible older prereleases.
 - `nativescript` CLI is the dev tag `9.1.2-dev.2026-09-24-*`, which already
   carries the windows platform (`ns run windows`, `ns doctor windows`);

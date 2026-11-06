@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { UNSET, applyControlInput, freshArgs, isUnsettable, reconcileProps } from '../src/controls'
+import { UNSET, controlEntries, applyControlInput, freshArgs, isUnsettable, reconcileProps } from '../src/controls'
 
 import type { StoryDefinition } from '../src/contract'
 
@@ -119,5 +119,21 @@ describe('applyControlInput', () => {
 
   it('undeclared keys are rejected', () => {
     expect(applyControlInput(base(), {}, 'ghost', 'x').error?.message).toMatch(/no control/)
+  })
+})
+
+describe('inspector control entries', () => {
+  it('omits undefined definitions while preserving defined fields and order', () => {
+    const definition = base({ controls: {
+      omitted: undefined,
+      flag: { type: 'boolean' },
+      label: { type: 'string' },
+    } })
+    const entries = controlEntries(definition.controls)
+    expect(entries.map(([key, control]) => [key, control.type])).toEqual([
+      ['flag', 'boolean'], ['label', 'string'],
+    ])
+    expect(controlEntries()).toEqual([])
+    expect(controlEntries({ omitted: undefined })).toEqual([])
   })
 })

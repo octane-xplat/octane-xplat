@@ -27,7 +27,10 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
           | { token?: string; socket?: string; instanceId?: string; targetId?: string }
           | undefined)
   const origin =
-    (globalThis as any).location?.origin ?? token?.socket?.replace(/^ws/, 'http').split('/app?')[0]
+    (globalThis as any).location?.origin ??
+    (typeof token?.socket === 'string'
+      ? token.socket.replace(/^ws/, 'http').split('/app?')[0]
+      : undefined)
 
   if (
     typeof origin !== 'string' ||

@@ -49,6 +49,7 @@ try {
   for (const dir of [
     'create',
     'cli',
+    'docs-search',
     'lib',
     'ui',
     'jsx',

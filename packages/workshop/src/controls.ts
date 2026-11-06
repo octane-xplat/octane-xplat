@@ -12,6 +12,11 @@ export interface FieldError {
   message: string
 }
 
+/** Omitted control definitions do not create inspector fields. */
+export function controlEntries<T>(controls: Record<string, T | undefined> = {}): [string, T][] {
+  return Object.entries(controls).filter((entry): entry is [string, T] => entry[1] !== undefined)
+}
+
 export function isUnsettable(definition: StoryDefinition<any, any, any>, key: string): boolean {
   const control: { allowUnset?: boolean } | undefined = definition.controls?.[key]
   if (!control) {

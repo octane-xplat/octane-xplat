@@ -12,7 +12,7 @@ afterEach(() => {
   }
 })
 
-function consumer({ complete = false, runtime = '0.1.0-alpha.144' } = {}) {
+function consumer({ complete = false, runtime = '0.1.0-alpha.146' } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'workshop-windows-'))
   roots.push(root)
   writeFileSync(
@@ -94,7 +94,7 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
     expect(report.status).toBe('missing-prerequisites')
   })
 
-  it.each(['^0.1.0-alpha.144', '~0.1.0-alpha.144', 'latest', 'workspace:*'])(
+  it.each(['^0.1.0-alpha.146', '~0.1.0-alpha.146', 'latest', 'workspace:*'])(
     'rejects a non-exact runtime declaration %s',
     (runtime) => {
       const report = windowsPreflight(consumer({ complete: true, runtime }), {

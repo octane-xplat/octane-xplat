@@ -162,6 +162,29 @@ installed-package Windows pointer, input, and percentage-layout regressions. The
 contact-only touch movement from upstream. These exercise JavaScript with host
 fixtures, not WinUI hit testing or OS input.
 
+## Windows runtime 0.1.0-alpha.146
+
+The Windows runtime pin moved to `@nativescript/windows@0.1.0-alpha.146` —
+the head of the alpha line (a small maintenance delta over alpha.144:
+nullable annotations, a `SupportedOSPlatform` attribute, `in`-parameter and
+null-check fixes; identical file list and DotNetBridge protocol). Core and
+Vite stay on `abae298` and the CLI dev pin is unchanged.
+
+The beta line was evaluated first and is not a qualified replacement yet:
+`1.0.0-beta.20` builds, signs, installs and launches on Windy (MSIX
+1.0.0.229), and stock WinUI controls keep correct UIA peers, but every
+xplat/Mason action control loses its typed automation peer — Button,
+Pressable, ListItem, TabItem, Selector and MenuItem elements report a generic
+`NamedContainerAutomationPeer` (`ControlType.Group`) instead of
+`ControlType.Button`/`TabItem`/`ComboBox`/`MenuItem` with their
+Invoke/SelectionItem patterns. The same drivers passed on the alpha.144
+runtime (1.0.0.196 run records in Silo `windows_checks`), so this is a
+beta-line regression, presumably from the new runtime JS-subclassing path
+that replaced the static binding generator. Re-evaluate the beta line when
+upstream fixes action-control peer projection; the Mason `byte[]` and Label
+`UIElement` workarounds below must be rechecked at the same time — beta.18+
+adds `JsTypedArray` marshaling that targets the `byte[]` gap.
+
 ## Mason core package qualification
 
 The Mason fork now maintains the Windows consumer under

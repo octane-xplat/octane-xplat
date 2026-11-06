@@ -52,11 +52,11 @@
 	"dependencies": {
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/richtext": "workspace:*",
-		"@octanejs/tiptap": "0.0.61",
-		"@tiptap/core": "3.32.0",
-		"@tiptap/pm": "3.32.0",
-		"@tiptap/starter-kit": "3.32.0",
-		"@tiptap/static-renderer": "3.32.0",
+		"@octanejs/tiptap": "0.0.62",
+		"@tiptap/core": "3.32.2",
+		"@tiptap/pm": "3.32.2",
+		"@tiptap/starter-kit": "3.32.2",
+		"@tiptap/static-renderer": "3.32.2",
 		"zeed-dom": "0.18.0"
 	},
 	"devDependencies": {

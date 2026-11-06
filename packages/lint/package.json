@@ -46,11 +46,11 @@
 	"dependencies": {
 		"@tsrx/core": "0.5.5",
 		"ignore": "7.0.14",
-		"oxlint": "1.90.0",
+		"oxlint": "1.91.0",
 		"picomatch": "4.0.7"
 	},
 	"devDependencies": {
-		"@types/node": "24.10.1",
+		"@types/node": "26.6.6",
 		"vite": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"

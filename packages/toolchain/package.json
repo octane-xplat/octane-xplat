@@ -33,7 +33,7 @@
 		"@tsrx/oxc": "0.20.0",
 		"@tsrx/typescript-plugin": "0.6.3",
 		"typescript": "7.1.0-beta",
-		"vite": "8.3.0",
+		"vite": "8.3.6",
 		"@tsrx/content-mapper": "0.1.2"
 	},
 	"engines": {

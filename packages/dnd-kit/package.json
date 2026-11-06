@@ -39,10 +39,10 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
-		"@dnd-kit/abstract": "0.5.1",
-		"@dnd-kit/collision": "0.5.1",
-		"@dnd-kit/geometry": "0.5.1",
-		"@dnd-kit/state": "0.5.1",
+		"@dnd-kit/abstract": "0.5.3",
+		"@dnd-kit/collision": "0.5.3",
+		"@dnd-kit/geometry": "0.5.3",
+		"@dnd-kit/state": "0.5.3",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"abort-controller": "3.0.0"

@@ -48,7 +48,7 @@
 		"zod": "4.6.7"
 	},
 	"devDependencies": {
-		"@types/node": "24.10.1",
+		"@types/node": "26.6.6",
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"@tsrx/typescript-plugin": "catalog:",

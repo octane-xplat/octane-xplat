@@ -20,6 +20,6 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "0.1.61",
 		"typescript": "catalog:",
-		"vite": "8.3.0"
+		"vite": "8.3.6"
 	}
 }

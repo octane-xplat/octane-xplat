@@ -236,10 +236,10 @@ export function createAccessibleHost(deps: Dependencies) {
     // title behavior for other roles rather than replacing it with the label.
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityTitle() {
-      return this.accessibilityRole() === 'AXMenuItem'
-        ? this.accessibilityLabel()
-        : // @ts-ignore super property read on the bridged superclass
-          super.accessibilityTitle
+      if (this.accessibilityRole() === 'AXMenuItem') {
+        return this.accessibilityLabel()
+      }
+      return Reflect.get(NSView.prototype, 'accessibilityTitle', this)
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.

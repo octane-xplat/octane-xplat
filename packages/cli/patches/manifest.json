@@ -87,8 +87,8 @@
 			"dropWhen": "@tsrx/typescript-plugin sets resolveHiddenExtensions in its typescript facet upstream"
 		},
 		{
-			"specifier": "@octanejs/tiptap@0.0.61",
-			"file": "@octanejs__tiptap@0.0.61.patch",
+			"specifier": "@octanejs/tiptap@0.0.62",
+			"file": "@octanejs__tiptap@0.0.62.patch",
 			"scope": "toolchain",
 			"why": "useEditor.ts reads bare process.env.NODE_ENV \u2014 no node global exists in the harness typecheck program. Adds a module-local process declaration for typecheck. (The './Context' self-import half of the 0.0.51 patch shipped upstream in 0.0.52 via octanejs/octane#1502.)",
 			"dropWhen": "@octanejs/tiptap declares process ambiently in useEditor.ts (closed unmerged upstream) or the leaf stops typechecking its raw sources"

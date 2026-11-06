@@ -30,7 +30,7 @@
 	"scripts": {
 		"build": "vite build --config vite.package.config.ts",
 		"prepack": "bun run build",
-		"typecheck": "tsc -p tsconfig.json",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
 		"test:packed": "node ../../tools/cli-go/build-tools-consumer.mjs"
 	},
 	"dependencies": {

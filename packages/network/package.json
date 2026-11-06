@@ -45,24 +45,24 @@
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"dependencies": {
+		"@kayahr/text-encoding": "2.2.0",
 		"@octane-xplat/platform": "workspace:*",
-		"web-streams-polyfill": "4.3.0",
-		"@kayahr/text-encoding": "2.2.0"
+		"web-streams-polyfill": "4.5.0"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
+		"playwright": "1.63.0",
+		"rouzer": "6.0.2",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
+		"typescript-classic": "catalog:",
 		"vite": "catalog:",
-		"rouzer": "6.0.2",
-		"zod": "4.6.5",
-		"playwright": "1.63.0",
-		"@tsrx/typescript-plugin": "catalog:",
-		"@tsrx/content-mapper": "catalog:",
-		"typescript-classic": "catalog:"
+		"zod": "4.6.7"
 	},
 	"peerDependencies": {
 		"@nativescript-community/octane": ">=0.2.1 <1",

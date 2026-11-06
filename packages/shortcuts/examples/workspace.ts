@@ -1,4 +1,4 @@
-import { createShortcuts, type ShortcutRuntime } from '@octane-xplat/shortcuts'
+import { createShortcuts, type ShortcutRuntime } from '../src/index'
 
 /** Install after the host mounts; dispose before the workspace closes. */
 export function installWorkspaceShortcuts(

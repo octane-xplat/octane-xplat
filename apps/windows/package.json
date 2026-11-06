@@ -43,7 +43,7 @@
 		"@nativescript-community/vite-octane": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@nativescript/vite": "https://pkg.pr.new/@nativescript/vite@abae298",
-		"@nativescript/windows": "0.1.0-alpha.144",
+		"@nativescript/windows": "0.1.0-alpha.146",
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",

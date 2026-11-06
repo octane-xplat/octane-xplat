@@ -48,7 +48,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/lib": "workspace:*",
-		"@stripe/stripe-js": "10.2.0"
+		"@stripe/stripe-js": "10.2.1"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",

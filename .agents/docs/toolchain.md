@@ -149,10 +149,12 @@ bags. It retains the local signal ownership, imperative-ref, event-error,
 descriptor-reader, and transparent keyed-root fixes described in the patch
 manifest. Patch applicability and host tests do not establish device behavior.
 
-`@octanejs/tiptap` 0.0.61 still pins Tiptap 3.28.0 and
-`@octanejs/lexical` 0.2.12 pins Lexical 0.51.0. Overrides align their
-complete engine families with our direct imports at 3.32.0 and 0.52.0,
-respectively. Keep each family aligned to avoid missing core symbols or
+`@octanejs/tiptap` 0.0.62 peers Tiptap `^3.28.0` and
+`@octanejs/lexical` 0.2.12 still pins Lexical 0.51.0. Overrides align their
+complete engine families with our direct imports at 3.32.2 and 0.53.0,
+respectively — including the tiptap adapter's optional bubble/floating-menu
+extensions so a floating `^3.28.0` range cannot pull a newer minor than the
+managed family. Keep each family aligned to avoid missing core symbols or
 separate editor registries. Reassess these overrides when the adapters adopt
 the corresponding engines. The compatibility manifest supplies these overrides
 to starters and `xplat upgrade`, so consumer installs share the same alignment.
@@ -310,6 +312,20 @@ experience of agents writing Octane-xplat code effectively.
   parsed correctly and passed the native-Vite regressions. If an earlier
   attempt left corrupt cached output, reinstall with `bun install --force
   --cache-dir <temporary-cache>` rather than changing the canonical patch.
+
+- **Mobile and Windows Vite patches have separate qualification contexts.**
+  Registry Vite 8.0.21 includes the aliased-default-export link check and
+  package-import vendor fixes, but does not include the full mobile 8.0.20
+  patch. Rebase all mobile hunks against its official tarball; keep the
+  upstream `hasEsmDefaultExport` implementation, rebase the re-export collector
+  around that new helper, and account for the source-map trailer newline.
+  The smaller Windows 8.0.21 patch cannot replace the mobile patch. Before
+  accepting a mobile version change, compare patch-touched installed files
+  against the expected tarball plus patch using a cold Bun cache, then qualify
+  startup, HMR, production builds and on-device tests on both mobile targets.
+  CLI 9.1.2 still depends on doctor 2.0.18, whose catalog runtime resolution
+  needs our patch. Its Xcode 27 launcher update alone does not qualify removal
+  of the simulator pre-boot workaround.
 
 - **Publishing uses Bun tarballs and npm trusted publishing.** Creator exports
   point explicitly at built JavaScript in `package.json`; do not reintroduce

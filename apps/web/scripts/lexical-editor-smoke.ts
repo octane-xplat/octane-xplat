@@ -1,16 +1,37 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
+import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { octane } from '@octanejs/vite-plugin'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const repoRoot = fileURLToPath(new URL('../../../', import.meta.url))
 const fixtureRoot = path.join(repoRoot, 'packages/lexical/tests/browser')
+// Same octane transform + web suffix chain as apps/web/vitest.config.mts; the
+// packages/lexical lib-build config this pointed at was removed in 9479c5cd0.
 const server = await createServer({
-  configFile: path.join(repoRoot, 'packages/lexical/vite.config.ts'),
+  configFile: false,
+  plugins: [xplatTsrx('web'), ...octane()],
   root: fixtureRoot,
   server: { host: '127.0.0.1', port: 0, strictPort: false },
   appType: 'mpa',
+  resolve: {
+    conditions: ['web'],
+    extensions: [
+      '.web.tsrx',
+      '.tsrx',
+      '.web.tsx',
+      '.tsx',
+      '.web.ts',
+      '.mjs',
+      '.mts',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.json',
+    ],
+  },
 })
 
 const browser = await chromium.launch()

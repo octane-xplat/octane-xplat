@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { xplatBoundary } from '../packages/cli/src/vite.ts'
 
 // Package acceptance only: real core shim + universal object driver. This does
 // not load AppKit or qualify transforms, clipping, input, or OS preferences.
@@ -38,6 +39,7 @@ export async function checkMacOSMotionConsumer({
     root: consumerRoot,
     logLevel: 'warn',
     plugins: [
+      xplatBoundary('macos'),
       {
         name: 'macos-package-boundary',
         generateBundle() {
@@ -55,6 +57,19 @@ export async function checkMacOSMotionConsumer({
           assert.ok(
             modules.includes(expected),
             `macos condition must select ${expected}; resolved: ${modules.filter((id) => id.includes(packageName)).join(', ')}`,
+          )
+
+          // Explicit .tsrx imports need the same target resolver as production.
+          if (packageName === '@octane-xplat/motion') {
+            assert.ok(
+              modules.some((id) => id.endsWith('/components/overlays/BottomSheet.macos.tsrx')),
+              'public UI barrel selects the macOS BottomSheet leaf',
+            )
+          }
+          assert.equal(
+            modules.some((id) => id.endsWith('/components/overlays/BottomSheet.tsrx')),
+            false,
+            'mobile BottomSheet cannot enter the macOS consumer graph',
           )
 
           resolvedEntry = true

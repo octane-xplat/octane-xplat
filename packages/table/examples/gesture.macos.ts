@@ -9,6 +9,9 @@ export function pan(ctx: ProbeContext, id: string, dx: number, cancelled = false
     typeof ctx.host === 'object' && ctx.host !== null && 'contentView' in ctx.host
       ? (ctx.host.contentView as NSView)
       : undefined
+  if (contentView == null) {
+    throw new Error('macOS pan probe requires a host contentView')
+  }
   const root = createMacOSRoot(contentView)
   try {
     for (const [state, deltaX] of [

@@ -24,16 +24,16 @@
 		"octane": "catalog:"
 	},
 	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"@vitest/browser": "4.1.11",
 		"@vitest/browser-playwright": "4.1.11",
 		"playwright": "1.63.0",
 		"pngjs": "7.0.0",
-		"storybook": "10.6.1",
+		"storybook": "10.6.6",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"vitest-plugin-vis": "5.1.7",
-		"@octane-xplat/cli": "workspace:*"
+		"vitest-plugin-vis": "5.1.7"
 	}
 }

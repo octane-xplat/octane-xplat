@@ -131,7 +131,7 @@
 		"test:go-android-reports-real": "node ../../tools/cli-go/android-reports-real.mjs --run"
 	},
 	"dependencies": {
-		"@babel/core": "8.0.9",
+		"@babel/core": "8.1.0",
 		"@babel/plugin-transform-unicode-property-regex": "8.0.1",
 		"@babel/plugin-transform-unicode-sets-regex": "8.0.1",
 		"@octane-xplat/docs-search": "workspace:*",
@@ -151,7 +151,7 @@
 		"@nativescript-community/vite-octane": "0.2.1",
 		"@nativescript/core": "catalog:",
 		"@nativescript/vite": "8.0.20",
-		"@types/node": "24.10.1",
+		"@types/node": "26.6.6",
 		"abort-controller": "3.0.0",
 		"nativescript-vite-8-0-21": "npm:@nativescript/vite@8.0.21",
 		"vite": "catalog:"

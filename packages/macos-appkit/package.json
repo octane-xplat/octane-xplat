@@ -44,6 +44,7 @@
 	},
 	"scripts": {
 		"test": "node --experimental-strip-types --test test/*.test.ts",
+		"test:accessibility": "node --test test/common-control-accessibility.test.ts",
 		"test:keyboard": "node --test test/keyboard.test.ts",
 		"test:mason": "node --test test/mason*.test.ts",
 		"test:gestures": "node ../../tools/probe/cli.ts run test/fixtures/gestures.macos.tsrx --target macos",

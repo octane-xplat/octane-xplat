@@ -221,6 +221,7 @@ const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
   '@octane-xplat/docs-search': docsSearch,
   'create-octane-xplat': create,
+  '@octane-xplat/docs-search': docsSearch,
   '@octane-xplat/lib': lib,
   '@octane-xplat/lint': lint,
   '@octane-xplat/platform': platform,

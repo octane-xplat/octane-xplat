@@ -113,7 +113,7 @@ void plugins; void layers
   const overrides = {}
   // Pack lib too: cli's dist imports ./server-boundary, a subpath the last
   // published @octane-xplat/lib does not export.
-  for (const directory of ['cli', 'create', 'lint', 'lib']) {
+  for (const directory of ['cli', 'create', 'docs-search', 'lint', 'lib']) {
     const pack = join(temporary, directory)
     mkdirSync(pack)
     run('bun', ['pm', 'pack', '--destination', pack], join(repo, 'packages', directory))
