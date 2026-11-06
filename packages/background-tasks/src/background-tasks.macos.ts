@@ -56,7 +56,7 @@ export const backgroundTasks: BackgroundTasks = {
       }
 
       Promise.resolve()
-        .then(() => executor({ name }))
+        .then(() => executor({ name, expired: false }))
         .then((result: TaskResult) =>
           completion(result === 'success' ? RESULT_FINISHED : RESULT_DEFERRED),
         )

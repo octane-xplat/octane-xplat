@@ -283,6 +283,32 @@ confirmation on simulator `91D40099-…` (#145):
   change to `TNSInitializeLiveSync`/`trySetLiveSyncApplicationPath` or the
   DEBUG gating in the project template.
 
+## iOS Simulator: BGTaskScheduler submission unavailable (iOS 27.0 simruntime)
+
+Runtime-verified on simulator `91D40099-…` (iOS 27.0, probe app
+`org.octanexplat.probe.p4a1a90aeafd3fde3.p507ae21373cf1149`, 2026-11-05):
+
+- `registerForTaskWithIdentifier:usingQueue:launchHandler:` works — the
+  launch handler registers inside Apple's launch window.
+- `submitTaskRequest:error:` always returns `NO` with
+  `BGTaskSchedulerErrorCodeUnavailable`
+  ("BGTaskScheduler is not available on this platform") regardless of
+  `earliestBeginDate`; `cancelTaskRequestWithIdentifier:` returns normally.
+- Apple's `_simulateLaunchForTaskWithIdentifier:` LLDB escape hatch dispatches
+  nothing with no pending request, and Apple documents the debug functions as
+  device-only — so a simulated dispatch cannot be exercised on the simulator.
+- Submitting without a registered launch handler raises an uncatchable
+  `NSInternalInconsistencyException`
+  ("No launch handler registered for task with identifier …") that kills the
+  process — our leaf gates `register()` on a successful handler registration
+  instead of relying on a catchable return value.
+
+Upstream scope: matches Apple's documented position that the scheduler is a
+device feature and community reports that submission always fails on the
+simulator. Xplat stance: no workaround — `register()` surfaces the OS's real
+rejection, and dispatch/resubmission qualification requires a physical device.
+Recheck on a simulator runtime upgrade.
+
 ## Pulsar iOS 1.4.0: sound simulation and shared audio-session ownership
 
 Pulsar `AudioSimulator` enables synthesized sound under `DEBUG` and on the

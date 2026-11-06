@@ -19,11 +19,15 @@ unexposed; do not claim qualified subscription checkout without a sandbox run.
 
 Use the [background guide](../../../../../docs/platform/background-work.md) for a
 maintained task, distinct foreground/background execution evidence and startup
-configuration. Registration is not execution. The current Android worker does
-not bootstrap a dead runtime or correctly await JS completion (#71); iOS loses
-task outcomes, lacks expiration handling and does not resubmit requests (#72).
-Do not claim production periodic delivery. Register each iOS handler once before
-launch completes, keep a foreground action, and report device evidence separately.
+configuration. Scheduling is not execution. `defineTask` registers each iOS
+launch handler once at module scope — Apple's registration window — while
+`register()` is idempotent scheduling safe to repeat at every launch; a run
+reports the executor's real outcome, completes exactly once on expiration, and
+resubmits the next request. The iOS simulator rejects task submission
+outright — dispatch and resubmission qualification need a physical device.
+The current Android worker does not bootstrap a dead runtime or correctly
+await JS completion (#71). Do not claim production periodic delivery; keep a
+foreground action and report device evidence separately.
 
 ## Production error reporting
 

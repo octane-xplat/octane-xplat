@@ -14,9 +14,12 @@ but that does not mean every control works; see
 The [target guide](../start/spec.md#choose-your-targets) explains desktop setup.
 
 Before relying on native scheduled refresh, read the
-[background-work guide](../platform/background-work.md). It tracks current
-Android cold-start/completion and iOS lifecycle gaps and keeps foreground
-refresh available while native delivery remains unqualified.
+[background-work guide](../platform/background-work.md). iOS honors outcomes,
+exactly-once expiration and per-run resubmission, but the iOS simulator
+rejects task submission outright — dispatch and resubmission need a physical
+device. The other remaining gaps are Android cold-start/completion and
+OS-scheduled delivery qualification, so keep foreground refresh available
+while native delivery remains unqualified.
 
 OTA bundle updates are optional and available only in iOS/Android release
 binaries with the startup hook. They activate on cold launch and recover

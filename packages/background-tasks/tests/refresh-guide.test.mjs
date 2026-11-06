@@ -51,17 +51,19 @@ test('module load defines the task without scheduling work or writing execution 
   assert.equal(f.example.readEvidence().backgroundAt, null)
 })
 
-test('enable persists intent for a future startup, which requests at most once in this module', async () => {
+test('enable schedules immediately and persists intent for future startups', async () => {
   const f = fixture()
-  assert.equal(f.example.enableForNextLaunch(), true)
-  assert.equal(f.requests.length, 0)
-  f.example.requestAtNativeStartup()
-  f.example.requestAtNativeStartup()
-  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(await f.example.enableRefresh(), true)
   assert.equal(f.requests.length, 1)
   assert.equal(f.requests[0].options.minimumInterval, 3600)
+  // Each fresh launch re-requests at most once while the flag stays enabled.
+  const fresh = fixture()
+  fresh.values.set('refresh.enabled', 'yes')
+  fresh.example.requestAtNativeStartup()
+  fresh.example.requestAtNativeStartup()
+  await new Promise((resolve) => setImmediate(resolve))
+  assert.equal(fresh.requests.length, 1)
   assert.equal(f.example.readEvidence().backgroundAt, null)
-  assert.match(f.example.readEvidence().requestStatus, /unverified/)
 })
 
 test('foreground and controlled task execution keep separate timestamp keys', async () => {
@@ -77,7 +79,8 @@ test('failed flush reports failure, and registration failure does not become exe
   const f = fixture({ flush: false })
   assert.equal(await f.example.refreshNow(), 'failed')
   const rejected = fixture({ registerError: true })
-  rejected.example.enableForNextLaunch()
+  await assert.rejects(rejected.example.enableRefresh(), /provider details/)
+  rejected.values.set('refresh.enabled', 'yes')
   rejected.example.requestAtNativeStartup()
   await new Promise((resolve) => setImmediate(resolve))
   assert.equal(rejected.example.readEvidence().requestStatus, 'registration failed')
@@ -86,12 +89,12 @@ test('failed flush reports failure, and registration failure does not become exe
 
 test('disable removes durable intent and requests cancellation; unsupported targets retain foreground work', async () => {
   const f = fixture()
-  f.example.enableForNextLaunch()
+  await f.example.enableRefresh()
   await f.example.disableRefresh()
-  assert.equal(f.example.readEvidence().enabledForNextLaunch, false)
+  assert.equal(f.example.readEvidence().enabled, false)
   assert.deepEqual(f.removals, ['record-refresh'])
   const unsupported = fixture({ supported: false })
-  unsupported.example.enableForNextLaunch()
+  assert.equal(await unsupported.example.enableRefresh(), false)
   unsupported.example.requestAtNativeStartup()
   assert.equal(unsupported.requests.length, 0)
   assert.equal(await unsupported.example.refreshNow(), 'success')

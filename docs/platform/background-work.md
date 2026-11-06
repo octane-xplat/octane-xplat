@@ -7,11 +7,13 @@ the same small job for background delivery and inspect a separate background
 timestamp. This separation lets you tell an actual execution from a registration
 request or a foreground button press.
 
-The current native scheduler has consequential gaps: Android cannot bootstrap
-a dead runtime ([#71](https://github.com/octane-xplat/octane-xplat/issues/71)),
-and iOS does not correctly handle outcomes, expiration or recurring requests
-([#72](https://github.com/octane-xplat/octane-xplat/issues/72)). Treat scheduling
-below as a qualification experiment, not a production delivery guarantee. Keep
+The Android worker still cannot bootstrap a dead runtime or await the JS
+executor's real outcome
+([#71](https://github.com/octane-xplat/octane-xplat/issues/71)). On iOS the
+lifecycle contract is implemented — the executor's real result is reported,
+expiration completes the task exactly once, and each completed run resubmits
+the next request — but the OS still chooses delivery, so scheduling below is
+a qualification experiment rather than a production delivery guarantee. Keep
 the foreground path usable. Web and desktop do not schedule this service.
 
 Use background work for a refresh that can wait. The OS chooses its delivery
@@ -40,7 +42,7 @@ Add `src/background/RefreshScreen.tsx`:
 import { useState } from 'octane'
 import { Pressable, Text, VStack } from '@octane-xplat/ui'
 import { backgroundTasks } from '@octane-xplat/background-tasks'
-import { disableRefresh, enableForNextLaunch, readEvidence, refreshNow } from './refresh'
+import { disableRefresh, enableRefresh, readEvidence, refreshNow } from './refresh'
 
 export function RefreshScreen() {
   const [evidence, setEvidence] = useState(readEvidence)
@@ -60,9 +62,13 @@ export function RefreshScreen() {
         setMessage('Background refresh is unavailable or restricted. Use Refresh now.')
         return
       }
-      setMessage(enableForNextLaunch() ? 'Enabled for the next fresh app launch.' : 'Could not save the preference.')
+      try {
+        setMessage(await enableRefresh() ? 'Refresh scheduled.' : 'Could not save the preference.')
+      } catch {
+        setMessage('Scheduling was rejected. Check the task identifier and retry.')
+      }
       setEvidence(readEvidence())
-    }}><Text>Enable on next launch</Text></Pressable>
+    }}><Text>Enable refresh</Text></Pressable>
     <Pressable onPress={async () => {
       try {
         await disableRefresh()
@@ -125,11 +131,12 @@ identifier. This adapter submits an app-refresh request; the extra `processing`
 mode in package metadata does not give it a separate processing-task API.
 
 Apple requires each launch handler to be registered once, before app launch
-finishes. A second registration of the same identifier can terminate the app;
+finishes. A second registration of the same identifier terminates the app;
 see [Apple's registration contract](https://developer.apple.com/documentation/backgroundtasks/bgtaskscheduler/register(fortaskwithidentifier:using:launchhandler:)).
-The wrapper currently combines handler registration and scheduling. This example
-therefore persists enablement for the **next fresh process launch**, rather than
-calling registration from a screen button or repeatedly from an effect.
+The adapter registers the handler inside `defineTask`, which the contract
+already requires at module scope: module evaluation finishes before launch
+completes. `register()` is then pure scheduling — submitting the next refresh
+request — and is safe to call from an enable action or at every launch.
 
 For Android, the package provides its WorkManager dependency, worker and native
 manifest integration. This timestamp task needs no location permission or
@@ -138,11 +145,12 @@ it. Rebuild after adding the package or changing native resources.
 
 ## Request once at startup
 
-The example's task definition already runs when `refresh.ts` is imported.
-In the starter's native `src/main.ts`, add the import, then request registration
-before its existing `Application.run`/`resetRootView` branch. Keep the rest of
-the starter bootstrap. `Application` is already imported there; keep one copy
-of that import (shown here for context):
+The example's task definition already runs when `refresh.ts` is imported —
+importing it at startup also puts the iOS launch handler inside Apple's
+registration window. In the starter's native `src/main.ts`, add the import,
+then re-request scheduling before its existing `Application.run`/`resetRootView`
+branch. Keep the rest of the starter bootstrap. `Application` is already
+imported there; keep one copy of that import (shown here for context):
 
 ```ts
 import { Application } from '@nativescript/core'
@@ -152,15 +160,17 @@ import { requestAtNativeStartup } from './background/refresh'
 if (!Application.started) requestAtNativeStartup()
 ```
 
-The helper attempts scheduling only when the preference was saved and this
-module has not already requested it. Do not insert an `await getStatus()` before
-this launch-time call: moving handler registration past app launch is unsafe.
+The helper re-submits the request only when the preference was saved and this
+module has not already requested it; the call is idempotent, so re-requesting
+on every fresh launch keeps the schedule current while the flag stays enabled.
 Use availability checks at the enable action, as shown on the screen.
 
 Use a freshly built, installed app to qualify startup. The native development
 session may start its placeholder shell before evaluating app modules; the
-`Application.started` guard intentionally skips registration in that case.
-Hot reload is not a reliable way to repeat iOS registration in the same process.
+`Application.started` guard intentionally skips scheduling in that case. A hot
+reload re-evaluates the module without re-registering the launch handler —
+the once-per-identifier guard absorbs it — but do not treat a reloaded
+process as a fresh-launch qualification.
 Follow [native build/distribution](../start/native-release.md) for the installed
 app path, then fully restart that test app after enabling the preference.
 
@@ -203,23 +213,25 @@ export async function refreshWhileOpen() {
 }
 ```
 
-The task's return value describes its own work, but the current native delivery
-bridge has these limits. They remain framework issues even if registration
-returns successfully:
+The task's return value describes its own work, and on iOS it now reaches the
+OS as the task's completion outcome. The native delivery bridge still has
+these limits; they remain framework constraints even if scheduling returns
+successfully:
 
 | Target | Current limitation | Consequence |
 | --- | --- | --- |
 | Android | Worker retries when no NativeScript runtime exists; it does not bootstrap task definitions | Process-dead execution is unsupported by that path; track #71 |
 | Android | Worker result handling does not match the asynchronous JS completion callback | A worker success/retry cannot establish the executor's actual outcome; track #71 |
-| iOS | Handler always reports success and has no expiration cleanup | Failed or expired work is not propagated correctly; track #72 |
-| iOS | One request is submitted; completion does not resubmit it | The configured interval is not a recurring-delivery guarantee; track #72 |
-| iOS | Registration and scheduling share one method | Repeated enable/reschedule calls are unsafe; this experiment enables for a fresh launch |
+| iOS | Expiration is cooperative, not preemption | An executor that ignores `context.expired` keeps running; its late result is discarded after the task completes as failed |
+| iOS | `isRegistered` is an in-memory record | It does not read the OS queue; re-request on each fresh launch while the enabled flag persists |
+| iOS | A submitted request is consumed per run | Recurrence relies on the completion-time resubmit; a disabled or unscheduled task gets no delivery |
+| iOS simulator | `submitTaskRequest` is rejected as unavailable | Scheduling cannot be qualified on the simulator; `register()` reports the OS rejection instead of pretending to schedule |
 | Web/desktop | Scheduler reports unsupported | Use foreground refresh or a target-specific scheduling service |
 
-Do not build around these gaps with a timer, a second iOS registration, or an
-unverified private worker invocation. For production scheduling, resolve and
-qualify the native lifecycle issues or integrate a separately owned, proven
-scheduler with explicit platform boundaries.
+Do not build around the remaining gaps with a timer or an unverified private
+worker invocation. For production scheduling on Android, resolve and qualify
+the worker lifecycle or integrate a separately owned, proven scheduler with
+explicit platform boundaries.
 
 ## Prove execution separately
 
@@ -227,25 +239,39 @@ Use an owned test app and record target, build, OS/device, scheduling time,
 execution timestamp and observed process state:
 
 1. Run **Refresh now** and confirm only the foreground key changes.
-2. Enable for next launch, restart the installed app and inspect the request
-   status. Registration failure is distinct from a delayed OS delivery.
-3. Background the app. Use the platform's supported development tools to
-   inspect scheduled work and dispatch a controlled test run when available.
-   Check the background timestamp after returning; never press Refresh now as
-   a substitute for this evidence.
+2. Enable refresh and inspect the request status. A rejected schedule
+   (missing permitted identifier or background mode) fails immediately and is
+   distinct from a delayed OS delivery.
+3. Background the app, then dispatch a controlled run with the platform's
+   development tools. On iOS this requires a physical device: the simulator
+   rejects `submitTaskRequest` as unavailable, so no request is pending and
+   Apple's `_simulateLaunchForTaskWithIdentifier` — a device-only debug
+   function — has nothing to dispatch. On a device, attach a debugger to the
+   process and evaluate
+   `(void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"<full identifier>"]`
+   via LLDB, then resume. This is a simulated dispatch, not OS-scheduled
+   delivery — it proves the registered handler runs the executor and
+   resubmits, not that the system would have delivered on its own. Check the
+   background timestamp after returning; never press Refresh now as a
+   substitute for this evidence.
 4. Repeat with the app process absent. On Android, do not use a force-stop as
    an equivalent process-death test: it changes whether work may run. The
    current cold-start bridge gap should remain a failed/unqualified gate.
-5. Inject a controlled executor failure and expiration, then inspect native
-   completion/retry status and preserved data. The current iOS outcome and
-   Android completion gaps prevent claiming these checks passed.
+5. Inject a controlled executor failure, then confirm the run completes as
+   failed and the request is still resubmitted. Simulate or reason through
+   expiration: the task must be completed exactly once and a cooperative
+   executor observes `context.expired`. OS-driven expiration itself has no
+   development trigger; unit coverage owns that path.
 6. Disable, restart and verify no new request is made. Observe whether an
    already-running job completes; do not label that as a new scheduled run.
-7. Verify a subsequent OS delivery if recurring refresh is required. The current
-   iOS adapter does not provide that recurrence by itself.
+7. Verify a subsequent dispatch if recurring refresh is required: a second
+   simulated launch must run the executor again, which is the resubmission
+   evidence for recurrence.
 
 The maintained Node tests check task definition, saved intent, separate evidence
-keys, flush failure, cancellation requests and unsupported fallback. Their
-controlled callback invocation is not OS delivery. No native scheduler, cold
-launch, suspension, expiration or periodic-device journey is qualified by those
-tests or by a successful docs build.
+keys, flush failure, cancellation requests and unsupported fallback, plus the
+iOS leaf's outcome reporting, exactly-once expiration and resubmission against
+a stubbed scheduler. Their controlled callback invocation is not OS delivery.
+No native scheduler, cold launch, suspension, OS-driven expiration or
+periodic-device journey is qualified by those tests or by a successful docs
+build.

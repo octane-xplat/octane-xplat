@@ -34,8 +34,8 @@ export function requestAtNativeStartup(): void {
     return
   }
   requestedInThisModule = true
-  // The native registration runs synchronously inside the current adapter's
-  // async method. Do not await getStatus() before registering the iOS handler.
+  // register is pure scheduling — cancel-then-submit — so every fresh launch
+  // may safely re-request while the flag stays enabled.
   void backgroundTasks.register(taskName, { minimumInterval: 3600 }).then(
     () => recordRequest('requested; execution unverified'),
     () => recordRequest('registration failed'),
@@ -50,7 +50,13 @@ function recordRequest(message: string): void {
   } catch {}
 }
 
-export function enableForNextLaunch(): boolean {
+export async function enableRefresh(): Promise<boolean> {
+  if (!backgroundTasks.supported) {
+    return false
+  }
+  // Scheduling no longer registers the launch handler, so it is safe to
+  // enable from a screen action — no fresh launch required.
+  await backgroundTasks.register(taskName, { minimumInterval: 3600 })
   storage.setString(enabledKey, 'yes')
   return storage.flush()
 }
@@ -75,7 +81,7 @@ export async function refreshNow(): Promise<TaskResult> {
 
 export function readEvidence() {
   return {
-    enabledForNextLaunch: storage.getString(enabledKey) === 'yes',
+    enabled: storage.getString(enabledKey) === 'yes',
     foregroundAt: storage.getString(foregroundKey),
     backgroundAt: storage.getString(backgroundKey),
     requestStatus: storage.getString(requestKey),
