@@ -589,6 +589,16 @@ index 617ed9a63..1c6e01f17 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
+@@ -3507,7 +3507,9 @@ function withSlot(sym, fn, ...args) {
+   Object.defineProperty(provider, "length", { value: fn.length, configurable: true });
+   return provider;
+ }
+ function withSlot(sym, fn, ...args) {
++  const hmr = fn?.[UNIVERSAL_HMR];
++  if (hmr !== void 0) fn = hmr.component;
+   const driver = MANUAL_HOOK_DRIVER;
+   const pending = driver?.pending;
+   const active = driver?.active ?? false;
 @@ -3683,6 +3701,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);
@@ -1136,6 +1146,16 @@ index 617ed9a63..1c6e01f17 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
+@@ -3507,7 +3507,9 @@ function withSlot(sym, fn, ...args) {
+   Object.defineProperty(provider, "length", { value: fn.length, configurable: true });
+   return provider;
+ }
+ function withSlot(sym, fn, ...args) {
++  const hmr = fn?.[UNIVERSAL_HMR];
++  if (hmr !== void 0) fn = hmr.component;
+   const driver = MANUAL_HOOK_DRIVER;
+   const pending = driver?.pending;
+   const active = driver?.active ?? false;
 @@ -3683,6 +3701,86 @@ function scheduleOwner(owner, slot) {
    }
    owner.root.scheduleOwned(owner);

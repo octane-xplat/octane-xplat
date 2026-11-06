@@ -18,6 +18,10 @@ function PinchHost() @{
   <masonview id="pinch-host" onPinch={onPinch} style={{ display: 'flex' }} />
 }
 
+function BareHost() @{
+  <masonview id="bare" onPinch={usePinch(undefined)} />
+}
+
 function mountPinchHost() {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -32,12 +36,11 @@ afterEach(() => {
 
 describe('native pinch normalization', () => {
   it('maps the cumulative scale and gesture phases', () => {
-    const { host } = mountPinchHost()
-    const handler = host.props.onPinch
+    const { container, host } = mountPinchHost()
 
-    handler({ scale: 1, state: 1, view: host })
-    handler({ scale: 1.75, state: 2, view: host })
-    handler({ scale: 2, state: 3, view: host })
+    container.dispatchEvent(host, 'pinch', { scale: 1, state: 1, view: host })
+    container.dispatchEvent(host, 'pinch', { scale: 1.75, state: 2, view: host })
+    container.dispatchEvent(host, 'pinch', { scale: 2, state: 3, view: host })
 
     expect(events.map((e) => [e.scale, e.state])).toEqual([
       [1, 'began'],
@@ -48,11 +51,10 @@ describe('native pinch normalization', () => {
   })
 
   it('maps cancellation and tolerates missing scale', () => {
-    const { host } = mountPinchHost()
-    const handler = host.props.onPinch
+    const { container, host } = mountPinchHost()
 
-    handler({ scale: 1.4, state: 0, object: host })
-    handler({ state: 2, object: host })
+    container.dispatchEvent(host, 'pinch', { scale: 1.4, state: 0, object: host })
+    container.dispatchEvent(host, 'pinch', { state: 2, object: host })
 
     expect(events[0]).toMatchObject({ scale: 1.4, state: 'cancelled', target: host })
     expect(events[1]).toMatchObject({ scale: 1, state: 'moved' })
@@ -61,7 +63,9 @@ describe('native pinch normalization', () => {
   it('leaves the prop unset without a callback', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
-    root.render(function Bare() @{ return <masonview id="bare" onPinch={usePinch(undefined)} /> }, {})
-    expect(container.children[0].props.onPinch).toBeUndefined()
+    root.render(BareHost, {})
+    expect(() =>
+      container.dispatchEvent(container.children[0], 'pinch', { scale: 1, state: 1 }),
+    ).toThrow(/no "pinch" listener/)
   })
 })

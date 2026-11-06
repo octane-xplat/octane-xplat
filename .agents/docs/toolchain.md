@@ -574,6 +574,16 @@ experience of agents writing Octane-xplat code effectively.
   Drop the patch when upstream wires `const` modifiers in type-literal
   signatures; recheck when upgrading `@sveltejs/acorn-typescript` or
   `@tsrx/core`.
+- **TSRX `@{` inline function-expression limitation (observed 2026-11-06,
+  octane 0.16.3 nativescript renderer).** A named function expression with an
+  `@{` template body in argument position — `root.render(function Bare() @{
+  return <x/> })` — miscompiles: the emitter drops the braces, producing
+  `function Bare() __octaneUniversalValue(...)`, which the bundler rejects as
+  a parse error. Top-level `@{` function declarations and arrow-function
+  arguments compile correctly; hoist the component instead of inlining it.
+  The maintained workaround is `packages/ui/src/components/layout/pinch.mobile.test.tsrx`.
+  Source/compiler evidence only — recheck the inline form when upgrading the
+  octane compiler.
 - App starters include runtime/build dependencies and testing for their selected
   platforms by default. Platform fragments own their test files, scripts, and
   managed development dependencies, including when a platform is added later.
