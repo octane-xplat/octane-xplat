@@ -96,6 +96,19 @@ export interface CameraPreviewPoint {
   y: number
 }
 
+/** Normalized pinch on the preview: `scale` is cumulative from gesture
+ *  start (1 = no change) and `focus` is the focal point in the same
+ *  preview space as `CameraPreviewPoint`. */
+export interface CameraPinchEvent {
+  /** Scale factor relative to gesture start. */
+  scale: number
+  /** Gesture phase — began → moved → ended/cancelled. */
+  state: 'began' | 'moved' | 'ended' | 'cancelled'
+  /** Focal point normalized to the preview; falls back to the center when
+   *  the platform does not report one. */
+  focus: CameraPreviewPoint
+}
+
 /** Capture orientation vocabulary. */
 export type CameraOrientation =
   | 'portrait'

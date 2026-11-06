@@ -121,6 +121,38 @@ without zoom control, and after `dispose`. Zoom lands on iOS
 `setZoomRatio`); it also works where the web `MediaStreamTrack` exposes a
 `zoom` capability. macOS, Windows, and Linux report `zoom: false`.
 
+`CameraView` also accepts `onPinch` directly on iOS and Android. Its event
+includes the cumulative scale and a normalized preview-space `focus` point;
+the point falls back to the center when the recognizer does not report it.
+Use a ref to retain the starting zoom between renders:
+
+```tsx
+import { useRef } from 'octane'
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+
+const session = createCameraSession()
+
+export function DirectZoomPreview() {
+  const baseZoom = useRef(1)
+  return (
+    <CameraView
+      session={session}
+      onPinch={(event) => {
+        if (event.state === 'began') {
+          baseZoom.current = session.zoomState()?.zoom ?? 1
+        }
+        session.setZoom(baseZoom.current * event.scale)
+      }}
+    />
+  )
+}
+```
+
+Native pinch delivery and focal-point units still need device qualification;
+unit tests cover event normalization, not OS gesture delivery. Custom ancestor
+pull-down recognizers must coordinate with a pinch because they can see the
+same touches.
+
 ## Preview readiness
 
 `onReady` means the session would admit `session.startRecording` — an

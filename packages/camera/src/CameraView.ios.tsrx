@@ -11,6 +11,7 @@ import {
   nativeAccessibilityState,
 } from './layout-child'
 
+import { observePreviewPinch } from './preview-pinch'
 import { observePreviewTap } from './preview-tap'
 
 /** Live iOS preview backed by AVFoundation. With `session`, the preview
@@ -117,6 +118,7 @@ export function CameraView(props: CameraViewProps): unknown @{
   }, [props.ref, props.ios])
 
   useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
+  useEffect(() => observePreviewPinch(host.current, props.onPinch), [props.onPinch])
 
   <masonview
     ref={bindHost}

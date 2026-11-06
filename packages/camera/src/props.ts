@@ -1,5 +1,5 @@
 import type { Octane } from 'octane/jsx-runtime'
-import type { CameraPreviewPoint, CameraSession } from './types'
+import type { CameraPinchEvent, CameraPreviewPoint, CameraSession } from './types'
 
 /** Accessibility roles the preview accepts. */
 export type CameraAccessibilityRole =
@@ -107,6 +107,13 @@ export interface CameraViewProps {
    *  Delivered on iOS, Android, and web; desktop runtimes do not dispatch
    *  it yet. */
   onTap?: (point: CameraPreviewPoint) => void
+  /** Pinch gesture on the preview — fires with the cumulative `scale`
+   *  and a preview-space `focus` (`CameraPinchEvent`). Notification-only:
+   *  it never consumes the gesture. Pair with `session.setZoom` for
+   *  pinch-to-zoom; a pinch state of `began` is also the point to suspend
+   *  any ancestor pull-down gesture for. Delivered on iOS and Android;
+   *  desktop runtimes do not dispatch it yet. */
+  onPinch?: (event: CameraPinchEvent) => void
   /** Native preview surface for platform-specific controls. */
   ref?: Octane.Ref<CameraViewHandle>
   /** Platform-specific properties applied to the preview surface. */

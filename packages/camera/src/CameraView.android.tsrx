@@ -13,6 +13,7 @@ import {
   nativeAccessibilityState,
 } from './layout-child'
 
+import { observePreviewPinch } from './preview-pinch'
 import { observePreviewTap } from './preview-tap'
 import { java } from '@octane-xplat/platform/android'
 
@@ -176,6 +177,7 @@ export function CameraView(props: CameraViewProps): unknown @{
   }, [props.ref, props.android])
 
   useEffect(() => observePreviewTap(host.current, props.onTap), [props.onTap])
+  useEffect(() => observePreviewPinch(host.current, props.onPinch), [props.onPinch])
 
   <masonview
     id={props.id}
