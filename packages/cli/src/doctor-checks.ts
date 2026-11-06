@@ -3,8 +3,8 @@ import { packageManagerFor, packageManagerExec } from './package-manager.ts'
 import { inspectCompatibility } from './compatibility-check.ts'
 import { workspaceRoot } from './compatibility.ts'
 import { runDoctorTool as check } from './doctor-tool.ts'
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
-import { dirname, join, parse, relative, resolve } from 'node:path'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
+import { dirname, join, parse, relative, resolve, sep } from 'node:path'
 import { hasLinux, hasMacOS, hasNative, hasWindows } from './targets.ts'
 import { inspectPatches, patchStateDetail } from './patches.ts'
 
@@ -272,6 +272,47 @@ export function findHmrScopeGaps(cwd) {
 	return [...gaps].sort()
 }
 
+/**
+ * A native app dependency whose install realpaths outside the app root — a
+ * `link:`/`file:`/`portal:` checkout — resolves `@nativescript/core` from that
+ * checkout's own node_modules during typechecks, producing a second type
+ * identity (issue #66). The app's tsconfig must pin core to its own copy;
+ * names the first linked dependency found, or null.
+ */
+export function findLinkedCoreTypeGap(cwd) {
+	if (!existsSync(join(cwd, 'nativescript.config.ts'))) {
+		return null
+	}
+
+	const tsconfig = readJson(join(cwd, 'tsconfig.json'))
+	let paths = tsconfig?.compilerOptions?.paths
+	if (!paths && typeof tsconfig?.extends === 'string') {
+		paths = readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
+	}
+
+	if (paths?.['@nativescript/core']) {
+		return null
+	}
+
+	const manifest = readJson(join(cwd, 'package.json')) ?? {}
+	const declared = new Set([
+		...Object.keys(manifest.dependencies ?? {}),
+		...Object.keys(manifest.devDependencies ?? {}),
+		...Object.keys(manifest.optionalDependencies ?? {}),
+		...Object.keys(manifest.peerDependencies ?? {}),
+	])
+
+	const root = realpathSync(workspaceRoot(cwd))
+	for (const name of declared) {
+		const location = installedPackageRoot(cwd, name)
+		if (location && location !== root && !location.startsWith(root + sep)) {
+			return name
+		}
+	}
+
+	return null
+}
+
 export type DoctorMessage = { level: 'info' | 'warn'; text: string }
 export type DoctorCheck = { name: string; ok: boolean; detail?: string; hint?: string }
 
@@ -517,6 +558,14 @@ export async function inspectDoctor({
 		message(
 			'warn',
 			`HMR scope — ${name} is imported but missing from tsconfig paths; native hot updates silently skip its files`,
+		)
+	}
+
+	const linkedCoreGap = native ? findLinkedCoreTypeGap(cwd) : null
+	if (linkedCoreGap) {
+		message(
+			'warn',
+			`linked dependency — ${linkedCoreGap} resolves outside this app's install; pin "@nativescript/core" and "@nativescript/core/*" to "./node_modules/@nativescript/core…" in tsconfig paths or linked checkouts typecheck a second core copy`,
 		)
 	}
 	const bad = rows.filter((row) => !row.ok).length

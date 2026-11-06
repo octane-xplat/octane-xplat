@@ -173,6 +173,25 @@ bun run turbo run test:library --filter=create-octane-xplat
 
 ## Linked native source packages
 
+Pin `@nativescript/core` to the app's own install in the native tsconfig when
+any dependency resolves to an external `link:`/`file:`/`portal:` checkout.
+Without the mapping, framework source and app code typecheck against two
+physical core copies and `View`/`Page`/`Color` gain incompatible
+private-member identities (issue #66). Generated native apps carry the
+mapping; `xplat doctor` warns when a linked app lacks it and no longer counts
+the checkout's private copies as duplicate runtimes.
+
+```json
+{
+  "compilerOptions": {
+    "paths": {
+      "@nativescript/core": ["./node_modules/@nativescript/core"],
+      "@nativescript/core/*": ["./node_modules/@nativescript/core/*"]
+    }
+  }
+}
+```
+
 Keep the canonical NativeScript Vite patch set when developing against source
 packages that also expose compiled tooling subpaths. Both 8.0.20 and 8.0.21
 need the collector repair; a patch for one version does not cover the other.

@@ -269,6 +269,56 @@ test('repeated singleton-copy labels retain every physical-version conflict', ()
 	assert.ok(expected.rows.some((row) => row.name === 'compatibility singleton octane' && !row.ok))
 })
 
+test('linked-checkout singleton copies are external installs, with a core-paths warning', () => {
+	const dir = fixture(
+		{
+			dependencies: {
+				octane: compatibility.packages.octane.version,
+				'@acme/fw': 'link:../linked-fw',
+			},
+		},
+		{ 'nativescript.config.ts': 'export default {}' },
+		false,
+	)
+	ownModules(dir)
+	put(dir, 'node_modules/octane/package.json', {
+		name: 'octane',
+		version: compatibility.packages.octane.version,
+	})
+	// A link: dep realpaths outside the install root; its own node_modules is
+	// the checkout's private install, not a bundled runtime copy (issue #66).
+	const fw = join(scratch, 'linked-fw')
+	put(fw, 'package.json', {
+		name: '@acme/fw',
+		version: '0.0.0',
+		dependencies: { octane: compatibility.packages.octane.version },
+	})
+	put(fw, 'node_modules/octane/package.json', {
+		name: 'octane',
+		version: compatibility.packages.octane.version,
+	})
+	mkdirSync(join(dir, 'node_modules/@acme'), { recursive: true })
+	symlinkSync(fw, join(dir, 'node_modules/@acme/fw'), process.platform === 'win32' ? 'junction' : 'dir')
+
+	const { expected } = compare(dir)
+	const singleton = expected.rows.find((row) => row.name === 'compatibility singleton octane')
+	assert.equal(singleton.ok, true)
+	assert.match(singleton.detail, /linked checkouts/)
+	assert.ok(expected.messages.some((row) => row.text.includes('linked dependency')))
+
+	// The tsconfig pin silences the warning; generated native apps carry it.
+	put(dir, 'tsconfig.json', {
+		compilerOptions: {
+			paths: {
+				'@nativescript/core': ['./node_modules/@nativescript/core'],
+				'@nativescript/core/*': ['./node_modules/@nativescript/core/*'],
+			},
+		},
+	})
+	const pinned = compare(dir)
+	assert.ok(!pinned.expected.messages.some((row) => row.text.includes('linked dependency')))
+})
+
 test('missing/corrupt selected tools fail explicitly and never use a parent worker fallback', () => {
 	const dir = fixture({}, {}, false)
 	assert.match(run(dir).stderr, /install @octane-xplat\/cli/)

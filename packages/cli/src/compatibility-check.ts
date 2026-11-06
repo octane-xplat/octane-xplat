@@ -1,6 +1,6 @@
 import { existsSync, realpathSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { join, relative, resolve } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { packageManagerFor } from './package-manager.ts'
 import { dependencySections, projectProfile } from 'create-octane-xplat/compatibility'
@@ -264,11 +264,21 @@ export function inspectCompatibility(
 		)
 	}
 	for (const [name, copies] of singletons) {
+		// Copies inside the workspace install are what the bundle can see; a
+		// copy under a `link:`/`file:`/`portal:` checkout's own node_modules is
+		// that checkout's private install — the preset already dedups managed
+		// singletons to the app copy, so it is not a duplicate runtime.
+		const bundled = [...copies].filter(
+			([path]) => path === root || path.startsWith(root + sep),
+		)
+		const external = copies.size - bundled.length
 		row(
 			`compatibility singleton ${name}`,
-			copies.size === 1,
-			copies.size === 1
-				? 'one runtime copy'
+			bundled.length === 1,
+			bundled.length === 1
+				? external
+					? `one runtime copy; ${external} in linked checkouts outside this install`
+					: 'one runtime copy'
 				: `${copies.size} runtime copies: ${[...copies].map(([path, version]) => `${version} (${relative(dir, path)})`).join(', ')}`,
 			'align dependency pins and remove nested runtime copies; run bun why ' + name,
 		)

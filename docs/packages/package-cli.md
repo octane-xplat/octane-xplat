@@ -525,6 +525,43 @@ upgrade. The shared [compatibility manifest](https://github.com/octane-xplat/oct
 defines the set. Leaf packages continue to own their internal engine/plugin
 dependencies; those are not hidden in the CLI or indiscriminately overridden.
 
+### Working against a local checkout
+
+Point an app's `link:`, `file:` or `portal:` dependencies at a local checkout
+of the framework to try unreleased changes. If a pnpm 11 install resolves the
+link before its path exists, the `node_modules` entry appears without the
+`.bin` shims (`xplat`/`xplat-lint` report `command not found`) — reinstall
+once the path exists (`rm -rf node_modules && bun install`) or wire the same
+reinstall into the app's `postinstall`.
+
+The checkout keeps its own
+`node_modules`, so its packages can resolve a second physical copy of
+`@nativescript/core` — same version or not — during typechecks. Two copies
+give `View`, `Page` and `Color` two type identities, and a checker can reject
+values passed between app code and linked framework source.
+
+Generated native apps pin core to the app's own install in
+`tsconfig.json` `compilerOptions.paths`, so every import in the program —
+including files inside the linked checkout — resolves the same copy. Add the
+pin to an existing app when it is missing:
+
+```json
+{
+	"compilerOptions": {
+		"paths": {
+			"@nativescript/core": ["./node_modules/@nativescript/core"],
+			"@nativescript/core/*": ["./node_modules/@nativescript/core/*"]
+		}
+	}
+}
+```
+
+`xplat add` merges the pin when enabling iOS or Android without replacing
+authored mappings. `doctor` counts only copies inside the app's install root
+as duplicate runtimes — a checkout's private copies stay visible in the
+report without failing the check — and warns when a linked native app lacks
+the pin.
+
 ## Lint and format
 
 Run from your app or library directory. Linting uses bundled Oxlint and Xplat

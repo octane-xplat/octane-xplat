@@ -17,6 +17,7 @@ import {
   applyTarget,
   resolveTargets,
   targetEnabled,
+  nativeCorePaths,
   TEMPLATE_DIR,
 } from '../dist/scaffold.js'
 
@@ -237,6 +238,35 @@ test('applyTarget is idempotent and detects already-enabled targets', (t) => {
   const second = applyTarget(dir, 'web')
   assert.deepEqual(second.enabled, [])
   assert.deepEqual(second.already, ['web'])
+})
+
+test('native scaffolds pin @nativescript/core to the app install in tsconfig paths', (t) => {
+  const web = project(t)
+  composeTargets(['web'], web)
+  const webConfig = JSON.parse(readFileSync(join(web, 'tsconfig.json'), 'utf8'))
+  assert.equal(webConfig.compilerOptions.paths, undefined)
+
+  // Linked framework checkouts carry their own core copy; the pin keeps one
+  // type identity (issue #66). The template stays the source of truth.
+  const dir = project(t)
+  composeTargets(['ios'], dir)
+  const config = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+  assert.deepEqual(config.compilerOptions.paths, nativeCorePaths)
+
+  // `xplat add` merges the pin and preserves authored mappings.
+  const added = project(t)
+  composeTargets(['web'], added)
+  const existing = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8'))
+  existing.compilerOptions.paths = {
+    '@nativescript/core': ['./custom/core'],
+    'app/*': ['./src/*'],
+  }
+  writeFileSync(join(added, 'tsconfig.json'), JSON.stringify(existing))
+  applyTarget(added, 'ios')
+  const merged = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8')).compilerOptions.paths
+  assert.deepEqual(merged['@nativescript/core'], ['./custom/core'])
+  assert.deepEqual(merged['@nativescript/core/*'], ['./node_modules/@nativescript/core/*'])
+  assert.deepEqual(merged['app/*'], ['./src/*'])
 })
 
 test('targetEnabled reads sentinels', (t) => {

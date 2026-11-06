@@ -585,7 +585,22 @@ experience of agents writing Octane-xplat code effectively.
   preview specs use the manifest's Windows profile, never the mobile pins.
   Doctor inspects the app's reachable installed graph and reports duplicate
   singleton paths even when their versions agree; these are host checks,
-  not device-runtime qualification.
+  not device-runtime qualification. Managed-singleton copies under a linked
+  (`link:`/`file:`/`portal:`) checkout's own node_modules are that checkout's
+  private install — the preset dedups singletons to the app copy — so the
+  `compatibility singleton` row counts only copies inside the workspace root
+  and lists external ones without failing ([#66](https://github.com/octane-xplat/octane-xplat/issues/66)).
+  The dual type identity behind that report: TypeScript unifies same-packageId
+  (name+version+file) declaration copies, so two physical core copies conflict
+  only when versions/identity differ (e.g. a checkout store's canary build);
+  the fix pins `@nativescript/core` in the app's tsconfig `paths`, which
+  forces every import in the program — including files inside linked
+  checkouts — onto the app copy. Generated native apps carry the pin
+  (`nativeCorePaths` in `packages/create/scaffold.ts`, template tsconfig is
+  the source of truth); doctor warns when a linked native app lacks it.
+  Verified host-level with classic tsc 5.9.3 (dual `View`/`Page` identity
+  errors reproduce when the linked copy's packageId differs; paths removes
+  all of them) and reporter-verified on the consumer build in the issue.
 - pnpm 11 resolves `link:` dep manifests before the app's `preinstall` hooks
   run: a spec pointing through a path created mid-install (e.g. a consumer's
   sibling-checkout symlink) yields the `node_modules` symlink but no

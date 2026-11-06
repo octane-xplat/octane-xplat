@@ -36,7 +36,15 @@
 		],
 		"noEmit": true,
 		"skipLibCheck": true,
-		"allowImportingTsExtensions": true
+		"allowImportingTsExtensions": true,
+		"paths": {
+			"@nativescript/core": [
+				"./node_modules/@nativescript/core"
+			],
+			"@nativescript/core/*": [
+				"./node_modules/@nativescript/core/*"
+			]
+		}
 	},
 	"include": [
 		"src/**/*"

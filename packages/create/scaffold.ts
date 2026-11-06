@@ -302,6 +302,17 @@ function ensurePatchEntries(enabledIds, root, pkg, read, write) {
 }
 
 /**
+ * Native tsconfig `paths` pinning `@nativescript/core` to the app's own
+ * install. Without it, a `link:`/`file:`/`portal:` framework checkout's core
+ * imports resolve to that checkout's own copy and checkers see two distinct
+ * `View`/`Page`/`Color` type identities (private-member conflicts, issue #66).
+ */
+export const nativeCorePaths = {
+	'@nativescript/core': ['./node_modules/@nativescript/core'],
+	'@nativescript/core/*': ['./node_modules/@nativescript/core/*'],
+}
+
+/**
  * The tsconfig.json a given target set produces. One program covers every
  * platform suffix (moduleSuffixes is the fixed precedence order); a web-only
  * scaffold just drops the native ambient root and entrypoint.
@@ -311,6 +322,7 @@ export function composeTsconfig(ids) {
 	const config = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'tsconfig.json'), 'utf8'))
 	if (!resolved.has('native-shared')) {
 		delete config.files
+		delete config.compilerOptions.paths
 		config.compilerOptions.types = (config.compilerOptions.types ?? []).filter(
 			(t) => t !== '@nativescript/types',
 		)
@@ -445,6 +457,17 @@ function enableNativeInTsconfig(appRoot, read, write) {
 	const types = config.compilerOptions?.types
 	if (config.compilerOptions && Array.isArray(types) && !types.includes('@nativescript/types')) {
 		config.compilerOptions.types = [...types, '@nativescript/types']
+	}
+
+	// Pin core's type identity for linked checkouts; user-authored paths and
+	// an existing core mapping always win.
+	if (config.compilerOptions && typeof config.compilerOptions === 'object') {
+		const paths = (config.compilerOptions.paths ??= {})
+		for (const [key, value] of Object.entries(nativeCorePaths)) {
+			if (!(key in paths)) {
+				paths[key] = value
+			}
+		}
 	}
 
 	write(path, Buffer.from(JSON.stringify(config, null, indent) + '\n'), 0o644)
