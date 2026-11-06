@@ -16,6 +16,7 @@
 		"@octane-xplat/barcode-scanner",
 		"@octane-xplat/billing",
 		"@octane-xplat/biometrics",
+		"@octane-xplat/build",
 		"@octane-xplat/calendar",
 		"@octane-xplat/camera",
 		"@octane-xplat/canvas",
@@ -54,6 +55,7 @@
 		"@octane-xplat/linux-gtk",
 		"@octane-xplat/lottie",
 		"@octane-xplat/macos-appkit",
+		"@octane-xplat/macos-build",
 		"@octane-xplat/maps",
 		"@octane-xplat/mcp",
 		"@octane-xplat/media",
@@ -97,8 +99,7 @@
 		"@octane-xplat/web-host",
 		"@octane-xplat/workshop",
 		"create-octane-xplat",
-		"octane-xplat",
-		"@octane-xplat/build"
+		"octane-xplat"
 	],
 	"packages": {
 		"octane": {
@@ -205,7 +206,7 @@
 			"group": "plugin"
 		},
 		"@octane-xplat/nativescript-mason-core": {
-			"version": "1.0.0-beta.5",
+			"version": "1.0.0-beta.7",
 			"group": "runtime"
 		},
 		"@octane-xplat/nativescript-masonkit": {

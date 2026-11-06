@@ -33,7 +33,7 @@ try {
         private: true,
         main: 'src/index.ts',
         dependencies: {
-          '@octane-xplat/nativescript-mason-core': '1.0.0-beta.5',
+          '@octane-xplat/nativescript-mason-core': '1.0.0-beta.7',
           '@octane-xplat/sentry': '0.0.0',
           '@nativescript/core': '9.1.3',
           '@nativescript-community/sentry': '4.6.49',

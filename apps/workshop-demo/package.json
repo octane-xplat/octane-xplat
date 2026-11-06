@@ -16,7 +16,7 @@
 	},
 	"dependencies": {
 		"@octane-xplat/ui": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.7",
 		"octane": "catalog:"
 	},
 	"devDependencies": {

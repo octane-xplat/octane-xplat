@@ -40,7 +40,7 @@
 		"@octane-xplat/image": "workspace:*",
 		"@octane-xplat/lottie": "workspace:*",
 		"@octane-xplat/media": "workspace:*",
-		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
+		"@octane-xplat/nativescript-mason-core": "1.0.0-beta.7",
 		"@octane-xplat/notifications": "workspace:*",
 		"@octane-xplat/pager": "workspace:*",
 		"@octane-xplat/picker": "workspace:*",
