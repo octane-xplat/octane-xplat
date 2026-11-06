@@ -28,9 +28,34 @@ import { xplatDevBridge } from './mcp/dev-bridge.ts'
 import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
 import { nativeUnicodeRegex } from './native-regex.ts'
+import { resolveTsrxLeaf } from './tsrx-leaf.ts'
 
 export { xplatCss } from './css-platform.ts'
 export { xplatDevBridge } from './mcp/dev-bridge.ts'
+
+/** Select platform TSRX implementations in custom Vite and Vitest setups. */
+export function xplatTsrx(platform = 'native') {
+  return {
+    name: 'xplat-tsrx-resolution',
+    enforce: 'post',
+    // Vite 8's Rolldown optimizer has its own extension defaults. Run after
+    // normal configResolved hooks (including nativeExtensionOrder), and keep
+    // explicitly configured optimizer lists, including [], authoritative.
+    configResolved(config) {
+      for (const environment of Object.values(config.environments)) {
+        const options = (environment.optimizeDeps.rolldownOptions ??= {})
+        const resolve = (options.resolve ??= {})
+        resolve.extensions ??= [...environment.resolve.extensions]
+      }
+    },
+    resolveId: {
+      order: 'pre',
+      handler(source, importer) {
+        return resolveTsrxLeaf(source, importer, platform)
+      },
+    },
+  }
+}
 
 // The toolchain modules (vite, vite-octane, the nativescript renderer)
 // belong to the CONSUMING app, not to this package — under pnpm's isolated
@@ -546,6 +571,7 @@ function platformTag(id) {
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
 export function xplatBoundary(platform = 'native') {
+  const resolver = xplatTsrx(platform)
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
   let command = 'build'
   let root = ''
@@ -575,8 +601,10 @@ export function xplatBoundary(platform = 'native') {
 
   return {
     ...serverBoundary(),
+    ...resolver,
     name: 'xplat-platform-boundary',
     configResolved(config) {
+      resolver.configResolved(config)
       command = config.command
       root = config.root
     },

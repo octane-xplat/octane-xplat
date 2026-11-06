@@ -21,6 +21,8 @@ import { assertRouteDataJson } from './route-data.ts'
 import { loadRoutingConfig } from './route-config.ts'
 import { routeSourceMetadata } from './route-source.ts'
 import { EXT, SUFFIX, PRESENT, routeFor } from './route-path.ts'
+import { isTsrxContract } from './tsrx-leaf.ts'
+import { installedToolPackageRoot } from './package-root.ts'
 import { routeParamName as segmentParam } from '@octane-xplat/lib/route-pattern'
 // Mirror of packages/ui/src/routing/route-table.ts conventions — the CLI walks the
 // route dir off disk (no vite glob), so the derivation is re-implemented
@@ -71,7 +73,8 @@ function walk(dir, out = []) {
 /** Vite from the consuming app — same createRequire dance as vite.mjs:
  *  under pnpm's isolated linker a bare import here misses the app's copy. */
 function appVite(cwd) {
-  const req = createRequire(join(cwd, 'package.json'))
+  const root = installedToolPackageRoot(cwd, 'vite')
+  const req = createRequire(join(root ?? cwd, 'package.json'))
   return import(pathToFileURL(realpathSync(req.resolve('vite'))).href)
 }
 
@@ -166,6 +169,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
   const seen = new Map()
   const variants = new Map()
   const routePaths = []
+  const contractPaths = []
   const layoutDirs = new Set()
   const files = existsSync(join(cwd, dir))
     ? walk(join(cwd, dir)).filter(
@@ -174,6 +178,11 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     : []
   for (const file of files) {
     const routePath = relative(join(cwd, dir), file).split(sep).join('/')
+    if (file.endsWith('.tsrx') && isTsrxContract(readFileSync(file, 'utf8'), file)) {
+      contractPaths.push(routePath)
+      continue
+    }
+
     if (LOADER_FILE.test(routePath)) {
       continue
     }
@@ -625,9 +634,12 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
     for (const file of candidates) {
       best.set(file.identity, Math.min(best.get(file.identity) ?? Infinity, file.rank))
     }
-    return candidates
-      .filter((file) => file.rank > best.get(file.identity))
-      .map((file) => `\t\t'!${globDir}/${globLiteral(file.path)}'`)
+    return [
+      ...contractPaths.map((path) => `\t\t'!${globDir}/${globLiteral(path)}'`),
+      ...candidates
+        .filter((file) => file.rank > best.get(file.identity))
+        .map((file) => `\t\t'!${globDir}/${globLiteral(file.path)}'`),
+    ]
   }
 
   // Markdown routes become baked programmatic specs — the AST rides

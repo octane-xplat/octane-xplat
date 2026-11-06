@@ -5,10 +5,10 @@ import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import http from 'node:http'
 import vm from 'node:vm'
-import { readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync, existsSync, rmSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { createServer } from 'vite'
 import { nativeDevSocketPlugin } from '../src/mcp/dev-socket.ts'
 import { scratchRun } from '../../../tools/cli-go/scratch.mjs'
@@ -208,6 +208,7 @@ test(
       () => leaf(origin, define, RecordingSocket).devBridgeSocket('//other.example/app'),
       /Invalid app debug relay/,
     )
+    mkdirSync(join(root, 'research/go-cli'), { recursive: true })
     writeFileSync(
       join(root, 'research/go-cli/device-relay-node.json'),
       JSON.stringify(

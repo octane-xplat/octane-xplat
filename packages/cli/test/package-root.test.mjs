@@ -12,8 +12,7 @@ import {
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
-import { installedPackageRoot, installedToolPackageRoot } from '../dist/package-root.js'
-import { appCliFile } from '../dist/mcp/runtime/adapters/shared.js'
+import { appCliFile, installedPackageRoot, installedToolPackageRoot } from '../dist/package-root.js'
 import { sourceOnlyDeps, xplatNative } from '../dist/vite.js'
 import { inspectMacOSRuntimePackage } from '../dist/macos/runtime-package.js'
 

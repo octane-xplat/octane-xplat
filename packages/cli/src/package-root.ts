@@ -48,3 +48,19 @@ export function installedToolPackageRoot(fromDir, name) {
   const manifest = JSON.parse(readFileSync(join(umbrella, 'package.json'), 'utf8'))
   return manifest.dependencies?.[name] ? installedPackageRoot(umbrella, name) : null
 }
+
+/** Resolve `siblingFile` beside the app's installed `@octane-xplat/cli`
+ *  `exportPath` export (e.g. `appCliFile(app, 'macos', 'host.js')`), or null
+ *  when the export or sibling is absent. The app's selected installation is
+ *  authoritative — no fallback to global paths. */
+export function appCliFile(app, exportPath, siblingFile) {
+  try {
+    const cli = installedToolPackageRoot(app.root, '@octane-xplat/cli')
+    const require = createRequire(join(cli ?? app.root, 'package.json'))
+    const resolved = require.resolve(`@octane-xplat/cli/${exportPath}`)
+    const file = join(dirname(resolved), siblingFile)
+    return existsSync(file) ? file : null
+  } catch {
+    return null
+  }
+}
