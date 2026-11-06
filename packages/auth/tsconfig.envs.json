@@ -10,6 +10,7 @@
 		"native": {
 			"files": [
 				"src/index.ts",
+				"src/apple-sign-in-button-view.ios.ts",
 				"examples/auth0-flow.ts"
 			],
 			"compilerOptions": {

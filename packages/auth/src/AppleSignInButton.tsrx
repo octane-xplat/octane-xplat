@@ -1,13 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { registerElement } from '@nativescript-community/octane'
-import * as applePlugin from '@nativescript/apple-sign-in'
+import { SignInButton as PluginButton } from './apple-sign-in-button-view'
 import { appleAuth } from './apple'
 import type { AppleSignInButtonProps, SignInResult } from './types'
 
 // The plugin's SignInButton wraps ASAuthorizationAppleIDButton — iOS only
-// (the class is absent from the plugin's Android module), so register it
-// conditionally and fall back to a plain button everywhere else.
-const PluginButton = (applePlugin as any).SignInButton
+// (the class is absent from the plugin's Android module, so the platform
+// leaf exports `undefined` there) — register it conditionally and fall back
+// to a plain button everywhere else.
 if (PluginButton) {
   registerElement('applesigninbutton', PluginButton)
 }
