@@ -2,6 +2,7 @@ import { File, knownFolders, path } from '@nativescript/core'
 import { CameraCaptureError } from './types'
 import { canonicalizePath } from './session-core'
 import { IOSMovieWriterDriver } from './movie-writer.ios'
+import { acquireRecordingHaptics } from './recording-haptics.ios'
 import type { IOSMovieWriter } from './movie-writer.ios'
 import type {
   BackendCaptureRequest,
@@ -330,6 +331,7 @@ export function createSessionBackend(
   let session: AVCaptureSession | undefined
   let videoInput: AVCaptureDeviceInput | undefined
   let writerHasAudio = false
+  let releaseRecordingHaptics: (() => void) | undefined
   let previewLayer: AVCaptureVideoPreviewLayer | undefined
   let previewHost: any
   let detachFrame: (() => void) | undefined
@@ -470,8 +472,22 @@ export function createSessionBackend(
   }
 
   const ensureAudioInput = (): boolean => {
-    writerHasAudio = !!nativeWriter && !nativeWriter.configureAudio(true)
-    return writerHasAudio
+    const optedIn = currentConfig.ios?.allowHapticsAndSystemSoundsDuringRecording === true
+    const acquired = optedIn && !releaseRecordingHaptics ? acquireRecordingHaptics() : undefined
+    try {
+      writerHasAudio = !!nativeWriter && !nativeWriter.configureAudio(true)
+      if (writerHasAudio && optedIn) {
+        releaseRecordingHaptics ??= acquired
+      } else {
+        acquired?.()
+        releaseRecordingHaptics?.()
+        releaseRecordingHaptics = undefined
+      }
+      return writerHasAudio
+    } catch (error) {
+      acquired?.()
+      throw error
+    }
   }
 
   const ensureSession = (): AVCaptureSession => {
@@ -543,11 +559,21 @@ export function createSessionBackend(
       }
     })
 
-    if (currentConfig.audio && readPermission('microphone') === 'granted') {
-      ensureAudioInput()
+    try {
+      if (currentConfig.audio && readPermission('microphone') === 'granted') {
+        ensureAudioInput()
+      }
+    } catch (error) {
+      const driver = writerDriver
+      writerDriver = undefined
+      nativeWriter = undefined
+      writerRelease = Promise.all([writerRelease, driver.release()]).then(() => {})
+      videoInput = undefined
+      device = undefined
+      throw error
+    } finally {
+      target.commitConfiguration()
     }
-
-    target.commitConfiguration()
     session = target
     observeSession(target)
     return target
@@ -560,7 +586,12 @@ export function createSessionBackend(
 
     session.stopRunning()
     if (writerDriver) {
-      writerRelease = Promise.all([writerRelease, writerDriver.release()]).then(() => {})
+      const releasePolicy = releaseRecordingHaptics
+      releaseRecordingHaptics = undefined
+      writerRelease = Promise.all([
+        writerRelease,
+        writerDriver.release().then(() => releasePolicy?.()),
+      ]).then(() => {})
     }
     writerDriver = undefined
     nativeWriter = undefined
@@ -903,14 +934,28 @@ export function createSessionBackend(
         device = wanted
       }
 
-      if (next.audio === true && readPermission('microphone') === 'granted') {
-        ensureAudioInput()
-      } else if (next.audio === false) {
-        nativeWriter?.configureAudio(false)
-        writerHasAudio = false
+      try {
+        if (next.audio === true && readPermission('microphone') === 'granted') {
+          ensureAudioInput()
+        } else if (next.audio === false) {
+          const problem = nativeWriter?.configureAudio(false)
+          if (problem) {
+            throw new CameraCaptureError({
+              kind: 'unavailable',
+              operation: 'configure',
+              message: problem,
+            })
+          }
+          writerHasAudio = false
+          releaseRecordingHaptics?.()
+          releaseRecordingHaptics = undefined
+        }
+      } catch (error) {
+        currentConfig = previous
+        throw error
+      } finally {
+        target.commitConfiguration()
       }
-
-      target.commitConfiguration()
       if (device) {
         writerSourceReady = false
         observer?.previewReady(false)
@@ -1340,6 +1385,8 @@ export function createSessionBackend(
       initialWriterReady = undefined
       previewReadyFlag = false
       await driver?.release()
+      releaseRecordingHaptics?.()
+      releaseRecordingHaptics = undefined
       await writerRelease
       detachFrame?.()
       detachFrame = undefined

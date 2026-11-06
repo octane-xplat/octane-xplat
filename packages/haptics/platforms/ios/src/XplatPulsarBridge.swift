@@ -3,7 +3,8 @@ import Pulsar
 
 @objcMembers
 public final class XplatPulsarBridge: NSObject {
-	private let pulsar = Pulsar()
+	// This factory also prevents linking the unpatched remote Pulsar package.
+	private let pulsar = Pulsar.xplatSilent()
 	private lazy var realtime = pulsar.getRealtimeComposer()
 
 	public func isSupported() -> Bool { pulsar.isHapticsSupported() }

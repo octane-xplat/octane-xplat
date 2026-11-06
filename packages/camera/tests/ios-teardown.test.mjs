@@ -5,7 +5,12 @@ import vm from 'node:vm'
 import ts from 'typescript-classic'
 
 const source = await readFile(new URL('../src/session-backend.ios.ts', import.meta.url), 'utf8')
-const sourceFile = ts.createSourceFile('session-backend.ios.ts', source, ts.ScriptTarget.Latest, true)
+const sourceFile = ts.createSourceFile(
+  'session-backend.ios.ts',
+  source,
+  ts.ScriptTarget.Latest,
+  true,
+)
 let stopStatement
 const findStopStatement = (node) => {
   if (
@@ -37,6 +42,7 @@ const load = (overrides = {}) => {
     session: { stopRunning: () => events.push('stop') },
     captureSink: undefined,
     writerDriver: undefined,
+    releaseRecordingHaptics: undefined,
     writerRelease: Promise.resolve(),
     nativeWriter: undefined,
     writerSourceReady: false,

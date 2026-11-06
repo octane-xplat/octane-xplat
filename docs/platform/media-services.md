@@ -48,18 +48,15 @@ compile against Android API 36 or later for Pulsar 1.3.0; the app target SDK
 and minimum supported Android version remain separate settings. The harness
 uses compile SDK 36, target SDK 35, and minimum SDK 24. Pulsar supports Android
 API 24+ at runtime.
-On iOS, add Pulsar 1.4.0 to the app's
-`ios.SPMPackages` and the package's
-`platforms/ios/src/**/*.swift` to `ios.NativeSource` in NativeScript
-configuration; NativeScript does not discover either integration from a leaf
-package automatically.
+On iOS, follow [haptics setup](../packages/package-haptics.md#set-up-ios) to
+prepare the patched local Swift package and link the bridge, then rebuild the
+native app. The remote Pulsar 1.4.0 package enables synthesized sound in Debug
+and simulator builds; the prepared package keeps feedback silent without
+deactivating another service's audio session.
 
 Use the maintained [MediaServices screen](../../packages/app/src/MediaServices.tsrx)
 for package imports, preset/pattern calls, sound loading, player subscription,
-and cleanup. It is an interaction probe, not a complete fallback UI. The
-[harness native configuration](../../apps/mobile/nativescript.config.ts) shows
-Pulsar’s `SPMPackages` and `NativeSource` entries; adapt the workspace-relative
-Swift path to your installed package location. Do not copy the harness app ID.
+and cleanup. It is an interaction probe, not a complete fallback UI.
 
 ## Advanced haptics
 

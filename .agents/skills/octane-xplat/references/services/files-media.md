@@ -2,6 +2,21 @@
 
 Use for picked-file lifetime, Windows file/audio boundaries, view capture, and long-form speech. Handle unavailable capabilities and release ownership through the [owning package](../services.md#locate-the-owning-package).
 
+## iOS camera and haptics
+
+Use the [camera recording policy](../../../../../docs/app/movie-capture.md#allow-ios-feedback-while-the-microphone-is-active)
+when audio-enabled preview or recording must permit tactile controls. Opt in with
+`ios.allowHapticsAndSystemSoundsDuringRecording`; it also permits system sounds,
+so do not enable it globally in a haptics service. Camera leases restore the
+prior policy after the last opted-in microphone owner releases; external audio
+owners must coordinate writes. Physical output remains a device check.
+
+For advanced haptics, use the [prepared local Pulsar package](../../../../../docs/packages/package-haptics.md#set-up-ios)
+and rebuild the native app. Remote Pulsar 1.4.0 adds synthesized audio in Debug
+and simulator builds; its sound-disable method can deactivate the shared audio
+session. The preparation helper pins and patches this behavior and preserves
+cached local modifications by refusing to overwrite them.
+
 ## Windows audio import boundary
 
 The Windows audio leaf keeps mobile backends out of native imports, but

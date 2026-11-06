@@ -182,6 +182,11 @@ try {
   const packedRoot = join(extractedRoot, 'package')
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+  assert.equal(packedManifest.bin['xplat-prepare-haptics-ios'], './scripts/prepare-ios.mjs')
+  assert.match(
+    readFileSync(join(packedRoot, 'scripts/prepare-ios.mjs'), 'utf8'),
+    /^#!\/usr\/bin\/env node/,
+  )
 
   const exportMaps = [
     workspaceManifest.exports,

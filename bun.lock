@@ -1304,6 +1304,9 @@
     "packages/haptics": {
       "name": "@octane-xplat/haptics",
       "version": "0.19.0",
+      "bin": {
+        "xplat-prepare-haptics-ios": "./scripts/prepare-ios.mjs",
+      },
       "dependencies": {
         "@octane-xplat/lib": "workspace:*",
         "@octane-xplat/platform": "workspace:*",

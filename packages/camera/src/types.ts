@@ -116,6 +116,12 @@ export interface CameraSessionConfig {
    *  false — silent capture is a deliberate app choice, never a
    *  fallback from denied microphone access. */
   audio?: boolean
+  /** iOS only: allow haptics AND system sounds while this session owns microphone
+   *  capture (including preview). Other platforms ignore this iOS audio-session
+   *  policy. Defaults to leaving the existing app policy unchanged. The previous
+   *  value is restored after the last opted-in camera owner stops audio capture.
+   *  External audio-session owners must coordinate policy changes with the app. */
+  ios?: { allowHapticsAndSystemSoundsDuringRecording?: boolean }
   /** Capture profile. `'standard'` targets 720p at 30 fps and may select
    *  a device-supported alternative; the started attempt discloses the
    *  actual configuration. */

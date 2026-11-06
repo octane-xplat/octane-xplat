@@ -282,3 +282,39 @@ confirmation on simulator `91D40099-…` (#145):
 - Status: current in 9.1.0. Recheck on runtime upgrade — removal would be a
   change to `TNSInitializeLiveSync`/`trySetLiveSyncApplicationPath` or the
   DEBUG gating in the project template.
+
+## Pulsar iOS 1.4.0: sound simulation and shared audio-session ownership
+
+Pulsar `AudioSimulator` enables synthesized sound under `DEBUG` and on the
+simulator; `SystemPresetsImpl` plays it alongside UIKit feedback. Its
+`enableSound(false)` queues shared `AVAudioSession` deactivation even when the
+simulator never configured an engine. Calling it during another service's
+capture/playback can therefore interfere with that service.
+
+Xplat's [preparation helper](../../packages/haptics/scripts/prepare-ios.mjs)
+fetches revision `f65113a6f1fed7c9737ce85f5ae7ddc5caa5723d`, verifies the exact
+AudioSimulator input, disables the initial sound flag for every build/device,
+and guards deactivation behind `isEngineConfigured`. A patched-only factory
+makes an unpatched remote dependency fail at compile time. The bridge disables sound
+before constructing presets or composers. Consumers must use the prepared
+local SPM package and rebuild; changing bridge JavaScript alone is insufficient.
+See [consumer setup](../../docs/packages/package-haptics.md#set-up-ios).
+
+Evidence: [upstream audio simulator](https://github.com/software-mansion-labs/pulsar-ios/blob/1.4.0/Sources/Pulsar/Audio/AudioSimulator.swift),
+[system presets](https://github.com/software-mansion-labs/pulsar-ios/blob/1.4.0/Sources/Pulsar/Presets/SystemPresetsImpl.swift),
+and [issue 154](https://github.com/octane-xplat/octane-xplat/issues/154).
+Source behavior and compilation are distinct from physical output. The
+maintained `@octane-xplat/haptics` `test:ios-build` task compiles the patched
+package and bridge for Debug/Release iOS simulator targets without creating or
+booting a device. Physical tactile output and recording interaction require
+separate iPhone qualification. Reassess/remove this source preparation when
+upstream provides silent initialization that leaves other audio owners alone.
+
+Apple defaults to suppressing haptics while microphone input is active; the
+camera's independent microphone session starts for audio-enabled preview.
+This is OS policy, not a Pulsar defect. Camera's explicit iOS opt-in leases
+`allowHapticsAndSystemSoundsDuringRecording` before microphone activation and
+restores it after native microphone release. Only the package's own camera
+leases are coordinated; external owners must coordinate writes to this
+app-wide Boolean. See [Apple's policy](https://developer.apple.com/documentation/avfaudio/avaudiosession/allowhapticsandsystemsoundsduringrecording)
+and the [camera guide](../../docs/app/movie-capture.md#allow-ios-feedback-while-the-microphone-is-active).

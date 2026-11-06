@@ -6,6 +6,7 @@
 		"packages/linux-gtk-renderer/src/gi.d.ts"
 	],
 	"tasks": {
+		"@octane-xplat/haptics#test:ios-build": { "cache": false, "outputs": [], "passThroughEnv": ["GODDARD_*"] },
 		"test:typescript": { "dependsOn": ["build", "^typegen"], "outputs": [] },
 		"create-octane-xplat#test": { "dependsOn": ["build", "^typegen", "^build"], "outputs": [] },
 		"@octane-xplat/camera#test:ios-writer": {

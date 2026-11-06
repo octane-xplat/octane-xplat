@@ -14,6 +14,7 @@ selection service. Package publication is outside this workflow.
 
 - Add only the optional haptics package; do not add its dependencies to `@octane-xplat/ui`.
 - Check target capability before relying on patterns or realtime gesture feedback.
+- On iOS, prepare the pinned silent Pulsar package and rebuild the native app; microphone capture needs an explicit recording policy.
 - Stop gesture feedback on release, cancellation, and owner cleanup.
 
 ## Acceptance criteria
@@ -24,7 +25,7 @@ selection service. Package publication is outside this workflow.
 
 ## Documentation
 
-- AC1: [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics).
+- AC1: [iOS native setup](../../../docs/packages/package-haptics.md#set-up-ios) and [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics).
 - AC2: [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics). Gap: The probe uses press-in/out; a complete gesture cancellation and teardown example is still missing.
 - AC3: [Advanced haptics](../../../docs/platform/media-services.md#advanced-haptics).
 

@@ -160,3 +160,5 @@ console.log(await session.capabilities())
 Guide: [Building screens](https://octane-xplat.goddardai.org/primitives) (leaf components);
 component index: [`docs/app/components.md`](https://octane-xplat.goddardai.org/components).
 Exercised by [`CameraDemo`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/demos/src/CameraDemo.tsrx).
+
+For tactile recording controls on iOS, see [feedback while using the microphone](../app/movie-capture.md#allow-ios-feedback-while-the-microphone-is-active). This is an explicit app-wide audio-session policy, including system sounds.

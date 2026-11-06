@@ -17,6 +17,7 @@ its real-host qualification remains open alongside the desktop gaps below.
 
 - Use one camera owner for preview and capture, with explicit permission actions.
 - Wait for finalized, verified, locally committed output before review.
+- Make iOS feedback during microphone capture an explicit app choice, including its system-sound and shared-session consequences.
 - Handle audio refusal, duration limits, source loss, and teardown honestly.
 - Reopen an output reference after disposing the camera and restarting the app.
 - Qualify each supported target and report actual codec, orientation, and retention.
@@ -32,7 +33,7 @@ its real-host qualification remains open alongside the desktop gaps below.
 
 ## Documentation
 
-- AC1: [Permission and preview setup](../../../docs/app/movie-capture.md#ask-for-access-from-a-button). Gap: The interactive Linux GTK prompt is unqualified under a compositor; Windows prompts await a real host.
+- AC1: [Permission and preview setup](../../../docs/app/movie-capture.md#ask-for-access-from-a-button) and [iOS feedback policy](../../../docs/app/movie-capture.md#allow-ios-feedback-while-the-microphone-is-active). Gap: The interactive Linux GTK prompt is unqualified under a compositor; Windows prompts await a real host.
 - AC2: [Recording and completion](../../../docs/app/movie-capture.md#record-then-wait-for-the-finished-movie). Gap: macOS capture, interruption, and lifecycle proof require a camera-equipped host; Windows runtime conformance awaits a real host; Linux is qualified on WebKitGTK mock devices — physical camera/audio hardware remains unproven.
 - AC3: [Reopening saved output](../../../docs/app/movie-capture.md#reopen-for-playback). Gap: Native player playback after restart and browser persistence approval require separate target qualification on every desktop; macOS and Windows reopen-after-restart proofs require hardware hosts.
 - AC4: [Camera selection and orientation](../../../docs/app/movie-capture.md#camera-selection-and-orientation), including the idle-only selection boundary for automatic recording. Gap: Fixed Android/Web orientation, physical-device rotation, MP4-only browser hosts, macOS 13 orientation, Windows real-host capabilities, and physical Linux camera selection require separate target qualification.

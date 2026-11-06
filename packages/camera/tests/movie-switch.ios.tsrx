@@ -10,7 +10,11 @@ import type { ProbeContext } from '../../../tools/probe/context'
 
 // Native diagnostics use the same backend as the public factory. The final
 // take also exercises createCameraSession directly. Run via test:ios-device.
-const config = { camera: 'back' as const, audio: true }
+const config = {
+  camera: 'back' as const,
+  audio: true,
+  ios: { allowHapticsAndSystemSoundsDuringRecording: true },
+}
 let recordWriter = (_type: string, _payload: string) => {}
 const backend = createSessionBackend(config, (type, payload) => recordWriter(type, payload))
 const originalSwitch = backend.switchCamera!

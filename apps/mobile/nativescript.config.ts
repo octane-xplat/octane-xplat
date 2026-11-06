@@ -1,3 +1,5 @@
+import { execFileSync } from 'node:child_process'
+import { resolve } from 'node:path'
 import { NativeScriptConfig } from '@nativescript/core'
 
 export default {
@@ -19,8 +21,14 @@ export default {
       {
         name: 'Pulsar',
         libs: ['Pulsar'],
-        repositoryURL: 'https://github.com/software-mansion-labs/pulsar-ios',
-        version: '1.4.0',
+        path: execFileSync(
+          process.execPath,
+          [
+            resolve(__dirname, '../../packages/haptics/scripts/prepare-ios.mjs'),
+            resolve(__dirname, '.xplat/pulsar-ios'),
+          ],
+          { encoding: 'utf8' },
+        ).trim(),
       },
     ],
     NativeSource: [

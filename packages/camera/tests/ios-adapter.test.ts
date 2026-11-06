@@ -99,7 +99,14 @@ const model = vi.hoisted(() => {
       callback()
     },
   })
-  return { array, devices, Input, Session, bridge }
+  const audioSession = {
+    allowHapticsAndSystemSoundsDuringRecording: false,
+    setAllowHapticsAndSystemSoundsDuringRecordingError: vi.fn(function (this: any, value: boolean) {
+      this.allowHapticsAndSystemSoundsDuringRecording = value
+      return true
+    }),
+  }
+  return { array, devices, Input, Session, bridge, audioSession }
 })
 
 vi.mock('@nativescript/core', () => ({
@@ -109,6 +116,7 @@ vi.mock('@nativescript/core', () => ({
 }))
 
 vi.mock('@octane-xplat/platform/ios', () => ({
+  AVAudioSession: { sharedInstance: () => model.audioSession },
   AVCaptureDevice: {
     authorizationStatusForMediaType: () => 3,
     defaultDeviceWithMediaType: () => ({
@@ -163,6 +171,8 @@ import { createSessionBackend } from '../src/session-backend.ios'
 import { SharedCameraSession } from '../src/session-core'
 
 beforeEach(() => {
+  model.audioSession.allowHapticsAndSystemSoundsDuringRecording = false
+  model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mockClear()
   for (const name of [
     'AVCaptureDeviceTypeBuiltInWideAngleCamera',
     'AVCaptureDeviceTypeBuiltInUltraWideCamera',
@@ -191,11 +201,11 @@ beforeEach(() => {
 
 afterEach(() => vi.unstubAllGlobals())
 
-function setup() {
+function setup(config: import('../src/types').CameraSessionConfig = { audio: true }) {
   const native = model.bridge()
   vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
-  const backend = createSessionBackend({ audio: true })
-  const session = new SharedCameraSession(backend, { audio: true })
+  const backend = createSessionBackend(config)
+  const session = new SharedCameraSession(backend, config)
   const onReady = vi.fn()
   const detach = session.attach({ ios: { layer: { addSublayer() {} }, bounds: {} } }, { onReady })
   const start = () => {
@@ -470,4 +480,94 @@ it('does not acknowledge a physical swap when stop wins before the JS commit', a
   await take.completion
   expect(h.session.snapshot().activeCamera?.id).toBe('back')
   await h.session.dispose()
+})
+
+describe('iOS recording haptics policy', () => {
+  const config = { audio: true, ios: { allowHapticsAndSystemSoundsDuringRecording: true } }
+  it('leaves default and silent sessions alone', async () => {
+    for (const config of [
+      { audio: true },
+      { audio: false, ios: { allowHapticsAndSystemSoundsDuringRecording: true } },
+    ]) {
+      const h = setup(config)
+      await h.session.dispose()
+    }
+    expect(
+      model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError,
+    ).not.toHaveBeenCalled()
+  })
+  it('sets policy before microphone activation and restores it after the last microphone owner releases', async () => {
+    const a = setup(config)
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    expect(
+      model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mock
+        .invocationCallOrder[0],
+    ).toBeLessThan(a.native.configureAudio.mock.invocationCallOrder[0])
+    const b = setup(config)
+    await a.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    await b.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+    expect(
+      model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mock.calls.map(
+        ([value]) => value,
+      ),
+    ).toEqual([true, false])
+  })
+  it('preserves an existing app opt-in', async () => {
+    model.audioSession.allowHapticsAndSystemSoundsDuringRecording = true
+    const h = setup(config)
+    await h.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    expect(
+      model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError,
+    ).not.toHaveBeenCalled()
+  })
+  it('restores policy when audio or the opt-in is disabled and reacquires on reconfiguration', async () => {
+    const h = setup(config)
+    await h.session.configure({ audio: false })
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+    await h.session.configure({ audio: true })
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    await h.session.configure({ ios: { allowHapticsAndSystemSoundsDuringRecording: false } })
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+    await h.session.dispose()
+  })
+  it('waits for native microphone release before restoring after preview detachment', async () => {
+    const h = setup(config)
+    let reply: (() => void) | undefined
+    h.native.releaseWithReply = (callback) => {
+      reply = callback
+    }
+    h.detach()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    reply!()
+    await h.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+  })
+  it('does not leak an owner when the OS refuses the policy', async () => {
+    const h = setup({ audio: false })
+    model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mockReturnValueOnce(false)
+    await expect(h.session.configure(config)).rejects.toThrow('Could not allow haptics')
+    expect(h.native.configureAudio).not.toHaveBeenCalled()
+    await h.session.configure(config)
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    await h.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+  })
+  it('retains the policy if native audio shutdown fails', async () => {
+    const h = setup(config)
+    h.native.configureAudio.mockReturnValue('Audio configuration requires an idle writer')
+    await expect(h.session.configure({ audio: false })).rejects.toThrow('idle writer')
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
+    await h.session.dispose()
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+  })
+  it('releases a newly acquired policy when microphone configuration fails', async () => {
+    const h = setup({ audio: false })
+    h.native.configureAudio.mockReturnValue('Microphone capture interrupted')
+    await h.session.configure(config)
+    expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
+    await h.session.dispose()
+  })
 })

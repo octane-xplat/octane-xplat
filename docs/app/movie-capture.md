@@ -139,6 +139,35 @@ async function enableAudio() {
 }
 ```
 
+## Allow iOS feedback while the microphone is active
+
+iOS normally suppresses haptics when microphone capture is active. With audio
+enabled, this includes camera preview before you press Record. If your recorder
+needs tactile controls, explicitly allow haptics **and system sounds**. Sounds
+or vibration can affect the recorded audio, so this is an app choice. The iOS
+option has no effect on other platforms.
+
+```ts
+import { createCameraSession } from '@octane-xplat/camera'
+
+const feedbackCamera = createCameraSession({
+  audio: true,
+  ios: { allowHapticsAndSystemSoundsDuringRecording: true },
+})
+// Request camera/microphone access and attach this session to CameraView as above.
+// When the screen closes:
+await feedbackCamera.dispose()
+```
+
+The camera applies this policy before starting microphone capture without
+changing the audio category, route, or activation state. It restores the prior
+value after the last opted-in camera owner stops audio capture. Other audio
+services must coordinate writes to this app-wide policy while a camera owns it.
+Leaving the option unset preserves the existing app policy. Use the
+[silent iOS haptics setup](../packages/package-haptics.md#set-up-ios) if you also
+use `@octane-xplat/haptics`; physical feedback during capture still needs
+verification on the iPhone models you support.
+
 ## Record, then wait for the finished movie
 
 Start requires an attached, active, ready preview. A take begins in `starting`,
