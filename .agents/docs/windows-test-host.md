@@ -174,15 +174,34 @@ JS subclasses of .NET and WinRT classes at runtime — seals `app.nsbundle` with
 a per-build key, moves devtools to port 43000, and drops
 `privateNetworkClientServer` from its template manifest (the app's own
 manifest is unaffected). Its storage projection fixes pair with later core
-PR #11272 commits that are not in `abae298`, so this runtime/core pairing is
-unqualified. Beta.18+ adds `JsTypedArray` marshaling that targets the Mason
-`byte[]` gap below.
+PR #11272 commits that are not in `abae298`; with `abae298` the service,
+storage and secure-storage drivers still pass on this runtime. Beta.18+
+adds `JsTypedArray` marshaling that targets the Mason `byte[]` gap below.
 
-The bridge now passes WinRT objects to .NET as projected objects, so the Mason
-`byte[]` and Label `UIElement` workarounds below must be rechecked, not assumed
-still needed or removable. Earlier Windows runtime results do not qualify this
-pin: rerun build, launch, pointer, keyboard, and percentage-layout checks on a
-Windows host before claiming it.
+A packaged x64 build of the pin (MSIX 1.0.0.229) passed the layout,
+text-input, scroll and service drivers. The action, structure, tab,
+selector, menu, table and layer drivers fail because xplat action controls
+report a generic `NamedContainerAutomationPeer` (`ControlType.Group`)
+instead of typed Button/TabItem/ComboBox/MenuItem peers — the
+`xplatwindowsbutton` host never mounts, while stock WinUI controls keep
+correct UIA peers. A same-source alpha.144 build of the parent commit
+(MSIX 1.0.0.231) fails the same modes with the same zero
+`WindowsActionControl` node count, so the loss is the source regression in
+[#163](https://github.com/octane-xplat/octane-xplat/issues/163), not a
+beta-line defect — alpha-line pins fail identically. Look up Silo
+`scenario:windows-runtime-1.0.0-beta.20` for the artifacts and per-mode
+results. Action-peer behavior stays unqualified on every runtime until #163
+is fixed.
+
+The bridge now passes WinRT objects to .NET as projected objects. The Mason
+`byte[]` and Label `UIElement` workarounds below still need a targeted check
+before they are kept or removed.
+
+When switching runtimes for a qualification build, delete the generated
+`apps/windows/platforms/` tree first. During the alpha.144 control build,
+`ns build windows` left a platform tree with no `windows.csproj` and failed with
+`MSB1009: Project file does not exist`. The rebuild after deleting that tree
+logged `Copying template files...` and succeeded.
 
 
 ## Mason core package qualification
