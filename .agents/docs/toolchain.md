@@ -64,22 +64,6 @@ Native-only installs fetch none of those peers. Native worker/declaration lookup
 native workflow prerequisite.
 See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
 
-For the isolated native-TypeScript alternative, use the
-[Perry CLI evaluation tool](../../tools/cli-perry/README.md). Its native-host
-checks compare real catalog/discovery code with Node and measure the combined
-prototype. It is experimental; its results do not change the production
-runtime contract below. Perry 0.5.1520's optimized library rebuild requires a matching
-Git checkout, not only an unpacked source archive, because release compiler
-and runtime build stamps must agree.
-
-Perry 0.5.1520 is not qualified for the current CLI: the native core's pnpm
-lockfile binding omits versions and installation/lockfile conflict warnings
-that the same source reports under Node. Strict compilation succeeds despite
-this runtime mismatch. Keep the parity checks and download budget intact;
-compiler success and a small hello-world binary do not establish feasibility
-for Xplat's dependency graph. Preserve run evidence in Silo/local reports,
-and recheck this boundary before a production cutover.
-
 `xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;
 Node remains required by app and repository tooling. Vite/MCP subpath exports
 retain per-module ESM for Node consumers.

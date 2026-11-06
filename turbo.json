@@ -98,10 +98,6 @@
 			"dependsOn": ["build", "^build", "^typegen"],
 			"cache": false
 		},
-		"//#test:perry-cli": {
-			"cache": false,
-			"passThroughEnv": ["PERRY_BIN", "PERRY_WORKSPACE_ROOT", "PERRY_SLICES"]
-		},
 		"test:docs-search": { "dependsOn": ["build", "^build"], "outputs": [] },
 		"test:model": {
 			"dependsOn": ["build"],
