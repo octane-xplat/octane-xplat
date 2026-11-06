@@ -2888,6 +2888,7 @@
         "@octane-xplat/macos-appkit": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
+        "@tsrx/core": "0.2.4",
         "@tsrx/typescript-plugin": "catalog:",
         "jsdom": "catalog:",
         "octane": "catalog:",
@@ -3147,6 +3148,10 @@
         "wrangler": "4.136.3",
       },
     },
+    "tools/native-readiness": {
+      "name": "@xplat/native-readiness",
+      "version": "0.0.0",
+    },
     "tools/ota-server": {
       "name": "@xplat/ota-server",
       "version": "0.0.0",
@@ -3159,6 +3164,33 @@
         "@tsrx/typescript-plugin": "catalog:",
         "typescript": "catalog:",
         "wrangler": "4.136.3",
+      },
+    },
+    "tools/probe": {
+      "name": "@xplat/probe",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
+        "@types/node": "24.10.1",
+        "typescript": "catalog:",
+      },
+    },
+    "tools/routing-eval": {
+      "name": "@xplat/routing-eval",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/node": "24.10.1",
+        "typescript": "catalog:",
+      },
+    },
+    "tools/verification": {
+      "name": "@xplat/verification",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@octane-xplat/ui": "workspace:*",
+        "@types/node": "24.10.1",
+        "typescript": "catalog:",
+        "typescript-classic": "catalog:",
       },
     },
     "tools/visual": {
@@ -4927,7 +4959,15 @@
 
     "@xplat/mobile": ["@xplat/mobile@workspace:apps/mobile"],
 
+    "@xplat/native-readiness": ["@xplat/native-readiness@workspace:tools/native-readiness"],
+
     "@xplat/ota-server": ["@xplat/ota-server@workspace:tools/ota-server"],
+
+    "@xplat/probe": ["@xplat/probe@workspace:tools/probe"],
+
+    "@xplat/routing-eval": ["@xplat/routing-eval@workspace:tools/routing-eval"],
+
+    "@xplat/verification": ["@xplat/verification@workspace:tools/verification"],
 
     "@xplat/visual": ["@xplat/visual@workspace:tools/visual"],
 

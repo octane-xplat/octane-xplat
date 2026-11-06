@@ -1,0 +1,9 @@
+{
+	"name": "@xplat/native-readiness",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"check:native-readiness": "node run.mjs"
+	}
+}

@@ -128,7 +128,7 @@ swap` / `if else swap` all OK). An earlier version of this doc blamed the
   fine (as is `…`/`°` raw — the rejected set isn't simply "non-ASCII").
   Demos keep all glyphs in string expressions.
 - **`tsrx-tsc` uses each target's source set** —
-  `pnpm typecheck:web` / `pnpm typecheck:mobile` are the fast desk check before
+  `bun run turbo run typecheck --filter=@xplat/web` / `bun run turbo run typecheck --filter=@xplat/mobile` are the fast desk check before
   any lab run.
 - **The universal runtime prop-diffs child components at commit time** —
   verified by ReactiveProbe's render ledger: after bumping A, `plain-b`

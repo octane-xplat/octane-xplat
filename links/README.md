@@ -42,5 +42,5 @@ its generated declarations and app files:
 
 ```sh
 bun run typegen
-bun run gen:app
+bun run turbo run gen --filter=@xplat/app
 ```

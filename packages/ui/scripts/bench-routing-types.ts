@@ -5,16 +5,17 @@ import { cpus, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
-import { generateRoutes } from '../packages/cli/src/route-generator.ts'
+import ts from 'typescript-classic'
+import { generateRoutes } from '../../cli/src/route-generator.ts'
 
 // Manual contributor benchmark, deliberately outside the lightweight PR gate.
 // Every sample runs in a separate process so discarded compiler caches cannot
 // inflate the following sample's heap or artificially warm its editor program.
-const repository = fileURLToPath(new URL('../', import.meta.url))
+const repository = fileURLToPath(new URL('../../../', import.meta.url))
+process.chdir(repository)
 const args = process.argv.slice(2)
 if (args.includes('--help')) {
-	console.log(`Usage: bun run bench:routing-types [options]
+	console.log(`Usage: bun run --filter @octane-xplat/ui bench:routing-types [options]
   --sizes 32,128,512,1024      Total destinations per generated catalog (8–4096)
   --conditions web            Comma-separated web,native,macos,linux,windows
   --ui-package DIRECTORY      Consume declarations from an extracted UI package

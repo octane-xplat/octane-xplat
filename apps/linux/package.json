@@ -4,8 +4,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "bun run --cwd ../.. gen:app && node scripts/dev.ts",
-		"build": "bun run --cwd ../.. gen:app && xplat build --targets linux",
+		"dev": "bun run --cwd ../.. turbo run gen --filter=@xplat/app && node scripts/dev.ts",
+		"build": "xplat build --targets linux",
 		"smoke": "node scripts/smoke.ts",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
 	},

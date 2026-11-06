@@ -1,0 +1,10 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"eval": {
+			"dependsOn": [],
+			"cache": false
+		}
+	}
+}

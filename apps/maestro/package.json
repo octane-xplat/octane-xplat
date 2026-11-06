@@ -25,5 +25,10 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"typescript-classic": "catalog:"
+	},
+	"type": "module",
+	"scripts": {
+		"test": "node --test scripts/*.test.mjs",
+		"test:maestro": "node scripts/maestro.ts"
 	}
 }

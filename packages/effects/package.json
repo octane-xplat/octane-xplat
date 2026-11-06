@@ -54,7 +54,8 @@
 		"typecheck": "tsrx-tsc -p tsconfig.types.json",
 		"prepack": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
-		"pack:check": "tsrx-typegen --pack-check"
+		"pack:check": "tsrx-typegen --pack-check",
+		"check:metallib": "node scripts/check-metallib.ts"
 	},
 	"dependencies": {
 		"@nativescript/swift-ui": "4.0.2",

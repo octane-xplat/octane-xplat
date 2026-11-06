@@ -1,0 +1,17 @@
+{
+	"name": "@xplat/probe",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"probe": "node cli.ts",
+		"test": "node --test --test-concurrency=2 *.test.mjs",
+		"test:query-cache-runtime": "node query-cache-runtime.ts",
+		"typecheck": "tsrx-tsc -p tsconfig.json"
+	},
+	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
+		"typescript": "catalog:",
+		"@types/node": "24.10.1"
+	}
+}

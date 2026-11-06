@@ -155,4 +155,4 @@ Maintained coverage: [Native geometry fixture](../../../apps/macos/test/layout-c
 and [renderer reconciliation tests](../../../packages/macos-appkit/test/style-reconcile.test.ts).
 The [panel placement fixture](../../../apps/macos/test/layout-placement-fixture.macos.tsx)
 also checks nested absolute/grid geometry, growing scroll height, repeated
-solver passes, and host size/position after resizing; `bun run smoke:macos` includes it.
+solver passes, and host size/position after resizing; `bun run turbo run smoke:macos --filter=@xplat/verification` includes it.

@@ -22,7 +22,8 @@ writing or reviewing the guides.
 `tools/` holds private verification runners and supporting services, including
 `visual`, `astryx-parity`, `feedback-worker`, and `ota-server`.
 `tools/probe/` owns isolated platform probing; `tools/routing-eval/` owns coding-agent
-routing evaluations and their reference/grading fixtures. Root `scripts/` holds
+routing evaluations and their reference/grading fixtures. `tools/verification/`
+owns cross-workspace parity, browser E2E, and combined macOS checks. Root `scripts/` holds
 workspace checks, release helpers, and synchronization entry points. A tool can embed
 UI fixtures without becoming an app. Reusable libraries and published developer
 tools belong in `packages/`; see [workspace placement](../../AGENTS.md#workspace-placement).

@@ -32,13 +32,33 @@
 				"$TURBO_DEFAULT$",
 				"../tsrx-typegen/src/**",
 				"../../scripts/check-native-dist.mjs",
-				"../../scripts/sync-ui-barrels.ts"
+				"../../packages/ui/scripts/sync-ui-barrels.ts"
 			],
 			"outputs": ["dist/**", "types/**"]
 		},
 		"test": {
 			"dependsOn": ["^typegen", "@xplat/app#gen"],
 			"outputs": []
+		},
+		"smoke": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false,
+			"env": ["XPLAT_WEB_BROWSER"]
+		},
+		"bench:vlist": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false,
+			"env": ["XPLAT_WEB_BROWSER"]
+		},
+		"test:id": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false,
+			"env": ["XPLAT_WEB_BROWSER"]
+		},
+		"sheet:readiness": {
+			"dependsOn": ["^typegen", "@xplat/app#gen"],
+			"cache": false,
+			"env": ["XPLAT_WEB_BROWSER"]
 		}
 	}
 }

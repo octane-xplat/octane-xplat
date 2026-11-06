@@ -1,0 +1,11 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"check:native-readiness": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		}
+	}
+}

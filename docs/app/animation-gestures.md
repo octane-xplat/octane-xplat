@@ -886,8 +886,8 @@ export function IndependentHighlight() {
 
 Common product interactions — switching views, revealing a list, settling a
 total, rotating supporting copy — are compositions of the pieces above, not new
-primitives. The harness app ships a working showcase: run `bun run dev:web` (or
-`bun run dev:ios` / `bun run dev:android` with the native toolchain set up) and open
+primitives. The harness app ships a working showcase: run `bun run --filter @xplat/web dev` (or
+`bun run --filter @xplat/mobile ios` / `bun run --filter @xplat/mobile android` with the native toolchain set up) and open
 **Apps → Motion patterns**. Each pattern has a focused view there with its own
 reduced-motion preview, and the maintained source is
 [`MotionPatterns.tsrx`](../../packages/demos/src/MotionPatterns.tsrx).

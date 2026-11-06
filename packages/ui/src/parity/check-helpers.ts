@@ -1,5 +1,5 @@
 // Shared helpers and types for the per-component parity assertions
-// (<Component>.parity.check.ts), executed by scripts/parity-check.ts against
+// (<Component>.parity.check.ts), executed by tools/verification/parity-check.ts against
 // parity-report/<target>.json dumps — never imported by app code.
 //
 // Per check:

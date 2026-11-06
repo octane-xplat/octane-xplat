@@ -1,0 +1,14 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"test": {
+			"dependsOn": ["@octane-xplat/cli#build"],
+			"cache": false
+		},
+		"test:query-cache-runtime": {
+			"dependsOn": ["@octane-xplat/ui#typegen", "@octane-xplat/cli#build"],
+			"cache": false
+		}
+	}
+}

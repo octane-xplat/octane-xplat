@@ -7,8 +7,8 @@
 > rules are writable today · **Decisions:** #3, #4 (the invariants it enforces)
 > · **Validated by:** an intentionally-violating file failing lint/typecheck.
 
-Current checks are `pnpm lint`, `pnpm typecheck:web`,
-`pnpm typecheck:mobile`, and `pnpm test` from the repository root. The lint
+Current checks are `pnpm lint`, `bun run turbo run typecheck --filter=@xplat/web`,
+`bun run turbo run typecheck --filter=@xplat/mobile`, and `pnpm test` from the repository root. The lint
 lane uses Oxlint plus the TSRX companion pass; the ESLint and `packages/core`
 references below describe the original test plan. A fresh run is required
 before treating any historical smoke count as evidence for this checkout.

@@ -1,0 +1,14 @@
+{
+	"name": "@xplat/routing-eval",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"eval": "node cli.ts",
+		"typecheck": "tsrx-tsc -p tsconfig.json"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"@types/node": "24.10.1"
+	}
+}

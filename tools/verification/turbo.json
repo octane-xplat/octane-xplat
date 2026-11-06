@@ -1,0 +1,35 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"parity:coverage": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
+		"parity": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
+		"parity:macos": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
+		"smoke:macos": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
+		"test:e2e": {
+			"dependsOn": [],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
+		"test": {
+			"dependsOn": [],
+			"outputs": []
+		}
+	}
+}

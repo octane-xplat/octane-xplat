@@ -16,8 +16,9 @@
 // stale-artifact signal.
 import { globSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const pkgRoot = 'packages/effects'
+const pkgRoot = fileURLToPath(new URL('../', import.meta.url))
 const resources = join(pkgRoot, 'platforms/ios/Resources')
 
 // Each `[[ stitchable ]] ret name(` declaration — the function name is the

@@ -1,0 +1,11 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"lib": ["ESNext"],
+		"noImplicitAny": false,
+		"useUnknownInCatchVariables": false
+	},
+	"include": ["*.ts"],
+	"exclude": ["macos-shell.macos.ts", "mobile-host.mobile.ts", "mobile.mobile.ts"]
+}

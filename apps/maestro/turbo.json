@@ -1,0 +1,15 @@
+{
+	"$schema": "https://turborepo.dev/schema.json",
+	"extends": ["//"],
+	"tasks": {
+		"test": {
+			"dependsOn": [],
+			"outputs": []
+		},
+		"test:maestro": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build"],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		}
+	}
+}

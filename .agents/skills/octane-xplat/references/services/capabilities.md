@@ -225,5 +225,5 @@ provider callbacks, audible output, or background execution. Keep those gates
 separate when interpreting a passing consumer run.
 
 ```sh
-bun run turbo run check:native-readiness --filter=// -- --target ios --device OWNED_UDID
+bun run turbo run check:native-readiness --filter=@xplat/native-readiness -- --target ios --device OWNED_UDID
 ```

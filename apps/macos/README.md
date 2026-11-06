@@ -184,7 +184,8 @@ interaction assertions in the process log, and accepts `tap`, `press`,
 `snapshot`, and `parity` commands on stdin. Run
 `bun run --filter @xplat/macos parity` to write AppKit geometry and selected style
 measurements to `parity-report/macos.json`. From the workspace root,
-`bun run parity:macos` rebuilds the web and macOS measurements and compares their
+`bun run turbo run parity:macos --filter=@xplat/verification` rebuilds the web
+and macOS measurements and compares their
 shared fixtures. The sweep compares geometry and selected style values.
 For a focused HMR check, run `node apps/macos/scripts/verify-hmr.ts` from the
 repository root.
@@ -197,9 +198,9 @@ submodules and install before checking the harness:
 ```sh
 git submodule update --init
 bun install --frozen-lockfile
-bun run typecheck:macos
+bun run turbo run typecheck --filter=@xplat/macos
 bun run --filter @xplat/macos build
-bun run smoke:macos
+bun run turbo run smoke:macos --filter=@xplat/verification
 ```
 
 `smoke:macos` requires all 30 assertions in the existing shared harness sweep,
@@ -228,7 +229,7 @@ its generated stylesheet ships in the bundle with the app CSS.
 
 Measured on 2026-10-25 with `bun run --filter @xplat/web parity`,
 `bun run --filter @xplat/macos parity`, and
-`node scripts/parity-check.ts --targets=web,macos`: loading CSS raised the
+`node tools/verification/parity-check.ts --targets=web,macos`: loading CSS raised the
 AppKit result from 913 to 963 of 1145 checks, and no check that passed before
 fails. (The pre-CSS build needed the `Screen` export fix to run.) The macOS
 sweep took 182 s, against 172 s before CSS.
@@ -331,7 +332,7 @@ a 14pt default gap and reported a document-height mismatch until the bench was
 updated. The full AppKit geometry parity sweep
 now mounts all 104 fixtures and produces a dump — set
 `OCTANE_MACOS_PARITY_FIXTURES=name1,name2` to scope the stage to a subset
-while debugging. `scripts/parity-check.ts --targets=web,macos` currently
+while debugging. `tools/verification/parity-check.ts --targets=web,macos` currently
 evaluates 1110 checks; a handful of checks keep `macos` out of `equalTargets`
 where the facet is inherently CSS- or font-metric-driven (stepper/navmenu
 active-item boxes, the command-palette list width). The sweep pins

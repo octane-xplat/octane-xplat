@@ -23,6 +23,16 @@ Keep new operational services and verification runners in `tools/`, even when
 they have a development server or deployment command. Keep package names stable
 when moving existing workspaces so package-name filters continue to work.
 
+## Script ownership
+
+Root `package.json` scripts are for repository-wide checks, aggregate workflows,
+and installation lifecycle tasks. Commands scoped to one app, package, or tool
+belong in that workspace's manifest; their implementations belong beside the
+owner. Use filtered Turbo tasks for builds, tests, and typechecks rather than
+adding root aliases. Keep cross-workspace verification runners under `tools/`.
+Add a root convenience alias only when it serves an established repository-wide
+workflow, such as `probe`.
+
 ## Agent material
 
 Keep `.agents/` for guidance and durable memory: skills, contributor rules,

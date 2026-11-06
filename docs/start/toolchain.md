@@ -367,8 +367,8 @@ rewrites, caching and deployment updates. Local browser and packed-starter
 checks do not verify those settings on your published site.
 
 Choose the browser versions and devices your app supports, then test them.
-The framework's browser checks run locally (`bun run test:e2e` in the
-repository) across managed Chromium, Firefox and WebKit engines; they do not
+The framework's browser checks run locally
+(`bun run turbo run test:e2e --filter=@xplat/verification` in the repository) across managed Chromium, Firefox and WebKit engines; they do not
 qualify actual iOS Safari or screen-reader interaction. See the
 [Web support boundary](spec.md#choose-your-targets) and the
 [optional service qualification](../../.agents/docs/notes/optional-service-qualification.md)

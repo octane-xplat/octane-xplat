@@ -53,7 +53,7 @@ The longer Playwright coverage runs locally across
 Chromium, Firefox, and WebKit with:
 
 ```sh
-bun run test:e2e
+bun run turbo run test:e2e --filter=@xplat/verification
 ```
 
 The command installs Playwright's browser binaries when needed, then runs the
@@ -65,8 +65,8 @@ it no longer implies that this local-only browser suite passed.
 
 Probes are temporary by default; keep task-specific cases in gitignored
 `research/`. The runner in `tools/probe/` and `examples/probes/` are maintained tooling fixtures.
-`bun run probe` remains the runner entry point. Its host-side tests are included
-in `test:scripts`, including the Linux orchestration and evidence tests; running
+`bun run probe` remains the runner entry point. Its host-side tests run through `@xplat/probe`’s `test` task, including
+the Linux orchestration and evidence tests; running
 those tests does not launch a device or qualify a platform.
 Retain another probe only when it has an ongoing diagnostic purpose and a clear
 owner. A retained probe is not automatically regression coverage.
@@ -86,8 +86,8 @@ Keep object-driver unit tests and synthesized probe dispatch for their own
 contracts; they do not establish a Maestro pass.
 
 ```sh
-bun run test:maestro --target ios --device DEVICE_ID
-bun run test:maestro --target android --device DEVICE_ID
+bun run turbo run test:maestro --filter=@xplat/maestro -- --target ios --device DEVICE_ID
+bun run turbo run test:maestro --filter=@xplat/maestro -- --target android --device DEVICE_ID
 ```
 
 - Reserve host resources before native builds/device use when a broker is

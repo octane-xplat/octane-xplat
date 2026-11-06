@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join, basename } from 'node:path'
 import ts from 'typescript-classic'
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..')
 const errors: string[] = []
 const ALL_TARGETS = ['web', 'ios', 'android', 'macos', 'windows']
 const REQUIRED_TARGETS = ['web', 'ios', 'android']

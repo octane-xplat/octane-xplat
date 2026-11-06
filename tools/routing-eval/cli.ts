@@ -32,6 +32,7 @@ import { fileURLToPath } from 'node:url'
 import { parseArgs } from 'node:util'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+process.chdir(repo)
 const harness = join(repo, 'tools/routing-eval')
 
 interface Task {

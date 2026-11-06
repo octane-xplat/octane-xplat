@@ -20,6 +20,22 @@
 		"test:native": {
 			"dependsOn": ["typegen", "^typegen", "^build"],
 			"env": ["XPLAT_UI_TEST_TARGET"]
+		},
+		"typecheck": {
+			"dependsOn": ["^typegen", "typecheck:scripts"],
+			"outputs": []
+		},
+		"typecheck:scripts": {
+			"dependsOn": [],
+			"outputs": []
+		},
+		"check:ui-barrels": {
+			"dependsOn": [],
+			"cache": false
+		},
+		"bench:routing-types": {
+			"dependsOn": ["typegen", "@octane-xplat/cli#build"],
+			"cache": false
 		}
 	}
 }

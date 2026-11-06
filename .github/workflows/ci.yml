@@ -57,25 +57,24 @@ jobs:
 
       - name: Repo checks
         run: >-
-          bun run check:compatibility && bun run check:patches && bun run check:ui-barrels && bun run check:css &&
+          bun run check:compatibility && bun run check:patches && bun run turbo run check:ui-barrels --filter=@octane-xplat/ui && bun run check:css &&
           bun run check:suffix-resolution && bun run check:changelog && bun run check:doc-examples
 
       - name: Typecheck web
-        run: bun run typecheck:web
+        run: bun run turbo run typecheck --filter=@xplat/web
 
       - name: Typecheck mobile
-        run: bun run typecheck:mobile
+        run: bun run turbo run typecheck --filter=@xplat/mobile
 
       # @xplat/visual runs browser-mode vitest (Playwright) — excluded here;
       # it runs locally via the same `bun run test` script.
       - name: Test
         run: >-
           bun run turbo run test test:native --concurrency=2 --filter='!@xplat/visual' &&
-          bun run test:create &&
           node --test examples/auth/server-verification.test.mjs && bun run test:scripts
 
       - name: Build web app
-        run: bun run build:web
+        run: bun run turbo run build --filter=@xplat/web
 
       # Runtime packages ship source; prepare declarations and required assets.
       - name: Prepare packages

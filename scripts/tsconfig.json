@@ -1,18 +1,28 @@
 {
-	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"contentMappers": [
+		{
+			"package": "@tsrx/content-mapper",
+			"extensions": [
+				".tsrx"
+			]
+		}
+	],
 	"extends": "../tsconfig.base.json",
 	"compilerOptions": {
-		"types": ["node"],
-		"lib": ["ESNext"],
+		"types": [
+			"node"
+		],
+		"lib": [
+			"ESNext"
+		],
 		"noImplicitAny": false,
 		"useUnknownInCatchVariables": false,
 		"noEmit": true
 	},
-	"include": ["*.ts", "../tools/probe/*.ts", "../tools/routing-eval/cli.ts"],
+	"include": [
+		"*.ts"
+	],
 	"exclude": [
-		"*.test.ts",
-		"../tools/probe/macos-shell.macos.ts",
-		"../tools/probe/mobile-host.mobile.ts",
-		"../tools/probe/mobile.mobile.ts"
+		"*.test.ts"
 	]
 }

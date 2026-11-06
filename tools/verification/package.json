@@ -1,0 +1,21 @@
+{
+	"name": "@xplat/verification",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"parity:coverage": "node parity-coverage.ts",
+		"parity": "node parity-coverage.ts && node parity-check.ts",
+		"parity:macos": "node qualify.ts parity:macos",
+		"smoke:macos": "node qualify.ts smoke:macos",
+		"test:e2e": "node test-e2e.ts",
+		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"test": "node --test *.test.mjs"
+	},
+	"devDependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"typescript-classic": "catalog:",
+		"typescript": "catalog:",
+		"@types/node": "24.10.1"
+	}
+}

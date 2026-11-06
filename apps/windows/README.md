@@ -72,7 +72,7 @@ been verified in an arm64 VM),
 
 ```sh
 bun install          # in the repo root
-bun run gen:app
+bun run turbo run gen --filter=@xplat/app
 pnpm -C apps/windows xplat dev windows
 # or: pnpm -C apps/windows windows
 ```

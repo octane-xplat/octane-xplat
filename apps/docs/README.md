@@ -110,7 +110,7 @@ Update TSDoc beside declarations rather than editing the ignored Markdown.
 
 ```sh
 bun run turbo run api --filter=@xplat/docs
-bun run build:docs
+bun run turbo run build --filter=@xplat/docs
 ```
 
 The docs build depends on this task. Missing declaration targets fail the build;

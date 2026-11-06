@@ -5,7 +5,7 @@
 // packages/<pkg>/src/**/<Component>.parity.check.ts. Each module exports a
 // CHECKS array of per-target invariants plus cross-target `equal` facets.
 //
-//   bun run parity            → require web, iOS, and Android; evaluate every dump present
+//   bun run --filter @xplat/verification parity → require web, iOS, and Android; evaluate every dump present
 //   (write a dump first:   bun run --filter @xplat/web parity)
 import { existsSync, globSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -17,7 +17,7 @@ import type {
   Resolve,
 } from '@octane-xplat/ui/parity/check-helpers'
 
-const root = join(dirname(fileURLToPath(import.meta.url)), '..')
+const root = join(dirname(fileURLToPath(import.meta.url)), '../..')
 const dir = join(root, 'parity-report')
 const NEAR = 0.51
 const OPACITY_NEAR = 0.01

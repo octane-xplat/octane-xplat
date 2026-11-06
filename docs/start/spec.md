@@ -50,7 +50,8 @@ have been checked in running apps.
 
 Web CI typechecks and tests the DOM renderer, builds the production bundle,
 and verifies a packed starter's checks. Browser coverage runs locally instead:
-`bun run test:e2e` installs Playwright-managed Chromium, Firefox, and WebKit,
+`bun run turbo run test:e2e --filter=@xplat/verification` installs
+Playwright-managed Chromium, Firefox, and WebKit,
 then smoke-tests the built bundle and a packed starter in all three engines.
 This does not set a minimum browser-version
 floor or qualify iOS Safari and screen readers; apps must define those targets

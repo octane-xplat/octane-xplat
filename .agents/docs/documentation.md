@@ -102,7 +102,7 @@ commit generated API Markdown; improve TSDoc beside the exported declaration.
 
 ```sh
 bun run turbo run api --filter=@xplat/docs
-bun run build:docs
+bun run turbo run build --filter=@xplat/docs
 ```
 
 ## Declaration comments

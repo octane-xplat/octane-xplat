@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const help = `Usage: bun run test:maestro --target ios|android --device <id>
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
+const help = `Usage: bun run turbo run test:maestro --filter=@xplat/maestro -- --target ios|android --device <id>
   --artifact <path>  Install an existing .app (iOS simulator) or .apk; skip build
   --flow <path>      Flow file or directory (default: .maestro/counter.yaml)
   --app-id <id>      Installed app ID (default: org.nativescript.xplat.maestro)
@@ -72,7 +72,7 @@ try {
     throw new Error(`Flow not found: ${flow}`)
   }
 
-  let artifact = options.artifact && resolve(options.artifact)
+  let artifact = options.artifact && resolve(root, options.artifact)
   if (
     artifact &&
     (!existsSync(artifact) || !artifact.endsWith(target === 'ios' ? '.app' : '.apk'))

@@ -683,8 +683,8 @@ the native navigation fixture does not qualify every renderer boundary,
 accessibility behavior or unrelated UI component.
 
 ```sh
-bun run typecheck:windows
-bun run typecheck:linux
+bun run turbo run typecheck --filter=@xplat/windows
+bun run turbo run typecheck --filter=@xplat/linux
 ```
 
 
@@ -1033,8 +1033,8 @@ loaders, and consumes the generated application registration. There is no handwr
 module augmentation or unchecked destination cast in the fixture.
 
 ```sh
-bun run bench:routing-types --output research/routing-types.json
-bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --output research/routing-types.json
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --sizes 1024 --conditions web,native,macos,linux,windows
 ```
 
 Each catalog includes an index, a static route, an optional parameter, a splat,
@@ -1045,7 +1045,7 @@ destination, show a typed loader property, and update its properties after a rea
 loader-return edit. Five repeated requests measure cached destination completions.
 
 ```sh
-bun run bench:routing-types --sizes 32,128,512,1024 --output research/routing-types.json
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --sizes 32,128,512,1024 --output research/routing-types.json
 ```
 
 The default consumes workspace package declarations through the public export map.
@@ -1056,7 +1056,7 @@ dependencies, without source aliases. The command below assumes that archive has
 already been extracted into `research/routing-package/`.
 
 ```sh
-bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --sizes 1024 --conditions web,native,macos,linux,windows \
   --ui-package research/routing-package/package --output research/routing-packed-types.json
 ```
 
@@ -1084,7 +1084,7 @@ timings, type/instantiation counts and process peak RSS. This is a manual contri
 check outside the lightweight PR gate.
 
 ```sh
-bun run bench:routing-types --help
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --help
 ```
 
 These checks exercise TypeScript's language service on TSX, not a running editor,
@@ -1261,8 +1261,8 @@ completion 0.9–1.1 seconds and peak process RSS 853–971 MiB. This measures t
 language service on macOS; it does not execute the target OS.
 
 ```sh
-bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows
-bun run bench:routing-types --sizes 1024 --conditions web,native,macos,linux,windows \
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --sizes 1024 --conditions web,native,macos,linux,windows
+bun run turbo run bench:routing-types --filter=@octane-xplat/ui -- --sizes 1024 --conditions web,native,macos,linux,windows \
   --ui-package "/absolute/path/to/extracted/package"
 ```
 
@@ -1368,9 +1368,9 @@ starter, adds the guides as `.xplat-docs/`, runs your agent command, then
 grades the result. The agent never sees the graders.
 
 ```sh
-bun run eval:routing --mode reference
-bun run eval:routing --mode baseline
-bun run eval:routing --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
+bun run --filter @xplat/routing-eval eval --mode reference
+bun run --filter @xplat/routing-eval eval --mode baseline
+bun run --filter @xplat/routing-eval eval --mode agent --agent 'my-agent --cwd {dir} --prompt-file {prompt_file}' --trials 3
 ```
 
 The six tasks are a first typed detail route, validated search with history-
