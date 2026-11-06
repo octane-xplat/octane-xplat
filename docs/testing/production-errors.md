@@ -7,11 +7,12 @@ app, upload its source maps, and repeat the check from that exact build. A
 **handled error** is deliberately reported while the app keeps running; a native
 crash requires a separate crash-and-relaunch test.
 
-This walkthrough leads with browser Sentry reporting. It uses an app-owned
-browser module because Xplat's small Sentry wrapper does not yet expose filtering
-and collection lifecycle controls ([#73](https://github.com/octane-xplat/octane-xplat/issues/73)).
-Native Sentry, symbol uploads and Crashlytics are covered [below](#report-from-ios-or-android),
-with the current integration gaps stated explicitly. Desktop leaves currently reuse the browser adapter; a bare non-browser
+This walkthrough leads with browser Sentry reporting through an app-owned
+policy module built on the Xplat Sentry wrapper, which supplies the filtering
+and collection lifecycle controls (`beforeSend`, `beforeBreadcrumb`, `enabled`,
+`setEnabled`, `flush`, `close`) used below. Native Sentry, symbol uploads and
+Crashlytics are covered [below](#report-from-ios-or-android), with the current
+integration gaps stated explicitly. Desktop leaves currently reuse the browser adapter; a bare non-browser
 JavaScript host is not supported by that availability check. Development console
 logs and [development diagnostics](diagnostics.md) are separate from production reports.
 
@@ -23,12 +24,12 @@ the private upload token used later. From your app directory, install the
 versions used by the maintained example:
 
 ```sh
-bun add @sentry/browser@11.9.0
+bun add @octane-xplat/sentry
 bun add -D @sentry/cli@3.8.2
 ```
 
 Copy [reporting.web.ts](../../packages/sentry/examples/reporting.web.ts) into
-`src/reporting.web.ts`. Keep browser SDK imports in this web file. Add
+`src/reporting.web.ts`. Keep the Sentry imports in this web file. Add
 `src/reporting-config.ts` and replace the DSN with your test project's value:
 
 ```ts
@@ -121,19 +122,19 @@ export async function changeReportingPreference(enabled: boolean) {
 }
 ```
 
-The copied module uses the installed SDK's `dataCollection` controls, drops
-unapproved breadcrumbs, and returns an allowlist of event fields. It removes
-user/request/context/extra data and free-form error messages while retaining
-stack positions, Debug IDs and build identity. This trades detailed messages
-for less application data. Review the outgoing event for your app; source paths,
-function names and build metadata must also be appropriate to disclose.
-The app-owned filter can be checked directly with controlled input:
+The copied module registers its policy through `sentry.init`: the browser-only
+`dataCollection` controls forward to the SDK unchanged, `beforeBreadcrumb`
+drops unapproved crumbs, and `beforeSend` returns an allowlist of event fields.
+It removes user/request/context/extra data and free-form error messages while
+retaining stack positions, Debug IDs and build identity. This trades detailed
+messages for less application data. Review the outgoing event for your app;
+source paths, function names and build metadata must also be appropriate to
+disclose. The app-owned filter can be checked directly with controlled input:
 
 ```ts
 import { filterError } from './reporting.web'
 
 const safe = filterError({
-  type: undefined,
   message: 'Private text that must not be sent',
   extra: { token: 'DO_NOT_SEND' },
 })
@@ -143,10 +144,15 @@ console.log(safe.extra) // undefined
 
 Follow Sentry's [filtering guidance](https://docs.sentry.io/platforms/javascript/configuration/filtering/)
 when adapting the filter. Stopping prevents new reports through the module and
-its hooks; a request already in flight cannot be recalled. The module closes
-the SDK after allowing already-queued delivery to drain. It does not implement
-a preference UI or a policy for your product. Do not initialize this SDK and the
-Xplat browser wrapper as two reporting owners in the same app.
+its hooks; a request already in flight cannot be recalled. `sentry.close()`
+awaits delivery of already-queued events — resolving `true` when the queue
+drains and `false` on timeout — then disables the client until `init` runs
+again. `sentry.setEnabled(false)` is the lighter control: it drops new
+exceptions, messages and breadcrumbs without closing, and `setEnabled(true)`
+resumes. `sentry.flush(timeout)` drains the queue while collection stays
+enabled. The module does not implement a preference UI or a policy for your
+product. Do not initialize a second Sentry SDK alongside the wrapper in the
+same app.
 
 ## Build and upload the matching browser artifacts
 
@@ -254,10 +260,17 @@ export function startNativeReporting(dsn: string) {
 }
 ```
 
-Use the correct target/build dist for Android. The wrapper's current contract
-cannot express the browser module's filtering or collection controls; do not
-pass untyped options and assume native parity. Track [#73](https://github.com/octane-xplat/octane-xplat/issues/73)
-when choosing this integration for production.
+Use the correct target/build dist for Android. The wrapper's `beforeSend`,
+`beforeBreadcrumb`, `enabled`, `setEnabled`, `flush` and `close` controls apply
+on native too, with two platform differences to keep explicit:
+
+- `beforeSend` fully controls JavaScript-level events. For a native crash
+  report, `@nativescript-community/sentry` invokes the callback but ignores its
+  result — returning `null` does not drop or redact the report. Use `enabled`,
+  `setEnabled` or `close` to stop native crash capture; `close` also closes the
+  native SDK.
+- `flush(timeout)` reports the JavaScript queue's drain status; the wrapped
+  SDK's Android flush does not cover its native-side queue.
 
 For readable native reports, preserve the exact installed release artifact:
 

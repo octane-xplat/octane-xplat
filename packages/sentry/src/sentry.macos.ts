@@ -11,6 +11,8 @@ import type { SentryBreadcrumb, SentryInitOptions, SentryService, SentryUser } f
 const transport = () => typeof (globalThis as any).fetch === 'function'
 
 let ready = false
+let collecting = false
+let closed = false
 
 export const sentry: SentryService = {
   get supported() {
@@ -24,24 +26,29 @@ export const sentry: SentryService = {
 
     BrowserSentry.init({ ...(options as any) })
     ready = true
+    collecting = options.enabled !== false
+    closed = false
   },
 
-  captureException(error: unknown, context?: Record<string, unknown>): void {
-    if (!ready) {
-      return
+  captureException(error: unknown, context?: Record<string, unknown>): string | undefined {
+    if (!ready || !collecting || closed) {
+      return undefined
     }
-    BrowserSentry.captureException(error, context ? { extra: context } : undefined)
+    return BrowserSentry.captureException(error, context ? { extra: context } : undefined)
   },
 
-  captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info'): void {
-    if (!ready) {
-      return
+  captureMessage(
+    message: string,
+    level: 'info' | 'warning' | 'error' = 'info',
+  ): string | undefined {
+    if (!ready || !collecting || closed) {
+      return undefined
     }
-    BrowserSentry.captureMessage(message, level as any)
+    return BrowserSentry.captureMessage(message, level as any)
   },
 
   addBreadcrumb(breadcrumb: SentryBreadcrumb): void {
-    if (!ready) {
+    if (!ready || !collecting || closed) {
       return
     }
     BrowserSentry.addBreadcrumb(breadcrumb as any)
@@ -66,5 +73,27 @@ export const sentry: SentryService = {
       return
     }
     BrowserSentry.setContext(key, context as any)
+  },
+
+  setEnabled(enabled: boolean): void {
+    if (!ready || closed) {
+      return
+    }
+    collecting = enabled
+    const client = BrowserSentry.getClient()
+    if (client) {
+      client.getOptions().enabled = enabled
+    }
+  },
+
+  flush(timeout?: number): Promise<boolean> {
+    return BrowserSentry.flush(timeout)
+  },
+
+  async close(timeout?: number): Promise<boolean> {
+    collecting = false
+    closed = true
+    ready = false
+    return BrowserSentry.close(timeout)
   },
 }

@@ -1,6 +1,7 @@
-/** App-owned browser reporting; not an additional framework export. */
-import * as Sentry from '@sentry/browser'
-import type { ErrorEvent, StackFrame } from '@sentry/browser'
+/** App-owned reporting policy over the Xplat Sentry wrapper; not an
+ *  additional framework export. */
+import { sentry } from '@octane-xplat/sentry'
+import type { SentryEvent, SentryFrame, SentryInitOptions } from '@octane-xplat/sentry'
 
 export interface ReportingConfig {
   dsn: string
@@ -9,13 +10,25 @@ export interface ReportingConfig {
   environment: string
 }
 
+/** Browser-only data-collection controls — forwarded to @sentry/browser
+ *  unchanged; they are not part of the portable wrapper contract. */
+type BrowserReportingOptions = SentryInitOptions & {
+  dataCollection: {
+    userInfo?: boolean
+    cookies?: boolean
+    httpHeaders?: boolean
+    httpBodies?: string[]
+    urlQueryParams?: boolean
+  }
+}
+
 let collecting = false
 let initialized = false
 const cleanPath = (value: string | undefined) => value?.split(/[?#]/)[0]
 
 /** Keep source locations and build identity; discard free-form application data. */
-export function filterError(event: ErrorEvent): ErrorEvent {
-  const frames = (items: StackFrame[] | undefined) =>
+export function filterError(event: SentryEvent): SentryEvent {
+  const frames = (items: SentryFrame[] | undefined) =>
     items?.map((frame) => ({
       filename: cleanPath(frame.filename),
       abs_path: cleanPath(frame.abs_path),
@@ -24,6 +37,9 @@ export function filterError(event: ErrorEvent): ErrorEvent {
       colno: frame.colno,
       in_app: frame.in_app,
     }))
+  const breadcrumbs = Array.isArray(event.breadcrumbs)
+    ? event.breadcrumbs
+    : event.breadcrumbs?.values
   return {
     type: event.type,
     event_id: event.event_id,
@@ -45,7 +61,7 @@ export function filterError(event: ErrorEvent): ErrorEvent {
           })),
         }
       : undefined,
-    breadcrumbs: event.breadcrumbs
+    breadcrumbs: breadcrumbs
       ?.filter((b) => b.category === 'app-action' && b.message === 'report-delivery-check')
       .map((b) => ({ category: b.category, message: b.message, timestamp: b.timestamp })),
   }
@@ -56,7 +72,7 @@ export function startReporting(config: ReportingConfig): void {
   if (initialized) {
     return
   }
-  Sentry.init({
+  const options: BrowserReportingOptions = {
     ...config,
     dataCollection: {
       userInfo: false,
@@ -74,7 +90,8 @@ export function startReporting(config: ReportingConfig): void {
         ? { category: breadcrumb.category, message: breadcrumb.message }
         : null,
     beforeSend: (event) => (collecting ? filterError(event) : null),
-  })
+  }
+  sentry.init(options)
   initialized = true
   collecting = true
 }
@@ -84,14 +101,14 @@ export function reportDeliveryCheck(): string | null {
   if (!collecting) {
     return null
   }
-  Sentry.addBreadcrumb({ category: 'app-action', message: 'report-delivery-check' })
-  return Sentry.captureException(new Error('Xplat reporting check'))
+  sentry.addBreadcrumb({ category: 'app-action', message: 'report-delivery-check' })
+  return sentry.captureException(new Error('Xplat reporting check')) ?? null
 }
 
 export async function stopReporting(): Promise<boolean> {
   collecting = false
   try {
-    return await Sentry.close()
+    return await sentry.close()
   } finally {
     initialized = false
   }

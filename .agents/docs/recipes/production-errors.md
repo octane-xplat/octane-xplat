@@ -6,8 +6,9 @@ Related APIs: @octane-xplat/sentry, sentry.init, sentry.captureException, sentry
 
 ## Starting point
 
-A buildable app and a test reporting project. The chosen complete path is a
-browser Sentry SDK module; native wrapper/build limitations remain explicit.
+A buildable app and a test reporting project. The chosen complete path is an
+app-owned policy module over the Xplat Sentry wrapper; native crash and
+build/artifact limitations remain explicit.
 
 ## Requirements
 
@@ -26,7 +27,7 @@ JavaScript errors from native crash/relaunch evidence.
 ## Documentation
 
 - AC1: [Test-project path](../../../docs/testing/production-errors.md#connect-a-test-project), [browser module](../../../packages/sentry/examples/reporting.web.ts), and [native reporting](../../../docs/testing/production-errors.md#report-from-ios-or-android).
-- AC2: [Filtering and collection](../../../docs/testing/production-errors.md#own-filtering-and-collection), [browser regressions](../../../packages/sentry/tests/reporting-guide.test.mjs) and [build secret ownership](../../../docs/testing/production-errors.md#build-and-upload-the-matching-browser-artifacts). The native wrapper lacks those typed controls (#73); native production policy integration remains a gap.
+- AC2: [Filtering and collection](../../../docs/testing/production-errors.md#own-filtering-and-collection), [browser regressions](../../../packages/sentry/tests/reporting-guide.test.mjs), [wrapper collection policy](../../../packages/sentry/tests/collection-policy.test.mjs) and [build secret ownership](../../../docs/testing/production-errors.md#build-and-upload-the-matching-browser-artifacts). Native difference: `beforeSend` cannot drop or redact a native crash report — the wrapper documents that boundary; Android `flush` covers the JavaScript queue only.
 - AC3: [Browser artifact workflow](../../../docs/testing/production-errors.md#build-and-upload-the-matching-browser-artifacts) and [local artifact check](../../../packages/sentry/tests/source-map-artifacts.mjs). Project upload and deployed-report resolution require external verification.
 - AC4: [Native maps/symbols and crash checks](../../../docs/testing/production-errors.md#report-from-ios-or-android). Gap: the NativeScript/Vite release-map integration requires separate target qualification (#74), independently of the documented archive/symbol procedure.
 - AC5: [Crashlytics alternative](../../../docs/testing/production-errors.md#use-crashlytics-as-a-native-alternative) and [recovery](../../../docs/testing/production-errors.md#recover-missing-or-unreadable-reports) distinguish Crashlytics plugin registration and reporting failure classes.

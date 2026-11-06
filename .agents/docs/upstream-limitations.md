@@ -403,3 +403,32 @@ iPhone 13 Pro Max: 2 CAShapeLayers with 2 paths but 0 filled / 0 stroked).
 - Status: current in SVGKit 3.1.1 / Akylas `3.x` fork. Recheck if upstream
   makes `SVGUseElement` apply its own attributes to the instance tree;
   removing the expansion then restores upstream parsing.
+
+## @nativescript-community/sentry: filtering and lifecycle gaps (4.6.49)
+
+Verified from plugin source at 4.6.49 (`wrapper.ios.js`, `wrapper.android.js`,
+`sdk.js`) — source evidence, not runtime behavior:
+
+- `beforeSend` cannot drop or redact a **native crash report**. iOS
+  (`wrapper.ios.js` `initNativeSdk`) invokes the JS callback inside the cocoa
+  `SentryOptions.beforeSend` then returns the event unconditionally; Android
+  (`wrapper.android.js` `BeforeSendCallback.execute`) likewise ignores the
+  result. JavaScript-level events still run through the JS client's
+  `beforeSend`, where `null` drops and modifications send — only the
+  native-crash path is observe-only. `beforeBreadcrumb` does honor `null` on
+  both native bridges.
+- The exported `close()` (`sdk.js`) closes only the JS client and never calls
+  `NATIVE.closeNativeSdk()`, so native crash capture would continue after JS
+  collection stops. Xplat stance: `sentry.close()` calls the JS client's
+  `client.close(timeout)` for a delivery-status result, then
+  `NATIVE.closeNativeSdk()` (best-effort) so a consent withdrawal stops
+  native capture too.
+- `flush()` is documented in `sdk.d.ts` as "Not yet working on Android" — it
+  awaits only the JS client's queue. The Android native-side queue is not
+  covered; the returned status reflects the JS queue on both platforms.
+- `enabled` is forwarded into the native options on both platforms (iOS
+  options dictionary → `SentryOptions.enabled`; Android `setEnabled`), so
+  `enabled: false` at init also disables native crash capture.
+- Status: current in @nativescript-community/sentry 4.6.49. Recheck if
+  upstream honors `beforeSend` results on native events, wires `close()` to
+  the native SDK, or implements Android flush.

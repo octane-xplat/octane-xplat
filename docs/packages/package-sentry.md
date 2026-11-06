@@ -39,9 +39,11 @@ Look for the handled test error in the selected project. If it is absent,
 check the DSN, network, environment filters, and SDK initialization. This
 example sends a handled error; it does not test a native crash.
 
-The public wrapper does not expose typed filtering, disable/close or flush
-controls ([#73](https://github.com/octane-xplat/octane-xplat/issues/73)); the guide
-uses an app-owned browser SDK module for those controls. Source maps and native
+The wrapper exposes typed event/breadcrumb filtering (`beforeSend`,
+`beforeBreadcrumb`) and collection lifecycle controls (`enabled`,
+`setEnabled`, `flush`, `close`) across platforms. On iOS/Android a native
+crash report invokes `beforeSend` but ignores its result — collection
+controls, not the filter, stop crash capture. Source maps and native
 symbols need separate build/upload configuration to make production traces
 readable. The NativeScript/Vite artifact path remains unqualified
 ([#74](https://github.com/octane-xplat/octane-xplat/issues/74)). See the

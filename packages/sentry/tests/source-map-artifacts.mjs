@@ -21,6 +21,9 @@ try {
     configFile: false,
     root: fixture,
     logLevel: 'error',
+    // The example imports @octane-xplat/sentry; the 'web' export condition
+    // resolves its browser leaf, matching an app's web build.
+    resolve: { conditions: ['web'] },
     build: {
       outDir: output,
       sourcemap: 'hidden',

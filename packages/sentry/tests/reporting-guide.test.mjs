@@ -4,11 +4,18 @@ import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript-classic'
 
-const source = await readFile(new URL('../examples/reporting.web.ts', import.meta.url), 'utf8')
-const compiled = ts.transpile(source, {
-  module: ts.ModuleKind.CommonJS,
-  target: ts.ScriptTarget.ES2022,
-})
+const compile = (source) =>
+  ts.transpile(source, {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  })
+
+const [exampleSource, leafSource] = await Promise.all([
+  readFile(new URL('../examples/reporting.web.ts', import.meta.url), 'utf8'),
+  readFile(new URL('../src/sentry.web.ts', import.meta.url), 'utf8'),
+])
+const compiledExample = compile(exampleSource)
+const compiledLeaf = compile(leafSource)
 
 function fixture() {
   let options,
@@ -23,13 +30,21 @@ function fixture() {
       captured++
       return 'event-id'
     },
+    getClient: () => ({ getOptions: () => options }),
     close: async () => {
       closed++
       return true
     },
   }
+  const modules = { '@sentry/browser': sdk }
+  const leafExports = {}
+  vm.runInNewContext(compiledLeaf, {
+    exports: leafExports,
+    require: (id) => modules[id],
+  })
+  modules['@octane-xplat/sentry'] = leafExports
   const exports = {}
-  vm.runInNewContext(compiled, { exports, require: () => sdk })
+  vm.runInNewContext(compiledExample, { exports, require: (id) => modules[id] })
   return { helper: exports, options: () => options, captured: () => captured, closed: () => closed }
 }
 
