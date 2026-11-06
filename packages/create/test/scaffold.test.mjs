@@ -742,3 +742,23 @@ test('bin scaffolds a pnpm project without installing when pnpm is missing', (t)
   assert.match(result.stdout, /pnpm was selected but is not installed/)
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
 })
+
+test('pack ships the bunfig template and Bun scaffolds land it as bunfig.toml', (t) => {
+  const dry = spawnSync('bun', ['pm', 'pack', '--dry-run'], {
+    cwd: fileURLToPath(new URL('..', import.meta.url)),
+    encoding: 'utf8',
+  })
+  assert.equal(dry.status, 0, dry.stderr)
+  assert.match(dry.stdout, /template\/bunfig$|template\/bunfig[\r\n]/m)
+  assert.match(dry.stdout, /library-template\/bunfig$|library-template\/bunfig[\r\n]/m)
+
+  const dir = project(t)
+  composeTargets(ALL, dir)
+  const bunfig = readFileSync(join(dir, 'bunfig.toml'), 'utf8')
+  assert.match(bunfig, /linker = "hoisted"/)
+  assert.match(bunfig, /exact = true/)
+
+  const lib = join(project(t), 'lib')
+  composeLibrary(lib, 'my-lib')
+  assert.match(readFileSync(join(lib, 'bunfig.toml'), 'utf8'), /linker = "hoisted"/)
+})

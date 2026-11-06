@@ -455,6 +455,15 @@ const managerTextFiles = [
 const isManagerTextFile = (rel: string) =>
   managerTextFiles.includes(rel) || rel.startsWith('.agents/skills/xplat/')
 
+// Template file names that differ from their scaffolded names: dotfiles and
+// bunfig ship without their final names because npm/bun packing drops them.
+const renamedFiles: Record<string, string> = {
+  gitignore: '.gitignore',
+  bunfig: 'bunfig.toml',
+}
+
+const destName = (rel: string) => renamedFiles[rel] ?? rel
+
 /**
  * Rewrite the canonical Bun command forms in starter text for another
  * manager. Applied only to managerTextFiles.
@@ -492,7 +501,7 @@ export function composeTargets(
       continue // generated below
     }
 
-    if (packageManager === 'pnpm' && rel === 'bunfig.toml') {
+    if (packageManager === 'pnpm' && rel === 'bunfig') {
       continue
     }
 
@@ -502,7 +511,7 @@ export function composeTargets(
     }
 
     const source = join(TEMPLATE_DIR, rel)
-    const dest = join(dir, rel === 'gitignore' ? '.gitignore' : rel)
+    const dest = join(dir, destName(rel))
     mkdirSync(dirname(dest), { recursive: true })
     if (packageManager === 'pnpm' && isManagerTextFile(rel)) {
       writeFileSync(dest, localizeCommands(readFileSync(source, 'utf8'), packageManager))
@@ -541,11 +550,11 @@ export function composeLibrary(
   const packageManager = options?.packageManager ?? 'bun'
   mkdirSync(dir, { recursive: true })
   for (const rel of walk(LIBRARY_TEMPLATE_DIR)) {
-    if (rel === 'package.json' || (packageManager === 'pnpm' && rel === 'bunfig.toml')) {
+    if (rel === 'package.json' || (packageManager === 'pnpm' && rel === 'bunfig')) {
       continue
     }
 
-    const dest = join(dir, rel === 'gitignore' ? '.gitignore' : rel)
+    const dest = join(dir, destName(rel))
     mkdirSync(dirname(dest), { recursive: true })
     const source = join(LIBRARY_TEMPLATE_DIR, rel)
     if (/\.(?:md|ts|tsx|mjs|json)$/.test(rel)) {
@@ -609,7 +618,7 @@ export function targetEnabled(appRoot, id) {
 /** Copy a template file/dir into the app unless the destination exists. */
 function copyMissing(rel, appRoot, report, present, copy) {
   const src = join(TEMPLATE_DIR, rel)
-  const dest = join(appRoot, rel === 'gitignore' ? '.gitignore' : rel)
+  const dest = join(appRoot, destName(rel))
   if (present(dest)) {
     report.skipped.push(rel)
     return
