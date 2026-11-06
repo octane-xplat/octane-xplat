@@ -30,6 +30,7 @@ test('decidePackageManager honors the flag above everything else', () => {
       installed: [],
       interactive: false,
     })
+
     assert.deepEqual(decision, { kind: 'use', manager, source: 'flag', installed: [] })
   }
 
@@ -46,6 +47,7 @@ test('decidePackageManager uses a recognized user agent', () => {
       installed: ['bun'],
       interactive: true,
     })
+
     assert.deepEqual(decision, {
       kind: 'use',
       manager,
@@ -57,10 +59,12 @@ test('decidePackageManager uses a recognized user agent', () => {
 
 test('decidePackageManager probes installs for other user agents', () => {
   for (const userAgent of [undefined, 'npm/11.0.0 node/? darwin arm64', 'yarn/1.22.0']) {
-    assert.deepEqual(
-      decidePackageManager({ userAgent, installed: ['pnpm'], interactive: true }),
-      { kind: 'use', manager: 'pnpm', source: 'only-installed', installed: ['pnpm'] },
-    )
+    assert.deepEqual(decidePackageManager({ userAgent, installed: ['pnpm'], interactive: true }), {
+      kind: 'use',
+      manager: 'pnpm',
+      source: 'only-installed',
+      installed: ['pnpm'],
+    })
 
     assert.deepEqual(
       decidePackageManager({ userAgent, installed: ['bun', 'pnpm'], interactive: true }),
@@ -73,10 +77,10 @@ test('decidePackageManager probes installs for other user agents', () => {
       { kind: 'use', manager: 'bun', source: 'fallback', installed: ['bun', 'pnpm'] },
     )
 
-    assert.deepEqual(
-      decidePackageManager({ userAgent, installed: [], interactive: true }),
-      { kind: 'missing', manager: 'bun' },
-    )
+    assert.deepEqual(decidePackageManager({ userAgent, installed: [], interactive: true }), {
+      kind: 'missing',
+      manager: 'bun',
+    })
   }
 })
 

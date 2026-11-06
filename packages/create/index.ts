@@ -10,6 +10,7 @@ import {
   selectableTargets,
   targets,
 } from './scaffold.ts'
+
 import { compatibility } from './compatibility.ts'
 import {
   decidePackageManager,
@@ -74,6 +75,7 @@ if (targetsIndex !== -1 && (targetsArg === undefined || targetsArg.startsWith('-
 const managerIndex = argv.findIndex(
   (arg) => arg === '--package-manager' || arg.startsWith('--package-manager='),
 )
+
 const managerValueIndex =
   managerIndex !== -1 && argv[managerIndex] === '--package-manager' ? managerIndex + 1 : -1
 
@@ -282,7 +284,10 @@ const install = spawnSync(packageManager, ['install'], {
 })
 
 if (install.status !== 0) {
-  console.log(`\nInstall didn't finish (${managerLabel(packageManager)} missing?). To run manually:`)
+  console.log(
+    `\nInstall didn't finish (${managerLabel(packageManager)} missing?). To run manually:`,
+  )
+
   printNextSteps(dir, ids, templateArg, packageManager)
   process.exit(install.status ?? 1)
 }
