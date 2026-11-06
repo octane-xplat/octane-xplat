@@ -9,285 +9,286 @@ import { pathToFileURL } from 'node:url'
 import { inspectMacOSDevConfig } from './config.ts'
 import { buildMacOSNative, discoverMacOSNative, writeNativeBootstrap } from './native.ts'
 import {
-	hostBundle,
-	inspectJscHost,
-	macOSHostArch,
-	validateHostBundle,
+  hostBundle,
+  inspectJscHost,
+  macOSHostArch,
+  validateHostBundle,
 } from './jsc-host/runtime.ts'
+
 import { createMacOSDevBundle } from './dev-bundle.ts'
 
 export { runMacOSWebViewDev } from './webview-dev.ts'
 
 /** Run the configured Vite watcher and native host, restarting after native edits. */
 export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
-	appRoot = resolve(appRoot)
-	const readManifest = () => {
-		const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
-		if (options.target) {
-			manifest.xplat = {
-				...manifest.xplat,
-				targets: {
-					...manifest.xplat?.targets,
-					macos: { ...manifest.xplat?.targets?.macos, ...options.target },
-				},
-			}
-		}
+  appRoot = resolve(appRoot)
+  const readManifest = () => {
+    const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+    if (options.target) {
+      manifest.xplat = {
+        ...manifest.xplat,
+        targets: {
+          ...manifest.xplat?.targets,
+          macos: { ...manifest.xplat?.targets?.macos, ...options.target },
+        },
+      }
+    }
 
-		return manifest
-	}
+    return manifest
+  }
 
-	const target = readManifest().xplat?.targets?.macos
-	if (target?.renderer === 'webview') {
-		const { runMacOSWebViewDev } = await import('./webview-dev.ts')
-		return runMacOSWebViewDev(appRoot, options)
-	}
+  const target = readManifest().xplat?.targets?.macos
+  if (target?.renderer === 'webview') {
+    const { runMacOSWebViewDev } = await import('./webview-dev.ts')
+    return runMacOSWebViewDev(appRoot, options)
+  }
 
-	if (target?.runtime !== 'appkit-node-api') {
-		throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api"')
-	}
+  if (target?.runtime !== 'appkit-node-api') {
+    throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api"')
+  }
 
-	const config = inspectMacOSDevConfig(appRoot, target.dev, target.renderer)
-	if (config.issues.length) {
-		throw new Error(config.issues.join('; '))
-	}
+  const config = inspectMacOSDevConfig(appRoot, target.dev, target.renderer)
+  if (config.issues.length) {
+    throw new Error(config.issues.join('; '))
+  }
 
-	const inspection = inspectJscHost()
-	if (inspection.issues.length) {
-		throw new Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
-	}
+  const inspection = inspectJscHost()
+  if (inspection.issues.length) {
+    throw new Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
+  }
 
-	const { build } = await import(
-		pathToFileURL(createRequire(join(appRoot, 'package.json')).resolve('vite')).href
-	)
+  const { build } = await import(
+    pathToFileURL(createRequire(join(appRoot, 'package.json')).resolve('vite')).href
+  )
 
-	const prepare = () =>
-		buildMacOSNative(appRoot, {
-			minimumSystemVersion: readManifest().xplat?.targets?.macos?.package?.minimumSystemVersion,
-		})
+  const prepare = () =>
+    buildMacOSNative(appRoot, {
+      minimumSystemVersion: readManifest().xplat?.targets?.macos?.package?.minimumSystemVersion,
+    })
 
-	let artifact = await prepare()
-	const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
-		directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
-	})
-	const hostExecutable = devBundle.executable
-	const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
-	await mkdir(devRoot, { recursive: true })
-	const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
-	let watcher
-	let host
-	let input
-	let polling
-	let rebuilding = null
-	let stopping = false
-	let restarting = false
-	let observed = artifact.fingerprint
-	let lastError
-	let resolveDone
-	let rejectDone
-	const done = new Promise((resolve, reject) => {
-		resolveDone = resolve
-		rejectDone = reject
-	})
+  let artifact = await prepare()
+  const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
+    directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
+  })
+  const hostExecutable = devBundle.executable
+  const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+  await mkdir(devRoot, { recursive: true })
+  const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
+  let watcher
+  let host
+  let input
+  let polling
+  let rebuilding = null
+  let stopping = false
+  let restarting = false
+  let observed = artifact.fingerprint
+  let lastError
+  let resolveDone
+  let rejectDone
+  const done = new Promise((resolve, reject) => {
+    resolveDone = resolve
+    rejectDone = reject
+  })
 
-	// Attach a rejection handler before any async startup can fail.
-	done.catch(() => {})
-	const stop = () => {
-		stopping = true
-		resolveDone()
-	}
+  // Attach a rejection handler before any async startup can fail.
+  done.catch(() => {})
+  const stop = () => {
+    stopping = true
+    resolveDone()
+  }
 
-	const launch = async () => {
-		await writeNativeBootstrap(artifact, bootstrap)
-		const observedAt = new Date().toISOString()
-		host = spawn(
-			hostExecutable,
-			[
-				join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
-				config.shellBundleFile ?? config.bundleFile,
-				artifact.metadata[macOSHostArch()],
-				bootstrap,
-			],
-			{
-				cwd: appRoot,
-				env: {
-					...process.env,
-					NODE_ENV: 'development',
-					OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
-					...(config.shellBundleFile ? { OCTANE_MACOS_DEV_BUNDLE: config.bundleFile } : {}),
-				},
-				stdio: ['pipe', 'pipe', 'pipe'],
-			},
-		)
+  const launch = async () => {
+    await writeNativeBootstrap(artifact, bootstrap)
+    const observedAt = new Date().toISOString()
+    host = spawn(
+      hostExecutable,
+      [
+        join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+        config.shellBundleFile ?? config.bundleFile,
+        artifact.metadata[macOSHostArch()],
+        bootstrap,
+      ],
+      {
+        cwd: appRoot,
+        env: {
+          ...process.env,
+          NODE_ENV: 'development',
+          OCTANE_MACOS_EXTERNAL_RUNLOOP: '1',
+          ...(config.shellBundleFile ? { OCTANE_MACOS_DEV_BUNDLE: config.bundleFile } : {}),
+        },
+        stdio: ['pipe', 'pipe', 'pipe'],
+      },
+    )
 
-		host.stdout.pipe(process.stdout)
-		host.stderr.pipe(process.stdout)
-		host.stdin.on('error', (error) => {
-			if (error.code !== 'EPIPE') {
-				console.error('[macos] host input failed', error)
-			}
-		})
+    host.stdout.pipe(process.stdout)
+    host.stderr.pipe(process.stdout)
+    host.stdin.on('error', (error) => {
+      if (error.code !== 'EPIPE') {
+        console.error('[macos] host input failed', error)
+      }
+    })
 
-		host.once('error', rejectDone)
-		host.once('close', (code, signal) => {
-			if (!restarting && !stopping) {
-				if (code || signal) {
-					rejectDone(new Error(`macOS host exited: ${code ?? signal}`))
-				} else {
-					resolveDone()
-				}
-			}
-		})
-		await new Promise((resolve, reject) => {
-			host.once('spawn', resolve)
-			host.once('error', reject)
-		})
-		options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable, observedAt })
+    host.once('error', rejectDone)
+    host.once('close', (code, signal) => {
+      if (!restarting && !stopping) {
+        if (code || signal) {
+          rejectDone(new Error(`macOS host exited: ${code ?? signal}`))
+        } else {
+          resolveDone()
+        }
+      }
+    })
+    await new Promise((resolve, reject) => {
+      host.once('spawn', resolve)
+      host.once('error', reject)
+    })
+    options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable, observedAt })
 
-		console.log(
-			`[macos-native] host started pid=${host.pid}; ${artifact.libraries.length} leaf libraries`,
-		)
-	}
+    console.log(
+      `[macos-native] host started pid=${host.pid}; ${artifact.libraries.length} leaf libraries`,
+    )
+  }
 
-	const retire = async () => {
-		if (!host || host.exitCode !== null || host.signalCode !== null) {
-			return
-		}
+  const retire = async () => {
+    if (!host || host.exitCode !== null || host.signalCode !== null) {
+      return
+    }
 
-		await new Promise((resolve) => {
-			const timer = setTimeout(() => host.kill('SIGKILL'), 3000)
-			host.once('close', () => {
-				clearTimeout(timer)
-				resolve()
-			})
+    await new Promise((resolve) => {
+      const timer = setTimeout(() => host.kill('SIGKILL'), 3000)
+      host.once('close', () => {
+        clearTimeout(timer)
+        resolve()
+      })
 
-			host.kill('SIGTERM')
-		})
-	}
+      host.kill('SIGTERM')
+    })
+  }
 
-	const restart = async (next) => {
-		restarting = true
-		try {
-			await retire()
-			artifact = next
-			if (!stopping) {
-				await launch()
-			}
-		} finally {
-			restarting = false
-		}
-	}
+  const restart = async (next) => {
+    restarting = true
+    try {
+      await retire()
+      artifact = next
+      if (!stopping) {
+        await launch()
+      }
+    } finally {
+      restarting = false
+    }
+  }
 
-	try {
-		process.on('SIGINT', stop)
-		process.on('SIGTERM', stop)
-		if (config.shellViteConfig) {
-			await build({ configFile: config.shellViteConfig, mode: 'development' })
-		}
+  try {
+    process.on('SIGINT', stop)
+    process.on('SIGTERM', stop)
+    if (config.shellViteConfig) {
+      await build({ configFile: config.shellViteConfig, mode: 'development' })
+    }
 
-		watcher = await build({
-			configFile: config.viteConfig,
-			mode: 'development',
-			build: { watch: {} },
-		})
+    watcher = await build({
+      configFile: config.viteConfig,
+      mode: 'development',
+      build: { watch: {} },
+    })
 
-		let first = true
-		await new Promise((resolve, reject) => {
-			watcher.on('event', (event) => {
-				if (event.code === 'START' && options.workshop && host?.stdin.writable) {
-					host.stdin.write('rebuilding\n')
-				} else if (event.code === 'BUNDLE_END') {
-					if (first) {
-						first = false
-						resolve()
-					} else if (config.shellBundleFile && host?.stdin.writable) {
-						host.stdin.write('reload\n')
-					} else if (host && !rebuilding && !stopping) {
-						rebuilding = restart(artifact)
-							.catch(rejectDone)
-							.finally(() => {
-								rebuilding = null
-							})
-					}
-				} else if (event.code === 'ERROR') {
-					if (options.workshop && host?.stdin.writable) {
-						host.stdin.write(
-							'compile-error ' +
-								String(event.error?.message ?? event.error).replace(/[\r\n]/g, ' ') +
-								'\n',
-						)
-					}
+    let first = true
+    await new Promise((resolve, reject) => {
+      watcher.on('event', (event) => {
+        if (event.code === 'START' && options.workshop && host?.stdin.writable) {
+          host.stdin.write('rebuilding\n')
+        } else if (event.code === 'BUNDLE_END') {
+          if (first) {
+            first = false
+            resolve()
+          } else if (config.shellBundleFile && host?.stdin.writable) {
+            host.stdin.write('reload\n')
+          } else if (host && !rebuilding && !stopping) {
+            rebuilding = restart(artifact)
+              .catch(rejectDone)
+              .finally(() => {
+                rebuilding = null
+              })
+          }
+        } else if (event.code === 'ERROR') {
+          if (options.workshop && host?.stdin.writable) {
+            host.stdin.write(
+              'compile-error ' +
+                String(event.error?.message ?? event.error).replace(/[\r\n]/g, ' ') +
+                '\n',
+            )
+          }
 
-					console.error('[macos] JS rebuild failed; preserving the running app', event.error)
-					if (first) {
-						reject(event.error)
-					}
-				}
-			})
-		})
+          console.error('[macos] JS rebuild failed; preserving the running app', event.error)
+          if (first) {
+            reject(event.error)
+          }
+        }
+      })
+    })
 
-		await validateHostBundle(config.shellBundleFile ?? config.bundleFile, appRoot)
-		await launch()
-		if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
-			input = createInterface({ input: process.stdin })
-			input.on('line', (line) => {
-				if (host?.stdin.writable) {
-					host.stdin.write(`${line}\n`)
-				}
-			})
-		}
+    await validateHostBundle(config.shellBundleFile ?? config.bundleFile, appRoot)
+    await launch()
+    if (process.env.OCTANE_MACOS_AUTOMATION === '1') {
+      input = createInterface({ input: process.stdin })
+      input.on('line', (line) => {
+        if (host?.stdin.writable) {
+          host.stdin.write(`${line}\n`)
+        }
+      })
+    }
 
-		polling = setInterval(() => {
-			if (rebuilding || stopping) {
-				return
-			}
+    polling = setInterval(() => {
+      if (rebuilding || stopping) {
+        return
+      }
 
-			rebuilding = (async () => {
-				try {
-					const fingerprint = discoverMacOSNative(appRoot).fingerprint
-					if (fingerprint === observed) {
-						return
-					}
+      rebuilding = (async () => {
+        try {
+          const fingerprint = discoverMacOSNative(appRoot).fingerprint
+          if (fingerprint === observed) {
+            return
+          }
 
-					observed = fingerprint
-					const next = await prepare()
-					if (
-						next.key !== artifact.key ||
-						next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
-					) {
-						await restart(next)
-						console.log('[macos-native] native rebuild applied')
-					} else {
-						artifact = next
-					}
+          observed = fingerprint
+          const next = await prepare()
+          if (
+            next.key !== artifact.key ||
+            next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
+          ) {
+            await restart(next)
+            console.log('[macos-native] native rebuild applied')
+          } else {
+            artifact = next
+          }
 
-					lastError = undefined
-				} catch (error) {
-					const message = String(error)
-					if (message !== lastError) {
-						console.error('[macos-native] rebuild failed; preserving the running app', message)
-					}
+          lastError = undefined
+        } catch (error) {
+          const message = String(error)
+          if (message !== lastError) {
+            console.error('[macos-native] rebuild failed; preserving the running app', message)
+          }
 
-					lastError = message
-				}
-			})().finally(() => {
-				rebuilding = null
-			})
-		}, 1000)
+          lastError = message
+        }
+      })().finally(() => {
+        rebuilding = null
+      })
+    }, 1000)
 
-		await done
-	} finally {
-		stopping = true
-		clearInterval(polling)
-		process.off('SIGINT', stop)
-		process.off('SIGTERM', stop)
-		input?.close()
-		if (input) {
-			process.stdin.pause()
-		}
+    await done
+  } finally {
+    stopping = true
+    clearInterval(polling)
+    process.off('SIGINT', stop)
+    process.off('SIGTERM', stop)
+    input?.close()
+    if (input) {
+      process.stdin.pause()
+    }
 
-		await rebuilding
-		await watcher?.close()
-		await retire()
-		await devBundle.cleanup()
-	}
+    await rebuilding
+    await watcher?.close()
+    await retire()
+    await devBundle.cleanup()
+  }
 }

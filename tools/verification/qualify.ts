@@ -31,6 +31,7 @@ if (workflow === 'parity:macos') {
   for (const name of ['smoke', 'test:animation', 'test:layout-placement']) {
     task(name, '@xplat/macos')
   }
+
   for (const file of ['signals.ts', 'counter.tsrx', 'lottie.macos.tsrx']) {
     run([
       'probe',

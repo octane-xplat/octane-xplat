@@ -9,6 +9,7 @@ import { preparePulsar } from '../scripts/prepare-ios.mjs'
 if (process.platform !== 'darwin') {
   throw new Error('iOS build qualification requires macOS and Xcode')
 }
+
 const self = fileURLToPath(import.meta.url)
 if (!process.argv.includes('--reserved')) {
   execFileSync(
@@ -41,9 +42,11 @@ if (!process.argv.includes('--reserved')) {
           ? [join(directory, entry.name)]
           : [],
     )
+
   const sdk = execFileSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
     encoding: 'utf8',
   }).trim()
+
   const flags = ['-sdk', sdk, '-target', 'arm64-apple-ios13.0-simulator', '-swift-version', '6']
   for (const debug of [true, false]) {
     const output = join(work, debug ? 'Debug' : 'Release')
@@ -64,6 +67,7 @@ if (!process.argv.includes('--reserved')) {
       ],
       { stdio: 'inherit' },
     )
+
     execFileSync(
       'xcrun',
       [
@@ -79,6 +83,7 @@ if (!process.argv.includes('--reserved')) {
       ],
       { stdio: 'inherit' },
     )
+
     console.log(
       `Patched Pulsar and bridge: ${debug ? 'Debug' : 'Release'} iOS arm64 simulator compile passed`,
     )

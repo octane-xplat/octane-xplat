@@ -87,6 +87,7 @@ export async function checkPaintLifecycle(root: any, nativeWindow: any) {
       near(percent.layer.cornerRadius, 50) && near(percent.layer.transform.m41, 50),
       'percent geometry after resize',
     )
+
     check(
       layers(percent) === 1 &&
         layers(bands) === 1 &&
@@ -94,10 +95,12 @@ export async function checkPaintLifecycle(root: any, nativeWindow: any) {
         layers(shadows) === 1,
       'repeated updates stack no layers',
     )
+
     check(
       near(percent.layer.sublayers.objectAtIndex(0).frame.size.width, 206),
       'outline follows resized bounds',
     )
+
     check(outsetCount() === 2, 'repeated updates stack no shadow siblings')
   }
   debug.pressId('advance-paint')

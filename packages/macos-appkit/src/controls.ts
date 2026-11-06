@@ -15,6 +15,7 @@ import {
   NSSlider,
   NSViewBoundsDidChangeNotification,
 } from '@octane-xplat/platform/macos'
+
 import { configureScrollAxes } from './scroll-view'
 import { makeMasonHostView } from './mason'
 

@@ -16,6 +16,7 @@ const server = await createServer({
   },
   server: { host: '127.0.0.1', port: 0 },
 })
+
 let browser
 try {
   await server.listen()
@@ -23,12 +24,17 @@ try {
   const page = await browser.newPage()
   page.setDefaultTimeout(15000)
   const errors = []
-  page.on('pageerror', (error) => { errors.push(error.message); console.error(error.message) })
+  page.on('pageerror', (error) => {
+    errors.push(error.message)
+    console.error(error.message)
+  })
+
   // Cold Vite compilation can overlap type generation on shared hosts.
   await page.goto(server.resolvedUrls.local[0], { waitUntil: 'domcontentloaded', timeout: 60000 })
   await page.waitForFunction(() =>
     document.querySelector('#panel [aria-hidden] div')?.style.clipPath.startsWith('path('),
   )
+
   const read = () =>
     page.evaluate(() => {
       const panel = document.getElementById('panel')
@@ -46,6 +52,7 @@ try {
         shadowOutsideClip: panel.parentElement.querySelector('svg > defs > filter') !== null,
       }
     })
+
   const initial = await read()
   assert.equal(initial.overflow, 'visible')
   assert.equal(initial.clip, 'none')
@@ -61,6 +68,7 @@ try {
   await page.waitForFunction(() =>
     document.getElementById('panel').style.clipPath.startsWith('path('),
   )
+
   const hidden = await read()
   assert.equal(hidden.badgeReachable, false)
   assert.equal(hidden.clip, hidden.surfaceClip)
@@ -78,15 +86,18 @@ try {
   await page.waitForFunction(
     () => getComputedStyle(document.getElementById('panel')).clipPath === 'none',
   )
+
   await page.locator('#reset').click()
   await page.locator('#class-clip').click()
   await page.waitForFunction(() =>
     document.getElementById('panel').style.clipPath.startsWith('path('),
   )
+
   await page.locator('#class-clip').click()
   await page.waitForFunction(
     () => getComputedStyle(document.getElementById('panel')).clipPath === 'none',
   )
+
   assert.deepEqual(errors, [])
   console.log(
     'SmoothCorners web: default visibility, child hit-testing, hidden clip, class removal, resize and shadow separation passed.',

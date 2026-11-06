@@ -95,6 +95,7 @@ export function createElementProps(deps: Dependencies) {
       for (const [name, value] of Object.entries(props)) {
         node.adapter.applyProp?.(node, name, value)
       }
+
       node.adapter.afterProps?.(node, props)
       return
     }

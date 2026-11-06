@@ -8,6 +8,7 @@ import {
   NSMenuItem,
   NSView,
 } from '@octane-xplat/platform/macos'
+
 import type { PropBag } from './model'
 
 interface Dependencies {

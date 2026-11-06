@@ -36,7 +36,10 @@ test('popup allocation retires its action if the native tag write fails before a
     accessibility: { applyAccessibility() {} },
     tree: { detach() {} },
   })
-  assert.throws(() => pickers.makePopUpControl(), error => error === failure)
+  assert.throws(
+    () => pickers.makePopUpControl(),
+    (error) => error === failure,
+  )
   assert.equal(store.idForView(view), undefined)
 })
 

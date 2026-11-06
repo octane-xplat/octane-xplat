@@ -5,6 +5,7 @@ import {
   NSNotificationCenter,
   NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
+
 import { View } from '@octane-xplat/ui'
 
 const views: Record<string, any> = {}
@@ -98,6 +99,7 @@ export async function runLayout() {
       }
       return layers
     }
+
     const shadowSample = (phase: string) => {
       const sample = {
         phase,
@@ -115,6 +117,7 @@ export async function runLayout() {
       console.log('MOTION_SHADOW_SAMPLE ' + JSON.stringify(sample))
       return sample
     }
+
     const checkShadow = (phase: string) => {
       const sample = shadowSample(phase)
       check(sample.shadows.length === 1, phase + ' one active sibling shadow')
@@ -132,6 +135,7 @@ export async function runLayout() {
         phase + ' shadow follows projected box',
       )
     }
+
     checkShadow('initial')
 
     check(Math.abs(first - 100) < 0.5, 'inverse projection before the next frame: ' + first)
@@ -196,8 +200,13 @@ export async function runLayout() {
       NSViewFrameDidChangeNotification,
       retiredView,
     )
+
     await sleep(30)
-    check(!retired.superlayer && activeShadows().length === 0, 'retired notification cannot repaint')
+    check(
+      !retired.superlayer && activeShadows().length === 0,
+      'retired notification cannot repaint',
+    )
+
     console.log('MOTION_SHADOW_LIFECYCLE_OK projection/resize/removal/retirement')
     console.log('MOTION_LAYOUT_OK ' + JSON.stringify({ first, mid, child }))
   } finally {

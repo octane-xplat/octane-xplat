@@ -12,13 +12,7 @@
 // owns iOS handler registration (once per identifier); register/unregister
 // only submit or cancel refresh requests and are safe to repeat.
 import { isIOS } from '@nativescript/core'
-import type {
-  BackgroundTasks,
-  TaskContext,
-  TaskExecutor,
-  TaskResult,
-  TaskStatus,
-} from './types'
+import type { BackgroundTasks, TaskContext, TaskExecutor, TaskResult, TaskStatus } from './types'
 
 declare const BGTaskScheduler: any
 declare const BGAppRefreshTaskRequest: any
@@ -64,9 +58,7 @@ function iosSubmit(name: string): void {
   const request = BGAppRefreshTaskRequest.alloc().initWithIdentifier(identifier)
   const interval = registered.get(name)
   if (interval) {
-    request.earliestBeginDate = (globalThis as any).NSDate.dateWithTimeIntervalSinceNow(
-      interval,
-    )
+    request.earliestBeginDate = (globalThis as any).NSDate.dateWithTimeIntervalSinceNow(interval)
   }
 
   const errorRef = typeof interop !== 'undefined' ? new interop.Reference() : null
@@ -143,11 +135,7 @@ export const backgroundTasks: BackgroundTasks = {
     // same identifier kills the app, so a failure is never retried. An
     // "already registered" failure still marks the identifier ready: a module
     // re-eval (hot reload) finds the handler the first evaluation registered.
-    if (
-      isIOS &&
-      typeof BGTaskScheduler !== 'undefined' &&
-      !handledIdentifiers.has(name)
-    ) {
+    if (isIOS && typeof BGTaskScheduler !== 'undefined' && !handledIdentifiers.has(name)) {
       handledIdentifiers.add(name)
       try {
         const registeredHandler =
@@ -156,6 +144,7 @@ export const backgroundTasks: BackgroundTasks = {
             null,
             iosHandle,
           )
+
         if (registeredHandler) {
           handlerReady.add(name)
         }
@@ -185,6 +174,7 @@ export const backgroundTasks: BackgroundTasks = {
         registered.delete(name)
         throw error
       }
+
       return
     }
     // Android: WorkManager — the Java side reads the registered map off the

@@ -23,18 +23,22 @@ process.stdin.on('data', (chunk: Buffer) => {
     if (headerEnd < 0) {
       return
     }
+
     const lengthMatch = /^Content-Length:\s*(\d+)\s*$/im.exec(
       buffered.subarray(0, headerEnd).toString('ascii'),
     )
+
     if (!lengthMatch) {
       console.error('@octane-xplat/icons mapper: missing Content-Length header')
       process.exit(1)
     }
+
     const contentLength = Number(lengthMatch[1])
     const messageStart = headerEnd + 4
     if (buffered.length < messageStart + contentLength) {
       return
     }
+
     const body = buffered.subarray(messageStart, messageStart + contentLength).toString('utf8')
     buffered = buffered.subarray(messageStart + contentLength)
     let message: { jsonrpc: string; id?: number | string | null; method: string; params?: unknown }
@@ -44,6 +48,7 @@ process.stdin.on('data', (chunk: Buffer) => {
       console.error('@octane-xplat/icons mapper: invalid JSON-RPC message', error)
       continue
     }
+
     if (message.id === undefined || message.id === null) {
       continue
     }
@@ -68,8 +73,10 @@ process.stdin.on('data', (chunk: Buffer) => {
             code: -32601,
             message: `Unknown method ${message.method}`,
           })
+
           continue
       }
+
       respond(message.id, result)
     } catch (error) {
       respond(message.id, undefined, {

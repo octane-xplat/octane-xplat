@@ -9,41 +9,41 @@ const [input, output] = process.argv.slice(2)
 const request = JSON.parse(readFileSync(input, 'utf8'))
 const response = { protocol: 'octane-build-worker', version: 1, id: request.id }
 try {
-	if (
-		request.protocol !== response.protocol ||
-		request.version !== 1 ||
-		request.operation !== 'fmt-plan' ||
-		request.project !== process.cwd() ||
-		!Array.isArray(request.inputs) ||
-		!request.inputs.every((path: unknown) => typeof path === 'string')
-	) {
-		throw new Error('Invalid format operation request')
-	}
+  if (
+    request.protocol !== response.protocol ||
+    request.version !== 1 ||
+    request.operation !== 'fmt-plan' ||
+    request.project !== process.cwd() ||
+    !Array.isArray(request.inputs) ||
+    !request.inputs.every((path: unknown) => typeof path === 'string')
+  ) {
+    throw new Error('Invalid format operation request')
+  }
 
-	const localRequire = createRequire(join(request.project, 'package.json'))
-	const data = await planFormat(request.project, request.inputs, request.stdin, async () => {
-		let entry: string
-		try {
-			entry = localRequire.resolve('@octane-xplat/fmt')
-		} catch {
-			throw new Error(
-				'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
-			)
-		}
-		const { createFormatter } = await import(pathToFileURL(entry).href)
-		return createFormatter({ cwd: request.project })
-	})
+  const localRequire = createRequire(join(request.project, 'package.json'))
+  const data = await planFormat(request.project, request.inputs, request.stdin, async () => {
+    let entry: string
+    try {
+      entry = localRequire.resolve('@octane-xplat/fmt')
+    } catch {
+      throw new Error(
+        'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
+      )
+    }
+    const { createFormatter } = await import(pathToFileURL(entry).href)
+    return createFormatter({ cwd: request.project })
+  })
 
-	writeFileSync(output, JSON.stringify({ ...response, ok: true, data }))
+  writeFileSync(output, JSON.stringify({ ...response, ok: true, data }))
 } catch (error) {
-	writeFileSync(
-		output,
-		JSON.stringify({
-			...response,
-			ok: false,
-			error: { message: error instanceof Error ? error.message : String(error) },
-		}),
-	)
+  writeFileSync(
+    output,
+    JSON.stringify({
+      ...response,
+      ok: false,
+      error: { message: error instanceof Error ? error.message : String(error) },
+    }),
+  )
 
-	process.exitCode = 1
+  process.exitCode = 1
 }

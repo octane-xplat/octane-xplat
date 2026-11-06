@@ -28,6 +28,7 @@ writeFileSync(
     aliases: { turned: { parent: 'wide', rotate: 1 } },
   }),
 )
+
 writeFileSync(join(fixture, 'package.json'), '{"type":"module"}')
 writeFileSync(
   join(fixture, 'tsconfig.json'),
@@ -45,6 +46,7 @@ writeFileSync(
     files: ['main.ts'],
   }),
 )
+
 syncIconStubs({ root: fixture })
 
 const check = () =>

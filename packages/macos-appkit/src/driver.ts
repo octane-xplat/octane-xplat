@@ -15,6 +15,7 @@ import type {
   UniversalHostDriver,
   UniversalHostParent,
 } from 'octane/universal/native'
+
 import { flushTabViews } from './tab-view'
 import { notifyLayoutCommit } from './layout-observers'
 
@@ -87,6 +88,7 @@ export function createDriver(deps: Dependencies) {
             props: command.props,
             adapter: deps.registry.adapters.lookup(command.type),
           })
+
           parents.set(command.id, null)
           destroyed.delete(command.id)
           continue
@@ -125,6 +127,7 @@ export function createDriver(deps: Dependencies) {
             props: command.props,
             adapter: deps.registry.adapters.lookup(command.type),
           })
+
           continue
         }
         case 'update': {
@@ -246,6 +249,7 @@ export function createDriver(deps: Dependencies) {
           command.id,
           deps.nodes.makeNode(container, command.id, command.type, command.props),
         )
+
         return
       }
       case 'update': {
@@ -298,6 +302,7 @@ export function createDriver(deps: Dependencies) {
         if (container.nodes.get(command.id) === node) {
           container.nodes.delete(command.id)
         }
+
         return
       }
       case 'visibility': {
@@ -349,6 +354,7 @@ export function createDriver(deps: Dependencies) {
           failures.run('recreate replacement cleanup', () => deps.nodes.destroy(replacement))
           failures.throwIfFailed()
         }
+
         container.nodes.set(command.id, replacement)
         deps.tree.insert(container, parentId, replacement, beforeId)
         return
@@ -405,6 +411,7 @@ export function createDriver(deps: Dependencies) {
 
           root.getChildIndex = (child: ElementNode) =>
             deps.cssCascade.cssChildren(root).indexOf(child)
+
           root.getChildAt = (i: number) => deps.cssCascade.cssChildren(root)[i]
           root.getChildrenCount = () => deps.cssCascade.cssChildren(root).length
 

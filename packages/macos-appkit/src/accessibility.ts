@@ -4,6 +4,7 @@ import type {
   AccessibilityLease,
   AccessibilityProps,
 } from './accessibility-state'
+
 import type { ElementNode } from './model'
 import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
@@ -67,6 +68,7 @@ export function createAccessibility(deps: Dependencies) {
                 }
               }
             : undefined
+
         value = callback
       }
 
@@ -111,6 +113,7 @@ export function createAccessibility(deps: Dependencies) {
           patch.onAccessibilityDecrement = value
           break
       }
+
       lease.update(patch)
       const changed =
         name === 'accessibilityValue'

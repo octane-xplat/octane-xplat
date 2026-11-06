@@ -25,7 +25,9 @@ const sandbox = {
       ? { layout: () => {}, containerStyles: true }
       : undefined,
   isManualLayoutParent: (t: string) =>
-    ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type),
+    ['masonview', 'liquidglass', 'contentview', 'actionbar', 'rootlayout'].includes(
+      typeof t === 'string' ? t : t?.type,
+    ),
   registerElementType: () => {},
 
   configureScrollAxes: () => {},

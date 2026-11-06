@@ -35,6 +35,7 @@ function applyStatusBarScheme(): void {
     if (!nativeApp) {
       return
     }
+
     const setter = 'setStatusBarStyle' in nativeApp ? nativeApp.setStatusBarStyle : undefined
     if (typeof setter === 'function') {
       setter.call(nativeApp, style === 'light' ? 1 : 0)

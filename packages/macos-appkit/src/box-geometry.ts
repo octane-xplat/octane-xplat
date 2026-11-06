@@ -9,6 +9,7 @@ import {
   NSColor,
   NSView,
 } from '@octane-xplat/platform/macos'
+
 import { nativeColor } from './native-colors'
 
 export type BorderSide = 'top' | 'right' | 'bottom' | 'left'

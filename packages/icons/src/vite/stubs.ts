@@ -15,6 +15,7 @@ import {
   writeFileSync,
   type Dirent,
 } from 'node:fs'
+
 import { dirname, join, resolve } from 'node:path'
 
 import type { IconifyJSON } from '@iconify/types'
@@ -149,6 +150,7 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
       removed++
       continue
     }
+
     for (const file of readdirSync(dir)) {
       if (!file.endsWith('.icon') || !names.has(file.slice(0, -'.icon'.length))) {
         rmSync(join(dir, file), { force: true })
@@ -170,6 +172,7 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
       } catch {
         current = undefined
       }
+
       if (current !== content) {
         writeFileSync(file, content)
         written++

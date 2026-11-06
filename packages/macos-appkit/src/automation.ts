@@ -30,6 +30,7 @@ export function createAutomation(deps: Dependencies) {
       // Ids resolve across every live container snapshot.
       const allNodes = () =>
         [...deps.directory.containers()].flatMap((entry) => [...entry.nodes.values()])
+
       const debug = {
         findId(id: string) {
           const node = allNodes().find((node) => node.props.id === id)
@@ -467,7 +468,6 @@ export function createAutomation(deps: Dependencies) {
           if (!deps.actions.dispatchPan(view, { ...event, view })) {
             throw new Error('No AppKit pan handler attached')
           }
-
         },
         pressId(id: string) {
           const node = allNodes().find((candidate) => candidate.props.id === id)
@@ -558,8 +558,10 @@ export function createAutomation(deps: Dependencies) {
         if (Reflect.get(root, '__macosDebug') === debug) {
           Reflect.deleteProperty(root, '__macosDebug')
         }
+
         throw error
       }
+
       return () => {
         debugRoots.delete(root)
         if (Reflect.get(root, '__macosDebug') === debug) {
@@ -568,7 +570,10 @@ export function createAutomation(deps: Dependencies) {
         if (Reflect.get(globalThis, '__xplatMacOSDebug') === debug) {
           const latest = [...debugRoots.values()].at(-1)
           if (latest) {
-            Object.defineProperty(globalThis, '__xplatMacOSDebug', { value: latest, configurable: true })
+            Object.defineProperty(globalThis, '__xplatMacOSDebug', {
+              value: latest,
+              configurable: true,
+            })
           } else {
             Reflect.deleteProperty(globalThis, '__xplatMacOSDebug')
           }
@@ -581,7 +586,7 @@ export function createAutomation(deps: Dependencies) {
     if (activated) {
       return
     }
-    deps.directory.observe(container => installAutomation(container.root!, container))
+    deps.directory.observe((container) => installAutomation(container.root!, container))
     activated = true
   }
   return { activate }

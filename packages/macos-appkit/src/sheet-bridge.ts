@@ -9,6 +9,7 @@ import {
   NSWindowStyleMask,
   interop,
 } from '@octane-xplat/platform/macos'
+
 import { registerGestureClass } from './gestures'
 import type { PropBag } from './model'
 import { createNativeSheet } from './sheet.macos'

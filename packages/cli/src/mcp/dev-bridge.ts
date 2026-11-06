@@ -41,36 +41,36 @@ const OUTCOME_TTL_MS = 600_000
 const MAX_WAIT_MS = 30_000
 
 const json = (res, status, body) => {
-	res.statusCode = status
-	res.setHeader('content-type', 'application/json')
-	res.end(JSON.stringify(body))
+  res.statusCode = status
+  res.setHeader('content-type', 'application/json')
+  res.end(JSON.stringify(body))
 }
 
 const readBody = (req) =>
-	new Promise((resolve, reject) => {
-		const chunks = []
-		let size = 0
-		req.on('data', (chunk) => {
-			size += chunk.length
-			if (size > MAX_BODY) {
-				reject(new Error('body too large'))
-				req.destroy()
-				return
-			}
+  new Promise((resolve, reject) => {
+    const chunks = []
+    let size = 0
+    req.on('data', (chunk) => {
+      size += chunk.length
+      if (size > MAX_BODY) {
+        reject(new Error('body too large'))
+        req.destroy()
+        return
+      }
 
-			chunks.push(chunk)
-		})
+      chunks.push(chunk)
+    })
 
-		req.on('end', () => {
-			try {
-				resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {})
-			} catch {
-				reject(new Error('invalid JSON body'))
-			}
-		})
+    req.on('end', () => {
+      try {
+        resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString('utf8')) : {})
+      } catch {
+        reject(new Error('invalid JSON body'))
+      }
+    })
 
-		req.on('error', reject)
-	})
+    req.on('error', reject)
+  })
 
 /**
  * Vite plugin. `options.appRoot` defaults to the vite root — the session file
@@ -78,446 +78,448 @@ const readBody = (req) =>
  * MCP server scans the bound app.
  */
 export function xplatDevBridge(options = {}) {
-	const native = nativeDevSocketPlugin()
-	if (native) {return native}
-	const token = randomBytes(24).toString('hex')
-	const serverId = `srv_${randomUUID()}`
-	const startedAt = new Date().toISOString()
+  const native = nativeDevSocketPlugin()
+  if (native) {
+    return native
+  }
+  const token = randomBytes(24).toString('hex')
+  const serverId = `srv_${randomUUID()}`
+  const startedAt = new Date().toISOString()
 
-	// appInstanceId → { announcement, at, timer }
-	const instances = new Map()
-	// requestId → { request, state: 'pending'|'delivered', cancelRequested, outcome, waiters }
-	const requests = new Map()
-	// Set by configureServer — stack resolution needs the dev server's module graph.
-	let viteServer
+  // appInstanceId → { announcement, at, timer }
+  const instances = new Map()
+  // requestId → { request, state: 'pending'|'delivered', cancelRequested, outcome, waiters }
+  const requests = new Map()
+  // Set by configureServer — stack resolution needs the dev server's module graph.
+  let viteServer
 
-	const resolveStack = createDevStackResolver(() => viteServer)
+  const resolveStack = createDevStackResolver(() => viteServer)
 
-	const resolveOutcomeFailures = async (outcome) => {
-		const failures = outcome?.error?.failures
-		if (!viteServer || !Array.isArray(failures)) {
-			return
-		}
+  const resolveOutcomeFailures = async (outcome) => {
+    const failures = outcome?.error?.failures
+    if (!viteServer || !Array.isArray(failures)) {
+      return
+    }
 
-		for (const failure of failures.slice(0, 20)) {
-			if (typeof failure?.stack !== 'string') {
-				continue
-			}
+    for (const failure of failures.slice(0, 20)) {
+      if (typeof failure?.stack !== 'string') {
+        continue
+      }
 
-			try {
-				const sourceStack = await resolveStack(failure.stack)
-				if (sourceStack) {
-					failure.sourceStack = sourceStack
-				}
-			} catch {}
-		}
-	}
+      try {
+        const sourceStack = await resolveStack(failure.stack)
+        if (sourceStack) {
+          failure.sourceStack = sourceStack
+        }
+      } catch {}
+    }
+  }
 
-	const prune = () => {
-		const now = Date.now()
-		for (const [id, entry] of instances) {
-			if (now - entry.at >= INSTANCE_TTL_MS) {
-				expireInstance(id, entry)
-			}
-		}
+  const prune = () => {
+    const now = Date.now()
+    for (const [id, entry] of instances) {
+      if (now - entry.at >= INSTANCE_TTL_MS) {
+        expireInstance(id, entry)
+      }
+    }
 
-		for (const [id, entry] of requests) {
-			if (entry.outcome && now - entry.completedAt > OUTCOME_TTL_MS) {
-				requests.delete(id)
-			}
-		}
-	}
+    for (const [id, entry] of requests) {
+      if (entry.outcome && now - entry.completedAt > OUTCOME_TTL_MS) {
+        requests.delete(id)
+      }
+    }
+  }
 
-	const authorized = (req) => req.headers['x-xplat-dev-token'] === token
-	const unauthorized = (res) =>
-		json(res, 401, {
-			error: { code: 'unauthorized', message: 'missing or invalid dev-bridge token' },
-		})
+  const authorized = (req) => req.headers['x-xplat-dev-token'] === token
+  const unauthorized = (res) =>
+    json(res, 401, {
+      error: { code: 'unauthorized', message: 'missing or invalid dev-bridge token' },
+    })
 
-	const freshInstances = () => {
-		prune()
-		return [...instances.entries()].map(([id, entry]) => ({
-			...entry.announcement,
-			appInstanceId: id,
-		}))
-	}
+  const freshInstances = () => {
+    prune()
+    return [...instances.entries()].map(([id, entry]) => ({
+      ...entry.announcement,
+      appInstanceId: id,
+    }))
+  }
 
-	// requestId → resolve() — long-poll waiters for outcomes
-	const outcomeWaiters = new Map()
-	const settleOutcome = (requestId) => {
-		for (const resolve of outcomeWaiters.get(requestId) ?? []) {
-			resolve()
-		}
+  // requestId → resolve() — long-poll waiters for outcomes
+  const outcomeWaiters = new Map()
+  const settleOutcome = (requestId) => {
+    for (const resolve of outcomeWaiters.get(requestId) ?? []) {
+      resolve()
+    }
 
-		outcomeWaiters.delete(requestId)
-	}
+    outcomeWaiters.delete(requestId)
+  }
 
-	const awaitOutcome = (requestId, ms) =>
-		new Promise((resolve) => {
-			const timer = setTimeout(resolve, Math.min(ms, MAX_WAIT_MS))
-			const done = () => {
-				clearTimeout(timer)
-				resolve()
-			}
+  const awaitOutcome = (requestId, ms) =>
+    new Promise((resolve) => {
+      const timer = setTimeout(resolve, Math.min(ms, MAX_WAIT_MS))
+      const done = () => {
+        clearTimeout(timer)
+        resolve()
+      }
 
-			outcomeWaiters.set(requestId, [...(outcomeWaiters.get(requestId) ?? []), done])
-		})
+      outcomeWaiters.set(requestId, [...(outcomeWaiters.get(requestId) ?? []), done])
+    })
 
-	// instanceId → resolve() — long-poll waiters for work
-	const pollWaiters = new Map()
-	const wakePollers = (instanceId) => {
-		for (const resolve of pollWaiters.get(instanceId) ?? []) {
-			resolve()
-		}
+  // instanceId → resolve() — long-poll waiters for work
+  const pollWaiters = new Map()
+  const wakePollers = (instanceId) => {
+    for (const resolve of pollWaiters.get(instanceId) ?? []) {
+      resolve()
+    }
 
-		pollWaiters.delete(instanceId)
-	}
+    pollWaiters.delete(instanceId)
+  }
 
-	const expireInstance = (instanceId, instance) => {
-		if (instances.get(instanceId) !== instance) {
-			return
-		}
+  const expireInstance = (instanceId, instance) => {
+    if (instances.get(instanceId) !== instance) {
+      return
+    }
 
-		clearTimeout(instance.timer)
-		instances.delete(instanceId)
-		for (const [requestId, entry] of requests) {
-			if (entry.request.appInstanceId !== instanceId || entry.outcome) {
-				continue
-			}
+    clearTimeout(instance.timer)
+    instances.delete(instanceId)
+    for (const [requestId, entry] of requests) {
+      if (entry.request.appInstanceId !== instanceId || entry.outcome) {
+        continue
+      }
 
-			const delivered = entry.state === 'delivered'
-			entry.state = 'completed'
-			entry.completedAt = Date.now()
-			entry.outcome = {
-				requestId,
-				status: 'unknown',
-				error: {
-					code: 'disconnected_runtime',
-					message: 'The app stopped announcing its registry.',
-				},
-				partialEffects: delivered
-					? ['The action was delivered; whether it completed is unknown.']
-					: [],
-				completedAt: new Date(entry.completedAt).toISOString(),
-			}
+      const delivered = entry.state === 'delivered'
+      entry.state = 'completed'
+      entry.completedAt = Date.now()
+      entry.outcome = {
+        requestId,
+        status: 'unknown',
+        error: {
+          code: 'disconnected_runtime',
+          message: 'The app stopped announcing its registry.',
+        },
+        partialEffects: delivered
+          ? ['The action was delivered; whether it completed is unknown.']
+          : [],
+        completedAt: new Date(entry.completedAt).toISOString(),
+      }
 
-			settleOutcome(requestId)
-		}
+      settleOutcome(requestId)
+    }
 
-		wakePollers(instanceId)
-	}
+    wakePollers(instanceId)
+  }
 
-	const awaitWork = (instanceId, ms) =>
-		new Promise((resolve) => {
-			const timer = setTimeout(resolve, Math.min(ms, MAX_WAIT_MS))
-			const done = () => {
-				clearTimeout(timer)
-				resolve()
-			}
+  const awaitWork = (instanceId, ms) =>
+    new Promise((resolve) => {
+      const timer = setTimeout(resolve, Math.min(ms, MAX_WAIT_MS))
+      const done = () => {
+        clearTimeout(timer)
+        resolve()
+      }
 
-			pollWaiters.set(instanceId, [...(pollWaiters.get(instanceId) ?? []), done])
-		})
+      pollWaiters.set(instanceId, [...(pollWaiters.get(instanceId) ?? []), done])
+    })
 
-	const workFor = (instanceId) => {
-		const invocations = []
-		const cancel = []
-		for (const [requestId, entry] of requests) {
-			if (entry.request.appInstanceId !== instanceId || entry.outcome) {
-				continue
-			}
+  const workFor = (instanceId) => {
+    const invocations = []
+    const cancel = []
+    for (const [requestId, entry] of requests) {
+      if (entry.request.appInstanceId !== instanceId || entry.outcome) {
+        continue
+      }
 
-			if (entry.state === 'pending') {
-				entry.state = 'delivered'
-				invocations.push({ requestId, ...entry.request })
-			}
+      if (entry.state === 'pending') {
+        entry.state = 'delivered'
+        invocations.push({ requestId, ...entry.request })
+      }
 
-			if (entry.cancelRequested && !entry.outcome) {
-				cancel.push(requestId)
-			}
-		}
+      if (entry.cancelRequested && !entry.outcome) {
+        cancel.push(requestId)
+      }
+    }
 
-		return { invocations, cancel }
-	}
+    return { invocations, cancel }
+  }
 
-	const routes = {
-		'POST /registry': async (req, res) => {
-			const body = await readBody(req)
-			if (
-				body?.protocol !== 'xplat-dev-actions' ||
-				typeof body.appInstanceId !== 'string' ||
-				typeof body.revision !== 'number' ||
-				!Array.isArray(body.actions)
-			) {
-				return json(res, 400, {
-					error: { code: 'invalid_selection', message: 'malformed registry announcement' },
-				})
-			}
+  const routes = {
+    'POST /registry': async (req, res) => {
+      const body = await readBody(req)
+      if (
+        body?.protocol !== 'xplat-dev-actions' ||
+        typeof body.appInstanceId !== 'string' ||
+        typeof body.revision !== 'number' ||
+        !Array.isArray(body.actions)
+      ) {
+        return json(res, 400, {
+          error: { code: 'invalid_selection', message: 'malformed registry announcement' },
+        })
+      }
 
-			clearTimeout(instances.get(body.appInstanceId)?.timer)
-			const instance = { announcement: body, at: Date.now() }
-			instances.set(body.appInstanceId, instance)
-			instance.timer = setTimeout(
-				() => expireInstance(body.appInstanceId, instance),
-				INSTANCE_TTL_MS,
-			)
-			instance.timer.unref?.()
-			prune()
-			return json(res, 200, { accepted: true, serverId })
-		},
-		'GET /registry': async (_req, res) =>
-			json(res, 200, { serverId, startedAt, instances: freshInstances() }),
-		'POST /invoke': async (req, res) => {
-			const body = await readBody(req)
-			const { requestId, appInstanceId, actionId, registryRevision } = body ?? {}
-			if (
-				typeof requestId !== 'string' ||
-				typeof appInstanceId !== 'string' ||
-				typeof actionId !== 'string'
-			) {
-				return json(res, 400, {
-					error: { code: 'invalid_selection', message: 'malformed invocation request' },
-				})
-			}
+      clearTimeout(instances.get(body.appInstanceId)?.timer)
+      const instance = { announcement: body, at: Date.now() }
+      instances.set(body.appInstanceId, instance)
+      instance.timer = setTimeout(
+        () => expireInstance(body.appInstanceId, instance),
+        INSTANCE_TTL_MS,
+      )
+      instance.timer.unref?.()
+      prune()
+      return json(res, 200, { accepted: true, serverId })
+    },
+    'GET /registry': async (_req, res) =>
+      json(res, 200, { serverId, startedAt, instances: freshInstances() }),
+    'POST /invoke': async (req, res) => {
+      const body = await readBody(req)
+      const { requestId, appInstanceId, actionId, registryRevision } = body ?? {}
+      if (
+        typeof requestId !== 'string' ||
+        typeof appInstanceId !== 'string' ||
+        typeof actionId !== 'string'
+      ) {
+        return json(res, 400, {
+          error: { code: 'invalid_selection', message: 'malformed invocation request' },
+        })
+      }
 
-			const existing = requests.get(requestId)
-			if (existing) {
-				// Stable request identity: a repeated request never queues twice.
-				return json(res, 200, { accepted: true, deduplicated: true, requestId })
-			}
+      const existing = requests.get(requestId)
+      if (existing) {
+        // Stable request identity: a repeated request never queues twice.
+        return json(res, 200, { accepted: true, deduplicated: true, requestId })
+      }
 
-			if (!instances.has(appInstanceId)) {
-				return json(res, 404, {
-					error: {
-						code: 'not_found',
-						message: `app instance "${appInstanceId}" has not announced a registry`,
-					},
-				})
-			}
+      if (!instances.has(appInstanceId)) {
+        return json(res, 404, {
+          error: {
+            code: 'not_found',
+            message: `app instance "${appInstanceId}" has not announced a registry`,
+          },
+        })
+      }
 
-			requests.set(requestId, {
-				request: { requestId, appInstanceId, actionId, registryRevision, input: body.input ?? {} },
-				state: 'pending',
-				cancelRequested: false,
-				outcome: null,
-				createdAt: Date.now(),
-			})
+      requests.set(requestId, {
+        request: { requestId, appInstanceId, actionId, registryRevision, input: body.input ?? {} },
+        state: 'pending',
+        cancelRequested: false,
+        outcome: null,
+        createdAt: Date.now(),
+      })
 
-			wakePollers(appInstanceId)
-			return json(res, 200, { accepted: true, requestId })
-		},
-		'GET /poll': async (req, res, url) => {
-			const instanceId = url.searchParams.get('instance')
-			if (!instanceId || !instances.has(instanceId)) {
-				return json(res, 404, {
-					error: { code: 'not_found', message: 'unknown app instance' },
-				})
-			}
+      wakePollers(appInstanceId)
+      return json(res, 200, { accepted: true, requestId })
+    },
+    'GET /poll': async (req, res, url) => {
+      const instanceId = url.searchParams.get('instance')
+      if (!instanceId || !instances.has(instanceId)) {
+        return json(res, 404, {
+          error: { code: 'not_found', message: 'unknown app instance' },
+        })
+      }
 
-			const wait = Number(url.searchParams.get('wait') ?? 0)
-			let work = workFor(instanceId)
-			if (!work.invocations.length && !work.cancel.length && wait > 0) {
-				await awaitWork(instanceId, wait)
-				prune()
-				if (!instances.has(instanceId)) {
-					return json(res, 404, { error: { code: 'not_found', message: 'app instance expired' } })
-				}
+      const wait = Number(url.searchParams.get('wait') ?? 0)
+      let work = workFor(instanceId)
+      if (!work.invocations.length && !work.cancel.length && wait > 0) {
+        await awaitWork(instanceId, wait)
+        prune()
+        if (!instances.has(instanceId)) {
+          return json(res, 404, { error: { code: 'not_found', message: 'app instance expired' } })
+        }
 
-				work = workFor(instanceId)
-			}
+        work = workFor(instanceId)
+      }
 
-			return json(res, 200, work)
-		},
-		'POST /result': async (req, res) => {
-			const body = await readBody(req)
-			if (typeof body?.requestId !== 'string' || typeof body?.outcome?.status !== 'string') {
-				return json(res, 400, {
-					error: { code: 'invalid_selection', message: 'malformed invocation result' },
-				})
-			}
+      return json(res, 200, work)
+    },
+    'POST /result': async (req, res) => {
+      const body = await readBody(req)
+      if (typeof body?.requestId !== 'string' || typeof body?.outcome?.status !== 'string') {
+        return json(res, 400, {
+          error: { code: 'invalid_selection', message: 'malformed invocation result' },
+        })
+      }
 
-			const entry = requests.get(body.requestId)
-			if (!entry) {
-				return json(res, 404, {
-					error: { code: 'not_found', message: `unknown request "${body.requestId}"` },
-				})
-			}
+      const entry = requests.get(body.requestId)
+      if (!entry) {
+        return json(res, 404, {
+          error: { code: 'not_found', message: `unknown request "${body.requestId}"` },
+        })
+      }
 
-			if (!entry.outcome) {
-				await resolveOutcomeFailures(body.outcome)
-				// Resolution is async — re-check before storing so a duplicate
-				// post can't overwrite the outcome that landed meanwhile.
-				if (!entry.outcome) {
-					entry.outcome = body.outcome
-					entry.completedAt = Date.now()
-					settleOutcome(body.requestId)
-				}
-			}
+      if (!entry.outcome) {
+        await resolveOutcomeFailures(body.outcome)
+        // Resolution is async — re-check before storing so a duplicate
+        // post can't overwrite the outcome that landed meanwhile.
+        if (!entry.outcome) {
+          entry.outcome = body.outcome
+          entry.completedAt = Date.now()
+          settleOutcome(body.requestId)
+        }
+      }
 
-			return json(res, 200, { accepted: true })
-		},
-		'POST /invoke/cancel': async (req, res) => {
-			const body = await readBody(req)
-			const entry = requests.get(body?.requestId)
-			if (!entry) {
-				return json(res, 404, {
-					error: { code: 'not_found', message: `unknown request "${body?.requestId}"` },
-				})
-			}
+      return json(res, 200, { accepted: true })
+    },
+    'POST /invoke/cancel': async (req, res) => {
+      const body = await readBody(req)
+      const entry = requests.get(body?.requestId)
+      if (!entry) {
+        return json(res, 404, {
+          error: { code: 'not_found', message: `unknown request "${body?.requestId}"` },
+        })
+      }
 
-			entry.cancelRequested = true
-			wakePollers(entry.request.appInstanceId)
-			return json(res, 200, { accepted: true })
-		},
-	}
+      entry.cancelRequested = true
+      wakePollers(entry.request.appInstanceId)
+      return json(res, 200, { accepted: true })
+    },
+  }
 
-	const middleware = async (req, res, next) => {
-		const url = new URL(req.url ?? '/', 'http://localhost')
-		if (!url.pathname.startsWith(PREFIX)) {
-			return next()
-		}
+  const middleware = async (req, res, next) => {
+    const url = new URL(req.url ?? '/', 'http://localhost')
+    if (!url.pathname.startsWith(PREFIX)) {
+      return next()
+    }
 
-		if (!authorized(req)) {
-			return unauthorized(res)
-		}
+    if (!authorized(req)) {
+      return unauthorized(res)
+    }
 
-		try {
-			prune()
-			if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
-				const body = await readBody(req)
-				const batch = formatBrowserLogBatch(body)
-				process.stderr.write(batch.text)
+    try {
+      prune()
+      if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
+        const body = await readBody(req)
+        const batch = formatBrowserLogBatch(body)
+        process.stderr.write(batch.text)
 
-				return json(res, 200, { accepted: batch.accepted })
-			}
+        return json(res, 200, { accepted: batch.accepted })
+      }
 
-			// GET /invoke/<requestId> — the only parametrized route.
-			const outcomeMatch = /^\/invoke\/([^/]+)$/.exec(url.pathname.slice(PREFIX.length))
-			if (req.method === 'GET' && outcomeMatch) {
-				const requestId = outcomeMatch[1]
-				const entry = requests.get(requestId)
-				if (!entry) {
-					return json(res, 404, {
-						error: { code: 'not_found', message: `unknown request "${requestId}"` },
-					})
-				}
+      // GET /invoke/<requestId> — the only parametrized route.
+      const outcomeMatch = /^\/invoke\/([^/]+)$/.exec(url.pathname.slice(PREFIX.length))
+      if (req.method === 'GET' && outcomeMatch) {
+        const requestId = outcomeMatch[1]
+        const entry = requests.get(requestId)
+        if (!entry) {
+          return json(res, 404, {
+            error: { code: 'not_found', message: `unknown request "${requestId}"` },
+          })
+        }
 
-				if (!entry.outcome) {
-					const wait = Number(url.searchParams.get('wait') ?? 0)
-					if (wait > 0) {
-						await awaitOutcome(requestId, wait)
-					}
-				}
+        if (!entry.outcome) {
+          const wait = Number(url.searchParams.get('wait') ?? 0)
+          if (wait > 0) {
+            await awaitOutcome(requestId, wait)
+          }
+        }
 
-				return json(res, 200, {
-					requestId,
-					state: entry.outcome ? 'completed' : entry.state,
-					outcome: entry.outcome ?? undefined,
-				})
-			}
+        return json(res, 200, {
+          requestId,
+          state: entry.outcome ? 'completed' : entry.state,
+          outcome: entry.outcome ?? undefined,
+        })
+      }
 
-			const handler = routes[`${req.method} ${url.pathname.slice(PREFIX.length)}`]
-			if (!handler) {
-				return json(res, 404, { error: { code: 'not_found', message: 'unknown bridge route' } })
-			}
+      const handler = routes[`${req.method} ${url.pathname.slice(PREFIX.length)}`]
+      if (!handler) {
+        return json(res, 404, { error: { code: 'not_found', message: 'unknown bridge route' } })
+      }
 
-			return await handler(req, res, url)
-		} catch (error) {
-			return json(res, 400, {
-				error: { code: 'invalid_selection', message: String(error?.message ?? error) },
-			})
-		}
-	}
+      return await handler(req, res, url)
+    } catch (error) {
+      return json(res, 400, {
+        error: { code: 'invalid_selection', message: String(error?.message ?? error) },
+      })
+    }
+  }
 
-	return {
-		name: 'xplat-dev-bridge',
-		apply: 'serve',
-		transformIndexHtml() {
-			return [
-				{
-					tag: 'script',
-					attrs: { type: 'module' },
-					children: browserLogScript(token, `${PREFIX}/logs`),
-					injectTo: 'head-prepend',
-				},
-			]
-		},
-		config() {
-			return {
-				define: {
-					// The app authenticates its announcements with the same token the
-					// MCP server reads from the session file.
-					__XPLAT_DEV_BRIDGE__: JSON.stringify({ token }),
-				},
-			}
-		},
-		configureServer(server) {
-			viteServer = server
-			server.middlewares.use(middleware)
+  return {
+    name: 'xplat-dev-bridge',
+    apply: 'serve',
+    transformIndexHtml() {
+      return [
+        {
+          tag: 'script',
+          attrs: { type: 'module' },
+          children: browserLogScript(token, `${PREFIX}/logs`),
+          injectTo: 'head-prepend',
+        },
+      ]
+    },
+    config() {
+      return {
+        define: {
+          // The app authenticates its announcements with the same token the
+          // MCP server reads from the session file.
+          __XPLAT_DEV_BRIDGE__: JSON.stringify({ token }),
+        },
+      }
+    },
+    configureServer(server) {
+      viteServer = server
+      server.middlewares.use(middleware)
 
-			const writeSessionFile = () => {
-				const address = server.httpServer?.address()
-				if (!address || typeof address === 'string') {
-					return
-				}
+      const writeSessionFile = () => {
+        const address = server.httpServer?.address()
+        if (!address || typeof address === 'string') {
+          return
+        }
 
-				const protocol = server.config.server.https ? 'https' : 'http'
-				// Vite may bind the IPv6 loopback only — record the URL the dev
-				// server itself resolved rather than assuming 127.0.0.1.
-				const host =
-					address.address === '::' || address.address === '0.0.0.0'
-						? 'localhost'
-						: address.address.includes(':')
-							? `[${address.address}]`
-							: address.address
+        const protocol = server.config.server.https ? 'https' : 'http'
+        // Vite may bind the IPv6 loopback only — record the URL the dev
+        // server itself resolved rather than assuming 127.0.0.1.
+        const host =
+          address.address === '::' || address.address === '0.0.0.0'
+            ? 'localhost'
+            : address.address.includes(':')
+              ? `[${address.address}]`
+              : address.address
 
-				const url = (
-					server.resolvedUrls?.local?.[0] ?? `${protocol}://${host}:${address.port}`
-				).replace(/\/$/, '')
+        const url = (
+          server.resolvedUrls?.local?.[0] ?? `${protocol}://${host}:${address.port}`
+        ).replace(/\/$/, '')
 
-				const appRoot = options.appRoot ?? server.config.root
-				const dir = join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge')
-				try {
-					mkdirSync(dir, { recursive: true })
-					writeFileSync(
-						join(dir, `${serverId}.json`),
-						JSON.stringify({
-							serverId,
-							url,
-							token,
-							appRoot,
-							pid: process.pid,
-							startedAt,
-						}),
-					)
-				} catch (error) {
-					console.warn(`[xplat] dev-bridge session file could not be written: ${error.message}`)
-				}
-			}
+        const appRoot = options.appRoot ?? server.config.root
+        const dir = join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge')
+        try {
+          mkdirSync(dir, { recursive: true })
+          writeFileSync(
+            join(dir, `${serverId}.json`),
+            JSON.stringify({
+              serverId,
+              url,
+              token,
+              appRoot,
+              pid: process.pid,
+              startedAt,
+            }),
+          )
+        } catch (error) {
+          console.warn(`[xplat] dev-bridge session file could not be written: ${error.message}`)
+        }
+      }
 
-			const removeSessionFile = () => {
-				const appRoot = options.appRoot ?? server.config.root
-				try {
-					rmSync(
-						join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge', `${serverId}.json`),
-						{ force: true },
-					)
-				} catch {}
-			}
+      const removeSessionFile = () => {
+        const appRoot = options.appRoot ?? server.config.root
+        try {
+          rmSync(
+            join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge', `${serverId}.json`),
+            { force: true },
+          )
+        } catch {}
+      }
 
-			if (server.httpServer) {
-				if (server.httpServer.listening) {
-					writeSessionFile()
-				} else {
-					server.httpServer.once('listening', writeSessionFile)
-				}
+      if (server.httpServer) {
+        if (server.httpServer.listening) {
+          writeSessionFile()
+        } else {
+          server.httpServer.once('listening', writeSessionFile)
+        }
 
-				server.httpServer.on('close', removeSessionFile)
-				server.httpServer.on('close', () => {
-					for (const instance of instances.values()) {
-						clearTimeout(instance.timer)
-					}
-				})
-			}
-		},
-	}
+        server.httpServer.on('close', removeSessionFile)
+        server.httpServer.on('close', () => {
+          for (const instance of instances.values()) {
+            clearTimeout(instance.timer)
+          }
+        })
+      }
+    },
+  }
 }

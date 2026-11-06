@@ -11,12 +11,12 @@ import { macOSExecutable } from './executables.ts'
 import { installedPackageRoot as packageRoot } from '../package-root.ts'
 import { distUrl } from '../env.ts'
 import {
-	hostBundle,
-	hostRoot,
-	inspectMachO,
-	macOSArchitectures,
-	minimumJscHostSystemVersion,
-	prebuiltRoot,
+  hostBundle,
+  hostRoot,
+  inspectMachO,
+  macOSArchitectures,
+  minimumJscHostSystemVersion,
+  prebuiltRoot,
 } from './jsc-host/runtime.ts'
 
 const execute = promisify(execFile)
@@ -25,988 +25,989 @@ const compilerExtensions = new Set(['.c', '.m', '.mm', '.swift', '.zig'])
 const ownSource = fileURLToPath(import.meta.url)
 
 async function run(command, args, stage, env = process.env) {
-	try {
-		const result = await execute(command, args, {
-			timeout: 180_000,
-			maxBuffer: 32 * 1024 * 1024,
-			env,
-		})
+  try {
+    const result = await execute(command, args, {
+      timeout: 180_000,
+      maxBuffer: 32 * 1024 * 1024,
+      env,
+    })
 
-		return result.stdout.trim()
-	} catch (error) {
-		const diagnostics = (error.stderr ?? error.message)
-			.split('\n')
-			.filter((line) => /error:|fatal error:|aborted|failed|dyld:/.test(line))
+    return result.stdout.trim()
+  } catch (error) {
+    const diagnostics = (error.stderr ?? error.message)
+      .split('\n')
+      .filter((line) => /error:|fatal error:|aborted|failed|dyld:/.test(line))
 
-		throw new Error(
-			`[macos-native] ${stage}: ${command} exited ${error.code ?? error.signal ?? 'unsuccessfully'}\n${(diagnostics.join('\n') || error.stderr || error.message).slice(-6000)}`,
-		)
-	}
+    throw new Error(
+      `[macos-native] ${stage}: ${command} exited ${error.code ?? error.signal ?? 'unsuccessfully'}\n${(diagnostics.join('\n') || error.stderr || error.message).slice(-6000)}`,
+    )
+  }
 }
 
 function inside(root, path) {
-	const rel = relative(root, path)
-	return rel === '' || (!isAbsolute(rel) && rel !== '..' && !rel.startsWith(`..${sep}`))
+  const rel = relative(root, path)
+  return rel === '' || (!isAbsolute(rel) && rel !== '..' && !rel.startsWith(`..${sep}`))
 }
 
 function strings(value, label, fallback = []) {
-	if (value === undefined) {
-		return fallback
-	}
+  if (value === undefined) {
+    return fallback
+  }
 
-	if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || !item.trim())) {
-		throw new Error(`${label} must be an array of nonempty strings`)
-	}
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || !item.trim())) {
+    throw new Error(`${label} must be an array of nonempty strings`)
+  }
 
-	return value
+  return value
 }
 
 function nodeModulePaths(dir) {
-	const paths = []
-	let current = dir
-	while (true) {
-		if (basename(current) !== 'node_modules') {
-			paths.push(join(current, 'node_modules'))
-		}
+  const paths = []
+  let current = dir
+  while (true) {
+    if (basename(current) !== 'node_modules') {
+      paths.push(join(current, 'node_modules'))
+    }
 
-		const parent = dirname(current)
-		if (parent === current) {
-			break
-		}
+    const parent = dirname(current)
+    if (parent === current) {
+      break
+    }
 
-		current = parent
-	}
+    current = parent
+  }
 
-	return paths
+  return paths
 }
 
 function nativeFiles(root, dir = root, seen = new Set()) {
-	const actual = realpathSync(dir)
-	if (!inside(root, actual)) {
-		throw new Error(`Native input escapes platforms/macos: ${dir}`)
-	}
+  const actual = realpathSync(dir)
+  if (!inside(root, actual)) {
+    throw new Error(`Native input escapes platforms/macos: ${dir}`)
+  }
 
-	if (seen.has(actual)) {
-		throw new Error(`Native input contains a symlink cycle: ${dir}`)
-	}
+  if (seen.has(actual)) {
+    throw new Error(`Native input contains a symlink cycle: ${dir}`)
+  }
 
-	seen.add(actual)
-	const files = []
-	for (const entry of readdirSync(dir).sort()) {
-		const path = join(dir, entry)
-		const target = realpathSync(path)
-		if (!inside(root, target)) {
-			throw new Error(`Native input escapes platforms/macos: ${path}`)
-		}
+  seen.add(actual)
+  const files = []
+  for (const entry of readdirSync(dir).sort()) {
+    const path = join(dir, entry)
+    const target = realpathSync(path)
+    if (!inside(root, target)) {
+      throw new Error(`Native input escapes platforms/macos: ${path}`)
+    }
 
-		if (statSync(path).isDirectory()) {
-			files.push(...nativeFiles(root, path, seen))
-		} else if (statSync(path).isFile()) {
-			files.push(path)
-		}
-	}
+    if (statSync(path).isDirectory()) {
+      files.push(...nativeFiles(root, path, seen))
+    } else if (statSync(path).isFile()) {
+      files.push(path)
+    }
+  }
 
-	seen.delete(actual)
-	return files
+  seen.delete(actual)
+  return files
 }
 
 function select(root, nativeRoot, patterns, label) {
-	if (typeof fs.globSync !== 'function') {
-		throw new Error('[macos-native] Native source selection requires Node 22.17 or later')
-	}
+  if (typeof fs.globSync !== 'function') {
+    throw new Error('[macos-native] Native source selection requires Node 22.17 or later')
+  }
 
-	const files = new Set()
-	for (const pattern of patterns) {
-		if (isAbsolute(pattern) || pattern.split(/[\\/]/).includes('..')) {
-			throw new Error(`${label}: package-relative paths required`)
-		}
+  const files = new Set()
+  for (const pattern of patterns) {
+    if (isAbsolute(pattern) || pattern.split(/[\\/]/).includes('..')) {
+      throw new Error(`${label}: package-relative paths required`)
+    }
 
-		const matches = fs.globSync(pattern, { cwd: root }).sort()
-		if (!matches.length) {
-			throw new Error(`${label}: no files match ${pattern}`)
-		}
+    const matches = fs.globSync(pattern, { cwd: root }).sort()
+    if (!matches.length) {
+      throw new Error(`${label}: no files match ${pattern}`)
+    }
 
-		for (const match of matches) {
-			const path = realpathSync(join(root, match))
-			if (!inside(nativeRoot, path) || !statSync(path).isFile()) {
-				throw new Error(`${label}: input must be a file inside platforms/macos: ${match}`)
-			}
+    for (const match of matches) {
+      const path = realpathSync(join(root, match))
+      if (!inside(nativeRoot, path) || !statSync(path).isFile()) {
+        throw new Error(`${label}: input must be a file inside platforms/macos: ${match}`)
+      }
 
-			files.add(path)
-		}
-	}
+      files.add(path)
+    }
+  }
 
-	return [...files].sort()
+  return [...files].sort()
 }
 
 function resourceMap(root, nativeRoot, value, label) {
-	if (value === undefined) {
-		return []
-	}
+  if (value === undefined) {
+    return []
+  }
 
-	if (!value || typeof value !== 'object' || Array.isArray(value)) {
-		throw new Error(`${label} must map app resource paths to package files`)
-	}
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`${label} must map app resource paths to package files`)
+  }
 
-	return Object.entries(value)
-		.sort(([left], [right]) => left.localeCompare(right))
-		.map(([destination, source]) => {
-			if (
-				!destination.trim() ||
-				isAbsolute(destination) ||
-				destination.split(/[\\/]/).some((part) => part === '..' || part === '.') ||
-				typeof source !== 'string' ||
-				!source.trim()
-			) {
-				throw new Error(`${label} must use safe relative app paths and package files`)
-			}
+  return Object.entries(value)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([destination, source]) => {
+      if (
+        !destination.trim() ||
+        isAbsolute(destination) ||
+        destination.split(/[\\/]/).some((part) => part === '..' || part === '.') ||
+        typeof source !== 'string' ||
+        !source.trim()
+      ) {
+        throw new Error(`${label} must use safe relative app paths and package files`)
+      }
 
-			return { destination, source: select(root, nativeRoot, [source], label)[0] }
-		})
+      return { destination, source: select(root, nativeRoot, [source], label)[0] }
+    })
 }
 
 function noticeFile(root, nativeRoot, value, label) {
-	if (value === undefined) {
-		return null
-	}
+  if (value === undefined) {
+    return null
+  }
 
-	if (typeof value !== 'string' || !value.trim()) {
-		throw new Error(`${label} must be a package-relative file inside platforms/macos`)
-	}
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new Error(`${label} must be a package-relative file inside platforms/macos`)
+  }
 
-	return select(root, nativeRoot, [value], label)[0]
+  return select(root, nativeRoot, [value], label)[0]
 }
 
 /** Resolve runtime dependencies in dependency order, including pnpm/workspace links. */
 export function discoverMacOSNative(appRoot) {
-	const packages = new Map()
-	const visiting = new Set()
-	const leaves = []
-	const prebuilt = []
-	const prebuiltFiles = new Map()
-	function visit(root) {
-		root = realpathSync(root)
-		if (packages.has(root) || visiting.has(root)) {
-			return
-		}
+  const packages = new Map()
+  const visiting = new Set()
+  const leaves = []
+  const prebuilt = []
+  const prebuiltFiles = new Map()
+  function visit(root) {
+    root = realpathSync(root)
+    if (packages.has(root) || visiting.has(root)) {
+      return
+    }
 
-		visiting.add(root)
-		const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-		const deps = {
-			...manifest.peerDependencies,
-			...manifest.dependencies,
-			...manifest.optionalDependencies,
-		}
+    visiting.add(root)
+    const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+    const deps = {
+      ...manifest.peerDependencies,
+      ...manifest.dependencies,
+      ...manifest.optionalDependencies,
+    }
 
-		const dependencyRoots = []
-		for (const name of Object.keys(deps).sort()) {
-			const dep = packageRoot(root, name)
-			if (!dep) {
-				if (
-					name in (manifest.optionalDependencies ?? {}) ||
-					!(name in (manifest.dependencies ?? {}))
-				) {
-					continue
-				}
+    const dependencyRoots = []
+    for (const name of Object.keys(deps).sort()) {
+      const dep = packageRoot(root, name)
+      if (!dep) {
+        if (
+          name in (manifest.optionalDependencies ?? {}) ||
+          !(name in (manifest.dependencies ?? {}))
+        ) {
+          continue
+        }
 
-				throw new Error(
-					`[macos-native] ${manifest.name}: dependency ${name} is not installed; run bun install`,
-				)
-			}
+        throw new Error(
+          `[macos-native] ${manifest.name}: dependency ${name} is not installed; run bun install`,
+        )
+      }
 
-			dependencyRoots.push(dep)
-			visit(dep)
-		}
+      dependencyRoots.push(dep)
+      visit(dep)
+    }
 
-		visiting.delete(root)
-		const nativeRoot = join(root, 'platforms/macos')
-		const config = manifest.xplat?.macos
-		let leaf
-		if (config !== undefined && (!config || typeof config !== 'object' || Array.isArray(config))) {
-			throw new Error(`[macos-native] ${manifest.name}: xplat.macos must be an object`)
-		}
+    visiting.delete(root)
+    const nativeRoot = join(root, 'platforms/macos')
+    const config = manifest.xplat?.macos
+    let leaf
+    if (config !== undefined && (!config || typeof config !== 'object' || Array.isArray(config))) {
+      throw new Error(`[macos-native] ${manifest.name}: xplat.macos must be an object`)
+    }
 
-		if (config !== undefined || existsSync(nativeRoot)) {
-			if (!existsSync(nativeRoot)) {
-				throw new Error(`[macos-native] ${manifest.name}: platforms/macos is missing`)
-			}
+    if (config !== undefined || existsSync(nativeRoot)) {
+      if (!existsSync(nativeRoot)) {
+        throw new Error(`[macos-native] ${manifest.name}: platforms/macos is missing`)
+      }
 
-			const allowed = new Set([
-				'sources',
-				'headers',
-				'includePaths',
-				'frameworks',
-				'libraries',
-				'defines',
-				'swiftWholeModuleOptimization',
-				'swiftHeaderImports',
-				'resources',
-				'notices',
-				'prebuiltLibraries',
-			])
+      const allowed = new Set([
+        'sources',
+        'headers',
+        'includePaths',
+        'frameworks',
+        'libraries',
+        'defines',
+        'swiftWholeModuleOptimization',
+        'swiftHeaderImports',
+        'resources',
+        'notices',
+        'prebuiltLibraries',
+      ])
 
-			for (const key of Object.keys(config ?? {})) {
-				if (!allowed.has(key)) {
-					throw new Error(`[macos-native] ${manifest.name}: unknown xplat.macos.${key}`)
-				}
-			}
+      for (const key of Object.keys(config ?? {})) {
+        if (!allowed.has(key)) {
+          throw new Error(`[macos-native] ${manifest.name}: unknown xplat.macos.${key}`)
+        }
+      }
 
-			const files = nativeFiles(nativeRoot)
-			const defaults = files.filter(
-				(path) => inside(join(nativeRoot, 'src'), path) && compilerExtensions.has(extname(path)),
-			)
+      const files = nativeFiles(nativeRoot)
+      const defaults = files.filter(
+        (path) => inside(join(nativeRoot, 'src'), path) && compilerExtensions.has(extname(path)),
+      )
 
-			const sources =
-				config?.sources === undefined
-					? defaults
-					: select(
-							root,
-							nativeRoot,
-							strings(config.sources, `${manifest.name} sources`),
-							`${manifest.name} sources`,
-						)
+      const sources =
+        config?.sources === undefined
+          ? defaults
+          : select(
+              root,
+              nativeRoot,
+              strings(config.sources, `${manifest.name} sources`),
+              `${manifest.name} sources`,
+            )
 
-			const prebuiltLibraries = select(
-				root,
-				nativeRoot,
-				strings(config?.prebuiltLibraries, `${manifest.name} prebuiltLibraries`),
-				`${manifest.name} prebuiltLibraries`,
-			)
+      const prebuiltLibraries = select(
+        root,
+        nativeRoot,
+        strings(config?.prebuiltLibraries, `${manifest.name} prebuiltLibraries`),
+        `${manifest.name} prebuiltLibraries`,
+      )
 
-			for (const path of prebuiltLibraries) {
-				if (extname(path) !== '.dylib') {
-					throw new Error(
-						`[macos-native] ${manifest.name}: prebuilt library must be a .dylib: ${path}`,
-					)
-				}
-			}
+      for (const path of prebuiltLibraries) {
+        if (extname(path) !== '.dylib') {
+          throw new Error(
+            `[macos-native] ${manifest.name}: prebuilt library must be a .dylib: ${path}`,
+          )
+        }
+      }
 
-			if (!sources.length && prebuiltLibraries.length) {
-				for (const key of Object.keys(config)) {
-					if (key !== 'prebuiltLibraries' && key !== 'notices') {
-						throw new Error(
-							`[macos-native] ${manifest.name}: xplat.macos.${key} requires native sources`,
-						)
-					}
-				}
-			} else if (sources.length || config !== undefined) {
-				if (!sources.length) {
-					throw new Error(`[macos-native] ${manifest.name}: no native sources`)
-				}
+      if (!sources.length && prebuiltLibraries.length) {
+        for (const key of Object.keys(config)) {
+          if (key !== 'prebuiltLibraries' && key !== 'notices') {
+            throw new Error(
+              `[macos-native] ${manifest.name}: xplat.macos.${key} requires native sources`,
+            )
+          }
+        }
+      } else if (sources.length || config !== undefined) {
+        if (!sources.length) {
+          throw new Error(`[macos-native] ${manifest.name}: no native sources`)
+        }
 
-				for (const path of sources) {
-					if (!compilerExtensions.has(extname(path))) {
-						throw new Error(`[macos-native] ${manifest.name}: unsupported source ${path}`)
-					}
-				}
+        for (const path of sources) {
+          if (!compilerExtensions.has(extname(path))) {
+            throw new Error(`[macos-native] ${manifest.name}: unsupported source ${path}`)
+          }
+        }
 
-				const headers =
-					config?.headers === undefined
-						? files.filter(
-								(path) => inside(join(nativeRoot, 'include'), path) && extname(path) === '.h',
-							)
-						: select(
-								root,
-								nativeRoot,
-								strings(config.headers, `${manifest.name} headers`),
-								`${manifest.name} headers`,
-							)
+        const headers =
+          config?.headers === undefined
+            ? files.filter(
+                (path) => inside(join(nativeRoot, 'include'), path) && extname(path) === '.h',
+              )
+            : select(
+                root,
+                nativeRoot,
+                strings(config.headers, `${manifest.name} headers`),
+                `${manifest.name} headers`,
+              )
 
-				if (!headers.length && !sources.some((path) => extname(path) === '.swift')) {
-					throw new Error(`[macos-native] ${manifest.name}: public headers are required`)
-				}
+        if (!headers.length && !sources.some((path) => extname(path) === '.swift')) {
+          throw new Error(`[macos-native] ${manifest.name}: public headers are required`)
+        }
 
-				const includePaths = strings(config?.includePaths, `${manifest.name} includePaths`).map(
-					(path) => {
-						const actual = realpathSync(resolve(root, path))
-						if (!inside(nativeRoot, actual) || !statSync(actual).isDirectory()) {
-							throw new Error(
-								`${manifest.name}: includePaths must be directories inside platforms/macos`,
-							)
-						}
+        const includePaths = strings(config?.includePaths, `${manifest.name} includePaths`).map(
+          (path) => {
+            const actual = realpathSync(resolve(root, path))
+            if (!inside(nativeRoot, actual) || !statSync(actual).isDirectory()) {
+              throw new Error(
+                `${manifest.name}: includePaths must be directories inside platforms/macos`,
+              )
+            }
 
-						return actual
-					},
-				)
+            return actual
+          },
+        )
 
-				const frameworks = strings(config?.frameworks, `${manifest.name} frameworks`)
-				const libraries = strings(config?.libraries, `${manifest.name} libraries`)
-				const defines = strings(config?.defines, `${manifest.name} defines`)
-				const swiftHeaderImports = strings(
-					config?.swiftHeaderImports,
-					`${manifest.name} swiftHeaderImports`,
-				)
+        const frameworks = strings(config?.frameworks, `${manifest.name} frameworks`)
+        const libraries = strings(config?.libraries, `${manifest.name} libraries`)
+        const defines = strings(config?.defines, `${manifest.name} defines`)
+        const swiftHeaderImports = strings(
+          config?.swiftHeaderImports,
+          `${manifest.name} swiftHeaderImports`,
+        )
 
-				for (const header of swiftHeaderImports) {
-					if (
-						!/^[A-Za-z][A-Za-z0-9_]*\/[A-Za-z0-9_./-]+\.h$/.test(header) ||
-						header.split('/').includes('..')
-					) {
-						throw new Error(`${manifest.name}: invalid Swift Objective-C header import ${header}`)
-					}
-				}
+        for (const header of swiftHeaderImports) {
+          if (
+            !/^[A-Za-z][A-Za-z0-9_]*\/[A-Za-z0-9_./-]+\.h$/.test(header) ||
+            header.split('/').includes('..')
+          ) {
+            throw new Error(`${manifest.name}: invalid Swift Objective-C header import ${header}`)
+          }
+        }
 
-				const swiftWholeModuleOptimization = config?.swiftWholeModuleOptimization ?? false
-				if (typeof swiftWholeModuleOptimization !== 'boolean') {
-					throw new Error(`${manifest.name}: swiftWholeModuleOptimization must be boolean`)
-				}
+        const swiftWholeModuleOptimization = config?.swiftWholeModuleOptimization ?? false
+        if (typeof swiftWholeModuleOptimization !== 'boolean') {
+          throw new Error(`${manifest.name}: swiftWholeModuleOptimization must be boolean`)
+        }
 
-				if (swiftHeaderImports.length && !sources.some((path) => extname(path) === '.swift')) {
-					throw new Error(`${manifest.name}: swiftHeaderImports require Swift sources`)
-				}
+        if (swiftHeaderImports.length && !sources.some((path) => extname(path) === '.swift')) {
+          throw new Error(`${manifest.name}: swiftHeaderImports require Swift sources`)
+        }
 
-				const resources = resourceMap(
-					root,
-					nativeRoot,
-					config?.resources,
-					`${manifest.name} resources`,
-				)
+        const resources = resourceMap(
+          root,
+          nativeRoot,
+          config?.resources,
+          `${manifest.name} resources`,
+        )
 
-				const notices = noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
+        const notices = noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
 
-				for (const name of [...frameworks, ...libraries]) {
-					if (!/^[A-Za-z0-9_+-]+$/.test(name)) {
-						throw new Error(`${manifest.name}: invalid system framework/library ${name}`)
-					}
-				}
+        for (const name of [...frameworks, ...libraries]) {
+          if (!/^[A-Za-z0-9_+-]+$/.test(name)) {
+            throw new Error(`${manifest.name}: invalid system framework/library ${name}`)
+          }
+        }
 
-				for (const define of defines) {
-					if (!/^[A-Za-z_][A-Za-z0-9_]*(?:=[^\r\n]+)?$/.test(define)) {
-						throw new Error(`${manifest.name}: invalid define ${define}`)
-					}
-				}
+        for (const define of defines) {
+          if (!/^[A-Za-z_][A-Za-z0-9_]*(?:=[^\r\n]+)?$/.test(define)) {
+            throw new Error(`${manifest.name}: invalid define ${define}`)
+          }
+        }
 
-				const id = `Xplat_${(manifest.name ?? 'app').replace(/[^A-Za-z0-9]/g, '_')}_${hash(root).slice(0, 8)}`
-				leaf = {
-					root,
-					name: manifest.name ?? root,
-					id,
-					nativeRoot,
-					sources,
-					headers,
-					includePaths,
-					frameworks,
-					libraries,
-					defines,
-					swiftWholeModuleOptimization,
-					swiftHeaderImports,
-					resources,
-					notices,
-					files,
-					dependencyRoots,
-				}
+        const id = `Xplat_${(manifest.name ?? 'app').replace(/[^A-Za-z0-9]/g, '_')}_${hash(root).slice(0, 8)}`
+        leaf = {
+          root,
+          name: manifest.name ?? root,
+          id,
+          nativeRoot,
+          sources,
+          headers,
+          includePaths,
+          frameworks,
+          libraries,
+          defines,
+          swiftWholeModuleOptimization,
+          swiftHeaderImports,
+          resources,
+          notices,
+          files,
+          dependencyRoots,
+        }
 
-				leaves.push(leaf)
-			}
+        leaves.push(leaf)
+      }
 
-			if (prebuiltLibraries.length) {
-				const notices = leaf
-					? null
-					: noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
+      if (prebuiltLibraries.length) {
+        const notices = leaf
+          ? null
+          : noticeFile(root, nativeRoot, config?.notices, `${manifest.name} notices`)
 
-				for (const path of prebuiltLibraries) {
-					const file = basename(path)
-					if (prebuiltFiles.has(file)) {
-						throw new Error(`[macos-native] Multiple packages ship prebuilt ${file}`)
-					}
+        for (const path of prebuiltLibraries) {
+          const file = basename(path)
+          if (prebuiltFiles.has(file)) {
+            throw new Error(`[macos-native] Multiple packages ship prebuilt ${file}`)
+          }
 
-					prebuiltFiles.set(file, manifest.name)
-					prebuilt.push({ name: manifest.name, file, source: path, notices })
-				}
-			}
-		}
+          prebuiltFiles.set(file, manifest.name)
+          prebuilt.push({ name: manifest.name, file, source: path, notices })
+        }
+      }
+    }
 
-		packages.set(root, { manifest, dependencyRoots, leaf })
-	}
+    packages.set(root, { manifest, dependencyRoots, leaf })
+  }
 
-	visit(appRoot)
-	const resourceDestinations = new Set()
-	for (const leaf of leaves) {
-		for (const { destination } of leaf.resources) {
-			if (resourceDestinations.has(destination)) {
-				throw new Error(
-					`[macos-native] Multiple leaves package the same app resource: ${destination}`,
-				)
-			}
+  visit(appRoot)
+  const resourceDestinations = new Set()
+  for (const leaf of leaves) {
+    for (const { destination } of leaf.resources) {
+      if (resourceDestinations.has(destination)) {
+        throw new Error(
+          `[macos-native] Multiple leaves package the same app resource: ${destination}`,
+        )
+      }
 
-			resourceDestinations.add(destination)
-		}
-	}
+      resourceDestinations.add(destination)
+    }
+  }
 
-	const defineValues = new Map()
-	for (const leaf of leaves) {
-		for (const define of leaf.defines) {
-			const key = define.split('=')[0]
-			if (defineValues.has(key) && defineValues.get(key) !== define) {
-				throw new Error(
-					`[macos-native] ${leaf.name}: conflicting definition for ${key} across native leaves`,
-				)
-			}
+  const defineValues = new Map()
+  for (const leaf of leaves) {
+    for (const define of leaf.defines) {
+      const key = define.split('=')[0]
+      if (defineValues.has(key) && defineValues.get(key) !== define) {
+        throw new Error(
+          `[macos-native] ${leaf.name}: conflicting definition for ${key} across native leaves`,
+        )
+      }
 
-			defineValues.set(key, define)
-		}
-	}
+      defineValues.set(key, define)
+    }
+  }
 
-	// Resolve all transitive native dependencies through packages that have no native code.
-	for (const leaf of leaves) {
-		const seen = new Set([leaf.root])
-		const deps = new Set()
-		function collect(root) {
-			if (seen.has(root)) {
-				return
-			}
+  // Resolve all transitive native dependencies through packages that have no native code.
+  for (const leaf of leaves) {
+    const seen = new Set([leaf.root])
+    const deps = new Set()
+    function collect(root) {
+      if (seen.has(root)) {
+        return
+      }
 
-			seen.add(root)
-			const pkg = packages.get(root)
-			if (pkg.leaf) {
-				deps.add(pkg.leaf.id)
-			}
+      seen.add(root)
+      const pkg = packages.get(root)
+      if (pkg.leaf) {
+        deps.add(pkg.leaf.id)
+      }
 
-			for (const dep of pkg.dependencyRoots) {
-				collect(dep)
-			}
-		}
+      for (const dep of pkg.dependencyRoots) {
+        collect(dep)
+      }
+    }
 
-		for (const root of leaf.dependencyRoots) {
-			collect(root)
-		}
+    for (const root of leaf.dependencyRoots) {
+      collect(root)
+    }
 
-		leaf.dependencies = leaves.filter((dep) => deps.has(dep.id)).map((dep) => dep.id)
-		if (
-			leaf.dependencies.some(
-				(id) => leaves.findIndex((dep) => dep.id === id) >= leaves.indexOf(leaf),
-			)
-		) {
-			throw new Error(`[macos-native] ${leaf.name}: native dependency cycle`)
-		}
-	}
+    leaf.dependencies = leaves.filter((dep) => deps.has(dep.id)).map((dep) => dep.id)
+    if (
+      leaf.dependencies.some(
+        (id) => leaves.findIndex((dep) => dep.id === id) >= leaves.indexOf(leaf),
+      )
+    ) {
+      throw new Error(`[macos-native] ${leaf.name}: native dependency cycle`)
+    }
+  }
 
-	const inputs = [...packages.entries()].map(([root, pkg]) => [root, pkg.manifest])
-	for (const leaf of leaves) {
-		for (const path of leaf.files) {
-			inputs.push([path, hash(readFileSync(path))])
-		}
-	}
+  const inputs = [...packages.entries()].map(([root, pkg]) => [root, pkg.manifest])
+  for (const leaf of leaves) {
+    for (const path of leaf.files) {
+      inputs.push([path, hash(readFileSync(path))])
+    }
+  }
 
-	for (const lib of prebuilt) {
-		inputs.push([lib.source, hash(readFileSync(lib.source))])
-		if (lib.notices) {
-			inputs.push([lib.notices, hash(readFileSync(lib.notices))])
-		}
-	}
+  for (const lib of prebuilt) {
+    inputs.push([lib.source, hash(readFileSync(lib.source))])
+    if (lib.notices) {
+      inputs.push([lib.notices, hash(readFileSync(lib.notices))])
+    }
+  }
 
-	return { leaves, prebuilt, fingerprint: hash(JSON.stringify(inputs)) }
+  return { leaves, prebuilt, fingerprint: hash(JSON.stringify(inputs)) }
 }
 
 /** Validate the toolchain only when the app actually has native leaves. */
 export async function inspectMacOSNative(appRoot) {
-	const graph = discoverMacOSNative(appRoot)
-	if (!graph.leaves.length) {
-		return { ...graph, toolchain: null }
-	}
+  const graph = discoverMacOSNative(appRoot)
+  if (!graph.leaves.length) {
+    return { ...graph, toolchain: null }
+  }
 
-	if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
-		throw new Error(
-			'[macos-native] Native leaves require a Mac running macOS arm64 or x86_64: the metadata generator loads the Command Line Tools libclang for the build host architecture',
-		)
-	}
+  if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !== 'x64')) {
+    throw new Error(
+      '[macos-native] Native leaves require a Mac running macOS arm64 or x86_64: the metadata generator loads the Command Line Tools libclang for the build host architecture',
+    )
+  }
 
-	// XPLAT_MACOS_SDK pins the SDK for hosts whose toolchain predates the
-	// newest installed SDK (e.g. an older swiftc that cannot parse a newer
-	// Swift.swiftmodule). Accepts a path or an `xcrun --sdk` name.
-	const sdkEnv = process.env.XPLAT_MACOS_SDK
-	const sdk =
-		sdkEnv && sdkEnv.startsWith('/')
-			? sdkEnv
-			: await run(
-					'xcrun',
-					['--sdk', sdkEnv || 'macosx', '--show-sdk-path'],
-					'locate macOS SDK; install/select Xcode',
-				)
+  // XPLAT_MACOS_SDK pins the SDK for hosts whose toolchain predates the
+  // newest installed SDK (e.g. an older swiftc that cannot parse a newer
+  // Swift.swiftmodule). Accepts a path or an `xcrun --sdk` name.
+  const sdkEnv = process.env.XPLAT_MACOS_SDK
+  const sdk =
+    sdkEnv && sdkEnv.startsWith('/')
+      ? sdkEnv
+      : await run(
+          'xcrun',
+          ['--sdk', sdkEnv || 'macosx', '--show-sdk-path'],
+          'locate macOS SDK; install/select Xcode',
+        )
 
-	const clang = await run('xcrun', ['--find', 'clang'], 'locate Xcode compiler')
-	// XPLAT_MACOS_SWIFTC pins a specific swiftc — needed on CLT-only hosts
-	// where `xcrun --find` cannot select a separately installed toolchain.
-	const swift = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.swift'))
-		? process.env.XPLAT_MACOS_SWIFTC ||
-				(await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler'))
-		: null
+  const clang = await run('xcrun', ['--find', 'clang'], 'locate Xcode compiler')
+  // XPLAT_MACOS_SWIFTC pins a specific swiftc — needed on CLT-only hosts
+  // where `xcrun --find` cannot select a separately installed toolchain.
+  const swift = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.swift'))
+    ? process.env.XPLAT_MACOS_SWIFTC ||
+      (await run('xcrun', ['--find', 'swiftc'], 'locate Swift compiler'))
+    : null
 
-	const zig = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.zig'))
-		? await run('zig', ['version'], 'Zig sources require Zig on PATH')
-		: null
+  const zig = graph.leaves.some((leaf) => leaf.sources.some((path) => extname(path) === '.zig'))
+    ? await run('zig', ['version'], 'Zig sources require Zig on PATH')
+    : null
 
-	const manifest = JSON.parse(readFileSync(join(prebuiltRoot, 'manifest.json'), 'utf8'))
-	let generator = join(
-		prebuiltRoot,
-		manifest.metadataGenerator?.path ?? 'missing-metadata-generator',
-	)
+  const manifest = JSON.parse(readFileSync(join(prebuiltRoot, 'manifest.json'), 'utf8'))
+  let generator = join(
+    prebuiltRoot,
+    manifest.metadataGenerator?.path ?? 'missing-metadata-generator',
+  )
 
-	if (
-		!manifest.metadataGenerator ||
-		!existsSync(generator) ||
-		hash(readFileSync(generator)) !== manifest.sha256[manifest.metadataGenerator.path]
-	) {
-		throw new Error(
-			'[macos-native] Metadata generator missing or checksum differs; reinstall the project macOS build tooling',
-		)
-	}
+  if (
+    !manifest.metadataGenerator ||
+    !existsSync(generator) ||
+    hash(readFileSync(generator)) !== manifest.sha256[manifest.metadataGenerator.path]
+  ) {
+    throw new Error(
+      '[macos-native] Metadata generator missing or checksum differs; reinstall the project macOS build tooling',
+    )
+  }
 
-	generator = await macOSExecutable(appRoot, manifest.metadataGenerator.path)
-	const libclang = await run(
-		generator,
-		['--xplat-check'],
-		'load metadata generator; install compatible Command Line Tools libclang',
-	)
+  generator = await macOSExecutable(appRoot, manifest.metadataGenerator.path)
+  const libclang = await run(
+    generator,
+    ['--xplat-check'],
+    'load metadata generator; install compatible Command Line Tools libclang',
+  )
 
-	const clangVersion = await run(clang, ['--version'], 'inspect compiler')
-	const swiftVersion = swift ? await run(swift, ['--version'], 'inspect Swift compiler') : null
-	return {
-		...graph,
-		toolchain: {
-			sdk,
-			clang,
-			swift,
-			zig,
-			libclang,
-			clangVersion,
-			swiftVersion,
-			sdkSettings: hash(readFileSync(join(sdk, 'SDKSettings.json'))),
-			generator,
-			generatorHash: manifest.sha256[manifest.metadataGenerator.path],
-		},
-	}
+  const clangVersion = await run(clang, ['--version'], 'inspect compiler')
+  const swiftVersion = swift ? await run(swift, ['--version'], 'inspect Swift compiler') : null
+  return {
+    ...graph,
+    toolchain: {
+      sdk,
+      clang,
+      swift,
+      zig,
+      libclang,
+      clangVersion,
+      swiftVersion,
+      sdkSettings: hash(readFileSync(join(sdk, 'SDKSettings.json'))),
+      generator,
+      generatorHash: manifest.sha256[manifest.metadataGenerator.path],
+    },
+  }
 }
 
 async function cachedArtifact(dir, key) {
-	try {
-		const result = JSON.parse(await readFile(join(dir, 'manifest.json'), 'utf8'))
-		if (result.key !== key) {
-			return null
-		}
+  try {
+    const result = JSON.parse(await readFile(join(dir, 'manifest.json'), 'utf8'))
+    if (result.key !== key) {
+      return null
+    }
 
-		for (const [file, expected] of Object.entries(result.sha256)) {
-			if (hash(await readFile(join(dir, file))) !== expected) {
-				return null
-			}
-		}
+    for (const [file, expected] of Object.entries(result.sha256)) {
+      if (hash(await readFile(join(dir, file))) !== expected) {
+        return null
+      }
+    }
 
-		return {
-			...result,
-			directory: dir,
-			metadata: {
-				arm64: join(dir, 'metadata.arm64.nsmd'),
-				x86_64: join(dir, 'metadata.x86_64.nsmd'),
-			},
-			cached: true,
-		}
-	} catch {
-		return null
-	}
+    return {
+      ...result,
+      directory: dir,
+      metadata: {
+        arm64: join(dir, 'metadata.arm64.nsmd'),
+        x86_64: join(dir, 'metadata.x86_64.nsmd'),
+      },
+      cached: true,
+    }
+  } catch {
+    return null
+  }
 }
 
 /** Compile and atomically publish content-addressed native artifacts. */
 export async function buildMacOSNative(
-	appRoot,
-	{ minimumSystemVersion = minimumJscHostSystemVersion } = {},
+  appRoot,
+  { minimumSystemVersion = minimumJscHostSystemVersion } = {},
 ) {
-	appRoot = realpathSync(appRoot)
-	if (
-		!/^\d+\.\d+(?:\.\d+)?$/.test(minimumSystemVersion) ||
-		Number(minimumSystemVersion.split('.')[0]) < 13 ||
-		(minimumSystemVersion.startsWith('13.') && Number(minimumSystemVersion.split('.')[1]) < 5)
-	) {
-		throw new Error('[macos-native] minimumSystemVersion must be at least 13.5')
-	}
+  appRoot = realpathSync(appRoot)
+  if (
+    !/^\d+\.\d+(?:\.\d+)?$/.test(minimumSystemVersion) ||
+    Number(minimumSystemVersion.split('.')[0]) < 13 ||
+    (minimumSystemVersion.startsWith('13.') && Number(minimumSystemVersion.split('.')[1]) < 5)
+  ) {
+    throw new Error('[macos-native] minimumSystemVersion must be at least 13.5')
+  }
 
-	const inspection = await inspectMacOSNative(appRoot)
-	const { leaves, prebuilt, fingerprint, toolchain } = inspection
-	const issues = []
-	for (const lib of prebuilt) {
-		inspectMachO(readFileSync(lib.source), `${lib.name} ${lib.file}`, issues, minimumSystemVersion)
-	}
+  const inspection = await inspectMacOSNative(appRoot)
+  const { leaves, prebuilt, fingerprint, toolchain } = inspection
+  const issues = []
+  for (const lib of prebuilt) {
+    inspectMachO(readFileSync(lib.source), `${lib.name} ${lib.file}`, issues, minimumSystemVersion)
+  }
 
-	if (issues.length) {
-		throw new Error(`[macos-native] ${issues.join('; ')}`)
-	}
+  if (issues.length) {
+    throw new Error(`[macos-native] ${issues.join('; ')}`)
+  }
 
-	if (!leaves.length) {
-		return {
-			leaves: [],
-			libraries: [],
-			prebuilt,
-			metadata: {
-				arm64: join(hostBundle, 'metadata.macos.arm64.nsmd'),
-				x86_64: join(hostBundle, 'metadata.macos.x86_64.nsmd'),
-			},
-			fingerprint,
-			cached: true,
-		}
-	}
+  if (!leaves.length) {
+    return {
+      leaves: [],
+      libraries: [],
+      prebuilt,
+      metadata: {
+        arm64: join(hostBundle, 'metadata.macos.arm64.nsmd'),
+        x86_64: join(hostBundle, 'metadata.macos.x86_64.nsmd'),
+      },
+      fingerprint,
+      cached: true,
+    }
+  }
 
-	const key = hash(
-		JSON.stringify({
-			fingerprint,
-			toolchain,
-			minimumSystemVersion,
-			compiler: hash(readFileSync(ownSource)),
-		}),
-	)
+  const key = hash(
+    JSON.stringify({
+      fingerprint,
+      toolchain,
+      minimumSystemVersion,
+      compiler: hash(readFileSync(ownSource)),
+    }),
+  )
 
-	const cache = join(appRoot, 'node_modules/.cache/xplat/macos-native')
-	await mkdir(cache, { recursive: true })
-	const destination = join(cache, key)
-	const hit = await cachedArtifact(destination, key)
-	if (hit) {
-		return { ...hit, prebuilt }
-	}
+  const cache = join(appRoot, 'node_modules/.cache/xplat/macos-native')
+  await mkdir(cache, { recursive: true })
+  const destination = join(cache, key)
+  const hit = await cachedArtifact(destination, key)
+  if (hit) {
+    return { ...hit, prebuilt }
+  }
 
-	const staging = await mkdtemp(join(cache, '.build-'))
-	try {
-		const libraries = []
-		const headers = []
-		const symbols = new Map()
-		// Each arch compiles and links in its own staging dir so inter-leaf
-		// -l/dylib dependencies resolve against the same-arch outputs; the
-		// per-arch dylibs are then combined with lipo.
-		for (const arch of macOSArchitectures) {
-			const archStaging = join(staging, arch)
-			await mkdir(archStaging, { recursive: true })
-			const target = `${arch}-apple-macos${minimumSystemVersion}`
-			const zigTarget = `${arch === 'x86_64' ? 'x86_64' : 'aarch64'}-macos.${minimumSystemVersion}`
-			for (const leaf of leaves) {
-				const outputName = `${leaf.id}.dylib`
-				const output = join(archStaging, outputName)
-				const objects = []
-				const includePaths = [
-					...new Set([
-						leaf.nativeRoot,
-						...leaf.headers.map(dirname),
-						...leaf.includePaths,
-						...leaves
-							.filter((dep) => leaf.dependencies.includes(dep.id))
-							.flatMap((dep) => dep.headers.map(dirname)),
-					]),
-				]
+  const staging = await mkdtemp(join(cache, '.build-'))
+  try {
+    const libraries = []
+    const headers = []
+    const symbols = new Map()
+    // Each arch compiles and links in its own staging dir so inter-leaf
+    // -l/dylib dependencies resolve against the same-arch outputs; the
+    // per-arch dylibs are then combined with lipo.
+    for (const arch of macOSArchitectures) {
+      const archStaging = join(staging, arch)
+      await mkdir(archStaging, { recursive: true })
+      const target = `${arch}-apple-macos${minimumSystemVersion}`
+      const zigTarget = `${arch === 'x86_64' ? 'x86_64' : 'aarch64'}-macos.${minimumSystemVersion}`
+      for (const leaf of leaves) {
+        const outputName = `${leaf.id}.dylib`
+        const output = join(archStaging, outputName)
+        const objects = []
+        const includePaths = [
+          ...new Set([
+            leaf.nativeRoot,
+            ...leaf.headers.map(dirname),
+            ...leaf.includePaths,
+            ...leaves
+              .filter((dep) => leaf.dependencies.includes(dep.id))
+              .flatMap((dep) => dep.headers.map(dirname)),
+          ]),
+        ]
 
-				const common = [
-					'-target',
-					target,
-					'-isysroot',
-					toolchain.sdk,
-					'-O2',
-					'-fPIC',
-					...includePaths.flatMap((path) => ['-I', path]),
-					...leaf.defines.map((define) => `-D${define}`),
-				]
+        const common = [
+          '-target',
+          target,
+          '-isysroot',
+          toolchain.sdk,
+          '-O2',
+          '-fPIC',
+          ...includePaths.flatMap((path) => ['-I', path]),
+          ...leaf.defines.map((define) => `-D${define}`),
+        ]
 
-				for (const [index, source] of leaf.sources.entries()) {
-					if (extname(source) === '.swift') {
-						continue
-					}
+        for (const [index, source] of leaf.sources.entries()) {
+          if (extname(source) === '.swift') {
+            continue
+          }
 
-					const object = join(archStaging, `${leaf.id}-${index}.o`)
-					if (extname(source) === '.zig') {
-						await run(
-							'zig',
-							[
-								'build-obj',
-								source,
-								'-target',
-								zigTarget,
-								'-O',
-								'ReleaseSafe',
-								'-fPIC',
-								'--sysroot',
-								toolchain.sdk,
-								'-lc',
-								...includePaths.flatMap((path) => ['-I', path]),
-								...leaf.defines.map((define) => `-D${define}`),
-								`-femit-bin=${object}`,
-							],
-							`${leaf.name}: compile ${relative(leaf.root, source)}`,
-						)
-					} else {
-						await run(
-							toolchain.clang,
-							[
-								...common,
-								...(extname(source) === '.m' || extname(source) === '.mm' ? ['-fobjc-arc'] : []),
-								'-c',
-								source,
-								'-o',
-								object,
-							],
-							`${leaf.name}: compile ${relative(leaf.root, source)}`,
-						)
-					}
+          const object = join(archStaging, `${leaf.id}-${index}.o`)
+          if (extname(source) === '.zig') {
+            await run(
+              'zig',
+              [
+                'build-obj',
+                source,
+                '-target',
+                zigTarget,
+                '-O',
+                'ReleaseSafe',
+                '-fPIC',
+                '--sysroot',
+                toolchain.sdk,
+                '-lc',
+                ...includePaths.flatMap((path) => ['-I', path]),
+                ...leaf.defines.map((define) => `-D${define}`),
+                `-femit-bin=${object}`,
+              ],
+              `${leaf.name}: compile ${relative(leaf.root, source)}`,
+            )
+          } else {
+            await run(
+              toolchain.clang,
+              [
+                ...common,
+                ...(extname(source) === '.m' || extname(source) === '.mm' ? ['-fobjc-arc'] : []),
+                '-c',
+                source,
+                '-o',
+                object,
+              ],
+              `${leaf.name}: compile ${relative(leaf.root, source)}`,
+            )
+          }
 
-					objects.push(object)
-				}
+          objects.push(object)
+        }
 
-				const linkage = [
-					...leaf.dependencies.map((id) => join(archStaging, `${id}.dylib`)),
-					...leaf.frameworks.flatMap((name) => ['-framework', name]),
-					...leaf.libraries.map((name) => `-l${name}`),
-					...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
-				]
+        const linkage = [
+          ...leaf.dependencies.map((id) => join(archStaging, `${id}.dylib`)),
+          ...leaf.frameworks.flatMap((name) => ['-framework', name]),
+          ...leaf.libraries.map((name) => `-l${name}`),
+          ...(leaf.sources.some((path) => extname(path) === '.mm') ? ['-lc++'] : []),
+        ]
 
-				const swiftSources = leaf.sources.filter((path) => extname(path) === '.swift')
-				if (swiftSources.length) {
-					const generated = join(staging, `${leaf.id}-Swift.h`)
-					const bridging = join(staging, `${leaf.id}-bridging.h`)
-					if (arch === 'arm64') {
-						await writeFile(
-							bridging,
-							leaf.headers.map((path) => `#import ${JSON.stringify(path)}`).join('\n'),
-						)
-					}
+        const swiftSources = leaf.sources.filter((path) => extname(path) === '.swift')
+        if (swiftSources.length) {
+          const generated = join(staging, `${leaf.id}-Swift.h`)
+          const bridging = join(staging, `${leaf.id}-bridging.h`)
+          if (arch === 'arm64') {
+            await writeFile(
+              bridging,
+              leaf.headers.map((path) => `#import ${JSON.stringify(path)}`).join('\n'),
+            )
+          }
 
-					await run(
-						toolchain.swift,
-						[
-							'-emit-library',
-							'-O',
-							...(leaf.swiftWholeModuleOptimization ? ['-whole-module-optimization'] : []),
-							...(leaf.swiftWholeModuleOptimization
-								? ['-emit-module-path', join(archStaging, `${leaf.id}.swiftmodule`)]
-								: []),
-							'-target',
-							target,
-							'-sdk',
-							toolchain.sdk,
-							'-module-name',
-							leaf.id,
-							// The generated ObjC header is arch-independent; emit it once.
-							...(arch === 'arm64'
-								? ['-emit-objc-header', '-emit-objc-header-path', generated]
-								: []),
-							...(leaf.headers.length ? ['-import-objc-header', bridging] : []),
-							...includePaths.flatMap((path) => ['-I', path]),
-							...leaf.defines.flatMap((define) => ['-Xcc', `-D${define}`]),
-							...swiftSources,
-							...objects,
-							...linkage,
-							'-Xlinker',
-							'-install_name',
-							'-Xlinker',
-							`@rpath/${outputName}`,
-							'-Xlinker',
-							'-rpath',
-							'-Xlinker',
-							'@loader_path',
-							'-o',
-							output,
-						],
-						`${leaf.name}: link Swift dylib`,
-					)
+          await run(
+            toolchain.swift,
+            [
+              '-emit-library',
+              '-O',
+              ...(leaf.swiftWholeModuleOptimization ? ['-whole-module-optimization'] : []),
+              ...(leaf.swiftWholeModuleOptimization
+                ? ['-emit-module-path', join(archStaging, `${leaf.id}.swiftmodule`)]
+                : []),
+              '-target',
+              target,
+              '-sdk',
+              toolchain.sdk,
+              '-module-name',
+              leaf.id,
+              // The generated ObjC header is arch-independent; emit it once.
+              ...(arch === 'arm64'
+                ? ['-emit-objc-header', '-emit-objc-header-path', generated]
+                : []),
+              ...(leaf.headers.length ? ['-import-objc-header', bridging] : []),
+              ...includePaths.flatMap((path) => ['-I', path]),
+              ...leaf.defines.flatMap((define) => ['-Xcc', `-D${define}`]),
+              ...swiftSources,
+              ...objects,
+              ...linkage,
+              '-Xlinker',
+              '-install_name',
+              '-Xlinker',
+              `@rpath/${outputName}`,
+              '-Xlinker',
+              '-rpath',
+              '-Xlinker',
+              '@loader_path',
+              '-o',
+              output,
+            ],
+            `${leaf.name}: link Swift dylib`,
+          )
 
-					if (arch === 'arm64') {
-						if (leaf.swiftHeaderImports.length) {
-							const validated = join(staging, `${leaf.id}-Swift-validated.h`)
-							await writeFile(
-								validated,
-								leaf.swiftHeaderImports.map((header) => `#import <${header}>`).join('\n') +
-									`\n#import ${JSON.stringify(generated)}\n`,
-							)
+          if (arch === 'arm64') {
+            if (leaf.swiftHeaderImports.length) {
+              const validated = join(staging, `${leaf.id}-Swift-validated.h`)
+              await writeFile(
+                validated,
+                leaf.swiftHeaderImports.map((header) => `#import <${header}>`).join('\n') +
+                  `\n#import ${JSON.stringify(generated)}\n`,
+              )
 
-							headers.push(validated)
-						} else {
-							headers.push(generated)
-						}
-					}
-				} else {
-					await run(
-						toolchain.clang,
-						[
-							'-dynamiclib',
-							...common,
-							...objects,
-							...linkage,
-							'-Wl,-install_name',
-							`-Wl,@rpath/${outputName}`,
-							'-Wl,-rpath,@loader_path',
-							'-o',
-							output,
-						],
-						`${leaf.name}: link dylib`,
-					)
-				}
-			}
-		}
+              headers.push(validated)
+            } else {
+              headers.push(generated)
+            }
+          }
+        } else {
+          await run(
+            toolchain.clang,
+            [
+              '-dynamiclib',
+              ...common,
+              ...objects,
+              ...linkage,
+              '-Wl,-install_name',
+              `-Wl,@rpath/${outputName}`,
+              '-Wl,-rpath,@loader_path',
+              '-o',
+              output,
+            ],
+            `${leaf.name}: link dylib`,
+          )
+        }
+      }
+    }
 
-		for (const leaf of leaves) {
-			const outputName = `${leaf.id}.dylib`
-			await run(
-				'lipo',
-				[
-					'-create',
-					join(staging, 'arm64', outputName),
-					join(staging, 'x86_64', outputName),
-					'-output',
-					join(staging, outputName),
-				],
-				`${leaf.name}: create universal dylib`,
-			)
+    for (const leaf of leaves) {
+      const outputName = `${leaf.id}.dylib`
+      await run(
+        'lipo',
+        [
+          '-create',
+          join(staging, 'arm64', outputName),
+          join(staging, 'x86_64', outputName),
+          '-output',
+          join(staging, outputName),
+        ],
+        `${leaf.name}: create universal dylib`,
+      )
 
-			const exports = await run(
-				'nm',
-				['-gUj', join(staging, 'arm64', outputName)],
-				`${leaf.name}: inspect exports`,
-			)
-			for (const symbol of exports
-				.split('\n')
-				.filter((symbol) => /^_[A-Za-z]/.test(symbol) && !symbol.startsWith('_swift_FORCE_LOAD'))) {
-				if (symbols.has(symbol)) {
-					throw new Error(
-						`[macos-native] duplicate export ${symbol}: ${symbols.get(symbol)} and ${leaf.name}`,
-					)
-				}
+      const exports = await run(
+        'nm',
+        ['-gUj', join(staging, 'arm64', outputName)],
+        `${leaf.name}: inspect exports`,
+      )
 
-				symbols.set(symbol, leaf.name)
-			}
+      for (const symbol of exports
+        .split('\n')
+        .filter((symbol) => /^_[A-Za-z]/.test(symbol) && !symbol.startsWith('_swift_FORCE_LOAD'))) {
+        if (symbols.has(symbol)) {
+          throw new Error(
+            `[macos-native] duplicate export ${symbol}: ${symbols.get(symbol)} and ${leaf.name}`,
+          )
+        }
 
-			libraries.push({ name: leaf.name, file: outputName })
-			headers.push(...leaf.headers)
-		}
+        symbols.set(symbol, leaf.name)
+      }
 
-		await mkdir(join(staging, 'types'))
-		await mkdir(join(staging, 'json'))
-		const includeArgs = [
-			...new Set([...headers.map(dirname), ...leaves.flatMap((leaf) => leaf.includePaths)]),
-		].map((path) => `include=${path}`)
+      libraries.push({ name: leaf.name, file: outputName })
+      headers.push(...leaf.headers)
+    }
 
-		const clangArgs = (arch) => [
-			'Xclang',
-			'-isysroot',
-			toolchain.sdk,
-			'-target',
-			`${arch}-apple-macos${minimumSystemVersion}`,
-			...leaves.flatMap((leaf) => leaf.defines.map((define) => `-D${define}`)),
-			...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
-		]
+    await mkdir(join(staging, 'types'))
+    await mkdir(join(staging, 'json'))
+    const includeArgs = [
+      ...new Set([...headers.map(dirname), ...leaves.flatMap((leaf) => leaf.includePaths)]),
+    ].map((path) => `include=${path}`)
 
-		const generatorEnv = {
-			...process.env,
-			PATH: `${dirname(toolchain.clang)}:${process.env.PATH ?? ''}`,
-		}
+    const clangArgs = (arch) => [
+      'Xclang',
+      '-isysroot',
+      toolchain.sdk,
+      '-target',
+      `${arch}-apple-macos${minimumSystemVersion}`,
+      ...leaves.flatMap((leaf) => leaf.defines.map((define) => `-D${define}`)),
+      ...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
+    ]
 
-		await run(
-			toolchain.generator,
-			[
-				'validate-headers',
-				...headers.map((path) => `import=${JSON.stringify(path)}`),
-				...includeArgs,
-				'-output-umbrella',
-				join(staging, 'leaf-umbrella.h'),
-				...clangArgs('arm64'),
-			],
-			`validate public headers for ${leaves.map((leaf) => leaf.name).join(', ')}`,
-			generatorEnv,
-		)
+    const generatorEnv = {
+      ...process.env,
+      PATH: `${dirname(toolchain.clang)}:${process.env.PATH ?? ''}`,
+    }
 
-		for (const arch of macOSArchitectures) {
-			await run(
-				toolchain.generator,
-				[
-					// types=/json= are arch-independent; emit them on arm64 only.
-					...(arch === 'arm64' ? [`types=${staging}/types`, `json=${staging}/json`] : []),
-					...headers.map((path) => `leaf-import=${JSON.stringify(path)}`),
-					...includeArgs,
-					'-output-bin',
-					join(staging, `metadata.${arch}.nsmd`),
-					'-output-umbrella',
-					join(staging, `umbrella.${arch}.h`),
-					...clangArgs(arch),
-				],
-				`generate combined SDK and leaf metadata (${arch})`,
-				generatorEnv,
-			)
-		}
+    await run(
+      toolchain.generator,
+      [
+        'validate-headers',
+        ...headers.map((path) => `import=${JSON.stringify(path)}`),
+        ...includeArgs,
+        '-output-umbrella',
+        join(staging, 'leaf-umbrella.h'),
+        ...clangArgs('arm64'),
+      ],
+      `validate public headers for ${leaves.map((leaf) => leaf.name).join(', ')}`,
+      generatorEnv,
+    )
 
-		if (discoverMacOSNative(appRoot).fingerprint !== fingerprint) {
-			throw new Error(
-				'[macos-native] Native inputs changed during compilation; retry after edits settle',
-			)
-		}
+    for (const arch of macOSArchitectures) {
+      await run(
+        toolchain.generator,
+        [
+          // types=/json= are arch-independent; emit them on arm64 only.
+          ...(arch === 'arm64' ? [`types=${staging}/types`, `json=${staging}/json`] : []),
+          ...headers.map((path) => `leaf-import=${JSON.stringify(path)}`),
+          ...includeArgs,
+          '-output-bin',
+          join(staging, `metadata.${arch}.nsmd`),
+          '-output-umbrella',
+          join(staging, `umbrella.${arch}.h`),
+          ...clangArgs(arch),
+        ],
+        `generate combined SDK and leaf metadata (${arch})`,
+        generatorEnv,
+      )
+    }
 
-		const sha256 = {}
-		for (const file of [
-			...libraries.map((lib) => lib.file),
-			'metadata.arm64.nsmd',
-			'metadata.x86_64.nsmd',
-		]) {
-			sha256[file] = hash(await readFile(join(staging, file)))
-		}
+    if (discoverMacOSNative(appRoot).fingerprint !== fingerprint) {
+      throw new Error(
+        '[macos-native] Native inputs changed during compilation; retry after edits settle',
+      )
+    }
 
-		const artifact = {
-			key,
-			fingerprint,
-			libraries,
-			leaves: leaves.map((leaf) => leaf.name),
-			resources: leaves.flatMap((leaf) =>
-				leaf.resources.map(({ destination, source }) => ({
-					leaf: leaf.name,
-					destination,
-					source,
-				})),
-			),
-			notices: leaves.flatMap((leaf) =>
-				leaf.notices ? [{ leaf: leaf.name, source: leaf.notices }] : [],
-			),
-			sha256,
-		}
+    const sha256 = {}
+    for (const file of [
+      ...libraries.map((lib) => lib.file),
+      'metadata.arm64.nsmd',
+      'metadata.x86_64.nsmd',
+    ]) {
+      sha256[file] = hash(await readFile(join(staging, file)))
+    }
 
-		await writeFile(join(staging, 'manifest.json'), JSON.stringify(artifact, null, 2))
-		try {
-			await rename(staging, destination)
-		} catch (error) {
-			if (error.code !== 'EEXIST' && error.code !== 'ENOTEMPTY') {
-				throw error
-			}
+    const artifact = {
+      key,
+      fingerprint,
+      libraries,
+      leaves: leaves.map((leaf) => leaf.name),
+      resources: leaves.flatMap((leaf) =>
+        leaf.resources.map(({ destination, source }) => ({
+          leaf: leaf.name,
+          destination,
+          source,
+        })),
+      ),
+      notices: leaves.flatMap((leaf) =>
+        leaf.notices ? [{ leaf: leaf.name, source: leaf.notices }] : [],
+      ),
+      sha256,
+    }
 
-			if (!(await cachedArtifact(destination, key))) {
-				throw new Error(
-					`[macos-native] corrupt cache at ${destination}; remove this directory and retry`,
-				)
-			}
-		}
+    await writeFile(join(staging, 'manifest.json'), JSON.stringify(artifact, null, 2))
+    try {
+      await rename(staging, destination)
+    } catch (error) {
+      if (error.code !== 'EEXIST' && error.code !== 'ENOTEMPTY') {
+        throw error
+      }
 
-		return {
-			...artifact,
-			prebuilt,
-			directory: destination,
-			metadata: {
-				arm64: join(destination, 'metadata.arm64.nsmd'),
-				x86_64: join(destination, 'metadata.x86_64.nsmd'),
-			},
-			cached: false,
-		}
-	} finally {
-		await rm(staging, { recursive: true, force: true })
-	}
+      if (!(await cachedArtifact(destination, key))) {
+        throw new Error(
+          `[macos-native] corrupt cache at ${destination}; remove this directory and retry`,
+        )
+      }
+    }
+
+    return {
+      ...artifact,
+      prebuilt,
+      directory: destination,
+      metadata: {
+        arm64: join(destination, 'metadata.arm64.nsmd'),
+        x86_64: join(destination, 'metadata.x86_64.nsmd'),
+      },
+      cached: false,
+    }
+  } finally {
+    await rm(staging, { recursive: true, force: true })
+  }
 }
 
 /** Load native libraries before app JS; packaged paths remain valid after relocation. */
 export function nativeLoader(artifact, { packaged = false } = {}) {
-	const paths = [
-		...(artifact.prebuilt ?? []).map((lib) => (packaged ? lib.file : lib.source)),
-		...artifact.libraries.map((lib) => (packaged ? lib.file : join(artifact.directory, lib.file))),
-	]
+  const paths = [
+    ...(artifact.prebuilt ?? []).map((lib) => (packaged ? lib.file : lib.source)),
+    ...artifact.libraries.map((lib) => (packaged ? lib.file : join(artifact.directory, lib.file))),
+  ]
 
-	if (!paths.length) {
-		return ''
-	}
+  if (!paths.length) {
+    return ''
+  }
 
-	return `globalThis.__xplatNativeHandles = ${JSON.stringify(paths)}.map(function(file) {\n  var path = ${packaged ? 'String(NSBundle.mainBundle.privateFrameworksPath) + "/" + file' : 'file'};\n  var handle = dlopen(path, 2 | 8);\n  if (!handle) throw Error("Native library failed to load: " + path + ": " + interop.stringFromCString(dlerror()));\n  return handle;\n});\n`
+  return `globalThis.__xplatNativeHandles = ${JSON.stringify(paths)}.map(function(file) {\n  var path = ${packaged ? 'String(NSBundle.mainBundle.privateFrameworksPath) + "/" + file' : 'file'};\n  var handle = dlopen(path, 2 | 8);\n  if (!handle) throw Error("Native library failed to load: " + path + ": " + interop.stringFromCString(dlerror()));\n  return handle;\n});\n`
 }
 
 export async function writeNativeBootstrap(artifact, path, options) {
-	await writeFile(
-		path,
-		nativeLoader(artifact, options) +
-			(await readFile(distUrl(import.meta.url, 'jsc-host/abort-globals.cjs'), 'utf8')) +
-			'\n' +
-			(await readFile(join(hostRoot, 'shim.js'), 'utf8')),
-	)
+  await writeFile(
+    path,
+    nativeLoader(artifact, options) +
+      (await readFile(distUrl(import.meta.url, 'jsc-host/abort-globals.cjs'), 'utf8')) +
+      '\n' +
+      (await readFile(join(hostRoot, 'shim.js'), 'utf8')),
+  )
 }

@@ -73,18 +73,22 @@ function shapeStats(root: unknown): ShapeStats {
     if (!layer) {
       return
     }
+
     if (layer instanceof CAShapeLayer) {
       stats.shapeLayers += 1
       if (layer.path != null) {
         stats.withPath += 1
       }
+
       if (layer.fillColor != null) {
         stats.filled += 1
       }
+
       if (layer.strokeColor != null) {
         stats.stroked += 1
       }
     }
+
     const subs = layer.sublayers
     if (subs) {
       for (let i = 0; i < subs.count; i++) {
@@ -92,6 +96,7 @@ function shapeStats(root: unknown): ShapeStats {
       }
     }
   }
+
   walk(root)
   return stats
 }
@@ -101,9 +106,24 @@ export default function SvgUseIcons() {
     <masonview style={{ flexDirection: 'column', padding: 24 }}>
       <label text="svg use icons" />
       <svgview id="use-flip" src={FLIP_USE} stretch="aspectFit" style={{ width: 58, height: 66 }} />
-      <svgview id="use-inlined" src={FLIP_INLINED} stretch="aspectFit" style={{ width: 58, height: 66 }} />
-      <svgview id="use-minimal" src={MINIMAL_USE} stretch="aspectFit" style={{ width: 24, height: 24 }} />
-      <svgview id="use-filter" src={FILTERED_USE} stretch="aspectFit" style={{ width: 24, height: 24 }} />
+      <svgview
+        id="use-inlined"
+        src={FLIP_INLINED}
+        stretch="aspectFit"
+        style={{ width: 58, height: 66 }}
+      />
+      <svgview
+        id="use-minimal"
+        src={MINIMAL_USE}
+        stretch="aspectFit"
+        style={{ width: 24, height: 24 }}
+      />
+      <svgview
+        id="use-filter"
+        src={FILTERED_USE}
+        stretch="aspectFit"
+        style={{ width: 24, height: 24 }}
+      />
       <svgview id="use-href" src={HREF_USE} stretch="aspectFit" style={{ width: 24, height: 24 }} />
     </masonview>
   )
@@ -116,6 +136,7 @@ export async function run(ctx: ProbeContext) {
     if (!native) {
       throw new Error(`${id} has no native view`)
     }
+
     await ctx.waitFor(() => native.image != null, { timeout: 8000, interval: 25 })
     return { native, stats: shapeStats(native.image.CALayerTree) }
   }
@@ -132,12 +153,14 @@ export async function run(ctx: ProbeContext) {
     console.log(`[svg-use] ${id} ${JSON.stringify(stats)}`)
     ctx.assert(`${id} paints at least one shape`, stats.filled + stats.stroked >= 1)
   }
+
   const flip = ctx.find('use-flip')?.nativeViewProtected
   ctx.assert(
     'use-flip painted shape count matches inlined control',
     (await statsFor('use-flip')).stats.filled,
     inlined.stats.filled,
   )
+
   ctx.record('use-flip contents drawn', flip?.layer?.contents != null)
 
   // Last: bare href variant. Unexpanded it trips SVGKit's xlink:href assert.

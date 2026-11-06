@@ -3,23 +3,23 @@
  * Resolves after shutdown and rejects on startup or unexpected host failure.
  */
 export declare function runMacOSDev(
-	appRoot?: string,
-	options?: {
-		/** Ephemeral development profile; never writes the consumer manifest. */
-		target?: Record<string, unknown>
-		/** Send workshop rebuild/error status to the persistent shell. */
-		workshop?: boolean
-		/** Caller-owned ephemeral resource root; keep outside dependency caches. */
-		resourceRoot?: string
-		/** Host-process launch evidence after each spawn; not proof of app readiness. */
-		onReady?: (metadata: {
-			pid: number
-			renderer: string
-			executable: string
-			observedAt?: string
-			url?: string
-		}) => void
-	},
+  appRoot?: string,
+  options?: {
+    /** Ephemeral development profile; never writes the consumer manifest. */
+    target?: Record<string, unknown>
+    /** Send workshop rebuild/error status to the persistent shell. */
+    workshop?: boolean
+    /** Caller-owned ephemeral resource root; keep outside dependency caches. */
+    resourceRoot?: string
+    /** Host-process launch evidence after each spawn; not proof of app readiness. */
+    onReady?: (metadata: {
+      pid: number
+      renderer: string
+      executable: string
+      observedAt?: string
+      url?: string
+    }) => void
+  },
 ): Promise<void>
 
 /** Run a DOM frontend in WKWebView with the CLI-managed JavaScriptCore host. */

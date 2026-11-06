@@ -194,7 +194,10 @@ async function runParserMode() {
   const candStream = await import('../../../packages/ui/src/markdown/markdown-stream.ts')
   const candHelpers = await import('../../../packages/ui/src/markdown/markdown-plugin-helpers.ts')
   const candProtocol = await import('../../../packages/ui/src/markdown/markdown-plugins.ts')
-  const candPluginEntries = { ...candHelpers, createMarkdownPlugin: candProtocol.createMarkdownPlugin }
+  const candPluginEntries = {
+    ...candHelpers,
+    createMarkdownPlugin: candProtocol.createMarkdownPlugin,
+  }
   // The streaming internals (trim + canonical incremental parse) are not in
   // the published export map, so they come from the shipped source tree —
   // byte-identical to tag v0.7.4 (milestone-0 provenance).

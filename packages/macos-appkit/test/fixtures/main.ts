@@ -88,25 +88,37 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
       // service, rather than a source slice with an injected menu target.
       const bridge: unknown = Reflect.get(globalThis, '__xplatAppKit')
       if (
-        typeof bridge !== 'object' || bridge === null ||
-        !('attachContextMenu' in bridge) || typeof bridge.attachContextMenu !== 'function'
+        typeof bridge !== 'object' ||
+        bridge === null ||
+        !('attachContextMenu' in bridge) ||
+        typeof bridge.attachContextMenu !== 'function'
       ) {
         throw new Error('Packed context-menu service unavailable')
       }
+
       const selected: string[] = []
       const detachMenu: unknown = bridge.attachContextMenu(
-        a, { items: [{ id: 'open', title: 'Open' }] }, (id: string) => selected.push(id),
+        a,
+        { items: [{ id: 'open', title: 'Open' }] },
+        (id: string) => selected.push(id),
       )
+
       if (typeof detachMenu !== 'function') {
         throw new Error('Packed context-menu target was not initialized')
       }
+
       try {
         const item = a.menu.itemAtIndex(0)
-        check(app.sendActionToFrom('menuItemSelected:', item.target, item), 'Menu selector did not dispatch')
+        check(
+          app.sendActionToFrom('menuItemSelected:', item.target, item),
+          'Menu selector did not dispatch',
+        )
+
         check(selected.join(',') === 'open', 'Menu selection missed its action handler')
       } finally {
         detachMenu()
       }
+
       console.log('PACKED_CONTEXTMENU_OK')
       checkPickerBridgeLifecycle(app, nativeWindow.contentView)
 
@@ -336,10 +348,18 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const paintRoot = createMacOSRoot(nativeWindow.contentView)
-              try { await checkPaintLifecycle(paintRoot, nativeWindow) } finally { paintRoot.unmount() }
+              try {
+                await checkPaintLifecycle(paintRoot, nativeWindow)
+              } finally {
+                paintRoot.unmount()
+              }
 
               const hostedRoot = createMacOSRoot(nativeWindow.contentView)
-              try { await checkHostedLifecycle(hostedRoot, nativeWindow) } finally { hostedRoot.unmount() }
+              try {
+                await checkHostedLifecycle(hostedRoot, nativeWindow)
+              } finally {
+                hostedRoot.unmount()
+              }
 
               await checkActionOwnershipLifecycle(nativeWindow)
               await checkRootDirectoryLifecycle(nativeWindow)

@@ -75,6 +75,7 @@ export function createRoots(deps: Dependencies) {
       failures.run('root setup', () => {
         throw error
       })
+
       failures.run('root setup unwind', root.unmount)
       failures.throwIfFailed()
     }

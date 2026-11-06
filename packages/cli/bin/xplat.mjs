@@ -8,16 +8,18 @@ import { resolve } from 'node:path'
 const platform = { darwin: 'darwin', linux: 'linux', win32: 'windows' }[process.platform]
 const arch = { arm64: 'arm64', x64: 'amd64' }[process.arch]
 const binary = resolve(
-	import.meta.dirname,
-	`../../../research/go-cli/xplat-go-${platform}-${arch}-cli${platform === 'windows' ? '.exe' : ''}`,
+  import.meta.dirname,
+  `../../../research/go-cli/xplat-go-${platform}-${arch}-cli${platform === 'windows' ? '.exe' : ''}`,
 )
+
 if (!existsSync(binary)) {
-	console.error('build it with `bun run turbo run build:go --filter=@xplat/cli-go-probe`')
-	process.exit(1)
+  console.error('build it with `bun run turbo run build:go --filter=@xplat/cli-go-probe`')
+  process.exit(1)
 }
+
 const result = spawnSync(binary, process.argv.slice(2), { stdio: 'inherit' })
 if (result.signal) {
-	process.kill(process.pid, result.signal)
+  process.kill(process.pid, result.signal)
 } else {
-	process.exit(result.status ?? 1)
+  process.exit(result.status ?? 1)
 }

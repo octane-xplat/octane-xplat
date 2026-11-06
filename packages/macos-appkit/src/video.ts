@@ -255,6 +255,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
       0,
       null,
     )
+
     created.playerObserved = true
 
     state = created

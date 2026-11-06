@@ -69,6 +69,7 @@ test('xplatIcons syncs the .icon type-stub tree at config time', () => {
       join(root, 'node_modules/@iconify-json/mini'),
       join(bare, 'node_modules/@iconify-json/mini'),
     )
+
     try {
       xplatIcons({ stubs: false }).configResolved({ root: bare })
       assert.ok(!existsSync(join(bare, '.icons')))

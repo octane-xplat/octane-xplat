@@ -22,22 +22,49 @@ function fixture() {
   const injected = new Map<string, unknown>()
   const run = (name: string) => {
     trace.push(name)
-    if (injected.has(name)) { throw injected.get(name) }
+    if (injected.has(name)) {
+      throw injected.get(name)
+    }
   }
-  const services = (names: string[]) => Object.fromEntries(names.map(name => [name, () => run(name)]))
+  const services = (names: string[]) =>
+    Object.fromEntries(names.map((name) => [name, () => run(name)]))
   const deps: any = {
     registry: {
       adapters: createElementAdapterCatalog(),
-      assertSupportedType() {}, behaviorOf: () => ({ destroy: () => run('prepare') }),
-      nodeContainersByView: new WeakMap(), cssNodesByView: new WeakMap(),
+      assertSupportedType() {},
+      behaviorOf: () => ({ destroy: () => run('prepare') }),
+      nodeContainersByView: new WeakMap(),
+      cssNodesByView: new WeakMap(),
     },
-    cssCascade: { cssChildren: node => node.children },
+    cssCascade: { cssChildren: (node) => node.children },
     cssAnimations: services(['cancelKeyframeAnimations']),
     inputElements: services(['disposeBuiltinTextViewLayout', 'disposeBuiltinTextInput']),
-    subscriptions: { focusWithinDispatcher: { set: () => run('focus') }, keyboardDispatcher: { set: () => run('keys') } },
-    hostedElements: services(['disposeBuiltinListView', 'disposeBuiltinPager', 'disposeBuiltinVideo', 'disposeBuiltinTabView', 'disposeBuiltinTabItem', 'disposeBuiltinWebView']),
-    pickerElements: services(['disposeBuiltinSegmentedItem', 'disposeBuiltinSegmentedChildren', 'disposeBuiltinSegmentedControl', 'disposeBuiltinListPicker', 'disposeBuiltinTimePicker', 'disposeBuiltinDatePicker']),
-    containerElements: services(['disposeBuiltinRootLayout', 'disposeBuiltinLiquidGlass', 'disposeBuiltinContentHost', 'disposeBuiltinPlaceholder']),
+    subscriptions: {
+      focusWithinDispatcher: { set: () => run('focus') },
+      keyboardDispatcher: { set: () => run('keys') },
+    },
+    hostedElements: services([
+      'disposeBuiltinListView',
+      'disposeBuiltinPager',
+      'disposeBuiltinVideo',
+      'disposeBuiltinTabView',
+      'disposeBuiltinTabItem',
+      'disposeBuiltinWebView',
+    ]),
+    pickerElements: services([
+      'disposeBuiltinSegmentedItem',
+      'disposeBuiltinSegmentedChildren',
+      'disposeBuiltinSegmentedControl',
+      'disposeBuiltinListPicker',
+      'disposeBuiltinTimePicker',
+      'disposeBuiltinDatePicker',
+    ]),
+    containerElements: services([
+      'disposeBuiltinRootLayout',
+      'disposeBuiltinLiquidGlass',
+      'disposeBuiltinContentHost',
+      'disposeBuiltinPlaceholder',
+    ]),
     textElements: services(['disposeBuiltinFormattedText', 'disposeTextLinks']),
     projection: services(['disposeBuiltinProxyChildren']),
     controls: services(['disposeBuiltinActivityIndicator', 'disposeBuiltinScrollView']),
@@ -47,19 +74,39 @@ function fixture() {
     layout: { layoutHandlers: new WeakMap() },
     accessibleHost: { accessibilityLabels: new Map(), accessibilityRoles: new Map() },
     store: createActionStore(),
-    actions: { disposeActions(node) { deps.actions.actionHandlers.delete(node.actionId) }, actionHandlers: new Map() },
+    actions: {
+      disposeActions(node) {
+        deps.actions.actionHandlers.delete(node.actionId)
+      },
+      actionHandlers: new Map(),
+    },
     accessibility: { disposeAccessibility() {} },
     elementProps: { applyProps: () => run('props') },
     cssPseudoState: { syncPseudoTracking() {} },
   }
-  const container: any = { nodes: new Map(), children: [], fontFamily: undefined, cssDirty: new Set() }
+  const container: any = {
+    nodes: new Map(),
+    children: [],
+    fontFamily: undefined,
+    cssDirty: new Set(),
+  }
   const nodes = createNodes(deps)
   const node: any = {
-    id: 1, type: 'span', lifecycle: 'live', view: {}, props: { onFocus() {}, onKeyDown() {} },
-    container, parent: null, children: [], actionId: 1, boxFrameOwner: {},
+    id: 1,
+    type: 'span',
+    lifecycle: 'live',
+    view: {},
+    props: { onFocus() {}, onKeyDown() {} },
+    container,
+    parent: null,
+    children: [],
+    actionId: 1,
+    boxFrameOwner: {},
   }
   node.adapter = {
-    container: false, hasView: true, create() {},
+    container: false,
+    hasView: true,
+    create() {},
     retire: deps.inputElements.disposeBuiltinTextViewLayout,
     prepareDispose() {
       const failures = new FailureCollector()
@@ -81,13 +128,29 @@ function fixture() {
   return { deps, nodes, node, trace, injected, container, run }
 }
 
-for (const stage of ['focus', 'keys', 'prepare', 'disposeBuiltinListView', 'detach', 'disposeBuiltinTextInput', 'paint']) {
+for (const stage of [
+  'focus',
+  'keys',
+  'prepare',
+  'disposeBuiltinListView',
+  'detach',
+  'disposeBuiltinTextInput',
+  'paint',
+]) {
   test('node cleanup continues after ' + stage + ' and reentry cannot repeat it', () => {
     const fx = fixture()
     const failure = Error(stage)
     fx.injected.set(stage, failure)
-    fx.node.destroyHooks = [() => { fx.nodes.destroy(fx.node); fx.run('hook') }]
-    assert.throws(() => fx.nodes.destroy(fx.node), error => error === failure)
+    fx.node.destroyHooks = [
+      () => {
+        fx.nodes.destroy(fx.node)
+        fx.run('hook')
+      },
+    ]
+    assert.throws(
+      () => fx.nodes.destroy(fx.node),
+      (error) => error === failure,
+    )
     assert.equal(fx.node.lifecycle, 'disposed')
     assert.equal(fx.container.nodes.size, 0)
     assert.equal(fx.deps.actions.actionHandlers.size, 0)
@@ -97,22 +160,37 @@ for (const stage of ['focus', 'keys', 'prepare', 'disposeBuiltinListView', 'deta
     const count = fx.trace.length
     fx.nodes.destroy(fx.node)
     assert.equal(fx.trace.length, count)
-    assert.equal(fx.trace.filter(name => name === stage).length, 1)
+    assert.equal(fx.trace.filter((name) => name === stage).length, 1)
   })
 }
 
 test('multiple cleanup errors retain values and labels while later identity cleanup still runs', () => {
   const fx = fixture()
-  const first = Error('hook'), second = Error('paint'), third = Error('identity')
-  fx.node.destroyHooks = [() => { throw first }, () => fx.run('next hook')]
+  const first = Error('hook'),
+    second = Error('paint'),
+    third = Error('identity')
+  fx.node.destroyHooks = [
+    () => {
+      throw first
+    },
+    () => fx.run('next hook'),
+  ]
   fx.injected.set('paint', second)
-  fx.deps.accessibility.disposeAccessibility = () => { throw third }
-  assert.throws(() => fx.nodes.destroy(fx.node), error => {
-    assert.ok(error instanceof PhaseErrors)
-    assert.deepEqual(error.errors, [first, second, third])
-    assert.deepEqual(error.failures.map(failure => failure.phase), ['destroy hook 0', 'box paint', 'accessibility'])
-    return true
-  })
+  fx.deps.accessibility.disposeAccessibility = () => {
+    throw third
+  }
+  assert.throws(
+    () => fx.nodes.destroy(fx.node),
+    (error) => {
+      assert.ok(error instanceof PhaseErrors)
+      assert.deepEqual(error.errors, [first, second, third])
+      assert.deepEqual(
+        error.failures.map((failure) => failure.phase),
+        ['destroy hook 0', 'box paint', 'accessibility'],
+      )
+      return true
+    },
+  )
   assert.ok(fx.trace.includes('next hook'))
   assert.equal(fx.container.nodes.size, 0)
   assert.equal(fx.node.lifecycle, 'disposed')
@@ -120,18 +198,35 @@ test('multiple cleanup errors retain values and labels while later identity clea
 
 test('failed partial construction preserves its primary error with cleanup errors', () => {
   const fx = fixture()
-  const primary = Error('construction'), cleanup = Error('cleanup')
+  const primary = Error('construction'),
+    cleanup = Error('cleanup')
   fx.injected.set('props', primary)
   fx.injected.set('prepare', cleanup)
-  fx.deps.registry.adapters.register('span', { container: false, hasView: false, create() {}, prepareDispose() { fx.run('prepare') } })
-  assert.throws(() => fx.nodes.makeNode(fx.container, 2, 'span', {}), error => {
-    assert.ok(error instanceof PhaseErrors)
-    assert.deepEqual(error.errors, [primary, cleanup])
-    assert.deepEqual(error.failures.map(failure => failure.phase), ['construction', 'construction cleanup'])
-    return true
+  fx.deps.registry.adapters.register('span', {
+    container: false,
+    hasView: false,
+    create() {},
+    prepareDispose() {
+      fx.run('prepare')
+    },
   })
+  assert.throws(
+    () => fx.nodes.makeNode(fx.container, 2, 'span', {}),
+    (error) => {
+      assert.ok(error instanceof PhaseErrors)
+      assert.deepEqual(error.errors, [primary, cleanup])
+      assert.deepEqual(
+        error.failures.map((failure) => failure.phase),
+        ['construction', 'construction cleanup'],
+      )
+      return true
+    },
+  )
   fx.injected.delete('prepare')
-  assert.throws(() => fx.nodes.makeNode(fx.container, 2, 'span', {}), error => error === primary)
+  assert.throws(
+    () => fx.nodes.makeNode(fx.container, 2, 'span', {}),
+    (error) => error === primary,
+  )
 })
 
 test('held native action and submit closures are inert as soon as retirement starts', () => {
@@ -141,32 +236,65 @@ test('held native action and submit closures are inert as soon as retirement sta
   fx.node.container.root = { eventScope: (_kind, callback) => callback() }
   let calls = 0
   actions.acquireAction(fx.node, fx.node.view)
-  actions.setControlAction(fx.node, () => calls++, () => 1)
+  actions.setControlAction(
+    fx.node,
+    () => calls++,
+    () => 1,
+  )
   actions.setTextSubmitAction(fx.node, () => calls++)
-  const action = () => actions.invokeAction(fx.node.actionId), submit = fx.node.submitHandler
-  action(); submit()
+  const action = () => actions.invokeAction(fx.node.actionId),
+    submit = fx.node.submitHandler
+  action()
+  submit()
   assert.equal(calls, 2)
-  fx.node.destroyHooks = [() => { action(); submit() }]
+  fx.node.destroyHooks = [
+    () => {
+      action()
+      submit()
+    },
+  ]
   fx.nodes.destroy(fx.node)
-  action(); submit()
+  action()
+  submit()
   assert.equal(calls, 2)
 })
 
 test('native detach failure still releases pins and synchronizes the live parent', () => {
   const fx = fixture()
-  const parent: any = { type: 'contentview', children: [fx.node], contentChild: fx.node, view: { invalidateIntrinsicContentSize: () => fx.run('parent size') } }
+  const parent: any = {
+    type: 'contentview',
+    children: [fx.node],
+    contentChild: fx.node,
+    view: { invalidateIntrinsicContentSize: () => fx.run('parent size') },
+  }
   fx.node.parent = parent
   const failure = Error('native detach')
-  fx.node.view.removeFromSuperview = () => { throw failure }
+  fx.node.view.removeFromSuperview = () => {
+    throw failure
+  }
   const tree = createTree({
     ...fx.deps,
     cssAnimations: { stopSubtreeAnimations: () => fx.run('stop') },
     nativeStyle: { deactivateSizeConstraints: () => fx.run('size') },
-    layout: { releasePlacementPins: () => fx.run('pins'), layoutView: node => node.view, queueLayoutReconcile: () => fx.run('parent layout') },
+    layout: {
+      releasePlacementPins: () => fx.run('pins'),
+      layoutView: (node) => node.view,
+      queueLayoutReconcile: () => fx.run('parent layout'),
+    },
     textElements: { syncText: () => fx.run('parent text') },
   })
-  assert.throws(() => tree.detach(fx.container, fx.node), error => error === failure)
-  assert.deepEqual(fx.trace, ['stop', 'size', 'pins', 'parent size', 'parent layout', 'parent text'])
+  assert.throws(
+    () => tree.detach(fx.container, fx.node),
+    (error) => error === failure,
+  )
+  assert.deepEqual(fx.trace, [
+    'stop',
+    'size',
+    'pins',
+    'parent size',
+    'parent layout',
+    'parent text',
+  ])
   assert.equal(fx.node.parent, null)
   assert.deepEqual(parent.children, [])
 })
@@ -175,36 +303,53 @@ test('tab nested-root failure retires root once and continues native/resource di
   const fx = fixture()
   fx.node.type = 'tabviewitem'
   const failure = Error('nested root')
-  fx.node.tabContentRoot = { unmount() { fx.run('unmount'); releaseTabItem(fx.node); throw failure } }
+  fx.node.tabContentRoot = {
+    unmount() {
+      fx.run('unmount')
+      releaseTabItem(fx.node)
+      throw failure
+    },
+  }
   fx.node.tabIconTask = { cancel: () => fx.run('cancel') }
   fx.node.tabNativeItem = { view: {}, image: {} }
   fx.node.childHost = { removeFromSuperview: () => fx.run('child host') }
-  assert.throws(() => releaseTabItem(fx.node), error => error === failure)
+  assert.throws(
+    () => releaseTabItem(fx.node),
+    (error) => error === failure,
+  )
   releaseTabItem(fx.node)
   assert.deepEqual(fx.trace, ['unmount', 'cancel', 'child host'])
   assert.equal(fx.node.tabContentRoot, null)
   assert.equal(fx.node.tabNativeItem.view, null)
 })
 
-
 test('subscription release failure retires held callbacks and attempts the other leases', () => {
   const fx = fixture()
   const subscriptions = createSubscriptions(fx.deps)
   const held: (() => void)[] = []
-  let releases = 0, calls = 0
+  let releases = 0,
+    calls = 0
   const failure = Error('subscription release')
   subscriptions.keyboardDispatcher.subscribe = (_view, handlers) => {
     held.push(() => handlers.onKeyDown?.({} as any))
     const index = held.length
-    return () => { releases++; if (index === 1) { throw failure } }
+    return () => {
+      releases++
+      if (index === 1) {
+        throw failure
+      }
+    }
   }
   fx.node.container.root = { eventScope: (_kind, callback) => callback() }
   subscriptions.observeViewKeys(fx.node.view, { onKeyDown: () => calls++ })
   subscriptions.observeViewKeys(fx.node.view, { onKeyDown: () => calls++ })
-  held.forEach(callback => callback())
+  held.forEach((callback) => callback())
   assert.equal(calls, 2)
-  assert.throws(() => fx.nodes.destroy(fx.node), error => error === failure)
-  held.forEach(callback => callback())
+  assert.throws(
+    () => fx.nodes.destroy(fx.node),
+    (error) => error === failure,
+  )
+  held.forEach((callback) => callback())
   assert.equal(calls, 2)
   assert.equal(releases, 2)
 })
@@ -219,9 +364,14 @@ test('content preparation failure cannot skip sibling detachment or the host ide
   const detached: number[] = []
   fx.deps.tree.detach = (_container, child) => {
     detached.push(child.id)
-    if (child.id === 2) { throw failure }
+    if (child.id === 2) {
+      throw failure
+    }
   }
-  assert.throws(() => elements.disposeBuiltinContentHost(fx.node), error => error === failure)
+  assert.throws(
+    () => elements.disposeBuiltinContentHost(fx.node),
+    (error) => error === failure,
+  )
   assert.deepEqual(detached, [2, 3])
   assert.equal(elements.contentViewNodesByView.has(fx.node.view), false)
 })
@@ -231,11 +381,24 @@ test('paint cleanup retires every image release before reentry and still detache
   const paint = createBackgroundPaint()
   const failure = Error('image release')
   fx.node.bgPainted = [
-    { release() { fx.run('image one'); paint.clearBackgrounds(fx.node, fx.node); throw failure } },
-    { release() { fx.run('image two') } },
+    {
+      release() {
+        fx.run('image one')
+        paint.clearBackgrounds(fx.node, fx.node)
+        throw failure
+      },
+    },
+    {
+      release() {
+        fx.run('image two')
+      },
+    },
   ]
   fx.node.bgHost = { removeFromSuperlayer: () => fx.run('paint host') }
-  assert.throws(() => paint.clearBackgrounds(fx.node, fx.node), error => error === failure)
+  assert.throws(
+    () => paint.clearBackgrounds(fx.node, fx.node),
+    (error) => error === failure,
+  )
   paint.clearBackgrounds(fx.node, fx.node)
   assert.deepEqual(fx.trace, ['image one', 'image two', 'paint host'])
   assert.equal(fx.node.bgPainted, undefined)
@@ -251,20 +414,36 @@ test('standalone CSS failure resets ownership without publishing success; next f
   fx.container.hostView = {}
   fx.container.layoutDirty = null
   const failure = Error('cascade')
-  let fail = true, observations = 0, drains = 0
+  let fail = true,
+    observations = 0,
+    drains = 0
   const css = createCssCascade({
     ...fx.deps,
     hostBridge: { appKitBridge: {} },
     roots: { appKitContainers: new Set() },
-    layout: { drainLayoutDirty() { drains++ } },
+    layout: {
+      drainLayoutDirty() {
+        drains++
+      },
+    },
     cssAnimations: { ...fx.deps.cssAnimations, sameAnimations: () => true },
-    nativeStyle: { applyStyle() { if (fail) { throw failure } } },
+    nativeStyle: {
+      applyStyle() {
+        if (fail) {
+          throw failure
+        }
+      },
+    },
     textElements: { syncText() {} },
   })
   const off = observeLayoutCommits(() => observations++)
   try {
     fx.container.cssDirty = new Set([fx.node])
-    assert.throws(() => css.flushStyleDirty(fx.container), error => error === failure)
+    assert.throws(
+      () => css.flushStyleDirty(fx.container),
+      (error) => error === failure,
+    )
+
     assert.equal(fx.container.layoutDirty, null)
     assert.equal(observations, 0)
     assert.equal(drains, 0)
@@ -273,14 +452,22 @@ test('standalone CSS failure resets ownership without publishing success; next f
     css.flushStyleDirty(fx.container)
     assert.equal(observations, 1)
     assert.equal(drains, 1)
-  } finally { off() }
+  } finally {
+    off()
+  }
 })
-
 
 test('destruction during construction cannot revive or register the partial node', () => {
   const fx = fixture()
   let partial: any
-  fx.deps.registry.adapters.register('span', { container: false, hasView: false, create(node) { partial = node; fx.nodes.destroy(node) } })
+  fx.deps.registry.adapters.register('span', {
+    container: false,
+    hasView: false,
+    create(node) {
+      partial = node
+      fx.nodes.destroy(node)
+    },
+  })
   assert.throws(() => fx.nodes.makeNode(fx.container, 2, 'span', {}), /retired during construction/)
   assert.equal(partial.lifecycle, 'disposed')
   assert.equal(fx.container.nodes.has(2), false)

@@ -18,8 +18,16 @@ const { createContainerElements } = await import('../src/container-elements.ts')
 const { createPickerElements } = await import('../src/picker-elements.ts')
 const { createInputElements } = await import('../src/input-elements.ts')
 const { createActions } = await import('../src/actions.ts')
-const { NSButton, NSSlider, NSProgressIndicator, NSPopUpButton, NSMenuItem, NSNotificationCenter, NSView } =
-  await import('@octane-xplat/platform/macos')
+const {
+  NSButton,
+  NSSlider,
+  NSProgressIndicator,
+  NSPopUpButton,
+  NSMenuItem,
+  NSNotificationCenter,
+  NSView,
+} = await import('@octane-xplat/platform/macos')
+
 hooks.deregister()
 
 // Production node/prop/adapter/feature owners; only native objects and unrelated
@@ -78,12 +86,29 @@ function fixture() {
     },
   })
   Object.assign(NSPopUpButton.prototype, {
-    initWithFramePullsDown() { this.menu = { items: [], addItem(item) { this.items.push(item) } }; return this },
-    removeAllItems() { this.menu.items.length = 0 },
-    selectItemAtIndex(index) { this.indexOfSelectedItem = index },
+    initWithFramePullsDown() {
+      this.menu = {
+        items: [],
+        addItem(item) {
+          this.items.push(item)
+        },
+      }
+      return this
+    },
+    removeAllItems() {
+      this.menu.items.length = 0
+    },
+    selectItemAtIndex(index) {
+      this.indexOfSelectedItem = index
+    },
     invalidateIntrinsicContentSize() {},
   })
-  Object.assign(NSMenuItem.prototype, { initWithTitleActionKeyEquivalent(title) { this.title = title; return this } })
+  Object.assign(NSMenuItem.prototype, {
+    initWithTitleActionKeyEquivalent(title) {
+      this.title = title
+      return this
+    },
+  })
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -143,7 +168,14 @@ function fixture() {
     store,
     layout,
     cssCascade,
-    textElements: { syncText: noop, syncTextLinks: noop, disposeTextLinks: noop, syncLabelOverflow: noop, syncHtmlView: noop, makeLabel: nativeView },
+    textElements: {
+      syncText: noop,
+      syncTextLinks: noop,
+      disposeTextLinks: noop,
+      syncLabelOverflow: noop,
+      syncHtmlView: noop,
+      makeLabel: nativeView,
+    },
     inputElements: {
       textNodesByView: new WeakMap(),
       disposeBuiltinTextViewLayout() {
@@ -189,11 +221,39 @@ function fixture() {
     ...createInputElements({ ...deps, actions }),
     makeTextField: nativeView,
     makeSearchBar: nativeView,
-    initializeTextViewport() { run('text viewport') },
-    fitTextView() { run('text fit') },
+    initializeTextViewport() {
+      run('text viewport')
+    },
+    fitTextView() {
+      run('text fit')
+    },
   }
-  Object.assign(deps, { actions, controls, containerElements: containers, inputElements: inputs, pickerElements: pickers })
-  const assembly = createElementAdapters({ registry, controls, containers, actions, layout, textElements: deps.textElements, inputElements: deps.inputElements, pickerElements: deps.pickerElements, cssCascade: deps.cssCascade, projection: deps.projection, accessibility: deps.accessibility, imageElements: deps.imageElements, roots: deps.roots, nativeStyle: deps.nativeStyle, subscriptions: deps.subscriptions, nodes: { validateNodeProps: (...args) => deps.nodes.validateNodeProps(...args) }, tree: deps.tree })
+  Object.assign(deps, {
+    actions,
+    controls,
+    containerElements: containers,
+    inputElements: inputs,
+    pickerElements: pickers,
+  })
+  const assembly = createElementAdapters({
+    registry,
+    controls,
+    containers,
+    actions,
+    layout,
+    textElements: deps.textElements,
+    inputElements: deps.inputElements,
+    pickerElements: deps.pickerElements,
+    cssCascade: deps.cssCascade,
+    projection: deps.projection,
+    accessibility: deps.accessibility,
+    imageElements: deps.imageElements,
+    roots: deps.roots,
+    nativeStyle: deps.nativeStyle,
+    subscriptions: deps.subscriptions,
+    nodes: { validateNodeProps: (...args) => deps.nodes.validateNodeProps(...args) },
+    tree: deps.tree,
+  })
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
   deps.elementProps = props
@@ -344,7 +404,9 @@ for (const boundary of ['validate', 'create', 'admission', 'feature', 'after', '
         node.destroyHooks = [() => f.run('hook')]
         f.run('create')
       },
-      beforeProps() { f.run('admission') },
+      beforeProps() {
+        f.run('admission')
+      },
       applyProp() {
         f.run('feature')
         return true
@@ -562,12 +624,29 @@ test('content geometry releases a late native token when registration reenters r
     token = {}
   let observedView: object | undefined
   Object.assign(NSPopUpButton.prototype, {
-    initWithFramePullsDown() { this.menu = { items: [], addItem(item) { this.items.push(item) } }; return this },
-    removeAllItems() { this.menu.items.length = 0 },
-    selectItemAtIndex(index) { this.indexOfSelectedItem = index },
+    initWithFramePullsDown() {
+      this.menu = {
+        items: [],
+        addItem(item) {
+          this.items.push(item)
+        },
+      }
+      return this
+    },
+    removeAllItems() {
+      this.menu.items.length = 0
+    },
+    selectItemAtIndex(index) {
+      this.indexOfSelectedItem = index
+    },
     invalidateIntrinsicContentSize() {},
   })
-  Object.assign(NSMenuItem.prototype, { initWithTitleActionKeyEquivalent(title) { this.title = title; return this } })
+  Object.assign(NSMenuItem.prototype, {
+    initWithTitleActionKeyEquivalent(title) {
+      this.title = title
+      return this
+    },
+  })
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -625,7 +704,8 @@ test('normal author registration replaces future pilot definitions without redir
   const f = fixture(),
     events: string[] = []
   f.assembly.registerElementType('button', {
-    container: false, hasView: true,
+    container: false,
+    hasView: true,
     applyProp(_node, name) {
       events.push('old ' + name)
       return false
@@ -636,7 +716,8 @@ test('normal author registration replaces future pilot definitions without redir
   })
   const old = f.make('button', { text: 'Old' })
   f.assembly.registerElementType('button', {
-    container: false, hasView: true,
+    container: false,
+    hasView: true,
     applyProp(_node, name) {
       events.push('new ' + name)
       return false
@@ -660,7 +741,8 @@ test('registration replacement inside a live native action cannot redirect reent
   const f = fixture(),
     events: string[] = []
   f.assembly.registerElementType('button', {
-    container: false, hasView: true,
+    container: false,
+    hasView: true,
     prepareDispose() {
       events.push('acquired')
     },
@@ -668,7 +750,8 @@ test('registration replacement inside a live native action cannot redirect reent
   const node = f.make('button', {
     onPress() {
       f.assembly.registerElementType('button', {
-    container: false, hasView: true,
+        container: false,
+        hasView: true,
         prepareDispose() {
           events.push('replacement')
         },
@@ -699,6 +782,7 @@ test('canonical switch and slider clear handlers and values without replacing th
         calls++
       },
     })
+
     const id = node.view!.tag
     f.props.applyProps(node, f.props.droppedPropClears(node, {}))
     assert.equal(node.view!.tag, id)
@@ -733,12 +817,14 @@ test('acquired textview retires sizing before hooks and releases its action afte
   const node = f.make('textview')
   assert.equal(node.view!.delegate != null, true)
   node.textLayoutDetach = () => f.trace.push('text sizing retired')
-  node.destroyHooks = [() => {
-    assert.equal(node.textLayoutRetired, true)
-    assert.equal(node.textLayoutDetach, undefined)
-    assert.equal(f.store.idForView(node.view!) != null, true)
-    f.trace.push('text hook')
-  }]
+  node.destroyHooks = [
+    () => {
+      assert.equal(node.textLayoutRetired, true)
+      assert.equal(node.textLayoutDetach, undefined)
+      assert.equal(f.store.idForView(node.view!) != null, true)
+      f.trace.push('text hook')
+    },
+  ]
   f.nodes.destroy(node)
   assert.ok(f.trace.indexOf('text sizing retired') < f.trace.indexOf('text hook'))
   assert.ok(f.trace.indexOf('text hook') < f.trace.indexOf('detach 1'))
@@ -747,18 +833,30 @@ test('acquired textview retires sizing before hooks and releases its action afte
 })
 
 test('partial textview construction unwinds delegate and action ownership after a common prop failure', () => {
-  const f = fixture(), failure = Error('failed text props')
+  const f = fixture(),
+    failure = Error('failed text props')
   f.failures.set('common id', failure)
-  assert.throws(() => f.make('textview', { id: 'text' }), error => error === failure)
+  assert.throws(
+    () => f.make('textview', { id: 'text' }),
+    (error) => error === failure,
+  )
   const view = f.views.at(-1)
   assert.equal(view.delegate, null)
   assert.equal(f.store.idForView(view), undefined)
 })
 
 test('acquired listpicker synchronizes the complete bag, preserves native selection and retires held action dispatch', () => {
-  const f = fixture(), events: number[] = []
-  const node = f.make('listpicker', { items: ['a', 'a', 'c'], selectedIndex: 2, onSelectedIndexChange(event) { events.push(event.value) } })
-  const view = node.view!, id = view.tag
+  const f = fixture(),
+    events: number[] = []
+  const node = f.make('listpicker', {
+    items: ['a', 'a', 'c'],
+    selectedIndex: 2,
+    onSelectedIndexChange(event) {
+      events.push(event.value)
+    },
+  })
+  const view = node.view!,
+    id = view.tag
   assert.equal(view.menu.items.length, 3)
   assert.equal(view.indexOfSelectedItem, 2)
   f.props.applyProps(node, { items: ['x', 'y'], selectedIndex: 1 })
@@ -773,7 +871,6 @@ test('acquired listpicker synchronizes the complete bag, preserves native select
   assert.equal(f.store.idForView(view), undefined)
 })
 
-
 test('root adapter retires geometry identity before failing observer release and detaches every child', () => {
   const f = fixture()
   const node = f.make('rootlayout')
@@ -784,7 +881,10 @@ test('root adapter retires geometry identity before failing observer release and
   f.trace.length = 0
   const failure = Error('root observer release')
   f.failures.set('unobserve', failure)
-  assert.throws(() => f.nodes.destroy(node), (error) => error === failure)
+  assert.throws(
+    () => f.nodes.destroy(node),
+    (error) => error === failure,
+  )
   assert.equal(f.containers.rootLayoutNodesByView.has(node.view!), false)
   assert.equal(node.rootGeometryObserver, null)
   assert.ok(f.trace.indexOf('detach 2') < f.trace.indexOf('detach 1'))
@@ -799,11 +899,13 @@ test('root partial acquisition releases its host identity when geometry observat
   const f = fixture()
   const failure = Error('root observation')
   f.failures.set('observe', failure)
-  assert.throws(() => f.make('rootlayout'), (error) => error === failure)
+  assert.throws(
+    () => f.make('rootlayout'),
+    (error) => error === failure,
+  )
   assert.equal(f.container.nodes.size, 0)
   assert.ok(f.trace.includes('detach 1'))
 })
-
 
 test('the assembled builtin and registered-engine inventory has one canonical definition per supported type', () => {
   const f = fixture()
@@ -811,12 +913,54 @@ test('the assembled builtin and registered-engine inventory has one canonical de
   installMasonElement({
     registerElementType: f.assembly.registerElementType,
     baseView: NSView,
-    layoutView: node => node.view, pinLayoutChild: noop, queueLayoutReconcile: noop,
-    detach: noop, applyStyle: noop, applyClassName: noop, applyAccessibility: noop,
-    setAction: noop, setPanAction: noop, makeScrollView: f.deps.controls.makeScrollView,
+    layoutView: (node) => node.view,
+    pinLayoutChild: noop,
+    queueLayoutReconcile: noop,
+    detach: noop,
+    applyStyle: noop,
+    applyClassName: noop,
+    applyAccessibility: noop,
+    setAction: noop,
+    setPanAction: noop,
+    makeScrollView: f.deps.controls.makeScrollView,
     disposeActions: f.actions.disposeActions,
   })
-  const expected = ['rootlayout', 'contentview', 'actionbar', 'proxyviewcontainer', 'masonview', 'scrollview', 'liquidglass', 'label', 'htmlview', '#text', 'button', 'textfield', 'textview', 'searchbar', 'switch', 'slider', 'activityindicator', 'progress', 'datepicker', 'timepicker', 'listpicker', 'listview', 'segmentedbar', 'tabview', 'tabviewitem', 'segmentedbaritem', 'webview', 'image', 'animatedimage', 'pager', 'xplatvideo', 'placeholder', 'span', 'formattedstring'].sort()
+  const expected = [
+    'rootlayout',
+    'contentview',
+    'actionbar',
+    'proxyviewcontainer',
+    'masonview',
+    'scrollview',
+    'liquidglass',
+    'label',
+    'htmlview',
+    '#text',
+    'button',
+    'textfield',
+    'textview',
+    'searchbar',
+    'switch',
+    'slider',
+    'activityindicator',
+    'progress',
+    'datepicker',
+    'timepicker',
+    'listpicker',
+    'listview',
+    'segmentedbar',
+    'tabview',
+    'tabviewitem',
+    'segmentedbaritem',
+    'webview',
+    'image',
+    'animatedimage',
+    'pager',
+    'xplatvideo',
+    'placeholder',
+    'span',
+    'formattedstring',
+  ].sort()
   const entries = f.registry.adapters.entries()
   assert.deepEqual(entries.map(([type]) => type).sort(), expected)
   for (const [type, adapter] of entries) {
@@ -828,33 +972,76 @@ test('the assembled builtin and registered-engine inventory has one canonical de
   assert.equal(f.registry.adapters.lookup('liquidglass')!.containerStyles, true)
 })
 
-
 test('batch preflight preserves an acquired live parent capability after registration replacement', () => {
   const f = fixture()
-  f.assembly.registerElementType('extension-host', { container: true, hasView: true, create(node) { node.view = new NSView() } })
+  f.assembly.registerElementType('extension-host', {
+    container: true,
+    hasView: true,
+    create(node) {
+      node.view = new NSView()
+    },
+  })
   const parent = f.make('extension-host', {}, 10)
   const child = f.make('button', {}, 11)
-  f.assembly.registerElementType('extension-host', { container: false, hasView: true, create(node) { node.view = new NSView() } })
-  const driver = createDriver({ ...f.deps, registry: f.registry, nodes: f.nodes,
-    tree: { ...f.deps.tree, validateTextNesting() {} }, projection: { validateProxyTree() {} } })
-  assert.doesNotThrow(() => driver.macOSDriver.prepareBatch(f.container, { commands: [{ op: 'insert', id: child.id, parent: parent.id, before: null }] }))
+  f.assembly.registerElementType('extension-host', {
+    container: false,
+    hasView: true,
+    create(node) {
+      node.view = new NSView()
+    },
+  })
+  const driver = createDriver({
+    ...f.deps,
+    registry: f.registry,
+    nodes: f.nodes,
+    tree: { ...f.deps.tree, validateTextNesting() {} },
+    projection: { validateProxyTree() {} },
+  })
+  assert.doesNotThrow(() =>
+    driver.macOSDriver.prepareBatch(f.container, {
+      commands: [{ op: 'insert', id: child.id, parent: parent.id, before: null }],
+    }),
+  )
   assert.equal(parent.adapter!.container, true)
   assert.equal(f.registry.canContainView('extension-host'), false)
 })
 
-
 test('registered Mason layout leaves builtin scroll handler removals to the acquired scroll definition', () => {
   const f = fixture()
   const noop = () => {}
-  installMasonElement({ registerElementType: f.assembly.registerElementType, baseView: NSView,
-    layoutView: node => node.view, pinLayoutChild: noop, queueLayoutReconcile: noop, detach: noop,
-    applyStyle: noop, applyClassName: noop, applyAccessibility: noop, setAction: noop, setPanAction: noop,
-    makeScrollView: f.deps.controls.makeScrollView, disposeActions: f.actions.disposeActions })
+  installMasonElement({
+    registerElementType: f.assembly.registerElementType,
+    baseView: NSView,
+    layoutView: (node) => node.view,
+    pinLayoutChild: noop,
+    queueLayoutReconcile: noop,
+    detach: noop,
+    applyStyle: noop,
+    applyClassName: noop,
+    applyAccessibility: noop,
+    setAction: noop,
+    setPanAction: noop,
+    makeScrollView: f.deps.controls.makeScrollView,
+    disposeActions: f.actions.disposeActions,
+  })
   let calls = 0
   const clip = { postsBoundsChangedNotifications: false }
   const adapter = f.registry.adapters.lookup('scrollview')!
-  const node: any = { id: 44, type: 'scrollview', adapter, lifecycle: 'live', view: { contentView: clip },
-    props: { onScroll() { calls++ } }, children: [], parent: null, container: f.container }
+  const node: any = {
+    id: 44,
+    type: 'scrollview',
+    adapter,
+    lifecycle: 'live',
+    view: { contentView: clip },
+    props: {
+      onScroll() {
+        calls++
+      },
+    },
+    children: [],
+    parent: null,
+    container: f.container,
+  }
   adapter.applyProp!(node, 'onScroll', node.props.onScroll)
   assert.equal(typeof f.deps.controls.scrollHandlers.get(clip), 'function')
   const held = f.held.at(-1)!
@@ -867,13 +1054,17 @@ test('registered Mason layout leaves builtin scroll handler removals to the acqu
   assert.equal(f.observers.size, 0)
 })
 
-
 test('public logical records retain their instance contract while raw text stays private', () => {
   const f = fixture()
   const driver = createDriver(f.deps).macOSDriver
   const raw = f.make('#text', { value: 'Text' }, 80)
   assert.equal(driver.getPublicInstance(f.container, raw.id), null)
-  for (const [index, type] of ['span', 'formattedstring', 'proxyviewcontainer', 'segmentedbaritem'].entries()) {
+  for (const [index, type] of [
+    'span',
+    'formattedstring',
+    'proxyviewcontainer',
+    'segmentedbaritem',
+  ].entries()) {
     const record = f.make(type, {}, 81 + index)
     assert.equal(driver.getPublicInstance(f.container, record.id), record, type)
   }

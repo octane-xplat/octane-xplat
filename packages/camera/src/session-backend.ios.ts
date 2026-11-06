@@ -483,6 +483,7 @@ export function createSessionBackend(
         releaseRecordingHaptics?.()
         releaseRecordingHaptics = undefined
       }
+
       return writerHasAudio
     } catch (error) {
       acquired?.()
@@ -946,6 +947,7 @@ export function createSessionBackend(
               message: problem,
             })
           }
+
           writerHasAudio = false
           releaseRecordingHaptics?.()
           releaseRecordingHaptics = undefined

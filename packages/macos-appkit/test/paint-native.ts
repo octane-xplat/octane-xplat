@@ -16,6 +16,7 @@ export const native = {
     this.onAdd = this.onRemove = this.onWrite = this.onDecode = undefined
   },
 }
+
 export class CALayer {
   [key: string]: any
   static alloc() {
@@ -66,33 +67,41 @@ export class CALayer {
     this.superlayer = null
   }
 }
+
 export class CAShapeLayer extends CALayer {}
 export class CAGradientLayer extends CALayer {
   static layer() {
     return new this()
   }
 }
+
 export const CGPathCreateMutable = () => []
 export const CGPathMoveToPoint = (path: unknown[], _matrix: unknown, ...values: number[]) =>
   path.push(['move', ...values])
+
 export const CGPathAddLineToPoint = (path: unknown[], _matrix: unknown, ...values: number[]) =>
   path.push(['line', ...values])
+
 export const CGPathAddArcToPoint = (path: unknown[], _matrix: unknown, ...values: number[]) =>
   path.push(['arc', ...values])
+
 export const CGPathCloseSubpath = (path: unknown[]) => path.push(['close'])
 export const CATransform3DIdentity: unknown[] = []
 export const CATransform3DTranslate = (t: unknown[], ...values: number[]) => [
   ...t,
   ['translate', ...values],
 ]
+
 export const CATransform3DRotate = (t: unknown[], ...values: number[]) => [
   ...t,
   ['rotate', ...values],
 ]
+
 export const CATransform3DScale = (t: unknown[], ...values: number[]) => [
   ...t,
   ['scale', ...values],
 ]
+
 export const NSNotificationCenter = {
   defaultCenter: {
     addObserverForNameObjectQueueUsingBlock(
@@ -118,6 +127,7 @@ export const NSNotificationCenter = {
     },
   },
 }
+
 export const NSViewFrameDidChangeNotification = 'frame'
 export const NSNumber = { numberWithDouble: (value: number) => value }
 export const NSColor = {
@@ -138,6 +148,7 @@ export const NSColor = {
     }
   },
 }
+
 export class NSImage {
   static alloc() {
     return new this()

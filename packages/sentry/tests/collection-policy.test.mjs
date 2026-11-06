@@ -54,9 +54,7 @@ function sdkStub() {
       capture({ exception: { values: [{ value: String(error) }] }, ...context }),
     captureMessage: (message, level) => capture({ message, level }),
     addBreadcrumb: (crumb) => {
-      const kept = state.options?.beforeBreadcrumb
-        ? state.options.beforeBreadcrumb(crumb)
-        : crumb
+      const kept = state.options?.beforeBreadcrumb ? state.options.beforeBreadcrumb(crumb) : crumb
       if (kept) {
         state.crumbs.push(kept)
       }
@@ -131,10 +129,7 @@ for (const [name, make] of variants) {
       dsn: 'd',
       beforeSend: (event) => ({ ...event, extra: undefined, request: undefined }),
     })
-    assert.equal(
-      sentry.captureException(new Error('x'), { token: 'private' }),
-      'event-id',
-    )
+    assert.equal(sentry.captureException(new Error('x'), { token: 'private' }), 'event-id')
     assert.equal(state.sent.length, 1)
     assert.equal(state.sent[0].extra, undefined)
     assert.equal(JSON.stringify(state.sent[0]).includes('private'), false)

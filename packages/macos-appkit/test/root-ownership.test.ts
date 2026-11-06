@@ -14,6 +14,7 @@ const hooks = registerHooks({
     return nextResolve(specifier, context)
   },
 })
+
 const { createRoots } = await import('../src/roots.ts')
 const { createRootDirectory } = await import('../src/root-directory.ts')
 const { notifyLayoutCommit } = await import('../src/layout-observers.ts')

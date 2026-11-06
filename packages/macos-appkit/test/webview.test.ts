@@ -64,7 +64,11 @@ mockGlobals({
       path,
       URLByDeletingLastPathComponent: '/parent',
     }),
-    URLWithString: (url) => ({ absoluteString: url, isFileURL: () => false, scheme: /^([a-z]+):/i.exec(url)?.[1] }),
+    URLWithString: (url) => ({
+      absoluteString: url,
+      isFileURL: () => false,
+      scheme: /^([a-z]+):/i.exec(url)?.[1],
+    }),
   },
   NSURLRequest: { requestWithURL: (url) => url },
 })

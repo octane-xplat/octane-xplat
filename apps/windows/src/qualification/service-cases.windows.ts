@@ -212,7 +212,10 @@ async function deleteItemByPath(path: string): Promise<void> {
     const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(path))
     await NSWinRT.toPromise(file.DeleteAsync())
   } catch {
-    const folder = await NSWinRT.toPromise(Windows.Storage.StorageFolder.GetFolderFromPathAsync(path))
+    const folder = await NSWinRT.toPromise(
+      Windows.Storage.StorageFolder.GetFolderFromPathAsync(path),
+    )
+
     await NSWinRT.toPromise(folder.DeleteAsync())
   }
 }
@@ -419,9 +422,12 @@ async function windowMetricsSpec(): Promise<Record<string, unknown>> {
 async function pickerSelectSpec(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {}
   const raced = await Promise.race([
-    files.pick()
+    files
+      .pick()
       .then(async (ref) => {
-        if (ref === null) {return { pickSelected: 'cancelled' }}
+        if (ref === null) {
+          return { pickSelected: 'cancelled' }
+        }
         const entry: Record<string, unknown> = {
           pickSelected: `ok:${ref.name}`,
           selectedUri: ref.uri,
@@ -475,7 +481,9 @@ async function pickerMultiSpec(): Promise<Record<string, unknown>> {
 /** Bounded save-commit export: the driver types a destination path into the
  * save dialog; the leaf then writes bytes through the token grant. */
 async function pickerSaveSpec(): Promise<Record<string, unknown>> {
-  const payload = new Uint8Array([99,111,114,101,50,48,45,101,120,112,111,114,116,101,100])
+  const payload = new Uint8Array([
+    99, 111, 114, 101, 50, 48, 45, 101, 120, 112, 111, 114, 116, 101, 100,
+  ])
   const raced = await Promise.race([
     files
       .export('core20-exported.txt', payload)
@@ -603,6 +611,7 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
         if (exists(foreign.path)) {
           await deleteItemByPath(foreign.path)
         }
+
         result.foreignRemoved = !exists(foreign.path)
       } catch (error) {
         result.removeError = error instanceof Error ? error.message : String(error)
@@ -628,6 +637,7 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
         fullMatch = false
       }
     }
+
     const exact = await files.readBytes(ref, { maxBytes: size })
     let underError = ''
     try {
@@ -635,6 +645,7 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
     } catch (error) {
       underError = String(error)
     }
+
     // Mid-read abort: the leaf registers one cancel listener per chunk and
     // only reads the `aborted` flag — flip it after several chunks stream.
     let calls = 0
@@ -658,12 +669,14 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
       },
       throwIfAborted() {},
     }
+
     let midAbort = ''
     try {
       await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
     } catch (error) {
       midAbort = error instanceof Error ? error.name : String(error)
     }
+
     return { fullMatch, exactLength: exact.length, underError, midAbort, calls }
   } finally {
     try {
@@ -712,7 +725,11 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
   try {
     const file = File.fromPath(filePath)
     await file.writeText('depth-payload')
-    await probe('lastModified', () => file.lastModified instanceof Date && !Number.isNaN(file.lastModified.getTime()))
+    await probe(
+      'lastModified',
+      () => file.lastModified instanceof Date && !Number.isNaN(file.lastModified.getTime()),
+    )
+
     await probe('size', () => file.size)
     const other = File.fromPath(otherPath)
     await other.writeText('second')
@@ -720,6 +737,7 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
       const entities = await folder.getEntities()
       return Array.isArray(entities) ? entities.map((entity) => entity.name).sort() : 'not-an-array'
     })
+
     await probe('eachEntity', async () => {
       const names: string[] = []
       await folder.eachEntity((entity) => {
@@ -728,12 +746,14 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
       })
       return names.sort()
     })
+
     // rename has deleteFile's exact shape: async op invoked on the pending
     // IAsyncOperation. Record both the call result and whether it moved.
     await probe('rename', async () => {
       const outcome = await file.rename('gamma.txt')
       return { outcome, moved: File.exists(renamedPath), original: File.exists(filePath) }
     })
+
     await probe('removeFile', async () => {
       const outcome = await other.remove()
       return { outcome, gone: !File.exists(otherPath) }
@@ -775,7 +795,12 @@ async function connectivityDepthSpec(): Promise<Record<string, unknown>> {
 
 /** Value-type breadth: unicode/long strings, key isolation, remove-missing. */
 async function storageDepthSpec(): Promise<Record<string, unknown>> {
-  const keys = { uni: 'core20-depth-uni', long: 'core20-depth-long', a: 'core20-depth-a', b: 'core20-depth-b' }
+  const keys = {
+    uni: 'core20-depth-uni',
+    long: 'core20-depth-long',
+    a: 'core20-depth-a',
+    b: 'core20-depth-b',
+  }
   const result: Record<string, unknown> = {}
   try {
     const unicode = 'depth--\u{1F600}-\u0301-\u0000-end'
@@ -797,6 +822,7 @@ async function storageDepthSpec(): Promise<Record<string, unknown>> {
     } catch (error) {
       removedMissing = `throw: ${error instanceof Error ? error.message : String(error)}`
     }
+
     result.removedMissing = removedMissing
     result.missingRead = storage.getString('core20-depth-never-set')
     result.flushFalse = storage.flush() === false
@@ -960,6 +986,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
         } catch {}
       }
     }
+
     // The projected picker carries a native `handle` own-property — check its
     // type and whether interop.handleOf can read the IInspectable pointer.
     const picker2 = pickers?.FileOpenPicker ? new pickers.FileOpenPicker() : null
@@ -1001,6 +1028,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
       const appWindow = ms.UI.Windowing.AppWindow.GetFromWindowId(appWindowId)
       out.appWindow = appWindow !== null && appWindow !== undefined
     }
+
     if (appWindowId && typeof ms?.UI?.Win32Interop?.GetHwndFromWindowId === 'function') {
       const hwnd = ms.UI.Win32Interop.GetHwndFromWindowId(appWindowId)
       out.hwndType = typeof hwnd
@@ -1019,7 +1047,9 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     const ctorAttempts: string[] = []
     for (const arg of [undefined, out._appWindowId ?? undefined] as const) {
       try {
-        const mp = arg === undefined ? new msPickers.FileOpenPicker() : new msPickers.FileOpenPicker(arg)
+        const mp =
+          arg === undefined ? new msPickers.FileOpenPicker() : new msPickers.FileOpenPicker(arg)
+
         out.msCtorOk = mp !== null
         out.msCtorVia = arg === undefined ? 'no-arg' : 'appWindowId'
         out.msMembers = Object.getOwnPropertyNames(Object.getPrototypeOf(mp))
@@ -1028,6 +1058,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
         ctorAttempts.push(error instanceof Error ? error.message : String(error))
       }
     }
+
     out.msCtorAttempts = ctorAttempts
   }
   delete out._appWindowId
@@ -1043,7 +1074,9 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
 async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = { available: false }
   const pickers = Windows?.Storage?.Pickers
-  if (!pickers?.FileOpenPicker) {return out}
+  if (!pickers?.FileOpenPicker) {
+    return out
+  }
   out.available = true
   const picker = new pickers.FileOpenPicker()
   const filter = picker.FileTypeFilter
@@ -1064,6 +1097,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
         } else {
           filter[name](arg)
         }
+
         out.filterVia = `${name}(${JSON.stringify(arg)})`
         break
       } catch (error) {
@@ -1096,11 +1130,14 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       try {
         const v = win32.call('user32.dll', fn, 'pointer')
         hwndAttempts.push(`${fn}=${String(v)}`)
-        if (typeof v === 'number' && v !== 0 && hwnd === null) {hwnd = v}
+        if (typeof v === 'number' && v !== 0 && hwnd === null) {
+          hwnd = v
+        }
       } catch (error) {
         hwndAttempts.push(`${fn}: ${error instanceof Error ? error.message : String(error)}`)
       }
     }
+
     // GetGUIThreadInfo(own thread) -> GUITHREADINFO.hwndActive needs an
     // out-buffer; probe pointerFromBuffer's marshalling first.
     try {
@@ -1111,20 +1148,30 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
         const ptr = interop.pointerFromBuffer(buf)
         out.ptrFromBufferType = typeof ptr
         const tid = win32.call('kernel32.dll', 'GetCurrentThreadId', 'u32')
-        const ok = win32.call('user32.dll', 'GetGUIThreadInfo', 'i32', {
-          type: 'u32',
-          value: tid,
-        },
-        { type: 'pointer', value: typeof ptr === 'number' ? ptr : 0 })
+        const ok = win32.call(
+          'user32.dll',
+          'GetGUIThreadInfo',
+          'i32',
+          {
+            type: 'u32',
+            value: tid,
+          },
+          { type: 'pointer', value: typeof ptr === 'number' ? ptr : 0 },
+        )
+
         out.guiThreadOk = ok
         if (ok) {
           const active = Number(view.getBigInt64(8, true))
           hwndAttempts.push(`GetGUIThreadInfo.hwndActive=${active}`)
-          if (active !== 0 && hwnd === null) {hwnd = active}
+          if (active !== 0 && hwnd === null) {
+            hwnd = active
+          }
         }
       }
     } catch (error) {
-      hwndAttempts.push(`GetGUIThreadInfo: ${error instanceof Error ? error.message : String(error)}`)
+      hwndAttempts.push(
+        `GetGUIThreadInfo: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
   out.hwndAttempts = hwndAttempts
@@ -1158,6 +1205,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
           setTimeout(() => resolve({ pickLeaf: 'pending-dialog' }), 6000),
         ),
       ])
+
       Object.assign(out, raced)
       try {
         await files.pick()
@@ -1187,6 +1235,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
         setTimeout(() => resolve({ kind: 'timeout-pending' }), 8000),
       ),
     ])
+
     Object.assign(out, result)
   } catch (error) {
     out.invokeError = error instanceof Error ? error.message : String(error)

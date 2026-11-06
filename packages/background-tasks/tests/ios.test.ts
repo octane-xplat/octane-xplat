@@ -60,6 +60,7 @@ function fixture({
             if (errorRef) {
               errorRef.value = { localizedDescription: 'identifier is not permitted' }
             }
+
             return false
           }
           submitted.push(request)

@@ -2,7 +2,11 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
 
-const source = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(/^  /gm, '')
+const source = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(
+  /^  /gm,
+  '',
+)
+
 const start = source.indexOf('function measureParity(')
 const measure = source.slice(start, source.indexOf('\n}\n', start) + 3)
 

@@ -74,6 +74,7 @@ test('hover and menu constructors own their targets independently and menus disp
       },
       invokeAction: store.dispatch,
     }
+
     // This is the runtime's real order: hover is built before contextMenu.
     const hover = createHover()
     const menu = createContextMenu({ actions })
@@ -82,7 +83,10 @@ test('hover and menu constructors own their targets independently and menus disp
 
     const view: any = { menu: null, window: {} }
     const selected: (string | undefined)[] = []
-    const detach = menu.attachContextMenu(view, { items: [{ id: 'open', title: 'Open' }] }, id => selected.push(id))
+    const detach = menu.attachContextMenu(view, { items: [{ id: 'open', title: 'Open' }] }, (id) =>
+      selected.push(id),
+    )
+
     assert.equal(typeof detach, 'function')
     const item = view.menu.items[0]
     item.target.menuItemSelected(item)
@@ -94,7 +98,11 @@ test('hover and menu constructors own their targets independently and menus disp
     assert.deepEqual(selected, ['open'])
     // A failed tag write happens before the item reaches its native menu.
     // Its acquired slot must still retire, including held lease setters.
-    assert.equal(menu.attachContextMenu(view, { items: [{ title: 'Fail tag' }] }, () => {}), null)
+    assert.equal(
+      menu.attachContextMenu(view, { items: [{ title: 'Fail tag' }] }, () => {}),
+      null,
+    )
+
     const failed = allocated.at(-1)!
     failed.setHandler(() => selected.push('resurrected'))
     store.dispatch(failed.id)

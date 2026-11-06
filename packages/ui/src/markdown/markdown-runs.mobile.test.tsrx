@@ -50,6 +50,7 @@ import {
   MdStrong,
   MdTextRun,
 } from './markdown-inline.tsrx'
+
 import { Text } from '../components/content/Text.tsrx'
 import { View } from '../components/layout/View.tsrx'
 
@@ -155,10 +156,12 @@ describe('native rich-run fold (object driver)', () => {
         .filter((c: any) => c.op === 'event' && c.type === 'linktap')
         .map((c: any) => c.id),
     )
+
     for (const span of spans) {
       expect(linkTapIds.has(span.id)).toBe(true)
       expect(span.props.style).toMatchObject({ textDecoration: 'underline' })
     }
+
     expect(spans[1].props.style).toMatchObject({ fontWeight: '600' })
   })
 

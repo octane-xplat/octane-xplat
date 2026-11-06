@@ -7,8 +7,7 @@
 import { getColorScheme } from '../theme/colorScheme.macos'
 import { accentColor, mutedColor, textColor } from '../theme/scheme-colors'
 
-export const mdBorderColor = (): string =>
-  getColorScheme() === 'dark' ? '#f2f4f619' : '#05365919'
+export const mdBorderColor = (): string => (getColorScheme() === 'dark' ? '#f2f4f619' : '#05365919')
 export const mdTextPrimary = (): string => textColor(getColorScheme())
 export const mdBodyFontFamily = (): string => 'inherit'
 export const mdBodyFontSize = (): string => '14px'

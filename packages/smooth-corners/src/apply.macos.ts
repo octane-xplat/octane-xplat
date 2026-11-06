@@ -102,6 +102,7 @@ export function applySmoothClip(
     if (view.layer && view.layer.mask === view[MASK_KEY]) {
       view.layer.mask = null
     }
+
     return
   }
   if (!view || w <= 0 || h <= 0) {

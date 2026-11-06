@@ -9,115 +9,117 @@ import { createHash } from 'node:crypto'
 // Only the source workspace can pack fixtures. Portable snapshots (named by
 // snapshot.mjs) carry built worker output and consume frozen fixture archives.
 export function canPrepareFixtures(root) {
-	return JSON.parse(readFileSync(join(root, 'package.json'))).name !== 'xplat-go-portability-snapshot'
+  return (
+    JSON.parse(readFileSync(join(root, 'package.json'))).name !== 'xplat-go-portability-snapshot'
+  )
 }
 
 export function prepareFixtures(
-	root,
-	work,
-	{ linter = false, packageManagement = false, creator = false } = {},
+  root,
+  work,
+  { linter = false, packageManagement = false, creator = false } = {},
 ) {
-	const flavor = creator
-		? 'scaffold-packages'
-		: packageManagement
-			? 'management-packages'
-			: 'project-packages'
-	const output = join(work, flavor)
-	mkdirSync(output, { recursive: true })
-	const temporary = mkdtempSync(join(work, 'fixture-'))
-	try {
-		const manifest = JSON.parse(readFileSync(join(root, 'packages/build/package.json')))
-		manifest.name = '@octane-xplat/cli'
-		manifest.private = true
-		delete manifest.scripts
-		delete manifest.devDependencies
-		// Native CLI installs keep compiler/build engines opt-in, matching the
-		// curated native package rather than the Vite-specific build package.
-		manifest.peerDependenciesMeta = Object.fromEntries(
-			Object.keys(manifest.peerDependencies ?? {}).map((name) => [name, { optional: true }]),
-		)
+  const flavor = creator
+    ? 'scaffold-packages'
+    : packageManagement
+      ? 'management-packages'
+      : 'project-packages'
+  const output = join(work, flavor)
+  mkdirSync(output, { recursive: true })
+  const temporary = mkdtempSync(join(work, 'fixture-'))
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, 'packages/build/package.json')))
+    manifest.name = '@octane-xplat/cli'
+    manifest.private = true
+    delete manifest.scripts
+    delete manifest.devDependencies
+    // Native CLI installs keep compiler/build engines opt-in, matching the
+    // curated native package rather than the Vite-specific build package.
+    manifest.peerDependenciesMeta = Object.fromEntries(
+      Object.keys(manifest.peerDependencies ?? {}).map((name) => [name, { optional: true }]),
+    )
 
-		for (const [name, range] of Object.entries(manifest.dependencies)) {
-			if (range === 'workspace:*') {
-				manifest.dependencies[name] = JSON.parse(
-					readFileSync(join(root, 'packages', name.split('/')[1], 'package.json')),
-				).version
-			}
-		}
+    for (const [name, range] of Object.entries(manifest.dependencies)) {
+      if (range === 'workspace:*') {
+        manifest.dependencies[name] = JSON.parse(
+          readFileSync(join(root, 'packages', name.split('/')[1], 'package.json')),
+        ).version
+      }
+    }
 
-		if (packageManagement) {
-			for (const [name, range] of Object.entries(manifest.dependencies)) {
-				if (['yaml', 'jsonc-parser'].includes(name)) {
-					continue
-				}
+    if (packageManagement) {
+      for (const [name, range] of Object.entries(manifest.dependencies)) {
+        if (['yaml', 'jsonc-parser'].includes(name)) {
+          continue
+        }
 
-				manifest.peerDependencies[name] = range
-				manifest.peerDependenciesMeta[name] = { optional: true }
-				delete manifest.dependencies[name]
-			}
-		}
+        manifest.peerDependencies[name] = range
+        manifest.peerDependenciesMeta[name] = { optional: true }
+        delete manifest.dependencies[name]
+      }
+    }
 
-		manifest.files.push('patches')
+    manifest.files.push('patches')
 
-		writeFileSync(join(temporary, 'package.json'), JSON.stringify(manifest))
-		cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
-		cpSync(join(root, 'packages/cli/patches'), join(temporary, 'patches'), { recursive: true })
-		cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
-		const packages = [
-			temporary,
-			...(packageManagement ? [] : [join(root, 'packages/lib')]),
-			...(linter ? [join(root, 'packages/lint')] : []),
-			...(creator ? [join(root, 'packages/create')] : []),
-		].map((directory) => {
-			const pkg = JSON.parse(readFileSync(join(directory, 'package.json')))
-			const result = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', output], {
-				cwd: directory,
-				encoding: 'utf8',
-			})
-			assert.equal(result.status, 0, result.stderr)
-			const file = `${pkg.name.replace('@', '').replace('/', '-')}-${pkg.version}.tgz`
-			const bytes = readFileSync(join(output, file))
-			return {
-				name: pkg.name,
-				optional: pkg.name === '@octane-xplat/lint',
-				file,
-				bytes: bytes.length,
-				sha256: createHash('sha256').update(bytes).digest('hex'),
-			}
-		})
+    writeFileSync(join(temporary, 'package.json'), JSON.stringify(manifest))
+    cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
+    cpSync(join(root, 'packages/cli/patches'), join(temporary, 'patches'), { recursive: true })
+    cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
+    const packages = [
+      temporary,
+      ...(packageManagement ? [] : [join(root, 'packages/lib')]),
+      ...(linter ? [join(root, 'packages/lint')] : []),
+      ...(creator ? [join(root, 'packages/create')] : []),
+    ].map((directory) => {
+      const pkg = JSON.parse(readFileSync(join(directory, 'package.json')))
+      const result = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', output], {
+        cwd: directory,
+        encoding: 'utf8',
+      })
+      assert.equal(result.status, 0, result.stderr)
+      const file = `${pkg.name.replace('@', '').replace('/', '-')}-${pkg.version}.tgz`
+      const bytes = readFileSync(join(output, file))
+      return {
+        name: pkg.name,
+        optional: pkg.name === '@octane-xplat/lint',
+        file,
+        bytes: bytes.length,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+      }
+    })
 
-		writeFileSync(
-			join(work, flavor + '.json'),
-			JSON.stringify({
-				version: 1,
-				workshopCompiler: Object.fromEntries(
-					['octane', '@octanejs/vite-plugin', '@tsrx/oxc'].map((name) => [
-						name,
-						JSON.parse(readFileSync(join(root, 'package.json'))).devDependencies[name] ??
-							JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[name],
-					]),
-				),
-				workshopStorybook: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
-					.dependencies.storybook,
-				workshopGlob: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
-					.dependencies.tinyglobby,
-				fontConverter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json')))
-					.dependencies.wawoff2,
-				formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[
-					'@octane-xplat/fmt'
-				],
-				vite: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.vite,
-				checker: {
-					plugin: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[
-						'@tsrx/typescript-plugin'
-					],
-					typescript: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog
-						.typescript,
-				},
-				packages,
-			}),
-		)
-	} finally {
-		rmSync(temporary, { recursive: true, force: true })
-	}
+    writeFileSync(
+      join(work, flavor + '.json'),
+      JSON.stringify({
+        version: 1,
+        workshopCompiler: Object.fromEntries(
+          ['octane', '@octanejs/vite-plugin', '@tsrx/oxc'].map((name) => [
+            name,
+            JSON.parse(readFileSync(join(root, 'package.json'))).devDependencies[name] ??
+              JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[name],
+          ]),
+        ),
+        workshopStorybook: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
+          .dependencies.storybook,
+        workshopGlob: JSON.parse(readFileSync(join(root, 'packages/workshop/package.json')))
+          .dependencies.tinyglobby,
+        fontConverter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json')))
+          .dependencies.wawoff2,
+        formatter: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).dependencies[
+          '@octane-xplat/fmt'
+        ],
+        vite: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.vite,
+        checker: {
+          plugin: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[
+            '@tsrx/typescript-plugin'
+          ],
+          typescript: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog
+            .typescript,
+        },
+        packages,
+      }),
+    )
+  } finally {
+    rmSync(temporary, { recursive: true, force: true })
+  }
 }

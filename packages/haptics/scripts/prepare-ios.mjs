@@ -10,6 +10,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
+
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -85,12 +86,15 @@ export function preparePulsar(destination) {
       ],
       { stdio: ['ignore', 'ignore', 'pipe'], timeout: 120_000 },
     )
+
     const actual = execFileSync('git', ['-C', checkout, 'rev-parse', 'HEAD'], {
       encoding: 'utf8',
     }).trim()
+
     if (actual !== revision) {
       throw new Error('Pulsar 1.4.0 revision changed; refusing to patch')
     }
+
     const audio = join(checkout, audioPath)
     const patched = silenceAudioSimulator(readFileSync(audio, 'utf8'))
     writeFileSync(audio, patched)
@@ -99,6 +103,7 @@ export function preparePulsar(destination) {
       join(checkout, '.xplat-silent-pulsar.json'),
       JSON.stringify({ revision, patch: 1, audioHash: hash(patched) }),
     )
+
     try {
       renameSync(checkout, target)
     } catch (error) {
@@ -107,6 +112,7 @@ export function preparePulsar(destination) {
         throw error
       }
     }
+
     return validate()
   } finally {
     rmSync(temporary, { recursive: true, force: true })

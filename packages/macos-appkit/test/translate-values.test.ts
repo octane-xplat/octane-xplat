@@ -8,7 +8,10 @@ hooks.deregister()
 const transform = createTransformPaint()
 
 test('percent translations already normalized by the CSS engine survive AppKit input conversion', () => {
-  assert.deepEqual(transform.translateAxisValue({ value: 0.25, unit: '%' }), { value: 0.25, unit: '%' })
+  assert.deepEqual(transform.translateAxisValue({ value: 0.25, unit: '%' }), {
+    value: 0.25,
+    unit: '%',
+  })
   assert.deepEqual(transform.translateAxisValue('-50%'), { value: -0.5, unit: '%' })
   assert.equal(transform.translateAxisValue({ value: NaN, unit: '%' }), 0)
 })

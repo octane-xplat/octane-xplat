@@ -188,6 +188,7 @@ export function composeAttributedText(
     result.appendAttributedString(
       native.NSAttributedString.alloc().initWithStringAttributes(run.text, attributes),
     )
+
     location += run.text.length
   }
 

@@ -1,6 +1,15 @@
 import { createRoot } from 'octane'
 import { use, useState } from 'octane'
-import { Button, Text, TextInput, TextArea, CheckboxInput, Switch, CheckboxList } from '@octane-xplat/ui'
+import {
+  Button,
+  Text,
+  TextInput,
+  TextArea,
+  CheckboxInput,
+  Switch,
+  CheckboxList,
+} from '@octane-xplat/ui'
+
 import { Markdown } from '@octane-xplat/ui/markdown'
 import {
   createMarkdownFrontmatter,
@@ -271,10 +280,7 @@ function SwitchBehavior() {
   )
 }
 
-const mentionsDef: MarkdownSyntaxPluginDefinition<
-  'mentions',
-  MarkdownExtensionNode<'mentions'>
-> = {
+const mentionsDef: MarkdownSyntaxPluginDefinition<'mentions', MarkdownExtensionNode<'mentions'>> = {
   name: 'mentions',
   apiVersion: 1,
   parseKey: 'mentions@1',
@@ -286,6 +292,7 @@ const mentionsDef: MarkdownSyntaxPluginDefinition<
     },
   },
 }
+
 const frontmatter = createMarkdownFrontmatter({ name: 'meta', parse: (fields) => fields })
 const markdownPlugins = (profiles?: readonly string[]) =>
   profiles?.map((p) => {

@@ -8,7 +8,10 @@ export class PhaseErrors extends AggregateError {
   readonly failures: readonly PhaseFailure[]
 
   constructor(failures: readonly PhaseFailure[]) {
-    super(failures.map(failure => failure.error), failures.map(failure => failure.phase).join(', '))
+    super(
+      failures.map((failure) => failure.error),
+      failures.map((failure) => failure.phase).join(', '),
+    )
     this.name = 'PhaseErrors'
     this.failures = failures
   }

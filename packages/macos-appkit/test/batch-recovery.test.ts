@@ -25,7 +25,10 @@ const slices = [
   fn('typeHasView'),
   fn('assertSupportedType'),
   fn('validateNodeProps'),
-  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(/^export /gm, ''),
+  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(
+    /^export /gm,
+    '',
+  ),
   fn('parseGridTracks'),
   fn('observeContentGeometry'),
   fn('makeNode'),
@@ -43,7 +46,13 @@ const slices = [
 
 const prefix = 'let nextActionId = 1000\nconst DEFAULT_TEXT_LINE_HEIGHT_RATIO = 21 / 16\n'
 
-function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty, notifyLayoutCommit }: {
+function fixture({
+  applyProps,
+  flushStyleDirty,
+  flushTabViews,
+  drainLayoutDirty,
+  notifyLayoutCommit,
+}: {
   applyProps?: any
   flushStyleDirty?: () => void
   flushTabViews?: () => void
@@ -85,7 +94,9 @@ function fixture({ applyProps, flushStyleDirty, flushTabViews, drainLayoutDirty,
     ),
     behaviorOf: (type: string) => sandbox.elementBehaviors.get(type),
     isManualLayoutParent: (t: string) =>
-      ['liquidglass', 'contentview', 'actionbar', 'rootlayout', 'masonview'].includes(typeof t === 'string' ? t : t?.type),
+      ['liquidglass', 'contentview', 'actionbar', 'rootlayout', 'masonview'].includes(
+        typeof t === 'string' ? t : t?.type,
+      ),
     registerElementType: () => {},
 
     validateTextStyle,
@@ -397,17 +408,26 @@ test('a failed update restores the recorded props', () => {
 
 test('failed recreate construction preserves the live original and retires the partial replacement', () => {
   const failure = Error('replacement prop failed')
-  const fx = fixture({ applyProps(_node, props) {
-    if (props.fail) {
-      throw failure
-    }
-  } })
+  const fx = fixture({
+    applyProps(_node, props) {
+      if (props.fail) {
+        throw failure
+      }
+    },
+  })
   const original = fx.makeNode(fx.container, 8, 'button', {})
   fx.container.nodes.set(8, original)
   const registered = fx.actionHandlers.size
-  assert.throws(() => fx.applyCommand(fx.container, {
-    op: 'recreate', id: 8, type: 'button', props: { fail: true },
-  }), error => error === failure)
+  assert.throws(
+    () =>
+      fx.applyCommand(fx.container, {
+        op: 'recreate',
+        id: 8,
+        type: 'button',
+        props: { fail: true },
+      }),
+    (error) => error === failure,
+  )
   assert.equal(fx.container.nodes.get(8), original)
   assert.equal(fx.actionHandlers.size, registered)
   assert.equal(fx.nodeContainersByView.get(original.view), fx.container)
@@ -419,10 +439,12 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
   const events: string[] = []
   fx.container.children.push(node)
   node.textLayoutDetach = () => events.push('retire-sizing')
-  node.destroyHooks = [() => {
-    assert.ok(fx.container.children.includes(node))
-    events.push('hook-with-host')
-  }]
+  node.destroyHooks = [
+    () => {
+      assert.ok(fx.container.children.includes(node))
+      events.push('hook-with-host')
+    },
+  ]
   node.cssHoverDispose = () => {
     assert.equal(fx.container.children.includes(node), false)
     assert.equal(fx.actionHandlers.has(node.actionId), true)
@@ -441,12 +463,18 @@ test('P6 registration replacement preserves acquired cleanup for the existing no
   const fx = fixture()
   const events: string[] = []
   fx.elementBehaviors.set('plugin-host', {
-    make(node) { node.view = fx.fakeView('plugin') },
-    destroy() { events.push('original') },
+    make(node) {
+      node.view = fx.fakeView('plugin')
+    },
+    destroy() {
+      events.push('original')
+    },
   })
   const node = fx.makeNode(fx.container, 92, 'plugin-host', {})
   fx.elementBehaviors.set('plugin-host', {
-    destroy() { events.push('replacement') },
+    destroy() {
+      events.push('replacement')
+    },
   })
   fx.destroy(node)
   assert.deepEqual(events, ['original'])
@@ -638,14 +666,15 @@ test('textview destruction retires sizing before hooks even after partial constr
   assert.deepEqual(events, ['observer', 'hook'])
 })
 
-
 test('a failed batch style flush releases layout ownership before the next command batch', () => {
   let fail = true
-  const fx = fixture({ flushStyleDirty() {
-    if (fail) {
-      throw new Error('style flush failed')
-    }
-  } })
+  const fx = fixture({
+    flushStyleDirty() {
+      if (fail) {
+        throw new Error('style flush failed')
+      }
+    },
+  })
   const first = fx.macOSDriver.prepareBatch(fx.container, { commands: [] })
   assert.throws(() => first.apply(), /style flush failed/)
   assert.equal(fx.container.layoutDirty, null)
@@ -655,56 +684,90 @@ test('a failed batch style flush releases layout ownership before the next comma
 })
 
 for (const stage of ['css', 'tabs', 'layout'] as const) {
-  test('failed ' + stage + ' commit stage skips dependent writes and success observation; next batch succeeds', () => {
-    const calls: string[] = []
-    let fail = true
-    const failure = Error(stage)
-    const run = (name: string) => {
-      calls.push(name)
-      if (fail && name === stage) { throw failure }
-    }
-    const fx = fixture({
-      flushStyleDirty: () => run('css'),
-      flushTabViews: () => run('tabs'),
-      drainLayoutDirty: () => run('layout'),
-      notifyLayoutCommit: () => run('observe'),
-    })
-    assert.throws(() => fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply(), error => error === failure)
-    assert.equal(fx.container.layoutDirty, null)
-    assert.deepEqual(calls, ['css', 'tabs', 'layout'].slice(0, ['css', 'tabs', 'layout'].indexOf(stage) + 1))
-    calls.length = 0
-    fail = false
-    fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
-    assert.deepEqual(calls, ['css', 'tabs', 'layout', 'observe'])
-  })
+  test(
+    'failed ' +
+      stage +
+      ' commit stage skips dependent writes and success observation; next batch succeeds',
+    () => {
+      const calls: string[] = []
+      let fail = true
+      const failure = Error(stage)
+      const run = (name: string) => {
+        calls.push(name)
+        if (fail && name === stage) {
+          throw failure
+        }
+      }
+      const fx = fixture({
+        flushStyleDirty: () => run('css'),
+        flushTabViews: () => run('tabs'),
+        drainLayoutDirty: () => run('layout'),
+        notifyLayoutCommit: () => run('observe'),
+      })
+      assert.throws(
+        () => fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply(),
+        (error) => error === failure,
+      )
+      assert.equal(fx.container.layoutDirty, null)
+      assert.deepEqual(
+        calls,
+        ['css', 'tabs', 'layout'].slice(0, ['css', 'tabs', 'layout'].indexOf(stage) + 1),
+      )
+      calls.length = 0
+      fail = false
+      fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
+      assert.deepEqual(calls, ['css', 'tabs', 'layout', 'observe'])
+    },
+  )
 }
 
 test('command and CSS failure remain identifiable and never emit a successful commit', () => {
-  const primary = Error('command'), css = Error('css')
+  const primary = Error('command'),
+    css = Error('css')
   const fx = fixture({
-    applyProps() { throw primary },
-    flushStyleDirty() { throw css },
-    flushTabViews() { assert.fail('tabs after failed update') },
-    notifyLayoutCommit() { assert.fail('success after failed update') },
+    applyProps() {
+      throw primary
+    },
+    flushStyleDirty() {
+      throw css
+    },
+    flushTabViews() {
+      assert.fail('tabs after failed update')
+    },
+    notifyLayoutCommit() {
+      assert.fail('success after failed update')
+    },
   })
   const node = { id: 1, type: 'span', props: {}, children: [] }
   fx.container.nodes.set(1, node)
-  assert.throws(() => fx.macOSDriver.prepareBatch(fx.container, { commands: [{ op: 'update', id: 1, props: {} }] }).apply(), error => {
-    assert.ok(error instanceof AggregateError)
-    assert.deepEqual(error.errors, [primary, css])
-    return true
-  })
+  assert.throws(
+    () =>
+      fx.macOSDriver
+        .prepareBatch(fx.container, { commands: [{ op: 'update', id: 1, props: {} }] })
+        .apply(),
+    (error) => {
+      assert.ok(error instanceof AggregateError)
+      assert.deepEqual(error.errors, [primary, css])
+      return true
+    },
+  )
   assert.equal(fx.container.layoutDirty, null)
 })
-
 
 test('a failed old-node release retires an unexposed recreation replacement', () => {
   const fx = fixture()
   const node = fx.makeNode(fx.container, 1, 'button', {})
   fx.container.nodes.set(1, node)
   const failure = Error('old cleanup')
-  node.destroyHooks = [() => { throw failure }]
-  assert.throws(() => fx.applyCommand(fx.container, { op: 'recreate', id: 1, type: 'button', props: {} }), error => error === failure)
+  node.destroyHooks = [
+    () => {
+      throw failure
+    },
+  ]
+  assert.throws(
+    () => fx.applyCommand(fx.container, { op: 'recreate', id: 1, type: 'button', props: {} }),
+    (error) => error === failure,
+  )
   assert.equal(node.lifecycle, 'disposed')
   assert.equal(fx.container.nodes.size, 0)
   assert.equal(fx.actionHandlers.size, 0)

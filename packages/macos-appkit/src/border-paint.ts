@@ -13,6 +13,7 @@ import {
   borderNSColor,
   outsetShadowOnSelf,
 } from './box-geometry.ts'
+
 import type { BorderSide, BorderCorner } from './box-geometry'
 import { effectiveStyle } from './style-values.ts'
 import type { ElementNode } from './model'
@@ -24,6 +25,7 @@ import {
   NSColor,
   NSNumber,
 } from '@octane-xplat/platform/macos'
+
 import {
   borderStyleSides,
   hiddenBorderStyle,
@@ -32,6 +34,7 @@ import {
   borderBandPoints,
   darkBorderComponents,
 } from './border-styles.ts'
+
 import { correctProjectionRadii } from './projection-paint'
 import { srgbComponents } from './color-components'
 

@@ -113,7 +113,8 @@ try {
       ],
       resolve: {
         conditions: [target === 'web' ? 'web' : 'native'],
-        alias: target === 'ios' ? [{ find: /^octane$/, replacement: 'octane/universal/native' }] : [],
+        alias:
+          target === 'ios' ? [{ find: /^octane$/, replacement: 'octane/universal/native' }] : [],
       },
       build: {
         write: false,

@@ -13,6 +13,7 @@ export function ownedView(node: ElementNode): AppKitView | null {
   node.pluginState = { active: true }
   return node.view
 }
+
 const options: MacOSRootOptions = { fontFamily: 'system-ui' }
 createMacOSRoot(host, options).unmount()
 registerFontFamily('Test', [{ weight: 400, descriptor }])

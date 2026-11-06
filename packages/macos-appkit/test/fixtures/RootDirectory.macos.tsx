@@ -59,4 +59,5 @@ const tabPlan = universalPlan('macos', {
     },
   ],
 })
+
 const RetainedTab = defineUniversalComponent('macos', () => universalValue(tabPlan))

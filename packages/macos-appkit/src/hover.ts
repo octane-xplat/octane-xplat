@@ -8,6 +8,7 @@ import {
   NSView,
   interop,
 } from '@octane-xplat/platform/macos'
+
 import { registerGestureClass } from './gestures'
 
 export type Hover = ReturnType<typeof createHover>

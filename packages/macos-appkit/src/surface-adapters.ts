@@ -21,6 +21,7 @@ import {
   releaseTabView,
   releaseTabItem,
 } from './tab-view'
+
 import { makeListView, updateListView, disposeListView } from './list-view'
 import { makeWebView, updateWebView, disposeWebView } from './webview'
 import { makePagerView, updatePagerView, disposePagerView } from './pager'
@@ -43,6 +44,7 @@ export interface SurfaceAdapterDependencies {
   registry: Pick<Registry, 'assertSupportedType' | 'typeHasView' | 'canContainView'>
   tree: Pick<Tree, 'validateTextNesting' | 'detach'>
 }
+
 export type SurfaceAdapters = Readonly<Record<string, ElementAdapter>>
 
 export function createSurfaceAdapters(deps: SurfaceAdapterDependencies): SurfaceAdapters {

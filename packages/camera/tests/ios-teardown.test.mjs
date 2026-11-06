@@ -11,6 +11,7 @@ const sourceFile = ts.createSourceFile(
   ts.ScriptTarget.Latest,
   true,
 )
+
 let stopStatement
 const findStopStatement = (node) => {
   if (
@@ -25,6 +26,7 @@ const findStopStatement = (node) => {
   }
   ts.forEachChild(node, findStopStatement)
 }
+
 ts.forEachChild(sourceFile, findStopStatement)
 assert.ok(stopStatement, 'stopSessionIfIdle declaration not found in session-backend.ios.ts')
 const compiled = ts.transpile(

@@ -10,6 +10,7 @@ import {
   NSTrackingArea,
   NSWindowDidUpdateNotification,
 } from '@octane-xplat/platform/macos'
+
 import { stylesheetPseudoClasses } from '@octane-xplat/css-engine'
 import { setVisualStateTracking } from './gestures'
 

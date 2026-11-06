@@ -31,7 +31,9 @@ for (const browser of browsers) {
   ]) {
     run(['turbo', 'run', name, '--filter=@xplat/web'], env)
   }
+
   run(['turbo', 'run', 'test:e2e', '--filter=@octane-xplat/lightbox'], env)
 }
+
 run(['check:optional-services', '--browser'])
 run(['check:consumer', '--smoke', 'web'], { XPLAT_WEB_BROWSERS: browsers.join(',') })

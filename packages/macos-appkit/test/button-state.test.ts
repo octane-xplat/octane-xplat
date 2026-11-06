@@ -6,6 +6,7 @@ const source = sourceWithoutImports(new URL('../src/controls.ts', import.meta.ur
   /^export /gm,
   '',
 )
+
 function fixture() {
   const events: string[] = [],
     warnings: string[] = []

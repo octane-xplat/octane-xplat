@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 // inspected for appearance. Geometry assertions do not establish visual parity.
 const pixel =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII='
+
 export default function Paint() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()

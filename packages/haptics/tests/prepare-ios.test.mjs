@@ -35,6 +35,7 @@ test('preparation reuses a validated offline cache and refuses to overwrite modi
         audioHash: createHash('sha256').update(patched).digest('hex'),
       }),
     )
+
     assert.equal(preparePulsar(target), target)
     writeFileSync(file, 'local work')
     assert.throws(() => preparePulsar(target), /Choose a fresh destination/)

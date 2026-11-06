@@ -40,29 +40,44 @@ function churn() {
 setTimeout(churn, 0)
 `
 
-test('AppKit removed JS-backed monitor blocks survive GC and host shutdown', {
-  skip: process.platform !== 'darwin' && 'requires the macOS AppKit host',
-}, (t) => {
-  const directory = mkdtempSync(join(tmpdir(), 'xplat-block-finalization-'))
-  t.after(() => rmSync(directory, { recursive: true, force: true }))
-  const script = join(directory, 'fixture.cjs')
-  const bootstrap = join(directory, 'bootstrap.js')
-  writeFileSync(script, fixture)
-  writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js')))
-  const metadataName = `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`
-  const metadata = join(existsSync(join(hostBundle, metadataName)) ? hostBundle : join(hostRoot, 'prebuilt/macos'), metadataName)
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const result = spawnSync(join(hostBundle, 'host'), [
-      join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'), script, metadata, bootstrap,
-    ], { encoding: 'utf8', timeout: 60_000 })
-    const output = (result.stdout ?? '') + (result.stderr ?? '')
-    assert.equal(result.error, undefined, String(result.error))
-    assert.equal(result.signal, null, output)
-    assert.equal(result.status, 0, output)
-    assert.equal((output.match(/MONITOR_ROUND /g) ?? []).length, 12, output)
-    assert.match(output, /MONITOR_COLLECTED [1-9][0-9]*/)
-    t.diagnostic(output.match(/MONITOR_COLLECTED [0-9]+/)?.[0])
-    assert.match(output, /MONITOR_DONE/)
-    assert.match(output, /host run loop returned/)
-  }
-})
+test(
+  'AppKit removed JS-backed monitor blocks survive GC and host shutdown',
+  {
+    skip: process.platform !== 'darwin' && 'requires the macOS AppKit host',
+  },
+  (t) => {
+    const directory = mkdtempSync(join(tmpdir(), 'xplat-block-finalization-'))
+    t.after(() => rmSync(directory, { recursive: true, force: true }))
+    const script = join(directory, 'fixture.cjs')
+    const bootstrap = join(directory, 'bootstrap.js')
+    writeFileSync(script, fixture)
+    writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js')))
+    const metadataName = `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`
+    const metadata = join(
+      existsSync(join(hostBundle, metadataName)) ? hostBundle : join(hostRoot, 'prebuilt/macos'),
+      metadataName,
+    )
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const result = spawnSync(
+        join(hostBundle, 'host'),
+        [
+          join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'),
+          script,
+          metadata,
+          bootstrap,
+        ],
+        { encoding: 'utf8', timeout: 60_000 },
+      )
+
+      const output = (result.stdout ?? '') + (result.stderr ?? '')
+      assert.equal(result.error, undefined, String(result.error))
+      assert.equal(result.signal, null, output)
+      assert.equal(result.status, 0, output)
+      assert.equal((output.match(/MONITOR_ROUND /g) ?? []).length, 12, output)
+      assert.match(output, /MONITOR_COLLECTED [1-9][0-9]*/)
+      t.diagnostic(output.match(/MONITOR_COLLECTED [0-9]+/)?.[0])
+      assert.match(output, /MONITOR_DONE/)
+      assert.match(output, /host run loop returned/)
+    }
+  },
+)

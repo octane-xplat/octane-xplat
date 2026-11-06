@@ -92,7 +92,10 @@ test('HtmlView leaves an unconvertible default color to the HTML importer', () =
 })
 
 test('parity colorValue resolves catalog colors under the view appearance', () => {
-  const source = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(/^  /gm, '')
+  const source = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(
+    /^  /gm,
+    '',
+  )
   const { colorValue } = runSlice(
     source.slice(source.indexOf('function colorValue('), source.indexOf('function parityStyle(')) +
       '\n({ colorValue })',

@@ -264,6 +264,7 @@ function ControlsPanel(p: {
   const controls = Object.entries(story?.controls ?? {}).filter(
     (entry): entry is [string, StoryControl<any, true>] => entry[1] !== undefined,
   )
+
   const disabled = s.session.phase !== 'ready'
   const commit = (key: string, value: unknown) => p.controller.control(key, value as any)
   return (

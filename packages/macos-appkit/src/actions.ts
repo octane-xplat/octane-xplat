@@ -17,6 +17,7 @@ import {
   NSTextViewDelegate,
   interop,
 } from '@octane-xplat/platform/macos'
+
 import type { NSControl, NSGestureRecognizer } from '@octane-xplat/platform/macos'
 import { configureGesture, swipeDirection, registerGestureClass } from './gestures'
 import { isWritingTextValue, notifyTextValueCommit } from './text-value.ts'
@@ -26,6 +27,7 @@ import {
   recordTextLimitEdit,
   reportTextLimitChange,
 } from './text-limit.ts'
+
 import { shouldReceivePrimaryClick } from './primary-click'
 
 interface Dependencies {
@@ -379,6 +381,7 @@ export function createActions(deps: Dependencies) {
       if (!active || !node.view) {
         return
       }
+
       acquireAction(node, node.view)
     }
     if (active && !node.clickGestureRecognizer) {
@@ -535,6 +538,7 @@ export function createActions(deps: Dependencies) {
       failures.run('click disable', () => {
         recognizer.enabled = false
       })
+
       failures.run('click detach', () => {
         const view = owned?.view ?? node.view
         if (
@@ -565,6 +569,7 @@ export function createActions(deps: Dependencies) {
       failures.run('pan disable', () => {
         recognizer.enabled = false
       })
+
       failures.run('pan detach', () => {
         const view = pan?.view ?? node.view
         if (

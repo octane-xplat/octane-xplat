@@ -8,7 +8,14 @@ export { View } from './components/layout/View.macos.tsrx'
 export { VStack } from './components/layout/VStack.macos.tsrx'
 /** Horizontal flow stack (Astryx `Stack` direction="horizontal"). */
 export { HStack } from './components/layout/HStack.macos.tsrx'
-export { Grid, Stack, StackItem, Absolute, Spacer } from './components/layout/appkit-layout.macos.tsrx'
+export {
+  Grid,
+  Stack,
+  StackItem,
+  Absolute,
+  Spacer,
+} from './components/layout/appkit-layout.macos.tsrx'
+
 export { Center } from './components/layout/Center.macos.tsrx'
 export { Section } from './components/collections/Section.macos.tsrx'
 export { Layout, LayoutHeader, LayoutContent } from './components/layout/appkit-layout.macos.tsrx'

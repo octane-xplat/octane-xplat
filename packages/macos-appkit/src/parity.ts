@@ -1,7 +1,13 @@
 import type { BorderSpec } from './box-paint-state'
 import { nodeClasses, effectiveStyle } from './style-values.ts'
 import type { ElementNode, RootContainer, PropBag } from './model'
-import { NSColor, NSAttributedString, NSFontAttributeName, NSForegroundColorAttributeName } from '@octane-xplat/platform/macos'
+import {
+  NSColor,
+  NSAttributedString,
+  NSFontAttributeName,
+  NSForegroundColorAttributeName,
+} from '@octane-xplat/platform/macos'
+
 import { srgbComponents, withDrawingAppearance } from './color-components'
 
 interface ParityDependencies {
@@ -14,7 +20,14 @@ interface ParityDependencies {
 }
 
 /** Read renderer state through its owner; measurements retain no roots of their own. */
-export function createParityMeasurements({ labelPaddings, borderLength, borderRadiusPoints, borderNSColor, borderSpecForNode, containers }: ParityDependencies) {
+export function createParityMeasurements({
+  labelPaddings,
+  borderLength,
+  borderRadiusPoints,
+  borderNSColor,
+  borderSpecForNode,
+  containers,
+}: ParityDependencies) {
   const round = (value: number) => Math.round(value * 100) / 100
 
   function descendants(node: ElementNode, out: ElementNode[] = []) {
@@ -171,7 +184,8 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
       }
 
       if (facet === 'justifyContent') {
-        value = supplied.justifyContent ?? node.props.justifyContent ?? (mason ? 'normal' : undefined)
+        value =
+          supplied.justifyContent ?? node.props.justifyContent ?? (mason ? 'normal' : undefined)
       }
 
       if (value !== undefined && value !== null && value !== '') {
@@ -227,7 +241,12 @@ export function createParityMeasurements({ labelPaddings, borderLength, borderRa
     const font = view!.font
     const fontLineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
     const lineHeight = styleLineHeight > 0 ? styleLineHeight : fontLineHeight
-    if (!Number.isFinite(height) || height <= 0 || !Number.isFinite(lineHeight) || lineHeight <= 0) {
+    if (
+      !Number.isFinite(height) ||
+      height <= 0 ||
+      !Number.isFinite(lineHeight) ||
+      lineHeight <= 0
+    ) {
       return undefined
     }
 

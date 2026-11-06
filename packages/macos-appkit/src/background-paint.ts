@@ -6,6 +6,7 @@ import {
   scaleBorderRadii,
   roundedBoxCGPath,
 } from './box-geometry.ts'
+
 import { FailureCollector } from './failures.ts'
 import { parseEdgeInsets, effectiveStyle } from './style-values.ts'
 import {
@@ -15,6 +16,7 @@ import {
   resolveStops,
   tileRects,
 } from './background-layers.ts'
+
 import type { BackgroundSpec, BgGradient } from './background-layers.ts'
 import type { ElementNode } from './model'
 import { borderStyleSides, hiddenBorderStyle } from './border-styles.ts'
@@ -25,6 +27,7 @@ import {
   NSImage,
   NSNumber,
 } from '@octane-xplat/platform/macos'
+
 import { nativeColor } from './native-colors'
 import { correctProjectionRadii } from './projection-paint'
 import { requestImage } from './image'

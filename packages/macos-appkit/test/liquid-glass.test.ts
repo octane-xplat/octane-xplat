@@ -17,8 +17,6 @@ const liquidGlassClass = source.slice(
   source.indexOf('\nclass ActionBarHost'),
 )
 
-
-
 class NSView {
   subviews: any[] = []
   constraints: any[] = []
@@ -139,7 +137,12 @@ test('the host layout dispatches to the registered behavior for the node', () =>
     context,
   )
 
-  const node = { id: 7, type: 'liquidglass', container: {}, adapter: { layout: (node: any) => calls.push(node) } }
+  const node = {
+    id: 7,
+    type: 'liquidglass',
+    container: {},
+    adapter: { layout: (node: any) => calls.push(node) },
+  }
   const host = makeLiquidGlass(node)
   context.gridLayoutNodesByView.set(host, node)
   host.layout()

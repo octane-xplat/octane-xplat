@@ -60,17 +60,27 @@ export function createTree(deps: Dependencies) {
     if (node.view) {
       const parentView = physicalParent?.childHost ?? physicalParent?.view
       release('detach arranged view', () => {
-        if (parentView?.removeArrangedSubview && deps.layout.layoutView(node)?.superview === parentView) {
+        if (
+          parentView?.removeArrangedSubview &&
+          deps.layout.layoutView(node)?.superview === parentView
+        ) {
           parentView.removeArrangedSubview(deps.layout.layoutView(node))
         }
       })
+
       release('detach native view', () => deps.layout.layoutView(node).removeFromSuperview())
     }
-    if (previousParent && ['contentview', 'actionbar'].includes(previousParent.type) && previousParent.contentChild === node) {
+    if (
+      previousParent &&
+      ['contentview', 'actionbar'].includes(previousParent.type) &&
+      previousParent.contentChild === node
+    ) {
       previousParent.contentChild = null
       release('detach content size', () => previousParent.view!.invalidateIntrinsicContentSize())
     }
-    release('detach parent layout', () => deps.layout.queueLayoutReconcile(container, previousParent))
+    release('detach parent layout', () =>
+      deps.layout.queueLayoutReconcile(container, previousParent),
+    )
     release('detach parent text', () => deps.textElements.syncText(previousParent))
     if (previousParent?.type === 'tabview') {
       release('detach parent tab', () => syncTabView(previousParent))
@@ -281,9 +291,11 @@ export function createTree(deps: Dependencies) {
           deps.layout
             .layoutView(node)
             .topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
+
           deps.layout
             .layoutView(node)
             .bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
+
           deps.nativeStyle.applySizeConstraints(node)
           deps.layout.queueLayoutReconcile(container, parent)
         } else if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
@@ -317,6 +329,7 @@ export function createTree(deps: Dependencies) {
         deps.layout
           .layoutView(node)
           .leadingAnchor.constraintEqualToAnchor(parentView.leadingAnchor).active = true
+
         deps.layout
           .layoutView(node)
           .trailingAnchor.constraintEqualToAnchor(parentView.trailingAnchor).active = true
@@ -324,9 +337,11 @@ export function createTree(deps: Dependencies) {
         deps.layout
           .layoutView(node)
           .topAnchor.constraintEqualToAnchor(parentView.topAnchor).active = true
+
         deps.layout
           .layoutView(node)
           .bottomAnchor.constraintEqualToAnchor(parentView.bottomAnchor).active = true
+
         deps.nativeStyle.applySizeConstraints(node)
       }
 

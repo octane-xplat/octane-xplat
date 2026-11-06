@@ -387,7 +387,9 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 export function flushTabViews(container: any) {
   const dirty = container.tabDirty
   container.tabDirty = undefined
-  if (!dirty) { return }
+  if (!dirty) {
+    return
+  }
   const failures = new FailureCollector()
   const releases = (container.tabReleases = new Set<ElementNode>())
   failures.run('tab synchronization', () => {
@@ -486,7 +488,9 @@ export function syncTabView(node: ElementNode) {
 }
 
 export function releaseTabView(node: ElementNode) {
-  if (node.tabDisposed) { return }
+  if (node.tabDisposed) {
+    return
+  }
   node.tabDisposed = true
   const failures = new FailureCollector()
   for (const item of (node.tabItems ?? []).slice()) {
@@ -495,12 +499,18 @@ export function releaseTabView(node: ElementNode) {
   const delegate = node.tabDelegate
   node.tabDelegate = null
   failures.run('tab delegate identity', () => delegates.delete(delegate))
-  failures.run('tab native delegate', () => { if (node.view) { node.view.delegate = null } })
+  failures.run('tab native delegate', () => {
+    if (node.view) {
+      node.view.delegate = null
+    }
+  })
   failures.throwIfFailed()
 }
 
 export function releaseTabItem(node: ElementNode) {
-  if (node.tabDisposed) { return }
+  if (node.tabDisposed) {
+    return
+  }
   node.tabDisposed = true
   node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1
   const failures = new FailureCollector()
@@ -516,8 +526,16 @@ export function releaseTabItem(node: ElementNode) {
   node.props.__tabContent = undefined
   node.props.iconSource = undefined
   node.props.title = undefined
-  failures.run('tab native content', () => { if (node.tabNativeItem) { node.tabNativeItem.view = null } })
-  failures.run('tab native image', () => { if (node.tabNativeItem) { node.tabNativeItem.image = null } })
+  failures.run('tab native content', () => {
+    if (node.tabNativeItem) {
+      node.tabNativeItem.view = null
+    }
+  })
+  failures.run('tab native image', () => {
+    if (node.tabNativeItem) {
+      node.tabNativeItem.image = null
+    }
+  })
   const host = node.childHost
   node.childHost = undefined
   failures.run('tab child host', () => host?.removeFromSuperview())

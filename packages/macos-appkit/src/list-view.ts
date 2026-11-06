@@ -97,7 +97,10 @@ function clearContent(state: ListState, cell: Cell) {
   if (host) {
     failures.run('list factory identity', () => factoryOwners.delete(host))
     failures.run('list owned root', () => state.releaseOwnedRoot(host))
-    failures.run('list binding', () => { host.bindingContext = undefined })
+    failures.run('list binding', () => {
+      host.bindingContext = undefined
+    })
+
     failures.run('list factory host', () => host.removeFromSuperview())
   }
   failures.throwIfFailed()
@@ -329,7 +332,9 @@ export function makeListView(
     size: { width: 200, height: 200 },
   }) as View
 
-  if (node) {node.view = view}
+  if (node) {
+    node.view = view
+  }
   view.translatesAutoresizingMaskIntoConstraints = false
   view.hasVerticalScroller = true
   view.hasHorizontalScroller = false
@@ -427,14 +432,18 @@ function refreshList(state: ListState) {
 
 export function disposeListView(view: NSView) {
   const state = states.get(view)
-  if (!state || state.closed) { return }
+  if (!state || state.closed) {
+    return
+  }
   state.closed = true
   const failures = new FailureCollector()
   const stopItems = state.stopItems
   state.stopItems = undefined
   failures.run('list subscription', () => stopItems?.())
   for (const field of ['delegate', 'dataSource', 'target', 'action'] as const) {
-    failures.run('list ' + field, () => { state.table[field] = null })
+    failures.run('list ' + field, () => {
+      state.table[field] = null
+    })
   }
   states.delete(state.table)
   states.delete(view)
@@ -442,13 +451,18 @@ export function disposeListView(view: NSView) {
   state.cells.clear()
   for (const cell of cells) {
     failures.run('list cell content', () => clearContent(state, cell))
-    failures.run('list cell binding', () => { cell.host.bindingContext = undefined })
+    failures.run('list cell binding', () => {
+      cell.host.bindingContext = undefined
+    })
+
     failures.run('list cell host', () => cell.host.removeFromSuperview())
     cellsByHost.delete(cell.host)
   }
   state.props = {}
   state.count = 0
   failures.run('list reload', () => state.table.reloadData())
-  failures.run('list document', () => { state.view.documentView = null })
+  failures.run('list document', () => {
+    state.view.documentView = null
+  })
   failures.throwIfFailed()
 }

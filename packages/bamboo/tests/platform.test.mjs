@@ -137,6 +137,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
       readFileSync(join(root, 'dist', sheets[0].fileName), 'utf8'),
       /@platform|xplat-platform/,
     )
+
     const html = readFileSync(join(root, 'dist/index.html'), 'utf8')
     assert.ok(html.includes(sheets[0].fileName), html)
     const manifest = readFileSync(join(root, 'dist/.vite/manifest.json'), 'utf8')

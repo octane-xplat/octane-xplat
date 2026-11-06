@@ -44,8 +44,8 @@ export { xplatDevBridge } from './mcp/dev-bridge.ts'
 // root (vite loadConfigFromFile), with the real app cwd set later — freezing
 // a root-scoped require would strand importApp on the wrong package.json.
 const importApp = (spec) => {
-	const req = createRequire(join(process.cwd(), 'package.json'))
-	return import(pathToFileURL(realpathSync(req.resolve(spec))).href)
+  const req = createRequire(join(process.cwd(), 'package.json'))
+  return import(pathToFileURL(realpathSync(req.resolve(spec))).href)
 }
 
 // The toolchain/runtime realms have their own serving paths (`/ns/core`,
@@ -61,41 +61,41 @@ const NS_REALM = new Set(['@nativescript/core', '@nativescript/vite'])
  * each plugin by hand.
  */
 const collectNsPluginDeps = (rootDir) => {
-	const out = new Set()
-	const visited = new Set()
-	const queue = [rootDir]
-	while (queue.length) {
-		const dir = queue.shift()
+  const out = new Set()
+  const visited = new Set()
+  const queue = [rootDir]
+  while (queue.length) {
+    const dir = queue.shift()
 
-		let pkg
-		try {
-			pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
-		} catch {
-			continue
-		}
+    let pkg
+    try {
+      pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+    } catch {
+      continue
+    }
 
-		for (const name of Object.keys(pkg.dependencies ?? {})) {
-			if (visited.has(name)) {
-				continue
-			}
+    for (const name of Object.keys(pkg.dependencies ?? {})) {
+      if (visited.has(name)) {
+        continue
+      }
 
-			visited.add(name)
+      visited.add(name)
 
-			const depDir = installedPackageRoot(dir, name)
-			if (!depDir) {
-				continue
-			}
+      const depDir = installedPackageRoot(dir, name)
+      if (!depDir) {
+        continue
+      }
 
-			const depPkg = JSON.parse(readFileSync(join(depDir, 'package.json'), 'utf8'))
-			if (depPkg.nativescript && !NS_REALM.has(name)) {
-				out.add(name)
-			}
+      const depPkg = JSON.parse(readFileSync(join(depDir, 'package.json'), 'utf8'))
+      if (depPkg.nativescript && !NS_REALM.has(name)) {
+        out.add(name)
+      }
 
-			queue.push(depDir)
-		}
-	}
+      queue.push(depDir)
+    }
+  }
 
-	return out
+  return out
 }
 
 /** CSS that NS parses but silently ignores or misreads — the app looks
@@ -103,31 +103,31 @@ const collectNsPluginDeps = (rootDir) => {
  *  divergence is loud instead of invisible. Each entry: pattern + the
  *  portable alternative. */
 const CSS_DIVERGENCES = [
-	[
-		/(?<![\w-])env\(\s*safe-area-inset-(?:top|right|bottom|left)\s*[,)]/i,
-		'env(safe-area-inset-*) is unsupported on native and may contribute 0 — use useSafeAreaInsets() from @octane-xplat/ui with an inline style for native insets',
-	],
-	[
-		/margin-(?:left|right|top|bottom)\s*:\s*auto|margin\s*:[^;{}]*\bauto\b/,
-		'auto margins are ignored on native — use justify-content, alignSelf, or a <Spacer/>',
-	],
-	[
-		/position\s*:\s*(fixed|sticky)\b/,
-		'position: fixed/sticky does not exist on native — overlays go through Overlay/Modal services, not positioning',
-	],
-	[/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
-	[
-		/\bbox-shadow\s*:/,
-		'box-shadow is inert on native — Android elevation and iOS shadows do not map to it (framework mapping is a TODO)',
-	],
-	[
-		/white-space\s*:\s*pre-wrap\b/,
-		'Label rejects white-space:pre-wrap — "wrap" is the native wrap value (no space/newline preservation)',
-	],
-	[
-		/letter-spacing\s*:\s*[^;{}]*\d(?:px|dip|pt)\b/,
-		'letter-spacing has no length units on native — Android reads the number as em (setLetterSpacing), iOS as pt; use em so all three agree',
-	],
+  [
+    /(?<![\w-])env\(\s*safe-area-inset-(?:top|right|bottom|left)\s*[,)]/i,
+    'env(safe-area-inset-*) is unsupported on native and may contribute 0 — use useSafeAreaInsets() from @octane-xplat/ui with an inline style for native insets',
+  ],
+  [
+    /margin-(?:left|right|top|bottom)\s*:\s*auto|margin\s*:[^;{}]*\bauto\b/,
+    'auto margins are ignored on native — use justify-content, alignSelf, or a <Spacer/>',
+  ],
+  [
+    /position\s*:\s*(fixed|sticky)\b/,
+    'position: fixed/sticky does not exist on native — overlays go through Overlay/Modal services, not positioning',
+  ],
+  [/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
+  [
+    /\bbox-shadow\s*:/,
+    'box-shadow is inert on native — Android elevation and iOS shadows do not map to it (framework mapping is a TODO)',
+  ],
+  [
+    /white-space\s*:\s*pre-wrap\b/,
+    'Label rejects white-space:pre-wrap — "wrap" is the native wrap value (no space/newline preservation)',
+  ],
+  [
+    /letter-spacing\s*:\s*[^;{}]*\d(?:px|dip|pt)\b/,
+    'letter-spacing has no length units on native — Android reads the number as em (setLetterSpacing), iOS as pt; use em so all three agree',
+  ],
 ]
 
 /**
@@ -139,110 +139,110 @@ const CSS_DIVERGENCES = [
  * divergence is loud at build time.
  */
 export function processNativeCss(
-	code: string,
-	id: string,
-	warn: (msg: string) => void,
-	options: { masonSafeAreaEnvironment?: boolean; warned?: Set<string> } = {},
+  code: string,
+  id: string,
+  warn: (msg: string) => void,
+  options: { masonSafeAreaEnvironment?: boolean; warned?: Set<string> } = {},
 ): string {
-	const warned = options.warned ?? new Set()
-	// Framework authors mark web-only rule blocks — overlays, popovers,
-	// dialog modals render through RootLayout/showModal natively, so
-	// their CSS is dead weight (and would trip the divergence warnings).
-	// Stripped before the warn pass.
-	code = code.replace(
-		/\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
-		'',
-	)
+  const warned = options.warned ?? new Set()
+  // Framework authors mark web-only rule blocks — overlays, popovers,
+  // dialog modals render through RootLayout/showModal natively, so
+  // their CSS is dead weight (and would trip the divergence warnings).
+  // Stripped before the warn pass.
+  code = code.replace(
+    /\/\*\s*xplat-web-only:start[\s\S]*?\*\/[\s\S]*?\/\*\s*xplat-web-only:end[\s\S]*?\*\//g,
+    '',
+  )
 
-	code = unwrapCssLayers(code)
+  code = unwrapCssLayers(code)
 
-	// `@import` inlining reads the target file's raw text — it never
-	// reaches this hook, so inlined css ships px units AND un-stripped
-	// xplat-web-only rules (they land as real native props, e.g.
-	// translate(-50%,-50%) → translateY:-50dip). Import css files as JS
-	// modules instead — each then passes through this transform.
-	// Strip comments first so `@import` inside a comment doesn't warn.
-	const uncommented = code.replace(/\/\*[\s\S]*?\*\//g, '')
-	if (/@import\s+['"]/.test(uncommented) && !warned.has(id + '|@import')) {
-		warned.add(id + '|@import')
-		warn(
-			`${id}: @import inlining bypasses the px→dip rewrite and the ` +
-				`xplat-web-only strip — import css files as JS modules instead ` +
-				`(import 'pkg/file.css')`,
-		)
-	}
+  // `@import` inlining reads the target file's raw text — it never
+  // reaches this hook, so inlined css ships px units AND un-stripped
+  // xplat-web-only rules (they land as real native props, e.g.
+  // translate(-50%,-50%) → translateY:-50dip). Import css files as JS
+  // modules instead — each then passes through this transform.
+  // Strip comments first so `@import` inside a comment doesn't warn.
+  const uncommented = code.replace(/\/\*[\s\S]*?\*\//g, '')
+  if (/@import\s+['"]/.test(uncommented) && !warned.has(id + '|@import')) {
+    warned.add(id + '|@import')
+    warn(
+      `${id}: @import inlining bypasses the px→dip rewrite and the ` +
+        `xplat-web-only strip — import css files as JS modules instead ` +
+        `(import 'pkg/file.css')`,
+    )
+  }
 
-	// Comments and quoted content are not CSS function calls.
-	const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
-	for (const [re, unsupportedHint] of CSS_DIVERGENCES) {
-		const hint =
-			options.masonSafeAreaEnvironment && String(unsupportedHint).startsWith('env(')
-				? 'env(safe-area-inset-*) uses the owning window on Mason containers; native inset dispatch/layout is not yet device-qualified. Ordinary NativeScript controls still need useSafeAreaInsets() with inline styles'
-				: unsupportedHint
+  // Comments and quoted content are not CSS function calls.
+  const declarations = code.replace(/\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g, '')
+  for (const [re, unsupportedHint] of CSS_DIVERGENCES) {
+    const hint =
+      options.masonSafeAreaEnvironment && String(unsupportedHint).startsWith('env(')
+        ? 'env(safe-area-inset-*) uses the owning window on Mason containers; native inset dispatch/layout is not yet device-qualified. Ordinary NativeScript controls still need useSafeAreaInsets() with inline styles'
+        : unsupportedHint
 
-		const key = id + '|' + hint
-		if (re.test(declarations) && !warned.has(key)) {
-			warned.add(key)
-			warn(`${id}: ${hint}`)
-		}
-	}
+    const key = id + '|' + hint
+    if (re.test(declarations) && !warned.has(key)) {
+      warned.add(key)
+      warn(`${id}: ${hint}`)
+    }
+  }
 
-	// NS letter-spacing semantics are raw em numbers — Android feeds the
-	// parsed value to TextView.setLetterSpacing (em), iOS uses it as a
-	// point kern. The NS css parser drops `em` dimension tokens entirely,
-	// so unit-strip the authored em value. Length units (px/dip/pt)
-	// parse but get misread as em — the divergence warning above points
-	// authors at em.
-	code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
+  // NS letter-spacing semantics are raw em numbers — Android feeds the
+  // parsed value to TextView.setLetterSpacing (em), iOS uses it as a
+  // point kern. The NS css parser drops `em` dimension tokens entirely,
+  // so unit-strip the authored em value. Length units (px/dip/pt)
+  // parse but get misread as em — the divergence warning above points
+  // authors at em.
+  code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
 
-	// At-rule preludes (@media/@supports/@keyframes/@layer) keep px — media
-	// features are evaluated against dips anyway (evalMediaQuery parses the
-	// number) and `300dip` is not valid in a minified query prelude.
-	return code.replace(/@[\w-]+[^{}]*\{|-?\d+(?:\.\d+)?px\b/g, (m) =>
-		m.endsWith('{') ? m : m.slice(0, -2) + 'dip',
-	)
+  // At-rule preludes (@media/@supports/@keyframes/@layer) keep px — media
+  // features are evaluated against dips anyway (evalMediaQuery parses the
+  // number) and `300dip` is not valid in a minified query prelude.
+  return code.replace(/@[\w-]+[^{}]*\{|-?\d+(?:\.\d+)?px\b/g, (m) =>
+    m.endsWith('{') ? m : m.slice(0, -2) + 'dip',
+  )
 }
 
 export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
-	const warned = new Set()
-	let isBuild = false
-	const process = (code, id, warn) => processNativeCss(code, id, warn, { ...options, warned })
+  const warned = new Set()
+  let isBuild = false
+  const process = (code, id, warn) => processNativeCss(code, id, warn, { ...options, warned })
 
-	return {
-		name: 'xplat-native-css',
-		enforce: 'pre',
-		configResolved(config) {
-			isBuild = config.command === 'build'
-		},
-		// Per-file pass — covers dev serving where css is transformed
-		// per module (the /ns/m bridge path).
-		transform(code, id) {
-			// Bamboo validates its complete sheet before the output adapter filters it.
-			if (isBuild && id.split('?')[0].endsWith('virtual:bamboo.css')) {
-				return
-			}
+  return {
+    name: 'xplat-native-css',
+    enforce: 'pre',
+    configResolved(config) {
+      isBuild = config.command === 'build'
+    },
+    // Per-file pass — covers dev serving where css is transformed
+    // per module (the /ns/m bridge path).
+    transform(code, id) {
+      // Bamboo validates its complete sheet before the output adapter filters it.
+      if (isBuild && id.split('?')[0].endsWith('virtual:bamboo.css')) {
+        return
+      }
 
-			if (!id.split('?')[0].endsWith('.css')) {
-				return
-			}
+      if (!id.split('?')[0].endsWith('.css')) {
+        return
+      }
 
-			return process(code, id, (m) => this.warn(m))
-		},
-		// Build pass — @nativescript/vite collects emitted .css assets in
-		// generateBundle and serializes them via addTaggedAdditionalCSS;
-		// @import inlining bypasses the transform hook, so the asset text
-		// must be rewritten here. 'pre' ordering lands us before it.
-		generateBundle(_opts, bundle) {
-			for (const file of Object.values(bundle)) {
-				if (file.type === 'asset' && file.fileName.endsWith('.css')) {
-					const src =
-						typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source)
+      return process(code, id, (m) => this.warn(m))
+    },
+    // Build pass — @nativescript/vite collects emitted .css assets in
+    // generateBundle and serializes them via addTaggedAdditionalCSS;
+    // @import inlining bypasses the transform hook, so the asset text
+    // must be rewritten here. 'pre' ordering lands us before it.
+    generateBundle(_opts, bundle) {
+      for (const file of Object.values(bundle)) {
+        if (file.type === 'asset' && file.fileName.endsWith('.css')) {
+          const src =
+            typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source)
 
-					file.source = process(src, file.fileName, (m) => this.warn(m))
-				}
-			}
-		},
-	}
+          file.source = process(src, file.fileName, (m) => this.warn(m))
+        }
+      }
+    },
+  }
 }
 
 /** Vite merges `resolve.extensions` by concat, and the ns base config lands a
@@ -251,14 +251,14 @@ export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
  *  side effects in platform leaves never load. Splice the platform chain to
  *  the front after every merge has run. */
 function nativeExtensionOrder() {
-	return {
-		name: 'xplat-native-extension-order',
-		configResolved(config) {
-			const ours = new Set(nativePlatformExtensions())
-			const rest = (config.resolve?.extensions ?? []).filter((ext) => !ours.has(ext))
-			config.resolve = { ...config.resolve, extensions: [...ours, ...rest] }
-		},
-	}
+  return {
+    name: 'xplat-native-extension-order',
+    configResolved(config) {
+      const ours = new Set(nativePlatformExtensions())
+      const rest = (config.resolve?.extensions ?? []).filter((ext) => !ours.has(ext))
+      config.resolve = { ...config.resolve, extensions: [...ours, ...rest] }
+    },
+  }
 }
 
 /** The ns platform resolver and Vite's extension fallback know nothing of the
@@ -268,50 +268,58 @@ function nativeExtensionOrder() {
  *  `registerElement`-style side effects. Probe the platform chain for every
  *  relative specifier before the generic resolvers run. */
 export function nativeRelativeResolution() {
-	const exts = nativePlatformExtensions()
+  const exts = nativePlatformExtensions()
 
-	return {
-		name: 'xplat-native-relative-resolution',
-		resolveId: {
-			order: 'pre',
-			handler(source, importer) {
-				if (!importer || (!source.startsWith('./') && !source.startsWith('../'))) {
-					return null
-				}
+  return {
+    name: 'xplat-native-relative-resolution',
+    resolveId: {
+      order: 'pre',
+      handler(source, importer) {
+        if (!importer || (!source.startsWith('./') && !source.startsWith('../'))) {
+          return null
+        }
 
-				const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
-				const base = resolve(dirname(importerFile), source.split(/[?#]/, 1)[0])
+        const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
+        const base = resolve(dirname(importerFile), source.split(/[?#]/, 1)[0])
 
-				for (const ext of exts) {
-					if (existsSync(base + ext)) {
-						// Vite module IDs use forward slashes, including on Windows.
-						// Mixed separators create two instances of core style registries.
-						return (base + ext).replaceAll('\\', '/')
-					}
-				}
+        for (const ext of exts) {
+          if (existsSync(base + ext)) {
+            // Vite module IDs use forward slashes, including on Windows.
+            // Mixed separators create two instances of core style registries.
+            return (base + ext).replaceAll('\\', '/')
+          }
+        }
 
-				return null
-			},
-		},
-	}
+        return null
+      },
+    },
+  }
 }
 
 function nativeCoreHttpAliases(appRequire) {
-	try {
-		// NativeScript 8.0.20 emits this HTTP path from core, but its lookup
-		// loses the importer and cannot find Bun's isolated transitive package.
-		// Anchor to the selected SDK's real package, not its symlink spelling.
-		const coreRequire = createRequire(realpathSync(appRequire.resolve('@nativescript/core/package.json')))
-		return [{
-			find: /^\/node_modules\/source-map-js(?=\/|$)/,
-			replacement: dirname(coreRequire.resolve('source-map-js/package.json')),
-		}]
-	} catch (error) {
-		// Other SDK versions need not depend on this package. Their normal
-		// configuration owns any missing-SDK diagnostics.
-		if (error?.code === 'MODULE_NOT_FOUND') {return []}
-		throw error
-	}
+  try {
+    // NativeScript 8.0.20 emits this HTTP path from core, but its lookup
+    // loses the importer and cannot find Bun's isolated transitive package.
+    // Anchor to the selected SDK's real package, not its symlink spelling.
+    const coreRequire = createRequire(
+      realpathSync(appRequire.resolve('@nativescript/core/package.json')),
+    )
+
+    return [
+      {
+        find: /^\/node_modules\/source-map-js(?=\/|$)/,
+        replacement: dirname(coreRequire.resolve('source-map-js/package.json')),
+      },
+    ]
+  } catch (error) {
+    // Other SDK versions need not depend on this package. Their normal
+    // configuration owns any missing-SDK diagnostics.
+    if (error?.code === 'MODULE_NOT_FOUND') {
+      return []
+    }
+
+    throw error
+  }
 }
 
 /**
@@ -323,40 +331,40 @@ function nativeCoreHttpAliases(appRequire) {
  * client ever attached.
  */
 function nsHmrClientWatchdog() {
-	return {
-		name: 'xplat-ns-hmr-client-watchdog',
-		configureServer(server) {
-			let everConnected = false
-			let timer
-			// Hook the raw 'request' event — middlewares.use() appends after
-			// the ns plugin's session handler, which ends the response without
-			// next(), so a connect middleware never observes /__ns_dev__/session.
-			server.httpServer?.on('request', (req) => {
-				if (!everConnected && req.url?.startsWith('/__ns_dev__/session')) {
-					clearTimeout(timer)
-					timer = setTimeout(() => {
-						if (!everConnected) {
-							console.warn(
-								'[xplat] the app fetched its dev session but no /ns-hmr ' +
-									'websocket client connected — edits will not reach the ' +
-									'device. Check that @valor/nativescript-websockets is ' +
-									'installed, `adb reverse tcp:<port>` covers this vite ' +
-									'port (physical Android), and the device log for ' +
-									'hmr-client errors.',
-							)
-						}
-					}, 15_000)
-				}
-			})
+  return {
+    name: 'xplat-ns-hmr-client-watchdog',
+    configureServer(server) {
+      let everConnected = false
+      let timer
+      // Hook the raw 'request' event — middlewares.use() appends after
+      // the ns plugin's session handler, which ends the response without
+      // next(), so a connect middleware never observes /__ns_dev__/session.
+      server.httpServer?.on('request', (req) => {
+        if (!everConnected && req.url?.startsWith('/__ns_dev__/session')) {
+          clearTimeout(timer)
+          timer = setTimeout(() => {
+            if (!everConnected) {
+              console.warn(
+                '[xplat] the app fetched its dev session but no /ns-hmr ' +
+                  'websocket client connected — edits will not reach the ' +
+                  'device. Check that @valor/nativescript-websockets is ' +
+                  'installed, `adb reverse tcp:<port>` covers this vite ' +
+                  'port (physical Android), and the device log for ' +
+                  'hmr-client errors.',
+              )
+            }
+          }, 15_000)
+        }
+      })
 
-			server.httpServer?.on('upgrade', (req) => {
-				if (req.url?.startsWith('/ns-hmr')) {
-					everConnected = true
-					clearTimeout(timer)
-				}
-			})
-		},
-	}
+      server.httpServer?.on('upgrade', (req) => {
+        if (req.url?.startsWith('/ns-hmr')) {
+          everConnected = true
+          clearTimeout(timer)
+        }
+      })
+    },
+  }
 }
 
 /** The full extension chain, most-specific first: .ios/.android → .mobile →
@@ -364,134 +372,134 @@ function nsHmrClientWatchdog() {
  *  its qualifier must never shadow `.mobile` on ios/android builds). NS's
  *  own file qualifiers (.land, .minWH600…) still apply to assets on top. */
 export const nativeExtensions = [
-	'.ios.tsrx',
-	'.android.tsrx',
-	'.mobile.tsrx',
-	'.tsrx',
-	'.ios.tsx',
-	'.android.tsx',
-	'.mobile.tsx',
-	'.tsx',
-	'.ios.ts',
-	'.android.ts',
-	'.mobile.ts',
-	'.ios.js',
-	'.android.js',
-	'.mobile.js',
-	'.ts',
-	'.mts',
-	'.ts',
-	'.jsx',
-	'.js',
-	'.json',
+  '.ios.tsrx',
+  '.android.tsrx',
+  '.mobile.tsrx',
+  '.tsrx',
+  '.ios.tsx',
+  '.android.tsx',
+  '.mobile.tsx',
+  '.tsx',
+  '.ios.ts',
+  '.android.ts',
+  '.mobile.ts',
+  '.ios.js',
+  '.android.js',
+  '.mobile.js',
+  '.ts',
+  '.mts',
+  '.ts',
+  '.jsx',
+  '.js',
+  '.json',
 ]
 
 /** The bundle platform the current invocation targets, read from
  *  NATIVESCRIPT_BUNDLER_ENV or the ns/vite CLI args — undefined when the
  *  caller can't be identified (the generic native chain applies). */
 function nativePlatform() {
-	let platform
-	try {
-		const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
-		platform =
-			env.platform ??
-			(env.android
-				? 'android'
-				: env.windows
-					? 'windows'
-					: env.visionos
-						? 'visionos'
-						: env.ios
-							? 'ios'
-							: undefined)
-	} catch {}
+  let platform
+  try {
+    const env = JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
+    platform =
+      env.platform ??
+      (env.android
+        ? 'android'
+        : env.windows
+          ? 'windows'
+          : env.visionos
+            ? 'visionos'
+            : env.ios
+              ? 'ios'
+              : undefined)
+  } catch {}
 
-	const args = process.argv.slice(2)
-	if (!platform) {
-		if (
-			args.some(
-				(arg) =>
-					arg === '--visionos' || arg === '--env.visionos' || arg.startsWith('--env.visionos='),
-			)
-		) {
-			platform = 'visionos'
-		} else if (
-			args.some(
-				(arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='),
-			)
-		) {
-			platform = 'android'
-		} else if (
-			args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios='))
-		) {
-			platform = 'ios'
-		} else if (
-			args.some(
-				(arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='),
-			)
-		) {
-			platform = 'windows'
-		} else {
-			const platformIndex = args.indexOf('--platform')
-			const value = args.find((arg) => arg.startsWith('--platform='))?.slice('--platform='.length)
-			platform = value ?? (platformIndex >= 0 ? args[platformIndex + 1] : undefined)
-		}
-	}
+  const args = process.argv.slice(2)
+  if (!platform) {
+    if (
+      args.some(
+        (arg) =>
+          arg === '--visionos' || arg === '--env.visionos' || arg.startsWith('--env.visionos='),
+      )
+    ) {
+      platform = 'visionos'
+    } else if (
+      args.some(
+        (arg) => arg === '--android' || arg === '--env.android' || arg.startsWith('--env.android='),
+      )
+    ) {
+      platform = 'android'
+    } else if (
+      args.some((arg) => arg === '--ios' || arg === '--env.ios' || arg.startsWith('--env.ios='))
+    ) {
+      platform = 'ios'
+    } else if (
+      args.some(
+        (arg) => arg === '--windows' || arg === '--env.windows' || arg.startsWith('--env.windows='),
+      )
+    ) {
+      platform = 'windows'
+    } else {
+      const platformIndex = args.indexOf('--platform')
+      const value = args.find((arg) => arg.startsWith('--platform='))?.slice('--platform='.length)
+      platform = value ?? (platformIndex >= 0 ? args[platformIndex + 1] : undefined)
+    }
+  }
 
-	return platform
+  return platform
 }
 
 function nativePlatformExtensions() {
-	const platform = nativePlatform()
+  const platform = nativePlatform()
 
-	if (
-		platform !== 'android' &&
-		platform !== 'ios' &&
-		platform !== 'visionos' &&
-		platform !== 'windows'
-	) {
-		return nativeExtensions
-	}
+  if (
+    platform !== 'android' &&
+    platform !== 'ios' &&
+    platform !== 'visionos' &&
+    platform !== 'windows'
+  ) {
+    return nativeExtensions
+  }
 
-	const target = platform === 'android' ? '.android' : platform === 'windows' ? '.windows' : '.ios'
-	// `.mobile` is ios+android shared divergence — windows doesn't inherit it;
-	// its chain is .windows → the unsuffixed native default.
+  const target = platform === 'android' ? '.android' : platform === 'windows' ? '.windows' : '.ios'
+  // `.mobile` is ios+android shared divergence — windows doesn't inherit it;
+  // its chain is .windows → the unsuffixed native default.
 
-	if (platform === 'windows') {
-		return [
-			'.windows.tsrx',
-			'.tsrx',
-			'.windows.tsx',
-			'.tsx',
-			'.windows.ts',
-			'.ts',
-			'.windows.js',
-			'.ts',
-			'.mts',
-			'.jsx',
-			'.js',
-			'.json',
-		]
-	}
+  if (platform === 'windows') {
+    return [
+      '.windows.tsrx',
+      '.tsrx',
+      '.windows.tsx',
+      '.tsx',
+      '.windows.ts',
+      '.ts',
+      '.windows.js',
+      '.ts',
+      '.mts',
+      '.jsx',
+      '.js',
+      '.json',
+    ]
+  }
 
-	return [
-		`${target}.tsrx`,
-		'.mobile.tsrx',
-		'.tsrx',
-		`${target}.tsx`,
-		'.mobile.tsx',
-		'.tsx',
-		`${target}.ts`,
-		'.mobile.ts',
-		'.ts',
-		`${target}.js`,
-		'.mobile.js',
-		'.ts',
-		'.mts',
-		'.jsx',
-		'.js',
-		'.json',
-	]
+  return [
+    `${target}.tsrx`,
+    '.mobile.tsrx',
+    '.tsrx',
+    `${target}.tsx`,
+    '.mobile.tsx',
+    '.tsx',
+    `${target}.ts`,
+    '.mobile.ts',
+    '.ts',
+    `${target}.js`,
+    '.mobile.js',
+    '.ts',
+    '.mts',
+    '.jsx',
+    '.js',
+    '.json',
+  ]
 }
 
 // ---------- platform boundary guard ----------
@@ -502,31 +510,31 @@ function nativePlatformExtensions() {
 const PLATFORM_TAG = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[^./\\]+$/
 
 const boundaryAllowed = {
-	web: new Set(['web']),
-	// The mobile glob eagerly imports every ios/android/mobile leaf and
-	// deriveRouteManifest picks by `prefer` at runtime — a sibling OS's file
-	// in the graph is by design, so the mobile family shares one allowed set.
-	ios: new Set(['ios', 'android', 'mobile']),
-	visionos: new Set(['ios', 'android', 'mobile']),
-	android: new Set(['ios', 'android', 'mobile']),
-	macos: new Set(['macos']),
-	// windows doesn't inherit .mobile (decision #64) — its chain is
-	// .windows → the unsuffixed default.
-	windows: new Set(['windows']),
-	// Linux resolves .linux → .web → unsuffixed, so web leaves are legal there.
-	linux: new Set(['linux', 'web']),
-	// The GTK4/GJS renderer is a distinct target — .linux leaves assume the
-	// webview host (DOM + bridge) and must never resolve into a GTK bundle.
-	gtk: new Set(['gtk']),
-	// Bundle platform unknown (generic native chain): every native tag is
-	// possible — only browser/desktop tags are foreign.
-	native: new Set(['ios', 'android', 'mobile', 'windows']),
+  web: new Set(['web']),
+  // The mobile glob eagerly imports every ios/android/mobile leaf and
+  // deriveRouteManifest picks by `prefer` at runtime — a sibling OS's file
+  // in the graph is by design, so the mobile family shares one allowed set.
+  ios: new Set(['ios', 'android', 'mobile']),
+  visionos: new Set(['ios', 'android', 'mobile']),
+  android: new Set(['ios', 'android', 'mobile']),
+  macos: new Set(['macos']),
+  // windows doesn't inherit .mobile (decision #64) — its chain is
+  // .windows → the unsuffixed default.
+  windows: new Set(['windows']),
+  // Linux resolves .linux → .web → unsuffixed, so web leaves are legal there.
+  linux: new Set(['linux', 'web']),
+  // The GTK4/GJS renderer is a distinct target — .linux leaves assume the
+  // webview host (DOM + bridge) and must never resolve into a GTK bundle.
+  gtk: new Set(['gtk']),
+  // Bundle platform unknown (generic native chain): every native tag is
+  // possible — only browser/desktop tags are foreign.
+  native: new Set(['ios', 'android', 'mobile', 'windows']),
 }
 
 function platformTag(id) {
-	const file = id.split(/[?#]/, 1)[0]
-	const m = PLATFORM_TAG.exec(file)
-	return m?.[1]
+  const file = id.split(/[?#]/, 1)[0]
+  const m = PLATFORM_TAG.exec(file)
+  return m?.[1]
 }
 
 /** Build-time enforcement of the platform-suffix boundary (invariant #1) —
@@ -538,89 +546,89 @@ function platformTag(id) {
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
 export function xplatBoundary(platform = 'native') {
-	const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
-	let command = 'build'
-	let root = ''
-	const warned = new Set()
-	const foreign = new Set()
+  const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
+  let command = 'build'
+  let root = ''
+  const warned = new Set()
+  const foreign = new Set()
 
-	const chainFor = (getModuleInfo, id) => {
-		const chain = []
-		let cur = id
-		const seen = new Set()
+  const chainFor = (getModuleInfo, id) => {
+    const chain = []
+    let cur = id
+    const seen = new Set()
 
-		while (cur && !seen.has(cur)) {
-			seen.add(cur)
-			const info = getModuleInfo(cur)
-			const importers = [...(info?.importers ?? []), ...(info?.dynamicImporters ?? [])]
-			const next = importers[0]
-			if (!next) {
-				break
-			}
+    while (cur && !seen.has(cur)) {
+      seen.add(cur)
+      const info = getModuleInfo(cur)
+      const importers = [...(info?.importers ?? []), ...(info?.dynamicImporters ?? [])]
+      const next = importers[0]
+      if (!next) {
+        break
+      }
 
-			chain.push(next)
-			cur = next
-		}
+      chain.push(next)
+      cur = next
+    }
 
-		return chain
-	}
+    return chain
+  }
 
-	return {
-		...serverBoundary(),
-		name: 'xplat-platform-boundary',
-		configResolved(config) {
-			command = config.command
-			root = config.root
-		},
-		moduleParsed(info) {
-			const tag = platformTag(info.id)
-			if (!tag || allowed.has(tag)) {
-				return
-			}
+  return {
+    ...serverBoundary(),
+    name: 'xplat-platform-boundary',
+    configResolved(config) {
+      command = config.command
+      root = config.root
+    },
+    moduleParsed(info) {
+      const tag = platformTag(info.id)
+      if (!tag || allowed.has(tag)) {
+        return
+      }
 
-			if (command === 'serve') {
-				if (!warned.has(info.id)) {
-					warned.add(info.id)
+      if (command === 'serve') {
+        if (!warned.has(info.id)) {
+          warned.add(info.id)
 
-					const infoOf =
-						typeof this.getModuleInfo === 'function'
-							? (i) => this.getModuleInfo(i)
-							: () => undefined
+          const infoOf =
+            typeof this.getModuleInfo === 'function'
+              ? (i) => this.getModuleInfo(i)
+              : () => undefined
 
-					this.warn(
-						`xplat boundary — .${tag} module in a ${platform} graph: ` +
-							`${relative(root, info.id)} (importers: ${
-								chainFor(infoOf, info.id)
-									.map((i) => relative(root, i))
-									.join(' → ') || 'unknown'
-							})`,
-					)
-				}
+          this.warn(
+            `xplat boundary — .${tag} module in a ${platform} graph: ` +
+              `${relative(root, info.id)} (importers: ${
+                chainFor(infoOf, info.id)
+                  .map((i) => relative(root, i))
+                  .join(' → ') || 'unknown'
+              })`,
+          )
+        }
 
-				return
-			}
+        return
+      }
 
-			foreign.add(info.id)
-		},
-		buildEnd() {
-			for (const id of foreign) {
-				const tag = platformTag(id)
+      foreign.add(info.id)
+    },
+    buildEnd() {
+      for (const id of foreign) {
+        const tag = platformTag(id)
 
-				const infoOf =
-					typeof this.getModuleInfo === 'function' ? (i) => this.getModuleInfo(i) : () => undefined
+        const infoOf =
+          typeof this.getModuleInfo === 'function' ? (i) => this.getModuleInfo(i) : () => undefined
 
-				const chain = chainFor(infoOf, id)
-				this.error(
-					`xplat boundary — a .${tag} module is reachable in the ${platform} bundle:\n` +
-						`  foreign: ${relative(root, id)}\n` +
-						`  chain:   ${[...chain.reverse(), id].map((i) => relative(root, i)).join(' → ') || relative(root, id)}\n` +
-						`  Platform-suffixed leaves resolve per-target; a foreign tag here means a\n` +
-						`  shared module imported a platform file directly — split it behind the\n` +
-						`  suffix seam (a .${tag} import must sit in a .${tag} importer's subtree).`,
-				)
-			}
-		},
-	}
+        const chain = chainFor(infoOf, id)
+        this.error(
+          `xplat boundary — a .${tag} module is reachable in the ${platform} bundle:\n` +
+            `  foreign: ${relative(root, id)}\n` +
+            `  chain:   ${[...chain.reverse(), id].map((i) => relative(root, i)).join(' → ') || relative(root, id)}\n` +
+            `  Platform-suffixed leaves resolve per-target; a foreign tag here means a\n` +
+            `  shared module imported a platform file directly — split it behind the\n` +
+            `  suffix seam (a .${tag} import must sit in a .${tag} importer's subtree).`,
+        )
+      }
+    },
+  }
 }
 
 /** Every Octane source module in the native graph, including installed
@@ -629,11 +637,11 @@ export function xplatBoundary(platform = 'native') {
  *  unreachable from the native entry but must not fail validation, so each
  *  rule excludes them. */
 const nativeRules = [
-	{
-		include: '**/*.{ts,tsx,tsrx}',
-		exclude: '**/*.web.*',
-		renderer: 'nativescript',
-	},
+  {
+    include: '**/*.{ts,tsx,tsrx}',
+    exclude: '**/*.web.*',
+    renderer: 'nativescript',
+  },
 ]
 
 /**
@@ -648,105 +656,105 @@ const nativeRules = [
  * workspace root so content transforms can read it.
  */
 export const linkedDepFsRoots = (projectRoot, searchForWorkspaceRoot) => {
-	let pkg
-	try {
-		pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
-	} catch {
-		return []
-	}
+  let pkg
+  try {
+    pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+  } catch {
+    return []
+  }
 
-	const roots = new Set()
+  const roots = new Set()
 
-	for (const section of [
-		'dependencies',
-		'devDependencies',
-		'optionalDependencies',
-		'peerDependencies',
-	]) {
-		for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
-			// Inspect the installed package too: pnpm readPackage hooks can link a
-			// checkout without changing the app manifest. Package.json need not
-			// be exported, so resolve the directory directly.
-			try {
-				const depDir = realpathSync(installedPackageDir(projectRoot, name))
-				const rel = relative(realpathSync(projectRoot), depDir).replaceAll('\\', '/')
-				// Registry installs (including external pnpm stores) are not source
-				// checkouts. Never widen access to their enclosing workspace/store.
-				if (
-					(rel === '..' || rel.startsWith('../')) &&
-					!depDir.replaceAll('\\', '/').includes('/node_modules/') &&
-					statSync(depDir).isDirectory()
-				) {
-					roots.add(searchForWorkspaceRoot(depDir))
-				}
-			} catch {}
+  for (const section of [
+    'dependencies',
+    'devDependencies',
+    'optionalDependencies',
+    'peerDependencies',
+  ]) {
+    for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
+      // Inspect the installed package too: pnpm readPackage hooks can link a
+      // checkout without changing the app manifest. Package.json need not
+      // be exported, so resolve the directory directly.
+      try {
+        const depDir = realpathSync(installedPackageDir(projectRoot, name))
+        const rel = relative(realpathSync(projectRoot), depDir).replaceAll('\\', '/')
+        // Registry installs (including external pnpm stores) are not source
+        // checkouts. Never widen access to their enclosing workspace/store.
+        if (
+          (rel === '..' || rel.startsWith('../')) &&
+          !depDir.replaceAll('\\', '/').includes('/node_modules/') &&
+          statSync(depDir).isDirectory()
+        ) {
+          roots.add(searchForWorkspaceRoot(depDir))
+        }
+      } catch {}
 
-			const linkTarget = /^(?:link|file|portal):(.+)$/.exec(spec)?.[1]
+      const linkTarget = /^(?:link|file|portal):(.+)$/.exec(spec)?.[1]
 
-			if (!linkTarget) {
-				continue
-			}
+      if (!linkTarget) {
+        continue
+      }
 
-			try {
-				const depDir = realpathSync(resolve(projectRoot, linkTarget))
-				// `file:` can also name a tarball — only linked directories can
-				// be served back to the dev server.
-				if (statSync(depDir).isDirectory()) {
-					roots.add(searchForWorkspaceRoot(depDir))
-				}
-			} catch {}
-		}
-	}
+      try {
+        const depDir = realpathSync(resolve(projectRoot, linkTarget))
+        // `file:` can also name a tarball — only linked directories can
+        // be served back to the dev server.
+        if (statSync(depDir).isDirectory()) {
+          roots.add(searchForWorkspaceRoot(depDir))
+        }
+      } catch {}
+    }
+  }
 
-	return [...roots]
+  return [...roots]
 }
 
 /** Dependencies with subpath-only exports cannot supply the vendor bundle's
  * bare root import. Source-only entries are handled by @nativescript/vite
  * 8.0.20 (NativeScript#11560); retain only this separate rootless case. */
 export const sourceOnlyDeps = (projectRoot) => {
-	let pkg
-	try {
-		pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
-	} catch {
-		return []
-	}
+  let pkg
+  try {
+    pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+  } catch {
+    return []
+  }
 
-	const names = new Set()
-	for (const section of ['dependencies', 'optionalDependencies']) {
-		for (const name of Object.keys(pkg[section] ?? {})) {
-			try {
-				const depRoot = installedPackageRoot(projectRoot, name)
-				if (!depRoot) {
-					continue
-				}
+  const names = new Set()
+  for (const section of ['dependencies', 'optionalDependencies']) {
+    for (const name of Object.keys(pkg[section] ?? {})) {
+      try {
+        const depRoot = installedPackageRoot(projectRoot, name)
+        if (!depRoot) {
+          continue
+        }
 
-				const manifest = JSON.parse(readFileSync(join(depRoot, 'package.json'), 'utf8'))
+        const manifest = JSON.parse(readFileSync(join(depRoot, 'package.json'), 'utf8'))
 
-				const exportsField = manifest.exports
-				if (
-					exportsField &&
-					typeof exportsField === 'object' &&
-					!('.' in exportsField) &&
-					Object.keys(exportsField).some((key) => key.startsWith('.'))
-				) {
-					names.add(name)
-				}
-			} catch {}
-		}
-	}
+        const exportsField = manifest.exports
+        if (
+          exportsField &&
+          typeof exportsField === 'object' &&
+          !('.' in exportsField) &&
+          Object.keys(exportsField).some((key) => key.startsWith('.'))
+        ) {
+          names.add(name)
+        }
+      } catch {}
+    }
+  }
 
-	return [...names].sort()
+  return [...names].sort()
 }
 
 /** Flags the NativeScript CLI hands the bundler through
  *  NATIVESCRIPT_BUNDLER_ENV (`--env.<name>` on `ns run`/`ns test`). */
 function bundlerEnvFlags() {
-	try {
-		return JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
-	} catch {
-		return {}
-	}
+  try {
+    return JSON.parse(process.env.NATIVESCRIPT_BUNDLER_ENV ?? '{}')
+  } catch {
+    return {}
+  }
 }
 
 /** `--env.unitTesting` overlay — the vite counterpart of the upstream
@@ -764,59 +772,59 @@ function bundlerEnvFlags() {
  *    port (`--env.testRunnerPort`) without a network handshake.
  */
 function unitTestingOverlay(projectRoot, appRequire, env) {
-	const pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
-	const mainEntry = resolve(projectRoot, pkg.main ?? 'src/index.ts')
-	const entryDir = dirname(mainEntry)
-	const testEntry = ['test.ts', 'test.js']
-		.map((name) => join(entryDir, name))
-		.find((path) => existsSync(path))
+  const pkg = JSON.parse(readFileSync(join(projectRoot, 'package.json'), 'utf8'))
+  const mainEntry = resolve(projectRoot, pkg.main ?? 'src/index.ts')
+  const entryDir = dirname(mainEntry)
+  const testEntry = ['test.ts', 'test.js']
+    .map((name) => join(entryDir, name))
+    .find((path) => existsSync(path))
 
-	if (!testEntry) {
-		throw new Error(
-			`--env.unitTesting requires a test entry (${join(entryDir, 'test.ts')}) — ` +
-				`create one with \`ns test init --framework vitest\`.`,
-		)
-	}
+  if (!testEntry) {
+    throw new Error(
+      `--env.unitTesting requires a test entry (${join(entryDir, 'test.ts')}) — ` +
+        `create one with \`ns test init --framework vitest\`.`,
+    )
+  }
 
-	let shimPath
-	try {
-		shimPath = realpathSync(appRequire.resolve('@nativescript/unit-test-runner/runtime/shim'))
-	} catch {
-		throw new Error(
-			'--env.unitTesting requires @nativescript/unit-test-runner as a devDependency ' +
-				'of the app (the vitest specifier in specs resolves to its device shim).',
-		)
-	}
+  let shimPath
+  try {
+    shimPath = realpathSync(appRequire.resolve('@nativescript/unit-test-runner/runtime/shim'))
+  } catch {
+    throw new Error(
+      '--env.unitTesting requires @nativescript/unit-test-runner as a devDependency ' +
+        'of the app (the vitest specifier in specs resolves to its device shim).',
+    )
+  }
 
-	// The same specifier @nativescript/vite's virtual entry emits for the
-	// package main (toStaticImportSpecifier): root-relative, posix.
-	const mainSpecifier = '/' + relative(projectRoot, mainEntry).replaceAll('\\', '/')
+  // The same specifier @nativescript/vite's virtual entry emits for the
+  // package main (toStaticImportSpecifier): root-relative, posix.
+  const mainSpecifier = '/' + relative(projectRoot, mainEntry).replaceAll('\\', '/')
 
-	const port = Number(env.testRunnerPort)
+  const port = Number(env.testRunnerPort)
 
-	return {
-		define: {
-			__NS_TEST_CONFIG__: JSON.stringify({
-				port: Number.isInteger(port) ? port : undefined,
-			}),
-		},
-		resolve: {
-			alias: [{ find: /^vitest$/, replacement: shimPath }],
-		},
-		plugins: [
-			{
-				name: 'xplat-ns-unit-test-entry',
-				enforce: 'pre',
-				resolveId(source, importer) {
-					if (importer?.includes('virtual:entry-with-polyfills') && source === mainSpecifier) {
-						return testEntry
-					}
+  return {
+    define: {
+      __NS_TEST_CONFIG__: JSON.stringify({
+        port: Number.isInteger(port) ? port : undefined,
+      }),
+    },
+    resolve: {
+      alias: [{ find: /^vitest$/, replacement: shimPath }],
+    },
+    plugins: [
+      {
+        name: 'xplat-ns-unit-test-entry',
+        enforce: 'pre',
+        resolveId(source, importer) {
+          if (importer?.includes('virtual:entry-with-polyfills') && source === mainSpecifier) {
+            return testEntry
+          }
 
-					return null
-				},
-			},
-		],
-	}
+          return null
+        },
+      },
+    ],
+  }
 }
 
 /** `define` for the `process.env.NODE_ENV` npm convention — upstream octane
@@ -831,7 +839,7 @@ function unitTestingOverlay(projectRoot, appRequire, env) {
  *  shim picks the value up too (it captures `process.env.*` define entries
  *  from the resolved config). */
 export const xplatNodeEnvDefine = (mode) => ({
-	'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
+  'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
 })
 
 /**
@@ -846,194 +854,194 @@ export const xplatNodeEnvDefine = (mode) => ({
  *   - rules: renderer rules override (defaults cover src + packages source)
  */
 export async function xplatNative(env, opts = {}) {
-	const mode = typeof env === 'string' ? env : env.mode
-	const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
-	const declared = Object.assign(
-		{},
-		pkg.dependencies,
-		pkg.devDependencies,
-		pkg.optionalDependencies,
-		pkg.peerDependencies,
-	)
-	const engine = masonEngine(
-		declared,
-		nativePlatform() === 'windows' ||
-			Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
-	)
-	if (engine === masonCorePackage && !declared[masonCorePackage]) {
-		throw new Error(
-			`${masonCorePackage} is required for iOS/Android container layout; run xplat upgrade to add it.`,
-		)
-	}
-	// NS_VENDOR_EXCLUDE is @nativescript/vite's documented opt-out for its
-	// HMR vendor bundle. Upstream handles source entries; merge only deps
-	// without a root export, keeping user-provided entries intact.
-	const vendorExcludes = [
-		...new Set([
-			...(process.env.NS_VENDOR_EXCLUDE ?? '')
-				.split(',')
-				.map((entry) => entry.trim())
-				.filter(Boolean),
-			...sourceOnlyDeps(process.cwd()),
-		]),
-	]
-	if (vendorExcludes.length > 0) {
-		process.env.NS_VENDOR_EXCLUDE = vendorExcludes.join(',')
-	}
-	const appRequire = createRequire(join(process.cwd(), 'package.json'))
+  const mode = typeof env === 'string' ? env : env.mode
+  const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
+  const declared = Object.assign(
+    {},
+    pkg.dependencies,
+    pkg.devDependencies,
+    pkg.optionalDependencies,
+    pkg.peerDependencies,
+  )
+  const engine = masonEngine(
+    declared,
+    nativePlatform() === 'windows' ||
+      Boolean(pkg.xplat?.targets?.windows || declared['@nativescript/windows']),
+  )
+  if (engine === masonCorePackage && !declared[masonCorePackage]) {
+    throw new Error(
+      `${masonCorePackage} is required for iOS/Android container layout; run xplat upgrade to add it.`,
+    )
+  }
+  // NS_VENDOR_EXCLUDE is @nativescript/vite's documented opt-out for its
+  // HMR vendor bundle. Upstream handles source entries; merge only deps
+  // without a root export, keeping user-provided entries intact.
+  const vendorExcludes = [
+    ...new Set([
+      ...(process.env.NS_VENDOR_EXCLUDE ?? '')
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter(Boolean),
+      ...sourceOnlyDeps(process.cwd()),
+    ]),
+  ]
+  if (vendorExcludes.length > 0) {
+    process.env.NS_VENDOR_EXCLUDE = vendorExcludes.join(',')
+  }
+  const appRequire = createRequire(join(process.cwd(), 'package.json'))
 
-	const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, { nativeScriptRenderer }] =
-		await Promise.all([
-			importApp('vite'),
-			importApp('@nativescript-community/vite-octane'),
-			importApp('@nativescript-community/octane/config'),
-		])
+  const [{ mergeConfig, searchForWorkspaceRoot }, { octaneConfig }, { nativeScriptRenderer }] =
+    await Promise.all([
+      importApp('vite'),
+      importApp('@nativescript-community/vite-octane'),
+      importApp('@nativescript-community/octane/config'),
+    ])
 
-	const config = mergeConfig(
-		octaneConfig(
-			{ mode },
-			{
-				octane: {
-					renderers: {
-						// The stock renderer ships validation.forbiddenGlobals/Imports
-						// by default since 0.2.1 (upstream #6).
-						registry: {
-							nativescript: {
-								...nativeScriptRenderer,
-								intrinsics:
-									'@octane-xplat/jsx' /* upstream hardcodes @nativescript-community/octane; the facade is the single JSX type source now */,
-							},
-						},
-						rules: opts.rules ?? nativeRules,
-					},
-				},
-			},
-		),
-		{
-			// DEBUG mirrors the ns base config's own NODE_ENV choice
-			// (debug = !!process.env.DEBUG || isDevMode) so this define can never
-			// disagree with its replace()/optimizeDeps substitutions on the
-			// same key.
-			define: {
-				...xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
-				// @octane-xplat/nativescript-masonkit reads __WINDOWS__ at module
-				// scope; upstream's vite define set covers __IOS__/__ANDROID__/
-				// __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
-				// throws during bundle eval on iOS/Android.
-				__WINDOWS__: JSON.stringify(nativePlatform() === 'windows'),
-			},
-			oxc: {
-				// NativeScript modules use TypeScript's legacy decorators. Oxc's
-				// default emits decorator syntax the native JS runtime cannot parse.
-				decorator: { legacy: true },
-			},
-			plugins: [
-				// ICU-less V8 cannot parse \p{…} escapes — compile them out of every
-				// transformed module, including dependencies. Upstream's
-				// ns-vendor-unicode-regex only covers node_modules .js inside the
-				// dev-server esbuild passes (core/deps/vendor bundles); production
-				// rolldown chunks and per-module /ns/m serving are ours.
-				nativeUnicodeRegex(),
-				xplatCss(nativePlatform() ?? 'native'),
-				pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
-				nsHmrClientWatchdog(),
-				xplatBoundary(nativePlatform() ?? 'native'),
-				nativeExtensionOrder(),
-				nativeRelativeResolution(),
-				// Dev-action registry bridge (MCP package G): dev-server-only —
-				// apply:'serve' keeps it and the token define out of builds.
-				nativeDevSocketPlugin({ deviceRelay: true }) ?? xplatDevBridge(),
-			],
-			server: {
-				fs: {
-					// Setting `fs.allow` at all replaces Vite's workspace-root
-					// default — keep the app root/workspace root alongside the
-					// linked-dep roots.
-					allow: [
-						...new Set(
-							[
-								searchForWorkspaceRoot(process.cwd()),
-								process.cwd(),
-								...linkedDepFsRoots(process.cwd(), searchForWorkspaceRoot),
-							].filter(Boolean),
-						),
-					],
-				},
-			},
-			build: {
-				rolldownOptions: {
-					// Dev/HMR universal emit lowers JSX inside expression props
-					// (e.g. `renderItem={(item) => <gridlayout>…}`) itself —
-					// verified via dev-server transformRequest on both the
-					// @octane-xplat/jsx and @nativescript-community/octane
-					// pragmas: no jsx-runtime import reaches the output, so the
-					// file's own @jsxImportSource pragma is inert here. Keep
-					// .tsrx marked tsx anyway: if a construct survives the
-					// compiler as literal JSX, rolldown still parses it.
-					moduleTypes: { '.tsrx': 'tsx' },
-					output: {
-						// Sources deliberately kept out of a graph (boundary-severed
-						// leaves, build-side loader code) must not ride along inside
-						// the map either — positions stay, sources don't embed.
-						sourcemapExcludeSources: true,
-					},
-				},
-			},
-			optimizeDeps: {
-				// A dep discovered mid-boot re-commits the optimizer's
-				// browserHash, staling every `?v=` stamp already served —
-				// vite expects the client to reload, the NS http-loader has
-				// none, and the stale fetch 504s the boot. Upstream disables
-				// discovery under HMR for angular/solid/react for exactly this;
-				// linked packages are discovery-eligible because their realpath
-				// sits outside node_modules. Freeze the dep set per session.
-				noDiscovery: true,
-				// Flattened optimizeDeps chunks get mangled by the /ns/m device
-				// transform (`import import "/ns/core/utils"`) and miss the vendor
-				// manifest — serve @nativescript plugins per-module instead.
-				exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
-			},
-			resolve: {
-				conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
-				// The compiler retargets hook imports to @nativescript-community/
-				// octane, but the deps-bundle scanner sees source-level 'octane'
-				// first — without this it vendors octane/dist/index.js (the full
-				// DOM runtime). Exact-match only: 'octane/universal/native' itself
-				// must not be rewritten.
-				alias: [
-					{ find: /^octane$/, replacement: 'octane/universal/native' },
-					...nativeCoreHttpAliases(appRequire),
-					// The canonical renderer patch keeps full MasonKit imports.
-					// Resolve them through the app's selected engine, including
-					// /style: an isolated renderer cannot resolve the app's core
-					// or Windows full-kit installation through its own ancestors.
-					...(declared[engine]
-						? [
-								{
-									find: /^@octane-xplat\/nativescript-masonkit(?=\/|$)/,
-									replacement: dirname(appRequire.resolve(`${engine}/package.json`)),
-								},
-							]
-						: []),
-				],
-				// ns-vite sets preserveSymlinks:true; under pnpm's isolated layout
-				// that resolves a dep's imports from the symlink path instead of
-				// its real .pnpm dir, so declared transitive deps can't be found.
-				preserveSymlinks: false,
-				extensions: nativePlatformExtensions(),
-			},
-		},
-	)
+  const config = mergeConfig(
+    octaneConfig(
+      { mode },
+      {
+        octane: {
+          renderers: {
+            // The stock renderer ships validation.forbiddenGlobals/Imports
+            // by default since 0.2.1 (upstream #6).
+            registry: {
+              nativescript: {
+                ...nativeScriptRenderer,
+                intrinsics:
+                  '@octane-xplat/jsx' /* upstream hardcodes @nativescript-community/octane; the facade is the single JSX type source now */,
+              },
+            },
+            rules: opts.rules ?? nativeRules,
+          },
+        },
+      },
+    ),
+    {
+      // DEBUG mirrors the ns base config's own NODE_ENV choice
+      // (debug = !!process.env.DEBUG || isDevMode) so this define can never
+      // disagree with its replace()/optimizeDeps substitutions on the
+      // same key.
+      define: {
+        ...xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
+        // @octane-xplat/nativescript-masonkit reads __WINDOWS__ at module
+        // scope; upstream's vite define set covers __IOS__/__ANDROID__/
+        // __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
+        // throws during bundle eval on iOS/Android.
+        __WINDOWS__: JSON.stringify(nativePlatform() === 'windows'),
+      },
+      oxc: {
+        // NativeScript modules use TypeScript's legacy decorators. Oxc's
+        // default emits decorator syntax the native JS runtime cannot parse.
+        decorator: { legacy: true },
+      },
+      plugins: [
+        // ICU-less V8 cannot parse \p{…} escapes — compile them out of every
+        // transformed module, including dependencies. Upstream's
+        // ns-vendor-unicode-regex only covers node_modules .js inside the
+        // dev-server esbuild passes (core/deps/vendor bundles); production
+        // rolldown chunks and per-module /ns/m serving are ours.
+        nativeUnicodeRegex(),
+        xplatCss(nativePlatform() ?? 'native'),
+        pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
+        nsHmrClientWatchdog(),
+        xplatBoundary(nativePlatform() ?? 'native'),
+        nativeExtensionOrder(),
+        nativeRelativeResolution(),
+        // Dev-action registry bridge (MCP package G): dev-server-only —
+        // apply:'serve' keeps it and the token define out of builds.
+        nativeDevSocketPlugin({ deviceRelay: true }) ?? xplatDevBridge(),
+      ],
+      server: {
+        fs: {
+          // Setting `fs.allow` at all replaces Vite's workspace-root
+          // default — keep the app root/workspace root alongside the
+          // linked-dep roots.
+          allow: [
+            ...new Set(
+              [
+                searchForWorkspaceRoot(process.cwd()),
+                process.cwd(),
+                ...linkedDepFsRoots(process.cwd(), searchForWorkspaceRoot),
+              ].filter(Boolean),
+            ),
+          ],
+        },
+      },
+      build: {
+        rolldownOptions: {
+          // Dev/HMR universal emit lowers JSX inside expression props
+          // (e.g. `renderItem={(item) => <gridlayout>…}`) itself —
+          // verified via dev-server transformRequest on both the
+          // @octane-xplat/jsx and @nativescript-community/octane
+          // pragmas: no jsx-runtime import reaches the output, so the
+          // file's own @jsxImportSource pragma is inert here. Keep
+          // .tsrx marked tsx anyway: if a construct survives the
+          // compiler as literal JSX, rolldown still parses it.
+          moduleTypes: { '.tsrx': 'tsx' },
+          output: {
+            // Sources deliberately kept out of a graph (boundary-severed
+            // leaves, build-side loader code) must not ride along inside
+            // the map either — positions stay, sources don't embed.
+            sourcemapExcludeSources: true,
+          },
+        },
+      },
+      optimizeDeps: {
+        // A dep discovered mid-boot re-commits the optimizer's
+        // browserHash, staling every `?v=` stamp already served —
+        // vite expects the client to reload, the NS http-loader has
+        // none, and the stale fetch 504s the boot. Upstream disables
+        // discovery under HMR for angular/solid/react for exactly this;
+        // linked packages are discovery-eligible because their realpath
+        // sits outside node_modules. Freeze the dep set per session.
+        noDiscovery: true,
+        // Flattened optimizeDeps chunks get mangled by the /ns/m device
+        // transform (`import import "/ns/core/utils"`) and miss the vendor
+        // manifest — serve @nativescript plugins per-module instead.
+        exclude: [...collectNsPluginDeps(process.cwd()), ...(opts.deps ?? [])],
+      },
+      resolve: {
+        conditions: nativePlatform() === 'windows' ? ['windows', 'native'] : ['native'],
+        // The compiler retargets hook imports to @nativescript-community/
+        // octane, but the deps-bundle scanner sees source-level 'octane'
+        // first — without this it vendors octane/dist/index.js (the full
+        // DOM runtime). Exact-match only: 'octane/universal/native' itself
+        // must not be rewritten.
+        alias: [
+          { find: /^octane$/, replacement: 'octane/universal/native' },
+          ...nativeCoreHttpAliases(appRequire),
+          // The canonical renderer patch keeps full MasonKit imports.
+          // Resolve them through the app's selected engine, including
+          // /style: an isolated renderer cannot resolve the app's core
+          // or Windows full-kit installation through its own ancestors.
+          ...(declared[engine]
+            ? [
+                {
+                  find: /^@octane-xplat\/nativescript-masonkit(?=\/|$)/,
+                  replacement: dirname(appRequire.resolve(`${engine}/package.json`)),
+                },
+              ]
+            : []),
+        ],
+        // ns-vite sets preserveSymlinks:true; under pnpm's isolated layout
+        // that resolves a dep's imports from the symlink path instead of
+        // its real .pnpm dir, so declared transitive deps can't be found.
+        preserveSymlinks: false,
+        extensions: nativePlatformExtensions(),
+      },
+    },
+  )
 
-	// `ns test`/the runner plugin launches `ns run … --env.unitTesting`;
-	// swap in the test entry + device shim for that build only.
-	const envFlags = bundlerEnvFlags()
-	if (envFlags.unitTesting) {
-		return mergeConfig(
-			mergeConfig(config, unitTestingOverlay(process.cwd(), appRequire, envFlags)),
-			opts.extra ?? {},
-		)
-	}
+  // `ns test`/the runner plugin launches `ns run … --env.unitTesting`;
+  // swap in the test entry + device shim for that build only.
+  const envFlags = bundlerEnvFlags()
+  if (envFlags.unitTesting) {
+    return mergeConfig(
+      mergeConfig(config, unitTestingOverlay(process.cwd(), appRequire, envFlags)),
+      opts.extra ?? {},
+    )
+  }
 
-	return mergeConfig(config, opts.extra ?? {})
+  return mergeConfig(config, opts.extra ?? {})
 }

@@ -15,6 +15,7 @@ const config = {
   audio: true,
   ios: { allowHapticsAndSystemSoundsDuringRecording: true },
 }
+
 let recordWriter = (_type: string, _payload: string) => {}
 const backend = createSessionBackend(config, (type, payload) => recordWriter(type, payload))
 const originalSwitch = backend.switchCamera!

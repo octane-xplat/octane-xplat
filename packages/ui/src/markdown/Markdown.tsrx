@@ -43,6 +43,7 @@ import {
   mdImageRadius,
   mdTextPrimary,
 } from './markdown-tokens'
+
 import { useClipboard } from '../internal/platform/use-clipboard.tsrx'
 import { useContainerReveal } from '../components/layout/use-container-reveal.tsrx'
 import { Button } from '../components/actions/Button.tsrx'
@@ -567,11 +568,7 @@ function Inlines(props: {
       case 'strong':
         out.push(
           <MdStrong>
-            <Inlines
-              nodes={n.children}
-              ctx={{ ...props.ctx, stream: streamOf(at) }}
-              segKey={key}
-            />
+            <Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
           </MdStrong>,
         )
 
@@ -580,11 +577,7 @@ function Inlines(props: {
       case 'emphasis':
         out.push(
           <MdEmphasis>
-            <Inlines
-              nodes={n.children}
-              ctx={{ ...props.ctx, stream: streamOf(at) }}
-              segKey={key}
-            />
+            <Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
           </MdEmphasis>,
         )
 
@@ -593,11 +586,7 @@ function Inlines(props: {
       case 'delete':
         out.push(
           <MdDelete>
-            <Inlines
-              nodes={n.children}
-              ctx={{ ...props.ctx, stream: streamOf(at) }}
-              segKey={key}
-            />
+            <Inlines nodes={n.children} ctx={{ ...props.ctx, stream: streamOf(at) }} segKey={key} />
           </MdDelete>,
         )
 
@@ -782,7 +771,9 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
                 ...(cellAlign(i) != null ? { textAlign: cellAlign(i) } : {}),
               }}
             >
-              <Text style={cellAlign(i) != null ? ({ textAlign: cellAlign(i) } as never) : undefined}>
+              <Text
+                style={cellAlign(i) != null ? ({ textAlign: cellAlign(i) } as never) : undefined}
+              >
                 <formattedstring>
                   <Inlines nodes={h.children} ctx={cellCtx} segKey={`th${i}`} />
                 </formattedstring>
@@ -807,9 +798,7 @@ function MarkdownTable(props: { node: MdTable; ctx: RenderCtx }): unknown @{
                 }}
               >
                 <Text
-                  style={
-                    cellAlign(j) != null ? ({ textAlign: cellAlign(j) } as never) : undefined
-                  }
+                  style={cellAlign(j) != null ? ({ textAlign: cellAlign(j) } as never) : undefined}
                 >
                   <formattedstring>
                     <Inlines nodes={cell.children} ctx={cellCtx} segKey={`tr${i}c${j}`} />
@@ -954,6 +943,7 @@ function Blocks(props: {
             <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
           </formattedstring>
         )
+
         const headingId = props.ctx.headingIds?.get(node)
         const permalinkUrl = props.ctx.permalinkUrls?.get(node)
         const Comp = props.ctx.components?.heading as any

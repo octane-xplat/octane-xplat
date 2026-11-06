@@ -26,6 +26,7 @@ export interface CssAnimationPlayback {
 interface Dependencies {
   nativeStyle: Pick<NativeStyle, 'applyStyle'>
 }
+
 export type CssAnimations = ReturnType<typeof createCssAnimations>
 
 export function createCssAnimations(deps: Dependencies) {

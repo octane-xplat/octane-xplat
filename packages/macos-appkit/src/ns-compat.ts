@@ -312,7 +312,9 @@ export function registerPluginElement<T extends ViewBase>(
       prepareDispose(node: any) {
         const view = node.nsCompatView
         node.nsCompatView = undefined
-        if (view) { view.hostNode = null }
+        if (view) {
+          view.hostNode = null
+        }
         view?.dispose?.()
       },
     })

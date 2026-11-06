@@ -467,7 +467,11 @@ export type {
   UseResizableSingleConfig,
 } from './props'
 
-export { Breadcrumb as Breadcrumbs, BreadcrumbItem } from './components/navigation/Breadcrumb.web.tsrx'
+export {
+  Breadcrumb as Breadcrumbs,
+  BreadcrumbItem,
+} from './components/navigation/Breadcrumb.web.tsrx'
+
 export { Pagination } from './components/collections/Pagination.web.tsrx'
 export { Stepper } from './components/collections/Stepper.web.tsrx'
 export { NavigationMenu } from './components/navigation/NavigationMenu.web.tsrx'
@@ -976,7 +980,11 @@ export type {
   UseFocusRingResult,
 } from './internal/accessibility/use-focus.tsrx'
 
-export { useFocusVisible, isFocusVisible } from './internal/accessibility/use-focus-visible.web.tsrx'
+export {
+  useFocusVisible,
+  isFocusVisible,
+} from './internal/accessibility/use-focus-visible.web.tsrx'
+
 export type {
   FocusInputModality,
   UseFocusVisibleResult,
@@ -989,7 +997,10 @@ export type {
 } from './internal/accessibility/use-focus-within.web.tsrx'
 
 export { useLandmark } from './internal/accessibility/use-landmark.web.tsrx'
-export type { UseLandmarkOptions, LandmarkProps } from './internal/accessibility/use-landmark.web.tsrx'
+export type {
+  UseLandmarkOptions,
+  LandmarkProps,
+} from './internal/accessibility/use-landmark.web.tsrx'
 
 // Small React Aria utility counterparts — prop/ref/keyboard/clipboard.
 export { mergeProps } from './internal/layout/merge-props'

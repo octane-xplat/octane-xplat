@@ -10,6 +10,7 @@ import {
   borderStrokeCGPath,
   borderBandCGPath,
 } from './box-geometry.ts'
+
 import { effectiveStyle } from './style-values.ts'
 import type { PropBag, ElementNode } from './model'
 import { nativeColor } from './native-colors'
@@ -21,6 +22,7 @@ import {
   NSNumber,
   NSView,
 } from '@octane-xplat/platform/macos'
+
 import { correctProjectionRadii } from './projection-paint'
 import {
   borderStrokeStyle,
@@ -28,6 +30,7 @@ import {
   borderBandPoints,
   darkBorderComponents,
 } from './border-styles.ts'
+
 import { srgbComponents } from './color-components'
 
 export type Outlines = ReturnType<typeof createOutlines>

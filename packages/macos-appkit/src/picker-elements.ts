@@ -15,6 +15,7 @@ import {
   NSSegmentedControl,
   NSSegmentSwitchTracking,
 } from '@octane-xplat/platform/macos'
+
 import { nativeColor } from './native-colors'
 
 interface Dependencies {
@@ -27,6 +28,7 @@ interface Dependencies {
   accessibility: Pick<Accessibility, 'applyAccessibility'>
   tree: Pick<Tree, 'detach'>
 }
+
 export type PickerElements = ReturnType<typeof createPickerElements>
 
 export function createPickerElements(deps: Dependencies) {

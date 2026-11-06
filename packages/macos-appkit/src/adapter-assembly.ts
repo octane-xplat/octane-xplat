@@ -68,8 +68,11 @@ export function createElementAdapters(deps: Dependencies) {
       ...registration,
       create,
       applyProp(node, name, value) {
-        const handled = applyProp?.(node, name, value) || base?.applyProp?.(node, name, value) || false
-        if (!handled && value !== undefined) { console.warn('[macos-host] ignored ' + type + ' prop ' + name) }
+        const handled =
+          applyProp?.(node, name, value) || base?.applyProp?.(node, name, value) || false
+        if (!handled && value !== undefined) {
+          console.warn('[macos-host] ignored ' + type + ' prop ' + name)
+        }
         return handled
       },
       beforeProps(node, patch) {

@@ -210,9 +210,11 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
           ...(release === 'tsrx-typegen' ? { release } : {}),
           ...(hype === undefined ? {} : { hype }),
         }
+
         const header = Object.entries(metadata)
           .map(([key, value]) => `${key}: ${value}`)
           .join('\n')
+
         write(
           root,
           `${directory}/${release}-${filename}.md`,
@@ -232,8 +234,10 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
           (name) => `${release} ${directory} ${name}`,
         ),
       )
+
       assert.doesNotMatch(log.content, /hype:|release:/)
     }
+
     assert.doesNotMatch(preview.github, /hype:|release:/)
     const prepared = prepareNotes(root, release, '0.2.0', '2026-10-23')
     assert.equal(prepared.github, preview.github)
@@ -241,6 +245,7 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
     for (const log of prepared.logs) {
       assert.equal(readFileSync(log.path, 'utf8'), log.content)
     }
+
     assert.equal(readNotes(root).length, release === 'lockstep' ? 8 : 0)
   }
 })
@@ -269,6 +274,7 @@ test('invalid hype fails before logs change or notes are consumed', (t) => {
       () => prepareNotes(root, 'lockstep', '0.3.0'),
       /hype must be an integer from 0 to 100/,
     )
+
     assert.equal(readFileSync(join(root, 'CHANGELOG.md'), 'utf8'), '# Changelog\n')
     assert.equal(readFileSync(join(root, 'FIXLOG.md'), 'utf8'), '# Fixlog\n')
     assert.ok(existsSync(join(root, '.changelog/good.md')))

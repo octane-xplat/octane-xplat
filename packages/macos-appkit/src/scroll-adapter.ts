@@ -13,6 +13,7 @@ export interface ScrollAdapterDependencies {
   actions: Pick<Actions, 'disposeActions'>
   layout: Pick<Layout, 'queueLayoutReconcile'>
 }
+
 export type ScrollAdapter = ElementAdapter
 
 export function createScrollAdapter(deps: ScrollAdapterDependencies): ScrollAdapter {

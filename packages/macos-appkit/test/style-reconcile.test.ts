@@ -22,15 +22,25 @@ import {
 // background color survives on the view otherwise.
 const source = rendererSource()
 
-const paritySource = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(/^  /gm, '')
+const paritySource = sourceWithoutImports(new URL('../src/parity.ts', import.meta.url)).replace(
+  /^  /gm,
+  '',
+)
+
 const projectionStart = source.indexOf('function setLayoutProjectionScale')
 const slices = [
-  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(/^export /gm, ''),
+  sourceWithoutImports(new URL('../src/native-colors.ts', import.meta.url)).replace(
+    /^export /gm,
+    '',
+  ),
   source.slice(projectionStart, source.indexOf('\n}', projectionStart) + 2),
   source.slice(source.indexOf('const MARGIN_SIDES'), source.indexOf('function makeLabel')),
   source.slice(source.indexOf('function layoutLength'), source.indexOf('function pinLayoutChild')),
   source.slice(source.indexOf('const EDGE_INSET_PROPS'), source.indexOf('function textContent')),
-  paritySource.slice(paritySource.indexOf('function descendants'), paritySource.indexOf('function colorValue')),
+  paritySource.slice(
+    paritySource.indexOf('function descendants'),
+    paritySource.indexOf('function colorValue'),
+  ),
   source.slice(source.indexOf('function setLabelText'), source.indexOf('function syncText')),
   source.slice(
     source.indexOf('function syncLabelOverflow'),
@@ -199,7 +209,8 @@ const sandbox = {
   ),
   behaviorOf: (t: string) => sandbox.elementBehaviors.get(t),
   isManualLayoutParent: (t: string) =>
-    ['contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type) || MASON_TYPES.includes(typeof t === 'string' ? t : t?.type),
+    ['contentview', 'actionbar', 'rootlayout'].includes(typeof t === 'string' ? t : t?.type) ||
+    MASON_TYPES.includes(typeof t === 'string' ? t : t?.type),
   registerElementType: () => {},
 
   console,
@@ -937,7 +948,11 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
   assert.equal(item.view.layer.borderWidth, 0, 'banded styles still take the layered path')
   for (const side of ['top', 'right', 'bottom', 'left']) {
     assert.equal(paintState(item).borderSides[side].hidden, false)
-    assert.equal((paintState(item).borderBandShapes?.[side] ?? []).length, 0, `no extra band shapes on ${side}`)
+    assert.equal(
+      (paintState(item).borderBandShapes?.[side] ?? []).length,
+      0,
+      `no extra band shapes on ${side}`,
+    )
   }
   assert.deepEqual(paintState(item).borderSides.top.path.ops, [
     ['M', 0, 40],
@@ -951,7 +966,10 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
       paintState(item).borderSides.top.fillColor.g === 0,
     'top shades dark',
   )
-  assert.ok(Math.abs(paintState(item).borderSides.left.fillColor.r - 0.67) < 1e-9, 'left shades dark')
+  assert.ok(
+    Math.abs(paintState(item).borderSides.left.fillColor.r - 0.67) < 1e-9,
+    'left shades dark',
+  )
   assert.deepEqual(
     { ...paintState(item).borderSides.bottom.fillColor },
     { r: 1, g: 0, b: 0, a: 1 },
@@ -981,7 +999,11 @@ test('double borders paint two bands per side and retire the extras with the sty
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
   const extras = paintState(item).borderBandShapes
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'dashed' })
-  assert.equal(paintState(item).borderStroke.hidden, false, 'uniform dashed strokes through borderStroke')
+  assert.equal(
+    paintState(item).borderStroke.hidden,
+    false,
+    'uniform dashed strokes through borderStroke',
+  )
   for (const side of ['top', 'right', 'bottom', 'left']) {
     assert.equal(extras[side][0].hidden, true)
   }
@@ -1210,7 +1232,7 @@ test('uniform dashed borders use one rounded stroke, resize and release back to 
   setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8, borderStyle: 'dashed' })
   const shape = paintState(item).borderStroke,
     box = paintState(item).borderLayer,
-    frame = (paintState(item).frame?.token ?? null)
+    frame = paintState(item).frame?.token ?? null
   assert.equal(item.view.layer.borderWidth, 0)
   assert.equal(paintState(item).borderSides, undefined)
   assert.equal(shape.lineWidth, 2)
@@ -1224,7 +1246,7 @@ test('uniform dashed borders use one rounded stroke, resize and release back to 
   assert.equal(item.view.layer.borderWidth, 2)
   assert.equal(paintState(item).borderLayer, null)
   assert.equal(paintState(item).borderStroke, undefined)
-  assert.equal((paintState(item).frame?.token ?? null), null)
+  assert.equal(paintState(item).frame?.token ?? null, null)
   assert.equal(box.superlayer, null)
   frame()
   assert.equal(paintState(item).borderLayer, null, 'retired callback cannot revive the pattern')
@@ -1288,7 +1310,7 @@ test('the maintained FileInput dropzone CSS reaches native dash painting and cle
   assert.equal(paintState(item).borderStroke.lineCap, 'butt')
   setClass(item, '')
   assert.equal(paintState(item).borderLayer, null)
-  assert.equal((paintState(item).frame?.token ?? null), null)
+  assert.equal(paintState(item).frame?.token ?? null, null)
 })
 
 test('the maintained table truncation rule reaches a label and releases its native mode with its class', () => {
@@ -1339,7 +1361,6 @@ test('table descendants inherit whitespace without inheriting non-inherited text
   assert.equal(item.view.cell.wraps, true)
   assert.equal(item.sizeConstraintSpecs.height, undefined)
 })
-
 
 test('style application queues both a manual child and its physical outer layout owner', () => {
   const parent = node('masonview')

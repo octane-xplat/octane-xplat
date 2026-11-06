@@ -78,6 +78,7 @@ export function createRootDirectory() {
       failures.run('root observation setup', () => {
         throw error
       })
+
       failures.run('root observation unwind', stop)
       failures.throwIfFailed()
     }
@@ -124,6 +125,7 @@ export function createRootDirectory() {
       failures.run('root membership setup', () => {
         throw error
       })
+
       failures.run('root membership unwind', retire)
       failures.throwIfFailed()
     }

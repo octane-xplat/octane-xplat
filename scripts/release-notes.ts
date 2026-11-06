@@ -12,6 +12,7 @@ type Note = {
   hype: number
   body: string
 }
+
 const repository = 'https://github.com/octane-xplat/octane-xplat'
 
 export function readNotes(root: string): Note[] {
@@ -51,13 +52,16 @@ export function readNotes(root: string): Note[] {
         if (Object.hasOwn(metadata, 'release')) {
           release = releaseName(metadata.release)
         }
+
         if (Object.hasOwn(metadata, 'hype')) {
           assert.ok(
             Number.isInteger(metadata.hype) && metadata.hype >= 0 && metadata.hype <= 100,
             `${path}: hype must be an integer from 0 to 100`,
           )
+
           hype = metadata.hype
         }
+
         body = header[2]
       }
 

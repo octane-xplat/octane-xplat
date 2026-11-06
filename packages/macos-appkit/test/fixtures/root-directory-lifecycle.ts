@@ -36,6 +36,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
     } catch {
       rejected = true
     }
+
     check(rejected, 'Duplicate native host mount admitted')
     root.render(DirectoryRoots as any, { target })
     await settle()
@@ -47,6 +48,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
       family(debug.findId('directory-tab-root-label')) === 'Menlo',
       'Retained tab root lost inherited font',
     )
+
     const table = debug.findId('directory-list').documentView
     const row = table.viewAtColumnRowMakeIfNecessary(0, 0, true)
     check(family(row.subviews.objectAtIndex(0)) === 'Menlo', 'List nested root lost inherited font')
@@ -55,12 +57,14 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
       portal.superview === target && family(portal) === 'Menlo',
       'Portal target membership/font lost',
     )
+
     const hosts: any[] = []
     observeLayoutCommits((commit) => hosts.push(commit.hostView))()
     check(
       hosts.includes(host) && hosts.length >= 2,
       'Immediate layout observation missed live nested roots',
     )
+
     popup = bridge.showAnchoredPopup({
       anchor: label,
       component: DirectoryLabel,
@@ -68,6 +72,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
       animates: false,
       lightDismiss: false,
     })
+
     check(popup, 'Native popup did not open')
     await settle()
     check(family(debug.findId('directory-popup')) === 'Menlo', 'Popup root lost inherited font')
@@ -76,6 +81,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
       Reflect.get(globalThis, '__xplatMacOSDebug') !== undefined,
       'Newest debug retirement lost remaining roots',
     )
+
     check(debug.findId('directory-popup') === null, 'Popup retirement retained membership')
     layer = bridge.showLayer({
       anchor: label,
@@ -84,6 +90,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
       lightDismiss: false,
       position: () => ({ left: 0, top: 0 }),
     })
+
     await settle()
     check(family(debug.findId('directory-layer')) === 'Menlo', 'Layer root lost inherited font')
     const layerDebug = Reflect.get(globalThis, '__xplatMacOSDebug')
@@ -93,6 +100,7 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
         Reflect.get(globalThis, '__xplatMacOSDebug') !== undefined,
       'Newest debug retirement did not restore a live root',
     )
+
     check(debug.findId('directory-layer') === null, 'Layer retirement retained membership')
 
     // Inject a boundary failure in the real runtime's per-root setup, after
@@ -103,12 +111,14 @@ export async function checkRootDirectoryLifecycle(nativeWindow: any) {
         throw failure
       },
     }
+
     let caught: unknown
     try {
       createMacOSRoot(failingHost as any, { fontFamily: 'Gone' })
     } catch (error) {
       caught = error
     }
+
     check(caught === failure, 'Root setup replaced its primary failure')
     Object.defineProperty(failingHost, 'window', { value: undefined })
     createMacOSRoot(failingHost as any).unmount()

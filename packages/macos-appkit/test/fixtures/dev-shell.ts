@@ -206,20 +206,31 @@ function reload() {
         if ((root as any).__macosDebug !== debug) {
           throw new Error('Retained-root HMR replaced its debug lease')
         }
+
         let duplicateRejected = false
-        try { renderer.createMacOSRoot(hostView) } catch { duplicateRejected = true }
+        try {
+          renderer.createMacOSRoot(hostView)
+        } catch {
+          duplicateRejected = true
+        }
+
         if (!duplicateRejected) {
           throw new Error('HMR admitted a second host root')
         }
+
         root.unmount()
         if ((root as any).__macosDebug !== undefined) {
           throw new Error('HMR retirement kept debug lease')
         }
+
         const replacementRoot = renderer.createMacOSRoot(hostView)
         root.unmount()
-        if ((replacementRoot as any).__macosDebug !== Reflect.get(globalThis, '__xplatMacOSDebug')) {
+        if (
+          (replacementRoot as any).__macosDebug !== Reflect.get(globalThis, '__xplatMacOSDebug')
+        ) {
           throw new Error('Old HMR retirement cleared replacement diagnostics')
         }
+
         replacementRoot.unmount()
         console.log('PACKED_ROOT_DIRECTORY_HMR_OK')
         if (

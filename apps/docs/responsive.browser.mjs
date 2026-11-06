@@ -140,7 +140,10 @@ try {
 
             const starts = new Map()
             let offset = 0
-            for (const line of nodes.map((n) => n.data).join('').split('\n')) {
+            for (const line of nodes
+              .map((n) => n.data)
+              .join('')
+              .split('\n')) {
               const tabs = line.match(/^\t+/)?.[0].length
               const glyph = /\S/.exec(line)?.index
               if (tabs && glyph != null && !starts.has(tabs)) {
@@ -151,6 +154,7 @@ try {
                     target = [n, rest]
                     break
                   }
+
                   rest -= n.data.length
                 }
 
@@ -161,6 +165,7 @@ try {
                   starts.set(tabs, range.getBoundingClientRect().left)
                 }
               }
+
               offset += line.length + 1
             }
 
@@ -210,6 +215,7 @@ try {
             `${engine.name()} /toolchain at ${width}px: list marker and text overlap/stack`,
           )
         }
+
         if (width === 390) {
           assert.ok(
             items.some((item) => item.lines > 1.5),

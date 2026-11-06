@@ -17,6 +17,7 @@ export const NSNotification = {};
 export const NSScrollView = {};
 export const NSColor = {};
 `
+
 const url = 'data:text/javascript,' + encodeURIComponent(platform)
 const hooks = registerHooks({
   resolve(specifier, context, next) {
@@ -32,6 +33,7 @@ const hooks = registerHooks({
     return next(specifier, context)
   },
 })
+
 const { createRootDirectory } = await import('../src/root-directory.ts')
 const { createRoots } = await import('../src/roots.ts')
 const { createStyleEnvironment } = await import('../src/style-environment.ts')
@@ -112,10 +114,12 @@ test('diagnostics observes existing and new roots, falls back by identity and un
         throw failure
       }
     })
+
     assert.throws(
       () => roots.createMacOSRoot({ fail: true }),
       (error) => error === failure,
     )
+
     assert.equal(directory.containers().length, 2)
     assert.equal(globalThis.__xplatMacOSDebug, replacement.__macosDebug)
     stop()
@@ -128,6 +132,7 @@ test('diagnostics observes existing and new roots, falls back by identity and un
     } else {
       process.env.OCTANE_MACOS_AUTOMATION = previous
     }
+
     if (saved) {
       Object.defineProperty(globalThis, '__xplatMacOSDebug', saved)
     } else {

@@ -31,6 +31,7 @@ export interface PickerAdapterDependencies {
   >
   actions: Pick<Actions, 'disposeActions'>
 }
+
 export type PickerAdapters = Readonly<Record<string, ElementAdapter>>
 
 export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAdapters {

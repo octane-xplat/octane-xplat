@@ -8,6 +8,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -103,12 +104,14 @@ test(
           exports: { web: './index.web.ts', default: './index.ts' },
         }),
       )
+
       writeFileSync(join(dep, 'index.web.ts'), 'export { platform, startWorker } from "./db"')
       writeFileSync(join(dep, 'index.ts'), 'import "missing-native-entry"')
       writeFileSync(
         join(dep, 'db.ts'),
         'import "@nativescript/core"; import "@nativescript-community/sqlite"',
       )
+
       writeFileSync(
         join(dep, 'db.web.ts'),
         `
@@ -116,16 +119,19 @@ test(
       export const startWorker = () => new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' })
     `,
       )
+
       writeFileSync(join(dep, 'worker.ts'), 'self.postMessage("web-worker-sentinel")')
       writeFileSync(join(root, 'entry.ts'), 'export { platform, startWorker } from "platform-dep"')
       const template = fileURLToPath(
         new URL('../../create/template/vite.config.ts', import.meta.url),
       )
+
       symlinkSync(
         fileURLToPath(new URL('../../toolchain', import.meta.url)),
         join(root, 'node_modules/octane-xplat'),
         process.platform === 'win32' ? 'junction' : 'dir',
       )
+
       const configPath = join(root, 'vite.config.ts')
       writeFileSync(configPath, readFileSync(template))
       const loaded = await loadConfigFromFile({ command: 'serve', mode: 'development' }, configPath)
@@ -139,6 +145,7 @@ test(
         server: { host: '127.0.0.1', port: 0, watch: null, fs: { allow: [root] } },
         optimizeDeps: { include: ['platform-dep'], noDiscovery: true },
       })
+
       await server.listen()
       const origin = server.resolvedUrls.local[0]
       const entry = await fetch(new URL('entry.ts', origin))
@@ -153,6 +160,7 @@ test(
       const workerPath = /new Worker\(new URL\(\s*(?:\/\*[\s\S]*?\*\/\s*)?["']([^"']+)["']/.exec(
         source,
       )?.[1]
+
       assert.ok(workerPath, source)
       const worker = await fetch(new URL(workerPath, dependency.url))
       assert.equal(worker.status, 200)

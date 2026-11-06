@@ -3,6 +3,7 @@ import {
   NSNotificationCenter,
   NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
+
 import type { ElementNode, PropBag } from './model'
 import type { BoxPaintState, BoxFrameLease } from './box-paint-state'
 import { createBorderPaint } from './border-paint'
@@ -92,15 +93,18 @@ export function createBoxPaint() {
       if (typeof add !== 'function' || typeof owner.remove !== 'function') {
         throw new Error('Box frame observation unavailable')
       }
+
       if (!current()) {
         clearBoxFrameObserver(state)
         return
       }
+
       view.postsFrameChangedNotifications = true
       if (!current()) {
         clearBoxFrameObserver(state)
         return
       }
+
       const token = add.call(owner.center, NSViewFrameDidChangeNotification, view, null, () => {
         if (
           !owner.active ||
@@ -142,16 +146,20 @@ export function createBoxPaint() {
           }, 0)
         }
       })
+
       if (!current()) {
         if (token != null) {
           removeBoxFrameToken(owner, token)
         }
+
         clearBoxFrameObserver(state)
         return
       }
+
       if (token == null) {
         throw new Error('Box frame observation unavailable')
       }
+
       owner.token = token
       owner.ready = true
     } catch {
@@ -238,6 +246,7 @@ export function createBoxPaint() {
         {},
         node.appliedStyle ?? { ...effectiveStyle(node), ...node.animatedStyle },
       )
+
       return
     }
     if (!state || !state.current() || state.syncing) {
@@ -249,24 +258,29 @@ export function createBoxPaint() {
       if (!state.current()) {
         return
       }
+
       shadow.syncBoxShadow(node, state)
       if (!state.current()) {
         return
       }
+
       transform.syncTransform(node, state)
       if (!state.current()) {
         return
       }
+
       // Shadow paths are written before authored transforms. Align their
       // sibling hosts only after that transform has reached the backing layer.
       shadow.syncOutsetGeometry(node, state)
       if (!state.current()) {
         return
       }
+
       background.paintBackgrounds(node, state)
       if (!state.current()) {
         return
       }
+
       // Outlines use bounds and include origin-only frame deliveries. They do
       // not observe bounds notifications; preserve that narrower contract.
       outlines.syncOutlineGeometry(node, state)
@@ -291,6 +305,7 @@ export function createBoxPaint() {
       if (previous[name] == null || next[name] != null) {
         continue
       }
+
       if (Object.hasOwn(border.BORDER_RADIUS_KEYS, name)) {
         border.clearBorderSlot(node, state, 'radii', border.BORDER_RADIUS_KEYS[name])
       } else if (Object.hasOwn(border.BORDER_WIDTH_KEYS, name)) {
@@ -309,6 +324,7 @@ export function createBoxPaint() {
       if (value == null) {
         continue
       }
+
       if (Object.hasOwn(border.BORDER_RADIUS_KEYS, name)) {
         border.setBorderSlot(node, state, 'radii', border.BORDER_RADIUS_KEYS[name], value)
       } else if (Object.hasOwn(border.BORDER_WIDTH_KEYS, name)) {
@@ -360,6 +376,7 @@ export function createBoxPaint() {
       if (state.current()) {
         shadow.syncBoxShadow(node, state)
       }
+
       if (state.current()) {
         syncFrameLease(node, state)
       }

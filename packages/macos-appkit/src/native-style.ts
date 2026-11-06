@@ -18,6 +18,7 @@ import {
   NSTextField,
   interop,
 } from '@octane-xplat/platform/macos'
+
 import { resolveFont as fontForFamilyStyle } from './fonts'
 import { setImageDrawingStyle } from './image-drawing'
 import { INHERITED_CSS_PROPERTIES } from '@octane-xplat/css-engine'
@@ -176,6 +177,7 @@ export function createNativeStyle(deps: Dependencies) {
         name === 'width'
           ? deps.layout.layoutView(node).widthAnchor
           : deps.layout.layoutView(node).heightAnchor
+
       const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
       constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
     } else {

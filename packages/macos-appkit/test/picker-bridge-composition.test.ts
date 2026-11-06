@@ -47,12 +47,30 @@ test('date bridge accepts native class handles and retires acquired resources on
     const { createPickerBridge } = await import('../src/picker-bridge.ts')
     const store = createActionStore()
     const actions = { allocate: store.allocate, buttonActionTarget: {} }
-    const bridge = createPickerBridge({ actions, pickerElements: { makePopUpControl() { throw Error('not used') } } })
+    const bridge = createPickerBridge({
+      actions,
+      pickerElements: {
+        makePopUpControl() {
+          throw Error('not used')
+        },
+      },
+    })
+
     let picker: any
-    const view: any = { window: {}, addSubview(value) { picker = value; value.superview = this } }
+    const view: any = {
+      window: {},
+      addSubview(value) {
+        picker = value
+        value.superview = this
+      },
+    }
+
     const events: number[] = []
     for (const mode of ['date', 'time', 'dateAndTime']) {
-      const handle = bridge.attachDatePicker(view, { mode, selectionMillis: 120000 }, value => events.push(value))
+      const handle = bridge.attachDatePicker(view, { mode, selectionMillis: 120000 }, (value) =>
+        events.push(value),
+      )
+
       assert.ok(handle)
       assert.equal(picker.dateValue.timeIntervalSince1970, 120)
       assert.equal(picker.datePickerElements, mode === 'time' ? 12 : mode === 'date' ? 224 : 236)
@@ -71,18 +89,32 @@ test('date bridge accepts native class handles and retires acquired resources on
       assert.equal(picker.superview, null)
       assert.equal(picker.target, null)
       assert.equal(picker.action, null)
-      assert.ok(picker.constraints.every(constraint => !constraint.active))
+      assert.ok(picker.constraints.every((constraint) => !constraint.active))
     }
+
     const handle = bridge.attachDatePicker(view, {}, () => {})
     assert.ok(handle)
     const failure = Error('native write')
     picker.failWrite = failure
-    assert.throws(() => handle.update({ enabled: false }), error => error === failure)
+    assert.throws(
+      () => handle.update({ enabled: false }),
+      (error) => error === failure,
+    )
+
     assert.equal(store.idForView(picker), undefined)
     assert.equal(picker.superview, null)
     // Partial attachment acquires constraints before failing. They must retire too.
-    view.addSubview = value => { picker = value; value.superview = view; throw failure }
-    assert.equal(bridge.attachDatePicker(view, {}, () => {}), null)
+    view.addSubview = (value) => {
+      picker = value
+      value.superview = view
+      throw failure
+    }
+
+    assert.equal(
+      bridge.attachDatePicker(view, {}, () => {}),
+      null,
+    )
+
     assert.equal(picker.superview, null)
     assert.equal(store.idForView(picker), undefined)
   } finally {

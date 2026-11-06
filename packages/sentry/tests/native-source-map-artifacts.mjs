@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict'
 import { SourceMap } from 'node:module'
-import { copyFile, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises'
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  symlink,
+  writeFile,
+} from 'node:fs/promises'
+
 import { spawnSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -44,6 +54,7 @@ try {
       2,
     ),
   )
+
   await writeFile(
     join(fixture, 'nativescript.config.ts'),
     `export default ${JSON.stringify({
@@ -54,6 +65,7 @@ try {
       bundler: 'vite',
     })}\n`,
   )
+
   await mkdir(join(fixture, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(root, join(fixture, 'node_modules/@octane-xplat/sentry'), 'dir')
   // Mirror the guide's copy step: the app owns the example modules under src/.
@@ -61,6 +73,7 @@ try {
   for (const file of ['reporting.mobile.ts', 'reporting-filter.ts']) {
     await copyFile(join(root, 'examples', file), join(fixture, 'src', file))
   }
+
   await writeFile(
     join(fixture, 'src/index.ts'),
     `import { reportNativeDeliveryCheck, startNativeReporting } from './reporting.mobile'\n\n` +
@@ -75,6 +88,7 @@ try {
   const config = await xplatNative('production', {
     extra: { build: { sourcemap: 'hidden' }, logLevel: 'error' },
   })
+
   await build(config)
 
   const emitted = await readdir(output)
@@ -86,6 +100,7 @@ try {
     cwd: root,
     encoding: 'utf8',
   })
+
   assert.equal(injected.status, 0, injected.stderr)
 
   const script = await readFile(join(output, 'bundle.mjs'), 'utf8')
@@ -128,6 +143,7 @@ try {
     cwd: root,
     encoding: 'utf8',
   })
+
   assert.equal(help.status, 0, help.stderr)
   assert.ok(help.stdout.includes('--release') && help.stdout.includes('--dist'))
   console.log(
@@ -146,5 +162,6 @@ try {
       process.env[key] = value
     }
   }
+
   await rm(fixture, { recursive: true, force: true })
 }

@@ -56,6 +56,7 @@ function mergeRunStyle(
   const decorations = `${base.textDecoration ?? ''} ${own.textDecoration ?? ''}`
     .split(/\s+/)
     .filter(Boolean)
+
   if (decorations.length > 0) {
     merged.textDecoration = [...new Set(decorations)].join(' ')
   }
@@ -96,9 +97,7 @@ function activationEvent(): NavigationActivationEvent & { defaultPrevented: bool
 export function MdStrong(props: { children?: unknown }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
   return (
-    <MdRunScope
-      value={{ ...run, style: mergeRunStyle(run?.style, { fontWeight: '600' }) }}
-    >
+    <MdRunScope value={{ ...run, style: mergeRunStyle(run?.style, { fontWeight: '600' }) }}>
       {props.children}
     </MdRunScope>
   )
@@ -107,9 +106,7 @@ export function MdStrong(props: { children?: unknown }): unknown @{
 export function MdEmphasis(props: { children?: unknown }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
   return (
-    <MdRunScope
-      value={{ ...run, style: mergeRunStyle(run?.style, { fontStyle: 'italic' }) }}
-    >
+    <MdRunScope value={{ ...run, style: mergeRunStyle(run?.style, { fontStyle: 'italic' }) }}>
       {props.children}
     </MdRunScope>
   )
@@ -253,9 +250,6 @@ export function MdInlineRoot(props: { children?: unknown }): unknown {
 export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
   const color = useFadeRunColor(props.runColor)
   return (
-    <MdTextRun
-      text={mdRunText(props.children)}
-      style={color == null ? undefined : { color }}
-    />
+    <MdTextRun text={mdRunText(props.children)} style={color == null ? undefined : { color }} />
   )
 }

@@ -6,6 +6,7 @@ const hooks = mockNativeBoundary()
 const { makeVideoView, updateVideoView, disposeVideoView } = await import('../src/video.ts')
 const { AVPlayer, AVPlayerView, NSNotificationCenter, NSObject } =
   await import('@octane-xplat/platform/macos')
+
 hooks.deregister()
 
 function videoFixture() {

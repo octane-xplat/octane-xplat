@@ -4,13 +4,7 @@ import { expect, it } from 'vitest'
 import { isIOS, Trace, type ViewBase } from '@nativescript/core'
 import { Pressable, Screen, Text } from '@octane-xplat/ui'
 import { Markdown } from '@octane-xplat/ui/markdown'
-import {
-  findByTestId,
-  mountXplat,
-  tap,
-  viewText,
-  waitUntil,
-} from '@octane-xplat/platform/testing'
+import { findByTestId, mountXplat, tap, viewText, waitUntil } from '@octane-xplat/platform/testing'
 import { useState } from 'octane'
 
 /** Collect plain `text` values plus every FormattedString span's text — link,
@@ -103,6 +97,7 @@ function interceptOpenUrl(opened: string[]): () => void {
         }
       },
     }
+
     Trace.addWriter(writer)
     return () => Trace.removeWriter(writer)
   }
@@ -119,6 +114,7 @@ function interceptOpenUrl(opened: string[]): () => void {
     opened.push(String(url?.absoluteString ?? url))
     done?.(true)
   }
+
   return () => {
     app.canOpenURL = origCan
     app.openURLOptionsCompletionHandler = origOpen
@@ -182,13 +178,16 @@ it('flows inline markdown inside surrounding text', async () => {
     if (v.formattedText?.spans?.length) {
       return v
     }
+
     let hit: any
     v.eachChildView?.((c: any) => {
       hit ??= find(c)
       return !hit
     })
+
     return hit
   })(view)
+
   const ordered = (label?.formattedText?.spans ?? []).map((s: any) => s.text).join('')
   expect(ordered).toBe('before bold run and code run after')
 })
@@ -216,6 +215,7 @@ it('keeps nested mark styling in flat runs', async () => {
       return true
     })
   }
+
   walk(view)
 
   const deep = spans.find((s) => s.text === 'deep')
@@ -284,10 +284,9 @@ it('dispatches citation taps through the resolved source url', async () => {
   try {
     const { view } = await mountXplat(CiteFixture)
 
-    await waitUntil(
-      () => allText(view).some((t) => t.includes('Octane docs')),
-      { message: 'citation run never rendered' },
-    )
+    await waitUntil(() => allText(view).some((t) => t.includes('Octane docs')), {
+      message: 'citation run never rendered',
+    })
 
     const span = findLinkSpan(view, 'Octane docs')
     expect(span, 'citation span has no linkTap listener').toBeTruthy()
@@ -369,7 +368,9 @@ it('lays out a wide table inside its scroll region', async () => {
     return (
       <Screen>
         <Markdown>
-          {'| verylongcolumnheaderone | verylongcolumnheadertwo | verylongcolumnheaderthree |\n| --- | --- | --- |\n| aaaa | bbbb | cccc |'}
+          {
+            '| verylongcolumnheaderone | verylongcolumnheadertwo | verylongcolumnheaderthree |\n| --- | --- | --- |\n| aaaa | bbbb | cccc |'
+          }
         </Markdown>
       </Screen>
     )

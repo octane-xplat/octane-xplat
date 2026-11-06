@@ -112,6 +112,7 @@ export function createNodes(deps: Dependencies) {
       if (!node.adapter) {
         throw new Error('AppKit node requires an acquired adapter')
       }
+
       node.adapter.create(node, props)
 
       if (node.lifecycle !== 'constructing') {
@@ -122,6 +123,7 @@ export function createNodes(deps: Dependencies) {
       if (node.lifecycle !== 'constructing') {
         throw new Error('AppKit node retired during construction')
       }
+
       if (node.view) {
         const owner = deps.registry.nodeContainersByView.get(node.view)
         if (owner && owner !== container) {
@@ -136,6 +138,7 @@ export function createNodes(deps: Dependencies) {
       if (node.lifecycle !== 'constructing') {
         throw new Error('AppKit node retired during construction')
       }
+
       node.lifecycle = 'live'
       return node
     } catch (error) {
@@ -145,6 +148,7 @@ export function createNodes(deps: Dependencies) {
       failures.run('construction', () => {
         throw error
       })
+
       failures.run('construction cleanup', () => destroy(node))
       failures.throwIfFailed()
       throw error

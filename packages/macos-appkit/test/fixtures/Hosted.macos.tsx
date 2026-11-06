@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 const pixel =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jG3sAAAAASUVORK5CYII='
+
 export default function Hosted({ phase, onTime }: { phase: number; onTime: () => void }) {
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column' }}>
@@ -17,7 +18,11 @@ export default function Hosted({ phase, onTime }: { phase: number; onTime: () =>
         style={{ width: 24, height: 24 }}
       />
       <placeholder id="hosted-plugin" style={{ width: 24, height: 24 }} />
-      <pager id="hosted-pager" items={phase ? ['retained'] : ['first', 'second']} style={{ width: 180, height: 40 }} />
+      <pager
+        id="hosted-pager"
+        items={phase ? ['retained'] : ['first', 'second']}
+        style={{ width: 180, height: 40 }}
+      />
       <xplatvideo
         id="hosted-video"
         observeCurrentTime={true}

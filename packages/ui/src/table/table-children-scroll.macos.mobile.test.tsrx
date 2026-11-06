@@ -66,6 +66,7 @@ it('children-path tables mount inside a horizontal scroll region', () => {
     const table = scroll.children.find(
       (node: any) => node.type === 'masonview' && node.props?.className?.includes('vx-table'),
     )
+
     expect(table, 'table element is not the scrollview document child').toBeDefined()
     expect(table.props.style.minWidth).toBeUndefined()
   } finally {

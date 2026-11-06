@@ -9,6 +9,7 @@ import {
   NSView,
   NSViewController,
 } from '@octane-xplat/platform/macos'
+
 import type { PropBag, PopupOptions } from './model'
 
 interface Dependencies {

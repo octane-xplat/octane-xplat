@@ -29,6 +29,7 @@ import {
   NSTextStorage,
   NativeClass,
 } from '@octane-xplat/platform/macos'
+
 import { nativeColor } from './native-colors'
 import { parseHtmlText } from './html-text'
 import { composeAttributedText } from './formatted-text'
@@ -308,6 +309,7 @@ export function createTextElements(deps: Dependencies) {
         { location: glyph, length: 1 },
         container,
       )
+
       if (
         local.x < Number(glyphRect.origin.x) ||
         local.y < Number(glyphRect.origin.y) ||
@@ -363,6 +365,7 @@ export function createTextElements(deps: Dependencies) {
       if (linkOwnersByView.get(owner.view) === owner) {
         linkOwnersByView.delete(owner.view)
       }
+
       for (const slot of owner.slots.values()) {
         slot.dispatch = null
       }
@@ -415,6 +418,7 @@ export function createTextElements(deps: Dependencies) {
         ),
         (event) => shouldReceivePrimaryClick(node.view, event, primaryClickBoundary(node)),
       )
+
       node.view.addGestureRecognizer(node.linkClickRecognizer)
     }
 
@@ -488,6 +492,7 @@ export function createTextElements(deps: Dependencies) {
       failures.run('link disable', () => {
         recognizer.enabled = false
       })
+
       failures.run('link detach', () =>
         (owner?.view ?? node.view)?.removeGestureRecognizer(recognizer),
       )

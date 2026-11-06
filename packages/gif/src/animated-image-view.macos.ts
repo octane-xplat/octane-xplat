@@ -25,6 +25,7 @@ import {
   NSWorkspace,
   NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
 } from '@octane-xplat/platform/macos'
+
 import type { NSError, NSHTTPURLResponse } from '@octane-xplat/platform/macos'
 import type { AppKitAnimatedImageNative } from './animated-image-owner.macos.ts'
 
@@ -81,9 +82,11 @@ class AnimatedImageSessionDelegate extends NSObject implements NSURLSessionDataD
       if (name === 'constructor') {
         continue
       }
+
       const descriptor = Object.getOwnPropertyDescriptor(this.prototype, name)!
       Object.defineProperty(this.prototype, name, { ...descriptor, enumerable: true })
     }
+
     NativeClass(this)
   }
 
@@ -223,6 +226,7 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
         origin: { x: 0, y: 0 },
         size: { width: bounds.size.width, height: bounds.size.height },
       }
+
       return
     }
     const size = image.size
@@ -231,6 +235,7 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
         origin: { x: 0, y: 0 },
         size: { width: 0, height: 0 },
       }
+
       return
     }
     let target = { width: size.width, height: size.height }
@@ -322,6 +327,7 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
       } catch {
         // Delivery failed; the surface stays empty, matching load failure.
       }
+
       return
     }
     const load: SessionLoad = {

@@ -1,23 +1,23 @@
 import {
-	existsSync,
-	globSync,
-	mkdirSync,
-	readFileSync,
-	realpathSync,
-	unlinkSync,
-	writeFileSync,
+  existsSync,
+  globSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  unlinkSync,
+  writeFileSync,
 } from 'node:fs'
 
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { parseDocument } from 'yaml'
 import { packageManagerFor, packageManagerRoot, readProjectWorkspace } from './package-manager.ts'
 import {
-	compatibility,
-	dependencySections,
-	managedCatalog,
-	managedPackage,
-	managedSpecifier,
-	projectProfile,
+  compatibility,
+  dependencySections,
+  managedCatalog,
+  managedPackage,
+  managedSpecifier,
+  projectProfile,
 } from 'create-octane-xplat/compatibility'
 
 import { canonicalPatchesDir, loadPatchManifest, specifierPackage } from './patches.ts'
@@ -33,394 +33,394 @@ const patchPrefix = 'node_modules/.pnpm-config/@octane-xplat/patches/patches/'
 export const workspaceRoot = packageManagerRoot
 
 export function readWorkspace(root: string) {
-	if (packageManagerFor(root) === 'bun') {
-		return parseDocument(JSON.stringify(readProjectWorkspace(root, 'bun')))
-	}
-	const path = join(root, 'pnpm-workspace.yaml')
-	const doc = parseDocument(existsSync(path) ? readFileSync(path, 'utf8') : '{}\n')
-	if (doc.errors.length) {
-		throw new Error(`${path}: ${doc.errors[0].message}`)
-	}
-	return doc
+  if (packageManagerFor(root) === 'bun') {
+    return parseDocument(JSON.stringify(readProjectWorkspace(root, 'bun')))
+  }
+  const path = join(root, 'pnpm-workspace.yaml')
+  const doc = parseDocument(existsSync(path) ? readFileSync(path, 'utf8') : '{}\n')
+  if (doc.errors.length) {
+    throw new Error(`${path}: ${doc.errors[0].message}`)
+  }
+  return doc
 }
 
 export function resolveCatalog(spec: string, name: string, config: Record<string, any>): string {
-	if (!spec.startsWith('catalog:')) {
-		return spec
-	}
-	const catalog = spec.slice('catalog:'.length)
-	return (
-		(catalog && catalog !== 'default'
-			? config.catalogs?.[catalog]?.[name]
-			: config.catalog?.[name]) ?? spec
-	)
+  if (!spec.startsWith('catalog:')) {
+    return spec
+  }
+  const catalog = spec.slice('catalog:'.length)
+  return (
+    (catalog && catalog !== 'default'
+      ? config.catalogs?.[catalog]?.[name]
+      : config.catalog?.[name]) ?? spec
+  )
 }
 
 /** Match workspace package globs, including nested directories and exclusions. */
 function workspacePackages(root: string, patterns: string[] = []) {
-	const included = patterns.filter((pattern) => !pattern.startsWith('!'))
-	const excluded = patterns
-		.filter((pattern) => pattern.startsWith('!'))
-		.map((pattern) => pattern.slice(1))
-	const paths = new Set<string>([root])
-	for (const match of included.length
-		? globSync(included, { cwd: root, exclude: ['**/node_modules/**', ...excluded] })
-		: []) {
-		const path = resolve(root, match)
-		const rel = relative(realpathSync(root), realpathSync(path))
-		if (isAbsolute(rel) || rel === '..' || rel.startsWith(`..${sep}`)) {
-			throw new Error(
-				`Workspace package ${match} points outside ${root}; align it in its own workspace`,
-			)
-		}
+  const included = patterns.filter((pattern) => !pattern.startsWith('!'))
+  const excluded = patterns
+    .filter((pattern) => pattern.startsWith('!'))
+    .map((pattern) => pattern.slice(1))
+  const paths = new Set<string>([root])
+  for (const match of included.length
+    ? globSync(included, { cwd: root, exclude: ['**/node_modules/**', ...excluded] })
+    : []) {
+    const path = resolve(root, match)
+    const rel = relative(realpathSync(root), realpathSync(path))
+    if (isAbsolute(rel) || rel === '..' || rel.startsWith(`..${sep}`)) {
+      throw new Error(
+        `Workspace package ${match} points outside ${root}; align it in its own workspace`,
+      )
+    }
 
-		paths.add(path)
-	}
-	return [...paths].sort().filter((path) => existsSync(join(path, 'package.json')))
+    paths.add(path)
+  }
+  return [...paths].sort().filter((path) => existsSync(join(path, 'package.json')))
 }
 
 export type FileChange = { path: string; before: string | null; after: string }
 export type UpgradePlan = {
-	root: string
-	version: string
-	packages: string[]
-	files: FileChange[]
-	updates: string[]
-	skipped: string[]
-	projects: string[]
+  root: string
+  version: string
+  packages: string[]
+  files: FileChange[]
+  updates: string[]
+  skipped: string[]
+  projects: string[]
 }
 
 const formatPackage = (pkg: any, raw: string) =>
-	JSON.stringify(pkg, null, raw.match(/^([\t ]+)"/m)?.[1] ?? '\t') + '\n'
+  JSON.stringify(pkg, null, raw.match(/^([\t ]+)"/m)?.[1] ?? '\t') + '\n'
 
 /** Pure preflight: no writes, installs, or package code execution. */
 export function planUpgrade(dir: string): UpgradePlan {
-	const root = workspaceRoot(dir)
-	const manager = packageManagerFor(root)
-	const ws = readWorkspace(root)
-	const config = ws.toJS() ?? {}
-	const paths = workspacePackages(root, config.packages)
-	if (!paths.length || !existsSync(join(resolve(dir), 'package.json'))) {
-		throw new Error('Run xplat upgrade inside a package with a package.json')
-	}
+  const root = workspaceRoot(dir)
+  const manager = packageManagerFor(root)
+  const ws = readWorkspace(root)
+  const config = ws.toJS() ?? {}
+  const paths = workspacePackages(root, config.packages)
+  if (!paths.length || !existsSync(join(resolve(dir), 'package.json'))) {
+    throw new Error('Run xplat upgrade inside a package with a package.json')
+  }
 
-	const plan: UpgradePlan = {
-		root,
-		version: compatibility.frameworkVersion,
-		packages: paths,
-		files: [],
-		updates: [],
-		skipped: [],
-		projects: [],
-	}
-	const expected = new Map<string, Set<string>>()
-	const expectedSpecs = new Map<string, Set<string>>()
-	const applicable = new Set<string>()
-	const nativeCatalogs: { declared: string; version: string; label: string }[] = []
-	const packages = paths.map((path) => {
-		const file = join(path, 'package.json')
-		const raw = readFileSync(file, 'utf8')
-		return { path, file, raw, pkg: JSON.parse(raw) }
-	})
-	const change = (path: string, after: string) => {
-		const before = existsSync(path) ? readFileSync(path, 'utf8') : null
-		if (after !== before) {
-			plan.files.push({ path, before, after })
-		}
-	}
+  const plan: UpgradePlan = {
+    root,
+    version: compatibility.frameworkVersion,
+    packages: paths,
+    files: [],
+    updates: [],
+    skipped: [],
+    projects: [],
+  }
+  const expected = new Map<string, Set<string>>()
+  const expectedSpecs = new Map<string, Set<string>>()
+  const applicable = new Set<string>()
+  const nativeCatalogs: { declared: string; version: string; label: string }[] = []
+  const packages = paths.map((path) => {
+    const file = join(path, 'package.json')
+    const raw = readFileSync(file, 'utf8')
+    return { path, file, raw, pkg: JSON.parse(raw) }
+  })
+  const change = (path: string, after: string) => {
+    const before = existsSync(path) ? readFileSync(path, 'utf8') : null
+    if (after !== before) {
+      plan.files.push({ path, before, after })
+    }
+  }
 
-	for (const { path, pkg } of packages) {
-		const profile = projectProfile(pkg)
-		const label = relative(root, path) || '.'
-		// Octane's compiler peer must stay visible to pnpm; it is not hidden in the CLI.
-		const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
-		if (deps.octane && !deps['@tsrx/oxc'] && !localSpecifier(deps.octane)) {
-			pkg.devDependencies ??= {}
-			pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
-			plan.updates.push(`${label}: add @tsrx/oxc compiler peer`)
-		}
+  for (const { path, pkg } of packages) {
+    const profile = projectProfile(pkg)
+    const label = relative(root, path) || '.'
+    // Octane's compiler peer must stay visible to pnpm; it is not hidden in the CLI.
+    const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
+    if (deps.octane && !deps['@tsrx/oxc'] && !localSpecifier(deps.octane)) {
+      pkg.devDependencies ??= {}
+      pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
+      plan.updates.push(`${label}: add @tsrx/oxc compiler peer`)
+    }
 
-		// Core is the only mobile Mason engine; the Windows preview still needs
-		// full MasonKit. Upgrade migrates the pins the core cutover replaced.
-		const engine = profile === 'windows' ? masonFullPackage : masonCorePackage
-		const replacedEngines = [masonCorePackage, masonFullPackage, masonLegacyPackage].filter(
-			(name) => name !== engine,
-		)
+    // Core is the only mobile Mason engine; the Windows preview still needs
+    // full MasonKit. Upgrade migrates the pins the core cutover replaced.
+    const engine = profile === 'windows' ? masonFullPackage : masonCorePackage
+    const replacedEngines = [masonCorePackage, masonFullPackage, masonLegacyPackage].filter(
+      (name) => name !== engine,
+    )
 
-		if (
-			deps['@nativescript-community/octane'] &&
-			!deps[engine] &&
-			!replacedEngines.some((name) => deps[name]) &&
-			!localSpecifier(deps['@nativescript-community/octane'])
-		) {
-			pkg.dependencies ??= {}
-			pkg.dependencies[engine] = managedSpecifier(engine, profile)
+    if (
+      deps['@nativescript-community/octane'] &&
+      !deps[engine] &&
+      !replacedEngines.some((name) => deps[name]) &&
+      !localSpecifier(deps['@nativescript-community/octane'])
+    ) {
+      pkg.dependencies ??= {}
+      pkg.dependencies[engine] = managedSpecifier(engine, profile)
 
-			plan.updates.push(`${label}: add ${engine} mason engine`)
-		}
+      plan.updates.push(`${label}: add ${engine} mason engine`)
+    }
 
-		for (const name of replacedEngines) {
-			if (!deps[name]) {
-				continue
-			}
+    for (const name of replacedEngines) {
+      if (!deps[name]) {
+        continue
+      }
 
-			for (const section of dependencySections) {
-				delete pkg[section]?.[name]
-			}
+      for (const section of dependencySections) {
+        delete pkg[section]?.[name]
+      }
 
-			pkg.dependencies ??= {}
-			pkg.dependencies[engine] ??= managedSpecifier(engine, profile)
+      pkg.dependencies ??= {}
+      pkg.dependencies[engine] ??= managedSpecifier(engine, profile)
 
-			plan.updates.push(`${label}: replace ${name} with ${engine}`)
-		}
+      plan.updates.push(`${label}: replace ${name} with ${engine}`)
+    }
 
-		for (const section of dependencySections) {
-			for (const [name, declared] of Object.entries(pkg[section] ?? {}) as [string, string][]) {
-				const managed = managedPackage(name, profile)
-				if (!managed) {
-					continue
-				}
+    for (const section of dependencySections) {
+      for (const [name, declared] of Object.entries(pkg[section] ?? {}) as [string, string][]) {
+        const managed = managedPackage(name, profile)
+        if (!managed) {
+          continue
+        }
 
-				const spec = resolveCatalog(declared, name, config)
-				if (localSpecifier(spec)) {
-					plan.skipped.push(`${label}: keep ${name} ${declared}`)
-					continue
-				}
+        const spec = resolveCatalog(declared, name, config)
+        if (localSpecifier(spec)) {
+          plan.skipped.push(`${label}: keep ${name} ${declared}`)
+          continue
+        }
 
-				if (name === '@octane-xplat/cli' && (spec === 'nim' || spec.includes('-nim.'))) {
-					const native = nativeCliPin(spec, compatibility.frameworkVersion)
-					if (!native) {
-						throw new Error(
-							`CLI nim channel requires an exact ${compatibility.frameworkVersion}-nim.N pin; install a compatible CLI prerelease before upgrading`,
-						)
-					}
+        if (name === '@octane-xplat/cli' && (spec === 'nim' || spec.includes('-nim.'))) {
+          const native = nativeCliPin(spec, compatibility.frameworkVersion)
+          if (!native) {
+            throw new Error(
+              `CLI nim channel requires an exact ${compatibility.frameworkVersion}-nim.N pin; install a compatible CLI prerelease before upgrading`,
+            )
+          }
 
-					// Keep explicit per-project/catalog choice. A shared stable catalog
-					// must not switch another app's CLI implementation or native build.
-					plan.skipped.push(`${label}: keep ${name} ${declared} (nim channel)`)
-					if (declared.startsWith('catalog:')) {
-						nativeCatalogs.push({ declared, version: native, label })
-					}
+          // Keep explicit per-project/catalog choice. A shared stable catalog
+          // must not switch another app's CLI implementation or native build.
+          plan.skipped.push(`${label}: keep ${name} ${declared} (nim channel)`)
+          if (declared.startsWith('catalog:')) {
+            nativeCatalogs.push({ declared, version: native, label })
+          }
 
-					applicable.add(name)
-					const versions = expected.get(name) ?? new Set<string>()
-					versions.add(native)
-					expected.set(name, versions)
-					const specs = expectedSpecs.get(name) ?? new Set<string>()
-					specs.add(native)
-					expectedSpecs.set(name, specs)
-					continue
-				}
+          applicable.add(name)
+          const versions = expected.get(name) ?? new Set<string>()
+          versions.add(native)
+          expected.set(name, versions)
+          const specs = expectedSpecs.get(name) ?? new Set<string>()
+          specs.add(native)
+          expectedSpecs.set(name, specs)
+          continue
+        }
 
-				const desired = managedSpecifier(name, profile)!
-				if ((/^[\w+.-]+:/.test(spec) || spec.includes('/')) && spec !== desired) {
-					throw new Error(
-						`${label}: ${name} uses a custom source; replace it with a registry pin or a local dependency before upgrading`,
-					)
-				}
+        const desired = managedSpecifier(name, profile)!
+        if ((/^[\w+.-]+:/.test(spec) || spec.includes('/')) && spec !== desired) {
+          throw new Error(
+            `${label}: ${name} uses a custom source; replace it with a registry pin or a local dependency before upgrading`,
+          )
+        }
 
-				const catalog = managedCatalog(profile)
-				pkg[section][name] = `catalog:${catalog}`
-				ws.setIn(['catalogs', catalog, name], desired)
-				if (declared !== `catalog:${catalog}` || spec !== desired) {
-					plan.updates.push(`${label}: ${name} ${spec} → ${desired}`)
-				}
+        const catalog = managedCatalog(profile)
+        pkg[section][name] = `catalog:${catalog}`
+        ws.setIn(['catalogs', catalog, name], desired)
+        if (declared !== `catalog:${catalog}` || spec !== desired) {
+          plan.updates.push(`${label}: ${name} ${spec} → ${desired}`)
+        }
 
-				applicable.add(name)
-				if (!plan.projects.includes(path)) {
-					plan.projects.push(path)
-				}
+        applicable.add(name)
+        if (!plan.projects.includes(path)) {
+          plan.projects.push(path)
+        }
 
-				const versions = expected.get(name) ?? new Set<string>()
-				versions.add(managed.version)
-				expected.set(name, versions)
-				const specs = expectedSpecs.get(name) ?? new Set<string>()
-				specs.add(desired)
-				expectedSpecs.set(name, specs)
-			}
-		}
+        const versions = expected.get(name) ?? new Set<string>()
+        versions.add(managed.version)
+        expected.set(name, versions)
+        const specs = expectedSpecs.get(name) ?? new Set<string>()
+        specs.add(desired)
+        expectedSpecs.set(name, specs)
+      }
+    }
 
-		if (
-			path === root ||
-			dependencySections.some((section) =>
-				Object.keys(pkg[section] ?? {}).some((name) => applicable.has(name)),
-			)
-		) {
-			pkg.packageManager = `${manager}@${compatibility.tools[manager]}`
-			pkg.engines ??= {}
-			pkg.engines.node ??= `>=${compatibility.tools.nodeMinimum}`
-			if (manager === 'bun') {
-				pkg.engines.bun ??= `>=${compatibility.tools.bun}`
-			}
-		}
-	}
+    if (
+      path === root ||
+      dependencySections.some((section) =>
+        Object.keys(pkg[section] ?? {}).some((name) => applicable.has(name)),
+      )
+    ) {
+      pkg.packageManager = `${manager}@${compatibility.tools[manager]}`
+      pkg.engines ??= {}
+      pkg.engines.node ??= `>=${compatibility.tools.nodeMinimum}`
+      if (manager === 'bun') {
+        pkg.engines.bun ??= `>=${compatibility.tools.bun}`
+      }
+    }
+  }
 
-	// A later stable app can rewrite a managed catalog shared by an earlier
-	// native app. Validate the completed plan, independent of traversal order.
-	const alignedConfig = ws.toJS() ?? {}
-	for (const choice of nativeCatalogs) {
-		if (resolveCatalog(choice.declared, '@octane-xplat/cli', alignedConfig) !== choice.version) {
-			throw new Error(
-				`${choice.label}: CLI ${choice.declared} would switch the nim channel; give stable and native CLI choices separate catalogs before upgrading`,
-			)
-		}
-	}
+  // A later stable app can rewrite a managed catalog shared by an earlier
+  // native app. Validate the completed plan, independent of traversal order.
+  const alignedConfig = ws.toJS() ?? {}
+  for (const choice of nativeCatalogs) {
+    if (resolveCatalog(choice.declared, '@octane-xplat/cli', alignedConfig) !== choice.version) {
+      throw new Error(
+        `${choice.label}: CLI ${choice.declared} would switch the nim channel; give stable and native CLI choices separate catalogs before upgrading`,
+      )
+    }
+  }
 
-	// pnpm uses root overrides, including legacy package.json settings. Preserve
-	// unrelated selectors and stop on ambiguous profile-specific overrides.
-	const rootPackage = packages.find((pkg) => pkg.path === root)
-	for (const overrides of [config.overrides ?? {}, rootPackage?.pkg.pnpm?.overrides ?? {}]) {
-		for (const [selector, value] of Object.entries(overrides)) {
-			const name = specifierPackage(selector.split('>').at(-1)!)
-			if (!applicable.has(name)) {
-				continue
-			}
+  // pnpm uses root overrides, including legacy package.json settings. Preserve
+  // unrelated selectors and stop on ambiguous profile-specific overrides.
+  const rootPackage = packages.find((pkg) => pkg.path === root)
+  for (const overrides of [config.overrides ?? {}, rootPackage?.pkg.pnpm?.overrides ?? {}]) {
+    for (const [selector, value] of Object.entries(overrides)) {
+      const name = specifierPackage(selector.split('>').at(-1)!)
+      if (!applicable.has(name)) {
+        continue
+      }
 
-			const versions = expected.get(name)!
-			if (versions.size !== 1) {
-				throw new Error(
-					`Override ${selector} spans incompatible profiles; scope it to the appropriate workspace package`,
-				)
-			}
+      const versions = expected.get(name)!
+      if (versions.size !== 1) {
+        throw new Error(
+          `Override ${selector} spans incompatible profiles; scope it to the appropriate workspace package`,
+        )
+      }
 
-			const desired = [...versions][0]
-			const source = resolveCatalog(String(value), name, config)
-			if (!expectedSpecs.get(name)!.has(source)) {
-				throw new Error(
-					`Override ${selector} conflicts with ${desired}; remove this override before upgrading`,
-				)
-			}
-		}
-	}
-	for (const [selector, version] of Object.entries(compatibility.overrides)) {
-		const existing = config.overrides?.[selector]
-		if (existing && existing !== version) {
-			throw new Error(`Override ${selector} conflicts with framework pin ${version}`)
-		}
+      const desired = [...versions][0]
+      const source = resolveCatalog(String(value), name, config)
+      if (!expectedSpecs.get(name)!.has(source)) {
+        throw new Error(
+          `Override ${selector} conflicts with ${desired}; remove this override before upgrading`,
+        )
+      }
+    }
+  }
+  for (const [selector, version] of Object.entries(compatibility.overrides)) {
+    const existing = config.overrides?.[selector]
+    if (existing && existing !== version) {
+      throw new Error(`Override ${selector} conflicts with framework pin ${version}`)
+    }
 
-		ws.setIn(['overrides', selector], version)
-	}
+    ws.setIn(['overrides', selector], version)
+  }
 
-	const oldPatches = {
-		...rootPackage?.pkg.pnpm?.patchedDependencies,
-		...rootPackage?.pkg.patchedDependencies,
-		...config.patchedDependencies,
-	}
-	const wanted = loadPatchManifest().filter((patch) => {
-		const name = specifierPackage(patch.specifier)
-		const version = patch.specifier.slice(name.length + 1)
-		const versions = expected.get(name)
-		if (versions) {
-			return versions.has(version)
-		}
-		return patch.template !== false && !managedPackage(name)
-	})
-	for (const patch of wanted) {
-		const existing = oldPatches[patch.specifier]
-		if (existing && !String(existing).startsWith(patchPrefix)) {
-			const file = resolve(root, existing)
-			const canonical = readFileSync(join(canonicalPatchesDir, patch.file))
-			if (!existsSync(file) || !canonical.equals(readFileSync(file))) {
-				throw new Error(
-					`Custom patch for ${patch.specifier} at ${existing} differs from the framework patch; reconcile it before upgrading`,
-				)
-			}
-		}
-	}
+  const oldPatches = {
+    ...rootPackage?.pkg.pnpm?.patchedDependencies,
+    ...rootPackage?.pkg.patchedDependencies,
+    ...config.patchedDependencies,
+  }
+  const wanted = loadPatchManifest().filter((patch) => {
+    const name = specifierPackage(patch.specifier)
+    const version = patch.specifier.slice(name.length + 1)
+    const versions = expected.get(name)
+    if (versions) {
+      return versions.has(version)
+    }
+    return patch.template !== false && !managedPackage(name)
+  })
+  for (const patch of wanted) {
+    const existing = oldPatches[patch.specifier]
+    if (existing && !String(existing).startsWith(patchPrefix)) {
+      const file = resolve(root, existing)
+      const canonical = readFileSync(join(canonicalPatchesDir, patch.file))
+      if (!existsSync(file) || !canonical.equals(readFileSync(file))) {
+        throw new Error(
+          `Custom patch for ${patch.specifier} at ${existing} differs from the framework patch; reconcile it before upgrading`,
+        )
+      }
+    }
+  }
 
-	const wantedSpecs = new Set(wanted.map((patch) => patch.specifier))
-	for (const [specifier, path] of Object.entries(oldPatches)) {
-		// Only remove entries supplied by the framework config package. Local
-		// user-owned patch files and mappings survive, including obsolete versions.
-		if (String(path).startsWith(patchPrefix) && !wantedSpecs.has(specifier)) {
-			delete oldPatches[specifier]
-		}
-	}
-	for (const patch of wanted) {
-		oldPatches[patch.specifier] ??=
-			manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
+  const wantedSpecs = new Set(wanted.map((patch) => patch.specifier))
+  for (const [specifier, path] of Object.entries(oldPatches)) {
+    // Only remove entries supplied by the framework config package. Local
+    // user-owned patch files and mappings survive, including obsolete versions.
+    if (String(path).startsWith(patchPrefix) && !wantedSpecs.has(specifier)) {
+      delete oldPatches[specifier]
+    }
+  }
+  for (const patch of wanted) {
+    oldPatches[patch.specifier] ??=
+      manager === 'bun' ? `patches/${patch.file}` : `${patchPrefix}${patch.file}`
 
-		if (manager === 'bun') {
-			change(
-				join(root, oldPatches[patch.specifier]),
-				readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
-			)
-		}
-	}
-	if (Object.keys(oldPatches).length) {
-		ws.set('patchedDependencies', oldPatches)
-		ws.set('allowUnusedPatches', true)
-	}
-	if (wanted.some((patch) => oldPatches[patch.specifier].startsWith(patchPrefix))) {
-		ws.setIn(['configDependencies', '@octane-xplat/patches'], compatibility.frameworkVersion)
-	}
-	if (rootPackage?.pkg.pnpm?.patchedDependencies) {
-		delete rootPackage.pkg.pnpm.patchedDependencies
-	}
+    if (manager === 'bun') {
+      change(
+        join(root, oldPatches[patch.specifier]),
+        readFileSync(join(canonicalPatchesDir, patch.file), 'utf8'),
+      )
+    }
+  }
+  if (Object.keys(oldPatches).length) {
+    ws.set('patchedDependencies', oldPatches)
+    ws.set('allowUnusedPatches', true)
+  }
+  if (wanted.some((patch) => oldPatches[patch.specifier].startsWith(patchPrefix))) {
+    ws.setIn(['configDependencies', '@octane-xplat/patches'], compatibility.frameworkVersion)
+  }
+  if (rootPackage?.pkg.pnpm?.patchedDependencies) {
+    delete rootPackage.pkg.pnpm.patchedDependencies
+  }
 
-	if (manager === 'bun' && rootPackage) {
-		const result = ws.toJS()
-		const owner = rootPackage.pkg
-		if (Array.isArray(owner.workspaces)) {
-			owner.workspaces = { packages: owner.workspaces }
-		}
+  if (manager === 'bun' && rootPackage) {
+    const result = ws.toJS()
+    const owner = rootPackage.pkg
+    if (Array.isArray(owner.workspaces)) {
+      owner.workspaces = { packages: owner.workspaces }
+    }
 
-		owner.workspaces ??= { packages: [] }
-		for (const key of ['catalog', 'catalogs']) {
-			if (result[key]) {
-				if (Object.hasOwn(owner, key)) {
-					owner[key] = result[key]
-				} else {
-					owner.workspaces[key] = result[key]
-				}
-			}
-		}
+    owner.workspaces ??= { packages: [] }
+    for (const key of ['catalog', 'catalogs']) {
+      if (result[key]) {
+        if (Object.hasOwn(owner, key)) {
+          owner[key] = result[key]
+        } else {
+          owner.workspaces[key] = result[key]
+        }
+      }
+    }
 
-		for (const key of ['overrides', 'patchedDependencies']) {
-			if (result[key]) {
-				owner[key] = result[key]
-			}
-		}
-	}
-	for (const { file, raw, pkg } of packages) {
-		const after = formatPackage(pkg, raw)
-		// Avoid reformatting package files whose values did not change.
-		if (JSON.stringify(JSON.parse(raw)) !== JSON.stringify(pkg)) {
-			change(file, after)
-		}
-	}
-	if (manager === 'pnpm') {
-		change(join(root, 'pnpm-workspace.yaml'), String(ws))
-	}
-	return plan
+    for (const key of ['overrides', 'patchedDependencies']) {
+      if (result[key]) {
+        owner[key] = result[key]
+      }
+    }
+  }
+  for (const { file, raw, pkg } of packages) {
+    const after = formatPackage(pkg, raw)
+    // Avoid reformatting package files whose values did not change.
+    if (JSON.stringify(JSON.parse(raw)) !== JSON.stringify(pkg)) {
+      change(file, after)
+    }
+  }
+  if (manager === 'pnpm') {
+    change(join(root, 'pnpm-workspace.yaml'), String(ws))
+  }
+  return plan
 }
 
 /** Refuse stale previews and roll back authored files if a write fails. */
 export function applyUpgrade(plan: UpgradePlan) {
-	for (const file of plan.files) {
-		const current = existsSync(file.path) ? readFileSync(file.path, 'utf8') : null
-		if (current !== file.before) {
-			throw new Error(`${file.path} changed during upgrade; rerun xplat upgrade`)
-		}
-	}
-	const written: FileChange[] = []
-	try {
-		for (const file of plan.files) {
-			written.push(file)
-			mkdirSync(dirname(file.path), { recursive: true })
-			writeFileSync(file.path, file.after)
-		}
-	} catch (error) {
-		for (const file of written.reverse()) {
-			if (file.before === null) {
-				if (existsSync(file.path)) {
-					unlinkSync(file.path)
-				}
-			} else {
-				writeFileSync(file.path, file.before)
-			}
-		}
+  for (const file of plan.files) {
+    const current = existsSync(file.path) ? readFileSync(file.path, 'utf8') : null
+    if (current !== file.before) {
+      throw new Error(`${file.path} changed during upgrade; rerun xplat upgrade`)
+    }
+  }
+  const written: FileChange[] = []
+  try {
+    for (const file of plan.files) {
+      written.push(file)
+      mkdirSync(dirname(file.path), { recursive: true })
+      writeFileSync(file.path, file.after)
+    }
+  } catch (error) {
+    for (const file of written.reverse()) {
+      if (file.before === null) {
+        if (existsSync(file.path)) {
+          unlinkSync(file.path)
+        }
+      } else {
+        writeFileSync(file.path, file.before)
+      }
+    }
 
-		throw error
-	}
+    throw error
+  }
 }

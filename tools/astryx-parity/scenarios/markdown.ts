@@ -1227,10 +1227,7 @@ export const mentionsContribution = {
   }) {
     const span = input.source.slice(input.offset, input.end)
     const match = /^@[a-z][a-z0-9-]{0,15}/.exec(span)
-    if (
-      !input.isFinal &&
-      (span === '@' || (match != null && match[0].length === span.length))
-    ) {
+    if (!input.isFinal && (span === '@' || (match != null && match[0].length === span.length))) {
       return { status: 'defer' as const }
     }
     if (match == null) {

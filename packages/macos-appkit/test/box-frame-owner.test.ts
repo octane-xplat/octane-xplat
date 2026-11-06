@@ -10,6 +10,7 @@ const hooks = mockNativeBoundary({
   module: new URL('./paint-native.ts', import.meta.url),
   exports: Object.keys(platform).filter((key) => key !== 'native'),
 })
+
 const { createBoxPaint } = await import('../src/box-paint.ts')
 const { createNativeStyle } = await import('../src/native-style.ts')
 const { createCssAnimations } = await import('../src/css-animations.ts')
@@ -258,6 +259,7 @@ test('captured center cleanup retires before native reentry and contains release
       fx.paint.dispose(fx.node)
       throw Error('private native error')
     }
+
     fx.paint.dispose(fx.node)
     fx.paint.dispose(fx.node)
     assert.equal(token.removed, 1)
@@ -389,6 +391,7 @@ test('CSS animation frames and cancellation reach the production paint owner thr
       0,
       'sampled point values do not require a percent frame lease',
     )
+
     assert.equal(token.removed, 1)
     fx.paint.dispose(node)
   } finally {

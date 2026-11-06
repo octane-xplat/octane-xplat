@@ -28,10 +28,14 @@ function fixture(t) {
     apk,
     app,
     run(args, env = {}) {
-      return spawnSync(process.execPath, [new URL('./maestro.ts', import.meta.url).pathname, ...args], {
-        encoding: 'utf8',
-        env: { ...process.env, PATH: dir, MAESTRO_TEST_LOG: log, ...env },
-      })
+      return spawnSync(
+        process.execPath,
+        [new URL('./maestro.ts', import.meta.url).pathname, ...args],
+        {
+          encoding: 'utf8',
+          env: { ...process.env, PATH: dir, MAESTRO_TEST_LOG: log, ...env },
+        },
+      )
     },
     commands() {
       return readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)

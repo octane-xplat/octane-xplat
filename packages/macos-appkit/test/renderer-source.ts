@@ -456,6 +456,7 @@ const declarations: readonly (readonly [string, string])[] = [
 const services = new Set(
   declarations.map(([module]) => module.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())),
 )
+
 let cached: string | undefined
 const builtinHelpers = new Map<string, string>()
 
@@ -473,6 +474,7 @@ export function rendererSource(): string {
     if (modules.has(module)) {
       continue
     }
+
     const raw = readFileSync(new URL('../src/' + module + '.ts', import.meta.url), 'utf8')
     const stripped = stripTypeScriptTypes(raw)
     const moduleAst = parse(stripped, { ecmaVersion: 'latest', sourceType: 'module' })
@@ -480,7 +482,8 @@ export function rendererSource(): string {
       if (
         statement.type === 'ExportNamedDeclaration' &&
         statement.declaration?.type === 'FunctionDeclaration' &&
-        module !== 'runtime' && statement.declaration.id?.name.startsWith('create')
+        module !== 'runtime' &&
+        statement.declaration.id?.name.startsWith('create')
       ) {
         return [statement.declaration]
       }
@@ -493,6 +496,7 @@ export function rendererSource(): string {
       }
       return []
     })[0]
+
     // Stateless leaf modules expose declarations directly, without a service factory.
     const last = factory?.body.body.at(-1)
     const end = module === 'runtime' ? factory!.body.end - 1 : last?.start
@@ -506,17 +510,25 @@ export function rendererSource(): string {
                 : [],
             )
             .join('\n')
+
     const ast = parse(body, { ecmaVersion: 'latest', sourceType: 'script' })
     const found = new Map<string, string>()
     let previous = 0,
       anonymous = 0
+
     for (const statement of ast.body) {
       // Process activation is covered by production-constructor tests, not the
       // legacy flattened runtime fixture's numbered statements.
-      if (module === 'runtime' && /^(styleEnvironment|automation)\.activate\(/.test(body.slice(statement.start, statement.end))) {
+      if (
+        module === 'runtime' &&
+        /^(styleEnvironment|automation)\.activate\(/.test(
+          body.slice(statement.start, statement.end),
+        )
+      ) {
         previous = statement.end
         continue
       }
+
       let key: string
       if (statement.type === 'FunctionDeclaration' || statement.type === 'ClassDeclaration') {
         key = statement.id!.name
@@ -534,15 +546,20 @@ export function rendererSource(): string {
       } else {
         key = module === 'runtime' ? '#' + anonymous : '#try'
       }
+
       let text = body
         .slice(previous, statement.end)
-        .replace(/const prior = nodeActions.get\(node\)\s*if\s*\(prior && prior.view !== node.view\)\s*{\s*releaseNodeAction\(node\)\s*}/g, '')
+        .replace(
+          /const prior = nodeActions.get\(node\)\s*if\s*\(prior && prior.view !== node.view\)\s*{\s*releaseNodeAction\(node\)\s*}/g,
+          '',
+        )
         .replace(/!nodeActions.has\(node\)/g, 'node.actionId === undefined')
         .replace(/deps\.state\.get\(/g, 'getAccessibilityProps(')
         .replace(/deps\.directory\.containers\(\)/g, '[...appKitContainers]')
         .replace(/deps\.directory\.hasHost\(/g, 'ownedRoots.has(')
         .replace(/deps\.boxPaint\.dispose\b/g, 'disposeBoxPaint')
         .replace(/\bdeps\s*\.\s*\w+\s*\.\s*/g, '')
+
       if (
         [
           'border-paint',
@@ -557,6 +574,7 @@ export function rendererSource(): string {
         text = text.replace(/(function \w+\(\s*node\s*,\s*state)(\s*[,)]?)/g, '$1 = node$2')
         text = text.replace('!state.current()', '!(state.current?.() ?? true)')
       }
+
       if (module === 'box-paint') {
         text = text.replace(/\b(border|shadow|transform|background|outlines)\./g, '')
         if (key === 'dispose') {
@@ -565,35 +583,58 @@ export function rendererSource(): string {
           text = text.replace(/\bdispose\(node\)/g, 'disposeBoxPaint(node)')
         }
       }
+
       // Hand-authored legacy fixture nodes did not pass through makeNode.
       // Acquire the production definition at this test-only ingress.
-      if ((module === 'element-props' && key === 'applyProps') || (module === 'nodes' && key === 'destroy')) {
-        text = text.replace(/(function (?:applyProps|destroy)\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
+      if (
+        (module === 'element-props' && key === 'applyProps') ||
+        (module === 'nodes' && key === 'destroy')
+      ) {
+        text = text.replace(
+          /(function (?:applyProps|destroy)\(node[^)]*\) \{)/,
+          '$1\n acquireFixtureAdapter(node)',
+        )
       }
+
       if (module === 'layout' && key === 'reconcileLayoutParent') {
-        text = text.replace(/(function reconcileLayoutParent\(parent[^)]*\) \{)/, '$1\n parent.adapter ??= adapters.lookup(parent.type)')
+        text = text.replace(
+          /(function reconcileLayoutParent\(parent[^)]*\) \{)/,
+          '$1\n parent.adapter ??= adapters.lookup(parent.type)',
+        )
       }
+
       if (module === 'tree' && key === 'insert') {
-        text = text.replace('const parent = resolveParentNode(container, parentId)', 'const parent = resolveParentNode(container, parentId)\n acquireFixtureAdapter(parent)\n acquireFixtureAdapter(node)')
+        text = text.replace(
+          'const parent = resolveParentNode(container, parentId)',
+          'const parent = resolveParentNode(container, parentId)\n acquireFixtureAdapter(parent)\n acquireFixtureAdapter(node)',
+        )
       }
+
       if (module === 'native-style' && key === 'applyStyle') {
-        text = text.replace(/(function applyStyle\(node[^)]*\) \{)/, '$1\n acquireFixtureAdapter(node)')
+        text = text.replace(
+          /(function applyStyle\(node[^)]*\) \{)/,
+          '$1\n acquireFixtureAdapter(node)',
+        )
       }
+
       if (module === 'runtime') {
         text = text.replace(
           /\b([A-Za-z]+)\s*\.\s*([A-Za-z_$][\w$]*)/g,
           (match, owner: string, member: string) => (services.has(owner) ? member : match),
         )
       }
+
       if (/^(?:(apply|dispose)Builtin|initializeTextViewport$|validateActionBarProps$)/.test(key)) {
         builtinHelpers.set(key, text)
       }
+
       found.set(key, text)
       previous = statement.end
       if (module === 'runtime') {
         anonymous++
       }
     }
+
     modules.set(module, found)
   }
   cached = declarations
@@ -609,8 +650,12 @@ export function rendererSource(): string {
         accessibilityRoles: 'const accessibilityRoles = new Map()',
         stackAccessibilityPropsByView: 'const stackAccessibilityPropsByView = new WeakMap()',
       }
-      if (!text) { text = legacyDeclarations[symbol] }
-      if (symbol === 'invokeAction') { text = 'function invokeAction(id) { actionHandlers.get(id)?.() }' }
+      if (!text) {
+        text = legacyDeclarations[symbol]
+      }
+      if (symbol === 'invokeAction') {
+        text = 'function invokeAction(id) { actionHandlers.get(id)?.() }'
+      }
 
       // Type declarations disappear during stripping.
       return text === undefined ? [] : [text]

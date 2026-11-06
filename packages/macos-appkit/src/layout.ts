@@ -7,6 +7,7 @@ import {
   NSView,
   NSViewFrameDidChangeNotification,
 } from '@octane-xplat/platform/macos'
+
 import { createStickyPlacements } from './sticky-placement.ts'
 import { observeScrollGeometry } from './scroll-view'
 
@@ -257,6 +258,7 @@ export function createLayout(deps: Dependencies) {
         parentView.topAnchor,
         0,
       )
+
       pins.width = layoutView(child).widthAnchor.constraintEqualToConstant(0)
       pins.height = layoutView(child).heightAnchor.constraintEqualToConstant(0)
       for (const pin of [pins.leading, pins.top, pins.width, pins.height]) {
@@ -599,8 +601,6 @@ export function createLayout(deps: Dependencies) {
 
       return
     }
-
-
   }
   return {
     stickyPlacements,

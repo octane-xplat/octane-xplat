@@ -25,7 +25,13 @@ const owned = new WeakSet<object>()
 const attempts = new WeakMap<object, (event: NSEvent) => boolean>()
 
 function dispatch(node: GestureNode | undefined, name: string, event?: any) {
-  if (!node || node.lifecycle === 'disposing' || node.lifecycle === 'disposed' || node.props.disabled || typeof node.props[name] !== 'function') {
+  if (
+    !node ||
+    node.lifecycle === 'disposing' ||
+    node.lifecycle === 'disposed' ||
+    node.props.disabled ||
+    typeof node.props[name] !== 'function'
+  ) {
     return
   }
 

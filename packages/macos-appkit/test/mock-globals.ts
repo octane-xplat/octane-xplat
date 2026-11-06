@@ -89,6 +89,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
         ...context.deps.actions,
       }
     }
+
     context.deps.state ??= createAccessibilityState()
   }
   if (context && (context as any)[RAW_SLICE_CONTEXT]) {

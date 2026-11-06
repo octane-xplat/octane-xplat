@@ -263,7 +263,8 @@ test('native scaffolds pin @nativescript/core to the app install in tsconfig pat
   }
   writeFileSync(join(added, 'tsconfig.json'), JSON.stringify(existing))
   applyTarget(added, 'ios')
-  const merged = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8')).compilerOptions.paths
+  const merged = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8')).compilerOptions
+    .paths
   assert.deepEqual(merged['@nativescript/core'], ['./custom/core'])
   assert.deepEqual(merged['@nativescript/core/*'], ['./node_modules/@nativescript/core/*'])
   assert.deepEqual(merged['app/*'], ['./src/*'])
@@ -388,25 +389,25 @@ test('creator includes tests for the selected platforms by default through the p
 })
 
 test('target planning is read-only and carries complete raw-byte observations', async (t) => {
-	const { planTarget } = await import('../dist/scaffold.js')
-	const dir = project(t)
-	composeTargets(['web'], dir)
-	const before = readFileSync(join(dir, 'package.json'))
-	const plan = planTarget(dir, 'ios')
-	assert.equal(existsSync(join(dir, 'nativescript.config.ts')), false)
-	assert.deepEqual(readFileSync(join(dir, 'package.json')), before)
-	assert.equal(plan.version, 1)
-	assert.ok(
-		plan.inputs.some(
-			(input) => input.path === join(dir, 'package.json') && /^[a-f0-9]{64}$/.test(input.sha256),
-		),
-	)
-	assert.ok(
-		plan.files.some((file) => file.path === join(dir, 'package.json') && file.before !== null),
-	)
-	const result = applyTarget(dir, 'ios')
-	assert.deepEqual(result, plan.report)
-	for (const file of plan.files) {
-		assert.deepEqual(readFileSync(file.path), Buffer.from(file.content, 'base64'))
-	}
+  const { planTarget } = await import('../dist/scaffold.js')
+  const dir = project(t)
+  composeTargets(['web'], dir)
+  const before = readFileSync(join(dir, 'package.json'))
+  const plan = planTarget(dir, 'ios')
+  assert.equal(existsSync(join(dir, 'nativescript.config.ts')), false)
+  assert.deepEqual(readFileSync(join(dir, 'package.json')), before)
+  assert.equal(plan.version, 1)
+  assert.ok(
+    plan.inputs.some(
+      (input) => input.path === join(dir, 'package.json') && /^[a-f0-9]{64}$/.test(input.sha256),
+    ),
+  )
+  assert.ok(
+    plan.files.some((file) => file.path === join(dir, 'package.json') && file.before !== null),
+  )
+  const result = applyTarget(dir, 'ios')
+  assert.deepEqual(result, plan.report)
+  for (const file of plan.files) {
+    assert.deepEqual(readFileSync(file.path), Buffer.from(file.content, 'base64'))
+  }
 })

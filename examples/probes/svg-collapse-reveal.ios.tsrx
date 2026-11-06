@@ -19,7 +19,12 @@ export default function SvgCollapseReveal() {
     <masonview style={{ flexDirection: 'column', padding: 24 }}>
       <label text="svg collapse reveal" />
       <masonview style={{ visibility: revealed ? 'visible' : 'collapse' }}>
-        <svgview id="probe-svg" src={MARKUP} stretch="aspectFit" style={{ width: 24, height: 24 }} />
+        <svgview
+          id="probe-svg"
+          src={MARKUP}
+          stretch="aspectFit"
+          style={{ width: 24, height: 24 }}
+        />
       </masonview>
     </masonview>
   )
@@ -38,6 +43,7 @@ export async function run(ctx: ProbeContext) {
     width: native.bounds.size.width,
     height: native.bounds.size.height,
   })
+
   ctx.record('collapsed layer.contents nil', native.layer.contents == null)
 
   reveal(true)
@@ -46,6 +52,7 @@ export async function run(ctx: ProbeContext) {
     timeout: 8000,
     interval: 25,
   })
+
   // Let the next display passes commit before reading backing contents.
   await new Promise((resolve) => setTimeout(resolve, 700))
 
@@ -53,14 +60,13 @@ export async function run(ctx: ProbeContext) {
     width: native.bounds.size.width,
     height: native.bounds.size.height,
   })
+
   ctx.record('revealed hidden', Boolean(native.hidden))
   ctx.record('revealed image size', {
     width: native.image?.size?.width ?? null,
     height: native.image?.size?.height ?? null,
   })
+
   ctx.record('revealed layer.contents nil', native.layer.contents == null)
-  ctx.assert(
-    'svg layer.contents is non-nil after collapse→visible',
-    native.layer.contents != null,
-  )
+  ctx.assert('svg layer.contents is non-nil after collapse→visible', native.layer.contents != null)
 }
