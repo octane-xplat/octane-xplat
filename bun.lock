@@ -6,6 +6,7 @@
       "name": "octane-xplat",
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/fmt": "0.1.1",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/core": "0.2.4",
         "@tsrx/oxc": "0.20.0",
