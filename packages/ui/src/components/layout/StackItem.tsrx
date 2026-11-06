@@ -12,6 +12,7 @@ import {
 
 import { stackItemStyle } from './stack-layout'
 import { usePan } from './pan.tsrx'
+import { usePinch } from './pinch.tsrx'
 
 /** StackItem — per-child size (`fill` grows into remaining space) and
  *  cross-axis alignment inside a `Stack`. `isScrollable` hosts the content
@@ -19,6 +20,7 @@ import { usePan } from './pan.tsrx'
 export function StackItem(props: StackItemProps): unknown @{
   const itemStyle = stackItemStyle(props)
   const onPan = usePan(props.onPan)
+  const onPinch = usePinch(props.onPinch)
 
   const forwardedRef = useMemo(
     () =>
@@ -46,6 +48,7 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
       onPan={onPan}
       onSwipe={props.onSwipe}
+      onPinch={onPinch}
     >
       <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
         {props.children}
@@ -66,6 +69,7 @@ export function StackItem(props: StackItemProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
       onPan={onPan}
       onSwipe={props.onSwipe}
+      onPinch={onPinch}
     >
       {props.children}
     </masonview>

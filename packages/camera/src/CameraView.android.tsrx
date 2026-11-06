@@ -66,6 +66,7 @@ export function CameraView(props: CameraViewProps): unknown @{
       try {
         const detach = attachSessionPreview(props.session, nativeView, {
           onReady: props.onReady,
+          onDisplayReady: props.onDisplayReady,
           onError: (issue) => fail(issue.message),
         })
 
@@ -122,6 +123,26 @@ export function CameraView(props: CameraViewProps): unknown @{
                 preview.setSurfaceProvider(nativeView.getSurfaceProvider())
                 provider.bindToLifecycle(nativeView, selector, preview)
                 props.onReady?.()
+                // CameraX STREAMING is the displayed-frame edge; the
+                // PreviewView is its own LifecycleOwner here. LiveData can
+                // re-emit a value, so dedupe into displayed transitions.
+                let displayed = false
+                nativeView.getStreamState?.().observe(
+                  nativeView,
+                  new (globalThis as any).androidx.lifecycle.Observer({
+                    onChanged(state: any) {
+                      const streaming =
+                        state ===
+                        (globalThis as any).androidx.camera.view.PreviewView.StreamState
+                          .STREAMING
+                      if (!disposed && streaming && !displayed) {
+                        props.onDisplayReady?.()
+                      }
+
+                      displayed = streaming
+                    },
+                  }),
+                )
               } catch (error: any) {
                 fail(error?.message ?? 'camera error')
               }

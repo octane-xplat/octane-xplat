@@ -20,6 +20,7 @@ import androidx.camera.core.DynamicRange;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
+import androidx.camera.core.ZoomState;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
@@ -206,7 +207,12 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				observedHost = view;
 				view.getStreamState().observe(this, state -> {
 					if (host != view || detached || released || epoch != generation) return;
+					boolean wasStreaming = streaming;
 					streaming = state == androidx.camera.view.PreviewView.StreamState.STREAMING;
+					// STREAMING is CameraX's displayed-preview signal: frames are
+					// flowing to the PreviewView surface. It is a distinct edge
+					// from "ready", which additionally waits on measured frames.
+					if (streaming && !wasStreaming) emit("displayed", "true");
 					// Availability/recovery must land before "ready": onReady
 					// consumers may admit recording synchronously, and the
 					// session gates on the flags these events update.
@@ -326,6 +332,10 @@ public final class CameraSessionBridge implements LifecycleOwner {
 				Size size = video.getResolutionInfo().getResolution();
 				profiles.put(new JSONObject().put("profile", "standard").put("width", size.getWidth()).put("height", size.getHeight()).put("frameRate", Math.round(sourceFrameRate * 100.0) / 100.0));
 			}
+			if (camera != null) {
+				ZoomState state = camera.getCameraInfo().getZoomState().getValue();
+				result.put("zoom", state != null && state.getMaxZoomRatio() > state.getMinZoomRatio());
+			}
 			if (camera != null && host != null && host.getWidth() > 0) {
 				MeteringPoint center = host.meteringPoint(0.5f, 0.5f);
 				result.put("focusPointOfInterest", camera.getCameraInfo().isFocusMeteringSupported(
@@ -356,6 +366,29 @@ public final class CameraSessionBridge implements LifecycleOwner {
 		} catch (Exception cause) {
 			return false;
 		}
+	}
+	/** Live zoom state of the bound camera as JSON, or null when no camera
+	 *  is bound — JS maps null to "no zoom control". */
+	public String zoom() {
+		if (camera == null || released) return null;
+		try {
+			ZoomState state = camera.getCameraInfo().getZoomState().getValue();
+			if (state == null) return null;
+			return new JSONObject()
+				.put("zoom", state.getZoomRatio())
+				.put("minZoom", state.getMinZoomRatio())
+				.put("maxZoom", state.getMaxZoomRatio())
+				.toString();
+		} catch (Exception cause) { return null; }
+	}
+	/** Writes a CameraX zoom ratio on the bound camera; JS clamps against
+	 *  the live bounds first. Returns false when the write is refused. */
+	public boolean setZoom(double ratio) {
+		if (camera == null || released) return false;
+		try {
+			camera.getCameraControl().setZoomRatio((float) ratio);
+			return true;
+		} catch (Exception cause) { return false; }
 	}
 	private String orientation() {
 		// Display rotation is not a cardinal camera orientation on every device.

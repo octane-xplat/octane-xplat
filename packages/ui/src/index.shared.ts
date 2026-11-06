@@ -48,7 +48,7 @@ export { VisuallyHidden } from './components/content/VisuallyHidden.tsrx'
  *  `getFocusScopeCapabilities()` before relying on the behavior flags. */
 export { FocusScope, getFocusScopeCapabilities } from './components/overlays/FocusScope.tsrx'
 export { Absolute } from './components/layout/Absolute.tsrx'
-export type { PanEvent, PanState, SwipeEvent, SetTranslate } from './props'
+export type { PanEvent, PanState, PinchEvent, SwipeEvent, SetTranslate } from './props'
 export type {
   ClassValue,
   StyleProp,

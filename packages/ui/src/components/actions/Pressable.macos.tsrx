@@ -2,6 +2,7 @@
 import { mergeStyle } from '../../internal/layout/style-merge'
 import type { PressableProps } from '../../props'
 import { usePan } from '../layout/pan.macos.tsrx'
+import { usePinch } from '../layout/pinch.tsrx'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from '../layout/layout-child'
 
@@ -19,6 +20,7 @@ export function Pressable(props: PressableProps): unknown @{
     disabled={props.disabled}
     onPan={usePan(props.disabled ? undefined : props.onPan)}
     onSwipe={props.disabled ? undefined : props.onSwipe}
+    onPinch={usePinch(props.disabled ? undefined : props.onPinch)}
     onLongPress={props.disabled ? undefined : props.onLongPress}
     onDoubleTap={props.disabled ? undefined : props.onDoublePress}
     onTouch={

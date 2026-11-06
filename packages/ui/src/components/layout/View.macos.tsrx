@@ -4,6 +4,7 @@ import type { ViewProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan.macos.tsrx'
+import { usePinch } from './pinch.tsrx'
 
 export function View(props: ViewProps): unknown @{
   <masonview
@@ -25,6 +26,7 @@ export function View(props: ViewProps): unknown @{
     className={cx(props.className)}
     onPan={usePan(props.onPan)}
     onSwipe={props.onSwipe}
+    onPinch={usePinch(props.onPinch)}
     accessible={props.accessible}
     accessibilityLabel={props.accessibilityLabel}
     accessibilityRole={props.accessibilityRole}

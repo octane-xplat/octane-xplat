@@ -81,8 +81,23 @@ export interface CameraViewProps {
   facing?: 'front' | 'back'
   /** Default true. False releases the preview session. */
   active?: boolean
-  /** Fires after the preview surface starts. */
+  /** Fires after the preview surface starts — session-backed previews
+   *  deliver it when the camera source is feeding the shared session and
+   *  recording can be admitted (`session.startRecording` would not be
+   *  rejected for an idle source). It is an admission signal, not a
+   *  displayed-frame signal: use `onDisplayReady` when a visible first
+   *  frame must precede an automatic recording. */
   onReady?: () => void
+  /** Fires when the attached surface first displays a live camera frame,
+   *  separate from `onReady` admission. Apps that record automatically
+   *  should wait for this so capture never starts before the user can
+   *  see the preview. iOS 13+ reports `AVCaptureVideoPreviewLayer`
+   *  `previewing` in non-empty bounds; Android reports the PreviewView
+   *  `STREAMING` state; web reports the first presented video frame.
+   *  Fires again when the displayed preview resumes after an
+   *  interruption. Hosts without a distinct display signal — macOS,
+   *  Windows, Linux — never fire it. */
+  onDisplayReady?: () => void
   /** Camera/preview errors. */
   onError?: (error: { message?: string }) => void
   /** Notification-only tap event — fires with the normalized

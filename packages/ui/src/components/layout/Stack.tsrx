@@ -12,6 +12,7 @@ import {
 
 import { resolveStackLayout } from './stack-layout'
 import { usePan } from './pan.tsrx'
+import { usePinch } from './pinch.tsrx'
 
 /** Astryx flow Stack — a flex masonview in `direction`, `hAlign`/`vAlign`
  *  mapped to main/cross axes, spacing-step gap/padding (steps × 4 dips).
@@ -21,6 +22,7 @@ import { usePan } from './pan.tsrx'
 export function Stack(props: StackProps): unknown @{
   const layout = resolveStackLayout(props)
   const onPan = usePan(props.onPan)
+  const onPinch = usePinch(props.onPinch)
   const sizingStyle = {
     ...(props.width != null ? { width: props.width } : {}),
     ...(props.height != null ? { height: props.height } : {}),
@@ -60,6 +62,7 @@ export function Stack(props: StackProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
       onPan={onPan}
       onSwipe={props.onSwipe}
+      onPinch={onPinch}
     >
       <masonview
         style={mergeStyle(
@@ -101,6 +104,7 @@ export function Stack(props: StackProps): unknown @{
       accessibilityLiveRegion={props.accessibilityLiveRegion}
       onPan={onPan}
       onSwipe={props.onSwipe}
+      onPinch={onPinch}
     >
       {props.children}
     </masonview>

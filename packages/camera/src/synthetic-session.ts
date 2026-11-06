@@ -53,6 +53,9 @@ export interface SyntheticCameraScript {
   /** When set, each `focusAtPoint` call pushes its normalized point
    *  here so a spec can observe metering requests. */
   focusRequests?: CameraPreviewPoint[]
+  /** When set, the seam reports zoom control: `zoomState()` returns a
+   *  copy and `setZoom` writes `zoom` here so specs observe requests. */
+  zoom?: { zoom: number; minZoom: number; maxZoom: number }
 }
 
 /** Storage backing for synthetic/test camera clips. */
@@ -107,6 +110,7 @@ const capabilities: CameraSessionCapabilities = {
   // The seam accepts metering points so tests exercise the supported path.
   focusPointOfInterest: true,
   exposurePointOfInterest: true,
+  zoom: false,
   orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
   cameraSwitchDuringRecording: true,
   durationLimit: 'native',
@@ -258,6 +262,7 @@ function createSyntheticBackend(
       ...capabilities,
       available: script.available,
       reason: script.available ? undefined : 'Synthetic camera is unavailable',
+      zoom: script.zoom != null && script.zoom.maxZoom > script.zoom.minZoom,
     }),
     previewReady: () => attached && script.available,
     configure: (next) => {
@@ -287,10 +292,17 @@ function createSyntheticBackend(
     focusAtPoint: (point) => {
       script.focusRequests?.push(point)
     },
+    zoomState: () => (script.zoom ? { ...script.zoom } : undefined),
+    setZoom: (ratio) => {
+      if (script.zoom) {
+        script.zoom.zoom = ratio
+      }
+    },
     attachPreview: (_host, listener) => {
       attached = true
       queueMicrotask(() => {
         listener?.onReady?.()
+        listener?.onDisplayReady?.()
         observer?.previewReady(true)
       })
 

@@ -47,6 +47,11 @@ export function CameraView(props: CameraViewProps): unknown @{
               props.onReady?.()
             }
           },
+          onDisplayReady: () => {
+            if (!disposed) {
+              props.onDisplayReady?.()
+            }
+          },
         })
 
         return () => {

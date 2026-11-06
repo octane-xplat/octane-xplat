@@ -11,6 +11,7 @@ import type {
   CameraSessionEvent,
   CameraSessionSnapshot,
   CameraSelection,
+  CameraZoomState,
   CaptureIssue,
   EffectiveCaptureConfig,
   MovieEndReason,
@@ -66,7 +67,14 @@ export interface BackendCaptureRequest {
 /** Adapter-owned preview attach. `listener` reports preview lifecycle;
  *  returns the detach function. */
 export interface BackendPreviewListener {
+  /** The session can admit `startRecording` — recording-admission
+   *  readiness, not a displayed-frame signal. */
   onReady?: () => void
+  /** The attached surface displayed its first live camera frame — a
+   *  display-readiness signal, separate from `onReady` admission.
+   *  Adapters fire it on each transition into displayed state; hosts
+   *  without a distinct display signal never fire it. */
+  onDisplayReady?: () => void
   onError?: (issue: CaptureIssue) => void
 }
 
@@ -95,6 +103,12 @@ export interface CameraSessionBackend {
    *  point — the tap-to-focus primitive. Absent means the adapter cannot
    *  meter at a point; the core turns it into a no-op. */
   focusAtPoint?(point: CameraPreviewPoint): void
+  /** Live zoom state of the bound device; absent or `undefined` means the
+   *  adapter exposes no zoom control. */
+  zoomState?(): CameraZoomState | undefined
+  /** Write a zoom ratio already clamped by the core. Absent means the
+   *  adapter exposes no zoom control. */
+  setZoom?(ratio: number): void
   /** Synchronous platform-specific admission checks; creates no attempt on failure. */
   validateStart?(options: StartRecordingOptions): void
   /** Begin capture for an admitted attempt. Async failures settle via
@@ -246,6 +260,13 @@ export class SharedCameraSession implements CameraSession {
       onError: (captureIssue) => {
         listener?.onError?.(captureIssue)
       },
+      onDisplayReady: listener?.onDisplayReady
+        ? () => {
+            if (!this.disposed) {
+              listener.onDisplayReady!()
+            }
+          }
+        : undefined,
     })
 
     this.previewAttached = true
@@ -398,6 +419,27 @@ export class SharedCameraSession implements CameraSession {
       x: Math.min(1, Math.max(0, point.x)),
       y: Math.min(1, Math.max(0, point.y)),
     })
+  }
+
+  zoomState(): CameraZoomState | undefined {
+    if (this.disposed || this.disposeRequested) {
+      return undefined
+    }
+
+    return this.backend.zoomState?.()
+  }
+
+  setZoom(ratio: number): void {
+    if (!Number.isFinite(ratio)) {
+      throw issue('invalidArgument', 'setZoom', 'ratio must be a finite number')
+    }
+
+    const state = this.zoomState()
+    if (!state || !this.backend.setZoom) {
+      return
+    }
+
+    this.backend.setZoom(Math.min(state.maxZoom, Math.max(state.minZoom, ratio)))
   }
 
   private assertConfigurable() {

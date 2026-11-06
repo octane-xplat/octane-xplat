@@ -385,6 +385,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         audio: host.audioDeviceAvailable(),
         focusPointOfInterest: pointOfInterest.focus,
         exposurePointOfInterest: pointOfInterest.exposure,
+        // AVCaptureDevice zoom properties are iOS-only in AVFoundation.
+        zoom: false,
         // AVCaptureConnection rotation angles exist on macOS 14+;
         // earlier hosts cannot lock a take's orientation.
         orientations: host.supportsRotationAngles()

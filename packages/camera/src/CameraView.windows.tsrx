@@ -67,6 +67,11 @@ export function CameraView(props: CameraViewProps): unknown @{
               props.onReady?.()
             }
           },
+          onDisplayReady: () => {
+            if (!disposed) {
+              props.onDisplayReady?.()
+            }
+          },
           onError: (issue) => {
             if (!disposed) {
               fail(issue.message)

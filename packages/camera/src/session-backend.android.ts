@@ -173,6 +173,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             if (payload === 'true') {
               listener?.onReady?.()
             }
+          } else if (type === 'displayed') {
+            listener?.onDisplayReady?.()
           } else if (type === 'availability') {
             observer?.availability(payload === 'true')
           } else if (type === 'interruption') {
@@ -268,6 +270,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         // for the current acquisition state.
         focusPointOfInterest: value.focusPointOfInterest === true,
         exposurePointOfInterest: value.exposurePointOfInterest === true,
+        zoom: value.zoom === true,
         orientations: [],
         cameraSwitchDuringRecording:
           typeof bridge?.switchCamera === 'function' &&
@@ -380,6 +383,30 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         bridge?.focusAtPoint?.(point.x, point.y)
       } catch {
         // A missed metering pass must not fault the session.
+      }
+    },
+    zoomState: () => {
+      try {
+        const raw = bridge?.zoom?.()
+        const value = typeof raw === 'string' ? JSON.parse(raw) : undefined
+        if (
+          typeof value?.zoom !== 'number' ||
+          typeof value?.minZoom !== 'number' ||
+          typeof value?.maxZoom !== 'number'
+        ) {
+          return undefined
+        }
+
+        return { zoom: value.zoom, minZoom: value.minZoom, maxZoom: value.maxZoom }
+      } catch {
+        return undefined
+      }
+    },
+    setZoom: (ratio) => {
+      try {
+        bridge?.setZoom?.(ratio)
+      } catch {
+        // A refused zoom write must not fault the session.
       }
     },
     switchCamera: (camera) => {

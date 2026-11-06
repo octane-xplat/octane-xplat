@@ -1297,6 +1297,12 @@ escape hatch. `SwipeEvent.direction` retains NativeScript's direction flags
 Use `onPan` for portable dragging. Replace arbitrary state/direction strings
 or numbers in typed test fixtures with these supported values.
 
+`onPinch` reports a cumulative scale multiplier since the gesture began
+(`1` is unchanged) with the same `began | moved | ended | cancelled`
+state union. It attaches to the same native leaves as `onSwipe`
+(`View`, `Row`, `Stack`, `StackItem`, `Pressable`); web and desktop
+renderers do not synthesize pinch events.
+
 ```tsx
 import { Text, View } from '@octane-xplat/ui'
 

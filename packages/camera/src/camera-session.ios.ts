@@ -1,8 +1,11 @@
+import { observePreviewDisplay, previewLayerDisplaying } from './preview-display.ios'
+
 /** Attach an AVFoundation preview layer to a NativeScript UIView host. */
 export function startCameraPreview(
   view: any,
   facing: 'front' | 'back',
   onReady?: () => void,
+  onDisplayReady?: () => void,
 ): () => void {
   const av = globalThis as any
   const mediaType = av.AVMediaTypeVideo ?? 'vide'
@@ -54,11 +57,25 @@ export function startCameraPreview(
 
   view.on?.('layoutChanged', updateFrame)
   updateFrame()
+
+  let displayReady = false
+  const detachDisplay = observePreviewDisplay(layer, () => {
+    const showing = previewLayerDisplaying(layer)
+    if (showing === displayReady) {
+      return
+    }
+    displayReady = showing
+    if (showing) {
+      onDisplayReady?.()
+    }
+  })
+
   session.startRunning()
   onReady?.()
 
   return () => {
     view.off?.('layoutChanged', updateFrame)
+    detachDisplay?.()
     session.stopRunning()
     layer.removeFromSuperlayer()
   }

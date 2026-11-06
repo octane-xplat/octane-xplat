@@ -107,6 +107,16 @@ class FakeBridge {
     return true
   }
 
+  zoomRatio = 1
+  zoom() {
+    return JSON.stringify({ zoom: this.zoomRatio, minZoom: 1, maxZoom: 8 })
+  }
+
+  setZoom(ratio: number) {
+    this.zoomRatio = ratio
+    return true
+  }
+
   release() {
     this.released = true
   }
@@ -515,6 +525,33 @@ describe('android adapter onReady admission', () => {
     }
 
     await detach()
+    await session.dispose()
+  })
+})
+
+describe('android adapter zoom and display readiness', () => {
+  it('reports and writes clamped zoom through the CameraX bridge', async () => {
+    const { session, bridge, detach } = await attachReadySession()
+
+    expect(session.zoomState()).toEqual({ zoom: 1, minZoom: 1, maxZoom: 8 })
+    session.setZoom(3)
+    expect(bridge.zoomRatio).toBe(3)
+    session.setZoom(20)
+    expect(bridge.zoomRatio).toBe(8)
+
+    await detach()
+    await session.dispose()
+  })
+
+  it('maps the native displayed edge to onDisplayReady', async () => {
+    const backend = createSessionBackend({})
+    const session = new SharedCameraSession(backend, {})
+    const onDisplayReady = vi.fn()
+    session.attach({}, { onDisplayReady })
+    const bridge = FakeBridge.instances.at(-1)!
+    bridge.emit('displayed', 'true')
+    expect(onDisplayReady).toHaveBeenCalledTimes(1)
+
     await session.dispose()
   })
 })

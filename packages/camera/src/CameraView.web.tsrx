@@ -28,6 +28,7 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
       try {
         return attachSessionPreview(props.session, element, {
           onReady: props.onReady,
+          onDisplayReady: props.onDisplayReady,
           onError: (issue) => props.onError?.({ message: issue.message }),
         })
       } catch (error: any) {
@@ -143,7 +144,12 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
           transform: facing === 'front' ? 'scaleX(-1)' : undefined,
         }}
         onPlaying={() => {
-          if (props.session || readyFired.current) {
+          if (props.session) {
+            return
+          }
+
+          props.onDisplayReady?.()
+          if (readyFired.current) {
             return
           }
 

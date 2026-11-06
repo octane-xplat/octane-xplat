@@ -80,6 +80,77 @@ point — front cameras are often fixed-focus. Check
 before showing focus UI. Metering lands on iOS, Android, and macOS; the
 tap event fires on iOS, Android, and web.
 
+## Pinch-to-zoom
+
+`CameraSession` reads and writes the active camera's zoom ratio without
+reconfiguring the session — including mid-recording. `zoomState()`
+returns `{ zoom, minZoom, maxZoom }` for the bound device, `setZoom`
+clamps every write to those live bounds, and `capabilities().zoom` tells
+you whether the bound camera supports zoom control at all. Pair it with
+the shared `onPinch` gesture, which reports a cumulative scale
+multiplier on native targets:
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+import { View } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+const session = createCameraSession()
+
+export function ZoomablePreview() {
+  const baseZoom = useRef(1)
+  return (
+    <View
+      onPinch={(event) => {
+        if (event.state === 'began') {
+          baseZoom.current = session.zoomState()?.zoom ?? 1
+        }
+
+        session.setZoom(baseZoom.current * event.scale)
+      }}
+    >
+      <CameraView session={session} />
+    </View>
+  )
+}
+```
+
+`zoomState()` returns `undefined` until a camera is bound, on hosts
+without zoom control, and after `dispose`. Zoom lands on iOS
+(`AVCaptureDevice.videoZoomFactor`) and Android (CameraX
+`setZoomRatio`); it also works where the web `MediaStreamTrack` exposes a
+`zoom` capability. macOS, Windows, and Linux report `zoom: false`.
+
+## Preview readiness
+
+`onReady` means the session would admit `session.startRecording` — an
+admission signal, not proof that a frame is on screen. When an app
+records automatically, wait for `onDisplayReady` instead: it fires when
+the surface displays its first live camera frame.
+
+```tsx
+const session = createCameraSession()
+
+export function InstantRecorder() {
+  return (
+    <CameraView
+      session={session}
+      onDisplayReady={() => {
+        const take = session.startRecording()
+        // …
+      }}
+    />
+  )
+}
+```
+
+On iOS 13+ it observes `AVCaptureVideoPreviewLayer.previewing` in
+non-empty bounds; on Android it is the PreviewView `STREAMING` state; on
+web it is the first presented video frame. It fires again when the
+displayed preview resumes after an interruption. Hosts without a
+distinct display signal — macOS, Windows, Linux — never fire it, so
+gate optional behavior on it rather than blocking app flow.
+
 ## Movie recording
 
 `createCameraSession` creates a shared camera owner: the same session can

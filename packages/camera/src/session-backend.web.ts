@@ -112,6 +112,23 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     observer?.previewReady(value)
   }
 
+  /** MediaTrack `zoom` is a camera-control constraint some browsers
+   *  expose; absent track capabilities mean no zoom control. */
+  const readZoom = () => {
+    const track = stream?.getVideoTracks()[0]
+    const zoom = (track?.getCapabilities?.() as any)?.zoom
+    if (!track || typeof zoom?.min !== 'number' || typeof zoom?.max !== 'number') {
+      return undefined
+    }
+
+    const current = (track.getSettings?.() as any)?.zoom
+    return {
+      zoom: typeof current === 'number' ? current : zoom.min,
+      minZoom: zoom.min,
+      maxZoom: zoom.max,
+    }
+  }
+
   const dropStream = () => {
     if (host) {
       host.srcObject = null
@@ -291,6 +308,19 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     markReady(document.visibilityState !== 'hidden')
     if (notify) {
       listener?.onReady?.()
+    }
+
+    // Display readiness is its own edge: requestVideoFrameCallback fires
+    // on the first presented frame; without it, a resolved play() is the
+    // only display confirmation the element exposes.
+    if (typeof element.requestVideoFrameCallback === 'function') {
+      element.requestVideoFrameCallback(() => {
+        if (host === element && !released && epoch === generation) {
+          listener?.onDisplayReady?.()
+        }
+      })
+    } else {
+      listener?.onDisplayReady?.()
     }
   }
 
@@ -535,6 +565,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         // the adapter — report honestly rather than fabricate.
         focusPointOfInterest: false,
         exposurePointOfInterest: false,
+        zoom: (() => {
+          const state = readZoom()
+          return !!state && state.maxZoom > state.minZoom
+        })(),
         orientations: [],
         cameraSwitchDuringRecording: supportsRecordingVideoSource(),
         durationLimit: 'bestEffort',
@@ -1082,6 +1116,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     },
     stopCapture: stop,
     elapsedMs: () => (startedAt ? Math.max(0, (stoppedAt || performance.now()) - startedAt) : 0),
+    zoomState: () => readZoom(),
+    setZoom: (ratio) => {
+      const track = stream?.getVideoTracks()[0]
+      const applied = track?.applyConstraints?.({
+        advanced: [{ zoom: ratio } as any],
+      })
+      applied?.catch?.(() => {})
+    },
     openOutput: async (output) => {
       if (output.kind === 'nativeFile') {
         const desktop = await hostProbe

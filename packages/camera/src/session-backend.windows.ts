@@ -1300,6 +1300,8 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         // adapter — report honestly rather than fabricate.
         focusPointOfInterest: false,
         exposurePointOfInterest: false,
+        // MediaCapture zoom controls are not wired into the adapter.
+        zoom: false,
         orientations:
           capture && typeof capture.SetRecordRotationAsync === 'function'
             ? ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight']

@@ -126,6 +126,19 @@ export interface SwipeEvent {
   direction: 1 | 2 | 4 | 8
 }
 
+/** Normalized pinch gesture payload. `scale` is the cumulative multiplier
+ * since the gesture began — `1` is unchanged, `2` doubles span. Pinch
+ * callbacks attach to native gesture-capable primitives; web and desktop
+ * renderers do not synthesize pinch events. */
+export interface PinchEvent {
+  /** Cumulative scale multiplier since gesture start. */
+  scale: number
+  /** Gesture phase — began → moved → ended/cancelled. */
+  state: PanState
+  /** The host element the gesture is attached to. */
+  target: HostElement
+}
+
 /** Public shape of `setTranslate` — the imperative translate write on a
  *  bound view (a leaf's `ref` target). Web composes into the element's
  *  `transform`; native sets the view's translateX/translateY props.
@@ -459,6 +472,8 @@ export interface StackProps
   onPan?: (e: PanEvent) => void
   /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
   onSwipe?: (e: SwipeEvent) => void
+  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
+  onPinch?: (e: PinchEvent) => void
 }
 
 /** Cross-axis self-alignment for a `StackItem` — mirrors `align-self`. */
@@ -512,6 +527,8 @@ export interface StackItemProps extends AccessibilityProps {
   onPan?: (e: PanEvent) => void
   /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
   onSwipe?: (e: SwipeEvent) => void
+  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
+  onPinch?: (e: PinchEvent) => void
 }
 
 /** Horizontal flow stack — `Stack` with `direction="horizontal"`. `hAlign`
@@ -766,6 +783,8 @@ export interface ViewProps
   onPan?: (e: PanEvent) => void
   /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
   onSwipe?: (e: SwipeEvent) => void
+  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
+  onPinch?: (e: PinchEvent) => void
   /** Platform-specific properties are applied after shared props. */
   ios?: PlatformProps
   /** Platform-specific properties are applied after shared props. */
@@ -792,6 +811,8 @@ export interface RowProps
   onPan?: (e: PanEvent) => void
   /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
   onSwipe?: (e: SwipeEvent) => void
+  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
+  onPinch?: (e: PinchEvent) => void
   /** Platform-specific properties are applied after shared props. */
   ios?: PlatformProps
   /** Platform-specific properties are applied after shared props. */
@@ -989,6 +1010,8 @@ export interface PressableProps extends LayoutChildProps, FlexContainerProps, Te
   onPan?: (e: PanEvent) => void
   /** Swipe gesture callback — fires once per completed swipe with direction and velocity. */
   onSwipe?: (e: SwipeEvent) => void
+  /** Pinch gesture callback — fires through began/moved/ended/cancelled with a cumulative scale multiplier; native only. */
+  onPinch?: (e: PinchEvent) => void
   /** Activation callback — tap/click or keyboard activation. */
   onPress?: () => void
   /** ~500ms press-and-hold (web: timer over pointerdown/up). */

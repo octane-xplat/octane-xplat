@@ -335,6 +335,38 @@ describe('camera session contract', () => {
     expect(focusRequests).toEqual([])
   })
 
+  it('zoomState is undefined without zoom control; setZoom clamps to live bounds', async () => {
+    const zoom = { zoom: 1, minZoom: 0.5, maxZoom: 4 }
+    const session = createSyntheticCameraSession({}, { zoom })
+
+    expect(session.zoomState()).toEqual({ zoom: 1, minZoom: 0.5, maxZoom: 4 })
+    expect((await session.capabilities()).zoom).toBe(true)
+
+    session.setZoom(2)
+    expect(zoom.zoom).toBe(2)
+    session.setZoom(10)
+    expect(zoom.zoom).toBe(4)
+    session.setZoom(0.1)
+    expect(zoom.zoom).toBe(0.5)
+
+    const plain = createSyntheticCameraSession()
+    expect(plain.zoomState()).toBeUndefined()
+    expect((await plain.capabilities()).zoom).toBe(false)
+    plain.setZoom(2) // no-op on hosts without zoom control
+  })
+
+  it('setZoom rejects non-finite ratios and no-ops after dispose', async () => {
+    const zoom = { zoom: 1, minZoom: 1, maxZoom: 4 }
+    const session = createSyntheticCameraSession({}, { zoom })
+    expect(() => session.setZoom(Number.NaN)).toThrow('finite')
+    expect(() => session.setZoom(Number.POSITIVE_INFINITY)).toThrow('finite')
+
+    await session.dispose()
+    expect(session.zoomState()).toBeUndefined()
+    session.setZoom(2)
+    expect(zoom.zoom).toBe(1)
+  })
+
   it('capabilities report point-of-interest metering support', async () => {
     const synthetic = createSyntheticCameraSession()
     const supported = await synthetic.capabilities()

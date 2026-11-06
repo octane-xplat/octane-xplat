@@ -12,6 +12,7 @@ import {
 
 import { layoutChildProps } from './layout-child'
 import { usePan } from './pan.tsrx'
+import { usePinch } from './pinch.tsrx'
 export function Row(props: RowProps): unknown @{
   const forwardedRef = useMemo(
     () =>
@@ -38,6 +39,7 @@ export function Row(props: RowProps): unknown @{
     accessibilityLiveRegion={props.accessibilityLiveRegion}
     onPan={usePan(props.onPan)}
     onSwipe={props.onSwipe}
+    onPinch={usePinch(props.onPinch)}
   >
     {props.children}
   </masonview>

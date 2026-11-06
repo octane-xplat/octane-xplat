@@ -3,6 +3,7 @@ import { CameraCaptureError } from './types'
 import { canonicalizePath } from './session-core'
 import { IOSMovieWriterDriver } from './movie-writer.ios'
 import { acquireRecordingHaptics } from './recording-haptics.ios'
+import { observePreviewDisplay, previewLayerDisplaying } from './preview-display.ios'
 import type { IOSMovieWriter } from './movie-writer.ios'
 import type {
   BackendCaptureRequest,
@@ -20,6 +21,7 @@ import type {
   CameraPermissionStatus,
   CaptureIssue,
   CameraSessionConfig,
+  CameraZoomState,
   EffectiveCaptureConfig,
   MovieOutputHandle,
 } from './types'
@@ -335,6 +337,8 @@ export function createSessionBackend(
   let previewLayer: AVCaptureVideoPreviewLayer | undefined
   let previewHost: any
   let detachFrame: (() => void) | undefined
+  let detachDisplay: (() => void) | undefined
+  let displayReady = false
   let previewReadyFlag = false
   let device: AVCaptureDevice | undefined
   let observer: BackendObserver | undefined
@@ -795,6 +799,10 @@ export function createSessionBackend(
         audio: typeof AVCaptureDevice.defaultDeviceWithMediaType === 'function',
         focusPointOfInterest: selected?.focusPointOfInterestSupported === true,
         exposurePointOfInterest: selected?.exposurePointOfInterestSupported === true,
+        zoom:
+          typeof selected?.maxAvailableVideoZoomFactor === 'number' &&
+          typeof selected?.minAvailableVideoZoomFactor === 'number' &&
+          selected.maxAvailableVideoZoomFactor > selected.minAvailableVideoZoomFactor,
         orientations: ['portrait', 'portraitUpsideDown', 'landscapeLeft', 'landscapeRight'],
         cameraSwitchDuringRecording: typeof XplatSwitchingMovieWriter !== 'undefined',
         durationLimit: 'native',
@@ -857,6 +865,25 @@ export function createSessionBackend(
       detachFrame = () => view.off?.('layoutChanged', updateFrame)
       view.on?.('layoutChanged', updateFrame)
       updateFrame()
+
+      // Display readiness is its own signal: `previewing` flips true
+      // asynchronously after startRunning returns, and only while the
+      // layer is actually rendering into non-empty bounds. onReady stays
+      // admission readiness — writer frames flowing, preview attached.
+      const evaluateDisplay = () => {
+        const showing = previewLayerDisplaying(layer)
+        if (showing === displayReady) {
+          return
+        }
+        displayReady = showing
+        if (showing) {
+          listener?.onDisplayReady?.()
+        }
+      }
+
+      detachDisplay?.()
+      detachDisplay = observePreviewDisplay(layer, evaluateDisplay)
+      evaluateDisplay()
       target.startRunning()
       previewReadyFlag = true
 
@@ -870,6 +897,9 @@ export function createSessionBackend(
       return () => {
         previewReadyFlag = false
         initialWriterReady = undefined
+        detachDisplay?.()
+        detachDisplay = undefined
+        displayReady = false
         nativeWriter?.setPreviewLayer(null)
         view.off?.('layoutChanged', updateFrame)
         layer.removeFromSuperlayer()
@@ -1022,6 +1052,52 @@ export function createSessionBackend(
         captureDevice.unlockForConfiguration()
       } catch {
         // A missed metering pass must not fault the session.
+      }
+    },
+    zoomState: (): CameraZoomState | undefined => {
+      const captureDevice = device
+      if (!captureDevice || typeof captureDevice.videoZoomFactor !== 'number') {
+        return undefined
+      }
+
+      // min/maxAvailableVideoZoomFactor are iOS 11+; older runtimes only
+      // expose the format maximum — report what the device proves.
+      const minZoom =
+        typeof captureDevice.minAvailableVideoZoomFactor === 'number'
+          ? captureDevice.minAvailableVideoZoomFactor
+          : 1
+      const maxZoom =
+        typeof captureDevice.maxAvailableVideoZoomFactor === 'number'
+          ? captureDevice.maxAvailableVideoZoomFactor
+          : minZoom
+      return { zoom: captureDevice.videoZoomFactor, minZoom, maxZoom }
+    },
+    setZoom: (ratio) => {
+      const captureDevice = device
+      if (!captureDevice || typeof captureDevice.videoZoomFactor !== 'number') {
+        return
+      }
+
+      const min =
+        typeof captureDevice.minAvailableVideoZoomFactor === 'number'
+          ? captureDevice.minAvailableVideoZoomFactor
+          : 1
+      const max =
+        typeof captureDevice.maxAvailableVideoZoomFactor === 'number'
+          ? captureDevice.maxAvailableVideoZoomFactor
+          : Math.max(min, ratio)
+
+      try {
+        if (captureDevice.lockForConfiguration?.(undefined) !== true) {
+          return
+        }
+
+        // Out-of-range writes raise NSRangeException — clamp against the
+        // live device bounds even though the shared session already did.
+        captureDevice.videoZoomFactor = Math.min(max, Math.max(min, ratio))
+        captureDevice.unlockForConfiguration()
+      } catch {
+        // A refused zoom write must not fault the session.
       }
     },
     switchCamera: (selection) => {
@@ -1392,6 +1468,9 @@ export function createSessionBackend(
       await writerRelease
       detachFrame?.()
       detachFrame = undefined
+      detachDisplay?.()
+      detachDisplay = undefined
+      displayReady = false
       if (previewHost) {
         try {
           previewLayer?.removeFromSuperlayer()

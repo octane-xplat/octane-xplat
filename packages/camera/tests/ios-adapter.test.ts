@@ -13,6 +13,13 @@ const model = vi.hoisted(() => {
     position,
     hasMediaType: (type: string) => type === 'video',
     supportsAVCaptureSessionPreset: () => true,
+    videoZoomFactor: 1,
+    minAvailableVideoZoomFactor: 1,
+    maxAvailableVideoZoomFactor: 4,
+    lockForConfiguration() {
+      return true
+    },
+    unlockForConfiguration() {},
   }))
   class Input {
     device: any
@@ -106,7 +113,16 @@ const model = vi.hoisted(() => {
       return true
     }),
   }
-  return { array, devices, Input, Session, bridge, audioSession }
+  return {
+    array,
+    devices,
+    Input,
+    Session,
+    bridge,
+    audioSession,
+    layers: [] as any[],
+    noPreviewing: false,
+  }
 })
 
 vi.mock('@nativescript/core', () => ({
@@ -132,10 +148,32 @@ vi.mock('@octane-xplat/platform/ios', () => ({
   AVCaptureDeviceInput: model.Input,
   AVCaptureSession: model.Session,
   AVCaptureVideoPreviewLayer: {
-    layerWithSession: () => ({
-      connection: { supportsVideoMirroring: true },
-      removeFromSuperlayer() {},
-    }),
+    layerWithSession: () => {
+      const layer: any = {
+        connection: { supportsVideoMirroring: true },
+        previewing: model.noPreviewing ? undefined : false,
+        bounds: { size: { width: 0, height: 0 } },
+        observers: [] as { observer: any; key: string }[],
+        addObserverForKeyPathOptionsContext(observer: any, key: string) {
+          this.observers.push({ observer, key })
+        },
+        removeObserverForKeyPath(observer: any, key: string) {
+          this.observers = this.observers.filter(
+            (entry) => !(entry.observer === observer && entry.key === key),
+          )
+        },
+        emitKey(key: string) {
+          for (const entry of this.observers) {
+            if (entry.key === key) {
+              entry.observer['observeValueForKeyPath:ofObject:change:context:']()
+            }
+          }
+        },
+        removeFromSuperlayer() {},
+      }
+      model.layers.push(layer)
+      return layer
+    },
   },
   AVURLAsset: {
     assetWithURL: () => ({
@@ -164,6 +202,10 @@ vi.mock('@octane-xplat/platform/ios', () => ({
     defaultCenter: { addObserverForNameObjectQueueUsingBlock: () => ({}), removeObserver() {} },
   },
   NSOperationQueue: { mainQueue: {} },
+  NSObject: {
+    extend: (members: any) => ({ new: () => ({ ...members }) }),
+  },
+  interop: { types: { void: 0, id: 1 } },
   NSURL: { fileURLWithPath: (path: string) => ({ path }) },
 }))
 
@@ -173,6 +215,8 @@ import { SharedCameraSession } from '../src/session-core'
 beforeEach(() => {
   model.audioSession.allowHapticsAndSystemSoundsDuringRecording = false
   model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mockClear()
+  model.layers.length = 0
+  model.noPreviewing = false
   for (const name of [
     'AVCaptureDeviceTypeBuiltInWideAngleCamera',
     'AVCaptureDeviceTypeBuiltInUltraWideCamera',
@@ -569,5 +613,121 @@ describe('iOS recording haptics policy', () => {
     await h.session.configure(config)
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
     await h.session.dispose()
+  })
+})
+
+describe('iOS displayed-preview readiness', () => {
+  function setupDisplay() {
+    const native = model.bridge()
+    vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
+    const backend = createSessionBackend({ audio: true })
+    const session = new SharedCameraSession(backend, { audio: true })
+    const onReady = vi.fn()
+    const onDisplayReady = vi.fn()
+    const detach = session.attach(
+      { ios: { layer: { addSublayer() {} }, bounds: {} } },
+      { onReady, onDisplayReady },
+    )
+    return { native, backend, session, onReady, onDisplayReady, detach }
+  }
+
+  it('fires onDisplayReady when the layer previews into non-empty bounds', () => {
+    const { onReady, onDisplayReady } = setupDisplay()
+    const layer = model.layers.at(-1)!
+    expect(onReady).not.toHaveBeenCalled()
+    expect(onDisplayReady).not.toHaveBeenCalled()
+
+    layer.bounds.size = { width: 640, height: 480 }
+    layer.previewing = true
+    layer.emitKey('previewing')
+    expect(onDisplayReady).toHaveBeenCalledTimes(1)
+    // Display readiness stays distinct from admission readiness.
+    expect(onReady).not.toHaveBeenCalled()
+  })
+
+  it('waits for non-empty bounds before reporting a displayed frame', () => {
+    const { onDisplayReady } = setupDisplay()
+    const layer = model.layers.at(-1)!
+
+    layer.previewing = true
+    layer.emitKey('previewing')
+    expect(onDisplayReady).not.toHaveBeenCalled()
+
+    layer.bounds.size = { width: 640, height: 480 }
+    layer.emitKey('bounds')
+    expect(onDisplayReady).toHaveBeenCalledTimes(1)
+    layer.emitKey('previewing')
+    expect(onDisplayReady).toHaveBeenCalledTimes(1)
+  })
+
+  it('refires when a displayed preview resumes rendering', () => {
+    const { onDisplayReady } = setupDisplay()
+    const layer = model.layers.at(-1)!
+    layer.bounds.size = { width: 640, height: 480 }
+    layer.previewing = true
+    layer.emitKey('previewing')
+    layer.previewing = false
+    layer.emitKey('previewing')
+    layer.previewing = true
+    layer.emitKey('previewing')
+    expect(onDisplayReady).toHaveBeenCalledTimes(2)
+  })
+
+  it('stops observing on detach', () => {
+    const { onDisplayReady, detach } = setupDisplay()
+    const layer = model.layers.at(-1)!
+    detach()
+
+    expect(layer.observers).toHaveLength(0)
+    layer.bounds.size = { width: 640, height: 480 }
+    layer.previewing = true
+    layer.emitKey('previewing')
+    expect(onDisplayReady).not.toHaveBeenCalled()
+  })
+
+  it('reports no display signal on a runtime without previewing', () => {
+    model.noPreviewing = true
+    const { onDisplayReady } = setupDisplay()
+    const layer = model.layers.at(-1)!
+
+    expect(layer.observers).toHaveLength(0)
+    expect(onDisplayReady).not.toHaveBeenCalled()
+  })
+})
+
+describe('iOS zoom control', () => {
+  function setupZoom() {
+    const native = model.bridge()
+    vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
+    const backend = createSessionBackend({ audio: true })
+    const session = new SharedCameraSession(backend, { audio: true })
+    session.attach({ ios: { layer: { addSublayer() {} }, bounds: {} } }, {})
+    return { native, backend, session }
+  }
+
+  it('reports live zoom state from the bound device', async () => {
+    const { session } = setupZoom()
+    const state = session.zoomState()
+    expect(state).toEqual({ zoom: 1, minZoom: 1, maxZoom: 4 })
+    expect((await session.capabilities()).zoom).toBe(true)
+  })
+
+  it('writes clamped ratios under a device configuration lock', () => {
+    const { session } = setupZoom()
+    const device = model.devices[0]
+
+    session.setZoom(2)
+    expect(device.videoZoomFactor).toBe(2)
+    session.setZoom(10)
+    expect(device.videoZoomFactor).toBe(4)
+    session.setZoom(0.5)
+    expect(device.videoZoomFactor).toBe(1)
+  })
+
+  it('reports no zoom control before a device is bound', () => {
+    const backend = createSessionBackend({ audio: true })
+    const session = new SharedCameraSession(backend, { audio: true })
+    expect(session.zoomState()).toBeUndefined()
+    session.setZoom(2)
   })
 })

@@ -141,6 +141,19 @@ export interface CameraProfileCapability {
   frameRate: number
 }
 
+/** Live zoom state of the active camera. Ratios are relative to the
+ *  device's unzoomed field of view: `1` is no zoom. Bounds belong to the
+ *  currently bound device — a camera swap can change them. */
+export interface CameraZoomState {
+  /** Current zoom ratio. */
+  zoom: number
+  /** Minimum ratio the active device accepts (1, or below 1 when the
+   *  device switches to a wider constituent camera). */
+  minZoom: number
+  /** Maximum ratio the active device accepts. */
+  maxZoom: number
+}
+
 /** One usable camera device. */
 export interface CameraDeviceInfo {
   /** Device-stable camera identifier. */
@@ -180,6 +193,9 @@ export interface CameraSessionCapabilities {
   /** `focusAtPoint` can move auto-exposure metering on the active
    *  camera. */
   exposurePointOfInterest: boolean
+  /** The active camera reports live zoom control through `zoomState`
+   *  and `setZoom` (`zoomState().maxZoom > minZoom`). */
+  zoom: boolean
   /** Fixed orientations the source can lock for a take. */
   orientations: CameraOrientation[]
   /** `native` enforcement can still overshoot at media boundaries;
@@ -428,6 +444,18 @@ export interface CameraSession {
    *  through `configure` returns focus/exposure to the new device's
    *  default. */
   focusAtPoint(point: CameraPreviewPoint): void
+  /** Live zoom state of the active camera (see `CameraZoomState`).
+   *  Returns `undefined` while no camera is bound, after `dispose`, and
+   *  on hosts or devices without zoom control — check
+   *  `capabilities().zoom` before showing zoom UI. Values change with
+   *  the bound device: re-read after `configure` or `switchCamera`. */
+  zoomState(): CameraZoomState | undefined
+  /** Writes a zoom ratio on the active camera without reconfiguring the
+   *  session; works while recording. Values clamp to the active
+   *  device's live `zoomState()` bounds on every write. No-ops while no
+   *  camera is bound, after `dispose`, and on hosts without zoom
+   *  control. Non-finite values throw `invalidArgument`. */
+  setZoom(ratio: number): void
   /** Replaces configuration while idle. Validates against current
    *  capabilities and rejects with `invalidState` during an attempt,
    *  including one admitted while capability discovery was pending.

@@ -15,6 +15,7 @@ import {
 
 import { layoutChildProps } from '../layout/layout-child'
 import { usePan } from '../layout/pan.tsrx'
+import { usePinch } from '../layout/pinch.tsrx'
 /** Keep the shared drawing and layout, with a measured native control for
  * focus and activation. Only Click invokes onPress: a second tap listener
  * would dispatch mouse activation twice. */
@@ -56,6 +57,7 @@ export function Pressable(props: PressableProps): unknown @{
     accessibilityLiveRegion: props.accessibilityLiveRegion,
     onPan: pan,
     onSwipe: disabled ? undefined : props.onSwipe,
+    onPinch: usePinch(disabled ? undefined : props.onPinch),
     onLongPress: disabled ? undefined : props.onLongPress,
     onDoubleTap: disabled ? undefined : props.onDoublePress,
     onTouch: disabled

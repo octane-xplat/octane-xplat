@@ -520,6 +520,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         // No point-of-interest metering in the WebKitGTK path.
         focusPointOfInterest: false,
         exposurePointOfInterest: false,
+        zoom: false,
         orientations: [],
         cameraSwitchDuringRecording: false,
         durationLimit: 'bestEffort',
