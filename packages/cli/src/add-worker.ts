@@ -9,10 +9,16 @@ import { packageManagerFor } from './package-manager.ts'
 
 export async function addOperation(request: Record<string, any>) {
   const project = realpathSync(process.cwd())
+  const manager = packageManagerFor(project)
   const root = installedPackageRoot(project, 'create-octane-xplat')
   if (!root) {
+    const install =
+      manager === 'pnpm'
+        ? `pnpm add -D create-octane-xplat@${request.frameworkVersion}`
+        : `bun add --dev create-octane-xplat@${request.frameworkVersion}`
+
     throw new Error(
-      `Install create-octane-xplat@${request.frameworkVersion} in the selected project (bun add --dev create-octane-xplat@${request.frameworkVersion}) before enabling platforms`,
+      `Install create-octane-xplat@${request.frameworkVersion} in the selected project (${install}) before enabling platforms`,
     )
   }
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
@@ -34,10 +40,9 @@ export async function addOperation(request: Record<string, any>) {
   const workspace = realpathSync(compatibility.compatibilityRoot(project))
   if (
     typeof request.workspaceRoot !== 'string' ||
-    realpathSync(request.workspaceRoot) !== workspace ||
-    packageManagerFor(project) !== 'bun'
+    realpathSync(request.workspaceRoot) !== workspace
   ) {
-    throw new Error('Platform additions require the selected Bun workspace identity')
+    throw new Error('Platform additions require the selected workspace identity')
   }
   const data = { version: 1, project, root: workspace, frameworkVersion: pkg.version }
   if (request.operation === 'add-targets') {
@@ -68,7 +73,7 @@ export async function addOperation(request: Record<string, any>) {
   if (request.operation === 'add-install') {
     const windows = process.platform === 'win32'
     const result = spawnSync(
-      windows ? 'bun install --no-frozen-lockfile' : 'bun',
+      windows ? `${manager} install --no-frozen-lockfile` : manager,
       windows ? [] : ['install', '--no-frozen-lockfile'],
       { cwd: project, stdio: 'inherit', shell: windows },
     )

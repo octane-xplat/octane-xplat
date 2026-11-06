@@ -15,8 +15,14 @@ import {
 import { basename, dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
-import { stringify } from 'yaml'
-import { compatibility, mergeCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
+import { isMap, parseDocument, stringify } from 'yaml'
+import {
+  compatibility,
+  mergeCompatibilityCatalog,
+  compatibilityRoot,
+  requestedCatalogPins,
+} from './compatibility.ts'
+
 import type { PackageManager } from './package-manager.ts'
 
 export type { PackageManager } from './package-manager.ts'
@@ -321,7 +327,11 @@ function allowBuildsFor(manifest, resolved: Set<string>) {
     }
   }
 
-  return Object.fromEntries(Object.keys(builds).sort().map((name) => [name, builds[name]]))
+  return Object.fromEntries(
+    Object.keys(builds)
+      .sort()
+      .map((name) => [name, builds[name]]),
+  )
 }
 
 /**
@@ -376,16 +386,11 @@ export function composePnpmWorkspace(ids: string[]): string {
   return stringify(workspace)
 }
 
-/** Add target-owned local patches before installing newly enabled dependencies. */
-function ensurePatchEntries(enabledIds, root, pkg, read, write) {
+/** Patch [specifier, path] entries the enabled targets need and `present` lacks. */
+function neededPatchEntries(enabledIds, present: Set<string>): [string, string][] {
   const needed = new Set(enabledIds.flatMap((id) => targets[id].patches ?? []))
-  const template = templateManifest()
-  const present = new Set(
-    Object.keys(pkg.patchedDependencies ?? {}).map((key) => key.slice(0, key.indexOf('@', 1))),
-  )
-  let changed = false
-  pkg.patchedDependencies ??= {}
-  for (const [specifier, path] of Object.entries(template.patchedDependencies) as [
+  const out: [string, string][] = []
+  for (const [specifier, path] of Object.entries(templateManifest().patchedDependencies) as [
     string,
     string,
   ][]) {
@@ -394,20 +399,69 @@ function ensurePatchEntries(enabledIds, root, pkg, read, write) {
       continue
     }
 
-    const source = join(TEMPLATE_DIR, path)
-    const destination = join(root, path)
-    const before = read(destination)
-    if (before !== null && !readFileSync(source).equals(before)) {
-      throw new Error(
-        `Custom patch ${destination} differs from the framework patch; reconcile it first`,
-      )
-    }
+    out.push([specifier, path])
+  }
 
-    write(destination, readFileSync(source), statSync(source).mode & 0o777)
+  return out
+}
+
+/** Copy a canonical patch into the root patches/ dir unless it already matches. */
+function stagePatchFile(root, path, read, write) {
+  const source = join(TEMPLATE_DIR, path)
+  const destination = join(root, path)
+  const before = read(destination)
+  if (before !== null && !readFileSync(source).equals(before)) {
+    throw new Error(
+      `Custom patch ${destination} differs from the framework patch; reconcile it first`,
+    )
+  }
+
+  write(destination, readFileSync(source), statSync(source).mode & 0o777)
+}
+
+const specifierName = (specifier: string) => specifier.slice(0, specifier.indexOf('@', 1))
+
+/** Add target-owned local patches before installing newly enabled dependencies. */
+function ensurePatchEntries(enabledIds, root, pkg, read, write) {
+  const present = new Set(Object.keys(pkg.patchedDependencies ?? {}).map(specifierName))
+  pkg.patchedDependencies ??= {}
+  let changed = false
+  for (const [specifier, path] of neededPatchEntries(enabledIds, present)) {
+    stagePatchFile(root, path, read, write)
     pkg.patchedDependencies[specifier] = path
     changed = true
   }
   return changed
+}
+
+/** The selected manager at a workspace root — mirrors the CLI's detection. */
+function managerForRoot(root: string, pkg) {
+  const declared = pkg?.packageManager?.split('@')[0]
+  if (declared !== undefined) {
+    if (declared === 'bun' || declared === 'pnpm') {
+      return declared
+    }
+
+    throw new Error(`Xplat supports Bun and pnpm projects; found packageManager ${declared}.`)
+  }
+
+  const bun = existsSync(join(root, 'bun.lock')) || existsSync(join(root, 'bun.lockb'))
+  const pnpm = existsSync(join(root, 'pnpm-lock.yaml'))
+  if (bun && pnpm) {
+    throw new Error(
+      'Both Bun and pnpm lockfiles exist. Set packageManager in package.json or pass --package-manager.',
+    )
+  }
+  if (bun) {
+    return 'bun'
+  }
+  if (pnpm) {
+    return 'pnpm'
+  }
+  if (pkg?.patchedDependencies) {
+    return 'bun'
+  }
+  return existsSync(join(root, 'pnpm-workspace.yaml')) ? 'pnpm' : 'bun'
 }
 
 /**
@@ -490,11 +544,7 @@ export function localizeCommands(text: string, manager: PackageManager): string 
 }
 
 /** Write a scaffold with tests for `ids` into `dir` (must not exist or be empty). */
-export function composeTargets(
-  ids,
-  dir,
-  options?: { packageManager?: PackageManager },
-) {
+export function composeTargets(ids, dir, options?: { packageManager?: PackageManager }) {
   const packageManager = options?.packageManager ?? 'bun'
   const resolved = new Set(resolveTargets(ids))
   mkdirSync(dir, { recursive: true })
@@ -866,14 +916,75 @@ export function planTarget(appRoot, id) {
   // package.json never had — without them the next install misses the
   // framework patches. enabled+already covers the yaml-missing case, where
   // the file is regenerated for the whole enabled set.
-  const owner =
-    root === appRoot ? manifest : JSON.parse(read(join(root, 'package.json'))!.toString('utf8'))
-  if (ensurePatchEntries([...report.enabled, ...report.already], root, owner, read, write)) {
-    report.patchesAdded = true
-  }
-  mergeCompatibilityCatalog(manifest, owner)
-  if (root !== appRoot) {
-    write(join(root, 'package.json'), Buffer.from(JSON.stringify(owner, null, '\t') + '\n'), 0o644)
+  const enabledTargets = [...report.enabled, ...report.already]
+  const manager = managerForRoot(
+    root,
+    root === appRoot
+      ? manifest
+      : JSON.parse(read(join(root, 'package.json'))?.toString('utf8') ?? 'null'),
+  )
+  if (manager === 'pnpm') {
+    const yamlPath = join(root, 'pnpm-workspace.yaml')
+    const doc = parseDocument(read(yamlPath)?.toString('utf8') ?? 'packages: []\n')
+    const { catalog, pins } = requestedCatalogPins(manifest)
+    for (const [name, spec] of Object.entries(pins)) {
+      if (doc.getIn(['catalogs', catalog, name]) === undefined) {
+        doc.setIn(['catalogs', catalog, name], spec)
+      }
+    }
+
+    const existing = doc.get('patchedDependencies')
+    const present = new Set<string>(
+      (isMap(existing) ? existing.items : []).map((pair) => specifierName(String(pair.key))),
+    )
+
+    const patches = neededPatchEntries(enabledTargets, present)
+    for (const [specifier, path] of patches) {
+      stagePatchFile(root, path, read, write)
+      doc.setIn(['patchedDependencies', specifier], path)
+    }
+
+    if (patches.length) {
+      report.patchesAdded = true
+    }
+
+    const resolved = new Set(resolveTargets(enabledTargets))
+    for (const id of resolved) {
+      for (const name of targets[id].builds ?? []) {
+        if (doc.getIn(['allowBuilds', name]) === undefined) {
+          doc.setIn(['allowBuilds', name], true)
+          report.allowBuildsAdded = true
+        }
+      }
+    }
+
+    for (const entry of deniedBuilds) {
+      if (
+        (!entry.target || resolved.has(entry.target)) &&
+        doc.getIn(['allowBuilds', entry.name]) === undefined
+      ) {
+        doc.setIn(['allowBuilds', entry.name], false)
+        report.allowBuildsAdded = true
+      }
+    }
+
+    write(yamlPath, Buffer.from(String(doc)), 0o644)
+  } else {
+    const owner =
+      root === appRoot ? manifest : JSON.parse(read(join(root, 'package.json'))!.toString('utf8'))
+
+    if (ensurePatchEntries(enabledTargets, root, owner, read, write)) {
+      report.patchesAdded = true
+    }
+
+    mergeCompatibilityCatalog(manifest, owner)
+    if (root !== appRoot) {
+      write(
+        join(root, 'package.json'),
+        Buffer.from(JSON.stringify(owner, null, '\t') + '\n'),
+        0o644,
+      )
+    }
   }
 
   if (JSON.stringify(manifest) !== JSON.stringify(JSON.parse(raw))) {

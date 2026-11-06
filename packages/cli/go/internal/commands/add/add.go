@@ -106,7 +106,7 @@ func addPathAllowed(projectPath, root, path string, directory bool) bool {
 	if directory {
 		return path == patches || osfs.Inside(path, projectPath) && osfs.Inside(root, path)
 	}
-	return path == filepath.Join(root, "package.json") || filepath.Dir(path) == patches && strings.HasSuffix(path, ".patch")
+	return path == filepath.Join(root, "package.json") || path == filepath.Join(root, "pnpm-workspace.yaml") || filepath.Dir(path) == patches && strings.HasSuffix(path, ".patch")
 }
 func observeAdd(ctx context.Context, path string) (addObservation, error) {
 	state := addObservation{Path: path, Kind: "missing"}
@@ -136,7 +136,7 @@ func observeAdd(ctx context.Context, path string) (addObservation, error) {
 	state.Hash, state.Info, err = artifact.Hash(ctx, path)
 	return state, err
 }
-func validateAddPlan(ctx context.Context, projectPath, root, id string, plan *addPlan) ([]format.Artifact, map[string]addObservation, error) {
+func validateAddPlan(ctx context.Context, projectPath, root, id, manager string, plan *addPlan) ([]format.Artifact, map[string]addObservation, error) {
 	observations := map[string]addObservation{}
 	fail := func(message string) ([]format.Artifact, map[string]addObservation, error) {
 		return nil, nil, errors.New(message)
@@ -188,10 +188,19 @@ func validateAddPlan(ctx context.Context, projectPath, root, id string, plan *ad
 		}
 		observations[input.Path] = state
 	}
-	for _, required := range []string{filepath.Join(projectPath, "package.json"), filepath.Join(root, "package.json")} {
+	required := []string{filepath.Join(projectPath, "package.json")}
+	for _, required := range required {
 		if observations[required].Kind != "file" {
 			return fail("scaffold plan omitted a required manifest observation")
 		}
+	}
+	if manager == "pnpm" {
+		// planTarget may create the workspace yaml — presence suffices.
+		if _, ok := observations[filepath.Join(root, "pnpm-workspace.yaml")]; !ok {
+			return fail("scaffold plan omitted a required manifest observation")
+		}
+	} else if observations[filepath.Join(root, "package.json")].Kind != "file" {
+		return fail("scaffold plan omitted a required manifest observation")
 	}
 	dirs := map[string]bool{}
 	for _, entry := range plan.Directories {
@@ -224,7 +233,7 @@ func validateAddPlan(ctx context.Context, projectPath, root, id string, plan *ad
 		if (observed.Kind == "missing" && entry.Before != nil) || (observed.Kind == "file" && (entry.Before == nil || observed.Hash != *entry.Before)) {
 			return fail("scaffold output before-image mismatch")
 		}
-		if observed.Kind == "file" && entry.Path != filepath.Join(projectPath, "package.json") && entry.Path != filepath.Join(projectPath, "tsconfig.json") && entry.Path != filepath.Join(root, "package.json") && filepath.Dir(entry.Path) != filepath.Join(root, "patches") {
+		if observed.Kind == "file" && entry.Path != filepath.Join(projectPath, "package.json") && entry.Path != filepath.Join(projectPath, "tsconfig.json") && entry.Path != filepath.Join(root, "package.json") && entry.Path != filepath.Join(root, "pnpm-workspace.yaml") && filepath.Dir(entry.Path) != filepath.Join(root, "patches") {
 			return fail("scaffold cannot overwrite existing source/assets")
 		}
 		bytes, err := base64.StdEncoding.Strict().DecodeString(*entry.Content)
@@ -374,9 +383,6 @@ func Command(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
-	if manager != "bun" {
-		return errors.New("platform additions require a Bun project; xplat patches remains available for pnpm")
-	}
 	root, err := project.ManagerRoot(ctx, projectPath)
 	if err != nil {
 		return err
@@ -471,7 +477,7 @@ func Command(ctx context.Context, values map[string]any) error {
 		if e != nil {
 			return e
 		}
-		artifacts, observations, e := validateAddPlan(ctx, projectPath, root, id, planned.Plan)
+		artifacts, observations, e := validateAddPlan(ctx, projectPath, root, id, manager, planned.Plan)
 		if e != nil {
 			return e
 		}
@@ -512,7 +518,7 @@ func Command(ctx context.Context, values map[string]any) error {
 		return nil
 	}
 	if noInstall {
-		fmt.Println("Skipped install — run bun install to fetch the new deps")
+		fmt.Printf("Skipped install — run %s install to fetch the new deps\n", manager)
 		return nil
 	}
 	installed, e := addOperation(ctx, projectPath, root, entry, "add-install", "")
@@ -520,7 +526,7 @@ func Command(ctx context.Context, values map[string]any) error {
 		return mutation(e)
 	}
 	if installed.ExitCode == nil || *installed.ExitCode != 0 {
-		return mutation(errors.New("bun install failed; run it manually to finish enabling the target"))
+		return mutation(fmt.Errorf("%s install failed; run it manually to finish enabling the target", manager))
 	}
 	fmt.Println("installed — use the new scripts in package.json")
 	return nil

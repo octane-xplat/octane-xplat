@@ -2,6 +2,7 @@ import { existsSync, globSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parse } from 'yaml'
 
 /** One supported external version, optionally using a preview tarball specifier. */
 export type ManagedPackage = {
@@ -73,18 +74,37 @@ export function projectProfile(pkg: Record<string, any>): string {
   return windows ? 'windows' : 'default'
 }
 
-/** Find the Bun workspace that owns this app, respecting package membership. */
+/**
+ * An ancestor's workspace membership patterns: pnpm-workspace.yaml `packages`
+ * wins when the ancestor is not Bun-pinned, matching the CLI's root rules.
+ */
+function workspacePatterns(root: string): string[] {
+  const yamlFile = join(root, 'pnpm-workspace.yaml')
+  const pkgFile = join(root, 'package.json')
+  const pkg = existsSync(pkgFile) ? JSON.parse(readFileSync(pkgFile, 'utf8')) : {}
+  if (pkg.packageManager?.split('@')[0] !== 'bun' && existsSync(yamlFile)) {
+    const packages = parse(readFileSync(yamlFile, 'utf8'))?.packages
+    return Array.isArray(packages) ? packages : []
+  }
+
+  const patterns = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages
+  return Array.isArray(patterns) ? patterns : []
+}
+
+/**
+ * Find the workspace that owns this app, respecting package membership.
+ * Mirrors the CLI's packageManagerRoot: ancestors need a package.json or a
+ * pnpm-workspace.yaml, and membership comes from the manager's config home.
+ */
 export function compatibilityRoot(appRoot: string) {
   const app = resolve(appRoot)
   for (let at = dirname(app); dirname(at) !== at; at = dirname(at)) {
-    const file = join(at, 'package.json')
-    if (!existsSync(file)) {
+    if (!existsSync(join(at, 'package.json')) && !existsSync(join(at, 'pnpm-workspace.yaml'))) {
       continue
     }
 
-    const pkg = JSON.parse(readFileSync(file, 'utf8'))
-    const patterns = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages
-    if (!patterns?.length) {
+    const patterns = workspacePatterns(at)
+    if (!patterns.length) {
       continue
     }
 
@@ -112,6 +132,22 @@ export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, 
   }
 }
 
+/** Catalog pins a package requests via `catalog:` specifiers, managed set only. */
+export function requestedCatalogPins(pkg: Record<string, any>) {
+  const profile = projectProfile(pkg)
+  const catalog = managedCatalog(profile)
+  const pins: Record<string, string> = {}
+  for (const section of dependencySections) {
+    for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
+      if (spec === `catalog:${catalog}` && pins[name] === undefined) {
+        pins[name] = managedSpecifier(name, profile)!
+      }
+    }
+  }
+
+  return { catalog, pins }
+}
+
 /** Merge catalog policy without filesystem effects; shared by scaffold plans. */
 export function mergeCompatibilityCatalog(pkg: Record<string, any>, owner: Record<string, any>) {
   if (Array.isArray(owner.workspaces)) {
@@ -119,13 +155,9 @@ export function mergeCompatibilityCatalog(pkg: Record<string, any>, owner: Recor
   }
   owner.workspaces ??= { packages: [] }
   const catalogs = owner.catalogs ?? (owner.workspaces.catalogs ??= {})
-  const profile = projectProfile(pkg)
-  const catalog = (catalogs[managedCatalog(profile)] ??= {})
-  for (const section of dependencySections) {
-    for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
-      if (spec === `catalog:${managedCatalog(profile)}`) {
-        catalog[name] ??= managedSpecifier(name, profile)
-      }
-    }
+  const { catalog, pins } = requestedCatalogPins(pkg)
+  const target = (catalogs[catalog] ??= {})
+  for (const [name, spec] of Object.entries(pins)) {
+    target[name] ??= spec
   }
 }

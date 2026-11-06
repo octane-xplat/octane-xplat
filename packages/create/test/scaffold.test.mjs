@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import {
   chmodSync,
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -447,6 +448,7 @@ for (const pm of ['bun', 'pnpm']) {
         native,
         `${pm} ${ids}`,
       )
+
       assert.equal(pkg.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
     }
   })
@@ -512,10 +514,7 @@ test('pnpm scaffold skips bunfig.toml and selects pnpm in nativescript.config.ts
   composeTargets(ALL, dir, { packageManager: 'pnpm' })
   assert.ok(!existsSync(join(dir, 'bunfig.toml')))
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
-  assert.match(
-    readFileSync(join(dir, 'nativescript.config.ts'), 'utf8'),
-    /packageManager: 'pnpm'/,
-  )
+  assert.match(readFileSync(join(dir, 'nativescript.config.ts'), 'utf8'), /packageManager: 'pnpm'/)
 })
 
 test('pnpm scaffold patch entries point at canonical patch bytes', (t) => {
@@ -530,6 +529,7 @@ test('pnpm scaffold patch entries point at canonical patch bytes', (t) => {
       readFileSync(join(TEMPLATE_DIR, path)),
       `${specifier} differs from the starter patch`,
     )
+
     assert.deepEqual(
       readFileSync(file),
       readFileSync(join(CLI_PATCHES, basename(path))),
@@ -547,9 +547,7 @@ test('template patch keys are the canonical pnpm specifiers', () => {
     .filter((patch) => {
       const at = patch.specifier.indexOf('@', 1)
       const pin = managedPackage(patch.specifier.slice(0, at))
-      return (
-        patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
-      )
+      return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
     })
     .map((patch) => patch.specifier)
   assert.deepEqual(Object.keys(TPL.patchedDependencies), wanted)
@@ -715,14 +713,10 @@ test('bin scaffolds the Bun variant with a warning when no manager is installed'
   const stub = managerStubDir(t, {})
   const root = project(t)
   const dir = join(root, 'app')
-  const result = spawnSync(
-    process.execPath,
-    [creator, dir, '--no-install', '--targets', 'web'],
-    {
-      encoding: 'utf8',
-      env: stubEnv(stub, { npm_config_user_agent: 'npm/11.0.0 node/? darwin arm64' }),
-    },
-  )
+  const result = spawnSync(process.execPath, [creator, dir, '--no-install', '--targets', 'web'], {
+    encoding: 'utf8',
+    env: stubEnv(stub, { npm_config_user_agent: 'npm/11.0.0 node/? darwin arm64' }),
+  })
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /Neither Bun nor pnpm was found/)
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
@@ -763,4 +757,81 @@ test('pack ships the bunfig template and Bun scaffolds land it as bunfig.toml', 
   const lib = join(project(t), 'lib')
   composeLibrary(lib, 'my-lib')
   assert.match(readFileSync(join(lib, 'bunfig.toml'), 'utf8'), /linker = "hoisted"/)
+})
+
+test('applyTarget on a pnpm scaffold updates pnpm-workspace.yaml, not package.json', (t) => {
+  const dir = project(t)
+  composeTargets(['web'], dir, { packageManager: 'pnpm' })
+
+  // User edits: a comment and an unrelated key plus a custom allowBuilds entry.
+  const yamlPath = join(dir, 'pnpm-workspace.yaml')
+  writeFileSync(
+    yamlPath,
+    readFileSync(yamlPath, 'utf8')
+      .replace('allowBuilds:', '# user comment\nallowBuilds:\n  my-pkg: true')
+      .replace('saveExact: true', 'saveExact: true\nuserKey: keep-me'),
+  )
+
+  const report = applyTarget(dir, 'ios')
+  assert.deepEqual(report.enabled, ['native-shared', 'ios'])
+  const ws = parseYaml(readFileSync(yamlPath, 'utf8'))
+  for (const name of ['@nativescript/ios', '@nativescript/core', 'nativescript']) {
+    assert.ok(ws.catalogs.xplat[name], `catalog missing ${name}`)
+  }
+
+  for (const specifier of Object.keys(TPL.patchedDependencies)) {
+    assert.ok(ws.patchedDependencies[specifier], `patch entry missing ${specifier}`)
+    const file = join(dir, ws.patchedDependencies[specifier])
+    assert.deepEqual(
+      readFileSync(file),
+      readFileSync(join(TEMPLATE_DIR, ws.patchedDependencies[specifier])),
+    )
+  }
+
+  assert.equal(ws.allowBuilds.nativescript, true)
+  assert.equal(ws.allowBuilds['@nativescript/core'], false)
+  assert.equal(ws.allowBuilds['my-pkg'], true)
+  assert.equal(ws.userKey, 'keep-me')
+  assert.match(readFileSync(yamlPath, 'utf8'), /# user comment/)
+
+  const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  for (const field of ['workspaces', 'overrides', 'patchedDependencies', 'trustedDependencies']) {
+    assert.equal(pkg[field], undefined, `package.json gained Bun field ${field}`)
+  }
+  assert.ok(pkg.devDependencies['@nativescript/ios'])
+  assert.ok(pkg.dependencies['@nativescript/core'])
+})
+
+test('planTarget on a pnpm scaffold observes the yaml with a content hash', async (t) => {
+  const dir = project(t)
+  composeTargets(['web'], dir, { packageManager: 'pnpm' })
+  const { planTarget } = await import('../dist/scaffold.js')
+  const plan = planTarget(dir, 'ios')
+  const yaml = plan.inputs.find((input) => input.path === join(dir, 'pnpm-workspace.yaml'))
+  assert.ok(yaml, 'pnpm-workspace.yaml is not a plan input')
+  assert.equal(yaml.kind, 'file')
+  assert.match(yaml.sha256, /^[a-f0-9]{64}$/)
+})
+
+test('compatibilityRoot returns the pnpm-workspace root owning the app', async (t) => {
+  const { compatibilityRoot } = await import('../dist/compatibility.js')
+  const root = join(project(t), 'ws')
+  mkdirSync(root, { recursive: true })
+  writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - apps/*\n')
+  writeFileSync(join(root, 'package.json'), '{"private":true,"packageManager":"pnpm@11.24.0"}\n')
+  const app = join(root, 'apps/app')
+  composeTargets(['web'], app, { packageManager: 'pnpm' })
+  assert.equal(compatibilityRoot(app), root)
+
+  // A bun-pinned ancestor keeps its package.json workspaces semantics.
+  const bun = join(project(t), 'ws2')
+  mkdirSync(bun, { recursive: true })
+  writeFileSync(
+    join(bun, 'package.json'),
+    '{"private":true,"packageManager":"bun@1.4.4","workspaces":["apps/*"]}\n',
+  )
+  writeFileSync(join(bun, 'pnpm-workspace.yaml'), 'packages:\n  - other/*\n')
+  const bunApp = join(bun, 'apps/app')
+  composeTargets(['web'], bunApp)
+  assert.equal(compatibilityRoot(bunApp), bun)
 })

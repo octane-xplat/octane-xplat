@@ -155,15 +155,9 @@ test('workspace catalog and patch ownership match the creator', () => {
   assert.deepEqual(tree(a.dir), tree(b.dir))
 })
 
-test('invalid targets, pnpm and missing generators fail without project writes', () => {
-  for (const mode of ['unknown', 'pnpm', 'missing']) {
+test('invalid targets and missing generators fail without project writes', () => {
+  for (const mode of ['unknown', 'missing']) {
     const dir = fixture(['web'], mode !== 'missing')
-    if (mode === 'pnpm') {
-      const pkg = JSON.parse(readFileSync(join(dir, 'package.json')))
-      pkg.packageManager = 'pnpm@11.24.0'
-      put(dir, 'package.json', pkg)
-    }
-
     const before = tree(dir)
     const r = run(dir, [mode === 'unknown' ? 'bogus' : 'ios', '--no-install'])
     assert.notEqual(r.status, 0)
@@ -415,4 +409,59 @@ test('cancelling a real add install cleans descendants and releases the project 
     assert.match(output, /workspace files may have changed/)
   }
   success(run(dir, ['web', '--no-install']))
+})
+
+test('pnpm projects add targets through pnpm-workspace.yaml without Bun fields', () => {
+  const pnpmApp = () => {
+    const dir = join(scratch, 'pnpm-app ' + sequence++)
+    oracle.composeTargets(['web'], dir, { packageManager: 'pnpm' })
+    symlinkSync(
+      tools.nodeModules,
+      join(dir, 'node_modules'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    )
+    return dir
+  }
+  const actual = pnpmApp(),
+    reference = pnpmApp()
+  oracle.applyTarget(reference, 'ios')
+
+  const r = run(actual, ['ios', '--no-install'])
+  success(r)
+  assert.match(r.stdout, /Skipped install — run pnpm install/)
+  assert.deepEqual(tree(actual), tree(reference))
+
+  const pkg = JSON.parse(readFileSync(join(actual, 'package.json'), 'utf8'))
+  assert.equal(pkg.workspaces, undefined)
+  assert.equal(pkg.patchedDependencies, undefined)
+  assert.ok(pkg.devDependencies['@nativescript/ios'])
+
+  const yaml = readFileSync(join(actual, 'pnpm-workspace.yaml'), 'utf8')
+  assert.match(yaml, /nativescript: true/)
+  assert.match(
+    yaml,
+    /"@nativescript\/core": false|"@nativescript\/core': false|'@nativescript\/core': false/,
+  )
+  assert.match(yaml, /@parcel\/watcher.*: true/)
+  assert.match(yaml, /@nativescript__core@9\.1\.3\.patch/)
+})
+
+test('pnpm standalone app without a yaml gets one created by add', () => {
+  const dir = join(scratch, 'pnpm-solo ' + sequence++)
+  oracle.composeTargets(['web'], dir, { packageManager: 'pnpm' })
+  rmSync(join(dir, 'pnpm-workspace.yaml'))
+  symlinkSync(
+    tools.nodeModules,
+    join(dir, 'node_modules'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  )
+
+  const r = run(dir, ['ios', '--no-install'])
+  success(r)
+  assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
+  const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+  assert.match(yaml, /packages: \[\]/)
+  assert.match(yaml, /catalogs:/)
+  assert.match(yaml, /patchedDependencies:/)
+  assert.match(yaml, /allowBuilds:/)
 })
