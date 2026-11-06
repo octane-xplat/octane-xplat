@@ -290,6 +290,9 @@ const deniedBuilds: { name: string; target?: string }[] = [
   // @octane-xplat/nativescript-mason-core pulls @nativescript/core into even
   // the web-only tree; its build scripts are not trusted.
   { name: '@nativescript/core' },
+  // onnxruntime-web (via @octane-xplat/docs-search) pulls protobufjs into the
+  // tree; its postinstall is a no-op and must not run.
+  { name: 'protobufjs' },
 ]
 
 /**

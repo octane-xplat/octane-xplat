@@ -499,10 +499,12 @@ test('allowBuilds approves the trusted set and follows target claims', () => {
   assert.equal(web.allowBuilds['@parcel/watcher'], true)
   assert.equal(web.allowBuilds.nativescript, undefined)
   assert.equal(web.allowBuilds['@nativescript/core'], false)
+  assert.equal(web.allowBuilds.protobufjs, false)
 
   const native = parseYaml(composePnpmWorkspace(['ios']))
   assert.equal(native.allowBuilds.nativescript, true)
   assert.equal(native.allowBuilds['@nativescript/core'], false)
+  assert.equal(native.allowBuilds.protobufjs, false)
 })
 
 test('pnpm scaffold skips bunfig.toml and selects pnpm in nativescript.config.ts', (t) => {
