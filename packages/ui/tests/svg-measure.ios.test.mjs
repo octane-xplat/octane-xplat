@@ -51,6 +51,9 @@ runInNewContext(compiled, {
         stretchProperty: { setNative: Symbol('stretch') },
       }
     }
+    if (name === './svg-use') {
+      return { resolveSvgUse: (markup) => markup }
+    }
     throw new Error(`Unexpected import: ${name}`)
   },
 })

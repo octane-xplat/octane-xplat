@@ -346,3 +346,34 @@ parent that was collapsed through its first layout reveals as a blank glyph
 - Status: current in SVGKit 3.1.1 / Akylas `3.x` fork. Recheck if upstream
   makes `SVGKFastImageView` re-request display on `layoutSubviews` or
   `didMoveToWindow`.
+
+## SVGKit: `<use>` element attributes never reach generated layers
+
+SVGKit 3.1.1 (Akylas `3.x` fork `24cad5f`, pod source
+`Source/DOM classes/SVG-DOM/SVGUseElement.m` + `Parsers/Parser Extensions/
+SVGKParserDefsAndUse.m`) resolves a `<use>` reference at parse time into an
+`SVGElementInstance` tree, and `SVGUseElement.layoutLayer:` only forwards to
+the *linked element's* `layoutLayer:` — the use element's own
+fill/stroke/style/transform/x/y are parsed but never applied to the
+generated `CAShapeLayer`. Use-based icons therefore parse, size, and produce
+shape geometry yet paint nothing, and a bare `href` (no `xlink:` prefix)
+trips an `NSAssert` in the parser (issue #148, reported on a physical
+iPhone 13 Pro Max: 2 CAShapeLayers with 2 paths but 0 filled / 0 stroked).
+
+- Runtime evidence (simulator 91D40099-A056-497D-A572-ADDDFD6A8F23, case
+  `examples/probes/svg-use-icons.ios.tsrx`): pre-expansion a
+  `<g fill="none"><use fill="#FFF" xlink:href="#p"/></g>` produced 1 shape
+  layer with a path and 0 filled; the equivalent inlined path produced a
+  filled layer. Post-expansion every `<use>` variant (minimal, filtered,
+  flip-like, bare `href`) paints like its inlined control.
+- Xplat stance: vendored-fork expansion. `resolveSvgUse` in the
+  `xplat-vendored` branch of `octane-xplat/ui-svg` rewrites `<use>` markup
+  before `SVGKSourceString` sees it — each use becomes a `<g>` carrying its
+  non-reserved attributes plus an x/y translate wrapping a clone of the
+  referenced element (SVG 1.1 §5.6 generated-content model); `<svg>`/
+  `<symbol>` references generate a sized `<svg>` element. File sources keep
+  SVGKit's file URL (relative references) unless the document contains a
+  `<use>`. Unresolvable or cyclic references pass through unexpanded.
+- Status: current in SVGKit 3.1.1 / Akylas `3.x` fork. Recheck if upstream
+  makes `SVGUseElement` apply its own attributes to the instance tree;
+  removing the expansion then restores upstream parsing.
