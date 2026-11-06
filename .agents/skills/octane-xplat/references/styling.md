@@ -405,3 +405,13 @@ export function useCompactTouchLayout() {
   return useMediaQuery('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
 }
 ```
+
+## SmoothCorners overflow
+
+`@octane-xplat/smooth-corners` shapes the painted surface and defaults to visible child overflow. Request `overflow: hidden` for thumbnails or other content that must follow the curve. Keep the component’s own shadow outside that clip. See the [package guide](../../../../docs/packages/package-smooth-corners.md).
+
+```css
+.thumbnail {
+  overflow: hidden;
+}
+```

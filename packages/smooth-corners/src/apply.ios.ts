@@ -62,8 +62,15 @@ function sizeOf(view: any): { w: number; h: number } | null {
 }
 
 /** Clip the inner box: layer mask + optional border stroke layer. */
-export function applySmoothClip(view: any, props: SmoothCornersProps): void {
+export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
   const v = view?.ios
+  if (v && !clip) {
+    if (v.layer.mask === v[MASK_KEY]) {
+      v.layer.mask = null
+    }
+    v.clipsToBounds = false
+    return
+  }
   const size = v && sizeOf(view)
   if (!v || !size) {
     return

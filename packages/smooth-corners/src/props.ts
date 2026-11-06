@@ -142,7 +142,9 @@ export interface SmoothCornersProps extends LayoutChildProps, FlexContainerProps
   /** Class list applied to the container element. */
   className?: any
   /** Inline style (string CSS or object). `border-radius` is ignored —
-   *  use `corners`. */
+   * use `corners`. Overflow defaults to `visible`: only the surface is
+   * shaped. Set `overflow: 'hidden'` to clip descendants to the same curve.
+   * The component's own shadow remains outside the content clip. */
   style?: any
   /** Element id passed through to the host element. */
   id?: string

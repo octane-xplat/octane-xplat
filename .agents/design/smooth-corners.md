@@ -1,8 +1,8 @@
 # Smooth corners (`@octane-xplat/smooth-corners`)
 
 > Design record for a leaf package that renders the same smooth-corner curve on
-> every target, parameterized by the caller. Status: desk-source design —
-> implementation not built; iOS/Android/macOS seams unverified in lab.
+> every target, parameterized by the caller. The package separates surface painting from optional descendant clipping.
+> Native seams require platform qualification; source is not runtime evidence.
 
 Two tiers coexist:
 
@@ -11,8 +11,8 @@ Two tiers coexist:
   whatever the engine picks: `CALayer.cornerCurve` on iOS, superellipse(n=4)
   on patched non-uniform iOS paths, CSS `corner-shape` on Chromium, plain
   round on Android/other browsers. "Smooth-ish," not cross-target identical.
-- **Tier 2 (this package):** one JS-generated curve applied as a real clip on
-  every target. Required when pixels must match iOS (sheets, cards, hero
+- **Tier 2 (this package):** one JS-generated curve shapes the surface on every target, with
+  optional clipping of descendants. Required when pixels must match iOS (sheets, cards, hero
   surfaces) or when the caller wants exact smoothing control.
 
 ## Why Lisse
@@ -61,14 +61,12 @@ src/
   apply.android.ts            android.graphics.Path → Drawable + ViewOutlineProvider + elevation
   layout-child.ts             layout-prop split: parent metadata → outer, flex props → inner
   layout-child.web.ts         same split folded into element style objects
-  SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + drop-shadow wrapper
-  SmoothCorners.macos.tsrx    NSBezierPath → CAShapeLayer mask (y-flip for AppKit)
+  SmoothCorners.web.tsrx      clip-path: path(d) + SVG stroke overlay + shadow-only SVG filter
+  SmoothCorners.macos.tsrx    AppKit surface/content layout and overflow
+  apply.macos.ts              NSBezierPath → CAShapeLayer paint/content masks and shadowPath
+  surface.ts                  shared decorative-surface layout and overflow predicate
+  smooth-corners.css          visible-overflow default, overridable by authored classes
 ```
-
-Built 2026-10-02: `pnpm build` emits dist/web + dist/native (check-native-dist
-clean), typegen passes, `node --test tests/` covers the Rosenfeld constants,
-arc conversion, per-corner mixing, and degenerate inputs (8/8). The native
-mask/outline seams remain lab-unverified — see the queued experiment.
 
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
@@ -111,12 +109,9 @@ CSS; the flex props also imply `display: flex` on the inner box. On the
 native leaf the inner host is a gridlayout, so the flex-container props are
 web/macOS-only there (documented API subset, not silent divergence).
 
-The split helpers emit `undefined` (not key omission) for whitelisted props
-that are unset. The hosts merge update bags over a node's recorded props,
-so a key that vanishes would keep its stale value and parent layouts would
-never see the removal; explicit `undefined` clears it. Keys the AppKit host
-does not whitelist (`dock`, `right`, `bottom`, `rowGap`, `columnGap`) stay
-omission-only so a bare mount does not warn.
+The layout helpers omit unset keys; the renderer owns resetting removed
+props. Keep parent-layout metadata on the outer wrapper and child layout on
+the content host. The absolute painted surface must not affect either.
 
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
@@ -142,9 +137,13 @@ native so DOM-touching modules never bundle.
 
 ## Per-platform rendering
 
-Semantics = CSS `clip-path`: the mask clips background **and** children. This
-matches what the web leaf does natively and is the only honest cross-target
-semantic.
+Overflow defaults to `visible`. The decorative background/border surface owns
+its own smooth clip; only `overflow: hidden` requests a matching clip on the
+content host. Removing hidden overflow removes the owned content mask. Shadows
+belong to the outer host (SVG shadow-only filter on web, native shadow path or
+elevation on native) so content clipping does not cut them off. Keep the
+painting surface out of layout, accessibility, and input. The generated curve
+remains shared; native overflow/hit-testing still needs target qualification.
 
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
@@ -152,25 +151,24 @@ import { View } from '@octane-xplat/ui'
 
 export function ClippedCard() {
   return (
-    <SmoothCorners corners={24} className="bg-primary">
+    <SmoothCorners corners={24} className="bg-primary" style={{ overflow: 'hidden' }}>
       <View className="p-4" />
     </SmoothCorners>
   )
 }
 ```
 
-| Target                  | Mechanism                                                                                                                                                                                                                                                                                                                             | Confidence                                                                                                      |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Web                     | `clip-path: path(d)` + `ResizeObserver`; `d` used verbatim                                                                                                                                                                                                                                                                            | Chrome/FF/Safari all support `path()` clip-path; high                                                           |
-| iOS                     | `CAShapeLayer` (from generated `CGMutablePath`) as `view.ios.layer.mask`, re-applied on `layoutChanged`; stroke layer added for `border`; shadow via sibling shape layer (mask clips `layer.shadow*`)                                                                                                                                 | NS core already runs `CGPathCreateMutable`/`CGPathAddCurveToPoint` in the squircle patch — interop proven. High |
-| Android                 | `Drawable` subclass (JS `extend`) paints fill/stroke into `android.graphics.Path`, set via `view.android.setBackground`; children clip via `ViewOutlineProvider`: `Outline.setPath` API 33+, `Outline.setConvexPath` API 21–32 (squircle/continuous are convex — covers the main curves), concave curves fall back unclipped below 33 | desk-source; `Drawable.extend`/`setClipToOutline` are standard NS. Medium                                       |
-| macOS (AppKit)          | `NSBezierPath` (ObjC — the renderer already drives `view.layer.*` but never CoreGraphics C fns) → `.CGPath` → `CAShapeLayer` mask on `view.layer`. If `CAShapeLayer` isn't in the runtime metadata, ship a ~30-line ObjC leaf via `platforms/macos/` (macos-native.md seam)                                                           | experimental target; medium                                                                                     |
-| Linux / Windows webview | web leaf runs inside GTK WebKit / WebView2 — inherits web row                                                                                                                                                                                                                                                                         | medium-high                                                                                                     |
-| Windows native (WinUI)  | parked with Q32–Q34 — host unproven                                                                                                                                                                                                                                                                                                   | n/a                                                                                                             |
+| Target | Surface painting | Child clipping and shadow |
+| --- | --- | --- |
+| Web | Background and inside SVG border on a decorative path-clipped surface | Computed hidden overflow enables a matching content clip; a shadow-only SVG filter sits outside it |
+| iOS | Background and inside border on a masked decorative Mason view | Only hidden content receives a mask; outer shadowPath stays unclipped |
+| Android | Path-backed Drawable paints background and clips its own inside border stroke | Content outline clipping is conditional; outer elevation follows the curve without clipping children |
+| macOS (AppKit) | NSBezierPath/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
+| Linux / Windows webview | Uses the web leaf | Same browser implementation; native desktop renderer support is separate |
 
 Android gets a bonus: `Outline.setPath`/`setConvexPath` makes `elevation`
 shadows follow the curve for free. If an app needs exact child-clipping on
-API <33 with concave curves, the escape hatch is a Compose leaf
+API <30 with concave curves, the escape hatch is a Compose leaf
 (`@nativescript/jetpack-compose` — `clip(GenericShape)` clips arbitrary paths
 in software on all API levels); keep it out of v1 — a compose host per rounded
 element is heavy.
@@ -193,7 +191,7 @@ otherwise the mask keeps uniform/non-uniform identical.
 
 ## Explicit scope cuts (v1)
 
-- Background + child clipping and optional `border`/`shadow` props. Lisse's
+- Shaped background + optional child clipping and optional `border`/`shadow` props. Lisse's
   auto-effects (scraping computed CSS into SVG) stay web-only — native leaves
   read `view.style` instead, or the caller passes props.
 - No animation between corner configs (Lisse web animates via `d` interpolation;
@@ -208,7 +206,7 @@ otherwise the mask keeps uniform/non-uniform identical.
   provider set on Android, `clip-path` computed on web.
 - iOS: screenshot-diff the masked path against a `cornerCurve` reference view —
   should be ≲0.25 px (Rosenfeld residual).
-- Android: API 33+ emulator for `setPath`; an API 30 emulator for the
+- Android: API 30+ emulator for `setPath`; an API 29 emulator for the
   `setConvexPath` path.
 
 ## Open follow-ups

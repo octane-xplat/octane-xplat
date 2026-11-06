@@ -1,3 +1,4 @@
+import './smooth-corners.css'
 // Platform barrel — extensionless specifier resolves the per-OS leaf
 // (.ios.tsrx/.android.tsrx under native, .macos.tsrx under macos,
 // .web.tsrx under web); same convention as @octane-xplat/ui index.shared.

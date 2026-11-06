@@ -2585,6 +2585,7 @@
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",
         "octane": "catalog:",
+        "playwright": "1.63.0",
         "tsrx-typegen": "workspace:*",
         "typescript": "catalog:",
         "vite": "catalog:",

@@ -41,7 +41,7 @@ function toAndroidPath(cmds: PathCommand[]): any {
 }
 
 function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }): any {
-  return (android.graphics.drawable.Drawable as any).extend({
+  const Drawable = (android.graphics.drawable.Drawable as any).extend({
     draw(canvas: any) {
       const path = state.path
       if (!path) {
@@ -60,10 +60,14 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
       if (border && border.width > 0 && border.color) {
         const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
         paint.setStyle(android.graphics.Paint.Style.STROKE)
-        // Centered on the edge; the outline clip removes the outer half.
+        // Clip the paint operation itself: visible child overflow must not
+        // expose the outer half of the doubled inside border.
+        const checkpoint = canvas.save()
+        canvas.clipPath(path)
         paint.setStrokeWidth(Utils.layout.toDevicePixels(border.width) * 2)
         paint.setColor(new Color(border.color).android)
         canvas.drawPath(path, paint)
+        canvas.restoreToCount(checkpoint)
       }
     },
     getOpacity() {
@@ -72,10 +76,11 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
     setAlpha(_a: number) {},
     setColorFilter(_f: any) {},
   })
+  return new Drawable()
 }
 
 /** Clip the inner box: outline provider + background/border drawable. */
-export function applySmoothClip(view: any, props: SmoothCornersProps): void {
+export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
   const s = view?.[PATH_KEY] ?? (view[PATH_KEY] = { view, props, path: null, drawable: null })
   s.props = props
   const v = view?.android as any
@@ -115,7 +120,9 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
     }))(),
   )
 
-  v.setClipToOutline(true)
+  v.setClipToOutline(clip)
+  v.setClipChildren(clip)
+  v.setClipToPadding(clip)
 
   if (!s.drawable) {
     s.drawable = makeDrawable(s)
@@ -126,11 +133,10 @@ export function applySmoothClip(view: any, props: SmoothCornersProps): void {
   v.invalidate()
 
   // elevation shadows follow the outline — the curve, free.
-  if (props.shadow) {
-    v.setElevation(Utils.layout.toDevicePixels(props.shadow.blur ?? 8))
-  }
+  v.setElevation(props.shadow ? Utils.layout.toDevicePixels(props.shadow.blur ?? 8) : 0)
 }
 
-/** Android needs no separate shadow layer — `elevation` follows the inner
- *  view's outline directly, so the outer hook is a no-op. */
-export function applySmoothShadow(_view: any, _props: SmoothCornersProps): void {}
+/** Elevation belongs to the unclipped outer host, outside the content clip. */
+export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
+  applySmoothClip(view, { ...props, border: undefined }, false)
+}

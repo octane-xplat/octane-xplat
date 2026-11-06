@@ -1,8 +1,8 @@
 # @octane-xplat/smooth-corners
 
-> Exact-match smooth corners for Octane xplat — one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) clipped natively on web, iOS, Android, and macOS
+> Exact-match smooth corners for Octane xplat — one generated curve (Rosenfeld continuous, Figma squircle, superellipse, clothoid) painted natively with optional child clipping on web, iOS, Android, and macOS
 
-Clip a panel and its contents to a smooth corner curve. Use this when ordinary
+Give a panel a smooth corner curve while letting badges and other children extend beyond its edges by default. Use this when ordinary
 rounded corners do not give the shape you want. Implementations exist for web,
 iOS, Android, and experimental macOS AppKit.
 
@@ -45,9 +45,21 @@ space to occupy:
 }
 ```
 
-The panel should have a continuous outline and clip content at its corners.
+The panel should have a continuous outline. Its children remain visible beyond the panel’s edges.
 Check it at the sizes used by your app; an empty or unmeasured host has no
 useful shape to display.
+
+## Clip an image or other content
+
+Add `overflow: hidden` to the panel’s class when its children should stay inside the smooth outline. This clips the background and descendants to the same curve; the component’s own shadow stays outside. Removing the rule restores visible overflow.
+
+```css
+.trip-card {
+  overflow: hidden;
+}
+```
+
+**Breaking change:** earlier versions always clipped children. Add the rule above to thumbnails and other panels that relied on that behavior.
 
 ## Platform boundaries
 
