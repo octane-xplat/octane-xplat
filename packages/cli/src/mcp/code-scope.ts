@@ -413,7 +413,17 @@ function resolveCorpusFile(corpus, abs, key) {
     return { error: 'excluded', detail: `${key} is excluded (${targetExcluded})` }
   }
 
-  return { abs: real, rel: posix(relative(corpus.root, abs)), corpus }
+  const rel = posix(relative(corpus.root, abs))
+  return {
+    abs: real,
+    rel,
+    // `path` follows the reported-path contract (codePathFor): workspace-
+    // relative for the app corpus, package-source-relative for framework.
+    // Computed on the lexical abs — `abs` is canonicalized above while the
+    // corpus roots stay lexical.
+    path: codePathFor(corpus, { abs, rel }),
+    corpus,
+  }
 }
 
 /**
@@ -464,4 +474,13 @@ export function codeKeyFor(corpus, file) {
   }
 
   return `${corpus.package}/${file.rel}`
+}
+
+/**
+ * The `path` a hit or read result reports — also what a read's `path` input
+ * accepts for the app corpus: workspace-relative for app (the same key a ref
+ * carries), package-source-relative for framework.
+ */
+export function codePathFor(corpus, file) {
+  return corpus.corpus === 'app' ? codeKeyFor(corpus, file) : file.rel
 }

@@ -95,6 +95,44 @@ test('code search/read work over the real service on the bound app', async () =>
   assert.equal(env.structuredContent.error.code, 'invalid_selection')
 })
 
+test('search paths feed code_read directly for a nested app root', async () => {
+  const root = makeWorkspace()
+  makeConsumerApp(root, 'apps/qual-app', { name: 'qual-app' })
+  writeFile(root, 'apps/qual-app/src/App.tsrx', 'export function App() {\n\treturn <Meter />\n}\n')
+
+  const { client } = await connect(root)
+
+  const found = await client.callTool({
+    name: 'xplat_code_search',
+    arguments: { query: 'Meter', mode: 'exact', corpus: 'app' },
+  })
+
+  assert.ok(!found.isError)
+  const hit = found.structuredContent.data.results.find((r) => r.corpus === 'app')
+  assert.ok(hit)
+  assert.equal(hit.path, 'apps/qual-app/src/App.tsrx')
+  assert.equal(hit.ref, 'xplat-code://app/apps/qual-app/src/App.tsrx')
+
+  // The reported path is itself the read input — feeding hit.path back was
+  // the consumer-visible failure for nested app roots.
+  const page = await client.callTool({
+    name: 'xplat_code_read',
+    arguments: { corpus: 'app', path: hit.path },
+  })
+
+  assert.ok(!page.isError, JSON.stringify(page.structuredContent))
+  assert.equal(page.structuredContent.data.path, 'apps/qual-app/src/App.tsrx')
+  assert.match(page.structuredContent.data.content, /Meter/)
+
+  // Out-of-scope stays strict: the app-relative leaf name does not resolve.
+  const escaped = await client.callTool({
+    name: 'xplat_code_read',
+    arguments: { corpus: 'app', path: 'src/App.tsrx' },
+  })
+
+  assert.equal(escaped.isError, true)
+})
+
 test('project status and the capability matrix reflect the wired provider', async () => {
   const root = makeWorkspace()
   makeConsumerApp(root, '.', { name: 'cap-code-app' })

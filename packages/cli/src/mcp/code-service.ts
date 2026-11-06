@@ -14,6 +14,7 @@ import { readCodeFile, searchCodeFiles } from './code-retrieval.ts'
 import {
   appliesToPlatform,
   codeKeyFor,
+  codePathFor,
   codeRef,
   collectCorpora,
   listCorpusFiles,
@@ -109,7 +110,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
       ref: codeRef(corpus.corpus, codeKeyFor(corpus, file)),
       corpus: corpus.corpus,
       package: corpus.package ?? undefined,
-      path: file.rel,
+      path: codePathFor(corpus, file),
       line: fields.line,
       endLine: fields.endLine,
       excerpt: fields.excerpt,
@@ -330,7 +331,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
         ),
         corpus: resolved.corpus.corpus,
         package: resolved.corpus.package ?? undefined,
-        path: resolved.rel,
+        path: resolved.path,
         freshness: {
           state: 'current',
           contentHash: page.contentHash,

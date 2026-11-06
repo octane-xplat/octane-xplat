@@ -80,6 +80,33 @@ test('exact search finds app and framework code with labeled corpora', async (t)
   assert.equal(fwHit.ref, 'xplat-code://framework/@octane-xplat/ui/SmoothCorners.ts')
 })
 
+test('nested app roots report workspace-relative paths that read back directly', async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'xplat-mcp-code-nested-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  write(dir, 'apps/qual-app/package.json', JSON.stringify({ name: 'qual-app' }))
+  write(dir, 'apps/qual-app/src/main.ts', 'export const nestedTokenForRead = 1\n')
+
+  const svc = service(dir)
+  const app = appRef(dir, 'apps/qual-app')
+
+  const out = await svc.search({ app, query: 'nestedTokenForRead', mode: 'exact' })
+  const hit = out.results.find((r) => r.corpus === 'app')
+  assert.ok(hit)
+  assert.equal(hit.path, 'apps/qual-app/src/main.ts')
+  assert.equal(hit.ref, 'xplat-code://app/apps/qual-app/src/main.ts')
+
+  // The reported path is itself a valid read input — the search→read round
+  // trip a consumer performs after getting a hit.
+  const page = await svc.read({ app, corpus: 'app', path: hit.path })
+  assert.equal(page.status, undefined)
+  assert.match(page.content, /nestedTokenForRead/)
+  assert.equal(page.path, 'apps/qual-app/src/main.ts')
+
+  // Scope stays strict: the app-relative leaf name does not escape the bound
+  // root just because a hit once reported it that way.
+  assert.equal((await svc.read({ app, path: 'src/main.ts' })).status, 'out-of-scope')
+})
+
 test('secrets, generated output, and node_modules stay out of results and reads', async (t) => {
   const dir = makeConsumer(t)
   write(dir, '.env', 'API_TOKEN=hunter2\n')
