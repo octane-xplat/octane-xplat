@@ -11,6 +11,7 @@
 		"bench:vlist:ios": "bun run --cwd ../.. gen:app && node scripts/bench-virtual-list.ts ios",
 		"bench:vlist:android": "bun run --cwd ../.. gen:app && node scripts/bench-virtual-list.ts android",
 		"test:ios": "ns test ios",
+		"test:ios:fonts": "NS_PLATFORM=ios vitest run src/tests/variable-font.ios.spec.tsrx",
 		"test:android": "ns test android",
 		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
 		"demos:ios": "XPLAT_DOCS_DEMOS=1 ns run ios --no-hmr",

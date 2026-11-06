@@ -2,9 +2,18 @@
 	"$schema": "https://turborepo.dev/schema.json",
 	"extends": ["//"],
 	"tasks": {
+		"build:ios": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false
+		},
 		"test:ios": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
 			"cache": false
+		},
+		"test:ios:fonts": {
+			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
+			"cache": false,
+			"passThroughEnv": ["NS_DEVICE", "GODDARD_*"]
 		},
 		"test:android": {
 			"dependsOn": ["^typegen", "@octane-xplat/cli#build", "@xplat/app#gen"],
