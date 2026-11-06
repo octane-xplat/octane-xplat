@@ -475,3 +475,51 @@ Recheck this ownership contract when upgrading Mason. Host regressions cover
 CSS path forwarding, resizing, removal, and preserving unrelated clips. The
 actual iOS probe is `packages/smooth-corners/tests/clipping.ios.tsrx`; its
 execution results belong in Silo. Tracking: [#153](https://github.com/octane-xplat/octane-xplat/issues/153).
+
+## octane universal HMR: shifted hook slots corrupt live owners (0.16.3)
+
+`hmrUniversalComponent.update` swaps the component render function and
+reschedules every live owner, but the universal compiler assigns hook slots by
+global ordinal (`module.useRef#N` across all hooks in the file). Inserting or
+removing an earlier hook shifts every later slot onto a different hook's
+record, so a `useRef` slot can inherit a host ref object as unrelated user
+storage; ref cleanup then crashes (`null.set`/`null.delete`) in
+`runCommitTasks`. Host reproduction:
+`packages/ui/tests/universal-hmr.test.mjs` compiles two revisions of the same
+module and drives `wrapper[UNIVERSAL_HMR].update` under `flushUniversalSync`.
+Until upstream emits a hook signature HMR can compare, there is no dispatch-time
+signal to detect the mismatch — the slot symbols are identical by design.
+
+Local patch scope: `packages/cli/patches/octane@0.16.3.patch` wraps the revised
+component in a revision-keyed `universalBlock` + `universalKey`, so every
+accepted update claims a fresh scope owner — old ref/effect cleanups run
+against the old hooks and the new revision mounts independently. This trades
+away hook-state preservation on native HMR edits (root and nested owners both
+remount); normal rendering, reconciliation, and persisted app data are
+unaffected. Remove the hunk when upstream ships signature-aware universal HMR
+or an equivalent remount-on-incompatible-signature behavior. Tracking:
+[#152](https://github.com/octane-xplat/octane-xplat/issues/152).
+
+## @nativescript/vite: node_modules changes never reach the transform caches (8.0.20)
+
+Vite's watcher excludes `node_modules`, so a patch install (`pnpm
+patch-commit` + `pnpm install`, or Bun's patchedDependencies) that rewrites a
+source-served dependency produces no file event: `handleHotUpdate` never runs
+and both `server.transformRequest`'s module cache and the shared `/ns/m`
+transform-result cache keep serving the pre-install output indefinitely —
+timestamp/`?v` suffixes canonicalize to the same key. Verified on Opals with
+`@octane-xplat/smooth-corners` (octane-xplat#161).
+
+Local patch scope: `packages/cli/patches/@nativescript__vite@8.0.20.patch`
+fingerprints each resolved `node_modules` file at `/ns/m` serve time
+(`mtimeMs:size`, recorded at first serve) and runs the upstream
+`purgeTransformCachesForHotUpdate` routine — Vite module graph plus the shared
+transform cache — before re-transforming when the fingerprint drifts. Bounds:
+detection needs a changed mtime or size (a rewrite preserving both stays
+stale until restart); the purge clears the shared cache like every hot
+update; the device still re-fetches the module through its normal HMR/app
+reload path. `@nativescript/vite@8.0.21` (Windows preview) is not covered —
+its npm and pkg.pr.new tarballs diverge in these files, so a single shared
+patch cannot target both safely. Regression coverage:
+`packages/cli/test/vite-ns-m-dep-freshness.test.mjs`. Tracking:
+[#161](https://github.com/octane-xplat/octane-xplat/issues/161).

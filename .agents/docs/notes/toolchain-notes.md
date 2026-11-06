@@ -45,6 +45,14 @@
   fix: `apps/mobile/tsconfig.json` maps `@xplat/app`, `@xplat/demos`,
   `@octane-xplat/ui`, and `@octane-xplat/platform`. `xplat doctor` warns when
   an imported workspace package is missing from `paths`.
+- **Patch installs of source-served deps** (pnpm/bun `patchedDependencies`)
+  rewrite `node_modules` outside Vite's watcher — historically the `/ns/m`
+  transform caches kept serving pre-install code until restart. The 8.0.20
+  patch fingerprints each resolved dep file at serve time (mtime+size) and
+  purges the module graph + shared transform cache on drift, so the next
+  fetch is fresh without a restart. Bound: a rewrite preserving both mtime
+  and size stays stale; the device still re-fetches via its normal
+  update/reload path.
 - `recipients=N` in `[hmr-ws][update]` counts attached `/ns-hmr` websocket
   clients (real count via the `vite-octane` patch). `recipients=0` means the
   broadcast reached nobody — the device stays stale with no error.

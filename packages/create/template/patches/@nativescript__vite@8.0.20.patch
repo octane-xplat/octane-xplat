@@ -712,6 +712,53 @@ index 51ad398cefe75c918e887bd9506d9152259b957e..57dc2be15705a5ac8b5393852fd5de41
                  if (httpOriginSafe) {
                      return `${prefix}${httpOriginSafe}${httpSpec}${suffix}`;
                  }
+diff --git a/hmr/server/transform-cache-invalidation.js b/hmr/server/transform-cache-invalidation.js
+index c4ee7fbd75d8e630e1702b08f4c1b6f7fc4f27bd..27a2e64215c592eec176fe9fdc6f5ccad7a8ca51 100644
+--- a/hmr/server/transform-cache-invalidation.js
++++ b/hmr/server/transform-cache-invalidation.js
+@@ -1,3 +1,4 @@
++import { statSync } from 'node:fs';
+ import { isRuntimeGraphExcludedPath, normalizeRuntimeGraphPath } from './runtime-graph-filter.js';
+ // Framework-agnostic transform-cache-invalidation primitives shared by the
+ // per-flavor `handleHotUpdate` tails (Angular + Solid today). They live in this
+@@ -153,4 +154,36 @@
+     }
+     return Array.from(collected.values());
+ }
++
++const servedFileFingerprints = new Map();
++/**
++ * Out-of-band mutation sentinel for served dependency files. Vite's watcher
++ * excludes node_modules, so a pnpm/bun patch install (or a manual
++ * node_modules edit) rewrites dependency sources without a file event —
++ * `handleHotUpdate` never runs and both transform caches keep serving the
++ * pre-install output. The `/ns/m` pipeline fingerprints each resolved
++ * dependency file the first time the dev server sees it and reports a change
++ * when (mtimeMs, size) differs on a later request; the caller invalidates the
++ * file's caches before re-transforming. The fingerprint records whatever was
++ * on disk at first serve, so only subsequent mutations count. A rewrite that
++ * preserves both mtime and byte size stays undetected — the documented bound
++ * of this check.
++ */
++export function servedDependencyFileChanged(file) {
++    let stat;
++    try {
++        stat = statSync(file);
++    }
++    catch {
++        return false;
++    }
++    if (!stat.isFile()) {
++        return false;
++    }
++    const key = file.replace(/\\/g, '/');
++    const fingerprint = `${stat.mtimeMs}:${stat.size}`;
++    const previous = servedFileFingerprints.get(key);
++    servedFileFingerprints.set(key, fingerprint);
++    return previous !== undefined && previous !== fingerprint;
++}
+ //# sourceMappingURL=transform-cache-invalidation.js.map
+\ No newline at end of file
 diff --git a/hmr/server/vite-plugin.js b/hmr/server/vite-plugin.js
 index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f609bd7132 100644
 --- a/hmr/server/vite-plugin.js
@@ -976,10 +1023,10 @@ index 0081819906b9df7480408697b1afadb149e26e31..ae7ef0adf8b810cbeff74f26bce242d7
  //# sourceMappingURL=websocket-module-specifiers.js.map
 \ No newline at end of file
 diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-request.js
-index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448a95c188e 100644
+index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a095cb4610 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
-@@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
+@@ -27,10 +27,15 @@
   */
  function expandModuleCandidates(spec, hasExt, baseNoExt) {
      const platform = resolvePlatform();
@@ -997,7 +1044,56 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448
          }
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
-@@ -216,8 +221,11 @@ export async function resolveNsMTransformedModule(options) {
+@@ -163,6 +168,24 @@
+ export async function resolveNsMTransformedModule(options) {
+     const { context, transformRequest, resolveId, loadVirtualId, timeoutMs = 120000 } = options;
+     const { spec, serverRoot, workspaceRoot, transformCandidates } = context;
++    const notifyServedDependencyFile = options.notifyServedDependencyFile;
++    // Dependency files can change without a Vite file event (patch installs
++    // rewrite node_modules out of band). Report each resolved node_modules
++    // path the pipeline is about to transform so the caller can compare it
++    // with the fingerprint of what the caches last served and invalidate on
++    // drift — see servedDependencyFileChanged in transform-cache-invalidation.
++    const noteServedDependencyFile = (candidate) => {
++        if (!notifyServedDependencyFile || !candidate.replace(/[?#].*$/, '').includes('/node_modules/')) {
++            return;
++        }
++        try {
++            const resolved = resolveCandidateFilePath(candidate, serverRoot, workspaceRoot);
++            if (resolved) {
++                notifyServedDependencyFile(resolved);
++            }
++        }
++        catch { }
++    };
+     let transformed = null;
+     let resolvedCandidate = null;
+     if (spec.startsWith('/@id/')) {
+@@ -190,6 +213,7 @@
+         };
+     }
+     for (const candidate of transformCandidates) {
++        noteServedDependencyFile(candidate);
+         transformed = await tryTransformRequest(transformRequest, candidate, timeoutMs);
+         if (transformed?.code) {
+             resolvedCandidate = candidate;
+@@ -198,6 +222,7 @@
+     }
+     const resolvedId = await resolveId(spec);
+     if (resolvedId) {
++        noteServedDependencyFile(resolvedId);
+         transformed = await tryTransformRequest(transformRequest, resolvedId, timeoutMs);
+         if (transformed?.code) {
+             return { transformed, resolvedCandidate: resolvedId };
+@@ -209,6 +234,7 @@
+         if (bareSpecifier && !bareSpecifier.startsWith('.')) {
+             const resolvedBareId = await resolveId(bareSpecifier);
+             if (resolvedBareId) {
++                noteServedDependencyFile(resolvedBareId);
+                 transformed = await tryTransformRequest(transformRequest, resolvedBareId, timeoutMs);
+                 if (transformed?.code) {
+                     return { transformed, resolvedCandidate: resolvedBareId };
+@@ -216,14 +242,19 @@
              }
          }
      }
@@ -1008,14 +1104,30 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..b489d7f1524eb35ba87206d86cdb9448
 +    for (const candidate of new Set([spec, ...transformCandidates])) {
 +        const fsId = resolveFsAnchoredSpec(candidate, serverRoot, workspaceRoot);
 +        if (!fsId) continue;
++        noteServedDependencyFile(fsId);
          transformed = await tryTransformRequest(transformRequest, fsId, timeoutMs);
          if (transformed?.code) {
              return { transformed, resolvedCandidate: fsId };
+         }
+     }
+     for (const candidate of transformCandidates) {
++        noteServedDependencyFile(candidate);
+         const importHintCandidate = `${candidate}${candidate.includes('?') ? '&' : '?'}import`;
+         transformed = await tryTransformRequest(transformRequest, importHintCandidate, timeoutMs);
+         if (transformed?.code) {
 diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
-index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb94859777b 100644
+index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7855d2a7f 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
-@@ -98,7 +98,7 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -6,6 +6,7 @@
+ import { buildPiniaVendorShim, buildVueVendorShim } from './vendor-bare-module-shims.js';
+ import { collapseLegacyNsMTags } from './websocket-ns-m-paths.js';
+ import { createNsMRequestContext, resolveFsAnchoredSpec, resolveNsMTransformedModule } from './websocket-ns-m-request.js';
++import { purgeTransformCachesForHotUpdate, servedDependencyFileChanged } from './transform-cache-invalidation.js';
+ import { setDeviceModuleHeaders } from './route-helpers.js';
+ import { RAW_QUERY_PATTERN } from './constants.js';
+ import { CSS_MODULE_RE, buildCssRegisterSnippetFromVar, normalizeCssForDevice } from './css-device-module.js';
+@@ -98,7 +99,7 @@
              // internal virtual modules (e.g., \0nsvite:nsconfig-json for
              // ~/package.json) that don't exist on disk and must NOT run
              // through the device post-processing pipeline below.
@@ -1024,7 +1136,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb9
                  try {
                      // First try Vite's transform pipeline directly
                      const vr = await sharedTransformRequest(spec);
-@@ -167,8 +167,21 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -167,8 +168,21 @@
                      // Workspace css outside the vite root must be anchored to /@fs or
                      // `?inline` is denied and the DOM css module (__vite__updateStyle)
                      // is served instead.
@@ -1048,7 +1160,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb9
                      const inlineCode = inlineRes?.code || '';
                      // `?inline` output is `export default "<compiled css>"`.
                      const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
-@@ -178,7 +191,14 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -178,7 +192,14 @@
                              css = JSON.parse(m[1]);
                          }
                          catch { }
@@ -1064,7 +1176,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb9
                          const out = `// [ns:m][css] ${spec}\n` + `const __ns_css_text__ = ${JSON.stringify(css)};\n` + buildCssRegisterSnippetFromVar(spec, '__ns_css_text__') + `export default __ns_css_text__;\n`;
                          res.statusCode = 200;
                          res.end(out);
-@@ -191,7 +211,10 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -191,12 +212,27 @@
                      if (verbose)
                          console.warn('[ns:m][css] inline compile failed', spec, cssErr?.message);
                  }
@@ -1076,7 +1188,32 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb9
              }
              // Queue and dedupe transformRequest calls so heavy app graphs do not
              // overwhelm Vite with concurrent work. Slow-transform warnings start only
-@@ -513,6 +536,8 @@ export function registerNsModuleServerRoute(server, options) {
+             // when the transform actually begins executing, and requests stay pending
+             // until Vite returns a real result.
++            // A pnpm/bun patch install rewrites node_modules without a Vite
++            // file event, so neither handleHotUpdate nor the shared transform
++            // cache learns of it. The serve path fingerprints each resolved
++            // dependency file; a drift purges Vite's module graph plus the
++            // shared transform cache before this request re-transforms.
++            const notifyServedDependencyFile = (file) => {
++                if (!servedDependencyFileChanged(file))
++                    return;
++                if (verbose)
++                    console.log('[ns:m] dependency file changed outside the watcher; invalidating transform caches', file);
++                purgeTransformCachesForHotUpdate({ file, server, sharedTransformRequest, verbose, label: 'ns:m-deps' });
++            };
+             const transformWithTimeout = async (url, timeoutMs = 120000) => {
+                 const r = await sharedTransformRequest(url, timeoutMs);
+                 // A type-only .ts module legitimately transforms to EMPTY code
+@@ -230,6 +266,7 @@
+                 transformRequest: transformWithTimeout,
+                 resolveId: resolvePluginContainerId,
+                 loadVirtualId,
++                notifyServedDependencyFile,
+             });
+             let transformed = resolution.transformed;
+             const resolvedCandidate = resolution.resolvedCandidate;
+@@ -513,6 +550,8 @@
                                      continue;
                                  }
                                  else if (u.pathname.startsWith('/ns/m')) {
@@ -1085,7 +1222,15 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ac33b017b65489472c3573ce45f89bb9
                                      // Resolve the import target through the SAME
                                      // canonical pipeline the /ns/m route itself uses
                                      // (websocket-ns-m-request.ts) instead of a third
-@@ -546,7 +571,17 @@ export function registerNsModuleServerRoute(server, options) {
+@@ -532,6 +571,7 @@
+                                                 },
+                                                 resolveId: resolvePluginContainerId,
+                                                 loadVirtualId,
++                                                notifyServedDependencyFile,
+                                             });
+                                             targetCode = targetResolution.transformed?.code || '';
+                                         }
+@@ -546,7 +586,17 @@
                              catch { }
                              if (!targetCode)
                                  continue;
