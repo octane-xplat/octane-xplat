@@ -7,5 +7,5 @@
 		"noImplicitAny": false,
 		"useUnknownInCatchVariables": false
 	},
-	"include": ["index.ts", "scaffold.ts", "compatibility.ts"]
+	"include": ["index.ts", "scaffold.ts", "compatibility.ts", "package-manager.ts"]
 }

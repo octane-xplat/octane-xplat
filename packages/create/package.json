@@ -27,6 +27,7 @@
 		"index.ts",
 		"scaffold.ts",
 		"compatibility.ts",
+		"package-manager.ts",
 		"compatibility.json",
 		"dist",
 		"template",

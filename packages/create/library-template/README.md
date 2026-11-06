@@ -49,8 +49,9 @@ The package publishes authored source for the app's bundler to compile.
 declarations. `bun run test:packed` packs the package, places that artifact into
 small web and native TypeScript consumers, and checks both export conditions.
 
-The package sets `linker = "hoisted"` in `bunfig.toml` because the
-NativeScript bundler expects a flat dependency tree.
+The starter configures a hoisted dependency tree
+(`linker = "hoisted"` / `nodeLinker: hoisted`) because the NativeScript
+bundler expects a flat dependency tree.
 
 Its `catalog:xplat` build dependencies and patches follow one framework
 compatibility set. Update that set together; consumer `peerDependencies`

@@ -48,7 +48,14 @@ try {
   const extracted = join(temporary, 'extracted')
   mkdirSync(pack)
   mkdirSync(extracted)
-  run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
+  // Pack with the manager the scaffolded package.json declares.
+  const packer = (sourceManifest.packageManager ?? 'bun').split('@')[0]
+  if (packer === 'pnpm') {
+    run('pnpm', ['pack', '--pack-destination', pack], packageRoot)
+  } else {
+    run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
+  }
+
   const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
   assert.ok(tarball)
   run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)

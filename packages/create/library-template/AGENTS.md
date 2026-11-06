@@ -1,6 +1,6 @@
 # Library package notes
 
-- Use Bun 1.4.4 for package management.
+- Use the package manager pinned in `package.json` `packageManager`.
 - Keep build dependencies in `catalog:xplat`. Use `bunx @octane-xplat/cli@latest upgrade --check` to preview a workspace-wide version/patch update and `bunx @octane-xplat/cli@latest upgrade` to apply it. Keep consumer peer ranges under the library's control; run `bun run xplat doctor` and the package checks afterward.
 - Keep the public API in `src/index.ts` and `src/index.web.ts`; both barrels
   must export the same names and types.

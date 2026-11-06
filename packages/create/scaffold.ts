@@ -15,7 +15,11 @@ import {
 import { basename, dirname, join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
-import { mergeCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
+import { stringify } from 'yaml'
+import { compatibility, mergeCompatibilityCatalog, compatibilityRoot } from './compatibility.ts'
+import type { PackageManager } from './package-manager.ts'
+
+export type { PackageManager } from './package-manager.ts'
 
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 // dist/ emit sits one level deeper than the root sources it mirrors.
@@ -64,6 +68,10 @@ export const targets: Record<string, any> = {
   // scaffold must not carry patches for deps it doesn't install.
   'native-shared': {
     hidden: true,
+    // Build-script approvals claimed by this target — the scaffolded
+    // allowBuilds entry for `nativescript` only exists once native-shared
+    // resolves (web-only trees never install it).
+    builds: ['nativescript'],
     patches: [
       '@nativescript/core',
       '@nativescript/types',
@@ -183,9 +191,10 @@ function pickKeys(source, names, label) {
 
 /**
  * The package.json a given target set produces. With every target selected
- * this is identical to template/package.json.
+ * this is identical to template/package.json. For pnpm the Bun-config homes
+ * move to pnpm-workspace.yaml — composePnpmWorkspace emits the other half.
  */
-export function composeManifest(ids) {
+export function composeManifest(ids: string[], packageManager: PackageManager = 'bun') {
   const resolved = resolveTargets(ids)
   const tpl = templateManifest()
   const manifest: Record<string, any> = { ...tpl }
@@ -264,7 +273,104 @@ export function composeManifest(ids) {
       ),
     },
   }
-  return manifest
+  if (packageManager === 'bun') {
+    return manifest
+  }
+
+  return splitForPnpm(manifest, new Set(resolved)).manifest
+}
+
+// pnpm 11 fails an install when a dependency's build scripts are neither
+// approved nor denied in allowBuilds, where Bun silently skips untrusted
+// ones. These are the packages real pnpm installs reported that are not
+// trusted — `target` scopes an entry to the target set whose dependency
+// tree contains it. Approved entries are not listed here: they come from
+// the manifest's trustedDependencies filtered by target `builds` claims.
+const deniedBuilds: { name: string; target?: string }[] = [
+  // @octane-xplat/nativescript-mason-core pulls @nativescript/core into even
+  // the web-only tree; its build scripts are not trusted.
+  { name: '@nativescript/core' },
+]
+
+/**
+ * The allowBuilds map for a resolved target set: trusted dependencies (with
+ * target claims applied) approve, everything pnpm reported denies.
+ */
+function allowBuildsFor(manifest, resolved: Set<string>) {
+  const wanted = new Set<string>()
+  for (const id of resolved) {
+    for (const name of targets[id].builds ?? []) {
+      wanted.add(name)
+    }
+  }
+
+  const builds: Record<string, boolean> = {}
+  for (const name of manifest.trustedDependencies ?? []) {
+    const claimed = Object.values(targets).some((target) => (target.builds ?? []).includes(name))
+    if (!claimed || wanted.has(name)) {
+      builds[name] = true
+    }
+  }
+
+  for (const entry of deniedBuilds) {
+    if (!entry.target || resolved.has(entry.target)) {
+      builds[entry.name] = false
+    }
+  }
+
+  return Object.fromEntries(Object.keys(builds).sort().map((name) => [name, builds[name]]))
+}
+
+/**
+ * Move Bun's config homes — catalogs, overrides, patches, trusted
+ * dependencies, the bun engine — out of the composed manifest into the
+ * pnpm-workspace.yaml object. Both manager variants come from the same
+ * composed manifest so pins can never disagree.
+ */
+function splitForPnpm(manifest, resolved: Set<string>) {
+  const next = { ...manifest }
+  const workspace: Record<string, any> = {}
+  workspace.packages = next.workspaces?.packages ?? []
+  if (next.workspaces?.catalogs) {
+    workspace.catalogs = next.workspaces.catalogs
+  }
+
+  delete next.workspaces
+  if (next.overrides) {
+    workspace.overrides = next.overrides
+    delete next.overrides
+  }
+
+  if (next.patchedDependencies) {
+    workspace.patchedDependencies = next.patchedDependencies
+    delete next.patchedDependencies
+  }
+
+  // Matches what `xplat upgrade` writes; shipped patch files may sit unused
+  // for a target set (tiptap, doctor, sqlite-bridge are always copied).
+  workspace.allowUnusedPatches = true
+  workspace.allowBuilds = allowBuildsFor(next, resolved)
+  delete next.trustedDependencies
+  // NativeScript resolves plugins from a flat tree — same reason bunfig sets
+  // the hoisted linker for Bun.
+  workspace.nodeLinker = 'hoisted'
+  workspace.saveExact = true
+  if (next.engines) {
+    delete next.engines.bun
+    if (Object.keys(next.engines).length === 0) {
+      delete next.engines
+    }
+  }
+
+  next.packageManager = `pnpm@${compatibility.tools.pnpm}`
+  return { manifest: next, workspace }
+}
+
+/** The pnpm-workspace.yaml a given target set produces. */
+export function composePnpmWorkspace(ids: string[]): string {
+  const resolved = resolveTargets(ids)
+  const { workspace } = splitForPnpm(composeManifest(resolved), new Set(resolved))
+  return stringify(workspace)
 }
 
 /** Add target-owned local patches before installing newly enabled dependencies. */
@@ -333,8 +439,51 @@ export function composeTsconfig(ids) {
   return JSON.stringify(config, null, '\t') + '\n'
 }
 
+/**
+ * Starter text files whose command forms follow the chosen package manager.
+ * Nothing under patches/ is ever transformed — patch bytes must equal the
+ * canonical copies.
+ */
+const managerTextFiles = [
+  'AGENTS.md',
+  'README.md',
+  'nativescript.config.ts',
+  'vitest.config.mts',
+  'src/app.spec.tsrx',
+]
+
+const isManagerTextFile = (rel: string) =>
+  managerTextFiles.includes(rel) || rel.startsWith('.agents/skills/xplat/')
+
+/**
+ * Rewrite the canonical Bun command forms in starter text for another
+ * manager. Applied only to managerTextFiles.
+ */
+export function localizeCommands(text: string, manager: PackageManager): string {
+  if (manager === 'bun') {
+    return text
+  }
+
+  return (
+    text
+      // `bun run script -- args`: pnpm forwards a literal `--`, bun strips it.
+      .replace(/\bbun run (\S+) -- /g, 'pnpm run $1 ')
+      .replace(/\bbunx\b/g, 'pnpm dlx')
+      .replace(/\bbun pm pack\b/g, 'pnpm pack')
+      .replace(/\bbun run\b/g, 'pnpm run')
+      .replace(/\bbun add\b/g, 'pnpm add')
+      .replace(/\bbun install\b/g, 'pnpm install')
+      .replace(/packageManager: 'bun'/g, "packageManager: 'pnpm'")
+  )
+}
+
 /** Write a scaffold with tests for `ids` into `dir` (must not exist or be empty). */
-export function composeTargets(ids, dir) {
+export function composeTargets(
+  ids,
+  dir,
+  options?: { packageManager?: PackageManager },
+) {
+  const packageManager = options?.packageManager ?? 'bun'
   const resolved = new Set(resolveTargets(ids))
   mkdirSync(dir, { recursive: true })
 
@@ -343,23 +492,43 @@ export function composeTargets(ids, dir) {
       continue // generated below
     }
 
+    if (packageManager === 'pnpm' && rel === 'bunfig.toml') {
+      continue
+    }
+
     const owner = ownerOf(rel)
     if (owner && !resolved.has(owner)) {
       continue
     }
 
+    const source = join(TEMPLATE_DIR, rel)
     const dest = join(dir, rel === 'gitignore' ? '.gitignore' : rel)
     mkdirSync(dirname(dest), { recursive: true })
-    cpSync(join(TEMPLATE_DIR, rel), dest, { recursive: true })
+    if (packageManager === 'pnpm' && isManagerTextFile(rel)) {
+      writeFileSync(dest, localizeCommands(readFileSync(source, 'utf8'), packageManager))
+    } else {
+      cpSync(source, dest, { recursive: true })
+    }
   }
 
-  writeFileSync(join(dir, 'package.json'), JSON.stringify(composeManifest(ids), null, '\t') + '\n')
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify(composeManifest(ids, packageManager), null, '\t') + '\n',
+  )
   writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
+  if (packageManager === 'pnpm') {
+    writeFileSync(join(dir, 'pnpm-workspace.yaml'), composePnpmWorkspace(ids))
+  }
+
   return [...resolved]
 }
 
 /** Write the cross-platform library starter into `dir`. */
-export function composeLibrary(dir, packageName = basename(resolve(dir))) {
+export function composeLibrary(
+  dir,
+  packageName = basename(resolve(dir)),
+  options?: { packageManager?: PackageManager },
+) {
   if (
     packageName.length > 214 ||
     !/^(?:@[a-z0-9][a-z0-9._-]*\/)?[a-z0-9][a-z0-9._-]*$/.test(packageName)
@@ -369,9 +538,10 @@ export function composeLibrary(dir, packageName = basename(resolve(dir))) {
     )
   }
 
+  const packageManager = options?.packageManager ?? 'bun'
   mkdirSync(dir, { recursive: true })
   for (const rel of walk(LIBRARY_TEMPLATE_DIR)) {
-    if (rel === 'package.json') {
+    if (rel === 'package.json' || (packageManager === 'pnpm' && rel === 'bunfig.toml')) {
       continue
     }
 
@@ -379,7 +549,11 @@ export function composeLibrary(dir, packageName = basename(resolve(dir))) {
     mkdirSync(dirname(dest), { recursive: true })
     const source = join(LIBRARY_TEMPLATE_DIR, rel)
     if (/\.(?:md|ts|tsx|mjs|json)$/.test(rel)) {
-      const content = readFileSync(source, 'utf8').replaceAll('octane-xplat-library', packageName)
+      let content = readFileSync(source, 'utf8').replaceAll('octane-xplat-library', packageName)
+      if (packageManager === 'pnpm' && isManagerTextFile(rel)) {
+        content = localizeCommands(content, packageManager)
+      }
+
       writeFileSync(dest, content)
     } else {
       cpSync(source, dest, { recursive: true })
@@ -388,6 +562,19 @@ export function composeLibrary(dir, packageName = basename(resolve(dir))) {
 
   const manifest = JSON.parse(readFileSync(join(LIBRARY_TEMPLATE_DIR, 'package.json'), 'utf8'))
   manifest.name = packageName
+  if (packageManager === 'pnpm') {
+    for (const [name, script] of Object.entries(manifest.scripts ?? {})) {
+      manifest.scripts[name] = localizeCommands(String(script), packageManager)
+    }
+
+    // The library exercises web and native builds — its dependency tree spans
+    // the native toolchain, so target claims resolve as native-shared.
+    const { manifest: split, workspace } = splitForPnpm(manifest, new Set(['native-shared']))
+    writeFileSync(join(dir, 'package.json'), JSON.stringify(split, null, '\t') + '\n')
+    writeFileSync(join(dir, 'pnpm-workspace.yaml'), stringify(workspace))
+    return
+  }
+
   writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest, null, '\t') + '\n')
 }
 

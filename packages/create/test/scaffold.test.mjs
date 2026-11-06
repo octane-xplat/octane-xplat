@@ -1,24 +1,40 @@
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  chmodSync,
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
 
 import { spawnSync } from 'node:child_process'
-import { join } from 'node:path'
+import { basename, join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import test from 'node:test'
-import { managedSpecifier } from '../dist/compatibility.js'
+import { parse as parseYaml } from 'yaml'
+import { compatibility, managedPackage, managedSpecifier } from '../dist/compatibility.js'
 
 // Dep values must track the template, not a pinned snapshot — releases bump
 // template/package.json in lockstep.
 const TPL = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
+const LIB_TPL = JSON.parse(readFileSync(join(LIBRARY_TEMPLATE_DIR, 'package.json'), 'utf8'))
+const CLI_PATCHES = fileURLToPath(new URL('../../cli/patches', import.meta.url))
+const creator = fileURLToPath(new URL('../dist/index.js', import.meta.url))
 import {
   composeTargets,
   composeLibrary,
+  composeManifest,
+  composePnpmWorkspace,
   applyTarget,
   resolveTargets,
   targetEnabled,
   nativeCorePaths,
   TEMPLATE_DIR,
+  LIBRARY_TEMPLATE_DIR,
 } from '../dist/scaffold.js'
 
 const ALL = ['web', 'ios', 'android']
@@ -410,4 +426,319 @@ test('target planning is read-only and carries complete raw-byte observations', 
   for (const file of plan.files) {
     assert.deepEqual(readFileSync(file.path), Buffer.from(file.content, 'base64'))
   }
+})
+
+// --- Package-manager variants ------------------------------------------------
+
+for (const pm of ['bun', 'pnpm']) {
+  test(`target files, scripts, and deps are manager-independent (${pm})`, (t) => {
+    for (const ids of [['web'], ['ios'], ALL]) {
+      const dir = project(t)
+      composeTargets(ids, dir, { packageManager: pm })
+      const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+      const web = ids.includes('web')
+      const native = ids.includes('ios') || ids.includes('android')
+      assert.equal(existsSync(join(dir, 'index.html')), web)
+      assert.equal(existsSync(join(dir, 'nativescript.config.ts')), native)
+      assert.equal(Boolean(pkg.scripts.dev), web)
+      assert.equal(Boolean(pkg.scripts['dev:ios']), ids.includes('ios'))
+      assert.equal(
+        Boolean(pkg.devDependencies['@nativescript/unit-test-runner']),
+        native,
+        `${pm} ${ids}`,
+      )
+      assert.equal(pkg.dependencies['@octane-xplat/ui'], TPL.dependencies['@octane-xplat/ui'])
+    }
+  })
+}
+
+test('pnpm manifest drops Bun config homes but keeps the same deps and scripts', () => {
+  for (const ids of [['web'], ['ios'], ALL]) {
+    const bun = composeManifest(ids)
+    const pkg = composeManifest(ids, 'pnpm')
+    assert.equal(pkg.workspaces, undefined)
+    assert.equal(pkg.overrides, undefined)
+    assert.equal(pkg.patchedDependencies, undefined)
+    assert.equal(pkg.trustedDependencies, undefined)
+    assert.equal(pkg.engines.bun, undefined)
+    assert.equal(pkg.packageManager, `pnpm@${compatibility.tools.pnpm}`)
+    assert.deepEqual(pkg.dependencies, bun.dependencies)
+    assert.deepEqual(pkg.devDependencies, bun.devDependencies)
+    assert.deepEqual(pkg.scripts, bun.scripts)
+  }
+})
+
+test('pnpm-workspace.yaml mirrors the Bun manifest config homes in order', () => {
+  const keys = [
+    'packages',
+    'catalogs',
+    'overrides',
+    'patchedDependencies',
+    'allowUnusedPatches',
+    'allowBuilds',
+    'nodeLinker',
+    'saveExact',
+  ]
+  for (const ids of [['web'], ['ios'], ALL]) {
+    const bun = composeManifest(ids)
+    const ws = parseYaml(composePnpmWorkspace(ids))
+    assert.deepEqual(ws.packages, bun.workspaces.packages)
+    assert.deepEqual(ws.catalogs, bun.workspaces.catalogs)
+    assert.deepEqual(ws.overrides, bun.overrides)
+    assert.deepEqual(ws.patchedDependencies, bun.patchedDependencies)
+    assert.equal(ws.allowUnusedPatches, true)
+    assert.equal(ws.nodeLinker, 'hoisted')
+    assert.equal(ws.saveExact, true)
+    assert.deepEqual(Object.keys(ws), keys)
+  }
+})
+
+test('allowBuilds approves the trusted set and follows target claims', () => {
+  const web = parseYaml(composePnpmWorkspace(['web']))
+  assert.equal(web.allowBuilds.esbuild, true)
+  assert.equal(web.allowBuilds['@parcel/watcher'], true)
+  assert.equal(web.allowBuilds.nativescript, undefined)
+  assert.equal(web.allowBuilds['@nativescript/core'], false)
+
+  const native = parseYaml(composePnpmWorkspace(['ios']))
+  assert.equal(native.allowBuilds.nativescript, true)
+  assert.equal(native.allowBuilds['@nativescript/core'], false)
+})
+
+test('pnpm scaffold skips bunfig.toml and selects pnpm in nativescript.config.ts', (t) => {
+  const dir = project(t)
+  composeTargets(ALL, dir, { packageManager: 'pnpm' })
+  assert.ok(!existsSync(join(dir, 'bunfig.toml')))
+  assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
+  assert.match(
+    readFileSync(join(dir, 'nativescript.config.ts'), 'utf8'),
+    /packageManager: 'pnpm'/,
+  )
+})
+
+test('pnpm scaffold patch entries point at canonical patch bytes', (t) => {
+  const dir = project(t)
+  composeTargets(ALL, dir, { packageManager: 'pnpm' })
+  const ws = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+  for (const [specifier, path] of Object.entries(ws.patchedDependencies)) {
+    const file = join(dir, path)
+    assert.ok(existsSync(file), `${specifier} → ${path}`)
+    assert.deepEqual(
+      readFileSync(file),
+      readFileSync(join(TEMPLATE_DIR, path)),
+      `${specifier} differs from the starter patch`,
+    )
+    assert.deepEqual(
+      readFileSync(file),
+      readFileSync(join(CLI_PATCHES, basename(path))),
+      `${specifier} differs from the canonical patch`,
+    )
+  }
+})
+
+// The starter registries must stay keyed by the pnpm identity form the
+// canonical manifest uses — bunSpecifiers exist only for Bun installs where
+// the tarball identity differs.
+test('template patch keys are the canonical pnpm specifiers', () => {
+  const manifest = JSON.parse(readFileSync(join(CLI_PATCHES, 'manifest.json'), 'utf8'))
+  const wanted = manifest.patches
+    .filter((patch) => {
+      const at = patch.specifier.indexOf('@', 1)
+      const pin = managedPackage(patch.specifier.slice(0, at))
+      return (
+        patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
+      )
+    })
+    .map((patch) => patch.specifier)
+  assert.deepEqual(Object.keys(TPL.patchedDependencies), wanted)
+  assert.deepEqual(Object.keys(LIB_TPL.patchedDependencies), wanted)
+})
+
+function* walkFiles(dir, prefix = '') {
+  for (const name of readdirSync(dir)) {
+    if (name === 'node_modules') {
+      continue
+    }
+
+    const rel = prefix ? `${prefix}/${name}` : name
+    if (statSync(join(dir, name)).isDirectory()) {
+      yield* walkFiles(join(dir, name), rel)
+    } else {
+      yield rel
+    }
+  }
+}
+
+// files that legitimately keep `bun`/`bunx` tokens in pnpm output — each is a
+// runtime branch on the package's own manager, not translated text.
+const bunTokenExceptions = new Set(['tests/packed-consumer.mjs'])
+
+test('no bun command tokens survive in translated scaffold text', (t) => {
+  for (const variant of ['app', 'library']) {
+    const dir = project(t)
+    if (variant === 'app') {
+      composeTargets(ALL, dir, { packageManager: 'pnpm' })
+    } else {
+      composeLibrary(dir, 'my-lib', { packageManager: 'pnpm' })
+    }
+
+    for (const rel of walkFiles(dir)) {
+      if (rel.startsWith('patches/') || bunTokenExceptions.has(rel)) {
+        continue
+      }
+
+      assert.doesNotMatch(
+        readFileSync(join(dir, rel), 'utf8'),
+        /\bbunx?\b/,
+        `${variant}:${rel} still names bun`,
+      )
+    }
+  }
+})
+
+test('library scaffold gets the same pnpm split', (t) => {
+  const dir = join(project(t), 'lib')
+  composeLibrary(dir, 'my-lib', { packageManager: 'pnpm' })
+  const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  assert.equal(pkg.packageManager, `pnpm@${compatibility.tools.pnpm}`)
+  assert.equal(pkg.workspaces, undefined)
+  assert.equal(pkg.overrides, undefined)
+  assert.equal(pkg.patchedDependencies, undefined)
+  assert.equal(pkg.trustedDependencies, undefined)
+  assert.equal(pkg.engines.bun, undefined)
+  assert.equal(pkg.scripts.prepack, 'pnpm run typegen && tsrx-typegen --pack-check')
+  assert.equal(pkg.scripts['pack:check'], 'pnpm run test:packed')
+
+  const ws = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+  assert.deepEqual(ws.catalogs, LIB_TPL.workspaces.catalogs)
+  assert.deepEqual(ws.overrides, LIB_TPL.overrides)
+  assert.deepEqual(ws.patchedDependencies, LIB_TPL.patchedDependencies)
+  assert.equal(ws.allowBuilds.esbuild, true)
+  assert.equal(ws.allowBuilds['@parcel/watcher'], true)
+  assert.ok(!existsSync(join(dir, 'bunfig.toml')))
+  assert.match(readFileSync(join(dir, 'AGENTS.md'), 'utf8'), /pnpm dlx @octane-xplat\/cli/)
+
+  // The packed-consumer check packs with whichever manager the manifest pins.
+  const consumer = readFileSync(join(dir, 'tests/packed-consumer.mjs'), 'utf8')
+  assert.match(consumer, /pnpm.*pack/)
+  assert.match(consumer, /packageManager/)
+})
+
+function managerStubDir(t, entries) {
+  const dir = mkdtempSync(join(tmpdir(), 'xplat-bin-stub-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  for (const [name, script] of Object.entries(entries)) {
+    const file = join(dir, name)
+    writeFileSync(file, script)
+    chmodSync(file, 0o755)
+  }
+
+  return dir
+}
+
+// Restrict PATH to the stub dir plus system dirs so the creator's
+// `bun --version`/`pnpm --version` probes see exactly the stubbed set.
+const stubEnv = (stub, extra = {}) => ({
+  ...process.env,
+  PATH: `${stub}:/usr/bin:/bin`,
+  ...extra,
+})
+
+test('bin --package-manager pnpm produces pnpm-workspace.yaml', (t) => {
+  const root = project(t)
+  const dir = join(root, 'app')
+  const result = spawnSync(
+    process.execPath,
+    [creator, dir, '--package-manager', 'pnpm', '--no-install', '--targets', 'web'],
+    { encoding: 'utf8' },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
+  const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  assert.equal(pkg.packageManager, `pnpm@${compatibility.tools.pnpm}`)
+})
+
+test('bin --package-manager validates its value', () => {
+  const bad = spawnSync(
+    process.execPath,
+    [creator, 'app', '--package-manager', 'npm', '--no-install', '--targets', 'web'],
+    { encoding: 'utf8' },
+  )
+  assert.equal(bad.status, 1)
+  assert.match(bad.stderr, /--package-manager must be bun or pnpm/)
+
+  const missing = spawnSync(
+    process.execPath,
+    [creator, 'app', '--package-manager', '--no-install', '--targets', 'web'],
+    { encoding: 'utf8' },
+  )
+  assert.equal(missing.status, 1)
+  assert.match(missing.stderr, /--package-manager needs a value: bun or pnpm/)
+})
+
+test('bin picks the invoking user agent when no flag is given', (t) => {
+  const stub = managerStubDir(t, {
+    bun: '#!/bin/sh\necho 1.4.4\n',
+    pnpm: '#!/bin/sh\necho 11.24.0\n',
+  })
+
+  const root = project(t)
+  const pnpmApp = join(root, 'via-pnpm')
+  const result = spawnSync(
+    process.execPath,
+    [creator, pnpmApp, '--no-install', '--targets', 'web'],
+    {
+      encoding: 'utf8',
+      env: stubEnv(stub, { npm_config_user_agent: 'pnpm/11.24.0 npm/? node/? darwin arm64' }),
+    },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  assert.ok(existsSync(join(pnpmApp, 'pnpm-workspace.yaml')))
+
+  const bunApp = join(root, 'via-bun')
+  const second = spawnSync(
+    process.execPath,
+    [creator, bunApp, '--no-install', '--targets', 'web'],
+    {
+      encoding: 'utf8',
+      env: stubEnv(stub, { npm_config_user_agent: 'bun/1.4.4 npm/? node/? darwin arm64' }),
+    },
+  )
+  assert.equal(second.status, 0, second.stderr)
+  assert.ok(existsSync(join(bunApp, 'bunfig.toml')))
+  assert.ok(!existsSync(join(bunApp, 'pnpm-workspace.yaml')))
+})
+
+test('bin scaffolds the Bun variant with a warning when no manager is installed', (t) => {
+  const stub = managerStubDir(t, {})
+  const root = project(t)
+  const dir = join(root, 'app')
+  const result = spawnSync(
+    process.execPath,
+    [creator, dir, '--no-install', '--targets', 'web'],
+    {
+      encoding: 'utf8',
+      env: stubEnv(stub, { npm_config_user_agent: 'npm/11.0.0 node/? darwin arm64' }),
+    },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /Neither Bun nor pnpm was found/)
+  const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  assert.equal(pkg.packageManager, 'bun@1.4.4')
+  assert.ok(existsSync(join(dir, 'bunfig.toml')))
+  assert.ok(!existsSync(join(dir, 'pnpm-workspace.yaml')))
+})
+
+test('bin scaffolds a pnpm project without installing when pnpm is missing', (t) => {
+  const stub = managerStubDir(t, { bun: '#!/bin/sh\necho 1.4.4\n' })
+  const root = project(t)
+  const dir = join(root, 'app')
+  const result = spawnSync(
+    process.execPath,
+    [creator, dir, '--package-manager', 'pnpm', '--no-install', '--targets', 'web'],
+    { encoding: 'utf8', env: stubEnv(stub) },
+  )
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /pnpm was selected but is not installed/)
+  assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
 })
