@@ -31,6 +31,7 @@ start at the [public docs](../../docs/README.md).
 - [RecyclingList lifecycle and performance investigation](recycling-list.md)
 - [macOS plugin compatibility](macos-plugin-compat.md)
 - [Finite selection contract](select.md)
+- [Same-take camera switching](camera-recording-switch.md) — the `switchCamera` contract, the iOS sample-writer pipeline, hold/rollback mechanics and qualification boundaries.
 - [Sherpa ONNX leaf package plan](sherpa-onnx.md)
 - [Smooth corners package](smooth-corners.md)
 - [Windows target notes](windows-notes.md)

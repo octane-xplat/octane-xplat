@@ -1,5 +1,8 @@
 # Camera changes during a movie take
 
+The contract and architecture rationale are recorded in the
+[design record](../design/camera-recording-switch.md).
+
 Use this note when changing the recorder or integrating an automatically
 recorded preview. General configuration remains idle-only, including its
 post-discovery lifecycle check. Live camera changes belong to the dedicated
