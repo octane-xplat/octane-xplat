@@ -56,10 +56,27 @@ func sourceProvenance(corpus codeCorpus) map[string]any {
 func codeReference(file codeFile) string {
 	key := file.Corpus.Package + "/" + file.Relative
 	if file.Corpus.Corpus == "app" {
-		key, _ = filepath.Rel(file.Corpus.Base, file.Absolute)
-		key = filepath.ToSlash(key)
+		key = codePathFor(file)
 	}
 	return "xplat-code://" + file.Corpus.Corpus + "/" + key
+}
+
+// codePathFor is the reported `path` — also what a read's `path` input accepts
+// for the app corpus: workspace-relative for app (the same key a ref carries),
+// package-source-relative for framework.
+func codePathFor(file codeFile) string {
+	if file.Corpus.Corpus != "app" {
+		return file.Relative
+	}
+	base := file.Corpus.Base
+	if base == "" {
+		base = file.Corpus.Root
+	}
+	path, err := filepath.Rel(base, file.Absolute)
+	if err != nil {
+		return file.Relative
+	}
+	return filepath.ToSlash(path)
 }
 func codeFreshness(data source.Data) map[string]any {
 	return map[string]any{"state": "current", "contentHash": source.Hash(data.Content), "mtimeMs": data.Mtime}
@@ -117,7 +134,7 @@ func ReadCodeCommand(ctx context.Context, workspace *project.WorkspaceContext, v
 		return nil, sourceFailure(reason, corpus, key)
 	}
 	page := source.Page(data.Content, values)
-	page["ref"], page["corpus"], page["path"] = codeReference(file), corpus, file.Relative
+	page["ref"], page["corpus"], page["path"] = codeReference(file), corpus, codePathFor(file)
 	if file.Corpus.Package != "" {
 		page["package"] = file.Corpus.Package
 	}
@@ -206,7 +223,7 @@ func encodeCodeHit(hit codeHit) map[string]any {
 	if hit.Semantic {
 		matchType = "semantic"
 	}
-	result := map[string]any{"ref": codeReference(hit.File), "corpus": hit.File.Corpus.Corpus, "path": hit.File.Relative, "line": hit.Line, "endLine": hit.EndLine, "excerpt": hit.Excerpt, "matchType": matchType, "score": hit.Score, "freshness": map[string]any{"state": "current", "contentHash": hit.Hash, "mtimeMs": hit.Mtime}, "provenance": sourceProvenance(hit.File.Corpus)}
+	result := map[string]any{"ref": codeReference(hit.File), "corpus": hit.File.Corpus.Corpus, "path": codePathFor(hit.File), "line": hit.Line, "endLine": hit.EndLine, "excerpt": hit.Excerpt, "matchType": matchType, "score": hit.Score, "freshness": map[string]any{"state": "current", "contentHash": hit.Hash, "mtimeMs": hit.Mtime}, "provenance": sourceProvenance(hit.File.Corpus)}
 	if hit.File.Corpus.Package != "" {
 		result["package"] = hit.File.Corpus.Package
 	}

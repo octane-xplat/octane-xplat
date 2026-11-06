@@ -121,11 +121,25 @@ test('native exact retrieval keeps references, installed version provenance and 
     normalize(actual.value.data.results),
     normalize(JSON.parse(JSON.stringify(expectedHits))),
   )
-  assert.ok(actual.value.data.results.some((hit) => hit.path === 'src/camera.ts'))
+  assert.ok(actual.value.data.results.some((hit) => hit.path === 'apps/app/src/camera.ts'))
   assert.ok(
     !actual.value.data.results.some((hit) =>
       /private|generated|binary|oversized|\.ios\./.test(hit.path),
     ),
+  )
+  // The reported path is itself a valid read input for a nested app root —
+  // feeding hit.path back is the search→read round trip consumers perform.
+  const appHit = actual.value.data.results.find(
+    (hit) => hit.path === 'apps/app/src/camera.ts',
+  )
+  const page = cli(['code', 'read', '--path', appHit.path])
+  assert.equal(page.status, 0)
+  assert.equal(page.value.data.path, appHit.path)
+  assert.equal(page.value.data.ref, appHit.ref)
+  // Scope stays strict: the app-relative leaf name does not resolve.
+  assert.equal(
+    cli(['code', 'read', '--path', 'src/camera.ts']).value.error.code,
+    'invalid_selection',
   )
   const framework = cli([
     'code',
@@ -139,8 +153,23 @@ test('native exact retrieval keeps references, installed version provenance and 
   assert.equal(framework.package, '@octane-xplat/ui')
   assert.equal(framework.provenance.servedVersion, '0.19.0')
   assert.equal(framework.provenance.scope, 'release')
+  // Framework paths stay package-source-root-relative, not workspace-relative.
+  assert.equal(framework.path, 'button.ts')
   assert.equal(
     cli(['code', 'read', '--ref', framework.ref]).value.data.content,
+    'export const FrameworkButton = 1\n',
+  )
+  assert.equal(
+    cli([
+      'code',
+      'read',
+      '--corpus',
+      'framework',
+      '--package',
+      '@octane-xplat/ui',
+      '--path',
+      framework.path,
+    ]).value.data.content,
     'export const FrameworkButton = 1\n',
   )
 })
@@ -227,8 +256,10 @@ test('current reads revalidate edits/deletes and semantic intent search is usefu
   ])
   assert.equal(search.status, 0)
   assert.equal(search.value.data.semantic.state, 'ready')
-  assert.ok(search.value.data.results.some((hit) => hit.path === 'src/focus.ts'))
-  const ref = search.value.data.results.find((hit) => hit.path === 'src/focus.ts').ref
+  assert.ok(search.value.data.results.some((hit) => hit.path === 'apps/app/src/focus.ts'))
+  const ref = search.value.data.results.find(
+    (hit) => hit.path === 'apps/app/src/focus.ts',
+  ).ref
   const old = cli(['code', 'read', '--ref', ref]).value.data
   put(file, 'export function focusCameraPreview() { return "updated frame" }\n')
   const current = cli(['code', 'read', '--ref', ref]).value.data
@@ -257,7 +288,11 @@ test(
       { encoding: 'utf8', timeout: 10000, env: { ...process.env, PATH: '' } },
     )
     assert.equal(result.status, 0, result.stderr)
-    assert.ok(JSON.parse(result.stdout).data.results.some((hit) => hit.path === 'src/camera.ts'))
+    assert.ok(
+      JSON.parse(result.stdout).data.results.some(
+        (hit) => hit.path === 'apps/app/src/camera.ts',
+      ),
+    )
   },
 )
 
