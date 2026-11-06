@@ -41,6 +41,7 @@
 //        --quick: packed web starter install + plain tsc + dev/prod compilation;
 //                 skips platform enablement and the full app/library checks.
 import { readBunLock } from '../packages/cli/src/package-manager.ts'
+import { parseAllDocuments, parseDocument } from 'yaml'
 import assert from 'node:assert/strict'
 import { spawnSync, spawn } from 'node:child_process'
 import {
@@ -71,6 +72,12 @@ const flagValue = (name) => {
 
 const doBuild = !flag('no-build')
 const quick = flag('quick')
+const packageManager = flagValue('package-manager') ?? 'bun'
+assert.ok(
+  packageManager === 'bun' || packageManager === 'pnpm',
+  '--package-manager must be bun or pnpm',
+)
+
 const smokeTargets = (flagValue('smoke') ?? '').split(',').filter(Boolean)
 const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
 const smokeIos = flag('smoke-ios')
@@ -250,11 +257,23 @@ try {
       const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
       const binPath = join(creator, creatorManifest.bin['create-octane-xplat'])
       assert.ok(existsSync(binPath), 'packed create bin missing')
-      const runResult = run('node', [binPath, appDir, '--no-install', '--targets', 'web'], work)
+      const runResult = run(
+        'node',
+        [binPath, appDir, '--no-install', '--package-manager', packageManager, '--targets', 'web'],
+        work,
+      )
 
       assert.equal(runResult.status, 0, 'create bin exited nonzero')
       assert.ok(existsSync(join(appDir, 'package.json')), 'scaffold produced no package.json')
       assert.ok(existsSync(join(appDir, '.gitignore')), 'scaffold dropped gitignore rename')
+      if (packageManager === 'bun') {
+        assert.ok(existsSync(join(appDir, 'bunfig.toml')), 'packed starter missed bunfig.toml')
+      } else {
+        assert.ok(
+          existsSync(join(appDir, 'pnpm-workspace.yaml')),
+          'pnpm scaffold produced no pnpm-workspace.yaml',
+        )
+      }
       assert.ok(
         !existsSync(join(appDir, 'nativescript.config.ts')),
         'subset scaffold leaked native files',
@@ -266,7 +285,17 @@ try {
       const libraryName = '@example/consumer-library'
       const libraryResult = run(
         'node',
-        [binPath, libraryDir, '--no-install', '--template', 'library', '--name', libraryName],
+        [
+          binPath,
+          libraryDir,
+          '--no-install',
+          '--package-manager',
+          packageManager,
+          '--template',
+          'library',
+          '--name',
+          libraryName,
+        ],
         work,
       )
 
@@ -330,30 +359,59 @@ try {
     writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
 
     // Late additions and transitive framework dependencies use these same tarballs.
-    manifest.overrides ??= {}
-    for (const [name, tarball] of tarballs) {
-      manifest.overrides[name] = `file:${tarball}`
+    if (packageManager === 'pnpm') {
+      const yamlPath = join(appDir, 'pnpm-workspace.yaml')
+      const doc = parseDocument(readFileSync(yamlPath, 'utf8'))
+      for (const [name, tarball] of tarballs) {
+        doc.setIn(['overrides', name], `file:${tarball}`)
+      }
+
+      writeFileSync(yamlPath, String(doc))
+    } else {
+      manifest.overrides ??= {}
+      for (const [name, tarball] of tarballs) {
+        manifest.overrides[name] = `file:${tarball}`
+      }
+
+      writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
     }
-    writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
     return `${rewritten} deps + packed dependency overrides`
   })
 
   // ---- install ------------------------------------------------------------
-  await gate('bun install — consumer resolves registry + packed artifacts', 15 * 60 * 1000, () => {
-    const r = run('bun', ['install'], appDir)
-    assert.equal(r.status, 0, 'bun install failed')
-  })
+  await gate(
+    `${packageManager} install — consumer resolves registry + packed artifacts`,
+    15 * 60 * 1000,
+    () => {
+      const r = run(packageManager, ['install'], appDir)
+      assert.equal(r.status, 0, `${packageManager} install failed`)
+    },
+  )
 
   await gate(
     'default web starter includes web tests without unused features or the macOS SDK',
     60 * 1000,
     () => {
       const installed = new Set<string>()
-      const graph = readBunLock(appDir)
-      assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
-      for (const entry of Object.values(graph.packages) as any[]) {
-        if (Array.isArray(entry)) {
-          installed.add(entry[0].slice(0, entry[0].indexOf('@', 1)))
+      if (packageManager === 'pnpm') {
+        // pnpm-lock.yaml keys are name@version, optionally (peer-suffixed);
+        // the name ends at the first '@' after the leading character.
+        // pnpm 11 may split lockfile sections across multiple YAML documents.
+        const docs = parseAllDocuments(readFileSync(join(appDir, 'pnpm-lock.yaml'), 'utf8'))
+        for (const lock of Array.isArray(docs) ? docs.map((doc) => doc.toJS()) : [docs.toJS()]) {
+          for (const section of [lock?.packages, lock?.snapshots]) {
+            for (const key of Object.keys(section ?? {})) {
+              installed.add(String(key).slice(0, String(key).indexOf('@', 1)))
+            }
+          }
+        }
+      } else {
+        const graph = readBunLock(appDir)
+        assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
+        for (const entry of Object.values(graph.packages) as any[]) {
+          if (Array.isArray(entry)) {
+            installed.add(entry[0].slice(0, entry[0].indexOf('@', 1)))
+          }
         }
       }
 
@@ -440,9 +498,13 @@ void props
       'xplat add ios android --no-install, then install — platform and test setup on packed CLI',
       15 * 60 * 1000,
       () => {
-        const r = run('bun', ['run', 'xplat', 'add', 'ios', 'android', '--no-install'], appDir)
+        const r = run(
+          packageManager,
+          ['run', 'xplat', 'add', 'ios', 'android', '--no-install'],
+          appDir,
+        )
         assert.equal(r.status, 0, `xplat add exited ${r.status}`)
-        const install = run('bun', ['install', '--no-frozen-lockfile'], appDir)
+        const install = run(packageManager, ['install', '--no-frozen-lockfile'], appDir)
         assert.equal(install.status, 0, 'platform dependencies failed to install')
         assert.ok(
           existsSync(join(appDir, 'nativescript.config.ts')),
@@ -501,16 +563,16 @@ try {
   for (const [name, argv] of [
     ...(!quick
       ? [
-          ['bun run lint', ['lint']],
-          ['bun run typecheck (web + native)', ['typecheck']],
+          [`${packageManager} run lint`, ['lint']],
+          [`${packageManager} run typecheck (web + native)`, ['typecheck']],
         ]
       : []),
-    ['bun run test:web — default component test', ['test:web']],
-    ['bun run build — web bundle from packed ui', ['build']],
-    ...(!quick ? [['bun run xplat doctor', ['xplat', 'doctor']]] : []),
+    [`${packageManager} run test:web — default component test`, ['test:web']],
+    [`${packageManager} run build — web bundle from packed ui`, ['build']],
+    ...(!quick ? [[`${packageManager} run xplat doctor`, ['xplat', 'doctor']]] : []),
   ]) {
     await gate(name, 10 * 60 * 1000, () => {
-      const r = run('bun', ['run', ...argv], appDir)
+      const r = run(packageManager, ['run', ...argv], appDir)
       assert.equal(r.status, 0, `${name} exited ${r.status}`)
     })
   }
