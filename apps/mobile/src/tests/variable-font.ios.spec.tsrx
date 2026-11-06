@@ -5,6 +5,13 @@ import { useState } from 'octane'
 import { Pressable, Screen, Text, View } from '@octane-xplat/ui'
 import { mountXplat, tap, waitUntil } from '@octane-xplat/platform/testing'
 
+// NativeScript exposes these CoreText symbols at runtime. Its default iOS
+// ambient entry does not include CoreText, so declare the narrow test boundary.
+declare function CTFontCopyVariation(font: UIFont): NSDictionary<number, number> | null
+declare function CTFontCopyVariationAxes(font: UIFont): NSArray<NSDictionary<string, unknown>> | null
+declare const kCTFontVariationAxisIdentifierKey: string
+declare const kCTFontVariationAxisDefaultValueKey: string
+
 const WEIGHTS = [100, 400, 900] as const
 // OpenType axis tags are four-byte integers: 'wght'.
 const WEIGHT_AXIS = 0x77676874
