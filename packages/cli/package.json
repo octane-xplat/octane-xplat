@@ -135,7 +135,7 @@
 		"@babel/plugin-transform-unicode-property-regex": "8.0.1",
 		"@babel/plugin-transform-unicode-sets-regex": "8.0.1",
 		"@octane-xplat/docs-search": "workspace:*",
-		"@octane-xplat/fmt": "0.1.1",
+		"@octane-xplat/fmt": "0.2.0",
 		"@octane-xplat/lib": "workspace:*",
 		"@tsrx/core": "0.5.5",
 		"create-octane-xplat": "workspace:*",

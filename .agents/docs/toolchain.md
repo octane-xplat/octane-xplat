@@ -700,9 +700,14 @@ tcp:5173`. Dev-session mode is activated only by `ns run`'s livesync launch;
   unsupported. TSRX checks only `xplat/*` and has no lint autofixes. See the
   [consumer contract](../../docs/packages/package-lint.md).
 - Format: `bun run format` delegates to `xplat fmt`
-  (`packages/cli/src/commands/fmt.ts`, engine `@octane-xplat/fmt` — in-process
+  (`packages/cli/go/internal/commands/format/format.go`, engine
+  `@octane-xplat/fmt` — in-process
   safe lint fixes → Oxfmt → statement spacing over the pinned tsrx-org/oxc
-  Rust libraries; JS/TS/JSX/TSX and `.tsrx`). The formatter owns blank-line
+  Rust libraries; JS/TS/JSX/TSX and `.tsrx`). Since 0.2.0 the engine also
+  routes the rest of the Oxfmt language inventory (JSON/JSONC, CSS, YAML,
+  HTML/Vue/Svelte, Markdown/MDX, GraphQL, TOML, and more) through Oxfmt;
+  the Octane lint and spacing stages stay in the JS/TS/TSRX lane. The
+  formatter owns blank-line
   spacing, so `xplat/spacing` is no longer a lint rule — lint and fmt do not
   compete. `xplat fmt` writes atomically per file after the batch transforms;
   `--check` exits 1 without writes, `--stdin-filepath` pipes stdin to stdout.
@@ -828,8 +833,9 @@ Constraints this creates:
 
 ## TSRX JSX initializers in the formatter
 
-`@octane-xplat/fmt` 0.1.1 fixes ambient declaration parsing (`.d.ts`, `.d.mts`,
-`.d.cts`), but rejects an unparenthesized JSX initializer inside an `@{}`
+`@octane-xplat/fmt` (0.1.1+, still present in 0.2.0) fixes ambient declaration
+parsing (`.d.ts`, `.d.mts`, `.d.cts`), but rejects an unparenthesized JSX
+initializer inside an `@{}`
 function when the initializer stays multiline after formatting and a TSRX
 control statement (`@if`, `@for`, `@switch`, `@try`) follows it — reporting
 `TSRX_LIFT: formatted TSRX structure differs from the input`. Elements and

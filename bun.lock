@@ -6,7 +6,7 @@
       "name": "octane-xplat",
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
-        "@octane-xplat/fmt": "0.1.1",
+        "@octane-xplat/fmt": "0.2.0",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/core": "0.2.4",
         "@tsrx/oxc": "0.20.0",
@@ -737,7 +737,7 @@
         "@babel/plugin-transform-unicode-property-regex": "8.0.1",
         "@babel/plugin-transform-unicode-sets-regex": "8.0.1",
         "@octane-xplat/docs-search": "workspace:*",
-        "@octane-xplat/fmt": "0.1.1",
+        "@octane-xplat/fmt": "0.2.0",
         "@octane-xplat/lib": "workspace:*",
         "@tsrx/core": "0.5.5",
         "create-octane-xplat": "workspace:*",
@@ -4097,23 +4097,23 @@
 
     "@octane-xplat/firebase-crashlytics": ["@octane-xplat/firebase-crashlytics@workspace:packages/firebase-crashlytics"],
 
-    "@octane-xplat/fmt": ["@octane-xplat/fmt@0.1.1", "", { "optionalDependencies": { "@octane-xplat/fmt-darwin-arm64": "0.1.1", "@octane-xplat/fmt-darwin-x64": "0.1.1", "@octane-xplat/fmt-linux-arm64-gnu": "0.1.1", "@octane-xplat/fmt-linux-arm64-musl": "0.1.1", "@octane-xplat/fmt-linux-x64-gnu": "0.1.1", "@octane-xplat/fmt-linux-x64-musl": "0.1.1", "@octane-xplat/fmt-win32-arm64": "0.1.1", "@octane-xplat/fmt-win32-x64": "0.1.1" } }, "sha512-mAWTTM1WBzth8u/x2gG96TIPerAyeb/r6dog5pBxNU4XUxuX18hk8mP8brqH+CaAKw3zx8KFVkYGDexq2rScGQ=="],
+    "@octane-xplat/fmt": ["@octane-xplat/fmt@0.2.0", "", { "dependencies": { "oxfmt": "0.70.0" }, "optionalDependencies": { "@octane-xplat/fmt-darwin-arm64": "0.2.0", "@octane-xplat/fmt-darwin-x64": "0.2.0", "@octane-xplat/fmt-linux-arm64-gnu": "0.2.0", "@octane-xplat/fmt-linux-arm64-musl": "0.2.0", "@octane-xplat/fmt-linux-x64-gnu": "0.2.0", "@octane-xplat/fmt-linux-x64-musl": "0.2.0", "@octane-xplat/fmt-win32-arm64": "0.2.0", "@octane-xplat/fmt-win32-x64": "0.2.0" } }, "sha512-t7nGd+VI3VnUkVEgIp2kt1DMyEtbYw/bABre7jGTcRwkr9+gSCjtpZbK15PtpemLeOBikFnXCa3kImEIY1CV2A=="],
 
-    "@octane-xplat/fmt-darwin-arm64": ["@octane-xplat/fmt-darwin-arm64@0.1.1", "", { "os": "darwin", "cpu": "arm64" }, "sha512-5hxFRqxupOoqTxYkPju5JdxnVuuTlC41kYozyKhW4AGb2Xh9dSJs29XL1p5mUDTEOEV8iH0fqpk9r2e/m9SxNQ=="],
+    "@octane-xplat/fmt-darwin-arm64": ["@octane-xplat/fmt-darwin-arm64@0.2.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-OKuAnUm91LYKhsd5BTh5eKY+2YC0MvfVGWlQhLfRcj6hzDCpcHPpTvWsLD0hJkHJpeouiwIQIGYpanH5HqOZsg=="],
 
-    "@octane-xplat/fmt-darwin-x64": ["@octane-xplat/fmt-darwin-x64@0.1.1", "", { "os": "darwin", "cpu": "x64" }, "sha512-HlZ7KdozSYxPhQ2uzH0xOWQWEF/JnUdZKKDNEcFiR58U0aPlGqPCBmQefAWmVCeKUhaf7fqZitBwwtQiAO2nRg=="],
+    "@octane-xplat/fmt-darwin-x64": ["@octane-xplat/fmt-darwin-x64@0.2.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-X3nAoj5ww8NgTdhYbRLZa98FIRckI9KeoE61K89psqk4vr29l39bcywzROyGy6tdHD8XzOH/rdMWvUK3DORe8A=="],
 
-    "@octane-xplat/fmt-linux-arm64-gnu": ["@octane-xplat/fmt-linux-arm64-gnu@0.1.1", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-3x+RBTWxzOn9pLYJnrWRiDKUg7OxkuDbhVZF1drva1hwsWLkFQcH+dRDA2KXQGdBygePk3goxh3buNK94k/ldQ=="],
+    "@octane-xplat/fmt-linux-arm64-gnu": ["@octane-xplat/fmt-linux-arm64-gnu@0.2.0", "", { "os": "linux", "cpu": "arm64", "libc": "glibc" }, "sha512-atpBb0bR8LCpSYr75TVXuRo+10MiXiSnFfssX/ET8GeW4UdvtTX3S20IFXnrqe8lrU+H/pr0oePejCG46VMW2Q=="],
 
-    "@octane-xplat/fmt-linux-arm64-musl": ["@octane-xplat/fmt-linux-arm64-musl@0.1.1", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-LIcpsPHfgHbkViBvcC4swcsOAgs8C7iP7tdraI1t7tqyjhDT6/3KOi7kA2l0UAfEFYhGfYeo9+ibLt2XAXByrQ=="],
+    "@octane-xplat/fmt-linux-arm64-musl": ["@octane-xplat/fmt-linux-arm64-musl@0.2.0", "", { "os": "linux", "cpu": "arm64", "libc": "musl" }, "sha512-6EXD9hhLWKJZ2DmvoetBZiLCQ0tf4j46Y8wZQA+f66BoD21Y3slioYUwmFSD1yzBa/wY08hZO36GLUUhTMt8uQ=="],
 
-    "@octane-xplat/fmt-linux-x64-gnu": ["@octane-xplat/fmt-linux-x64-gnu@0.1.1", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-scyp+Jw31pyYEqnhAYfj3POfRD6Y+qkfvJ09Rtw6iz09brSWYqVw8IpIqX+f/TS3QI7TJEY4rtF3g4hOADrHQw=="],
+    "@octane-xplat/fmt-linux-x64-gnu": ["@octane-xplat/fmt-linux-x64-gnu@0.2.0", "", { "os": "linux", "cpu": "x64", "libc": "glibc" }, "sha512-rbeyTC/gjA8++KtLk6eGv4vlms7W1xihHAsJiwfDS7zYYYcnRPfK3sJ7zi+6lB93oTwouEexCOhneuzHvnma2g=="],
 
-    "@octane-xplat/fmt-linux-x64-musl": ["@octane-xplat/fmt-linux-x64-musl@0.1.1", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-d0woaIAa5tVNH3B7xYC+KHLCVli9gAgNiZlJquaWPSUnMPt3QWi/DWYslRt4T7z3FFlS3zAw6S+soZ9bS3Fhmg=="],
+    "@octane-xplat/fmt-linux-x64-musl": ["@octane-xplat/fmt-linux-x64-musl@0.2.0", "", { "os": "linux", "cpu": "x64", "libc": "musl" }, "sha512-4rUdhIQz8dOC0FGgLhKfCki/tq1+gPmaMMwX2aL6qdDfGZN/e0DPFbusKOtCcFISo61F07MvJ/FkmEvTXk0wlg=="],
 
-    "@octane-xplat/fmt-win32-arm64": ["@octane-xplat/fmt-win32-arm64@0.1.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-N2A/0injv5mA2k6i8HG0uuwePGsU4upjCMBe+CZm7mYRqoo9aQ85p94rTJQ/hNhYb9bbVXgzQSedSBW/dFIG/A=="],
+    "@octane-xplat/fmt-win32-arm64": ["@octane-xplat/fmt-win32-arm64@0.2.0", "", { "os": "win32", "cpu": "arm64" }, "sha512-Fh8w5bPYyNGg8KHg3TLneNdtZartYyQH35rqjtkkBoNk8Cl1F/h0PmOe3AJpq59jN4MsA4X8ihFzY5GjTTF5kA=="],
 
-    "@octane-xplat/fmt-win32-x64": ["@octane-xplat/fmt-win32-x64@0.1.1", "", { "os": "win32", "cpu": "x64" }, "sha512-b1gjPIz2dAmmo7Knb/+9LovL5zA+3Hu1MlNeBCzT1xBmhBB3L67MWbwWfGMmaJ91ZHQRiZSErzSN/M1d9IRR6w=="],
+    "@octane-xplat/fmt-win32-x64": ["@octane-xplat/fmt-win32-x64@0.2.0", "", { "os": "win32", "cpu": "x64" }, "sha512-uct5+sMC81dkWfWuE7RcenMZ2LRL+OL/vUhnkpM3UK4L1SK/dVrB+W0opMm5YUe3JRCmbX0+CbVKxpsjmVgdwA=="],
 
     "@octane-xplat/form": ["@octane-xplat/form@workspace:packages/form"],
 

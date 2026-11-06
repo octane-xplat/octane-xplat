@@ -33,7 +33,7 @@ bun run xplat upgrade --check # preview alignment to this CLI's compatibility se
 bun run xplat upgrade      # align workspace versions and patches, then install
 bun run xplat typecheck    # web + native tsconfigs
 bun run xplat lint         # check JS/TS/JSX/TSX + .tsrx (--fix for safe fixes)
-bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx in place (--check, --stdin-filepath)
+bun run xplat fmt          # format JS/TS/JSX/TSX + .tsrx and other Oxfmt languages in place (--check, --stdin-filepath)
 bun run xplat patches apply  # install the framework's bun patch set into this app
 bun run xplat patches check  # verify the patch set is registered and unmodified
 bun run xplat fonts add ./Inter.ttf      # .ttf/.otf/.woff/.woff2 → src/fonts + fonts.css + --font-* token
@@ -206,14 +206,14 @@ xplat lint --fix src
 ```
 
 Native formatting on macOS Apple Silicon uses the project's installed
-`@octane-xplat/fmt@0.1.1` and Node >=22.22.2. Run from your app or library folder.
+`@octane-xplat/fmt@0.2.0` and Node ^20.19.0 || >=22.12.0. Run from your app or library folder.
 Check mode reports differences without writes; ordinary formatting updates the
 selected files. Configuration or parse errors leave the entire batch unchanged.
 Help works without Node, and the native download includes neither Node nor the
 formatter engine:
 
 ```sh
-bun add --dev @octane-xplat/fmt@0.1.1
+bun add --dev @octane-xplat/fmt@0.2.0
 xplat fmt --help
 xplat fmt src --check
 xplat fmt src

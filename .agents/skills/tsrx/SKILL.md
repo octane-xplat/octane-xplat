@@ -66,7 +66,7 @@ Use templates as expressions, directly inside JSX layout, or as function bodies.
 const card = <section>@{ <p>Trip summary</p> }</section>
 ```
 
-When `@octane-xplat/fmt` 0.1.1 reports `TSRX_LIFT` for a multiline JSX
+When `@octane-xplat/fmt` reports `TSRX_LIFT` for a multiline JSX
 initializer in an `@{}` function, parenthesize that initializer. The formatter
 currently rejects the unparenthesized form when a TSRX control statement
 follows it; see the
