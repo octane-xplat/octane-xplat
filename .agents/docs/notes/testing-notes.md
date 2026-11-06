@@ -212,8 +212,9 @@ the data files pass their scoped lint checks.
 > The former Volar-based `tsrx-tsc` checker rejected literal non-ASCII
 > characters in JSX text (e.g. `•`). Native `tsc --runExternalCode` with
 > `@tsrx/content-mapper` 0.1.2 accepts them (checked 2026-11-06 with a
-> `<span>a • b</span>` fixture). The `no-jsx-text-breakers` lint rule and the
-> `<Text>{'• '}</Text>` expression form predate that change.
+> `<span>a • b</span>` fixture). The `no-jsx-text-breakers` lint rule was
+> removed with the checker cutover; literal non-ASCII JSX text is fine, and
+> existing `<Text>{'• '}</Text>` expression forms are harmless.
 
 > [!NOTE]
 > Passive effects don't reliably drain after events dispatched outside

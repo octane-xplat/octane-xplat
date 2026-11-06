@@ -1500,27 +1500,6 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
   return []
 }
 
-const TSRX_TEXT_BREAKERS = /•/
-
-export function checkNoJsxTextBreakers(program, _src, filename, options) {
-  if (!filename.endsWith('.tsrx') || fileExcluded(filename, options)) {
-    return []
-  }
-
-  const out: any[] = []
-  for (const [node] of walk(program)) {
-    if (node.type === 'JSXText' && TSRX_TEXT_BREAKERS.test(node.value ?? '')) {
-      const text = (node.value ?? '').trim().slice(0, 40)
-      out.push({
-        node,
-        message: `Literal '${text}' in JSX text breaks TSRX checking — wrap it in braces: {'…'}`,
-      })
-    }
-  }
-
-  return out
-}
-
 // Bare `cond && <jsx>` and ternaries at the implicit-render root are outside
 // the TSRX grammar — they parse as a dead ExpressionStatement in the block
 // body (evaluated, discarded) instead of becoming the render output. Use
@@ -1588,7 +1567,6 @@ export const XPLAT_CHECKS = {
   'no-console-debug': checkNoConsoleDebug,
   'hooks-in-plain-ts': checkHooksInPlainTs,
   'native-pragma-first-line': checkNativePragmaFirstLine,
-  'no-jsx-text-breakers': checkNoJsxTextBreakers,
   'no-root-logical-render': checkNoRootLogicalRender,
   'no-removed-routing-api': checkNoRemovedRoutingApi,
   'no-route-augmentation': checkNoRouteAugmentation,
