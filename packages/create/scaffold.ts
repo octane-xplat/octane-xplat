@@ -108,6 +108,8 @@ export const targets: Record<string, any> = {
       '@nativescript/unit-test-runner',
       '@nativescript/vite',
       'nativescript',
+      // The classic-API checker path used by the native Vite plugin.
+      'typescript-classic',
     ],
     typecheck: 'xplat typecheck',
   },
