@@ -523,3 +523,28 @@ its npm and pkg.pr.new tarballs diverge in these files, so a single shared
 patch cannot target both safely. Regression coverage:
 `packages/cli/test/vite-ns-m-dep-freshness.test.mjs`. Tracking:
 [#161](https://github.com/octane-xplat/octane-xplat/issues/161).
+## NativeScript 9.1.3: iOS variable-font computed weights
+
+Upstream `ui/styling/font.ios.ts` creates a UIFont from family/weight traits,
+but only applies variation coordinates when `fontVariationSettings` is
+explicit. With SN Pro (default `wght=200`), ordinary CSS weights and editable
+controls can remain at 200. The former Text-only inline bridge could not see
+computed class weights or cover editors; issue
+[#156](https://github.com/octane-xplat/octane-xplat/issues/156) records the gap.
+
+The canonical `@nativescript/core@9.1.3` patch resolves supported axes from
+CoreText after the CSS cascade. It derives `wght` from computed weight
+(normal=400) only when no explicit weight axis exists, preserves other axes
+and font traits, clamps to the selected font range, and keeps derived axes
+out of inherited authored CSS. Its cache includes the computed CSS weight.
+Static fonts retain their existing native selection. No new UI dependency is
+required. Remove this patch hunk when an adopted upstream release provides
+these same semantics; keep the Text component bridge removed.
+
+Owning upstream source:
+[font.ios.ts at 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3/packages/core/ui/styling/font.ios.ts).
+The CLI's `test:fonts` lane executes the installed patched module against a
+CoreText boundary model. Actual platform behavior is owned by
+`apps/mobile/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
+Geist spec; run `test:ios:fonts` on the selected, prebooted simulator. Host
+checks alone do not qualify UIKit behavior or root font-family inheritance.

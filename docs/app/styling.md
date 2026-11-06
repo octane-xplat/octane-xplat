@@ -577,9 +577,11 @@ register it under its own family (`--name 'Inter Italic'`) and apply that
 family where you want italic text.
 
 Variable fonts are supported on every target: web gets the `font-weight: min max`
-range, iOS resolves `font-weight` through `font-variation-settings`, and Android
-maps `font-weight` to the `wght` axis on API 26+ (older APIs load the file's
-default instance).
+range. On iOS, computed `font-weight` selects the font's `wght` coordinate
+for text and editable controls, including weights supplied by classes or
+inheritance. Normal text uses 400 even when the font file defaults to a
+lighter instance. Android maps `font-weight` to `wght` on API 26+ (older
+APIs load the file's default instance).
 
 Using the font: a `--font-sans` add restyles the whole app — `body` on web,
 `.ns-root` natively — with no component changes, and `--font-mono` feeds the
@@ -587,15 +589,28 @@ framework's code styles. Pick a weight with the `font-*` utility classes or a
 style value, which is also how a variable font selects its instance:
 
 ```tsx
-import { Text } from '@octane-xplat/ui'
+import { Text, TextInput, TextArea } from '@octane-xplat/ui'
 
 export function FontWeightPreview() {
   return (
     <>
+      <Text>Normal weight</Text>
       <Text className="font-semibold">Semi-bold</Text>
       <Text style={{ fontWeight: 600 }}>Semi-bold</Text>
+      <TextInput className="font-medium" defaultValue="Medium input" />
+      <TextArea className="font-medium" defaultValue="Medium text area" />
     </>
   )
+}
+```
+
+On iOS, an explicit `wght` setting overrides `font-weight`. Other variation
+settings remain in effect; use this only when you need a precise coordinate:
+
+```css
+.precise-weight {
+  font-weight: 700;
+  font-variation-settings: 'wght' 550;
 }
 ```
 

@@ -56,26 +56,8 @@ export function Text(props: TextProps): unknown @{
     ...styleRecord(props.style),
   }
 
-  const fontWeightValue = String(textStyle.fontWeight ?? '').toLowerCase()
-  const namedWeights: Record<string, number> = {
-    normal: 400,
-    bold: 700,
-    thin: 100,
-    'extra-light': 200,
-    light: 300,
-    medium: 500,
-    'semi-bold': 600,
-    'extra-bold': 800,
-    black: 900,
-  }
-
-  const fontWeight = /^\d+$/.test(fontWeightValue)
-    ? Number(fontWeightValue)
-    : namedWeights[fontWeightValue]
-
   const lineHeight = textStyle.lineHeight
-  // UIFontDescriptor resolves variable fonts to the regular axis default on
-  // iOS. Set wght explicitly so CSS fontWeight selects the matching instance.
+  // Native controls need an explicit minimum to honor authored line height.
   if (
     (Application.ios || Application.android) &&
     typeof lineHeight === 'number' &&
@@ -85,16 +67,6 @@ export function Text(props: TextProps): unknown @{
     textStyle.minHeight == null
   ) {
     textStyle.minHeight = lineHeight
-  }
-
-  if (
-    Application.ios &&
-    textStyle.fontVariationSettings == null &&
-    fontWeight !== undefined &&
-    fontWeight >= 100 &&
-    fontWeight <= 900
-  ) {
-    textStyle.fontVariationSettings = `'wght' ${fontWeight}`
   }
 
   @if (inText) {

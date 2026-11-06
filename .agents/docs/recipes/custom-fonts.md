@@ -35,8 +35,9 @@ files can be refreshed, while conflicting unregistered files remain protected.
   `--font-*` token rooted at `:root`/`.ns-root`; `--font-sans` additionally
   sets `font-family` on `.ns-root` and `body` so the whole app switches.
 - AC3: A variable font keeps its weight range — web `font-weight: min max` in
-  `@font-face`, iOS `font-variation-settings` from `font-weight` on `Text`,
-  Android `wght` axis mapping on API 26+.
+  `@font-face`; iOS selects `wght` from computed `font-weight` for text and
+  editable controls, including classes, inherited weights and normal/400
+  defaults; Android maps `wght` on API 26+. Explicit axes take precedence.
 - AC4: Re-running for the same file reports it as already registered rather
   than duplicating the face; adding another file merges into the existing
   token block.

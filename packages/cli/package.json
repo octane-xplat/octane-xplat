@@ -102,7 +102,7 @@
 		"test:go-workshop-engine": "node --test ../../tools/cli-go/workshop-engine.test.mjs",
 		"test:go-workshop": "node --test ../../tools/cli-go/workshop.test.mjs",
 		"test:go-fonts": "node --test ../../tools/cli-go/fonts.test.mjs",
-		"test:fonts": "node --test test/fonts.test.mjs",
+		"test:fonts": "node --test test/fonts.test.mjs test/ios-variable-font.test.mjs",
 		"test:go-updates": "node --test ../../tools/cli-go/updates.test.mjs",
 		"test:go-add": "node --test ../../tools/cli-go/add.test.mjs",
 		"test:go-upgrade": "node --test ../../tools/cli-go/upgrade.test.mjs",

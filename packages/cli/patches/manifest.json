@@ -13,8 +13,8 @@
 			"file": "@nativescript__core@9.1.3.patch",
 			"upstreamPR": "https://github.com/NativeScript/NativeScript/pull/11514",
 			"scope": "runtime",
-			"why": "Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size flex alignment, so those hunks are removed. Retains the unshipped parent-padding measure-spec fix and Android explicit-size flex alignment, iOS continuous corner clipping, CSS @layer cascade support, custom Android variable-font weight mapping, and percentage translate parsing, native view, and animation support. Verified against the registry 9.1.3 tarball; it has no Windows implementation, so the separate Windows preview patch remains.",
-			"dropWhen": "A published @nativescript/core release contains the remaining flexbox measure/alignment, continuous corners, cascade layers, custom Android variable-font weight mapping, and percentage-translate fixes (NativeScript/NativeScript#11481)."
+			"why": "Published 9.1.3 ships the #11446 nested-tab-frame lifecycle fix and iOS explicit-size flex alignment, so those hunks are removed. Retains the unshipped parent-padding measure-spec fix and Android explicit-size flex alignment, iOS continuous corner clipping, CSS @layer cascade support, custom Android variable-font weight mapping, computed iOS variable-font weight resolution with explicit-axis precedence and axis-aware caching, and percentage translate parsing, native view, and animation support. Verified against the registry 9.1.3 tarball; it has no Windows implementation, so the separate Windows preview patch remains.",
+			"dropWhen": "A published @nativescript/core release contains the remaining flexbox measure/alignment, continuous corners, cascade layers, custom Android and computed iOS variable-font weight mapping, and percentage-translate fixes (NativeScript/NativeScript#11481)."
 		},
 		{
 			"specifier": "css@3.0.0",

@@ -94,6 +94,26 @@ export function AccountTitle({ title }: { title: string }) {
 }
 ```
 
+## iOS variable fonts
+
+The framework's NativeScript core patch selects `wght` from the computed
+weight for Text, TextInput and TextArea. Classes and inherited weights use the
+same resolver as inline styles; normal uses 400, clamped to the font range.
+An explicit `wght` takes precedence and other axes are preserved. Keep these
+settings in ordinary CSS/props rather than adding component effects or Bamboo
+axis-emission workarounds. The resolver derives its coordinates internally;
+it does not write inherited CSS variation settings.
+
+```tsx
+<TextInput className="font-medium" defaultValue="Medium weight" />
+<Text style={{ fontWeight: 700, fontVariationSettings: "'wght' 550" }}>550</Text>
+```
+
+See [font-family tokens](../../../../../docs/app/styling.md#font-family-tokens)
+for registration. The generic Mason container font-family inheritance path is
+separate from this weight fix; native font tests establish the family on text
+leaves and qualify inherited weights through core layouts.
+
 ## Rich and streamed text
 
 Use `@octane-xplat/ui/markdown` for `Markdown` and `useStreamingText`; chat

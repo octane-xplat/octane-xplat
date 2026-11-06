@@ -1,0 +1,5 @@
+/* Family on the root only: children must inherit it through the Mason
+   container's core inherited property slot, not through per-leaf selectors. */
+.font-root {
+  font-family: 'SN Pro';
+}

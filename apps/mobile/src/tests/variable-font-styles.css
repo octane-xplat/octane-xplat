@@ -1,0 +1,13 @@
+/* Establish the family on native text leaves: generic Mason container font
+   inheritance is a separate qualification from computed weight resolution. */
+.font-test label,
+.font-test textfield,
+.font-test textview {
+  font-family: 'SN Pro';
+  font-size: 24px;
+}
+.font-test-static label,
+.font-test-static textfield,
+.font-test-static textview {
+  font-family: 'Courier';
+}

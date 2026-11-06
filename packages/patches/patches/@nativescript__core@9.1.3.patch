@@ -1180,3 +1180,101 @@ index e75c7c8010e23917a7138c7351243aab0bad1f49..7cf9244c0290a76b186c15f13cc94ca7
  function isRule(node) {
      return node.type === 'rule';
  }
+diff --git a/ui/styling/font.ios.js b/ui/styling/font.ios.js
+index 31fd457fd1929618042db5c35ca687e23b0c05d7..8938d4224a86a996e21f7217d8785547214d5cbd 100644
+--- a/ui/styling/font.ios.js
++++ b/ui/styling/font.ios.js
+@@ -4,9 +4,9 @@ import { File, Folder, knownFolders, path } from '../../file-system';
+ export { FontStyle, FontWeight, FontVariationSettings, parseFont } from './font-common';
+ const uiFontCache = new Map();
+ function computeFontCacheKey(fontDescriptor) {
+-    const { fontFamily, fontSize, fontWeight, fontVariationSettings, isBold, isItalic } = fontDescriptor;
++    const { fontFamily, fontSize, fontWeight, cssFontWeight, fontVariationSettings, isBold, isItalic } = fontDescriptor;
+     const sep = ':';
+-    return [fontFamily.join(sep), fontSize, fontWeight, String(FontVariationSettings.toString(fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_'), isBold, isItalic].join(sep);
++    return [fontFamily.join(sep), fontSize, fontWeight, cssFontWeight, String(FontVariationSettings.toString(fontVariationSettings)).replace(/'/g, '').replace(/[\s,]/g, '_'), isBold, isItalic].join(sep);
+ }
+ function getUIFontCached(fontDescriptor) {
+     const cacheKey = computeFontCacheKey(fontDescriptor);
+@@ -17,25 +17,38 @@ function getUIFontCached(fontDescriptor) {
+         return uiFontCache.get(cacheKey);
+     }
+     let uiFont = NativeScriptUtils.createUIFont(fontDescriptor);
+-    if (fontDescriptor.fontVariationSettings?.length) {
+-        let font = CGFontCreateWithFontName(uiFont.fontName);
+-        const variationAxes = CGFontCopyVariationAxes(font);
+-        // This can be null if font doesn't support axes
+-        if (variationAxes?.count) {
+-            const variationSettings = NSMutableDictionary.new();
+-            const variationAxesCount = variationAxes.count;
+-            const variationAxesNames = [];
+-            for (let i = 0, length = variationAxes.count; i < length; i++) {
+-                variationAxesNames.push(String(variationAxes[i].objectForKey('kCGFontVariationAxisName')));
+-            }
+-            for (const variationSetting of fontDescriptor.fontVariationSettings) {
+-                const axisName = fuzzySearch(variationSetting.axis, variationAxesNames);
+-                if (axisName?.length) {
+-                    variationSettings.setValueForKey(variationSetting.value, axisName[0]);
+-                }
++    // Resolve axes after the native CSS cascade has produced this Font. Keep
++    // derived coordinates out of the authored/inherited variation settings.
++    const axes = CTFontCopyVariationAxes(uiFont);
++    if (axes?.count) {
++        const variations = NSMutableDictionary.new();
++        const current = CTFontCopyVariation(uiFont);
++        if (current) {
++            variations.addEntriesFromDictionary(current);
++        }
++        let changed = false;
++        const settings = fontDescriptor.fontVariationSettings || [];
++        for (let index = 0; index < axes.count; index++) {
++            const axis = axes.objectAtIndex(index);
++            const identifier = Number(axis.objectForKey(kCTFontVariationAxisIdentifierKey));
++            const tag = String.fromCharCode(identifier >>> 24, (identifier >>> 16) & 255, (identifier >>> 8) & 255, identifier & 255);
++            const name = String(axis.objectForKey(kCTFontVariationAxisNameKey));
++            const explicit = settings.find((setting) => setting.axis.toLowerCase() === tag.toLowerCase())
++                || settings.find((setting) => fuzzySearch(setting.axis, [name]).length > 0);
++            const value = explicit ? explicit.value : tag === 'wght' ? fontDescriptor.cssFontWeight : undefined;
++            if (value === undefined) {
++                continue;
+             }
+-            font = CGFontCreateCopyWithVariations(font, variationSettings);
+-            uiFont = CTFontCreateWithGraphicsFont(font, fontDescriptor.fontSize, null, null);
++            const minimum = Number(axis.objectForKey(kCTFontVariationAxisMinimumValueKey));
++            const maximum = Number(axis.objectForKey(kCTFontVariationAxisMaximumValueKey));
++            variations.setObjectForKey(Math.max(minimum, Math.min(maximum, value)), identifier);
++            changed = true;
++        }
++        if (changed) {
++            // Copy the resolved font so family, italic transforms and other
++            // selected coordinates survive the weight adjustment.
++            const descriptor = UIFontDescriptor.fontDescriptorWithFontAttributes({ [kCTFontVariationAttribute]: variations });
++            uiFont = CTFontCreateCopyWithAttributes(uiFont, fontDescriptor.fontSize, null, descriptor);
+         }
+     }
+     uiFontCache.set(cacheKey, uiFont);
+@@ -72,6 +85,7 @@ export class Font extends FontBase {
+             // Apply a11y scale and calculate proper font size (avoid applying multiplier to native point size as it's messing calculations)
+             fontSize: this.fontSize ? this.fontSize * this.fontScale : defaultFont.pointSize,
+             fontWeight: getNativeFontWeight(this.fontWeight),
++            cssFontWeight: getNumericFontWeight(this.fontWeight),
+             fontVariationSettings: this.fontVariationSettings,
+             isBold: this.isBold,
+             isItalic: this.isItalic,
+@@ -82,6 +96,16 @@ export class Font extends FontBase {
+     }
+ }
+ Font.default = new Font(undefined, undefined);
++function getNumericFontWeight(weight) {
++    if (weight == null || weight === FontWeight.NORMAL) {
++        return 400;
++    }
++    if (weight === FontWeight.BOLD) {
++        return 700;
++    }
++    const numeric = Number(weight);
++    return Number.isFinite(numeric) ? numeric : 400;
++}
+ function getNativeFontWeight(fontWeight) {
+     const value = typeof fontWeight === 'number' ? fontWeight + '' : fontWeight;
+     switch (value) {
