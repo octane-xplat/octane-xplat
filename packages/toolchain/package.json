@@ -24,14 +24,13 @@
 		"vite.d.ts"
 	],
 	"scripts": {
-		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test:packed": "node test/packed.mjs"
 	},
 	"dependencies": {
 		"@octane-xplat/cli": "workspace:*",
 		"@octanejs/vite-plugin": "0.5.0",
 		"@tsrx/oxc": "0.20.0",
-		"@tsrx/typescript-plugin": "0.6.3",
 		"typescript": "7.1.0-beta",
 		"vite": "8.3.6",
 		"@tsrx/content-mapper": "0.1.2"

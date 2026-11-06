@@ -208,10 +208,12 @@ the data files pass their scoped lint checks.
 - HMR confidence is manual: the ns-octane workflow (edit while streaming,
   watch in-place accept) is the bar.
 
-> [!CAUTION]
-> `tsrx-tsc` rejects literal non-ASCII characters in JSX text (e.g. `•`) —
-> Vite tolerates them, typecheck doesn't. Emit them as expressions:
-> `<Text>{'• '}</Text>`.
+> [!NOTE]
+> The former Volar-based `tsrx-tsc` checker rejected literal non-ASCII
+> characters in JSX text (e.g. `•`). Native `tsc --runExternalCode` with
+> `@tsrx/content-mapper` 0.1.2 accepts them (checked 2026-11-06 with a
+> `<span>a • b</span>` fixture). The `no-jsx-text-breakers` lint rule and the
+> `<Text>{'• '}</Text>` expression form predate that change.
 
 > [!NOTE]
 > Passive effects don't reliably drain after events dispatched outside

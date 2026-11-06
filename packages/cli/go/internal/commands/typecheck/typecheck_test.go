@@ -44,31 +44,75 @@ func TestInstalledCheckerNeverSkipsANearerBrokenPackage(t *testing.T) {
 	if err := os.MkdirAll(projectPath, 0755); err != nil {
 		t.Fatal(err)
 	}
-	tool := filepath.Join(root, "node_modules", "@tsrx", "typescript-plugin")
+	tool := filepath.Join(root, "node_modules", "typescript")
 	if err := os.MkdirAll(tool, 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(tool, "package.json"), []byte(`{"name":"@tsrx/typescript-plugin","bin":{"tsrx-tsc":"checker.js"}}`), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(tool, "package.json"), []byte(`{"name":"typescript","bin":{"tsc":"checker.js"}}`), 0644); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(filepath.Join(tool, "checker.js"), []byte("// installed"), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.InstalledTool(projectPath, "@tsrx/typescript-plugin", "tsrx-tsc"); err != nil {
+	if _, err := project.InstalledTool(projectPath, "typescript", "tsc"); err != nil {
 		t.Fatal(err)
 	}
-	near := filepath.Join(projectPath, "node_modules", "@tsrx", "typescript-plugin")
+	near := filepath.Join(projectPath, "node_modules", "typescript")
 	if err := os.MkdirAll(near, 0755); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.InstalledTool(projectPath, "@tsrx/typescript-plugin", "tsrx-tsc"); err == nil {
+	if _, err := project.InstalledTool(projectPath, "typescript", "tsc"); err == nil {
 		t.Fatal("nearer missing manifest fell back to an ancestor's compiler")
 	}
-	if err := os.WriteFile(filepath.Join(near, "package.json"), []byte(`{"name":"@tsrx/typescript-plugin","bin":{"tsrx-tsc":"../../../../other.js"}}`), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(near, "package.json"), []byte(`{"name":"typescript","bin":{"tsc":"../../../../other.js"}}`), 0644); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := project.InstalledTool(projectPath, "@tsrx/typescript-plugin", "tsrx-tsc"); err == nil {
+	if _, err := project.InstalledTool(projectPath, "typescript", "tsc"); err == nil {
 		t.Fatal("escaping compiler entry accepted")
+	}
+}
+
+func TestInstalledCheckerFallsBackToDeclaredUmbrellaTool(t *testing.T) {
+	root := t.TempDir()
+	projectPath := filepath.Join(root, "app")
+	// An octane-xplat-only project resolves declared umbrella tools inside the
+	// umbrella install, as with an isolated linker's .bun store siblings.
+	cell := filepath.Join(projectPath, "node_modules", "octane-xplat", "node_modules")
+	tool := filepath.Join(cell, "typescript")
+	if err := os.MkdirAll(tool, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(projectPath, "node_modules", "octane-xplat", "package.json"), []byte(`{"name":"octane-xplat","dependencies":{"typescript":"7.1.0-beta"}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(tool, "package.json"), []byte(`{"name":"typescript","bin":{"tsc":"bin/tsc"}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(tool, "bin"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(tool, "bin", "tsc"), []byte("// installed"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := project.InstalledTool(projectPath, "typescript", "tsc"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := project.InstalledTool(projectPath, "unrelated", "unrelated"); err == nil {
+		t.Fatal("undeclared umbrella package became a project tool")
+	}
+	direct := filepath.Join(projectPath, "node_modules", "typescript")
+	if err := os.MkdirAll(direct, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(direct, "package.json"), []byte(`{"name":"typescript","bin":{"tsc":"checker.js"}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(direct, "checker.js"), []byte("// direct"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	entry, err := project.InstalledTool(projectPath, "typescript", "tsc")
+	if err != nil || filepath.Base(entry) != "checker.js" {
+		t.Fatal("direct install did not win over the umbrella tool", err)
 	}
 }
 

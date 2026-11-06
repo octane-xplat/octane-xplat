@@ -1513,7 +1513,7 @@ export function checkNoJsxTextBreakers(program, _src, filename, options) {
       const text = (node.value ?? '').trim().slice(0, 40)
       out.push({
         node,
-        message: `Literal '${text}' in JSX text breaks tsrx-tsc — wrap it in braces: {'…'}`,
+        message: `Literal '${text}' in JSX text breaks TSRX checking — wrap it in braces: {'…'}`,
       })
     }
   }

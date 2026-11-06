@@ -39,44 +39,42 @@ func Discover(project string) (any, error) {
 }
 
 // Node-style ascending package lookup, but never skip a nearer broken install.
+// A project that only links the octane-xplat umbrella resolves its declared
+// CLI through the umbrella root, matching tool lookup.
 func Worker(project string) (string, error) {
-	for current := project; ; current = filepath.Dir(current) {
-		candidate := filepath.Join(current, "node_modules", "@octane-xplat", "cli")
-		_, err := os.Lstat(candidate)
-		if err == nil {
-			root, err := osfs.Canonical(candidate)
-			if err != nil {
-				return "", err
-			}
-			var manifest struct {
-				Name    string                     `json:"name"`
-				Exports map[string]json.RawMessage `json:"exports"`
-			}
-			if err = osfs.ReadJSON(filepath.Join(root, "package.json"), &manifest); err != nil {
-				return "", fmt.Errorf("reinstall selected project's @octane-xplat/cli: %w", err)
-			}
-			var entry string
-			if manifest.Name != "@octane-xplat/cli" || json.Unmarshal(manifest.Exports["./worker"], &entry) != nil || !strings.HasPrefix(entry, "./") {
-				return "", errors.New("selected project's CLI lacks worker v1; update @octane-xplat/cli")
-			}
-			file, err := osfs.Canonical(filepath.Join(root, entry))
-			if err != nil || !osfs.Inside(root, file) {
-				return "", errors.New("project worker must remain inside its installed package")
-			}
-			info, err := os.Stat(file)
-			if err != nil || !info.Mode().IsRegular() {
-				return "", errors.New("project worker must be a regular file")
-			}
-			return file, nil
-		}
-		if !os.IsNotExist(err) {
+	root, err := installedPackageRoot(project, "@octane-xplat/cli")
+	if err != nil {
+		return "", err
+	}
+	if root == "" {
+		root, err = umbrellaPackageRoot(project, "@octane-xplat/cli")
+		if err != nil {
 			return "", err
 		}
-		if filepath.Dir(current) == current {
-			break
-		}
 	}
-	return "", errors.New("install @octane-xplat/cli in the selected project to provide worker v1")
+	if root == "" {
+		return "", errors.New("install @octane-xplat/cli in the selected project to provide worker v1")
+	}
+	var manifest struct {
+		Name    string                     `json:"name"`
+		Exports map[string]json.RawMessage `json:"exports"`
+	}
+	if err = osfs.ReadJSON(filepath.Join(root, "package.json"), &manifest); err != nil {
+		return "", fmt.Errorf("reinstall selected project's @octane-xplat/cli: %w", err)
+	}
+	var entry string
+	if manifest.Name != "@octane-xplat/cli" || json.Unmarshal(manifest.Exports["./worker"], &entry) != nil || !strings.HasPrefix(entry, "./") {
+		return "", errors.New("selected project's CLI lacks worker v1; update @octane-xplat/cli")
+	}
+	file, err := osfs.Canonical(filepath.Join(root, entry))
+	if err != nil || !osfs.Inside(root, file) {
+		return "", errors.New("project worker must remain inside its installed package")
+	}
+	info, err := os.Stat(file)
+	if err != nil || !info.Mode().IsRegular() {
+		return "", errors.New("project worker must be a regular file")
+	}
+	return file, nil
 }
 
 // JSONC is accepted only for bun.lock. Standardize strips comments and

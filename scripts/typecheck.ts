@@ -1,7 +1,7 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 // Package typecheck runner — expands tsconfig.envs.json into a single program
 // covering every declared environment's files (the shared expansion lives in
-// packages/cli/src/tsconfig-envs.ts) and runs tsrx-tsc on it. All platform
+// packages/cli/src/tsconfig-envs.ts) and runs tsc --runExternalCode on it. All platform
 // module suffixes resolve under one fixed precedence order, extensionless
 // first; per-file @jsxImportSource pragmas pick the renderer.
 // Run from a package directory via its "typecheck" script.
@@ -29,8 +29,8 @@ try {
 }
 
 for (const { env, configPath } of programs) {
-  console.log(`typecheck[${env}]: tsrx-tsc --noEmit -p ${configPath}`)
-  const res = spawnSync('bun', ['run', 'tsrx-tsc', '--noEmit', '-p', configPath], {
+  console.log(`typecheck[${env}]: tsc --runExternalCode --noEmit -p ${configPath}`)
+  const res = spawnSync('bun', ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', configPath], {
     shell: process.platform === 'win32',
     cwd: dir,
     stdio: 'inherit',

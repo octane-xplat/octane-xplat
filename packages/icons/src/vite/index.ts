@@ -26,7 +26,7 @@ export interface XplatIconsOptions {
    *  stays registry-free. */
   register?: boolean
   /** Sync the `.icon` type-stub tree (default `<root>/.icons`) at config
-   *  time so `tsc`/`tsrx-tsc` and editors resolve `icons:*` specifiers per
+   *  time so `tsc --runExternalCode` and editors resolve `icons:*` specifiers per
    *  name through the package's content mapper. Default true; pass an
    *  options object to steer the stub dir or collections, or `false` when
    *  stubs are synced by another step. */

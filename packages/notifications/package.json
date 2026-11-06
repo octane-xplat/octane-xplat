@@ -62,7 +62,6 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",

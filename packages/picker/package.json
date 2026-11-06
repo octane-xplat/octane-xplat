@@ -63,7 +63,7 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
 		"typegen": "tsrx-typegen --target picker",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
@@ -79,7 +79,6 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

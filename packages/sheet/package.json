@@ -52,7 +52,7 @@
 		"test:host-lifecycle": "node --test tests/native-host-lifecycle.android.test.mjs",
 		"test:keyboard:ios": "node ../../tools/probe/cli.ts run tests/fixtures/keyboard.ios.tsrx --deps @octane-xplat/sheet --target ios",
 		"test:keyboard:android": "node ../../tools/probe/cli.ts run tests/fixtures/keyboard.android.tsrx --deps @octane-xplat/sheet --target android",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@nativescript/jetpack-compose": "1.0.0-beta.0",
@@ -69,7 +69,6 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

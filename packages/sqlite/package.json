@@ -41,7 +41,6 @@
 	},
 	"devDependencies": {
 		"@nativescript/types": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"@tsrx/content-mapper": "catalog:",

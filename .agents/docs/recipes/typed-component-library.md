@@ -2,7 +2,7 @@
 
 ID: typed-component-library
 Targets: web, ios, android
-Related APIs: tsrx-typegen, tsrx-tsc, TypeScript declarations, package.json exports, Stack, HStack, VStack, List, ListItem, FormLayout, InputGroup, bun pm pack
+Related APIs: tsrx-typegen, tsc --runExternalCode, TypeScript declarations, package.json exports, Stack, HStack, VStack, List, ListItem, FormLayout, InputGroup, bun pm pack
 
 ## Starting point
 

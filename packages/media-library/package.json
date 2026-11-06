@@ -59,7 +59,6 @@
 		"@octane-xplat/image-manipulator": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

@@ -254,7 +254,7 @@ experience of agents writing Octane-xplat code effectively.
   expands the declared environments into **one combined program** using the
   shared presets in `packages/cli/src/tsconfig-envs.ts` (lib / ambient /
   types merged; `jsxImportSource` defaults to `@octane-xplat/jsx` (`/dom` for browser) with per-file pragmas
-  on native/macOS leaves) and runs `tsrx-tsc --noEmit` on it under
+  on native/macOS leaves) and runs `tsc --runExternalCode --noEmit` on it under
   `node_modules/.cache/xplat-typecheck/`. Every program resolves under the
   fixed `moduleSuffixes` order `["" , ".web", ".ios", ".android", ".mobile",
 ".native", ".macos", ".linux", ".windows"]` — extensionless first — with no
@@ -309,6 +309,17 @@ experience of agents writing Octane-xplat code effectively.
   accepts either manager and checks its own selected lockfile/configuration.
   pnpm 11 ignores `package.json.pnpm`, so standalone applications also need
   a `pnpm-workspace.yaml`; do not restore the old JSON fallback.
+- **`@nativescript/vite` 8.0.20/8.0.21 delegate `.tsrx` build checks to
+  `tsrx-tsc`.** Upstream's `typescript-check.js` resolves
+  `@tsrx/typescript-plugin` and spawns its `tsrx-tsc` bin for files with TSRX
+  imports. Our patch retargets that lane to the project's `typescript` package
+  (`bin.tsc`, major ≥ 7 only) run as `tsc --runExternalCode`; older/absent
+  compilers fall through to the existing classic-API path unchanged.
+  Limitation: starter apps link only the `octane-xplat` umbrella — `typescript`
+  is a transitive dep invisible to upstream's `projectRequire`, so starters
+  take the classic path (same as before the retarget). The generated check
+  config's `tsrx.platform` key is a Volar-plugin option and is inert under
+  native tsc.
 - **Bun 1.4.4 is the install minimum.** On macOS arm64, 1.4.3 failed the
   canonical `@nativescript/vite@8.0.21` patch with `EINVAL (fstatat)` in both
   an isolated dependency and the full workspace. The identical patch applied

@@ -71,24 +71,24 @@ function project(files = {}, { worker = true, checker = 'fake', body } = {}) {
     )
   }
   if (checker === 'fake') {
-    put(directory, 'node_modules/@tsrx/typescript-plugin/package.json', {
-      name: '@tsrx/typescript-plugin',
+    put(directory, 'node_modules/typescript/package.json', {
+      name: 'typescript',
       type: 'module',
-      bin: { 'tsrx-tsc': './checker.js' },
+      bin: { tsc: './checker.js' },
     })
 
     put(
       directory,
-      'node_modules/@tsrx/typescript-plugin/checker.js',
+      'node_modules/typescript/checker.js',
       body ??
         `import{appendFileSync}from'node:fs';appendFileSync('invocations.jsonl',JSON.stringify({argv:process.argv.slice(2),cwd:process.cwd(),nodePath:process.env.NODE_PATH,nodeOptions:process.env.NODE_OPTIONS})+'\\n');console.log('checker stdout π😀');console.error('checker stderr β');`,
     )
   } else if (checker === 'real') {
-    const parent = join(directory, 'node_modules/@tsrx')
+    const parent = join(directory, 'node_modules')
     mkdirSync(parent, { recursive: true })
     symlinkSync(
-      realpathSync(join(tools.nodeModules, '@tsrx/typescript-plugin')),
-      join(parent, 'typescript-plugin'),
+      realpathSync(join(tools.nodeModules, 'typescript')),
+      join(parent, 'typescript'),
       process.platform === 'win32' ? 'junction' : 'dir',
     )
     // The checker resolves its own compiler from the installed toolchain.
@@ -159,8 +159,8 @@ test('plain and legacy programs run in order with project cwd/environment and in
   assert.deepEqual(
     calls.map((call) => call.argv),
     [
-      ['--noEmit', '-p', join(directory, 'tsconfig.json')],
-      ['--noEmit', '-p', join(directory, 'tsconfig.native.json')],
+      ['--noEmit', '--runExternalCode', '-p', join(directory, 'tsconfig.json')],
+      ['--noEmit', '--runExternalCode', '-p', join(directory, 'tsconfig.native.json')],
     ],
   )
   for (const call of calls) {
@@ -189,7 +189,7 @@ test('canonical JSONC environment expansion replaces the legacy program and incl
   const expected = reference(directory)
   assert.equal(readFileSync(file, 'utf8'), generated)
   assert.deepEqual(
-    invocations(directory).map((call) => call.argv[2]),
+    invocations(directory).map((call) => call.argv[3]),
     expected.configs,
   )
   const program = JSON.parse(generated)
@@ -230,7 +230,7 @@ test('invalid manifest and absent selected checker fail without invoking a globa
   const missing = project({ 'tsconfig.json': {} }, { checker: false })
   const result = cli(missing)
   assert.equal(result.status, 1)
-  assert.match(result.stderr, /[Ii]nstall.*TSRX checker/)
+  assert.match(result.stderr, /[Ii]nstall.*typescript tool/)
 })
 
 test('nonzero compiler exit retains diagnostics and prevents the next program and success message', () => {
@@ -281,7 +281,7 @@ test('malformed, out-of-order and stale program plans never start the checker', 
   }
 })
 
-test('the actual installed TSRX checker accepts valid TypeScript and reports a real type error', () => {
+test('the actual installed TypeScript checker accepts valid TypeScript and reports a real type error', () => {
   const directory = project(
     {
       'tsconfig.json': {

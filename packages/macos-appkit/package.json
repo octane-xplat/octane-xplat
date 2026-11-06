@@ -51,7 +51,7 @@
 		"test:portals": "node ../../tools/probe/cli.ts run test/fixtures/portal-lifecycle.macos.tsrx --target macos",
 		"test:overflow": "node ../../tools/probe/cli.ts run test/fixtures/text-overflow.macos.tsrx --target macos",
 		"test:packed": "node --experimental-strip-types test/packed-consumer.ts",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"@nativescript/macos-node-api": "catalog:",
@@ -64,8 +64,8 @@
 	},
 	"devDependencies": {
 		"octane": "catalog:",
+		"typescript": "catalog:",
 		"typescript-classic": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

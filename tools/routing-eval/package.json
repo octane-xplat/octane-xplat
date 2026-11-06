@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"eval": "node cli.ts",
-		"typecheck": "tsrx-tsc -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode -p tsconfig.json"
 	},
 	"devDependencies": {
 		"typescript": "catalog:",

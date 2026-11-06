@@ -54,7 +54,6 @@
 		"@nativescript/core": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"playwright": "1.63.0",
 		"rouzer": "6.0.2",

@@ -108,12 +108,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
 
   run('bun', ['install', '--ignore-scripts'], app)
   // These tools must work without direct app declarations or top-level links.
-  for (const name of [
-    'typescript',
-    '@tsrx/typescript-plugin',
-    '@octanejs/vite-plugin',
-    '@octane-xplat/cli',
-  ]) {
+  for (const name of ['typescript', '@octanejs/vite-plugin', '@octane-xplat/cli']) {
     assert.throws(() => readFileSync(join(app, 'node_modules', name, 'package.json')))
   }
 

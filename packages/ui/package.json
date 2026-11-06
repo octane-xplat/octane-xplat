@@ -158,13 +158,13 @@
 		"test:overlay-keyboard:ios": "node ../../tools/probe/cli.ts run tests/fixtures/overlay-keyboard.ios.tsrx --target ios",
 		"test:overlay-keyboard:android": "node ../../tools/probe/cli.ts run tests/fixtures/overlay-keyboard.android.tsrx --target android",
 		"test:overlay-keyboard:macos": "node ../../tools/probe/cli.ts run tests/fixtures/overlay-keyboard.macos.tsrx --deps @octane-xplat/sheet --target macos",
-		"build": "tsrx-tsc -p tsconfig.node.json",
+		"build": "tsc --runExternalCode -p tsconfig.node.json",
 		"test:intl": "node --test tests/intl-bundle.test.mjs",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json",
 		"sync:ui-barrels": "node scripts/sync-ui-barrels.ts",
 		"check:ui-barrels": "node scripts/sync-ui-barrels.ts --check",
 		"bench:routing-types": "node scripts/bench-routing-types.ts",
-		"typecheck:scripts": "tsrx-tsc -p scripts/tsconfig.json"
+		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json"
 	},
 	"dependencies": {
 		"@octane-xplat/camera": "workspace:*",
@@ -178,7 +178,6 @@
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

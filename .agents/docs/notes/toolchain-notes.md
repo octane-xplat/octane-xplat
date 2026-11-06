@@ -140,7 +140,7 @@ No Android build or device runtime verification is claimed by this regression.
 - `.tsrx` everywhere for renderer-owned files; `.ts` helpers
   never call hooks (slotter emits `from 'octane'` — DOM runtime; under a
   universal rule they're _validated_ not compiled).
-- Typecheck via `tsrx-tsc --noEmit` per target config (`.tsrx` needs the
+- Typecheck via `tsc --runExternalCode --noEmit` per target config (`.tsrx` needs the
   patched tsc).
 
 ### Native plugin declaration ownership
@@ -178,7 +178,7 @@ for source evidence, qualification, and the historical barrel-coupling review.
 
 ### Editor diagnostics and typecheck authority
 
-The repository's authoritative type lane is `tsrx-tsc --noEmit` under the web
+The repository's authoritative type lane is `tsc --runExternalCode --noEmit` under the web
 and native app configs. The `@tsrx/oxc` editor server is an OXC parser/linter
 lane, not a TypeScript semantic checker. Capturing diagnostics from the
 checked-in `@tsrx/oxc` 0.13 server for the two List leaves produced only
@@ -450,7 +450,7 @@ pnpm check:pack
 `tsconfig.base.json` + one `tsconfig.envs.json` manifest per package/app —
 `environments.<env>` declares each target's file set; shared presets supply
 `jsxImportSource`/`moduleSuffixes`/ambient types (`@nativescript/types`
-scoped to native). `tsrx-tsc --noEmit` per target in CI via
+scoped to native). `tsc --runExternalCode --noEmit` per target in CI via
 `scripts/typecheck.ts` / `xplat typecheck`.
 See module-resolution.md for the suffix-typing strategy.
 

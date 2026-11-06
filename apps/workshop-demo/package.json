@@ -30,7 +30,6 @@
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/workshop": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
 		"vite": "catalog:",

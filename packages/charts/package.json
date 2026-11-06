@@ -64,7 +64,6 @@
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@types/d3-array": "3.2.2",
 		"@types/d3-format": "3.0.4",
 		"@types/d3-scale": "4.0.9",

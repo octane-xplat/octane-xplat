@@ -35,8 +35,7 @@ the maintained consumer reads the repository's compatibility manifest rather
 than maintaining a second set of version pins.
 
 Apply the framework's [patch setup](package-cli.md)
-before building. For TSX checking, install TypeScript; for TSRX source, also
-install `@tsrx/typescript-plugin` and use `tsrx-tsc`.
+before building. For TSX and TSRX checking, install TypeScript and run `tsc --runExternalCode`.
 
 Use this production Vite config:
 

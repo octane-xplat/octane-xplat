@@ -75,7 +75,7 @@ const checked: '${expected}' = value
       writeFileSync(main, entry('wrong'))
       await assert.rejects(
         () => plugin.buildStart(),
-        tsrx ? /tsrx-tsc reported type errors/ : /TypeScript found 1 error/,
+        tsrx ? /tsc reported type errors/ : /TypeScript found 1 error/,
       )
     } finally {
       process.chdir(previousCwd)

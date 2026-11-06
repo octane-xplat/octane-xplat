@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"parity": "node scripts/compare.ts",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json && tsrx-tsc --noEmit -p candidate/tsconfig.json && tsrx-tsc --noEmit -p reference/tsconfig.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json && tsc --runExternalCode --noEmit -p candidate/tsconfig.json && tsc --runExternalCode --noEmit -p reference/tsconfig.json",
 		"parity:markdown": "bun scripts/markdown.ts"
 	},
 	"dependencies": {
@@ -20,7 +20,6 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@types/node": "26.6.6",
 		"@types/react": "19.3.0",
 		"@types/react-dom": "19.3.0",

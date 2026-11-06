@@ -46,7 +46,7 @@
 		"typegen": "tsrx-typegen --target lexical",
 		"build:assets": "node ../richtext/build-browser.ts",
 		"prepack": "bun run build:assets && bun run typegen && tsrx-typegen --pack-check",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json"
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
 		"@lexical/code": "0.53.0",
@@ -73,7 +73,6 @@
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

@@ -259,9 +259,8 @@ its environments; manifests without an explicit source resolve the facade defaul
 TypeScript 7.1 checks TSRX through a **content mapper**, a compiler process
 that presents each TSRX file as typed source. Starters declare the mapper as a
 development dependency. In an existing app, install it and keep this entry in
-configurations that contain TSRX. `tsrx-tsc` enables
-external compiler code when launching native TypeScript. A direct native
-compiler command must opt in with `--runExternalCode`.
+configurations that contain TSRX. Checking requires native TypeScript's
+external-code opt-in: run `tsc` with `--runExternalCode`.
 
 ```sh
 bun add -D @tsrx/content-mapper
@@ -276,9 +275,7 @@ bun add -D @tsrx/content-mapper
 ```
 
 ```sh
-bun run tsrx-tsc --noEmit
-# Equivalent with native TypeScript's launcher:
-node node_modules/typescript/bin/tsc --runExternalCode --noEmit
+bun run tsc --runExternalCode --noEmit
 ```
 
 Native TypeScript does not resolve extensionless imports to TSRX files, and

@@ -242,7 +242,6 @@
 		"@nativescript/types-ios": "catalog:",
 		"@nativescript/unit-test-runner": "catalog:",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",

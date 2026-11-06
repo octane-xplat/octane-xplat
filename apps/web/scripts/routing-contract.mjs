@@ -30,7 +30,7 @@ await generateRoutes(root, 'app', 'routes.gen', { bake: false })
 for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
   const checked = spawnSync(
     'bun',
-    ['run', 'tsrx-tsc', '--noEmit', '-p', 'tests/fixtures/routing-contract/' + project],
+    ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'tests/fixtures/routing-contract/' + project],
     {
       shell: process.platform === 'win32',
       cwd: fileURLToPath(new URL('../', import.meta.url)),

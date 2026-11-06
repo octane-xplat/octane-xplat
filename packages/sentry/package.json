@@ -68,7 +68,6 @@
 		"@octanejs/vite-plugin": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",

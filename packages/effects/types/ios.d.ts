@@ -1,4 +1,4 @@
-// Boundary types for @octane-xplat/effects/ios — handwritten (tsrx-tsc
+// Boundary types for @octane-xplat/effects/ios — handwritten (the checker
 // can't emit .tsrx declarations; same pattern as ui/types).
 import type { UniversalComponent } from 'octane/universal'
 

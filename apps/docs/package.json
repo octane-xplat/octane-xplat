@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "bun run turbo run api --filter=@xplat/docs && bun run gen && vite",
 		"build": "bun run gen && vite build && vite build --config vite.demo.config.ts && node scripts/build-llms.ts",
-		"typecheck": "bun run gen && tsrx-tsc --noEmit",
+		"typecheck": "bun run gen && tsc --runExternalCode --noEmit",
 		"test": "node --test *.test.mjs",
 		"deploy": "wrangler pages deploy dist --project-name octane-xplat-docs --branch=main",
 		"smoke": "bun run build && node smoke.mjs",
@@ -29,7 +29,6 @@
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"exports-md": "0.2.20",
 		"jsdom": "catalog:",
 		"playwright": "1.63.0",

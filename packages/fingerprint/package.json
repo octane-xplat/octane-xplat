@@ -26,8 +26,8 @@
 		"access": "public"
 	},
 	"scripts": {
-		"build": "tsrx-tsc -p tsconfig.build.json",
-		"typecheck": "tsrx-tsc -p tsconfig.build.json --noEmit",
+		"build": "tsc --runExternalCode -p tsconfig.build.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.build.json --noEmit",
 		"test": "node --test tests/*.test.mjs",
 		"prepack": "bun run build",
 		"test:packed": "node tests/packed-consumer.mjs"
@@ -40,7 +40,6 @@
 	},
 	"devDependencies": {
 		"@types/node": "26.6.6",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:",
 		"typescript": "catalog:"
 	},

@@ -61,7 +61,6 @@
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"playwright": "1.63.0",
 		"tsrx-typegen": "workspace:*",

@@ -19,7 +19,7 @@
 		"sqlite:readiness": "node scripts/sqlite-readiness.ts",
 		"input:readiness": "node scripts/input-readiness.ts",
 		"parity": "vite build && node scripts/parity.ts",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"test:platform-css": "node scripts/platform-css.mjs",
 		"test:id": "node scripts/test-id.ts",
 		"sheet:readiness": "node scripts/sheet-readiness.ts"
@@ -36,7 +36,6 @@
 		"@octane-xplat/jsx": "workspace:*",
 		"@octane-xplat/sqlite": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
 		"vite": "catalog:",

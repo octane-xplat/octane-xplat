@@ -26,7 +26,7 @@ const { generateRoutes } = await import('../../../packages/cli/dist/commands/rou
 await generateRoutes(join(appRoot, 'test/default-client'), undefined, undefined, { bake: true })
 const checked = spawnSync(
   'bun',
-  ['run', 'tsrx-tsc', '--noEmit', '-p', 'test/tsconfig.routing.json'],
+  ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'test/tsconfig.routing.json'],
   { cwd: appRoot, encoding: 'utf8', timeout: 60000, shell: process.platform === 'win32' },
 )
 

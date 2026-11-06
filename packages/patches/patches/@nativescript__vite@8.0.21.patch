@@ -340,6 +340,60 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
  }
 \ No newline at end of file
 -//# sourceMappingURL=manifest-collect.js.map
+diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
+index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4ef9570f67 100644
+--- a/helpers/typescript-check.js
++++ b/helpers/typescript-check.js
+@@ -29,13 +29,14 @@
+     const pkgPath = require.resolve('vue-tsc/package.json');
+     return path.resolve(path.dirname(pkgPath), 'bin/vue-tsc.js');
+ }
+-function getTsrxTscBinPath() {
++function getTscBinPath() {
+     try {
+         const projectRequire = createRequire(path.join(getProjectRootPath(), 'package.json'));
+-        const pkgPath = projectRequire.resolve('@tsrx/typescript-plugin/package.json');
++        const pkgPath = projectRequire.resolve('typescript/package.json');
+         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+-        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsrx-tsc'];
+-        return bin ? path.resolve(path.dirname(pkgPath), bin) : undefined;
++        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsc'];
++        const major = Number.parseInt(String(pkg.version ?? ''), 10);
++        return bin && major >= 7 ? path.resolve(path.dirname(pkgPath), bin) : undefined;
+     }
+     catch {
+         return undefined;
+@@ -92,7 +93,7 @@
+     try {
+         const configPath = path.join(tempDir, 'tsconfig.json');
+         fs.writeFileSync(configPath, JSON.stringify(createTsrxCheckConfig(tsConfigPath, parsedConfig, rootNames, opts.platform)));
+-        runTscBinary('tsrx-tsc', [binPath, '--pretty', '-p', configPath], opts, failOnError);
++        runTscBinary('tsc', [binPath, '--runExternalCode', '--pretty', '-p', configPath], opts, failOnError);
+     }
+     finally {
+         fs.rmSync(tempDir, { recursive: true, force: true });
+@@ -304,9 +305,9 @@
+             const parsedConfig = getParsedConfig(ts, tsConfigPath, opts.platform);
+             const failOnError = shouldFailOnTypeCheckError(opts, parsedConfig);
+             const rootNames = parsedConfig.fileNames.filter((fileName) => !shouldSkipFileForPlatform(fileName, opts.platform));
+-            const tsrxTscBinPath = getTsrxTscBinPath();
+-            if (tsrxTscBinPath && hasTsrxImports(ts, rootNames)) {
+-                runTsrxTypeCheck(tsrxTscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
++            const tscBinPath = getTscBinPath();
++            if (tscBinPath && hasTsrxImports(ts, rootNames)) {
++                runTsrxTypeCheck(tscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
+                 return;
+             }
+             const program = ts.createProgram({
+@@ -323,7 +324,7 @@
+             }
+             if (opts.logDiagnostics !== false) {
+                 if (hasUnresolvedTsrxImport(ts, diagnostics)) {
+-                    console.warn('[ns-vite] Unresolved .tsrx imports: install @tsrx/typescript-plugin so the type check can run through tsrx-tsc.');
++                    console.warn('[ns-vite] Unresolved .tsrx imports: install TypeScript 7.1 or newer so .tsrx files are checked through tsc --runExternalCode.');
+                 }
+                 const output = ts.formatDiagnosticsWithColorAndContext(diagnostics, getFormatHost(ts));
+                 (failOnError ? console.error : console.warn)(output);
 diff --git a/helpers/typescript.js b/helpers/typescript.js
 index fe9c9fe948862def734df7bc5b817a9989155019..c1b23e10c64669cc0354364713ca6a57e1b81d55 100644
 --- a/helpers/typescript.js
@@ -353,7 +407,7 @@ index fe9c9fe948862def734df7bc5b817a9989155019..c1b23e10c64669cc0354364713ca6a57
 - * version the app was written against.
 + * call site decides what to do when it is absent. Prefer the project's
 + * explicit classic API alias; a native TypeScript launcher is not an API.
-+ * TSRX checking still delegates to the project's tsrx-tsc.
++ * TSRX checking still delegates to the project's tsc --runExternalCode.
   */
  export function loadTypeScript() {
 -    if (loaded !== undefined)

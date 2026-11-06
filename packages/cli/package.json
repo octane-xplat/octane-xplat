@@ -79,7 +79,7 @@
 		"test:css-platform": "node --test test/css-platform.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",
-		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test:patches-install": "node --test test/patches-*.test.mjs",
 		"test:macos-packaging": "node --test test/macos-config.test.mjs test/macos-native.test.mjs test/macos-dev-bundle.test.mjs",
 		"test:fmt": "node --test test/fmt.test.mjs",

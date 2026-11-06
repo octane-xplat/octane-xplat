@@ -40,7 +40,7 @@
 	"scripts": {
 		"build": "vite build",
 		"prepack": "bun run build",
-		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test": "node --test --test-concurrency=1 ../../scripts/xplat-rules.test.mjs"
 	},
 	"dependencies": {
@@ -51,8 +51,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "26.6.6",
+		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	}
 }

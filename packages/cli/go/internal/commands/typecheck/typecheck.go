@@ -129,20 +129,20 @@ func Command(ctx context.Context, _ map[string]any) error {
 	if !sameTypecheckInputs(inputs, current) {
 		return errors.New("typecheck configuration changed during preparation; retry")
 	}
-	checker, err := project.InstalledTool(projectRoot, "@tsrx/typescript-plugin", "tsrx-tsc")
+	checker, err := project.InstalledTool(projectRoot, "typescript", "tsc")
 	if err != nil {
 		return err
 	}
 	node, err := exec.LookPath("node")
 	if err != nil {
-		return errors.New("Node is required for the project's TSRX checker")
+		return errors.New("Node is required for the project's TypeScript compiler")
 	}
 	for _, config := range configs {
 		if err = ctx.Err(); err != nil {
 			return err
 		}
 		fmt.Printf("Typechecking %s\n", config)
-		process, err := proc.RunForegroundProcessIO(ctx, []string{node, checker, "--noEmit", "-p", config}, projectRoot, project.ToolEnvironment(), os.Stdout, os.Stderr)
+		process, err := proc.RunForegroundProcessIO(ctx, []string{node, checker, "--noEmit", "--runExternalCode", "-p", config}, projectRoot, project.ToolEnvironment(), os.Stdout, os.Stderr)
 		if err != nil {
 			return err
 		}

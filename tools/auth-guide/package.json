@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "node --env-file=.env src/serve.ts",
 		"test": "node --test src/*.test.mjs",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json"
 	},
 	"dependencies": {
 		"jose": "6.2.15",
@@ -14,7 +14,6 @@
 	"devDependencies": {
 		"@types/node": "26.6.6",
 		"typescript": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	}
 }

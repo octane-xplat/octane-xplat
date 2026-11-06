@@ -117,7 +117,7 @@ export function readBunLock(root: string): Record<string, any> | null {
 /** Resolve an installed tool through the selected project package manager. */
 export function packageManagerExec(dir: string, args: string[]): { cmd: string; args: string[] } {
   const cmd = packageManagerFor(dir)
-  const tools: Record<string, string> = { vite: 'vite', 'tsrx-tsc': '@tsrx/typescript-plugin' }
+  const tools: Record<string, string> = { vite: 'vite', tsc: 'typescript' }
   const tool = tools[args[0]]
   const root = tool && !installedPackageRoot(dir, tool) && installedToolPackageRoot(dir, tool)
   if (root) {

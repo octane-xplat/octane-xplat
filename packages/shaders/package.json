@@ -42,7 +42,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target shaders",
-		"typecheck": "tsrx-tsc -p tsconfig.check.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.check.json",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check"
@@ -59,7 +59,6 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

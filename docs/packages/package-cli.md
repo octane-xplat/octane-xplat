@@ -287,9 +287,10 @@ in place. Read the job's structured result or failure:
 xplat job status JOB_ID --project "$PWD" --json
 ```
 
-Native `typecheck` uses the selected project's installed package manager and
-TSRX checker. The project must already contain compatible `@octane-xplat/cli`,
-`@tsrx/typescript-plugin` and TypeScript packages. From that project's directory,
+Native `typecheck` runs the selected project's installed TypeScript compiler
+as `tsc --runExternalCode`. The project must already contain compatible
+`@octane-xplat/cli` and TypeScript 7.1 packages — the `octane-xplat` umbrella
+supplies both. From that project's directory,
 invoke your built executable by its absolute path. A successful check prints
 `Typecheck clean`; compiler errors exit with status 1. Route types are regenerated
 without executing baked loaders:

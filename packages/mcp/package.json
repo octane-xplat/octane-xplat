@@ -39,7 +39,7 @@
 		"test": "bun run build && node --test tests/*.test.mjs",
 		"test:docs-search": "node --test tests/docs.test.mjs",
 		"test:consumer": "bun run build && node tests/consumer-workflow.mjs",
-		"typecheck": "tsrx-tsc -p tsconfig.json"
+		"typecheck": "tsc --runExternalCode -p tsconfig.json"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "1.32.2",
@@ -51,7 +51,6 @@
 		"@types/node": "26.6.6",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	}
 }

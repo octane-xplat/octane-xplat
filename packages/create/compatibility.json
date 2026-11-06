@@ -125,10 +125,6 @@
 			"version": "0.20.0",
 			"group": "compiler"
 		},
-		"@tsrx/typescript-plugin": {
-			"version": "0.6.3",
-			"group": "compiler"
-		},
 		"tsrx-typegen": {
 			"version": "0.5.0",
 			"group": "compiler"

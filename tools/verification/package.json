@@ -9,7 +9,7 @@
 		"parity:macos": "node qualify.ts parity:macos",
 		"smoke:macos": "node qualify.ts smoke:macos",
 		"test:e2e": "node test-e2e.ts",
-		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test": "node --test *.test.mjs"
 	},
 	"devDependencies": {

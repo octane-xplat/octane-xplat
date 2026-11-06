@@ -370,12 +370,12 @@ an output alias cannot overwrite route inputs or leave its authorized output sco
 replacing existing baked data. The selected project's worker reuses canonical
 JSONC/environment expansion, including its disposable combined-program cache.
 Go validates program selection and starts the installed
-`@tsrx/typescript-plugin` checker with Node. Missing tools produce installation
+`typescript` checker as `tsc --runExternalCode` with Node. Missing tools produce installation
 instructions; Go does not invoke a package manager to download them.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go typecheck workflow"}' -- bun run turbo run test:go-typecheck --filter=@octane-xplat/cli
-# From a project with its CLI worker, TSRX checker and TypeScript installed:
+# From a project with its CLI worker and TypeScript installed:
 /absolute/path/to/xplat-go typecheck
 ```
 

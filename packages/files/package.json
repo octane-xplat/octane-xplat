@@ -70,7 +70,6 @@
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

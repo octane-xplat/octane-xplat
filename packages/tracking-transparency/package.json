@@ -54,7 +54,6 @@
 		"@nativescript/core": "catalog:",
 		"@nativescript/types": "catalog:",
 		"@octane-xplat/jsx": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

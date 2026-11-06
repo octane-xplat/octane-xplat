@@ -24,10 +24,13 @@ evaluated` logged on device. `.android > .native` is the same
 > imports to suffixed `.tsrx` despite `moduleSuffixes` — barrels must name
 > the suffix explicitly (`export { X } from './X.native.tsrx'`).
 > **Superseded 2026-09-30**: the workspace `@tsrx/typescript-plugin` patch
-> enables Volar's `resolveHiddenExtensions`, so `tsrx-tsc` (and the
+> enabled Volar's `resolveHiddenExtensions`, so `tsrx-tsc` (and the
 > delegated ns-vite checker, whose generated chain our `@nativescript/vite`
-> patch extends with `.mobile`) resolves suffixless `.tsrx` leaves; plain
-> `tsc` still can't. See Q25 + `pnpm check:suffix-resolution`.
+> patch extends with `.mobile`) resolved suffixless `.tsrx` leaves; plain
+> `tsc` still can't. **Checker changed 2026-11-06**: checking now runs
+> native `tsc --runExternalCode` (no Volar plugin); whether the native
+> mapper keeps that resolution is unverified — treat this caveat as
+> historical until re-measured. See Q25 + `pnpm check:suffix-resolution`.
 > Suffixed `.ts` helpers DO resolve extensionless under `moduleSuffixes`
 > (`./platform/nav` → `nav.native.ts`/`nav.web.ts` typecheck fine). Second
 > caveat (Exp 9): a `.ts` file importing a `.tsrx` component gets

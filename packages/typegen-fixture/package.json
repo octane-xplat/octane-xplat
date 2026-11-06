@@ -20,14 +20,13 @@
 	"scripts": {
 		"typegen": "tsrx-typegen --project tsconfig.types.json",
 		"typegen:check": "tsrx-typegen --project tsconfig.types.json --check",
-		"typecheck:consumer": "tsrx-tsc --noEmit -p tsconfig.consumer.json",
+		"typecheck:consumer": "tsc --runExternalCode --noEmit -p tsconfig.consumer.json",
 		"test:packed": "node ../tsrx-typegen/tests/packed-consumer.mjs",
 		"prepack": "bun run typegen && bun run tsrx-typegen --pack-check",
 		"pack:check": "tsrx-typegen --pack-check"
 	},
 	"devDependencies": {
 		"@octane-xplat/jsx": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",

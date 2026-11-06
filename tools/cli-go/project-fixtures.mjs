@@ -67,12 +67,7 @@ export function projectToolFixture(
         ...(fontConverter ? { wawoff2: packages.fontConverter } : {}),
         ...(formatter ? { '@octane-xplat/fmt': packages.formatter } : {}),
         ...(vite ? { vite: packages.vite } : {}),
-        ...(checker
-          ? {
-              '@tsrx/typescript-plugin': packages.checker.plugin,
-              typescript: packages.checker.typescript,
-            }
-          : {}),
+        ...(checker ? { typescript: packages.checker } : {}),
       },
       overrides: { '@octane-xplat/lib': deps['@octane-xplat/lib'] },
     }),

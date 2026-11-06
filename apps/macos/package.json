@@ -10,7 +10,7 @@
 		"test:text-controls": "node test/verify-text-controls.mjs",
 		"test:fonts": "node test/verify-fonts.mjs",
 		"test:overlays": "node test/verify-overlays.mjs",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"parity": "node ./scripts/parity.ts",
 		"bench:virtual-list": "node ./scripts/bench-virtual-list.ts",
 		"bench:virtual-list-scroll": "node ./scripts/bench-virtual-list-scroll.ts",

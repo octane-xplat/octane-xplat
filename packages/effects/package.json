@@ -51,7 +51,7 @@
 	},
 	"scripts": {
 		"build:metal": "sh scripts/build-metal.sh",
-		"typecheck": "tsrx-tsc -p tsconfig.types.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.types.json",
 		"prepack": "tsrx-typegen --pack-check",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"pack:check": "tsrx-typegen --pack-check",
@@ -70,7 +70,6 @@
 		"tsrx-typegen": "workspace:*",
 		"typescript": "catalog:",
 		"vite": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

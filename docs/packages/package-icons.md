@@ -74,7 +74,7 @@ sync with `xplatIcons({ stubs: false })`, or steer it with a
 from `@octane-xplat/icons/vite` for non-Vite typecheck flows.
 
 The content mapper requires the native TypeScript 7.1 line this toolchain
-already runs (`tsrx-tsc` passes `--runExternalCode`). Consumers that cannot
+already runs (`tsc --runExternalCode`). Consumers that cannot
 run it — classic TypeScript 5/6, or a typecheck step that never syncs the
 stub tree — can opt into the package's `icons.d.ts` ambient fallback, which
 types every `icons:*` import's default export as `IconifyIcon` without

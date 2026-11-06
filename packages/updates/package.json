@@ -34,7 +34,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target updates",
-		"typecheck": "tsrx-tsc -p tsconfig.types.json --noEmit --emitDeclarationOnly false",
+		"typecheck": "tsc --runExternalCode -p tsconfig.types.json --noEmit --emitDeclarationOnly false",
 		"test": "node --test tests/client.test.mjs tests/prepare.test.mjs",
 		"test:packed": "node tests/packed-consumer.mjs",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
@@ -53,7 +53,6 @@
 		"@octane-xplat/fingerprint": "workspace:*",
 		"typescript": "catalog:",
 		"tsrx-typegen": "workspace:*",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

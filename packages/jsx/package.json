@@ -63,7 +63,7 @@
 		"./package.json": "./package.json"
 	},
 	"scripts": {
-		"typecheck": "tsrx-tsc -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json",
 		"test:packed": "node tests/packed-consumer.mjs"
 	},
 	"devDependencies": {
@@ -71,7 +71,6 @@
 		"@nativescript/types": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},
 	"peerDependencies": {

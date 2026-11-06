@@ -109,13 +109,7 @@ export function prepareFixtures(
           '@octane-xplat/fmt'
         ],
         vite: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.vite,
-        checker: {
-          plugin: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog[
-            '@tsrx/typescript-plugin'
-          ],
-          typescript: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog
-            .typescript,
-        },
+        checker: JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog.typescript,
         packages,
       }),
     )

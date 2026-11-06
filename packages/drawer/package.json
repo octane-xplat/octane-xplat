@@ -32,7 +32,7 @@
 	},
 	"scripts": {
 		"typegen": "tsrx-typegen --target drawer",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.types.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json",
 		"test": "vitest run --config vitest.config.mts",
 		"test:native": "vitest run --config vitest.native.config.mts",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
@@ -52,7 +52,6 @@
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
-		"@tsrx/typescript-plugin": "catalog:",
 		"jsdom": "catalog:",
 		"octane": "catalog:",
 		"tsrx-typegen": "workspace:*",

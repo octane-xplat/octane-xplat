@@ -7,14 +7,13 @@
 		"dev": "wrangler dev",
 		"build": "wrangler deploy --dry-run --outdir dist",
 		"deploy": "wrangler deploy",
-		"typecheck": "tsrx-tsc --noEmit -p tsconfig.json",
+		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
 		"test": "node --test *.test.mjs"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "5.20260928.1",
 		"typescript": "catalog:",
 		"wrangler": "4.136.3",
-		"@tsrx/typescript-plugin": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	}
 }
