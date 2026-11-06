@@ -1,5 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 import { sourceIdentity } from './capture-manifest.ts'
+import { setProductBundleIdentifier } from './pbxproj.ts'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createServer } from 'node:http'
 import { randomUUID, createHash } from 'node:crypto'
@@ -241,16 +242,17 @@ try {
     }
 
     originalProject = readFileSync(projectPath)
-    execFileSync(
-      'ruby',
-      [
-        '-rxcodeproj',
-        '-e',
-        "project = Xcodeproj::Project.open(ARGV[0]); project.targets.select { |t| t.name == 'mobile' }.each { |t| t.build_configurations.each { |c| c.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'org.nativescript.xplat.visual' } }; project.save",
-        dirname(projectPath),
-      ],
-      { cwd: repository },
+    // Rewrite only the identifier lines. A full ruby-xcodeproj save can drop
+    // the generated project's Swift package references, breaking the next
+    // build's AudioContextNative link (see scripts/pbxproj.ts).
+    const rebundled = setProductBundleIdentifier(
+      originalProject,
+      'mobile',
+      'org.nativescript.xplat.visual',
     )
+    if (rebundled !== originalProject) {
+      writeFileSync(projectPath, rebundled)
+    }
 
     // ns run can reuse a binary built under the ordinary harness bundle ID.
     // Build the isolated visual ID first; the runner then injects its live port.
