@@ -54,6 +54,32 @@ const check = () =>
     timeout: 120_000,
   })
 
+// Classic TypeScript consumers cannot run the mapper; the package's ambient
+// `icons.d.ts` wildcard is their opt-in floor — generic IconifyIcon typing
+// for every specifier, no name check and no stub tree.
+const classicTsc = join(repo, 'node_modules/typescript-classic/bin/tsc')
+writeFileSync(
+  join(fixture, 'tsconfig.classic.json'),
+  JSON.stringify({
+    compilerOptions: {
+      module: 'esnext',
+      target: 'ES2022',
+      moduleResolution: 'bundler',
+      strict: true,
+      noEmit: true,
+      skipLibCheck: true,
+    },
+    files: ['main-classic.ts', 'node_modules/@octane-xplat/icons/icons.d.ts'],
+  }),
+)
+
+const checkClassic = () =>
+  spawnSync(classicTsc, ['--pretty', 'false', '-p', join(fixture, 'tsconfig.classic.json')], {
+    cwd: fixture,
+    encoding: 'utf8',
+    timeout: 120_000,
+  })
+
 test('icons: specifiers type-check to literal IconifyIcon data', () => {
   writeFileSync(
     join(fixture, 'main.ts'),
@@ -85,6 +111,20 @@ test('a stale stub reports the mapper diagnostic', () => {
   assert.match(result.stdout, /icons770102.*not found in @iconify-json\/mini/)
 
   rmSync(join(fixture, '.icons/mini/gone.icon'))
+})
+
+test('the ambient icons.d.ts wildcard is the classic-TypeScript fallback', () => {
+  writeFileSync(
+    join(fixture, 'main-classic.ts'),
+    `import wide from 'icons:mini/wide'
+import nope from 'icons:mini/nope'
+const body: string = wide.body
+// The wildcard does not check names — unknown specifiers still type-check.
+export { body, nope }
+`,
+  )
+  const result = checkClassic()
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
 })
 
 after(() => rmSync(fixture, { recursive: true, force: true }))

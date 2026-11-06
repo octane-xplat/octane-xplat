@@ -19,6 +19,7 @@
 	"files": [
 		"src",
 		"dist",
+		"icons.d.ts",
 		"types/generated",
 		"!src/**/*.test.*",
 		"!src/**/*.spec.*"

@@ -74,8 +74,20 @@ sync with `xplatIcons({ stubs: false })`, or steer it with a
 from `@octane-xplat/icons/vite` for non-Vite typecheck flows.
 
 The content mapper requires the native TypeScript 7.1 line this toolchain
-already runs (`tsrx-tsc` passes `--runExternalCode`); it does not run under
-classic TypeScript 5/6, where `icons:` specifiers have no type resolution.
+already runs (`tsrx-tsc` passes `--runExternalCode`). Consumers that cannot
+run it — classic TypeScript 5/6, or a typecheck step that never syncs the
+stub tree — can opt into the package's `icons.d.ts` ambient fallback, which
+types every `icons:*` import's default export as `IconifyIcon` without
+checking the name:
+
+```ts
+// src/icons.d.ts (any app file swept into your tsconfig)
+/// <reference path="../node_modules/@octane-xplat/icons/icons.d.ts" />
+```
+
+Do not include the fallback alongside the content mapper setup: the
+wildcard also matches specifiers the stub tree would have rejected,
+masking the per-name check.
 
 ## Runtime registry
 

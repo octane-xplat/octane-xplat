@@ -146,8 +146,10 @@ do reach mapped extensions, but a missing target file is TS2307.
 `xplatIcons` syncs at `configResolved` unless `stubs: false`. Consumers wire
 `"paths": { "icons:*": ["./.icons/*.icon"] }` and register `.icon` in
 `contentMappers`; each stub's transform emits the icon's `IconifyIcon`
-literal, so names compile-check per specifier without ambient
-`declare module` wildcards (removed — a wildcard would mask misspellings).
+literal, so names compile-check per specifier. The ambient `icons.d.ts`
+`declare module 'icons:*'` wildcard remains in the package as an opt-in
+fallback for classic TypeScript, but must not be included alongside the
+mapper setup — it matches specifiers the stub tree would have rejected.
 
 
 The workspace uses Octane 0.16.3 with `@tsrx/oxc` 0.20.0 and
