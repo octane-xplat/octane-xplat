@@ -32,6 +32,13 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+      # The native CLI contract check below builds the Go executable
+      # (GOTOOLCHAIN=local); everything else runs on Node + Bun.
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/cli/go/go.mod
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -83,8 +90,10 @@ jobs:
       - name: Check Bun patch installs
         run: bun run turbo run test:patches-install --filter=@octane-xplat/cli
 
-      - name: Check standalone CLI executable
-        run: bun run turbo run test:executable --filter=@octane-xplat/cli
+      # The Go executable and the primitive probe share a contract build;
+      # the gate checks both manifests and spawns the CLI.
+      - name: Check native CLI executable
+        run: bun run turbo run test:go-cli --filter=@octane-xplat/cli
 
       - name: Check packed exports and declaration dependencies
         run: bun run check:pack

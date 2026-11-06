@@ -8,7 +8,7 @@
 		"./*": "./src/*"
 	},
 	"scripts": {
-		"gen": "xplat routes --dir src/app && bamboo codegen",
+		"gen": "node ../../scripts/gen-routes.ts --dir src/app && bamboo codegen",
 		"routes:watch": "xplat routes --dir src/app --watch"
 	},
 	"dependencies": {

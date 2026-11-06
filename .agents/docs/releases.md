@@ -157,33 +157,24 @@ uncommitted publication checkout.
 
 ## CLI executables
 
-`cli-executables.yml` builds and smoke-tests the standalone CLI on macOS and
-Linux arm64/x64 and Windows x64, then attaches executables and SHA-256 checksums
-to published lockstep releases. Edits to the moving nightly release refresh its
-assets. Manual dispatch retains artifacts without uploading to a release.
-The normal checks job also runs the Linux executable smoke test, without a
-browser or device. Build on each host to select matching native dependencies;
-see [executable packaging](toolchain.md#cli-runtime-and-executable-packaging)
+`cli-executables.yml` builds the Go CLI on macOS and Linux arm64/x64 and
+Windows x64, runs the `test:go-cli` contract check on each host, then attaches
+executables and SHA-256 checksums to published lockstep releases. Edits to the
+moving nightly release refresh its assets. Manual dispatch retains artifacts
+without uploading to a release. The normal checks job also runs the Linux
+contract check, without a browser or device. `build:go` compiles for the
+runner's platform; see
+[executable packaging](toolchain.md#cli-runtime-and-executable-packaging)
 and [consumer installation](../../docs/packages/package-cli.md#single-file-executable).
-Binaries are excluded from npm tarballs: the npm bin requires installed Bun,
-while Vite and MCP exports remain per-module ESM.
 
-## Parallel Nim CLI channel
+## Native CLI channel
 
-The manual `release.yml` track `nim` builds the parallel native CLI from
-`packages/cli/nim` with an exact `x.y.z-nim.N` version and publishes only
-`@octane-xplat/cli` under the `nim` dist-tag. Five native build/test jobs gate
-publication. The Nim tarball keeps the curated Vite and small operation-worker exports, while
-omitting the old CLI entry and heavy engine dependencies. Optional project
-engines and platform assets stay separate; TypeScript remains in-repo as the
-migration reference. It uses the existing trusted publisher; it neither bumps lockstep
-manifests nor changes `latest` or `nightly`. This workflow is an experimental
-migration lane, not full CLI parity evidence. See the
-[native implementation and packaging boundaries](../../packages/cli/nim/README.md).
-
-```sh
-gh workflow run release.yml -f track=nim -f nim_version=0.19.0-nim.1
-```
+The native CLI publishes under the `nim` dist-tag: its npm versions pin the
+framework release with an `x.y.z-nim.N` suffix (see
+`packages/cli/src/cli-channel.ts`), separate from lockstep `latest`/`nightly`.
+The experimental `release.yml` track `nim` was removed with the Nim and
+TypeScript CLI implementations — the Go CLI is the sole implementation and no
+automated lane currently cuts a `-nim.N` version.
 
 ## Add a publishable package
 

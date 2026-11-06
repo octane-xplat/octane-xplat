@@ -13,7 +13,7 @@ const binary = resolve(
 )
 
 if (!existsSync(binary)) {
-  console.error('build it with `bun run turbo run build:go --filter=@xplat/cli-go-probe`')
+  console.error('build it with `bun run turbo run build:go --filter=@octane-xplat/cli`')
   process.exit(1)
 }
 

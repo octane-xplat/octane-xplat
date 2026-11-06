@@ -64,33 +64,26 @@ Native-only installs fetch none of those peers. Native worker/declaration lookup
 native workflow prerequisite.
 See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
 
-`xplat` uses Bun. Repository installs and script dispatch use Bun 1.4.4;
-Node remains required by app and repository tooling. Vite/MCP subpath exports
-retain per-module ESM for Node consumers.
+Repository installs and script dispatch use Bun 1.4.4; Node remains required
+by app and repository tooling and by the CLI's explicit JavaScript workers.
+Vite/MCP subpath exports retain per-module ESM for Node consumers.
 
-`packages/cli/standalone/build.mjs` embeds the installed production dependency
-closure and source assets in a host-specific Bun executable. It keeps package
-boundaries because native loaders, `createRequire`, and spawned siblings rely
-on real files. Build on the destination platform; Bun cross-compilation alone
-cannot retarget the native dependency payload. Registry package contents are
-already publication-filtered; workspace payloads use their declared `files`.
+In-repo `xplat` dispatches to the host's Go build at
+`research/go-cli/xplat-go-<platform>-<arch>-cli`; build it with
+`turbo run build:go --filter=@octane-xplat/cli` (Go 1.27.3,
+`GOTOOLCHAIN=local`; artifacts stay in the ignored `research/go-cli`).
+Only `xplat` invocations (dev, `routes:watch`) need that binary — install and
+codegen do not: `@xplat/app#gen` runs `planRoutes` off the CLI sources via
+`scripts/gen-routes.ts`, so `bun install` stays Node + Bun only. CI
+provisions Go solely in the lanes that build or contract-check the native
+executable (`ci.yml` `test:go-cli`, `cli-executables.yml`).
 
-Bun 1.4.3 compiled-mode dynamic imports of the extracted CLI failed to resolve
-`@alloc/cmd-ts`, despite the package and links being present; running that same
-entry through `BUN_BE_BUN=1` succeeded on macOS arm64. The launcher therefore
-starts its embedded runtime in that mode, inherits stdio, forwards termination
-signals, and preserves exit status. Child helpers inherit the mode so
-`process.execPath` and `fork()` execute scripts rather than the launcher.
-Recheck this constraint before attempting to collapse the launcher and CLI
-into one process.
-
-The cache is keyed by the embedded archive hash and populated through a private
-staging directory and atomic rename. Dependency links use relative symlinks on
-POSIX and junctions on Windows; Bun Archive skips symlinks on Windows, so links
-are reconstructed from the embedded layout instead of stored in the archive.
-Run `test:executable` through Turbo for concurrent extraction, native formatting,
-and helper-process checks. The release workflow attaches executable/checksum
-pairs; npm still ships the Node-compatible ESM exports and Bun bin launcher.
+`test:go-cli` is the contract gate for the built executable and the primitive
+probe. `cli-executables.yml` builds and checks on each destination host —
+macOS and Linux arm64/x64 and Windows x64 — then attaches
+`xplat-<platform>-<arch>` executables and SHA-256 checksums to published
+releases. Published `@octane-xplat/cli` resolves the matching platform
+binary; Vite and MCP exports remain per-module ESM.
 
 ### Go Windows junction identity
 

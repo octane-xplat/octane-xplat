@@ -136,6 +136,7 @@ jobs:
           node-version: 24
           package-manager-cache: false
 
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -196,6 +197,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
+
 
       - name: Restore trusted-publisher checks
         id: trusted-publishers-cache
@@ -343,6 +345,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/trusted-publishers.json
           key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
 
       - name: Install dependencies
         if: steps.sync.outputs.skip != 'true'
@@ -508,6 +511,7 @@ jobs:
         with:
           node-version: 24
 
+
       - name: Install dependencies
         if: steps.unpublished.outputs.exists != 'true'
         run: bun install --frozen-lockfile
@@ -596,18 +600,20 @@ jobs:
           # Bun owns the dependency cache; disable setup-node's automatic caching.
           package-manager-cache: false
 
+      # Evidence and decision scripts live in the repo — check out the CI-tested
+      # revision before invoking them, like the release gate job.
+      - name: Checkout the tested revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.ci.outputs.sha }}
+          fetch-depth: 0
+
       - name: Verify CI release evidence
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >-
           node scripts/verify-release-evidence.ts verify --track ci
           --sha "${{ steps.ci.outputs.sha }}" --run-id "${{ steps.ci.outputs.id }}"
-
-      - name: Checkout main
-        uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 0
 
       - name: Decide whether to publish a nightly
         id: decision
@@ -679,6 +685,7 @@ jobs:
         with:
           path: ${{ runner.temp }}/trusted-publishers.json
           key: ${{ steps.trusted-publishers-cache.outputs.cache-primary-key }}
+
 
       - name: Install dependencies
         run: bun install --frozen-lockfile

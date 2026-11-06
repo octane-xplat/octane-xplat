@@ -143,13 +143,15 @@
 			"inputs": ["$TURBO_DEFAULT$", "../tsrx-typegen/src/**"],
 			"outputs": ["types/**"]
 		},
-		// @xplat/app only: xplat routes → gitignored src/routes.gen.*, bamboo codegen
+		// @xplat/app only: gen-routes → gitignored src/routes.gen.*, bamboo codegen
 		// → gitignored src/styled-system/. Consumers resolve styled-system via
 		// tsconfig paths, so app-consuming apps order it via @xplat/app#gen.
-		// bamboo codegen loads bamboo.config.ts, whose @octane-xplat/bamboo import
-		// resolves through package exports to dist/ — built on demand here.
+		// gen-routes runs planRoutes off the CLI package sources; its
+		// @octane-xplat/lib/route-pattern import and bamboo codegen's
+		// bamboo.config.ts import resolve through package exports to dist/ —
+		// built on demand here.
 		"gen": {
-			"dependsOn": ["^typegen", "@octane-xplat/bamboo#build"],
+			"dependsOn": ["^typegen", "@octane-xplat/bamboo#build", "@octane-xplat/lib#build"],
 			"outputs": ["src/routes.gen*", "src/styled-system/**"]
 		},
 		// Apps build their bundles; package builds are limited to Node tooling.

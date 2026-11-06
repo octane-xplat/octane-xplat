@@ -121,18 +121,19 @@ XPLAT_CLI_CACHE=./.xplat-cli-cache ./xplat-darwin-arm64 catalog --json
 ```
 
 Repository contributors can build and check an executable for the current
-host. Bun 1.4.4 and `tar` must be available. These commands prepare the
-package outputs and write `packages/cli/dist/xplat` (`xplat.exe` on Windows):
+host. Go 1.27.3 must be available; the build uses `GOTOOLCHAIN=local` and
+keeps artifacts in the ignored `research/go-cli/` directory. These commands
+build `research/go-cli/xplat-go-<platform>-<arch>-cli` (`-cli.exe` on
+Windows) and run the native contract check:
 
 ```sh
-bun run turbo run build:executable --filter=@octane-xplat/cli
-bun run turbo run test:executable --filter=@octane-xplat/cli
+bun run turbo run build:go --filter=@octane-xplat/cli
+bun run turbo run test:go-cli --filter=@octane-xplat/cli
 ```
 
-Build on each destination OS and architecture so the native parser and
-formatter dependencies match that host; changing only Bun's compile target
-would leave incompatible native modules. The CLI executables workflow does
-this for macOS and Linux arm64/x64 and Windows x64.
+Build on each destination OS and architecture so the binary matches that
+host. The CLI executables workflow does this for macOS and Linux arm64/x64
+and Windows x64.
 
 ## Native executable
 
@@ -144,7 +145,7 @@ locally; `bun run xplat` inside an app workspace resolves the local
 `research/go-cli` build:
 
 ```sh
-turbo run build:go --filter=@xplat/cli-go-probe
+turbo run build:go --filter=@octane-xplat/cli
 bun run xplat catalog --json
 ```
 

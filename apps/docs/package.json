@@ -13,7 +13,7 @@
 		"smoke:keys": "NODE_ENV=development bun run smoke",
 		"test:demos": "node demos.browser.mjs",
 		"test:responsive": "node responsive.browser.mjs",
-		"gen": "xplat routes",
+		"gen": "node ../../scripts/gen-routes.ts",
 		"api": "node scripts/build-api.mjs"
 	},
 	"dependencies": {
