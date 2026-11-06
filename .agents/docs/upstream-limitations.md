@@ -452,3 +452,26 @@ runtime behavior:
   devtools. It is inert under `sourcemap: 'hidden'` (no `//# sourceMappingURL`
   comment is emitted) but would leak host paths if an app switched to inline
   or linked maps.
+
+## Mason iOS owns layer masks (core 1.0.0-beta.5)
+
+Mason’s `applyBox` treats an arbitrary `UIView.layer.mask` as overflow work:
+visible overflow clears it, and hidden overflow may replace it. Assigning a
+component CAShapeLayer directly therefore conflicts with normal Mason layout,
+independently of NativeScript background cleanup. SmoothCorners supplies its
+exact generated SVG path through Mason’s `style.clipPath` instead. Mason parses
+`path("…")` and installs a MasonMaskLayer that its overflow logic preserves and
+composes with bounds clipping. The decorative surface always has this CSS clip;
+the content host receives it only for hidden overflow. Disabling the content
+clip clears only the CSS value the component installed; border strokes and the
+outer shadow remain separate.
+
+Source: [applyBox](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-masonkit/src-native/mason-ios/Mason/Mason/MasonElement.swift#L1318-L1390),
+[mask ownership](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.5/packages/nativescript-mason-core/src-native/ios/Mask.swift#L529-L623).
+This uses the existing Mason API, without an upstream patch or a private redraw
+wrapper. NativeScript core’s basic clip-path API and Mason’s path-capable API
+are different boundaries; do not infer Mason’s support from core’s shape list.
+Recheck this ownership contract when upgrading Mason. Host regressions cover
+CSS path forwarding, resizing, removal, and preserving unrelated clips. The
+actual iOS probe is `packages/smooth-corners/tests/clipping.ios.tsrx`; its
+execution results belong in Silo. Tracking: [#153](https://github.com/octane-xplat/octane-xplat/issues/153).

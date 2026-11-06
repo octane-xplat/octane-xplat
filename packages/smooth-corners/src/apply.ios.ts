@@ -1,8 +1,8 @@
-/** iOS smooth-corners apply — CAShapeLayer mask on the inner view,
- *  layer.shadow* on the outer. Native globals resolve lazily inside these
- *  functions so the module is import-safe on Android bundles. */
+/** iOS smooth-corners apply — Mason-owned CSS clipPath on the inner view,
+ *  a CAShapeLayer border stroke, and layer.shadow* on the outer.
+ *  Native globals resolve lazily inside these functions so the module is import-safe on Android bundles. */
 import { Color } from '@nativescript/core'
-import { generateCommands } from './path'
+import { commandsToD, generateCommands } from './path'
 import type { PathCommand } from './path'
 import type { SmoothCornersProps } from './props'
 
@@ -53,7 +53,9 @@ function toCGPath(cmds: PathCommand[]): any {
   return p
 }
 
-const MASK_KEY = '__smoothMask'
+// Track the exact CSS value we own; disabling clipping must leave a later
+// caller's clipPath alone. Mason owns the resulting native mask lifecycle.
+const ownedClips = new WeakMap<object, string>()
 const BORDER_KEY = '__smoothBorder'
 
 function sizeOf(view: any): { w: number; h: number } | null {
@@ -61,31 +63,34 @@ function sizeOf(view: any): { w: number; h: number } | null {
   return size && size.width > 0 && size.height > 0 ? { w: size.width, h: size.height } : null
 }
 
-/** Clip the inner box: layer mask + optional border stroke layer. */
+/** Supply the exact curve to Mason instead of assigning UIView.layer.mask.
+ * Mason composes CSS clips with overflow and preserves them during layout. */
 export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
   const v = view?.ios
-  if (v && !clip) {
-    if (v.layer.mask === v[MASK_KEY]) {
-      v.layer.mask = null
+  const style = view?.style
+  if (!v || !style) {
+    return
+  }
+  if (!clip) {
+    const owned = ownedClips.get(view)
+    if (owned !== undefined && style.clipPath === owned) {
+      style.clipPath = 'none'
     }
-    v.clipsToBounds = false
+
+    ownedClips.delete(view)
     return
   }
-  const size = v && sizeOf(view)
-  if (!v || !size) {
+  const size = sizeOf(view)
+  if (!size) {
     return
   }
 
-  const path = toCGPath(generateCommands(size.w, size.h, props.corners))
-
-  let mask = v[MASK_KEY] as any
-  if (!mask) {
-    mask = CAShapeLayer.new()
-    v[MASK_KEY] = mask
+  const commands = generateCommands(size.w, size.h, props.corners)
+  const clipPath = `path("${commandsToD(commands)}")`
+  if (style.clipPath !== clipPath) {
+    style.clipPath = clipPath
   }
-
-  mask.path = path
-  v.layer.mask = mask
+  ownedClips.set(view, clipPath)
 
   let borderLayer = v[BORDER_KEY] as any
   const border = props.border
@@ -97,7 +102,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps, clip = tru
     }
 
     borderLayer.frame = v.layer.bounds
-    borderLayer.path = path
+    borderLayer.path = toCGPath(commands)
     borderLayer.fillColor = null
     borderLayer.strokeColor = new Color(border.color).ios.CGColor
     // Stroke centered on the edge; the mask clips the outer half.

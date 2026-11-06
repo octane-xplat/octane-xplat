@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { test } from 'node:test'
-import { flipCommandsY, generateCommands } from '../src/path.ts'
+import { commandsToD, flipCommandsY, generateCommands } from '../src/path.ts'
 import { clipsChildren } from '../src/surface.ts'
 
 function load(platform, globals) {
@@ -13,6 +13,7 @@ function load(platform, globals) {
     .replace(/^export /gm, '')
   const context = {
     generateCommands,
+    commandsToD,
     flipCommandsY,
     Color: class {
       constructor(value) {
@@ -37,8 +38,10 @@ const ios = load('ios', {
   CGPathAddArc() {},
   CGPathCloseSubpath() {},
 })
+
 function iosView() {
   return {
+    style: {},
     ios: { layer: { mask: null, bounds: {}, addSublayer() {} } },
     getActualSize: () => ({ width: 200, height: 120 }),
   }
@@ -50,23 +53,46 @@ test('iOS: visible content has no mask while its painted surface stays shaped', 
   ios.applySmoothClip(content, props, false)
   ios.applySmoothClip(surface, props)
   assert.equal(content.ios.layer.mask, null)
-  assert.equal(content.ios.clipsToBounds, false)
-  assert.ok(surface.ios.layer.mask.path)
+  assert.equal(content.style.clipPath, undefined)
+  assert.equal(
+    surface.style.clipPath,
+    `path("${commandsToD(generateCommands(200, 120, props.corners))}")`,
+  )
+  assert.equal(surface.ios.layer.mask, null)
+  assert.equal(surface.ios.__smoothMask, undefined)
   assert.equal(surface.ios.__smoothBorder.lineWidth, 6)
 })
 
-test('iOS: hidden to visible removes only the owned mask and can be re-enabled', () => {
+test('iOS: disabling clears only the owned CSS path, not an unrelated native mask', () => {
   const view = iosView()
   ios.applySmoothClip(view, { corners: 24 })
-  const mask = view.ios.layer.mask
-  ios.applySmoothClip(view, { corners: 24 }, false)
-  assert.equal(view.ios.layer.mask, null)
-  ios.applySmoothClip(view, { corners: 12 })
-  assert.equal(view.ios.layer.mask, mask)
+  const path = view.style.clipPath
   const foreign = {}
   view.ios.layer.mask = foreign
   ios.applySmoothClip(view, { corners: 24 }, false)
+  assert.equal(view.style.clipPath, 'none')
   assert.equal(view.ios.layer.mask, foreign)
+  ios.applySmoothClip(view, { corners: 24 })
+  assert.equal(view.style.clipPath, path)
+  view.style.clipPath = 'circle(50%)'
+  ios.applySmoothClip(view, { corners: 24 }, false)
+  assert.equal(view.style.clipPath, 'circle(50%)')
+})
+
+test('iOS: resizing refreshes the exact Mason path and leaves redraw untouched', () => {
+  const view = iosView()
+  const redraw = () => {}
+  view._redrawNativeBackground = redraw
+  ios.applySmoothClip(view, props)
+  const previous = view.style.clipPath
+  view.getActualSize = () => ({ width: 240, height: 160 })
+  ios.applySmoothClip(view, props)
+  assert.notEqual(view.style.clipPath, previous)
+  assert.equal(
+    view.style.clipPath,
+    `path("${commandsToD(generateCommands(240, 160, props.corners))}")`,
+  )
+  assert.equal(view._redrawNativeBackground, redraw)
 })
 
 function extend(methods) {
@@ -76,6 +102,7 @@ function extend(methods) {
     }
   }
 }
+
 const android = load('android', {
   android: {
     graphics: {
@@ -105,6 +132,7 @@ const android = load('android', {
     os: { Build: { VERSION: { SDK_INT: 35 } } },
   },
 })
+
 function androidView() {
   return {
     style: { backgroundColor: 'red' },

@@ -415,3 +415,5 @@ export function useCompactTouchLayout() {
   overflow: hidden;
 }
 ```
+
+On Mason iOS hosts, let Mason own `layer.mask`: custom curves go through its CSS `clipPath` API, which supports SVG `path()` data. Direct mask assignment can be cleared by overflow layout. See the [ownership boundary](../../../docs/upstream-limitations.md#mason-ios-owns-layer-masks-core-100-beta5) before adding native clipping.

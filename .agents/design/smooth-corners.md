@@ -57,7 +57,7 @@ src/
   SmoothCorners.tsrx          shared native leaf — isIOS dispatches to apply.ios/apply.android
                               (dist/native is a single generic bundle, so per-OS *files* can't
                               be selected by suffix there — runtime dispatch keeps both OSes right)
-  apply.ios.ts                CGMutablePath → CAShapeLayer mask + border stroke + shadowPath
+  apply.ios.ts                Mason CSS clipPath ownership + CGMutablePath border stroke/shadowPath
   apply.android.ts            android.graphics.Path → Drawable + ViewOutlineProvider + elevation
   layout-child.ts             layout-prop split: parent metadata → outer, flex props → inner
   layout-child.web.ts         same split folded into element style objects
@@ -161,7 +161,7 @@ export function ClippedCard() {
 | Target | Surface painting | Child clipping and shadow |
 | --- | --- | --- |
 | Web | Background and inside SVG border on a decorative path-clipped surface | Computed hidden overflow enables a matching content clip; a shadow-only SVG filter sits outside it |
-| iOS | Background and inside border on a masked decorative Mason view | Only hidden content receives a mask; outer shadowPath stays unclipped |
+| iOS | Mason-owned path() clip on the decorative surface; a native inside-border stroke | Hidden content receives the same Mason clipPath; visible clears only the owned CSS value; outer shadowPath stays unclipped |
 | Android | Path-backed Drawable paints background and clips its own inside border stroke | Content outline clipping is conditional; outer elevation follows the curve without clipping children |
 | macOS (AppKit) | NSBezierPath/CAShapeLayer masks the decorative surface | Resolved hidden overflow enables the content mask; the outer shadowPath stays unclipped |
 | Linux / Windows webview | Uses the web leaf | Same browser implementation; native desktop renderer support is separate |
@@ -184,10 +184,10 @@ export function curveOutline(path: unknown) {
 }
 ```
 
-On iOS, uniform-radius `continuous` corners could instead set
-`layer.cornerCurve = .continuous` — the literal Apple curve, zero path cost.
-Keep it as a fast path only when `border`/per-corner mixing isn't in play;
-otherwise the mask keeps uniform/non-uniform identical.
+On iOS, the generated curve goes through Mason’s CSS clip ownership. Do not
+substitute a direct CALayer mask or a redraw wrapper: overflow layout is a
+separate owner that can clear those masks. Native corner-shape styling remains
+the separate Tier 1 option described above.
 
 ## Explicit scope cuts (v1)
 
@@ -199,21 +199,16 @@ otherwise the mask keeps uniform/non-uniform identical.
 - `border-radius` CSS on a `SmoothCorners` element is ignored — the `corners`
   prop is the single source of truth on all leaves.
 
-## Verification plan (lab, when built)
+## Qualification boundaries
 
-- `examples/probes` case rendering the same `corners` config on all targets;
-  assert `layer.mask.path` present + `cornerCurve` unset on iOS, outline
-  provider set on Android, `clip-path` computed on web.
-- iOS: screenshot-diff the masked path against a `cornerCurve` reference view —
-  should be ≲0.25 px (Rosenfeld residual).
-- Android: API 30+ emulator for `setPath`; an API 29 emulator for the
-  `setConvexPath` path.
+`packages/smooth-corners/tests/clipping.ios.tsrx` exercises the actual iOS
+component: default visible content, a Mason-owned decorative clip, background
+updates and layout, resizing, hidden content, and returning to visible. Run it
+through the probe runner on an existing reserved simulator. Host regressions
+verify exact CSS path forwarding and owned-value removal; they do not execute
+Mason’s Swift layout or establish native rendering.
 
-## Open follow-ups
-
-- Q24 is superseded by this design: Android parity does **not** require a
-  ui-mobile-base AAR rebuild — a JS-level `Drawable` + outline provider covers
-  it (lab pending).
-- Whether `SmoothCorners` should also accept `corner-shape`/`border-radius`
-  style values (so `.rounded-*` classes flow through) — likely v1.1; keeping
-  props-only in v1 avoids a CSS-parse seam on native.
+Web browser coverage checks DOM styles, geometry, browser hit-testing, class
+removal, and shadow separation. Neither that evidence nor native mask reads
+establishes pixel parity, OS input, or accessibility. Pixel comparison needs
+separate visual-analysis authorization. Operational results belong in Silo.
