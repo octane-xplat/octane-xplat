@@ -10,11 +10,13 @@ const compile = (source) =>
     target: ts.ScriptTarget.ES2022,
   })
 
-const [exampleSource, leafSource] = await Promise.all([
+const [exampleSource, filterSource, leafSource] = await Promise.all([
   readFile(new URL('../examples/reporting.web.ts', import.meta.url), 'utf8'),
+  readFile(new URL('../examples/reporting-filter.ts', import.meta.url), 'utf8'),
   readFile(new URL('../src/sentry.web.ts', import.meta.url), 'utf8'),
 ])
 const compiledExample = compile(exampleSource)
+const compiledFilter = compile(filterSource)
 const compiledLeaf = compile(leafSource)
 
 function fixture() {
@@ -43,6 +45,9 @@ function fixture() {
     require: (id) => modules[id],
   })
   modules['@octane-xplat/sentry'] = leafExports
+  const filterExports = {}
+  vm.runInNewContext(compiledFilter, { exports: filterExports, require: (id) => modules[id] })
+  modules['./reporting-filter'] = filterExports
   const exports = {}
   vm.runInNewContext(compiledExample, { exports, require: (id) => modules[id] })
   return { helper: exports, options: () => options, captured: () => captured, closed: () => closed }

@@ -2432,8 +2432,13 @@
       },
       "devDependencies": {
         "@nativescript-community/octane": "catalog:",
+        "@nativescript-community/vite-octane": "catalog:",
         "@nativescript/core": "catalog:",
         "@nativescript/types": "catalog:",
+        "@nativescript/vite": "8.0.20",
+        "@octane-xplat/cli": "workspace:*",
+        "@octane-xplat/nativescript-mason-core": "1.0.0-beta.5",
+        "@octanejs/vite-plugin": "catalog:",
         "@sentry/cli": "3.8.2",
         "@tsrx/content-mapper": "catalog:",
         "@tsrx/typescript-plugin": "catalog:",

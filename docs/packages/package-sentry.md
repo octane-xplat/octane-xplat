@@ -45,8 +45,11 @@ The wrapper exposes typed event/breadcrumb filtering (`beforeSend`,
 crash report invokes `beforeSend` but ignores its result — collection
 controls, not the filter, stop crash capture. Source maps and native
 symbols need separate build/upload configuration to make production traces
-readable. The NativeScript/Vite artifact path remains unqualified
-([#74](https://github.com/octane-xplat/octane-xplat/issues/74)). See the
+readable. The native JavaScript-map pipeline is qualified at build level —
+the `xplatNative` preset plus `extra.build.sourcemap` emits maps that take
+Debug ID injection — while the credentialed upload, installed-artifact
+delivery, dSYM/Android symbol uploads and crash/relaunch checks remain
+external target steps ([#74](https://github.com/octane-xplat/octane-xplat/issues/74)). See the
 [public adapter contract](https://github.com/octane-xplat/octane-xplat/blob/main/packages/sentry/src/types.ts)
 and [checking an app](https://octane-xplat.goddardai.org/testing) for the boundary
 between this integration check and testing the app itself.

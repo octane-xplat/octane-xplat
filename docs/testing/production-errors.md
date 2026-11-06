@@ -243,21 +243,22 @@ phone app and initialize once at native startup, before work you want to report:
 bun add @octane-xplat/sentry
 ```
 
-The wrapper supports explicit build identity, handled errors and breadcrumbs.
-For an isolated native test project, call this initializer with its DSN:
+Copy [reporting.mobile.ts](../../packages/sentry/examples/reporting.mobile.ts)
+into `src/reporting.mobile.ts`, along with its shared
+[reporting-filter.ts](../../packages/sentry/examples/reporting-filter.ts). The
+`.mobile` suffix resolves on iOS and Android and is ignored by the web build,
+so the same policy/filter pair as the browser module applies on both native
+targets. Call it at startup with the build's identity:
 
 ```ts
-import { sentry } from '@octane-xplat/sentry'
+import { startNativeReporting } from './reporting.mobile'
 
-export function startNativeReporting(dsn: string) {
-  if (!sentry.supported) return
-  sentry.init({
-    dsn, release: 'packing@0.1.0+1', dist: 'ios-1', environment: 'staging',
-    sampleRate: 1, tracesSampleRate: 0,
-  })
-  sentry.addBreadcrumb({ category: 'test', message: 'Native reporting check' })
-  sentry.captureException(new Error('Xplat native handled check'))
-}
+startNativeReporting({
+  dsn: 'https://PUBLIC_KEY@YOUR_SENTRY_HOST/PROJECT_ID',
+  release: 'packing@0.1.0+1',
+  dist: 'ios-1',
+  environment: 'staging',
+})
 ```
 
 Use the correct target/build dist for Android. The wrapper's `beforeSend`,
@@ -272,13 +273,62 @@ on native too, with two platform differences to keep explicit:
 - `flush(timeout)` reports the JavaScript queue's drain status; the wrapped
   SDK's Android flush does not cover its native-side queue.
 
-For readable native reports, preserve the exact installed release artifact:
+For readable native reports, the installed build must carry the same Debug IDs
+as the uploaded maps.
 
-- **JavaScript maps:** the installed NativeScript plugin documents a Webpack
-  workflow. The starter uses Vite; the framework's native Vite map/release
-  pipeline remains unqualified in [#74](https://github.com/octane-xplat/octane-xplat/issues/74).
-  Do not paste a Webpack plugin into `vite.config.native.mts` or assume browser
-  artifact injection qualifies the native stack format.
+**JavaScript maps.** The starter's `vite.config.native.mts` builds through
+`xplatNative`; release builds emit no maps by default. Opt in through the
+preset's `extra` merge, which overrides the upstream `build.sourcemap` default:
+
+```ts
+import { defineConfig, xplatNative } from 'octane-xplat/vite'
+
+export default defineConfig(({ mode }) =>
+  xplatNative(mode, { extra: { build: { sourcemap: 'hidden' } } }),
+)
+```
+
+A release bundling then writes `bundle.mjs`, `vendor.mjs` and a `.map` beside
+each into the bundler output (`<project>/.ns-vite-build/<platform>/`), which
+`ns` copies into the platform app directory (`platforms/ios/<App>/app`,
+`platforms/android/app/src/main/assets/app`). The maintained check at
+`bun run test:artifacts:native` inside `packages/sentry` builds this exact
+pipeline and verifies the emitted maps accept Debug ID injection and resolve
+back to the app's TypeScript.
+
+Injection must land on the files that actually ship: `ns build` re-runs the
+bundler, so inject after the bundling step that produces the packaged app.
+For iOS, the [native release workflow](../start/native-release.md) prepares
+the project and archives separately — inject between them, and strip the maps
+before archiving so they are not bundled into the installed app:
+
+```sh
+bun run ns prepare ios --release
+bun run sentry-cli sourcemaps inject platforms/ios/<App>/app
+bun run sentry-cli sourcemaps upload --release "$SENTRY_RELEASE" --dist "$SENTRY_DIST" platforms/ios/<App>/app
+find platforms/ios/<App>/app -type f -name '*.map' -delete
+```
+
+Use the same `SENTRY_RELEASE`/`SENTRY_DIST` values as `startNativeReporting`.
+For Android, `ns build android --aab` bundles and packages in one step with no
+injection point: prepare first (`ns prepare android --release`), inject and
+upload `platforms/android/app/src/main/assets/app`, then assemble through the
+generated Gradle project rather than `ns build`, which would re-bundle and
+overwrite the injected files.
+
+Two properties of the emitted maps are deliberate, not defects. The preset
+excludes inline sources (`sourcemapExcludeSources`), so Sentry resolves file,
+line and function but shows no source-context snippet unless you opt in via
+`extra.build.rolldownOptions.output.sourcemapExcludeSources: false` — weigh
+the source disclosure. And the small `rolldown-runtime-*.mjs` helper chunk gets a
+Debug ID but no map: frames inside it cannot resolve, and it is retained in
+the upload so Sentry reports it accurately.
+
+The remaining steps are external and stay unqualified until executed: the
+credentialed upload itself, a readable report delivered from the installed
+release artifact, and native crash/relaunch qualification. A successful
+build/inject/upload does not establish delivery.
+
 - **iOS symbols:** retain the `.xcarchive` and its `dSYMs` directory from the
   [native release workflow](../start/native-release.md). Upload those exact
   symbols using [Sentry's dSYM instructions](https://docs.sentry.io/platforms/apple/dsym/).
@@ -336,13 +386,14 @@ in an owned test build, then relaunch and inspect the correctly identified repor
 | Queued ID, no event in the expected project | DSN, network/content blocking, project/environment filters, SDK initialization and sampling |
 | Event has the wrong build | SDK release/dist versus uploaded artifacts and the installed/deployed file; do not reuse build identity |
 | Browser stack stays compressed | Upload includes the actual injected bundle and matching map; verify Debug IDs and use the exact deployed output |
-| Native stack is unreadable | Separate JavaScript maps, iOS dSYMs, Android shrinker mapping and native symbols; check #74 rather than assuming the browser pipeline applies |
+| Native stack is unreadable | Confirm release maps were enabled, the installed bundle was injected (not a re-bundled copy), and iOS dSYMs/Android shrinker mapping/native symbols were uploaded separately — the browser pipeline alone does not cover native |
 | Crashlytics says unavailable | Firebase app configuration/initialization |
 | Stop reporting seems ineffective | Ensure only one SDK owner exists; distinguish new reports from a request already in flight |
 
 The maintained checks exercise the browser filter and collection lifecycle with
-controlled SDK calls. The artifact check builds the example, injects Debug IDs
-and confirms the map retains its original TypeScript. They make no credentialed
-upload and establish no project delivery, deployed source resolution, native
-symbol upload or crash/relaunch result. Run the external checks above for your
-own test project and record each target separately.
+controlled SDK calls. The artifact checks build the web example and the
+`xplatNative` iOS pipeline, inject Debug IDs and confirm the maps resolve to
+the app's TypeScript. They make no credentialed upload and establish no project
+delivery, deployed/installed source resolution, Android artifact, dSYM or
+other native symbol upload, or crash/relaunch result. Run the external checks
+above for your own test project and record each target separately.

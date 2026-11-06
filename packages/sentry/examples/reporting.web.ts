@@ -1,7 +1,11 @@
 /** App-owned reporting policy over the Xplat Sentry wrapper; not an
- *  additional framework export. */
+ *  additional framework export. The shared filter lives in
+ *  reporting-filter.ts so the native init file applies the same policy. */
 import { sentry } from '@octane-xplat/sentry'
-import type { SentryEvent, SentryFrame, SentryInitOptions } from '@octane-xplat/sentry'
+import type { SentryInitOptions } from '@octane-xplat/sentry'
+import { filterError } from './reporting-filter'
+
+export { filterError } from './reporting-filter'
 
 export interface ReportingConfig {
   dsn: string
@@ -24,48 +28,6 @@ type BrowserReportingOptions = SentryInitOptions & {
 
 let collecting = false
 let initialized = false
-const cleanPath = (value: string | undefined) => value?.split(/[?#]/)[0]
-
-/** Keep source locations and build identity; discard free-form application data. */
-export function filterError(event: SentryEvent): SentryEvent {
-  const frames = (items: SentryFrame[] | undefined) =>
-    items?.map((frame) => ({
-      filename: cleanPath(frame.filename),
-      abs_path: cleanPath(frame.abs_path),
-      function: frame.function,
-      lineno: frame.lineno,
-      colno: frame.colno,
-      in_app: frame.in_app,
-    }))
-  const breadcrumbs = Array.isArray(event.breadcrumbs)
-    ? event.breadcrumbs
-    : event.breadcrumbs?.values
-  return {
-    type: event.type,
-    event_id: event.event_id,
-    timestamp: event.timestamp,
-    platform: 'javascript',
-    release: event.release,
-    dist: event.dist,
-    environment: event.environment,
-    level: 'error',
-    sdk: event.sdk,
-    debug_meta: event.debug_meta,
-    message: event.message ? 'Application error' : undefined,
-    exception: event.exception
-      ? {
-          values: event.exception.values?.map((value) => ({
-            type: 'Error',
-            value: 'Application error',
-            stacktrace: value.stacktrace ? { frames: frames(value.stacktrace.frames) } : undefined,
-          })),
-        }
-      : undefined,
-    breadcrumbs: breadcrumbs
-      ?.filter((b) => b.category === 'app-action' && b.message === 'report-delivery-check')
-      .map((b) => ({ category: b.category, message: b.message, timestamp: b.timestamp })),
-  }
-}
 
 /** Call only after the app's collection preference allows reporting. */
 export function startReporting(config: ReportingConfig): void {

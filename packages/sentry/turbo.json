@@ -1,6 +1,9 @@
 {
 	"extends": ["//"],
 	"tasks": {
-		"test:artifacts": { "dependsOn": ["^typegen"], "outputs": [] }
+		"test:artifacts": { "dependsOn": ["^typegen"], "outputs": [] },
+		// The native check builds a fixture app through @octane-xplat/cli's
+		// xplatNative preset, so cli's dist must exist first.
+		"test:artifacts:native": { "dependsOn": ["^typegen", "@octane-xplat/cli#build"], "outputs": [] }
 	}
 }

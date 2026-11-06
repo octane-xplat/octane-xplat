@@ -7,7 +7,7 @@
 	},
 	"environments": {
 		"native": {
-			"files": ["src/index.ts"],
+			"files": ["src/index.ts", "examples/reporting.mobile.ts"],
 			"compilerOptions": { "types": ["@nativescript/types"] }
 		},
 		"web": { "files": ["src/index.web.ts", "examples/reporting.web.ts"] },

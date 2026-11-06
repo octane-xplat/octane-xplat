@@ -37,7 +37,10 @@ artifacts and project-delivery checks. The Sentry wrapper exposes typed
 `beforeSend`/`beforeBreadcrumb` and `enabled`/`setEnabled`/`flush`/`close`
 controls; a native crash report invokes `beforeSend` but ignores its result —
 only the collection controls stop crash capture. Android `flush` covers the
-JS queue only, and native Vite artifact qualification remains open (#74).
+JS queue only. Native release maps are qualified at build level — `xplatNative`
+plus `extra.build.sourcemap` emits Debug-ID-ready maps — while credentialed
+upload, installed-artifact delivery, dSYM/Android symbols and crash/relaunch
+stay external (#74).
 Crashlytics is native-only; its leaf registers the plugin on import.
 Do not infer desktop support from a browser re-export or native crash delivery
 from a handled JavaScript report. Keep upload tokens out of runtime config.

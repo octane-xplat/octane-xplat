@@ -432,3 +432,23 @@ Verified from plugin source at 4.6.49 (`wrapper.ios.js`, `wrapper.android.js`,
 - Status: current in @nativescript-community/sentry 4.6.49. Recheck if
   upstream honors `beforeSend` results on native events, wires `close()` to
   the native SDK, or implements Android flush.
+
+## @nativescript/vite: release source maps and the rolldown runtime chunk (8.0.20)
+
+Verified from `configuration/base.js` at 8.0.20 and a production `xplatNative`
+fixture build (packages/sentry `test:artifacts:native`) — build evidence, not
+runtime behavior:
+
+- `build.sourcemap` defaults to `debug`, so a release bundling emits no maps.
+  Xplat stance: the starter opts in through `xplatNative(mode, { extra: {
+  build: { sourcemap: 'hidden' } } })`; the last `extra` merge wins over the
+  upstream default.
+- The emitted `rolldown-runtime-*.mjs` helper chunk receives a Debug ID from
+  `sentry-cli sourcemaps inject` but ships no `.map`, so frames inside it
+  cannot symbolicate. It is upstream bundler boilerplate; the guides tell
+  readers to upload it so Sentry reports the gap accurately rather than
+  silently dropping it.
+- `output.sourcemapBaseUrl` writes absolute `file://` source-map URLs for
+  devtools. It is inert under `sourcemap: 'hidden'` (no `//# sourceMappingURL`
+  comment is emitted) but would leak host paths if an app switched to inline
+  or linked maps.
