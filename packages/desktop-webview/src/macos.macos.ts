@@ -755,7 +755,6 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       switch (status) {
         case UNAuthorizationStatus.Authorized:
         case UNAuthorizationStatus.Provisional:
-        case UNAuthorizationStatus.Ephemeral:
           return 'granted'
         case UNAuthorizationStatus.Denied:
           return 'denied'
