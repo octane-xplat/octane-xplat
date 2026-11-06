@@ -291,7 +291,14 @@ function nativeExtensionOrder() {
  *  unsuffixed relative import (`./svg`) therefore lands on the shared default
  *  (`svg.ts`) in dev while builds pick `svg.mobile.ts` — silently skipping
  *  `registerElement`-style side effects. Probe the platform chain for every
- *  relative specifier before the generic resolvers run. */
+ *  relative specifier before the generic resolvers run.
+ *
+ *  An explicit unsuffixed specifier is still the authored contract, not a
+ *  literal file: `./Pressable.tsrx` must select `Pressable.<platform>.tsrx`
+ *  exactly as the extensionless `./Pressable` does. Vite resolves an
+ *  extensioned specifier literally, so strip the authored script extension
+ *  and probe the chain on the stem. A platform-tagged request
+ *  (`./foo.ios.tsrx`) names its leaf and resolves literally. */
 export function nativeRelativeResolution() {
   const exts = nativePlatformExtensions()
 
@@ -305,13 +312,17 @@ export function nativeRelativeResolution() {
         }
 
         const importerFile = importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')
-        const base = resolve(dirname(importerFile), source.split(/[?#]/, 1)[0])
+        const request = source.split(/[?#]/, 1)[0]
+        const base = resolve(dirname(importerFile), request)
+        const stem = PLATFORM_TAG.test(base)
+          ? base
+          : base.replace(/\.(tsrx|tsx|ts|mts|jsx|js|json)$/, '')
 
         for (const ext of exts) {
-          if (existsSync(base + ext)) {
+          if (existsSync(stem + ext)) {
             // Vite module IDs use forward slashes, including on Windows.
             // Mixed separators create two instances of core style registries.
-            return (base + ext).replaceAll('\\', '/')
+            return (stem + ext).replaceAll('\\', '/')
           }
         }
 

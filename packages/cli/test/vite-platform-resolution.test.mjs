@@ -75,4 +75,64 @@ describe('nativeRelativeResolution', () => {
       }
     }
   })
+
+  const withWindowsEnv = (run) => {
+    const previous = process.env.NATIVESCRIPT_BUNDLER_ENV
+    try {
+      process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ windows: true })
+      return run(nativeRelativeResolution().resolveId.handler)
+    } finally {
+      if (previous === undefined) {
+        delete process.env.NATIVESCRIPT_BUNDLER_ENV
+      } else {
+        process.env.NATIVESCRIPT_BUNDLER_ENV = previous
+      }
+    }
+  }
+
+  // The explicit TSRX contract spells unsuffixed specifiers with their
+  // extension (`./Pressable.tsrx`). Vite resolves an extensioned specifier
+  // literally, which skipped every platform leaf — the Windows peer
+  // registrations never loaded (octane-xplat#163). The authored extension
+  // is a contract name; the platform chain still selects the leaf.
+  it('prefers the platform leaf for an explicit unsuffixed .tsrx specifier', () =>
+    withWindowsEnv((resolve) => {
+      const dir = makeDir(['Pressable.tsrx', 'Pressable.windows.tsrx'])
+      assert.equal(
+        resolve('./Pressable.tsrx', join(dir, 'index.shared.ts'), {}),
+        vitePath(join(dir, 'Pressable.windows.tsrx')),
+      )
+    }))
+
+  it('prefers the .mobile leaf for an explicit unsuffixed .tsrx specifier', () => {
+    const dir = makeDir(['Tooltip.tsrx', 'Tooltip.mobile.tsrx'])
+    assert.equal(
+      handler('./Tooltip.tsrx', join(dir, 'index.shared.ts'), {}),
+      vitePath(join(dir, 'Tooltip.mobile.tsrx')),
+    )
+  })
+
+  it('resolves the literal unsuffixed file when no platform leaf exists', () => {
+    const dir = makeDir(['Icon.tsrx'])
+    assert.equal(
+      handler('./Icon.tsrx', join(dir, 'index.shared.ts'), {}),
+      vitePath(join(dir, 'Icon.tsrx')),
+    )
+  })
+
+  it('does not inherit the .mobile tier on Windows', () =>
+    withWindowsEnv((resolve) => {
+      const dir = makeDir(['Widget.tsrx', 'Widget.mobile.tsrx'])
+      assert.equal(
+        resolve('./Widget.tsrx', join(dir, 'index.shared.ts'), {}),
+        vitePath(join(dir, 'Widget.tsrx')),
+      )
+    }))
+
+  it('leaves platform-tagged and non-script specifiers to literal resolution', () =>
+    withWindowsEnv((resolve) => {
+      const dir = makeDir(['screen.ios.tsrx', 'theme.css'])
+      assert.equal(resolve('./screen.ios.tsrx', join(dir, 'main.ts'), {}), null)
+      assert.equal(resolve('./theme.css', join(dir, 'main.ts'), {}), null)
+    }))
 })
