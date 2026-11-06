@@ -1,3 +1,10 @@
-// Runtime contract moved to @octane-xplat/cli (shared agent service layer).
-// This shim preserves the @octane-xplat/mcp ./contracts export surface.
-export * from '@octane-xplat/cli/mcp/contracts/index'
+export * from './errors.ts'
+export * from './identity.ts'
+export * from './capabilities.ts'
+export * from './policy.ts'
+export * from './sessions.ts'
+export * from './evidence.ts'
+export * from './boundaries.ts'
+export * from './code.ts'
+export * from './actions.ts'
+export * from './inspection.ts'

@@ -16,10 +16,11 @@ import type { PermissionScope } from '../types/contracts/policy'
 const usage = `xplat-mcp — Octane Xplat MCP server (stdio)
 
 Usage: xplat-mcp [--workspace <path>] [--app <id|path|name>]
-                 [--permissions <scope,scope>] [--evidence-dir <path>]
+                 [--permissions <scope,scope>]
 
 Options may also come from the environment:
-  XPLAT_MCP_WORKSPACE, XPLAT_MCP_APP, XPLAT_MCP_PERMISSIONS, XPLAT_MCP_EVIDENCE_DIR
+  XPLAT_MCP_WORKSPACE, XPLAT_MCP_APP, XPLAT_MCP_PERMISSIONS
+  XPLAT_MCP_XPLAT overrides the xplat executable used for service calls.
 
 Scopes: ${PERMISSION_SCOPES.join(', ')}
 Workspace reads and ordinary runtime actions reuse the developer's task
@@ -61,13 +62,10 @@ const context: WorkspaceContext = createWorkspaceContext({
   permissionScopes: permissionScopes.filter((s): s is PermissionScope =>
     PERMISSION_SCOPES.includes(s as PermissionScope),
   ),
-  evidenceRoot: arg('evidence-dir') ?? process.env.XPLAT_MCP_EVIDENCE_DIR,
   code: createCodeService({
     workspaceRoot,
     workspaceKind: () => context.discovery.workspace.kind,
   }),
-  // The shared layer attaches docs/devActions/runtime/inspection providers
-  // after creating the literal — the .mjs inference cannot see them.
 }) as unknown as WorkspaceContext
 
 const { server, shutdown } = createXplatMcpServer(context)

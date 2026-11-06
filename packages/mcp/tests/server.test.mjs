@@ -1,225 +1,214 @@
-// End-to-end: a real MCP client talking to the server over linked transports.
+// End-to-end: a real MCP client talking to the server over linked transports,
+// with the Go CLI boundary stubbed by a recording fake transport.
 
 import assert from 'node:assert/strict'
-import { createDevLogCapture } from '../../cli/dist/dev-logs.js'
 import { test } from 'node:test'
-import { join } from 'node:path'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js'
 import { createXplatMcpServer } from '../dist/server.js'
 import { createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace } from './helpers.mjs'
+import { fakeTransport, statusFixture, ok, fail } from './transport.mjs'
 
 async function connect(root, options = {}) {
-  const context = createWorkspaceContext({
-    workspaceRoot: root,
-    evidenceRoot: join(root, '.ev'),
-    ...options,
-  })
+	const transport = fakeTransport(options.handlers ?? {})
+	const context = createWorkspaceContext({ workspaceRoot: root, transport, ...options })
+	transport.handlers.status ??= () => ok(statusFixture(context))
 
-  const { server } = createXplatMcpServer(context)
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
-  const client = new Client({ name: 'test-client', version: '0.0.0' })
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
-  return { client, context }
+	const { server } = createXplatMcpServer(context)
+	const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
+	const client = new Client({ name: 'test-client', version: '0.0.0' })
+	await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
+	return { client, context, transport }
 }
 
 test('project status reports identity, versions, capabilities, and boundaries', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'status-app', installed: { '@octane-xplat/ui': '0.14.0' } })
-  const { client } = await connect(root)
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'status-app', installed: { '@octane-xplat/ui': '0.14.0' } })
+	const { client, transport } = await connect(root, {
+		handlers: {
+			status: (call) =>
+				ok(
+					statusFixture({ boundApp: null, discovery: { workspace: { kind: 'consumer' }, apps: [{ id: '.', name: 'status-app', platforms: ['web'] }] } }, {
+						identity: {
+							workspace: { kind: 'consumer' },
+							apps: [],
+							selection: { state: 'bound', reason: 'sole-app', app: { id: '.' } },
+							framework: { status: 'installed', packages: [{ name: '@octane-xplat/ui', version: '0.14.0' }] },
+						},
+						prerequisites: [],
+						capabilities: [{ platform: 'web', capabilities: [] }],
+					}),
+				),
+		},
+	})
 
-  const result = await client.callTool({ name: 'xplat_project_status', arguments: {} })
-  const report = result.structuredContent.data
-  assert.ok(!result.isError)
-  assert.equal(report.identity.selection.state, 'bound')
-  assert.equal(report.identity.selection.reason, 'sole-app')
-  assert.equal(report.identity.framework.packages[0].version, '0.14.0')
-  assert.equal(report.docs.state, 'ready')
-  assert.equal(report.codeIndex.state, 'not_provided')
-  assert.ok(Array.isArray(report.capabilities))
-  assert.ok(report.boundaries.length > 0)
-  assert.ok(report.permissions.find((g) => g.scope === 'visual-capture'))
+	const result = await client.callTool({ name: 'xplat_project_status', arguments: {} })
+	const report = result.structuredContent.data
+	assert.ok(!result.isError)
+	assert.equal(report.identity.selection.state, 'bound')
+	assert.equal(report.identity.selection.reason, 'sole-app')
+	assert.equal(report.identity.framework.packages[0].version, '0.14.0')
+	assert.equal(report.server.name, '@octane-xplat/mcp')
+	assert.ok(Array.isArray(report.capabilities))
+	assert.ok(report.boundaries.length > 0)
+	assert.ok(report.permissions.find((g) => g.scope === 'visual-capture'))
+	// The status report is the Go contract — one implementation, two transports.
+	assert.deepEqual(transport.calls[0].command, ['status'])
 })
 
 test('ambiguous workspaces require explicit selection', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, 'apps/a', { name: 'a' })
-  makeConsumerApp(root, 'apps/b', { name: 'b' })
-  const { client } = await connect(root)
+	const root = makeWorkspace()
+	makeConsumerApp(root, 'apps/a', { name: 'a' })
+	makeConsumerApp(root, 'apps/b', { name: 'b' })
+	const { client } = await connect(root)
 
-  const status = await client.callTool({ name: 'xplat_project_status', arguments: {} })
-  assert.equal(status.structuredContent.data.identity.selection.state, 'ambiguous')
+	const status = await client.callTool({ name: 'xplat_project_status', arguments: {} })
+	assert.equal(status.structuredContent.data.identity.selection.state, 'ambiguous')
 
-  const bad = await client.callTool({ name: 'xplat_select_app', arguments: { app: 'nope' } })
-  assert.equal(bad.isError, true)
-  assert.equal(bad.structuredContent.error.code, 'invalid_selection')
-  assert.equal(bad.structuredContent.error.context.candidates.length, 2)
+	const bad = await client.callTool({ name: 'xplat_select_app', arguments: { app: 'nope' } })
+	assert.equal(bad.isError, true)
+	assert.equal(bad.structuredContent.error.code, 'invalid_selection')
+	assert.equal(bad.structuredContent.error.context.candidates.length, 2)
 
-  const bound = await client.callTool({ name: 'xplat_select_app', arguments: { app: 'apps/a' } })
-  assert.equal(bound.structuredContent.data.bound.name, 'a')
+	const bound = await client.callTool({ name: 'xplat_select_app', arguments: { app: 'apps/a' } })
+	assert.equal(bound.structuredContent.data.bound.name, 'a')
 })
 
-test('capability matrix separates capabilities and explains gaps', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'cap-app' })
-  const { client } = await connect(root, { runtime: { exec: () => '1.0.0\n' } })
+test('capability matrix proxies the Go capability contract', async () => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'cap-app' })
+	const { client, transport } = await connect(root, {
+		handlers: {
+			capabilities: (call) =>
+				ok({
+					capabilities: [
+						{
+							platform: call.flags.platform ?? 'web',
+							declared: true,
+							capabilities: [
+								{ capability: 'project_status', status: 'supported' },
+								{ capability: 'screenshot', status: 'unavailable', requiresPermission: 'visual-capture' },
+							],
+						},
+					],
+				}),
+		},
+	})
 
-  const result = await client.callTool({ name: 'xplat_capability_matrix', arguments: {} })
-  const [matrix] = result.structuredContent.data.capabilities
-  assert.equal(matrix.platform, 'web')
-  const byId = Object.fromEntries(matrix.capabilities.map((c) => [c.capability, c]))
-  for (const id of ['build', 'launch', 'logs', 'ui_inspection', 'screenshot', 'interaction']) {
-    assert.ok(byId[id], `missing ${id}`)
-  }
-
-  // Runtime providers (item D) report real support; E capabilities still
-  // carry their honest defaults.
-  assert.equal(byId.build.status, 'supported')
-  assert.equal(byId.launch.status, 'supported')
-  assert.equal(byId.target_discovery.status, 'supported')
-  assert.equal(byId.screenshot.requiresPermission, 'visual-capture')
-  assert.equal(byId.screenshot.status, 'partial')
+	const result = await client.callTool({
+		name: 'xplat_capability_matrix',
+		arguments: { platform: 'web' },
+	})
+	const [matrix] = result.structuredContent.data.capabilities
+	const byId = Object.fromEntries(matrix.capabilities.map((c) => [c.capability, c]))
+	assert.equal(byId.project_status.status, 'supported')
+	assert.equal(byId.screenshot.requiresPermission, 'visual-capture')
+	assert.deepEqual(transport.calls.at(-1).command, ['capabilities'])
+	assert.equal(transport.calls.at(-1).flags.platform, 'web')
 })
 
 test('permissions report grant states; screenshots are never baseline-granted', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'perm-app' })
-  const { client } = await connect(root)
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'perm-app' })
+	const { client } = await connect(root)
 
-  const result = await client.callTool({
-    name: 'xplat_permissions',
-    arguments: { scope: 'visual-capture' },
-  })
+	const result = await client.callTool({
+		name: 'xplat_permissions',
+		arguments: { scope: 'visual-capture' },
+	})
 
-  const data = result.structuredContent.data
-  assert.equal(data.check.granted, false)
-  assert.equal(data.check.error.code, 'permission_denied')
-  assert.match(data.check.error.recovery.action, /developer/)
+	const data = result.structuredContent.data
+	assert.equal(data.check.granted, false)
+	assert.equal(data.check.error.code, 'permission_denied')
+	assert.match(data.check.error.recovery.action, /developer|grant/i)
 })
 
 test('sessions, jobs, and evidence tools expose the shared contracts', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'sess-app' })
-  const { client, context } = await connect(root)
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'sess-app' })
+	const { client, transport } = await connect(root, {
+		handlers: {
+			'session list': ok({ sessions: [{ sessionId: 'sess_1', state: 'ready' }] }),
+			'session status': (call) => ok({ session: { sessionId: call.positionals[0], state: 'ready' } }),
+			'actions status': fail('not_found', 'unknown job'),
+			'evidence list': ok({ evidence: [{ id: 'ev_1', kind: 'inspection' }] }),
+			'evidence retain': ok({ retained: true, transcriptNote: 'Client transcripts are not erased.' }),
+			'evidence delete': ok({ deleted: true }),
+		},
+	})
 
-  // Attach a user-owned session through the registry (runtime tools in D do
-  // the same through providers) and end it via the tool.
-  const session = context.sessions.attach({
-    appId: '.',
-    platform: 'web',
-    targetId: 'web',
-  })
+	const listed = await client.callTool({ name: 'xplat_sessions', arguments: {} })
+	assert.equal(listed.structuredContent.data.sessions.length, 1)
 
-  const listed = await client.callTool({ name: 'xplat_sessions', arguments: {} })
-  assert.equal(listed.structuredContent.data.sessions.length, 1)
+	const status = await client.callTool({
+		name: 'xplat_sessions',
+		arguments: { sessionId: 'sess_1' },
+	})
+	assert.equal(status.structuredContent.data.session.sessionId, 'sess_1')
+	assert.deepEqual(transport.calls.at(-1).positionals, ['sess_1'])
 
-  const ended = await client.callTool({
-    name: 'xplat_session_end',
-    arguments: { sessionId: session.sessionId },
-  })
+	// Session end is honestly unavailable in the current contract.
+	const ended = await client.callTool({
+		name: 'xplat_session_end',
+		arguments: { sessionId: 'sess_1' },
+	})
+	assert.equal(ended.isError, true)
+	assert.equal(ended.structuredContent.error.code, 'unsupported_capability')
 
-  assert.equal(ended.structuredContent.data.result.ended, true)
-  assert.match(ended.structuredContent.data.result.preserved[0], /user-owned/)
+	const missing = await client.callTool({
+		name: 'xplat_job_status',
+		arguments: { jobId: 'job_missing' },
+	})
+	assert.equal(missing.isError, true)
+	assert.equal(missing.structuredContent.error.code, 'not_found')
 
-  // Jobs: unknown ids fail honestly.
-  const missing = await client.callTool({
-    name: 'xplat_job_status',
-    arguments: { jobId: 'job_missing' },
-  })
+	// Retention is permission-gated before it reaches the service.
+	const denied = await client.callTool({
+		name: 'xplat_evidence',
+		arguments: { op: 'retain', id: 'ev_1' },
+	})
+	assert.equal(denied.structuredContent.error.code, 'permission_denied')
 
-  assert.equal(missing.isError, true)
-  assert.equal(missing.structuredContent.error.code, 'not_found')
+	const listed2 = await client.callTool({
+		name: 'xplat_evidence',
+		arguments: { op: 'list' },
+	})
+	assert.equal(listed2.structuredContent.data.evidence.length, 1)
 
-  // Evidence: retain/delete carry the transcript limitation note.
-  const record = context.evidence.record({
-    kind: 'inspection',
-    summary: 'tree',
-    provenance: { platform: 'web', mechanism: 'none' },
-  })
-
-  const retained = await client.callTool({
-    name: 'xplat_evidence',
-    arguments: { op: 'retain', id: record.id },
-  })
-
-  assert.match(retained.structuredContent.data.transcriptNote, /transcript/)
-
-  const listed2 = await client.callTool({
-    name: 'xplat_evidence',
-    arguments: { op: 'list' },
-  })
-
-  assert.equal(listed2.structuredContent.data.evidence.length, 1)
-
-  const deleted = await client.callTool({
-    name: 'xplat_evidence',
-    arguments: { op: 'delete', id: record.id },
-  })
-
-  assert.equal(deleted.structuredContent.data.deleted, true)
+	const deleted = await client.callTool({
+		name: 'xplat_evidence',
+		arguments: { op: 'delete', id: 'ev_1' },
+	})
+	assert.equal(deleted.structuredContent.data.deleted, true)
+	assert.deepEqual(transport.calls.at(-1).command, ['evidence', 'delete'])
 })
 
-test('shutdown releases owned sessions and session-scoped evidence only', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'own-app' })
-  const context = createWorkspaceContext({ workspaceRoot: root, evidenceRoot: join(root, '.ev') })
-  const { shutdown } = createXplatMcpServer(context)
+test('diagnostics MCP tool maps selectors onto the contract flags', async () => {
+	const root = makeWorkspace()
+	makeConsumerApp(root, '.', { name: 'diagnostic-app' })
+	const { client, transport } = await connect(root, {
+		handlers: {
+			diagnostics: (call) =>
+				ok({ logs: { records: [], nextCursor: null }, flags: call.flags }),
+		},
+	})
+	try {
+		const tools = await client.listTools()
+		assert.ok(tools.tools.some((tool) => tool.name === 'xplat_diagnostics'))
+		assert.ok(!tools.tools.some((tool) => tool.name === 'xplat_logs'))
 
-  let cleaned = false
-  context.sessions.bindOwned({
-    appId: '.',
-    platform: 'web',
-    targetId: 'web',
-    cleanup: () => {
-      cleaned = true
-    },
-  })
-
-  context.sessions.attach({ appId: '.', platform: 'web', targetId: 'web' })
-  const keep = context.evidence.record({ kind: 'note', summary: 'k', provenance: {} })
-  context.evidence.record({ kind: 'log', summary: 't', provenance: {} })
-  context.evidence.retain(keep.id)
-
-  const result = await shutdown()
-  assert.equal(cleaned, true)
-  assert.equal(result.sessions.length, 2)
-  assert.equal(result.evidence.deleted, 1)
-  assert.equal(context.evidence.list().length, 1)
-})
-
-test('diagnostics MCP tool lists retained runs and shares CLI selector and envelope semantics', async () => {
-  const root = makeWorkspace()
-  makeConsumerApp(root, '.', { name: 'diagnostic-app' })
-  const capture = createDevLogCapture(root, { platform: 'web', targetId: 'web' })
-  capture.append({ stream: 'stderr', line: 'before MCP connection' })
-  capture.close()
-  const { client } = await connect(root)
-  try {
-    const tools = await client.listTools()
-    assert.ok(tools.tools.some((tool) => tool.name === 'xplat_diagnostics'))
-    assert.ok(!tools.tools.some((tool) => tool.name === 'xplat_logs'))
-    const listed = await client.callTool({ name: 'xplat_diagnostics', arguments: {} })
-    assert.equal(listed.structuredContent.data.sessions[0].sessionId, capture.sessionId)
-    const result = await client.callTool({
-      name: 'xplat_diagnostics',
-      arguments: { sessionId: capture.sessionId, cursor: 0 },
-    })
-
-    assert.ok(
-      result.structuredContent.data.logs.records.some(
-        (record) => record.line === 'before MCP connection',
-      ),
-    )
-
-    assert.equal(result.structuredContent.data.coverage.nativeReports.status, 'unsupported')
-    const invalid = await client.callTool({
-      name: 'xplat_diagnostics',
-      arguments: { sessionId: capture.sessionId, sessionId: 'sess_x' },
-    })
-
-    assert.equal(invalid.structuredContent.error.code, 'invalid_selection')
-  } finally {
-    await client.close()
-  }
+		const result = await client.callTool({
+			name: 'xplat_diagnostics',
+			arguments: { sessionId: 'sess_abc', cursor: 0, stream: 'stderr', limit: 50 },
+		})
+		const flags = result.structuredContent.data.flags
+		assert.equal(flags.session, 'sess_abc')
+		assert.equal(flags.cursor, 0)
+		assert.equal(flags.stream, 'stderr')
+		assert.equal(flags.limit, 50)
+		assert.deepEqual(transport.calls.at(-1).command, ['diagnostics'])
+	} finally {
+		await client.close()
+	}
 })

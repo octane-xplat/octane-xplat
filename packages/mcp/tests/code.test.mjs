@@ -10,13 +10,26 @@ import { createCodeService } from '@octane-xplat/cli/mcp/code-service'
 import { createXplatMcpServer } from '../dist/server.js'
 import { createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace, writeFile, writeJson } from './helpers.mjs'
+import { fakeTransport, statusFixture, ok } from './transport.mjs'
 
 async function connect(root, options = {}) {
+  const transport = fakeTransport()
   const context = createWorkspaceContext({
     workspaceRoot: root,
-    evidenceRoot: join(root, '.ev'),
+    transport,
     ...options,
   })
+  transport.handlers.status = () => ok(statusFixture(context))
+  transport.handlers.capabilities = () =>
+    ok({
+      capabilities: [
+        {
+          platform: 'web',
+          declared: true,
+          capabilities: [{ capability: 'code_search', status: 'supported' }],
+        },
+      ],
+    })
 
   context.code =
     options.code ??

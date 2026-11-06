@@ -71,7 +71,7 @@ test('requestGrant without a channel records required state, never self-grants',
   assert.equal(policy.list().find((g) => g.scope === 'visual-capture').state, 'required')
 })
 
-test('default capability matrix is honest: server tools supported, runtime unavailable', async () => {
+test('default capability matrix is honest: status supported, service-routed unavailable', async () => {
   const registry = createCapabilityRegistry()
   const [matrix] = await registry.matrixFor(
     {
@@ -87,8 +87,12 @@ test('default capability matrix is honest: server tools supported, runtime unava
 
   const byId = Object.fromEntries(matrix.capabilities.map((c) => [c.capability, c]))
   assert.equal(byId.project_status.status, 'supported')
-  assert.equal(byId.job_control.status, 'supported')
-  assert.equal(byId.evidence.status, 'supported')
+  // Launch, jobs, session end and evidence route through the xplat transport —
+  // without a provider row they are honestly unavailable, never implied.
+  assert.equal(byId.job_control.status, 'unavailable')
+  assert.equal(byId.session_end.status, 'unavailable')
+  assert.equal(byId.evidence.status, 'unavailable')
+  assert.equal(byId.launch.status, 'unavailable')
   assert.equal(byId.build.status, 'unavailable')
   assert.match(byId.build.detail, /provider/)
   assert.equal(byId.build.alternative.command, 'xplat dev --target web')

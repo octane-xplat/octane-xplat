@@ -1,6 +1,6 @@
-// Runtime MCP tools (work item D). Thin bindings over the runtime service —
-// all session/job/ownership behavior lives in service.mjs and the shared
-// contracts.
+// Runtime MCP tools. Thin bindings over the runtime service — the Go
+// `xplat ... --json` agent commands own session/target behavior; tools the
+// contract no longer covers report `unavailable`/`unsupported_capability`.
 
 import { z } from 'zod'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
@@ -29,9 +29,7 @@ export function registerRuntimeTools(
     },
     async ({ platform }) => {
       const result = await runtime.listTargets({ platform })
-      return result.error
-        ? respond({ ok: false, error: result.error })
-        : respond({ ok: true, data: result })
+      return respond(result)
     },
   )
 
@@ -39,7 +37,7 @@ export function registerRuntimeTools(
     'xplat_build',
     {
       description:
-        'Build the bound app for one platform as a background job (the same commands `xplat build` runs). Returns a job id — poll xplat_job_status and read output with xplat_diagnostics. Repeating with the same requestKey returns the live job instead of duplicating it.',
+        'Build the bound app for one platform. Agent-owned build jobs were removed from the contract — this tool reports the boundary and points at the `xplat build` foreground command.',
       inputSchema: {
         platform: z.enum(PLATFORMS as Platform[]),
         requestKey: z.string().optional().describe('Idempotence key for retries'),
@@ -47,9 +45,7 @@ export function registerRuntimeTools(
     },
     async ({ platform, requestKey }) => {
       const result = await runtime.build({ platform, requestKey })
-      return result.error
-        ? respond({ ok: false, error: result.error })
-        : respond({ ok: true, data: result })
+      return respond(result)
     },
   )
 
@@ -57,7 +53,7 @@ export function registerRuntimeTools(
     'xplat_launch',
     {
       description:
-        'Start an owned development session: return one durable session id immediately. Read launch progress and readiness through xplat_sessions; diagnostics use the same session id, including after shutdown.',
+        'Start an owned development session. Agent-owned launch was removed from the contract — this tool reports the boundary: run `xplat dev`, connect the app, then bind it with xplat_attach.',
       inputSchema: {
         target: z
           .string()
@@ -76,9 +72,7 @@ export function registerRuntimeTools(
     },
     async ({ target, requestKey, browserMode }) => {
       const result = await runtime.launch({ target, requestKey, browserMode })
-      return result.error
-        ? respond({ ok: false, error: result.error })
-        : respond({ ok: true, data: result })
+      return respond(result)
     },
   )
 
@@ -97,9 +91,7 @@ export function registerRuntimeTools(
     },
     async ({ platform, targetId }) => {
       const result = await runtime.attach({ platform, targetId })
-      return result.error
-        ? respond({ ok: false, error: result.error })
-        : respond({ ok: true, data: result })
+      return respond(result)
     },
   )
 
@@ -120,9 +112,7 @@ export function registerRuntimeTools(
     },
     async (args) => {
       const result = await runtime.readDiagnostics(args)
-      return result.error
-        ? respond({ ok: false, error: result.error })
-        : respond({ ok: true, data: result })
+      return respond(result)
     },
   )
 }

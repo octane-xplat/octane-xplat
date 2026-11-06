@@ -1,6 +1,6 @@
-// Inspection tool registration (MCP adapter). The service lives in the
-// shared layer at @octane-xplat/cli/mcp/inspection/service; this file only
-// binds it to MCP tools.
+// Inspection tool registration (MCP adapter). The service delegates to the
+// Go `xplat inspect|interact|capture` agent commands; this file only binds
+// it to MCP tools.
 import { z } from 'zod'
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { Respond, WorkspaceContext } from '../context.ts'
@@ -15,7 +15,7 @@ export function registerInspectionTools(
     (method: 'inspect' | 'interact' | 'screenshot') =>
     async (args: any): Promise<ReturnType<Respond>> => {
       const data = await context.inspection[method](args)
-      return data.error ? respond({ ok: false, error: data.error }) : respond({ ok: true, data })
+      return respond(data)
     }
 
   server.registerTool(
@@ -37,13 +37,20 @@ export function registerInspectionTools(
     'xplat_interact',
     {
       description:
-        'Send scoped input to one stable control from an inspected document. dom-event sends a CDP mouse click; os-input sends Space/Enter via the macOS event system to owned headed Chromium. Reserve desktop input for OS actions. Input delivery is not an app assertion.',
+        'Send scoped input to one stable control from an inspected document. handler-dispatch issues an explicit programmatic HTMLElement.click through the connected app — it is not CDP or OS input, and delivery is not an app-state assertion.',
       inputSchema: {
         sessionId: z.string(),
         documentId: z.string(),
         control,
-        mechanism: z.enum(['dom-event', 'os-input']),
-        key: z.enum(['Space', 'Enter']).optional().default('Space'),
+        mechanism: z
+          .enum(['handler-dispatch'])
+          .optional()
+          .default('handler-dispatch')
+          .describe('Explicit programmatic dispatch; no CDP or OS input exists in the current contract'),
+        requestKey: z
+          .string()
+          .optional()
+          .describe('Startup-scoped dedupe key; reuse an identical key to read the same receipt'),
       },
     },
     run('interact'),

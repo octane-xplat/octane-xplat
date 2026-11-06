@@ -66,17 +66,17 @@ Options: `--workspace` / `XPLAT_MCP_WORKSPACE` (default cwd), `--app` /
 | `xplat_select_app`                      | Explicitly bind an app by id/path/name. Ambiguous or unknown selections fail with the candidate list — the server never picks silently.                                                                        |
 | `xplat_capability_matrix`               | Per-platform capability entries: build, launch, logs, inspection, screenshot, interaction, and the rest are separate rows with status, detail, and alternatives.                                               |
 | `xplat_permissions`                     | Grant states per scope plus the action-time check result and recovery path.                                                                                                                                    |
-| `xplat_sessions`                        | Retained sessions and launch progress; optional `sessionId` selects exact status, including failures and ended sessions.                                                                                                                                           |
-| `xplat_targets`                         | Launchable targets per platform (simulators, devices, host targets) with availability, missing-toolchain reasons, and busy/ownership state.                                                                    |
-| `xplat_build`                           | Build the bound app for one platform as a job — same commands `xplat build` runs. `requestKey` dedupes retries.                                                                                                |
-| `xplat_launch`                          | Start an owned session and return its durable ID immediately; poll `xplat_sessions` for readiness, end with `xplat_session_end`.                                                                              |
-| `xplat_attach`                          | Bind a compatible already-running dev session (user-owned, preserved).                                                                                                                                         |
-| `xplat_diagnostics`                     | Retained session discovery; log pages under `logs`, native summaries under `reports`, explicit source `coverage`, and original report reads. Build/action jobs retain their own logs.                    |
+| `xplat_sessions`                        | Sessions and app connections registered with the running `xplat dev` server; optional `sessionId` selects exact status.                                                                                                                 |
+| `xplat_targets`                         | Targets and app connections registered with the app's dev server, with availability and missing-toolchain reasons.                                                                                           |
+| `xplat_build`                           | Agent-owned build jobs are not in the contract — the tool reports the boundary and points at the `xplat build` foreground command.                                                                            |
+| `xplat_launch`                          | Agent-owned launch is not in the contract — the tool reports the boundary: run `xplat dev`, connect the app, then bind it with `xplat_attach`.                                                                 |
+| `xplat_attach`                          | Attach an observer to an app already connected to its `xplat dev` server (user-owned, preserved).                                                                                                              |
+| `xplat_diagnostics`                     | Engine capture listing plus cursor-paginated logs and retained native report reads for the selected app.                                                                                                          |
 | `xplat_dev_actions`                     | The bound app's live development-action registry: instance identity, revision, declarations (contracts, effects, availability incl. declared `route`), and current `location`. Empty vs disconnected vs no-bridge are distinct states. |
 | `xplat_dev_action_invoke`               | Invoke an action against an exact app instance + registry revision. Pre-validates input, availability, grants and queue bounds; returns a job (`requestKey` dedupes retries).                                  |
 | `xplat_dev_action_status`               | Invocation status/result — same job data restricted to dev-action jobs, with instance/request identity.                                                                                                        |
-| `xplat_job_status` / `xplat_job_cancel` | Bounded job status and cooperative cancellation.                                                                                                                                                               |
-| `xplat_session_end`                     | Ownership-safe cleanup: owned sessions release resources; attached sessions are preserved (our log taps still stop).                                                                                           |
+| `xplat_job_status` / `xplat_job_cancel` | Job status for dev-action invocations; cooperative cancellation has no agent command and is reported `unavailable`.                                                                                             |
+| `xplat_session_end`                     | Observer sessions detach by disconnecting — there is no end command; the app keeps running. The tool reports the boundary honestly.                                                                            |
 | `xplat_evidence`                        | `list` / `retain` / `delete` evidence; retain takes an optional ISO expiration.                                                                                                                                |
 | `xplat_code_search`                     | Exact identifier/token search over current source (`mode: 'exact'`), optional local semantic index (`mode: 'semantic'`), or both (`'auto'`). Corpus filters: `app`, `framework`; platform and package filters. |
 | `xplat_code_read`                       | Bounded read of current source by search ref (`xplat-code://…`) or explicit corpus + path; results carry freshness markers and continuation offsets.                                                           |
@@ -231,25 +231,26 @@ Physical iOS devices, Windows attach detection, and non-simulator iOS log
 taps are reported limitations, not silent gaps — the capability matrix
 carries the detail and an alternative.
 
-Launch accepts an optional exact target ID or platform name. Platform or omitted
-selection requires exactly one eligible target; ambiguity returns candidates.
-Use the same session ID for status, diagnostics, and cleanup:
+The agent contract does not launch or terminate apps: `xplat_launch`,
+`xplat_build`, `xplat_session_end`, and `xplat_job_cancel` report the boundary
+honestly. Run the app's dev server yourself (`xplat dev`), connect the app,
+then attach an observer and read status and diagnostics through the same
+session ID:
 
 ```js
-const launch = await client.callTool({name: "xplat_launch", arguments: {target: "ios"}});
-const {sessionId} = launch.structuredContent.data.session;
+const attach = await client.callTool({name: "xplat_attach", arguments: {platform: "web"}});
+const {sessionId} = attach.structuredContent.data.session;
 await client.callTool({name: "xplat_sessions", arguments: {sessionId}});
 await client.callTool({name: "xplat_diagnostics", arguments: {sessionId}});
-await client.callTool({name: "xplat_session_end", arguments: {sessionId}});
 ```
 
-Ending a session
-also cancels startup when it has not reached readiness.
+Observers never own app lifetime — detaching needs no command; the app keeps
+running.
 
 ## Inspect and interact with Chromium
 
 This development package adds `xplat_inspect`, `xplat_interact`, and
-`xplat_screenshot` for the Chromium browser started by `xplat_launch`.
+`xplat_screenshot` for apps connected to their `xplat dev` server.
 Select a DOM `id` or shared `testID` explicitly; duplicate names fail.
 Inspection returns bounded text/value/geometry, a document identity, and
 session/build provenance. Main-document DOM hosts are the qualified surface;
@@ -259,40 +260,41 @@ shadow roots, frames, component ownership and signals are excluded.
 {
   "name": "xplat_inspect",
   "arguments": {
-    "sessionId": "SESSION_FROM_LAUNCH",
+    "sessionId": "SESSION_FROM_ATTACH",
     "control": { "kind": "testID", "name": "counter.increment" }
   }
 }
 ```
 
-Pass the returned `documentId` when interacting. A `dom-event` interaction
-clicks the control center through CDP. `os-input` sends Space or Enter through
-the macOS event system to the owned headed Chromium process. It requires
-Swift, OS event-posting permission, and a desktop-input reservation. The
-server does not open permission prompts. Inspect the resulting app state
-separately; sending input alone is not an assertion.
+Pass the returned `documentId` when interacting. The only mechanism in the
+current contract is `handler-dispatch`: an explicit programmatic
+`HTMLElement.click` through the connected app. It is not CDP or OS input, and
+input delivery alone is not an app-state assertion — inspect the resulting
+app state separately.
 
 ```json
 {
   "name": "xplat_interact",
   "arguments": {
-    "sessionId": "SESSION_FROM_LAUNCH",
+    "sessionId": "SESSION_FROM_ATTACH",
     "documentId": "DOCUMENT_FROM_INSPECTION",
     "control": { "kind": "testID", "name": "counter.increment" },
-    "mechanism": "os-input",
-    "key": "Space"
+    "mechanism": "handler-dispatch",
+    "requestKey": "CLICK_KEY"
   }
 }
 ```
 
 Screenshot requests require an explicit current-task `visual-capture` grant
-before connecting or sending a capture command. No grant means no capture.
+before any capture runs — and the current agent contract has no capture
+command, so `xplat_screenshot` reports `unavailable` after the grant check.
+No grant means no capture.
 Password fields, hidden inputs and hosts marked `data-xplat-private` are
 redacted in nonvisual inspection; this does not guarantee complete redaction
 of arbitrary application data.
 
 ```json
-{ "name": "xplat_screenshot", "arguments": { "sessionId": "SESSION_FROM_LAUNCH" } }
+{ "name": "xplat_screenshot", "arguments": { "sessionId": "SESSION_FROM_ATTACH" } }
 ```
 
 ## Run the consumer acceptance lane

@@ -17,6 +17,7 @@ import { registerDocsTools } from './docs.ts'
 import { registerInspectionTools } from './inspection/service.ts'
 import { bindApp, buildProjectStatus, resolveSelection, SERVER_NAME } from './status.ts'
 import type { Respond, Selection, ToolResponse, WorkspaceContext } from './context.ts'
+import { outcome } from './context.ts'
 import type { ContractError } from '../types/contracts/errors'
 import type { AppRef, Platform, WorkspaceKind } from '../types/contracts/identity'
 import type { PermissionScope } from '../types/contracts/policy'
@@ -31,7 +32,7 @@ const INSTRUCTIONS =
   'MCP server for Octane Xplat apps. Call xplat_project_status first — it reports detected apps, framework versions, guidance, prerequisites, and capabilities. ' +
   'If several apps are detected, ask the developer which to use and bind it with xplat_select_app; never guess. ' +
   'With a dev-mode app running, xplat_dev_actions lists the app-declared action registry and xplat_dev_action_invoke runs one against an exact instance and registry revision. ' +
-  'For runtime work, check xplat_capability_matrix then xplat_targets; xplat_launch returns a durable session identity and launch progress and xplat_attach binds a session you already run. ' +
+  'For runtime work, check xplat_capability_matrix then xplat_targets; app-control commands observe an app already connected to its `xplat dev` server — bind one with xplat_attach, then xplat_sessions reports it. ' +
   'Results always say what was actually checked; a successful build is not proof of behavior.'
 
 const respond: Respond = (outcome) => ({
@@ -86,25 +87,6 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     }
   })
 
-  // Work item C: a code provider wired into the context makes code
-  // search/read a server-side capability — supported on every platform,
-  // independent of runtime adapters.
-  if (context.code) {
-    for (const platform of PLATFORMS as Platform[]) {
-      context.capabilities.register({
-        platform,
-        describe: () => [
-          {
-            capability: 'code_search',
-            status: 'supported',
-            detail:
-              'Exact search reads the bound app and its installed framework sources directly. An optional local semantic index accelerates intent-style queries and never blocks exact retrieval.',
-          },
-        ],
-      })
-    }
-  }
-
   server.registerTool(
     'xplat_project_status',
     {
@@ -129,7 +111,8 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         }
       }
 
-      return ok(await buildProjectStatus(context))
+      const report = await buildProjectStatus(context)
+      return report.error ? fail(report.error) : ok(report)
     },
   )
 
@@ -179,12 +162,13 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       },
     },
     async ({ platform }) => {
-      const status = await buildProjectStatus(context)
-      const matrices = platform
-        ? status.capabilities.filter((m: { platform: string }) => m.platform === platform)
-        : status.capabilities
-
-      return ok({ capabilities: matrices })
+      // The Go `capabilities` command reports the shared implementation's
+      // honest per-platform support — the same matrix the CLI prints.
+      const result = await context.transport.call({
+        command: ['capabilities'],
+        flags: { platform },
+      })
+      return outcome(result, respond)
     },
   )
 
@@ -221,22 +205,23 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ sessionId }) => {
       const result = sessionId
-        ? context.runtime.sessionStatus(sessionId)
-        : context.runtime.listSessions()
-      return result.error ? fail(result.error) : ok(result)
+        ? await context.runtime.sessionStatus(sessionId)
+        : await context.runtime.listSessions()
+      return outcome(result, respond)
     },
   )
 
   server.registerTool(
     'xplat_job_status',
     {
-      description: 'Bounded status query for a job started by a runtime tool.',
+      description:
+        'Bounded status query for a job started by a runtime tool. Dev-action invocations are the only agent jobs in the current contract.',
       inputSchema: { jobId: z.string() },
     },
     async ({ jobId }) => {
-      const job = context.jobs.status(jobId)
-      return job
-        ? ok({ job })
+      const described = await context.devActions.describeJob(jobId)
+      return described
+        ? ok(described)
         : fail(
             contractError('not_found', `No job "${jobId}".`, {
               recovery: { action: 'Start a job first; finished history is bounded.' },
@@ -252,10 +237,18 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         'Cooperatively cancel a job. Cancelling signals only that job — it never kills an unrelated app or another user\u2019s process.',
       inputSchema: { jobId: z.string() },
     },
-    async ({ jobId }) => {
-      const job = context.jobs.cancel(jobId)
-      return job ? ok({ job }) : fail(contractError('not_found', `No job "${jobId}".`))
-    },
+    async () =>
+      fail(
+        contractError(
+          'unavailable',
+          'The agent contract has no job cancellation command; dev-action invocations are bounded and complete on the dev server.',
+          {
+            recovery: {
+              action: 'Poll xplat_job_status; stop the app\'s `xplat dev` server to end all observed work.',
+            },
+          },
+        ),
+      ),
   )
 
   server.registerTool(
@@ -265,14 +258,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         'End a session with ownership-safe cleanup: owned sessions release their resources; attached user-owned sessions are detached and preserved.',
       inputSchema: { sessionId: z.string() },
     },
-    async ({ sessionId }) => {
-      try {
-        const result = await context.runtime.endSession(sessionId)
-        return result.error ? fail(result.error) : ok({ result })
-      } catch (error) {
-        return fail(toContractError(error))
-      }
-    },
+    async ({ sessionId }) => outcome(await context.runtime.endSession(sessionId), respond),
   )
 
   server.registerTool(
@@ -284,7 +270,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async () => {
       const app = boundApp(context)
-      return app ? ok(await context.devActions.list(app)) : fail(NO_APP())
+      return app ? outcome(await context.devActions.list(app), respond) : fail(NO_APP())
     },
   )
 
@@ -331,7 +317,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         requestKey,
       })
 
-      return result.error ? fail(result.error) : ok(result)
+      return outcome(result, respond)
     },
   )
 
@@ -343,7 +329,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       inputSchema: { jobId: z.string() },
     },
     async ({ jobId }) => {
-      const described = context.devActions.describeJob(jobId)
+      const described = await context.devActions.describeJob(jobId)
       if (!described) {
         return fail(
           contractError('not_found', `No job "${jobId}".`, {
@@ -388,7 +374,10 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ op, id, expiresAt, kind }) => {
       if (op === 'list') {
-        return ok({ evidence: context.evidence.list({ kind }) })
+        return outcome(
+          await context.transport.call({ command: ['evidence', 'list'], flags: { kind } }),
+          respond,
+        )
       }
 
       if (!id) {
@@ -396,12 +385,26 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       }
 
       if (op === 'retain') {
-        const result = context.evidence.retain(id, { expiresAt: expiresAt ?? null })
-        return 'error' in result ? fail(result.error) : ok(result)
+        // Retention persists artifacts beyond the session — it needs its own
+        // explicit grant, forwarded to the service as XPLAT_PERMISSIONS.
+        const permission = await context.policy.require('evidence-retain')
+        if (!permission.granted) {
+          return fail(permission.error)
+        }
+        return outcome(
+          await context.transport.call({
+            command: ['evidence', 'retain'],
+            positionals: [id],
+            flags: { 'expires-at': expiresAt },
+          }),
+          respond,
+        )
       }
 
-      const result = context.evidence.delete(id)
-      return 'error' in result ? fail(result.error) : ok(result)
+      return outcome(
+        await context.transport.call({ command: ['evidence', 'delete'], positionals: [id] }),
+        respond,
+      )
     },
   )
 
@@ -575,11 +578,12 @@ export function createXplatMcpServer(context: WorkspaceContext) {
   return {
     server,
     context,
-    /** Ownership-safe teardown: end owned sessions, delete session-scoped evidence. */
+    /**
+     * Stateless transport teardown — the Go service owns sessions and
+     * evidence; closing this server releases no remote resources.
+     */
     async shutdown() {
-      const sessions = await context.runtime.endAll()
-      const evidence = context.evidence.closeSession()
-      return { sessions, evidence }
+      return context.runtime.endAll()
     },
   }
 }

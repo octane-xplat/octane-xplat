@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { join } from 'node:path'
+import { readFileSync } from 'node:fs'
 import {
   checkPrerequisites,
   detectPlatforms,
@@ -10,6 +11,30 @@ import {
 
 import { bindApp, buildProjectStatus, createWorkspaceContext } from '../dist/status.js'
 import { makeConsumerApp, makeWorkspace, writeFile, writeJson } from './helpers.mjs'
+import { fakeTransport, statusFixture, ok } from './transport.mjs'
+
+const boundContext = (workspaceRoot) => {
+  const transport = fakeTransport()
+  const context = createWorkspaceContext({ workspaceRoot, transport })
+  transport.handlers.status = () => {
+    const fixture = statusFixture(context)
+    const app = fixture.identity.selection.state === 'bound' ? fixture.identity.selection.app : null
+    if (app) {
+      // Emulate the Go framework binding against the fixture's installed tree.
+      try {
+        const manifest = JSON.parse(
+          readFileSync(join(app.root, 'node_modules/@octane-xplat/ui/package.json'), 'utf8'),
+        )
+        fixture.identity.framework = {
+          status: 'installed',
+          packages: [{ name: '@octane-xplat/ui', version: manifest.version, source: 'installed' }],
+        }
+      } catch {}
+    }
+    return ok(fixture)
+  }
+  return context
+}
 
 test('single consumer app binds as sole-app with detected identity', async () => {
   const root = makeWorkspace()
@@ -20,7 +45,7 @@ test('single consumer app binds as sole-app with detected identity', async () =>
   assert.equal(discovery.apps.length, 1)
   assert.deepEqual(discovery.apps[0].platforms, ['web'])
 
-  const context = createWorkspaceContext({ workspaceRoot: root, evidenceRoot: join(root, '.ev') })
+  const context = boundContext(root)
   const report = await buildProjectStatus(context)
   assert.equal(report.identity.selection.state, 'bound')
   assert.equal(report.identity.selection.reason, 'sole-app')
@@ -36,7 +61,7 @@ test('multiple apps stay ambiguous until explicit selection', async () => {
   makeConsumerApp(root, 'apps/a', { name: 'app-a' })
   makeConsumerApp(root, 'apps/b', { name: 'app-b' })
 
-  const context = createWorkspaceContext({ workspaceRoot: root, evidenceRoot: join(root, '.ev') })
+  const context = boundContext(root)
   const report = await buildProjectStatus(context)
   assert.equal(report.identity.selection.state, 'ambiguous')
   assert.equal(report.identity.selection.candidates.length, 2)
@@ -49,7 +74,7 @@ test('multiple apps stay ambiguous until explicit selection', async () => {
 
 test('an empty workspace reports no-apps without inventing identity', async () => {
   const root = makeWorkspace()
-  const context = createWorkspaceContext({ workspaceRoot: root, evidenceRoot: join(root, '.ev') })
+  const context = boundContext(root)
   const report = await buildProjectStatus(context)
   assert.equal(report.identity.selection.state, 'none')
   assert.equal(report.identity.selection.reason, 'no-apps')
