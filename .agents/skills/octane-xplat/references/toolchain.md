@@ -258,6 +258,10 @@ declared tool, not an app dependency). Use `xplat typecheck` /
 `tsc --runExternalCode` for checks. Import TSRX modules with explicit `.tsrx`, without a
 platform tag. The unsuffixed module supplies the contract, while the build
 selects the implementation. See [platform files](platform-leaves.md).
+Generate declarations from that unsuffixed contract: point each
+`tsrx-typegen.json` entrypoint `source` at the unsuffixed file and never add
+per-platform or per-target declarations. Only a platform-only subpath with no
+unsuffixed module uses its platform file.
 `tsrx-typegen` owns its classic compiler API and adapter independently of the
 project's checker; do not add classic TypeScript as a consumer peer or switch
 the emitter to the native launcher's nonexistent JavaScript API.
