@@ -71,6 +71,27 @@ selection still applies.
 bun run xplat build --targets web,android
 ```
 
+Phone targets accept the store-artifact options of the release workflow:
+`--aab` and `--key-store-path`/`--key-store-alias` plus
+`--key-store-password-env`/`--key-store-alias-password-env` for Android
+(the password options name environment variables, never values; the same
+fields can live in `xplat.targets.android.signing` in `package.json`), and
+`--for-device`, `--provision`, `--team-id` for iOS. `--copy-to` copies the
+produced artifact to a file or directory on a single-target build. The
+command prints each produced `Artifact: <path> (<type>)`.
+
+```sh
+bun run xplat build --targets android --release --aab \
+  --key-store-path "$ANDROID_UPLOAD_KEYSTORE" --key-store-alias upload \
+  --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
+  --key-store-alias-password-env ANDROID_KEY_PASSWORD \
+  --copy-to dist/app-release.aab
+bun run xplat build --targets ios --release --for-device --copy-to dist/app.ipa
+```
+
+See [Release an iOS or Android app](https://octane-xplat.goddardai.org/native-release)
+for signing setup and store distribution.
+
 Linux packaging and its required manifest settings are documented in
 [Package a Linux app](https://octane-xplat.goddardai.org/linux-package). The CLI ships the
 GJS host; Linux users supply the GTK/WebKit system runtime.

@@ -163,6 +163,174 @@ test('NativeScript engine receives selected platform/release argv and failure st
 	assert.doesNotMatch(r.stdout, /Build complete/)
 })
 
+test('Android store options forward validated argv; passwords arrive only from environment references', () => {
+	const dir = isolated(
+		{ 'nativescript.config.ts': 'export default {}' },
+		{ devDependencies: { '@nativescript/android': '9.0.0' } },
+	)
+	fakePackage(
+		dir,
+		'nativescript',
+		{ bin: { ns: './run.mjs' } },
+		`import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'aab-bytes');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
+	)
+	const r = run(
+		dir,
+		[
+			'--targets', 'android', '--release', '--aab',
+			'--key-store-path', 'keys/upload.jks', '--key-store-alias', 'upload',
+			'--key-store-password-env', 'FIXTURE_STORE_PW',
+			'--key-store-alias-password-env', 'FIXTURE_KEY_PW',
+			'--copy-to', 'dist/app-release.aab',
+		],
+		{ FIXTURE_STORE_PW: 'store-secret-π', FIXTURE_KEY_PW: 'key-secret-π' },
+	)
+	status(r, 0)
+	const line = r.stdout.split('\n').find((s) => s.startsWith('{'))
+	const seen = JSON.parse(line)
+	assert.deepEqual(seen.argv, [
+		'build', 'android', '--release', '--aab',
+		'--key-store-path', 'keys/upload.jks', '--key-store-password', '***',
+		'--key-store-alias', 'upload', '--key-store-alias-password', '***',
+		'--copy-to', 'dist/app-release.aab',
+	])
+	assert.equal(seen.storePw, true)
+	assert.equal(seen.keyPw, true)
+	assert.doesNotMatch(r.stdout + r.stderr, /store-secret-π|key-secret-π/)
+	assert.match(r.stdout, /ns build android --release --aab .*--key-store-password \[redacted\].*\[redacted\]/)
+	assert.match(r.stdout, /Artifact: .*dist.app-release\.aab \(Android App Bundle\)/)
+})
+
+test('xplat.targets.android.signing config supplies the keystore and env references', () => {
+	const dir = isolated(
+		{ 'nativescript.config.ts': 'export default {}' },
+		{
+			devDependencies: { '@nativescript/android': '9.0.0' },
+			xplat: {
+				targets: {
+					android: {
+						signing: {
+							keyStorePath: 'keys/config.jks',
+							keyStoreAlias: 'config-alias',
+							keyStorePasswordEnv: 'FIXTURE_STORE_PW',
+							keyStoreAliasPasswordEnv: 'FIXTURE_KEY_PW',
+						},
+					},
+				},
+			},
+		},
+	)
+	fakePackage(
+		dir,
+		'nativescript',
+		{ bin: { ns: './run.mjs' } },
+		`const a=process.argv.slice(2);const i=a.indexOf('--key-store-password'),j=a.indexOf('--key-store-alias-password');console.log(JSON.stringify({argv:a.map((v,k)=>k===i+1||k===j+1?'***':v),storePw:a[i+1]===process.env.FIXTURE_STORE_PW,keyPw:a[j+1]===process.env.FIXTURE_KEY_PW}));`,
+	)
+	const r = run(dir, ['--targets', 'android', '--release', '--aab'], {
+		FIXTURE_STORE_PW: 'config-store-π',
+		FIXTURE_KEY_PW: 'config-key-π',
+	})
+	status(r, 0)
+	const seen = JSON.parse(r.stdout.split('\n').find((s) => s.startsWith('{')))
+	assert.deepEqual(seen.argv, [
+		'build', 'android', '--release', '--aab',
+		'--key-store-path', 'keys/config.jks', '--key-store-password', '***',
+		'--key-store-alias', 'config-alias', '--key-store-alias-password', '***',
+	])
+	assert.equal(seen.storePw, true)
+	assert.equal(seen.keyPw, true)
+	assert.doesNotMatch(r.stdout + r.stderr, /config-store-π|config-key-π/)
+})
+
+test('artifact option validation rejects bad combinations before route generation', () => {
+	const dir = isolated(
+		{ 'vite.config.mjs': 'export default {}', 'nativescript.config.ts': 'export default {}' },
+		{ devDependencies: { '@nativescript/android': '9.0.0' } },
+	)
+	for (const [args, want] of [
+		[['--targets', 'web', '--aab'], /android build target/],
+		[['--targets', 'android', '--for-device'], /ios build target/],
+		[['--targets', 'android', '--provision', 'P'], /ios build target/],
+		[['--targets', 'android,web', '--copy-to', 'dist/a'], /single/],
+		[['--targets', 'web', '--copy-to', 'dist/a'], /single/],
+		[['--targets', 'android', '--release', '--key-store-path', 'k'], /missing --key-store-alias/],
+		[['--targets', 'android', '--key-store-path', 'k', '--key-store-alias', 'a', '--key-store-password-env', 'E1', '--key-store-alias-password-env', 'E2'], /--release/],
+		[['--targets', 'android', '--release', '--key-store-path', 'k', '--key-store-alias', 'a', '--key-store-password-env', 'FIXTURE_UNSET_X9', '--key-store-alias-password-env', 'E2'], /FIXTURE_UNSET_X9/],
+	]) {
+		const r = run(dir, args)
+		status(r, 1)
+		assert.match(r.stderr, want, `${args.join(' ')}: ${r.stderr}`)
+	}
+	assert.equal(
+		readdirSync(dir).filter((name) => name.startsWith('routes.gen')).length,
+		0,
+	)
+})
+
+test('persisted signing secrets in xplat.targets.android.signing are refused', () => {
+	const dir = isolated(
+		{ 'nativescript.config.ts': 'export default {}' },
+		{
+			devDependencies: { '@nativescript/android': '9.0.0' },
+			xplat: { targets: { android: { signing: { keyStorePassword: 'hunter2' } } } },
+		},
+	)
+	const r = run(dir, ['--targets', 'android', '--release'])
+	status(r, 1)
+	assert.match(r.stderr, /keyStorePasswordEnv|environment variable/)
+})
+
+test(
+	'iOS distribution options forward and the produced .ipa is reported',
+	{ skip: process.platform !== 'darwin' },
+	() => {
+		const dir = isolated(
+			{ 'nativescript.config.ts': 'export default {}' },
+			{ devDependencies: { '@nativescript/ios': '9.0.0' } },
+		)
+		fakePackage(
+			dir,
+			'nativescript',
+			{ bin: { ns: './run.mjs' } },
+			`import{writeFileSync,mkdirSync}from'node:fs';mkdirSync('platforms/ios/build/Release-iphoneos',{recursive:true});writeFileSync('platforms/ios/build/Release-iphoneos/Fixture.ipa','ipa-bytes');console.log(JSON.stringify({argv:process.argv.slice(2)}));`,
+		)
+		const r = run(dir, [
+			'--targets', 'ios', '--release', '--for-device',
+			'--provision', 'Fixture App Store', '--team-id', 'TEAM123456',
+		])
+		status(r, 0)
+		const seen = JSON.parse(r.stdout.split('\n').find((s) => s.startsWith('{')))
+		assert.deepEqual(seen.argv, [
+			'build', 'ios', '--release', '--for-device',
+			'--provision', 'Fixture App Store', '--team-id', 'TEAM123456',
+		])
+		assert.match(r.stdout, /ns build ios --release --for-device/)
+		assert.match(r.stdout, /Artifact: .*Release-iphoneos.Fixture\.ipa \(iOS device package\)/)
+	},
+)
+
+test(
+	'iOS --copy-to reports the copied artifact destination',
+	{ skip: process.platform !== 'darwin' },
+	() => {
+		const dir = isolated(
+			{ 'nativescript.config.ts': 'export default {}' },
+			{ devDependencies: { '@nativescript/ios': '9.0.0' } },
+		)
+		fakePackage(
+			dir,
+			'nativescript',
+			{ bin: { ns: './run.mjs' } },
+			`import{writeFileSync,mkdirSync}from'node:fs';import{dirname}from'node:path';const a=process.argv.slice(2);const dest=a[a.indexOf('--copy-to')+1];mkdirSync(dirname(dest),{recursive:true});writeFileSync(dest,'ipa-bytes');console.log(JSON.stringify({argv:a}));`,
+		)
+		const r = run(dir, ['--targets', 'ios', '--release', '--for-device', '--copy-to', 'dist/packing.ipa'])
+		status(r, 0)
+		const seen = JSON.parse(r.stdout.split('\n').find((s) => s.startsWith('{')))
+		assert.deepEqual(seen.argv, ['build', 'ios', '--release', '--for-device', '--copy-to', 'dist/packing.ipa'])
+		assert.match(r.stdout, /Artifact: .*dist.packing\.ipa \(iOS device package\)/)
+	},
+)
+
 test(
 	'macOS worker stages a validated pair; malformed response preserves previous artifacts',
 	{ skip: process.platform !== 'darwin' },

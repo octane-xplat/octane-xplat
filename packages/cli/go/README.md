@@ -418,7 +418,14 @@ goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"G
 `build` preflights selected project engines before baked-route generation and
 runs targets in declaration order. Web uses the installed Vite executable;
 NativeScript targets invoke the installed `nativescript` bin with `--release`
-when requested. macOS uses the separate project packaging worker and a native
+when requested, plus the validated store-artifact options: Android `--aab`,
+`--key-store-path`/`--key-store-alias` and the `*-env` password references
+(also `xplat.targets.android.signing`, which refuses raw password keys), iOS
+`--for-device`/`--provision`/`--team-id`, and `--copy-to` on a single native
+target. Secrets are resolved from their named environment variables and the
+printed `ns build` line redacts forwarded values; each iOS/Android build then
+reports its produced `Artifact:` path and type. macOS uses the separate
+project packaging worker and a native
 locked staging/publication boundary for its app and DMG. Interactive terminals
 use a bounded comma-list selection; noninteractive commands select all available
 targets. Missing tools are installation errors, never permission to download them.

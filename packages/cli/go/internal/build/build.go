@@ -59,16 +59,24 @@ func buildSelection(available []string, requested *string) ([]string, error) {
 	return selected, nil
 }
 
-func availableBuildTargets(ctx context.Context, projectRoot string) ([]string, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
+func projectManifest(projectRoot string) (map[string]any, error) {
 	manifest := map[string]any{}
 	if _, err := os.Lstat(filepath.Join(projectRoot, "package.json")); err == nil {
 		if err = osfs.ReadJSON(filepath.Join(projectRoot, "package.json"), &manifest); err != nil {
 			return nil, err
 		}
 	} else if !os.IsNotExist(err) {
+		return nil, err
+	}
+	return manifest, nil
+}
+
+func availableBuildTargets(ctx context.Context, projectRoot string) ([]string, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	manifest, err := projectManifest(projectRoot)
+	if err != nil {
 		return nil, err
 	}
 	available := project.DeclaredPlatforms(projectRoot, manifest)
@@ -199,6 +207,15 @@ func Command(ctx context.Context, values map[string]any) error {
 	if err != nil {
 		return err
 	}
+	release, _ := values["release"].(bool)
+	manifest, err := projectManifest(projectRoot)
+	if err != nil {
+		return err
+	}
+	artifacts, err := resolveArtifactOptions(values, manifest, selected, release)
+	if err != nil {
+		return err
+	}
 	engines, err := PrepareBuildEngines(ctx, projectRoot, selected)
 	if err != nil {
 		return err
@@ -221,7 +238,6 @@ func Command(ctx context.Context, values map[string]any) error {
 	if err = prepared.Publish(ctx); err != nil {
 		return err
 	}
-	release, _ := values["release"].(bool)
 	for _, engine := range engines {
 		if err = ctx.Err(); err != nil {
 			return err
@@ -241,9 +257,10 @@ func Command(ctx context.Context, values map[string]any) error {
 		}
 		args := []string{"node", engine.Entry, "build"}
 		if engine.Platform != "web" {
-			args = append(args, engine.Platform)
-			if release {
-				args = append(args, "--release")
+			native, secrets := artifacts.nativeScriptArgs(engine.Platform, release)
+			args = append(args, native...)
+			if len(args) > 3 {
+				fmt.Println("ns build " + strings.Join(redactedArgs(native, secrets), " "))
 			}
 		}
 		result, err := proc.RunForegroundProcessIO(ctx, args, projectRoot, project.ToolEnvironment(), os.Stdout, os.Stderr)
@@ -255,6 +272,13 @@ func Command(ctx context.Context, values map[string]any) error {
 		}
 		if result.ExitCode != 0 {
 			return fmt.Errorf("%s build exited %d", engine.Platform, result.ExitCode)
+		}
+		if engine.Platform == "ios" || engine.Platform == "android" {
+			if path, kind := nativeArtifact(projectRoot, engine.Platform, artifacts); path != "" {
+				fmt.Printf("Artifact: %s (%s)\n", path, kind)
+			} else if kind != "" {
+				fmt.Printf("Artifact: %s output not located under platforms/%s — see the NativeScript output above\n", kind, engine.Platform)
+			}
 		}
 	}
 	if err = ctx.Err(); err != nil {

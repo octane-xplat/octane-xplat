@@ -111,15 +111,19 @@ bun run xplat build --targets android --release
 bun run xplat build --targets ios --release
 ```
 
-Xplat regenerates routes and calls NativeScript's release build. Watch the
-NativeScript output for its artifact path and signing requirements. **Build
+Xplat regenerates routes and calls NativeScript's release build. **Build
 complete** means the build process succeeded; it does not mean a store has
 accepted the app or that a device can use every feature.
 
-Store packaging needs additional NativeScript options. Xplat currently has
-no artifact-format, signing or output options ([tracked in #68](https://github.com/octane-xplat/octane-xplat/issues/68)).
-For the distribution steps below, regenerate routes first, then invoke the
-NativeScript CLI installed in the app:
+`xplat build` also accepts the artifact, signing and output options store
+packaging needs. Android accepts `--aab` (App Bundle instead of an APK) and
+the keystore options below; iOS accepts `--for-device`, `--provision` and
+`--team-id`. `--copy-to` copies the produced artifact to a file or directory
+and requires a single phone target. After each phone build the command prints
+`Artifact: <path> (<type>)`; building is not uploading or publishing.
+
+For NativeScript operations `xplat build` does not expose, regenerate routes
+first, then invoke the app's installed `ns` directly:
 
 ```sh
 bun run xplat routes
@@ -159,19 +163,41 @@ read -s ANDROID_KEY_PASSWORD
 Use your real key path and alias. Run the signed build in that same shell:
 
 ```sh
-bun run ns build android --release --aab \
+bun run xplat build --targets android --release --aab \
   --key-store-path "$ANDROID_UPLOAD_KEYSTORE" \
   --key-store-alias "$ANDROID_UPLOAD_ALIAS" \
-  --key-store-password "$ANDROID_KEYSTORE_PASSWORD" \
-  --key-store-alias-password "$ANDROID_KEY_PASSWORD" \
+  --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
+  --key-store-alias-password-env ANDROID_KEY_PASSWORD \
   --copy-to dist/packing-release.aab
 unset ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD
 ```
 
-The signing options are process arguments: use a trusted build machine, keep
-shell tracing off, and do not copy password-expanded commands into logs. The
-artifact should be `dist/packing-release.aab`; a signing or compilation error
-must stop the release. See the [NativeScript Android publishing contract](https://docs.nativescript.org/guide/publishing/android-google-play)
+The `*-env` options name environment variables — Xplat resolves them and
+passes the values to the NativeScript child, so your command line, logs and
+persisted configuration never carry a password. The keystore fields can also
+live in the app's `package.json` as `xplat.targets.android.signing` with the
+same `…Env` references; a raw `keyStorePassword` value there is refused:
+
+```json
+{
+  "xplat": {
+    "targets": {
+      "android": {
+        "signing": {
+          "keyStorePath": "keys/packing-upload.jks",
+          "keyStoreAlias": "upload",
+          "keyStorePasswordEnv": "ANDROID_KEYSTORE_PASSWORD",
+          "keyStoreAliasPasswordEnv": "ANDROID_KEY_PASSWORD"
+        }
+      }
+    }
+  }
+}
+```
+
+All four keystore fields must be supplied together (flags or config) for a
+signed release. The artifact should be `dist/packing-release.aab`; a signing
+or compilation error must stop the release. See the [NativeScript Android publishing contract](https://docs.nativescript.org/guide/publishing/android-google-play)
 for the installed toolchain's full signing/artifact options.
 
 In Play Console, create the app record for this application ID, configure Play
@@ -208,6 +234,19 @@ source resource files as the durable configuration: generated `platforms/`
 projects can be recreated, so preserve any required signing or entitlement
 change in your app's source configuration rather than relying on an untracked
 edit to a generated project.
+
+When signing is already configured, a device build produces the `.ipa`
+directly from the CLI — `--for-device` selects device signing, and
+`--provision`/`--team-id` select the distribution profile and team:
+
+```sh
+bun run xplat build --targets ios --release --for-device \
+  --provision "Packing App Store" --copy-to dist/packing.ipa
+```
+
+The printed `Artifact:` line confirms the produced `.ipa`. Organizer's
+archive workflow above remains the path when Xcode-managed export or
+validation is needed.
 
 After Apple processes the upload, find the matching version/build in App Store
 Connect. Configure a TestFlight tester group and install the distributed build
@@ -273,7 +312,7 @@ for the rest of the feedback loop.
 | Symptom | Check next |
 | --- | --- |
 | Target unavailable | Run `xplat doctor`; confirm its native runtime dependency and host toolchain are installed |
-| Unknown signing/AAB flag | Use the direct `ns` commands above; Xplat's wrapper currently accepts only target selection and `--release` |
+| Keystore/signing option rejected | Pass the complete `--key-store-*` set with `--release`; password options name environment variables (`*-env`), never values — the same fields are available as `xplat.targets.android.signing` |
 | Signing or provisioning mismatch | Compare app ID, team/profile, capabilities and certificate used by the build |
 | Store rejects the version | Increase the build number/version code and select the correct existing app record |
 | Login or links work only in development | Check distributed bundle ID/package name, callback registration and Android signing fingerprints |

@@ -47,13 +47,17 @@ setup, device selection, signing, and experimental desktop hosts are covered
 by the [toolchain guide](../../../../docs/start/toolchain.md).
 
 For signed phone artifacts and store testing, follow the [native release
-guide](../../../../docs/start/native-release.md). `xplat build` accepts target
-selection and `--release`; artifact/signing/output options currently require
-regenerating routes and invoking the app's NativeScript CLI directly.
+guide](../../../../docs/start/native-release.md). `xplat build` accepts
+`--aab` and `--key-store-*` options for Android (passwords via `*-env`
+environment references), `--for-device`/`--provision`/`--team-id` for iOS,
+and `--copy-to` for the produced artifact.
 
 ```sh
-bun run xplat routes
-bun run xplat build --targets android --release
+bun run xplat build --targets android --release --aab \
+  --key-store-path "$ANDROID_UPLOAD_KEYSTORE" --key-store-alias upload \
+  --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
+  --key-store-alias-password-env ANDROID_KEY_PASSWORD \
+  --copy-to dist/app-release.aab
 ```
 
 ## Framework repository
@@ -68,14 +72,14 @@ bun run probe doctor
 bun run probe run examples/probes/counter.tsrx --target web --watch
 ```
 
-Use maintained root scripts for harness work and scoped typechecking for
+Use app-owned scripts for harness work and scoped typechecking for
 package changes. The leading `...` includes the touched package's dependents.
 Replace the UI filter with each package actually changed.
 
 ```sh
-bun run dev:web
-bun run typecheck:web
-bun run typecheck:mobile
+bun run --filter @xplat/web dev
+bun run turbo run typecheck --filter=@xplat/web
+bun run turbo run typecheck --filter=@xplat/mobile
 bun run turbo run typecheck --filter=...@octane-xplat/ui
 bun run lint
 ```
