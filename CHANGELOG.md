@@ -12,6 +12,49 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [tsrx-typegen 0.6.0](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.6.0) - 2026-11-07
+
+### `tsrx-typegen` emits with native TypeScript 7.1
+
+Declaration generation now runs TypeScript 7.1's `tsc --runExternalCode`
+(`--noCheck`, `emitDeclarationOnly`) through the content mapper your tsconfig
+declares, instead of a classic-TypeScript transpile. `Component.tsrx` emits
+`Component.d.ts`, and `.tsrx` imports point at the published `.js` files.
+`@tsrx/typescript-plugin` is no longer needed.
+
+**Breaking change:** the project must declare a `.tsrx` content mapper that
+resolves as a package from its tsconfig. Apps name `octane-xplat`; libraries
+name `@octane-xplat/cli`:
+
+```json
+{ "contentMappers": [{ "package": "@octane-xplat/cli", "extensions": [".tsrx"] }] }
+```
+
+Entrypoint `source` paths in `tsrx-typegen.json` must point at the unsuffixed
+contract. A platform variant such as `src/index.macos.ts` fails when
+`src/index.ts` exists:
+
+```json
+{ "entrypoints": { ".": { "source": "src/index.ts" } } }
+```
+
+Wildcard entrypoints emit declarations for every matching unsuffixed module
+and platform-only file, never for platform variants. The project's own
+`isolatedDeclarations` setting now applies instead of being forced on.
+
+### Generate declarations alongside native TypeScript
+
+`tsrx-typegen` now owns its classic TypeScript compiler and checker adapter, so the project can use native TypeScript 7.1 for typechecking.
+
+**Breaking change:** the emitter no longer uses the project's TypeScript or checker-adapter version. The project still supplies the TSRX target compiler.
+
+```sh
+bun add -D tsrx-typegen
+bun run tsrx-typegen --target octane
+```
+
+See the [declaration generation guide](https://octane-xplat.goddardai.org/packages/package-tsrx-typegen).
+
 ## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
 
 ### Preserve modified AppKit action keys
