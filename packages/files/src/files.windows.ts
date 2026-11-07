@@ -351,6 +351,9 @@ export const files: Files = {
     if (exportInFlight) {
       throw exportBusy()
     }
+    if (ownerHwnd() === null) {
+      return 'unavailable'
+    }
     exportInFlight = true
     try {
       const own = name.replace(/^.*[\\/]/, '')

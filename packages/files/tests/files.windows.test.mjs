@@ -13,6 +13,7 @@ const compile = (name) =>
 
 const source = compile('files.windows')
 const helpers = compile('file-bytes')
+const fileTypes = compile('file-types')
 class UnavailabilityError extends Error {}
 
 function fixture(bytes = new Uint8Array([1, 2, 3])) {
@@ -128,6 +129,8 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
   }
   const helperExports = {}
   vm.runInNewContext(helpers, { exports: helperExports, Uint8Array })
+  const fileTypeExports = {}
+  vm.runInNewContext(fileTypes, { exports: fileTypeExports })
   const exports = {}
   vm.runInNewContext(source, {
     exports,
@@ -135,6 +138,9 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
     require(id) {
       if (id === './file-bytes') {
         return helperExports
+      }
+      if (id === './file-types') {
+        return fileTypeExports
       }
       if (id === '@octane-xplat/lib/capability') {
         return { UnavailabilityError }
