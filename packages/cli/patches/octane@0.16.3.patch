@@ -521,19 +521,6 @@ index 617ed9a63..1c6e01f17 100644
    }
    if (value?.$$kind === UNIVERSAL_KEYED) {
      return value.key;
-@@ -792,7 +792,11 @@
-     (props, context) => {
-       const owner = activateLazyLeafOwner();
-       if (owner !== null) owners.add(owner.record);
--      return meta.component(props, context);
-+      if (CURRENT_ATTEMPT === null || owner === null) return meta.component(props, context);
-+      return universalKey(
-+        meta.revision,
-+        universalBlock(() => meta.component(props, context))
-+      );
-     },
-     { module: metadata.module }
-   );
 @@ -911,6 +919,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
@@ -542,10 +529,11 @@ index 617ed9a63..1c6e01f17 100644
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1121,6 +1130,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1121,6 +1130,8 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
++    owner.hookChain = void 0;
 +    owner.signalReads = NO_SIGNAL_READS;
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
@@ -589,6 +577,16 @@ index 617ed9a63..1c6e01f17 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
+@@ -3457,5 +3457,6 @@ function resolveHookSlot(slot) {
+   const own = slot ?? `implicit:${owner.implicitSlot++}`;
+-  const depth = UNIVERSAL_SLOT_STACK.length;
+-  if (depth === 0) return own;
+-  return resolveHookPath(UNIVERSAL_SLOT_STACK, own, true);
++  const chain = owner.hookChain;
++  const resolved = chain === void 0 && UNIVERSAL_SLOT_STACK.length === 0 ? own : resolveHookPath(chain === void 0 ? UNIVERSAL_SLOT_STACK : [...UNIVERSAL_SLOT_STACK, chain], own, true);
++  owner.hookChain = resolved;
++  return resolved;
+ }
 @@ -3507,7 +3507,9 @@ function withSlot(sym, fn, ...args) {
    Object.defineProperty(provider, "length", { value: fn.length, configurable: true });
    return provider;
@@ -1078,19 +1076,6 @@ index 617ed9a63..1c6e01f17 100644
    }
    if (value?.$$kind === UNIVERSAL_KEYED) {
      return value.key;
-@@ -792,7 +792,11 @@
-     (props, context) => {
-       const owner = activateLazyLeafOwner();
-       if (owner !== null) owners.add(owner.record);
--      return meta.component(props, context);
-+      if (CURRENT_ATTEMPT === null || owner === null) return meta.component(props, context);
-+      return universalKey(
-+        meta.revision,
-+        universalBlock(() => meta.component(props, context))
-+      );
-     },
-     { module: metadata.module }
-   );
 @@ -911,6 +919,7 @@ function draftOwner(record, parent, replayPath) {
      boundaryThenable: record.boundaryThenable,
      isBoundary: record.isBoundary,
@@ -1099,10 +1084,11 @@ index 617ed9a63..1c6e01f17 100644
      visibility: parent?.visibility ?? record.visibility,
      contextStable: null
    };
-@@ -1121,6 +1130,7 @@ function executeOwner(owner, build, initialRenderCount = 0) {
+@@ -1121,6 +1130,8 @@ function executeOwner(owner, build, initialRenderCount = 0) {
      owner.contextStable = null;
      owner.needsRender = false;
      owner.implicitSlot = 0;
++    owner.hookChain = void 0;
 +    owner.signalReads = NO_SIGNAL_READS;
      const previousOwner = CURRENT_OWNER;
      const previousAttemptOwner = attempt.owner;
@@ -1146,6 +1132,16 @@ index 617ed9a63..1c6e01f17 100644
        for (const [slot, applied] of draftOwner2.appliedUpdates) {
          const queue = owner.updates.get(slot);
          if (queue !== applied.queue || applied.lane) continue;
+@@ -3457,5 +3457,6 @@ function resolveHookSlot(slot) {
+   const own = slot ?? `implicit:${owner.implicitSlot++}`;
+-  const depth = UNIVERSAL_SLOT_STACK.length;
+-  if (depth === 0) return own;
+-  return resolveHookPath(UNIVERSAL_SLOT_STACK, own, true);
++  const chain = owner.hookChain;
++  const resolved = chain === void 0 && UNIVERSAL_SLOT_STACK.length === 0 ? own : resolveHookPath(chain === void 0 ? UNIVERSAL_SLOT_STACK : [...UNIVERSAL_SLOT_STACK, chain], own, true);
++  owner.hookChain = resolved;
++  return resolved;
+ }
 @@ -3507,7 +3507,9 @@ function withSlot(sym, fn, ...args) {
    Object.defineProperty(provider, "length", { value: fn.length, configurable: true });
    return provider;
