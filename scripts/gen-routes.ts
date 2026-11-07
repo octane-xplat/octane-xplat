@@ -27,7 +27,9 @@ if (count === false) {
 }
 
 for (const [file, source] of outputs as Map<string, string>) {
-	if (existsSync(file) && readFileSync(file, 'utf8') === source) continue
+	if (existsSync(file) && readFileSync(file, 'utf8') === source) {
+		continue
+	}
 	mkdirSync(dirname(file), { recursive: true })
 	// Preserve an existing output symlink and rename complete files so a
 	// concurrent compiler never reads a truncated declaration.
