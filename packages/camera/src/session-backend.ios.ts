@@ -353,6 +353,24 @@ export function createSessionBackend(
   let initialWriterReady: (() => void) | undefined
   let writerWarning: CaptureIssue | undefined
   let writerRelease: Promise<void> = Promise.resolve()
+  /** Connection state of the video-data output feeding the writer. */
+  const recordingConnectionState = () => {
+    const outputs = session?.outputs
+    const connection =
+      outputs &&
+      Array.from({ length: outputs.count }, (_, index) =>
+        outputs.objectAtIndex(index).connectionWithMediaType(AVMediaTypeVideo),
+      ).find(Boolean)
+
+    return {
+      videoMirrored: !!connection?.videoMirrored,
+      orientation: connection?.videoOrientation,
+      preferredStabilization: connection?.preferredVideoStabilizationMode,
+      activeStabilization: connection?.activeVideoStabilizationMode,
+      previewMirrored: !!previewLayer?.connection?.videoMirrored,
+      previewMirrorSupported: !!previewLayer?.connection?.supportsVideoMirroring,
+    }
+  }
   const mirrorPreview = () => {
     const connection = previewLayer?.connection
     if (connection) {
@@ -887,7 +905,16 @@ export function createSessionBackend(
       target.startRunning()
       previewReadyFlag = true
 
-      initialWriterReady = () => listener?.onReady?.()
+      initialWriterReady = () => {
+        if (writerDiagnostics) {
+          try {
+            writerDiagnostics('previewConnection', JSON.stringify(recordingConnectionState()))
+          } catch {
+            /* Diagnostics cannot own capture completion. */
+          }
+        }
+        listener?.onReady?.()
+      }
       observer?.previewReady(writerSourceReady)
       if (writerSourceReady) {
         initialWriterReady()
@@ -1158,22 +1185,9 @@ export function createSessionBackend(
           }
           if (writerDiagnostics) {
             try {
-              const outputs = session?.outputs
-              const connection =
-                outputs &&
-                Array.from({ length: outputs.count }, (_, index) =>
-                  outputs.objectAtIndex(index).connectionWithMediaType(AVMediaTypeVideo),
-                ).find(Boolean)
-
               writerDiagnostics(
                 'cameraCommitted',
-                JSON.stringify({
-                  id: wanted.uniqueID,
-                  videoMirrored: !!connection?.videoMirrored,
-                  orientation: connection?.videoOrientation,
-                  previewMirrored: !!previewLayer?.connection?.videoMirrored,
-                  previewMirrorSupported: !!previewLayer?.connection?.supportsVideoMirroring,
-                }),
+                JSON.stringify({ id: wanted.uniqueID, ...recordingConnectionState() }),
               )
             } catch {
               /* Diagnostics cannot own capture completion. */
@@ -1342,6 +1356,13 @@ export function createSessionBackend(
               /* Diagnostics cannot own capture completion. */
             }
             if (type === 'started') {
+              if (writerDiagnostics) {
+                try {
+                  writerDiagnostics('recordingConnection', JSON.stringify(recordingConnectionState()))
+                } catch {
+                  /* Diagnostics cannot own capture completion. */
+                }
+              }
               try {
                 onCaptureStarted(JSON.parse(payload))
               } catch (error) {

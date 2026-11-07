@@ -64,8 +64,14 @@ export default function Preview(): unknown @{
 export async function run(ctx: ProbeContext) {
   const writerStatistics: any[] = []
   const committed: any[] = []
+  const connections: Record<string, any> = {}
   const phase = knownFolders.documents().getFile('camera-probe-phase.txt')
   recordWriter = (type, payload) => {
+    if (type === 'previewConnection' || type === 'recordingConnection') {
+      connections[type] = JSON.parse(payload)
+      ctx.record(type, connections[type])
+    }
+
     if (type === 'finished') {
       writerStatistics.push(JSON.parse(payload))
       ctx.record('native-writers', writerStatistics)
@@ -86,6 +92,21 @@ export async function run(ctx: ProbeContext) {
   session.subscribe((event) => events.push(event.type))
   const take = session.startRecording({ orientation: 'portrait', maximumDurationMs: 15000 })
   await ctx.waitFor(() => take.state === 'recording')
+  const previewConn = connections.previewConnection
+  const recordingConn = connections.recordingConnection
+  ctx.assert(
+    'recording connection prepared before start',
+    previewConn?.orientation === 1 && previewConn?.videoMirrored === false,
+    true,
+  )
+  ctx.assert(
+    'record start keeps connection',
+    recordingConn?.orientation === previewConn?.orientation &&
+      recordingConn?.videoMirrored === previewConn?.videoMirrored &&
+      recordingConn?.preferredStabilization === previewConn?.preferredStabilization,
+    true,
+  )
+
   for (const facing of ['front', 'back'] as const) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
     const before = take.elapsedMs

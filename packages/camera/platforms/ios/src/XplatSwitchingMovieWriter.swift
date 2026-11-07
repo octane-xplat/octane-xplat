@@ -71,6 +71,7 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 		video.setSampleBufferDelegate(self, queue: queue)
 		audio.setSampleBufferDelegate(self, queue: queue)
 		session.addOutput(video)
+		applyConnection(orientation)
 		audioSession.addOutput(audio)
 		// Video input changes must not reconfigure the application's microphone.
 		session.usesApplicationAudioSession = false
@@ -135,16 +136,12 @@ public final class XplatSwitchingMovieWriter: NSObject, AVCaptureVideoDataOutput
 			self.limit = maximumDurationMs / 1000
 			self.orientation = AVCaptureVideoOrientation(rawValue: orientation) ?? .portrait
 			self.expectedCameraID = self.session?.inputs.compactMap { $0 as? AVCaptureDeviceInput }.first { $0.device.hasMediaType(.video) }?.device.uniqueID
-			if let connection = self.video.connection(with: .video) {
-				connection.automaticallyAdjustsVideoMirroring = false
-				if connection.isVideoMirroringSupported { connection.isVideoMirrored = false }
-				if let value = AVCaptureVideoOrientation(rawValue: orientation), connection.isVideoOrientationSupported { connection.videoOrientation = value }
-			}
+			if let connection = self.video.connection(with: .video), let value = AVCaptureVideoOrientation(rawValue: orientation), connection.isVideoOrientationSupported, connection.videoOrientation != value { connection.videoOrientation = value }
 			let preparationEpoch = self.takeEpoch
 			let selectedOrientation = self.orientation
 			DispatchQueue.main.async {
 				guard self.queue.sync(execute: { self.takeEpoch == preparationEpoch && !self.released }) else { return }
-				if let connection = self.previewLayer?.connection, connection.isVideoOrientationSupported { connection.videoOrientation = selectedOrientation }
+				if let connection = self.previewLayer?.connection, connection.isVideoOrientationSupported, connection.videoOrientation != selectedOrientation { connection.videoOrientation = selectedOrientation }
 			}
 			do { self.writer = try AVAssetWriter(outputURL: URL(fileURLWithPath: path), fileType: .mov) }
 			catch { self.terminal("failed", error.localizedDescription) }
