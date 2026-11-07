@@ -12,6 +12,7 @@ import {
 
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
+import { fileURLToPath } from 'node:url'
 import ts from 'typescript-classic'
 import { generateMarkdownForModule } from 'exports-md'
 
@@ -284,6 +285,7 @@ export async function packageMarkdown(manifestPath) {
       ? ''
       : (
           await generateMarkdownForModule(join(staging, 'package.json'), {
+            cwd: compilerContext(staging),
             followImports: false,
             followReExports: true,
             propertyDocs: 'list',
@@ -306,4 +308,18 @@ export async function packageMarkdown(manifestPath) {
   } finally {
     rmSync(staging, { recursive: true, force: true })
   }
+}
+
+// exports-md 0.2.20 loads the compiler API from cwd. TypeScript 7's native
+// compiler has no JS compiler API; keep its declaration renderer on classic TS
+// without changing the package's own module-resolution links or process cwd.
+function compilerContext(staging) {
+  const cwd = join(staging, '.compiler')
+  mkdirSync(join(cwd, 'node_modules'), { recursive: true })
+  symlinkSync(
+    dirname(fileURLToPath(import.meta.resolve('typescript-classic/package.json'))),
+    join(cwd, 'node_modules/typescript'),
+    'junction',
+  )
+  return cwd
 }

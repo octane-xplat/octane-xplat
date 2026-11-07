@@ -29,6 +29,13 @@ the site build. Recipes own coverage requirements; Silo owns audit state and
 verification evidence. Do not make another hand-maintained feature matrix or
 copy the same setup into three places.
 
+`exports-md` 0.2.20 requires the classic TypeScript JavaScript compiler API;
+TypeScript 7's native compiler does not expose it. The API renderer supplies a
+temporary compiler context linked to `typescript-classic`, while package
+declaration generation keeps its own compiler and dependency links. Retain this
+boundary until exports-md supports the native compiler; a package typecheck does
+not verify API-page rendering. `apps/docs/api.test.mjs` covers the renderer.
+
 ## Review six things
 
 These are questions for judgment, not a mandatory heading template or a score.

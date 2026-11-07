@@ -108,7 +108,8 @@
 				"@octane-xplat/workshop#build",
 				"@octane-xplat/docs-search#typegen",
 				"@octane-xplat/docs-search#build",
-				"@octane-xplat/media-converter#typegen"
+				"@octane-xplat/media-converter#typegen",
+				"@octane-xplat/macos-build#build"
 			],
 			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/**"],
 			"outputs": ["$TURBO_ROOT$/docs/api/**"]

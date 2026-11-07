@@ -1,7 +1,7 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import ts from 'typescript-classic'
@@ -11,7 +11,7 @@ import { generateMarkdownForModule } from 'exports-md'
 test('API task prepares declarations and builds for every published package', () => {
   const { tasks } = JSON.parse(readFileSync(new URL('./turbo.json', import.meta.url), 'utf8'))
   for (const entry of readdirSync('../../packages', { withFileTypes: true })) {
-    if (!entry.isDirectory()) {
+    if (!entry.isDirectory() || !existsSync(`../../packages/${entry.name}/package.json`)) {
       continue
     }
 
