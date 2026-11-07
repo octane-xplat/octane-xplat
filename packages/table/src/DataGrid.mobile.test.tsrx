@@ -22,6 +22,8 @@ vi.mock('@nativescript/core', () => ({
 }))
 
 vi.mock('../../ui/src/components/layout/pan.tsrx', () => ({ usePan: () => undefined }))
+// Exercise control state without loading the native SVG plugin in the object driver.
+vi.mock('../../ui/src/components/media/svg', () => ({}))
 vi.mock('@octane-xplat/ui', () => import('../tests/native-controls.mobile.tsrx'))
 import { DataGrid } from './DataGrid.tsrx'
 
