@@ -7,7 +7,7 @@ import ts from 'typescript-classic'
 import { buildMacOSBarrel } from './macos-barrel.mjs'
 
 test('macOS explicitly exports every declared runtime value', () => {
-  const declaration = fileURLToPath(new URL('../types/generated/index.macos.d.ts', import.meta.url))
+  const declaration = fileURLToPath(new URL('../types/generated/index.d.ts', import.meta.url))
   const program = ts.createProgram([declaration], {
     moduleResolution: ts.ModuleResolutionKind.Bundler,
     module: ts.ModuleKind.ESNext,

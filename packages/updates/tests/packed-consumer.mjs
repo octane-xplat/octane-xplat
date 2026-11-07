@@ -37,7 +37,7 @@ try {
     'native/boot.java',
     'native/boot.m',
     'prepare.cjs',
-    'types/generated/index.web.d.ts',
+    manifest.exports['.'].types,
   ]) {
     assert.ok(existsSync(join(packed, file)))
   }
