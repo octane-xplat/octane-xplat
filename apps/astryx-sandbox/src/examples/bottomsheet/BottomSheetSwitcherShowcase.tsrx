@@ -3,7 +3,6 @@
 import { useState } from 'octane'
 import {
   BottomSheet,
-  BottomSheetSwitcher,
   Button,
   CheckboxInput,
   Divider,
@@ -15,8 +14,18 @@ import {
   VStack,
 } from '@octane-xplat/ui'
 
-function OverviewSheet(props: { onCancel: () => void; onContinue: () => void }) @{
-  <BottomSheet sheetId="overview" label="Set up notifications" height="hug">
+function OverviewSheet(props: {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onCancel: () => void
+  onContinue: () => void
+}) @{
+  <BottomSheet
+    isOpen={props.isOpen}
+    onOpenChange={props.onOpenChange}
+    label="Set up notifications"
+    height="hug"
+  >
     <Section padding={4}>
       <VStack gap={4}>
         <VStack gap={1}>
@@ -58,10 +67,20 @@ function OverviewSheet(props: { onCancel: () => void; onContinue: () => void }) 
   </BottomSheet>
 }
 
-function FrequencySheet(props: { onBack: () => void; onContinue: () => void }) @{
+function FrequencySheet(props: {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onBack: () => void
+  onContinue: () => void
+}) @{
   const [frequency, setFrequency] = useState('daily')
 
-  <BottomSheet sheetId="frequency" label="Notification frequency" height="hug">
+  <BottomSheet
+    isOpen={props.isOpen}
+    onOpenChange={props.onOpenChange}
+    label="Notification frequency"
+    height="hug"
+  >
     <Section padding={4}>
       <VStack gap={4}>
         <VStack gap={1}>
@@ -91,12 +110,22 @@ function FrequencySheet(props: { onBack: () => void; onContinue: () => void }) @
   </BottomSheet>
 }
 
-function ChannelsSheet(props: { onBack: () => void; onFinish: () => void }) @{
+function ChannelsSheet(props: {
+  isOpen: boolean
+  onOpenChange: (open: boolean) => void
+  onBack: () => void
+  onFinish: () => void
+}) @{
   const [email, setEmail] = useState(true)
   const [push, setPush] = useState(true)
   const [sms, setSms] = useState(false)
 
-  <BottomSheet sheetId="channels" label="Notification channels" height="hug">
+  <BottomSheet
+    isOpen={props.isOpen}
+    onOpenChange={props.onOpenChange}
+    label="Notification channels"
+    height="hug"
+  >
     <Section padding={4}>
       <VStack gap={4}>
         <VStack gap={1}>
@@ -128,20 +157,36 @@ export function BottomSheetSwitcherShowcase() @{
   return (
     <>
       <Button label="Set up notifications" clickAction={() => setActiveSheet('overview')} />
-      <BottomSheetSwitcher activeSheet={activeSheet} onActiveSheetChange={setActiveSheet}>
-        <OverviewSheet
-          onCancel={() => setActiveSheet(null)}
-          onContinue={() => setActiveSheet('frequency')}
-        />
-        <FrequencySheet
-          onBack={() => setActiveSheet('overview')}
-          onContinue={() => setActiveSheet('channels')}
-        />
-        <ChannelsSheet
-          onBack={() => setActiveSheet('frequency')}
-          onFinish={() => setActiveSheet(null)}
-        />
-      </BottomSheetSwitcher>
+      <OverviewSheet
+        isOpen={activeSheet === 'overview'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActiveSheet((current) => (current === 'overview' ? null : current))
+          }
+        }}
+        onCancel={() => setActiveSheet(null)}
+        onContinue={() => setActiveSheet('frequency')}
+      />
+      <FrequencySheet
+        isOpen={activeSheet === 'frequency'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActiveSheet((current) => (current === 'frequency' ? null : current))
+          }
+        }}
+        onBack={() => setActiveSheet('overview')}
+        onContinue={() => setActiveSheet('channels')}
+      />
+      <ChannelsSheet
+        isOpen={activeSheet === 'channels'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActiveSheet((current) => (current === 'channels' ? null : current))
+          }
+        }}
+        onBack={() => setActiveSheet('frequency')}
+        onFinish={() => setActiveSheet(null)}
+      />
     </>
   )
 }

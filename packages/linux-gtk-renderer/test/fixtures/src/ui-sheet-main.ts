@@ -415,20 +415,20 @@ async function run() {
   // onActiveSheetChange.
   await clickAt(findView('sw-a'))
   await pump(400)
-  check('switcher shows sheet a', !!findGtkText('sw-content-a'))
+  check('sheet flow shows sheet a', !!findGtkText('sw-content-a'))
   await clickAt(findByName('sw-goto-b'))
   await pump(400)
-  check('switcher swaps to sheet b', !!findGtkText('sw-content-b'))
-  check('switcher hides the old panel', !findGtkText('sw-content-a'))
+  check('sheet flow swaps to sheet b', !!findGtkText('sw-content-b'))
+  check('sheet flow hides the old panel', !findGtkText('sw-content-a'))
   await clickAt(findByName('sw-goto-close'))
   await pump(400)
-  check('switcher closes on null selection', !findGtkText('sw-content-b'))
+  check('sheet flow closes on null selection', !findGtkText('sw-content-b'))
   await clickAt(findView('sw-a'))
   await pump(400)
   await ready({ key: 'Escape' })
   await pump(400)
-  check('switcher Escape reports null sheet', !findGtkText('sw-content-a'))
-  check('switcher host released', overlayChildren() === 0)
+  check('sheet flow Escape reports null sheet', !findGtkText('sw-content-a'))
+  check('sheet flow host released', overlayChildren() === 0)
 
   // Menu sheets: an explicit 'bottom-sheet' presentation renders the menu
   // inside a real sheet panel; 'adaptive' keeps the popover on a fine

@@ -356,3 +356,7 @@ The eleven new owner/portal cases and manual fixture remain unrun; see the
   <Text>Provider-backed content</Text>
 </Popover>
 ```
+
+For multi-step bottom-sheet flows, use independently controlled `BottomSheet`s
+with one selected-step state and keep drafts in the screen. Guard each close
+callback against clearing a newer step. See the [contact editor example](../../../../docs/app/primitives.md#keep-drafts-when-switching-panels). Each sheet owns its presentation; an animated shared-host handoff is not implemented.

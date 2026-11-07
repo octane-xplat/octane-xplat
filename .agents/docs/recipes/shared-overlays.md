@@ -2,7 +2,7 @@
 
 ID: shared-overlays
 Targets: web, ios, android, macos
-Related APIs: Dialog, AlertDialog, BottomSheet, BottomSheetSwitcher, HoverCard, Lightbox, Carousel, ScrollableArea, useScrollableArea, Toast, ToastViewport, useToast, showToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, useImperativeBottomSheet, useImperativeModal, RouteOutlet, useNativeRouteNavigator, UIModal, MaterialDialog, openModal, Overlay, Popover, useLayer
+Related APIs: Dialog, AlertDialog, BottomSheet, HoverCard, Lightbox, Carousel, ScrollableArea, useScrollableArea, Toast, ToastViewport, useToast, showToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet, useImperativeBottomSheet, useImperativeModal, RouteOutlet, useNativeRouteNavigator, UIModal, MaterialDialog, openModal, Overlay, Popover, useLayer
 
 ## Starting point
 
@@ -146,7 +146,8 @@ export function TripPreview() {
 
 - AC10: Shared phone sheets and bottom dialogs keep usable editing controls
   clear of an already-open keyboard. Detent and entrance transforms have separate
-  ownership; panel swaps preserve the presentation and retire old editing state.
+  ownership; switching controlled sheets retires old editing state and releases
+  the previous presentation. Animated handoff in one shared host is not supported.
   Dismissal during keyboard movement releases bindings and restores eligible
   editing focus, with actual OS input qualified separately.
 

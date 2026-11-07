@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { Screen, BottomSheet, BottomSheetSwitcher, Dialog, TextInput, View } from '@octane-xplat/ui'
+import { Screen, BottomSheet, Dialog, TextInput, View } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
 import { measureKeyboardHost } from '../../src/internal/keyboard/keyboard-host-bounds'
 import type { ProbeContext } from '../../../../tools/probe/context'
@@ -37,18 +37,35 @@ export default function OverlayProbe() @{
     >
       <TextInput id="dialog-field" defaultValue="Dialog" style={{ height: 48 }} />
     </Dialog>
-    <BottomSheetSwitcher activeSheet={active} onActiveSheetChange={select}>
-      <BottomSheet sheetId="first" label="First" snapPoints={[0.5, 0.8]}>
-        <View style={{ height: 160 }}>
-          <TextInput id="switch-first" defaultValue="First" style={{ height: 48 }} />
-        </View>
-      </BottomSheet>
-      <BottomSheet sheetId="second" label="Second" snapPoints={[0.4, 0.9]}>
-        <View style={{ height: 160 }}>
-          <TextInput id="switch-second" defaultValue="Second" style={{ height: 48 }} />
-        </View>
-      </BottomSheet>
-    </BottomSheetSwitcher>
+
+    <BottomSheet
+      isOpen={active === 'first'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'first' ? null : current))
+        }
+      }}
+      label="First"
+      snapPoints={[0.5, 0.8]}
+    >
+      <View style={{ height: 160 }}>
+        <TextInput id="switch-first" defaultValue="First" style={{ height: 48 }} />
+      </View>
+    </BottomSheet>
+    <BottomSheet
+      isOpen={active === 'second'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'second' ? null : current))
+        }
+      }}
+      label="Second"
+      snapPoints={[0.4, 0.9]}
+    >
+      <View style={{ height: 160 }}>
+        <TextInput id="switch-second" defaultValue="Second" style={{ height: 48 }} />
+      </View>
+    </BottomSheet>
   </Screen>
 }
 
@@ -179,7 +196,7 @@ export async function run(ctx: ProbeContext) {
   showDialog(false)
   await ctx.waitFor(() => !dialog.isLoaded && focused(background))
   ctx.assert('dialog dismissal restores window-owned input focus', focused(background), true)
-  ctx.record('phase', 'switcher first')
+  ctx.record('phase', 'first sheet')
   select('first')
   const first: any = await ctx.waitFor(
     () => ctx.find('switch-first')?.isLoaded && ctx.find('switch-first'),
@@ -191,8 +208,8 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => visible(first))
   first.focus()
   await ctx.waitFor(() => focused(first))
-  ctx.assert('switcher first panel clears keyboard', visible(first), true)
-  ctx.record('phase', 'switcher second')
+  ctx.assert('first sheet panel clears keyboard', visible(first), true)
+  ctx.record('phase', 'second sheet')
   select('second')
   const sample = setInterval(() => {
     const next = ctx.find('switch-second')
@@ -217,8 +234,8 @@ export async function run(ctx: ProbeContext) {
   second.focus()
   await ctx.waitFor(() => focused(second) && visible(second))
   ctx.assert(
-    'switcher retains the presentation host across content replacement',
-    panelOf(second, 'vx-sheet-host') === shared,
+    'each sheet owns its presentation host',
+    panelOf(second, 'vx-sheet-host') !== shared,
     true,
   )
 

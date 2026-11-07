@@ -3146,12 +3146,6 @@ Mechanics proven this slice:
   via `snapDetentIndex` and dismiss below the peek stop. The harness
   cannot produce `>DETENT_FLICK_VELOCITY` — all tested snaps land on the
   nearest-detent path (fling math is shared and untested at speed).
-- `BottomSheetSwitcher` mounts one shared portal and re-enters the same
-  `GtkSheetPanel` on swap (`resetKey` re-attaches detents and slides in).
-  Registration runs through the shared `BottomSheetSwitcherContext`
-  store — `SwitcherPanel` must NOT `useStore` on GTK (the portal keeps
-  one root; a store subscription inside the portal re-rendered ~30x/s
-  and starved the loop). The spec arrives by prop instead.
 - `bottom-sheet-service.gtk.tsrx` mounts imperative sheets the same way
   the toast service does: `__octaneGtkHost.createOverlayLayer` +
   `mountServiceRoot` (or `owner.createRoot` for `useImperativeBottomSheet`).

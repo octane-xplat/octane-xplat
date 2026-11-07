@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { useState } from 'octane'
-import { BottomSheet, BottomSheetSwitcher, TextInput } from '@octane-xplat/ui'
+import { BottomSheet, TextInput } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
 let select = (_value: string | null) => {},
   activeValue: string | null = null
@@ -20,14 +20,29 @@ export default function OverlayWeb() @{
     <button id="open-panel" onClick={() => setActive('first')}>
       Open editor
     </button>
-    <BottomSheetSwitcher activeSheet={active} onActiveSheetChange={setActive}>
-      <BottomSheet sheetId="first" label="First editor">
-        <Editor id="web-first" initial="First" />
-      </BottomSheet>
-      <BottomSheet sheetId="second" label="Second editor">
-        <Editor id="web-second" initial="Second" />
-      </BottomSheet>
-    </BottomSheetSwitcher>
+
+    <BottomSheet
+      isOpen={active === 'first'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'first' ? null : current))
+        }
+      }}
+      label="First editor"
+    >
+      <Editor id="web-first" initial="First" />
+    </BottomSheet>
+    <BottomSheet
+      isOpen={active === 'second'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'second' ? null : current))
+        }
+      }}
+      label="Second editor"
+    >
+      <Editor id="web-second" initial="Second" />
+    </BottomSheet>
   </div>
 }
 
@@ -55,22 +70,17 @@ export async function run(ctx: ProbeContext) {
   const second: any = await ctx.waitFor(() => input('web-second'))
   await ctx.waitFor(() => !first.isConnected)
   ctx.assert('web panel swap retires previous editing element', !first.isConnected, true)
-  ctx.assert('web panel editing state belongs to its sheet id', second.value, 'Second')
+  ctx.assert('web panel has its own editing state', second.value, 'Second')
   ctx.assert(
-    'web swap retains its presentation host',
-    second.closest('.vx-bottom-sheet-layer') === host ||
-      second.closest('[role="dialog"]')?.parentElement === host,
+    'web sheets have separate presentation hosts',
+    second.closest('.vx-bottom-sheet-layer') !== host,
     true,
   )
 
   second.focus()
   select(null)
   await ctx.waitFor(() => !second.isConnected && document.activeElement === opener)
-  ctx.assert(
-    'shared web presentation returns focus to opener',
-    document.activeElement === opener,
-    true,
-  )
+  ctx.assert('web presentation returns focus to opener', document.activeElement === opener, true)
 
   select('first')
   ctx.record('phase', 'reopen')

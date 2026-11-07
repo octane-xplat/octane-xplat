@@ -1,10 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import { Dialog } from '../../../packages/ui/src/components/overlays/Dialog.macos.tsrx'
-import {
-  BottomSheet,
-  BottomSheetSwitcher,
-} from '../../../packages/ui/src/components/overlays/BottomSheet.macos.tsrx'
+import { BottomSheet } from '../../../packages/ui/src/components/overlays/BottomSheet.macos.tsrx'
 
 import { Lightbox } from '../../../packages/ui/src/components/overlays/Lightbox.macos.tsrx'
 import { useImperativeDialog } from '../../../packages/ui/src/components/overlays/use-imperative-dialog.macos.tsrx'
@@ -67,14 +64,12 @@ function Content(props: {
       <BottomSheet isOpen={props.sheet} label="Fixture sheet" snapPoints={['25%', 300]}>
         <label text="Sheet" />
       </BottomSheet>
-      <BottomSheetSwitcher activeSheet={props.activeSheet ?? null}>
-        <BottomSheet sheetId="first" label="First">
-          <textfield value="First panel" />
-        </BottomSheet>
-        <BottomSheet sheetId="second" label="Second">
-          <textfield value="Second panel" />
-        </BottomSheet>
-      </BottomSheetSwitcher>
+      <BottomSheet isOpen={props.activeSheet === 'first'} label="First">
+        <textfield value="First panel" />
+      </BottomSheet>
+      <BottomSheet isOpen={props.activeSheet === 'second'} label="Second">
+        <textfield value="Second panel" />
+      </BottomSheet>
       <Lightbox isOpen={!!props.lightbox} onOpenChange={() => {}} media={media} />
       {hooks.dialog.element}
       {hooks.alert.element}

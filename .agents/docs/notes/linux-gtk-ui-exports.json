@@ -2126,10 +2126,6 @@
           "imported": "BottomSheetSnapPoint"
         },
         {
-          "name": "BottomSheetSwitcherProps",
-          "imported": "BottomSheetSwitcherProps"
-        },
-        {
           "name": "OpenBottomSheet",
           "imported": "OpenBottomSheet"
         },
@@ -6917,10 +6913,6 @@
         {
           "name": "BottomSheet",
           "imported": "BottomSheet"
-        },
-        {
-          "name": "BottomSheetSwitcher",
-          "imported": "BottomSheetSwitcher"
         }
       ],
       "findingSources": [

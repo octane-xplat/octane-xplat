@@ -9,7 +9,7 @@ import { Checkbox } from '../../components/forms/Checkbox.web.tsrx'
 import { RadioGroup } from '../../components/forms/RadioGroup.web.tsrx'
 import { Overlay } from '../../components/overlays/Overlay.web.tsrx'
 import { Popover } from '../../components/overlays/Popover.web.tsrx'
-import { BottomSheet, BottomSheetSwitcher } from '../../components/overlays/BottomSheet.web.tsrx'
+import { BottomSheet } from '../../components/overlays/BottomSheet.web.tsrx'
 import { Dialog } from '../../components/overlays/Dialog.web.tsrx'
 import { AlertDialog } from '../../components/overlays/AlertDialog.web.tsrx'
 
@@ -198,24 +198,6 @@ describe('overlays', () => {
     click(document.querySelector('.vx-sheet-backdrop')!)
     expect(change).toHaveBeenLastCalledWith(false)
     expect(document.querySelector('.vx-bottom-sheet-layer')).not.toBeNull()
-  })
-
-  it('BottomSheetSwitcher seeds defaultActiveSheet; scrim tap reports null and closes', () => {
-    const change = vi.fn()
-    mount(BottomSheetSwitcher, {
-      defaultActiveSheet: 'one',
-      onActiveSheetChange: change,
-      children: (
-        <BottomSheet sheetId="one">
-          <div data-sheet="one">One</div>
-        </BottomSheet>
-      ),
-    })
-
-    expect(document.querySelector('[data-sheet="one"]')).not.toBeNull()
-    click(document.querySelector('.vx-sheet-backdrop')!)
-    expect(change).toHaveBeenLastCalledWith(null)
-    expect(document.querySelector('.vx-bottom-sheet-layer')).toBeNull()
   })
 
   it('Dialog seeds defaultOpen; Escape reports onOpenChange(false) and closes', () => {

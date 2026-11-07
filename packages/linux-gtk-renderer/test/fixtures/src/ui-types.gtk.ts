@@ -490,10 +490,6 @@ type BottomSheetSnapPointContract = Assert<
   Equal<GtkUI.BottomSheetSnapPoint, NativeUI.BottomSheetSnapPoint>
 >
 
-type BottomSheetSwitcherPropsContract = Assert<
-  Equal<GtkUI.BottomSheetSwitcherProps, NativeUI.BottomSheetSwitcherProps>
->
-
 type OpenBottomSheetContract = Assert<Equal<GtkUI.OpenBottomSheet, NativeUI.OpenBottomSheet>>
 type ImperativeBottomSheetReturnContract = Assert<
   Equal<GtkUI.ImperativeBottomSheetReturn, NativeUI.ImperativeBottomSheetReturn>

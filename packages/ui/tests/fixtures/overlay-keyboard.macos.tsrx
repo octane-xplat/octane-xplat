@@ -1,6 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useState } from 'octane'
-import { Screen, BottomSheet, BottomSheetSwitcher, TextInput } from '@octane-xplat/ui'
+import { Screen, BottomSheet, TextInput } from '@octane-xplat/ui'
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import type { ProbeContext } from '../../../../tools/probe/context'
 let background: any,
@@ -49,14 +49,30 @@ export default function DesktopSheetProbe() @{
 
   <Screen>
     <TextInput ref={base} defaultValue="Background" style={{ height: 48 }} />
-    <BottomSheetSwitcher activeSheet={active} onActiveSheetChange={setActive}>
-      <BottomSheet sheetId="first" label="First">
-        <Editor id="first-editor" initial="First" capture={captureFirst} />
-      </BottomSheet>
-      <BottomSheet sheetId="second" label="Second">
-        <Editor id="second-editor" initial="Second" capture={captureSecond} />
-      </BottomSheet>
-    </BottomSheetSwitcher>
+
+    <BottomSheet
+      isOpen={active === 'first'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'first' ? null : current))
+        }
+      }}
+      label="First"
+    >
+      <Editor id="first-editor" initial="First" capture={captureFirst} />
+    </BottomSheet>
+    <BottomSheet
+      isOpen={active === 'second'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setActive((current) => (current === 'second' ? null : current))
+        }
+      }}
+      label="Second"
+    >
+      <Editor id="second-editor" initial="Second" capture={captureSecond} />
+    </BottomSheet>
+
     <AppKitSheet
       open={open}
       onDismissed={() => setOpen(false)}
@@ -87,13 +103,13 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => second?.window && second.stringValue === 'Second')
   ctx.assert('AppKit panel replacement has its own editing state', second.stringValue, 'Second')
   ctx.assert('AppKit replacement retires the previous input', original.window == null, true)
-  ctx.assert('AppKit replacement retains its presentation window', second.window === window, true)
+  ctx.assert('AppKit replacement owns its presentation window', second.window !== window, true)
   const replaced = second
   select(null)
   await ctx.waitFor(() => replaced.window == null)
-  ctx.assert('AppKit shared presentation detaches its panel', replaced.window == null, true)
+  ctx.assert('AppKit presentation detaches its panel', replaced.window == null, true)
   ctx.assert(
-    'AppKit shared presentation preserves its owner window',
+    'AppKit presentation preserves its owner window',
     background.window === originalWindow,
     true,
   )

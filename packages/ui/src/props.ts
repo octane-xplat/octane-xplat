@@ -4220,9 +4220,7 @@ export type BottomSheetSnapPoint = number | string
 /** Declarative in-window bottom sheet (Astryx `BottomSheet`): a
  *  bottom-anchored panel on the enclosing screen's RootLayout (native) or a
  *  document-body layer (web). Unlike a routed modal, content stays inside
- *  the app window. When nested inside `BottomSheetSwitcher`, `sheetId`
- *  registers the panel under the switcher's shared host instead of opening
- *  its own overlay.
+ *  the app window.
  *
  * @example
  * ```tsx
@@ -4232,16 +4230,14 @@ export type BottomSheetSnapPoint = number | string
  * 	{shareForm}
  * </BottomSheet>
  * ```
- * @see BottomSheetSwitcherProps for panels that share one host, openBottomSheet for the imperative service.
+ * @see openBottomSheet for the imperative service.
  */
 export interface BottomSheetProps {
-  /** Standalone controlled visibility — pair with `onOpenChange`.
-   *  Required for standalone use unless `defaultOpen` seeds uncontrolled
-   *  state; a `BottomSheetSwitcher` child's `activeSheet` owns visibility
-   *  instead. */
+  /** Controlled visibility — pair with `onOpenChange`.
+   *  Use `defaultOpen` to seed uncontrolled state instead. */
   isOpen?: boolean
-  /** Initial standalone visibility for uncontrolled use; `isOpen` wins
-   *  when both are set and switcher children ignore it. Uncontrolled
+  /** Initial visibility for uncontrolled use; `isOpen` wins
+   *  when both are set. Uncontrolled
    *  dismissal closes the sheet itself. */
   defaultOpen?: boolean
   /** Required accessible name for the panel (web `aria-label`, native
@@ -4269,8 +4265,6 @@ export interface BottomSheetProps {
    *  dismissal path, 'form' skips the scrim tap, 'required' also blocks
    *  Escape. @default 'info' */
   purpose?: DialogPurpose
-  /** Identifies this sheet to its enclosing `BottomSheetSwitcher`. */
-  sheetId?: string
   /** Element to focus when the sheet closes (`{current}`-style object).
    * Native hosts call the target's focus method when available; supply this
    * explicitly when a native input should regain editing focus. */
@@ -4278,50 +4272,6 @@ export interface BottomSheetProps {
     /** Live slot for the host element; null before mount or after unmount. */
     current: HostElement | null
   }
-  /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
-  className?: ClassValue
-  /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */
-  style?: StyleProp
-  /** Stable id forwarded to the host element (the DOM `id` on web). */
-  id?: string
-  /** Platform-specific properties are applied after shared props. */
-  ios?: PlatformProps
-  /** Platform-specific properties are applied after shared props. */
-  android?: PlatformProps
-  /** Platform-specific properties are applied after shared props. */
-  web?: PlatformProps
-}
-
-/** Shared host for a group of `BottomSheet` panels — exactly one child
- *  sheet (by `sheetId`) is visible under `activeSheet`, and sheet changes
- *  animate between panels in the same host instead of closing and
- *  reopening. A null `activeSheet` closes the host.
- *
- * @example
- * ```tsx
- * import { BottomSheetSwitcher, BottomSheet } from '@octane-xplat/ui'
- *
- * <BottomSheetSwitcher activeSheet={sheet} onActiveSheetChange={setSheet}>
- * 	<BottomSheet sheetId="edit" label="Edit">{editForm}</BottomSheet>
- * 	<BottomSheet sheetId="share" label="Share">{shareForm}</BottomSheet>
- * </BottomSheetSwitcher>
- * ```
- * @see BottomSheetProps.
- */
-export interface BottomSheetSwitcherProps {
-  /** Controlled selection — the `sheetId` currently shown, or null for
-   *  closed. Pair with `onActiveSheetChange`. */
-  activeSheet?: string | null
-  /** Initial selection for uncontrolled use; `activeSheet` wins when both
-   *  are set. Uncontrolled dismissal closes the host itself. */
-  defaultActiveSheet?: string | null
-  /** Called with the requested sheetId (or null on dismissal) when the
-   *  user changes/dismisses sheets (drag dismiss, scrim tap, Escape). */
-  onActiveSheetChange?: (sheetId: string | null) => void
-  /** Scrim behavior for the whole switcher. @default true */
-  hasScrim?: boolean
-  /** The `BottomSheet` children, each with a `sheetId`. */
-  children?: Renderable
   /** CSS classes applied to the host element — the preferred channel for static styles; `style` is for dynamic values. */
   className?: ClassValue
   /** Inline style applied after `className` — use for dynamic values; static styles belong in classes. */

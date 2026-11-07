@@ -489,9 +489,10 @@ OS gesture/frame-pacing guarantees.
 
 Mobile layer focus capture is scoped to the declaring UIWindow or Android decor.
 Restoration skips detached inputs and inactive native owners; an explicit
-finalFocusRef uses the target's focus method. The switcher retains its original
-focus-return scope while replacing panel content. No text is read and no native
-input delegate is replaced.
+finalFocusRef uses the target's focus method. Independently controlled sheets
+release their own hosts and focus scopes; use an explicit finalFocusRef when
+steps should return to the same input. No text is read and no native input
+delegate is replaced.
 
 SwiftUI sheet qualification on iOS27 with Core9.1.3 and swift-ui4.0.2 passed
 usable hosted input, native keyboard clearance through an observed one-to-two

@@ -13,13 +13,7 @@ import {
   useState,
 } from 'octane'
 
-import type { BottomSheetProps, BottomSheetSwitcherProps } from '../../props'
-import {
-  BottomSheetSwitcherContext,
-  BottomSheetSwitcherProvider,
-  type BottomSheetRegistration,
-  type BottomSheetSwitcherHandle,
-} from './bottom-sheet-context'
+import type { BottomSheetProps } from '../../props'
 
 import { cx } from '@octane-xplat/lib'
 import { useThemeScheme } from '../../theme/theme-scheme'
@@ -53,9 +47,8 @@ function sheetHeightStyle(
 }
 
 /** The shared bottom panel: scrim (when modal), grabber + snap/swipe
- *  gestures, focus isolation, Escape discipline per `purpose`. Renders
- *  `panel` — the active sheet's children for a switcher, or the
- *  declarative sheet's own children standalone. */
+ *  gestures, focus isolation, Escape discipline per `purpose`.
+ *  Renders the declarative sheet's own children. */
 function BottomSheetLayer(props: {
   sheet: BottomSheetProps
   panel: any
@@ -158,19 +151,15 @@ function BottomSheetLayer(props: {
     >
       <LayerDepthProvider value={layerDepth + 1}>
         <SizeProvider value={null}>
-          <SheetContent key={sheet.sheetId}>{panel}</SheetContent>
+          <SheetContent>{panel}</SheetContent>
         </SizeProvider>
       </LayerDepthProvider>
     </div>
   </div>
 }
 
-/** In-window bottom sheet (Astryx `BottomSheet`), web leaf. Standalone
- *  usage renders its own portal layer; inside `BottomSheetSwitcher` (with
- *  `sheetId`) it registers under the switcher's shared host and renders
- *  nothing on its own. */
+/** Declarative in-window bottom sheet with controlled or uncontrolled visibility. */
 export function BottomSheet(props: BottomSheetProps): JSX.Element | null @{
-  const switcher = useContext(BottomSheetSwitcherContext)
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
   const open = props.isOpen ?? internal
   const requestChange = (isOpen: boolean) => {
@@ -181,108 +170,16 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element | null @{
     props.onOpenChange?.(isOpen)
   }
 
-  const registration: BottomSheetRegistration = {
-    sheetId: props.sheetId ?? '',
-    props,
+  @if (open) {
+    <>
+      {createPortal(
+        <BottomSheetLayer
+          sheet={props}
+          panel={props.children}
+          onDismiss={() => requestChange(false)}
+        />,
+        document.body,
+      )}
+    </>
   }
-
-  useEffect(() => {
-    if (props.sheetId == null) {
-      return
-    }
-
-    if (!switcher) {
-      console.warn(
-        '[BottomSheet] sheetId is set but no BottomSheetSwitcher ancestor was found — the sheet renders nothing.',
-      )
-
-      return
-    }
-
-    switcher.register(registration)
-    return () => switcher.unregister(registration.sheetId)
-  }, [switcher, props.sheetId, props])
-
-  @if (props.sheetId != null) {
-    <></>
-  } @else {
-    @if (open) {
-      <>
-        {createPortal(
-          <BottomSheetLayer
-            sheet={props}
-            panel={props.children}
-            onDismiss={() => requestChange(false)}
-          />,
-          document.body,
-        )}
-      </>
-    }
-  }
-}
-
-/** Shared host for a set of BottomSheet panels (Astryx
- *  `BottomSheetSwitcher`) — one layer, `activeSheet` picks which
- *  registered child renders inside it. */
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): JSX.Element @{
-  const dark = useThemeScheme() === 'dark'
-  const registry = useRef(new Map<string, BottomSheetRegistration>())
-  const [version, bump] = useState(0)
-  const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null)
-  const activeId = props.activeSheet !== undefined ? props.activeSheet : internal
-  const requestChange = (sheetId: string | null) => {
-    if (props.activeSheet === undefined) {
-      setInternal(sheetId)
-    }
-
-    props.onActiveSheetChange?.(sheetId)
-  }
-
-  const onChange = useRef(requestChange)
-  onChange.current = requestChange
-  const resolvedId = useRef(activeId)
-  resolvedId.current = activeId
-
-  const handle: BottomSheetSwitcherHandle = useMemo(
-    () => ({
-      register(spec) {
-        const prev = registry.current.get(spec.sheetId)
-        registry.current.set(spec.sheetId, spec)
-        if (prev !== spec) {
-          bump((v) => v + 1)
-        }
-      },
-      unregister(sheetId) {
-        if (registry.current.delete(sheetId)) {
-          bump((v) => v + 1)
-        }
-      },
-      requestDismiss() {
-        onChange.current?.(null)
-      },
-      activeSheet() {
-        return resolvedId.current ?? null
-      },
-    }),
-    [],
-  )
-
-  const active = activeId != null ? registry.current.get(activeId) : undefined
-  void version
-
-  <BottomSheetSwitcherProvider value={handle}>
-    {props.children}
-    {active != null && (
-      <>
-        {createPortal(
-          <BottomSheetLayer
-            sheet={{ ...active.props, hasScrim: props.hasScrim ?? active.props.hasScrim }}
-            panel={active.props.children}
-            onDismiss={() => onChange.current?.(null)}
-          />,
-          document.body,
-        )}
-      </>
-    )}
-  </BottomSheetSwitcherProvider>
 }

@@ -1497,7 +1497,6 @@ export function Example() {
 | `Dialog`                  | Modal surface with optional header                | `isOpen`, `defaultOpen`, `onOpenChange`, `purpose`, `position` |
 | `AlertDialog`             | Required-action confirmation dialog               | `isOpen`, `defaultOpen`, `title`, `actionLabel`, `onAction`    |
 | `BottomSheet`             | Declarative in-window bottom sheet                | `isOpen`, `defaultOpen`, `snapPoints`, `onOpenChange`          |
-| `BottomSheetSwitcher`     | Shared host for a set of sheets                   | `activeSheet`, `defaultActiveSheet`, `onActiveSheetChange`     |
 | `Carousel`                | Horizontally scrolling child slides               | `children`, `gap`, `hasButtons`, `hasSnap`, `ref`              |
 | `Lightbox`                | Fullscreen image or video gallery                 | `media`, `isOpen`, `index`, `onIndexChange`                    |
 | `Toast` / `ToastViewport` | Transient notification card and stack             | `showToast`, `useToast`, `position`, `maxVisible`              |
@@ -1512,11 +1511,9 @@ nearest `ToastViewport` or the fallback viewport. Overlay visibility follows
 the same state contract as the field controls: `open`/`isOpen` are controlled,
 `defaultOpen` seeds an uncontrolled layer that closes itself when the user
 dismisses it, and `onOpenChange`/`onDismiss` report the request — `isOpen`
-wins when both are set. `BottomSheetSwitcher` uses `activeSheet`/
-`defaultActiveSheet`/`onActiveSheetChange` for which child `sheetId` is
-visible. Declared shared surfaces and declarative modal content preserve
+wins when both are set. Declared shared surfaces and declarative modal content preserve
 context through native portals on iOS and Android, including platform list cells.
-On macOS, registered sheet stacks, toast stacks, and anchored popups still
+On macOS, toast stacks, and anchored popups still
 use separate roots; see the [boundary inventory](../../.agents/docs/notes/portal-boundaries.md). Scoped
 imperative hooks and native route outlets preserve context too; see
 [ownership examples](primitives.md#own-temporary-surfaces) and

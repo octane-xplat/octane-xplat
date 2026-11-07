@@ -1011,14 +1011,13 @@ export { copyText } from './internal/platform/clipboard-write'
 export { refList, mergedRef } from './internal/accessibility/ref-list'
 export type { FlatRef } from './internal/accessibility/ref-list'
 
-export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet.tsrx'
+export { BottomSheet } from './components/overlays/BottomSheet.tsrx'
 export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service'
 export type {
   BottomSheetHandle,
   BottomSheetOpenOptions,
   BottomSheetProps,
   BottomSheetSnapPoint,
-  BottomSheetSwitcherProps,
   OpenBottomSheet,
 } from './props'
 

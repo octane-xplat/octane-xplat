@@ -789,7 +789,7 @@ export function Example() {
   return (
     <FormLayout defaultOptionality="required">
       <Field label="Name" isOptional>
-        <TextInput value={name} onChange={setName} />
+      <TextInput value={name} onChange={setName} />
       </Field>
       <InputGroup label="Website" description="Your profile link" size="sm" isDisabled>
         <InputGroupText>https://</InputGroupText>
@@ -1140,7 +1140,7 @@ export function Example() {
       />
       <BottomSheet label="Actions" isOpen={false} snapPoints={[0.25, 0.5]}>
         <Text>Actions</Text>
-      </BottomSheet>
+    </BottomSheet>
       <Overlay open={false}>
         <Text>Floating content</Text>
       </Overlay>
@@ -1899,7 +1899,7 @@ export function Example() {
           <Pressable onPress={() => setOpen(false)}>
             <Text>Close sheet</Text>
           </Pressable>
-        </BottomSheet>
+      </BottomSheet>
       )}
     </Screen>
   )
@@ -1962,7 +1962,7 @@ the current provider value to the next page's cell; OS swipes remain untested.
 calls, use the scoped hooks below. Native route Pages and modals inherit the
 providers around a mounted `RouteOutlet`; see [navigation](navigation.md#preserve-providers-across-native-pages).
 Ownerless global service calls keep independent roots and require explicit data.
-On macOS, `BottomSheetSwitcher`, toast stacks, and anchored `useLayer` popups
+On macOS, toast stacks, and anchored `useLayer` popups
 still use separate roots; see the [current boundary inventory](../../.agents/docs/notes/portal-boundaries.md).
 
 ```tsx
@@ -2044,7 +2044,7 @@ export function Example() {
       <AccountNameProvider value="Avery">
         <BottomSheet label="Account" isOpen>
           <AccountLabel />
-        </BottomSheet>
+      </BottomSheet>
       </AccountNameProvider>
     </Screen>
   )
@@ -2053,13 +2053,15 @@ export function Example() {
 
 ### Keep drafts when switching panels
 
-Each `sheetId` has a separate editing lifetime inside the shared presentation.
-Keep drafts in your screen's state to retain them when switching between panels.
+Control each sheet with `isOpen` and `onOpenChange`. Keep drafts in your
+screen's state to retain them when switching between panels.
 This lets a name editor and an email editor use their own controls and values.
+Each sheet has its own presentation; switching does not animate between panels
+in a shared host.
 
 ```tsx
 import { useState } from 'octane'
-import { BottomSheet, BottomSheetSwitcher, Button, Screen, TextInput } from '@octane-xplat/ui'
+import { BottomSheet, Button, Screen, TextInput } from '@octane-xplat/ui'
 
 export function ContactEditors() {
   const [active, setActive] = useState<string | null>(null)
@@ -2069,14 +2071,24 @@ export function ContactEditors() {
   return <Screen>
     <Button clickAction={() => setActive('name')}>Edit name</Button>
     <Button clickAction={() => setActive('email')}>Edit email</Button>
-    <BottomSheetSwitcher activeSheet={active} onActiveSheetChange={setActive}>
-      <BottomSheet sheetId="name" label="Edit name">
-        <TextInput value={name} onChange={setName} />
-      </BottomSheet>
-      <BottomSheet sheetId="email" label="Edit email">
-        <TextInput value={email} onChange={setEmail} keyboardType="email" />
-      </BottomSheet>
-    </BottomSheetSwitcher>
+    <BottomSheet
+      label="Edit name"
+      isOpen={active === 'name'}
+      onOpenChange={open => {
+        if (!open) setActive(current => current === 'name' ? null : current)
+      }}
+    >
+      <TextInput value={name} onChange={setName} />
+    </BottomSheet>
+    <BottomSheet
+      label="Edit email"
+      isOpen={active === 'email'}
+      onOpenChange={open => {
+        if (!open) setActive(current => current === 'email' ? null : current)
+      }}
+    >
+      <TextInput value={email} onChange={setEmail} keyboardType="email" />
+    </BottomSheet>
   </Screen>
 }
 ```
@@ -2151,8 +2163,8 @@ closing the alert after it succeeds. `hasScrim={false}` on a sheet keeps the
 page interactive and does not move focus into the sheet. Drag the sheet's
 handle to resize between `snapPoints` (fractions, dip counts, or percentage
 strings); a downward drag past the smallest stop requests dismissal when
-purpose permits. Switching a `BottomSheetSwitcher`'s `activeSheet` updates its
-existing host. Set it to `null` to close the group.
+purpose permits. For a multi-step flow, use one state value to select the open
+sheet, as in the contact editors above.
 
 Modal presentations focus their first enabled control and keep Tab traversal
 inside the panel. Self-drawn buttons accept Return and Space. On close, focus

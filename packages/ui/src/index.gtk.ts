@@ -288,7 +288,7 @@ export { Toast } from './components/overlays/Toast.tsrx'
 export { ToastViewport } from './components/overlays/toast-viewport.tsrx'
 export { showToast, useToast } from './components/overlays/toast-service.tsrx'
 
-export { BottomSheet, BottomSheetSwitcher } from './components/overlays/BottomSheet.tsrx'
+export { BottomSheet } from './components/overlays/BottomSheet.tsrx'
 export { openBottomSheet, closeBottomSheet } from './components/overlays/bottom-sheet-service'
 export { useImperativeBottomSheet } from './components/overlays/use-imperative-bottom-sheet.tsrx'
 

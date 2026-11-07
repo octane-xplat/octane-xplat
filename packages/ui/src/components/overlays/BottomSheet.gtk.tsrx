@@ -1,18 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
-import { SheetContent } from './sheet-content.tsrx'
-import { useContext, useEffect, useMemo, useRef, useState } from 'octane'
+import { useEffect, useRef, useState } from 'octane'
 import { createPortal } from '../../internal/platform/native-portal'
 import { SizeProvider } from '../layout/size-context'
-import type { BottomSheetProps, BottomSheetSwitcherProps } from '../../props'
-import {
-  BottomSheetSwitcherContext,
-  BottomSheetSwitcherProvider,
-  type BottomSheetRegistration,
-  type BottomSheetSwitcherHandle,
-} from './bottom-sheet-context'
+import type { BottomSheetProps } from '../../props'
 
-import { createStore } from '../../data/store'
 import { cx } from '@octane-xplat/lib'
 import { themeSchemeClasses } from '../../theme/theme-host'
 import { normalizeSnapPoints } from './sheet-snap'
@@ -49,22 +41,17 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
   return parseFloat(trimmed) || null
 }
 
-/** The sheet panel shared by the declarative leaf, the switcher host, and
+/** The sheet panel shared by the declarative leaf and
  *  the imperative service: bottom-docked chrome (grabber + content) inside
  *  an overlay layer's target. Detents/swipe-to-dismiss attach to the
  *  grabber row; `requestDismiss` is the host's user-dismissal channel —
- *  the swipe's slide-out has already run when it fires. Re-attaching on
- *  `resetKey` is what lets the switcher retarget one host across panels. */
+ *  the swipe's slide-out has already run when it fires. */
 export function GtkSheetPanel(props: {
   label?: string
   height?: BottomSheetProps['height']
   snapPoints?: BottomSheetProps['snapPoints']
   purpose?: BottomSheetProps['purpose']
-  /** Extra dismissal veto beyond `purpose` (switcher 'required'). */
-  dismissible?: boolean
   layerDepth: number
-  /** Change token that re-sizes + re-enters the panel (switcher swaps). */
-  resetKey?: unknown
   className?: any
   style?: any
   id?: string
@@ -101,7 +88,7 @@ export function GtkSheetPanel(props: {
         vh,
         () => dismiss.current?.(),
         {
-          dismissible: props.dismissible !== false && (props.purpose ?? 'info') !== 'required',
+          dismissible: (props.purpose ?? 'info') !== 'required',
           swipeOnly: !detentFractions.length,
         },
       )
@@ -123,7 +110,7 @@ export function GtkSheetPanel(props: {
     }
 
     return () => ctl?.detach()
-  }, [props.resetKey, props.height, JSON.stringify(props.snapPoints ?? []), props.purpose])
+  }, [props.height, JSON.stringify(props.snapPoints ?? []), props.purpose])
 
   <masonview
     ref={(v: any) => {
@@ -158,14 +145,8 @@ export function GtkSheetPanel(props: {
   </masonview>
 }
 
-/** Declarative in-window bottom sheet (Astryx `BottomSheet`), GTK leaf —
- *  an overlay-layer panel docked to the window's bottom edge on the same
- *  root the declaring component lives in (the `RootLayout` equivalent),
- *  with content portaled from that tree. With `sheetId` inside
- *  `BottomSheetSwitcher` it registers under the switcher's shared host
- *  instead. */
+/** Declarative in-window bottom sheet with controlled or uncontrolled visibility. */
 export function BottomSheet(props: BottomSheetProps): unknown @{
-  const switcher = useContext(BottomSheetSwitcherContext)
   const sentinel = useRef<any>(null)
   const [layer, setLayer] = useState<any>(null)
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
@@ -183,26 +164,8 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
   const dismiss = useRef(requestChange)
   dismiss.current = requestChange
 
-  useEffect(() => {
-    if (props.sheetId == null) {
-      return
-    }
-
-    if (!switcher) {
-      console.warn(
-        '[BottomSheet] sheetId is set but no BottomSheetSwitcher ancestor was found — the sheet renders nothing.',
-      )
-
-      return
-    }
-
-    const spec = { sheetId: props.sheetId, props }
-    switcher.register(spec)
-    return () => switcher.unregister(spec.sheetId)
-  }, [switcher, props.sheetId, props])
-
   const dismissal = useLayerDismissal({
-    active: !!open && props.sheetId == null,
+    active: !!open,
     isPresent: () => !!shown.current,
     dismiss: () => requestChange(false),
     behavior: props.purpose === 'required' ? 'block' : 'close',
@@ -264,7 +227,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 
   useEffect(() => {
     const view = sentinel.current
-    if (!view || props.sheetId != null) {
+    if (!view) {
       return
     }
 
@@ -293,7 +256,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
     shown.current = l
     setLayer(l)
     l.setVisible(true)
-  }, [open, props.sheetId, props.hasScrim, props.purpose])
+  }, [open, props.hasScrim, props.purpose])
 
   useEffect(
     () => () => {
@@ -319,7 +282,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
         mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
       )}
     />
-    {props.sheetId == null && layer
+    {layer
       ? createPortal(
           <GtkSheetPanel
             id={props.id}
@@ -334,239 +297,6 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
           >
             {props.children}
           </GtkSheetPanel>,
-          layer.target,
-        )
-      : null}
-  </>
-}
-
-/** The active panel rendered in the switcher's portal host — one shared
- *  `GtkSheetPanel` whose `resetKey` re-sizes/re-enters on each swap. The
- *  GTK portal keeps one universal root (unlike the native RootLayout
- *  host), so the active spec arrives by prop — no cross-root store read. */
-function SwitcherPanel(props: {
-  spec?: BottomSheetRegistration
-  activeSheet: string | null
-  layerDepth: number
-  className?: any
-  style?: any
-  id?: string
-  requestDismiss: () => void
-}): unknown @{
-  const sheet = props.spec?.props
-
-  <GtkSheetPanel
-    id={props.id ?? sheet?.id}
-    label={sheet?.label}
-    height={sheet?.height}
-    snapPoints={sheet?.snapPoints}
-    purpose={sheet?.purpose}
-    layerDepth={props.layerDepth}
-    resetKey={props.activeSheet}
-    className={cx(props.className, sheet?.className)}
-    style={{ ...styleRecord(props.style), ...styleRecord(sheet?.style) }}
-    requestDismiss={props.requestDismiss}
-  >
-    <SheetContent key={props.activeSheet ?? undefined}>{sheet?.children}</SheetContent>
-  </GtkSheetPanel>
-}
-
-/** Shared host for a set of BottomSheet panels (Astryx
- *  `BottomSheetSwitcher`), GTK leaf — one overlay-layer host whose content
- *  is driven by a module-scope registration store. */
-export function BottomSheetSwitcher(props: BottomSheetSwitcherProps): unknown @{
-  const sentinel = useRef<any>(null)
-  const shown = useRef<any>(null)
-  const releasing = useRef(false)
-  const [layer, setLayer] = useState<any>(null)
-
-  const [internal, setInternal] = useState<string | null>(props.defaultActiveSheet ?? null)
-  const activeId = props.activeSheet !== undefined ? props.activeSheet : internal
-  const requestChange = (sheetId: string | null) => {
-    if (props.activeSheet === undefined) {
-      setInternal(sheetId)
-    }
-
-    props.onActiveSheetChange?.(sheetId)
-  }
-
-  const onChange = useRef(requestChange)
-  onChange.current = requestChange
-  const resolvedId = useRef(activeId)
-  resolvedId.current = activeId
-
-  const specs = useMemo(() => createStore(new Map<string, BottomSheetRegistration>()), [])
-  const focusTarget = useRef<any>(null)
-  const selected = activeId != null ? specs.getSnapshot().get(activeId) : undefined
-  if (selected) {
-    focusTarget.current = selected.props.finalFocusRef ?? null
-  }
-
-  const handle: BottomSheetSwitcherHandle = useMemo(
-    () => ({
-      register(spec) {
-        const existing = specs.getSnapshot().get(spec.sheetId)
-        if (
-          existing &&
-          Object.keys(existing.props).length === Object.keys(spec.props).length &&
-          Object.keys(spec.props).every(
-            (key) =>
-              (existing.props as unknown as Record<string, unknown>)[key] ===
-              (spec.props as unknown as Record<string, unknown>)[key],
-          )
-        ) {
-          return
-        }
-
-        if (spec.sheetId === resolvedId.current) {
-          focusTarget.current = spec.props.finalFocusRef ?? null
-        }
-
-        const next = new Map(specs.getSnapshot())
-        next.set(spec.sheetId, spec)
-        specs.set(next)
-      },
-      unregister(sheetId) {
-        const next = new Map(specs.getSnapshot())
-        if (next.delete(sheetId)) {
-          specs.set(next)
-        }
-      },
-      requestDismiss() {
-        onChange.current?.(null)
-      },
-      activeSheet() {
-        return resolvedId.current ?? null
-      },
-    }),
-    [],
-  )
-
-  const dismissal = useLayerDismissal({
-    active: selected != null,
-    isPresent: () => !!shown.current,
-    dismiss: () => onChange.current?.(null),
-    get behavior() {
-      return selected?.props.purpose === 'required' ? 'block' : 'close'
-    },
-    getFocusTarget: () => focusTarget.current?.current,
-    getHost: () => sentinel.current,
-  })
-
-  const release = () => {
-    const l = shown.current
-    if (!l) {
-      return
-    }
-
-    shown.current = null
-    const finish = () => {
-      try {
-        l.dispose()
-      } catch {}
-
-      setLayer(null)
-    }
-
-    const panelView = l.target?.get_first_child?.()
-    let animated = false
-    try {
-      const vh = sheetVh(panelView)
-      if (vh > 0 && (Number(panelView?.translateY) || 0) < vh) {
-        const sliding = panelView?.animate?.({
-          translate: { x: 0, y: vh },
-          duration: 160,
-        })
-
-        if (sliding?.then) {
-          animated = true
-          void sliding.then(finish, finish)
-        }
-      }
-    } catch {}
-
-    if (!animated) {
-      finish()
-    }
-  }
-
-  /** Scrim tap: closes the surface and reports through
-   *  `onActiveSheetChange` — the shared host equivalent of a user dismiss. */
-  const dismissSurface = () => {
-    if (releasing.current) {
-      return
-    }
-
-    releasing.current = true
-    release()
-    onChange.current?.(null)
-  }
-
-  useEffect(() => {
-    const view = sentinel.current
-    if (!view) {
-      return
-    }
-
-    if (!selected) {
-      if (shown.current) {
-        release()
-      }
-
-      releasing.current = false
-      return
-    }
-
-    if (shown.current) {
-      return
-    }
-
-    const hasScrim = props.hasScrim ?? true
-    const l = view.createOverlayLayer({
-      modal: hasScrim,
-      scrim: hasScrim,
-      align: { h: 'fill', v: 'end' },
-      onScrimPress: dismissSurface,
-    })
-
-    shown.current = l
-    setLayer(l)
-    l.setVisible(true)
-  }, [selected != null, props.hasScrim])
-
-  useEffect(
-    () => () => {
-      try {
-        shown.current?.dispose?.()
-      } catch {}
-
-      shown.current = null
-    },
-    [],
-  )
-
-  <>
-    <BottomSheetSwitcherProvider value={handle}>{props.children}</BottomSheetSwitcherProvider>
-    <masonview
-      id={props.id}
-      ref={(v: any) => {
-        sentinel.current = v
-      }}
-      style={mergeStyle(
-        { flexDirection: 'column' },
-        mergeStyle({ display: 'flex' }, { width: 0, height: 0 }),
-      )}
-    />
-    {selected != null && layer
-      ? createPortal(
-          <SwitcherPanel
-            layerDepth={dismissal.depth}
-            spec={selected}
-            activeSheet={activeId}
-            className={props.className}
-            style={props.style}
-            requestDismiss={dismissSurface}
-          />,
           layer.target,
         )
       : null}

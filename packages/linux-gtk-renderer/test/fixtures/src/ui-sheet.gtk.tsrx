@@ -5,7 +5,6 @@ import {
   Text,
   View,
   BottomSheet,
-  BottomSheetSwitcher,
   openBottomSheet,
   closeBottomSheet,
   useImperativeBottomSheet,
@@ -213,20 +212,34 @@ export function SheetProbe() @{
       </BottomSheet>
     ) : null}
 
-    <BottomSheetSwitcher activeSheet={swActive} onActiveSheetChange={setSwActive}>
-      <BottomSheet sheetId="a" label="Sheet A">
-        <View style={{ flexDirection: 'column' }}>
-          <Text>sw-content-a</Text>
-          <Button id="sw-goto-b" label="GotoB" clickAction={() => setSwActive('b')} />
-        </View>
-      </BottomSheet>
-      <BottomSheet sheetId="b" label="Sheet B">
-        <View style={{ flexDirection: 'column' }}>
-          <Text>sw-content-b</Text>
-          <Button id="sw-goto-close" label="SwClose" clickAction={() => setSwActive(null)} />
-        </View>
-      </BottomSheet>
-    </BottomSheetSwitcher>
+    <BottomSheet
+      isOpen={swActive === 'a'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setSwActive((current) => (current === 'a' ? null : current))
+        }
+      }}
+      label="Sheet A"
+    >
+      <View style={{ flexDirection: 'column' }}>
+        <Text>sw-content-a</Text>
+        <Button id="sw-goto-b" label="GotoB" clickAction={() => setSwActive('b')} />
+      </View>
+    </BottomSheet>
+    <BottomSheet
+      isOpen={swActive === 'b'}
+      onOpenChange={(open) => {
+        if (!open) {
+          setSwActive((current) => (current === 'b' ? null : current))
+        }
+      }}
+      label="Sheet B"
+    >
+      <View style={{ flexDirection: 'column' }}>
+        <Text>sw-content-b</Text>
+        <Button id="sw-goto-close" label="SwClose" clickAction={() => setSwActive(null)} />
+      </View>
+    </BottomSheet>
 
     <DropdownMenu
       id="dm-sheet"

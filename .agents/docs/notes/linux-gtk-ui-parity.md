@@ -1481,7 +1481,7 @@ to the package import path and gained onOpenChange checks —
 
 ### Bottom sheets and menu-sheet (slice D2b)
 
-`BottomSheet`, `BottomSheetSwitcher`, `openBottomSheet`, `closeBottomSheet`
+`BottomSheet`, `openBottomSheet`, `closeBottomSheet`
 and `useImperativeBottomSheet` are now public GTK exports (10 sibling
 types beside). Availability is 222 values and 315 types.
 
@@ -1501,13 +1501,6 @@ contract as native works verbatim). Sheets with detents rest at the
 smallest stop like native; releases snap to the nearest detent and
 dismiss below the peek stop. The grabber is the only drag target, same
 as native.
-
-`BottomSheetSwitcher` registers children through the shared
-`BottomSheetSwitcherContext` store and mounts ONE portaled
-`GtkSheetPanel` whose `resetKey` re-enters on swap — the panel passes
-its spec by prop rather than `useStore`, because a store subscription
-inside the portal re-rendered continuously and starved the main loop
-(the GTK portal is one root, unlike the native RootLayout host).
 
 `openBottomSheet` mounts a service root through
 `__octaneGtkHost.createOverlayLayer` + `mountServiceRoot` (or

@@ -14,7 +14,7 @@ the location of an imperative handler does not capture context by itself.
 | iOS UITableView / Android RecyclerView                               | Platform component owns portals into template-created cell hosts                          |
 | Compiled AppKit tabviewitem / listview renderItem                    | Compiler wrappers own portals; raw handles/native delegates retain native ownership       |
 | AppKit shared Dialog, standalone BottomSheet, Lightbox               | Declaring component owns portal content through the common surface presenter              |
-| AppKit BottomSheetSwitcher, toast viewport, anchored useLayer popups | Retain their current roots; registry/anchored content needs separate portal qualification |
+| AppKit toast viewport, anchored useLayer popups | Retain their current roots; registry/anchored content needs separate portal qualification |
 | App/bootstrap/independent window trees                               | Remain Octane roots                                                                       |
 | Ownerless global services and native routing without an outlet       | Retain standalone-root fallback; pass data explicitly                                     |
 
@@ -196,8 +196,7 @@ object-driver tests cover ownership and callback contracts separately.
 
 The attempted AppKit registry/toast cutover did not qualify. Publishing
 registrations back into their source tree caused repeated updates; a later
-combined registry/toast probe still crashed. `BottomSheetSwitcher` and toast
-stacks therefore retain their existing roots. Anchored `useLayer` popups also
+combined registry/toast probe still crashed. Toast stacks therefore retain their existing roots. Anchored `useLayer` popups also
 still use a separate root and need a source-owned target bridge. These paths
 remain explicit follow-up work alongside the completed route/service/tab/list
 migrations. Native string templates and manually created

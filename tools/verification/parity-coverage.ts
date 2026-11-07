@@ -77,11 +77,6 @@ const DEFERRED_GROUPS = [
     components: ['CheckboxIndicator', 'CheckIndicator', 'RadioIndicator'],
   },
   {
-    reason:
-      'BottomSheetSwitcher is an internal part of BottomSheet — the sheet-fixed-frame fixture exercises the host.',
-    components: ['BottomSheetSwitcher'],
-  },
-  {
     reason: 'ToastViewport hosts imperative toasts and has no default visual state to measure.',
     components: ['ToastViewport'],
   },

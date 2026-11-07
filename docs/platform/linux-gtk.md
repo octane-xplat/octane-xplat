@@ -107,7 +107,7 @@ useImperativeAlertDialog, FocusScope, getFocusScopeCapabilities,
 LayerProvider, LayerContext, useLayerContext), toasts
 (Toast, ToastViewport, showToast, useToast), the Lightbox media viewer
 (Lightbox, useLightbox), the CommandPalette command surface, the
-edge-docked Drawer, and bottom sheets (BottomSheet, BottomSheetSwitcher,
+edge-docked Drawer, and bottom sheets (BottomSheet,
 openBottomSheet, closeBottomSheet, useImperativeBottomSheet), and the
 theme/environment surface (Theme, useTheme, useThemeName,
 useThemeScheme, getThemeScheme, useThemePreference, setThemePreference,

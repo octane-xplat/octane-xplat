@@ -198,7 +198,7 @@ void tooltip
 void KeyboardAvoiding
 `
   } else if (target === 'macos') {
-    source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, Dialog, DialogHeader, AlertDialog, BottomSheet, BottomSheetSwitcher, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet } from '@octane-xplat/ui'
+    source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, useAnimation, WebView, SafeArea, useLayer, Calendar, CodeBlock, Dialog, DialogHeader, AlertDialog, BottomSheet, Lightbox, Toast, ToastViewport, showToast, useToast, useImperativeDialog, useImperativeAlertDialog, useLightbox, openBottomSheet, closeBottomSheet } from '@octane-xplat/ui'
 import { CameraView, useOutlineFromView, bottomSheetHost } from '@octane-xplat/ui/macos'
 import type { ButtonProps, KeyboardAvoidingProps, ViewProps, AnimatedValue, WebViewProps, WebViewHandle, WebViewContentSize, WebViewLoadEvent } from '@octane-xplat/ui'
 
@@ -270,7 +270,6 @@ void view
 const dialog = <Dialog isOpen onOpenChange={() => {}} purpose="form" width={420}><DialogHeader title="Edit" onOpenChange={() => {}} /></Dialog>
 const alert = <AlertDialog isOpen onOpenChange={() => {}} title="Delete?" actionLabel="Delete" onAction={() => {}} />
 const sheet = <BottomSheet isOpen label="Options" snapPoints={[0.25, '50%', 400]} />
-const switcher = <BottomSheetSwitcher activeSheet="options">{sheet}</BottomSheetSwitcher>
 const lightbox = <Lightbox isOpen onOpenChange={() => {}} media={[{ src: 'image.png', alt: 'Image' }]} />
 const toast = <Toast body="Saved" renderContent={props => props.body} onDismiss={reason => { const typed: 'auto' | 'manual' = reason; void typed }} />
 const viewport = <ToastViewport position="topStart" maxVisible={3}>{toast}</ToastViewport>
@@ -294,7 +293,7 @@ const invalidSheet = <BottomSheet isOpen />
 showToast({ body: 'Saved', position: 'middle' })
 // @ts-expect-error imperative dialogs use the shared purpose contract
 dialogControl.show('Edit', { purpose: 'anything' })
-void [CameraView, dialog, alert, switcher, lightbox, viewport, toastHandle, promise, host, invalidSheet]
+void [CameraView, dialog, alert, lightbox, viewport, toastHandle, promise, host, invalidSheet]
 `
   } else {
     source = `import { Button, KeyboardAvoiding, useKeyboardInset, List, ListItem, View } from '@octane-xplat/ui'
