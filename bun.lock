@@ -2777,7 +2777,7 @@
     },
     "packages/tsrx-typegen": {
       "name": "tsrx-typegen",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "bin": {
         "tsrx-typegen": "./bin/tsrx-typegen.mjs",
       },
