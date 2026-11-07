@@ -111,8 +111,15 @@ func TestInstalledCheckerFallsBackToDeclaredUmbrellaTool(t *testing.T) {
 		t.Fatal(err)
 	}
 	entry, err := project.InstalledTool(projectPath, "typescript", "tsc")
+	if err != nil || filepath.Base(entry) != "tsc" {
+		t.Fatal("incidental hoisted tool shadowed the umbrella compiler", err)
+	}
+	if err := os.WriteFile(filepath.Join(projectPath, "package.json"), []byte(`{"name":"app","devDependencies":{"typescript":"7.1.0-beta"}}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	entry, err = project.InstalledTool(projectPath, "typescript", "tsc")
 	if err != nil || filepath.Base(entry) != "checker.js" {
-		t.Fatal("direct install did not win over the umbrella tool", err)
+		t.Fatal("authored install did not win over the umbrella tool", err)
 	}
 }
 
