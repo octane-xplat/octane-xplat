@@ -3,6 +3,9 @@
 		"//"
 	],
 	"tasks": {
+		"build": {
+			"dependsOn": ["^typegen", "^build"]
+		},
 		"build:example": {
 			"dependsOn": [
 				"^typegen"
