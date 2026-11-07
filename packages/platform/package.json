@@ -213,6 +213,30 @@
 			"types": "./types/generated/system-bars.d.ts",
 			"macos": "./src/system-bars.macos.ts",
 			"default": "./src/system-bars.ts"
+		},
+		"./screen.web": {
+			"types": "./types/generated/screen.d.ts",
+			"default": "./src/screen.web.tsrx"
+		},
+		"./screen.web.tsrx": {
+			"types": "./types/generated/screen.d.ts",
+			"default": "./src/screen.web.tsrx"
+		},
+		"./safe-area.web": {
+			"types": "./types/generated/safe-area.d.ts",
+			"default": "./src/safe-area.web.tsrx"
+		},
+		"./safe-area.web.tsrx": {
+			"types": "./types/generated/safe-area.d.ts",
+			"default": "./src/safe-area.web.tsrx"
+		},
+		"./breakpoints.web": {
+			"types": "./types/generated/breakpoints.d.ts",
+			"default": "./src/breakpoints.web.tsrx"
+		},
+		"./breakpoints.web.tsrx": {
+			"types": "./types/generated/breakpoints.d.ts",
+			"default": "./src/breakpoints.web.tsrx"
 		}
 	},
 	"publishConfig": {
@@ -233,6 +257,7 @@
 		"@octane-xplat/lib": "workspace:*"
 	},
 	"devDependencies": {
+		"@octane-xplat/cli": "workspace:*",
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
 		"@nativescript/macos-node-api": "catalog:",

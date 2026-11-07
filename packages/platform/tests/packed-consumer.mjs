@@ -16,6 +16,7 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { resolveTsrxLeaf } from '../../cli/src/tsrx-leaf.ts'
 
 const require = createRequire(import.meta.url)
 const { build } = await import(require.resolve('vite'))
@@ -107,6 +108,13 @@ try {
         logLevel: 'error',
         define,
         plugins: [
+          {
+            name: 'packed-platform-tsrx',
+            enforce: 'pre',
+            resolveId(source, importer) {
+              return resolveTsrxLeaf(source, importer, target)
+            },
+          },
           ...octane(
             native
               ? {

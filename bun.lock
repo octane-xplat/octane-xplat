@@ -2114,6 +2114,7 @@
         "@nativescript/types-android": "catalog:",
         "@nativescript/types-ios": "catalog:",
         "@nativescript/unit-test-runner": "catalog:",
+        "@octane-xplat/cli": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",

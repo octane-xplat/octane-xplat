@@ -373,6 +373,60 @@
 					"types": [
 						"./types/generated/types/windows.d.ts"
 					]
+				},
+				"./screen.web": {
+					"source": "src/screen.tsrx",
+					"runtime": [
+						"./src/screen.web.tsrx"
+					],
+					"types": [
+						"./types/generated/screen.d.ts"
+					]
+				},
+				"./screen.web.tsrx": {
+					"source": "src/screen.tsrx",
+					"runtime": [
+						"./src/screen.web.tsrx"
+					],
+					"types": [
+						"./types/generated/screen.d.ts"
+					]
+				},
+				"./safe-area.web": {
+					"source": "src/safe-area.tsrx",
+					"runtime": [
+						"./src/safe-area.web.tsrx"
+					],
+					"types": [
+						"./types/generated/safe-area.d.ts"
+					]
+				},
+				"./safe-area.web.tsrx": {
+					"source": "src/safe-area.tsrx",
+					"runtime": [
+						"./src/safe-area.web.tsrx"
+					],
+					"types": [
+						"./types/generated/safe-area.d.ts"
+					]
+				},
+				"./breakpoints.web": {
+					"source": "src/breakpoints.tsrx",
+					"runtime": [
+						"./src/breakpoints.web.tsrx"
+					],
+					"types": [
+						"./types/generated/breakpoints.d.ts"
+					]
+				},
+				"./breakpoints.web.tsrx": {
+					"source": "src/breakpoints.tsrx",
+					"runtime": [
+						"./src/breakpoints.web.tsrx"
+					],
+					"types": [
+						"./types/generated/breakpoints.d.ts"
+					]
 				}
 			}
 		}
