@@ -1669,6 +1669,7 @@
         "@tsrx/content-mapper": "catalog:",
         "octane": "catalog:",
         "typescript": "catalog:",
+        "typescript-classic": "catalog:",
         "vite": "catalog:",
       },
       "peerDependencies": {

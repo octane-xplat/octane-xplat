@@ -55,6 +55,7 @@
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",
 		"typescript": "catalog:",
+		"typescript-classic": "catalog:",
 		"vite": "catalog:",
 		"@tsrx/content-mapper": "catalog:"
 	},

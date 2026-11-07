@@ -1,6 +1,6 @@
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import ts from 'typescript'
+import ts from 'typescript-classic'
 import { runGtkUiFixture } from './gjs-ui-fixture.mjs'
 
 // Execute the actual page helper in WebKit's document, including its outbox.
