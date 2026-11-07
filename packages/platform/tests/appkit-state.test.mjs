@@ -6,6 +6,7 @@ import ts from 'typescript-classic'
 
 // Future source models; no Octane compiler, native window or OS event is exercised.
 const files = [
+  'appkit-host.ts',
   'appkit-state.macos.ts',
   'screen.macos.tsrx',
   'lifecycle.macos.tsrx',
@@ -36,7 +37,7 @@ function load(owner) {
     if (name === 'octane') {
       return { useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() }
     }
-    const base = name.replace('./', ''),
+    const base = name.replace('./', '').replace(/\.(ts|tsrx)$/, ''),
       file = files.find((file) => file.replace(/\.(ts|tsrx)$/, '') === base)
     if (!file) {
       return {}
