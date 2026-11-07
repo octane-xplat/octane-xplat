@@ -204,6 +204,15 @@ The wrapper now observes the panel's layout, defers its readiness check until
 that event's listeners complete, and gates opening on the plugin's isSideReady.
 The maintained mobile test covers initial opening after slot layout.
 
+Android qualified 2026-11-07 on the `elegant-fir-probe` AVD (API 35 emulator)
+through `NS_PLATFORM=android vitest run src/tests/drawer.spec.tsrx` in
+`apps/mobile`: both maintained specs passed — mount, defaultOpen after slot
+layout, 280-dip panel, programmatic close, and a synthetic
+`activityBackPressed` press that cancels the event, dismisses once through
+`onOpenChange`/`onDismiss`, and is not consumed when the panel is closed.
+This is handler-dispatch evidence over the real plugin; OS-level Back delivery,
+edge drags, TalkBack and RTL remain unqualified.
+
 ### Focused verification
 
 - Drawer unit/component suites: ten passing tests across six native
@@ -223,8 +232,10 @@ The maintained mobile test covers initial opening after slot layout.
   type-stripped GTK implementation succeeds without mobile dependencies and
   rendering throws the documented unsupported error. No GTK panel is claimed.
 - Windows: export/declaration checks only; `ssh windy` confirmed tooling, but
-  another qualification run owned the device. Android: unverified at the
-  user's request. No release builds, images or release-size comparisons ran.
+  another qualification run owned the device. Android: the two maintained
+  drawer specs pass on the `elegant-fir-probe` emulator (see above); wider
+  behavior below stays unqualified. No release builds, images or release-size
+  comparisons ran.
 
 Repository recipe checking remains blocked by the existing missing
 `motion-layout.tsrx` link in `motion-patterns.md`; the new `drawer` recipe has
@@ -235,9 +246,10 @@ mirror checks passed (the latter retains existing warnings).
 ### Remaining target qualification
 
 Source and unit checks do not prove real edge drags, velocity/cancellation,
-scroll arbitration, iOS Back-gesture coexistence, Android Back, RTL, rotation,
+scroll arbitration, iOS Back-gesture coexistence, RTL, rotation,
 safe-area layout, VoiceOver/TalkBack focus isolation or reduced-motion OS
-integration. The implementation currently uses a physical left edge, matching
+integration. Synthetic `activityBackPressed` dispatch covers the Android
+dismissal branch only — not OS-delivered Back. The implementation currently uses a physical left edge, matching
 the former wrappers; logical RTL edge selection remains a limitation. Web and
 desktop have no edge recognizer. GTK4/GJS is not qualified by the Linux WebView
 entry. Do not relabel these limitations as OS-native appearance or full parity.
