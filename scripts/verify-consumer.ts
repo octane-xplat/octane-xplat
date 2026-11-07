@@ -61,6 +61,8 @@ import { fileURLToPath } from 'node:url'
 
 import { lockstepPackages } from './publishable.ts'
 import { verifyAndroidTests } from './verify-android-tests.ts'
+import { stageRelease } from '../tools/cli-go/stage-release.mjs'
+import { nativeFixture, hostTarget } from '../tools/cli-go/stage-fixture.mjs'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
@@ -152,6 +154,21 @@ function run(command, argv, cwd, env = {}) {
   return result
 }
 
+// Lifecycle scripts never run for file:/link: dependencies, so the CLI's
+// postinstall has not selected a payload and bin/xplat.exe is the empty
+// placeholder. Follow the documented repair: the launcher prints the exact
+// install-native command to run.
+function repairNativeCli(dir, pm = packageManager) {
+  const unrepaired = run(pm, ['run', 'xplat', '--version'], dir)
+  if (unrepaired.status === 0) {
+    return
+  }
+  const repair = unrepaired.stderr.match(/^\s*node "(.+install-native\.mjs)"$/m)
+  assert.ok(repair, `xplat printed no repair command: ${unrepaired.stderr}`)
+  const fixed = run('node', [repair[1]], dir)
+  assert.equal(fixed.status, 0, 'install-native.mjs failed')
+}
+
 async function gate(name, timeoutMs, fn) {
   let timeout
   try {
@@ -230,6 +247,37 @@ try {
     }
 
     return `${tarballs.size} tarballs`
+  })
+
+  // The published CLI is the staged production layout: postinstall selects
+  // the host payload out of optionalDependencies. The raw workspace pack
+  // carries only the empty bin placeholder, so swap it before consumers
+  // resolve file: tarballs.
+  await gate('staged native CLI payload replaces the workspace pack', 5 * 60 * 1000, () => {
+    const nativeDir = nativeFixture(
+      repoRoot,
+      join(
+        repoRoot,
+        `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}`,
+      ),
+    )
+    try {
+      const staged = stageRelease({
+        root: repoRoot,
+        version: JSON.parse(readFileSync(join(repoRoot, 'packages/cli/package.json'), 'utf8'))
+          .version,
+        nativeDir,
+        outputDir: join(work, 'staged-cli'),
+        ignoreScripts: quick || !doBuild,
+      })
+      tarballs.set('@octane-xplat/cli', staged.cli.archive)
+      for (const payload of staged.payloads) {
+        tarballs.set(payload.manifest.name, payload.archive)
+      }
+      return `CLI + ${staged.payloads.length} platform payloads`
+    } finally {
+      rmSync(nativeDir, { recursive: true, force: true })
+    }
   })
 
   // ---- scaffold via the packed create bin --------------------------------
@@ -385,6 +433,7 @@ try {
     () => {
       const r = run(packageManager, ['install'], appDir)
       assert.equal(r.status, 0, `${packageManager} install failed`)
+      repairNativeCli(appDir)
     },
   )
 
@@ -664,6 +713,9 @@ try {
         ]) {
           const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
           assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
+          if (argv[0] === 'install') {
+            repairNativeCli(libraryDir, 'bun')
+          }
         }
       },
     )

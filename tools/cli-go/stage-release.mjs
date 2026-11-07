@@ -34,12 +34,16 @@ const goTarget = (os, cpu) =>
 const binaryName = (target) =>
   `xplat-go-${target}-cli${target.startsWith('windows') ? '.exe' : ''}`
 
-function pack(directory, destination) {
-  const result = spawnSync('bun', ['pm', 'pack', '--destination', destination], {
-    cwd: directory,
-    encoding: 'utf8',
-    timeout: 60000,
-  })
+function pack(directory, destination, ignoreScripts = false) {
+  const result = spawnSync(
+    'bun',
+    ['pm', 'pack', '--destination', destination, ...(ignoreScripts ? ['--ignore-scripts'] : [])],
+    {
+      cwd: directory,
+      encoding: 'utf8',
+      timeout: 60000,
+    },
+  )
   assert.equal(result.status, 0, `bun pm pack ${directory}: ${result.stdout}${result.stderr}`)
 }
 
@@ -82,7 +86,7 @@ function targetBuild(root, nativeDir, target, version, reference) {
  * `.json` records and `.tgz` archives plus a `release-worker/` directory.
  * `outputDir` must be a fresh owned directory; tarballs land inside it.
  */
-export function stageRelease({ root, version, nativeDir, outputDir }) {
+export function stageRelease({ root, version, nativeDir, outputDir, ignoreScripts = false }) {
   mkdirSync(outputDir, { recursive: true })
   assert.equal(
     readdirSync(outputDir).length,
@@ -146,7 +150,7 @@ export function stageRelease({ root, version, nativeDir, outputDir }) {
   // resolution apply, then augment the extracted package and repack it.
   const packed = join(outputDir, 'packed')
   mkdirSync(packed)
-  pack(join(root, 'packages/cli'), packed)
+  pack(join(root, 'packages/cli'), packed, ignoreScripts)
   const cliArchives = readdirSync(packed).filter((name) => name.endsWith('.tgz'))
   assert.equal(cliArchives.length, 1, `expected one CLI tarball in ${packed}`)
   const stage = join(outputDir, 'stage-cli')

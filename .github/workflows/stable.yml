@@ -51,6 +51,14 @@ jobs:
           node-version: 24
           package-manager-cache: false
       - run: bun install --frozen-lockfile
+      # Packed consumers execute the CLI: stage the production layout from a
+      # real host Go executable (verify-consumer + toolchain packed test).
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/cli/go/go.mod
+      - name: Build the host native CLI
+        run: bun run turbo run build:go --filter=@octane-xplat/cli
       - run: bun run build:packages
       # Workshop's Playwright journey remains local; no browser installation.
       - name: Check declared non-browser packed consumer suites
@@ -86,6 +94,14 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      # verify-consumer stages the published CLI layout from the host Go build.
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/cli/go/go.mod
+      - name: Build the host native CLI
+        run: bun run turbo run build:go --filter=@octane-xplat/cli
 
       # Produces a simulator-debug .app from the packed artifacts and proves
       # it installs + launches on a booted iPhone sim (simctl install/launch
@@ -183,6 +199,14 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      # verify-consumer stages the published CLI layout from the host Go build.
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/cli/go/go.mod
+      - name: Build the host native CLI
+        run: bun run turbo run build:go --filter=@octane-xplat/cli
 
       # Produces a debug .apk from the packed artifacts. Debug-signed artifact
       # — this is a build check, not Play-store distribution evidence. No
