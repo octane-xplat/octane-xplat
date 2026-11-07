@@ -328,6 +328,11 @@ lifecycle state and skip an unchanged setup hook on subsequent installs.
 pnpm typegen
 ```
 
+A checkout updated from before the ownership manifest may hold ignored
+declarations the generator cannot prove it owns; its refusal names the
+recovery — preserve `types/generated` aside and regenerate. See
+[Recovering pre-manifest output on upgrade](../../../docs/packages/package-tsrx-typegen.md#recovering-pre-manifest-output-on-upgrade).
+
 Interactive `xplat dev` sessions in this repository also spawn a declaration
 watcher as a `[types]`-tagged child — `turbo watch typegen` run from the
 nearest workspace root whose `turbo.json` declares the task. It reruns the

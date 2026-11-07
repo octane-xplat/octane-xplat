@@ -104,6 +104,25 @@ types directly also need generation during setup and refreshes during
 development; this repository's workflow is documented in
 [Develop against generated declarations](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/toolchain-notes.md#develop-against-generated-declarations).
 
+### Recovering pre-manifest output on upgrade
+
+A directory generated before the ownership manifest existed contains no
+recorded file list, so every declaration in it is unmanaged. On the first
+generation after upgrading such a checkout, the refusal above fires for the
+old files — that refusal is protecting potentially unmanaged output. To
+recover, preserve the ignored output directory outside the package and
+regenerate; generation rewrites every declaration and records a fresh
+manifest:
+
+```sh
+mv types/generated /tmp/my-package-types-backup
+bun run typegen
+```
+
+Once the regenerated output is verified, the preserved directory can be
+deleted. Upgrades that already carry a manifest need no recovery — owned
+files are overwritten and stale ones removed automatically.
+
 ## Overrides and import rewriting
 
 Keep exceptional signatures in handwritten declaration sources outside the

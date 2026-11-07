@@ -645,7 +645,10 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
   for (const file of generated.keys()) {
     const existing = existingOutputPath(outputDir, file)
     if (existing && !oldFiles?.has(existing) && !overrideFiles.has(existing)) {
-      throw new Error(`refusing to overwrite unmanaged declaration: ${file}`)
+      const recovery = oldFiles
+        ? ''
+        : ` (no ${manifestName}; output predates ownership tracking — move ${outputDir} aside to preserve it and rerun to regenerate)`
+      throw new Error(`refusing to overwrite unmanaged declaration: ${file}${recovery}`)
     }
   }
 

@@ -535,6 +535,34 @@ Badge({ label: 42 })
     run('bun', ['typegen'], packageRoot)
   }
 
+  // An output directory left by a pre-manifest generator is unmanaged: the
+  // refusal names the recovery, and clearing the directory lets generation
+  // record a fresh manifest.
+  const manifestAside = join(temporary, 'pre-manifest-manifest.json')
+  try {
+    cpSync(outputManifest, manifestAside)
+    rmSync(outputManifest)
+    const preManifest = spawnSync(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      { cwd: packageRoot, encoding: 'utf8' },
+    )
+
+    assert.notEqual(preManifest.status, 0, 'pre-manifest output is not overwritten')
+    assert.match(preManifest.stderr, /refusing to overwrite unmanaged declaration/)
+    assert.match(preManifest.stderr, /predates ownership tracking/)
+
+    rmSync(outputDir, { recursive: true, force: true })
+    run(
+      process.execPath,
+      [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
+      packageRoot,
+    )
+    assert.ok(existsSync(outputManifest), 'regeneration records a fresh manifest')
+  } finally {
+    cpSync(manifestAside, outputManifest, { force: true })
+  }
+
   console.log(
     'packed consumer: declarations resolve with plain TypeScript in bundler and NodeNext modes',
   )
