@@ -1141,3 +1141,155 @@ test(
     })
   },
 )
+
+test(
+  'devtools hub channels round trip panel-backend-app and stream 600 frames without leaking the backend grant',
+  { timeout: 120000 },
+  async () => {
+    const f = fixture()
+    for (const name of [
+      'dev-actions-registry.ts',
+      'dev-actions-schema.ts',
+      'dev-bridge-socket.ts',
+    ]) {
+      cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
+    }
+    cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
+    // The real @octane-xplat/devtools/app module, rebound onto the copied registry.
+    put(
+      f.app,
+      'devtools-app.ts',
+      readFileSync(join(root, 'packages/devtools/src/app.ts'), 'utf8').replace(
+        "'@octane-xplat/platform/dev-actions'",
+        "'./dev-actions-registry.ts'",
+      ),
+    )
+    put(
+      f.app,
+      'channel-app.ts',
+      `import {openDevChannel} from './devtools-app.ts'
+const probe = openDevChannel('probe', 1)
+probe.subscribe((message) => {
+  if (message.from === 'backend') probe.send('backend', { echo: message.data })
+})
+const stream = openDevChannel('stream', 1)
+stream.subscribe((message) => {
+  if (message.from === 'panel') stream.send('panels', { i: message.data.i })
+})
+`,
+    )
+    put(
+      f.app,
+      'vite.config.mjs',
+      `import {xplatDevBridge} from '@octane-xplat/cli/vite';
+import {connectDevBackend} from '${pathToFileURL(join(root, 'packages/devtools/src/backend.ts')).href}';
+export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'devtools-backend-fixture',configureServer(server){
+let backend, app;
+server.httpServer.once('listening',()=>{
+  backend = connectDevBackend('probe');
+  if (!backend) console.error('XPLAT_DEV_BACKEND was not granted to the engine');
+  else backend.subscribe((message) => {
+    if (message.from === 'panel') backend.sendToApp('*', message.data);
+    else if (message.from === 'app') backend.sendToPanels(message.data);
+  });
+  app = server.ssrLoadModule('/channel-app.ts');
+  app.catch((error) => console.error('channel fixture failed: ' + error.message));
+});
+server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(process.env.XPLAT_DEV_BACKEND||'{}').token||'missing')})
+}}]}
+`,
+    )
+    const owned = start(f)
+    const serverRecord = await until(
+      () => record(f),
+      () => owned.stdout + ' ' + owned.stderr,
+    )
+    const address = await until(
+      () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
+      () => owned.stdout + ' ' + owned.stderr,
+    )
+    const backendToken = await (
+      await fetch(new URL('/fixture/backend-token', address))
+    ).text()
+    assert.match(backendToken, /^[a-f0-9]{64}$/)
+    assert.notEqual(backendToken, serverRecord.devtoolsToken)
+
+    const { connectDevtools } = await import(
+      pathToFileURL(join(root, 'packages/devtools/src/client.ts')).href
+    )
+    const panel = connectDevtools(serverRecord)
+    try {
+      await until(() => panel.state === 'live' && panel.sessions().length > 0, () => 'devtools panel never went live; server output: ' + owned.stdout + owned.stderr)
+      const session = panel.sessions().find((entry) => entry.state === 'ready')
+      assert.ok(session, 'panel ready frame carried no ready app session')
+      assert.deepEqual(
+        session.channels?.map((entry) => entry.id).sort(),
+        ['probe', 'stream'],
+      )
+      await until(
+        () => panel.backends().some((entry) => entry.channel === 'probe' && entry.targetId === 'web'),
+        () => 'engine backend never joined the probe channel',
+      )
+
+      // panel → backend → app → backend → panel
+      const roundTrip = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('channel round trip timed out')), 15000)
+        const unsubscribe = panel.subscribe((message) => {
+          if (message.channel === 'probe' && message.from === 'backend') {
+            clearTimeout(timeout)
+            unsubscribe()
+            resolve(message.data)
+          }
+        })
+      })
+      assert.equal(panel.sendToBackend('probe', 'web', { roundtrip: 1 }), true)
+      assert.deepEqual(await roundTrip, { echo: { roundtrip: 1 } })
+
+      // 600 frames at 60 Hz panel → app('*') → echo → panel, in order.
+      const seen = []
+      const done = new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error('stream stalled')), 15000)
+        const unsubscribe = panel.subscribe((message) => {
+          if (message.channel === 'stream' && message.from === 'app') {
+            seen.push(message.data.i)
+            if (seen.length === 600) {
+              clearTimeout(timeout)
+              unsubscribe()
+              resolve()
+            }
+          }
+        })
+      })
+      for (let i = 0; i < 600; i++) {
+        assert.equal(panel.sendToApp('stream', '*', { i }), true)
+        await delay(1000 / 60)
+      }
+      await done
+      assert.deepEqual(
+        seen.every((value, index) => value === index),
+        true,
+        `stream arrived out of order (first gap ${seen.findIndex((value, index) => value !== index)})`,
+      )
+      assert.equal(
+        panel.sessions().find((entry) => entry.sessionId === session.sessionId)?.state,
+        'ready',
+      )
+      assert.equal(panel.panel !== null, true)
+
+      // The per-target backend grant never enters served app code or HTML.
+      const html = await (await fetch(address)).text()
+      const module_ = await (await fetch(new URL('/channel-app.ts', address))).text()
+      const appModule = await (await fetch(new URL('/devtools-app.ts', address))).text()
+      for (const [label, body] of [
+        ['index.html', html],
+        ['channel-app.ts', module_],
+        ['devtools-app.ts', appModule],
+      ]) {
+        assert.equal(body.includes(backendToken), false, `backend grant leaked into ${label}`)
+      }
+    } finally {
+      panel.close()
+      await stop(owned)
+    }
+  },
+)

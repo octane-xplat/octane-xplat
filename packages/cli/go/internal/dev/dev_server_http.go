@@ -96,7 +96,7 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 		record: devServerRecord{
 			Protocol: devServerProtocol, Version: 1, AppRoot: store.app,
 			Endpoint:   "http://" + listener.Addr().String() + "/rpc",
-			InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity(),
+			InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity(), DevtoolsToken: osfs.Identity() + osfs.Identity(),
 		},
 	}
 	server.actions = newDevActions(server)
@@ -135,6 +135,14 @@ func startDevServer(parent context.Context, cache, appRoot string, dispatch devS
 func (server *devServer) request(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/app" {
 		server.appSocket(w, r)
+		return
+	}
+	if r.URL.Path == "/backend" {
+		server.backendSocket(w, r)
+		return
+	}
+	if r.URL.Path == "/devtools" {
+		server.devtoolsSocket(w, r)
 		return
 	}
 	if r.Method != "POST" || r.URL.Path != "/rpc" || r.URL.RawPath != "" || r.URL.RawQuery != "" || r.URL.ForceQuery ||

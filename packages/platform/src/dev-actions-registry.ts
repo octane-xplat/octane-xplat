@@ -252,6 +252,16 @@ interface BridgeRuntime {
   announcing: boolean
   controller: AbortController
   timer?: ReturnType<typeof setInterval>
+  /** Set when the hub's `registered` ack advertised the channels capability. */
+  channelCapable?: boolean
+}
+
+interface ChannelEntry {
+  id: string
+  version: number
+  handlers: DevChannelHandlers
+  closed: boolean
+  state?: DevChannelState
 }
 
 interface RegistryState {
@@ -267,6 +277,7 @@ interface RegistryState {
   appLabel?: string
   announceScheduled: boolean
   navigator?: { impl: DevActionNavigator; unsubscribe?: () => void }
+  channels?: Map<string, ChannelEntry>
 }
 
 /**
@@ -419,7 +430,11 @@ function registry(): RegistryState {
     }
   }
 
-  return g[GLOBAL_KEY] as RegistryState
+  const state = g[GLOBAL_KEY] as RegistryState
+  // Realm singletons survive hot reload; a bridge started before this field
+  // existed still gets a channel table.
+  state.channels ??= new Map()
+  return state
 }
 
 const evaluateAvailability = (spec: DevActionDeclaration): { ready: boolean; reason?: string } => {
@@ -494,6 +509,14 @@ const snapshot = (state: RegistryState, appLabel?: string) => {
     announcedAt: new Date().toISOString(),
     ...(location !== undefined ? { location } : {}),
     actions: declarations(state),
+    ...(state.channels?.size
+      ? {
+          channels: [...state.channels.values()].map((entry) => ({
+            id: entry.id,
+            version: entry.version,
+          })),
+        }
+      : {}),
   }
 }
 
@@ -873,8 +896,139 @@ function stopBridge(rt: BridgeRuntime) {
     clearInterval(rt.timer)
   }
 
-  if (registry().bridge === rt) {
-    registry().bridge = undefined
+  const state = registry()
+  if (state.bridge === rt) {
+    state.bridge = undefined
+  }
+  notifyChannels(state)
+}
+
+/** Channel lifecycle reported to a registered dev channel. */
+export type DevChannelState = 'unavailable' | 'connecting' | 'live' | 'closed'
+
+/** Routing failure codes the hub returns on a `channel-error` frame. */
+export type ChannelErrorCode =
+  | 'oversize'
+  | 'undeclared_channel'
+  | 'no_backend'
+  | 'no_session'
+  | 'invalid_target'
+
+/** Handlers a dev channel registration supplies. */
+export interface DevChannelHandlers {
+  /** A routed channel frame; `panel` identifies the devtools panel sender. */
+  message(frame: { from: 'backend' | 'panel'; panel?: string; data: unknown }): void
+  /** Lifecycle transitions of this channel's hub transport. */
+  state(state: DevChannelState): void
+  /**
+   * A routing failure the hub bounced back to this channel's sender
+   * (`channel-error` frames carrying this channel's id). Errors for channels
+   * the app never declared are ignored.
+   */
+  error?(failure: { code: ChannelErrorCode; detail: string }): void
+}
+
+/**
+ * A registered devtools channel. `send` returns false unless the app socket is
+ * live and the hub advertised the channels capability; `dispose` removes the
+ * channel from the registry announcement. @internal
+ */
+export interface DevChannelRegistration {
+  send(to: 'backend' | 'panels', data: unknown): boolean
+  dispose(): void
+}
+
+function devChannelState(entry: ChannelEntry, state: RegistryState): DevChannelState {
+  if (entry.closed) {
+    return 'closed'
+  }
+  const rt = state.bridge
+  if (!rt || !rt.endpoint.socket) {
+    return 'unavailable'
+  }
+  return rt.socket?.readyState === 1 && rt.state === 'live' && rt.channelCapable
+    ? 'live'
+    : 'connecting'
+}
+
+function notifyChannel(entry: ChannelEntry, state: RegistryState) {
+  const next = devChannelState(entry, state)
+  if (next !== entry.state) {
+    entry.state = next
+    entry.handlers.state(next)
+  }
+}
+
+function notifyChannels(state: RegistryState) {
+  for (const entry of state.channels?.values() ?? []) {
+    notifyChannel(entry, state)
+  }
+}
+
+/**
+ * Register a devtools channel on the app debug socket. The channel id joins
+ * the registry announcement (revision bump + re-announce); duplicate ids
+ * throw. On the HTTP-polling fallback bridge the channel reports
+ * 'unavailable' — channels only exist on the Go dev hub. Starts the bridge
+ * like action registration does. @internal
+ */
+export function registerDevChannel(
+  id: string,
+  version: number,
+  handlers: DevChannelHandlers,
+): DevChannelRegistration {
+  if (
+    typeof id !== 'string' ||
+    !/^[a-z][a-z0-9-]{0,31}$/.test(id) ||
+    !Number.isInteger(version) ||
+    version < 1 ||
+    version > 2147483647
+  ) {
+    throw new Error(
+      `Invalid dev channel "${id}": id must match /^[a-z][a-z0-9-]{0,31}$/ and version must be an int32`,
+    )
+  }
+  if (typeof handlers?.message !== 'function' || typeof handlers?.state !== 'function') {
+    throw new Error(`Invalid dev channel "${id}": message and state handlers are required`)
+  }
+
+  const state = registry()
+  if (state.channels?.has(id)) {
+    throw new Error(`Dev channel "${id}" is already registered`)
+  }
+
+  const entry: ChannelEntry = { id, version, handlers, closed: false }
+  state.channels?.set(id, entry)
+  state.revision += 1
+  startDevActionBridge()
+  scheduleAnnounce(state)
+  notifyChannel(entry, state)
+
+  return {
+    send(to: 'backend' | 'panels', data: unknown): boolean {
+      const rt = state.bridge
+      if (entry.closed || !rt?.endpoint.socket || rt.socket?.readyState !== 1 || !rt.channelCapable) {
+        return false
+      }
+      try {
+        rt.socket.send(JSON.stringify({ type: 'channel', channel: id, to, data }))
+        return true
+      } catch {
+        return false
+      }
+    },
+    dispose() {
+      if (entry.closed) {
+        return
+      }
+      entry.closed = true
+      if (state.channels?.get(id) === entry) {
+        state.channels.delete(id)
+        state.revision += 1
+        scheduleAnnounce(state)
+      }
+      notifyChannel(entry, state)
+    },
   }
 }
 
@@ -956,6 +1110,7 @@ function connectAppSocket(rt: BridgeRuntime) {
     return
   }
   rt.socket = socket
+  rt.channelCapable = false
   socket.onopen = () => {
     if (!rt.polling || rt.socket !== socket) {
       socket.close()
@@ -996,6 +1151,36 @@ function connectAppSocket(rt: BridgeRuntime) {
       ) {
         rt.state = 'live'
         rt.lastError = undefined
+        rt.channelCapable =
+          Array.isArray(frame.capabilities) && frame.capabilities.includes('channels')
+        notifyChannels(registry())
+      } else if (frame.type === 'channel' && rt.state === 'live') {
+        // Channels the app never declared are routed nowhere; unknown ids are ignored.
+        const entry =
+          typeof frame.channel === 'string' ? registry().channels?.get(frame.channel) : undefined
+        if (entry && !entry.closed && (frame.from === 'backend' || frame.from === 'panel')) {
+          entry.handlers.message({
+            from: frame.from,
+            ...(typeof frame.panel === 'string' ? { panel: frame.panel } : {}),
+            data: frame.data,
+          })
+        }
+      } else if (frame.type === 'channel-error') {
+        // Routing failures go to the channel that sent the frame; errors
+        // naming channels the app never declared are ignored.
+        const entry =
+          typeof frame.channel === 'string' ? registry().channels?.get(frame.channel) : undefined
+        if (
+          entry &&
+          !entry.closed &&
+          typeof frame.code === 'string' &&
+          entry.handlers.error
+        ) {
+          entry.handlers.error({
+            code: frame.code as ChannelErrorCode,
+            detail: typeof frame.detail === 'string' ? frame.detail : '',
+          })
+        }
       } else if ((frame.type === 'inspect' || frame.type === 'interact') && rt.state === 'live') {
         if (
           typeof frame.requestId !== 'string' ||
@@ -1059,6 +1244,7 @@ function connectAppSocket(rt: BridgeRuntime) {
     if (rt.socket === socket) {
       rt.state = 'degraded'
       rt.lastError = 'App debug socket disconnected'
+      notifyChannels(registry())
     }
   }
   socket.onclose = () => {
@@ -1066,11 +1252,13 @@ function connectAppSocket(rt: BridgeRuntime) {
       return
     }
     rt.socket = undefined
+    rt.channelCapable = false
     if (rt.polling) {
       rt.state = 'degraded'
       rt.lastError = 'App debug socket disconnected'
       rt.reconnect = setTimeout(() => connectAppSocket(rt), 1000)
     }
+    notifyChannels(registry())
   }
 }
 

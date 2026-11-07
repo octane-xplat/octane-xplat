@@ -1,0 +1,47 @@
+{
+	"name": "@octane-xplat/devtools",
+	"version": "0.20.0",
+	"private": true,
+	"description": "Devtools channel clients for Octane Xplat — app channels, per-target Node backends, and devtools panel connections over the xplat dev hub",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/devtools"
+	},
+	"files": [
+		"src",
+		"dist"
+	],
+	"type": "module",
+	"exports": {
+		"./app": {
+			"types": "./dist/app.d.ts",
+			"web": "./src/app.ts",
+			"native": "./src/app.ts",
+			"default": "./src/app.ts"
+		},
+		"./backend": {
+			"types": "./dist/backend.d.ts",
+			"default": "./dist/backend.js"
+		},
+		"./client": {
+			"types": "./dist/client.d.ts",
+			"web": "./src/client.ts",
+			"default": "./dist/client.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"scripts": {
+		"build": "tsc --runExternalCode -p tsconfig.build.json",
+		"typegen": "tsc --runExternalCode -p tsconfig.build.json",
+		"typecheck": "tsc --runExternalCode -p tsconfig.json"
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "26.6.6",
+		"typescript": "catalog:"
+	}
+}

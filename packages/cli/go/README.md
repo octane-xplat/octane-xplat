@@ -135,6 +135,18 @@ one bounded app request. `actions status` reads its asynchronous result natively
 The real app registry still owns handler execution, serialization and validation.
 Native diagnostics reads retained foreground engine logs; scoped native Apple report discovery and retained originals are available for macOS captures with recorded identity. Read-only browser inspection is available through an announced app inspector; explicit programmatic interaction is available on announced browser hosts; CDP/OS input and visual capture remain unsupported. The development Vite plugin forwards bounded browser warnings/errors into native history.
 
+The same app socket also carries devtools channels: an app declares
+`channels: {id, version}` in its registry and the hub routes opaque bounded
+JSON between that app session, a per-target Node backend (`/backend`, granted
+through `XPLAT_DEV_BACKEND` in the engine environment) and devtools panels
+(`/devtools`, authenticated by the discovery record's `devtoolsToken`). Each
+party uses a distinct first-frame credential; none of them authorize CLI RPC
+or each other's sockets, and the backend grant never enters served app code.
+App channel declarations scope routing (`'*'` reaches only declaring sessions
+of the right target), a same-key backend reconnect replaces its socket, and a
+full 256-frame receiver queue closes just that consumer with 1013 rather than
+blocking the hub. The Vite fallback bridge has no channels.
+
 ```sh
 /absolute/path/to/xplat-go actions invoke --action fixture.read --instance APP_INSTANCE --revision REVISION --input '{}' --request-key read-once --project /work/repo --app apps/web --json
 /absolute/path/to/xplat-go actions status JOB_ID --project /work/repo --app apps/web --json

@@ -29,6 +29,8 @@ type devServerRecord struct {
 	Endpoint   string `json:"endpoint"`
 	InstanceID string `json:"instanceId"`
 	Token      string `json:"token"`
+	// Devtools panels authenticate with this token, not the RPC credential.
+	DevtoolsToken string `json:"devtoolsToken"`
 }
 
 var devServerInstance = regexp.MustCompile(`^[a-f0-9]{32}$`)
@@ -69,7 +71,7 @@ func devServerDirectory(parent, appRoot string) (string, string, error) {
 }
 
 func validateDevServerRecord(record devServerRecord, app string) error {
-	if record.Protocol != devServerProtocol || record.Version != 1 || !filepath.IsAbs(record.AppRoot) || osfs.FilesystemKey(record.AppRoot) != osfs.FilesystemKey(app) || !devServerInstance.MatchString(record.InstanceID) || !devServerToken.MatchString(record.Token) {
+	if record.Protocol != devServerProtocol || record.Version != 1 || !filepath.IsAbs(record.AppRoot) || osfs.FilesystemKey(record.AppRoot) != osfs.FilesystemKey(app) || !devServerInstance.MatchString(record.InstanceID) || !devServerToken.MatchString(record.Token) || !devServerToken.MatchString(record.DevtoolsToken) {
 		return errors.New("dev server discovery identity does not match the selected app")
 	}
 	endpoint, err := url.Parse(record.Endpoint)

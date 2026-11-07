@@ -286,12 +286,18 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	view.server = server
 	view.mu.Unlock()
 	grants := map[string]string{}
+	backendGrants := map[string]string{}
 	for _, target := range chosen {
 		data, err := json.Marshal(server.appGrant(target))
 		if err != nil {
 			return err
 		}
 		grants[target.ID] = string(data)
+		backend, err := json.Marshal(server.backendGrant(target))
+		if err != nil {
+			return err
+		}
+		backendGrants[target.ID] = string(backend)
 	}
 	execution.OwnerID = server.record.InstanceID
 	ctx = project.WithExecution(ctx, execution)
@@ -358,7 +364,9 @@ func Command(parent context.Context, values map[string]any) (failure error) {
 	run := func(runCtx context.Context, engine devEngine, retain bool) {
 		observation := execution
 		if bridge := grants[engine.Target.ID]; retain && bridge != "" {
-			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge)
+			// XPLAT_DEV_BACKEND reaches only the Node engine process; the Vite
+			// plugin surface must never define it into served app code.
+			observation.Environment = append(append([]string{}, execution.Environment...), "XPLAT_DEV_APP_BRIDGE="+bridge, "XPLAT_DEV_BACKEND="+backendGrants[engine.Target.ID])
 		}
 		runCtx = project.WithExecution(runCtx, observation)
 		runCtx = withDevSinks(runCtx, devSinks{

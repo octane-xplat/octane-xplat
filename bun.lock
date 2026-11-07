@@ -1007,6 +1007,17 @@
         "@octane-xplat/platform": "workspace:*",
       },
     },
+    "packages/devtools": {
+      "name": "@octane-xplat/devtools",
+      "version": "0.20.0",
+      "dependencies": {
+        "@octane-xplat/platform": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/node": "26.6.6",
+        "typescript": "catalog:",
+      },
+    },
     "packages/dnd-kit": {
       "name": "@octane-xplat/dnd-kit",
       "version": "0.20.0",
@@ -4143,6 +4154,8 @@
     "@octane-xplat/date-picker": ["@octane-xplat/date-picker@workspace:packages/date-picker"],
 
     "@octane-xplat/desktop-webview": ["@octane-xplat/desktop-webview@workspace:packages/desktop-webview"],
+
+    "@octane-xplat/devtools": ["@octane-xplat/devtools@workspace:packages/devtools"],
 
     "@octane-xplat/dnd-kit": ["@octane-xplat/dnd-kit@workspace:packages/dnd-kit"],
 

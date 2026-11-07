@@ -1316,3 +1316,118 @@ test('native socket bridge reports a missing transport instead of using the old 
   assert.match(bridge.lastError, /WebSocket/)
   assert.equal(httpCalls, 0)
 })
+
+test('dev channels join the announcement, gate sends on hub capability, and route messages', async (t) => {
+  const sockets = []
+  class Socket {
+    readyState = 0
+    frames = []
+    constructor(url) {
+      this.url = url
+      sockets.push(this)
+    }
+    send(data) {
+      this.frames.push(JSON.parse(data))
+    }
+    close() {
+      this.readyState = 3
+      this.onclose?.()
+    }
+    open() {
+      this.readyState = 1
+      this.onopen?.()
+    }
+    receive(frame) {
+      this.onmessage?.({ data: JSON.stringify(frame) })
+    }
+  }
+  const instanceId = 'a'.repeat(32)
+  const { exports: api } = await loadDevActions({
+    origin: 'http://127.0.0.1:5173',
+    token: 'app-proof',
+    socket: 'ws://127.0.0.1:1234/app?target=web&instance=' + instanceId,
+    instanceId,
+    targetId: 'web',
+    WebSocket: Socket,
+    fetch: () => {
+      throw Error('unexpected HTTP fallback')
+    },
+  })
+  const states = []
+  const messages = []
+  const failures = []
+  const channel = api.registerDevChannel('probe', 2, {
+    message: (frame) => messages.push(frame),
+    state: (value) => states.push(value),
+    error: (failure) => failures.push(failure),
+  })
+  const bridge = api.startDevActionBridge()
+  t.after(() => {
+    bridge.stop()
+    channel.dispose()
+  })
+  assert.deepEqual(states, ['connecting'])
+  assert.equal(channel.send('backend', { n: 1 }), false, 'sends before the capability are refused')
+  const socket = sockets[0]
+  socket.open()
+  assert.equal(socket.frames[0].registry.channels.length, 1)
+  assert.deepEqual(socket.frames[0].registry.channels[0], { id: 'probe', version: 2 })
+  socket.receive({
+    type: 'registered',
+    protocol: 'octane-app-debug',
+    version: 1,
+    instanceId,
+    sessionId: 'sess_channels',
+    capabilities: [],
+  })
+  assert.deepEqual(states.at(-1), 'connecting')
+  assert.equal(channel.send('backend', { n: 1 }), false, 'missing capability is not a channel hub')
+  socket.close()
+  assert.ok(await until(() => sockets.length > 1), 'socket did not reconnect')
+  const next = sockets[1]
+  next.open()
+  next.receive({
+    type: 'registered',
+    protocol: 'octane-app-debug',
+    version: 1,
+    instanceId,
+    sessionId: 'sess_channels',
+    capabilities: ['channels'],
+  })
+  assert.equal(states.at(-1), 'live')
+  assert.equal(channel.send('backend', { n: 2 }), true)
+  assert.deepEqual(next.frames.at(-1), { type: 'channel', channel: 'probe', to: 'backend', data: { n: 2 } })
+  next.receive({ type: 'channel', channel: 'probe', from: 'backend', data: { n: 3 } })
+  next.receive({ type: 'channel', channel: 'unknown', from: 'panel', panel: 'panel_1', data: 0 })
+  next.receive({ type: 'channel', channel: 'probe', from: 'panel', panel: 'panel_1', data: { n: 4 } })
+  next.receive({ type: 'channel-error', code: 'no_backend', channel: 'probe', detail: 'none' })
+  next.receive({ type: 'channel-error', code: 'no_session', channel: 'unknown', detail: 'gone' })
+  assert.equal(failures.length, 1)
+  assert.equal(JSON.stringify(failures[0]), JSON.stringify({ code: 'no_backend', detail: 'none' }))
+  assert.equal(messages.length, 2)
+  assert.equal(JSON.stringify(messages[0]), JSON.stringify({ from: 'backend', data: { n: 3 } }))
+  assert.equal(
+    JSON.stringify(messages[1]),
+    JSON.stringify({ from: 'panel', panel: 'panel_1', data: { n: 4 } }),
+  )
+  assert.throws(() => api.registerDevChannel('probe', 1, { message() {}, state() {} }), /already registered/)
+  channel.dispose()
+  await new Promise((resolve) => queueMicrotask(resolve))
+  assert.equal(next.frames.at(-1).type, 'registry')
+  assert.equal(next.frames.at(-1).registry.channels, undefined)
+  assert.equal(states.at(-1), 'closed')
+  assert.equal(channel.send('backend', { n: 5 }), false)
+})
+
+test('dev channels report unavailable on the HTTP polling fallback bridge', async (t) => {
+  const bridge = await makeBridge(t)
+  const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+  const states = []
+  const channel = api.registerDevChannel('fallback', 1, {
+    message() {},
+    state: (value) => states.push(value),
+  })
+  t.after(() => channel.dispose())
+  assert.deepEqual(states, ['unavailable'])
+  assert.equal(channel.send('panels', {}), false)
+})

@@ -234,7 +234,7 @@ func TestDevServerClientRejectsRedirectsAndWrongResponseIdentity(t *testing.T) {
 	defer foreign.Close()
 	app, _ := osfs.Canonical(t.TempDir())
 	for _, wrongIdentity := range []bool{false, true} {
-		record := devServerRecord{Protocol: devServerProtocol, Version: 1, AppRoot: app, InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity()}
+		record := devServerRecord{Protocol: devServerProtocol, Version: 1, AppRoot: app, InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity(), DevtoolsToken: osfs.Identity() + osfs.Identity()}
 		mock := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if !wrongIdentity {
 				http.Redirect(w, r, foreign.URL, http.StatusTemporaryRedirect)
@@ -330,7 +330,7 @@ func TestDevServerClientBodyCancellationKeepsCancellationIdentity(t *testing.T) 
 		<-r.Context().Done()
 	}))
 	defer endpoint.Close()
-	record := devServerRecord{Protocol: devServerProtocol, Version: 1, AppRoot: t.TempDir(), Endpoint: endpoint.URL + "/rpc", InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity()}
+	record := devServerRecord{Protocol: devServerProtocol, Version: 1, AppRoot: t.TempDir(), Endpoint: endpoint.URL + "/rpc", InstanceID: osfs.Identity(), Token: osfs.Identity() + osfs.Identity(), DevtoolsToken: osfs.Identity() + osfs.Identity()}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	done := make(chan *cli.Error, 1)

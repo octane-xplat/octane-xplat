@@ -27,11 +27,12 @@ const (
 
 // coder/websocket closes the whole connection when a write's context ends,
 // even just after the peer received the bytes. Bind writes to the server
-// lifetime so cancelling one request cannot drop a human-owned app.
+// lifetime so cancelling one request cannot drop a human-owned app. The
+// per-peer writer keeps every outbound frame ordered and non-interleaved.
 func writeDevApp(server context.Context, peer *devAppPeer, data []byte) error {
 	ctx, cancel := context.WithTimeout(server, 3*time.Second)
 	defer cancel()
-	return peer.conn.Write(ctx, websocket.MessageText, data)
+	return peer.writer.sendSync(ctx, data)
 }
 
 // App grants cannot authorize CLI RPC or another target. They may be embedded in
@@ -45,6 +46,9 @@ type devAppGrant struct {
 	Token      string `json:"token"`
 	platform   string
 	origins    map[string]bool
+	// Per-target backend credential; minted with the app grant but never
+	// marshalled into the app-facing grant JSON.
+	backendToken string
 }
 
 type devAppRegistry struct {
@@ -58,6 +62,7 @@ type devAppRegistry struct {
 	Location      json.RawMessage          `json:"location,omitempty"`
 	Inspection    *devInspectionCapability `json:"inspection,omitempty"`
 	Actions       []json.RawMessage        `json:"actions"`
+	Channels      []devChannelRef          `json:"channels,omitempty"`
 }
 
 type devAppHello struct {
@@ -75,10 +80,14 @@ type devAppMessage struct {
 	Result    json.RawMessage `json:"result,omitempty"`
 	Registry  devAppRegistry  `json:"registry"`
 	Outcome   json.RawMessage `json:"outcome,omitempty"`
+	Channel   string          `json:"channel,omitempty"`
+	To        string          `json:"to,omitempty"`
+	Data      json.RawMessage `json:"data,omitempty"`
 }
 
 type devAppPeer struct {
 	conn               *websocket.Conn
+	writer             *devSocketWriter
 	ready              bool
 	instance, platform string
 	target             string
@@ -88,15 +97,37 @@ type devAppPeer struct {
 	disconnectedAt     string
 }
 
+type devBackendKey struct {
+	channel string
+	target  string
+}
+
+type devBackendPeer struct {
+	id     string
+	conn   *websocket.Conn
+	writer *devSocketWriter
+	key    devBackendKey
+}
+
+type devPanelPeer struct {
+	id     string
+	conn   *websocket.Conn
+	writer *devSocketWriter
+}
+
 type devAppHub struct {
-	mu      sync.Mutex
-	grants  map[string]*devAppGrant
-	peers   map[string]*devAppPeer
-	pending int
+	mu             sync.Mutex
+	grants         map[string]*devAppGrant
+	peers          map[string]*devAppPeer
+	backends       map[devBackendKey]*devBackendPeer
+	panels         map[string]*devPanelPeer
+	pending        int
+	pendingSockets int
+	panelSeq       int
 }
 
 func newDevAppHub() *devAppHub {
-	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}}
+	return &devAppHub{grants: map[string]*devAppGrant{}, peers: map[string]*devAppPeer{}, backends: map[devBackendKey]*devBackendPeer{}, panels: map[string]*devPanelPeer{}}
 }
 
 func (server *devServer) appGrant(target devTarget) devAppGrant {
@@ -108,7 +139,7 @@ func (server *devServer) appGrant(target devTarget) devAppGrant {
 	}
 	endpoint := "ws" + strings.TrimPrefix(server.record.Endpoint, "http")
 	endpoint = strings.TrimSuffix(endpoint, "/rpc") + "/app?target=" + url.QueryEscape(target.ID) + "&instance=" + server.record.InstanceID
-	grant := &devAppGrant{Protocol: "octane-app-debug", Version: 1, Socket: endpoint, InstanceID: server.record.InstanceID, TargetID: target.ID, Token: osfs.Identity() + osfs.Identity(), platform: target.Kind, origins: map[string]bool{}}
+	grant := &devAppGrant{Protocol: "octane-app-debug", Version: 1, Socket: endpoint, InstanceID: server.record.InstanceID, TargetID: target.ID, Token: osfs.Identity() + osfs.Identity(), platform: target.Kind, origins: map[string]bool{}, backendToken: osfs.Identity() + osfs.Identity()}
 	hub.grants[target.ID] = grant
 	return *grant
 }
@@ -127,7 +158,7 @@ func (hub *devAppHub) allowOrigin(target, raw string) {
 }
 
 func validDevRegistry(registry devAppRegistry, platform string) bool {
-	if registry.Protocol != "xplat-dev-actions" || registry.Version != 1 || registry.Platform != platform || len(registry.AppInstanceID) == 0 || len(registry.AppInstanceID) > 128 || len(registry.AppLabel) > 512 || registry.Revision < 0 || registry.Revision > 9007199254740991 || registry.Actions == nil || len(registry.Actions) > devAppMaxActions {
+	if registry.Protocol != "xplat-dev-actions" || registry.Version != 1 || registry.Platform != platform || len(registry.AppInstanceID) == 0 || len(registry.AppInstanceID) > 128 || len(registry.AppLabel) > 512 || registry.Revision < 0 || registry.Revision > 9007199254740991 || registry.Actions == nil || len(registry.Actions) > devAppMaxActions || !validDevChannels(registry.Channels) {
 		return false
 	}
 	if strings.ContainsAny(registry.AppInstanceID, "\x00\r\n") {
@@ -191,6 +222,8 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.CloseNow()
 	conn.SetReadLimit(devAppFrameLimit)
+	writer := newDevSocketWriter(server.ctx, conn)
+	defer writer.close()
 	stopped := make(chan struct{})
 	defer close(stopped)
 	go func() {
@@ -209,7 +242,7 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sessionHash := sha256.Sum256([]byte(server.record.InstanceID + "\x00" + target + "\x00" + hello.Registry.AppInstanceID))
-	peer := &devAppPeer{conn: conn, instance: hello.Registry.AppInstanceID, platform: hello.Registry.Platform, target: target, session: fmt.Sprintf("sess_%x", sessionHash[:16]), registry: hello.Registry, connectedAt: cli.IsoNow()}
+	peer := &devAppPeer{conn: conn, writer: writer, instance: hello.Registry.AppInstanceID, platform: hello.Registry.Platform, target: target, session: fmt.Sprintf("sess_%x", sessionHash[:16]), registry: hello.Registry, connectedAt: cli.IsoNow()}
 	hub.mu.Lock()
 	previous := hub.peers[hello.Registry.AppInstanceID]
 	if previous != nil && previous.target != target {
@@ -244,19 +277,21 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 		if hub.peers[hello.Registry.AppInstanceID] == peer {
 			peer.disconnectedAt = cli.IsoNow()
 		}
+		hub.emitSessionsLocked(peer.target)
 		hub.mu.Unlock()
 		server.actions.disconnected(peer)
 		server.inspection.disconnected(peer)
 	}()
-	ack, _ := json.Marshal(map[string]any{"type": "registered", "protocol": "octane-app-debug", "version": 1, "instanceId": server.record.InstanceID, "sessionId": peer.session})
+	ack, _ := json.Marshal(map[string]any{"type": "registered", "protocol": "octane-app-debug", "version": 1, "instanceId": server.record.InstanceID, "sessionId": peer.session, "capabilities": []string{"channels"}})
 	writeCtx, cancel := context.WithTimeout(server.ctx, 2*time.Second)
-	err = conn.Write(writeCtx, websocket.MessageText, ack)
+	err = writer.sendSync(writeCtx, ack)
 	cancel()
 	if err != nil {
 		return
 	}
 	hub.mu.Lock()
 	peer.ready = true
+	hub.emitSessionsLocked(peer.target)
 	hub.mu.Unlock()
 	for {
 		readCtx, cancel := context.WithTimeout(server.ctx, 20*time.Second)
@@ -266,9 +301,19 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var message devAppMessage
-		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || (message.Type != "registry" && message.Type != "outcome" && message.Type != "inspection") {
+		if kind != websocket.MessageText || json.Unmarshal(data, &message) != nil || (message.Type != "registry" && message.Type != "outcome" && message.Type != "inspection" && message.Type != "channel") {
 			_ = conn.Close(websocket.StatusPolicyViolation, "invalid app update")
 			return
+		}
+		if message.Type == "channel" {
+			if !devChannelID.MatchString(message.Channel) || (message.To != "backend" && message.To != "panels") {
+				_ = conn.Close(websocket.StatusPolicyViolation, "invalid app channel frame")
+				return
+			}
+			if failure := hub.deliverFromApp(peer, message.Channel, message.To, message.Data); failure != nil {
+				peer.writer.send(failure)
+			}
+			continue
 		}
 		if message.Type == "inspection" {
 			if !server.inspection.receive(peer, message.RequestID, message.Result) {
@@ -294,7 +339,11 @@ func (server *devServer) appSocket(w http.ResponseWriter, r *http.Request) {
 		}
 		// Out-of-order async announcements must not roll the registry backward.
 		if message.Registry.Revision >= peer.registry.Revision {
+			changed := devChannelsChanged(peer.registry.Channels, message.Registry.Channels)
 			peer.registry = message.Registry
+			if changed {
+				hub.emitSessionsLocked(peer.target)
+			}
 		}
 		hub.mu.Unlock()
 	}
@@ -305,7 +354,14 @@ func devPeerSnapshot(peer *devAppPeer) map[string]any {
 	if peer.disconnectedAt != "" {
 		state = "disconnected"
 	}
-	return map[string]any{"sessionId": peer.session, "targetId": peer.target, "appInstanceId": peer.registry.AppInstanceID, "platform": peer.registry.Platform, "appLabel": peer.registry.AppLabel, "registryRevision": peer.registry.Revision, "state": state, "ownership": "observed", "origin": "dev-app-websocket", "readiness": "app-connected", "connectedAt": peer.connectedAt, "disconnectedAt": peer.disconnectedAt, "inspection": peer.registry.Inspection}
+	channels := peer.registry.Channels
+	if channels == nil {
+		// Snapshots always carry channels so consumers have one stable shape;
+		// a registry that never declared any reports an empty list.
+		channels = []devChannelRef{}
+	}
+	snapshot := map[string]any{"sessionId": peer.session, "targetId": peer.target, "appInstanceId": peer.registry.AppInstanceID, "platform": peer.registry.Platform, "appLabel": peer.registry.AppLabel, "registryRevision": peer.registry.Revision, "state": state, "ownership": "observed", "origin": "dev-app-websocket", "readiness": "app-connected", "connectedAt": peer.connectedAt, "disconnectedAt": peer.disconnectedAt, "inspection": peer.registry.Inspection, "channels": channels}
+	return snapshot
 }
 
 func (hub *devAppHub) snapshots(target string) []any {
