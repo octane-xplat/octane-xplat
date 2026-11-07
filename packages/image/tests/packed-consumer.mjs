@@ -127,7 +127,7 @@ const prefetchResult: Promise<boolean> = prefetch(
 void prefetchResult
 void evictImage('https://example.com/a.png')
 void clearImageCaches()
-${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = Image(props)' : ''}
+${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = <Image {...props} />' : ''}
 void image
 void missingSource
 void invalidFit

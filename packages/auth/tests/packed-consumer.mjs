@@ -40,7 +40,7 @@ function run(command, args, cwd) {
   }
 
   if (result.status !== 0) {
-    throw new Error(`${command} exited with ${result.status}`)
+    throw new Error(`${command} exited with ${result.status}\n${result.stdout.slice(-12000)}\n${result.stderr.slice(-12000)}`)
   }
 }
 
@@ -98,7 +98,7 @@ const sessionResult: Promise<AuthSessionResult> = authSession.open('https://exam
 void sessionResult`
     : ''
 }
-${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = AppleSignInButton({})\nvoid webReturn' : ''}
+${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = <AppleSignInButton />\nvoid webReturn' : ''}
 void apple
 void google
 `,

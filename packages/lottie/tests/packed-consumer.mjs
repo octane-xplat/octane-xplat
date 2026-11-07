@@ -60,7 +60,7 @@ const handle = (h: LottieHandle) => { h.play(); h.seekTo(0.5); h.setSpeed(1.5); 
 const badProgress = <Lottie progress="half" />
 // @ts-expect-error fit follows the published three-value contract
 const invalidFit = <Lottie fit="stretch" />
-${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = Lottie(props)' : ''}
+${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = <Lottie {...props} />' : ''}
 void el
 void inline
 void handle

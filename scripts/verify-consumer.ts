@@ -59,7 +59,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { lockstepPackages } from './publishable.ts'
+import { publishablePackages } from './publishable.ts'
 import { verifyAndroidTests } from './verify-android-tests.ts'
 import { stageRelease } from '../tools/cli-go/stage-release.mjs'
 import { nativeFixture, hostTarget } from '../tools/cli-go/stage-fixture.mjs'
@@ -224,7 +224,7 @@ try {
   // ---- pack -------------------------------------------------------------
   const tarballs = new Map()
   await gate('bun pm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
-    for (const pkg of lockstepPackages(repoRoot)) {
+    for (const pkg of publishablePackages(repoRoot)) {
       // Quick mode and --no-build consume prepared artifacts. The caller
       // gates pack:check separately; never rebuild through lifecycle hooks
       // when the caller explicitly requested --no-build.

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -39,10 +39,15 @@ const run = (cmd, args, cwd = root) => {
 
 try {
   const workspaces = new Map(
-    readdirSync(join(repo, 'packages')).map((directory) => {
-      const path = join(repo, 'packages', directory)
-      return [json(join(path, 'package.json')).name, path]
-    }),
+    readdirSync(join(repo, 'packages'), { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .flatMap((entry) => {
+        const path = join(repo, 'packages', entry.name)
+        if (!existsSync(join(path, 'package.json'))) {
+          return []
+        }
+        return [[json(join(path, 'package.json')).name, path]]
+      }),
   )
 
   const overrides = {}

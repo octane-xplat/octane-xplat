@@ -62,7 +62,7 @@ const prefetchResult: Promise<boolean> = prefetch(
 	['https://example.com/a.gif', 'https://example.com/b.gif'],
 	{ headers: { Authorization: 'Bearer x' }, concurrency: 3 } satisfies PrefetchOptions,
 )
-${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = AnimatedImage(props)' : ''}
+${target === 'web' ? 'const webReturn: import("octane/jsx-runtime").JSX.Element = <AnimatedImage {...props} />' : ''}
 void image
 void missingSource
 void invalidStretch

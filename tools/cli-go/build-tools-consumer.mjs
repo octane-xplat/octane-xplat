@@ -74,7 +74,9 @@ try {
   }
 
   assert.ok(
-    inventory.every((file) => !/\/(node_modules|src|nim|bin|standalone)\//.test(file)),
+    // Compiled shared modules may retain dist/ui/src in their relative paths.
+    // Raw package sources and bundled dependency trees must stay excluded.
+    inventory.every((file) => !/\/(node_modules|nim|bin|standalone)\//.test(file) && !file.startsWith('package/src/')),
     inventory.join('\n'),
   )
 

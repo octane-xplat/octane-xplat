@@ -159,6 +159,12 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
     vm.runInContext(`(function(exports, require) { ${code}\n})`, context, { filename: path })(
       exports,
       (name) => {
+        if (name === '@octane-xplat/camera/photo-sheet.macos') {
+          return { XplatPhotoCaptureSheet: class {
+            permissionStatus() { return 'unsupported' }
+            dispose() {}
+          } }
+        }
         if (!name.startsWith('.')) {
           // The shared capability contract lives in @octane-xplat/lib.
           return createRequire(mediaRoot)(name)
