@@ -50,7 +50,7 @@ export function nativeFixture(root, hostBinary) {
     const bytes = Buffer.from(`inert fixture image for ${target}\n`)
     writeFileSync(binary, bytes, { mode: 0o755 })
     const archive = binary + '.tgz'
-    const packed = spawnSync('tar', ['-czf', archive, '-C', notices, '.'], {
+    const packed = spawnSync('tar', ['-czf', archive, '-C', notices, 'LICENSE', 'THIRD-PARTY-NOTICES.txt'], {
       encoding: 'utf8',
     })
     assert.equal(packed.status, 0, packed.stderr)
