@@ -43,6 +43,7 @@ assert.ok(script, 'Workshop HTML has no entry script')
 const scriptResponse = await fetch(new URL(script, url))
 assert.equal(scriptResponse.status, 200)
 assert.match(scriptResponse.headers.get('content-type') ?? '', /javascript/)
+await scriptResponse.body?.cancel()
 
 const browser = await chromium.launch({ headless: true })
 try {
