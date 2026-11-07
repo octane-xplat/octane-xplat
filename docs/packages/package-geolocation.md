@@ -27,9 +27,10 @@ without prompting and `requestPermissions()` may prompt — both resolve
 canAskAgain}`. Method calls go directly on the service. Nullable
 `altitude`/`heading`/`speed` mean the platform did not report them.
 
-On iOS and Android, position failures preserve the plugin's original error;
-a numeric `code` is not guaranteed. Web and macOS failures use codes 1
-(denied), 2 (unavailable), and 3 (timeout). Handle an unclassified failure too:
+Position failures on every target reject with a numeric `code`: 1 (denied), 2
+(unavailable), or 3 (timeout). iOS and Android keep the underlying plugin
+error, including its message; an iOS permission revoked while a request is in
+flight reports 2 rather than 1.
 
 ```ts
 import { geolocation } from '@octane-xplat/geolocation'
@@ -41,7 +42,9 @@ if ((await geolocation.requestPermissions()).granted) {
   } catch (error) {
     const code =
       typeof error === 'object' && error !== null && 'code' in error ? error.code : undefined
-    console.log(code === undefined ? 'Location failed' : `Location failed: ${code}`)
+    if (code === 1) console.log('Location permission denied')
+    else if (code === 3) console.log('Location timed out')
+    else console.log('Location failed', code)
   }
 }
 ```
@@ -50,7 +53,6 @@ Guide: [Using device features](https://octane-xplat.goddardai.org/platform-servi
 per-target availability: [platform notes](https://github.com/octane-xplat/octane-xplat/blob/main/.agents/docs/notes/platform-notes.md).
 Exercised by the harness `Services` screen
 ([`packages/app/src/Services.tsrx`](https://github.com/octane-xplat/octane-xplat/blob/main/packages/app/src/Services.tsrx)).
-
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-geolocation).
 

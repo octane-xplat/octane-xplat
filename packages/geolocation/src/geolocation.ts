@@ -25,15 +25,65 @@ function asPosition(nativeLocation: any): GeolocationPosition {
   }
 }
 
+// Shared failure contract (web GeolocationPositionError, macOS facade): every
+// position rejection carries `code` — 1 denied, 2 unavailable, 3 timeout.
+// @nativescript/geolocation 9.0.0 rejects with plain Errors (or non-Error
+// values on Android) and no code, so the leaf classifies at the boundary.
+// Only the plugin's own deterministic literals mark denial/timeout; localized
+// NSError text and every other failure stay POSITION_UNAVAILABLE — an iOS
+// denial racing an in-flight request (kCLErrorDenied) loses its domain there.
+const DENIED_MESSAGES = new Set([
+  'Authorization Denied.', // iOS enableLocationRequest denial
+  'User denied location permission previously', // Android pre-prompt denial
+  'User needs to enable permission from settings', // Android settings-only denial
+])
+const TIMEOUT_MESSAGE = 'Timeout while searching for location!'
+const ANDROID_LOCATION_PERMISSIONS = [
+  'android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_FINE_LOCATION',
+]
+
+function positionErrorCode(reason: unknown): 1 | 2 | 3 {
+  if (typeof reason === 'object' && reason !== null) {
+    if (ANDROID_LOCATION_PERMISSIONS.some((permission) => permission in reason)) {
+      return 1
+    }
+    if (reason instanceof Error) {
+      if (DENIED_MESSAGES.has(reason.message)) {
+        return 1
+      }
+      if (reason.message === TIMEOUT_MESSAGE) {
+        return 3
+      }
+    }
+  }
+
+  return 2
+}
+
+function asPositionError(reason: unknown): Error & { code: 1 | 2 | 3 } {
+  const code = positionErrorCode(reason)
+  if (reason instanceof Error) {
+    return Object.assign(reason, { code })
+  }
+
+  return Object.assign(
+    new Error(typeof reason === 'string' && reason ? reason : 'Location unavailable'),
+    { code, cause: reason },
+  )
+}
+
 const impl: GeolocationImpl = {
   async getCurrentPosition(options) {
-    const nativePosition = await geolocationApi.getCurrentLocation({
-      desiredAccuracy: options?.enableHighAccuracy
-        ? CoreTypes.Accuracy.high
-        : CoreTypes.Accuracy.any,
-      maximumAge: options?.maximumAge,
-      timeout: options?.timeout,
-    })
+    const nativePosition = await geolocationApi
+      .getCurrentLocation({
+        desiredAccuracy: options?.enableHighAccuracy
+          ? CoreTypes.Accuracy.high
+          : CoreTypes.Accuracy.any,
+        maximumAge: options?.maximumAge,
+        timeout: options?.timeout,
+      })
+      .catch((reason) => Promise.reject(asPositionError(reason)))
 
     return asPosition(nativePosition)
   },

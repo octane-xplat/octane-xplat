@@ -55,10 +55,40 @@ it('clamps the iOS invalid-accuracy sentinel to the contract floor', async () =>
   expect((await geolocation.getCurrentPosition()).accuracy).toBe(0)
 })
 
-it('preserves plugin errors without inventing numeric codes from localized text', async () => {
+it('attaches the shared denied code to the plugin denial markers', async () => {
+  for (const reason of [
+    new Error('Authorization Denied.'),
+    new Error('User denied location permission previously'),
+    new Error('User needs to enable permission from settings'),
+    {
+      'android.permission.ACCESS_COARSE_LOCATION': false,
+      'android.permission.ACCESS_FINE_LOCATION': false,
+    },
+  ]) {
+    api.getCurrentLocation.mockRejectedValue(reason)
+    await expect(geolocation.getCurrentPosition()).rejects.toMatchObject({ code: 1 })
+  }
+})
+
+it('attaches the shared timeout code to the plugin timeout rejection', async () => {
+  api.getCurrentLocation.mockRejectedValue(new Error('Timeout while searching for location!'))
+  await expect(geolocation.getCurrentPosition()).rejects.toMatchObject({ code: 3 })
+})
+
+it('defaults remaining failures to unavailable and preserves the plugin Error', async () => {
   const error = new Error('Localized platform failure')
   api.getCurrentLocation.mockRejectedValue(error)
-  await expect(geolocation.getCurrentPosition()).rejects.toBe(error)
+  const rejection = await geolocation.getCurrentPosition().catch((reason) => reason)
+  expect(rejection).toBe(error)
+  expect(rejection.code).toBe(2)
+})
+
+it('wraps non-Error rejections without losing the shared code', async () => {
+  api.getCurrentLocation.mockRejectedValue('Location not enabled.')
+  await expect(geolocation.getCurrentPosition()).rejects.toMatchObject({
+    message: 'Location not enabled.',
+    code: 2,
+  })
 })
 
 it('reports an unsupported capability on windows', async () => {
